@@ -34,7 +34,7 @@ import com.eried.eucplanet.hud.ui.parseHexColor
 /**
  * Navigator turn-arrow screen.
  *
- * This is the differentiator over the competitor's 3-screen HUD app — they
+ * This is the differentiator over the competitor's 3-screen HUD app, they
  * have a map but no live turn-by-turn. We mirror the phone's existing
  * [com.eried.eucplanet.nav.NavigationEngine] state: arrow angle (0=straight,
  * positive=clockwise), primary text ("Turn left onto Storgata"), distance
@@ -114,7 +114,7 @@ fun NavScreen(hud: HudState) {
 
 /**
  * Big chevron-style turn arrow. We render in Compose Canvas so it scales
- * cleanly across the unpredictable HUD DPIs we see in the wild — no XML
+ * cleanly across the unpredictable HUD DPIs we see in the wild, no XML
  * vector + size-pinned imageVector pulling pixel hair from imageBitmap.
  *
  * The arrow points straight up at angle=0 and rotates clockwise for

@@ -11,7 +11,15 @@ class GpsPowerPolicyTest {
         connected: Boolean = false,
         appVisible: Boolean = false,
         sharing: Boolean = false,
-    ) = GpsPowerPolicy.tierFor(recording, navigating, connected, appVisible, sharing)
+        watchMapVisible: Boolean = false,
+    ) = GpsPowerPolicy.tierFor(
+        recording = recording,
+        navigating = navigating,
+        connected = connected,
+        appVisible = appVisible,
+        sharing = sharing,
+        watchMapVisible = watchMapVisible,
+    )
 
     @Test
     fun recording_always_high() {
@@ -39,6 +47,33 @@ class GpsPowerPolicyTest {
         // Sharing outranks the idle balanced tier: the group sees 1 Hz either way.
         assertEquals(GpsTier.HIGH, tier(sharing = true, appVisible = true, connected = false))
         assertEquals(GpsTier.HIGH, tier(sharing = true, appVisible = true, connected = true))
+    }
+
+    @Test
+    fun watch_map_visible_in_background_without_a_wheel_is_high() {
+        assertEquals(
+            GpsTier.HIGH,
+            tier(watchMapVisible = true, appVisible = false, connected = false),
+        )
+    }
+
+    @Test
+    fun releasing_watch_map_restores_existing_idle_tiers() {
+        assertEquals(
+            GpsTier.OFF,
+            tier(watchMapVisible = false, appVisible = false, connected = false),
+        )
+        assertEquals(
+            GpsTier.BALANCED,
+            tier(watchMapVisible = false, appVisible = true, connected = false),
+        )
+    }
+
+    @Test
+    fun releasing_watch_map_does_not_reduce_other_high_demands() {
+        assertEquals(GpsTier.HIGH, tier(recording = true, watchMapVisible = false))
+        assertEquals(GpsTier.HIGH, tier(navigating = true, watchMapVisible = false))
+        assertEquals(GpsTier.HIGH, tier(sharing = true, watchMapVisible = false))
     }
 
     @Test

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Merged into the RELEASE variant only when the build runs with -PaaosTest,
+    so the Android Automotive emulator can host a release build of the car
+    screen. Android Auto itself drives EucCarAppService directly and never
+    launches this activity, so it has no place in a build that ships; the
+    debug variant gets the same activity from src/debug.
+
+    This exists because R8 is the only difference between the car screen that
+    works in the emulator and the one testers install, and that difference has
+    already shipped a car screen that could not open at all.
+
+    See docs/android-auto-testing.md.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <application>
+        <!-- Connects a virtual wheel so the car screen can be seen with live
+             numbers: adb shell am broadcast -a
+             com.eried.eucplanet.SURVEY_CONNECT_VIRTUAL -p com.eried.eucplanet -->
+        <receiver
+            android:name="com.eried.eucplanet.survey.SurveyControlReceiver"
+            android:exported="true"
+            tools:ignore="ExportedReceiver">
+            <intent-filter>
+                <action android:name="com.eried.eucplanet.SURVEY_APPLY" />
+                <action android:name="com.eried.eucplanet.SURVEY_CONNECT_VIRTUAL" />
+                <action android:name="com.eried.eucplanet.SURVEY_START_NAV" />
+                <action android:name="com.eried.eucplanet.SURVEY_CAR_ALARM" />
+            </intent-filter>
+        </receiver>
+
+        <activity
+            android:name="androidx.car.app.activity.CarAppActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
+            <meta-data android:name="distractionOptimized" android:value="true" />
+        </activity>
+    </application>
+</manifest>

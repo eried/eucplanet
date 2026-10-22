@@ -6,6 +6,7 @@ import android.content.IntentFilter
 import android.os.BatteryManager
 import android.util.Log
 import com.eried.eucplanet.ble.ConnectionState
+import kotlinx.coroutines.flow.first
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.arrowAngleDeg
 import com.eried.eucplanet.data.repository.SettingsRepository
@@ -49,7 +50,8 @@ class WearBridge @Inject constructor(
     private val externalGpsRepository: com.eried.eucplanet.data.repository.ExternalGpsRepository,
     private val tripRepository: com.eried.eucplanet.data.repository.TripRepository,
     private val navigationEngine: com.eried.eucplanet.nav.NavigationEngine,
-    private val themeController: com.eried.eucplanet.ui.theme.ThemeController
+    private val themeController: com.eried.eucplanet.ui.theme.ThemeController,
+    private val wearMapBridge: WearMapBridge,
 ) {
     companion object {
         private const val TAG = "WearBridge"
@@ -57,7 +59,7 @@ class WearBridge @Inject constructor(
         // independent of the wheel BLE poll rate (AppSettings.wheelPollIntervalMs).
         // The watch can't show data fresher than the poll delivers; when the
         // publish rate is faster than the poll, the loop just re-sends the latest
-        // frame — keeps the gauge animating and the freshness signal alive.
+        // frame, keeps the gauge animating and the freshness signal alive.
         private const val DEFAULT_PUBLISH_INTERVAL_MS = 250L
         fun publishIntervalMsFor(rate: String): Long = when (rate) {
             "CONSERVATIVE" -> 750L
@@ -65,6 +67,14 @@ class WearBridge @Inject constructor(
             "NORMAL" -> 250L
             else -> DEFAULT_PUBLISH_INTERVAL_MS
         }
+
+        /** With no wheel and no route the state barely changes, so the watch
+         *  gets it this often: inside its 3 s "phone still here" window. */
+        private const val IDLE_PUBLISH_INTERVAL_MS = 2_000L
+        /** With no watch connected nothing is sent; the node poll finds one. */
+        private const val NO_WATCH_INTERVAL_MS = 5_000L
+        /** How often a backgrounded phone with no watch asks for one. */
+        private const val NO_WATCH_POLL_MS = 15_000L
 
         private const val PATH_STATE = "/euc/state"
         private const val K_CONNECTED = "c"
@@ -102,6 +112,9 @@ class WearBridge @Inject constructor(
         private const val K_GPS_SOURCE = "gsr"
         // Watch-display option keys mirror WatchKeys.OPT_* on the wear side.
         private const val K_OPT_KEEP_ON = "wko"
+        private const val K_OPT_KEEP_ON_NAV = "wkn"
+        private const val K_MAP_ENABLED = "wme"
+        private const val K_MAP_SHOW_TELEMETRY = "wmt"
         private const val K_OPT_SHOW_WHEEL_BATT = "wsb"
         private const val K_OPT_SHOW_PHONE_BATT = "wpb"
         private const val K_OPT_SHOW_WATCH_BATT = "wwb"
@@ -141,7 +154,7 @@ class WearBridge @Inject constructor(
     private var started = false
 
     /**
-     * Names of currently-paired Wear OS nodes — empty when no watch is
+     * Names of currently-paired Wear OS nodes, empty when no watch is
      * paired, otherwise one entry per Wear OS device the phone has
      * connected to (typically one, occasionally more if the rider has both
      * a Galaxy Watch and a Pixel Watch). Polled every 5 s on a background
@@ -240,6 +253,7 @@ class WearBridge @Inject constructor(
         if (started) return
         started = true
         Log.i(TAG, "Wear bridge starting (publish follows watchUpdateRate tier)")
+        wearMapBridge.start()
 
         // NO wake here on purpose. start() runs from EucPlanetApp.onCreate,
         // which fires on EVERY phone process start -- including background wakes
@@ -266,7 +280,14 @@ class WearBridge @Inject constructor(
                 } catch (e: Exception) {
                     if (_pairedNodes.value.isNotEmpty()) _pairedNodes.value = emptyList()
                 }
-                delay(5_000L)
+                // A connected watch, a ride or the app open (Settings shows
+                // the list) keeps the 5 s pace. An idle phone with no watch
+                // looks less often, and opening the app cuts that wait short.
+                val foreground = com.eried.eucplanet.util.AppForeground.isForeground
+                val looking = _pairedNodes.value.isNotEmpty() || foreground.value ||
+                    wheelRepository.connectionState.value == ConnectionState.CONNECTED
+                if (looking) delay(5_000L)
+                else kotlinx.coroutines.withTimeoutOrNull(NO_WATCH_POLL_MS) { foreground.first { it } }
             }
         }
 
@@ -276,15 +297,40 @@ class WearBridge @Inject constructor(
         // in the "phone not here" placeholder even though the phone app is
         // running and paired. Re-publishing on the watchUpdateRate cadence keeps
         // the watch's freshness signal alive without per-emission complexity.
+        //
+        // It used to send an urgent DataItem four times a second around the
+        // clock, with no watch and no wheel, which kept the phone warm
+        // overnight. Now it sends nothing without a watch, and only every
+        // [IDLE_PUBLISH_INTERVAL_MS] while there is no wheel and no route,
+        // except at once when the connection changes. The tick itself keeps
+        // its pace for the watch map.
         scope.launch {
+            var lastPublishMs = 0L
+            var lastState: ConnectionState? = null
             while (true) {
+                if (_pairedNodes.value.isEmpty()) {
+                    lastState = null
+                    delay(NO_WATCH_INTERVAL_MS)
+                    continue
+                }
+                wearMapBridge.onPublisherTick()
+                val state = wheelRepository.connectionState.value
+                val nowMs = android.os.SystemClock.elapsedRealtime()
+                val idle = state != ConnectionState.CONNECTED &&
+                    !navigationEngine.navState.value.active
+                if (idle && state == lastState && nowMs - lastPublishMs < IDLE_PUBLISH_INTERVAL_MS) {
+                    delay(publishIntervalMsFor(settingsRepository.currentOrLoad().watchUpdateRate))
+                    continue
+                }
+                lastPublishMs = nowMs
+                lastState = state
                 try {
                     // Watch gauge max must match the phone dashboard gauge max so the
                     // two dials show the same range. Dashboard computes:
                     //   gaugeMax = ((effectiveTiltback / 10) + 1) * 10
                     // where effectiveTiltback is the safety-tiltback when legal mode is
                     // on, normal tiltback otherwise. Mirroring that here.
-                    val s = settingsRepository.get()
+                    val s = settingsRepository.currentOrLoad()
                     val effTilt = if (wheelRepository.safetySpeedActive.value)
                         s.safetyTiltbackKmh else s.tiltbackSpeedKmh
                     // Mirror the phone dashboard's 30 km/h floor so the watch
@@ -292,7 +338,7 @@ class WearBridge @Inject constructor(
                     val gaugeMax = (((effTilt / 10f).toInt() + 1) * 10f).coerceAtLeast(30f)
                     publish(
                         data = wheelRepository.wheelData.value,
-                        state = wheelRepository.connectionState.value,
+                        state = state,
                         name = wheelRepository.modelName.value,
                         maxSpeed = gaugeMax,
                         settings = s
@@ -300,7 +346,7 @@ class WearBridge @Inject constructor(
                 } catch (e: Exception) {
                     Log.w(TAG, "publish loop error", e)
                 }
-                delay(publishIntervalMsFor(settingsRepository.get().watchUpdateRate))
+                delay(publishIntervalMsFor(settingsRepository.currentOrLoad().watchUpdateRate))
             }
         }
     }
@@ -313,6 +359,7 @@ class WearBridge @Inject constructor(
         settings: AppSettings
     ) {
         try {
+            val nav = navigationEngine.navState.value
             val request = PutDataMapRequest.create(PATH_STATE).apply {
                 dataMap.putBoolean(K_CONNECTED, state == ConnectionState.CONNECTED)
                 dataMap.putString(K_WHEEL_NAME, name ?: "")
@@ -357,6 +404,12 @@ class WearBridge @Inject constructor(
                     )
                 )
                 dataMap.putBoolean(K_OPT_KEEP_ON, settings.watchKeepScreenOn)
+                dataMap.putBoolean(
+                    K_OPT_KEEP_ON_NAV,
+                    settings.watchMap.keepScreenOnDuringNavigation && nav.active,
+                )
+                dataMap.putBoolean(K_MAP_ENABLED, settings.watchMap.enabled)
+                dataMap.putBoolean(K_MAP_SHOW_TELEMETRY, settings.watchMap.showTelemetry)
                 dataMap.putBoolean(K_OPT_SHOW_WHEEL_BATT, settings.watchShowWheelBattery)
                 dataMap.putBoolean(K_OPT_SHOW_PHONE_BATT, settings.watchShowPhoneBattery)
                 dataMap.putBoolean(K_OPT_SHOW_WATCH_BATT, settings.watchShowWatchBattery)
@@ -394,7 +447,6 @@ class WearBridge @Inject constructor(
                 // and clearing them mid-fade would swap the Flag icon back to
                 // a Navigation arrow and blank the "You have arrived" text
                 // while the popup is still on screen visibly fading out.
-                val nav = navigationEngine.navState.value
                 // cueVisible folds in the phone popup's transient timeout, so
                 // the watch shows nav only while the phone's popup is on screen.
                 val navShow = nav.active && !nav.minimized && nav.cueVisible &&

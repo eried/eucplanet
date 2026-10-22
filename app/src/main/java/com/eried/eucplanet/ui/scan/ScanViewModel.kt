@@ -32,6 +32,7 @@ class ScanViewModel @Inject constructor(
     private val bleScanner: BleScanner,
     private val settingsRepository: SettingsRepository,
     private val bleConnectionManager: BleConnectionManager,
+    private val appNotifier: com.eried.eucplanet.util.AppNotifier,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -152,7 +153,7 @@ class ScanViewModel @Inject constructor(
     fun startScan() {
         if (_isScanning.value) return
         if (!refreshPermissions()) return
-        // Bluetooth itself must be on — otherwise the scan silently throws
+        // Bluetooth itself must be on, otherwise the scan silently throws
         // (null leScanner) and nothing happens. Surface it instead.
         if (!bleScanner.isBluetoothEnabled()) {
             _bluetoothOff.value = true
@@ -213,6 +214,21 @@ class ScanViewModel @Inject constructor(
         // wheel, the list closed, and nothing connected. Starting the service
         // here (a non-suspending call, on the foreground main thread) can't be
         // dropped by that cancellation.
+        // Same gate the dashboard's auto-connect applies. Without
+        // BLUETOOTH_CONNECT the service cannot declare its foreground type,
+        // stops itself before startForeground(), and Android then kills the
+        // whole app for the broken startForegroundService() promise. Tell the
+        // rider what is missing instead (seen on an emulator whose grants had
+        // been reset, and it is exactly what a rider who denied the permission
+        // would hit).
+        val canBt = android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.S ||
+            androidx.core.content.ContextCompat.checkSelfPermission(
+                context, android.Manifest.permission.BLUETOOTH_CONNECT
+            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        if (!canBt) {
+            appNotifier.post(context.getString(com.eried.eucplanet.R.string.scan_permission_body))
+            return
+        }
         val intent = Intent(context, WheelService::class.java).apply {
             action = WheelService.ACTION_CONNECT
             putExtra(WheelService.EXTRA_ADDRESS, device.address)
@@ -231,7 +247,7 @@ class ScanViewModel @Inject constructor(
         runCatching { context.unregisterReceiver(bluetoothStateReceiver) }
         // Rider left the scan screen. Re-enable auto-reconnect; if they didn't
         // pick a new wheel, reconnect to the last one (resumeAutoConnect only
-        // does so while still disconnected) — "reconnect as normal on dismiss".
+        // does so while still disconnected), "reconnect as normal on dismiss".
         val reconnectAddress =
             if (!deviceSelected && cachedAutoConnect) cachedLastAddress else null
         bleConnectionManager.resumeAutoConnect(reconnectAddress, cachedLastName)

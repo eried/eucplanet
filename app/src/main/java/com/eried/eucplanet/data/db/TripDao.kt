@@ -50,6 +50,20 @@ interface TripDao {
     @Query("UPDATE trips SET uploadStatus = 4 WHERE id = :id")
     suspend fun markMirrorIfAbsent(id: Long)
 
+    /** Backup-folder state alone. Writing a whole row read before the copy
+     *  erased what the Dropbox pass had recorded on it in the meantime, and
+     *  a ride that was on Dropbox showed as not backed up. */
+    @Query("UPDATE trips SET uploadStatus = :status WHERE id = :id")
+    suspend fun setUploadStatus(id: Long, status: Int)
+
+    @Query("UPDATE trips SET uploadStatus = 2, uploadedAt = :at WHERE id = :id")
+    suspend fun markUploaded(id: Long, at: Long)
+
+    /** Queue a finished ride for the folder and/or eucstats, touching nothing else on the row. */
+    @Query("UPDATE trips SET uploadStatus = CASE WHEN :folder THEN 1 ELSE uploadStatus END, " +
+        "eucstatsStatus = CASE WHEN :eucstats THEN 1 ELSE eucstatsStatus END WHERE id = :id")
+    suspend fun markFinalized(id: Long, folder: Boolean, eucstats: Boolean)
+
     @Query("SELECT * FROM trips WHERE id = :id")
     suspend fun getById(id: Long): TripRecord?
 
@@ -57,8 +71,8 @@ interface TripDao {
      * Persist ONLY the wheel-identity metadata onto a row mid-recording. The full
      * identity is otherwise written just once, at stopRecording(); a ride that is
      * OOM-/force-killed before that runs would recover from its CSV with no wheel
-     * ([finalizeUnfinishedTrips]). Flushing it here — the moment the wheel is
-     * identified — means the row already carries it before any kill, and the
+     * ([finalizeUnfinishedTrips]). Flushing it here, the moment the wheel is
+     * identified, means the row already carries it before any kill, and the
      * recovery sweep preserves it. Single-column update: never disturbs endTime,
      * distance, or upload status.
      */
@@ -77,8 +91,11 @@ interface TripDao {
     suspend fun markPendingFolderUpload(id: Long)
 
     /** Dropbox state by file name: the sync works in files, not row ids. */
-    @Query("UPDATE trips SET dropboxStatus = :status, dropboxUploadedAt = :at WHERE fileName = :fileName")
+    @Query("UPDATE trips SET dropboxStatus = :status, dropboxUploadedAt = :at WHERE fileName = :fileName COLLATE NOCASE")
     suspend fun setDropboxStatusByName(fileName: String, status: Int, at: Long?)
+
+    @Query("UPDATE trips SET dropboxSyncedHash = :hash WHERE fileName = :fileName COLLATE NOCASE")
+    suspend fun setDropboxSyncedHash(fileName: String, hash: String?)
 
     @Query("UPDATE trips SET dropboxStatus = :status WHERE id = :id")
     suspend fun setDropboxStatus(id: Long, status: Int)
@@ -101,7 +118,7 @@ interface TripDao {
     @Query("SELECT * FROM trips WHERE endTime IS NULL")
     suspend fun getUnfinished(): List<TripRecord>
 
-    @Query("SELECT * FROM trips WHERE fileName = :name LIMIT 1")
+    @Query("SELECT * FROM trips WHERE fileName = :name COLLATE NOCASE LIMIT 1")
     suspend fun findByFileName(name: String): TripRecord?
 
     /** All trip CSV file names on record. Used to find orphan CSVs in the trips

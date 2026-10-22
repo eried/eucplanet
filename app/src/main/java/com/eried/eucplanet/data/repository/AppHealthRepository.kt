@@ -25,7 +25,7 @@ import javax.inject.Singleton
  *
  * [id] dedupes so the same source can call [AppHealthRepository.upsert] repeatedly
  * without producing duplicates. [fix] runs on the UI thread when the rider taps
- * the Fix button — typically opens the system Settings App-Details page, but
+ * the Fix button, typically opens the system Settings App-Details page, but
  * future warning sources (failed trip import, …) can pass any handler.
  */
 data class AppWarning(
@@ -102,7 +102,7 @@ class AppHealthRepository @Inject constructor(
 
     /**
      * Re-evaluates every permission the dashboard cares about and upserts or
-     * dismisses the corresponding warning. Idempotent — safe to call from
+     * dismisses the corresponding warning. Idempotent, safe to call from
      * onResume on every dashboard visit.
      */
     /**

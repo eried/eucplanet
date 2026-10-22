@@ -1,6 +1,9 @@
 package com.eried.eucplanet.ble
 
+import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Assert.assertNull
 import org.junit.Test
 
@@ -47,6 +50,33 @@ class CompositeWheelAdapterDelegationTest {
         for ((name, cells) in expected) {
             assertEquals(name, cells, cellsAfterConnecting(name))
         }
+    }
+
+    @Test
+    fun `the connect-time handshake request reaches the app`() {
+        // Same failure shape as the cell count above, with a worse symptom:
+        // the V6 asks for a handshake right after connect, the composite
+        // answered the interface default, and the repository never ran it.
+        assertTrue(composite().apply { notifyConnectingTo("V6-700326F3") }.requiresConnectAuth())
+        // Families that do not want it still say no. The P6 stays as it
+        // shipped and was verified: no connect handshake.
+        assertFalse(composite().apply { notifyConnectingTo("P6-5678") }.requiresConnectAuth())
+        assertFalse(composite().apply { notifyConnectingTo("V14-ABCD") }.requiresConnectAuth())
+        assertFalse(composite().apply { notifyConnectingTo("KS-18XL") }.requiresConnectAuth())
+    }
+
+    @Test
+    fun `the KingSong lock code reaches the family adapter`() {
+        // Shipped once without this forward: the interface default swallowed
+        // the code and the KingSong adapter behind the composite sent the wheel
+        // default for a rider who had set their own.
+        val c = composite().apply { notifyConnectingTo("KS-18XL") }
+        c.provideLockCode("509540")
+        assertArrayEquals(KingsongCommands.unlock("509540"), c.setLock(false))
+        assertNull("no password, nothing before the lock frame", c.lockPrelude())
+        c.provideLockPassword("9111")
+        assertArrayEquals(KingsongCommands.password("9111"), c.lockPrelude())
+        assertArrayEquals(KingsongCommands.lock(), c.setLock(true))
     }
 
     @Test

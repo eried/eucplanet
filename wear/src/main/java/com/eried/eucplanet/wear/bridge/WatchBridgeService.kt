@@ -6,6 +6,8 @@ import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
+import com.eried.eucplanet.hud.protocol.WatchMapProtocol
+import com.eried.eucplanet.hud.protocol.WatchMapTileKey
 import com.google.android.gms.wearable.DataEvent
 import com.google.android.gms.wearable.DataEventBuffer
 import com.google.android.gms.wearable.DataMapItem
@@ -24,79 +26,132 @@ import java.nio.ByteOrder
 class WatchBridgeService : WearableListenerService() {
 
     override fun onDataChanged(events: DataEventBuffer) {
-        events
-            .filter { it.type == DataEvent.TYPE_CHANGED }
-            .map { it.dataItem }
-            .filter { it.uri.path == WatchPaths.STATE }
-            .forEach { item ->
-                val map = DataMapItem.fromDataItem(item).dataMap
-                // Per-unit codes. A phone build older than the units rework
-                // doesn't send these keys; fall back to the legacy K_IMPERIAL
-                // boolean so an old-phone + new-watch pairing still shows the
-                // rider's coarse metric/imperial choice.
-                val legacyImperial = map.getBoolean(WatchKeys.IMPERIAL, false)
-                val speedUnit = map.getString(WatchKeys.UNIT_SPEED)
-                    ?: if (legacyImperial) "mph" else "kmh"
-                val distanceUnit = map.getString(WatchKeys.UNIT_DISTANCE)
-                    ?: if (legacyImperial) "mi" else "km"
-                val tempUnit = map.getString(WatchKeys.UNIT_TEMP)
-                    ?: if (legacyImperial) "F" else "C"
-                WatchStateRepository.update(
-                    WatchState(
-                        connected = map.getBoolean(WatchKeys.CONNECTED, false),
-                        wheelName = map.getString(WatchKeys.WHEEL_NAME, "") ?: "",
-                        speedKmh = map.getFloat(WatchKeys.SPEED, 0f),
-                        batteryPercent = map.getInt(WatchKeys.BATTERY, 0),
-                        phoneBatteryPercent = map.getInt(WatchKeys.PHONE_BATT, 0),
-                        voltage = map.getFloat(WatchKeys.VOLTAGE, 0f),
-                        current = map.getFloat(WatchKeys.CURRENT, 0f),
-                        pwmPercent = map.getFloat(WatchKeys.PWM, 0f),
-                        temperatureC = map.getFloat(WatchKeys.TEMP, 0f),
-                        tripKm = map.getFloat(WatchKeys.TRIP_KM, 0f),
-                        torque = map.getFloat(WatchKeys.TORQUE, 0f),
-                        lightOn = map.getBoolean(WatchKeys.LIGHT_ON, false),
-                        maxSpeedKmh = map.getFloat(WatchKeys.MAX_SPEED, 0f),
-                        hasHorn = map.getBoolean(WatchKeys.HAS_HORN, false),
-                        hasLight = map.getBoolean(WatchKeys.HAS_LIGHT, false),
-                        speedUnit = speedUnit,
-                        distanceUnit = distanceUnit,
-                        tempUnit = tempUnit,
-                        accentKey = map.getString(WatchKeys.ACCENT, "default") ?: "default",
-                        themePacked = map.getString(WatchKeys.THEME, "") ?: "",
-                        keepScreenOn = map.getBoolean(WatchKeys.OPT_KEEP_ON, true),
-                        showWheelBattery = map.getBoolean(WatchKeys.OPT_SHOW_WHEEL_BATT, true),
-                        showPhoneBattery = map.getBoolean(WatchKeys.OPT_SHOW_PHONE_BATT, true),
-                        showWatchBattery = map.getBoolean(WatchKeys.OPT_SHOW_WATCH_BATT, true),
-                        pwmDisplay = map.getString(WatchKeys.OPT_PWM_DISPLAY, "BOTH") ?: "BOTH",
-                        showSpeedUnit = map.getBoolean(WatchKeys.OPT_SHOW_SPEED_UNIT, true),
-                        prioritizePwm = map.getBoolean(WatchKeys.OPT_PRIORITIZE_PWM, false),
-                        dialRotationDeg = map.getInt(WatchKeys.OPT_DIAL_ROTATION, 0),
-                        showGaugeBand = map.getBoolean(WatchKeys.OPT_GAUGE_BAND, false),
-                        gaugeOrangeThresholdPct = map.getInt(WatchKeys.OPT_GAUGE_ORANGE, 65),
-                        gaugeRedThresholdPct = map.getInt(WatchKeys.OPT_GAUGE_RED, 85),
-                        stem1Click = map.getString(WatchKeys.STEM1_CLICK, "NONE") ?: "NONE",
-                        stem1Hold = map.getString(WatchKeys.STEM1_HOLD, "NONE") ?: "NONE",
-                        stem2Click = map.getString(WatchKeys.STEM2_CLICK, "NONE") ?: "NONE",
-                        stem2Hold = map.getString(WatchKeys.STEM2_HOLD, "NONE") ?: "NONE",
-                        phoneSynced = true,
-                        screen1Click = map.getString(WatchKeys.SCREEN1_CLICK, "HORN") ?: "HORN",
-                        screen1Hold = map.getString(WatchKeys.SCREEN1_HOLD, "NONE") ?: "NONE",
-                        screen2Click = map.getString(WatchKeys.SCREEN2_CLICK, "LIGHT_TOGGLE") ?: "LIGHT_TOGGLE",
-                        screen2Hold = map.getString(WatchKeys.SCREEN2_HOLD, "NONE") ?: "NONE",
-                        hapticOnAction = map.getBoolean(WatchKeys.HAPTIC_ON_ACTION, false),
-                        diagOn = map.getBoolean(WatchKeys.DIAG, false),
-                        // Absent on older phone builds → NaN keeps the watch
-                        // GPS readout hidden rather than rendering a fake 0.
-                        gpsSpeedKmh = map.getFloat(WatchKeys.GPS_SPEED, Float.NaN),
-                        gpsSource = map.getString(WatchKeys.GPS_SOURCE, "") ?: "",
-                        navActive = map.getBoolean(WatchKeys.NAV_ACTIVE, false),
-                        navAngle = map.getFloat(WatchKeys.NAV_ANGLE, 0f),
-                        navPrimary = map.getString(WatchKeys.NAV_PRIMARY, "") ?: "",
-                        navDistance = map.getString(WatchKeys.NAV_DISTANCE, "") ?: "",
-                        navArrived = map.getBoolean(WatchKeys.NAV_ARRIVED, false)
+        events.forEach { event ->
+            if (event.type != DataEvent.TYPE_CHANGED) return@forEach
+            val item = event.dataItem
+            val sourceNodeId = item.uri.host?.takeIf { it.isNotBlank() } ?: return@forEach
+            val path = item.uri.path ?: return@forEach
+            val map = DataMapItem.fromDataItem(item).dataMap
+            when {
+                path == WatchPaths.STATE -> acceptState(sourceNodeId, map)
+                path == WatchMapProtocol.ROUTE_PATH -> {
+                    val asset = map.getAsset(WatchMapProtocol.ROUTE_GEOMETRY_KEY) ?: return@forEach
+                    if (map.getInt(WatchMapProtocol.ROUTE_VERSION_KEY, -1) != WatchMapProtocol.VERSION) {
+                        return@forEach
+                    }
+                    WatchMapRepository.acceptRouteAsset(
+                        context = applicationContext,
+                        sourceNodeId = sourceNodeId,
+                        navigationSessionId = map.getString(WatchMapProtocol.ROUTE_SESSION_KEY).orEmpty(),
+                        revision = map.getLong(WatchMapProtocol.ROUTE_REVISION_KEY, -1L),
+                        deliveryGeneration = map.getLong(
+                            WatchMapProtocol.ROUTE_DELIVERY_GENERATION_KEY,
+                            -1L,
+                        ),
+                        asset = asset,
                     )
-                )
+                }
+                path.startsWith(WatchMapProtocol.TILE_PREFIX) -> {
+                    val asset = map.getAsset(WatchMapProtocol.TILE_PNG_KEY) ?: return@forEach
+                    if (map.getInt(WatchMapProtocol.TILE_VERSION_KEY, -1) != WatchMapProtocol.VERSION) {
+                        return@forEach
+                    }
+                    val key = WatchMapTileKey(
+                        layerId = map.getString(WatchMapProtocol.TILE_LAYER_KEY).orEmpty(),
+                        z = map.getInt(WatchMapProtocol.TILE_Z_KEY, -1),
+                        x = map.getInt(WatchMapProtocol.TILE_X_KEY, -1),
+                        y = map.getInt(WatchMapProtocol.TILE_Y_KEY, -1),
+                    )
+                    val expectedPath =
+                        "${WatchMapProtocol.TILE_PREFIX}${key.layerId}/${key.z}/${key.x}/${key.y}"
+                    if (path != expectedPath) return@forEach
+                    WatchMapRepository.acceptTileAsset(
+                        context = applicationContext,
+                        sourceNodeId = sourceNodeId,
+                        key = key,
+                        deliveryGeneration = map.getLong(
+                            WatchMapProtocol.TILE_DELIVERY_GENERATION_KEY,
+                            -1L,
+                        ),
+                        asset = asset,
+                    )
+                }
             }
+        }
+    }
+
+    private fun acceptState(sourceNodeId: String, map: com.google.android.gms.wearable.DataMap) {
+        val mapEnabled = map.getBoolean(WatchKeys.MAP_ENABLED, false)
+        val mapShowTelemetry = map.getBoolean(WatchKeys.MAP_SHOW_TELEMETRY, true)
+        WatchMapRepository.acceptConfiguration(
+            applicationContext,
+            sourceNodeId,
+            mapEnabled,
+            mapShowTelemetry,
+        )
+        val legacyImperial = map.getBoolean(WatchKeys.IMPERIAL, false)
+        val speedUnit = map.getString(WatchKeys.UNIT_SPEED)
+            ?: if (legacyImperial) "mph" else "kmh"
+        val distanceUnit = map.getString(WatchKeys.UNIT_DISTANCE)
+            ?: if (legacyImperial) "mi" else "km"
+        val tempUnit = map.getString(WatchKeys.UNIT_TEMP)
+            ?: if (legacyImperial) "F" else "C"
+        WatchStateRepository.update(
+            WatchState(
+                connected = map.getBoolean(WatchKeys.CONNECTED, false),
+                wheelName = map.getString(WatchKeys.WHEEL_NAME, "") ?: "",
+                speedKmh = map.getFloat(WatchKeys.SPEED, 0f),
+                batteryPercent = map.getInt(WatchKeys.BATTERY, 0),
+                phoneBatteryPercent = map.getInt(WatchKeys.PHONE_BATT, 0),
+                voltage = map.getFloat(WatchKeys.VOLTAGE, 0f),
+                current = map.getFloat(WatchKeys.CURRENT, 0f),
+                pwmPercent = map.getFloat(WatchKeys.PWM, 0f),
+                temperatureC = map.getFloat(WatchKeys.TEMP, 0f),
+                tripKm = map.getFloat(WatchKeys.TRIP_KM, 0f),
+                torque = map.getFloat(WatchKeys.TORQUE, 0f),
+                lightOn = map.getBoolean(WatchKeys.LIGHT_ON, false),
+                maxSpeedKmh = map.getFloat(WatchKeys.MAX_SPEED, 0f),
+                hasHorn = map.getBoolean(WatchKeys.HAS_HORN, false),
+                hasLight = map.getBoolean(WatchKeys.HAS_LIGHT, false),
+                speedUnit = speedUnit,
+                distanceUnit = distanceUnit,
+                tempUnit = tempUnit,
+                accentKey = map.getString(WatchKeys.ACCENT, "default") ?: "default",
+                themePacked = map.getString(WatchKeys.THEME, "") ?: "",
+                keepScreenOn = map.getBoolean(WatchKeys.OPT_KEEP_ON, true),
+                keepScreenOnForNavigation = map.getBoolean(WatchKeys.OPT_KEEP_ON_NAV, false),
+                watchMapEnabled = mapEnabled,
+                mapShowTelemetry = mapShowTelemetry,
+                showWheelBattery = map.getBoolean(WatchKeys.OPT_SHOW_WHEEL_BATT, true),
+                showPhoneBattery = map.getBoolean(WatchKeys.OPT_SHOW_PHONE_BATT, true),
+                showWatchBattery = map.getBoolean(WatchKeys.OPT_SHOW_WATCH_BATT, true),
+                pwmDisplay = map.getString(WatchKeys.OPT_PWM_DISPLAY, "BOTH") ?: "BOTH",
+                showSpeedUnit = map.getBoolean(WatchKeys.OPT_SHOW_SPEED_UNIT, true),
+                prioritizePwm = map.getBoolean(WatchKeys.OPT_PRIORITIZE_PWM, false),
+                dialRotationDeg = map.getInt(WatchKeys.OPT_DIAL_ROTATION, 0),
+                showGaugeBand = map.getBoolean(WatchKeys.OPT_GAUGE_BAND, false),
+                gaugeOrangeThresholdPct = map.getInt(WatchKeys.OPT_GAUGE_ORANGE, 65),
+                gaugeRedThresholdPct = map.getInt(WatchKeys.OPT_GAUGE_RED, 85),
+                stem1Click = map.getString(WatchKeys.STEM1_CLICK, "NONE") ?: "NONE",
+                stem1Hold = map.getString(WatchKeys.STEM1_HOLD, "NONE") ?: "NONE",
+                stem2Click = map.getString(WatchKeys.STEM2_CLICK, "NONE") ?: "NONE",
+                stem2Hold = map.getString(WatchKeys.STEM2_HOLD, "NONE") ?: "NONE",
+                phoneSynced = true,
+                screen1Click = map.getString(WatchKeys.SCREEN1_CLICK, "HORN") ?: "HORN",
+                screen1Hold = map.getString(WatchKeys.SCREEN1_HOLD, "NONE") ?: "NONE",
+                screen2Click = map.getString(WatchKeys.SCREEN2_CLICK, "LIGHT_TOGGLE") ?: "LIGHT_TOGGLE",
+                screen2Hold = map.getString(WatchKeys.SCREEN2_HOLD, "NONE") ?: "NONE",
+                hapticOnAction = map.getBoolean(WatchKeys.HAPTIC_ON_ACTION, false),
+                diagOn = map.getBoolean(WatchKeys.DIAG, false),
+                gpsSpeedKmh = map.getFloat(WatchKeys.GPS_SPEED, Float.NaN),
+                gpsSource = map.getString(WatchKeys.GPS_SOURCE, "") ?: "",
+                navActive = map.getBoolean(WatchKeys.NAV_ACTIVE, false),
+                navAngle = map.getFloat(WatchKeys.NAV_ANGLE, 0f),
+                navPrimary = map.getString(WatchKeys.NAV_PRIMARY, "") ?: "",
+                navDistance = map.getString(WatchKeys.NAV_DISTANCE, "") ?: "",
+                navArrived = map.getBoolean(WatchKeys.NAV_ARRIVED, false),
+            ),
+        )
     }
 
     /**
@@ -107,6 +162,20 @@ class WatchBridgeService : WearableListenerService() {
      */
     override fun onMessageReceived(event: MessageEvent) {
         when (event.path) {
+            WatchMapProtocol.FRAME_PATH -> {
+                WatchMapRepository.acceptFrame(
+                    applicationContext,
+                    event.sourceNodeId,
+                    event.data.copyOf(),
+                )
+            }
+            WatchMapProtocol.TILE_MESSAGE_PATH -> {
+                WatchMapRepository.acceptTileMessage(
+                    applicationContext,
+                    event.sourceNodeId,
+                    event.data.copyOf(),
+                )
+            }
             WatchPaths.WAKE -> {
                 // Skip the relaunch when the user is already on the dial; the
                 // phone fires /euc/wake every time MainActivity.onResume runs,

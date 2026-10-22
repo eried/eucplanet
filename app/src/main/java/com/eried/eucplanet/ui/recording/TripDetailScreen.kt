@@ -320,7 +320,7 @@ fun TripDetailScreen(
     val smoothWindow by viewModel.smoothingWindowSamples.collectAsState()
 
     // Render the ViewModel's messages (e.g. "Preparing the link…", share
-    // failures) here too — sharing is launched straight from this screen, which
+    // failures) here too, sharing is launched straight from this screen, which
     // otherwise has no host so the snackbars went nowhere.
     val snackbar = remember { SnackbarHostState() }
     LaunchedEffect(viewModel) {
@@ -797,9 +797,9 @@ fun TripDetailScreen(
             }
             val speedOverlays = buildList {
                 if (gpsSpeedSeries.any { !it.isNaN() })
-                    add(ChartOverlay(gpsSpeedSeries, MaterialTheme.appColors.metricPosition, label = "GPS"))
+                    add(ChartOverlay(gpsSpeedSeries, MaterialTheme.appColors.metricPosition, label = stringResource(R.string.trip_chart_legend_gps)))
                 if (extSpeedSeries.any { !it.isNaN() })
-                    add(ChartOverlay(extSpeedSeries, MaterialTheme.appColors.metricTemp, label = "Ext"))
+                    add(ChartOverlay(extSpeedSeries, MaterialTheme.appColors.metricTemp, label = stringResource(R.string.trip_chart_legend_ext)))
             }
             // The same two overlays over the whole ride, for the y-axis only:
             // scaling the speed chart to a trimmed section would defeat the
@@ -2437,6 +2437,7 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
   map.attributionControl.setPosition('bottomleft');
   var baseLayer=null;
   var refLayer=null;
+  var refLayer2=null;
   // {r} asks the provider for its @2x tile on a high-density screen. Without it
   // a phone upscales a 256 px tile threefold or more, which is most of why the
   // map read as soft and short on detail. Esri's tiles carry no {r}, so it
@@ -2450,6 +2451,7 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
   window.setMapType=function(t){
     if(baseLayer) map.removeLayer(baseLayer);
     if(refLayer){ map.removeLayer(refLayer); refLayer=null; }
+    if(refLayer2){ map.removeLayer(refLayer2); refLayer2=null; }
     // One table for every map in the app, credits included: see MapLayers.
     var layer = MAP_LAYERS[t] || MAP_LAYERS['OSM'];
     var opts = {maxZoom:21, maxNativeZoom:layer.maxNative, attribution:layer.attr};
@@ -2458,6 +2460,7 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
     baseLayer=L.tileLayer(layer.url, opts).addTo(map);
     // Esri Canvas labels ride on a separate reference layer; keep it under
     // the route but over the base. Leaflet collapses the duplicate credit.
+    if (layer.ref2){ refLayer2=L.tileLayer(layer.ref2, opts).addTo(map); refLayer2.bringToBack(); }
     if (layer.ref){ refLayer=L.tileLayer(layer.ref, opts).addTo(map); refLayer.bringToBack(); }
     baseLayer.bringToBack();
   };
@@ -3318,7 +3321,7 @@ private fun computeBatteryStats(points: List<TripDataPoint>): TripBatteryStats {
  *   - Wheel power-off: the controller's V rail capacitors discharge ~80 V
  *     to ~14 V over five seconds at zero current, then the BLE freezes its
  *     last frame for a couple of minutes while the rider walks away. The
- *     pack itself never dropped — using those frames in voltage min /
+ *     pack itself never dropped, using those frames in voltage min /
  *     battery min reports a fake catastrophic drain.
  *   - BLE-frozen disconnect tail: the last good frame echoes for many
  *     seconds with no current and an artificially-low voltage. Same
@@ -3327,7 +3330,7 @@ private fun computeBatteryStats(points: List<TripDataPoint>): TripBatteryStats {
  *  Gated to the trip's second half so the wheel's normal post-boot voltage
  *  settling doesn't trigger it; gated to light current so a normal sag dip
  *  during an acceleration is preserved. Trips shorter than 30 samples skip
- *  the check entirely — there's not enough data for the half-gate to mean
+ *  the check entirely, there's not enough data for the half-gate to mean
  *  anything. */
 private fun trimEndIndex(points: List<TripDataPoint>): Int {
     if (points.size < TRIM_MIN_TRIP_SAMPLES) return points.size

@@ -28,7 +28,9 @@ class IncomingShareRepository @Inject constructor() {
         val lat: Double? = null,
         val lng: Double? = null,
         val query: String? = null,
-        val label: String? = null
+        val label: String? = null,
+        /** A whole route (a route link from a QR code or a message), opened like a loaded GPX. */
+        val route: com.eried.eucplanet.nav.SharedRoute? = null,
     )
 
     private val _pending = MutableStateFlow<Pending?>(null)
@@ -60,6 +62,11 @@ class IncomingShareRepository @Inject constructor() {
             val text = raw.trim()
             if (text.isEmpty()) return null
 
+            // 0. A route link, alone or inside a message's text.
+            Regex("""https://eucplanet\.ried\.no/route[#/]\S+""").find(text)?.let { m ->
+                com.eried.eucplanet.nav.RouteLinks.parse(m.value)?.let { return Pending(route = it) }
+            }
+
             // 1. Standard Android geo: URI -- geo:LAT,LNG or geo:0,0?q=LAT,LNG
             //    (or ?q=NAME if the source has no coords).
             if (text.startsWith("geo:", ignoreCase = true)) {
@@ -71,7 +78,12 @@ class IncomingShareRepository @Inject constructor() {
                 if (q != null) {
                     val decoded = java.net.URLDecoder.decode(q, "UTF-8")
                     val coords = parseCoords(decoded)
-                    if (coords != null) return Pending(lat = coords.first, lng = coords.second)
+                    if (coords != null) {
+                        // geo:0,0?q=lat,lng(Name): the name in brackets labels the stop.
+                        val label = Regex("""\(([^)]*)\)\s*$""").find(decoded)
+                            ?.groupValues?.get(1)?.trim()?.takeIf { it.isNotEmpty() }
+                        return Pending(lat = coords.first, lng = coords.second, label = label)
+                    }
                     return Pending(query = decoded)
                 }
                 val coords = parseCoords(afterScheme.substringBefore('?'))
@@ -139,7 +151,7 @@ class IncomingShareRepository @Inject constructor() {
                 .firstOrNull { it.isNotEmpty() && !it.startsWith("http", ignoreCase = true) }
             if (!nameLine.isNullOrBlank()) return Pending(query = nameLine)
             // 4. Last resort: a shortened maps link (no place name, no
-            //    coords in the URL itself — Google's modern share-sheet
+            //    coords in the URL itself, Google's modern share-sheet
             //    usually sends ONLY the `maps.app.goo.gl/xxx` shortcode).
             //    Pass it back as a query string so the VM can follow the
             //    HTTP redirect and re-parse the expanded URL for coords.

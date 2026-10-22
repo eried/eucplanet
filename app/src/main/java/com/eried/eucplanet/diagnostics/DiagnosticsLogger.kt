@@ -1,8 +1,14 @@
 package com.eried.eucplanet.diagnostics
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -31,6 +37,10 @@ object DiagnosticsLogger {
     // still well under heap pressure on any modern phone.
     private const val MAX_ENTRIES = 99999
 
+    /** Floor between two snapshots handed to collectors. A snapshot is an
+     *  O(n) copy of the buffer, so at BLE rate one per append was the cost. */
+    private const val PUBLISH_MIN_MS = 100L
+
     enum class Kind { RECV, SEND, NOTE, TEST, USER, INFO }
 
     data class Entry(
@@ -50,8 +60,64 @@ object DiagnosticsLogger {
     @Volatile
     var lockedDown: Boolean = false
 
+    // The buffer proper. An ArrayDeque, so an append is O(1) rather than the
+    // whole-list copy it used to be (up to 99999 entries, several times a
+    // second once raw BLE is flowing). Guarded by [lock], as is every field
+    // down to [trailingPublish].
+    private val lock = Any()
+    private val buffer = ArrayDeque<Entry>()
+    // Last immutable snapshot handed out, and whether the buffer has moved
+    // on since it was taken.
+    private var cached: List<Entry> = emptyList()
+    private var cacheStale = false
+    private var lastPublishMs = 0L
+    private var trailingPublish: Job? = null
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
     private val _entries = MutableStateFlow<List<Entry>>(emptyList())
-    val entries: StateFlow<List<Entry>> = _entries.asStateFlow()
+
+    /**
+     * Live view for the diagnostics screen.
+     *
+     * Collectors see a fresh snapshot at most every [PUBLISH_MIN_MS] while
+     * entries arrive (a trailing publish makes sure the last line lands) and
+     * nothing at all while nobody collects, which is the common case: service
+     * mode on, screen closed. Reading [StateFlow.value] directly is always
+     * current, so [render] and the tests see every entry the instant it is
+     * appended.
+     */
+    val entries: StateFlow<List<Entry>> = object : StateFlow<List<Entry>> by _entries {
+        override val value: List<Entry> get() = snapshot()
+    }
+
+    /**
+     * Current contents as an immutable list, reusing the last copy when
+     * nothing changed. With no collector the copy is also published, so a
+     * screen that opens later starts from it and not from a stale one. With
+     * a collector the throttle in [append] owns publishing: doing it here
+     * would recompose, which reads [value], which would publish again.
+     */
+    private fun snapshot(): List<Entry> = synchronized(lock) {
+        if (cacheStale) {
+            cached = buffer.toList()
+            cacheStale = false
+        }
+        if (_entries.subscriptionCount.value == 0 && _entries.value !== cached) {
+            _entries.value = cached
+            lastPublishMs = System.currentTimeMillis()
+        }
+        cached
+    }
+
+    /** Hand the current buffer to collectors. Call with [lock] held. */
+    private fun publishLocked(nowMs: Long) {
+        if (cacheStale) {
+            cached = buffer.toList()
+            cacheStale = false
+        }
+        if (_entries.value !== cached) _entries.value = cached
+        lastPublishMs = nowMs
+    }
 
     /** Tracks whether the verbose session-info dump has already been written
      *  for the current enable cycle. Prevents reopening the dialog from
@@ -98,7 +164,12 @@ object DiagnosticsLogger {
             .flatMap { runCatching { it() }.getOrDefault(emptyList()) }
             .sortedBy { it.timestampMs }
         if (replayed.isEmpty()) return
-        _entries.value = (_entries.value + replayed).takeLast(MAX_ENTRIES)
+        synchronized(lock) {
+            buffer.addAll(replayed)
+            while (buffer.size > MAX_ENTRIES) buffer.removeFirst()
+            cacheStale = true
+            publishLocked(System.currentTimeMillis())
+        }
     }
 
     fun disable() {
@@ -106,7 +177,11 @@ object DiagnosticsLogger {
     }
 
     fun clear() {
-        _entries.value = emptyList()
+        synchronized(lock) {
+            buffer.clear()
+            cacheStale = true
+            publishLocked(System.currentTimeMillis())
+        }
     }
 
     /** Called by the dialog's session-info hook before dumping the phone /
@@ -117,34 +192,59 @@ object DiagnosticsLogger {
         return true
     }
 
-    fun rx(bytes: ByteArray) = append(Kind.RECV, "${bytes.size}  ${hex(bytes)}")
-    fun tx(bytes: ByteArray) = append(Kind.SEND, "${bytes.size}  ${hex(bytes)}")
+    // Raw BLE traffic. The hex formatting is the expensive part, and it used
+    // to run for every packet even with service mode off, so the check comes
+    // first. note / info / comment hand over a ready string and stay as is.
+    fun rx(bytes: ByteArray) {
+        if (!_enabled.value) return
+        append(Kind.RECV, "${bytes.size}  ${hex(bytes)}")
+    }
+    fun tx(bytes: ByteArray) {
+        if (!_enabled.value) return
+        append(Kind.SEND, "${bytes.size}  ${hex(bytes)}")
+    }
     fun note(msg: String) = append(Kind.NOTE, msg)
     fun info(msg: String) = append(Kind.INFO, msg)
     fun comment(msg: String) = append(Kind.USER, msg)
 
     /** Diagnostic test command run from the dialog. Different from a normal SEND. */
-    fun cmd(label: String, bytes: ByteArray) =
+    fun cmd(label: String, bytes: ByteArray) {
+        if (!_enabled.value) return
         append(Kind.TEST, "$label  ${hex(bytes)}")
+    }
 
     private fun append(kind: Kind, text: String) {
         if (!_enabled.value) return
-        val list = _entries.value
-        val next = if (list.size >= MAX_ENTRIES) {
-            list.drop(list.size - MAX_ENTRIES + 1) + Entry(System.currentTimeMillis(), kind, text)
-        } else {
-            list + Entry(System.currentTimeMillis(), kind, text)
+        val entry = Entry(System.currentTimeMillis(), kind, text)
+        synchronized(lock) {
+            buffer.addLast(entry)
+            while (buffer.size > MAX_ENTRIES) buffer.removeFirst()
+            cacheStale = true
+            // Nobody collecting: the copy waits for whoever asks next.
+            if (_entries.subscriptionCount.value == 0) return
+            val due = lastPublishMs + PUBLISH_MIN_MS
+            if (entry.timestampMs >= due) {
+                publishLocked(entry.timestampMs)
+            } else if (trailingPublish == null) {
+                trailingPublish = scope.launch {
+                    delay(due - entry.timestampMs)
+                    synchronized(lock) {
+                        trailingPublish = null
+                        publishLocked(System.currentTimeMillis())
+                    }
+                }
+            }
         }
-        _entries.value = next
     }
 
     /** Render the buffer as a shareable text dump. */
     fun render(): String {
+        val all = snapshot()
         val sb = StringBuilder()
         sb.append("EUC Planet diagnostics log\n")
         sb.append("rendered: ${SESSION_FMT.format(Date())}\n")
-        sb.append("entries: ${_entries.value.size}\n\n")
-        for (e in _entries.value) {
+        sb.append("entries: ${all.size}\n\n")
+        for (e in all) {
             sb.append(LINE_FMT.format(Date(e.timestampMs)))
             sb.append(' ')
             sb.append(e.kind.name.padEnd(4))

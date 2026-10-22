@@ -8,7 +8,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * Pure-JVM tests for the CUSTOM BLE command model — hex parsing and the
+ * Pure-JVM tests for the CUSTOM BLE command model, hex parsing and the
  * multiline frames blob. The JSON round-trip uses org.json (like SettingsJson)
  * and is exercised by the build, not here. No Android runtime needed.
  */

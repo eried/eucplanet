@@ -250,7 +250,7 @@ fun NavGraph(navController: NavHostController) {
                 //   "SPEED,BATTERY,POWER|2"    → 3 tabs, pre-select POWER
                 // The "|<index>" suffix is optional and lets the composite
                 // tile side-tap pre-select a specific tab WITHOUT changing
-                // the tab order — riders see the same strip regardless of
+                // the tab order, riders see the same strip regardless of
                 // which sub-tile they tapped on the dashboard.
                 val (keysPart, idxPart) = metricName.split("|", limit = 2)
                     .let { if (it.size == 2) it[0] to it[1] else metricName to "0" }

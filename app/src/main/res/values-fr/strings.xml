@@ -32,6 +32,11 @@
     <string name="action_back">Retour</string>
     <string name="action_cancel">Annuler</string>
     <string name="action_ok">OK</string>
+    <string name="action_replace">Remplacer</string>
+    <string name="action_continue">Continuer</string>
+    <string name="action_select">Sélectionner</string>
+    <string name="state_on">Activé</string>
+    <string name="state_off">Désactivé</string>
     <string name="action_done">Terminé</string>
     <string name="action_close">Fermer</string>
 <string name="crash_log_action_prompt">Tu as appuyé longuement sur %1$s. Supprime ce journal ou tous. Pour le partager, touche Annuler puis le fichier.</string>
@@ -75,7 +80,7 @@
 
     <!-- Scan: virtual wheel section (debug builds only) -->
     <string name="scan_simulate_title">Roues virtuelles</string>
-    <string name="scan_simulate_subtitle">Contourne le BLE et utilise des réponses préenregistrées. Uniquement en build debug.</string>
+    <string name="scan_simulate_subtitle">Contourne le BLE et utilise des réponses préenregistrées. Uniquement en Mode service.</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">Connectée</string>
@@ -243,6 +248,7 @@
     <string name="metric_spoken_lat_long">Position</string>
     <string name="metric_chip_dyn_speed_limit">Limite de vitesse dynamique</string>
     <string name="metric_chip_dyn_current_limit">Limite de courant dynamique</string>
+    <string name="metric_chip_auto_off">Arrêt automatique</string>
     <string name="metric_chip_motor_temp">Température du moteur</string>
     <string name="metric_chip_controller_temp">Température du contrôleur</string>
     <string name="metric_chip_battery_temp">Température de la batterie</string>
@@ -289,6 +295,7 @@
     <string name="metric_chip_controller_temp_tile">Ctrl T</string>
     <string name="metric_chip_dyn_speed_limit_tile">Sp limit</string>
     <string name="metric_chip_dyn_current_limit_tile">A limit</string>
+    <string name="metric_chip_auto_off_tile">Arrêt auto</string>
     <string name="metric_chip_phone_battery_tile">Tel</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
     <string name="metric_chip_external_gps_battery_tile">GPS bat</string>
@@ -337,7 +344,11 @@
     <string name="voice_commands_enable_desc">Utilisez votre voix avec l\'application. Maintenez le bouton Voix du tableau de bord et choisissez Écouter une commande vocale.</string>
     <string name="voice_commands_bind_desc">Liez l\'écoute à un Flic, aux touches de volume, à votre montre ou au HUD.</string>
     <string name="voice_prompt_cue">Signal en écoute</string>
-    <string name="voice_prompt_cue_desc">Désactivez-le si votre casque a déjà le sien.</string>
+    <string name="voice_music_listening">Musique pendant l\'écoute</string>
+    <string name="voice_music_pause">Pause</string>
+    <string name="voice_music_duck">Baisser</string>
+    <string name="voice_music_keep">Continuer</string>
+    <string name="voice_music_listening_desc">La reconnaissance se fait sur le téléphone quand c\'est possible, sans compte. Les mots sont comparés aux commandes de l\'application.</string>
     <string name="voice_cue_beep">Bip</string>
     <string name="voice_cue_spoken">Voix</string>
     <string name="voice_cue_off">Aucun</string>
@@ -348,12 +359,15 @@
     <string name="voice_recognition_desc">La langue dans laquelle vous parlez. Suit la voix si vous ne choisissez rien.</string>
     <string name="voice_recognition_follow">Comme la voix</string>
     <string name="voice_headset_button">Bouton vocal du casque</string>
-    <string name="voice_headset_button_desc">Le bouton vocal du casque Bluetooth démarre l\'écoute. Android demande quelle appli doit répondre.</string>
+    <string name="voice_headset_chooser_hint">Android demande quelle appli doit répondre.</string>
+    <string name="voice_headset_announce">Annoncer</string>
     <string name="voice_act_announce_on_terms">voix activée,annonces activées,activer la voix</string>
     <string name="voice_act_announce_off_terms">voix désactivée,annonces désactivées,couper la voix</string>
     <string name="voice_command_vocabulary">Que puis-je dire</string>
     <string name="voice_command_vocabulary_tap">Dites un nom seul ou dans une question.</string>
-    <string name="voice_command_vocabulary_legend">* n\'est pas une mesure de la roue : cela fait quelque chose ou répond sur autre chose.</string>
+    <string name="voice_vocab_group_wheel">Roue</string>
+    <string name="voice_vocab_group_actions">Actions</string>
+    <string name="voice_vocab_group_around">Autour de toi</string>
     <string name="voice_listening">J\'écoute</string>
     <string name="voice_answer_off">%1$s est désactivé. Vous pouvez l\'activer dans les réglages.</string>
     <string name="voice_answer_unsupported">Votre roue ne communique pas %1$s.</string>
@@ -381,6 +395,15 @@
     <string name="voice_special_not_connected">Aucune roue connectée.</string>
     <string name="voice_special_uptime">Connecté depuis %1$s.</string>
     <string name="voice_special_weather">%1$s. %2$s.</string>
+    <string name="voice_special_weather_full">%1$s, score %2$s. %3$s degrés, vent %4$s, humidité %5$s pour cent</string>
+    <string name="voice_weather_checking">Je vérifie la météo.</string>
+    <string name="voice_sp_air_temp_terms">température extérieure,température de l\'air,quel froid fait-il</string>
+    <string name="voice_sp_wind_terms">vent,vitesse du vent,est-ce venteux</string>
+    <string name="voice_sp_humidity_terms">humidité,quelle humidité</string>
+    <string name="voice_sp_air_temp_answer">%1$s degrés dehors.</string>
+    <string name="voice_sp_wind_answer">Vent %1$s.</string>
+    <string name="voice_sp_wind_gust_answer">Vent %1$s, rafales à %2$s.</string>
+    <string name="voice_sp_humidity_answer">Humidité %1$s pour cent.</string>
     <string name="voice_weather_great">Très bon temps pour rouler</string>
     <string name="voice_weather_good">Bon temps pour rouler</string>
     <string name="voice_weather_ok">Roulable</string>
@@ -420,6 +443,10 @@
     <string name="voice_act_record_start_terms">démarrer enregistrement,enregistrer</string>
     <string name="voice_act_record_stop_terms">arrêter enregistrement</string>
     <string name="voice_act_reset_trip_terms">réinitialiser le trajet</string>
+    <string name="voice_act_music_start_terms">joue de la musique,lance la musique,musique</string>
+    <string name="voice_act_media_pause_terms">mets la musique en pause,pause musique,arrête la musique</string>
+    <string name="voice_act_media_next_terms">chanson suivante,piste suivante</string>
+    <string name="voice_act_media_prev_terms">chanson précédente,piste précédente</string>
     <string name="voice_answer_mic_busy">Le microphone est utilisé par autre chose.</string>
     <string name="voice_answer_which">Vouliez-vous dire %1$s ou %2$s ?</string>
     <string name="action_chip_safety">Mode légal</string>
@@ -432,6 +459,8 @@
     <string name="action_chip_media_play">Lecture / pause</string>
     <string name="action_chip_media_next">Piste suivante</string>
     <string name="action_chip_media_prev">Piste préc.</string>
+    <string name="action_chip_music_start">Lancer la musique</string>
+    <string name="action_chip_media_pause">Pause musique</string>
     <string name="action_chip_open_navigation">Voir carte</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
     <string name="action_chip_open_about">À propos</string>
@@ -459,7 +488,7 @@
     <string name="hud_ip_incomplete">Saisis une adresse complète, par exemple 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">IP de l\'appareil (automatique)</string>
     <string name="hud_server_port">Port</string>
-    <string name="hud_hotspot_off_hint">Le partage de connexion est désactivé. Assure-toi que le HUD et le téléphone sont sur le même réseau WiFi.</string>
+    <string name="hud_hotspot_unknown_hint">Assure-toi que le HUD et le téléphone sont sur le même réseau WiFi. Si tu utilises le partage de connexion, active-le d\'abord.</string>
     <string name="hud_hotspot_on_hint">Le partage de connexion est actif. Connecte le HUD au WiFi de ce téléphone pour activer la liaison.</string>
     <string name="hud_overlay_subsection">Overlay personnalisé</string>
     <string name="hud_overlay_subsection_desc">Importe un preset Overlay Studio sur l\'écran Custom du HUD, sans arrière-plan. Le preset est copié ici, donc tes modifications ultérieures dans le studio n\'affecteront le HUD qu\'après un nouvel import.</string>
@@ -513,6 +542,15 @@
     <string name="watch_keep_on_desc">Garde la montre éveillée tant que l\'appli est ouverte.</string>
     <string name="watch_update_rate">Fréquence de mise à jour</string>
     <string name="watch_update_rate_desc">Des mises à jour plus lentes économisent la batterie du téléphone et de la montre.</string>
+    <string name="watch_map_enabled">Carte sur la montre</string>
+    <string name="watch_map_enabled_desc">Affiche la position et l’itinéraire du téléphone. Une notification reste active pour le fonctionnement en arrière-plan.</string>
+    <string name="watch_map_orientation">Orientation de la carte</string>
+    <string name="watch_map_north_up">Nord en haut</string>
+    <string name="watch_map_heading_up">Direction en haut</string>
+    <string name="watch_keep_on_navigation">Garder allumé pendant la navigation</string>
+    <string name="watch_keep_on_navigation_desc">Garde l’écran de la montre allumé pendant la navigation. Consomme plus de batterie.</string>
+    <string name="watch_map_telemetry">Télémétrie de la carte</string>
+    <string name="watch_map_telemetry_desc">Affiche le PWM, la vitesse et la tension sur le bord supérieur.</string>
     <string name="watch_update_conservative">Économe</string>
     <string name="watch_update_normal">Normale</string>
     <string name="watch_update_fast">Rapide</string>
@@ -582,13 +620,13 @@
     <string name="sync_progress">Synchronisation %1$d sur %2$d</string>
     <string name="sync_no_folder">Choisis d\'abord un dossier de sauvegarde</string>
     <string name="sync_rate_limited">Dropbox limite ce compte. %1$d trajets sur %2$d synchronisés, le reste sera réessayé.</string>
-    <string name="sync_finished">%1$d trajets synchronisés</string>
+    <string name="sync_finished">Trajets synchronisés : %1$d</string>
     <string name="sync_conflict_title">Conflit de synchronisation</string>
-    <string name="sync_conflict_body">%1$d trajets sont présents des deux côtés.</string>
+    <string name="sync_conflict_body">Modifié des deux côtés : %1$d</string>
     <string name="sync_conflict_app">Copier l\'appli vers la sauvegarde</string>
     <string name="sync_conflict_folder">Copier la sauvegarde vers l\'appli</string>
     <string name="sync_conflict_ignore">Ignorer tous les conflits</string>
-    <string name="sync_conflict_body_dropbox">%1$d trajets existent à la fois sur Dropbox et sur ce téléphone.</string>
+    <string name="sync_conflict_body_dropbox">Modifié sur Dropbox et sur ce téléphone : %1$d</string>
     <string name="sync_conflict_app_dropbox">Copier l\'app vers Dropbox</string>
     <string name="sync_conflict_dropbox">Copier Dropbox vers l\'app</string>
     <string name="cloud_uploaded_on">Sauvegardé le %1$s</string>
@@ -665,6 +703,21 @@
     <string name="phone_show_over_lock">Afficher sur l\'écran de verrouillage</string>
     <string name="language">Langue</string>
     <string name="theme">Thème</string>
+    <string name="theme_editor_widget">Widget de personnalisation du thème</string>
+    <string name="theme_unsaved_fmt">%1$s (non enregistré)</string>
+    <string name="theme_editor_save_as">Enregistrer comme nouveau thème</string>
+    <string name="theme_editor_pick_color">Prélever une couleur à l\'écran</string>
+    <string name="theme_editor_replay_blink">Rejouer le clignotement</string>
+    <string name="theme_editor_save_title">Enregistrer le thème</string>
+    <string name="theme_editor_name_label">Nom</string>
+    <string name="theme_editor_replace_title">Remplacer le thème ?</string>
+    <string name="theme_editor_replace_body">Un thème nommé \"%1$s\" existe déjà. L\'enregistrer le remplacera.</string>
+    <string name="theme_editor_discard_title">Abandonner le brouillon non enregistré ?</string>
+    <string name="theme_editor_discard_body">Ce thème a déjà une version non enregistrée. Si vous le modifiez à nouveau, ces changements seront perdus.</string>
+    <string name="theme_editor_no_folder_title">Aucun dossier de sauvegarde</string>
+    <string name="theme_editor_no_folder_body">Pour enregistrer des thèmes, choisissez un dossier de sauvegarde dans %1$s → %2$s.</string>
+    <string name="theme_identify">Identifier</string>
+    <string name="theme_identify_results_title">Résultats de l\'identification de couleur</string>
     <string name="tts_switch_title">Changer la voix en %1$s ?</string>
     <string name="tts_switch_body">La voix de synthèse actuelle ne correspond pas à la langue choisie. Passer à une voix %1$s pour les annonces ?</string>
     <string name="tts_switch_yes">Changer la voix</string>
@@ -690,6 +743,7 @@
     <string name="section_legal_mode_speed">Vitesse en mode légal</string>
     <string name="legal_mode_caption">Utilisé en mode légal ; doit être inférieur au tiltback normal.</string>
     <string name="speed_limits_disconnected">Connecte ta roue pour modifier la calibration et les limites</string>
+    <string name="speed_limits_unsupported">Les limites de cette roue se règlent sur la roue elle-même</string>
     <string name="speed_tiltback">Vitesse de tiltback</string>
     <string name="speed_alarm">Vitesse d\'alarme</string>
     <string name="speed_legal_tiltback">Tiltback légal</string>
@@ -826,6 +880,7 @@
 
     <string name="col_periodic">Périodique</string>
     <string name="col_trigger">Déclenché</string>
+    <string name="voice_trigger_reset_after">Réinitialiser les mesures après l\'annonce déclenchée</string>
     <string name="report_speed">Vitesse</string>
     <string name="report_battery">Batterie</string>
     <string name="report_temp">Temp</string>
@@ -1057,6 +1112,8 @@
     <string name="recording_summary_battery">Batterie (-%1$d%%)</string>
     <string name="recording_summary_voltage">Tension</string>
     <string name="recording_summary_avg_moving">Moy. en roulant</string>
+    <string name="trip_chart_legend_gps">GPS</string>
+    <string name="trip_chart_legend_ext">Ext</string>
     <string name="recording_summary_battery_fmt">%1$d→%2$d%%</string>
     <string name="recording_summary_voltage_fmt">%1$.0f→%2$.0f V</string>
     <string name="recording_summary_max_pwm">PWM max</string>
@@ -1120,8 +1177,6 @@
     <string name="proximity_unlock_above">Signal au-dessus</string>
     <string name="proximity_lock_signal_live">Signal actuel : %1$s</string>
     <string name="proximity_lock_hint">Le verrouillage nécessite une connexion active, il se déclenche donc à mesure que le signal faiblit, pas une fois hors de portée.</string>
-    <string name="auto_lock_override_toast">Le verrouillage auto est actif et peut le remplacer.</string>
-    <string name="auto_lock_override_action">Configurer</string>
     <string name="menu_auto_lock_settings">Réglages de verrouillage</string>
     <string name="menu_auto_lock_on">Activer le verrouillage auto</string>
     <string name="menu_auto_lock_off">Désactiver le verrouillage auto</string>
@@ -1131,7 +1186,8 @@
     <string name="auto_midnight_sun_body">Le soleil ne se couche pas à cette latitude aujourd\'hui, le phare restera éteint.</string>
     <string name="auto_polar_night_title">Nuit polaire</string>
     <string name="auto_polar_night_body">Le soleil ne se lève pas à cette latitude aujourd\'hui, le phare restera allumé.</string>
-    <string name="auto_lights_suspended">Suspendu : tu as basculé le phare manuellement pendant cette session. Reconnecte la roue ou relance l\'appli pour reprendre</string>
+    <string name="auto_lights_suspended">En pause pour cette session, tu as réglé la lumière à la main. Corrige-le depuis Action requise ou reconnecte la roue.</string>
+    <string name="auto_lock_suspended">En pause pour cette session, tu as verrouillé ou déverrouillé à la main. Corrige-le depuis Action requise ou reconnecte la roue.</string>
 
     <!-- Alarms tab -->
     <string name="alarm_help">Pour chaque métrique, l\'alarme la plus pertinente se déclenche automatiquement. L\'ordre dans la liste ne change pas laquelle ; le tri sert juste à garder de l\'ordre.</string>
@@ -1149,6 +1205,7 @@
     <string name="alarm_label_frequency">Fréquence</string>
     <string name="alarm_label_duration">Durée</string>
     <string name="alarm_label_repeats">Répétitions</string>
+    <string name="alarm_repeat_toggle">Répéter</string>
     <string name="alarm_label_vibrate_on">Vibrer sur</string>
     <string name="alarm_threshold_decrease">Diminuer le seuil</string>
     <string name="alarm_threshold_increase">Augmenter le seuil</string>
@@ -1176,6 +1233,7 @@
     <string name="sources_fresh_just_now">à l\'instant</string>
     <string name="sources_fresh_seconds_fmt">il y a %1$ds</string>
     <string name="sources_fresh_minutes_fmt">il y a %1$dm</string>
+    <string name="sources_delta_avg_fmt">moy %1$+.1f%2$s</string>
     <string name="sources_fresh_hours_fmt">il y a %1$dh</string>
     <string name="sources_sats_fmt">%1$d sat</string>
     <string name="sources_other_metrics">Autres mesures</string>
@@ -1687,6 +1745,8 @@
     <string name="nav_menu_save">Enregistrer l\'itinéraire (GPX)</string>
     <string name="nav_menu_load">Charger un itinéraire (GPX)</string>
     <string name="nav_menu_clear">Nouvel itinéraire</string>
+    <string name="nav_finished_title">Itinéraire terminé</string>
+    <string name="nav_finished_body">Commencer un nouvel itinéraire ? Les arrêts atteints sont effacés. Pour garder cet itinéraire, enregistre-le d\'abord depuis le menu.</string>
     <string name="nav_clear_home">Oublier le domicile</string>
     <string name="nav_clear_work">Oublier le travail</string>
     <string name="nav_menu_exit">Retour au tableau de bord</string>
@@ -1717,6 +1777,7 @@
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Satellite</string>
+    <string name="nav_layer_satellite_labels">Satellite hybride</string>
     <string name="nav_layer_osm">Standard (OSM)</string>
     <string name="nav_layer_cyclosm">CyclOSM</string>
     <string name="nav_layer_topo">OpenTopoMap</string>
@@ -1974,11 +2035,16 @@
     <string name="warnings_indicator_desc">Alertes de l\'appli</string>
     <string name="warnings_dialog_title">Action requise</string>
     <string name="warnings_fix_button">Corriger</string>
+    <string name="warnings_autolights_title">Feux auto en pause</string>
+    <string name="warnings_autolights_body">Tu as réglé la lumière à la main, le programme s’écarte pour cette session. Corriger lui rend la main.</string>
+    <string name="warnings_autolock_title">Verrouillage auto en pause</string>
+    <string name="warnings_autolock_body">Tu as verrouillé ou déverrouillé à la main, le verrouillage de proximité s’écarte pour cette session. Corriger lui rend la main.</string>
     <string name="warnings_perm_notifications_title">Notifications désactivées</string>
     <string name="warnings_perm_notifications_body">Tu ne verras pas l\'état du ride dans la barre d\'état et tu n\'auras pas d\'alertes vocales dans les notifications.</string>
     <string name="warnings_perm_location_title">La localisation est désactivée</string>
     <string name="warnings_perm_location_body">Les trajets n\'enregistrent aucun tracé, et la vitesse et la calibration GPS ne marchent pas. Touche pour autoriser.</string>
     <string name="weather_error_no_location">Pas de position pour la météo</string>
+    <string name="weather_waiting_location">En attente de la position…</string>
     <string name="warnings_location_services_body">EUC Planet y a droit, mais le téléphone a coupé la localisation pour tout. Touche pour activer.</string>
     <string name="warnings_location_services_title">La localisation est coupée</string>
 
@@ -2007,6 +2073,10 @@
     <string name="scan_bluetooth_off_title">Bluetooth désactivé</string>
     <string name="scan_enable_bluetooth">Activer le Bluetooth</string>
     <string name="studio_cfg_radar_distance_labels">Étiquettes de distance</string>
+    <string name="studio_radar_none">Pas de radar</string>
+    <string name="studio_radar_clear">Dégagé</string>
+    <string name="studio_radar_closing_fmt">+%1$d km/h</string>
+    <string name="studio_radar_mirror_closing_fmt">m · +%1$d km/h</string>
     <string name="studio_cfg_radar_lane">Voie</string>
     <string name="studio_cfg_radar_minimal">Minimal</string>
     <string name="studio_cfg_radar_mirror">Miroir</string>
@@ -2080,6 +2150,7 @@
     <string name="nav_setting_avoid_hint">Les évitements utilisent un autre service de calcul d\'itinéraire et s\'appliquent lorsque le mode de déplacement les prend en charge.</string>
     <string name="nav_setting_avoid_tolls">Éviter les routes à péage</string>
     <string name="nav_setting_avoid_unpaved">Éviter les routes non revêtues</string>
+    <string name="nav_avoid_router_failed">L\'itinéraire ignore vos évitements : leur service de calcul n\'a pas répondu.</string>
     <string name="nav_setting_ocm_key">Clé API Open Charge Map</string>
     <string name="nav_setting_ocm_key_hint">Ajoute les avis, les photos et les détails des connecteurs à la fiche de la borne. Inscris-toi pour une clé gratuite sur</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>
@@ -2095,6 +2166,8 @@
     <string name="adv_alarm_min_samples_desc">Détermine combien de mesures sont nécessaires avant qu\'une tendance soit fiable. Danger : trop peu prédisent sur du bruit.</string>
     <string name="adv_alarm_min_span">Durée minimale</string>
     <string name="adv_alarm_min_span_desc">Détermine la durée minimale que les échantillons doivent couvrir avant qu\'une tendance soit utilisée.</string>
+    <string name="adv_alarm_warm_route">Durée haut-parleur prêt</string>
+    <string name="adv_alarm_warm_route_desc">Détermine combien de temps le haut-parleur reste prêt après un bip ou une annonce. Danger : trop court, le premier bip après un moment de silence peut claquer ou être coupé ; trop long garde l\'audio actif et vide la batterie.</string>
     <string name="adv_alarm_slope_window">Fenêtre de tendance</string>
     <string name="adv_alarm_slope_window_desc">Détermine combien d\'échantillons récents définissent la tendance prédite. Danger : trop courte réagit au bruit, trop longue réagit lentement.</string>
     <string name="adv_alarm_warning">Ceux-ci changent la façon dont les alarmes de vitesse et de puissance prédisent un seuil avant que tu l\'atteignes. De mauvaises valeurs peuvent faire déclencher les alarmes en retard ou pas du tout. À modifier avec prudence.</string>
@@ -2170,6 +2243,10 @@
     <string name="adv_hud_manual_grace_desc">Détermine le temps laissé à l\'auto-découverte avant d\'utiliser l\'IP manuelle. Danger : trop bas utilise l\'IP manuelle avant que la découverte puisse aboutir.</string>
     <string name="adv_hud_mdns_resolve">Temps de résolution mDNS</string>
     <string name="adv_hud_mdns_resolve_desc">Détermine combien de temps pour résoudre les détails d\'adresse d\'un HUD découvert. Danger : trop bas abandonne un HUD lent à résoudre.</string>
+    <string name="adv_hud_idle_search">Recherche au repos</string>
+    <string name="adv_hud_idle_search_desc">Définit la fréquence de recherche du HUD sans roue connectée et appli fermée. Danger : trop bas vide la batterie.</string>
+    <string name="adv_hud_sweep_interval">Balayage réseau</string>
+    <string name="adv_hud_sweep_interval_desc">Définit la fréquence à laquelle chaque adresse du réseau est testée pour trouver le HUD. Danger : trop bas occupe le téléphone et vide la batterie.</string>
     <string name="adv_hud_mdns_timeout">Délai de découverte</string>
     <string name="adv_hud_mdns_timeout_desc">Détermine combien de temps attendre que le HUD réponde à l\'auto-découverte. Danger : trop bas abandonne avant qu\'il réponde.</string>
     <string name="adv_hud_report_interval">Cadence de rapport HUD</string>
@@ -2244,6 +2321,7 @@
     <string name="adv_wheel_poll_rate_desc">Détermine la fraîcheur des données en direct et la rapidité de réaction des alarmes. Plus bas interroge la roue plus souvent. Danger : des valeurs très basses peuvent saturer le lien Bluetooth et bloquer les données sur certaines roues.</string>
     <string name="alarm_beep_advanced">Avancé</string>
     <string name="alarm_beep_gap_label">Durée d\'intervalle</string>
+    <string name="alarm_beep_timeline_fmt">%1$d× · intervalle %2$d ms</string>
     <string name="alarm_beep_studio">Bip adaptatif</string>
     <string name="alarm_beep_volume_label">Volume de base</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
@@ -2278,7 +2356,7 @@
     <string name="tab_more">Plus</string>
     <string name="welcome_tut_dev_join">Rejoindre les classements</string>
     <string name="welcome_tut_dev_joined">Classements rejoints</string>
-    <string name="welcome_tut_dev_joined_norider">Téléversement en ligne activé. Aucun rider trouvé dans le dossier.</string>
+    <string name="welcome_tut_dev_joined_norider">Pas encore de rider dans ce dossier. Touche %1$s dans %2$s pour en créer un.</string>
     <string name="welcome_tut_dev_restore">Restaurer les réglages</string>
     <string name="welcome_tut_dev_set_folder">Définir le dossier de sauvegarde</string>
     <string name="welcome_tut_dev_sync_trips">Synchroniser les trajets</string>
@@ -2332,6 +2410,11 @@
     <string name="side_left">Gauche</string>
     <string name="side_right">Droite</string>
     <string name="adv_group_geometry">Variables de géométrie de l\'écran</string>
+    <string name="adv_group_map_cache">Cache de carte</string>
+    <string name="adv_map_encoded_cache">Cache des tuiles encodées</string>
+    <string name="adv_map_encoded_cache_desc">Tuiles PNG conservées pour la montre. Une valeur élevée utilise plus de mémoire du téléphone.</string>
+    <string name="adv_map_http_cache">Cache des tuiles téléchargées</string>
+    <string name="adv_map_http_cache_desc">Tuiles cartographiques téléchargées sur le téléphone. Une valeur élevée utilise plus de stockage.</string>
     <string name="adv_compact_max_screen">Limite d\'écran compact</string>
     <string name="adv_compact_max_screen_desc">Les écrans dont les deux côtés sont en dessous passent au tableau de bord compact lorsque Tableau de bord compact est réglé sur Petits écrans.</string>
     <string name="adv_cover_cutout_inset">Taille de la découpe caméra</string>
@@ -2340,6 +2423,10 @@
     <string name="adv_nav_sidebar_min_desc">Les écrans plus étroits gardent le panneau d\'arrêts en bas même en paysage. Trop bas enterre la carte sur les petits écrans.</string>
     <string name="adv_inmotion_v1_pin">PIN InMotion V5/V8/V10</string>
     <string name="adv_inmotion_v1_pin_desc">PIN d\'accès pour les roues InMotion V5/V8/V10, envoyé à la connexion pour que la roue commence à envoyer des données. Laissez 000000 sauf si vous avez défini votre propre PIN dans l\'application InMotion.</string>
+    <string name="adv_kingsong_unlock_code">Déverrouillage KingSong</string>
+    <string name="adv_kingsong_unlock_code_desc">Six chiffres envoyés avec la commande de déverrouillage. Les roues testées acceptent n\'importe quels chiffres, laissez donc 123456 sauf si la vôtre le refuse.</string>
+    <string name="adv_kingsong_password">Mot de passe KingSong</string>
+    <string name="adv_kingsong_password_desc">Le mot de passe à 4 chiffres défini dans l\'application KingSong, envoyé à la connexion et avant le verrouillage et le déverrouillage. Laissez 0000 si vous n\'en avez jamais défini.</string>
     <string name="adv_nav_sidebar_width">Largeur du panneau d\'arrêts</string>
     <string name="adv_nav_sidebar_width_desc">Largeur de la barre latérale d\'arrêts en paysage. Trop large laisse peu de carte.</string>
     <string name="adv_simple_speedo_scale">Taille du compteur simple</string>
@@ -2444,6 +2531,7 @@
     <string name="pip_mode_off">Désactivé</string>
     <string name="pip_mode_simple">Simple</string>
     <string name="pip_mode_dashboard">Tableau de bord</string>
+    <string name="pip_label_pwm" formatted="false">pwm %</string>
     <string name="widget_section">Widget d ecran d accueil</string>
     <string name="widget_pick_desc">Choisis les %1$d mesures et %2$d boutons affichés par le widget.</string>
     <string name="widget_metric_slot">Mesure %1$d</string>
@@ -2543,7 +2631,7 @@
     <string name="backup_status_failed">Echec de la sauvegarde, touchez pour reessayer</string>
     <string name="lockdown_title">Mode verrouillé</string>
     <string name="lockdown_action_speed_limit">Limite</string>
-    <string name="lockdown_action_vehicle">Véhicule</string>
+    <string name="lockdown_action_vehicle">Roue</string>
     <string name="lockdown_no_wheel">Aucune roue connectée. Utilise l’icône Bluetooth pour te connecter.</string>
     <string name="lockdown_vehicle_name">Nom Bluetooth</string>
     <string name="lockdown_vehicle_brand">Fabricant</string>
@@ -2609,12 +2697,18 @@
     <!-- Charge alerts -->
     <string name="charging_notify_80" formatted="false">Me prévenir à 80 %</string>
     <string name="charging_notify_full" formatted="false">Me prévenir à 100 %</string>
+    <string name="charging_notify_at">Me prévenir à</string>
+    <string name="charging_notify_custom">Me prévenir à %1$d %%</string>
+    <string name="charging_notify_at_ask">Me prévenir à…</string>
+    <string name="charging_notify_custom_range" formatted="false">Doit être entre 5 et 95 %, pas 80 %</string>
     <string name="charge_alert_channel_name">Alertes de charge</string>
-    <string name="charge_alert_channel_description" formatted="false">Quand la batterie dépasse 80 % ou finit de charger.</string>
+    <string name="charge_alert_channel_description" formatted="false">Quand la batterie atteint un niveau choisi ou finit de charger.</string>
     <string name="charge_alert_80_title" formatted="false">Batterie à 80 %</string>
     <string name="charge_alert_80_text">Assez pour la plupart des trajets, et généralement plus doux pour la batterie.</string>
     <string name="charge_alert_full_title">Charge terminée</string>
     <string name="charge_alert_full_text">Charge complète, débranche quand tu peux. Certaines roues équilibrent les cellules maintenant.</string>
+    <string name="charge_alert_custom_title">Batterie à %1$d %%</string>
+    <string name="charge_alert_custom_text">Le niveau choisi est atteint. Débranchez quand vous pouvez.</string>
     <!-- Widget names for the picker -->
     <string name="widget_euc_label">Tableau de bord roue</string>
     <string name="widget_act_1_label">Bouton roue 1</string>
@@ -2638,4 +2732,108 @@
     <string name="tpms_state_inflating">Gonflage</string>
     <string name="alarm_metric_battery_envelope">Batterie (est)</string>
     <string name="alarm_metric_battery_envelope_long">Enveloppe batterie (estimation hors charge)</string>
+
+    <string name="headlight_state_off">Phare : éteint</string>
+    <string name="headlight_state_low">Phare : faible</string>
+    <string name="headlight_state_medium">Phare : moyen</string>
+    <string name="headlight_state_high">Phare : fort</string>
+    <string name="headlight_state_unknown">Phare : ?</string>
+    <string name="adv_headlight_readback_age">Validité du niveau du phare</string>
+    <string name="adv_headlight_readback_age_desc">Durée de validité du niveau de phare reçu. Une durée trop longue peut afficher un niveau périmé.</string>
+    <string name="horn_headphones_only">Seulement sur casque ou Bluetooth</string>
+    <string name="horn_section">Klaxon</string>
+    <string name="horn_mode_label">Mode</string>
+    <string name="horn_mode_wheel">Par défaut</string>
+    <string name="horn_mode_sound">Perso</string>
+    <string name="horn_mode_both">Mixte</string>
+    <string name="horn_mode_hint">Perso joue ton son sur le téléphone. Mixte l\'ajoute au klaxon de la roue, pour une enceinte externe. Si le téléphone ne peut pas le jouer, le klaxon de la roue retentit.</string>
+    <string name="horn_sound_none">Aucun son choisi</string>
+    <string name="horn_sound_current">Son: %1$s</string>
+    <string name="horn_sound_choose">Choisir un son</string>
+    <string name="horn_sound_imported">Son du klaxon enregistré</string>
+    <string name="horn_sound_too_long">Ce son dure plus de 5 secondes</string>
+    <string name="horn_sound_too_big">Ce fichier dépasse 2 Mo</string>
+    <string name="horn_sound_unreadable">Impossible de lire ce fichier</string>
+    <string name="voice_pill_add">Ajouter</string>
+    <string name="voice_pill_message">Message</string>
+    <string name="voice_pill_message_hint">Lu tel que vous l\'écrivez.</string>
+    <string name="voice_pills_empty">Rien n\'est dit. Touchez Ajouter.</string>
+    <string name="voice_stat_now">Maint.</string>
+    <string name="voice_stat_max">Max</string>
+    <string name="voice_stat_min">Min</string>
+    <string name="voice_stat_avg">Moy</string>
+    <string name="voice_stat_peak">Pic</string>
+    <string name="crews_title">Crews</string>
+    <string name="crews_pass_action">Pass crew</string>
+    <string name="crews_pass_search_hint">Le pass crew apparaît une fois que vous rejoignez les classements en ligne.</string>
+    <string name="crews_scan_hint">Ouvre eucstats dans un navigateur, appuie sur Crews, et vise le code qui s\'affiche.</string>
+    <string name="crews_scan_invalid">Ce n\'est pas un code de crew pass.</string>
+    <string name="crews_scan_is_share">Ça, c’est un code de position en direct. Scanne-le depuis Partager sur la carte.</string>
+    <string name="share_scan_is_crewpass">Ça, c’est un pass de crew. Scanne-le depuis Réglages, dans Crews.</string>
+    <string name="crews_type_instead">Saisir manuellement</string>
+    <string name="crews_code_label">Code du pass</string>
+    <string name="crews_foreign_title">Ce code ne vient pas d\'eucstats</string>
+    <string name="crews_foreign_body">Il pointe vers %1$s, et ce n\'est pas là que vont tes sorties. Dire oui, c\'est donner ton compte à celui qui gère ça.\n\nTu as ton propre serveur ? Active d\'abord le mode développeur dans les Réglages.</string>
+    <string name="crews_scan_switch">Scanner plutôt</string>
+    <string name="crews_close">Fermer</string>
+    <string name="crews_opensettings">Ouvrir les réglages</string>
+    <string name="crews_dev_title">Mode développeur</string>
+    <string name="crews_dev_body">Parle à %1$s au lieu du serveur habituel.</string>
+    <string name="crews_grant">Laisse ce navigateur rouler à tes couleurs.\n\nIl peut lancer un crew, en rejoindre un, en sortir, et gérer les membres. Il ne peut pas envoyer de sorties, te renommer ni rien supprimer, tout ça reste sur ce téléphone.</string>
+    <string name="crews_noprofile_title">Rejoins d\'abord le classement</string>
+    <string name="crews_noprofile_body">Les crews tiennent à ton profil de classement, et ce téléphone n\'en a pas créé. Rejoins-le dans %1$s, et rescanne.</string>
+    <string name="crews_issue">Délivrer le pass</string>
+    <string name="crews_notme">Pas moi</string>
+    <string name="crews_ratelimited">Trop d\'essais. Attends une minute et réessaie.</string>
+    <string name="crews_unreachable">Impossible de joindre %1$s.</string>
+    <string name="crews_refused">Le serveur a refusé (%1$d).</string>
+    <string name="crews_done_title">Pass délivré</string>
+    <string name="crews_done_body">Ce navigateur roule à tes couleurs. Pose le téléphone.</string>
+    <string name="crews_failed_title">Ça n\'a pas marché</string>
+    <string name="crews_tryagain">Réessayer</string>
+    <string name="crews_done">Terminé</string>
+    <string name="crews_expired">Ce code a tourné. Prends-en un frais dans le navigateur.</string>
+    <string name="voice_pill_search">Rechercher</string>
+    <string name="voice_volume">Volume</string>
+    <string name="beep_volume_by_speed">Volume du bip selon la vitesse</string>
+    <string name="beep_volume_stopped">À l\'arrêt</string>
+    <string name="beep_volume_riding">En roulant</string>
+    <string name="dropbox_checking">Vérification de Dropbox…</string>
+    <string name="sync_first_settings">Dropbox contient déjà les réglages d\'un autre téléphone. Les utiliser, ou garder ceux de ce téléphone ?</string>
+    <string name="recording_delete_trip_body_keeps_backup">Supprimer ce trajet de ce téléphone ? La sauvegarde en garde une copie, donc Tout sync le ramène.</string>
+    <string name="share_menu_scan">Scanner un QR</string>
+    <string name="share_menu_scan_desc">Rejoindre une sortie en groupe ou ouvrir un itinéraire.</string>
+    <string name="share_menu_route">Partager l\'itinéraire</string>
+    <string name="share_menu_route_desc">En QR code ou en lien. Sans compte.</string>
+    <string name="share_menu_route_none">Ajoutez d\'abord une étape.</string>
+    <string name="scan_code_unknown">Ce n\'est pas un code de sortie en groupe ni d\'itinéraire.</string>
+    <string name="route_qr_hint">À scanner avec EUC Planet ou l\'appareil photo du téléphone.</string>
+    <string name="route_qr_too_long">Cet itinéraire est trop long pour un QR code. Enregistrez-le en GPX.</string>
+    <string name="route_open_title">Ouvrir l\'itinéraire partagé</string>
+    <string name="route_open_confirm">Remplacer l\'itinéraire actuel par l\'itinéraire partagé ?</string>
+    <string name="route_opened">Itinéraire ouvert</string>
+    <string name="route_qr_share_image">Partager le QR</string>
+    <string name="route_share_text">Roule cet itinéraire avec EUC Planet : %1$s</string>
+    <string name="route_share_subject">Un itinéraire à rouler</string>
+    <plurals name="route_stop_count">
+        <item quantity="one">%d étape</item>
+        <item quantity="many">%d étapes</item>
+        <item quantity="other">%d étapes</item>
+    </plurals>
+    <string name="section_android_auto">Android Auto</string>
+    <string name="android_auto_hint">Vos stats et les boutons de la roue sur un écran Android Auto. Connexion automatique, sans réglage Wi-Fi.</string>
+    <string name="car_waiting">En attente de la roue</string>
+    <string name="car_last_battery">Dernière batterie %1$d%%</string>
+    <string name="car_navigate">Naviguer</string>
+    <string name="car_places_title">Naviguer vers</string>
+    <string name="car_place_home">Domicile</string>
+    <string name="car_place_work">Travail</string>
+    <string name="car_no_places">Enregistrez d\'abord Domicile ou Travail dans le planificateur d\'itinéraire.</string>
+    <string name="car_waiting_wheel">En attente de la roue</string>
+    <string name="car_weather">Météo</string>
+    <string name="car_alarm_channel_name">Alertes sur l\'écran de la voiture</string>
+    <string name="car_alarm_channel_description">Affiche une alerte déclenchée sur l\'écran Android Auto, par-dessus la carte.</string>
+    <string name="car_alarm_notifications">Alertes sur l\'écran de la voiture</string>
+    <string name="car_alarm_notifications_hint">Une alerte déclenchée s\'affiche par-dessus la carte et vous atteint pendant la navigation. Le bip et la vibration ne changent pas.</string>
+    <string name="car_no_metrics">Aucune mesure sélectionnée</string>
 </resources>

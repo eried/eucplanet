@@ -30,7 +30,7 @@ class ChargingEstimatorTest {
 
     /** Feed a steady linear charge of [pctPerMin] starting at [startPct] for
      *  [count] samples spaced [stepMs] apart, beginning at t=0. Default is
-     *  240 samples × 1 s = 4 min span / +4 % gain at 1 %/min — past the 3 % /
+     *  240 samples × 1 s = 4 min span / +4 % gain at 1 %/min, past the 3 % /
      *  3 min warm-up gate, and dense enough that the median-filter window
      *  (a few hundred ms at this cadence) doesn't add meaningful lag, which
      *  is how the real wheel emits telemetry (~9 Hz on Veteran). */
@@ -51,7 +51,7 @@ class ChargingEstimatorTest {
     fun `not warmed up with too little data`() {
         val est = ChargingEstimator()
         est.addSample(0, 50f)
-        est.addSample(10_000, 50.1f) // +0.1% over 10s — below warm-up gain AND duration
+        est.addSample(10_000, 50.1f) // +0.1% over 10s, below warm-up gain AND duration
         val e = est.estimate()
         assertTrue("should not be warmed up yet", !e.warmedUp)
         assertNull("no ETA before warm-up", e.minutesToTarget)

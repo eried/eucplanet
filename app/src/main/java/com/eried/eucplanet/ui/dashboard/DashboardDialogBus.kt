@@ -5,8 +5,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 /**
- * Lets surfaces that live outside the dashboard composition — specifically the
- * floating service-mode debug overlay — ask the dashboard to open one of its
+ * Lets surfaces that live outside the dashboard composition, specifically the
+ * floating service-mode debug overlay, ask the dashboard to open one of its
  * local dialogs (About, Service Mode). Those dialogs are dashboard-local state,
  * so the overlay can't toggle them directly; it posts a request here and
  * navigates to the dashboard, which observes [pending], opens the matching

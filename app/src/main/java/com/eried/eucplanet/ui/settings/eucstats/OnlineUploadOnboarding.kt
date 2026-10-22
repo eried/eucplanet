@@ -70,11 +70,11 @@ private const val STEP_PROFILE = 1
 /**
  * Multi-step onboarding dialog for the eucstats online upload feature.
  *
- * Step 1 — Consent: explains what data is shared publicly.
- * Step 2 — Profile: a tappable avatar, display name, and a flag/country picker.
+ * Step 1, Consent: explains what data is shared publicly.
+ * Step 2, Profile: a tappable avatar, display name, and a flag/country picker.
  *
  * The avatar is required (Register stays disabled until one is cropped) but the
- * UI never nags about it — the empty avatar ring with a camera glyph is the cue.
+ * UI never nags about it, the empty avatar ring with a camera glyph is the cue.
  */
 @Composable
 fun OnlineUploadOnboardingDialog(
@@ -454,12 +454,6 @@ internal fun CountryPickerDialog(onPick: (String) -> Unit, onDismiss: () -> Unit
     AlertDialog(
         onDismissRequest = onDismiss,
         shape = RoundedCornerShape(12.dp),
-        title = {
-            Text(
-                stringResource(R.string.online_upload_profile_country_label),
-                color = MaterialTheme.appColors.textPrimary,
-            )
-        },
         text = {
             Column(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(

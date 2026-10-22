@@ -101,7 +101,7 @@ private fun fontForDistance(distanceM: Int): TextUnit = when {
 private fun MiniLaneBar(frame: RadarFrame?) {
     val textMeasurer = rememberTextMeasurer()
     // Threat / battery tier colors captured here (composable scope) so the Canvas
-    // DrawScope below — which can't read MaterialTheme — can color by status token.
+    // DrawScope below, which can't read MaterialTheme, can color by status token.
     val statusDanger = MaterialTheme.appColors.statusDanger
     val statusWarn = MaterialTheme.appColors.statusWarn
     val statusGood = MaterialTheme.appColors.statusGood

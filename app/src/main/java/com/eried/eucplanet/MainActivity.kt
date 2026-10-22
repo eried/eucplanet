@@ -19,6 +19,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -43,6 +44,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -77,6 +79,7 @@ class MainActivity : AppCompatActivity() {
     @Inject lateinit var appHealthRepository:
         com.eried.eucplanet.data.repository.AppHealthRepository
     @Inject lateinit var appNotifier: com.eried.eucplanet.util.AppNotifier
+    @Inject lateinit var voiceCommands: com.eried.eucplanet.voice.VoiceCommandController
     @Inject lateinit var legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController
 
     private val _settings = MutableStateFlow<AppSettings?>(null)
@@ -113,7 +116,7 @@ class MainActivity : AppCompatActivity() {
         val s = _settings.value
         val needsServiceForBackgroundFeature = s != null && canStartWheelService() && (
             // Voice loop needs the service alive between rides so the periodic
-            // announcement keeps firing even before a wheel is connected — but
+            // announcement keeps firing even before a wheel is connected, but
             // only in "ALWAYS" mode; the connected/riding modes have nothing to
             // say until a wheel is on the line.
             (s.voiceEnabled && s.voiceAnnounceWhen == "ALWAYS") ||
@@ -131,6 +134,7 @@ class MainActivity : AppCompatActivity() {
         if (needsServiceForBackgroundFeature) {
             startForegroundService(Intent(this, WheelService::class.java))
         }
+        ensureWatchMapService(s)
         // Whatever the rider answered (yes or no), refresh the warning list so
         // the dashboard top-bar indicator reflects the new permission state.
         reconcilePipWithSystem()
@@ -180,6 +184,16 @@ class MainActivity : AppCompatActivity() {
             ContextCompat.checkSelfPermission(
                 this, Manifest.permission.ACCESS_COARSE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
+
+    private fun ensureWatchMapService(settings: AppSettings?) {
+        if (settings?.watchMap?.enabled != true) return
+        if (!hasLocationPermission()) return
+        if (!lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) return
+        startForegroundService(
+            Intent(this, WheelService::class.java)
+                .setAction(WheelService.ACTION_START_WATCH_MAP),
+        )
+    }
 
     private fun canStartWheelService(): Boolean {
         val hasBt = Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
@@ -290,10 +304,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        ensureWatchMapService(_settings.value)
         wearBridge.pingWatchToWake()
         garminBridge.pingWatchToWake()
         // Catch permission flips done in Settings while the app was in the
-        // background — the warning indicator auto-clears when the rider
+        // background, the warning indicator auto-clears when the rider
         // returns having granted what was missing.
         reconcilePipWithSystem()
         // A battery-optimisation grant (and some OEM permissions) doesn't always
@@ -399,6 +414,21 @@ class MainActivity : AppCompatActivity() {
         consumeShareIntent(intent)
         consumeWeatherIntent(intent)
         consumeChargingIntent(intent)
+        consumeLeaderboardIntent(intent)
+    }
+
+    /** The crew pass dialog found no leaderboard profile: take the rider to where one is made. */
+    private fun consumeLeaderboardIntent(intent: Intent?) {
+        if (intent?.getBooleanExtra(
+                com.eried.eucplanet.ui.settings.LeaderboardSetupLaunch.EXTRA_OPEN_LEADERBOARD,
+                false,
+            ) == true
+        ) {
+            com.eried.eucplanet.ui.settings.LeaderboardSetupLaunch.request()
+            intent.removeExtra(
+                com.eried.eucplanet.ui.settings.LeaderboardSetupLaunch.EXTRA_OPEN_LEADERBOARD
+            )
+        }
     }
 
     /** A charge alert was tapped: go where the number came from. */
@@ -431,6 +461,7 @@ class MainActivity : AppCompatActivity() {
         consumeShareIntent(intent)
         consumeWeatherIntent(intent)
         consumeChargingIntent(intent)
+        consumeLeaderboardIntent(intent)
         // requestMissingPermissions() is intentionally NOT called here.
         // On a clean install, asking before setContent runs means the runtime
         // permission dialogs come up over a black activity, the rider thinks
@@ -451,6 +482,7 @@ class MainActivity : AppCompatActivity() {
                     it.copy(themeEditorEnabled = false)
                 } else it
                 _settings.value = effective
+                ensureWatchMapService(effective)
                 // Honour the "keep screen on" toggle. Setting the window flag
                 // is idempotent so we don't need a delta check.
                 if (it.phoneKeepScreenOn) {
@@ -610,7 +642,7 @@ class MainActivity : AppCompatActivity() {
                 ) {
                     val navController = rememberNavController()
                     // Main-thread scope for the service overlay's settings/wheel
-                    // action hooks (toggle units, mute, reset trip) — nav actions
+                    // action hooks (toggle units, mute, reset trip), nav actions
                     // run synchronously on the click thread and don't need it.
                     val overlayScope = androidx.compose.runtime.rememberCoroutineScope()
                     // When a Share-to-app intent dropped a pending stop into
@@ -627,6 +659,22 @@ class MainActivity : AppCompatActivity() {
                             runCatching {
                                 navController.navigate(
                                     com.eried.eucplanet.ui.navigation.Screen.ChargingMonitor.createRoute()
+                                ) { launchSingleTop = true }
+                            }
+                        }
+                    }
+                    // Same road, for a rider sent here by the crew pass dialog with no
+                    // leaderboard profile: open Settings already on the section that makes one.
+                    val pendingLeaderboard by com.eried.eucplanet.ui.settings
+                        .LeaderboardSetupLaunch.pending.collectAsState()
+                    androidx.compose.runtime.LaunchedEffect(pendingLeaderboard) {
+                        if (com.eried.eucplanet.ui.settings.LeaderboardSetupLaunch.consume()) {
+                            runCatching {
+                                navController.navigate(
+                                    com.eried.eucplanet.ui.navigation.Screen.Settings.createRoute(
+                                        com.eried.eucplanet.ui.settings
+                                            .LeaderboardSetupLaunch.SETTINGS_TAB_CLOUD
+                                    )
                                 ) { launchSingleTop = true }
                             }
                         }
@@ -763,7 +811,7 @@ class MainActivity : AppCompatActivity() {
                             },
                             suppressOnPhone = onMapScreen
                         )
-                        // Service-mode debug overlay — opens on volume key
+                        // Service-mode debug overlay, opens on volume key
                         // when DiagnosticsLogger is enabled. Sits at the
                         // top of the activity composition so it floats
                         // above every screen (dashboard, settings, etc).
@@ -853,7 +901,7 @@ class MainActivity : AppCompatActivity() {
                                 onDismiss = { ServiceOverlayState.dismiss() }
                             )
                         }
-                        // Floating theme editor — only mounted (and so only
+                        // Floating theme editor, only mounted (and so only
                         // costing anything) when the rider enables it in
                         // Settings -> Display -> Theme editor.
                         if (s?.themeEditorEnabled == true) {
@@ -879,6 +927,20 @@ class MainActivity : AppCompatActivity() {
                         androidx.compose.runtime.LaunchedEffect(Unit) {
                             appNotifier.messages.collect { msg ->
                                 rootSnackbar.showSnackbar(msg)
+                            }
+                        }
+                        // A voice session's one line. Each new line replaces
+                        // the last (collectLatest cancels the showing one,
+                        // which dismisses it), and it stays up exactly as
+                        // long as the session is in that state.
+                        androidx.compose.runtime.LaunchedEffect(Unit) {
+                            voiceCommands.toast.collectLatest { line ->
+                                if (line.isEmpty()) return@collectLatest
+                                rootSnackbar.currentSnackbarData?.dismiss()
+                                rootSnackbar.showSnackbar(
+                                    line,
+                                    duration = androidx.compose.material3.SnackbarDuration.Indefinite,
+                                )
                             }
                         }
                         androidx.compose.material3.SnackbarHost(
@@ -970,7 +1032,7 @@ class MainActivity : AppCompatActivity() {
             wheel = wheelRepository.wheelData.value,
             history = wheelRepository.fullHistory.value,
             tripRecording = tripRepository.recording.value,
-            imperialUnits = s?.imperialUnits ?: false,
+            imperialUnits = s?.let { com.eried.eucplanet.util.Units.unitSystemOf(it) == com.eried.eucplanet.util.Units.UnitSystem.IMPERIAL } ?: false,
             safetyActive = wheelRepository.safetySpeedActive.value,
             alarmsMuted = s?.alarmsMuted ?: false,
             speedSplitsOn = s?.accelSplit?.enabled ?: false,
@@ -986,8 +1048,8 @@ class MainActivity : AppCompatActivity() {
                 label = "Wheel (BLE)",
                 state = wheelRepository.connectionState.value.name,
                 detail = buildString {
-                    append("device: ").append(wheelRepository.connectedDeviceName.value ?: "—").append('\n')
-                    append("family: ").append(wheelRepository.connectedFamilyId ?: "—")
+                    append("device: ").append(wheelRepository.connectedDeviceName.value ?: "-").append('\n')
+                    append("family: ").append(wheelRepository.connectedFamilyId ?: "-")
                     append("\n\n── all wheel data ──\n")
                     append(com.eried.eucplanet.diagnostics.reflectFields(wheelRepository.wheelData.value))
                 }

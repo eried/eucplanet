@@ -31,11 +31,20 @@ object VoicePhrases {
         "RECORD_START" to R.string.voice_act_record_start_terms,
         "RECORD_STOP" to R.string.voice_act_record_stop_terms,
         "RESET_TRIP" to R.string.voice_act_reset_trip_terms,
+        // The rider's music. Catalog keys, so voice, Flic and the HUD all
+        // press the same media key.
+        "MUSIC_START" to R.string.voice_act_music_start_terms,
+        "MEDIA_PAUSE" to R.string.voice_act_media_pause_terms,
+        "MEDIA_NEXT" to R.string.voice_act_media_next_terms,
+        "MEDIA_PREVIOUS" to R.string.voice_act_media_prev_terms,
     )
 
     /** The things the app knows that are not wheel readings. */
     val SPECIALS: List<Pair<String, Int>> = listOf(
         VoiceVocabulary.Special.WEATHER to R.string.voice_sp_weather_terms,
+        VoiceVocabulary.Special.AIR_TEMP to R.string.voice_sp_air_temp_terms,
+        VoiceVocabulary.Special.WIND to R.string.voice_sp_wind_terms,
+        VoiceVocabulary.Special.HUMIDITY to R.string.voice_sp_humidity_terms,
         VoiceVocabulary.Special.DAYLIGHT to R.string.voice_sp_daylight_terms,
         VoiceVocabulary.Special.CONNECTED to R.string.voice_sp_connected_terms,
         VoiceVocabulary.Special.UPTIME to R.string.voice_sp_uptime_terms,

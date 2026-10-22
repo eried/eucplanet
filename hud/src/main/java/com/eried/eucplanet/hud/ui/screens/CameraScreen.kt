@@ -47,7 +47,7 @@ import com.eried.eucplanet.hud.ui.parseHexColor
  * E6-class device we've seen, so we use CameraX which picks the rear lens
  * automatically. If the device doesn't expose a camera (e.g. an emulator
  * during development), we show a static "unavailable" placeholder rather
- * than crash — the rider can switch screens with LEFT/RIGHT regardless.
+ * than crash, the rider can switch screens with LEFT/RIGHT regardless.
  */
 @Composable
 fun CameraScreen(hud: HudState) {

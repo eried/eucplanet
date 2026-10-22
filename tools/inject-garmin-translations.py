@@ -2,7 +2,7 @@
 """Injects the 20 Garmin-branch UI strings into every locale file.
 
 Run from repo root: `python tools/inject-garmin-translations.py`
-Safe to re-run — each insertion is idempotent on the key name.
+Safe to re-run, each insertion is idempotent on the key name.
 Universal strings (Wear OS, Garmin Connect IQ, %1$.1f Hz) are written
 verbatim across all locales.
 """

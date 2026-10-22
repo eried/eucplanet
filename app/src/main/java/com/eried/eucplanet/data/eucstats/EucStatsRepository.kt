@@ -61,7 +61,7 @@ class EucStatsRepository @Inject constructor(
     private val attestation: Attestation,
     private val settings: EucStatsSettingsPort,
     private val tripDao: TripDao,
-    /** Reads the raw CSV bytes for a given trip — injected so no Android FS needed in tests. */
+    /** Reads the raw CSV bytes for a given trip, injected so no Android FS needed in tests. */
     @EucStatsTripFileBytes private val tripFileBytes: @JvmSuppressWildcards (TripRecord) -> ByteArray,
     @EucStatsAppVersion private val appVersion: String,
     @EucStatsOsVersion private val osVersion: String,
@@ -254,7 +254,7 @@ class EucStatsRepository @Inject constructor(
      * [onProgress] (done, total) so the UI can show a determinate bar like the
      * trips-backup "Sync all". Returns a [SyncResult] carrying both the total
      * eligible count and the number that actually uploaded, so callers can
-     * tell "nothing to do" apart from "all attempts failed" — the previous
+     * tell "nothing to do" apart from "all attempts failed", the previous
      * Int return reported the total either way and led to misleading
      * "Synced N trips" snackbars when uploads silently failed.
      */

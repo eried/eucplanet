@@ -244,7 +244,7 @@ fun AppThemeColors.fillDerived(): AppThemeColors = copy(
  */
 fun AppThemeColors.toColorScheme(): ColorScheme {
     val base = if (isLight) lightColorScheme() else darkColorScheme()
-    // Map EVERY Material slot from a token — the unmapped *container / inverse /
+    // Map EVERY Material slot from a token, the unmapped *container / inverse /
     // tint* slots used to fall back to Material's default purple, which is why
     // things like the segmented selector's selected text weren't following the
     // theme. The "container" slots stay subtle (surfaceVariant fill + accent
@@ -494,7 +494,7 @@ object ThemeJson {
 
 /**
  * The active theme's tokens, provided once at the app root. Static because the
- * value is a stable immutable object while the editor is closed — readers don't
+ * value is a stable immutable object while the editor is closed, readers don't
  * recompose unless the whole theme actually changes.
  */
 val LocalAppColors = staticCompositionLocalOf { BuiltInThemes.pureBlack.colors }
@@ -503,7 +503,7 @@ val LocalAppColors = staticCompositionLocalOf { BuiltInThemes.pureBlack.colors }
  * Ergonomic accessor so app-specific tokens read just like the Material roles:
  * `MaterialTheme.appColors.statusGood` sits right next to
  * `MaterialTheme.colorScheme.primary` and autocompletes the same way. New code
- * never hardcodes a color — it reaches for a colorScheme role or an appColors
+ * never hardcodes a color, it reaches for a colorScheme role or an appColors
  * token, and is themed (and editable by the target tool) for free.
  */
 val MaterialTheme.appColors: AppThemeColors

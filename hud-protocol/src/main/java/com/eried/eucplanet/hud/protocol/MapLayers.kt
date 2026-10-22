@@ -31,6 +31,12 @@ object MapLayers {
          *  on top of the base; the canvas renderers (Studio, HUD cache) keep
          *  base-only, which just means fewer place labels there. */
         val refUrlTemplate: String = "",
+        /** A second labels layer over [refUrlTemplate], drawn only by the
+         *  Leaflet maps (navigator, trip details). Esri's hybrid needs two:
+         *  roads with their names, then place names and boundaries. The
+         *  canvas renderers draw [refUrlTemplate] alone, so they keep the
+         *  road names. */
+        val extraRefUrlTemplate: String = "",
         val attribution: String,
         /** Same credit for a small canvas. A Studio map element can be a
          *  thumbnail on a phone screen, where the full string would be clipped
@@ -54,6 +60,7 @@ object MapLayers {
     const val LIGHT = "LIGHT"
     const val DARK = "DARK"
     const val SATELLITE = "SATELLITE"
+    const val SATELLITE_LABELS = "SATELLITE_LABELS"
 
     private const val ESRI = "https://server.arcgisonline.com/ArcGIS/rest/services/"
 
@@ -124,6 +131,18 @@ object MapLayers {
             attributionShort = "© Esri",
             maxNativeZoom = 19,
         ),
+        // Satellite with road and place names on top: Esri's own "Imagery
+        // Hybrid" recipe, the same keyless host. Riders asked for road names
+        // over the imagery.
+        Layer(
+            id = SATELLITE_LABELS,
+            urlTemplate = ESRI + "World_Imagery/MapServer/tile/{z}/{y}/{x}",
+            refUrlTemplate = ESRI + "Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}",
+            extraRefUrlTemplate = ESRI + "Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+            attribution = "Esri · Maxar · Earthstar Geographics · HERE · Garmin · © OpenStreetMap contributors",
+            attributionShort = "© Esri, OSM",
+            maxNativeZoom = 19,
+        ),
     )
 
     /**
@@ -134,19 +153,44 @@ object MapLayers {
     private val ALIASES = mapOf(
         "SAT" to SATELLITE,
         "STREET" to OSM,
-        "osm" to OSM,
-        "cyclosm" to CYCLOSM,
-        "topo" to TOPO,
         "hot" to HUMANITARIAN,
-        "satellite" to SATELLITE,
+        // The HUD's own picker codes and the CARTO slugs it stored before the
+        // Esri move. Every voyager_* and light_* slug was a light chart, every
+        // dark_* one a dark chart; the HUD's cache used to resolve them itself
+        // and quietly turned all seven new codes into the light chart too.
         "voyager" to LIGHT,
+        "voyager_nolabels" to LIGHT,
+        "voyager_labels_under" to LIGHT,
+        "voyager_only_labels" to LIGHT,
+        "positron" to LIGHT,
+        "light_all" to LIGHT,
+        "light_nolabels" to LIGHT,
+        "light_only_labels" to LIGHT,
         "dark_all" to DARK,
+        "dark_nolabels" to DARK,
+        "dark_only_labels" to DARK,
+        "dark_matter" to DARK,
+        "dark_matter_nolabels" to DARK,
     )
 
-    /** The layer for a stored id, falling back to plain OSM. */
+    /**
+     * The layer for a stored id, falling back to plain OSM. Case does not
+     * matter, so the HUD's lowercase "osm" / "light" / "dark" and the phone's
+     * uppercase ids land on the same entry.
+     */
     fun byId(id: String): Layer {
-        val canonical = ALIASES[id] ?: id
+        val canonical = ALIASES[id] ?: id.uppercase()
         return ALL.firstOrNull { it.id == canonical } ?: ALL.first()
+    }
+
+    /** The labels tile that goes on top of [tileUrl] for a split Esri layer, or null. */
+    fun refTileUrl(id: String, z: Int, x: Int, y: Int): String? {
+        val layer = byId(id)
+        if (layer.refUrlTemplate.isBlank()) return null
+        return layer.refUrlTemplate
+            .replace("{z}", z.toString())
+            .replace("{x}", x.toString())
+            .replace("{y}", y.toString())
     }
 
     /** Tile URL with the placeholders filled in, for the canvas renderers that

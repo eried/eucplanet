@@ -18,7 +18,7 @@ package com.eried.eucplanet.util
  * fall back to the classic `?file=` link. When in doubt, fall back.
  *
  * `d` is the format tag ("Dropbox template, v1"). `ts36` is unpadded lowercase
- * base36 of the 14 filename digits `YYYYMMDDHHMMSS` — a digit-string transform,
+ * base36 of the 14 filename digits `YYYYMMDDHHMMSS`, a digit-string transform,
  * NOT a date (the filename is the exporting phone's wall-clock local time, so
  * this never touches epoch time or a timezone in either direction).
  */

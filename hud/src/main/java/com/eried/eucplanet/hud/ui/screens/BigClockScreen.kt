@@ -92,7 +92,7 @@ fun BigClockScreen(hud: HudState) {
                         )
                         // bottom padding lifts the small AM/PM off the very
                         // baseline so it visually sits at ~25 % from the
-                        // bottom of the big digits — reads as a subtitle
+                        // bottom of the big digits, reads as a subtitle
                         // attached to the time rather than a floating
                         // descender.
                         Text(

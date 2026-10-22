@@ -28,7 +28,7 @@ import kotlinx.coroutines.launch
  * The HUD is a kiosk-style device: app is always foreground, no system bars,
  * navigation is exclusively via the IR remote (LEFT/RIGHT/UP/DOWN/CENTER/ESC).
  * We intercept key events at the Activity level so even Compose-internal focus
- * handling doesn't swallow them — the four screens are not "focusable" widgets
+ * handling doesn't swallow them, the four screens are not "focusable" widgets
  * in the Compose sense, they're a custom carousel driven by [HudUiController].
  */
 class HudActivity : ComponentActivity() {

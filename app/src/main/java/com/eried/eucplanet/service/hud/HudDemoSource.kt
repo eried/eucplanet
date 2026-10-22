@@ -22,7 +22,7 @@ import kotlin.math.sin
  * PWM oscillates, temperature creeps up, GPS slowly orbits the phone's
  * starting position. Every screen has something visibly moving.
  *
- * This is NOT a general-purpose mock — it never writes to the real
+ * This is NOT a general-purpose mock, it never writes to the real
  * repositories, and the rider's actual wheel (if connected) is ignored
  * while demo mode is on. Strictly for emulator development.
  */

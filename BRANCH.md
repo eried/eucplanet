@@ -7,35 +7,25 @@ and a build here is meant to get you home.
 This is what the Play beta is cut from. If you want to help without gambling a
 ride, this is the branch.
 
-## What to check in this build
+## Worked on
 
-**Voice commands.** Hold the Voice button on the dashboard and pick Listen for
-voice command, then ask for a metric: "battery", "controller temp", "max
-speed", "what can I say". Bind it to a Flic, the volume keys, your watch or the
-HUD if you would rather not hold anything, or drag the Listen action onto a
-dashboard slot for a one tap start. It answers in the voice you picked, with
-the units your tiles use.
+- 0.22.0: everything from next-experimental, now the release. The full list is on the GitHub release page.
+- Map: a shared `geo:` link or Maps place keeps your planned stops and asks first; a named place keeps its name.
+- Map: while navigating, the stop list keeps each stop's distance and the total, not just the next leg.
+- Lights: walking the wheel at a brisk pace no longer turns the light back on. It returns after 2 seconds of riding.
 
-Four settings under Settings, Voice. **Cue when listening**: Beep, a spoken
-word, or Off, which is what a headset with its own tone needs. **When not
-understood**: the sentence, a low two-note fall, or nothing. **Command
-language**, so you can run the app in one language and speak another. And
-**Headset voice button**, off by default, which lets your headset's voice
-button start listening; Android asks once which app should answer it.
+## Please test
 
-Some commands do things rather than answer: "light" flips the headlight,
-"light status" reads it back, "lights on" and "lights off" say which way.
-"voice off" stops the periodic announcements mid-ride, "voice on" brings them
-back, "voice report" gives you one now. The "what can I say" list marks those
-with a star.
+**Any wheel**
+- Update over 0.21.0 from Play or the APK: your settings, trips and paired wheel are still there?
+- Walk the wheel after a ride with "Turn the light off when slowing down" on: the light stays off, and comes back a moment after you ride off?
 
-Five report items are new and all start off, under Customize voice report:
-Battery (est), Range, Voltage, Odometer and Consumption.
+**Map / navigation**
+- Share a place from Google Maps with stops planned: it asks New route or Add as next, and the stop has the place's name?
+- Navigate a route with three or more stops: the stop list distances and total stay the same as before you started?
 
-**Everything else from next-experimental**, which is a lot: tyre sensors on the
-dashboard and in alarms, the Battery (est) tile, the speed splits button,
-pressure units, and the Aeon alarm-speed mapping. Ride normally and report what
-looks wrong.
+**Android Auto** (Play install only)
+- The car screen opens, speed and battery match the phone, Horn, Light and Record work?
 
 ## Reporting back
 

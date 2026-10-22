@@ -137,7 +137,7 @@ fun DashboardScreen(hud: HudState, gpsView: Boolean) {
                         HudUnits.distance(hud.tripKm, hud.unitDistance),
                         HudUnits.distanceSuffix(hud.unitDistance)
                     ),
-                    subtitle = hud.wheelName.ifBlank { "—" },
+                    subtitle = hud.wheelName.ifBlank { "--" },
                     accent = accent,
                     modifier = Modifier.weight(1f).fillMaxWidth()
                 )

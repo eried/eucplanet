@@ -13,12 +13,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.Units
@@ -104,7 +106,7 @@ fun PipSimple(
                 val pwm = abs(data.pwm)
                 BigStat(
                     value = if (!connected || data.pwm.isNaN()) "--" else "%.0f".format(pwm),
-                    label = "pwm %",
+                    label = stringResource(R.string.pip_label_pwm),
                     color = when {
                         !connected || data.pwm.isNaN() -> colors.textSecondary
                         pwm >= 85f -> colors.statusDanger

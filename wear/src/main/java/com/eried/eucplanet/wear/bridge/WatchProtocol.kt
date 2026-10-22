@@ -53,7 +53,7 @@ object WatchKeys {
     const val UNIT_TEMP = "ut"
     const val ACCENT = "ac"
     /** Packed custom-theme colors ("#"-less AARRGGBB, pipe-separated, fixed
-     *  field order — see WatchColors / ThemeAccent.packForWatch). Lets the watch
+     *  field order, see WatchColors / ThemeAccent.packForWatch). Lets the watch
      *  mirror the phone theme's background, gauge, battery and text colors.
      *  Absent on older phone builds → watch keeps its built-in palette. */
     const val THEME = "thm"
@@ -68,6 +68,9 @@ object WatchKeys {
 
     // --- Watch UI options pushed from the phone Settings -> Watch section ---
     const val OPT_KEEP_ON = "wko"
+    const val OPT_KEEP_ON_NAV = "wkn"
+    const val MAP_ENABLED = "wme"
+    const val MAP_SHOW_TELEMETRY = "wmt"
     const val OPT_SHOW_WHEEL_BATT = "wsb"
     const val OPT_SHOW_PHONE_BATT = "wpb"
     const val OPT_SHOW_WATCH_BATT = "wwb"
@@ -87,13 +90,13 @@ object WatchKeys {
     const val OPT_GAUGE_RED = "wgr"
 
     // --- Hardware-button bindings (KEYCODE_STEM_1 / STEM_2). Stored as
-    //     FlicAction.name strings; "NONE" disables the binding. ---
+    //     ActionCatalog key strings; "NONE" disables the binding. ---
     const val STEM1_CLICK = "s1c"
     const val STEM1_HOLD = "s1h"
     const val STEM2_CLICK = "s2c"
     const val STEM2_HOLD = "s2h"
 
-    // --- On-screen watch button bindings. Same FlicAction.name vocabulary;
+    // --- On-screen watch button bindings. Same ActionCatalog key vocabulary;
     //     defaults are HORN / LIGHT_TOGGLE on the phone side. ---
     const val SCREEN1_CLICK = "b1c"
     const val SCREEN1_HOLD = "b1h"
@@ -118,12 +121,24 @@ object WatchKeys {
     const val NAV_ARRIVED = "nar"
 }
 
+object WatchMapPrefs {
+    const val NAME = "watch_map"
+    const val VIEWER_ID = "viewer_id"
+    const val VIEWER_EPOCH = "viewer_epoch"
+    const val PHONE_NODE_ID = "phone_node_id"
+    const val ENABLED = "enabled"
+    const val SHOW_TELEMETRY = "show_telemetry"
+    const val ZOOM = "zoom"
+    const val FRAME_JSON = "frame_json"
+    const val LAST_AUTO_OPEN_SESSION = "last_auto_open_session"
+}
+
 object WatchControl {
     const val HORN = "horn"
     const val LIGHT_ON = "light_on"
     const val LIGHT_OFF = "light_off"
     /**
-     * Generic action passthrough: payload is a [FlicAction] name. Used by
+     * Generic action passthrough: payload is an ActionCatalog key. Used by
      * the watch's stem-button handler when the bound action needs phone
      * routing (LOCK_TOGGLE, SAFETY_TOGGLE, RECORD_TOGGLE, VOICE_ANNOUNCE,
      * MEDIA_*). Horn / light keep their dedicated paths above for back-
@@ -196,6 +211,9 @@ data class WatchState(
     val themePacked: String = "",
     // Watch UI options sourced from phone Settings.
     val keepScreenOn: Boolean = true,
+    val keepScreenOnForNavigation: Boolean = false,
+    val watchMapEnabled: Boolean = false,
+    val mapShowTelemetry: Boolean = true,
     val showWheelBattery: Boolean = true,
     val showPhoneBattery: Boolean = true,
     val showWatchBattery: Boolean = true,

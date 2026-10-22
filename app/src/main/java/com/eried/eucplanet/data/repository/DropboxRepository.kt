@@ -24,7 +24,7 @@ import org.json.JSONObject
  *
  * We deliberately do NOT pull in the Dropbox Java SDK (~5 MB, mostly
  * classes for endpoints we don't use). Instead we hit Dropbox's REST API
- * v2 directly with OkHttp — a few calls for /oauth2/token,
+ * v2 directly with OkHttp, a few calls for /oauth2/token,
  * /users/get_current_account, /files/upload, /files/download,
  * /files/list_folder.
  *
@@ -272,7 +272,7 @@ class DropboxRepository @Inject constructor(
     /**
      * Upload [bytes] to the App-Folder path [remotePath] (e.g.
      * "/trips/trip_20260622_010203.csv"). Overwrites any existing file
-     * at the same path — caller is responsible for picking a path that
+     * at the same path, caller is responsible for picking a path that
      * doesn't collide with someone else's edit, or for comparing
      * server_modified timestamps first via [listFolder].
      *
@@ -497,10 +497,15 @@ class DropboxRepository @Inject constructor(
      * and read as working in every test that checked the code rather than ran
      * it.
      */
-    data class RemoteFile(val serverModifiedSec: Long, val size: Long)
+    data class RemoteFile(
+        val serverModifiedSec: Long,
+        val size: Long,
+        /** Dropbox's content_hash, see DropboxContentHash; null if the listing left it out. */
+        val contentHash: String? = null,
+    )
 
     /** Map of file-name → [RemoteFile] for the given Dropbox folder (App-Folder
-     *  relative). Empty map on "not_found" (folder doesn't exist yet — normal on
+     *  relative). Empty map on "not_found" (folder doesn't exist yet, normal on
      *  first link). Null on auth / network failure so caller can distinguish
      *  "no files" from "couldn't check". */
     /** One page of a folder listing: the files on it, and where to continue. */
@@ -714,7 +719,7 @@ class DropboxRepository @Inject constructor(
         } catch (e: Exception) { null }
     }
 
-    /** Drop the local tokens — does NOT revoke them on Dropbox's side
+    /** Drop the local tokens, does NOT revoke them on Dropbox's side
      *  (which would need another HTTPS call). Future iteration could add
      *  /auth/token/revoke; for now the token simply ages out. */
     suspend fun unlink() {
@@ -729,6 +734,11 @@ class DropboxRepository @Inject constructor(
                 dropboxSyncPending = false,
                 dropboxPendingCount = 0,
                 dropboxSyncTotal = 0,
+                // The baseline belongs to that link. Kept, a relink to another
+                // account would read its settings as "changed only on Dropbox"
+                // and apply them unasked.
+                dropboxSettingsBaseHash = "",
+                dropboxPullRequested = false,
             )
         }
     }
@@ -829,7 +839,10 @@ class DropboxRepository @Inject constructor(
                 val epoch = try {
                     java.time.OffsetDateTime.parse(e.optString("server_modified")).toEpochSecond()
                 } catch (_: Exception) { 0L }
-                files[name] = RemoteFile(epoch, e.optLong("size", -1L))
+                files[name] = RemoteFile(
+                    epoch, e.optLong("size", -1L),
+                    e.optString("content_hash").ifBlank { null },
+                )
             }
             return ListPage(
                 files = files,
@@ -839,7 +852,7 @@ class DropboxRepository @Inject constructor(
         }
 
 
-        /** RFC 7636 — 43-128 chars from a fixed unreserved set. */
+        /** RFC 7636, 43-128 chars from a fixed unreserved set. */
         private fun randomCodeVerifier(): String {
             val alphabet = ('A'..'Z') + ('a'..'z') + ('0'..'9') + listOf('-', '.', '_', '~')
             val rnd = java.security.SecureRandom()

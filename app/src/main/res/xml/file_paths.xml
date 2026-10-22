@@ -3,4 +3,5 @@
     <external-files-path name="trips" path="trips/" />
     <files-path name="crashes" path="crashes/" />
     <cache-path name="diagnostics" path="diagnostics/" />
+    <cache-path name="shared" path="shared/" />
 </paths>

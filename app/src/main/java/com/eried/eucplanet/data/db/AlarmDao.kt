@@ -16,6 +16,12 @@ interface AlarmDao {
     @Query("SELECT * FROM alarm_rules WHERE enabled = 1 ORDER BY sortOrder ASC, id ASC")
     suspend fun getEnabled(): List<AlarmRule>
 
+    /** Same rows and order as [getEnabled], re-emitted whenever the table
+     *  changes, so the alarm engine can hold them instead of querying per
+     *  telemetry frame. */
+    @Query("SELECT * FROM alarm_rules WHERE enabled = 1 ORDER BY sortOrder ASC, id ASC")
+    fun observeEnabled(): Flow<List<AlarmRule>>
+
     @Query("SELECT * FROM alarm_rules ORDER BY sortOrder ASC, id ASC")
     suspend fun getAll(): List<AlarmRule>
 

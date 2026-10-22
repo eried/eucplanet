@@ -77,7 +77,7 @@ fun CustomOverlayScreen(hud: HudState, withCamera: Boolean = false) {
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
             if (preset == null || preset.elements.isEmpty()) {
                 // Drop the empty-state message to ~75% of the screen height so
-                // it sits below the visual centre — riders glancing up at the
+                // it sits below the visual centre, riders glancing up at the
                 // HUD instinctively scan the upper half for live data, so the
                 // unhelpful "no preset yet" line shouldn't squat in their
                 // primary attention zone.

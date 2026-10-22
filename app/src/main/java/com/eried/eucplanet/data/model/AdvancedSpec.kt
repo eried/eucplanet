@@ -9,7 +9,7 @@ import com.eried.eucplanet.R
  * Each tunable is declared once as an [AdvancedSpec]; the UI, the clamping in
  * SettingsRepository.sanitized(), JSON (de)serialization, the per-setting update,
  * and the restore-default affordance all iterate this list instead of repeating
- * 46 hand-written rows / functions / clamp lines. Adding a knob = one field on
+ * a hand-written row / function / clamp line per knob. Adding a knob = one field on
  * [AdvancedSettings] + one spec entry + two strings.
  *
  * Mirrors the project's existing `ThemeTokens.specs` registry pattern.
@@ -34,6 +34,7 @@ enum class AdvGroup(
     RADAR_CLASS(R.string.adv_group_radar_class, warningRes = R.string.adv_radar_warning),
     CHARGING(R.string.adv_group_charging, warningRes = R.string.adv_charging_warning),
     GEOMETRY(R.string.adv_group_geometry),
+    MAP_CACHE(R.string.adv_group_map_cache),
     CONTROLS(R.string.adv_group_controls),
     WEATHER(R.string.adv_group_weather),
 }
@@ -61,7 +62,7 @@ val taperParse: (String) -> Int? = { it.toFloatOrNull()?.let { f -> Math.round(f
 val pinFormat: (Int) -> String = { String.format(java.util.Locale.US, "%06d", it) }
 val pinParse: (String) -> Int? = { it.toIntOrNull() }
 
-/** Canonical defaults — one allocation, reused for resets, JSON fallback, etc. */
+/** Canonical defaults, one allocation, reused for resets, JSON fallback, etc. */
 val ADVANCED_DEFAULTS = AdvancedSettings()
 
 /** A spec's default value = the matching field on [ADVANCED_DEFAULTS]. */
@@ -98,6 +99,11 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
     AdvancedSpec("garminReportIntervalMs", AdvGroup.RATES, R.string.adv_garmin_report_interval, R.string.adv_garmin_report_interval_desc,
         100..2000, 25, get = { it.garminReportIntervalMs }, set = { s, v -> s.copy(garminReportIntervalMs = v) }),
 
+    AdvancedSpec("headlightReadbackMaxAgeMs", AdvGroup.CONTROLS,
+        R.string.adv_headlight_readback_age, R.string.adv_headlight_readback_age_desc,
+        1000..30000, 1000, get = { it.headlightReadbackMaxAgeMs },
+        set = { s, v -> s.copy(headlightReadbackMaxAgeMs = v) }),
+
     // --- Navigation timing ---
     AdvancedSpec("navOffRouteGraceMs", AdvGroup.NAV_TIMING, R.string.adv_nav_offroute_grace, R.string.adv_nav_offroute_grace_desc,
         500..60000, 500, get = { it.navOffRouteGraceMs }, set = { s, v -> s.copy(navOffRouteGraceMs = v) }),
@@ -129,6 +135,8 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
         2..20, 1, unit = "", get = { it.alarmSlopeMinSamples }, set = { s, v -> s.copy(alarmSlopeMinSamples = v) }),
     AdvancedSpec("alarmSlopeMinSpanMs", AdvGroup.ALARM, R.string.adv_alarm_min_span, R.string.adv_alarm_min_span_desc,
         50..5000, 50, get = { it.alarmSlopeMinSpanMs }, set = { s, v -> s.copy(alarmSlopeMinSpanMs = v) }),
+    AdvancedSpec("alarmWarmRouteMs", AdvGroup.ALARM, R.string.adv_alarm_warm_route, R.string.adv_alarm_warm_route_desc,
+        10000..3600000, 10000, get = { it.alarmWarmRouteMs }, set = { s, v -> s.copy(alarmWarmRouteMs = v) }),
 
     // --- Radar and automation ---
     AdvancedSpec("radarClearDecayMs", AdvGroup.RADAR_AUTO, R.string.adv_radar_clear_decay, R.string.adv_radar_clear_decay_desc,
@@ -157,6 +165,10 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
         0..5000, 100, get = { it.hudManualHintDelayMs }, set = { s, v -> s.copy(hudManualHintDelayMs = v) }),
     AdvancedSpec("hudMdnsServiceInfoTimeoutMs", AdvGroup.HUD, R.string.adv_hud_mdns_resolve, R.string.adv_hud_mdns_resolve_desc,
         200..5000, 100, get = { it.hudMdnsServiceInfoTimeoutMs }, set = { s, v -> s.copy(hudMdnsServiceInfoTimeoutMs = v) }),
+    AdvancedSpec("hudIdleSearchMs", AdvGroup.HUD, R.string.adv_hud_idle_search, R.string.adv_hud_idle_search_desc,
+        10000..1800000, 10000, get = { it.hudIdleSearchMs }, set = { s, v -> s.copy(hudIdleSearchMs = v) }),
+    AdvancedSpec("hudSweepIntervalMs", AdvGroup.HUD, R.string.adv_hud_sweep_interval, R.string.adv_hud_sweep_interval_desc,
+        5000..600000, 5000, get = { it.hudSweepIntervalMs }, set = { s, v -> s.copy(hudSweepIntervalMs = v) }),
 
     // --- Auto-lights ---
     AdvancedSpec("autoLightNoGpsRetryMs", AdvGroup.AUTOLIGHTS, R.string.adv_autolight_no_gps_retry, R.string.adv_autolight_no_gps_retry_desc,
@@ -232,6 +244,12 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
     AdvancedSpec("navSidebarMinScreenDp", AdvGroup.GEOMETRY, R.string.adv_nav_sidebar_min, R.string.adv_nav_sidebar_min_desc,
         400..900, 20, unit = "dp", get = { it.navSidebarMinScreenDp }, set = { s, v -> s.copy(navSidebarMinScreenDp = v) }),
 
+    // --- Map cache budgets ---
+    AdvancedSpec("mapEncodedCacheMiB", AdvGroup.MAP_CACHE, R.string.adv_map_encoded_cache, R.string.adv_map_encoded_cache_desc,
+        1..32, 1, unit = "MiB", get = { it.mapEncodedCacheMiB }, set = { s, v -> s.copy(mapEncodedCacheMiB = v) }),
+    AdvancedSpec("mapHttpCacheMiB", AdvGroup.MAP_CACHE, R.string.adv_map_http_cache, R.string.adv_map_http_cache_desc,
+        16..256, 16, unit = "MiB", get = { it.mapHttpCacheMiB }, set = { s, v -> s.copy(mapHttpCacheMiB = v) }),
+
     // --- Wheel access ---
     // InMotion V1 (V5/V8/V10/L6) BLE PIN. Typed 6-digit field; factory default
     // 000000. The +/- steppers are incidental (you type the PIN); NumberUpDown
@@ -239,6 +257,12 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
     AdvancedSpec("inmotionV1Pin", AdvGroup.CONTROLS, R.string.adv_inmotion_v1_pin, R.string.adv_inmotion_v1_pin_desc,
         0..999999, 1, unit = "", get = { it.inmotionV1Pin }, set = { s, v -> s.copy(inmotionV1Pin = v) },
         format = pinFormat, parse = pinParse),
+    AdvancedSpec("kingsongUnlockCode", AdvGroup.CONTROLS, R.string.adv_kingsong_unlock_code, R.string.adv_kingsong_unlock_code_desc,
+        0..999999, 1, unit = "", get = { it.kingsongUnlockCode }, set = { s, v -> s.copy(kingsongUnlockCode = v) },
+        format = pinFormat, parse = pinParse),
+    AdvancedSpec("kingsongPassword", AdvGroup.CONTROLS, R.string.adv_kingsong_password, R.string.adv_kingsong_password_desc,
+        0..9999, 1, unit = "", get = { it.kingsongPassword }, set = { s, v -> s.copy(kingsongPassword = v) },
+        format = { String.format(java.util.Locale.US, "%04d", it) }, parse = pinParse),
 
     // --- Weather score thresholds ---
     // The comfort numbers behind the ridability score; the riding

@@ -1,5 +1,6 @@
 package com.eried.eucplanet.ui.lockdown
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -73,7 +74,7 @@ fun LegalLockdownScreen(
     onNavigateToScan: () -> Unit,
     viewModel: LegalLockdownViewModel = hiltViewModel()
 ) {
-    val wheelData by viewModel.wheelData.collectAsState()
+    val wheelData by viewModel.wheelData.collectAsStateWithLifecycle()
     val connectionState by viewModel.connectionState.collectAsState()
     val lightBusy by viewModel.lightBusy.collectAsState()
     val legalTiltback by viewModel.legalTiltbackKmh.collectAsState()

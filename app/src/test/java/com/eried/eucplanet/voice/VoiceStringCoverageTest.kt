@@ -81,6 +81,10 @@ class VoiceStringCoverageTest {
         "voice_act_record_start_terms",
         "voice_act_record_stop_terms",
         "voice_act_reset_trip_terms",
+        "voice_act_music_start_terms",
+        "voice_act_media_pause_terms",
+        "voice_act_media_next_terms",
+        "voice_act_media_prev_terms",
         "voice_answer_mic_busy",
         "voice_answer_which",
     )

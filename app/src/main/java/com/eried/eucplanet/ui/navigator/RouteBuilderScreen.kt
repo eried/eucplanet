@@ -123,6 +123,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -156,6 +157,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
+import com.eried.eucplanet.nav.isFixedTrack
 import sh.calvin.reorderable.ReorderableColumn
 import com.eried.eucplanet.ui.settings.eucstats.flagEmoji
 import com.eried.eucplanet.ui.theme.themedFieldColors
@@ -199,6 +201,7 @@ fun RouteBuilderScreen(
     val travelMode by viewModel.travelMode.collectAsState()
     val solveFullPath by viewModel.solveFullPath.collectAsState()
     val tourDistanceM by viewModel.tourDistanceM.collectAsState()
+    val stopLegs by viewModel.stopLegs.collectAsState()
     val searchResults by viewModel.searchResults.collectAsState()
     val searching by viewModel.searching.collectAsState()
     val routing by viewModel.routing.collectAsState()
@@ -295,6 +298,9 @@ fun RouteBuilderScreen(
     // The camera, and the ride it read. The link is held rather than joined on
     // sight: the rider still has to say how they want to appear.
     var shareScannerOpen by remember { mutableStateOf(false) }
+    // The planned route as a QR code; set by the Share menu's "Share route".
+    var routeQrLink by remember { mutableStateOf<String?>(null) }
+    val pendingRoute by viewModel.pendingRoute.collectAsState()
     var scannedLink by remember { mutableStateOf<ShareLink?>(null) }
     // The identity form for a ride the rider is starting themselves.
     var shareStartOpen by remember { mutableStateOf(false) }
@@ -1504,6 +1510,7 @@ fun RouteBuilderScreen(
                     home = homePlace,
                     work = workPlace,
                     routeDistanceM = tourDistanceM,
+                    stopLegs = stopLegs,
                     routing = routing,
                     imperial = imperial,
                     onRemove = viewModel::removeWaypoint,
@@ -1755,6 +1762,27 @@ fun RouteBuilderScreen(
                 )
             }
 
+            // A stop added to a finished route (every stop reached): New
+            // route clears the reached stops and adds it; Cancel (or back)
+            // adds nothing. A finished route is not continued.
+            val finishedPrompt by viewModel.finishedRoutePrompt.collectAsState()
+            if (finishedPrompt) {
+                androidx.compose.material3.AlertDialog(
+                    onDismissRequest = { viewModel.finishedCancel() },
+                    title = { Text(stringResource(R.string.nav_finished_title)) },
+                    text = { Text(stringResource(R.string.nav_finished_body)) },
+                    confirmButton = {
+                        TextButton(onClick = { viewModel.finishedStartNewRoute() }, shape = RoundedCornerShape(12.dp)) {
+                            Text(stringResource(R.string.nav_menu_clear))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { viewModel.finishedCancel() }, shape = RoundedCornerShape(12.dp)) {
+                            Text(stringResource(R.string.action_cancel))
+                        }
+                    }
+                )
+            }
             // A Share-to-app intent landed on a route that already has
             // stops. Ask before stomping on the rider's current route -
             // "New route" wipes stops then drops the shared point, "Add
@@ -1774,6 +1802,26 @@ fun RouteBuilderScreen(
                     dismissButton = {
                         TextButton(onClick = { viewModel.acceptPendingShareAsNewRoute() }, shape = RoundedCornerShape(12.dp)) {
                             Text(stringResource(R.string.nav_share_dialog_new))
+                        }
+                    }
+                )
+            }
+
+            // A shared route (scanned or opened from a link) over an unsaved
+            // multi-stop route: the same question a loaded GPX asks.
+            if (pendingRoute != null) {
+                androidx.compose.material3.AlertDialog(
+                    onDismissRequest = { viewModel.dismissPendingRoute() },
+                    title = { Text(stringResource(R.string.route_open_title)) },
+                    text = { Text(stringResource(R.string.route_open_confirm)) },
+                    confirmButton = {
+                        TextButton(onClick = { viewModel.confirmPendingRoute() }, shape = RoundedCornerShape(12.dp)) {
+                            Text(stringResource(R.string.nav_menu_load_short))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { viewModel.dismissPendingRoute() }, shape = RoundedCornerShape(12.dp)) {
+                            Text(stringResource(R.string.action_cancel))
                         }
                     }
                 )
@@ -1871,10 +1919,50 @@ fun RouteBuilderScreen(
                 shareScannerOpen -> ShareScannerDialog(
                     onLink = { link ->
                         shareScannerOpen = false
-                        scannedLink = link
+                        // The scanner is open during a group ride too (for
+                        // routes); a second group is still a leave away.
+                        if (joinedGroup != null) {
+                            scope.launch { snackbarHost.showSnackbar(context.getString(R.string.share_leave_first)) }
+                        } else scannedLink = link
+                    },
+                    onRoute = { r ->
+                        shareScannerOpen = false
+                        viewModel.openSharedRoute(r)
                     },
                     onDismiss = { shareScannerOpen = false }
                 )
+
+                routeQrLink != null -> {
+                    // Says which route it is, the way a rider would: where it
+                    // goes, through what, and how far, in their own units.
+                    val r = route
+                    val trackOnly = r.isFixedTrack(waypoints)
+                    val names = waypoints.map { it.name.trim() }.filter { it.isNotEmpty() }
+                    val title = when {
+                        !trackOnly && waypoints.size == 1 && names.size == 1 -> names[0]
+                        trackOnly || names.size < 2 -> r?.name?.takeIf { it.isNotBlank() }
+                            ?: stringResource(R.string.share_menu_route)
+                        else -> names.joinToString(" → ")
+                    }
+                    // Each leg, as the builder's list measures it.
+                    val legsM = if (trackOnly) emptyList() else viewModel.shareLegsM()
+                    // The friend's route is the stops: the ride to the first one is not part of it.
+                    val meters = if (legsM.isNotEmpty()) legsM.sum() else r?.totalDistanceM?.takeIf { it > 0 }
+                        ?: com.eried.eucplanet.nav.GeoMath.polylineLengthM(waypoints.map { it.point() })
+                    RouteQrDialog(
+                        link = routeQrLink!!,
+                        stopNames = if (trackOnly) emptyList() else waypoints.map { w ->
+                            w.name.trim().ifEmpty { String.format(java.util.Locale.US, "%.5f, %.5f", w.lat, w.lng) }
+                        },
+                        legs = legsM.map { com.eried.eucplanet.nav.NavFormat.distance(context, it, imperial) },
+                        cardTitle = title,
+                        // A single stop has no length of its own: the friend rides from wherever they are.
+                        distance = if (!trackOnly && waypoints.size < 2) pluralStringResource(R.plurals.route_stop_count, 1, 1)
+                            else com.eried.eucplanet.nav.NavFormat.distance(context, meters, imperial),
+                        onNotify = { msg -> scope.launch { snackbarHost.showSnackbar(msg) } },
+                        onDismiss = { routeQrLink = null },
+                    )
+                }
 
                 // Only until the room answers: once the rider is in, the
                 // group view below owns the window. Without the guard this
@@ -1988,6 +2076,13 @@ fun RouteBuilderScreen(
                     inGroup = joinedGroup != null,
                     onDismiss = { shareMenuOpen = false },
                     onScan = { shareScannerOpen = true },
+                    canShareRoute = waypoints.isNotEmpty(),
+                    onShareRoute = {
+                        routeQrLink = viewModel.shareRouteLink()
+                        if (routeQrLink == null) scope.launch {
+                            snackbarHost.showSnackbar(context.getString(R.string.route_qr_too_long))
+                        }
+                    },
                     onStartGroup = { shareStartOpen = true },
                     onNotify = { msg -> scope.launch { snackbarHost.showSnackbar(msg) } },
                 )
@@ -2166,6 +2261,8 @@ private fun BottomPanel(
     home: com.eried.eucplanet.data.model.Waypoint?,
     work: com.eried.eucplanet.data.model.Waypoint?,
     routeDistanceM: Double?,
+    /** Each stop's distance by list index; empty while dragging or for one stop. */
+    stopLegs: Map<Int, RouteBuilderViewModel.StopLeg>,
     routing: Boolean,
     imperial: Boolean,
     onRemove: (Int) -> Unit,
@@ -2539,19 +2636,15 @@ private fun BottomPanel(
                                 if (sz.height > stableMinH) stableMinH = sz.height
                             }
                     ) {
-                        ReorderableColumn(
-                            list = waypoints,
-                            onSettle = if (navRunning) { _, _ -> } else { from, to ->
-                                onListReorderEnd()
-                                onReorder(from, to)
-                            },
-                            onMove = {
-                                onListReorderStart()
-                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        ) { index, waypoint, _ ->
-                            key("${waypoint.lat},${waypoint.lng},${waypoint.name},$index") {
+                        // Reached stops are drawn above the drag list as plain rows,
+                        // and only the stops still ahead go into it. The library
+                        // moves rows visually by itself, so with the reached ones
+                        // inside it a pending stop could be dropped among them;
+                        // outside it, that cannot happen. Indices are shifted
+                        // back to the full list for every callback.
+                        val reachedCount = passedPrefix(waypoints)
+                        val stopRow: @Composable (Int, com.eried.eucplanet.data.model.Waypoint, Boolean, Modifier) -> Unit =
+                            { index, waypoint, draggable, handleModifier ->
                                 Box {
                                     var rowMenu by remember { mutableStateOf(false) }
                                     Row(
@@ -2566,19 +2659,15 @@ private fun BottomPanel(
                                         //   * disabled when only one stop is left
                                         //   * disabled when the whole route is done (allPassed
                                         //     -- the rider is expected to hit 'New route')
-                                        // A passed stop sitting alongside still-pending stops
-                                        // CAN be dragged / removed -- the rider might want to
-                                        // re-add it or reshuffle the remaining list.
-                                        val canReorder =
-                                            waypoints.size > 1 && !navRunning && !allPassed
+                                        //   * disabled on a reached stop: it is history, and
+                                        //     nothing may be ordered around it (it can still be
+                                        //     removed from its row menu / bin)
+                                        val canReorder = draggable
                                         Icon(
                                             Icons.Default.DragHandle,
                                             contentDescription = stringResource(R.string.nav_drag_stop),
                                             modifier = Modifier
-                                                .then(
-                                                    if (canReorder) Modifier.draggableHandle()
-                                                    else Modifier
-                                                )
+                                                .then(handleModifier)
                                                 .size(22.dp),
                                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                                                 .copy(alpha = if (canReorder) 1f else 0.3f)
@@ -2646,6 +2735,27 @@ private fun BottomPanel(
                                                 overflow = TextOverflow.Ellipsis,
                                                 modifier = Modifier.weight(1f)
                                             )
+                                            // How far from the stop before (the first
+                                            // from the rider), and how far into the tour.
+                                            stopLegs[index]?.let { leg ->
+                                                Spacer(Modifier.width(8.dp))
+                                                Column(horizontalAlignment = Alignment.End) {
+                                                    Text(
+                                                        NavFormat.distance(context, leg.legM, imperial),
+                                                        style = MaterialTheme.typography.bodySmall,
+                                                        color = MaterialTheme.appColors.textPrimary,
+                                                        maxLines = 1
+                                                    )
+                                                    leg.soFarM?.let { soFar ->
+                                                        Text(
+                                                            NavFormat.distance(context, soFar, imperial),
+                                                            style = MaterialTheme.typography.labelSmall,
+                                                            color = MaterialTheme.appColors.textSecondary,
+                                                            maxLines = 1
+                                                        )
+                                                    }
+                                                }
+                                            }
                                         }
                                         // Quick-access remove. Locked while nav is running;
                                         // locked when the whole route is allPassed (rider
@@ -2719,6 +2829,31 @@ private fun BottomPanel(
                                         }
                                     }
                                 }
+                            }
+                        waypoints.take(reachedCount).forEachIndexed { index, waypoint ->
+                            key("${waypoint.lat},${waypoint.lng},${waypoint.name},$index") {
+                                stopRow(index, waypoint, false, Modifier)
+                            }
+                        }
+                        val canReorderAny = waypoints.size > 1 && !navRunning && !allPassed
+                        ReorderableColumn(
+                            list = waypoints.drop(reachedCount),
+                            onSettle = if (navRunning) { _, _ -> } else { from, to ->
+                                onListReorderEnd()
+                                onReorder(from + reachedCount, to + reachedCount)
+                            },
+                            onMove = {
+                                onListReorderStart()
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) { i, waypoint, _ ->
+                            val index = i + reachedCount
+                            key("${waypoint.lat},${waypoint.lng},${waypoint.name},$index") {
+                                stopRow(
+                                    index, waypoint, canReorderAny,
+                                    if (canReorderAny) Modifier.draggableHandle() else Modifier
+                                )
                             }
                         }
                     }

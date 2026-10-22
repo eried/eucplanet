@@ -4,6 +4,7 @@ import android.util.Log
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.model.WheelSettings
 import com.eried.eucplanet.util.ByteUtils
+import com.eried.eucplanet.util.MetricSanity
 
 /**
  * Frame reassembler + parser for Begode/Gotway wheels.
@@ -40,16 +41,26 @@ class BegodeParser {
     @Volatile private var lastSpeedKmh: Float = 0f
     @Volatile private var lastPhaseCurrent: Float = 0f
     @Volatile private var lastTempC: Float = 0f
+    /** Motor NTC reading from 0x07, kept so the 10 Hz Live A frames carry it
+     *  too. NaN until a wheel with the sensor has sent a real one. */
+    @Volatile private var lastMotorTempC: Float = Float.NaN
+    @Volatile private var hasMotorTemp: Boolean = false
     @Volatile private var lastTripKm: Float = 0f
     @Volatile private var lastPwmPct: Float = 0f
     @Volatile private var lastLightOn: Boolean = false
+    /** Auto power-off countdown from Live B, in seconds; -1 until one arrives. */
+    @Volatile private var lastAutoOffSeconds: Int = -1
     /** Begode firmware has no discrete park/drive state, so we derive it from
      *  speed in parseLiveA and surface it as pcMode so the dashboard's P/D
      *  cluster lights up while moving. 3 = idle (stopped), 1 = drive. */
     @Volatile private var lastPcMode: Int = 3
 
-    /** True once we have ever seen a 0x07 extras frame; from then on, we trust 0x07 PWM/current over 0x00 derivations. */
+    /** True once a 0x07 extras frame carried a non-zero PWM; from then on, we trust 0x07 PWM over 0x00 derivations. */
     @Volatile private var hasExtras: Boolean = false
+    /** True once the 0x07 battery-current field proved itself wired ([EXTRAS_CURRENT_ARM_STREAK] real readings in a row); from then on, we trust it over Live A phase current. */
+    @Volatile private var hasExtrasCurrent: Boolean = false
+    /** Consecutive 0x07 frames carrying a real battery-current reading, counted while [hasExtrasCurrent] is still false. */
+    @Volatile private var extrasCurrentStreak: Int = 0
 
     /**
      * True once a Freestyl3r (CF) or SmirnoV (BF) firmware banner identifies
@@ -82,11 +93,16 @@ class BegodeParser {
         lastSpeedKmh = 0f
         lastPhaseCurrent = 0f
         lastTempC = 0f
+        lastMotorTempC = Float.NaN
+        hasMotorTemp = false
         lastTripKm = 0f
         lastPwmPct = 0f
         lastLightOn = false
+        lastAutoOffSeconds = -1
         lastPcMode = 3
         hasExtras = false
+        hasExtrasCurrent = false
+        extrasCurrentStreak = 0
         hwPwmFirmware = false
         wheelInMiles = false
     }
@@ -228,8 +244,12 @@ class BegodeParser {
         // when a CF/BF banner has flagged the firmware as HW-PWM capable
         // ([hwPwmFirmware]); otherwise we derive PWM from speed/voltage so
         // Master / Mten3 / EX30 / E20 riders see a real number.
+        // Signed on the wire, and the sign is the motor's direction, not a
+        // load. A T4 read -67 % at 42 km/h (issue #24): the same inverted
+        // wiring that sends speed negative, which speed already loses at the
+        // apply site. PWM is a duty cycle, so it is a magnitude here too.
         val hardwarePwmRaw = ByteUtils.getInt16BE(frame, 14)
-        val hardwarePwmPct = hardwarePwmRaw / 10f
+        val hardwarePwmPct = kotlin.math.abs(hardwarePwmRaw) / 10f
         val pwmPct = when {
             hasExtras -> lastPwmPct
             hwPwmFirmware && hardwarePwmPct != 0f -> hardwarePwmPct
@@ -261,12 +281,13 @@ class BegodeParser {
             phaseCurrent = phaseCurrent,
             batteryPercent = battPct,
             pwm = lastPwmPct,
-            temperatures = listOf(tempC),
-            maxTemperature = tempC,
+            temperatures = temperatureSlots(boardTempC = tempC),
+            maxTemperature = hottest(tempC),
             tripDistance = tripKm,
             batteryPower = powerW,
             motorPower = powerW,
             lightOn = lastLightOn,
+            autoOffSeconds = lastAutoOffSeconds,
             pcMode = lastPcMode,
             timestamp = System.currentTimeMillis()
         )
@@ -296,6 +317,12 @@ class BegodeParser {
         val settings = ByteUtils.getUint16BE(frame, 6)
         wheelInMiles = (settings and 0x0001) != 0
         val maxSpeed = if (wheelInMiles) maxSpeedRaw * MILES_TO_KM else maxSpeedRaw
+
+        // Auto power-off countdown at offset 8..9, u16 BE in SECONDS (the
+        // spec table said minutes). It counts down while the wheel stands
+        // still and restarts when it moves. EUC Dash (MIT) reads the same
+        // bytes the same way, taken as reference only.
+        lastAutoOffSeconds = ByteUtils.getUint16BE(frame, 8)
 
         // Light mode at offset 15. Low 2 bits: 0=off, 1=on, 2=strobe.
         val lightBits = frame[15].toInt() and 0x03
@@ -328,6 +355,20 @@ class BegodeParser {
     }
 
     /**
+     * Temperatures in the app's slot order: [0] motor, [1] controller.
+     * Begode's board temperature is the IMU die on the main board, which is
+     * the controller slot. The motor slot is NaN ("no reading", shown as --)
+     * on a wheel with no motor sensor. Before, the board reading sat in slot
+     * 0, so the Motor temp tile showed the board temperature.
+     */
+    private fun temperatureSlots(boardTempC: Float): List<Float> =
+        listOf(if (hasMotorTemp) lastMotorTempC else Float.NaN, boardTempC)
+
+    /** The hottest real reading, for the overall Temp tile and its alarms. */
+    private fun hottest(boardTempC: Float): Float =
+        if (hasMotorTemp) maxOf(lastMotorTempC, boardTempC) else boardTempC
+
+    /**
      * Extras frame (spec 4.6 tag 0x07). Carries true battery current,
      * motor temperature and true PWM; present on post-2022 firmwares.
      * After the first 0x07 we trust these over the derived values from 0x00.
@@ -337,28 +378,52 @@ class BegodeParser {
         // negative means regen; the convention used everywhere else in
         // the app. Without the flip the dashboard reads backwards during
         // acceleration vs braking.
-        val battCurrent = -(ByteUtils.getInt16BE(frame, 2) / 100f)
+        val battCurrentRaw = -(ByteUtils.getInt16BE(frame, 2) / 100f)
         val motorTempC = ByteUtils.getInt16BE(frame, 6).toFloat()
         // 0x07 offset 8 carries true PWM as a signed short already in PERCENT
         // (raw 50 = 50 % PWM); no further scaling needed. An earlier `/ 100f`
         // here was dividing again and producing 0.x % for every reading.
+        // Signed, with the motor direction as the sign (issue #24, a T4 at
+        // 42 km/h read -67 %). The duty cycle is what the tile, the alarms
+        // and the trip log want, so the sign goes.
         val truePwmRaw = ByteUtils.getInt16BE(frame, 8)
-        val truePwm = truePwmRaw.toFloat()
+        val truePwm = kotlin.math.abs(truePwmRaw).toFloat()
 
         // Only latch onto the 0x07 PWM path when the field is actually
-        // populated (`abs(hwPWMb) > 0` arming check). Some Begode firmwares
-        // emit 0x07 frames with offset 8 = 0 at idle, and the old
-        // unconditional latch silently locked us out of the 0x00 /
-        // derived PWM fallbacks forever after.
-        if (truePwmRaw != 0) {
-            hasExtras = true
-            lastPwmPct = truePwm
+        // populated (`abs(hwPWMb) > 0` arming check). Stock Begode firmware
+        // sends 0x07 about once a second with offset 8 always 0, and the old
+        // unconditional latch silently locked us out of the 0x00 / derived
+        // PWM fallbacks forever after. Once armed, a zero is a real zero:
+        // the wheel stands, and the tile must follow it down.
+        if (truePwmRaw != 0) hasExtras = true
+        if (hasExtras) lastPwmPct = truePwm
+        // Same arming for battery current, on its own flag, but the bar is
+        // higher. This field is in centi-amps, so a single count of ADC
+        // noise or one stray sample reads as "non-zero", and arming on it
+        // locked the latch for the rest of the session: every stock 0x07
+        // frame then pushed its 0 A through at 1 Hz, the same flicker
+        // issue #26 started with, now on the amps tile only (PWM is whole
+        // percent, its zero is noise-free). The channel must prove itself
+        // wired with a streak of real readings before a zero is believed.
+        if (!hasExtrasCurrent) {
+            extrasCurrentStreak =
+                if (kotlin.math.abs(battCurrentRaw) >= EXTRAS_CURRENT_MIN_A) extrasCurrentStreak + 1
+                else 0
+            if (extrasCurrentStreak >= EXTRAS_CURRENT_ARM_STREAK) hasExtrasCurrent = true
         }
-        lastPhaseCurrent = battCurrent
+        if (hasExtrasCurrent) lastPhaseCurrent = battCurrentRaw
+        val battCurrent = lastPhaseCurrent
 
-        // Pick the hottest of (motor, IMU) so the dashboard's max-temp ring
-        // shows whichever is more concerning at this moment.
-        val temps = listOf(lastTempC, motorTempC)
+        // Motor temperature, whole degrees C, from the motor NTC. Only the
+        // newer wheels have one (Xmax, Falcon Pro / +); the rest send 0
+        // here, so it counts as wired only once it has read non-zero, the
+        // same arming the PWM field above uses. A reading outside the
+        // plausible window (e.g. 32767) is a bad read: it neither arms nor
+        // replaces the last one, so it cannot set off the temperature alarm.
+        if (motorTempC != 0f && MetricSanity.isPlausibleTempC(motorTempC)) {
+            hasMotorTemp = true
+            lastMotorTempC = motorTempC
+        }
 
         val powerW = (lastVoltage * battCurrent).toInt()
         return WheelData(
@@ -367,13 +432,14 @@ class BegodeParser {
             current = battCurrent,
             phaseCurrent = battCurrent,
             batteryPercent = lastBatteryPct,
-            pwm = truePwm,
-            temperatures = temps,
-            maxTemperature = temps.max(),
+            pwm = lastPwmPct,
+            temperatures = temperatureSlots(boardTempC = lastTempC),
+            maxTemperature = hottest(lastTempC),
             tripDistance = lastTripKm,
             batteryPower = powerW,
             motorPower = powerW,
             lightOn = lastLightOn,
+            autoOffSeconds = lastAutoOffSeconds,
             pcMode = lastPcMode,
             timestamp = System.currentTimeMillis()
         )
@@ -450,6 +516,12 @@ class BegodeParser {
         /** Used to de-convert Begode wire values when the wheel's screen is
          *  in imperial mode; see [wheelInMiles]. */
         private const val MILES_TO_KM: Float = 1.609344f
+
+        /** A wired 0x07 current field reads tens of counts; noise on an unwired one reads one or two. */
+        private const val EXTRAS_CURRENT_MIN_A = 0.25f
+
+        /** Readings in a row at [EXTRAS_CURRENT_MIN_A] or more before the 0x07 current channel is trusted. */
+        private const val EXTRAS_CURRENT_ARM_STREAK = 3
 
         /**
          * Per-pack voltage ratio (spec 4.4). Multiplying raw_cV / 100 by this

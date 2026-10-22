@@ -66,6 +66,17 @@ object VoiceVocabulary {
         const val NAV_NEXT = "SP_NAV"
         const val LAST_TRIP = "SP_LAST_TRIP"
         const val ALARMS = "SP_ALARMS"
+
+        /**
+         * The three readings inside the forecast, askable on their own.
+         *
+         * AIR_TEMP is not TEMPERATURE: that one is the wheel, and a rider who
+         * says "temperature" on a hot climb means the motor. The outside air
+         * needs its own word or the two would be ambiguous every time.
+         */
+        const val AIR_TEMP = "SP_AIR_TEMP"
+        const val WIND = "SP_WIND"
+        const val HUMIDITY = "SP_HUMIDITY"
         const val REPORT = "SP_REPORT"
     }
 

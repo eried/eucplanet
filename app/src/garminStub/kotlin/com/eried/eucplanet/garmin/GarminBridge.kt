@@ -26,12 +26,12 @@ class GarminBridge @Inject constructor(
     private val tripRepository: com.eried.eucplanet.data.repository.TripRepository,
     private val navigationEngine: NavigationEngine
 ) {
-    /** Always-empty in the stub variant — no Garmin devices ever pair when
+    /** Always-empty in the stub variant, no Garmin devices ever pair when
      *  the CIQ Mobile SDK isn't on the classpath. */
     val pairedDevices: kotlinx.coroutines.flow.StateFlow<List<String>> =
         kotlinx.coroutines.flow.MutableStateFlow(emptyList())
 
-    /** Always-zero in the stub variant — no Garmin sends ever fire. */
+    /** Always-zero in the stub variant, no Garmin sends ever fire. */
     val deliveryRateHz: kotlinx.coroutines.flow.StateFlow<Double> =
         kotlinx.coroutines.flow.MutableStateFlow(0.0)
 

@@ -670,8 +670,7 @@ private fun PaneButton(icon: ImageVector, modifier: Modifier, onClick: () -> Uni
         Icon(
             icon,
             contentDescription = null,
-            // Themed chip: light surface in light theme, primary-tinted icon —
-            // consistent with the selected-element config wrench.
+            // Themed chip: light surface in light theme, primary-tinted icon, // consistent with the selected-element config wrench.
             tint = MaterialTheme.appColors.primary,
             modifier = Modifier
                 .size(18.dp)

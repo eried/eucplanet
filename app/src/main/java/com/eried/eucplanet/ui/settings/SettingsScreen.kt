@@ -88,6 +88,7 @@ import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.QrCode2
+import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
@@ -266,6 +267,7 @@ import com.eried.eucplanet.service.VoiceOption
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.InfoHint
 import com.eried.eucplanet.ui.common.LocalSettingsSearchQuery
+import com.eried.eucplanet.ui.common.settingsSearchLabel
 import com.eried.eucplanet.ui.common.highlightMatches
 import com.eried.eucplanet.ui.common.settingsSearchAnchor
 import com.eried.eucplanet.ui.theme.AccentBlue
@@ -296,8 +298,8 @@ import sh.calvin.reorderable.ReorderableColumn
  *
  * Short enough that the list keeps up with a pause, long enough that a typed
  * word costs one pass instead of one per letter. Every keystroke rebuilds
- * every section's search corpus from hundreds of string lookups, so this is
- * the difference between typing that flows and typing that wades.
+ * every open section with the matches highlighted, so this is the
+ * difference between typing that flows and typing that wades.
  */
 private const val SEARCH_SETTLE_MS = 180L
 
@@ -379,7 +381,7 @@ fun SettingsScreen(
                                     Icon(
                                         imageVector = if (s.on) Icons.Filled.CheckCircle
                                                       else Icons.Outlined.RadioButtonUnchecked,
-                                        contentDescription = if (s.on) "on" else "off",
+                                        contentDescription = stringResource(if (s.on) R.string.state_on else R.string.state_off),
                                         tint = if (s.on) MaterialTheme.colorScheme.primary
                                                else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                                         modifier = Modifier.size(20.dp)
@@ -396,7 +398,7 @@ fun SettingsScreen(
                                 is com.eried.eucplanet.cheats.CheatState.State.Off -> {
                                     Icon(
                                         imageVector = Icons.Outlined.RadioButtonUnchecked,
-                                        contentDescription = "off",
+                                        contentDescription = stringResource(R.string.state_off),
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                                         modifier = Modifier.size(20.dp)
                                     )
@@ -430,6 +432,9 @@ fun SettingsScreen(
     // General section top), so the monitor's Settings link lands right on it.
     val scrollToBattery = initialTab == 9
     val scrollToWeather = initialTab == 11
+    // tab 12 opens Voice at its Speed splits block, for the splits tile's
+    // long-press menu: the block sits below every voice setting.
+    val scrollToSplits = initialTab == 12
     val targetSectionKey = remember(initialTab) { initialTabSectionKey(initialTab) }
     // expandedSections is rememberSaveable above and only seeds on first ever
     // composition; on subsequent visits the user's saved expansion state can hide
@@ -491,6 +496,7 @@ fun SettingsScreen(
     // returning lands on the same place rather than the bottom.
     val imeVisible = WindowInsets.ime
         .getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0
+    val searchLandingGapPx = with(androidx.compose.ui.platform.LocalDensity.current) { 24.dp.roundToPx() }
     LaunchedEffect(searchScrollTrigger, imeVisible) {
         searchScroller.query = searchScrollTrigger
         if (searchScrollTrigger.isEmpty()) return@LaunchedEffect
@@ -508,8 +514,10 @@ fun SettingsScreen(
         }
         val best = searchScroller.best() ?: return@LaunchedEffect
         val delta = (best.windowY - container).toInt()
-        // Scroll in either direction so the match sits at the top (small breathing gap).
-        val target = (scrollState.value + delta - 8).coerceIn(0, scrollState.maxValue)
+        // Scroll in either direction so the match sits at the top, with room
+        // above it: a button's label sits inside the button, and landing on the
+        // label alone cut the button's top edge off.
+        val target = (scrollState.value + delta - searchLandingGapPx).coerceIn(0, scrollState.maxValue)
         if (kotlin.math.abs(target - scrollState.value) > 8) scrollState.animateScrollTo(target)
     }
 
@@ -565,34 +573,53 @@ fun SettingsScreen(
         val title: String,
         val icon: ImageVector,
         /**
-         * Every label inside the section, one per entry.
+         * Every text inside the section, one per entry, read from the code by
+         * the generated SettingsSearchIndex rather than listed by hand.
          *
-         * A list rather than one joined string, because the count is now part
-         * of the answer: a collapsed section says how many of its labels the
-         * query hit, which is what lets the rest of the page stay where it is
+         * A list rather than one joined string, because the count is part of
+         * the answer: a collapsed section says how many of its texts the query
+         * hit, which is what lets the rest of the page stay where it is
          * instead of being filtered away.
          */
-        val searchCorpus: List<String>,
+        val searchCorpus: List<SearchEntry>,
         val content: @Composable () -> Unit
     ) {
-        fun matchCount(query: String): Int =
-            if (query.isEmpty()) 0
-            else searchCorpus.count { it.contains(query, ignoreCase = true) }
+        private fun hits(query: String): List<SearchEntry> =
+            if (query.isEmpty()) emptyList()
+            else searchCorpus.filter { it.text.contains(query, ignoreCase = true) }
+
+        fun matchCount(query: String): Int = hits(query).size
 
         fun matches(query: String): Boolean = matchCount(query) > 0
 
         /**
          * How well this section answers [query], for picking which one opens.
          *
-         * A title hit outranks any number of label hits: a rider typing
+         * A title hit outranks any number of other hits: a rider typing
          * "voice" means the Voice section, even if some other section happens
-         * to mention voice four times. Below that, more mentions wins.
+         * to mention voice four times. Below that, a row or a button counts
+         * more than a description that mentions the word in passing.
          */
         fun searchScore(query: String): Int {
             if (query.isEmpty()) return 0
-            val titleHit = if (title.contains(query, ignoreCase = true)) TITLE_WEIGHT else 0
-            return titleHit + matchCount(query)
+            return sectionScore(title, hits(query), query, TITLE_WEIGHT)
         }
+
+        /**
+         * Where the search lands when the text it found is not on screen, a
+         * button that only shows in some states for one: the sub-heading it
+         * sits under, best hit first, then the section itself.
+         */
+        fun landing(query: String): List<String> =
+            hits(query).sortedByDescending { it.kind.weight }.mapNotNull { it.under }.distinct() + title
+
+        /** How many hits each card inside this section folds away, by card title. */
+        fun foldCounts(query: String): Map<String, Int> =
+            hits(query).flatMap { it.folds }.groupingBy { it }.eachCount()
+
+        /** The cards holding the best hit, outermost first: what the search opens. */
+        fun bestFolds(query: String): List<String> =
+            hits(query).maxByOrNull { it.kind.weight }?.folds.orEmpty()
     }
 
     val titleGeneral = stringResource(R.string.tab_general)
@@ -610,206 +637,7 @@ fun SettingsScreen(
     val titleGpsSensors = stringResource(R.string.section_external_gps)
     val titleDashboard = stringResource(R.string.tab_dashboard)
 
-    val corpusGeneral = listOf(
-        titleGeneral,
-        stringResource(R.string.section_recording),
-        stringResource(R.string.auto_record_on_start),
-        stringResource(R.string.auto_record_start_in_motion),
-        stringResource(R.string.auto_record_stop_idle_seconds),
-        stringResource(R.string.section_connection),
-        stringResource(R.string.auto_connect_on_start),
-        stringResource(R.string.section_application),
-        stringResource(R.string.back_button_action),
-        stringResource(R.string.section_surfaces),
-        stringResource(R.string.pip_section),
-        stringResource(R.string.surface_notification),
-        stringResource(R.string.phone_hud_section),
-        stringResource(R.string.phone_hud_enable),
-        stringResource(R.string.widget_section),
-        stringResource(R.string.widget_customize),
-        stringResource(R.string.widget_metric_slot, 1),
-        stringResource(R.string.widget_action_slot, 1),
-        stringResource(R.string.widget_standalone_slot, 1),
-        stringResource(R.string.charging_monitor)
-    )
-
-    val corpusDashboard = listOf(
-        titleDashboard,
-        stringResource(R.string.dashboard_section_metrics),
-        stringResource(R.string.dashboard_section_actions),
-        stringResource(R.string.dashboard_columns),
-        stringResource(R.string.dashboard_rolling_window),
-        stringResource(R.string.metric_chip_battery),
-        stringResource(R.string.metric_chip_temperature),
-        stringResource(R.string.metric_chip_voltage),
-        stringResource(R.string.metric_chip_current),
-        stringResource(R.string.metric_chip_load),
-        stringResource(R.string.metric_chip_trip),
-        stringResource(R.string.action_chip_horn),
-        stringResource(R.string.action_chip_light),
-        stringResource(R.string.action_chip_voice),
-        stringResource(R.string.action_chip_safety),
-        stringResource(R.string.action_chip_lock),
-        stringResource(R.string.action_chip_record)
-    )
-
-    val corpusDisplay = listOf(
-        titleDisplay,
-        stringResource(R.string.section_display),
-        stringResource(R.string.units_label),
-        stringResource(R.string.theme),
-        stringResource(R.string.show_gauge_color_band),
-        stringResource(R.string.language)
-    )
-
-    val corpusSpeed = listOf(
-        titleSpeed,
-        stringResource(R.string.section_speed_limits),
-        stringResource(R.string.speed_tiltback),
-        stringResource(R.string.speed_alarm),
-        stringResource(R.string.section_legal_mode_speed),
-        stringResource(R.string.lockdown_title),
-        stringResource(R.string.lockdown_setting_label),
-        stringResource(R.string.lockdown_setting_desc),
-        stringResource(R.string.speed_legal_tiltback),
-        stringResource(R.string.speed_legal_alarm),
-        stringResource(R.string.section_speed_calibration),
-        stringResource(R.string.section_battery_percent),
-        stringResource(R.string.battery_override_label),
-        stringResource(R.string.battery_percent_min_cell),
-        stringResource(R.string.battery_percent_max_cell),
-        stringResource(R.string.battery_capacity_label),
-        stringResource(R.string.battery_percent_series_cells)
-    )
-
-    val corpusVoice = listOf(
-        titleVoice,
-        stringResource(R.string.section_speech),
-        stringResource(R.string.voice_speech_speed),
-        stringResource(R.string.voice_audio_focus_label),
-        stringResource(R.string.voice_output_channel_label),
-        stringResource(R.string.section_announcements),
-        stringResource(R.string.voice_enabled),
-        stringResource(R.string.voice_interval),
-        stringResource(R.string.announce_wheel_lock),
-        stringResource(R.string.announce_lights),
-        stringResource(R.string.announce_recording),
-        stringResource(R.string.announce_connection),
-        stringResource(R.string.announce_gps),
-        stringResource(R.string.announce_legal_mode),
-        stringResource(R.string.announce_welcome),
-        stringResource(R.string.voice_commands_title),
-        stringResource(R.string.voice_command_vocabulary),
-        stringResource(R.string.voice_prompt_cue),
-        stringResource(R.string.voice_prompt_cue_desc),
-        stringResource(R.string.voice_unknown_cue),
-        stringResource(R.string.voice_recognition_language),
-        stringResource(R.string.voice_recognition_desc),
-        stringResource(R.string.voice_headset_button),
-        stringResource(R.string.voice_headset_button_desc),
-        stringResource(R.string.section_report_status),
-        stringResource(R.string.report_speed),
-        stringResource(R.string.report_battery),
-        stringResource(R.string.report_temp),
-        stringResource(R.string.report_pwm),
-        stringResource(R.string.report_distance),
-        stringResource(R.string.report_recording),
-        stringResource(R.string.report_time),
-        stringResource(R.string.section_accel_splits)
-    )
-
-    val corpusMotor = listOf(
-        titleMotor,
-        stringResource(R.string.engine_sound_enabled),
-        stringResource(R.string.engine_type_label),
-        stringResource(R.string.engine_volume),
-        stringResource(R.string.engine_muffler_label),
-        stringResource(R.string.engine_gearbox_label),
-        stringResource(R.string.engine_idle_label),
-        stringResource(R.string.engine_decel_label),
-        stringResource(R.string.engine_brake_label),
-        stringResource(R.string.engine_duck_label),
-        stringResource(R.string.engine_headphones_only)
-    )
-
-    val corpusCloud = listOf(
-        titleCloud,
-        stringResource(R.string.section_cloud_folder),
-        stringResource(R.string.section_cloud_settings),
-        stringResource(R.string.section_cloud_trips),
-        stringResource(R.string.section_online_stats)
-    )
-
-    val corpusAlarms = listOf(titleAlarms, stringResource(R.string.alarm_help))
-
-    val corpusAuto = listOf(
-        titleAuto,
-        stringResource(R.string.auto_lights_title),
-        stringResource(R.string.auto_volume_title),
-        stringResource(R.string.auto_volume_desc),
-        stringResource(R.string.media_control_title),
-        stringResource(R.string.media_control_desc),
-        stringResource(R.string.proximity_lock_title),
-        stringResource(R.string.proximity_lock_desc)
-    )
-
-    val corpusIntegration = listOf(
-        titleIntegration,
-        stringResource(R.string.section_flic_buttons),
-        stringResource(R.string.section_volume_keys),
-        stringResource(R.string.volume_keys_enable),
-        stringResource(R.string.section_radar),
-        stringResource(R.string.radar_caption),
-        stringResource(R.string.section_hud_companion),
-        stringResource(R.string.hud_server_enabled),
-        stringResource(R.string.hud_search_corpus),
-        stringResource(R.string.section_tpms),
-        stringResource(R.string.tpms_wheel_sensor)
-    )
-
-    val corpusNavigator = listOf(
-        titleNavigator,
-        stringResource(R.string.nav_setting_voice),
-        stringResource(R.string.nav_setting_default_mode),
-        stringResource(R.string.nav_setting_arrival_radius),
-        stringResource(R.string.nav_setting_offroute),
-        stringResource(R.string.nav_setting_endpoints)
-    )
-
-    val corpusGpsSensors = listOf(
-        titleGpsSensors,
-        stringResource(R.string.gps_show_on_dashboard),
-        stringResource(R.string.gps_prioritize_external),
-        stringResource(R.string.external_gps_caption)
-    )
-
-    val corpusWatch = listOf(
-        titleWatch,
-        stringResource(R.string.section_watch_general),
-        stringResource(R.string.section_watch_display),
-        stringResource(R.string.watch_keep_on),
-        stringResource(R.string.watch_auto_start),
-        stringResource(R.string.watch_close_on_exit),
-        stringResource(R.string.watch_show_wheel_battery),
-        stringResource(R.string.watch_show_phone_battery),
-        stringResource(R.string.watch_show_watch_battery),
-        stringResource(R.string.watch_pwm_display),
-        stringResource(R.string.watch_show_speed_unit),
-        stringResource(R.string.section_watch_device),
-        stringResource(R.string.section_watch_buttons)
-    )
-
-    val corpusAdvanced = listOf(
-        titleAdvanced,
-        stringResource(R.string.adv_group_rates),
-        stringResource(R.string.adv_group_nav),
-        stringResource(R.string.adv_group_alarm),
-        stringResource(R.string.adv_group_radar_auto),
-        stringResource(R.string.adv_wheel_poll_rate),
-        stringResource(R.string.adv_phone_gps_interval),
-        stringResource(R.string.adv_hud_report_interval),
-        stringResource(R.string.adv_garmin_report_interval),
-    )
+    val corpora = rememberSearchCorpora()
 
     // Section handles for the reorganize editor (key, title, icon). Every section
     // is reorderable and hideable now, including Advanced (which defaults to last).
@@ -832,51 +660,55 @@ fun SettingsScreen(
     )
 
     val sections: List<SectionDef> = listOf(
-        SectionDef("general", titleGeneral, Icons.Default.Tune, corpusGeneral) {
+        SectionDef("general", titleGeneral, Icons.Default.Tune, corpora.getValue("general")) {
             GeneralTab(settings, viewModel, scrollToBattery) { y ->
                 targetSectionTop = y
             }
         },
-        SectionDef("dashboard", titleDashboard, Icons.Default.Dashboard, corpusDashboard) {
+        SectionDef("dashboard", titleDashboard, Icons.Default.Dashboard, corpora.getValue("dashboard")) {
             DashboardLayoutTab(settings, viewModel)
         },
-        SectionDef("display", titleDisplay, Icons.Default.DisplaySettings, corpusDisplay) {
+        SectionDef("display", titleDisplay, Icons.Default.DisplaySettings, corpora.getValue("display")) {
             DisplayTab(settings, viewModel)
         },
-        SectionDef("speed", titleSpeed, Icons.Default.Speed, corpusSpeed) {
+        SectionDef("speed", titleSpeed, Icons.Default.Speed, corpora.getValue("speed")) {
             SpeedTab(settings, maxSpeedCap, isConnected, viewModel)
         },
-        SectionDef("voice", titleVoice, Icons.Default.RecordVoiceOver, corpusVoice) {
-            VoiceTab(settings, viewModel)
+        SectionDef("voice", titleVoice, Icons.Default.RecordVoiceOver, corpora.getValue("voice")) {
+            VoiceTab(
+                settings, viewModel,
+                scrollToSplits = scrollToSplits,
+                onSplitsTop = { y -> targetSectionTop = y },
+            )
         },
-        SectionDef("motor", titleMotor, Icons.Default.Motorcycle, corpusMotor) {
+        SectionDef("motor", titleMotor, Icons.Default.Motorcycle, corpora.getValue("motor")) {
             EngineSoundSection(settings, viewModel, engineParked)
         },
-        SectionDef("cloud", titleCloud, Icons.Default.Archive, corpusCloud) {
+        SectionDef("cloud", titleCloud, Icons.Default.Archive, corpora.getValue("cloud")) {
             CloudTab(settings, viewModel, snackbar, snackbarScope)
         },
-        SectionDef("alarms", titleAlarms, Icons.Default.NotificationsActive, corpusAlarms) {
+        SectionDef("alarms", titleAlarms, Icons.Default.NotificationsActive, corpora.getValue("alarms")) {
             AlarmSettingsContent()
         },
-        SectionDef("auto", titleAuto, Icons.Default.AutoAwesome, corpusAuto) {
+        SectionDef("auto", titleAuto, Icons.Default.AutoAwesome, corpora.getValue("auto")) {
             AutomationsContent()
         },
-        SectionDef("navigator", titleNavigator, Icons.Default.Navigation, corpusNavigator) {
+        SectionDef("navigator", titleNavigator, Icons.Default.Navigation, corpora.getValue("navigator")) {
             NavigatorSettingsContent(
                 scrollToWeather = scrollToWeather,
                 onWeatherTop = { y -> targetSectionTop = y },
             )
         },
-        SectionDef("location", titleGpsSensors, Icons.Default.Sensors, corpusGpsSensors) {
+        SectionDef("location", titleGpsSensors, Icons.Default.Sensors, corpora.getValue("location")) {
             ExternalGpsSection()
         },
-        SectionDef("integration", titleIntegration, Icons.Default.Extension, corpusIntegration) {
+        SectionDef("integration", titleIntegration, Icons.Default.Extension, corpora.getValue("integration")) {
             FlicTab()
         },
-        SectionDef("watch", titleWatch, Icons.Default.Watch, corpusWatch) {
+        SectionDef("watch", titleWatch, Icons.Default.Watch, corpora.getValue("watch")) {
             WatchTab(settings, viewModel)
         },
-        SectionDef("advanced", titleAdvanced, Icons.Default.Build, corpusAdvanced) {
+        SectionDef("advanced", titleAdvanced, Icons.Default.Build, corpora.getValue("advanced")) {
             AdvancedTab(settings, viewModel, movableHandles)
         }
     )
@@ -1022,6 +854,15 @@ fun SettingsScreen(
                     .maxByOrNull { it.second }
                     ?.first?.key
             } else null
+            searchScroller.landing = sections.firstOrNull { it.key == searchScrollKey }?.landing(query).orEmpty()
+            // The same answer one level down, for the cards inside a section:
+            // each shut card counts what it hides, and the card holding the
+            // best hit of the section that opened opens too.
+            val searchFolds = if (searching) SearchFolds(
+                counts = sections.map { it.foldCounts(query) }
+                    .fold(emptyMap()) { acc, m -> acc + m.mapValues { (k, v) -> v + (acc[k] ?: 0) } },
+                open = sections.firstOrNull { it.key == searchScrollKey }?.bestFolds(query).orEmpty().toSet(),
+            ) else SearchFolds.None
 
             // Scrolling belongs to the anchor scroller, which keeps every
             // anchor's CURRENT position in a map and picks the best by rank.
@@ -1031,6 +872,7 @@ fun SettingsScreen(
             androidx.compose.runtime.CompositionLocalProvider(
                 LocalSettingsSearchQuery provides query,
                 com.eried.eucplanet.ui.common.LocalSettingsSearchScroller provides searchScroller,
+                LocalSearchFolds provides searchFolds,
             ) {
                 @Composable
                 fun SectionCard(sec: SectionDef, indent: Boolean = false) {
@@ -1041,7 +883,8 @@ fun SettingsScreen(
                     val openedByQuery = searching && sec.key == searchScrollKey
                     val isExpanded = explicitlyExpanded || openedByQuery
                     var sectionModifier = if (
-                        sec.key == targetSectionKey && !scrollToBattery && !scrollToWeather
+                        sec.key == targetSectionKey && !scrollToBattery && !scrollToWeather &&
+                            !scrollToSplits
                     ) {
                         Modifier.onGloballyPositioned {
                             targetSectionTop = it.positionInWindow().y
@@ -1068,7 +911,16 @@ fun SettingsScreen(
                             else expandedSections.add(sec.key)
                         }
                     ) {
-                        sec.content()
+                        // The cards read their counts by title, and titles repeat
+                        // across sections (Voice and Watch both have an
+                        // Advanced card), so each section sees only its own hits.
+                        val ownFolds = if (searching) SearchFolds(
+                            counts = sec.foldCounts(query),
+                            open = if (sec.key == searchScrollKey) searchFolds.open else emptySet(),
+                        ) else SearchFolds.None
+                        androidx.compose.runtime.CompositionLocalProvider(LocalSearchFolds provides ownFolds) {
+                            sec.content()
+                        }
                     }
                 }
 
@@ -1125,7 +977,45 @@ private fun initialTabSectionKey(initialTab: Int): String? = when (initialTab) {
     // The weather block lives inside Navigation, so the section is the same
     // as tab 8; scrollToWeather below is what separates the two.
     11 -> "navigator"
+    // Speed splits live inside Voice; scrollToSplits picks the block.
+    12 -> "voice"
     else -> null
+}
+
+/**
+ * How many search hits a shut section or card hides, before its chevron.
+ * Nothing at all for 0.
+ */
+@Composable
+private fun SearchCountPill(count: Int) {
+    if (count <= 0) return
+    Surface(
+        shape = RoundedCornerShape(10.dp),
+        // The accent fill with the theme's on-accent ink. The highlight's 55
+        // percent version works behind a word in a sentence; behind a badge it
+        // would leave the count sitting on whatever the card happens to be.
+        color = MaterialTheme.appColors.selection,
+        contentColor = MaterialTheme.appColors.onPrimary,
+    ) {
+        Text(
+            count.toString(),
+            style = MaterialTheme.typography.labelMedium,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+        )
+    }
+    Spacer(Modifier.width(10.dp))
+}
+
+/**
+ * A card's share of the search: whether the query opens it, and how many hits
+ * it hides while it stays shut. Read from [LocalSearchFolds] by the card's own
+ * title, so a card needs nothing passed in to take part.
+ */
+@Composable
+private fun cardSearch(title: String, expanded: Boolean): Pair<Boolean, Int> {
+    val folds = LocalSearchFolds.current
+    val open = expanded || title in folds.open
+    return open to if (open) 0 else folds.counts[title] ?: 0
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -1166,7 +1056,7 @@ private fun CollapsibleSection(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
             // Body text inside a section is normal text (off-white on dark, dark
-            // ink on light) — only the leading icon carries the accent. Without
+            // ink on light), only the leading icon carries the accent. Without
             // this, un-colored labels inherited an accent content color and the
             // whole section read teal.
             contentColor = MaterialTheme.appColors.textPrimary,
@@ -1196,24 +1086,7 @@ private fun CollapsibleSection(
                     color = MaterialTheme.appColors.textPrimary,
                     modifier = Modifier.weight(1f)
                 )
-                if (matchCount > 0) {
-                    Surface(
-                        shape = RoundedCornerShape(10.dp),
-                        // The accent fill with the theme's on-accent ink. The
-                        // highlight's 55 percent version works behind a word
-                        // in a sentence; behind a badge it would leave the
-                        // count sitting on whatever the card happens to be.
-                        color = MaterialTheme.appColors.selection,
-                        contentColor = MaterialTheme.appColors.onPrimary,
-                    ) {
-                        Text(
-                            matchCount.toString(),
-                            style = MaterialTheme.typography.labelMedium,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-                        )
-                    }
-                    Spacer(Modifier.width(10.dp))
-                }
+                SearchCountPill(matchCount)
                 val chevron by animateFloatAsState(
                     targetValue = if (expanded) 180f else 0f,
                     animationSpec = tween(180),
@@ -1550,13 +1423,13 @@ private fun GeneralTab(
                             onClick = { presetSheetOpen = true },
                             colors = themedTonalButtonColors(),
                             shape = RoundedCornerShape(12.dp),
-                        ) { Text(stringResource(R.string.hud_overlay_select_preset)) }
+                        ) { com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.hud_overlay_select_preset)) }
                         if (settings.phoneHudOverlayName.isNotBlank()) {
                             TextButton(
                                 onClick = { viewModel.pickPhoneHudOverlay("") },
                                 colors = themedTextButtonColors(),
                                 shape = RoundedCornerShape(12.dp),
-                            ) { Text(stringResource(R.string.hud_custom_overlay_none)) }
+                            ) { com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.hud_custom_overlay_none)) }
                         }
                     }
 
@@ -2328,7 +2201,7 @@ private fun AdvancedTab(
             TextButton(onClick = { showResetConfirm = true }, enabled = changed.isNotEmpty(), shape = RoundedCornerShape(12.dp)) {
                 Icon(Icons.Default.Restore, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
-                Text(stringResource(R.string.adv_reset_all))
+                com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.adv_reset_all))
             }
         }
         // One collapsible card per group, fully driven by the AdvancedSpec registry.
@@ -2374,7 +2247,7 @@ private fun AdvancedTab(
                 TextButton(onClick = {
                     viewModel.resetAdvancedDefaults()
                     showResetConfirm = false
-                }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.adv_reset_all)) }
+                }, shape = RoundedCornerShape(12.dp)) { com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.adv_reset_all)) }
             },
             dismissButton = {
                 TextButton(onClick = { showResetConfirm = false }, shape = RoundedCornerShape(12.dp)) {
@@ -2431,7 +2304,7 @@ private fun DashboardLayoutTab(
     // explains the gesture instead of opening the edit sheet, which would
     // be misleading (pool-position settings are not what they're editing).
     // Throttled to one toast per 5 taps so it doesn't spam the rider while
-    // they explore — the same counter governs +STACK / +TEXT / +group
+    // they explore, the same counter governs +STACK / +TEXT / +group
     // template taps too.
     val poolTapMessage = stringResource(R.string.dashboard_pool_tap_toast)
     var poolTapCount by remember { mutableStateOf(0) }
@@ -2564,7 +2437,7 @@ private fun DashboardLayoutTab(
             groupOf = { id -> viewModel.getActionGroup(settings, id) },
             customBleOf = { id -> viewModel.getCustomBle(settings, id) },
             onSwapInto = { key, index ->
-                // Catalog model — see metric grid for explanation.
+                // Catalog model, see metric grid for explanation.
                 when {
                     key == ACTION_GROUP_TEMPLATE_KEY -> viewModel.createActionGroupAt(index)
                     key == CUSTOM_BLE_TEMPLATE_KEY -> viewModel.createCustomBleAt(index)
@@ -2620,7 +2493,7 @@ private fun DashboardLayoutTab(
         // so the restored metric shows its fresh out-of-box appearance.
         val onResetSlot: () -> Unit = {
             when {
-                // A custom BLE command has no "shipped default" — Reset means
+                // A custom BLE command has no "shipped default", Reset means
                 // delete the command and clear the slot.
                 target is DashboardEditTarget.CustomBle ->
                     viewModel.deleteCustomBle(target.key)
@@ -2844,13 +2717,13 @@ private sealed interface DashboardEditTarget {
     val slotIndex: Int
     data class Metric(override val key: String, override val slotIndex: Int) : DashboardEditTarget
     data class Action(override val key: String, override val slotIndex: Int) : DashboardEditTarget
-    /** Composite metric instance — `key` is the composite ID like `M:abc123`. */
+    /** Composite metric instance, `key` is the composite ID like `M:abc123`. */
     data class Composite(override val key: String, override val slotIndex: Int) : DashboardEditTarget
-    /** Action group instance — `key` is the group ID like `G:abc123`. */
+    /** Action group instance, `key` is the group ID like `G:abc123`. */
     data class Group(override val key: String, override val slotIndex: Int) : DashboardEditTarget
-    /** Custom tile instance — `key` is the tile ID like `C:abc123`. */
+    /** Custom tile instance, `key` is the tile ID like `C:abc123`. */
     data class CustomTile(override val key: String, override val slotIndex: Int) : DashboardEditTarget
-    /** Custom BLE command instance — `key` is the command ID like `B:abc123`. */
+    /** Custom BLE command instance, `key` is the command ID like `B:abc123`. */
     data class CustomBle(override val key: String, override val slotIndex: Int) : DashboardEditTarget
 }
 
@@ -2861,7 +2734,7 @@ private sealed interface DashboardEditTarget {
 
 // Custom bounds transform applied to every grid tile so column-count changes
 // (2 ↔ 3 ↔ 4) animate visibly. The default BoundsTransform settles too
-// quickly for small motion deltas — tiles that move only a few dp appear to
+// quickly for small motion deltas, tiles that move only a few dp appear to
 // snap. This spring is slower (Spring.StiffnessLow) and slightly underdamped
 // (0.7) so motion reads as a smooth glide for both big and small repositions.
 @OptIn(androidx.compose.animation.ExperimentalSharedTransitionApi::class)
@@ -2970,7 +2843,7 @@ private fun MetricMiniGrid(
  * box with a centred "no" glyph (a circle with a diagonal slash) so the
  * rider clearly reads "this slot is intentionally empty". Registers as a
  * drop target so dragging a tile into it fills the slot; no click handler
- * — tapping an empty slot does nothing (and never routes to a phantom
+ *, tapping an empty slot does nothing (and never routes to a phantom
  * metric history).
  */
 @Composable
@@ -3011,7 +2884,7 @@ private fun EmptyMetricSlot(
 }
 
 /**
- * Composite metric tile — one grid slot rendering 2 or 3 sub-metric current
+ * Composite metric tile, one grid slot rendering 2 or 3 sub-metric current
  * values in the chosen layout. Wraps the same drag/drop modifiers as
  * [MetricTile] so the rider can re-position the composite or replace it
  * with another tile.
@@ -3082,7 +2955,7 @@ private fun CompositeMetricTile(
  * Inner layout switcher for a composite tile. Each layout renders its cells
  * with a per-cell accent + uppercase short label; no stats, no sparkline.
  * Public-internal so the live dashboard renderer can reuse the exact same
- * body — the editor passes placeholder values, the live dashboard passes
+ * body, the editor passes placeholder values, the live dashboard passes
  * real telemetry, both go through this composable.
  */
 @Composable
@@ -3212,7 +3085,7 @@ private fun CompositeCell(
     }
     val label = metricChipLabel(key, short = true).uppercase()
     val value = valueOf(key, stat)
-    // Stat indicator on top — only shown when the rider picked a non-
+    // Stat indicator on top, only shown when the rider picked a non-
     // default stat (Min / Max / Avg / Median / P75 / etc.). Tinted with
     // the metric's accent so the cell reads as "MAX of SPEED" at a
     // glance rather than the value alone being ambiguous.
@@ -3254,7 +3127,7 @@ private fun CompositeCell(
 }
 
 /**
- * ROW2 layout cell — label LEFT, value RIGHT. The 2-row composite is wide
+ * ROW2 layout cell, label LEFT, value RIGHT. The 2-row composite is wide
  * and short, so stacking label-above-value (the column form) wastes the
  * horizontal space. Putting them side-by-side reads more like a row in a
  * spec sheet ("SPEED   42 km/h"), which is what the rider asked for.
@@ -3293,7 +3166,7 @@ private fun CompositeCellRow(
     val value = valueOf(key, stat)
     val showStat = stat != DashboardStat.CURRENT && stat != DashboardStat.NONE
     // Label gets the squeezable slot (weight 1f, fill = true) so it expands to
-    // hold the leftover space after the value's natural width — that pins the
+    // hold the leftover space after the value's natural width, that pins the
     // value flush right while still ellipsising the label if it grows too long.
     // Stat indicator (when present) sits as a small label INLINE with the
     // metric label, separated by a · so the row reads as "MAX · SPEED  42".
@@ -3350,7 +3223,7 @@ private fun MetricTile(
     val outlineColor = MaterialTheme.colorScheme.outlineVariant
     val hasSideReadings = !stats.isDefault
     val isBeingDragged = controller.draggingKey == key
-    // Animated border when this slot is the drag's drop target — gives the
+    // Animated border when this slot is the drag's drop target, gives the
     // rider visual feedback for "release here" without the recomposition
     // glitches that mid-drag layout shifts caused.
     val isDropTarget = controller.isDragging &&
@@ -3387,7 +3260,7 @@ private fun MetricTile(
                 onDrop = { sourceKey -> onSwapInto(sourceKey, slotIndex) }
             )
     ) {
-        // Drag state hides only the content — the border + surface stay so
+        // Drag state hides only the content, the border + surface stay so
         // the slot reads as a clearly-marked empty placeholder for the tile
         // the rider is holding.
         Box(modifier = Modifier.fillMaxSize().alpha(if (isBeingDragged) 0f else 1f)) {
@@ -3418,11 +3291,10 @@ private fun MetricTile(
 /**
  * Pool = catalog. Renders the metric template followed by every key in
  * [catalogKeys] sorted alphabetically by its display label. Composite and
- * custom-tile instances are NOT shown here — they live only in the grid;
+ * custom-tile instances are NOT shown here, they live only in the grid;
  * the catalog is the rider's source-of-truth list of static metrics.
  *
- * Drop behaviour (only fires when the drag started on a big grid tile —
- * pool→pool drags are intentional no-ops):
+ * Drop behaviour (only fires when the drag started on a big grid tile, * pool→pool drags are intentional no-ops):
  *   - Composite tile → delete its definition
  *   - Custom tile   → delete its definition
  *   - Static metric → demote (slot becomes empty custom tile; the static
@@ -3444,11 +3316,11 @@ private fun MetricPool(
     // labels first then sort. Stable .uppercase() avoids locale-flips
     // between "Speed" and "SPEED" when adding a metric. Sort by the same
     // short variant the pool pills render so the order matches what the
-    // rider reads — alphabetising by the long label and showing the short
+    // rider reads, alphabetising by the long label and showing the short
     // one would scramble the apparent ordering.
     val labeled = catalogKeys.map { it to metricChipLabel(it, short = true) }
     val sorted = labeled.sortedBy { it.second.uppercase() }.map { it.first }
-    // Pool pill physical size in pixels — needs to live inside the composable
+    // Pool pill physical size in pixels, needs to live inside the composable
     // since LocalDensity is composition-scoped. Used as the "shrink-back" size
     // when a previously-grown pool pill is dragged back over this region.
     val density = LocalDensity.current
@@ -3487,7 +3359,7 @@ private fun MetricPool(
             MetricCompositeTemplatePill(controller = controller)
             // Explicit custom-tile creation (text / link / QR). Drag-to-pool
             // demote was removed for consistency, so this template is now the
-            // only way to add one — sits next to the + Stack composite source.
+            // only way to add one, sits next to the + Stack composite source.
             CustomTileTemplatePill(controller = controller)
             sorted.forEach { key ->
                 MetricPoolPill(
@@ -3825,9 +3697,8 @@ private fun MetricPoolPill(
             )
     ) {
         // Sparkline background mirrors the grid tiles' style. Three states:
-        // active (full accent), dimmed (gray ghost — disabled but available
-        // to re-enable on tap), or absent (metric doesn't support stats —
-        // counters / heading). No corner icon: the wave itself is the
+        // active (full accent), dimmed (gray ghost, disabled but available
+        // to re-enable on tap), or absent (metric doesn't support stats, // counters / heading). No corner icon: the wave itself is the
         // indicator.
         if (supportsStats) {
             val waveColor = if (statsEnabled) accent
@@ -4078,7 +3949,7 @@ private fun ActionTile(
 /**
  * Resolves a curated [GROUP_ICON_CHOICES] key to a Material icon. Used by
  * both [ActionGroupTile] and the icon picker in [ActionGroupSheet] so the
- * tile preview and the picker stay in sync — change one key here, both
+ * tile preview and the picker stay in sync, change one key here, both
  * surfaces update.
  */
 internal fun groupIconFor(key: String): ImageVector = when (key) {
@@ -4284,7 +4155,7 @@ private fun CustomBleTile(
 /**
  * Action pool = catalog. Renders the group template followed by every key
  * in [catalogKeys] sorted alphabetically by display label. Action groups
- * are dynamic instances and only live in the grid — pool drops only handle
+ * are dynamic instances and only live in the grid, pool drops only handle
  * group deletion. Pool→pool drags of static actions land as no-ops because
  * a static action can't be "removed" from the catalog.
  */
@@ -4367,7 +4238,7 @@ private fun ActionGroupTemplatePill(
                     style = dashSpec
                 )
             }
-            // Same action-source semantics as a pool pill — the controller
+            // Same action-source semantics as a pool pill, the controller
             // treats this drag like a regular action move and the downstream
             // drop callback routes the template key to createActionGroupAt.
             .dashboardDragSource(
@@ -4555,7 +4426,7 @@ private fun DashboardSlotSheet(
             when (target) {
                 is DashboardEditTarget.Metric -> {
                     val stats = viewModel.dashboardMetricSlotStats(settings, target.key)
-                    // Sheet header — the FULL descriptive metric name with
+                    // Sheet header, the FULL descriptive metric name with
                     // plenty of width to breathe. The preview tile below
                     // shows the SHORT tile label (matching the dashboard
                     // face), so this header is the rider's single place to
@@ -4605,7 +4476,7 @@ private fun DashboardSlotSheet(
  * Edit sheet for a composite-metric instance. Lets the rider pick the layout
  * (2-row, 2-col, 3-col) and which sub-metrics fill each cell. Deliberately
  * stats-free; the rider deletes the instance by dragging the tile off the
- * grid OR by hitting "Default metric" — which restores the slot to its
+ * grid OR by hitting "Default metric", which restores the slot to its
  * shipped occupant and removes the composite definition.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -4627,7 +4498,7 @@ private fun CompositeMetricSheet(
     val baseCells = remember(id, composite.cells) {
         // Pad/truncate to 3 slots (the maximum any layout uses) so the
         // dropdowns never reach for a missing index. EMPTY is the safe
-        // default for unused cells — switching to a wider layout reveals
+        // default for unused cells, switching to a wider layout reveals
         // a blank slot rather than auto-injecting a duplicate metric.
         val seeded = composite.cells + List(3) { COMPOSITE_CELL_EMPTY }
         androidx.compose.runtime.mutableStateListOf<String>().apply { addAll(seeded.take(3)) }
@@ -4677,7 +4548,7 @@ private fun CompositeMetricSheet(
                 )
             }
 
-            // Layout segmented control — three mutually-exclusive options
+            // Layout segmented control, three mutually-exclusive options
             // (2 rows / 2 cols / 3 cols) feel more like a single switch
             // when bound together as a segmented row rather than three
             // independent chips. No title; the labels speak for themselves.
@@ -4702,7 +4573,7 @@ private fun CompositeMetricSheet(
             // Two-row picker per cell:
             //   row 1 = which metric
             //   row 2 = which stat (Now / Min / Max / Avg / percentiles…)
-            // 3 columns regardless of layout — cells past the active layout's
+            // 3 columns regardless of layout, cells past the active layout's
             // cell count grey out instead of disappearing, so the row's
             // overall height never jumps when the rider switches between
             // ROW2/COL2 (2 cells) and COL3 (3 cells).
@@ -4801,7 +4672,7 @@ internal fun compositeLayoutLabel(layout: CompositeLayout): String = when (layou
  * Dropdown letting the rider choose which catalog metric fills a composite
  * cell. Reuses the same `metricChipLabel` mapping the rest of the editor
  * uses so labels stay in sync. [enabled] is false for cells past the
- * active layout's cell count — the field greys out instead of disappearing
+ * active layout's cell count, the field greys out instead of disappearing
  * so the row's footprint stays stable as the rider switches layouts.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -4983,7 +4854,7 @@ private fun NotificationActionSlotDropdown(
 /**
  * Stat picker dropdown used under each composite cell. Lets the rider
  * choose what the cell shows for its metric: Now (live value), Min, Max,
- * Avg, Sustained peak, Median, P75, P95, P99 — all computed from the
+ * Avg, Sustained peak, Median, P75, P95, P99, all computed from the
  * rolling history buffer for that metric. Greys out when the parent cell
  * is past the active layout's cell count.
  */
@@ -5051,7 +4922,7 @@ private fun CompositeCellStatDropdown(
 
 @Composable
 private fun compositeCellStatLabel(stat: DashboardStat): String = when (stat) {
-    DashboardStat.NONE -> "—"
+    DashboardStat.NONE -> stringResource(R.string.value_none)
     DashboardStat.CURRENT -> stringResource(R.string.dashboard_stat_current)
     DashboardStat.MIN -> stringResource(R.string.dashboard_stat_min)
     DashboardStat.MAX -> stringResource(R.string.dashboard_stat_max)
@@ -5068,8 +4939,8 @@ private fun compositeCellStatLabel(stat: DashboardStat): String = when (stat) {
  * Edit sheet for an action-group instance. Lets the rider rename the group,
  * pick its tile icon from a curated 10-icon set, and configure up to four
  * sub-actions in chosen order. Duplicate sub-actions are allowed (the rider
- * may want the same action twice in a popover — e.g. two RECORD_TOGGLE
- * entries). No reset / delete buttons — deletion happens by dragging the
+ * may want the same action twice in a popover, e.g. two RECORD_TOGGLE
+ * entries). No reset / delete buttons, deletion happens by dragging the
  * tile back to the pool.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -5112,14 +4983,14 @@ private fun ActionGroupSheet(
                 .padding(horizontal = 20.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Preview tile intentionally omitted — the icon-picker button
+            // Preview tile intentionally omitted, the icon-picker button
             // already shows what the group's icon looks like, and the
             // name field shows the label. A full-width preview here would
             // duplicate both for no extra information.
 
             // Compact name + icon row. The icon lives as a leading button
             // inside the OutlinedTextField's row so the picker takes zero
-            // extra vertical space — the rider can scan through icons from
+            // extra vertical space, the rider can scan through icons from
             // a popup grid without scrolling the sheet.
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -5158,7 +5029,7 @@ private fun ActionGroupSheet(
             }
 
             // Four sub-action dropdowns in a 2x2 grid. (none) is the
-            // first option so the rider can leave a slot empty — useful
+            // first option so the rider can leave a slot empty, useful
             // for groups with fewer than four actions. Packing two per
             // row keeps the sheet from getting tall, and the labels on
             // each field communicate which slot they map to.
@@ -5229,7 +5100,7 @@ private fun CustomBleSheet(
     fun persist() {
         // Re-parse the CURRENT text here. `parsedFrames` is a composition-scoped
         // val captured from the previous composition, so using it persisted the
-        // frames a keystroke behind — a hex that only becomes valid on the last
+        // frames a keystroke behind, a hex that only becomes valid on the last
         // character never saved, so the field looked empty on reopen (you were
         // seeing the placeholder, which happens to be the low-beam hex).
         val parsed = com.eried.eucplanet.data.model.CustomBleCommand.parseFrames(framesText)
@@ -5326,7 +5197,7 @@ private fun CustomBleSheet(
  * Square icon-button that shows the currently-chosen group/custom-tile
  * icon. Tapping it pops a grid of curated icons; selecting one closes
  * the popup. Lives next to the name OutlinedTextField in the edit sheet
- * so the picker contributes zero extra vertical space — and scales to
+ * so the picker contributes zero extra vertical space, and scales to
  * arbitrarily many icons via the popup's internal scroll.
  */
 @OptIn(ExperimentalLayoutApi::class)
@@ -5338,7 +5209,7 @@ private fun GroupIconButton(
     var expanded by remember { mutableStateOf(false) }
     val outline = MaterialTheme.colorScheme.outline
     Box {
-        // Anchor — matches OutlinedTextField height so the row aligns
+        // Anchor, matches OutlinedTextField height so the row aligns
         // visually with the name field next to it.
         Box(
             modifier = Modifier
@@ -5518,7 +5389,7 @@ private fun CustomTileSheet(
 
             // Compact icon + text row. The icon button is sized to match the
             // OutlinedTextField (56dp tall) and centred so the two controls
-            // read as one band — no top-edge drift.
+            // read as one band, no top-edge drift.
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -5555,7 +5426,7 @@ private fun CustomTileSheet(
 
             // Three-way segmented control: Text (no action), Open URL,
             // Show QR. NONE reads as "Text" because a custom tile with no
-            // action is just a label — the rider already named it via the
+            // action is just a label, the rider already named it via the
             // text field above.
             SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth().height(56.dp)) {
                 CustomTileAction.values().forEachIndexed { index, opt ->
@@ -5581,7 +5452,7 @@ private fun CustomTileSheet(
 
             if (action != CustomTileAction.NONE) {
                 // Rotating placeholder so the rider sees a different social /
-                // donation / portfolio URL each time the sheet opens — keeps
+                // donation / portfolio URL each time the sheet opens, keeps
                 // the field from feeling Instagram-only. MySpace shows up
                 // roughly 1-in-25 times as a nod to early-web nostalgia.
                 val placeholder = remember(id) { urlPlaceholderSample() }
@@ -5652,7 +5523,7 @@ private fun SlotSheetMetricPreview(
     onSparklineChange: (Boolean) -> Unit
 ) {
     val accent = metricAccentColor(key)
-    // Slot-sheet preview MUST mirror the dashboard tile face — same short
+    // Slot-sheet preview MUST mirror the dashboard tile face, same short
     // label as actually appears on the dashboard, so the preview is an
     // honest representation of what the rider will see. The FULL name is
     // shown separately as the sheet header above this preview.
@@ -5694,7 +5565,7 @@ private fun SlotSheetMetricPreview(
             selected = stats.sparkline,
             onClick = { onSparklineChange(!stats.sparkline) },
             // Default Material typography so the label baseline aligns
-            // naturally with the leading icon — overriding fontSize here
+            // naturally with the leading icon, overriding fontSize here
             // throws off the chip's internal centering.
             label = { Text(stringResource(R.string.dashboard_slot_sparkline_chip)) },
             leadingIcon = {
@@ -5721,7 +5592,7 @@ private fun SlotSheetMetricPreview(
  * The metric name lives ONLY in the centre column's label area, so the rider
  * always reads the tile's identity in the middle of the row. The centre stat
  * itself shows its own label (NOW / MIN / MAX / AVG) above the metric name
- * only when it's something other than the default CURRENT — that way the
+ * only when it's something other than the default CURRENT, that way the
  * common case looks clean ("BATTERY" above the big value, no "NOW" clutter).
  *
  * Arrangement: when BOTH left and right are populated the row spreads with
@@ -5972,7 +5843,7 @@ private fun SlotStatsEditor(
         )
     }
     // Self-documenting metrics (e.g. Forward G is speed-derived) explain themselves
-    // right here in the editor — the descriptionRes shows as an italic subtitle.
+    // right here in the editor, the descriptionRes shows as an italic subtitle.
     val descRes = remember(key) {
         com.eried.eucplanet.data.model.MetricCatalog.all.firstOrNull { it.key == key }?.descriptionRes
     }
@@ -6121,7 +5992,7 @@ private fun viewLabel(columns: Int): String = when (columns) {
     else -> stringResource(R.string.dashboard_view_default)
 }
 
-/** Label for the expanded dropdown only — qualifies Wide as the tablet layout so
+/** Label for the expanded dropdown only, qualifies Wide as the tablet layout so
  *  riders understand they won't normally see it; the collapsed field uses
  *  [viewLabel] so the short text fits. */
 @Composable
@@ -6308,14 +6179,14 @@ private fun SlotSheetActionPreview(key: String) {
 // ---- Catalog look-up helpers (shared with the live dashboard) ----------
 //
 // All of these are `internal` so the eventual `com.eried.eucplanet.ui.dashboard`
-// renderer can call them directly — keeps a single source of truth for chip
+// renderer can call them directly, keeps a single source of truth for chip
 // labels, accent palette, action icons, etc. between the editor preview and
 // the live dashboard. Adding a new metric / action means updating one of
 // these tables, not two.
 
 /**
  * Display label for a metric key. Reads from [com.eried.eucplanet.data.model.MetricCatalog]
- * so adding a new metric is one entry in `MetricCatalog.all` — this
+ * so adding a new metric is one entry in `MetricCatalog.all`, this
  * function never needs to grow another branch. The composite-empty
  * sentinel and unknown keys fall back to bespoke strings.
  *
@@ -6347,7 +6218,7 @@ internal fun metricChipLabel(key: String, short: Boolean = false): String {
  * 1-2 sentence explanation surfaced in the slot-sheet info box for
  * metrics whose meaning isn't obvious from the chip label. Pulls
  * [com.eried.eucplanet.data.model.MetricSpec.descriptionRes] from the
- * catalog — null when the metric has no description.
+ * catalog, null when the metric has no description.
  */
 @Composable
 internal fun metricDescription(key: String): String? {
@@ -6358,7 +6229,7 @@ internal fun metricDescription(key: String): String? {
 
 /**
  * Display label for an action key. Reads from [ActionCatalog] so adding
- * a new action only needs a catalog entry — this function never needs to
+ * a new action only needs a catalog entry, this function never needs to
  * grow another branch.
  */
 @Composable
@@ -6370,7 +6241,7 @@ internal fun actionChipLabel(key: String): String {
 /**
  * True when min/max/avg/percentile stats are meaningful for this metric.
  * Monotonic counters (`TRIP`, `ODOMETER`, accumulating trip-time/energy) and
- * circular values (`GPS_HEADING`) return false — for those the pool pill
+ * circular values (`GPS_HEADING`) return false, for those the pool pill
  * shows no sparkline background at all, since "stats off" isn't a state the
  * rider can toggle out of.
  */
@@ -6383,7 +6254,7 @@ internal fun metricSupportsStats(key: String): Boolean =
     com.eried.eucplanet.data.model.MetricCatalog.byKey(key)?.supportsStats ?: true
 
 /**
- * Accent palette for a metric — drives the value text + sparkline tint.
+ * Accent palette for a metric, drives the value text + sparkline tint.
  * Reads from [com.eried.eucplanet.data.model.MetricCatalog]; unknown keys
  * (including the COMPOSITE_CELL_EMPTY sentinel) fall through to AccentBlue.
  */
@@ -6453,7 +6324,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawDashboardTileDe
 // Stylized "histogram" wave drawn behind the tile when the rider has the
 // trend background toggled on. Rendered as 30 horizontal step segments at
 // quantised sine heights so it reads as a stepped sparkline rather than a
-// smooth curve — matches the rhythm of real 1Hz dashboard samples connected
+// smooth curve, matches the rhythm of real 1Hz dashboard samples connected
 // by straight segments. When [animated] is true the wave's phase shifts over
 // time so the staircase visibly scrolls; used in the bottom-sheet preview to
 // hint that this is a *live* trend feature, while the small grid tiles stay
@@ -6466,7 +6337,7 @@ private fun WavePatternBackground(
     steps: Int = 30,
     /**
      * When `true`, renders the wave at a much fainter alpha so it reads as
-     * "stats are available but disabled — tap to re-enable" instead of an
+     * "stats are available but disabled, tap to re-enable" instead of an
      * active sparkline. Used by the pool pills to distinguish disabled
      * metrics from those that don't support stats at all (the latter omit
      * the background entirely).
@@ -6512,7 +6383,7 @@ private fun WavePatternBackground(
         fillPath.lineTo(size.width, size.height)
         fillPath.lineTo(0f, size.height)
         fillPath.close()
-        // Kept deliberately faint so the readings stay the focus — the wave
+        // Kept deliberately faint so the readings stay the focus, the wave
         // is a hint, not a chart. The dimmed variant fades further so a
         // "disabled but available" wave reads as a ghost behind the pill.
         val fillAlpha = if (dimmed) 0.015f else 0.04f
@@ -6558,7 +6429,7 @@ private fun metricPlaceholderValue(
         "kn" -> "0 kn"
         else -> "0 km/h"
     }
-    "TRIP_TIME" -> "0:00"
+    "TRIP_TIME", "AUTO_OFF" -> "0:00"
     "WH_CONSUMED" -> "0 Wh"
     "RANGE_ESTIMATE" -> when (s.unitDistance) {
         "mi" -> "0 mi"
@@ -6579,7 +6450,7 @@ private fun metricPlaceholderValue(
     "MOTOR_RPM" -> "0 rpm"
     "REGEN_WH" -> "0 Wh"
     "BT_RSSI" -> "0 dBm"
-    // EMPTY cell renders no value — the cell composable already shows the
+    // EMPTY cell renders no value, the cell composable already shows the
     // "(empty)" placeholder text via the chip-label path instead.
     COMPOSITE_CELL_EMPTY -> ""
     else -> "--"
@@ -6594,7 +6465,7 @@ private fun DisplayTab(
 ) {
     // Theme combo: built-in themes (Light, Dark, Pure Black) + saved customs
     // (visible once a backup folder is set). Replaces the legacy theme-mode +
-    // accent pickers — the accent is now the active theme's `primary` token.
+    // accent pickers, the accent is now the active theme's `primary` token.
     val themeChoices = viewModel.themeChoices.collectAsState().value
     val themeDirty = viewModel.themeDirty.collectAsState().value
     LaunchedEffect(settings.activeThemeName, settings.syncFolderUri, themeDirty) {
@@ -6627,7 +6498,7 @@ private fun DisplayTab(
 
         ThemeDropdown(
             label = stringResource(R.string.theme),
-            current = if (themeDirty) "$currentTheme (unsaved)" else currentTheme,
+            current = if (themeDirty) stringResource(R.string.theme_unsaved_fmt, currentTheme) else currentTheme,
             builtIns = themeChoices.builtIns,
             saved = themeChoices.saved,
             unsaved = themeChoices.unsaved,
@@ -6635,7 +6506,7 @@ private fun DisplayTab(
             onSelectUnsaved = { viewModel.selectUnsavedTheme(it) }
         )
 
-        SwitchSetting("Theme customization widget", settings.themeEditorEnabled) {
+        SwitchSetting(stringResource(R.string.theme_editor_widget), settings.themeEditorEnabled) {
             viewModel.setThemeEditorEnabled(it)
         }
 
@@ -6799,8 +6670,14 @@ private fun SpeedTab(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        // Speed limits (and so Legal Mode) need a wheel that takes them from
+        // the app; Begode and the legacy Ninebots set theirs on the wheel itself.
+        val hasSpeedLimit by viewModel.wheelHasSpeedLimit.collectAsState()
+        val limitsEditable = isConnected && hasSpeedLimit
         if (!isConnected) {
             InfoHint(stringResource(R.string.speed_limits_disconnected))
+        } else if (!hasSpeedLimit) {
+            InfoHint(stringResource(R.string.speed_limits_unsupported))
         }
 
         val speedUnit = Units.effectiveSpeedUnit(settings)
@@ -7051,7 +6928,7 @@ private fun SpeedTab(
                 defaultKmh = SETTINGS_DEFAULTS.tiltbackSpeedKmh,
                 rangeKmh = 0f..maxSpeedCap,
                 speedUnit = speedUnit,
-                enabled = isConnected,
+                enabled = limitsEditable,
                 modifier = Modifier.weight(1f),
                 onValueChangeKmh = { viewModel.updateTiltbackSpeed(it) }
             )
@@ -7061,7 +6938,7 @@ private fun SpeedTab(
                 defaultKmh = SETTINGS_DEFAULTS.alarmSpeedKmh,
                 rangeKmh = 0f..settings.tiltbackSpeedKmh,
                 speedUnit = speedUnit,
-                enabled = isConnected,
+                enabled = limitsEditable,
                 modifier = Modifier.weight(1f),
                 onValueChangeKmh = { viewModel.updateAlarmSpeed(it) }
             )
@@ -7080,7 +6957,7 @@ private fun SpeedTab(
                 defaultKmh = SETTINGS_DEFAULTS.safetyTiltbackKmh,
                 rangeKmh = 0f..(settings.tiltbackSpeedKmh - 1f).coerceAtLeast(0f),
                 speedUnit = speedUnit,
-                enabled = isConnected,
+                enabled = limitsEditable,
                 modifier = Modifier.weight(1f),
                 onValueChangeKmh = { viewModel.updateSafetyTiltback(it) }
             )
@@ -7090,13 +6967,131 @@ private fun SpeedTab(
                 defaultKmh = SETTINGS_DEFAULTS.safetyAlarmKmh,
                 rangeKmh = 0f..settings.safetyTiltbackKmh,
                 speedUnit = speedUnit,
-                enabled = isConnected,
+                enabled = limitsEditable,
                 modifier = Modifier.weight(1f),
                 onValueChangeKmh = { viewModel.updateSafetyAlarm(it) }
             )
         }
 
         LegalLockdownSetting(viewModel)
+
+        HornSection(settings, viewModel)
+    }
+}
+
+/**
+ * What the horn button does: the wheel's horn, the rider's own sound played
+ * by the phone, or both at once for a rider with an external speaker. Every
+ * horn trigger (tile, Flic, volume keys, watch, HUD, Garmin, voice) follows it.
+ */
+@Composable
+private fun HornSection(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel,
+) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val snackbar = com.eried.eucplanet.ui.common.LocalSnackbar.current
+    val snackbarScope = com.eried.eucplanet.ui.common.LocalSnackbarScope.current
+    val msgOk = stringResource(R.string.horn_sound_imported)
+    val msgLong = stringResource(R.string.horn_sound_too_long)
+    val msgBig = stringResource(R.string.horn_sound_too_big)
+    val msgBad = stringResource(R.string.horn_sound_unreadable)
+    val horn = settings.horn
+    // Re-read after an import so Play enables without leaving the screen.
+    var soundReady by remember { mutableStateOf(viewModel.hornSoundReady) }
+    val picker = rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        val name = runCatching {
+            context.contentResolver.query(uri, arrayOf(android.provider.OpenableColumns.DISPLAY_NAME), null, null, null)
+                ?.use { c -> if (c.moveToFirst()) c.getString(0) else null }
+        }.getOrNull() ?: uri.lastPathSegment.orEmpty()
+        viewModel.importHornSound(uri, name) { r ->
+            soundReady = viewModel.hornSoundReady || r == com.eried.eucplanet.audio.HornPlayer.ImportResult.OK
+            val msg = when (r) {
+                com.eried.eucplanet.audio.HornPlayer.ImportResult.OK -> msgOk
+                com.eried.eucplanet.audio.HornPlayer.ImportResult.TOO_LONG -> msgLong
+                com.eried.eucplanet.audio.HornPlayer.ImportResult.TOO_BIG -> msgBig
+                com.eried.eucplanet.audio.HornPlayer.ImportResult.UNREADABLE -> msgBad
+            }
+            com.eried.eucplanet.ui.common.showSnackbar(snackbar, snackbarScope, msg)
+        }
+    }
+
+    SectionHeader(stringResource(R.string.horn_section))
+    SegmentedChoice(
+        label = stringResource(R.string.horn_mode_label),
+        options = listOf(
+            com.eried.eucplanet.data.model.HornSettings.MODE_WHEEL to stringResource(R.string.horn_mode_wheel),
+            com.eried.eucplanet.data.model.HornSettings.MODE_SOUND to stringResource(R.string.horn_mode_sound),
+            com.eried.eucplanet.data.model.HornSettings.MODE_BOTH to stringResource(R.string.horn_mode_both),
+        ),
+        current = horn.mode,
+        onChange = { viewModel.updateHornMode(it) }
+    )
+    if (horn.mode != com.eried.eucplanet.data.model.HornSettings.MODE_WHEEL) {
+        HintText(stringResource(R.string.horn_mode_hint), small = true)
+        // Same shape as the backup folder row: the chosen sound as a labelled
+        // line with the small preview control beside it, and one browse
+        // button under it. Nothing chosen shows only the browse button.
+        if (horn.soundName.isNotBlank() && soundReady) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    stringResource(R.string.horn_sound_current, horn.soundName),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.appColors.primary,
+                    modifier = Modifier.weight(1f, fill = false)
+                )
+                PlayButton(onClick = { viewModel.playHornSound() })
+            }
+        }
+        LeftAlignedScanButton(
+            label = stringResource(R.string.horn_sound_choose),
+            onClick = { picker.launch(arrayOf("audio/*")) }
+        )
+        SwitchSetting(
+            label = stringResource(R.string.horn_headphones_only),
+            checked = horn.headphonesOnly
+        ) { viewModel.updateHornHeadphonesOnly(it) }
+    }
+    // The wheel's own beeper volume, only for a wheel that takes one (Begode).
+    // Quiet while stopped so power-on and power-off beeps are soft; loud while
+    // riding so the warnings are heard.
+    val hasBeeperVolume by viewModel.wheelHasBeeperVolume.collectAsState()
+    if (hasBeeperVolume) {
+        SwitchSetting(
+            label = stringResource(R.string.beep_volume_by_speed),
+            checked = horn.beepVolumeBySpeed
+        ) { viewModel.updateBeepVolumeBySpeed(it) }
+        if (horn.beepVolumeBySpeed) {
+            val defaults = com.eried.eucplanet.data.model.HornSettings()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                NumberFieldWithDefault(
+                    value = horn.beepVolumeStopped,
+                    default = defaults.beepVolumeStopped,
+                    onValueChange = { viewModel.updateBeepVolumeStopped(it) },
+                    range = 1..9,
+                    label = stringResource(R.string.beep_volume_stopped),
+                    modifier = Modifier.weight(1f),
+                )
+                NumberFieldWithDefault(
+                    value = horn.beepVolumeRiding,
+                    default = defaults.beepVolumeRiding,
+                    onValueChange = { viewModel.updateBeepVolumeRiding(it) },
+                    range = 1..9,
+                    label = stringResource(R.string.beep_volume_riding),
+                    modifier = Modifier.weight(1f),
+                )
+            }
+        }
     }
 }
 
@@ -7105,7 +7100,9 @@ private fun SpeedTab(
 @Composable
 private fun VoiceTab(
     settings: com.eried.eucplanet.data.model.AppSettings,
-    viewModel: SettingsViewModel
+    viewModel: SettingsViewModel,
+    scrollToSplits: Boolean = false,
+    onSplitsTop: (Float) -> Unit = {},
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -7174,7 +7171,18 @@ private fun VoiceTab(
                     parse = { it.toFloatOrNull()?.let { f -> (f * 10).roundToInt() } },
                     allowSign = true,
                 )
-                Spacer(Modifier.weight(1f))
+                // Scales the speech alone, so music, alarms and auto-volume
+                // keep their levels. Changing it speaks at the new level.
+                NumberFieldWithDefault(
+                    value = settings.voiceVolumePercent,
+                    default = SETTINGS_DEFAULTS.voiceVolumePercent,
+                    onValueChange = { viewModel.updateVoiceVolume(it, voiceWelcome) },
+                    range = 10..100,
+                    step = 10,
+                    suffix = "%",
+                    label = stringResource(R.string.voice_volume),
+                    modifier = Modifier.weight(1f),
+                )
             }
 
             AudioFocusSelector(
@@ -7345,7 +7353,20 @@ private fun VoiceTab(
             // Tapping the one already selected plays it again.
             onChange = { viewModel.updateVoicePromptCue(it, listeningWord) },
         )
-        HintText(stringResource(R.string.voice_prompt_cue_desc))
+
+        // Assistants and cars take the music down while they listen; through
+        // the phone speaker the microphone otherwise hears the song.
+        SegmentedChoice(
+            label = stringResource(R.string.voice_music_listening),
+            options = listOf(
+                com.eried.eucplanet.data.model.VoiceCommandSettings.MUSIC_PAUSE to stringResource(R.string.voice_music_pause),
+                com.eried.eucplanet.data.model.VoiceCommandSettings.MUSIC_DUCK to stringResource(R.string.voice_music_duck),
+                com.eried.eucplanet.data.model.VoiceCommandSettings.MUSIC_KEEP to stringResource(R.string.voice_music_keep),
+            ),
+            current = settings.voiceCommands.musicWhileListening,
+            onChange = { viewModel.updateVoiceMusicWhileListening(it) },
+        )
+        HintText(stringResource(R.string.voice_music_listening_desc))
 
         SegmentedChoice(
             label = stringResource(R.string.voice_unknown_cue),
@@ -7368,12 +7389,29 @@ private fun VoiceTab(
         )
         HintText(stringResource(R.string.voice_recognition_desc))
 
-        SwitchSettingWithDesc(
+        // One three-way row, Off last like the two cue rows above it. Off is
+        // the old switch turned off; Listen and Announce turn it on and pick
+        // what the press does.
+        val headsetOff = "OFF"
+        SegmentedChoice(
             label = stringResource(R.string.voice_headset_button),
-            description = stringResource(R.string.voice_headset_button_desc),
-            checked = settings.voiceCommands.headsetButton,
-            onCheckedChange = { viewModel.updateVoiceHeadsetButton(it) },
+            options = listOf(
+                com.eried.eucplanet.data.model.VoiceCommandSettings.HEADSET_LISTEN to
+                    stringResource(R.string.action_chip_voice_listen),
+                com.eried.eucplanet.data.model.VoiceCommandSettings.HEADSET_ANNOUNCE to
+                    stringResource(R.string.voice_headset_announce),
+                headsetOff to stringResource(R.string.voice_cue_off),
+            ),
+            current = if (settings.voiceCommands.headsetButton) settings.voiceCommands.headsetAction
+                else headsetOff,
+            onChange = {
+                if (it == headsetOff) viewModel.updateVoiceHeadsetButton(false)
+                else viewModel.updateVoiceHeadsetMode(it)
+            },
         )
+        if (settings.voiceCommands.headsetButton) {
+            HintText(stringResource(R.string.voice_headset_chooser_hint))
+        }
 
         if (vocabularyOpen) {
             VoiceVocabularyDialog(
@@ -7390,116 +7428,8 @@ private fun VoiceTab(
         }
 
         // Report status: the periodic-report enable + when/interval, then the
-        // draggable per-metric Periodic/Trigger matrix, all tucked into a
-        // collapsible so the long list no longer dominates the tab.
-        val sSpeedEx = stringResource(R.string.voice_speed_fmt, "35")
-        val sBatteryEx = stringResource(R.string.voice_battery_fmt, 80)
-        val sPhoneEx = stringResource(R.string.voice_phone_battery_fmt, 57)
-        val sTempEx = stringResource(R.string.voice_temp_fmt, "32")
-        val sLoadEx = stringResource(R.string.voice_load_fmt, "45")
-        val sCurrentEx = stringResource(R.string.voice_current_fmt, "12")
-        val sPowerEx = stringResource(R.string.voice_power_fmt, "980")
-        // Preview must match what the voice actually says, imperial users
-        // get the miles variant so the page can't lie about the format.
-        val sTripEx = stringResource(
-            when (Units.effectiveDistanceUnit(settings)) {
-                "mi" -> R.string.voice_trip_miles_fmt
-                "m" -> R.string.voice_trip_meters_fmt
-                else -> R.string.voice_trip_fmt
-            },
-            if (Units.effectiveDistanceUnit(settings) == "m") "12300" else "12.3"
-        )
-        val sRecOn = stringResource(R.string.voice_recording_on)
-        val sRecOff = stringResource(R.string.voice_recording_off)
-        val ctx = androidx.compose.ui.platform.LocalContext.current
-        val sTimeEx = stringResource(
-            R.string.voice_time_fmt,
-            android.text.format.DateFormat.getTimeFormat(ctx).format(java.util.Date())
-        )
-
-        // The plan's own list, so a report added to the registry appears here
-        // without a second list to remember. It used to be written out again
-        // by hand and was already two items short of the truth.
-        val reportKeys = com.eried.eucplanet.service.VoiceReportPlan.KNOWN
-        val savedReportOrder = settings.voiceReportOrder.split(",").map { it.trim() }
-        // Append known items missing from the saved order (e.g. PhoneBattery) so they
-        // show in the list and preview even before the rider reorders.
-        val reportOrder = savedReportOrder + reportKeys.filter { it !in savedReportOrder }
-
-        val liveData by viewModel.wheelData.collectAsState()
-        val metricCtx = androidx.compose.ui.platform.LocalContext.current
-        fun extraSample(spec: com.eried.eucplanet.service.VoiceReportPlan.MetricReport): String? {
-            val raw = spec.read(liveData)
-            if (raw.isNaN() || (spec.blankAtZero && raw == 0f)) return null
-            val metric = com.eried.eucplanet.data.model.MetricCatalog.all
-                .first { it.key == spec.metricKey }
-            val value = com.eried.eucplanet.data.model.MetricValueFormat.format(
-                key = spec.metricKey,
-                raw = raw,
-                speedUnit = Units.effectiveSpeedUnit(settings),
-                speedUnitLabel = Units.speedUnit(metricCtx, Units.effectiveSpeedUnit(settings)),
-                tempUnit = Units.effectiveTempUnit(settings),
-                tempUnitLabel = Units.tempUnit(Units.effectiveTempUnit(settings)),
-                distanceUnit = Units.effectiveDistanceUnit(settings),
-                pressureUnit = Units.effectivePressureUnit(settings),
-            )
-            return metricCtx.getString(metric.spokenLabelRes ?: metric.labelRes) + ", " + value
-        }
-
-        fun exampleFor(key: String): String? = when (key) {
-            "Speed" -> sSpeedEx
-            "Battery" -> sBatteryEx
-            "PhoneBattery" -> sPhoneEx
-            "Temp" -> sTempEx
-            "PWM" -> sLoadEx
-            "Current" -> sCurrentEx
-            "Power" -> sPowerEx
-            "Distance" -> sTripEx
-            "Recording" -> listOf(sRecOn, sRecOff).random()
-            "Time" -> sTimeEx
-            "Navigation" -> navSample
-            else -> null
-        }
-
-        fun buildPreview(periodic: Boolean): String {
-            val parts = reportOrder.mapNotNull { key ->
-                com.eried.eucplanet.service.VoiceReportPlan.extra(key)?.let { spec ->
-                    return@mapNotNull if (spec.get(settings.voiceReports, periodic)) {
-                        extraSample(spec)
-                    } else null
-                }
-                val enabled = if (periodic) when (key) {
-                    "Speed" -> settings.voiceReportSpeed
-                    "Battery" -> settings.voiceReportBattery
-                    "PhoneBattery" -> settings.voiceReportPhoneBattery
-                    "Temp" -> settings.voiceReportTemp
-                    "PWM" -> settings.voiceReportPwm
-                    "Current" -> settings.voiceReports.periodicCurrent
-                    "Power" -> settings.voiceReports.periodicPower
-                    "Distance" -> settings.voiceReportDistance
-                    "Recording" -> settings.voiceReportRecording
-                    "Time" -> settings.voiceReportTime
-                    "Navigation" -> settings.voiceReportNavigation
-                    else -> false
-                } else when (key) {
-                    "Speed" -> settings.triggerReportSpeed
-                    "Battery" -> settings.triggerReportBattery
-                    "PhoneBattery" -> settings.triggerReportPhoneBattery
-                    "Temp" -> settings.triggerReportTemp
-                    "PWM" -> settings.triggerReportPwm
-                    "Current" -> settings.voiceReports.triggerCurrent
-                    "Power" -> settings.voiceReports.triggerPower
-                    "Distance" -> settings.triggerReportDistance
-                    "Recording" -> settings.triggerReportRecording
-                    "Time" -> settings.triggerReportTime
-                    "Navigation" -> settings.triggerReportNavigation
-                    else -> false
-                }
-                if (enabled) exampleFor(key) else null
-            }
-            return parts.joinToString(", ")
-        }
-
+        // two pill lists, tucked into a collapsible so they do not dominate
+        // the tab.
         SectionHeader(stringResource(R.string.section_report_status))
         // The toggle enables only the periodic loop, so the when/interval
         // controls hide with it. The Customize matrix below stays visible
@@ -7544,153 +7474,38 @@ private fun VoiceTab(
             title = stringResource(R.string.report_contents),
             stateKey = "voice-report-contents"
         ) {
-        // Header: Label | Periodic | arrows | Trigger
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Spacer(Modifier.weight(1f))
-            Row(modifier = Modifier.weight(0.55f), verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center) {
-                Text(stringResource(R.string.col_periodic), style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.primary)
-                Spacer(Modifier.width(4.dp))
-                PlayButton(onClick = {
-                    val text = buildPreview(periodic = true)
-                    if (text.isNotBlank()) viewModel.testSpeak(text)
-                })
-            }
-            Row(modifier = Modifier.weight(0.55f), verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center) {
-                Text(stringResource(R.string.col_trigger), style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.primary)
-                Spacer(Modifier.width(4.dp))
-                PlayButton(onClick = {
-                    val text = buildPreview(periodic = false)
-                    if (text.isNotBlank()) viewModel.testSpeak(text)
-                })
-            }
-        }
-
-        data class ReportItemConfig(
-            val key: String,
-            val label: String,
-            val periodicChecked: Boolean,
-            val onPeriodicChange: (Boolean) -> Unit,
-            val triggerChecked: Boolean,
-            val onTriggerChange: (Boolean) -> Unit,
-            val testText: String
+        // Two lists, one per announcement, each its own order: what is worth
+        // hearing every few minutes and what a button press should say are
+        // different answers.
+        VoicePillList(
+            title = stringResource(R.string.col_periodic),
+            pills = com.eried.eucplanet.service.VoiceReportPlan.pills(settings, periodic = true),
+            onChange = { viewModel.setVoicePills(periodic = true, pills = it) },
+            onPlay = { viewModel.previewVoiceReport(periodic = true) },
         )
-
-        val allItems = mapOf(
-            "Speed" to ReportItemConfig("Speed", stringResource(R.string.report_speed),
-                settings.voiceReportSpeed, { viewModel.updateVoiceReportSpeed(it) },
-                settings.triggerReportSpeed, { viewModel.updateTriggerReportSpeed(it) },
-                sSpeedEx),
-            "Battery" to ReportItemConfig("Battery", stringResource(R.string.report_battery),
-                settings.voiceReportBattery, { viewModel.updateVoiceReportBattery(it) },
-                settings.triggerReportBattery, { viewModel.updateTriggerReportBattery(it) },
-                sBatteryEx),
-            "PhoneBattery" to ReportItemConfig("PhoneBattery", stringResource(R.string.report_phone_battery),
-                settings.voiceReportPhoneBattery, { viewModel.updateVoiceReportPhoneBattery(it) },
-                settings.triggerReportPhoneBattery, { viewModel.updateTriggerReportPhoneBattery(it) },
-                sPhoneEx),
-            "Temp" to ReportItemConfig("Temp", stringResource(R.string.report_temp),
-                settings.voiceReportTemp, { viewModel.updateVoiceReportTemp(it) },
-                settings.triggerReportTemp, { viewModel.updateTriggerReportTemp(it) },
-                sTempEx),
-            "PWM" to ReportItemConfig("PWM", stringResource(R.string.report_pwm),
-                settings.voiceReportPwm, { viewModel.updateVoiceReportPwm(it) },
-                settings.triggerReportPwm, { viewModel.updateTriggerReportPwm(it) },
-                sLoadEx),
-            // Current and Power exist for the wheels that never report PWM, so
-            // the rider still has a limit-style reading. Both are spoken as a
-            // recent average, not an instantaneous peak.
-            "Current" to ReportItemConfig("Current", stringResource(R.string.report_current),
-                settings.voiceReports.periodicCurrent, { viewModel.updateVoiceReportCurrent(it) },
-                settings.voiceReports.triggerCurrent, { viewModel.updateTriggerReportCurrent(it) },
-                sCurrentEx),
-            "Power" to ReportItemConfig("Power", stringResource(R.string.report_power),
-                settings.voiceReports.periodicPower, { viewModel.updateVoiceReportPower(it) },
-                settings.voiceReports.triggerPower, { viewModel.updateTriggerReportPower(it) },
-                sPowerEx),
-            "Distance" to ReportItemConfig("Distance", stringResource(R.string.report_distance),
-                settings.voiceReportDistance, { viewModel.updateVoiceReportDistance(it) },
-                settings.triggerReportDistance, { viewModel.updateTriggerReportDistance(it) },
-                sTripEx),
-            "Recording" to ReportItemConfig("Recording", stringResource(R.string.report_recording),
-                settings.voiceReportRecording, { viewModel.updateVoiceReportRecording(it) },
-                settings.triggerReportRecording, { viewModel.updateTriggerReportRecording(it) },
-                listOf(sRecOn, sRecOff).random()),
-            "Time" to ReportItemConfig("Time", stringResource(R.string.report_time),
-                settings.voiceReportTime, { viewModel.updateVoiceReportTime(it) },
-                settings.triggerReportTime, { viewModel.updateTriggerReportTime(it) },
-                sTimeEx),
-            "Navigation" to ReportItemConfig("Navigation", stringResource(R.string.report_navigation),
-                settings.voiceReportNavigation, { viewModel.updateVoiceReportNavigation(it) },
-                settings.triggerReportNavigation, { viewModel.updateTriggerReportNavigation(it) },
-                navSample)
+        Spacer(Modifier.height(8.dp))
+        VoicePillList(
+            title = stringResource(R.string.col_trigger),
+            pills = com.eried.eucplanet.service.VoiceReportPlan.pills(settings, periodic = false),
+            onChange = { viewModel.setVoicePills(periodic = false, pills = it) },
+            onPlay = { viewModel.previewVoiceReport(periodic = false) },
         )
-
-        // The catalog-backed reports, built rather than written out: name from
-        // the metric catalog (already translated), value through the same
-        // formatter the tile uses, both toggles through one view-model method.
-        val extraItems = com.eried.eucplanet.service.VoiceReportPlan.EXTRA.associate { spec ->
-            val metric = com.eried.eucplanet.data.model.MetricCatalog.all
-                .first { it.key == spec.metricKey }
-            spec.key to ReportItemConfig(
-                key = spec.key,
-                // The tile's name, not the spoken one. "Battery (est)" is
-                // what the rider reads on the dashboard and what they are
-                // looking for in this list; "Estimated battery" exists so the
-                // voice does not have to say "est" out loud, which is a
-                // different job and a longer word.
-                label = stringResource(metric.labelRes),
-                periodicChecked = spec.get(settings.voiceReports, true),
-                onPeriodicChange = { viewModel.updateVoiceReportExtra(spec.key, true, it) },
-                triggerChecked = spec.get(settings.voiceReports, false),
-                onTriggerChange = { viewModel.updateVoiceReportExtra(spec.key, false, it) },
-                // Rule 10: the preview speaks the rider's own wheel, and says
-                // so honestly when it has nothing to read yet.
-                // Nothing from the wheel yet is itself the honest preview:
-                // "No estimated battery yet" is what a rider asking right now
-                // would actually hear.
-                testText = extraSample(spec) ?: metricCtx.getString(
-                    R.string.voice_answer_nodata,
-                    stringResource(metric.spokenLabelRes ?: metric.labelRes),
-                ),
-            )
-        }
-        val everyItem = allItems + extraItems
-
-        // Existing users may have a saved order that predates new report items (e.g. "Time").
-        // Append any known items missing from the saved order so they still appear.
-        val orderedItems = (reportOrder.mapNotNull { everyItem[it] } +
-            everyItem.filterKeys { it !in reportOrder }.values).toList()
-
-        val haptic = LocalHapticFeedback.current
-        ReorderableColumn(
-            list = orderedItems,
-            onSettle = { from, to -> viewModel.moveReportItem(from, to) },
-            onMove = { haptic.performHapticFeedback(HapticFeedbackType.LongPress) },
-            modifier = Modifier.fillMaxWidth()
-        ) { _, item, _ ->
-            key(item.key) {
-                ReportRow(
-                    label = item.label,
-                    periodicChecked = item.periodicChecked,
-                    onPeriodicChange = item.onPeriodicChange,
-                    triggerChecked = item.triggerChecked,
-                    onTriggerChange = item.onTriggerChange,
-                    onTest = { viewModel.testSpeak(item.testText) },
-                    dragHandleModifier = Modifier.draggableHandle()
-                )
-            }
-        }
         }   // end Customize AdvancedCollapsable
+        // Outside the collapsible so a rider finds it without opening the
+        // lists. Play above never resets: a preview is not a press.
+        SwitchSetting(
+            stringResource(R.string.voice_trigger_reset_after),
+            settings.voiceReports.triggerResetAfter,
+        ) { viewModel.updateTriggerResetAfter(it) }
 
         // --- Acceleration splits (RaceBox-style) ---
-        SectionHeader(stringResource(R.string.section_accel_splits))
+        Box(
+            modifier = if (scrollToSplits) {
+                Modifier.onGloballyPositioned { onSplitsTop(it.positionInWindow().y) }
+            } else Modifier,
+        ) {
+            SectionHeader(stringResource(R.string.section_accel_splits))
+        }
         val accel = settings.accelSplit
         val ctxAccel = androidx.compose.ui.platform.LocalContext.current
         val accelUnit = Units.speedUnit(ctxAccel, Units.effectiveSpeedUnit(settings))
@@ -8041,6 +7856,7 @@ private fun FlicTab(
 
         settingsViewModel.settings.collectAsState().value?.let { s ->
             HudIntegrationSection(settings = s, viewModel = settingsViewModel)
+            AndroidAutoSection(settings = s, viewModel = settingsViewModel)
         }
 
         SectionHeader(stringResource(R.string.section_tpms))
@@ -8065,12 +7881,25 @@ private fun WatchTab(
     val amazfitBadge: (@Composable () -> Unit)? = if (hasAmazfitPaired) {
         { com.eried.eucplanet.ui.theme.PlatformUnsupportedTextBadge("AMAZFIT") }
     } else null
-    // "Not on Garmin" badge for the Wear-only rows — shown only when a Garmin is
+    // "Not on Garmin" badge for the Wear-only rows, shown only when a Garmin is
     // ALSO paired (the feature works on the Wear watch, just not the Garmin one).
     // When only a Garmin is paired these rows stay hidden (hasWearOs gate).
     val garminBadge: (@Composable () -> Unit)? = if (hasGarminPaired) {
         { com.eried.eucplanet.ui.theme.PlatformUnsupportedTextBadge("GARMIN") }
     } else null
+    val mapUnsupportedBadge: (@Composable () -> Unit)? =
+        if (hasGarminPaired || hasAmazfitPaired) {
+            {
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    if (hasGarminPaired) {
+                        com.eried.eucplanet.ui.theme.PlatformUnsupportedTextBadge("GARMIN")
+                    }
+                    if (hasAmazfitPaired) {
+                        com.eried.eucplanet.ui.theme.PlatformUnsupportedTextBadge("AMAZFIT")
+                    }
+                }
+            }
+        } else null
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -8109,13 +7938,10 @@ private fun WatchTab(
             onCheckedChange = { viewModel.updateWatchCloseOnExit(it) }
         )
 
-        // Display: when the watch screen is on / what it primarily shows.
-        // Pared down to the two switches that affect "do I see anything
-        // useful right now" — Keep-display-on (Wear OS only — Garmin
-        // watches manage screen timeout in their own system Settings)
-        // and Show-navigation (mirror the turn arrow). Battery icons,
-        // PWM rendering, unit labels, dial rotation are all visual
-        // tweaks that live in Customization below.
+        // Display controls screen wake behavior and what the watch shows.
+        // Navigation-only screen hold is Wear OS only. Garmin watches
+        // manage screen timeout in system settings. Visual tweaks such as
+        // battery icons, PWM, units, and rotation live in Customization below.
         SectionHeader(stringResource(R.string.section_watch_display))
 
         if (hasWearOs || hasAmazfitPaired) {
@@ -8127,14 +7953,48 @@ private fun WatchTab(
                 badge = garminBadge
             )
         }
+        if (hasWearOs || settings.watchMap.keepScreenOnDuringNavigation) {
+            SwitchSettingWithDesc(
+                label = stringResource(R.string.watch_keep_on_navigation),
+                description = stringResource(R.string.watch_keep_on_navigation_desc),
+                checked = settings.watchMap.keepScreenOnDuringNavigation,
+                onCheckedChange = { viewModel.updateWatchKeepScreenOnDuringNavigation(it) },
+            )
+        }
         SwitchSettingWithDesc(
             label = stringResource(R.string.watch_show_navigation),
             description = stringResource(R.string.watch_show_navigation_desc),
             checked = settings.watchShowNavigation,
             onCheckedChange = { viewModel.updateWatchShowNavigation(it) }
         )
+        if (hasWearOs || settings.watchMap.enabled) {
+            SwitchSettingWithDesc(
+                label = stringResource(R.string.watch_map_enabled),
+                description = stringResource(R.string.watch_map_enabled_desc),
+                checked = settings.watchMap.enabled,
+                onCheckedChange = { viewModel.updateWatchMapEnabled(it) },
+                badge = mapUnsupportedBadge,
+            )
+            if (settings.watchMap.enabled) {
+                SegmentedChoice(
+                    label = stringResource(R.string.watch_map_orientation),
+                    options = listOf(
+                        "NORTH_UP" to stringResource(R.string.watch_map_north_up),
+                        "HEADING_UP" to stringResource(R.string.watch_map_heading_up),
+                    ),
+                    current = if (settings.watchMap.headingUp) "HEADING_UP" else "NORTH_UP",
+                    onChange = { viewModel.updateWatchMapHeadingUp(it == "HEADING_UP") },
+                )
+                SwitchSettingWithDesc(
+                    label = stringResource(R.string.watch_map_telemetry),
+                    description = stringResource(R.string.watch_map_telemetry_desc),
+                    checked = settings.watchMap.showTelemetry,
+                    onCheckedChange = { viewModel.updateWatchMapShowTelemetry(it) },
+                )
+            }
+        }
 
-        // Advanced (collapsed by default) — visual tweaks most riders
+        // Advanced (collapsed by default), visual tweaks most riders
         // configure once and forget. Hiding them keeps the Watch tab
         // tight for first-time setup while still letting power users
         // dial things in. Update-rate sits here because it's a
@@ -8269,12 +8129,12 @@ private fun WatchTab(
             }
         }
 
-        // Buttons region — two collapsable sub-cards (collapsible surfaceVariant-card style)
+        // Buttons region, two collapsable sub-cards (collapsible surfaceVariant-card style)
         // grouping the on-screen tap targets and the side hardware keys.
         // Touch is always available (every watch has a touchscreen) so its
         // card always shows; Hardware only appears for surfaces that
         // actually deliver key events (every Garmin, Galaxy Watch Ultra)
-        // — gated by [hasHardwareButtons]. Haptic-on-action lives after
+        //, gated by [hasHardwareButtons]. Haptic-on-action lives after
         // the two cards because it applies to both kinds of press.
         SectionHeader(stringResource(R.string.section_watch_buttons))
 
@@ -8716,9 +8576,21 @@ private fun CloudTab(
         val pushRes = if (isDropbox) R.string.sync_conflict_app_dropbox else R.string.sync_conflict_app
         AlertDialog(
             onDismissRequest = { viewModel.cancelSyncConflict() },
+            properties = androidx.compose.ui.window.DialogProperties(dismissOnClickOutside = false),
             shape = RoundedCornerShape(12.dp),
             title = { Text(stringResource(R.string.sync_conflict_title)) },
-            text = { Text(stringResource(bodyRes, syncConflict!!)) },
+            text = {
+                val firstSettings by viewModel.syncConflictFirstSettings.collectAsState()
+                val count = stringResource(bodyRes, syncConflict!!)
+                Text(
+                    if (isDropbox && firstSettings) {
+                        val ask = stringResource(R.string.sync_first_settings)
+                        // Settings alone: the question says it all. With trips or
+                        // themes in the prompt too, the count still follows.
+                        if (syncConflict == 1) ask else "$ask\n\n$count"
+                    } else count
+                )
+            },
             confirmButton = {
                 Column(
                     horizontalAlignment = Alignment.End,
@@ -8836,14 +8708,14 @@ private fun CloudTab(
                     enabled = !syncRunning,
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp)
-                ) { Text(stringResource(R.string.cloud_change_folder)) }
+                ) { com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.cloud_change_folder)) }
                 Button(
                     onClick = { viewModel.clearSyncFolder() },
                     enabled = !syncRunning,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.appColors.statusDanger),
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp)
-                ) { Text(stringResource(R.string.cloud_remove_folder)) }
+                ) { com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.cloud_remove_folder)) }
             }
         } else {
             LeftAlignedScanButton(
@@ -8853,7 +8725,7 @@ private fun CloudTab(
         }
 
         // --- Online backup (Dropbox) -----------------------------------
-        // Only shown once a SAF folder is chosen — the cloud copy is
+        // Only shown once a SAF folder is chosen, the cloud copy is
         // framed as a mirror of the local backup, so it doesn't make
         // sense to offer Dropbox before the rider has set up the local
         // side first.
@@ -8931,7 +8803,7 @@ private fun CloudTab(
                         enabled = !syncRunning,
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp),
-                    ) { Text(stringResource(R.string.cloud_retry_now)) }
+                    ) { com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.cloud_retry_now)) }
                     Button(
                         onClick = { viewModel.unlinkDropbox() },
                         enabled = !syncRunning,
@@ -8941,7 +8813,7 @@ private fun CloudTab(
                         ),
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp),
-                    ) { Text(stringResource(R.string.dropbox_unlink)) }
+                    ) { com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.dropbox_unlink)) }
                 }
                 val activeDbxKind by viewModel.activeSyncKind.collectAsState()
                 val showDbxProgress = syncRunning &&
@@ -8957,6 +8829,8 @@ private fun CloudTab(
                         // left the flag set, so the pending indicator popped up and
                         // it looked like the sync just carried on after Cancel.
                         onCancel = { viewModel.stopDropboxSync() },
+                        label = if (dbxProgress == null && !dbxCancelling)
+                            stringResource(R.string.dropbox_checking) else null,
                     )
                 }
                 // Quiet persistent "still syncing" row: trips are pending and the
@@ -8992,7 +8866,7 @@ private fun CloudTab(
                         enabled = !syncRunning,
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp),
-                    ) { Text(stringResource(R.string.dropbox_link)) }
+                    ) { com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.dropbox_link)) }
                     Spacer(Modifier.weight(1f))
                 }
             }
@@ -9056,7 +8930,7 @@ private fun CloudTab(
             Text(
                 stringResource(R.string.cloud_settings_backup_desc),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MaterialTheme.appColors.textSecondary,
             )
             // No spacer: the section's own column already spaces at 16dp, so
             // this one made the gap under the description bigger than every
@@ -9126,7 +9000,7 @@ private fun CloudTab(
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text(stringResource(R.string.cloud_retry_now))
+                    com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.cloud_retry_now))
                 }
                 // Wipes only the phone's local trips (files + DB), never the
                 // backup folder, so it sits beside Sync all as its counterpart.
@@ -9140,7 +9014,7 @@ private fun CloudTab(
                     ),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text(stringResource(R.string.cloud_reset_local))
+                    com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.cloud_reset_local))
                 }
             }
             if (showResetLocalDialog) {
@@ -9195,6 +9069,18 @@ private fun CloudTab(
         val startOnboarding by viewModel.startOnboarding.collectAsStateWithLifecycle()
         val rejoinConfirm by viewModel.rejoinConfirm.collectAsStateWithLifecycle()
         val riderStoreId by viewModel.riderStoreId.collectAsStateWithLifecycle()
+        // Crew pass only shows for a rider on the leaderboard. Searching for it
+        // without one lands on the leaderboard heading; this says why the
+        // button is not there and what brings it.
+        val crewPassShown = settings.syncFolderUri != null && settings.onlineUploadEnabled && riderStoreId != null
+        val searchQuery = LocalSettingsSearchQuery.current.trim()
+        val crewPassLabel = stringResource(R.string.crews_pass_action)
+        val crewPassHint = stringResource(R.string.crews_pass_search_hint)
+        LaunchedEffect(searchQuery, crewPassShown) {
+            if (!crewPassShown && searchQuery.isNotEmpty() && crewPassLabel.contains(searchQuery, ignoreCase = true)) {
+                snackbar.showSnackbar(crewPassHint)
+            }
+        }
         LaunchedEffect(startOnboarding) {
             if (startOnboarding) {
                 showOnboarding = true
@@ -9296,11 +9182,15 @@ private fun CloudTab(
             )
         }
 
-        // Online leaderboards — only shown once a backup folder is configured.
+        // Online leaderboards, only shown once a backup folder is configured.
         if (settings.syncFolderUri != null) {
             SectionHeader(stringResource(R.string.section_online_stats))
 
-            if (!settings.onlineUploadEnabled) {
+            // Join whenever there is no rider to upload as, not only while
+            // uploads are off: uploads on with no rider (issue #31, left by an
+            // earlier welcome-tour shortcut) otherwise hid both this button and
+            // the profile below. Join runs recover, rejoin or onboarding.
+            if (!settings.onlineUploadEnabled || riderStoreId == null) {
                 val siteUrl = stringResource(R.string.online_upload_site_url)
                 // Caption + inline link (one flowing, naturally-wrapping sentence),
                 // shown ABOVE the Join button.
@@ -9400,7 +9290,7 @@ private fun CloudTab(
                         // same composable, so the two cannot drift apart.
                         LeaderboardProfileCard(card)
 
-                        // Stats — shown in the unit system the app is currently set to
+                        // Stats, shown in the unit system the app is currently set to
                         // (not both metric + imperial). 1 decimal for small distances.
                         val distUnit = Units.effectiveDistanceUnit(settings)
                         val spdUnit = Units.effectiveSpeedUnit(settings)
@@ -9472,21 +9362,52 @@ private fun CloudTab(
             }
 
             // Buttons live OUTSIDE the stats card, at the section margin.
+            val crewsCtx = LocalContext.current
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
             ) {
                 Button(
                     onClick = { showOnlineProfile = true },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp),
                 ) {
-                    Text(stringResource(R.string.online_profile_manage))
+                    com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.online_profile_manage))
                 }
-                Spacer(modifier = Modifier.weight(1f))
+                // Crews pairing had no way in from inside the app at all -- the activity was
+                // reachable only by the `eucplanet://pair` deep link, while eucstats told
+                // riders whose app had not opened to come here and type the code. It sits in
+                // this block because this block only renders for a rider who HAS an eucstats
+                // account, which is exactly when a pass is worth issuing.
+                Button(
+                    onClick = {
+                        // Fully qualified, like every other Intent in this file: there is no
+                        // `import android.content.Intent` here and adding one for a single
+                        // call would be the odd line out.
+                        crewsCtx.startActivity(
+                            android.content.Intent(
+                                crewsCtx,
+                                com.eried.eucplanet.crews.CrewsPairActivity::class.java,
+                            ),
+                        )
+                    },
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp),
+                ) {
+                    // The icon, because "Crews" beside "Manage profile" reads as a list of
+                    // crews and this opens a camera. The scanner one and not `QrCode2`: that
+                    // is the icon for showing a code, which is what the browser is doing.
+                    Icon(
+                        Icons.Filled.QrCodeScanner,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp),
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.crews_pass_action))
+                }
             }
 
-            // "Trip stats uploads" subsection — a title plus a one-line
+            // "Trip stats uploads" subsection, a title plus a one-line
             // description, matching the title + caption pattern used by the
             // other subsections in this group (e.g. Trips backup).
             Text(
@@ -9511,7 +9432,7 @@ private fun CloudTab(
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp),
                 ) {
-                    Text(stringResource(R.string.cloud_retry_now))
+                    com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.cloud_retry_now))
                 }
                 Button(
                     onClick = { showUnlinkConfirm = true },
@@ -9523,10 +9444,10 @@ private fun CloudTab(
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp),
                 ) {
-                    Text(stringResource(R.string.online_upload_unlink))
+                    com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.online_upload_unlink))
                 }
             }
-            // Determinate progress while syncing — mirrors the trips-backup
+            // Determinate progress while syncing, mirrors the trips-backup
             // "Sync all" (indeterminate "checking…" first, then done/total).
             if (eucstatsSyncRunning) {
                 Column(
@@ -9563,7 +9484,7 @@ private fun CloudTab(
 // --- Shared components ---
 
 @Composable
-private fun PlayButton(onClick: () -> Unit, enabled: Boolean = true) {
+internal fun PlayButton(onClick: () -> Unit, enabled: Boolean = true) {
     IconButton(
         onClick = onClick,
         enabled = enabled,
@@ -9581,49 +9502,6 @@ private fun PlayButton(onClick: () -> Unit, enabled: Boolean = true) {
     }
 }
 
-@Composable
-private fun ReportRow(
-    label: String,
-    periodicChecked: Boolean,
-    onPeriodicChange: (Boolean) -> Unit,
-    triggerChecked: Boolean,
-    onTriggerChange: (Boolean) -> Unit,
-    onTest: () -> Unit = {},
-    dragHandleModifier: Modifier = Modifier
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            Icons.Default.DragHandle,
-            contentDescription = stringResource(R.string.action_reorder),
-            modifier = dragHandleModifier.size(28.dp),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(Modifier.width(6.dp))
-        Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
-            // The label yields, the play button does not. Without the weight
-            // the text took its full intrinsic width and left the button the
-            // remainder: "Estimated battery" squeezed it from 126px to 69 and
-            // the glyph inside it from 37 to 12, which is a preview a rider
-            // cannot see, let alone hit.
-            Text(
-                label,
-                style = MaterialTheme.typography.bodyLarge,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f, fill = false),
-            )
-            Spacer(Modifier.width(6.dp))
-            PlayButton(onClick = onTest)
-        }
-        Switch(checked = periodicChecked, onCheckedChange = onPeriodicChange,
-            modifier = Modifier.weight(0.55f), colors = themedSwitchColors())
-        Switch(checked = triggerChecked, onCheckedChange = onTriggerChange,
-            modifier = Modifier.weight(0.55f), colors = themedSwitchColors())
-    }
-}
 
 @Composable
 private fun AnnounceSwitchSetting(
@@ -9637,7 +9515,7 @@ private fun AnnounceSwitchSetting(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
-            Text(highlightMatches(label, LocalSettingsSearchQuery.current), style = MaterialTheme.typography.bodyLarge)
+            Text(highlightMatches(label, LocalSettingsSearchQuery.current), modifier = Modifier.settingsSearchLabel(label), style = MaterialTheme.typography.bodyLarge)
             Spacer(Modifier.width(4.dp))
             PlayButton(onClick = onTest)
         }
@@ -9789,7 +9667,7 @@ private fun SliderSetting(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(highlightMatches(label, LocalSettingsSearchQuery.current), style = MaterialTheme.typography.bodyLarge)
+                    Text(highlightMatches(label, LocalSettingsSearchQuery.current), modifier = Modifier.settingsSearchLabel(label), style = MaterialTheme.typography.bodyLarge)
                     Text(
                         valueText ?: "${format.format(value)} $unit",
                         style = MaterialTheme.typography.bodyLarge,
@@ -9873,7 +9751,7 @@ private fun SwitchSetting(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(highlightMatches(label, LocalSettingsSearchQuery.current), style = MaterialTheme.typography.bodyLarge)
+            Text(highlightMatches(label, LocalSettingsSearchQuery.current), modifier = Modifier.settingsSearchLabel(label), style = MaterialTheme.typography.bodyLarge)
             if (badge != null) {
                 Spacer(Modifier.width(6.dp))
                 badge()
@@ -10000,7 +9878,7 @@ private fun ThemeDropdown(
             value = displayName(current),
             onValueChange = {},
             readOnly = true,
-            label = { Text(highlightMatches(label, LocalSettingsSearchQuery.current)) },
+            label = { Text(highlightMatches(label, LocalSettingsSearchQuery.current), modifier = Modifier.settingsSearchLabel(label)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .fillMaxWidth()
@@ -10028,7 +9906,7 @@ private fun ThemeDropdown(
             }
             unsaved.forEach { base ->
                 DropdownMenuItem(
-                    text = { Text("$base (unsaved)") },
+                    text = { Text(stringResource(R.string.theme_unsaved_fmt, base)) },
                     onClick = { onSelectUnsaved(base); expanded = false }
                 )
             }
@@ -10056,7 +9934,7 @@ private fun SimpleDropdown(
             value = currentLabel,
             onValueChange = {},
             readOnly = true,
-            label = { Text(highlightMatches(label, LocalSettingsSearchQuery.current)) },
+            label = { Text(highlightMatches(label, LocalSettingsSearchQuery.current), modifier = Modifier.settingsSearchLabel(label)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .fillMaxWidth()
@@ -10248,7 +10126,7 @@ private fun EngineSoundSection(
         // flagged gearless (2-stroke singles, CVT ATVs, electric/jet sims)
         // have EngineSoundEngine ignore the gearbox setting anyway, so
         // hiding it matches what already happens for supportsMuffler /
-        // supportsPops / supportsBrakeWhine — keeps the panel honest about
+        // supportsPops / supportsBrakeWhine, keeps the panel honest about
         // which controls actually do something for the selected engine.
         if (!currentProfile.gearless) {
             SegmentedChoice(
@@ -10762,6 +10640,9 @@ internal fun SegmentedChoice(
                     shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size, baseShape = RoundedCornerShape(12.dp)),
                     colors = themedSegmentedColors(),
                 ) {
+                    // Two lines, wrapped at the word. Single words that are too
+                    // long for a third of the row are shortened in strings.xml
+                    // rather than scaled: the font stays the same everywhere.
                     Text(
                         optLabel,
                         textAlign = TextAlign.Center,
@@ -10815,7 +10696,7 @@ private fun ActionDropdown(
             value = currentLabel,
             onValueChange = {},
             readOnly = true,
-            label = { Text(highlightMatches(label, LocalSettingsSearchQuery.current)) },
+            label = { Text(highlightMatches(label, LocalSettingsSearchQuery.current), modifier = Modifier.settingsSearchLabel(label)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .fillMaxWidth()
@@ -11267,7 +11148,7 @@ internal fun RestorePickerDialog(
  * state shows the hint-only pill.
  *
  * Garmin limitations text renders below the panel when any Garmin card
- * is present — it's surface-level info, not per-device.
+ * is present, it's surface-level info, not per-device.
  */
 /**
  * "Device" region: a tinted panel containing one compact card per paired
@@ -11283,7 +11164,7 @@ internal fun RestorePickerDialog(
 private fun DeviceRegion(
     surfaces: List<com.eried.eucplanet.data.model.PairedSurface>
 ) {
-    // No outer Surface — cards extend to the same horizontal margin as
+    // No outer Surface, cards extend to the same horizontal margin as
     // the surrounding text, so the "Device" section feels integrated
     // rather than boxed-in. Cards stack vertically with a small gap;
     // each card has its own tinted background.
@@ -11306,7 +11187,7 @@ private fun DeviceRegion(
  */
 /**
  * Generic "Advanced" collapsable card. Same compact collapsible-card pattern
- * as [WatchButtonsCollapsable] but without a leading info box — used by
+ * as [WatchButtonsCollapsable] but without a leading info box, used by
  * tabs that group power-user controls behind a single tap (Watch, Voice,
  * …). Collapsed by default; the [title] is the only thing visible until
  * the rider expands. Includes smart-scroll-into-view on expand so the
@@ -11322,6 +11203,7 @@ private fun AdvancedCollapsable(
     content: @Composable () -> Unit
 ) {
     var expanded by rememberSaveable(stateKey) { mutableStateOf(false) }
+    val (shown, hidden) = cardSearch(title, expanded)
     val requester = remember { BringIntoViewRequester() }
     LaunchedEffect(expanded) {
         if (expanded) {
@@ -11351,13 +11233,14 @@ private fun AdvancedCollapsable(
                     style = MaterialTheme.typography.titleSmall,
                     modifier = Modifier.weight(1f)
                 )
+                SearchCountPill(hidden)
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowDown,
                     contentDescription = null
                 )
             }
             AnimatedVisibility(
-                visible = expanded,
+                visible = shown,
                 enter = expandVertically(
                     animationSpec = tween(180),
                     expandFrom = Alignment.Top,
@@ -11388,6 +11271,7 @@ private fun WatchButtonsCollapsable(
     content: @Composable () -> Unit
 ) {
     var expanded by rememberSaveable(title) { mutableStateOf(false) }
+    val (shown, hidden) = cardSearch(title, expanded)
     // Same smart-scroll behaviour as BringIntoViewSection / the top-level
     // CollapsibleSection: when the rider opens the card, after a short
     // settle delay scroll the card into view so the freshly-revealed
@@ -11417,17 +11301,18 @@ private fun WatchButtonsCollapsable(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    title,
+                    highlightMatches(title, LocalSettingsSearchQuery.current),
                     style = MaterialTheme.typography.titleSmall,
                     modifier = Modifier.weight(1f)
                 )
+                SearchCountPill(hidden)
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowDown,
                     contentDescription = null
                 )
             }
             AnimatedVisibility(
-                visible = expanded,
+                visible = shown,
                 enter = expandVertically(
                     animationSpec = tween(180),
                     expandFrom = Alignment.Top,
@@ -11462,7 +11347,7 @@ private fun WatchButtonsCollapsable(
 private fun DeviceCard(
     surface: com.eried.eucplanet.data.model.PairedSurface
 ) {
-    // No active/idle background tint — the StatusBadge (live dot + label) already
+    // No active/idle background tint, the StatusBadge (live dot + label) already
     // conveys connection state, so every device card uses one neutral surface.
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -11531,7 +11416,7 @@ private fun StatusBadge(active: Boolean) {
 }
 
 /** Compact update-rate indicator: heart-monitor icon + Hz value. The
- *  pulse-on-monitor glyph reads as "live vital signs" — semantically
+ *  pulse-on-monitor glyph reads as "live vital signs", semantically
  *  matches an end-to-end heartbeat better than the earlier signal-bars,
  *  and is clearly a status indicator rather than a tappable button. */
 @Composable
@@ -11616,8 +11501,8 @@ private fun HudInstallHint(pairedHudVersion: String?, hudEverConnected: Boolean)
         .replace("<b>", "").replace("</b>", "")
     val linkColor = MaterialTheme.colorScheme.primary
     // Mirror the welcome tutorial's link handling (OutroLinkBullet): locate the
-    // URL run by text — not via HtmlCompat bold-span detection, which wasn't
-    // reliably tagging the run, so no clickable link was ever added — and attach
+    // URL run by text, not via HtmlCompat bold-span detection, which wasn't
+    // reliably tagging the run, so no clickable link was ever added, and attach
     // a LinkAnnotation.Url. The https:// prefix is required or ACTION_VIEW has no
     // scheme to launch.
     val annotated = remember(raw, updateUrl, linkColor) {
@@ -11670,18 +11555,20 @@ private fun HudInstallHint(pairedHudVersion: String?, hudEverConnected: Boolean)
 @Composable
 private fun HudHotspotHint() {
     val ctx = LocalContext.current
+    var probed by remember { mutableStateOf(false) }
     var hotspotOn by remember { mutableStateOf<Boolean?>(null) }
     LaunchedEffect(Unit) {
         while (true) {
             hotspotOn = detectHotspotEnabled(ctx)
+            probed = true
             kotlinx.coroutines.delay(5_000L)
         }
     }
     // Always informational, never alarming. surfaceVariant + the outlined
     // Info icon matches the InfoHint pattern used elsewhere in the app, so
     // this reads as a regular "here's some context" card, not a red error.
-    // null = first probe in flight; suppress so the card doesn't flash.
-    val on = hotspotOn ?: return
+    // Nothing until the first probe lands, so the card doesn't flash.
+    if (!probed) return
     androidx.compose.material3.Surface(
         modifier = Modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.surfaceVariant,
@@ -11700,7 +11587,11 @@ private fun HudHotspotHint() {
             )
             Text(
                 text = stringResource(
-                    if (on) R.string.hud_hotspot_on_hint else R.string.hud_hotspot_off_hint
+                    // Confirmed on, or "we cannot tell". There is deliberately
+                    // no "off" copy: nothing available to an ordinary app can
+                    // prove a hotspot is off, so the card never claims it.
+                    if (hotspotOn == true) R.string.hud_hotspot_on_hint
+                    else R.string.hud_hotspot_unknown_hint
                 ),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -11710,10 +11601,19 @@ private fun HudHotspotHint() {
 }
 
 /**
- * Two-stage hotspot detection. Returns true/false when we have a signal, or
- * false when nothing answered (so the UI defaults to surfacing the hint).
+ * Two-stage hotspot detection. Returns true or false only when a stage
+ * actually answered, and null when neither could tell.
+ *
+ * The null matters. This used to return false when nothing answered, so the
+ * card stated "Phone hotspot is off" to riders whose hotspot was plainly on,
+ * and a tester had to argue with it. Neither stage is dependable on a modern
+ * phone: [android.net.wifi.WifiManager] `isWifiApEnabled` is a blocklisted
+ * hidden API for apps targeting API 30 and up (we target 36), and the
+ * interface-name sniff below only recognises the names we happened to know.
+ * A miss on both is "we cannot tell", which is not the same fact as "off",
+ * and only one of those is safe to print.
  */
-private fun detectHotspotEnabled(ctx: android.content.Context): Boolean {
+private fun detectHotspotEnabled(ctx: android.content.Context): Boolean? {
     // Stage 1: reflection into the legacy isWifiApEnabled API.
     val viaReflection: Boolean? = runCatching {
         val wifi = ctx.applicationContext
@@ -11722,13 +11622,23 @@ private fun detectHotspotEnabled(ctx: android.content.Context): Boolean {
         val m = wifi.javaClass.getMethod("isWifiApEnabled")
         m.invoke(wifi) as? Boolean
     }.getOrNull()
-    if (viaReflection != null) return viaReflection
+    // Only a `true` here means anything. Querying AP state is a privileged
+    // operation, so for an ordinary app this answers false whether the hotspot
+    // is off OR we simply are not allowed to know, and those are not the same
+    // fact. Verified on an emulator: it returns false with no hidden-API denial
+    // logged at all. Trusting that false is what told a tester his hotspot was
+    // off while he was looking at it running.
+    if (viaReflection == true) return true
 
     // Stage 2: look for a SoftAP-style network interface. When the rider
     // toggles hotspot on, the kernel brings up an interface named "ap0",
-    // "softap0", "wlan1" (Samsung) or "swlan0" (some MIUI). When hotspot
-    // is off, none of those exist - only "wlan0" for the regular client.
-    return runCatching {
+    // "softap0", "wlan1" (Samsung) or "swlan0" (some MIUI).
+    //
+    // Finding one proves the hotspot is up. NOT finding one proves nothing:
+    // the list is a guess at OEM naming, and an OEM we have not met names it
+    // something else. So a hit returns true and a miss returns null, never
+    // false. Only stage 1 can report a trustworthy "off".
+    val sawSoftAp = runCatching {
         val ifs = java.net.NetworkInterface.getNetworkInterfaces()?.toList().orEmpty()
         ifs.any { iface ->
             val name = iface.name.orEmpty().lowercase()
@@ -11738,6 +11648,7 @@ private fun detectHotspotEnabled(ctx: android.content.Context): Boolean {
             )
         }
     }.getOrDefault(false)
+    return if (sawSoftAp) true else null
 }
 
 // --- HUD section (lives inside the Integration tab) ---
@@ -11746,7 +11657,7 @@ private fun detectHotspotEnabled(ctx: android.content.Context): Boolean {
  * HUD companion settings, surfaced as a section at the bottom of the
  * Integration tab next to Flic 2 buttons and Volume keys.
  *
- * Intentionally minimal in v0.1 — one master switch plus the port and a
+ * Intentionally minimal in v0.1, one master switch plus the port and a
  * mirror-navigation toggle. Anything else is wired to the same shared
  * settings the phone already exposes (units, accent, gauge thresholds), so
  * a single source of truth governs phone + watch + HUD.
@@ -11755,6 +11666,65 @@ private fun detectHotspotEnabled(ctx: android.content.Context): Boolean {
  * and on the [com.eried.eucplanet.service.WheelService] being alive; it
  * binds a listening socket only while the rider has the app actively open.
  */
+/**
+ * Android Auto's stat boxes and buttons, picked like the home screen widget's
+ * slots but saved apart: the car and the home screen are different jobs.
+ * Three buttons, and all three are the rider's. Navigate used to lead the
+ * strip and took a slot; it went when this stopped being a navigation app.
+ */
+@Composable
+private fun AndroidAutoSection(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel,
+) {
+    val aa = com.eried.eucplanet.data.model.AndroidAutoSettings
+    val metricSlots = aa.metricSlots(settings.androidAuto.metrics)
+    val actionSlots = aa.actionSlots(settings.androidAuto.actions)
+    val metricOptions = WidgetMetricType.entries.map { it.key to stringResource(it.pickerLabel) }
+    val actionOptions = WidgetActionType.entries.map { it.key to stringResource(it.pickerLabel) }
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        SectionHeader(stringResource(R.string.section_android_auto))
+        HintText(stringResource(R.string.android_auto_hint), small = true)
+        metricSlots.indices.chunked(2).forEach { pair ->
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                pair.forEach { i ->
+                    WidgetSlotDropdown(
+                        label = stringResource(R.string.widget_metric_slot, i + 1),
+                        currentLabel = WidgetMetricType.byKey(metricSlots[i])
+                            ?.let { stringResource(it.pickerLabel) } ?: "",
+                        options = metricOptions,
+                        onSelect = { viewModel.updateAndroidAutoMetricSlot(i, it) },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+            }
+        }
+        actionSlots.indices.chunked(2).forEach { pair ->
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                pair.forEach { i ->
+                    WidgetSlotDropdown(
+                        label = stringResource(R.string.widget_action_slot, i + 1),
+                        currentLabel = WidgetActionType.byKey(actionSlots[i])
+                            ?.let { stringResource(it.pickerLabel) } ?: "",
+                        options = actionOptions,
+                        onSelect = { viewModel.updateAndroidAutoActionSlot(i, it) },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+                if (pair.size == 1) Spacer(Modifier.weight(1f))
+            }
+        }
+        SwitchSetting(
+            stringResource(R.string.car_alarm_notifications),
+            settings.androidAuto.alarmNotifications,
+        ) { viewModel.updateAndroidAutoAlarmNotifications(it) }
+        HintText(stringResource(R.string.car_alarm_notifications_hint), small = true)
+    }
+}
+
 @Composable
 private fun HudIntegrationSection(
     settings: com.eried.eucplanet.data.model.AppSettings,
@@ -12107,10 +12077,8 @@ private fun HudScreenList(
             // screen -- they need at least one screen on the carousel
             // or the HUD has no content to show.
             val canUncheck = !(isOnlyOneEnabled && checked)
-            // Matches the chrome of [ReportRow] used by the voice
-            // periodic-report list at the top of the Voice tab: drag
-            // handle on the left, label in weighted middle, Material3
-            // Switch on the right. No vertical padding -- the
+            // Drag handle on the left, label in the weighted middle,
+            // Material3 Switch on the right. No vertical padding -- the
             // ReorderableColumn handles spacing between rows.
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -12302,7 +12270,7 @@ private fun HudOverlayPicker(
                 colors = themedTonalButtonColors(),
                 shape = RoundedCornerShape(12.dp),
             ) {
-                Text(stringResource(R.string.hud_overlay_select_preset))
+                com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.hud_overlay_select_preset))
             }
             if (settings.hudCustomOverlayName.isNotBlank()) {
                 androidx.compose.material3.TextButton(
@@ -12310,7 +12278,7 @@ private fun HudOverlayPicker(
                     colors = themedTextButtonColors(),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text(stringResource(R.string.hud_custom_overlay_none))
+                    com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.hud_custom_overlay_none))
                 }
             }
         }

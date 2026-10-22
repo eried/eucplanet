@@ -42,7 +42,7 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
     @Volatile private var detectedModel: VeteranModel? = null
     @Volatile private var controlProfile = VeteranControlProfile.forModel(null)
     private var pendingLightProfile: VeteranControlProfile? = null
-    @Volatile private var alarmCommandModel: VeteranModel? = null
+    @Volatile private var commandModel: VeteranModel? = null
 
     override val nominalPackVoltage: Int? get() = detectedModel?.nominalVoltage
 
@@ -53,7 +53,7 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
     override fun notifyConnectingTo(deviceName: String?): DecodeResult.ModelName? {
         detectedModel = deviceName?.let { VeteranModel.fromReportedName(it) }
         controlProfile = VeteranControlProfile.forModel(detectedModel)
-        alarmCommandModel = detectedModel
+        commandModel = detectedModel
         return null
     }
 
@@ -65,31 +65,19 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
     override fun pollRealtime(): ByteArray = ByteArray(0)
     override fun pollSettings(): ByteArray = ByteArray(0)
 
-    override fun horn(): ByteArray = VeteranCommands.horn()
+    override fun horn(): ByteArray =
+        if (commandModel == VeteranModel.SHERMAN || commandModel == VeteranModel.SHERMAN_MAX)
+            VeteranCommands.hornLegacy() else VeteranCommands.horn()
 
     /**
-     * Current Lynx-class firmware only sounds the horn when the `LkAp` frame
-     * from [horn] is followed by this `LdAp` companion. Sending the `LkAp`
-     * half alone leaves the wheel silent (the frame is accepted but
-     * produces no beep). Decoded from a LeaperKim-app btsnoop on a Lynx S
-     * (mVer 9). [com.eried.eucplanet.data.repository.WheelRepository.sendHorn]
-     * writes both, in order.
+     * Lynx-class firmware needs the LdAp companion after the LkAp horn.
+     * Legacy Sherman firmware uses only the single-byte `b` command.
      */
-    override fun hornFollowup(): ByteArray = VeteranCommands.hornCompanion()
+    override fun hornFollowup(): ByteArray? =
+        if (commandModel == VeteranModel.SHERMAN || commandModel == VeteranModel.SHERMAN_MAX)
+            null else VeteranCommands.hornCompanion()
 
-    /**
-     * Light state is never echoed in Veteran realtime frames (per
-     * docs/protocols/veteran.md §6: "Light state has no readback.
-     * Track it locally after each write."). We cache the last
-     * commanded state here and stamp it onto every outgoing telemetry
-     * in [onRawNotification] so the dashboard's local-tracked
-     * [WheelRepository.toggleLight] doesn't see lightOn flip back
-     * to the default `false` on the very next 5 Hz realtime frame
-     * — which is exactly the bug the LK19486 rider hit: first toggle
-     * sent SetLightON, parser-default false overwrote it ~200 ms
-     * later, next toggle re-sent SetLightON instead of SetLightOFF.
-     */
-    @Volatile private var lastLightOn: Boolean = false
+    private val headlightState = VeteranHeadlightState()
 
     // Last Oryx BMS state-of-charge read from a page-2 sub-frame (byte 50).
     // The wheel only sends page 2 ~1 frame in 9, so we cache it and stamp it
@@ -104,7 +92,7 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
     @Volatile private var emittedModel: Boolean = false
 
     override fun setLight(on: Boolean): ByteArray {
-        lastLightOn = on
+        headlightState.commanded(commandModel, on)
         val profile = controlProfile
         pendingLightProfile = profile
         return profile.setLight(on)
@@ -125,14 +113,14 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
     // Veteran writes tilt-back and alarm thresholds as two separate frames
     // (different magic + sub-op per setting), so we leave the combined
     // setMaxSpeed null and route through setMaxSpeedCommit / setAlarmSpeedCommit
-    // — the same flow P6 already uses for its two-packet flash-commit.
+    // The same flow P6 already uses for its two-packet flash-commit.
     override fun setMaxSpeed(tiltbackKmh: Float, alarmKmh: Float): ByteArray? = null
 
     override fun setMaxSpeedCommit(tiltbackKmh: Float): ByteArray =
         VeteranCommands.setTiltbackSpeed(tiltbackKmh.toInt())
 
     override fun setAlarmSpeedCommit(alarmKmh: Float): ByteArray =
-        VeteranCommands.setAlarmSpeed(alarmKmh.toInt(), alarmCommandModel)
+        VeteranCommands.setAlarmSpeed(alarmKmh.toInt(), commandModel)
 
     // No volume, no DRL on this family.
     override fun setVolume(percent: Int): ByteArray? = null
@@ -197,9 +185,8 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
      * the official app and decoding them. Adding speculative bytes here
      * would risk faulting the wheel.
      *
-     * Both horn variants are exposed so a user with a pre-2020 Sherman can
-     * verify which one their firmware obeys; the runtime [horn] default is
-     * the v3 blob.
+     * Both horn variants remain available for protocol research; the runtime
+     * [horn] chooses the legacy `b` for Sherman-family mVer 0/1.
      */
     override fun getDiagnosticCommands(): List<DiagnosticCommand> {
         val LIGHT = DiagnosticCommand.Category.LIGHT
@@ -214,7 +201,7 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
             DiagnosticCommand("LightOFF", "Turn the headlight off",
                 VeteranCommands.setLight(false), LIGHT),
 
-            // --- Horn: model-conditional. v3 is the default; legacy is a probe. ---
+            // --- Horn: the debug commands deliberately expose both variants. ---
             DiagnosticCommand("HornV3", "Sound the horn on Sherman S and newer",
                 VeteranCommands.horn(), HORN),
             DiagnosticCommand("HornLegacy_b", "Sound the horn on pre-2020 Sherman",
@@ -263,13 +250,12 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
             // the `f.isLong` branch below.
             val isStandardTelemetry =
                 f.bytes.size > 3 && f.bytes[3] != 0x5f.toByte()
-            // Generic BLE names (e.g. NF7445) do not identify the wheel. Select
-            // commands from the model in a reassembled telemetry frame as well:
-            // the light profile (PR #20) and the alarm-speed packet (PR #22).
+            // Generic BLE names (e.g. LK13709) do not identify the wheel.
+            // Select the light and horn commands from the reassembled mVer.
             if (isStandardTelemetry) {
                 VeteranModel.fromMVer(VeteranParser.mVerOf(f.bytes))?.let {
                     controlProfile = VeteranControlProfile.forModel(it)
-                    alarmCommandModel = it
+                    commandModel = it
                 }
             }
             val telem = if (isStandardTelemetry)
@@ -288,7 +274,10 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
                 }
                 val battery = if (lastOryxBatterySoc in 0..100) lastOryxBatterySoc
                               else telem.batteryPercent
-                telem.copy(lightOn = lastLightOn, batteryPercent = battery)
+                val model = VeteranModel.fromMVer(VeteranParser.mVerOf(f.bytes)) ?: detectedModel
+                headlightState.acceptFrame(f.bytes, model)
+                val headlight = headlightState.snapshot
+                telem.copy(lightOn = headlight.lightOn, headlightReadback = headlight.readback, batteryPercent = battery)
             } else null
             // Log the DECODED values (not just raw bytes) per frame so a
             // service-mode capture shows the speed/battery timeline directly -
@@ -345,12 +334,9 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
         detectedModel = null
         controlProfile = VeteranControlProfile.forModel(null)
         pendingLightProfile = null
-        alarmCommandModel = null
+        commandModel = null
         lastOryxBatterySoc = -1
+        headlightState.reset()
         emittedModel = false
-        // A wheel reboot loses light state on the wheel side, so the rider's
-        // most reliable mental model after a reconnect is "light is off until
-        // I press the button again". Reset the cache to match.
-        lastLightOn = false
     }
 }

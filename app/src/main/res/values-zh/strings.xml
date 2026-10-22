@@ -31,6 +31,11 @@
     <string name="action_back">返回</string>
     <string name="action_cancel">取消</string>
     <string name="action_ok">确定</string>
+    <string name="action_replace">替换</string>
+    <string name="action_continue">继续</string>
+    <string name="action_select">选择</string>
+    <string name="state_on">开</string>
+    <string name="state_off">关</string>
     <string name="action_done">完成</string>
     <string name="action_close">关闭</string>
 <string name="crash_log_action_prompt">你长按了 %1$s。可删除此日志或全部删除。如需分享，请点按“取消”后再点按该文件。</string>
@@ -104,7 +109,7 @@
     <string name="hud_ip_incomplete">请输入完整地址，例如 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">设备 IP（自动）</string>
     <string name="hud_server_port">端口</string>
-    <string name="hud_hotspot_off_hint">手机热点已关闭。请确保 HUD 和手机在同一个 WiFi 网络上。</string>
+    <string name="hud_hotspot_unknown_hint">请确保 HUD 和手机在同一个 WiFi 网络上。如果使用手机热点，请先开启。</string>
     <string name="hud_hotspot_on_hint">手机热点正在广播。将 HUD 连接到此手机的 WiFi 以启用连接。</string>
     <string name="hud_custom_overlay_none">无</string>
 
@@ -139,13 +144,13 @@
     <string name="sync_progress">同步中 %1$d / %2$d</string>
     <string name="sync_no_folder">请先选择备份文件夹</string>
     <string name="sync_rate_limited">Dropbox 正在限制此账户。已同步 %2$d 条行程中的 %1$d 条，其余将重试。</string>
-    <string name="sync_finished">已同步 %1$d 条行程</string>
+    <string name="sync_finished">已同步的骑行: %1$d</string>
     <string name="sync_conflict_title">同步冲突</string>
-    <string name="sync_conflict_body">两侧都有 %1$d 条行程。</string>
+    <string name="sync_conflict_body">两边都有更改: %1$d 个项目</string>
     <string name="sync_conflict_app">从应用复制到备份</string>
     <string name="sync_conflict_folder">从备份复制到应用</string>
     <string name="sync_conflict_ignore">全部跳过冲突</string>
-    <string name="sync_conflict_body_dropbox">有 %1$d 个行程同时在 Dropbox 和本机上。</string>
+    <string name="sync_conflict_body_dropbox">Dropbox 和这部手机都有更改: %1$d 个项目</string>
     <string name="sync_conflict_app_dropbox">将应用复制到 Dropbox</string>
     <string name="sync_conflict_dropbox">将 Dropbox 复制到应用</string>
     <string name="action_restore">恢复</string>
@@ -215,6 +220,21 @@
     <string name="phone_show_over_lock">在锁屏上方显示</string>
     <string name="language">语言</string>
     <string name="theme">主题</string>
+    <string name="theme_editor_widget">主题自定义小组件</string>
+    <string name="theme_unsaved_fmt">%1$s（未保存）</string>
+    <string name="theme_editor_save_as">另存为新主题</string>
+    <string name="theme_editor_pick_color">从屏幕取色</string>
+    <string name="theme_editor_replay_blink">重播闪烁</string>
+    <string name="theme_editor_save_title">保存主题</string>
+    <string name="theme_editor_name_label">名称</string>
+    <string name="theme_editor_replace_title">替换主题？</string>
+    <string name="theme_editor_replace_body">已存在名为“%1$s”的主题。保存将替换它。</string>
+    <string name="theme_editor_discard_title">放弃未保存的草稿？</string>
+    <string name="theme_editor_discard_body">此主题已有未保存的版本。再次编辑将丢失这些更改。</string>
+    <string name="theme_editor_no_folder_title">没有备份文件夹</string>
+    <string name="theme_editor_no_folder_body">要保存主题，请在 %1$s → %2$s 中选择备份文件夹。</string>
+    <string name="theme_identify">识别</string>
+    <string name="theme_identify_results_title">颜色识别结果</string>
     <string name="tts_switch_title">切换语音到%1$s?</string>
     <string name="tts_switch_body">当前的语音合成声音与所选语言不一致。是否切换为%1$s语音用于播报?</string>
     <string name="tts_switch_yes">切换语音</string>
@@ -224,6 +244,7 @@
     <string name="section_legal_mode_speed">合规模式速度</string>
     <string name="legal_mode_caption">合规模式开启时生效；必须低于普通回倾速度。</string>
     <string name="speed_limits_disconnected">连接独轮车后才能编辑校准和限制</string>
+    <string name="speed_limits_unsupported">此独轮车的限制需在独轮车本身设置</string>
     <string name="speed_tiltback">回倾速度</string>
     <string name="speed_alarm">报警速度</string>
     <string name="speed_legal_tiltback">合规回倾</string>
@@ -258,6 +279,7 @@
     <string name="voice_audio_focus_off">不处理</string>
     <string name="col_periodic">定时</string>
     <string name="col_trigger">触发</string>
+    <string name="voice_trigger_reset_after">触发播报后重置数据</string>
     <string name="report_speed">速度</string>
     <string name="report_battery">电量</string>
     <string name="report_temp">温度</string>
@@ -423,6 +445,8 @@
     <string name="recording_summary_battery">电量 (-%1$d%%)</string>
     <string name="recording_summary_voltage">电压</string>
     <string name="recording_summary_avg_moving">行驶平均</string>
+    <string name="trip_chart_legend_gps">GPS</string>
+    <string name="trip_chart_legend_ext">外部</string>
     <string name="recording_summary_battery_fmt">%1$d→%2$d%%</string>
     <string name="recording_summary_voltage_fmt">%1$.0f→%2$.0f V</string>
     <string name="recording_summary_max_pwm">最高 PWM</string>
@@ -485,8 +509,6 @@
     <string name="proximity_unlock_above">信号高于</string>
     <string name="proximity_lock_signal_live">当前信号：%1$s</string>
     <string name="proximity_lock_hint">锁定需要保持连接，因此会在信号减弱时触发，而不是在你完全超出范围之后。</string>
-    <string name="auto_lock_override_toast">自动锁定已开启，可能会覆盖此设置。</string>
-    <string name="auto_lock_override_action">设置</string>
     <string name="menu_auto_lock_settings">独轮车锁定设置</string>
     <string name="menu_auto_lock_on">开启自动锁定</string>
     <string name="menu_auto_lock_off">关闭自动锁定</string>
@@ -496,7 +518,8 @@
     <string name="auto_midnight_sun_body">当前纬度今日无日落,大灯将保持关闭。</string>
     <string name="auto_polar_night_title">极夜</string>
     <string name="auto_polar_night_body">当前纬度今日无日出,大灯将保持开启。</string>
-    <string name="auto_lights_suspended">已暂停:本次会话中你手动切换过大灯。请重新连接独轮车或重启应用以恢复</string>
+    <string name="auto_lights_suspended">本次会话已暂停，你手动调整了灯光。请在“需要注意”中修复，或重新连接轮子。</string>
+    <string name="auto_lock_suspended">本次会话已暂停，你手动上锁或解锁。请在“需要注意”中修复，或重新连接轮子。</string>
 
     <string name="alarm_help">每项指标都会自动触发最相关的报警。列表顺序不会改变触发哪一条,排序只是为了让列表更整洁。</string>
     <string name="alarm_empty">暂无报警规则</string>
@@ -510,6 +533,7 @@
     <string name="alarm_label_frequency">频率</string>
     <string name="alarm_label_duration">时长</string>
     <string name="alarm_label_repeats">重复次数</string>
+    <string name="alarm_repeat_toggle">重复</string>
     <string name="alarm_label_vibrate_on">振动设备</string>
 
     <!-- Live data sources bottom sheet -->
@@ -533,6 +557,7 @@
     <string name="sources_fresh_just_now">刚刚</string>
     <string name="sources_fresh_seconds_fmt">%1$d秒前</string>
     <string name="sources_fresh_minutes_fmt">%1$d分钟前</string>
+    <string name="sources_delta_avg_fmt">均 %1$+.1f%2$s</string>
     <string name="sources_fresh_hours_fmt">%1$d小时前</string>
     <string name="sources_sats_fmt">%1$d 颗卫星</string>
     <string name="sources_collecting">采集中…</string>
@@ -603,7 +628,7 @@
     <string name="report_navigation">导航</string>
     <string name="scan_show_all_subtitle">如果你的独轮车没有出现,请打开此选项。</string>
     <string name="scan_show_all_title">显示全部设备</string>
-    <string name="scan_simulate_subtitle">绕过 BLE,使用预设响应。仅在调试版本中。</string>
+    <string name="scan_simulate_subtitle">绕过 BLE，使用预设响应。仅限服务模式。</string>
     <string name="scan_simulate_title">虚拟独轮车</string>
     <string name="section_watch_display">显示</string>
     <string name="section_watch_advanced">高级</string>
@@ -628,6 +653,15 @@
     <string name="watch_keep_on_desc">应用开启期间让手表保持唤醒。</string>
     <string name="watch_update_rate">更新频率</string>
     <string name="watch_update_rate_desc">较慢的更新可节省手机和手表的电量。</string>
+    <string name="watch_map_enabled">手表地图</string>
+    <string name="watch_map_enabled_desc">显示手机上的位置和路线。后台运行时会保留通知。</string>
+    <string name="watch_map_orientation">地图方向</string>
+    <string name="watch_map_north_up">北向上</string>
+    <string name="watch_map_heading_up">航向向上</string>
+    <string name="watch_keep_on_navigation">导航时保持开启</string>
+    <string name="watch_keep_on_navigation_desc">导航时保持手表屏幕开启。会消耗更多电量。</string>
+    <string name="watch_map_telemetry">地图遥测</string>
+    <string name="watch_map_telemetry_desc">在顶部边缘显示 PWM、速度和电压。</string>
     <string name="watch_update_conservative">节能</string>
     <string name="watch_update_normal">正常</string>
     <string name="watch_update_fast">快速</string>
@@ -834,6 +868,7 @@
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">卫星</string>
+    <string name="nav_layer_satellite_labels">卫星混合</string>
     <string name="nav_layer_osm">Standard (OSM)</string>
     <string name="nav_layer_cyclosm">CyclOSM</string>
     <string name="nav_layer_topo">OpenTopoMap</string>
@@ -841,6 +876,8 @@
     <string name="nav_max_stops">最多一个目的地和 24 个途经点</string>
     <string name="nav_menu">菜单</string>
     <string name="nav_menu_clear">新路线</string>
+    <string name="nav_finished_title">路线已完成</string>
+    <string name="nav_finished_body">要开始新路线吗？已到达的站点会被清除。如需保留这条路线，请先从菜单保存。</string>
     <string name="nav_menu_exit">返回主屏</string>
     <string name="nav_menu_load">加载路线 (GPX)</string>
     <string name="nav_menu_save">保存路线 (GPX)</string>
@@ -1300,6 +1337,8 @@
     <string name="action_chip_media_next">下一曲</string>
     <string name="action_chip_media_play">播放 / 暂停</string>
     <string name="action_chip_media_prev">上一曲</string>
+    <string name="action_chip_music_start">开始音乐</string>
+    <string name="action_chip_media_pause">暂停音乐</string>
     <string name="action_chip_mute_alarms">静音警报</string>
     <string name="action_chip_open_about">关于</string>
     <string name="action_chip_open_navigation">显示地图</string>
@@ -1326,7 +1365,11 @@
     <string name="voice_commands_enable_desc">用语音操作应用。长按仪表盘上的语音按钮，选择聆听语音指令。</string>
     <string name="voice_commands_bind_desc">可以把聆听指派给 Flic、音量键、手表或 HUD。</string>
     <string name="voice_prompt_cue">聆听时的提示</string>
-    <string name="voice_prompt_cue_desc">如果耳机自带提示音，可以关闭。</string>
+    <string name="voice_music_listening">聆听时的音乐</string>
+    <string name="voice_music_pause">暂停</string>
+    <string name="voice_music_duck">调低</string>
+    <string name="voice_music_keep">继续播放</string>
+    <string name="voice_music_listening_desc">识别尽可能在手机上进行，无需账号。说出的词会与应用的指令比对。</string>
     <string name="voice_cue_beep">提示音</string>
     <string name="voice_cue_spoken">语音</string>
     <string name="voice_cue_off">关闭</string>
@@ -1337,12 +1380,15 @@
     <string name="voice_recognition_desc">你说话使用的语言。未选择时跟随语音。</string>
     <string name="voice_recognition_follow">与语音相同</string>
     <string name="voice_headset_button">耳机语音按键</string>
-    <string name="voice_headset_button_desc">让蓝牙耳机的语音按键开始聆听。Android 会询问由哪个应用响应。</string>
+    <string name="voice_headset_chooser_hint">Android 会询问由哪个应用响应。</string>
+    <string name="voice_headset_announce">播报</string>
     <string name="voice_act_announce_on_terms">语音开启,播报开启,打开语音</string>
     <string name="voice_act_announce_off_terms">语音关闭,播报关闭,关闭语音</string>
     <string name="voice_command_vocabulary">我可以说什么</string>
     <string name="voice_command_vocabulary_tap">可以只说名称，也可以放在问题里。</string>
-    <string name="voice_command_vocabulary_legend">* 不是车辆读数：它会执行操作，或回答其他内容。</string>
+    <string name="voice_vocab_group_wheel">独轮车</string>
+    <string name="voice_vocab_group_actions">操作</string>
+    <string name="voice_vocab_group_around">周围</string>
     <string name="voice_listening">聆听中</string>
     <string name="voice_answer_off">%1$s已关闭。可在设置中开启。</string>
     <string name="voice_answer_unsupported">你的轮子不提供%1$s。</string>
@@ -1370,6 +1416,15 @@
     <string name="voice_special_not_connected">未连接轮子。</string>
     <string name="voice_special_uptime">已连接 %1$s。</string>
     <string name="voice_special_weather">%1$s。%2$s。</string>
+    <string name="voice_special_weather_full">%1$s，评分 %2$s。气温 %3$s 度，风速 %4$s，湿度 %5$s%%</string>
+    <string name="voice_weather_checking">正在查看天气。</string>
+    <string name="voice_sp_air_temp_terms">气温,室外温度,有多冷</string>
+    <string name="voice_sp_wind_terms">风,风速,风有多大</string>
+    <string name="voice_sp_humidity_terms">湿度,有多潮湿</string>
+    <string name="voice_sp_air_temp_answer">外面 %1$s 度。</string>
+    <string name="voice_sp_wind_answer">风速 %1$s。</string>
+    <string name="voice_sp_wind_gust_answer">风速 %1$s，阵风 %2$s。</string>
+    <string name="voice_sp_humidity_answer">湿度 %1$s%%。</string>
     <string name="voice_weather_great">非常适合骑行</string>
     <string name="voice_weather_good">适合骑行</string>
     <string name="voice_weather_ok">可以骑</string>
@@ -1409,6 +1464,10 @@
     <string name="voice_act_record_start_terms">开始记录,开始录制</string>
     <string name="voice_act_record_stop_terms">停止记录</string>
     <string name="voice_act_reset_trip_terms">重置行程</string>
+    <string name="voice_act_music_start_terms">播放音乐,开始音乐,音乐</string>
+    <string name="voice_act_media_pause_terms">暂停音乐,停止音乐</string>
+    <string name="voice_act_media_next_terms">下一首</string>
+    <string name="voice_act_media_prev_terms">上一首</string>
     <string name="voice_answer_mic_busy">其他应用正在使用麦克风。</string>
     <string name="voice_answer_which">你是指%1$s还是%2$s？</string>
     <string name="alarm_metric_pwm_voice"></string>
@@ -1505,6 +1564,7 @@
     <string name="metric_chip_current">电流</string>
     <string name="metric_chip_descent">下降</string>
     <string name="metric_chip_dyn_current_limit">动态电流限制</string>
+    <string name="metric_chip_auto_off">自动关机</string>
     <string name="metric_chip_dyn_speed_limit">动态速度限制</string>
     <string name="metric_chip_forward_g">前向 g</string>
     <string name="metric_chip_g_force">G 力</string>
@@ -1626,6 +1686,7 @@
     <string name="metric_chip_controller_temp_tile">Ctrl T</string>
     <string name="metric_chip_dyn_speed_limit_tile">Sp limit</string>
     <string name="metric_chip_dyn_current_limit_tile">A limit</string>
+    <string name="metric_chip_auto_off_tile">自动关机</string>
     <string name="metric_chip_phone_battery_tile">手机</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
     <string name="metric_chip_external_gps_battery_tile">GPS电量</string>
@@ -1689,11 +1750,16 @@
     <string name="warnings_indicator_desc">应用提示</string>
     <string name="warnings_dialog_title">需要注意</string>
     <string name="warnings_fix_button">修复</string>
+    <string name="warnings_autolights_title">自动灯光已暂停</string>
+    <string name="warnings_autolights_body">你手动调整了灯光，本次会话中计划不再介入。点按修复即可恢复。</string>
+    <string name="warnings_autolock_title">自动锁已暂停</string>
+    <string name="warnings_autolock_body">你手动上锁或解锁，本次会话中距离锁不再介入。点按修复即可恢复。</string>
     <string name="warnings_perm_notifications_title">通知已关闭</string>
     <string name="warnings_perm_notifications_body">状态栏将不显示骑行状态，通知栏也收不到语音提示。</string>
     <string name="warnings_perm_location_title">定位已关闭</string>
     <string name="warnings_perm_location_body">行程不会记录路线，GPS 速度和校准也无法使用。点按以允许。</string>
     <string name="weather_error_no_location">没有可预报的位置</string>
+    <string name="weather_waiting_location">正在等待位置…</string>
     <string name="warnings_location_services_body">EUC Planet 有权限，但手机已对所有应用关闭定位。点按开启。</string>
     <string name="warnings_location_services_title">设备定位已关闭</string>
     <string name="hud_screen_name_map_nav">地图 + 导航</string>
@@ -1872,6 +1938,10 @@
     <string name="scan_bluetooth_off_title">蓝牙已关闭</string>
     <string name="scan_enable_bluetooth">开启蓝牙</string>
     <string name="studio_cfg_radar_distance_labels">距离标签</string>
+    <string name="studio_radar_none">无雷达</string>
+    <string name="studio_radar_clear">无车</string>
+    <string name="studio_radar_closing_fmt">+%1$d km/h</string>
+    <string name="studio_radar_mirror_closing_fmt">m · +%1$d km/h</string>
     <string name="studio_cfg_radar_lane">车道</string>
     <string name="studio_cfg_radar_minimal">极简</string>
     <string name="studio_cfg_radar_mirror">镜像</string>
@@ -1943,6 +2013,7 @@
     <string name="nav_setting_avoid_hint">避开选项使用另一种路线规划服务,并在出行方式支持时生效。</string>
     <string name="nav_setting_avoid_tolls">避开收费公路</string>
     <string name="nav_setting_avoid_unpaved">避开非铺装路面</string>
+    <string name="nav_avoid_router_failed">路线未应用避开设置：避开用的路线服务没有响应。</string>
     <string name="nav_setting_ocm_key">Open Charge Map API 密钥</string>
     <string name="nav_setting_ocm_key_hint">为充电桩弹窗添加评价、照片和接口详情。在以下网址免费注册密钥</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>
@@ -1958,6 +2029,8 @@
     <string name="adv_alarm_min_samples_desc">影响信任趋势前需要多少读数。危险:过少会基于噪声预测。</string>
     <string name="adv_alarm_min_span">最短跨度</string>
     <string name="adv_alarm_min_span_desc">影响使用趋势前样本至少须覆盖的时间。</string>
+    <string name="adv_alarm_warm_route">扬声器就绪时间</string>
+    <string name="adv_alarm_warm_route_desc">决定提示音或语音播报后扬声器保持就绪的时长。危险: 太短时，安静一段时间后的第一声提示音可能有爆音或被截断；太长则让音频一直工作，耗电。</string>
     <string name="adv_alarm_slope_window">趋势窗口</string>
     <string name="adv_alarm_slope_window_desc">影响多少近期样本决定预测趋势。危险:过短会对噪声反应,过长则反应迟缓。</string>
     <string name="adv_alarm_warning">这些会改变速度和功率报警在你到达阈值前的预测方式。数值错误可能让报警过晚触发甚至完全不触发。请谨慎更改。</string>
@@ -2033,6 +2106,10 @@
     <string name="adv_hud_manual_grace_desc">影响使用手动 IP 前留给自动发现的时长。危险:过低会在发现成功前就使用手动 IP。</string>
     <string name="adv_hud_mdns_resolve">mDNS 解析时长</string>
     <string name="adv_hud_mdns_resolve_desc">影响解析已发现 HUD 地址详情的时长。危险:过低会丢弃解析较慢的 HUD。</string>
+    <string name="adv_hud_idle_search">空闲搜索间隔</string>
+    <string name="adv_hud_idle_search_desc">未连接独轮车且应用关闭时搜索 HUD 的频率。危险：过低会耗电。</string>
+    <string name="adv_hud_sweep_interval">网络扫描间隔</string>
+    <string name="adv_hud_sweep_interval_desc">为寻找 HUD 尝试网络中每个地址的频率。危险：过低会占用手机并耗电。</string>
     <string name="adv_hud_mdns_timeout">发现超时</string>
     <string name="adv_hud_mdns_timeout_desc">影响等待 HUD 响应自动发现的时长。危险:过低会在它回应前放弃。</string>
     <string name="adv_hud_report_interval">HUD 上报频率</string>
@@ -2107,6 +2184,7 @@
     <string name="adv_wheel_poll_rate_desc">影响实时数据的新鲜度和报警的反应速度。越低越频繁地向独轮车请求数据。危险:过低可能使蓝牙连接拥塞,并导致某些独轮车数据停滞。</string>
     <string name="alarm_beep_advanced">高级</string>
     <string name="alarm_beep_gap_label">间隔时长</string>
+    <string name="alarm_beep_timeline_fmt">%1$d× · 间隔 %2$d ms</string>
     <string name="alarm_beep_studio">自适应蜂鸣</string>
     <string name="alarm_beep_volume_label">基本音量</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
@@ -2141,7 +2219,7 @@
     <string name="tab_more">更多</string>
     <string name="welcome_tut_dev_join">加入排行榜</string>
     <string name="welcome_tut_dev_joined">已加入排行榜</string>
-    <string name="welcome_tut_dev_joined_norider">在线上传已开启。文件夹中未找到骑手。</string>
+    <string name="welcome_tut_dev_joined_norider">该文件夹中还没有骑手。请在%2$s中点击%1$s创建。</string>
     <string name="welcome_tut_dev_restore">恢复设置</string>
     <string name="welcome_tut_dev_set_folder">设置备份文件夹</string>
     <string name="welcome_tut_dev_sync_trips">同步行程</string>
@@ -2195,6 +2273,11 @@
     <string name="side_left">左</string>
     <string name="side_right">右</string>
     <string name="adv_group_geometry">屏幕几何变量</string>
+    <string name="adv_group_map_cache">地图缓存</string>
+    <string name="adv_map_encoded_cache">已编码图块缓存</string>
+    <string name="adv_map_encoded_cache_desc">为手表保留的 PNG 图块。数值越高，使用的手机内存越多。</string>
+    <string name="adv_map_http_cache">已下载图块缓存</string>
+    <string name="adv_map_http_cache_desc">保留在手机上的已下载地图图块。数值越高，使用的存储空间越多。</string>
     <string name="adv_compact_max_screen">紧凑屏幕上限</string>
     <string name="adv_compact_max_screen_desc">当紧凑仪表盘设为“小屏幕”时，两边都小于此值的屏幕会切换到紧凑仪表盘。</string>
     <string name="adv_cover_cutout_inset">摄像头开孔尺寸</string>
@@ -2203,6 +2286,10 @@
     <string name="adv_nav_sidebar_min_desc">比此更窄的屏幕即使横向也保留底部停靠点面板。太低会在小屏幕上遮住地图。</string>
     <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
     <string name="adv_inmotion_v1_pin_desc">InMotion V5/V8/V10 独轮车的访问 PIN，连接时发送，让独轮车开始发送数据。除非你在 InMotion 应用中设置了自己的 PIN，否则请保持 000000。</string>
+    <string name="adv_kingsong_unlock_code">KingSong 解锁码</string>
+    <string name="adv_kingsong_unlock_code_desc">随解锁指令发送的六位数字。已测试的独轮车接受任何数字，因此除非你的车拒绝，否则请保持 123456。</string>
+    <string name="adv_kingsong_password">KingSong 应用密码</string>
+    <string name="adv_kingsong_password_desc">在 KingSong 应用中设置的 4 位密码，连接时以及锁车与解锁前发送。若从未设置，请保持 0000。</string>
     <string name="adv_nav_sidebar_width">停靠点面板宽度</string>
     <string name="adv_nav_sidebar_width_desc">横向停靠点侧栏的宽度。太宽会让地图变小。</string>
     <string name="adv_simple_speedo_scale">简易速度表尺寸</string>
@@ -2307,6 +2394,7 @@
     <string name="pip_mode_off">关</string>
     <string name="pip_mode_simple">简单</string>
     <string name="pip_mode_dashboard">仪表盘</string>
+    <string name="pip_label_pwm" formatted="false">pwm %</string>
     <string name="widget_section">主屏幕小部件</string>
     <string name="widget_pick_desc">选择小部件显示的 %1$d 个指标和 %2$d 个按钮。</string>
     <string name="widget_metric_slot">指标 %1$d</string>
@@ -2406,7 +2494,7 @@
     <string name="backup_status_failed">备份失败，点击重试</string>
     <string name="lockdown_title">锁定模式</string>
     <string name="lockdown_action_speed_limit">限速</string>
-    <string name="lockdown_action_vehicle">车辆</string>
+    <string name="lockdown_action_vehicle">独轮车</string>
     <string name="lockdown_no_wheel">未连接轮子。请点击蓝牙图标进行连接。</string>
     <string name="lockdown_vehicle_name">蓝牙名称</string>
     <string name="lockdown_vehicle_brand">厂商</string>
@@ -2472,12 +2560,18 @@
     <!-- Charge alerts -->
     <string name="charging_notify_80" formatted="false">到 80 % 时通知我</string>
     <string name="charging_notify_full" formatted="false">到 100 % 时通知我</string>
+    <string name="charging_notify_at">通知电量</string>
+    <string name="charging_notify_custom">到 %1$d %% 时通知我</string>
+    <string name="charging_notify_at_ask">通知电量…</string>
+    <string name="charging_notify_custom_range" formatted="false">须为 5–95 %，不能是 80 %</string>
     <string name="charge_alert_channel_name">充电提醒</string>
-    <string name="charge_alert_channel_description" formatted="false">电量超过 80 % 或充电完成时。</string>
+    <string name="charge_alert_channel_description" formatted="false">电量达到你选的水平或充电完成时。</string>
     <string name="charge_alert_80_title" formatted="false">电量 80 %</string>
     <string name="charge_alert_80_text">大多数行程都够用，通常也更爱护电池。</string>
     <string name="charge_alert_full_title">充电完成</string>
     <string name="charge_alert_full_text">已充满，方便时拔掉。部分轮子现在正在均衡电芯。</string>
+    <string name="charge_alert_custom_title">电量 %1$d %%</string>
+    <string name="charge_alert_custom_text">已达到你设定的电量。方便时请拔掉充电器。</string>
     <!-- Widget names for the picker -->
     <string name="widget_euc_label">独轮车面板</string>
     <string name="widget_act_1_label">独轮车按钮 1</string>
@@ -2501,4 +2595,106 @@
     <string name="tpms_state_inflating">充气中</string>
     <string name="alarm_metric_battery_envelope">电量(估算)</string>
     <string name="alarm_metric_battery_envelope_long">电量包络（去除负载的估算）</string>
+
+    <string name="headlight_state_off">头灯：关</string>
+    <string name="headlight_state_low">头灯：低</string>
+    <string name="headlight_state_medium">头灯：中</string>
+    <string name="headlight_state_high">头灯：高</string>
+    <string name="headlight_state_unknown">头灯：?</string>
+    <string name="adv_headlight_readback_age">灯光状态有效期</string>
+    <string name="adv_headlight_readback_age_desc">上报的灯光亮度保持有效的时间。时间过长可能显示过时的亮度。</string>
+    <string name="horn_headphones_only">仅限耳机或蓝牙</string>
+    <string name="horn_section">喇叭</string>
+    <string name="horn_mode_label">模式</string>
+    <string name="horn_mode_wheel">默认</string>
+    <string name="horn_mode_sound">自定义</string>
+    <string name="horn_mode_both">混合</string>
+    <string name="horn_mode_hint">自定义会在手机播放你的声音。混合会在独轮车喇叭之外混合播放,适合外接音箱。手机无法播放时,改由独轮车喇叭发声。</string>
+    <string name="horn_sound_none">未选择声音</string>
+    <string name="horn_sound_current">音效: %1$s</string>
+    <string name="horn_sound_choose">选择声音</string>
+    <string name="horn_sound_imported">已保存喇叭声音</string>
+    <string name="horn_sound_too_long">这个声音超过 5 秒</string>
+    <string name="horn_sound_too_big">这个文件超过 2 MB</string>
+    <string name="horn_sound_unreadable">无法播放这个文件</string>
+    <string name="voice_pill_add">添加</string>
+    <string name="voice_pill_message">消息</string>
+    <string name="voice_pill_message_hint">按你写的内容朗读。</string>
+    <string name="voice_pills_empty">不会播报任何内容。点按添加。</string>
+    <string name="voice_stat_now">当前</string>
+    <string name="voice_stat_max">最大</string>
+    <string name="voice_stat_min">最小</string>
+    <string name="voice_stat_avg">平均</string>
+    <string name="voice_stat_peak">峰值</string>
+    <string name="crews_title">战队</string>
+    <string name="crews_pass_action">战队通行证</string>
+    <string name="crews_pass_search_hint">加入在线排行榜后就会显示战队通行证。</string>
+    <string name="crews_scan_hint">在浏览器里打开 eucstats，点 Crews，然后把这个对准出现的码。</string>
+    <string name="crews_scan_invalid">这不是战队通行码。</string>
+    <string name="crews_scan_is_share">那是实时位置的码。去地图上的“分享”里扫。</string>
+    <string name="share_scan_is_crewpass">那是战队通行码。去设置里的“战队”扫。</string>
+    <string name="crews_type_instead">手动输入</string>
+    <string name="crews_code_label">通行码</string>
+    <string name="crews_foreign_title">这个码不是 eucstats 的</string>
+    <string name="crews_foreign_body">它指向 %1$s，你的骑行并不去那儿。点同意等于把账号交给开这个站的人。\n\n自己架了服务器？先去设置里打开开发者模式。</string>
+    <string name="crews_scan_switch">改为扫码</string>
+    <string name="crews_close">关闭</string>
+    <string name="crews_opensettings">打开设置</string>
+    <string name="crews_dev_title">开发者模式</string>
+    <string name="crews_dev_body">正在跟 %1$s 通信，不是平时那台服务器。</string>
+    <string name="crews_grant">让那个浏览器打你的旗号。\n\n它能开战队、加入战队、退出战队、管成员。它不能上传骑行、改你的名字、删任何东西，那些都留在这台手机上。</string>
+    <string name="crews_noprofile_title">先加入排行榜</string>
+    <string name="crews_noprofile_body">战队挂在你的排行榜资料上，而这台手机还没建。去%1$s里加入，然后重新扫。</string>
+    <string name="crews_issue">发通行证</string>
+    <string name="crews_notme">不是我</string>
+    <string name="crews_ratelimited">试太多次了。等一分钟再来。</string>
+    <string name="crews_unreachable">连不上 %1$s。</string>
+    <string name="crews_refused">服务器拒绝了 (%1$d)。</string>
+    <string name="crews_done_title">通行证已发</string>
+    <string name="crews_done_body">那个浏览器正打着你的旗号。手机可以放下了。</string>
+    <string name="crews_failed_title">没成</string>
+    <string name="crews_tryagain">再试一次</string>
+    <string name="crews_done">完成</string>
+    <string name="crews_expired">这个码过期了。去浏览器里要个新的。</string>
+    <string name="voice_pill_search">搜索</string>
+    <string name="voice_volume">音量</string>
+    <string name="beep_volume_by_speed">按速度调整蜂鸣音量</string>
+    <string name="beep_volume_stopped">停止</string>
+    <string name="beep_volume_riding">行驶</string>
+    <string name="dropbox_checking">正在检查 Dropbox…</string>
+    <string name="sync_first_settings">Dropbox 中已有另一部手机的设置。要使用那些设置,还是保留这部手机的设置?</string>
+    <string name="recording_delete_trip_body_keeps_backup">要从这部手机删除这次骑行吗?备份会保留一份副本,所以全部同步会把它带回来。</string>
+    <string name="share_menu_scan">扫描 QR</string>
+    <string name="share_menu_scan_desc">加入团骑或打开路线。</string>
+    <string name="share_menu_route">分享路线</string>
+    <string name="share_menu_route_desc">以二维码或链接分享,无需账号。</string>
+    <string name="share_menu_route_none">请先添加一个停靠点。</string>
+    <string name="scan_code_unknown">不是团骑或路线代码。</string>
+    <string name="route_qr_hint">用 EUC Planet 或手机相机扫描。</string>
+    <string name="route_qr_too_long">这条路线太长,无法做成二维码。请另存为 GPX。</string>
+    <string name="route_open_title">打开分享的路线</string>
+    <string name="route_open_confirm">要用分享的路线替换当前路线吗?</string>
+    <string name="route_opened">已打开路线</string>
+    <string name="route_qr_share_image">分享二维码</string>
+    <string name="route_share_text">用 EUC Planet 骑这条路线: %1$s</string>
+    <string name="route_share_subject">一条骑行路线</string>
+    <plurals name="route_stop_count">
+        <item quantity="other">%d 个停靠点</item>
+    </plurals>
+    <string name="section_android_auto">Android Auto</string>
+    <string name="android_auto_hint">在 Android Auto 屏幕上显示数据和独轮车按钮。自动连接，无需设置 Wi-Fi。</string>
+    <string name="car_waiting">正在等待独轮车</string>
+    <string name="car_last_battery">上次电量 %1$d%%</string>
+    <string name="car_navigate">导航</string>
+    <string name="car_places_title">导航至</string>
+    <string name="car_place_home">家</string>
+    <string name="car_place_work">公司</string>
+    <string name="car_no_places">请先在路线规划中保存家或公司。</string>
+    <string name="car_waiting_wheel">正在等待独轮车</string>
+    <string name="car_weather">天气</string>
+    <string name="car_alarm_channel_name">车机屏幕警报</string>
+    <string name="car_alarm_channel_description">在 Android Auto 屏幕上、地图之上显示触发的警报。</string>
+    <string name="car_alarm_notifications">车机屏幕警报</string>
+    <string name="car_alarm_notifications_hint">触发的警报会显示在地图之上，导航时也能看到。提示音和振动保持不变。</string>
+    <string name="car_no_metrics">未选择任何数据</string>
 </resources>

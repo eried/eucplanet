@@ -82,7 +82,7 @@ import kotlin.math.min
  * can type it into the phone app without leaving the helmet.
  *
  * Always-dark theme. The HUD display is a transflective module behind a
- * windscreen — bright UI is unusable in daylight glare, so we don't even
+ * windscreen, bright UI is unusable in daylight glare, so we don't even
  * give the rider a light-mode option.
  */
 @Composable
@@ -639,7 +639,7 @@ private fun ButtonActionArm(
             // still occupies its place in the cross without looking broken.
             if (empty) {
                 Text(
-                    text = "—",
+                    text = "--",
                     color = Color(0xFF808080),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,

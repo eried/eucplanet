@@ -12,8 +12,8 @@
   constant. Never reuse the old id.
 
   Permissions:
-    Communications   — talk to the phone companion (snapshot in, control out)
-    PersistedContent — remember a small bit of state across cold launches
+    Communications, talk to the phone companion (snapshot in, control out)
+    PersistedContent, remember a small bit of state across cold launches
                        (last-known telemetry frame so the dial doesn't flash
                        blank on app reopen)
 

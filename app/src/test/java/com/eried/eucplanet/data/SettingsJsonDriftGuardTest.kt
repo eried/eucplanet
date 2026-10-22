@@ -1,8 +1,10 @@
 package com.eried.eucplanet.data
 
 import com.eried.eucplanet.data.model.AppSettings
+import com.eried.eucplanet.data.model.WatchMapSettings
 import com.eried.eucplanet.data.store.SettingsJson
 import org.json.JSONObject
+import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Test
 import kotlin.reflect.full.memberProperties
@@ -18,8 +20,10 @@ import kotlin.reflect.full.primaryConstructor
  */
 class SettingsJsonDriftGuardTest {
 
-    // Legacy Room row id, intentionally not serialized.
-    private val exempt = setOf("id")
+    // Legacy Room row id, intentionally not serialized. crewsDevServerEnabled
+    // trusts a pairing server other than eucstats, so no settings file, backup
+    // or restore may ever carry it.
+    private val exempt = setOf("id", "crewsDevServerEnabled")
 
     /**
      * Nested groups whose contents hold lists or spec-driven maps this guard
@@ -138,5 +142,24 @@ class SettingsJsonDriftGuardTest {
                     "toJson() AND fromJson():\n" + dropped.joinToString("\n")
             )
         }
+    }
+
+    @Test
+    fun legacyWatchMapPartialImportInheritsBaseFields() {
+        val base = AppSettings(
+            watchMap = WatchMapSettings(
+                enabled = false,
+                headingUp = false,
+                keepScreenOnDuringNavigation = true,
+                showTelemetry = false,
+            ),
+        )
+        val legacy = JSONObject("""{"watchMap":{"enabled":true,"headingUp":true}}""")
+        val loaded = SettingsJson.fromJson(legacy, base)
+
+        assertEquals(true, loaded.watchMap.enabled)
+        assertEquals(true, loaded.watchMap.headingUp)
+        assertEquals(true, loaded.watchMap.keepScreenOnDuringNavigation)
+        assertEquals(false, loaded.watchMap.showTelemetry)
     }
 }

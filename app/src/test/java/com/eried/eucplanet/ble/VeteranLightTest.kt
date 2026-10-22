@@ -8,10 +8,8 @@ import org.junit.Test
 /**
  * Pins the Veteran headlight commands.
  *
- * The in-app light toggle drives the HIGH beam by default: a two-frame
- * `LkAp` + `LdAp` pair decoded from a LeaperKim-app btsnoop on a Lynx S
- * (high beam on @cap25.3s, off @cap28.3s). The legacy ASCII `SetLightON/OFF`
- * (low beam) is selected for the NOSFET Aeon only.
+ * Lynx-class wheels use the captured two-frame `LkAp` + `LdAp` high-beam pair.
+ * Legacy Sherman and NOSFET wheels use one ASCII `SetLightON/OFF` write.
  * Pure-JVM test; no Android runtime needed.
  */
 class VeteranLightTest {
@@ -47,11 +45,51 @@ class VeteranLightTest {
     }
 
     @Test
-    fun `all other models retain the existing light pair`() {
-        for (model in VeteranModel.entries.filter { it != VeteranModel.NOSFET_AEON } + null) {
+    fun `Sherman family uses proven ASCII light writes`() {
+        for (name in listOf("Sherman-Max", "Sherman")) {
+            val adapter = VeteranAdapter()
+            adapter.notifyConnectingTo(name)
+            for (on in listOf(true, false)) {
+                assertEquals(if (on) "SetLightON" else "SetLightOFF",
+                    adapter.setLight(on).toString(Charsets.US_ASCII))
+                assertNull(adapter.setLightFollowup(on))
+            }
+        }
+    }
+
+    @Test
+    fun `LK13709 telemetry selects ASCII light writes`() {
+        val adapter = VeteranAdapter()
+        adapter.notifyConnectingTo("LK13709")
+        val frame = ("dc5a5c20256000009175001391750013fffd0cfb" +
+            "0dee000001f8024604520002ffe20010")
+            .chunked(2).map { it.toInt(16).toByte() }.toByteArray()
+        frame.toList().chunked(20).forEach { adapter.onRawNotification(it.toByteArray()) }
+        assertEquals("SetLightON", adapter.setLight(true).toString(Charsets.US_ASCII))
+        assertNull(adapter.setLightFollowup(true))
+        assertEquals("SetLightOFF", adapter.setLight(false).toString(Charsets.US_ASCII))
+        assertNull(adapter.setLightFollowup(false))
+    }
+
+    @Test
+    fun `other LeaperKim models retain high beam pair`() {
+        for (model in VeteranModel.entries.filter {
+            it.brandOverride != "NOSFET" && it != VeteranModel.SHERMAN && it != VeteranModel.SHERMAN_MAX
+        } + null) {
             val profile = VeteranControlProfile.forModel(model)
             assertEquals(HIGHBEAM_ON_LKAP, profile.setLight(true).hex())
             assertEquals(HIGHBEAM_ON_LDAP, profile.setLightFollowup(true)!!.hex())
+        }
+    }
+
+    @Test
+    fun `all nosfet models use single ASCII commands without followup`() {
+        for (model in VeteranModel.entries.filter { it.brandOverride == "NOSFET" }) {
+            val profile = VeteranControlProfile.forModel(model)
+            assertEquals("SetLightON", profile.setLight(true).toString(Charsets.US_ASCII))
+            assertEquals("SetLightOFF", profile.setLight(false).toString(Charsets.US_ASCII))
+            assertNull(profile.setLightFollowup(true))
+            assertNull(profile.setLightFollowup(false))
         }
     }
 

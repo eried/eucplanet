@@ -249,7 +249,7 @@ that frame is authoritative and the scaler is bypassed.
 |------|------|--------|-----------------------------------|------------------|
 | 2    | 4    | u32 BE | total mileage                     | meters (lifetime)|
 | 6    | 2    | u16 BE | settings bitfield                 | see below        |
-| 8    | 2    | u16 BE | power-off timer                   | minutes          |
+| 8    | 2    | u16 BE | auto power-off countdown          | seconds (counts down while still, restarts when moved) |
 | 10   | 2    | u16 BE | tiltback / max-speed              | km/h; `>= 100` means disabled |
 | 13   | 1    | u8     | LED mode                          | 0..9             |
 | 14   | 1    | u8     | alert flags                       | bitfield, see below |

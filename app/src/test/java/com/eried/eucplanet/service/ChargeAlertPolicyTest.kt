@@ -21,11 +21,12 @@ class ChargeAlertPolicyTest {
         status: (Int) -> ChargeStatus = { ChargeStatus.Charging },
         want80: Boolean = true,
         wantFull: Boolean = true,
+        custom: Int = 0,
     ): List<ChargeAlertPolicy.Alert> {
         var st = ChargeAlertPolicy.State()
         val fired = mutableListOf<ChargeAlertPolicy.Alert>()
         percents.forEach { pct ->
-            val step = p.step(st, status(pct), pct, want80, wantFull)
+            val step = p.step(st, status(pct), pct, want80, wantFull, custom)
             st = step.state
             if (step.alert != ChargeAlertPolicy.Alert.NONE) fired += step.alert
         }
@@ -120,5 +121,65 @@ class ChargeAlertPolicyTest {
             status = { if (it >= 100) ChargeStatus.Full else ChargeStatus.Charging },
         )
         assertEquals(listOf(ChargeAlertPolicy.Alert.FULL), fired)
+    }
+
+    @Test fun `the rider's level fires once on the way up, before 80`() {
+        val fired = run(
+            (30..100).toList() + List(50) { 100 },
+            status = { if (it >= 100) ChargeStatus.Full else ChargeStatus.Charging },
+            custom = 50,
+        )
+        assertEquals(
+            listOf(ChargeAlertPolicy.Alert.CUSTOM, ChargeAlertPolicy.Alert.AT_80, ChargeAlertPolicy.Alert.FULL),
+            fired,
+        )
+    }
+
+    @Test fun `the rider's level holds through a taper around it`() {
+        val fired = run(listOf(48, 50, 49, 51, 50, 52, 49, 53), want80 = false, wantFull = false, custom = 50)
+        assertEquals(listOf(ChargeAlertPolicy.Alert.CUSTOM), fired)
+    }
+
+    @Test fun `a pack plugged in above the rider's level never says it reached it`() {
+        assertTrue(run((55..70).toList(), custom = 50).isEmpty())
+    }
+
+    @Test fun `the rider's level off says nothing`() {
+        assertTrue(run((30..70).toList(), custom = 0).isEmpty())
+    }
+
+    @Test fun `a jump past the rider's level to full reports only the completion`() {
+        val fired = run(
+            listOf(30, 100, 100),
+            status = { if (it >= 100) ChargeStatus.Full else ChargeStatus.Charging },
+            custom = 50,
+        )
+        assertEquals(listOf(ChargeAlertPolicy.Alert.FULL), fired)
+    }
+
+    @Test fun `leaving the charger starts the rider's level over`() {
+        var st = ChargeAlertPolicy.State()
+        val fired = mutableListOf<ChargeAlertPolicy.Alert>()
+        fun feed(status: ChargeStatus, pct: Int) {
+            val step = p.step(st, status, pct, want80 = false, wantFull = false, customMark = 50)
+            st = step.state
+            if (step.alert != ChargeAlertPolicy.Alert.NONE) fired += step.alert
+        }
+        listOf(40, 55).forEach { feed(ChargeStatus.Charging, it) }
+        feed(ChargeStatus.Disconnected, 55)
+        listOf(45, 52).forEach { feed(ChargeStatus.Charging, it) }
+        assertEquals(List(2) { ChargeAlertPolicy.Alert.CUSTOM }, fired)
+    }
+
+    @Test fun `the rider's level is 5 to 95 and never 80`() {
+        assertTrue(p.isValidCustom(5) && p.isValidCustom(60) && p.isValidCustom(95))
+        assertTrue(!p.isValidCustom(4) && !p.isValidCustom(80) && !p.isValidCustom(96) && !p.isValidCustom(0))
+    }
+
+    @Test fun `a stored level that the dialog would refuse is put right`() {
+        assertEquals(95, p.sanitizeCustom(300))
+        assertEquals(5, p.sanitizeCustom(0))
+        assertEquals(ChargeAlertPolicy.CUSTOM_DEFAULT_PCT, p.sanitizeCustom(80))
+        assertEquals(45, p.sanitizeCustom(45))
     }
 }

@@ -21,7 +21,28 @@ val keystoreProps = Properties().apply {
     }
 }
 
+// Runs git at configuration time through the provider API: the configuration
+// cache records the call and re-checks its output on the next build, where a
+// bare ProcessBuilder is rejected as an untracked external process. Empty when
+// git is missing or the command fails.
+fun git(vararg args: String): String = runCatching {
+    providers.exec {
+        commandLine("git", *args)
+        workingDir = projectDir
+        isIgnoreExitValue = true
+    }.standardOutput.asText.get().trim()
+}.getOrDefault("")
+
 android {
+    androidResources {
+        // Keep only this module's own languages from library resources
+        // (about 1 MB on the phone, 0.2 MB on the watch and HUD). Derived
+        // from the values-* folders that hold a strings.xml, so a new
+        // translation is picked up without touching this list.
+        localeFilters += listOf("en") + (file("src/main/res").listFiles() ?: emptyArray())
+            .filter { it.name.startsWith("values-") && it.resolve("strings.xml").exists() }
+            .map { it.name.removePrefix("values-") }
+    }
     namespace = "com.eried.eucplanet"
     compileSdk = 36
 
@@ -29,25 +50,24 @@ android {
         applicationId = "com.eried.eucplanet"
         minSdk = 29
         targetSdk = 36
-        versionCode = 273
-        versionName = "0.21.0"
+        versionCode = 282
+        versionName = "0.22.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
+        // The stamp is the HEAD commit time, not the wall clock: a clock stamp
+        // changed every minute, which rewrote BuildConfig and recompiled the
+        // app on every build. Wall clock only when git is unavailable.
+        val commitEpoch = git("log", "-1", "--format=%ct").toLongOrNull()
         val buildStamp = SimpleDateFormat("yyMMdd.HHmm")
             .apply { timeZone = TimeZone.getTimeZone("UTC") }
-            .format(Date())
+            .format(if (commitEpoch != null) Date(commitEpoch * 1000) else Date())
         buildConfigField("String", "BUILD_STAMP", "\"$buildStamp\"")
 
         // Current git branch, baked in at build time so the About dialog can
         // show which branch a build came from. Empty when git isn't available;
         // the UI hides the tag for "main" / detached HEAD.
-        val gitBranch = try {
-            val process = ProcessBuilder("git", "rev-parse", "--abbrev-ref", "HEAD").start()
-            val out = process.inputStream.bufferedReader().use { it.readText().trim() }
-            process.waitFor()
-            if (process.exitValue() == 0) out else ""
-        } catch (e: Exception) { "" }
+        val gitBranch = git("rev-parse", "--abbrev-ref", "HEAD")
         buildConfigField("String", "GIT_BRANCH", "\"$gitBranch\"")
 
         // A "dev" build is any branch build other than main. Same signal the
@@ -98,6 +118,16 @@ android {
             }
         }
         release {
+            // -PaaosTest builds a release APK the AAOS emulator can host, so the
+            // car screen can be checked with R8 on. This matters: R8 is the only
+            // difference between the build that works in the emulator and the one
+            // testers install, and it has already shipped one unopenable car
+            // screen (see the Car App Library keep rule in proguard-rules.pro).
+            // Adds the x86_64 ffmpeg libs, the automotive host and its
+            // CarAppActivity. See docs/android-auto-testing.md.
+            if (project.hasProperty("aaosTest")) {
+                ndk { abiFilters += "x86_64" }
+            }
             // A release build is NEVER a dev build, whatever branch it was cut
             // from. The defaultConfig heuristic (branch != main) is only meant
             // for debug/branch tester APKs; a release AAB submitted to Play from
@@ -223,7 +253,25 @@ android {
         getByName("main") {
             kotlin.srcDir(if (garminEnabled) "src/garminEnabled/kotlin" else "src/garminStub/kotlin")
         }
+        // The exported Room schemas, so MigrationTestHelper can read them on device.
+        getByName("androidTest") {
+            assets.srcDir("$projectDir/schemas")
+        }
+        // -PaaosTest only: hands the release variant the CarAppActivity the AAOS
+        // emulator launches, plus the survey receiver so a virtual wheel can be
+        // connected and the car screen checked with real numbers rather than an
+        // empty "waiting for the wheel". Never merged into a build that ships.
+        if (project.hasProperty("aaosTest")) {
+            getByName("release").manifest.srcFile("src/aaosTest/AndroidManifest.xml")
+            getByName("release").kotlin.srcDir("src/debug/java")
+        }
     }
+}
+
+// Room writes the schema of every @Database version here. The files are
+// committed: MigrationAllTest validates each migration against the current one.
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
 }
 
 dependencies {
@@ -318,6 +366,16 @@ dependencies {
     // MapLibre - TODO: re-enable when map preview is implemented
     // Disabled for now to avoid 16KB page size compatibility warning on Android 15+
     // implementation(libs.maplibre)
+    // Android Auto: the car screen draws our map and stats (feature/android-auto).
+    implementation(libs.androidx.car.app)
+    // Debug only: lets the x86 Android Automotive emulator host the car
+    // screens, since Android Auto itself does not install on x86 emulators.
+    debugImplementation(libs.androidx.car.app.automotive)
+    // -PaaosTest: the same host in a release build, so the car screen can be
+    // checked with R8 on before it reaches testers.
+    if (project.hasProperty("aaosTest")) {
+        "releaseImplementation"(libs.androidx.car.app.automotive)
+    }
 
     // Flic 2 button SDK
     implementation(libs.flic2)
@@ -358,7 +416,7 @@ dependencies {
     // classpath. Adding the standalone artifact makes SettingsJson JVM tests work
     // without Robolectric.
     testImplementation("org.json:json:20240303")
-    // MockWebServer for EucStatsApi JVM tests — version must match libs.okhttp (4.12.0)
+    // MockWebServer for EucStatsApi JVM tests, version must match libs.okhttp (4.12.0)
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
     // kotlin-reflect for the SettingsJson drift-guard test (walks the AppSettings
     // primary constructor to catch fields missing from the JSON mapper).
@@ -374,6 +432,8 @@ dependencies {
     // cannot be driven from adb, so those rules are pinned on-device.
     androidTestImplementation(composeBom)
     androidTestImplementation(libs.compose.ui.test.junit4)
+    // MigrationTestHelper for MigrationAllTest, same version as room-runtime.
+    androidTestImplementation(libs.room.testing)
     debugImplementation(libs.compose.ui.test.manifest)
 }
 
@@ -425,3 +485,8 @@ tasks.withType<Test>().configureEach {
         }
     ).withPathSensitivity(PathSensitivity.RELATIVE).withPropertyName("translationFiles")
 }
+
+// The settings search reads its words from the settings code, not a hand list.
+apply(from = "settings-search-index.gradle.kts")
+android.sourceSets.getByName("main").java.srcDir(layout.buildDirectory.dir("generated/settingsSearch"))
+tasks.named("preBuild") { dependsOn("generateSettingsSearchIndex") }

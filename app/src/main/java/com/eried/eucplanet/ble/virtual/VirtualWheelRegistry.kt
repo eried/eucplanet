@@ -12,12 +12,17 @@ object VirtualWheelRegistry {
     private val factories: Map<String, () -> VirtualWheel> = mapOf(
         "V14" to ::V14VirtualWheel,
         "P6" to ::P6VirtualWheel,
+        // Replays the real V6 dialect bytes end to end, see V6VirtualWheel.
+        "V6" to ::V6VirtualWheel,
         "V8S" to { InMotionV1VirtualWheel() },
         "MASTER" to ::BegodeMasterVirtualWheel,
         // The same Master on a pack that sags under load, discharges at a
         // real rate and jitters frame to frame: the ride a battery filter has
         // to survive, on a phone with no wheel in the room.
         "MASTER_SAG" to ::BegodeMasterSaggingVirtualWheel,
+        // A KS-18XL replaying the frames of the issue #19 capture, with the
+        // lock handshake (0x5D / 0x5E / 0x5F) and the code "123456".
+        "KS18XL" to ::KingsongVirtualWheel,
     )
 
     fun all(): List<VirtualWheelInfo> =

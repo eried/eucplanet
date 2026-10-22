@@ -11,6 +11,7 @@ lifecycle = "2.8.7"
 coroutines = "1.9.0"
 navigation = "2.8.5"
 maplibre = "11.5.2"
+carApp = "1.4.0"
 datastore = "1.1.1"
 work = "2.9.1"
 hiltWork = "1.2.0"
@@ -69,6 +70,7 @@ navigation-compose = { group = "androidx.navigation", name = "navigation-compose
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+room-testing = { group = "androidx.room", name = "room-testing", version.ref = "room" }
 
 # Hilt
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
@@ -84,6 +86,8 @@ play-services-location = { group = "com.google.android.gms", name = "play-servic
 
 # MapLibre
 maplibre = { group = "org.maplibre.gl", name = "android-sdk", version.ref = "maplibre" }
+androidx-car-app = { group = "androidx.car.app", name = "app", version.ref = "carApp" }
+androidx-car-app-automotive = { group = "androidx.car.app", name = "app-automotive", version.ref = "carApp" }
 
 # DataStore
 datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
@@ -103,7 +107,7 @@ reorderable = { group = "sh.calvin.reorderable", name = "reorderable", version.r
 media3-exoplayer = { group = "androidx.media3", name = "media3-exoplayer", version.ref = "media3" }
 media3-common = { group = "androidx.media3", name = "media3-common", version.ref = "media3" }
 
-# CameraX (Overlay Studio camera feed — bound headless as ImageAnalysis so a
+# CameraX (Overlay Studio camera feed, bound headless as ImageAnalysis so a
 # single camera stream can be drawn into multiple viewports / floating windows)
 camerax-core = { group = "androidx.camera", name = "camera-core", version.ref = "camerax" }
 camerax-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "camerax" }

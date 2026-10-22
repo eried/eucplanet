@@ -27,9 +27,13 @@ class BegodeMasterVirtualWheel : VirtualWheel {
     override val bleName = "Master_VIRTUAL"
 
     private var startTimeMs = System.currentTimeMillis()
+    private var lastExtrasTickMs = -1_000L
+    private val trip = SimTripMeter()
 
     override fun reset() {
         startTimeMs = System.currentTimeMillis()
+        lastExtrasTickMs = -1_000L
+        trip.reset()
     }
 
     override fun onWrite(data: ByteArray): List<ByteArray> {
@@ -61,7 +65,20 @@ class BegodeMasterVirtualWheel : VirtualWheel {
         val rawCurrent = 1200       // 12.0 A phase current
         val rawTempReg = 0x0EFF     // ≈ 47 °C through the MPU6050 formula
 
-        return listOf(begodeLiveFrame(elapsedMs, rawCv, rawSpeed, rawCurrent, rawTempReg))
+        val out = ArrayList<ByteArray>(2)
+        out += begodeLiveFrame(trip.advance(elapsedMs, forwardKmh), rawCv, rawSpeed, rawCurrent, rawTempReg)
+        // Stock firmware also sends the 0x07 extras frame about once a second
+        // with only the motor temperature filled in; true PWM and battery
+        // current stay 0. A Master v3 rider saw the PWM tile flash to 0 % on
+        // every one of them (issue #26), so the fake sends them too.
+        if (elapsedMs - lastExtrasTickMs >= 1_000L) {
+            lastExtrasTickMs = elapsedMs
+            out += begodeExtrasFrame(motorTempC = 38)
+            // Live B once a second too, so the auto power-off tile counts down
+            // the way a parked wheel's does (92:40 from the EUC Dash shot).
+            out += begodeLiveBFrame(autoOffSeconds = (5560 - (elapsedMs / 1000L).toInt()).coerceAtLeast(0), tiltbackKmh = 70)
+        }
+        return out
     }
 
 }
@@ -71,20 +88,81 @@ class BegodeMasterVirtualWheel : VirtualWheel {
  * Gotway-protocol wheel emits. Shared by the Master simulators so they differ
  * only in the pack they pretend to have, not in how they frame it.
  */
-internal fun begodeLiveFrame(elapsedMs: Long, rawCv: Int, rawSpeed: Int, rawCurrent: Int, rawTempReg: Int): ByteArray {
+internal fun begodeLiveFrame(tripMeters: Int, rawCv: Int, rawSpeed: Int, rawCurrent: Int, rawTempReg: Int): ByteArray {
     val frame = ByteArray(24)
     frame[0] = 0x55
     frame[1] = 0xAA.toByte()
     putUint16BE(frame, 2, rawCv)
     putInt16BE(frame, 4, rawSpeed)
     // 6..7: unused on most firmwares
-    putUint16BE(frame, 8, ((elapsedMs / 1000L) % 1000L).toInt())
+    // 8..9: trip meters, the low word real firmware fills in.
+    putUint16BE(frame, 8, tripMeters and 0xFFFF)
     putInt16BE(frame, 10, rawCurrent)
     putInt16BE(frame, 12, rawTempReg)
     // 14..15: hardware PWM stays zero so derivedPwmPct() drives the load gauge.
     // 16..17: padding
     frame[18] = 0x00 // Live A tag
     frame[19] = 0x00
+    frame[20] = 0x5A
+    frame[21] = 0x5A
+    frame[22] = 0x5A
+    frame[23] = 0x5A
+    return frame
+}
+
+/**
+ * The distance a simulated wheel has covered, integrated from the speed it
+ * reports, so trip, consumption and range move the way they do on a ride.
+ */
+internal class SimTripMeter {
+    private var meters = 0.0
+    private var lastMs = -1L
+
+    fun reset() {
+        meters = 0.0
+        lastMs = -1L
+    }
+
+    /** Adds the stretch since the last tick at [kmh] and returns whole meters. */
+    fun advance(elapsedMs: Long, kmh: Float): Int {
+        if (lastMs >= 0L && elapsedMs > lastMs) {
+            meters += kotlin.math.abs(kmh) / 3.6 * (elapsedMs - lastMs) / 1000.0
+        }
+        lastMs = elapsedMs
+        return meters.toInt()
+    }
+}
+
+/**
+ * One Begode 0x07 "extras" frame as stock firmware sends it: motor temperature
+ * at 6..7, true PWM (8..9) and battery current (2..3) left at zero.
+ */
+internal fun begodeExtrasFrame(motorTempC: Int): ByteArray {
+    val frame = ByteArray(24)
+    frame[0] = 0x55
+    frame[1] = 0xAA.toByte()
+    putInt16BE(frame, 6, motorTempC)
+    frame[18] = 0x07
+    frame[20] = 0x5A
+    frame[21] = 0x5A
+    frame[22] = 0x5A
+    frame[23] = 0x5A
+    return frame
+}
+
+/**
+ * One Begode "live B" (tag 0x04) frame: settings, tiltback and the auto
+ * power-off countdown in seconds at bytes 8..9. Everything else stays 0
+ * (km units, lights off, no alerts).
+ */
+internal fun begodeLiveBFrame(autoOffSeconds: Int, tiltbackKmh: Int): ByteArray {
+    val frame = ByteArray(24)
+    frame[0] = 0x55
+    frame[1] = 0xAA.toByte()
+    putUint16BE(frame, 8, autoOffSeconds)
+    putUint16BE(frame, 10, tiltbackKmh)
+    frame[18] = 0x04
+    frame[19] = 0x18
     frame[20] = 0x5A
     frame[21] = 0x5A
     frame[22] = 0x5A

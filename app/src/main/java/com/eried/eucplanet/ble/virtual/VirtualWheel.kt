@@ -12,8 +12,8 @@ package com.eried.eucplanet.ble.virtual
  * the real parser code, not a shortcut. This catches off-by-one offsets in
  * our parsers before any wheel hardware ever sees the build.
  *
- * This is debug-only infrastructure; the scan-screen entry that creates one
- * is gated behind BuildConfig.DEBUG.
+ * The scan-screen entry that creates one is gated behind Service Mode, so
+ * release builds carry it too and a normal scan list never shows it.
  */
 interface VirtualWheel {
     /** User-visible name on the scan screen. */

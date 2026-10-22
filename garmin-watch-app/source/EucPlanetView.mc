@@ -210,7 +210,7 @@ class EucPlanetView extends WatchUi.View {
 
         // Only two placeholder branches: no phone yet, or stale (phone
         // went away). When the phone IS publishing but no wheel is
-        // connected, render the dial with zeroed telemetry — matches the
+        // connected, render the dial with zeroed telemetry, matches the
         // Wear OS dial, which shows the full layout with "0" speed and
         // dashes for battery / voltage rather than a placeholder text.
         // Horn / light buttons stay drawn but greyed so the rider can
@@ -239,7 +239,7 @@ class EucPlanetView extends WatchUi.View {
             drawPwmBadge(dc, s);
         }
         drawBatteryRow(dc, s);
-        // Buttons greyed when no wheel is connected — same UX as the Wear OS
+        // Buttons greyed when no wheel is connected, same UX as the Wear OS
         // dial: dial stays visible, controls show but read as inactive.
         drawHornLight(dc, s, /* enabled = */ s.connected);
 

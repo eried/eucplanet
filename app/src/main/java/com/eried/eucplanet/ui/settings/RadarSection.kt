@@ -89,7 +89,7 @@ fun RadarSection(
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text(stringResource(R.string.radar_disconnect))
+                        com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.radar_disconnect))
                     }
                 } else {
                     Button(
@@ -97,7 +97,7 @@ fun RadarSection(
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text(stringResource(R.string.radar_reconnect))
+                        com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.radar_reconnect))
                     }
                 }
                 Button(
@@ -106,7 +106,7 @@ fun RadarSection(
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.appColors.statusDanger),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text(stringResource(R.string.radar_unpair))
+                    com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.radar_unpair))
                 }
             }
 
@@ -194,7 +194,7 @@ private fun UnpairedRadarCard(
                         )
                     }
                     Button(onClick = { onPick(result) }, shape = RoundedCornerShape(12.dp)) {
-                        Text(stringResource(R.string.radar_pair_action))
+                        com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.radar_pair_action))
                     }
                 }
             }

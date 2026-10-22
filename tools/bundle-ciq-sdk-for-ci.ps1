@@ -32,7 +32,7 @@ param(
     [string] $OutputZip = "$PSScriptRoot\..\ciq-bundle.zip",
 
     # Default: every device listed in garmin-watch-app/manifest.xml (currently
-    # 135 — every CIQ 3.0+ watchApp-capable device). monkeyc errors on any
+    # 135, every CIQ 3.0+ watchApp-capable device). monkeyc errors on any
     # manifest device whose profile isn't bundled, so the default has to
     # match the manifest one-for-one. Pass -Devices @('venu3','fenix843mm')
     # only when you want a slim bundle for a faster local dev cycle.

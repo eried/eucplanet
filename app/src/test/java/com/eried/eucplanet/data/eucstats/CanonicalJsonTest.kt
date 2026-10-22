@@ -7,7 +7,7 @@ import org.junit.Test
 class CanonicalJsonTest {
     @Test fun matchesPythonVector_simpleObject() {
         val meta = JSONObject().put("b", 1).put("a", 2)
-        // sha256 of '{"a":2,"b":1}' — computed from the server venv:
+        // sha256 of '{"a":2,"b":1}', computed from the server venv:
         // python -c "import hashlib,json;print(hashlib.sha256(json.dumps({'a':2,'b':1},sort_keys=True,separators=(',',':')).encode()).hexdigest())"
         assertEquals("d3626ac30a87e6f7a6428233b3c68299976865fa5508e4267c5415c76af7a772", CanonicalJson.requestHash(meta))
     }

@@ -1,4 +1,4 @@
-# Supported Wheel Catalog — line-drawing reference
+# Supported Wheel Catalog, line-drawing reference
 
 Source of truth: the app's BLE detection code under
 `app/src/main/java/com/eried/eucplanet/ble/` (model files, adapters, and
@@ -140,7 +140,7 @@ Detection: BLE name → protocol (Z vs Legacy) + model. Source: `NinebotModel.kt
 ---
 
 ## Reference / virtual-wheel models (highest priority)
-The app ships built-in simulators for these — they're the developer's primary
+The app ships built-in simulators for these, they're the developer's primary
 test wheels, so draw these first:
 
 - **InMotion V14 50GB** (`V14VirtualWheel.kt`)
@@ -148,13 +148,13 @@ test wheels, so draw these first:
 - **Begode Master** (`BegodeMasterVirtualWheel.kt`)
 
 ## Suggested drawing tiers (to keep the art commission sane)
-- **Tier 0 — Generic EUC silhouette.** One fallback drawing for any
+- **Tier 0, Generic EUC silhouette.** One fallback drawing for any
   unidentified / not-yet-drawn wheel. *Ship this first; everything works without
   per-model art.*
-- **Tier 1 — Reference + popular current-gen.** V14, P6, Begode Master +
+- **Tier 1, Reference + popular current-gen.** V14, P6, Begode Master +
   Master Pro/RS, KS-S22/S20, LeaperKim Sherman/Patton/Lynx, InMotion V11/V12/V13.
-- **Tier 2 — Remaining current-gen.**
-- **Tier 3 — Legacy** (InMotion V5/V8/V10, KS-14/16, Ninebot Mini/One, older
+- **Tier 2, Remaining current-gen.**
+- **Tier 3, Legacy** (InMotion V5/V8/V10, KS-14/16, Ninebot Mini/One, older
   Begode/Gotway).
 
 > **Body-shape grouping cuts the count.** Many models within a brand share one
@@ -170,17 +170,17 @@ test wheels, so draw these first:
 `VectorDrawable` XML (the app's runtime format). Keep it convertible:
 
 - **Paths only.** No `<text>`, no embedded raster (`<image>`), no filters/blur,
-  no CSS classes — flatten to plain `<path>` elements.
+  no CSS classes, flatten to plain `<path>` elements.
 - **Monochrome, no baked fill colour.** Use a single stroke/fill (e.g. black on
   transparent). The app tints it via the theme; the liquid colours are supplied
   at runtime.
-- **Uniform viewBox across all wheels** — e.g. portrait `0 0 120 160`,
+- **Uniform viewBox across all wheels**, e.g. portrait `0 0 120 160`,
   wheel centered, same scale, so the fill-level maths is identical for every
   drawing.
 - **Two layers/groups per wheel:**
-  1. `outline` — the line-art contour + details (spokes, pedals, hub) as the
+  1. `outline`, the line-art contour + details (spokes, pedals, hub) as the
      visible drawing.
-  2. `fill` — ONE closed path describing the interior region the "liquid" fills
+  2. `fill`, ONE closed path describing the interior region the "liquid" fills
      (the tyre/body silhouette). The app clips a rising gradient into this path,
      so its vertical bounding box = 0 %…100 %.
 - **Optimized:** run through SVGO; keep total node count modest for Android

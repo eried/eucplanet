@@ -24,6 +24,21 @@ object KingsongCommands {
         // sustain the 0xA9/0xB9 stream (the wheel is NOT pure push-only).
         const val KEEPALIVE: Byte = 0x00
         const val START_STREAM: Byte = 0x5E
+        // Lock. Decoded from a KS-18XL (FW 2.00) capture of the official app,
+        // issue #19, 2026-09-16: 0x5D sets, 0x5E asks, the wheel answers 0x5F.
+        // 0x5E is the same frame as the stream-start kick above, which is why
+        // that kick was always harmless: it only asks for the lock state.
+        const val LOCK_SET: Byte = 0x5D
+        const val LOCK_QUERY: Byte = 0x5E
+        const val LOCK_STATE: Byte = 0x5F
+        // The KingSong app password (four digits). From the 2026-09-22 KS-18XL
+        // capture: 0x41 sends it (ASCII from byte 2), 0x42 clears it, and the
+        // wheel answers both with 0x43 carrying the stored password, FF FF FF
+        // FF once cleared. With a password set the wheel ignores 0x5D until
+        // 0x41 has been accepted in the session.
+        const val PASSWORD_SEND: Byte = 0x41
+        const val PASSWORD_CLEAR: Byte = 0x42
+        const val PASSWORD_STATE: Byte = 0x43
         const val POWER_OFF: Byte = 0x40
         const val STANDBY: Byte = 0x3F
         const val STROBE: Byte = 0x53.toByte()        // Side LED strobe pattern
@@ -89,6 +104,53 @@ object KingsongCommands {
 
     /** Single short beep. */
     fun horn(): ByteArray = frame(Type.BEEP)
+
+    /**
+     * Lock the wheel (`AA 55 01 ..00.. 5D 14 5A 5A`). The wheel answers with a
+     * 0x5F state frame at once and pings when moved. From the 2026-09-16
+     * KS-18XL capture (issue #19): the official app sent exactly this, no code.
+     */
+    fun lock(): ByteArray = frame(Type.LOCK_SET) { it[2] = 0x01 }
+
+    /** The code a KingSong wheel reports when the rider never set one in the
+     *  KingSong app. Such a wheel unlocks on any six digits. */
+    const val DEFAULT_LOCK_CODE = "123456"
+
+    /**
+     * Unlock: six ASCII digits at offsets 10..15 (`AA 55 ..00.. 35 30 39 35 34 30
+     * 5D 14 5A 5A` for "509540"). The two KS-18XL captures (issue #19) unlocked
+     * with different digits the wheel had never sent while it reported "123456"
+     * as its stored code, so a wheel with no rider-set code does not check them.
+     * Anything that is not six digits sends [DEFAULT_LOCK_CODE] instead of
+     * nothing, since an unlock the wheel ignores is better than one never sent.
+     */
+    fun unlock(code: String): ByteArray {
+        val digits = if (isLockCode(code)) code else DEFAULT_LOCK_CODE
+        return frame(Type.LOCK_SET) { f ->
+            for (i in 0 until 6) f[10 + i] = digits[i].code.toByte()
+        }
+    }
+
+    /** Ask for the lock state; the wheel answers 0x5F with 1 or 0 at offset 2. */
+    fun queryLock(): ByteArray = frame(Type.LOCK_QUERY)
+
+    /**
+     * Send the KingSong app password so the wheel accepts lock and unlock
+     * (`AA 55 39 31 31 31 00.. 41 14 5A 5A` for "9111" in the capture). The
+     * wheel answers 0x43 echoing what it stores. Null unless [isPassword].
+     */
+    fun password(digits: String): ByteArray? {
+        if (!isPassword(digits)) return null
+        return frame(Type.PASSWORD_SEND) { f ->
+            for (i in digits.indices) f[2 + i] = digits[i].code.toByte()
+        }
+    }
+
+    /** The KingSong app allows four digits; the frame has room for six. */
+    fun isPassword(digits: String): Boolean = digits.length in 1..6 && digits.all { it.isDigit() }
+
+    /** A KingSong lock code is six digits. */
+    fun isLockCode(code: String): Boolean = code.length == 6 && code.all { it.isDigit() }
 
     /** Powers the wheel off. No confirmation. */
     fun powerOff(): ByteArray = frame(Type.POWER_OFF)

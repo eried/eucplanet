@@ -3,7 +3,7 @@
 Walks an Android btsnoop_hci.log, isolates ACL frames carrying
 ATT writes and notifications on the Nordic UART RX/TX UUIDs, and
 prints a chronological view of the bytes the phone wrote and the
-bytes the wheel notified back. Only HCI ACL is decoded — connection
+bytes the wheel notified back. Only HCI ACL is decoded, connection
 events, EIR scans, and L2CAP signalling are skipped.
 
 Usage:
@@ -75,7 +75,7 @@ def decode(path):
                 value = l2cap_payload[3:]
                 print(f"{ts_str} RX  h=0x{handle:04x} {value.hex(' ')}")
             elif opcode == 0x09 and len(l2cap_payload) >= 4:
-                # Read by Type Response — usually carries characteristic UUIDs
+                # Read by Type Response, usually carries characteristic UUIDs
                 # we'd want to map handles. Skip detailed parsing; rely on
                 # the fact that Nordic UART has only one TX and one RX char,
                 # so handle observation is enough.

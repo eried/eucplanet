@@ -3,6 +3,7 @@ package com.eried.eucplanet.tpms
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.ScanCallback
+import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
@@ -270,7 +271,16 @@ class TpmsScanner @Inject constructor(
                 else ScanSettings.SCAN_MODE_LOW_LATENCY
             )
             .build()
-        runCatching { scanner.startScan(null, settings, cb) }
+        // Hunting has no filter: the sensor is unknown, which is the point.
+        // Watching a paired sensor asks the radio for that address alone, so
+        // the phone is not woken for every advert around it all day. Every
+        // paired cap, one per wheel, not just the first. An address the
+        // builder refuses drops the filter, so the scan hears everything
+        // rather than nothing.
+        val filters = monitorFilterAddresses(asMonitor, tpms.sensors.value)?.let { addresses ->
+            runCatching { addresses.map { ScanFilter.Builder().setDeviceAddress(it).build() } }.getOrNull()
+        }
+        runCatching { scanner.startScan(filters, settings, cb) }
             .onSuccess {
                 // Only a search shows as "scanning" and only a search gives
                 // up; a monitor is invisible and runs on.
@@ -478,5 +488,11 @@ class TpmsScanner @Inject constructor(
 
         /** How often readings are re-aged. Cheap, and staleness is in minutes. */
         private const val STALENESS_TICK_MS = 15_000L
+
+        /** Addresses a monitor filters on, one per paired cap; null for a search or nothing paired. */
+        internal fun monitorFilterAddresses(
+            asMonitor: Boolean, sensors: List<TpmsRepository.SensorState>,
+        ): List<String>? =
+            if (!asMonitor) null else sensors.map { it.address }.takeIf { it.isNotEmpty() }
     }
 }

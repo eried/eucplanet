@@ -59,7 +59,7 @@ Save the AVD as `motoeye_proxy`.
 You need the phone-side `:app` and the HUD-side `:hud` on the same LAN so the
 HUD can discover the phone via mDNS.
 
-### Option A — two emulators on the host
+### Option A, two emulators on the host
 
 ```bash
 # Terminal 1: phone-shaped AVD (any modern Pixel works fine)
@@ -79,18 +79,18 @@ because the Android emulator forwards multicast across that virtual switch.
 ./gradlew :hud:installDebug   # → on the HUD emulator
 ```
 
-### Option B — one emulator + a real phone
+### Option B, one emulator + a real phone
 
 If you want to verify the actual hotspot path:
 
 1. Turn the phone's WiFi hotspot on.
 2. Connect a laptop to that hotspot.
 3. Run the HUD emulator on the laptop (`emulator -netfast`).
-4. Confirm the laptop can `curl http://<phone-ip>:28080/health` first — if
+4. Confirm the laptop can `curl http://<phone-ip>:28080/health` first, if
    that 404s, the hotspot is firewalling client-to-client traffic and you
    need Option A.
 
-### Option C — both on real devices
+### Option C, both on real devices
 
 Best signal, only available once a Motoeye unit is in hand. Sideload the HUD
 APK exactly as the forum post describes (USB-mount E6, drop APK into root,
@@ -173,7 +173,7 @@ on Motoeye" until each is signed off by a tester with hardware:
    accepts it (usually fine up to ~50 MB).
 5. **Hotspot client-to-client traffic.** Some phones (notably MIUI, some
    Samsung One UI versions) block client-to-client traffic on their
-   hotspot — phone and HUD see each other in DHCP but can't open a TCP
+   hotspot, phone and HUD see each other in DHCP but can't open a TCP
    connection. There's no client-side workaround for this besides asking
    the rider to use a router or check phone settings.
 

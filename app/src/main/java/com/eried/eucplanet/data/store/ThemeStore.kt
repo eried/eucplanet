@@ -20,10 +20,10 @@ import javax.inject.Singleton
  *  - The 3 **built-in** themes ([BuiltInThemes]) are code constants, always
  *    available, read-only.
  *  - **Saved** themes are individual `.json` files in the rider's backup folder
- *    under a `themes/` subfolder — so saving / loading is writing / reading one
+ *    under a `themes/` subfolder, so saving / loading is writing / reading one
  *    file, which is why a backup folder must be set for saved themes to appear.
  *
- * The *active* theme (and any unsaved working draft) does NOT live here — settings
+ * The *active* theme (and any unsaved working draft) does NOT live here, settings
  * persist only the active theme's NAME; the resolved colors and in-memory drafts
  * are held by [com.eried.eucplanet.ui.theme.ThemeController] and re-derived from
  * the name on launch (a built-in from code, or a saved `.json` loaded from here).

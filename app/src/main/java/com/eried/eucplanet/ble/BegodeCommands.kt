@@ -147,51 +147,51 @@ object BegodeCommands {
         a.code.toByte(), b.code.toByte(), (v and 0xFF).toByte()
     )
 
-    /** "EM" — Extreme mode on/off. */
+    /** "EM", Extreme mode on/off. */
     internal fun setExtremeMode(on: Boolean): ByteArray = alexovikKv('E', 'M', if (on) 1 else 0)
 
-    /** "BA" — Brake current, raw u8. */
+    /** "BA", Brake current, raw u8. */
     internal fun setBrakingCurrent(value: Int): ByteArray = alexovikKv('B', 'A', value)
 
-    /** "RC" — Rotation control on/off. */
+    /** "RC", Rotation control on/off. */
     internal fun setRotationControl(on: Boolean): ByteArray = alexovikKv('R', 'C', if (on) 1 else 0)
 
-    /** "rs" — Roll/lean angle offset, encoded as `(value - 260)`. */
+    /** "rs", Roll/lean angle offset, encoded as `(value - 260)`. */
     internal fun setRotationAngle(value: Int): ByteArray = alexovikKv('r', 's', value - 260)
 
-    /** "as" — Enable advanced PIDs. */
+    /** "as", Enable advanced PIDs. */
     internal fun setAdvancedSettings(on: Boolean): ByteArray = alexovikKv('a', 's', if (on) 1 else 0)
 
-    /** "hp" — Balance loop proportional gain. */
+    /** "hp", Balance loop proportional gain. */
     internal fun setBalanceP(value: Int): ByteArray = alexovikKv('h', 'p', value)
 
-    /** "hi" — Balance loop integral gain. */
+    /** "hi", Balance loop integral gain. */
     internal fun setBalanceI(value: Int): ByteArray = alexovikKv('h', 'i', value)
 
-    /** "hd" — Balance loop derivative gain. */
+    /** "hd", Balance loop derivative gain. */
     internal fun setBalanceD(value: Int): ByteArray = alexovikKv('h', 'd', value)
 
-    /** "hc" — Dynamic compensation. */
+    /** "hc", Dynamic compensation. */
     internal fun setDynamicCompensation(value: Int): ByteArray = alexovikKv('h', 'c', value)
 
-    /** "hf" — Dynamic compensation filter. */
+    /** "hf", Dynamic compensation filter. */
     internal fun setDynamicCompensationFilter(value: Int): ByteArray = alexovikKv('h', 'f', value)
 
-    /** "ac" — Acceleration compensation. */
+    /** "ac", Acceleration compensation. */
     internal fun setAccelerationCompensation(value: Int): ByteArray = alexovikKv('a', 'c', value)
 
-    /** "cp" — Motor current loop proportional gain (Q-axis). */
+    /** "cp", Motor current loop proportional gain (Q-axis). */
     internal fun setPCurrentQ(value: Int): ByteArray = alexovikKv('c', 'p', value)
 
-    /** "ci" — Motor current loop integral gain (Q-axis). */
+    /** "ci", Motor current loop integral gain (Q-axis). */
     internal fun setICurrentQ(value: Int): ByteArray = alexovikKv('c', 'i', value)
 
-    /** "dp" — Motor current loop proportional gain (D-axis). */
+    /** "dp", Motor current loop proportional gain (D-axis). */
     internal fun setPCurrentD(value: Int): ByteArray = alexovikKv('d', 'p', value)
 
-    /** "di" — Motor current loop integral gain (D-axis). */
+    /** "di", Motor current loop integral gain (D-axis). */
     internal fun setICurrentD(value: Int): ByteArray = alexovikKv('d', 'i', value)
 
-    /** "tt" — Trick mode parameter. */
+    /** "tt", Trick mode parameter. */
     internal fun setTrick(value: Int): ByteArray = alexovikKv('t', 't', value)
 }

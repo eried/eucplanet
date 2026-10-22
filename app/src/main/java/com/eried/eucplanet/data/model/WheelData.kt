@@ -42,7 +42,7 @@ data class WheelData(
      *  lat/long and gpsSpeedKmh, and NaN rather than -1 because a rider below
      *  sea level is a real reading, not a missing one. */
     val gpsAltitudeM: Float = Float.NaN,
-    /** Running trip-meter distance in km (the connect-scoped car odometer), or -1
+    /** Running trip-meter distance in km (the connect-scoped trip odometer), or -1
      *  when not merged in. Not wheel telemetry, so it stays -1 on the plain wheel
      *  stream; the Overlay Studio / HUD merge it in like gpsSpeedKmh so an overlay
      *  number can show it. */
@@ -91,7 +91,11 @@ data class WheelData(
     val rangeKmEstimate: Float = Float.NaN,
     val dynamicSpeedLimit: Float = 0f,
     val dynamicCurrentLimit: Float = 0f,
+    /** Seconds until the wheel powers itself off while standing still; it
+     *  restarts when the wheel moves. Begode reports it, -1 everywhere else. */
+    val autoOffSeconds: Int = -1,
     val lightOn: Boolean = false,
+    val headlightReadback: HeadlightReadback? = null,
     /** True when the wheel reports it is charging via an explicit firmware flag
      *  (InMotion V14/V12 state-byte bit 7, KingSong 0xB9). Inference-only
      *  families (Begode/Veteran/Ninebot/InMotion V1) leave this false; charging

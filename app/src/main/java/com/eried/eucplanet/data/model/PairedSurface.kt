@@ -1,15 +1,15 @@
 package com.eried.eucplanet.data.model
 
 /**
- * Snapshot of a paired companion device — Wear OS watch, Garmin watch, Garmin
+ * Snapshot of a paired companion device, Wear OS watch, Garmin watch, Garmin
  * Edge. Used by the Settings → Watch screen to render the collapsible
  * "Paired devices" card so the rider sees what surfaces will actually receive
  * the dial.
  *
  * Both surfaces can be active at the same time: the phone publishes the same
  * telemetry frame to every paired Wear OS node AND every paired Garmin
- * device. The two bridges don't coordinate — each treats the phone as the
- * source of truth — and the wheel only processes one horn command per
+ * device. The two bridges don't coordinate, each treats the phone as the
+ * source of truth, and the wheel only processes one horn command per
  * debounce window, so double-fire from "horn pressed on both wrists at once"
  * is harmless.
  */

@@ -154,13 +154,15 @@ class TripRepository @Inject constructor(
 
     // Demand-driven GPS power (GpsPowerPolicy). The stream only runs after a real
     // consumer calls startLocationUpdates(); once running it self-adjusts its tier
-    // from recording / navigating / sharing / wheel-connected / app-visible so it never
-    // burns the 1 Hz high-accuracy stream when nothing needs it.
+    // from recording / navigating / sharing / a visible watch map /
+    // wheel-connected / app-visible so it never burns the 1 Hz high-accuracy
+    // stream when nothing needs it.
     @Volatile private var gpsStreamRequested = false
     @Volatile private var gpsNavigating = false
     // Live location share is running: friends are watching this rider's dot, so
     // GPS stays at 1 Hz even with the app backgrounded and no wheel connected.
     @Volatile private var gpsSharing = false
+    @Volatile private var gpsWatchMapVisible = false
     @Volatile private var currentGpsTier: GpsTier? = null
     // Pending fully-off after the idle grace (gpsIdleOffDelaySec); cancelled the
     // moment any input changes, since recompute re-decides.
@@ -374,6 +376,12 @@ class TripRepository @Inject constructor(
         recomputeGpsTier()
     }
 
+    fun setWatchMapVisible(visible: Boolean) {
+        gpsWatchMapVisible = visible
+        if (visible) startLocationUpdates()
+        recomputeGpsTier()
+    }
+
     /** Pick the GPS tier for the current demand and (re)issue the fused request. */
     private fun recomputeGpsTier() {
         if (!gpsStreamRequested || !hasLocationPermission()) return
@@ -384,6 +392,7 @@ class TripRepository @Inject constructor(
             connected = connected,
             appVisible = AppForeground.isForeground.value,
             sharing = gpsSharing,
+            watchMapVisible = gpsWatchMapVisible,
         )
         if (tier == GpsTier.OFF) {
             // Already off, or an off-grace already pending: stay put. Do NOT
@@ -521,6 +530,7 @@ class TripRepository @Inject constructor(
         fusedLocationClient.removeLocationUpdates(locationCallback)
         locationUpdatesActive = false
         gpsStreamRequested = false
+        gpsWatchMapVisible = false
         currentGpsTier = null
         Log.i(TAG, "Location updates stopped (received $locationFixCount fixes this session)")
     }
@@ -633,7 +643,7 @@ class TripRepository @Inject constructor(
             brand = wheelRepository.connectedBrand.value,
             model = wheelRepository.modelName.value,
             serial = wheelRepository.wheelSerial.value,
-            bleMac = settingsRepository.get().lastDeviceAddress,
+            bleMac = settingsRepository.currentOrLoad().lastDeviceAddress,
             bleName = wheelRepository.connectedDeviceName.value,
             firmware = wheelRepository.firmwareVersion.value,
         )
@@ -809,7 +819,7 @@ class TripRepository @Inject constructor(
                 val extSample = externalGpsRepository.currentSample.value
                 val extSpeed = extSample
                     ?.takeIf {
-                        settingsRepository.get().gpsPrioritizeExternal &&
+                        settingsRepository.currentOrLoad().gpsPrioritizeExternal &&
                             System.currentTimeMillis() - it.timestamp < recordIntervalMs * 3
                     }
                     ?.speedKmh
@@ -982,10 +992,10 @@ class TripRepository @Inject constructor(
         val appSettings = settingsRepository.get()
         val willSync = appSettings.syncFolderUri != null
         val willEucstats = appSettings.onlineUploadEnabled && syncManager.riderStoreId.value != null
-        // Single update so the folder-sync and eucstats statuses can't clobber
-        // each other (both branch from the same `trip` snapshot).
+        // One targeted update: the row read before the grace window is stale by
+        // now (a Dropbox pass may have marked it), so only the two statuses go.
         if (willSync || willEucstats) {
-            tripDao.update(mergeFinalizeStatuses(trip, willSync, willEucstats))
+            tripDao.markFinalized(trip.id, willSync, willEucstats)
         }
         pendingTrip = null
         _pendingTripId.value = null
@@ -1545,18 +1555,6 @@ fun buildWheelMetaJson(
     if (!firmware.isNullOrBlank()) obj.put("firmware", firmware)
     return if (obj.length() == 0) null else obj.toString()
 }
-
-/**
- * Apply the finalize-time upload statuses in a SINGLE copy so the folder-sync
- * status ([TripRecord.uploadStatus]) and the eucstats status
- * ([TripRecord.eucstatsStatus]) never clobber each other. Each is set to 1
- * ("pending") only when its destination is enabled; otherwise it is left as-is.
- */
-fun mergeFinalizeStatuses(trip: TripRecord, willSync: Boolean, willEucstats: Boolean): TripRecord =
-    trip.copy(
-        uploadStatus = if (willSync) 1 else trip.uploadStatus,
-        eucstatsStatus = if (willEucstats) 1 else trip.eucstatsStatus,
-    )
 
 /**
  * Header-driven extraction of (date, lat, lon, mileage) rows from a trip CSV.

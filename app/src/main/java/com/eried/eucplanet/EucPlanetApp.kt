@@ -3,8 +3,10 @@ package com.eried.eucplanet
 import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.flic.FlicManager
 import com.eried.eucplanet.garmin.GarminBridge
+import com.eried.eucplanet.map.MapTileCache
 import com.eried.eucplanet.util.CrashHandler
 import com.eried.eucplanet.wear.WearBridge
 import dagger.hilt.android.HiltAndroidApp
@@ -15,7 +17,7 @@ import javax.inject.Inject
 class EucPlanetApp : Application(), Configuration.Provider {
 
     @Inject lateinit var flicManager: FlicManager
-    @Inject lateinit var workerFactory: HiltWorkerFactory
+    @Inject lateinit var settingsRepository: SettingsRepository
     @Inject lateinit var wearBridge: WearBridge
     @Inject lateinit var garminBridge: GarminBridge
     @Inject lateinit var amazfitBridge: com.eried.eucplanet.amazfit.AmazfitBridge
@@ -42,9 +44,25 @@ class EucPlanetApp : Application(), Configuration.Provider {
      */
     @Inject lateinit var legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController
 
+    /** How WorkManager reaches the Hilt worker factory without a field. */
+    @dagger.hilt.EntryPoint
+    @dagger.hilt.InstallIn(dagger.hilt.components.SingletonComponent::class)
+    interface WorkerFactoryEntryPoint {
+        fun workerFactory(): HiltWorkerFactory
+    }
+
+    // Read from the component, not an @Inject field. Field injection builds
+    // TripRepository, whose start-up sweep can call WorkManager on another
+    // thread before the field is set: "lateinit property workerFactory has
+    // not been initialized", a crash on every launch with a backup folder.
+    // The component exists before any of that runs, so this cannot race.
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
-            .setWorkerFactory(workerFactory)
+            .setWorkerFactory(
+                dagger.hilt.android.EntryPointAccessors
+                    .fromApplication(this, WorkerFactoryEntryPoint::class.java)
+                    .workerFactory()
+            )
             .build()
 
     override fun onCreate() {
@@ -64,7 +82,12 @@ class EucPlanetApp : Application(), Configuration.Provider {
             override fun onActivitySaveInstanceState(a: android.app.Activity, o: android.os.Bundle) {}
             override fun onActivityDestroyed(activity: android.app.Activity) {}
         })
+        // Every start below is one line, and one line is easy to lose: the
+        // watch-map merge replaced flicManager.initialize() with the tile
+        // cache start and Flic went dead (no scan, no delete, no presses)
+        // with nothing in the log. AppStartupTest pins the whole list.
         flicManager.initialize()
+        MapTileCache.start(settingsRepository)
         wearBridge.start()
         garminBridge.start()
         amazfitBridge.start()
@@ -76,14 +99,11 @@ class EucPlanetApp : Application(), Configuration.Provider {
         // periodic upload safety-net. Both touch WorkManager, so they run here
         // (after Hilt has injected workerFactory) rather than in SyncManager's
         // init{}, which runs mid-injection and raced the lateinit.
-        syncManager.reconcilePendingTripUploads()
         // Same for the online (eucstats) uploads and the Dropbox mirror: a trip
         // strands if its retry chain ever ended, and nothing else restarts it.
-        // Both run a few seconds in so the rider id / link token have loaded, and
-        // both no-op when their destination is not configured.
-        syncManager.reconcilePendingEucStatsUploads()
-        syncManager.reconcilePendingDropboxSync()
-        syncManager.startPendingUploadWatcher()
+        // All run a few seconds in so the rider id / link token have loaded, and
+        // no-op when their destination is not configured.
+        syncManager.reconcileOnStart()
         // Legal Mode Lockdown stops service mode too. DiagnosticsLogger is an
         // object with no injection, so the armed state is mirrored onto it here,
         // the one place that already lives for the whole process.

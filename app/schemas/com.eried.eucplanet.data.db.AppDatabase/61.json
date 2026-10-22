@@ -1,0 +1,409 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 61,
+    "identityHash": "805593ffec578a49b299282965b842c6",
+    "entities": [
+      {
+        "tableName": "trips",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `startTime` INTEGER NOT NULL, `endTime` INTEGER, `fileName` TEXT NOT NULL, `distanceKm` REAL NOT NULL, `uploadStatus` INTEGER NOT NULL, `uploadedAt` INTEGER, `tripUuid` TEXT, `eucstatsStatus` INTEGER NOT NULL, `eucstatsUploadedAt` INTEGER, `eucstatsValidation` TEXT, `isMockLocation` INTEGER NOT NULL, `sampleCount` INTEGER NOT NULL, `wheelMetaJson` TEXT, `customName` TEXT, `dropboxStatus` INTEGER NOT NULL, `dropboxUploadedAt` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startTime",
+            "columnName": "startTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "endTime",
+            "columnName": "endTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "fileName",
+            "columnName": "fileName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "distanceKm",
+            "columnName": "distanceKm",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "uploadStatus",
+            "columnName": "uploadStatus",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "uploadedAt",
+            "columnName": "uploadedAt",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "tripUuid",
+            "columnName": "tripUuid",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "eucstatsStatus",
+            "columnName": "eucstatsStatus",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "eucstatsUploadedAt",
+            "columnName": "eucstatsUploadedAt",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "eucstatsValidation",
+            "columnName": "eucstatsValidation",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "isMockLocation",
+            "columnName": "isMockLocation",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sampleCount",
+            "columnName": "sampleCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "wheelMetaJson",
+            "columnName": "wheelMetaJson",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "customName",
+            "columnName": "customName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "dropboxStatus",
+            "columnName": "dropboxStatus",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dropboxUploadedAt",
+            "columnName": "dropboxUploadedAt",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "alarm_rules",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `enabled` INTEGER NOT NULL, `sortOrder` INTEGER NOT NULL, `metric` TEXT NOT NULL, `comparator` TEXT NOT NULL, `threshold` REAL NOT NULL, `beepEnabled` INTEGER NOT NULL, `beepFrequency` INTEGER NOT NULL, `beepDurationMs` INTEGER NOT NULL, `beepCount` INTEGER NOT NULL, `beepModulation` INTEGER NOT NULL, `beepGapMs` INTEGER NOT NULL, `beepTransitionPct` INTEGER NOT NULL, `beepWaveform` INTEGER NOT NULL, `beepEffect` INTEGER NOT NULL, `beepVolume` INTEGER NOT NULL, `beepVolumeModulation` INTEGER NOT NULL, `beepModulationReachPct` INTEGER NOT NULL, `beepVolumeReachPct` INTEGER NOT NULL, `voiceEnabled` INTEGER NOT NULL, `voiceText` TEXT NOT NULL, `vibrateEnabled` INTEGER NOT NULL, `vibrateDurationMs` INTEGER NOT NULL, `vibrateTarget` TEXT NOT NULL, `cooldownSeconds` INTEGER NOT NULL, `repeatWhileActive` INTEGER NOT NULL, `leadTimeMs` INTEGER NOT NULL, `wheelAddress` TEXT, `wheelName` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "enabled",
+            "columnName": "enabled",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sortOrder",
+            "columnName": "sortOrder",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "metric",
+            "columnName": "metric",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "comparator",
+            "columnName": "comparator",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "threshold",
+            "columnName": "threshold",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "beepEnabled",
+            "columnName": "beepEnabled",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "beepFrequency",
+            "columnName": "beepFrequency",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "beepDurationMs",
+            "columnName": "beepDurationMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "beepCount",
+            "columnName": "beepCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "beepModulation",
+            "columnName": "beepModulation",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "beepGapMs",
+            "columnName": "beepGapMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "beepTransitionPct",
+            "columnName": "beepTransitionPct",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "beepWaveform",
+            "columnName": "beepWaveform",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "beepEffect",
+            "columnName": "beepEffect",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "beepVolume",
+            "columnName": "beepVolume",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "beepVolumeModulation",
+            "columnName": "beepVolumeModulation",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "beepModulationReachPct",
+            "columnName": "beepModulationReachPct",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "beepVolumeReachPct",
+            "columnName": "beepVolumeReachPct",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "voiceEnabled",
+            "columnName": "voiceEnabled",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "voiceText",
+            "columnName": "voiceText",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "vibrateEnabled",
+            "columnName": "vibrateEnabled",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "vibrateDurationMs",
+            "columnName": "vibrateDurationMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "vibrateTarget",
+            "columnName": "vibrateTarget",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cooldownSeconds",
+            "columnName": "cooldownSeconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "repeatWhileActive",
+            "columnName": "repeatWhileActive",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "leadTimeMs",
+            "columnName": "leadTimeMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "wheelAddress",
+            "columnName": "wheelAddress",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "wheelName",
+            "columnName": "wheelName",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "wheel_profile",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`bleName` TEXT NOT NULL, `tiltbackSpeedKmh` REAL NOT NULL, `alarmSpeedKmh` REAL NOT NULL, `safetyTiltbackKmh` REAL NOT NULL, `safetyAlarmKmh` REAL NOT NULL, `speedCalibrationOffsetPct` REAL NOT NULL DEFAULT 0, `reverseSpeedDirection` INTEGER NOT NULL DEFAULT 0, `seriesCells` INTEGER NOT NULL DEFAULT 20, `batteryMode` TEXT NOT NULL DEFAULT 'WHEEL', `batteryCapacityWh` INTEGER NOT NULL DEFAULT 0, `lastConnectedAt` INTEGER NOT NULL, PRIMARY KEY(`bleName`))",
+        "fields": [
+          {
+            "fieldPath": "bleName",
+            "columnName": "bleName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tiltbackSpeedKmh",
+            "columnName": "tiltbackSpeedKmh",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "alarmSpeedKmh",
+            "columnName": "alarmSpeedKmh",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "safetyTiltbackKmh",
+            "columnName": "safetyTiltbackKmh",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "safetyAlarmKmh",
+            "columnName": "safetyAlarmKmh",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "speedCalibrationOffsetPct",
+            "columnName": "speedCalibrationOffsetPct",
+            "affinity": "REAL",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "reverseSpeedDirection",
+            "columnName": "reverseSpeedDirection",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "seriesCells",
+            "columnName": "seriesCells",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "20"
+          },
+          {
+            "fieldPath": "batteryMode",
+            "columnName": "batteryMode",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'WHEEL'"
+          },
+          {
+            "fieldPath": "batteryCapacityWh",
+            "columnName": "batteryCapacityWh",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "lastConnectedAt",
+            "columnName": "lastConnectedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "bleName"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '805593ffec578a49b299282965b842c6')"
+    ]
+  }
+}

@@ -27,7 +27,7 @@ data class ChargingEstimate(
 /**
  * Within-session charging estimator. It is driven purely by the **battery
  * %-climb rate**, which every wheel reports (even the InMotion V14, whose
- * current sensor reads ~0 A while charging) — so there is no pack-capacity
+ * current sensor reads ~0 A while charging), so there is no pack-capacity
  * guessing, no per-wheel settings, and no cross-session learning.
  *
  * Feed it `(timestampMs, percent)` samples while a session is active. It:
@@ -47,7 +47,7 @@ data class ChargingEstimate(
  *  - extrapolates the `target → 100 %` segment with [cvTaperFactor] (default
  *    2.0). A Lynx-class report at 5 A showed our 1.3 factor under-predicting
  *    the 100 % ETA by ~50 % (predicted 2 h, actual ~3.5 h); 2.0 sits roughly
- *    between that and the historical 2.2 — pessimistic enough to cover the
+ *    between that and the historical 2.2, pessimistic enough to cover the
  *    real CV taper without the wild 1 h overshoot that pushed us off 2.2.
  */
 class ChargingEstimator(
@@ -62,7 +62,7 @@ class ChargingEstimator(
     // post-fix Veteran voltage stream is cleaner but the % gate dominates on
     // slow-tapering chargers near full anyway, so the extra 2 % buys real
     // slope-quality at the cost of a longer "warming up" splash. The rider
-    // still sees the live 0.001 % battery readout during warm-up — only the
+    // still sees the live 0.001 % battery readout during warm-up, only the
     // "X min to full" line waits for these gates to clear.
     var warmupMinPercentGain: Float = 5f,
     var warmupMinDurationMs: Long = 300_000L,
@@ -77,7 +77,7 @@ class ChargingEstimator(
     // even worst-case real charge cycles (0 % -> 100 % on a slow brick).
     var sanityCapMinutes: Float = 480f,
     // Median-filter window (must be odd, ≥ 1; 1 disables filtering). 7 covers
-    // ~0.8 s of telemetry at the 9 Hz Veteran cadence — small enough that the
+    // ~0.8 s of telemetry at the 9 Hz Veteran cadence, small enough that the
     // smoothed series tracks real % transitions with sub-second lag, big
     // enough that a single rogue voltage dip is dropped completely.
     var medianFilterSize: Int = 7,

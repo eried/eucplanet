@@ -11,7 +11,7 @@ package com.eried.eucplanet.ble
 object VeteranCommands {
 
     /**
-     * Horn — first of a TWO-frame command on current LeaperKim firmware.
+     * Horn, first of a TWO-frame command on current LeaperKim firmware.
      *
      * A Lynx S btsnoop (mVer 9, May 2026) shows the official app sounds the
      * horn by writing this `LkAp` frame immediately followed by the
@@ -22,7 +22,7 @@ object VeteranCommands {
      *
      * Wire: `4c 6b 41 70 0e 00 80 80 80 01 ca 87 e6 6f` -- a 14-byte
      * vendor frame (payload `00 80 80 80 01`, big-endian CRC32 trailer).
-     * Pre-2020 Sherman (model < 3) instead take the single byte [hornLegacy].
+     * Sherman-family mVer 0/1 instead use the single byte [hornLegacy].
      *
      * Spec: docs/protocols/veteran.md section 6, "Beep".
      */
@@ -38,7 +38,7 @@ object VeteranCommands {
      * [horn] as a separate BLE write (the official app splits the pair the same
      * way at the 20-byte ATT boundary).
      *
-     * Wire: `4c 64 41 70 0e 00 00 80 80 01 f8 67 9f 85` — 14-byte vendor frame
+     * Wire: `4c 64 41 70 0e 00 00 80 80 01 f8 67 9f 85`, 14-byte vendor frame
      * (payload `00 00 80 80 01`, big-endian CRC32 trailer).
      */
     fun hornCompanion(): ByteArray = buildVendorFrame(
@@ -48,11 +48,10 @@ object VeteranCommands {
     )
 
     /**
-     * Legacy single-byte horn `b` (0x62) for `model < 3` firmwares (original
-     * Sherman, Sherman Max on pre-2020 builds). Sherman S and newer ignore
-     * this byte and only respond to [horn]; the safe default at connect-time
-     * is the v3 blob, but Service Mode exposes both so a user with an older
-     * Sherman can verify which one their hardware obeys.
+     * Legacy single-byte horn `b` (0x62). The rider reports that Service
+     * Mode's HornLegacy_b works on an LK13709 Sherman Max reporting mVer 1.
+     * The adapter selects this for mVer 0/1 and keeps the binary pair for
+     * newer or unidentified models.
      *
      * Spec: docs/protocols/veteran.md section 6, "Beep (firmware model < 3)".
      */
@@ -64,11 +63,11 @@ object VeteranCommands {
         else "SetLightOFF".toByteArray(Charsets.US_ASCII)
 
     /**
-     * High beam on/off — the LeaperKim binary headlight command (`LkAp` frame;
+     * High beam on/off, the LeaperKim binary headlight command (`LkAp` frame;
      * companion `LdAp` in [setHighBeamCompanion]). Captured from the LeaperKim
      * app on a Lynx S: a 13-byte vendor frame, payload `01 80 80 <state>`, state
      * `01`=on / `00`=off. This is a SEPARATE light from the ASCII [setLight] low
-     * beam — the wheel drives the two independently. Send [setHighBeam] then
+     * beam, the wheel drives the two independently. Send [setHighBeam] then
      * [setHighBeamCompanion] (the wheel ignores the `LkAp` half on its own, same
      * as the horn). See docs/protocols/veteran.md section 6.2.
      */
@@ -110,7 +109,7 @@ object VeteranCommands {
      * is `0x01` for lock, `0x00` for unlock.
      *
      * Bytes 4..7 of the payload encode the rider's local wall-clock at the
-     * moment of writing: day-of-month, hour-of-day, minute, second — each one
+     * moment of writing: day-of-month, hour-of-day, minute, second, each one
      * 1 byte, no encoding tricks. Verified against a Lynx S btsnoop where
      * twenty paired lock/unlock writes all match within a second of the
      * captured packet's HCI timestamp, including a minute rollover from
@@ -120,7 +119,7 @@ object VeteranCommands {
      * monotonic counter, hardcoded bytes 4..6 to the wall-clock at the
      * moment of the original capture (the 17th at 15:10), and bumped the
      * counter on each write. Every frame we sent was a frozen "17 days ago
-     * at 15:10:09" timestamp — the wheel rejected them and toggles silently
+     * at 15:10:09" timestamp, the wheel rejected them and toggles silently
      * no-op'd. Using the real wall clock each write fixes it.
      *
      * Older Sherman / Sherman Max wheels (model < 3) haven't been captured
@@ -169,14 +168,18 @@ object VeteranCommands {
      * matching wire byte 0x14 to the Alarm-speed slider reading 20 km/h.
      */
     fun setAlarmSpeed(kmh: Int, model: VeteranModel? = null): ByteArray =
-        if (model == VeteranModel.NOSFET_AEON) setAeonAlarmSpeed(kmh)
+        // Only where the bank 1 / slot 2 frame is verified as the alarm (Aeon
+        // capture, Aero firmware). On LkAp that slot is tiltback, so an
+        // unverified NOSFET could take an alarm write as a tiltback; the Apex
+        // keeps the generic frame until a capture confirms it.
+        if (model == VeteranModel.NOSFET_AEON || model == VeteranModel.NOSFET_AERO) setNosfetAlarmSpeed(kmh)
         else buildLeaperKimSpeedFrame(magic = LKAP, subOp = SUBOP_ALARM, kmh = kmh)
 
-    /** Aeon 503002 capture-verified setting readback (35 -> 34 -> 35), also
+    /** NOSFET capture-verified setting readback (35 -> 34 -> 35), also
      * confirmed at bank 2 / wire byte 14 in official Aero 502.0.06 firmware.
      * Preserve application bounds; no off sentinel or riding-enforcement claim.
      * See docs/protocols/aeon-alarm-speed.md for vectors and provenance. */
-    private fun setAeonAlarmSpeed(kmh: Int): ByteArray = buildVendorFrame(
+    private fun setNosfetAlarmSpeed(kmh: Int): ByteArray = buildVendorFrame(
         magic = LDAP, totalLen = 19,
         payloadHead = byteArrayOf(0x01, 0x02) + ByteArray(7) { 0x80.toByte() },
         valueByte = kmh.coerceIn(1, 99).toByte(),

@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.util.UUID
 import java.util.concurrent.Executors
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -150,7 +151,7 @@ class NavigationEngine @Inject constructor(
         // every fix, so updates take effect on the next GPS update.
         scope.launch {
             settingsRepository.settings.collect { s ->
-                imperial = s.imperialUnits
+                imperial = com.eried.eucplanet.util.Units.effectiveDistanceUnit(s) == "mi"
                 voiceEnabled = s.navVoiceEnabled
                 arrivalRadiusM = s.navArrivalRadiusM.toDouble()
                 offRouteToleranceM = s.navOffRouteToleranceM.toDouble()
@@ -292,7 +293,7 @@ class NavigationEngine @Inject constructor(
         tripRepository.setNavigating(true)
         initJob = scope.launch {
             val s = settingsRepository.get()
-            imperial = s.imperialUnits
+            imperial = com.eried.eucplanet.util.Units.effectiveDistanceUnit(s) == "mi"
             voiceEnabled = s.navVoiceEnabled
             arrivalRadiusM = s.navArrivalRadiusM.toDouble()
             offRouteToleranceM = s.navOffRouteToleranceM.toDouble()
@@ -315,6 +316,7 @@ class NavigationEngine @Inject constructor(
 
             _navState.value = NavState(
                 active = true,
+                sessionId = UUID.randomUUID().toString(),
                 mode = mode,
                 waiting = true,
                 primaryText = context.getString(R.string.nav_start_riding),

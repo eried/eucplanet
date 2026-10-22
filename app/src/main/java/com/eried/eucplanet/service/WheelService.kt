@@ -28,9 +28,12 @@ import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.share.ShareSession
 import com.eried.eucplanet.share.ShareState
+import com.eried.eucplanet.diagnostics.DiagnosticsLogger
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -47,7 +50,10 @@ class WheelService : LifecycleService() {
         @Volatile
         var isRunning: Boolean = false
             private set
-        // Minimum |speed| (km/h) that counts as "in motion" — shared by the
+        @Volatile
+        var locationForegroundReady: Boolean = false
+            private set
+        // Minimum |speed| (km/h) that counts as "in motion", shared by the
         // auto-record start/stop loop and the "When riding" announcement gate
         // so the two never drift. Small enough to catch a real roll, large
         // enough to ignore sensor jitter at a standstill.
@@ -58,6 +64,10 @@ class WheelService : LifecycleService() {
         private const val PHONE_HUD_INTERVAL_MS = 200L
         /** Graph window kept for the Phone HUD. Matches the Studio's own. */
         private const val PHONE_HUD_HISTORY_MS = 360_000L
+        /** Spacing of the GPS fix lines in the Service Mode log. Once a
+         *  second shows a steady stretch without burying the wheel frames
+         *  the log is really there to record. */
+        private const val GPS_FIX_LOG_INTERVAL_MS = 1000L
         // Bumped to _v2 so the new lock-screen visibility on the channel actually
         // applies: a NotificationChannel's settings are frozen after first
         // creation, so an existing install ignores code changes to the old id.
@@ -67,12 +77,31 @@ class WheelService : LifecycleService() {
         const val EXTRA_OPEN_CHARGING = "open_charging"
         private const val CHANNEL_ID_LEGACY = "wheel_connection"
         const val NOTIFICATION_ID = 1
+        /** Longest an unchanged ongoing notification goes without a re-post. */
+        private const val NOTIFICATION_REFRESH_MS = 30_000L
+
+        /** What a notification reads as: title, text and button labels. */
+        internal fun notificationKey(
+            title: CharSequence?, text: CharSequence?, actionTitles: List<CharSequence?>?,
+        ): String = buildString {
+            append(title).append('|')
+            append(text)
+            actionTitles?.forEach { append('|').append(it) }
+        }
+
+        /** Post when it reads differently, or when the last post is [NOTIFICATION_REFRESH_MS] old. */
+        internal fun shouldPostNotification(
+            key: String, lastKey: String, nowMs: Long, lastPostMs: Long,
+        ): Boolean = !(key == lastKey && nowMs - lastPostMs < NOTIFICATION_REFRESH_MS)
+        private const val WIDGET_PLACED_RECHECK_MS = 30_000L
+        private const val NOTIFICATION_SCREEN_OFF_MS = 10_000L
         const val ACTION_CONNECT = "com.eried.eucplanet.CONNECT"
         const val ACTION_DISCONNECT = "com.eried.eucplanet.DISCONNECT"
         const val ACTION_START_RECORDING = "com.eried.eucplanet.START_RECORDING"
         const val ACTION_STOP_RECORDING = "com.eried.eucplanet.STOP_RECORDING"
         const val ACTION_START_NAVIGATION = "com.eried.eucplanet.START_NAVIGATION"
         const val ACTION_STOP_NAVIGATION = "com.eried.eucplanet.STOP_NAVIGATION"
+        const val ACTION_START_WATCH_MAP = "com.eried.eucplanet.START_WATCH_MAP"
         /** Stop everything AND hard-kill the process as the last step of
          *  onDestroy. The activity uses this for "Stop All" so the rider
          *  doesn't see the app card linger in the OS cached-process pool
@@ -165,6 +194,7 @@ class WheelService : LifecycleService() {
     @Inject lateinit var automationManager: AutomationManager
     @Inject lateinit var engineSoundEngine: EngineSoundEngine
     @Inject lateinit var wearBridge: com.eried.eucplanet.wear.WearBridge
+    @Inject lateinit var wearMapBridge: com.eried.eucplanet.wear.WearMapBridge
     @Inject lateinit var garminBridge: com.eried.eucplanet.garmin.GarminBridge
     @Inject lateinit var amazfitBridge: com.eried.eucplanet.amazfit.AmazfitBridge
     @Inject lateinit var externalGpsRepository:
@@ -184,6 +214,7 @@ class WheelService : LifecycleService() {
     @Volatile
     private var phoneHudOnlyWhenAwayCached: Boolean = true
     private var lastPhoneHudPush = 0L
+    private var lastGpsFixLogMs = 0L
 
     /**
      * Rolling telemetry for the Phone HUD's graph elements.
@@ -211,6 +242,9 @@ class WheelService : LifecycleService() {
     // so a settings change or the dashboard button takes effect at once.
     @Inject lateinit var accelSplitRepository: com.eried.eucplanet.data.repository.AccelSplitRepository
     private var lastConnectionState: ConnectionState? = null
+    // Written by the telemetry collector (a worker thread) and cleared on
+    // disconnect from the main thread.
+    @Volatile
     private var lastLightOn: Boolean? = null
     // Flipped true by ACTION_STOP_ALL_AND_KILL so onDestroy knows to
     // SIGKILL the process at the end of cleanup. Set only once -- never
@@ -223,6 +257,8 @@ class WheelService : LifecycleService() {
     // because DashboardViewModel already closed the watch before the kill.
     @Volatile
     private var closeWatchOnKill: Boolean = false
+    @Volatile
+    private var watchMapStartRequested: Boolean = false
     // Flipped true the instant a teardown begins (Stop All, or onDestroy).
     // Gates every NotificationManager.notify() so a telemetry or nav emission
     // arriving mid-shutdown can't RE-POST the ongoing notification after we
@@ -235,42 +271,69 @@ class WheelService : LifecycleService() {
     private fun hasPermission(perm: String) =
         ContextCompat.checkSelfPermission(this, perm) == PackageManager.PERMISSION_GRANTED
 
+    private fun promoteWithAvailableTypes(): Boolean {
+        val canUseLocation = hasPermission(Manifest.permission.ACCESS_FINE_LOCATION) ||
+            hasPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
+        val canUseBluetooth = Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
+            hasPermission(Manifest.permission.BLUETOOTH_CONNECT)
+        if (!canUseLocation) locationForegroundReady = false
+        if (!canUseLocation && !canUseBluetooth) return false
+
+        var foregroundTypes = 0
+        if (canUseBluetooth) {
+            foregroundTypes =
+                foregroundTypes or ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE
+        }
+        if (canUseLocation) {
+            foregroundTypes = foregroundTypes or ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+        }
+        return try {
+            startForeground(NOTIFICATION_ID, buildNotification(null), foregroundTypes)
+            lastNotificationShown = ""
+            locationForegroundReady =
+                canUseLocation &&
+                    (foregroundTypes and ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION) != 0
+            true
+        } catch (e: RuntimeException) {
+            locationForegroundReady = false
+            Log.e(TAG, "startForeground failed", e)
+            false
+        }
+    }
+
     override fun onCreate() {
         super.onCreate()
         isRunning = true
         createNotificationChannel()
+        screenOn = getSystemService(android.os.PowerManager::class.java)?.isInteractive ?: true
+        ContextCompat.registerReceiver(
+            this, screenReceiver,
+            android.content.IntentFilter().apply {
+                addAction(Intent.ACTION_SCREEN_ON); addAction(Intent.ACTION_SCREEN_OFF)
+            },
+            ContextCompat.RECEIVER_NOT_EXPORTED,
+        )
 
         // Start listening for a paired tyre cap. Touching the injected scanner
         // is what creates it; it then follows the pairing on its own.
         tpmsScanner.startMonitoring()
 
-        val canUseLocation = hasPermission(Manifest.permission.ACCESS_FINE_LOCATION) ||
-                hasPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
-        val canUseBluetooth = Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
-                hasPermission(Manifest.permission.BLUETOOTH_CONNECT)
-
-        if (!canUseLocation && !canUseBluetooth) {
+        if (!promoteWithAvailableTypes()) {
             Log.e(TAG, "No permission for either location or bluetooth FGS type, stopping")
-            stopSelf()
+            stopWithoutBreakingTheForegroundPromise()
             return
         }
-
-        var fgType = 0
-        if (canUseBluetooth) fgType = fgType or ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE
-        if (canUseLocation) fgType = fgType or ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
-
-        try {
-            startForeground(NOTIFICATION_ID, buildNotification(null), fgType)
-        } catch (e: SecurityException) {
-            Log.e(TAG, "startForeground denied, stopping", e)
-            stopSelf()
-            return
-        }
+        wearMapBridge.onServiceStarted()
 
         voiceService.initialize()
 
-        // Update notification + check alarms + automations on telemetry updates
-        lifecycleScope.launch {
+        // Update notification + check alarms + automations on telemetry updates.
+        // Off the main thread: a frame builds a notification, paints the widget
+        // and copies the Phone HUD history, none of which needs the UI thread,
+        // and at BLE rate it was competing with Compose for it. wheelData is a
+        // StateFlow, so the stream is already conflated: a slow frame drops the
+        // ones behind it instead of queueing them.
+        lifecycleScope.launch(Dispatchers.Default) {
             wheelRepository.wheelData.collect { data ->
                 updateNotification(data)
                 // Every frame, so the load-style voice reports average over a
@@ -279,7 +342,7 @@ class WheelService : LifecycleService() {
                 voiceService.recordTelemetry(data)
                 pushWidget(data)
                 pushPhoneHud(data)
-                val settings = settingsRepository.get()
+                val settings = settingsRepository.currentOrLoad()
                 automationManager.evaluate(settings)
                 shareSession.publishTick()
                 checkLightTransition(data.lightOn, settings)
@@ -289,12 +352,14 @@ class WheelService : LifecycleService() {
                 }
                 handleAccelSplits(data, settings)
                 checkChargeAlerts(data, settings)
+                logGpsFix(data)
             }
         }
 
         // Apply engine settings + lifecycle on settings changes and connection
         lifecycleScope.launch {
             var hudWasOn = false
+            var watchMapWasEnabled: Boolean? = null
             settingsRepository.settings.collect { s ->
                 // Notification builder reads the speed unit without suspending;
                 // mirror the latest value here every settings update.
@@ -345,6 +410,17 @@ class WheelService : LifecycleService() {
                 if (effective != hudWasOn) {
                     if (effective) hudServer.start() else hudServer.stop()
                     hudWasOn = effective
+                }
+                val previousWatchMapEnabled = watchMapWasEnabled
+                if (s.watchMap.enabled != previousWatchMapEnabled) {
+                    watchMapWasEnabled = s.watchMap.enabled
+                    if (!s.watchMap.enabled &&
+                        (previousWatchMapEnabled == true || watchMapStartRequested)
+                    ) {
+                        wearMapBridge.onPublisherTick()
+                        watchMapStartRequested = false
+                        reevaluateKeepAlive()
+                    }
                 }
             }
         }
@@ -412,8 +488,10 @@ class WheelService : LifecycleService() {
 
                     when (state) {
                         ConnectionState.CONNECTED -> {
-                            // Fresh connection: clear any session suspension of auto-lights
+                            // Fresh connection: the session suspensions are spent,
+                            // auto-lights and proximity lock follow their settings again
                             automationManager.clearLightsSuspension()
+                            automationManager.clearLockSuspension()
                             if (settings.announceConnection) {
                                 voiceService.announceEvent(getString(R.string.voice_wheel_connected))
                             }
@@ -433,6 +511,15 @@ class WheelService : LifecycleService() {
                             // keeps the last live numbers, which a rider
                             // glancing at the launcher reads as current.
                             renderWidget(null)
+                            // Same for the ongoing notification. The repository
+                            // zeroes the speed on disconnect, but that final
+                            // emission can land inside updateNotification's
+                            // 1 Hz throttle and be dropped, leaving the last
+                            // "1.4 mph | 84%" line up for hours. Post the state
+                            // once, unthrottled, so it reads "Disconnected".
+                            if (!shuttingDown) {
+                                postNotificationIfChanged(buildNotification(null))
+                            }
                             // Only announce if we were actually connected (not just reconnect cycling)
                             if (lastConnectionState == ConnectionState.CONNECTED && settings.announceConnection) {
                                 voiceService.announceEvent(getString(R.string.voice_wheel_disconnected))
@@ -476,7 +563,7 @@ class WheelService : LifecycleService() {
         }
 
         // Start GPS tracking for trip recording (only if permission granted)
-        if (canUseLocation) {
+        if (locationForegroundReady) {
             tripRepository.startLocationUpdates()
         } else {
             Log.w(TAG, "Location permission not granted, GPS tracking disabled")
@@ -495,13 +582,48 @@ class WheelService : LifecycleService() {
                     (nav.active != lastNavActive || now - lastNavNotifyMs >= 1000L)) {
                     lastNavActive = nav.active
                     lastNavNotifyMs = now
-                    val manager = getSystemService(NotificationManager::class.java)
-                    manager.notify(
-                        NOTIFICATION_ID, buildNotification(wheelRepository.wheelData.value)
-                    )
+                    postNotificationIfChanged(buildNotification(wheelRepository.wheelData.value), now)
                 }
             }
         }
+    }
+
+    private suspend fun reevaluateKeepAlive() {
+        val s = settingsRepository.get()
+        val stillNeeded =
+            wheelRepository.connectionState.value != ConnectionState.DISCONNECTED ||
+                tripRepository.recording.value ||
+                navigationEngine.navState.value.active ||
+                s.hudServerEnabled ||
+                s.phoneHudEnabled ||
+                s.watchMap.enabled ||
+                shareSession.state.value is ShareState.Joined ||
+                (s.voiceEnabled && s.voiceAnnounceWhen == "ALWAYS")
+        if (!s.keepAppAlive && !stillNeeded) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+            stopSelf()
+        }
+    }
+
+    /**
+     * We were started with startForegroundService() but cannot declare our
+     * real foreground type (the rider revoked Bluetooth and location). A bare
+     * stopSelf() here breaks that promise and Android kills the whole app with
+     * ForegroundServiceDidNotStartInTimeException, which is what a rider who
+     * denied the permission and then tapped a wheel used to get. Honour the
+     * promise first with the one type that needs no permission (API 34+), then
+     * stop; if even that is refused, stop the old way, no worse than before.
+     */
+    private fun stopWithoutBreakingTheForegroundPromise() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            runCatching {
+                startForeground(
+                    NOTIFICATION_ID, buildNotification(null),
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_SHORT_SERVICE
+                )
+            }.onFailure { Log.w(TAG, "shortService fallback refused: ${it.message}") }
+        }
+        stopSelf()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -533,8 +655,17 @@ class WheelService : LifecycleService() {
             ACTION_DISCONNECT -> {
                 wheelRepository.disconnect()
             }
-            ACTION_TOGGLE_LIGHT -> wheelRepository.toggleLight()
-            ACTION_TOGGLE_LOCK -> wheelRepository.toggleLock()
+            // A tap from the notification, a widget or the car screen is a hand
+            // on the light or lock like the dashboard's, so the automation steps
+            // aside for the session instead of undoing it on its next tick.
+            ACTION_TOGGLE_LIGHT -> {
+                automationManager.notifyManualLightChange()
+                wheelRepository.toggleLight()
+            }
+            ACTION_TOGGLE_LOCK -> {
+                automationManager.notifyManualLockChange()
+                wheelRepository.toggleLock()
+            }
             ACTION_HORN -> wheelRepository.sendHorn()
             // voiceEnabled, NOT voicePeriodicEnabled. The periodic-report loop
             // gates on voiceEnabled (see the comment there); voicePeriodicEnabled
@@ -561,35 +692,29 @@ class WheelService : LifecycleService() {
                 // keeps flowing and the process stays alive while guiding.
                 tripRepository.startLocationUpdates()
             }
+            ACTION_START_WATCH_MAP -> {
+                watchMapStartRequested = true
+                val enabled = kotlinx.coroutines.runBlocking {
+                    settingsRepository.get().watchMap.enabled
+                }
+                if (enabled) {
+                    if (promoteWithAvailableTypes()) {
+                        wearMapBridge.onServiceStarted()
+                    } else {
+                        Log.w(TAG, "Watch map foreground promotion unavailable")
+                    }
+                    wearMapBridge.onPublisherTick()
+                } else {
+                    wearMapBridge.onPublisherTick()
+                    watchMapStartRequested = false
+                    lifecycleScope.launch { reevaluateKeepAlive() }
+                }
+            }
             ACTION_STOP_NAVIGATION -> {
                 navigationEngine.stop()
             }
             ACTION_STOP_KEEPALIVE -> {
-                // "Keep app running" was turned OFF. Stand the service down, but
-                // only if nothing else still depends on it. Never kill the
-                // process (that's ACTION_STOP_ALL_AND_KILL's job).
-                lifecycleScope.launch {
-                    val s = settingsRepository.get()
-                    val stillNeeded =
-                        wheelRepository.connectionState.value != ConnectionState.DISCONNECTED ||
-                        tripRepository.recording.value ||
-                        navigationEngine.navState.value.active ||
-                        s.hudServerEnabled ||
-                        s.phoneHudEnabled ||
-                        // A live location share publishes on its own heartbeat
-                        // and has nothing to do with a wheel being connected.
-                        // Standing the service down here would put the process
-                        // in the background, Doze would freeze that beat, and
-                        // the rider would silently stop moving on the group's
-                        // map. Turning "Keep app running" off leaves an active
-                        // share running; leaving the group releases it.
-                        shareSession.state.value is ShareState.Joined ||
-                        (s.voiceEnabled && s.voiceAnnounceWhen == "ALWAYS")
-                    if (!s.keepAppAlive && !stillNeeded) {
-                        stopForeground(STOP_FOREGROUND_REMOVE)
-                        stopSelf()
-                    }
-                }
+                lifecycleScope.launch { reevaluateKeepAlive() }
             }
             ACTION_STOP_ALL_AND_KILL -> {
                 // Mark first, drop foreground status second, then stopSelf
@@ -603,6 +728,7 @@ class WheelService : LifecycleService() {
                 // below seals it: even if Android wanted to redeliver,
                 // this intent's stickiness is disabled.
                 killProcessOnDestroy = true
+                locationForegroundReady = false
                 // From the notification button only: onDestroy must close the
                 // watch(es) too. The in-app path already did and omits the extra.
                 closeWatchOnKill = intent?.getBooleanExtra(EXTRA_CLOSE_WATCH, false) == true
@@ -636,6 +762,8 @@ class WheelService : LifecycleService() {
 
     override fun onDestroy() {
         isRunning = false
+        runCatching { unregisterReceiver(screenReceiver) }
+        locationForegroundReady = false
         // Any destroy path (not just Stop All) tears the notification down and
         // stops further re-posts, so an ordinary stopSelf() can't leave it behind
         // either.
@@ -682,7 +810,7 @@ class WheelService : LifecycleService() {
         try { renderWidget(null) } catch (_: Exception) {}
         // The window belongs to this service; nothing else would remove it.
         try { phoneHudWindow.hide() } catch (_: Exception) {}
-        phoneHudHistory.clear()
+        synchronized(phoneHudHistory) { phoneHudHistory.clear() }
         try { hudServer.stop() } catch (_: Exception) {}
         voiceJob?.cancel()
         engineSoundEngine.stop()
@@ -694,6 +822,7 @@ class WheelService : LifecycleService() {
         automationManager.resetProximityLock()
         shareSession.leave()
         voiceService.shutdown()
+        wearMapBridge.onServiceStopped()
         tripRepository.stopLocationUpdates()
         lifecycleScope.launch { tripRepository.stopRecording() }
         wheelRepository.disconnect()
@@ -723,6 +852,9 @@ class WheelService : LifecycleService() {
 
     // Timestamp of the last sample in motion (|speed| > MOTION_MIN_KMH) while
     // connected. Used by the idle-timeout loop to decide when to auto-stop.
+    // Written from the telemetry collector's worker thread and from the main
+    // thread loops, so it must be visible to both.
+    @Volatile
     private var lastMotionAtMs: Long = 0L
 
     private fun evaluateAutoRecordOnTelemetry(
@@ -748,8 +880,12 @@ class WheelService : LifecycleService() {
     private fun startAutoRecordIdleLoop() {
         lifecycleScope.launch {
             while (true) {
+                // Only a recording can be auto-stopped. Waiting here instead of
+                // checking once a second keeps an idle phone asleep; it used to
+                // parse every setting on the main thread each second, all night.
+                if (!tripRepository.recording.value) tripRepository.recording.first { it }
                 delay(1000L)
-                val settings = settingsRepository.get()
+                val settings = settingsRepository.currentOrLoad()
                 if (!settings.autoRecord || !settings.autoRecordStartInMotion) continue
                 if (!tripRepository.recording.value) continue
 
@@ -794,13 +930,13 @@ class WheelService : LifecycleService() {
         voiceJob?.cancel()
         voiceJob = lifecycleScope.launch {
             while (true) {
-                delay(settingsRepository.get().voiceIntervalSeconds * 1000L)
+                delay(settingsRepository.currentOrLoad().voiceIntervalSeconds * 1000L)
                 // Re-read settings *after* the wait, not before it. If the rider
                 // turns "Report status periodically" off during the countdown, the
                 // pending report is dropped instead of one last one slipping through.
-                // Only this periodic report is gated here — alarm/trigger/nav voice
+                // Only this periodic report is gated here, alarm/trigger/nav voice
                 // lives on separate paths and is unaffected.
-                val settings = settingsRepository.get()
+                val settings = settingsRepository.currentOrLoad()
                 // Gate on the single visible "Enable periodic reports" toggle
                 // (voiceEnabled). The old `&& voicePeriodicEnabled` required a
                 // second flag that no Settings control ever set - it defaulted
@@ -887,7 +1023,8 @@ class WheelService : LifecycleService() {
     private var chargeAlertState = ChargeAlertPolicy.State()
 
     /**
-     * Tell the rider when the pack passes 80% or finishes, if they asked.
+     * Tell the rider when the pack passes 80%, their own level, or
+     * finishes, if they asked.
      *
      * Runs on every telemetry frame, which is why the deciding is in
      * [ChargeAlertPolicy] and only the posting is here.
@@ -899,6 +1036,7 @@ class WheelService : LifecycleService() {
             data.batteryPercent,
             want80 = settings.chargingNotify80,
             wantFull = settings.chargingNotifyFull,
+            customMark = if (settings.chargingNotifyCustom) settings.chargingNotifyCustomPct else 0,
         )
         chargeAlertState = step.state
         when (step.alert) {
@@ -908,11 +1046,18 @@ class WheelService : LifecycleService() {
             ChargeAlertPolicy.Alert.FULL -> postChargeAlert(
                 R.string.charge_alert_full_title, R.string.charge_alert_full_text,
             )
+            ChargeAlertPolicy.Alert.CUSTOM -> postChargeAlert(
+                getString(R.string.charge_alert_custom_title, settings.chargingNotifyCustomPct),
+                getString(R.string.charge_alert_custom_text),
+            )
             ChargeAlertPolicy.Alert.NONE -> Unit
         }
     }
 
-    private fun postChargeAlert(titleRes: Int, textRes: Int) {
+    private fun postChargeAlert(titleRes: Int, textRes: Int) =
+        postChargeAlert(getString(titleRes), getString(textRes))
+
+    private fun postChargeAlert(title: String, text: String) {
         if (shuttingDown) return
         if (!hasPermission(Manifest.permission.POST_NOTIFICATIONS)) return
         val open = PendingIntent.getActivity(
@@ -922,7 +1067,7 @@ class WheelService : LifecycleService() {
                 .putExtra(EXTRA_OPEN_CHARGING, true),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
-        val n = ChargeAlertNotification.build(this, titleRes, textRes, open)
+        val n = ChargeAlertNotification.build(this, title, text, open)
         runCatching {
             getSystemService(NotificationManager::class.java)
                 .notify(ChargeAlertNotification.NOTIFICATION_ID, n)
@@ -1037,15 +1182,28 @@ class WheelService : LifecycleService() {
         if (action == ACTION_STOP_ALL_AND_KILL) {
             actionIntent.putExtra(EXTRA_CLOSE_WATCH, true)
         }
-        val pi = PendingIntent.getService(
-            this, 200 + type.ordinal,
-            actionIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
+        // The intent for an action never changes, and every getService is a
+        // Binder call: built once each, not on every 1 Hz notification build.
+        val pi = notifIntents.getOrPut(action) {
+            PendingIntent.getService(
+                this, 200 + type.ordinal,
+                actionIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+        }
         return NotificationCompat.Action.Builder(icon, label, pi).build()
     }
 
-    private var lastNotificationUpdate = 0L
+    private val notifIntents = java.util.concurrent.ConcurrentHashMap<String, PendingIntent>()
+
+    @Volatile private var lastNotificationUpdate = 0L
+    @Volatile private var screenOn = true
+    private val screenReceiver = object : android.content.BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            screenOn = intent.action == Intent.ACTION_SCREEN_ON
+            if (screenOn) lastNotificationUpdate = 0L  // fresh numbers on the next frame
+        }
+    }
 
     // --- Home screen widget ---------------------------------------------------
 
@@ -1065,12 +1223,24 @@ class WheelService : LifecycleService() {
      */
     private fun pushWidget(data: WheelData) {
         if (legalLockdown.isEngaged()) return  // lockdown stops the widgets
-        if (!com.eried.eucplanet.widget.EucWidget.isPlaced(this)) return
+        // Throttle first: isPlaced() asks the system once per widget kind, and
+        // asked on every frame it was the service's biggest cost while riding.
         val now = System.currentTimeMillis()
         if (now - lastWidgetUpdate < 1_000L) return
         lastWidgetUpdate = now
-        renderWidget(data)
+        // Even at 1 Hz that was seven Binder calls a second with no widget on
+        // the home screen. Placement is re-checked every 30 s; a widget placed
+        // in between paints itself from the stored snapshot in onUpdate.
+        if (now - widgetPlacedCheckedMs >= WIDGET_PLACED_RECHECK_MS) {
+            widgetPlacedCheckedMs = now
+            widgetPlaced = com.eried.eucplanet.widget.EucWidget.isPlaced(this)
+        }
+        if (!widgetPlaced) return
+        renderWidget(data, placedKnown = true)
     }
+
+    private var widgetPlaced = false
+    private var widgetPlacedCheckedMs = 0L
 
     /** Paints the widget in the rider's own units, one entry per configured
      *  slot. [data] null paints the disconnected state. */
@@ -1140,6 +1310,35 @@ class WheelService : LifecycleService() {
      * pushed into ANR territory by exactly that. The live G-force trail is left
      * out for the same reason: it is a 1100-sample buffer at IMU rate.
      */
+    /**
+     * While Service Mode is recording, log the GPS fix as its own observation.
+     *
+     * The log is worth reading because every line is something that actually
+     * arrived, so this records only what the satellites reported, not the
+     * app's view of the wheel. The wheel's speed is already in the frames
+     * beside it and the comparison is arithmetic anyone can do afterwards;
+     * writing our own answer into the record would just be us marking our own
+     * homework. What makes the fix worth logging at all is that it is the one
+     * source that does not come from the wheel: wheel speed and wheel
+     * odometer share a sensor, so they agree even when both are wrong.
+     *
+     * Accuracy rides along because a fix is only evidence when it is a good
+     * one.
+     */
+    private fun logGpsFix(data: WheelData) {
+        if (!DiagnosticsLogger.enabled.value) return
+        val now = System.currentTimeMillis()
+        if (now - lastGpsFixLogMs < GPS_FIX_LOG_INTERVAL_MS) return
+        val external = data.gpsSpeedKmh.takeIf { it >= 0f }
+        val loc = tripRepository.currentLocation.value
+        val speed = external ?: loc?.takeIf { it.hasSpeed() }?.let { it.speed * 3.6f } ?: return
+        lastGpsFixLogMs = now
+        val source = if (external != null) "external" else "phone"
+        val accuracy = loc?.takeIf { it.hasAccuracy() }?.let { " accuracy %.0fm".format(it.accuracy) }
+            ?: ""
+        DiagnosticsLogger.note("gps %s: %.2f km/h%s".format(source, speed, accuracy))
+    }
+
     private fun pushPhoneHud(rawData: WheelData) {
         if (legalLockdown.isEngaged()) return  // lockdown stops the overlay updates
         if (!phoneHudWindow.isShowing) return
@@ -1168,19 +1367,25 @@ class WheelService : LifecycleService() {
         // a timestamp plus the WheelData we already hold, so the buffer costs
         // the list and nothing else: same shape the Studio keeps for its own
         // live graphs, trimmed to the same window it uses.
-        phoneHudHistory.addLast(com.eried.eucplanet.ui.studio.StudioSample(now, data))
-        val cutoff = now - PHONE_HUD_HISTORY_MS
-        while (phoneHudHistory.isNotEmpty() && phoneHudHistory.first().timeMs < cutoff) {
-            phoneHudHistory.removeFirst()
+        //
+        // Locked because onDestroy clears the deque from the main thread while
+        // this runs on the collector's worker thread.
+        val history = synchronized(phoneHudHistory) {
+            phoneHudHistory.addLast(com.eried.eucplanet.ui.studio.StudioSample(now, data))
+            val cutoff = now - PHONE_HUD_HISTORY_MS
+            while (phoneHudHistory.isNotEmpty() && phoneHudHistory.first().timeMs < cutoff) {
+                phoneHudHistory.removeFirst()
+            }
+            // Copied, not handed over: Compose needs a stable snapshot, and
+            // the deque keeps mutating underneath on the next frame.
+            phoneHudHistory.toList()
         }
         phoneHudWindow.update(
             com.eried.eucplanet.ui.studio.StudioElementData(
                 wheelData = data,
                 wheelName = lastDeviceNameCached.orEmpty(),
                 connected = wheelRepository.connectionState.value == ConnectionState.CONNECTED,
-                // Copied, not handed over: Compose needs a stable snapshot, and
-                // the deque keeps mutating underneath on the next frame.
-                history = phoneHudHistory.toList(),
+                history = history,
                 // Radar, mapped exactly as the Studio maps it, so a RADAR
                 // element shows real threats here instead of its "no radar"
                 // face. Same eight-target cap.
@@ -1213,9 +1418,9 @@ class WheelService : LifecycleService() {
         )
     }
 
-    private fun renderWidget(data: WheelData?) {
+    private fun renderWidget(data: WheelData?, placedKnown: Boolean = false) {
         if (legalLockdown.isEngaged()) return  // lockdown stops the widgets
-        if (!com.eried.eucplanet.widget.EucWidget.isPlaced(this)) return
+        if (!placedKnown && !com.eried.eucplanet.widget.EucWidget.isPlaced(this)) return
         val connected =
             wheelRepository.connectionState.value == ConnectionState.CONNECTED && data != null
         val u = com.eried.eucplanet.util.Units
@@ -1226,30 +1431,8 @@ class WheelService : LifecycleService() {
         val metricKeys = com.eried.eucplanet.data.model.WidgetMetricType.slots(widgetMetricsCached)
         val values = ArrayList<String>(metricKeys.size)
         val captions = ArrayList<String>(metricKeys.size)
-        // A slot's unit depends on what it shows and the rider's preferences,
-        // never on whether a packet just arrived. Deriving it from `data` made
-        // every caption drop its unit the moment telemetry went missing, and a
-        // settings change repaints before the next frame, so tapping a widget
-        // button made "Speed (mph)" flash to "Speed" and back.
-        fun unitFor(type: com.eried.eucplanet.data.model.WidgetMetricType): String = when (type) {
-            com.eried.eucplanet.data.model.WidgetMetricType.SPEED -> u.speedUnit(this, speedUnit)
-            com.eried.eucplanet.data.model.WidgetMetricType.TRIP,
-            com.eried.eucplanet.data.model.WidgetMetricType.ODO -> u.distanceUnit(distUnit)
-            com.eried.eucplanet.data.model.WidgetMetricType.BATTERY,
-            com.eried.eucplanet.data.model.WidgetMetricType.PWM,
-            com.eried.eucplanet.data.model.WidgetMetricType.PHONE_BATTERY -> "%"
-            com.eried.eucplanet.data.model.WidgetMetricType.VOLTAGE -> "V"
-            com.eried.eucplanet.data.model.WidgetMetricType.TEMP -> u.tempUnit(tempUnit)
-            com.eried.eucplanet.data.model.WidgetMetricType.CURRENT,
-            com.eried.eucplanet.data.model.WidgetMetricType.PHASE_CURRENT -> "A"
-            com.eried.eucplanet.data.model.WidgetMetricType.TORQUE -> "Nm"
-            com.eried.eucplanet.data.model.WidgetMetricType.POWER -> "W"
-            com.eried.eucplanet.data.model.WidgetMetricType.WH_CONSUMED -> "Wh"
-            com.eried.eucplanet.data.model.WidgetMetricType.WH_PER_KM ->
-                "Wh/" + u.distanceUnit(distUnit)
-            com.eried.eucplanet.data.model.WidgetMetricType.RANGE_ESTIMATE ->
-                u.distanceUnit(distUnit)
-        }
+        fun unitFor(type: com.eried.eucplanet.data.model.WidgetMetricType): String =
+            com.eried.eucplanet.widget.WidgetMetricFormat.unit(this, type, speedUnit, distUnit, tempUnit)
 
         metricKeys.forEach { key ->
             val type = com.eried.eucplanet.data.model.WidgetMetricType.byKey(key)
@@ -1265,42 +1448,9 @@ class WheelService : LifecycleService() {
                 captions.add(getString(type.pickerLabel) + if (unit.isBlank()) "" else " ($unit)")
                 return@forEach
             }
-            val v = when (type) {
-                com.eried.eucplanet.data.model.WidgetMetricType.SPEED ->
-                    "%.0f".format(u.speed(data.speed, speedUnit))
-                com.eried.eucplanet.data.model.WidgetMetricType.TRIP ->
-                    "%.1f".format(u.distance(data.tripDistance, distUnit))
-                com.eried.eucplanet.data.model.WidgetMetricType.ODO ->
-                    "%.0f".format(u.distance(data.totalDistance, distUnit))
-                com.eried.eucplanet.data.model.WidgetMetricType.BATTERY ->
-                    "${data.batteryPercent}"
-                com.eried.eucplanet.data.model.WidgetMetricType.VOLTAGE ->
-                    "%.0f".format(data.voltage)
-                com.eried.eucplanet.data.model.WidgetMetricType.TEMP ->
-                    "%.0f".format(u.temperature(data.maxTemperature, tempUnit))
-                com.eried.eucplanet.data.model.WidgetMetricType.PWM ->
-                    if (data.pwm.isNaN()) "--" else "%.0f".format(data.pwm)
-                com.eried.eucplanet.data.model.WidgetMetricType.CURRENT ->
-                    "%.0f".format(kotlin.math.abs(data.current))
-                com.eried.eucplanet.data.model.WidgetMetricType.TORQUE ->
-                    "%.1f".format(kotlin.math.abs(data.torque))
-                com.eried.eucplanet.data.model.WidgetMetricType.PHASE_CURRENT ->
-                    "%.0f".format(kotlin.math.abs(data.phaseCurrent))
-                com.eried.eucplanet.data.model.WidgetMetricType.POWER ->
-                    "%.0f".format(kotlin.math.abs(data.voltage * data.current))
-                com.eried.eucplanet.data.model.WidgetMetricType.WH_CONSUMED ->
-                    "%.0f".format(data.whConsumed)
-                // Both are NaN until the rolling window has enough distance;
-                // the widget says nothing rather than showing a made-up zero.
-                com.eried.eucplanet.data.model.WidgetMetricType.WH_PER_KM ->
-                    if (data.whPerKmRecent.isNaN()) "--"
-                    else "%.0f".format(data.whPerKmRecent / u.distance(1f, distUnit))
-                com.eried.eucplanet.data.model.WidgetMetricType.RANGE_ESTIMATE ->
-                    if (data.rangeKmEstimate.isNaN()) "--"
-                    else "%.0f".format(u.distance(data.rangeKmEstimate, distUnit))
-                com.eried.eucplanet.data.model.WidgetMetricType.PHONE_BATTERY ->
-                    "$phoneBatteryCached"
-            }
+            val v = com.eried.eucplanet.widget.WidgetMetricFormat.value(
+                type, data, speedUnit, distUnit, tempUnit, phoneBatteryCached
+            )
             values.add(v)
             captions.add(getString(type.pickerLabel) + if (unit.isBlank()) "" else " ($unit)")
         }
@@ -1347,12 +1497,35 @@ class WheelService : LifecycleService() {
         // stopForeground(REMOVE) creates a standalone notification that survives
         // the process kill, leaving the notification stuck after Stop All.
         if (shuttingDown) return
-        // Throttle to 1 Hz
+        // 1 Hz while the screen is on. Off, nobody can read it, and each post
+        // wakes the system UI: every 10 s, and at once when the screen comes on.
         val now = System.currentTimeMillis()
-        if (now - lastNotificationUpdate < 1000) return
+        val interval = if (screenOn) 1_000L else NOTIFICATION_SCREEN_OFF_MS
+        if (now - lastNotificationUpdate < interval) return
         lastNotificationUpdate = now
+        postNotificationIfChanged(buildNotification(data), now)
+    }
 
-        val manager = getSystemService(NotificationManager::class.java)
-        manager.notify(NOTIFICATION_ID, buildNotification(data))
+    // What the ongoing notification last showed, and when it was last posted.
+    private var lastNotificationShown = ""
+    private var lastNotificationPostMs = 0L
+
+    /**
+     * Posts [n] only when it reads differently from the last one, or when the
+     * last post is [NOTIFICATION_REFRESH_MS] old. Re-posting an identical
+     * notification every second made the system UI redraw it all ride long,
+     * mostly for a wheel standing still; the refresh is the safety net that
+     * keeps a notification the system lost or garbled from staying that way.
+     */
+    private fun postNotificationIfChanged(n: Notification, now: Long = System.currentTimeMillis()) {
+        val shown = notificationKey(
+            n.extras.getCharSequence(Notification.EXTRA_TITLE),
+            n.extras.getCharSequence(Notification.EXTRA_TEXT),
+            n.actions?.map { it.title },
+        )
+        if (!shouldPostNotification(shown, lastNotificationShown, now, lastNotificationPostMs)) return
+        lastNotificationShown = shown
+        lastNotificationPostMs = now
+        getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, n)
     }
 }

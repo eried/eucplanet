@@ -168,6 +168,25 @@ class FakeTripDao : TripDao {
         val idx = trips.indexOfFirst { it.id == id }
         if (idx >= 0) trips[idx] = trips[idx].copy(uploadStatus = 4)
     }
+    override suspend fun setUploadStatus(id: Long, status: Int) {
+        val idx = trips.indexOfFirst { it.id == id }
+        if (idx >= 0) trips[idx] = trips[idx].copy(uploadStatus = status)
+    }
+    override suspend fun markFinalized(id: Long, folder: Boolean, eucstats: Boolean) {
+        val idx = trips.indexOfFirst { it.id == id }
+        if (idx >= 0) trips[idx] = trips[idx].let {
+            it.copy(uploadStatus = if (folder) 1 else it.uploadStatus,
+                eucstatsStatus = if (eucstats) 1 else it.eucstatsStatus)
+        }
+    }
+    override suspend fun setDropboxSyncedHash(fileName: String, hash: String?) {
+        val idx = trips.indexOfFirst { it.fileName.equals(fileName, ignoreCase = true) }
+        if (idx >= 0) trips[idx] = trips[idx].copy(dropboxSyncedHash = hash)
+    }
+    override suspend fun markUploaded(id: Long, at: Long) {
+        val idx = trips.indexOfFirst { it.id == id }
+        if (idx >= 0) trips[idx] = trips[idx].copy(uploadStatus = 2, uploadedAt = at)
+    }
 
     override suspend fun allWheelMeta(): List<String> = trips.mapNotNull { it.wheelMetaJson }
     override suspend fun getUnfinished(): List<TripRecord> = trips.filter { it.endTime == null }
@@ -329,7 +348,7 @@ class EucStatsRepositoryTest {
     }
 
     // -----------------------------------------------------------------------
-    // uploadTrip() — Ok
+    // uploadTrip(), Ok
     // -----------------------------------------------------------------------
 
     @Test fun uploadTrip_okSetsStatus2AndReturnsUploaded() = runBlocking {
@@ -358,7 +377,7 @@ class EucStatsRepositoryTest {
     }
 
     // -----------------------------------------------------------------------
-    // uploadTrip() — PermanentFailure
+    // uploadTrip(), PermanentFailure
     // -----------------------------------------------------------------------
 
     @Test fun uploadTrip_permanentFailureSetsStatus3() = runBlocking {
@@ -374,7 +393,7 @@ class EucStatsRepositoryTest {
     }
 
     // -----------------------------------------------------------------------
-    // uploadTrip() — Retry
+    // uploadTrip(), Retry
     // -----------------------------------------------------------------------
 
     @Test fun uploadTrip_retryLeavesStatusUnchangedAndReturnsNeedsRetry() = runBlocking {
@@ -393,7 +412,7 @@ class EucStatsRepositoryTest {
     }
 
     // -----------------------------------------------------------------------
-    // uploadTrip() — AuthFailure → re-mint once
+    // uploadTrip(), AuthFailure → re-mint once
     // -----------------------------------------------------------------------
 
     @Test fun uploadTrip_authFailureRemintsTokenOnce() = runBlocking {
@@ -424,7 +443,7 @@ class EucStatsRepositoryTest {
     }
 
     // -----------------------------------------------------------------------
-    // uploadTrip() — meta attestation object verification
+    // uploadTrip(), meta attestation object verification
     // -----------------------------------------------------------------------
 
     @Test fun uploadTrip_postedMetaContainsAttestationWithCorrectRequestHash() = runBlocking {
@@ -439,7 +458,7 @@ class EucStatsRepositoryTest {
         assertTrue("meta must contain attestation", meta.has("attestation"))
         val att = meta.getJSONObject("attestation")
 
-        // Strip attestation from meta and recompute hash — must match the sent request_hash.
+        // Strip attestation from meta and recompute hash, must match the sent request_hash.
         val metaWithoutAtt = JSONObject(metaJson).also { it.remove("attestation") }
         val expectedHash = CanonicalJson.requestHash(metaWithoutAtt)
         assertEquals(expectedHash, att.getString("request_hash"))

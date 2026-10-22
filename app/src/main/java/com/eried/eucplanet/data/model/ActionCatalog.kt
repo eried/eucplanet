@@ -10,9 +10,11 @@ import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.FiberManualRecord
 import androidx.compose.material.icons.filled.FlashlightOn
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Navigation
+import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.RecordVoiceOver
@@ -27,12 +29,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.eried.eucplanet.R
 
 /**
- * Action layer — single source of truth for every rider-triggerable command.
+ * Action layer, single source of truth for every rider-triggerable command.
  *
  * Surfaces that can bind an action (Flic, volume keys, watch, dashboard tile,
  * future alarm-triggers, voice shortcuts, etc.) all query this catalog
  * instead of maintaining their own list. Adding a new action means adding
- * one entry to [ActionCatalog.all] — no other file should need to grow a
+ * one entry to [ActionCatalog.all], no other file should need to grow a
  * new branch.
  *
  * The discriminator that picks which surfaces an action lands on is the
@@ -82,7 +84,7 @@ enum class ActionSurface {
 /**
  * Read-only snapshot of the running app state, passed to
  * [ActionSpec.statusReader] so it can decide whether the action's effect
- * is currently active. Carrier-only — no Hilt scope, no flows; the caller
+ * is currently active. Carrier-only, no Hilt scope, no flows; the caller
  * builds a snapshot per dispatch from whatever sources it has.
  *
  * Fields are nullable / unknown-default to avoid forcing callers to plumb
@@ -95,7 +97,7 @@ data class StatusContext(
     val tripRecording: Boolean = false,
     /** Imperial-unit toggle state from settings. */
     val imperialUnits: Boolean = false,
-    /** Alarms-muted flag from settings. Not yet wired upstream — defaults false. */
+    /** Alarms-muted flag from settings. Not yet wired upstream, defaults false. */
     val alarmsMuted: Boolean = false,
     /** True when the wheel is currently in safety / legal mode. */
     val safetyActive: Boolean = false,
@@ -136,7 +138,7 @@ data class ActionSpec(
      * - Returns false → surfaces must NOT fire it (and may grey it out).
      * Set on actions that write BLE to the wheel so every eyes-free surface
      * (Flic, volume, watch, HUD, Garmin) is gated consistently when no wheel
-     * is connected — instead of each surface re-implementing the check.
+     * is connected, instead of each surface re-implementing the check.
      */
     val enabledReader: ((StatusContext) -> Boolean)? = null
 )
@@ -190,7 +192,7 @@ object ActionCatalog {
             labelRes = R.string.action_chip_safety_on,
             icon = Icons.Filled.Shield,
             isEyesFreeSafe = true,
-            // Highlight when ALREADY in safety mode — pressing this is a
+            // Highlight when ALREADY in safety mode, pressing this is a
             // no-op in that case, so the active state warns the rider.
             statusReader = { it.safetyActive },
             enabledReader = { it.connected }
@@ -200,7 +202,7 @@ object ActionCatalog {
             labelRes = R.string.action_chip_safety_off,
             icon = Icons.Filled.Shield,
             isEyesFreeSafe = true,
-            // Mirror of SAFETY_ON — highlight when already off.
+            // Mirror of SAFETY_ON, highlight when already off.
             statusReader = { !it.safetyActive },
             enabledReader = { it.connected }
         ),
@@ -242,10 +244,29 @@ object ActionCatalog {
             isEyesFreeSafe = true,
             statusReader = { !it.tripRecording }
         ),
+        // An explicit play, not the toggle below: pressed with nothing
+        // playing it wakes the last music app, even one that was closed.
+        ActionSpec(
+            key = "MUSIC_START",
+            labelRes = R.string.action_chip_music_start,
+            icon = Icons.Filled.LibraryMusic,
+            isEyesFreeSafe = true
+        ),
+        // Smart toggle (FlicManager): pauses what plays, and when nothing
+        // plays starts music like MUSIC_START, opening the player if needed.
         ActionSpec(
             key = "MEDIA_PLAY_PAUSE",
             labelRes = R.string.action_chip_media_play,
             icon = Icons.Filled.PlayArrow,
+            isEyesFreeSafe = true
+        ),
+        // Pause whatever state the player is in. A toggle cannot be trusted
+        // by voice, where the app's own audio focus has the player paused
+        // or ducked at the very moment the rider asks.
+        ActionSpec(
+            key = "MEDIA_PAUSE",
+            labelRes = R.string.action_chip_media_pause,
+            icon = Icons.Filled.Pause,
             isEyesFreeSafe = true
         ),
         ActionSpec(
