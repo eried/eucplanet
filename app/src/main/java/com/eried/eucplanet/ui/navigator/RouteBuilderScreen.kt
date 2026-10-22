@@ -2359,9 +2359,12 @@ private fun BuilderMenu(
             colors = greyed,
             onClick = { onDismiss(); onSave() }
         )
-        DestructiveMenuItem(
-            text = stringResource(R.string.nav_menu_clear),
+        // Starting over is not a delete: the 'Start a new route?' dialog
+        // guards any edits worth keeping, so the row stays plain.
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.nav_menu_clear)) },
             enabled = hasStops && !navRunning,
+            colors = greyed,
             onClick = { onDismiss(); onClear() }
         )
         // Reordering a running route would pull the next stop out from
