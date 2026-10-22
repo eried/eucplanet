@@ -159,6 +159,7 @@ import kotlin.math.absoluteValue
 import kotlin.math.cos
 import kotlin.math.sin
 import com.eried.eucplanet.ui.theme.themedFieldColors
+import com.eried.eucplanet.ui.common.appMenuItemColors
 
 /**
  * Opens the system gallery to the videos or photos collection. Overlay Studio
@@ -2508,6 +2509,7 @@ fun DashboardScreen(
                                             )
                                         },
                                         enabled = targetTripId != null,
+                                        colors = appMenuItemColors(),
                                         onClick = {
                                             dismiss()
                                             targetTripId?.let { onNavigateToTripDetail(it) }

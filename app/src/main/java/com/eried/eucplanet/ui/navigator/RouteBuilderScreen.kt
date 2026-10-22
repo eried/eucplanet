@@ -177,6 +177,7 @@ import com.eried.eucplanet.ui.theme.themedFieldColors
 import com.eried.eucplanet.ui.theme.themedSegmentedColors
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.common.DestructiveMenuItem
+import com.eried.eucplanet.ui.common.appMenuItemColors
 
 /**
  * The Route Builder: a full-bleed Leaflet map (WebView) with a top search bar,
@@ -2314,12 +2315,7 @@ private fun BuilderMenu(
     DropdownMenu(expanded = expanded, onDismissRequest = onDismiss, containerColor = MaterialTheme.appColors.menuBackground) {
         // Route actions stay in place and grey out when they cannot run, so
         // the menu keeps its shape and the rider sees what exists.
-        val greyed = MenuDefaults.itemColors(
-            textColor = MaterialTheme.appColors.textPrimary,
-            disabledTextColor = MaterialTheme.appColors.textSecondary.copy(alpha = 0.6f),
-            trailingIconColor = MaterialTheme.appColors.textSecondary,
-            disabledTrailingIconColor = MaterialTheme.appColors.textSecondary.copy(alpha = 0.6f),
-        )
+        val greyed = appMenuItemColors()
         // First, set apart: the one way to edit a locked track. Its dialog
         // says to save the GPX first to keep the exact line. The open padlock sits
         // at the end so the text stays in line with the rest, answering the
@@ -3138,9 +3134,8 @@ private fun BottomPanel(
                                                 contentDescription =
                                                     stringResource(R.string.nav_remove_stop),
                                                 tint = if (canDelete)
-                                                    MaterialTheme.colorScheme.error
-                                                else MaterialTheme.colorScheme.onSurfaceVariant
-                                                    .copy(alpha = 0.38f),
+                                                    MaterialTheme.appColors.statusDanger
+                                                else MaterialTheme.appColors.textDisabled,
                                                 modifier = Modifier.size(20.dp)
                                             )
                                         }

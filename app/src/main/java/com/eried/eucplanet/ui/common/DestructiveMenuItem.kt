@@ -25,7 +25,7 @@ fun DestructiveMenuItem(
     enabled: Boolean = true,
 ) {
     val c = MaterialTheme.appColors
-    val off = c.textSecondary.copy(alpha = 0.6f)
+    val off = c.textDisabled
     DropdownMenuItem(
         text = { Text(text) },
         trailingIcon = { Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(20.dp)) },

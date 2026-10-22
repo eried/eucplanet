@@ -3535,7 +3535,7 @@ private fun TrimAction(trimmed: Boolean, open: Boolean, enabled: Boolean = true,
             contentColor = if (trimmed || open) appColors.primary else LocalContentColor.current,
             // Custom contentColor above replaces the defaults factory's
             // disabled derivation, so grey out explicitly like a stock button.
-            disabledContentColor = LocalContentColor.current.copy(alpha = 0.38f),
+            disabledContentColor = appColors.textDisabled,
         ),
     ) {
         Icon(

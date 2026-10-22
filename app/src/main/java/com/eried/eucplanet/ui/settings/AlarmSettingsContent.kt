@@ -1556,7 +1556,7 @@ private fun BeepStudioDialog(
                     }) {
                         Icon(Icons.Default.Repeat, contentDescription = stringResource(R.string.alarm_repeat_toggle),
                             tint = when {
-                                gapMs <= 0 -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+                                gapMs <= 0 -> MaterialTheme.appColors.textDisabled
                                 repeat -> MaterialTheme.appColors.statusWarn
                                 else -> MaterialTheme.colorScheme.onSurfaceVariant
                             })

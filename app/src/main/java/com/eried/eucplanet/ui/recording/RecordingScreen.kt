@@ -658,7 +658,7 @@ private fun TripCard(
 ) {
     val distanceUnitLabel = com.eried.eucplanet.util.Units.distanceUnit(distanceUnit)
     val dateFormat = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT, Locale.getDefault())
-    val disabledColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+    val disabledColor = MaterialTheme.appColors.textDisabled
 
     // Live ticking elapsed time for the recording trip
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
