@@ -96,6 +96,9 @@ class RouteBuilderViewModel @Inject constructor(
 
 
     companion object {
+        /** How close the solved line must end to the last stop to count as the whole tour. */
+        private const val SPANS_TOUR_M = 60.0
+
         /**
          * Base layers the rider can pick between, in cycle order.
          *
@@ -240,11 +243,22 @@ class RouteBuilderViewModel @Inject constructor(
      * the solved route is only the first leg, so we add the straight-line
      * length through the remaining non-passed stops. Null when nothing to show.
      */
+    /**
+     * True when the solved line runs to the last stop still ahead. During
+     * navigation it only reaches the next stop even in Full path, and the
+     * stops past it measured along it all came out as 0 m.
+     */
+    private fun spansTour(route: NavRoute, wps: List<Waypoint>): Boolean {
+        val last = wps.lastOrNull { !it.passed } ?: return true
+        val end = route.geometry.lastOrNull() ?: return true
+        return GeoMath.distanceM(end, last.point()) <= SPANS_TOUR_M
+    }
+
     val tourDistanceM: StateFlow<Double?> =
         combine(_route, _waypoints, _solveFullPath) { route, wps, full ->
             val routed = route?.totalDistanceM ?: 0.0
             if (route == null || routed <= 0.0) return@combine null
-            if (full) return@combine routed
+            if (full && (route.isFixedTrack(wps) || spansTour(route, wps))) return@combine routed
             val nonPassed = wps.filter { !it.passed }
             if (nonPassed.size <= 1) return@combine routed
             routed + GeoMath.polylineLengthM(nonPassed.map { it.point() })
@@ -421,7 +435,8 @@ class RouteBuilderViewModel @Inject constructor(
             if (busy || wps.size < 2) return@combine emptyMap()
             val ahead = wps.withIndex().filter { !it.value.passed }
             if (ahead.isEmpty()) return@combine emptyMap()
-            val path = if (full && route != null && !route.isFixedTrack(wps)) route.geometry else emptyList()
+            val path = if (full && route != null && !route.isFixedTrack(wps) && spansTour(route, wps))
+                route.geometry else emptyList()
             // The router's own distance runs a little longer than the drawn
             // line measures, so the legs are scaled to add up to the header.
             val drawn = GeoMath.polylineLengthM(path)
@@ -449,8 +464,8 @@ class RouteBuilderViewModel @Inject constructor(
         val wps = _waypoints.value
         if (wps.size < 2) return emptyList()
         val route = _route.value
-        val path = if (_solveFullPath.value && route != null && !route.isFixedTrack(wps) && wps.none { it.passed })
-            route.geometry else emptyList()
+        val path = if (_solveFullPath.value && route != null && !route.isFixedTrack(wps) && wps.none { it.passed } &&
+            spansTour(route, wps)) route.geometry else emptyList()
         val drawn = GeoMath.polylineLengthM(path)
         val scale = if (path.size >= 2 && drawn > 0 && route != null && route.totalDistanceM > 0)
             route.totalDistanceM / drawn else 1.0
@@ -468,8 +483,13 @@ class RouteBuilderViewModel @Inject constructor(
         // Consume any "Share to EUC Planet" hand-off pending from MainActivity.
         // Runs on every Pending update so multiple shares in a session are all
         // honoured. take() clears the slot atomically so we never process the
-        // same payload twice.
+        // same payload twice. It waits for the restore below: a share that
+        // reached a fresh view model before the planned stops were read back
+        // saw no stops, skipped the "Add shared destination?" question and
+        // replaced the route.
+        val restoreReady = kotlinx.coroutines.CompletableDeferred<Unit>()
         viewModelScope.launch {
+            restoreReady.await()
             incomingShareRepository.pending.collect { p ->
                 if (p == null) return@collect
                 val req = incomingShareRepository.take() ?: return@collect
@@ -483,7 +503,6 @@ class RouteBuilderViewModel @Inject constructor(
         // came back during the arrival dismiss window) can't see
         // arrived=true with a still-empty _waypoints and skip the
         // passed-mark for the stop the rider just reached.
-        val restoreReady = kotlinx.coroutines.CompletableDeferred<Unit>()
         viewModelScope.launch {
             val s = settingsRepository.get()
             geocoderUrl = s.navGeocoderUrl.ifBlank { RoutingService.DEFAULT_GEOCODER }
