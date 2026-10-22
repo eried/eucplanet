@@ -1,9 +1,9 @@
-Beta 0.22.0
+Route sharing, Android Auto, two-way Dropbox and better battery life.
 
-- Watch map (Wear OS): position, route while navigating, zoom on the dial. Thanks to ZiraiMode.
-- KingSong: lock, unlock and horn, with the app password if you set one.
-- Begode: PWM reads positive under load and no longer flashes to zero.
-- Flic 2 buttons work again.
-- HUD map draws again and follows the map style you pick.
-- Voice: weather with numbers, "What can I say" in three groups.
-- Fixes: shared locations into a closed app, notification after disconnect, alarms in backups.
+- Map: share a route by link or QR, Satellite hybrid, distance per stop.
+- Android Auto: your stats and wheel buttons on the car screen.
+- Wear OS watch map. Thanks to ZiraiMode.
+- Dropbox syncs settings, themes and trips both ways.
+- Much less battery drain with no wheel or the screen off.
+- Voice: music commands, your own voice report, voice volume.
+- InMotion X1 and V6, KingSong lock and horn, Begode fixes.
