@@ -163,7 +163,9 @@ class AutomationManager @Inject constructor(
 
     // Beeper volume by speed: the headlight's walking-pace gate, with no hold,
     // so the wheel is already quiet as it rolls to a stop and the power-off
-    // beep that follows is soft. Sent only when the level changes.
+    // beep that follows is soft. Loud again 2 km/h over, at once: the slower
+    // headlight re-arm is about a walk lighting the beam, not the beeper.
+    // Sent only when the level changes.
     private var beepSlowState = HeadlightSlowPolicy.State()
     private var beepSentLevel: Int? = null
 
@@ -183,6 +185,8 @@ class AutomationManager @Inject constructor(
             nowMs = System.currentTimeMillis(),
             enabled = true,
             holdMs = 0L,
+            rearmGapKmh = 2f,
+            rearmHoldMs = 0L,
         )
         val level = if (beepSlowState.forcedOff) h.beepVolumeStopped else h.beepVolumeRiding
         if (level != beepSentLevel) {
