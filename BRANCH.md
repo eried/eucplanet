@@ -7,10 +7,11 @@ only when you can cut the ride short.
 ## Worked on
 
 - Everything that was here shipped in 0.22.0 and is on next-version now. New work starts from here.
+- Release builds are obfuscated (Play asks for it by Feb 2027). Branch APKs are debug builds and do not change.
 
 ## Please test
 
-- Nothing new yet. Ride next-version or the 0.22.0 release, and report there.
+- Once a release build of this lands: install it over your current one. Settings, trips, the wheel connection and Android Auto still work?
 
 ## Reporting back
 
