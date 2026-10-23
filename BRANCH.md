@@ -1,38 +1,20 @@
-# next-version
+# fix/inmotion-v6
 
-The next release, settling. Features arrive here once they have been ridden on
-next-experimental and stopped changing shape. Settings stay where they are put
-and a build here is meant to get you home.
-
-This is what the Play beta is cut from. If you want to help without gambling a
-ride, this is the branch.
+A test build for the InMotion V6 (issue #33), on top of the 0.22.0 release.
+Once a V6 rider confirms it, it ships as 0.22.1.
 
 ## Worked on
 
-- 0.22.0: everything from next-experimental, now the release. The full list is on the GitHub release page.
-- Map: a shared `geo:` link or Maps place keeps your planned stops and asks first; a named place keeps its name.
-- Map: while navigating, the stop list keeps each stop's distance and the total, not just the next leg.
-- Lights: walking the wheel at a brisk pace no longer turns the light back on. It returns after 2 seconds of riding.
+- InMotion V6: the light button sends the two-byte form the P6 uses. The V14 form did nothing on a V6.
 
 ## Please test
 
-**Any wheel**
-- Update over 0.21.0 from Play or the APK: your settings, trips and paired wheel are still there?
-- Walk the wheel after a ride with "Turn the light off when slowing down" on: the light stays off, and comes back a moment after you ride off?
-
-**Map / navigation**
-- Share a place from Google Maps with stops planned: it asks New route or Add as next, and the stop has the place's name?
-- Navigate a route with three or more stops: the stop list distances and total stay the same as before you started?
-
-**Android Auto** (Play install only)
-- The car screen opens, speed and battery match the phone, Horn, Light and Record work?
+**InMotion V6**
+- Tap Light in the app: does the wheel light switch on and off?
+- If not: in Service Mode, try each Light command and say which one switches it.
+- Charge the wheel with the app connected: what amps does the app show, and what does the charger say? Note the battery % too, a nearly full wheel takes very little current. A Service Mode log of a few minutes of charging helps most.
 
 ## Reporting back
 
-Say which wheel, which firmware and what you expected instead. A trip
-recording is worth more than a description, and if it crashed, Share crash log
-on the About screen.
-
----
-
-Each branch keeps its own BRANCH.md, and this one changes as the work does.
+Comment on issue #33 with what you saw. A Service Mode log beats a
+description; if it crashed, Share crash log on the About screen.
