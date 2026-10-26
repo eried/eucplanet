@@ -18,6 +18,7 @@ only when you can cut the ride short.
 - HUD map: keeps working with the phone app in the background and no wheel connected. It now says when it is waiting for the phone GPS.
 - HUD map: no more white "Map data not yet available" screen. Where the map has no detail that deep it shows the closest zoom it has.
 - HUD camera: let go of the camera when you leave the Camera screen, so the MotoEye recorder can start.
+- Voice alarms: a PWM alarm says "PWM" again in Italian, Norwegian and Chinese, it was left out.
 
 ## Please test
 

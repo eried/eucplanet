@@ -1512,7 +1512,6 @@
     <string name="voice_act_media_prev_terms">brano precedente,canzone precedente</string>
     <string name="voice_answer_mic_busy">Il microfono è già in uso.</string>
     <string name="voice_answer_which">Intendevi %1$s o %2$s?</string>
-    <string name="alarm_metric_pwm_voice"></string>
     <string name="dashboard_close">Chiudi</string>
     <string name="dashboard_columns">Colonne</string>
     <string name="dashboard_composite_blank_label">(vuota)</string>

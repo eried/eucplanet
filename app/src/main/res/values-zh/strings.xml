@@ -1476,7 +1476,6 @@
     <string name="voice_act_media_prev_terms">上一首</string>
     <string name="voice_answer_mic_busy">其他应用正在使用麦克风。</string>
     <string name="voice_answer_which">你是指%1$s还是%2$s？</string>
-    <string name="alarm_metric_pwm_voice"></string>
     <string name="dashboard_close">关闭</string>
     <string name="dashboard_columns">列</string>
     <string name="dashboard_composite_blank_label">（空）</string>

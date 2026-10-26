@@ -1493,7 +1493,6 @@
     <string name="voice_act_media_prev_terms">forrige sang,forrige spor</string>
     <string name="voice_answer_mic_busy">Noe annet bruker mikrofonen.</string>
     <string name="voice_answer_which">Mente du %1$s eller %2$s?</string>
-    <string name="alarm_metric_pwm_voice"></string>
     <string name="dashboard_close">Lukk</string>
     <string name="dashboard_columns">Kolonner</string>
     <string name="dashboard_composite_blank_label">(tom)</string>
