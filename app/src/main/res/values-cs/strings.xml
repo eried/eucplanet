@@ -1967,7 +1967,7 @@
     <string name="nav_menu_exit">Zpět na palubní desku</string>
     <string name="nav_waypoints">Zastávky</string>
     <string name="nav_role_destination">Cíl</string>
-    <string name="nav_max_stops">Až jeden cíl a 24 zastávek</string>
+    <string name="nav_max_stops">Až jeden cíl a 49 zastávek</string>
     <string name="nav_pin_center">Vystředit na mapě</string>
     <string name="nav_save_home">Uložit jako domov</string>
     <string name="nav_customize_marker">Přizpůsobit moji značku</string>

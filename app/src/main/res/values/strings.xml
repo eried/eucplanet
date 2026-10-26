@@ -2215,7 +2215,7 @@
     <string name="nav_menu_exit">Back to dashboard</string>
     <string name="nav_waypoints">Stops</string>
     <string name="nav_role_destination">Destination</string>
-    <string name="nav_max_stops">Up to a destination and 24 stops</string>
+    <string name="nav_max_stops">Up to a destination and 49 stops</string>
     <string name="nav_pin_center">Center on map</string>
     <string name="nav_save_home">Save as Home</string>
     <string name="nav_customize_marker">Customize my marker</string>

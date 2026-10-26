@@ -480,12 +480,6 @@ class EucCarAppService : CarAppService() {
     private fun imperial(): Boolean = Units.effectiveDistanceUnit(settingsState.value) == "mi"
 
     /**
-     * Routes from where the rider is now through [stops], the way the
-     * navigator's own Start does, in the travel mode last picked there.
-     * Straight lines aim at one goal at a time, so a straight planned route
-     * starts with its first stop.
-     */
-    /**
      * Rides a planned locked track as drawn, as the navigator's Start does:
      * from its start or the last stop reached, or to that point first in the
      * travel mode last picked when the rider is further away.
@@ -521,6 +515,12 @@ class EucCarAppService : CarAppService() {
         }
     }
 
+    /**
+     * Routes from where the rider is now through [stops], the way the
+     * navigator's own Start does, in the travel mode last picked there.
+     * Straight lines aim at one goal at a time, so a straight planned route
+     * starts with its first stop.
+     */
     private fun navigateTo(stops: List<Waypoint>) {
         val loc = tripRepository.currentLocation.value ?: return
         if (stops.isEmpty()) return

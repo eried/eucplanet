@@ -1693,7 +1693,7 @@
     <string name="nav_menu_exit">Назад к панели</string>
     <string name="nav_waypoints">Остановки</string>
     <string name="nav_role_destination">Пункт назначения</string>
-    <string name="nav_max_stops">До одного пункта назначения и 24 остановок</string>
+    <string name="nav_max_stops">До одного пункта назначения и 49 остановок</string>
     <string name="nav_pin_center">Центрировать на карте</string>
     <string name="nav_save_home">Сохранить как дом</string>
     <string name="nav_customize_marker">Настроить мой маркер</string>

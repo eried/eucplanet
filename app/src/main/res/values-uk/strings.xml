@@ -1725,7 +1725,7 @@
     <string name="nav_menu_exit">Назад на панель</string>
     <string name="nav_waypoints">Зупинки</string>
     <string name="nav_role_destination">Пункт призначення</string>
-    <string name="nav_max_stops">До пункту призначення та 24 зупинок</string>
+    <string name="nav_max_stops">До пункту призначення та 49 зупинок</string>
     <string name="nav_pin_center">Центрувати на карті</string>
     <string name="nav_save_home">Зберегти як дім</string>
     <string name="nav_customize_marker">Налаштувати мій маркер</string>

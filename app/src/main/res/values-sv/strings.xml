@@ -1689,7 +1689,7 @@
     <string name="nav_menu_exit">Tillbaka till instrumentpanelen</string>
     <string name="nav_waypoints">Stopp</string>
     <string name="nav_role_destination">Destination</string>
-    <string name="nav_max_stops">Upp till en destination och 24 stopp</string>
+    <string name="nav_max_stops">Upp till en destination och 49 stopp</string>
     <string name="nav_pin_center">Centrera på kartan</string>
     <string name="nav_save_home">Spara som Hem</string>
     <string name="nav_customize_marker">Anpassa min markör</string>

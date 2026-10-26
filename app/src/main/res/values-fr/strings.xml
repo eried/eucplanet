@@ -1752,7 +1752,7 @@
     <string name="nav_menu_exit">Retour au tableau de bord</string>
     <string name="nav_waypoints">Arrêts</string>
     <string name="nav_role_destination">Destination</string>
-    <string name="nav_max_stops">Jusqu\'à une destination et 24 arrêts</string>
+    <string name="nav_max_stops">Jusqu\'à une destination et 49 arrêts</string>
     <string name="nav_pin_center">Centrer sur la carte</string>
     <string name="nav_save_home">Enregistrer comme domicile</string>
     <string name="nav_customize_marker">Personnaliser mon marqueur</string>

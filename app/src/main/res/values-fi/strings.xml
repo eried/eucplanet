@@ -1967,7 +1967,7 @@
     <string name="nav_menu_exit">Takaisin mittaristoon</string>
     <string name="nav_waypoints">Pysähdykset</string>
     <string name="nav_role_destination">Määränpää</string>
-    <string name="nav_max_stops">Enintään määränpää ja 24 pysähdystä</string>
+    <string name="nav_max_stops">Enintään määränpää ja 49 pysähdystä</string>
     <string name="nav_pin_center">Keskitä kartalle</string>
     <string name="nav_save_home">Tallenna kodiksi</string>
     <string name="nav_customize_marker">Mukauta merkkini</string>

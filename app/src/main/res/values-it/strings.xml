@@ -915,7 +915,7 @@
     <string name="nav_layer_cyclosm">CyclOSM</string>
     <string name="nav_layer_topo">OpenTopoMap</string>
     <string name="nav_layer_humanitarian">Humanitarian</string>
-    <string name="nav_max_stops">Fino a una destinazione e 24 fermate</string>
+    <string name="nav_max_stops">Fino a una destinazione e 49 fermate</string>
     <string name="nav_menu">Menu</string>
     <string name="nav_menu_clear">Nuovo percorso</string>
     <string name="nav_finished_title">Percorso completato</string>

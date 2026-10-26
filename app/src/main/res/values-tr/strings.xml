@@ -1690,7 +1690,7 @@
     <string name="nav_menu_exit">Gösterge paneline dön</string>
     <string name="nav_waypoints">Duraklar</string>
     <string name="nav_role_destination">Varış noktası</string>
-    <string name="nav_max_stops">Bir varış noktası ve 24 durağa kadar</string>
+    <string name="nav_max_stops">Bir varış noktası ve 49 durağa kadar</string>
     <string name="nav_pin_center">Haritada ortala</string>
     <string name="nav_save_home">Ev olarak kaydet</string>
     <string name="nav_customize_marker">İşaretçimi özelleştir</string>

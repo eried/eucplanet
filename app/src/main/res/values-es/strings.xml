@@ -1693,7 +1693,7 @@
     <string name="nav_menu_exit">Volver al panel</string>
     <string name="nav_waypoints">Paradas</string>
     <string name="nav_role_destination">Destino</string>
-    <string name="nav_max_stops">Hasta un destino y 24 paradas</string>
+    <string name="nav_max_stops">Hasta un destino y 49 paradas</string>
     <string name="nav_pin_center">Centrar en el mapa</string>
     <string name="nav_save_home">Guardar como Casa</string>
     <string name="nav_customize_marker">Personalizar mi marcador</string>

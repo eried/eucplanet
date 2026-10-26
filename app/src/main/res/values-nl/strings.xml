@@ -1748,7 +1748,7 @@
     <string name="nav_menu_exit">Terug naar dashboard</string>
     <string name="nav_waypoints">Stops</string>
     <string name="nav_role_destination">Bestemming</string>
-    <string name="nav_max_stops">Tot een bestemming en 24 stops</string>
+    <string name="nav_max_stops">Tot een bestemming en 49 stops</string>
     <string name="nav_pin_center">Centreren op kaart</string>
     <string name="nav_save_home">Opslaan als Thuis</string>
     <string name="nav_customize_marker">Mijn marker aanpassen</string>

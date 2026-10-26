@@ -1690,7 +1690,7 @@
     <string name="nav_menu_exit">ダッシュボードに戻る</string>
     <string name="nav_waypoints">経由地</string>
     <string name="nav_role_destination">目的地</string>
-    <string name="nav_max_stops">目的地と最大 24 の経由地</string>
+    <string name="nav_max_stops">目的地と最大 49 の経由地</string>
     <string name="nav_pin_center">マップで中心に表示</string>
     <string name="nav_save_home">ホームとして保存</string>
     <string name="nav_customize_marker">マーカーをカスタマイズ</string>

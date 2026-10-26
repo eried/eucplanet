@@ -1706,7 +1706,7 @@
     <string name="nav_menu_exit">Powrót do pulpitu</string>
     <string name="nav_waypoints">Przystanki</string>
     <string name="nav_role_destination">Cel</string>
-    <string name="nav_max_stops">Maksymalnie cel i 24 przystanki</string>
+    <string name="nav_max_stops">Maksymalnie cel i 49 przystanków</string>
     <string name="nav_pin_center">Wyśrodkuj na mapie</string>
     <string name="nav_save_home">Zapisz jako dom</string>
     <string name="nav_customize_marker">Dostosuj mój marker</string>

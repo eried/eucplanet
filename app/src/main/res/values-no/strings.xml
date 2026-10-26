@@ -896,7 +896,7 @@
     <string name="nav_layer_cyclosm">CyclOSM</string>
     <string name="nav_layer_topo">OpenTopoMap</string>
     <string name="nav_layer_humanitarian">Humanitarian</string>
-    <string name="nav_max_stops">Opptil ett bestemmelsessted og 24 stopp</string>
+    <string name="nav_max_stops">Opptil ett bestemmelsessted og 49 stopp</string>
     <string name="nav_menu">Meny</string>
     <string name="nav_menu_clear">Ny rute</string>
     <string name="nav_finished_title">Ruten er fullført</string>

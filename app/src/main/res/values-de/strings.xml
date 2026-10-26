@@ -1723,7 +1723,7 @@
     <string name="nav_menu_exit">Zurück zum Dashboard</string>
     <string name="nav_waypoints">Halte</string>
     <string name="nav_role_destination">Ziel</string>
-    <string name="nav_max_stops">Bis zu einem Ziel und 24 Zwischenhalten</string>
+    <string name="nav_max_stops">Bis zu einem Ziel und 49 Zwischenhalten</string>
     <string name="nav_pin_center">Auf Karte zentrieren</string>
     <string name="nav_save_home">Als Zuhause speichern</string>
     <string name="nav_customize_marker">Marker anpassen</string>

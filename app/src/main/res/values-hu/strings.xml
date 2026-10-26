@@ -1967,7 +1967,7 @@
     <string name="nav_menu_exit">Vissza a műszerfalra</string>
     <string name="nav_waypoints">Megállók</string>
     <string name="nav_role_destination">Célállomás</string>
-    <string name="nav_max_stops">Legfeljebb egy célállomás és 24 megálló</string>
+    <string name="nav_max_stops">Legfeljebb egy célállomás és 49 megálló</string>
     <string name="nav_pin_center">Középre a térképen</string>
     <string name="nav_save_home">Mentés otthonként</string>
     <string name="nav_customize_marker">Jelölőm testreszabása</string>

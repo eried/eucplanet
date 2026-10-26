@@ -1967,7 +1967,7 @@
     <string name="nav_menu_exit">Înapoi la tabloul de bord</string>
     <string name="nav_waypoints">Opriri</string>
     <string name="nav_role_destination">Destinație</string>
-    <string name="nav_max_stops">Până la o destinație și 24 de opriri</string>
+    <string name="nav_max_stops">Până la o destinație și 49 de opriri</string>
     <string name="nav_pin_center">Centrează pe hartă</string>
     <string name="nav_save_home">Salvează ca Acasă</string>
     <string name="nav_customize_marker">Personalizează marcajul meu</string>

@@ -879,7 +879,7 @@
     <string name="nav_layer_cyclosm">CyclOSM</string>
     <string name="nav_layer_topo">OpenTopoMap</string>
     <string name="nav_layer_humanitarian">Humanitarian</string>
-    <string name="nav_max_stops">最多一个目的地和 24 个途经点</string>
+    <string name="nav_max_stops">最多一个目的地和 49 个途经点</string>
     <string name="nav_menu">菜单</string>
     <string name="nav_menu_clear">新路线</string>
     <string name="nav_finished_title">路线已完成</string>
