@@ -64,10 +64,12 @@ fun MapScreen(hud: HudState, zoom: Float, peer: String?, cache: HudTileCache) {
     // screen navigation.
 
     Box(Modifier.fillMaxSize().background(Color(0xFF101010))) {
+        // No position from the phone yet. This used to say the tiles were
+        // unreachable, which sent riders chasing their internet.
         if (!hud.gpsHasFix) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(
-                    text = ctx.getString(R.string.hud_map_offline),
+                    text = ctx.getString(R.string.hud_map_no_gps),
                     color = Color.White.copy(alpha = 0.6f)
                 )
             }

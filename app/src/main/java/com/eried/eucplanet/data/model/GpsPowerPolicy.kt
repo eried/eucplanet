@@ -26,7 +26,9 @@ enum class GpsSignalEvent { ACQUIRED, LOST }
  *    wheel connected that used to drop GPS to OFF, freezing their own dot for
  *    everyone else while their phone said Connected.
  *  - A visible watch map needs the same precise 1 Hz stream while the phone is
- *    backgrounded.
+ *    backgrounded. So does a linked HUD with the Map screen in its carousel:
+ *    the HUD draws the map from the phone's position and showed "no fix" the
+ *    moment the rider left the app with no wheel connected.
  *  - App not visible (screen off / backgrounded): high accuracy only while a
  *    wheel is connected (riding with the phone pocketed); otherwise fully OFF.
  *    Background + disconnected + not recording/navigating/sharing and no
@@ -46,8 +48,9 @@ object GpsPowerPolicy {
         appVisible: Boolean,
         sharing: Boolean = false,
         watchMapVisible: Boolean = false,
+        hudMapLinked: Boolean = false,
     ): GpsTier = when {
-        recording || navigating || sharing || watchMapVisible -> GpsTier.HIGH
+        recording || navigating || sharing || watchMapVisible || hudMapLinked -> GpsTier.HIGH
         !appVisible -> if (connected) GpsTier.HIGH else GpsTier.OFF
         else -> GpsTier.BALANCED
     }

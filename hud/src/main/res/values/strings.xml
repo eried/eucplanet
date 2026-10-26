@@ -58,7 +58,7 @@
     <string name="hud_version_block_subtitle">Get the matching version at %1$s</string>
     <string name="hud_version_minor_hud_behind">HUD update available</string>
     <string name="hud_version_minor_phone_behind">Phone update available</string>
-    <string name="hud_map_offline">Map tiles not reachable (phone has no internet?)</string>
+    <string name="hud_map_no_gps">Waiting for the phone GPS position</string>
     <string name="hud_nav_idle">No active route</string>
     <string name="hud_nav_arrived">You have arrived</string>
     <!-- Advisory shown when the phone detects its own Wi-Fi is interrupting the

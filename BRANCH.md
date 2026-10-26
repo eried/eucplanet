@@ -8,10 +8,14 @@ only when you can cut the ride short.
 
 - Everything that was here shipped in 0.22.0 and is on next-version now. New work starts from here.
 - Release builds are obfuscated (Play asks for it by Feb 2027). Branch APKs are debug builds and do not change.
+- HUD map: keeps working with the phone app in the background and no wheel connected. It used to say "Map tiles not reachable", now it says when it is waiting for the phone GPS.
 
 ## Please test
 
 - Once a release build of this lands: install it over your current one. Settings, trips, the wheel connection and Android Auto still work?
+
+**HUD (MotoEye)**
+- Install the phone and the HUD APK from this build. Open the HUD Map screen, leave the phone app, no wheel connected: does the map stay?
 
 ## Reporting back
 
