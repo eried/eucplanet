@@ -81,7 +81,7 @@ jobs:
     needs: meta
     steps:
       - name: Checkout tag
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ needs.meta.outputs.tag }}
           fetch-depth: 1
@@ -152,13 +152,13 @@ jobs:
           EOF
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v3
+        uses: gradle/actions/setup-gradle@v5
 
       - name: Make gradlew executable
         run: chmod +x ./gradlew
@@ -219,7 +219,7 @@ jobs:
           ls -la /tmp/out
 
       - name: Stage for publish
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: stage-android
           path: /tmp/out/*
@@ -248,13 +248,13 @@ jobs:
           fi
 
       - name: Checkout tag
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ needs.meta.outputs.tag }}
           fetch-depth: 1
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
@@ -327,7 +327,7 @@ jobs:
           ls -la /tmp/out
 
       - name: Stage for publish
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: stage-garmin
           path: /tmp/out/*
@@ -340,13 +340,13 @@ jobs:
     # download, no secrets. Produces the .zab store-submission bundle.
     steps:
       - name: Checkout tag
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ needs.meta.outputs.tag }}
           fetch-depth: 1
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: "22"
 
@@ -363,7 +363,7 @@ jobs:
           ls -la /tmp/out
 
       - name: Stage for publish
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: stage-amazfit
           path: /tmp/out/*
@@ -378,7 +378,7 @@ jobs:
     if: needs.android.result == 'success' && needs.garmin.result == 'success' && needs.amazfit.result == 'success'
     steps:
       - name: Download staged artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           path: /tmp/stage
           pattern: stage-*
