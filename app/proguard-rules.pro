@@ -1,7 +1,15 @@
-# Shrinking is on (dead-code removal, the size win), obfuscation is off.
-# Testers send us raw Service Mode diagnostic dumps and crash traces; keeping
-# class/method names readable means those stay useful without a mapping file.
--dontobfuscate
+# Shrinking and obfuscation are on; Play flags a bundle under 25 % obfuscated.
+# Crash traces still resolve: Play deobfuscates with the mapping file the
+# upload carries, and every GitHub release attaches
+# phone-<version>-mapping.txt for traces from the APK (retrace, or Android
+# Studio's Analyze Stack Trace). Line info is kept so they resolve to the line.
+-keepattributes SourceFile,LineNumberTable
+
+# Service Mode dumps WheelData by reflecting its field names
+# (diagnostics/ServiceOverlay.kt reflectFields); keep them readable.
+-keepclassmembernames class com.eried.eucplanet.data.model.WheelData {
+    <fields>;
+}
 
 # Room, the generated implementation references the database subclass and
 # every @Entity by name.
@@ -57,3 +65,8 @@
 -keepclassmembers class androidx.car.app.** {
     <init>();
 }
+
+# The Bundler also writes each model's class and field names into the bundle
+# and the host rebuilds them by those names, so with obfuscation on the
+# car-app classes keep their names too (they still shrink).
+-keepnames class androidx.car.app.** { *; }

@@ -12,6 +12,7 @@ class GpsPowerPolicyTest {
         appVisible: Boolean = false,
         sharing: Boolean = false,
         watchMapVisible: Boolean = false,
+        hudMapLinked: Boolean = false,
     ) = GpsPowerPolicy.tierFor(
         recording = recording,
         navigating = navigating,
@@ -19,6 +20,7 @@ class GpsPowerPolicyTest {
         appVisible = appVisible,
         sharing = sharing,
         watchMapVisible = watchMapVisible,
+        hudMapLinked = hudMapLinked,
     )
 
     @Test
@@ -54,6 +56,17 @@ class GpsPowerPolicyTest {
         assertEquals(
             GpsTier.HIGH,
             tier(watchMapVisible = true, appVisible = false, connected = false),
+        )
+    }
+
+    @Test
+    fun hud_map_linked_in_background_without_a_wheel_is_high() {
+        // The MotoEye report: the HUD map showed "no fix" the moment the rider
+        // left the phone app, because with no wheel connected GPS went OFF
+        // while the HUD was still linked and drawing the map.
+        assertEquals(
+            GpsTier.HIGH,
+            tier(hudMapLinked = true, appVisible = false, connected = false),
         )
     }
 

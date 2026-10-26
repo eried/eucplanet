@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -115,6 +116,13 @@ fun RearCameraPreview(modifier: Modifier = Modifier) {
     // flood of CameraValidator: Camera LensFacing verification failed
     // errors that pegs the main thread and triggers an ANR.
     var bindStarted by remember { mutableStateOf(false) }
+    val binding = remember { CameraBinding() }
+    // Hand the camera back the moment this screen goes away. Bound to the
+    // activity's lifecycle it stayed ours on every other screen, and the
+    // MotoEye's own recorder could not start while the HUD app was open.
+    DisposableEffect(Unit) {
+        onDispose { binding.release() }
+    }
 
     Box(modifier = modifier) {
         if (hasPermission && !cameraFailed) {
@@ -154,6 +162,8 @@ fun RearCameraPreview(modifier: Modifier = Modifier) {
                         val providerFuture = ProcessCameraProvider.getInstance(view.context)
                         providerFuture.addListener({
                             try {
+                                // Slid past before the camera was ready.
+                                if (binding.released) return@addListener
                                 val provider = providerFuture.get()
                                 val preview = Preview.Builder().build().also {
                                     it.surfaceProvider = view.surfaceProvider
@@ -172,6 +182,7 @@ fun RearCameraPreview(modifier: Modifier = Modifier) {
                                 for (sel in selectors) {
                                     try {
                                         provider.bindToLifecycle(lifecycleOwner, sel, preview)
+                                        binding.hold(provider, preview)
                                         bound = true
                                         break
                                     } catch (_: Throwable) {
@@ -210,6 +221,29 @@ fun RearCameraPreview(modifier: Modifier = Modifier) {
                 Text(text = msg, color = Color.White.copy(alpha = 0.7f))
             }
         }
+    }
+}
+
+/** The preview one [RearCameraPreview] bound, so leaving that screen unbinds
+ *  only its own use case: sliding from Camera straight to Custom + camera
+ *  must not drop the camera the incoming screen just bound. */
+private class CameraBinding {
+    var released = false
+        private set
+    private var provider: ProcessCameraProvider? = null
+    private var preview: Preview? = null
+
+    fun hold(provider: ProcessCameraProvider, preview: Preview) {
+        this.provider = provider
+        this.preview = preview
+    }
+
+    fun release() {
+        released = true
+        val p = preview ?: return
+        runCatching { provider?.unbind(p) }
+        provider = null
+        preview = null
     }
 }
 

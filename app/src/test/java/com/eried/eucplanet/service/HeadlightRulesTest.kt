@@ -98,6 +98,9 @@ class HeadlightRulesTest {
         assertEquals(false, d.beamOn)
         // Genuinely riding again does it.
         d = HeadlightRules.decide(d.slow, input(threshold + HeadlightSlowPolicy.REARM_GAP_KMH, t0 + 6_000))
+        assertEquals("not before the re-arm hold", false, d.beamOn)
+        d = HeadlightRules.decide(d.slow,
+            input(threshold + HeadlightSlowPolicy.REARM_GAP_KMH, t0 + 6_000 + HeadlightSlowPolicy.REARM_HOLD_MS))
         assertEquals(true, d.beamOn)
     }
 

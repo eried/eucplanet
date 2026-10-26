@@ -37,6 +37,7 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -422,6 +423,7 @@ class HudServer @Inject constructor(
         try { demo.stop() } catch (_: Throwable) {}
         try { ws?.close(1000, "stopping") } catch (_: Throwable) {}
         ws = null
+        tripRepository.setHudMapLinked(false)
         currentPeer = null
         publishJob?.cancel(); publishJob = null
         loopJob?.cancel(); loopJob = null
@@ -1118,6 +1120,9 @@ class HudServer @Inject constructor(
                     while (true) {
                         val frame = if (first) runCatching { snapshot() }.getOrDefault(latest) else latest
                         first = false
+                        // The HUD draws its Map screen from this phone's
+                        // position, so keep GPS on while it is in the carousel.
+                        if (isActive) tripRepository.setHudMapLinked("Map" in frame.enabledHudScreens)
                         try {
                             if (!webSocket.send(json.encodeToString(frame))) {
                                 // OkHttp returns false when the outbound
@@ -1166,6 +1171,7 @@ class HudServer @Inject constructor(
             }
             override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
                 sendJob?.cancel()
+                tripRepository.setHudMapLinked(false)
                 ws = null
                 currentPeer = null
                 commandSink.onHudDisconnected()
@@ -1181,6 +1187,7 @@ class HudServer @Inject constructor(
                     if (correlated) log("Drop correlated with a phone Wi-Fi change")
                 }
                 sendJob?.cancel()
+                tripRepository.setHudMapLinked(false)
                 ws = null
                 currentPeer = null
                 commandSink.onHudDisconnected()

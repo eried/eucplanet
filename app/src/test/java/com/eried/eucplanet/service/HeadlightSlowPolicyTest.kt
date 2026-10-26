@@ -45,9 +45,39 @@ class HeadlightSlowPolicyTest {
         // Just over the threshold is not riding again: the re-arm gap holds.
         st = p.step(st, threshold + 1f, threshold, t0 + 6_000L, enabled = true)
         assertTrue(st.forcedOff)
-        // Genuinely moving releases it.
+        // Genuinely moving releases it, once it has lasted.
         st = p.step(st, threshold + HeadlightSlowPolicy.REARM_GAP_KMH, threshold, t0 + 7_000L, enabled = true)
+        assertTrue("not before the re-arm hold", st.forcedOff)
+        st = p.step(st, threshold + HeadlightSlowPolicy.REARM_GAP_KMH, threshold,
+            t0 + 7_000L + HeadlightSlowPolicy.REARM_HOLD_MS, enabled = true)
         assertFalse(st.forcedOff)
+    }
+
+    @Test fun `a brisk walk beside the wheel keeps it off`() {
+        // Pushing the wheel at a fast walk, its speed spikes past the gap with
+        // each step and falls back between them. Those spikes used to be
+        // enough to light the beam.
+        var st = run(0f to 0L, 0f to 4_000L)
+        assertTrue(st.forcedOff)
+        val spike = threshold + HeadlightSlowPolicy.REARM_GAP_KMH + 1f
+        var t = 5_000L
+        repeat(20) {
+            st = p.step(st, spike, threshold, t0 + t, enabled = true)
+            st = p.step(st, threshold + 1f, threshold, t0 + t + 600L, enabled = true)
+            t += 1_000L
+        }
+        assertTrue("the light must stay off while walking", st.forcedOff)
+    }
+
+    @Test fun `riding off from a crossing brings it back within the re-arm hold`() {
+        var st = run(0f to 0L, 0f to 4_000L)
+        var t = 5_000L
+        while (st.forcedOff && t < 5_000L + HeadlightSlowPolicy.REARM_HOLD_MS + 1_000L) {
+            st = p.step(st, 12f, threshold, t0 + t, enabled = true)
+            t += 200L
+        }
+        assertFalse(st.forcedOff)
+        assertTrue(t - 5_000L <= HeadlightSlowPolicy.REARM_HOLD_MS + 200L)
     }
 
     @Test fun `switching the option off hands the light straight back`() {

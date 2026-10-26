@@ -78,7 +78,12 @@ class IncomingShareRepository @Inject constructor() {
                 if (q != null) {
                     val decoded = java.net.URLDecoder.decode(q, "UTF-8")
                     val coords = parseCoords(decoded)
-                    if (coords != null) return Pending(lat = coords.first, lng = coords.second)
+                    if (coords != null) {
+                        // geo:0,0?q=lat,lng(Name): the name in brackets labels the stop.
+                        val label = Regex("""\(([^)]*)\)\s*$""").find(decoded)
+                            ?.groupValues?.get(1)?.trim()?.takeIf { it.isNotEmpty() }
+                        return Pending(lat = coords.first, lng = coords.second, label = label)
+                    }
                     return Pending(query = decoded)
                 }
                 val coords = parseCoords(afterScheme.substringBefore('?'))

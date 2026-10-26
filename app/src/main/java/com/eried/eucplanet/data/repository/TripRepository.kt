@@ -163,6 +163,9 @@ class TripRepository @Inject constructor(
     // GPS stays at 1 Hz even with the app backgrounded and no wheel connected.
     @Volatile private var gpsSharing = false
     @Volatile private var gpsWatchMapVisible = false
+    // A HUD is linked and its carousel has the Map screen, which is drawn from
+    // this phone's position.
+    @Volatile private var gpsHudMapLinked = false
     @Volatile private var currentGpsTier: GpsTier? = null
     // Pending fully-off after the idle grace (gpsIdleOffDelaySec); cancelled the
     // moment any input changes, since recompute re-decides.
@@ -382,6 +385,13 @@ class TripRepository @Inject constructor(
         recomputeGpsTier()
     }
 
+    fun setHudMapLinked(linked: Boolean) {
+        if (gpsHudMapLinked == linked) return
+        gpsHudMapLinked = linked
+        if (linked) startLocationUpdates()
+        recomputeGpsTier()
+    }
+
     /** Pick the GPS tier for the current demand and (re)issue the fused request. */
     private fun recomputeGpsTier() {
         if (!gpsStreamRequested || !hasLocationPermission()) return
@@ -393,6 +403,7 @@ class TripRepository @Inject constructor(
             appVisible = AppForeground.isForeground.value,
             sharing = gpsSharing,
             watchMapVisible = gpsWatchMapVisible,
+            hudMapLinked = gpsHudMapLinked,
         )
         if (tier == GpsTier.OFF) {
             // Already off, or an off-grace already pending: stay put. Do NOT
@@ -531,6 +542,7 @@ class TripRepository @Inject constructor(
         locationUpdatesActive = false
         gpsStreamRequested = false
         gpsWatchMapVisible = false
+        gpsHudMapLinked = false
         currentGpsTier = null
         Log.i(TAG, "Location updates stopped (received $locationFixCount fixes this session)")
     }

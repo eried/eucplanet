@@ -52,7 +52,9 @@ These rules are binding. The terse list below is the contract; `CONVENTIONS.md`
     pipe gradle to `tail` and mask the exit code.
 15. **Branching.** Rules and repo-wide docs land on every branch (main,
     next-version, next-experimental). New features are built on
-    next-experimental.
+    next-experimental and move up: next-experimental, next-version (beta),
+    main (release). Fix a bug on the most stable branch that has it, then
+    merge down (main into next-version into next-experimental).
 16. **Merging a PR: account for every deleted line, then run every surface.**
     List each non-comment line the PR removes and say where it went or why it
     goes. A replaced line hides a deletion. Then run the phone, watch and HUD
