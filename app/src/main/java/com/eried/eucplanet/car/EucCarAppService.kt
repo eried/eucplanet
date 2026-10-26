@@ -20,6 +20,8 @@ import androidx.car.app.model.Pane
 import androidx.car.app.model.PaneTemplate
 import androidx.car.app.model.Row
 import androidx.car.app.model.Template
+import androidx.car.app.navigation.NavigationManager
+import androidx.car.app.navigation.NavigationManagerCallback
 import androidx.car.app.navigation.model.MapController
 import androidx.car.app.navigation.model.MapWithContentTemplate
 import androidx.car.app.validation.HostValidator
@@ -72,6 +74,7 @@ class EucCarAppService : CarAppService() {
     @Inject lateinit var settingsRepository: SettingsRepository
     @Inject lateinit var routingService: RoutingService
     @Inject lateinit var weatherRepository: com.eried.eucplanet.weather.WeatherRepository
+    @Inject lateinit var currentRouteStore: com.eried.eucplanet.nav.CurrentRouteStore
 
     private companion object {
         const val TAG = "EucCarAppService"
@@ -90,11 +93,10 @@ class EucCarAppService : CarAppService() {
             HostValidator.Builder(this).addAllowedHosts(androidx.car.app.R.array.hosts_allowlist_sample).build()
         }
 
-    /** The car surface no longer draws the map. On a head unit the rider
-     *  already has Maps beside us, so a second, worse map in our card is noise,
-     *  and the point of the card is numbers readable at a glance. Kept as a
-     *  value rather than deleted so CarRideContent keeps one call shape and the
-     *  map path stays available to the phone overlay. */
+    /** The surface draws the map only while a route runs. Riding without one,
+     *  the rider already has Maps beside us and the card is for numbers read
+     *  at a glance; navigating our own route, the map with the route on it is
+     *  the point, the way the phone's navigator shows it. */
     private val mapVisible = mutableStateOf(false)
 
     /** Sanitized settings for the templates, which cannot suspend. */
@@ -123,8 +125,9 @@ class EucCarAppService : CarAppService() {
                         ?.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY) ?: 0
                 },
             )
+            val cards = CarHostCards.of(carContext.hostInfo?.packageName)
             val renderer = CarSurfaceRenderer(carContext) { area ->
-                CarRideContent(state, dark.value, area, mapVisible.value)
+                CarRideContent(state, dark.value, area, mapVisible.value, cards)
             }
             carContext.getCarService(AppManager::class.java).setSurfaceCallback(renderer)
             return RideScreen(carContext)
@@ -139,15 +142,34 @@ class EucCarAppService : CarAppService() {
     private inner class RideScreen(carContext: CarContext) : Screen(carContext) {
 
         init {
-            // No NavigationManager. It is a navigation-app API and this app is
-            // not one any more: the manifest carries MAP_TEMPLATES, not
-            // NAVIGATION_TEMPLATES, so every navigationStarted() call went to
-            // the host without the permission that authorises it. The call
-            // only fired once the rider actually started a route, which is
-            // exactly when a tester reported "app closes when navigating using
-            // the built in EUC Planet navigation feature". Stopping navigation
-            // from the car screen goes with it; the rider stops it on the
-            // phone, where they started it.
+            // NavigationManager is back. It once crashed the car screen the
+            // moment a route started ("app closes when navigating using the
+            // built in EUC Planet navigation feature") because the manifest
+            // carried MAP_TEMPLATES and navigationStarted() went to the host
+            // without the permission behind it. The manifest now carries
+            // NAVIGATION_TEMPLATES and the NAVIGATION category, so a route the
+            // rider runs, from the phone or from here, is a real navigation
+            // session to the car: its cluster gets the turn, and the car's own
+            // Stop ends it here too.
+            val navManager = carContext.getCarService(NavigationManager::class.java)
+            navManager.setNavigationManagerCallback(object : NavigationManagerCallback {
+                override fun onStopNavigation() = navigationEngine.stop()
+            })
+            lifecycleScope.launch {
+                navigationEngine.navState.map { it.active }.distinctUntilChanged().collect { active ->
+                    mapVisible.value = active
+                    runCatching {
+                        if (active) navManager.navigationStarted() else navManager.navigationEnded()
+                    }.onFailure { Log.w(TAG, "navigation session change refused", it) }
+                }
+            }
+            lifecycleScope.launch {
+                navigationEngine.navState.sample(1_000L).collect { st ->
+                    if (!st.active) return@collect
+                    runCatching { navManager.updateTrip(CarNavigation.trip(carContext, st, imperial())) }
+                        .onFailure { Log.w(TAG, "updateTrip refused", it) }
+                }
+            }
             //
             // Redraw the frame when something it shows changes: button labels
             // (light, recording) and, now that the rider's numbers live in the
@@ -183,6 +205,10 @@ class EucCarAppService : CarAppService() {
          * NF-2 wants the surface carrying map content anyway.
          */
         override fun onGetTemplate(): Template {
+            val nav = navigationEngine.navState.value
+            if (nav.active) {
+                return CarNavigation.template(carContext, nav, imperial(), navActionStrip())
+            }
             val s = settingsState.value
             val wheel = wheelRepository.wheelData.value
             val connected = wheelRepository.connectionState.value == ConnectionState.CONNECTED
@@ -226,6 +252,9 @@ class EucCarAppService : CarAppService() {
                     .setTitle(carContext.getString(R.string.car_no_metrics)).build()
             }
             rows.take(limit).forEach { pane.addRow(it) }
+            // Navigate sits in the pane, not the strip: the host shows three strip
+            // buttons and drops a fourth, and the three are the rider's.
+            pane.addAction(navigateAction())
             Log.i(TAG, "pane rows ${rows.size.coerceAtMost(limit)} of limit $limit")
             val built = pane.build()
             val title = getString(R.string.app_name)
@@ -313,6 +342,31 @@ class EucCarAppService : CarAppService() {
         }
 
         /**
+         * While a route runs: Stop, titled, then the rider's buttons. The
+         * navigation strip takes four actions of which one may carry a title,
+         * so Stop has the title and the rest go by their icons.
+         */
+        private fun navActionStrip(): ActionStrip {
+            val strip = ActionStrip.Builder()
+                .addAction(
+                    Action.Builder()
+                        .setTitle(carContext.getString(R.string.action_stop))
+                        .setOnClickListener { navigationEngine.stop() }
+                        .build()
+                )
+            riderActions(iconOnly = true, max = 3).forEach { strip.addAction(it) }
+            return strip.build()
+        }
+
+        /** Navigate: Home, Work, and the route planned on the phone. */
+        private fun navigateAction(): Action =
+            Action.Builder()
+                .setTitle(carContext.getString(R.string.car_navigate))
+                .setIcon(CarIcon.Builder(IconCompat.createWithResource(carContext, R.drawable.ic_car_navigate)).build())
+                .setOnClickListener { screenManager.push(PlacesScreen(carContext)) }
+                .build()
+
+        /**
          * [iconOnly] drops the labels. PaneTemplate allows exactly one titled
          * action, so the three the rider configured crash it ("Action list
          * exceeded max number of 1 actions with custom titles"). Each limit is
@@ -336,10 +390,22 @@ class EucCarAppService : CarAppService() {
             max: Int = Int.MAX_VALUE,
         ): ActionStrip? {
             val strip = ActionStrip.Builder()
-            // No Navigate. This stopped being a navigation app, and the action
-            // was still leading the strip: on a pane, which allows one titled
-            // action, it took the only slot and left the rider one button of
-            // the three they chose. The three are now all theirs.
+            // No Navigate here: the car host shows three strip buttons and
+            // silently drops a fourth, which cost the rider one of theirs.
+            // Navigate is a button in the content pane instead.
+            var added = 0
+            riderActions(iconOnly, max).forEach { strip.addAction(it); added++ }
+            // Null, not an empty strip. A rider who sets all three buttons to
+            // None gets no strip at all; building an empty one throws
+            // "Action strip must contain at least one action" and takes the
+            // whole car screen with it. A tester hit exactly that: no buttons,
+            // a black screen, and a crash whenever anything forced a redraw.
+            return if (added == 0) null else strip.build()
+        }
+
+        /** The rider's configured car buttons, at most [max]. */
+        private fun riderActions(iconOnly: Boolean, max: Int): List<Action> {
+            val out = mutableListOf<Action>()
             var added = 0
             val s = settingsState.value
             val lightOn = wheelRepository.wheelData.value.lightOn
@@ -358,15 +424,10 @@ class EucCarAppService : CarAppService() {
                 icon?.let {
                     b.setIcon(CarIcon.Builder(IconCompat.createWithResource(carContext, it)).build())
                 }
-                strip.addAction(b.build())
+                out += b.build()
                 added++
             }
-            // Null, not an empty strip. A rider who sets all three buttons to
-            // None gets no strip at all; building an empty one throws
-            // "Action strip must contain at least one action" and takes the
-            // whole car screen with it. A tester hit exactly that: no buttons,
-            // a black screen, and a crash whenever anything forced a redraw.
-            return if (added == 0) null else strip.build()
+            return out
         }
     }
 
@@ -379,11 +440,24 @@ class EucCarAppService : CarAppService() {
                 place(s.navWorkJson, carContext.getString(R.string.car_place_work)),
             )
             val list = ItemList.Builder()
-            if (places.isEmpty()) list.setNoItemsMessage(carContext.getString(R.string.car_no_places))
+            val planned = currentRouteStore.get()?.waypoints?.filter { !it.passed }.orEmpty()
+            if (places.isEmpty() && planned.isEmpty()) list.setNoItemsMessage(carContext.getString(R.string.car_no_places))
+            if (planned.isNotEmpty()) {
+                list.addItem(
+                    Row.Builder()
+                        .setTitle(carContext.getString(R.string.car_planned_route, planned.size))
+                        .addText(planned.last().name.ifBlank { " " })
+                        .setOnClickListener {
+                            val stored = currentRouteStore.get()
+                            if (stored != null && stored.isLockedTrack) rideTrack(stored) else navigateTo(planned)
+                            screenManager.pop()
+                        }.build()
+                )
+            }
             places.forEach { p ->
                 list.addItem(
                     Row.Builder().setTitle(p.name).setOnClickListener {
-                        navigateTo(p)
+                        navigateTo(listOf(p))
                         screenManager.pop()
                     }.build()
                 )
@@ -403,15 +477,61 @@ class EucCarAppService : CarAppService() {
         }.getOrNull()
     }
 
-    /** Routes from where the rider is now, the way the navigator's own Start does. */
-    private fun navigateTo(dest: Waypoint) {
+    private fun imperial(): Boolean = Units.effectiveDistanceUnit(settingsState.value) == "mi"
+
+    /**
+     * Rides a planned locked track as drawn, as the navigator's Start does:
+     * from its start or the last stop reached, or to that point first in the
+     * travel mode last picked when the rider is further away.
+     */
+    private fun rideTrack(stored: com.eried.eucplanet.data.model.NavRoute) {
         val loc = tripRepository.currentLocation.value ?: return
         kotlinx.coroutines.MainScope().launch {
             val s = settingsRepository.get()
+            val name = stored.name
+            val track = stored.track
+            val me = com.eried.eucplanet.data.model.GeoPoint(loc.latitude, loc.longitude)
+            val plan = com.eried.eucplanet.nav.TrackRoute.start(
+                name, track, stored.waypoints, me,
+                maxOf(s.navArrivalRadiusM.toDouble(), com.eried.eucplanet.nav.TrackRoute.JOIN_M)
+            ) ?: return@launch
+            val route = plan.leg ?: run {
+                val wps = listOf(Waypoint(loc.latitude, loc.longitude), plan.leadInTo!!)
+                val mode = TravelMode.fromName(s.navDefaultTravelMode)
+                val leadIn = if (mode == TravelMode.STRAIGHT) null
+                else routingService.route(name, wps, mode, RoutingService.effectiveRouterUrl(s.navRouterUrl))
+                (leadIn ?: RoutingService.straightLineRoute(name, wps)).copy(track = track)
+            }
+            navigationEngine.start(route, NavMode.TURN_BY_TURN)
+            currentRouteStore.set(
+                route.copy(
+                    waypoints = plan.stops,
+                    geometry = emptyList(),
+                    maneuvers = emptyList(),
+                    totalDistanceM = 0.0,
+                    track = track
+                )
+            )
+        }
+    }
+
+    /**
+     * Routes from where the rider is now through [stops], the way the
+     * navigator's own Start does, in the travel mode last picked there.
+     * Straight lines aim at one goal at a time, so a straight planned route
+     * starts with its first stop.
+     */
+    private fun navigateTo(stops: List<Waypoint>) {
+        val loc = tripRepository.currentLocation.value ?: return
+        if (stops.isEmpty()) return
+        kotlinx.coroutines.MainScope().launch {
+            val s = settingsRepository.get()
             val mode = TravelMode.fromName(s.navDefaultTravelMode)
-            val wps = listOf(Waypoint(loc.latitude, loc.longitude), dest)
-            val route = routingService.route(dest.name, wps, mode, RoutingService.effectiveRouterUrl(s.navRouterUrl))
-                ?: RoutingService.straightLineRoute(dest.name, wps)
+            val targets = if (mode == TravelMode.STRAIGHT) stops.take(1) else stops
+            val name = targets.last().name
+            val wps = listOf(Waypoint(loc.latitude, loc.longitude)) + targets
+            val route = routingService.route(name, wps, mode, RoutingService.effectiveRouterUrl(s.navRouterUrl))
+                ?: RoutingService.straightLineRoute(name, wps)
             navigationEngine.start(
                 route, if (mode == TravelMode.STRAIGHT) NavMode.TREASURE_HUNT else NavMode.TURN_BY_TURN
             )

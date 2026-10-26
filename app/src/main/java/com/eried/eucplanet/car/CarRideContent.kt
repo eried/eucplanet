@@ -9,7 +9,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -35,6 +38,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -78,7 +82,10 @@ class CarRideState(
  * and light built-in themes, so the panel reads like the phone app does.
  */
 @Composable
-fun CarRideContent(state: CarRideState, dark: Boolean, visibleArea: Rect?, mapVisible: Boolean = true) {
+fun CarRideContent(
+    state: CarRideState, dark: Boolean, visibleArea: Rect?, mapVisible: Boolean = true,
+    cards: CarHostCards = CarHostCards.AUTOMOTIVE,
+) {
     EucPlanetTheme(colors = if (dark) BuiltInThemes.dark.colors else BuiltInThemes.light.colors) {
         val c = MaterialTheme.appColors
         val settings by state.settings.collectAsState()
@@ -120,10 +127,13 @@ fun CarRideContent(state: CarRideState, dark: Boolean, visibleArea: Rect?, mapVi
                 // "I can barely read it standing still".
                 !mapVisible && connected ->
                     BigStats(Modifier.padding(free).fillMaxSize().padding(20.dp), wheel, settings, state.phoneBattery())
-                // Map on: the surface carries the map and the one number worth
-                // glancing at. The rest live in the car's own content pane,
-                // which the host draws large and legible for us.
-                connected -> SpeedOnly(panel, wheel, settings)
+                // Navigating: the map keeps the free area to itself, and the
+                // rider's four numbers fill the card column between the car's
+                // turn card and its arrival card, where the host draws nothing.
+                // A tester asked for exactly that: "Blue square for map
+                // navigation only. Large 4 telemetry values", and no waiting
+                // card in the way.
+                mapVisible -> NavStats(free, cards, wheel, settings, connected, state.phoneBattery())
                 else -> WaitingCard(panel, lastBattery)
             }
         }
@@ -135,8 +145,11 @@ fun CarRideContent(state: CarRideState, dark: Boolean, visibleArea: Rect?, mapVi
  * A WebView loads its tiles on the car's virtual display but never paints
  * them there, so the car screen does not use one.
  *
- * North up, the rider centred, their heading as an arrow, the route on top,
- * and the layer's credit in the corner: the tile licences require it.
+ * Heading up, the way the phone's navigator follows: the rider low in the
+ * part of the screen the car leaves free, the map turning under them, the
+ * route on top, and the layer's credit in the corner: the tile licences
+ * require it. The heading is the course between fixes, which every provider
+ * gives, with the fix's own bearing until the rider has moved.
  */
 @Composable
 private fun CarMap(state: CarRideState, mapType: String, accent: Color, ring: Color, credit: Color, free: PaddingValues) {
@@ -147,6 +160,22 @@ private fun CarMap(state: CarRideState, mapType: String, accent: Color, ring: Co
     val zoom = CAR_ZOOM.coerceAtMost(layer.maxNativeZoom)
     val tilePx = with(LocalDensity.current) { (TILE_DP.dp.toPx()).toInt() } shl (CAR_ZOOM - zoom)
     val l = location
+    val density = LocalDensity.current
+    val freeLeft = with(density) { free.calculateLeftPadding(LayoutDirection.Ltr).toPx() }
+    val freeRight = with(density) { free.calculateRightPadding(LayoutDirection.Ltr).toPx() }
+    val freeTop = with(density) { free.calculateTopPadding().toPx() }
+    val freeBottom = with(density) { free.calculateBottomPadding().toPx() }
+    var anchor by remember { mutableStateOf<Location?>(null) }
+    var heading by remember { mutableStateOf<Float?>(null) }
+    LaunchedEffect(l) {
+        val now = l ?: return@LaunchedEffect
+        val a = anchor
+        if (a == null || now.time - a.time > COURSE_MAX_AGE_MS) anchor = now
+        else if (a.distanceTo(now) >= COURSE_MIN_M) {
+            heading = (a.bearingTo(now) + 360f) % 360f
+            anchor = now
+        }
+    }
     Box(Modifier.fillMaxSize().background(Color(android.graphics.Color.parseColor(mapTypeInitialBg(mapType))))) {
         if (l != null) {
             val centerTx = WebMercator.tileX(l.longitude, zoom)
@@ -179,12 +208,16 @@ private fun CarMap(state: CarRideState, mapType: String, accent: Color, ring: Co
             }
             Canvas(Modifier.fillMaxSize()) {
                 tilesReady
-                val cx = size.width / 2f
-                val cy = size.height / 2f
+                // The rider: centred across the free area, two thirds down it,
+                // so more of the road ahead shows.
+                val cx = freeLeft + (size.width - freeLeft - freeRight) / 2f
+                val cy = freeTop + (size.height - freeTop - freeBottom) * 2f / 3f
+                val up = heading ?: l.takeIf { it.hasBearing() }?.bearing ?: 0f
                 fun project(lat: Double, lng: Double) = Offset(
                     cx + ((WebMercator.tileX(lng, zoom) - centerTx) * tilePx).toFloat(),
                     cy + ((WebMercator.tileY(lat, zoom) - centerTy) * tilePx).toFloat(),
                 )
+                rotate(-up, pivot = Offset(cx, cy)) {
                 tiles.forEach { (tx, ty, url) ->
                     val bmp = MapTileCache.get(url) ?: return@forEach
                     drawImage(
@@ -204,8 +237,10 @@ private fun CarMap(state: CarRideState, mapType: String, accent: Color, ring: Co
                     }
                     drawPath(path, accent.copy(alpha = 0.85f), style = Stroke(width = 7.dp.toPx(), cap = StrokeCap.Round))
                 }
+                }
                 drawCircle(ring, radius = 14.dp.toPx(), center = Offset(cx, cy))
-                rotate(l.bearing, pivot = Offset(cx, cy)) {
+                // The map turned so the heading is up: the arrow points up.
+                run {
                     val r = 10.dp.toPx()
                     val arrow = Path().apply {
                         moveTo(cx, cy - r)
@@ -268,22 +303,122 @@ private fun StatsPanel(modifier: Modifier, wheel: WheelData, s: AppSettings, pho
     }
 }
 
-/** Speed alone, big, over the map. Everything else is in the content pane. */
+/**
+ * Where the host draws its navigation cards, as shares of the height above
+ * the car's bottom bar: the inset from the screen's edge, the bottom of the turn card and
+ * the top of the arrival card. The host reports the card column as covered
+ * (so [PaddingValues] start is its right edge) but not the cards' heights,
+ * so these are measured: Android Auto from a tester's head unit, Automotive
+ * from the emulator. The tiles copy the cards' corners and colour too, so the
+ * column reads as one stack.
+ */
+enum class CarHostCards(
+    val inset: Float, val turnBottom: Float, val arrivalTop: Float,
+    val cornerDp: Int, val pureBlack: Boolean,
+) {
+    ANDROID_AUTO(inset = 0.028f, turnBottom = 0.302f, arrivalTop = 0.758f, cornerDp = 12, pureBlack = false),
+    AUTOMOTIVE(inset = 0.027f, turnBottom = 0.345f, arrivalTop = 0.856f, cornerDp = 4, pureBlack = true);
+
+    companion object {
+        fun of(hostPackage: String?): CarHostCards =
+            if (hostPackage == "com.google.android.projection.gearhead") ANDROID_AUTO else AUTOMOTIVE
+    }
+}
+
+/**
+ * The rider's four car metrics while a route runs, as large tiles in the
+ * column the host keeps for its turn card (top) and arrival card (bottom),
+ * edge to edge with them. A screen too narrow for the column gets the tiles
+ * in the free area's corner instead.
+ */
 @Composable
-private fun SpeedOnly(modifier: Modifier, wheel: WheelData, s: AppSettings) {
+private fun NavStats(
+    free: PaddingValues, cards: CarHostCards, wheel: WheelData, s: AppSettings,
+    connected: Boolean, phoneBattery: Int,
+) {
+    // The host's cards stay dark in day mode too, so the tiles take the dark
+    // built-in theme rather than the car's day/night one.
+    val cardTheme = if (cards.pureBlack) BuiltInThemes.pureBlack else BuiltInThemes.dark
+    EucPlanetTheme(colors = cardTheme.colors) {
+        BoxWithConstraints(Modifier.fillMaxSize()) {
+            val column = free.calculateLeftPadding(LayoutDirection.Ltr)
+            // Shares of the height above the car's bottom bar, which the
+            // surface may or may not include depending on the host.
+            val h = maxHeight - free.calculateBottomPadding()
+            val box = if (column >= NAV_COLUMN_MIN_DP.dp) {
+                Modifier
+                    .width(column)
+                    .fillMaxHeight()
+                    .padding(
+                        start = h * cards.inset,
+                        top = h * cards.turnBottom + NAV_CARD_GAP_DP.dp,
+                        bottom = maxHeight - h * cards.arrivalTop + NAV_CARD_GAP_DP.dp,
+                    )
+            } else {
+                Modifier.padding(free).padding(12.dp).width(260.dp).height(150.dp)
+            }
+            NavMetricGrid(box, cards.cornerDp.dp, wheel, s, connected, phoneBattery)
+        }
+    }
+}
+
+@Composable
+private fun NavMetricGrid(
+    modifier: Modifier, corner: androidx.compose.ui.unit.Dp, wheel: WheelData, s: AppSettings,
+    connected: Boolean, phoneBattery: Int,
+) {
+    val types = AndroidAutoSettings.metricSlots(s.androidAuto.metrics)
+        .mapNotNull { WidgetMetricType.byKey(it) }
+    if (types.isEmpty()) return
     val c = MaterialTheme.appColors
     val context = LocalContext.current
-    val unit = Units.effectiveSpeedUnit(s)
-    Row(modifier, verticalAlignment = Alignment.Bottom) {
-        Text(
-            "%.0f".format(Units.speed(wheel.speed, unit)),
-            color = c.textPrimary, fontSize = 72.sp, fontWeight = FontWeight.Bold,
-        )
-        Text(
-            Units.speedUnit(context, unit),
-            color = c.textSecondary, fontSize = 22.sp,
-            modifier = Modifier.padding(start = 8.dp, bottom = 14.dp),
-        )
+    val density = LocalDensity.current
+    val speedUnit = Units.effectiveSpeedUnit(s)
+    val distUnit = Units.effectiveDistanceUnit(s)
+    val tempUnit = Units.effectiveTempUnit(s)
+    BoxWithConstraints(modifier) {
+        val cols = if (types.size == 1) 1 else 2
+        val rows = (types.size + cols - 1) / cols
+        val gap = NAV_CARD_GAP_DP.dp
+        val tileH = (maxHeight - gap * (rows - 1)) / rows
+        val tileW = (maxWidth - gap * (cols - 1)) / cols
+        // Off the tile we are given, the way BigStats sizes: a ratio cannot
+        // clip at the edge the way fixed sizes did on smaller head units.
+        val valueSize = with(density) { minOf(tileH * 0.46f, tileW / 3f).toSp() }
+        val labelSize = valueSize * 0.3f
+        Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(gap)) {
+            types.chunked(cols).forEach { row ->
+                Row(Modifier.fillMaxWidth().weight(1f), horizontalArrangement = Arrangement.spacedBy(gap)) {
+                    row.forEach { type ->
+                        Column(
+                            Modifier.weight(1f).fillMaxHeight()
+                                .background(c.surface, RoundedCornerShape(corner))
+                                .padding(horizontal = 10.dp, vertical = 4.dp),
+                            verticalArrangement = Arrangement.Center,
+                        ) {
+                            Text(
+                                stringResource(type.pickerLabel), color = c.textSecondary,
+                                fontSize = labelSize, maxLines = 1, softWrap = false,
+                            )
+                            Row(verticalAlignment = Alignment.Bottom) {
+                                Text(
+                                    if (connected) WidgetMetricFormat.value(type, wheel, speedUnit, distUnit, tempUnit, phoneBattery) else "--",
+                                    color = c.textPrimary, fontSize = valueSize,
+                                    fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false,
+                                )
+                                Text(
+                                    WidgetMetricFormat.unit(context, type, speedUnit, distUnit, tempUnit),
+                                    color = c.textSecondary, fontSize = labelSize * 1.2f,
+                                    maxLines = 1, softWrap = false,
+                                    modifier = Modifier.padding(start = 4.dp),
+                                )
+                            }
+                        }
+                    }
+                    if (row.size < cols) Spacer(Modifier.weight(1f))
+                }
+            }
+        }
     }
 }
 
@@ -386,6 +521,17 @@ private fun WaitingCard(modifier: Modifier, lastBattery: Int?) {
         }
     }
 }
+
+/** Course between fixes: metres before it updates, and how old the anchor
+ *  fix may get before it is dropped (a stop, a GPS gap). */
+private const val COURSE_MIN_M = 8f
+private const val COURSE_MAX_AGE_MS = 15_000L
+
+/** The card column while navigating: narrower than this and the host has not
+ *  kept one, so the tiles go in the free area instead. */
+private const val NAV_COLUMN_MIN_DP = 140
+/** Between the tiles, and between the tiles and the host's cards. */
+private const val NAV_CARD_GAP_DP = 8
 
 /** Close enough to read street names on a car screen at a glance. */
 private const val CAR_ZOOM = 17

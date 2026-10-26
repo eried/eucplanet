@@ -5,6 +5,7 @@ import android.content.Intent
 import android.location.Location
 import android.util.Log
 import com.eried.eucplanet.R
+import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.ArrowDir
 import com.eried.eucplanet.data.model.GeoPoint
 import com.eried.eucplanet.data.model.Maneuver
@@ -71,8 +72,11 @@ class NavigationEngine @Inject constructor(
         private const val FIX_BUFFER_MS = 14_000L
         private const val MIN_HEADING_DISP_M = 8.0
 
-        // "Moving" thresholds, either GPS speed (m/s) or wheel speed (km/h).
+        // "Moving" thresholds: wheel speed (km/h) with a wheel connected,
+        // GPS speed (m/s) without one.
         private const val MOVING_MS = 1.2
+        /** How far back the fix is that gives speed when the provider sends none. */
+        private const val NO_SPEED_SPAN_MS = 4_000L
         private const val MOVING_KMH = 4.0
 
         // Turn-by-turn announce distances.
@@ -170,6 +174,9 @@ class NavigationEngine @Inject constructor(
                 executeDistM = s.navExecuteDistM.toDouble()
                 proxBandM = s.navProxBandM.toDouble()
                 minInterStopMoveM = s.navMinInterStopMoveM.toDouble()
+                cruiseKmh = s.navCruiseKmh.toDouble()
+                normalTiltbackKmh = s.tiltbackSpeedKmh.toDouble()
+                safetyTiltbackKmh = s.safetyTiltbackKmh.toDouble()
             }
         }
     }
@@ -210,7 +217,8 @@ class NavigationEngine @Inject constructor(
     private var avoidances = RouteAvoidances.NONE
 
     // --- trace / heading state ---
-    private data class Fix(val point: GeoPoint, val timeMs: Long, val moving: Boolean)
+    /** [accuracyM] is NaN when the fix has none. */
+    private data class Fix(val point: GeoPoint, val timeMs: Long, val moving: Boolean, val accuracyM: Float)
     private val recentFixes = ArrayDeque<Fix>()
     private var heading: Double? = null
 
@@ -235,6 +243,14 @@ class NavigationEngine @Inject constructor(
     private var preMoveCueSpoken = false
     private var rerouteInFlight = false
     private var waypointAlongM: List<Double> = emptyList()
+
+    // Navigator-view arrival time. The moving average spans the whole session
+    // (reset in start(), not per leg); closing speed is per goal.
+    private val movingAverage = MovingAverage()
+    private val closingSpeed = ClosingSpeed()
+    @Volatile private var cruiseKmh: Double = 25.0
+    @Volatile private var normalTiltbackKmh: Double = 0.0
+    @Volatile private var safetyTiltbackKmh: Double = 0.0
 
     // --- treasure-hunt state ---
     private var currentGoal = 0
@@ -308,11 +324,10 @@ class NavigationEngine @Inject constructor(
             // resetRuntimeState (which advanceLeg also calls -- the gate
             // is intentionally preserved across legs).
             lastArrivalPoint = null
-            waypointAlongM = if (route.geometry.size >= 2) {
-                route.waypoints.mapNotNull {
-                    GeoMath.nearestOnPolyline(it.point(), route.geometry)?.alongM
-                }
-            } else emptyList()
+            movingAverage.reset()
+            closingSpeed.reset()
+            waypointAlongM = alongOf(route)
+            trackProgress = progressFor(route)
 
             _navState.value = NavState(
                 active = true,
@@ -321,7 +336,8 @@ class NavigationEngine @Inject constructor(
                 waiting = true,
                 primaryText = context.getString(R.string.nav_start_riding),
                 goalIndex = 1,
-                goalCount = (route.waypoints.size - 1).coerceAtLeast(1)
+                goalCount = (route.waypoints.size - 1).coerceAtLeast(1),
+                nextStop = route.waypoints.getOrNull(1)?.point()
             )
 
             if (voiceEnabled) {
@@ -355,11 +371,8 @@ class NavigationEngine @Inject constructor(
             activeRoute = newRoute
             _activeLeg.value = newRoute
             resetRuntimeState()
-            waypointAlongM = if (newRoute.geometry.size >= 2) {
-                newRoute.waypoints.mapNotNull {
-                    GeoMath.nearestOnPolyline(it.point(), newRoute.geometry)?.alongM
-                }
-            } else emptyList()
+            waypointAlongM = alongOf(newRoute)
+            trackProgress = progressFor(newRoute)
             // Compute the initial distance to the new goal from the rider's
             // current position so the popup pops with the real distance
             // already filled in, not an empty placeholder that updates one
@@ -390,6 +403,7 @@ class NavigationEngine @Inject constructor(
                 proximity = null,
                 goalIndex = 1,
                 goalCount = (newRoute.waypoints.size - 1).coerceAtLeast(1),
+                nextStop = goal,
                 popupTick = _navState.value.popupTick + 1
             )
         }
@@ -438,6 +452,22 @@ class NavigationEngine @Inject constructor(
         )
     }
 
+    /** Where the rider is along a locked track's line, so a loop or a
+     *  crossing does not jump them to the other pass. Null for other legs. */
+    private var trackProgress: TrackRoute.Progress? = null
+
+    private fun isTrackLeg(route: NavRoute) = route.isLockedTrack && route.travelMode == TravelMode.STRAIGHT
+
+    private fun progressFor(route: NavRoute): TrackRoute.Progress? =
+        if (isTrackLeg(route)) TrackRoute.Progress(route.geometry) else null
+
+    /** How far along the leg's line each of its stops is. */
+    private fun alongOf(route: NavRoute): List<Double> = when {
+        route.geometry.size < 2 -> emptyList()
+        isTrackLeg(route) -> TrackRoute.alongM(route.waypoints.map { it.point() }, route.geometry)
+        else -> route.waypoints.mapNotNull { GeoMath.nearestOnPolyline(it.point(), route.geometry)?.alongM }
+    }
+
     private fun resetRuntimeState() {
         recentFixes.clear()
         heading = null
@@ -452,6 +482,7 @@ class NavigationEngine @Inject constructor(
         currentGoal = 1
         lastGoalDistM = Double.NaN
         lastProximity = null
+        closingSpeed.reset()
         lastVoicedGoalDistM = Double.NaN
         lastHuntVoiceMs = 0L
         coldStreak = 0
@@ -474,11 +505,23 @@ class NavigationEngine @Inject constructor(
         val now = System.currentTimeMillis()
         val point = GeoPoint(loc.latitude, loc.longitude)
 
-        val gpsSpeed = if (loc.hasSpeed()) loc.speed.toDouble() else 0.0
+        val accuracy = if (loc.hasAccuracy()) loc.accuracy else Float.NaN
+        // Some providers send no speed; then the fixes a few seconds apart
+        // give it, or "Start riding" never ended without a wheel.
+        val gpsSpeed = if (loc.hasSpeed()) loc.speed.toDouble() else
+            recentFixes.lastOrNull { now - it.timeMs >= NO_SPEED_SPAN_MS }?.let {
+                NavMotion.speedFromFixes(GeoMath.distanceM(it.point, point), now - it.timeMs, it.accuracyM, accuracy)
+            } ?: 0.0
         val wheelKmh = abs(wheelRepository.wheelData.value.speed).toDouble()
-        val moving = gpsSpeed > MOVING_MS || wheelKmh > movingKmh
+        val wheelConnected = wheelRepository.connectionState.value == ConnectionState.CONNECTED
+        val moving = NavMotion.isMoving(
+            wheelConnected, wheelKmh, movingKmh, gpsSpeed, MOVING_MS,
+            accuracy.takeUnless { it.isNaN() })
+        // Wheel speed when a wheel reports one, GPS otherwise.
+        val rideKmh = if (wheelKmh > 0.0) wheelKmh else gpsSpeed * 3.6
+        movingAverage.add(now, rideKmh, movingKmh)
 
-        recentFixes.addLast(Fix(point, now, moving))
+        recentFixes.addLast(Fix(point, now, moving, accuracy))
         while (recentFixes.isNotEmpty() && now - recentFixes.first().timeMs > fixBufferMs) {
             recentFixes.removeFirst()
         }
@@ -530,6 +573,7 @@ class NavigationEngine @Inject constructor(
                 )
                 if (d <= r) {
                     currentGoal = 2
+                    closingSpeed.reset()
                     lastGoalDistM = Double.NaN
                     lastProximity = null
                     lastVoicedGoalDistM = Double.NaN
@@ -555,8 +599,14 @@ class NavigationEngine @Inject constructor(
                 arrow = ArrowDir.STRAIGHT,
                 primaryText = context.getString(R.string.nav_start_riding),
                 distanceText = distanceText,
+                cueDistanceM = distToGoal,
+                remainingM = distToGoal,
+                nextStopRemainingM = distToGoal,
+                straightLine = navMode == NavMode.TREASURE_HUNT,
+                etaEpochMs = 0L,
                 goalIndex = currentGoal.coerceIn(1, goalCount),
-                goalCount = goalCount
+                goalCount = goalCount,
+                nextStop = goal?.point()
             )
             syncBuilderRoute((currentGoal - 1).coerceAtLeast(0))
             if (voiceEnabled && !preMoveCueSpoken && !distToGoal.isNaN()) {
@@ -584,7 +634,9 @@ class NavigationEngine @Inject constructor(
         if (window.size >= 2) {
             val first = window.first().point
             val last = window.last().point
-            if (GeoMath.distanceM(first, last) >= MIN_HEADING_DISP_M) {
+            val disp = GeoMath.distanceM(first, last)
+            if (NavMotion.headingDispOk(disp, MIN_HEADING_DISP_M,
+                    window.first().accuracyM, window.last().accuracyM)) {
                 heading = GeoMath.bearingDeg(first, last)
             }
         }
@@ -596,11 +648,12 @@ class NavigationEngine @Inject constructor(
         // A route with no maneuvers (STRAIGHT mode, or a routing fallback) is
         // guided like a homing line toward the final waypoint.
         if (route.maneuvers.isEmpty() || route.geometry.size < 2) {
-            guideHoming(route, point, heading)
+            guideHoming(route, point, heading, now)
             return
         }
 
-        val hit = GeoMath.nearestOnPolyline(point, route.geometry) ?: return
+        val hit = trackProgress?.locate(point)
+            ?: GeoMath.nearestOnPolyline(point, route.geometry) ?: return
         val distToEnd = (route.totalDistanceM - hit.alongM).coerceAtLeast(0.0)
         val finalRadiusFromWp = route.waypoints.lastOrNull()?.radiusM
         val finalRadius = finalRadiusFromWp ?: arrivalRadiusM
@@ -632,7 +685,10 @@ class NavigationEngine @Inject constructor(
         // on the route polyline can still be far from the end, so distToEnd
         // alone misses arrivals the rider can physically see they made.
         val lastWp = route.waypoints.lastOrNull()
-        val directDistToEnd = lastWp?.let { GeoMath.distanceM(point, it.point()) }
+        // A loop ends where it starts: on a locked track the straight-line
+        // check waits for the second half, or the start would be the end.
+        val directDistToEnd = lastWp?.takeIf { !isTrackLeg(route) || hit.alongM > route.totalDistanceM / 2 }
+            ?.let { GeoMath.distanceM(point, it.point()) }
             ?: Double.MAX_VALUE
         if (!arrivalHandled && (distToEnd <= finalRadius || directDistToEnd <= finalRadius)) {
             handleArrival()
@@ -662,9 +718,14 @@ class NavigationEngine @Inject constructor(
         // and this stays silent -- the leg-by-leg arrival flow is untouched.
         if (reached > lastIntermediateAnnounced && reached < route.waypoints.size - 1) {
             lastIntermediateAnnounced = reached
-            Log.i(TAG, "INTERMEDIATE-STOP reached=$reached of ${route.waypoints.size - 1}")
+            // A track's places are named stops: say which one.
+            val name = route.waypoints.getOrNull(reached)?.name?.takeIf { route.isLockedTrack && it.isNotBlank() }
+            Log.i(TAG, "INTERMEDIATE-STOP reached=$reached of ${route.waypoints.size - 1} place=$name")
             if (voiceEnabled) {
-                voiceService.announceEvent(context.getString(R.string.voice_nav_goal_reached))
+                voiceService.announceEvent(
+                    if (name != null) context.getString(R.string.voice_nav_place_reached, name)
+                    else context.getString(R.string.voice_nav_goal_reached)
+                )
             }
         }
 
@@ -676,10 +737,19 @@ class NavigationEngine @Inject constructor(
             primaryText = next?.let { turnText(it.type) }
                 ?: context.getString(R.string.nav_continue),
             distanceText = NavFormat.distance(context, distToTurn, imperial),
+            cueDistanceM = distToTurn,
+            remainingM = distToEnd,
+            nextStopRemainingM = waypointAlongM.getOrNull(reached + 1)
+                ?.let { (it - hit.alongM).coerceAtLeast(0.0) } ?: distToEnd,
+            straightLine = false,
+            etaEpochMs = routedEta(now, distToEnd),
             nextStreet = next?.streetName ?: "",
             offRoute = _navState.value.offRoute,
             goalIndex = (reached + 1).coerceIn(1, (route.waypoints.size - 1).coerceAtLeast(1)),
-            goalCount = (route.waypoints.size - 1).coerceAtLeast(1)
+            goalCount = (route.waypoints.size - 1).coerceAtLeast(1),
+            // The stop the countdown runs to; the builder ticks off the ones
+            // before it, since Full path raises no arrival for them.
+            nextStop = route.waypoints.getOrNull(reached + 1)?.point()
         )
     }
 
@@ -763,6 +833,7 @@ class NavigationEngine @Inject constructor(
                 val stops = listOf(Waypoint(from.lat, from.lng)) + remaining
                 if (stops.size >= 2) {
                     val fresh = routingService.route(route.name, stops, route.travelMode, routerUrl, avoidances)
+                        ?.let { if (route.isLockedTrack) it.copy(track = route.track) else it }
                     // The session may have been stopped or restarted while the
                     // network request was in flight, only adopt the result if
                     // we are still navigating the very same route.
@@ -792,8 +863,21 @@ class NavigationEngine @Inject constructor(
         }
     }
 
+    private fun routedEta(now: Long, remainingM: Double): Long {
+        // Read at ETA time so a safety-tiltback toggle takes effect at once.
+        val tiltback = if (wheelRepository.safetySpeedActive.value) safetyTiltbackKmh
+            else normalTiltbackKmh
+        return NavEta.etaEpochMs(now, remainingM,
+            NavEta.speedKmh(cruiseKmh, movingAverage.avgKmh, movingAverage.movingSeconds, tiltback))
+    }
+
+    private fun straightEta(now: Long, distM: Double): Long {
+        closingSpeed.add(now, distM)
+        return closingSpeed.kmh()?.let { NavEta.etaEpochMs(now, distM, it) } ?: 0L
+    }
+
     /** Degraded guidance for routes without maneuvers: home toward the last waypoint. */
-    private fun guideHoming(route: NavRoute, point: GeoPoint, heading: Double) {
+    private fun guideHoming(route: NavRoute, point: GeoPoint, heading: Double, now: Long) {
         val lastWp = route.waypoints.lastOrNull() ?: return
         val target = lastWp.point()
         val dist = GeoMath.distanceM(point, target)
@@ -810,9 +894,18 @@ class NavigationEngine @Inject constructor(
             relativeBearingDeg = rel.toFloat(),
             primaryText = context.getString(R.string.nav_continue),
             distanceText = NavFormat.distance(context, dist, imperial),
+            cueDistanceM = dist,
+            remainingM = dist,
+            nextStopRemainingM = dist,
+            straightLine = true,
+            etaEpochMs = straightEta(now, dist),
             nextStreet = "",
             goalIndex = (route.waypoints.size - 1).coerceAtLeast(1),
-            goalCount = (route.waypoints.size - 1).coerceAtLeast(1)
+            goalCount = (route.waypoints.size - 1).coerceAtLeast(1),
+            // Homing aims at the last stop and skips any in between, so only a
+            // single leg names its stop; a multi-stop fallback ticks them all
+            // off at arrival instead.
+            nextStop = if (route.waypoints.size == 2) target else null
         )
     }
 
@@ -835,6 +928,7 @@ class NavigationEngine @Inject constructor(
         if (dist <= (target.radiusM ?: arrivalRadiusM)) {
             // Reached this goal, advance.
             currentGoal++
+            closingSpeed.reset()
             lastGoalDistM = Double.NaN
             lastProximity = null
             lastVoicedGoalDistM = Double.NaN
@@ -876,10 +970,16 @@ class NavigationEngine @Inject constructor(
             // double it up and force a 2-line wrap.
             primaryText = directionText(rel),
             distanceText = NavFormat.distance(context, dist, imperial),
+            cueDistanceM = dist,
+            remainingM = dist,
+            nextStopRemainingM = dist,
+            straightLine = true,
+            etaEpochMs = straightEta(now, dist),
             nextStreet = "",
             proximity = proximity,
             goalIndex = currentGoal,
-            goalCount = (goals.size - 1).coerceAtLeast(1)
+            goalCount = (goals.size - 1).coerceAtLeast(1),
+            nextStop = target.point()
         )
 
         // Voice cadence: speak on a fresh goal or every HUNT_VOICE_INTERVAL
@@ -1028,6 +1128,7 @@ class NavigationEngine @Inject constructor(
                     proximity = null,
                     goalIndex = info.justArrivedIndex,
                     goalCount = info.totalGoals,
+                    nextStop = justArrivedGoal,
                     popupTick = _navState.value.popupTick + 1
                 )
                 if (voiceEnabled) {
@@ -1059,6 +1160,7 @@ class NavigationEngine @Inject constructor(
                 distanceText = "",
                 nextStreet = "",
                 proximity = null,
+                nextStop = justArrivedGoal,
                 popupTick = _navState.value.popupTick + 1
             )
             if (voiceEnabled) {
@@ -1133,6 +1235,14 @@ class NavigationEngine @Inject constructor(
      *  out of the multi-stop flow instead of advancing to a placeholder
      *  leg the rider can't possibly follow. */
     private suspend fun buildNextLeg(nextStop: Waypoint, route: NavRoute): NavRoute? {
+        if (route.isLockedTrack) {
+            // Past the ride to the start (or a stop): the rest of the line,
+            // from the stop just reached through every stop still ahead.
+            val idx = route.waypoints.indexOf(nextStop)
+            val from = route.waypoints.getOrNull(idx - 1) ?: route.waypoints.first()
+            val ahead = route.waypoints.drop(idx.coerceAtLeast(0)).filter { !it.passed }
+            return TrackRoute.leg(route.name, route.track, listOf(from.copy(passed = false)) + ahead)
+        }
         val loc = tripRepository.currentLocation.value ?: return null
         val mode = route.travelMode
         val legWps = listOf(Waypoint(loc.latitude, loc.longitude), nextStop)

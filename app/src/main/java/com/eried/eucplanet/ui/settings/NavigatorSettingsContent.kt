@@ -270,6 +270,34 @@ fun NavigatorSettingsContent(
             )
         }
 
+        // --- Navigator tiles: the 4 numbers beside the map while navigating ---
+        // Same slot pickers as the widget and Android Auto, 2 per row.
+        val tileKeys = com.eried.eucplanet.data.model.NavigatorViewSettings.metricSlots(
+            settings.navigatorView.metrics, KNOWN_DASHBOARD_METRICS.toSet())
+        val tileOptions = KNOWN_DASHBOARD_METRICS.map { it to metricChipLabel(it) }
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            SectionHeader(stringResource(R.string.nav_view_tiles))
+            HintText(stringResource(R.string.nav_view_tiles_desc), small = true)
+            tileKeys.indices.chunked(2).forEach { pair ->
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    pair.forEach { i ->
+                        val key = tileKeys[i]
+                        WidgetSlotDropdown(
+                            label = stringResource(R.string.widget_metric_slot, i + 1),
+                            currentLabel = if (key == com.eried.eucplanet.data.model.NavigatorViewSettings.NONE) ""
+                                else metricChipLabel(key),
+                            options = tileOptions,
+                            onSelect = { viewModel.updateNavigatorTile(i, it) },
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                }
+            }
+        }
+
         // --- Weather / ridability ---------------------------------------
         // The dashboard weather icon and its forecast flyout. Ships off;
         // enabling adds the icon above the map button.

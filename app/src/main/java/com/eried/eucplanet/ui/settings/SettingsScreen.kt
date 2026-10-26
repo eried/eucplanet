@@ -4743,7 +4743,7 @@ private fun CompositeCellDropdown(
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun WidgetSlotDropdown(
+internal fun WidgetSlotDropdown(
     label: String,
     currentLabel: String,
     options: List<Pair<String, String>>,

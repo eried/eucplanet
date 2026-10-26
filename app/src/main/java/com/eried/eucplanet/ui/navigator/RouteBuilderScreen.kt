@@ -12,6 +12,7 @@ import android.webkit.WebViewClient
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -42,6 +43,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.DirectionsBike
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.DirectionsWalk
@@ -59,6 +62,9 @@ import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
@@ -82,6 +88,7 @@ import coil.compose.AsyncImage
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -121,13 +128,18 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -150,6 +162,7 @@ import com.eried.eucplanet.nav.NavFormat
 import com.eried.eucplanet.nav.OcmCharger
 import com.eried.eucplanet.nav.PoiKind
 import com.eried.eucplanet.nav.PointOfInterest
+import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -163,6 +176,8 @@ import com.eried.eucplanet.ui.settings.eucstats.flagEmoji
 import com.eried.eucplanet.ui.theme.themedFieldColors
 import com.eried.eucplanet.ui.theme.themedSegmentedColors
 import com.eried.eucplanet.ui.theme.appColors
+import com.eried.eucplanet.ui.common.DestructiveMenuItem
+import com.eried.eucplanet.ui.common.appMenuItemColors
 
 /**
  * The Route Builder: a full-bleed Leaflet map (WebView) with a top search bar,
@@ -177,6 +192,11 @@ import com.eried.eucplanet.ui.theme.appColors
 // phone (360dp+) and the landscape sidebar, and only a genuinely tiny width -- a
 // split-screen half or a sub-~330dp screen -- falls back to the short "Start".
 private val START_NAV_MIN_WIDTH = 260.dp
+
+/** Heading-up course: metres between fixes before the course updates, and
+ *  how old the anchor fix may get before it is dropped (a stop, a GPS gap). */
+private const val COURSE_MIN_M = 8f
+private const val COURSE_MAX_AGE_MS = 15_000L
 
 // How long the "Locating" cover waits for a first fix once the map itself is
 // ready to show. Long enough that a fix a moment away still lands behind the
@@ -199,6 +219,8 @@ fun RouteBuilderScreen(
     val waypoints by viewModel.waypoints.collectAsState()
     val route by viewModel.route.collectAsState()
     val travelMode by viewModel.travelMode.collectAsState()
+    val trackLocked by viewModel.trackLocked.collectAsState()
+    val unlockState by viewModel.unlock.collectAsState()
     val solveFullPath by viewModel.solveFullPath.collectAsState()
     val tourDistanceM by viewModel.tourDistanceM.collectAsState()
     val stopLegs by viewModel.stopLegs.collectAsState()
@@ -218,6 +240,21 @@ fun RouteBuilderScreen(
     val workPlace by viewModel.work.collectAsState()
     // While guidance runs the map is read-only: no search, no stop editing.
     val navRunning by viewModel.navRunning.collectAsState()
+    // Navigator view settings (tiles, north-up). The per-frame values (wheel
+    // data, guidance state) are collected inside NavigatorOverlay so a BLE
+    // frame recomposes the overlay only, not the whole map scaffold.
+    val navigatorView by viewModel.navigatorView.collectAsState()
+    // Held as State and read only inside the stops panel's countdown lambda,
+    // never here, so a new fix does not invalidate this screen.
+    val navStateHolder = viewModel.navState.collectAsState()
+    // Keep the screen on while navigating with the map in front. This only
+    // sets the view flag, which the window's own keep-on flag (the
+    // dashboard setting) is OR-ed with, so that setting still wins.
+    val hostView = LocalView.current
+    DisposableEffect(navRunning) {
+        hostView.keepScreenOn = navRunning
+        onDispose { hostView.keepScreenOn = false }
+    }
     val advancedMap by viewModel.advancedMap.collectAsState()
     val showChargers by viewModel.showChargers.collectAsState()
     val placeCats by viewModel.placeCats.collectAsState()
@@ -240,6 +277,7 @@ fun RouteBuilderScreen(
     // *at* the marker instead of at the centre of the map.
     var selfMenuOffset by remember { mutableStateOf(DpOffset.Zero) }
     var clearConfirmOpen by remember { mutableStateOf(false) }
+    var solveDialogOpen by remember { mutableStateOf(false) }
     // The picked GPX waiting on a "replace the current route?" confirmation.
     // Held only after the rider has actually chosen a file (asking BEFORE
     // the picker would be confusing, they may cancel out, and the prompt
@@ -331,6 +369,9 @@ fun RouteBuilderScreen(
     // measure the TopAppBar ourselves so the recenter offset always
     // matches what the rider sees on screen.
     var topBarHeightPx by remember { mutableStateOf(0) }
+    // Height of the map box (the screen minus the system nav bar), measured,
+    // for the navigator's look-ahead and the tile column's height cap.
+    var mapBoxHeightPx by remember { mutableStateOf(0) }
     var pageReady by remember { mutableStateOf(false) }
     var didInitialCenter by remember { mutableStateOf(false) }
     // True once the WebView's first nativeRender has completed -- i.e.,
@@ -411,8 +452,13 @@ fun RouteBuilderScreen(
     LaunchedEffect(pageReady) {
         val wv = webView ?: return@LaunchedEffect
         if (!pageReady) return@LaunchedEffect
+        // The first render replays the last one, so coming back from Settings
+        // keeps the view the rider left. Every later render is something they
+        // just did (a GPX loaded, a place picked) and fits as asked.
+        var replayed = false
         viewModel.mapRender.collect { mr ->
-            val fit = mr.fit && viewModel.savedView.value == null
+            val fit = mr.fit && (replayed || viewModel.savedView.value == null)
+            replayed = true
             // While a route is still solving, this render is transient (one pin,
             // no geometry yet). Tell the map so it defers the fit to the settled
             // render, avoiding the first-stop "zoom in to the pin, then out to
@@ -503,19 +549,56 @@ fun RouteBuilderScreen(
     val movingOnMps = 2.5f
     val movingOffMps = 1.0f
     var lastSentMoving by remember { mutableStateOf(false) }
+    // Course over ground from the fixes themselves: some providers send no
+    // bearing, or a stuck one, and then heading-up never turned the map. The
+    // anchor moves on once the rider is COURSE_MIN_M away from it.
+    val courseAnchor = remember { arrayOfNulls<android.location.Location>(1) }
+    var trackCourse by remember { mutableStateOf<Float?>(null) }
+    // Speed over that same step, for a provider that sends no speed.
+    val courseSpeedMs = remember { floatArrayOf(0f) }
     LaunchedEffect(pageReady, userLocation) {
         val wv = webView ?: return@LaunchedEffect
         val loc = userLocation ?: return@LaunchedEffect
         if (!pageReady) return@LaunchedEffect
         wv.evaluateJavascript("nativeSetUser(${loc.latitude},${loc.longitude});", null)
-        val sp = if (loc.hasSpeed()) loc.speed else 0f
+        val anchor = courseAnchor[0]
+        if (anchor == null || loc.time - anchor.time > COURSE_MAX_AGE_MS) {
+            courseAnchor[0] = loc
+            trackCourse = null
+            courseSpeedMs[0] = 0f
+        } else if (anchor.distanceTo(loc) >= COURSE_MIN_M) {
+            trackCourse = (anchor.bearingTo(loc) + 360f) % 360f
+            val dtS = (loc.time - anchor.time) / 1000f
+            courseSpeedMs[0] = if (dtS > 0f) anchor.distanceTo(loc) / dtS else 0f
+            courseAnchor[0] = loc
+        }
+        // A connected wheel decides moving, as the navigation engine does:
+        // GPS speed lags, and some providers send none, which kept the map
+        // from turning at riding speed.
+        val sp = when {
+            viewModel.wheelLive.value -> viewModel.wheelData.value.speed.absoluteValue / 3.6f
+            loc.hasSpeed() -> loc.speed
+            else -> courseSpeedMs[0]
+        }
+        wv.evaluateJavascript("nativeSetUserSpeed($sp);", null)
         val newMoving = if (lastSentMoving) sp >= movingOffMps else sp >= movingOnMps
-        if (newMoving && loc.hasBearing()) {
-            wv.evaluateJavascript("nativeSetUserHeading(${loc.bearing});", null)
+        val heading = trackCourse ?: loc.takeIf { it.hasBearing() }?.bearing
+        if (newMoving && heading != null) {
+            wv.evaluateJavascript("nativeSetUserHeading($heading);", null)
         } else if (!newMoving && lastSentMoving) {
             wv.evaluateJavascript("nativeSetUserStill();", null)
         }
         lastSentMoving = newMoving
+    }
+
+    // How far the next cue (turn or stop) is, for the navigator's auto-zoom:
+    // it closes in as the cue nears so the turn and the destination are
+    // readable when they matter. -1 while no route runs.
+    val cueM = navStateHolder.value.let { if (it.active) it.cueDistanceM else Double.NaN }
+    LaunchedEffect(pageReady, cueM) {
+        val wv = webView ?: return@LaunchedEffect
+        if (!pageReady) return@LaunchedEffect
+        wv.evaluateJavascript("nativeSetCueDistance(${if (cueM.isNaN()) -1.0 else cueM});", null)
     }
 
     // The map's "lost" badge is the one piece of peer chrome drawn by the
@@ -657,10 +740,17 @@ fun RouteBuilderScreen(
     // Push the current travel mode (DRIVING / CYCLING / WALKING / STRAIGHT)
     // into the map so the route line uses the matching colour, and STRAIGHT
     // mode gets the chevron arrows along its (otherwise featureless) line.
-    LaunchedEffect(pageReady, travelMode) {
+    LaunchedEffect(pageReady, travelMode, trackLocked) {
         val wv = webView ?: return@LaunchedEffect
         if (!pageReady) return@LaunchedEffect
-        wv.evaluateJavascript("nativeSetTravelMode('${travelMode.name}');", null)
+        val jsMode = if (trackLocked) "TRACK" else travelMode.name
+        wv.evaluateJavascript("nativeSetTravelMode('$jsMode');", null)
+        wv.evaluateJavascript(
+            "nativeRender(${jsString(viewModel.waypointsJson())}," +
+                "${jsString(viewModel.geometryJson())},false," +
+                "${jsString(viewModel.pendingPreviewJson())});",
+            null
+        )
     }
 
     // Push the Full path / Next segment choice so the map suppresses the dashed
@@ -719,23 +809,32 @@ fun RouteBuilderScreen(
 
     // Starting navigation, Direct mode has no street-by-street routing, so it
     // launches Treasure Hunt; the routed modes launch turn-by-turn guidance.
-    // Shared by the menu item and the bottom button.
-    // Set the moment Start is tapped so the button never flips to "Stop
-    // navigation" while the builder is still animating away.
-    var navStarting by remember { mutableStateOf(false) }
+    // Shared by the menu item and the bottom button. A second tap while the
+    // route is still being solved is ignored in the ViewModel.
     val startNav: () -> Unit = {
-        navStarting = true
-        val mode = if (travelMode == TravelMode.STRAIGHT)
+        val mode = if (travelMode == TravelMode.STRAIGHT && !trackLocked)
             NavMode.TREASURE_HUNT else NavMode.TURN_BY_TURN
-        viewModel.startNavigation(mode) { onExit() }
+        viewModel.startNavigation(mode) { panelExpanded = false }
     }
     // Hold-to-override: skip the too-far guard and start anyway.
     val startNavForce: () -> Unit = {
-        navStarting = true
-        val mode = if (travelMode == TravelMode.STRAIGHT)
+        val mode = if (travelMode == TravelMode.STRAIGHT && !trackLocked)
             NavMode.TREASURE_HUNT else NavMode.TURN_BY_TURN
-        viewModel.startNavigation(mode, force = true) { onExit() }
+        viewModel.startNavigation(mode, force = true) { panelExpanded = false }
     }
+
+    // Landscape: the stops panel docks as a sidebar on the rider's chosen
+    // side (Screen geometry setting) and its header moves into the top bar.
+    // DEFAULT keeps the bottom panel exactly like portrait. The sidebar also
+    // needs real width: on tiny flip-cover screens (~374 dp wide) the 340 dp
+    // sidebar would swallow the map, so those keep the bottom-panel layout
+    // even when rotated.
+    val stopsSide by viewModel.navStopsSide.collectAsState()
+    val advancedVars by viewModel.advanced.collectAsState()
+    val landscape = LocalConfiguration.current.orientation ==
+        android.content.res.Configuration.ORIENTATION_LANDSCAPE &&
+        LocalConfiguration.current.screenWidthDp >= advancedVars.navSidebarMinScreenDp &&
+        stopsSide != "DEFAULT"
 
     Scaffold(
         snackbarHost = {
@@ -766,7 +865,18 @@ fun RouteBuilderScreen(
                     }
                 },
                 title = {
-                    OutlinedTextField(
+                  // Landscape: the stops header sits on the right of the bar,
+                  // as wide as the sidebar under it, so folding the list away
+                  // leaves nothing on the map. While navigating, search is not
+                  // used, so its slot carries the instruction and next stop
+                  // in both orientations.
+                  Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (navRunning) NavTopStrip(
+                        viewModel = viewModel,
+                        waypoints = waypoints,
+                        modifier = Modifier.weight(1f).padding(end = 8.dp),
+                    )
+                    else OutlinedTextField(
                         value = searchText,
                         onValueChange = {
                             searchText = it
@@ -793,12 +903,32 @@ fun RouteBuilderScreen(
                         },
                         singleLine = true,
                         modifier = Modifier
-                            .fillMaxWidth()
+                            .weight(1f)
                             .padding(end = 8.dp)
                             .onFocusChanged { searchFocused = it.isFocused },
                         colors = themedFieldColors(),
                         shape = RoundedCornerShape(12.dp),
                     )
+                    if (landscape) {
+                        StopsHeader(
+                            waypoints = waypoints,
+                            routing = routing,
+                            routeDistanceM = tourDistanceM,
+                            imperial = imperial,
+                            navRunning = navRunning,
+                            canStartNavigation = userLocation != null && waypoints.isNotEmpty(),
+                            listShown = panelExpanded,
+                            buttonAlways = true,
+                            foldsUp = true,
+                            onToggle = { panelExpanded = !panelExpanded },
+                            onStartNavigation = startNav,
+                            onForceStartNavigation = startNavForce,
+                            onStopNavigation = viewModel::stopNavigation,
+                            onClearRoute = viewModel::clear,
+                            modifier = Modifier.width(advancedVars.navSidebarWidthDp.dp),
+                        )
+                    }
+                  }
                 },
                 actions = {
                     // Live location share. Green while a group is running,
@@ -926,7 +1056,13 @@ fun RouteBuilderScreen(
                             },
                             onResetMarker = { viewModel.setUserMarkerPhoto(null) },
                             hasCustomMarker = markerPhoto != null,
-                            navRunning = navRunning
+                            navRunning = navRunning,
+                            canSolve = viewModel.canSolve() && !route.isFixedTrack(waypoints),
+                            onSolve = { solveDialogOpen = true },
+                            trackLocked = trackLocked,
+                            onUnlockTrack = viewModel::openUnlock,
+                            canReverse = waypoints.size >= 2,
+                            onReverse = viewModel::reverseRoute
                         )
                     }
                 }
@@ -949,14 +1085,6 @@ fun RouteBuilderScreen(
         // by the real measurements automatically. Recomputed on every
         // recomposition because both sources are State, so the click handler
         // always reads the latest value.
-        // Landscape: the stops panel docks as a fixed-width, always-open
-        // sidebar on the rider's chosen side (Screen geometry setting).
-        // DEFAULT keeps the bottom panel exactly like portrait. The sidebar
-        // also needs real width: on tiny flip-cover screens (~374 dp wide)
-        // the 340 dp sidebar would swallow the map, so those keep the
-        // bottom-panel layout even when rotated.
-        val stopsSide by viewModel.navStopsSide.collectAsState()
-        val advancedVars by viewModel.advanced.collectAsState()
         // Keep the map's far-stop gate in sync so the live drag connector never
         // draws a line from the rider to a first stop beyond the max start
         // distance (mirrors the Kotlin-side gate for the solved and preview lines).
@@ -967,10 +1095,6 @@ fun RouteBuilderScreen(
                 "nativeSetMaxStartDistance(${advancedVars.navMaxStartDistanceKm});", null
             )
         }
-        val landscape = LocalConfiguration.current.orientation ==
-            android.content.res.Configuration.ORIENTATION_LANDSCAPE &&
-            LocalConfiguration.current.screenWidthDp >= advancedVars.navSidebarMinScreenDp &&
-            stopsSide != "DEFAULT"
         val effectivePanelPx =
             if (panelHeightPx > 0) panelHeightPx
             else with(density) { 300.dp.toPx().toInt() }
@@ -984,12 +1108,13 @@ fun RouteBuilderScreen(
         // otherwise the rider ends up DPR-x shifted (typical phones have
         // DPR=2.6..3.5, hence the "rider parks against the top bar"
         // symptom: a 66 dp shift becomes 198 device-px on screen).
-        // In landscape the stops panel sits in a left sidebar, so nothing
-        // occludes the map vertically. The Y offset formula would misread the
-        // sidebar's content height as a bottom occlusion and shift the rider
-        // toward the sidebar edge, so it is zeroed instead.
+        // In landscape the stops panel sits in a sidebar, so only the top
+        // bar occludes the map vertically. The portrait formula would misread
+        // the sidebar's content height as a bottom occlusion, so landscape
+        // counts the top bar alone; without it the rider sat mid-map, half a
+        // bar too high in the part the rider can see.
         val recenterOffsetPx =
-            if (landscape) 0f
+            if (landscape) -effectiveTopBarPx / 2f / density.density
             else (effectivePanelPx - effectiveTopBarPx) / 2f / density.density
         // Push the recenter offset to JS whenever it changes -- the
         // auto-follow pan tween (only active during navigation) uses it
@@ -1000,6 +1125,44 @@ fun RouteBuilderScreen(
             if (!pageReady) return@LaunchedEffect
             wv.evaluateJavascript("nativeSetRecenterOffset($recenterOffsetPx);", null)
         }
+        // Landscape: the map spans the full width and the stops sidebar covers
+        // part of it, so centre the rider in the visible part. Half the sidebar
+        // width, in dp (= CSS px, like the vertical offset above), moving the
+        // rider away from the sidebar: sidebar right => toward screen left (+).
+        // A collapsed sidebar is only its header row, so the rider centres on
+        // the full width.
+        val sideOffsetPx =
+            if (!landscape || !panelExpanded) 0f
+            else (advancedVars.navSidebarWidthDp / 2f) * (if (stopsSide != "LEFT") 1f else -1f)
+        LaunchedEffect(pageReady, landscape, panelExpanded, stopsSide, advancedVars.navSidebarWidthDp) {
+            val wv = webView ?: return@LaunchedEffect
+            if (!pageReady) return@LaunchedEffect
+            wv.evaluateJavascript("nativeSetNavSideOffset($sideOffsetPx);", null)
+        }
+        // Navigator view: while guidance runs the camera follows the rider
+        // placed low on the visible map (a sixth of its height below centre),
+        // heading-up unless the rider chose north-up. The visible map is the
+        // box minus the top bar and, in portrait, the bottom panel.
+        val visibleMapHeightPx = (mapBoxHeightPx - effectiveTopBarPx -
+            (if (landscape) 0 else effectivePanelPx)).coerceAtLeast(0)
+        val lookAheadPx = (visibleMapHeightPx / 6f) / density.density
+        // Separate effects: nativeSetNorthUp clears the heading ease, so a
+        // panel resize (new look-ahead) must not re-send it.
+        LaunchedEffect(pageReady, navRunning) {
+            val wv = webView ?: return@LaunchedEffect
+            if (!pageReady) return@LaunchedEffect
+            wv.evaluateJavascript("nativeSetNavigatorView(${navRunning});", null)
+        }
+        LaunchedEffect(pageReady, lookAheadPx) {
+            val wv = webView ?: return@LaunchedEffect
+            if (!pageReady) return@LaunchedEffect
+            wv.evaluateJavascript("nativeSetNavLookAhead($lookAheadPx);", null)
+        }
+        LaunchedEffect(pageReady, navigatorView.northUp) {
+            val wv = webView ?: return@LaunchedEffect
+            if (!pageReady) return@LaunchedEffect
+            wv.evaluateJavascript("nativeSetNorthUp(${navigatorView.northUp});", null)
+        }
         // The map fills the WHOLE screen, including the strip behind the
         // top bar -- the bar is now 80 % translucent so the map shows
         // through it. We still apply the BOTTOM padding so the bottom
@@ -1008,6 +1171,7 @@ fun RouteBuilderScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(bottom = padding.calculateBottomPadding())
+                .onSizeChanged { sz -> mapBoxHeightPx = sz.height }
         ) {
             // --- Map ---
             androidx.compose.ui.viewinterop.AndroidView(
@@ -1180,29 +1344,41 @@ fun RouteBuilderScreen(
             // flicker, and a button that comes and goes is one the rider has
             // to hunt for. Dimmed it reads as "nothing to reset" while still
             // showing which way the map is turned.
-            val mapBearing by viewModel.mapBearing.collectAsState()
-            val pointingNorth = mapBearing <= 2f || mapBearing >= 358f
-            val compassAlpha by animateFloatAsState(
-                targetValue = if (pointingNorth) 0.35f else 1f,
-                animationSpec = tween(durationMillis = 450),
-                label = "compassAlpha",
+            // Its own composable: the map reports every 1.5 degrees of turn
+            // during heading-up, and collecting that here recomposed the whole
+            // map screen for the whole ride.
+            // In landscape it clears the right-hand stops sidebar, so the
+            // navigator's metric pill under it stays on the map too. With the
+            // list folded away it moves to the screen edge.
+            val sidebarRight = stopsSide != "LEFT"
+            NavCompassButton(
+                viewModel = viewModel,
+                navRunning = navRunning,
+                northUp = navigatorView.northUp,
+                webView = webView,
+                topPad = padding.calculateTopPadding(),
+                endInset = if (landscape && panelExpanded && sidebarRight)
+                    advancedVars.navSidebarWidthDp.dp else 0.dp,
             )
-            run {
-                OverlayFab(
-                    active = false,
-                    loading = false,
-                    icon = Icons.Default.Explore,
-                    contentDescription = stringResource(R.string.nav_reset_north),
-                    onClick = { webView?.evaluateJavascript("nativeResetNorth();", null) },
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(top = padding.calculateTopPadding())
-                        .padding(end = 16.dp, top = 12.dp)
-                        .alpha(compassAlpha),
-                    // Needle points where the map is turned, so it reads as a
-                    // compass. On the modifier this span the whole button and
-                    // tilted its housing with it.
-                    iconRotation = -mapBearing
+
+            // --- Navigator view ----------------------------------------------
+            // While guidance runs the map carries what a rider needs: the turn
+            // card top-left, and the speed bubble with the 4-number pill.
+            // Portrait puts both on one row beside My location, just above
+            // the stops panel; landscape stands the pill under the compass.
+            // Everything sits on the map, clear of the landscape sidebar and
+            // of the Layers / My-location buttons.
+            if (navRunning) {
+                NavigatorOverlay(
+                    viewModel = viewModel,
+                    topPad = padding.calculateTopPadding(),
+                    landscape = landscape,
+                    sidebarRight = sidebarRight,
+                    sidebarOpen = panelExpanded,
+                    sidebarWidth = advancedVars.navSidebarWidthDp.dp,
+                    panelHeightPx = effectivePanelPx,
+                    mapBoxHeightPx = mapBoxHeightPx,
+                    tileKeysCsv = navigatorView.metrics,
                 )
             }
 
@@ -1491,18 +1667,17 @@ fun RouteBuilderScreen(
                     }
                 }
             }
-            // The route/stops panel. Always expanded in landscape (the sidebar
-            // has room for the full stops list), collapsible in portrait.
+            // The route/stops panel. Portrait: a dock that folds to its header.
+            // Landscape: only the list, in a sidebar the top bar's chevron shows
+            // or hides, since the header lives in the top bar there.
             val bottomPanelContent: @Composable (Modifier) -> Unit = { panelMod ->
                 BottomPanel(
                     expanded = landscape || panelExpanded,
-                    onToggle = { if (!landscape) panelExpanded = !panelExpanded },
-                    // Landscape sidebar is always open, so there's nothing to
-                    // collapse -- hide the chevron there.
-                    collapsible = !landscape,
+                    onToggle = { panelExpanded = !panelExpanded },
                     // Landscape: sidebar Column paints the translucent tone, so
                     // the panel draws transparent to avoid a near-opaque double.
                     dockTransparent = landscape,
+                    showHeader = !landscape,
                     travelMode = travelMode,
                     onModeChange = viewModel::setTravelMode,
                     solveFullPath = solveFullPath,
@@ -1511,6 +1686,15 @@ fun RouteBuilderScreen(
                     work = workPlace,
                     routeDistanceM = tourDistanceM,
                     stopLegs = stopLegs,
+                    nextStopRemainingM = {
+                        // Live only while riding: the arrived frame still holds
+                        // the stop just reached, and before a heading exists
+                        // the value is a straight line, so the planned leg
+                        // shows instead.
+                        val s = navStateHolder.value
+                        if (navRunning && !s.arrived && !s.waiting) s.nextStopRemainingM
+                        else Double.NaN
+                    },
                     routing = routing,
                     imperial = imperial,
                     onRemove = viewModel::removeWaypoint,
@@ -1531,16 +1715,16 @@ fun RouteBuilderScreen(
                     onStopNavigation = viewModel::stopNavigation,
                     onClearRoute = viewModel::clear,
                     canStartNavigation = userLocation != null && waypoints.isNotEmpty(),
-                    navRunning = navRunning && !navStarting,
+                    navRunning = navRunning,
+                    trackLocked = trackLocked,
                     modifier = panelMod.onSizeChanged { sz -> panelHeightPx = sz.height }
                 )
             }
 
             // Portrait: FABs stacked above a full-width bottom dock. Landscape:
-            // the panel is an always-expanded sidebar on the rider's chosen
-            // side (Screen geometry setting, default right) so the stops list
-            // is always visible; the FABs float on the opposite bottom corner
-            // of the map.
+            // the panel is a sidebar on the rider's chosen side (Screen
+            // geometry setting, default right); the FABs float on the opposite
+            // bottom corner of the map. Folded away, the map has the full width.
             if (landscape) {
                 val sidebarRight = stopsSide != "LEFT"
                 Column(
@@ -1553,9 +1737,17 @@ fun RouteBuilderScreen(
                         // them too far up.
                         .padding(start = if (sidebarRight) 16.dp else 0.dp)
                 ) { overlayFabs() }
+                androidx.compose.animation.AnimatedVisibility(
+                    visible = panelExpanded,
+                    modifier = Modifier
+                        .align(if (sidebarRight) Alignment.TopEnd else Alignment.TopStart),
+                    enter = androidx.compose.animation.expandVertically(expandFrom = Alignment.Top) +
+                        androidx.compose.animation.fadeIn(),
+                    exit = androidx.compose.animation.shrinkVertically(shrinkTowards = Alignment.Top) +
+                        androidx.compose.animation.fadeOut(),
+                ) {
                 Column(
                     modifier = Modifier
-                        .align(if (sidebarRight) Alignment.CenterEnd else Alignment.CenterStart)
                         .fillMaxHeight()
                         .width(advancedVars.navSidebarWidthDp.dp)
                         // Inset below the translucent top bar FIRST so the panel's
@@ -1570,6 +1762,7 @@ fun RouteBuilderScreen(
                         .verticalScroll(rememberScrollState())
                 ) {
                     bottomPanelContent(Modifier.fillMaxWidth())
+                }
                 }
             } else {
                 Column(
@@ -1587,7 +1780,7 @@ fun RouteBuilderScreen(
                 PoiDetailsSheet(
                     poi = poi,
                     imperial = imperial,
-                    canAdd = !navRunning,
+                    canAdd = !navRunning && !trackLocked,
                     ocm = selectedPoiOcm,
                     ocmLoading = ocmLoading,
                     onAddStop = { viewModel.addPoiAsStop(poi) },
@@ -1671,8 +1864,8 @@ fun RouteBuilderScreen(
                         }
                     )
                     if (markerPhoto != null) {
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.nav_remove_marker_photo_short)) },
+                        DestructiveMenuItem(
+                            text = stringResource(R.string.nav_remove_marker_photo_short),
                             onClick = {
                                 selfMenuOpen = false
                                 viewModel.setUserMarkerPhoto(null)
@@ -1712,34 +1905,22 @@ fun RouteBuilderScreen(
                             }
                         )
                     }
-                    // Remove this stop. Hidden while navigation is running or once
-                    // the whole route is passed (matches the list-row menu).
-                    val canRemoveMarker = !navRunning &&
+                    // Remove this stop. Greyed while navigation is running, once
+                    // the whole route is passed, or on a locked track (matches
+                    // the list-row menu).
+                    val canRemoveMarker = !navRunning && !trackLocked &&
                         !(waypoints.isNotEmpty() && waypoints.all { it.passed })
-                    if (canRemoveMarker) {
-                        if (homePlace == null || workPlace == null) {
-                            HorizontalDivider(color = MaterialTheme.appColors.divider)
-                        }
-                        DropdownMenuItem(
-                            leadingIcon = {
-                                Icon(
-                                    Icons.Default.Delete,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.error
-                                )
-                            },
-                            text = {
-                                Text(
-                                    stringResource(R.string.nav_remove_stop),
-                                    color = MaterialTheme.colorScheme.error
-                                )
-                            },
-                            onClick = {
-                                val i = markerMenuIndex; markerMenuIndex = -1
-                                if (i >= 0) viewModel.removeWaypoint(i)
-                            }
-                        )
+                    if (homePlace == null || workPlace == null) {
+                        HorizontalDivider(color = MaterialTheme.appColors.divider)
                     }
+                    DestructiveMenuItem(
+                        text = stringResource(R.string.nav_remove_stop),
+                        enabled = canRemoveMarker,
+                        onClick = {
+                            val i = markerMenuIndex; markerMenuIndex = -1
+                            if (i >= 0) viewModel.removeWaypoint(i)
+                        }
+                    )
                 }
             }
 
@@ -1759,6 +1940,20 @@ fun RouteBuilderScreen(
                             Text(stringResource(R.string.action_cancel))
                         }
                     }
+                )
+            }
+
+            if (solveDialogOpen) {
+                SolveRouteDialog(viewModel = viewModel, imperial = imperial, onClose = { solveDialogOpen = false })
+            }
+
+            unlockState?.let { unlockNow ->
+                UnlockTrackDialog(
+                    state = unlockNow,
+                    imperial = imperial,
+                    onCount = viewModel::setUnlockCount,
+                    onCancel = viewModel::cancelUnlock,
+                    onUnlock = viewModel::confirmUnlock,
                 )
             }
 
@@ -2109,33 +2304,83 @@ private fun BuilderMenu(
     onCustomizeMarker: () -> Unit,
     onResetMarker: () -> Unit,
     hasCustomMarker: Boolean,
-    navRunning: Boolean
+    navRunning: Boolean,
+    canSolve: Boolean,
+    onSolve: () -> Unit,
+    trackLocked: Boolean,
+    onUnlockTrack: () -> Unit,
+    canReverse: Boolean,
+    onReverse: () -> Unit
 ) {
     DropdownMenu(expanded = expanded, onDismissRequest = onDismiss, containerColor = MaterialTheme.appColors.menuBackground) {
+        // Route actions stay in place and grey out when they cannot run, so
+        // the menu keeps its shape and the rider sees what exists.
+        val greyed = appMenuItemColors()
+        // First, set apart: the one way to edit a locked track. Its dialog
+        // says to save the GPX first to keep the exact line. The open padlock sits
+        // at the end so the text stays in line with the rest, answering the
+        // closed ones on the stops. Only a locked track has it at all.
+        if (trackLocked) {
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.nav_menu_unlock_track)) },
+                trailingIcon = {
+                    Icon(
+                        Icons.Default.LockOpen,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
+                    )
+                },
+                enabled = !navRunning,
+                colors = greyed,
+                onClick = { onDismiss(); onUnlockTrack() }
+            )
+            HorizontalDivider(color = MaterialTheme.appColors.divider)
+        }
         // "Start navigation" is omitted here, it is already a primary button.
         // Save is allowed even while nav is running so the rider can capture
         // the remaining stops as a GPX checkpoint (the trim from
         // syncBuilderRoute means the saved file only contains stops still
-        // ahead). Load / Clear stay hidden during nav, both would replace
-        // the running route, which is destructive.
-        if (hasStops) {
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.nav_menu_save)) },
-                onClick = { onDismiss(); onSave() }
-            )
-        }
-        if (!navRunning) {
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.nav_menu_load)) },
-                onClick = { onDismiss(); onLoad() }
-            )
-        }
-        if (hasStops && !navRunning) {
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.nav_menu_clear)) },
-                onClick = { onDismiss(); onClear() }
-            )
-        }
+        // ahead). Load / Clear grey out during nav, both would replace
+        // the running route, which is destructive. Load leads: opening a
+        // route is the more common start than saving one.
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.nav_menu_load)) },
+            enabled = !navRunning,
+            colors = greyed,
+            onClick = { onDismiss(); onLoad() }
+        )
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.nav_menu_save)) },
+            enabled = hasStops,
+            colors = greyed,
+            onClick = { onDismiss(); onSave() }
+        )
+        // Starting over is not a delete: the 'Start a new route?' dialog
+        // guards any edits worth keeping, so the row stays plain.
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.nav_menu_clear)) },
+            enabled = hasStops && !navRunning,
+            colors = greyed,
+            onClick = { onDismiss(); onClear() }
+        )
+        // Reordering a running route would pull the next stop out from
+        // under the rider, so it is a planning action only. Its own group:
+        // it works on the stops, not on the route file like the items above.
+        // Reverse sits with it: the way back, also once the route is finished.
+        // A locked track reverses too, it stays the same line.
+        HorizontalDivider(color = MaterialTheme.appColors.divider)
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.nav_solve_menu)) },
+            enabled = canSolve && !navRunning && !trackLocked,
+            colors = greyed,
+            onClick = { onDismiss(); onSolve() }
+        )
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.nav_menu_reverse)) },
+            enabled = canReverse && !navRunning,
+            colors = greyed,
+            onClick = { onDismiss(); onReverse() }
+        )
         // Marker-customization group, bounded by separators above and below
         // so the rider's-avatar actions read as a distinct cluster from the
         // route / settings items.
@@ -2145,8 +2390,8 @@ private fun BuilderMenu(
             onClick = { onDismiss(); onCustomizeMarker() }
         )
         if (hasCustomMarker) {
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.nav_remove_marker_photo)) },
+            DestructiveMenuItem(
+                text = stringResource(R.string.nav_remove_marker_photo),
                 onClick = { onDismiss(); onResetMarker() }
             )
         }
@@ -2160,14 +2405,14 @@ private fun BuilderMenu(
             HorizontalDivider(color = MaterialTheme.appColors.divider)
         }
         if (hasHome) {
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.nav_clear_home)) },
+            DestructiveMenuItem(
+                text = stringResource(R.string.nav_clear_home),
                 onClick = { onDismiss(); onClearHome() }
             )
         }
         if (hasWork) {
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.nav_clear_work)) },
+            DestructiveMenuItem(
+                text = stringResource(R.string.nav_clear_work),
                 onClick = { onDismiss(); onClearWork() }
             )
         }
@@ -2188,7 +2433,7 @@ private fun waypointLabel(
     val role = if (index == total - 1)
         stringResource(R.string.nav_role_destination)
     else stringArrayResource(R.array.nav_stop_ordinals)
-        .getOrElse(index) { stringResource(R.string.nav_role_destination) }
+        .getOrElse(index) { stringResource(R.string.nav_stop_number, index + 1) }
     return if (name.isBlank()) role else "$role ($name)"
 }
 
@@ -2247,13 +2492,204 @@ private fun HoldableButton(
     )
 }
 
+/**
+ * The stops header: title, count and route distance, the Start / Stop / New
+ * route button and the chevron that shows or hides the stops list. Portrait
+ * puts it on top of the bottom dock; the landscape sidebar layout puts it in
+ * the top bar, beside the search, so the list below can fold away entirely.
+ *
+ * [buttonAlways] keeps the button on screen (the top bar); otherwise it shows
+ * only while the list is hidden, as the dock's big Start does the job when open.
+ */
+@Composable
+private fun StopsHeader(
+    waypoints: List<com.eried.eucplanet.data.model.Waypoint>,
+    routing: Boolean,
+    routeDistanceM: Double?,
+    imperial: Boolean,
+    navRunning: Boolean,
+    canStartNavigation: Boolean,
+    listShown: Boolean,
+    buttonAlways: Boolean,
+    foldsUp: Boolean,
+    onToggle: () -> Unit,
+    onStartNavigation: () -> Unit,
+    onForceStartNavigation: () -> Unit,
+    onStopNavigation: () -> Unit,
+    onClearRoute: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val allPassed = waypoints.isNotEmpty() && waypoints.all { it.passed }
+    val context = LocalContext.current
+    val buttonVisible = buttonAlways || !listShown
+    Box(modifier) {
+        // Header: title + count/distance + COMPACT start/stop + collapse chevron.
+        // The compact start/stop sits inline so a rider with the panel
+        // collapsed (i.e. the big Start button is hidden) can still kick
+        // off / cancel navigation without expanding -- the action they
+        // actually need most often is right there.
+        // A narrow header (a slim landscape sidebar, a small phone, a long
+        // language) drops the distance and uses the short Start / Stop
+        // label, so the button and the chevron always fit. Measured, not a
+        // fixed width: "Остановить навигацию" needs far more room than
+        // "Stop navigation", so the row checks whether the title, count,
+        // distance, full button label and chevron really fit side by side.
+        BoxWithConstraints {
+        val textMeasurer = rememberTextMeasurer()
+        val density = LocalDensity.current
+        fun widthOf(text: String, style: TextStyle) =
+            with(density) { textMeasurer.measure(text, style, maxLines = 1).size.width.toDp() }
+        val fullLabel = stringResource(
+            when {
+                allPassed -> R.string.nav_menu_clear
+                navRunning -> R.string.nav_stop_short
+                else -> R.string.nav_start_short
+            }
+        )
+        val distanceShown = !routing && !allPassed && routeDistanceM != null && routeDistanceM > 0
+        val fullWidth = widthOf(
+            stringResource(R.string.nav_waypoints),
+            MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+        ) + 8.dp + widthOf("(${waypoints.size})", MaterialTheme.typography.bodyMedium) +
+            (if (distanceShown) 12.dp + widthOf(
+                NavFormat.distance(context, routeDistanceM!!, imperial),
+                MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+            ) else 0.dp) +
+            maxOf(150.dp, widthOf(fullLabel, MaterialTheme.typography.labelLarge) + 24.dp) +
+            48.dp
+        // Without the button (the portrait list open) the distance always fits.
+        val roomyHeader = !buttonVisible || fullWidth <= maxWidth
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            // Title, count and distance share what the button and chevron
+            // leave: Row measures those unweighted children first, so they
+            // are never pushed off the edge.
+            Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                stringResource(R.string.nav_waypoints),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f, fill = false),
+            )
+            Spacer(Modifier.width(8.dp))
+            Text(
+                "(${waypoints.size})",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+            )
+            if (routing) {
+                Spacer(Modifier.width(12.dp))
+                CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
+            } else if (roomyHeader && !allPassed && routeDistanceM != null && routeDistanceM > 0) {
+                Spacer(Modifier.width(12.dp))
+                // Hidden when the trip is over (allPassed). This is the
+                // whole-tour distance (every remaining stop summed), not
+                // just the next leg, so it's shown as a plain total.
+                val distText = NavFormat.distance(context, routeDistanceM, imperial)
+                Text(
+                    distText,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                )
+            }
+            }
+            // Compact start / stop. Hidden while the dock's list is open (its
+            // big button does the same job) and
+            // when there is nothing to start (no waypoints, no fix yet).
+            //
+            // Animation rule:
+            //   * Expanding -- the compact button vanishes INSTANTLY
+            //     (zero-duration exit), so the panel grows into the
+            //     space cleanly without the button overlapping the
+            //     animation.
+            //   * Collapsing -- we wait the full AnimatedVisibility
+            //     duration of the panel before fading the button IN,
+            //     so it doesn't appear mid-animation while the panel
+            //     body is still shrinking past it.
+            // Compact button is ALWAYS visible when the panel is
+            // collapsed (it's the only way to start nav from the
+            // collapsed state), even when no stops are placed yet --
+            // it just sits there disabled so the rider knows where
+            // to look.
+            var compactArmed by remember { mutableStateOf(!listShown) }
+            LaunchedEffect(listShown) {
+                if (listShown) {
+                    compactArmed = false
+                } else {
+                    // Match the panel collapse animation (~300 ms
+                    // default for shrinkVertically + fadeOut) with a
+                    // tiny buffer so the button starts fading in
+                    // right as the panel settles.
+                    kotlinx.coroutines.delay(320)
+                    compactArmed = true
+                }
+            }
+            androidx.compose.animation.AnimatedVisibility(
+                visible = buttonAlways || compactArmed,
+                enter = androidx.compose.animation.fadeIn(),
+                exit = androidx.compose.animation.fadeOut(
+                    animationSpec = androidx.compose.animation.core.tween(0)
+                )
+            ) {
+                val label = stringResource(
+                    when {
+                        allPassed -> R.string.nav_menu_clear
+                        navRunning -> if (roomyHeader) R.string.nav_stop_short else R.string.action_stop
+                        else -> if (roomyHeader) R.string.nav_start_short else R.string.nav_start_btn
+                    }
+                )
+                HoldableButton(
+                    onClick = {
+                        when {
+                            allPassed -> onClearRoute()
+                            navRunning -> onStopNavigation()
+                            else -> onStartNavigation()
+                        }
+                    },
+                    // Hold Start to override the too-far guard and go anyway.
+                    onHold = if (!allPassed && !navRunning) onForceStartNavigation else null,
+                    // Disabled when there's no work to do (no stops +
+                    // no live nav). New route + Stop nav are always
+                    // actionable when they apply.
+                    enabled = allPassed || navRunning || canStartNavigation,
+                    contentPadding = androidx.compose.foundation.layout
+                        .PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                    // Fixed width holds the longest label ('Stop navigation')
+                    // so the row doesn't reflow when the state flips between
+                    // Start / Stop / New route.
+                    modifier = Modifier.widthIn(min = if (roomyHeader) 150.dp else 64.dp),
+                    shape = RoundedCornerShape(12.dp)
+                ) { Text(label, maxLines = 1) }
+            }
+            // The arrow points the way the list will move: the portrait dock
+            // folds down, the landscape list folds up into the top bar.
+            IconButton(onClick = onToggle) {
+                Icon(
+                    if (listShown == foldsUp) Icons.Default.KeyboardArrowUp
+                    else Icons.Default.KeyboardArrowDown,
+                    contentDescription = stringResource(
+                        if (listShown) R.string.nav_minimize else R.string.nav_expand
+                    )
+                )
+            }
+        }
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun BottomPanel(
     expanded: Boolean,
     onToggle: () -> Unit,
-    collapsible: Boolean = true,
     dockTransparent: Boolean = false,
+    /** False in the landscape sidebar layout: the header, Start / Stop
+     *  included, lives in the top bar there, and this is only the list. */
+    showHeader: Boolean = true,
     travelMode: TravelMode,
     onModeChange: (TravelMode) -> Unit,
     solveFullPath: Boolean,
@@ -2263,6 +2699,10 @@ private fun BottomPanel(
     routeDistanceM: Double?,
     /** Each stop's distance by list index; empty while dragging or for one stop. */
     stopLegs: Map<Int, RouteBuilderViewModel.StopLeg>,
+    /** Live distance left to the next stop while navigating, metres; NaN shows
+     *  the planned leg instead. A lambda, read only in that stop's row, so a
+     *  new fix recomposes the row and not the panel. */
+    nextStopRemainingM: () -> Double,
     routing: Boolean,
     imperial: Boolean,
     onRemove: (Int) -> Unit,
@@ -2278,11 +2718,16 @@ private fun BottomPanel(
     onClearRoute: () -> Unit,
     canStartNavigation: Boolean,
     navRunning: Boolean,
+    /** A locked GPX track: stops, order and mode are read-only, and the
+     *  greyed controls say so when tapped. */
+    trackLocked: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     // When every stop is passed, the rider's journey is complete -- the
     // Start/Stop control becomes a "New route" reset instead.
     val allPassed = waypoints.isNotEmpty() && waypoints.all { it.passed }
+    // The stop guidance is heading to: the first one not yet reached.
+    val nextStopIndex = waypoints.indexOfFirst { !it.passed }
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
     Surface(
@@ -2300,119 +2745,23 @@ private fun BottomPanel(
         tonalElevation = if (dockTransparent) 0.dp else 6.dp
     ) {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
-            // Header: title + count/distance + COMPACT start/stop + collapse chevron.
-            // The compact start/stop sits inline so a rider with the panel
-            // collapsed (i.e. the big Start button is hidden) can still kick
-            // off / cancel navigation without expanding -- the action they
-            // actually need most often is right there.
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    stringResource(R.string.nav_waypoints),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
+            if (showHeader) {
+                StopsHeader(
+                    waypoints = waypoints,
+                    routing = routing,
+                    routeDistanceM = routeDistanceM,
+                    imperial = imperial,
+                    navRunning = navRunning,
+                    canStartNavigation = canStartNavigation,
+                    listShown = expanded,
+                    buttonAlways = false,
+                    foldsUp = false,
+                    onToggle = onToggle,
+                    onStartNavigation = onStartNavigation,
+                    onForceStartNavigation = onForceStartNavigation,
+                    onStopNavigation = onStopNavigation,
+                    onClearRoute = onClearRoute,
                 )
-                Spacer(Modifier.width(8.dp))
-                Text(
-                    "(${waypoints.size})",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(Modifier.width(12.dp))
-                if (routing) {
-                    CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
-                } else if (!allPassed && routeDistanceM != null && routeDistanceM > 0) {
-                    // Hidden when the trip is over (allPassed). This is the
-                    // whole-tour distance (every remaining stop summed), not
-                    // just the next leg, so it's shown as a plain total.
-                    val distText = NavFormat.distance(context, routeDistanceM, imperial)
-                    Text(
-                        distText,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-                Spacer(Modifier.weight(1f))
-                // Compact start / stop. Hidden when expanded (the big button
-                // at the bottom of the expanded panel does the same job) and
-                // when there is nothing to start (no waypoints, no fix yet).
-                //
-                // Animation rule:
-                //   * Expanding -- the compact button vanishes INSTANTLY
-                //     (zero-duration exit), so the panel grows into the
-                //     space cleanly without the button overlapping the
-                //     animation.
-                //   * Collapsing -- we wait the full AnimatedVisibility
-                //     duration of the panel before fading the button IN,
-                //     so it doesn't appear mid-animation while the panel
-                //     body is still shrinking past it.
-                // Compact button is ALWAYS visible when the panel is
-                // collapsed (it's the only way to start nav from the
-                // collapsed state), even when no stops are placed yet --
-                // it just sits there disabled so the rider knows where
-                // to look.
-                val canShowCompact = true
-                var compactArmed by remember { mutableStateOf(!expanded) }
-                LaunchedEffect(expanded) {
-                    if (expanded) {
-                        compactArmed = false
-                    } else {
-                        // Match the panel collapse animation (~300 ms
-                        // default for shrinkVertically + fadeOut) with a
-                        // tiny buffer so the button starts fading in
-                        // right as the panel settles.
-                        kotlinx.coroutines.delay(320)
-                        compactArmed = true
-                    }
-                }
-                androidx.compose.animation.AnimatedVisibility(
-                    visible = canShowCompact && compactArmed,
-                    enter = androidx.compose.animation.fadeIn(),
-                    exit = androidx.compose.animation.fadeOut(
-                        animationSpec = androidx.compose.animation.core.tween(0)
-                    )
-                ) {
-                    val label = stringResource(
-                        when {
-                            allPassed -> R.string.nav_menu_clear
-                            navRunning -> R.string.nav_stop_short
-                            else -> R.string.nav_start_short
-                        }
-                    )
-                    HoldableButton(
-                        onClick = {
-                            when {
-                                allPassed -> onClearRoute()
-                                navRunning -> onStopNavigation()
-                                else -> onStartNavigation()
-                            }
-                        },
-                        // Hold Start to override the too-far guard and go anyway.
-                        onHold = if (!allPassed && !navRunning) onForceStartNavigation else null,
-                        // Disabled when there's no work to do (no stops +
-                        // no live nav). New route + Stop nav are always
-                        // actionable when they apply.
-                        enabled = allPassed || navRunning || canStartNavigation,
-                        contentPadding = androidx.compose.foundation.layout
-                            .PaddingValues(horizontal = 12.dp, vertical = 4.dp),
-                        // Fixed width holds the longest label ('Stop navigation')
-                        // so the row doesn't reflow when the state flips between
-                        // Start / Stop / New route.
-                        modifier = Modifier.widthIn(min = 150.dp),
-                        shape = RoundedCornerShape(12.dp)
-                    ) { Text(label) }
-                }
-                if (collapsible) {
-                    IconButton(onClick = onToggle) {
-                        Icon(
-                            if (expanded) Icons.Default.KeyboardArrowDown
-                            else Icons.Default.KeyboardArrowUp,
-                            contentDescription = stringResource(
-                                if (expanded) R.string.nav_minimize else R.string.nav_expand
-                            )
-                        )
-                    }
-                }
             }
 
             // Expand / collapse is animated -- a hard show/hide on the
@@ -2460,7 +2809,7 @@ private fun BottomPanel(
                 // when the trip is over (allPassed) so the "selected mode
                 // pill" doesn't read as enabled. Functional disable is
                 // also on each SegmentedButton.
-                val modesLocked = navRunning || allPassed
+                val modesLocked = navRunning || allPassed || trackLocked
                 // Mode icons + the Start button share ONE row. Prefer the full
                 // "Start navigation" label; only fall back to the short "Start" when
                 // the row is genuinely cramped (small phone / split-screen), measured
@@ -2563,9 +2912,11 @@ private fun BottomPanel(
                         }
                     }
                 }
-                Spacer(Modifier.width(8.dp))
                 // Start button beside the mode icons. Small min width so at rest
-                // ("Start") it stays compact and the icons keep their size.
+                // ("Start") it stays compact and the icons keep their size. Not
+                // when the header sits in the top bar: its button is right there.
+                if (showHeader) {
+                Spacer(Modifier.width(8.dp))
                 HoldableButton(
                     onClick = when {
                         allPassed -> onClearRoute
@@ -2590,6 +2941,7 @@ private fun BottomPanel(
                             }
                         )
                     )
+                }
                 }
                 }
                 }
@@ -2663,16 +3015,19 @@ private fun BottomPanel(
                                         //     nothing may be ordered around it (it can still be
                                         //     removed from its row menu / bin)
                                         val canReorder = draggable
-                                        Icon(
-                                            Icons.Default.DragHandle,
-                                            contentDescription = stringResource(R.string.nav_drag_stop),
-                                            modifier = Modifier
-                                                .then(handleModifier)
-                                                .size(22.dp),
-                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                                .copy(alpha = if (canReorder) 1f else 0.3f)
-                                        )
-                                        Spacer(Modifier.width(10.dp))
+                                        // A locked track's order is the line's: no handle at all.
+                                        if (!trackLocked) {
+                                            Icon(
+                                                Icons.Default.DragHandle,
+                                                contentDescription = stringResource(R.string.nav_drag_stop),
+                                                modifier = Modifier
+                                                    .then(handleModifier)
+                                                    .size(22.dp),
+                                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                                    .copy(alpha = if (canReorder) 1f else 0.3f)
+                                            )
+                                            Spacer(Modifier.width(10.dp))
+                                        }
                                         // Tap the row to recentre the map on this stop (works
                                         // whether navigation is running or not). Long-press still
                                         // opens the options menu.
@@ -2737,16 +3092,23 @@ private fun BottomPanel(
                                             )
                                             // How far from the stop before (the first
                                             // from the rider), and how far into the tour.
-                                            stopLegs[index]?.let { leg ->
+                                            // While navigating, the next stop counts
+                                            // down live instead of its planned leg.
+                                            val leg = stopLegs[index]
+                                            val liveM = if (index == nextStopIndex)
+                                                nextStopRemainingM().takeIf { !it.isNaN() }
+                                            else null
+                                            val legM = liveM ?: leg?.legM
+                                            if (legM != null) {
                                                 Spacer(Modifier.width(8.dp))
                                                 Column(horizontalAlignment = Alignment.End) {
                                                     Text(
-                                                        NavFormat.distance(context, leg.legM, imperial),
+                                                        NavFormat.distance(context, legM, imperial),
                                                         style = MaterialTheme.typography.bodySmall,
                                                         color = MaterialTheme.appColors.textPrimary,
                                                         maxLines = 1
                                                     )
-                                                    leg.soFarM?.let { soFar ->
+                                                    leg?.soFarM?.let { soFar ->
                                                         Text(
                                                             NavFormat.distance(context, soFar, imperial),
                                                             style = MaterialTheme.typography.labelSmall,
@@ -2762,7 +3124,7 @@ private fun BottomPanel(
                                         // should hit 'New route'). A single passed stop
                                         // alongside pending ones IS removable -- treat it
                                         // like any other entry once nav is stopped.
-                                        val canDelete = !navRunning && !allPassed
+                                        val canDelete = !navRunning && !allPassed && !trackLocked
                                         IconButton(
                                             onClick = { onRemove(index) },
                                             enabled = canDelete
@@ -2772,9 +3134,8 @@ private fun BottomPanel(
                                                 contentDescription =
                                                     stringResource(R.string.nav_remove_stop),
                                                 tint = if (canDelete)
-                                                    MaterialTheme.colorScheme.error
-                                                else MaterialTheme.colorScheme.onSurfaceVariant
-                                                    .copy(alpha = 0.38f),
+                                                    MaterialTheme.appColors.statusDanger
+                                                else MaterialTheme.appColors.textDisabled,
                                                 modifier = Modifier.size(20.dp)
                                             )
                                         }
@@ -2808,25 +3169,12 @@ private fun BottomPanel(
                                                 onClick = { rowMenu = false; onSaveWork(index) }
                                             )
                                         }
-                                        if (!navRunning && !allPassed) {
-                                            HorizontalDivider(color = MaterialTheme.appColors.divider)
-                                            DropdownMenuItem(
-                                                leadingIcon = {
-                                                    Icon(
-                                                        Icons.Default.Delete,
-                                                        contentDescription = null,
-                                                        tint = MaterialTheme.colorScheme.error
-                                                    )
-                                                },
-                                                text = {
-                                                    Text(
-                                                        stringResource(R.string.nav_remove_stop),
-                                                        color = MaterialTheme.colorScheme.error
-                                                    )
-                                                },
-                                                onClick = { rowMenu = false; onRemove(index) }
-                                            )
-                                        }
+                                        HorizontalDivider(color = MaterialTheme.appColors.divider)
+                                        DestructiveMenuItem(
+                                            text = stringResource(R.string.nav_remove_stop),
+                                            enabled = !navRunning && !allPassed && !trackLocked,
+                                            onClick = { rowMenu = false; onRemove(index) }
+                                        )
                                     }
                                 }
                             }
@@ -2835,7 +3183,7 @@ private fun BottomPanel(
                                 stopRow(index, waypoint, false, Modifier)
                             }
                         }
-                        val canReorderAny = waypoints.size > 1 && !navRunning && !allPassed
+                        val canReorderAny = waypoints.size > 1 && !navRunning && !allPassed && !trackLocked
                         ReorderableColumn(
                             list = waypoints.drop(reachedCount),
                             onSettle = if (navRunning) { _, _ -> } else { from, to ->
@@ -3177,6 +3525,69 @@ private fun OcmCommunityCard(ocm: OcmCharger, onOpenUrl: (String) -> Unit) {
  * it, so the button is always tappable) and that supports an optional
  * long-press. Used for the charger / places overlay toggles.
  */
+/**
+ * The compass, top right. Outside guidance it resets the map to north; while
+ * navigating it toggles heading-up and north-up. It collects the map bearing
+ * itself so a turn recomposes only this button. [endInset] keeps it clear of
+ * the landscape stops sidebar.
+ */
+@Composable
+private fun BoxScope.NavCompassButton(
+    viewModel: RouteBuilderViewModel,
+    navRunning: Boolean,
+    northUp: Boolean,
+    webView: WebView?,
+    topPad: Dp,
+    endInset: Dp,
+) {
+    val mapBearing by viewModel.mapBearing.collectAsState()
+    val pointingNorth = mapBearing <= 2f || mapBearing >= 358f
+    val compassAlpha by animateFloatAsState(
+        targetValue = if (pointingNorth) 0.35f else 1f,
+        animationSpec = tween(durationMillis = 450),
+        label = "compassAlpha",
+    )
+    // While navigating the compass toggles heading-up / north-up
+    // (remembered) and stays at full strength; outside guidance it
+    // resets the map to north as before.
+    // North-up during guidance lights the button in the accent
+    // color, so the mode reads at a glance.
+    OverlayFab(
+        active = navRunning && northUp,
+        loading = false,
+        icon = Icons.Default.Explore,
+        contentDescription = stringResource(
+            when {
+                !navRunning -> R.string.nav_reset_north
+                northUp -> R.string.nav_view_north_up
+                else -> R.string.nav_view_heading_up
+            }
+        ),
+        onClick = {
+            if (navRunning) {
+                // The follow only turns the map while the rider
+                // moves, so switching TO north-up squares it now.
+                val toNorthUp = !northUp
+                viewModel.toggleNavNorthUp()
+                if (toNorthUp) webView?.evaluateJavascript(
+                    "nativeSetNorthUp(true);nativeResetNorth();", null
+                )
+            } else {
+                webView?.evaluateJavascript("nativeResetNorth();", null)
+            }
+        },
+        modifier = Modifier
+            .align(Alignment.TopEnd)
+            .padding(top = topPad)
+            .padding(end = 16.dp + endInset, top = 12.dp)
+            .alpha(if (navRunning) 1f else compassAlpha),
+        // Needle points where the map is turned, so it reads as a
+        // compass. On the modifier this span the whole button and
+        // tilted its housing with it.
+        iconRotation = -mapBearing
+    )
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun OverlayFab(
