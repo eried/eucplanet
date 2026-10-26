@@ -65,10 +65,13 @@ class HudTileCache {
     @Volatile
     private var layer: MapLayers.Layer = MapLayers.byId(DEFAULT_STYLE)
 
-    /** How deep the current provider renders. Esri's Canvas charts stop at
-     *  16 and answer deeper requests with a "Map data not yet available"
-     *  tile, so a map screen must fetch at most this zoom and scale up. */
-    val maxNativeZoom: Int get() = layer.maxNativeZoom
+    private val zoomCap = TileZoomCap()
+
+    /** How deep the current provider renders here. Esri's Canvas charts stop
+     *  at 16 and answer deeper requests with a "Map data not yet available"
+     *  tile, and its imagery runs out at 18 or 19 depending on the area, so a
+     *  map screen must fetch at most this zoom and scale up. */
+    val maxNativeZoom: Int get() = zoomCap.cap(layer.maxNativeZoom)
 
     /** Compose-observable version counter bumped on every style swap. Map
      *  callers key their LaunchedEffect on this so a style change triggers
@@ -85,6 +88,7 @@ class HudTileCache {
         val next = MapLayers.byId(code.ifBlank { DEFAULT_STYLE })
         if (next.id == layer.id) return
         layer = next
+        zoomCap.reset()
         cache.evictAll()
         inflight.clear()
         _styleVersionState++
@@ -111,6 +115,15 @@ class HudTileCache {
                 client.newCall(req).execute().use { resp ->
                     if (!resp.isSuccessful) return@launch
                     val bytes = resp.body?.bytes() ?: return@launch
+                    // No data this deep here: never draw the watermark, fetch
+                    // one zoom up instead (the caller recomposes on the cap).
+                    if (TileZoomCap.isNoDataTile(bytes)) {
+                        if (layerAtStart.id == layer.id) {
+                            zoomCap.onNoData(z)
+                            onLoaded()
+                        }
+                        return@launch
+                    }
                     var bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return@launch
                     // Esri Canvas keeps its labels on a separate reference
                     // layer named by the base URL; composite it on top. A
