@@ -63,11 +63,49 @@ class HudCameraControlTest {
     @Test
     fun restoreRejectsAnglesThatAreNotQuarterTurns() {
         val c = HudUiController()
-        c.restoreCamera(index = 3, rotation = 45)
+        c.restoreCamera(index = 3, rotations = mapOf(3 to 45))
         assertEquals(3, c.cameraIndex)
         assertEquals(270, c.cameraRotation)
-        c.restoreCamera(index = -2, rotation = -90)
+        c.restoreCamera(index = -2, rotations = mapOf(0 to -90))
         assertEquals(0, c.cameraIndex)
         assertEquals(270, c.cameraRotation)
+    }
+
+    @Test
+    fun eachCameraKeepsItsOwnTurn() {
+        // Josh: turning the front camera also turned the rear one.
+        val c = onScreen(HudUiController.Screen.Camera)
+        c.onCamerasFound(2)
+        val saved = mutableListOf<Pair<Int, Int>>()
+        c.onCameraChanged = { i, r -> saved += i to r }
+        c.upAction()
+        c.downAction()
+        c.downAction()
+        assertEquals(1, c.cameraIndex)
+        assertEquals(90, c.cameraRotation)
+        c.upAction()
+        assertEquals(0, c.cameraIndex)
+        assertEquals(270, c.cameraRotation)
+        c.upAction()
+        assertEquals(90, c.cameraRotation)
+        assertEquals(1 to 90, saved.last())
+    }
+
+    @Test
+    fun upWrapsAtTheCamerasFound() {
+        val c = onScreen(HudUiController.Screen.Camera)
+        c.onCamerasFound(2)
+        c.upAction()
+        c.upAction()
+        assertEquals(0, c.cameraIndex)
+    }
+
+    @Test
+    fun savedIndexPastTheLastCameraFallsBackToTheFirst() {
+        val c = HudUiController()
+        c.restoreCamera(index = 3, rotations = mapOf(0 to 180))
+        c.onCamerasFound(2)
+        assertEquals(0, c.cameraIndex)
+        assertEquals(180, c.cameraRotation)
     }
 }

@@ -52,7 +52,12 @@ import com.eried.eucplanet.hud.ui.parseHexColor
  * than crash, the rider can switch screens with LEFT/RIGHT regardless.
  */
 @Composable
-fun CameraScreen(hud: HudState, cameraIndex: Int = 0, rotation: Int = 270) {
+fun CameraScreen(
+    hud: HudState,
+    cameraIndex: Int = 0,
+    rotation: Int = 270,
+    onCamerasFound: (Int) -> Unit = {},
+) {
     val ctx = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     // Re-evaluate every recomposition, not just once: the rider may grant
@@ -66,7 +71,12 @@ fun CameraScreen(hud: HudState, cameraIndex: Int = 0, rotation: Int = 270) {
     val accent = parseHexColor(hud.accentArgb)
 
     Box(Modifier.fillMaxSize().background(Color.Black)) {
-        RearCameraPreview(Modifier.fillMaxSize(), cameraIndex = cameraIndex, rotation = rotation)
+        RearCameraPreview(
+            Modifier.fillMaxSize(),
+            cameraIndex = cameraIndex,
+            rotation = rotation,
+            onCamerasFound = onCamerasFound
+        )
 
         // Speed overlay (bottom-right). Same unit code as the dashboard.
         val displaySpeed = HudUnits.speed(hud.speedKmh, hud.unitSpeed)
@@ -102,9 +112,15 @@ fun CameraScreen(hud: HudState, cameraIndex: Int = 0, rotation: Int = 270) {
  *
  * [cameraIndex] picks from the device's cameras, back ones first, wrapping at
  * the count; a new index rebinds. [rotation] turns the picture clockwise.
+ * [onCamerasFound] hears how many cameras there are once the provider is up.
  */
 @Composable
-fun RearCameraPreview(modifier: Modifier = Modifier, cameraIndex: Int = 0, rotation: Int = 270) {
+fun RearCameraPreview(
+    modifier: Modifier = Modifier,
+    cameraIndex: Int = 0,
+    rotation: Int = 270,
+    onCamerasFound: (Int) -> Unit = {},
+) {
     val ctx = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val hasPermission = ContextCompat.checkSelfPermission(
@@ -179,6 +195,7 @@ fun RearCameraPreview(modifier: Modifier = Modifier, cameraIndex: Int = 0, rotat
                                 // the rest, so a camera that will not open
                                 // still leaves a picture.
                                 val cameras = orderedCameras(provider.availableCameraInfos)
+                                onCamerasFound(cameras.size)
                                 val selectors = if (cameras.isEmpty()) {
                                     listOf(CameraSelector.DEFAULT_BACK_CAMERA, CameraSelector.DEFAULT_FRONT_CAMERA)
                                 } else {

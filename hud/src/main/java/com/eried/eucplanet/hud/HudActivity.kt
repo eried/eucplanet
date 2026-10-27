@@ -107,14 +107,24 @@ class HudActivity : ComponentActivity() {
         // a MotoEye that reports its rear camera as the front one needs it
         // set once, not every ride.
         val cameraPrefs = getSharedPreferences(CAMERA_PREFS, MODE_PRIVATE)
-        controller.restoreCamera(
-            cameraPrefs.getInt(PREF_CAMERA_INDEX, 0),
-            cameraPrefs.getInt(PREF_CAMERA_ROTATION, HudUiController.DEFAULT_CAMERA_ROTATION)
-        )
+        val savedIndex = cameraPrefs.getInt(PREF_CAMERA_INDEX, 0)
+        val rotations = cameraPrefs.all.mapNotNull { (key, value) ->
+            val i = key.removePrefix(PREF_CAMERA_ROTATION_PREFIX).toIntOrNull()
+            if (key.startsWith(PREF_CAMERA_ROTATION_PREFIX) && i != null && value is Int) i to value else null
+        }.toMap().toMutableMap()
+        // The first build kept one turn for every camera; it belongs to the
+        // camera that was showing.
+        if (cameraPrefs.contains(PREF_CAMERA_ROTATION_LEGACY) && savedIndex !in rotations) {
+            rotations[savedIndex] = cameraPrefs.getInt(
+                PREF_CAMERA_ROTATION_LEGACY, HudUiController.DEFAULT_CAMERA_ROTATION
+            )
+        }
+        controller.restoreCamera(savedIndex, rotations)
         controller.onCameraChanged = { index, rotation ->
             cameraPrefs.edit()
                 .putInt(PREF_CAMERA_INDEX, index)
-                .putInt(PREF_CAMERA_ROTATION, rotation)
+                .putInt(PREF_CAMERA_ROTATION_PREFIX + index, rotation)
+                .remove(PREF_CAMERA_ROTATION_LEGACY)
                 .apply()
         }
         server = HudServer(applicationContext)
@@ -354,6 +364,7 @@ class HudActivity : ComponentActivity() {
         const val DOUBLE_TAP_MS: Long = 280L
         const val CAMERA_PREFS = "hud_camera"
         const val PREF_CAMERA_INDEX = "camera_index"
-        const val PREF_CAMERA_ROTATION = "camera_rotation"
+        const val PREF_CAMERA_ROTATION_PREFIX = "camera_rotation_"
+        const val PREF_CAMERA_ROTATION_LEGACY = "camera_rotation"
     }
 }

@@ -101,20 +101,40 @@ class HudUiController {
     var cameraIndex: Int by mutableStateOf(0)
         private set
 
-    /** Clockwise turn of the camera picture, a multiple of 90. 270 is what a
-     *  MotoEye E6 needs; other models mount the sensor another way round, so
-     *  the rider turns it with DOWN. */
-    var cameraRotation: Int by mutableStateOf(DEFAULT_CAMERA_ROTATION)
-        private set
+    /** How many cameras the preview found; UP wraps here so every camera
+     *  keeps one index, and with it one rotation. Unknown until the first
+     *  preview binds. */
+    private var cameraCount: Int = MAX_CAMERAS
+
+    /** Each camera's clockwise turn, a multiple of 90. A front and a rear
+     *  sensor sit differently, so each keeps its own. */
+    private var cameraRotations: Map<Int, Int> by mutableStateOf(emptyMap())
+
+    /** Clockwise turn of the camera on screen. 270 is what a MotoEye E6
+     *  needs; other models mount the sensor another way round, so the rider
+     *  turns it with DOWN. */
+    val cameraRotation: Int
+        get() = cameraRotations[cameraIndex] ?: DEFAULT_CAMERA_ROTATION
 
     /** Called after UP or DOWN changes the camera so the Activity can keep
-     *  the choice for the next start. */
+     *  the choice for the next start: the camera now shown and its turn. */
     var onCameraChanged: ((index: Int, rotation: Int) -> Unit)? = null
 
     /** Put back the camera choice saved on an earlier start. */
-    fun restoreCamera(index: Int, rotation: Int) {
+    fun restoreCamera(index: Int, rotations: Map<Int, Int>) {
         cameraIndex = index.coerceAtLeast(0)
-        cameraRotation = normalizeRotation(rotation)
+        cameraRotations = rotations
+            .filterKeys { it >= 0 }
+            .mapValues { normalizeRotation(it.value) }
+    }
+
+    /** The preview reports how many cameras the device has. A saved index
+     *  past the end (a different HUD, a camera gone) falls back to the
+     *  first camera. */
+    fun onCamerasFound(count: Int) {
+        if (count <= 0) return
+        cameraCount = count
+        if (cameraIndex >= count) cameraIndex = 0
     }
 
     /** Most recent HUD connection status, surfaced as a banner. */
@@ -170,9 +190,7 @@ class HudUiController {
             Screen.Dashboard -> dashboardGpsView = false
             Screen.Map, Screen.MapNav -> mapZoom = (mapZoom + 1f).coerceAtMost(MAP_ZOOM_MAX)
             Screen.Camera, Screen.CustomCam -> {
-                // Bounded so it never overflows; the preview takes it modulo
-                // the camera count.
-                cameraIndex = (cameraIndex + 1) % MAX_CAMERAS
+                cameraIndex = (cameraIndex + 1) % cameraCount
                 onCameraChanged?.invoke(cameraIndex, cameraRotation)
             }
             else -> Unit
@@ -184,7 +202,8 @@ class HudUiController {
             Screen.Dashboard -> dashboardGpsView = true
             Screen.Map, Screen.MapNav -> mapZoom = (mapZoom - 1f).coerceAtLeast(MAP_ZOOM_MIN)
             Screen.Camera, Screen.CustomCam -> {
-                cameraRotation = normalizeRotation(cameraRotation + 90)
+                cameraRotations = cameraRotations +
+                    (cameraIndex to normalizeRotation(cameraRotation + 90))
                 onCameraChanged?.invoke(cameraIndex, cameraRotation)
             }
             else -> Unit
@@ -245,7 +264,8 @@ class HudUiController {
         const val MAP_ZOOM_MIN: Float = 3f
         const val MAP_ZOOM_MAX: Float = 19f
         const val DEFAULT_CAMERA_ROTATION: Int = 270
-        /** More cameras than any HUD has; only keeps [cameraIndex] small. */
+        /** More cameras than any HUD has; the wrap until the preview has
+         *  counted the real ones. */
         const val MAX_CAMERAS: Int = 8
 
         /** Any angle to 0, 90, 180 or 270; anything else falls back to the
