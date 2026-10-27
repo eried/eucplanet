@@ -20,6 +20,9 @@ only when you can cut the ride short.
 - HUD camera: let go of the camera when you leave the Camera screen, so the MotoEye recorder can start.
 - HUD camera: UP picks the next camera, DOWN turns the picture 90 degrees. Each camera keeps its own turn, and the HUD remembers them.
 - Voice alarms: a PWM alarm says "PWM" again in Italian, Norwegian and Chinese, it was left out.
+- InMotion V8S and other V1 wheels: commands go out in small pieces like EUC World does, so the link should stop dropping.
+- InMotion V8S: the light button and auto-lights follow the wheel's real light state, and Charging shows (also V8F, V10).
+- Lights: a reconnect while walking the wheel no longer turns the light on and off again.
 - Inside: wiring moved to a library that also runs on iPhone, build tools updated (Kotlin 2.3.21, Koin 4.2.2). Nothing should change on screen.
 
 ## Please test
@@ -38,6 +41,9 @@ only when you can cut the ride short.
 **HUD (MotoEye)**
 - Install the phone and the HUD APK from this build. Open the HUD Map screen, leave the phone app, no wheel connected: does the map stay? And with the wheel connected, on any map style and zoom?
 - Camera screen: turn the front camera, switch to the rear one and back. Does each keep its own turn, also after restarting the HUD?
+
+**InMotion V8S (or any V1 wheel)**
+- Ride as usual: how many disconnects, compared with EUC World? Does the Light button follow the wheel's own light button, and does Charging show on the charger?
 
 **Any wheel**
 - Ride with voice alarms on, open the main screens, sync, widgets and the watch: anything that acts differently from the last build is a bug.

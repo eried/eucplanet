@@ -95,11 +95,22 @@ data class WheelData(
      *  restarts when the wheel moves. Begode reports it, -1 everywhere else. */
     val autoOffSeconds: Int = -1,
     val lightOn: Boolean = false,
+    /**
+     * Headlight state on a family that reports it outside its realtime frame,
+     * or null when the frame says nothing about it.
+     *
+     * InMotion V1 carries the light in slow-info only, so its fast-info frames
+     * have no light byte of their own. Its adapter fills this from the last
+     * report so the repository can tell a real "off" from a frame that simply
+     * does not know. Null everywhere else, which leaves [lightOn] as it was.
+     */
+    val lightReported: Boolean? = null,
     val headlightReadback: HeadlightReadback? = null,
     /** True when the wheel reports it is charging via an explicit firmware flag
-     *  (InMotion V14/V12 state-byte bit 7, KingSong 0xB9). Inference-only
-     *  families (Begode/Veteran/Ninebot/InMotion V1) leave this false; charging
-     *  for them is derived from sustained negative current in WheelRepository. */
+     *  (InMotion V14/V12 state-byte bit 7, KingSong 0xB9, InMotion V8F / V8S /
+     *  V10 work mode). Inference-only families (Begode/Veteran/Ninebot, older
+     *  InMotion V1) leave this false; charging for them is derived from
+     *  sustained negative current in WheelRepository. */
     val charging: Boolean = false,
     /**
      * Battery percent with the load taken out of it, or NaN before the first
