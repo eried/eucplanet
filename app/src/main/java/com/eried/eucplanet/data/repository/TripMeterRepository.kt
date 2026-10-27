@@ -17,8 +17,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.math.abs
 
 /**
@@ -32,14 +30,13 @@ import kotlin.math.abs
  *
  * At each 10 km / 10 mi boundary (following the rider's distance unit) it appends
  * a split via the pure [TripMeterAccumulator]. State is a single JSON blob in
- * [TripMeterStore]. WheelRepository injects TripRepository through dagger.Lazy to
+ * [TripMeterStore]. WheelRepository injects TripRepository through a Lazy to
  * break a DI cycle; we do the same for both so this repository can never form one.
  */
-@Singleton
-class TripMeterRepository @Inject constructor(
+class TripMeterRepository(
     private val store: TripMeterStore,
-    private val wheelRepositoryLazy: dagger.Lazy<WheelRepository>,
-    private val tripRepositoryLazy: dagger.Lazy<TripRepository>,
+    private val wheelRepositoryLazy: Lazy<WheelRepository>,
+    private val tripRepositoryLazy: Lazy<TripRepository>,
     private val settingsRepository: SettingsRepository,
 ) {
     companion object {
@@ -104,8 +101,8 @@ class TripMeterRepository @Inject constructor(
         }
     }
 
-    private fun wheelRepository(): WheelRepository = wheelRepositoryLazy.get()
-    private fun tripRepository(): TripRepository = tripRepositoryLazy.get()
+    private fun wheelRepository(): WheelRepository = wheelRepositoryLazy.value
+    private fun tripRepository(): TripRepository = tripRepositoryLazy.value
 
     /** The split step in km: 10 in the rider's distance unit, stored as km. */
     private fun intervalKmFor(s: com.eried.eucplanet.data.model.AppSettings): Float =

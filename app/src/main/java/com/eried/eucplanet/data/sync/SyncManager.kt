@@ -24,7 +24,6 @@ import com.eried.eucplanet.data.repository.DropboxRepository
 import com.eried.eucplanet.data.repository.MoveOutcome
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.store.SettingsJson
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -44,8 +43,6 @@ import com.eried.eucplanet.util.TripCsv
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Coordinates cloud sync via the Storage Access Framework.
@@ -56,9 +53,8 @@ import javax.inject.Singleton
  * `settings.json` backup are written through DocumentFile, no provider-specific
  * code, no OAuth, the cloud app handles the upload.
  */
-@Singleton
-class SyncManager @Inject constructor(
-    @ApplicationContext private val context: Context,
+class SyncManager(
+    private val context: Context,
     private val settingsRepository: SettingsRepository,
     private val tripDao: TripDao,
     private val alarmDao: AlarmDao,
@@ -159,9 +155,9 @@ class SyncManager @Inject constructor(
      * Start watching the pending-upload interval and (re)registering the periodic
      * safety-net worker. Called from EucPlanetApp.onCreate -- NOT from init{} --
      * because it touches WorkManager.getInstance, which pulls the app's
-     * workerFactory; during Hilt field injection (when init{} runs) that lateinit
-     * may not be set yet, which crashed cold starts. onCreate runs after all
-     * fields are injected, so it is safe there.
+     * workerFactory; while the start-up singletons are still being built (when
+     * init{} runs) that factory was not always ready, which crashed cold starts.
+     * onCreate runs after every start-up singleton is built, so it is safe there.
      */
     fun startPendingUploadWatcher() {
         scope.launch {

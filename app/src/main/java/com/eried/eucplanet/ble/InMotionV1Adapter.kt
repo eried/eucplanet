@@ -3,8 +3,6 @@ package com.eried.eucplanet.ble
 import com.eried.eucplanet.diagnostics.DiagnosticCommand
 import com.eried.eucplanet.diagnostics.DiagnosticsLogger
 import java.io.ByteArrayOutputStream
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * WheelAdapter for the InMotion V1 protocol family: V5 / V8 / V10 / L6 /
@@ -17,8 +15,7 @@ import javax.inject.Singleton
  * services), distinct from the KingSong / Begode / Veteran 0xFFE0 / 0xFFE1
  * profile and from the V2 Nordic UART profile.
  */
-@Singleton
-class InMotionV1Adapter @Inject constructor() : WheelAdapter {
+class InMotionV1Adapter : WheelAdapter {
 
     override val familyId = "inmotion_v1"
     override val familyDisplayName = "InMotion V1 / V3 / V5 / V8"

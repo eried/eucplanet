@@ -20,7 +20,6 @@ import android.content.IntentFilter
 import android.os.Build
 import android.util.Log
 import androidx.core.content.ContextCompat
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,8 +38,6 @@ import kotlinx.coroutines.launch
 import com.eried.eucplanet.ble.virtual.VirtualWheel
 import com.eried.eucplanet.ble.virtual.VirtualWheelRegistry
 import java.util.UUID
-import javax.inject.Inject
-import javax.inject.Singleton
 
 enum class ConnectionState {
     DISCONNECTED,
@@ -50,9 +47,8 @@ enum class ConnectionState {
     CONNECTED
 }
 
-@Singleton
-class BleConnectionManager @Inject constructor(
-    @ApplicationContext private val context: Context,
+class BleConnectionManager(
+    private val context: Context,
     private val wheelAdapter: WheelAdapter,
     private val appNotifier: com.eried.eucplanet.util.AppNotifier
 ) {

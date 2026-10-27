@@ -39,9 +39,6 @@ import com.eried.eucplanet.hud.protocol.OverlayElementType
 import com.eried.eucplanet.ui.studio.StudioElementData
 import com.eried.eucplanet.ui.studio.StudioElementLayer
 import com.eried.eucplanet.ui.theme.EucPlanetTheme
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * The Phone HUD: an Overlay Studio preset drawn in a window on top of every
@@ -73,9 +70,8 @@ import javax.inject.Singleton
  * different surface is what cost the HUD renderer two failed attempts and an
  * ANR. Landscape presets are refused rather than drawn half-right.
  */
-@Singleton
-class PhoneHudWindow @Inject constructor(
-    @ApplicationContext private val context: Context,
+class PhoneHudWindow(
+    private val context: Context,
 ) {
 
     private var view: View? = null

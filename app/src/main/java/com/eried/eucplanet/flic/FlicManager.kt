@@ -15,7 +15,6 @@ import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.service.AutomationManager
 import com.eried.eucplanet.service.VoiceService
-import dagger.hilt.android.qualifiers.ApplicationContext
 import io.flic.flic2libandroid.Flic2Button
 import io.flic.flic2libandroid.Flic2ButtonListener
 import io.flic.flic2libandroid.Flic2Manager
@@ -27,12 +26,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class FlicManager @Inject constructor(
-    @ApplicationContext private val context: Context,
+class FlicManager(
+    private val context: Context,
     private val settingsRepository: SettingsRepository,
     private val wheelRepository: WheelRepository,
     private val tripRepository: TripRepository,

@@ -2,8 +2,6 @@ package com.eried.eucplanet.data.repository
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * "Start counting again", from wherever the rider asks.
@@ -29,8 +27,7 @@ import javax.inject.Singleton
  * Recorded trips and settings are never touched. This is the trip meter, not
  * the trip history.
  */
-@Singleton
-class MetricsReset @Inject constructor(
+class MetricsReset(
     private val wheelRepository: WheelRepository,
     private val tripMeterRepository: TripMeterRepository,
 ) {

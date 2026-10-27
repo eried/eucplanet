@@ -6,14 +6,11 @@ import android.media.AudioTrack
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.concurrent.thread
 import kotlin.math.cos
 import kotlin.math.sin
 
-@Singleton
-class TonePlayer @Inject constructor() {
+class TonePlayer {
 
     private companion object {
         const val TAG = "TonePlayer"
