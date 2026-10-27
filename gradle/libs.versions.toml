@@ -1,12 +1,12 @@
 [versions]
-agp = "8.10.1"
-kotlin = "2.0.21"
+agp = "8.13.2"
+kotlin = "2.4.21"
 coil = "2.7.0"
-ksp = "2.0.21-1.0.28"
-composeBom = "2025.04.01"
-hilt = "2.53.1"
+ksp = "2.3.12"
+composeBom = "2026.06.00"
+hilt = "2.57.2"
 hiltNavigationCompose = "1.2.0"
-room = "2.6.1"
+room = "2.8.4"
 lifecycle = "2.8.7"
 coroutines = "1.9.0"
 navigation = "2.8.5"
@@ -75,6 +75,11 @@ room-testing = { group = "androidx.room", name = "room-testing", version.ref = "
 # Hilt
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
+# Hilt 2.57 is the last release that runs on AGP 8 (2.59+ needs AGP 9, which drops
+# the wearApp embedding). Its processor reads Kotlin metadata through this
+# library, and the copy it ships stops at Kotlin 2.3, so it is pinned to the
+# compiler version on the processor path.
+kotlin-metadata-jvm = { group = "org.jetbrains.kotlin", name = "kotlin-metadata-jvm", version.ref = "kotlin" }
 hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 
 # Coroutines

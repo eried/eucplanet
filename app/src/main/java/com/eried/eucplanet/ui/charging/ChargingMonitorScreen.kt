@@ -1481,9 +1481,12 @@ private fun PacksChart(
                     // the same as the tile; the voltage stays whole-pack.
                     val spread = (packMax[p][i].value - packMin[p][i].value) *
                         (if (toMilli) 1000f / cnt(p) else 1f)
+                    // Typed on its own line: lint (AGP 8.13) reads `p + 1` inside
+                    // this buildString as a String and fails StringFormatMatches.
+                    val packNumber: Int = p + 1
                     add(
                         buildString {
-                            append(ctx.getString(R.string.charging_cells_pack_n, p + 1))
+                            append(ctx.getString(R.string.charging_cells_pack_n, packNumber))
                             append("  ")
                             append(if (toMilli) "%.1f V".format(v) else "%.1f%%".format(v))
                             append("  ")
