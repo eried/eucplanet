@@ -57,7 +57,7 @@ Status values:
 | Navigation | not yet | |
 | TPMS, radar (Varia), RaceBox | not yet | Archive tag has iOS parsers to lift. |
 | QR scan | not yet | |
-| Android Auto | Android-only | |
+| Android Auto | Android-only | Not planned for iOS, no CarPlay: it exists for the MotoEye E6, which connects through Android Auto. |
 | Wear OS watch | Android-only | |
 | HUD | Android-only | |
 | Garmin, Amazfit watches | Android-only | |
