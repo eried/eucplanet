@@ -118,7 +118,10 @@ object InMotionV1Parser {
         val serial = parseSerial(payload)
         val firmware = parseFirmware(payload)
         val maxSpeedKmh = ByteUtils.getUint16LE(payload, 60) / 1000f
-        val lightOn = payload.size > 80 && payload[80].toInt() == 1
+        // Headlight, byte 80 == 1 (WheelLog InMotionAdapter.parseSlowInfoMessage
+        // reads it the same way for every V1 model). Null when the reply is too
+        // short to carry it, so a short reply never reads as "light off".
+        val lightOn = if (payload.size > 80) payload[80].toInt() == 1 else null
 
         val low = if (payload.size > 104) payload[104].toInt() and 0xFF else 0
         val high = if (payload.size > 107) payload[107].toInt() and 0xFF else 0
@@ -256,6 +259,7 @@ object InMotionV1Parser {
         val firmware: String,
         val settings: WheelSettings,
         val volumePercent: Float,
-        val lightOn: Boolean
+        /** Headlight on, from byte 80; null when the reply is too short. */
+        val lightOn: Boolean?
     )
 }

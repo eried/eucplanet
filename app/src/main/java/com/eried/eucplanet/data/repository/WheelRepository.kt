@@ -2176,12 +2176,14 @@ class WheelRepository @Inject constructor(
             is DecodeResult.Telemetry -> {
                 val previous = _wheelData.value
                 // Families whose realtime frames can't recover the headlight state
-                // (P6 has no live byte; InMotion V1 fast-info omits it). For these,
-                // the optimistic + slow-info lightOn is authoritative, so a realtime
-                // frame must not clobber it back to its false default - that was the
-                // V8S "Light switch only turns on, never off" bug.
+                // (P6 has no live byte). For these the optimistic lightOn is
+                // authoritative, so a realtime frame must not clobber it back to
+                // its false default - that was the V8S "Light switch only turns
+                // on, never off" bug. InMotion V1 is one of them only until its
+                // adapter has the wheel's own report from slow-info (lightReported);
+                // from then on the frame carries the real state.
                 val realtimeLacksLight = _modelName.value?.contains("P6") == true ||
-                    wheelAdapter.familyId == "inmotion_v1"
+                    (wheelAdapter.familyId == "inmotion_v1" && result.data.lightReported == null)
                 // V14 etc. don't carry total distance in realtime frames, so
                 // preserve whatever was set via the separate TotalDistance
                 // decode. The P6 ships the lifetime odometer inline at offset
