@@ -8,6 +8,7 @@ you can cut the ride short.
 ## Worked on
 
 - Internal wiring moved to a library that also runs on iPhone. No new features, no changes on screen.
+- Build tools updated (Kotlin 2.3.21, Koin 4.2.2). No new features, no changes on screen.
 
 ## Please test
 
