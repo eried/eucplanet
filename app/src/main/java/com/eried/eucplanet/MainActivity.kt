@@ -46,7 +46,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
-import org.koin.compose.KoinContext
 
 // Process-scoped: the theme customization widget is session-only, so we clear any
 // persisted "on" state exactly once per launch (this survives Activity recreation
@@ -604,10 +603,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // KoinContext hands the Koin graph to every koinViewModel() below.
-        // Without it each call still finds the global context, but only by
-        // catching a thrown lookup on every recomposition.
-        setContent { KoinContext {
+        // koinViewModel() below finds the graph started in EucPlanetApp by
+        // itself in Koin 4.2, so no KoinContext wrapper is needed.
+        setContent {
             val s by _settings.collectAsState()
             // Ask for the BLE / location / notification permissions on the
             // first composition. Doing it from Compose (instead of onCreate)
@@ -953,7 +951,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
-        } }
+        }
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {

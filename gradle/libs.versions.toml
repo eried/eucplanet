@@ -6,10 +6,9 @@ coil = "2.7.0"
 # 2.3.21 (2.3.12 and later need AGP 8.12).
 ksp = "2.3.7"
 composeBom = "2025.04.01"
-# Koin 4.0.x is the newest line built on Kotlin 2.0.21 with the same
-# androidx lifecycle (2.8.7) and work (2.9.1) as the app; 4.1 needs Kotlin 2.1
-# metadata and lifts lifecycle to 2.9, 4.2 needs Kotlin 2.3.
-koin = "4.0.4"
+# Koin 4.2 needs Kotlin 2.3. It pulls lifecycle 2.10, activity 1.12, work 2.11
+# and Compose runtime/foundation 1.10 in transitively, above the pins below.
+koin = "4.2.2"
 # 2.7 is the first Room whose processor runs under KSP2 (2.6.1 fails with
 # "unexpected jvm signature V").
 room = "2.7.2"
