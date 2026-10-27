@@ -30,7 +30,7 @@ Status values:
 | Navigator | not yet | |
 | Radar | not yet | |
 | Onboarding | not yet | |
-| Flic buttons | Android-only | |
+| Flic buttons | Android-only | iOS later via the Flic iOS SDK. |
 
 ## Features
 
@@ -58,11 +58,12 @@ Status values:
 | TPMS, radar (Varia), RaceBox | not yet | Archive tag has iOS parsers to lift. |
 | QR scan | not yet | |
 | Android Auto | Android-only | Not planned for iOS, no CarPlay: it exists for the MotoEye E6, which connects through Android Auto. |
-| Wear OS watch | Android-only | |
-| HUD | Android-only | |
-| Garmin, Amazfit watches | Android-only | |
-| Home-screen widgets | Android-only | |
-| Flic buttons | Android-only | |
+| Wear OS watch | Android-only | iOS counterpart later: a watchOS app over WatchConnectivity (archive tag has a start). |
+| HUD | Android-only | The HUD itself runs Android. The phone side talks Wi-Fi, so it can come to iOS later (Local Network permission, Bonjour discovery; archive tag has a start). First in line. |
+| Garmin, Amazfit watches | Android-only | Garmin later via the Connect IQ iOS SDK. Amazfit unsure: the bridge is a local server on the phone. |
+| Home-screen widgets | Android-only | iOS later as a WidgetKit extension (Swift, not shared code). |
+| Flic buttons | Android-only | iOS later via the Flic iOS SDK. |
+| Persistent ride notification | Android-only | iOS counterpart later: a Live Activity on the lock screen. |
 
 ## iOS-specific gaps
 
