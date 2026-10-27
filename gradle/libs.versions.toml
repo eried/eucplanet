@@ -9,6 +9,7 @@ hiltNavigationCompose = "1.2.0"
 room = "2.8.4"
 lifecycle = "2.8.7"
 coroutines = "1.9.0"
+atomicfu = "0.33.0"
 navigation = "2.8.5"
 maplibre = "11.5.2"
 carApp = "1.4.0"
@@ -84,6 +85,8 @@ hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-com
 
 # Coroutines
 coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
+# Locks and atomics for the shared module (synchronized on iOS).
+atomicfu = { group = "org.jetbrains.kotlinx", name = "atomicfu", version.ref = "atomicfu" }
 coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
 
 # Location
@@ -161,6 +164,7 @@ garmin-ciq = { group = "com.garmin.connectiq", name = "ciq-companion-app-sdk", v
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
