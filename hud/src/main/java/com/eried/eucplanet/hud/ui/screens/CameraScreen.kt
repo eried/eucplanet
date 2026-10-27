@@ -57,6 +57,7 @@ fun CameraScreen(
     cameraIndex: Int = 0,
     rotation: Int = 270,
     onCamerasFound: (Int) -> Unit = {},
+    cameraHandedOff: Boolean = false,
 ) {
     val ctx = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -75,7 +76,8 @@ fun CameraScreen(
             Modifier.fillMaxSize(),
             cameraIndex = cameraIndex,
             rotation = rotation,
-            onCamerasFound = onCamerasFound
+            onCamerasFound = onCamerasFound,
+            handedOff = cameraHandedOff
         )
 
         // Speed overlay (bottom-right). Same unit code as the dashboard.
@@ -120,6 +122,29 @@ fun RearCameraPreview(
     cameraIndex: Int = 0,
     rotation: Int = 270,
     onCamerasFound: (Int) -> Unit = {},
+    handedOff: Boolean = false,
+) {
+    // Handed to the MotoEye recorder: the live preview leaves composition,
+    // and with it its camera (see LiveCameraPreview's DisposableEffect).
+    if (handedOff) {
+        val ctx = LocalContext.current
+        Box(modifier.background(Color.Black), contentAlignment = Alignment.Center) {
+            Text(
+                text = ctx.getString(R.string.hud_camera_handed_off),
+                color = Color.White.copy(alpha = 0.7f)
+            )
+        }
+    } else {
+        LiveCameraPreview(modifier, cameraIndex, rotation, onCamerasFound)
+    }
+}
+
+@Composable
+private fun LiveCameraPreview(
+    modifier: Modifier,
+    cameraIndex: Int,
+    rotation: Int,
+    onCamerasFound: (Int) -> Unit,
 ) {
     val ctx = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current

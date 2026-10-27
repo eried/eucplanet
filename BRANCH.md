@@ -19,6 +19,8 @@ only when you can cut the ride short.
 - HUD map: no more white "Map data not yet available" screen. Where the map has no detail that deep it shows the closest zoom it has.
 - HUD camera: let go of the camera when you leave the Camera screen, so the MotoEye recorder can start.
 - HUD camera: UP picks the next camera, DOWN turns the picture 90 degrees. Each camera keeps its own turn, and the HUD remembers them.
+- HUD camera: holding a remote button on a camera screen frees the camera, so the MotoEye recorder can start. UP or DOWN brings the picture back.
+- HUD: the branch HUD APK is now a release build and starts two to three times faster.
 - Voice alarms: a PWM alarm says "PWM" again in Italian, Norwegian and Chinese, it was left out.
 - InMotion V8S and other V1 wheels: commands go out in small pieces like EUC World does, so the link should stop dropping.
 - InMotion V8S: the light button and auto-lights follow the wheel's real light state, and Charging shows (also V8F, V10).
@@ -41,6 +43,7 @@ only when you can cut the ride short.
 **HUD (MotoEye)**
 - Install the phone and the HUD APK from this build. Open the HUD Map screen, leave the phone app, no wheel connected: does the map stay? And with the wheel connected, on any map style and zoom?
 - Camera screen: turn the front camera, switch to the rear one and back. Does each keep its own turn, also after restarting the HUD?
+- On the Camera screen showing the rear camera, start the recorder with a hold: does it start every time?
 
 **InMotion V8S (or any V1 wheel)**
 - Ride as usual: how many disconnects, compared with EUC World? Does the Light button follow the wheel's own light button, and does Charging show on the charger?

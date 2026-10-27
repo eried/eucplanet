@@ -233,8 +233,19 @@ class HudActivity : ComponentActivity() {
                     pressStart[keyCode] = android.os.SystemClock.uptimeMillis()
                 } else if (!pressStart.containsKey(keyCode)) {
                     // Start a fresh session.
-                    pressStart[keyCode] = android.os.SystemClock.uptimeMillis()
+                    val startedAt = android.os.SystemClock.uptimeMillis()
+                    pressStart[keyCode] = startedAt
                     consumed.remove(keyCode)
+                    // A hold starts the MotoEye recorder, which needs the
+                    // camera. Tell the controller while the button is still
+                    // down, not on release, so a camera screen lets go before
+                    // the recorder asks. A tap ends first and its session is
+                    // gone by then.
+                    dpadHandler.postDelayed({
+                        if (pressStart[keyCode] == startedAt && keyCode !in consumed) {
+                            controller.onRemoteHold()
+                        }
+                    }, HOLD_MS)
                 }
                 // else: session already active (hold stream / auto-repeat) -> nothing.
                 true

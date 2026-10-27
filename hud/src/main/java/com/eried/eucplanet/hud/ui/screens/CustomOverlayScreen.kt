@@ -72,6 +72,7 @@ fun CustomOverlayScreen(
     cameraIndex: Int = 0,
     cameraRotation: Int = 270,
     onCamerasFound: (Int) -> Unit = {},
+    cameraHandedOff: Boolean = false,
 ) {
     val preset = remember(hud.customOverlayJson) { parsePreset(hud.customOverlayJson) }
     val data = remember(hud) { StudioElementData.from(hud) }
@@ -82,7 +83,8 @@ fun CustomOverlayScreen(
                 Modifier.fillMaxSize(),
                 cameraIndex = cameraIndex,
                 rotation = cameraRotation,
-                onCamerasFound = onCamerasFound
+                onCamerasFound = onCamerasFound,
+                handedOff = cameraHandedOff
             )
         }
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {

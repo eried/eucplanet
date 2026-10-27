@@ -131,8 +131,13 @@ jobs:
           if [ -f wear/build.gradle.kts ]; then
             targets="$targets :wear:assembleDebug"
           fi
+          # The HUD goes out as a release build: a debug HUD starts two to
+          # four times slower, which on a MotoEye is seconds of black screen.
+          # With no keystore.properties here its release build signs with the
+          # debug key, which is the shared branch key installed above, so it
+          # still updates in place.
           if [ -f hud/build.gradle.kts ]; then
-            targets="$targets :hud:assembleDebug"
+            targets="$targets :hud:assembleRelease"
           fi
           ./gradlew :app:testDebugUnitTest :app:lintDebug :hud-protocol:test $targets --no-daemon --stacktrace
         env:
@@ -147,8 +152,8 @@ jobs:
             cp wear/build/outputs/apk/debug/wearos-debug.apk \
                "/tmp/out/wearos-${{ needs.meta.outputs.suffix }}.apk"
           fi
-          if [ -f hud/build/outputs/apk/debug/hud-debug.apk ]; then
-            cp hud/build/outputs/apk/debug/hud-debug.apk \
+          if [ -f hud/build/outputs/apk/release/hud-release.apk ]; then
+            cp hud/build/outputs/apk/release/hud-release.apk \
                "/tmp/out/hud-${{ needs.meta.outputs.suffix }}.apk"
           fi
           ls -la /tmp/out

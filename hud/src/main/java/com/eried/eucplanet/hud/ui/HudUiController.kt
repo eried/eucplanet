@@ -64,8 +64,16 @@ class HudUiController {
         if (current !in parsed) current = parsed.first()
     }
 
-    var current: Screen by mutableStateOf(Screen.Dashboard)
-        private set
+    private var currentState: Screen by mutableStateOf(Screen.Dashboard)
+
+    var current: Screen
+        get() = currentState
+        private set(value) {
+            // Leaving the screen ends the hand-off; the next camera screen
+            // opens its camera as usual.
+            if (value != currentState) cameraHandedOff = false
+            currentState = value
+        }
 
     /** Monotonic counter bumped by the Activity on every d-pad press so the
      *  button-action guide overlay can re-show itself even when the screen
@@ -119,6 +127,21 @@ class HudUiController {
     /** Called after UP or DOWN changes the camera so the Activity can keep
      *  the choice for the next start: the camera now shown and its turn. */
     var onCameraChanged: ((index: Int, rotation: Int) -> Unit)? = null
+
+    /** The camera screens let go of the camera for the MotoEye recorder.
+     *  Only one app can open a camera at a time, and the recorder wants the
+     *  rear one: once UP put the preview on that camera, the recorder could
+     *  not start while a camera screen was up. UP, DOWN or another screen
+     *  takes it back. */
+    var cameraHandedOff: Boolean by mutableStateOf(false)
+        private set
+
+    /** A remote button is being held, which is how the MotoEye starts its
+     *  recorder. Called as soon as the press counts as a hold, so the
+     *  camera is free before the recorder asks for it. */
+    fun onRemoteHold() {
+        if (current == Screen.Camera || current == Screen.CustomCam) cameraHandedOff = true
+    }
 
     /** Put back the camera choice saved on an earlier start. */
     fun restoreCamera(index: Int, rotations: Map<Int, Int>) {
@@ -189,7 +212,9 @@ class HudUiController {
         when (current) {
             Screen.Dashboard -> dashboardGpsView = false
             Screen.Map, Screen.MapNav -> mapZoom = (mapZoom + 1f).coerceAtMost(MAP_ZOOM_MAX)
-            Screen.Camera, Screen.CustomCam -> {
+            Screen.Camera, Screen.CustomCam -> if (cameraHandedOff) {
+                cameraHandedOff = false
+            } else {
                 cameraIndex = (cameraIndex + 1) % cameraCount
                 onCameraChanged?.invoke(cameraIndex, cameraRotation)
             }
@@ -201,7 +226,9 @@ class HudUiController {
         when (current) {
             Screen.Dashboard -> dashboardGpsView = true
             Screen.Map, Screen.MapNav -> mapZoom = (mapZoom - 1f).coerceAtLeast(MAP_ZOOM_MIN)
-            Screen.Camera, Screen.CustomCam -> {
+            Screen.Camera, Screen.CustomCam -> if (cameraHandedOff) {
+                cameraHandedOff = false
+            } else {
                 cameraRotations = cameraRotations +
                     (cameraIndex to normalizeRotation(cameraRotation + 90))
                 onCameraChanged?.invoke(cameraIndex, cameraRotation)
@@ -236,7 +263,8 @@ class HudUiController {
         val (up, down) = when (current) {
             Screen.Map, Screen.MapNav -> "Zoom in" to "Zoom out"
             Screen.Dashboard -> "Speed view" to "GPS view"
-            Screen.Camera, Screen.CustomCam -> "Next camera" to "Rotate"
+            Screen.Camera, Screen.CustomCam ->
+                if (cameraHandedOff) "Show camera" to "Show camera" else "Next camera" to "Rotate"
             else -> null to null
         }
         return ShortActions(up = up, down = down, left = left, right = right)

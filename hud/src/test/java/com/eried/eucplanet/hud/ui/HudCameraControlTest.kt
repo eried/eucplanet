@@ -1,6 +1,8 @@
 package com.eried.eucplanet.hud.ui
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
@@ -107,5 +109,52 @@ class HudCameraControlTest {
         c.onCamerasFound(2)
         assertEquals(0, c.cameraIndex)
         assertEquals(180, c.cameraRotation)
+    }
+
+    @Test
+    fun holdOnACameraScreenHandsTheCameraToTheRecorder() {
+        // Josh: the MotoEye recorder starts on a held button and needs the
+        // camera the preview has. Once the preview showed the rear camera,
+        // the recorder could not start.
+        val c = onScreen(HudUiController.Screen.Camera)
+        c.onRemoteHold()
+        assertTrue(c.cameraHandedOff)
+    }
+
+    @Test
+    fun holdOnOtherScreensLeavesTheCameraAlone() {
+        val c = onScreen(HudUiController.Screen.Telemetry)
+        c.onRemoteHold()
+        assertFalse(c.cameraHandedOff)
+    }
+
+    @Test
+    fun upOrDownTakesTheCameraBackWithoutChangingIt() {
+        val c = onScreen(HudUiController.Screen.CustomCam)
+        c.onRemoteHold()
+        c.upAction()
+        assertFalse(c.cameraHandedOff)
+        assertEquals("the first press only brings the picture back", 0, c.cameraIndex)
+        c.onRemoteHold()
+        c.downAction()
+        assertFalse(c.cameraHandedOff)
+        assertEquals(270, c.cameraRotation)
+    }
+
+    @Test
+    fun anotherScreenTakesTheCameraBack() {
+        val c = HudUiController().apply {
+            applyEnabledScreens(listOf("Camera", "Telemetry"))
+        }
+        c.onRemoteHold()
+        c.nextScreen()
+        assertFalse(c.cameraHandedOff)
+    }
+
+    @Test
+    fun guideSaysHowToGetThePictureBack() {
+        val c = onScreen(HudUiController.Screen.Camera)
+        c.onRemoteHold()
+        assertEquals("Show camera", c.shortActions().up)
     }
 }
