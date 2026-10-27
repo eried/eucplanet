@@ -6,6 +6,8 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.compose.multiplatform)
 }
 
 kotlin {
@@ -38,6 +40,10 @@ kotlin {
             implementation(libs.coroutines.core)
             implementation(libs.atomicfu)
             api(libs.koin.core)
+            implementation(libs.cmp.runtime)
+            implementation(libs.cmp.foundation)
+            implementation(libs.cmp.ui)
+            implementation(libs.cmp.material3)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

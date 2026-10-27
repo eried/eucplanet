@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>en</string>
+    <key>CFBundleExecutable</key>
+    <string>$(EXECUTABLE_NAME)</string>
+    <key>CFBundleIdentifier</key>
+    <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleName</key>
+    <string>$(PRODUCT_NAME)</string>
+    <key>CFBundleDisplayName</key>
+    <string>EUC Planet</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>$(MARKETING_VERSION)</string>
+    <key>CFBundleVersion</key>
+    <string>$(CURRENT_PROJECT_VERSION)</string>
+    <key>LSRequiresIPhoneOS</key>
+    <true/>
+    <key>UILaunchScreen</key>
+    <dict>
+        <key>UIColorName</key>
+        <string>LaunchBackground</string>
+    </dict>
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+    </array>
+    <!-- Compose Multiplatform aborts at launch without this. -->
+    <key>CADisableMinimumFrameDurationOnPhone</key>
+    <true/>
+    <!-- Keep the wheel link and the trip recording alive with the screen off,
+         like the Android foreground service. Free signing allows both. -->
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>bluetooth-central</string>
+        <string>location</string>
+    </array>
+    <key>NSBluetoothAlwaysUsageDescription</key>
+    <string>EUC Planet connects to your wheel over Bluetooth to show live ride data.</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>EUC Planet uses your location for GPS speed, trip recording and automatic lights.</string>
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>EUC Planet keeps recording your trip while the screen is off.</string>
+</dict>
+</plist>

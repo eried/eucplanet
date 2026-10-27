@@ -11,6 +11,10 @@ lifecycle = "2.8.7"
 coroutines = "1.9.0"
 atomicfu = "0.33.0"
 koin = "4.2.2"
+# Compose Multiplatform for the shared UI. 1.11 is the line that matches the
+# androidx Compose 1.11 the BOM brings (1.12 needs compileSdk 37 and AGP 9).
+composeMultiplatform = "1.11.1"
+cmpMaterial3 = "1.9.0"
 navigation = "2.8.5"
 maplibre = "11.5.2"
 carApp = "1.4.0"
@@ -90,6 +94,10 @@ coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-
 atomicfu = { group = "org.jetbrains.kotlinx", name = "atomicfu", version.ref = "atomicfu" }
 # Dependency injection for shared code; Hilt reads from it (see SharedKoin).
 koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin" }
+cmp-runtime = { group = "org.jetbrains.compose.runtime", name = "runtime", version.ref = "composeMultiplatform" }
+cmp-foundation = { group = "org.jetbrains.compose.foundation", name = "foundation", version.ref = "composeMultiplatform" }
+cmp-ui = { group = "org.jetbrains.compose.ui", name = "ui", version.ref = "composeMultiplatform" }
+cmp-material3 = { group = "org.jetbrains.compose.material3", name = "material3", version.ref = "cmpMaterial3" }
 coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
 
 # Location
@@ -168,6 +176,7 @@ garmin-ciq = { group = "com.garmin.connectiq", name = "ciq-companion-app-sdk", v
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
