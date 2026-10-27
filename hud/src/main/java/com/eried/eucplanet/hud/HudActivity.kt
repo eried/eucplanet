@@ -103,6 +103,20 @@ class HudActivity : ComponentActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         controller = HudUiController()
+        // The rider's camera pick (UP) and turn (DOWN) survive a restart:
+        // a MotoEye that reports its rear camera as the front one needs it
+        // set once, not every ride.
+        val cameraPrefs = getSharedPreferences(CAMERA_PREFS, MODE_PRIVATE)
+        controller.restoreCamera(
+            cameraPrefs.getInt(PREF_CAMERA_INDEX, 0),
+            cameraPrefs.getInt(PREF_CAMERA_ROTATION, HudUiController.DEFAULT_CAMERA_ROTATION)
+        )
+        controller.onCameraChanged = { index, rotation ->
+            cameraPrefs.edit()
+                .putInt(PREF_CAMERA_INDEX, index)
+                .putInt(PREF_CAMERA_ROTATION, rotation)
+                .apply()
+        }
         server = HudServer(applicationContext)
         // OK / Nav buttons enqueue commands back to the phone over the
         // WebSocket. Queued in HudServer so a tap during a momentary
@@ -338,5 +352,8 @@ class HudActivity : ComponentActivity() {
          *  upgrades the gesture to a double-tap. Covers the human "lift" gap
          *  (~100-250 ms) between the two taps. */
         const val DOUBLE_TAP_MS: Long = 280L
+        const val CAMERA_PREFS = "hud_camera"
+        const val PREF_CAMERA_INDEX = "camera_index"
+        const val PREF_CAMERA_ROTATION = "camera_rotation"
     }
 }

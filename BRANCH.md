@@ -18,13 +18,14 @@ only when you can cut the ride short.
 - HUD map: keeps working with the phone app in the background and no wheel connected. It now says when it is waiting for the phone GPS.
 - HUD map: no more white "Map data not yet available" screen. Where the map has no detail that deep it shows the closest zoom it has.
 - HUD camera: let go of the camera when you leave the Camera screen, so the MotoEye recorder can start.
+- HUD camera: UP picks the next camera, DOWN turns the picture 90 degrees. The HUD remembers both.
 - Voice alarms: a PWM alarm says "PWM" again in Italian, Norwegian and Chinese, it was left out.
 
 ## Please test
 
 **Map / navigation**
 - Navigate a 2-stop route in Full path and Next segment: turn card, arrival time, the next stop counting down and ticked off, End navigation?
-- Heading-up: does the map face where you ride, also going south, on curves and slowly? Is the zoom right near turns?
+- Is the zoom right near turns and when riding slowly?
 - Load a GPX track and ride it: cues at real turns, named places announced? Convert to stops works?
 - After arriving, Reverse route: does it take you back a sensible way?
 - Landscape and north-up: everything readable and reachable?
@@ -35,7 +36,7 @@ only when you can cut the ride short.
 
 **HUD (MotoEye)**
 - Install the phone and the HUD APK from this build. Open the HUD Map screen, leave the phone app, no wheel connected: does the map stay? And with the wheel connected, on any map style and zoom?
-- Visit the Camera screen, go to another screen, then long press to start the MotoEye recorder: does it start every time?
+- Camera screen: if it shows the front camera, press UP until it is the rear one, then DOWN until it is upright. Which presses did it take?
 
 ## Reporting back
 

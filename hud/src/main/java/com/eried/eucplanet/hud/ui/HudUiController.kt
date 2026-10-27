@@ -94,6 +94,29 @@ class HudUiController {
     var mapZoom: Float by mutableStateOf(17f)
         private set
 
+    /** Which camera the camera screens show, as a position in the HUD's
+     *  camera list (back cameras first, see RearCameraPreview). It wraps at
+     *  the number of cameras the device has. A MotoEye can report its rear
+     *  camera as the front one, so the rider picks it with UP. */
+    var cameraIndex: Int by mutableStateOf(0)
+        private set
+
+    /** Clockwise turn of the camera picture, a multiple of 90. 270 is what a
+     *  MotoEye E6 needs; other models mount the sensor another way round, so
+     *  the rider turns it with DOWN. */
+    var cameraRotation: Int by mutableStateOf(DEFAULT_CAMERA_ROTATION)
+        private set
+
+    /** Called after UP or DOWN changes the camera so the Activity can keep
+     *  the choice for the next start. */
+    var onCameraChanged: ((index: Int, rotation: Int) -> Unit)? = null
+
+    /** Put back the camera choice saved on an earlier start. */
+    fun restoreCamera(index: Int, rotation: Int) {
+        cameraIndex = index.coerceAtLeast(0)
+        cameraRotation = normalizeRotation(rotation)
+    }
+
     /** Most recent HUD connection status, surfaced as a banner. */
     var status: HudServer.Status by mutableStateOf(HudServer.Status.LISTENING)
         private set
@@ -146,6 +169,12 @@ class HudUiController {
         when (current) {
             Screen.Dashboard -> dashboardGpsView = false
             Screen.Map, Screen.MapNav -> mapZoom = (mapZoom + 1f).coerceAtMost(MAP_ZOOM_MAX)
+            Screen.Camera, Screen.CustomCam -> {
+                // Bounded so it never overflows; the preview takes it modulo
+                // the camera count.
+                cameraIndex = (cameraIndex + 1) % MAX_CAMERAS
+                onCameraChanged?.invoke(cameraIndex, cameraRotation)
+            }
             else -> Unit
         }
     }
@@ -154,6 +183,10 @@ class HudUiController {
         when (current) {
             Screen.Dashboard -> dashboardGpsView = true
             Screen.Map, Screen.MapNav -> mapZoom = (mapZoom - 1f).coerceAtLeast(MAP_ZOOM_MIN)
+            Screen.Camera, Screen.CustomCam -> {
+                cameraRotation = normalizeRotation(cameraRotation + 90)
+                onCameraChanged?.invoke(cameraIndex, cameraRotation)
+            }
             else -> Unit
         }
     }
@@ -184,6 +217,7 @@ class HudUiController {
         val (up, down) = when (current) {
             Screen.Map, Screen.MapNav -> "Zoom in" to "Zoom out"
             Screen.Dashboard -> "Speed view" to "GPS view"
+            Screen.Camera, Screen.CustomCam -> "Next camera" to "Rotate"
             else -> null to null
         }
         return ShortActions(up = up, down = down, left = left, right = right)
@@ -210,5 +244,15 @@ class HudUiController {
     companion object {
         const val MAP_ZOOM_MIN: Float = 3f
         const val MAP_ZOOM_MAX: Float = 19f
+        const val DEFAULT_CAMERA_ROTATION: Int = 270
+        /** More cameras than any HUD has; only keeps [cameraIndex] small. */
+        const val MAX_CAMERAS: Int = 8
+
+        /** Any angle to 0, 90, 180 or 270; anything else falls back to the
+         *  default so a corrupt saved value cannot tilt the picture. */
+        fun normalizeRotation(deg: Int): Int {
+            val r = ((deg % 360) + 360) % 360
+            return if (r % 90 == 0) r else DEFAULT_CAMERA_ROTATION
+        }
     }
 }

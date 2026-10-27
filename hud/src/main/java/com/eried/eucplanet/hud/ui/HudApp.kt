@@ -178,13 +178,22 @@ fun HudApp(
                         HudUiController.Screen.Dashboard ->
                             DashboardScreen(hud = hud, gpsView = controller.dashboardGpsView)
                         HudUiController.Screen.Camera ->
-                            CameraScreen(hud = hud)
+                            CameraScreen(
+                                hud = hud,
+                                cameraIndex = controller.cameraIndex,
+                                rotation = controller.cameraRotation
+                            )
                         HudUiController.Screen.Telemetry ->
                             TelemetryScreen(hud = hud)
                         HudUiController.Screen.Custom ->
                             CustomOverlayScreen(hud = hud, withCamera = false)
                         HudUiController.Screen.CustomCam ->
-                            CustomOverlayScreen(hud = hud, withCamera = true)
+                            CustomOverlayScreen(
+                                hud = hud,
+                                withCamera = true,
+                                cameraIndex = controller.cameraIndex,
+                                cameraRotation = controller.cameraRotation
+                            )
                         HudUiController.Screen.MapNav ->
                             MapNavScreen(hud = hud, zoom = controller.mapZoom, peer = pr, cache = tileCache)
                         HudUiController.Screen.Map ->

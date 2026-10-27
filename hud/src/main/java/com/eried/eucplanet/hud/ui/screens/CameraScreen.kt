@@ -2,6 +2,7 @@ package com.eried.eucplanet.hud.ui.screens
 
 import android.Manifest
 import android.content.pm.PackageManager
+import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -51,7 +52,7 @@ import com.eried.eucplanet.hud.ui.parseHexColor
  * than crash, the rider can switch screens with LEFT/RIGHT regardless.
  */
 @Composable
-fun CameraScreen(hud: HudState) {
+fun CameraScreen(hud: HudState, cameraIndex: Int = 0, rotation: Int = 270) {
     val ctx = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     // Re-evaluate every recomposition, not just once: the rider may grant
@@ -65,7 +66,7 @@ fun CameraScreen(hud: HudState) {
     val accent = parseHexColor(hud.accentArgb)
 
     Box(Modifier.fillMaxSize().background(Color.Black)) {
-        RearCameraPreview(Modifier.fillMaxSize())
+        RearCameraPreview(Modifier.fillMaxSize(), cameraIndex = cameraIndex, rotation = rotation)
 
         // Speed overlay (bottom-right). Same unit code as the dashboard.
         val displaySpeed = HudUnits.speed(hud.speedKmh, hud.unitSpeed)
@@ -98,9 +99,12 @@ fun CameraScreen(hud: HudState) {
  * standalone [CameraScreen] and the camera-backed Custom overlay screen
  * (see HudApp). Falls back to a centered text placeholder if the camera
  * permission was denied or no camera is available.
+ *
+ * [cameraIndex] picks from the device's cameras, back ones first, wrapping at
+ * the count; a new index rebinds. [rotation] turns the picture clockwise.
  */
 @Composable
-fun RearCameraPreview(modifier: Modifier = Modifier) {
+fun RearCameraPreview(modifier: Modifier = Modifier, cameraIndex: Int = 0, rotation: Int = 270) {
     val ctx = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val hasPermission = ContextCompat.checkSelfPermission(
@@ -108,14 +112,15 @@ fun RearCameraPreview(modifier: Modifier = Modifier) {
     ) == PackageManager.PERMISSION_GRANTED
     var cameraReady by remember { mutableStateOf(false) }
     var cameraFailed by remember { mutableStateOf(false) }
-    // Latched once we've kicked off any bind attempt -- prevents the
+    // The camera index we last kicked off a bind for -- prevents the
     // AndroidView update callback (which fires on every recomposition)
     // from launching another bindToLifecycle in the same composable
     // instance. Without this, the slide transition between screens
     // re-runs the camera init dozens of times per second and produces a
     // flood of CameraValidator: Camera LensFacing verification failed
-    // errors that pegs the main thread and triggers an ANR.
-    var bindStarted by remember { mutableStateOf(false) }
+    // errors that pegs the main thread and triggers an ANR. Only a new
+    // [cameraIndex] (the rider pressed UP) binds again.
+    var boundIndex by remember { mutableStateOf<Int?>(null) }
     val binding = remember { CameraBinding() }
     // Hand the camera back the moment this screen goes away. Bound to the
     // activity's lifecycle it stayed ours on every other screen, and the
@@ -136,7 +141,7 @@ fun RearCameraPreview(modifier: Modifier = Modifier) {
             //
             // Settings the rider confirmed work:
             //   technique = Compose graphicsLayer  (this Box's rotationZ)
-            //   angle     = 270°
+            //   angle     = 270° (the default; DOWN turns it for other models)
             //   scale     = PreviewView.ScaleType.FILL_CENTER
             //   mirror    = none
             //
@@ -146,7 +151,7 @@ fun RearCameraPreview(modifier: Modifier = Modifier) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .graphicsLayer { rotationZ = 270f }
+                    .graphicsLayer { rotationZ = rotation.toFloat() }
             ) {
             AndroidView(
                 modifier = Modifier.fillMaxSize(),
@@ -157,8 +162,9 @@ fun RearCameraPreview(modifier: Modifier = Modifier) {
                     }
                 },
                 update = { view ->
-                    if (!bindStarted) {
-                        bindStarted = true
+                    if (boundIndex != cameraIndex) {
+                        boundIndex = cameraIndex
+                        cameraReady = false
                         val providerFuture = ProcessCameraProvider.getInstance(view.context)
                         providerFuture.addListener({
                             try {
@@ -169,13 +175,19 @@ fun RearCameraPreview(modifier: Modifier = Modifier) {
                                     it.surfaceProvider = view.surfaceProvider
                                 }
                                 provider.unbindAll()
-                                val selectors = buildList {
-                                    add(CameraSelector.DEFAULT_BACK_CAMERA)
-                                    add(CameraSelector.DEFAULT_FRONT_CAMERA)
-                                    provider.availableCameraInfos.forEach { info ->
-                                        add(CameraSelector.Builder()
+                                // Start at the rider's pick and fall through
+                                // the rest, so a camera that will not open
+                                // still leaves a picture.
+                                val cameras = orderedCameras(provider.availableCameraInfos)
+                                val selectors = if (cameras.isEmpty()) {
+                                    listOf(CameraSelector.DEFAULT_BACK_CAMERA, CameraSelector.DEFAULT_FRONT_CAMERA)
+                                } else {
+                                    val start = cameraIndex % cameras.size
+                                    cameras.indices.map { i ->
+                                        val info = cameras[(start + i) % cameras.size]
+                                        CameraSelector.Builder()
                                             .addCameraFilter { _ -> listOf(info) }
-                                            .build())
+                                            .build()
                                     }
                                 }
                                 var bound = false
@@ -223,6 +235,18 @@ fun RearCameraPreview(modifier: Modifier = Modifier) {
         }
     }
 }
+
+/** The device's cameras, back-facing first, then front, then the rest: the
+ *  order the rider steps through with UP. Index 0 is the camera the HUD
+ *  always opened before the choice existed. */
+private fun orderedCameras(infos: List<CameraInfo>): List<CameraInfo> =
+    infos.sortedBy {
+        when (it.lensFacing) {
+            CameraSelector.LENS_FACING_BACK -> 0
+            CameraSelector.LENS_FACING_FRONT -> 1
+            else -> 2
+        }
+    }
 
 /** The preview one [RearCameraPreview] bound, so leaving that screen unbinds
  *  only its own use case: sliding from Camera straight to Custom + camera

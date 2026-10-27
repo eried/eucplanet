@@ -66,13 +66,18 @@ import org.json.JSONObject
  * appears top/bottom on the HUD if the panel is taller than 9:19.5.
  */
 @Composable
-fun CustomOverlayScreen(hud: HudState, withCamera: Boolean = false) {
+fun CustomOverlayScreen(
+    hud: HudState,
+    withCamera: Boolean = false,
+    cameraIndex: Int = 0,
+    cameraRotation: Int = 270,
+) {
     val preset = remember(hud.customOverlayJson) { parsePreset(hud.customOverlayJson) }
     val data = remember(hud) { StudioElementData.from(hud) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (withCamera) {
-            RearCameraPreview(Modifier.fillMaxSize())
+            RearCameraPreview(Modifier.fillMaxSize(), cameraIndex = cameraIndex, rotation = cameraRotation)
         }
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
             if (preset == null || preset.elements.isEmpty()) {
