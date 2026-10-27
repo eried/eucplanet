@@ -4,8 +4,6 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * App-global transient-notification bus.
@@ -23,8 +21,7 @@ import javax.inject.Singleton
  * the oldest pending message if a burst arrives faster than the host can show
  * them (these are advisory, never load-bearing).
  */
-@Singleton
-class AppNotifier @Inject constructor() {
+class AppNotifier {
 
     private val _messages = MutableSharedFlow<String>(
         extraBufferCapacity = 8,

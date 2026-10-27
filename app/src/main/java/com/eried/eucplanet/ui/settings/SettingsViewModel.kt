@@ -30,8 +30,6 @@ import com.eried.eucplanet.service.VoiceChoice
 import com.eried.eucplanet.service.VoiceOption
 import com.eried.eucplanet.service.VoiceService
 import android.net.Uri
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -44,7 +42,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /**
  * The dashboard metric picker catalog: every metric key a rider can add to the
@@ -104,8 +101,7 @@ internal val KNOWN_DASHBOARD_METRICS = listOf(
  */
 internal val DASHBOARD_METRIC_ALIASES = emptySet<String>()
 
-@HiltViewModel
-class SettingsViewModel @Inject constructor(
+class SettingsViewModel(
     private val settingsRepository: SettingsRepository,
     private val wheelRepository: WheelRepository,
     private val accelSplitRepository: com.eried.eucplanet.data.repository.AccelSplitRepository,
@@ -129,7 +125,7 @@ class SettingsViewModel @Inject constructor(
     private val dropboxRepository: com.eried.eucplanet.data.repository.DropboxRepository,
     private val appHealthRepository:
         com.eried.eucplanet.data.repository.AppHealthRepository,
-    @ApplicationContext private val context: Context,
+    private val context: Context,
     private val hornPlayer: com.eried.eucplanet.audio.HornPlayer,
 ) : ViewModel() {
 

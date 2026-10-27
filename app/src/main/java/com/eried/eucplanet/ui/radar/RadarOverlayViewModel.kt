@@ -6,7 +6,6 @@ import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.RadarFrame
 import com.eried.eucplanet.data.repository.RadarRepository
 import com.eried.eucplanet.data.repository.SettingsRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -15,7 +14,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.delay
-import javax.inject.Inject
 
 /**
  * Drives [RadarOverlay] visibility. The overlay is on screen when:
@@ -32,8 +30,7 @@ import javax.inject.Inject
  * radar declares the lane clear.
  */
 
-@HiltViewModel
-class RadarOverlayViewModel @Inject constructor(
+class RadarOverlayViewModel(
     private val settingsRepository: SettingsRepository,
     private val radarRepository: RadarRepository
 ) : ViewModel() {

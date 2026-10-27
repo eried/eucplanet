@@ -15,8 +15,6 @@ import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.util.TripCsv
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -42,7 +40,6 @@ import java.io.InputStreamReader
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
-import javax.inject.Inject
 
 data class LatLon(val latitude: Double, val longitude: Double)
 
@@ -75,15 +72,14 @@ data class TripDataPoint(
 /** How long a freshly made trip stays flashed in the list. */
 private const val HIGHLIGHT_MS = 3_000L
 
-@HiltViewModel
-class RecordingViewModel @Inject constructor(
+class RecordingViewModel(
     private val tripRepository: TripRepository,
     private val wheelRepository: com.eried.eucplanet.data.repository.WheelRepository,
     private val settingsRepository: SettingsRepository,
     private val syncManager: com.eried.eucplanet.data.sync.SyncManager,
     private val eucStatsRepository: com.eried.eucplanet.data.eucstats.EucStatsRepository,
     private val dropboxRepository: com.eried.eucplanet.data.repository.DropboxRepository,
-    @ApplicationContext private val context: Context
+    private val context: Context
 ) : ViewModel() {
 
     companion object {

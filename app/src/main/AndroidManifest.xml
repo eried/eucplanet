@@ -364,7 +364,7 @@
                 android:resource="@xml/widget_act_23_info" />
         </receiver>
 
-        <!-- Let the Application class provide the WorkManager Configuration (Hilt worker factory). -->
+        <!-- Let the Application class provide the WorkManager Configuration (Koin worker factory). -->
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"

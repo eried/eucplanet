@@ -15,7 +15,6 @@ import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.util.Smoothing
 import kotlin.math.abs
 import com.eried.eucplanet.data.repository.SettingsRepository
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -25,8 +24,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Locale
-import javax.inject.Inject
-import javax.inject.Singleton
 
 data class VoiceOption(val locale: Locale, val displayName: String)
 
@@ -47,18 +44,17 @@ data class VoiceChoice(
     val quality: Int
 )
 
-@Singleton
-class VoiceService @Inject constructor(
-    @ApplicationContext private val context: Context,
+class VoiceService(
+    private val context: Context,
     private val settingsRepository: SettingsRepository,
     private val cheatState: com.eried.eucplanet.cheats.CheatState,
     private val appNotifier: com.eried.eucplanet.util.AppNotifier,
     private val legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController,
     // Lazy: WheelRepository speaks through this service, so a direct
     // dependency back would be a cycle. Only the stat pills read it.
-    private val wheelRepositoryLazy: dagger.Lazy<com.eried.eucplanet.data.repository.WheelRepository>,
+    private val wheelRepositoryLazy: Lazy<com.eried.eucplanet.data.repository.WheelRepository>,
     // Lazy for the same reason: it reaches WheelRepository.
-    private val metricsResetLazy: dagger.Lazy<com.eried.eucplanet.data.repository.MetricsReset>,
+    private val metricsResetLazy: Lazy<com.eried.eucplanet.data.repository.MetricsReset>,
     private val tonePlayer: TonePlayer,
 ) {
     companion object {
@@ -602,7 +598,7 @@ class VoiceService @Inject constructor(
         // nothing the rider is about to hear. Here rather than in each caller
         // so the tile, a Flic, a headset and the volume keys all agree.
         if (settings.voiceReports.triggerResetAfter) {
-            scope.launch { metricsResetLazy.get().resetAll() }
+            scope.launch { metricsResetLazy.value.resetAll() }
         }
     }
 
@@ -784,7 +780,7 @@ class VoiceService @Inject constructor(
                 else -> R.string.voice_stat_peak_terms
             }
         ).split(",").first().trim()
-        val h = wheelRepositoryLazy.get().fullHistory.value
+        val h = wheelRepositoryLazy.value.fullHistory.value
         val samples = when (key) {
             "BATTERY" -> h.battery
             "TEMPERATURE" -> h.temperature

@@ -79,7 +79,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.ui.common.HintText
@@ -90,6 +89,7 @@ import com.eried.eucplanet.ui.common.appMenuItemColors
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import org.koin.compose.viewmodel.koinViewModel
 
 
 
@@ -101,7 +101,7 @@ fun RecordingScreen(
     onOpenBackupSettings: (() -> Unit)? = null,
     onViewOnline: ((Long) -> Unit)? = null,
     onReplayTrip: ((Long) -> Unit)? = null,
-    viewModel: RecordingViewModel = hiltViewModel()
+    viewModel: RecordingViewModel = koinViewModel()
 ) {
     val recording by viewModel.recording.collectAsState()
     val pendingTripId by viewModel.pendingTripId.collectAsState()

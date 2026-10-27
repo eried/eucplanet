@@ -18,8 +18,6 @@ import java.io.BufferedReader
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /** One geocoder search hit. */
 data class GeoResult(val name: String, val lat: Double, val lng: Double)
@@ -66,9 +64,8 @@ data class RouteAvoidances(
  * the engine re-routes mid-navigation; nothing here runs in the background and
  * no telemetry is sent. Endpoints are caller-supplied so they stay configurable.
  */
-@Singleton
-class RoutingService @Inject constructor(
-    @dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context,
+class RoutingService(
+    private val context: android.content.Context,
     private val appNotifier: com.eried.eucplanet.util.AppNotifier,
 ) {
 

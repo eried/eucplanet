@@ -13,7 +13,6 @@ import com.eried.eucplanet.service.VoiceService
 import com.eried.eucplanet.voice.VoiceAnswer.Answer
 import com.eried.eucplanet.voice.VoiceVocabulary.Kind
 import com.eried.eucplanet.voice.VoiceVocabulary.SpokenTerm
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -31,8 +30,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * One listening session, end to end: tone, microphone, match, spoken answer.
@@ -45,9 +42,8 @@ import javax.inject.Singleton
  * rider at speed who hears nothing cannot tell a misheard word from a broken
  * feature, and the blank CONSUMPTION tile is what that costs.
  */
-@Singleton
-class VoiceCommandController @Inject constructor(
-    @ApplicationContext private val context: Context,
+class VoiceCommandController(
+    private val context: Context,
     private val settingsRepository: SettingsRepository,
     private val wheelRepository: WheelRepository,
     private val voiceService: VoiceService,
@@ -56,9 +52,9 @@ class VoiceCommandController @Inject constructor(
     private val weatherRepository: com.eried.eucplanet.weather.WeatherRepository,
     private val navigationEngine: com.eried.eucplanet.nav.NavigationEngine,
     private val tripRepository: com.eried.eucplanet.data.repository.TripRepository,
-    // A Provider, not the manager itself: FlicManager injects this
-    // controller, and Dagger cannot build a cycle of two constructors.
-    private val flicManager: javax.inject.Provider<com.eried.eucplanet.flic.FlicManager>,
+    // A Lazy, not the manager itself: FlicManager injects this
+    // controller, and no DI graph can build a cycle of two constructors.
+    private val flicManager: Lazy<com.eried.eucplanet.flic.FlicManager>,
 ) {
 
     private companion object {
@@ -738,7 +734,7 @@ class VoiceCommandController @Inject constructor(
             Log.i(TAG, "action $key already satisfied")
             return
         }
-        flicManager.get().runAction(catalogKey)
+        flicManager.value.runAction(catalogKey)
         Log.i(TAG, "action $key ran as $catalogKey")
         com.eried.eucplanet.diagnostics.DiagnosticsLogger.note("Voice: did $key")
     }

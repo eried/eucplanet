@@ -1,8 +1,6 @@
 package com.eried.eucplanet.ble
 
 import com.eried.eucplanet.diagnostics.DiagnosticCommand
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Begode/Gotway wheel adapter for Master / RS / EX / T4 / MSP / Hero / Mten /
@@ -19,8 +17,7 @@ import javax.inject.Singleton
  * [BegodeCommands]. Begode pushes telemetry unsolicited; init / poll loops
  * are empty.
  */
-@Singleton
-class BegodeAdapter @Inject constructor() : WheelAdapter {
+class BegodeAdapter : WheelAdapter {
     override val familyId = "begode"
     override val familyDisplayName = "Begode / Gotway"
     override val capabilities = WheelCapabilities.BEGODE

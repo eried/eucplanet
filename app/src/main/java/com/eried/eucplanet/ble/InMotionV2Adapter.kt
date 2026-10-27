@@ -3,8 +3,6 @@ package com.eried.eucplanet.ble
 import android.util.Log
 import com.eried.eucplanet.diagnostics.DiagnosticCommand
 import java.io.ByteArrayOutputStream
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * WheelAdapter for the InMotion V2 protocol family: V11, V12HS/HT/PRO/S, V13, V14.
@@ -17,8 +15,7 @@ import javax.inject.Singleton
  * The decode dispatch mirrors the legacy WheelRepository.handlePacket() switch
  * exactly so the refactor is provably no-op for V14.
  */
-@Singleton
-class InMotionV2Adapter @Inject constructor() : WheelAdapter {
+class InMotionV2Adapter : WheelAdapter {
 
     override val familyId: String = "inmotion_v2"
     override val familyDisplayName: String = "InMotion V14 / V12 / P6 / V6"

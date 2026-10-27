@@ -6,15 +6,12 @@ import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.repository.FullMetricHistory
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.WheelRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import javax.inject.Inject
 
-@HiltViewModel
-class MetricDetailViewModel @Inject constructor(
+class MetricDetailViewModel(
     private val wheelRepository: WheelRepository,
     settingsRepository: SettingsRepository
 ) : ViewModel() {

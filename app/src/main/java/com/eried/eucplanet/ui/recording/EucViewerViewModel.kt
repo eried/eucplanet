@@ -2,14 +2,11 @@ package com.eried.eucplanet.ui.recording
 
 import androidx.lifecycle.ViewModel
 import com.eried.eucplanet.data.repository.TripRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 /** Loads a recorded trip's CSV bytes for the embedded EUC Viewer WebView. */
-@HiltViewModel
-class EucViewerViewModel @Inject constructor(
+class EucViewerViewModel(
     private val tripRepository: TripRepository
 ) : ViewModel() {
 

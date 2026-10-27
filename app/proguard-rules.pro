@@ -16,9 +16,6 @@
 -keep class * extends androidx.room.RoomDatabase
 -keep @androidx.room.Entity class *
 
-# Hilt
--keep class dagger.hilt.** { *; }
-
 # Flic 2 SDK, third-party AAR from jitpack; the SDK invokes our callbacks
 # reflectively and ships no consumer rules of its own.
 -keep class io.flic.** { *; }

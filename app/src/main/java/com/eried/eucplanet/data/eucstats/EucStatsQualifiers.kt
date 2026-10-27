@@ -1,23 +1,18 @@
 package com.eried.eucplanet.data.eucstats
 
-import javax.inject.Qualifier
+import org.koin.core.qualifier.named
 
-/** Qualifier for the app version string injected into [EucStatsRepository]. */
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-annotation class EucStatsAppVersion
+/** Koin qualifiers for the plain values injected into [EucStatsRepository]. */
+object EucStatsQualifiers {
+    /** The app version string. */
+    val AppVersion = named("EucStatsAppVersion")
 
-/** Qualifier for the OS version string injected into [EucStatsRepository]. */
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-annotation class EucStatsOsVersion
+    /** The OS version string. */
+    val OsVersion = named("EucStatsOsVersion")
 
-/** Qualifier for the trip-file-bytes lambda injected into [EucStatsRepository]. */
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-annotation class EucStatsTripFileBytes
+    /** The trip-file-bytes lambda. */
+    val TripFileBytes = named("EucStatsTripFileBytes")
 
-/** Qualifier for the wall-clock lambda injected into [EucStatsRepository]. */
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-annotation class EucStatsClock
+    /** The wall-clock lambda. */
+    val Clock = named("EucStatsClock")
+}

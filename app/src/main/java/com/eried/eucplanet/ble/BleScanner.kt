@@ -7,12 +7,9 @@ import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import javax.inject.Inject
-import javax.inject.Singleton
 
 data class BleDevice(
     val name: String,
@@ -100,9 +97,8 @@ internal fun isLikelyWheelName(name: String): Boolean {
     return false
 }
 
-@Singleton
-class BleScanner @Inject constructor(
-    @ApplicationContext private val context: Context
+class BleScanner(
+    private val context: Context
 ) {
     private val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     private val bluetoothAdapter = bluetoothManager.adapter

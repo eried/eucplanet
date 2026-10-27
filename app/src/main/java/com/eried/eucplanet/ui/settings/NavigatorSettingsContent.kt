@@ -52,7 +52,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.TravelMode
 import com.eried.eucplanet.ui.common.HintText
@@ -61,6 +60,7 @@ import com.eried.eucplanet.ui.theme.FieldNotchLabel
 import com.eried.eucplanet.ui.theme.themedFieldColors
 import com.eried.eucplanet.ui.theme.themedSwitchColors
 import com.eried.eucplanet.ui.theme.themedSliderColors
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * The "Navigator" settings section: voice guidance, the default travel mode,
@@ -69,7 +69,7 @@ import com.eried.eucplanet.ui.theme.themedSliderColors
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavigatorSettingsContent(
-    viewModel: SettingsViewModel = hiltViewModel(),
+    viewModel: SettingsViewModel = koinViewModel(),
     // Set when the rider came from the weather icon's settings shortcut: the
     // weather block sits at the bottom of a long section, so the shortcut
     // reports where it is and the screen scrolls there instead of dropping
