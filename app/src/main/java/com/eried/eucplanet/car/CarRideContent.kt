@@ -53,6 +53,7 @@ import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.GeoPoint
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.model.WidgetMetricType
+import com.eried.eucplanet.data.model.pickerLabel
 import com.eried.eucplanet.hud.protocol.MapLayers
 import com.eried.eucplanet.hud.protocol.WebMercator
 import com.eried.eucplanet.map.MapTileCache
@@ -61,6 +62,7 @@ import com.eried.eucplanet.ui.theme.BuiltInThemes
 import com.eried.eucplanet.ui.theme.EucPlanetTheme
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.Units
+import com.eried.eucplanet.util.speedUnit
 import com.eried.eucplanet.widget.WidgetMetricFormat
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch

@@ -64,6 +64,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.remap
 import com.eried.eucplanet.util.Units
+import com.eried.eucplanet.util.speedUnit
 
 /**
  * Bottom sheet opened by tapping the GPS indicator in the dashboard top-right.

@@ -10,6 +10,7 @@ room = "2.8.4"
 lifecycle = "2.8.7"
 coroutines = "1.9.0"
 atomicfu = "0.33.0"
+koin = "4.2.2"
 navigation = "2.8.5"
 maplibre = "11.5.2"
 carApp = "1.4.0"
@@ -87,6 +88,8 @@ hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-com
 coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
 # Locks and atomics for the shared module (synchronized on iOS).
 atomicfu = { group = "org.jetbrains.kotlinx", name = "atomicfu", version.ref = "atomicfu" }
+# Dependency injection for shared code; Hilt reads from it (see SharedKoin).
+koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin" }
 coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
 
 # Location

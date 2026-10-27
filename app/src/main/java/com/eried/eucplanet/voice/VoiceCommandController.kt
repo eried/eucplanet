@@ -10,6 +10,7 @@ import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.service.TonePlayer
 import com.eried.eucplanet.service.VoiceService
+import com.eried.eucplanet.util.speedUnit
 import com.eried.eucplanet.voice.VoiceAnswer.Answer
 import com.eried.eucplanet.voice.VoiceVocabulary.Kind
 import com.eried.eucplanet.voice.VoiceVocabulary.SpokenTerm

@@ -4,6 +4,7 @@ import android.content.Context
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.model.WidgetMetricType
 import com.eried.eucplanet.util.Units
+import com.eried.eucplanet.util.speedUnit
 import kotlin.math.abs
 
 /**

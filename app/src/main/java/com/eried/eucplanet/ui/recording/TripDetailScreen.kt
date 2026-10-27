@@ -119,6 +119,7 @@ import com.eried.eucplanet.util.GraphScale
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
+import com.eried.eucplanet.util.speedUnit
 import kotlin.math.roundToInt
 import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.ui.common.HintText

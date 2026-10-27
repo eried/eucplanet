@@ -42,7 +42,7 @@ class CommonMainGuardTest {
 
     /** Calls that compile on the JVM without an import but not in common code. */
     private val needsImport = listOf(
-        Regex("""(?<![\w.])System\.""") to "com.eried.eucplanet.platform.System",
+        Regex("""(?<![\w.])System(\.|::)""") to "com.eried.eucplanet.platform.System",
         Regex("""(?<![\w.])Charsets\.""") to "com.eried.eucplanet.platform.Charsets",
         Regex("""(?<![\w.])Log\.[dviwe]\(""") to "com.eried.eucplanet.platform.Log",
         Regex("""@Volatile\b""") to "kotlin.concurrent.Volatile",

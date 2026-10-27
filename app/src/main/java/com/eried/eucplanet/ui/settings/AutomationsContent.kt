@@ -68,6 +68,7 @@ import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.SunCalculator
 import com.eried.eucplanet.util.Units
+import com.eried.eucplanet.util.speedUnit
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date

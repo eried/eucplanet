@@ -3,6 +3,7 @@ package com.eried.eucplanet.widget
 import android.content.Context
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.util.Units
+import com.eried.eucplanet.util.speedUnit
 import com.eried.eucplanet.weather.WeatherFace
 import com.eried.eucplanet.weather.WeatherForecast
 import com.eried.eucplanet.weather.WeatherScoring

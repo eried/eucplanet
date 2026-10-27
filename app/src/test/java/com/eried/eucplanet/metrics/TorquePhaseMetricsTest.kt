@@ -21,7 +21,11 @@ import java.io.File
  */
 class TorquePhaseMetricsTest {
 
-    private fun src(path: String) = File("src/main/java/com/eried/eucplanet/$path").readText()
+    // The wheel decoders moved to the shared module; look there too.
+    private fun src(path: String) = listOf(
+        File("src/main/java/com/eried/eucplanet/$path"),
+        File("../shared/src/commonMain/kotlin/com/eried/eucplanet/$path"),
+    ).first { it.exists() }.readText()
 
     // --- CSV schema ---------------------------------------------------------
 

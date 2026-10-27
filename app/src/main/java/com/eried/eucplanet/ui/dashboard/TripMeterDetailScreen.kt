@@ -64,6 +64,7 @@ import com.eried.eucplanet.data.repository.TripMeterRepository
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.GraphScale
 import com.eried.eucplanet.util.Units
+import com.eried.eucplanet.util.speedUnit
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

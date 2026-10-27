@@ -13,6 +13,7 @@ import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.util.Smoothing
+import com.eried.eucplanet.util.speedUnit
 import kotlin.math.abs
 import com.eried.eucplanet.data.repository.SettingsRepository
 import dagger.hilt.android.qualifiers.ApplicationContext

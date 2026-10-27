@@ -6,6 +6,7 @@ import androidx.compose.ui.res.stringResource
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.util.Units
+import com.eried.eucplanet.util.speedUnit
 import kotlin.math.absoluteValue
 
 /** Whether a metric needs unit conversion, and against which unit setting. */

@@ -23,12 +23,14 @@ import com.eried.eucplanet.audio.EngineSoundEngine
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.WheelData
+import com.eried.eucplanet.data.model.pickerLabel
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.share.ShareSession
 import com.eried.eucplanet.share.ShareState
 import com.eried.eucplanet.diagnostics.DiagnosticsLogger
+import com.eried.eucplanet.util.speedUnit
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

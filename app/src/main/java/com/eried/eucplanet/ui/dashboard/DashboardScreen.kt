@@ -29,6 +29,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
+import com.eried.eucplanet.util.speedUnit
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import androidx.compose.foundation.Canvas

@@ -117,7 +117,7 @@ class DropboxRateLimitTest {
 
     @Test fun `the request survives the app being killed`() {
         // The whole point: a big library outlasts the app's time in memory.
-        val settings = File("src/main/java/com/eried/eucplanet/data/model/AppSettings.kt").readText()
+        val settings = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/data/model/AppSettings.kt").readText()
         assertTrue("the flag is not persisted", settings.contains("val dropboxPullRequested"))
         val json = File("src/main/java/com/eried/eucplanet/data/store/SettingsJson.kt").readText()
         assertTrue("the flag is not in the settings json", json.contains("dropboxPullRequested"))

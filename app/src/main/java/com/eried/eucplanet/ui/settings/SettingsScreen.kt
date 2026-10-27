@@ -156,6 +156,8 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.ui.input.pointer.PointerEventTimeoutCancellationException
+import com.eried.eucplanet.data.model.pickerLabel
+import com.eried.eucplanet.util.speedUnit
 import kotlinx.coroutines.withTimeout
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput

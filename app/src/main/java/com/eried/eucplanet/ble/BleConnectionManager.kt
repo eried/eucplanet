@@ -39,23 +39,20 @@ import kotlinx.coroutines.launch
 import com.eried.eucplanet.ble.virtual.VirtualWheel
 import com.eried.eucplanet.ble.virtual.VirtualWheelRegistry
 import java.util.UUID
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.toJavaUuid
+import kotlin.uuid.toKotlinUuid
 import javax.inject.Inject
 import javax.inject.Singleton
 
-enum class ConnectionState {
-    DISCONNECTED,
-    SCANNING,
-    CONNECTING,
-    INITIALIZING,
-    CONNECTED
-}
-
+// BleProfile carries the shared kotlin.uuid.Uuid; GATT calls take java.util.UUID.
+@OptIn(ExperimentalUuidApi::class)
 @Singleton
 class BleConnectionManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val wheelAdapter: WheelAdapter,
     private val appNotifier: com.eried.eucplanet.util.AppNotifier
-) {
+) : WheelLink {
     companion object {
         private const val TAG = "BleConnection"
         /** The first manual connect after a fresh install commonly returns GATT
@@ -116,13 +113,13 @@ class BleConnectionManager @Inject constructor(
     private val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
 
     private val _connectionState = MutableStateFlow(ConnectionState.DISCONNECTED)
-    val connectionState: StateFlow<ConnectionState> = _connectionState.asStateFlow()
+    override val connectionState: StateFlow<ConnectionState> = _connectionState.asStateFlow()
 
     /** Connected wheel's display label: the BLE advertised name, with
      *  " (virtual)" appended for simulator wheels. Set on every connect;
      *  the UI only reads it while [connectionState] is CONNECTED. */
     private val _connectedDeviceName = MutableStateFlow<String?>(null)
-    val connectedDeviceName: StateFlow<String?> = _connectedDeviceName.asStateFlow()
+    override val connectedDeviceName: StateFlow<String?> = _connectedDeviceName.asStateFlow()
 
     /**
      * Address of the wheel behind the current connect target (virtual wheels
@@ -132,15 +129,15 @@ class BleConnectionManager @Inject constructor(
      * actually live. Drives the per-wheel alarm binding.
      */
     private val _connectedAddress = MutableStateFlow<String?>(null)
-    val connectedAddress: StateFlow<String?> = _connectedAddress.asStateFlow()
+    override val connectedAddress: StateFlow<String?> = _connectedAddress.asStateFlow()
 
     /** The connected wheel's address, or null while not fully connected. */
-    fun connectedAddressOrNull(): String? =
+    override fun connectedAddressOrNull(): String? =
         if (_connectionState.value == ConnectionState.CONNECTED) _connectedAddress.value else null
 
     /** Brand of the connected wheel, from the active adapter. Set on connect. */
     private val _connectedBrand = MutableStateFlow<String?>(null)
-    val connectedBrand: StateFlow<String?> = _connectedBrand.asStateFlow()
+    override val connectedBrand: StateFlow<String?> = _connectedBrand.asStateFlow()
 
     /**
      * Re-read the active adapter's [WheelAdapter.brand] and push the result
@@ -149,18 +146,18 @@ class BleConnectionManager @Inject constructor(
      * (NOSFET wheels vs LeaperKim) and the initial value chosen at
      * connect time is pre-detection.
      */
-    fun refreshBrand() {
+    override fun refreshBrand() {
         _connectedBrand.value = wheelAdapter.brand
     }
 
     private val _decodedResults = MutableSharedFlow<DecodeResult>(extraBufferCapacity = 64)
     /** Stream of decoded results from the active wheel adapter. */
-    val decodedResults: SharedFlow<DecodeResult> = _decodedResults.asSharedFlow()
+    override val decodedResults: SharedFlow<DecodeResult> = _decodedResults.asSharedFlow()
 
     /** Live link RSSI in dBm (negative), or null when unknown / disconnected.
      *  The wheel telemetry doesn't carry it, so we read it off the GATT link. */
     private val _rssiDbm = MutableStateFlow<Int?>(null)
-    val rssiDbm: StateFlow<Int?> = _rssiDbm.asStateFlow()
+    override val rssiDbm: StateFlow<Int?> = _rssiDbm.asStateFlow()
 
     private var gatt: BluetoothGatt? = null
 
@@ -180,7 +177,7 @@ class BleConnectionManager @Inject constructor(
      * the wheel been connected" is a question a rider asks out loud when the
      * dashboard looks frozen and they want to know whether to trust it.
      */
-    val connectedSinceMs: StateFlow<Long> = _connectedSinceMs.asStateFlow()
+    override val connectedSinceMs: StateFlow<Long> = _connectedSinceMs.asStateFlow()
 
     // Poll the link RSSI once a second while connected so the BT dBm metric and
     // the proximity-lock feature stay snappy. A no-op on virtual connections.
@@ -505,7 +502,7 @@ class BleConnectionManager @Inject constructor(
     }
 
     @SuppressLint("MissingPermission")
-    fun connect(address: String, name: String? = null, isAuto: Boolean = false) {
+    override fun connect(address: String, name: String?, isAuto: Boolean) {
         // Single chokepoint for every wheel connection. While the rider is on
         // the scan screen, hold every AUTO-connect (app start, reconnect loop,
         // post-scan re-arm); a wheel the rider picks (isAuto = false) always
@@ -650,7 +647,7 @@ class BleConnectionManager @Inject constructor(
      * AUTO connection so the rider isn't pulled back to the previous wheel
      * mid-search. A connection the rider chose explicitly is left untouched.
      */
-    fun suppressAutoConnect() {
+    override fun suppressAutoConnect() {
         autoConnectSuppressed = true
         // The scan screen runs its own scan; never leave a reconnect scan racing it.
         stopReconnectScan()
@@ -666,7 +663,7 @@ class BleConnectionManager @Inject constructor(
      * only when still disconnected (a fresh pick already moved us off
      * DISCONNECTED). A null address just lifts the hold.
      */
-    fun resumeAutoConnect(reconnectAddress: String?, reconnectName: String?) {
+    override fun resumeAutoConnect(reconnectAddress: String?, reconnectName: String?) {
         autoConnectSuppressed = false
         if (reconnectAddress != null && _connectionState.value == ConnectionState.DISCONNECTED) {
             connect(reconnectAddress, reconnectName, isAuto = true)
@@ -752,7 +749,7 @@ class BleConnectionManager @Inject constructor(
     }
 
     @SuppressLint("MissingPermission")
-    fun disconnect() {
+    override fun disconnect() {
         shouldReconnect = false
         stopReconnectScan()
         currentAddress = null
@@ -809,7 +806,7 @@ class BleConnectionManager @Inject constructor(
      * queued ahead of polls and retried hard. Defaults to COMMAND so anything
      * that is not explicitly routine keeps the careful treatment.
      */
-    fun writeCommand(data: ByteArray, kind: BleWriteQueue.Kind = BleWriteQueue.Kind.COMMAND) {
+    override fun writeCommand(data: ByteArray, kind: BleWriteQueue.Kind) {
         // Push-only adapters (Begode, Veteran, KingSong) return an empty
         // array from poll* to signal "nothing to send; just wait for the
         // wheel's notifications". Drop those on the floor instead of
@@ -1106,7 +1103,7 @@ class BleConnectionManager @Inject constructor(
             }
 
             var profile = wheelAdapter.bleProfile()
-            var service = gatt.getService(profile.serviceUuid)
+            var service = gatt.getService(profile.serviceUuid.toJavaUuid())
             if (service == null) {
                 // Name-based routing picked the wrong adapter (most often: an
                 // unrecognised name fell through to the InMotion V2 default,
@@ -1116,10 +1113,10 @@ class BleConnectionManager @Inject constructor(
                 val discoveredUuids = gatt.services.map { it.uuid }.toSet()
                 Log.w(TAG, "Adapter ${wheelAdapter.familyDisplayName} service ${profile.serviceUuid} not on wheel; " +
                         "discovered services=$discoveredUuids - attempting fallback")
-                val rerouted = wheelAdapter.pickAdapterByDiscoveredServices(discoveredUuids, currentName)
+                val rerouted = wheelAdapter.pickAdapterByDiscoveredServices(discoveredUuids.mapTo(HashSet()) { it.toKotlinUuid() }, currentName)
                 if (rerouted) {
                     profile = wheelAdapter.bleProfile()
-                    service = gatt.getService(profile.serviceUuid)
+                    service = gatt.getService(profile.serviceUuid.toJavaUuid())
                     if (service != null) {
                         Log.i(TAG, "Adapter rerouted by service-UUID to ${wheelAdapter.familyDisplayName}")
                         _connectedBrand.value = wheelAdapter.brand
@@ -1135,9 +1132,9 @@ class BleConnectionManager @Inject constructor(
             // the notify one. InMotion V1 splits them (notify 0xFFE4 under
             // 0xFFE0, write 0xFFE9 under 0xFFE5); every other family keeps both
             // on one service, so effectiveWriteServiceUuid == serviceUuid there.
-            val writeService = gatt.getService(profile.effectiveWriteServiceUuid)
-            rxCharacteristic = writeService?.getCharacteristic(profile.writeCharacteristic)
-            val txCharacteristic = service.getCharacteristic(profile.notifyCharacteristic)
+            val writeService = gatt.getService(profile.effectiveWriteServiceUuid.toJavaUuid())
+            rxCharacteristic = writeService?.getCharacteristic(profile.writeCharacteristic.toJavaUuid())
+            val txCharacteristic = service.getCharacteristic(profile.notifyCharacteristic.toJavaUuid())
 
             if (rxCharacteristic == null || txCharacteristic == null) {
                 failConnectAndTeardown(gatt,

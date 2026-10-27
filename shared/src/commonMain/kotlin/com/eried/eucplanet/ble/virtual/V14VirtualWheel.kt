@@ -1,0 +1,330 @@
+package com.eried.eucplanet.ble.virtual
+
+import com.eried.eucplanet.ble.InMotionV2Protocol
+import com.eried.eucplanet.ble.InMotionV2Protocol.Command
+import com.eried.eucplanet.ble.InMotionV2Protocol.ControlSubCmd
+import com.eried.eucplanet.platform.System
+import com.eried.eucplanet.util.ByteUtils
+import kotlin.random.Random
+
+/**
+ * Software fake of an InMotion V14 (50GB). Reports model "V14 50GB", firmware
+ * Main 1.2.3 / Driver 4.5.6 / BLE 7.8.9, then on every realtime poll emits a
+ * telemetry frame with an oscillating speed (sine 0..30 km/h over ~10 s),
+ * static 84 V battery at 80 %, and a lazy battery decay so the dashboard
+ * looks alive over time.
+ *
+ * Settings poll returns max speed 50 / alarm 40, lock state matching the
+ * `locked` field. Lock and tiltback control writes update internal state
+ * which the next settings poll surfaces: the same loop a real wheel uses.
+ *
+ * Auth handshake: when the app sends requestAuthKey we return a fixed 16-byte
+ * "encrypted" key; verifyAuth always succeeds. Real wheels do AES against a
+ * preset password; we don't need that to exercise the parsing pipeline.
+ */
+class V14VirtualWheel : VirtualWheel {
+
+    override val displayName = "Virtual InMotion V14 (50GB)"
+    override val id = "V14"
+
+    private companion object {
+        // Window after connect during which the V14 sim reports "charging" so the
+        // Charging Monitor can be exercised on the emulator. 30 minutes so the
+        // whole 45→100 % curve (incl. the slow CV taper) plays out for testing.
+        const val CHARGE_DEMO_MS = 1_800_000L
+    }
+
+    private var locked = false
+    private var maxSpeedKmh = 50f
+    private var alarmSpeedKmh = 40f
+    private var lightOn = false
+    private var startTimeMs = System.currentTimeMillis()
+    private var batteryStart = 80f
+    // Live battery % (climbs while "charging", decays while riding).
+    private var batterySim = 80f
+    // Jittered charge: a random 0–0.3 % step every 5 s, with the 4th step of each
+    // 20 s window topped up so the window adds exactly 1 % (steady 3 %/min average,
+    // uneven per-step), the noisy input the ETA smoothing must stay steady against.
+    private var chargeTickMs = 0L
+    private var chargeWindowAdded = 0f
+    private var chargeWindowTick = 0
+    private var wasLocked = false
+    // Random-walk ride simulation state.
+    private var simSpeed = 0f
+    private var prevSpeed = 0f
+    private var lastBuildMs = 0L
+    private val rnd = Random
+
+    override fun reset() {
+        locked = false
+        maxSpeedKmh = 50f
+        alarmSpeedKmh = 40f
+        lightOn = false
+        startTimeMs = System.currentTimeMillis()
+        batteryStart = 80f
+        batterySim = 80f
+        chargeTickMs = 0L
+        chargeWindowAdded = 0f
+        chargeWindowTick = 0
+        wasLocked = false
+        simSpeed = 0f
+        prevSpeed = 0f
+        lastBuildMs = 0L
+    }
+
+    override fun onWrite(data: ByteArray): List<ByteArray> {
+        val packet = InMotionV2Protocol.parsePacket(data) ?: return emptyList()
+        val cmd = packet.command.toInt() and 0x7F
+        val sub = packet.data.firstOrNull()?.toInt()?.and(0xFF)
+
+        return when {
+            cmd == (Command.MAIN_INFO.toInt() and 0xFF) && sub == 0x01 -> listOf(buildCarType())
+            cmd == (Command.MAIN_INFO.toInt() and 0xFF) && sub == 0x02 -> listOf(buildSerial())
+            cmd == (Command.MAIN_INFO.toInt() and 0xFF) && sub == 0x06 -> listOf(buildVersions())
+            // Per-pack BMS cells query: `aa aa 16 03 02 [pack=0x24..0x27] 02 [xor]`.
+            // parsePacket gives us command=0x02 with data=[pack, 0x02]. Reply
+            // with fake 32-cell voltages so the emulator's Cells tab populates
+            // for layout iteration without needing a real V14 hooked up.
+            cmd == 0x02 && packet.data.size >= 2 &&
+                packet.data[0] in 0x24..0x27 && (packet.data[1].toInt() and 0xFF) == 0x02 ->
+                listOf(buildPackCells(packet.data[0]))
+            cmd == (Command.SETTINGS.toInt() and 0xFF) -> listOf(buildSettings())
+            cmd == (Command.SOMETHING1.toInt() and 0xFF) -> emptyList()
+            cmd == (Command.TOTAL_STATS.toInt() and 0xFF) -> listOf(buildTotalStats())
+            cmd == (Command.REAL_TIME_INFO.toInt() and 0xFF) -> listOf(buildTelemetry())
+            cmd == (Command.CONTROL.toInt() and 0xFF) -> handleControl(packet.data)
+            else -> emptyList()
+        }
+    }
+
+    /**
+     * Build a per-pack cells response: `aa aa 16 [len] [pack] 02 82 [32 × uint16 LE mV] [xor]`.
+     * Cell voltages cluster around ~4.10 V with small jitter per pack so the
+     * BMS-derived "imbalance %" stays close to 0 (each pack reads similar) but
+     * with enough variance that the chip color-coding (min red / max blue)
+     * still shows distinct shading.
+     */
+    private fun buildPackCells(packAddr: Byte): ByteArray {
+        val packIndex = (packAddr.toInt() and 0xFF) - 0x24
+        val data = ByteArray(2 + 64)
+        data[0] = 0x02              // routing prefix
+        data[1] = 0x82.toByte()     // 0x80 | sub 0x02 = response marker
+        // Slight per-pack offset so the 4 packs aren't all identical at the
+        // pack-average level (a real V14 typically has ~10-40 mV between
+        // packs in good health).
+        val packOffsetMv = packIndex * 6
+        var off = 2
+        for (i in 0 until 32) {
+            // Small in-pack jitter (±15 mV) + per-cell index gradient so the
+            // grid shows variation in both directions.
+            val mv = 4100 + packOffsetMv + (rnd.nextInt(30) - 15) + i / 4
+            data[off] = (mv and 0xFF).toByte()
+            data[off + 1] = ((mv shr 8) and 0xFF).toByte()
+            off += 2
+        }
+        return InMotionV2Protocol.buildPacket(0x16, packAddr, data)
+    }
+
+    private fun handleControl(data: ByteArray): List<ByteArray> {
+        if (data.isEmpty()) return emptyList()
+        when (data[0]) {
+            ControlSubCmd.SET_LIGHT -> {
+                if (data.size > 1) lightOn = data[1].toInt() == 0x01
+            }
+            ControlSubCmd.SET_LOCK -> {
+                if (data.size > 1) locked = data[1].toInt() == 0x01
+            }
+            ControlSubCmd.SET_MAX_SPEED -> {
+                if (data.size >= 5) {
+                    maxSpeedKmh = ByteUtils.getUint16LE(data, 1) / 100f
+                    alarmSpeedKmh = ByteUtils.getUint16LE(data, 3) / 100f
+                }
+            }
+            // SET_VOLUME / SET_DRL / PLAY_SOUND: accept silently
+        }
+        return emptyList()
+    }
+
+    // --- Packet builders ---
+
+    private fun buildCarType(): ByteArray {
+        // V14 50GB = series 9, type 1. Eight bytes of carInfo are required.
+        val payload = byteArrayOf(0x01, 0x09, 0x09, 0x01, 0, 0, 0, 0, 0)
+        return InMotionV2Protocol.buildPacket(0x14, Command.MAIN_INFO, payload)
+    }
+
+    private fun buildSerial(): ByteArray {
+        // Repository doesn't act on serial; minimal echo is enough.
+        return InMotionV2Protocol.buildPacket(0x14, Command.MAIN_INFO, byteArrayOf(0x02, 0x00))
+    }
+
+    private fun buildVersions(): ByteArray {
+        // parseVersions reads at offsets 1, 10, 19 (each: patch16-LE, minor, major)
+        // Want: Driver 7.8.9, Main 1.2.3, BLE 4.5.6
+        val data = ByteArray(24).apply {
+            this[0] = 0x06  // sub-cmd echo
+            // Driver @ offset 1: patch=9, minor=8, major=7
+            this[1 + 1] = 9; this[1 + 2] = 0; this[1 + 3] = 8; this[1 + 4] = 7
+            // Main @ offset 10
+            this[1 + 10] = 3; this[1 + 11] = 0; this[1 + 12] = 2; this[1 + 13] = 1
+            // BLE @ offset 19
+            this[1 + 19] = 6; this[1 + 20] = 0; this[1 + 21] = 5; this[1 + 22] = 4
+        }
+        return InMotionV2Protocol.buildPacket(0x14, Command.MAIN_INFO, data)
+    }
+
+    private fun buildSettings(): ByteArray {
+        // Layout (after the 0x20 sub-cmd echo): 35 bytes minimum
+        // 0..1   maxSpeed       uint16-LE × 100
+        // 2..3   alarmSpeed     uint16-LE × 100
+        // 8..9   pedalAdjust    int16-LE × 10
+        // 10     ride mode bits (bit 0 = offroad, bit 4 = fancier)
+        // 20..21 standbyDelay   seconds
+        // 30     bit 0 = sound on (mute = !bit), bit 2 = drl
+        // 31     bit 2 = locked, bit 4 = transport
+        val d = ByteArray(36)
+        d[0] = 0x20  // sub-cmd echo
+        val ms = (maxSpeedKmh * 100).toInt()
+        val asp = (alarmSpeedKmh * 100).toInt()
+        d[1] = (ms and 0xFF).toByte();  d[2] = ((ms shr 8) and 0xFF).toByte()
+        d[3] = (asp and 0xFF).toByte(); d[4] = ((asp shr 8) and 0xFF).toByte()
+        d[21] = 0x2C  // standbyDelay LE = 300 s = 5 min
+        d[22] = 0x01
+        d[31] = 0x01  // sound on
+        if (locked) d[32] = (d[32].toInt() or 0x04).toByte()
+        return InMotionV2Protocol.buildPacket(0x14, Command.SETTINGS, d)
+    }
+
+    private fun buildTotalStats(): ByteArray {
+        // parseTotalStats: distance@0 (×10 → meters), rideTime@12, powerOnTime@16
+        val d = ByteArray(20)
+        // Total odometer: 1234.5 km = 1,234,500 m → stored / 10 = 123450
+        putUint32LE(d, 0, 123_450)
+        putUint32LE(d, 12, 100 * 3600)   // 100 hours ride time
+        putUint32LE(d, 16, 200 * 3600)   // 200 hours power-on time
+        return InMotionV2Protocol.buildPacket(0x14, Command.TOTAL_STATS, d)
+    }
+
+    private fun buildTelemetry(): ByteArray {
+        val now = System.currentTimeMillis()
+        val elapsed = now - startTimeMs
+        // dt since the last frame so the random walk behaves the same whatever
+        // rate the app polls realtime at.
+        val dtSec = if (lastBuildMs == 0L) 0.2f
+                    else ((now - lastBuildMs) / 1000f).coerceIn(0.02f, 1f)
+        lastBuildMs = now
+
+        // Charging is simulated when the wheel is "locked", the headlight is on,
+        // or during a window right after connect (so the Charging Monitor is
+        // demonstrable on the emulator without any control command, the sim
+        // doesn't act on lock/light writes). While charging the wheel is parked
+        // (speed 0) and the current sensor reads ~0 A like a real V14, so
+        // detection leans on the explicit bit-7 charging flag.
+        val charging = locked || lightOn || (now - startTimeMs) < CHARGE_DEMO_MS
+
+        // Speed: an organic random walk, a random drift plus a gentle pull back
+        // toward a mid cruising speed, so the trace looks like a real, varied
+        // ride. A charging (parked) wheel stays at 0.
+        if (charging) {
+            simSpeed = 0f
+        } else {
+            val drift = (rnd.nextFloat() - 0.5f) * 26f * dtSec
+            val pull = (16f - simSpeed) * 0.35f * dtSec
+            simSpeed = (simSpeed + drift + pull).coerceIn(0f, 36f)
+        }
+        val speedKmh = simSpeed
+        val accel = (speedKmh - prevSpeed) / dtSec   // km/h per second
+        prevSpeed = speedKmh
+
+        if (charging && !wasLocked) {
+            // "Plug in" at a low-ish charge so the 45→100 % curve exercises both
+            // the "to 80 %" and the pessimistic "to full" ETAs.
+            batterySim = 45f
+            chargeTickMs = now
+            chargeWindowAdded = 0f
+            chargeWindowTick = 0
+        }
+        wasLocked = charging
+        if (charging) {
+            // Random 0–0.3 % per 5 s; 4th step of each 20 s window tops up to 1 %.
+            if (now - chargeTickMs >= 5_000L) {
+                chargeTickMs = now
+                val inc = if (chargeWindowTick < 3) {
+                    (rnd.nextFloat() * 0.3f).coerceAtMost((1f - chargeWindowAdded).coerceAtLeast(0f))
+                } else {
+                    (1f - chargeWindowAdded).coerceAtLeast(0f)
+                }
+                batterySim = (batterySim + inc).coerceAtMost(100f)
+                chargeWindowAdded += inc
+                chargeWindowTick = (chargeWindowTick + 1) % 4
+                if (chargeWindowTick == 0) chargeWindowAdded = 0f
+            }
+        } else {
+            batterySim = (batterySim - dtSec / 60f).coerceAtLeast(20f)   // ~1 %/min decay
+        }
+        val batteryPct = batterySim
+        val voltage = 84f - (80f - batteryPct) * 0.1f  // roughly 76 V at 0 %, 84 V at 80 %
+
+        // Current tracks effort: a friction baseline while rolling plus a term
+        // proportional to acceleration, so braking (negative accel) swings the
+        // current negative (regen) with a little noise on top. Idle draws a
+        // trickle.
+        val current = when {
+            // Real V14 charge sensor reads ~0 A while charging; the sim instead
+            // reports a plausible ~3.5 A so the Battery monitor's W/Wh rows have
+            // something to draw. Production behavior is unchanged on real wheels.
+            charging -> 3.5f + (rnd.nextFloat() - 0.5f) * 0.3f
+            speedKmh > 1f -> 5f + accel * 1.1f + (rnd.nextFloat() - 0.5f) * 5f
+            else -> 0.3f
+        }
+        val pwm = if (!charging && speedKmh > 1f) {
+            (18f + kotlin.math.abs(current) * 1.8f).coerceIn(0f, 95f)
+        } else 0f
+
+        val d = ByteArray(80)
+        putInt16LE(d, 0,  (voltage * 100).toInt())
+        putInt16LE(d, 2,  (current * 100).toInt())
+        putInt16LE(d, 8,  (speedKmh * 100).toInt())
+        putInt16LE(d, 12, 0)                            // torque
+        putInt16LE(d, 14, (pwm * 100).toInt())
+        putInt16LE(d, 16, (voltage * current).toInt())  // battery power W
+        putInt16LE(d, 18, (voltage * current).toInt())  // motor power W
+        putInt16LE(d, 20, 0)                            // pitch
+        putInt16LE(d, 22, 0)                            // roll
+        putInt16LE(d, 28, 0)                            // trip distance (m / 10)
+        putInt16LE(d, 34, (batteryPct * 100).toInt())   // battery 1 (×100)
+        putInt16LE(d, 36, (batteryPct * 100).toInt())   // battery 2
+        putInt16LE(d, 40, (maxSpeedKmh * 100).toInt())  // dynamic speed limit
+        putInt16LE(d, 50, 3000)                         // dynamic current limit (×100 = 30 A)
+        // Temperatures: encoded as raw + 80 - 256, so 0°C = 176 (0xB0)
+        // 35°C = 211, 40°C = 216; use a spread for the six sensors
+        d[58] = 211.toByte() // 35°C
+        d[59] = 213.toByte() // 37°C
+        d[60] = 215.toByte() // 39°C
+        d[61] = 210.toByte() // 34°C
+        d[62] = 209.toByte() // 33°C
+        d[63] = 212.toByte() // 36°C
+        // pcMode in bits 0..2 (0=lock, 1=drive); bit 7 = charging flag.
+        val chargingBit = if (charging) 0x80 else 0x00
+        d[74] = ((if (locked) 0x00 else 0x01) or chargingBit).toByte()
+        d[76] = if (lightOn) 0x02 else 0x00 // light bit 1
+
+        return InMotionV2Protocol.buildPacket(0x14, Command.REAL_TIME_INFO, d)
+    }
+
+    private fun putInt16LE(target: ByteArray, offset: Int, value: Int) {
+        target[offset] = (value and 0xFF).toByte()
+        target[offset + 1] = ((value shr 8) and 0xFF).toByte()
+    }
+
+    private fun putUint32LE(target: ByteArray, offset: Int, value: Long) {
+        target[offset] = (value and 0xFF).toByte()
+        target[offset + 1] = ((value shr 8) and 0xFF).toByte()
+        target[offset + 2] = ((value shr 16) and 0xFF).toByte()
+        target[offset + 3] = ((value shr 24) and 0xFF).toByte()
+    }
+
+    private fun putUint32LE(target: ByteArray, offset: Int, value: Int) {
+        putUint32LE(target, offset, value.toLong())
+    }
+}

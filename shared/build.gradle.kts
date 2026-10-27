@@ -29,12 +29,15 @@ kotlin {
     compilerOptions {
         // expect/actual classes are Beta; the facades in platform/ use them.
         freeCompilerArgs.add("-Xexpect-actual-classes")
+        // BleProfile carries kotlin.uuid.Uuid; :app converts at the GATT calls.
+        optIn.add("kotlin.uuid.ExperimentalUuidApi")
     }
 
     sourceSets {
         commonMain.dependencies {
             implementation(libs.coroutines.core)
             implementation(libs.atomicfu)
+            api(libs.koin.core)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
@@ -42,6 +45,8 @@ kotlin {
         // The JVM tests moved from :app keep their JUnit 4 form.
         getByName("androidUnitTest").dependencies {
             implementation(libs.junit)
+            // AppSettingsArgLimitTest walks the constructor by reflection.
+            implementation(kotlin("reflect"))
         }
     }
 }

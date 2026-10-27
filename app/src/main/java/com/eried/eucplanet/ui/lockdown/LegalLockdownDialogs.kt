@@ -37,6 +37,7 @@ import androidx.compose.ui.window.DialogProperties
 import com.eried.eucplanet.R
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.Units
+import com.eried.eucplanet.util.speedUnit
 import kotlinx.coroutines.launch
 
 /**
