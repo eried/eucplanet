@@ -162,9 +162,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
 
     buildFeatures {
         compose = true
@@ -492,3 +489,10 @@ tasks.withType<Test>().configureEach {
 apply(from = "settings-search-index.gradle.kts")
 android.sourceSets.getByName("main").java.srcDir(layout.buildDirectory.dir("generated/settingsSearch"))
 tasks.named("preBuild") { dependsOn("generateSettingsSearchIndex") }
+
+// kotlinOptions {} is an error since Kotlin 2.2; same JVM 17 target via compilerOptions.
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    }
+}
