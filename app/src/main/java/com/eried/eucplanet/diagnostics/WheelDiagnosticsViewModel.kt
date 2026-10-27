@@ -25,8 +25,6 @@ import com.eried.eucplanet.data.repository.WheelRepository
 import kotlinx.coroutines.flow.first
 import com.google.android.gms.tasks.Tasks
 import com.google.android.gms.wearable.Wearable
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -36,7 +34,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
-import javax.inject.Inject
 
 /**
  * Backs the Wheel Diagnostics dialog. Holds direct refs to the BLE manager
@@ -44,9 +41,8 @@ import javax.inject.Inject
  * command list comes through with no UI plumbing). Logger state is read
  * straight from the [DiagnosticsLogger] singleton.
  */
-@HiltViewModel
-class WheelDiagnosticsViewModel @Inject constructor(
-    @ApplicationContext private val context: Context,
+class WheelDiagnosticsViewModel(
+    private val context: Context,
     private val bleManager: BleConnectionManager,
     private val wheelAdapter: WheelAdapter,
     private val wheelRepository: WheelRepository,

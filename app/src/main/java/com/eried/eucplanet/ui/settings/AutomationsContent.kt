@@ -53,7 +53,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.ApplyWhenIds
 import com.eried.eucplanet.service.PlaybackRatePolicy
@@ -75,10 +74,11 @@ import java.util.Locale
 import kotlin.math.roundToInt
 import com.eried.eucplanet.ui.theme.themedSwitchColors
 import com.eried.eucplanet.ui.theme.themedSliderColors
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun AutomationsContent(
-    viewModel: SettingsViewModel = hiltViewModel()
+    viewModel: SettingsViewModel = koinViewModel()
 ) {
     val settingsState by viewModel.settings.collectAsState()
     val location by viewModel.currentLocation.collectAsState()

@@ -117,7 +117,6 @@ import androidx.compose.ui.unit.sp
 import com.eried.eucplanet.util.TripCsv
 import com.eried.eucplanet.util.GraphScale
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import kotlin.math.roundToInt
 import com.eried.eucplanet.data.model.TripRecord
@@ -145,6 +144,7 @@ import sh.calvin.reorderable.ReorderableColumn
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -153,7 +153,7 @@ fun TripDetailScreen(
     onBack: () -> Unit,
     onViewOnline: ((Long) -> Unit)? = null,
     onReplayTrip: ((Long) -> Unit)? = null,
-    viewModel: RecordingViewModel = hiltViewModel()
+    viewModel: RecordingViewModel = koinViewModel()
 ) {
     // The ride as recorded. Never filtered, so the heal path and the map's
     // faded context track always see the real trip.

@@ -8,14 +8,12 @@ import com.eried.eucplanet.data.repository.LegalLockdownController
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.util.Units
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.runBlocking
-import javax.inject.Inject
 
 /**
  * State for the locked screen. Deliberately narrow: it exposes the six fixed
@@ -26,8 +24,7 @@ import javax.inject.Inject
  * rider's configuration, and so arming does not have to rewrite that
  * configuration to get the simple layout.
  */
-@HiltViewModel
-class LegalLockdownViewModel @Inject constructor(
+class LegalLockdownViewModel(
     private val wheelRepository: WheelRepository,
     settingsRepository: SettingsRepository,
     tripMeterRepository: com.eried.eucplanet.data.repository.TripMeterRepository,

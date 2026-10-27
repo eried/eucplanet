@@ -119,7 +119,6 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.AlarmComparator
 import com.eried.eucplanet.data.model.AlarmMetric
@@ -137,6 +136,7 @@ import com.eried.eucplanet.ui.theme.themedSegmentedColors
 import com.eried.eucplanet.ui.theme.themedSwitchColors
 import com.eried.eucplanet.ui.theme.themedSliderColors
 import kotlin.math.roundToInt
+import org.koin.compose.viewmodel.koinViewModel
 import sh.calvin.reorderable.ReorderableColumn
 
 // "Don't ask again" for the constant-tone prompt: process-scoped so it lasts the
@@ -264,7 +264,7 @@ private fun displayUnit(
 
 @Composable
 fun AlarmSettingsContent(
-    viewModel: AlarmViewModel = hiltViewModel()
+    viewModel: AlarmViewModel = koinViewModel()
 ) {
     val rules by viewModel.rules.collectAsState()
     val groups by viewModel.groupedRules.collectAsState()

@@ -146,7 +146,6 @@ import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.MetricCatalog
@@ -160,6 +159,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 import com.eried.eucplanet.ui.theme.themedFieldColors
 import com.eried.eucplanet.ui.common.appMenuItemColors
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * Opens the system gallery to the videos or photos collection. Overlay Studio
@@ -220,7 +220,7 @@ fun DashboardScreen(
     /** Long-press on the battery icon: charging monitor, details already up. */
     onNavigateToChargingDetails: () -> Unit = {},
     onNavigateToTripMeter: () -> Unit = {},
-    viewModel: DashboardViewModel = hiltViewModel()
+    viewModel: DashboardViewModel = koinViewModel()
 ) {
     DisposableEffect(Unit) {
         Log.i("EucDash", "DashboardScreen ENTER")
@@ -349,7 +349,7 @@ fun DashboardScreen(
     val wheelMaxSpeedCap by viewModel.wheelMaxSpeedCap.collectAsState()
     // Navigation state, drives the dashboard's navigator button (the singleton
     // engine behind this VM is shared with the floating navigation overlay).
-    val navOverlayVm: NavigationOverlayViewModel = hiltViewModel()
+    val navOverlayVm: NavigationOverlayViewModel = koinViewModel()
     val navState by navOverlayVm.navState.collectAsState()
     val currentRoute by navOverlayVm.currentRoute.collectAsState()
     val flicFlashAt by viewModel.flicFlashAt.collectAsState()
@@ -3373,7 +3373,8 @@ fun DashboardScreen(
                                                     "WheelLog community, wheel protocols" to "Wheellog/wheellog.android, GPLv3. Public reverse-engineering of the EUC BLE protocols, used as the reference for the KingSong, Begode, Veteran, Ninebot and InMotion adapters. The implementation here is original; no WheelLog code is reused.",
                                                     "BigSoundBank, engine samples" to "Joseph SARDIN. CC0 / public domain. All sampled engines in the Motor sound generator (V8 Cobra, V-twin Ducati, diesel truck, motorcycle, city car, helicopter, tractor, lawn mower, steam locomotive, Aston Martin, big diesel, car cruise, broken exhaust, quad ATV).",
                                                     "Jetpack Compose, Material 3" to "Google. Apache 2.0. UI toolkit and design system.",
-                                                    "Hilt, Room, WorkManager, Navigation" to "Google. Apache 2.0. DI, persistence, background jobs, navigation graph.",
+                                                    "Room, WorkManager, Navigation" to "Google. Apache 2.0. Persistence, background jobs, navigation graph.",
+                                                    "Koin" to "Kotzilla. Apache 2.0. Dependency injection.",
                                                     "Kotlin & coroutines" to "JetBrains. Apache 2.0. Language and structured concurrency.",
                                                     "Flic2 SDK" to "Shortcut Labs. Used for hardware Flic button integration.",
                                                     "Play services (location, wearable)" to "Google. Apache 2.0. GPS and watch companion data layer.",

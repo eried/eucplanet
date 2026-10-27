@@ -47,8 +47,6 @@ import com.eried.eucplanet.share.ShareState
 import com.eried.eucplanet.share.ShareStats
 import com.eried.eucplanet.util.GpxIO
 import com.eried.eucplanet.util.Units
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -66,7 +64,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
-import javax.inject.Inject
 
 /**
  * Backing state for the Route Builder screen: the ordered waypoint list, the
@@ -77,8 +74,7 @@ import javax.inject.Inject
  * short debounce so dragging a pin doesn't fire a request per frame), and once
  * it solves, pins still missing an address are reverse-geocoded.
  */
-@HiltViewModel
-class RouteBuilderViewModel @Inject constructor(
+class RouteBuilderViewModel(
     private val routingService: RoutingService,
     private val poiService: PoiService,
     private val ocmService: OcmService,
@@ -93,7 +89,7 @@ class RouteBuilderViewModel @Inject constructor(
     private val pendingShareJoin: PendingShareJoin,
     private val wheelRepository: com.eried.eucplanet.data.repository.WheelRepository,
     private val tripMeterRepository: com.eried.eucplanet.data.repository.TripMeterRepository,
-    @ApplicationContext private val context: Context
+    private val context: Context
 ) : ViewModel() {
 
     /** The group dialog's last tab. Lives as long as the app process, not on

@@ -53,7 +53,6 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eried.eucplanet.R
@@ -64,19 +63,17 @@ import com.eried.eucplanet.data.repository.TripMeterRepository
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.GraphScale
 import com.eried.eucplanet.util.Units
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import javax.inject.Inject
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * View model for the trip-meter detail view. Reads the running [TripMeterState]
  * StateFlow and exposes the rider's distance / speed units for display.
  */
-@HiltViewModel
-class TripMeterDetailViewModel @Inject constructor(
+class TripMeterDetailViewModel(
     private val tripMeterRepository: TripMeterRepository,
     settingsRepository: SettingsRepository,
 ) : ViewModel() {
@@ -107,7 +104,7 @@ private enum class TripMeterTab { SPEED, BATTERY, TIME }
 @Composable
 fun TripMeterDetailScreen(
     onBack: () -> Unit,
-    viewModel: TripMeterDetailViewModel = hiltViewModel(),
+    viewModel: TripMeterDetailViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
     val speedUnit by viewModel.speedUnit.collectAsState()

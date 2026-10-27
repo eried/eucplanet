@@ -75,7 +75,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.MetricRegistry
 import com.eried.eucplanet.data.model.WheelData
@@ -88,6 +87,7 @@ import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.remap
 import com.eried.eucplanet.util.GraphBounds
 import com.eried.eucplanet.util.GraphScale
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * Legacy enum kept for the 6 buffered metrics whose detail rendering has
@@ -144,7 +144,7 @@ fun MetricDetailScreen(
     metricKeys: List<String>,
     onBack: () -> Unit,
     initialTabIndex: Int = 0,
-    viewModel: MetricDetailViewModel = hiltViewModel()
+    viewModel: MetricDetailViewModel = koinViewModel()
 ) {
     val keys = remember(metricKeys) { metricKeys.filter { it.isNotBlank() } }
     if (keys.isEmpty()) {

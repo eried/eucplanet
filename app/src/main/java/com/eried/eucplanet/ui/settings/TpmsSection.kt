@@ -31,7 +31,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.tpms.LyTpmsDecoder
@@ -39,6 +38,7 @@ import com.eried.eucplanet.ui.common.InfoHint
 import com.eried.eucplanet.ui.common.rememberScanStarter
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.Units
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * TPMS sensors, shown inside the Integration section. The wheel-relayed sensor
@@ -48,7 +48,7 @@ import com.eried.eucplanet.util.Units
  * paired cap outranks the wheel's relay through TpmsRepository.
  */
 @Composable
-fun TpmsSection(viewModel: TpmsViewModel = hiltViewModel()) {
+fun TpmsSection(viewModel: TpmsViewModel = koinViewModel()) {
     val wheelKpa by viewModel.tirePressureKpa.collectAsState()
     val unit by viewModel.pressureUnit.collectAsState()
     val sensors by viewModel.sensors.collectAsState()
