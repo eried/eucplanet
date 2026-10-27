@@ -82,6 +82,14 @@ object HeadlightSlowPolicy {
      * alone" for the ON half only: with no fix and no cutoff there is nothing
      * to say, but with the cutoff engaged there certainly is.
      */
-    fun beamOn(darkEnough: Boolean?, forcedOff: Boolean): Boolean? =
-        if (forcedOff) false else darkEnough
+    fun beamOn(darkEnough: Boolean?, forcedOff: Boolean, slowPending: Boolean = false): Boolean? =
+        when {
+            forcedOff -> false
+            // Slow and the hold still running: switching it on now would only
+            // have it go off when the hold ends. That was the light flashing on
+            // after every reconnect at walking pace, which starts a fresh state.
+            // Mid-ride the beam is already on, so leaving it changes nothing.
+            slowPending && darkEnough == true -> null
+            else -> darkEnough
+        }
 }
