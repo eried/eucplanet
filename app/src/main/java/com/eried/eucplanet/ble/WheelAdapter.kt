@@ -554,9 +554,10 @@ data class WheelCapabilities(
             hasVolume = true,
             hasDRL = true,
             needsAuthForLock = false,
-            // No charge flag and no charge current: a V8S on the charger keeps
-            // reporting the board's own idle draw, so only the percentage
-            // climbing says it is charging.
+            // No charge current: a V8S on the charger keeps reporting the
+            // board's own idle draw. V8F / V8S / V10 do state charging in
+            // their work mode (InMotionV1Parser); the other models have only
+            // the percentage climbing.
             reportsChargeCurrent = false,
         )
 
