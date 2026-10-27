@@ -2,24 +2,20 @@ package com.eried.eucplanet.data.sync
 
 import android.content.Context
 import android.util.Log
-import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.eried.eucplanet.data.db.TripDao
 import com.eried.eucplanet.data.eucstats.EucStatsRepository
 import com.eried.eucplanet.data.eucstats.Outcome
 import com.eried.eucplanet.data.repository.SettingsRepository
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedInject
 
 /**
  * Drains any trips that still need to be uploaded to EucStats.
  * Enqueued after each recording ends and on manual retry.
  */
-@HiltWorker
-class EucStatsUploadWorker @AssistedInject constructor(
-    @Assisted ctx: Context,
-    @Assisted params: WorkerParameters,
+class EucStatsUploadWorker(
+    ctx: Context,
+    params: WorkerParameters,
     private val tripDao: TripDao,
     private val eucStatsRepository: EucStatsRepository,
     private val syncManager: SyncManager,
@@ -84,7 +80,7 @@ class EucStatsUploadWorker @AssistedInject constructor(
 
 /**
  * Pure decision function: returns true if the worker should be retried.
- * Extracted so it can be unit-tested without Hilt or Android dependencies.
+ * Extracted so it can be unit-tested without Koin or Android dependencies.
  */
 internal fun workerResultRetry(outcomes: List<Outcome>): Boolean =
     outcomes.any { it == Outcome.NEEDS_RETRY }

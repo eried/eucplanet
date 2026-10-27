@@ -40,13 +40,13 @@ import com.eried.eucplanet.service.WheelService
 import androidx.navigation.compose.composable
 import com.eried.eucplanet.ui.navigation.NavGraph
 import com.eried.eucplanet.ui.theme.EucPlanetTheme
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import org.koin.android.ext.android.get
+import org.koin.compose.KoinContext
 
 // Process-scoped: the theme customization widget is session-only, so we clear any
 // persisted "on" state exactly once per launch (this survives Activity recreation
@@ -58,29 +58,28 @@ private var languageReconciled = false
  *  a single `adb logcat -s EucPlanetPip`. */
 private const val TAG_PIP = "EucPlanetPip"
 
-@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
-    @Inject lateinit var settingsRepository: SettingsRepository
-    @Inject lateinit var themeController: com.eried.eucplanet.ui.theme.ThemeController
-    @Inject lateinit var flicManager: FlicManager
-    @Inject lateinit var wearBridge: com.eried.eucplanet.wear.WearBridge
-    @Inject lateinit var garminBridge: com.eried.eucplanet.garmin.GarminBridge
-    @Inject lateinit var amazfitBridge: com.eried.eucplanet.amazfit.AmazfitBridge
-    @Inject lateinit var tripRepository: com.eried.eucplanet.data.repository.TripRepository
-    @Inject lateinit var wheelRepository: com.eried.eucplanet.data.repository.WheelRepository
-    @Inject lateinit var metricsReset: com.eried.eucplanet.data.repository.MetricsReset
-    @Inject lateinit var incomingShareRepository:
-        com.eried.eucplanet.data.repository.IncomingShareRepository
-    @Inject lateinit var pendingShareJoin: com.eried.eucplanet.share.PendingShareJoin
-    @Inject lateinit var dropboxRepository:
-        com.eried.eucplanet.data.repository.DropboxRepository
-    @Inject lateinit var syncManager: com.eried.eucplanet.data.sync.SyncManager
-    @Inject lateinit var appHealthRepository:
-        com.eried.eucplanet.data.repository.AppHealthRepository
-    @Inject lateinit var appNotifier: com.eried.eucplanet.util.AppNotifier
-    @Inject lateinit var voiceCommands: com.eried.eucplanet.voice.VoiceCommandController
-    @Inject lateinit var legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController
+    val settingsRepository: SettingsRepository = get()
+    val themeController: com.eried.eucplanet.ui.theme.ThemeController = get()
+    val flicManager: FlicManager = get()
+    val wearBridge: com.eried.eucplanet.wear.WearBridge = get()
+    val garminBridge: com.eried.eucplanet.garmin.GarminBridge = get()
+    val amazfitBridge: com.eried.eucplanet.amazfit.AmazfitBridge = get()
+    val tripRepository: com.eried.eucplanet.data.repository.TripRepository = get()
+    val wheelRepository: com.eried.eucplanet.data.repository.WheelRepository = get()
+    val metricsReset: com.eried.eucplanet.data.repository.MetricsReset = get()
+    val incomingShareRepository:
+        com.eried.eucplanet.data.repository.IncomingShareRepository = get()
+    val pendingShareJoin: com.eried.eucplanet.share.PendingShareJoin = get()
+    val dropboxRepository:
+        com.eried.eucplanet.data.repository.DropboxRepository = get()
+    val syncManager: com.eried.eucplanet.data.sync.SyncManager = get()
+    val appHealthRepository:
+        com.eried.eucplanet.data.repository.AppHealthRepository = get()
+    val appNotifier: com.eried.eucplanet.util.AppNotifier = get()
+    val voiceCommands: com.eried.eucplanet.voice.VoiceCommandController = get()
+    val legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController = get()
 
     private val _settings = MutableStateFlow<AppSettings?>(null)
 
@@ -605,7 +604,10 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        setContent {
+        // KoinContext hands the Koin graph to every koinViewModel() below.
+        // Without it each call still finds the global context, but only by
+        // catching a thrown lookup on every recomposition.
+        setContent { KoinContext {
             val s by _settings.collectAsState()
             // Ask for the BLE / location / notification permissions on the
             // first composition. Doing it from Compose (instead of onCreate)
@@ -951,7 +953,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
-        }
+        } }
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {

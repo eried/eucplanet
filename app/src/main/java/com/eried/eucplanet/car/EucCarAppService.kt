@@ -46,7 +46,6 @@ import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.nav.NavigationEngine
 import com.eried.eucplanet.nav.RoutingService
 import com.eried.eucplanet.widget.EucWidget
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -54,7 +53,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.json.JSONObject
-import javax.inject.Inject
+import org.koin.android.ext.android.get
 
 /**
  * Android Auto. The car screen shows the navigator's map with the rider's
@@ -65,16 +64,15 @@ import javax.inject.Inject
  * Every button goes through the same intent the notification and the home
  * widget send, so a car tap behaves exactly like those taps do.
  */
-@AndroidEntryPoint
 class EucCarAppService : CarAppService() {
 
-    @Inject lateinit var wheelRepository: WheelRepository
-    @Inject lateinit var tripRepository: TripRepository
-    @Inject lateinit var navigationEngine: NavigationEngine
-    @Inject lateinit var settingsRepository: SettingsRepository
-    @Inject lateinit var routingService: RoutingService
-    @Inject lateinit var weatherRepository: com.eried.eucplanet.weather.WeatherRepository
-    @Inject lateinit var currentRouteStore: com.eried.eucplanet.nav.CurrentRouteStore
+    val wheelRepository: WheelRepository = get()
+    val tripRepository: TripRepository = get()
+    val navigationEngine: NavigationEngine = get()
+    val settingsRepository: SettingsRepository = get()
+    val routingService: RoutingService = get()
+    val weatherRepository: com.eried.eucplanet.weather.WeatherRepository = get()
+    val currentRouteStore: com.eried.eucplanet.nav.CurrentRouteStore = get()
 
     private companion object {
         const val TAG = "EucCarAppService"
