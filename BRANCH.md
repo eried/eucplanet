@@ -1,37 +1,27 @@
-# next-version
+# fix/inmotion-v8s
 
-The next release, settling. Features arrive here once they have been ridden on
-next-experimental and stopped changing shape. Settings stay where they are put
-and a build here is meant to get you home.
-
-This is what the Play beta is cut from. If you want to help without gambling a
-ride, this is the branch.
+0.22.0 with fixes for the InMotion V8S (and the other InMotion V1 wheels:
+V5, V8, V8F, V10, L6, Glide 3). Everything else is the same as the release.
 
 ## Worked on
 
-- 0.22.0: everything from next-experimental, now the release. The full list is on the GitHub release page.
-- Map: a shared `geo:` link or Maps place keeps your planned stops and asks first; a named place keeps its name.
-- Map: while navigating, the stop list keeps each stop's distance and the total, not just the next leg.
-- Lights: walking the wheel at a brisk pace no longer turns the light back on. It returns after 2 seconds of riding.
+- V8S: commands go to the wheel in small pieces like EUC World does, so the link should stop dropping.
+- V8S: the light button and auto-lights follow the wheel's real light state.
+- V8S, V8F, V10: shows Charging as soon as the charger is plugged in.
+- Lights: a reconnect while walking the wheel no longer turns the light on and off again.
 
 ## Please test
 
-**Any wheel**
-- Update over 0.21.0 from Play or the APK: your settings, trips and paired wheel are still there?
-- Walk the wheel after a ride with "Turn the light off when slowing down" on: the light stays off, and comes back a moment after you ride off?
-
-**Map / navigation**
-- Share a place from Google Maps with stops planned: it asks New route or Add as next, and the stop has the place's name?
-- Navigate a route with three or more stops: the stop list distances and total stay the same as before you started?
-
-**Android Auto** (Play install only)
-- The car screen opens, speed and battery match the phone, Horn, Light and Record work?
+**InMotion V8S (or any V1 wheel)**
+- Ride as long as you usually do: how many times does it disconnect, compared with EUC World?
+- Turn the light on and off with the wheel's own button: does the app's Light button follow within a few seconds?
+- After dark with auto-lights on, walk the wheel slowly: the light stays off, also after a disconnect?
+- Plug in the charger: does Charging show within seconds?
 
 ## Reporting back
 
-Say which wheel, which firmware and what you expected instead. A trip
-recording is worth more than a description, and if it crashed, Share crash log
-on the About screen.
+Say which wheel and firmware. For disconnects, a Service Mode log covering a
+few drops is worth more than a description.
 
 ---
 
