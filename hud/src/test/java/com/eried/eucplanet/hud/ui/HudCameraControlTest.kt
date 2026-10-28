@@ -112,30 +112,30 @@ class HudCameraControlTest {
     }
 
     @Test
-    fun holdOnACameraScreenHandsTheCameraToTheRecorder() {
-        // Josh: the MotoEye recorder starts on a held button and needs the
-        // camera the preview has. Once the preview showed the rear camera,
-        // the recorder could not start.
+    fun cameraButtonOnACameraScreenHandsTheCameraToTheRecorder() {
+        // Josh: the MotoEye camera button starts the recorder, which needs
+        // the camera the preview has. While a camera screen was up the
+        // recorder failed on every camera.
         val c = onScreen(HudUiController.Screen.Camera)
-        c.onRemoteHold()
+        c.handOffCamera()
         assertTrue(c.cameraHandedOff)
     }
 
     @Test
-    fun holdOnOtherScreensLeavesTheCameraAlone() {
+    fun cameraButtonOnOtherScreensLeavesTheCameraAlone() {
         val c = onScreen(HudUiController.Screen.Telemetry)
-        c.onRemoteHold()
+        c.handOffCamera()
         assertFalse(c.cameraHandedOff)
     }
 
     @Test
     fun upOrDownTakesTheCameraBackWithoutChangingIt() {
         val c = onScreen(HudUiController.Screen.CustomCam)
-        c.onRemoteHold()
+        c.handOffCamera()
         c.upAction()
         assertFalse(c.cameraHandedOff)
         assertEquals("the first press only brings the picture back", 0, c.cameraIndex)
-        c.onRemoteHold()
+        c.handOffCamera()
         c.downAction()
         assertFalse(c.cameraHandedOff)
         assertEquals(270, c.cameraRotation)
@@ -146,15 +146,50 @@ class HudCameraControlTest {
         val c = HudUiController().apply {
             applyEnabledScreens(listOf("Camera", "Telemetry"))
         }
-        c.onRemoteHold()
+        c.handOffCamera()
         c.nextScreen()
         assertFalse(c.cameraHandedOff)
     }
 
     @Test
+    fun theCameraButtonIsPassedOnAndHandsOff() {
+        // The camera button is not one of ours: it must reach the MotoEye
+        // and free the camera on the way.
+        assertTrue(HudKeys.handsOffCamera(android.view.KeyEvent.KEYCODE_CAMERA))
+        assertTrue("an unknown remote key too", HudKeys.handsOffCamera(android.view.KeyEvent.KEYCODE_FOCUS))
+    }
+
+    @Test
+    fun ourOwnButtonsKeepTheCamera() {
+        listOf(
+            android.view.KeyEvent.KEYCODE_DPAD_UP, android.view.KeyEvent.KEYCODE_DPAD_DOWN,
+            android.view.KeyEvent.KEYCODE_DPAD_LEFT, android.view.KeyEvent.KEYCODE_DPAD_RIGHT,
+            android.view.KeyEvent.KEYCODE_DPAD_CENTER, android.view.KeyEvent.KEYCODE_ENTER,
+            android.view.KeyEvent.KEYCODE_BACK, android.view.KeyEvent.KEYCODE_ESCAPE,
+            android.view.KeyEvent.KEYCODE_BUTTON_L1, android.view.KeyEvent.KEYCODE_BUTTON_R1,
+            android.view.KeyEvent.KEYCODE_VOLUME_UP, android.view.KeyEvent.KEYCODE_VOLUME_DOWN,
+        ).forEach { assertFalse("key $it", HudKeys.handsOffCamera(it)) }
+    }
+
+    @Test
+    fun anotherAppHoldingTheCameraHandsItOff() {
+        // Josh: the recorder stopped fine, then could not start again while
+        // the HUD was open, because the preview opened the camera the moment
+        // it was free.
+        val inUse = androidx.camera.core.CameraState.ERROR_CAMERA_IN_USE
+        val tooMany = androidx.camera.core.CameraState.ERROR_MAX_CAMERAS_IN_USE
+        assertTrue(com.eried.eucplanet.hud.ui.screens.takenByAnotherApp(inUse, 0))
+        assertTrue(com.eried.eucplanet.hud.ui.screens.takenByAnotherApp(tooMany, 5_000))
+        assertFalse("our own camera switch", com.eried.eucplanet.hud.ui.screens.takenByAnotherApp(tooMany, 300))
+        assertFalse(com.eried.eucplanet.hud.ui.screens.takenByAnotherApp(null, 5_000))
+        assertFalse(com.eried.eucplanet.hud.ui.screens.takenByAnotherApp(
+            androidx.camera.core.CameraState.ERROR_CAMERA_DISABLED, 5_000))
+    }
+
+    @Test
     fun guideSaysHowToGetThePictureBack() {
         val c = onScreen(HudUiController.Screen.Camera)
-        c.onRemoteHold()
+        c.handOffCamera()
         assertEquals("Show camera", c.shortActions().up)
     }
 }

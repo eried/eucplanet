@@ -128,18 +128,19 @@ class HudUiController {
      *  the choice for the next start: the camera now shown and its turn. */
     var onCameraChanged: ((index: Int, rotation: Int) -> Unit)? = null
 
-    /** The camera screens let go of the camera for the MotoEye recorder.
-     *  Only one app can open a camera at a time, and the recorder wants the
-     *  rear one: once UP put the preview on that camera, the recorder could
-     *  not start while a camera screen was up. UP, DOWN or another screen
-     *  takes it back. */
+    /** The camera screens let go of the camera for the MotoEye. Only one app
+     *  can open a camera at a time, and the MotoEye recorder opens every
+     *  camera: while a camera screen was up it failed on each. UP, DOWN or
+     *  another screen takes it back. */
     var cameraHandedOff: Boolean by mutableStateOf(false)
         private set
 
-    /** A remote button is being held, which is how the MotoEye starts its
-     *  recorder. Called as soon as the press counts as a hold, so the
-     *  camera is free before the recorder asks for it. */
-    fun onRemoteHold() {
+    /** Something else wants the camera: the MotoEye camera button (rear
+     *  view or recorder), its overlay covering the HUD, or another app that
+     *  already has the camera open. A camera screen lets go and stays off,
+     *  so the preview does not grab the camera back when the recorder
+     *  stops and block its next start. */
+    fun handOffCamera() {
         if (current == Screen.Camera || current == Screen.CustomCam) cameraHandedOff = true
     }
 

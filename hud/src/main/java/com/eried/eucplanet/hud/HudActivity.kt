@@ -16,6 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import com.eried.eucplanet.hud.net.HudServer
 import com.eried.eucplanet.hud.net.HudTileCache
 import com.eried.eucplanet.hud.ui.HudApp
+import com.eried.eucplanet.hud.ui.HudKeys
 import com.eried.eucplanet.hud.ui.HudSessionState
 import com.eried.eucplanet.hud.ui.HudUiController
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -233,19 +234,8 @@ class HudActivity : ComponentActivity() {
                     pressStart[keyCode] = android.os.SystemClock.uptimeMillis()
                 } else if (!pressStart.containsKey(keyCode)) {
                     // Start a fresh session.
-                    val startedAt = android.os.SystemClock.uptimeMillis()
-                    pressStart[keyCode] = startedAt
+                    pressStart[keyCode] = android.os.SystemClock.uptimeMillis()
                     consumed.remove(keyCode)
-                    // A hold starts the MotoEye recorder, which needs the
-                    // camera. Tell the controller while the button is still
-                    // down, not on release, so a camera screen lets go before
-                    // the recorder asks. A tap ends first and its session is
-                    // gone by then.
-                    dpadHandler.postDelayed({
-                        if (pressStart[keyCode] == startedAt && keyCode !in consumed) {
-                            controller.onRemoteHold()
-                        }
-                    }, HOLD_MS)
                 }
                 // else: session already active (hold stream / auto-repeat) -> nothing.
                 true
@@ -256,8 +246,20 @@ class HudActivity : ComponentActivity() {
             KeyEvent.KEYCODE_BUTTON_R1 -> { controller.nextScreen(); true }
             KeyEvent.KEYCODE_DPAD_CENTER,
             KeyEvent.KEYCODE_ENTER -> { controller.centerAction(); true }
-            else -> super.onKeyDown(keyCode, event)
+            else -> {
+                // The MotoEye camera button (rear view, recorder) needs the
+                // camera: free it before the MotoEye asks, and pass the key on.
+                if (HudKeys.handsOffCamera(keyCode)) controller.handOffCamera()
+                super.onKeyDown(keyCode, event)
+            }
         }
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        // The MotoEye rear view or recorder came up over the HUD and wants
+        // the camera, even when its button never reached us.
+        if (!hasFocus) controller.handOffCamera()
     }
 
     override fun onKeyLongPress(keyCode: Int, event: KeyEvent?): Boolean {
