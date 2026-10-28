@@ -20,7 +20,7 @@ import kotlin.concurrent.Volatile
  * [BegodeCommands]. Begode pushes telemetry unsolicited; init / poll loops
  * are empty.
  */
-class BegodeAdapter() : WheelAdapter {
+class BegodeAdapter : WheelAdapter {
     override val familyId = "begode"
     override val familyDisplayName = "Begode / Gotway"
     override val capabilities = WheelCapabilities.BEGODE

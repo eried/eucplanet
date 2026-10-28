@@ -10,7 +10,6 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.hilt)
     alias(libs.plugins.play.publisher)
 }
 
@@ -348,11 +347,11 @@ dependencies {
     // and per-wheel profiles, which get real migrations.)
     implementation(libs.datastore.preferences)
 
-    // Hilt
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
-    ksp(libs.kotlin.metadata.jvm)
-    implementation(libs.hilt.navigation.compose)
+    // Koin (dependency injection)
+    implementation(platform(libs.koin.bom))
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
+    implementation(libs.koin.androidx.workmanager)
 
     // Coroutines
     implementation(libs.coroutines.core)
@@ -380,8 +379,6 @@ dependencies {
 
     // WorkManager (background trip upload)
     implementation(libs.work.runtime)
-    implementation(libs.hilt.work)
-    ksp(libs.hilt.work.compiler)
 
     // Drag-to-reorder for settings lists
     implementation(libs.reorderable)
@@ -410,6 +407,10 @@ dependencies {
 
     // Unit tests for pure-Kotlin parsers (VariaAdapter, etc.)
     testImplementation(libs.junit)
+    // KoinGraphTest verifies the whole Koin graph on the JVM.
+    testImplementation(platform(libs.koin.bom))
+    testImplementation(libs.koin.test)
+    testImplementation(libs.koin.test.junit4)
     // org.json is bundled in the Android SDK but not available on the JVM test
     // classpath. Adding the standalone artifact makes SettingsJson JVM tests work
     // without Robolectric.
@@ -494,6 +495,7 @@ apply(from = "string-ids.gradle.kts")
 android.sourceSets.getByName("main").java.srcDir(layout.buildDirectory.dir("generated/stringIds"))
 tasks.named("preBuild") { dependsOn("generateStringIds") }
 
+// kotlinOptions {} is an error since Kotlin 2.2; same JVM 17 target via compilerOptions.
 kotlin {
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)

@@ -3,6 +3,7 @@ package com.eried.eucplanet.ble
 import com.eried.eucplanet.diagnostics.DiagnosticCommand
 import com.eried.eucplanet.diagnostics.DiagnosticsLogger
 import com.eried.eucplanet.platform.ByteArrayOutputStream
+import com.eried.eucplanet.platform.System
 import com.eried.eucplanet.platform.format
 import kotlin.concurrent.Volatile
 
@@ -17,7 +18,7 @@ import kotlin.concurrent.Volatile
  * services), distinct from the KingSong / Begode / Veteran 0xFFE0 / 0xFFE1
  * profile and from the V2 Nordic UART profile.
  */
-class InMotionV1Adapter() : WheelAdapter {
+class InMotionV1Adapter : WheelAdapter {
 
     override val familyId = "inmotion_v1"
     override val familyDisplayName = "InMotion V1 / V3 / V5 / V8"
@@ -27,7 +28,30 @@ class InMotionV1Adapter() : WheelAdapter {
         /** Factory PIN InMotion V1 wheels ship with; sent on connect when no
          *  custom PIN is set. Wheels with no PIN configured ignore it. */
         private const val DEFAULT_PIN = "000000"
+
+        /**
+         * How long after a light command a slow-info report is not believed.
+         *
+         * The report is polled every few seconds, so one already on its way
+         * when the rider tapped still carries the old state. Believing it
+         * flipped the light back for a poll cycle, and auto-lights read that
+         * flip as the rider's own and stood down. Longer than one request's
+         * round trip, shorter than the gap between two slow-info polls.
+         */
+        internal const val LIGHT_REPORT_SETTLE_MS = 2_000L
     }
+
+    /** Clock for the light settle window; swapped in tests. */
+    internal var nowMs: () -> Long = System::currentTimeMillis
+
+    /**
+     * Headlight as this connection knows it: the wheel's own report from
+     * slow-info byte 80, or what was last commanded while that report has
+     * not caught up. Null until either has happened, so the first frames of
+     * a connection do not claim the light is off.
+     */
+    @Volatile private var lightState: Boolean? = null
+    @Volatile private var lightCommandAtMs: Long? = null
 
     @Volatile private var detectedModel: InMotionV1Model? = null
 
@@ -67,6 +91,8 @@ class InMotionV1Adapter() : WheelAdapter {
         detectedModel = deviceName?.let { InMotionV1Model.fromReportedName(it) }
         streamStarted = false
         authPollTick = 0
+        lightState = null
+        lightCommandAtMs = null
         // Surface the model straight from the BLE name (e.g. "V8S-81E30005" ->
         // V8S) so the UI shows the real model immediately, without waiting for -
         // or depending on - a model id in the slow-info bytes (the V8S carries
@@ -134,7 +160,17 @@ class InMotionV1Adapter() : WheelAdapter {
         }
     }
 
-    override fun setLight(on: Boolean): ByteArray = InMotionV1Commands.setLight(on)
+    /**
+     * Light command. The commanded state stands in for the wheel's report
+     * until a slow-info that cannot predate the command arrives, see
+     * [LIGHT_REPORT_SETTLE_MS]. If the wheel did not obey, that report puts
+     * the real state back.
+     */
+    override fun setLight(on: Boolean): ByteArray {
+        lightState = on
+        lightCommandAtMs = nowMs()
+        return InMotionV1Commands.setLight(on)
+    }
 
     /**
      * V1 max-speed packet only carries the tiltback threshold; alarm speed
@@ -209,6 +245,8 @@ class InMotionV1Adapter() : WheelAdapter {
         loggedUnknownCanIds.clear()
         streamStarted = false
         authPollTick = 0
+        lightState = null
+        lightCommandAtMs = null
     }
 
     override fun inspectMessageTypes(): List<String> =
@@ -298,7 +336,11 @@ class InMotionV1Adapter() : WheelAdapter {
                 // A real reply means the wheel accepted the PIN and is streaming;
                 // stop the poll loop's PIN re-sends.
                 if (telem != null) streamStarted = true
-                if (telem != null) listOf(DecodeResult.Telemetry(telem)) else emptyList()
+                // Fast-info has no light byte; the state comes from slow-info.
+                val light = lightState
+                if (telem != null) {
+                    listOf(DecodeResult.Telemetry(telem.copy(lightOn = light ?: false, lightReported = light)))
+                } else emptyList()
             }
             InMotionV1Protocol.CanId.SLOW_INFO -> {
                 val payload = InMotionV1Parser.extPayload(unwrapped)
@@ -307,6 +349,12 @@ class InMotionV1Adapter() : WheelAdapter {
                 )
                 val info = InMotionV1Parser.parseSlowInfo(payload) ?: return emptyList()
                 streamStarted = true
+                // The wheel's own headlight state, unless a light command is
+                // so recent this report may have left the wheel before it.
+                val sinceCommand = lightCommandAtMs?.let { nowMs() - it }
+                if (info.lightOn != null && (sinceCommand == null || sinceCommand >= LIGHT_REPORT_SETTLE_MS)) {
+                    lightState = info.lightOn
+                }
                 if (info.model != null) detectedModel = info.model
                 // Prefer the model decoded from the slow-info bytes, but fall
                 // back to the one detected from the BLE name (V8S carries no

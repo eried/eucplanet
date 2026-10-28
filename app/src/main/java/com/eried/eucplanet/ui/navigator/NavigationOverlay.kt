@@ -55,7 +55,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.NavMode
 import com.eried.eucplanet.data.model.NavState
@@ -63,6 +62,7 @@ import com.eried.eucplanet.data.model.Proximity
 import com.eried.eucplanet.data.model.arrowAngleDeg
 import com.eried.eucplanet.ui.theme.appColors
 import kotlinx.coroutines.delay
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * The floating navigation popup. Rendered above the nav graph in
@@ -83,7 +83,7 @@ fun NavigationOverlay(
     // navigator map). Setting `cueVisible` independent of phone visibility
     // means the watch keeps its setting honoured.
     suppressOnPhone: Boolean = false,
-    viewModel: NavigationOverlayViewModel = hiltViewModel()
+    viewModel: NavigationOverlayViewModel = koinViewModel()
 ) {
     val state by viewModel.navState.collectAsState()
     val popupTimeoutMs by viewModel.popupTimeoutMs.collectAsState()

@@ -107,7 +107,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.hud.protocol.OverlayElement
@@ -132,6 +131,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * The Overlay Studio: a fullscreen video / photo recorder with a fully
@@ -146,7 +146,7 @@ fun OverlayStudioScreen(
     onBack: () -> Unit,
     onOpenBackupSettings: () -> Unit,
     replayTripId: Long? = null,
-    viewModel: OverlayStudioViewModel = hiltViewModel()
+    viewModel: OverlayStudioViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
     val activity = context as? Activity

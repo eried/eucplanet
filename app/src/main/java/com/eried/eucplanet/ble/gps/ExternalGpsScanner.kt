@@ -8,12 +8,9 @@ import android.bluetooth.le.ScanSettings
 import android.content.Context
 import com.eried.eucplanet.ble.BleDevice
 import com.eried.eucplanet.data.model.ExternalGpsSource
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * BLE scanner dedicated to external GPS boxes. Walks every advertisement and
@@ -27,10 +24,9 @@ data class ExternalGpsScanResult(
     val source: ExternalGpsSource
 )
 
-@Singleton
-class ExternalGpsScanner @Inject constructor(
-    @ApplicationContext private val context: Context,
-    private val adapters: Set<@JvmSuppressWildcards ExternalGpsAdapter>
+class ExternalGpsScanner(
+    private val context: Context,
+    private val adapters: Set<ExternalGpsAdapter>
 ) {
     private val bluetoothManager =
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager

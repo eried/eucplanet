@@ -53,6 +53,9 @@ object HeadlightRules {
             nowMs = input.nowMs,
             enabled = input.offWhenSlow,
         )
-        return Decision(next, HeadlightSlowPolicy.beamOn(input.darkEnough, next.forcedOff))
+        return Decision(
+            next,
+            HeadlightSlowPolicy.beamOn(input.darkEnough, next.forcedOff, slowPending = next.slowSince != 0L),
+        )
     }
 }

@@ -10,10 +10,7 @@ import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * The rider's own horn sound, played by the phone.
@@ -25,9 +22,8 @@ import javax.inject.Singleton
  * audio focus and comes back when the horn ends. Alarm tones take no focus,
  * so they keep sounding over it.
  */
-@Singleton
-class HornPlayer @Inject constructor(
-    @ApplicationContext private val context: Context,
+class HornPlayer(
+    private val context: Context,
 ) {
     companion object {
         private const val TAG = "HornPlayer"

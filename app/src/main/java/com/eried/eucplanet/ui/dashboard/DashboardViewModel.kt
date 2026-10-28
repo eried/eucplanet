@@ -19,8 +19,6 @@ import com.eried.eucplanet.flic.FlicManager
 import com.eried.eucplanet.service.AutomationManager
 import com.eried.eucplanet.service.VoiceService
 import com.eried.eucplanet.service.WheelService
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -35,7 +33,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import javax.inject.Inject
 import com.eried.eucplanet.data.repository.startLinkFlow
 
 data class MetricHistory(
@@ -56,8 +53,7 @@ data class MetricHistory(
     val extras: Map<String, List<Float>> = emptyMap()
 )
 
-@HiltViewModel
-class DashboardViewModel @Inject constructor(
+class DashboardViewModel(
     private val wheelRepository: WheelRepository,
     private val settingsRepository: SettingsRepository,
     private val tripRepository: TripRepository,
@@ -79,7 +75,7 @@ class DashboardViewModel @Inject constructor(
     private val appNotifier: com.eried.eucplanet.util.AppNotifier,
     private val navigationEngine: com.eried.eucplanet.nav.NavigationEngine,
     private val voiceCommands: com.eried.eucplanet.voice.VoiceCommandController,
-    @ApplicationContext private val context: Context
+    private val context: Context
 ) : ViewModel() {
 
     /** Live list of user-actionable warnings (e.g. denied notification

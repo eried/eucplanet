@@ -5,16 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.flic.FlicManager
-import dagger.hilt.android.lifecycle.HiltViewModel
 import io.flic.flic2libandroid.Flic2Button
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class FlicViewModel @Inject constructor(
+class FlicViewModel(
     private val settingsRepository: SettingsRepository,
     private val flicManager: FlicManager
 ) : ViewModel() {

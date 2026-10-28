@@ -4,8 +4,6 @@ import com.eried.eucplanet.data.model.NavRoute
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * In-memory holder for the route currently loaded in the Route Builder and
@@ -16,8 +14,7 @@ import javax.inject.Singleton
  * `navCurrentRouteSavedAt` settings fields, so nothing route-related ever lands
  * in the settings JSON or the backup.
  */
-@Singleton
-class CurrentRouteStore @Inject constructor() {
+class CurrentRouteStore {
     private val _route = MutableStateFlow<NavRoute?>(null)
     val route: StateFlow<NavRoute?> = _route.asStateFlow()
 

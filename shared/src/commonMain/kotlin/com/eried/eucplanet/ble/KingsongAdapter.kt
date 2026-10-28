@@ -17,7 +17,7 @@ import kotlin.concurrent.Volatile
  * frames are 20-byte fixed-length structures `AA 55 ... type 14 5A 5A`,
  * dispatched by the type byte at offset 16.
  */
-class KingsongAdapter() : WheelAdapter {
+class KingsongAdapter : WheelAdapter {
     override val familyId = "kingsong"
     override val familyDisplayName = "KingSong"
     override val capabilities = WheelCapabilities.KINGSONG

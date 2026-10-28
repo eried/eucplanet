@@ -4,8 +4,6 @@ kotlin = "2.4.21"
 coil = "2.7.0"
 ksp = "2.3.12"
 composeBom = "2026.06.00"
-hilt = "2.57.2"
-hiltNavigationCompose = "1.2.0"
 room = "2.8.4"
 lifecycle = "2.8.7"
 coroutines = "1.9.0"
@@ -20,7 +18,6 @@ maplibre = "11.5.2"
 carApp = "1.4.0"
 datastore = "1.1.1"
 work = "2.9.1"
-hiltWork = "1.2.0"
 reorderable = "2.4.3"
 wearCompose = "1.4.0"
 playServicesWearable = "18.2.0"
@@ -79,15 +76,13 @@ room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 room-common = { group = "androidx.room", name = "room-common", version.ref = "room" }
 room-testing = { group = "androidx.room", name = "room-testing", version.ref = "room" }
 
-# Hilt
-hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
-hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
-# Hilt 2.57 is the last release that runs on AGP 8 (2.59+ needs AGP 9, which drops
-# the wearApp embedding). Its processor reads Kotlin metadata through this
-# library, and the copy it ships stops at Kotlin 2.3, so it is pinned to the
-# compiler version on the processor path.
-kotlin-metadata-jvm = { group = "org.jetbrains.kotlin", name = "kotlin-metadata-jvm", version.ref = "kotlin" }
-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
+# Koin (dependency injection, multiplatform)
+koin-bom = { group = "io.insert-koin", name = "koin-bom", version.ref = "koin" }
+koin-android = { group = "io.insert-koin", name = "koin-android" }
+koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compose" }
+koin-androidx-workmanager = { group = "io.insert-koin", name = "koin-androidx-workmanager" }
+koin-test = { group = "io.insert-koin", name = "koin-test" }
+koin-test-junit4 = { group = "io.insert-koin", name = "koin-test-junit4" }
 
 # Coroutines
 coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
@@ -117,10 +112,8 @@ datastore-preferences-core = { group = "androidx.datastore", name = "datastore-p
 # Flic 2
 flic2 = { group = "com.github.50ButtonsEach", name = "flic2lib-android", version = "2.0.1" }
 
-# WorkManager + Hilt integration
+# WorkManager
 work-runtime = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "work" }
-hilt-work = { group = "androidx.hilt", name = "hilt-work", version.ref = "hiltWork" }
-hilt-work-compiler = { group = "androidx.hilt", name = "hilt-compiler", version.ref = "hiltWork" }
 
 # Drag-to-reorder
 reorderable = { group = "sh.calvin.reorderable", name = "reorderable", version.ref = "reorderable" }
@@ -184,5 +177,4 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 play-publisher = { id = "com.github.triplet.play", version.ref = "playPublisher" }

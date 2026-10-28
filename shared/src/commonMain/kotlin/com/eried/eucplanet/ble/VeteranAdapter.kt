@@ -24,7 +24,7 @@ import kotlin.concurrent.Volatile
  * reset. No software lock, no volume, no max-speed write (the SET* family
  * sets thresholds, not absolute max; see spec section 6 "Notes").
  */
-class VeteranAdapter() : WheelAdapter {
+class VeteranAdapter : WheelAdapter {
     override val familyId = "veteran"
     // Internal id stays "veteran" so existing stored profiles / custom
     // commands keep working; user-visible label is the actual brand.

@@ -25,9 +25,9 @@ val wheelAdapterModule = module {
 }
 
 /**
- * The shared object graph. It is its own Koin context, built on first use,
- * so neither app has to start it in a particular order. On Android, Hilt
- * hands these singletons out through SharedModule until Hilt is gone.
+ * The shared object graph for iOS. It is its own Koin context, built on first
+ * use. Android does not use it: the app's Koin graph includes
+ * [wheelAdapterModule] directly (see the app's KoinModules).
  */
 object SharedKoin {
     val koin: Koin by lazy {

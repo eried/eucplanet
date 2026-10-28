@@ -24,7 +24,6 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -40,12 +39,9 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class TripRepository @Inject constructor(
-    @ApplicationContext private val context: Context,
+class TripRepository(
+    private val context: Context,
     private val tripDao: TripDao,
     // Source of the rider's known wheels for the trip-tools wheel picker.
     private val wheelProfileDao: com.eried.eucplanet.data.db.WheelProfileDao,
@@ -56,14 +52,14 @@ class TripRepository @Inject constructor(
     private val externalGpsRepository: ExternalGpsRepository,
     private val legalLockdown: LegalLockdownController,
     /**
-     * Injected as a Provider because [com.eried.eucplanet.share.ShareSession]
-     * takes this repository (it publishes [currentLocation]). A Provider breaks
+     * Injected as a Lazy because [com.eried.eucplanet.share.ShareSession]
+     * takes this repository (it publishes [currentLocation]). A Lazy breaks
      * the construction cycle: the instance is only asked for from a coroutine,
      * once, after both singletons exist. That coroutine runs on [scope], which
      * is Dispatchers.IO, so this never runs inline on the constructing thread;
-     * a Provider alone does not guarantee that, the dispatcher does.
+     * a Lazy alone does not guarantee that, the dispatcher does.
      */
-    private val shareSession: javax.inject.Provider<com.eried.eucplanet.share.ShareSession>
+    private val shareSession: Lazy<com.eried.eucplanet.share.ShareSession>
 ) {
     companion object {
         private const val TAG = "TripRepo"
@@ -213,7 +209,7 @@ class TripRepository @Inject constructor(
         // Joining or leaving a group changes the tier the same way navigation
         // does. Resolved here, off the constructor thread, so the Provider
         // above never re-enters this repository's own construction.
-        scope.launch { shareSession.get().sharing.collect { gpsSharing = it; recomputeGpsTier() } }
+        scope.launch { shareSession.value.sharing.collect { gpsSharing = it; recomputeGpsTier() } }
     }
 
     // The just-stopped trip waiting for grace-period finalization, plus the job

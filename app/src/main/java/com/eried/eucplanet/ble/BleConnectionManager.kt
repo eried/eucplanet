@@ -20,7 +20,6 @@ import android.content.IntentFilter
 import android.os.Build
 import android.util.Log
 import androidx.core.content.ContextCompat
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -42,14 +41,11 @@ import java.util.UUID
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.toJavaUuid
 import kotlin.uuid.toKotlinUuid
-import javax.inject.Inject
-import javax.inject.Singleton
 
 // BleProfile carries the shared kotlin.uuid.Uuid; GATT calls take java.util.UUID.
 @OptIn(ExperimentalUuidApi::class)
-@Singleton
-class BleConnectionManager @Inject constructor(
-    @ApplicationContext private val context: Context,
+class BleConnectionManager(
+    private val context: Context,
     private val wheelAdapter: WheelAdapter,
     private val appNotifier: com.eried.eucplanet.util.AppNotifier
 ) : WheelLink {
@@ -849,55 +845,74 @@ class BleConnectionManager @Inject constructor(
                 continue
             }
 
-            var connectionLost = false
-            var accepted = false
-            val maxAttempts = BleWriteQueue.maxAttempts(entry.kind)
-            for (attempt in 1..maxAttempts) {
-                writeReady = false
-                when (attemptWrite(data)) {
-                    WriteOutcome.ACCEPTED -> { accepted = true; break }
-                    WriteOutcome.CONNECTION_LOST -> { connectionLost = true; break }
-                    WriteOutcome.REJECTED -> {
-                        // The stack refused it, so nothing is in flight from us.
-                        writeReady = true
-                        if (attempt == maxAttempts) {
-                            // A poll giving up is routine, and saying so at the
-                            // same volume as a lost command buries the one that
-                            // matters under thousands that do not.
-                            if (entry.kind == BleWriteQueue.Kind.COMMAND) {
-                                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
-                                    "Write DROPPED after $maxAttempts attempts (${data.size}B) - " +
-                                        "the stack stayed busy"
-                                )
-                            }
-                        } else {
-                            delay(BleWriteQueue.retryDelayMs(attempt))
+            // One frame can be several writes on a profile with a write size
+            // limit (InMotion V1). All of them go out here, each acked before
+            // the next, before the worker takes another entry, so the pieces
+            // of one frame can never interleave with another frame's.
+            for (piece in wheelAdapter.bleProfile().writePieces(data)) {
+                // A piece that never went leaves the wheel holding half a
+                // frame. Sending the rest would only add a broken tail, so
+                // drop it; the wheel resyncs on the next frame's header.
+                if (!writePiece(piece, entry.kind, data.size)) break
+            }
+        }
+    }
+
+    /**
+     * Hand one write to the stack, retrying a rejection, then wait for its
+     * ack. Returns false when it never went out, so the caller can abandon the
+     * rest of the frame. [frameSize] is the whole frame, for the log.
+     */
+    private suspend fun writePiece(piece: ByteArray, kind: BleWriteQueue.Kind, frameSize: Int): Boolean {
+        var connectionLost = false
+        var accepted = false
+        val maxAttempts = BleWriteQueue.maxAttempts(kind)
+        for (attempt in 1..maxAttempts) {
+            writeReady = false
+            when (attemptWrite(piece)) {
+                WriteOutcome.ACCEPTED -> { accepted = true; break }
+                WriteOutcome.CONNECTION_LOST -> { connectionLost = true; break }
+                WriteOutcome.REJECTED -> {
+                    // The stack refused it, so nothing is in flight from us.
+                    writeReady = true
+                    if (attempt == maxAttempts) {
+                        // A poll giving up is routine, and saying so at the
+                        // same volume as a lost command buries the one that
+                        // matters under thousands that do not.
+                        if (kind == BleWriteQueue.Kind.COMMAND) {
+                            com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                                "Write DROPPED after $maxAttempts attempts (${frameSize}B) - " +
+                                    "the stack stayed busy"
+                            )
                         }
+                    } else {
+                        delay(BleWriteQueue.retryDelayMs(attempt))
                     }
                 }
             }
-            if (connectionLost || !accepted) continue
-
-            // Wait for the stack to say the write actually went, rather than
-            // assuming it after a fixed pause and starting the next one on top
-            // of it. The timeout is the backstop for a callback that never
-            // arrives, not the normal path.
-            val ack = pendingAck
-            if (ack != null) {
-                val budget =
-                    if (effectiveWriteType() ==
-                        BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
-                    ) WRITE_ACK_NO_RESPONSE_MS else WRITE_ACK_TIMEOUT_MS
-                if (withTimeoutOrNull(budget) { ack.await() } == null &&
-                    budget == WRITE_ACK_TIMEOUT_MS
-                ) {
-                    com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
-                        "Write ACK timed out after $budget ms (${data.size}B)"
-                    )
-                }
-            }
-            writeReady = true
         }
+        if (connectionLost || !accepted) return false
+
+        // Wait for the stack to say the write actually went, rather than
+        // assuming it after a fixed pause and starting the next one on top
+        // of it. The timeout is the backstop for a callback that never
+        // arrives, not the normal path.
+        val ack = pendingAck
+        if (ack != null) {
+            val budget =
+                if (effectiveWriteType() ==
+                    BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
+                ) WRITE_ACK_NO_RESPONSE_MS else WRITE_ACK_TIMEOUT_MS
+            if (withTimeoutOrNull(budget) { ack.await() } == null &&
+                budget == WRITE_ACK_TIMEOUT_MS
+            ) {
+                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                    "Write ACK timed out after $budget ms (${piece.size}B)"
+                )
+            }
+        }
+        writeReady = true
+        return true
     }
 
     /** The profile's write type, unless this wheel's characteristic forced another. */

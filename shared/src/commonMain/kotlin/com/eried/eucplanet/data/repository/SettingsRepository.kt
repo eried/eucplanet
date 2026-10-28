@@ -54,7 +54,7 @@ fun shareSettings(
         }
         .stateIn<AppSettings?>(scope, SharingStarted.Eagerly, null).filterNotNull()
 
-/** One per app: Android hands it to Hilt from AppModule, iOS builds it at start. */
+/** One per app: Android hands it to Koin from AppModule, iOS builds it at start. */
 class SettingsRepository(
     private val store: SettingsStore
 ) {

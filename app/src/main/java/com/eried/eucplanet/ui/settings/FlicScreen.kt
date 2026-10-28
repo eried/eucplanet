@@ -50,17 +50,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedFieldColors
+import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FlicScreen(
     onBack: () -> Unit,
-    viewModel: FlicViewModel = hiltViewModel()
+    viewModel: FlicViewModel = koinViewModel()
 ) {
     val settings by viewModel.settings.collectAsState()
     val scanning by viewModel.scanning.collectAsState()

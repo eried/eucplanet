@@ -9,26 +9,10 @@ import android.widget.RemoteViews
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.WidgetActionType
 import com.eried.eucplanet.data.repository.SettingsRepository
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
-import dagger.hilt.android.EntryPointAccessors
-import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-
-/**
- * Hilt access from a plain BroadcastReceiver.
- *
- * An EntryPoint rather than @AndroidEntryPoint on every provider: these widgets
- * are one base class with several thin subclasses, and annotating each one just
- * to reach a single repository would be noise.
- */
-@EntryPoint
-@InstallIn(SingletonComponent::class)
-interface WidgetEntryPoint {
-    fun settingsRepository(): SettingsRepository
-}
+import org.koin.core.context.GlobalContext
 
 /**
  * Button-only widgets: one or two of the rider's configured actions, filling
@@ -75,9 +59,10 @@ abstract class ActionWidgetBase(
     companion object {
 
         private suspend fun readActionKeys(context: Context): List<String> {
-            val repo = EntryPointAccessors
-                .fromApplication(context, WidgetEntryPoint::class.java)
-                .settingsRepository()
+            // Read from the Koin graph directly: these widgets are one base
+            // class with several thin subclasses, and making each one a
+            // KoinComponent just to reach a single repository would be noise.
+            val repo = GlobalContext.get().get<SettingsRepository>()
             // The standalone list, not the big widget's row: these are
             // configured independently.
             return WidgetActionType.slots(repo.get().widget.standaloneActions)

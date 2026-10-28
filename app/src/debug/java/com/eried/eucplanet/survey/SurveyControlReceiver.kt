@@ -12,12 +12,12 @@ import com.eried.eucplanet.data.model.Waypoint
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.nav.NavigationEngine
 import com.eried.eucplanet.service.WheelService
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 
 /**
  * Debug-only receiver that lets a host script (Python + adb shell am broadcast)
@@ -40,13 +40,12 @@ import javax.inject.Inject
  * Only present in debug builds, never merged into the release manifest, * so the production app surface stays unchanged. See the matching debug
  * AndroidManifest at app/src/debug/AndroidManifest.xml.
  */
-@AndroidEntryPoint
-class SurveyControlReceiver : BroadcastReceiver() {
+class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
 
-    @Inject lateinit var settingsRepository: SettingsRepository
-    @Inject lateinit var navigationEngine: NavigationEngine
-    @Inject lateinit var tonePlayer: com.eried.eucplanet.service.TonePlayer
-    @Inject lateinit var voiceService: com.eried.eucplanet.service.VoiceService
+    val settingsRepository: SettingsRepository = get()
+    val navigationEngine: NavigationEngine = get()
+    val tonePlayer: com.eried.eucplanet.service.TonePlayer = get()
+    val voiceService: com.eried.eucplanet.service.VoiceService = get()
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 

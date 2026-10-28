@@ -5,8 +5,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Where a paired sensor is remembered between runs.
@@ -35,8 +33,7 @@ interface TpmsPairingStore {
 }
 
 /** The real one: a field in the rider's settings, like every other preference. */
-@Singleton
-class SettingsTpmsPairingStore @Inject constructor(
+class SettingsTpmsPairingStore(
     private val settingsRepository: SettingsRepository,
 ) : TpmsPairingStore {
 

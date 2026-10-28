@@ -2,7 +2,13 @@ package com.eried.eucplanet.hud.ui.screens
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.os.SystemClock
+import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
+import androidx.camera.core.CameraState
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -52,7 +58,14 @@ import com.eried.eucplanet.hud.ui.parseHexColor
  * than crash, the rider can switch screens with LEFT/RIGHT regardless.
  */
 @Composable
-fun CameraScreen(hud: HudState, cameraIndex: Int = 0, rotation: Int = 270) {
+fun CameraScreen(
+    hud: HudState,
+    cameraIndex: Int = 0,
+    rotation: Int = 270,
+    onCamerasFound: (Int) -> Unit = {},
+    cameraHandedOff: Boolean = false,
+    onCameraTaken: () -> Unit = {},
+) {
     val ctx = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     // Re-evaluate every recomposition, not just once: the rider may grant
@@ -66,7 +79,14 @@ fun CameraScreen(hud: HudState, cameraIndex: Int = 0, rotation: Int = 270) {
     val accent = parseHexColor(hud.accentArgb)
 
     Box(Modifier.fillMaxSize().background(Color.Black)) {
-        RearCameraPreview(Modifier.fillMaxSize(), cameraIndex = cameraIndex, rotation = rotation)
+        RearCameraPreview(
+            Modifier.fillMaxSize(),
+            cameraIndex = cameraIndex,
+            rotation = rotation,
+            onCamerasFound = onCamerasFound,
+            handedOff = cameraHandedOff,
+            onCameraTaken = onCameraTaken
+        )
 
         // Speed overlay (bottom-right). Same unit code as the dashboard.
         val displaySpeed = HudUnits.speed(hud.speedKmh, hud.unitSpeed)
@@ -102,9 +122,41 @@ fun CameraScreen(hud: HudState, cameraIndex: Int = 0, rotation: Int = 270) {
  *
  * [cameraIndex] picks from the device's cameras, back ones first, wrapping at
  * the count; a new index rebinds. [rotation] turns the picture clockwise.
+ * [onCamerasFound] hears how many cameras there are once the provider is up.
+ * [onCameraTaken] hears that another app has the camera open.
  */
 @Composable
-fun RearCameraPreview(modifier: Modifier = Modifier, cameraIndex: Int = 0, rotation: Int = 270) {
+fun RearCameraPreview(
+    modifier: Modifier = Modifier,
+    cameraIndex: Int = 0,
+    rotation: Int = 270,
+    onCamerasFound: (Int) -> Unit = {},
+    handedOff: Boolean = false,
+    onCameraTaken: () -> Unit = {},
+) {
+    // Handed to the MotoEye recorder: the live preview leaves composition,
+    // and with it its camera (see LiveCameraPreview's DisposableEffect).
+    if (handedOff) {
+        val ctx = LocalContext.current
+        Box(modifier.background(Color.Black), contentAlignment = Alignment.Center) {
+            Text(
+                text = ctx.getString(R.string.hud_camera_handed_off),
+                color = Color.White.copy(alpha = 0.7f)
+            )
+        }
+    } else {
+        LiveCameraPreview(modifier, cameraIndex, rotation, onCamerasFound, onCameraTaken)
+    }
+}
+
+@Composable
+private fun LiveCameraPreview(
+    modifier: Modifier,
+    cameraIndex: Int,
+    rotation: Int,
+    onCamerasFound: (Int) -> Unit,
+    onCameraTaken: () -> Unit,
+) {
     val ctx = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val hasPermission = ContextCompat.checkSelfPermission(
@@ -179,6 +231,7 @@ fun RearCameraPreview(modifier: Modifier = Modifier, cameraIndex: Int = 0, rotat
                                 // the rest, so a camera that will not open
                                 // still leaves a picture.
                                 val cameras = orderedCameras(provider.availableCameraInfos)
+                                onCamerasFound(cameras.size)
                                 val selectors = if (cameras.isEmpty()) {
                                     listOf(CameraSelector.DEFAULT_BACK_CAMERA, CameraSelector.DEFAULT_FRONT_CAMERA)
                                 } else {
@@ -193,8 +246,18 @@ fun RearCameraPreview(modifier: Modifier = Modifier, cameraIndex: Int = 0, rotat
                                 var bound = false
                                 for (sel in selectors) {
                                     try {
-                                        provider.bindToLifecycle(lifecycleOwner, sel, preview)
+                                        val camera = provider.bindToLifecycle(lifecycleOwner, sel, preview)
                                         binding.hold(provider, preview)
+                                        // The MotoEye recorder already has
+                                        // the camera: let it keep it, rather
+                                        // than open it the moment it stops
+                                        // and block its next start.
+                                        val boundAt = SystemClock.uptimeMillis()
+                                        binding.watch(camera, lifecycleOwner) { st ->
+                                            if (takenByAnotherApp(st.error?.code, SystemClock.uptimeMillis() - boundAt)) {
+                                                onCameraTaken()
+                                            }
+                                        }
                                         bound = true
                                         break
                                     } catch (_: Throwable) {
@@ -248,6 +311,17 @@ private fun orderedCameras(infos: List<CameraInfo>): List<CameraInfo> =
         }
     }
 
+/** True when a camera error means another app holds the camera. Too many
+ *  cameras open also shows up for a moment while UP switches ours, so that
+ *  one only counts once the bind has settled. */
+internal fun takenByAnotherApp(code: Int?, sinceBindMs: Long): Boolean = when (code) {
+    CameraState.ERROR_CAMERA_IN_USE -> true
+    CameraState.ERROR_MAX_CAMERAS_IN_USE -> sinceBindMs >= SETTLE_MS
+    else -> false
+}
+
+private const val SETTLE_MS = 2_000L
+
 /** The preview one [RearCameraPreview] bound, so leaving that screen unbinds
  *  only its own use case: sliding from Camera straight to Custom + camera
  *  must not drop the camera the incoming screen just bound. */
@@ -256,14 +330,32 @@ private class CameraBinding {
         private set
     private var provider: ProcessCameraProvider? = null
     private var preview: Preview? = null
+    private var state: LiveData<CameraState>? = null
+    private var observer: Observer<CameraState>? = null
 
     fun hold(provider: ProcessCameraProvider, preview: Preview) {
         this.provider = provider
         this.preview = preview
     }
 
+    /** Follow [camera]'s state until release; one watch at a time. */
+    fun watch(camera: Camera, owner: LifecycleOwner, onState: (CameraState) -> Unit) {
+        unwatch()
+        val o = Observer<CameraState> { if (!released) onState(it) }
+        camera.cameraInfo.cameraState.observe(owner, o)
+        state = camera.cameraInfo.cameraState
+        observer = o
+    }
+
+    private fun unwatch() {
+        observer?.let { o -> state?.removeObserver(o) }
+        state = null
+        observer = null
+    }
+
     fun release() {
         released = true
+        unwatch()
         val p = preview ?: return
         runCatching { provider?.unbind(p) }
         provider = null

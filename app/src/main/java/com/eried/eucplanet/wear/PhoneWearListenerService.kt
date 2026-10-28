@@ -6,8 +6,7 @@ import com.eried.eucplanet.flic.FlicManager
 import com.eried.eucplanet.hud.protocol.WatchMapProtocol
 import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.WearableListenerService
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
+import org.koin.android.ext.android.get
 
 /**
  * Receives `/euc/control` messages sent from the watch and dispatches them to
@@ -16,10 +15,9 @@ import javax.inject.Inject
  * picks up the new state and gets pushed back via [WearBridge].
  *
  * Wear OS auto-creates this service when a message lands at the matching path.
- * Hilt's @AndroidEntryPoint injects the repository singleton so the call goes
+ * Koin hands it the repository singleton so the call goes
  * through the same code path the phone UI uses.
  */
-@AndroidEntryPoint
 class PhoneWearListenerService : WearableListenerService() {
 
     companion object {
@@ -36,9 +34,9 @@ class PhoneWearListenerService : WearableListenerService() {
         private const val DEBUG_PREFIX = "debug:"
     }
 
-    @Inject lateinit var wheelRepository: WheelRepository
-    @Inject lateinit var flicManager: FlicManager
-    @Inject lateinit var wearMapBridge: WearMapBridge
+    val wheelRepository: WheelRepository = get()
+    val flicManager: FlicManager = get()
+    val wearMapBridge: WearMapBridge = get()
 
     override fun onMessageReceived(event: MessageEvent) {
         when (event.path) {

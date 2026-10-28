@@ -12,8 +12,6 @@ import java.io.ByteArrayOutputStream
 import java.util.TimeZone
 import java.util.UUID
 import java.util.zip.GZIPOutputStream
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /** Outcome of a single [EucStatsRepository.uploadTrip] call. */
 enum class Outcome { UPLOADED, FAILED_PERMANENT, NEEDS_RETRY }
@@ -55,18 +53,17 @@ interface EucStatsSettingsPort {
     suspend fun deleteRiderId(): Boolean
 }
 
-@Singleton
-class EucStatsRepository @Inject constructor(
+class EucStatsRepository(
     private val api: EucStatsApiContract,
     private val attestation: Attestation,
     private val settings: EucStatsSettingsPort,
     private val tripDao: TripDao,
     /** Reads the raw CSV bytes for a given trip, injected so no Android FS needed in tests. */
-    @EucStatsTripFileBytes private val tripFileBytes: @JvmSuppressWildcards (TripRecord) -> ByteArray,
-    @EucStatsAppVersion private val appVersion: String,
-    @EucStatsOsVersion private val osVersion: String,
+    private val tripFileBytes: (TripRecord) -> ByteArray,
+    private val appVersion: String,
+    private val osVersion: String,
     /** Millisecond clock, injectable for tests. */
-    @EucStatsClock private val clock: @JvmSuppressWildcards () -> Long = { System.currentTimeMillis() },
+    private val clock: () -> Long = { System.currentTimeMillis() },
 ) {
 
     private val _card = MutableStateFlow<RiderCard?>(null)

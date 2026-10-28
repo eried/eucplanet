@@ -2,14 +2,11 @@ package com.eried.eucplanet.data.sync
 
 import android.content.Context
 import android.util.Log
-import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.eried.eucplanet.data.repository.DropboxRepository
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedInject
 import org.json.JSONObject
 import kotlinx.coroutines.flow.first
 import java.io.File
@@ -29,10 +26,9 @@ import java.io.File
  * left schedules another run, so a library arrives across several passes
  * without anyone watching.
  */
-@HiltWorker
-class DropboxSyncWorker @AssistedInject constructor(
-    @Assisted context: Context,
-    @Assisted params: WorkerParameters,
+class DropboxSyncWorker(
+    context: Context,
+    params: WorkerParameters,
     private val settingsRepository: SettingsRepository,
     private val tripRepository: TripRepository,
     private val dropboxRepository: DropboxRepository,

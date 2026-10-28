@@ -142,7 +142,6 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.NavMode
 import com.eried.eucplanet.data.model.TravelMode
@@ -178,6 +177,7 @@ import com.eried.eucplanet.ui.theme.themedSegmentedColors
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.common.DestructiveMenuItem
 import com.eried.eucplanet.ui.common.appMenuItemColors
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * The Route Builder: a full-bleed Leaflet map (WebView) with a top search bar,
@@ -210,7 +210,7 @@ private const val LOCATING_GRACE_MS = 4_000L
 fun RouteBuilderScreen(
     onExit: () -> Unit,
     onOpenNavSettings: () -> Unit,
-    viewModel: RouteBuilderViewModel = hiltViewModel()
+    viewModel: RouteBuilderViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()

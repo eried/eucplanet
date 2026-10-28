@@ -21,7 +21,6 @@ import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.service.VoiceService
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
@@ -33,8 +32,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.UUID
 import java.util.concurrent.Executors
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.math.abs
 
 /**
@@ -53,9 +50,8 @@ import kotlin.math.abs
  *  - [NavMode.TREASURE_HUNT], no street-by-street steps; just the direction
  *    and distance to the next goal, with warmer/colder proximity cues.
  */
-@Singleton
-class NavigationEngine @Inject constructor(
-    @ApplicationContext private val context: Context,
+class NavigationEngine(
+    private val context: Context,
     private val tripRepository: TripRepository,
     private val wheelRepository: WheelRepository,
     private val settingsRepository: SettingsRepository,

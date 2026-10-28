@@ -22,7 +22,7 @@ import kotlin.concurrent.Volatile
  *
  * Wire format and command set come from docs/protocols/ninebot.md.
  */
-class NinebotAdapter() : WheelAdapter {
+class NinebotAdapter : WheelAdapter {
 
     /**
      * Detected model. Carries the protocol family; the rest of the adapter

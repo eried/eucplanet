@@ -100,6 +100,8 @@ data class AppThemeColors(
     val hint: Color = Color.Unspecified,
     /** Battery envelope trip graph: distinct from the raw battery line. */
     val chartEnvelope: Color = Color.Unspecified,
+    /** Trip Details compare: the other trip (B), apart from every metric hue. */
+    val chartCompare: Color = Color.Unspecified,
     /** Ridability forecast: the good end of the score scale (light blue). */
     val weatherGood: Color = Color.Unspecified,
     /** Ridability forecast: the bad end of the score scale (magenta). */
@@ -176,6 +178,7 @@ fun AppThemeColors.fillDerived(): AppThemeColors = copy(
     link = link.takeOrElse { primary },
     hint = hint.takeOrElse { textSecondary },
     chartEnvelope = chartEnvelope.takeOrElse { Color(0xFF40C4FF) },
+    chartCompare = chartCompare.takeOrElse { Color(0xFFF06292) },
     weatherGood = weatherGood.takeOrElse { Color(0xFF40C4FF) },
     weatherBad = weatherBad.takeOrElse { Color(0xFFE040FB) },
     // Temp and wind follow the theme's own metric hues, so a custom theme
@@ -357,6 +360,7 @@ object ThemeTokens {
         ThemeTokenSpec("metricPosition", "Position", GROUP_METRIC, { it.metricPosition }, { c, v -> c.copy(metricPosition = v) }),
         ThemeTokenSpec("metricAccel", "Acceleration", GROUP_METRIC, { it.metricAccel }, { c, v -> c.copy(metricAccel = v) }),
         ThemeTokenSpec("chartEnvelope", "Battery envelope", GROUP_METRIC, { it.chartEnvelope }, { c, v -> c.copy(chartEnvelope = v) }),
+        ThemeTokenSpec("chartCompare", "Compared trip", GROUP_METRIC, { it.chartCompare }, { c, v -> c.copy(chartCompare = v) }),
         ThemeTokenSpec("weatherGood", "Ridability good", GROUP_METRIC, { it.weatherGood }, { c, v -> c.copy(weatherGood = v) }),
         ThemeTokenSpec("weatherBad", "Ridability bad", GROUP_METRIC, { it.weatherBad }, { c, v -> c.copy(weatherBad = v) }),
         ThemeTokenSpec("weatherTemp", "Weather temperature", GROUP_METRIC, { it.weatherTemp }, { c, v -> c.copy(weatherTemp = v) }),

@@ -2,13 +2,10 @@ package com.eried.eucplanet.data.store
 
 import android.content.Context
 import android.util.Base64
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.io.File
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Persists the rider's custom navigation-marker photo as a single PNG file in
@@ -26,9 +23,8 @@ import javax.inject.Singleton
  * PNG bytes. The single [photoDataUrl] flow is shared (singleton), so changing
  * the photo in the Navigator updates the Studio overlay live and vice-versa.
  */
-@Singleton
-class NavMarkerStore @Inject constructor(
-    @ApplicationContext private val context: Context,
+class NavMarkerStore(
+    private val context: Context,
 ) {
     private val file: File get() = File(context.noBackupFilesDir, MARKER_FILE)
 

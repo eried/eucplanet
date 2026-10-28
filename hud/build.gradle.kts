@@ -160,6 +160,7 @@ dependencies {
     implementation(libs.camerax.view)
 }
 
+// kotlinOptions {} is an error since Kotlin 2.2; same JVM 17 target via compilerOptions.
 kotlin {
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)

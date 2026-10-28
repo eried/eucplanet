@@ -15,9 +15,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import javax.inject.Provider
-import javax.inject.Singleton
 
 /**
  * Owns the external-GPS BLE connection and exposes the current sample.
@@ -29,15 +26,14 @@ import javax.inject.Singleton
  * Pairing persists in three AppSettings columns (address / name / source enum)
  * so [autoConnect] can re-open the paired device on app start without prompting.
  */
-@Singleton
-class ExternalGpsRepository @Inject constructor(
+class ExternalGpsRepository(
     private val settingsRepository: SettingsRepository,
     private val connectionManager: ExternalGpsConnectionManager,
-    private val adapters: Set<@JvmSuppressWildcards ExternalGpsAdapter>,
-    // Lazy provider to break the dependency cycle: TripRepository injects us.
-    private val tripRepositoryProvider: Provider<TripRepository>,
-    // Lazy so a future AlarmEngine dependency on us can't form a Hilt cycle.
-    private val alarmEngineProvider: Provider<com.eried.eucplanet.service.AlarmEngine>
+    private val adapters: Set<ExternalGpsAdapter>,
+    // Lazy to break the dependency cycle: TripRepository injects us.
+    private val tripRepositoryProvider: Lazy<TripRepository>,
+    // Lazy so a future AlarmEngine dependency on us can't form a DI cycle.
+    private val alarmEngineProvider: Lazy<com.eried.eucplanet.service.AlarmEngine>
 ) {
     companion object {
         private const val TAG = "ExtGpsRepo"
@@ -88,7 +84,7 @@ class ExternalGpsRepository @Inject constructor(
                 val sample = raw?.let(::applyAxisRemap)
                 _currentSample.value = sample
                 // Feed the low-battery (and any future external-GPS) alarm rules.
-                if (sample != null) alarmEngineProvider.get().evaluateExternalGps(sample)
+                if (sample != null) alarmEngineProvider.value.evaluateExternalGps(sample)
             }
         }
         scope.launch {
@@ -314,7 +310,7 @@ class ExternalGpsRepository @Inject constructor(
      * POS_LLH when no location is available yet.
      */
     private fun buildInitWrites(adapter: ExternalGpsAdapter): List<ByteArray> {
-        val loc = tripRepositoryProvider.get().currentLocation.value
+        val loc = tripRepositoryProvider.value.currentLocation.value
         val lat = loc?.latitude
         val lon = loc?.longitude
         val acc = loc?.accuracy

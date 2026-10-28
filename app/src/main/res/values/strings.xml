@@ -1599,6 +1599,26 @@
 <string name="trip_customize">Customize</string>
     <string name="trip_trim">Trim the view</string>
     <string name="trip_trim_title">Trim trip view</string>
+    <string name="trip_compare">Compare trips</string>
+    <string name="trip_compare_pick_title">Compare with</string>
+    <string name="trip_compare_filter">Filter trips</string>
+    <string name="trip_compare_this_trip">This trip</string>
+    <string name="trip_compare_no_match">No trips match</string>
+    <string name="trip_compare_change">Change</string>
+    <string name="trip_compare_metric">Metric</string>
+    <string name="trip_compare_offset">Offset</string>
+    <string name="trip_compare_auto">Auto</string>
+    <string name="trip_compare_view">View</string>
+    <string name="trip_compare_stacked">Stacked</string>
+    <string name="trip_compare_overlay">Overlay</string>
+    <string name="trip_compare_deltas">Show differences (deltas)</string>
+    <string name="trip_compare_no_overlap">No overlap at this offset</string>
+    <string name="trip_compare_no_shared">No metric in common</string>
+    <string name="trip_compare_banner">vs %1$s</string>
+    <string name="trip_compare_banner_sub">Offset %1$s · %2$s shared</string>
+    <string name="trip_compare_stop">Stop comparing</string>
+    <string name="trip_compare_edit">Edit comparison</string>
+    <string name="trip_compare_loading">Loading trip…</string>
     <string name="trip_customize_tiles">Tiles</string>
     <string name="trip_customize_graphs">Graphs</string>
 

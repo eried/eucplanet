@@ -27,7 +27,6 @@ import com.eried.eucplanet.nav.NavigationEngine
 import com.eried.eucplanet.ui.theme.AccentOptions
 import com.eried.eucplanet.ui.theme.AccentTeal
 import com.eried.eucplanet.util.AppForeground
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -54,8 +53,6 @@ import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
-import javax.inject.Singleton
 import javax.jmdns.JmDNS
 import javax.jmdns.ServiceEvent
 import javax.jmdns.ServiceListener
@@ -82,9 +79,8 @@ import java.net.NetworkInterface
  * fires when the rider toggles the link on AND service is up, stop() on
  * either flipping off.
  */
-@Singleton
-class HudServer @Inject constructor(
-    @ApplicationContext private val context: Context,
+class HudServer(
+    private val context: Context,
     private val wheelRepository: WheelRepository,
     private val settingsRepository: SettingsRepository,
     private val externalGpsRepository: ExternalGpsRepository,

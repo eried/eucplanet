@@ -6,8 +6,6 @@ import com.eried.eucplanet.service.AccelSplitTracker
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * The speed-split session: the tracker and what it has recorded so far.
@@ -26,8 +24,7 @@ import javax.inject.Singleton
  * a different wheel connecting, since a different wheel is a different pack
  * and a different motor.
  */
-@Singleton
-class AccelSplitRepository @Inject constructor() {
+class AccelSplitRepository {
 
     private val tracker = AccelSplitTracker(increment = 10, minSpeed = 20)
 

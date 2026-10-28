@@ -15,15 +15,12 @@ import com.google.android.gms.tasks.Tasks
 import com.google.android.gms.wearable.Node
 import com.google.android.gms.wearable.PutDataMapRequest
 import com.google.android.gms.wearable.Wearable
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Phone-side companion to the watch app.
@@ -41,9 +38,8 @@ import javax.inject.Singleton
  * Control messages flow the other direction through [PhoneWearListenerService]
  * which routes them back to the repository.
  */
-@Singleton
-class WearBridge @Inject constructor(
-    @ApplicationContext private val context: Context,
+class WearBridge(
+    private val context: Context,
     private val wheelRepository: WheelRepository,
     private val settingsRepository: SettingsRepository,
     private val cheatState: com.eried.eucplanet.cheats.CheatState,
@@ -258,7 +254,7 @@ class WearBridge @Inject constructor(
         // NO wake here on purpose. start() runs from EucPlanetApp.onCreate,
         // which fires on EVERY phone process start -- including background wakes
         // the rider never initiated (a watch message starting the
-        // @AndroidEntryPoint PhoneWearListenerService, a WorkManager upload job,
+        // PhoneWearListenerService, a WorkManager upload job,
         // etc.). Pinging here made the paired watch relaunch its MainActivity
         // "for no reason" whenever the phone process woke in the background. The
         // wake now fires only on a genuine app open, from MainActivity.onResume()
