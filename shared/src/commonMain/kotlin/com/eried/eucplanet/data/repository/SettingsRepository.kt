@@ -13,6 +13,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -24,8 +25,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import javax.inject.Singleton
+import com.eried.eucplanet.platform.Log
 
 /**
  * Collects [source] once on [scope] and hands the latest value to every
@@ -38,7 +38,7 @@ import javax.inject.Singleton
  * equal no longer reaches the watchers. Nothing is emitted before the first
  * real load, as before.
  */
-internal fun shareSettings(
+fun shareSettings(
     source: Flow<AppSettings>,
     scope: CoroutineScope,
     retryDelayMs: Long = 2_000,
@@ -48,14 +48,14 @@ internal fun shareSettings(
         // at once, silently. Keep the last good settings and read again.
         .retryWhen { cause, attempt ->
             if (cause is CancellationException) return@retryWhen false
-            android.util.Log.w("SettingsRepository", "Settings read failed (attempt ${attempt + 1}), retrying", cause)
+            Log.w("SettingsRepository", "Settings read failed (attempt ${attempt + 1}), retrying", cause)
             delay(retryDelayMs)
             true
         }
         .stateIn<AppSettings?>(scope, SharingStarted.Eagerly, null).filterNotNull()
 
-@Singleton
-class SettingsRepository @Inject constructor(
+/** One per app: Android hands it to Hilt from AppModule, iOS builds it at start. */
+class SettingsRepository(
     private val store: SettingsStore
 ) {
     // App-scoped so a fire-and-forget write survives a short-lived caller (e.g.
@@ -119,10 +119,10 @@ class SettingsRepository @Inject constructor(
 
 /**
  * Every settings read passes through here, so no consumer ever sees a value
- * outside what the UI would let a rider pick. Top level and internal so
+ * outside what the UI would let a rider pick. Top level so
  * AdvancedSettingsSpecGuardTest can run it without a store.
  */
-internal fun AppSettings.sanitized(): AppSettings = copy(
+fun AppSettings.sanitized(): AppSettings = copy(
     voiceVolumePercent = voiceVolumePercent.coerceIn(10, 100),
     autoRecordStopIdleSeconds = autoRecordStopIdleSeconds.coerceAtLeast(30),
     // What the dialog lets a rider save: a synced file cannot ask for 300%, or 80.

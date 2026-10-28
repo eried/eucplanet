@@ -1,17 +1,15 @@
 package com.eried.eucplanet.data.store
 
-import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import com.eried.eucplanet.data.model.AppSettings
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import org.json.JSONObject
+import com.eried.eucplanet.platform.JSONObject
 
 /**
  * Persists the full [AppSettings] object as a single JSON blob in DataStore
@@ -22,17 +20,20 @@ import org.json.JSONObject
  * with `optX(name, default)`, so unknown payloads (older or newer than the
  * running app) just keep the in-memory default. Forward / backward.
  *
- * Lives in app-private storage (`<app>/files/datastore/eucplanet_settings.preferences_pb`)
- * and survives app updates. The legacy Room `app_settings` row is migrated
+ * Lives in app-private storage and survives app updates: on Android
+ * `<app>/files/datastore/eucplanet_settings.preferences_pb` (SettingsStoreAndroid.kt),
+ * on iOS the same file name in the app's Documents folder. The legacy Room `app_settings` row is migrated
  * across once, the first time this store is read after the upgrade.
  *
  * Settings here, Room over there: trips, alarm rules and per-wheel profiles
  * stay in Room with real migrations because they don't churn nearly as much
  * as the toggle list does.
  */
-class SettingsStore(private val context: Context) {
-
-    private val dataStore: DataStore<Preferences> get() = context.settingsDataStore
+class SettingsStore(
+    private val dataStore: DataStore<Preferences>,
+    /** The first-run unit guess, see [seedDefaultsIfAbsent]. */
+    private val isImperialLocale: () -> Boolean,
+) {
 
     val settings: Flow<AppSettings> = dataStore.data.map { prefs -> readSettings(prefs) }
 
@@ -100,25 +101,6 @@ class SettingsStore(private val context: Context) {
         }
     }
 
-    /**
-     * Imperial only when BOTH the cell-network country AND the locale country
-     * are one of the three imperial-system countries (US, Liberia, Myanmar).
-     * The two-signal rule prevents bilingual mis-detection: a Norwegian who
-     * sets the device language to "English (United States)" has locale.country
-     * = "US" alone, but their carrier is Telenor (NO) so the network disagrees
-     * and we correctly default to metric. Blank / unavailable signals (Wi-Fi
-     * tablet, emulator without a SIM) count as "not imperial" so the default
-     * stays metric -- safer to be wrong toward metric and let the rider flip
-     * units once than to silently force imperial on the wrong continent.
-     */
-    private fun isImperialLocale(): Boolean {
-        val imperialCountries = setOf("US", "LR", "MM")
-        val tm = context.getSystemService(Context.TELEPHONY_SERVICE) as? android.telephony.TelephonyManager
-        val network = tm?.networkCountryIso?.uppercase().orEmpty()
-        val locale = java.util.Locale.getDefault().country.uppercase()
-        return network in imperialCountries && locale in imperialCountries
-    }
-
     private fun readSettings(prefs: Preferences): AppSettings {
         val json = prefs[KEY_JSON] ?: return AppSettings()
         return runCatching {
@@ -130,6 +112,3 @@ class SettingsStore(private val context: Context) {
         private val KEY_JSON = stringPreferencesKey("app_settings_json")
     }
 }
-
-private val Context.settingsDataStore: DataStore<Preferences>
-        by preferencesDataStore(name = "eucplanet_settings")

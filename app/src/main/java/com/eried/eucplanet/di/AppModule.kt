@@ -11,7 +11,10 @@ import com.eried.eucplanet.data.db.AppDatabase
 import com.eried.eucplanet.data.db.TripDao
 import com.eried.eucplanet.data.store.SettingsJson
 import com.eried.eucplanet.data.store.LegalLockdownStore
+import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.store.SettingsStore
+import com.eried.eucplanet.data.store.androidImperialLocale
+import com.eried.eucplanet.data.store.settingsDataStore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -35,7 +38,7 @@ object AppModule {
     @Provides
     @Singleton
     fun provideSettingsStore(@ApplicationContext context: Context): SettingsStore {
-        val store = SettingsStore(context)
+        val store = SettingsStore(context.settingsDataStore) { androidImperialLocale(context) }
         copyLegacyRoomSettingsIfPresent(context, store)
         // After the legacy migration: if DataStore is still empty this is a
         // genuine fresh install, seed unit defaults from the device locale.
@@ -43,6 +46,11 @@ object AppModule {
         runBlocking { store.seedDefaultsIfAbsent() }
         return store
     }
+
+    /** Lives in :shared now, so Hilt builds it here rather than by @Inject. */
+    @Provides
+    @Singleton
+    fun provideSettingsRepository(store: SettingsStore): SettingsRepository = SettingsRepository(store)
 
     /** Legal Mode Lockdown state. Its own store, never part of AppSettings. */
     @Provides

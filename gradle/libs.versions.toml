@@ -112,6 +112,7 @@ androidx-car-app-automotive = { group = "androidx.car.app", name = "app-automoti
 
 # DataStore
 datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
+datastore-preferences-core = { group = "androidx.datastore", name = "datastore-preferences-core", version.ref = "datastore" }
 
 # Flic 2
 flic2 = { group = "com.github.50ButtonsEach", name = "flic2lib-android", version = "2.0.1" }

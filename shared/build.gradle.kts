@@ -47,6 +47,8 @@ kotlin {
             api(libs.cmp.resources)
             // @Entity and friends on the moved models; the database stays in :app for now.
             implementation(libs.room.common)
+            // Settings live in one JSON blob in DataStore, on both phones.
+            api(libs.datastore.preferences.core)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
