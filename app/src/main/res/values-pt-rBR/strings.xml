@@ -2583,7 +2583,6 @@
     <string name="trip_compare_filter">Filtrar viagens</string>
     <string name="trip_compare_this_trip">Esta viagem</string>
     <string name="trip_compare_no_match">Nenhuma viagem corresponde</string>
-    <string name="trip_compare_title">Comparar com outra viagem</string>
     <string name="trip_compare_change">Trocar</string>
     <string name="trip_compare_metric">Métrica</string>
     <string name="trip_compare_offset">Deslocamento</string>
@@ -2591,7 +2590,7 @@
     <string name="trip_compare_view">Visualização</string>
     <string name="trip_compare_stacked">Empilhada</string>
     <string name="trip_compare_overlay">Sobreposta</string>
-    <string name="trip_compare_deltas">Mostrar diferenças</string>
+    <string name="trip_compare_deltas">Mostrar a diferença em vez do valor de B</string>
     <string name="trip_compare_no_overlap">Sem sobreposição neste deslocamento</string>
     <string name="trip_compare_no_shared">Nenhuma métrica em comum</string>
     <string name="trip_compare_banner">vs %1$s</string>

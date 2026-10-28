@@ -2485,7 +2485,6 @@
     <string name="trip_compare_filter">Filtra giri</string>
     <string name="trip_compare_this_trip">Questo giro</string>
     <string name="trip_compare_no_match">Nessun giro corrisponde</string>
-    <string name="trip_compare_title">Confronta con un altro giro</string>
     <string name="trip_compare_change">Cambia</string>
     <string name="trip_compare_metric">Metrica</string>
     <string name="trip_compare_offset">Sfasamento</string>
@@ -2493,7 +2492,7 @@
     <string name="trip_compare_view">Vista</string>
     <string name="trip_compare_stacked">Impilata</string>
     <string name="trip_compare_overlay">Sovrapposta</string>
-    <string name="trip_compare_deltas">Mostra differenze</string>
+    <string name="trip_compare_deltas">Mostra la differenza invece del valore di B</string>
     <string name="trip_compare_no_overlap">Nessuna sovrapposizione con questo sfasamento</string>
     <string name="trip_compare_no_shared">Nessuna metrica in comune</string>
     <string name="trip_compare_banner">vs %1$s</string>

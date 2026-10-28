@@ -1604,7 +1604,6 @@
     <string name="trip_compare_filter">Filter trips</string>
     <string name="trip_compare_this_trip">This trip</string>
     <string name="trip_compare_no_match">No trips match</string>
-    <string name="trip_compare_title">Compare with another trip</string>
     <string name="trip_compare_change">Change</string>
     <string name="trip_compare_metric">Metric</string>
     <string name="trip_compare_offset">Offset</string>
@@ -1612,7 +1611,7 @@
     <string name="trip_compare_view">View</string>
     <string name="trip_compare_stacked">Stacked</string>
     <string name="trip_compare_overlay">Overlay</string>
-    <string name="trip_compare_deltas">Show deltas</string>
+    <string name="trip_compare_deltas">Show the difference instead of B\'s value</string>
     <string name="trip_compare_no_overlap">No overlap at this offset</string>
     <string name="trip_compare_no_shared">No metric in common</string>
     <string name="trip_compare_banner">vs %1$s</string>

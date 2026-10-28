@@ -2583,7 +2583,6 @@
     <string name="trip_compare_filter">Ritten filteren</string>
     <string name="trip_compare_this_trip">Deze rit</string>
     <string name="trip_compare_no_match">Geen rit gevonden</string>
-    <string name="trip_compare_title">Vergelijken met een andere rit</string>
     <string name="trip_compare_change">Wijzigen</string>
     <string name="trip_compare_metric">Meetwaarde</string>
     <string name="trip_compare_offset">Verschuiving</string>
@@ -2591,7 +2590,7 @@
     <string name="trip_compare_view">Weergave</string>
     <string name="trip_compare_stacked">Gestapeld</string>
     <string name="trip_compare_overlay">Over elkaar</string>
-    <string name="trip_compare_deltas">Verschillen tonen</string>
+    <string name="trip_compare_deltas">Verschil tonen in plaats van de waarde van B</string>
     <string name="trip_compare_no_overlap">Geen overlap bij deze verschuiving</string>
     <string name="trip_compare_no_shared">Geen gemeenschappelijke meetwaarde</string>
     <string name="trip_compare_banner">vs %1$s</string>

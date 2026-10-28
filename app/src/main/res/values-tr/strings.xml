@@ -2578,7 +2578,6 @@
     <string name="trip_compare_filter">Sürüşleri filtrele</string>
     <string name="trip_compare_this_trip">Bu sürüş</string>
     <string name="trip_compare_no_match">Eşleşen sürüş yok</string>
-    <string name="trip_compare_title">Başka bir sürüşle karşılaştır</string>
     <string name="trip_compare_change">Değiştir</string>
     <string name="trip_compare_metric">Ölçü</string>
     <string name="trip_compare_offset">Kaydırma</string>
@@ -2586,7 +2585,7 @@
     <string name="trip_compare_view">Görünüm</string>
     <string name="trip_compare_stacked">Üst üste</string>
     <string name="trip_compare_overlay">Bindirilmiş</string>
-    <string name="trip_compare_deltas">Farkları göster</string>
+    <string name="trip_compare_deltas">B\'nin değeri yerine farkı göster</string>
     <string name="trip_compare_no_overlap">Bu kaydırmada kesişme yok</string>
     <string name="trip_compare_no_shared">Ortak ölçü yok</string>
     <string name="trip_compare_banner">vs %1$s</string>

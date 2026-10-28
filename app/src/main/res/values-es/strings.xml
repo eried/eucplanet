@@ -2578,7 +2578,6 @@
     <string name="trip_compare_filter">Filtrar viajes</string>
     <string name="trip_compare_this_trip">Este viaje</string>
     <string name="trip_compare_no_match">Ningún viaje coincide</string>
-    <string name="trip_compare_title">Comparar con otro viaje</string>
     <string name="trip_compare_change">Cambiar</string>
     <string name="trip_compare_metric">Métrica</string>
     <string name="trip_compare_offset">Desfase</string>
@@ -2586,7 +2585,7 @@
     <string name="trip_compare_view">Vista</string>
     <string name="trip_compare_stacked">Apilada</string>
     <string name="trip_compare_overlay">Superpuesta</string>
-    <string name="trip_compare_deltas">Mostrar diferencias</string>
+    <string name="trip_compare_deltas">Mostrar la diferencia en vez del valor de B</string>
     <string name="trip_compare_no_overlap">Sin solapamiento con este desfase</string>
     <string name="trip_compare_no_shared">Ninguna métrica en común</string>
     <string name="trip_compare_banner">vs %1$s</string>

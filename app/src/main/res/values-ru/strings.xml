@@ -2581,7 +2581,6 @@
     <string name="trip_compare_filter">Фильтр поездок</string>
     <string name="trip_compare_this_trip">Эта поездка</string>
     <string name="trip_compare_no_match">Нет подходящих поездок</string>
-    <string name="trip_compare_title">Сравнить с другой поездкой</string>
     <string name="trip_compare_change">Сменить</string>
     <string name="trip_compare_metric">Показатель</string>
     <string name="trip_compare_offset">Сдвиг</string>
@@ -2589,7 +2588,7 @@
     <string name="trip_compare_view">Вид</string>
     <string name="trip_compare_stacked">Друг под другом</string>
     <string name="trip_compare_overlay">Наложение</string>
-    <string name="trip_compare_deltas">Показать разницу</string>
+    <string name="trip_compare_deltas">Показывать разницу вместо значения B</string>
     <string name="trip_compare_no_overlap">При этом сдвиге нет пересечения</string>
     <string name="trip_compare_no_shared">Нет общего показателя</string>
     <string name="trip_compare_banner">vs %1$s</string>

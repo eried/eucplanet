@@ -2582,7 +2582,6 @@
     <string name="trip_compare_filter">走行を絞り込む</string>
     <string name="trip_compare_this_trip">この走行</string>
     <string name="trip_compare_no_match">一致する走行なし</string>
-    <string name="trip_compare_title">別の走行と比較</string>
     <string name="trip_compare_change">変更</string>
     <string name="trip_compare_metric">指標</string>
     <string name="trip_compare_offset">オフセット</string>
@@ -2590,7 +2589,7 @@
     <string name="trip_compare_view">表示</string>
     <string name="trip_compare_stacked">上下</string>
     <string name="trip_compare_overlay">重ねる</string>
-    <string name="trip_compare_deltas">差を表示</string>
+    <string name="trip_compare_deltas">Bの値の代わりに差を表示</string>
     <string name="trip_compare_no_overlap">このオフセットでは重なりなし</string>
     <string name="trip_compare_no_shared">共通の指標なし</string>
     <string name="trip_compare_banner">vs %1$s</string>

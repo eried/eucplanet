@@ -1433,7 +1433,6 @@
     <string name="trip_compare_filter">Suodata ajoja</string>
     <string name="trip_compare_this_trip">Tämä ajo</string>
     <string name="trip_compare_no_match">Ei osumia</string>
-    <string name="trip_compare_title">Vertaa toiseen ajoon</string>
     <string name="trip_compare_change">Vaihda</string>
     <string name="trip_compare_metric">Suure</string>
     <string name="trip_compare_offset">Siirtymä</string>
@@ -1441,7 +1440,7 @@
     <string name="trip_compare_view">Näkymä</string>
     <string name="trip_compare_stacked">Päällekkäin</string>
     <string name="trip_compare_overlay">Limittäin</string>
-    <string name="trip_compare_deltas">Näytä erot</string>
+    <string name="trip_compare_deltas">Näytä ero B:n arvon sijaan</string>
     <string name="trip_compare_no_overlap">Ei päällekkäisyyttä tällä siirtymällä</string>
     <string name="trip_compare_no_shared">Ei yhteistä suuretta</string>
     <string name="trip_compare_banner">vs %1$s</string>

@@ -1433,7 +1433,6 @@
     <string name="trip_compare_filter">Filtrează cursele</string>
     <string name="trip_compare_this_trip">Această cursă</string>
     <string name="trip_compare_no_match">Nicio cursă nu se potrivește</string>
-    <string name="trip_compare_title">Compară cu altă cursă</string>
     <string name="trip_compare_change">Schimbă</string>
     <string name="trip_compare_metric">Mărime</string>
     <string name="trip_compare_offset">Decalaj</string>
@@ -1441,7 +1440,7 @@
     <string name="trip_compare_view">Vizualizare</string>
     <string name="trip_compare_stacked">Suprapusă vertical</string>
     <string name="trip_compare_overlay">Suprapusă</string>
-    <string name="trip_compare_deltas">Arată diferențele</string>
+    <string name="trip_compare_deltas">Arată diferența în loc de valoarea lui B</string>
     <string name="trip_compare_no_overlap">Nicio suprapunere la acest decalaj</string>
     <string name="trip_compare_no_shared">Nicio mărime comună</string>
     <string name="trip_compare_banner">vs %1$s</string>

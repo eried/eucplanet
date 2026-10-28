@@ -1433,7 +1433,6 @@
     <string name="trip_compare_filter">Filtrovat jízdy</string>
     <string name="trip_compare_this_trip">Tato jízda</string>
     <string name="trip_compare_no_match">Žádná jízda neodpovídá</string>
-    <string name="trip_compare_title">Porovnat s jinou jízdou</string>
     <string name="trip_compare_change">Změnit</string>
     <string name="trip_compare_metric">Veličina</string>
     <string name="trip_compare_offset">Posun</string>
@@ -1441,7 +1440,7 @@
     <string name="trip_compare_view">Zobrazení</string>
     <string name="trip_compare_stacked">Pod sebou</string>
     <string name="trip_compare_overlay">Překryv</string>
-    <string name="trip_compare_deltas">Zobrazit rozdíly</string>
+    <string name="trip_compare_deltas">Zobrazit rozdíl místo hodnoty B</string>
     <string name="trip_compare_no_overlap">Při tomto posunu se nepřekrývají</string>
     <string name="trip_compare_no_shared">Žádná společná veličina</string>
     <string name="trip_compare_banner">vs %1$s</string>

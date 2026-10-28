@@ -1433,7 +1433,6 @@
     <string name="trip_compare_filter">Utak szűrése</string>
     <string name="trip_compare_this_trip">Ez az út</string>
     <string name="trip_compare_no_match">Nincs találat</string>
-    <string name="trip_compare_title">Összevetés másik úttal</string>
     <string name="trip_compare_change">Csere</string>
     <string name="trip_compare_metric">Mérőszám</string>
     <string name="trip_compare_offset">Eltolás</string>
@@ -1441,7 +1440,7 @@
     <string name="trip_compare_view">Nézet</string>
     <string name="trip_compare_stacked">Egymás alatt</string>
     <string name="trip_compare_overlay">Átfedve</string>
-    <string name="trip_compare_deltas">Eltérések mutatása</string>
+    <string name="trip_compare_deltas">A különbség mutatása B értéke helyett</string>
     <string name="trip_compare_no_overlap">Ennél az eltolásnál nincs átfedés</string>
     <string name="trip_compare_no_shared">Nincs közös mérőszám</string>
     <string name="trip_compare_banner">vs %1$s</string>

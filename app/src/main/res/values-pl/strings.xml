@@ -2581,7 +2581,6 @@
     <string name="trip_compare_filter">Filtruj przejazdy</string>
     <string name="trip_compare_this_trip">Ten przejazd</string>
     <string name="trip_compare_no_match">Brak pasujących przejazdów</string>
-    <string name="trip_compare_title">Porównaj z innym przejazdem</string>
     <string name="trip_compare_change">Zmień</string>
     <string name="trip_compare_metric">Wielkość</string>
     <string name="trip_compare_offset">Przesunięcie</string>
@@ -2589,7 +2588,7 @@
     <string name="trip_compare_view">Widok</string>
     <string name="trip_compare_stacked">Jeden pod drugim</string>
     <string name="trip_compare_overlay">Nałożone</string>
-    <string name="trip_compare_deltas">Pokaż różnice</string>
+    <string name="trip_compare_deltas">Pokaż różnicę zamiast wartości B</string>
     <string name="trip_compare_no_overlap">Brak części wspólnej przy tym przesunięciu</string>
     <string name="trip_compare_no_shared">Brak wspólnej wielkości</string>
     <string name="trip_compare_banner">vs %1$s</string>

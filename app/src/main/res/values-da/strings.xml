@@ -2596,7 +2596,6 @@
     <string name="trip_compare_filter">Filtrer ture</string>
     <string name="trip_compare_this_trip">Denne tur</string>
     <string name="trip_compare_no_match">Ingen ture matcher</string>
-    <string name="trip_compare_title">Sammenlign med en anden tur</string>
     <string name="trip_compare_change">Skift</string>
     <string name="trip_compare_metric">Måling</string>
     <string name="trip_compare_offset">Forskydning</string>
@@ -2604,7 +2603,7 @@
     <string name="trip_compare_view">Visning</string>
     <string name="trip_compare_stacked">Stablet</string>
     <string name="trip_compare_overlay">Overlejret</string>
-    <string name="trip_compare_deltas">Vis forskelle</string>
+    <string name="trip_compare_deltas">Vis forskellen i stedet for værdien af B</string>
     <string name="trip_compare_no_overlap">Intet overlap ved denne forskydning</string>
     <string name="trip_compare_no_shared">Ingen fælles måling</string>
     <string name="trip_compare_banner">vs %1$s</string>

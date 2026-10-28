@@ -23,6 +23,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -57,6 +60,7 @@ import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.ui.settings.DropdownSelect
 import com.eried.eucplanet.ui.settings.NumberUpDown
+import com.eried.eucplanet.ui.settings.RestoreChip
 import com.eried.eucplanet.ui.settings.SegmentedChoice
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedFieldColors
@@ -251,6 +255,8 @@ internal fun TripCompareAlignDialog(
     initialStacked: Boolean,
     initialDeltas: Boolean,
     onChange: () -> Unit,
+    /** Ends the comparison, offered when one is already on (eucviewer's Reset). */
+    onStop: (() -> Unit)?,
     onApply: (offsetMs: Long, stacked: Boolean, deltas: Boolean) -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -284,7 +290,7 @@ internal fun TripCompareAlignDialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(dismissOnClickOutside = false),
         shape = RoundedCornerShape(12.dp),
-        title = { Text(stringResource(R.string.trip_compare_title)) },
+        title = { Text(stringResource(R.string.trip_compare)) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -349,7 +355,7 @@ internal fun TripCompareAlignDialog(
 
                 // Metric and offset side by side, each labelled in its border.
                 Spacer(Modifier.height(8.dp))
-                Row(verticalAlignment = Alignment.Bottom) {
+                Row(verticalAlignment = Alignment.Top) {
                     DropdownSelect(
                         label = stringResource(R.string.trip_compare_metric),
                         selected = stringResource(m.label),
@@ -361,17 +367,24 @@ internal fun TripCompareAlignDialog(
                     Spacer(Modifier.width(8.dp))
                     val lo = -(b.durationMs / 1000).toInt()
                     val hi = (aDur / 1000).toInt()
-                    NumberUpDown(
-                        value = TripCompare.toSeconds(offsetMs).toInt().coerceIn(lo, hi),
-                        onValueChange = { offsetMs = it * 1000L; autoSpent = true },
-                        range = lo..hi,
-                        label = stringResource(R.string.trip_compare_offset),
-                        format = { TripCompare.formatOffset(it * 1000L) },
-                        parse = { TripCompare.parseTypedSeconds(it) },
-                        allowSign = true,
-                        notchFill = notch,
-                        modifier = Modifier.weight(1f),
-                    )
+                    Column(Modifier.weight(1f)) {
+                        NumberUpDown(
+                            value = TripCompare.toSeconds(offsetMs).toInt().coerceIn(lo, hi),
+                            onValueChange = { offsetMs = it * 1000L; autoSpent = true },
+                            range = lo..hi,
+                            label = stringResource(R.string.trip_compare_offset),
+                            format = { TripCompare.formatOffset(it * 1000L) },
+                            parse = { TripCompare.parseTypedSeconds(it) },
+                            allowSign = true,
+                            notchFill = notch,
+                        )
+                        // Auto is the offset's default: the app's restore chip,
+                        // lit once the rider has moved it by hand.
+                        RestoreChip(
+                            text = stringResource(R.string.trip_compare_auto),
+                            enabled = autoSpent,
+                        ) { autoSpent = false; autoRun++ }
+                    }
                 }
 
                 Spacer(Modifier.height(12.dp))
@@ -401,14 +414,14 @@ internal fun TripCompareAlignDialog(
             }
         },
         confirmButton = {
-            // Auto sits alone on the far left, apart from Cancel/Apply, the
-            // way the rename dialog keeps its third action.
+            // Stop sits alone on the far left, apart from Cancel/Apply, the way
+            // the rename dialog keeps the action that undoes something.
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                TextButton(
-                    onClick = { autoSpent = false; autoRun++ },
-                    enabled = b != null && shared.isNotEmpty() && autoSpent,
-                    shape = RoundedCornerShape(12.dp),
-                ) { Text(stringResource(R.string.trip_compare_auto)) }
+                if (onStop != null) {
+                    TextButton(onClick = onStop, shape = RoundedCornerShape(12.dp)) {
+                        Text(stringResource(R.string.trip_compare_stop))
+                    }
+                } else Spacer(Modifier.width(1.dp))
                 Row {
                     TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
                         Text(stringResource(R.string.action_cancel))
@@ -555,6 +568,14 @@ internal fun TripCompareStrip(
                     overflow = TextOverflow.Ellipsis,
                 )
             }
+            // Says the strip opens something: the settings glyph the app
+            // already uses for "adjust this".
+            Icon(
+                Icons.Default.Tune,
+                contentDescription = null,
+                tint = MaterialTheme.appColors.textSecondary,
+                modifier = Modifier.size(20.dp),
+            )
         }
     }
 }

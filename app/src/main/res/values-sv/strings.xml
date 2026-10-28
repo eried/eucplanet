@@ -2581,7 +2581,6 @@
     <string name="trip_compare_filter">Filtrera turer</string>
     <string name="trip_compare_this_trip">Den här turen</string>
     <string name="trip_compare_no_match">Inga turer matchar</string>
-    <string name="trip_compare_title">Jämför med en annan tur</string>
     <string name="trip_compare_change">Byt</string>
     <string name="trip_compare_metric">Mätvärde</string>
     <string name="trip_compare_offset">Förskjutning</string>
@@ -2589,7 +2588,7 @@
     <string name="trip_compare_view">Visning</string>
     <string name="trip_compare_stacked">Staplad</string>
     <string name="trip_compare_overlay">Överlagrad</string>
-    <string name="trip_compare_deltas">Visa skillnader</string>
+    <string name="trip_compare_deltas">Visa skillnaden i stället för B:s värde</string>
     <string name="trip_compare_no_overlap">Ingen överlappning med denna förskjutning</string>
     <string name="trip_compare_no_shared">Inget gemensamt mätvärde</string>
     <string name="trip_compare_banner">vs %1$s</string>

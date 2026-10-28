@@ -399,6 +399,11 @@ fun TripDetailScreen(
                 compareDraft = null
                 comparePicking = true
             },
+            onStop = if (compare != null) ({
+                compare = null
+                compareDraftTrip = null
+                compareDraft = null
+            }) else null,
             onApply = { offset, stacked, deltas ->
                 val b = compareDraft
                 if (b != null) {
