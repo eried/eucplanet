@@ -7,6 +7,7 @@ import com.eried.eucplanet.di.SharedKoin
 import com.eried.eucplanet.probe.ProbeScreen
 import com.eried.eucplanet.probe.ProbeSession
 import com.eried.eucplanet.app.IosAppGraph
+import com.eried.eucplanet.app.RideActivity
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import platform.Foundation.NSProcessInfo
@@ -22,6 +23,7 @@ fun MainViewController(): UIViewController {
     // SIMCTL_CHILD_EUC_CONNECT=VIRTUAL:<id> xcrun simctl launch ...
     (NSProcessInfo.processInfo.environment["EUC_CONNECT"] as? String)?.let { link.connect(it, null, false) }
     MainScope().launch { IosAppGraph.seed() }
+    RideActivity.follow(link, session.wheelData)
     // SIMCTL_CHILD_EUC_TAB=1 opens on the backup tab.
     val tab = (NSProcessInfo.processInfo.environment["EUC_TAB"] as? String)?.toIntOrNull() ?: 0
     return ComposeUIViewController { ProbeScreen(link, session, tab) }

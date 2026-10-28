@@ -41,6 +41,9 @@
         <string>bluetooth-central</string>
         <string>location</string>
     </array>
+    <!-- The ride Live Activity, Android's ongoing ride notification. -->
+    <key>NSSupportsLiveActivities</key>
+    <true/>
     <key>NSBluetoothAlwaysUsageDescription</key>
     <string>EUC Planet connects to your wheel over Bluetooth to show live ride data.</string>
     <key>NSLocationWhenInUseUsageDescription</key>

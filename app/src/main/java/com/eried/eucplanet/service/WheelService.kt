@@ -1094,10 +1094,9 @@ class WheelService : LifecycleService() {
         } else if (data != null && data.speed > 0) {
             val displaySpeed = com.eried.eucplanet.util.Units.speed(data.speed, speedUnitCached)
             val speedUnit = com.eried.eucplanet.util.Units.speedUnit(this, speedUnitCached)
-            "%.1f %s | %d%% | %.1f V".format(displaySpeed, speedUnit, data.batteryPercent, data.voltage)
+            RideNotificationText.telemetry(displaySpeed, speedUnit, data.batteryPercent, data.voltage)
         } else {
-            val state = wheelRepository.connectionState.value
-            state.name.lowercase().replaceFirstChar { it.uppercase() }
+            RideNotificationText.state(wheelRepository.connectionState.value)
         }
 
         // Title = the wheel's name (Tesla shows the car name here), so the

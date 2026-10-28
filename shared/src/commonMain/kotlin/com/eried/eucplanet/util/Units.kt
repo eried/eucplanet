@@ -2,8 +2,22 @@ package com.eried.eucplanet.util
 
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.platform.format
+import com.eried.eucplanet.resources.*
+import org.jetbrains.compose.resources.StringResource
 
 object Units {
+    /**
+     * Localized speed unit. Norwegian uses "km/t", Dutch "km/u", Russian "км/ч",
+     * etc., so we route through string resources rather than hardcoding "km/h".
+     * [unit] is "kmh", "mph", "ms" or "kn".
+     */
+    fun speedUnitRes(unit: String): StringResource = when (unit) {
+        "mph" -> Res.string.unit_mph
+        "ms" -> Res.string.unit_ms
+        "kn" -> Res.string.unit_kn
+        else -> Res.string.unit_kmh
+    }
+
     /**
      * Converts a stored km/h value to the user's chosen speed unit.
      * [unit] is "kmh", "mph" or "ms".

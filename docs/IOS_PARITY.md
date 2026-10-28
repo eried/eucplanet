@@ -63,7 +63,7 @@ Status values:
 | Garmin, Amazfit watches | Android-only | Garmin later via the Connect IQ iOS SDK. Amazfit unsure: the bridge is a local server on the phone. |
 | Home-screen widgets | not yet | iOS as a WidgetKit extension (Swift, not shared code). |
 | Flic buttons | not yet | iOS via the Flic iOS SDK (free, Swift Package). Needs the wheel actions in shared code first. |
-| Persistent ride notification | not yet | iOS counterpart: a Live Activity on the lock screen. |
+| Persistent ride notification | iOS actual done (partial) | A Live Activity (lock screen and Dynamic Island) while a wheel is connected, with the wheel's name over the same line as the Android notification (`RideNotificationText`), at most once a second. Swift side: `iosApp/RideLiveActivity.swift` and the `EucPlanetWidgets` extension. Not yet: the quick-action buttons and the navigation line. Checked on the simulator with a virtual wheel. |
 
 ## iOS-specific gaps
 

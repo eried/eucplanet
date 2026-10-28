@@ -11,6 +11,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
+        RideActivity.shared.bridge = RideLiveActivity()
         let w = UIWindow(frame: UIScreen.main.bounds)
         // Same as the launch screen colour, so there is no flash before the
         // first Compose frame.
