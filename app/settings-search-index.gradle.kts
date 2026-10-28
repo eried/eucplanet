@@ -51,10 +51,10 @@ object SettingsSearchScan {
     // covered the day it is written. Its title is the first text in its
     // arguments; what it hides is its trailing lambda.
     private val foldCall = Regex("""\b(\w*Collaps\w*)\s*\(""")
-    private val anyText = Regex("""R\.string\.(\w+)""")
-    private val header = Regex("""SectionHeader\(\s*stringResource\(\s*R\.string\.(\w+)""")
+    private val anyText = Regex("""\b(?:Res|R)\.string\.(\w+)""")
+    private val header = Regex("""SectionHeader\(\s*stringResource\(\s*(?:Res|R)\.string\.(\w+)""")
     // A label picked in a `when`, like a voice report's name, is shown too.
-    private val text = Regex("""(?:stringResource\(|->)\s*R\.string\.(\w+)""")
+    private val text = Regex("""(?:stringResource\(|->)\s*(?:Res|R)\.string\.(\w+)""")
     private val call = Regex("""\b([A-Za-z]\w*)\s*\(""")
     private val funDecl = Regex("""\bfun\s+(?:<[^>]*>\s*)?(?:[\w.]+\.)?(\w+)\s*\(""")
     private val section = Regex("""SectionDef\(\s*"(\w+)"""")
@@ -254,5 +254,7 @@ object SettingsSearchScan {
 // Android plugin's types.
 tasks.register<SettingsSearchIndexTask>("generateSettingsSearchIndex") {
     sources.from(fileTree("src/main/java/com/eried/eucplanet/ui") { include("**/*.kt") })
+    // Settings content that moved to :shared (Res.string there, R.string here).
+    sources.from(fileTree(rootProject.file("shared/src/commonMain/kotlin/com/eried/eucplanet/ui")) { include("**/*.kt") })
     outputDir.set(layout.buildDirectory.dir("generated/settingsSearch"))
 }

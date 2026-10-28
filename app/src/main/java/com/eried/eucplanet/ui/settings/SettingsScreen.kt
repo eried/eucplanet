@@ -8353,74 +8353,6 @@ internal fun SwitchSettingWithDesc(
 
 // --- Cloud Tab ---
 
-/**
- * Progress row for a running foreground sync (folder or Dropbox) plus a Cancel
- * button. Cancel is cooperative: the current file finishes, the caption and
- * button switch to "Stopping..." and the button disables so it can't fire
- * twice. Determinate when done/total is known, else an indeterminate bar with
- * the checking/stopping caption.
- */
-@Composable
-private fun SyncProgressWithCancel(
-    progress: Pair<Int, Int>?,
-    cancelling: Boolean,
-    onCancel: () -> Unit,
-    // When set, replaces the default status text (e.g. the background
-    // "Syncing N trips…" pending state reuses this component with its own label).
-    label: String? = null,
-) {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            if (progress != null) {
-                val (done, total) = progress
-                val fraction = if (total > 0) done.toFloat() / total else 0f
-                LinearProgressIndicator(
-                    progress = { fraction },
-                    modifier = Modifier.fillMaxWidth(),
-                    // Drop the Material3 end gap + stop-indicator dot; they read
-                    // as a stray glitched segment/dot at the end of the bar.
-                    gapSize = 0.dp,
-                    drawStopIndicator = {},
-                )
-                Text(
-                    label ?: stringResource(R.string.sync_progress, done, total),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            } else {
-                LinearProgressIndicator(
-                    modifier = Modifier.fillMaxWidth(),
-                    gapSize = 0.dp,
-                )
-                Text(
-                    label ?: stringResource(if (cancelling) R.string.sync_stopping else R.string.sync_checking),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        }
-        // Static half-width Cancel on the right, matching the other action
-        // buttons. weight(1f) fixes its width so it no longer resizes between
-        // "Cancel" and "Stopping...".
-        androidx.compose.material3.OutlinedButton(
-            onClick = onCancel,
-            enabled = !cancelling,
-            modifier = Modifier.weight(1f),
-            shape = RoundedCornerShape(12.dp),
-        ) {
-            Text(
-                stringResource(if (cancelling) R.string.sync_stopping else R.string.sync_cancel),
-                maxLines = 1,
-            )
-        }
-    }
-}
 
 @Composable
 private fun CloudTab(
@@ -8735,144 +8667,35 @@ private fun CloudTab(
         if (hasFolder) run {
             val dbxLinked by viewModel.dropboxLinked.collectAsState()
             val dbxAccount by viewModel.dropboxAccountLabel.collectAsState()
+            val lastSyncAt by viewModel.dropboxLastSyncAt.collectAsState()
+            val activeDbxKind by viewModel.activeSyncKind.collectAsState()
+            val dbxProgress by viewModel.syncProgress.collectAsState()
+            val dbxCancelling by viewModel.syncCancelling.collectAsState()
+            val dbxSyncPending by viewModel.dropboxSyncPending.collectAsState()
+            val dbxPendingCount by viewModel.dropboxPendingCount.collectAsState()
+            val dbxSyncTotal by viewModel.dropboxSyncTotal.collectAsState()
             val context = LocalContext.current
-            Text(
-                stringResource(R.string.dropbox_section_caption),
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.appColors.textPrimary,
-                modifier = Modifier.padding(top = 12.dp),
+            DropboxSection(
+                linked = dbxLinked,
+                account = dbxAccount,
+                lastSyncAt = lastSyncAt,
+                syncRunning = syncRunning,
+                showProgress = syncRunning &&
+                    activeDbxKind == com.eried.eucplanet.data.sync.SyncConflictKind.DROPBOX,
+                progress = dbxProgress,
+                cancelling = dbxCancelling,
+                syncPending = dbxSyncPending,
+                pendingCount = dbxPendingCount,
+                syncTotal = dbxSyncTotal,
+                onSyncNow = { viewModel.syncDropboxNow() },
+                onUnlink = { viewModel.unlinkDropbox() },
+                onLink = { viewModel.linkDropbox(context) },
+                // Full stop: cancels the foreground run AND the background
+                // worker AND clears the pending flag. cancelActiveSync alone
+                // left the flag set, so the pending indicator popped up and
+                // it looked like the sync just carried on after Cancel.
+                onStop = { viewModel.stopDropboxSync() },
             )
-            run {
-                val url = stringResource(R.string.dropbox_section_desc_url)
-                val full = stringResource(R.string.dropbox_section_desc, url)
-                val urlStart = full.indexOf(url)
-                val linkColor = MaterialTheme.appColors.link
-                // When linked, the folder location flows straight after this same
-                // sentence (no new line), with the path emphasized. Only the URL is
-                // a tappable link, so tapping the folder name does nothing.
-                val folderPath = stringResource(R.string.dropbox_folder_path)
-                val folderSentence = if (dbxLinked)
-                    " " + stringResource(R.string.dropbox_folder_desc, folderPath) else ""
-                val annotated = buildAnnotatedString {
-                    if (urlStart >= 0) {
-                        append(full.substring(0, urlStart))
-                        withLink(
-                            LinkAnnotation.Url(
-                                url = "https://$url",
-                                styles = TextLinkStyles(
-                                    style = SpanStyle(color = linkColor, textDecoration = TextDecoration.Underline),
-                                ),
-                            )
-                        ) { append(url) }
-                        append(full.substring(urlStart + url.length))
-                    } else append(full)
-                    if (folderSentence.isNotEmpty()) {
-                        val fi = folderSentence.indexOf(folderPath)
-                        if (fi >= 0) {
-                            append(folderSentence.substring(0, fi))
-                            withStyle(SpanStyle(fontWeight = FontWeight.Medium)) { append(folderPath) }
-                            append(folderSentence.substring(fi + folderPath.length))
-                        } else append(folderSentence)
-                    }
-                }
-                Text(
-                    annotated,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.appColors.textSecondary,
-                    modifier = Modifier.padding(bottom = 4.dp),
-                )
-            }
-            if (dbxLinked) {
-                val lastSyncAt by viewModel.dropboxLastSyncAt.collectAsState()
-                val lastSyncBase = if (lastSyncAt > 0L) {
-                    val fmt = java.text.SimpleDateFormat("dd MMM yyyy HH:mm", java.util.Locale.getDefault())
-                    stringResource(R.string.dropbox_last_sync, fmt.format(java.util.Date(lastSyncAt)))
-                } else stringResource(R.string.dropbox_never_synced)
-                val lastSyncText = if (dbxAccount.isNotBlank())
-                    lastSyncBase + " " + stringResource(R.string.dropbox_account_suffix, dbxAccount)
-                else lastSyncBase
-                Text(
-                    lastSyncText,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.appColors.textSecondary,
-                    modifier = Modifier.padding(bottom = 4.dp),
-                )
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Button(
-                        onClick = { viewModel.syncDropboxNow() },
-                        enabled = !syncRunning,
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(12.dp),
-                    ) { com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.cloud_retry_now)) }
-                    Button(
-                        onClick = { viewModel.unlinkDropbox() },
-                        enabled = !syncRunning,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.appColors.statusDanger,
-                            contentColor   = MaterialTheme.appColors.onPrimary,
-                        ),
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(12.dp),
-                    ) { com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.dropbox_unlink)) }
-                }
-                val activeDbxKind by viewModel.activeSyncKind.collectAsState()
-                val showDbxProgress = syncRunning &&
-                    activeDbxKind == com.eried.eucplanet.data.sync.SyncConflictKind.DROPBOX
-                if (showDbxProgress) {
-                    val dbxProgress by viewModel.syncProgress.collectAsState()
-                    val dbxCancelling by viewModel.syncCancelling.collectAsState()
-                    SyncProgressWithCancel(
-                        progress = dbxProgress,
-                        cancelling = dbxCancelling,
-                        // Full stop: cancels the foreground run AND the background
-                        // worker AND clears the pending flag. cancelActiveSync alone
-                        // left the flag set, so the pending indicator popped up and
-                        // it looked like the sync just carried on after Cancel.
-                        onCancel = { viewModel.stopDropboxSync() },
-                        label = if (dbxProgress == null && !dbxCancelling)
-                            stringResource(R.string.dropbox_checking) else null,
-                    )
-                }
-                // Quiet persistent "still syncing" row: trips are pending and the
-                // background worker keeps retrying. Only shown when the transient
-                // foreground progress bar above is NOT up, so the two never stack.
-                val dbxSyncPending by viewModel.dropboxSyncPending.collectAsState()
-                val dbxPendingCount by viewModel.dropboxPendingCount.collectAsState()
-                val dbxSyncTotal by viewModel.dropboxSyncTotal.collectAsState()
-                if (dbxSyncPending && !showDbxProgress) {
-                    // Reuse the same bar + Cancel component as the foreground sync so
-                    // leaving the app just swaps the live progress for this pending
-                    // state without the controls changing shape. With a known batch
-                    // total, show the identical determinate "X of Y" bar (done =
-                    // total - remaining); otherwise fall back to the plain label.
-                    SyncProgressWithCancel(
-                        progress = if (dbxSyncTotal > 0)
-                            (dbxSyncTotal - dbxPendingCount).coerceIn(0, dbxSyncTotal) to dbxSyncTotal
-                        else null,
-                        cancelling = false,
-                        onCancel = { viewModel.stopDropboxSync() },
-                        label = if (dbxSyncTotal > 0) null else stringResource(R.string.dropbox_syncing),
-                    )
-                }
-            } else {
-                // Half-width to match the Sync/Unlink row that replaces this
-                // button once the rider links Dropbox.
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Button(
-                        onClick = { viewModel.linkDropbox(context) },
-                        enabled = !syncRunning,
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(12.dp),
-                    ) { com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.dropbox_link)) }
-                    Spacer(Modifier.weight(1f))
-                }
-            }
         }
 
         if (hasFolder) {
