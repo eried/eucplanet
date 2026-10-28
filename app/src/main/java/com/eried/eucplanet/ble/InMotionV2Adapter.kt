@@ -256,7 +256,10 @@ class InMotionV2Adapter : WheelAdapter {
     }
 
     override fun setLight(on: Boolean): ByteArray {
-        if (useP6Protocol) return InMotionV2Commands.setP6Light(on)
+        // The V6 shares the P6's extended routing and ignored the V14 one-byte
+        // form (issue #33), so it gets the P6's two-byte form too. Unconfirmed
+        // on a real V6 until a tester switches the light with this build.
+        if (useP6Protocol || useV6Protocol) return InMotionV2Commands.setP6Light(on)
         // V12 HS / HT / Pro need the two-beam `[0x50, low, high]` form;
         // the V14 single-byte form silently does nothing on those wheels.
         val m = detectedModel
