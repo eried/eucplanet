@@ -2,6 +2,9 @@ package com.eried.eucplanet.hud.ui.screens
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.hardware.camera2.CameraManager
+import android.os.Handler
+import android.os.Looper
 import android.os.SystemClock
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
@@ -46,6 +49,7 @@ import com.eried.eucplanet.hud.R
 import com.eried.eucplanet.hud.protocol.HudState
 import com.eried.eucplanet.hud.ui.HudUnits
 import com.eried.eucplanet.hud.ui.parseHexColor
+import kotlinx.coroutines.delay
 
 /**
  * Rear-camera screen. Live preview from the HUD's rear camera with a small
@@ -65,6 +69,7 @@ fun CameraScreen(
     onCamerasFound: (Int) -> Unit = {},
     cameraHandedOff: Boolean = false,
     onCameraTaken: () -> Unit = {},
+    onOtherAppCamera: (Boolean) -> Unit = {},
 ) {
     val ctx = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -85,7 +90,8 @@ fun CameraScreen(
             rotation = rotation,
             onCamerasFound = onCamerasFound,
             handedOff = cameraHandedOff,
-            onCameraTaken = onCameraTaken
+            onCameraTaken = onCameraTaken,
+            onOtherAppCamera = onOtherAppCamera
         )
 
         // Speed overlay (bottom-right). Same unit code as the dashboard.
@@ -124,6 +130,7 @@ fun CameraScreen(
  * the count; a new index rebinds. [rotation] turns the picture clockwise.
  * [onCamerasFound] hears how many cameras there are once the provider is up.
  * [onCameraTaken] hears that another app has the camera open.
+ * [onOtherAppCamera] hears, while handed off, whether other apps hold a camera.
  */
 @Composable
 fun RearCameraPreview(
@@ -133,11 +140,13 @@ fun RearCameraPreview(
     onCamerasFound: (Int) -> Unit = {},
     handedOff: Boolean = false,
     onCameraTaken: () -> Unit = {},
+    onOtherAppCamera: (Boolean) -> Unit = {},
 ) {
     // Handed to the MotoEye recorder: the live preview leaves composition,
     // and with it its camera (see LiveCameraPreview's DisposableEffect).
     if (handedOff) {
         val ctx = LocalContext.current
+        OtherAppCameraWatch(onOtherAppCamera)
         Box(modifier.background(Color.Black), contentAlignment = Alignment.Center) {
             Text(
                 text = ctx.getString(R.string.hud_camera_handed_off),
@@ -310,6 +319,57 @@ private fun orderedCameras(infos: List<CameraInfo>): List<CameraInfo> =
             else -> 2
         }
     }
+
+/**
+ * Reports whether any camera is open while the preview holds none, so the
+ * preview can come back once the MotoEye lets go. Starts listening a moment
+ * after the hand-off, when our own camera has closed, and reports "free"
+ * only after it has stayed free for a moment: a recorder stop and the next
+ * start, or a switch between cameras, should not flash the preview.
+ */
+@Composable
+private fun OtherAppCameraWatch(onOtherAppCamera: (Boolean) -> Unit) {
+    val ctx = LocalContext.current
+    var busy by remember { mutableStateOf<Boolean?>(null) }
+    DisposableEffect(Unit) {
+        val mgr = ctx.getSystemService(CameraManager::class.java)
+        val handler = Handler(Looper.getMainLooper())
+        val open = mutableSetOf<String>()
+        val callback = object : CameraManager.AvailabilityCallback() {
+            override fun onCameraAvailable(cameraId: String) {
+                open -= cameraId
+                busy = open.isNotEmpty()
+            }
+
+            override fun onCameraUnavailable(cameraId: String) {
+                open += cameraId
+                busy = true
+            }
+        }
+        var registered = false
+        val start = Runnable {
+            if (mgr != null) registered = runCatching { mgr.registerAvailabilityCallback(callback, handler) }.isSuccess
+        }
+        handler.postDelayed(start, OWN_CLOSE_MS)
+        onDispose {
+            handler.removeCallbacks(start)
+            if (registered) runCatching { mgr?.unregisterAvailabilityCallback(callback) }
+        }
+    }
+    LaunchedEffect(busy) {
+        when (busy) {
+            true -> onOtherAppCamera(true)
+            false -> {
+                delay(FREE_SETTLE_MS)
+                onOtherAppCamera(false)
+            }
+            null -> Unit
+        }
+    }
+}
+
+private const val OWN_CLOSE_MS = 1_500L
+private const val FREE_SETTLE_MS = 1_500L
 
 /** True when a camera error means another app holds the camera. Too many
  *  cameras open also shows up for a moment while UP switches ours, so that

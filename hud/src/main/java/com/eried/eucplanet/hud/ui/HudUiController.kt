@@ -130,18 +130,61 @@ class HudUiController {
 
     /** The camera screens let go of the camera for the MotoEye. Only one app
      *  can open a camera at a time, and the MotoEye recorder opens every
-     *  camera: while a camera screen was up it failed on each. UP, DOWN or
-     *  another screen takes it back. */
+     *  camera: while a camera screen was up it failed on each. It comes
+     *  back by itself once the MotoEye lets go (see [onOtherAppCamera]), or
+     *  with UP, DOWN or another screen. */
     var cameraHandedOff: Boolean by mutableStateOf(false)
         private set
+
+    /** The MotoEye camera button has reached the HUD, so its next press
+     *  frees the camera again and the preview may take it back meanwhile.
+     *  Without it the preview stays off: taking the camera back would block
+     *  the recorder's next start. */
+    private var cameraKeyHeard = false
+
+    /** Another app opened a camera since this hand-off. */
+    private var takenSinceHandOff = false
+
+    /** ...and has closed it again, so the preview may come back. */
+    private var freeAgain = false
+
+    /** The HUD is in front. The MotoEye rear view, or a camera app, may let
+     *  go of the camera for a moment while it is still on screen. */
+    private var hudFocused = true
 
     /** Something else wants the camera: the MotoEye camera button (rear
      *  view or recorder), its overlay covering the HUD, or another app that
      *  already has the camera open. A camera screen lets go and stays off,
      *  so the preview does not grab the camera back when the recorder
-     *  stops and block its next start. */
-    fun handOffCamera() {
-        if (current == Screen.Camera || current == Screen.CustomCam) cameraHandedOff = true
+     *  stops and block its next start. [byKey] is the camera button. */
+    fun handOffCamera(byKey: Boolean = false) {
+        if (byKey) cameraKeyHeard = true
+        if (current != Screen.Camera && current != Screen.CustomCam) return
+        if (!cameraHandedOff) {
+            takenSinceHandOff = false
+            freeAgain = false
+        }
+        cameraHandedOff = true
+    }
+
+    /** The HUD window gained or lost focus. */
+    fun onHudFocus(focused: Boolean) {
+        hudFocused = focused
+        resumeIfFree()
+    }
+
+    /** While handed off: whether other apps hold a camera, reported once
+     *  it has settled. When the MotoEye recorder or rear view lets go, the
+     *  preview comes back (Josh: restarting it by hand after each clip). */
+    fun onOtherAppCamera(inUse: Boolean) {
+        if (!cameraHandedOff) return
+        if (inUse) takenSinceHandOff = true
+        freeAgain = !inUse && takenSinceHandOff
+        resumeIfFree()
+    }
+
+    private fun resumeIfFree() {
+        if (cameraHandedOff && freeAgain && cameraKeyHeard && hudFocused) cameraHandedOff = false
     }
 
     /** Put back the camera choice saved on an earlier start. */

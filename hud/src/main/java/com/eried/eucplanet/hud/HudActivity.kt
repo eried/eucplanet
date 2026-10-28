@@ -249,7 +249,7 @@ class HudActivity : ComponentActivity() {
             else -> {
                 // The MotoEye camera button (rear view, recorder) needs the
                 // camera: free it before the MotoEye asks, and pass the key on.
-                if (HudKeys.handsOffCamera(keyCode)) controller.handOffCamera()
+                if (HudKeys.handsOffCamera(keyCode)) controller.handOffCamera(byKey = true)
                 super.onKeyDown(keyCode, event)
             }
         }
@@ -260,6 +260,7 @@ class HudActivity : ComponentActivity() {
         // The MotoEye rear view or recorder came up over the HUD and wants
         // the camera, even when its button never reached us.
         if (!hasFocus) controller.handOffCamera()
+        controller.onHudFocus(hasFocus)
     }
 
     override fun onKeyLongPress(keyCode: Int, event: KeyEvent?): Boolean {

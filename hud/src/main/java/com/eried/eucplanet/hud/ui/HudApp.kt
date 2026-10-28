@@ -184,7 +184,8 @@ fun HudApp(
                                 rotation = controller.cameraRotation,
                                 onCamerasFound = controller::onCamerasFound,
                                 cameraHandedOff = controller.cameraHandedOff,
-                                onCameraTaken = controller::handOffCamera
+                                onCameraTaken = { controller.handOffCamera() },
+                                onOtherAppCamera = controller::onOtherAppCamera
                             )
                         HudUiController.Screen.Telemetry ->
                             TelemetryScreen(hud = hud)
@@ -198,7 +199,8 @@ fun HudApp(
                                 cameraRotation = controller.cameraRotation,
                                 onCamerasFound = controller::onCamerasFound,
                                 cameraHandedOff = controller.cameraHandedOff,
-                                onCameraTaken = controller::handOffCamera
+                                onCameraTaken = { controller.handOffCamera() },
+                                onOtherAppCamera = controller::onOtherAppCamera
                             )
                         HudUiController.Screen.MapNav ->
                             MapNavScreen(hud = hud, zoom = controller.mapZoom, peer = pr, cache = tileCache)

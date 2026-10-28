@@ -192,4 +192,55 @@ class HudCameraControlTest {
         c.handOffCamera()
         assertEquals("Show camera", c.shortActions().up)
     }
+
+    @Test
+    fun thePreviewComesBackWhenTheRecorderLetsGo() {
+        // Josh: the DVR works, but the picture had to be brought back by hand
+        // after every clip.
+        val c = onScreen(HudUiController.Screen.Camera)
+        c.handOffCamera(byKey = true)
+        c.onOtherAppCamera(inUse = false)
+        assertTrue("our own camera closing is not the recorder", c.cameraHandedOff)
+        c.onOtherAppCamera(inUse = true)
+        c.handOffCamera(byKey = true)
+        assertTrue("the stop press keeps it off while recording", c.cameraHandedOff)
+        c.onOtherAppCamera(inUse = false)
+        assertFalse(c.cameraHandedOff)
+    }
+
+    @Test
+    fun withoutTheCameraButtonThePreviewStaysOff() {
+        // The recorder's next start only frees the camera if its button
+        // reaches the HUD; otherwise taking it back would block that start.
+        val c = onScreen(HudUiController.Screen.Camera)
+        c.handOffCamera()
+        c.onOtherAppCamera(inUse = true)
+        c.onOtherAppCamera(inUse = false)
+        assertTrue(c.cameraHandedOff)
+    }
+
+    @Test
+    fun aNewHandOffWaitsForTheRecorderAgain() {
+        val c = onScreen(HudUiController.Screen.Camera)
+        c.handOffCamera(byKey = true)
+        c.onOtherAppCamera(inUse = true)
+        c.onOtherAppCamera(inUse = false)
+        c.handOffCamera(byKey = true)
+        c.onOtherAppCamera(inUse = false)
+        assertTrue(c.cameraHandedOff)
+    }
+
+    @Test
+    fun theRearViewKeepsTheCameraWhileItIsOnScreen() {
+        // The camera app let go for a moment while still in front, and the
+        // preview took the camera back under it.
+        val c = onScreen(HudUiController.Screen.Camera)
+        c.handOffCamera(byKey = true)
+        c.onHudFocus(false)
+        c.onOtherAppCamera(inUse = true)
+        c.onOtherAppCamera(inUse = false)
+        assertTrue(c.cameraHandedOff)
+        c.onHudFocus(true)
+        assertFalse(c.cameraHandedOff)
+    }
 }
