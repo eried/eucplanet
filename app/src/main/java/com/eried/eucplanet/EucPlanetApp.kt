@@ -66,6 +66,8 @@ class EucPlanetApp : Application(), Configuration.Provider {
             .build()
 
     override fun onCreate() {
+        // Before injection: a singleton may read a shared string as it is built.
+        com.eried.eucplanet.platform.AndroidStrings.install(StringIds::id)
         super.onCreate()
         CrashHandler.install(this)
         // Track UI foreground so background-only process wakes (a periodic

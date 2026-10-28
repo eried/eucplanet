@@ -489,6 +489,11 @@ apply(from = "settings-search-index.gradle.kts")
 android.sourceSets.getByName("main").java.srcDir(layout.buildDirectory.dir("generated/settingsSearch"))
 tasks.named("preBuild") { dependsOn("generateSettingsSearchIndex") }
 
+// R.string ids for the strings :shared names (AndroidStrings).
+apply(from = "string-ids.gradle.kts")
+android.sourceSets.getByName("main").java.srcDir(layout.buildDirectory.dir("generated/stringIds"))
+tasks.named("preBuild") { dependsOn("generateStringIds") }
+
 kotlin {
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)

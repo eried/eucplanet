@@ -5,7 +5,8 @@ import com.eried.eucplanet.data.model.ProximityLockSettings
 import com.eried.eucplanet.data.model.ApplyWhenIds
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.HudDiscoveryMode
-import org.json.JSONObject
+import com.eried.eucplanet.platform.JSONArray
+import com.eried.eucplanet.platform.JSONObject
 
 /**
  * Hand-written AppSettings <-> JSON mapping used by both the on-disk settings
@@ -164,7 +165,7 @@ object SettingsJson {
             // list, which is the one way a setting can look wired up and still
             // go nowhere.
             put("pairedAddress", s.tpms.pairedAddress)
-            put("pairedAddresses", org.json.JSONArray(s.tpms.pairedAddresses))
+            put("pairedAddresses", JSONArray(s.tpms.pairedAddresses))
             put("pressureUnit", s.tpms.pressureUnit)
         })
         put("batteryPercent", JSONObject().apply {
@@ -612,7 +613,7 @@ object SettingsJson {
                 // A file written before the two switches became one choice
                 // still restores: the custom floor was the one that won when
                 // both were set.
-                mode = b.optString("mode", null) ?: when {
+                mode = b.optStringOrNull("mode") ?: when {
                     b.optBoolean("useCustomMinimumVoltage", false) ->
                         BatteryPercentSettings.MODE_CUSTOM
                     b.optBoolean("useWheelLogEnhanced", false) ->
@@ -878,7 +879,7 @@ object SettingsJson {
         // (manual only) -> FIXED. BOTH is a new opt-in that nothing migrates
         // to. A file with neither key keeps the default. An earlier build's
         // "HYBRID" value is normalised to BOTH (same mode, renamed).
-        hudDiscoveryMode = j.optString("hudDiscoveryMode", null)?.takeIf { it.isNotBlank() }
+        hudDiscoveryMode = j.optStringOrNull("hudDiscoveryMode")?.takeIf { it.isNotBlank() }
             ?.let { if (it == "HYBRID") HudDiscoveryMode.BOTH else it }
             ?: when {
                 !j.has("hudAutoDiscover") -> base.hudDiscoveryMode
@@ -1001,6 +1002,9 @@ object SettingsJson {
     /** `optString` returns `""` for null and absent keys, which we cannot
      *  distinguish from a legitimate empty-string value. This helper keeps
      *  null vs explicit value vs absent semantics intact for nullable fields. */
+    /** `optString(key, null)`: null only when the key is absent. */
+    private fun JSONObject.optStringOrNull(key: String): String? = opt(key)?.let { optString(key) }
+
     private fun JSONObject.optStringOrNull(key: String, fallback: String?): String? = when {
         !has(key) -> fallback
         isNull(key) -> null

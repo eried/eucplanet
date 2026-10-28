@@ -44,6 +44,7 @@ kotlin {
             implementation(libs.cmp.foundation)
             implementation(libs.cmp.ui)
             implementation(libs.cmp.material3)
+            api(libs.cmp.resources)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
@@ -58,6 +59,21 @@ kotlin {
             implementation("org.json:json:20240303")
         }
     }
+}
+
+// The 23 locales stay in app/src/main/res; iOS gets them through this.
+apply(from = "compose-strings.gradle.kts")
+
+compose.resources {
+    publicResClass = true
+    packageOfResClass = "com.eried.eucplanet.resources"
+    generateResClass = always
+    customDirectory(
+        sourceSetName = "commonMain",
+        directoryProvider = tasks.named("generateComposeStrings").map {
+            layout.buildDirectory.dir("generated/composeStrings").get()
+        },
+    )
 }
 
 android {

@@ -6,6 +6,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.ADVANCED_SPECS
+import com.eried.eucplanet.platform.AndroidStrings
 import com.eried.eucplanet.data.model.ActionCatalog
 import com.eried.eucplanet.data.model.AdvGroup
 import com.eried.eucplanet.data.model.MetricCatalog
@@ -71,7 +72,8 @@ private const val EXACT_ROW_WEIGHT = 100
 private fun registryNames(): Map<String, List<Pair<Int, Int>>> = mapOf(
     "dashboard" to (MetricCatalog.all.map { it.labelRes } + ActionCatalog.all.map { it.labelRes }).map { it to 0 },
     // Each Advanced row sits in its group's card.
-    "advanced" to AdvGroup.entries.map { it.titleRes to 0 } + ADVANCED_SPECS.map { it.label to it.group.titleRes },
+    "advanced" to AdvGroup.entries.map { AndroidStrings.id(it.titleRes) to 0 } +
+        ADVANCED_SPECS.map { AndroidStrings.id(it.label) to AndroidStrings.id(it.group.titleRes) },
     // Words the HUD is known by that its rows never spell out.
     "integration" to listOf(R.string.hud_search_corpus to 0),
 )
