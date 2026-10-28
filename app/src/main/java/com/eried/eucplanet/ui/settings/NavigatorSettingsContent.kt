@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.DropdownMenu
@@ -235,6 +236,52 @@ fun NavigatorSettingsContent(
             value = settings.navValhallaUrl,
             enabled = true,
             onCommit = { viewModel.updateNavValhallaUrl(it) },
+        )
+
+        // --- Offline routing: downloaded areas route on the phone, as a
+        // fallback (default) or first. Nothing changes until an area is
+        // downloaded. ---
+        SegmentedChoice(
+            label = stringResource(R.string.offline_routing_mode_label),
+            options = listOf(
+                com.eried.eucplanet.data.model.OfflineRoutingMode.FALLBACK.name to
+                    stringResource(R.string.offline_routing_mode_online),
+                com.eried.eucplanet.data.model.OfflineRoutingMode.PREFER.name to
+                    stringResource(R.string.offline_routing_mode_offline),
+            ),
+            current = settings.offlineRouting.mode.name,
+            onChange = {
+                viewModel.updateOfflineRoutingMode(com.eried.eucplanet.data.model.OfflineRoutingMode.fromName(it))
+            },
+        )
+        HintText(stringResource(R.string.offline_routing_hint), small = true)
+        var offlineAreasOpen by rememberSaveable { mutableStateOf(false) }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { offlineAreasOpen = true }
+                .padding(vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                stringResource(R.string.offline_data_open),
+                color = MaterialTheme.appColors.textPrimary,
+                modifier = Modifier.weight(1f),
+            )
+            Icon(
+                Icons.Default.ChevronRight,
+                contentDescription = null,
+                tint = MaterialTheme.appColors.textSecondary,
+            )
+        }
+        if (offlineAreasOpen) {
+            com.eried.eucplanet.ui.settings.offline.OfflineDataDialog(onDismiss = { offlineAreasOpen = false })
+        }
+        EndpointField(
+            label = stringResource(R.string.offline_server_url),
+            value = settings.offlineRouting.serverUrl,
+            enabled = true,
+            onCommit = { viewModel.updateOfflineServerUrl(it) },
         )
 
         // --- Avoidances (collapsible; all off by default) ---
