@@ -1440,7 +1440,7 @@
     <string name="trip_compare_view">Vizualizare</string>
     <string name="trip_compare_stacked">Suprapusă vertical</string>
     <string name="trip_compare_overlay">Suprapusă</string>
-    <string name="trip_compare_deltas">Arată diferențele</string>
+    <string name="trip_compare_deltas">Arată diferențele (Δ)</string>
     <string name="trip_compare_no_overlap">Nicio suprapunere la acest decalaj</string>
     <string name="trip_compare_no_shared">Nicio mărime comună</string>
     <string name="trip_compare_banner">vs %1$s</string>

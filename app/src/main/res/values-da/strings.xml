@@ -2603,7 +2603,7 @@
     <string name="trip_compare_view">Visning</string>
     <string name="trip_compare_stacked">Stablet</string>
     <string name="trip_compare_overlay">Overlejret</string>
-    <string name="trip_compare_deltas">Vis forskelle</string>
+    <string name="trip_compare_deltas">Vis forskelle (Δ)</string>
     <string name="trip_compare_no_overlap">Intet overlap ved denne forskydning</string>
     <string name="trip_compare_no_shared">Ingen fælles måling</string>
     <string name="trip_compare_banner">vs %1$s</string>

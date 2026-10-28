@@ -2475,7 +2475,7 @@
     <string name="trip_compare_view">Visning</string>
     <string name="trip_compare_stacked">Stablet</string>
     <string name="trip_compare_overlay">Overlagt</string>
-    <string name="trip_compare_deltas">Vis forskjeller</string>
+    <string name="trip_compare_deltas">Vis forskjeller (Δ)</string>
     <string name="trip_compare_no_overlap">Ingen overlapp med denne forskyvningen</string>
     <string name="trip_compare_no_shared">Ingen felles måling</string>
     <string name="trip_compare_banner">vs %1$s</string>

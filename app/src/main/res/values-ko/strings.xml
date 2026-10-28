@@ -2587,7 +2587,7 @@
     <string name="trip_compare_view">보기</string>
     <string name="trip_compare_stacked">위아래</string>
     <string name="trip_compare_overlay">겹치기</string>
-    <string name="trip_compare_deltas">차이 표시</string>
+    <string name="trip_compare_deltas">차이 표시 (Δ)</string>
     <string name="trip_compare_no_overlap">이 오프셋에서는 겹치지 않음</string>
     <string name="trip_compare_no_shared">공통 지표 없음</string>
     <string name="trip_compare_banner">vs %1$s</string>

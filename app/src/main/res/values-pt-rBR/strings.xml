@@ -2590,7 +2590,7 @@
     <string name="trip_compare_view">Visualização</string>
     <string name="trip_compare_stacked">Empilhada</string>
     <string name="trip_compare_overlay">Sobreposta</string>
-    <string name="trip_compare_deltas">Mostrar diferenças</string>
+    <string name="trip_compare_deltas">Mostrar diferenças (Δ)</string>
     <string name="trip_compare_no_overlap">Sem sobreposição neste deslocamento</string>
     <string name="trip_compare_no_shared">Nenhuma métrica em comum</string>
     <string name="trip_compare_banner">vs %1$s</string>

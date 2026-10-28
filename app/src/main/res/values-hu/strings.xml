@@ -1440,7 +1440,7 @@
     <string name="trip_compare_view">Nézet</string>
     <string name="trip_compare_stacked">Egymás alatt</string>
     <string name="trip_compare_overlay">Átfedve</string>
-    <string name="trip_compare_deltas">Eltérések mutatása</string>
+    <string name="trip_compare_deltas">Eltérések mutatása (Δ)</string>
     <string name="trip_compare_no_overlap">Ennél az eltolásnál nincs átfedés</string>
     <string name="trip_compare_no_shared">Nincs közös mérőszám</string>
     <string name="trip_compare_banner">vs %1$s</string>

@@ -2587,7 +2587,7 @@
     <string name="trip_compare_view">檢視</string>
     <string name="trip_compare_stacked">上下排列</string>
     <string name="trip_compare_overlay">疊加</string>
-    <string name="trip_compare_deltas">顯示差值</string>
+    <string name="trip_compare_deltas">顯示差值 (Δ)</string>
     <string name="trip_compare_no_overlap">此偏移下沒有重疊</string>
     <string name="trip_compare_no_shared">沒有共同指標</string>
     <string name="trip_compare_banner">vs %1$s</string>

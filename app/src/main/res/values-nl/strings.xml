@@ -2590,7 +2590,7 @@
     <string name="trip_compare_view">Weergave</string>
     <string name="trip_compare_stacked">Gestapeld</string>
     <string name="trip_compare_overlay">Over elkaar</string>
-    <string name="trip_compare_deltas">Verschillen tonen</string>
+    <string name="trip_compare_deltas">Verschillen tonen (Δ)</string>
     <string name="trip_compare_no_overlap">Geen overlap bij deze verschuiving</string>
     <string name="trip_compare_no_shared">Geen gemeenschappelijke meetwaarde</string>
     <string name="trip_compare_banner">vs %1$s</string>

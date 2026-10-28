@@ -1440,7 +1440,7 @@
     <string name="trip_compare_view">Näkymä</string>
     <string name="trip_compare_stacked">Päällekkäin</string>
     <string name="trip_compare_overlay">Limittäin</string>
-    <string name="trip_compare_deltas">Näytä erot</string>
+    <string name="trip_compare_deltas">Näytä erot (Δ)</string>
     <string name="trip_compare_no_overlap">Ei päällekkäisyyttä tällä siirtymällä</string>
     <string name="trip_compare_no_shared">Ei yhteistä suuretta</string>
     <string name="trip_compare_banner">vs %1$s</string>

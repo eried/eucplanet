@@ -2585,7 +2585,7 @@
     <string name="trip_compare_view">Görünüm</string>
     <string name="trip_compare_stacked">Üst üste</string>
     <string name="trip_compare_overlay">Bindirilmiş</string>
-    <string name="trip_compare_deltas">Farkları göster</string>
+    <string name="trip_compare_deltas">Farkları göster (Δ)</string>
     <string name="trip_compare_no_overlap">Bu kaydırmada kesişme yok</string>
     <string name="trip_compare_no_shared">Ortak ölçü yok</string>
     <string name="trip_compare_banner">vs %1$s</string>

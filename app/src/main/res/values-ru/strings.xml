@@ -2588,7 +2588,7 @@
     <string name="trip_compare_view">Вид</string>
     <string name="trip_compare_stacked">Друг под другом</string>
     <string name="trip_compare_overlay">Наложение</string>
-    <string name="trip_compare_deltas">Показать разницу</string>
+    <string name="trip_compare_deltas">Показать разницу (Δ)</string>
     <string name="trip_compare_no_overlap">При этом сдвиге нет пересечения</string>
     <string name="trip_compare_no_shared">Нет общего показателя</string>
     <string name="trip_compare_banner">vs %1$s</string>
