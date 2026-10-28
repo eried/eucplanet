@@ -2592,7 +2592,7 @@
     <string name="trip_compare_view">Vue</string>
     <string name="trip_compare_stacked">Empilée</string>
     <string name="trip_compare_overlay">Superposée</string>
-    <string name="trip_compare_deltas">Afficher l\'écart au lieu de la valeur de B</string>
+    <string name="trip_compare_deltas">Afficher les écarts</string>
     <string name="trip_compare_no_overlap">Aucun chevauchement avec ce décalage</string>
     <string name="trip_compare_no_shared">Aucune mesure en commun</string>
     <string name="trip_compare_banner">vs %1$s</string>

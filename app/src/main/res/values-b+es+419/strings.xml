@@ -2606,7 +2606,7 @@
     <string name="trip_compare_view">Vista</string>
     <string name="trip_compare_stacked">Apilada</string>
     <string name="trip_compare_overlay">Superpuesta</string>
-    <string name="trip_compare_deltas">Mostrar la diferencia en vez del valor de B</string>
+    <string name="trip_compare_deltas">Mostrar diferencias</string>
     <string name="trip_compare_no_overlap">Sin superposición con este desfase</string>
     <string name="trip_compare_no_shared">Ninguna métrica en común</string>
     <string name="trip_compare_banner">vs %1$s</string>

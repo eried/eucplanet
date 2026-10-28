@@ -2608,7 +2608,7 @@
     <string name="trip_compare_view">Ansicht</string>
     <string name="trip_compare_stacked">Gestapelt</string>
     <string name="trip_compare_overlay">Überlagert</string>
-    <string name="trip_compare_deltas">Differenz statt Wert von B zeigen</string>
+    <string name="trip_compare_deltas">Differenzen zeigen</string>
     <string name="trip_compare_no_overlap">Bei diesem Versatz keine Überlappung</string>
     <string name="trip_compare_no_shared">Kein gemeinsamer Messwert</string>
     <string name="trip_compare_banner">vs %1$s</string>

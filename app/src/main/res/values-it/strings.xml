@@ -2492,7 +2492,7 @@
     <string name="trip_compare_view">Vista</string>
     <string name="trip_compare_stacked">Impilata</string>
     <string name="trip_compare_overlay">Sovrapposta</string>
-    <string name="trip_compare_deltas">Mostra la differenza invece del valore di B</string>
+    <string name="trip_compare_deltas">Mostra differenze</string>
     <string name="trip_compare_no_overlap">Nessuna sovrapposizione con questo sfasamento</string>
     <string name="trip_compare_no_shared">Nessuna metrica in comune</string>
     <string name="trip_compare_banner">vs %1$s</string>

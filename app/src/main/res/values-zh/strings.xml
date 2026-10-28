@@ -2454,7 +2454,7 @@
     <string name="trip_compare_view">视图</string>
     <string name="trip_compare_stacked">上下排列</string>
     <string name="trip_compare_overlay">叠加</string>
-    <string name="trip_compare_deltas">显示差值而非 B 的值</string>
+    <string name="trip_compare_deltas">显示差值</string>
     <string name="trip_compare_no_overlap">此偏移下没有重叠</string>
     <string name="trip_compare_no_shared">没有共同指标</string>
     <string name="trip_compare_banner">vs %1$s</string>

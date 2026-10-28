@@ -1611,7 +1611,7 @@
     <string name="trip_compare_view">View</string>
     <string name="trip_compare_stacked">Stacked</string>
     <string name="trip_compare_overlay">Overlay</string>
-    <string name="trip_compare_deltas">Show the difference instead of B\'s value</string>
+    <string name="trip_compare_deltas">Show differences</string>
     <string name="trip_compare_no_overlap">No overlap at this offset</string>
     <string name="trip_compare_no_shared">No metric in common</string>
     <string name="trip_compare_banner">vs %1$s</string>

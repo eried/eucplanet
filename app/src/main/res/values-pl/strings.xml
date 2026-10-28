@@ -2588,7 +2588,7 @@
     <string name="trip_compare_view">Widok</string>
     <string name="trip_compare_stacked">Jeden pod drugim</string>
     <string name="trip_compare_overlay">Nałożone</string>
-    <string name="trip_compare_deltas">Pokaż różnicę zamiast wartości B</string>
+    <string name="trip_compare_deltas">Pokaż różnice</string>
     <string name="trip_compare_no_overlap">Brak części wspólnej przy tym przesunięciu</string>
     <string name="trip_compare_no_shared">Brak wspólnej wielkości</string>
     <string name="trip_compare_banner">vs %1$s</string>
