@@ -45,6 +45,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.eried.eucplanet.data.repository.startLinkFlow
 
 /**
  * The dashboard metric picker catalog: every metric key a rider can add to the

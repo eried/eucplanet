@@ -47,6 +47,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.eried.eucplanet.data.repository.handleAuthCallback
 
 // Process-scoped: the theme customization widget is session-only, so we clear any
 // persisted "on" state exactly once per launch (this survives Activity recreation

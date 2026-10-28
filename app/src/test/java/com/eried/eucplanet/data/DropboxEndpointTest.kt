@@ -21,7 +21,7 @@ import org.junit.Test
 class DropboxEndpointTest {
 
     private val source: String by lazy {
-        val f = File("src/main/java/com/eried/eucplanet/data/repository/DropboxRepository.kt")
+        val f = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/data/repository/DropboxRepository.kt")
         require(f.exists()) { "DropboxRepository.kt not found at ${f.absolutePath}" }
         f.readText()
     }

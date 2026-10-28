@@ -21,7 +21,7 @@ import org.junit.Test
 class DropboxRateLimitTest {
 
     private val repo: String by lazy {
-        File("src/main/java/com/eried/eucplanet/data/repository/DropboxRepository.kt").readText()
+        File("../shared/src/commonMain/kotlin/com/eried/eucplanet/data/repository/DropboxRepository.kt").readText()
     }
     private val sync: String by lazy {
         File("src/main/java/com/eried/eucplanet/data/sync/SyncManager.kt").readText()

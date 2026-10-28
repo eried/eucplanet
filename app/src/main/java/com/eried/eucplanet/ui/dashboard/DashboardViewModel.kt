@@ -36,6 +36,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
+import com.eried.eucplanet.data.repository.startLinkFlow
 
 data class MetricHistory(
     val battery: List<Float> = emptyList(),

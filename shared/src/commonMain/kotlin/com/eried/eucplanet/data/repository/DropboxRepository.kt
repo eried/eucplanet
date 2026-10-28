@@ -1,44 +1,45 @@
 package com.eried.eucplanet.data.repository
 
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
-import android.util.Log
-import androidx.browser.customtabs.CustomTabsIntent
-import com.eried.eucplanet.data.model.AppSettings
-import javax.inject.Inject
-import javax.inject.Singleton
+import com.eried.eucplanet.platform.HttpClient
+import com.eried.eucplanet.platform.HttpRequest
+import com.eried.eucplanet.platform.HttpResponse
+import com.eried.eucplanet.platform.JSONArray
+import com.eried.eucplanet.platform.JSONObject
+import com.eried.eucplanet.platform.Log
+import com.eried.eucplanet.platform.System
+import com.eried.eucplanet.platform.UrlQuery
+import com.eried.eucplanet.platform.isoEpochSeconds
+import com.eried.eucplanet.platform.secureRandomInt
+import com.eried.eucplanet.platform.sha256
+import kotlin.concurrent.Volatile
+import kotlin.io.encoding.Base64
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import okhttp3.FormBody
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
-import org.json.JSONObject
 
 /**
  * Dropbox API client + OAuth (PKCE) handler.
  *
  * We deliberately do NOT pull in the Dropbox Java SDK (~5 MB, mostly
  * classes for endpoints we don't use). Instead we hit Dropbox's REST API
- * v2 directly with OkHttp, a few calls for /oauth2/token,
+ * v2 directly ([HttpClient]: OkHttp on Android), a few calls for /oauth2/token,
  * /users/get_current_account, /files/upload, /files/download,
  * /files/list_folder.
  *
  * Auth uses PKCE so we never ship the app secret in the APK. The flow:
- *   1. [startLinkFlow] generates a code verifier + SHA-256 challenge,
- *      stashes the verifier in [pendingVerifier], and opens a Chrome
- *      Custom Tab to Dropbox's /oauth2/authorize endpoint.
+ *   1. [beginLink] generates a code verifier + SHA-256 challenge,
+ *      stashes the verifier in [pendingVerifier], and returns Dropbox's
+ *      /oauth2/authorize URL for the platform to open (a Chrome Custom Tab
+ *      on Android, startLinkFlow in DropboxLinkAndroid.kt).
  *   2. After the user authorises, Dropbox redirects to our `db-<APPKEY>:/`
- *      scheme. MainActivity catches that, hands the URI to
- *      [handleAuthCallback], which POSTs to /oauth2/token to exchange the
- *      `code` for an access + refresh token pair.
+ *      scheme. The platform catches that and hands the `code` to
+ *      [handleAuthCode], which POSTs to /oauth2/token to exchange it
+ *      for an access + refresh token pair.
  *   3. Tokens land in [SettingsRepository]; from then on [linked] is true.
  */
-@Singleton
 /**
  * What a Dropbox move did, rather than just whether it worked.
  *
@@ -54,9 +55,18 @@ sealed interface MoveOutcome {
     data object Failed : MoveOutcome
 }
 
-class DropboxRepository @Inject constructor(
-    @dagger.hilt.android.qualifiers.ApplicationContext private val context: Context,
+/**
+ * Where [DropboxRepository] keeps the PKCE verifier while the rider is in the
+ * browser: Android's `dropbox_link` SharedPreferences, so a reclaimed process
+ * still finds it.
+ */
+interface DropboxLinkScratch {
+    var verifier: String?
+}
+
+class DropboxRepository(
     private val settingsRepository: SettingsRepository,
+    private val linkScratch: DropboxLinkScratch,
 ) {
 
     /**
@@ -65,17 +75,13 @@ class DropboxRepository @Inject constructor(
      * to be first. Scattering the check over a dozen response handlers would
      * mean the one that was missed is the one that loops.
      */
-    private val http = OkHttpClient.Builder()
-        .addInterceptor { chain ->
-            chain.proceed(chain.request()).also { resp ->
-                if (resp.code == 403) {
-                    refused = true
-                    Log.w("DBXSHARE", "refused by Dropbox (403): " +
-                        chain.request().url.encodedPath)
-                }
-            }
+    private val http = HttpClient { req, resp ->
+        if (resp.code == 403) {
+            refused = true
+            Log.w("DBXSHARE", "refused by Dropbox (403): " +
+                "/" + req.url.substringAfter("://").substringAfter('/', ""))
         }
-        .build()
+    }
 
     /**
      * True when Dropbox last answered 429 and the retries did not clear it.
@@ -116,15 +122,14 @@ class DropboxRepository @Inject constructor(
      * the difference between a sync that pauses for a second and one that
      * silently drops a trip: the API is telling us exactly when it will answer.
      */
-    private fun <T> withRateLimitRetry(what: String, attempt: () -> Pair<Response, T?>): T? {
+    private suspend fun <T> withRateLimitRetry(what: String, attempt: () -> Pair<HttpResponse, T?>): T? {
         var wait = 0L
         repeat(RATE_LIMIT_TRIES) { round ->
-            if (wait > 0) Thread.sleep(wait)
+            if (wait > 0) delay(wait)
             val (resp, value) = attempt()
             if (resp.code != 429) return value
             wait = retryAfterMs(resp)
             Log.w("DBXSHARE", "$what rate limited, waiting ${wait}ms (attempt ${round + 1})")
-            resp.close()
         }
         rateLimited = true
         Log.w("DBXSHARE", "$what still rate limited after $RATE_LIMIT_TRIES attempts")
@@ -132,10 +137,10 @@ class DropboxRepository @Inject constructor(
     }
 
     /** How long Dropbox asked us to wait, from the header or the body. */
-    private fun retryAfterMs(resp: Response): Long {
+    private fun retryAfterMs(resp: HttpResponse): Long {
         val header = resp.header("Retry-After")?.toLongOrNull()
         if (header != null) return (header * 1000L).coerceIn(500L, 30_000L)
-        val body = runCatching { resp.peekBody(512).string() }.getOrNull().orEmpty()
+        val body = runCatching { resp.peekText(512) }.getOrNull().orEmpty()
         // Dropbox puts it inside the error object:
         //   {"error":{"reason":{...},"retry_after":1},"error_summary":""}
         val secs = runCatching {
@@ -145,7 +150,7 @@ class DropboxRepository @Inject constructor(
     }
 
     /**
-     * Set by [startLinkFlow], read by [handleAuthCallback].
+     * Set by [beginLink], read by [handleAuthCode].
      *
      * Kept on disk, not in memory. The rider leaves the app to authorise in a
      * browser, which is exactly when Android is most willing to reclaim it, and
@@ -156,17 +161,9 @@ class DropboxRepository @Inject constructor(
      * Its own small file rather than AppSettings: it is scratch state for one
      * link attempt, not a setting, and it is cleared the moment it is used.
      */
-    private val linkPrefs by lazy {
-        context.getSharedPreferences("dropbox_link", Context.MODE_PRIVATE)
-    }
-
     private var pendingVerifier: String?
-        get() = linkPrefs.getString("verifier", null)
-        set(value) {
-            linkPrefs.edit().apply {
-                if (value == null) remove("verifier") else putString("verifier", value)
-            }.apply()
-        }
+        get() = linkScratch.verifier
+        set(value) { linkScratch.verifier = value }
 
     val linked: Flow<Boolean> =
         settingsRepository.settings.map { it.dropboxAccessToken.isNotBlank() }
@@ -175,15 +172,15 @@ class DropboxRepository @Inject constructor(
         settingsRepository.settings.map { it.dropboxAccountLabel }
 
     /**
-     * Open Dropbox's OAuth consent page in a Chrome Custom Tab. The user
-     * picks "Allow"; Dropbox redirects to `db-<APPKEY>://1/connect?code=…`
-     * which our MainActivity intent-filter catches.
+     * The URL of Dropbox's OAuth consent page, for the platform to open. The
+     * user picks "Allow"; Dropbox redirects to `db-<APPKEY>://1/connect?code=…`
+     * which the app's URL handler catches.
      */
-    fun startLinkFlow(context: Context) {
+    fun beginLink(): String {
         val verifier = randomCodeVerifier()
         pendingVerifier = verifier
         val challenge = codeChallenge(verifier)
-        val uri = Uri.parse("https://www.dropbox.com/oauth2/authorize").buildUpon()
+        return UrlQuery("https://www.dropbox.com/oauth2/authorize")
             .appendQueryParameter("client_id", APP_KEY)
             .appendQueryParameter("response_type", "code")
             .appendQueryParameter("code_challenge", challenge)
@@ -201,20 +198,14 @@ class DropboxRepository @Inject constructor(
             )
             .appendQueryParameter("redirect_uri", REDIRECT_URI)
             .build()
-        val intent = CustomTabsIntent.Builder().build().intent.apply {
-            data = uri
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
-        context.startActivity(intent)
     }
 
     /**
-     * Handle the `db-<APPKEY>:/...?code=AUTH_CODE` redirect from Dropbox.
-     * Exchanges the code for tokens and persists them. Returns true on
+     * Handle the `code` of the `db-<APPKEY>:/...?code=AUTH_CODE` redirect from
+     * Dropbox. Exchanges the code for tokens and persists them. Returns true on
      * success so the caller (MainActivity) can surface a snackbar.
      */
-    suspend fun handleAuthCallback(uri: Uri): Boolean = withContext(Dispatchers.IO) {
-        val code = uri.getQueryParameter("code")
+    suspend fun handleAuthCode(code: String?): Boolean = withContext(Dispatchers.IO) {
         if (code == null) {
             Log.w("DBXSHARE", "link callback carried no code")
             return@withContext false
@@ -226,25 +217,24 @@ class DropboxRepository @Inject constructor(
             return@withContext false
         }
         pendingVerifier = null
-        val body = FormBody.Builder()
-            .add("code", code)
-            .add("grant_type", "authorization_code")
-            .add("client_id", APP_KEY)
-            .add("code_verifier", verifier)
-            .add("redirect_uri", REDIRECT_URI)
-            .build()
-        val req = Request.Builder()
-            .url("https://api.dropbox.com/oauth2/token")
-            .post(body)
-            .build()
+        val req = HttpRequest(
+            "https://api.dropbox.com/oauth2/token",
+            HttpRequest.Body.Form(listOf(
+                "code" to code,
+                "grant_type" to "authorization_code",
+                "client_id" to APP_KEY,
+                "code_verifier" to verifier,
+                "redirect_uri" to REDIRECT_URI,
+            )),
+        )
         try {
-            http.newCall(req).execute().use { resp ->
+            http.execute(req).let { resp ->
                 if (!resp.isSuccessful) {
                     Log.w("DBXSHARE", "token exchange HTTP " + resp.code + ": " +
-                        resp.body?.string()?.take(300))
+                        resp.text().take(300))
                     return@withContext false
                 }
-                val json = JSONObject(resp.body?.string().orEmpty())
+                val json = JSONObject(resp.text())
                 val access = json.optString("access_token").ifBlank {
                     Log.w("DBXSHARE", "token exchange returned no access_token")
                     return@withContext false
@@ -298,40 +288,32 @@ class DropboxRepository @Inject constructor(
             put("mute", true)
             put("strict_conflict", false)
         }
-        val mediaOctet = "application/octet-stream".toMediaTypeOrNull()
-        val req = Request.Builder()
-            .url("https://content.dropboxapi.com/2/files/upload")
-            .addHeader("Authorization", "Bearer $token")
-            .addHeader("Dropbox-API-Arg", args.toString())
-            .post(okhttp3.RequestBody.create(mediaOctet, bytes))
-            .build()
+        val req = HttpRequest(
+            "https://content.dropboxapi.com/2/files/upload",
+            HttpRequest.Body.Bytes("application/octet-stream", bytes),
+            headers = listOf("Authorization" to "Bearer $token", "Dropbox-API-Arg" to args.toString()),
+        )
         withRateLimitRetry("upload $remotePath") {
             try {
-                val resp = http.newCall(req).execute()
+                val resp = http.execute(req)
                 if (resp.code == 429) return@withRateLimitRetry resp to null
-                resp.use {
-                    val text = it.body?.string().orEmpty()
+                resp.let {
+                    val text = it.text()
                     if (!it.isSuccessful) {
                         Log.w("DBXSHARE", "upload HTTP ${it.code}: ${text.take(300)}")
-                        return@use it to null
+                        return@let it to null
                     }
                     val sec = try {
-                        java.time.OffsetDateTime
-                            .parse(JSONObject(text).optString("server_modified")).toEpochSecond()
+                        isoEpochSeconds(JSONObject(text).optString("server_modified"))
                     } catch (_: Exception) { 0L }
                     it to sec
                 }
             } catch (e: Exception) {
                 Log.w("DBXSHARE", "upload exception: ${e.message}")
-                errorResponse(req) to null
+                NO_RESPONSE to null
             }
         }
     }
-
-    /** A stand-in response for a request that never reached Dropbox, so the
-     *  retry helper can treat it as a plain failure rather than a rate limit. */
-    private fun errorResponse(req: Request): Response = Response.Builder()
-        .request(req).protocol(okhttp3.Protocol.HTTP_1_1).code(599).message("no response").build()
 
     /**
      * Move [from] to [to] inside the App Folder.
@@ -357,14 +339,10 @@ class DropboxRepository @Inject constructor(
             put("autorename", true)
             put("allow_ownership_transfer", false)
         }
-        val req = Request.Builder()
-            .url("https://api.dropboxapi.com/2/files/move_v2")
-            .addHeader("Authorization", "Bearer $token")
-            .post(okhttp3.RequestBody.create("application/json".toMediaTypeOrNull(), body.toString()))
-            .build()
+        val req = jsonPost("https://api.dropboxapi.com/2/files/move_v2", token, body)
         try {
-            http.newCall(req).execute().use { resp ->
-                val text = resp.body?.string().orEmpty()
+            http.execute(req).let { resp ->
+                val text = resp.text()
                 if (resp.isSuccessful) {
                     // autorename means the file may not have landed at [to],
                     // and the caller needs where it actually went to be able
@@ -372,11 +350,11 @@ class DropboxRepository @Inject constructor(
                     val landed = runCatching {
                         JSONObject(text).optJSONObject("metadata")?.optString("path_display")
                     }.getOrNull()?.ifBlank { null } ?: to
-                    return@use MoveOutcome.Moved(landed)
+                    return@let MoveOutcome.Moved(landed)
                 }
                 if (resp.code == 409 && text.contains("not_found")) {
                     Log.i("DBXSHARE", "move: $from is not on Dropbox, nothing to archive")
-                    return@use MoveOutcome.Absent
+                    return@let MoveOutcome.Absent
                 }
                 Log.w("DBXSHARE", "move HTTP ${resp.code}: ${text.take(300)}")
                 MoveOutcome.Failed
@@ -405,10 +383,10 @@ class DropboxRepository @Inject constructor(
             pairs.chunked(BATCH_MAX).all { chunk -> moveChunk(token, chunk) }
         }
 
-    private fun moveChunk(token: String, chunk: List<Pair<String, String>>): Boolean {
+    private suspend fun moveChunk(token: String, chunk: List<Pair<String, String>>): Boolean {
         val body = JSONObject().apply {
             put("autorename", true)
-            put("entries", org.json.JSONArray().apply {
+            put("entries", JSONArray().apply {
                 chunk.forEach { (from, to) ->
                     put(JSONObject().apply { put("from_path", from); put("to_path", to) })
                 }
@@ -423,7 +401,7 @@ class DropboxRepository @Inject constructor(
         // Dropbox has already done it - the files end up archived there while
         // the phone still holds its copies.
         repeat(POLL_TRIES) {
-            Thread.sleep(POLL_WAIT_MS)
+            delay(POLL_WAIT_MS)
             val check = postJson(token, "files/move_batch/check_v2",
                 JSONObject().apply { put("async_job_id", job) }) ?: return false
             when (check.optString(".tag")) {
@@ -436,14 +414,10 @@ class DropboxRepository @Inject constructor(
     }
 
     private fun postJson(token: String, endpoint: String, body: JSONObject): JSONObject? {
-        val req = Request.Builder()
-            .url("https://api.dropboxapi.com/2/$endpoint")
-            .addHeader("Authorization", "Bearer $token")
-            .post(okhttp3.RequestBody.create("application/json".toMediaTypeOrNull(), body.toString()))
-            .build()
+        val req = jsonPost("https://api.dropboxapi.com/2/$endpoint", token, body)
         return try {
-            http.newCall(req).execute().use { resp ->
-                val text = resp.body?.string().orEmpty()
+            http.execute(req).let { resp ->
+                val text = resp.text()
                 if (!resp.isSuccessful) {
                     Log.w("DBXSHARE", "$endpoint HTTP ${resp.code}: ${text.take(300)}")
                     null
@@ -462,26 +436,25 @@ class DropboxRepository @Inject constructor(
     suspend fun downloadFile(remotePath: String): ByteArray? = withContext(Dispatchers.IO) {
         val token = activeAccessToken() ?: return@withContext null
         val args = JSONObject().apply { put("path", remotePath) }
-        val req = Request.Builder()
-            .url("https://content.dropboxapi.com/2/files/download")
-            .addHeader("Authorization", "Bearer $token")
-            .addHeader("Dropbox-API-Arg", args.toString())
-            .post(okhttp3.RequestBody.create(null, ByteArray(0)))
-            .build()
+        val req = HttpRequest(
+            "https://content.dropboxapi.com/2/files/download",
+            HttpRequest.Body.Bytes(null, ByteArray(0)),
+            headers = listOf("Authorization" to "Bearer $token", "Dropbox-API-Arg" to args.toString()),
+        )
         withRateLimitRetry("download $remotePath") {
             try {
-                val resp = http.newCall(req).execute()
+                val resp = http.execute(req)
                 if (resp.code == 429) return@withRateLimitRetry resp to null
-                resp.use {
+                resp.let {
                     if (!it.isSuccessful) {
                         Log.w("DBXSHARE", "download HTTP ${it.code} for $remotePath")
                         it to null
-                    } else it to it.body?.bytes()
+                    } else it to it.body
                 }
             } catch (e: Exception) {
                 Log.w("DBXSHARE", "download exception: ${e.message}")
                 // No response to inspect: report it as a non-429 failure.
-                errorResponse(req) to null
+                NO_RESPONSE to null
             }
         }
     }
@@ -509,7 +482,7 @@ class DropboxRepository @Inject constructor(
      *  first link). Null on auth / network failure so caller can distinguish
      *  "no files" from "couldn't check". */
     /** One page of a folder listing: the files on it, and where to continue. */
-    internal data class ListPage(
+    data class ListPage(
         val files: Map<String, RemoteFile>,
         val cursor: String?,
         val hasMore: Boolean,
@@ -533,27 +506,23 @@ class DropboxRepository @Inject constructor(
                     put("cursor", cursor)
                 }
             }
-            val req = Request.Builder()
-                .url(url)
-                .addHeader("Authorization", "Bearer $token")
-                .post(okhttp3.RequestBody.create("application/json".toMediaTypeOrNull(), body.toString()))
-                .build()
+            val req = jsonPost(url, token, body)
             try {
-                http.newCall(req).execute().use { resp ->
+                http.execute(req).let { resp ->
                     // 409 on the first call is "folder doesn't exist yet", which
                     // is normal before the first upload. On a continue it means
                     // the cursor went stale, which is a failed listing, not an
                     // empty one.
                     if (resp.code == 409 && cursor == null) {
                         absent = true
-                        return@use null
+                        return@let null
                     }
                     if (!resp.isSuccessful) {
-                        val text = resp.body?.string().orEmpty()
+                        val text = resp.text()
                         Log.w("DBXSHARE", "list_folder HTTP ${resp.code}: ${text.take(300)}")
-                        return@use null
+                        return@let null
                     }
-                    parseListPage(JSONObject(resp.body?.string().orEmpty()))
+                    parseListPage(JSONObject(resp.text()))
                 }
             } catch (e: Exception) {
                 Log.w("DBXSHARE", "list_folder exception: ${e.message}")
@@ -589,14 +558,10 @@ class DropboxRepository @Inject constructor(
                 put("access", "viewer")
             })
         }
-        val req = Request.Builder()
-            .url("https://api.dropboxapi.com/2/sharing/create_shared_link_with_settings")
-            .addHeader("Authorization", "Bearer $token")
-            .post(okhttp3.RequestBody.create("application/json".toMediaTypeOrNull(), body.toString()))
-            .build()
+        val req = jsonPost("https://api.dropboxapi.com/2/sharing/create_shared_link_with_settings", token, body)
         val created = try {
-            http.newCall(req).execute().use { resp ->
-                val txt = resp.body?.string().orEmpty()
+            http.execute(req).let { resp ->
+                val txt = resp.text()
                 if (resp.isSuccessful) JSONObject(txt).optString("url").ifBlank { null }
                 else {
                     Log.w("DBXSHARE", "createSharedLink HTTP ${resp.code}: ${txt.take(300)}")
@@ -627,14 +592,10 @@ class DropboxRepository @Inject constructor(
             put("path", remotePath)
             put("direct_only", true)
         }
-        val req = Request.Builder()
-            .url("https://api.dropboxapi.com/2/sharing/list_shared_links")
-            .addHeader("Authorization", "Bearer $token")
-            .post(okhttp3.RequestBody.create("application/json".toMediaTypeOrNull(), body.toString()))
-            .build()
+        val req = jsonPost("https://api.dropboxapi.com/2/sharing/list_shared_links", token, body)
         try {
-            http.newCall(req).execute().use { resp ->
-                val txt = resp.body?.string().orEmpty()
+            http.execute(req).let { resp ->
+                val txt = resp.text()
                 if (!resp.isSuccessful) {
                     Log.w("DBXSHARE", "list_shared_links HTTP ${resp.code}: ${txt.take(300)}")
                     return@withContext null
@@ -655,14 +616,10 @@ class DropboxRepository @Inject constructor(
     suspend fun getTemporaryLink(remotePath: String): String? = withContext(Dispatchers.IO) {
         val token = activeAccessToken() ?: return@withContext null
         val body = JSONObject().apply { put("path", remotePath) }
-        val req = Request.Builder()
-            .url("https://api.dropboxapi.com/2/files/get_temporary_link")
-            .addHeader("Authorization", "Bearer $token")
-            .post(okhttp3.RequestBody.create("application/json".toMediaTypeOrNull(), body.toString()))
-            .build()
+        val req = jsonPost("https://api.dropboxapi.com/2/files/get_temporary_link", token, body)
         try {
-            http.newCall(req).execute().use { resp ->
-                val txt = resp.body?.string().orEmpty()
+            http.execute(req).let { resp ->
+                val txt = resp.text()
                 if (!resp.isSuccessful) {
                     Log.w("DBXSHARE", "get_temporary_link HTTP ${resp.code}: ${txt.take(300)}")
                     errorTag(txt)?.let { lastShareErrorTag = it }
@@ -689,22 +646,21 @@ class DropboxRepository @Inject constructor(
     }
 
     private suspend fun refreshAccessToken(refreshToken: String): String? = withContext(Dispatchers.IO) {
-        val body = FormBody.Builder()
-            .add("grant_type", "refresh_token")
-            .add("refresh_token", refreshToken)
-            .add("client_id", APP_KEY)
-            .build()
-        val req = Request.Builder()
-            .url("https://api.dropbox.com/oauth2/token")
-            .post(body)
-            .build()
+        val req = HttpRequest(
+            "https://api.dropbox.com/oauth2/token",
+            HttpRequest.Body.Form(listOf(
+                "grant_type" to "refresh_token",
+                "refresh_token" to refreshToken,
+                "client_id" to APP_KEY,
+            )),
+        )
         try {
-            http.newCall(req).execute().use { resp ->
+            http.execute(req).let { resp ->
                 if (!resp.isSuccessful) {
-                    Log.w("DBXSHARE", "token refresh HTTP ${resp.code}: ${resp.body?.string()?.take(300)}")
+                    Log.w("DBXSHARE", "token refresh HTTP ${resp.code}: ${resp.text().take(300)}")
                     return@withContext null
                 }
-                val json = JSONObject(resp.body?.string().orEmpty())
+                val json = JSONObject(resp.text())
                 val access = json.optString("access_token").ifBlank { return@withContext null }
                 val ttlSec = json.optLong("expires_in", 14400L)
                 val expiresAt = System.currentTimeMillis() + ttlSec * 1000L
@@ -747,15 +703,15 @@ class DropboxRepository @Inject constructor(
      *  the Settings row can show "Linked: ride@example.com" rather than
      *  a generic "Linked". Falls back to "Dropbox" on any error. */
     private fun fetchAccountLabel(accessToken: String): String? = try {
-        val req = Request.Builder()
-            .url("https://api.dropboxapi.com/2/users/get_current_account")
-            .addHeader("Authorization", "Bearer $accessToken")
-            .post(okhttp3.RequestBody.create(null, ByteArray(0)))
-            .build()
-        http.newCall(req).execute().use { resp ->
+        val req = HttpRequest(
+            "https://api.dropboxapi.com/2/users/get_current_account",
+            HttpRequest.Body.Bytes(null, ByteArray(0)),
+            headers = listOf("Authorization" to "Bearer $accessToken"),
+        )
+        http.execute(req).let { resp ->
             if (!resp.isSuccessful) null
             else {
-                val json = JSONObject(resp.body?.string().orEmpty())
+                val json = JSONObject(resp.text())
                 json.optString("email").ifBlank {
                     json.optJSONObject("name")?.optString("display_name").orEmpty()
                 }
@@ -801,7 +757,7 @@ class DropboxRepository @Inject constructor(
          * indistinguishable from a smaller folder to every caller, and would set off
          * that same re-upload of everything missing from it.
          */
-        internal suspend fun collectPages(
+        suspend fun collectPages(
                 maxPages: Int = MAX_LIST_PAGES,
                 warn: (String) -> Unit = {},
                 fetch: suspend (cursor: String?) -> ListPage?,
@@ -828,7 +784,7 @@ class DropboxRepository @Inject constructor(
 
         /** Files on one listing page, plus the cursor for the next. Folders and
          *  deleted entries are skipped: callers only ever want files. */
-        internal fun parseListPage(json: JSONObject): ListPage {
+        fun parseListPage(json: JSONObject): ListPage {
             val entries = json.optJSONArray("entries")
             val files = mutableMapOf<String, RemoteFile>()
             for (i in 0 until (entries?.length() ?: 0)) {
@@ -837,7 +793,7 @@ class DropboxRepository @Inject constructor(
                 val name = e.optString("name")
                 if (name.isBlank()) continue
                 val epoch = try {
-                    java.time.OffsetDateTime.parse(e.optString("server_modified")).toEpochSecond()
+                    isoEpochSeconds(e.optString("server_modified"))
                 } catch (_: Exception) { 0L }
                 files[name] = RemoteFile(
                     epoch, e.optLong("size", -1L),
@@ -855,18 +811,23 @@ class DropboxRepository @Inject constructor(
         /** RFC 7636, 43-128 chars from a fixed unreserved set. */
         private fun randomCodeVerifier(): String {
             val alphabet = ('A'..'Z') + ('a'..'z') + ('0'..'9') + listOf('-', '.', '_', '~')
-            val rnd = java.security.SecureRandom()
-            return (1..64).map { alphabet[rnd.nextInt(alphabet.size)] }.joinToString("")
+            return (1..64).map { alphabet[secureRandomInt(alphabet.size)] }.joinToString("")
         }
 
         /** SHA-256 of the verifier, base64url-encoded without padding. */
         private fun codeChallenge(verifier: String): String {
-            val digest = java.security.MessageDigest.getInstance("SHA-256")
-                .digest(verifier.toByteArray(Charsets.US_ASCII))
-            return android.util.Base64.encodeToString(
-                digest,
-                android.util.Base64.URL_SAFE or android.util.Base64.NO_PADDING or android.util.Base64.NO_WRAP
-            )
+            val digest = sha256(verifier.encodeToByteArray()) // ASCII by construction
+            return Base64.UrlSafe.withPadding(Base64.PaddingOption.ABSENT).encode(digest)
         }
+
+        /** A request that never reached Dropbox, so the retry helper treats it
+         *  as a plain failure rather than a rate limit. */
+        private val NO_RESPONSE = HttpResponse(599, emptyMap(), ByteArray(0))
+
+        private fun jsonPost(url: String, token: String, body: JSONObject) = HttpRequest(
+            url,
+            HttpRequest.Body.Text("application/json", body.toString()),
+            headers = listOf("Authorization" to "Bearer $token"),
+        )
     }
 }

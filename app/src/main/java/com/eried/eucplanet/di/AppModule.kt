@@ -11,7 +11,9 @@ import com.eried.eucplanet.data.db.AppDatabase
 import com.eried.eucplanet.data.db.TripDao
 import com.eried.eucplanet.data.store.SettingsJson
 import com.eried.eucplanet.data.store.LegalLockdownStore
+import com.eried.eucplanet.data.repository.DropboxRepository
 import com.eried.eucplanet.data.repository.SettingsRepository
+import com.eried.eucplanet.data.repository.SharedPrefsDropboxLinkScratch
 import com.eried.eucplanet.data.store.SettingsStore
 import com.eried.eucplanet.data.store.androidImperialLocale
 import com.eried.eucplanet.data.store.settingsDataStore
@@ -51,6 +53,13 @@ object AppModule {
     @Provides
     @Singleton
     fun provideSettingsRepository(store: SettingsStore): SettingsRepository = SettingsRepository(store)
+
+    @Provides
+    @Singleton
+    fun provideDropboxRepository(
+        @ApplicationContext context: Context,
+        settingsRepository: SettingsRepository,
+    ): DropboxRepository = DropboxRepository(settingsRepository, SharedPrefsDropboxLinkScratch(context))
 
     /** Legal Mode Lockdown state. Its own store, never part of AppSettings. */
     @Provides

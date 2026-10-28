@@ -18,7 +18,7 @@ import java.io.File
  */
 class DropboxRefusalTest {
 
-    private val repo = File("src/main/java/com/eried/eucplanet/data/repository/DropboxRepository.kt").readText()
+    private val repo = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/data/repository/DropboxRepository.kt").readText()
     private val worker = File("src/main/java/com/eried/eucplanet/data/sync/DropboxSyncWorker.kt").readText()
     private val sync = File("src/main/java/com/eried/eucplanet/data/sync/SyncManager.kt").readText()
 
@@ -31,8 +31,8 @@ class DropboxRefusalTest {
         // Checked in the HTTP client itself rather than in each response
         // handler. There are a dozen of those, and the one that gets missed is
         // the one that loops.
-        val client = repo.substringAfter("private val http = OkHttpClient").take(600)
-        assertTrue("the client does not watch for refusals", client.contains("addInterceptor"))
+        val client = repo.substringAfter("private val http = HttpClient").take(600)
+        assertTrue("the client does not watch for refusals", client.startsWith(" { req, resp ->"))
         assertTrue("403 is not what it watches for", client.contains("resp.code == 403"))
         assertTrue("it does not raise the flag", client.contains("refused = true"))
     }

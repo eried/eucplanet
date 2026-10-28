@@ -133,7 +133,7 @@ class ArchivePolicyTest {
             sync.contains("freeArchiveName"))
         assertTrue("the archive name is not made unique",
             sync.contains("archive.findFile(candidate) == null"))
-        val repo = File("src/main/java/com/eried/eucplanet/data/repository/DropboxRepository.kt").readText()
+        val repo = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/data/repository/DropboxRepository.kt").readText()
         val move = repo.substringAfter("suspend fun moveFile").take(600)
         assertTrue("the Dropbox move would overwrite", move.contains("autorename"))
     }

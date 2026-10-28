@@ -50,6 +50,10 @@ kotlin {
             // Settings live in one JSON blob in DataStore, on both phones.
             api(libs.datastore.preferences.core)
         }
+        androidMain.dependencies {
+            // platform.HttpClient keeps the phone app's HTTP stack.
+            implementation(libs.okhttp)
+        }
         commonTest.dependencies {
             implementation(kotlin("test"))
         }
