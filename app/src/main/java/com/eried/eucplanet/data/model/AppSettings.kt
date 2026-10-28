@@ -440,6 +440,8 @@ data class AppSettings(
     val navRouterUrl: String = "https://routing.openstreetmap.de",
     /** Valhalla endpoint for bike routes and any route with avoids, overridable for self-hosting. */
     val navValhallaUrl: String = "https://valhalla1.openstreetmap.de",
+    /** Routing from downloaded BRouter tiles: when it runs, and where tiles come from. */
+    val offlineRouting: OfflineRoutingSettings = OfflineRoutingSettings(),
     /** Overpass (chargers / stations POI source) endpoint, overridable for self-hosting. */
     val navOverpassUrl: String = "https://overpass-api.de/api/interpreter",
     /**
@@ -1793,3 +1795,28 @@ data class HornSettings(
         val MODES = setOf(MODE_WHEEL, MODE_SOUND, MODE_BOTH)
     }
 }
+
+/** When offline routing runs. A rider with no tiles downloaded sees no change either way. */
+enum class OfflineRoutingMode {
+    /** Online routers first; downloaded tiles only when they fail (no signal). */
+    FALLBACK,
+
+    /** Downloaded tiles first where they cover the leg; online for the rest. */
+    PREFER;
+
+    companion object {
+        fun fromName(name: String?): OfflineRoutingMode =
+            entries.firstOrNull { it.name == name } ?: FALLBACK
+    }
+}
+
+/**
+ * Offline routing. [serverUrl] is the base the tiles come from:
+ * `<serverUrl>/segments4/<tile>.rd5` and `<serverUrl>/profiles2/lookups.dat`.
+ * [wifiAutoUpdate] lets downloaded tiles update by themselves on Wi-Fi.
+ */
+data class OfflineRoutingSettings(
+    val mode: OfflineRoutingMode = OfflineRoutingMode.FALLBACK,
+    val serverUrl: String = "https://brouter.de/brouter",
+    val wifiAutoUpdate: Boolean = false,
+)

@@ -389,6 +389,11 @@ object SettingsJson {
         put("navGeocoderUrl", s.navGeocoderUrl)
         put("navRouterUrl", s.navRouterUrl)
         put("navValhallaUrl", s.navValhallaUrl)
+        put("offlineRouting", JSONObject().apply {
+            put("mode", s.offlineRouting.mode.name)
+            put("serverUrl", s.offlineRouting.serverUrl)
+            put("wifiAutoUpdate", s.offlineRouting.wifiAutoUpdate)
+        })
         put("navOverpassUrl", s.navOverpassUrl)
         put("navOcmApiKey", s.navOcmApiKey)
         put("navMapType", s.navMapType)
@@ -862,6 +867,13 @@ object SettingsJson {
         navGeocoderUrl = j.optString("navGeocoderUrl", base.navGeocoderUrl),
         navRouterUrl = j.optString("navRouterUrl", base.navRouterUrl),
         navValhallaUrl = j.optString("navValhallaUrl", base.navValhallaUrl),
+        offlineRouting = j.optJSONObject("offlineRouting")?.let { o ->
+            com.eried.eucplanet.data.model.OfflineRoutingSettings(
+                mode = com.eried.eucplanet.data.model.OfflineRoutingMode.fromName(o.optString("mode")),
+                serverUrl = o.optString("serverUrl", base.offlineRouting.serverUrl),
+                wifiAutoUpdate = o.optBoolean("wifiAutoUpdate", base.offlineRouting.wifiAutoUpdate),
+            )
+        } ?: base.offlineRouting,
         navOverpassUrl = j.optString("navOverpassUrl", base.navOverpassUrl),
         navOcmApiKey = j.optString("navOcmApiKey", base.navOcmApiKey),
         navMapType = j.optString("navMapType", base.navMapType),
