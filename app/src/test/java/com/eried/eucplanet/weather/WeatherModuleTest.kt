@@ -403,7 +403,7 @@ class WeatherModuleTest {
     }
 
     @Test fun `the score scale tokens are registered for the theme editor`() {
-        val theme = File("src/main/java/com/eried/eucplanet/ui/theme/AppThemeColors.kt").readText()
+        val theme = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/ui/theme/AppThemeColors.kt").readText()
         assertTrue(theme.contains("ThemeTokenSpec(\"weatherGood\""))
         assertTrue(theme.contains("ThemeTokenSpec(\"weatherBad\""))
         assertTrue(theme.contains("weatherGood = weatherGood.takeOrElse"))

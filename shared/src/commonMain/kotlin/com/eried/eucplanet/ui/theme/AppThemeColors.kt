@@ -11,7 +11,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.graphics.toArgb
-import org.json.JSONObject
+import com.eried.eucplanet.platform.JSONObject
 
 /**
  * The full set of semantic color tokens that make up one theme. A theme is
