@@ -184,6 +184,7 @@ fun HudApp(
                                 rotation = controller.cameraRotation,
                                 onCamerasFound = controller::onCamerasFound,
                                 cameraHandedOff = controller.cameraHandedOff,
+                                cameraDiag = controller.cameraDiag,
                                 onCameraTaken = { controller.handOffCamera() },
                                 onOtherAppCamera = controller::onOtherAppCamera
                             )
@@ -199,6 +200,7 @@ fun HudApp(
                                 cameraRotation = controller.cameraRotation,
                                 onCamerasFound = controller::onCamerasFound,
                                 cameraHandedOff = controller.cameraHandedOff,
+                                cameraDiag = controller.cameraDiag,
                                 onCameraTaken = { controller.handOffCamera() },
                                 onOtherAppCamera = controller::onOtherAppCamera
                             )

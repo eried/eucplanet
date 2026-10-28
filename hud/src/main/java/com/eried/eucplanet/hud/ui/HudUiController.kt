@@ -140,29 +140,47 @@ class HudUiController {
      *  frees the camera again and the preview may take it back meanwhile.
      *  Without it the preview stays off: taking the camera back would block
      *  the recorder's next start. */
-    private var cameraKeyHeard = false
+    private var cameraKeyHeard by mutableStateOf(false)
 
     /** Another app opened a camera since this hand-off. */
-    private var takenSinceHandOff = false
+    private var takenSinceHandOff by mutableStateOf(false)
 
     /** ...and has closed it again, so the preview may come back. */
-    private var freeAgain = false
+    private var freeAgain by mutableStateOf(false)
 
     /** The HUD is in front. The MotoEye rear view, or a camera app, may let
      *  go of the camera for a moment while it is still on screen. */
-    private var hudFocused = true
+    private var hudFocused by mutableStateOf(true)
+
+    /** What freed the camera last, and the last remote key the HUD saw. */
+    private var handOffReason by mutableStateOf("")
+    private var lastKey by mutableStateOf(-1)
+
+    /** The Activity saw a key press, ours or not. */
+    fun noteKey(keyCode: Int) {
+        lastKey = keyCode
+    }
+
+    /** One line on the handed-off screen saying what keeps the picture off,
+     *  so a tester's photo shows which step the MotoEye skips. */
+    val cameraDiag: String
+        get() = "freed by $handOffReason, last key $lastKey, " +
+            "button ${if (cameraKeyHeard) "seen" else "not seen"}, " +
+            "other app ${if (freeAgain) "done" else if (takenSinceHandOff) "has camera" else "not seen"}, " +
+            "HUD ${if (hudFocused) "in front" else "behind"}"
 
     /** Something else wants the camera: the MotoEye camera button (rear
      *  view or recorder), its overlay covering the HUD, or another app that
      *  already has the camera open. A camera screen lets go and stays off,
      *  so the preview does not grab the camera back when the recorder
      *  stops and block its next start. [byKey] is the camera button. */
-    fun handOffCamera(byKey: Boolean = false) {
+    fun handOffCamera(byKey: Boolean = false, reason: String = if (byKey) "button" else "camera in use") {
         if (byKey) cameraKeyHeard = true
         if (current != Screen.Camera && current != Screen.CustomCam) return
         if (!cameraHandedOff) {
             takenSinceHandOff = false
             freeAgain = false
+            handOffReason = reason
         }
         cameraHandedOff = true
     }

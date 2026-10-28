@@ -195,6 +195,11 @@ class HudActivity : ComponentActivity() {
         super.onDestroy()
     }
 
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (event.action == KeyEvent.ACTION_DOWN) controller.noteKey(event.keyCode)
+        return super.dispatchKeyEvent(event)
+    }
+
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         // Map HUD remote keys to UI actions. The Motoeye remote reports these
         // standard codes; we keep the wear-OS-style "if not consumed by us,
@@ -249,7 +254,7 @@ class HudActivity : ComponentActivity() {
             else -> {
                 // The MotoEye camera button (rear view, recorder) needs the
                 // camera: free it before the MotoEye asks, and pass the key on.
-                if (HudKeys.handsOffCamera(keyCode)) controller.handOffCamera(byKey = true)
+                if (HudKeys.handsOffCamera(keyCode)) controller.handOffCamera(byKey = true, reason = "key $keyCode")
                 super.onKeyDown(keyCode, event)
             }
         }
@@ -259,7 +264,7 @@ class HudActivity : ComponentActivity() {
         super.onWindowFocusChanged(hasFocus)
         // The MotoEye rear view or recorder came up over the HUD and wants
         // the camera, even when its button never reached us.
-        if (!hasFocus) controller.handOffCamera()
+        if (!hasFocus) controller.handOffCamera(reason = "focus")
         controller.onHudFocus(hasFocus)
     }
 

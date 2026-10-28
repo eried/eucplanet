@@ -19,6 +19,7 @@ import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -68,6 +69,7 @@ fun CameraScreen(
     rotation: Int = 270,
     onCamerasFound: (Int) -> Unit = {},
     cameraHandedOff: Boolean = false,
+    cameraDiag: String = "",
     onCameraTaken: () -> Unit = {},
     onOtherAppCamera: (Boolean) -> Unit = {},
 ) {
@@ -90,6 +92,7 @@ fun CameraScreen(
             rotation = rotation,
             onCamerasFound = onCamerasFound,
             handedOff = cameraHandedOff,
+            diag = cameraDiag,
             onCameraTaken = onCameraTaken,
             onOtherAppCamera = onOtherAppCamera
         )
@@ -139,6 +142,7 @@ fun RearCameraPreview(
     rotation: Int = 270,
     onCamerasFound: (Int) -> Unit = {},
     handedOff: Boolean = false,
+    diag: String = "",
     onCameraTaken: () -> Unit = {},
     onOtherAppCamera: (Boolean) -> Unit = {},
 ) {
@@ -148,10 +152,21 @@ fun RearCameraPreview(
         val ctx = LocalContext.current
         OtherAppCameraWatch(onOtherAppCamera)
         Box(modifier.background(Color.Black), contentAlignment = Alignment.Center) {
-            Text(
-                text = ctx.getString(R.string.hud_camera_handed_off),
-                color = Color.White.copy(alpha = 0.7f)
-            )
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = ctx.getString(R.string.hud_camera_handed_off),
+                    color = Color.White.copy(alpha = 0.7f)
+                )
+                // Test builds: what keeps the picture off, for a tester's photo.
+                if (diag.isNotEmpty()) {
+                    Text(
+                        text = diag,
+                        color = Color.White.copy(alpha = 0.45f),
+                        fontSize = 11.sp,
+                        modifier = Modifier.padding(top = 8.dp, start = 24.dp, end = 24.dp)
+                    )
+                }
+            }
         }
     } else {
         LiveCameraPreview(modifier, cameraIndex, rotation, onCamerasFound, onCameraTaken)
