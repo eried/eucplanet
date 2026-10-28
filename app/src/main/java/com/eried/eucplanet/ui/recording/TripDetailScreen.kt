@@ -895,7 +895,19 @@ fun TripDetailScreen(
                     if (cmp == null || elapsedMs.size != allPoints.size) emptyMap()
                     else CompareMetric.entries.filter { it.presentIn(cmp.points) }.associate { m ->
                         val bv = FloatArray(cmp.points.size) { cmpDisplay(m.key, m.raw(cmp.points[it])) }
-                        m.key to (TripCompare.fit(elapsedMs, cmp.ms, bv, compareOffsetMs) to bv.toList())
+                        // Speed's scale stops at B's sustained top, the rule A's
+                        // axis follows, so one GPS spike in B cannot squash both.
+                        val scale = if (m.key != "speed") bv.toList() else {
+                            val n = bv.size
+                            val secs = cmp.durationMs / 1000
+                            val window = if (n >= 2 && secs > 0)
+                                kotlin.math.ceil(SUSTAINED_TOP_SPEED_MS / (secs * 1000.0 / (n - 1)))
+                                    .toInt().coerceIn(2, n)
+                            else 1
+                            val top = sustainedTopSpeed(bv.toList(), window)
+                            bv.map { if (it.isNaN()) it else it.coerceAtMost(top) }
+                        }
+                        m.key to (TripCompare.fit(elapsedMs, cmp.ms, bv, compareOffsetMs) to scale)
                     }
                 }
             fun cmpShown(key: String): ChartOverlay? {
@@ -3058,12 +3070,23 @@ internal fun ChartCard(
     scan(scaleValues ?: fullValues)
     if (scaleValues != null) scaleOverlays.forEach { scan(it) }
     else fullOverlays.forEach { scan(it.values) }
-    (compareScale ?: compare?.values)?.let { scan(it) }
+    // The compared trip counts too, in either view. Its top is kept apart so
+    // [axisMax], which is this trip's cap, cannot clip the other trip flat.
+    val compareSeries = compareScale ?: compare?.values
+        ?: overlays.firstOrNull { it.dashed }?.values
+    val compareHi = compareSeries?.let { vs ->
+        var hi = Float.NEGATIVE_INFINITY
+        for (v in vs) if (!v.isNaN() && v > hi) hi = v
+        scan(vs)
+        hi.takeIf { it.isFinite() }
+    }
     val dataMin = if (scanLo.isFinite()) scanLo else 0f
     val dataMaxRaw = if (scanHi.isFinite()) scanHi else 0f
     // Axis upper bound: a caller-supplied realistic cap when given (never below
     // the data floor), otherwise the raw maximum as before.
-    val dataMax = axisMax?.coerceAtLeast(dataMin) ?: dataMaxRaw
+    val dataMax = axisMax?.coerceAtLeast(dataMin)
+        ?.let { cap -> if (compareHi != null) maxOf(cap, compareHi) else cap }
+        ?: dataMaxRaw
     val bounds = GraphScale.pad(dataMin, dataMax, minSpan)
     val textMeasurer = rememberTextMeasurer()
     val tooltipBg = MaterialTheme.colorScheme.surface
