@@ -86,8 +86,14 @@ class OfflineRouter(
         fun brouterEngine(context: Context, store: OfflineTileStore): (Request, Long) -> EngineResult? = { req, maxMs ->
             val profiles = File(store.dir, "profiles").apply { mkdirs() }
             copyAssets(context, store, profiles)
+            runBrouter(store.dir, profiles, req, maxMs)
+        }
+
+        /** One BRouter run: tiles in [segmentDir], `<profile>.brf` and
+         *  `lookups.dat` in [profilesDir]. Null when no route is found. */
+        fun runBrouter(segmentDir: File, profilesDir: File, req: Request, maxMs: Long): EngineResult? {
             val rc = RoutingContext().apply {
-                localFunction = File(profiles, "${req.profile}.brf").absolutePath
+                localFunction = File(profilesDir, "${req.profile}.brf").absolutePath
                 keyValues = HashMap(req.params + ("turnInstructionMode" to "9"))
                 memoryclass = 64
                 if (req.headingDeg != null) {
@@ -103,22 +109,21 @@ class OfflineRouter(
                     ilat = lat
                 }
             }
-            val engine = RoutingEngine(null, null, store.dir, wps, rc)
+            val engine = RoutingEngine(null, null, segmentDir, wps, rc)
             engine.quite = true
             engine.doRun(maxMs)
             val track = engine.foundTrack
             if (track == null) {
                 Log.w(TAG, "BRouter: ${engine.errorMessage}")
-                null
-            } else {
-                EngineResult(
-                    points = track.nodes.map { BrouterMapping.fromBrouter(it.iLon, it.iLat) },
-                    hints = track.voiceHints?.list.orEmpty().map {
-                        BrouterMapping.Hint(it.command, it.indexInTrack, it.exitNumber)
-                    },
-                    distanceM = track.distance.toDouble(),
-                )
+                return null
             }
+            return EngineResult(
+                points = track.nodes.map { BrouterMapping.fromBrouter(it.iLon, it.iLat) },
+                hints = track.voiceHints?.list.orEmpty().map {
+                    BrouterMapping.Hint(it.command, it.indexInTrack, it.exitNumber)
+                },
+                distanceM = track.distance.toDouble(),
+            )
         }
 
         @Volatile private var profilesCopied = false
