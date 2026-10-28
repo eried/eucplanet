@@ -41,7 +41,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.platform.LocalContext
 import com.eried.eucplanet.ui.theme.appColors
 import androidx.compose.ui.res.stringResource
@@ -491,6 +496,7 @@ private fun EndpointField(
         if (trimmed != persisted) onCommit(trimmed)
     }
     DisposableEffect(Unit) { onDispose { commit() } }
+    val focusManager = LocalFocusManager.current
 
     // No presets -> no trailing icon at all (a conditionally-empty trailing
     // composable still reserves space and leaves a visible notch on the right).
@@ -509,6 +515,9 @@ private fun EndpointField(
             enabled = enabled,
             label = { Text(label) },
             singleLine = true,
+            // The keyboard's done key saves too, not only leaving the field.
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = { commit(); focusManager.clearFocus() }),
             trailingIcon = dropdownIcon,
             modifier = Modifier
                 .fillMaxWidth()
