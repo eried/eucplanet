@@ -42,16 +42,38 @@ Seams that need both sides on every change:
 | Seam | Common | Android | iOS |
 |---|---|---|---|
 | Wheel link (BLE) | `ble/WheelLink.kt` | `app/.../ble/BleConnectionManager.kt` | `iosMain/.../ble/IosWheelLink.kt` |
-| Log, clock, charsets, CRC, format, local time | `platform/*.kt` | `platform/*.android.kt` | `platform/*.ios.kt` |
-| Object graph | `di/SharedKoin.kt` (Koin) | `app/.../di/SharedModule.kt` hands the Koin singletons to Hilt | `MainViewController.kt` reads Koin |
+| Log, clock, charsets, CRC, format, local time, JSON, HTTP, SHA-256, dates, strings | `platform/*.kt` | `platform/*.android.kt` | `platform/*.ios.kt` |
+| Settings file | `data/store/SettingsStore.kt` | `app/.../data/store/SettingsStoreAndroid.kt` (DataStore, imperial check) | `iosMain/.../app/IosAppGraph.kt` |
+| Dropbox link | `DropboxRepository.beginLink` / `handleAuthCode` | `app/.../data/repository/DropboxLinkAndroid.kt` (Custom Tab, verifier in SharedPreferences) | `iosMain/.../app/IosDropboxLink.kt` (ASWebAuthenticationSession) |
+| Alarm rules for settings.json | `data/sync/DropboxSettingsSync.AlarmRuleStore` | `SyncManager` (AlarmDao) | `IosAppGraph.alarms` (a JSON file until Room moves) |
+| Object graph | `di/SharedKoin.kt` (Koin) | `app/.../di/SharedModule.kt` hands the Koin singletons to Hilt; `AppModule` builds the moved repositories | `MainViewController.kt` reads Koin; `app/IosAppGraph.kt` builds the rest |
 
 The table grows as packages move; keep it current.
 
-Labels that still come from Android string resources stay in `:app` as
-extensions on the shared type, so call sites read the same:
-`Units.speedUnit(context, unit)` (`util/UnitsAndroid.kt`) and the widget
-registries' `pickerLabel` (`data/model/WidgetSlotLabels.kt`). They move to
-Compose resources with the strings.
+## Strings
+
+The 23 locales stay where they are, in `app/src/main/res/values*/strings.xml`.
+Translate and add strings there exactly as before.
+
+- Shared code names a string `Res.string.<key>` and shows it with
+  `com.eried.eucplanet.platform.stringResource` (or `Context.getString(res)`
+  in Android-only code). On Android that resolves to the phone app's own
+  `R.string.<key>` through a table `app/string-ids.gradle.kts` generates from
+  the keys shared code names, so Android text and formatting are exactly what
+  they were.
+- iOS reads Compose resources that `shared/compose-strings.gradle.kts`
+  generates from the same files at build time, processed the way aapt2
+  processes them. `tools/check-ios-strings.py` compares every string in every
+  locale with an APK's aapt2 dump (61,158 identical when it was written).
+- `values-b+es+419` becomes `values-es-rXL`, since Compose takes two-letter
+  regions only.
+- The settings search index reads `:shared`'s ui code too, and both
+  `R.string` and `Res.string`.
+
+Labels some Android-only code still reads from `R.string` stay in `:app` as
+extensions on the shared type: `Units.speedUnit(context, unit)`
+(`util/UnitsAndroid.kt`) and the widget registries' `pickerLabel`
+(`data/model/WidgetSlotLabels.kt`).
 
 ## Using JVM-style APIs in common code
 
@@ -66,16 +88,24 @@ means only changing imports:
 | `Charsets.US_ASCII`, `String(bytes, cs)`, `toByteArray(cs)` | `com.eried.eucplanet.platform.Charsets` (and `String`, `toByteArray`) |
 | `"%.1f".format(x)`, `String.format(...)`, `Locale.US` | `com.eried.eucplanet.platform.format`, `com.eried.eucplanet.platform.Locale` |
 | `java.util.zip.CRC32` | `com.eried.eucplanet.platform.crc32` |
-| `java.util.Calendar`, `SimpleDateFormat` | `com.eried.eucplanet.platform.localTimeParts` |
+| `java.util.Calendar` | `com.eried.eucplanet.platform.localTimeParts` |
+| `SimpleDateFormat(p, Locale.getDefault()).format(Date(ms))` | `com.eried.eucplanet.platform.formatLocalDate` |
+| `OffsetDateTime.parse(s).toEpochSecond()` | `com.eried.eucplanet.platform.isoEpochSeconds` |
+| `MessageDigest` SHA-256, `SecureRandom.nextInt` | `com.eried.eucplanet.platform.sha256`, `secureRandomInt` |
+| `Uri.Builder().appendQueryParameter` | `com.eried.eucplanet.platform.UrlQuery` |
+| OkHttp calls | `com.eried.eucplanet.platform.HttpClient` (OkHttp on Android, NSURLSession on iOS) |
 | `java.util.Random` | `kotlin.random.Random` |
 | `BluetoothGattCharacteristic.WRITE_TYPE_*`, `PROPERTY_WRITE*` | `com.eried.eucplanet.ble.GattCharacteristic` |
 | `java.io.ByteArrayOutputStream` | `com.eried.eucplanet.platform.ByteArrayOutputStream` |
 | `@Volatile` (kotlin.jvm) | `kotlin.concurrent.Volatile` |
 | `synchronized(lock)`, `@Synchronized` | `kotlinx.atomicfu.locks.synchronized` with a `SynchronizedObject` |
 | `java.util.UUID` | `kotlin.uuid.Uuid` (convert with `toJavaUuid()` at the Android BLE boundary) |
-| `org.json` | `kotlinx.serialization` |
-| `R.string.x`, `stringResource(R.string.x)` | Compose resources `Res.string.x` |
+| `org.json.JSONObject`, `JSONArray`, `JSONObject.NULL`, `JSONObject.quote` | `com.eried.eucplanet.platform.JSONObject`, `JSONArray`, `JSONNull`, `jsonQuote` |
+| `R.string.x`, `stringResource(R.string.x)` | `Res.string.x` with `com.eried.eucplanet.platform.stringResource` (see Strings) |
 | `javax.inject` / Hilt | a Koin module |
+
+`org.json` on Android is the framework's own class; on iOS it is a port of
+the AOSP one, so key order, number text and escapes match (`JsonAospTest`).
 
 `String.format` on iOS is a clone of the JVM formatter (`platform/JavaFormat.kt`).
 `JavaFormatTest` compares it with `java.lang.String.format` on the JVM, and

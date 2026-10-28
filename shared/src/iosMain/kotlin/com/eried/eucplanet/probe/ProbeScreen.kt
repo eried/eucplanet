@@ -17,7 +17,17 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.eried.eucplanet.platform.stringResource
+import com.eried.eucplanet.resources.*
+import com.eried.eucplanet.ui.theme.BuiltInThemes
+import com.eried.eucplanet.ui.theme.LocalAppColors
+import com.eried.eucplanet.ui.theme.toColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
@@ -38,12 +48,25 @@ import com.eried.eucplanet.platform.format
  * replace it when they move to the shared module (docs/IOS_PARITY.md).
  */
 @Composable
-fun ProbeScreen(link: IosWheelLink, session: ProbeSession) {
-    MaterialTheme(colorScheme = darkColorScheme()) {
-        Surface(Modifier.fillMaxSize()) {
-            Column(Modifier.safeDrawingPadding().padding(16.dp)) {
-                val state by link.connectionState.collectAsState()
-                if (state == ConnectionState.DISCONNECTED) ScanList(link) else LiveData(link, session, state)
+fun ProbeScreen(link: IosWheelLink, session: ProbeSession, initialTab: Int = 0) {
+    val colors = BuiltInThemes.pureBlack.colors
+    CompositionLocalProvider(LocalAppColors provides colors) {
+        MaterialTheme(colorScheme = colors.toColorScheme()) {
+            Surface(Modifier.fillMaxSize()) {
+                Column(Modifier.safeDrawingPadding().padding(16.dp)) {
+                    var tab by remember { mutableStateOf(initialTab) }
+                    TabRow(selectedTabIndex = tab) {
+                        Tab(tab == 0, onClick = { tab = 0 }, text = { Text(stringResource(Res.string.section_connection)) })
+                        Tab(tab == 1, onClick = { tab = 1 }, text = { Text(stringResource(Res.string.section_cloud_settings)) })
+                    }
+                    Spacer(Modifier.height(12.dp))
+                    if (tab == 1) {
+                        BackupPane()
+                    } else {
+                        val state by link.connectionState.collectAsState()
+                        if (state == ConnectionState.DISCONNECTED) ScanList(link) else LiveData(link, session, state)
+                    }
+                }
             }
         }
     }

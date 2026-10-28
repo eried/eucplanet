@@ -8505,55 +8505,13 @@ private fun CloudTab(
 
     if (syncConflict != null) {
         val conflictKind by viewModel.syncConflictKind.collectAsState()
-        val isDropbox = conflictKind == com.eried.eucplanet.data.sync.SyncConflictKind.DROPBOX
-        val bodyRes = if (isDropbox) R.string.sync_conflict_body_dropbox else R.string.sync_conflict_body
-        val pullRes = if (isDropbox) R.string.sync_conflict_dropbox else R.string.sync_conflict_folder
-        val pushRes = if (isDropbox) R.string.sync_conflict_app_dropbox else R.string.sync_conflict_app
-        AlertDialog(
-            onDismissRequest = { viewModel.cancelSyncConflict() },
-            properties = androidx.compose.ui.window.DialogProperties(dismissOnClickOutside = false),
-            shape = RoundedCornerShape(12.dp),
-            title = { Text(stringResource(R.string.sync_conflict_title)) },
-            text = {
-                val firstSettings by viewModel.syncConflictFirstSettings.collectAsState()
-                val count = stringResource(bodyRes, syncConflict!!)
-                Text(
-                    if (isDropbox && firstSettings) {
-                        val ask = stringResource(R.string.sync_first_settings)
-                        // Settings alone: the question says it all. With trips or
-                        // themes in the prompt too, the count still follows.
-                        if (syncConflict == 1) ask else "$ask\n\n$count"
-                    } else count
-                )
-            },
-            confirmButton = {
-                Column(
-                    horizontalAlignment = Alignment.End,
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Button(
-                        onClick = { viewModel.resolveSyncConflict(SyncChoice.FOLDER) },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp)
-                    ) { Text(stringResource(pullRes)) }
-                    Button(
-                        onClick = { viewModel.resolveSyncConflict(SyncChoice.APP) },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp)
-                    ) { Text(stringResource(pushRes)) }
-                    Button(
-                        onClick = { viewModel.resolveSyncConflict(SyncChoice.IGNORE) },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp)
-                    ) { Text(stringResource(R.string.sync_conflict_ignore)) }
-                    Button(
-                        onClick = { viewModel.cancelSyncConflict() },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp)
-                    ) { Text(stringResource(R.string.action_cancel)) }
-                }
-            }
+        val firstSettings by viewModel.syncConflictFirstSettings.collectAsState()
+        SyncConflictDialog(
+            count = syncConflict!!,
+            isDropbox = conflictKind == com.eried.eucplanet.data.sync.SyncConflictKind.DROPBOX,
+            firstSettings = firstSettings,
+            onChoice = { viewModel.resolveSyncConflict(it) },
+            onCancel = { viewModel.cancelSyncConflict() },
         )
     }
 
