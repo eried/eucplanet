@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
@@ -473,6 +474,8 @@ private fun AlignStrip(
         Modifier
             .fillMaxWidth()
             .height(72.dp)
+            // A dragged trip slides past the edges; keep it inside the box.
+            .clip(RoundedCornerShape(8.dp))
             .pointerInput(aDur, bDur) {
                 var startOffset = 0L
                 var dragged = 0f
