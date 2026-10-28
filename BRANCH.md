@@ -46,7 +46,7 @@ only when you can cut the ride short.
 - On the Camera screen showing the rear camera, start the recorder with a hold: does it start every time?
 
 **InMotion V8S (or any V1 wheel)**
-- Ride as usual: how many disconnects, compared with EUC World? Does the Light button follow the wheel's own light button, and does Charging show on the charger?
+- Ride as usual: how many disconnects, compared with EUC World? A Service Mode log covering any drop helps most.
 
 **Any wheel**
 - Ride with voice alarms on, open the main screens, sync, widgets and the watch: anything that acts differently from the last build is a bug.
