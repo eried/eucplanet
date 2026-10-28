@@ -129,6 +129,19 @@ class SyncManager @Inject constructor(
     // App-scoped so trip sync survives settings screen navigation.
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
+    /** settings.json on Dropbox, shared with the iOS app. */
+    private val dropboxSettings = DropboxSettingsSync(
+        settingsRepository, dropboxRepository,
+        object : AlarmRuleStore {
+            override suspend fun getAll(): List<AlarmRule> = alarmDao.getAll()
+            override suspend fun replaceAll(rules: List<AlarmRule>) {
+                alarmDao.deleteAll()
+                rules.forEach { alarmDao.insert(it.copy(id = 0)) }
+            }
+        },
+        applyLanguage = { applyRestoredLanguage(it) },
+    )
+
     /**
      * The current rider's store_id, read from the `.txt` recovery file in the
      * sync folder. This is the **single source of truth** for the rider's
@@ -827,33 +840,8 @@ class SyncManager @Inject constructor(
         return applySettingsFromJson(bytes)
     }
 
-    /**
-     * Apply a settings JSON (from a backup file or a Dropbox download) to this
-     * phone via [SettingsJson.applyPortable], so the phone keeps its own device +
-     * sync bindings. Re-applies language and, if the JSON carries an "alarms"
-     * array, replaces the alarm rules. Caller takes any snapshot first.
-     */
-    suspend fun applySettingsFromJson(bytes: ByteArray): Boolean {
-        val current = settingsRepository.get()
-        return try {
-            val json = JSONObject(String(bytes, Charsets.UTF_8))
-            val restored = SettingsJson.applyPortable(json, current)
-            settingsRepository.update(restored)
-            applyRestoredLanguage(restored.language)
-            // Replace alarm rules wholesale only if the backup contains an
-            // "alarms" array. Older backups (pre-v0.4.3) keep the user's
-            // current rules untouched.
-            if (json.has("alarms")) {
-                val rules = AlarmBackupJson.jsonToAlarms(json.optJSONArray("alarms"))
-                alarmDao.deleteAll()
-                rules.forEach { alarmDao.insert(it.copy(id = 0)) }
-            }
-            true
-        } catch (e: Exception) {
-            Log.e(TAG, "Settings apply failed", e)
-            false
-        }
-    }
+    /** See [DropboxSettingsSync.applySettingsFromJson]. */
+    suspend fun applySettingsFromJson(bytes: ByteArray): Boolean = dropboxSettings.applySettingsFromJson(bytes)
 
     /**
      * Put the restored language into effect, not just into the settings row.
@@ -1280,35 +1268,6 @@ class SyncManager @Inject constructor(
         }
     }
 
-    private fun sha256Hex(bytes: ByteArray): String =
-        java.security.MessageDigest.getInstance("SHA-256").digest(bytes)
-            .joinToString("") { "%02x".format(it) }
-
-    /**
-     * What goes to Dropbox as settings.json, and what both sides' fingerprints
-     * are taken over: the portable settings plus the alarm rules, the same
-     * shape as the backup-folder copy, so alarms travel too.
-     */
-    private suspend fun portableSettingsBytes(s: AppSettings): ByteArray =
-        SettingsJson.toJson(SettingsJson.stripDeviceBindings(s)).apply {
-            put("alarms", AlarmBackupJson.alarmsToJson(alarmDao.getAll()))
-        }.toString().toByteArray(Charsets.UTF_8)
-
-    /**
-     * Dropbox's settings.json. [known] is false when it cannot be told whether
-     * the file exists: a download returns null for a missing file and for a
-     * network blip alike, and treating a blip as "missing" uploaded this phone
-     * over the rider's real settings. A listing settles it.
-     */
-    private class RemoteSettings(val known: Boolean, val bytes: ByteArray?)
-
-    private suspend fun readRemoteSettings(): RemoteSettings {
-        dropboxRepository.downloadFile("/settings.json")?.let { return RemoteSettings(true, it) }
-        val root = dropboxRepository.listFolder("") ?: return RemoteSettings(false, null)
-        val present = root.keys.any { it.equals("settings.json", ignoreCase = true) }
-        return RemoteSettings(known = !present, bytes = null)
-    }
-
     /**
      * Follow archives made on another phone. A split, an extend or a delete
      * with "archive" moves the trip on Dropbox into /trips/archive. A phone
@@ -1347,33 +1306,8 @@ class SyncManager @Inject constructor(
     /** Held by every Dropbox pass, foreground or background, so two never move the same files. */
     val dropboxPassLock = kotlinx.coroutines.sync.Mutex()
 
-    /**
-     * The background half of the settings sync: push this phone's settings only
-     * when Dropbox's copy has not moved since the last sync, so another phone's
-     * edit is never overwritten without the prompt. A Dropbox-side change is left
-     * for the foreground sync, which can ask the rider. Returns false only when
-     * an upload was due and failed.
-     */
-    suspend fun pushDropboxSettingsIfOnlyPhoneChanged(): Boolean {
-        val settings = settingsRepository.get()
-        val remote = readRemoteSettings()
-        if (!remote.known) return true
-        val payload = portableSettingsBytes(settings)
-        val phoneHash = sha256Hex(payload)
-        return when (SettingsSyncPolicy.decide(
-            phoneHash, remote.bytes?.let { sha256Hex(it) }, settings.dropboxSettingsBaseHash
-        )) {
-            SettingsSyncAction.UPLOAD ->
-                dropboxRepository.uploadFile("/settings.json", payload).also { ok ->
-                    if (ok) settingsRepository.update { it.copy(dropboxSettingsBaseHash = phoneHash) }
-                }
-            SettingsSyncAction.NONE -> {
-                settingsRepository.update { it.copy(dropboxSettingsBaseHash = phoneHash) }
-                true
-            }
-            SettingsSyncAction.APPLY, SettingsSyncAction.CONFLICT -> true
-        }
-    }
+    /** See [DropboxSettingsSync.pushIfOnlyPhoneChanged]. */
+    suspend fun pushDropboxSettingsIfOnlyPhoneChanged(): Boolean = dropboxSettings.pushIfOnlyPhoneChanged()
 
     private suspend fun runDropboxSync() {
         val settings = settingsRepository.get()
@@ -1436,20 +1370,9 @@ class SyncManager @Inject constructor(
         val localOnly = localByLower.keys - remoteByLower.keys - archivedElsewhere
 
         // --- Settings (whole-blob, 3-way vs the stored baseline) ---
-        val phoneSettingsBytes = portableSettingsBytes(settings)
-        val phoneSettingsHash = sha256Hex(phoneSettingsBytes)
-        val remoteSettings = readRemoteSettings()
-        val remoteSettingsBytes = remoteSettings.bytes
-        val remoteSettingsHash = remoteSettingsBytes?.let { sha256Hex(it) }
-        var settingsAction = if (!remoteSettings.known) {
-            // Could not tell what Dropbox holds: leave settings for the next pass.
-            SettingsSyncAction.NONE
-        } else {
-            SettingsSyncPolicy.decide(
-                phoneSettingsHash, remoteSettingsHash, settings.dropboxSettingsBaseHash
-            )
-        }
-        val settingsConflict = settingsAction == SettingsSyncAction.CONFLICT
+        val settingsPlan = dropboxSettings.plan(settings)
+        var settingsAction = settingsPlan.action
+        val settingsConflict = settingsPlan.conflict
 
         val subdirConflicts = countBackupSubdirConflicts(settings)
         val totalConflicts = conflictKeys.size + (if (settingsConflict) 1 else 0) + subdirConflicts
@@ -1500,39 +1423,11 @@ class SyncManager @Inject constructor(
         // Settings go first, right after the decision: deciding now and writing
         // after a library-sized transfer left minutes for another phone to
         // change them in between, and that change would have been overwritten.
-        var extra = 0
-        var settingsFailed = false
-        when (settingsAction) {
-            SettingsSyncAction.UPLOAD -> {
-                if (dropboxRepository.uploadFile("/settings.json", phoneSettingsBytes)) {
-                    extra++
-                    settingsRepository.update { it.copy(dropboxSettingsBaseHash = phoneSettingsHash) }
-                } else settingsFailed = true
-            }
-            SettingsSyncAction.APPLY -> {
-                if (remoteSettingsBytes != null) {
-                    snapshotBeforeRestore() // best-effort undo point (needs a SAF folder)
-                    if (applySettingsFromJson(remoteSettingsBytes)) {
-                        extra++
-                        settingsRepository.update {
-                            it.copy(dropboxSettingsBaseHash = remoteSettingsHash ?: it.dropboxSettingsBaseHash)
-                        }
-                    } else {
-                        // Unreadable on Dropbox. Not "up to date": the pass
-                        // reports a failure and the baseline stays put.
-                        Log.w(TAG, "Dropbox settings.json could not be applied")
-                        settingsFailed = true
-                    }
-                }
-            }
-            SettingsSyncAction.NONE -> {
-                // Already in sync (or skipped). Advance the baseline so we do not
-                // re-flag the same state next pass.
-                if (remoteSettingsHash == phoneSettingsHash)
-                    settingsRepository.update { it.copy(dropboxSettingsBaseHash = phoneSettingsHash) }
-            }
-            SettingsSyncAction.CONFLICT -> { /* resolved into UPLOAD/APPLY/NONE above */ }
+        val settingsOutcome = dropboxSettings.carryOut(settingsPlan, settingsAction) {
+            snapshotBeforeRestore() // best-effort undo point (needs a SAF folder)
         }
+        var extra = if (settingsOutcome.changed) 1 else 0
+        var settingsFailed = settingsOutcome.failed
 
         val total = toUpload.size + toDownload.size
 
