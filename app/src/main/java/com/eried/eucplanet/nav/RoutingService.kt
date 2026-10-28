@@ -67,6 +67,9 @@ data class RouteAvoidances(
 class RoutingService(
     private val context: android.content.Context,
     private val appNotifier: com.eried.eucplanet.util.AppNotifier,
+    private val settingsRepository: com.eried.eucplanet.data.repository.SettingsRepository,
+    private val offlineRouter: com.eried.eucplanet.nav.offline.OfflineRouter,
+    private val tileStore: com.eried.eucplanet.nav.offline.OfflineTileStore,
 ) {
 
     /** When the rider was last told their avoidances were dropped; reroutes repeat, the notice should not. */
@@ -399,9 +402,11 @@ class RoutingService(
 
     /**
      * Resolves an ordered list of waypoints into a navigable route with
-     * geometry and turn-by-turn maneuvers, on Valhalla or OSRM (see
-     * [prefersValhalla]). [heading] is the rider's direction on a reroute.
-     * Returns `null` if the request fails, the caller falls back to
+     * geometry and turn-by-turn maneuvers. Online it is Valhalla or OSRM (see
+     * [prefersValhalla]); legs covered by downloaded tiles can also route on
+     * the phone, first or only when online fails, as the rider set in
+     * offline routing. [heading] is the rider's direction on a reroute.
+     * Returns `null` if every router fails, the caller falls back to
      * [straightLineRoute].
      */
     suspend fun route(
@@ -415,6 +420,63 @@ class RoutingService(
     ): NavRoute? = withContext(Dispatchers.IO) {
         if (waypoints.size < 2) return@withContext null
         if (mode == TravelMode.STRAIGHT) return@withContext straightLineRoute(name, waypoints)
+        val offlineMode = settingsRepository.currentOrLoad().offlineRouting.mode
+        val legs = waypoints.zipWithNext()
+        val eligible = legs.map { (a, b) ->
+            val pa = GeoPoint(a.lat, a.lng)
+            val pb = GeoPoint(b.lat, b.lng)
+            com.eried.eucplanet.nav.offline.RouterPlan.offlineEligible(
+                mode,
+                tileStore.covers(com.eried.eucplanet.nav.offline.RoutingTiles.tilesForLeg(pa, pb)),
+                com.eried.eucplanet.nav.offline.RoutingTiles.legKm(pa, pb),
+            )
+        }
+        val offlineFirst = offlineMode == com.eried.eucplanet.data.model.OfflineRoutingMode.PREFER
+        if (offlineFirst && eligible.all { it }) {
+            offlineRouter.route(name, waypoints, mode, avoid, heading)?.let {
+                Log.i(TAG, "routed offline (${waypoints.size} stops)")
+                return@withContext it
+            }
+        } else if (offlineFirst && eligible.any { it }) {
+            // The hybrid: covered legs on the phone, the rest online.
+            val parts = legs.mapIndexed { i, (a, b) ->
+                val legHeading = if (i == 0) heading else null
+                (if (eligible[i]) offlineRouter.route(name, listOf(a, b), mode, avoid, legHeading) else null)
+                    ?: routeOnline(name, listOf(a, b), mode, endpoint, avoid, legHeading, valhalla)
+                    ?: return@mapIndexed null
+            }
+            if (parts.all { it != null }) {
+                Log.i(TAG, "routed offline and online, leg by leg")
+                return@withContext joinRoutes(name, waypoints, mode, parts.filterNotNull())
+            }
+        }
+        routeOnline(name, waypoints, mode, endpoint, avoid, heading, valhalla)?.let { return@withContext it }
+        // Online failed (no signal, server down): whatever the tiles cover.
+        if (eligible.any { it }) {
+            var anyOffline = false
+            val parts = legs.mapIndexed { i, (a, b) ->
+                (if (eligible[i]) offlineRouter.route(name, listOf(a, b), mode, avoid, if (i == 0) heading else null) else null)
+                    ?.also { anyOffline = true }
+                    ?: straightLineRoute(name, listOf(a, b))
+            }
+            if (anyOffline) {
+                Log.i(TAG, "online failed; routed offline where tiles cover")
+                return@withContext joinRoutes(name, waypoints, mode, parts)
+            }
+        }
+        null
+    }
+
+    /** Valhalla or OSRM, as before offline routing. */
+    private suspend fun routeOnline(
+        name: String,
+        waypoints: List<Waypoint>,
+        mode: TravelMode,
+        endpoint: String,
+        avoid: RouteAvoidances,
+        heading: Double?,
+        valhalla: String,
+    ): NavRoute? = withContext(Dispatchers.IO) {
         // Valhalla first for cycling and for any avoidance (see prefersValhalla).
         // If it fails, fall through to the OSRM attempt below so the rider
         // still gets a route rather than nothing.
