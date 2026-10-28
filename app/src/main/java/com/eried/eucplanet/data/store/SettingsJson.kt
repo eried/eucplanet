@@ -21,6 +21,25 @@ import org.json.JSONObject
  */
 object SettingsJson {
 
+    /** Marks a blob written after the reroute retune; older blobs get [retuneReroute]. */
+    private const val REROUTE_RETUNED_KEY = "navRerouteRetuned"
+
+    /**
+     * Rerouting used to wait 8 s before showing off-route and 22 s before
+     * asking for a new route. Every blob stores every knob, so an install
+     * that never touched them would keep the slow values forever. Move the
+     * old defaults to the current ones once; a value the rider changed stays.
+     */
+    internal fun retuneReroute(
+        a: com.eried.eucplanet.data.model.AdvancedSettings,
+    ): com.eried.eucplanet.data.model.AdvancedSettings {
+        val defaults = com.eried.eucplanet.data.model.AdvancedSettings()
+        return a.copy(
+            navOffRouteGraceMs = if (a.navOffRouteGraceMs == 8000) defaults.navOffRouteGraceMs else a.navOffRouteGraceMs,
+            navRerouteAfterMs = if (a.navRerouteAfterMs == 22000) defaults.navRerouteAfterMs else a.navRerouteAfterMs,
+        )
+    }
+
     /**
      * Returns a copy of [s] with every device-specific binding nulled out so
      * the resulting JSON is safe to share between phones. Used by the backup
@@ -339,6 +358,7 @@ object SettingsJson {
         put("watchUpdateRate", s.watchUpdateRate)
         // Advanced knobs, flat keys (kept stable for back-compat), registry-driven.
         com.eried.eucplanet.data.model.ADVANCED_SPECS.forEach { put(it.id, it.get(s.advanced)) }
+        put(REROUTE_RETUNED_KEY, true)
         put("watchCloseOnExit", s.watchCloseOnExit)
         put("watchPrioritizePwm", s.watchPrioritizePwm)
         put("watchDialRotationDeg", s.watchDialRotationDeg)
@@ -807,7 +827,7 @@ object SettingsJson {
         // Advanced knobs, fold each spec's flat key over the defaults (registry-driven).
         advanced = com.eried.eucplanet.data.model.ADVANCED_SPECS.fold(base.advanced) { a, sp ->
             sp.set(a, j.optInt(sp.id, sp.get(a)))
-        },
+        }.let { a -> if (j.has(REROUTE_RETUNED_KEY)) a else retuneReroute(a) },
         watchCloseOnExit = j.optBoolean("watchCloseOnExit", base.watchCloseOnExit),
         watchPrioritizePwm = j.optBoolean("watchPrioritizePwm", base.watchPrioritizePwm),
         watchDialRotationDeg = j.optInt("watchDialRotationDeg", base.watchDialRotationDeg),

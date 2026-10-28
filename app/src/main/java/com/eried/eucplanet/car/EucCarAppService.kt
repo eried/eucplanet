@@ -44,6 +44,7 @@ import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.nav.NavigationEngine
+import com.eried.eucplanet.nav.RouteAvoidances
 import com.eried.eucplanet.nav.RoutingService
 import com.eried.eucplanet.widget.EucWidget
 import kotlinx.coroutines.flow.SharingStarted
@@ -497,7 +498,7 @@ class EucCarAppService : CarAppService() {
                 val wps = listOf(Waypoint(loc.latitude, loc.longitude), plan.leadInTo!!)
                 val mode = TravelMode.fromName(s.navDefaultTravelMode)
                 val leadIn = if (mode == TravelMode.STRAIGHT) null
-                else routingService.route(name, wps, mode, RoutingService.effectiveRouterUrl(s.navRouterUrl))
+                else routingService.route(name, wps, mode, RoutingService.effectiveRouterUrl(s.navRouterUrl), RouteAvoidances.from(s))
                 (leadIn ?: RoutingService.straightLineRoute(name, wps)).copy(track = track)
             }
             navigationEngine.start(route, NavMode.TURN_BY_TURN)
@@ -528,7 +529,7 @@ class EucCarAppService : CarAppService() {
             val targets = if (mode == TravelMode.STRAIGHT) stops.take(1) else stops
             val name = targets.last().name
             val wps = listOf(Waypoint(loc.latitude, loc.longitude)) + targets
-            val route = routingService.route(name, wps, mode, RoutingService.effectiveRouterUrl(s.navRouterUrl))
+            val route = routingService.route(name, wps, mode, RoutingService.effectiveRouterUrl(s.navRouterUrl), RouteAvoidances.from(s))
                 ?: RoutingService.straightLineRoute(name, wps)
             navigationEngine.start(
                 route, if (mode == TravelMode.STRAIGHT) NavMode.TREASURE_HUNT else NavMode.TURN_BY_TURN

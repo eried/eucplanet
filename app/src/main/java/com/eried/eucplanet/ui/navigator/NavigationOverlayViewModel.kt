@@ -10,6 +10,7 @@ import com.eried.eucplanet.data.model.Waypoint
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.nav.NavigationEngine
+import com.eried.eucplanet.nav.RouteAvoidances
 import com.eried.eucplanet.nav.RoutingService
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -89,7 +90,8 @@ class NavigationOverlayViewModel(
             } else {
                 routingService.route(
                     saved.name, navWps, saved.travelMode,
-                    RoutingService.effectiveRouterUrl(s.navRouterUrl)
+                    RoutingService.effectiveRouterUrl(s.navRouterUrl),
+                    RouteAvoidances.from(s),
                 ) ?: RoutingService.straightLineRoute(saved.name, navWps)
             }
             navigationEngine.start(route, mode)
