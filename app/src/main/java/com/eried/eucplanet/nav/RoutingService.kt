@@ -87,12 +87,13 @@ class RoutingService(
         const val DEFAULT_ROUTER = "https://routing.openstreetmap.de"
 
         /**
-         * Avoidance-capable backend. The OSRM service above rejects every
-         * `exclude=` flag, so when the rider opts into an avoidance the request
-         * goes here instead: the key-less FOSSGIS Valhalla, same provider
-         * family, which exposes per-costing avoidance weights.
+         * Default Valhalla server, overridable from Settings (`navValhallaUrl`).
+         * Bike routes and any route with an avoidance go here (see
+         * [prefersValhalla]): the key-less FOSSGIS Valhalla, same provider
+         * family, which keeps bikes off main roads and exposes per-costing
+         * avoidance weights the OSRM service above rejects.
          */
-        const val DEFAULT_VALHALLA = "https://valhalla1.openstreetmap.de/route"
+        const val DEFAULT_VALHALLA = "https://valhalla1.openstreetmap.de"
 
         // Nominatim's usage policy asks for an identifying User-Agent.
         private const val USER_AGENT = "EUCPlanet-Navigator/1.0 (github.com/eried/eucplanet)"
@@ -106,15 +107,15 @@ class RoutingService(
 
         /**
          * True when [mode] routes on Valhalla first. An avoidance always does,
-         * OSRM can't honour one. Cycling does on the default router too: OSRM's
-         * bike profile scores a main road like a cycleway, so it picked the
-         * straight main road, and Valhalla's bicycle costing keeps to quieter
-         * streets and paths (Organic Maps weights roads the same way). Walking
-         * stays on OSRM, whose foot profile already keeps to footways. A rider
-         * who set their own router keeps cycling on it.
+         * OSRM can't honour one. Cycling does too: OSRM's bike profile scores
+         * a main road like a cycleway, so it picked the straight main road,
+         * and Valhalla's bicycle costing keeps to quieter streets and paths
+         * (Organic Maps weights roads the same way). Walking and car stay on
+         * OSRM, whose foot profile already keeps to footways. Each has its own
+         * server URL in Settings.
          */
-        fun prefersValhalla(mode: TravelMode, endpoint: String, avoid: RouteAvoidances): Boolean =
-            avoid.any || (mode == TravelMode.CYCLING && endpoint.trimEnd('/') == DEFAULT_ROUTER)
+        fun prefersValhalla(mode: TravelMode, avoid: RouteAvoidances): Boolean =
+            avoid.any || mode == TravelMode.CYCLING
 
         /** Valhalla locations; the rider's [heading] goes on the first one so a reroute carries on ahead. */
         fun valhallaLocations(waypoints: List<Waypoint>, heading: Double?): JSONArray = JSONArray().also { arr ->
@@ -164,6 +165,16 @@ class RoutingService(
         fun effectiveRouterUrl(stored: String): String =
             if (stored.isBlank() || stored.contains("valhalla", ignoreCase = true))
                 DEFAULT_ROUTER else stored
+
+        /**
+         * The Valhalla route endpoint for the configured server. The setting
+         * holds the server, like the OSRM one; `/route` is added unless the
+         * rider typed it. Blank falls back to [DEFAULT_VALHALLA].
+         */
+        fun effectiveValhallaUrl(stored: String): String {
+            val base = stored.trim().trimEnd('/').ifBlank { DEFAULT_VALHALLA }
+            return if (base.endsWith("/route")) base else "$base/route"
+        }
 
         /**
          * Extracts a sensible short label from a Nominatim display_name: the
@@ -400,14 +411,15 @@ class RoutingService(
         endpoint: String = DEFAULT_ROUTER,
         avoid: RouteAvoidances = RouteAvoidances.NONE,
         heading: Double? = null,
+        valhalla: String = effectiveValhallaUrl(""),
     ): NavRoute? = withContext(Dispatchers.IO) {
         if (waypoints.size < 2) return@withContext null
         if (mode == TravelMode.STRAIGHT) return@withContext straightLineRoute(name, waypoints)
         // Valhalla first for cycling and for any avoidance (see prefersValhalla).
         // If it fails, fall through to the OSRM attempt below so the rider
         // still gets a route rather than nothing.
-        if (prefersValhalla(mode, endpoint, avoid)) {
-            routeViaValhalla(name, waypoints, mode, avoid, heading)?.let { return@withContext it }
+        if (prefersValhalla(mode, avoid)) {
+            routeViaValhalla(name, waypoints, mode, avoid, heading, valhalla)?.let { return@withContext it }
             Log.w(TAG, "Valhalla route failed; falling back to OSRM")
             // The route below ignores the avoidances; say so rather than let a
             // rider meet the toll road they asked to skip.
@@ -470,8 +482,9 @@ class RoutingService(
         mode: TravelMode,
         avoid: RouteAvoidances,
         heading: Double?,
+        url: String,
     ): NavRoute? {
-        if (waypoints.size <= VALHALLA_MAX_LOCATIONS) return routeViaValhallaOnce(name, waypoints, mode, avoid, heading)
+        if (waypoints.size <= VALHALLA_MAX_LOCATIONS) return routeViaValhallaOnce(name, waypoints, mode, avoid, heading, url)
         // The FOSSGIS server refuses more than 10 locations, so a longer
         // route lost its avoidances to the OSRM fallback. Route it in
         // stretches that share their end points and join them. The
@@ -479,7 +492,7 @@ class RoutingService(
         // slowest one, not for all of them in a row.
         val parts = coroutineScope {
             chunkForValhalla(waypoints).mapIndexed { i, part ->
-                async { routeViaValhallaOnce(name, part, mode, avoid, heading.takeIf { i == 0 }) }
+                async { routeViaValhallaOnce(name, part, mode, avoid, heading.takeIf { i == 0 }, url) }
             }.awaitAll()
         }
         if (parts.any { it == null }) return null
@@ -492,6 +505,7 @@ class RoutingService(
         mode: TravelMode,
         avoid: RouteAvoidances,
         heading: Double?,
+        endpoint: String,
     ): NavRoute? {
         return try {
             val costing = valhallaCosting(mode)
@@ -501,7 +515,7 @@ class RoutingService(
                 valhallaCostingOptions(costing, avoid)?.let { put("costing_options", it) }
                 put("directions_options", JSONObject().put("units", "kilometers"))
             }
-            val url = "$DEFAULT_VALHALLA?json=${enc(req.toString())}"
+            val url = "$endpoint?json=${enc(req.toString())}"
             val body = httpGet(url) ?: return null
             parseValhalla(JSONObject(body), name, waypoints, mode)?.also {
                 Log.i(TAG, "routed via Valhalla ($costing, avoid=$avoid): ${it.geometry.size} pts")

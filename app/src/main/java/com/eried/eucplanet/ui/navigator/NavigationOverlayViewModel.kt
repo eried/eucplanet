@@ -92,6 +92,7 @@ class NavigationOverlayViewModel(
                     saved.name, navWps, saved.travelMode,
                     RoutingService.effectiveRouterUrl(s.navRouterUrl),
                     RouteAvoidances.from(s),
+                    valhalla = RoutingService.effectiveValhallaUrl(s.navValhallaUrl),
                 ) ?: RoutingService.straightLineRoute(saved.name, navWps)
             }
             navigationEngine.start(route, mode)

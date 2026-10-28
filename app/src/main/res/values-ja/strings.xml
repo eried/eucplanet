@@ -1956,9 +1956,10 @@
     <string name="nav_setting_full_path">常に全ルートを計算</string>
     <string name="nav_setting_full_path_desc">オフにすると次の経由地のみを計算し、残りは点線のプレビューで表示。</string>
     <string name="nav_setting_endpoints">ルーティングサービス</string>
-    <string name="nav_setting_endpoints_hint">デフォルトは無料の OpenStreetMap パブリックサービス。独自サーバーを使用する場合は変更してください。</string>
+    <string name="nav_setting_endpoints_hint">デフォルトは無料の OpenStreetMap パブリックサービス。独自サーバーを使用する場合は変更してください。 自転車ルートと回避設定は Valhalla、徒歩と車は OSRM で計算します。</string>
     <string name="nav_setting_geocoder_url">住所検索 URL</string>
-    <string name="nav_setting_router_url">ルーティング URL</string>
+    <string name="nav_setting_router_url">ルーティング URL (OSRM)</string>
+    <string name="nav_setting_valhalla_url">ルーティング URL (Valhalla)</string>
     <string name="watch_show_navigation">ナビゲーションを表示</string>
     <string name="watch_show_navigation_desc">ナビゲーション中にウォッチへターン矢印と距離をミラーリングします。</string>
     <!-- ==== Trip share / actions ==== -->

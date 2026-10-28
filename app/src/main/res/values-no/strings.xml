@@ -935,7 +935,7 @@
     <string name="nav_setting_arrival_radius_desc">Hvor nært som teller som å ha nådd et stopp.</string>
     <string name="nav_setting_default_mode">Standard reisemåte</string>
     <string name="nav_setting_endpoints">Rutetjenester</string>
-    <string name="nav_setting_endpoints_hint">Offentlig OpenStreetMap som standard; endre for egen server.</string>
+    <string name="nav_setting_endpoints_hint">Offentlig OpenStreetMap som standard; endre for egen server. Valhalla beregner sykkelruter og unngåelser, OSRM gange og bil.</string>
     <string name="nav_setting_geocoder_url">URL for adressesøk</string>
     <string name="nav_setting_offroute">Toleranse for avvik fra ruten</string>
     <string name="nav_setting_offroute_desc">Hvor langt fra ruten før varselet om at du er av ruta utløses.</string>
@@ -1023,7 +1023,8 @@
     <string name="weather_face_cold">Kaldt - dårligere grep, svakt batteri, kle deg godt.</string>
     <string name="weather_face_hot">Varmt - følg med på kontrolleren i bakker.</string>
     <string name="weather_face_golden">Gylden time, nydelig lys, snart lykter.</string>
-    <string name="nav_setting_router_url">Rute-URL</string>
+    <string name="nav_setting_router_url">Rute-URL (OSRM)</string>
+    <string name="nav_setting_valhalla_url">Rute-URL (Valhalla)</string>
     <string name="nav_setting_voice">Stemmeveiledning</string>
     <string name="nav_start_riding">Begynn å kjøre</string>
     <string name="nav_start_short">Start navigasjon</string>

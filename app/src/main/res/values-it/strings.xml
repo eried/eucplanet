@@ -954,7 +954,7 @@
     <string name="nav_setting_arrival_radius_desc">Quanto vicino conta come fermata raggiunta.</string>
     <string name="nav_setting_default_mode">Modalità di viaggio predefinita</string>
     <string name="nav_setting_endpoints">Servizi di routing</string>
-    <string name="nav_setting_endpoints_hint">OpenStreetMap pubblico di default; modifica per usare il tuo server.</string>
+    <string name="nav_setting_endpoints_hint">OpenStreetMap pubblico di default; modifica per usare il tuo server. Valhalla calcola i percorsi in bici e con esclusioni, OSRM a piedi e in auto.</string>
     <string name="nav_setting_geocoder_url">URL ricerca indirizzi</string>
     <string name="nav_setting_offroute">Tolleranza fuori percorso</string>
     <string name="nav_setting_offroute_desc">Quanto distante dal percorso prima che scatti l\'avviso fuori rotta.</string>
@@ -1042,7 +1042,8 @@
     <string name="weather_face_cold">Freddo: meno grip, batteria giù, copriti.</string>
     <string name="weather_face_hot">Caldo: occhio al controller in salita.</string>
     <string name="weather_face_golden">Ora dorata, luce splendida, presto le luci.</string>
-    <string name="nav_setting_router_url">URL di routing</string>
+    <string name="nav_setting_router_url">URL di routing (OSRM)</string>
+    <string name="nav_setting_valhalla_url">URL di routing (Valhalla)</string>
     <string name="nav_setting_voice">Guida vocale</string>
     <string name="nav_start_riding">Inizia a guidare</string>
     <string name="nav_start_short">Avvia navigazione</string>

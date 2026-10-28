@@ -438,6 +438,8 @@ data class AppSettings(
     val navGeocoderUrl: String = "https://nominatim.openstreetmap.org/search",
     /** Routing endpoint, overridable for self-hosting. */
     val navRouterUrl: String = "https://routing.openstreetmap.de",
+    /** Valhalla endpoint for bike routes and any route with avoids, overridable for self-hosting. */
+    val navValhallaUrl: String = "https://valhalla1.openstreetmap.de",
     /** Overpass (chargers / stations POI source) endpoint, overridable for self-hosting. */
     val navOverpassUrl: String = "https://overpass-api.de/api/interpreter",
     /**

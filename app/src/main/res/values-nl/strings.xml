@@ -2014,9 +2014,10 @@
     <string name="nav_setting_full_path">Altijd de hele route berekenen</string>
     <string name="nav_setting_full_path_desc">Uit berekent alleen de volgende stop en toont de rest als gestippelde preview.</string>
     <string name="nav_setting_endpoints">Routeringsservices</string>
-    <string name="nav_setting_endpoints_hint">Standaard openbaar OpenStreetMap; wijzig voor eigen server.</string>
+    <string name="nav_setting_endpoints_hint">Standaard openbaar OpenStreetMap; wijzig voor eigen server. Valhalla berekent fietsroutes en vermijdingen, OSRM lopen en auto.</string>
     <string name="nav_setting_geocoder_url">URL voor adreszoeken</string>
-    <string name="nav_setting_router_url">Routerings-URL</string>
+    <string name="nav_setting_router_url">Routerings-URL (OSRM)</string>
+    <string name="nav_setting_valhalla_url">Routerings-URL (Valhalla)</string>
     <string name="watch_show_navigation">Navigatie tonen</string>
     <string name="watch_show_navigation_desc">Toon de afslagpijl en afstand op het horloge tijdens het navigeren.</string>
     <!-- ==== Trip share / actions ==== -->

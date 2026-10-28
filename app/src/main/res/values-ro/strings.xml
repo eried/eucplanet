@@ -2295,9 +2295,10 @@
     <string name="nav_ocm_open">Deschide pe OCM</string>
     <string name="nav_ocm_attrib">Recenzii și fotografii prin Open Charge Map (CC BY)</string>
     <string name="nav_setting_endpoints">Servicii de trasee</string>
-    <string name="nav_setting_endpoints_hint">Implicit OpenStreetMap public și gratuit; schimbă pentru a folosi propriul server.</string>
+    <string name="nav_setting_endpoints_hint">Implicit OpenStreetMap public și gratuit; schimbă pentru a folosi propriul server. Valhalla calculează traseele cu bicicleta și cu evitări, OSRM pe cele pe jos și cu mașina.</string>
     <string name="nav_setting_geocoder_url">URL pentru căutarea adreselor</string>
-    <string name="nav_setting_router_url">URL pentru calcularea traseelor</string>
+    <string name="nav_setting_router_url">URL pentru calcularea traseelor (OSRM)</string>
+    <string name="nav_setting_valhalla_url">URL pentru calcularea traseelor (Valhalla)</string>
     <string name="nav_setting_overpass_url">URL pentru stații și locuri (Overpass)</string>
     <string name="nav_setting_ocm_subtitle">Comunitatea stațiilor (Open Charge Map)</string>
     <string name="nav_setting_ocm_key">Cheie API Open Charge Map</string>

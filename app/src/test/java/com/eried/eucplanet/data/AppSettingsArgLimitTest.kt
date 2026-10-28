@@ -62,9 +62,10 @@ class AppSettingsArgLimitTest {
         // sync baseline; 249 chargingNotifyCustom and its level, beside the
         // other two charge alerts; 250 the Android Auto slots, nested as
         // AndroidAutoSettings; 251 the navigator view, nested as
-        // NavigatorViewSettings. Keep nesting: the next group goes in one slot,
+        // NavigatorViewSettings; 252 navValhallaUrl, beside navRouterUrl. Keep
+        // nesting: the next group goes in one slot,
         // not one per field.
-        val expectedSlots = 251
+        val expectedSlots = 252
         assertEquals(
             "AppSettings slot usage changed. Prefer nesting a group of fields over " +
                 "spending headroom, and update this number deliberately.",

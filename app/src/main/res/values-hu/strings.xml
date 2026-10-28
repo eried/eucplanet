@@ -2295,9 +2295,10 @@
     <string name="nav_ocm_open">Megnyitás az OCM-en</string>
     <string name="nav_ocm_attrib">Értékelések és fényképek az Open Charge Maptől (CC BY)</string>
     <string name="nav_setting_endpoints">Útvonaltervező szolgáltatások</string>
-    <string name="nav_setting_endpoints_hint">Alapból ingyenes nyilvános OpenStreetMap; módosítsd, ha saját szervert használnál.</string>
+    <string name="nav_setting_endpoints_hint">Alapból ingyenes nyilvános OpenStreetMap; módosítsd, ha saját szervert használnál. A Valhalla tervezi a kerékpáros és elkerüléses útvonalakat, az OSRM a gyalogos és autós útvonalakat.</string>
     <string name="nav_setting_geocoder_url">Címkeresés URL-je</string>
-    <string name="nav_setting_router_url">Útvonaltervezés URL-je</string>
+    <string name="nav_setting_router_url">Útvonaltervezés URL-je (OSRM)</string>
+    <string name="nav_setting_valhalla_url">Útvonaltervezés URL-je (Valhalla)</string>
     <string name="nav_setting_overpass_url">Töltők és helyek URL-je (Overpass)</string>
     <string name="nav_setting_ocm_subtitle">Töltőközösség (Open Charge Map)</string>
     <string name="nav_setting_ocm_key">Open Charge Map API-kulcs</string>

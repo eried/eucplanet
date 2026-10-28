@@ -1972,9 +1972,10 @@
     <string name="nav_setting_full_path">Zawsze wyznaczaj całą trasę</string>
     <string name="nav_setting_full_path_desc">Wyłączone, wyznacza tylko następny przystanek, resztę pokazuje jako przerywany podgląd.</string>
     <string name="nav_setting_endpoints">Usługi wyznaczania trasy</string>
-    <string name="nav_setting_endpoints_hint">Domyślnie publiczny OpenStreetMap; zmień, aby użyć własnego serwera.</string>
+    <string name="nav_setting_endpoints_hint">Domyślnie publiczny OpenStreetMap; zmień, aby użyć własnego serwera. Valhalla wyznacza trasy rowerowe i z omijaniem, OSRM piesze i samochodowe.</string>
     <string name="nav_setting_geocoder_url">URL wyszukiwania adresów</string>
-    <string name="nav_setting_router_url">URL wyznaczania trasy</string>
+    <string name="nav_setting_router_url">URL wyznaczania trasy (OSRM)</string>
+    <string name="nav_setting_valhalla_url">URL wyznaczania trasy (Valhalla)</string>
     <string name="watch_show_navigation">Pokaż nawigację</string>
     <string name="watch_show_navigation_desc">Pokazuj strzałkę zakrętu i odległość na zegarku podczas nawigacji.</string>
     <!-- ==== Trip share / actions ==== -->

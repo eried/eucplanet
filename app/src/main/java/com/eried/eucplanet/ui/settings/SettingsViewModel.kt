@@ -1255,6 +1255,7 @@ class SettingsViewModel(
     fun updateNavDefaultTravelMode(v: String) = update { copy(navDefaultTravelMode = v) }
     fun updateNavGeocoderUrl(v: String) = update { copy(navGeocoderUrl = v) }
     fun updateNavRouterUrl(v: String) = update { copy(navRouterUrl = v) }
+    fun updateNavValhallaUrl(v: String) = update { copy(navValhallaUrl = v) }
     fun updateNavOverpassUrl(v: String) = update { copy(navOverpassUrl = v) }
     fun updateNavOcmApiKey(v: String) = update { copy(navOcmApiKey = v) }
 

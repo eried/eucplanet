@@ -1956,9 +1956,10 @@
     <string name="nav_setting_full_path">始終計算完整路徑</string>
     <string name="nav_setting_full_path_desc">關閉時僅計算下一站，其餘路段以虛線預覽。</string>
     <string name="nav_setting_endpoints">路線服務</string>
-    <string name="nav_setting_endpoints_hint">預設使用免費公開的 OpenStreetMap，可更改為使用您自己的伺服器。</string>
+    <string name="nav_setting_endpoints_hint">預設使用免費公開的 OpenStreetMap，可更改為使用您自己的伺服器。 騎乘路線與避開設定由 Valhalla 計算，步行與開車由 OSRM 計算。</string>
     <string name="nav_setting_geocoder_url">地址搜尋網址</string>
-    <string name="nav_setting_router_url">路線網址</string>
+    <string name="nav_setting_router_url">路線網址 (OSRM)</string>
+    <string name="nav_setting_valhalla_url">路線網址 (Valhalla)</string>
     <string name="watch_show_navigation">顯示導航</string>
     <string name="watch_show_navigation_desc">導航時在手錶上顯示轉向箭頭和距離。</string>
     <!-- ==== Trip share / actions ==== -->

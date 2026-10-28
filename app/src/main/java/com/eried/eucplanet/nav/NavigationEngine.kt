@@ -210,6 +210,7 @@ class NavigationEngine(
     private var arrivalRadiusM = 25.0
     private var offRouteToleranceM = 40.0
     private var routerUrl = RoutingService.DEFAULT_ROUTER
+    private var valhallaUrl = RoutingService.effectiveValhallaUrl("")
     /** Route avoidances for mid-trip reroutes; all-off keeps reroutes on OSRM. */
     private var avoidances = RouteAvoidances.NONE
 
@@ -311,6 +312,7 @@ class NavigationEngine(
             arrivalRadiusM = s.navArrivalRadiusM.toDouble()
             offRouteToleranceM = s.navOffRouteToleranceM.toDouble()
             routerUrl = RoutingService.effectiveRouterUrl(s.navRouterUrl)
+            valhallaUrl = RoutingService.effectiveValhallaUrl(s.navValhallaUrl)
             avoidances = RouteAvoidances.from(s)
 
             activeRoute = route
@@ -832,7 +834,7 @@ class NavigationEngine(
                 }
                 val stops = listOf(Waypoint(from.lat, from.lng)) + remaining
                 if (stops.size >= 2) {
-                    val fresh = routingService.route(route.name, stops, route.travelMode, routerUrl, avoidances, headingNow)
+                    val fresh = routingService.route(route.name, stops, route.travelMode, routerUrl, avoidances, headingNow, valhallaUrl)
                         ?.let { if (route.isLockedTrack) it.copy(track = route.track) else it }
                     // The session may have been stopped or restarted while the
                     // network request was in flight, only adopt the result if
@@ -1249,7 +1251,7 @@ class NavigationEngine(
         val newLeg = if (mode == TravelMode.STRAIGHT) {
             RoutingService.straightLineRoute(route.name, legWps)
         } else {
-            routingService.route(route.name, legWps, mode, routerUrl, avoidances)
+            routingService.route(route.name, legWps, mode, routerUrl, avoidances, valhalla = valhallaUrl)
                 ?: RoutingService.straightLineRoute(route.name, legWps)
         }
         Log.i(

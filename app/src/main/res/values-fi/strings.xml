@@ -2295,9 +2295,10 @@
     <string name="nav_ocm_open">Avaa OCM:ssä</string>
     <string name="nav_ocm_attrib">Arvostelut ja kuvat Open Charge Mapista (CC BY)</string>
     <string name="nav_setting_endpoints">Reitityspalvelut</string>
-    <string name="nav_setting_endpoints_hint">Oletuksena ilmainen julkinen OpenStreetMap; vaihda käyttääksesi omaa palvelintasi.</string>
+    <string name="nav_setting_endpoints_hint">Oletuksena ilmainen julkinen OpenStreetMap; vaihda käyttääksesi omaa palvelintasi. Valhalla laskee pyöräreitit ja vältettävät, OSRM kävelyn ja auton.</string>
     <string name="nav_setting_geocoder_url">Osoitehaun URL</string>
-    <string name="nav_setting_router_url">Reitityksen URL</string>
+    <string name="nav_setting_router_url">Reitityksen URL (OSRM)</string>
+    <string name="nav_setting_valhalla_url">Reitityksen URL (Valhalla)</string>
     <string name="nav_setting_overpass_url">Laturien ja paikkojen URL (Overpass)</string>
     <string name="nav_setting_ocm_subtitle">Latureiden yhteisö (Open Charge Map)</string>
     <string name="nav_setting_ocm_key">Open Charge Map API-avain</string>

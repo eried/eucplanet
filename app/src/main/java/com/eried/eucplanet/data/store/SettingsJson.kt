@@ -388,6 +388,7 @@ object SettingsJson {
         put("navDefaultTravelMode", s.navDefaultTravelMode)
         put("navGeocoderUrl", s.navGeocoderUrl)
         put("navRouterUrl", s.navRouterUrl)
+        put("navValhallaUrl", s.navValhallaUrl)
         put("navOverpassUrl", s.navOverpassUrl)
         put("navOcmApiKey", s.navOcmApiKey)
         put("navMapType", s.navMapType)
@@ -860,6 +861,7 @@ object SettingsJson {
         navDefaultTravelMode = j.optString("navDefaultTravelMode", base.navDefaultTravelMode),
         navGeocoderUrl = j.optString("navGeocoderUrl", base.navGeocoderUrl),
         navRouterUrl = j.optString("navRouterUrl", base.navRouterUrl),
+        navValhallaUrl = j.optString("navValhallaUrl", base.navValhallaUrl),
         navOverpassUrl = j.optString("navOverpassUrl", base.navOverpassUrl),
         navOcmApiKey = j.optString("navOcmApiKey", base.navOcmApiKey),
         navMapType = j.optString("navMapType", base.navMapType),

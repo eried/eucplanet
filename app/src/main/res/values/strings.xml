@@ -2504,9 +2504,10 @@
     <string name="nav_ocm_open">Open on OCM</string>
     <string name="nav_ocm_attrib">Reviews &amp; photos via Open Charge Map (CC BY)</string>
     <string name="nav_setting_endpoints">Routing services</string>
-    <string name="nav_setting_endpoints_hint">Free public OpenStreetMap by default; change to use your own server.</string>
+    <string name="nav_setting_endpoints_hint">Free public OpenStreetMap by default; change to use your own server. Valhalla handles bike routes and avoids, OSRM walking and car.</string>
     <string name="nav_setting_geocoder_url">Address search URL</string>
-    <string name="nav_setting_router_url">Routing URL</string>
+    <string name="nav_setting_router_url">Routing URL (OSRM)</string>
+    <string name="nav_setting_valhalla_url">Routing URL (Valhalla)</string>
     <string name="nav_setting_overpass_url">Chargers &amp; places URL (Overpass)</string>
     <string name="nav_setting_ocm_subtitle">Charger community (Open Charge Map)</string>
     <string name="nav_setting_ocm_key">Open Charge Map API key</string>

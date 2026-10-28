@@ -14,28 +14,32 @@ import org.junit.Test
  */
 class RoutingBackendTest {
 
-    private val def = RoutingService.DEFAULT_ROUTER
-
-    @Test fun cycling_goesToValhalla_onTheDefaultRouter() {
+    @Test fun cycling_goesToValhalla() {
         // OSRM's bike profile scores a main road like a cycleway, so the
         // rider was sent along the straight main road.
-        assertTrue(RoutingService.prefersValhalla(TravelMode.CYCLING, def, RouteAvoidances.NONE))
-        assertTrue(RoutingService.prefersValhalla(TravelMode.CYCLING, "$def/", RouteAvoidances.NONE))
+        assertTrue(RoutingService.prefersValhalla(TravelMode.CYCLING, RouteAvoidances.NONE))
     }
 
     @Test fun walkingAndDriving_stayOnOsrm_withoutAvoidances() {
-        assertFalse(RoutingService.prefersValhalla(TravelMode.WALKING, def, RouteAvoidances.NONE))
-        assertFalse(RoutingService.prefersValhalla(TravelMode.DRIVING, def, RouteAvoidances.NONE))
+        assertFalse(RoutingService.prefersValhalla(TravelMode.WALKING, RouteAvoidances.NONE))
+        assertFalse(RoutingService.prefersValhalla(TravelMode.DRIVING, RouteAvoidances.NONE))
     }
 
     @Test fun anAvoidance_goesToValhalla_inEveryMode() {
         val avoid = RouteAvoidances(ferries = true)
-        assertTrue(RoutingService.prefersValhalla(TravelMode.WALKING, def, avoid))
-        assertTrue(RoutingService.prefersValhalla(TravelMode.DRIVING, def, avoid))
+        assertTrue(RoutingService.prefersValhalla(TravelMode.WALKING, avoid))
+        assertTrue(RoutingService.prefersValhalla(TravelMode.DRIVING, avoid))
     }
 
-    @Test fun ownRouter_keepsCycling_onIt() {
-        assertFalse(RoutingService.prefersValhalla(TravelMode.CYCLING, "https://osrm.example.org", RouteAvoidances.NONE))
+    @Test fun valhallaUrl_isTheServer_withRouteAdded() {
+        assertEquals("https://valhalla1.openstreetmap.de/route", RoutingService.effectiveValhallaUrl(""))
+        assertEquals("https://valhalla1.openstreetmap.de/route", RoutingService.effectiveValhallaUrl("  "))
+        assertEquals("https://v.example.org/route", RoutingService.effectiveValhallaUrl("https://v.example.org/"))
+        assertEquals("https://v.example.org/route", RoutingService.effectiveValhallaUrl("https://v.example.org/route"))
+    }
+
+    @Test fun valhallaSetting_defaultsToTheFossgisServer() {
+        assertEquals(RoutingService.DEFAULT_VALHALLA, com.eried.eucplanet.data.model.AppSettings().navValhallaUrl)
     }
 
     @Test fun walking_onValhalla_prefersFootways() {

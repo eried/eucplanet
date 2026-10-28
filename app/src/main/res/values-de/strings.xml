@@ -1989,9 +1989,10 @@
     <string name="nav_setting_full_path">Immer die ganze Route berechnen</string>
     <string name="nav_setting_full_path_desc">Aus: nur den nächsten Halt berechnen, Rest als gestrichelte Vorschau.</string>
     <string name="nav_setting_endpoints">Routing-Dienste</string>
-    <string name="nav_setting_endpoints_hint">Standard: öffentliches OpenStreetMap; für eigenen Server ändern.</string>
+    <string name="nav_setting_endpoints_hint">Standard: öffentliches OpenStreetMap; für eigenen Server ändern. Valhalla berechnet Radrouten und Vermeidungen, OSRM Fußwege und Auto.</string>
     <string name="nav_setting_geocoder_url">URL für Adresssuche</string>
-    <string name="nav_setting_router_url">Routing-URL</string>
+    <string name="nav_setting_router_url">Routing-URL (OSRM)</string>
+    <string name="nav_setting_valhalla_url">Routing-URL (Valhalla)</string>
     <string name="watch_show_navigation">Navigation anzeigen</string>
     <string name="watch_show_navigation_desc">Abbiegepfeil und Distanz während der Navigation auf die Uhr spiegeln.</string>
 

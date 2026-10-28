@@ -225,6 +225,12 @@ fun NavigatorSettingsContent(
             enabled = true,
             onCommit = { viewModel.updateNavRouterUrl(it) },
         )
+        EndpointField(
+            label = stringResource(R.string.nav_setting_valhalla_url),
+            value = settings.navValhallaUrl,
+            enabled = true,
+            onCommit = { viewModel.updateNavValhallaUrl(it) },
+        )
 
         // --- Avoidances (collapsible; all off by default) ---
         var avoidExpanded by rememberSaveable { mutableStateOf(false) }

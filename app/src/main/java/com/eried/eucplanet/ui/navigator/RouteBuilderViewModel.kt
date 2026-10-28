@@ -398,6 +398,7 @@ class RouteBuilderViewModel(
     private var lastRouteOrigin: GeoPoint? = null
     private var geocoderUrl = RoutingService.DEFAULT_GEOCODER
     private var routerUrl = RoutingService.DEFAULT_ROUTER
+    private var valhallaUrl = RoutingService.effectiveValhallaUrl("")
     /** Route avoidances; all-off (the default) keeps routing on OSRM. */
     private var avoidances = RouteAvoidances.NONE
     private var overpassUrl = PoiService.DEFAULT_OVERPASS
@@ -534,6 +535,7 @@ class RouteBuilderViewModel(
             val s = settingsRepository.get()
             geocoderUrl = s.navGeocoderUrl.ifBlank { RoutingService.DEFAULT_GEOCODER }
             routerUrl = RoutingService.effectiveRouterUrl(s.navRouterUrl)
+            valhallaUrl = RoutingService.effectiveValhallaUrl(s.navValhallaUrl)
             avoidances = RouteAvoidances.from(s)
             overpassUrl = s.navOverpassUrl.ifBlank { PoiService.DEFAULT_OVERPASS }
             ocmApiKey = s.navOcmApiKey
@@ -1593,7 +1595,7 @@ class RouteBuilderViewModel(
         bumpRender(fit)
         routeJob = viewModelScope.launch {
             delay(300)
-            val computed = routingService.route(routeName, navWps, mode, routerUrl, avoidances) ?: run {
+            val computed = routingService.route(routeName, navWps, mode, routerUrl, avoidances, valhalla = valhallaUrl) ?: run {
                 _messages.tryEmit(R.string.nav_route_failed)
                 RoutingService.straightLineRoute(routeName, navWps)
             }
@@ -1888,7 +1890,7 @@ class RouteBuilderViewModel(
                     stops.size < 2 || saveMode == TravelMode.STRAIGHT ->
                         RoutingService.straightLineRoute(routeName, stops)
                     else ->
-                        routingService.route(routeName, stops, saveMode, routerUrl, avoidances)
+                        routingService.route(routeName, stops, saveMode, routerUrl, avoidances, valhalla = valhallaUrl)
                             ?: RoutingService.straightLineRoute(routeName, stops)
                 }
                 // Keep the .gpx extension even if the rider cleared it in the
@@ -2442,7 +2444,7 @@ class RouteBuilderViewModel(
             val navRoute = if (tMode == TravelMode.STRAIGHT) {
                 RoutingService.straightLineRoute(routeName, legWps)
             } else {
-                routingService.route(routeName, legWps, tMode, routerUrl, avoidances)
+                routingService.route(routeName, legWps, tMode, routerUrl, avoidances, valhalla = valhallaUrl)
                     ?: RoutingService.straightLineRoute(routeName, legWps)
             }
             // Mirror the new leg into _route so the map redraws with the
@@ -2488,7 +2490,7 @@ class RouteBuilderViewModel(
             val leadIn = if (mode == TravelMode.STRAIGHT) {
                 RoutingService.straightLineRoute(routeName, legWps)
             } else {
-                routingService.route(routeName, legWps, mode, routerUrl, avoidances)
+                routingService.route(routeName, legWps, mode, routerUrl, avoidances, valhalla = valhallaUrl)
                     ?: RoutingService.straightLineRoute(routeName, legWps)
             }
             leadIn.copy(track = track)

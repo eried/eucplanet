@@ -1956,9 +1956,10 @@
     <string name="nav_setting_full_path">전체 경로 항상 계산</string>
     <string name="nav_setting_full_path_desc">끄기: 다음 경유지만 계산하고 나머지는 점선 미리보기로 표시.</string>
     <string name="nav_setting_endpoints">경로 탐색 서비스</string>
-    <string name="nav_setting_endpoints_hint">기본값은 무료 공개 OpenStreetMap. 자체 서버를 사용하려면 변경하세요.</string>
+    <string name="nav_setting_endpoints_hint">기본값은 무료 공개 OpenStreetMap. 자체 서버를 사용하려면 변경하세요. 자전거 경로와 회피는 Valhalla, 도보와 자동차는 OSRM이 계산합니다.</string>
     <string name="nav_setting_geocoder_url">주소 검색 URL</string>
-    <string name="nav_setting_router_url">경로 탐색 URL</string>
+    <string name="nav_setting_router_url">경로 탐색 URL (OSRM)</string>
+    <string name="nav_setting_valhalla_url">경로 탐색 URL (Valhalla)</string>
     <string name="watch_show_navigation">내비게이션 표시</string>
     <string name="watch_show_navigation_desc">내비게이션 중 워치에 방향 화살표와 거리를 표시합니다.</string>
     <!-- ==== Trip share / actions ==== -->

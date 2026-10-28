@@ -1959,9 +1959,10 @@
     <string name="nav_setting_full_path">Calcular siempre la ruta completa</string>
     <string name="nav_setting_full_path_desc">Desactivado calcula solo la siguiente parada y muestra el resto como vista previa punteada.</string>
     <string name="nav_setting_endpoints">Servicios de rutas</string>
-    <string name="nav_setting_endpoints_hint">OpenStreetMap público por defecto; cámbialo para usar tu propio servidor.</string>
+    <string name="nav_setting_endpoints_hint">OpenStreetMap público por defecto; cámbialo para usar tu propio servidor. Valhalla calcula las rutas en bici y con evitaciones; OSRM, a pie y en coche.</string>
     <string name="nav_setting_geocoder_url">URL de búsqueda de direcciones</string>
-    <string name="nav_setting_router_url">URL de cálculo de rutas</string>
+    <string name="nav_setting_router_url">URL de cálculo de rutas (OSRM)</string>
+    <string name="nav_setting_valhalla_url">URL de cálculo de rutas (Valhalla)</string>
     <string name="watch_show_navigation">Mostrar navegación</string>
     <string name="watch_show_navigation_desc">Refleja la flecha de giro y la distancia en el reloj durante la navegación.</string>
     <!-- ==== Trip share / actions ==== -->

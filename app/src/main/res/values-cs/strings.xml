@@ -2295,9 +2295,10 @@
     <string name="nav_ocm_open">Otevřít na OCM</string>
     <string name="nav_ocm_attrib">Recenze a fotografie z Open Charge Map (CC BY)</string>
     <string name="nav_setting_endpoints">Služby plánování tras</string>
-    <string name="nav_setting_endpoints_hint">Ve výchozím stavu bezplatný veřejný OpenStreetMap; změňte, chcete-li vlastní server.</string>
+    <string name="nav_setting_endpoints_hint">Ve výchozím stavu bezplatný veřejný OpenStreetMap; změňte, chcete-li vlastní server. Valhalla plánuje trasy na kole a s vyhýbáním, OSRM pěší a autem.</string>
     <string name="nav_setting_geocoder_url">URL vyhledávání adres</string>
-    <string name="nav_setting_router_url">URL plánování tras</string>
+    <string name="nav_setting_router_url">URL plánování tras (OSRM)</string>
+    <string name="nav_setting_valhalla_url">URL plánování tras (Valhalla)</string>
     <string name="nav_setting_overpass_url">URL nabíječek a míst (Overpass)</string>
     <string name="nav_setting_ocm_subtitle">Komunita nabíječek (Open Charge Map)</string>
     <string name="nav_setting_ocm_key">Klíč API pro Open Charge Map</string>

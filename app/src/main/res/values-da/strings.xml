@@ -1968,9 +1968,10 @@
     <string name="nav_setting_full_path">Beregn altid hele ruten</string>
     <string name="nav_setting_full_path_desc">Fra beregner kun næste stop og viser resten som stiplet forhåndsvisning.</string>
     <string name="nav_setting_endpoints">Rutetjenester</string>
-    <string name="nav_setting_endpoints_hint">Gratis OpenStreetMap som standard; skift for at bruge din egen server.</string>
+    <string name="nav_setting_endpoints_hint">Gratis OpenStreetMap som standard; skift for at bruge din egen server. Valhalla beregner cykelruter og undgåelser, OSRM gang og bil.</string>
     <string name="nav_setting_geocoder_url">URL til adressesøgning</string>
-    <string name="nav_setting_router_url">URL til ruteberegning</string>
+    <string name="nav_setting_router_url">URL til ruteberegning (OSRM)</string>
+    <string name="nav_setting_valhalla_url">URL til ruteberegning (Valhalla)</string>
     <string name="watch_show_navigation">Vis navigation</string>
     <string name="watch_show_navigation_desc">Spejl svingpilen og afstanden på uret under navigation.</string>
     <!-- ==== Trip share / actions ==== -->

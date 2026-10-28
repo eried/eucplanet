@@ -1959,9 +1959,10 @@
     <string name="nav_setting_full_path">Всегда строить полный маршрут</string>
     <string name="nav_setting_full_path_desc">Выкл, строит только следующую остановку, остальное показывает пунктирным предпросмотром.</string>
     <string name="nav_setting_endpoints">Сервисы маршрутизации</string>
-    <string name="nav_setting_endpoints_hint">По умолчанию публичный OpenStreetMap; измените для своего сервера.</string>
+    <string name="nav_setting_endpoints_hint">По умолчанию публичный OpenStreetMap; измените для своего сервера. Valhalla строит велосипедные маршруты и маршруты с объездами, OSRM пешие и автомобильные.</string>
     <string name="nav_setting_geocoder_url">URL поиска адресов</string>
-    <string name="nav_setting_router_url">URL маршрутизации</string>
+    <string name="nav_setting_router_url">URL маршрутизации (OSRM)</string>
+    <string name="nav_setting_valhalla_url">URL маршрутизации (Valhalla)</string>
     <string name="watch_show_navigation">Показывать навигацию</string>
     <string name="watch_show_navigation_desc">Дублировать стрелку поворота и расстояние на часах во время навигации.</string>
     <!-- ==== Trip share / actions ==== -->

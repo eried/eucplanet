@@ -1956,9 +1956,10 @@
     <string name="nav_setting_full_path">Her zaman tam yolu çöz</string>
     <string name="nav_setting_full_path_desc">Kapalıyken yalnızca sonraki durağı çözer, geri kalanı kesik çizgili önizleme olarak gösterilir.</string>
     <string name="nav_setting_endpoints">Yönlendirme servisleri</string>
-    <string name="nav_setting_endpoints_hint">Varsayılan olarak ücretsiz OpenStreetMap; kendi sunucunuzu kullanmak için değiştirin.</string>
+    <string name="nav_setting_endpoints_hint">Varsayılan olarak ücretsiz OpenStreetMap; kendi sunucunuzu kullanmak için değiştirin. Valhalla bisiklet ve kaçınmalı rotaları, OSRM yürüyüş ve araba rotalarını hesaplar.</string>
     <string name="nav_setting_geocoder_url">Adres arama URL\'si</string>
-    <string name="nav_setting_router_url">Yönlendirme URL\'si</string>
+    <string name="nav_setting_router_url">Yönlendirme URL\'si (OSRM)</string>
+    <string name="nav_setting_valhalla_url">Yönlendirme URL\'si (Valhalla)</string>
     <string name="watch_show_navigation">Navigasyonu göster</string>
     <string name="watch_show_navigation_desc">Navigasyon sırasında dönüş okunu ve mesafeyi saatte göster.</string>
     <!-- ==== Trip share / actions ==== -->
