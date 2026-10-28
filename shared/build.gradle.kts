@@ -53,6 +53,9 @@ kotlin {
             implementation(libs.junit)
             // AppSettingsArgLimitTest walks the constructor by reflection.
             implementation(kotlin("reflect"))
+            // The platform JSON facade is the framework's org.json, which the
+            // stub android.jar cannot run.
+            implementation("org.json:json:20240303")
         }
     }
 }

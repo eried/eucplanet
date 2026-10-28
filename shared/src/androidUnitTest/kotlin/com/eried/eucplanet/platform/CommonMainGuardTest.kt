@@ -27,7 +27,7 @@ class CommonMainGuardTest {
         "javax." to "JVM API (javax.inject: register the class in a Koin module instead)",
         "dagger." to "Hilt/Dagger is Android-only, use Koin",
         "okhttp3." to "OkHttp is JVM-only, use the Ktor client",
-        "org.json." to "org.json is Android-only, use kotlinx.serialization",
+        "org.json." to "org.json is Android-only, use com.eried.eucplanet.platform.JSONObject",
         "com.google.android." to "Google Play services are Android-only",
         "androidx.activity." to "Android-only",
         "androidx.core." to "Android-only",
