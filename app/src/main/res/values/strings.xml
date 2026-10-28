@@ -1606,7 +1606,6 @@
     <string name="trip_compare_no_match">No trips match</string>
     <string name="trip_compare_title">Compare with another trip</string>
     <string name="trip_compare_change">Change</string>
-    <string name="trip_compare_alignment">Alignment</string>
     <string name="trip_compare_metric">Metric</string>
     <string name="trip_compare_offset">Offset</string>
     <string name="trip_compare_auto">Auto</string>

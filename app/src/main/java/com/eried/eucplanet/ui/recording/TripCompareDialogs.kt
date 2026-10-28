@@ -21,20 +21,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -56,6 +46,8 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -63,10 +55,11 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.TripRecord
+import com.eried.eucplanet.ui.settings.DropdownSelect
 import com.eried.eucplanet.ui.settings.NumberUpDown
+import com.eried.eucplanet.ui.settings.SegmentedChoice
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedFieldColors
-import com.eried.eucplanet.ui.theme.themedSegmentedColors
 import com.eried.eucplanet.ui.theme.themedSwitchColors
 import com.eried.eucplanet.util.Units
 import kotlinx.coroutines.Dispatchers
@@ -120,6 +113,9 @@ internal class CompareTrip(
 ) {
     val durationMs: Long get() = ms.lastOrNull() ?: 0L
 }
+
+private const val VIEW_STACKED = "stacked"
+private const val VIEW_OVERLAY = "overlay"
 
 private val compareDateFmt = SimpleDateFormat("dd/MM/yyyy, HH:mm", Locale.getDefault())
 
@@ -331,14 +327,9 @@ internal fun TripCompareAlignDialog(
                     return@Column
                 }
                 val m = metric ?: return@Column
+                val notch = MaterialTheme.appColors.dialog
 
                 Spacer(Modifier.height(8.dp))
-                Text(
-                    stringResource(R.string.trip_compare_alignment),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.appColors.textSecondary,
-                )
-                Spacer(Modifier.height(4.dp))
                 AlignStrip(
                     aMs = aMs,
                     aValues = remember(aPoints, m) { m.values(aPoints) },
@@ -356,15 +347,18 @@ internal fun TripCompareAlignDialog(
                     )
                 }
 
+                // Metric and offset side by side, each labelled in its border.
                 Spacer(Modifier.height(8.dp))
-                MetricPicker(
-                    options = shared,
-                    selected = m,
-                    onSelect = { metric = it },
-                )
-
-                Spacer(Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.Bottom) {
+                    DropdownSelect(
+                        label = stringResource(R.string.trip_compare_metric),
+                        selected = stringResource(m.label),
+                        options = shared.map { it.key to stringResource(it.label) },
+                        onSelect = { key -> CompareMetric.byKey(key)?.let { metric = it } },
+                        notchFill = notch,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Spacer(Modifier.width(8.dp))
                     val lo = -(b.durationMs / 1000).toInt()
                     val hi = (aDur / 1000).toInt()
                     NumberUpDown(
@@ -375,37 +369,22 @@ internal fun TripCompareAlignDialog(
                         format = { TripCompare.formatOffset(it * 1000L) },
                         parse = { TripCompare.parseTypedSeconds(it) },
                         allowSign = true,
+                        notchFill = notch,
                         modifier = Modifier.weight(1f),
                     )
-                    Spacer(Modifier.width(8.dp))
-                    TextButton(
-                        onClick = { autoSpent = false; autoRun++ },
-                        enabled = autoSpent,
-                        shape = RoundedCornerShape(12.dp),
-                    ) { Text(stringResource(R.string.trip_compare_auto)) }
                 }
 
                 Spacer(Modifier.height(12.dp))
-                Text(
-                    stringResource(R.string.trip_compare_view),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.appColors.textSecondary,
+                SegmentedChoice(
+                    label = stringResource(R.string.trip_compare_view),
+                    options = listOf(
+                        VIEW_STACKED to stringResource(R.string.trip_compare_stacked),
+                        VIEW_OVERLAY to stringResource(R.string.trip_compare_overlay),
+                    ),
+                    current = if (stacked) VIEW_STACKED else VIEW_OVERLAY,
+                    onChange = { stacked = it == VIEW_STACKED },
+                    notchFill = notch,
                 )
-                Spacer(Modifier.height(4.dp))
-                val views = listOf(
-                    true to stringResource(R.string.trip_compare_stacked),
-                    false to stringResource(R.string.trip_compare_overlay),
-                )
-                SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-                    views.forEachIndexed { i, (isStacked, label) ->
-                        SegmentedButton(
-                            selected = stacked == isStacked,
-                            onClick = { stacked = isStacked },
-                            shape = SegmentedButtonDefaults.itemShape(i, views.size, baseShape = RoundedCornerShape(12.dp)),
-                            colors = themedSegmentedColors(),
-                        ) { Text(label) }
-                    }
-                }
 
                 Spacer(Modifier.height(8.dp))
                 Row(
@@ -422,15 +401,24 @@ internal fun TripCompareAlignDialog(
             }
         },
         confirmButton = {
-            TextButton(
-                onClick = { onApply(offsetMs, stacked, deltas) },
-                enabled = b != null && shared.isNotEmpty() && overlap != null,
-                shape = RoundedCornerShape(12.dp),
-            ) { Text(stringResource(R.string.action_apply)) }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
-                Text(stringResource(R.string.action_cancel))
+            // Auto sits alone on the far left, apart from Cancel/Apply, the
+            // way the rename dialog keeps its third action.
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                TextButton(
+                    onClick = { autoSpent = false; autoRun++ },
+                    enabled = b != null && shared.isNotEmpty() && autoSpent,
+                    shape = RoundedCornerShape(12.dp),
+                ) { Text(stringResource(R.string.trip_compare_auto)) }
+                Row {
+                    TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
+                        Text(stringResource(R.string.action_cancel))
+                    }
+                    TextButton(
+                        onClick = { onApply(offsetMs, stacked, deltas) },
+                        enabled = b != null && shared.isNotEmpty() && overlap != null,
+                        shape = RoundedCornerShape(12.dp),
+                    ) { Text(stringResource(R.string.action_apply)) }
+                }
             }
         },
     )
@@ -440,54 +428,6 @@ internal fun TripCompareAlignDialog(
 internal fun CompareDot(modifier: Modifier = Modifier) {
     val c = MaterialTheme.appColors.chartCompare
     Canvas(modifier.size(8.dp)) { drawCircle(c) }
-}
-
-/** The dropdown used by the trip tools' pickers, for the alignment metric. */
-@Composable
-private fun MetricPicker(
-    options: List<CompareMetric>,
-    selected: CompareMetric,
-    onSelect: (CompareMetric) -> Unit,
-) {
-    var open by remember { mutableStateOf(false) }
-    val enabled = options.size > 1
-    Column(Modifier.fillMaxWidth()) {
-        Text(
-            stringResource(R.string.trip_compare_metric),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.appColors.textSecondary,
-        )
-        Box {
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .clickable(enabled = enabled) { open = true }
-                    .padding(vertical = 10.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    stringResource(selected.label),
-                    modifier = Modifier.weight(1f),
-                    color = if (enabled) MaterialTheme.appColors.textPrimary
-                        else MaterialTheme.appColors.textSecondary,
-                )
-                Icon(
-                    Icons.Default.ArrowDropDown,
-                    contentDescription = null,
-                    tint = if (enabled) MaterialTheme.appColors.textSecondary
-                        else MaterialTheme.appColors.textSecondary.copy(alpha = 0.4f),
-                )
-            }
-            DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
-                options.forEach { o ->
-                    DropdownMenuItem(
-                        text = { Text(stringResource(o.label)) },
-                        onClick = { onSelect(o); open = false },
-                    )
-                }
-            }
-        }
-    }
 }
 
 /**
@@ -574,25 +514,26 @@ private fun AlignStrip(
 
 /**
  * Says what this trip is being compared with, under the trip's header: the
- * other trip, where it sits, and how much of the two overlaps. Edit reopens the
- * align dialog; close stops comparing (any trim stays, Reset lifts it).
+ * other trip, where it sits, and how much of the two overlaps. Tapping it
+ * reopens the settings; the Compare icon in the top bar turns it off.
  */
 @Composable
 internal fun TripCompareStrip(
     title: String,
     subtitle: String,
     onEdit: () -> Unit,
-    onClose: () -> Unit,
 ) {
+    val editLabel = stringResource(R.string.trip_compare_edit)
     androidx.compose.material3.Card(
+        onClick = onEdit,
         colors = androidx.compose.material3.CardDefaults.cardColors(
             containerColor = MaterialTheme.appColors.surfaceVariant,
         ),
         shape = RoundedCornerShape(10.dp),
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().semantics { onClick(label = editLabel, action = null) },
     ) {
         Row(
-            Modifier.padding(start = 12.dp, top = 2.dp, bottom = 2.dp),
+            Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             CompareDot()
@@ -612,20 +553,6 @@ internal fun TripCompareStrip(
                     fontSize = 11.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                )
-            }
-            androidx.compose.material3.IconButton(onClick = onEdit) {
-                Icon(
-                    androidx.compose.material.icons.Icons.Default.Edit,
-                    contentDescription = stringResource(R.string.trip_compare_edit),
-                    tint = MaterialTheme.appColors.textSecondary,
-                )
-            }
-            androidx.compose.material3.IconButton(onClick = onClose) {
-                Icon(
-                    androidx.compose.material.icons.Icons.Default.Close,
-                    contentDescription = stringResource(R.string.trip_compare_stop),
-                    tint = MaterialTheme.appColors.textSecondary,
                 )
             }
         }

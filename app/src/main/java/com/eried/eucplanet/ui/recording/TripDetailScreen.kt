@@ -579,7 +579,7 @@ fun TripDetailScreen(
                             // A trip still recording keeps growing under B.
                             if (!isLiveTrip) {
                                 CompareAction(active = compare != null, enabled = ready) {
-                                    if (compare != null) compareDraftTrip = compare!!.trip else comparePicking = true
+                                    if (compare != null) compare = null else comparePicking = true
                                 }
                             }
                         }
@@ -614,7 +614,7 @@ fun TripDetailScreen(
                             // A trip still recording keeps growing under B.
                             if (!isLiveTrip) {
                                 CompareAction(active = compare != null, enabled = ready) {
-                                    if (compare != null) compareDraftTrip = compare!!.trip else comparePicking = true
+                                    if (compare != null) compare = null else comparePicking = true
                                 }
                             }
                         }
@@ -1263,7 +1263,6 @@ fun TripDetailScreen(
                             com.eried.eucplanet.util.Units.humanDuration(sharedS),
                         ),
                         onEdit = { compareDraftTrip = b.trip },
-                        onClose = { compare = null },
                     )
                 }
             }
@@ -3887,7 +3886,11 @@ private fun CompareAction(active: Boolean, enabled: Boolean = true, onClick: () 
             disabledContentColor = appColors.textDisabled,
         ),
     ) {
-        Icon(Icons.Default.CompareArrows, contentDescription = stringResource(R.string.trip_compare))
+        // On while comparing, so a tap turns it off (the strip edits it).
+        Icon(
+            Icons.Default.CompareArrows,
+            contentDescription = stringResource(if (active) R.string.trip_compare_stop else R.string.trip_compare),
+        )
     }
 }
 

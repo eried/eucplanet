@@ -2583,7 +2583,6 @@
     <string name="trip_compare_no_match">Inga turer matchar</string>
     <string name="trip_compare_title">Jämför med en annan tur</string>
     <string name="trip_compare_change">Byt</string>
-    <string name="trip_compare_alignment">Justering</string>
     <string name="trip_compare_metric">Mätvärde</string>
     <string name="trip_compare_offset">Förskjutning</string>
     <string name="trip_compare_auto">Auto</string>

@@ -2470,7 +2470,6 @@
     <string name="trip_compare_no_match">Ingen turer passer</string>
     <string name="trip_compare_title">Sammenlign med en annen tur</string>
     <string name="trip_compare_change">Bytt</string>
-    <string name="trip_compare_alignment">Justering</string>
     <string name="trip_compare_metric">Måling</string>
     <string name="trip_compare_offset">Forskyvning</string>
     <string name="trip_compare_auto">Auto</string>

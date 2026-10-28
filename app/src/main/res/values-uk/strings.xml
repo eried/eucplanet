@@ -2580,7 +2580,6 @@
     <string name="trip_compare_no_match">Немає відповідних поїздок</string>
     <string name="trip_compare_title">Порівняти з іншою поїздкою</string>
     <string name="trip_compare_change">Змінити</string>
-    <string name="trip_compare_alignment">Вирівнювання</string>
     <string name="trip_compare_metric">Показник</string>
     <string name="trip_compare_offset">Зсув</string>
     <string name="trip_compare_auto">Авто</string>

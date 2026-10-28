@@ -1435,7 +1435,6 @@
     <string name="trip_compare_no_match">Ei osumia</string>
     <string name="trip_compare_title">Vertaa toiseen ajoon</string>
     <string name="trip_compare_change">Vaihda</string>
-    <string name="trip_compare_alignment">Kohdistus</string>
     <string name="trip_compare_metric">Suure</string>
     <string name="trip_compare_offset">Siirtymä</string>
     <string name="trip_compare_auto">Auto</string>

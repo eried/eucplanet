@@ -1435,7 +1435,6 @@
     <string name="trip_compare_no_match">Nincs találat</string>
     <string name="trip_compare_title">Összevetés másik úttal</string>
     <string name="trip_compare_change">Csere</string>
-    <string name="trip_compare_alignment">Igazítás</string>
     <string name="trip_compare_metric">Mérőszám</string>
     <string name="trip_compare_offset">Eltolás</string>
     <string name="trip_compare_auto">Auto</string>

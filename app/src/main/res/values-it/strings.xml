@@ -2487,7 +2487,6 @@
     <string name="trip_compare_no_match">Nessun giro corrisponde</string>
     <string name="trip_compare_title">Confronta con un altro giro</string>
     <string name="trip_compare_change">Cambia</string>
-    <string name="trip_compare_alignment">Allineamento</string>
     <string name="trip_compare_metric">Metrica</string>
     <string name="trip_compare_offset">Sfasamento</string>
     <string name="trip_compare_auto">Auto</string>

@@ -1435,7 +1435,6 @@
     <string name="trip_compare_no_match">Nicio cursă nu se potrivește</string>
     <string name="trip_compare_title">Compară cu altă cursă</string>
     <string name="trip_compare_change">Schimbă</string>
-    <string name="trip_compare_alignment">Aliniere</string>
     <string name="trip_compare_metric">Mărime</string>
     <string name="trip_compare_offset">Decalaj</string>
     <string name="trip_compare_auto">Auto</string>

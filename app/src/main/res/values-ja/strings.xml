@@ -2584,7 +2584,6 @@
     <string name="trip_compare_no_match">一致する走行なし</string>
     <string name="trip_compare_title">別の走行と比較</string>
     <string name="trip_compare_change">変更</string>
-    <string name="trip_compare_alignment">位置合わせ</string>
     <string name="trip_compare_metric">指標</string>
     <string name="trip_compare_offset">オフセット</string>
     <string name="trip_compare_auto">自動</string>

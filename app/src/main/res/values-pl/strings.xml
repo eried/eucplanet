@@ -2583,7 +2583,6 @@
     <string name="trip_compare_no_match">Brak pasujących przejazdów</string>
     <string name="trip_compare_title">Porównaj z innym przejazdem</string>
     <string name="trip_compare_change">Zmień</string>
-    <string name="trip_compare_alignment">Wyrównanie</string>
     <string name="trip_compare_metric">Wielkość</string>
     <string name="trip_compare_offset">Przesunięcie</string>
     <string name="trip_compare_auto">Auto</string>

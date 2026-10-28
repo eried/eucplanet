@@ -2587,7 +2587,6 @@
     <string name="trip_compare_no_match">Aucun trajet ne correspond</string>
     <string name="trip_compare_title">Comparer avec un autre trajet</string>
     <string name="trip_compare_change">Changer</string>
-    <string name="trip_compare_alignment">Alignement</string>
     <string name="trip_compare_metric">Mesure</string>
     <string name="trip_compare_offset">Décalage</string>
     <string name="trip_compare_auto">Auto</string>

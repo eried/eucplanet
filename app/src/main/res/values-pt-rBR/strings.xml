@@ -2585,7 +2585,6 @@
     <string name="trip_compare_no_match">Nenhuma viagem corresponde</string>
     <string name="trip_compare_title">Comparar com outra viagem</string>
     <string name="trip_compare_change">Trocar</string>
-    <string name="trip_compare_alignment">Alinhamento</string>
     <string name="trip_compare_metric">Métrica</string>
     <string name="trip_compare_offset">Deslocamento</string>
     <string name="trip_compare_auto">Auto</string>

@@ -1435,7 +1435,6 @@
     <string name="trip_compare_no_match">Žádná jízda neodpovídá</string>
     <string name="trip_compare_title">Porovnat s jinou jízdou</string>
     <string name="trip_compare_change">Změnit</string>
-    <string name="trip_compare_alignment">Zarovnání</string>
     <string name="trip_compare_metric">Veličina</string>
     <string name="trip_compare_offset">Posun</string>
     <string name="trip_compare_auto">Auto</string>

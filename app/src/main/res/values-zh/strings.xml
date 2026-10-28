@@ -2449,7 +2449,6 @@
     <string name="trip_compare_no_match">没有匹配的行程</string>
     <string name="trip_compare_title">与另一行程比较</string>
     <string name="trip_compare_change">更换</string>
-    <string name="trip_compare_alignment">对齐</string>
     <string name="trip_compare_metric">指标</string>
     <string name="trip_compare_offset">偏移</string>
     <string name="trip_compare_auto">自动</string>

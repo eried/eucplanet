@@ -2582,7 +2582,6 @@
     <string name="trip_compare_no_match">일치하는 주행 없음</string>
     <string name="trip_compare_title">다른 주행과 비교</string>
     <string name="trip_compare_change">변경</string>
-    <string name="trip_compare_alignment">정렬</string>
     <string name="trip_compare_metric">지표</string>
     <string name="trip_compare_offset">오프셋</string>
     <string name="trip_compare_auto">자동</string>

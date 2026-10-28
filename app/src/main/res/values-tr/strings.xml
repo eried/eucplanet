@@ -2580,7 +2580,6 @@
     <string name="trip_compare_no_match">Eşleşen sürüş yok</string>
     <string name="trip_compare_title">Başka bir sürüşle karşılaştır</string>
     <string name="trip_compare_change">Değiştir</string>
-    <string name="trip_compare_alignment">Hizalama</string>
     <string name="trip_compare_metric">Ölçü</string>
     <string name="trip_compare_offset">Kaydırma</string>
     <string name="trip_compare_auto">Otomatik</string>

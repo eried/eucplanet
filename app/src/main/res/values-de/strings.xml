@@ -2603,7 +2603,6 @@
     <string name="trip_compare_no_match">Keine Fahrt passt</string>
     <string name="trip_compare_title">Mit anderer Fahrt vergleichen</string>
     <string name="trip_compare_change">Ändern</string>
-    <string name="trip_compare_alignment">Ausrichtung</string>
     <string name="trip_compare_metric">Messwert</string>
     <string name="trip_compare_offset">Versatz</string>
     <string name="trip_compare_auto">Auto</string>
