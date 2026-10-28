@@ -8,6 +8,7 @@ import org.junit.Test
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
+import com.eried.eucplanet.data.store.AlarmBackupJson
 
 /**
  * Drift guard for the alarm half of the settings backup.

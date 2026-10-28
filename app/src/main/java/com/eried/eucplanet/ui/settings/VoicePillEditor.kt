@@ -53,6 +53,7 @@ import com.eried.eucplanet.service.VoiceReportPlan
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedFieldColors
 import sh.calvin.reorderable.ReorderableColumn
+import com.eried.eucplanet.platform.stringResource
 
 /**
  * One announcement's pills: reordered with the standard drag handle, a

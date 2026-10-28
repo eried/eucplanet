@@ -45,6 +45,8 @@ kotlin {
             implementation(libs.cmp.ui)
             implementation(libs.cmp.material3)
             api(libs.cmp.resources)
+            // @Entity and friends on the moved models; the database stays in :app for now.
+            implementation(libs.room.common)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

@@ -32,6 +32,7 @@ import com.eried.eucplanet.car.CarAlarmNotification
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.absoluteValue
+import com.eried.eucplanet.platform.getString
 
 @Singleton
 class AlarmEngine @Inject constructor(

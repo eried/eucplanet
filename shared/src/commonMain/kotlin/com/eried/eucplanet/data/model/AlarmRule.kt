@@ -2,7 +2,8 @@ package com.eried.eucplanet.data.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.eried.eucplanet.R
+import com.eried.eucplanet.resources.*
+import org.jetbrains.compose.resources.StringResource
 
 @Entity(tableName = "alarm_rules")
 data class AlarmRule(
@@ -127,10 +128,10 @@ data class AlarmRule(
 val AlarmMetric.groupKey: String get() = groupOf ?: name
 
 enum class AlarmMetric(
-    val labelRes: Int,
+    val labelRes: StringResource,
     val unit: String,
     /** Name spoken by voice alarms, defaults to the on-screen label. */
-    val voiceLabelRes: Int = labelRes,
+    val voiceLabelRes: StringResource = labelRes,
     /**
      * The natural direction to watch this metric in. Applied as the condition
      * when the rider first picks the metric in the editor, so a low-battery
@@ -147,7 +148,7 @@ enum class AlarmMetric(
      * fit; this is what the rider reads while deciding. Most metrics want the
      * same string for both, which is the default.
      */
-    val longLabelRes: Int = labelRes,
+    val longLabelRes: StringResource = labelRes,
     /**
      * Which family this metric is filed under in the rule list.
      *
@@ -158,8 +159,8 @@ enum class AlarmMetric(
      */
     val groupOf: String? = null,
 ) {
-    SPEED(R.string.alarm_metric_speed, "km/h"),
-    BATTERY(R.string.alarm_metric_battery, "%", defaultComparator = AlarmComparator.LESS_THAN),
+    SPEED(Res.string.alarm_metric_speed, "km/h"),
+    BATTERY(Res.string.alarm_metric_battery, "%", defaultComparator = AlarmComparator.LESS_THAN),
     /**
      * Battery percent with the load taken out of it.
      *
@@ -176,44 +177,44 @@ enum class AlarmMetric(
      * What they want is the battery, estimated properly.
      */
     BATTERY_ENVELOPE(
-        R.string.alarm_metric_battery_envelope,
+        Res.string.alarm_metric_battery_envelope,
         "%",
         // Spoken as "battery". The reading IS the battery; the envelope is
         // only how it was measured, and a rider does not want the word
         // estimate read at them every time it fires.
-        voiceLabelRes = R.string.alarm_metric_battery,
+        voiceLabelRes = Res.string.alarm_metric_battery,
         defaultComparator = AlarmComparator.LESS_THAN,
-        longLabelRes = R.string.alarm_metric_battery_envelope_long,
+        longLabelRes = Res.string.alarm_metric_battery_envelope_long,
         groupOf = "BATTERY",
     ),
-    TEMPERATURE(R.string.alarm_metric_temperature, "°C"),
-    PWM(R.string.alarm_metric_pwm, "%", R.string.alarm_metric_pwm_voice),
-    VOLTAGE(R.string.alarm_metric_voltage, "V", defaultComparator = AlarmComparator.LESS_THAN),
-    CURRENT(R.string.alarm_metric_current, "A"),
-    TORQUE(R.string.alarm_metric_torque, "Nm"),
-    PHASE_CURRENT(R.string.alarm_metric_phase_current, "A", R.string.alarm_metric_phase_current_voice),
+    TEMPERATURE(Res.string.alarm_metric_temperature, "°C"),
+    PWM(Res.string.alarm_metric_pwm, "%", Res.string.alarm_metric_pwm_voice),
+    VOLTAGE(Res.string.alarm_metric_voltage, "V", defaultComparator = AlarmComparator.LESS_THAN),
+    CURRENT(Res.string.alarm_metric_current, "A"),
+    TORQUE(Res.string.alarm_metric_torque, "Nm"),
+    PHASE_CURRENT(Res.string.alarm_metric_phase_current, "A", Res.string.alarm_metric_phase_current_voice),
     /**
      * The three temperature sensors on their own, where [TEMPERATURE] is only
      * the hottest of them. A rider who wants "tell me when the BATTERY is
      * warm" could not say it: the pack could sit at 50 while the controller
      * ran hotter and swallowed the alarm.
      */
-    MOTOR_TEMP(R.string.alarm_metric_motor_temp, "\u00b0C"),
-    CONTROLLER_TEMP(R.string.alarm_metric_controller_temp, "\u00b0C"),
-    BATTERY_TEMP(R.string.alarm_metric_battery_temp, "\u00b0C"),
+    MOTOR_TEMP(Res.string.alarm_metric_motor_temp, "\u00b0C"),
+    CONTROLLER_TEMP(Res.string.alarm_metric_controller_temp, "\u00b0C"),
+    BATTERY_TEMP(Res.string.alarm_metric_battery_temp, "\u00b0C"),
     /**
      * Total and lateral acceleration. Worth an alarm for the rider who wants
      * to know they are cornering harder than they meant to, and as a crude
      * impact signal.
      */
-    G_FORCE(R.string.alarm_metric_g_force, "g"),
-    LATERAL_G(R.string.alarm_metric_lateral_g, "g"),
+    G_FORCE(Res.string.alarm_metric_g_force, "g"),
+    LATERAL_G(Res.string.alarm_metric_lateral_g, "g"),
     /**
      * BLE link strength, in dBm and therefore negative: -50 is a good link,
      * -95 is one about to drop. Watched from below so the rule reads the way
      * the numbers do.
      */
-    BT_RSSI(R.string.alarm_metric_bt_rssi, "dBm", defaultComparator = AlarmComparator.LESS_THAN),
+    BT_RSSI(Res.string.alarm_metric_bt_rssi, "dBm", defaultComparator = AlarmComparator.LESS_THAN),
     /**
      * TPMS tire pressure, held in kPa like [WheelData.tirePressureKpa] and
      * shown in the rider's psi or bar. Watched from below: a tyre losing air
@@ -221,20 +222,20 @@ enum class AlarmMetric(
      * cannot feel until it is already bad.
      */
     TIRE_PRESSURE(
-        R.string.alarm_metric_tire_pressure,
+        Res.string.alarm_metric_tire_pressure,
         "kPa",
         defaultComparator = AlarmComparator.LESS_THAN,
     ),
     /** Energy spent this ride, for a rider who plans by Wh rather than percent. */
-    WH_CONSUMED(R.string.alarm_metric_wh_consumed, "Wh"),
+    WH_CONSUMED(Res.string.alarm_metric_wh_consumed, "Wh"),
     /**
      * Consumption over the rolling window. Watched high: it climbing is the
      * early warning that the way home will not go as far as the way out.
      */
-    WH_PER_KM(R.string.alarm_metric_wh_per_km, "Wh/km"),
+    WH_PER_KM(Res.string.alarm_metric_wh_per_km, "Wh/km"),
     /** Range left at the current rate. Watched low, like battery. */
     RANGE_ESTIMATE(
-        R.string.alarm_metric_range,
+        Res.string.alarm_metric_range,
         "km",
         defaultComparator = AlarmComparator.LESS_THAN,
     ),
@@ -244,7 +245,7 @@ enum class AlarmMetric(
      * stream via [com.eried.eucplanet.service.AlarmEngine.evaluateGpsSpeed], so
      * it works with no wheel connected. Only checked on a fresh location fix.
      */
-    GPS_SPEED(R.string.alarm_metric_gps_speed, "km/h"),
+    GPS_SPEED(Res.string.alarm_metric_gps_speed, "km/h"),
 
     /**
      * Altitude above sea level in metres, off the same phone fix as
@@ -252,7 +253,7 @@ enum class AlarmMetric(
      * height is the alarm worth having, and a low-altitude one is rarely
      * meaningful when sea level is the floor.
      */
-    GPS_ALTITUDE(R.string.alarm_metric_gps_altitude, "m"),
+    GPS_ALTITUDE(Res.string.alarm_metric_gps_altitude, "m"),
 
     /**
      * Speed from the paired external GPS box (RaceBox / Dragy) in km/h.
@@ -261,8 +262,8 @@ enum class AlarmMetric(
      * label for the narrow selector; full name spoken by voice.
      */
     EXTERNAL_GPS_SPEED(
-        R.string.alarm_metric_external_gps_speed_short, "km/h",
-        R.string.alarm_metric_external_gps_speed
+        Res.string.alarm_metric_external_gps_speed_short, "km/h",
+        Res.string.alarm_metric_external_gps_speed
     ),
 
     /**
@@ -274,8 +275,8 @@ enum class AlarmMetric(
      * the narrow selector; full name spoken by voice.
      */
     EXTERNAL_GPS_BATTERY(
-        R.string.alarm_metric_external_gps_battery_short, "%",
-        R.string.alarm_metric_external_gps_battery,
+        Res.string.alarm_metric_external_gps_battery_short, "%",
+        Res.string.alarm_metric_external_gps_battery,
         defaultComparator = AlarmComparator.LESS_THAN
     ),
 
@@ -286,18 +287,18 @@ enum class AlarmMetric(
      * present in the latest frame, an empty frame is treated as "no value"
      * rather than "0 metres" so a clear lane doesn't keep tripping the rule.
      */
-    RADAR_DISTANCE(R.string.alarm_metric_radar_distance, "m", defaultComparator = AlarmComparator.LESS_THAN),
+    RADAR_DISTANCE(Res.string.alarm_metric_radar_distance, "m", defaultComparator = AlarmComparator.LESS_THAN),
 
     /**
      * Approach speed in km/h of the fastest closing vehicle. Pair with
      * GREATER_EQUAL: "trigger when a car is closing at 60 km/h or more".
      */
-    RADAR_APPROACH_SPEED(R.string.alarm_metric_radar_approach, "km/h")
+    RADAR_APPROACH_SPEED(Res.string.alarm_metric_radar_approach, "km/h")
 }
 
-enum class AlarmComparator(val labelRes: Int, val symbol: String) {
-    GREATER_EQUAL(R.string.alarm_cmp_ge, "≥"),
-    LESS_THAN(R.string.alarm_cmp_lt, "<");
+enum class AlarmComparator(val labelRes: StringResource, val symbol: String) {
+    GREATER_EQUAL(Res.string.alarm_cmp_ge, "≥"),
+    LESS_THAN(Res.string.alarm_cmp_lt, "<");
 
     companion object {
         // Map legacy stored strings to the reduced set; safe fallback to GREATER_EQUAL.

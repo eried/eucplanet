@@ -139,6 +139,7 @@ import com.eried.eucplanet.ui.theme.themedSwitchColors
 import com.eried.eucplanet.ui.theme.themedSliderColors
 import kotlin.math.roundToInt
 import sh.calvin.reorderable.ReorderableColumn
+import com.eried.eucplanet.platform.stringResource
 
 // "Don't ask again" for the constant-tone prompt: process-scoped so it lasts the
 // rest of this app run but resets on next launch (per the rider's request, not
@@ -583,7 +584,7 @@ private fun AlarmRuleCard(
                 }
                 if (rule.wheelAddress != null) {
                     Text(
-                        stringResource(R.string.alarm_summary_wheel_fmt, rule.wheelName ?: rule.wheelAddress),
+                        stringResource(R.string.alarm_summary_wheel_fmt, rule.wheelName ?: rule.wheelAddress.orEmpty()),
                         fontSize = 11.sp,
                         fontStyle = FontStyle.Italic,
                         color = color

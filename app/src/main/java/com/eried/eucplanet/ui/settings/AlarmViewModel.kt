@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.eried.eucplanet.platform.getString
 
 @HiltViewModel
 class AlarmViewModel @Inject constructor(
