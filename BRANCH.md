@@ -9,12 +9,16 @@ how Organic Maps weighs roads.
 - Walking with an avoid option on now keeps to footways instead of main roads.
 - A new route after a wrong turn comes in about 8 s instead of 22 s, and it continues in the direction you're riding, so no U-turn.
 - Routes started from the car screen or the navigation overlay now keep your avoid settings.
+- Settings, Navigation, Routing services: the Valhalla server now has its own URL beside OSRM, so you can point either one at your own server.
 
 ## Please test
 
 **Everyone who navigates by bike or wheel**
 - Plan a route you know well: does it pick the streets you would ride yourself?
 - Miss a turn on purpose: does a new route come within about 10 s, continuing the way you're going?
+
+**Anyone running their own routing server**
+- Put your Valhalla server in Routing URL (Valhalla): do bike routes come from it?
 
 ## Reporting back
 
