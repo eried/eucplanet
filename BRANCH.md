@@ -26,6 +26,7 @@ only when you can cut the ride short.
 - InMotion V8S: the light button and auto-lights follow the wheel's real light state, and Charging shows (also V8F, V10).
 - InMotion V6: the light button sends the two-byte form the P6 uses. The V14 form did nothing on a V6.
 - Lights: a reconnect while walking the wheel no longer turns the light on and off again.
+- Dropbox: a few trips no longer upload again on every sync when nothing changed.
 - Trip Details: Compare (the two-arrow icon) puts another trip beside this one, like eucviewer. Auto lines them up, tiles and charts show both or the differences, the map marks the other trip.
 - Inside: wiring moved to a library that also runs on iPhone, build tools updated (Kotlin 2.3.21, Koin 4.2.2). Nothing should change on screen.
 
