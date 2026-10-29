@@ -13,6 +13,7 @@ import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.eried.eucplanet.BuildConfig
+import com.eried.eucplanet.data.model.OfflineRoutingSettings
 import com.eried.eucplanet.data.repository.SettingsRepository
 import java.net.HttpURLConnection
 import java.net.URL
@@ -44,34 +45,59 @@ class OfflineTiles(
                 }.toMap()
         }
 
-    /** The server's tiles, or null when it cannot be reached. */
+    /** The last list read, with each tile's link and the tag table's. */
+    @Volatile private var known: Listing? = null
+
+    private class Listing(val tiles: Map<String, RemoteTile>, val source: TileSource, val lookupsUrl: String)
+
+    /** The server's tiles, or null when it cannot be reached. When the
+     *  chosen server fails, brouter.de's list stands in. */
     suspend fun remote(): List<RemoteTile>? = withContext(Dispatchers.IO) {
-        val server = settings.currentOrLoad().offlineRouting.serverUrl.trimEnd('/')
-        try {
-            val conn = (URL("$server/segments4/").openConnection() as HttpURLConnection).apply {
-                connectTimeout = 15_000
-                readTimeout = 30_000
-                setRequestProperty("User-Agent", "EUCPlanet/${BuildConfig.VERSION_NAME}")
-            }
-            try {
-                if (conn.responseCode != 200) return@withContext null
-                TileIndex.parseListing(conn.inputStream.bufferedReader().readText()).takeIf { it.isNotEmpty() }
-            } finally {
-                conn.disconnect()
-            }
-        } catch (e: Exception) {
-            Log.w(TAG, "tile list: ${e.message}")
-            null
+        val chosen = TileSource.of(settings.currentOrLoad().offlineRouting.serverUrl)
+        val listing = read(chosen)
+            ?: TileSource.of(OfflineRoutingSettings.BROUTER_URL).takeIf { it.base != chosen.base }?.let { read(it) }
+        listing?.let { known = it }
+        listing?.tiles?.values?.toList()
+    }
+
+    private fun read(source: TileSource): Listing? = try {
+        val conn = (URL(source.listUrl).openConnection() as HttpURLConnection).apply {
+            connectTimeout = 15_000
+            readTimeout = 30_000
+            setRequestProperty("User-Agent", "EUCPlanet/${BuildConfig.VERSION_NAME}")
         }
+        try {
+            if (conn.responseCode != 200) {
+                null
+            } else {
+                val body = conn.inputStream.bufferedReader().readText()
+                if (source.isMirror) {
+                    TileIndex.parseMirror(body)?.let { m -> Listing(m.tiles.associateBy { it.name }, source, m.lookupsUrl) }
+                } else {
+                    TileIndex.parseListing(body).takeIf { it.isNotEmpty() }
+                        ?.let { Listing(it.associateBy { t -> t.name }, source, source.lookupsUrl) }
+                }
+            }
+        } finally {
+            conn.disconnect()
+        }
+    } catch (e: Exception) {
+        Log.w(TAG, "tile list ${source.listUrl}: ${e.message}")
+        null
     }
 
     /** Downloads (or updates) [names]; a tile already queued keeps its place. */
     suspend fun download(names: Collection<String>, unmeteredOnly: Boolean = false) {
-        val server = settings.currentOrLoad().offlineRouting.serverUrl
+        val listing = known ?: run { remote(); known } ?: return
         val net = if (unmeteredOnly) NetworkType.UNMETERED else NetworkType.CONNECTED
         for (name in names) {
+            val url = listing.tiles[name]?.url ?: listing.source.tileUrl(name)
             val req = OneTimeWorkRequestBuilder<TileDownloadWorker>()
-                .setInputData(workDataOf(TileDownloadWorker.KEY_NAME to name, TileDownloadWorker.KEY_SERVER to server))
+                .setInputData(workDataOf(
+                    TileDownloadWorker.KEY_NAME to name,
+                    TileDownloadWorker.KEY_URL to url,
+                    TileDownloadWorker.KEY_LOOKUPS_URL to listing.lookupsUrl,
+                ))
                 .setConstraints(Constraints.Builder().setRequiredNetworkType(net).setRequiresStorageNotLow(true).build())
                 .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
                 .addTag(TileDownloadWorker.TAG_TILE)

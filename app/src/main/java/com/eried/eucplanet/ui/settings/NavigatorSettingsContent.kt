@@ -282,6 +282,7 @@ fun NavigatorSettingsContent(
             value = settings.offlineRouting.serverUrl,
             enabled = true,
             onCommit = { viewModel.updateOfflineServerUrl(it) },
+            presets = OFFLINE_SERVER_PRESETS,
         )
 
         // --- Avoidances (collapsible; all off by default) ---
@@ -512,6 +513,11 @@ fun NavigatorSettingsContent(
 
 /** Known public Overpass instances; the default first. Same protocol, so they
  *  are interchangeable for the chargers & places query. */
+private val OFFLINE_SERVER_PRESETS = listOf(
+    "EUC Planet mirror (default)" to com.eried.eucplanet.data.model.OfflineRoutingSettings.MIRROR_URL,
+    "brouter.de" to com.eried.eucplanet.data.model.OfflineRoutingSettings.BROUTER_URL,
+)
+
 private val OVERPASS_PRESETS = listOf(
     "OpenStreetMap (default)" to "https://overpass-api.de/api/interpreter",
     "OpenStreetMap France" to "https://overpass.openstreetmap.fr/api/interpreter",

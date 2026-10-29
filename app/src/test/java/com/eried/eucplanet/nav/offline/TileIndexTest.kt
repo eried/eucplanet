@@ -48,5 +48,39 @@ class TileIndexTest {
     @Test fun aMissingLocalTile_isNotAnUpdate() =
         assertFalse(TileIndex.needsUpdate(File(tmp.root, "none.rd5"), RemoteTile("E0_N10", 1, 0)))
 
+    private val mirror = """
+        {"version":1,"lookups":{"name":"lookups","bytes":31604,"date":1779281196000,
+          "url":"https://github.com/eried/eucplanet-maps/releases/download/routing-20261029-1/lookups.dat"},
+         "tiles":[
+          {"name":"E10_N55","bytes":64858754,"date":1793232180000,
+           "url":"https://github.com/eried/eucplanet-maps/releases/download/routing-20261029-1/E10_N55.rd5"},
+          {"name":"../evil","bytes":1,"date":1,"url":"https://x/y.rd5"},
+          {"name":"W5_S5","bytes":333,"date":1793232180000,"url":""}
+         ]}
+    """.trimIndent()
+
+    @Test fun aMirrorIndex_givesTilesWithTheirLinks() {
+        val idx = TileIndex.parseMirror(mirror)!!
+        val t = idx.tiles.single()
+        assertEquals(RemoteTile("E10_N55", 64858754, 1793232180000,
+            "https://github.com/eried/eucplanet-maps/releases/download/routing-20261029-1/E10_N55.rd5"), t)
+        assertTrue(idx.lookupsUrl.endsWith("/lookups.dat"))
+    }
+
+    @Test fun aBrokenMirrorIndex_givesNull() {
+        assertEquals(null, TileIndex.parseMirror("<html>404</html>"))
+        assertEquals(null, TileIndex.parseMirror("""{"tiles":[]}"""))
+    }
+
+    @Test fun aJsonAddress_isAMirror_elseTheBrouterFolders() {
+        val m = TileSource.of("https://raw.githubusercontent.com/eried/eucplanet-maps/main/routing/index.json")
+        assertTrue(m.isMirror)
+        val b = TileSource.of("https://brouter.de/brouter/")
+        assertFalse(b.isMirror)
+        assertEquals("https://brouter.de/brouter/segments4/E10_N55.rd5", b.tileUrl("E10_N55"))
+        assertEquals("https://brouter.de/brouter/profiles2/lookups.dat", b.lookupsUrl)
+        assertEquals("https://brouter.de/brouter/segments4/", b.listUrl)
+    }
+
     private companion object { const val DAY = 86_400_000L }
 }

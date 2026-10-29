@@ -11,10 +11,11 @@ import org.json.JSONObject
 /** Offline routing keeps its mode, server and Wi-Fi switch across a restart. */
 class OfflineRoutingSettingsJsonTest {
 
-    @Test fun defaults_areOnlineFirst_fromBrouterDe() {
+    @Test fun defaults_areOnlineFirst_fromOurMirror() {
         val d = AppSettings().offlineRouting
         assertEquals(OfflineRoutingMode.FALLBACK, d.mode)
-        assertEquals("https://brouter.de/brouter", d.serverUrl)
+        assertEquals("https://raw.githubusercontent.com/eried/eucplanet-maps/main/routing/index.json", d.serverUrl)
+        assertEquals("https://brouter.de/brouter", OfflineRoutingSettings.BROUTER_URL)
         assertEquals(false, d.wifiAutoUpdate)
     }
 

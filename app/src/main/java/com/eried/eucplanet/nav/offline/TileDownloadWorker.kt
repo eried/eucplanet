@@ -30,8 +30,12 @@ class TileDownloadWorker(
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         val name = inputData.getString(KEY_NAME) ?: return@withContext Result.failure()
-        val server = inputData.getString(KEY_SERVER)?.trimEnd('/') ?: return@withContext Result.failure()
         if (!RoutingTiles.isTileName(name)) return@withContext Result.failure()
+        // Links from the list the rider saw; a run queued by an older build
+        // only has the server.
+        val legacy = inputData.getString(KEY_SERVER)?.let { TileSource.of(it) }
+        val tileUrl = inputData.getString(KEY_URL) ?: legacy?.tileUrl(name) ?: return@withContext Result.failure()
+        val lookupsUrl = inputData.getString(KEY_LOOKUPS_URL) ?: legacy?.lookupsUrl ?: return@withContext Result.failure()
         try {
             // The tag table must match the tiles: fetch it with the first
             // tile and refresh it when a month old.
@@ -39,10 +43,10 @@ class TileDownloadWorker(
             lookupsLock.withLock {
                 val lookups = store.lookupsFile()
                 if (!lookups.isFile || System.currentTimeMillis() - lookups.lastModified() > LOOKUPS_MAX_AGE_MS) {
-                    fetch("$server/profiles2/lookups.dat", File(store.dir, "lookups.dat.part"), lookups)
+                    fetch(lookupsUrl, File(store.dir, "lookups.dat.part"), lookups)
                 }
             }
-            val done = fetch("$server/segments4/$name.rd5", store.partFile(name), store.finalFile(name))
+            val done = fetch(tileUrl, store.partFile(name), store.finalFile(name))
             if (done) Result.success() else Result.retry()
         } catch (e: MissingOnServer) {
             Log.w(TAG, "$name: not on the server")
@@ -138,6 +142,8 @@ class TileDownloadWorker(
         private const val TAG = "TileDownload"
         const val KEY_NAME = "name"
         const val KEY_SERVER = "server"
+        const val KEY_URL = "url"
+        const val KEY_LOOKUPS_URL = "lookupsUrl"
         const val KEY_PROGRESS = "progress"
         const val TAG_TILE = "offline-routing-tile"
         private const val MAX_ATTEMPTS = 8

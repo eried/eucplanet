@@ -1811,12 +1811,19 @@ enum class OfflineRoutingMode {
 }
 
 /**
- * Offline routing. [serverUrl] is the base the tiles come from:
- * `<serverUrl>/segments4/<tile>.rd5` and `<serverUrl>/profiles2/lookups.dat`.
+ * Offline routing. [serverUrl] is where the tiles come from: our mirror's
+ * index.json (eucplanet-maps), or a BRouter server's base with its
+ * `segments4/<tile>.rd5` and `profiles2/lookups.dat`. When it cannot be
+ * reached, [BROUTER_URL] stands in.
  * [wifiAutoUpdate] lets downloaded tiles update by themselves on Wi-Fi.
  */
 data class OfflineRoutingSettings(
     val mode: OfflineRoutingMode = OfflineRoutingMode.FALLBACK,
-    val serverUrl: String = "https://brouter.de/brouter",
+    val serverUrl: String = MIRROR_URL,
     val wifiAutoUpdate: Boolean = false,
-)
+) {
+    companion object {
+        const val MIRROR_URL = "https://raw.githubusercontent.com/eried/eucplanet-maps/main/routing/index.json"
+        const val BROUTER_URL = "https://brouter.de/brouter"
+    }
+}
