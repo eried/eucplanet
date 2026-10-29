@@ -6,6 +6,8 @@ import android.hardware.camera2.CameraManager
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
+import androidx.camera.camera2.interop.Camera2CameraInfo
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraState
@@ -146,11 +148,15 @@ fun RearCameraPreview(
     onCameraTaken: () -> Unit = {},
     onOtherAppCamera: (Boolean) -> Unit = {},
 ) {
+    // The camera the preview last opened: only that one has to be free for
+    // the picture to come back.
+    var ourCameraId by remember { mutableStateOf<String?>(null) }
+    var openIds by remember { mutableStateOf(emptySet<String>()) }
     // Handed to the MotoEye recorder: the live preview leaves composition,
     // and with it its camera (see LiveCameraPreview's DisposableEffect).
     if (handedOff) {
         val ctx = LocalContext.current
-        OtherAppCameraWatch(onOtherAppCamera)
+        OtherAppCameraWatch(ourCameraId, { openIds = it }, onOtherAppCamera)
         Box(modifier.background(Color.Black), contentAlignment = Alignment.Center) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
@@ -160,7 +166,7 @@ fun RearCameraPreview(
                 // Test builds: what keeps the picture off, for a tester's photo.
                 if (diag.isNotEmpty()) {
                     Text(
-                        text = diag,
+                        text = "$diag, open cameras ${openIds.sorted()}, ours ${ourCameraId ?: "unknown"}",
                         color = Color.White.copy(alpha = 0.45f),
                         fontSize = 11.sp,
                         modifier = Modifier.padding(top = 8.dp, start = 24.dp, end = 24.dp)
@@ -169,10 +175,11 @@ fun RearCameraPreview(
             }
         }
     } else {
-        LiveCameraPreview(modifier, cameraIndex, rotation, onCamerasFound, onCameraTaken)
+        LiveCameraPreview(modifier, cameraIndex, rotation, onCamerasFound, onCameraTaken) { ourCameraId = it }
     }
 }
 
+@OptIn(ExperimentalCamera2Interop::class)
 @Composable
 private fun LiveCameraPreview(
     modifier: Modifier,
@@ -180,6 +187,7 @@ private fun LiveCameraPreview(
     rotation: Int,
     onCamerasFound: (Int) -> Unit,
     onCameraTaken: () -> Unit,
+    onCameraOpened: (String) -> Unit,
 ) {
     val ctx = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -272,6 +280,8 @@ private fun LiveCameraPreview(
                                     try {
                                         val camera = provider.bindToLifecycle(lifecycleOwner, sel, preview)
                                         binding.hold(provider, preview)
+                                        runCatching { Camera2CameraInfo.from(camera.cameraInfo).cameraId }
+                                            .getOrNull()?.let(onCameraOpened)
                                         // The MotoEye recorder already has
                                         // the camera: let it keep it, rather
                                         // than open it the moment it stops
@@ -335,15 +345,26 @@ private fun orderedCameras(infos: List<CameraInfo>): List<CameraInfo> =
         }
     }
 
+/** Whether another app keeps the preview from coming back: it holds the
+ *  preview's own camera, or, before the preview ever opened one, any camera.
+ *  The MotoEye opens every camera and can keep one the preview does not use. */
+internal fun otherAppBusy(open: Set<String>, ourId: String?): Boolean =
+    if (ourId != null) ourId in open else open.isNotEmpty()
+
 /**
- * Reports whether any camera is open while the preview holds none, so the
- * preview can come back once the MotoEye lets go. Starts listening a moment
- * after the hand-off, when our own camera has closed, and reports "free"
- * only after it has stayed free for a moment: a recorder stop and the next
- * start, or a switch between cameras, should not flash the preview.
+ * Reports whether another app holds the preview's camera ([ourId]) while
+ * the preview holds none, so the preview can come back once the MotoEye
+ * lets go. Starts listening a moment after the hand-off, when our own
+ * camera has closed, and reports "free" only after it has stayed free for
+ * a moment: a recorder stop and the next start, or a switch between
+ * cameras, should not flash the preview. [onOpenIds] hears every open camera.
  */
 @Composable
-private fun OtherAppCameraWatch(onOtherAppCamera: (Boolean) -> Unit) {
+private fun OtherAppCameraWatch(
+    ourId: String?,
+    onOpenIds: (Set<String>) -> Unit,
+    onOtherAppCamera: (Boolean) -> Unit,
+) {
     val ctx = LocalContext.current
     var busy by remember { mutableStateOf<Boolean?>(null) }
     DisposableEffect(Unit) {
@@ -353,12 +374,14 @@ private fun OtherAppCameraWatch(onOtherAppCamera: (Boolean) -> Unit) {
         val callback = object : CameraManager.AvailabilityCallback() {
             override fun onCameraAvailable(cameraId: String) {
                 open -= cameraId
-                busy = open.isNotEmpty()
+                onOpenIds(open.toSet())
+                busy = otherAppBusy(open, ourId)
             }
 
             override fun onCameraUnavailable(cameraId: String) {
                 open += cameraId
-                busy = true
+                onOpenIds(open.toSet())
+                busy = otherAppBusy(open, ourId)
             }
         }
         var registered = false

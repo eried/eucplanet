@@ -1,5 +1,6 @@
 package com.eried.eucplanet.hud.ui
 
+import com.eried.eucplanet.hud.ui.screens.otherAppBusy
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -242,5 +243,18 @@ class HudCameraControlTest {
         assertTrue(c.cameraHandedOff)
         c.onHudFocus(true)
         assertFalse(c.cameraHandedOff)
+    }
+
+    @Test
+    fun onlyThePreviewsOwnCameraKeepsItOff() {
+        // Josh (650c10c21): "other app has camera, HUD in front" long after
+        // the clip. The MotoEye opens every camera and keeps one the preview
+        // does not use.
+        val busy = ::otherAppBusy
+        assertFalse("another camera stays open", busy(setOf("1"), "0"))
+        assertTrue(busy(setOf("0", "1"), "0"))
+        assertFalse(busy(emptySet(), "0"))
+        assertTrue("not opened yet: any camera counts", busy(setOf("1"), null))
+        assertFalse(busy(emptySet(), null))
     }
 }
