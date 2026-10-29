@@ -26,6 +26,7 @@ class OfflineDataViewModel(
     private val tiles: OfflineTiles,
     private val settings: SettingsRepository,
     private val currentRoute: CurrentRouteStore,
+    private val trips: com.eried.eucplanet.data.repository.TripRepository,
 ) : ViewModel() {
 
     private val remote = MutableStateFlow<List<RemoteTile>?>(null)
@@ -97,8 +98,11 @@ class OfflineDataViewModel(
         return names.filter { !tiles.store.has(it) }
     }
 
-    /** Where the map opens: the planned route's start, else null. */
-    fun startPoint(): GeoPoint? = currentRoute.get()?.waypoints?.firstOrNull()?.let { GeoPoint(it.lat, it.lng) }
+    /** Where the map opens: the planned route's start, else the rider, else
+     *  null (the whole of Europe). */
+    fun startPoint(): GeoPoint? =
+        currentRoute.get()?.waypoints?.firstOrNull()?.let { GeoPoint(it.lat, it.lng) }
+            ?: trips.lastKnownLocation.value?.let { GeoPoint(it.latitude, it.longitude) }
 
     fun onWifi(): Boolean {
         val cm = context.getSystemService(ConnectivityManager::class.java) ?: return false
