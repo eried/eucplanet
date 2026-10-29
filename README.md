@@ -260,8 +260,7 @@ usually enough. If a supported wheel misbehaves instead, the
 Service Mode recording.
 
 PRs welcome. Bugs go to [Issues](../../issues). Live discussion is on
-[Telegram](https://t.me/EUCPlanetApp), and more serious ideas and votes go to
-[ideas.ried.no/euc-planet](https://ideas.ried.no/euc-planet).
+[Telegram](https://t.me/EUCPlanetApp).
 
 ## Support
 
