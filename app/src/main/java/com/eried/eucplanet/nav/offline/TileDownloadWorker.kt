@@ -46,7 +46,7 @@ class TileDownloadWorker(
                     fetch(lookupsUrl, File(store.dir, "lookups.dat.part"), lookups)
                 }
             }
-            val done = fetch(tileUrl, store.partFile(name), store.finalFile(name))
+            val done = fetch(tileUrl, store.partFile(name), store.finalFile(name), checkTile = true)
             if (done) Result.success() else Result.retry()
         } catch (e: MissingOnServer) {
             Log.w(TAG, "$name: not on the server")
@@ -58,8 +58,9 @@ class TileDownloadWorker(
     }
 
     /** Fetches [url] into [part], resuming what is there, and renames it to
-     *  [target] when the length matches. False when stopped first. */
-    private suspend fun fetch(url: String, part: File, target: File): Boolean {
+     *  [target] when the length matches and, for a tile, BRouter reads it
+     *  whole. False when stopped first. */
+    private suspend fun fetch(url: String, part: File, target: File, checkTile: Boolean = false): Boolean {
         val meta = File(part.path + ".date")
         val resumeFrom = if (meta.isFile) resumeDate(meta.readText(), url) else null
         var have = if (part.isFile && resumeFrom != null) part.length() else 0L
@@ -80,7 +81,7 @@ class TileDownloadWorker(
                 // Asked past the end: the part is the whole file, if its
                 // length is the server's. Anything else starts over.
                 if (totalFromContentRange(conn.getHeaderField("Content-Range")) == have) {
-                    return finish(part, target, meta, conn.getHeaderFieldDate("Last-Modified", 0L))
+                    return finish(part, target, meta, conn.getHeaderFieldDate("Last-Modified", 0L), checkTile)
                 }
                 part.delete()
                 meta.delete()
@@ -112,14 +113,22 @@ class TileDownloadWorker(
                 }
             }
             if (total > 0 && part.length() != total) throw IOException("short: ${part.length()} of $total")
-            return finish(part, target, meta, modified)
+            return finish(part, target, meta, modified, checkTile)
         } finally {
             conn.disconnect()
         }
     }
 
-    private fun finish(part: File, target: File, meta: File, modified: Long): Boolean {
+    private fun finish(part: File, target: File, meta: File, modified: Long, checkTile: Boolean): Boolean {
         if (part.length() == 0L) throw IOException("empty")
+        if (checkTile) {
+            // Damaged bytes start over: resuming would keep them.
+            TileCheck.problem(part)?.let {
+                part.delete()
+                meta.delete()
+                throw IOException("damaged: $it")
+            }
+        }
         target.delete()
         if (!part.renameTo(target)) throw IOException("rename failed")
         if (modified > 0) target.setLastModified(modified)
