@@ -1,5 +1,6 @@
 package com.eried.eucplanet.tpms
 
+import com.eried.eucplanet.data.repository.TyrePressureFeed
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,7 +23,7 @@ import kotlinx.coroutines.flow.asStateFlow
  */
 class TpmsRepository(
     private val pairing: TpmsPairingStore,
-) {
+) : TyrePressureFeed {
 
     /** For tests, which want the rules without a settings store behind them. */
     constructor() : this(TpmsPairingStore.None)
@@ -68,7 +69,7 @@ class TpmsRepository(
     private val _current = MutableStateFlow<TpmsReading?>(null)
 
     /** The reading to show, or null when nothing fresh is reporting. */
-    val current: StateFlow<TpmsReading?> = _current.asStateFlow()
+    override val current: StateFlow<TpmsReading?> = _current.asStateFlow()
 
     /**
      * Everything one cap is currently saying.
@@ -146,7 +147,7 @@ class TpmsRepository(
     private val _pressureKpa = MutableStateFlow(0f)
 
     /** The wheel relayed a value from a sensor bound to it. */
-    fun submitWheel(kpa: Float, nowMs: Long = System.currentTimeMillis()) {
+    override fun submitWheel(kpa: Float, nowMs: Long) {
         wheelReading = TpmsPolicy.readingOf(kpa, TpmsSource.WHEEL, nowMs) ?: wheelReading
         recompute(nowMs)
     }

@@ -4,6 +4,12 @@ import com.eried.eucplanet.audio.EngineSoundEngine
 import com.eried.eucplanet.audio.HornPlayer
 import com.eried.eucplanet.audio.SfxSidecar
 import com.eried.eucplanet.cheats.CheatState
+import com.eried.eucplanet.data.repository.AppNotices
+import com.eried.eucplanet.data.repository.CheatFlags
+import com.eried.eucplanet.data.repository.EventAnnouncer
+import com.eried.eucplanet.data.repository.PhoneHorn
+import com.eried.eucplanet.data.repository.RouteKeepAlive
+import com.eried.eucplanet.data.repository.WheelAlarms
 import com.eried.eucplanet.flic.FlicManager
 import com.eried.eucplanet.service.AlarmEngine
 import com.eried.eucplanet.service.AutomationManager
@@ -13,7 +19,9 @@ import com.eried.eucplanet.ui.common.ExperimentalBannerState
 import com.eried.eucplanet.ui.theme.ThemeController
 import com.eried.eucplanet.util.AppNotifier
 import com.eried.eucplanet.voice.VoiceCommandController
+import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
 /**
@@ -27,9 +35,9 @@ val serviceModule = module {
             get(), get(), get(), get(), get(), get(), get(), get(),
             tripRepositoryProvider = inject(),
         )
-    }
+    } bind WheelAlarms::class
     singleOf(::AutomationManager)
-    singleOf(::TonePlayer)
+    singleOf(::TonePlayer) { bind<RouteKeepAlive>() }
     single {
         VoiceService(
             get(), get(), get(), get(), get(),
@@ -37,7 +45,7 @@ val serviceModule = module {
             metricsResetLazy = inject(),
             tonePlayer = get(),
         )
-    }
+    } bind EventAnnouncer::class
     single {
         VoiceCommandController(
             get(), get(), get(), get(), get(), get(), get(), get(), get(),
@@ -45,10 +53,10 @@ val serviceModule = module {
         )
     }
     singleOf(::FlicManager)
-    singleOf(::AppNotifier)
-    singleOf(::CheatState)
+    singleOf(::AppNotifier) { bind<AppNotices>() }
+    singleOf(::CheatState) { bind<CheatFlags>() }
     singleOf(::EngineSoundEngine)
-    singleOf(::HornPlayer)
+    singleOf(::HornPlayer) { bind<PhoneHorn>() }
     singleOf(::SfxSidecar)
     singleOf(::ThemeController)
     singleOf(::ExperimentalBannerState)

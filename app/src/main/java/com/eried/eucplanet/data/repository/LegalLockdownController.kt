@@ -48,7 +48,7 @@ object LegalLockdownCode {
  */
 class LegalLockdownController(
     private val store: LegalLockdownStore
-) {
+) : LegalLockdownGate {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     /** The resident setting. Armed and waiting, or off. */
@@ -73,7 +73,7 @@ class LegalLockdownController(
      * in FlicManager, WheelRepository, WheelService and AutomationManager). The
      * StateFlow is seeded from disk at process start, so this never blocks.
      */
-    fun isEngaged(): Boolean = _engaged.value
+    override fun isEngaged(): Boolean = _engaged.value
 
     fun isArmed(): Boolean = _armed.value
 
@@ -83,7 +83,7 @@ class LegalLockdownController(
      * This is the latch. Armed plus legal mode on means the mode is now running,
      * and from here only the code gets out of it.
      */
-    fun onLegalModeActivated() {
+    override fun onLegalModeActivated() {
         if (!_armed.value || _engaged.value) return
         scope.launch { store.setEngaged(true) }
     }

@@ -12,6 +12,7 @@ import android.util.Log
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.WheelData
+import com.eried.eucplanet.data.repository.EventAnnouncer
 import com.eried.eucplanet.platform.getString
 import com.eried.eucplanet.util.Smoothing
 import com.eried.eucplanet.util.speedUnit
@@ -58,7 +59,7 @@ class VoiceService(
     // Lazy for the same reason: it reaches WheelRepository.
     private val metricsResetLazy: Lazy<com.eried.eucplanet.data.repository.MetricsReset>,
     private val tonePlayer: TonePlayer,
-) {
+) : EventAnnouncer {
     companion object {
         private const val TAG = "VoiceService"
     }
@@ -966,7 +967,7 @@ class VoiceService(
         return if (level >= 0 && scale > 0) (level * 100 / scale).coerceIn(0, 100) else 0
     }
 
-    fun announceEvent(text: String) {
+    override fun announceEvent(text: String) {
         // Legal Mode Lockdown silences app chatter, including anything that
         // would say "legal mode" or "recording". AlarmEngine speaks through
         // speak() instead, so the rider's own alarms still fire.

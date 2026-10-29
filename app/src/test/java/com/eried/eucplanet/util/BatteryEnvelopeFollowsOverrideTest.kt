@@ -86,7 +86,7 @@ class BatteryEnvelopeFollowsOverrideTest {
         // read 36 %, because the line never rises and was only reset when a
         // DIFFERENT wheel connected. A rider who charges between rides hits
         // exactly this, and not every family reports charging.
-        val source = File("src/main/java/com/eried/eucplanet/data/repository/WheelRepository.kt")
+        val source = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/data/repository/WheelRepository.kt")
         val body = source.readText()
             .substringAfter("fun connect(address: String")
             .substringBefore("bleManager.connect(")
@@ -100,7 +100,7 @@ class BatteryEnvelopeFollowsOverrideTest {
     }
 
     @Test fun `the frame handler samples the shown percentage, not the raw frame`() {
-        val source = File("src/main/java/com/eried/eucplanet/data/repository/WheelRepository.kt")
+        val source = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/data/repository/WheelRepository.kt")
         assertTrue("WheelRepository.kt not found at ${source.absolutePath}", source.exists())
         val text = source.readText()
 

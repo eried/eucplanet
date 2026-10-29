@@ -1,5 +1,6 @@
 package com.eried.eucplanet.cheats
 
+import com.eried.eucplanet.data.repository.CheatFlags
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,7 +30,7 @@ import kotlinx.coroutines.flow.asStateFlow
  * can react with normal Compose recomposition. [godmode] is a StateFlow too
  * so the AlarmEngine can gate per-tick cheaply.
  */
-class CheatState {
+class CheatState : CheatFlags {
 
     private val _speedDisplayMultiplier = MutableStateFlow(1f)
     /** Multiplier applied to the displayed speed (dashboard + watch face). 1.0 = no cheat. */
@@ -42,7 +43,7 @@ class CheatState {
     private val _lockAtAnySpeed = MutableStateFlow(false)
     /** When true, the wheel-lock command bypasses the LOCK_MAX_SPEED gate so the
      *  rider can lock at any speed. Session only, never persisted. */
-    val lockAtAnySpeed: StateFlow<Boolean> = _lockAtAnySpeed.asStateFlow()
+    override val lockAtAnySpeed: StateFlow<Boolean> = _lockAtAnySpeed.asStateFlow()
 
     private val _silence = MutableStateFlow(false)
     /** When true, [com.eried.eucplanet.service.VoiceService] swallows every

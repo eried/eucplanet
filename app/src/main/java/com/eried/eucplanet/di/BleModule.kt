@@ -3,6 +3,8 @@ package com.eried.eucplanet.di
 import com.eried.eucplanet.ble.BleConnectionManager
 import com.eried.eucplanet.ble.BleScanner
 import com.eried.eucplanet.ble.CompositeWheelAdapter
+import com.eried.eucplanet.ble.WheelLink
+import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
@@ -12,5 +14,5 @@ import org.koin.dsl.module
  */
 val bleModule = module {
     singleOf(::BleScanner)
-    singleOf(::BleConnectionManager)
+    singleOf(::BleConnectionManager) { bind<WheelLink>() }
 }

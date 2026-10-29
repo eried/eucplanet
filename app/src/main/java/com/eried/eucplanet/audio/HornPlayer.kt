@@ -10,6 +10,7 @@ import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import com.eried.eucplanet.data.repository.PhoneHorn
 import java.io.File
 
 /**
@@ -24,7 +25,7 @@ import java.io.File
  */
 class HornPlayer(
     private val context: Context,
-) {
+) : PhoneHorn {
     companion object {
         private const val TAG = "HornPlayer"
         /** Longer than this is a song, not a horn. */
@@ -59,7 +60,7 @@ class HornPlayer(
     private fun file() = File(File(context.filesDir, "horn"), FILE_NAME)
 
     /** True once a sound is decoded and can play at once. */
-    val isReady: Boolean get() = ready
+    override val isReady: Boolean get() = ready
 
     /** Copy [uri] in as the horn sound after checking it is a short, readable clip. */
     fun import(uri: Uri): ImportResult {
@@ -110,7 +111,7 @@ class HornPlayer(
      * Play the horn sound once. Returns false when nothing is ready to play,
      * so the caller can fall back to the wheel's own horn.
      */
-    fun play(): Boolean {
+    override fun play(): Boolean {
         if (!ready || soundId == 0) return false
         requestFocus()
         val stream = pool.play(soundId, 1f, 1f, 1, 0, 1f)
@@ -136,5 +137,5 @@ class HornPlayer(
     }
 
     /** Headphones, a Bluetooth speaker or USB audio is the current output. */
-    fun externalOutputActive(): Boolean = AudioOutput.isExternalActive(audioManager)
+    override fun externalOutputActive(): Boolean = AudioOutput.isExternalActive(audioManager)
 }

@@ -28,14 +28,14 @@ import kotlinx.coroutines.launch
  */
 class PhoneSensorRepository(
     private val context: Context
-) {
+) : PhoneImu {
     private val sensorManager: SensorManager? =
         context.getSystemService(Context.SENSOR_SERVICE) as? SensorManager
     private val linearAccel: Sensor? =
         sensorManager?.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
 
     private val _imu = MutableStateFlow<PhoneImuSample?>(null)
-    val imu: StateFlow<PhoneImuSample?> = _imu.asStateFlow()
+    override val imu: StateFlow<PhoneImuSample?> = _imu.asStateFlow()
 
     val latest: PhoneImuSample? get() = _imu.value
     val isAvailable: Boolean get() = linearAccel != null
@@ -119,7 +119,7 @@ class PhoneSensorRepository(
      * or vice versa). Every [start] must be balanced by exactly one [stop].
      */
     @Synchronized
-    fun start() {
+    override fun start() {
         refCount++
         Log.i(TAG, "start refCount=$refCount from=${callerTag()}")
         if (refCount == 1) {
@@ -167,7 +167,7 @@ class PhoneSensorRepository(
     /** Releases one consumer; unregisters once the last one is gone. The last
      *  sample stays in [latest] so the UI can still show it after dismissing. */
     @Synchronized
-    fun stop() {
+    override fun stop() {
         if (refCount <= 0) return
         refCount--
         Log.i(TAG, "stop refCount=$refCount from=${callerTag()}")

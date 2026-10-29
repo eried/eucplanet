@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.eried.eucplanet.data.db.AlarmDao
 import com.eried.eucplanet.data.model.AlarmMetric
+import com.eried.eucplanet.data.repository.WheelAlarms
 import com.eried.eucplanet.util.MetricSanity
 import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.data.model.ExternalGpsSample
@@ -44,7 +45,7 @@ class AlarmEngine(
     // Lazy so the Trip <-> ExternalGps <-> Alarm provider chain can't form a
     // DI cycle. Supplies the phone location stream for the GPS_SPEED metric.
     private val tripRepositoryProvider: Lazy<com.eried.eucplanet.data.repository.TripRepository>
-) {
+) : WheelAlarms {
     companion object {
         private const val TAG = "AlarmEngine"
     }
@@ -139,7 +140,7 @@ class AlarmEngine(
      * keeps its own cooldown / edge state, so escalating through tiers fires
      * each tier once as you reach it.
      */
-    fun evaluate(data: WheelData) {
+    override fun evaluate(data: WheelData) {
         // Quake-console godmode: silences all alarms for the session. The user types
         // `godmode` in the Settings search bar to flip it; lost on app restart.
         if (cheatState.godmode.value) { stopConstantTone(); return }
@@ -227,7 +228,7 @@ class AlarmEngine(
 
     /** Stop the constant tone immediately (condition cleared, disconnect, mute, or
      *  godmode). Idempotent. */
-    fun stopConstantTone() {
+    override fun stopConstantTone() {
         if (constantRuleId != null) {
             Log.i(TAG, "Constant tone STOP")
             tonePlayer.stopStream()

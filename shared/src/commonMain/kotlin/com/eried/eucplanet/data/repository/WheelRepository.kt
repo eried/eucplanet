@@ -1,9 +1,6 @@
 package com.eried.eucplanet.data.repository
 
-import android.content.Context
-import android.util.Log
-import com.eried.eucplanet.R
-import com.eried.eucplanet.ble.BleConnectionManager
+import com.eried.eucplanet.ble.WheelLink
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.ble.DecodeResult
 import com.eried.eucplanet.ble.WheelAdapter
@@ -13,13 +10,17 @@ import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.ChargeStatus
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.model.WheelSettings
-import com.eried.eucplanet.service.AlarmEngine
 import com.eried.eucplanet.service.ChargingEstimate
 import com.eried.eucplanet.service.ChargingEstimator
-import com.eried.eucplanet.service.VoiceService
+import com.eried.eucplanet.platform.Locale
+import com.eried.eucplanet.platform.Log
+import com.eried.eucplanet.platform.System
+import com.eried.eucplanet.platform.format
+import com.eried.eucplanet.resources.*
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -36,7 +37,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlin.concurrent.Volatile
 import kotlin.math.absoluteValue
+import kotlin.math.roundToInt
 
 data class MetricSample(val timestampMs: Long, val value: Float)
 
@@ -221,28 +224,29 @@ internal val STAT_BUFFER_EXTRA_KEYS: List<String> =
         .filter { it !in LEGACY_STAT_METRIC_KEYS }
 
 class WheelRepository(
-    private val context: Context,
-    private val bleManager: BleConnectionManager,
+    private val bleManager: WheelLink,
     private val wheelAdapter: WheelAdapter,
     private val settingsRepository: SettingsRepository,
-    private val alarmEngine: AlarmEngine,
-    private val tonePlayer: com.eried.eucplanet.service.TonePlayer,
-    private val voiceService: VoiceService,
-    private val wheelProfileDao: com.eried.eucplanet.data.db.WheelProfileDao,
-    private val cheatState: com.eried.eucplanet.cheats.CheatState,
-    private val phoneSensorRepository: PhoneSensorRepository,
-    private val externalGpsRepository: ExternalGpsRepository,
-    private val legalLockdown: LegalLockdownController,
+    private val alarmEngine: WheelAlarms,
+    private val tonePlayer: RouteKeepAlive,
+    private val voiceService: EventAnnouncer,
+    private val wheelProfileDao: WheelProfiles,
+    private val cheatState: CheatFlags,
+    private val phoneSensorRepository: PhoneImu,
+    private val externalGpsRepository: ExternalGpsFeed,
+    private val legalLockdown: LegalLockdownGate,
     /** So the wheel's own relayed tyre pressure competes with a paired cap. */
-    private val tpmsRepository: com.eried.eucplanet.tpms.TpmsRepository,
-    private val accelSplitRepository: AccelSplitRepository,
+    private val tpmsRepository: TyrePressureFeed,
+    private val accelSplitRepository: AccelSplitReset,
     // Lazy breaks the DI dependency cycle: TripRepository injects this
     // repository, so a direct TripRepository here would be circular. Only
     // read on the history tick to sample GPS_SPEED / GPS_ALTITUDE /
     // GPS_ACCURACY from the current location fix.
-    private val tripRepositoryLazy: Lazy<TripRepository>,
-    private val appNotifier: com.eried.eucplanet.util.AppNotifier,
-    private val hornPlayer: com.eried.eucplanet.audio.HornPlayer,
+    private val tripRepositoryLazy: Lazy<RideRecording>,
+    private val appNotifier: AppNotices,
+    private val hornPlayer: PhoneHorn,
+    /** Phone battery, the no-horn beep, and localized text. */
+    private val phone: PhoneDevice,
 ) {
     companion object {
         private const val TAG = "WheelRepo"
@@ -345,8 +349,8 @@ class WheelRepository(
     private fun announceLockState(locked: Boolean) {
         if (lastAnnouncedLocked == locked) return
         lastAnnouncedLocked = locked
-        voiceService.announceEvent(context.getString(
-            if (locked) R.string.voice_wheel_locked else R.string.voice_wheel_unlocked
+        voiceService.announceEvent(phone.text(
+            if (locked) Res.string.voice_wheel_locked else Res.string.voice_wheel_unlocked
         ))
     }
 
@@ -594,15 +598,14 @@ class WheelRepository(
      */
     private fun sampleSourceHistory(now: Long) {
         runCatching {
-            val loc = tripRepositoryLazy.value.currentLocation.value
-            if (loc != null) {
-                if (loc.hasSpeed()) extrasHist["GPS_SPEED"]?.add(MetricSample(now, loc.speed * 3.6f))
-                if (loc.hasAltitude()) extrasHist["GPS_ALTITUDE"]?.add(MetricSample(now, loc.altitude.toFloat()))
-                if (loc.hasAccuracy()) extrasHist["GPS_ACCURACY"]?.add(MetricSample(now, loc.accuracy))
+            val fix = tripRepositoryLazy.value.currentFix()
+            if (fix != null) {
+                fix.speedKmh?.let { extrasHist["GPS_SPEED"]?.add(MetricSample(now, it)) }
+                fix.altitudeM?.let { extrasHist["GPS_ALTITUDE"]?.add(MetricSample(now, it)) }
+                fix.accuracyM?.let { extrasHist["GPS_ACCURACY"]?.add(MetricSample(now, it)) }
             }
             // Phone battery: cheap in-memory system read, fine at 1 Hz.
-            val phonePct = (context.getSystemService(Context.BATTERY_SERVICE) as? android.os.BatteryManager)
-                ?.getIntProperty(android.os.BatteryManager.BATTERY_PROPERTY_CAPACITY) ?: -1
+            val phonePct = phone.batteryPercent()
             if (phonePct in 0..100) extrasHist["PHONE_BATTERY"]?.add(MetricSample(now, phonePct.toFloat()))
             // External GPS box battery, freshness-gated to 5 s like the dashboard tile.
             val ext = externalGpsRepository.currentSample.value
@@ -859,7 +862,7 @@ class WheelRepository(
                     val dt = (buf.last().timestampMs - buf.first().timestampMs) / 1000f
                     if (dt > 0.05f) (buf.last().value - buf.first().value) / dt / 9.80665f else 0f
                 } else 0f
-                val rounded = Math.round(fwdG * 100f) / 100f
+                val rounded = (fwdG * 100f).let { if (it.isNaN()) 0 else it.roundToInt() } / 100f
                 if (rounded != _wheelData.value.forwardGFromSpeed) {
                     _wheelData.value = _wheelData.value.copy(forwardGFromSpeed = rounded)
                 }
@@ -915,10 +918,10 @@ class WheelRepository(
         // wheel restores everything (tiltback, alarm, safety, calibration).
         scope.launch {
             settingsRepository.settings.collect { s ->
-                lockCodeCache = String.format(java.util.Locale.US, "%06d", s.advanced.kingsongUnlockCode)
+                lockCodeCache = String.format(Locale.US, "%06d", s.advanced.kingsongUnlockCode)
                 hornCache = s.horn
                 lockPasswordCache = s.advanced.kingsongPassword.let { p ->
-                    if (p == 0) "" else String.format(java.util.Locale.US, "%04d", p)
+                    if (p == 0) "" else String.format(Locale.US, "%04d", p)
                 }
                 // Handed over here as well as at lock time, so the adapter's
                 // init sequence already carries the password on connect.
@@ -1618,30 +1621,7 @@ class WheelRepository(
      *  knows the tap registered. Best-effort; silently catches every
      *  audio / vibrator error so a locked-down audio policy never throws
      *  out of a horn tap. */
-    private fun playPhoneHornFallback() {
-        try {
-            val tone = android.media.ToneGenerator(
-                android.media.AudioManager.STREAM_MUSIC, 100
-            )
-            tone.startTone(android.media.ToneGenerator.TONE_PROP_BEEP, 400)
-            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-                try { tone.release() } catch (_: Throwable) {}
-            }, 600L)
-        } catch (_: Throwable) {}
-        try {
-            val vib = context.getSystemService(Context.VIBRATOR_SERVICE) as? android.os.Vibrator
-            if (vib != null && android.os.Build.VERSION.SDK_INT >= 26) {
-                vib.vibrate(
-                    android.os.VibrationEffect.createOneShot(
-                        300L, android.os.VibrationEffect.DEFAULT_AMPLITUDE
-                    )
-                )
-            } else {
-                @Suppress("DEPRECATION")
-                vib?.vibrate(300L)
-            }
-        } catch (_: Throwable) {}
-    }
+    private fun playPhoneHornFallback() = phone.hornFallback()
 
     /**
      * The connected wheel's adapter family id ("veteran", "kingsong", ...), or
@@ -2127,7 +2107,7 @@ class WheelRepository(
                 "legal=${updated.safetyTiltbackKmh}/${updated.safetyAlarmKmh} legalOn=$isLegalOn")
 
         if (isLegalOn && appSettings.announceSafetyMode) {
-            voiceService.announceEvent(context.getString(R.string.voice_legal_on))
+            voiceService.announceEvent(phone.text(Res.string.voice_legal_on))
         }
     }
 
@@ -2488,9 +2468,9 @@ class WheelRepository(
                         if (confirmedSafety != lastAnnouncedSafety) {
                             lastAnnouncedSafety = confirmedSafety
                             if (appSettings.announceSafetyMode) {
-                                voiceService.announceEvent(context.getString(
-                                    if (confirmedSafety) R.string.voice_legal_on
-                                    else R.string.voice_legal_off))
+                                voiceService.announceEvent(phone.text(
+                                    if (confirmedSafety) Res.string.voice_legal_on
+                                    else Res.string.voice_legal_off))
                             }
                         }
                     }
@@ -2545,8 +2525,8 @@ class WheelRepository(
                             // Surface a snackbar so the silent adoption is
                             // visible no matter which screen the user is on.
                             appNotifier.post(
-                                context.getString(
-                                    R.string.toast_external_speed_change,
+                                phone.text(
+                                    Res.string.toast_external_speed_change,
                                     newTilt.toInt(), newAlarm.toInt()
                                 )
                             )

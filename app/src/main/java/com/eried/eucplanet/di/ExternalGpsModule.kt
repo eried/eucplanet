@@ -5,9 +5,11 @@ import com.eried.eucplanet.ble.gps.ExternalGpsAdapter
 import com.eried.eucplanet.ble.gps.ExternalGpsConnectionManager
 import com.eried.eucplanet.ble.gps.ExternalGpsScanner
 import com.eried.eucplanet.ble.gps.RaceBoxAdapter
+import com.eried.eucplanet.data.repository.ExternalGpsFeed
 import com.eried.eucplanet.data.repository.ExternalGpsRepository
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.singleOf
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
 /**
@@ -34,5 +36,5 @@ val externalGpsModule = module {
             tripRepositoryProvider = inject(),
             alarmEngineProvider = inject(),
         )
-    }
+    } bind ExternalGpsFeed::class
 }

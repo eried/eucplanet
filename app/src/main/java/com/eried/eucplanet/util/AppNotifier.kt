@@ -1,5 +1,6 @@
 package com.eried.eucplanet.util
 
+import com.eried.eucplanet.data.repository.AppNotices
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -21,7 +22,7 @@ import kotlinx.coroutines.flow.asSharedFlow
  * the oldest pending message if a burst arrives faster than the host can show
  * them (these are advisory, never load-bearing).
  */
-class AppNotifier {
+class AppNotifier : AppNotices {
 
     private val _messages = MutableSharedFlow<String>(
         extraBufferCapacity = 8,
@@ -31,7 +32,7 @@ class AppNotifier {
 
     /** Post a transient message to the root snackbar host. No-op-safe from
      *  any thread; never blocks. */
-    fun post(message: String) {
+    override fun post(message: String) {
         if (message.isBlank()) return
         _messages.tryEmit(message)
     }

@@ -4,13 +4,14 @@ import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioTrack
 import android.util.Log
+import com.eried.eucplanet.data.repository.RouteKeepAlive
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlin.concurrent.thread
 import kotlin.math.cos
 import kotlin.math.sin
 
-class TonePlayer {
+class TonePlayer : RouteKeepAlive {
 
     private companion object {
         const val TAG = "TonePlayer"
@@ -391,14 +392,14 @@ class TonePlayer {
      * studio stream, so a failure here never silences an actual alarm.
      */
     @Synchronized
-    fun startRouteKeepAlive(quietMs: Long = rideQuietMs) {
+    override fun startRouteKeepAlive(quietMs: Long) {
         keepAliveRide = true; rideQuietMs = quietMs; lastSoundMs = System.currentTimeMillis()
         ensureKeepAlive()
     }
 
     /** Release the ride's hold. The route stays warm if a preview still wants it. */
     @Synchronized
-    fun stopRouteKeepAlive() { keepAliveRide = false }
+    override fun stopRouteKeepAlive() { keepAliveRide = false }
 
     /** Warm the route while the alarm editor is open, so preview beeps/voice fired from
      *  a settings screen (wheel disconnected, route cold) don't pop. */

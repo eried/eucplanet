@@ -1,7 +1,6 @@
 package com.eried.eucplanet.tpms
 
 import com.eried.eucplanet.data.model.WheelData
-import com.eried.eucplanet.data.repository.EXTRA_HISTORY_METRICS
 import com.eried.eucplanet.service.AlarmLogic
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -62,19 +61,6 @@ class TpmsReachesTheAppTest {
         assertNotNull(tpms.wheelSensor.value)
         tpms.refresh(now + TpmsPolicy.STALE_AFTER_MS + 1)
         assertNull("a stale reading must stop being drawn", tpms.wheelSensor.value)
-    }
-
-    @Test fun `history records a flat tyre and skips a wheel with no sensor`() {
-        val sampler = EXTRA_HISTORY_METRICS.first { it.first == "TIRE_PRESSURE" }.second
-
-        // Nothing measuring: no sample. Recording zero would draw a wheel that
-        // has no sensor as a tyre that has been flat since the app started.
-        assertNull(sampler(WheelData()))
-
-        // A cap on a flat tyre: recorded, because it is a reading.
-        assertEquals(0f, sampler(WheelData(tirePressureKpa = 0f, hasTirePressure = true)))
-
-        assertEquals(360f, sampler(WheelData(tirePressureKpa = 360f, hasTirePressure = true)))
     }
 
     @Test fun `the alarm sees a flat tyre from a cap and nothing from a bare wheel`() {

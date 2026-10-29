@@ -60,7 +60,7 @@ class TripRepository(
      * a Lazy alone does not guarantee that, the dispatcher does.
      */
     private val shareSession: Lazy<com.eried.eucplanet.share.ShareSession>
-) {
+) : RideRecording {
     companion object {
         private const val TAG = "TripRepo"
         // After stopRecording with sync configured, we hold the trip in a "pending"
@@ -76,10 +76,19 @@ class TripRepository(
         LocationServices.getFusedLocationProviderClient(context)
 
     private val _recording = MutableStateFlow(false)
-    val recording: StateFlow<Boolean> = _recording.asStateFlow()
+    override val recording: StateFlow<Boolean> = _recording.asStateFlow()
 
     private val _currentLocation = MutableStateFlow<Location?>(null)
     val currentLocation: StateFlow<Location?> = _currentLocation.asStateFlow()
+
+    /** [currentLocation] in the units WheelRepository's history buffers keep. */
+    override fun currentFix(): GpsFix? = currentLocation.value?.let { loc ->
+        GpsFix(
+            speedKmh = if (loc.hasSpeed()) loc.speed * 3.6f else null,
+            altitudeM = if (loc.hasAltitude()) loc.altitude.toFloat() else null,
+            accuracyM = if (loc.hasAccuracy()) loc.accuracy else null,
+        )
+    }
 
     private val _lastKnownLocation = MutableStateFlow<Location?>(null)
     /**

@@ -34,7 +34,7 @@ class ExternalGpsRepository(
     private val tripRepositoryProvider: Lazy<TripRepository>,
     // Lazy so a future AlarmEngine dependency on us can't form a DI cycle.
     private val alarmEngineProvider: Lazy<com.eried.eucplanet.service.AlarmEngine>
-) {
+) : ExternalGpsFeed {
     companion object {
         private const val TAG = "ExtGpsRepo"
     }
@@ -47,14 +47,14 @@ class ExternalGpsRepository(
     private val _demoConnectionOverride = MutableStateFlow<ConnectionState?>(null)
 
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-    val connectionState: StateFlow<ConnectionState> = kotlinx.coroutines.flow.combine(
+    override val connectionState: StateFlow<ConnectionState> = kotlinx.coroutines.flow.combine(
         connectionManager.connectionState,
         _demoConnectionOverride
     ) { real, demo -> demo ?: real }
         .stateIn(scope, kotlinx.coroutines.flow.SharingStarted.Eagerly, ConnectionState.DISCONNECTED)
 
     private val _currentSample = MutableStateFlow<ExternalGpsSample?>(null)
-    val currentSample: StateFlow<ExternalGpsSample?> = _currentSample.asStateFlow()
+    override val currentSample: StateFlow<ExternalGpsSample?> = _currentSample.asStateFlow()
 
     // Volatile mirror of the per-axis remap settings, refreshed whenever the
     // user changes one. Reading from a volatile field in the hot sample path

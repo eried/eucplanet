@@ -24,7 +24,7 @@ import kotlinx.coroutines.flow.asStateFlow
  * a different wheel connecting, since a different wheel is a different pack
  * and a different motor.
  */
-class AccelSplitRepository {
+class AccelSplitRepository : AccelSplitReset {
 
     private val tracker = AccelSplitTracker(increment = 10, minSpeed = 20)
 
@@ -64,7 +64,7 @@ class AccelSplitRepository {
 
     /** Forget the session: the rider asked, or a different wheel connected. */
     @Synchronized
-    fun reset() {
+    override fun reset() {
         tracker.hardReset()
         _session.value = tracker.snapshot()
     }
