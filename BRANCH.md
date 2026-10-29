@@ -46,7 +46,7 @@ only when you can cut the ride short.
 **HUD (MotoEye)**
 - Install the phone and the HUD APK from this build. Open the HUD Map screen, leave the phone app, no wheel connected: does the map stay? And with the wheel connected, on any map style and zoom?
 - Camera screen: turn the front camera, switch to the rear one and back. Does each keep its own turn, also after restarting the HUD?
-- MotoEye: on a camera screen, hold the camera button to start the recorder, stop it, and start it again: does it work every time, and does the picture come back by itself after you stop it? It now waits only for the camera it shows, not every camera. If not, send a photo of the small grey line again, it now also lists the open cameras.
+- MotoEye: on a camera screen, hold the camera button to start the recorder, then hold it again to stop it. Does the picture come back by itself? If not, send a photo of the small grey line: it now counts your camera button presses and how long you held the last one. After UP brings the picture back, do your next recordings still save?
 
 **InMotion V8S (or any V1 wheel)**
 - Ride as usual: how many disconnects, compared with EUC World? A Service Mode log covering any drop helps most.
