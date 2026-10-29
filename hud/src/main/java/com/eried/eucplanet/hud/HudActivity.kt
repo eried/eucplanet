@@ -196,7 +196,10 @@ class HudActivity : ComponentActivity() {
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        if (event.action == KeyEvent.ACTION_DOWN) controller.noteKey(event.keyCode)
+        when (event.action) {
+            KeyEvent.ACTION_DOWN -> controller.noteKey(event.keyCode, down = true, atMs = event.eventTime)
+            KeyEvent.ACTION_UP -> controller.noteKey(event.keyCode, down = false, atMs = event.eventTime)
+        }
         return super.dispatchKeyEvent(event)
     }
 

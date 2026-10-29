@@ -1,5 +1,6 @@
 package com.eried.eucplanet.hud.ui
 
+import android.view.KeyEvent
 import com.eried.eucplanet.hud.ui.screens.otherAppBusy
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -256,5 +257,32 @@ class HudCameraControlTest {
         assertFalse(busy(emptySet(), "0"))
         assertTrue("not opened yet: any camera counts", busy(setOf("1"), null))
         assertFalse(busy(emptySet(), null))
+    }
+
+    @Test
+    fun diagTellsARearViewPressFromARecorderHold() {
+        // Josh: a press shows the rear view, a hold starts or stops the
+        // recorder, and both arrive as key 132.
+        val c = onScreen(HudUiController.Screen.Camera)
+        c.noteKey(132, down = true, atMs = 1_000)
+        c.noteKey(132, down = false, atMs = 1_120)
+        c.handOffCamera(byKey = true, reason = "key 132")
+        assertTrue(c.cameraDiag, "presses 1, last held 120 ms" in c.cameraDiag)
+        // A hold the remote streams as down and up pairs is one press.
+        c.noteKey(132, down = true, atMs = 5_000)
+        c.noteKey(132, down = false, atMs = 5_050)
+        c.noteKey(132, down = true, atMs = 5_100)
+        assertTrue(c.cameraDiag, "presses 2, last still down" in c.cameraDiag)
+        c.noteKey(132, down = false, atMs = 6_400)
+        assertTrue(c.cameraDiag, "presses 2, last held 1400 ms" in c.cameraDiag)
+    }
+
+    @Test
+    fun ourOwnKeysAreNotCameraPresses() {
+        val c = onScreen(HudUiController.Screen.Camera)
+        c.noteKey(KeyEvent.KEYCODE_DPAD_UP, down = true, atMs = 0)
+        c.noteKey(KeyEvent.KEYCODE_DPAD_UP, down = false, atMs = 900)
+        c.handOffCamera(byKey = true)
+        assertTrue(c.cameraDiag, "presses none" in c.cameraDiag)
     }
 }

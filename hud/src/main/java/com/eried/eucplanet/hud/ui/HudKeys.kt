@@ -24,3 +24,41 @@ object HudKeys {
      */
     fun handsOffCamera(keyCode: Int): Boolean = keyCode !in OURS
 }
+
+/**
+ * The camera button presses, for the diag line: how many, and how long the
+ * last was held, short for the rear view, long for the recorder. The
+ * MotoEye's own threshold is unknown, so the line shows the time. A remote
+ * may stream down and up pairs while the button is held, so a down soon
+ * after an up is the same press.
+ */
+class CameraPressLog {
+    private var count = 0
+    private var startMs = -1L
+    private var lastUpMs = -1L
+    private var held = false
+
+    fun note(down: Boolean, atMs: Long) {
+        if (down) {
+            if (held) return
+            if (lastUpMs < 0 || atMs - lastUpMs > SAME_PRESS_MS) {
+                count++
+                startMs = atMs
+            }
+            held = true
+        } else if (held) {
+            held = false
+            lastUpMs = atMs
+        }
+    }
+
+    fun summary(): String = when {
+        count == 0 -> "none"
+        held -> "$count, last still down"
+        else -> "$count, last held ${lastUpMs - startMs} ms"
+    }
+
+    private companion object {
+        const val SAME_PRESS_MS = 150L
+    }
+}

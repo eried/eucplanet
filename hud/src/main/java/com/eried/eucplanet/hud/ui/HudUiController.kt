@@ -156,15 +156,26 @@ class HudUiController {
     private var handOffReason by mutableStateOf("")
     private var lastKey by mutableStateOf(-1)
 
-    /** The Activity saw a key press, ours or not. */
-    fun noteKey(keyCode: Int) {
-        lastKey = keyCode
+    /** The camera button presses since the HUD started, each short (rear
+     *  view) or long (recorder start or stop). Josh: both reach the HUD as
+     *  the same key, so only how long it was held tells them apart. */
+    private val cameraPresses = CameraPressLog()
+    private var cameraPressText by mutableStateOf("none")
+
+    /** The Activity saw a key press, ours or not. [down] false is its
+     *  release; [atMs] is the event's uptime. */
+    fun noteKey(keyCode: Int, down: Boolean = true, atMs: Long = 0L) {
+        if (down) lastKey = keyCode
+        if (HudKeys.handsOffCamera(keyCode)) {
+            cameraPresses.note(down, atMs)
+            cameraPressText = cameraPresses.summary()
+        }
     }
 
     /** One line on the handed-off screen saying what keeps the picture off,
      *  so a tester's photo shows which step the MotoEye skips. */
     val cameraDiag: String
-        get() = "freed by $handOffReason, last key $lastKey, " +
+        get() = "freed by $handOffReason, last key $lastKey, presses $cameraPressText, " +
             "button ${if (cameraKeyHeard) "seen" else "not seen"}, " +
             "other app ${if (freeAgain) "done" else if (takenSinceHandOff) "has camera" else "not seen"}, " +
             "HUD ${if (hudFocused) "in front" else "behind"}"
