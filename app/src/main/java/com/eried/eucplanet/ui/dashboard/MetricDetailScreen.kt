@@ -16,6 +16,7 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import com.eried.eucplanet.platform.stringResource
 import com.eried.eucplanet.util.speedUnit
 import kotlinx.coroutines.withTimeoutOrNull
 import androidx.compose.foundation.gestures.drag

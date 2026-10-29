@@ -115,12 +115,12 @@ class VoicePhraseMatchTest {
 
     /** The English label of every metric in the catalog, read from source. */
     private fun catalogLabels(): Map<String, String> {
-        val catalog = File("src/main/java/com/eried/eucplanet/data/model/MetricCatalog.kt")
+        val catalog = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/data/model/MetricCatalog.kt")
             .readText()
         val strings = stringValues()
-        // key = "SPEED", ... labelRes = R.string.metric_chip_speed
+        // key = "SPEED", ... labelRes = Res.string.metric_chip_speed
         val entries = Regex(
-            """key\s*=\s*"([A-Z0-9_]+)"[\s\S]{0,400}?labelRes\s*=\s*R\.string\.(\w+)"""
+            """key\s*=\s*"([A-Z0-9_]+)"[\s\S]{0,400}?labelRes\s*=\s*Res\.string\.(\w+)"""
         ).findAll(catalog)
         return entries.mapNotNull { m ->
             val label = strings[m.groupValues[2]] ?: return@mapNotNull null

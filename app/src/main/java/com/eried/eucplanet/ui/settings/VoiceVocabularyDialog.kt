@@ -26,6 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.MetricCatalog
+import com.eried.eucplanet.platform.stringResource
 import com.eried.eucplanet.service.VoiceReportPlan
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.voice.VoiceVocabulary

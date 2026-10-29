@@ -48,12 +48,11 @@ class VoiceMusicLocalePhrasesTest {
     private fun vocabularyFor(dir: File): List<VoiceVocabulary.SpokenTerm> {
         val english = stringsIn(File(resDir, "values"))
         val local = stringsIn(dir)
-        val get: (Int) -> String = { id ->
-            val name = names.getValue(id)
-            local[name] ?: english[name] ?: ""
-        }
+        val byName: (String) -> String = { name -> local[name] ?: english[name] ?: "" }
+        val get: (Int) -> String = { id -> byName(names.getValue(id)) }
         return VoiceVocabulary.build(
-            metricNames = MetricCatalog.all.associate { it.key to get(it.spokenLabelRes ?: it.labelRes) },
+            // MetricCatalog is shared: its labels are Res.string keys, looked up by name.
+            metricNames = MetricCatalog.all.associate { it.key to byName((it.spokenLabelRes ?: it.labelRes).key) },
             reportNames = VoicePhrases.resolve(VoicePhrases.REPORTS, get),
             splitName = get(R.string.voice_split_term),
             helpPhrases = get(R.string.voice_help_terms),

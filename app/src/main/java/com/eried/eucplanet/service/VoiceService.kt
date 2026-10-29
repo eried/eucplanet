@@ -12,6 +12,7 @@ import android.util.Log
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.WheelData
+import com.eried.eucplanet.platform.getString
 import com.eried.eucplanet.util.Smoothing
 import com.eried.eucplanet.util.speedUnit
 import kotlin.math.abs

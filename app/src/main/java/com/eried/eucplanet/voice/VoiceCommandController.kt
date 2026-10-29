@@ -8,6 +8,7 @@ import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.MetricCatalog
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.WheelRepository
+import com.eried.eucplanet.platform.getString
 import com.eried.eucplanet.service.TonePlayer
 import com.eried.eucplanet.service.VoiceService
 import com.eried.eucplanet.util.speedUnit

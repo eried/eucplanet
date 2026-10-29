@@ -1,8 +1,8 @@
 package com.eried.eucplanet.data.model
 
-import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.Color
-import com.eried.eucplanet.R
+import org.jetbrains.compose.resources.StringResource
+import com.eried.eucplanet.resources.*
 import com.eried.eucplanet.ui.theme.AccentBlue
 import com.eried.eucplanet.ui.theme.AccentGreen
 import com.eried.eucplanet.ui.theme.AccentOrange
@@ -69,7 +69,7 @@ enum class SparklineStyle {
 data class MetricSpec(
     /** Stable identifier persisted in settings (composites/custom tiles reference these by key too). */
     val key: String,
-    @StringRes val labelRes: Int,
+    val labelRes: StringResource,
     /**
      * What to call this out loud, when the tile label is an abbreviation.
      *
@@ -81,9 +81,9 @@ data class MetricSpec(
      *
      * Null for the great majority, whose label is already a word.
      */
-    @StringRes val spokenLabelRes: Int? = null,
+    val spokenLabelRes: StringResource? = null,
     /** Optional explainer surfaced in the slot-sheet info box. */
-    @StringRes val descriptionRes: Int? = null,
+    val descriptionRes: StringResource? = null,
     /** Accent colour the tile's value text + sparkline tint pick up. */
     val accent: Color = AccentBlue,
     /** Sparkline drawing style. [SparklineStyle.NONE] for monotonic counters. */
@@ -112,15 +112,15 @@ object MetricCatalog {
         // ---- Default active grid (first 6 on a fresh install) ----
         MetricSpec(
             key = "BATTERY",
-            labelRes = R.string.metric_chip_battery,
+            labelRes = Res.string.metric_chip_battery,
             accent = AccentGreen,
             sparkline = SparklineStyle.AREA
         ),
         MetricSpec(
             key = "BATTERY_ENVELOPE",
-            labelRes = R.string.metric_chip_battery_envelope,
-            spokenLabelRes = R.string.metric_spoken_battery_envelope,
-            descriptionRes = R.string.metric_desc_battery_envelope,
+            labelRes = Res.string.metric_chip_battery_envelope,
+            spokenLabelRes = Res.string.metric_spoken_battery_envelope,
+            descriptionRes = Res.string.metric_desc_battery_envelope,
             // The trip chart's envelope colour, not the battery tile's green.
             // Same family, different reading, and two greens side by side read
             // as one number printed twice.
@@ -131,32 +131,32 @@ object MetricCatalog {
         ),
         MetricSpec(
             key = "TEMPERATURE",
-            labelRes = R.string.metric_chip_temperature,
+            labelRes = Res.string.metric_chip_temperature,
             accent = AccentOrange,
             sparkline = SparklineStyle.AREA
         ),
         MetricSpec(
             key = "VOLTAGE",
-            labelRes = R.string.metric_chip_voltage,
+            labelRes = Res.string.metric_chip_voltage,
             accent = AccentBlue,
             sparkline = SparklineStyle.LINE
         ),
         MetricSpec(
             key = "CURRENT",
-            labelRes = R.string.metric_chip_current,
+            labelRes = Res.string.metric_chip_current,
             accent = AccentBlue,
             sparkline = SparklineStyle.AREA_BIPOLAR,
             bipolarNegativeAccent = AccentGreen   // regen reads as positive feedback
         ),
         MetricSpec(
             key = "LOAD",
-            labelRes = R.string.metric_chip_load,
+            labelRes = Res.string.metric_chip_load,
             accent = AccentOrange,
             sparkline = SparklineStyle.AREA
         ),
         MetricSpec(
             key = "TRIP",
-            labelRes = R.string.metric_chip_trip,
+            labelRes = Res.string.metric_chip_trip,
             accent = AccentGreen,
             sparkline = SparklineStyle.NONE,       // monotonic counter
             supportsStats = false
@@ -166,7 +166,7 @@ object MetricCatalog {
             // persists across restarts. Tapping opens the distance-split detail
             // view, not the generic min/max/avg one, so it needs no stat buffer.
             key = "TRIP_METER",
-            labelRes = R.string.metric_chip_trip_meter,
+            labelRes = Res.string.metric_chip_trip_meter,
             accent = AccentPurple,
             sparkline = SparklineStyle.NONE,       // monotonic counter
             supportsStats = false
@@ -175,7 +175,7 @@ object MetricCatalog {
         // ---- Pool (already-buffered) ----
         MetricSpec(
             key = "SPEED",
-            labelRes = R.string.metric_chip_speed,
+            labelRes = Res.string.metric_chip_speed,
             accent = AccentGreen,
             sparkline = SparklineStyle.SMOOTH_LINE
         ),
@@ -187,98 +187,98 @@ object MetricCatalog {
         // rider re-adds BATTERY_POWER from the pool.
         MetricSpec(
             key = "ODOMETER",
-            labelRes = R.string.metric_chip_odometer,
+            labelRes = Res.string.metric_chip_odometer,
             accent = AccentGreen,
             sparkline = SparklineStyle.NONE,
             supportsStats = false
         ),
         MetricSpec(
             key = "MOTOR_POWER",
-            labelRes = R.string.metric_chip_motor_power,
+            labelRes = Res.string.metric_chip_motor_power,
             accent = AccentOrange,
             sparkline = SparklineStyle.AREA_BIPOLAR,
             bipolarNegativeAccent = AccentGreen
         ),
         MetricSpec(
             key = "BATTERY_POWER",
-            labelRes = R.string.metric_chip_battery_power,
+            labelRes = Res.string.metric_chip_battery_power,
             accent = AccentOrange,
             sparkline = SparklineStyle.AREA_BIPOLAR,
             bipolarNegativeAccent = AccentGreen
         ),
         MetricSpec(
             key = "BATTERY_1",
-            labelRes = R.string.metric_chip_battery_1,
+            labelRes = Res.string.metric_chip_battery_1,
             accent = AccentGreen,
             sparkline = SparklineStyle.AREA
         ),
         MetricSpec(
             key = "BATTERY_2",
-            labelRes = R.string.metric_chip_battery_2,
+            labelRes = Res.string.metric_chip_battery_2,
             accent = AccentGreen,
             sparkline = SparklineStyle.AREA
         ),
         MetricSpec(
             key = "PITCH",
-            labelRes = R.string.metric_chip_pitch,
+            labelRes = Res.string.metric_chip_pitch,
             accent = AccentPurple,
             sparkline = SparklineStyle.AREA_BIPOLAR
         ),
         MetricSpec(
             key = "ROLL",
-            labelRes = R.string.metric_chip_roll,
+            labelRes = Res.string.metric_chip_roll,
             accent = AccentPurple,
             sparkline = SparklineStyle.AREA_BIPOLAR
         ),
         MetricSpec(
             key = "G_FORCE",
-            labelRes = R.string.metric_chip_g_force,
+            labelRes = Res.string.metric_chip_g_force,
             accent = AccentPink,
             sparkline = SparklineStyle.AREA
         ),
         MetricSpec(
             key = "LATERAL_G",
-            labelRes = R.string.metric_chip_lateral_g,
+            labelRes = Res.string.metric_chip_lateral_g,
             accent = AccentPink,
             sparkline = SparklineStyle.AREA_BIPOLAR
         ),
         MetricSpec(
             key = "FORWARD_G",
-            labelRes = R.string.metric_chip_forward_g,
-            descriptionRes = R.string.metric_desc_forward_g,
+            labelRes = Res.string.metric_chip_forward_g,
+            descriptionRes = Res.string.metric_desc_forward_g,
             accent = AccentPink,
             sparkline = SparklineStyle.AREA_BIPOLAR
         ),
         MetricSpec(
             key = "TORQUE",
-            labelRes = R.string.metric_chip_torque,
+            labelRes = Res.string.metric_chip_torque,
             accent = AccentBlue,
             sparkline = SparklineStyle.AREA_BIPOLAR,
             bipolarNegativeAccent = AccentGreen
         ),
         MetricSpec(
             key = "PHASE_CURRENT",
-            labelRes = R.string.metric_chip_phase_current,
-            spokenLabelRes = R.string.metric_spoken_phase_current,
+            labelRes = Res.string.metric_chip_phase_current,
+            spokenLabelRes = Res.string.metric_spoken_phase_current,
             accent = AccentBlue,
             sparkline = SparklineStyle.AREA_BIPOLAR,
             bipolarNegativeAccent = AccentGreen
         ),
         MetricSpec(
             key = "DYN_SPEED_LIMIT",
-            labelRes = R.string.metric_chip_dyn_speed_limit,
+            labelRes = Res.string.metric_chip_dyn_speed_limit,
             accent = AccentBlue,
             sparkline = SparklineStyle.LINE
         ),
         MetricSpec(
             key = "DYN_CURRENT_LIMIT",
-            labelRes = R.string.metric_chip_dyn_current_limit,
+            labelRes = Res.string.metric_chip_dyn_current_limit,
             accent = AccentBlue,
             sparkline = SparklineStyle.LINE
         ),
         MetricSpec(
             key = "AUTO_OFF",
-            labelRes = R.string.metric_chip_auto_off,
+            labelRes = Res.string.metric_chip_auto_off,
             accent = AccentBlue,
             // A countdown that resets when the wheel moves: a trend line and
             // min / avg stats say nothing about it. Same treatment as TRIP_TIME.
@@ -289,26 +289,26 @@ object MetricCatalog {
         // ---- Individual temperature sensors ----
         MetricSpec(
             key = "MOTOR_TEMP",
-            labelRes = R.string.metric_chip_motor_temp,
+            labelRes = Res.string.metric_chip_motor_temp,
             accent = AccentOrange,
             sparkline = SparklineStyle.AREA
         ),
         MetricSpec(
             key = "CONTROLLER_TEMP",
-            labelRes = R.string.metric_chip_controller_temp,
+            labelRes = Res.string.metric_chip_controller_temp,
             accent = AccentOrange,
             sparkline = SparklineStyle.AREA
         ),
         MetricSpec(
             key = "BATTERY_TEMP",
-            labelRes = R.string.metric_chip_battery_temp,
+            labelRes = Res.string.metric_chip_battery_temp,
             accent = AccentOrange,
             sparkline = SparklineStyle.AREA
         ),
         MetricSpec(
             key = "TIRE_PRESSURE",
-            labelRes = R.string.metric_chip_tire_pressure,
-            descriptionRes = R.string.metric_desc_tire_pressure,
+            labelRes = Res.string.metric_chip_tire_pressure,
+            descriptionRes = Res.string.metric_desc_tire_pressure,
             accent = AccentBlue,
             // Tracked like the other "extra" metrics (EXTRA_HISTORY_METRICS):
             // slow-drifting line with min/max/avg in the tap-to-graph detail.
@@ -319,54 +319,54 @@ object MetricCatalog {
         // ---- Derived trip aggregates ----
         MetricSpec(
             key = "HEADROOM",
-            labelRes = R.string.metric_chip_headroom,
-            descriptionRes = R.string.metric_desc_headroom,
+            labelRes = Res.string.metric_chip_headroom,
+            descriptionRes = Res.string.metric_desc_headroom,
             accent = AccentBlue,
             sparkline = SparklineStyle.LINE
         ),
         MetricSpec(
             key = "TRIP_TIME",
-            labelRes = R.string.metric_chip_trip_time,
+            labelRes = Res.string.metric_chip_trip_time,
             accent = AccentBlue,
             sparkline = SparklineStyle.NONE,
             supportsStats = false
         ),
         MetricSpec(
             key = "TRIP_MAX_SPEED",
-            labelRes = R.string.metric_chip_trip_max_speed,
-            descriptionRes = R.string.metric_desc_trip_max_speed,
+            labelRes = Res.string.metric_chip_trip_max_speed,
+            descriptionRes = Res.string.metric_desc_trip_max_speed,
             accent = AccentGreen,
             sparkline = SparklineStyle.NONE,
             supportsStats = false
         ),
         MetricSpec(
             key = "AVG_TRIP_SPEED",
-            labelRes = R.string.metric_chip_avg_trip_speed,
-            spokenLabelRes = R.string.metric_spoken_avg_trip_speed,
-            descriptionRes = R.string.metric_desc_avg_trip_speed,
+            labelRes = Res.string.metric_chip_avg_trip_speed,
+            spokenLabelRes = Res.string.metric_spoken_avg_trip_speed,
+            descriptionRes = Res.string.metric_desc_avg_trip_speed,
             accent = AccentGreen,
             sparkline = SparklineStyle.NONE,
             supportsStats = false
         ),
         MetricSpec(
             key = "WH_CONSUMED",
-            labelRes = R.string.metric_chip_wh_consumed,
-            descriptionRes = R.string.metric_desc_wh_consumed,
+            labelRes = Res.string.metric_chip_wh_consumed,
+            descriptionRes = Res.string.metric_desc_wh_consumed,
             accent = AccentOrange,
             sparkline = SparklineStyle.NONE,
             supportsStats = false
         ),
         MetricSpec(
             key = "RANGE_ESTIMATE",
-            labelRes = R.string.metric_chip_range_estimate,
-            descriptionRes = R.string.metric_desc_range_estimate,
+            labelRes = Res.string.metric_chip_range_estimate,
+            descriptionRes = Res.string.metric_desc_range_estimate,
             accent = AccentGreen,
             sparkline = SparklineStyle.LINE
         ),
         MetricSpec(
             key = "WH_PER_KM",
-            labelRes = R.string.metric_chip_wh_per_km,
-            descriptionRes = R.string.metric_desc_wh_per_km,
+            labelRes = Res.string.metric_chip_wh_per_km,
+            descriptionRes = Res.string.metric_desc_wh_per_km,
             accent = AccentOrange,
             sparkline = SparklineStyle.LINE
         ),
@@ -374,25 +374,25 @@ object MetricCatalog {
         // ---- Phone + GPS feeds ----
         MetricSpec(
             key = "PHONE_BATTERY",
-            labelRes = R.string.metric_chip_phone_battery,
+            labelRes = Res.string.metric_chip_phone_battery,
             accent = AccentGreen,
             sparkline = SparklineStyle.AREA
         ),
         MetricSpec(
             key = "GPS_ALTITUDE",
-            labelRes = R.string.metric_chip_gps_altitude,
+            labelRes = Res.string.metric_chip_gps_altitude,
             accent = AccentPurple,
             sparkline = SparklineStyle.SMOOTH_LINE
         ),
         MetricSpec(
             key = "GPS_SPEED",
-            labelRes = R.string.metric_chip_gps_speed,
+            labelRes = Res.string.metric_chip_gps_speed,
             accent = AccentGreen,
             sparkline = SparklineStyle.SMOOTH_LINE
         ),
         MetricSpec(
             key = "GPS_HEADING",
-            labelRes = R.string.metric_chip_gps_heading,
+            labelRes = Res.string.metric_chip_gps_heading,
             accent = AccentPurple,
             // GPS_HEADING wraps at 360°; sparkline + stats are misleading for circular values.
             sparkline = SparklineStyle.NONE,
@@ -400,15 +400,15 @@ object MetricCatalog {
         ),
         MetricSpec(
             key = "GPS_ACCURACY",
-            labelRes = R.string.metric_chip_gps_accuracy,
-            descriptionRes = R.string.metric_desc_gps_accuracy,
+            labelRes = Res.string.metric_chip_gps_accuracy,
+            descriptionRes = Res.string.metric_desc_gps_accuracy,
             accent = AccentPurple,
             sparkline = SparklineStyle.LINE
         ),
         MetricSpec(
             key = "EXTERNAL_GPS_BATTERY",
-            labelRes = R.string.metric_chip_external_gps_battery,
-            descriptionRes = R.string.metric_desc_external_gps_battery,
+            labelRes = Res.string.metric_chip_external_gps_battery,
+            descriptionRes = Res.string.metric_desc_external_gps_battery,
             accent = AccentGreen,
             sparkline = SparklineStyle.AREA
         ),
@@ -416,35 +416,35 @@ object MetricCatalog {
         // ---- Derived motion + pack health ----
         MetricSpec(
             key = "SLOPE",
-            labelRes = R.string.metric_chip_slope,
-            descriptionRes = R.string.metric_desc_slope,
+            labelRes = Res.string.metric_chip_slope,
+            descriptionRes = Res.string.metric_desc_slope,
             accent = AccentPurple,
             sparkline = SparklineStyle.AREA_BIPOLAR
         ),
         MetricSpec(
             key = "ASCENT",
-            labelRes = R.string.metric_chip_ascent,
+            labelRes = Res.string.metric_chip_ascent,
             accent = AccentPurple,
             sparkline = SparklineStyle.NONE,
             supportsStats = false
         ),
         MetricSpec(
             key = "DESCENT",
-            labelRes = R.string.metric_chip_descent,
+            labelRes = Res.string.metric_chip_descent,
             accent = AccentPurple,
             sparkline = SparklineStyle.NONE,
             supportsStats = false
         ),
         MetricSpec(
             key = "MOTOR_RPM",
-            labelRes = R.string.metric_chip_motor_rpm,
+            labelRes = Res.string.metric_chip_motor_rpm,
             accent = AccentOrange,
             sparkline = SparklineStyle.LINE
         ),
         MetricSpec(
             key = "REGEN_WH",
-            labelRes = R.string.metric_chip_regen_wh,
-            descriptionRes = R.string.metric_desc_regen_wh,
+            labelRes = Res.string.metric_chip_regen_wh,
+            descriptionRes = Res.string.metric_desc_regen_wh,
             accent = AccentGreen,
             sparkline = SparklineStyle.NONE,
             supportsStats = false
@@ -453,9 +453,9 @@ object MetricCatalog {
         // ---- Connectivity diagnostic ----
         MetricSpec(
             key = "BT_RSSI",
-            labelRes = R.string.metric_chip_bt_rssi,
-            spokenLabelRes = R.string.metric_spoken_bt_rssi,
-            descriptionRes = R.string.metric_desc_bt_rssi,
+            labelRes = Res.string.metric_chip_bt_rssi,
+            spokenLabelRes = Res.string.metric_spoken_bt_rssi,
+            descriptionRes = Res.string.metric_desc_bt_rssi,
             accent = AccentBlue,
             sparkline = SparklineStyle.LINE
         ),
@@ -467,43 +467,43 @@ object MetricCatalog {
         // enforce; current ride mode (lock/drive/idle); light on/off mirror.
         MetricSpec(
             key = "LAT_LONG",
-            labelRes = R.string.metric_chip_lat_long,
-            spokenLabelRes = R.string.metric_spoken_lat_long,
+            labelRes = Res.string.metric_chip_lat_long,
+            spokenLabelRes = Res.string.metric_spoken_lat_long,
             accent = AccentBlue,
             sparkline = SparklineStyle.NONE,
             supportsStats = false
         ),
         MetricSpec(
             key = "WHEEL_MAX_SPEED",
-            labelRes = R.string.metric_chip_wheel_max_speed,
+            labelRes = Res.string.metric_chip_wheel_max_speed,
             accent = AccentOrange,
             sparkline = SparklineStyle.NONE,
             supportsStats = false
         ),
         MetricSpec(
             key = "WHEEL_ALARM_SPEED",
-            labelRes = R.string.metric_chip_wheel_alarm_speed,
+            labelRes = Res.string.metric_chip_wheel_alarm_speed,
             accent = AccentOrange,
             sparkline = SparklineStyle.NONE,
             supportsStats = false
         ),
         MetricSpec(
             key = "PC_MODE",
-            labelRes = R.string.metric_chip_pc_mode,
+            labelRes = Res.string.metric_chip_pc_mode,
             accent = AccentBlue,
             sparkline = SparklineStyle.NONE,
             supportsStats = false
         ),
         MetricSpec(
             key = "LIGHT_ON",
-            labelRes = R.string.metric_chip_light_on,
+            labelRes = Res.string.metric_chip_light_on,
             // The tile says "Light" because it sits under a number that is
             // the answer. Spoken, the bare word is what a rider says when
             // they want the light switched, so the reading has to ask for
             // itself by a longer name. The matcher prefers the longest match,
             // which is what keeps "light status" off the toggle and off the
             // "status" report.
-            spokenLabelRes = R.string.metric_spoken_light_on,
+            spokenLabelRes = Res.string.metric_spoken_light_on,
             accent = AccentGreen,
             sparkline = SparklineStyle.NONE,
             supportsStats = false
