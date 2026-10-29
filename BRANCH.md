@@ -12,6 +12,7 @@ ride, this is the branch.
 - 0.22.0: everything from next-experimental, now the release. The full list is on the GitHub release page.
 - Map: a shared `geo:` link or Maps place keeps your planned stops and asks first; a named place keeps its name.
 - Map: while navigating, the stop list keeps each stop's distance and the total, not just the next leg.
+- Dropbox: a few trips no longer upload again on every sync when nothing changed.
 - Lights: walking the wheel at a brisk pace no longer turns the light back on. It returns after 2 seconds of riding.
 
 ## Please test
