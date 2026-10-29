@@ -10,6 +10,7 @@ how Organic Maps weighs roads.
 - A new route after a wrong turn comes in about 8 s instead of 22 s, and it continues in the direction you're riding, so no U-turn.
 - Routes started from the car screen or the navigation overlay now keep your avoid settings.
 - Settings, Navigation, Routing services: the Valhalla server now has its own URL beside OSRM, so you can point either one at your own server.
+- Offline routing: Settings, Navigation, Offline routing areas. Download 5 by 5 degree squares (Oslo's is 65 MB) and routes, reroutes and turn cues work with no signal, from a profile made for wheels (no steps, off rough ground). Online first (the default) uses them only when the servers fail; Offline first uses them whenever the square is there. Offline turns have no street names. The map background still needs signal.
 
 ## Please test
 
@@ -19,6 +20,10 @@ how Organic Maps weighs roads.
 
 **Anyone running their own routing server**
 - Put your Valhalla server in Routing URL (Valhalla): do bike routes come from it?
+
+**Riders who go where signal is weak**
+- Download the squares you ride in, turn on airplane mode, plan a route: does it come, and do turn cues play?
+- Try Offline first with signal on: is the route as good as the online one, and does it keep you off gravel and stairs?
 
 ## Reporting back
 

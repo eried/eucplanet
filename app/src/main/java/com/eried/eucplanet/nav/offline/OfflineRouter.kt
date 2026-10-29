@@ -60,10 +60,14 @@ class OfflineRouter(
             headingDeg = heading?.let { ((Math.round(it) % 360 + 360) % 360).toInt() },
             points = waypoints.map { GeoPoint(it.lat, it.lng) },
         )
-        return oneAtATime.withLock {
-            withTimeoutOrNull(timeoutMs) {
+        // The budget covers waiting for a route already running: a reroute
+        // queued behind a slow one gives up rather than wait twice as long.
+        val start = System.currentTimeMillis()
+        return withTimeoutOrNull(timeoutMs) {
+            oneAtATime.withLock {
+                val left = (timeoutMs - (System.currentTimeMillis() - start)).coerceAtLeast(1)
                 try {
-                    runInterruptible(Dispatchers.IO) { engine(req, timeoutMs) }
+                    runInterruptible(Dispatchers.IO) { engine(req, left) }
                 } catch (e: Exception) {
                     if (e is kotlinx.coroutines.CancellationException) throw e
                     Log.w(TAG, "offline route failed: ${e.message}")

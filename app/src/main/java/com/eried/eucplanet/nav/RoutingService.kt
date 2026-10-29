@@ -427,7 +427,7 @@ class RoutingService(
             val pb = GeoPoint(b.lat, b.lng)
             com.eried.eucplanet.nav.offline.RouterPlan.offlineEligible(
                 mode,
-                tileStore.covers(com.eried.eucplanet.nav.offline.RoutingTiles.tilesForLeg(pa, pb)),
+                tileStore.covers(com.eried.eucplanet.nav.offline.RouterPlan.legTiles(pa, pb)),
                 com.eried.eucplanet.nav.offline.RoutingTiles.legKm(pa, pb),
             )
         }
@@ -438,30 +438,25 @@ class RoutingService(
                 return@withContext it
             }
         } else if (offlineFirst && eligible.any { it }) {
-            // The hybrid: covered legs on the phone, the rest online.
+            // The hybrid: covered legs on the phone, the rest online. Every
+            // router has had its turn at each leg, so a leg none could route
+            // means the route failed.
             val parts = legs.mapIndexed { i, (a, b) ->
                 val legHeading = if (i == 0) heading else null
                 (if (eligible[i]) offlineRouter.route(name, listOf(a, b), mode, avoid, legHeading) else null)
                     ?: routeOnline(name, listOf(a, b), mode, endpoint, avoid, legHeading, valhalla)
-                    ?: return@mapIndexed null
             }
-            if (parts.all { it != null }) {
-                Log.i(TAG, "routed offline and online, leg by leg")
-                return@withContext joinRoutes(name, waypoints, mode, parts.filterNotNull())
-            }
+            val routed = com.eried.eucplanet.nav.offline.RouterPlan.allRouted(parts) ?: return@withContext null
+            Log.i(TAG, "routed offline and online, leg by leg")
+            return@withContext joinRoutes(name, waypoints, mode, routed)
         }
         routeOnline(name, waypoints, mode, endpoint, avoid, heading, valhalla)?.let { return@withContext it }
-        // Online failed (no signal, server down): whatever the tiles cover.
-        if (eligible.any { it }) {
-            var anyOffline = false
-            val parts = legs.mapIndexed { i, (a, b) ->
-                (if (eligible[i]) offlineRouter.route(name, listOf(a, b), mode, avoid, if (i == 0) heading else null) else null)
-                    ?.also { anyOffline = true }
-                    ?: straightLineRoute(name, listOf(a, b))
-            }
-            if (anyOffline) {
-                Log.i(TAG, "online failed; routed offline where tiles cover")
-                return@withContext joinRoutes(name, waypoints, mode, parts)
+        // Online failed (no signal, server down): the tiles, when they cover
+        // the whole route and offline has not already been tried.
+        if (!offlineFirst && eligible.all { it }) {
+            offlineRouter.route(name, waypoints, mode, avoid, heading)?.let {
+                Log.i(TAG, "online failed; routed offline")
+                return@withContext it
             }
         }
         null

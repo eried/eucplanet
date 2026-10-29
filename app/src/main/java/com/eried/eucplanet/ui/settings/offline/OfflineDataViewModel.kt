@@ -94,8 +94,11 @@ class OfflineDataViewModel(
         val route = currentRoute.get() ?: return null
         val pts = route.geometry.ifEmpty { route.waypoints.map { GeoPoint(it.lat, it.lng) } }
         if (pts.size < 2) return null
-        val names = pts.zipWithNext().flatMap { (a, b) -> RoutingTiles.tilesForLeg(a, b) }.toSet()
-        return names.filter { !tiles.store.has(it) }
+        val names = pts.zipWithNext().flatMap { (a, b) -> com.eried.eucplanet.nav.offline.RouterPlan.legTiles(a, b) }.toSet()
+        // Squares the server lists; open sea has none. Without the list,
+        // all of them, and a missing one fails without retrying.
+        val known = state.value.tiles.keys.takeIf { remote.value != null }
+        return names.filter { !tiles.store.has(it) && (known == null || it in known) }
     }
 
     /** Where the map opens: the planned route's start, else the rider, else

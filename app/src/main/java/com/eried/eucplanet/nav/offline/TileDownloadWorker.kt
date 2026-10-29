@@ -12,6 +12,7 @@ import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 /**
@@ -34,12 +35,18 @@ class TileDownloadWorker(
         try {
             // The tag table must match the tiles: fetch it with the first
             // tile and refresh it when a month old.
-            val lookups = store.lookupsFile()
-            if (!lookups.isFile || System.currentTimeMillis() - lookups.lastModified() > LOOKUPS_MAX_AGE_MS) {
-                fetch("$server/profiles2/lookups.dat", File(store.dir, "lookups.dat.part"), store.lookupsFile())
+            // Several tiles download at once; one of them fetches it.
+            lookupsLock.withLock {
+                val lookups = store.lookupsFile()
+                if (!lookups.isFile || System.currentTimeMillis() - lookups.lastModified() > LOOKUPS_MAX_AGE_MS) {
+                    fetch("$server/profiles2/lookups.dat", File(store.dir, "lookups.dat.part"), lookups)
+                }
             }
             val done = fetch("$server/segments4/$name.rd5", store.partFile(name), store.finalFile(name))
             if (done) Result.success() else Result.retry()
+        } catch (e: MissingOnServer) {
+            Log.w(TAG, "$name: not on the server")
+            Result.failure()
         } catch (e: IOException) {
             Log.w(TAG, "$name: ${e.message}")
             if (runAttemptCount >= MAX_ATTEMPTS) Result.failure() else Result.retry()
@@ -65,9 +72,16 @@ class TileDownloadWorker(
         try {
             val code = conn.responseCode
             if (code == 416 && have > 0) {
-                // Asked past the end: the part is the whole file.
-                return finish(part, target, meta, conn.getHeaderFieldDate("Last-Modified", 0L))
+                // Asked past the end: the part is the whole file, if its
+                // length is the server's. Anything else starts over.
+                if (totalFromContentRange(conn.getHeaderField("Content-Range")) == have) {
+                    return finish(part, target, meta, conn.getHeaderFieldDate("Last-Modified", 0L))
+                }
+                part.delete()
+                meta.delete()
+                throw IOException("stale part")
             }
+            if (isPermanent(code)) throw MissingOnServer()
             if (code != 200 && code != 206) throw IOException("HTTP $code")
             if (code == 200) have = 0L
             val total = have + conn.contentLengthLong.coerceAtLeast(0L)
@@ -108,7 +122,19 @@ class TileDownloadWorker(
         return true
     }
 
+    private class MissingOnServer : IOException()
+
     companion object {
+        private val lookupsLock = kotlinx.coroutines.sync.Mutex()
+
+        /** The server says the file is not there: open sea has no square. */
+        fun isPermanent(code: Int): Boolean = code == 404 || code == 410
+
+        /** The whole length from a Content-Range header ("bytes *" + "/123",
+         *  "bytes 0-99/100"), or null when the server does not say. */
+        fun totalFromContentRange(header: String?): Long? =
+            header?.substringAfterLast('/', "")?.trim()?.toLongOrNull()
+
         private const val TAG = "TileDownload"
         const val KEY_NAME = "name"
         const val KEY_SERVER = "server"

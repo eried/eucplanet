@@ -71,4 +71,17 @@ class OfflineRouterTest {
         assertEquals(95, r.headingDeg)
         assertEquals(wps.map { GeoPoint(it.lat, it.lng) }, r.points)
     }
+
+    @Test fun waitingForTheEngine_countsAgainstTheTimeout() = runBlocking {
+        // A reroute queued behind a slow route must not wait past its budget.
+        val router = OfflineRouter(timeoutMs = 300) { _, _ -> Thread.sleep(250); okResult() }
+        val t0 = System.currentTimeMillis()
+        val both = listOf(
+            async { router.route("a", wps, TravelMode.CYCLING, RouteAvoidances.NONE, null) },
+            async { router.route("b", wps, TravelMode.CYCLING, RouteAvoidances.NONE, null) },
+        ).awaitAll()
+        val ms = System.currentTimeMillis() - t0
+        assertEquals(1, both.count { it != null })
+        assert(ms < 700) { "took $ms ms" }
+    }
 }
