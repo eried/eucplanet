@@ -149,6 +149,8 @@ class DropboxSyncWorker @AssistedInject constructor(
                 remoteModifiedSec = remote?.serverModifiedSec ?: 0L,
                 localSize = f.length(),
                 localModifiedMs = f.lastModified(),
+                remoteHash = remote?.contentHash,
+                localHash = { runCatching { DropboxContentHash.of(f.readBytes()) }.getOrNull() },
             )
             if (!up && remote != null && remote.size != f.length()) {
                 Log.i(TAG, "${f.name} changed on Dropbox since this phone wrote it; not overwriting")
