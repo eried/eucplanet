@@ -1,14 +1,18 @@
 package com.eried.eucplanet.app
 
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import com.eried.eucplanet.ble.CompositeWheelAdapter
+import com.eried.eucplanet.ble.IosWheelLink
 import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.data.repository.DropboxLinkScratch
 import com.eried.eucplanet.data.repository.DropboxRepository
 import com.eried.eucplanet.data.repository.SettingsRepository
+import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.data.store.AlarmBackupJson
 import com.eried.eucplanet.data.store.SettingsStore
 import com.eried.eucplanet.data.sync.AlarmRuleStore
 import com.eried.eucplanet.data.sync.DropboxSettingsSync
+import com.eried.eucplanet.di.SharedKoin
 import com.eried.eucplanet.platform.JSONArray
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.sync.Mutex
@@ -29,7 +33,7 @@ import platform.Foundation.stringWithContentsOfFile
 import platform.Foundation.writeToFile
 
 /**
- * The iOS app's singletons: what Hilt builds on Android. Same classes, iOS
+ * The iOS app's singletons: what Koin builds on Android. Same classes, iOS
  * storage underneath.
  */
 object IosAppGraph {
@@ -53,6 +57,33 @@ object IosAppGraph {
     }
 
     val settings: SettingsRepository by lazy { SettingsRepository(settingsStore) }
+
+    val adapter: CompositeWheelAdapter by lazy { SharedKoin.koin.get() }
+
+    val link: IosWheelLink by lazy { IosWheelLink(adapter) }
+
+    /** The wheel state every screen reads, as on Android. See IosWheelPorts.kt. */
+    val wheel: WheelRepository by lazy {
+        WheelRepository(
+            bleManager = link,
+            wheelAdapter = adapter,
+            settingsRepository = settings,
+            alarmEngine = NoAlarms,
+            tonePlayer = NoRouteKeepAlive,
+            voiceService = LogAnnouncer,
+            wheelProfileDao = MemoryWheelProfiles(),
+            cheatState = NoCheats,
+            phoneSensorRepository = NoPhoneImu,
+            externalGpsRepository = NoExternalGps,
+            legalLockdown = NoLockdown,
+            tpmsRepository = NoTyrePressure,
+            accelSplitRepository = NoAccelSplits,
+            tripRepositoryLazy = lazyOf(NoRecording),
+            appNotifier = LogNotices,
+            hornPlayer = NoPhoneHorn,
+            phone = IosPhoneDevice,
+        )
+    }
 
     val dropbox: DropboxRepository by lazy {
         DropboxRepository(settings, object : DropboxLinkScratch {

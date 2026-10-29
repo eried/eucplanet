@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.ble.IosWheelLink
+import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.ble.virtual.VirtualWheelRegistry
 import com.eried.eucplanet.platform.format
 
@@ -48,7 +49,7 @@ import com.eried.eucplanet.platform.format
  * replace it when they move to the shared module (docs/IOS_PARITY.md).
  */
 @Composable
-fun ProbeScreen(link: IosWheelLink, session: ProbeSession, initialTab: Int = 0) {
+fun ProbeScreen(link: IosWheelLink, wheel: WheelRepository, initialTab: Int = 0) {
     val colors = BuiltInThemes.pureBlack.colors
     CompositionLocalProvider(LocalAppColors provides colors) {
         MaterialTheme(colorScheme = colors.toColorScheme()) {
@@ -64,7 +65,7 @@ fun ProbeScreen(link: IosWheelLink, session: ProbeSession, initialTab: Int = 0) 
                         BackupPane()
                     } else {
                         val state by link.connectionState.collectAsState()
-                        if (state == ConnectionState.DISCONNECTED) ScanList(link) else LiveData(link, session, state)
+                        if (state == ConnectionState.DISCONNECTED) ScanList(link, wheel) else LiveData(link, wheel, state)
                     }
                 }
             }
@@ -73,7 +74,7 @@ fun ProbeScreen(link: IosWheelLink, session: ProbeSession, initialTab: Int = 0) 
 }
 
 @Composable
-private fun ScanList(link: IosWheelLink) {
+private fun ScanList(link: IosWheelLink, wheel: WheelRepository) {
     val found by link.scanResults.collectAsState()
     val btOn by link.bluetoothOn.collectAsState()
     DisposableEffect(btOn) {
@@ -86,7 +87,7 @@ private fun ScanList(link: IosWheelLink) {
     LazyColumn(Modifier.fillMaxWidth()) {
         items(found, key = { it.address }) { w ->
             Row(
-                Modifier.fillMaxWidth().clickable { link.connect(w.address, w.name, false) }.padding(vertical = 12.dp),
+                Modifier.fillMaxWidth().clickable { wheel.connect(w.address, w.name) }.padding(vertical = 12.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(w.name ?: w.address)
@@ -102,7 +103,7 @@ private fun ScanList(link: IosWheelLink) {
             Text(
                 v.displayName,
                 Modifier.fillMaxWidth()
-                    .clickable { link.connect(VirtualWheelRegistry.pseudoAddress(v.id), null, false) }
+                    .clickable { wheel.connect(VirtualWheelRegistry.pseudoAddress(v.id)) }
                     .padding(vertical = 12.dp),
             )
             HorizontalDivider()
@@ -111,11 +112,11 @@ private fun ScanList(link: IosWheelLink) {
 }
 
 @Composable
-private fun LiveData(link: IosWheelLink, session: ProbeSession, state: ConnectionState) {
-    val data by session.wheelData.collectAsState()
+private fun LiveData(link: IosWheelLink, wheel: WheelRepository, state: ConnectionState) {
+    val data by wheel.wheelData.collectAsState()
     val name by link.connectedDeviceName.collectAsState()
     val brand by link.connectedBrand.collectAsState()
-    val model by session.modelName.collectAsState()
+    val model by wheel.modelName.collectAsState()
     Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(name ?: "", fontSize = 20.sp)
         Text(listOfNotNull(brand, model).joinToString(" "))
@@ -127,6 +128,6 @@ private fun LiveData(link: IosWheelLink, session: ProbeSession, state: Connectio
         Text("${data.batteryPercent}%", fontSize = 48.sp)
         Text("battery, %.1f V".format(data.voltage))
         Spacer(Modifier.height(48.dp))
-        Button(onClick = { link.disconnect() }) { Text("Disconnect") }
+        Button(onClick = { wheel.disconnect() }) { Text("Disconnect") }
     }
 }
