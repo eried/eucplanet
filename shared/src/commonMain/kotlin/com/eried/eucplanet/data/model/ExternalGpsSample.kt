@@ -1,5 +1,7 @@
 package com.eried.eucplanet.data.model
 
+import com.eried.eucplanet.platform.System
+
 /**
  * One position+speed sample from an external BLE GPS box (RaceBox, etc.).
  * Augments, never replaces, the phone GPS and the wheel's onboard GPS in

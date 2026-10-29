@@ -3,6 +3,7 @@ package com.eried.eucplanet.data.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.eried.eucplanet.platform.System
 
 /**
  * Per-wheel saved parameters keyed by the BLE-advertised device name. When the
