@@ -61,7 +61,8 @@ class TileDownloadWorker(
      *  [target] when the length matches. False when stopped first. */
     private suspend fun fetch(url: String, part: File, target: File): Boolean {
         val meta = File(part.path + ".date")
-        var have = if (part.isFile && meta.isFile) part.length() else 0L
+        val resumeFrom = if (meta.isFile) resumeDate(meta.readText(), url) else null
+        var have = if (part.isFile && resumeFrom != null) part.length() else 0L
         if (have == 0L) part.delete()
         val conn = (URL(url).openConnection() as HttpURLConnection).apply {
             connectTimeout = 15_000
@@ -70,7 +71,7 @@ class TileDownloadWorker(
             if (have > 0) {
                 setRequestProperty("Range", "bytes=$have-")
                 // Only resume the same build; a newer one starts over.
-                setRequestProperty("If-Range", meta.readText())
+                setRequestProperty("If-Range", resumeFrom!!)
             }
         }
         try {
@@ -89,7 +90,7 @@ class TileDownloadWorker(
             if (code != 200 && code != 206) throw IOException("HTTP $code")
             if (code == 200) have = 0L
             val total = have + conn.contentLengthLong.coerceAtLeast(0L)
-            conn.getHeaderField("Last-Modified")?.let { meta.writeText(it) }
+            conn.getHeaderField("Last-Modified")?.let { meta.writeText(partMeta(url, it)) }
             val modified = conn.getHeaderFieldDate("Last-Modified", 0L)
             conn.inputStream.use { input ->
                 FileOutputStream(part, have > 0).use { out ->
@@ -138,6 +139,19 @@ class TileDownloadWorker(
          *  "bytes 0-99/100"), or null when the server does not say. */
         fun totalFromContentRange(header: String?): Long? =
             header?.substringAfterLast('/', "")?.trim()?.toLongOrNull()
+
+        /** What a part keeps beside it: the link it came from and that
+         *  build's date. */
+        fun partMeta(url: String, lastModified: String): String = "$url\n$lastModified"
+
+        /** The date to resume [url] with, or null to start over. GitHub
+         *  ignores If-Range, so a part only resumes from the link it came
+         *  from: a newer mirror build has a new link. */
+        fun resumeDate(meta: String?, url: String): String? {
+            val lines = meta?.lines() ?: return null
+            if (lines.size != 2 || lines[0] != url) return null
+            return lines[1].takeIf { it.isNotBlank() }
+        }
 
         private const val TAG = "TileDownload"
         const val KEY_NAME = "name"
