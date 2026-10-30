@@ -73,6 +73,7 @@ fun CustomOverlayScreen(
     cameraRotation: Int = 270,
     onCamerasFound: (Int) -> Unit = {},
     cameraHandedOff: Boolean = false,
+    cameraTakeBack: Boolean = false,
     cameraDiag: String = "",
     onCameraTaken: () -> Unit = {},
     onOtherAppCamera: (Boolean) -> Unit = {},
@@ -88,6 +89,7 @@ fun CustomOverlayScreen(
                 rotation = cameraRotation,
                 onCamerasFound = onCamerasFound,
                 handedOff = cameraHandedOff,
+                takeBack = cameraTakeBack,
                 diag = cameraDiag,
                 onCameraTaken = onCameraTaken,
                 onOtherAppCamera = onOtherAppCamera

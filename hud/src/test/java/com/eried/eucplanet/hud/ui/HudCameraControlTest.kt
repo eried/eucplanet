@@ -278,6 +278,35 @@ class HudCameraControlTest {
     }
 
     @Test
+    fun upTakesTheCameraEvenWhileAnotherAppHasIt() {
+        // A camera screen opened while the recorder runs stays off on its
+        // own; UP is the rider asking for the picture anyway.
+        val c = onScreen(HudUiController.Screen.Camera)
+        c.handOffCamera()
+        assertFalse(c.cameraTakeBack)
+        c.upAction()
+        assertFalse(c.cameraHandedOff)
+        assertTrue(c.cameraTakeBack)
+        // The next camera button press hands it to the MotoEye again.
+        c.handOffCamera(byKey = true)
+        assertFalse(c.cameraTakeBack)
+        c.downAction()
+        assertTrue(c.cameraTakeBack)
+    }
+
+    @Test
+    fun anotherScreenEndsTheTakeBack() {
+        val c = HudUiController().apply {
+            applyEnabledScreens(listOf("Camera", "Dashboard"))
+        }
+        c.handOffCamera()
+        c.upAction()
+        c.nextScreen()
+        c.previousScreen()
+        assertFalse(c.cameraTakeBack)
+    }
+
+    @Test
     fun ourOwnKeysAreNotCameraPresses() {
         val c = onScreen(HudUiController.Screen.Camera)
         c.noteKey(KeyEvent.KEYCODE_DPAD_UP, down = true, atMs = 0)

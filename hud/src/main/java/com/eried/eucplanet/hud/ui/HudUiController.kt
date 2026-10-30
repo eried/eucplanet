@@ -71,7 +71,10 @@ class HudUiController {
         private set(value) {
             // Leaving the screen ends the hand-off; the next camera screen
             // opens its camera as usual.
-            if (value != currentState) cameraHandedOff = false
+            if (value != currentState) {
+                cameraHandedOff = false
+                cameraTakeBack = false
+            }
             currentState = value
         }
 
@@ -136,6 +139,11 @@ class HudUiController {
     var cameraHandedOff: Boolean by mutableStateOf(false)
         private set
 
+    /** The rider asked for the picture with UP or DOWN, so the preview
+     *  opens the camera even while another app holds it. */
+    var cameraTakeBack: Boolean by mutableStateOf(false)
+        private set
+
     /** The MotoEye camera button has reached the HUD, so its next press
      *  frees the camera again and the preview may take it back meanwhile.
      *  Without it the preview stays off: taking the camera back would block
@@ -188,6 +196,7 @@ class HudUiController {
     fun handOffCamera(byKey: Boolean = false, reason: String = if (byKey) "button" else "camera in use") {
         if (byKey) cameraKeyHeard = true
         if (current != Screen.Camera && current != Screen.CustomCam) return
+        cameraTakeBack = false
         if (!cameraHandedOff) {
             takenSinceHandOff = false
             freeAgain = false
@@ -287,6 +296,7 @@ class HudUiController {
             Screen.Map, Screen.MapNav -> mapZoom = (mapZoom + 1f).coerceAtMost(MAP_ZOOM_MAX)
             Screen.Camera, Screen.CustomCam -> if (cameraHandedOff) {
                 cameraHandedOff = false
+                cameraTakeBack = true
             } else {
                 cameraIndex = (cameraIndex + 1) % cameraCount
                 onCameraChanged?.invoke(cameraIndex, cameraRotation)
@@ -301,6 +311,7 @@ class HudUiController {
             Screen.Map, Screen.MapNav -> mapZoom = (mapZoom - 1f).coerceAtLeast(MAP_ZOOM_MIN)
             Screen.Camera, Screen.CustomCam -> if (cameraHandedOff) {
                 cameraHandedOff = false
+                cameraTakeBack = true
             } else {
                 cameraRotations = cameraRotations +
                     (cameraIndex to normalizeRotation(cameraRotation + 90))
