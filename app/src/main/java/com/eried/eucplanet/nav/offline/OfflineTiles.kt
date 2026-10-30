@@ -91,12 +91,21 @@ class OfflineTiles(
         val listing = known ?: run { remote(); known } ?: return
         val net = if (unmeteredOnly) NetworkType.UNMETERED else NetworkType.CONNECTED
         for (name in names) {
-            val url = listing.tiles[name]?.url ?: listing.source.tileUrl(name)
+            val remote = listing.tiles[name]
+            val url = remote?.url ?: listing.source.tileUrl(name)
+            // A square whose routing is current only fetches its map.
+            val routeCurrent = store.has(name) && remote != null && !TileIndex.needsUpdate(store.finalFile(name), remote)
             val req = OneTimeWorkRequestBuilder<TileDownloadWorker>()
                 .setInputData(workDataOf(
                     TileDownloadWorker.KEY_NAME to name,
                     TileDownloadWorker.KEY_URL to url,
                     TileDownloadWorker.KEY_LOOKUPS_URL to listing.lookupsUrl,
+                    TileDownloadWorker.KEY_MAP_URL to remote?.map?.url,
+                    TileDownloadWorker.KEY_ROUTE_SHARE to when {
+                        routeCurrent -> 0f
+                        remote?.map == null -> 1f
+                        else -> remote.bytes.toFloat() / remote.totalBytes.coerceAtLeast(1L)
+                    },
                 ))
                 .setConstraints(Constraints.Builder().setRequiredNetworkType(net).setRequiresStorageNotLow(true).build())
                 .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
@@ -111,6 +120,7 @@ class OfflineTiles(
     fun cancel(name: String) {
         work.cancelUniqueWork(uniqueName(name))
         store.partFile(name).delete()
+        store.mapPartFile(name).delete()
     }
 
     fun delete(name: String) {
@@ -120,7 +130,10 @@ class OfflineTiles(
 
     /** Downloaded tiles the server has a newer build of. */
     fun outdated(remote: List<RemoteTile>): List<String> =
-        remote.filter { TileIndex.needsUpdate(store.finalFile(it.name), it) }.map { it.name }
+        remote.filter {
+            TileIndex.needsUpdate(store.finalFile(it.name), it) ||
+                TileIndex.mapNeedsUpdate(store.finalFile(it.name), store.mapFile(it.name), it)
+        }.map { it.name }
 
     /** Weekly check on Wi-Fi that updates downloaded tiles, or not. */
     fun scheduleAutoUpdate(enabled: Boolean) {

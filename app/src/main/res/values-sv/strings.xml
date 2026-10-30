@@ -1670,7 +1670,8 @@
     <!-- Navigator -->
     <string name="nav_open">Öppna navigatorn</string>
     <string name="nav_title">Ruttbyggaren</string>
-    <string name="nav_search_hint">Sök adress eller plats</string>
+    <string name="nav_search_hint">Sök</string>
+    <string name="nav_search_offline">Sökning kräver täckning. Tryck på kartan eller välj Hem eller Jobb.</string>
     <string name="nav_searching">Söker…</string>
     <string name="nav_locating">Hittar din plats…</string>
     <string name="nav_no_results">Inga träffar hittades</string>
@@ -2879,18 +2880,18 @@
     <string name="offline_routing_mode_label">Ruttplanering offline</string>
     <string name="offline_routing_mode_online">Online först</string>
     <string name="offline_routing_mode_offline">Offline först</string>
-    <string name="offline_routing_hint">Nedladdade områden beräknar rutten i telefonen utan täckning, utan gatunamn. Online först använder dem bara när servrarna inte svarar.</string>
-    <string name="offline_data_open">Områden för offlinerutter</string>
+    <string name="offline_routing_hint">Nedladdade områden visar kartan och beräknar rutter i telefonen utan täckning. Online först använder dem för rutter bara när servrarna fallerar.</string>
+    <string name="offline_data_open">Offlineområden</string>
     <string name="offline_server_url">Server för offlinedata</string>
-    <string name="offline_data_title">Områden för offlinerutter</string>
+    <string name="offline_data_title">Offlineområden</string>
     <string name="offline_data_space">Använt %1$s, ledigt %2$s</string>
-    <string name="offline_data_tap_hint">Tryck på en ruta för att ladda ner eller ta bort den.</string>
+    <string name="offline_data_tap_hint">Tryck på en ruta för att ladda ner dess karta och rutter eller ta bort den.</string>
     <string name="offline_data_list_error">Servern svarar inte. Nedladdade områden fungerar ändå.</string>
-    <string name="offline_data_along_route">Områden på min rutt</string>
+    <string name="offline_data_along_route">Min rutt</string>
     <string name="offline_data_update_all">Uppdatera alla (%1$d)</string>
     <string name="offline_data_update">Uppdatera</string>
     <string name="offline_data_wifi_updates">Uppdatera varje vecka via wifi</string>
-    <string name="offline_data_credit">Ruttdata © OpenStreetMap contributors (ODbL). BRouter (MIT).</string>
+    <string name="offline_data_credit">Map and routing data © OpenStreetMap contributors (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">Ladda ner detta område (%1$s)?</string>
     <string name="offline_data_download">Ladda ner</string>
     <string name="offline_data_delete_q">Ta bort detta område? Frigör %1$s.</string>

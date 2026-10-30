@@ -1683,7 +1683,8 @@
     <!-- Navigator -->
     <string name="nav_open">Åbn Navigator</string>
     <string name="nav_title">Ruteplanlægger</string>
-    <string name="nav_search_hint">Søg adresse eller sted</string>
+    <string name="nav_search_hint">Søg</string>
+    <string name="nav_search_offline">Søgning kræver signal. Tryk på kortet eller vælg Hjem eller Arbejde.</string>
     <string name="nav_searching">Søger…</string>
     <string name="nav_locating">Finder din position…</string>
     <string name="nav_no_results">Ingen resultater fundet</string>
@@ -2894,18 +2895,18 @@
     <string name="offline_routing_mode_label">Offline rutevejledning</string>
     <string name="offline_routing_mode_online">Online først</string>
     <string name="offline_routing_mode_offline">Offline først</string>
-    <string name="offline_routing_hint">Hentede områder beregner ruten på telefonen uden signal, uden vejnavne. Online først bruger dem kun, når serverne fejler.</string>
-    <string name="offline_data_open">Områder til offline ruter</string>
+    <string name="offline_routing_hint">Hentede områder viser kortet og beregner ruter på telefonen uden signal. Online først bruger dem kun til ruter, når serverne fejler.</string>
+    <string name="offline_data_open">Offline-områder</string>
     <string name="offline_server_url">Server til offline data</string>
-    <string name="offline_data_title">Områder til offline ruter</string>
+    <string name="offline_data_title">Offline-områder</string>
     <string name="offline_data_space">Brugt %1$s, ledigt %2$s</string>
-    <string name="offline_data_tap_hint">Tryk på et felt for at hente eller slette det.</string>
+    <string name="offline_data_tap_hint">Tryk på et felt for at hente dets kort og ruter eller slette det.</string>
     <string name="offline_data_list_error">Kan ikke nå serveren. Hentede områder virker stadig.</string>
-    <string name="offline_data_along_route">Områder på min rute</string>
+    <string name="offline_data_along_route">Min rute</string>
     <string name="offline_data_update_all">Opdater alle (%1$d)</string>
     <string name="offline_data_update">Opdater</string>
     <string name="offline_data_wifi_updates">Opdater ugentligt på Wi-Fi</string>
-    <string name="offline_data_credit">Rutedata © OpenStreetMap contributors (ODbL). BRouter (MIT).</string>
+    <string name="offline_data_credit">Map and routing data © OpenStreetMap contributors (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">Hent dette område (%1$s)?</string>
     <string name="offline_data_download">Hent</string>
     <string name="offline_data_delete_q">Slet dette område? Det frigør %1$s.</string>

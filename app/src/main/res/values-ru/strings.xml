@@ -1674,7 +1674,8 @@
     <!-- Navigator -->
     <string name="nav_open">Открыть навигатор</string>
     <string name="nav_title">Конструктор маршрутов</string>
-    <string name="nav_search_hint">Поиск адреса или места</string>
+    <string name="nav_search_hint">Поиск</string>
+    <string name="nav_search_offline">Для поиска нужна связь. Нажмите на карту или выберите Дом или Работу.</string>
     <string name="nav_searching">Поиск…</string>
     <string name="nav_locating">Определяем ваше местоположение…</string>
     <string name="nav_no_results">Ничего не найдено</string>
@@ -2881,18 +2882,18 @@
     <string name="offline_routing_mode_label">Офлайн-маршруты</string>
     <string name="offline_routing_mode_online">Сначала онлайн</string>
     <string name="offline_routing_mode_offline">Сначала офлайн</string>
-    <string name="offline_routing_hint">Скачанные области строят маршрут на телефоне без сети, без названий улиц. «Сначала онлайн» использует их, только если серверы недоступны.</string>
-    <string name="offline_data_open">Области для офлайн-маршрутов</string>
+    <string name="offline_routing_hint">Скачанные области показывают карту и строят маршруты на телефоне без связи. Сначала онлайн использует их для маршрутов, только если серверы не отвечают.</string>
+    <string name="offline_data_open">Офлайн-области</string>
     <string name="offline_server_url">Сервер офлайн-данных</string>
-    <string name="offline_data_title">Области для офлайн-маршрутов</string>
+    <string name="offline_data_title">Офлайн-области</string>
     <string name="offline_data_space">Занято %1$s, свободно %2$s</string>
-    <string name="offline_data_tap_hint">Нажмите на квадрат, чтобы скачать или удалить его.</string>
+    <string name="offline_data_tap_hint">Нажмите на квадрат, чтобы скачать его карту и маршруты или удалить его.</string>
     <string name="offline_data_list_error">Сервер недоступен. Скачанные области продолжают работать.</string>
-    <string name="offline_data_along_route">Области моего маршрута</string>
+    <string name="offline_data_along_route">Мой маршрут</string>
     <string name="offline_data_update_all">Обновить все (%1$d)</string>
     <string name="offline_data_update">Обновить</string>
     <string name="offline_data_wifi_updates">Обновлять раз в неделю по Wi-Fi</string>
-    <string name="offline_data_credit">Данные маршрутов © OpenStreetMap contributors (ODbL). BRouter (MIT).</string>
+    <string name="offline_data_credit">Map and routing data © OpenStreetMap contributors (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">Скачать эту область (%1$s)?</string>
     <string name="offline_data_download">Скачать</string>
     <string name="offline_data_delete_q">Удалить эту область? Освободится %1$s.</string>

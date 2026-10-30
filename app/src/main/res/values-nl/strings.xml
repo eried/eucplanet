@@ -1729,7 +1729,8 @@
     <!-- Navigator -->
     <string name="nav_open">Navigator openen</string>
     <string name="nav_title">Routebouwer</string>
-    <string name="nav_search_hint">Zoek adres of plaats</string>
+    <string name="nav_search_hint">Zoeken</string>
+    <string name="nav_search_offline">Zoeken heeft bereik nodig. Tik op de kaart of kies Thuis of Werk.</string>
     <string name="nav_searching">Zoeken…</string>
     <string name="nav_locating">Je locatie zoeken…</string>
     <string name="nav_no_results">Geen resultaten gevonden</string>
@@ -2881,18 +2882,18 @@
     <string name="offline_routing_mode_label">Offline routeplanning</string>
     <string name="offline_routing_mode_online">Eerst online</string>
     <string name="offline_routing_mode_offline">Eerst offline</string>
-    <string name="offline_routing_hint">Gedownloade gebieden plannen de route op de telefoon zonder bereik, zonder straatnamen. Eerst online gebruikt ze alleen als de servers falen.</string>
-    <string name="offline_data_open">Gebieden voor offline routes</string>
+    <string name="offline_routing_hint">Gedownloade gebieden tonen de kaart en plannen routes op de telefoon zonder bereik. Eerst online gebruikt ze alleen voor routes als de servers falen.</string>
+    <string name="offline_data_open">Offline gebieden</string>
     <string name="offline_server_url">Server voor offline data</string>
-    <string name="offline_data_title">Gebieden voor offline routes</string>
+    <string name="offline_data_title">Offline gebieden</string>
     <string name="offline_data_space">Gebruikt %1$s, vrij %2$s</string>
-    <string name="offline_data_tap_hint">Tik op een vak om het te downloaden of te verwijderen.</string>
+    <string name="offline_data_tap_hint">Tik op een vak om de kaart en routes te downloaden of te verwijderen.</string>
     <string name="offline_data_list_error">Server niet bereikbaar. Gedownloade gebieden werken nog.</string>
-    <string name="offline_data_along_route">Gebieden op mijn route</string>
+    <string name="offline_data_along_route">Mijn route</string>
     <string name="offline_data_update_all">Alles bijwerken (%1$d)</string>
     <string name="offline_data_update">Bijwerken</string>
     <string name="offline_data_wifi_updates">Wekelijks bijwerken via wifi</string>
-    <string name="offline_data_credit">Routedata © OpenStreetMap contributors (ODbL). BRouter (MIT).</string>
+    <string name="offline_data_credit">Map and routing data © OpenStreetMap contributors (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">Dit gebied downloaden (%1$s)?</string>
     <string name="offline_data_download">Downloaden</string>
     <string name="offline_data_delete_q">Dit gebied verwijderen? Maakt %1$s vrij.</string>

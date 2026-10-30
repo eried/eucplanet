@@ -30,7 +30,7 @@ data class OfflineDataState(
             progress: Map<String, Float>,
             outdated: Set<String>,
         ): Map<String, TileRow> {
-            val sizes = remote?.associate { it.name to it.bytes }.orEmpty()
+            val sizes = remote?.associate { it.name to it.totalBytes }.orEmpty()
             val names = downloaded.keys + sizes.keys + progress.keys
             return names.associateWith { name ->
                 val status = when {

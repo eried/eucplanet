@@ -101,6 +101,9 @@ class OfflineDataViewModel(
         return names.filter { !tiles.store.has(it) && (known == null || it in known) }
     }
 
+    /** True when a route is planned, so its squares can be fetched. */
+    fun hasRoute(): Boolean = currentRoute.get()?.let { it.waypoints.size >= 2 || it.geometry.size >= 2 } == true
+
     /** Where the map opens: the planned route's start, else the rider, else
      *  null (the whole of Europe). */
     fun startPoint(): GeoPoint? =

@@ -1671,7 +1671,8 @@
     <!-- Navigator -->
     <string name="nav_open">내비게이터 열기</string>
     <string name="nav_title">경로 작성기</string>
-    <string name="nav_search_hint">주소 또는 장소 검색</string>
+    <string name="nav_search_hint">검색</string>
+    <string name="nav_search_offline">검색하려면 신호가 필요합니다. 지도를 누르거나 집 또는 직장을 고르세요.</string>
     <string name="nav_searching">검색 중…</string>
     <string name="nav_locating">위치 찾는 중…</string>
     <string name="nav_no_results">결과 없음</string>
@@ -2877,18 +2878,18 @@
     <string name="offline_routing_mode_label">오프라인 경로</string>
     <string name="offline_routing_mode_online">온라인 우선</string>
     <string name="offline_routing_mode_offline">오프라인 우선</string>
-    <string name="offline_routing_hint">다운로드한 지역은 신호 없이 휴대폰에서 경로를 계산합니다(거리 이름 없음). 온라인 우선은 서버가 실패할 때만 사용합니다.</string>
-    <string name="offline_data_open">오프라인 경로 지역</string>
+    <string name="offline_routing_hint">다운로드한 지역은 신호 없이도 지도를 보여 주고 휴대폰에서 경로를 계산합니다. 온라인 우선은 서버가 응답하지 않을 때만 경로에 사용합니다.</string>
+    <string name="offline_data_open">오프라인 지역</string>
     <string name="offline_server_url">오프라인 데이터 서버</string>
-    <string name="offline_data_title">오프라인 경로 지역</string>
+    <string name="offline_data_title">오프라인 지역</string>
     <string name="offline_data_space">사용 %1$s, 남음 %2$s</string>
-    <string name="offline_data_tap_hint">칸을 눌러 다운로드하거나 삭제하세요.</string>
+    <string name="offline_data_tap_hint">칸을 눌러 지도와 경로 데이터를 다운로드하거나 삭제하세요.</string>
     <string name="offline_data_list_error">서버에 연결할 수 없습니다. 다운로드한 지역은 계속 작동합니다.</string>
-    <string name="offline_data_along_route">내 경로의 지역</string>
+    <string name="offline_data_along_route">내 경로</string>
     <string name="offline_data_update_all">모두 업데이트 (%1$d)</string>
     <string name="offline_data_update">업데이트</string>
     <string name="offline_data_wifi_updates">매주 Wi-Fi에서 업데이트</string>
-    <string name="offline_data_credit">경로 데이터 © OpenStreetMap contributors (ODbL). BRouter (MIT).</string>
+    <string name="offline_data_credit">Map and routing data © OpenStreetMap contributors (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">이 지역을 다운로드할까요 (%1$s)?</string>
     <string name="offline_data_download">다운로드</string>
     <string name="offline_data_delete_q">이 지역을 삭제할까요? %1$s 확보됩니다.</string>

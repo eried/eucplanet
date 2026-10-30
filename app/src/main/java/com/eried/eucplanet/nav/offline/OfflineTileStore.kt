@@ -13,6 +13,10 @@ class OfflineTileStore(val dir: File) {
     fun finalFile(name: String): File = File(dir, "$name.rd5")
     fun partFile(name: String): File = File(dir, "$name.rd5.part")
 
+    /** The square's offline map, and its download in progress. */
+    fun mapFile(name: String): File = File(dir, "$name.pmtiles")
+    fun mapPartFile(name: String): File = File(dir, "$name.pmtiles.part")
+
     /** BRouter's tag table, which must match the tiles' build. */
     fun lookupsFile(): File = File(dir, "lookups.dat")
 
@@ -21,18 +25,21 @@ class OfflineTileStore(val dir: File) {
     /** True when every tile in [tiles] is here, and there is at least one. */
     fun covers(tiles: Set<String>): Boolean = tiles.isNotEmpty() && tiles.all(::has)
 
-    /** Whole tiles on disk, name to bytes. */
+    /** Whole squares on disk, name to bytes of routing and map together. */
     fun downloaded(): Map<String, Long> =
         (dir.listFiles() ?: emptyArray())
             .filter { it.isFile && it.name.endsWith(".rd5") && it.length() > 0 }
             .associate { it.name.removeSuffix(".rd5") to it.length() }
             .filterKeys(RoutingTiles::isTileName)
+            .mapValues { (name, bytes) -> bytes + mapFile(name).length() }
 
     fun usedBytes(): Long = downloaded().values.sum()
 
     fun delete(name: String) {
         finalFile(name).delete()
         partFile(name).delete()
+        mapFile(name).delete()
+        mapPartFile(name).delete()
     }
 
     companion object {

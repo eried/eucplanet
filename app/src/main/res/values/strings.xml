@@ -2196,7 +2196,8 @@
     <!-- Navigator -->
     <string name="nav_open">Open navigator</string>
     <string name="nav_title">Route builder</string>
-    <string name="nav_search_hint">Search address or place</string>
+    <string name="nav_search_hint">Search</string>
+    <string name="nav_search_offline">Search needs signal. Tap the map or pick Home or Work.</string>
     <string name="nav_searching">Searching…</string>
     <string name="nav_locating">Finding your location…</string>
     <string name="nav_no_results">No matches found</string>
@@ -2907,18 +2908,18 @@
     <string name="offline_routing_mode_label">Offline routing</string>
     <string name="offline_routing_mode_online">Online first</string>
     <string name="offline_routing_mode_offline">Offline first</string>
-    <string name="offline_routing_hint">Downloaded areas route on the phone with no signal, without street names. Online first uses them only when the servers fail.</string>
-    <string name="offline_data_open">Offline routing areas</string>
+    <string name="offline_routing_hint">Downloaded areas show the map and route on the phone with no signal. Online first routes with them only when the servers fail.</string>
+    <string name="offline_data_open">Offline areas</string>
     <string name="offline_server_url">Offline data server</string>
-    <string name="offline_data_title">Offline routing areas</string>
+    <string name="offline_data_title">Offline areas</string>
     <string name="offline_data_space">Used %1$s, free %2$s</string>
-    <string name="offline_data_tap_hint">Tap a square to download or delete it.</string>
+    <string name="offline_data_tap_hint">Tap a square to download its map and routing, or delete it.</string>
     <string name="offline_data_list_error">Cannot reach the server. Downloaded areas still work.</string>
-    <string name="offline_data_along_route">Areas on my route</string>
+    <string name="offline_data_along_route">My route</string>
     <string name="offline_data_update_all">Update all (%1$d)</string>
     <string name="offline_data_update">Update</string>
     <string name="offline_data_wifi_updates">Update weekly on Wi-Fi</string>
-    <string name="offline_data_credit">Routing data © OpenStreetMap contributors (ODbL). BRouter (MIT).</string>
+    <string name="offline_data_credit">Map and routing data © OpenStreetMap contributors (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">Download this area (%1$s)?</string>
     <string name="offline_data_download">Download</string>
     <string name="offline_data_delete_q">Delete this area? It frees %1$s.</string>

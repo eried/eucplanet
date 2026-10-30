@@ -92,7 +92,15 @@ class HudServer(
     private val themeController: com.eried.eucplanet.ui.theme.ThemeController,
     val udpListener: HudUdpListener,
     private val subnetProbe: HudSubnetProbe,
+    private val offlineMap: com.eried.eucplanet.nav.offline.map.OfflineMapRenderer,
 ) {
+
+    /** The offline map for the HUD, served while the link is on. */
+    private val tileServer = HudTileServer(
+        com.eried.eucplanet.hud.protocol.HudDiscovery.TILE_PORT,
+        { z, x, y -> offlineMap.png(z, x, y, 256) },
+        { Log.w(TAG, it) },
+    )
 
     companion object {
         private const val TAG = "HudServer"
@@ -327,6 +335,7 @@ class HudServer(
     private suspend fun doStart() {
         if (loopJob != null) return
         Log.i(TAG, "Starting HUD link")
+        tileServer.start()
         log("Link enabled, starting discovery")
         if (HudDebug.read("debug.eucplanet.demo") == "true") {
             Log.i(TAG, "Demo telemetry mode is ON")
@@ -416,6 +425,7 @@ class HudServer(
     private suspend fun doStop() {
         Log.i(TAG, "Stopping HUD link")
         log("Link disabled")
+        tileServer.stop()
         try { demo.stop() } catch (_: Throwable) {}
         try { ws?.close(1000, "stopping") } catch (_: Throwable) {}
         ws = null

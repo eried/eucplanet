@@ -70,6 +70,7 @@ class RoutingService(
     private val settingsRepository: com.eried.eucplanet.data.repository.SettingsRepository,
     private val offlineRouter: com.eried.eucplanet.nav.offline.OfflineRouter,
     private val tileStore: com.eried.eucplanet.nav.offline.OfflineTileStore,
+    private val offlineMap: com.eried.eucplanet.nav.offline.map.OfflineMapRenderer,
 ) {
 
     /** When the rider was last told their avoidances were dropped; reroutes repeat, the notice should not. */
@@ -377,9 +378,17 @@ class RoutingService(
         }
     }
 
+    /** True when the phone has a working internet connection. */
+    fun isOnline(): Boolean {
+        val cm = context.getSystemService(android.net.ConnectivityManager::class.java) ?: return true
+        val caps = cm.getNetworkCapabilities(cm.activeNetwork) ?: return false
+        return caps.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+    }
+
     /**
      * Reverse-geocodes a coordinate to a human-readable address. Used to fill
-     * in a name for pins the rider dropped by tapping the map. Null on failure.
+     * in a name for pins the rider dropped by tapping the map. With no
+     * signal, the downloaded map names it instead. Null when neither can.
      */
     suspend fun reverseGeocode(
         lat: Double,
@@ -392,11 +401,11 @@ class RoutingService(
                 searchEndpoint.removeSuffix("/search") + "/reverse"
             else "https://nominatim.openstreetmap.org/reverse"
             val url = "$base?lat=$lat&lon=$lng&format=jsonv2&zoom=18&addressdetails=0"
-            val body = httpGet(url) ?: return@withContext null
-            JSONObject(body).optString("display_name").ifBlank { null }
+            val body = httpGet(url) ?: return@withContext offlineMap.addressAt(lat, lng)
+            JSONObject(body).optString("display_name").ifBlank { null } ?: offlineMap.addressAt(lat, lng)
         } catch (e: Exception) {
             Log.w(TAG, "reverseGeocode failed: ${e.message}")
-            null
+            offlineMap.addressAt(lat, lng)
         }
     }
 

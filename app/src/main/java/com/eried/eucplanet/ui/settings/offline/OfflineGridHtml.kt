@@ -25,6 +25,7 @@ internal object OfflineGridHtml {
             .replace("__MAXN__", layer.maxNativeZoom.toString())
             .replace("__SUBS__", layer.subdomains.ifEmpty { "abc" })
             .replace("__ATTR__", attr)
+            .replace("__OFFLINE_JS__", com.eried.eucplanet.nav.offline.map.OfflineMapWeb.JS)
     }
 
     /** The squares as the page wants them: name, state, bounds, label. */
@@ -53,7 +54,9 @@ html,body,#map{margin:0;padding:0;height:100%;width:100%;background:__BG__;}
 </style></head><body><div id="map"></div><script>
 var map = L.map('map', {preferCanvas: true, zoomControl: false, worldCopyJump: true, minZoom: 2, maxZoom: 12})
   .setView([__LAT__, __LNG__], __ZOOM__);
-L.tileLayer('__URL__', {maxNativeZoom: __MAXN__, maxZoom: 12, subdomains: '__SUBS__', attribution: '__ATTR__'}).addTo(map);
+__OFFLINE_JS__
+var offlineMap = eucOfflineMap(map, {maxZoom: 12});
+offlineMap.watch(L.tileLayer('__URL__', {maxNativeZoom: __MAXN__, maxZoom: 12, subdomains: '__SUBS__', attribution: '__ATTR__'}).addTo(map));
 var colors = {};
 var squares = L.layerGroup().addTo(map);
 function setColors(c) { colors = c; }

@@ -1426,6 +1426,12 @@ class RouteBuilderViewModel(
         }
         searchJob = viewModelScope.launch {
             delay(450) // debounce keystrokes (Nominatim asks for <=1 req/s)
+            // No signal: say so rather than "no results" for every word.
+            if (!routingService.isOnline()) {
+                _searchResults.value = emptyList()
+                _messages.tryEmit(R.string.nav_search_offline)
+                return@launch
+            }
             _searching.value = true
             // Bias the search to ~50 km around the rider's current location.
             val near = currentLocation.value?.let {

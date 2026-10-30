@@ -14,16 +14,17 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Route
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -55,8 +56,8 @@ import org.koin.androidx.compose.koinViewModel
 private data class Pending(val row: TileRow, val mobileWarn: Boolean = false)
 
 /**
- * Offline routing areas: a map of 5 degree squares. Tap one to download,
- * stop or delete it. The planned route's squares come in one tap.
+ * Offline areas: a map of 5 degree squares, each a map and routing. Tap one
+ * to download, stop or delete it. The planned route's squares come in one tap.
  */
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
@@ -66,6 +67,7 @@ fun OfflineDataDialog(onDismiss: () -> Unit, viewModel: OfflineDataViewModel = k
     val state by viewModel.state.collectAsState()
     val wifiAuto by viewModel.wifiAutoUpdate.collectAsState()
     val mapType by produceState<String?>(null) { value = viewModel.mapType() }
+    val hasRoute = remember { viewModel.hasRoute() }
     var pageReady by remember { mutableStateOf(false) }
     var webView by remember { mutableStateOf<WebView?>(null) }
     var pending by remember { mutableStateOf<Pending?>(null) }
@@ -140,8 +142,14 @@ fun OfflineDataDialog(onDismiss: () -> Unit, viewModel: OfflineDataViewModel = k
                                         post { viewModel.state.value.tiles[name]?.let(::ask) }
                                     }
                                 }, "AndroidOffline")
+                                val offlineMap = com.eried.eucplanet.nav.offline.map.OfflineMapWeb.renderer()
                                 webViewClient = object : WebViewClient() {
                                     override fun onPageFinished(view: WebView?, url: String?) { pageReady = true }
+
+                                    override fun shouldInterceptRequest(
+                                        view: WebView?,
+                                        request: android.webkit.WebResourceRequest?,
+                                    ) = com.eried.eucplanet.nav.offline.map.OfflineMapWeb.intercept(offlineMap, request)
                                 }
                                 val start = viewModel.startPoint()
                                 loadDataWithBaseURL(
@@ -162,6 +170,27 @@ fun OfflineDataDialog(onDismiss: () -> Unit, viewModel: OfflineDataViewModel = k
                         },
                     )
                 }
+                // Small chips on the map instead of a row of wide buttons:
+                // the route one only when there is a route to fetch for.
+                Column(
+                    Modifier.align(Alignment.TopEnd).padding(8.dp),
+                    horizontalAlignment = Alignment.End,
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    if (hasRoute) {
+                        MapChip(Icons.Default.Route, stringResource(R.string.offline_data_along_route)) {
+                            val missing = viewModel.routeTilesMissing()
+                            when {
+                                missing == null -> notice = noRoute
+                                missing.isEmpty() -> notice = allHere
+                                else -> bulk = missing
+                            }
+                        }
+                    }
+                    if (state.outdatedCount > 0) {
+                        MapChip(Icons.Default.Refresh, stringResource(R.string.offline_data_update_all, state.outdatedCount), viewModel::updateAll)
+                    }
+                }
             }
             // Squares drawn again whenever their state changes.
             LaunchedEffect(pageReady, state.tiles) {
@@ -176,30 +205,6 @@ fun OfflineDataDialog(onDismiss: () -> Unit, viewModel: OfflineDataViewModel = k
                     }
                 }
                 wv.evaluateJavascript("setTiles($json)", null)
-            }
-            Row(
-                Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                OutlinedButton(
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = colors.textPrimary),
-                    onClick = {
-                        val missing = viewModel.routeTilesMissing()
-                        when {
-                            missing == null -> notice = noRoute
-                            missing.isEmpty() -> notice = allHere
-                            else -> bulk = missing
-                        }
-                    },
-                ) { Text(stringResource(R.string.offline_data_along_route), maxLines = 2) }
-                if (state.outdatedCount > 0) {
-                    OutlinedButton(
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = colors.textPrimary),
-                        onClick = viewModel::updateAll,
-                    ) { Text(stringResource(R.string.offline_data_update_all, state.outdatedCount), maxLines = 2) }
-                }
             }
             notice?.let { n ->
                 LaunchedEffect(n) {
@@ -294,6 +299,24 @@ fun OfflineDataDialog(onDismiss: () -> Unit, viewModel: OfflineDataViewModel = k
                 }
             },
         )
+    }
+}
+
+/** A small pill over the map. */
+@Composable
+private fun MapChip(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, onClick: () -> Unit) {
+    val colors = MaterialTheme.appColors
+    androidx.compose.material3.Surface(
+        onClick = onClick,
+        shape = androidx.compose.foundation.shape.RoundedCornerShape(50),
+        color = colors.navPopupPanel,
+        contentColor = colors.navPopupInk,
+        shadowElevation = 2.dp,
+    ) {
+        Row(Modifier.padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(icon, contentDescription = null, tint = colors.navPopupInk, modifier = Modifier.padding(end = 6.dp).size(18.dp))
+            Text(label, style = MaterialTheme.typography.labelLarge, color = colors.navPopupInk)
+        }
     }
 }
 

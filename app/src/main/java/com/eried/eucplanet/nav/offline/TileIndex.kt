@@ -6,8 +6,20 @@ import java.util.Locale
 import java.util.TimeZone
 
 /** A tile on the server: its name, size, build date and, from a mirror,
- *  its own download link. */
-data class RemoteTile(val name: String, val bytes: Long, val dateMs: Long, val url: String? = null)
+ *  its own download link and the square's offline map. */
+data class RemoteTile(
+    val name: String,
+    val bytes: Long,
+    val dateMs: Long,
+    val url: String? = null,
+    val map: RemoteMap? = null,
+) {
+    /** What a download of the square fetches: routing plus its map. */
+    val totalBytes: Long get() = bytes + (map?.bytes ?: 0L)
+}
+
+/** A square's offline map on the mirror. */
+data class RemoteMap(val url: String, val bytes: Long, val dateMs: Long)
 
 /** Where tiles come from. An address ending in `.json` is a mirror's index
  *  (eucplanet-maps), which links every file; anything else is a BRouter
@@ -41,7 +53,11 @@ object TileIndex {
             val name = t.optString("name")
             val url = t.optString("url")
             if (!RoutingTiles.isTileName(name) || !url.startsWith("https://")) return@mapNotNull null
-            RemoteTile(name, t.getLong("bytes"), t.getLong("date"), url)
+            val map = t.optJSONObject("map")?.let { m ->
+                val mu = m.optString("url")
+                if (mu.startsWith("https://")) RemoteMap(mu, m.getLong("bytes"), m.getLong("date")) else null
+            }
+            RemoteTile(name, t.getLong("bytes"), t.getLong("date"), url, map)
         }
         if (tiles.isEmpty() || !lookups.startsWith("https://")) null else MirrorIndex(tiles, lookups)
     }.getOrNull()
@@ -66,6 +82,14 @@ object TileIndex {
      *  slack: the listing and the file dates can be a time zone apart. */
     fun needsUpdate(local: File, remote: RemoteTile): Boolean =
         local.isFile && remote.dateMs > local.lastModified() + DAY_MS
+
+    /** True when a downloaded square's map is missing or older than the
+     *  mirror's. A routing-only square from before maps gets its map this way. */
+    fun mapNeedsUpdate(route: File, map: File, remote: RemoteTile): Boolean {
+        val m = remote.map ?: return false
+        if (!route.isFile) return false
+        return !map.isFile || m.dateMs > map.lastModified() + DAY_MS
+    }
 
     private const val DAY_MS = 86_400_000L
 }

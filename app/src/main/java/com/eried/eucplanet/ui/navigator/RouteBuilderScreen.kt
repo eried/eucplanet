@@ -1255,10 +1255,16 @@ fun RouteBuilderScreen(
                             ),
                             "AndroidNav"
                         )
+                        val offlineMap = com.eried.eucplanet.nav.offline.map.OfflineMapWeb.renderer()
                         webViewClient = object : WebViewClient() {
                             override fun onPageFinished(view: WebView?, url: String?) {
                                 pageReady = true
                             }
+
+                            override fun shouldInterceptRequest(
+                                view: WebView?,
+                                request: android.webkit.WebResourceRequest?,
+                            ) = com.eried.eucplanet.nav.offline.map.OfflineMapWeb.intercept(offlineMap, request)
                         }
                         webChromeClient = object : android.webkit.WebChromeClient() {
                             override fun onConsoleMessage(

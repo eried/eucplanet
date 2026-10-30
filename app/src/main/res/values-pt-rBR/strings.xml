@@ -1674,7 +1674,8 @@
     <!-- Navigator -->
     <string name="nav_open">Abrir navegador</string>
     <string name="nav_title">Construtor de rotas</string>
-    <string name="nav_search_hint">Pesquisar endereço ou local</string>
+    <string name="nav_search_hint">Buscar</string>
+    <string name="nav_search_offline">A busca precisa de sinal. Toque no mapa ou escolha Casa ou Trabalho.</string>
     <string name="nav_searching">Pesquisando…</string>
     <string name="nav_locating">Localizando você…</string>
     <string name="nav_no_results">Nenhum resultado encontrado</string>
@@ -2882,18 +2883,18 @@
     <string name="offline_routing_mode_label">Rotas offline</string>
     <string name="offline_routing_mode_online">Online primeiro</string>
     <string name="offline_routing_mode_offline">Offline primeiro</string>
-    <string name="offline_routing_hint">Áreas baixadas calculam a rota no celular sem sinal, sem nomes de ruas. Online primeiro só as usa quando os servidores falham.</string>
-    <string name="offline_data_open">Áreas de rotas offline</string>
+    <string name="offline_routing_hint">As áreas baixadas mostram o mapa e calculam rotas no celular sem sinal. Online primeiro só as usa para rotas quando os servidores falham.</string>
+    <string name="offline_data_open">Áreas offline</string>
     <string name="offline_server_url">Servidor de dados offline</string>
-    <string name="offline_data_title">Áreas de rotas offline</string>
+    <string name="offline_data_title">Áreas offline</string>
     <string name="offline_data_space">Usado %1$s, livre %2$s</string>
-    <string name="offline_data_tap_hint">Toque em um quadrado para baixar ou apagar.</string>
+    <string name="offline_data_tap_hint">Toque em um quadrado para baixar o mapa e as rotas, ou para apagá-lo.</string>
     <string name="offline_data_list_error">Sem acesso ao servidor. As áreas baixadas continuam funcionando.</string>
-    <string name="offline_data_along_route">Áreas da minha rota</string>
+    <string name="offline_data_along_route">Minha rota</string>
     <string name="offline_data_update_all">Atualizar tudo (%1$d)</string>
     <string name="offline_data_update">Atualizar</string>
     <string name="offline_data_wifi_updates">Atualizar toda semana no Wi-Fi</string>
-    <string name="offline_data_credit">Dados de rota © OpenStreetMap contributors (ODbL). BRouter (MIT).</string>
+    <string name="offline_data_credit">Map and routing data © OpenStreetMap contributors (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">Baixar esta área (%1$s)?</string>
     <string name="offline_data_download">Baixar</string>
     <string name="offline_data_delete_q">Apagar esta área? Libera %1$s.</string>

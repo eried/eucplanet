@@ -8,6 +8,7 @@ import com.eried.eucplanet.nav.RoutingService
 import com.eried.eucplanet.nav.offline.OfflineRouter
 import com.eried.eucplanet.nav.offline.OfflineTileStore
 import com.eried.eucplanet.nav.offline.OfflineTiles
+import com.eried.eucplanet.nav.offline.map.OfflineMapRenderer
 import com.eried.eucplanet.share.PendingShareJoin
 import com.eried.eucplanet.share.ShareSession
 import org.koin.android.ext.koin.androidContext
@@ -21,6 +22,7 @@ val navModule = module {
     single { OfflineTileStore.default(androidContext()) }
     single { OfflineRouter(engine = OfflineRouter.brouterEngine(androidContext(), get())) }
     singleOf(::OfflineTiles)
+    single { OfflineMapRenderer(get<OfflineTileStore>().dir) }
     singleOf(::PoiService)
     singleOf(::OcmService)
     singleOf(::CurrentRouteStore)

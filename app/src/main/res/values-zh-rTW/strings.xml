@@ -1671,7 +1671,8 @@
     <!-- Navigator -->
     <string name="nav_open">開啟導航</string>
     <string name="nav_title">路線規劃</string>
-    <string name="nav_search_hint">搜尋地址或地點</string>
+    <string name="nav_search_hint">搜尋</string>
+    <string name="nav_search_offline">搜尋需要訊號。請點按地圖，或選擇住家或公司。</string>
     <string name="nav_searching">搜尋中…</string>
     <string name="nav_locating">正在定位…</string>
     <string name="nav_no_results">未找到符合結果</string>
@@ -2877,18 +2878,18 @@
     <string name="offline_routing_mode_label">離線路線</string>
     <string name="offline_routing_mode_online">優先線上</string>
     <string name="offline_routing_mode_offline">優先離線</string>
-    <string name="offline_routing_hint">已下載的區域可在無訊號時在手機上計算路線（不含街道名稱）。優先線上僅在伺服器失敗時使用它們。</string>
-    <string name="offline_data_open">離線路線區域</string>
+    <string name="offline_routing_hint">已下載的區域在沒有訊號時也能在手機上顯示地圖並規劃路線。線上優先只在伺服器失敗時用它們規劃路線。</string>
+    <string name="offline_data_open">離線區域</string>
     <string name="offline_server_url">離線資料伺服器</string>
-    <string name="offline_data_title">離線路線區域</string>
+    <string name="offline_data_title">離線區域</string>
     <string name="offline_data_space">已用 %1$s，可用 %2$s</string>
-    <string name="offline_data_tap_hint">點按方塊以下載或刪除。</string>
+    <string name="offline_data_tap_hint">點按方塊下載其地圖和路線，或將其刪除。</string>
     <string name="offline_data_list_error">無法連線伺服器。已下載的區域仍可使用。</string>
-    <string name="offline_data_along_route">我的路線上的區域</string>
+    <string name="offline_data_along_route">我的路線</string>
     <string name="offline_data_update_all">全部更新 (%1$d)</string>
     <string name="offline_data_update">更新</string>
     <string name="offline_data_wifi_updates">每週透過 Wi-Fi 更新</string>
-    <string name="offline_data_credit">路線資料 © OpenStreetMap contributors (ODbL). BRouter (MIT).</string>
+    <string name="offline_data_credit">Map and routing data © OpenStreetMap contributors (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">下載此區域（%1$s）？</string>
     <string name="offline_data_download">下載</string>
     <string name="offline_data_delete_q">刪除此區域？將釋放 %1$s。</string>

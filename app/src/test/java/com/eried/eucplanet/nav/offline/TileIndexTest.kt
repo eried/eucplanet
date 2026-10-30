@@ -67,6 +67,29 @@ class TileIndexTest {
         assertTrue(idx.lookupsUrl.endsWith("/lookups.dat"))
     }
 
+    @Test fun aSquareWithAMap_countsBothSizes() {
+        val json = mirror.replace(
+            """"url":"https://github.com/eried/eucplanet-maps/releases/download/routing-20261029-1/E10_N55.rd5"}""",
+            """"url":"https://github.com/eried/eucplanet-maps/releases/download/routing-20261029-1/E10_N55.rd5",""" +
+                """"map":{"url":"https://github.com/eried/eucplanet-maps/releases/download/map-20261029-1/E10_N55.pmtiles","bytes":100,"date":1793232180000}}""",
+        )
+        val t = TileIndex.parseMirror(json)!!.tiles.single()
+        assertEquals(100L, t.map!!.bytes)
+        assertEquals(64858754L + 100L, t.totalBytes)
+    }
+
+    @Test fun aRoutingOnlySquare_getsItsMapAsAnUpdate() {
+        val route = tmp.newFile("E10_N55.rd5").apply { writeBytes(ByteArray(1)) }
+        val map = File(tmp.root, "E10_N55.pmtiles")
+        val remote = RemoteTile("E10_N55", 1, 0, map = RemoteMap("https://x/E10_N55.pmtiles", 5, 1_793_145_780_000))
+        assertTrue(TileIndex.mapNeedsUpdate(route, map, remote))
+        map.writeBytes(ByteArray(5))
+        map.setLastModified(remote.map!!.dateMs)
+        assertFalse(TileIndex.mapNeedsUpdate(route, map, remote))
+        assertFalse("no map on the server", TileIndex.mapNeedsUpdate(route, File(tmp.root, "x"), remote.copy(map = null)))
+        assertFalse("square not downloaded", TileIndex.mapNeedsUpdate(File(tmp.root, "none.rd5"), map, remote))
+    }
+
     @Test fun aBrokenMirrorIndex_givesNull() {
         assertEquals(null, TileIndex.parseMirror("<html>404</html>"))
         assertEquals(null, TileIndex.parseMirror("""{"tiles":[]}"""))

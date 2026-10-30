@@ -1733,7 +1733,8 @@
     <!-- Navigator -->
     <string name="nav_open">Ouvrir le navigateur</string>
     <string name="nav_title">Créateur d\'itinéraire</string>
-    <string name="nav_search_hint">Rechercher une adresse ou un lieu</string>
+    <string name="nav_search_hint">Rechercher</string>
+    <string name="nav_search_offline">La recherche demande du réseau. Touchez la carte ou choisissez Domicile ou Travail.</string>
     <string name="nav_searching">Recherche…</string>
     <string name="nav_locating">Localisation en cours…</string>
     <string name="nav_no_results">Aucun résultat</string>
@@ -2884,18 +2885,18 @@
     <string name="offline_routing_mode_label">Itinéraires hors ligne</string>
     <string name="offline_routing_mode_online">En ligne d’abord</string>
     <string name="offline_routing_mode_offline">Hors ligne d’abord</string>
-    <string name="offline_routing_hint">Les zones téléchargées calculent l’itinéraire sur le téléphone sans réseau, sans noms de rues. En ligne d’abord ne les utilise que si les serveurs échouent.</string>
-    <string name="offline_data_open">Zones d’itinéraires hors ligne</string>
+    <string name="offline_routing_hint">Les zones téléchargées affichent la carte et calculent les itinéraires sur le téléphone sans réseau. En ligne d\'abord ne s\'en sert pour les itinéraires que si les serveurs échouent.</string>
+    <string name="offline_data_open">Zones hors ligne</string>
     <string name="offline_server_url">Serveur de données hors ligne</string>
-    <string name="offline_data_title">Zones d’itinéraires hors ligne</string>
+    <string name="offline_data_title">Zones hors ligne</string>
     <string name="offline_data_space">Utilisé %1$s, libre %2$s</string>
-    <string name="offline_data_tap_hint">Touchez un carré pour le télécharger ou le supprimer.</string>
+    <string name="offline_data_tap_hint">Touchez un carré pour télécharger sa carte et ses itinéraires, ou le supprimer.</string>
     <string name="offline_data_list_error">Serveur injoignable. Les zones téléchargées fonctionnent toujours.</string>
-    <string name="offline_data_along_route">Zones de mon itinéraire</string>
+    <string name="offline_data_along_route">Mon trajet</string>
     <string name="offline_data_update_all">Tout mettre à jour (%1$d)</string>
     <string name="offline_data_update">Mettre à jour</string>
     <string name="offline_data_wifi_updates">Mettre à jour chaque semaine en Wi-Fi</string>
-    <string name="offline_data_credit">Données d’itinéraire © OpenStreetMap contributors (ODbL). BRouter (MIT).</string>
+    <string name="offline_data_credit">Données de carte et d\'itinéraire © contributeurs OpenStreetMap (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">Télécharger cette zone (%1$s) ?</string>
     <string name="offline_data_download">Télécharger</string>
     <string name="offline_data_delete_q">Supprimer cette zone ? Libère %1$s.</string>

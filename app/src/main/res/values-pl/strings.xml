@@ -1687,7 +1687,8 @@
     <!-- Navigator -->
     <string name="nav_open">Otwórz nawigator</string>
     <string name="nav_title">Kreator tras</string>
-    <string name="nav_search_hint">Szukaj adresu lub miejsca</string>
+    <string name="nav_search_hint">Szukaj</string>
+    <string name="nav_search_offline">Wyszukiwanie wymaga zasięgu. Dotknij mapy lub wybierz Dom albo Pracę.</string>
     <string name="nav_searching">Wyszukiwanie…</string>
     <string name="nav_locating">Ustalanie Twojej lokalizacji…</string>
     <string name="nav_no_results">Nie znaleziono wyników</string>
@@ -2881,18 +2882,18 @@
     <string name="offline_routing_mode_label">Trasy offline</string>
     <string name="offline_routing_mode_online">Najpierw online</string>
     <string name="offline_routing_mode_offline">Najpierw offline</string>
-    <string name="offline_routing_hint">Pobrane obszary wyznaczają trasę w telefonie bez zasięgu, bez nazw ulic. Najpierw online używa ich tylko, gdy serwery zawiodą.</string>
-    <string name="offline_data_open">Obszary tras offline</string>
+    <string name="offline_routing_hint">Pobrane obszary pokazują mapę i wyznaczają trasy w telefonie bez zasięgu. Najpierw online używa ich do tras tylko, gdy serwery zawiodą.</string>
+    <string name="offline_data_open">Obszary offline</string>
     <string name="offline_server_url">Serwer danych offline</string>
-    <string name="offline_data_title">Obszary tras offline</string>
+    <string name="offline_data_title">Obszary offline</string>
     <string name="offline_data_space">Zajęte %1$s, wolne %2$s</string>
-    <string name="offline_data_tap_hint">Dotknij kwadratu, aby go pobrać lub usunąć.</string>
+    <string name="offline_data_tap_hint">Dotknij kwadratu, aby pobrać jego mapę i trasy albo go usunąć.</string>
     <string name="offline_data_list_error">Brak połączenia z serwerem. Pobrane obszary nadal działają.</string>
-    <string name="offline_data_along_route">Obszary na mojej trasie</string>
+    <string name="offline_data_along_route">Moja trasa</string>
     <string name="offline_data_update_all">Aktualizuj wszystko (%1$d)</string>
     <string name="offline_data_update">Aktualizuj</string>
     <string name="offline_data_wifi_updates">Aktualizuj co tydzień przez Wi-Fi</string>
-    <string name="offline_data_credit">Dane tras © OpenStreetMap contributors (ODbL). BRouter (MIT).</string>
+    <string name="offline_data_credit">Map and routing data © OpenStreetMap contributors (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">Pobrać ten obszar (%1$s)?</string>
     <string name="offline_data_download">Pobierz</string>
     <string name="offline_data_delete_q">Usunąć ten obszar? Zwolni %1$s.</string>

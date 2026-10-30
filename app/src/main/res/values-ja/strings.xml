@@ -1671,7 +1671,8 @@
     <!-- Navigator -->
     <string name="nav_open">ナビゲーターを開く</string>
     <string name="nav_title">ルートビルダー</string>
-    <string name="nav_search_hint">住所または場所を検索</string>
+    <string name="nav_search_hint">検索</string>
+    <string name="nav_search_offline">検索には電波が必要です。地図をタップするか、自宅か職場を選んでください。</string>
     <string name="nav_searching">検索中…</string>
     <string name="nav_locating">現在地を特定中…</string>
     <string name="nav_no_results">一致する結果が見つかりません</string>
@@ -2879,18 +2880,18 @@
     <string name="offline_routing_mode_label">オフラインルート</string>
     <string name="offline_routing_mode_online">オンライン優先</string>
     <string name="offline_routing_mode_offline">オフライン優先</string>
-    <string name="offline_routing_hint">ダウンロードしたエリアは電波がなくてもスマホでルートを計算します（通り名なし）。オンライン優先ではサーバーが使えないときだけ使います。</string>
-    <string name="offline_data_open">オフラインルートのエリア</string>
+    <string name="offline_routing_hint">ダウンロードした地域は、電波がなくても地図を表示し、スマホでルートを計算します。オンライン優先では、サーバーが応答しないときだけルートに使います。</string>
+    <string name="offline_data_open">オフライン地域</string>
     <string name="offline_server_url">オフラインデータのサーバー</string>
-    <string name="offline_data_title">オフラインルートのエリア</string>
+    <string name="offline_data_title">オフライン地域</string>
     <string name="offline_data_space">使用 %1$s、空き %2$s</string>
-    <string name="offline_data_tap_hint">マスをタップしてダウンロードまたは削除します。</string>
+    <string name="offline_data_tap_hint">マスをタップして、地図とルートをダウンロード、または削除します。</string>
     <string name="offline_data_list_error">サーバーに接続できません。ダウンロード済みのエリアは使えます。</string>
-    <string name="offline_data_along_route">ルート上のエリア</string>
+    <string name="offline_data_along_route">マイルート</string>
     <string name="offline_data_update_all">すべて更新 (%1$d)</string>
     <string name="offline_data_update">更新</string>
     <string name="offline_data_wifi_updates">毎週Wi-Fiで更新</string>
-    <string name="offline_data_credit">ルートデータ © OpenStreetMap contributors (ODbL). BRouter (MIT).</string>
+    <string name="offline_data_credit">Map and routing data © OpenStreetMap contributors (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">このエリアをダウンロードしますか（%1$s）？</string>
     <string name="offline_data_download">ダウンロード</string>
     <string name="offline_data_delete_q">このエリアを削除しますか？%1$s空きます。</string>

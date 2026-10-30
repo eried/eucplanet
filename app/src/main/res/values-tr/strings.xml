@@ -1671,7 +1671,8 @@
     <!-- Navigator -->
     <string name="nav_open">Navigatörü aç</string>
     <string name="nav_title">Rota oluşturucu</string>
-    <string name="nav_search_hint">Adres veya yer ara</string>
+    <string name="nav_search_hint">Ara</string>
+    <string name="nav_search_offline">Arama için sinyal gerekir. Haritaya dokunun ya da Ev veya İş seçin.</string>
     <string name="nav_searching">Aranıyor…</string>
     <string name="nav_locating">Konumunuz bulunuyor…</string>
     <string name="nav_no_results">Eşleşme bulunamadı</string>
@@ -2876,18 +2877,18 @@
     <string name="offline_routing_mode_label">Çevrimdışı rota</string>
     <string name="offline_routing_mode_online">Önce çevrimiçi</string>
     <string name="offline_routing_mode_offline">Önce çevrimdışı</string>
-    <string name="offline_routing_hint">İndirilen bölgeler rotayı çekmeden telefonda hesaplar, sokak adları olmadan. Önce çevrimiçi bunları yalnızca sunucular yanıt vermezse kullanır.</string>
-    <string name="offline_data_open">Çevrimdışı rota bölgeleri</string>
+    <string name="offline_routing_hint">İndirilen alanlar sinyal olmadan da haritayı gösterir ve telefonda rota hesaplar. Önce çevrimiçi, onları rotalar için yalnızca sunucular yanıt vermediğinde kullanır.</string>
+    <string name="offline_data_open">Çevrimdışı alanlar</string>
     <string name="offline_server_url">Çevrimdışı veri sunucusu</string>
-    <string name="offline_data_title">Çevrimdışı rota bölgeleri</string>
+    <string name="offline_data_title">Çevrimdışı alanlar</string>
     <string name="offline_data_space">Kullanılan %1$s, boş %2$s</string>
-    <string name="offline_data_tap_hint">İndirmek veya silmek için bir kareye dokunun.</string>
+    <string name="offline_data_tap_hint">Haritasını ve rotalarını indirmek ya da silmek için bir kareye dokunun.</string>
     <string name="offline_data_list_error">Sunucuya ulaşılamıyor. İndirilen bölgeler çalışmaya devam eder.</string>
-    <string name="offline_data_along_route">Rotamdaki bölgeler</string>
+    <string name="offline_data_along_route">Rotam</string>
     <string name="offline_data_update_all">Tümünü güncelle (%1$d)</string>
     <string name="offline_data_update">Güncelle</string>
     <string name="offline_data_wifi_updates">Her hafta Wi-Fi ile güncelle</string>
-    <string name="offline_data_credit">Rota verileri © OpenStreetMap contributors (ODbL). BRouter (MIT).</string>
+    <string name="offline_data_credit">Map and routing data © OpenStreetMap contributors (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">Bu bölge indirilsin mi (%1$s)?</string>
     <string name="offline_data_download">İndir</string>
     <string name="offline_data_delete_q">Bu bölge silinsin mi? %1$s boşalır.</string>

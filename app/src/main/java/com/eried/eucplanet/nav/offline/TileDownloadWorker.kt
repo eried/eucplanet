@@ -16,8 +16,8 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 /**
- * Downloads one routing tile into `<name>.rd5.part` and renames it once it
- * is whole. A stopped or failed run keeps the part and the next one resumes
+ * Downloads one square: its routing tile into `<name>.rd5.part`, then its
+ * offline map into `<name>.pmtiles.part`, each renamed once it is whole. A stopped or failed run keeps the part and the next one resumes
  * with an HTTP range, so a 250 MB tile survives the app closing, the phone
  * sleeping and the network dropping. The tag table comes along with the
  * first tile.
@@ -36,18 +36,33 @@ class TileDownloadWorker(
         val legacy = inputData.getString(KEY_SERVER)?.let { TileSource.of(it) }
         val tileUrl = inputData.getString(KEY_URL) ?: legacy?.tileUrl(name) ?: return@withContext Result.failure()
         val lookupsUrl = inputData.getString(KEY_LOOKUPS_URL) ?: legacy?.lookupsUrl ?: return@withContext Result.failure()
+        val mapUrl = inputData.getString(KEY_MAP_URL)
+        // Share of the progress bar the routing tile takes; 0 when only the
+        // map is missing.
+        val routeShare = inputData.getFloat(KEY_ROUTE_SHARE, 1f).coerceIn(0f, 1f)
         try {
-            // The tag table must match the tiles: fetch it with the first
-            // tile and refresh it when a month old.
-            // Several tiles download at once; one of them fetches it.
-            lookupsLock.withLock {
-                val lookups = store.lookupsFile()
-                if (!lookups.isFile || System.currentTimeMillis() - lookups.lastModified() > LOOKUPS_MAX_AGE_MS) {
-                    fetch(lookupsUrl, File(store.dir, "lookups.dat.part"), lookups)
+            if (routeShare > 0f || !store.has(name)) {
+                // The tag table must match the tiles: fetch it with the first
+                // tile and refresh it when a month old.
+                // Several tiles download at once; one of them fetches it.
+                lookupsLock.withLock {
+                    val lookups = store.lookupsFile()
+                    if (!lookups.isFile || System.currentTimeMillis() - lookups.lastModified() > LOOKUPS_MAX_AGE_MS) {
+                        fetch(lookupsUrl, File(store.dir, "lookups.dat.part"), lookups)
+                    }
+                }
+                val span = if (mapUrl == null) 1f else routeShare
+                if (!fetch(tileUrl, store.partFile(name), store.finalFile(name), TileCheck::problem, 0f, span)) {
+                    return@withContext Result.retry()
                 }
             }
-            val done = fetch(tileUrl, store.partFile(name), store.finalFile(name), checkTile = true)
-            if (done) Result.success() else Result.retry()
+            if (mapUrl != null) {
+                val from = if (routeShare > 0f) routeShare else 0f
+                if (!fetch(mapUrl, store.mapPartFile(name), store.mapFile(name), MapCheck::problem, from, 1f - from)) {
+                    return@withContext Result.retry()
+                }
+            }
+            Result.success()
         } catch (e: MissingOnServer) {
             Log.w(TAG, "$name: not on the server")
             Result.failure()
@@ -58,9 +73,16 @@ class TileDownloadWorker(
     }
 
     /** Fetches [url] into [part], resuming what is there, and renames it to
-     *  [target] when the length matches and, for a tile, BRouter reads it
-     *  whole. False when stopped first. */
-    private suspend fun fetch(url: String, part: File, target: File, checkTile: Boolean = false): Boolean {
+     *  [target] when the length matches and [check] finds it whole. Progress
+     *  fills [from] to [from] + [span] of the bar. False when stopped first. */
+    private suspend fun fetch(
+        url: String,
+        part: File,
+        target: File,
+        check: ((File) -> String?)? = null,
+        from: Float = 0f,
+        span: Float = 0f,
+    ): Boolean {
         val meta = File(part.path + ".date")
         val resumeFrom = if (meta.isFile) resumeDate(meta.readText(), url) else null
         var have = if (part.isFile && resumeFrom != null) part.length() else 0L
@@ -81,7 +103,7 @@ class TileDownloadWorker(
                 // Asked past the end: the part is the whole file, if its
                 // length is the server's. Anything else starts over.
                 if (totalFromContentRange(conn.getHeaderField("Content-Range")) == have) {
-                    return finish(part, target, meta, conn.getHeaderFieldDate("Last-Modified", 0L), checkTile)
+                    return finish(part, target, meta, conn.getHeaderFieldDate("Last-Modified", 0L), check)
                 }
                 part.delete()
                 meta.delete()
@@ -107,23 +129,23 @@ class TileDownloadWorker(
                         val now = System.currentTimeMillis()
                         if (total > 0 && now - lastReport > PROGRESS_EVERY_MS) {
                             lastReport = now
-                            setProgress(workDataOf(KEY_PROGRESS to got.toFloat() / total))
+                            if (span > 0f) setProgress(workDataOf(KEY_PROGRESS to from + span * got.toFloat() / total))
                         }
                     }
                 }
             }
             if (total > 0 && part.length() != total) throw IOException("short: ${part.length()} of $total")
-            return finish(part, target, meta, modified, checkTile)
+            return finish(part, target, meta, modified, check)
         } finally {
             conn.disconnect()
         }
     }
 
-    private fun finish(part: File, target: File, meta: File, modified: Long, checkTile: Boolean): Boolean {
+    private fun finish(part: File, target: File, meta: File, modified: Long, check: ((File) -> String?)?): Boolean {
         if (part.length() == 0L) throw IOException("empty")
-        if (checkTile) {
+        if (check != null) {
             // Damaged bytes start over: resuming would keep them.
-            TileCheck.problem(part)?.let {
+            check(part)?.let {
                 part.delete()
                 meta.delete()
                 throw IOException("damaged: $it")
@@ -167,6 +189,8 @@ class TileDownloadWorker(
         const val KEY_SERVER = "server"
         const val KEY_URL = "url"
         const val KEY_LOOKUPS_URL = "lookupsUrl"
+        const val KEY_MAP_URL = "mapUrl"
+        const val KEY_ROUTE_SHARE = "routeShare"
         const val KEY_PROGRESS = "progress"
         const val TAG_TILE = "offline-routing-tile"
         private const val MAX_ATTEMPTS = 8

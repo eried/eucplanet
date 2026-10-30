@@ -10,7 +10,10 @@ how Organic Maps weighs roads.
 - A new route after a wrong turn comes in about 8 s instead of 22 s, and it continues in the direction you're riding, so no U-turn.
 - Routes started from the car screen or the navigation overlay now keep your avoid settings.
 - Settings, Navigation, Routing services: the Valhalla server now has its own URL beside OSRM, so you can point either one at your own server.
-- Offline routing: Settings, Navigation, Offline routing areas. Download 5 by 5 degree squares (Oslo's is 65 MB) and routes, reroutes and turn cues work with no signal, from a profile made for wheels (no steps, off rough ground). Online first (the default) uses them only when the servers fail; Offline first uses them whenever the square is there. Offline turns have no street names. The map background still needs signal. The squares come from our own mirror (github.com/eried/eucplanet-maps, refreshed monthly), with brouter.de as the backup.
+- Offline areas: Settings, Navigation, Offline areas. Each 5 by 5 degree square brings a street map (paths and house numbers) and routing together, so routes, reroutes and turn cues work with no signal, from a profile made for wheels (no steps, off rough ground). Online first (the default) routes with them only when the servers fail; Offline first whenever the square is there. Offline turns have no street names. The squares come from our own mirror (github.com/eried/eucplanet-maps, refreshed monthly), with brouter.de as the backup for routing.
+- The offline map sits under the map you picked, in the navigator, trip details, the HUD, the watch, Android Auto and the video overlay. Where online tiles fail it shows through, and the credit line reads "Offline map".
+- With no signal, search says so, and a stop you tap is named from the map ("Strandgata 31").
+- The areas screen lost its wide button: "My route" is a small chip on the map, shown only when a route is planned.
 
 ## Please test
 
@@ -24,6 +27,7 @@ how Organic Maps weighs roads.
 **Riders who go where signal is weak**
 - Download the squares you ride in, turn on airplane mode, plan a route: does it come, and do turn cues play?
 - Try Offline first with signal on: is the route as good as the online one, and does it keep you off gravel and stairs?
+- With the squares downloaded and airplane mode on: does the navigator still show a map, with street names? Tap a spot: does the stop get a street name?
 
 ## Reporting back
 
