@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.hardware.camera2.CameraManager
+import android.media.AudioManager
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
@@ -166,6 +167,7 @@ fun RearCameraPreview(
     if (handedOff) {
         val ctx = LocalContext.current
         OtherAppCameraWatch(ourCameraId, { openIds = it }, onOtherAppCamera)
+        val mic = if (diag.isNotEmpty()) micRecordings() else 0
         Box(modifier.background(Color.Black), contentAlignment = Alignment.Center) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
@@ -177,7 +179,7 @@ fun RearCameraPreview(
                 // Test builds: what keeps the picture off, for a tester's photo.
                 if (diag.isNotEmpty()) {
                     Text(
-                        text = "$diag, open cameras ${openIds.sorted()}, ours ${ourCameraId ?: "unknown"}",
+                        text = "$diag, open cameras ${openIds.sorted()}, ours ${ourCameraId ?: "unknown"}, mic $mic",
                         color = Color.White.copy(alpha = 0.45f),
                         fontSize = 11.sp,
                         modifier = Modifier.padding(top = 8.dp, start = 24.dp, end = 24.dp)
@@ -435,6 +437,23 @@ private fun OtherAppCameraWatch(
             null -> Unit
         }
     }
+}
+
+/** How many audio recordings run on the device, checked each second. A
+ *  recorder that saves sound shows here while it records, which may tell
+ *  a MotoEye clip from the MotoEye only keeping the camera open. */
+@Composable
+private fun micRecordings(): Int {
+    val ctx = LocalContext.current
+    var count by remember { mutableStateOf(0) }
+    LaunchedEffect(Unit) {
+        val audio = ctx.getSystemService(AudioManager::class.java) ?: return@LaunchedEffect
+        while (true) {
+            count = runCatching { audio.activeRecordingConfigurations.size }.getOrDefault(-1)
+            delay(1_000)
+        }
+    }
+    return count
 }
 
 private const val OWN_CLOSE_MS = 1_500L
