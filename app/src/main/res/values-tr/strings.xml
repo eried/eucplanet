@@ -2895,7 +2895,7 @@
     <string name="offline_data_stop_q">İndirme durdurulsun mu?</string>
     <string name="offline_data_stop">Durdur</string>
     <string name="offline_data_mobile_warn">Bu, mobil veriyle %1$s. Yine de indirilsin mi?</string>
-    <string name="offline_data_route_q">Rotanızdaki %1$d bölge indirilsin mi (%2$s)?</string>
+    <string name="offline_data_route_q">Rotanızdaki bölgeler indirilsin mi (%1$s)?</string>
     <string name="offline_data_no_route">Önce bir rota planlayın.</string>
     <string name="offline_data_route_all_here">Rotanızdaki tüm bölgeler indirildi.</string>
 </resources>

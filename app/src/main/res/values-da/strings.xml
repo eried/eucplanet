@@ -2913,7 +2913,7 @@
     <string name="offline_data_stop_q">Stop denne hentning?</string>
     <string name="offline_data_stop">Stop</string>
     <string name="offline_data_mobile_warn">Det er %1$s på mobildata. Hent alligevel?</string>
-    <string name="offline_data_route_q">Hent %1$d områder på din rute (%2$s)?</string>
+    <string name="offline_data_route_q">Hent områderne på din rute (%1$s)?</string>
     <string name="offline_data_no_route">Planlæg en rute først.</string>
     <string name="offline_data_route_all_here">Alle områder på din rute er hentet.</string>
 </resources>

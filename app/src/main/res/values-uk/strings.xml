@@ -2897,7 +2897,7 @@
     <string name="offline_data_stop_q">Зупинити завантаження?</string>
     <string name="offline_data_stop">Зупинити</string>
     <string name="offline_data_mobile_warn">Це %1$s мобільними даними. Однаково завантажити?</string>
-    <string name="offline_data_route_q">Завантажити %1$d областей маршруту (%2$s)?</string>
+    <string name="offline_data_route_q">Завантажити області маршруту (%1$s)?</string>
     <string name="offline_data_no_route">Спершу побудуйте маршрут.</string>
     <string name="offline_data_route_all_here">Усі області маршруту завантажено.</string>
 </resources>

@@ -2900,7 +2900,7 @@
     <string name="offline_data_stop_q">Zatrzymać pobieranie?</string>
     <string name="offline_data_stop">Zatrzymaj</string>
     <string name="offline_data_mobile_warn">To %1$s przez dane komórkowe. Pobrać mimo to?</string>
-    <string name="offline_data_route_q">Pobrać %1$d obszarów na trasie (%2$s)?</string>
+    <string name="offline_data_route_q">Pobrać obszary na trasie (%1$s)?</string>
     <string name="offline_data_no_route">Najpierw zaplanuj trasę.</string>
     <string name="offline_data_route_all_here">Wszystkie obszary na trasie są pobrane.</string>
 </resources>

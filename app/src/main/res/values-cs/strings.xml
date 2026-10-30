@@ -2703,7 +2703,7 @@
     <string name="offline_data_stop_q">Zastavit stahování?</string>
     <string name="offline_data_stop">Zastavit</string>
     <string name="offline_data_mobile_warn">To je %1$s přes mobilní data. Přesto stáhnout?</string>
-    <string name="offline_data_route_q">Stáhnout %1$d oblastí na trase (%2$s)?</string>
+    <string name="offline_data_route_q">Stáhnout oblasti na trase (%1$s)?</string>
     <string name="offline_data_no_route">Nejdřív naplánujte trasu.</string>
     <string name="offline_data_route_all_here">Všechny oblasti na trase jsou stažené.</string>
 </resources>

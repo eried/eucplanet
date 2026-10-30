@@ -2918,7 +2918,7 @@
     <string name="offline_data_stop_q">Diesen Download stoppen?</string>
     <string name="offline_data_stop">Stoppen</string>
     <string name="offline_data_mobile_warn">Das sind %1$s über mobile Daten. Trotzdem laden?</string>
-    <string name="offline_data_route_q">%1$d Gebiete deiner Route laden (%2$s)?</string>
+    <string name="offline_data_route_q">Gebiete deiner Route laden (%1$s)?</string>
     <string name="offline_data_no_route">Plane zuerst eine Route.</string>
     <string name="offline_data_route_all_here">Alle Gebiete deiner Route sind geladen.</string>
 </resources>

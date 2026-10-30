@@ -2803,7 +2803,7 @@
     <string name="offline_data_stop_q">Fermare questo download?</string>
     <string name="offline_data_stop">Ferma</string>
     <string name="offline_data_mobile_warn">Sono %1$s su rete mobile. Scaricare comunque?</string>
-    <string name="offline_data_route_q">Scaricare %1$d aree del tuo percorso (%2$s)?</string>
+    <string name="offline_data_route_q">Scaricare le aree del tuo percorso (%1$s)?</string>
     <string name="offline_data_no_route">Prima pianifica un percorso.</string>
     <string name="offline_data_route_all_here">Tutte le aree del percorso sono scaricate.</string>
 </resources>

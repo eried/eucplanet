@@ -2900,7 +2900,7 @@
     <string name="offline_data_stop_q">Deze download stoppen?</string>
     <string name="offline_data_stop">Stoppen</string>
     <string name="offline_data_mobile_warn">Dat is %1$s via mobiele data. Toch downloaden?</string>
-    <string name="offline_data_route_q">%1$d gebieden op je route downloaden (%2$s)?</string>
+    <string name="offline_data_route_q">Gebieden op je route downloaden (%1$s)?</string>
     <string name="offline_data_no_route">Plan eerst een route.</string>
     <string name="offline_data_route_all_here">Alle gebieden op je route zijn gedownload.</string>
 </resources>

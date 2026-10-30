@@ -2898,7 +2898,7 @@
     <string name="offline_data_stop_q">ダウンロードを停止しますか？</string>
     <string name="offline_data_stop">停止</string>
     <string name="offline_data_mobile_warn">モバイルデータで%1$sです。ダウンロードしますか？</string>
-    <string name="offline_data_route_q">ルート上の%1$d個のエリアをダウンロードしますか（%2$s）？</string>
+    <string name="offline_data_route_q">ルート上のエリアをダウンロードしますか（%1$s）？</string>
     <string name="offline_data_no_route">先にルートを作成してください。</string>
     <string name="offline_data_route_all_here">ルート上のエリアはすべてダウンロード済みです。</string>
 </resources>

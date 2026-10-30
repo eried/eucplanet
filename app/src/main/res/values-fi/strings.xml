@@ -2701,7 +2701,7 @@
     <string name="offline_data_stop_q">Pysäytetäänkö lataus?</string>
     <string name="offline_data_stop">Pysäytä</string>
     <string name="offline_data_mobile_warn">Se on %1$s mobiilidataa. Ladataanko silti?</string>
-    <string name="offline_data_route_q">Ladataanko reittisi %1$d aluetta (%2$s)?</string>
+    <string name="offline_data_route_q">Ladataanko reittisi alueet (%1$s)?</string>
     <string name="offline_data_no_route">Suunnittele ensin reitti.</string>
     <string name="offline_data_route_all_here">Kaikki reittisi alueet on ladattu.</string>
 </resources>

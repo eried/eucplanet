@@ -2702,7 +2702,7 @@
     <string name="offline_data_stop_q">Oprești descărcarea?</string>
     <string name="offline_data_stop">Oprește</string>
     <string name="offline_data_mobile_warn">Sunt %1$s pe date mobile. Descarci oricum?</string>
-    <string name="offline_data_route_q">Descarci %1$d zone de pe rută (%2$s)?</string>
+    <string name="offline_data_route_q">Descarci zonele de pe rută (%1$s)?</string>
     <string name="offline_data_no_route">Planifică mai întâi o rută.</string>
     <string name="offline_data_route_all_here">Toate zonele rutei sunt descărcate.</string>
 </resources>

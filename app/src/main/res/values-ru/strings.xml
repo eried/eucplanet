@@ -2900,7 +2900,7 @@
     <string name="offline_data_stop_q">Остановить загрузку?</string>
     <string name="offline_data_stop">Остановить</string>
     <string name="offline_data_mobile_warn">Это %1$s по мобильной сети. Всё равно скачать?</string>
-    <string name="offline_data_route_q">Скачать %1$d областей маршрута (%2$s)?</string>
+    <string name="offline_data_route_q">Скачать области маршрута (%1$s)?</string>
     <string name="offline_data_no_route">Сначала постройте маршрут.</string>
     <string name="offline_data_route_all_here">Все области маршрута скачаны.</string>
 </resources>

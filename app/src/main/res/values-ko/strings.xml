@@ -2896,7 +2896,7 @@
     <string name="offline_data_stop_q">다운로드를 중지할까요?</string>
     <string name="offline_data_stop">중지</string>
     <string name="offline_data_mobile_warn">모바일 데이터로 %1$s입니다. 그래도 다운로드할까요?</string>
-    <string name="offline_data_route_q">경로의 지역 %1$d개를 다운로드할까요 (%2$s)?</string>
+    <string name="offline_data_route_q">경로의 지역을 다운로드할까요 (%1$s)?</string>
     <string name="offline_data_no_route">먼저 경로를 만드세요.</string>
     <string name="offline_data_route_all_here">경로의 모든 지역이 다운로드되었습니다.</string>
 </resources>

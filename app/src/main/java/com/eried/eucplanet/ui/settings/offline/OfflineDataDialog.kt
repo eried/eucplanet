@@ -282,7 +282,7 @@ fun OfflineDataDialog(onDismiss: () -> Unit, viewModel: OfflineDataViewModel = k
         val text = if (OfflineDataState.warnSize(bytes, viewModel.onWifi())) {
             stringResource(R.string.offline_data_mobile_warn, size(bytes))
         } else {
-            stringResource(R.string.offline_data_route_q, names.size, size(bytes))
+            stringResource(R.string.offline_data_route_q, size(bytes))
         }
         AlertDialog(
             onDismissRequest = { bulk = null },

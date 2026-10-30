@@ -2763,7 +2763,7 @@
     <string name="offline_data_stop_q">停止此下载？</string>
     <string name="offline_data_stop">停止</string>
     <string name="offline_data_mobile_warn">使用移动数据需 %1$s。仍要下载吗？</string>
-    <string name="offline_data_route_q">下载路线上的 %1$d 个区域（%2$s）？</string>
+    <string name="offline_data_route_q">下载路线上的区域（%1$s）？</string>
     <string name="offline_data_no_route">请先规划路线。</string>
     <string name="offline_data_route_all_here">路线上的所有区域均已下载。</string>
 </resources>

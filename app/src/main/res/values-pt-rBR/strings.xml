@@ -2901,7 +2901,7 @@
     <string name="offline_data_stop_q">Parar este download?</string>
     <string name="offline_data_stop">Parar</string>
     <string name="offline_data_mobile_warn">São %1$s em dados móveis. Baixar mesmo assim?</string>
-    <string name="offline_data_route_q">Baixar %1$d áreas da sua rota (%2$s)?</string>
+    <string name="offline_data_route_q">Baixar as áreas da sua rota (%1$s)?</string>
     <string name="offline_data_no_route">Planeje uma rota primeiro.</string>
     <string name="offline_data_route_all_here">Todas as áreas da sua rota estão baixadas.</string>
 </resources>

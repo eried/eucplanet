@@ -2917,7 +2917,7 @@
     <string name="offline_data_stop_q">¿Detener esta descarga?</string>
     <string name="offline_data_stop">Detener</string>
     <string name="offline_data_mobile_warn">Son %1$s con datos móviles. ¿Descargar de todos modos?</string>
-    <string name="offline_data_route_q">¿Descargar %1$d zonas de tu ruta (%2$s)?</string>
+    <string name="offline_data_route_q">¿Descargar las zonas de tu ruta (%1$s)?</string>
     <string name="offline_data_no_route">Primero planea una ruta.</string>
     <string name="offline_data_route_all_here">Todas las zonas de tu ruta están descargadas.</string>
 </resources>

@@ -52,19 +52,42 @@ object OfflineMapWeb {
 window.eucOfflineMap = function(map, extra) {
   var OFF = '$ATTRIBUTION';
   var off = L.tileLayer('https://$HOST/{z}/{x}/{y}.png', Object.assign({maxZoom: 21, maxNativeZoom: 20, zIndex: 0}, extra || {})).addTo(map);
-  var lastErr = 0, shown = false, attr = '';
+  var lastErr = 0, shown = false, attr = '', taken = 0;
   function show(on) {
     var ac = map.attributionControl;
     if (on === shown || !ac) return;
     shown = on;
-    if (on) { if (attr) ac.removeAttribution(attr); ac.addAttribution(OFF); }
-    else { ac.removeAttribution(OFF); if (attr) ac.addAttribution(attr); }
+    // Label layers add the same credit again and Leaflet counts each one:
+    // take all of them away, and give the same number back.
+    if (on) {
+      taken = attr ? (ac._attributions[attr] || 0) : 0;
+      for (var i = 0; i < taken; i++) ac.removeAttribution(attr);
+      ac.addAttribution(OFF);
+    } else {
+      ac.removeAttribution(OFF);
+      for (var j = 0; j < taken; j++) ac.addAttribution(attr);
+      taken = 0;
+    }
   }
+  // Leaflet never asks again for a tile that failed: while the offline map
+  // shows, try the online layers again when the signal comes back, and now
+  // and then in case that event never fires.
+  function retry() {
+    if (!shown) return;
+    map.eachLayer(function(l) { if (l !== off && l instanceof L.TileLayer) l.redraw(); });
+  }
+  window.addEventListener('online', retry);
+  setInterval(retry, 30000);
   return {
     layer: off,
     watch: function(layer) {
       attr = layer.options.attribution || '';
-      if (shown) { shown = false; map.attributionControl && map.attributionControl.removeAttribution(OFF); show(true); }
+      if (shown) {
+        // A new style while offline: once its label layers are on too.
+        shown = false; taken = 0;
+        map.attributionControl && map.attributionControl.removeAttribution(OFF);
+        setTimeout(function() { show(true); }, 0);
+      }
       layer.on('tileerror', function() { lastErr = Date.now(); show(true); });
       layer.on('tileload', function() { if (Date.now() - lastErr > 8000) show(false); });
     }

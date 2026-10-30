@@ -2926,7 +2926,7 @@
     <string name="offline_data_stop_q">Stop this download?</string>
     <string name="offline_data_stop">Stop</string>
     <string name="offline_data_mobile_warn">That is %1$s on mobile data. Download anyway?</string>
-    <string name="offline_data_route_q">Download %1$d areas on your route (%2$s)?</string>
+    <string name="offline_data_route_q">Download the areas on your route (%1$s)?</string>
     <string name="offline_data_no_route">Plan a route first.</string>
     <string name="offline_data_route_all_here">Every area on your route is downloaded.</string>
 </resources>

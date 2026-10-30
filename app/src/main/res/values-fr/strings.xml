@@ -2903,7 +2903,7 @@
     <string name="offline_data_stop_q">Arrêter ce téléchargement ?</string>
     <string name="offline_data_stop">Arrêter</string>
     <string name="offline_data_mobile_warn">Cela fait %1$s en données mobiles. Télécharger quand même ?</string>
-    <string name="offline_data_route_q">Télécharger %1$d zones de votre itinéraire (%2$s) ?</string>
+    <string name="offline_data_route_q">Télécharger les zones de votre itinéraire (%1$s) ?</string>
     <string name="offline_data_no_route">Planifiez d’abord un itinéraire.</string>
     <string name="offline_data_route_all_here">Toutes les zones de votre itinéraire sont téléchargées.</string>
 </resources>

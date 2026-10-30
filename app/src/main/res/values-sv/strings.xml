@@ -2898,7 +2898,7 @@
     <string name="offline_data_stop_q">Stoppa nedladdningen?</string>
     <string name="offline_data_stop">Stoppa</string>
     <string name="offline_data_mobile_warn">Det är %1$s via mobildata. Ladda ner ändå?</string>
-    <string name="offline_data_route_q">Ladda ner %1$d områden på din rutt (%2$s)?</string>
+    <string name="offline_data_route_q">Ladda ner områdena på din rutt (%1$s)?</string>
     <string name="offline_data_no_route">Planera en rutt först.</string>
     <string name="offline_data_route_all_here">Alla områden på din rutt är nedladdade.</string>
 </resources>

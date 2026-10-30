@@ -2701,7 +2701,7 @@
     <string name="offline_data_stop_q">Leállítod a letöltést?</string>
     <string name="offline_data_stop">Leállítás</string>
     <string name="offline_data_mobile_warn">Ez %1$s mobiladaton. Mégis letöltöd?</string>
-    <string name="offline_data_route_q">Letöltöd az útvonal %1$d területét (%2$s)?</string>
+    <string name="offline_data_route_q">Letöltöd az útvonal területeit (%1$s)?</string>
     <string name="offline_data_no_route">Előbb tervezz útvonalat.</string>
     <string name="offline_data_route_all_here">Az útvonal minden területe le van töltve.</string>
 </resources>
