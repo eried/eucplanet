@@ -46,7 +46,7 @@ Already connects but a reading looks wrong? See the [in-app diagnostics guide](d
 
 <img src="docs/screenshots/dashboard.png" width="22%" alt="Dashboard" /> <img src="docs/screenshots/navigator.png" width="22%" alt="Turn-by-turn navigator" /> <img src="docs/screenshots/studio.png" width="22%" alt="Overlay Studio" /> <img src="docs/screenshots/compare.png" width="22%" alt="Compare" />
 
-<img src="docs/screenshots/trips.png" width="22%" alt="Trip list" /> <img src="docs/screenshots/studio-export.png" width="22%" alt="Studio transparent export" /> <img src="docs/screenshots/navigator-sat.png" width="22%" alt="Navigator over satellite" /> <img src="docs/screenshots/settings.png" width="22%" alt="Settings" />
+<img src="docs/screenshots/trips.png" width="22%" alt="Trip list" /> <img src="docs/screenshots/studio-export.png" width="22%" alt="Studio transparent export" /> <img src="docs/screenshots/weather-theme.png" width="22%" alt="Ride forecast and theme editor" /> <img src="docs/screenshots/share-live.png" width="22%" alt="Share your ride live" />
 
 <table>
 <tr>
