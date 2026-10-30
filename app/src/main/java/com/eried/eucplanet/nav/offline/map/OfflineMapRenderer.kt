@@ -21,7 +21,12 @@ import kotlin.math.min
  */
 class OfflineMapRenderer(private val dir: File) {
 
-    private companion object { const val TAG = "OfflineMap" }
+    private companion object {
+        const val TAG = "OfflineMap"
+        /** How many zooms a tile may be drawn from above it: past this the
+         *  scaled-up geometry is too coarse to be worth showing. */
+        const val MAX_UP = 7
+    }
 
     private class Open(val stamp: Long, val pm: PmTiles?)
 
@@ -71,11 +76,19 @@ class OfflineMapRenderer(private val dir: File) {
     private class Source(val layer: VectorTile.Layer, val scale: Float, val dx: Float, val dy: Float)
 
     private fun source(pm: PmTiles, name: String, z: Int, x: Int, y: Int, size: Int): Source? {
-        val sz = min(z, min(pm.maxZoom, OfflineMapStyle.LAST_ZOOM[name] ?: z))
+        // Outside towns a square stops before its deepest zooms: draw from
+        // the nearest ancestor it has.
+        var sz = min(z, min(pm.maxZoom, OfflineMapStyle.LAST_ZOOM[name] ?: z))
+        var vt: VectorTile? = null
+        while (sz >= 0 && z - sz <= MAX_UP) {
+            vt = vector(pm, sz, x shr (z - sz), y shr (z - sz))
+            if (vt != null) break
+            sz--
+        }
+        if (vt == null) return null
         val dz = z - sz
         val ax = x shr dz
         val ay = y shr dz
-        val vt = vector(pm, sz, ax, ay) ?: return null
         val layer = vt.layers[name] ?: return null
         val span = (1 shl dz).toFloat()
         val scale = size * span / layer.extent

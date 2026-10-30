@@ -100,7 +100,7 @@ object OfflineMapStyle {
      * The last zoom each layer is stored at in a square. Deeper tiles draw
      * that layer from the parent, scaled up, which is how a square stays a
      * fraction of the full map's size. Matches LAST in the eucplanet-maps
-     * map script.
+     * map script. Outside towns a square also stops at z13 altogether.
      */
     val LAST_ZOOM = mapOf(
         "earth" to 13, "water" to 13, "landuse" to 10, "boundaries" to 10,

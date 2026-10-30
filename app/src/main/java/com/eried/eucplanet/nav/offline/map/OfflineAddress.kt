@@ -34,14 +34,22 @@ object OfflineAddress {
         maxM: Double,
         label: (VectorTile.Feature) -> String?,
     ): String? {
-        val (fx, fy) = TileMath.xy(z, lat, lng)
+        // Outside towns the square has no z14 or z15 tiles: use the parent.
+        var tz = z
+        var bytes: ByteArray? = null
+        while (tz >= z - 2 && bytes == null) {
+            val (bx, by) = TileMath.xy(tz, lat, lng)
+            bytes = runCatching { pm.tile(tz, bx.toInt(), by.toInt()) }.getOrNull()
+            if (bytes == null) tz--
+        }
+        if (bytes == null) return null
+        val (fx, fy) = TileMath.xy(tz, lat, lng)
         val tx = fx.toInt()
         val ty = fy.toInt()
-        val bytes = runCatching { pm.tile(z, tx, ty) }.getOrNull() ?: return null
         val l = runCatching { VectorTile.decode(bytes) }.getOrNull()?.layers?.get(layer) ?: return null
         val px = (fx - tx) * l.extent
         val py = (fy - ty) * l.extent
-        val metresPerUnit = 40_075_016.7 * cos(Math.toRadians(lat)) / (1 shl z) / l.extent
+        val metresPerUnit = 40_075_016.7 * cos(Math.toRadians(lat)) / (1 shl tz) / l.extent
         var best: String? = null
         var bestD = maxM / metresPerUnit
         for (f in l.features) {
