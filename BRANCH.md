@@ -19,7 +19,7 @@ only when you can cut the ride short.
 - HUD map: no more white "Map data not yet available" screen. Where the map has no detail that deep it shows the closest zoom it has.
 - HUD camera: let go of the camera when you leave the Camera screen, so the MotoEye recorder can start.
 - HUD camera: UP picks the next camera, DOWN turns the picture 90 degrees. Each camera keeps its own turn, and the HUD remembers them.
-- HUD camera: the MotoEye camera button frees the camera, so its rear view and recorder work from any screen, and the picture comes back by itself once the recorder or rear view lets go of the camera. UP or DOWN also brings it back.
+- HUD camera: the MotoEye camera button frees the camera, so its rear view and recorder work from any screen. The picture comes back by itself a few seconds after you stop recording or close the rear view. UP or DOWN also brings it back.
 - HUD camera: opening a camera screen while the MotoEye records no longer takes its camera and freezes the clip. It says the camera is in use and comes back once the recording stops.
 - HUD: the branch HUD APK is now a release build and starts two to three times faster.
 - Voice alarms: a PWM alarm says "PWM" again in Italian, Norwegian and Chinese, it was left out.
@@ -56,7 +56,7 @@ only when you can cut the ride short.
 **HUD (MotoEye)**
 - Install the phone and the HUD APK from this build. Open the HUD Map screen, leave the phone app, no wheel connected: does the map stay? And with the wheel connected, on any map style and zoom?
 - Camera screen: turn the front camera, switch to the rear one and back. Does each keep its own turn, also after restarting the HUD?
-- MotoEye, without pressing UP or DOWN, send a photo of the small grey line (it now also shows "mic") whenever the picture stays off, also one while recording: 1) Camera screen, short press for the rear view and close it, does the picture come back? 2) Camera screen, hold to start recording, then hold again to stop, does it come back? 3) Dashboard, hold to start recording, go to the Camera screen ("in use"), back, stop: does that file play to the end?
+- MotoEye, without pressing UP or DOWN: 1) Camera screen, hold to start recording, then hold again to stop. Does the picture come back about 5 s after the stop? 2) Short press for the rear view and close it, does it come back? 3) Dashboard, start recording, go to the Camera screen (it should say "in use"), back, stop: does that file play to the end? If the picture stays off, send a photo of the small grey line.
 
 **InMotion V8S (or any V1 wheel)**
 - Ride as usual: how many disconnects, compared with EUC World? A Service Mode log covering any drop helps most.
