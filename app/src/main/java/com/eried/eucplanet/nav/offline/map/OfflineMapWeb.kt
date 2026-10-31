@@ -52,7 +52,7 @@ object OfflineMapWeb {
 window.eucOfflineMap = function(map, extra) {
   var OFF = '$ATTRIBUTION';
   var off = L.tileLayer('https://$HOST/{z}/{x}/{y}.png', Object.assign({maxZoom: 21, maxNativeZoom: 20, zIndex: 0}, extra || {})).addTo(map);
-  var lastErr = 0, shown = false, attr = '', taken = 0;
+  var lastErr = 0, shown = false, attr = '', taken = 0, base = null;
   function show(on) {
     var ac = map.attributionControl;
     if (on === shown || !ac) return;
@@ -68,6 +68,11 @@ window.eucOfflineMap = function(map, extra) {
       for (var j = 0; j < taken; j++) ac.addAttribution(attr);
       taken = 0;
     }
+    // A style's label layers (same credit as its base) keep tiles from the
+    // browser cache; over the offline map they would print every name twice.
+    map.eachLayer(function(l) {
+      if (l !== off && l !== base && l instanceof L.TileLayer && l.options.attribution === attr) l.setOpacity(on ? 0 : 1);
+    });
   }
   // Leaflet never asks again for a tile that failed: while the offline map
   // shows, try the online layers again when the signal comes back, and now
@@ -82,6 +87,7 @@ window.eucOfflineMap = function(map, extra) {
     layer: off,
     watch: function(layer) {
       attr = layer.options.attribution || '';
+      base = layer;
       if (shown) {
         // A new style while offline: once its label layers are on too.
         shown = false; taken = 0;
