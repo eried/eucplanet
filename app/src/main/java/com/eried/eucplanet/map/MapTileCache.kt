@@ -28,9 +28,12 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
-/** Process-wide raster cache shared by Studio maps and the Wear map publisher. */
+/** Process-wide raster cache shared by Studio maps and the Wear map publisher.
+ *  A tile the provider cannot give, with no signal say, is drawn from the
+ *  downloaded offline map when one covers it. */
 internal object MapTileCache {
     private const val DECODED_TILE_COUNT = 64
+    private const val OFFLINE_PIXELS = 256
     private val DEFAULT_ENCODED_BYTES = ADVANCED_DEFAULTS.mapEncodedCacheMiB.toLong() * 1024L * 1024L
     private val DEFAULT_HTTP_BYTES = ADVANCED_DEFAULTS.mapHttpCacheMiB.toLong() * 1024L * 1024L
 
@@ -83,10 +86,13 @@ internal object MapTileCache {
         decoded.get(url)?.image
     }
 
-    suspend fun load(context: Context, url: String): Boolean =
-        decodedTile(context.applicationContext, url) != null
+    /** A tile's place on the map, for the offline fallback. */
+    data class TileXyz(val z: Int, val x: Int, val y: Int)
 
-    suspend fun encodedTile(context: Context, url: String): ByteArray? {
+    suspend fun load(context: Context, url: String, xyz: TileXyz? = null): Boolean =
+        decodedTile(context.applicationContext, url, xyz) != null
+
+    suspend fun encodedTile(context: Context, url: String, xyz: TileXyz? = null): ByteArray? {
         synchronized(encoded) { encoded.get(url) }
             ?.takeIf { it.size <= WatchMapProtocol.MAX_TILE_ASSET_BYTES }
             ?.let { return it }
@@ -99,9 +105,9 @@ internal object MapTileCache {
                         ?.takeIf(::isValidEncodedTile)
                 }?.also { bytes ->
                     synchronized(encoded) { encoded.put(url, bytes) }
-                }
+                } ?: xyz?.let { offlinePng(it) }
             } else {
-                val tile = decodedTile(context.applicationContext, url) ?: return@async null
+                val tile = decodedTile(context.applicationContext, url, xyz) ?: return@async null
                 withContext(Dispatchers.Default) {
                     ByteArrayOutputStream().use { output ->
                         if (!tile.bitmap.compress(Bitmap.CompressFormat.PNG, 100, output)) {
@@ -134,11 +140,11 @@ internal object MapTileCache {
             options.outWidth <= 16_384
     }
 
-    private suspend fun decodedTile(context: Context, url: String): DecodedTile? {
+    private suspend fun decodedTile(context: Context, url: String, xyz: TileXyz? = null): DecodedTile? {
         synchronized(decoded) { decoded.get(url) }?.let { return it }
 
         val candidate = scope.async(start = CoroutineStart.LAZY) {
-            fetchDecoded(context, url)?.also { tile ->
+            (fetchDecoded(context, url) ?: xyz?.let { offlineDecoded(it) })?.also { tile ->
                 synchronized(decoded) { decoded.put(url, tile) }
             }
         }
@@ -173,6 +179,27 @@ internal object MapTileCache {
             base
         }
         return DecodedTile(composite, composite.asImageBitmap())
+    }
+
+    /** The downloaded map's picture of a tile, or null when no square has it. */
+    private fun offlineBitmap(xyz: TileXyz): Bitmap? = runCatching {
+        org.koin.core.context.GlobalContext.getOrNull()
+            ?.getOrNull<com.eried.eucplanet.nav.offline.map.OfflineMapRenderer>()
+            ?.render(xyz.z, xyz.x, xyz.y, OFFLINE_PIXELS)
+    }.getOrNull()
+
+    private fun offlineDecoded(xyz: TileXyz): DecodedTile? =
+        offlineBitmap(xyz)?.let { DecodedTile(it, it.asImageBitmap()) }
+
+    /** Not kept in the encoded cache: the online tile replaces it once the
+     *  signal is back. */
+    private fun offlinePng(xyz: TileXyz): ByteArray? {
+        val bmp = offlineBitmap(xyz) ?: return null
+        return ByteArrayOutputStream().use { out ->
+            bmp.compress(Bitmap.CompressFormat.PNG, 100, out)
+            bmp.recycle()
+            out.toByteArray().takeIf { it.isNotEmpty() && it.size <= WatchMapProtocol.MAX_TILE_ASSET_BYTES }
+        }
     }
 
     private fun fetchBitmap(context: Context, url: String): Bitmap? =

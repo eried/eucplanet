@@ -1733,7 +1733,8 @@
     <!-- Navigator -->
     <string name="nav_open">Ouvrir le navigateur</string>
     <string name="nav_title">Créateur d\'itinéraire</string>
-    <string name="nav_search_hint">Rechercher une adresse ou un lieu</string>
+    <string name="nav_search_hint">Rechercher</string>
+    <string name="nav_search_offline">La recherche demande du réseau. Touchez la carte ou choisissez Domicile ou Travail.</string>
     <string name="nav_searching">Recherche…</string>
     <string name="nav_locating">Localisation en cours…</string>
     <string name="nav_no_results">Aucun résultat</string>
@@ -2018,9 +2019,10 @@
     <string name="nav_setting_full_path">Toujours calculer l\'itinéraire complet</string>
     <string name="nav_setting_full_path_desc">Désactivé : calcule seulement l\'arrêt suivant et affiche le reste en pointillés.</string>
     <string name="nav_setting_endpoints">Services de calcul d\'itinéraire</string>
-    <string name="nav_setting_endpoints_hint">OpenStreetMap public par défaut ; modifie pour utiliser ton propre serveur.</string>
+    <string name="nav_setting_endpoints_hint">OpenStreetMap public par défaut ; modifie pour utiliser ton propre serveur. Valhalla calcule les trajets à vélo et les évitements, OSRM la marche et la voiture.</string>
     <string name="nav_setting_geocoder_url">URL de recherche d\'adresse</string>
-    <string name="nav_setting_router_url">URL de calcul d\'itinéraire</string>
+    <string name="nav_setting_router_url">URL de calcul d\'itinéraire (OSRM)</string>
+    <string name="nav_setting_valhalla_url">URL de calcul d\'itinéraire (Valhalla)</string>
     <string name="watch_show_navigation">Afficher la navigation</string>
     <string name="watch_show_navigation_desc">Reproduit la flèche de virage et la distance sur la montre pendant la navigation.</string>
     <!-- ==== Trip share / actions ==== -->
@@ -2900,4 +2902,28 @@
     <string name="nav_unlock_confirm">Convertir</string>
     <string name="nav_track_badge">Trace verrouillée</string>
     <string name="voice_nav_place_reached">%1$s atteint</string>
+    <string name="offline_routing_mode_label">Itinéraires hors ligne</string>
+    <string name="offline_routing_mode_online">En ligne d’abord</string>
+    <string name="offline_routing_mode_offline">Hors ligne d’abord</string>
+    <string name="offline_routing_hint">Les zones téléchargées affichent la carte et calculent les itinéraires sur le téléphone sans réseau. En ligne d\'abord ne s\'en sert pour les itinéraires que si les serveurs échouent.</string>
+    <string name="offline_data_open">Zones hors ligne</string>
+    <string name="offline_server_url">Serveur de données hors ligne</string>
+    <string name="offline_data_title">Zones hors ligne</string>
+    <string name="offline_data_space">Utilisé %1$s, libre %2$s</string>
+    <string name="offline_data_tap_hint">Touchez un carré pour télécharger sa carte et ses itinéraires, ou le supprimer.</string>
+    <string name="offline_data_list_error">Serveur injoignable. Les zones téléchargées fonctionnent toujours.</string>
+    <string name="offline_data_along_route">Mon trajet</string>
+    <string name="offline_data_update_all">Tout mettre à jour (%1$d)</string>
+    <string name="offline_data_update">Mettre à jour</string>
+    <string name="offline_data_wifi_updates">Mettre à jour chaque semaine en Wi-Fi</string>
+    <string name="offline_data_credit">Données de carte et d\'itinéraire © contributeurs OpenStreetMap (ODbL). Protomaps, BRouter (MIT).</string>
+    <string name="offline_data_download_q">Télécharger cette zone (%1$s) ?</string>
+    <string name="offline_data_download">Télécharger</string>
+    <string name="offline_data_delete_q">Supprimer cette zone ? Libère %1$s.</string>
+    <string name="offline_data_stop_q">Arrêter ce téléchargement ?</string>
+    <string name="offline_data_stop">Arrêter</string>
+    <string name="offline_data_mobile_warn">Cela fait %1$s en données mobiles. Télécharger quand même ?</string>
+    <string name="offline_data_route_q">Télécharger les zones de votre itinéraire (%1$s) ?</string>
+    <string name="offline_data_no_route">Planifiez d’abord un itinéraire.</string>
+    <string name="offline_data_route_all_here">Toutes les zones de votre itinéraire sont téléchargées.</string>
 </resources>

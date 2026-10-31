@@ -29,6 +29,11 @@ only when you can cut the ride short.
 - Lights: a reconnect while walking the wheel no longer turns the light on and off again.
 - Dropbox: a few trips no longer upload again on every sync when nothing changed.
 - Trip Details: Compare (the two-arrow icon) puts another trip beside this one, like eucviewer. Auto lines them up, tiles and charts show both or the differences, the map marks the other trip.
+- Routing: bike routes come from Valhalla, which prefers quiet streets and paths (big-road share fell from 25% to 15% in tests). Walking with an avoid option keeps to footways.
+- Routing: a new route after a wrong turn comes in about 8 s instead of 22 s and continues the way you ride, no U-turn. Routes from the car screen or the navigation overlay keep your avoid settings.
+- Routing services: the Valhalla server has its own URL beside OSRM.
+- Offline areas (Settings, Navigation & weather): each 5 by 5 degree square brings a street map and routing, so routes, reroutes and turn cues work with no signal. Online first routes offline only when the servers fail, Offline first whenever the square is there. Maps are still being added to our mirror, busiest places first (about 100 squares a week); a square without a map still routes offline.
+- Offline map: sits under the map you picked (navigator, trip details, HUD, watch, Android Auto, video overlay) and shows through where online tiles fail; the online map returns by itself when the signal does. With no signal, search says so, and a tapped stop is named from the map.
 - Inside: wiring moved to a library that also runs on iPhone, build tools updated (Kotlin 2.3.21, Koin 4.2.2). Nothing should change on screen.
 
 ## Please test
@@ -39,6 +44,10 @@ only when you can cut the ride short.
 - Load a GPX track and ride it: cues at real turns, named places announced? Convert to stops works?
 - After arriving, Reverse route: does it take you back a sensible way?
 - Landscape and north-up: everything readable and reachable?
+
+**Routing and offline areas**
+- Plan a route you know well: does it pick the streets you would ride yourself? Miss a turn on purpose: does a new route come within about 10 s?
+- Download the squares you ride in, turn on airplane mode, plan a route: does it come, do turn cues play, and does the map still show with street names? Airplane mode off: does your normal map come back within half a minute?
 
 **Android Auto** (install from the Play internal sharing link, a sideloaded APK never shows in the car)
 - Navigate from the car screen: turn-by-turn shows, and your four numbers beside it?

@@ -2216,7 +2216,8 @@
     <!-- Navigator -->
     <string name="nav_open">Open navigator</string>
     <string name="nav_title">Route builder</string>
-    <string name="nav_search_hint">Search address or place</string>
+    <string name="nav_search_hint">Search</string>
+    <string name="nav_search_offline">Search needs signal. Tap the map or pick Home or Work.</string>
     <string name="nav_searching">Searching…</string>
     <string name="nav_locating">Finding your location…</string>
     <string name="nav_no_results">No matches found</string>
@@ -2524,9 +2525,10 @@
     <string name="nav_ocm_open">Open on OCM</string>
     <string name="nav_ocm_attrib">Reviews &amp; photos via Open Charge Map (CC BY)</string>
     <string name="nav_setting_endpoints">Routing services</string>
-    <string name="nav_setting_endpoints_hint">Free public OpenStreetMap by default; change to use your own server.</string>
+    <string name="nav_setting_endpoints_hint">Free public OpenStreetMap by default; change to use your own server. Valhalla handles bike routes and avoids, OSRM walking and car.</string>
     <string name="nav_setting_geocoder_url">Address search URL</string>
-    <string name="nav_setting_router_url">Routing URL</string>
+    <string name="nav_setting_router_url">Routing URL (OSRM)</string>
+    <string name="nav_setting_valhalla_url">Routing URL (Valhalla)</string>
     <string name="nav_setting_overpass_url">Chargers &amp; places URL (Overpass)</string>
     <string name="nav_setting_ocm_subtitle">Charger community (Open Charge Map)</string>
     <string name="nav_setting_ocm_key">Open Charge Map API key</string>
@@ -2923,4 +2925,28 @@
     <string name="nav_unlock_confirm">Convert</string>
     <string name="nav_track_badge">Locked track</string>
     <string name="voice_nav_place_reached">%1$s reached</string>
+    <string name="offline_routing_mode_label">Offline routing</string>
+    <string name="offline_routing_mode_online">Online first</string>
+    <string name="offline_routing_mode_offline">Offline first</string>
+    <string name="offline_routing_hint">Downloaded areas show the map and route on the phone with no signal. Online first routes with them only when the servers fail.</string>
+    <string name="offline_data_open">Offline areas</string>
+    <string name="offline_server_url">Offline data server</string>
+    <string name="offline_data_title">Offline areas</string>
+    <string name="offline_data_space">Used %1$s, free %2$s</string>
+    <string name="offline_data_tap_hint">Tap a square to download its map and routing, or delete it.</string>
+    <string name="offline_data_list_error">Cannot reach the server. Downloaded areas still work.</string>
+    <string name="offline_data_along_route">My route</string>
+    <string name="offline_data_update_all">Update all (%1$d)</string>
+    <string name="offline_data_update">Update</string>
+    <string name="offline_data_wifi_updates">Update weekly on Wi-Fi</string>
+    <string name="offline_data_credit">Map and routing data © OpenStreetMap contributors (ODbL). Protomaps, BRouter (MIT).</string>
+    <string name="offline_data_download_q">Download this area (%1$s)?</string>
+    <string name="offline_data_download">Download</string>
+    <string name="offline_data_delete_q">Delete this area? It frees %1$s.</string>
+    <string name="offline_data_stop_q">Stop this download?</string>
+    <string name="offline_data_stop">Stop</string>
+    <string name="offline_data_mobile_warn">That is %1$s on mobile data. Download anyway?</string>
+    <string name="offline_data_route_q">Download the areas on your route (%1$s)?</string>
+    <string name="offline_data_no_route">Plan a route first.</string>
+    <string name="offline_data_route_all_here">Every area on your route is downloaded.</string>
 </resources>

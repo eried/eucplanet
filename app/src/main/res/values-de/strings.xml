@@ -1704,7 +1704,8 @@
     <!-- Navigator -->
     <string name="nav_open">Navigator öffnen</string>
     <string name="nav_title">Routenplaner</string>
-    <string name="nav_search_hint">Adresse oder Ort suchen</string>
+    <string name="nav_search_hint">Suchen</string>
+    <string name="nav_search_offline">Suche braucht Empfang. Tippe auf die Karte oder wähle Zuhause oder Arbeit.</string>
     <string name="nav_searching">Suche…</string>
     <string name="nav_locating">Standort wird ermittelt…</string>
     <string name="nav_no_results">Keine Treffer gefunden</string>
@@ -1989,9 +1990,10 @@
     <string name="nav_setting_full_path">Immer die ganze Route berechnen</string>
     <string name="nav_setting_full_path_desc">Aus: nur den nächsten Halt berechnen, Rest als gestrichelte Vorschau.</string>
     <string name="nav_setting_endpoints">Routing-Dienste</string>
-    <string name="nav_setting_endpoints_hint">Standard: öffentliches OpenStreetMap; für eigenen Server ändern.</string>
+    <string name="nav_setting_endpoints_hint">Standard: öffentliches OpenStreetMap; für eigenen Server ändern. Valhalla berechnet Radrouten und Vermeidungen, OSRM Fußwege und Auto.</string>
     <string name="nav_setting_geocoder_url">URL für Adresssuche</string>
-    <string name="nav_setting_router_url">Routing-URL</string>
+    <string name="nav_setting_router_url">Routing-URL (OSRM)</string>
+    <string name="nav_setting_valhalla_url">Routing-URL (Valhalla)</string>
     <string name="watch_show_navigation">Navigation anzeigen</string>
     <string name="watch_show_navigation_desc">Abbiegepfeil und Distanz während der Navigation auf die Uhr spiegeln.</string>
 
@@ -2915,4 +2917,28 @@
     <string name="nav_unlock_confirm">Umwandeln</string>
     <string name="nav_track_badge">Gesperrter Track</string>
     <string name="voice_nav_place_reached">%1$s erreicht</string>
+    <string name="offline_routing_mode_label">Offline-Routing</string>
+    <string name="offline_routing_mode_online">Zuerst online</string>
+    <string name="offline_routing_mode_offline">Zuerst offline</string>
+    <string name="offline_routing_hint">Geladene Gebiete zeigen die Karte und planen Routen auf dem Handy ohne Empfang. Online zuerst nutzt sie für Routen nur, wenn die Server ausfallen.</string>
+    <string name="offline_data_open">Offline-Gebiete</string>
+    <string name="offline_server_url">Server für Offline-Daten</string>
+    <string name="offline_data_title">Offline-Gebiete</string>
+    <string name="offline_data_space">Belegt %1$s, frei %2$s</string>
+    <string name="offline_data_tap_hint">Tippe auf ein Feld, um Karte und Routen zu laden oder es zu löschen.</string>
+    <string name="offline_data_list_error">Server nicht erreichbar. Geladene Gebiete funktionieren weiter.</string>
+    <string name="offline_data_along_route">Meine Route</string>
+    <string name="offline_data_update_all">Alle aktualisieren (%1$d)</string>
+    <string name="offline_data_update">Aktualisieren</string>
+    <string name="offline_data_wifi_updates">Wöchentlich im WLAN aktualisieren</string>
+    <string name="offline_data_credit">Karten- und Routendaten © OpenStreetMap-Mitwirkende (ODbL). Protomaps, BRouter (MIT).</string>
+    <string name="offline_data_download_q">Dieses Gebiet laden (%1$s)?</string>
+    <string name="offline_data_download">Laden</string>
+    <string name="offline_data_delete_q">Dieses Gebiet löschen? Das gibt %1$s frei.</string>
+    <string name="offline_data_stop_q">Diesen Download stoppen?</string>
+    <string name="offline_data_stop">Stoppen</string>
+    <string name="offline_data_mobile_warn">Das sind %1$s über mobile Daten. Trotzdem laden?</string>
+    <string name="offline_data_route_q">Gebiete deiner Route laden (%1$s)?</string>
+    <string name="offline_data_no_route">Plane zuerst eine Route.</string>
+    <string name="offline_data_route_all_here">Alle Gebiete deiner Route sind geladen.</string>
 </resources>

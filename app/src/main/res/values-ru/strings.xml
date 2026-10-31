@@ -1674,7 +1674,8 @@
     <!-- Navigator -->
     <string name="nav_open">Открыть навигатор</string>
     <string name="nav_title">Конструктор маршрутов</string>
-    <string name="nav_search_hint">Поиск адреса или места</string>
+    <string name="nav_search_hint">Поиск</string>
+    <string name="nav_search_offline">Для поиска нужна связь. Нажмите на карту или выберите Дом или Работу.</string>
     <string name="nav_searching">Поиск…</string>
     <string name="nav_locating">Определяем ваше местоположение…</string>
     <string name="nav_no_results">Ничего не найдено</string>
@@ -1959,9 +1960,10 @@
     <string name="nav_setting_full_path">Всегда строить полный маршрут</string>
     <string name="nav_setting_full_path_desc">Выкл, строит только следующую остановку, остальное показывает пунктирным предпросмотром.</string>
     <string name="nav_setting_endpoints">Сервисы маршрутизации</string>
-    <string name="nav_setting_endpoints_hint">По умолчанию публичный OpenStreetMap; измените для своего сервера.</string>
+    <string name="nav_setting_endpoints_hint">По умолчанию публичный OpenStreetMap; измените для своего сервера. Valhalla строит велосипедные маршруты и маршруты с объездами, OSRM пешие и автомобильные.</string>
     <string name="nav_setting_geocoder_url">URL поиска адресов</string>
-    <string name="nav_setting_router_url">URL маршрутизации</string>
+    <string name="nav_setting_router_url">URL маршрутизации (OSRM)</string>
+    <string name="nav_setting_valhalla_url">URL маршрутизации (Valhalla)</string>
     <string name="watch_show_navigation">Показывать навигацию</string>
     <string name="watch_show_navigation_desc">Дублировать стрелку поворота и расстояние на часах во время навигации.</string>
     <!-- ==== Trip share / actions ==== -->
@@ -2897,4 +2899,28 @@
     <string name="nav_unlock_confirm">Преобразовать</string>
     <string name="nav_track_badge">Заблокированный трек</string>
     <string name="voice_nav_place_reached">%1$s: на месте</string>
+    <string name="offline_routing_mode_label">Офлайн-маршруты</string>
+    <string name="offline_routing_mode_online">Сначала онлайн</string>
+    <string name="offline_routing_mode_offline">Сначала офлайн</string>
+    <string name="offline_routing_hint">Скачанные области показывают карту и строят маршруты на телефоне без связи. Сначала онлайн использует их для маршрутов, только если серверы не отвечают.</string>
+    <string name="offline_data_open">Офлайн-области</string>
+    <string name="offline_server_url">Сервер офлайн-данных</string>
+    <string name="offline_data_title">Офлайн-области</string>
+    <string name="offline_data_space">Занято %1$s, свободно %2$s</string>
+    <string name="offline_data_tap_hint">Нажмите на квадрат, чтобы скачать его карту и маршруты или удалить его.</string>
+    <string name="offline_data_list_error">Сервер недоступен. Скачанные области продолжают работать.</string>
+    <string name="offline_data_along_route">Мой маршрут</string>
+    <string name="offline_data_update_all">Обновить все (%1$d)</string>
+    <string name="offline_data_update">Обновить</string>
+    <string name="offline_data_wifi_updates">Обновлять раз в неделю по Wi-Fi</string>
+    <string name="offline_data_credit">Map and routing data © OpenStreetMap contributors (ODbL). Protomaps, BRouter (MIT).</string>
+    <string name="offline_data_download_q">Скачать эту область (%1$s)?</string>
+    <string name="offline_data_download">Скачать</string>
+    <string name="offline_data_delete_q">Удалить эту область? Освободится %1$s.</string>
+    <string name="offline_data_stop_q">Остановить загрузку?</string>
+    <string name="offline_data_stop">Остановить</string>
+    <string name="offline_data_mobile_warn">Это %1$s по мобильной сети. Всё равно скачать?</string>
+    <string name="offline_data_route_q">Скачать области маршрута (%1$s)?</string>
+    <string name="offline_data_no_route">Сначала постройте маршрут.</string>
+    <string name="offline_data_route_all_here">Все области маршрута скачаны.</string>
 </resources>

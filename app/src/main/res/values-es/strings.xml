@@ -1674,7 +1674,8 @@
     <!-- Navigator -->
     <string name="nav_open">Abrir navegador</string>
     <string name="nav_title">Creador de rutas</string>
-    <string name="nav_search_hint">Buscar dirección o lugar</string>
+    <string name="nav_search_hint">Buscar</string>
+    <string name="nav_search_offline">La búsqueda necesita señal. Toca el mapa o elige Casa o Trabajo.</string>
     <string name="nav_searching">Buscando…</string>
     <string name="nav_locating">Buscando tu ubicación…</string>
     <string name="nav_no_results">Sin resultados</string>
@@ -1959,9 +1960,10 @@
     <string name="nav_setting_full_path">Calcular siempre la ruta completa</string>
     <string name="nav_setting_full_path_desc">Desactivado calcula solo la siguiente parada y muestra el resto como vista previa punteada.</string>
     <string name="nav_setting_endpoints">Servicios de rutas</string>
-    <string name="nav_setting_endpoints_hint">OpenStreetMap público por defecto; cámbialo para usar tu propio servidor.</string>
+    <string name="nav_setting_endpoints_hint">OpenStreetMap público por defecto; cámbialo para usar tu propio servidor. Valhalla calcula las rutas en bici y con evitaciones; OSRM, a pie y en coche.</string>
     <string name="nav_setting_geocoder_url">URL de búsqueda de direcciones</string>
-    <string name="nav_setting_router_url">URL de cálculo de rutas</string>
+    <string name="nav_setting_router_url">URL de cálculo de rutas (OSRM)</string>
+    <string name="nav_setting_valhalla_url">URL de cálculo de rutas (Valhalla)</string>
     <string name="watch_show_navigation">Mostrar navegación</string>
     <string name="watch_show_navigation_desc">Refleja la flecha de giro y la distancia en el reloj durante la navegación.</string>
     <!-- ==== Trip share / actions ==== -->
@@ -2893,4 +2895,28 @@
     <string name="nav_unlock_confirm">Convertir</string>
     <string name="nav_track_badge">Ruta bloqueada</string>
     <string name="voice_nav_place_reached">%1$s alcanzado</string>
+    <string name="offline_routing_mode_label">Rutas sin conexión</string>
+    <string name="offline_routing_mode_online">Primero en línea</string>
+    <string name="offline_routing_mode_offline">Primero sin conexión</string>
+    <string name="offline_routing_hint">Las zonas descargadas muestran el mapa y calculan rutas en el teléfono sin señal. Primero en línea solo las usa para rutas si fallan los servidores.</string>
+    <string name="offline_data_open">Zonas sin conexión</string>
+    <string name="offline_server_url">Servidor de datos sin conexión</string>
+    <string name="offline_data_title">Zonas sin conexión</string>
+    <string name="offline_data_space">Usado %1$s, libre %2$s</string>
+    <string name="offline_data_tap_hint">Toca un cuadro para descargar su mapa y rutas, o para borrarlo.</string>
+    <string name="offline_data_list_error">No se puede conectar al servidor. Las zonas descargadas siguen funcionando.</string>
+    <string name="offline_data_along_route">Mi ruta</string>
+    <string name="offline_data_update_all">Actualizar todo (%1$d)</string>
+    <string name="offline_data_update">Actualizar</string>
+    <string name="offline_data_wifi_updates">Actualizar cada semana por Wi-Fi</string>
+    <string name="offline_data_credit">Datos de mapa y rutas © colaboradores de OpenStreetMap (ODbL). Protomaps, BRouter (MIT).</string>
+    <string name="offline_data_download_q">¿Descargar esta zona (%1$s)?</string>
+    <string name="offline_data_download">Descargar</string>
+    <string name="offline_data_delete_q">¿Borrar esta zona? Libera %1$s.</string>
+    <string name="offline_data_stop_q">¿Detener esta descarga?</string>
+    <string name="offline_data_stop">Detener</string>
+    <string name="offline_data_mobile_warn">Son %1$s con datos móviles. ¿Descargar igualmente?</string>
+    <string name="offline_data_route_q">¿Descargar las zonas de tu ruta (%1$s)?</string>
+    <string name="offline_data_no_route">Primero planifica una ruta.</string>
+    <string name="offline_data_route_all_here">Todas las zonas de tu ruta están descargadas.</string>
 </resources>

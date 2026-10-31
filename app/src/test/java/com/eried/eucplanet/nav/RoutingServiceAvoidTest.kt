@@ -51,7 +51,7 @@ class RoutingServiceAvoidTest {
         // Bicycle has no highway/toll knob, so a highways-only avoidance yields
         // no costing options (the request still routes, just without effect).
         assertNull(RoutingService.valhallaCostingOptions("bicycle", RouteAvoidances(highways = true)))
-        assertNull(RoutingService.valhallaCostingOptions("pedestrian", RouteAvoidances(tolls = true)))
+        assertNull(RoutingService.valhallaCostingOptions("auto", RouteAvoidances(unpaved = true)))
         assertNull(RoutingService.valhallaCostingOptions("auto", RouteAvoidances.NONE))
     }
 

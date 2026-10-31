@@ -199,9 +199,11 @@ private fun CarMap(state: CarRideState, mapType: String, accent: Color, ring: Co
             var tilesReady by remember { mutableStateOf(0) }
             LaunchedEffect(tiles) {
                 kotlinx.coroutines.coroutineScope {
-                    tiles.forEach { (_, _, url) ->
+                    tiles.forEach { (tx, ty, url) ->
                         if (MapTileCache.get(url) == null) {
-                            launch { if (MapTileCache.load(context, url)) tilesReady++ }
+                            // With no signal, the downloaded map draws the tile.
+                            val wx = ((tx % (maxTile + 1)) + (maxTile + 1)) % (maxTile + 1)
+                            launch { if (MapTileCache.load(context, url, MapTileCache.TileXyz(zoom, wx, ty))) tilesReady++ }
                         }
                     }
                 }

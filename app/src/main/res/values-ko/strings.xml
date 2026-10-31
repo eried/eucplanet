@@ -1671,7 +1671,8 @@
     <!-- Navigator -->
     <string name="nav_open">내비게이터 열기</string>
     <string name="nav_title">경로 작성기</string>
-    <string name="nav_search_hint">주소 또는 장소 검색</string>
+    <string name="nav_search_hint">검색</string>
+    <string name="nav_search_offline">검색하려면 신호가 필요합니다. 지도를 누르거나 집 또는 직장을 고르세요.</string>
     <string name="nav_searching">검색 중…</string>
     <string name="nav_locating">위치 찾는 중…</string>
     <string name="nav_no_results">결과 없음</string>
@@ -1956,9 +1957,10 @@
     <string name="nav_setting_full_path">전체 경로 항상 계산</string>
     <string name="nav_setting_full_path_desc">끄기: 다음 경유지만 계산하고 나머지는 점선 미리보기로 표시.</string>
     <string name="nav_setting_endpoints">경로 탐색 서비스</string>
-    <string name="nav_setting_endpoints_hint">기본값은 무료 공개 OpenStreetMap. 자체 서버를 사용하려면 변경하세요.</string>
+    <string name="nav_setting_endpoints_hint">기본값은 무료 공개 OpenStreetMap. 자체 서버를 사용하려면 변경하세요. 자전거 경로와 회피는 Valhalla, 도보와 자동차는 OSRM이 계산합니다.</string>
     <string name="nav_setting_geocoder_url">주소 검색 URL</string>
-    <string name="nav_setting_router_url">경로 탐색 URL</string>
+    <string name="nav_setting_router_url">경로 탐색 URL (OSRM)</string>
+    <string name="nav_setting_valhalla_url">경로 탐색 URL (Valhalla)</string>
     <string name="watch_show_navigation">내비게이션 표시</string>
     <string name="watch_show_navigation_desc">내비게이션 중 워치에 방향 화살표와 거리를 표시합니다.</string>
     <!-- ==== Trip share / actions ==== -->
@@ -2893,4 +2895,28 @@
     <string name="nav_unlock_confirm">변환</string>
     <string name="nav_track_badge">잠긴 트랙</string>
     <string name="voice_nav_place_reached">%1$s 도착</string>
+    <string name="offline_routing_mode_label">오프라인 경로</string>
+    <string name="offline_routing_mode_online">온라인 우선</string>
+    <string name="offline_routing_mode_offline">오프라인 우선</string>
+    <string name="offline_routing_hint">다운로드한 지역은 신호 없이도 지도를 보여 주고 휴대폰에서 경로를 계산합니다. 온라인 우선은 서버가 응답하지 않을 때만 경로에 사용합니다.</string>
+    <string name="offline_data_open">오프라인 지역</string>
+    <string name="offline_server_url">오프라인 데이터 서버</string>
+    <string name="offline_data_title">오프라인 지역</string>
+    <string name="offline_data_space">사용 %1$s, 남음 %2$s</string>
+    <string name="offline_data_tap_hint">칸을 눌러 지도와 경로 데이터를 다운로드하거나 삭제하세요.</string>
+    <string name="offline_data_list_error">서버에 연결할 수 없습니다. 다운로드한 지역은 계속 작동합니다.</string>
+    <string name="offline_data_along_route">내 경로</string>
+    <string name="offline_data_update_all">모두 업데이트 (%1$d)</string>
+    <string name="offline_data_update">업데이트</string>
+    <string name="offline_data_wifi_updates">매주 Wi-Fi에서 업데이트</string>
+    <string name="offline_data_credit">Map and routing data © OpenStreetMap contributors (ODbL). Protomaps, BRouter (MIT).</string>
+    <string name="offline_data_download_q">이 지역을 다운로드할까요 (%1$s)?</string>
+    <string name="offline_data_download">다운로드</string>
+    <string name="offline_data_delete_q">이 지역을 삭제할까요? %1$s 확보됩니다.</string>
+    <string name="offline_data_stop_q">다운로드를 중지할까요?</string>
+    <string name="offline_data_stop">중지</string>
+    <string name="offline_data_mobile_warn">모바일 데이터로 %1$s입니다. 그래도 다운로드할까요?</string>
+    <string name="offline_data_route_q">경로의 지역을 다운로드할까요 (%1$s)?</string>
+    <string name="offline_data_no_route">먼저 경로를 만드세요.</string>
+    <string name="offline_data_route_all_here">경로의 모든 지역이 다운로드되었습니다.</string>
 </resources>

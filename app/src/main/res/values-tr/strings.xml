@@ -1671,7 +1671,8 @@
     <!-- Navigator -->
     <string name="nav_open">Navigatörü aç</string>
     <string name="nav_title">Rota oluşturucu</string>
-    <string name="nav_search_hint">Adres veya yer ara</string>
+    <string name="nav_search_hint">Ara</string>
+    <string name="nav_search_offline">Arama için sinyal gerekir. Haritaya dokunun ya da Ev veya İş seçin.</string>
     <string name="nav_searching">Aranıyor…</string>
     <string name="nav_locating">Konumunuz bulunuyor…</string>
     <string name="nav_no_results">Eşleşme bulunamadı</string>
@@ -1956,9 +1957,10 @@
     <string name="nav_setting_full_path">Her zaman tam yolu çöz</string>
     <string name="nav_setting_full_path_desc">Kapalıyken yalnızca sonraki durağı çözer, geri kalanı kesik çizgili önizleme olarak gösterilir.</string>
     <string name="nav_setting_endpoints">Yönlendirme servisleri</string>
-    <string name="nav_setting_endpoints_hint">Varsayılan olarak ücretsiz OpenStreetMap; kendi sunucunuzu kullanmak için değiştirin.</string>
+    <string name="nav_setting_endpoints_hint">Varsayılan olarak ücretsiz OpenStreetMap; kendi sunucunuzu kullanmak için değiştirin. Valhalla bisiklet ve kaçınmalı rotaları, OSRM yürüyüş ve araba rotalarını hesaplar.</string>
     <string name="nav_setting_geocoder_url">Adres arama URL\'si</string>
-    <string name="nav_setting_router_url">Yönlendirme URL\'si</string>
+    <string name="nav_setting_router_url">Yönlendirme URL\'si (OSRM)</string>
+    <string name="nav_setting_valhalla_url">Yönlendirme URL\'si (Valhalla)</string>
     <string name="watch_show_navigation">Navigasyonu göster</string>
     <string name="watch_show_navigation_desc">Navigasyon sırasında dönüş okunu ve mesafeyi saatte göster.</string>
     <!-- ==== Trip share / actions ==== -->
@@ -2892,4 +2894,28 @@
     <string name="nav_unlock_confirm">Dönüştür</string>
     <string name="nav_track_badge">Kilitli iz</string>
     <string name="voice_nav_place_reached">%1$s ulaşıldı</string>
+    <string name="offline_routing_mode_label">Çevrimdışı rota</string>
+    <string name="offline_routing_mode_online">Önce çevrimiçi</string>
+    <string name="offline_routing_mode_offline">Önce çevrimdışı</string>
+    <string name="offline_routing_hint">İndirilen alanlar sinyal olmadan da haritayı gösterir ve telefonda rota hesaplar. Önce çevrimiçi, onları rotalar için yalnızca sunucular yanıt vermediğinde kullanır.</string>
+    <string name="offline_data_open">Çevrimdışı alanlar</string>
+    <string name="offline_server_url">Çevrimdışı veri sunucusu</string>
+    <string name="offline_data_title">Çevrimdışı alanlar</string>
+    <string name="offline_data_space">Kullanılan %1$s, boş %2$s</string>
+    <string name="offline_data_tap_hint">Haritasını ve rotalarını indirmek ya da silmek için bir kareye dokunun.</string>
+    <string name="offline_data_list_error">Sunucuya ulaşılamıyor. İndirilen bölgeler çalışmaya devam eder.</string>
+    <string name="offline_data_along_route">Rotam</string>
+    <string name="offline_data_update_all">Tümünü güncelle (%1$d)</string>
+    <string name="offline_data_update">Güncelle</string>
+    <string name="offline_data_wifi_updates">Her hafta Wi-Fi ile güncelle</string>
+    <string name="offline_data_credit">Map and routing data © OpenStreetMap contributors (ODbL). Protomaps, BRouter (MIT).</string>
+    <string name="offline_data_download_q">Bu bölge indirilsin mi (%1$s)?</string>
+    <string name="offline_data_download">İndir</string>
+    <string name="offline_data_delete_q">Bu bölge silinsin mi? %1$s boşalır.</string>
+    <string name="offline_data_stop_q">İndirme durdurulsun mu?</string>
+    <string name="offline_data_stop">Durdur</string>
+    <string name="offline_data_mobile_warn">Bu, mobil veriyle %1$s. Yine de indirilsin mi?</string>
+    <string name="offline_data_route_q">Rotanızdaki bölgeler indirilsin mi (%1$s)?</string>
+    <string name="offline_data_no_route">Önce bir rota planlayın.</string>
+    <string name="offline_data_route_all_here">Rotanızdaki tüm bölgeler indirildi.</string>
 </resources>

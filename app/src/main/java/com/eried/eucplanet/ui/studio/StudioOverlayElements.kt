@@ -2053,10 +2053,12 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
         var tilesReady by remember { mutableStateOf(0) }
         LaunchedEffect(tileKeys) {
             kotlinx.coroutines.coroutineScope {
-                tileKeys.forEach { (_, _, url) ->
+                tileKeys.forEach { (tx, ty, url) ->
                     if (MapTileCache.get(url) == null) {
+                        // With no signal, the downloaded map draws the tile.
+                        val wx = ((tx % (maxTile + 1)) + (maxTile + 1)) % (maxTile + 1)
                         launch {
-                            if (MapTileCache.load(context, url)) tilesReady++
+                            if (MapTileCache.load(context, url, MapTileCache.TileXyz(zoom, wx, ty))) tilesReady++
                         }
                     }
                 }

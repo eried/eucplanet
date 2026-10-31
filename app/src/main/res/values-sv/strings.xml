@@ -1670,7 +1670,8 @@
     <!-- Navigator -->
     <string name="nav_open">Öppna navigatorn</string>
     <string name="nav_title">Ruttbyggaren</string>
-    <string name="nav_search_hint">Sök adress eller plats</string>
+    <string name="nav_search_hint">Sök</string>
+    <string name="nav_search_offline">Sökning kräver täckning. Tryck på kartan eller välj Hem eller Jobb.</string>
     <string name="nav_searching">Söker…</string>
     <string name="nav_locating">Hittar din plats…</string>
     <string name="nav_no_results">Inga träffar hittades</string>
@@ -1955,9 +1956,10 @@
     <string name="nav_setting_full_path">Beräkna alltid hela rutten</string>
     <string name="nav_setting_full_path_desc">Av: beräknar bara nästa stopp och visar resten som streckad förhandsvisning.</string>
     <string name="nav_setting_endpoints">Ruttjänster</string>
-    <string name="nav_setting_endpoints_hint">Gratis OpenStreetMap som standard. Ändra för att använda din egen server.</string>
+    <string name="nav_setting_endpoints_hint">Gratis OpenStreetMap som standard. Ändra för att använda din egen server. Valhalla beräknar cykelrutter och undvikanden, OSRM gång och bil.</string>
     <string name="nav_setting_geocoder_url">URL för adressökning</string>
-    <string name="nav_setting_router_url">Rutt-URL</string>
+    <string name="nav_setting_router_url">Rutt-URL (OSRM)</string>
+    <string name="nav_setting_valhalla_url">Rutt-URL (Valhalla)</string>
     <string name="watch_show_navigation">Visa navigering</string>
     <string name="watch_show_navigation_desc">Spegla svängpilen och avståndet på klockan under navigering.</string>
     <!-- ==== Trip share / actions ==== -->
@@ -2895,4 +2897,28 @@
     <string name="nav_unlock_confirm">Konvertera</string>
     <string name="nav_track_badge">Låst spår</string>
     <string name="voice_nav_place_reached">%1$s nått</string>
+    <string name="offline_routing_mode_label">Ruttplanering offline</string>
+    <string name="offline_routing_mode_online">Online först</string>
+    <string name="offline_routing_mode_offline">Offline först</string>
+    <string name="offline_routing_hint">Nedladdade områden visar kartan och beräknar rutter i telefonen utan täckning. Online först använder dem för rutter bara när servrarna fallerar.</string>
+    <string name="offline_data_open">Offlineområden</string>
+    <string name="offline_server_url">Server för offlinedata</string>
+    <string name="offline_data_title">Offlineområden</string>
+    <string name="offline_data_space">Använt %1$s, ledigt %2$s</string>
+    <string name="offline_data_tap_hint">Tryck på en ruta för att ladda ner dess karta och rutter eller ta bort den.</string>
+    <string name="offline_data_list_error">Servern svarar inte. Nedladdade områden fungerar ändå.</string>
+    <string name="offline_data_along_route">Min rutt</string>
+    <string name="offline_data_update_all">Uppdatera alla (%1$d)</string>
+    <string name="offline_data_update">Uppdatera</string>
+    <string name="offline_data_wifi_updates">Uppdatera varje vecka via wifi</string>
+    <string name="offline_data_credit">Map and routing data © OpenStreetMap contributors (ODbL). Protomaps, BRouter (MIT).</string>
+    <string name="offline_data_download_q">Ladda ner detta område (%1$s)?</string>
+    <string name="offline_data_download">Ladda ner</string>
+    <string name="offline_data_delete_q">Ta bort detta område? Frigör %1$s.</string>
+    <string name="offline_data_stop_q">Stoppa nedladdningen?</string>
+    <string name="offline_data_stop">Stoppa</string>
+    <string name="offline_data_mobile_warn">Det är %1$s via mobildata. Ladda ner ändå?</string>
+    <string name="offline_data_route_q">Ladda ner områdena på din rutt (%1$s)?</string>
+    <string name="offline_data_no_route">Planera en rutt först.</string>
+    <string name="offline_data_route_all_here">Alla områden på din rutt är nedladdade.</string>
 </resources>

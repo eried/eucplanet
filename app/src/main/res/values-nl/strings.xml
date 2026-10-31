@@ -1729,7 +1729,8 @@
     <!-- Navigator -->
     <string name="nav_open">Navigator openen</string>
     <string name="nav_title">Routebouwer</string>
-    <string name="nav_search_hint">Zoek adres of plaats</string>
+    <string name="nav_search_hint">Zoeken</string>
+    <string name="nav_search_offline">Zoeken heeft bereik nodig. Tik op de kaart of kies Thuis of Werk.</string>
     <string name="nav_searching">Zoeken…</string>
     <string name="nav_locating">Je locatie zoeken…</string>
     <string name="nav_no_results">Geen resultaten gevonden</string>
@@ -2014,9 +2015,10 @@
     <string name="nav_setting_full_path">Altijd de hele route berekenen</string>
     <string name="nav_setting_full_path_desc">Uit berekent alleen de volgende stop en toont de rest als gestippelde preview.</string>
     <string name="nav_setting_endpoints">Routeringsservices</string>
-    <string name="nav_setting_endpoints_hint">Standaard openbaar OpenStreetMap; wijzig voor eigen server.</string>
+    <string name="nav_setting_endpoints_hint">Standaard openbaar OpenStreetMap; wijzig voor eigen server. Valhalla berekent fietsroutes en vermijdingen, OSRM lopen en auto.</string>
     <string name="nav_setting_geocoder_url">URL voor adreszoeken</string>
-    <string name="nav_setting_router_url">Routerings-URL</string>
+    <string name="nav_setting_router_url">Routerings-URL (OSRM)</string>
+    <string name="nav_setting_valhalla_url">Routerings-URL (Valhalla)</string>
     <string name="watch_show_navigation">Navigatie tonen</string>
     <string name="watch_show_navigation_desc">Toon de afslagpijl en afstand op het horloge tijdens het navigeren.</string>
     <!-- ==== Trip share / actions ==== -->
@@ -2897,4 +2899,28 @@
     <string name="nav_unlock_confirm">Omzetten</string>
     <string name="nav_track_badge">Vergrendelde track</string>
     <string name="voice_nav_place_reached">%1$s bereikt</string>
+    <string name="offline_routing_mode_label">Offline routeplanning</string>
+    <string name="offline_routing_mode_online">Eerst online</string>
+    <string name="offline_routing_mode_offline">Eerst offline</string>
+    <string name="offline_routing_hint">Gedownloade gebieden tonen de kaart en plannen routes op de telefoon zonder bereik. Eerst online gebruikt ze alleen voor routes als de servers falen.</string>
+    <string name="offline_data_open">Offline gebieden</string>
+    <string name="offline_server_url">Server voor offline data</string>
+    <string name="offline_data_title">Offline gebieden</string>
+    <string name="offline_data_space">Gebruikt %1$s, vrij %2$s</string>
+    <string name="offline_data_tap_hint">Tik op een vak om de kaart en routes te downloaden of te verwijderen.</string>
+    <string name="offline_data_list_error">Server niet bereikbaar. Gedownloade gebieden werken nog.</string>
+    <string name="offline_data_along_route">Mijn route</string>
+    <string name="offline_data_update_all">Alles bijwerken (%1$d)</string>
+    <string name="offline_data_update">Bijwerken</string>
+    <string name="offline_data_wifi_updates">Wekelijks bijwerken via wifi</string>
+    <string name="offline_data_credit">Map and routing data © OpenStreetMap contributors (ODbL). Protomaps, BRouter (MIT).</string>
+    <string name="offline_data_download_q">Dit gebied downloaden (%1$s)?</string>
+    <string name="offline_data_download">Downloaden</string>
+    <string name="offline_data_delete_q">Dit gebied verwijderen? Maakt %1$s vrij.</string>
+    <string name="offline_data_stop_q">Deze download stoppen?</string>
+    <string name="offline_data_stop">Stoppen</string>
+    <string name="offline_data_mobile_warn">Dat is %1$s via mobiele data. Toch downloaden?</string>
+    <string name="offline_data_route_q">Gebieden op je route downloaden (%1$s)?</string>
+    <string name="offline_data_no_route">Plan eerst een route.</string>
+    <string name="offline_data_route_all_here">Alle gebieden op je route zijn gedownload.</string>
 </resources>

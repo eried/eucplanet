@@ -1671,7 +1671,8 @@
     <!-- Navigator -->
     <string name="nav_open">ナビゲーターを開く</string>
     <string name="nav_title">ルートビルダー</string>
-    <string name="nav_search_hint">住所または場所を検索</string>
+    <string name="nav_search_hint">検索</string>
+    <string name="nav_search_offline">検索には電波が必要です。地図をタップするか、自宅か職場を選んでください。</string>
     <string name="nav_searching">検索中…</string>
     <string name="nav_locating">現在地を特定中…</string>
     <string name="nav_no_results">一致する結果が見つかりません</string>
@@ -1956,9 +1957,10 @@
     <string name="nav_setting_full_path">常に全ルートを計算</string>
     <string name="nav_setting_full_path_desc">オフにすると次の経由地のみを計算し、残りは点線のプレビューで表示。</string>
     <string name="nav_setting_endpoints">ルーティングサービス</string>
-    <string name="nav_setting_endpoints_hint">デフォルトは無料の OpenStreetMap パブリックサービス。独自サーバーを使用する場合は変更してください。</string>
+    <string name="nav_setting_endpoints_hint">デフォルトは無料の OpenStreetMap パブリックサービス。独自サーバーを使用する場合は変更してください。 自転車ルートと回避設定は Valhalla、徒歩と車は OSRM で計算します。</string>
     <string name="nav_setting_geocoder_url">住所検索 URL</string>
-    <string name="nav_setting_router_url">ルーティング URL</string>
+    <string name="nav_setting_router_url">ルーティング URL (OSRM)</string>
+    <string name="nav_setting_valhalla_url">ルーティング URL (Valhalla)</string>
     <string name="watch_show_navigation">ナビゲーションを表示</string>
     <string name="watch_show_navigation_desc">ナビゲーション中にウォッチへターン矢印と距離をミラーリングします。</string>
     <!-- ==== Trip share / actions ==== -->
@@ -2895,4 +2897,28 @@
     <string name="nav_unlock_confirm">変換</string>
     <string name="nav_track_badge">ロック中のトラック</string>
     <string name="voice_nav_place_reached">%1$s に到着</string>
+    <string name="offline_routing_mode_label">オフラインルート</string>
+    <string name="offline_routing_mode_online">オンライン優先</string>
+    <string name="offline_routing_mode_offline">オフライン優先</string>
+    <string name="offline_routing_hint">ダウンロードした地域は、電波がなくても地図を表示し、スマホでルートを計算します。オンライン優先では、サーバーが応答しないときだけルートに使います。</string>
+    <string name="offline_data_open">オフライン地域</string>
+    <string name="offline_server_url">オフラインデータのサーバー</string>
+    <string name="offline_data_title">オフライン地域</string>
+    <string name="offline_data_space">使用 %1$s、空き %2$s</string>
+    <string name="offline_data_tap_hint">マスをタップして、地図とルートをダウンロード、または削除します。</string>
+    <string name="offline_data_list_error">サーバーに接続できません。ダウンロード済みのエリアは使えます。</string>
+    <string name="offline_data_along_route">マイルート</string>
+    <string name="offline_data_update_all">すべて更新 (%1$d)</string>
+    <string name="offline_data_update">更新</string>
+    <string name="offline_data_wifi_updates">毎週Wi-Fiで更新</string>
+    <string name="offline_data_credit">Map and routing data © OpenStreetMap contributors (ODbL). Protomaps, BRouter (MIT).</string>
+    <string name="offline_data_download_q">このエリアをダウンロードしますか（%1$s）？</string>
+    <string name="offline_data_download">ダウンロード</string>
+    <string name="offline_data_delete_q">このエリアを削除しますか？%1$s空きます。</string>
+    <string name="offline_data_stop_q">ダウンロードを停止しますか？</string>
+    <string name="offline_data_stop">停止</string>
+    <string name="offline_data_mobile_warn">モバイルデータで%1$sです。ダウンロードしますか？</string>
+    <string name="offline_data_route_q">ルート上のエリアをダウンロードしますか（%1$s）？</string>
+    <string name="offline_data_no_route">先にルートを作成してください。</string>
+    <string name="offline_data_route_all_here">ルート上のエリアはすべてダウンロード済みです。</string>
 </resources>

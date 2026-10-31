@@ -31,6 +31,9 @@ import org.koin.core.component.get
  *     so the warm-route timing can be checked on a machine with no alarm firing.
  *   - SURVEY_SET: notif_actions (CSV) and warm_route_ms, the two settings the
  *     battery checks need to change without walking the settings screens.
+ *   - SURVEY_IMPORT_SQUARE: copy /data/local/tmp/<file> (a .rd5 or .pmtiles
+ *     square, made readable with chmod 644) into the offline folder, which
+ *     adb cannot write as the app.
  *   - SURVEY_START_NAV: put NavigationEngine into an active route without a
  *     geocoder, a network round trip or a single tap. It exists because the
  *     car screen used to die the moment a route went active, and proving that
@@ -57,6 +60,7 @@ class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
             ACTION_SURVEY_CAR_ALARM -> carAlarm(context)
             ACTION_SURVEY_SOUND -> sound(intent.getStringExtra(EXTRA_KIND) ?: "beep")
             ACTION_SURVEY_SET -> set(intent)
+            ACTION_SURVEY_IMPORT_SQUARE -> importSquare(intent.getStringExtra(EXTRA_FILE).orEmpty())
         }
     }
 
@@ -155,7 +159,20 @@ class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
         context.startForegroundService(svcIntent)
     }
 
+    private fun importSquare(file: String) {
+        if (!Regex("""[EW]\d{1,3}_[NS]\d{1,2}\.(rd5|pmtiles)""").matches(file)) return
+        scope.launch {
+            val store: com.eried.eucplanet.nav.offline.OfflineTileStore = get()
+            val out = java.io.File(store.dir, file)
+            runCatching { java.io.File("/data/local/tmp", file).copyTo(out, overwrite = true) }
+                .onSuccess { Log.i("SurveyControl", "imported $out (${out.length()} bytes)") }
+                .onFailure { Log.w("SurveyControl", "import $file: $it") }
+        }
+    }
+
     companion object {
+        const val ACTION_SURVEY_IMPORT_SQUARE = "com.eried.eucplanet.SURVEY_IMPORT_SQUARE"
+        const val EXTRA_FILE = "file"
         private const val TAG = "SurveyReceiver"
 
         const val ACTION_SURVEY_APPLY = "com.eried.eucplanet.SURVEY_APPLY"

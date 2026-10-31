@@ -32,7 +32,8 @@ class KoinGraphTest {
      * androidContext), WorkerParameters (handed in by the worker factory), and
      * the generic types Koin keys by their erased class, which the modules
      * provide by name (the adapter sets, the eucstats lambdas and strings) or
-     * as a Lazy through inject().
+     * as a Lazy through inject(). The offline tile store's folder and the
+     * offline router's timeout and engine are built in their definitions.
      */
     @OptIn(KoinExperimentalAPI::class)
     @Test fun `every definition can be built`() {
@@ -45,6 +46,9 @@ class KoinGraphTest {
                 String::class,
                 Function0::class,
                 Function1::class,
+                Function2::class,
+                java.io.File::class,
+                Long::class,
             ),
         )
     }
