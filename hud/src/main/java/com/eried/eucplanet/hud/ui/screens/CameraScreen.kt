@@ -432,7 +432,12 @@ private fun OtherAppCameraWatch(
             true -> onOtherAppCamera(true)
             false -> {
                 delay(FREE_SETTLE_MS)
-                onOtherAppCamera(false)
+                // Again each second: the controller may still be waiting
+                // for the camera button to settle.
+                while (true) {
+                    onOtherAppCamera(false)
+                    delay(1_000)
+                }
             }
             null -> Unit
         }

@@ -307,6 +307,58 @@ class HudCameraControlTest {
     }
 
     @Test
+    fun theStopPressComesBackOnceTheCameraStaysFree() {
+        // Josh (c7f8dbe7b): after the stop press no camera was open, yet the
+        // picture stayed off, "other app not seen".
+        var now = 0L
+        val c = onScreen(HudUiController.Screen.Camera).apply { clock = { now } }
+        c.noteKey(132, down = true, atMs = 0)
+        c.handOffCamera(byKey = true, reason = "key 132")
+        now = 1_700
+        c.noteKey(132, down = false, atMs = 1_700)
+        now = 3_000
+        c.onOtherAppCamera(inUse = false)
+        assertTrue("too soon after the release", c.cameraHandedOff)
+        now = 1_700 + HudUiController.BUTTON_SETTLE_MS
+        c.onOtherAppCamera(inUse = false)
+        assertFalse(c.cameraHandedOff)
+    }
+
+    @Test
+    fun aStartHoldKeepsTheCameraFreeForTheRecorder() {
+        // Josh held 3.7 s to start; the recorder opens the cameras after.
+        var now = 0L
+        val c = onScreen(HudUiController.Screen.Camera).apply { clock = { now } }
+        c.noteKey(132, down = true, atMs = 0)
+        c.handOffCamera(byKey = true, reason = "key 132")
+        now = 10_000
+        c.onOtherAppCamera(inUse = false)
+        assertTrue("still held", c.cameraHandedOff)
+        c.noteKey(132, down = false, atMs = 10_000)
+        c.onOtherAppCamera(inUse = true)
+        now = 20_000
+        assertTrue("recording", c.cameraHandedOff)
+    }
+
+    @Test
+    fun aNewPressWaitsAgain() {
+        var now = 0L
+        val c = onScreen(HudUiController.Screen.Camera).apply { clock = { now } }
+        c.noteKey(132, down = true, atMs = 0)
+        c.handOffCamera(byKey = true)
+        c.noteKey(132, down = false, atMs = 100)
+        c.onHudFocus(false)
+        now = 10_000
+        c.onOtherAppCamera(inUse = false)
+        assertTrue("rear view on top", c.cameraHandedOff)
+        c.noteKey(132, down = true, atMs = 10_000)
+        c.handOffCamera(byKey = true)
+        c.noteKey(132, down = false, atMs = 10_100)
+        c.onHudFocus(true)
+        assertTrue("the new press has not settled", c.cameraHandedOff)
+    }
+
+    @Test
     fun ourOwnKeysAreNotCameraPresses() {
         val c = onScreen(HudUiController.Screen.Camera)
         c.noteKey(KeyEvent.KEYCODE_DPAD_UP, down = true, atMs = 0)
