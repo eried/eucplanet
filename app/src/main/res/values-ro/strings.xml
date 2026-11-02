@@ -2701,10 +2701,6 @@
     <string name="nav_unlock_confirm">Transformă</string>
     <string name="nav_track_badge">Traseu blocat</string>
     <string name="voice_nav_place_reached">%1$s atins</string>
-    <string name="offline_routing_mode_label">Rute offline</string>
-    <string name="offline_routing_mode_online">Mai întâi online</string>
-    <string name="offline_routing_mode_offline">Mai întâi offline</string>
-    <string name="offline_routing_hint">Zonele descărcate arată harta și calculează rute pe telefon fără semnal. Întâi online le folosește pentru rute doar când serverele nu răspund.</string>
     <string name="offline_data_open">Zone offline</string>
     <string name="offline_server_url">Server de date offline</string>
     <string name="offline_data_title">Zone offline</string>
@@ -2712,6 +2708,13 @@
     <string name="offline_data_tap_hint">Atinge un pătrat ca să descarci harta și rutele lui sau să-l ștergi.</string>
     <string name="offline_data_list_error">Serverul nu răspunde. Zonele descărcate funcționează în continuare.</string>
     <string name="offline_data_along_route">Ruta mea</string>
+    <string name="offline_prefer">Preferă harta și rutele offline</string>
+    <string name="offline_data_select">Alege</string>
+    <string name="offline_data_around_me">În jurul meu</string>
+    <string name="offline_data_around_me_wide">În jurul meu, mai larg</string>
+    <string name="offline_data_near_q">Descarci zonele din jurul tău (%1$s)?</string>
+    <string name="offline_data_near_all_here">Toate zonele din jurul tău sunt descărcate.</string>
+    <string name="offline_data_no_location">Locația ta nu este încă cunoscută.</string>
     <string name="offline_data_update_all">Actualizează tot (%1$d)</string>
     <string name="offline_data_update">Actualizează</string>
     <string name="offline_data_wifi_updates">Actualizează săptămânal pe Wi-Fi</string>

@@ -2784,10 +2784,6 @@
     <string name="nav_unlock_confirm">Konverter</string>
     <string name="nav_track_badge">Låst spor</string>
     <string name="voice_nav_place_reached">%1$s nådd</string>
-    <string name="offline_routing_mode_label">Ruting uten nett</string>
-    <string name="offline_routing_mode_online">Nett først</string>
-    <string name="offline_routing_mode_offline">Uten nett først</string>
-    <string name="offline_routing_hint">Nedlastede områder viser kartet og beregner ruter på telefonen uten dekning. Nett først bruker dem til ruter bare når serverne svikter.</string>
     <string name="offline_data_open">Frakoblede områder</string>
     <string name="offline_server_url">Server for frakoblede data</string>
     <string name="offline_data_title">Frakoblede områder</string>
@@ -2795,6 +2791,13 @@
     <string name="offline_data_tap_hint">Trykk på en rute for å laste ned kart og ruting, eller slette den.</string>
     <string name="offline_data_list_error">Når ikke serveren. Nedlastede områder virker fortsatt.</string>
     <string name="offline_data_along_route">Min rute</string>
+    <string name="offline_prefer">Foretrekk frakoblet kart og ruter</string>
+    <string name="offline_data_select">Velg</string>
+    <string name="offline_data_around_me">Rundt meg</string>
+    <string name="offline_data_around_me_wide">Rundt meg, bredere</string>
+    <string name="offline_data_near_q">Laste ned områdene rundt deg (%1$s)?</string>
+    <string name="offline_data_near_all_here">Alle områdene rundt deg er lastet ned.</string>
+    <string name="offline_data_no_location">Posisjonen din er ikke kjent ennå.</string>
     <string name="offline_data_update_all">Oppdater alle (%1$d)</string>
     <string name="offline_data_update">Oppdater</string>
     <string name="offline_data_wifi_updates">Oppdater ukentlig på Wi-Fi</string>

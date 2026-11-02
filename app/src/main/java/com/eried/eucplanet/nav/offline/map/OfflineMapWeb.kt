@@ -14,7 +14,8 @@ import java.io.ByteArrayInputStream
 object OfflineMapWeb {
 
     const val HOST = "offline-map.eucplanet"
-    const val ATTRIBUTION = "Offline map · © OpenStreetMap contributors"
+    const val NAME = "Offline map"
+    const val ATTRIBUTION = "$NAME · © OpenStreetMap contributors"
 
     /** Tiles are drawn at twice the size Leaflet shows them, so text stays
      *  sharp on a phone screen. */
@@ -42,16 +43,40 @@ object OfflineMapWeb {
 
     private val HEADERS = mapOf("Access-Control-Allow-Origin" to "*", "Cache-Control" to "no-store")
 
+    /** "Prefer offline" is on: downloaded squares show their own map over
+     *  the online one. Kept in step with the setting by [MapTileCache]. */
+    @Volatile
+    var prefer = false
+
     /**
      * Defines `eucOfflineMap(map)` on the page. It adds the offline layer and
-     * returns `{layer, watch(onlineLayer)}`: call `watch` with each online
+     * returns `{layer, prefer, watch(onlineLayer)}`: call `watch` with each online
      * base layer so the credit switches to the offline one while that
-     * layer's tiles fail, and back once they load again.
+     * layer's tiles fail, and back once they load again. With [prefer] on,
+     * the offline layer sits on top instead (it is clear outside the
+     * downloaded squares) and both credits stay.
      */
-    val JS = """
+    val JS get() = """
 window.eucOfflineMap = function(map, extra) {
   var OFF = '$ATTRIBUTION';
-  var off = L.tileLayer('https://$HOST/{z}/{x}/{y}.png', Object.assign({maxZoom: 21, maxNativeZoom: 20, zIndex: 0}, extra || {})).addTo(map);
+  var PREFER = $prefer;
+  var off = L.tileLayer('https://$HOST/{z}/{x}/{y}.png', Object.assign({maxZoom: 21, maxNativeZoom: 20, zIndex: PREFER ? 1000 : 0}, extra || {})).addTo(map);
+  if (PREFER) {
+    // Both maps show (online outside the downloaded squares), so both
+    // credits stay, without naming OpenStreetMap twice.
+    var credit = '';
+    function credit_(c) {
+      var ac = map.attributionControl;
+      if (!ac || c === credit) return;
+      if (credit) ac.removeAttribution(credit);
+      ac.addAttribution(c);
+      credit = c;
+    }
+    credit_(OFF);
+    return { layer: off, prefer: true, watch: function(layer) {
+      credit_((layer.options.attribution || '').indexOf('OpenStreetMap contributors') >= 0 ? '$NAME' : OFF);
+    } };
+  }
   var lastErr = 0, shown = false, attr = '', taken = 0, base = null;
   function show(on) {
     var ac = map.attributionControl;
@@ -85,6 +110,7 @@ window.eucOfflineMap = function(map, extra) {
   setInterval(retry, 30000);
   return {
     layer: off,
+    prefer: false,
     watch: function(layer) {
       attr = layer.options.attribution || '';
       base = layer;

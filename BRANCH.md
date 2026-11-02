@@ -32,8 +32,8 @@ only when you can cut the ride short.
 - Routing: bike routes come from Valhalla, which prefers quiet streets and paths (big-road share fell from 25% to 15% in tests). Walking with an avoid option keeps to footways.
 - Routing: a new route after a wrong turn comes in about 8 s instead of 22 s and continues the way you ride, no U-turn. Routes from the car screen or the navigation overlay keep your avoid settings.
 - Routing services: the Valhalla server has its own URL beside OSRM.
-- Offline areas (Settings, Navigation & weather): each 5 by 5 degree square brings a street map and routing, so routes, reroutes and turn cues work with no signal. Online first routes offline only when the servers fail, Offline first whenever the square is there. Maps are still being added to our mirror, busiest places first (about 100 squares a week); a square without a map still routes offline.
-- Offline map: sits under the map you picked (navigator, trip details, HUD, watch, Android Auto, video overlay) and shows through where online tiles fail; the online map returns by itself when the signal does. With no signal, search says so, and a tapped stop is named from the map.
+- Offline areas (Settings, Navigation & weather): each 5 by 5 degree square brings a street map and routing, so routes, reroutes and turn cues work with no signal. By default they are the backup when the servers or the signal fail; "Prefer offline map and routing" uses them first. The map's Select chip picks Around me (about 50 km), Around me, wider (about 200 km) or My route, and asks first with the size. Maps for every square are being added to our mirror now; a square without a map yet still routes offline.
+- Offline map: sits under the map you picked (navigator, trip details, HUD, watch, Android Auto, video overlay) and shows through where online tiles fail; the online map returns by itself when the signal does. With "Prefer offline map and routing" on, downloaded squares show their own map even with signal (not on the HUD yet). With no signal, search says so, and a tapped stop is named from the map.
 - Inside: wiring moved to a library that also runs on iPhone, build tools updated (Kotlin 2.3.21, Koin 4.2.2). Nothing should change on screen.
 
 ## Please test
@@ -48,6 +48,8 @@ only when you can cut the ride short.
 **Routing and offline areas**
 - Plan a route you know well: does it pick the streets you would ride yourself? Miss a turn on purpose: does a new route come within about 10 s?
 - Download the squares you ride in, turn on airplane mode, plan a route: does it come, do turn cues play, and does the map still show with street names? Airplane mode off: does your normal map come back within half a minute?
+- Turn on "Prefer offline map and routing" with signal on: does the navigator show the offline map in your squares, and is the route as good as the online one?
+- Offline areas, Select, Around me: does it pick the squares you expect, and say the size before downloading?
 
 **Android Auto** (install from the Play internal sharing link, a sideloaded APK never shows in the car)
 - Navigate from the car screen: turn-by-turn shows, and your four numbers beside it?

@@ -2700,10 +2700,6 @@
     <string name="nav_unlock_confirm">Muunna</string>
     <string name="nav_track_badge">Lukittu jälki</string>
     <string name="voice_nav_place_reached">%1$s saavutettu</string>
-    <string name="offline_routing_mode_label">Offline-reititys</string>
-    <string name="offline_routing_mode_online">Ensin verkossa</string>
-    <string name="offline_routing_mode_offline">Ensin offline</string>
-    <string name="offline_routing_hint">Ladatut alueet näyttävät kartan ja reitittävät puhelimessa ilman yhteyttä. Ensin verkko käyttää niitä reitteihin vain, kun palvelimet eivät vastaa.</string>
     <string name="offline_data_open">Offline-alueet</string>
     <string name="offline_server_url">Offline-datan palvelin</string>
     <string name="offline_data_title">Offline-alueet</string>
@@ -2711,6 +2707,13 @@
     <string name="offline_data_tap_hint">Napauta ruutua ladataksesi sen kartan ja reitit tai poistaaksesi sen.</string>
     <string name="offline_data_list_error">Palvelinta ei tavoiteta. Ladatut alueet toimivat yhä.</string>
     <string name="offline_data_along_route">Oma reitti</string>
+    <string name="offline_prefer">Suosi offline-karttaa ja -reititystä</string>
+    <string name="offline_data_select">Valitse</string>
+    <string name="offline_data_around_me">Ympäriltäni</string>
+    <string name="offline_data_around_me_wide">Ympäriltäni, laajemmin</string>
+    <string name="offline_data_near_q">Ladataanko ympärilläsi olevat alueet (%1$s)?</string>
+    <string name="offline_data_near_all_here">Kaikki ympärilläsi olevat alueet on ladattu.</string>
+    <string name="offline_data_no_location">Sijaintiasi ei vielä tiedetä.</string>
     <string name="offline_data_update_all">Päivitä kaikki (%1$d)</string>
     <string name="offline_data_update">Päivitä</string>
     <string name="offline_data_wifi_updates">Päivitä viikoittain Wi-Fi-yhteydellä</string>

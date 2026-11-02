@@ -2912,10 +2912,6 @@
     <string name="nav_unlock_confirm">Konvertér</string>
     <string name="nav_track_badge">Låst spor</string>
     <string name="voice_nav_place_reached">%1$s nået</string>
-    <string name="offline_routing_mode_label">Offline rutevejledning</string>
-    <string name="offline_routing_mode_online">Online først</string>
-    <string name="offline_routing_mode_offline">Offline først</string>
-    <string name="offline_routing_hint">Hentede områder viser kortet og beregner ruter på telefonen uden signal. Online først bruger dem kun til ruter, når serverne fejler.</string>
     <string name="offline_data_open">Offline-områder</string>
     <string name="offline_server_url">Server til offline data</string>
     <string name="offline_data_title">Offline-områder</string>
@@ -2923,6 +2919,13 @@
     <string name="offline_data_tap_hint">Tryk på et felt for at hente dets kort og ruter eller slette det.</string>
     <string name="offline_data_list_error">Kan ikke nå serveren. Hentede områder virker stadig.</string>
     <string name="offline_data_along_route">Min rute</string>
+    <string name="offline_prefer">Foretræk offline kort og rute</string>
+    <string name="offline_data_select">Vælg</string>
+    <string name="offline_data_around_me">Omkring mig</string>
+    <string name="offline_data_around_me_wide">Omkring mig, bredere</string>
+    <string name="offline_data_near_q">Hent områderne omkring dig (%1$s)?</string>
+    <string name="offline_data_near_all_here">Alle områder omkring dig er hentet.</string>
+    <string name="offline_data_no_location">Din position kendes ikke endnu.</string>
     <string name="offline_data_update_all">Opdater alle (%1$d)</string>
     <string name="offline_data_update">Opdater</string>
     <string name="offline_data_wifi_updates">Opdater ugentligt på Wi-Fi</string>

@@ -2899,10 +2899,6 @@
     <string name="nav_unlock_confirm">Omzetten</string>
     <string name="nav_track_badge">Vergrendelde track</string>
     <string name="voice_nav_place_reached">%1$s bereikt</string>
-    <string name="offline_routing_mode_label">Offline routeplanning</string>
-    <string name="offline_routing_mode_online">Eerst online</string>
-    <string name="offline_routing_mode_offline">Eerst offline</string>
-    <string name="offline_routing_hint">Gedownloade gebieden tonen de kaart en plannen routes op de telefoon zonder bereik. Eerst online gebruikt ze alleen voor routes als de servers falen.</string>
     <string name="offline_data_open">Offline gebieden</string>
     <string name="offline_server_url">Server voor offline data</string>
     <string name="offline_data_title">Offline gebieden</string>
@@ -2910,6 +2906,13 @@
     <string name="offline_data_tap_hint">Tik op een vak om de kaart en routes te downloaden of te verwijderen.</string>
     <string name="offline_data_list_error">Server niet bereikbaar. Gedownloade gebieden werken nog.</string>
     <string name="offline_data_along_route">Mijn route</string>
+    <string name="offline_prefer">Offline kaart en routes voorkeur</string>
+    <string name="offline_data_select">Kiezen</string>
+    <string name="offline_data_around_me">Om mij heen</string>
+    <string name="offline_data_around_me_wide">Om mij heen, breder</string>
+    <string name="offline_data_near_q">Gebieden om je heen downloaden (%1$s)?</string>
+    <string name="offline_data_near_all_here">Alle gebieden om je heen zijn gedownload.</string>
+    <string name="offline_data_no_location">Je locatie is nog niet bekend.</string>
     <string name="offline_data_update_all">Alles bijwerken (%1$d)</string>
     <string name="offline_data_update">Bijwerken</string>
     <string name="offline_data_wifi_updates">Wekelijks bijwerken via wifi</string>

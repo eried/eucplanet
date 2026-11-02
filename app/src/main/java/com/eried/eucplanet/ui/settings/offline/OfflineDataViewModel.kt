@@ -94,7 +94,17 @@ class OfflineDataViewModel(
         val route = currentRoute.get() ?: return null
         val pts = route.geometry.ifEmpty { route.waypoints.map { GeoPoint(it.lat, it.lng) } }
         if (pts.size < 2) return null
-        val names = pts.zipWithNext().flatMap { (a, b) -> com.eried.eucplanet.nav.offline.RouterPlan.legTiles(a, b) }.toSet()
+        return missing(pts.zipWithNext().flatMap { (a, b) -> com.eried.eucplanet.nav.offline.RouterPlan.legTiles(a, b) }.toSet())
+    }
+
+    /** The squares within about [km] of the rider not downloaded yet, or
+     *  null when where the rider is is not known. */
+    fun nearTilesMissing(km: Double): List<String>? {
+        val here = trips.lastKnownLocation.value ?: return null
+        return missing(RoutingTiles.tilesAround(GeoPoint(here.latitude, here.longitude), km))
+    }
+
+    private fun missing(names: Set<String>): List<String> {
         // Squares the server lists; open sea has none. Without the list,
         // all of them, and a missing one fails without retrying.
         val known = state.value.tiles.keys.takeIf { remote.value != null }

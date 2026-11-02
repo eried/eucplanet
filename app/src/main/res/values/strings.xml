@@ -2925,10 +2925,6 @@
     <string name="nav_unlock_confirm">Convert</string>
     <string name="nav_track_badge">Locked track</string>
     <string name="voice_nav_place_reached">%1$s reached</string>
-    <string name="offline_routing_mode_label">Offline routing</string>
-    <string name="offline_routing_mode_online">Online first</string>
-    <string name="offline_routing_mode_offline">Offline first</string>
-    <string name="offline_routing_hint">Downloaded areas show the map and route on the phone with no signal. Online first routes with them only when the servers fail.</string>
     <string name="offline_data_open">Offline areas</string>
     <string name="offline_server_url">Offline data server</string>
     <string name="offline_data_title">Offline areas</string>
@@ -2936,6 +2932,13 @@
     <string name="offline_data_tap_hint">Tap a square to download its map and routing, or delete it.</string>
     <string name="offline_data_list_error">Cannot reach the server. Downloaded areas still work.</string>
     <string name="offline_data_along_route">My route</string>
+    <string name="offline_prefer">Prefer offline map and routing</string>
+    <string name="offline_data_select">Select</string>
+    <string name="offline_data_around_me">Around me</string>
+    <string name="offline_data_around_me_wide">Around me, wider</string>
+    <string name="offline_data_near_q">Download the areas around you (%1$s)?</string>
+    <string name="offline_data_near_all_here">Every area around you is downloaded.</string>
+    <string name="offline_data_no_location">Your location is not known yet.</string>
     <string name="offline_data_update_all">Update all (%1$d)</string>
     <string name="offline_data_update">Update</string>
     <string name="offline_data_wifi_updates">Update weekly on Wi-Fi</string>

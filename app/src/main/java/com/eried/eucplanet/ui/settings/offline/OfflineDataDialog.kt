@@ -20,8 +20,13 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Route
+import androidx.compose.material.icons.filled.SelectAll
+import androidx.compose.material.icons.filled.ZoomOutMap
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -48,6 +53,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.eried.eucplanet.R
+import com.eried.eucplanet.ui.common.appMenuItemColors
 import com.eried.eucplanet.ui.theme.appColors
 import org.json.JSONObject
 import org.koin.androidx.compose.koinViewModel
@@ -57,7 +63,8 @@ private data class Pending(val row: TileRow, val mobileWarn: Boolean = false)
 
 /**
  * Offline areas: a map of 5 degree squares, each a map and routing. Tap one
- * to download, stop or delete it. The planned route's squares come in one tap.
+ * to download, stop or delete it. The squares around the rider or along the
+ * planned route come from one small menu, after a question with their size.
  */
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
@@ -71,11 +78,14 @@ fun OfflineDataDialog(onDismiss: () -> Unit, viewModel: OfflineDataViewModel = k
     var pageReady by remember { mutableStateOf(false) }
     var webView by remember { mutableStateOf<WebView?>(null) }
     var pending by remember { mutableStateOf<Pending?>(null) }
-    var bulk by remember { mutableStateOf<List<String>?>(null) }
+    var bulk by remember { mutableStateOf<Bulk?>(null) }
+    var selectOpen by remember { mutableStateOf(false) }
     // A snackbar would sit behind this full-screen dialog: notes show inline.
     var notice by remember { mutableStateOf<String?>(null) }
     val noRoute = stringResource(R.string.offline_data_no_route)
     val allHere = stringResource(R.string.offline_data_route_all_here)
+    val nearAllHere = stringResource(R.string.offline_data_near_all_here)
+    val noLocation = stringResource(R.string.offline_data_no_location)
 
     fun size(b: Long) = Formatter.formatShortFileSize(ctx, b)
 
@@ -170,21 +180,58 @@ fun OfflineDataDialog(onDismiss: () -> Unit, viewModel: OfflineDataViewModel = k
                         },
                     )
                 }
-                // Small chips on the map instead of a row of wide buttons:
-                // the route one only when there is a route to fetch for.
+                // Small chips on the map instead of a row of wide buttons.
+                // Select picks several squares at once; My route greys out
+                // until a route is planned.
                 Column(
                     Modifier.align(Alignment.TopEnd).padding(8.dp),
                     horizontalAlignment = Alignment.End,
                     verticalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
-                    if (hasRoute) {
-                        MapChip(Icons.Default.Route, stringResource(R.string.offline_data_along_route)) {
-                            val missing = viewModel.routeTilesMissing()
-                            when {
-                                missing == null -> notice = noRoute
-                                missing.isEmpty() -> notice = allHere
-                                else -> bulk = missing
+                    Box {
+                        MapChip(Icons.Default.SelectAll, stringResource(R.string.offline_data_select)) { selectOpen = true }
+                        DropdownMenu(
+                            expanded = selectOpen,
+                            onDismissRequest = { selectOpen = false },
+                            containerColor = colors.menuBackground,
+                        ) {
+                            val itemColors = appMenuItemColors()
+                            fun near(km: Double) {
+                                selectOpen = false
+                                val missing = viewModel.nearTilesMissing(km)
+                                when {
+                                    missing == null -> notice = noLocation
+                                    missing.isEmpty() -> notice = nearAllHere
+                                    else -> bulk = Bulk(missing, route = false)
+                                }
                             }
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.offline_data_around_me)) },
+                                leadingIcon = { Icon(Icons.Default.MyLocation, contentDescription = null) },
+                                colors = itemColors,
+                                onClick = { near(NEAR_KM) },
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.offline_data_around_me_wide)) },
+                                leadingIcon = { Icon(Icons.Default.ZoomOutMap, contentDescription = null) },
+                                colors = itemColors,
+                                onClick = { near(WIDE_KM) },
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.offline_data_along_route)) },
+                                leadingIcon = { Icon(Icons.Default.Route, contentDescription = null) },
+                                enabled = hasRoute,
+                                colors = itemColors,
+                                onClick = {
+                                    selectOpen = false
+                                    val missing = viewModel.routeTilesMissing()
+                                    when {
+                                        missing == null -> notice = noRoute
+                                        missing.isEmpty() -> notice = allHere
+                                        else -> bulk = Bulk(missing, route = true)
+                                    }
+                                },
+                            )
                         }
                     }
                     if (state.outdatedCount > 0) {
@@ -277,12 +324,13 @@ fun OfflineDataDialog(onDismiss: () -> Unit, viewModel: OfflineDataViewModel = k
         )
     }
 
-    bulk?.let { names ->
+    bulk?.let { b ->
+        val names = b.names
         val bytes = names.sumOf { state.tiles[it]?.bytes ?: 0L }
         val text = if (OfflineDataState.warnSize(bytes, viewModel.onWifi())) {
             stringResource(R.string.offline_data_mobile_warn, size(bytes))
         } else {
-            stringResource(R.string.offline_data_route_q, size(bytes))
+            stringResource(if (b.route) R.string.offline_data_route_q else R.string.offline_data_near_q, size(bytes))
         }
         AlertDialog(
             onDismissRequest = { bulk = null },
@@ -303,6 +351,13 @@ fun OfflineDataDialog(onDismiss: () -> Unit, viewModel: OfflineDataViewModel = k
 }
 
 /** A small pill over the map. */
+/** Squares picked together, waiting for the rider's yes. */
+private class Bulk(val names: List<String>, val route: Boolean)
+
+/** "Around me" and its wider version: how far out squares are picked. */
+private const val NEAR_KM = 50.0
+private const val WIDE_KM = 200.0
+
 @Composable
 private fun MapChip(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, onClick: () -> Unit) {
     val colors = MaterialTheme.appColors

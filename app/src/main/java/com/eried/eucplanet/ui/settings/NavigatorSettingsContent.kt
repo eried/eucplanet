@@ -238,24 +238,36 @@ fun NavigatorSettingsContent(
             onCommit = { viewModel.updateNavValhallaUrl(it) },
         )
 
-        // --- Offline routing: downloaded areas route on the phone, as a
-        // fallback (default) or first. Nothing changes until an area is
-        // downloaded. ---
-        SegmentedChoice(
-            label = stringResource(R.string.offline_routing_mode_label),
-            options = listOf(
-                com.eried.eucplanet.data.model.OfflineRoutingMode.FALLBACK.name to
-                    stringResource(R.string.offline_routing_mode_online),
-                com.eried.eucplanet.data.model.OfflineRoutingMode.PREFER.name to
-                    stringResource(R.string.offline_routing_mode_offline),
-            ),
-            current = settings.offlineRouting.mode.name,
+        // --- Offline: whether downloaded areas go first or stay the
+        // backup (default), where they come from, and the screen to get
+        // them (with what is downloaded so far). Nothing changes until one
+        // is there. ---
+        SwitchRow(
+            label = stringResource(R.string.offline_prefer),
+            checked = settings.offlineRouting.mode == com.eried.eucplanet.data.model.OfflineRoutingMode.PREFER,
             onChange = {
-                viewModel.updateOfflineRoutingMode(com.eried.eucplanet.data.model.OfflineRoutingMode.fromName(it))
+                viewModel.updateOfflineRoutingMode(
+                    if (it) com.eried.eucplanet.data.model.OfflineRoutingMode.PREFER
+                    else com.eried.eucplanet.data.model.OfflineRoutingMode.FALLBACK
+                )
             },
         )
-        HintText(stringResource(R.string.offline_routing_hint), small = true)
+        EndpointField(
+            label = stringResource(R.string.offline_server_url),
+            value = settings.offlineRouting.serverUrl,
+            enabled = true,
+            onCommit = { viewModel.updateOfflineServerUrl(it) },
+            presets = OFFLINE_SERVER_PRESETS,
+        )
         var offlineAreasOpen by rememberSaveable { mutableStateOf(false) }
+        val offlineStore = org.koin.compose.koinInject<com.eried.eucplanet.nav.offline.OfflineTileStore>()
+        val ctx = androidx.compose.ui.platform.LocalContext.current
+        // Counted again each time the areas screen closes.
+        val offlineUsed by androidx.compose.runtime.produceState(0L, offlineAreasOpen) {
+            if (!offlineAreasOpen) {
+                value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { offlineStore.usedBytes() }
+            }
+        }
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -263,8 +275,9 @@ fun NavigatorSettingsContent(
                 .padding(vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            val title = stringResource(R.string.offline_data_open)
             Text(
-                stringResource(R.string.offline_data_open),
+                if (offlineUsed > 0) "$title (${android.text.format.Formatter.formatShortFileSize(ctx, offlineUsed)})" else title,
                 color = MaterialTheme.appColors.textPrimary,
                 modifier = Modifier.weight(1f),
             )
@@ -277,13 +290,6 @@ fun NavigatorSettingsContent(
         if (offlineAreasOpen) {
             com.eried.eucplanet.ui.settings.offline.OfflineDataDialog(onDismiss = { offlineAreasOpen = false })
         }
-        EndpointField(
-            label = stringResource(R.string.offline_server_url),
-            value = settings.offlineRouting.serverUrl,
-            enabled = true,
-            onCommit = { viewModel.updateOfflineServerUrl(it) },
-            presets = OFFLINE_SERVER_PRESETS,
-        )
 
         // --- Avoidances (collapsible; all off by default) ---
         var avoidExpanded by rememberSaveable { mutableStateOf(false) }
@@ -616,7 +622,7 @@ private fun SwitchRow(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(label, style = MaterialTheme.typography.bodyLarge)
+        Text(label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
         Switch(
             checked = checked,
             onCheckedChange = onChange,

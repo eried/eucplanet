@@ -2897,10 +2897,6 @@
     <string name="nav_unlock_confirm">変換</string>
     <string name="nav_track_badge">ロック中のトラック</string>
     <string name="voice_nav_place_reached">%1$s に到着</string>
-    <string name="offline_routing_mode_label">オフラインルート</string>
-    <string name="offline_routing_mode_online">オンライン優先</string>
-    <string name="offline_routing_mode_offline">オフライン優先</string>
-    <string name="offline_routing_hint">ダウンロードした地域は、電波がなくても地図を表示し、スマホでルートを計算します。オンライン優先では、サーバーが応答しないときだけルートに使います。</string>
     <string name="offline_data_open">オフライン地域</string>
     <string name="offline_server_url">オフラインデータのサーバー</string>
     <string name="offline_data_title">オフライン地域</string>
@@ -2908,6 +2904,13 @@
     <string name="offline_data_tap_hint">マスをタップして、地図とルートをダウンロード、または削除します。</string>
     <string name="offline_data_list_error">サーバーに接続できません。ダウンロード済みのエリアは使えます。</string>
     <string name="offline_data_along_route">マイルート</string>
+    <string name="offline_prefer">オフラインの地図とルートを優先</string>
+    <string name="offline_data_select">選択</string>
+    <string name="offline_data_around_me">現在地の周辺</string>
+    <string name="offline_data_around_me_wide">現在地の周辺（広め）</string>
+    <string name="offline_data_near_q">周辺のエリアをダウンロードしますか（%1$s）？</string>
+    <string name="offline_data_near_all_here">周辺のエリアはすべてダウンロード済みです。</string>
+    <string name="offline_data_no_location">現在地がまだわかりません。</string>
     <string name="offline_data_update_all">すべて更新 (%1$d)</string>
     <string name="offline_data_update">更新</string>
     <string name="offline_data_wifi_updates">毎週Wi-Fiで更新</string>

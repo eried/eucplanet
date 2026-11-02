@@ -2897,10 +2897,6 @@
     <string name="nav_unlock_confirm">Konvertera</string>
     <string name="nav_track_badge">Låst spår</string>
     <string name="voice_nav_place_reached">%1$s nått</string>
-    <string name="offline_routing_mode_label">Ruttplanering offline</string>
-    <string name="offline_routing_mode_online">Online först</string>
-    <string name="offline_routing_mode_offline">Offline först</string>
-    <string name="offline_routing_hint">Nedladdade områden visar kartan och beräknar rutter i telefonen utan täckning. Online först använder dem för rutter bara när servrarna fallerar.</string>
     <string name="offline_data_open">Offlineområden</string>
     <string name="offline_server_url">Server för offlinedata</string>
     <string name="offline_data_title">Offlineområden</string>
@@ -2908,6 +2904,13 @@
     <string name="offline_data_tap_hint">Tryck på en ruta för att ladda ner dess karta och rutter eller ta bort den.</string>
     <string name="offline_data_list_error">Servern svarar inte. Nedladdade områden fungerar ändå.</string>
     <string name="offline_data_along_route">Min rutt</string>
+    <string name="offline_prefer">Föredra offlinekarta och rutter</string>
+    <string name="offline_data_select">Välj</string>
+    <string name="offline_data_around_me">Runt mig</string>
+    <string name="offline_data_around_me_wide">Runt mig, bredare</string>
+    <string name="offline_data_near_q">Ladda ner områdena runt dig (%1$s)?</string>
+    <string name="offline_data_near_all_here">Alla områden runt dig är nedladdade.</string>
+    <string name="offline_data_no_location">Din position är inte känd än.</string>
     <string name="offline_data_update_all">Uppdatera alla (%1$d)</string>
     <string name="offline_data_update">Uppdatera</string>
     <string name="offline_data_wifi_updates">Uppdatera varje vecka via wifi</string>
