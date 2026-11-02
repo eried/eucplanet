@@ -1812,9 +1812,10 @@ enum class OfflineRoutingMode {
 
 /**
  * Offline routing. [serverUrl] is where the tiles come from: our mirror's
- * index.json (eucplanet-maps), or a BRouter server's base with its
- * `segments4/<tile>.rd5` and `profiles2/lookups.dat`. When it cannot be
- * reached, [BROUTER_URL] stands in.
+ * index.json (eucplanet-maps, on Hugging Face or its GitHub copy), or a
+ * BRouter server's base with its `segments4/<tile>.rd5` and
+ * `profiles2/lookups.dat`. When it cannot be reached, the other mirror and
+ * then [BROUTER_URL] stand in.
  * [wifiAutoUpdate] lets downloaded tiles update by themselves on Wi-Fi.
  */
 data class OfflineRoutingSettings(
@@ -1823,7 +1824,8 @@ data class OfflineRoutingSettings(
     val wifiAutoUpdate: Boolean = false,
 ) {
     companion object {
-        const val MIRROR_URL = "https://raw.githubusercontent.com/eried/eucplanet-maps/main/routing/index.json"
+        const val MIRROR_URL = "https://huggingface.co/datasets/eucplanet/eucplanet-maps/resolve/main/routing/index.json"
+        const val GITHUB_MIRROR_URL = "https://raw.githubusercontent.com/eried/eucplanet-maps/main/routing/index.json"
         const val BROUTER_URL = "https://brouter.de/brouter"
     }
 }

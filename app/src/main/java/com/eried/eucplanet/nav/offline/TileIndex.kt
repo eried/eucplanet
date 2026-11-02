@@ -1,5 +1,6 @@
 package com.eried.eucplanet.nav.offline
 
+import com.eried.eucplanet.data.model.OfflineRoutingSettings
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -34,6 +35,15 @@ class TileSource private constructor(val base: String, val isMirror: Boolean) {
             val s = server.trim().trimEnd('/')
             return TileSource(s, s.endsWith(".json", ignoreCase = true))
         }
+
+        /** The [server] first, then each mirror, then brouter.de, each once. */
+        fun fallbacks(server: String): List<TileSource> =
+            listOf(server, OfflineRoutingSettings.MIRROR_URL, OfflineRoutingSettings.GITHUB_MIRROR_URL, OfflineRoutingSettings.BROUTER_URL)
+                .map { of(it) }.distinctBy { it.base }
+
+        /** Our mirrors, the ones with maps. */
+        val mirrors: List<TileSource>
+            get() = listOf(of(OfflineRoutingSettings.MIRROR_URL), of(OfflineRoutingSettings.GITHUB_MIRROR_URL))
     }
 }
 

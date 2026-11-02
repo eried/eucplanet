@@ -1,5 +1,6 @@
 package com.eried.eucplanet.nav.offline
 
+import com.eried.eucplanet.data.model.OfflineRoutingSettings
 import java.io.File
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -124,6 +125,17 @@ class TileIndexTest {
         assertEquals(100L, out[0].bytes)
         assertEquals(null, out[0].url)
         assertEquals(null, out[1].map)
+    }
+
+    @Test fun theChosenServerComesFirst_thenBothMirrors_thenBrouter() {
+        val hf = OfflineRoutingSettings.MIRROR_URL
+        val gh = OfflineRoutingSettings.GITHUB_MIRROR_URL
+        val br = OfflineRoutingSettings.BROUTER_URL
+        fun order(s: String) = TileSource.fallbacks(s).map { it.base }
+        assertEquals(listOf(hf, gh, br), order(hf))
+        assertEquals(listOf(gh, hf, br), order(gh))
+        assertEquals(listOf(br, hf, gh), order("$br/"))
+        assertEquals(listOf("https://my.server/brouter", hf, gh, br), order("https://my.server/brouter"))
     }
 
     @Test fun aBrokenMirrorIndex_givesNull() {

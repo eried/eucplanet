@@ -14,7 +14,8 @@ class OfflineRoutingSettingsJsonTest {
     @Test fun defaults_areOnlineFirst_fromOurMirror() {
         val d = AppSettings().offlineRouting
         assertEquals(OfflineRoutingMode.FALLBACK, d.mode)
-        assertEquals("https://raw.githubusercontent.com/eried/eucplanet-maps/main/routing/index.json", d.serverUrl)
+        assertEquals("https://huggingface.co/datasets/eucplanet/eucplanet-maps/resolve/main/routing/index.json", d.serverUrl)
+        assertEquals("https://raw.githubusercontent.com/eried/eucplanet-maps/main/routing/index.json", OfflineRoutingSettings.GITHUB_MIRROR_URL)
         assertEquals("https://brouter.de/brouter", OfflineRoutingSettings.BROUTER_URL)
         assertEquals(false, d.wifiAutoUpdate)
     }
