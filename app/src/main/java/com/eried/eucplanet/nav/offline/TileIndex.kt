@@ -85,9 +85,13 @@ object TileIndex {
 
     /** True when a downloaded square's map is missing or older than the
      *  mirror's. A routing-only square from before maps gets its map this way. */
-    fun mapNeedsUpdate(route: File, map: File, remote: RemoteTile): Boolean {
+    fun mapNeedsUpdate(route: File, map: File, remote: RemoteTile): Boolean =
+        route.isFile && mapWanted(map, remote)
+
+    /** True when the mirror has a map for the square and ours is missing or
+     *  older, so a download or update fetches it; a current map stays. */
+    fun mapWanted(map: File, remote: RemoteTile): Boolean {
         val m = remote.map ?: return false
-        if (!route.isFile) return false
         return !map.isFile || m.dateMs > map.lastModified() + DAY_MS
     }
 
