@@ -1129,6 +1129,12 @@ fun RouteBuilderScreen(
             if (!pageReady) return@LaunchedEffect
             wv.evaluateJavascript("nativeSetRecenterOffset($recenterOffsetPx);", null)
         }
+        // The credit hangs from just under the top bar.
+        LaunchedEffect(pageReady, effectiveTopBarPx) {
+            val wv = webView ?: return@LaunchedEffect
+            if (!pageReady) return@LaunchedEffect
+            wv.evaluateJavascript("nativeSetCreditTop(${effectiveTopBarPx / density.density + 8f});", null)
+        }
         // Landscape: the map spans the full width and the stops sidebar covers
         // part of it, so centre the rider in the visible part. Half the sidebar
         // width, in dp (= CSS px, like the vertical offset above), moving the

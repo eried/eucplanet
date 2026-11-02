@@ -14,7 +14,7 @@ import java.io.ByteArrayInputStream
 object OfflineMapWeb {
 
     const val HOST = "offline-map.eucplanet"
-    const val NAME = "Offline map"
+    const val NAME = "Offline"
 
     /** Tiles are drawn at twice the size Leaflet shows them, so text stays
      *  sharp on a phone screen. */
@@ -50,8 +50,8 @@ object OfflineMapWeb {
     /**
      * Defines `eucOfflineMap(map)` on the page. It adds the offline layer and
      * returns `{layer, prefer, watch(onlineLayer)}`: call `watch` with each
-     * online base layer. While the offline map shows, the credit becomes a
-     * pill reading "Offline map" in the credit's usual place, and the page
+     * online base layer. While the offline map shows, the credit starts with
+     * "Offline" in bold, and the page
      * tells `AndroidNav.onOfflineMap(on)` if it has one. Without [prefer]
      * that is while the online tiles fail; with it the offline layer sits on
      * top (clear outside the downloaded squares) and it is while a downloaded
@@ -59,17 +59,14 @@ object OfflineMapWeb {
      */
     val JS get() = """
 window.eucOfflineMap = function(map, extra) {
-  var PILL = '<span class="euc-off">$NAME</span>';
-  var OFF = PILL + ' · © OpenStreetMap contributors';
+  var LABEL = '<span class="euc-off">$NAME</span>';
+  var OFF = LABEL + ' · © OpenStreetMap contributors';
   var PREFER = $prefer;
   if (!document.getElementById('euc-off-css')) {
     var css = document.createElement('style');
     css.id = 'euc-off-css';
-    // Over the map like the credit itself: dark plate, light text, so it
-    // reads on a pale street map and on satellite imagery alike.
-    css.textContent = '.euc-off{display:inline-block;background:rgba(20,24,32,0.85);color:#fff !important;' +
-      'text-shadow:none !important;font:700 11px sans-serif;padding:6px 3px;border-radius:10px;margin:2px 0;' +
-      'border:1px solid var(--accent, #4FC3F7);}';
+    // The credit's own halo carries it; bold and a little larger is enough.
+    css.textContent = '.euc-off{font-weight:700;font-size:1.25em;}';
     document.head.appendChild(css);
   }
   var off = L.tileLayer('https://$HOST/{z}/{x}/{y}.png', Object.assign({maxZoom: 21, maxNativeZoom: 20, zIndex: PREFER ? 1000 : 0}, extra || {})).addTo(map);
@@ -97,7 +94,7 @@ window.eucOfflineMap = function(map, extra) {
         var t = off._tiles[k];
         if (Math.abs(t.coords.z - z) < 1 && t.el.naturalWidth > 0) { drawn = true; break; }
       }
-      credit_(drawn ? (attr.indexOf('OpenStreetMap contributors') >= 0 ? PILL : OFF) : '');
+      credit_(drawn ? (attr.indexOf('OpenStreetMap contributors') >= 0 ? LABEL : OFF) : '');
       tell(drawn);
     }
     off.on('load', update);

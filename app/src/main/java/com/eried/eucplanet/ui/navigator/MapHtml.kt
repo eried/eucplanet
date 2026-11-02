@@ -92,17 +92,18 @@ private const val ROUTE_BUILDER_HTML_1: String = """
      it defaults to is the one place it cannot live here: the stop list covers
      the bottom and the controls own the right. Stood up along the left edge it
      stays visible and lands in the same place in both orientations, since that
-     edge is the one nothing else uses. */
+     edge is the one nothing else uses. It hangs from just under the top bar
+     (--credit-top, pushed from native): centred, it moved as the stop list
+     grew. */
   .leaflet-control-attribution {
     position: fixed !important;
     left: 0 !important;
-    top: 50% !important;
+    top: var(--credit-top, 112px) !important;
     margin: 0 !important;
     /* vertical-rl runs the text downward, which is the way to tilt the phone
        to read it: turn it clockwise and the credit comes up level, the same
        turn as reading a book spine on a shelf. */
     writing-mode: vertical-rl !important;
-    transform: translateY(-50%) !important;
     /* No plate behind it: a dark halo carries the text over both a pale
        street map and dark satellite imagery, the way map labels do, and
        nothing rectangular sits over the tiles. */
@@ -2261,6 +2262,11 @@ private const val ROUTE_BUILDER_HTML_2: String = """
     // The on-map controls (zoom +/-, recenter) DO follow the theme accent via
     // the --accent CSS variable, so the map chrome is part of the global theme.
     try { document.documentElement.style.setProperty('--accent', hex); } catch(e){}
+  };
+
+  // Where the credit starts: just under the top bar, in CSS px.
+  window.nativeSetCreditTop = function(px){
+    try { document.documentElement.style.setProperty('--credit-top', px + 'px'); } catch(e){}
   };
 
   // Themeable route colors (routeWalk/Bike/Drive/Straight/Preview tokens).
