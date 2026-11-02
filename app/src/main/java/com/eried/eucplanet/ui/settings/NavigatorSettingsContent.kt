@@ -238,9 +238,20 @@ fun NavigatorSettingsContent(
             onCommit = { viewModel.updateNavValhallaUrl(it) },
         )
 
-        // --- Offline: where the areas come from, the screen to get them
-        // (with what is downloaded so far), and whether they go first or
-        // stay the backup (default). Nothing changes until one is there. ---
+        // --- Offline: whether downloaded areas go first or stay the
+        // backup (default), where they come from, and the screen to get
+        // them (with what is downloaded so far). Nothing changes until one
+        // is there. ---
+        SwitchRow(
+            label = stringResource(R.string.offline_prefer),
+            checked = settings.offlineRouting.mode == com.eried.eucplanet.data.model.OfflineRoutingMode.PREFER,
+            onChange = {
+                viewModel.updateOfflineRoutingMode(
+                    if (it) com.eried.eucplanet.data.model.OfflineRoutingMode.PREFER
+                    else com.eried.eucplanet.data.model.OfflineRoutingMode.FALLBACK
+                )
+            },
+        )
         EndpointField(
             label = stringResource(R.string.offline_server_url),
             value = settings.offlineRouting.serverUrl,
@@ -279,16 +290,6 @@ fun NavigatorSettingsContent(
         if (offlineAreasOpen) {
             com.eried.eucplanet.ui.settings.offline.OfflineDataDialog(onDismiss = { offlineAreasOpen = false })
         }
-        SwitchRow(
-            label = stringResource(R.string.offline_prefer),
-            checked = settings.offlineRouting.mode == com.eried.eucplanet.data.model.OfflineRoutingMode.PREFER,
-            onChange = {
-                viewModel.updateOfflineRoutingMode(
-                    if (it) com.eried.eucplanet.data.model.OfflineRoutingMode.PREFER
-                    else com.eried.eucplanet.data.model.OfflineRoutingMode.FALLBACK
-                )
-            },
-        )
 
         // --- Avoidances (collapsible; all off by default) ---
         var avoidExpanded by rememberSaveable { mutableStateOf(false) }
