@@ -95,5 +95,11 @@ object TileIndex {
         return !map.isFile || m.dateMs > map.lastModified() + DAY_MS
     }
 
+    /** What a download of this square fetches: its routing when missing or
+     *  older, plus its map when [mapWanted]. */
+    fun fetchBytes(route: File, map: File, remote: RemoteTile): Long =
+        (if (!route.isFile || needsUpdate(route, remote)) remote.bytes else 0L) +
+            (if (mapWanted(map, remote)) remote.map?.bytes ?: 0L else 0L)
+
     private const val DAY_MS = 86_400_000L
 }

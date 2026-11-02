@@ -102,6 +102,19 @@ class TileIndexTest {
         assertFalse("no map on the server", TileIndex.mapWanted(File(tmp.root, "x"), remote.copy(map = null)))
     }
 
+    @Test fun aRoutingOnlySquare_stillWantsItsMap_andCountsOnlyWhatIsFetched() {
+        val route = File(tmp.root, "E15_N65.rd5")
+        val map = File(tmp.root, "E15_N65.pmtiles")
+        val remote = RemoteTile("E15_N65", 9, 1_793_145_780_000, map = RemoteMap("https://x/E15_N65.pmtiles", 90, 1_793_145_780_000))
+        assertEquals("nothing here: routing and map", 99L, TileIndex.fetchBytes(route, map, remote))
+        route.writeBytes(ByteArray(9))
+        route.setLastModified(remote.dateMs)
+        assertEquals("routing only: just the map", 90L, TileIndex.fetchBytes(route, map, remote))
+        map.writeBytes(ByteArray(90))
+        map.setLastModified(remote.map!!.dateMs)
+        assertEquals("both current", 0L, TileIndex.fetchBytes(route, map, remote))
+    }
+
     @Test fun aBrokenMirrorIndex_givesNull() {
         assertEquals(null, TileIndex.parseMirror("<html>404</html>"))
         assertEquals(null, TileIndex.parseMirror("""{"tiles":[]}"""))
