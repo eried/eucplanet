@@ -238,20 +238,25 @@ fun NavigatorSettingsContent(
             onCommit = { viewModel.updateNavValhallaUrl(it) },
         )
 
-        // --- Offline: downloaded areas give the map and the route as a
-        // backup (default) or first. Nothing changes until an area is
-        // downloaded. ---
-        SwitchRow(
-            label = stringResource(R.string.offline_prefer),
-            checked = settings.offlineRouting.mode == com.eried.eucplanet.data.model.OfflineRoutingMode.PREFER,
-            onChange = {
-                viewModel.updateOfflineRoutingMode(
-                    if (it) com.eried.eucplanet.data.model.OfflineRoutingMode.PREFER
-                    else com.eried.eucplanet.data.model.OfflineRoutingMode.FALLBACK
-                )
-            },
+        // --- Offline: where the areas come from, the screen to get them
+        // (with what is downloaded so far), and whether they go first or
+        // stay the backup (default). Nothing changes until one is there. ---
+        EndpointField(
+            label = stringResource(R.string.offline_server_url),
+            value = settings.offlineRouting.serverUrl,
+            enabled = true,
+            onCommit = { viewModel.updateOfflineServerUrl(it) },
+            presets = OFFLINE_SERVER_PRESETS,
         )
         var offlineAreasOpen by rememberSaveable { mutableStateOf(false) }
+        val offlineStore = org.koin.compose.koinInject<com.eried.eucplanet.nav.offline.OfflineTileStore>()
+        val ctx = androidx.compose.ui.platform.LocalContext.current
+        // Counted again each time the areas screen closes.
+        val offlineUsed by androidx.compose.runtime.produceState(0L, offlineAreasOpen) {
+            if (!offlineAreasOpen) {
+                value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { offlineStore.usedBytes() }
+            }
+        }
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -259,8 +264,9 @@ fun NavigatorSettingsContent(
                 .padding(vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            val title = stringResource(R.string.offline_data_open)
             Text(
-                stringResource(R.string.offline_data_open),
+                if (offlineUsed > 0) "$title (${android.text.format.Formatter.formatShortFileSize(ctx, offlineUsed)})" else title,
                 color = MaterialTheme.appColors.textPrimary,
                 modifier = Modifier.weight(1f),
             )
@@ -273,12 +279,15 @@ fun NavigatorSettingsContent(
         if (offlineAreasOpen) {
             com.eried.eucplanet.ui.settings.offline.OfflineDataDialog(onDismiss = { offlineAreasOpen = false })
         }
-        EndpointField(
-            label = stringResource(R.string.offline_server_url),
-            value = settings.offlineRouting.serverUrl,
-            enabled = true,
-            onCommit = { viewModel.updateOfflineServerUrl(it) },
-            presets = OFFLINE_SERVER_PRESETS,
+        SwitchRow(
+            label = stringResource(R.string.offline_prefer),
+            checked = settings.offlineRouting.mode == com.eried.eucplanet.data.model.OfflineRoutingMode.PREFER,
+            onChange = {
+                viewModel.updateOfflineRoutingMode(
+                    if (it) com.eried.eucplanet.data.model.OfflineRoutingMode.PREFER
+                    else com.eried.eucplanet.data.model.OfflineRoutingMode.FALLBACK
+                )
+            },
         )
 
         // --- Avoidances (collapsible; all off by default) ---
