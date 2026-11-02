@@ -95,16 +95,18 @@ class OfflineTiles(
             val url = remote?.url ?: listing.source.tileUrl(name)
             // A square whose routing is current only fetches its map.
             val routeCurrent = store.has(name) && remote != null && !TileIndex.needsUpdate(store.finalFile(name), remote)
+            // A current map is not fetched again with new routing.
+            val map = remote?.map?.takeIf { TileIndex.mapWanted(store.mapFile(name), remote) }
             val req = OneTimeWorkRequestBuilder<TileDownloadWorker>()
                 .setInputData(workDataOf(
                     TileDownloadWorker.KEY_NAME to name,
                     TileDownloadWorker.KEY_URL to url,
                     TileDownloadWorker.KEY_LOOKUPS_URL to listing.lookupsUrl,
-                    TileDownloadWorker.KEY_MAP_URL to remote?.map?.url,
+                    TileDownloadWorker.KEY_MAP_URL to map?.url,
                     TileDownloadWorker.KEY_ROUTE_SHARE to when {
                         routeCurrent -> 0f
-                        remote?.map == null -> 1f
-                        else -> remote.bytes.toFloat() / remote.totalBytes.coerceAtLeast(1L)
+                        map == null -> 1f
+                        else -> remote.bytes.toFloat() / (remote.bytes + map.bytes).coerceAtLeast(1L)
                     },
                 ))
                 .setConstraints(Constraints.Builder().setRequiredNetworkType(net).setRequiresStorageNotLow(true).build())

@@ -90,6 +90,18 @@ class TileIndexTest {
         assertFalse("square not downloaded", TileIndex.mapNeedsUpdate(File(tmp.root, "none.rd5"), map, remote))
     }
 
+    @Test fun anUpdate_fetchesTheMapOnlyWhenItIsMissingOrOld() {
+        val map = File(tmp.root, "E0_N45.pmtiles")
+        val remote = RemoteTile("E0_N45", 1, 0, map = RemoteMap("https://x/E0_N45.pmtiles", 5, 1_793_145_780_000))
+        assertTrue("missing", TileIndex.mapWanted(map, remote))
+        map.writeBytes(ByteArray(5))
+        map.setLastModified(remote.map!!.dateMs)
+        assertFalse("current", TileIndex.mapWanted(map, remote))
+        map.setLastModified(remote.map!!.dateMs - 3 * 86_400_000L)
+        assertTrue("older than the mirror's", TileIndex.mapWanted(map, remote))
+        assertFalse("no map on the server", TileIndex.mapWanted(File(tmp.root, "x"), remote.copy(map = null)))
+    }
+
     @Test fun aBrokenMirrorIndex_givesNull() {
         assertEquals(null, TileIndex.parseMirror("<html>404</html>"))
         assertEquals(null, TileIndex.parseMirror("""{"tiles":[]}"""))
