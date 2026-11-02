@@ -15,7 +15,7 @@ object OfflineAddress {
     private const val PLACE_M = 3000.0
 
     fun at(pm: PmTiles, lat: Double, lng: Double): String? {
-        val road = nearest(pm, 14, lat, lng, "roads", ROAD_M) { it.str("name") }
+        val road = nearest(pm, 14, lat, lng, "roads", ROAD_M, ::streetName)
         val number = nearest(pm, 15, lat, lng, "buildings", NUMBER_M) { it.str("addr_housenumber") }
         return when {
             road != null && number != null -> "$road $number"
@@ -23,6 +23,11 @@ object OfflineAddress {
             else -> nearest(pm, 14, lat, lng, "places", PLACE_M) { it.str("name") }
         }
     }
+
+    /** A road's name, but not a railway's or a ferry's: nobody gives an
+     *  address as "the Versailles line". */
+    fun streetName(f: VectorTile.Feature): String? =
+        if (f.str("kind") == "rail" || f.str("kind") == "ferry") null else f.str("name")
 
     /** The label of the closest feature in [layer] within [maxM] metres. */
     private fun nearest(
