@@ -101,5 +101,13 @@ object TileIndex {
         (if (!route.isFile || needsUpdate(route, remote)) remote.bytes else 0L) +
             (if (mapWanted(map, remote)) remote.map?.bytes ?: 0L else 0L)
 
+    /** A BRouter server's [tiles] with the maps the [mirror] has for the
+     *  same squares. Routing still comes from the server; only our mirror
+     *  has maps. */
+    fun withMaps(tiles: List<RemoteTile>, mirror: List<RemoteTile>): List<RemoteTile> {
+        val maps = mirror.mapNotNull { t -> t.map?.let { t.name to it } }.toMap()
+        return tiles.map { t -> maps[t.name]?.let { t.copy(map = it) } ?: t }
+    }
+
     private const val DAY_MS = 86_400_000L
 }

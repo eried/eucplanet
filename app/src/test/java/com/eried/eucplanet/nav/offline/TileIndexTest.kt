@@ -115,6 +115,17 @@ class TileIndexTest {
         assertEquals("both current", 0L, TileIndex.fetchBytes(route, map, remote))
     }
 
+    @Test fun brouterRouting_getsTheMirrorsMaps_byName() {
+        val map = RemoteMap("https://m/E10_N60.pmtiles", 9_000, 5)
+        val brouter = listOf(RemoteTile("E10_N60", 100, 1), RemoteTile("E15_N60", 200, 2))
+        val mirror = listOf(RemoteTile("E10_N60", 99, 0, "https://m/E10_N60.rd5", map))
+        val out = TileIndex.withMaps(brouter, mirror)
+        assertEquals(map, out[0].map)
+        assertEquals(100L, out[0].bytes)
+        assertEquals(null, out[0].url)
+        assertEquals(null, out[1].map)
+    }
+
     @Test fun aBrokenMirrorIndex_givesNull() {
         assertEquals(null, TileIndex.parseMirror("<html>404</html>"))
         assertEquals(null, TileIndex.parseMirror("""{"tiles":[]}"""))
