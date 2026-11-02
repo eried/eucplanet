@@ -10,10 +10,10 @@ how Organic Maps weighs roads.
 - A new route after a wrong turn comes in about 8 s instead of 22 s, and it continues in the direction you're riding, so no U-turn.
 - Routes started from the car screen or the navigation overlay now keep your avoid settings.
 - Settings, Navigation, Routing services: the Valhalla server now has its own URL beside OSRM, so you can point either one at your own server.
-- Offline areas: Settings, Navigation, Offline areas. Each 5 by 5 degree square brings a street map (paths and house numbers) and routing together, so routes, reroutes and turn cues work with no signal, from a profile made for wheels (no steps, off rough ground). Online first (the default) routes with them only when the servers fail; Offline first whenever the square is there. Offline turns have no street names. The squares come from our own mirror (github.com/eried/eucplanet-maps), with brouter.de as the backup for routing. Maps are still being added, busiest places first: about 100 squares are there now (most of Europe, the US and Japan), and about 100 more come each week. A square without a map yet still routes offline.
-- The offline map sits under the map you picked, in the navigator, trip details, the HUD, the watch, Android Auto and the video overlay. Where online tiles fail it shows through, and the credit line reads "Offline map". When the signal comes back, the online map returns by itself.
+- Offline areas: Settings, Navigation, Offline areas. Each 5 by 5 degree square brings a street map (paths and house numbers) and routing together, so routes, reroutes and turn cues work with no signal, from a profile made for wheels (no steps, off rough ground). By default they are the backup when the servers or the signal fail; the "Prefer offline map and routing" switch uses them first. Offline turns have no street names. The squares come from our own mirror (github.com/eried/eucplanet-maps), with brouter.de as the backup for routing. Maps are still being added, busiest places first: about 100 squares are there now (most of Europe, the US and Japan), and about 100 more come each week. A square without a map yet still routes offline.
+- The offline map sits under the map you picked, in the navigator, trip details, the HUD, the watch, Android Auto and the video overlay. Where online tiles fail it shows through, and the credit line reads "Offline map". When the signal comes back, the online map returns by itself. With "Prefer offline map and routing" on, downloaded squares show their own map even with signal (not on the HUD yet).
 - With no signal, search says so, and a stop you tap is named from the map ("Strandgata 31").
-- The areas screen lost its wide button: "My route" is a small chip on the map, shown only when a route is planned.
+- The areas screen has one small Select chip: Around me (about 50 km), Around me, wider (about 200 km) and My route (greyed until a route is planned). Each asks first, with the total size.
 
 ## Please test
 
@@ -26,7 +26,8 @@ how Organic Maps weighs roads.
 
 **Riders who go where signal is weak**
 - Download the squares you ride in, turn on airplane mode, plan a route: does it come, and do turn cues play?
-- Try Offline first with signal on: is the route as good as the online one, and does it keep you off gravel and stairs?
+- Turn on "Prefer offline map and routing" with signal on: does the navigator show the offline map in your squares, and is the route as good as the online one, off gravel and stairs?
+- Offline areas, Select, Around me: does it pick the squares you expect, and say the size before downloading?
 - With the squares downloaded and airplane mode on: does the navigator still show a map, with street names? Tap a spot: does the stop get a street name? Turn airplane mode off: does your normal map come back within half a minute?
 
 ## Reporting back

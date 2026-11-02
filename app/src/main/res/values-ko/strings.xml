@@ -2875,10 +2875,6 @@
     <string name="nav_unlock_confirm">변환</string>
     <string name="nav_track_badge">잠긴 트랙</string>
     <string name="voice_nav_place_reached">%1$s 도착</string>
-    <string name="offline_routing_mode_label">오프라인 경로</string>
-    <string name="offline_routing_mode_online">온라인 우선</string>
-    <string name="offline_routing_mode_offline">오프라인 우선</string>
-    <string name="offline_routing_hint">다운로드한 지역은 신호 없이도 지도를 보여 주고 휴대폰에서 경로를 계산합니다. 온라인 우선은 서버가 응답하지 않을 때만 경로에 사용합니다.</string>
     <string name="offline_data_open">오프라인 지역</string>
     <string name="offline_server_url">오프라인 데이터 서버</string>
     <string name="offline_data_title">오프라인 지역</string>
@@ -2886,6 +2882,13 @@
     <string name="offline_data_tap_hint">칸을 눌러 지도와 경로 데이터를 다운로드하거나 삭제하세요.</string>
     <string name="offline_data_list_error">서버에 연결할 수 없습니다. 다운로드한 지역은 계속 작동합니다.</string>
     <string name="offline_data_along_route">내 경로</string>
+    <string name="offline_prefer">오프라인 지도와 경로 우선</string>
+    <string name="offline_data_select">선택</string>
+    <string name="offline_data_around_me">내 주변</string>
+    <string name="offline_data_around_me_wide">내 주변, 더 넓게</string>
+    <string name="offline_data_near_q">주변 지역을 다운로드할까요 (%1$s)?</string>
+    <string name="offline_data_near_all_here">주변의 모든 지역이 다운로드되었습니다.</string>
+    <string name="offline_data_no_location">아직 위치를 알 수 없습니다.</string>
     <string name="offline_data_update_all">모두 업데이트 (%1$d)</string>
     <string name="offline_data_update">업데이트</string>
     <string name="offline_data_wifi_updates">매주 Wi-Fi에서 업데이트</string>

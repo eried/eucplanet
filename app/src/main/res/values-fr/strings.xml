@@ -2882,10 +2882,6 @@
     <string name="nav_unlock_confirm">Convertir</string>
     <string name="nav_track_badge">Trace verrouillée</string>
     <string name="voice_nav_place_reached">%1$s atteint</string>
-    <string name="offline_routing_mode_label">Itinéraires hors ligne</string>
-    <string name="offline_routing_mode_online">En ligne d’abord</string>
-    <string name="offline_routing_mode_offline">Hors ligne d’abord</string>
-    <string name="offline_routing_hint">Les zones téléchargées affichent la carte et calculent les itinéraires sur le téléphone sans réseau. En ligne d\'abord ne s\'en sert pour les itinéraires que si les serveurs échouent.</string>
     <string name="offline_data_open">Zones hors ligne</string>
     <string name="offline_server_url">Serveur de données hors ligne</string>
     <string name="offline_data_title">Zones hors ligne</string>
@@ -2893,6 +2889,13 @@
     <string name="offline_data_tap_hint">Touchez un carré pour télécharger sa carte et ses itinéraires, ou le supprimer.</string>
     <string name="offline_data_list_error">Serveur injoignable. Les zones téléchargées fonctionnent toujours.</string>
     <string name="offline_data_along_route">Mon trajet</string>
+    <string name="offline_prefer">Préférer carte et itinéraires hors ligne</string>
+    <string name="offline_data_select">Choisir</string>
+    <string name="offline_data_around_me">Autour de moi</string>
+    <string name="offline_data_around_me_wide">Autour de moi, plus large</string>
+    <string name="offline_data_near_q">Télécharger les zones autour de vous (%1$s) ?</string>
+    <string name="offline_data_near_all_here">Toutes les zones autour de vous sont téléchargées.</string>
+    <string name="offline_data_no_location">Votre position n\'est pas encore connue.</string>
     <string name="offline_data_update_all">Tout mettre à jour (%1$d)</string>
     <string name="offline_data_update">Mettre à jour</string>
     <string name="offline_data_wifi_updates">Mettre à jour chaque semaine en Wi-Fi</string>

@@ -2879,10 +2879,6 @@
     <string name="nav_unlock_confirm">Преобразовать</string>
     <string name="nav_track_badge">Заблокированный трек</string>
     <string name="voice_nav_place_reached">%1$s: на месте</string>
-    <string name="offline_routing_mode_label">Офлайн-маршруты</string>
-    <string name="offline_routing_mode_online">Сначала онлайн</string>
-    <string name="offline_routing_mode_offline">Сначала офлайн</string>
-    <string name="offline_routing_hint">Скачанные области показывают карту и строят маршруты на телефоне без связи. Сначала онлайн использует их для маршрутов, только если серверы не отвечают.</string>
     <string name="offline_data_open">Офлайн-области</string>
     <string name="offline_server_url">Сервер офлайн-данных</string>
     <string name="offline_data_title">Офлайн-области</string>
@@ -2890,6 +2886,13 @@
     <string name="offline_data_tap_hint">Нажмите на квадрат, чтобы скачать его карту и маршруты или удалить его.</string>
     <string name="offline_data_list_error">Сервер недоступен. Скачанные области продолжают работать.</string>
     <string name="offline_data_along_route">Мой маршрут</string>
+    <string name="offline_prefer">Сначала офлайн-карта и маршруты</string>
+    <string name="offline_data_select">Выбрать</string>
+    <string name="offline_data_around_me">Вокруг меня</string>
+    <string name="offline_data_around_me_wide">Вокруг меня, шире</string>
+    <string name="offline_data_near_q">Скачать области вокруг вас (%1$s)?</string>
+    <string name="offline_data_near_all_here">Все области вокруг вас скачаны.</string>
+    <string name="offline_data_no_location">Ваше местоположение пока неизвестно.</string>
     <string name="offline_data_update_all">Обновить все (%1$d)</string>
     <string name="offline_data_update">Обновить</string>
     <string name="offline_data_wifi_updates">Обновлять раз в неделю по Wi-Fi</string>

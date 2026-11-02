@@ -238,23 +238,19 @@ fun NavigatorSettingsContent(
             onCommit = { viewModel.updateNavValhallaUrl(it) },
         )
 
-        // --- Offline routing: downloaded areas route on the phone, as a
-        // fallback (default) or first. Nothing changes until an area is
+        // --- Offline: downloaded areas give the map and the route as a
+        // backup (default) or first. Nothing changes until an area is
         // downloaded. ---
-        SegmentedChoice(
-            label = stringResource(R.string.offline_routing_mode_label),
-            options = listOf(
-                com.eried.eucplanet.data.model.OfflineRoutingMode.FALLBACK.name to
-                    stringResource(R.string.offline_routing_mode_online),
-                com.eried.eucplanet.data.model.OfflineRoutingMode.PREFER.name to
-                    stringResource(R.string.offline_routing_mode_offline),
-            ),
-            current = settings.offlineRouting.mode.name,
+        SwitchRow(
+            label = stringResource(R.string.offline_prefer),
+            checked = settings.offlineRouting.mode == com.eried.eucplanet.data.model.OfflineRoutingMode.PREFER,
             onChange = {
-                viewModel.updateOfflineRoutingMode(com.eried.eucplanet.data.model.OfflineRoutingMode.fromName(it))
+                viewModel.updateOfflineRoutingMode(
+                    if (it) com.eried.eucplanet.data.model.OfflineRoutingMode.PREFER
+                    else com.eried.eucplanet.data.model.OfflineRoutingMode.FALLBACK
+                )
             },
         )
-        HintText(stringResource(R.string.offline_routing_hint), small = true)
         var offlineAreasOpen by rememberSaveable { mutableStateOf(false) }
         Row(
             modifier = Modifier
@@ -616,7 +612,7 @@ private fun SwitchRow(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(label, style = MaterialTheme.typography.bodyLarge)
+        Text(label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
         Switch(
             checked = checked,
             onCheckedChange = onChange,

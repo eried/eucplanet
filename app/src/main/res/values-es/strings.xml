@@ -2875,10 +2875,6 @@
     <string name="nav_unlock_confirm">Convertir</string>
     <string name="nav_track_badge">Ruta bloqueada</string>
     <string name="voice_nav_place_reached">%1$s alcanzado</string>
-    <string name="offline_routing_mode_label">Rutas sin conexión</string>
-    <string name="offline_routing_mode_online">Primero en línea</string>
-    <string name="offline_routing_mode_offline">Primero sin conexión</string>
-    <string name="offline_routing_hint">Las zonas descargadas muestran el mapa y calculan rutas en el teléfono sin señal. Primero en línea solo las usa para rutas si fallan los servidores.</string>
     <string name="offline_data_open">Zonas sin conexión</string>
     <string name="offline_server_url">Servidor de datos sin conexión</string>
     <string name="offline_data_title">Zonas sin conexión</string>
@@ -2886,6 +2882,13 @@
     <string name="offline_data_tap_hint">Toca un cuadro para descargar su mapa y rutas, o para borrarlo.</string>
     <string name="offline_data_list_error">No se puede conectar al servidor. Las zonas descargadas siguen funcionando.</string>
     <string name="offline_data_along_route">Mi ruta</string>
+    <string name="offline_prefer">Preferir mapa y rutas sin conexión</string>
+    <string name="offline_data_select">Elegir</string>
+    <string name="offline_data_around_me">A mi alrededor</string>
+    <string name="offline_data_around_me_wide">A mi alrededor, más amplio</string>
+    <string name="offline_data_near_q">¿Descargar las zonas a tu alrededor (%1$s)?</string>
+    <string name="offline_data_near_all_here">Todas las zonas a tu alrededor están descargadas.</string>
+    <string name="offline_data_no_location">Aún no se conoce tu ubicación.</string>
     <string name="offline_data_update_all">Actualizar todo (%1$d)</string>
     <string name="offline_data_update">Actualizar</string>
     <string name="offline_data_wifi_updates">Actualizar cada semana por Wi-Fi</string>

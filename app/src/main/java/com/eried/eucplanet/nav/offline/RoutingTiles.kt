@@ -46,6 +46,17 @@ object RoutingTiles {
         return out
     }
 
+    /** Every tile within about [km] of [p]: the box that far out each way. */
+    fun tilesAround(p: GeoPoint, km: Double): Set<String> {
+        val dLat = km / KM_PER_DEG
+        val dLng = km / (KM_PER_DEG * kotlin.math.cos(Math.toRadians(p.lat)).coerceAtLeast(0.05))
+        val south = max(-90.0, p.lat - dLat)
+        val north = min(89.999999, p.lat + dLat)
+        val west = max(-180.0, p.lng - dLng)
+        val east = min(179.999999, p.lng + dLng)
+        return tilesForLeg(GeoPoint(south, west), GeoPoint(north, east), padDeg = 0.0)
+    }
+
     /** `[south, west, north, east]` of a tile name; throws for a name that is not one. */
     fun bounds(name: String): DoubleArray {
         val m = NAME.matchEntire(name) ?: throw IllegalArgumentException("not a tile: $name")
@@ -60,6 +71,8 @@ object RoutingTiles {
     fun legKm(a: GeoPoint, b: GeoPoint): Double = GeoMath.distanceM(a, b) / 1000.0
 
     private fun corner(deg: Double): Int = (floor(deg / SIZE_DEG) * SIZE_DEG).toInt()
+
+    private const val KM_PER_DEG = 111.32
 
     private val NAME = Regex("""([EW])(\d{1,3})_([NS])(\d{1,2})""")
 }

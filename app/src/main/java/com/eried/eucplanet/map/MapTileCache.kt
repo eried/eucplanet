@@ -52,6 +52,10 @@ internal object MapTileCache {
     private val clientLock = Any()
     private val settingsStarted = AtomicBoolean(false)
 
+    /** "Prefer offline": a downloaded square's own tile before the online one. */
+    @Volatile
+    private var preferOffline = false
+
     @Volatile
     private var requestedHttpBytes = DEFAULT_HTTP_BYTES
     private var httpCache: MapTileHttpCache? = null
@@ -80,6 +84,15 @@ internal object MapTileCache {
                     }
                 }
         }
+        scope.launch {
+            settingsRepository.settings
+                .map { it.offlineRouting.mode == com.eried.eucplanet.data.model.OfflineRoutingMode.PREFER }
+                .distinctUntilChanged()
+                .collect { on ->
+                    preferOffline = on
+                    com.eried.eucplanet.nav.offline.map.OfflineMapWeb.prefer = on
+                }
+        }
     }
 
     fun get(url: String): ImageBitmap? = synchronized(decoded) {
@@ -99,6 +112,7 @@ internal object MapTileCache {
 
         val candidate = scope.async(start = CoroutineStart.LAZY) {
             val referenceUrl = url.replace("_Gray_Base/", "_Gray_Reference/")
+            if (preferOffline) xyz?.let { offlinePng(it) }?.let { return@async it }
             if (referenceUrl == url) {
                 httpOwner(context.applicationContext).fetch(url) { input ->
                     input.readLimitedBytes(WatchMapProtocol.MAX_TILE_ASSET_BYTES)
@@ -144,7 +158,8 @@ internal object MapTileCache {
         synchronized(decoded) { decoded.get(url) }?.let { return it }
 
         val candidate = scope.async(start = CoroutineStart.LAZY) {
-            (fetchDecoded(context, url) ?: xyz?.let { offlineDecoded(it) })?.also { tile ->
+            val first = if (preferOffline) xyz?.let { offlineDecoded(it) } else null
+            (first ?: fetchDecoded(context, url) ?: xyz?.takeIf { !preferOffline }?.let { offlineDecoded(it) })?.also { tile ->
                 synchronized(decoded) { decoded.put(url, tile) }
             }
         }

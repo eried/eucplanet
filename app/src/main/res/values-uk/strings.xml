@@ -2876,10 +2876,6 @@
     <string name="nav_unlock_confirm">Перетворити</string>
     <string name="nav_track_badge">Заблокований трек</string>
     <string name="voice_nav_place_reached">%1$s: на місці</string>
-    <string name="offline_routing_mode_label">Офлайн-маршрути</string>
-    <string name="offline_routing_mode_online">Спершу онлайн</string>
-    <string name="offline_routing_mode_offline">Спершу офлайн</string>
-    <string name="offline_routing_hint">Завантажені області показують мапу й прокладають маршрути на телефоні без зв\'язку. Спершу онлайн використовує їх для маршрутів, лише коли сервери не відповідають.</string>
     <string name="offline_data_open">Офлайн-області</string>
     <string name="offline_server_url">Сервер офлайн-даних</string>
     <string name="offline_data_title">Офлайн-області</string>
@@ -2887,6 +2883,13 @@
     <string name="offline_data_tap_hint">Торкніться квадрата, щоб завантажити його мапу й маршрути або видалити.</string>
     <string name="offline_data_list_error">Сервер недоступний. Завантажені області й далі працюють.</string>
     <string name="offline_data_along_route">Мій маршрут</string>
+    <string name="offline_prefer">Спершу офлайн-карта і маршрути</string>
+    <string name="offline_data_select">Вибрати</string>
+    <string name="offline_data_around_me">Навколо мене</string>
+    <string name="offline_data_around_me_wide">Навколо мене, ширше</string>
+    <string name="offline_data_near_q">Завантажити області навколо вас (%1$s)?</string>
+    <string name="offline_data_near_all_here">Усі області навколо вас завантажено.</string>
+    <string name="offline_data_no_location">Ваше місцезнаходження ще невідоме.</string>
     <string name="offline_data_update_all">Оновити все (%1$d)</string>
     <string name="offline_data_update">Оновити</string>
     <string name="offline_data_wifi_updates">Оновлювати щотижня через Wi-Fi</string>

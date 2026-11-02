@@ -2472,7 +2472,7 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
     if (layer.ref2){ refLayer2=L.tileLayer(layer.ref2, opts).addTo(map); refLayer2.bringToBack(); }
     if (layer.ref){ refLayer=L.tileLayer(layer.ref, opts).addTo(map); refLayer.bringToBack(); }
     baseLayer.bringToBack();
-    offlineMap.layer.bringToBack();
+    if (!offlineMap.prefer) offlineMap.layer.bringToBack();
     offlineMap.watch(baseLayer);
   };
   window.setMapType('$initialType');

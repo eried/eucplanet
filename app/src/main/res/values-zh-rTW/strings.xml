@@ -2875,10 +2875,6 @@
     <string name="nav_unlock_confirm">轉換</string>
     <string name="nav_track_badge">已鎖定的軌跡</string>
     <string name="voice_nav_place_reached">已抵達 %1$s</string>
-    <string name="offline_routing_mode_label">離線路線</string>
-    <string name="offline_routing_mode_online">優先線上</string>
-    <string name="offline_routing_mode_offline">優先離線</string>
-    <string name="offline_routing_hint">已下載的區域在沒有訊號時也能在手機上顯示地圖並規劃路線。線上優先只在伺服器失敗時用它們規劃路線。</string>
     <string name="offline_data_open">離線區域</string>
     <string name="offline_server_url">離線資料伺服器</string>
     <string name="offline_data_title">離線區域</string>
@@ -2886,6 +2882,13 @@
     <string name="offline_data_tap_hint">點按方塊下載其地圖和路線，或將其刪除。</string>
     <string name="offline_data_list_error">無法連線伺服器。已下載的區域仍可使用。</string>
     <string name="offline_data_along_route">我的路線</string>
+    <string name="offline_prefer">優先使用離線地圖和路線</string>
+    <string name="offline_data_select">選擇</string>
+    <string name="offline_data_around_me">我的周圍</string>
+    <string name="offline_data_around_me_wide">我的周圍（更大）</string>
+    <string name="offline_data_near_q">下載你周圍的區域（%1$s）？</string>
+    <string name="offline_data_near_all_here">你周圍的所有區域皆已下載。</string>
+    <string name="offline_data_no_location">尚不知道你的位置。</string>
     <string name="offline_data_update_all">全部更新 (%1$d)</string>
     <string name="offline_data_update">更新</string>
     <string name="offline_data_wifi_updates">每週透過 Wi-Fi 更新</string>

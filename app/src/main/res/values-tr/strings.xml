@@ -2874,10 +2874,6 @@
     <string name="nav_unlock_confirm">Dönüştür</string>
     <string name="nav_track_badge">Kilitli iz</string>
     <string name="voice_nav_place_reached">%1$s ulaşıldı</string>
-    <string name="offline_routing_mode_label">Çevrimdışı rota</string>
-    <string name="offline_routing_mode_online">Önce çevrimiçi</string>
-    <string name="offline_routing_mode_offline">Önce çevrimdışı</string>
-    <string name="offline_routing_hint">İndirilen alanlar sinyal olmadan da haritayı gösterir ve telefonda rota hesaplar. Önce çevrimiçi, onları rotalar için yalnızca sunucular yanıt vermediğinde kullanır.</string>
     <string name="offline_data_open">Çevrimdışı alanlar</string>
     <string name="offline_server_url">Çevrimdışı veri sunucusu</string>
     <string name="offline_data_title">Çevrimdışı alanlar</string>
@@ -2885,6 +2881,13 @@
     <string name="offline_data_tap_hint">Haritasını ve rotalarını indirmek ya da silmek için bir kareye dokunun.</string>
     <string name="offline_data_list_error">Sunucuya ulaşılamıyor. İndirilen bölgeler çalışmaya devam eder.</string>
     <string name="offline_data_along_route">Rotam</string>
+    <string name="offline_prefer">Çevrimdışı harita ve rotayı tercih et</string>
+    <string name="offline_data_select">Seç</string>
+    <string name="offline_data_around_me">Çevremde</string>
+    <string name="offline_data_around_me_wide">Çevremde, daha geniş</string>
+    <string name="offline_data_near_q">Çevrendeki bölgeler indirilsin mi (%1$s)?</string>
+    <string name="offline_data_near_all_here">Çevrendeki tüm bölgeler indirildi.</string>
+    <string name="offline_data_no_location">Konumun henüz bilinmiyor.</string>
     <string name="offline_data_update_all">Tümünü güncelle (%1$d)</string>
     <string name="offline_data_update">Güncelle</string>
     <string name="offline_data_wifi_updates">Her hafta Wi-Fi ile güncelle</string>

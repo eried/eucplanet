@@ -2682,10 +2682,6 @@
     <string name="nav_unlock_confirm">Převést</string>
     <string name="nav_track_badge">Zamčená trasa</string>
     <string name="voice_nav_place_reached">%1$s dosaženo</string>
-    <string name="offline_routing_mode_label">Offline navigace</string>
-    <string name="offline_routing_mode_online">Nejdřív online</string>
-    <string name="offline_routing_mode_offline">Nejdřív offline</string>
-    <string name="offline_routing_hint">Stažené oblasti zobrazí mapu a plánují trasy v telefonu i bez signálu. Nejdřív online je pro trasy použije jen při výpadku serverů.</string>
     <string name="offline_data_open">Offline oblasti</string>
     <string name="offline_server_url">Server offline dat</string>
     <string name="offline_data_title">Offline oblasti</string>
@@ -2693,6 +2689,13 @@
     <string name="offline_data_tap_hint">Klepnutím na čtverec stáhnete jeho mapu a trasy, nebo ho smažete.</string>
     <string name="offline_data_list_error">Server není dostupný. Stažené oblasti fungují dál.</string>
     <string name="offline_data_along_route">Moje trasa</string>
+    <string name="offline_prefer">Upřednostnit offline mapu a trasy</string>
+    <string name="offline_data_select">Vybrat</string>
+    <string name="offline_data_around_me">Kolem mě</string>
+    <string name="offline_data_around_me_wide">Kolem mě, šířeji</string>
+    <string name="offline_data_near_q">Stáhnout oblasti kolem vás (%1$s)?</string>
+    <string name="offline_data_near_all_here">Všechny oblasti kolem vás jsou stažené.</string>
+    <string name="offline_data_no_location">Vaše poloha zatím není známa.</string>
     <string name="offline_data_update_all">Aktualizovat vše (%1$d)</string>
     <string name="offline_data_update">Aktualizovat</string>
     <string name="offline_data_wifi_updates">Aktualizovat každý týden přes Wi-Fi</string>

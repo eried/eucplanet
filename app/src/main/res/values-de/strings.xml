@@ -2897,10 +2897,6 @@
     <string name="nav_unlock_confirm">Umwandeln</string>
     <string name="nav_track_badge">Gesperrter Track</string>
     <string name="voice_nav_place_reached">%1$s erreicht</string>
-    <string name="offline_routing_mode_label">Offline-Routing</string>
-    <string name="offline_routing_mode_online">Zuerst online</string>
-    <string name="offline_routing_mode_offline">Zuerst offline</string>
-    <string name="offline_routing_hint">Geladene Gebiete zeigen die Karte und planen Routen auf dem Handy ohne Empfang. Online zuerst nutzt sie für Routen nur, wenn die Server ausfallen.</string>
     <string name="offline_data_open">Offline-Gebiete</string>
     <string name="offline_server_url">Server für Offline-Daten</string>
     <string name="offline_data_title">Offline-Gebiete</string>
@@ -2908,6 +2904,13 @@
     <string name="offline_data_tap_hint">Tippe auf ein Feld, um Karte und Routen zu laden oder es zu löschen.</string>
     <string name="offline_data_list_error">Server nicht erreichbar. Geladene Gebiete funktionieren weiter.</string>
     <string name="offline_data_along_route">Meine Route</string>
+    <string name="offline_prefer">Offline-Karte und Routing bevorzugen</string>
+    <string name="offline_data_select">Auswählen</string>
+    <string name="offline_data_around_me">Um mich herum</string>
+    <string name="offline_data_around_me_wide">Um mich herum, weiter</string>
+    <string name="offline_data_near_q">Gebiete um dich herum laden (%1$s)?</string>
+    <string name="offline_data_near_all_here">Alle Gebiete um dich herum sind geladen.</string>
+    <string name="offline_data_no_location">Dein Standort ist noch nicht bekannt.</string>
     <string name="offline_data_update_all">Alle aktualisieren (%1$d)</string>
     <string name="offline_data_update">Aktualisieren</string>
     <string name="offline_data_wifi_updates">Wöchentlich im WLAN aktualisieren</string>

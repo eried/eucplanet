@@ -2880,10 +2880,6 @@
     <string name="nav_unlock_confirm">Converter</string>
     <string name="nav_track_badge">Trilha bloqueada</string>
     <string name="voice_nav_place_reached">%1$s alcançado</string>
-    <string name="offline_routing_mode_label">Rotas offline</string>
-    <string name="offline_routing_mode_online">Online primeiro</string>
-    <string name="offline_routing_mode_offline">Offline primeiro</string>
-    <string name="offline_routing_hint">As áreas baixadas mostram o mapa e calculam rotas no celular sem sinal. Online primeiro só as usa para rotas quando os servidores falham.</string>
     <string name="offline_data_open">Áreas offline</string>
     <string name="offline_server_url">Servidor de dados offline</string>
     <string name="offline_data_title">Áreas offline</string>
@@ -2891,6 +2887,13 @@
     <string name="offline_data_tap_hint">Toque em um quadrado para baixar o mapa e as rotas, ou para apagá-lo.</string>
     <string name="offline_data_list_error">Sem acesso ao servidor. As áreas baixadas continuam funcionando.</string>
     <string name="offline_data_along_route">Minha rota</string>
+    <string name="offline_prefer">Preferir mapa e rotas offline</string>
+    <string name="offline_data_select">Escolher</string>
+    <string name="offline_data_around_me">Ao meu redor</string>
+    <string name="offline_data_around_me_wide">Ao meu redor, mais amplo</string>
+    <string name="offline_data_near_q">Baixar as áreas ao seu redor (%1$s)?</string>
+    <string name="offline_data_near_all_here">Todas as áreas ao seu redor estão baixadas.</string>
+    <string name="offline_data_no_location">Sua localização ainda não é conhecida.</string>
     <string name="offline_data_update_all">Atualizar tudo (%1$d)</string>
     <string name="offline_data_update">Atualizar</string>
     <string name="offline_data_wifi_updates">Atualizar toda semana no Wi-Fi</string>
