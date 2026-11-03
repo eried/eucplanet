@@ -1,5 +1,6 @@
 package com.eried.eucplanet.nav.offline
 
+import com.eried.eucplanet.data.model.OfflineRoutingSettings
 import java.io.File
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -100,6 +101,41 @@ class TileIndexTest {
         map.setLastModified(remote.map!!.dateMs - 3 * 86_400_000L)
         assertTrue("older than the mirror's", TileIndex.mapWanted(map, remote))
         assertFalse("no map on the server", TileIndex.mapWanted(File(tmp.root, "x"), remote.copy(map = null)))
+    }
+
+    @Test fun aRoutingOnlySquare_stillWantsItsMap_andCountsOnlyWhatIsFetched() {
+        val route = File(tmp.root, "E15_N65.rd5")
+        val map = File(tmp.root, "E15_N65.pmtiles")
+        val remote = RemoteTile("E15_N65", 9, 1_793_145_780_000, map = RemoteMap("https://x/E15_N65.pmtiles", 90, 1_793_145_780_000))
+        assertEquals("nothing here: routing and map", 99L, TileIndex.fetchBytes(route, map, remote))
+        route.writeBytes(ByteArray(9))
+        route.setLastModified(remote.dateMs)
+        assertEquals("routing only: just the map", 90L, TileIndex.fetchBytes(route, map, remote))
+        map.writeBytes(ByteArray(90))
+        map.setLastModified(remote.map!!.dateMs)
+        assertEquals("both current", 0L, TileIndex.fetchBytes(route, map, remote))
+    }
+
+    @Test fun brouterRouting_getsTheMirrorsMaps_byName() {
+        val map = RemoteMap("https://m/E10_N60.pmtiles", 9_000, 5)
+        val brouter = listOf(RemoteTile("E10_N60", 100, 1), RemoteTile("E15_N60", 200, 2))
+        val mirror = listOf(RemoteTile("E10_N60", 99, 0, "https://m/E10_N60.rd5", map))
+        val out = TileIndex.withMaps(brouter, mirror)
+        assertEquals(map, out[0].map)
+        assertEquals(100L, out[0].bytes)
+        assertEquals(null, out[0].url)
+        assertEquals(null, out[1].map)
+    }
+
+    @Test fun theChosenServerComesFirst_thenBothMirrors_thenBrouter() {
+        val hf = OfflineRoutingSettings.MIRROR_URL
+        val gh = OfflineRoutingSettings.GITHUB_MIRROR_URL
+        val br = OfflineRoutingSettings.BROUTER_URL
+        fun order(s: String) = TileSource.fallbacks(s).map { it.base }
+        assertEquals(listOf(hf, gh, br), order(hf))
+        assertEquals(listOf(gh, hf, br), order(gh))
+        assertEquals(listOf(br, hf, gh), order("$br/"))
+        assertEquals(listOf("https://my.server/brouter", hf, gh, br), order("https://my.server/brouter"))
     }
 
     @Test fun aBrokenMirrorIndex_givesNull() {

@@ -1,5 +1,6 @@
 package com.eried.eucplanet.nav.offline
 
+import com.eried.eucplanet.data.model.OfflineRoutingSettings
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -34,6 +35,15 @@ class TileSource private constructor(val base: String, val isMirror: Boolean) {
             val s = server.trim().trimEnd('/')
             return TileSource(s, s.endsWith(".json", ignoreCase = true))
         }
+
+        /** The [server] first, then each mirror, then brouter.de, each once. */
+        fun fallbacks(server: String): List<TileSource> =
+            listOf(server, OfflineRoutingSettings.MIRROR_URL, OfflineRoutingSettings.GITHUB_MIRROR_URL, OfflineRoutingSettings.BROUTER_URL)
+                .map { of(it) }.distinctBy { it.base }
+
+        /** Our mirrors, the ones with maps. */
+        val mirrors: List<TileSource>
+            get() = listOf(of(OfflineRoutingSettings.MIRROR_URL), of(OfflineRoutingSettings.GITHUB_MIRROR_URL))
     }
 }
 
@@ -93,6 +103,20 @@ object TileIndex {
     fun mapWanted(map: File, remote: RemoteTile): Boolean {
         val m = remote.map ?: return false
         return !map.isFile || m.dateMs > map.lastModified() + DAY_MS
+    }
+
+    /** What a download of this square fetches: its routing when missing or
+     *  older, plus its map when [mapWanted]. */
+    fun fetchBytes(route: File, map: File, remote: RemoteTile): Long =
+        (if (!route.isFile || needsUpdate(route, remote)) remote.bytes else 0L) +
+            (if (mapWanted(map, remote)) remote.map?.bytes ?: 0L else 0L)
+
+    /** A BRouter server's [tiles] with the maps the [mirror] has for the
+     *  same squares. Routing still comes from the server; only our mirror
+     *  has maps. */
+    fun withMaps(tiles: List<RemoteTile>, mirror: List<RemoteTile>): List<RemoteTile> {
+        val maps = mirror.mapNotNull { t -> t.map?.let { t.name to it } }.toMap()
+        return tiles.map { t -> maps[t.name]?.let { t.copy(map = it) } ?: t }
     }
 
     private const val DAY_MS = 86_400_000L

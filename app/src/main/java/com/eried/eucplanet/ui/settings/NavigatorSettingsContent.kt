@@ -521,6 +521,7 @@ fun NavigatorSettingsContent(
  *  are interchangeable for the chargers & places query. */
 private val OFFLINE_SERVER_PRESETS = listOf(
     "EUC Planet mirror (default)" to com.eried.eucplanet.data.model.OfflineRoutingSettings.MIRROR_URL,
+    "EUC Planet mirror, GitHub" to com.eried.eucplanet.data.model.OfflineRoutingSettings.GITHUB_MIRROR_URL,
     "brouter.de" to com.eried.eucplanet.data.model.OfflineRoutingSettings.BROUTER_URL,
 )
 

@@ -113,7 +113,7 @@ class TileDownloadWorker(
             if (code != 200 && code != 206) throw IOException("HTTP $code")
             if (code == 200) have = 0L
             val total = have + conn.contentLengthLong.coerceAtLeast(0L)
-            conn.getHeaderField("Last-Modified")?.let { meta.writeText(partMeta(url, it)) }
+            validator(conn.getHeaderField("Last-Modified"), conn.getHeaderField("ETag"))?.let { meta.writeText(partMeta(url, it)) }
             val modified = conn.getHeaderFieldDate("Last-Modified", 0L)
             conn.inputStream.use { input ->
                 FileOutputStream(part, have > 0).use { out ->
@@ -174,6 +174,12 @@ class TileDownloadWorker(
         /** What a part keeps beside it: the link it came from and that
          *  build's date. */
         fun partMeta(url: String, lastModified: String): String = "$url\n$lastModified"
+
+        /** What a part resumes with in If-Range: the build's date, or its
+         *  strong ETag where the server sends no date (Hugging Face). */
+        fun validator(lastModified: String?, etag: String?): String? =
+            lastModified?.takeIf { it.isNotBlank() }
+                ?: etag?.trim()?.takeIf { it.startsWith("\"") }
 
         /** The date to resume [url] with, or null to start over. GitHub
          *  ignores If-Range, so a part only resumes from the link it came

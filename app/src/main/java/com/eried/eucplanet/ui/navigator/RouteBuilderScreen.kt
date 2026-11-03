@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -356,6 +357,10 @@ fun RouteBuilderScreen(
     var panelExpanded by rememberSaveable { mutableStateOf(true) }
     var webView by remember { mutableStateOf<WebView?>(null) }
     var showLayerSheet by remember { mutableStateOf(false) }
+    // The downloaded map is showing (no signal, or Prefer offline over a
+    // downloaded square): styles and overlays cannot load, so their
+    // button greys out.
+    var offlineMapShown by remember { mutableStateOf(false) }
     // The bottom stops panel's measured height in pixels, used to offset
     // recenter / tap-stop centring so the target lands in the centre of
     // the VISIBLE map area rather than behind the panel. Updated via
@@ -838,7 +843,7 @@ fun RouteBuilderScreen(
 
     Scaffold(
         snackbarHost = {
-            SnackbarHost(snackbarHost) {
+            SnackbarHost(snackbarHost, modifier = Modifier.imePadding()) {
                 androidx.compose.material3.Snackbar(
                     it,
                     containerColor = MaterialTheme.appColors.snackbarBackground,
@@ -1125,6 +1130,12 @@ fun RouteBuilderScreen(
             if (!pageReady) return@LaunchedEffect
             wv.evaluateJavascript("nativeSetRecenterOffset($recenterOffsetPx);", null)
         }
+        // The credit hangs from just under the top bar.
+        LaunchedEffect(pageReady, effectiveTopBarPx) {
+            val wv = webView ?: return@LaunchedEffect
+            if (!pageReady) return@LaunchedEffect
+            wv.evaluateJavascript("nativeSetCreditTop(${effectiveTopBarPx / density.density + 8f});", null)
+        }
         // Landscape: the map spans the full width and the stops sidebar covers
         // part of it, so centre the rider in the visible part. Half the sidebar
         // width, in dp (= CSS px, like the vertical offset above), moving the
@@ -1251,7 +1262,11 @@ fun RouteBuilderScreen(
                                     }
                                 },
                                 poiTapped = { id -> viewModel.onPoiTapped(id) },
-                                bearingChanged = { deg -> viewModel.setMapBearing(deg) }
+                                bearingChanged = { deg -> viewModel.setMapBearing(deg) },
+                                offlineMap = { on ->
+                                    offlineMapShown = on
+                                    if (on) showLayerSheet = false
+                                }
                             ),
                             "AndroidNav"
                         )
@@ -1526,6 +1541,7 @@ fun RouteBuilderScreen(
                         icon = Icons.Default.Layers,
                         contentDescription = stringResource(R.string.nav_map_style),
                         onClick = { showLayerSheet = true },
+                        enabled = !offlineMapShown,
                         modifier = Modifier.padding(end = 16.dp, bottom = 12.dp)
                     )
                     DropdownMenu(
@@ -3607,17 +3623,19 @@ private fun OverlayFab(
     /** Turns the glyph inside, not the button. The compass needle has to point
      *  where the map is turned while its housing stays square to the screen. */
     iconRotation: Float = 0f,
+    enabled: Boolean = true,
 ) {
-    val onColor = if (active) MaterialTheme.colorScheme.onPrimary
+    val onColor = if (!enabled) MaterialTheme.appColors.textDisabled
+    else if (active) MaterialTheme.colorScheme.onPrimary
     else MaterialTheme.colorScheme.onSurface
     Surface(
         shape = RoundedCornerShape(12.dp),
-        color = if (active) MaterialTheme.colorScheme.primary
+        color = if (active && enabled) MaterialTheme.colorScheme.primary
         else MaterialTheme.colorScheme.surface,
         shadowElevation = 6.dp,
         modifier = modifier
             .size(56.dp)
-            .combinedClickable(onClick = onClick, onLongClick = onLongClick)
+            .combinedClickable(enabled = enabled, onClick = onClick, onLongClick = onLongClick)
     ) {
         Box(contentAlignment = Alignment.Center) {
             Icon(
@@ -3696,9 +3714,15 @@ private class NavJsBridge(
     private val mapBoundsChanged: (Double, Double, Double, Double) -> Unit,
     private val tilesLoaded: () -> Unit,
     private val poiTapped: (Long) -> Unit,
-    private val bearingChanged: (Float) -> Unit
+    private val bearingChanged: (Float) -> Unit,
+    private val offlineMap: (Boolean) -> Unit,
 ) {
     private val main = Handler(Looper.getMainLooper())
+
+    @JavascriptInterface
+    fun onOfflineMap(on: Boolean) {
+        main.post { offlineMap(on) }
+    }
 
     @JavascriptInterface
     fun onBearingChanged(deg: Double) {

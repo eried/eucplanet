@@ -326,7 +326,7 @@ fun OfflineDataDialog(onDismiss: () -> Unit, viewModel: OfflineDataViewModel = k
 
     bulk?.let { b ->
         val names = b.names
-        val bytes = names.sumOf { state.tiles[it]?.bytes ?: 0L }
+        val bytes = remember(names) { viewModel.fetchBytes(names) }
         val text = if (OfflineDataState.warnSize(bytes, viewModel.onWifi())) {
             stringResource(R.string.offline_data_mobile_warn, size(bytes))
         } else {

@@ -1,5 +1,6 @@
 package com.eried.eucplanet.ui.recording
 
+import androidx.compose.foundation.layout.imePadding
 import android.annotation.SuppressLint
 import android.os.Build
 import android.view.MotionEvent
@@ -636,7 +637,7 @@ fun TripDetailScreen(
                 )
             }
         },
-        snackbarHost = { SnackbarHost(snackbar) }
+        snackbarHost = { SnackbarHost(snackbar, modifier = Modifier.imePadding()) }
     ) { padding ->
         if (loadingTrip) {
             // Reading a long ride takes a moment now that it happens off the main

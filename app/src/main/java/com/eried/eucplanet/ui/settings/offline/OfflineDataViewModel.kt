@@ -12,6 +12,7 @@ import com.eried.eucplanet.nav.CurrentRouteStore
 import com.eried.eucplanet.nav.offline.OfflineTiles
 import com.eried.eucplanet.nav.offline.RemoteTile
 import com.eried.eucplanet.nav.offline.RoutingTiles
+import com.eried.eucplanet.nav.offline.TileIndex
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -106,9 +107,25 @@ class OfflineDataViewModel(
 
     private fun missing(names: Set<String>): List<String> {
         // Squares the server lists; open sea has none. Without the list,
-        // all of them, and a missing one fails without retrying.
-        val known = state.value.tiles.keys.takeIf { remote.value != null }
-        return names.filter { !tiles.store.has(it) && (known == null || it in known) }
+        // all of them, and a missing one fails without retrying. A square
+        // with routing but an old or missing map (one downloaded before its
+        // map existed) still counts: the download fetches what it lacks.
+        val r = remote.value
+        val byName = r?.associateBy { it.name }
+        return names.filter { name ->
+            if (byName == null) return@filter !tiles.store.has(name)
+            val t = byName[name] ?: return@filter false
+            TileIndex.fetchBytes(tiles.store.finalFile(name), tiles.store.mapFile(name), t) > 0
+        }
+    }
+
+    /** What downloading [names] fetches, routing and maps it does not have. */
+    fun fetchBytes(names: List<String>): Long {
+        val byName = remote.value?.associateBy { it.name }
+            ?: return names.sumOf { state.value.tiles[it]?.bytes ?: 0L }
+        return names.sumOf { n ->
+            byName[n]?.let { TileIndex.fetchBytes(tiles.store.finalFile(n), tiles.store.mapFile(n), it) } ?: 0L
+        }
     }
 
     /** True when a route is planned, so its squares can be fetched. */

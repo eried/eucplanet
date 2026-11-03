@@ -14,8 +14,7 @@ import java.io.ByteArrayInputStream
 object OfflineMapWeb {
 
     const val HOST = "offline-map.eucplanet"
-    const val NAME = "Offline map"
-    const val ATTRIBUTION = "$NAME · © OpenStreetMap contributors"
+    const val NAME = "Offline"
 
     /** Tiles are drawn at twice the size Leaflet shows them, so text stays
      *  sharp on a phone screen. */
@@ -50,31 +49,59 @@ object OfflineMapWeb {
 
     /**
      * Defines `eucOfflineMap(map)` on the page. It adds the offline layer and
-     * returns `{layer, prefer, watch(onlineLayer)}`: call `watch` with each online
-     * base layer so the credit switches to the offline one while that
-     * layer's tiles fail, and back once they load again. With [prefer] on,
-     * the offline layer sits on top instead (it is clear outside the
-     * downloaded squares) and both credits stay.
+     * returns `{layer, prefer, watch(onlineLayer)}`: call `watch` with each
+     * online base layer. While the offline map shows, the credit starts with
+     * "Offline" in bold, and the page
+     * tells `AndroidNav.onOfflineMap(on)` if it has one. Without [prefer]
+     * that is while the online tiles fail; with it the offline layer sits on
+     * top (clear outside the downloaded squares) and it is while a downloaded
+     * square is in view.
      */
     val JS get() = """
 window.eucOfflineMap = function(map, extra) {
-  var OFF = '$ATTRIBUTION';
+  var LABEL = '<span class="euc-off">$NAME</span>';
+  var OFF = LABEL + ' · © OpenStreetMap contributors';
   var PREFER = $prefer;
+  if (!document.getElementById('euc-off-css')) {
+    var css = document.createElement('style');
+    css.id = 'euc-off-css';
+    // The credit's own halo carries it; bold and a little larger is enough.
+    css.textContent = '.euc-off{font-weight:700;font-size:1.25em;}';
+    document.head.appendChild(css);
+  }
   var off = L.tileLayer('https://$HOST/{z}/{x}/{y}.png', Object.assign({maxZoom: 21, maxNativeZoom: 20, zIndex: PREFER ? 1000 : 0}, extra || {})).addTo(map);
+  var told = null;
+  function tell(on) {
+    if (on === told) return;
+    told = on;
+    try { if (window.AndroidNav && AndroidNav.onOfflineMap) AndroidNav.onOfflineMap(on); } catch (e) {}
+  }
   if (PREFER) {
     // Both maps show (online outside the downloaded squares), so both
-    // credits stay, without naming OpenStreetMap twice.
-    var credit = '';
+    // credits stay while a square is in view, without naming OpenStreetMap
+    // twice.
+    var credit = '', attr = '';
     function credit_(c) {
       var ac = map.attributionControl;
       if (!ac || c === credit) return;
       if (credit) ac.removeAttribution(credit);
-      ac.addAttribution(c);
+      if (c) ac.addAttribution(c);
       credit = c;
     }
-    credit_(OFF);
+    function update() {
+      var drawn = false, z = map.getZoom();
+      for (var k in off._tiles) {
+        var t = off._tiles[k];
+        if (Math.abs(t.coords.z - z) < 1 && t.el.naturalWidth > 0) { drawn = true; break; }
+      }
+      credit_(drawn ? (attr.indexOf('OpenStreetMap contributors') >= 0 ? LABEL : OFF) : '');
+      tell(drawn);
+    }
+    off.on('load', update);
+    off.on('tileload', update);
     return { layer: off, prefer: true, watch: function(layer) {
-      credit_((layer.options.attribution || '').indexOf('OpenStreetMap contributors') >= 0 ? '$NAME' : OFF);
+      attr = layer.options.attribution || '';
+      update();
     } };
   }
   var lastErr = 0, shown = false, attr = '', taken = 0, base = null;
@@ -98,6 +125,7 @@ window.eucOfflineMap = function(map, extra) {
     map.eachLayer(function(l) {
       if (l !== off && l !== base && l instanceof L.TileLayer && l.options.attribution === attr) l.setOpacity(on ? 0 : 1);
     });
+    tell(on);
   }
   // Leaflet never asks again for a tile that failed: while the offline map
   // shows, try the online layers again when the signal comes back, and now

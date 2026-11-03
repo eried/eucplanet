@@ -13,7 +13,6 @@ import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.eried.eucplanet.BuildConfig
-import com.eried.eucplanet.data.model.OfflineRoutingSettings
 import com.eried.eucplanet.data.repository.SettingsRepository
 import java.net.HttpURLConnection
 import java.net.URL
@@ -51,11 +50,20 @@ class OfflineTiles(
     private class Listing(val tiles: Map<String, RemoteTile>, val source: TileSource, val lookupsUrl: String)
 
     /** The server's tiles, or null when it cannot be reached. When the
-     *  chosen server fails, brouter.de's list stands in. */
+     *  chosen server fails, the next of [TileSource.fallbacks] stands in.
+     *  A BRouter server has no maps, so those come from our mirror when one
+     *  can be read. */
     suspend fun remote(): List<RemoteTile>? = withContext(Dispatchers.IO) {
-        val chosen = TileSource.of(settings.currentOrLoad().offlineRouting.serverUrl)
-        val listing = read(chosen)
-            ?: TileSource.of(OfflineRoutingSettings.BROUTER_URL).takeIf { it.base != chosen.base }?.let { read(it) }
+        val tried = mutableSetOf<String>()
+        val listing = TileSource.fallbacks(settings.currentOrLoad().offlineRouting.serverUrl)
+            .firstNotNullOfOrNull { tried += it.base; read(it) }
+            ?.let { l ->
+                // Asking a mirror again after it just failed only adds a wait.
+                val maps = if (l.source.isMirror) null
+                    else TileSource.mirrors.filter { it.base !in tried }.firstNotNullOfOrNull { read(it) }
+                if (maps == null) l
+                else Listing(TileIndex.withMaps(l.tiles.values.toList(), maps.tiles.values.toList()).associateBy { it.name }, l.source, l.lookupsUrl)
+            }
         listing?.let { known = it }
         listing?.tiles?.values?.toList()
     }

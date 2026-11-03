@@ -34,4 +34,13 @@ class TileDownloadRulesTest {
         assertNull("a part from an older build of the app", TileDownloadWorker.resumeDate("Thu, 29 Oct 2026 07:00:50 GMT", url))
         assertNull(TileDownloadWorker.resumeDate(null, url))
     }
+
+    @Test fun huggingFace_resumesByItsETag_forLackOfADate() {
+        // Hugging Face's file servers send an ETag and no Last-Modified.
+        assertEquals("Thu, 29 Oct 2026 07:00:50 GMT", TileDownloadWorker.validator("Thu, 29 Oct 2026 07:00:50 GMT", "\"abc\""))
+        assertEquals("\"abc\"", TileDownloadWorker.validator(null, "\"abc\""))
+        assertEquals("\"abc\"", TileDownloadWorker.validator(" ", "\"abc\""))
+        assertNull("a weak ETag cannot resume", TileDownloadWorker.validator(null, "W/\"abc\""))
+        assertNull(TileDownloadWorker.validator(null, null))
+    }
 }
