@@ -84,6 +84,16 @@ their app, or opens it in a browser to see the stops and download a GPX. Map
 styles include Satellite hybrid, with road and place names over the imagery.
 The next-turn arrow can mirror to your watch, HUD, or Garmin Edge.
 
+Bike routes prefer quiet streets, a missed turn gets a new route in seconds,
+the map turns with you while navigating, and GPX tracks are ridden as drawn.
+
+**Offline maps and routing.** Download the areas you ride and the map, routes
+and turn cues keep working with no signal, as a backup or as the first choice.
+The data comes from our own [mirror](https://github.com/eried/eucplanet-maps).
+
+**Android Auto.** Turn-by-turn on the car screen, with your dashboard numbers
+beside the map.
+
 **Overlay Studio.** Record video and stills with a customisable telemetry overlay:
 dials, gauges, rolling graphs, `{speed}`-style text, mini-map, layered cameras. Save
 layouts as JSON. Export a finished MP4, or a transparent overlay to composite over
@@ -131,7 +141,7 @@ What can I say list is generated from what it really understands.
 
 **Trip recording.** GPS and telemetry to DarknessBot-compatible CSV, auto-record,
 live track preview, and a trip list with quick export and share. Trips are
-recovered even if the app is closed mid-ride. View them later in
+recovered even if the app is closed mid-ride. Compare puts two trips side by side. View them later in
 the [web Trip Viewer](https://github.com/eried/eucviewer), or opt in to share them on
 the [EUC Stats leaderboard](https://eucstats.ried.no/) and rank your distance against
 riders worldwide, by country.
@@ -206,7 +216,7 @@ screen geometry, alarm and charging tuning, and more. Each has a sensible defaul
 a valid range, and a one-tap restore, so you can tune deeply without breaking
 anything.
 
-**Multi-language support.** Full UI localisation in 22 languages, at parity across
+**Multi-language support.** Full UI localisation in 23 languages, at parity across
 all of them. The exceptions are English-only by design: the Garmin and Amazfit
 dials, the helmet HUD, and Service Mode.
 
@@ -297,6 +307,9 @@ Thanks to the people and projects that helped, kept in sync with the app (tap ve
 | [Humanitarian OSM Team](https://www.hotosm.org/) | HOT style, tiles served by OpenStreetMap France |
 | [Esri](https://www.esri.com/) | World Imagery satellite tiles (Esri, Maxar, Earthstar Geographics), the Light and Dark gray basemaps, and the road and place labels of Satellite hybrid |
 | [Leaflet](https://leafletjs.com/) | The map component every in-app map is drawn with (BSD-2) |
+| [FOSSGIS](https://www.fossgis.de/) | The public Valhalla and OSRM routing servers |
+| [BRouter](https://brouter.de/) | Offline routing (MIT) |
+| [Protomaps](https://protomaps.com/) | The OpenStreetMap build the offline maps come from |
 
 ## License
 
