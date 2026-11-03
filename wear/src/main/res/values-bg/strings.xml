@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">EUC Planet</string>
+    <string name="watch_waiting_phone">Отворете EUC Planet\nна телефона</string>
+    <string name="watch_waiting_wheel">Свържете моноколело\nв EUC Planet</string>
+    <string name="watch_disconnected">Няма връзка</string>
+    <string name="watch_horn">Клаксон</string>
+    <string name="watch_light">Светлина</string>
+    <string name="watch_speed_unit">км/ч</string>
+    <string name="watch_speed_unit_mph">mph</string>
+    <string name="watch_battery_label">Батерия</string>
+    <string name="watch_voltage_label">Напрежение</string>
+    <string name="watch_current_label">Ток</string>
+    <string name="watch_pwm_label">PWM</string>
+    <string name="watch_pwm_prefix">"PWM: "</string>
+    <string name="watch_power_label">Мощност</string>
+    <string name="watch_temp_label">Темп.</string>
+    <string name="watch_trip_label">Пътуване</string>
+    <string name="watch_torque_label">Въртящ момент</string>
+    <string name="watch_action_failed">Няма връзка с телефона</string>
+    <string name="watch_gps_label">GPS скорост</string>
+    <string name="watch_gps_permission">Докоснете, за да разрешите GPS</string>
+    <string name="watch_gps_waiting">Изчакване на сигнал…</string>
+
+    <string name="watch_action_horn">Клаксон</string>
+    <string name="watch_action_light">Светлина</string>
+    <string name="watch_action_lock">Заключване</string>
+    <string name="watch_action_safety">Законов режим</string>
+    <string name="watch_action_safety_on">Законов режим вкл.</string>
+    <string name="watch_action_safety_off">Законов режим изкл.</string>
+    <string name="watch_action_voice">Гласов отчет</string>
+    <string name="watch_action_record">Запис</string>
+    <string name="watch_action_record_start">Записът започна</string>
+    <string name="watch_action_record_stop">Записът спря</string>
+    <string name="watch_action_media_play">Пускане / пауза</string>
+    <string name="watch_action_media_next">Следваща песен</string>
+    <string name="watch_action_media_prev">Предишна песен</string>
+    <string name="watch_action_music_start">Пусни музика</string>
+    <string name="watch_action_media_pause">Спри музиката</string>
+    <string name="watch_action_long_press_hint">Задръжте за %1$s</string>
+    <string name="watch_map_phone_disconnected">Няма телефон</string>
+    <string name="watch_map_gps_permission">Разрешете GPS</string>
+    <string name="watch_map_gps_stale">Старо GPS</string>
+    <string name="watch_map_route_loading">Зареждане на маршрут</string>
+    <string name="watch_map_route_unavailable">Няма маршрут</string>
+    <string name="watch_map_loading">Зареждане на карта</string>
+    <string name="watch_map_unavailable">Няма карта</string>
+    <string name="watch_map_zoom_in">Увеличаване</string>
+    <string name="watch_map_zoom_out">Намаляване</string>
+    <string name="watch_map_open_phone">Отвори на телефона</string>
+    <string name="watch_map_waiting_gps">Чака GPS</string>
+    <string name="watch_map_pwm_value">%1$s%%</string>
+    <string name="watch_map_speed_value">%1$s %2$s</string>
+    <string name="watch_map_voltage_value">%1$s V</string>
+    <string name="watch_map_telemetry_description">PWM %1$s, скорост %2$s, напрежение %3$s.</string>
+</resources>
