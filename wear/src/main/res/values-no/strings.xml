@@ -22,7 +22,7 @@
     <string name="watch_action_failed">Når ikke telefonen</string>
     <string name="watch_gps_label">GPS-fart</string>
     <string name="watch_gps_permission">Trykk for å tillate GPS</string>
-    <string name="watch_gps_waiting">Venter på fix…</string>
+    <string name="watch_gps_waiting">Venter på GPS-posisjon…</string>
 
     <!-- Labels for hold-action triggers, shown in the watch's transient pill. Short so they fit. -->
     <string name="watch_action_horn">Horn</string>
@@ -35,9 +35,9 @@
     <string name="watch_action_record">Opptak</string>
     <string name="watch_action_record_start">Opptak startet</string>
     <string name="watch_action_record_stop">Opptak stoppet</string>
-    <string name="watch_action_media_play">Spill / pause</string>
-    <string name="watch_action_media_next">Neste låt</string>
-    <string name="watch_action_media_prev">Forrige låt</string>
+    <string name="watch_action_media_play">Spill av / pause</string>
+    <string name="watch_action_media_next">Neste spor</string>
+    <string name="watch_action_media_prev">Forrige spor</string>
     <string name="watch_action_music_start">Start musikk</string>
     <string name="watch_action_media_pause">Pause musikk</string>
     <string name="watch_action_long_press_hint">Hold inne for %1$s</string>

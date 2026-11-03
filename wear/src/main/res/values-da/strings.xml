@@ -22,7 +22,7 @@
     <string name="watch_action_failed">Kunne ikke nå telefonen</string>
     <string name="watch_gps_label">GPS-fart</string>
     <string name="watch_gps_permission">Tryk for at tillade GPS</string>
-    <string name="watch_gps_waiting">Venter på fix…</string>
+    <string name="watch_gps_waiting">Venter på GPS-signal…</string>
 
     <!-- Labels for hold-action triggers, shown in the watch's transient pill. Short so they fit. -->
     <string name="watch_action_horn">Horn</string>
@@ -40,7 +40,7 @@
     <string name="watch_action_media_prev">Forrige nummer</string>
     <string name="watch_action_music_start">Start musik</string>
     <string name="watch_action_media_pause">Sæt musik på pause</string>
-    <string name="watch_action_long_press_hint">Hold inde for %1$s</string>
+    <string name="watch_action_long_press_hint">Hold nede for %1$s</string>
     <string name="watch_map_phone_disconnected">Ingen telefon</string>
     <string name="watch_map_gps_permission">Tillad GPS</string>
     <string name="watch_map_gps_stale">GPS forældet</string>

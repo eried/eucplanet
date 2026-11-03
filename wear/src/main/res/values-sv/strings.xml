@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">EUC Planet</string>
-    <string name="watch_waiting_phone">Öppna EUC Planet\npå mobilen</string>
+    <string name="watch_waiting_phone">Öppna EUC Planet\npå telefonen</string>
     <string name="watch_waiting_wheel">Anslut ett hjul\ni EUC Planet</string>
     <string name="watch_disconnected">Frånkopplad</string>
     <string name="watch_horn">Tuta</string>
@@ -17,12 +17,12 @@
     <string name="watch_pwm_prefix">"PWM: "</string>
     <string name="watch_power_label">Effekt</string>
     <string name="watch_temp_label">Temp</string>
-    <string name="watch_trip_label">Tur</string>
+    <string name="watch_trip_label">Tripp</string>
     <string name="watch_torque_label">Moment</string>
-    <string name="watch_action_failed">Når inte mobilen</string>
+    <string name="watch_action_failed">Når inte telefonen</string>
     <string name="watch_gps_label">GPS-fart</string>
     <string name="watch_gps_permission">Tryck för att tillåta GPS</string>
-    <string name="watch_gps_waiting">Väntar på fix…</string>
+    <string name="watch_gps_waiting">Söker position…</string>
 
     <!-- Labels for hold-action triggers, shown in the watch's transient pill. Short so they fit. -->
     <string name="watch_action_horn">Tuta</string>
@@ -33,14 +33,14 @@
     <string name="watch_action_safety_off">Lagligt läge av</string>
     <string name="watch_action_voice">Röstrapport</string>
     <string name="watch_action_record">Inspelning</string>
-    <string name="watch_action_record_start">Inspelning startad</string>
-    <string name="watch_action_record_stop">Inspelning stoppad</string>
+    <string name="watch_action_record_start">Inspelningen startad</string>
+    <string name="watch_action_record_stop">Inspelningen stoppad</string>
     <string name="watch_action_media_play">Spela / pausa</string>
     <string name="watch_action_media_next">Nästa spår</string>
     <string name="watch_action_media_prev">Föregående spår</string>
     <string name="watch_action_music_start">Starta musik</string>
     <string name="watch_action_media_pause">Pausa musik</string>
-    <string name="watch_action_long_press_hint">Håll inne för %1$s</string>
+    <string name="watch_action_long_press_hint">Tryck länge för %1$s</string>
     <string name="watch_map_phone_disconnected">Ingen telefon</string>
     <string name="watch_map_gps_permission">Tillåt GPS</string>
     <string name="watch_map_gps_stale">GPS inaktuell</string>

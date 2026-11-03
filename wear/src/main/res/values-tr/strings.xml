@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">EUC Planet</string>
-    <string name="watch_waiting_phone">EUC Planet\'ı\ntelefonunda aç</string>
-    <string name="watch_waiting_wheel">EUC Planet\'ta\nbir teker bağla</string>
+    <string name="watch_waiting_phone">EUC Planet\'i\ntelefonunuzda açın</string>
+    <string name="watch_waiting_wheel">EUC Planet\'te\nbir teker bağlayın</string>
     <string name="watch_disconnected">Bağlantı kesildi</string>
     <string name="watch_horn">Korna</string>
     <string name="watch_light">Işık</string>
@@ -10,18 +10,18 @@
     <string name="watch_speed_unit_mph">mph</string>
     <string name="watch_speed_unit_ms" translatable="false">m/s</string>
     <string name="watch_speed_unit_kn" translatable="false">kn</string>
-    <string name="watch_battery_label">Akü</string>
+    <string name="watch_battery_label">Batarya</string>
     <string name="watch_voltage_label">Gerilim</string>
     <string name="watch_current_label">Akım</string>
     <string name="watch_pwm_label">PWM</string>
     <string name="watch_pwm_prefix">"PWM: "</string>
     <string name="watch_power_label">Güç</string>
     <string name="watch_temp_label">Sıcaklık</string>
-    <string name="watch_trip_label">Sefer</string>
+    <string name="watch_trip_label">Sürüş</string>
     <string name="watch_torque_label">Tork</string>
     <string name="watch_action_failed">Telefona ulaşılamadı</string>
     <string name="watch_gps_label">GPS hızı</string>
-    <string name="watch_gps_permission">GPS için izin vermek için dokunun</string>
+    <string name="watch_gps_permission">GPS izni için dokunun</string>
     <string name="watch_gps_waiting">Sinyal bekleniyor…</string>
 
     <!-- Labels for hold-action triggers, shown in the watch's transient pill. Short so they fit. -->
@@ -40,10 +40,10 @@
     <string name="watch_action_media_prev">Önceki parça</string>
     <string name="watch_action_music_start">Müziği başlat</string>
     <string name="watch_action_media_pause">Müziği duraklat</string>
-    <string name="watch_action_long_press_hint">%1$s için uzun bas</string>
+    <string name="watch_action_long_press_hint">%1$s için uzun basın</string>
     <string name="watch_map_phone_disconnected">Telefon yok</string>
     <string name="watch_map_gps_permission">GPS\'e izin ver</string>
-    <string name="watch_map_gps_stale">GPS eski</string>
+    <string name="watch_map_gps_stale">GPS güncel değil</string>
     <string name="watch_map_route_loading">Rota yükleniyor</string>
     <string name="watch_map_route_unavailable">Rota yok</string>
     <string name="watch_map_loading">Harita yükleniyor</string>

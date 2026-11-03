@@ -22,7 +22,7 @@
     <string name="watch_action_failed">Telefono non raggiungibile</string>
     <string name="watch_gps_label">Velocità GPS</string>
     <string name="watch_gps_permission">Tocca per attivare il GPS</string>
-    <string name="watch_gps_waiting">In attesa del fix…</string>
+    <string name="watch_gps_waiting">In attesa del GPS…</string>
 
     <!-- Labels for hold-action triggers, shown in the watch's transient pill. Short so they fit. -->
     <string name="watch_action_horn">Clacson</string>
@@ -30,8 +30,8 @@
     <string name="watch_action_lock">Blocca ruota</string>
     <string name="watch_action_safety">Modalità legale</string>
     <string name="watch_action_safety_on">Modalità legale attiva</string>
-    <string name="watch_action_safety_off">Modalità legale spenta</string>
-    <string name="watch_action_voice">Rapporto vocale</string>
+    <string name="watch_action_safety_off">Modalità legale disattivata</string>
+    <string name="watch_action_voice">Annuncio vocale</string>
     <string name="watch_action_record">Registrazione</string>
     <string name="watch_action_record_start">Registrazione avviata</string>
     <string name="watch_action_record_stop">Registrazione fermata</string>

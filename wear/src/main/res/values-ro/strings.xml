@@ -41,8 +41,8 @@
     <string name="watch_map_phone_disconnected">Fără telefon</string>
     <string name="watch_map_gps_permission">Permite GPS</string>
     <string name="watch_map_gps_stale">GPS învechit</string>
-    <string name="watch_map_route_loading">Se încarcă ruta</string>
-    <string name="watch_map_route_unavailable">Fără rută</string>
+    <string name="watch_map_route_loading">Se încarcă traseul</string>
+    <string name="watch_map_route_unavailable">Fără traseu</string>
     <string name="watch_map_loading">Se încarcă harta</string>
     <string name="watch_map_unavailable">Fără hartă</string>
     <string name="watch_map_zoom_in">Mărește</string>

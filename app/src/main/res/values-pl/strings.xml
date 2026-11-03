@@ -797,7 +797,7 @@
     <string name="welcome_tut_gps">Dotknij, aby zobaczyć tu dane na żywo. Możesz nawet skalibrować prędkość koła według GPS. Kalibrację sprawdzisz później w Ustawienia → %1$s</string>
     <string name="welcome_tut_camera">Nagrywaj wideo z nakładką telemetrii na żywo. Twórz własne efektowne nakładki i eksportuj filmy z danymi z wcześniejszych przejazdów</string>
     <string name="welcome_tut_pd">Pokazuje Postój lub Jazda. Dotknij, aby ustawić swój %1$s</string>
-    <string name="voice_selector_label">Głos</string>
+    <string name="voice_selector_label">Język</string>
     <string name="voice_speech_speed">Tempo mowy</string>
     <string name="unit_x">x</string>
     <string name="voice_audio_focus_label">Podczas mówienia</string>
@@ -1190,7 +1190,7 @@
     <string name="auto_lock_suspended">Wstrzymane na tę sesję, bo koło zablokowano lub odblokowano ręcznie. Napraw to w sekcji Wymaga uwagi lub połącz ponownie koło.</string>
 
     <!-- Alarms tab -->
-    <string name="alarm_help">Dla każdej metryki automatycznie wyzwalany jest najbardziej odpowiedni alarm. Kolejność na liście tego nie zmienia; sortowanie służy tylko zachowaniu porządku.</string>
+    <string name="alarm_help">Priorytet wyzwalania wynika z kolejności grup metryk poniżej.</string>
     <string name="alarm_empty">Brak reguł alarmów</string>
     <string name="alarm_add">Nowy alarm</string>
     <string name="alarm_summary_predict_fmt">z wyprzedzeniem %1$s s</string>
