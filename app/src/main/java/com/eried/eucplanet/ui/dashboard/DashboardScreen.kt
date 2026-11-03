@@ -4022,6 +4022,8 @@ private fun WheelInfoBox(
             val odoUnit = com.eried.eucplanet.util.Units.distanceUnit(distanceUnit)
             Text(stringResource(R.string.stat_odo), fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Medium, letterSpacing = 0.5.sp)
+            // Android trims the label's trailing space, so the gap is drawn here.
+            Spacer(Modifier.width(4.dp))
             Text("%.0f %s".format(odoValue, odoUnit), fontSize = 13.sp, fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface)
         }

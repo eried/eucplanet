@@ -95,7 +95,7 @@
     <string name="stat_amps">AMPEERIA</string>
     <string name="stat_load">PWM</string>
     <string name="stat_trip">MATKA</string>
-    <string name="stat_odo">ODO</string>
+    <string name="stat_odo">ODO </string>
     <string name="action_horn">Äänimerkki</string>
     <string name="action_light">Valo</string>
     <string name="action_voice">Ääni</string>
@@ -932,7 +932,7 @@
     <string name="section_accel_splits">Nopeusväliajat</string>
     <string name="accel_splits_enabled">Kuuluta ajat</string>
     <string name="accel_splits_desc">Puhuu ajan, joka kuluu kunkin nopeusaskeleen ylittämiseen, kiihdyttäessä tai hidastaessa. Alkaa alla olevasta nopeudesta, asettamillasi askelilla.</string>
-    <string name="accel_split_decel_prefix">jarrutus,</string>
+    <string name="accel_split_decel_prefix">jarrutus, </string>
     <string name="accel_splits_from">Alkaen</string>
     <string name="accel_splits_step">Askel</string>
     <string name="accel_splits_dir_accel">Kiihdytys</string>

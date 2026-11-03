@@ -2463,7 +2463,7 @@
     <string name="section_accel_splits">速度スプリット</string>
     <string name="accel_splits_enabled">タイムをアナウンス</string>
     <string name="accel_splits_desc">加速・減速しながら各速度ステップを通過するタイムを読み上げます。下の開始速度から、設定したステップ刻みで始まります。</string>
-    <string name="accel_split_decel_prefix">ブレーキ、</string>
+    <string name="accel_split_decel_prefix">ブレーキ、 </string>
     <string name="accel_splits_from">開始</string>
     <string name="accel_splits_step">ステップ</string>
     <string name="accel_splits_dir_accel">加速</string>

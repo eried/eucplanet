@@ -95,7 +95,7 @@
     <string name="stat_amps">AMPÉRY</string>
     <string name="stat_load">PWM</string>
     <string name="stat_trip">JÍZDA</string>
-    <string name="stat_odo">ODO</string>
+    <string name="stat_odo">ODO </string>
     <string name="action_horn">Klakson</string>
     <string name="action_light">Světlo</string>
     <string name="action_voice">Hlas</string>
@@ -932,7 +932,7 @@
     <string name="section_accel_splits">Rychlostní mezičasy</string>
     <string name="accel_splits_enabled">Hlásit časy</string>
     <string name="accel_splits_desc">Vysloví čas potřebný k překonání každého rychlostního kroku, při zrychlování i zpomalování. Začíná od rychlosti níže, v krocích, které si nastavíte.</string>
-    <string name="accel_split_decel_prefix">brzdění,</string>
+    <string name="accel_split_decel_prefix">brzdění, </string>
     <string name="accel_splits_from">Od</string>
     <string name="accel_splits_step">Krok</string>
     <string name="accel_splits_dir_accel">Zrychlení</string>

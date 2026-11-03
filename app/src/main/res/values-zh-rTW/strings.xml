@@ -2461,7 +2461,7 @@
     <string name="section_accel_splits">速度分段</string>
     <string name="accel_splits_enabled">播報用時</string>
     <string name="accel_splits_desc">在加速或減速時，播報越過每個速度檔的用時。從下方速度開始，依你設定的間隔遞增。</string>
-    <string name="accel_split_decel_prefix">煞車，</string>
+    <string name="accel_split_decel_prefix">煞車， </string>
     <string name="accel_splits_from">起始</string>
     <string name="accel_splits_step">步進</string>
     <string name="accel_splits_dir_accel">加速</string>

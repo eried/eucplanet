@@ -95,7 +95,7 @@
     <string name="stat_amps">AMPER</string>
     <string name="stat_load">PWM</string>
     <string name="stat_trip">MENET</string>
-    <string name="stat_odo">ODO</string>
+    <string name="stat_odo">ODO </string>
     <string name="action_horn">Duda</string>
     <string name="action_light">Világítás</string>
     <string name="action_voice">Hang</string>
@@ -932,7 +932,7 @@
     <string name="section_accel_splits">Sebességrészidők</string>
     <string name="accel_splits_enabled">Idők bemondása</string>
     <string name="accel_splits_desc">Bemondja az egyes sebességlépcsők átlépéséhez szükséges időt gyorsításkor és lassításkor. Az alábbi sebességtől indul, az általad megadott lépcsőkben.</string>
-    <string name="accel_split_decel_prefix">fékezés,</string>
+    <string name="accel_split_decel_prefix">fékezés, </string>
     <string name="accel_splits_from">Ettől</string>
     <string name="accel_splits_step">Lépcső</string>
     <string name="accel_splits_dir_accel">Gyorsítás</string>
