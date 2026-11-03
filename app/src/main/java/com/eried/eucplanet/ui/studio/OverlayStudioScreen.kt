@@ -1,5 +1,6 @@
 package com.eried.eucplanet.ui.studio
 
+import androidx.compose.foundation.layout.imePadding
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import android.app.Activity
 import android.content.Context
@@ -1546,7 +1547,7 @@ fun OverlayStudioScreen(
 
         SnackbarHost(
             snackbar,
-            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 110.dp)
+            modifier = Modifier.align(Alignment.BottomCenter).imePadding().padding(bottom = 110.dp)
         )
     }
 
