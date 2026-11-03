@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -842,7 +843,7 @@ fun RouteBuilderScreen(
 
     Scaffold(
         snackbarHost = {
-            SnackbarHost(snackbarHost) {
+            SnackbarHost(snackbarHost, modifier = Modifier.imePadding()) {
                 androidx.compose.material3.Snackbar(
                     it,
                     containerColor = MaterialTheme.appColors.snackbarBackground,
