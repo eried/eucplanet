@@ -13,12 +13,9 @@ import android.provider.Settings
 import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
 import com.eried.eucplanet.R
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * A single user-actionable warning surfaced in the dashboard top bar.
@@ -53,9 +50,8 @@ data class AppWarning(
  * so the warning auto-clears when the rider grants the permission in Settings
  * and returns to the app.
  */
-@Singleton
-class AppHealthRepository @Inject constructor(
-    @ApplicationContext private val context: Context
+class AppHealthRepository(
+    private val context: Context
 ) {
 
     // Stored as a list (not a map) so the flow exposes exactly what the UI

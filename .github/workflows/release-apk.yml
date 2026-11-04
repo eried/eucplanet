@@ -4,6 +4,7 @@ name: Release builds
 # consistent filenames and attach them to the matching GitHub release:
 #
 #   phone-<version>-slim.apk          (slim release-signed phone APK)
+#   phone-<version>-mapping.txt       (R8 mapping to retrace its crashes)
 #   wearos-<version>.apk              (release-signed wear APK)
 #   hud-<version>.apk                 (release-signed HUD APK)
 #   garmin-<version>.iq               (multi-device Connect IQ bundle -
@@ -214,6 +215,10 @@ jobs:
             cp hud/build/outputs/apk/debug/hud-debug.apk \
                "/tmp/out/hud-${{ needs.meta.outputs.version }}.apk"
           fi
+          # The phone APK is obfuscated; this R8 mapping turns a rider's crash
+          # trace from it back into real names (retrace, or Android Studio's
+          # Analyze Stack Trace). Play gets its own copy with the bundle.
+          cp app/build/outputs/mapping/release/mapping.txt              "/tmp/out/phone-${{ needs.meta.outputs.version }}-mapping.txt"
           # Release parity: the README rides along with every release.
           cp README.md /tmp/out/README.md
           ls -la /tmp/out
@@ -409,7 +414,7 @@ jobs:
           # Last gate before the announcement: a stage that came up short (a
           # job that built nothing, an upload that half failed) fails here,
           # not as a rider asking where the watch file went.
-          expected="phone-${VERSION}-slim.apk wearos-${VERSION}.apk hud-${VERSION}.apk garmin-${VERSION}.iq garmin-${VERSION}-prgs.zip amazfit-${VERSION}.zab README.md"
+          expected="phone-${VERSION}-slim.apk wearos-${VERSION}.apk hud-${VERSION}.apk garmin-${VERSION}.iq garmin-${VERSION}-prgs.zip amazfit-${VERSION}.zab phone-${VERSION}-mapping.txt README.md"
           have=$(gh release view "$TAG" --json assets --jq '.assets[].name')
           missing=""
           for f in $expected; do

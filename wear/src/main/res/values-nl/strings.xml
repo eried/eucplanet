@@ -4,7 +4,7 @@
     <string name="watch_waiting_phone">Open EUC Planet\nop je telefoon</string>
     <string name="watch_waiting_wheel">Verbind een wiel\nin EUC Planet</string>
     <string name="watch_disconnected">Niet verbonden</string>
-    <string name="watch_horn">Toeter</string>
+    <string name="watch_horn">Claxon</string>
     <string name="watch_light">Licht</string>
     <string name="watch_speed_unit">km/u</string>
     <string name="watch_speed_unit_mph">mph</string>
@@ -25,13 +25,13 @@
     <string name="watch_gps_waiting">Wachten op fix…</string>
 
     <!-- Labels for hold-action triggers, shown in the watch's transient pill. Short so they fit. -->
-    <string name="watch_action_horn">Toeter</string>
+    <string name="watch_action_horn">Claxon</string>
     <string name="watch_action_light">Licht</string>
     <string name="watch_action_lock">Wiel vergrendelen</string>
-    <string name="watch_action_safety">Legal Mode</string>
-    <string name="watch_action_safety_on">Legal Mode aan</string>
-    <string name="watch_action_safety_off">Legal Mode uit</string>
-    <string name="watch_action_voice">Statusrapport</string>
+    <string name="watch_action_safety">Legale modus</string>
+    <string name="watch_action_safety_on">Legale modus aan</string>
+    <string name="watch_action_safety_off">Legale modus uit</string>
+    <string name="watch_action_voice">Spraakrapport</string>
     <string name="watch_action_record">Opname</string>
     <string name="watch_action_record_start">Opname gestart</string>
     <string name="watch_action_record_stop">Opname gestopt</string>

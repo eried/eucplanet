@@ -7,4 +7,7 @@
 -->
 <full-backup-content>
     <exclude domain="file" path="datastore/legal_lockdown.preferences_pb" />
+    <!-- Offline routing tiles: hundreds of MB, downloaded again on demand. -->
+    <exclude domain="file" path="offline/" />
+    <exclude domain="external" path="offline/" />
 </full-backup-content>

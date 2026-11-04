@@ -35,7 +35,11 @@ import java.util.concurrent.TimeUnit
  * outside the cache fall through to the placeholder in
  * [com.eried.eucplanet.hud.ui.screens.MapScreen] until they load.
  */
-class HudTileCache {
+class HudTileCache(
+    /** The paired phone's address, or null. With no signal the HUD asks it
+     *  for tiles from its offline map. */
+    private val phoneHost: () -> String? = { pairedPhone },
+) {
 
     companion object {
         private const val USER_AGENT = "eucplanet-hud/1"
@@ -43,6 +47,9 @@ class HudTileCache {
         /** What the HUD draws before the phone has said which layer the rider
          *  picked: the same light chart the phone's picker defaults to. */
         const val DEFAULT_STYLE = MapLayers.LIGHT
+
+        /** The phone the HUD is paired with, kept by [HudServer]. */
+        @Volatile var pairedPhone: String? = null
     }
 
     private val client = OkHttpClient.Builder()
@@ -65,10 +72,13 @@ class HudTileCache {
     @Volatile
     private var layer: MapLayers.Layer = MapLayers.byId(DEFAULT_STYLE)
 
-    /** How deep the current provider renders. Esri's Canvas charts stop at
-     *  16 and answer deeper requests with a "Map data not yet available"
-     *  tile, so a map screen must fetch at most this zoom and scale up. */
-    val maxNativeZoom: Int get() = layer.maxNativeZoom
+    private val zoomCap = TileZoomCap()
+
+    /** How deep the current provider renders here. Esri's Canvas charts stop
+     *  at 16 and answer deeper requests with a "Map data not yet available"
+     *  tile, and its imagery runs out at 18 or 19 depending on the area, so a
+     *  map screen must fetch at most this zoom and scale up. */
+    val maxNativeZoom: Int get() = zoomCap.cap(layer.maxNativeZoom)
 
     /** Compose-observable version counter bumped on every style swap. Map
      *  callers key their LaunchedEffect on this so a style change triggers
@@ -85,6 +95,7 @@ class HudTileCache {
         val next = MapLayers.byId(code.ifBlank { DEFAULT_STYLE })
         if (next.id == layer.id) return
         layer = next
+        zoomCap.reset()
         cache.evictAll()
         inflight.clear()
         _styleVersionState++
@@ -108,9 +119,32 @@ class HudTileCache {
                     .url(url)
                     .header("User-Agent", USER_AGENT)
                     .build()
-                client.newCall(req).execute().use { resp ->
-                    if (!resp.isSuccessful) return@launch
-                    val bytes = resp.body?.bytes() ?: return@launch
+                val online = runCatching {
+                    client.newCall(req).execute().use { resp -> if (resp.isSuccessful) resp.body?.bytes() else null }
+                }.getOrNull()
+                run {
+                    val bytes = online ?: run {
+                        // No signal, or the provider failed: the phone's
+                        // offline map, as is, with no labels layer on top.
+                        phoneTile(z, x, y)?.let { b ->
+                            BitmapFactory.decodeByteArray(b, 0, b.size)?.let { bmp ->
+                                if (layerAtStart.id == layer.id) {
+                                    cache.put(k, bmp)
+                                    onLoaded()
+                                }
+                            }
+                        }
+                        return@launch
+                    }
+                    // No data this deep here: never draw the watermark, fetch
+                    // one zoom up instead (the caller recomposes on the cap).
+                    if (TileZoomCap.isNoDataTile(bytes)) {
+                        if (layerAtStart.id == layer.id) {
+                            zoomCap.onNoData(z)
+                            onLoaded()
+                        }
+                        return@launch
+                    }
                     var bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return@launch
                     // Esri Canvas keeps its labels on a separate reference
                     // layer named by the base URL; composite it on top. A
@@ -149,6 +183,17 @@ class HudTileCache {
                 inflight.remove(k)
             }
         }
+    }
+
+    private fun phoneTile(z: Int, x: Int, y: Int): ByteArray? {
+        val host = phoneHost() ?: return null
+        val req = Request.Builder()
+            .url("http://$host:${com.eried.eucplanet.hud.protocol.HudDiscovery.TILE_PORT}/tiles/$z/$x/$y.png")
+            .header("User-Agent", USER_AGENT)
+            .build()
+        return runCatching {
+            client.newCall(req).execute().use { if (it.isSuccessful) it.body?.bytes() else null }
+        }.getOrNull()
     }
 
     private fun key(z: Int, x: Int, y: Int): String = "$z/$x/$y"

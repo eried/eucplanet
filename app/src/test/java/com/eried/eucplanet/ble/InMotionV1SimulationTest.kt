@@ -123,7 +123,7 @@ class InMotionV1SimulationTest {
             val rising = riseDetector.update(
                 nowMs = now,
                 percent = data.batteryPercent.toFloat(),
-                applicable = !moving && !data.charging,   // V1 has no charge flag
+                applicable = !moving && !data.charging,   // the simulated work mode never says charging
             )
             val charging = !moving && (chargeInferred || rising)
 

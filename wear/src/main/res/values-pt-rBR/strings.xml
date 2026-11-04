@@ -29,9 +29,9 @@
     <string name="watch_action_light">Luz</string>
     <string name="watch_action_lock">Travar roda</string>
     <string name="watch_action_safety">Modo Legal</string>
-    <string name="watch_action_safety_on">Modo Legal ativo</string>
+    <string name="watch_action_safety_on">Modo Legal ativado</string>
     <string name="watch_action_safety_off">Modo Legal desativado</string>
-    <string name="watch_action_voice">Relato por voz</string>
+    <string name="watch_action_voice">Relatório de voz</string>
     <string name="watch_action_record">Gravação</string>
     <string name="watch_action_record_start">Gravação iniciada</string>
     <string name="watch_action_record_stop">Gravação parada</string>
@@ -41,7 +41,7 @@
     <string name="watch_action_music_start">Iniciar música</string>
     <string name="watch_action_media_pause">Pausar música</string>
     <string name="watch_action_long_press_hint">Segure para %1$s</string>
-    <string name="watch_map_phone_disconnected">Sem telefone</string>
+    <string name="watch_map_phone_disconnected">Sem celular</string>
     <string name="watch_map_gps_permission">Permitir GPS</string>
     <string name="watch_map_gps_stale">GPS desatualizado</string>
     <string name="watch_map_route_loading">Carregando rota</string>

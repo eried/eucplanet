@@ -9,8 +9,6 @@ import java.io.BufferedReader
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.min
@@ -69,8 +67,7 @@ data class BBox(val minLat: Double, val minLng: Double, val maxLat: Double, val 
  * The layer is opt-in from the Route Builder, so this is only called when the
  * rider asks to see places along their route.
  */
-@Singleton
-class PoiService @Inject constructor() {
+class PoiService {
 
     companion object {
         private const val TAG = "PoiService"

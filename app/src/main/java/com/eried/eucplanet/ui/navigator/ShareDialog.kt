@@ -854,7 +854,7 @@ fun ShareIdentityDialog(
                         containerColor = MaterialTheme.appColors.primary,
                         contentColor = MaterialTheme.appColors.onPrimary,
                         disabledContainerColor = MaterialTheme.appColors.surfaceVariant,
-                        disabledContentColor = MaterialTheme.appColors.textSecondary,
+                        disabledContentColor = MaterialTheme.appColors.textDisabled,
                     )
                 ) {
                     if (starting) {

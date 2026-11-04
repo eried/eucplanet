@@ -3,8 +3,6 @@ package com.eried.eucplanet.ble
 import android.util.Log
 import com.eried.eucplanet.diagnostics.DiagnosticCommand
 import java.io.ByteArrayOutputStream
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * WheelAdapter for the InMotion V2 protocol family: V11, V12HS/HT/PRO/S, V13, V14.
@@ -17,8 +15,7 @@ import javax.inject.Singleton
  * The decode dispatch mirrors the legacy WheelRepository.handlePacket() switch
  * exactly so the refactor is provably no-op for V14.
  */
-@Singleton
-class InMotionV2Adapter @Inject constructor() : WheelAdapter {
+class InMotionV2Adapter : WheelAdapter {
 
     override val familyId: String = "inmotion_v2"
     override val familyDisplayName: String = "InMotion V14 / V12 / P6 / V6"
@@ -259,7 +256,10 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
     }
 
     override fun setLight(on: Boolean): ByteArray {
-        if (useP6Protocol) return InMotionV2Commands.setP6Light(on)
+        // The V6 shares the P6's extended routing and ignored the V14 one-byte
+        // form (issue #33), so it gets the P6's two-byte form too. Unconfirmed
+        // on a real V6 until a tester switches the light with this build.
+        if (useP6Protocol || useV6Protocol) return InMotionV2Commands.setP6Light(on)
         // V12 HS / HT / Pro need the two-beam `[0x50, low, high]` form;
         // the V14 single-byte form silently does nothing on those wheels.
         val m = detectedModel

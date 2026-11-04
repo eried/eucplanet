@@ -99,7 +99,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import com.eried.eucplanet.R
@@ -109,11 +108,13 @@ import com.eried.eucplanet.ui.dashboard.MetricGraph
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.GraphBounds
 import com.eried.eucplanet.util.GraphScale
+import com.eried.eucplanet.ui.common.DestructiveMenuItem
 import java.util.Date
 import kotlin.math.abs
 import kotlin.math.exp
 import kotlin.math.roundToInt
 import kotlin.math.sin
+import org.koin.compose.viewmodel.koinViewModel
 
 // How far the animated % may run ahead of the last reading.
 private const val MAX_LEAD = 1.2f
@@ -128,7 +129,7 @@ fun ChargingMonitorScreen(
     /** Open with the details flyout already up - the dashboard battery
      *  icon's long-press promises the graphs, not the dial. */
     initialDetailsOpen: Boolean = false,
-    viewModel: ChargingMonitorViewModel = hiltViewModel(),
+    viewModel: ChargingMonitorViewModel = koinViewModel(),
 ) {
     val state by viewModel.uiState.collectAsState()
     val ctx = LocalContext.current
@@ -266,8 +267,8 @@ fun ChargingMonitorScreen(
                             },
                         )
                         HorizontalDivider()
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.charging_reset_data)) },
+                        DestructiveMenuItem(
+                            text = stringResource(R.string.charging_reset_data),
                             onClick = {
                                 menuOpen = false
                                 viewModel.resetData()

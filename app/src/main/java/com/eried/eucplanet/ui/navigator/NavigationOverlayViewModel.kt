@@ -10,14 +10,13 @@ import com.eried.eucplanet.data.model.Waypoint
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.nav.NavigationEngine
+import com.eried.eucplanet.nav.RouteAvoidances
 import com.eried.eucplanet.nav.RoutingService
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /**
  * Thin bridge between the always-on [NavigationOverlay] composable and the
@@ -28,8 +27,7 @@ import javax.inject.Inject
  * the menu whether there is anything to start, and [startCurrentRoute] launches
  * guidance without a trip through the route builder.
  */
-@HiltViewModel
-class NavigationOverlayViewModel @Inject constructor(
+class NavigationOverlayViewModel(
     private val navigationEngine: NavigationEngine,
     private val settingsRepository: SettingsRepository,
     private val tripRepository: TripRepository,
@@ -92,7 +90,9 @@ class NavigationOverlayViewModel @Inject constructor(
             } else {
                 routingService.route(
                     saved.name, navWps, saved.travelMode,
-                    RoutingService.effectiveRouterUrl(s.navRouterUrl)
+                    RoutingService.effectiveRouterUrl(s.navRouterUrl),
+                    RouteAvoidances.from(s),
+                    valhalla = RoutingService.effectiveValhallaUrl(s.navValhallaUrl),
                 ) ?: RoutingService.straightLineRoute(saved.name, navWps)
             }
             navigationEngine.start(route, mode)

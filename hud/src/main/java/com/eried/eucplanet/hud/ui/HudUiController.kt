@@ -64,8 +64,19 @@ class HudUiController {
         if (current !in parsed) current = parsed.first()
     }
 
-    var current: Screen by mutableStateOf(Screen.Dashboard)
-        private set
+    private var currentState: Screen by mutableStateOf(Screen.Dashboard)
+
+    var current: Screen
+        get() = currentState
+        private set(value) {
+            // Leaving the screen ends the hand-off; the next camera screen
+            // opens its camera as usual.
+            if (value != currentState) {
+                cameraHandedOff = false
+                cameraTakeBack = false
+            }
+            currentState = value
+        }
 
     /** Monotonic counter bumped by the Activity on every d-pad press so the
      *  button-action guide overlay can re-show itself even when the screen
@@ -93,6 +104,162 @@ class HudUiController {
      *  map is for. UP/DOWN on the remote steps in/out from there. */
     var mapZoom: Float by mutableStateOf(17f)
         private set
+
+    /** Which camera the camera screens show, as a position in the HUD's
+     *  camera list (back cameras first, see RearCameraPreview). It wraps at
+     *  the number of cameras the device has. A MotoEye can report its rear
+     *  camera as the front one, so the rider picks it with UP. */
+    var cameraIndex: Int by mutableStateOf(0)
+        private set
+
+    /** How many cameras the preview found; UP wraps here so every camera
+     *  keeps one index, and with it one rotation. Unknown until the first
+     *  preview binds. */
+    private var cameraCount: Int = MAX_CAMERAS
+
+    /** Each camera's clockwise turn, a multiple of 90. A front and a rear
+     *  sensor sit differently, so each keeps its own. */
+    private var cameraRotations: Map<Int, Int> by mutableStateOf(emptyMap())
+
+    /** Clockwise turn of the camera on screen. 270 is what a MotoEye E6
+     *  needs; other models mount the sensor another way round, so the rider
+     *  turns it with DOWN. */
+    val cameraRotation: Int
+        get() = cameraRotations[cameraIndex] ?: DEFAULT_CAMERA_ROTATION
+
+    /** Called after UP or DOWN changes the camera so the Activity can keep
+     *  the choice for the next start: the camera now shown and its turn. */
+    var onCameraChanged: ((index: Int, rotation: Int) -> Unit)? = null
+
+    /** The camera screens let go of the camera for the MotoEye. Only one app
+     *  can open a camera at a time, and the MotoEye recorder opens every
+     *  camera: while a camera screen was up it failed on each. It comes
+     *  back by itself once the MotoEye lets go (see [onOtherAppCamera]), or
+     *  with UP, DOWN or another screen. */
+    var cameraHandedOff: Boolean by mutableStateOf(false)
+        private set
+
+    /** The rider asked for the picture with UP or DOWN, so the preview
+     *  opens the camera even while another app holds it. */
+    var cameraTakeBack: Boolean by mutableStateOf(false)
+        private set
+
+    /** The MotoEye camera button has reached the HUD, so its next press
+     *  frees the camera again and the preview may take it back meanwhile.
+     *  Without it the preview stays off: taking the camera back would block
+     *  the recorder's next start. */
+    private var cameraKeyHeard by mutableStateOf(false)
+
+    /** Milliseconds on a steady clock; tests set their own. */
+    internal var clock: () -> Long = { System.nanoTime() / 1_000_000 }
+
+    /** The camera button is held, and when it was last let go (-1: never).
+     *  The recorder opens its cameras only after a hold (Josh: 3.7 s), so
+     *  a free camera counts once the button has been up a while. */
+    private var cameraKeyDown = false
+    private var cameraKeyUpAt = -1L
+
+    /** Another app opened a camera since this hand-off. */
+    private var takenSinceHandOff by mutableStateOf(false)
+
+    /** ...and has closed it again, so the preview may come back. */
+    private var freeAgain by mutableStateOf(false)
+
+    /** The HUD is in front. The MotoEye rear view, or a camera app, may let
+     *  go of the camera for a moment while it is still on screen. */
+    private var hudFocused by mutableStateOf(true)
+
+    /** What freed the camera last, and the last remote key the HUD saw. */
+    private var handOffReason by mutableStateOf("")
+    private var lastKey by mutableStateOf(-1)
+
+    /** The camera button presses since the HUD started, each short (rear
+     *  view) or long (recorder start or stop). Josh: both reach the HUD as
+     *  the same key, so only how long it was held tells them apart. */
+    private val cameraPresses = CameraPressLog()
+    private var cameraPressText by mutableStateOf("none")
+
+    /** The Activity saw a key press, ours or not. [down] false is its
+     *  release; [atMs] is the event's uptime. */
+    fun noteKey(keyCode: Int, down: Boolean = true, atMs: Long = 0L) {
+        if (down) lastKey = keyCode
+        if (HudKeys.handsOffCamera(keyCode)) {
+            cameraKeyDown = down
+            if (!down) cameraKeyUpAt = clock()
+            cameraPresses.note(down, atMs)
+            cameraPressText = cameraPresses.summary()
+        }
+    }
+
+    /** One line on the handed-off screen saying what keeps the picture off,
+     *  so a tester's photo shows which step the MotoEye skips. */
+    val cameraDiag: String
+        get() = "freed by $handOffReason, last key $lastKey, presses $cameraPressText, " +
+            "button ${if (cameraKeyHeard) "seen" else "not seen"}, " +
+            "other app ${if (freeAgain) "done" else if (takenSinceHandOff) "has camera" else "not seen"}, " +
+            "HUD ${if (hudFocused) "in front" else "behind"}"
+
+    /** Something else wants the camera: the MotoEye camera button (rear
+     *  view or recorder), its overlay covering the HUD, or another app that
+     *  already has the camera open. A camera screen lets go and stays off,
+     *  so the preview does not grab the camera back when the recorder
+     *  stops and block its next start. [byKey] is the camera button. */
+    fun handOffCamera(byKey: Boolean = false, reason: String = if (byKey) "button" else "camera in use") {
+        if (byKey) cameraKeyHeard = true
+        if (current != Screen.Camera && current != Screen.CustomCam) return
+        cameraTakeBack = false
+        // A new press: wait for this one to settle before coming back.
+        if (byKey) freeAgain = false
+        if (!cameraHandedOff) {
+            takenSinceHandOff = false
+            freeAgain = false
+            handOffReason = reason
+        }
+        cameraHandedOff = true
+    }
+
+    /** The HUD window gained or lost focus. */
+    fun onHudFocus(focused: Boolean) {
+        hudFocused = focused
+        resumeIfFree()
+    }
+
+    /** While handed off: whether another app holds the preview's camera,
+     *  reported once it has settled and again each second while free. The
+     *  preview comes back when the MotoEye recorder or rear view lets go,
+     *  or when the camera stays free after the button press (Josh, c7f8dbe7b:
+     *  after the stop press no camera was open, but the HUD never saw the
+     *  recorder take one, so it waited for good). */
+    fun onOtherAppCamera(inUse: Boolean) {
+        if (!cameraHandedOff) return
+        if (inUse) takenSinceHandOff = true
+        freeAgain = !inUse && (takenSinceHandOff || buttonSettled())
+        resumeIfFree()
+    }
+
+    private fun buttonSettled(): Boolean =
+        !cameraKeyDown && cameraKeyUpAt >= 0 && clock() - cameraKeyUpAt >= BUTTON_SETTLE_MS
+
+    private fun resumeIfFree() {
+        if (cameraHandedOff && freeAgain && cameraKeyHeard && hudFocused) cameraHandedOff = false
+    }
+
+    /** Put back the camera choice saved on an earlier start. */
+    fun restoreCamera(index: Int, rotations: Map<Int, Int>) {
+        cameraIndex = index.coerceAtLeast(0)
+        cameraRotations = rotations
+            .filterKeys { it >= 0 }
+            .mapValues { normalizeRotation(it.value) }
+    }
+
+    /** The preview reports how many cameras the device has. A saved index
+     *  past the end (a different HUD, a camera gone) falls back to the
+     *  first camera. */
+    fun onCamerasFound(count: Int) {
+        if (count <= 0) return
+        cameraCount = count
+        if (cameraIndex >= count) cameraIndex = 0
+    }
 
     /** Most recent HUD connection status, surfaced as a banner. */
     var status: HudServer.Status by mutableStateOf(HudServer.Status.LISTENING)
@@ -146,6 +313,13 @@ class HudUiController {
         when (current) {
             Screen.Dashboard -> dashboardGpsView = false
             Screen.Map, Screen.MapNav -> mapZoom = (mapZoom + 1f).coerceAtMost(MAP_ZOOM_MAX)
+            Screen.Camera, Screen.CustomCam -> if (cameraHandedOff) {
+                cameraHandedOff = false
+                cameraTakeBack = true
+            } else {
+                cameraIndex = (cameraIndex + 1) % cameraCount
+                onCameraChanged?.invoke(cameraIndex, cameraRotation)
+            }
             else -> Unit
         }
     }
@@ -154,6 +328,14 @@ class HudUiController {
         when (current) {
             Screen.Dashboard -> dashboardGpsView = true
             Screen.Map, Screen.MapNav -> mapZoom = (mapZoom - 1f).coerceAtLeast(MAP_ZOOM_MIN)
+            Screen.Camera, Screen.CustomCam -> if (cameraHandedOff) {
+                cameraHandedOff = false
+                cameraTakeBack = true
+            } else {
+                cameraRotations = cameraRotations +
+                    (cameraIndex to normalizeRotation(cameraRotation + 90))
+                onCameraChanged?.invoke(cameraIndex, cameraRotation)
+            }
             else -> Unit
         }
     }
@@ -184,6 +366,8 @@ class HudUiController {
         val (up, down) = when (current) {
             Screen.Map, Screen.MapNav -> "Zoom in" to "Zoom out"
             Screen.Dashboard -> "Speed view" to "GPS view"
+            Screen.Camera, Screen.CustomCam ->
+                if (cameraHandedOff) "Show camera" to "Show camera" else "Next camera" to "Rotate"
             else -> null to null
         }
         return ShortActions(up = up, down = down, left = left, right = right)
@@ -210,5 +394,20 @@ class HudUiController {
     companion object {
         const val MAP_ZOOM_MIN: Float = 3f
         const val MAP_ZOOM_MAX: Float = 19f
+        const val DEFAULT_CAMERA_ROTATION: Int = 270
+        /** How long the camera must stay free after the button is let go
+         *  before the preview takes it: the recorder's start comes after
+         *  the release. */
+        const val BUTTON_SETTLE_MS: Long = 4_000L
+        /** More cameras than any HUD has; the wrap until the preview has
+         *  counted the real ones. */
+        const val MAX_CAMERAS: Int = 8
+
+        /** Any angle to 0, 90, 180 or 270; anything else falls back to the
+         *  default so a corrupt saved value cannot tilt the picture. */
+        fun normalizeRotation(deg: Int): Int {
+            val r = ((deg % 360) + 360) % 360
+            return if (r % 90 == 0) r else DEFAULT_CAMERA_ROTATION
+        }
     }
 }

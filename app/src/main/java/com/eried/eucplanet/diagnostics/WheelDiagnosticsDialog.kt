@@ -96,10 +96,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.hilt.navigation.compose.hiltViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * Full-screen Service-Mode dialog. Three tabs:
@@ -115,7 +115,7 @@ import java.util.Locale
 @Composable
 fun WheelDiagnosticsDialog(
     onDismiss: () -> Unit,
-    vm: WheelDiagnosticsViewModel = hiltViewModel()
+    vm: WheelDiagnosticsViewModel = koinViewModel()
 ) {
     // Session-info dump is one-shot per enable cycle so reopening the dialog
     // doesn't duplicate the phone / wheel / Wear block in the log.

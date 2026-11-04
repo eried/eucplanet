@@ -21,6 +21,8 @@ class LocaleCoverageTest {
     /** res folder name for a tag: "pt-BR" -> "values-pt-rBR", "es-419" -> "values-b+es+419". */
     private fun resFolder(tag: String): String {
         if (tag == "es-419") return "values-b+es+419"
+        // Android still keys Indonesian resources by its legacy code.
+        if (tag == "id") return "values-in"
         val parts = tag.split("-")
         return if (parts.size == 1) "values-${parts[0]}" else "values-${parts[0]}-r${parts[1]}"
     }
@@ -169,7 +171,13 @@ class LocaleCoverageTest {
             assertEquals("es", LocaleHelper.detectSystemLanguage())
 
             Locale.setDefault(Locale.forLanguageTag("pt-PT"))
+            assertEquals("pt-PT", LocaleHelper.detectSystemLanguage())
+            Locale.setDefault(Locale.forLanguageTag("pt-BR"))
             assertEquals("pt-BR", LocaleHelper.detectSystemLanguage())
+
+            // Indonesian, under Android's legacy code and the modern one.
+            Locale.setDefault(Locale.forLanguageTag("id-ID"))
+            assertEquals("id", LocaleHelper.detectSystemLanguage())
 
             // Android reports Norwegian as nb; we ship it as "no".
             Locale.setDefault(Locale.forLanguageTag("nb-NO"))
@@ -184,7 +192,8 @@ class LocaleCoverageTest {
         assertEquals("zh-TW", LocaleHelper.normalizeToSupportedTag("zh-Hant-TW"))
         assertEquals("zh", LocaleHelper.normalizeToSupportedTag("zh-CN"))
         assertEquals("no", LocaleHelper.normalizeToSupportedTag("nb-NO"))
-        assertEquals("pt-BR", LocaleHelper.normalizeToSupportedTag("pt-PT"))
+        assertEquals("pt-PT", LocaleHelper.normalizeToSupportedTag("pt-PT"))
+        assertEquals("pt-BR", LocaleHelper.normalizeToSupportedTag("pt-BR"))
         assertEquals("es-419", LocaleHelper.normalizeToSupportedTag("es-MX"))
         // Previously fell through unmapped, so the picker showed nothing selected.
         assertEquals("ja", LocaleHelper.normalizeToSupportedTag("ja-JP"))

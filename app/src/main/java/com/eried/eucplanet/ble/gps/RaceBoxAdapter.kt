@@ -2,8 +2,6 @@ package com.eried.eucplanet.ble.gps
 
 import com.eried.eucplanet.data.model.ExternalGpsSample
 import com.eried.eucplanet.data.model.ExternalGpsSource
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * RaceBox Mini / Mini S / Pro adapter.
@@ -21,8 +19,7 @@ import javax.inject.Singleton
  * Reference: u-blox protocol spec UBX-NAV-PVT, RaceBox public BLE notes
  * (github.com/Racebox/racebox-public).
  */
-@Singleton
-class RaceBoxAdapter @Inject constructor() : ExternalGpsAdapter {
+class RaceBoxAdapter : ExternalGpsAdapter {
 
     override val source: ExternalGpsSource = ExternalGpsSource.RACEBOX
 

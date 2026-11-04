@@ -138,6 +138,7 @@ import com.eried.eucplanet.ui.theme.themedSwitchColors
 import com.eried.eucplanet.ui.theme.themedSliderColors
 import com.eried.eucplanet.ui.theme.themedTonalButtonColors
 import com.eried.eucplanet.ui.theme.themedFilterChipColors
+import com.eried.eucplanet.ui.common.appMenuItemColors
 
 /** Which secondary sheet / dialog the studio is currently showing. */
 sealed interface StudioSheet {
@@ -407,6 +408,7 @@ private fun FlyoutItem(
             com.eried.eucplanet.ui.theme.PlatformUnsupportedTextBadge("HUD")
         }) else null,
         enabled = enabled,
+        colors = appMenuItemColors(),
         onClick = onClick
     )
 }
@@ -981,7 +983,7 @@ private fun PresetRow(
             Icon(
                 Icons.Default.Delete,
                 contentDescription = stringResource(R.string.studio_cd_delete_preset),
-                tint = MaterialTheme.colorScheme.error,
+                tint = MaterialTheme.appColors.statusDanger,
                 modifier = Modifier
                     .clip(CircleShape)
                     .clickable(onClick = onDelete)
@@ -1773,7 +1775,7 @@ private fun GradientStopRow(
                 Icon(
                     Icons.Default.Delete,
                     contentDescription = stringResource(R.string.studio_cd_remove_stop),
-                    tint = MaterialTheme.colorScheme.error,
+                    tint = MaterialTheme.appColors.statusDanger,
                     modifier = Modifier
                         .clip(CircleShape)
                         .clickable(onClick = onRemove)
@@ -2925,7 +2927,7 @@ private fun ManageElementRow(
         Icon(
             Icons.Default.Delete,
             contentDescription = stringResource(R.string.studio_cd_delete_element),
-            tint = MaterialTheme.colorScheme.error,
+            tint = MaterialTheme.appColors.statusDanger,
             modifier = Modifier
                 .clip(CircleShape)
                 .clickable(onClick = onDelete)

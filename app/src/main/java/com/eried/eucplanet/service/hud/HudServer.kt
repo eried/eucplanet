@@ -27,7 +27,6 @@ import com.eried.eucplanet.nav.NavigationEngine
 import com.eried.eucplanet.ui.theme.AccentOptions
 import com.eried.eucplanet.ui.theme.AccentTeal
 import com.eried.eucplanet.util.AppForeground
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -37,6 +36,7 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -53,8 +53,6 @@ import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
-import javax.inject.Singleton
 import javax.jmdns.JmDNS
 import javax.jmdns.ServiceEvent
 import javax.jmdns.ServiceListener
@@ -81,9 +79,8 @@ import java.net.NetworkInterface
  * fires when the rider toggles the link on AND service is up, stop() on
  * either flipping off.
  */
-@Singleton
-class HudServer @Inject constructor(
-    @ApplicationContext private val context: Context,
+class HudServer(
+    private val context: Context,
     private val wheelRepository: WheelRepository,
     private val settingsRepository: SettingsRepository,
     private val externalGpsRepository: ExternalGpsRepository,
@@ -95,7 +92,15 @@ class HudServer @Inject constructor(
     private val themeController: com.eried.eucplanet.ui.theme.ThemeController,
     val udpListener: HudUdpListener,
     private val subnetProbe: HudSubnetProbe,
+    private val offlineMap: com.eried.eucplanet.nav.offline.map.OfflineMapRenderer,
 ) {
+
+    /** The offline map for the HUD, served while the link is on. */
+    private val tileServer = HudTileServer(
+        com.eried.eucplanet.hud.protocol.HudDiscovery.TILE_PORT,
+        { z, x, y -> offlineMap.png(z, x, y, 256) },
+        { Log.w(TAG, it) },
+    )
 
     companion object {
         private const val TAG = "HudServer"
@@ -330,6 +335,7 @@ class HudServer @Inject constructor(
     private suspend fun doStart() {
         if (loopJob != null) return
         Log.i(TAG, "Starting HUD link")
+        tileServer.start()
         log("Link enabled, starting discovery")
         if (HudDebug.read("debug.eucplanet.demo") == "true") {
             Log.i(TAG, "Demo telemetry mode is ON")
@@ -419,9 +425,11 @@ class HudServer @Inject constructor(
     private suspend fun doStop() {
         Log.i(TAG, "Stopping HUD link")
         log("Link disabled")
+        tileServer.stop()
         try { demo.stop() } catch (_: Throwable) {}
         try { ws?.close(1000, "stopping") } catch (_: Throwable) {}
         ws = null
+        tripRepository.setHudMapLinked(false)
         currentPeer = null
         publishJob?.cancel(); publishJob = null
         loopJob?.cancel(); loopJob = null
@@ -1118,6 +1126,9 @@ class HudServer @Inject constructor(
                     while (true) {
                         val frame = if (first) runCatching { snapshot() }.getOrDefault(latest) else latest
                         first = false
+                        // The HUD draws its Map screen from this phone's
+                        // position, so keep GPS on while it is in the carousel.
+                        if (isActive) tripRepository.setHudMapLinked("Map" in frame.enabledHudScreens)
                         try {
                             if (!webSocket.send(json.encodeToString(frame))) {
                                 // OkHttp returns false when the outbound
@@ -1166,6 +1177,7 @@ class HudServer @Inject constructor(
             }
             override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
                 sendJob?.cancel()
+                tripRepository.setHudMapLinked(false)
                 ws = null
                 currentPeer = null
                 commandSink.onHudDisconnected()
@@ -1181,6 +1193,7 @@ class HudServer @Inject constructor(
                     if (correlated) log("Drop correlated with a phone Wi-Fi change")
                 }
                 sendJob?.cancel()
+                tripRepository.setHudMapLinked(false)
                 ws = null
                 currentPeer = null
                 commandSink.onHudDisconnected()

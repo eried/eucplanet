@@ -22,7 +22,7 @@
     <string name="watch_action_failed">スマホに接続できませんでした</string>
     <string name="watch_gps_label">GPS 速度</string>
     <string name="watch_gps_permission">タップして GPS を許可</string>
-    <string name="watch_gps_waiting">GPS を待機中…</string>
+    <string name="watch_gps_waiting">GPS の測位を待機中…</string>
 
     <!-- Labels for hold-action triggers, shown in the watch's transient pill. Short so they fit. -->
     <string name="watch_action_horn">ホーン</string>
@@ -42,8 +42,8 @@
     <string name="watch_action_media_pause">音楽を一時停止</string>
     <string name="watch_action_long_press_hint">長押しで %1$s</string>
     <string name="watch_map_phone_disconnected">スマホなし</string>
-    <string name="watch_map_gps_permission">GPSを許可</string>
-    <string name="watch_map_gps_stale">GPSが古い</string>
+    <string name="watch_map_gps_permission">GPS を許可</string>
+    <string name="watch_map_gps_stale">GPS 情報が古い</string>
     <string name="watch_map_route_loading">ルートを読み込み中</string>
     <string name="watch_map_route_unavailable">ルートなし</string>
     <string name="watch_map_loading">地図を読み込み中</string>
@@ -51,7 +51,7 @@
     <string name="watch_map_zoom_in">拡大</string>
     <string name="watch_map_zoom_out">縮小</string>
     <string name="watch_map_open_phone">スマホアプリを開く</string>
-    <string name="watch_map_waiting_gps">GPSを待機中</string>
+    <string name="watch_map_waiting_gps">GPS を待機中</string>
     <string name="watch_map_pwm_value">%1$s%%</string>
     <string name="watch_map_speed_value">%1$s %2$s</string>
     <string name="watch_map_voltage_value">%1$s V</string>

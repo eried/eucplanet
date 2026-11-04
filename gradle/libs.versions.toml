@@ -1,12 +1,17 @@
 [versions]
 agp = "8.10.1"
-kotlin = "2.0.21"
+kotlin = "2.3.21"
 coil = "2.7.0"
-ksp = "2.0.21-1.0.28"
+# KSP 2.3.x is KSP2 only (built on Kotlin 2.3.20); 2.3.7 shipped with Kotlin
+# 2.3.21 (2.3.12 and later need AGP 8.12).
+ksp = "2.3.7"
 composeBom = "2025.04.01"
-hilt = "2.53.1"
-hiltNavigationCompose = "1.2.0"
-room = "2.6.1"
+# Koin 4.2 needs Kotlin 2.3. It pulls lifecycle 2.10, activity 1.12, work 2.11
+# and Compose runtime/foundation 1.10 in transitively, above the pins below.
+koin = "4.2.2"
+# 2.7 is the first Room whose processor runs under KSP2 (2.6.1 fails with
+# "unexpected jvm signature V").
+room = "2.7.2"
 lifecycle = "2.8.7"
 coroutines = "1.9.0"
 navigation = "2.8.5"
@@ -14,7 +19,6 @@ maplibre = "11.5.2"
 carApp = "1.4.0"
 datastore = "1.1.1"
 work = "2.9.1"
-hiltWork = "1.2.0"
 reorderable = "2.4.3"
 wearCompose = "1.4.0"
 playServicesWearable = "18.2.0"
@@ -72,10 +76,13 @@ room-compiler = { group = "androidx.room", name = "room-compiler", version.ref =
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 room-testing = { group = "androidx.room", name = "room-testing", version.ref = "room" }
 
-# Hilt
-hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
-hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
+# Koin (dependency injection, multiplatform)
+koin-bom = { group = "io.insert-koin", name = "koin-bom", version.ref = "koin" }
+koin-android = { group = "io.insert-koin", name = "koin-android" }
+koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compose" }
+koin-androidx-workmanager = { group = "io.insert-koin", name = "koin-androidx-workmanager" }
+koin-test = { group = "io.insert-koin", name = "koin-test" }
+koin-test-junit4 = { group = "io.insert-koin", name = "koin-test-junit4" }
 
 # Coroutines
 coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
@@ -95,10 +102,8 @@ datastore-preferences = { group = "androidx.datastore", name = "datastore-prefer
 # Flic 2
 flic2 = { group = "com.github.50ButtonsEach", name = "flic2lib-android", version = "2.0.1" }
 
-# WorkManager + Hilt integration
+# WorkManager
 work-runtime = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "work" }
-hilt-work = { group = "androidx.hilt", name = "hilt-work", version.ref = "hiltWork" }
-hilt-work-compiler = { group = "androidx.hilt", name = "hilt-compiler", version.ref = "hiltWork" }
 
 # Drag-to-reorder
 reorderable = { group = "sh.calvin.reorderable", name = "reorderable", version.ref = "reorderable" }
@@ -160,5 +165,4 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 play-publisher = { id = "com.github.triplet.play", version.ref = "playPublisher" }

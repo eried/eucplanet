@@ -71,12 +71,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.window.DialogProperties
 import com.eried.eucplanet.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * Theme customization widget, a floating, draggable, collapsible color editor. Mounted at the
@@ -87,7 +87,7 @@ import kotlin.math.roundToInt
  */
 @Composable
 fun ThemeEditorWidget(
-    vm: ThemeEditorViewModel = hiltViewModel()
+    vm: ThemeEditorViewModel = koinViewModel()
 ) {
     val settings = vm.settings.collectAsState().value ?: return
     val liveColors = vm.live.collectAsState().value

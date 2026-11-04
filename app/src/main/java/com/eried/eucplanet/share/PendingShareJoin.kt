@@ -1,7 +1,5 @@
 package com.eried.eucplanet.share
 
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,8 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
  * read in MainActivity's intent handling and consumed by the nav-graph-scoped
  * RouteBuilderViewModel, which the activity has no handle on.
  */
-@Singleton
-class PendingShareJoin @Inject constructor() {
+class PendingShareJoin {
 
     private val _pending = MutableStateFlow<ShareLink?>(null)
     val pending: StateFlow<ShareLink?> = _pending.asStateFlow()

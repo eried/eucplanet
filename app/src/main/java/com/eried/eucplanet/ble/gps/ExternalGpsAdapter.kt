@@ -46,10 +46,11 @@ data class ExternalGpsGattProfile(
  *  * decoding of the raw notification stream into [ExternalGpsSample]s.
  *
  * The architecture intentionally mirrors [com.eried.eucplanet.ble.WheelAdapter]:
- * one interface, one implementation per family, registered into a Hilt set so
+ * one interface, one implementation per family, registered into a Koin set so
  * the scanner / connection manager iterate them without knowing the concrete
  * types. Ships [RaceBoxAdapter] + [DragyAdapter]; future VBox / Garmin
- * Catalyst adapters slot in by adding a [Binds] entry.
+ * Catalyst adapters slot in by adding an entry to the set in
+ * [com.eried.eucplanet.di.externalGpsModule].
  */
 interface ExternalGpsAdapter {
     val source: ExternalGpsSource

@@ -10,9 +10,6 @@ import android.os.Build
 import android.util.Log
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.diagnostics.DiagnosticsLogger
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.concurrent.thread
 import kotlin.math.abs
 import kotlin.math.sqrt
@@ -31,9 +28,8 @@ import kotlin.math.sqrt
  * The engine is otherwise stateless from the caller's perspective, just feed it
  * telemetry and tweak its [AppSettings] block.
  */
-@Singleton
-class EngineSoundEngine @Inject constructor(
-    @ApplicationContext private val context: Context,
+class EngineSoundEngine(
+    private val context: Context,
     private val sfxSidecar: SfxSidecar
 ) {
 

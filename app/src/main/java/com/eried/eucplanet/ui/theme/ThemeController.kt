@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.res.Configuration
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.store.ThemeStore
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -14,8 +13,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /** What the combo / widget can pick from. */
 data class ThemeChoices(
@@ -43,9 +40,8 @@ data class ThemeChoices(
  * is intentionally lost on app kill (that is what "unsaved" means). "Save as"
  * writes a `.json` file via [ThemeStore] and drops the draft.
  */
-@Singleton
-class ThemeController @Inject constructor(
-    @ApplicationContext private val context: Context,
+class ThemeController(
+    private val context: Context,
     private val settingsRepository: SettingsRepository,
     private val themeStore: ThemeStore,
 ) {

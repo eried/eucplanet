@@ -1,42 +1,29 @@
 package com.eried.eucplanet.di
 
-import android.content.Context
 import android.os.Build
 import com.eried.eucplanet.BuildConfig
 import com.eried.eucplanet.data.eucstats.Attestation
 import com.eried.eucplanet.data.eucstats.EucStatsApi
 import com.eried.eucplanet.data.eucstats.EucStatsApiContract
-import com.eried.eucplanet.data.eucstats.EucStatsAppVersion
-import com.eried.eucplanet.data.eucstats.EucStatsClock
-import com.eried.eucplanet.data.eucstats.EucStatsOsVersion
+import com.eried.eucplanet.data.eucstats.EucStatsQualifiers
+import com.eried.eucplanet.data.eucstats.EucStatsRepository
 import com.eried.eucplanet.data.eucstats.EucStatsSettingsPort
-import com.eried.eucplanet.data.eucstats.EucStatsTripFileBytes
 import com.eried.eucplanet.data.eucstats.PlayIntegrityAttestation
 import com.eried.eucplanet.data.eucstats.StubAttestation
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
+import com.eried.eucplanet.data.sync.SyncManager
 import okhttp3.OkHttpClient
-import javax.inject.Singleton
+import org.koin.android.ext.koin.androidContext
+import org.koin.dsl.module
 
-@Module
-@InstallIn(SingletonComponent::class)
-object EucStatsModule {
+val eucStatsModule = module {
 
-    @Provides
-    @Singleton
-    fun provideOkHttpClient(): OkHttpClient = OkHttpClient.Builder().build()
+    single<OkHttpClient> { OkHttpClient.Builder().build() }
 
-    @Provides
-    @Singleton
-    fun provideEucStatsApi(client: OkHttpClient): EucStatsApiContract =
-        EucStatsApi(client) { BuildConfig.EUCSTATS_API_BASE_URL }
+    single<EucStatsApiContract> { EucStatsApi(get()) { BuildConfig.EUCSTATS_API_BASE_URL } }
 
     /**
      * Attestation provider. Uses [PlayIntegrityAttestation] when a non-zero
@@ -44,31 +31,29 @@ object EucStatsModule {
      * [StubAttestation] (which the server accepts in stub mode) until the real
      * GCP project number is supplied.
      */
-    @Provides
-    @Singleton
-    fun provideAttestation(@ApplicationContext context: Context): Attestation =
+    single<Attestation> {
         if (BuildConfig.EUCSTATS_GCP_PROJECT_NUMBER != 0L)
-            PlayIntegrityAttestation(context, BuildConfig.EUCSTATS_GCP_PROJECT_NUMBER)
+            PlayIntegrityAttestation(androidContext(), BuildConfig.EUCSTATS_GCP_PROJECT_NUMBER)
         else
             StubAttestation()
+    }
 
     /**
      * Bridge between [EucStatsSettingsPort] (Android-free interface used by
-     * [EucStatsRepository]) and [SettingsRepository] (the Hilt singleton that
+     * [EucStatsRepository]) and [SettingsRepository] (the singleton that
      * owns DataStore).
      */
-    @Provides
-    @Singleton
-    fun provideEucStatsSettingsPort(
-        settingsRepository: SettingsRepository,
-        syncManager: com.eried.eucplanet.data.sync.SyncManager,
-    ): EucStatsSettingsPort = object : EucStatsSettingsPort {
-        override suspend fun get(): AppSettings = settingsRepository.get()
-        override suspend fun update(settings: AppSettings) = settingsRepository.update(settings)
-        override fun riderStoreId(): String? = syncManager.riderStoreId.value
-        override suspend fun writeRiderId(storeId: String): Boolean =
-            syncManager.writeRiderId(storeId)
-        override suspend fun deleteRiderId(): Boolean = syncManager.deleteRiderIdFile()
+    single<EucStatsSettingsPort> {
+        val settingsRepository: SettingsRepository = get()
+        val syncManager: SyncManager = get()
+        object : EucStatsSettingsPort {
+            override suspend fun get(): AppSettings = settingsRepository.get()
+            override suspend fun update(settings: AppSettings) = settingsRepository.update(settings)
+            override fun riderStoreId(): String? = syncManager.riderStoreId.value
+            override suspend fun writeRiderId(storeId: String): Boolean =
+                syncManager.writeRiderId(storeId)
+            override suspend fun deleteRiderId(): Boolean = syncManager.deleteRiderIdFile()
+        }
     }
 
     /**
@@ -76,22 +61,31 @@ object EucStatsModule {
      * Injected as a qualified function so [EucStatsRepository] stays testable
      * without a real [TripRepository] or Android File access.
      */
-    @Provides
-    @Singleton
-    @EucStatsTripFileBytes
-    fun provideTripFileBytes(tripRepository: TripRepository): @JvmSuppressWildcards (TripRecord) -> ByteArray =
-        { trip -> tripRepository.getTripFile(trip).readBytes() }
+    single<(TripRecord) -> ByteArray>(EucStatsQualifiers.TripFileBytes) {
+        val tripRepository: TripRepository = get()
+        val bytes: (TripRecord) -> ByteArray = { trip -> tripRepository.getTripFile(trip).readBytes() }
+        bytes
+    }
 
-    @Provides
-    @EucStatsAppVersion
-    fun provideEucStatsAppVersion(): String = BuildConfig.VERSION_NAME
+    factory(EucStatsQualifiers.AppVersion) { BuildConfig.VERSION_NAME }
 
-    @Provides
-    @EucStatsOsVersion
-    fun provideEucStatsOsVersion(): String = "Android ${Build.VERSION.RELEASE}"
+    factory(EucStatsQualifiers.OsVersion) { "Android ${Build.VERSION.RELEASE}" }
 
-    @Provides
-    @Singleton
-    @EucStatsClock
-    fun provideEucStatsClock(): @JvmSuppressWildcards () -> Long = { System.currentTimeMillis() }
+    single<() -> Long>(EucStatsQualifiers.Clock) {
+        val clock: () -> Long = { System.currentTimeMillis() }
+        clock
+    }
+
+    single {
+        EucStatsRepository(
+            api = get(),
+            attestation = get(),
+            settings = get(),
+            tripDao = get(),
+            tripFileBytes = get(EucStatsQualifiers.TripFileBytes),
+            appVersion = get(EucStatsQualifiers.AppVersion),
+            osVersion = get(EucStatsQualifiers.OsVersion),
+            clock = get(EucStatsQualifiers.Clock),
+        )
+    }
 }

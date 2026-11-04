@@ -16,6 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import com.eried.eucplanet.hud.net.HudServer
 import com.eried.eucplanet.hud.net.HudTileCache
 import com.eried.eucplanet.hud.ui.HudApp
+import com.eried.eucplanet.hud.ui.HudKeys
 import com.eried.eucplanet.hud.ui.HudSessionState
 import com.eried.eucplanet.hud.ui.HudUiController
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -103,6 +104,30 @@ class HudActivity : ComponentActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         controller = HudUiController()
+        // The rider's camera pick (UP) and turn (DOWN) survive a restart:
+        // a MotoEye that reports its rear camera as the front one needs it
+        // set once, not every ride.
+        val cameraPrefs = getSharedPreferences(CAMERA_PREFS, MODE_PRIVATE)
+        val savedIndex = cameraPrefs.getInt(PREF_CAMERA_INDEX, 0)
+        val rotations = cameraPrefs.all.mapNotNull { (key, value) ->
+            val i = key.removePrefix(PREF_CAMERA_ROTATION_PREFIX).toIntOrNull()
+            if (key.startsWith(PREF_CAMERA_ROTATION_PREFIX) && i != null && value is Int) i to value else null
+        }.toMap().toMutableMap()
+        // The first build kept one turn for every camera; it belongs to the
+        // camera that was showing.
+        if (cameraPrefs.contains(PREF_CAMERA_ROTATION_LEGACY) && savedIndex !in rotations) {
+            rotations[savedIndex] = cameraPrefs.getInt(
+                PREF_CAMERA_ROTATION_LEGACY, HudUiController.DEFAULT_CAMERA_ROTATION
+            )
+        }
+        controller.restoreCamera(savedIndex, rotations)
+        controller.onCameraChanged = { index, rotation ->
+            cameraPrefs.edit()
+                .putInt(PREF_CAMERA_INDEX, index)
+                .putInt(PREF_CAMERA_ROTATION_PREFIX + index, rotation)
+                .remove(PREF_CAMERA_ROTATION_LEGACY)
+                .apply()
+        }
         server = HudServer(applicationContext)
         // OK / Nav buttons enqueue commands back to the phone over the
         // WebSocket. Queued in HudServer so a tap during a momentary
@@ -170,6 +195,14 @@ class HudActivity : ComponentActivity() {
         super.onDestroy()
     }
 
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        when (event.action) {
+            KeyEvent.ACTION_DOWN -> controller.noteKey(event.keyCode, down = true, atMs = event.eventTime)
+            KeyEvent.ACTION_UP -> controller.noteKey(event.keyCode, down = false, atMs = event.eventTime)
+        }
+        return super.dispatchKeyEvent(event)
+    }
+
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         // Map HUD remote keys to UI actions. The Motoeye remote reports these
         // standard codes; we keep the wear-OS-style "if not consumed by us,
@@ -221,8 +254,21 @@ class HudActivity : ComponentActivity() {
             KeyEvent.KEYCODE_BUTTON_R1 -> { controller.nextScreen(); true }
             KeyEvent.KEYCODE_DPAD_CENTER,
             KeyEvent.KEYCODE_ENTER -> { controller.centerAction(); true }
-            else -> super.onKeyDown(keyCode, event)
+            else -> {
+                // The MotoEye camera button (rear view, recorder) needs the
+                // camera: free it before the MotoEye asks, and pass the key on.
+                if (HudKeys.handsOffCamera(keyCode)) controller.handOffCamera(byKey = true, reason = "key $keyCode")
+                super.onKeyDown(keyCode, event)
+            }
         }
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        // The MotoEye rear view or recorder came up over the HUD and wants
+        // the camera, even when its button never reached us.
+        if (!hasFocus) controller.handOffCamera(reason = "focus")
+        controller.onHudFocus(hasFocus)
     }
 
     override fun onKeyLongPress(keyCode: Int, event: KeyEvent?): Boolean {
@@ -338,5 +384,9 @@ class HudActivity : ComponentActivity() {
          *  upgrades the gesture to a double-tap. Covers the human "lift" gap
          *  (~100-250 ms) between the two taps. */
         const val DOUBLE_TAP_MS: Long = 280L
+        const val CAMERA_PREFS = "hud_camera"
+        const val PREF_CAMERA_INDEX = "camera_index"
+        const val PREF_CAMERA_ROTATION_PREFIX = "camera_rotation_"
+        const val PREF_CAMERA_ROTATION_LEGACY = "camera_rotation"
     }
 }

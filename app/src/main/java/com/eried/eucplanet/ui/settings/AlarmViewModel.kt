@@ -13,8 +13,6 @@ import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.service.TonePlayer
 import com.eried.eucplanet.service.VoiceService
 import com.eried.eucplanet.util.VibratorHelper
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,11 +23,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class AlarmViewModel @Inject constructor(
-    @ApplicationContext private val context: Context,
+class AlarmViewModel(
+    private val context: Context,
     private val alarmDao: AlarmDao,
     private val tonePlayer: TonePlayer,
     private val voiceService: VoiceService,

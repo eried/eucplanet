@@ -219,7 +219,7 @@ Before merging anything from outside:
   the screens the PR changed and look at them.
 - The suite guards the wiring: `AppStartupTest` pins the start list in
   `EucPlanetApp.onCreate`, and `LifecycleWiringTest` fails when any
-  `@Singleton` with a `start()` or `initialize()` is called by nobody. A new
+  Koin `single` with a `start()` or `initialize()` is called by nobody. A new
   process-wide subsystem gets its call in `onCreate` and its line in the first
   test. Both tests strip comments first, so commenting a call out is the same
   as deleting it.

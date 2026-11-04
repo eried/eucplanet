@@ -37,13 +37,10 @@ import com.google.android.gms.wearable.DataMapItem
 import com.google.android.gms.wearable.PutDataMapRequest
 import com.google.android.gms.wearable.PutDataRequest
 import com.google.android.gms.wearable.Wearable
-import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.ArrayDeque
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicBoolean
 import org.json.JSONObject
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -57,9 +54,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 
-@Singleton
-class WearMapBridge @Inject constructor(
-    @ApplicationContext private val context: Context,
+class WearMapBridge(
+    private val context: Context,
     private val settingsRepository: SettingsRepository,
     private val tripRepository: TripRepository,
     private val navigationEngine: NavigationEngine,
@@ -622,7 +618,7 @@ class WearMapBridge @Inject constructor(
             val job = scope.launch(Dispatchers.IO, start = CoroutineStart.LAZY) {
                 val png = try {
                     val url = MapLayers.tileUrl(key.layerId, key.z, key.x, key.y)
-                    MapTileCache.encodedTile(context, url)
+                    MapTileCache.encodedTile(context, url, MapTileCache.TileXyz(key.z, key.x, key.y))
                 } catch (cancelled: CancellationException) {
                     throw cancelled
                 } catch (e: Exception) {

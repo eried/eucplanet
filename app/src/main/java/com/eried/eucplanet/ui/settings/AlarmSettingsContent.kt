@@ -119,7 +119,6 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.AlarmComparator
 import com.eried.eucplanet.data.model.AlarmMetric
@@ -137,6 +136,7 @@ import com.eried.eucplanet.ui.theme.themedSegmentedColors
 import com.eried.eucplanet.ui.theme.themedSwitchColors
 import com.eried.eucplanet.ui.theme.themedSliderColors
 import kotlin.math.roundToInt
+import org.koin.compose.viewmodel.koinViewModel
 import sh.calvin.reorderable.ReorderableColumn
 
 // "Don't ask again" for the constant-tone prompt: process-scoped so it lasts the
@@ -264,7 +264,7 @@ private fun displayUnit(
 
 @Composable
 fun AlarmSettingsContent(
-    viewModel: AlarmViewModel = hiltViewModel()
+    viewModel: AlarmViewModel = koinViewModel()
 ) {
     val rules by viewModel.rules.collectAsState()
     val groups by viewModel.groupedRules.collectAsState()
@@ -1556,7 +1556,7 @@ private fun BeepStudioDialog(
                     }) {
                         Icon(Icons.Default.Repeat, contentDescription = stringResource(R.string.alarm_repeat_toggle),
                             tint = when {
-                                gapMs <= 0 -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+                                gapMs <= 0 -> MaterialTheme.appColors.textDisabled
                                 repeat -> MaterialTheme.appColors.statusWarn
                                 else -> MaterialTheme.colorScheme.onSurfaceVariant
                             })
@@ -1827,6 +1827,9 @@ internal fun NumberUpDown(
     // Field box height. 56dp so numeric fields match the system combo box height
     // (and the metric/condition dropdowns in the alarm editor).
     fieldHeight: Dp = 56.dp,
+    // The surface behind the notched label. Settings sections by default; a
+    // field placed straight on a dialog passes the dialog fill.
+    notchFill: Color = Color.Unspecified,
 ) {
     val fieldText = MaterialTheme.appColors.fieldText
     val fieldLabelColor = MaterialTheme.appColors.fieldLabel
@@ -1913,6 +1916,7 @@ internal fun NumberUpDown(
                 FieldNotchLabel(
                     label,
                     color = if (focused) focusBorder else Color.Unspecified,
+                    notchFill = notchFill,
                 )
             }
             // Up/down stepper bubble: a vertical pill (up over down) that appears
@@ -2054,17 +2058,21 @@ private fun RepeatingStepper(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DropdownSelect(
+internal fun DropdownSelect(
     label: String,
     selected: String,
     options: List<Pair<String, String>>, // value to displayLabel
-    onSelect: (String) -> Unit
+    onSelect: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    // As NumberUpDown: the surface behind the notched label.
+    notchFill: Color = Color.Unspecified,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
     ExposedDropdownMenuBox(
         expanded = expanded,
-        onExpandedChange = { expanded = it }
+        onExpandedChange = { expanded = it },
+        modifier = modifier,
     ) {
         // Draw the label with FieldNotchLabel (the same notch label NumberUpDown
         // uses) instead of the OutlinedTextField's built-in floating label, so the
@@ -2088,7 +2096,7 @@ private fun DropdownSelect(
                 shape = RoundedCornerShape(12.dp),
                 colors = themedFieldColors(),
             )
-            FieldNotchLabel(label)
+            FieldNotchLabel(label, notchFill = notchFill)
         }
         ExposedDropdownMenu(
             expanded = expanded,

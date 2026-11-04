@@ -4,9 +4,6 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.media.SoundPool
 import android.util.Log
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * One-shot SFX overlay for the sampled-engine path. The procedural [EngineSynth]
@@ -25,9 +22,8 @@ import javax.inject.Singleton
  * and runs on the audio thread Android picks. We cap at 4 simultaneous streams since
  * pops should overlap but not stack endlessly.
  */
-@Singleton
-class SfxSidecar @Inject constructor(
-    @ApplicationContext private val context: Context
+class SfxSidecar(
+    private val context: Context
 ) {
     @Volatile private var pool: SoundPool? = null
     /** asset basename → SoundPool sound ID (after load completes). */

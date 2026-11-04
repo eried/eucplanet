@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">EUC Planet</string>
-    <string name="watch_waiting_phone">Відкрий EUC Planet\nна телефоні</string>
-    <string name="watch_waiting_wheel">Підключи колесо\nв EUC Planet</string>
+    <string name="watch_waiting_phone">Відкрийте EUC Planet\nна телефоні</string>
+    <string name="watch_waiting_wheel">Підключіть колесо\nв EUC Planet</string>
     <string name="watch_disconnected">Не підключено</string>
     <string name="watch_horn">Сигнал</string>
     <string name="watch_light">Світло</string>
@@ -20,9 +20,9 @@
     <string name="watch_trip_label">Поїздка</string>
     <string name="watch_torque_label">Момент</string>
     <string name="watch_action_failed">Телефон недоступний</string>
-    <string name="watch_gps_label">GPS</string>
-    <string name="watch_gps_permission">Торкнись для GPS</string>
-    <string name="watch_gps_waiting">Чекаємо сигнал…</string>
+    <string name="watch_gps_label">Шв. GPS</string>
+    <string name="watch_gps_permission">Торкніться для GPS</string>
+    <string name="watch_gps_waiting">Очікування сигналу…</string>
 
     <!-- Labels for hold-action triggers, shown in the watch's transient pill. Short so they fit. -->
     <string name="watch_action_horn">Сигнал</string>
@@ -40,7 +40,7 @@
     <string name="watch_action_media_prev">Попередній трек</string>
     <string name="watch_action_music_start">Увімкнути музику</string>
     <string name="watch_action_media_pause">Пауза музики</string>
-    <string name="watch_action_long_press_hint">Утримуй для %1$s</string>
+    <string name="watch_action_long_press_hint">Утримуйте для: %1$s</string>
     <string name="watch_map_phone_disconnected">Немає телефону</string>
     <string name="watch_map_gps_permission">Дозволити GPS</string>
     <string name="watch_map_gps_stale">GPS застарів</string>

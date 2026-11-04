@@ -29,15 +29,13 @@ import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.share.ShareSession
 import com.eried.eucplanet.share.ShareState
 import com.eried.eucplanet.diagnostics.DiagnosticsLogger
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import org.koin.android.ext.android.get
 
-@AndroidEntryPoint
 class WheelService : LifecycleService() {
 
     companion object {
@@ -144,9 +142,9 @@ class WheelService : LifecycleService() {
      * heard, and the dashboard tile, the alarms and the HUD all sat on
      * nothing.
      */
-    @Inject lateinit var tpmsScanner: com.eried.eucplanet.tpms.TpmsScanner
-    @Inject lateinit var wheelRepository: WheelRepository
-    @Inject lateinit var settingsRepository: SettingsRepository
+    val tpmsScanner: com.eried.eucplanet.tpms.TpmsScanner = get()
+    val wheelRepository: WheelRepository = get()
+    val settingsRepository: SettingsRepository = get()
 
     @Volatile
     private var speedUnitCached: String = "kmh"
@@ -188,23 +186,23 @@ class WheelService : LifecycleService() {
     @Volatile
     private var notifActionsCsvCached: String =
         com.eried.eucplanet.data.model.NotificationActionType.DEFAULT_KEYS
-    @Inject lateinit var voiceService: VoiceService
-    @Inject lateinit var tripRepository: TripRepository
-    @Inject lateinit var tripMeterRepository: com.eried.eucplanet.data.repository.TripMeterRepository
-    @Inject lateinit var automationManager: AutomationManager
-    @Inject lateinit var engineSoundEngine: EngineSoundEngine
-    @Inject lateinit var wearBridge: com.eried.eucplanet.wear.WearBridge
-    @Inject lateinit var wearMapBridge: com.eried.eucplanet.wear.WearMapBridge
-    @Inject lateinit var garminBridge: com.eried.eucplanet.garmin.GarminBridge
-    @Inject lateinit var amazfitBridge: com.eried.eucplanet.amazfit.AmazfitBridge
-    @Inject lateinit var externalGpsRepository:
-        com.eried.eucplanet.data.repository.ExternalGpsRepository
-    @Inject lateinit var navigationEngine: com.eried.eucplanet.nav.NavigationEngine
-    @Inject lateinit var hudServer: com.eried.eucplanet.service.hud.HudServer
-    @Inject lateinit var radarRepository: com.eried.eucplanet.data.repository.RadarRepository
-    @Inject lateinit var phoneHudWindow: com.eried.eucplanet.service.overlay.PhoneHudWindow
-    @Inject lateinit var legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController
-    @Inject lateinit var shareSession: ShareSession
+    val voiceService: VoiceService = get()
+    val tripRepository: TripRepository = get()
+    val tripMeterRepository: com.eried.eucplanet.data.repository.TripMeterRepository = get()
+    val automationManager: AutomationManager = get()
+    val engineSoundEngine: EngineSoundEngine = get()
+    val wearBridge: com.eried.eucplanet.wear.WearBridge = get()
+    val wearMapBridge: com.eried.eucplanet.wear.WearMapBridge = get()
+    val garminBridge: com.eried.eucplanet.garmin.GarminBridge = get()
+    val amazfitBridge: com.eried.eucplanet.amazfit.AmazfitBridge = get()
+    val externalGpsRepository:
+        com.eried.eucplanet.data.repository.ExternalGpsRepository = get()
+    val navigationEngine: com.eried.eucplanet.nav.NavigationEngine = get()
+    val hudServer: com.eried.eucplanet.service.hud.HudServer = get()
+    val radarRepository: com.eried.eucplanet.data.repository.RadarRepository = get()
+    val phoneHudWindow: com.eried.eucplanet.service.overlay.PhoneHudWindow = get()
+    val legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController = get()
+    val shareSession: ShareSession = get()
 
     // Phone HUD, mirrored so the telemetry loop can read it without suspending.
     @Volatile
@@ -240,7 +238,7 @@ class WheelService : LifecycleService() {
     // RaceBox-style acceleration splits. The session lives in a repository so
     // the settings screen can show and clear it; config is re-read each sample
     // so a settings change or the dashboard button takes effect at once.
-    @Inject lateinit var accelSplitRepository: com.eried.eucplanet.data.repository.AccelSplitRepository
+    val accelSplitRepository: com.eried.eucplanet.data.repository.AccelSplitRepository = get()
     private var lastConnectionState: ConnectionState? = null
     // Written by the telemetry collector (a worker thread) and cleared on
     // disconnect from the main thread.

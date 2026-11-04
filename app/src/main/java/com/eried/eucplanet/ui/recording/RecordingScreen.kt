@@ -79,15 +79,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.InfoHint
 import com.eried.eucplanet.ui.theme.appColors
+import com.eried.eucplanet.ui.common.DestructiveMenuItem
+import com.eried.eucplanet.ui.common.appMenuItemColors
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import org.koin.compose.viewmodel.koinViewModel
 
 
 
@@ -99,7 +101,7 @@ fun RecordingScreen(
     onOpenBackupSettings: (() -> Unit)? = null,
     onViewOnline: ((Long) -> Unit)? = null,
     onReplayTrip: ((Long) -> Unit)? = null,
-    viewModel: RecordingViewModel = hiltViewModel()
+    viewModel: RecordingViewModel = koinViewModel()
 ) {
     val recording by viewModel.recording.collectAsState()
     val pendingTripId by viewModel.pendingTripId.collectAsState()
@@ -431,22 +433,24 @@ fun RecordingScreen(
                                 ))
                             }
                         )
-                        if (trips.isNotEmpty()) {
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.action_export_all)) },
-                                onClick = {
-                                    showManageMenu = false
-                                    viewModel.exportAllAsZip()
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.recording_clear_all_menu), color = MaterialTheme.appColors.statusDanger) },
-                                onClick = {
-                                    showManageMenu = false
-                                    showClearDialog = true
-                                }
-                            )
-                        }
+                        // Greyed, not hidden, with no trips: the menu keeps its shape.
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.action_export_all)) },
+                            enabled = trips.isNotEmpty(),
+                            colors = appMenuItemColors(),
+                            onClick = {
+                                showManageMenu = false
+                                viewModel.exportAllAsZip()
+                            }
+                        )
+                        DestructiveMenuItem(
+                            text = stringResource(R.string.recording_clear_all_menu),
+                            enabled = trips.isNotEmpty(),
+                            onClick = {
+                                showManageMenu = false
+                                showClearDialog = true
+                            }
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -657,7 +661,7 @@ private fun TripCard(
 ) {
     val distanceUnitLabel = com.eried.eucplanet.util.Units.distanceUnit(distanceUnit)
     val dateFormat = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT, Locale.getDefault())
-    val disabledColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+    val disabledColor = MaterialTheme.appColors.textDisabled
 
     // Live ticking elapsed time for the recording trip
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }

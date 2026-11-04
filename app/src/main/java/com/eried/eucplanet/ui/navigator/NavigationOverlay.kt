@@ -55,7 +55,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.NavMode
 import com.eried.eucplanet.data.model.NavState
@@ -63,6 +62,7 @@ import com.eried.eucplanet.data.model.Proximity
 import com.eried.eucplanet.data.model.arrowAngleDeg
 import com.eried.eucplanet.ui.theme.appColors
 import kotlinx.coroutines.delay
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * The floating navigation popup. Rendered above the nav graph in
@@ -83,7 +83,7 @@ fun NavigationOverlay(
     // navigator map). Setting `cueVisible` independent of phone visibility
     // means the watch keeps its setting honoured.
     suppressOnPhone: Boolean = false,
-    viewModel: NavigationOverlayViewModel = hiltViewModel()
+    viewModel: NavigationOverlayViewModel = koinViewModel()
 ) {
     val state by viewModel.navState.collectAsState()
     val popupTimeoutMs by viewModel.popupTimeoutMs.collectAsState()
@@ -205,15 +205,16 @@ private fun CenterPopup(
         modifier = Modifier
             .width(340.dp)
             .padding(8.dp)
-            // Absorb taps so they don't fall through to the app underneath. A
-            // no-op clickable does this cleanly, the perpetual event-consume
-            // loop used before was cancelling the popup's own button taps.
+            // Absorbs taps so they don't fall through to the app underneath,
+            // and a tap anywhere on the card opens the map navigator: the map
+            // icon alone was a small target. On the map itself it stays a
+            // no-op. The header buttons take their own taps first.
             .clickable(
                 interactionSource = remember {
                     androidx.compose.foundation.interaction.MutableInteractionSource()
                 },
                 indication = null
-            ) {},
+            ) { if (!onMapScreen) { onMinimize(); onOpenMap() } },
         shape = RoundedCornerShape(12.dp),
         color = panel,
         contentColor = ink,

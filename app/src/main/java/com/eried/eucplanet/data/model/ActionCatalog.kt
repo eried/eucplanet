@@ -84,7 +84,7 @@ enum class ActionSurface {
 /**
  * Read-only snapshot of the running app state, passed to
  * [ActionSpec.statusReader] so it can decide whether the action's effect
- * is currently active. Carrier-only, no Hilt scope, no flows; the caller
+ * is currently active. Carrier-only, no DI scope, no flows; the caller
  * builds a snapshot per dispatch from whatever sources it has.
  *
  * Fields are nullable / unknown-default to avoid forcing callers to plumb

@@ -146,7 +146,6 @@ import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.MetricCatalog
@@ -159,6 +158,8 @@ import kotlin.math.absoluteValue
 import kotlin.math.cos
 import kotlin.math.sin
 import com.eried.eucplanet.ui.theme.themedFieldColors
+import com.eried.eucplanet.ui.common.appMenuItemColors
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * Opens the system gallery to the videos or photos collection. Overlay Studio
@@ -191,26 +192,6 @@ private fun openMediaGallery(context: Context, video: Boolean, onNoGalleryApp: (
  * to one decimal. Shared by the standalone-tile corner stats and the
  * composite cell renderer so both agree.
  */
-/**
- * Consumption in the rider's distance unit. Stored per km, so dividing by the
- * number of display units in one km converts it: a mile is 0.621371 of a km, so
- * Wh/mi is the km figure over 0.621371, and a Scandinavian mil is 10 km, so it
- * is the km figure over 0.1.
- *
- * Null when there is nothing worth showing yet (no window, or a stretch of
- * regen that makes net energy zero), so each caller supplies its own
- * placeholder rather than this inventing a zero.
- */
-private fun formatWhPerDistance(whPerKm: Float, distanceUnit: String): String? {
-    if (whPerKm.isNaN() || whPerKm <= 0f) return null
-    val unitsPerKm = com.eried.eucplanet.util.Units.distance(1f, distanceUnit)
-    if (unitsPerKm <= 0f) return null
-    return "%.0f Wh/%s".format(
-        whPerKm / unitsPerKm,
-        com.eried.eucplanet.util.Units.distanceUnit(distanceUnit),
-    )
-}
-
 private fun formatMetricStatValue(
     key: String,
     raw: Float,
@@ -239,7 +220,7 @@ fun DashboardScreen(
     /** Long-press on the battery icon: charging monitor, details already up. */
     onNavigateToChargingDetails: () -> Unit = {},
     onNavigateToTripMeter: () -> Unit = {},
-    viewModel: DashboardViewModel = hiltViewModel()
+    viewModel: DashboardViewModel = koinViewModel()
 ) {
     DisposableEffect(Unit) {
         Log.i("EucDash", "DashboardScreen ENTER")
@@ -368,7 +349,7 @@ fun DashboardScreen(
     val wheelMaxSpeedCap by viewModel.wheelMaxSpeedCap.collectAsState()
     // Navigation state, drives the dashboard's navigator button (the singleton
     // engine behind this VM is shared with the floating navigation overlay).
-    val navOverlayVm: NavigationOverlayViewModel = hiltViewModel()
+    val navOverlayVm: NavigationOverlayViewModel = koinViewModel()
     val navState by navOverlayVm.navState.collectAsState()
     val currentRoute by navOverlayVm.currentRoute.collectAsState()
     val flicFlashAt by viewModel.flicFlashAt.collectAsState()
@@ -1378,6 +1359,16 @@ fun DashboardScreen(
                                     navOverlayVm.endNavigation()
                                 }
                             )
+                            // Tap shows the cue popup while navigating, so the
+                            // map is one entry away here.
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.nav_open)) },
+                                onClick = {
+                                    showMapMenu = false
+                                    onNavigateToNavigator()
+                                }
+                            )
+                            androidx.compose.material3.HorizontalDivider()
                         } else if (currentRoute != null) {
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.nav_start_short)) },
@@ -1386,6 +1377,7 @@ fun DashboardScreen(
                                     navOverlayVm.startCurrentRoute()
                                 }
                             )
+                            androidx.compose.material3.HorizontalDivider()
                         }
                         // b) Quick jump to the navigation settings.
                         DropdownMenuItem(
@@ -1643,143 +1635,18 @@ fun DashboardScreen(
             // populate each of their 2-3 cells. Static metric formatting
             // mirrors the default-6 cards above; new metric keys fall
             // back to placeholder until their value path lands.
-            fun displayValueFor(metricKey: String): String {
-                if (!live) return placeholder
-                return when (metricKey) {
-                    "BATTERY" -> if (wheelData.batteryPercent > 0) "${wheelData.batteryPercent}%" else placeholder
-                    // NaN for the first half minute of a ride, because the
-                    // line needs a little of the ride before it means
-                    // anything. A placeholder says so; a zero would not.
-                    "BATTERY_ENVELOPE" -> wheelData.batteryEnvelope
-                        .takeIf { !it.isNaN() }
-                        ?.let { "%.0f%%".format(it) }
-                        ?: placeholder
-                    "TEMPERATURE" -> if (wheelData.maxTemperature > 0f)
-                        "%.0f%s".format(tempValue, tempUnitLabel) else placeholder
-                    "VOLTAGE" -> if (wheelData.voltage > 0f) "%.1fV".format(wheelData.voltage) else placeholder
-                    "CURRENT" -> currentText
-                    "LOAD" -> "%.0f%%".format(pwm)
-                    "TRIP" -> "%.1f %s".format(tripValue, distUnit)
-                    "TRIP_METER" -> "%.1f %s".format(
-                        com.eried.eucplanet.util.Units.distance(tripMeterState.distanceKm, distanceUnit),
-                        distUnit
-                    )
-                    "SPEED" -> "%.0f %s".format(
-                        com.eried.eucplanet.util.Units.speed(wheelData.speed, speedUnit),
-                        speedUnitLabel
-                    )
-                    "BATTERY_POWER", "POWER" -> "${wheelData.batteryPower}W"
-                    "MOTOR_POWER" -> "${wheelData.motorPower}W"
-                    // Composite-friendly extras (also work as standalone
-                    // tiles -- the small numbers fit fine in a 61 dp box).
-                    "LAT_LONG" -> if (wheelData.latitude != 0.0 || wheelData.longitude != 0.0)
-                        "%.4f, %.4f".format(wheelData.latitude, wheelData.longitude) else placeholder
-                    "WHEEL_MAX_SPEED" -> if (wheelData.wheelMaxSpeedKmh > 0f)
-                        "%.0f %s".format(
-                            com.eried.eucplanet.util.Units.speed(wheelData.wheelMaxSpeedKmh, speedUnit),
-                            speedUnitLabel
-                        ) else placeholder
-                    "WHEEL_ALARM_SPEED" -> if (wheelData.wheelAlarmSpeedKmh > 0f)
-                        "%.0f %s".format(
-                            com.eried.eucplanet.util.Units.speed(wheelData.wheelAlarmSpeedKmh, speedUnit),
-                            speedUnitLabel
-                        ) else placeholder
-                    "PC_MODE" -> when (wheelData.pcMode) {
-                        0 -> "LOCK"
-                        1 -> "DRIVE"
-                        2 -> "OFF"
-                        3 -> "IDLE"
-                        else -> placeholder
-                    }
-                    "LIGHT_ON" -> if (wheelData.lightOn) "ON" else "OFF"
-                    "ODOMETER" -> "%.1f %s".format(
-                        com.eried.eucplanet.util.Units.distance(wheelData.totalDistance, distanceUnit),
-                        distUnit
-                    )
-                    "BATTERY_1" -> if (wheelData.battery1Percent > 0f) "%.0f%%".format(wheelData.battery1Percent) else placeholder
-                    "BATTERY_2" -> if (wheelData.battery2Percent > 0f) "%.0f%%".format(wheelData.battery2Percent) else placeholder
-                    "PITCH" -> "%.1f°".format(wheelData.pitchAngle)
-                    "ROLL" -> "%.1f°".format(wheelData.rollAngle)
-                    "G_FORCE" -> "%.2fg".format(wheelData.gForce)
-                    "LATERAL_G" -> "%.2fg".format(wheelData.accelX)
-                    "FORWARD_G" -> "%.2fg".format(wheelData.forwardGFromSpeed)
-                    "TORQUE" -> "%.1fNm".format(wheelData.torque)
-                    "PHASE_CURRENT" -> "%.1fA".format(wheelData.phaseCurrent)
-                    "DYN_SPEED_LIMIT" -> if (wheelData.dynamicSpeedLimit > 0f)
-                        "%.0f %s".format(
-                            com.eried.eucplanet.util.Units.speed(wheelData.dynamicSpeedLimit, speedUnit),
-                            speedUnitLabel
-                        ) else placeholder
-                    "DYN_CURRENT_LIMIT" -> if (wheelData.dynamicCurrentLimit > 0f)
-                        "%.1fA".format(wheelData.dynamicCurrentLimit) else placeholder
-                    "AUTO_OFF" -> if (wheelData.autoOffSeconds >= 0)
-                        com.eried.eucplanet.data.model.MetricValueFormat.autoOffClock(wheelData.autoOffSeconds)
-                        else placeholder
-                    "MOTOR_TEMP" -> wheelData.temperatures.getOrNull(0)
-                        ?.takeIf { com.eried.eucplanet.util.MetricSanity.isPlausibleTempC(it) }
-                        ?.let { "%.0f%s".format(com.eried.eucplanet.util.Units.temperature(it, tempUnit), tempUnitLabel) }
-                        ?: placeholder
-                    "CONTROLLER_TEMP" -> wheelData.temperatures.getOrNull(1)
-                        ?.takeIf { com.eried.eucplanet.util.MetricSanity.isPlausibleTempC(it) }
-                        ?.let { "%.0f%s".format(com.eried.eucplanet.util.Units.temperature(it, tempUnit), tempUnitLabel) }
-                        ?: placeholder
-                    "BATTERY_TEMP" -> wheelData.temperatures.getOrNull(2)
-                        ?.takeIf { com.eried.eucplanet.util.MetricSanity.isPlausibleTempC(it) }
-                        ?.let { "%.0f%s".format(com.eried.eucplanet.util.Units.temperature(it, tempUnit), tempUnitLabel) }
-                        ?: placeholder
-                    // Guarded on "is anything measuring", not on "> 0", so
-                    // a cap reporting a flat tyre shows 0.00 bar rather than a
-                    // dash that reads as "no sensor".
-                    "TIRE_PRESSURE" -> if (wheelData.hasTirePressure)
-                        com.eried.eucplanet.util.Units.formatPressure(
-                            wheelData.tirePressureKpa, pressureUnit)
-                    else placeholder
-                    "PHONE_BATTERY" -> if (phoneBatteryPct in 0..100) "$phoneBatteryPct%" else placeholder
-                    "EXTERNAL_GPS_BATTERY" -> externalGpsBattery?.let { "$it%" } ?: placeholder
-                    "GPS_ALTITUDE" -> gpsLocation?.altitude?.let { alt ->
-                        // Imperial users see feet; everyone else meters.
-                        if (distanceUnit == "mi") "%.0fft".format(alt.toFloat() * 3.28084f)
-                        else "%.0fm".format(alt.toFloat())
-                    } ?: placeholder
-                    "GPS_SPEED" -> gpsLocation?.let { loc ->
-                        // Same conversion path as every other speed tile: store
-                        // km/h, convert to the rider's unit at render time.
-                        if (loc.hasSpeed()) "%.1f %s".format(
-                            com.eried.eucplanet.util.Units.speed(loc.speed * 3.6f, speedUnit),
-                            speedUnitLabel
-                        ) else placeholder
-                    } ?: placeholder
-                    "GPS_HEADING" -> gpsLocation?.let { loc ->
-                        if (loc.hasBearing()) "%.0f°".format(loc.bearing) else placeholder
-                    } ?: placeholder
-                    "GPS_ACCURACY" -> gpsLocation?.let { loc ->
-                        if (loc.hasAccuracy()) {
-                            if (distanceUnit == "mi") "%.0fft".format(loc.accuracy * 3.28084f)
-                            else "%.0fm".format(loc.accuracy)
-                        } else placeholder
-                    } ?: placeholder
-                    // Link RSSI from the GATT layer (0 = not yet read).
-                    "BT_RSSI" -> if (wheelData.rssiDbm != 0) "${wheelData.rssiDbm} dBm" else placeholder
-                    // Ride energy since connect (the Battery screen's running
-                    // integral). Wh/km divides by trip distance once there's a
-                    // little of it, so a tiny denominator can't spike the number.
-                    "WH_CONSUMED" -> if (wheelData.whConsumed > 0f) "%.0f Wh".format(wheelData.whConsumed) else placeholder
-                    "REGEN_WH" -> if (wheelData.whRegen > 0f) "%.0f Wh".format(wheelData.whRegen) else placeholder
-                    "WH_PER_KM" -> formatWhPerDistance(wheelData.whPerKmRecent, distanceUnit)
-                        ?: placeholder
-                    "RANGE_ESTIMATE" -> wheelData.rangeKmEstimate.takeIf { !it.isNaN() }?.let {
-                        "%.0f %s".format(
-                            com.eried.eucplanet.util.Units.distance(it, distanceUnit),
-                            com.eried.eucplanet.util.Units.distanceUnit(distanceUnit),
-                        )
-                    } ?: placeholder
-                    // SLOPE / ASCENT / DESCENT need integrated altitude
-                    // history (not yet wired). MOTOR_RPM isn't surfaced on
-                    // WheelData today - that needs adapter-side plumbing.
-                    // Placeholder for now.
-                    else -> placeholder
-                }
-            }
+            val metricInputs = com.eried.eucplanet.ui.metrics.MetricTextInputs(
+                live = live, wheel = wheelData, speedUnit = speedUnit, distanceUnit = distanceUnit,
+                tempUnit = tempUnit, pressureUnit = pressureUnit, currentAsWatts = showWatts,
+                tripMeterKm = tripMeterState.distanceKm, phoneBatteryPct = phoneBatteryPct,
+                externalGpsBatteryPct = externalGpsBattery,
+                gpsAltitudeM = gpsLocation?.altitude,
+                gpsSpeedKmh = gpsLocation?.takeIf { it.hasSpeed() }?.let { it.speed * 3.6f },
+                gpsBearingDeg = gpsLocation?.takeIf { it.hasBearing() }?.bearing,
+                gpsAccuracyM = gpsLocation?.takeIf { it.hasAccuracy() }?.accuracy,
+            )
+            fun displayValueFor(metricKey: String): String =
+                com.eried.eucplanet.ui.metrics.MetricText.of(metricKey, metricInputs)
 
             // Lookup composite definition by id from the JSON blob the
             // editor writes. Returns null if the id isn't found (which
@@ -2642,6 +2509,7 @@ fun DashboardScreen(
                                             )
                                         },
                                         enabled = targetTripId != null,
+                                        colors = appMenuItemColors(),
                                         onClick = {
                                             dismiss()
                                             targetTripId?.let { onNavigateToTripDetail(it) }
@@ -3505,7 +3373,8 @@ fun DashboardScreen(
                                                     "WheelLog community, wheel protocols" to "Wheellog/wheellog.android, GPLv3. Public reverse-engineering of the EUC BLE protocols, used as the reference for the KingSong, Begode, Veteran, Ninebot and InMotion adapters. The implementation here is original; no WheelLog code is reused.",
                                                     "BigSoundBank, engine samples" to "Joseph SARDIN. CC0 / public domain. All sampled engines in the Motor sound generator (V8 Cobra, V-twin Ducati, diesel truck, motorcycle, city car, helicopter, tractor, lawn mower, steam locomotive, Aston Martin, big diesel, car cruise, broken exhaust, quad ATV).",
                                                     "Jetpack Compose, Material 3" to "Google. Apache 2.0. UI toolkit and design system.",
-                                                    "Hilt, Room, WorkManager, Navigation" to "Google. Apache 2.0. DI, persistence, background jobs, navigation graph.",
+                                                    "Room, WorkManager, Navigation" to "Google. Apache 2.0. Persistence, background jobs, navigation graph.",
+                                                    "Koin" to "Kotzilla. Apache 2.0. Dependency injection.",
                                                     "Kotlin & coroutines" to "JetBrains. Apache 2.0. Language and structured concurrency.",
                                                     "Flic2 SDK" to "Shortcut Labs. Used for hardware Flic button integration.",
                                                     "Play services (location, wearable)" to "Google. Apache 2.0. GPS and watch companion data layer.",
@@ -3515,7 +3384,10 @@ fun DashboardScreen(
                                                     "Humanitarian OSM Team" to "hotosm.org. HOT style, tiles served by OpenStreetMap France.",
                                                     "CARTO" to "carto.com/attributions. The Voyager and Dark basemaps.",
                                                     "Esri" to "Esri, Maxar, Earthstar Geographics. World Imagery satellite tiles.",
-                                                    "Leaflet" to "leafletjs.com. BSD-2. The map component every in-app map is drawn with."
+                                                    "Leaflet" to "leafletjs.com. BSD-2. The map component every in-app map is drawn with.",
+                                                    "FOSSGIS" to "fossgis.de. The public Valhalla and OSRM routing servers.",
+                                                    "BRouter" to "brouter.de. MIT. Offline routing.",
+                                                    "Protomaps" to "protomaps.com. The OpenStreetMap build the offline maps come from."
                                                 )
                                                 resources.forEachIndexed { idx, (name, why) ->
                                                     if (idx > 0) {
@@ -4150,6 +4022,8 @@ private fun WheelInfoBox(
             val odoUnit = com.eried.eucplanet.util.Units.distanceUnit(distanceUnit)
             Text(stringResource(R.string.stat_odo), fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Medium, letterSpacing = 0.5.sp)
+            // Android trims the label's trailing space, so the gap is drawn here.
+            Spacer(Modifier.width(4.dp))
             Text("%.0f %s".format(odoValue, odoUnit), fontSize = 13.sp, fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface)
         }

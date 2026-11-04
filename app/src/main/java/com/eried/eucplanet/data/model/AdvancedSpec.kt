@@ -179,6 +179,8 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
     // --- Navigation behaviour ---
     AdvancedSpec("navMovingKmh", AdvGroup.NAV_BEHAVIOUR, R.string.adv_nav_moving, R.string.adv_nav_moving_desc,
         1..50, 1, unit = "km/h", get = { it.navMovingKmh }, set = { s, v -> s.copy(navMovingKmh = v) }),
+    AdvancedSpec("navCruiseKmh", AdvGroup.NAV_BEHAVIOUR, R.string.adv_nav_cruise, R.string.adv_nav_cruise_desc,
+        10..60, 1, unit = "km/h", get = { it.navCruiseKmh }, set = { s, v -> s.copy(navCruiseKmh = v) }),
     AdvancedSpec("navPrepareDistM", AdvGroup.NAV_BEHAVIOUR, R.string.adv_nav_prepare_dist, R.string.adv_nav_prepare_dist_desc,
         20..2000, 10, unit = "m", get = { it.navPrepareDistM }, set = { s, v -> s.copy(navPrepareDistM = v) }),
     AdvancedSpec("navExecuteDistM", AdvGroup.NAV_BEHAVIOUR, R.string.adv_nav_execute_dist, R.string.adv_nav_execute_dist_desc,

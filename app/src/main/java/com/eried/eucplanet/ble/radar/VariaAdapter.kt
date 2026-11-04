@@ -2,8 +2,6 @@ package com.eried.eucplanet.ble.radar
 
 import com.eried.eucplanet.data.model.RadarVendor
 import java.util.UUID
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Garmin Varia (RTL515, RTL516, RVR315, RCT715, eRTL615, RearVue 820,
@@ -47,8 +45,7 @@ import javax.inject.Singleton
  * locally from distance + closing rate in the repository, that's what
  * every other open-source client does, and it works fine in practice.
  */
-@Singleton
-class VariaAdapter @Inject constructor() : RadarAdapter {
+class VariaAdapter : RadarAdapter {
 
     override val vendor = RadarVendor.VARIA
 

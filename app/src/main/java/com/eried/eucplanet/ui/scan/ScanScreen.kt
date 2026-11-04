@@ -52,7 +52,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.eried.eucplanet.BuildConfig
@@ -60,13 +59,14 @@ import com.eried.eucplanet.R
 import com.eried.eucplanet.ble.BleDevice
 import com.eried.eucplanet.ble.virtual.VirtualWheelRegistry
 import com.eried.eucplanet.ui.theme.themedSwitchColors
+import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScanScreen(
     onDeviceSelected: () -> Unit,
     onBack: () -> Unit,
-    viewModel: ScanViewModel = hiltViewModel()
+    viewModel: ScanViewModel = koinViewModel()
 ) {
     val devices by viewModel.devices.collectAsState()
     val isScanning by viewModel.isScanning.collectAsState()

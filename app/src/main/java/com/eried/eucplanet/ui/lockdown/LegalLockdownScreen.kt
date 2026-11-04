@@ -47,7 +47,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.BuildConfig
 import com.eried.eucplanet.R
 import com.eried.eucplanet.ble.ConnectionState
@@ -55,6 +54,7 @@ import com.eried.eucplanet.ui.dashboard.ConnectionDot
 import com.eried.eucplanet.ui.dashboard.SpeedGauge
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.Units
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * The Legal Mode Lockdown screen.
@@ -72,7 +72,7 @@ import com.eried.eucplanet.util.Units
 @Composable
 fun LegalLockdownScreen(
     onNavigateToScan: () -> Unit,
-    viewModel: LegalLockdownViewModel = hiltViewModel()
+    viewModel: LegalLockdownViewModel = koinViewModel()
 ) {
     val wheelData by viewModel.wheelData.collectAsStateWithLifecycle()
     val connectionState by viewModel.connectionState.collectAsState()

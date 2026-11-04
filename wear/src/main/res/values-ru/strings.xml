@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">EUC Planet</string>
-    <string name="watch_waiting_phone">Открой EUC Planet\nна телефоне</string>
-    <string name="watch_waiting_wheel">Подключи колесо\nв EUC Planet</string>
+    <string name="watch_waiting_phone">Откройте EUC Planet\nна телефоне</string>
+    <string name="watch_waiting_wheel">Подключите моноколесо\nв EUC Planet</string>
     <string name="watch_disconnected">Не подключено</string>
-    <string name="watch_horn">Сигнал</string>
-    <string name="watch_light">Фары</string>
+    <string name="watch_horn">Гудок</string>
+    <string name="watch_light">Свет</string>
     <string name="watch_speed_unit">км/ч</string>
     <string name="watch_speed_unit_mph">mph</string>
     <string name="watch_speed_unit_ms" translatable="false">m/s</string>
@@ -16,22 +16,22 @@
     <string name="watch_pwm_label">PWM</string>
     <string name="watch_pwm_prefix">"PWM: "</string>
     <string name="watch_power_label">Мощн.</string>
-    <string name="watch_temp_label">Темп</string>
+    <string name="watch_temp_label">Темп.</string>
     <string name="watch_trip_label">Поездка</string>
     <string name="watch_torque_label">Момент</string>
     <string name="watch_action_failed">Телефон недоступен</string>
     <string name="watch_gps_label">GPS</string>
-    <string name="watch_gps_permission">Коснись для GPS</string>
-    <string name="watch_gps_waiting">Ждём сигнал…</string>
+    <string name="watch_gps_permission">Нажмите для GPS</string>
+    <string name="watch_gps_waiting">Ожидание сигнала…</string>
 
     <!-- Labels for hold-action triggers, shown in the watch's transient pill. Short so they fit. -->
-    <string name="watch_action_horn">Сигнал</string>
-    <string name="watch_action_light">Фары</string>
-    <string name="watch_action_lock">Заблокировать колесо</string>
-    <string name="watch_action_safety">Лег. режим</string>
-    <string name="watch_action_safety_on">Лег. режим вкл.</string>
-    <string name="watch_action_safety_off">Лег. режим выкл.</string>
-    <string name="watch_action_voice">Озвучить отчёт</string>
+    <string name="watch_action_horn">Гудок</string>
+    <string name="watch_action_light">Свет</string>
+    <string name="watch_action_lock">Заблокировать</string>
+    <string name="watch_action_safety">Легал. режим</string>
+    <string name="watch_action_safety_on">Легал. вкл.</string>
+    <string name="watch_action_safety_off">Легал. выкл.</string>
+    <string name="watch_action_voice">Голосовой отчёт</string>
     <string name="watch_action_record">Запись</string>
     <string name="watch_action_record_start">Запись начата</string>
     <string name="watch_action_record_stop">Запись остановлена</string>
@@ -39,8 +39,8 @@
     <string name="watch_action_media_next">Следующий трек</string>
     <string name="watch_action_media_prev">Предыдущий трек</string>
     <string name="watch_action_music_start">Включить музыку</string>
-    <string name="watch_action_media_pause">Пауза музыки</string>
-    <string name="watch_action_long_press_hint">Удерживай для %1$s</string>
+    <string name="watch_action_media_pause">Пауза</string>
+    <string name="watch_action_long_press_hint">Удерживайте: %1$s</string>
     <string name="watch_map_phone_disconnected">Нет телефона</string>
     <string name="watch_map_gps_permission">Доступ к GPS</string>
     <string name="watch_map_gps_stale">GPS устарел</string>
