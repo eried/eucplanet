@@ -1,6 +1,6 @@
 package com.eried.eucplanet.app
 
-import com.eried.eucplanet.platform.Log
+import com.eried.eucplanet.service.ToneSynth
 import com.eried.eucplanet.service.AlarmOutputs
 import platform.AVFAudio.AVSpeechSynthesizer
 import platform.AVFAudio.AVSpeechUtterance
@@ -8,9 +8,9 @@ import platform.AudioToolbox.AudioServicesPlaySystemSound
 import platform.AudioToolbox.kSystemSoundID_Vibrate
 
 /**
- * What an alarm does on iOS. The voice speaks and the phone buzzes; the tone
- * synthesizer (Android's TonePlayer) is not on iOS yet, so a beep is logged
- * instead. No watch or car display on iOS yet.
+ * What an alarm does on iOS: the shared tones through IosTonePlayer, the
+ * voice through AVSpeechSynthesizer, and a buzz. No watch or car display on
+ * iOS yet.
  */
 internal object IosAlarmOutputs : AlarmOutputs {
     private val speech = AVSpeechSynthesizer()
@@ -19,13 +19,21 @@ internal object IosAlarmOutputs : AlarmOutputs {
         frequencyHz: Int, durationMs: Int, count: Int, gapMs: Int, volumePct: Int,
         transitionMs: Int, waveform: Int, effect: Int,
     ) {
-        Log.i("AlarmOutputs", "beep not on iOS yet: $frequencyHz Hz x$count")
+        if (count <= 0 || durationMs <= 0) return
+        val r = ToneSynth.renderBeep(
+            frequencyHz, durationMs, count, gapMs, volumePct, transitionMs,
+            waveform, effect, glideToHz = 0, leadPadMs = 30, minFrames = 0,
+        ) ?: return
+        IosTonePlayer.play(r)
     }
 
+    // AVAudioEngine has no route to keep warm the way Android's AudioTrack does.
     override fun setPreviewKeepAlive(on: Boolean) = Unit
-    override fun startStream(frequencyHz: Int, durationMs: Int, gapMs: Int, volumePct: Int, transitionMs: Int, waveform: Int, effect: Int) = Unit
-    override fun updateStream(frequencyHz: Int, durationMs: Int, gapMs: Int, volumePct: Int, transitionMs: Int, waveform: Int, effect: Int) = Unit
-    override fun stopStream() = Unit
+    override fun startStream(frequencyHz: Int, durationMs: Int, gapMs: Int, volumePct: Int, transitionMs: Int, waveform: Int, effect: Int) =
+        IosTonePlayer.startStream(frequencyHz, durationMs, gapMs, volumePct, transitionMs, waveform, effect)
+    override fun updateStream(frequencyHz: Int, durationMs: Int, gapMs: Int, volumePct: Int, transitionMs: Int, waveform: Int, effect: Int) =
+        IosTonePlayer.updateStream(frequencyHz, durationMs, gapMs, volumePct, transitionMs, waveform, effect)
+    override fun stopStream() = IosTonePlayer.stopStream()
 
     override fun speak(text: String) {
         speech.speakUtterance(AVSpeechUtterance.speechUtteranceWithString(text))

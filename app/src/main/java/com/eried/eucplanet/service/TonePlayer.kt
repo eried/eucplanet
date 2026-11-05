@@ -8,67 +8,16 @@ import com.eried.eucplanet.data.repository.RouteKeepAlive
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlin.concurrent.thread
-import kotlin.math.cos
-import kotlin.math.sin
 
 class TonePlayer : RouteKeepAlive {
 
     private companion object {
         const val TAG = "TonePlayer"
-        const val TWO_PI = 2.0 * Math.PI
-        const val FM_INDEX = 3.0       // FM modulation index (modulator runs at 2x carrier)
-        const val DRIVE = 3.0          // waveshaper drive for the "Drive" effect
-        const val SWEEP_RATIO = 3.0    // "Sweep" low-pass cutoff = current pitch * this
-        const val SWEEP_Q = 0.4        // filter damping; lower = more resonance
-        const val CRUSH_LEVELS = 8.0   // "Crush" quantization: round(x*L)/L, ~4-bit
     }
 
-    private val sampleRate = 44100
-
-    /**
-     * One oscillator sample for [waveform] at carrier phase [ph] (cycles, 0..1);
-     * [modPh] is the FM modulator phase (used only by waveform 4). Codes match
-     * [com.eried.eucplanet.data.model.AlarmRule.beepWaveform]: 0=sine, 1=triangle,
-     * 2=square, 3=saw, 4=FM.
-     */
-    private fun waveSample(waveform: Int, ph: Double, modPh: Double): Double {
-        val f = ph - kotlin.math.floor(ph)
-        return when (waveform) {
-            1 -> 4.0 * kotlin.math.abs(f - 0.5) - 1.0                 // triangle
-            2 -> if (f < 0.5) 1.0 else -1.0                          // square
-            3 -> 2.0 * f - 1.0                                       // saw
-            4 -> sin(TWO_PI * ph + FM_INDEX * sin(TWO_PI * modPh))   // FM (metallic)
-            else -> sin(TWO_PI * ph)                                 // sine
-        }
-    }
-
-    /** Mutable state for the stateful effects (filter + sample-hold). */
-    private class Fx { var lo = 0.0; var band = 0.0; var held = 0.0; var ctr = 0 }
-
-    /**
-     * Apply [effect] to sample [x] at the current pitch [freq] (Hz), mutating [fx]
-     * for the stateful ones. Codes match
-     * [com.eried.eucplanet.data.model.AlarmRule.beepEffect]: 0=none, 1=drive,
-     * 2=sweep (resonant low-pass tracking pitch), 3=crush (bitcrush).
-     */
-    private fun applyFx(effect: Int, x: Double, freq: Double, fx: Fx): Double = when (effect) {
-        1 -> kotlin.math.tanh(DRIVE * x)
-        2 -> {
-            val fc = (freq * SWEEP_RATIO).coerceIn(300.0, 8000.0)
-            val f = 2.0 * sin(Math.PI * fc / sampleRate)
-            fx.lo += f * fx.band
-            val hi = x - fx.lo - SWEEP_Q * fx.band
-            fx.band += f * hi
-            fx.lo
-        }
-        3 -> {
-            val hold = maxOf(1, sampleRate / 6000)
-            if (fx.ctr <= 0) { fx.held = Math.round(x * CRUSH_LEVELS) / CRUSH_LEVELS; fx.ctr = hold }
-            fx.ctr--
-            fx.held
-        }
-        else -> x
-    }
+    // The samples come from the shared ToneSynth, so a beep is the same
+    // waveform on both phones; this class plays them through AudioTrack.
+    private val sampleRate = ToneSynth.SAMPLE_RATE
 
     // Audio-route keep-alive: a persistent SILENT track that holds the phone's audio
     // output powered, so the first sound after a quiet stretch - a beep OR a TTS voice
@@ -191,43 +140,13 @@ class TonePlayer : RouteKeepAlive {
     ) {
         if (notes.isEmpty()) return
         withContext(Dispatchers.IO) {
-            val leadPadN = sampleRate * leadPadMs.coerceAtLeast(0) / 1000
-            val tailPadN = sampleRate * 12 / 1000
-            val gapN = sampleRate * gapMs.coerceAtLeast(0) / 1000
-            val noteN = notes.map { (_, ms) -> (sampleRate.toLong() * ms / 1000).toInt() }
-            if (noteN.any { it <= 0 }) return@withContext
-            val bodyN = leadPadN + noteN.sum() + gapN * (notes.size - 1) + tailPadN
             val minBuf = AudioTrack.getMinBufferSize(
                 sampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT
             )
             val minFrames = if (minBuf > 0) minBuf / 2 else 0
-            val totalN = maxOf(bodyN, minFrames)
-            val samples = ShortArray(totalN)
-            val gain = 0.8 * (volumePct.coerceIn(0, 100) / 100.0)
-
-            var w = leadPadN
-            for ((index, note) in notes.withIndex()) {
-                val (hz, _) = note
-                val n = noteN[index]
-                // A quarter of the note, capped, so short notes still ramp and
-                // long ones are not all ramp.
-                val edge = (n / 4).coerceIn(1, maxOf(1, sampleRate * 12 / 1000))
-                var phase = 0.0
-                val inc = hz.toDouble() / sampleRate
-                for (i in 0 until n) {
-                    val ramp = minOf(
-                        if (i < edge) i.toDouble() / edge else 1.0,
-                        if (i >= n - edge) (n - i).toDouble() / edge else 1.0
-                    )
-                    val env = 0.5 - 0.5 * cos(Math.PI * ramp)
-                    samples[w++] = (sin(2.0 * Math.PI * phase) * env * gain * Short.MAX_VALUE)
-                        .toInt().toShort()
-                    phase += inc
-                    if (phase >= 1.0) phase -= 1.0
-                }
-                if (index < notes.size - 1) w += gapN
-            }
-            playSamples(samples, totalN, "notes")
+            val r = ToneSynth.renderNotes(notes, gapMs, leadPadMs, volumePct, minFrames)
+                ?: return@withContext
+            playSamples(r.samples, r.frames, "notes")
         }
     }
 
@@ -305,23 +224,6 @@ class TonePlayer : RouteKeepAlive {
         if (count <= 0 || durationMs <= 0) return
         Log.d(TAG, "playBeep freq=$frequencyHz dur=$durationMs count=$count gap=$gapMs vol=$volumePct")
         withContext(Dispatchers.IO) {
-            val toneN = (sampleRate.toLong() * durationMs / 1000).toInt()
-            if (toneN <= 0) return@withContext
-            val gapN = (sampleRate.toLong() * gapMs.coerceAtLeast(0) / 1000).toInt()
-            // gap 0 merges the `count` beeps into ONE continuous run of duration*count
-            // (a single longer tone: "3 beeps at gap 0" = "3x duration"), consistent
-            // across alarms. gap>0 keeps them as `count` separate runs. The raised-cosine
-            // attack/release is applied per RUN, so gap 0 ramps up once and down once
-            // instead of undulating.
-            val gapless = gapN <= 0
-            val runN = if (gapless) toneN * count else toneN
-            val runCount = if (gapless) 1 else count
-            // Lead-in silence so the audio route/amp power-up transient (a start-of-
-            // playback pop) settles in silence before the tone ramps in; a small tail
-            // pad drains cleanly before stop().
-            val leadPadN = sampleRate * leadPadMs.coerceAtLeast(0) / 1000
-            val tailPadN = sampleRate * 12 / 1000
-            val bodyN = leadPadN + runN * runCount + gapN * (runCount - 1).coerceAtLeast(0) + tailPadN
             // MODE_STREAM only begins playing once the written frames reach its start
             // threshold, which defaults to the buffer size and can't drop below the
             // device minimum. A short tone whose whole buffer is under that minimum
@@ -333,53 +235,12 @@ class TonePlayer : RouteKeepAlive {
                 sampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT
             )
             val minFrames = if (minBuf > 0) minBuf / 2 else 0   // 16-bit mono: 2 bytes/frame
-            val totalN = maxOf(bodyN, minFrames)
-            val samples = ShortArray(totalN)
-            // 0.8 = app-side headroom; volumePct scales under the system media
-            // volume ceiling (Android applies that on top, so we can't exceed it).
-            val gain = 0.8 * (volumePct.coerceIn(0, 100) / 100.0)
-            // Raised-cosine ramp length (attack/release) from transitionMs; auto (< 0)
-            // = half the base beep. Capped to half the run so it always fits.
-            val edge = (if (transitionMs >= 0)
-                (sampleRate.toLong() * transitionMs / 1000).toInt()
-            else toneN / 2).coerceIn(1, (runN / 2).coerceAtLeast(1))
+            val r = ToneSynth.renderBeep(
+                frequencyHz, durationMs, count, gapMs, volumePct, transitionMs,
+                waveform, effect, glideToHz, leadPadMs, minFrames,
+            ) ?: return@withContext
 
-            var w = leadPadN  // write cursor; leading silence pad already skipped
-            val inc = frequencyHz.toDouble() / sampleRate
-            val glideEnd = if (glideToHz > 0) glideToHz.toDouble() else frequencyHz.toDouble()
-            var phase = 0.0       // carrier phase in cycles; continuous within a run
-            var modPhase = 0.0    // FM modulator phase (runs at 2x carrier)
-            val fx = Fx()
-            for (b in 0 until runCount) {
-                for (i in 0 until runN) {
-                    // Raised-cosine attack over the first [edge] of the run and release
-                    // over the last [edge]; flat sustain (env = 1) in between.
-                    val ramp = minOf(
-                        if (i < edge) i.toDouble() / edge else 1.0,
-                        if (i >= runN - edge) (runN - i).toDouble() / edge else 1.0
-                    )
-                    val env = 0.5 - 0.5 * cos(Math.PI * ramp)
-                    // Steady unless gliding, in which case the frequency walks
-                    // from one end to the other across the run.
-                    val freqNow = if (glideToHz > 0) {
-                        frequencyHz + (glideEnd - frequencyHz) * (i.toDouble() / runN)
-                    } else {
-                        frequencyHz.toDouble()
-                    }
-                    val incNow = if (glideToHz > 0) freqNow / sampleRate else inc
-                    val osc = applyFx(effect, waveSample(waveform, phase, modPhase), freqNow, fx)
-                    samples[w++] = (osc * env * gain * Short.MAX_VALUE).toInt().toShort()
-                    phase += incNow; if (phase >= 1.0) phase -= 1.0
-                    modPhase += 2.0 * incNow; if (modPhase >= 1.0) modPhase -= 1.0
-                }
-                if (b < runCount - 1 && gapN > 0) {
-                    w += gapN   // leave zeros (silence); restart phase + effect state after the gap
-                    phase = 0.0; modPhase = 0.0
-                    fx.lo = 0.0; fx.band = 0.0; fx.ctr = 0
-                }
-            }
-
-            playSamples(samples, totalN, "beep")
+            playSamples(r.samples, r.frames, "beep")
         }
     }
 
@@ -526,60 +387,17 @@ class TonePlayer : RouteKeepAlive {
             .setTransferMode(AudioTrack.MODE_STREAM)
             .build()
         val buf = ShortArray(bufFrames)
-        var phase = 0.0   // carrier phase in cycles; continuous across buffers
-        var modPhase = 0.0 // FM modulator phase (runs at 2x carrier)
-        val fx = Fx()      // sweep filter + crush sample-hold, persists across buffers
-        var pos = 0       // sample index within the current on+gap period
-        var emitted = 0L  // total samples emitted (drives the gap-0 fade-in)
+        val synth = ToneSynth.Stream()
         try {
             track.play()
             while (streamOn) {
                 // Snapshot the live params once per buffer.
-                val inc = sFreqHz.toDouble() / sampleRate
-                val durN = (sampleRate.toLong() * sDurMs / 1000).toInt().coerceAtLeast(1)
-                val gapN = (sampleRate.toLong() * sGapMs / 1000).toInt().coerceAtLeast(0)
-                val periodN = durN + gapN
-                val gain = 0.8 * (sVolPct.coerceIn(0, 100) / 100.0)
-                val edge = (if (sTransMs >= 0)
-                    (sampleRate.toLong() * sTransMs / 1000).toInt()
-                else durN / 2).coerceIn(1, (durN / 2).coerceAtLeast(1))
-                val gapless = gapN <= 0
-                for (k in 0 until bufFrames) {
-                    if (pos >= periodN) pos = 0
-                    val env = if (gapless) {
-                        // gap 0 = one steady continuous tone; fade in once at the start.
-                        if (emitted < edge) 0.5 - 0.5 * cos(Math.PI * emitted.toDouble() / edge) else 1.0
-                    } else if (pos < durN) {
-                        val ramp = minOf(
-                            if (pos < edge) pos.toDouble() / edge else 1.0,
-                            if (pos >= durN - edge) (durN - pos).toDouble() / edge else 1.0
-                        )
-                        0.5 - 0.5 * cos(Math.PI * ramp)
-                    } else 0.0   // in the gap
-                    val osc = applyFx(sEffect, waveSample(sWave, phase, modPhase), sFreqHz.toDouble(), fx)
-                    val s = osc * env * gain
-                    buf[k] = (s * Short.MAX_VALUE).toInt().toShort()
-                    phase += inc
-                    if (phase >= 1.0) phase -= 1.0
-                    modPhase += 2.0 * inc
-                    if (modPhase >= 1.0) modPhase -= 1.0
-                    pos++
-                    emitted++
-                }
+                synth.fill(buf, sFreqHz, sDurMs, sGapMs, sVolPct, sTransMs, sWave, sEffect)
                 track.write(buf, 0, bufFrames)   // blocks, pacing the loop
             }
             // Fade out over ~8 ms so stopping the track doesn't click.
-            val fadeN = sampleRate * 8 / 1000
-            val fadeBuf = ShortArray(fadeN)
-            val fadeInc = sFreqHz.toDouble() / sampleRate
-            val fadeGain = 0.8 * (sVolPct.coerceIn(0, 100) / 100.0)
-            for (k in 0 until fadeN) {
-                val env = 0.5 + 0.5 * cos(Math.PI * k.toDouble() / fadeN)   // 1 -> 0
-                fadeBuf[k] = (sin(2.0 * Math.PI * phase) * env * fadeGain * Short.MAX_VALUE).toInt().toShort()
-                phase += fadeInc
-                if (phase >= 1.0) phase -= 1.0
-            }
-            runCatching { track.write(fadeBuf, 0, fadeN) }
+            val fadeBuf = synth.fadeOut(sFreqHz, sVolPct)
+            runCatching { track.write(fadeBuf, 0, fadeBuf.size) }
         } catch (_: Exception) {
         } finally {
             runCatching { track.stop() }
