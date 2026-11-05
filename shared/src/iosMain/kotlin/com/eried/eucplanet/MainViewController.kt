@@ -2,7 +2,23 @@ package com.eried.eucplanet
 
 import androidx.compose.ui.window.ComposeUIViewController
 import com.eried.eucplanet.app.IosAppGraph
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.ui.Modifier
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.eried.eucplanet.app.IosDashboardHost
+import com.eried.eucplanet.app.IosScanHost
+import com.eried.eucplanet.platform.stringResource
+import com.eried.eucplanet.resources.Res
+import com.eried.eucplanet.resources.action_back
+import com.eried.eucplanet.ui.scan.ScanScreen
+import com.eried.eucplanet.ui.scan.ScanViewModel
 import com.eried.eucplanet.app.RideActivity
 import com.eried.eucplanet.ui.dashboard.DashboardScreen
 import com.eried.eucplanet.ui.theme.EucPlanetTheme
@@ -30,26 +46,53 @@ fun MainViewController(): UIViewController {
     // which still holds the scan list and the Dropbox settings sync until
     // those screens move.
     val tab = (NSProcessInfo.processInfo.environment["EUC_TAB"] as? String)?.toIntOrNull()
+    val startScreen = NSProcessInfo.processInfo.environment["EUC_SCREEN"] as? String
     return ComposeUIViewController {
         if (tab != null) {
             ProbeScreen(link, wheel, tab)
         } else {
             EucPlanetTheme {
-                var probe by remember { mutableStateOf(false) }
-                if (probe) {
-                    ProbeScreen(link, wheel, 0)
-                } else {
-                    val viewModel = remember { IosAppGraph.dashboardViewModel() }
-                    val host = remember { IosDashboardHost() }
-                    DashboardScreen(
-                        // Scan and Settings are not shared yet; the probe screen
-                        // stands in for both, so a wheel can still be picked.
-                        onNavigateToScan = { probe = true },
-                        onNavigateToSettings = { probe = true },
-                        onNavigateToRecording = {},
-                        viewModel = viewModel,
-                        host = host,
-                    )
+                // A two-screen stack until the shared navigation graph lands.
+                // SIMCTL_CHILD_EUC_SCREEN=scan opens on the scan screen.
+                var screen by remember { mutableStateOf(startScreen ?: "dashboard") }
+                when (screen) {
+                    "scan" -> {
+                        // Owned by a store cleared when the screen leaves, so the
+                        // view model's onCleared re-arms auto-connect, as on Android.
+                        val store = remember { ViewModelStore() }
+                        val scanVm = remember {
+                            ViewModelProvider.create(
+                                store,
+                                viewModelFactory { initializer { IosAppGraph.scanViewModel() } },
+                            )[ScanViewModel::class]
+                        }
+                        DisposableEffect(store) { onDispose { store.clear() } }
+                        ScanScreen(
+                            onDeviceSelected = { screen = "dashboard" },
+                            onBack = { screen = "dashboard" },
+                            viewModel = scanVm,
+                            host = IosScanHost,
+                        )
+                    }
+                    // Settings is not shared yet; the probe screen holds the
+                    // Dropbox settings sync until it moves.
+                    "probe" -> Column(Modifier.safeDrawingPadding()) {
+                        TextButton(onClick = { screen = "dashboard" }) {
+                            Text(stringResource(Res.string.action_back))
+                        }
+                        ProbeScreen(link, wheel, 1)
+                    }
+                    else -> {
+                        val viewModel = remember { IosAppGraph.dashboardViewModel() }
+                        val host = remember { IosDashboardHost() }
+                        DashboardScreen(
+                            onNavigateToScan = { screen = "scan" },
+                            onNavigateToSettings = { screen = "probe" },
+                            onNavigateToRecording = {},
+                            viewModel = viewModel,
+                            host = host,
+                        )
+                    }
                 }
             }
         }

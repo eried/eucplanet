@@ -1,21 +1,11 @@
 package com.eried.eucplanet.ui.scan
 
-import android.Manifest
-import android.bluetooth.BluetoothAdapter
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
-import android.content.pm.PackageManager
-import android.os.Build
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.eried.eucplanet.ble.BleConnectionManager
 import com.eried.eucplanet.ble.BleDevice
-import com.eried.eucplanet.ble.BleScanner
+import com.eried.eucplanet.ble.WheelLink
+import com.eried.eucplanet.data.repository.AppNotices
+import com.eried.eucplanet.data.repository.PhoneDevice
 import com.eried.eucplanet.data.repository.SettingsRepository
-import com.eried.eucplanet.service.WheelService
+import com.eried.eucplanet.resources.*
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,13 +13,17 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+
 
 class ScanViewModel(
-    private val bleScanner: BleScanner,
+    private val bleScanner: WheelScanner,
     private val settingsRepository: SettingsRepository,
-    private val bleConnectionManager: BleConnectionManager,
-    private val appNotifier: com.eried.eucplanet.util.AppNotifier,
-    private val context: Context
+    private val bleConnectionManager: WheelLink,
+    private val appNotifier: AppNotices,
+    private val phone: PhoneDevice,
+    private val platform: ScanPlatform,
 ) : ViewModel() {
 
     // Set once the rider picks a wheel here, so the dismiss-time reconnect
@@ -45,26 +39,20 @@ class ScanViewModel(
     // onScanFailed, so an in-flight scan would otherwise spin "Searching…"
     // forever; and when it comes back we resume scanning so the rider isn't
     // stranded on the "Bluetooth is off" card.
-    private val bluetoothStateReceiver = object : BroadcastReceiver() {
-        override fun onReceive(ctx: Context?, intent: Intent?) {
-            if (intent?.action != BluetoothAdapter.ACTION_STATE_CHANGED) return
-            when (intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)) {
-                BluetoothAdapter.STATE_TURNING_OFF,
-                BluetoothAdapter.STATE_OFF -> {
-                    if (_isScanning.value) stopScan()
-                    _bluetoothOff.value = true
-                }
-                BluetoothAdapter.STATE_ON -> {
-                    // Auto-resume, but not immediately: the BLE stack isn't ready
-                    // the instant the adapter reports ON, and a scan started right
-                    // away returns no results. resumeScanAfterBtOn() waits a beat
-                    // then (re)starts cleanly.
-                    _bluetoothOff.value = false
-                    resumeScanAfterBtOn()
-                }
-            }
+    private val onBluetoothChange: (Boolean) -> Unit = { on ->
+        if (!on) {
+            if (_isScanning.value) stopScan()
+            _bluetoothOff.value = true
+        } else {
+            // Auto-resume, but not immediately: the BLE stack isn't ready
+            // the instant the adapter reports ON, and a scan started right
+            // away returns no results. resumeScanAfterBtOn() waits a beat
+            // then (re)starts cleanly.
+            _bluetoothOff.value = false
+            resumeScanAfterBtOn()
         }
     }
+    private var stopWatchingBluetooth: () -> Unit = {}
 
     init {
         // While the rider is on the scan screen choosing a wheel, hold the
@@ -72,12 +60,7 @@ class ScanViewModel(
         // can't pull them back to the previous wheel mid-search. Restored in
         // onCleared, which re-arms (and reconnects) as needed.
         bleConnectionManager.suppressAutoConnect()
-        ContextCompat.registerReceiver(
-            context,
-            bluetoothStateReceiver,
-            IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED),
-            ContextCompat.RECEIVER_NOT_EXPORTED
-        )
+        stopWatchingBluetooth = platform.watchBluetooth(onBluetoothChange)
         viewModelScope.launch {
             val s = settingsRepository.get()
             cachedAutoConnect = s.autoConnect
@@ -127,21 +110,8 @@ class ScanViewModel(
         }
     }
 
-    private fun requiredScanPermissions(): List<String> = buildList {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            // Android 12+: neverForLocation is declared, so no location needed for scan
-            add(Manifest.permission.BLUETOOTH_SCAN)
-            add(Manifest.permission.BLUETOOTH_CONNECT)
-        } else {
-            // Android 11-: legacy BLE scan requires fine location
-            add(Manifest.permission.ACCESS_FINE_LOCATION)
-        }
-    }
-
     fun refreshPermissions(): Boolean {
-        val missing = requiredScanPermissions().filter {
-            ContextCompat.checkSelfPermission(context, it) != PackageManager.PERMISSION_GRANTED
-        }
+        val missing = platform.missingScanPermissions()
         _missingPermissions.value = missing
         return missing.isEmpty()
     }
@@ -217,20 +187,11 @@ class ScanViewModel(
         // rider what is missing instead (seen on an emulator whose grants had
         // been reset, and it is exactly what a rider who denied the permission
         // would hit).
-        val canBt = android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.S ||
-            androidx.core.content.ContextCompat.checkSelfPermission(
-                context, android.Manifest.permission.BLUETOOTH_CONNECT
-            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
-        if (!canBt) {
-            appNotifier.post(context.getString(com.eried.eucplanet.R.string.scan_permission_body))
+        if (!platform.mayConnect()) {
+            appNotifier.post(phone.text(Res.string.scan_permission_body))
             return
         }
-        val intent = Intent(context, WheelService::class.java).apply {
-            action = WheelService.ACTION_CONNECT
-            putExtra(WheelService.EXTRA_ADDRESS, device.address)
-            putExtra(WheelService.EXTRA_NAME, device.name)
-        }
-        context.startForegroundService(intent)
+        platform.connect(device.address, device.name)
 
         // Persist the last device best-effort (not required for this connect;
         // the service already has the address/name from the intent).
@@ -240,7 +201,7 @@ class ScanViewModel(
     override fun onCleared() {
         resumeJob?.cancel()
         stopScan()
-        runCatching { context.unregisterReceiver(bluetoothStateReceiver) }
+        runCatching { stopWatchingBluetooth() }
         // Rider left the scan screen. Re-enable auto-reconnect; if they didn't
         // pick a new wheel, reconnect to the last one (resumeAutoConnect only
         // does so while still disconnected), "reconnect as normal on dismiss".

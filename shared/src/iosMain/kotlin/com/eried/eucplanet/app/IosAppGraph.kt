@@ -15,6 +15,7 @@ import com.eried.eucplanet.data.sync.AlarmRuleStore
 import com.eried.eucplanet.data.sync.DropboxSettingsSync
 import com.eried.eucplanet.di.SharedKoin
 import com.eried.eucplanet.ui.dashboard.DashboardViewModel
+import com.eried.eucplanet.ui.scan.ScanViewModel
 import com.eried.eucplanet.weather.WeatherRepository
 import com.eried.eucplanet.platform.JSONArray
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -142,6 +143,16 @@ object IosAppGraph {
         voiceCommands = NoVoiceCommands,
         phone = IosPhoneDevice,
         platform = IosDashboardPlatform(wheel),
+    )
+
+    /** A scan view model, as Koin's viewModelOf builds it on Android. */
+    fun scanViewModel(): ScanViewModel = ScanViewModel(
+        bleScanner = IosWheelScanner(link),
+        settingsRepository = settings,
+        bleConnectionManager = link,
+        appNotifier = LogNotices,
+        phone = IosPhoneDevice,
+        platform = IosScanPlatform(link),
     )
 
     suspend fun seed() {

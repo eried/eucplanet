@@ -1,0 +1,87 @@
+package com.eried.eucplanet.ble
+
+data class BleDevice(
+    val name: String,
+    val address: String,
+    val rssi: Int
+)
+
+// Hoisted regex constants. Compiled once and reused across every scan
+// callback; the inline `Regex("...")` form re-compiled the pattern on
+// every advertisement frame, which during a dense scan adds up.
+private val RX_KS_S_NUMERIC = Regex("^S(?:1[6-9]|2[02])(?:\\b|[-_ ])")
+private val RX_VETERAN_LYNX = Regex("\\blynx\\b")
+private val RX_VETERAN_LK = Regex("^lk\\d")
+private val RX_NINEBOT_ZN = Regex("^ZN\\d", RegexOption.IGNORE_CASE)
+
+/**
+ * True when [name] looks like a known EUC advertisement (the scan-screen filter).
+ * Recognises the InMotion V1/V2, KingSong, Begode/Gotway, Veteran (LeaperKim) and
+ * Ninebot families by their advertised name prefixes. Pure and top-level so it can
+ * be unit-tested (BleScannerDetectionTest) without a BluetoothAdapter; the real
+ * radio scan in [BleScanner] just forwards to it.
+ */
+fun isLikelyWheelName(name: String): Boolean {
+    // InMotion V2 family. Match case-insensitively: InMotion brands some
+    // wheels "Inmotion-…" (lowercase m, e.g. the V10F), and a case-sensitive
+    // check silently drops those from the scan list, they never show up to
+    // connect. Every other brand check below is already ignoreCase.
+    if (name.startsWith("Adventure-", ignoreCase = true)) return true
+    if (name.startsWith("P6-", ignoreCase = true)) return true
+    if (name.startsWith("InMotion", ignoreCase = true)) return true
+    // V8-…, V9-…, V10-…, V11-…, V11Y-…, V12HS-…, V13Pro-…: leading V
+    // followed by at least one digit and at least one more character.
+    if (name.length >= 3 && name[0] == 'V' && name[1].isDigit()) {
+        var i = 2
+        while (i < name.length && name[i].isDigit()) i++
+        if (i < name.length) return true
+    }
+    // InMotion V1 legacy names: "IM<digits>" (R-series rebrands), "L6-",
+    // "Lively-", "Glide" / "Solowheel". V8 / V10 family already matched
+    // by the V<digits> regex above.
+    if (name.length >= 3 && (name[0] == 'I' || name[0] == 'i') &&
+        (name[1] == 'M' || name[1] == 'm') && name[2].isDigit()) return true
+    if (name.startsWith("L6-", ignoreCase = true)) return true
+    if (name.startsWith("Lively", ignoreCase = true)) return true
+    if (name.startsWith("Glide", ignoreCase = true) ||
+        name.startsWith("Solowheel", ignoreCase = true)) return true
+    // KingSong
+    if (name.startsWith("KS-") || name.startsWith("KS ") ||
+        name.startsWith("KingSong", ignoreCase = true)) return true
+    if (RX_KS_S_NUMERIC.containsMatchIn(name)) return true
+    if (name.startsWith("F18P", ignoreCase = true) ||
+        name.startsWith("F22P", ignoreCase = true)) return true
+    // Begode/Gotway
+    if (name.startsWith("Gotway", ignoreCase = true) ||
+        name.startsWith("Begode", ignoreCase = true) ||
+        name.startsWith("Master_", ignoreCase = true) ||
+        name.startsWith("RS_", ignoreCase = true) || name.startsWith("RS-", ignoreCase = true) ||
+        name.startsWith("EX_", ignoreCase = true) || name.startsWith("EX.", ignoreCase = true) ||
+        name.startsWith("EX2", ignoreCase = true) ||
+        name.startsWith("MSP", ignoreCase = true) || name.startsWith("MSX", ignoreCase = true) ||
+        name.startsWith("Mten", ignoreCase = true) || name.startsWith("MCM5", ignoreCase = true) ||
+        name.startsWith("Hero", ignoreCase = true) ||
+        name.startsWith("T3", ignoreCase = true) || name.startsWith("T4", ignoreCase = true)) return true
+    // Veteran (LeaperKim). Match the model tokens AND the brand's own
+    // serial-style BLE prefixes, many wheels advertise as `LK<digits>`
+    // (the rider's Lynx S showed up as `LK20712`, the Oryx as `LK19957`)
+    // with no model token in the name, so the scan filter has to know
+    // about the prefixes too. CompositeWheelAdapter.pickAdapter already
+    // routes these to the Veteran adapter at connect time; the same
+    // patterns belong here so they're not filtered out before scan.
+    val nl = name.lowercase()
+    if ("sherman" in nl || "patton" in nl || "abrams" in nl ||
+        "oryx" in nl || "nosfet" in nl || "leaperkim" in nl ||
+        RX_VETERAN_LYNX.containsMatchIn(nl) ||
+        RX_VETERAN_LK.containsMatchIn(nl)) return true
+    // Ninebot / Segway-Ninebot. Both protocol families (Z and legacy)
+    // start with the brand prefix; "ZN<serial>" is the bare-firmware
+    // form on some Z6 wheels; "MiniPlus<serial>" advertises Z protocol
+    // despite the legacy-style name.
+    if (name.startsWith("Ninebot", ignoreCase = true) ||
+        name.startsWith("Segway", ignoreCase = true)) return true
+    if (RX_NINEBOT_ZN.containsMatchIn(name)) return true
+    if (name.startsWith("MiniPLUS", ignoreCase = true) ||
+        name.startsWith("Mini Plus", ignoreCase = true)) return true
+    return false
+}

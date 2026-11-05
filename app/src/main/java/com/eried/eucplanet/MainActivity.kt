@@ -795,7 +795,9 @@ class MainActivity : AppCompatActivity() {
                             composable(Screen.Scan.route) {
                                 com.eried.eucplanet.ui.scan.ScanScreen(
                                     onDeviceSelected = { runCatching { lockdownNav.popBackStack() } },
-                                    onBack = { runCatching { lockdownNav.popBackStack() } }
+                                    onBack = { runCatching { lockdownNav.popBackStack() } },
+                                    viewModel = org.koin.compose.viewmodel.koinViewModel(),
+                                    host = com.eried.eucplanet.ui.scan.rememberAndroidScanHost(),
                                 )
                             }
                         }

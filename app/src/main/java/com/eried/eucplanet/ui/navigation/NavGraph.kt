@@ -120,7 +120,9 @@ fun NavGraph(navController: NavHostController) {
         composable(Screen.Scan.route) {
             ScanScreen(
                 onDeviceSelected = { navController.popSingle() },
-                onBack = { navController.popSingle() }
+                onBack = { navController.popSingle() },
+                viewModel = org.koin.compose.viewmodel.koinViewModel(),
+                host = com.eried.eucplanet.ui.scan.rememberAndroidScanHost(),
             )
         }
         composable(

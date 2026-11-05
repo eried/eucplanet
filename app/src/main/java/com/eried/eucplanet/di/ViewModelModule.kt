@@ -34,7 +34,11 @@ import com.eried.eucplanet.ui.navigator.RouteBuilderViewModel
 import com.eried.eucplanet.ui.radar.RadarOverlayViewModel
 import com.eried.eucplanet.ui.recording.EucViewerViewModel
 import com.eried.eucplanet.ui.recording.RecordingViewModel
+import com.eried.eucplanet.ui.scan.AndroidScanPlatform
+import com.eried.eucplanet.ui.scan.AndroidWheelScanner
+import com.eried.eucplanet.ui.scan.ScanPlatform
 import com.eried.eucplanet.ui.scan.ScanViewModel
+import com.eried.eucplanet.ui.scan.WheelScanner
 import com.eried.eucplanet.ui.settings.AlarmViewModel
 import com.eried.eucplanet.ui.settings.ExternalGpsViewModel
 import com.eried.eucplanet.ui.settings.FlicViewModel
@@ -64,6 +68,9 @@ val viewModelModule = module {
     singleOf(::AndroidMetricsResetter) bind MetricsResetter::class
     singleOf(::AndroidActiveRoute) bind ActiveRoute::class
     single<DashboardPlatform> { AndroidDashboardPlatform(androidContext(), get(), get(), get()) }
+    // And the scan screen's.
+    singleOf(::AndroidWheelScanner) bind WheelScanner::class
+    single<ScanPlatform> { AndroidScanPlatform(androidContext()) }
 
     viewModelOf(::WheelDiagnosticsViewModel)
     viewModelOf(::ChargingMonitorViewModel)
