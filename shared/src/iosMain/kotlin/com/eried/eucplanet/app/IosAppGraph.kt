@@ -102,6 +102,9 @@ object IosAppGraph {
 
     val link: IosWheelLink by lazy { IosWheelLink(adapter) }
 
+    /** Spoken announcements, the shared reports through AVSpeechSynthesizer. */
+    internal val voice: IosVoice by lazy { IosVoice(settings) { wheel } }
+
     /**
      * The alarm engine, the same rules as Android's. Fires through
      * IosAlarmOutputs (voice and vibration; beeps once the tone player
@@ -119,7 +122,7 @@ object IosAppGraph {
             settingsRepository = settings,
             alarmEngine = alarmEngine,
             tonePlayer = NoRouteKeepAlive,
-            voiceService = LogAnnouncer,
+            voiceService = voice,
             wheelProfileDao = object : WheelProfiles {
                 // WheelRepository swallows a failed read, so say it here.
                 override suspend fun getByName(name: String) =
@@ -183,7 +186,7 @@ object IosAppGraph {
         settingsRepository = settings,
         tripRepository = NoTrips,
         tripMeterRepository = NoTripMeter,
-        voiceService = NoVoice,
+        voiceService = voice,
         automationManager = NoAutomation,
         flicManager = LogActions,
         syncManager = NoFolderSync,

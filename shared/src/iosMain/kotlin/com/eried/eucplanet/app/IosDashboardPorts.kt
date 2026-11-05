@@ -18,7 +18,6 @@ import com.eried.eucplanet.ui.dashboard.DashboardAutomation
 import com.eried.eucplanet.ui.dashboard.DashboardPlatform
 import com.eried.eucplanet.ui.dashboard.DashboardSync
 import com.eried.eucplanet.ui.dashboard.DashboardTrips
-import com.eried.eucplanet.ui.dashboard.DashboardVoice
 import com.eried.eucplanet.ui.dashboard.DashboardVoiceCommands
 import com.eried.eucplanet.ui.dashboard.ExperimentalBannerFlag
 import com.eried.eucplanet.ui.dashboard.MetricsResetResult
@@ -57,15 +56,6 @@ internal object NoTrips : DashboardTrips {
 
 internal object NoTripMeter : TripMeterFeed {
     override val state: StateFlow<TripMeterState> = MutableStateFlow(TripMeterState()).asStateFlow()
-}
-
-/** Voice is not on iOS yet. */
-internal object NoVoice : DashboardVoice {
-    override fun initialize() = Unit
-    override fun welcomeOnce() = Unit
-    override fun speakWelcomeNow() = Unit
-    override fun announceTrigger(data: WheelData, settings: AppSettings, isRecording: Boolean) = Unit
-    override fun shutdown() = Unit
 }
 
 internal object NoVoiceCommands : DashboardVoiceCommands {

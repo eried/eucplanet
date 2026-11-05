@@ -2,8 +2,6 @@ package com.eried.eucplanet.app
 
 import com.eried.eucplanet.service.ToneSynth
 import com.eried.eucplanet.service.AlarmOutputs
-import platform.AVFAudio.AVSpeechSynthesizer
-import platform.AVFAudio.AVSpeechUtterance
 import platform.AudioToolbox.AudioServicesPlaySystemSound
 import platform.AudioToolbox.kSystemSoundID_Vibrate
 
@@ -13,8 +11,6 @@ import platform.AudioToolbox.kSystemSoundID_Vibrate
  * iOS yet.
  */
 internal object IosAlarmOutputs : AlarmOutputs {
-    private val speech = AVSpeechSynthesizer()
-
     override suspend fun playBeep(
         frequencyHz: Int, durationMs: Int, count: Int, gapMs: Int, volumePct: Int,
         transitionMs: Int, waveform: Int, effect: Int,
@@ -35,9 +31,8 @@ internal object IosAlarmOutputs : AlarmOutputs {
         IosTonePlayer.updateStream(frequencyHz, durationMs, gapMs, volumePct, transitionMs, waveform, effect)
     override fun stopStream() = IosTonePlayer.stopStream()
 
-    override fun speak(text: String) {
-        speech.speakUtterance(AVSpeechUtterance.speechUtteranceWithString(text))
-    }
+    // The alarm's own text, at the voice settings' rate and language.
+    override fun speak(text: String) = IosAppGraph.voice.announceEvent(text)
 
     override fun vibrate(durationMs: Long) = AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
     override fun vibrateWatch(durationMs: Int) = Unit

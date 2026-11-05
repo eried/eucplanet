@@ -5,7 +5,6 @@ import com.eried.eucplanet.data.model.ExternalGpsSample
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.repository.AccelSplitReset
 import com.eried.eucplanet.data.repository.AppNotices
-import com.eried.eucplanet.data.repository.EventAnnouncer
 import com.eried.eucplanet.data.repository.ExternalGpsFeed
 import com.eried.eucplanet.data.repository.GpsFix
 import com.eried.eucplanet.data.repository.LegalLockdownGate
@@ -38,11 +37,6 @@ import platform.UIKit.UIDevice
 internal object NoRouteKeepAlive : RouteKeepAlive {
     override fun startRouteKeepAlive(quietMs: Long) = Unit
     override fun stopRouteKeepAlive() = Unit
-}
-
-/** Voice is not on iOS yet: event lines go to the log. */
-internal object LogAnnouncer : EventAnnouncer {
-    override fun announceEvent(text: String) { Log.i("Voice", text) }
 }
 
 /** The phone accelerometer is not read on iOS yet. */
