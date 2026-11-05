@@ -1,6 +1,6 @@
 package com.eried.eucplanet.ui.dashboard
 
-import com.eried.eucplanet.R
+import com.eried.eucplanet.resources.*
 import com.eried.eucplanet.data.model.HeadlightReadback
 import com.eried.eucplanet.data.model.WheelData
 import org.junit.Assert.*
@@ -11,8 +11,8 @@ class HeadlightButtonStateTest {
     private val maxAgeMs = 8000
 
     @Test fun `measured levels control the label and highlight independently of command intent`() {
-        val labels = listOf(R.string.headlight_state_off, R.string.headlight_state_low,
-            R.string.headlight_state_medium, R.string.headlight_state_high)
+        val labels = listOf(Res.string.headlight_state_off, Res.string.headlight_state_low,
+            Res.string.headlight_state_medium, Res.string.headlight_state_high)
         HeadlightReadback.Level.entries.forEachIndexed { index, level ->
             for (on in listOf(false, true)) {
                 val data = WheelData(lightOn = on, headlightReadback = HeadlightReadback(level, received))
@@ -25,7 +25,7 @@ class HeadlightButtonStateTest {
     @Test fun `unknown disconnected old and future measurements display unknown`() {
         val data = WheelData(lightOn = true,
             headlightReadback = HeadlightReadback(HeadlightReadback.Level.HIGH, received))
-        val unknown = HeadlightButtonState(R.string.headlight_state_unknown, false)
+        val unknown = HeadlightButtonState(Res.string.headlight_state_unknown, false)
         assertEquals(unknown, headlightButtonState(data, false, received, maxAgeMs))
         assertEquals(unknown, headlightButtonState(data, true, received + 8_000_000_001L, maxAgeMs))
         assertEquals(unknown, headlightButtonState(data, true, received - 1, maxAgeMs))
@@ -43,7 +43,7 @@ class HeadlightButtonStateTest {
     @Test fun `models without level readback retain the Light label and on off highlight`() {
         for (on in listOf(false, true)) {
             for (connected in listOf(false, true)) {
-                assertEquals(HeadlightButtonState(R.string.action_light, on),
+                assertEquals(HeadlightButtonState(Res.string.action_light, on),
                     headlightButtonState(WheelData(lightOn = on), connected, received, maxAgeMs))
             }
         }

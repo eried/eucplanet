@@ -3,33 +3,35 @@ package com.eried.eucplanet.ui.dashboard
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
-import com.eried.eucplanet.R
+import com.eried.eucplanet.platform.System
+import com.eried.eucplanet.resources.*
 import com.eried.eucplanet.data.model.HeadlightReadback
 import com.eried.eucplanet.data.model.WheelData
 import kotlinx.coroutines.delay
+import org.jetbrains.compose.resources.StringResource
 
-internal data class HeadlightButtonState(val labelRes: Int, val active: Boolean)
+data class HeadlightButtonState(val labelRes: StringResource, val active: Boolean)
 
-internal fun headlightButtonState(
+fun headlightButtonState(
     data: WheelData, connected: Boolean, nowNanos: Long, maxAgeMs: Int,
 ): HeadlightButtonState {
     val readback = data.headlightReadback
-        ?: return HeadlightButtonState(R.string.action_light, data.lightOn)
+        ?: return HeadlightButtonState(Res.string.action_light, data.lightOn)
     val level = if (connected) readback.freshLevel(nowNanos, maxAgeMs) else null
     return HeadlightButtonState(
         when (level) {
-            HeadlightReadback.Level.OFF -> R.string.headlight_state_off
-            HeadlightReadback.Level.LOW -> R.string.headlight_state_low
-            HeadlightReadback.Level.MEDIUM -> R.string.headlight_state_medium
-            HeadlightReadback.Level.HIGH -> R.string.headlight_state_high
-            null -> R.string.headlight_state_unknown
+            HeadlightReadback.Level.OFF -> Res.string.headlight_state_off
+            HeadlightReadback.Level.LOW -> Res.string.headlight_state_low
+            HeadlightReadback.Level.MEDIUM -> Res.string.headlight_state_medium
+            HeadlightReadback.Level.HIGH -> Res.string.headlight_state_high
+            null -> Res.string.headlight_state_unknown
         },
         level != null && level != HeadlightReadback.Level.OFF,
     )
 }
 
 @Composable
-internal fun rememberHeadlightButtonState(
+fun rememberHeadlightButtonState(
     data: WheelData, connected: Boolean, maxAgeMs: Int,
 ): HeadlightButtonState {
     val readback = data.headlightReadback
