@@ -520,6 +520,10 @@ fun WheelInfoBox(
             val odoUnit = com.eried.eucplanet.util.Units.distanceUnit(distanceUnit)
             Text(stringResource(Res.string.stat_odo), fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Medium, letterSpacing = 0.5.sp)
+            // The gap is layout, not the string: stat_odo is "ODO " in the
+            // resources, but unquoted trailing spaces are trimmed at build
+            // time on both phones, which left "ODO0 km".
+            Spacer(Modifier.width(4.dp))
             Text("%.0f %s".format(odoValue, odoUnit), fontSize = 13.sp, fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface)
         }
