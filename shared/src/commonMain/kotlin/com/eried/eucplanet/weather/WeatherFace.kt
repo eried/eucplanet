@@ -1,6 +1,7 @@
 package com.eried.eucplanet.weather
 
-import com.eried.eucplanet.R
+import com.eried.eucplanet.resources.*
+import org.jetbrains.compose.resources.StringResource
 
 /**
  * The face an hour wears, and the line that goes with it.
@@ -17,21 +18,21 @@ enum class WeatherFace(
     /** Stable id. Persisted in the widget snapshot, so never renamed casually. */
     val key: String,
     val emoji: String,
-    val textRes: Int,
+    val textRes: StringResource,
     /** True when this face is chosen by a condition rather than by the score
      *  alone. The band faces at the end are the fallback. */
     val conditional: Boolean = true,
 ) {
-    SNOW("SNOW", "🥶", R.string.weather_face_snow),
-    RAIN("RAIN", "😬", R.string.weather_face_rain),
-    WIND("WIND", "😖", R.string.weather_face_wind),
-    COLD("COLD", "🥶", R.string.weather_face_cold),
-    HOT("HOT", "🥵", R.string.weather_face_hot),
-    GOLDEN("GOLDEN", "🌇", R.string.weather_face_golden),
-    NIGHT("NIGHT", "😴", R.string.weather_face_night),
-    CLEAR("CLEAR", "😄", R.string.weather_face_clear, conditional = false),
-    MEH("MEH", "😐", R.string.weather_face_meh, conditional = false),
-    POOR("POOR", "🙁", R.string.weather_face_meh, conditional = false);
+    SNOW("SNOW", "🥶", Res.string.weather_face_snow),
+    RAIN("RAIN", "😬", Res.string.weather_face_rain),
+    WIND("WIND", "😖", Res.string.weather_face_wind),
+    COLD("COLD", "🥶", Res.string.weather_face_cold),
+    HOT("HOT", "🥵", Res.string.weather_face_hot),
+    GOLDEN("GOLDEN", "🌇", Res.string.weather_face_golden),
+    NIGHT("NIGHT", "😴", Res.string.weather_face_night),
+    CLEAR("CLEAR", "😄", Res.string.weather_face_clear, conditional = false),
+    MEH("MEH", "😐", Res.string.weather_face_meh, conditional = false),
+    POOR("POOR", "🙁", Res.string.weather_face_meh, conditional = false);
 
     companion object {
         fun of(b: RidabilityScore.Breakdown): WeatherFace = when {

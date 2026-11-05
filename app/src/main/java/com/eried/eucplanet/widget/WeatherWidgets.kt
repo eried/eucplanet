@@ -5,6 +5,7 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
+import com.eried.eucplanet.platform.getString
 import android.content.Intent
 import android.os.Bundle
 import android.util.TypedValue

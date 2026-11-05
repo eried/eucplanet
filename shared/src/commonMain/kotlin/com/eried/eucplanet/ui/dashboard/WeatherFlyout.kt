@@ -60,21 +60,23 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.stringResource
+import com.eried.eucplanet.platform.System
+import com.eried.eucplanet.platform.format
+import com.eried.eucplanet.platform.formatLocalDate
+import com.eried.eucplanet.platform.localTimeParts
+import com.eried.eucplanet.platform.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.eried.eucplanet.R
+import com.eried.eucplanet.resources.*
+import org.jetbrains.compose.resources.StringResource
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.weather.HourForecast
 import com.eried.eucplanet.weather.RidabilityScore
 import kotlinx.coroutines.delay
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import kotlin.math.roundToInt
 
 /** One scored forecast hour, ready for the flyout graph. [h] carries the raw
@@ -94,31 +96,31 @@ data class ScoredHour(
 private object WeatherPhrases {
     private const val TTL_MS = 3_600_000L
     private val titlePool = listOf(
-        R.string.weather_title_1,
-        R.string.weather_title_2,
-        R.string.weather_title_3,
-        R.string.weather_title_4,
-        R.string.weather_title_5,
+        Res.string.weather_title_1,
+        Res.string.weather_title_2,
+        Res.string.weather_title_3,
+        Res.string.weather_title_4,
+        Res.string.weather_title_5,
     )
     private val levelPools = listOf(
-        listOf(R.string.weather_lvl_awful_1, R.string.weather_lvl_awful_2),
-        listOf(R.string.weather_lvl_bad_1, R.string.weather_lvl_bad_2),
-        listOf(R.string.weather_lvl_notworst_1, R.string.weather_lvl_notworst_2),
-        listOf(R.string.weather_lvl_meh_1, R.string.weather_lvl_meh_2),
-        listOf(R.string.weather_lvl_ok_1, R.string.weather_lvl_ok_2),
-        listOf(R.string.weather_lvl_good_1, R.string.weather_lvl_good_2),
-        listOf(R.string.weather_lvl_prime_1, R.string.weather_lvl_prime_2),
+        listOf(Res.string.weather_lvl_awful_1, Res.string.weather_lvl_awful_2),
+        listOf(Res.string.weather_lvl_bad_1, Res.string.weather_lvl_bad_2),
+        listOf(Res.string.weather_lvl_notworst_1, Res.string.weather_lvl_notworst_2),
+        listOf(Res.string.weather_lvl_meh_1, Res.string.weather_lvl_meh_2),
+        listOf(Res.string.weather_lvl_ok_1, Res.string.weather_lvl_ok_2),
+        listOf(Res.string.weather_lvl_good_1, Res.string.weather_lvl_good_2),
+        listOf(Res.string.weather_lvl_prime_1, Res.string.weather_lvl_prime_2),
     )
-    private var title: Pair<Int, Long>? = null
-    private val levels = HashMap<Int, Pair<Int, Long>>()
+    private var title: Pair<StringResource, Long>? = null
+    private val levels = HashMap<Int, Pair<StringResource, Long>>()
 
-    fun titleRes(): Int {
+    fun titleRes(): StringResource {
         val now = System.currentTimeMillis()
         title?.let { if (now - it.second < TTL_MS) return it.first }
         return titlePool.random().also { title = it to now }
     }
 
-    fun levelRes(bucket: Int): Int {
+    fun levelRes(bucket: Int): StringResource {
         val now = System.currentTimeMillis()
         levels[bucket]?.let { if (now - it.second < TTL_MS) return it.first }
         return levelPools[bucket].random().also { levels[bucket] = it to now }
@@ -133,8 +135,8 @@ private object WeatherPhrases {
  *  the nearest day, so 72 h is "3 d" and 80 h still is. */
 @Composable
 private fun windowShortLabel(windowHours: Int): String =
-    if (windowHours <= 36) stringResource(R.string.weather_win_hours_fmt, windowHours)
-    else stringResource(R.string.weather_win_days_fmt, (windowHours + 12) / 24)
+    if (windowHours <= 36) stringResource(Res.string.weather_win_hours_fmt, windowHours)
+    else stringResource(Res.string.weather_win_days_fmt, (windowHours + 12) / 24)
 
 /** Vertical segments the window divides into: hourly for 6h, 4h blocks for a
  *  day, half-days for 3 days, whole days for the week. */
@@ -269,7 +271,7 @@ fun WeatherFlyout(
                 IconButton(onClick = { expanded = !expanded }, modifier = Modifier.size(28.dp)) {
                     Icon(
                         if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                        contentDescription = stringResource(R.string.weather_expand),
+                        contentDescription = stringResource(Res.string.weather_expand),
                         tint = ink.copy(alpha = 0.6f),
                         modifier = Modifier.size(20.dp),
                     )
@@ -292,8 +294,8 @@ fun WeatherFlyout(
                 Text(
                     when {
                         usingDest -> destName?.takeIf { it.isNotBlank() }
-                            ?: stringResource(R.string.weather_src_destination)
-                        else -> place ?: stringResource(R.string.weather_src_current)
+                            ?: stringResource(Res.string.weather_src_destination)
+                        else -> place ?: stringResource(Res.string.weather_src_current)
                     },
                     fontSize = 10.sp,
                     fontWeight = FontWeight.SemiBold,
@@ -317,7 +319,7 @@ fun WeatherFlyout(
                     IconButton(onClick = onToggleSource, modifier = Modifier.size(24.dp)) {
                         Icon(
                             Icons.Default.SwapHoriz,
-                            contentDescription = stringResource(R.string.weather_swap_src),
+                            contentDescription = stringResource(Res.string.weather_swap_src),
                             tint = ink.copy(alpha = 0.7f),
                             modifier = Modifier.size(16.dp),
                         )
@@ -374,9 +376,9 @@ fun WeatherFlyout(
                         refreshing -> ""
                         // Just the age. "Updated" said nothing the clock
                         // did not, and it was the half that got truncated.
-                        updatedAgoMin == 0 -> stringResource(R.string.sources_fresh_just_now)
+                        updatedAgoMin == 0 -> stringResource(Res.string.sources_fresh_just_now)
                         updatedAgoMin != null ->
-                            stringResource(R.string.sources_fresh_minutes_fmt, updatedAgoMin)
+                            stringResource(Res.string.sources_fresh_minutes_fmt, updatedAgoMin)
                         else -> ""
                     },
                     style = MaterialTheme.typography.bodySmall,
@@ -396,7 +398,7 @@ fun WeatherFlyout(
                 ) {
                     Icon(
                         Icons.Default.Refresh,
-                        contentDescription = stringResource(R.string.weather_refresh),
+                        contentDescription = stringResource(Res.string.weather_refresh),
                         tint = ink.copy(alpha = if (refreshing) 0.25f else 0.6f),
                         modifier = Modifier.size(18.dp),
                     )
@@ -408,8 +410,8 @@ fun WeatherFlyout(
                 // about because there is nowhere to ask about. Shown on its
                 // own, without the "Forecast failed" wrapper that a real fetch
                 // error earns.
-                hours.isEmpty() && (error == stringResource(R.string.weather_error_no_location) ||
-                    error == stringResource(R.string.weather_waiting_location)) -> Text(
+                hours.isEmpty() && (error == stringResource(Res.string.weather_error_no_location) ||
+                    error == stringResource(Res.string.weather_waiting_location)) -> Text(
                     error,
                     style = MaterialTheme.typography.bodySmall,
                     color = ink.copy(alpha = 0.7f),
@@ -417,13 +419,13 @@ fun WeatherFlyout(
                 )
 
                 hours.isEmpty() && error != null -> Text(
-                    stringResource(R.string.weather_error, error),
+                    stringResource(Res.string.weather_error, error),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.appColors.statusWarn,
                     modifier = Modifier.padding(vertical = 10.dp),
                 )
                 hours.isEmpty() -> Text(
-                    stringResource(R.string.weather_fetching),
+                    stringResource(Res.string.weather_fetching),
                     style = MaterialTheme.typography.bodySmall,
                     color = ink.copy(alpha = 0.6f),
                     modifier = Modifier.padding(vertical = 10.dp),
@@ -504,7 +506,7 @@ private fun DetailSection(
         // Temp, humidity and precipitation share one double-height chart,
         // weather-app style: lines over rain/snow bars.
         DetailChart(
-            label = stringResource(R.string.weather_chart_temp),
+            label = stringResource(Res.string.weather_chart_temp),
             value = "%.1f%s · %.0f%% · %s".format(
                 t(h.tempC), tUnit, h.humidityPct,
                 if (h.snowCmH > 0f) "%.1f cm/h".format(h.snowCmH)
@@ -527,7 +529,7 @@ private fun DetailSection(
             ink = ink, scrub = scrub, onScrub = onScrub,
         )
         DetailChart(
-            label = stringResource(R.string.weather_chart_wind),
+            label = stringResource(Res.string.weather_chart_wind),
             value = "%.1f / %.1f %s".format(w(h.windMs), w(h.gustMs), wUnit),
             series = listOf(
                 ChartSeries(
@@ -559,24 +561,24 @@ private fun DetailSection(
         @Composable
         fun lead(i: Int): String {
             val min = ((hours[i].timeMs - nowRef) / 60_000L).toInt().coerceAtLeast(1)
-            return if (min < 90) stringResource(R.string.weather_in_min, min)
-            else stringResource(R.string.weather_in_h, (min + 30) / 60)
+            return if (min < 90) stringResource(Res.string.weather_in_min, min)
+            else stringResource(Res.string.weather_in_h, (min + 30) / 60)
         }
 
         val lines = mutableListOf<String>()
         when {
-            snowIdx == 0 -> lines += stringResource(R.string.weather_adv_snow_now)
-            snowIdx > 0 -> lines += stringResource(R.string.weather_adv_snow_in, lead(snowIdx))
+            snowIdx == 0 -> lines += stringResource(Res.string.weather_adv_snow_now)
+            snowIdx > 0 -> lines += stringResource(Res.string.weather_adv_snow_in, lead(snowIdx))
         }
         when {
-            rainIdx == 0 -> lines += stringResource(R.string.weather_adv_rain_now)
-            rainIdx > 0 -> lines += stringResource(R.string.weather_adv_rain_in, lead(rainIdx))
+            rainIdx == 0 -> lines += stringResource(Res.string.weather_adv_rain_now)
+            rainIdx > 0 -> lines += stringResource(Res.string.weather_adv_rain_in, lead(rainIdx))
         }
-        if (strongGusts) lines += stringResource(R.string.weather_adv_gusts)
-        if (nearFreeze) lines += stringResource(R.string.weather_adv_freeze)
-        if (hotStretch) lines += stringResource(R.string.weather_adv_heat)
-        if (goldenIdx > 0) lines += stringResource(R.string.weather_adv_golden, lead(goldenIdx))
-        if (lines.isEmpty()) lines += stringResource(R.string.weather_adv_clear)
+        if (strongGusts) lines += stringResource(Res.string.weather_adv_gusts)
+        if (nearFreeze) lines += stringResource(Res.string.weather_adv_freeze)
+        if (hotStretch) lines += stringResource(Res.string.weather_adv_heat)
+        if (goldenIdx > 0) lines += stringResource(Res.string.weather_adv_golden, lead(goldenIdx))
+        if (lines.isEmpty()) lines += stringResource(Res.string.weather_adv_clear)
 
         // One flowing paragraph rather than a line per advisory: they are
         // short sentences about the same window, and stacked they read as a
@@ -724,7 +726,7 @@ private fun DetailChart(
 /** A face pinned to the curve: where, which emoji, and the lingo line its
  *  tap tooltip shows. Faces sit at the start plus the moments the ride
  *  character changes - a band crossing or a hazard beginning. */
-private data class FaceSpot(val index: Int, val emoji: String, val infoRes: Int)
+private data class FaceSpot(val index: Int, val emoji: String, val infoRes: StringResource)
 
 /** A visible tooltip on the graph: where, an optional numeric prefix, and
  *  the phrase resource. srcKey identifies the anchor so a second tap on the
@@ -734,7 +736,7 @@ private data class GraphTip(
     val frac: Float,
     val yFrac: Float,
     val prefix: String?,
-    val textRes: Int,
+    val textRes: StringResource,
     /** "Sat 08:15", shown above the phrase. Null for the face tips, which
      *  are about the character of an hour rather than a moment in it. */
     val timeLabel: String? = null,
@@ -754,7 +756,7 @@ private fun levelBucket(score: Float): Int = when {
 /** The face and tip line for an hour, by what dominates it. The choice itself
  *  lives in [com.eried.eucplanet.weather.WeatherFace] so the home screen
  *  widgets reach the same verdict from a snapshot. */
-private fun faceFor(b: RidabilityScore.Breakdown): Pair<String, Int> =
+private fun faceFor(b: RidabilityScore.Breakdown): Pair<String, StringResource> =
     com.eried.eucplanet.weather.WeatherFace.of(b).let { it.emoji to it.textRes }
 
 private fun band(score: Float): Int = when {
@@ -856,7 +858,6 @@ private fun ScoreGraph(
     // below, so dragging ANY chart in the panel updates it - the detail
     // charts no longer carry a time line of their own.
     var tip by remember(hours) { mutableStateOf<GraphTip?>(null) }
-    val fmtTip = remember { SimpleDateFormat("EEE HH:mm", Locale.getDefault()) }
     val scrubTip: GraphTip? = scrub?.let { f ->
         val n = hours.size
         val i = ((n - 1) * f).roundToInt().coerceIn(0, (n - 1).coerceAtLeast(0))
@@ -867,7 +868,7 @@ private fun ScoreGraph(
             yFrac = 1f - (score + 5f) / 10f,
             prefix = signedLabel(score),
             textRes = WeatherPhrases.levelRes(levelBucket(score)),
-            timeLabel = fmtTip.format(Date(hours[i].timeMs)),
+            timeLabel = formatLocalDate("EEE HH:mm", hours[i].timeMs),
         )
     }
     LaunchedEffect(tip) {
@@ -1210,37 +1211,34 @@ private fun ScoreGraph(
         // data, printing whatever timestamp sat there: an eight-hour window
         // starting at 09:00 read 11:15, 13:30, 15:45. Positions, not times.
         // Nobody reads a forecast in quarter-of-the-window units.
-        val fmtHour = SimpleDateFormat("HH:mm", Locale.getDefault())
-        val fmtDay = SimpleDateFormat("EEE", Locale.getDefault())
         val startMs = hours.first().timeMs
         val spanMs = hours.last().timeMs - startMs
-        val fmt = if (spanMs > 36L * 3600_000L) fmtDay else fmtHour
-        val nowLabel = stringResource(R.string.weather_now)
+        val fmt = if (spanMs > 36L * 3600_000L) "EEE" else "HH:mm"
+        val nowLabel = stringResource(Res.string.weather_now)
         // The smallest step that still leaves the labels far enough apart to
         // read; a day once the window is long enough to be about days.
         val stepMs = listOf(
             1L, 2L, 3L, 6L, 12L, 24L, 48L, 72L,
         ).map { it * 3600_000L }.firstOrNull { spanMs / it <= 4L } ?: (7L * 24 * 3600_000L)
         val ticks = remember(startMs, spanMs, stepMs) {
-            val cal = java.util.Calendar.getInstance()
-            cal.timeInMillis = startMs
-            cal.set(java.util.Calendar.MINUTE, 0)
-            cal.set(java.util.Calendar.SECOND, 0)
-            cal.set(java.util.Calendar.MILLISECOND, 0)
+            // Calendar's set(MINUTE / SECOND / MILLISECOND, 0) and
+            // add(HOUR_OF_DAY, n), which is n whole hours of wall time.
+            val p0 = localTimeParts(startMs)
+            var t = startMs - (p0.minute * 60_000L + p0.second * 1000L + p0.millis)
             // Walk whole hours from the top of the starting hour: the first
             // round time on the step lands inside the window.
             val stepH = (stepMs / 3600_000L).toInt().coerceAtLeast(1)
-            while (cal.timeInMillis < startMs ||
-                (cal.get(java.util.Calendar.HOUR_OF_DAY) % stepH) != 0
+            while (t < startMs ||
+                (localTimeParts(t).hour % stepH) != 0
             ) {
-                cal.add(java.util.Calendar.HOUR_OF_DAY, 1)
+                t += 3600_000L
             }
             val out = ArrayList<Pair<Float, Long>>()
-            while (cal.timeInMillis <= startMs + spanMs && out.size < 8) {
-                val f = if (spanMs <= 0L) 0f else (cal.timeInMillis - startMs).toFloat() / spanMs
+            while (t <= startMs + spanMs && out.size < 8) {
+                val f = if (spanMs <= 0L) 0f else (t - startMs).toFloat() / spanMs
                 // Leave the left end to "Now" and keep the last label on-panel.
-                if (f > 0.12f && f < 0.97f) out.add(f to cal.timeInMillis)
-                cal.add(java.util.Calendar.HOUR_OF_DAY, stepH)
+                if (f > 0.12f && f < 0.97f) out.add(f to t)
+                t += stepH * 3600_000L
             }
             out
         }
@@ -1256,7 +1254,7 @@ private fun ScoreGraph(
             )
             ticks.forEach { (f, t) ->
                 Text(
-                    fmt.format(Date(t)),
+                    formatLocalDate(fmt, t),
                     fontSize = 9.sp,
                     color = ink.copy(alpha = 0.6f),
                     textAlign = TextAlign.Center,

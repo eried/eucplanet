@@ -367,7 +367,7 @@ class WeatherModuleTest {
     @Test fun `the source picker is a combo and the flyout wears the nav popup style`() {
         val nav = File("src/main/java/com/eried/eucplanet/ui/settings/NavigatorSettingsContent.kt").readText()
         assertTrue(nav.contains("ExposedDropdownMenuBox"))
-        val flyout = File("src/main/java/com/eried/eucplanet/ui/dashboard/WeatherFlyout.kt").readText()
+        val flyout = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/ui/dashboard/WeatherFlyout.kt").readText()
         // Nav-popup family: inverse panel, rounded, shadowed.
         assertTrue(flyout.contains("navPopupPanel"))
         assertTrue(flyout.contains("RoundedCornerShape(12.dp)"))

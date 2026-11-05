@@ -43,7 +43,7 @@ class WeatherFaceTest {
     @Test fun `every face carries an emoji and a line`() {
         WeatherFace.entries.forEach {
             assertTrue("${it.key} has no emoji", it.emoji.isNotBlank())
-            assertTrue("${it.key} has no text", it.textRes != 0)
+            assertTrue("${it.key} has no text", it.textRes.key.isNotEmpty())
         }
     }
 
