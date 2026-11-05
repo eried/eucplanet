@@ -29,7 +29,11 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
+import com.eried.eucplanet.platform.getString
 import com.eried.eucplanet.platform.stringResource
+import com.eried.eucplanet.resources.Res
+import com.eried.eucplanet.resources.cloud_backup_failed
+import com.eried.eucplanet.resources.cloud_restore_failed
 import com.eried.eucplanet.util.speedUnit
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
@@ -439,8 +443,8 @@ fun DashboardScreen(
         viewModel.cloudToasts.collect { resId ->
             // Backup/restore failures get a Retry action that re-runs the op.
             val retry: (() -> Unit)? = when (resId) {
-                R.string.cloud_backup_failed -> ({ viewModel.backupSettingsNow() })
-                R.string.cloud_restore_failed -> ({ viewModel.restoreSettingsNow() })
+                Res.string.cloud_backup_failed -> ({ viewModel.backupSettingsNow() })
+                Res.string.cloud_restore_failed -> ({ viewModel.restoreSettingsNow() })
                 else -> null
             }
             snackbarScope.launch {
@@ -3556,7 +3560,7 @@ fun DashboardScreen(
         var showWizardRestore by remember { mutableStateOf(false) }
         val wizardPickFolder = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.OpenDocumentTree()
-        ) { uri -> if (uri != null) viewModel.setBackupFolder(uri) }
+        ) { uri -> if (uri != null) viewModel.setBackupFolder(uri.toString()) }
         androidx.compose.animation.AnimatedVisibility(
             visible = showWeatherFlyout && weatherSettings.enabled,
             enter = androidx.compose.animation.scaleIn(

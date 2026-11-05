@@ -1,26 +1,21 @@
 package com.eried.eucplanet.ui.dashboard
 
-import android.Manifest
-import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eried.eucplanet.ble.ConnectionState
+import com.eried.eucplanet.data.repository.AppNotices
+import com.eried.eucplanet.data.repository.ExternalGpsFeed
 import com.eried.eucplanet.data.repository.FullMetricHistory
-import com.eried.eucplanet.R
+import com.eried.eucplanet.data.repository.PhoneDevice
+import com.eried.eucplanet.platform.Locale
+import com.eried.eucplanet.platform.System
+import com.eried.eucplanet.platform.format
 import com.eried.eucplanet.resources.*
 import com.eried.eucplanet.data.repository.SettingsRepository
-import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.data.model.withUnitsToggled
-import com.eried.eucplanet.data.sync.SyncManager
-import com.eried.eucplanet.flic.FlicManager
-import com.eried.eucplanet.service.AutomationManager
-import com.eried.eucplanet.service.VoiceService
-import com.eried.eucplanet.service.WheelService
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -34,7 +29,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import com.eried.eucplanet.data.repository.startLinkFlow
+import org.jetbrains.compose.resources.StringResource
 
 data class MetricHistory(
     val battery: List<Float> = emptyList(),
@@ -57,26 +52,25 @@ data class MetricHistory(
 class DashboardViewModel(
     private val wheelRepository: WheelRepository,
     private val settingsRepository: SettingsRepository,
-    private val tripRepository: TripRepository,
-    private val tripMeterRepository: com.eried.eucplanet.data.repository.TripMeterRepository,
-    private val voiceService: VoiceService,
-    private val automationManager: AutomationManager,
-    private val flicManager: FlicManager,
-    private val syncManager: SyncManager,
-    private val externalGpsRepository: com.eried.eucplanet.data.repository.ExternalGpsRepository,
-    val experimentalBannerState: com.eried.eucplanet.ui.common.ExperimentalBannerState,
+    private val tripRepository: DashboardTrips,
+    private val tripMeterRepository: TripMeterFeed,
+    private val voiceService: DashboardVoice,
+    private val automationManager: DashboardAutomation,
+    private val flicManager: ActionDispatcher,
+    private val syncManager: DashboardSync,
+    private val externalGpsRepository: ExternalGpsFeed,
+    val experimentalBannerState: ExperimentalBannerFlag,
     val cheatState: com.eried.eucplanet.cheats.CheatState,
-    private val wearBridge: com.eried.eucplanet.wear.WearBridge,
-    private val garminBridge: com.eried.eucplanet.garmin.GarminBridge,
-    private val amazfitBridge: com.eried.eucplanet.amazfit.AmazfitBridge,
-    private val appHealthRepository: com.eried.eucplanet.data.repository.AppHealthRepository,
-    private val metricsReset: com.eried.eucplanet.data.repository.MetricsReset,
+    private val appHealthRepository: AppHealth,
+    private val metricsReset: MetricsResetter,
     private val weatherRepository: com.eried.eucplanet.weather.WeatherRepository,
-    private val dropboxRepository: com.eried.eucplanet.data.repository.DropboxRepository,
-    private val appNotifier: com.eried.eucplanet.util.AppNotifier,
-    private val navigationEngine: com.eried.eucplanet.nav.NavigationEngine,
-    private val voiceCommands: com.eried.eucplanet.voice.VoiceCommandController,
-    private val context: Context
+    /** Public so the Android link flow, which needs an Activity, can reach it. */
+    val dropboxRepository: com.eried.eucplanet.data.repository.DropboxRepository,
+    private val appNotifier: AppNotices,
+    private val navigationEngine: ActiveRoute,
+    private val voiceCommands: DashboardVoiceCommands,
+    private val phone: PhoneDevice,
+    private val platform: DashboardPlatform,
 ) : ViewModel() {
 
     /** Live list of user-actionable warnings (e.g. denied notification
@@ -112,8 +106,8 @@ class DashboardViewModel(
     /** The navigator's final stop while a route is active: the destination
      *  the flyout can forecast instead of here. */
     val weatherDest: StateFlow<com.eried.eucplanet.data.model.Waypoint?> =
-        navigationEngine.activeLeg
-            .map { it?.waypoints?.lastOrNull() }
+        navigationEngine.activeWaypoints
+            .map { it?.lastOrNull() }
             .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     /** Which location the flyout forecasts: false = here, true = destination.
@@ -154,24 +148,11 @@ class DashboardViewModel(
 
     private var placeCacheKey: String? = null
     private fun updateWeatherPlace(lat: Double, lon: Double) {
-        val key = "%.2f,%.2f".format(java.util.Locale.US, lat, lon)
+        val key = "%.2f,%.2f".format(Locale.US, lat, lon)
         if (key == placeCacheKey) return
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                @Suppress("DEPRECATION")
-                val a = android.location.Geocoder(context, java.util.Locale.getDefault())
-                    .getFromLocation(lat, lon, 1)?.firstOrNull()
-                // A PLACE, never a house number. featureName and even
-                // subLocality come back as the street number from some
-                // providers, which is how a rider on number 168 ended up with
-                // a chip that just said "168". Anything without a letter in it
-                // is not a place name, so it is skipped, and the city is
-                // preferred over the street: this labels a forecast, which is
-                // a city-scale thing.
-                val name = listOfNotNull(
-                    a?.locality, a?.subLocality, a?.subAdminArea,
-                    a?.thoroughfare, a?.adminArea, a?.featureName,
-                ).firstOrNull { it.isNotBlank() && it.any { c -> c.isLetter() } }
+                val name = platform.placeName(lat, lon)
                 placeCacheKey = key
                 if (!name.isNullOrBlank()) weatherPlace.value = name
             } catch (_: Exception) {
@@ -219,29 +200,25 @@ class DashboardViewModel(
         // reading "Fetching..." forever with nothing in flight, which is the
         // one failure a rider cannot wait out: it needs the phone's location
         // switch or the permission, not patience.
-        val loc = tripRepository.currentLocation.value
-            ?: tripRepository.lastKnownLocation.value
+        val loc = tripRepository.currentFix.value
+            ?: tripRepository.lastKnownFix.value
             ?: run {
                 // With the permission and the location switch on, a fix is
                 // only a matter of time: say so, and fetch the moment one
                 // lands rather than leaving the panel to be reopened.
                 val canLocate = WeatherNoFix.canLocate(
-                    ContextCompat.checkSelfPermission(
-                        context, Manifest.permission.ACCESS_FINE_LOCATION,
-                    ) == android.content.pm.PackageManager.PERMISSION_GRANTED,
+                    platform.hasFineLocationPermission(),
                 ) {
-                    (context.getSystemService(android.content.Context.LOCATION_SERVICE)
-                        as? android.location.LocationManager)
-                        ?.let { androidx.core.location.LocationManagerCompat.isLocationEnabled(it) } == true
+                    platform.locationServicesOn()
                 }
                 weatherRepository.reportNoLocation(
-                    context.getString(WeatherNoFix.messageRes(canLocate))
+                    phone.text(WeatherNoFix.messageRes(canLocate))
                 )
                 if (canLocate && locationWait?.isActive != true) {
                     locationWait = viewModelScope.launch {
                         kotlinx.coroutines.flow.merge(
-                            tripRepository.currentLocation,
-                            tripRepository.lastKnownLocation,
+                            tripRepository.currentFix,
+                            tripRepository.lastKnownFix,
                         ).first { it != null }
                         refreshWeather()
                     }
@@ -287,9 +264,7 @@ class DashboardViewModel(
             ) { forecast, settings, place -> Triple(forecast, settings, place) }
                 .collect { (forecast, settings, place) ->
                     if (forecast != null) {
-                        com.eried.eucplanet.widget.WeatherWidgetPublisher.publish(
-                            context, forecast, settings, place,
-                        )
+                        platform.publishWeatherWidgets(forecast, settings, place)
                     }
                 }
         }
@@ -324,7 +299,7 @@ class DashboardViewModel(
      * keyed on the speed, which restarted a coroutine on every change at
      * telemetry rate. distinctUntilChanged is the same trigger that key had.
      */
-    @Volatile
+    @kotlin.concurrent.Volatile
     var lastMovingAtMs: Long = System.currentTimeMillis()
         private set
 
@@ -456,8 +431,7 @@ class DashboardViewModel(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
     // Newest trip id (first row of trips sorted by startTime DESC), or null if none.
-    val latestTripId: StateFlow<Long?> = tripRepository.allTrips
-        .map { it.firstOrNull()?.id }
+    val latestTripId: StateFlow<Long?> = tripRepository.newestTripId
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     val currentTripId: StateFlow<Long?> = tripRepository.currentTripId
@@ -489,7 +463,7 @@ class DashboardViewModel(
     val gpsExtraSpeed: StateFlow<Pair<Float, String>?> = kotlinx.coroutines.flow.combine(
         settingsRepository.settings,
         externalGpsRepository.currentSample,
-        tripRepository.currentLocation
+        tripRepository.currentFix
     ) { settings, externalSample, location ->
         if (!settings.gpsShowOnDashboard) return@combine null
         val externalFresh = externalSample != null &&
@@ -521,12 +495,12 @@ class DashboardViewModel(
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
-    val gpsFix: StateFlow<Boolean> = tripRepository.currentLocation
+    val gpsFix: StateFlow<Boolean> = tripRepository.currentFix
         .map { it != null }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     /** Raw location for catalog metrics (altitude / accuracy / GPS speed / heading). */
-    val currentLocation = tripRepository.currentLocation
+    val currentLocation: StateFlow<com.eried.eucplanet.data.repository.PhoneLocation?> = tripRepository.currentFix
 
     /**
      * Phone battery percentage (0-100). Polled from the system service
@@ -535,9 +509,7 @@ class DashboardViewModel(
      */
     val phoneBatteryPercent: StateFlow<Int> = kotlinx.coroutines.flow.flow {
         while (true) {
-            val bm = context.getSystemService(Context.BATTERY_SERVICE) as? android.os.BatteryManager
-            val pct = bm?.getIntProperty(android.os.BatteryManager.BATTERY_PROPERTY_CAPACITY) ?: -1
-            emit(pct)
+            emit(phone.batteryPercent())
             kotlinx.coroutines.delay(30_000L)
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), -1)
@@ -545,11 +517,7 @@ class DashboardViewModel(
     private val _locationPermissionGranted = kotlinx.coroutines.flow.MutableStateFlow(hasLocationPermission())
     val locationPermissionGranted: StateFlow<Boolean> = _locationPermissionGranted
 
-    private fun hasLocationPermission(): Boolean =
-        ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ==
-                PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) ==
-                PackageManager.PERMISSION_GRANTED
+    private fun hasLocationPermission(): Boolean = platform.hasLocationPermission()
 
     fun refreshLocationPermission() {
         _locationPermissionGranted.value = hasLocationPermission()
@@ -661,20 +629,20 @@ class DashboardViewModel(
         .map { it.syncFolderUri != null }
         .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.syncFolderUri != null)
 
-    private val _cloudToasts = Channel<Int>(capacity = Channel.BUFFERED)
-    val cloudToasts: Flow<Int> = _cloudToasts.receiveAsFlow()
+    private val _cloudToasts = Channel<StringResource>(capacity = Channel.BUFFERED)
+    val cloudToasts: Flow<StringResource> = _cloudToasts.receiveAsFlow()
 
     fun backupSettingsNow() {
         viewModelScope.launch {
             val ok = syncManager.backupSettings()
-            _cloudToasts.send(if (ok) R.string.cloud_backup_success else R.string.cloud_backup_failed)
+            _cloudToasts.send(if (ok) Res.string.cloud_backup_success else Res.string.cloud_backup_failed)
         }
     }
 
     fun restoreSettingsNow() {
         viewModelScope.launch {
             val ok = syncManager.restoreSettings()
-            _cloudToasts.send(if (ok) R.string.cloud_restore_success else R.string.cloud_restore_failed)
+            _cloudToasts.send(if (ok) Res.string.cloud_restore_success else Res.string.cloud_restore_failed)
         }
     }
 
@@ -928,7 +896,7 @@ class DashboardViewModel(
         viewModelScope.launch {
             combine(
                 settingsRepository.settings.map { !it.syncFolderUri.isNullOrBlank() },
-                tripRepository.allTrips.map { trips -> trips.isNotEmpty() },
+                tripRepository.newestTripId.map { id -> id != null },
             ) { hasFolder: Boolean, hasTrips: Boolean -> hasFolder to hasTrips }
                 .distinctUntilChanged()
                 .collect { (hasFolder, hasTrips) ->
@@ -948,7 +916,7 @@ class DashboardViewModel(
 
     // --- Dev welcome-wizard backup/restore: thin wrappers over SyncManager,
     // the same calls the Cloud settings screen uses. ---
-    fun setBackupFolder(uri: android.net.Uri) {
+    fun setBackupFolder(uri: String) {
         viewModelScope.launch { syncManager.setSyncFolder(uri) }
     }
 
@@ -993,18 +961,13 @@ class DashboardViewModel(
     /** Fire-and-forget dev "sync trips": the same folder sync the Cloud screen runs.
      *  Posts a toast so the trigger is visible even when there is nothing to sync. */
     fun syncAllTrips() {
-        appNotifier.post(context.getString(R.string.welcome_tut_dev_syncing))
+        appNotifier.post(phone.text(Res.string.welcome_tut_dev_syncing))
         syncManager.startSync()
     }
 
     /** Whether Dropbox is linked (gates the dev wizard's Link Dropbox button). */
     val dropboxLinked: StateFlow<Boolean> = dropboxRepository.linked
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
-
-    /** Start the Dropbox OAuth link flow. Needs an Activity context for the Custom
-     *  Tab, so the caller passes it down from Compose. */
-    fun linkDropbox(activityContext: android.content.Context) =
-        dropboxRepository.startLinkFlow(activityContext)
 
     /** Fire-and-forget dev "join leaderboards": the quick path for a dev whose
      *  folder already holds their rider. Recovers that rider and turns uploads
@@ -1018,12 +981,12 @@ class DashboardViewModel(
                 syncManager.findRestorableRider()?.also { syncManager.writeRiderId(it.storeId) } != null
             if (hasRider) {
                 settingsRepository.update { it.copy(onlineUploadEnabled = true) }
-                appNotifier.post(context.getString(R.string.welcome_tut_dev_joined))
+                appNotifier.post(phone.text(Res.string.welcome_tut_dev_joined))
             } else {
-                appNotifier.post(context.getString(
-                    R.string.welcome_tut_dev_joined_norider,
-                    context.getString(R.string.online_upload_join),
-                    context.getString(R.string.settings),
+                appNotifier.post(phone.text(
+                    Res.string.welcome_tut_dev_joined_norider,
+                    phone.text(Res.string.online_upload_join),
+                    phone.text(Res.string.settings),
                 ))
             }
         }
@@ -1037,7 +1000,7 @@ class DashboardViewModel(
      */
     /** Clears the trip meter and the metric history, and the wheel's own trip
      *  odometer where the family supports it. See [MetricsReset]. */
-    suspend fun resetMetrics(): com.eried.eucplanet.data.repository.MetricsReset.Result =
+    suspend fun resetMetrics(): MetricsResetResult =
         metricsReset.resetAll()
 
     val fullHistory: StateFlow<FullMetricHistory> = wheelRepository.fullHistory
@@ -1080,11 +1043,7 @@ class DashboardViewModel(
             // The Dashboard re-arms auto-connect on the next launch once
             // the permission is in place (this VM is created fresh each
             // process start), so no manual retry is needed.
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S &&
-                ContextCompat.checkSelfPermission(
-                    context, Manifest.permission.BLUETOOTH_CONNECT
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
+            if (!platform.mayAutoConnect()) {
                 return@launch
             }
             if (settings.autoConnect && settings.lastDeviceAddress != null &&
@@ -1110,36 +1069,11 @@ class DashboardViewModel(
         kotlinx.coroutines.GlobalScope.launch(Dispatchers.IO) {
             try {
                 val settings = settingsRepository.get()
-                if (settings.watchCloseOnExit) {
-                    // Wear hands the QUIT to Google Play Services, which delivers
-                    // it even after our process dies, so fire-and-forget is fine
-                    // and we don't want to block the kill waiting on it.
-                    launch { try { wearBridge.sendCloseToWatchBlocking() } catch (_: Exception) {} }
-                    // Garmin's hand-off (Connect Mobile, or the tethered
-                    // simulator socket) does NOT survive our death, so this MUST
-                    // finish before we SIGKILL. sendCloseToWatchBlocking now
-                    // actually blocks until the SDK reports the send.
-                    garminBridge.sendCloseToWatchBlocking()
-                    // Amazfit polls, so the QUIT waits (briefly) to be fetched.
-                    amazfitBridge.sendCloseToWatchBlocking()
-                }
+                // Each platform knows which watch hand-offs survive the
+                // process and which must finish first; see closeWatchesBlocking.
+                if (settings.watchCloseOnExit) platform.closeWatchesBlocking()
             } catch (_: Exception) { /* best effort */ }
-            // Send ACTION_STOP_ALL_AND_KILL via startService so the service's
-            // onStartCommand can flip the kill-on-destroy flag before stopSelf
-            // triggers onDestroy. A plain stopService(intent) would skip
-            // onStartCommand entirely and leave the flag unset, so the kill
-            // path wouldn't fire and the OS would keep the process cached
-            // (the original "Stop All didn't take" bug).
-            val intent = Intent(context, WheelService::class.java).apply {
-                action = WheelService.ACTION_STOP_ALL_AND_KILL
-            }
-            try { context.startService(intent) } catch (_: Exception) {
-                // startService can throw if the app is already in the background
-                // (Android O+ restrictions). Fall back to plain stopService so
-                // the service at least tears down, even if the SIGKILL doesn't
-                // fire and the OS keeps the process briefly cached.
-                context.stopService(Intent(context, WheelService::class.java))
-            }
+            platform.stopAllAndExit()
         }
     }
 
@@ -1221,21 +1155,12 @@ class DashboardViewModel(
         viewModelScope.launch {
             val settings = settingsRepository.get()
             val address = settings.lastDeviceAddress ?: return@launch
-            val intent = Intent(context, WheelService::class.java).apply {
-                action = WheelService.ACTION_CONNECT
-                putExtra(WheelService.EXTRA_ADDRESS, address)
-                putExtra(WheelService.EXTRA_NAME, settings.lastDeviceName)
-                putExtra(WheelService.EXTRA_AUTO, true)
-            }
-            context.startForegroundService(intent)
+            platform.connect(address, settings.lastDeviceName)
         }
     }
 
     fun disconnect() {
-        val intent = Intent(context, WheelService::class.java).apply {
-            action = WheelService.ACTION_DISCONNECT
-        }
-        context.startService(intent)
+        platform.disconnect()
     }
 
     override fun onCleared() {
@@ -1245,12 +1170,12 @@ class DashboardViewModel(
 }
 
 /** What the weather panel says with no location fix. Pure so it can be tested. */
-internal object WeatherNoFix {
+object WeatherNoFix {
     /** A fix is only a matter of time. [locationOn] is asked only with the permission. */
     inline fun canLocate(hasPermission: Boolean, locationOn: () -> Boolean): Boolean =
         hasPermission && locationOn()
 
-    fun messageRes(canLocate: Boolean): Int =
-        if (canLocate) R.string.weather_waiting_location
-        else R.string.weather_error_no_location
+    fun messageRes(canLocate: Boolean): StringResource =
+        if (canLocate) Res.string.weather_waiting_location
+        else Res.string.weather_error_no_location
 }

@@ -16,6 +16,10 @@ import java.io.File
  * app/src/main declares such a method is called through a property of its type somewhere else, or
  * drives itself from one of its own entry points (EngineSoundEngine starts
  * from setConnected). A new subsystem is covered the day it is written.
+ *
+ * Calls from :shared count too, through any interface the class implements:
+ * the shared DashboardViewModel starts voice through its DashboardVoice port,
+ * which AndroidDashboardVoice is.
  */
 class LifecycleWiringTest {
 
@@ -25,6 +29,9 @@ class LifecycleWiringTest {
         val files = File("src/main/java").walkTopDown().filter { it.extension == "kt" }.toList()
         // Comments are not calls: a commented-out start() must read as missing.
         val sources = files.associateWith { stripComments(it.readText()) }
+        val shared = File("../shared/src/commonMain/kotlin").walkTopDown()
+            .filter { it.extension == "kt" }.toList()
+            .associateWith { stripComments(it.readText()) }
         val singletons = koinSingletons(sources)
         // A floor, so a change in how the modules are written cannot leave
         // this scan finding nothing and passing on an empty list.
@@ -40,10 +47,13 @@ class LifecycleWiringTest {
                     // the same class (not the declaration).
                     val selfDriven = Regex("(?<![.\\w])(?:this\\.)?$method\\(\\)").findAll(src)
                         .any { !src.substring(0, it.range.first).trimEnd().endsWith("fun") }
-                    val calledElsewhere = sources.any { (other, text) ->
-                        other != file && Regex("(\\w+)\\s*:\\s*(?:[\\w.]+\\.)?$cls\\b").findAll(text)
-                            .map { it.groupValues[1] }.toSet()
-                            .any { prop -> Regex("\\b$prop\\.$method\\(\\)").containsMatchIn(text) }
+                    val types = listOf(cls) + supertypes(src, cls)
+                    val calledElsewhere = (sources + shared).any { (other, text) ->
+                        other != file && types.any { type ->
+                            Regex("(\\w+)\\s*:\\s*(?:[\\w.]+\\.)?$type\\b").findAll(text)
+                                .map { it.groupValues[1] }.toSet()
+                                .any { prop -> Regex("\\b$prop\\.$method\\(\\)").containsMatchIn(text) }
+                        }
                     }
                     if (!selfDriven && !calledElsewhere) orphans += "$cls.$method()"
                 }
@@ -51,6 +61,13 @@ class LifecycleWiringTest {
         }
         assertTrue("declared but never called, so the subsystem is dead: $orphans", orphans.isEmpty())
     }
+}
+
+/** The interfaces and classes [cls] lists after its constructor, by simple name. */
+private fun supertypes(src: String, cls: String): List<String> {
+    val m = Regex("class\\s+$cls\\b[^{]*?\\)\\s*:\\s*([^{]+)\\{").find(src) ?: return emptyList()
+    return m.groupValues[1].split(",").map { it.trim().substringBefore("(").substringAfterLast(".") }
+        .filter { it.isNotEmpty() }
 }
 
 /**

@@ -59,5 +59,5 @@ val serviceModule = module {
     singleOf(::HornPlayer) { bind<PhoneHorn>() }
     singleOf(::SfxSidecar)
     singleOf(::ThemeController)
-    singleOf(::ExperimentalBannerState)
+    singleOf(::ExperimentalBannerState) { bind<com.eried.eucplanet.ui.dashboard.ExperimentalBannerFlag>() }
 }

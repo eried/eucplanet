@@ -16,10 +16,10 @@ import android.content.Context
  */
 class ExperimentalBannerState(
     context: Context
-) {
+) : com.eried.eucplanet.ui.dashboard.ExperimentalBannerFlag {
     private val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
 
-    var explainerSeen: Boolean
+    override var explainerSeen: Boolean
         get() = prefs.getBoolean(KEY_SEEN, false)
         set(value) {
             prefs.edit().putBoolean(KEY_SEEN, value).apply()

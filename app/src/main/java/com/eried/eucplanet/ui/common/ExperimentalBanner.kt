@@ -47,7 +47,7 @@ import java.nio.charset.StandardCharsets
  */
 @Composable
 fun ExperimentalBanner(
-    state: ExperimentalBannerState,
+    state: com.eried.eucplanet.ui.dashboard.ExperimentalBannerFlag,
     detectedWheelName: String? = null,
     detectedFirmware: String? = null
 ) {
