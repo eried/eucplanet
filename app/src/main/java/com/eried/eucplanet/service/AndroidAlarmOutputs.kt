@@ -1,16 +1,17 @@
-package com.eried.eucplanet.ui.settings
+package com.eried.eucplanet.service
 
 import android.content.Context
-import com.eried.eucplanet.service.TonePlayer
-import com.eried.eucplanet.service.VoiceService
+import com.eried.eucplanet.car.CarAlarmNotification
 import com.eried.eucplanet.util.VibratorHelper
+import com.eried.eucplanet.wear.WatchVibrator
 
-/** TonePlayer, VoiceService and the vibrator as the shared alarm editor's [AlarmPreview]. */
-class AndroidAlarmPreview(
-    context: Context,
+/** TonePlayer, VoiceService, the vibrators and the car display as the shared [AlarmOutputs]. */
+class AndroidAlarmOutputs(
+    private val context: Context,
     private val tonePlayer: TonePlayer,
     private val voiceService: VoiceService,
-) : AlarmPreview {
+    private val watchVibrator: WatchVibrator,
+) : AlarmOutputs {
     private val vibratorHelper = VibratorHelper(context)
 
     override suspend fun playBeep(
@@ -31,4 +32,8 @@ class AndroidAlarmPreview(
     override fun speak(text: String) = voiceService.speak(text)
 
     override fun vibrate(durationMs: Long) = vibratorHelper.oneShot(durationMs)
+
+    override fun vibrateWatch(durationMs: Int) = watchVibrator.vibrate(durationMs)
+
+    override fun notifyCar(title: String, text: String) = CarAlarmNotification.post(context, title, text)
 }

@@ -50,6 +50,7 @@ internal fun Location.toPhoneLocation() = PhoneLocation(
     speedKnown = hasSpeed(),
     bearingKnown = hasBearing(),
     accuracyKnown = hasAccuracy(),
+    altitudeKnown = hasAltitude(),
     time = time,
 )
 

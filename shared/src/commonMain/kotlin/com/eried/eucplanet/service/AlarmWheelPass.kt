@@ -13,7 +13,7 @@ import kotlin.math.absoluteValue
  * Kept separate so the whole decision (rule filter, metric reading, priority,
  * cooldown, prediction) is testable with plain JUnit in AlarmWheelPassTest.
  */
-internal object AlarmWheelPass {
+object AlarmWheelPass {
 
     /** The rules that ran this tick and the ones that fire. */
     data class Result(val rules: List<AlarmRule>, val fired: List<AlarmEvaluator.Fired>)

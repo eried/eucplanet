@@ -16,7 +16,6 @@ import com.eried.eucplanet.data.repository.PhoneImuSample
 import com.eried.eucplanet.data.repository.RideRecording
 import com.eried.eucplanet.data.repository.RouteKeepAlive
 import com.eried.eucplanet.data.repository.TyrePressureFeed
-import com.eried.eucplanet.data.repository.WheelAlarms
 import com.eried.eucplanet.platform.Log
 import com.eried.eucplanet.platform.format
 import com.eried.eucplanet.tpms.TpmsReading
@@ -34,12 +33,6 @@ import platform.UIKit.UIDevice
 // (alarms, voice, trips, TPMS caps, external GPS, the phone IMU) answers as
 // the Android app does with that feature switched off, and is replaced when
 // the feature lands; docs/IOS_PARITY.md tracks which.
-
-/** Alarms are not on iOS yet: no rule fires. */
-internal object NoAlarms : WheelAlarms {
-    override fun evaluate(data: WheelData) = Unit
-    override fun stopConstantTone() = Unit
-}
 
 /** No tone player on iOS yet, so no audio route to hold open. */
 internal object NoRouteKeepAlive : RouteKeepAlive {

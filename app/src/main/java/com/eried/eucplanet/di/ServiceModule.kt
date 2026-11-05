@@ -33,10 +33,13 @@ import org.koin.android.ext.koin.androidContext
 val serviceModule = module {
     single {
         AlarmEngine(
-            get(), get(), get(), get(), get(), get(), get(), get(),
+            get(), get(), get(), get(), get(), get(),
             tripRepositoryProvider = inject(),
         )
     } bind WheelAlarms::class
+    single<com.eried.eucplanet.service.AlarmOutputs> {
+        com.eried.eucplanet.service.AndroidAlarmOutputs(androidContext(), get(), get(), get())
+    }
     singleOf(::AutomationManager)
     singleOf(::TonePlayer) { bind<RouteKeepAlive>() }
     single {

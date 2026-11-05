@@ -20,10 +20,12 @@ data class PhoneLocation(
     private val speedKnown: Boolean = false,
     private val bearingKnown: Boolean = false,
     private val accuracyKnown: Boolean = false,
+    private val altitudeKnown: Boolean = false,
     /** Wall-clock ms of the fix. */
     val time: Long = 0L,
 ) {
     fun hasSpeed(): Boolean = speedKnown
     fun hasBearing(): Boolean = bearingKnown
     fun hasAccuracy(): Boolean = accuracyKnown
+    fun hasAltitude(): Boolean = altitudeKnown
 }

@@ -2,6 +2,7 @@ package com.eried.eucplanet.ui.settings
 
 import androidx.lifecycle.ViewModel
 import com.eried.eucplanet.ble.WheelLink
+import com.eried.eucplanet.service.AlarmOutputs
 import com.eried.eucplanet.data.repository.PhoneDevice
 import com.eried.eucplanet.platform.format
 import com.eried.eucplanet.resources.*
@@ -26,7 +27,7 @@ import kotlinx.coroutines.launch
 class AlarmViewModel(
     private val phone: PhoneDevice,
     private val alarmDao: AlarmDao,
-    private val tonePlayer: AlarmPreview,
+    private val tonePlayer: AlarmOutputs,
     private val settingsRepository: SettingsRepository,
     bleConnectionManager: WheelLink,
 ) : ViewModel() {
@@ -342,22 +343,4 @@ class AlarmViewModel(
     fun previewVibrate(durationMs: Int) {
         tonePlayer.vibrate(durationMs.toLong())
     }
-}
-
-/**
- * How the alarm editor auditions an alarm: the tone player's beeps and live
- * stream, the voice, and the vibrator. Android hands it TonePlayer,
- * VoiceService and VibratorHelper.
- */
-interface AlarmPreview {
-    suspend fun playBeep(
-        frequencyHz: Int, durationMs: Int, count: Int, gapMs: Int, volumePct: Int,
-        transitionMs: Int, waveform: Int, effect: Int,
-    )
-    fun setPreviewKeepAlive(on: Boolean)
-    fun startStream(frequencyHz: Int, durationMs: Int, gapMs: Int, volumePct: Int, transitionMs: Int, waveform: Int, effect: Int)
-    fun updateStream(frequencyHz: Int, durationMs: Int, gapMs: Int, volumePct: Int, transitionMs: Int, waveform: Int, effect: Int)
-    fun stopStream()
-    fun speak(text: String)
-    fun vibrate(durationMs: Long)
 }

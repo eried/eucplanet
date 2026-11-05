@@ -61,10 +61,10 @@ class AlarmEvaluator {
     // Predictive-trend tuning, overridable from settings (AlarmEngine pushes the
     // rider's values in). Defaults equal the AlarmLogic constants so the unit
     // tests and out-of-box behaviour are unchanged.
-    @Volatile var slopeWindowMs: Long = AlarmLogic.SLOPE_WINDOW_MS
-    @Volatile var bufferMaxMs: Long = AlarmLogic.BUFFER_MAX_MS
-    @Volatile var slopeMinSamples: Int = AlarmLogic.SLOPE_MIN_SAMPLES
-    @Volatile var slopeMinSpanMs: Long = AlarmLogic.SLOPE_MIN_SPAN_MS
+    @kotlin.concurrent.Volatile var slopeWindowMs: Long = AlarmLogic.SLOPE_WINDOW_MS
+    @kotlin.concurrent.Volatile var bufferMaxMs: Long = AlarmLogic.BUFFER_MAX_MS
+    @kotlin.concurrent.Volatile var slopeMinSamples: Int = AlarmLogic.SLOPE_MIN_SAMPLES
+    @kotlin.concurrent.Volatile var slopeMinSpanMs: Long = AlarmLogic.SLOPE_MIN_SPAN_MS
 
     /**
      * Evaluate [rules] against the readings from [value] at [nowMs] and return the

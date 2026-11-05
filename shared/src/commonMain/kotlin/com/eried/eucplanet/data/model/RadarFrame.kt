@@ -1,5 +1,7 @@
 package com.eried.eucplanet.data.model
 
+import com.eried.eucplanet.platform.System
+
 /**
  * One snapshot of the rear-view radar state. The radar emits ~1 Hz; the
  * repository tracks the latest frame and feeds it to the dashboard overlay,

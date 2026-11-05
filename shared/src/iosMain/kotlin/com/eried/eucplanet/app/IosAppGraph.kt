@@ -22,6 +22,7 @@ import com.eried.eucplanet.di.SharedKoin
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import com.eried.eucplanet.ui.dashboard.DashboardViewModel
+import com.eried.eucplanet.service.AlarmEngine
 import com.eried.eucplanet.ui.scan.ScanViewModel
 import com.eried.eucplanet.ui.settings.AlarmViewModel
 import com.eried.eucplanet.weather.WeatherRepository
@@ -101,13 +102,22 @@ object IosAppGraph {
 
     val link: IosWheelLink by lazy { IosWheelLink(adapter) }
 
+    /**
+     * The alarm engine, the same rules as Android's. Fires through
+     * IosAlarmOutputs (voice and vibration; beeps once the tone player
+     * moves). No phone location on iOS yet, so GPS alarms stay quiet.
+     */
+    val alarmEngine: AlarmEngine by lazy {
+        AlarmEngine(IosPhoneDevice, database.alarmDao(), IosAlarmOutputs, cheats, settings, link, lazyOf(NoTrips))
+    }
+
     /** The wheel state every screen reads, as on Android. See IosWheelPorts.kt. */
     val wheel: WheelRepository by lazy {
         WheelRepository(
             bleManager = link,
             wheelAdapter = adapter,
             settingsRepository = settings,
-            alarmEngine = NoAlarms,
+            alarmEngine = alarmEngine,
             tonePlayer = NoRouteKeepAlive,
             voiceService = LogAnnouncer,
             wheelProfileDao = object : WheelProfiles {
@@ -195,7 +205,7 @@ object IosAppGraph {
     fun alarmViewModel(): AlarmViewModel = AlarmViewModel(
         phone = IosPhoneDevice,
         alarmDao = database.alarmDao(),
-        tonePlayer = IosAlarmPreview,
+        tonePlayer = IosAlarmOutputs,
         settingsRepository = settings,
         bleConnectionManager = link,
     )

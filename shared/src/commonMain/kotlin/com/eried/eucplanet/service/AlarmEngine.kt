@@ -1,7 +1,14 @@
 package com.eried.eucplanet.service
 
-import android.content.Context
-import android.util.Log
+import com.eried.eucplanet.platform.Locale
+import com.eried.eucplanet.platform.Log
+import com.eried.eucplanet.platform.System
+import com.eried.eucplanet.platform.format
+import com.eried.eucplanet.resources.*
+import com.eried.eucplanet.data.repository.PhoneDevice
+import com.eried.eucplanet.data.repository.PhoneLocation
+import com.eried.eucplanet.ble.WheelLink
+import com.eried.eucplanet.ui.dashboard.DashboardTrips
 import com.eried.eucplanet.data.db.AlarmDao
 import com.eried.eucplanet.data.model.AlarmMetric
 import com.eried.eucplanet.data.repository.WheelAlarms
@@ -11,8 +18,6 @@ import com.eried.eucplanet.data.model.ExternalGpsSample
 import com.eried.eucplanet.data.model.RadarFrame
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.diagnostics.DiagnosticsLogger
-import com.eried.eucplanet.util.VibratorHelper
-import com.eried.eucplanet.wear.WatchVibrator
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,32 +31,26 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import java.util.Locale
-import com.eried.eucplanet.R
-import com.eried.eucplanet.car.CarAlarmNotification
 import kotlin.math.absoluteValue
-import com.eried.eucplanet.platform.getString
+import kotlinx.coroutines.IO
 
 class AlarmEngine(
-    private val context: Context,
+    private val phone: PhoneDevice,
     private val alarmDao: AlarmDao,
-    private val tonePlayer: TonePlayer,
-    private val voiceService: VoiceService,
-    private val watchVibrator: WatchVibrator,
+    private val outputs: AlarmOutputs,
     private val cheatState: com.eried.eucplanet.cheats.CheatState,
     private val settingsRepository: com.eried.eucplanet.data.repository.SettingsRepository,
     // Which wheel is live right now, for rules bound to a single wheel.
-    private val bleConnectionManager: com.eried.eucplanet.ble.BleConnectionManager,
+    private val bleConnectionManager: WheelLink,
     // Lazy so the Trip <-> ExternalGps <-> Alarm provider chain can't form a
     // DI cycle. Supplies the phone location stream for the GPS_SPEED metric.
-    private val tripRepositoryProvider: Lazy<com.eried.eucplanet.data.repository.TripRepository>
+    private val tripRepositoryProvider: Lazy<DashboardTrips>
 ) : WheelAlarms {
     companion object {
         private const val TAG = "AlarmEngine"
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private val vibratorHelper = VibratorHelper(context)
 
     // Serializes evaluate() bodies so the read-check-write on the evaluator's
     // per-rule state is atomic. Without this, telemetry updates ~250ms apart
@@ -87,7 +86,7 @@ class AlarmEngine(
     // tick; it holds ONE continuous streaming tone (via TonePlayer's stream) that
     // glides in pitch/volume as the value moves, and stops the instant the condition
     // clears. Tracked here so we start once, update while held, and stop on release.
-    @Volatile private var constantRuleId: Long? = null
+    @kotlin.concurrent.Volatile private var constantRuleId: Long? = null
 
     /** A constant-tone alarm: beep on, GAP 0 (a steady tone, not separate beeps),
      *  repeat-while-active, and no cooldown, so it sounds as ONE continuous tone
@@ -119,7 +118,7 @@ class AlarmEngine(
         // not the wheel loop, so they work with no wheel connected. Only fresh
         // fixes with a speed reading tick the evaluator.
         scope.launch {
-            tripRepositoryProvider.value.currentLocation.collect { loc ->
+            tripRepositoryProvider.value.currentFix.collect { loc ->
                 // Altitude comes off the same fix, so a fix carrying only one
                 // of the two still ticks the evaluator for that one.
                 if (loc != null && (loc.hasSpeed() || loc.hasAltitude())) evaluateGpsSpeed(loc)
@@ -219,10 +218,10 @@ class AlarmEngine(
         val trans = rule.beepDurationMs * rule.beepTransitionPct / 100
         if (constantRuleId != rule.id) {
             Log.i(TAG, "Constant tone START '${rule.name}' freq=$freq vol=$vol gap=${rule.beepGapMs}")
-            tonePlayer.startStream(freq, rule.beepDurationMs, rule.beepGapMs, vol, trans, rule.beepWaveform, rule.beepEffect)
+            outputs.startStream(freq, rule.beepDurationMs, rule.beepGapMs, vol, trans, rule.beepWaveform, rule.beepEffect)
             constantRuleId = rule.id
         } else {
-            tonePlayer.updateStream(freq, rule.beepDurationMs, rule.beepGapMs, vol, trans, rule.beepWaveform, rule.beepEffect)
+            outputs.updateStream(freq, rule.beepDurationMs, rule.beepGapMs, vol, trans, rule.beepWaveform, rule.beepEffect)
         }
     }
 
@@ -231,7 +230,7 @@ class AlarmEngine(
     override fun stopConstantTone() {
         if (constantRuleId != null) {
             Log.i(TAG, "Constant tone STOP")
-            tonePlayer.stopStream()
+            outputs.stopStream()
             constantRuleId = null
         }
     }
@@ -338,7 +337,7 @@ class AlarmEngine(
      * [evaluateRadar]: its own rule filter + value resolver, SKIP on a missing
      * reading, which is what a fix without one of the two resolves to.
      */
-    fun evaluateGpsSpeed(location: android.location.Location) {
+    fun evaluateGpsSpeed(location: PhoneLocation) {
         if (cheatState.godmode.value) return
         scope.launch {
             evalMutex.withLock {
@@ -381,8 +380,8 @@ class AlarmEngine(
         if (rule.vibrateEnabled) {
             val onPhone = rule.vibrateTarget != "WATCH"
             val onWatch = rule.vibrateTarget == "WATCH" || rule.vibrateTarget == "BOTH"
-            if (onPhone) vibratorHelper.oneShot(rule.vibrateDurationMs.toLong())
-            if (onWatch) watchVibrator.vibrate(rule.vibrateDurationMs)
+            if (onPhone) outputs.vibrate(rule.vibrateDurationMs.toLong())
+            if (onWatch) outputs.vibrateWatch(rule.vibrateDurationMs)
         }
         scope.launch {
             notifyCar(rule, triggerValue)
@@ -391,20 +390,20 @@ class AlarmEngine(
                     rule.beepFrequency, triggerValue, rule.comparator, rule.threshold, rule.beepModulation, rule.metric)
                 val vol = AlarmLogic.modulatedVolumePct(
                     rule.beepVolume, rule.beepVolumeModulation, triggerValue, rule.comparator, rule.threshold, rule.metric)
-                tonePlayer.playBeep(freq, rule.beepDurationMs, rule.beepCount, rule.beepGapMs, vol,
+                outputs.playBeep(freq, rule.beepDurationMs, rule.beepCount, rule.beepGapMs, vol,
                     rule.beepDurationMs * rule.beepTransitionPct / 100, rule.beepWaveform, rule.beepEffect)
                 if (rule.voiceEnabled && rule.voiceText.isNotBlank()) {
                     delay(rule.beepGapMs.toLong())
                 }
             }
             if (rule.voiceEnabled && rule.voiceText.isNotBlank()) {
-                voiceService.speak(expandExternalGpsTemplate(rule.voiceText, rule, triggerValue))
+                outputs.speak(expandExternalGpsTemplate(rule.voiceText, rule, triggerValue))
             }
         }
     }
 
     private fun expandExternalGpsTemplate(template: String, rule: AlarmRule, triggerValue: Float): String {
-        val metricLabel = try { context.getString(AlarmMetric.valueOf(rule.metric).voiceLabelRes) } catch (_: Exception) { rule.metric }
+        val metricLabel = try { phone.text(AlarmMetric.valueOf(rule.metric).voiceLabelRes) } catch (_: Exception) { rule.metric }
         return template
             .replace("{value}", "%.0f".format(triggerValue))
             .replace("{battery}", "%.0f".format(triggerValue))
@@ -430,8 +429,8 @@ class AlarmEngine(
         if (rule.vibrateEnabled) {
             val onPhone = rule.vibrateTarget != "WATCH"
             val onWatch = rule.vibrateTarget == "WATCH" || rule.vibrateTarget == "BOTH"
-            if (onPhone) vibratorHelper.oneShot(rule.vibrateDurationMs.toLong())
-            if (onWatch) watchVibrator.vibrate(rule.vibrateDurationMs)
+            if (onPhone) outputs.vibrate(rule.vibrateDurationMs.toLong())
+            if (onWatch) outputs.vibrateWatch(rule.vibrateDurationMs)
         }
         scope.launch {
             if (rule.beepEnabled) {
@@ -439,14 +438,14 @@ class AlarmEngine(
                     rule.beepFrequency, triggerValue, rule.comparator, rule.threshold, rule.beepModulation, rule.metric)
                 val vol = AlarmLogic.modulatedVolumePct(
                     rule.beepVolume, rule.beepVolumeModulation, triggerValue, rule.comparator, rule.threshold, rule.metric)
-                tonePlayer.playBeep(freq, rule.beepDurationMs, rule.beepCount, rule.beepGapMs, vol,
+                outputs.playBeep(freq, rule.beepDurationMs, rule.beepCount, rule.beepGapMs, vol,
                     rule.beepDurationMs * rule.beepTransitionPct / 100, rule.beepWaveform, rule.beepEffect)
                 if (rule.voiceEnabled && rule.voiceText.isNotBlank()) {
                     delay(rule.beepGapMs.toLong())
                 }
             }
             if (rule.voiceEnabled && rule.voiceText.isNotBlank()) {
-                voiceService.speak(expandRadarTemplate(rule.voiceText, frame, triggerValue))
+                outputs.speak(expandRadarTemplate(rule.voiceText, frame, triggerValue))
             }
         }
     }
@@ -473,9 +472,9 @@ class AlarmEngine(
      */
     private suspend fun notifyCar(rule: AlarmRule, triggerValue: Float) {
         if (!settingsRepository.currentOrLoad().androidAuto.alarmNotifications) return
-        val title = rule.name.ifBlank { context.getString(R.string.app_name) }
+        val title = rule.name.ifBlank { phone.text(Res.string.app_name) }
         runCatching {
-            CarAlarmNotification.post(context, title, "%.0f".format(triggerValue))
+            outputs.notifyCar(title, "%.0f".format(triggerValue))
         }.onFailure { Log.w(TAG, "car alarm notification failed", it) }
     }
 
@@ -485,8 +484,8 @@ class AlarmEngine(
         if (rule.vibrateEnabled) {
             val onPhone = rule.vibrateTarget != "WATCH"
             val onWatch = rule.vibrateTarget == "WATCH" || rule.vibrateTarget == "BOTH"
-            if (onPhone) vibratorHelper.oneShot(rule.vibrateDurationMs.toLong())
-            if (onWatch) watchVibrator.vibrate(rule.vibrateDurationMs)
+            if (onPhone) outputs.vibrate(rule.vibrateDurationMs.toLong())
+            if (onWatch) outputs.vibrateWatch(rule.vibrateDurationMs)
         }
 
         scope.launch {
@@ -495,7 +494,7 @@ class AlarmEngine(
                     rule.beepFrequency, triggerValue, rule.comparator, rule.threshold, rule.beepModulation, rule.metric)
                 val vol = AlarmLogic.modulatedVolumePct(
                     rule.beepVolume, rule.beepVolumeModulation, triggerValue, rule.comparator, rule.threshold, rule.metric)
-                tonePlayer.playBeep(freq, rule.beepDurationMs, rule.beepCount, rule.beepGapMs, vol,
+                outputs.playBeep(freq, rule.beepDurationMs, rule.beepCount, rule.beepGapMs, vol,
                     rule.beepDurationMs * rule.beepTransitionPct / 100, rule.beepWaveform, rule.beepEffect)
                 if (rule.voiceEnabled && rule.voiceText.isNotBlank()) {
                     delay(rule.beepGapMs.toLong())
@@ -503,7 +502,7 @@ class AlarmEngine(
             }
             if (rule.voiceEnabled && rule.voiceText.isNotBlank()) {
                 val text = expandTemplate(rule.voiceText, rule, data, triggerValue, speedUnit, distanceUnit, tempUnit)
-                voiceService.speak(text)
+                outputs.speak(text)
             }
         }
     }
@@ -517,7 +516,7 @@ class AlarmEngine(
         distanceUnit: String,
         tempUnit: String
     ): String {
-        val metricLabel = try { context.getString(AlarmMetric.valueOf(rule.metric).voiceLabelRes) } catch (_: Exception) { rule.metric }
+        val metricLabel = try { phone.text(AlarmMetric.valueOf(rule.metric).voiceLabelRes) } catch (_: Exception) { rule.metric }
         // {value} and {threshold} are converted using the rule's own metric, speed
         // alarm in mph reads mph, temperature alarm in °F reads °F, everything else
         // stays in its native unit (battery %, PWM %, voltage V, current A).
