@@ -140,7 +140,7 @@ data class FullMetricHistory(
  * so a metric's "no value" sentinel (NaN, 0 dBm, no tyre sensor, an
  * implausible or missing temperature slot) skips the sample.
  */
-internal val EXTRA_HISTORY_METRICS: List<Pair<String, (com.eried.eucplanet.data.model.WheelData) -> Float?>> =
+val EXTRA_HISTORY_METRICS: List<Pair<String, (com.eried.eucplanet.data.model.WheelData) -> Float?>> =
     listOf(
         "MOTOR_POWER",
         "BATTERY_POWER",
@@ -192,7 +192,7 @@ internal val EXTRA_HISTORY_METRICS: List<Pair<String, (com.eried.eucplanet.data.
  * The six metrics with their own typed buffer on [FullMetricHistory]. Every
  * OTHER supportsStats catalog metric rides in the keyed extras map instead.
  */
-internal val LEGACY_STAT_METRIC_KEYS: List<String> =
+val LEGACY_STAT_METRIC_KEYS: List<String> =
     listOf("BATTERY", "TEMPERATURE", "VOLTAGE", "CURRENT", "LOAD", "SPEED")
 
 /**
@@ -202,7 +202,7 @@ internal val LEGACY_STAT_METRIC_KEYS: List<String> =
  * Stored raw so [computeDashboardStatValue] and the tile formatter agree:
  * GPS_SPEED in km/h, altitude / accuracy in metres, batteries in percent.
  */
-internal val SOURCE_HISTORY_METRIC_KEYS: List<String> =
+val SOURCE_HISTORY_METRIC_KEYS: List<String> =
     listOf("GPS_SPEED", "GPS_ALTITUDE", "GPS_ACCURACY", "PHONE_BATTERY", "EXTERNAL_GPS_BATTERY")
 
 /**
@@ -214,7 +214,7 @@ internal val SOURCE_HISTORY_METRIC_KEYS: List<String> =
  * shows a stable placeholder instead of silently having no stat path. Driven
  * off the catalog so a new supportsStats metric can't regress unnoticed.
  */
-internal val STAT_BUFFER_EXTRA_KEYS: List<String> =
+val STAT_BUFFER_EXTRA_KEYS: List<String> =
     (EXTRA_HISTORY_METRICS.map { it.first } +
         SOURCE_HISTORY_METRIC_KEYS +
         com.eried.eucplanet.data.model.MetricCatalog.all
