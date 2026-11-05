@@ -44,7 +44,7 @@ class WheelLogCreditTest {
     @Test
     fun `About screen credits the WheelLog project`() {
         val about = repoFile(
-            "app/src/main/java/com/eried/eucplanet/ui/dashboard/DashboardScreen.kt"
+            "shared/src/commonMain/kotlin/com/eried/eucplanet/ui/dashboard/DashboardScreen.kt"
         ).readText()
         assertTrue(
             "The in-app About > Credits (Resources & libraries) list must credit " +

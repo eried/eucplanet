@@ -1,14 +1,6 @@
 package com.eried.eucplanet.ui.dashboard
 
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import android.app.Activity
-import android.content.Context
-import android.content.Intent
-import android.provider.MediaStore
-import android.util.Log
-import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material3.SnackbarDuration
@@ -16,7 +8,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.core.content.FileProvider
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
@@ -29,12 +20,12 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
-import com.eried.eucplanet.platform.getString
+import com.eried.eucplanet.platform.Log
+import com.eried.eucplanet.platform.format
+import com.eried.eucplanet.platform.System
 import com.eried.eucplanet.platform.stringResource
-import com.eried.eucplanet.resources.Res
-import com.eried.eucplanet.resources.cloud_backup_failed
-import com.eried.eucplanet.resources.cloud_restore_failed
-import com.eried.eucplanet.util.speedUnit
+import com.eried.eucplanet.resources.*
+import org.jetbrains.compose.resources.getString
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import androidx.compose.foundation.Canvas
@@ -130,11 +121,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.text.LinkAnnotation
@@ -152,12 +138,10 @@ import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.eried.eucplanet.R
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.MetricCatalog
 import com.eried.eucplanet.data.model.SparklineStyle
 import com.eried.eucplanet.data.model.arrowAngleDeg
-import com.eried.eucplanet.ui.navigator.NavigationOverlayViewModel
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.remap
 import kotlin.math.absoluteValue
@@ -165,7 +149,6 @@ import kotlin.math.cos
 import kotlin.math.sin
 import com.eried.eucplanet.ui.theme.themedFieldColors
 import com.eried.eucplanet.ui.common.appMenuItemColors
-import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * Opens the system gallery to the videos or photos collection. Overlay Studio
@@ -179,15 +162,6 @@ import org.koin.compose.viewmodel.koinViewModel
  *  can't slip through. */
 private const val AUTO_OPEN_STILL_MS = 3000L
 
-private fun openMediaGallery(context: Context, video: Boolean, onNoGalleryApp: () -> Unit) {
-    val collection = if (video) MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-    else MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-    val intent = Intent(Intent.ACTION_VIEW).apply {
-        setDataAndType(collection, if (video) "video/*" else "image/*")
-        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-    }
-    runCatching { context.startActivity(intent) }.onFailure { onNoGalleryApp() }
-}
 
 /**
  * Formats a RAW buffered stat value (WheelData canonical units) into the
@@ -226,7 +200,8 @@ fun DashboardScreen(
     /** Long-press on the battery icon: charging monitor, details already up. */
     onNavigateToChargingDetails: () -> Unit = {},
     onNavigateToTripMeter: () -> Unit = {},
-    viewModel: DashboardViewModel = koinViewModel()
+    viewModel: DashboardViewModel,
+    host: DashboardHost,
 ) {
     DisposableEffect(Unit) {
         Log.i("EucDash", "DashboardScreen ENTER")
@@ -355,7 +330,7 @@ fun DashboardScreen(
     val wheelMaxSpeedCap by viewModel.wheelMaxSpeedCap.collectAsState()
     // Navigation state, drives the dashboard's navigator button (the singleton
     // engine behind this VM is shared with the floating navigation overlay).
-    val navOverlayVm: NavigationOverlayViewModel = koinViewModel()
+    val navOverlayVm = host.rememberNavigation()
     val navState by navOverlayVm.navState.collectAsState()
     val currentRoute by navOverlayVm.currentRoute.collectAsState()
     val flicFlashAt by viewModel.flicFlashAt.collectAsState()
@@ -429,8 +404,6 @@ fun DashboardScreen(
     var showRestoreConfirmDialog by remember { mutableStateOf(false) }
     var showWarningsDialog by remember { mutableStateOf(false) }
     val hasSyncFolder by viewModel.hasSyncFolder.collectAsState()
-    val activity = LocalContext.current as? Activity
-    val toastContext = LocalContext.current
     // Unified Material3 snackbar host, replaces the older Toast popups so the
     // dashboard styles match Overlay Studio / Navigator / Settings (no system
     // icon, swipe-to-dismiss).
@@ -449,11 +422,11 @@ fun DashboardScreen(
             }
             snackbarScope.launch {
                 if (retry == null) {
-                    snackbar.showSnackbar(toastContext.getString(resId))
+                    snackbar.showSnackbar(getString(resId))
                 } else {
                     val res = snackbar.showSnackbar(
-                        toastContext.getString(resId),
-                        actionLabel = toastContext.getString(R.string.action_retry),
+                        getString(resId),
+                        actionLabel = getString(Res.string.action_retry),
                         duration = SnackbarDuration.Short
                     )
                     if (res == SnackbarResult.ActionPerformed) retry()
@@ -484,17 +457,12 @@ fun DashboardScreen(
         // happens at the natural end of cleanup, no arbitrary timer
         // here -- the activity just signals + finishes its task.
         viewModel.stopEverything()
-        val act = activity ?: (toastContext as? Activity)
-        if (act != null) {
-            act.finishAndRemoveTask()
-        } else {
-            Log.w("Dashboard", "Stop all: no Activity reference, exit may be incomplete")
-        }
+        host.exitApp()
     }
 
-    BackHandler {
+    host.BackHandler {
         when (backAction) {
-            "BACKGROUND" -> activity?.moveTaskToBack(true)
+            "BACKGROUND" -> host.moveToBackground()
             "STOP_ALL" -> performStopAllAndExit()
             else -> showQuitDialog = true   // "ASK" (default) or anything we don't recognise
         }
@@ -504,11 +472,11 @@ fun DashboardScreen(
         AlertDialog(
             onDismissRequest = { showNoTripsDialog = false },
             shape = RoundedCornerShape(12.dp),
-            title = { Text(stringResource(R.string.no_trips_title)) },
-            text = { Text(stringResource(R.string.no_trips_body)) },
+            title = { Text(stringResource(Res.string.no_trips_title)) },
+            text = { Text(stringResource(Res.string.no_trips_body)) },
             confirmButton = {
                 TextButton(onClick = { showNoTripsDialog = false }, shape = RoundedCornerShape(12.dp)) {
-                    Text(stringResource(R.string.action_ok))
+                    Text(stringResource(Res.string.action_ok))
                 }
             },
             dismissButton = {
@@ -516,7 +484,7 @@ fun DashboardScreen(
                     showNoTripsDialog = false
                     onNavigateToRecording()
                 }, shape = RoundedCornerShape(12.dp)) {
-                    Text(stringResource(R.string.no_trips_action_recorder))
+                    Text(stringResource(Res.string.no_trips_action_recorder))
                 }
             }
         )
@@ -547,7 +515,7 @@ fun DashboardScreen(
             modifier = Modifier
                 .fillMaxWidth(0.95f)
                 .padding(vertical = 24.dp),
-            title = { Text(stringResource(R.string.warnings_dialog_title)) },
+            title = { Text(stringResource(Res.string.warnings_dialog_title)) },
             text = {
                 androidx.compose.foundation.layout.Column(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -609,7 +577,7 @@ fun DashboardScreen(
             },
             confirmButton = {
                 TextButton(onClick = { showWarningsDialog = false }, shape = RoundedCornerShape(12.dp)) {
-                    Text(stringResource(R.string.action_close))
+                    Text(stringResource(Res.string.action_close))
                 }
             }
         )
@@ -619,22 +587,22 @@ fun DashboardScreen(
         AlertDialog(
             onDismissRequest = { showRestoreConfirmDialog = false },
             shape = RoundedCornerShape(12.dp),
-            title = { Text(stringResource(R.string.cloud_restore_confirm_title)) },
+            title = { Text(stringResource(Res.string.cloud_restore_confirm_title)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text(stringResource(R.string.cloud_restore_confirm_body_p1))
-                    Text(stringResource(R.string.cloud_restore_confirm_body_p2))
+                    Text(stringResource(Res.string.cloud_restore_confirm_body_p1))
+                    Text(stringResource(Res.string.cloud_restore_confirm_body_p2))
                 }
             },
             confirmButton = {
                 Button(onClick = {
                     showRestoreConfirmDialog = false
                     viewModel.restoreSettingsNow()
-                }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_restore)) }
+                }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(Res.string.action_restore)) }
             },
             dismissButton = {
                 TextButton(onClick = { showRestoreConfirmDialog = false }, shape = RoundedCornerShape(12.dp)) {
-                    Text(stringResource(R.string.action_cancel))
+                    Text(stringResource(Res.string.action_cancel))
                 }
             }
         )
@@ -642,23 +610,23 @@ fun DashboardScreen(
 
     if (showDisconnectDialog) {
         val wheelLabel = modelNameShort ?: connectedDeviceName
-            ?: stringResource(R.string.wheel_generic)
+            ?: stringResource(Res.string.wheel_generic)
         AlertDialog(
             onDismissRequest = { showDisconnectDialog = false },
             shape = RoundedCornerShape(12.dp),
-            title = { Text(stringResource(R.string.disconnect)) },
-            text = { Text(stringResource(R.string.disconnect_from, wheelLabel)) },
+            title = { Text(stringResource(Res.string.disconnect)) },
+            text = { Text(stringResource(Res.string.disconnect_from, wheelLabel)) },
             confirmButton = {
                 TextButton(onClick = {
                     showDisconnectDialog = false
                     viewModel.disconnect()
                 }, shape = RoundedCornerShape(12.dp)) {
-                    Text(stringResource(R.string.disconnect), color = MaterialTheme.appColors.statusDanger)
+                    Text(stringResource(Res.string.disconnect), color = MaterialTheme.appColors.statusDanger)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDisconnectDialog = false }, shape = RoundedCornerShape(12.dp)) {
-                    Text(stringResource(R.string.action_cancel))
+                    Text(stringResource(Res.string.action_cancel))
                 }
             }
         )
@@ -668,17 +636,17 @@ fun DashboardScreen(
         AlertDialog(
             onDismissRequest = { showQuitDialog = false },
             shape = RoundedCornerShape(12.dp),
-            title = { Text(stringResource(R.string.exit_title)) },
-            text = { Text(stringResource(R.string.exit_body)) },
+            title = { Text(stringResource(Res.string.exit_title)) },
+            text = { Text(stringResource(Res.string.exit_body)) },
             confirmButton = {
                 TextButton(onClick = performStopAllAndExit, shape = RoundedCornerShape(12.dp)) {
-                    Text(stringResource(R.string.exit_stop_all), color = MaterialTheme.appColors.statusDanger)
+                    Text(stringResource(Res.string.exit_stop_all), color = MaterialTheme.appColors.statusDanger)
                 }
             },
             dismissButton = {
                 Row {
                     TextButton(onClick = { showQuitDialog = false }, shape = RoundedCornerShape(12.dp)) {
-                        Text(stringResource(R.string.action_cancel))
+                        Text(stringResource(Res.string.action_cancel))
                     }
                     TextButton(onClick = {
                         // "Background" should send the task to the back so
@@ -689,9 +657,9 @@ fun DashboardScreen(
                         // right moveTaskToBack(true); this button just
                         // matches it.
                         showQuitDialog = false
-                        activity?.moveTaskToBack(true)
+                        host.moveToBackground()
                     }, shape = RoundedCornerShape(12.dp)) {
-                        Text(stringResource(R.string.exit_background))
+                        Text(stringResource(Res.string.exit_background))
                     }
                 }
             }
@@ -737,11 +705,11 @@ fun DashboardScreen(
                     ) {
                         ConnectionDot(connectionState)
                         Spacer(Modifier.width(8.dp))
-                        val connectedLabel = stringResource(R.string.connection_connected)
-                        val connectingLabel = stringResource(R.string.connection_connecting)
-                        val initLabel = stringResource(R.string.connection_initializing)
-                        val scanningLabel = stringResource(R.string.connection_scanning)
-                        val disconnectedLabel = stringResource(R.string.connection_disconnected)
+                        val connectedLabel = stringResource(Res.string.connection_connected)
+                        val connectingLabel = stringResource(Res.string.connection_connecting)
+                        val initLabel = stringResource(Res.string.connection_initializing)
+                        val scanningLabel = stringResource(Res.string.connection_scanning)
+                        val disconnectedLabel = stringResource(Res.string.connection_disconnected)
                         Text(
                             text = when (connectionState) {
                                 ConnectionState.CONNECTED -> when (wheelNameDisplay) {
@@ -768,7 +736,7 @@ fun DashboardScreen(
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
                                     imageVector = Icons.Filled.WarningAmber,
-                                    contentDescription = stringResource(R.string.warnings_indicator_desc),
+                                    contentDescription = stringResource(Res.string.warnings_indicator_desc),
                                     tint = MaterialTheme.appColors.statusWarn
                                 )
                                 if (warnings.size > 1) {
@@ -817,7 +785,7 @@ fun DashboardScreen(
                                 // Vertical battery: with the charging bolt while charging,
                                 // plain full battery otherwise. Neutral tint (no green).
                                 imageVector = if (chargingNow) Icons.Filled.BatteryChargingFull else Icons.Filled.BatteryFull,
-                                contentDescription = stringResource(R.string.charging_monitor),
+                                contentDescription = stringResource(Res.string.charging_monitor),
                                 tint = MaterialTheme.appColors.textSecondary,
                             )
                         }
@@ -836,7 +804,7 @@ fun DashboardScreen(
                             if (connectionState == ConnectionState.DISCONNECTED)
                                 Icons.AutoMirrored.Filled.BluetoothSearching
                             else Icons.Default.Bluetooth,
-                            contentDescription = stringResource(R.string.connection)
+                            contentDescription = stringResource(Res.string.connection)
                         )
                     }
                     Box {
@@ -852,7 +820,7 @@ fun DashboardScreen(
                         ) {
                             Icon(
                                 Icons.Default.Settings,
-                                contentDescription = stringResource(R.string.settings)
+                                contentDescription = stringResource(Res.string.settings)
                             )
                         }
                         DropdownMenu(
@@ -862,7 +830,7 @@ fun DashboardScreen(
                             containerColor = MaterialTheme.appColors.menuBackground
                         ) {
                             DropdownMenuItem(
-                                text = { Text(stringResource(R.string.section_cloud_settings)) },
+                                text = { Text(stringResource(Res.string.section_cloud_settings)) },
                                 onClick = {
                                     showSettingsMenu = false
                                     onNavigateToSettings(4)
@@ -873,14 +841,14 @@ fun DashboardScreen(
                                     color = MaterialTheme.appColors.divider.copy(alpha = 0.2f)
                                 )
                                 DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.cloud_backup_now)) },
+                                    text = { Text(stringResource(Res.string.cloud_backup_now)) },
                                     onClick = {
                                         showSettingsMenu = false
                                         viewModel.backupSettingsNow()
                                     }
                                 )
                                 DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.cloud_restore)) },
+                                    text = { Text(stringResource(Res.string.cloud_restore)) },
                                     onClick = {
                                         showSettingsMenu = false
                                         showRestoreConfirmDialog = true
@@ -903,7 +871,7 @@ fun DashboardScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Experimental-build banner, flush to the screen edges, above all other content.
-            com.eried.eucplanet.ui.common.ExperimentalBanner(
+            host.ExperimentalBanner(
                 state = viewModel.experimentalBannerState,
                 detectedWheelName = modelName,
                 detectedFirmware = firmwareVersion
@@ -940,13 +908,13 @@ fun DashboardScreen(
 
             // Foldables / tablets: cap the speedo and use a 3-column stat grid so
             // the whole dashboard fits without the footer falling off-screen.
-            val wideStats = LocalConfiguration.current.screenWidthDp >= 600
+            val geometry = com.eried.eucplanet.ui.common.screenGeometry()
+            val wideStats = geometry.widthDp >= 600
             // Landscape (phones): lay the dashboard out as a Row -- speedo on the
             // left, a scrollable panel (metrics in one row + buttons + odo) on the
             // right -- instead of the tall portrait Column. Driven off orientation
             // so it kicks in on any short-and-wide screen, tablets included.
-            val landscape = LocalConfiguration.current.orientation ==
-                android.content.res.Configuration.ORIENTATION_LANDSCAPE
+            val landscape = geometry.landscape
             // Compact mode, the flip-cover layout: speedo plus one swipeable
             // buttons / micro-metrics area, info footer hidden. AUTO detects
             // cover-class panels (both dimensions tiny, ~360 x 374 dp, where
@@ -955,8 +923,8 @@ fun DashboardScreen(
             val tinyScreen = when (compactModeWhen) {
                 "ALWAYS" -> true
                 "NEVER" -> false
-                else -> LocalConfiguration.current.screenWidthDp < advancedVars.compactMaxScreenDp &&
-                    LocalConfiguration.current.screenHeightDp < advancedVars.compactMaxScreenDp
+                else -> geometry.widthDp < advancedVars.compactMaxScreenDp &&
+                    geometry.heightDp < advancedVars.compactMaxScreenDp
             }
 
             // Speed gauge, wide arc dial (tap opens history)
@@ -1062,7 +1030,7 @@ fun DashboardScreen(
                 // banner squeezes the BoxWithConstraints they all move up
                 // together instead of the unit text falling onto the cards.
                 Text(
-                    text = com.eried.eucplanet.util.Units.speedUnit(LocalContext.current, speedUnit),
+                    text = stringResource(com.eried.eucplanet.util.Units.speedUnitRes(speedUnit)),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     // Scale with the gauge so phones and tablets see a
                     // proportional unit label, matching the prominence the
@@ -1167,7 +1135,7 @@ fun DashboardScreen(
                     ) {
                         DropdownMenuItem(
                             text = {
-                                Text(stringResource(R.string.dash_external_gps_settings))
+                                Text(stringResource(Res.string.dash_external_gps_settings))
                             },
                             onClick = {
                                 showGpsMenu = false
@@ -1195,7 +1163,7 @@ fun DashboardScreen(
                             .offset(x = 4.dp)
                             .padding(bottom = 8.dp)
                             .combinedClickable(
-                                onClickLabel = stringResource(R.string.studio_open),
+                                onClickLabel = stringResource(Res.string.studio_open),
                                 onClick = { onNavigateToStudio() },
                                 onLongClick = { showStudioMenu = true }
                             )
@@ -1207,23 +1175,23 @@ fun DashboardScreen(
                         containerColor = MaterialTheme.appColors.menuBackground
                     ) {
                         DropdownMenuItem(
-                            text = { Text(stringResource(R.string.dash_view_video_gallery)) },
+                            text = { Text(stringResource(Res.string.dash_view_video_gallery)) },
                             onClick = {
                                 showStudioMenu = false
-                                openMediaGallery(toastContext, video = true) {
+                                if (!host.openGallery(video = true)) {
                                     snackbarScope.launch {
-                                        snackbar.showSnackbar(toastContext.getString(R.string.dash_no_gallery_app))
+                                        snackbar.showSnackbar(getString(Res.string.dash_no_gallery_app))
                                     }
                                 }
                             }
                         )
                         DropdownMenuItem(
-                            text = { Text(stringResource(R.string.dash_view_photo_gallery)) },
+                            text = { Text(stringResource(Res.string.dash_view_photo_gallery)) },
                             onClick = {
                                 showStudioMenu = false
-                                openMediaGallery(toastContext, video = false) {
+                                if (!host.openGallery(video = false)) {
                                     snackbarScope.launch {
-                                        snackbar.showSnackbar(toastContext.getString(R.string.dash_no_gallery_app))
+                                        snackbar.showSnackbar(getString(Res.string.dash_no_gallery_app))
                                     }
                                 }
                             }
@@ -1254,7 +1222,7 @@ fun DashboardScreen(
                         Box {
                             Icon(
                                 imageVector = PartlyCloudyDayIcon,
-                                contentDescription = stringResource(R.string.weather_icon_desc),
+                                contentDescription = stringResource(Res.string.weather_icon_desc),
                                 // GPS-style freshness tint: lit while the
                                 // forecast sits inside its half-hour validity,
                                 // neutral once it goes stale.
@@ -1283,10 +1251,10 @@ fun DashboardScreen(
                                     // A temporary view, not the setting: these
                                     // set the override only. The first one
                                     // matches the shipped default window.
-                                    8 to R.string.weather_window_8h,
-                                    24 to R.string.weather_window_24h,
-                                    72 to R.string.weather_window_3d,
-                                    168 to R.string.weather_window_1w,
+                                    8 to Res.string.weather_window_8h,
+                                    24 to Res.string.weather_window_24h,
+                                    72 to Res.string.weather_window_3d,
+                                    168 to Res.string.weather_window_1w,
                                 ).forEach { (h, res) ->
                                     DropdownMenuItem(
                                         text = { Text(stringResource(res)) },
@@ -1303,8 +1271,8 @@ fun DashboardScreen(
                                         text = {
                                             Text(
                                                 stringResource(
-                                                    if (weatherUseDest) R.string.weather_src_current
-                                                    else R.string.weather_src_destination
+                                                    if (weatherUseDest) Res.string.weather_src_current
+                                                    else Res.string.weather_src_destination
                                                 )
                                             )
                                         },
@@ -1317,7 +1285,7 @@ fun DashboardScreen(
                                 }
                                 androidx.compose.material3.HorizontalDivider()
                                 DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.weather_settings_entry)) },
+                                    text = { Text(stringResource(Res.string.weather_settings_entry)) },
                                     onClick = {
                                         showWeatherMenu = false
                                         // 11, not 8: the weather block, not
@@ -1331,7 +1299,7 @@ fun DashboardScreen(
                     Icon(
                         imageVector = if (navActive) Icons.Default.Navigation
                         else Icons.Default.Map,
-                        contentDescription = stringResource(R.string.nav_open),
+                        contentDescription = stringResource(Res.string.nav_open),
                         tint = MaterialTheme.appColors.dashIcon,
                         modifier = Modifier
                             // The tutorial spotlights this icon alone, not the
@@ -1359,7 +1327,7 @@ fun DashboardScreen(
                         // session to stop, or a saved route to start.
                         if (navActive) {
                             DropdownMenuItem(
-                                text = { Text(stringResource(R.string.nav_stop_short)) },
+                                text = { Text(stringResource(Res.string.nav_stop_short)) },
                                 onClick = {
                                     showMapMenu = false
                                     navOverlayVm.endNavigation()
@@ -1368,7 +1336,7 @@ fun DashboardScreen(
                             // Tap shows the cue popup while navigating, so the
                             // map is one entry away here.
                             DropdownMenuItem(
-                                text = { Text(stringResource(R.string.nav_open)) },
+                                text = { Text(stringResource(Res.string.nav_open)) },
                                 onClick = {
                                     showMapMenu = false
                                     onNavigateToNavigator()
@@ -1377,7 +1345,7 @@ fun DashboardScreen(
                             androidx.compose.material3.HorizontalDivider()
                         } else if (currentRoute != null) {
                             DropdownMenuItem(
-                                text = { Text(stringResource(R.string.nav_start_short)) },
+                                text = { Text(stringResource(Res.string.nav_start_short)) },
                                 onClick = {
                                     showMapMenu = false
                                     navOverlayVm.startCurrentRoute()
@@ -1387,7 +1355,7 @@ fun DashboardScreen(
                         }
                         // b) Quick jump to the navigation settings.
                         DropdownMenuItem(
-                            text = { Text(stringResource(R.string.nav_setting_params)) },
+                            text = { Text(stringResource(Res.string.nav_setting_params)) },
                             onClick = {
                                 showMapMenu = false
                                 onNavigateToSettings(8)
@@ -1416,12 +1384,12 @@ fun DashboardScreen(
                 //
                 // Tap opens the radar pairing section of the Integration
                 // settings (tab 7).
-                DashboardRadarMiniForSide(
+                host.RadarMini(
                     targetSide = "LEFT",
                     modifier = Modifier.align(androidx.compose.ui.BiasAlignment(-1f, 0.45f)),
                     onOpenSettings = { onNavigateToSettings(7) }
                 )
-                DashboardRadarMiniForSide(
+                host.RadarMini(
                     targetSide = "RIGHT",
                     modifier = Modifier
                         .align(androidx.compose.ui.BiasAlignment(1f, 0.45f))
@@ -1476,8 +1444,8 @@ fun DashboardScreen(
             val tempValue = com.eried.eucplanet.util.Units.temperature(wheelData.maxTemperature, tempUnit)
             val tempUnitLabel = com.eried.eucplanet.util.Units.tempUnit(tempUnit)
             val showWatts = currentMode == "WATTS"
-            val ampsLabel = stringResource(R.string.stat_amps)
-            val wattsLabel = stringResource(R.string.stat_watts)
+            val ampsLabel = stringResource(Res.string.stat_amps)
+            val wattsLabel = stringResource(Res.string.stat_watts)
             val currentValue = if (showWatts) wheelData.voltage * wheelData.current else wheelData.current
             val currentText = when {
                 !live -> placeholder
@@ -1525,7 +1493,7 @@ fun DashboardScreen(
             // Sparkline defaults to true so unconfigured tiles match
             // today's always-on rendering.
             fun sparkEnabledFor(key: String): Boolean = try {
-                val root = org.json.JSONObject(dashboardMetricStatsJson.ifBlank { "{}" })
+                val root = com.eried.eucplanet.platform.JSONObject(dashboardMetricStatsJson.ifBlank { "{}" })
                 root.optJSONObject(key)?.optBoolean("spark", true) ?: true
             } catch (_: Exception) { true }
 
@@ -1541,7 +1509,7 @@ fun DashboardScreen(
             )
             fun slotStatsFor(key: String): SlotStatsTriple {
                 return try {
-                    val root = org.json.JSONObject(dashboardMetricStatsJson.ifBlank { "{}" })
+                    val root = com.eried.eucplanet.platform.JSONObject(dashboardMetricStatsJson.ifBlank { "{}" })
                     val node = root.optJSONObject(key) ?: return SlotStatsTriple(
                         com.eried.eucplanet.ui.settings.DashboardStat.NONE,
                         com.eried.eucplanet.ui.settings.DashboardStat.CURRENT,
@@ -1659,7 +1627,7 @@ fun DashboardScreen(
             // means the rider deleted it but the order entry still
             // points at it, render an empty placeholder in that case).
             fun compositeFor(id: String): com.eried.eucplanet.ui.settings.MetricComposite? = try {
-                val root = org.json.JSONObject(dashboardCompositesJson.ifBlank { "{}" })
+                val root = com.eried.eucplanet.platform.JSONObject(dashboardCompositesJson.ifBlank { "{}" })
                 val node = root.optJSONObject(id) ?: return@compositeFor null
                 val layout = runCatching {
                     com.eried.eucplanet.ui.settings.CompositeLayout.valueOf(
@@ -1686,7 +1654,7 @@ fun DashboardScreen(
             } catch (_: Exception) { null }
 
             fun customTileFor(id: String): com.eried.eucplanet.ui.settings.CustomTile? = try {
-                val root = org.json.JSONObject(dashboardCustomTilesJson.ifBlank { "{}" })
+                val root = com.eried.eucplanet.platform.JSONObject(dashboardCustomTilesJson.ifBlank { "{}" })
                 val node = root.optJSONObject(id) ?: return@customTileFor null
                 val text = node.optString("text", "")
                 val icon = node.optString("icon", "")
@@ -1702,18 +1670,8 @@ fun DashboardScreen(
             // Hoisted above restBlock so both the odo footer (inside restBlock)
             // and the About / diagnostics dialogs (below the layout branch) can
             // read them.
-            val context = LocalContext.current
-            val versionName = remember {
-                try {
-                    context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "?"
-                } catch (_: Exception) { "?" }
-            }
-            val versionRevision = remember {
-                try {
-                    @Suppress("DEPRECATION")
-                    context.packageManager.getPackageInfo(context.packageName, 0).versionCode
-                } catch (_: Exception) { 0 }
-            }
+            val versionName = host.versionName
+            val versionRevision = host.versionCode
             // Metric grid as its own block. Portrait: 2-3 columns stacked under
             // the dial. Landscape: a single column (metricColumns == 1) forming
             // the middle "1 x N" panel between the dial and the buttons -- full
@@ -1776,7 +1734,7 @@ fun DashboardScreen(
                                 // Tap → Battery monitor; long-press → pick monitor or history.
                                 var batteryMenuOpen by remember { mutableStateOf(false) }
                                 LiveMetricTile(
-                                    label = stringResource(R.string.stat_battery),
+                                    label = stringResource(Res.string.stat_battery),
                                     value = centerOverride ?: if (live && wheelData.batteryPercent > 0)
                                         "${wheelData.batteryPercent}%" else placeholder,
                                     accent = battColor,
@@ -1802,11 +1760,11 @@ fun DashboardScreen(
                                     shape = RoundedCornerShape(12.dp),
                                 ) {
                                     DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.charging_monitor)) },
+                                        text = { Text(stringResource(Res.string.charging_monitor)) },
                                         onClick = { batteryMenuOpen = false; onNavigateToCharging() },
                                     )
                                     DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.battery_history)) },
+                                        text = { Text(stringResource(Res.string.battery_history)) },
                                         onClick = { batteryMenuOpen = false; onNavigateToMetric("BATTERY") },
                                     )
                                 }
@@ -1814,7 +1772,7 @@ fun DashboardScreen(
                             "TEMPERATURE" -> {
                                 val tempUnknown = wheelData.maxTemperature <= 0f
                                 LiveMetricTile(
-                                    label = stringResource(R.string.stat_temp),
+                                    label = stringResource(Res.string.stat_temp),
                                     value = centerOverride ?: if (live && !tempUnknown)
                                         "%.0f%s".format(tempValue, tempUnitLabel) else placeholder,
                                     accent = tempColor,
@@ -1833,7 +1791,7 @@ fun DashboardScreen(
                                 )
                             }
                             "VOLTAGE" -> LiveMetricTile(
-                                label = stringResource(R.string.stat_voltage),
+                                label = stringResource(Res.string.stat_voltage),
                                 value = centerOverride ?: if (live && wheelData.voltage > 0f)
                                     "%.1fV".format(wheelData.voltage) else placeholder,
                                 accent = metricVoltageColor,
@@ -1879,7 +1837,7 @@ fun DashboardScreen(
                                 onLongClick = { viewModel.toggleCurrentDisplayMode() }
                             )
                             "LOAD" -> LiveMetricTile(
-                                label = stringResource(R.string.stat_load),
+                                label = stringResource(Res.string.stat_load),
                                 value = centerOverride ?: if (live) "%.0f%%".format(pwm) else placeholder,
                                 accent = loadColor,
                                 sparkData = history.load,
@@ -1896,7 +1854,7 @@ fun DashboardScreen(
                                 onClick = { onNavigateToMetric("LOAD") }
                             )
                             "TRIP" -> LiveMetricTile(
-                                label = stringResource(R.string.stat_trip),
+                                label = stringResource(Res.string.stat_trip),
                                 value = if (live) "%.1f %s".format(tripValue, distUnit) else placeholder,
                                 accent = metricBatteryColor,
                                 sparkData = emptyList(),
@@ -2066,7 +2024,6 @@ fun DashboardScreen(
                                     val tile = remember(dashboardCustomTilesJson, key) {
                                         customTileFor(key)
                                     }
-                                    val ctxLocal = LocalContext.current
                                     Box(
                                         modifier = Modifier
                                             .weight(1f)
@@ -2088,14 +2045,7 @@ fun DashboardScreen(
                                                             raw.contains("://") -> raw
                                                             else -> "https://$raw"
                                                         }
-                                                        runCatching {
-                                                            ctxLocal.startActivity(
-                                                                android.content.Intent(
-                                                                    android.content.Intent.ACTION_VIEW,
-                                                                    android.net.Uri.parse(target)
-                                                                ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
-                                                            )
-                                                        }
+                                                        host.openUrl(target)
                                                     }
                                                     com.eried.eucplanet.ui.settings.CustomTileAction.SHOW_QR -> {
                                                         showQrForTile = tile
@@ -2112,8 +2062,8 @@ fun DashboardScreen(
                                                         } else {
                                                             snackbarScope.launch {
                                                                 snackbar.showSnackbar(
-                                                                    toastContext.getString(
-                                                                        R.string.dashboard_custom_tile_empty_toast
+                                                                    getString(
+                                                                        Res.string.dashboard_custom_tile_empty_toast
                                                                     )
                                                                 )
                                                             }
@@ -2142,17 +2092,13 @@ fun DashboardScreen(
                                     // else cornerStatValueFor returns the
                                     // placeholder dash so the chip still
                                     // confirms the picked stat visually.
-                                    val tileCtx = LocalContext.current
+                                    // By name, as Android's getIdentifier did.
                                     val tileLabelOverrideId = remember(key) {
-                                        tileCtx.resources.getIdentifier(
-                                            "metric_chip_${key.lowercase()}_tile",
-                                            "string",
-                                            tileCtx.packageName
-                                        )
+                                        Res.allStringResources["metric_chip_${key.lowercase()}_tile"]
                                     }
                                     LiveMetricTile(
                                         label = when {
-                                            tileLabelOverrideId != 0 -> stringResource(tileLabelOverrideId)
+                                            tileLabelOverrideId != null -> stringResource(tileLabelOverrideId)
                                             spec != null -> stringResource(spec.labelRes)
                                             else -> key
                                         },
@@ -2225,7 +2171,7 @@ fun DashboardScreen(
             }
             if (vocabularyOpen) {
                 val commandLanguage by viewModel.voiceCommandLanguage.collectAsState()
-                com.eried.eucplanet.ui.settings.VoiceVocabularyDialog(
+                host.VoiceVocabularyDialog(
                     onDismiss = { vocabularyOpen = false },
                     languageTag = commandLanguage,
                 )
@@ -2270,7 +2216,7 @@ fun DashboardScreen(
                         when (key) {
                             "HORN" -> ActionButton(
                                 Icons.Default.Campaign,
-                                stringResource(R.string.action_horn),
+                                stringResource(Res.string.action_horn),
                                 enabled = connectionState == ConnectionState.CONNECTED,
                                 onClick = { viewModel.onHornPress() },
                                 modifier = Modifier.weight(1f),
@@ -2287,7 +2233,7 @@ fun DashboardScreen(
                                 aspectRatio = actionAspect, heightDp = actionHeight,
                                 menu = { dismiss ->
                                     DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.menu_auto_lights)) },
+                                        text = { Text(stringResource(Res.string.menu_auto_lights)) },
                                         onClick = { dismiss(); onNavigateToSettings(6) }
                                     )
                                 }
@@ -2307,7 +2253,7 @@ fun DashboardScreen(
                                 ActionTile(
                                 modifier = Modifier.weight(1f),
                                 icon = Icons.Default.Mic,
-                                label = stringResource(R.string.action_chip_voice_listen),
+                                label = stringResource(Res.string.action_chip_voice_listen),
                                 onClick = { viewModel.onVoiceListen() },
                                 active = voiceCommandState !is
                                     com.eried.eucplanet.voice.VoiceCommandUiState.Idle,
@@ -2325,18 +2271,18 @@ fun DashboardScreen(
                                     // whatever voice is doing. Stopping is a
                                     // tap on the tile, which toggles.
                                     DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.menu_voice_ask)) },
+                                        text = { Text(stringResource(Res.string.menu_voice_ask)) },
                                         onClick = { dismiss(); viewModel.onVoiceAsk() }
                                     )
                                     DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.menu_voice_speak_report)) },
+                                        text = { Text(stringResource(Res.string.menu_voice_speak_report)) },
                                         onClick = { dismiss(); viewModel.onVoiceAnnounce() }
                                     )
                                     androidx.compose.material3.HorizontalDivider(
                                         color = MaterialTheme.appColors.divider.copy(alpha = 0.2f)
                                     )
                                     DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.menu_switch_to_voice_report)) },
+                                        text = { Text(stringResource(Res.string.menu_switch_to_voice_report)) },
                                         onClick = {
                                             dismiss()
                                             viewModel.switchVoiceTile("VOICE_LISTEN", "VOICE_ANNOUNCE")
@@ -2346,11 +2292,11 @@ fun DashboardScreen(
                                         color = MaterialTheme.appColors.divider.copy(alpha = 0.2f)
                                     )
                                     DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.tab_voice)) },
+                                        text = { Text(stringResource(Res.string.tab_voice)) },
                                         onClick = { dismiss(); onNavigateToSettings(3) }
                                     )
                                     DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.tab_alarms)) },
+                                        text = { Text(stringResource(Res.string.tab_alarms)) },
                                         onClick = { dismiss(); onNavigateToSettings(5) }
                                     )
                                     androidx.compose.material3.HorizontalDivider(
@@ -2359,8 +2305,8 @@ fun DashboardScreen(
                                     DropdownMenuItem(
                                         text = {
                                             Text(
-                                                if (periodicVoiceOn) stringResource(R.string.menu_voice_periodic_off)
-                                                else stringResource(R.string.menu_voice_periodic_on)
+                                                if (periodicVoiceOn) stringResource(Res.string.menu_voice_periodic_off)
+                                                else stringResource(Res.string.menu_voice_periodic_on)
                                             )
                                         },
                                         onClick = { dismiss(); viewModel.toggleVoicePeriodic() }
@@ -2371,7 +2317,7 @@ fun DashboardScreen(
                             "VOICE_ANNOUNCE" -> ActionTile(
                                 modifier = Modifier.weight(1f),
                                 icon = Icons.Default.RecordVoiceOver,
-                                label = stringResource(R.string.action_voice),
+                                label = stringResource(Res.string.action_voice),
                                 onClick = { viewModel.onVoiceAnnounce() },
                                 aspectRatio = actionAspect, heightDp = actionHeight,
                                 menu = { dismiss ->
@@ -2387,18 +2333,18 @@ fun DashboardScreen(
                                     // whatever voice is doing. Stopping is a
                                     // tap on the tile, which toggles.
                                     DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.menu_voice_ask)) },
+                                        text = { Text(stringResource(Res.string.menu_voice_ask)) },
                                         onClick = { dismiss(); viewModel.onVoiceAsk() }
                                     )
                                     DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.menu_voice_speak_report)) },
+                                        text = { Text(stringResource(Res.string.menu_voice_speak_report)) },
                                         onClick = { dismiss(); viewModel.onVoiceAnnounce() }
                                     )
                                     androidx.compose.material3.HorizontalDivider(
                                         color = MaterialTheme.appColors.divider.copy(alpha = 0.2f)
                                     )
                                     DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.menu_switch_to_voice_command)) },
+                                        text = { Text(stringResource(Res.string.menu_switch_to_voice_command)) },
                                         onClick = {
                                             dismiss()
                                             viewModel.switchVoiceTile("VOICE_ANNOUNCE", "VOICE_LISTEN")
@@ -2408,11 +2354,11 @@ fun DashboardScreen(
                                         color = MaterialTheme.appColors.divider.copy(alpha = 0.2f)
                                     )
                                     DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.tab_voice)) },
+                                        text = { Text(stringResource(Res.string.tab_voice)) },
                                         onClick = { dismiss(); onNavigateToSettings(3) }
                                     )
                                     DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.tab_alarms)) },
+                                        text = { Text(stringResource(Res.string.tab_alarms)) },
                                         onClick = { dismiss(); onNavigateToSettings(5) }
                                     )
                                     androidx.compose.material3.HorizontalDivider(
@@ -2421,8 +2367,8 @@ fun DashboardScreen(
                                     DropdownMenuItem(
                                         text = {
                                             Text(
-                                                if (periodicVoiceOn) stringResource(R.string.menu_voice_periodic_off)
-                                                else stringResource(R.string.menu_voice_periodic_on)
+                                                if (periodicVoiceOn) stringResource(Res.string.menu_voice_periodic_off)
+                                                else stringResource(Res.string.menu_voice_periodic_on)
                                             )
                                         },
                                         onClick = { dismiss(); viewModel.toggleVoicePeriodic() }
@@ -2432,8 +2378,8 @@ fun DashboardScreen(
                             "SAFETY_TOGGLE" -> ActionTile(
                                 modifier = Modifier.weight(1f),
                                 icon = Icons.Default.Shield,
-                                label = if (safetyActive) stringResource(R.string.action_legal_on)
-                                    else stringResource(R.string.action_legal_mode),
+                                label = if (safetyActive) stringResource(Res.string.action_legal_on)
+                                    else stringResource(Res.string.action_legal_mode),
                                 active = safetyActive,
                                 activeColor = if (useAccent) primary else MaterialTheme.appColors.statusWarn,
                                 enabled = connectionState == ConnectionState.CONNECTED && wheelHasSpeedLimit,
@@ -2441,7 +2387,7 @@ fun DashboardScreen(
                                 aspectRatio = actionAspect, heightDp = actionHeight,
                                 menu = { dismiss ->
                                     DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.section_legal_mode_speed)) },
+                                        text = { Text(stringResource(Res.string.section_legal_mode_speed)) },
                                         onClick = { dismiss(); onNavigateToSettings(2) }
                                     )
                                 }
@@ -2449,15 +2395,16 @@ fun DashboardScreen(
                             "LOCK_TOGGLE" -> ActionTile(
                                 modifier = Modifier.weight(1f),
                                 icon = if (locked) Icons.Default.Lock else Icons.Default.LockOpen,
-                                label = if (locked) stringResource(R.string.action_locked)
-                                    else stringResource(R.string.action_lock_wheel),
+                                label = if (locked) stringResource(Res.string.action_locked)
+                                    else stringResource(Res.string.action_lock_wheel),
                                 active = locked,
                                 activeColor = if (useAccent) primary else MaterialTheme.appColors.statusDanger,
                                 enabled = connectionState == ConnectionState.CONNECTED && !lockBusy && wheelHasLock && lockKnown,
                                 onClick = {
                                     if (lockBlockedBySpeed) {
-                                        val msg = toastContext.getString(R.string.lock_blocked_in_motion_toast)
-                                        snackbarScope.launch { snackbar.showSnackbar(msg) }
+                                        snackbarScope.launch {
+                                            snackbar.showSnackbar(getString(Res.string.lock_blocked_in_motion_toast))
+                                        }
                                     } else {
                                         // No warning snackbar here: the rider's
                                         // choice stands, the automation suspends
@@ -2469,7 +2416,7 @@ fun DashboardScreen(
                                 aspectRatio = actionAspect, heightDp = actionHeight,
                                 menu = { dismiss ->
                                     DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.menu_auto_lock_settings)) },
+                                        text = { Text(stringResource(Res.string.menu_auto_lock_settings)) },
                                         onClick = { dismiss(); onNavigateToSettings(6) }
                                     )
                                     androidx.compose.material3.HorizontalDivider(
@@ -2478,8 +2425,8 @@ fun DashboardScreen(
                                     DropdownMenuItem(
                                         text = {
                                             Text(
-                                                if (autoLockEnabled) stringResource(R.string.menu_auto_lock_off)
-                                                else stringResource(R.string.menu_auto_lock_on)
+                                                if (autoLockEnabled) stringResource(Res.string.menu_auto_lock_off)
+                                                else stringResource(Res.string.menu_auto_lock_on)
                                             )
                                         },
                                         onClick = { dismiss(); viewModel.toggleAutoLock() }
@@ -2490,9 +2437,9 @@ fun DashboardScreen(
                                 modifier = Modifier.weight(1f),
                                 icon = Icons.Default.FiberManualRecord,
                                 label = when {
-                                    tripCount == 1 -> stringResource(R.string.action_recorder_trips_one, tripCount)
-                                    tripCount > 1 -> stringResource(R.string.action_recorder_trips, tripCount)
-                                    else -> stringResource(R.string.action_recorder)
+                                    tripCount == 1 -> stringResource(Res.string.action_recorder_trips_one, tripCount)
+                                    tripCount > 1 -> stringResource(Res.string.action_recorder_trips, tripCount)
+                                    else -> stringResource(Res.string.action_recorder)
                                 },
                                 active = recording,
                                 activeColor = if (useAccent) primary else MaterialTheme.appColors.statusDanger,
@@ -2501,7 +2448,7 @@ fun DashboardScreen(
                                 menu = { dismiss ->
                                     val targetTripId = currentTripId ?: latestTripId
                                     DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.action_trip_backup_options)) },
+                                        text = { Text(stringResource(Res.string.action_trip_backup_options)) },
                                         onClick = { dismiss(); onNavigateToSettings(4) }
                                     )
                                     androidx.compose.material3.HorizontalDivider(
@@ -2510,8 +2457,8 @@ fun DashboardScreen(
                                     DropdownMenuItem(
                                         text = {
                                             Text(
-                                                if (recording) stringResource(R.string.menu_view_current_trip)
-                                                else stringResource(R.string.menu_view_last_trip)
+                                                if (recording) stringResource(Res.string.menu_view_current_trip)
+                                                else stringResource(Res.string.menu_view_last_trip)
                                             )
                                         },
                                         enabled = targetTripId != null,
@@ -2524,8 +2471,8 @@ fun DashboardScreen(
                                     DropdownMenuItem(
                                         text = {
                                             Text(
-                                                if (recording) stringResource(R.string.menu_stop_recording)
-                                                else stringResource(R.string.menu_start_recording)
+                                                if (recording) stringResource(Res.string.menu_stop_recording)
+                                                else stringResource(Res.string.menu_start_recording)
                                             )
                                         },
                                         onClick = {
@@ -2554,7 +2501,7 @@ fun DashboardScreen(
                                     // which family-gates the raw frames.
                                     val parsedBle = remember(dashboardCustomBleJson, key) {
                                         try {
-                                            val root = org.json.JSONObject(
+                                            val root = com.eried.eucplanet.platform.JSONObject(
                                                 dashboardCustomBleJson.ifBlank { "{}" }
                                             )
                                             val node = root.optJSONObject(key)
@@ -2567,7 +2514,7 @@ fun DashboardScreen(
                                     }
                                     val (bleLabel, bleIcon) = parsedBle
                                     val bleDefault = stringResource(
-                                        R.string.dashboard_custom_ble_default_name
+                                        Res.string.dashboard_custom_ble_default_name
                                     )
                                     Box(modifier = Modifier.weight(1f)) {
                                         ActionButton(
@@ -2589,7 +2536,7 @@ fun DashboardScreen(
                                     // actions list drives the popover.
                                     val parsedGroup = remember(dashboardActionGroupsJson, key) {
                                         try {
-                                            val root = org.json.JSONObject(
+                                            val root = com.eried.eucplanet.platform.JSONObject(
                                                 dashboardActionGroupsJson.ifBlank { "{}" }
                                             )
                                             val node = root.optJSONObject(key)
@@ -2608,7 +2555,7 @@ fun DashboardScreen(
                                     }
                                     val (groupName, groupIcon, groupActions) = parsedGroup
                                     val defaultGroupLabel = stringResource(
-                                        R.string.dashboard_group_default_name
+                                        Res.string.dashboard_group_default_name
                                     )
                                     // Capture the anchor tile's measured
                                     // size so the popover can render its
@@ -2642,8 +2589,8 @@ fun DashboardScreen(
                                                     // the rider why nothing happened.
                                                     snackbarScope.launch {
                                                         snackbar.showSnackbar(
-                                                            toastContext.getString(
-                                                                R.string.dashboard_group_empty_toast
+                                                            getString(
+                                                                Res.string.dashboard_group_empty_toast
                                                             )
                                                         )
                                                     }
@@ -2705,7 +2652,7 @@ fun DashboardScreen(
                                                     viewModel.toggleUnits()
                                                     snackbarScope.launch {
                                                         snackbar.showSnackbar(
-                                                            toastContext.getString(R.string.action_chip_toggle_units)
+                                                            getString(Res.string.action_chip_toggle_units)
                                                         )
                                                     }
                                                 }
@@ -2721,10 +2668,10 @@ fun DashboardScreen(
                                                         // everyone else.
                                                         val r = viewModel.resetMetrics()
                                                         snackbar.showSnackbar(
-                                                            toastContext.getString(
+                                                            getString(
                                                                 if (r.wheelTripCleared)
-                                                                    R.string.action_reset_metrics_wheel_done
-                                                                else R.string.action_reset_metrics_done
+                                                                    Res.string.action_reset_metrics_wheel_done
+                                                                else Res.string.action_reset_metrics_done
                                                             )
                                                         )
                                                     }
@@ -2754,7 +2701,7 @@ fun DashboardScreen(
                                             aspectRatio = actionAspect, heightDp = actionHeight,
                                             menu = { dismiss ->
                                                 DropdownMenuItem(
-                                                    text = { Text(stringResource(R.string.section_accel_splits)) },
+                                                    text = { Text(stringResource(Res.string.section_accel_splits)) },
                                                     onClick = { dismiss(); onNavigateToSettings(12) }
                                                 )
                                             }
@@ -2993,7 +2940,7 @@ fun DashboardScreen(
             }
 
             if (showDiagnosticsDialog) {
-                com.eried.eucplanet.diagnostics.WheelDiagnosticsDialog(
+                host.DiagnosticsDialog(
                     onDismiss = { showDiagnosticsDialog = false }
                 )
             }
@@ -3011,7 +2958,7 @@ fun DashboardScreen(
                         androidx.compose.material3.TextButton(
                             onClick = { showTextForTile = null },
                             shape = RoundedCornerShape(12.dp)
-                        ) { Text(stringResource(R.string.action_ok)) }
+                        ) { Text(stringResource(Res.string.action_ok)) }
                     },
                     text = {
                         androidx.compose.material3.OutlinedTextField(
@@ -3043,7 +2990,7 @@ fun DashboardScreen(
                         androidx.compose.material3.TextButton(
                             onClick = { showQrForTile = null },
                             shape = RoundedCornerShape(12.dp)
-                        ) { Text(stringResource(R.string.action_ok)) }
+                        ) { Text(stringResource(Res.string.action_ok)) }
                     },
                     // Title only renders when the rider gave the tile a label;
                     // we never leak the raw URL into the dialog header so the
@@ -3052,13 +2999,13 @@ fun DashboardScreen(
                         { Text(qrTile.text) }
                     } else null,
                     text = {
-                        QrCodeImage(content = display, sizeDp = 240)
+                        host.QrCode(content = display, sizeDp = 240)
                     }
                 )
             }
 
             if (showSourcesSheet) {
-                com.eried.eucplanet.ui.dashboard.sources.DataSourcesSheet(
+                host.DataSourcesSheet(
                     speedUnit = speedUnit,
                     onDismiss = { showSourcesSheet = false }
                 )
@@ -3067,8 +3014,7 @@ fun DashboardScreen(
             if (showAboutDialog) {
                 val licenseText = remember {
                     try {
-                        val raw = context.resources.openRawResource(R.raw.license)
-                            .bufferedReader().use { it.readText() }
+                        val raw = host.licenseText()
                         // LICENSE files are hard-wrapped at ~78 columns, which
                         // renders as ragged lines on a phone. Re-flow each
                         // paragraph into a single line (collapse single \n to
@@ -3110,7 +3056,7 @@ fun DashboardScreen(
                                 modifier = Modifier
                                     .size(96.dp)
                                     .clip(CircleShape)
-                                    .background(colorResource(R.color.ic_launcher_background))
+                                    .background(host.appLogoBackground())
                                     .align(Alignment.CenterHorizontally)
                                     .alpha(logoAlpha)
                                     .pointerInput(Unit) {
@@ -3162,11 +3108,7 @@ fun DashboardScreen(
                                         }
                                     }
                             ) {
-                                Image(
-                                    painter = painterResource(R.drawable.ic_launcher_foreground),
-                                    contentDescription = null,
-                                    modifier = Modifier.fillMaxSize()
-                                )
+                                host.AppLogo(Modifier.fillMaxSize())
                             }
                             Spacer(Modifier.height(12.dp))
                             Text(
@@ -3184,14 +3126,14 @@ fun DashboardScreen(
                                     }
                                     // Branch tag, baked in at build time. Hidden
                                     // for main / detached HEAD / unknown.
-                                    val branch = com.eried.eucplanet.BuildConfig.GIT_BRANCH
+                                    val branch = host.gitBranch
                                     if (branch.isNotEmpty() && branch != "main" && branch != "HEAD") {
                                         append(" (")
                                         append(branch)
                                         append(")")
                                     }
                                     append(" · ")
-                                    append(com.eried.eucplanet.BuildConfig.BUILD_STAMP)
+                                    append(host.buildStamp)
                                 },
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -3203,7 +3145,7 @@ fun DashboardScreen(
                                 color = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier
                                     .align(Alignment.CenterHorizontally)
-                                    .clickable { openUrl(context, "https://eucplanet.ried.no") }
+                                    .clickable { host.openUrl("https://eucplanet.ried.no") }
                             )
                             Spacer(Modifier.height(16.dp))
 
@@ -3237,7 +3179,7 @@ fun DashboardScreen(
                                     onClick = { aboutTab = 0 },
                                     text = {
                                         Text(
-                                            stringResource(R.string.about_thanks),
+                                            stringResource(Res.string.about_thanks),
                                             maxLines = 1,
                                             softWrap = false,
                                             modifier = unbounded
@@ -3249,7 +3191,7 @@ fun DashboardScreen(
                                     onClick = { aboutTab = 1 },
                                     text = {
                                         Text(
-                                            stringResource(R.string.about_license),
+                                            stringResource(Res.string.about_license),
                                             maxLines = 1,
                                             softWrap = false,
                                             modifier = unbounded
@@ -3284,7 +3226,7 @@ fun DashboardScreen(
                                                         style = MaterialTheme.typography.bodySmall,
                                                         color = MaterialTheme.colorScheme.primary,
                                                         modifier = Modifier.clickable {
-                                                            openUrl(context, "https://ried.no")
+                                                            host.openUrl("https://ried.no")
                                                         }
                                                     )
                                                     Text(
@@ -3295,7 +3237,7 @@ fun DashboardScreen(
                                                 }
                                                 Spacer(Modifier.height(10.dp))
                                                 Text(
-                                                    stringResource(R.string.about_thanks_body),
+                                                    stringResource(Res.string.about_thanks_body),
                                                     style = MaterialTheme.typography.bodySmall,
                                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                                 )
@@ -3452,11 +3394,11 @@ fun DashboardScreen(
                                 horizontalArrangement = Arrangement.End
                             ) {
                                 TextButton(onClick = { showAboutDialog = false }, shape = RoundedCornerShape(12.dp)) {
-                                    Text(stringResource(R.string.action_ok))
+                                    Text(stringResource(Res.string.action_ok))
                                 }
                             }
                         }
-                        if (com.eried.eucplanet.BuildConfig.DEBUG) {
+                        if (host.isDebugBuild) {
                             // "DEV" stamped giant over the About panel for
                             // debug builds -- shorter than "DEBUG" so we can
                             // make it BIGGER without wrapping on a phone-
@@ -3477,27 +3419,27 @@ fun DashboardScreen(
                     androidx.compose.material3.AlertDialog(
                         onDismissRequest = { showDiagnosticsConfirm = false },
                         shape = RoundedCornerShape(12.dp),
-                        title = { Text(stringResource(R.string.service_mode_title)) },
+                        title = { Text(stringResource(Res.string.service_mode_title)) },
                         text = {
                             Column {
                                 Text(
-                                    stringResource(R.string.service_mode_caution),
+                                    stringResource(Res.string.service_mode_caution),
                                     color = MaterialTheme.appColors.statusDanger,
                                     style = MaterialTheme.typography.bodyMedium
                                 )
                                 Spacer(Modifier.height(12.dp))
                                 Text(
-                                    stringResource(R.string.service_mode_purpose),
+                                    stringResource(Res.string.service_mode_purpose),
                                     style = MaterialTheme.typography.bodyMedium
                                 )
                                 Spacer(Modifier.height(12.dp))
                                 Text(
-                                    stringResource(R.string.service_mode_recording),
+                                    stringResource(Res.string.service_mode_recording),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                                 Spacer(Modifier.height(12.dp))
-                                val linkText = stringResource(R.string.service_mode_link)
+                                val linkText = stringResource(Res.string.service_mode_link)
                                 val urlPart = "eucplanet.ried.no/service"
                                 val linkColor = MaterialTheme.colorScheme.primary
                                 val annotated = buildAnnotatedString {
@@ -3532,11 +3474,11 @@ fun DashboardScreen(
                                 com.eried.eucplanet.diagnostics.DiagnosticsLogger.enable()
                                 showAboutDialog = false
                                 showDiagnosticsDialog = true
-                            }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.service_mode_enter)) }
+                            }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(Res.string.service_mode_enter)) }
                         },
                         dismissButton = {
                             TextButton(onClick = { showDiagnosticsConfirm = false }, shape = RoundedCornerShape(12.dp)) {
-                                Text(stringResource(R.string.action_cancel))
+                                Text(stringResource(Res.string.action_cancel))
                             }
                         }
                     )
@@ -3556,11 +3498,8 @@ fun DashboardScreen(
         val wizardDropboxLinked by viewModel.dropboxLinked.collectAsState()
         val wizardSyncRunning by viewModel.syncRunning.collectAsState()
         val wizardLeaderboardsJoined by viewModel.leaderboardsJoined.collectAsState()
-        val wizardActivityContext = androidx.compose.ui.platform.LocalContext.current
         var showWizardRestore by remember { mutableStateOf(false) }
-        val wizardPickFolder = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.OpenDocumentTree()
-        ) { uri -> if (uri != null) viewModel.setBackupFolder(uri.toString()) }
+        val wizardPickFolder = host.rememberFolderPicker { uri -> viewModel.setBackupFolder(uri) }
         androidx.compose.animation.AnimatedVisibility(
             visible = showWeatherFlyout && weatherSettings.enabled,
             enter = androidx.compose.animation.scaleIn(
@@ -3620,10 +3559,10 @@ fun DashboardScreen(
                 // Reflect the real voice state so the switch can't show "off"
                 // while announcements are actually on.
                 voiceCurrentlyOn = wizardVoiceOn,
-                isDev = com.eried.eucplanet.BuildConfig.IS_DEV,
-                onSetBackupFolder = { wizardPickFolder.launch(null) },
+                isDev = host.isDevBuild,
+                onSetBackupFolder = { wizardPickFolder() },
                 dropboxLinked = wizardDropboxLinked,
-                onLinkDropbox = { viewModel.linkDropbox(wizardActivityContext) },
+                onLinkDropbox = { host.linkDropbox() },
                 backupFolderSet = wizardBackupFolderSet,
                 hasSettingsBackup = wizardHasSettingsBackup,
                 onRestoreSettings = { showWizardRestore = true },
@@ -3650,14 +3589,3 @@ fun DashboardScreen(
         }  // close CompositionLocalProvider
     }
 }
-
-private fun openUrl(context: Context, url: String) {
-    val intent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url)).apply {
-        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    }
-    try {
-        context.startActivity(intent)
-    } catch (_: Exception) {
-    }
-}
-

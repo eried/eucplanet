@@ -112,7 +112,9 @@ fun NavGraph(navController: NavHostController) {
                 },
                 onNavigateToTripMeter = {
                     navController.navigateSingle(Screen.TripMeterDetail.route)
-                }
+                },
+                viewModel = org.koin.compose.viewmodel.koinViewModel(),
+                host = com.eried.eucplanet.ui.dashboard.rememberAndroidDashboardHost(),
             )
         }
         composable(Screen.Scan.route) {

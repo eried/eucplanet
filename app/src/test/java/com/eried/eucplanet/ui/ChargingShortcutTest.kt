@@ -11,7 +11,7 @@ import java.io.File
  */
 class ChargingShortcutTest {
 
-    private val dash = File("src/main/java/com/eried/eucplanet/ui/dashboard/DashboardScreen.kt").readText()
+    private val dash = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/ui/dashboard/DashboardScreen.kt").readText()
     private val nav = File("src/main/java/com/eried/eucplanet/ui/navigation/NavGraph.kt").readText()
     private val screen = File("src/main/java/com/eried/eucplanet/ui/charging/ChargingMonitorScreen.kt").readText()
 

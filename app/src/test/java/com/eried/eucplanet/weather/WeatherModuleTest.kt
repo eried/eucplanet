@@ -397,7 +397,7 @@ class WeatherModuleTest {
     }
 
     @Test fun `the icon and flyout only exist when the module is enabled`() {
-        val dash = File("src/main/java/com/eried/eucplanet/ui/dashboard/DashboardScreen.kt").readText()
+        val dash = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/ui/dashboard/DashboardScreen.kt").readText()
         assertTrue(dash.contains("if (weatherSettings.enabled)"))
         assertTrue(dash.contains("showWeatherFlyout && weatherSettings.enabled"))
     }

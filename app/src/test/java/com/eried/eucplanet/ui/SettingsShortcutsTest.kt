@@ -17,7 +17,7 @@ import java.io.File
 class SettingsShortcutsTest {
 
     private val settings = File("src/main/java/com/eried/eucplanet/ui/settings/SettingsScreen.kt").readText()
-    private val dash = File("src/main/java/com/eried/eucplanet/ui/dashboard/DashboardScreen.kt").readText()
+    private val dash = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/ui/dashboard/DashboardScreen.kt").readText()
     private val worker = File("src/main/java/com/eried/eucplanet/data/sync/TripUploadWorker.kt").readText()
     private val vm = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/ui/dashboard/DashboardViewModel.kt").readText()
 
