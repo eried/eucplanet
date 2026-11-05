@@ -1,7 +1,7 @@
 package com.eried.eucplanet.data.model
 
-import androidx.annotation.StringRes
-import com.eried.eucplanet.R
+import org.jetbrains.compose.resources.StringResource
+import com.eried.eucplanet.resources.*
 
 /**
  * The four states the speed splits can be in, in the order a button cycles
@@ -20,12 +20,12 @@ enum class AccelSplitMode(
     /** The [AccelSplitSettings.direction] value, or empty for off. */
     val direction: String,
     /** The dashboard tile's label in this state. */
-    @StringRes val tileLabelRes: Int,
+    val tileLabelRes: StringResource,
 ) {
-    OFF(false, "", R.string.action_splits_off),
-    ACCEL(true, "ACCEL", R.string.action_splits_accel),
-    BRAKE(true, "BRAKE", R.string.action_splits_brake),
-    BOTH(true, "BOTH", R.string.action_splits_both);
+    OFF(false, "", Res.string.action_splits_off),
+    ACCEL(true, "ACCEL", Res.string.action_splits_accel),
+    BRAKE(true, "BRAKE", Res.string.action_splits_brake),
+    BOTH(true, "BOTH", Res.string.action_splits_both);
 
     /** The state a tap moves to. Wraps from [BOTH] back to [OFF]. */
     fun next(): AccelSplitMode = entries[(ordinal + 1) % entries.size]

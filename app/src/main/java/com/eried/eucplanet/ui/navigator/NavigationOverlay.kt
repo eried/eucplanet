@@ -367,7 +367,8 @@ private fun cueColor(state: NavState, accent: Color): Color = when {
 private fun subline(state: NavState): String? = when {
     state.offRoute -> stringResource(R.string.nav_off_route)
     state.mode == NavMode.TREASURE_HUNT && state.proximity != null -> stringResource(
-        when (state.proximity) {
+        // NavState lives in :shared, so the null check above no longer smart-casts.
+        when (state.proximity!!) {
             Proximity.HOT -> R.string.nav_prox_hot
             Proximity.WARM -> R.string.nav_prox_warm
             Proximity.COLD -> R.string.nav_prox_cold

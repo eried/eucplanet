@@ -1,7 +1,7 @@
 package com.eried.eucplanet.data.model
 
-import org.json.JSONArray
-import org.json.JSONObject
+import com.eried.eucplanet.platform.JSONArray
+import com.eried.eucplanet.platform.JSONObject
 
 /**
  * Data model for the Navigator feature: route building (waypoints + resolved
