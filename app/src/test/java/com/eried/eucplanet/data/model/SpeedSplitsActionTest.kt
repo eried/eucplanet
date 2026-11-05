@@ -1,5 +1,7 @@
 package com.eried.eucplanet.data.model
 
+import com.eried.eucplanet.resources.Res
+import com.eried.eucplanet.resources.section_accel_splits
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -20,7 +22,7 @@ class SpeedSplitsActionTest {
 
     @Test fun `it is in the catalog, under the splits section's own name`() {
         assertNotNull("SPEED_SPLITS must be a catalog action", spec)
-        assertEquals(com.eried.eucplanet.R.string.section_accel_splits, spec!!.labelRes)
+        assertEquals(Res.string.section_accel_splits, spec!!.labelRes)
     }
 
     @Test fun `it is offered on the dashboard and nowhere eyes-free`() {

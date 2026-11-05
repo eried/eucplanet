@@ -13,6 +13,8 @@ koin = "4.2.2"
 # androidx Compose 1.11 the BOM brings (1.12 needs compileSdk 37 and AGP 9).
 composeMultiplatform = "1.11.1"
 cmpMaterial3 = "1.9.0"
+# The icon set stopped at 1.7.3 upstream; it still runs on the 1.11 line.
+cmpMaterialIcons = "1.7.3"
 navigation = "2.8.5"
 maplibre = "11.5.2"
 carApp = "1.4.0"
@@ -94,6 +96,7 @@ cmp-runtime = { group = "org.jetbrains.compose.runtime", name = "runtime", versi
 cmp-foundation = { group = "org.jetbrains.compose.foundation", name = "foundation", version.ref = "composeMultiplatform" }
 cmp-ui = { group = "org.jetbrains.compose.ui", name = "ui", version.ref = "composeMultiplatform" }
 cmp-material3 = { group = "org.jetbrains.compose.material3", name = "material3", version.ref = "cmpMaterial3" }
+cmp-material-icons = { group = "org.jetbrains.compose.material", name = "material-icons-extended", version.ref = "cmpMaterialIcons" }
 cmp-resources = { group = "org.jetbrains.compose.components", name = "components-resources", version.ref = "composeMultiplatform" }
 coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
 

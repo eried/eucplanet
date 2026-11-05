@@ -42,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
+import com.eried.eucplanet.platform.stringResource
 import com.eried.eucplanet.data.model.ActionCatalog
 import com.eried.eucplanet.data.model.ActionSpec
 import com.eried.eucplanet.data.model.ActionSurface

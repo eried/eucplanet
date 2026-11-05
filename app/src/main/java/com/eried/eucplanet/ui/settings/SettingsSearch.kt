@@ -70,7 +70,7 @@ private const val EXACT_ROW_WEIGHT = 100
  * tiles, and every Advanced row.
  */
 private fun registryNames(): Map<String, List<Pair<Int, Int>>> = mapOf(
-    "dashboard" to (MetricCatalog.all.map { AndroidStrings.id(it.labelRes) } + ActionCatalog.all.map { it.labelRes }).map { it to 0 },
+    "dashboard" to (MetricCatalog.all.map { AndroidStrings.id(it.labelRes) } + ActionCatalog.all.map { AndroidStrings.id(it.labelRes) }).map { it to 0 },
     // Each Advanced row sits in its group's card.
     "advanced" to AdvGroup.entries.map { AndroidStrings.id(it.titleRes) to 0 } +
         ADVANCED_SPECS.map { AndroidStrings.id(it.label) to AndroidStrings.id(it.group.titleRes) },

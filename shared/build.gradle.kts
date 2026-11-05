@@ -44,6 +44,8 @@ kotlin {
             implementation(libs.cmp.foundation)
             implementation(libs.cmp.ui)
             implementation(libs.cmp.material3)
+            // ActionCatalog and the dashboard draw the same Material icons as :app.
+            implementation(libs.cmp.material.icons)
             api(libs.cmp.resources)
             // @Entity and friends on the moved models; the database stays in :app for now.
             implementation(libs.room.common)

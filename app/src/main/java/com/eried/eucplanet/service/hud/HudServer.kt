@@ -1,6 +1,7 @@
 package com.eried.eucplanet.service.hud
 
 import android.content.Context
+import com.eried.eucplanet.platform.getString
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities

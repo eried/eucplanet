@@ -1,6 +1,6 @@
 package com.eried.eucplanet.data.model
 
-import androidx.annotation.StringRes
+import org.jetbrains.compose.resources.StringResource
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.VolumeOff
@@ -26,7 +26,7 @@ import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.WbCloudy
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.eried.eucplanet.R
+import com.eried.eucplanet.resources.*
 
 /**
  * Action layer, single source of truth for every rider-triggerable command.
@@ -112,7 +112,7 @@ data class StatusContext(
 data class ActionSpec(
     /** Stable identifier persisted in settings (settings, group definitions, Flic bindings, watch bindings). */
     val key: String,
-    @StringRes val labelRes: Int,
+    val labelRes: StringResource,
     val icon: ImageVector? = null,
     /**
      * True when this action is safe to fire without looking at the screen.
@@ -149,14 +149,14 @@ object ActionCatalog {
         // ---- Eyes-free safe (Flic / volume / watch / trigger / alarm-fire bindable) ----
         ActionSpec(
             key = "HORN",
-            labelRes = R.string.action_chip_horn,
+            labelRes = Res.string.action_chip_horn,
             icon = Icons.Filled.Campaign,
             isEyesFreeSafe = true,
             enabledReader = { it.connected }
         ),
         ActionSpec(
             key = "LIGHT_TOGGLE",
-            labelRes = R.string.action_chip_light,
+            labelRes = Res.string.action_chip_light,
             icon = Icons.Filled.FlashlightOn,
             isEyesFreeSafe = true,
             statusReader = { it.wheel.lightOn },
@@ -164,7 +164,7 @@ object ActionCatalog {
         ),
         ActionSpec(
             key = "LOCK_TOGGLE",
-            labelRes = R.string.action_chip_lock,
+            labelRes = Res.string.action_chip_lock,
             icon = Icons.Filled.Lock,
             isEyesFreeSafe = true,
             // Prefer a family that states its lock outright; fall back to the
@@ -181,7 +181,7 @@ object ActionCatalog {
         ),
         ActionSpec(
             key = "SAFETY_TOGGLE",
-            labelRes = R.string.action_chip_safety,
+            labelRes = Res.string.action_chip_safety,
             icon = Icons.Filled.Shield,
             isEyesFreeSafe = true,
             statusReader = { it.safetyActive },
@@ -189,7 +189,7 @@ object ActionCatalog {
         ),
         ActionSpec(
             key = "SAFETY_ON",
-            labelRes = R.string.action_chip_safety_on,
+            labelRes = Res.string.action_chip_safety_on,
             icon = Icons.Filled.Shield,
             isEyesFreeSafe = true,
             // Highlight when ALREADY in safety mode, pressing this is a
@@ -199,7 +199,7 @@ object ActionCatalog {
         ),
         ActionSpec(
             key = "SAFETY_OFF",
-            labelRes = R.string.action_chip_safety_off,
+            labelRes = Res.string.action_chip_safety_off,
             icon = Icons.Filled.Shield,
             isEyesFreeSafe = true,
             // Mirror of SAFETY_ON, highlight when already off.
@@ -211,26 +211,26 @@ object ActionCatalog {
             // definition: the whole point is that the rider does not have to
             // look, so every physical surface picks it up from here.
             key = "VOICE_LISTEN",
-            labelRes = R.string.action_chip_voice_listen,
+            labelRes = Res.string.action_chip_voice_listen,
             icon = Icons.Filled.Mic,
             isEyesFreeSafe = true
         ),
         ActionSpec(
             key = "VOICE_ANNOUNCE",
-            labelRes = R.string.action_chip_voice,
+            labelRes = Res.string.action_chip_voice,
             icon = Icons.Filled.RecordVoiceOver,
             isEyesFreeSafe = true
         ),
         ActionSpec(
             key = "RECORD_TOGGLE",
-            labelRes = R.string.action_chip_record,
+            labelRes = Res.string.action_chip_record,
             icon = Icons.Filled.FiberManualRecord,
             isEyesFreeSafe = true,
             statusReader = { it.tripRecording }
         ),
         ActionSpec(
             key = "RECORD_START",
-            labelRes = R.string.action_chip_record_start,
+            labelRes = Res.string.action_chip_record_start,
             icon = Icons.Filled.FiberManualRecord,
             isEyesFreeSafe = true,
             // Already-recording = pressing this is a no-op; highlight to
@@ -239,7 +239,7 @@ object ActionCatalog {
         ),
         ActionSpec(
             key = "RECORD_STOP",
-            labelRes = R.string.action_chip_record_stop,
+            labelRes = Res.string.action_chip_record_stop,
             icon = Icons.Filled.FiberManualRecord,
             isEyesFreeSafe = true,
             statusReader = { !it.tripRecording }
@@ -248,7 +248,7 @@ object ActionCatalog {
         // playing it wakes the last music app, even one that was closed.
         ActionSpec(
             key = "MUSIC_START",
-            labelRes = R.string.action_chip_music_start,
+            labelRes = Res.string.action_chip_music_start,
             icon = Icons.Filled.LibraryMusic,
             isEyesFreeSafe = true
         ),
@@ -256,7 +256,7 @@ object ActionCatalog {
         // plays starts music like MUSIC_START, opening the player if needed.
         ActionSpec(
             key = "MEDIA_PLAY_PAUSE",
-            labelRes = R.string.action_chip_media_play,
+            labelRes = Res.string.action_chip_media_play,
             icon = Icons.Filled.PlayArrow,
             isEyesFreeSafe = true
         ),
@@ -265,19 +265,19 @@ object ActionCatalog {
         // or ducked at the very moment the rider asks.
         ActionSpec(
             key = "MEDIA_PAUSE",
-            labelRes = R.string.action_chip_media_pause,
+            labelRes = Res.string.action_chip_media_pause,
             icon = Icons.Filled.Pause,
             isEyesFreeSafe = true
         ),
         ActionSpec(
             key = "MEDIA_NEXT",
-            labelRes = R.string.action_chip_media_next,
+            labelRes = Res.string.action_chip_media_next,
             icon = Icons.Filled.SkipNext,
             isEyesFreeSafe = true
         ),
         ActionSpec(
             key = "MEDIA_PREVIOUS",
-            labelRes = R.string.action_chip_media_prev,
+            labelRes = Res.string.action_chip_media_prev,
             icon = Icons.Filled.SkipPrevious,
             isEyesFreeSafe = true
         ),
@@ -285,42 +285,42 @@ object ActionCatalog {
         // ---- Dashboard-only (need screen attention or are destructive) ----
         ActionSpec(
             key = "OPEN_NAVIGATION",
-            labelRes = R.string.action_chip_open_navigation,
+            labelRes = Res.string.action_chip_open_navigation,
             icon = Icons.Filled.Navigation
         ),
         ActionSpec(
             key = "OPEN_STUDIO",
-            labelRes = R.string.action_chip_open_studio,
+            labelRes = Res.string.action_chip_open_studio,
             icon = Icons.Filled.PhotoCamera
         ),
         ActionSpec(
             key = "OPEN_ABOUT",
-            labelRes = R.string.action_chip_open_about,
+            labelRes = Res.string.action_chip_open_about,
             icon = Icons.Filled.Info
         ),
         ActionSpec(
             key = "OPEN_SERVICE",
-            labelRes = R.string.action_chip_open_service,
+            labelRes = Res.string.action_chip_open_service,
             icon = Icons.Filled.Build
         ),
         ActionSpec(
             key = "OPEN_TRIPS",
-            labelRes = R.string.action_chip_open_trips,
+            labelRes = Res.string.action_chip_open_trips,
             icon = Icons.AutoMirrored.Filled.List
         ),
         ActionSpec(
             key = "OPEN_WEATHER",
-            labelRes = R.string.action_chip_open_weather,
+            labelRes = Res.string.action_chip_open_weather,
             icon = Icons.Filled.WbCloudy
         ),
         ActionSpec(
             key = "OPEN_CHARGING",
-            labelRes = R.string.action_chip_open_charging,
+            labelRes = Res.string.action_chip_open_charging,
             icon = Icons.Filled.BatteryChargingFull
         ),
         ActionSpec(
             key = "MUTE_ALARMS",
-            labelRes = R.string.action_chip_mute_alarms,
+            labelRes = Res.string.action_chip_mute_alarms,
             icon = Icons.AutoMirrored.Filled.VolumeOff,
             statusReader = { it.alarmsMuted }
         ),
@@ -329,7 +329,7 @@ object ActionCatalog {
             // is persisted in dashboard layouts and physical-button bindings,
             // and renaming it would unbind every rider who customised one.
             key = "RESET_TRIP",
-            labelRes = R.string.action_chip_reset_metrics,
+            labelRes = Res.string.action_chip_reset_metrics,
             icon = Icons.Filled.Restore,
             // No wheel needed any more. The trip meter and the metric history
             // are the app's own, and clearing yesterday's numbers before
@@ -338,7 +338,7 @@ object ActionCatalog {
         ),
         ActionSpec(
             key = "TOGGLE_UNITS",
-            labelRes = R.string.action_chip_toggle_units,
+            labelRes = Res.string.action_chip_toggle_units,
             icon = Icons.Filled.SwapHoriz,
             statusReader = { it.imperialUnits }
         ),
@@ -347,7 +347,7 @@ object ActionCatalog {
             // because a four-way cycle needs the rider to see where it landed;
             // the tile's label says which.
             key = "SPEED_SPLITS",
-            labelRes = R.string.section_accel_splits,
+            labelRes = Res.string.section_accel_splits,
             icon = Icons.Filled.Timer,
             statusReader = { it.speedSplitsOn }
         )

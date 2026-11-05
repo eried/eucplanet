@@ -1,5 +1,7 @@
 package com.eried.eucplanet.data.model
 
+import com.eried.eucplanet.resources.Res
+import com.eried.eucplanet.resources.action_chip_reset_metrics
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -31,7 +33,7 @@ class ActionCatalogKeysTest {
         assertNotNull("RESET_TRIP must stay resolvable, it is in stored layouts", spec)
         assertEquals(
             "the label should be the metrics one now",
-            com.eried.eucplanet.R.string.action_chip_reset_metrics,
+            Res.string.action_chip_reset_metrics,
             spec!!.labelRes,
         )
     }
