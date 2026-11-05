@@ -1,5 +1,6 @@
 package com.eried.eucplanet.weather
 
+import com.eried.eucplanet.platform.Math
 import kotlin.math.asin
 import kotlin.math.atan2
 import kotlin.math.cos
