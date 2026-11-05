@@ -8,6 +8,7 @@ import platform.Foundation.NSData
 import platform.Foundation.NSHTTPURLResponse
 import platform.Foundation.NSMutableURLRequest
 import platform.Foundation.NSURL
+import platform.Foundation.NSURLRequestUseProtocolCachePolicy
 import platform.Foundation.NSURLSession
 import platform.Foundation.addValue
 import platform.Foundation.create
@@ -22,21 +23,30 @@ import platform.darwin.dispatch_semaphore_wait
 import platform.posix.memcpy
 
 @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
-actual class HttpClient actual constructor(private val onResponse: (HttpRequest, HttpResponse) -> Unit) {
+actual class HttpClient actual constructor(
+    connectTimeoutMs: Long?,
+    private val readTimeoutMs: Long?,
+    private val onResponse: (HttpRequest, HttpResponse) -> Unit,
+) {
 
     actual fun execute(request: HttpRequest): HttpResponse {
         val url = NSURL.URLWithString(request.url) ?: throw IllegalArgumentException("Bad URL ${request.url}")
-        val req = NSMutableURLRequest.requestWithURL(url)
-        req.setHTTPMethod("POST")
+        // NSURLSession has one per-request timeout, covering the wait for data;
+        // 60 s is its own default.
+        val req = NSMutableURLRequest.requestWithURL(
+            url, NSURLRequestUseProtocolCachePolicy, (readTimeoutMs ?: 60_000L) / 1000.0,
+        )
         request.headers.forEach { (k, v) -> req.addValue(v, forHTTPHeaderField = k) }
         val (type, bytes) = when (val b = request.body) {
+            HttpRequest.Body.None -> null to null
             is HttpRequest.Body.Bytes -> b.contentType to b.bytes
             is HttpRequest.Body.Text -> "${b.contentType}; charset=utf-8" to b.text.encodeToByteArray()
             is HttpRequest.Body.Form -> "application/x-www-form-urlencoded" to
                 b.fields.joinToString("&") { (k, v) -> formEncode(k) + "=" + formEncode(v) }.encodeToByteArray()
         }
+        req.setHTTPMethod(if (bytes == null) "GET" else "POST")
         type?.let { req.setValue(it, forHTTPHeaderField = "Content-Type") }
-        req.setHTTPBody(bytes.toNSData())
+        bytes?.let { req.setHTTPBody(it.toNSData()) }
 
         val done = dispatch_semaphore_create(0)
         var result: HttpResponse? = null

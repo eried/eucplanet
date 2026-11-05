@@ -8,6 +8,9 @@ import platform.Foundation.groupingSeparator
 actual fun String.format(vararg args: Any?): String =
     JavaFormat.format(Locale.getDefault().symbols, this, *args)
 
+actual fun String.format(locale: Locale, vararg args: Any?): String =
+    JavaFormat.format(locale.symbols, this, *args)
+
 actual fun String.Companion.format(format: String, vararg args: Any?): String =
     JavaFormat.format(Locale.getDefault().symbols, format, *args)
 

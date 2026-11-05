@@ -9,6 +9,8 @@ package com.eried.eucplanet.platform
  */
 expect fun String.format(vararg args: Any?): String
 
+expect fun String.format(locale: Locale, vararg args: Any?): String
+
 expect fun String.Companion.format(format: String, vararg args: Any?): String
 
 expect fun String.Companion.format(locale: Locale, format: String, vararg args: Any?): String

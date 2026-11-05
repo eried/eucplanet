@@ -2,6 +2,9 @@ package com.eried.eucplanet.platform
 
 actual fun String.format(vararg args: Any?): String = java.lang.String.format(this, *args)
 
+actual fun String.format(locale: Locale, vararg args: Any?): String =
+    java.lang.String.format(locale.jvm, this, *args)
+
 actual fun String.Companion.format(format: String, vararg args: Any?): String =
     java.lang.String.format(format, *args)
 

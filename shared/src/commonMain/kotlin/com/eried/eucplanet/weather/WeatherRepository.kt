@@ -7,13 +7,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import org.json.JSONObject
-import java.text.SimpleDateFormat
-import java.util.Locale
-import java.util.TimeZone
-import java.util.concurrent.TimeUnit
+import com.eried.eucplanet.platform.HttpClient
+import com.eried.eucplanet.platform.HttpRequest
+import com.eried.eucplanet.platform.JSONObject
+import com.eried.eucplanet.platform.Locale
+import com.eried.eucplanet.platform.System
+import com.eried.eucplanet.platform.format
+import com.eried.eucplanet.platform.isoEpochSeconds
+import kotlinx.coroutines.IO
 import kotlin.math.abs
 
 /**
@@ -64,10 +65,7 @@ data class WeatherForecast(
  */
 class WeatherRepository {
 
-    private val client = OkHttpClient.Builder()
-        .connectTimeout(10, TimeUnit.SECONDS)
-        .readTimeout(15, TimeUnit.SECONDS)
-        .build()
+    private val client = HttpClient(connectTimeoutMs = 10_000L, readTimeoutMs = 15_000L)
 
     private val _forecast = MutableStateFlow<WeatherForecast?>(null)
     val forecast: StateFlow<WeatherForecast?> = _forecast.asStateFlow()
@@ -130,7 +128,7 @@ class WeatherRepository {
                 )
                 _error.value = null
             } catch (t: Throwable) {
-                _error.value = t.message ?: t.javaClass.simpleName
+                _error.value = t.message ?: t::class.simpleName
             } finally {
                 _refreshing.value = false
             }
@@ -164,7 +162,7 @@ class WeatherRepository {
                     fine = fine && source != WeatherSource.MET_NO,
                 )
             } catch (t: Throwable) {
-                _error.value = t.message ?: t.javaClass.simpleName
+                _error.value = t.message ?: t::class.simpleName
             } finally {
                 _refreshing.value = false
             }
@@ -172,14 +170,11 @@ class WeatherRepository {
     }
 
     private fun get(url: String): String {
-        val req = Request.Builder()
-            .url(url)
-            .header("User-Agent", USER_AGENT)
-            .build()
-        client.newCall(req).execute().use { resp ->
-            if (!resp.isSuccessful) throw IllegalStateException("HTTP ${resp.code}")
-            return resp.body?.string() ?: throw IllegalStateException("empty body")
-        }
+        val resp = client.execute(
+            HttpRequest(url, HttpRequest.Body.None, listOf("User-Agent" to USER_AGENT))
+        )
+        if (!resp.isSuccessful) throw IllegalStateException("HTTP ${resp.code}")
+        return resp.text()
     }
 
     /** Open-Meteo: unix timestamps, metric fields, up to 8 days hourly.
@@ -252,8 +247,6 @@ class WeatherRepository {
     }
 
     fun parseMetNo(body: String): List<HourForecast> {
-        val iso = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
-            .apply { timeZone = TimeZone.getTimeZone("UTC") }
         val series = JSONObject(body).getJSONObject("properties").getJSONArray("timeseries")
         val out = ArrayList<HourForecast>()
         for (i in 0 until series.length()) {
@@ -269,7 +262,8 @@ class WeatherRepository {
             val isSnow = symbol.contains("snow") || symbol.contains("sleet")
             out.add(
                 HourForecast(
-                    timeMs = iso.parse(entry.getString("time"))?.time ?: continue,
+                    // MET's times are whole-second UTC ("2024-06-01T12:00:00Z").
+                    timeMs = isoEpochSeconds(entry.getString("time")) * 1000L,
                     tempC = details.optDouble("air_temperature", 0.0).toFloat(),
                     precipMmH = if (isSnow) 0f else amount.toFloat(),
                     // mm of water is roughly a centimetre of snow.

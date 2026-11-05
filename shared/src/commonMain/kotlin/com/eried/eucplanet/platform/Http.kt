@@ -1,7 +1,8 @@
 package com.eried.eucplanet.platform
 
 /**
- * The few HTTP calls shared code makes (Dropbox's REST API), blocking, to run
+ * The few HTTP calls shared code makes (Dropbox's REST API, the weather
+ * forecast), blocking, to run
  * inside `withContext(Dispatchers.IO)` the way the OkHttp calls ran.
  *
  * Android sends them through OkHttp exactly as before: a [Body.Text] goes out
@@ -21,6 +22,8 @@ class HttpRequest(
         class Text(val contentType: String, val text: String) : Body
         /** `application/x-www-form-urlencoded`, like OkHttp's FormBody. */
         class Form(val fields: List<Pair<String, String>>) : Body
+        /** No body: the request is a GET. */
+        data object None : Body
     }
 }
 
@@ -47,6 +50,14 @@ class HttpResponse(
  * refusal is noticed whichever call it lands on (OkHttp's interceptor did this).
  * [execute] throws when no response arrives.
  */
-expect class HttpClient(onResponse: (HttpRequest, HttpResponse) -> Unit) {
+/**
+ * [connectTimeoutMs] / [readTimeoutMs] null keep the platform default
+ * (OkHttp's 10 s on Android).
+ */
+expect class HttpClient(
+    connectTimeoutMs: Long? = null,
+    readTimeoutMs: Long? = null,
+    onResponse: (HttpRequest, HttpResponse) -> Unit = { _, _ -> },
+) {
     fun execute(request: HttpRequest): HttpResponse
 }
