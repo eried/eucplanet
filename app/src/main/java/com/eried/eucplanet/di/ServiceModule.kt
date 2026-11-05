@@ -23,6 +23,7 @@ import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
+import org.koin.android.ext.koin.androidContext
 
 /**
  * Process-wide services: alarms, voice, sound, buttons, theme. The explicit
@@ -58,6 +59,12 @@ val serviceModule = module {
     singleOf(::EngineSoundEngine)
     singleOf(::HornPlayer) { bind<PhoneHorn>() }
     singleOf(::SfxSidecar)
-    singleOf(::ThemeController)
+    single {
+        val context = androidContext()
+        ThemeController(get(), get()) {
+            (context.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
+                android.content.res.Configuration.UI_MODE_NIGHT_YES
+        }
+    }
     singleOf(::ExperimentalBannerState) { bind<com.eried.eucplanet.ui.dashboard.ExperimentalBannerFlag>() }
 }

@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
@@ -61,7 +63,11 @@ fun MainViewController(): UIViewController {
         if (tab != null) {
             ProbeScreen(link, wheel, tab)
         } else {
-            EucPlanetTheme {
+            // As MainActivity does: the resolved active theme drives everything.
+            val theme = IosAppGraph.theme
+            LaunchedEffect(Unit) { theme.ensureResolved() }
+            val colors by theme.activeColors.collectAsState()
+            EucPlanetTheme(colors = colors) {
                 // A two-screen stack until the shared navigation graph lands.
                 // SIMCTL_CHILD_EUC_SCREEN=scan opens on the scan screen.
                 var screen by remember { mutableStateOf(startScreen ?: "dashboard") }

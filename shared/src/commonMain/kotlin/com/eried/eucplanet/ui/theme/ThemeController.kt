@@ -1,11 +1,9 @@
 package com.eried.eucplanet.ui.theme
 
-import android.content.Context
-import android.content.res.Configuration
 import com.eried.eucplanet.data.repository.SettingsRepository
-import com.eried.eucplanet.data.store.ThemeStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -41,13 +39,14 @@ data class ThemeChoices(
  * writes a `.json` file via [ThemeStore] and drops the draft.
  */
 class ThemeController(
-    private val context: Context,
     private val settingsRepository: SettingsRepository,
-    private val themeStore: ThemeStore,
+    private val themeStore: ThemeFiles,
+    /** Whether the phone is in dark mode, asked once on a first upgrade. */
+    private val systemDark: () -> Boolean,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val resolveMutex = Mutex()
-    @Volatile private var resolved = false
+    @kotlin.concurrent.Volatile private var resolved = false
 
     /**
      * The resolved colors of the active theme, the single render source of
@@ -135,10 +134,6 @@ class ThemeController(
         }
     }
 
-    private fun systemDark(): Boolean =
-        (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
-            Configuration.UI_MODE_NIGHT_YES
-
     /** Resolved colors of the active theme (the working draft if edited). */
     suspend fun currentColors(): AppThemeColors {
         ensureResolved()
@@ -219,4 +214,17 @@ class ThemeController(
     suspend fun setEditorEnabled(enabled: Boolean) {
         settingsRepository.update(settingsRepository.get().copy(themeEditorEnabled = enabled))
     }
+}
+
+/**
+ * Where custom themes are saved, one `.json` per theme (ThemeStore and the
+ * backup folder on Android).
+ */
+interface ThemeFiles {
+    /** Built-in theme names in combo order (Light, Dark, Pure Black). */
+    fun builtInNames(): List<String> = BuiltInThemes.all.map { it.name }
+    suspend fun themesFolderAvailable(): Boolean
+    suspend fun listSaved(): List<String>
+    suspend fun saveTheme(name: String, colors: AppThemeColors): Boolean
+    suspend fun loadTheme(name: String): AppThemeColors?
 }

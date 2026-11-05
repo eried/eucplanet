@@ -25,6 +25,9 @@ import com.eried.eucplanet.ui.dashboard.DashboardViewModel
 import com.eried.eucplanet.ui.scan.ScanViewModel
 import com.eried.eucplanet.ui.settings.AlarmViewModel
 import com.eried.eucplanet.weather.WeatherRepository
+import com.eried.eucplanet.ui.theme.ThemeController
+import platform.UIKit.UIScreen
+import platform.UIKit.UIUserInterfaceStyle
 import com.eried.eucplanet.platform.JSONArray
 import kotlinx.cinterop.ExperimentalForeignApi
 import okio.Path.Companion.toPath
@@ -85,6 +88,16 @@ object IosAppGraph {
     val cheats: CheatState by lazy { CheatState() }
 
     val weather: WeatherRepository by lazy { WeatherRepository() }
+
+    /**
+     * The active theme, resolved from the same activeThemeName Android keeps in
+     * settings.json, so a theme picked on one phone shows on the other.
+     */
+    val theme: ThemeController by lazy {
+        ThemeController(settings, IosThemeFiles(documents)) {
+            UIScreen.mainScreen.traitCollection.userInterfaceStyle == UIUserInterfaceStyle.UIUserInterfaceStyleDark
+        }
+    }
 
     val link: IosWheelLink by lazy { IosWheelLink(adapter) }
 

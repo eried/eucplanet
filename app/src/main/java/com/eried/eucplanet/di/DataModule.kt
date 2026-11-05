@@ -72,7 +72,7 @@ val dataModule = module {
     singleOf(::TripMeterStore)
     singleOf(::NavMarkerStore)
     singleOf(::OverlayPresetStore)
-    singleOf(::ThemeStore)
+    singleOf(::ThemeStore) { bind<com.eried.eucplanet.ui.theme.ThemeFiles>() }
     singleOf(::AccelSplitRepository) { bind<AccelSplitReset>() }
     singleOf(::AppHealthRepository)
     // DropboxRepository lives in :shared; the PKCE scratch is Android's SharedPreferences.

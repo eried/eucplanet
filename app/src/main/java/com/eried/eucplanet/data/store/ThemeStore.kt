@@ -6,6 +6,7 @@ import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.sync.SyncManager
 import com.eried.eucplanet.ui.theme.AppThemeColors
 import com.eried.eucplanet.ui.theme.BuiltInThemes
+import com.eried.eucplanet.ui.theme.ThemeFiles
 import com.eried.eucplanet.ui.theme.ThemeJson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -29,7 +30,7 @@ class ThemeStore(
     private val context: Context,
     private val settingsRepository: SettingsRepository,
     private val syncManager: SyncManager
-) {
+) : ThemeFiles {
     companion object {
         private const val TAG = "ThemeStore"
         private const val THEMES_SUBFOLDER = "themes"
@@ -37,10 +38,10 @@ class ThemeStore(
     }
 
     /** Built-in theme names in combo order (Light, Dark, Pure Black). */
-    fun builtInNames(): List<String> = BuiltInThemes.all.map { it.name }
+    override fun builtInNames(): List<String> = BuiltInThemes.all.map { it.name }
 
     /** True when a backup folder is configured; required for saved themes. */
-    suspend fun themesFolderAvailable(): Boolean = withContext(Dispatchers.IO) {
+    override suspend fun themesFolderAvailable(): Boolean = withContext(Dispatchers.IO) {
         syncManager.getSyncFolder(settingsRepository.get()) != null
     }
 
@@ -51,7 +52,7 @@ class ThemeStore(
      * user theme called "Light" surfaces as "Light.json" and can no longer be
      * shadowed by the built-in "Light").
      */
-    suspend fun listSaved(): List<String> = withContext(Dispatchers.IO) {
+    override suspend fun listSaved(): List<String> = withContext(Dispatchers.IO) {
         val folder = themesFolder() ?: return@withContext emptyList()
         folder.listFiles()
             .mapNotNull { doc ->
@@ -63,7 +64,7 @@ class ThemeStore(
 
     /** Write [colors] as `<name>.json`. Trailing `.json` in `name` is tolerated
      *  so callers can pass either the bare base name or the listSaved form. */
-    suspend fun saveTheme(name: String, colors: AppThemeColors): Boolean = withContext(Dispatchers.IO) {
+    override suspend fun saveTheme(name: String, colors: AppThemeColors): Boolean = withContext(Dispatchers.IO) {
         val base = if (name.endsWith(SUFFIX, ignoreCase = true)) name.dropLast(SUFFIX.length) else name
         val safe = syncManager.sanitizeBackupName(base) ?: return@withContext false
         val folder = themesFolder() ?: return@withContext false
@@ -84,7 +85,7 @@ class ThemeStore(
 
     /** Load the named saved theme, or null if missing / unreadable. `name`
      *  may be passed with or without the `.json` suffix. */
-    suspend fun loadTheme(name: String): AppThemeColors? = withContext(Dispatchers.IO) {
+    override suspend fun loadTheme(name: String): AppThemeColors? = withContext(Dispatchers.IO) {
         val folder = themesFolder() ?: return@withContext null
         val withSuffix = if (name.endsWith(SUFFIX, ignoreCase = true)) name else "$name$SUFFIX"
         val file = folder.findFile(withSuffix) ?: return@withContext null
