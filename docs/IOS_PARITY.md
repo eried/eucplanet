@@ -41,13 +41,13 @@ Status values:
 | Virtual wheels | shared | |
 | Units | shared | `speedUnit(context)` stays in `:app` for Android-only callers. |
 | Action list (`ActionCatalog`) | shared | The executor behind Flic, volume keys and the watch (FlicManager) is still `:app`. |
-| Wheel state (`WheelRepository`) | shared | Telemetry, history buffers, charging, lock, light, horn, speed limits, per-wheel profiles. What it takes from the rest of the app comes through `WheelRepositoryPorts.kt`; on iOS (`app/IosWheelPorts.kt`) alarms, voice, trips, TPMS caps, external GPS, phone IMU, lockdown and the phone horn answer as switched off until each lands, and wheel profiles are kept in memory until the database moves. Checked on the simulator with a virtual Begode. |
+| Wheel state (`WheelRepository`) | shared | Telemetry, history buffers, charging, lock, light, horn, speed limits, per-wheel profiles. What it takes from the rest of the app comes through `WheelRepositoryPorts.kt`; on iOS (`app/IosWheelPorts.kt`) alarms, voice, trips, TPMS caps, external GPS, phone IMU, lockdown and the phone horn answer as switched off until each lands, and wheel profiles are stored in the shared database. Checked on the simulator with a virtual Begode. |
 | BLE link | iOS actual done (partial) | `WheelLink`: CoreBluetooth scan, connect, service re-routing, notify, paced writes. Not yet on iOS: auto-reconnect, RSSI. Not yet tested on a real wheel. |
 | Settings storage | iOS actual done | Same JSON blob in DataStore (`SettingsStore`, `SettingsRepository`, `SettingsJson`). First-run units on iOS follow the phone's region alone; Android also checks the cell network. |
-| Trip database | not yet | Room KMP. |
+| Trip database | iOS actual done | `AppDatabase` and its DAOs are shared Room (KMP). Android builds it as before (framework SQLite, `eucplanet.db`, the migrations in `AppModule`); iOS opens the same schema on the bundled SQLite in Documents. An iOS install starts at the current version, so a future schema bump needs a common-code migration for iOS. `AppDatabaseIosTest` checks it on the simulator. |
 | Strings (23 locales) | iOS actual done | Compose resources generated from `app/src/main/res` (docs/IOS_SYNC.md). Latin American Spanish still reads Spain's Spanish on iOS: the es-419 lookup is not wired yet. In-app language picker not on iOS; it follows the iPhone's language. |
 | Voice alerts (TTS) | not yet | AVSpeechSynthesizer. |
-| Alarms | not yet | Rules sync with settings.json and are kept on iOS in a JSON file until the database moves; nothing fires them on iOS yet. |
+| Alarms | not yet | Rules sync with settings.json into the shared database (earlier builds' alarm_rules.json is moved in once); nothing fires them on iOS yet and the editor is not on iOS yet. |
 | Trip recording, GPS | not yet | CoreLocation; `location` background mode is in Info.plist. |
 | Background connection | not yet | `bluetooth-central` background mode is in Info.plist. |
 | Motor sound | not yet | AVAudioEngine. |

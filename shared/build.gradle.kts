@@ -8,6 +8,8 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.compose.multiplatform)
+    // Room's code generation for the shared AppDatabase.
+    alias(libs.plugins.ksp)
 }
 
 kotlin {
@@ -51,10 +53,15 @@ kotlin {
             // collectAsStateWithLifecycle and LocalLifecycleOwner in the dashboard.
             implementation(libs.cmp.lifecycle.runtime.compose)
             api(libs.cmp.resources)
-            // @Entity and friends on the moved models; the database stays in :app for now.
-            implementation(libs.room.common)
+            // The trip / alarm / wheel profile database. Android builds it as
+            // before (framework SQLite, its migrations, in :app); iOS opens it
+            // on the bundled SQLite driver.
+            api(libs.room.runtime)
             // Settings live in one JSON blob in DataStore, on both phones.
             api(libs.datastore.preferences.core)
+        }
+        iosMain.dependencies {
+            implementation(libs.sqlite.bundled)
         }
         androidMain.dependencies {
             // platform.HttpClient keeps the phone app's HTTP stack.
@@ -73,6 +80,18 @@ kotlin {
             implementation("org.json:json:20240303")
         }
     }
+}
+
+// Room for every target. The schema of each version still goes to
+// app/schemas, where MigrationAllTest reads it.
+dependencies {
+    add("kspAndroid", libs.room.compiler)
+    add("kspIosArm64", libs.room.compiler)
+    add("kspIosSimulatorArm64", libs.room.compiler)
+}
+ksp {
+    arg("room.schemaLocation", "${rootDir}/app/schemas")
+    arg("room.generateKotlin", "true")
 }
 
 // The 23 locales stay in app/src/main/res; iOS gets them through this.

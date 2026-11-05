@@ -1,7 +1,9 @@
 package com.eried.eucplanet.data.db
 
+import androidx.room.ConstructedBy
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.RoomDatabaseConstructor
 import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.data.model.WheelProfile
@@ -23,8 +25,15 @@ import com.eried.eucplanet.data.model.WheelProfile
     version = 62,
     exportSchema = true
 )
+@ConstructedBy(AppDatabaseConstructor::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun tripDao(): TripDao
     abstract fun alarmDao(): AlarmDao
     abstract fun wheelProfileDao(): WheelProfileDao
+}
+
+/** Room generates the actual for each target (needed off Android). */
+@Suppress("NO_ACTUAL_FOR_EXPECT", "KotlinNoActualForExpect")
+expect object AppDatabaseConstructor : RoomDatabaseConstructor<AppDatabase> {
+    override fun initialize(): AppDatabase
 }

@@ -9,7 +9,6 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.ksp)
     alias(libs.plugins.play.publisher)
 }
 
@@ -263,12 +262,6 @@ android {
     }
 }
 
-// Room writes the schema of every @Database version here. The files are
-// committed: MigrationAllTest validates each migration against the current one.
-ksp {
-    arg("room.schemaLocation", "$projectDir/schemas")
-}
-
 dependencies {
     if (embedWear) {
         "releaseWearApp"(project(":wear"))
@@ -340,7 +333,6 @@ dependencies {
     // Room
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
-    ksp(libs.room.compiler)
 
     // DataStore (settings live here as a single JSON blob so schema bumps
     // never wipe rider configuration. Room is reserved for trips, alarms

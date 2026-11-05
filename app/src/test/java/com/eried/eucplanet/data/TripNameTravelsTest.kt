@@ -151,7 +151,7 @@ class TripNameTravelsTest {
         // Files with no wheel rows are stamped "{}" - looked, nothing there -
         // so the sweep converges instead of re-reading every start.
         assertTrue(repo.contains("""tripDao.updateWheelMeta(trip.id, json ?: "{}")"""))
-        val dao = File("src/main/java/com/eried/eucplanet/data/db/TripDao.kt").readText()
+        val dao = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/data/db/TripDao.kt").readText()
         assertTrue(dao.contains("WHERE wheelMetaJson IS NULL AND endTime IS NOT NULL"))
     }
 }

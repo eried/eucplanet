@@ -3,7 +3,6 @@ package com.eried.eucplanet.app
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.ExternalGpsSample
 import com.eried.eucplanet.data.model.WheelData
-import com.eried.eucplanet.data.model.WheelProfile
 import com.eried.eucplanet.data.repository.AccelSplitReset
 import com.eried.eucplanet.data.repository.AppNotices
 import com.eried.eucplanet.data.repository.EventAnnouncer
@@ -18,7 +17,6 @@ import com.eried.eucplanet.data.repository.RideRecording
 import com.eried.eucplanet.data.repository.RouteKeepAlive
 import com.eried.eucplanet.data.repository.TyrePressureFeed
 import com.eried.eucplanet.data.repository.WheelAlarms
-import com.eried.eucplanet.data.repository.WheelProfiles
 import com.eried.eucplanet.platform.Log
 import com.eried.eucplanet.platform.format
 import com.eried.eucplanet.tpms.TpmsReading
@@ -26,8 +24,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
 import platform.AudioToolbox.AudioServicesPlaySystemSound
@@ -54,17 +50,6 @@ internal object NoRouteKeepAlive : RouteKeepAlive {
 /** Voice is not on iOS yet: event lines go to the log. */
 internal object LogAnnouncer : EventAnnouncer {
     override fun announceEvent(text: String) { Log.i("Voice", text) }
-}
-
-/**
- * Per-wheel profiles in memory until the Room database moves to the shared
- * module: tiltback, alarm and calibration restore within a session.
- */
-internal class MemoryWheelProfiles : WheelProfiles {
-    private val lock = Mutex()
-    private val byName = mutableMapOf<String, WheelProfile>()
-    override suspend fun getByName(name: String): WheelProfile? = lock.withLock { byName[name] }
-    override suspend fun upsert(profile: WheelProfile) = lock.withLock { byName[profile.bleName] = profile }
 }
 
 /** The phone accelerometer is not read on iOS yet. */

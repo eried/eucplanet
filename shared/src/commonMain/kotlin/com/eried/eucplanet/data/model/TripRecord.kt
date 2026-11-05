@@ -2,6 +2,7 @@ package com.eried.eucplanet.data.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.eried.eucplanet.platform.System
 
 @Entity(tableName = "trips")
 data class TripRecord(

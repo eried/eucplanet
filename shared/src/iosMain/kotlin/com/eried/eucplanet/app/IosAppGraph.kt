@@ -13,14 +13,19 @@ import com.eried.eucplanet.data.store.AlarmBackupJson
 import com.eried.eucplanet.data.store.SettingsStore
 import com.eried.eucplanet.data.sync.AlarmRuleStore
 import com.eried.eucplanet.data.sync.DropboxSettingsSync
+import androidx.room.Room
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import com.eried.eucplanet.data.db.AppDatabase
+import com.eried.eucplanet.data.model.WheelProfile
+import com.eried.eucplanet.data.repository.WheelProfiles
 import com.eried.eucplanet.di.SharedKoin
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import com.eried.eucplanet.ui.dashboard.DashboardViewModel
 import com.eried.eucplanet.ui.scan.ScanViewModel
 import com.eried.eucplanet.weather.WeatherRepository
 import com.eried.eucplanet.platform.JSONArray
 import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import okio.Path.Companion.toPath
 import platform.Foundation.NSDocumentDirectory
 import platform.Foundation.NSFileManager
@@ -31,10 +36,8 @@ import platform.Foundation.NSUTF8StringEncoding
 import platform.Foundation.NSUserDefaults
 import platform.Foundation.NSUserDomainMask
 import platform.Foundation.countryCode
-import platform.Foundation.create
 import platform.Foundation.currentLocale
 import platform.Foundation.stringWithContentsOfFile
-import platform.Foundation.writeToFile
 
 /**
  * The iOS app's singletons: what Koin builds on Android. Same classes, iOS
@@ -62,6 +65,19 @@ object IosAppGraph {
 
     val settings: SettingsRepository by lazy { SettingsRepository(settingsStore) }
 
+    /**
+     * The trip / alarm / wheel profile database, the same Room schema as
+     * Android's eucplanet.db, on the bundled SQLite. An iOS install starts at
+     * the current version, so it has no migrations yet; a schema bump needs
+     * one in common code for iOS.
+     */
+    val database: AppDatabase by lazy {
+        Room.databaseBuilder<AppDatabase>(name = "$documents/eucplanet.db")
+            .setDriver(BundledSQLiteDriver())
+            .setQueryCoroutineContext(Dispatchers.IO)
+            .build()
+    }
+
     val adapter: CompositeWheelAdapter by lazy { SharedKoin.koin.get() }
 
     /** The hidden debug switches, shared with the wheel state as on Android. */
@@ -80,7 +96,15 @@ object IosAppGraph {
             alarmEngine = NoAlarms,
             tonePlayer = NoRouteKeepAlive,
             voiceService = LogAnnouncer,
-            wheelProfileDao = MemoryWheelProfiles(),
+            wheelProfileDao = object : WheelProfiles {
+                // WheelRepository swallows a failed read, so say it here.
+                override suspend fun getByName(name: String) =
+                    try { database.wheelProfileDao().getByName(name) } catch (e: Exception) {
+                        com.eried.eucplanet.platform.Log.w("WheelProfiles", "read failed", e)
+                        throw e
+                    }
+                override suspend fun upsert(profile: WheelProfile) = database.wheelProfileDao().upsert(profile)
+            },
             cheatState = cheats,
             phoneSensorRepository = NoPhoneImu,
             externalGpsRepository = NoExternalGps,
@@ -106,11 +130,19 @@ object IosAppGraph {
         })
     }
 
-    /**
-     * Alarm rules, kept as the same JSON array settings.json carries until the
-     * trip database (Room) moves to the shared module and iOS gets AlarmDao.
-     */
-    val alarms: AlarmRuleStore by lazy { JsonAlarmRuleStore("$documents/alarm_rules.json") }
+    /** Alarm rules in the database, as Android's SyncManager keeps them. */
+    val alarms: AlarmRuleStore by lazy {
+        val dao = database.alarmDao()
+        object : AlarmRuleStore {
+            override suspend fun getAll(): List<AlarmRule> = dao.getAll()
+            override suspend fun replaceAll(rules: List<AlarmRule>) {
+                dao.deleteAll()
+                rules.forEach { dao.insert(it.copy(id = 0)) }
+            }
+        }
+    }
+
+    internal val legacyAlarmsPath: String get() = "$documents/alarm_rules.json"
 
     val dropboxSettings: DropboxSettingsSync by lazy {
         // Language follows the iPhone's own setting for now; the in-app
@@ -157,24 +189,19 @@ object IosAppGraph {
 
     suspend fun seed() {
         settingsStore.seedDefaultsIfAbsent()
+        importLegacyAlarms()
     }
 }
 
-private class JsonAlarmRuleStore(private val path: String) : AlarmRuleStore {
-    private val lock = Mutex()
-
-    @OptIn(ExperimentalForeignApi::class)
-    override suspend fun getAll(): List<AlarmRule> = lock.withLock {
-        val text = NSString.stringWithContentsOfFile(path, NSUTF8StringEncoding, null) ?: return emptyList()
-        runCatching { AlarmBackupJson.jsonToAlarms(JSONArray(text)) }.getOrDefault(emptyList())
-            .mapIndexed { i, r -> r.copy(id = i + 1L) }
-    }
-
-    @OptIn(ExperimentalForeignApi::class)
-    override suspend fun replaceAll(rules: List<AlarmRule>) = lock.withLock {
-        val text = AlarmBackupJson.alarmsToJson(rules).toString()
-        @Suppress("CAST_NEVER_SUCCEEDS")
-        (NSString.create(string = text)).writeToFile(path, true, NSUTF8StringEncoding, null)
-        Unit
-    }
+/**
+ * Earlier iOS builds kept alarm rules in alarm_rules.json until the database
+ * moved to the shared module. Move them in once, then drop the file.
+ */
+@OptIn(ExperimentalForeignApi::class)
+private suspend fun IosAppGraph.importLegacyAlarms() {
+    val path = legacyAlarmsPath
+    val text = NSString.stringWithContentsOfFile(path, NSUTF8StringEncoding, null) ?: return
+    val rules = runCatching { AlarmBackupJson.jsonToAlarms(JSONArray(text)) }.getOrDefault(emptyList())
+    if (rules.isNotEmpty() && alarms.getAll().isEmpty()) alarms.replaceAll(rules)
+    NSFileManager.defaultManager.removeItemAtPath(path, null)
 }

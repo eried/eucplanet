@@ -79,6 +79,7 @@ room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 room-common = { group = "androidx.room", name = "room-common", version.ref = "room" }
+sqlite-bundled = { group = "androidx.sqlite", name = "sqlite-bundled", version = "2.6.2" }
 room-testing = { group = "androidx.room", name = "room-testing", version.ref = "room" }
 
 # Koin (dependency injection, multiplatform)

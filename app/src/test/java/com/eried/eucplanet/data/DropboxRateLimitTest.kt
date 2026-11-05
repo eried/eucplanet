@@ -155,7 +155,7 @@ class DropboxRateLimitTest {
         assertTrue("the mirror does not distinguish a downloaded trip",
             worker.contains("skipIfPresent = trip.uploadStatus == 4"))
         assertTrue("uploadCsv cannot skip", sync.contains("skipIfPresent: Boolean = false"))
-        val dao = File("src/main/java/com/eried/eucplanet/data/db/TripDao.kt").readText()
+        val dao = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/data/db/TripDao.kt").readText()
         assertTrue("status 4 is not picked up by the folder worker",
             dao.contains("uploadStatus IN (1, 3, 4)"))
     }
