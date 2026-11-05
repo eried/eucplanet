@@ -1,6 +1,7 @@
 package com.eried.eucplanet.cheats
 
 import com.eried.eucplanet.data.repository.CheatFlags
+import com.eried.eucplanet.platform.format
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

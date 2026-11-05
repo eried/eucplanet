@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.repository.FullMetricHistory
 import com.eried.eucplanet.R
+import com.eried.eucplanet.resources.*
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
@@ -367,8 +368,8 @@ class DashboardViewModel(
                         appHealthRepository.upsert(
                             com.eried.eucplanet.data.repository.AppWarning(
                                 id = "backup_conflicts",
-                                titleRes = com.eried.eucplanet.R.string.backup_conflict_title,
-                                bodyRes = com.eried.eucplanet.R.string.backup_conflict_warning,
+                                titleRes = Res.string.backup_conflict_title,
+                                bodyRes = Res.string.backup_conflict_warning,
                                 settingsTab = 4,
                             )
                         )
@@ -393,8 +394,8 @@ class DashboardViewModel(
                     appHealthRepository.upsert(
                         com.eried.eucplanet.data.repository.AppWarning(
                             id = "autolights_paused",
-                            titleRes = com.eried.eucplanet.R.string.warnings_autolights_title,
-                            bodyRes = com.eried.eucplanet.R.string.warnings_autolights_body,
+                            titleRes = Res.string.warnings_autolights_title,
+                            bodyRes = Res.string.warnings_autolights_body,
                             fix = {
                                 automationManager.clearLightsSuspension()
                                 automationManager.triggerImmediateLightEvaluation()
@@ -416,8 +417,8 @@ class DashboardViewModel(
                         appHealthRepository.upsert(
                             com.eried.eucplanet.data.repository.AppWarning(
                                 id = "autolock_paused",
-                                titleRes = com.eried.eucplanet.R.string.warnings_autolock_title,
-                                bodyRes = com.eried.eucplanet.R.string.warnings_autolock_body,
+                                titleRes = Res.string.warnings_autolock_title,
+                                bodyRes = Res.string.warnings_autolock_body,
                                 fix = { automationManager.clearLockSuspension() },
                             )
                         )

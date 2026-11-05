@@ -2306,7 +2306,7 @@ fun DashboardScreen(
                                 label = stringResource(R.string.action_chip_voice_listen),
                                 onClick = { viewModel.onVoiceListen() },
                                 active = voiceCommandState !is
-                                    com.eried.eucplanet.voice.VoiceCommandController.UiState.Idle,
+                                    com.eried.eucplanet.voice.VoiceCommandUiState.Idle,
                                 aspectRatio = actionAspect, heightDp = actionHeight,
                                 menu = { dismiss ->
                                     // One menu for both voice tiles. They

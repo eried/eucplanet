@@ -1,5 +1,6 @@
 package com.eried.eucplanet.voice
 
+import com.eried.eucplanet.voice.VoiceCommandUiState as UiState
 import android.content.Context
 import android.util.Log
 import android.content.pm.PackageManager
@@ -130,14 +131,6 @@ class VoiceCommandController(
 
         const val PROMPT_HZ = 1320
         const val PROMPT_MS = 90
-    }
-
-    /** What the dashboard renders while a session runs. */
-    sealed interface UiState {
-        data object Idle : UiState
-        data object Listening : UiState
-        data class Heard(val text: String) : UiState
-        data class Spoke(val text: String) : UiState
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)

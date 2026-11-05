@@ -12,31 +12,10 @@ import android.os.PowerManager
 import android.provider.Settings
 import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
-import com.eried.eucplanet.R
+import com.eried.eucplanet.resources.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-
-/**
- * A single user-actionable warning surfaced in the dashboard top bar.
- *
- * [id] dedupes so the same source can call [AppHealthRepository.upsert] repeatedly
- * without producing duplicates. [fix] runs on the UI thread when the rider taps
- * the Fix button, typically opens the system Settings App-Details page, but
- * future warning sources (failed trip import, …) can pass any handler.
- */
-data class AppWarning(
-    val id: String,
-    val titleRes: Int,
-    val bodyRes: Int,
-    val fix: () -> Unit = {},
-    /**
-     * Settings tab to open instead of running [fix], for the warnings whose
-     * remedy is inside the app rather than in system settings. The dashboard
-     * knows how to navigate; this layer only says where to.
-     */
-    val settingsTab: Int? = null,
-)
 
 /**
  * Aggregates "things the rider should know about" into a single flow that the
@@ -138,8 +117,8 @@ class AppHealthRepository(
                 upsert(
                     AppWarning(
                         id = PERM_NOTIFICATIONS_ID,
-                        titleRes = R.string.warnings_perm_notifications_title,
-                        bodyRes = R.string.warnings_perm_notifications_body,
+                        titleRes = Res.string.warnings_perm_notifications_title,
+                        bodyRes = Res.string.warnings_perm_notifications_body,
                         fix = { openAppSettings() }
                     )
                 )
@@ -158,8 +137,8 @@ class AppHealthRepository(
                 upsert(
                     AppWarning(
                         id = PERM_MIC_ID,
-                        titleRes = R.string.warnings_perm_mic_title,
-                        bodyRes = R.string.warnings_perm_mic_body,
+                        titleRes = Res.string.warnings_perm_mic_title,
+                        bodyRes = Res.string.warnings_perm_mic_body,
                         fix = { openAppSettings() }
                     )
                 )
@@ -194,8 +173,8 @@ class AppHealthRepository(
             upsert(
                 AppWarning(
                     id = LOCATION_SERVICES_ID,
-                    titleRes = R.string.warnings_location_services_title,
-                    bodyRes = R.string.warnings_location_services_body,
+                    titleRes = Res.string.warnings_location_services_title,
+                    bodyRes = Res.string.warnings_location_services_body,
                     fix = { openLocationSettings() }
                 )
             )
@@ -210,8 +189,8 @@ class AppHealthRepository(
             upsert(
                 AppWarning(
                     id = PERM_LOCATION_ID,
-                    titleRes = R.string.warnings_perm_location_title,
-                    bodyRes = R.string.warnings_perm_location_body,
+                    titleRes = Res.string.warnings_perm_location_title,
+                    bodyRes = Res.string.warnings_perm_location_body,
                     fix = { openAppSettings() }
                 )
             )
@@ -238,8 +217,8 @@ class AppHealthRepository(
                 upsert(
                     AppWarning(
                         id = PERM_MEDIA_ACCESS_ID,
-                        titleRes = R.string.warnings_media_access_title,
-                        bodyRes = R.string.warnings_media_access_body,
+                        titleRes = Res.string.warnings_media_access_title,
+                        bodyRes = Res.string.warnings_media_access_body,
                         fix = { openNotificationAccessSettings() }
                     )
                 )
@@ -267,8 +246,8 @@ class AppHealthRepository(
                 upsert(
                     AppWarning(
                         id = PERM_PIP_ID,
-                        titleRes = R.string.warnings_pip_blocked_title,
-                        bodyRes = R.string.warnings_pip_blocked_body,
+                        titleRes = Res.string.warnings_pip_blocked_title,
+                        bodyRes = Res.string.warnings_pip_blocked_body,
                         fix = { openPipSettings() }
                     )
                 )
@@ -287,8 +266,8 @@ class AppHealthRepository(
                 upsert(
                     AppWarning(
                         id = PERM_OVERLAY_ID,
-                        titleRes = R.string.warnings_hud_blocked_title,
-                        bodyRes = R.string.warnings_hud_blocked_body,
+                        titleRes = Res.string.warnings_hud_blocked_title,
+                        bodyRes = Res.string.warnings_hud_blocked_body,
                         fix = { openOverlaySettings() }
                     )
                 )
@@ -303,8 +282,8 @@ class AppHealthRepository(
             upsert(
                 AppWarning(
                     id = BATTERY_OPT_ID,
-                    titleRes = R.string.warnings_battery_opt_title,
-                    bodyRes = R.string.warnings_battery_opt_body,
+                    titleRes = Res.string.warnings_battery_opt_title,
+                    bodyRes = Res.string.warnings_battery_opt_body,
                     fix = { requestIgnoreBatteryOptimizations() }
                 )
             )
@@ -366,8 +345,8 @@ class AppHealthRepository(
             upsert(
                 AppWarning(
                     id = BACKUP_FOLDER_ID,
-                    titleRes = R.string.warnings_no_backup_title,
-                    bodyRes = R.string.warnings_no_backup_body,
+                    titleRes = Res.string.warnings_no_backup_title,
+                    bodyRes = Res.string.warnings_no_backup_body,
                     settingsTab = SETTINGS_TAB_BACKUPS,
                 )
             )
