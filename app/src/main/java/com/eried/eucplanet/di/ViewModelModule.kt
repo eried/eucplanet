@@ -71,6 +71,10 @@ val viewModelModule = module {
     // And the scan screen's.
     singleOf(::AndroidWheelScanner) bind WheelScanner::class
     single<ScanPlatform> { AndroidScanPlatform(androidContext()) }
+    // And the alarm editor's.
+    single<com.eried.eucplanet.ui.settings.AlarmPreview> {
+        com.eried.eucplanet.ui.settings.AndroidAlarmPreview(androidContext(), get(), get())
+    }
 
     viewModelOf(::WheelDiagnosticsViewModel)
     viewModelOf(::ChargingMonitorViewModel)

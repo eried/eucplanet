@@ -1,18 +1,17 @@
 package com.eried.eucplanet.ui.settings
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
+import com.eried.eucplanet.ble.WheelLink
+import com.eried.eucplanet.data.repository.PhoneDevice
+import com.eried.eucplanet.platform.format
+import com.eried.eucplanet.resources.*
 import androidx.lifecycle.viewModelScope
-import com.eried.eucplanet.R
 import com.eried.eucplanet.data.db.AlarmDao
 import com.eried.eucplanet.data.model.AlarmComparator
 import com.eried.eucplanet.data.model.AlarmMetric
 import com.eried.eucplanet.data.model.groupKey
 import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.data.repository.SettingsRepository
-import com.eried.eucplanet.service.TonePlayer
-import com.eried.eucplanet.service.VoiceService
-import com.eried.eucplanet.util.VibratorHelper
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,15 +22,13 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import com.eried.eucplanet.platform.getString
 
 class AlarmViewModel(
-    private val context: Context,
+    private val phone: PhoneDevice,
     private val alarmDao: AlarmDao,
-    private val tonePlayer: TonePlayer,
-    private val voiceService: VoiceService,
+    private val tonePlayer: AlarmPreview,
     private val settingsRepository: SettingsRepository,
-    bleConnectionManager: com.eried.eucplanet.ble.BleConnectionManager
+    bleConnectionManager: WheelLink,
 ) : ViewModel() {
 
     companion object {
@@ -85,8 +82,6 @@ class AlarmViewModel(
         else null
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
-
-    private val vibratorHelper = VibratorHelper(context)
 
     val rules: StateFlow<List<AlarmRule>> = alarmDao.observeAll()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -277,14 +272,14 @@ class AlarmViewModel(
     private val _studioPlaying = MutableStateFlow(false)
     val studioPlaying: StateFlow<Boolean> = _studioPlaying
 
-    @Volatile private var sFreq = 1000
-    @Volatile private var sDur = 300
-    @Volatile private var sCount = 1
-    @Volatile private var sGap = 100
-    @Volatile private var sVol = 100
-    @Volatile private var sTrans = 12   // transition ramp, percent of duration
-    @Volatile private var sWave = 0     // oscillator shape
-    @Volatile private var sEffect = 0   // post effect
+    @kotlin.concurrent.Volatile private var sFreq = 1000
+    @kotlin.concurrent.Volatile private var sDur = 300
+    @kotlin.concurrent.Volatile private var sCount = 1
+    @kotlin.concurrent.Volatile private var sGap = 100
+    @kotlin.concurrent.Volatile private var sVol = 100
+    @kotlin.concurrent.Volatile private var sTrans = 12   // transition ramp, percent of duration
+    @kotlin.concurrent.Volatile private var sWave = 0     // oscillator shape
+    @kotlin.concurrent.Volatile private var sEffect = 0   // post effect
 
     private fun sTransMs() = sDur * sTrans / 100
 
@@ -326,11 +321,11 @@ class AlarmViewModel(
     }
 
     fun previewVoice(text: String, metric: AlarmMetric, threshold: Float) {
-        val metricLabel = context.getString(metric.voiceLabelRes)
+        val metricLabel = phone.text(metric.voiceLabelRes)
         // {value} and {threshold} both read back the rider's chosen threshold,
         // so the preview sounds like the alarm they actually configured.
         val thresh = "%.0f".format(threshold)
-        val preview = text.ifBlank { context.getString(R.string.alarm_test_default) }
+        val preview = text.ifBlank { phone.text(Res.string.alarm_test_default) }
             .replace("{speed}", "35")
             .replace("{battery}", "80")
             .replace("{temp}", "40")
@@ -341,10 +336,28 @@ class AlarmViewModel(
             .replace("{value}", thresh)
             .replace("{metric}", metricLabel)
             .replace("{threshold}", thresh)
-        voiceService.speak(preview)
+        tonePlayer.speak(preview)
     }
 
     fun previewVibrate(durationMs: Int) {
-        vibratorHelper.oneShot(durationMs.toLong())
+        tonePlayer.vibrate(durationMs.toLong())
     }
+}
+
+/**
+ * How the alarm editor auditions an alarm: the tone player's beeps and live
+ * stream, the voice, and the vibrator. Android hands it TonePlayer,
+ * VoiceService and VibratorHelper.
+ */
+interface AlarmPreview {
+    suspend fun playBeep(
+        frequencyHz: Int, durationMs: Int, count: Int, gapMs: Int, volumePct: Int,
+        transitionMs: Int, waveform: Int, effect: Int,
+    )
+    fun setPreviewKeepAlive(on: Boolean)
+    fun startStream(frequencyHz: Int, durationMs: Int, gapMs: Int, volumePct: Int, transitionMs: Int, waveform: Int, effect: Int)
+    fun updateStream(frequencyHz: Int, durationMs: Int, gapMs: Int, volumePct: Int, transitionMs: Int, waveform: Int, effect: Int)
+    fun stopStream()
+    fun speak(text: String)
+    fun vibrate(durationMs: Long)
 }

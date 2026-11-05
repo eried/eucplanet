@@ -691,7 +691,7 @@ fun SettingsScreen(
             CloudTab(settings, viewModel, snackbar, snackbarScope)
         },
         SectionDef("alarms", titleAlarms, Icons.Default.NotificationsActive, corpora.getValue("alarms")) {
-            AlarmSettingsContent()
+            AlarmSettingsContent(viewModel = org.koin.compose.viewmodel.koinViewModel())
         },
         SectionDef("auto", titleAuto, Icons.Default.AutoAwesome, corpora.getValue("auto")) {
             AutomationsContent()
@@ -1677,57 +1677,6 @@ private fun AdvRow(spec: AdvancedSpec, advanced: AdvancedSettings, onChange: (In
 }
 
 /**
- * A numeric field that carries its own default underneath it.
- *
- * Drops into an existing Row in place of a bare [NumberUpDown] without moving
- * anything: same modifier, same width, the chip simply appears below. That
- * matters for the rows that hold two fields side by side, like the empty and
- * full cell voltages, where turning each into a full settings row would break
- * the pairing that makes them readable.
- *
- * [default] is meant to come from `SETTINGS_DEFAULTS` rather than being typed
- * in, so the chip cannot drift from the shipped value.
- */
-@Composable
-internal fun NumberFieldWithDefault(
-    value: Int,
-    onValueChange: (Int) -> Unit,
-    range: IntRange,
-    default: Int,
-    modifier: Modifier = Modifier,
-    step: Int = 1,
-    suffix: String = "",
-    label: String? = null,
-    enabled: Boolean = true,
-    format: (Int) -> String = { it.toString() },
-    parse: (String) -> Int? = { it.toIntOrNull() },
-    allowSign: Boolean = false,
-    numberAlign: TextAlign = TextAlign.End,
-) {
-    Column(modifier = modifier) {
-        NumberUpDown(
-            value = value,
-            onValueChange = onValueChange,
-            range = range,
-            modifier = Modifier.fillMaxWidth(),
-            step = step,
-            suffix = suffix,
-            label = label,
-            enabled = enabled,
-            format = format,
-            parse = parse,
-            allowSign = allowSign,
-            numberAlign = numberAlign,
-        )
-        val unit = if (suffix.isEmpty()) "" else " $suffix"
-        RestoreChip(
-            text = "${format(default)}$unit",
-            enabled = enabled && value != default,
-        ) { onValueChange(default) }
-    }
-}
-
-/**
  * A numeric setting, in the shape the Advanced section established.
  *
  * The label lives inside the field rather than as a separate Text beside it,
@@ -1791,30 +1740,6 @@ internal fun NumberSettingRow(
         } else {
             Spacer(Modifier.weight(1f))
         }
-    }
-}
-
-/** Always-visible "undo -> <default>" affordance. Active (accent, clickable) when
- *  the value is off its default; greyed and inert once it matches. */
-@Composable
-internal fun RestoreChip(text: String, enabled: Boolean, onClick: () -> Unit) {
-    val color = if (enabled) MaterialTheme.appColors.primary else MaterialTheme.appColors.textDisabled
-    Row(
-        modifier = Modifier
-            .padding(top = 4.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .then(if (enabled) Modifier.clickable(onClick = onClick) else Modifier)
-            .padding(horizontal = 6.dp, vertical = 2.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(
-            Icons.Default.Restore,
-            contentDescription = if (enabled) stringResource(R.string.adv_restore_default) else null,
-            modifier = Modifier.size(15.dp),
-            tint = color,
-        )
-        Spacer(Modifier.width(4.dp))
-        Text(text, fontSize = 12.sp, color = color)
     }
 }
 

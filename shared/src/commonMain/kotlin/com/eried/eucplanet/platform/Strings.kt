@@ -19,3 +19,11 @@ expect fun stringResource(res: StringResource): String
 
 @Composable
 expect fun stringResource(res: StringResource, vararg formatArgs: Any): String
+
+/**
+ * [res] in the language [languageTag] names ("de", "pt_BR"), rather than the
+ * app's. Android reads it through a Configuration for that locale; iOS has
+ * no per-call locale for Compose resources and gives the phone's language.
+ */
+@Composable
+expect fun stringResourceInLanguage(res: StringResource, languageTag: String): String

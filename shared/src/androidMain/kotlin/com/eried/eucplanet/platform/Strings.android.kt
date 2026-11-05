@@ -32,6 +32,19 @@ actual fun stringResource(res: StringResource): String =
 actual fun stringResource(res: StringResource, vararg formatArgs: Any): String =
     androidx.compose.ui.res.stringResource(AndroidStrings.id(res), *formatArgs)
 
+@Composable
+actual fun stringResourceInLanguage(res: StringResource, languageTag: String): String {
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    return androidx.compose.runtime.remember(languageTag) {
+        val tag = languageTag.replace("_", "-")
+        val locale = java.util.Locale.forLanguageTag(tag)
+        val cfg = android.content.res.Configuration(ctx.resources.configuration).apply {
+            setLocale(locale)
+        }
+        ctx.createConfigurationContext(cfg).getString(AndroidStrings.id(res))
+    }
+}
+
 /** `Context.getString` for a shared string. */
 fun Context.getString(res: StringResource): String = getString(AndroidStrings.id(res))
 

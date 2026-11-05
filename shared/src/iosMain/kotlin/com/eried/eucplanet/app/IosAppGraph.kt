@@ -23,6 +23,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import com.eried.eucplanet.ui.dashboard.DashboardViewModel
 import com.eried.eucplanet.ui.scan.ScanViewModel
+import com.eried.eucplanet.ui.settings.AlarmViewModel
 import com.eried.eucplanet.weather.WeatherRepository
 import com.eried.eucplanet.platform.JSONArray
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -175,6 +176,15 @@ object IosAppGraph {
         voiceCommands = NoVoiceCommands,
         phone = IosPhoneDevice,
         platform = IosDashboardPlatform(wheel),
+    )
+
+    /** The alarm editor's view model, as Koin builds it on Android. */
+    fun alarmViewModel(): AlarmViewModel = AlarmViewModel(
+        phone = IosPhoneDevice,
+        alarmDao = database.alarmDao(),
+        tonePlayer = IosAlarmPreview,
+        settingsRepository = settings,
+        bleConnectionManager = link,
     )
 
     /** A scan view model, as Koin's viewModelOf builds it on Android. */

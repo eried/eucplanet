@@ -52,6 +52,8 @@ kotlin {
             api(libs.cmp.lifecycle.viewmodel)
             // collectAsStateWithLifecycle and LocalLifecycleOwner in the dashboard.
             implementation(libs.cmp.lifecycle.runtime.compose)
+            // Drag-to-reorder in the alarm list (multiplatform since 2.x).
+            implementation(libs.reorderable)
             api(libs.cmp.resources)
             // The trip / alarm / wheel profile database. Android builds it as
             // before (framework SQLite, its migrations, in :app); iOS opens it

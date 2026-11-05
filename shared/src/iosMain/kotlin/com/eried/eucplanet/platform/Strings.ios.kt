@@ -10,3 +10,7 @@ actual fun stringResource(res: StringResource): String =
 @Composable
 actual fun stringResource(res: StringResource, vararg formatArgs: Any): String =
     org.jetbrains.compose.resources.stringResource(res).format(*formatArgs)
+
+@Composable
+actual fun stringResourceInLanguage(res: StringResource, languageTag: String): String =
+    org.jetbrains.compose.resources.stringResource(res)

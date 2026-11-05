@@ -17,6 +17,16 @@ import com.eried.eucplanet.app.IosScanHost
 import com.eried.eucplanet.platform.stringResource
 import com.eried.eucplanet.resources.Res
 import com.eried.eucplanet.resources.action_back
+import com.eried.eucplanet.resources.tab_alarms
+import com.eried.eucplanet.ui.settings.AlarmSettingsContent
+import com.eried.eucplanet.ui.settings.AlarmViewModel
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Surface
+import androidx.compose.ui.unit.dp
 import com.eried.eucplanet.ui.scan.ScanScreen
 import com.eried.eucplanet.ui.scan.ScanViewModel
 import com.eried.eucplanet.app.RideActivity
@@ -76,11 +86,36 @@ fun MainViewController(): UIViewController {
                     }
                     // Settings is not shared yet; the probe screen holds the
                     // Dropbox settings sync until it moves.
+                    // Settings is not shared yet: its alarms section is, and the
+                    // probe's tab holds the Dropbox settings sync until it moves.
                     "probe" -> Column(Modifier.safeDrawingPadding()) {
-                        TextButton(onClick = { screen = "dashboard" }) {
-                            Text(stringResource(Res.string.action_back))
+                        Row {
+                            TextButton(onClick = { screen = "dashboard" }) {
+                                Text(stringResource(Res.string.action_back))
+                            }
+                            TextButton(onClick = { screen = "alarms" }) {
+                                Text(stringResource(Res.string.tab_alarms))
+                            }
                         }
                         ProbeScreen(link, wheel, 1)
+                    }
+                    "alarms" -> {
+                        val store = remember { ViewModelStore() }
+                        val alarmVm = remember {
+                            ViewModelProvider.create(
+                                store,
+                                viewModelFactory { initializer { IosAppGraph.alarmViewModel() } },
+                            )[AlarmViewModel::class]
+                        }
+                        DisposableEffect(store) { onDispose { store.clear() } }
+                        Surface(Modifier.fillMaxSize()) {
+                            Column(Modifier.safeDrawingPadding().verticalScroll(rememberScrollState()).padding(16.dp)) {
+                                TextButton(onClick = { screen = "probe" }) {
+                                    Text(stringResource(Res.string.action_back))
+                                }
+                                AlarmSettingsContent(viewModel = alarmVm)
+                            }
+                        }
                     }
                     else -> {
                         val viewModel = remember { IosAppGraph.dashboardViewModel() }
