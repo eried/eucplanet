@@ -34,7 +34,7 @@ class JavaFormatTest {
     fun randomDoublesMatch() {
         val r = Random(42)
         repeat(20_000) {
-            val d = (r.nextDouble() - 0.5) * Math.pow(10.0, r.nextInt(-6, 9).toDouble())
+            val d = (r.nextDouble() - 0.5) * java.lang.Math.pow(10.0, r.nextInt(-6, 9).toDouble())
             for (f in listOf("%.0f", "%.1f", "%.2f", "%.4f")) check(f, d)
             check("%.1f", d.toFloat())
         }
