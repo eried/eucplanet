@@ -95,8 +95,10 @@ object IosAppGraph {
      * The active theme, resolved from the same activeThemeName Android keeps in
      * settings.json, so a theme picked on one phone shows on the other.
      */
+    internal val themeFiles: IosThemeFiles by lazy { IosThemeFiles(documents) }
+
     val theme: ThemeController by lazy {
-        ThemeController(settings, IosThemeFiles(documents)) {
+        ThemeController(settings, themeFiles) {
             UIScreen.mainScreen.traitCollection.userInterfaceStyle == UIUserInterfaceStyle.UIUserInterfaceStyleDark
         }
     }

@@ -2,6 +2,7 @@ package com.eried.eucplanet.app
 
 import com.eried.eucplanet.data.sync.SettingsSyncAction
 import com.eried.eucplanet.data.sync.SyncChoice
+import com.eried.eucplanet.data.sync.syncJsonFolder
 import com.eried.eucplanet.platform.Log
 import com.eried.eucplanet.platform.System
 import kotlinx.coroutines.CompletableDeferred
@@ -17,8 +18,8 @@ import kotlinx.coroutines.launch
 /**
  * The iOS "Sync now": settings.json (settings and alarm rules) both ways
  * through [com.eried.eucplanet.data.sync.DropboxSettingsSync], with the same
- * conflict question as Android. Trips and themes join once their storage is
- * on iOS (docs/IOS_PARITY.md).
+ * conflict question as Android, and the saved themes. Trips join once their
+ * storage is on iOS (docs/IOS_PARITY.md).
  */
 object IosDropboxSync {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
@@ -62,6 +63,15 @@ object IosDropboxSync {
                     }
                 }
                 val outcome = g.dropboxSettings.carryOut(plan, action)
+                // Saved themes, both ways, as Android mirrors its backup folder's
+                // themes/. A theme changed on both sides follows the rider's answer
+                // above when there was one, and is left alone otherwise.
+                val themeChoice = when (action) {
+                    SettingsSyncAction.UPLOAD -> if (plan.conflict) SyncChoice.APP else SyncChoice.IGNORE
+                    SettingsSyncAction.APPLY -> if (plan.conflict) SyncChoice.FOLDER else SyncChoice.IGNORE
+                    else -> SyncChoice.IGNORE
+                }
+                syncJsonFolder(g.dropbox, "themes", g.themeFiles, themeChoice)
                 if (!outcome.failed) {
                     g.settings.update { it.copy(dropboxLastSyncAt = System.currentTimeMillis()) }
                 }

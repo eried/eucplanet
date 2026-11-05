@@ -1579,42 +1579,55 @@ class SyncManager(
         }
     }
 
-    /** One side of a themes/ or overlays/ comparison. */
-    private class SubdirState(
-        val dir: androidx.documentfile.provider.DocumentFile,
-        val docs: Map<String, androidx.documentfile.provider.DocumentFile>,
-        val plan: FileSyncPlan,
-    )
-
     /**
-     * Compare one backup subfolder with Dropbox by content. Only .json files
-     * take part: a theme or overlay is JSON, and anything else would be renamed
-     * by the provider on the way in and come back every pass. Null when the
-     * folder or the listing is out of reach, which must not read as "empty".
+     * The backup folder's [sub] as the shared [syncJsonFolder] sees it. Only
+     * .json files take part: a theme or overlay is JSON, and anything else
+     * would be renamed by the provider on the way in and come back every pass.
      */
-    private suspend fun planSubdir(
+    private fun safJsonFolder(
         folder: androidx.documentfile.provider.DocumentFile, sub: String, create: Boolean,
-    ): SubdirState? {
-        val dir = folder.findFile(sub)?.takeIf { it.isDirectory }
-            ?: (if (create) folder.createDirectory(sub) else null) ?: return null
-        val remote = dropboxRepository.listFolder("/$sub") ?: return null
-        val docs = dir.listFiles()
-            .filter { it.isFile && it.name?.endsWith(".json", ignoreCase = true) == true }
-            .associateBy { it.name!! }
-        val local = docs.mapValues { (_, doc) ->
-            context.contentResolver.openInputStream(doc.uri)?.use { DropboxContentHash.of(it.readBytes()) } ?: ""
+    ): JsonFolder = object : JsonFolder {
+        private var dir: androidx.documentfile.provider.DocumentFile? = null
+        private var docs: Map<String, androidx.documentfile.provider.DocumentFile> = emptyMap()
+
+        override suspend fun jsonFiles(): Map<String, ByteArray>? {
+            val d = folder.findFile(sub)?.takeIf { it.isDirectory }
+                ?: (if (create) folder.createDirectory(sub) else null) ?: return null
+            dir = d
+            docs = d.listFiles()
+                .filter { it.isFile && it.name?.endsWith(".json", ignoreCase = true) == true }
+                .associateBy { it.name!! }
+            // A file the provider will not open is left out rather than sent
+            // up empty.
+            return docs.mapNotNull { (name, doc) ->
+                context.contentResolver.openInputStream(doc.uri)?.use { it.readBytes() }?.let { name to it }
+            }.toMap()
         }
-        val remoteHashes = remote
-            .filterKeys { it.endsWith(".json", ignoreCase = true) }
-            .mapValues { it.value.contentHash ?: "size:${it.value.size}" }
-        return SubdirState(dir, docs, FileSyncPolicy.decide(local, remoteHashes))
+
+        override suspend fun write(name: String, bytes: ByteArray): Boolean {
+            val d = dir ?: return false
+            // Replace an existing file in place. Deleting it and
+            // creating it again races the provider, which then names
+            // the new one "name (1).json" beside a missing original.
+            val existing = docs[name]
+            val target = existing ?: d.createFile("application/json", name) ?: return false
+            val ok = try {
+                context.contentResolver.openOutputStream(target.uri, "wt")?.use { it.write(bytes); true } ?: false
+            } catch (e: Exception) { false }
+            if (!ok) {
+                // A half-created empty file would look like a conflict next pass and could
+                // overwrite the real Dropbox copy on an APP choice. Remove it so a failed
+                // download simply retries next time.
+                if (existing == null) target.delete()
+            }
+            return ok
+        }
     }
 
     /**
-     * Sync the backup folder's themes/ and overlays/ both ways with Dropbox.
-     * Per-file like trips: on one side only -> transfer; same name different
-     * content -> conflict, resolved with the shared [choice]. Downloads write
-     * into the SAF subfolder, where ThemeStore/OverlayPresetStore read them.
+     * Sync the backup folder's themes/ and overlays/ both ways with Dropbox
+     * ([syncJsonFolder], shared with iOS). Downloads write into the SAF
+     * subfolder, where ThemeStore/OverlayPresetStore read them.
      * @return number of files transferred (not counted as trips).
      */
     private suspend fun syncBackupSubdirs(settings: AppSettings, choice: SyncChoice): Int {
@@ -1622,41 +1635,7 @@ class SyncManager(
         var count = 0
         for (sub in listOf("themes", "overlays")) {
             try {
-                val state = planSubdir(folder, sub, create = true) ?: continue
-                val plan = state.plan
-                suspend fun upload(name: String) {
-                    val doc = state.docs[name] ?: return
-                    val bytes = context.contentResolver.openInputStream(doc.uri)?.use { it.readBytes() } ?: return
-                    if (dropboxRepository.uploadFile("/$sub/$name", bytes)) count++
-                }
-                plan.upload.forEach { upload(it) }
-                val toDownload = plan.download.toMutableList()
-                // Conflicts follow the shared choice: APP keeps phone (upload),
-                // FOLDER uses Dropbox (download), IGNORE/CANCEL skip.
-                when (choice) {
-                    SyncChoice.APP -> plan.conflicts.forEach { upload(it) }
-                    SyncChoice.FOLDER -> toDownload.addAll(plan.conflicts)
-                    else -> {}
-                }
-                for (name in toDownload) {
-                    val bytes = dropboxRepository.downloadFile("/$sub/$name") ?: continue
-                    // Replace an existing file in place. Deleting it and
-                    // creating it again races the provider, which then names
-                    // the new one "name (1).json" beside a missing original.
-                    val existing = state.docs[name]
-                    val target = existing ?: state.dir.createFile("application/json", name) ?: continue
-                    val ok = try {
-                        context.contentResolver.openOutputStream(target.uri, "wt")?.use { it.write(bytes); true } ?: false
-                    } catch (e: Exception) { false }
-                    if (!ok) {
-                        // A half-created empty file would look like a conflict next pass and could
-                        // overwrite the real Dropbox copy on an APP choice. Remove it so a failed
-                        // download simply retries next time.
-                        if (existing == null) target.delete()
-                        continue
-                    }
-                    count++
-                }
+                count += syncJsonFolder(dropboxRepository, sub, safJsonFolder(folder, sub, create = true), choice) ?: 0
             } catch (e: Exception) {
                 android.util.Log.w(TAG, "sync /$sub failed: ${e.message}")
             }
@@ -1671,7 +1650,8 @@ class SyncManager(
         var n = 0
         for (sub in listOf("themes", "overlays")) {
             n += try {
-                planSubdir(folder, sub, create = false)?.plan?.conflicts?.size ?: 0
+                safJsonFolder(folder, sub, create = false).jsonFiles()
+                    ?.let { planJsonFolder(dropboxRepository, sub, it) }?.conflicts?.size ?: 0
             } catch (e: Exception) {
                 android.util.Log.w(TAG, "count /$sub failed: ${e.message}")
                 0
