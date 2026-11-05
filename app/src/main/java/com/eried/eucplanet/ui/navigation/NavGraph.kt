@@ -141,7 +141,8 @@ fun NavGraph(navController: NavHostController) {
         }
         composable(Screen.Flic.route) {
             FlicScreen(
-                onBack = { navController.popSingle() }
+                onBack = { navController.popSingle() },
+                viewModel = org.koin.compose.viewmodel.koinViewModel(),
             )
         }
         composable(

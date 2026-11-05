@@ -68,6 +68,8 @@ kotlin {
         androidMain.dependencies {
             // platform.HttpClient keeps the phone app's HTTP stack.
             implementation(libs.okhttp)
+            // The Bluetooth-enable prompt before a scan (rememberScanStarter).
+            implementation(libs.androidx.activity.compose)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

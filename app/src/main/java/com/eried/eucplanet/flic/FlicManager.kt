@@ -74,23 +74,7 @@ class FlicManager(
     private suspend fun reconcileSettings() {
         val addrs = (flic2Manager?.buttons ?: return).map { it.bdAddr }.toSet()
         val settings = settingsRepository.get()
-        var updated = settings
-        if (updated.flic1Address != null && updated.flic1Address !in addrs) updated = updated.copy(flic1Address = null)
-        if (updated.flic2Address != null && updated.flic2Address !in addrs) updated = updated.copy(flic2Address = null)
-        if (updated.flic3Address != null && updated.flic3Address !in addrs) updated = updated.copy(flic3Address = null)
-        if (updated.flic4Address != null && updated.flic4Address !in addrs) updated = updated.copy(flic4Address = null)
-        for (addr in addrs) {
-            val alreadyAssigned = addr == updated.flic1Address || addr == updated.flic2Address ||
-                    addr == updated.flic3Address || addr == updated.flic4Address
-            if (alreadyAssigned) continue
-            updated = when {
-                updated.flic1Address == null -> updated.copy(flic1Address = addr)
-                updated.flic2Address == null -> updated.copy(flic2Address = addr)
-                updated.flic3Address == null -> updated.copy(flic3Address = addr)
-                updated.flic4Address == null -> updated.copy(flic4Address = addr)
-                else -> updated  // all slots full
-            }
-        }
+        val updated = FlicSlots.reconcile(settings, addrs)
         if (updated != settings) {
             Log.i(TAG, "Reconciled Flic addresses: 1=${updated.flic1Address} 2=${updated.flic2Address} 3=${updated.flic3Address} 4=${updated.flic4Address}")
             settingsRepository.update(updated)
@@ -124,8 +108,7 @@ class FlicManager(
                 _pairedButtons.value = flic2Manager?.buttons ?: emptyList()
                 scope.launch {
                     val s = settingsRepository.get()
-                    val knownInApp = button.bdAddr == s.flic1Address || button.bdAddr == s.flic2Address ||
-                            button.bdAddr == s.flic3Address || button.bdAddr == s.flic4Address
+                    val knownInApp = FlicSlots.isKnown(s, button.bdAddr)
                     if (!knownInApp) {
                         saveButtonAddress(button.bdAddr)
                         _scanStatus.value = context.getString(
@@ -195,17 +178,7 @@ class FlicManager(
     }
 
     private suspend fun saveButtonAddress(bdAddr: String) {
-        val s = settingsRepository.get()
-        // Skip if this button is already assigned to any slot.
-        if (bdAddr == s.flic1Address || bdAddr == s.flic2Address ||
-            bdAddr == s.flic3Address || bdAddr == s.flic4Address) return
-        val updated = when {
-            s.flic1Address == null -> s.copy(flic1Address = bdAddr)
-            s.flic2Address == null -> s.copy(flic2Address = bdAddr)
-            s.flic3Address == null -> s.copy(flic3Address = bdAddr)
-            s.flic4Address == null -> s.copy(flic4Address = bdAddr)
-            else -> return  // all slots full
-        }
+        val updated = FlicSlots.assign(settingsRepository.get(), bdAddr) ?: return
         settingsRepository.update(updated)
     }
 
@@ -229,19 +202,7 @@ class FlicManager(
 
     private suspend fun dispatchAction(bdAddr: String, gesture: String) {
         val settings = settingsRepository.get()
-        val (click, dbl, hold) = when (bdAddr) {
-            settings.flic1Address -> Triple(settings.flic1Click, settings.flic1DoubleClick, settings.flic1Hold)
-            settings.flic2Address -> Triple(settings.flic2Click, settings.flic2DoubleClick, settings.flic2Hold)
-            settings.flic3Address -> Triple(settings.flic3Click, settings.flic3DoubleClick, settings.flic3Hold)
-            settings.flic4Address -> Triple(settings.flic4Click, settings.flic4DoubleClick, settings.flic4Hold)
-            else -> return
-        }
-        val actionName = when (gesture) {
-            "click" -> click
-            "doubleClick" -> dbl
-            "hold" -> hold
-            else -> return
-        }
+        val actionName = FlicSlots.actionFor(settings, bdAddr, gesture) ?: return
 
         Log.i(TAG, "Dispatching action: $actionName")
         executor.executeAction(actionName, settings)

@@ -32,7 +32,7 @@ import androidx.compose.ui.platform.LocalContext
  * `onClick = { startScan { viewModel.startScan() } }`.
  */
 @Composable
-fun rememberScanStarter(): (() -> Unit) -> Unit {
+actual fun rememberScanStarter(): (() -> Unit) -> Unit {
     val context = LocalContext.current
     val pending = remember { mutableStateOf<(() -> Unit)?>(null) }
     val launcher = rememberLauncherForActivityResult(

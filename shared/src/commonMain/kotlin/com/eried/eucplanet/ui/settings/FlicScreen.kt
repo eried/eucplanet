@@ -48,20 +48,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import com.eried.eucplanet.platform.stringResource
 import androidx.compose.ui.unit.dp
-import com.eried.eucplanet.R
+import com.eried.eucplanet.resources.*
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedFieldColors
-import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FlicScreen(
     onBack: () -> Unit,
-    viewModel: FlicViewModel = koinViewModel()
+    viewModel: FlicViewModel,
 ) {
     val settings by viewModel.settings.collectAsState()
     val scanning by viewModel.scanning.collectAsState()
@@ -75,16 +73,16 @@ fun FlicScreen(
         AlertDialog(
             onDismissRequest = { forgetTarget = null },
             shape = RoundedCornerShape(12.dp),
-            title = { Text(stringResource(R.string.flic_forget_title)) },
-            text = { Text(stringResource(R.string.flic_forget_body, name)) },
+            title = { Text(stringResource(Res.string.flic_forget_title)) },
+            text = { Text(stringResource(Res.string.flic_forget_body, name)) },
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.forgetButton(addr)
                     forgetTarget = null
-                }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.flic_forget), color = MaterialTheme.appColors.statusDanger) }
+                }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(Res.string.flic_forget), color = MaterialTheme.appColors.statusDanger) }
             },
             dismissButton = {
-                TextButton(onClick = { forgetTarget = null }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) }
+                TextButton(onClick = { forgetTarget = null }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(Res.string.action_cancel)) }
             }
         )
     }
@@ -92,10 +90,10 @@ fun FlicScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.section_flic_buttons)) },
+                title = { Text(stringResource(Res.string.section_flic_buttons)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back))
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.action_back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -113,7 +111,7 @@ fun FlicScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Scan section
-            HintText(stringResource(R.string.flic_scan_hint))
+            HintText(stringResource(Res.string.flic_scan_hint))
             if (scanning) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Button(
@@ -121,7 +119,7 @@ fun FlicScreen(
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.appColors.statusDanger),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.flic_stop_scan))
+                        com.eried.eucplanet.ui.common.SearchableText(stringResource(Res.string.flic_stop_scan))
                     }
                     Spacer(Modifier.width(12.dp))
                     CircularProgressIndicator(modifier = Modifier.size(24.dp))
@@ -131,7 +129,7 @@ fun FlicScreen(
                     onClick = { startScan { viewModel.startScan() } },
                     shape = RoundedCornerShape(12.dp),
                 ) {
-                    com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.flic_start_scan))
+                    com.eried.eucplanet.ui.common.SearchableText(stringResource(Res.string.flic_start_scan))
                 }
             }
 
@@ -211,7 +209,7 @@ private fun ButtonConfig(
                                     onTitleChange(editText)
                                     editing = false
                                 }) {
-                                    Icon(Icons.Default.Check, contentDescription = stringResource(R.string.action_save))
+                                    Icon(Icons.Default.Check, contentDescription = stringResource(Res.string.action_save))
                                 }
                             },
                             colors = themedFieldColors(),
@@ -230,7 +228,7 @@ private fun ButtonConfig(
                             Spacer(Modifier.width(6.dp))
                             Icon(
                                 Icons.Default.Edit,
-                                contentDescription = stringResource(R.string.flic_rename),
+                                contentDescription = stringResource(Res.string.flic_rename),
                                 modifier = Modifier.size(14.dp),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                             )
@@ -243,7 +241,7 @@ private fun ButtonConfig(
                     )
                 }
                 IconButton(onClick = onForget) {
-                    Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.flic_forget), tint = MaterialTheme.appColors.statusDanger)
+                    Icon(Icons.Default.Delete, contentDescription = stringResource(Res.string.flic_forget), tint = MaterialTheme.appColors.statusDanger)
                 }
             }
 
@@ -254,8 +252,8 @@ private fun ButtonConfig(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                ActionDropdown(stringResource(R.string.flic_click), clickAction, onClickChange, modifier = Modifier.weight(1f))
-                ActionDropdown(stringResource(R.string.flic_double_click), doubleClickAction, onDoubleClickChange, modifier = Modifier.weight(1f))
+                ActionDropdown(stringResource(Res.string.flic_click), clickAction, onClickChange, modifier = Modifier.weight(1f))
+                ActionDropdown(stringResource(Res.string.flic_double_click), doubleClickAction, onDoubleClickChange, modifier = Modifier.weight(1f))
             }
             Spacer(Modifier.height(8.dp))
             // Hold is half width, aligned left, to match the Click row above.
@@ -263,7 +261,7 @@ private fun ButtonConfig(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                ActionDropdown(stringResource(R.string.flic_hold), holdAction, onHoldChange, modifier = Modifier.weight(1f))
+                ActionDropdown(stringResource(Res.string.flic_hold), holdAction, onHoldChange, modifier = Modifier.weight(1f))
                 Spacer(Modifier.weight(1f))
             }
         }
@@ -284,7 +282,7 @@ private fun ActionDropdown(
             com.eried.eucplanet.data.model.ActionSurface.FLIC
         )
     }
-    val noneLabel = stringResource(R.string.flic_action_none)
+    val noneLabel = stringResource(Res.string.flic_action_none)
     val currentLabel = when {
         currentValue.isEmpty() || currentValue == "NONE" -> noneLabel
         else -> com.eried.eucplanet.data.model.ActionCatalog.byKey(currentValue)

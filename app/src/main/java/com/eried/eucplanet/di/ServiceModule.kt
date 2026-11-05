@@ -11,6 +11,7 @@ import com.eried.eucplanet.data.repository.PhoneHorn
 import com.eried.eucplanet.data.repository.RouteKeepAlive
 import com.eried.eucplanet.data.repository.WheelAlarms
 import com.eried.eucplanet.flic.ActionExecutor
+import com.eried.eucplanet.flic.AndroidFlicPairing
 import com.eried.eucplanet.flic.FlicManager
 import com.eried.eucplanet.service.AlarmEngine
 import com.eried.eucplanet.service.AutomationManager
@@ -58,6 +59,7 @@ val serviceModule = module {
         )
     }
     singleOf(::FlicManager)
+    singleOf(::AndroidFlicPairing) bind com.eried.eucplanet.flic.FlicPairing::class
     single { com.eried.eucplanet.flic.AndroidMediaControls(androidContext()) } bind com.eried.eucplanet.flic.MediaControls::class
     single<com.eried.eucplanet.flic.VoiceListening> {
         val commands: com.eried.eucplanet.voice.VoiceCommandController = get()

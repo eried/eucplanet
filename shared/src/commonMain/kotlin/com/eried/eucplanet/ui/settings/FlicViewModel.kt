@@ -1,11 +1,11 @@
 package com.eried.eucplanet.ui.settings
 
+import com.eried.eucplanet.flic.FlicButtonInfo
+import com.eried.eucplanet.flic.FlicPairing
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.repository.SettingsRepository
-import com.eried.eucplanet.flic.FlicManager
-import io.flic.flic2libandroid.Flic2Button
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 
 class FlicViewModel(
     private val settingsRepository: SettingsRepository,
-    private val flicManager: FlicManager
+    private val flicManager: FlicPairing
 ) : ViewModel() {
 
     val settings: StateFlow<AppSettings> = settingsRepository.settings
@@ -21,15 +21,12 @@ class FlicViewModel(
 
     val scanning: StateFlow<Boolean> = flicManager.scanning
     val scanStatus: StateFlow<String> = flicManager.scanStatus
-    val pairedButtons: StateFlow<List<Flic2Button>> = flicManager.pairedButtons
+    val pairedButtons: StateFlow<List<FlicButtonInfo>> = flicManager.pairedButtons
 
     fun startScan() = flicManager.startScan()
     fun stopScan() = flicManager.stopScan()
 
-    fun forgetButton(address: String) {
-        val button = pairedButtons.value.find { it.bdAddr == address }
-        if (button != null) flicManager.forgetButton(button)
-    }
+    fun forgetButton(address: String) = flicManager.forget(address)
 
     private fun update(transform: AppSettings.() -> AppSettings) {
         viewModelScope.launch {
