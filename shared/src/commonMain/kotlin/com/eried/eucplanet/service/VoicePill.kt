@@ -1,7 +1,6 @@
 package com.eried.eucplanet.service
 
-import java.net.URLDecoder
-import java.net.URLEncoder
+import com.eried.eucplanet.platform.FormUrl
 
 /**
  * One piece of a spoken announcement: a report from [VoiceReportPlan.KNOWN]
@@ -37,7 +36,7 @@ object VoicePills {
     fun encode(pills: List<VoicePill>): String =
         if (pills.isEmpty()) EMPTY
         else pills.joinToString("|") { p ->
-            if (p.item == VoicePill.MESSAGE) "${VoicePill.MESSAGE}:" + URLEncoder.encode(p.text, "UTF-8")
+            if (p.item == VoicePill.MESSAGE) "${VoicePill.MESSAGE}:" + FormUrl.encode(p.text)
             else "${p.item}:${p.stat.name}"
         }
 
@@ -52,7 +51,7 @@ object VoicePills {
             val item = token.substringBefore(":")
             val rest = token.substringAfter(":", "")
             when {
-                item == VoicePill.MESSAGE -> runCatching { URLDecoder.decode(rest, "UTF-8") }.getOrNull()
+                item == VoicePill.MESSAGE -> runCatching { FormUrl.decode(rest) }.getOrNull()
                     ?.take(VoicePill.MESSAGE_MAX)
                     ?.takeIf { it.isNotBlank() }
                     ?.let { VoicePill(VoicePill.MESSAGE, text = it) }

@@ -162,14 +162,14 @@ object VoiceReportPlan {
     const val CATALOG_PREFIX = "#"
 
     /** Catalog metrics one of [KNOWN] already says, so they are not offered twice. */
-    internal val COVERED_BY_REPORT = setOf(
+    val COVERED_BY_REPORT = setOf(
         "SPEED", "BATTERY", "PHONE_BATTERY", "TEMPERATURE", "LOAD", "CURRENT",
         "POWER", "BATTERY_POWER", "TRIP", "BATTERY_ENVELOPE", "RANGE_ESTIMATE",
         "VOLTAGE", "ODOMETER", "WH_PER_KM",
     )
 
     /** Readable, but a number no rider wants read aloud mid-ride. */
-    internal val NOT_SPOKEN = setOf("BT_RSSI", "GPS_HEADING", "GPS_ACCURACY", "LAT_LONG", "LIGHT_ON")
+    val NOT_SPOKEN = setOf("BT_RSSI", "GPS_HEADING", "GPS_ACCURACY", "LAT_LONG", "LIGHT_ON")
 
     /**
      * Every other catalog metric a pill can say: the ones a spoken question can
