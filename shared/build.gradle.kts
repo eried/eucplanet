@@ -48,6 +48,8 @@ kotlin {
             implementation(libs.cmp.material.icons)
             // DashboardViewModel extends the multiplatform ViewModel.
             api(libs.cmp.lifecycle.viewmodel)
+            // collectAsStateWithLifecycle and LocalLifecycleOwner in the dashboard.
+            implementation(libs.cmp.lifecycle.runtime.compose)
             api(libs.cmp.resources)
             // @Entity and friends on the moved models; the database stays in :app for now.
             implementation(libs.room.common)

@@ -1,8 +1,5 @@
 package com.eried.eucplanet.ui.dashboard
 
-import android.graphics.ImageDecoder
-import android.graphics.drawable.AnimatedImageDrawable
-import android.widget.ImageView
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
@@ -68,7 +65,6 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
@@ -77,12 +73,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
-import com.eried.eucplanet.R
+import com.eried.eucplanet.platform.stringResource
+import com.eried.eucplanet.resources.*
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedSwitchColors
-import java.nio.ByteBuffer
 
 /**
  * First-launch coach-mark tour of the dashboard. A self-contained spotlight
@@ -141,34 +136,34 @@ private data class TutorialStep(
  */
 @Composable
 private fun tutorialSteps(): List<TutorialStep> = listOf(
-    TutorialStep(null, stringResource(R.string.welcome_tut_welcome)),
-    TutorialStep(TutorialTarget.BLUETOOTH, stringResource(R.string.welcome_tut_bt)),
+    TutorialStep(null, stringResource(Res.string.welcome_tut_welcome)),
+    TutorialStep(TutorialTarget.BLUETOOTH, stringResource(Res.string.welcome_tut_bt)),
     TutorialStep(
         TutorialTarget.SPEED_DIAL,
-        stringResource(R.string.welcome_tut_speed, stringResource(R.string.tab_display))
+        stringResource(Res.string.welcome_tut_speed, stringResource(Res.string.tab_display))
     ),
     TutorialStep(
         TutorialTarget.METRICS,
-        stringResource(R.string.welcome_tut_metrics, stringResource(R.string.tab_dashboard))
+        stringResource(Res.string.welcome_tut_metrics, stringResource(Res.string.tab_dashboard))
     ),
     TutorialStep(
         TutorialTarget.ACTIONS,
         stringResource(
-            R.string.welcome_tut_actions,
-            stringResource(R.string.dashboard_section_actions)
+            Res.string.welcome_tut_actions,
+            stringResource(Res.string.dashboard_section_actions)
         )
     ),
-    TutorialStep(TutorialTarget.MAP_BUTTON, stringResource(R.string.welcome_tut_map)),
+    TutorialStep(TutorialTarget.MAP_BUTTON, stringResource(Res.string.welcome_tut_map)),
     TutorialStep(
         TutorialTarget.GPS_BUTTON,
-        stringResource(R.string.welcome_tut_gps, stringResource(R.string.section_speed_calibration))
+        stringResource(Res.string.welcome_tut_gps, stringResource(Res.string.section_speed_calibration))
     ),
-    TutorialStep(TutorialTarget.CAMERA_BUTTON, stringResource(R.string.welcome_tut_camera)),
+    TutorialStep(TutorialTarget.CAMERA_BUTTON, stringResource(Res.string.welcome_tut_camera)),
     TutorialStep(
         TutorialTarget.PARK_DRIVE,
-        stringResource(R.string.welcome_tut_pd, stringResource(R.string.section_speed_limits))
+        stringResource(Res.string.welcome_tut_pd, stringResource(Res.string.section_speed_limits))
     ),
-    TutorialStep(TutorialTarget.VERSION, stringResource(R.string.welcome_tut_version)),
+    TutorialStep(TutorialTarget.VERSION, stringResource(Res.string.welcome_tut_version)),
     // Share step: links to the trip-viewer (folder sync) and the
     // leaderboards (eucstats). No spotlight, two link-bearing bullets.
     TutorialStep(null, "", showShare = true),
@@ -220,30 +215,6 @@ private fun annotateRiedLinks(text: String): androidx.compose.ui.text.AnnotatedS
             cursor = idx + marker.length
         }
     }
-}
-
-/** A small looping, soundless animated clip decoded from an asset. */
-@Composable
-private fun LoopingClip(assetName: String, modifier: Modifier) {
-    AndroidView(
-        modifier = modifier,
-        factory = { ctx ->
-            ImageView(ctx).apply {
-                scaleType = ImageView.ScaleType.FIT_CENTER
-                runCatching {
-                    val bytes = ctx.assets.open(assetName).use { it.readBytes() }
-                    val drawable = ImageDecoder.decodeDrawable(
-                        ImageDecoder.createSource(ByteBuffer.wrap(bytes))
-                    )
-                    setImageDrawable(drawable)
-                    (drawable as? AnimatedImageDrawable)?.apply {
-                        repeatCount = AnimatedImageDrawable.REPEAT_INFINITE
-                        start()
-                    }
-                }
-            }
-        }
-    )
 }
 
 /**
@@ -421,7 +392,7 @@ fun WelcomeTutorialOverlay(
                     val s = steps[i]
                     Column {
                         Text(
-                            stringResource(R.string.welcome_tut_step, i + 1, steps.size),
+                            stringResource(Res.string.welcome_tut_step, i + 1, steps.size),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.SemiBold
@@ -437,9 +408,9 @@ fun WelcomeTutorialOverlay(
                             Text(
                                 annotateRiedLinks(
                                     stringResource(
-                                        R.string.welcome_tut_share,
-                                        stringResource(R.string.tab_cloud),
-                                        stringResource(R.string.recording_title),
+                                        Res.string.welcome_tut_share,
+                                        stringResource(Res.string.tab_cloud),
+                                        stringResource(Res.string.recording_title),
                                     )
                                 ),
                                 style = MaterialTheme.typography.bodyLarge,
@@ -459,24 +430,24 @@ fun WelcomeTutorialOverlay(
                             )
                             Spacer(Modifier.height(14.dp))
                             Text(
-                                stringResource(R.string.welcome_tut_outro_title),
+                                stringResource(Res.string.welcome_tut_outro_title),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.SemiBold
                             )
                             Spacer(Modifier.height(10.dp))
-                            OutroBullet(stringResource(R.string.welcome_tut_outro_buttons))
+                            OutroBullet(stringResource(Res.string.welcome_tut_outro_buttons))
                             Spacer(Modifier.height(8.dp))
                             OutroBullet(
                                 stringResource(
-                                    R.string.welcome_tut_outro_alarms,
-                                    stringResource(R.string.tab_alarms)
+                                    Res.string.welcome_tut_outro_alarms,
+                                    stringResource(Res.string.tab_alarms)
                                 )
                             )
                             Spacer(Modifier.height(8.dp))
-                            OutroBullet(stringResource(R.string.welcome_tut_outro_integrations))
+                            OutroBullet(stringResource(Res.string.welcome_tut_outro_integrations))
                             Spacer(Modifier.height(12.dp))
                             Text(
-                                stringResource(R.string.welcome_tut_outro_end),
+                                stringResource(Res.string.welcome_tut_outro_end),
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.primary,
                                 fontWeight = FontWeight.Medium
@@ -498,7 +469,7 @@ fun WelcomeTutorialOverlay(
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
                                     Text(
-                                        stringResource(R.string.welcome_tut_voice_title),
+                                        stringResource(Res.string.welcome_tut_voice_title),
                                         style = MaterialTheme.typography.bodyLarge,
                                     )
                                     Switch(
@@ -510,7 +481,7 @@ fun WelcomeTutorialOverlay(
                                         colors = themedSwitchColors(),
                                     )
                                 }
-                                HintText(stringResource(R.string.welcome_tut_voice_desc))
+                                HintText(stringResource(Res.string.welcome_tut_voice_desc))
 
                                 // Dev-only quick tools (branch builds only). Set the
                                 // backup folder first; the rest depend on it and appear
@@ -520,7 +491,7 @@ fun WelcomeTutorialOverlay(
                                     HorizontalDivider()
                                     Spacer(Modifier.height(8.dp))
                                     Text(
-                                        stringResource(R.string.welcome_tut_dev_title),
+                                        stringResource(Res.string.welcome_tut_dev_title),
                                         style = MaterialTheme.typography.labelMedium,
                                         color = MaterialTheme.colorScheme.primary,
                                         fontWeight = FontWeight.SemiBold,
@@ -535,7 +506,7 @@ fun WelcomeTutorialOverlay(
                                     if (!backupFolderSet) {
                                         Spacer(Modifier.height(8.dp))
                                         LeftAlignedScanButton(
-                                            label = stringResource(R.string.welcome_tut_dev_set_folder),
+                                            label = stringResource(Res.string.welcome_tut_dev_set_folder),
                                             onClick = onSetBackupFolder,
                                         )
                                     } else {
@@ -545,8 +516,8 @@ fun WelcomeTutorialOverlay(
                                         Spacer(Modifier.height(8.dp))
                                         LeftAlignedScanButton(
                                             label = stringResource(
-                                                if (dropboxLinked) R.string.dropbox_link_ok
-                                                else R.string.dropbox_link
+                                                if (dropboxLinked) Res.string.dropbox_link_ok
+                                                else Res.string.dropbox_link
                                             ),
                                             onClick = { dropboxLinking = true; onLinkDropbox() },
                                             enabled = !dropboxLinked && !dropboxLinking,
@@ -559,7 +530,7 @@ fun WelcomeTutorialOverlay(
                                         if (hasSettingsBackup) {
                                             Spacer(Modifier.height(8.dp))
                                             LeftAlignedScanButton(
-                                                label = stringResource(R.string.welcome_tut_dev_restore),
+                                                label = stringResource(Res.string.welcome_tut_dev_restore),
                                                 onClick = onRestoreSettings,
                                                 enabled = !syncRunning,
                                             )
@@ -569,13 +540,13 @@ fun WelcomeTutorialOverlay(
                                         // background, so the wizard shows no progress.
                                         Spacer(Modifier.height(8.dp))
                                         LeftAlignedScanButton(
-                                            label = stringResource(R.string.welcome_tut_dev_sync_trips),
+                                            label = stringResource(Res.string.welcome_tut_dev_sync_trips),
                                             onClick = onSyncTrips,
                                             enabled = !syncRunning,
                                         )
                                         Spacer(Modifier.height(8.dp))
                                         LeftAlignedScanButton(
-                                            label = stringResource(R.string.welcome_tut_dev_join),
+                                            label = stringResource(Res.string.welcome_tut_dev_join),
                                             onClick = onJoinLeaderboards,
                                             enabled = !leaderboardsJoined,
                                         )
@@ -599,7 +570,7 @@ fun WelcomeTutorialOverlay(
                             // tour, so don't make them confirm. Normal builds still ask.
                             if (isDev) onFinish() else showSkipConfirm = true
                         }) {
-                            Text(stringResource(R.string.welcome_tut_skip))
+                            Text(stringResource(Res.string.welcome_tut_skip))
                         }
                     } else {
                         Spacer(Modifier.width(1.dp))
@@ -607,14 +578,14 @@ fun WelcomeTutorialOverlay(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         if (idx > 0) {
                             TextButton(onClick = { back() }) {
-                                Text(stringResource(R.string.welcome_tut_prev))
+                                Text(stringResource(Res.string.welcome_tut_prev))
                             }
                             Spacer(Modifier.width(4.dp))
                         }
                         Button(onClick = { advance() }) {
                             Text(
                                 stringResource(
-                                    if (isLast) R.string.welcome_tut_done else R.string.welcome_tut_next
+                                    if (isLast) Res.string.welcome_tut_done else Res.string.welcome_tut_next
                                 )
                             )
                         }
@@ -627,19 +598,23 @@ fun WelcomeTutorialOverlay(
             AlertDialog(
                 onDismissRequest = { showSkipConfirm = false },
                 shape = RoundedCornerShape(12.dp),
-                title = { Text(stringResource(R.string.welcome_tut_skip_title)) },
-                text = { Text(stringResource(R.string.welcome_tut_skip_body)) },
+                title = { Text(stringResource(Res.string.welcome_tut_skip_title)) },
+                text = { Text(stringResource(Res.string.welcome_tut_skip_body)) },
                 confirmButton = {
                     TextButton(onClick = { showSkipConfirm = false; onFinish() }, shape = RoundedCornerShape(12.dp)) {
-                        Text(stringResource(R.string.welcome_tut_skip_yes))
+                        Text(stringResource(Res.string.welcome_tut_skip_yes))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showSkipConfirm = false }, shape = RoundedCornerShape(12.dp)) {
-                        Text(stringResource(R.string.action_cancel))
+                        Text(stringResource(Res.string.action_cancel))
                     }
                 }
             )
         }
     }
 }
+
+/** A small looping, soundless animated clip decoded from an asset. */
+@Composable
+internal expect fun LoopingClip(assetName: String, modifier: Modifier)
