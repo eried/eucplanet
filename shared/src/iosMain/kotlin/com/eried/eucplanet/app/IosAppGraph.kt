@@ -22,6 +22,7 @@ import com.eried.eucplanet.di.SharedKoin
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import com.eried.eucplanet.ui.dashboard.DashboardViewModel
+import com.eried.eucplanet.flic.ActionExecutor
 import com.eried.eucplanet.service.AlarmEngine
 import com.eried.eucplanet.ui.scan.ScanViewModel
 import com.eried.eucplanet.ui.settings.AlarmViewModel
@@ -101,6 +102,17 @@ object IosAppGraph {
     }
 
     val link: IosWheelLink by lazy { IosWheelLink(adapter) }
+
+    /**
+     * Every rider action (dashboard tiles, and Flic once its iOS SDK is in),
+     * the same table Android's FlicManager hands its presses to.
+     */
+    val actions: ActionExecutor by lazy {
+        ActionExecutor(
+            settings, wheel, NoTrips, voice, NoAutomation, LogNotices, NoLockdown,
+            NoVoiceListening, NoMedia, IosPhoneDevice,
+        )
+    }
 
     /** Spoken announcements, the shared reports through AVSpeechSynthesizer. */
     internal val voice: IosVoice by lazy { IosVoice(settings) { wheel } }
@@ -188,7 +200,7 @@ object IosAppGraph {
         tripMeterRepository = NoTripMeter,
         voiceService = voice,
         automationManager = NoAutomation,
-        flicManager = LogActions,
+        flicManager = actions,
         syncManager = NoFolderSync,
         externalGpsRepository = NoExternalGps,
         experimentalBannerState = IosBannerFlag,

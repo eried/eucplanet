@@ -11,7 +11,8 @@ import com.eried.eucplanet.data.sync.BackupEntry
 import com.eried.eucplanet.data.sync.RestorableRider
 import com.eried.eucplanet.platform.Log
 import com.eried.eucplanet.platform.System
-import com.eried.eucplanet.ui.dashboard.ActionDispatcher
+import com.eried.eucplanet.flic.MediaControls
+import com.eried.eucplanet.flic.VoiceListening
 import com.eried.eucplanet.ui.dashboard.ActiveRoute
 import com.eried.eucplanet.ui.dashboard.AppHealth
 import com.eried.eucplanet.ui.dashboard.DashboardAutomation
@@ -79,17 +80,21 @@ internal object NoAutomation : DashboardAutomation {
 }
 
 /**
- * The action dispatch (FlicManager on Android) is not shared yet, so a
- * dashboard action that goes through it is logged and dropped. The horn,
- * light and lock buttons call the wheel directly and work.
+ * iOS has no media keys an app can send to another app's player, so the
+ * music actions do nothing yet.
  */
-internal object LogActions : ActionDispatcher {
-    private val last = MutableStateFlow(0L)
-    override val lastActionAt: StateFlow<Long> = last.asStateFlow()
-    override fun dispatchActionByName(actionName: String) {
-        last.value = System.currentTimeMillis()
-        Log.i("Actions", "not on iOS yet: $actionName")
-    }
+internal object NoMedia : MediaControls {
+    override fun startMusic() { Log.i("Actions", "music control not on iOS") }
+    override fun playPauseOrStart() = startMusic()
+    override fun pause() = startMusic()
+    override fun next() = startMusic()
+    override fun previous() = startMusic()
+}
+
+/** Spoken commands are not on iOS yet. */
+internal object NoVoiceListening : VoiceListening {
+    override fun hasMicPermission() = false
+    override fun listen() = Unit
 }
 
 /** Folder backup and trip sync are not on iOS; Dropbox settings sync is, elsewhere. */

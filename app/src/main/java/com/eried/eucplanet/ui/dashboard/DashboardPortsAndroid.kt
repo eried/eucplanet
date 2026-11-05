@@ -16,7 +16,6 @@ import com.eried.eucplanet.data.repository.TripMeterRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.startLinkFlow
 import com.eried.eucplanet.data.sync.SyncManager
-import com.eried.eucplanet.flic.FlicManager
 import com.eried.eucplanet.garmin.GarminBridge
 import com.eried.eucplanet.nav.NavigationEngine
 import com.eried.eucplanet.service.AutomationManager
@@ -90,11 +89,6 @@ class AndroidDashboardAutomation(private val automation: AutomationManager) : Da
     override fun clearLightsSuspension() = automation.clearLightsSuspension()
     override fun clearLockSuspension() = automation.clearLockSuspension()
     override fun triggerImmediateLightEvaluation() = automation.triggerImmediateLightEvaluation()
-}
-
-class AndroidActionDispatcher(private val flic: FlicManager) : ActionDispatcher {
-    override val lastActionAt = flic.lastActionAt
-    override fun dispatchActionByName(actionName: String) = flic.dispatchActionByName(actionName)
 }
 
 class AndroidDashboardSync(private val sync: SyncManager) : DashboardSync {

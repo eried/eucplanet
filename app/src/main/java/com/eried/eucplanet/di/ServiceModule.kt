@@ -10,6 +10,7 @@ import com.eried.eucplanet.data.repository.EventAnnouncer
 import com.eried.eucplanet.data.repository.PhoneHorn
 import com.eried.eucplanet.data.repository.RouteKeepAlive
 import com.eried.eucplanet.data.repository.WheelAlarms
+import com.eried.eucplanet.flic.ActionExecutor
 import com.eried.eucplanet.flic.FlicManager
 import com.eried.eucplanet.service.AlarmEngine
 import com.eried.eucplanet.service.AutomationManager
@@ -57,6 +58,15 @@ val serviceModule = module {
         )
     }
     singleOf(::FlicManager)
+    single { com.eried.eucplanet.flic.AndroidMediaControls(androidContext()) } bind com.eried.eucplanet.flic.MediaControls::class
+    single<com.eried.eucplanet.flic.VoiceListening> {
+        val commands: com.eried.eucplanet.voice.VoiceCommandController = get()
+        object : com.eried.eucplanet.flic.VoiceListening {
+            override fun hasMicPermission() = commands.hasMicPermission()
+            override fun listen() = commands.listen()
+        }
+    }
+    singleOf(::ActionExecutor) bind com.eried.eucplanet.ui.dashboard.ActionDispatcher::class
     singleOf(::AppNotifier) { bind<AppNotices>() }
     singleOf(::CheatState) { bind<CheatFlags>() }
     singleOf(::EngineSoundEngine)

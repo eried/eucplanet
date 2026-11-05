@@ -15,7 +15,7 @@ Status values:
 
 | Screen | Status | Notes |
 |---|---|---|
-| Dashboard | shared | `DashboardScreen` and `DashboardViewModel` run on both. The VM reaches the rest of the app through `ui/dashboard/DashboardPorts.kt` and the screen asks its platform through `DashboardHost`. On iOS (`app/IosDashboardPorts.kt`, `app/IosDashboardHost.kt`) these answer as switched off until each lands: trips and phone location, trip meter, voice and voice commands, light and lock automation, Flic-style action dispatch (horn, light and lock call the wheel and work), folder backup, navigator, radar, diagnostics, data sources, voice vocabulary, QR, experimental banner, gallery, app logo, licence text. The welcome tour runs without its clips. The settings button opens the probe screen (Dropbox settings sync) until Settings moves. Checked on the simulator with a virtual Begode. |
+| Dashboard | shared | `DashboardScreen` and `DashboardViewModel` run on both. The VM reaches the rest of the app through `ui/dashboard/DashboardPorts.kt` and the screen asks its platform through `DashboardHost`. On iOS (`app/IosDashboardPorts.kt`, `app/IosDashboardHost.kt`) these answer as switched off until each lands: trips and phone location, trip meter, voice and voice commands, light and lock automation, folder backup, navigator, radar, diagnostics, data sources, voice vocabulary, QR, experimental banner, gallery, app logo, licence text. The welcome tour runs without its clips. The settings button opens the probe screen (Dropbox settings sync) until Settings moves. Checked on the simulator with a virtual Begode. |
 | Scan / connect | shared | `ScanScreen` and `ScanViewModel` run on both, through `ui/scan/ScanPorts.kt` and `ScanHost`. iOS scans with CoreBluetooth via `IosWheelLink`, filtered by the same wheel-name list; there is no permission card (iOS asks on first use) and "Enable Bluetooth" opens the app's Settings page. Virtual wheels show with Service mode on, as on Android. Not yet tried with a real wheel on iOS. |
 | Settings (all sections) | not yet | The Dropbox block of Backup and the sync conflict dialog are shared and shown on a temporary iOS tab, with a read-out of the synced settings. |
 | Metric detail | not yet | |
@@ -40,7 +40,7 @@ Status values:
 | Wheel protocols (Begode, Veteran, Kingsong, InMotion V1/V2, Ninebot) | shared | Adapters, parsers, commands, write queue. Simulator: Begode, InMotion V1 and V2, KingSong virtual wheels decode on iOS. |
 | Virtual wheels | shared | |
 | Units | shared | `speedUnit(context)` stays in `:app` for Android-only callers. |
-| Action list (`ActionCatalog`) | shared | The executor behind Flic, volume keys and the watch (FlicManager) is still `:app`. |
+| Actions (`ActionCatalog`, `ActionExecutor`) | shared | The list and the executor every surface fires through (dashboard tiles, Flic, volume keys, watch, HUD, voice), with the Legal Mode lockdown gate and custom BLE frames. On iOS the dashboard tiles run through it; music actions do nothing (iOS gives no media keys for other apps), and recording and spoken-command actions wait for those features. |
 | Wheel state (`WheelRepository`) | shared | Telemetry, history buffers, charging, lock, light, horn, speed limits, per-wheel profiles. What it takes from the rest of the app comes through `WheelRepositoryPorts.kt`; on iOS (`app/IosWheelPorts.kt`) trips, TPMS caps, external GPS, phone IMU, lockdown and the phone horn answer as switched off until each lands, and wheel profiles are stored in the shared database. Checked on the simulator with a virtual Begode. |
 | BLE link | iOS actual done (partial) | `WheelLink`: CoreBluetooth scan, connect, service re-routing, notify, paced writes. Not yet on iOS: auto-reconnect, RSSI. Not yet tested on a real wheel. |
 | Settings storage | iOS actual done | Same JSON blob in DataStore (`SettingsStore`, `SettingsRepository`, `SettingsJson`). First-run units on iOS follow the phone's region alone; Android also checks the cell network. |
@@ -65,7 +65,7 @@ Status values:
 | HUD | Android-only | The HUD itself runs Android. The phone side talks Wi-Fi, so it can come to iOS later (Local Network permission, Bonjour discovery; archive tag has a start). First in line. |
 | Garmin, Amazfit watches | Android-only | Garmin later via the Connect IQ iOS SDK. Amazfit unsure: the bridge is a local server on the phone. |
 | Home-screen widgets | not yet | iOS as a WidgetKit extension (Swift, not shared code). |
-| Flic buttons | not yet | iOS via the Flic iOS SDK (free, Swift Package). The wheel state and the action list are shared; the executor (FlicManager) is next. |
+| Flic buttons | not yet | iOS via the Flic iOS SDK (free, Swift Package). The wheel state, the action list and the executor are shared; what is left is the button pairing and presses through the iOS SDK. |
 | Persistent ride notification | iOS actual done (partial) | A Live Activity (lock screen and Dynamic Island) while a wheel is connected, with the wheel's name over the same line as the Android notification (`RideNotificationText`), at most once a second. Swift side: `iosApp/RideLiveActivity.swift` and the `EucPlanetWidgets` extension. Not yet: the quick-action buttons and the navigation line. Checked on the simulator with a virtual wheel. |
 
 ## iOS-specific gaps

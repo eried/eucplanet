@@ -2,9 +2,7 @@ package com.eried.eucplanet.di
 
 import com.eried.eucplanet.diagnostics.WheelDiagnosticsViewModel
 import com.eried.eucplanet.ui.charging.ChargingMonitorViewModel
-import com.eried.eucplanet.ui.dashboard.ActionDispatcher
 import com.eried.eucplanet.ui.dashboard.ActiveRoute
-import com.eried.eucplanet.ui.dashboard.AndroidActionDispatcher
 import com.eried.eucplanet.ui.dashboard.AndroidActiveRoute
 import com.eried.eucplanet.ui.dashboard.AndroidAppHealth
 import com.eried.eucplanet.ui.dashboard.AndroidDashboardAutomation
@@ -62,7 +60,6 @@ val viewModelModule = module {
     singleOf(::AndroidDashboardVoice) bind DashboardVoice::class
     singleOf(::AndroidDashboardVoiceCommands) bind DashboardVoiceCommands::class
     singleOf(::AndroidDashboardAutomation) bind DashboardAutomation::class
-    singleOf(::AndroidActionDispatcher) bind ActionDispatcher::class
     singleOf(::AndroidDashboardSync) bind DashboardSync::class
     singleOf(::AndroidAppHealth) bind AppHealth::class
     singleOf(::AndroidMetricsResetter) bind MetricsResetter::class
