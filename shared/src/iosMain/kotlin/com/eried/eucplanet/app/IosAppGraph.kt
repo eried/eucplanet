@@ -2,6 +2,7 @@ package com.eried.eucplanet.app
 
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import com.eried.eucplanet.ble.CompositeWheelAdapter
+import com.eried.eucplanet.cheats.CheatState
 import com.eried.eucplanet.ble.IosWheelLink
 import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.data.repository.DropboxLinkScratch
@@ -13,6 +14,8 @@ import com.eried.eucplanet.data.store.SettingsStore
 import com.eried.eucplanet.data.sync.AlarmRuleStore
 import com.eried.eucplanet.data.sync.DropboxSettingsSync
 import com.eried.eucplanet.di.SharedKoin
+import com.eried.eucplanet.ui.dashboard.DashboardViewModel
+import com.eried.eucplanet.weather.WeatherRepository
 import com.eried.eucplanet.platform.JSONArray
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.sync.Mutex
@@ -60,6 +63,11 @@ object IosAppGraph {
 
     val adapter: CompositeWheelAdapter by lazy { SharedKoin.koin.get() }
 
+    /** The hidden debug switches, shared with the wheel state as on Android. */
+    val cheats: CheatState by lazy { CheatState() }
+
+    val weather: WeatherRepository by lazy { WeatherRepository() }
+
     val link: IosWheelLink by lazy { IosWheelLink(adapter) }
 
     /** The wheel state every screen reads, as on Android. See IosWheelPorts.kt. */
@@ -72,7 +80,7 @@ object IosAppGraph {
             tonePlayer = NoRouteKeepAlive,
             voiceService = LogAnnouncer,
             wheelProfileDao = MemoryWheelProfiles(),
-            cheatState = NoCheats,
+            cheatState = cheats,
             phoneSensorRepository = NoPhoneImu,
             externalGpsRepository = NoExternalGps,
             legalLockdown = NoLockdown,
@@ -108,6 +116,33 @@ object IosAppGraph {
         // language picker is not on iOS yet.
         DropboxSettingsSync(settings, dropbox, alarms, applyLanguage = {})
     }
+
+    /**
+     * A dashboard view model, built the way Koin's viewModelOf builds it on
+     * Android. See IosDashboardPorts.kt for the ports still switched off.
+     */
+    fun dashboardViewModel(): DashboardViewModel = DashboardViewModel(
+        wheelRepository = wheel,
+        settingsRepository = settings,
+        tripRepository = NoTrips,
+        tripMeterRepository = NoTripMeter,
+        voiceService = NoVoice,
+        automationManager = NoAutomation,
+        flicManager = LogActions,
+        syncManager = NoFolderSync,
+        externalGpsRepository = NoExternalGps,
+        experimentalBannerState = IosBannerFlag,
+        cheatState = cheats,
+        appHealthRepository = MemoryAppHealth(),
+        metricsReset = IosMetricsResetter(wheel),
+        weatherRepository = weather,
+        dropboxRepository = dropbox,
+        appNotifier = LogNotices,
+        navigationEngine = NoRoute,
+        voiceCommands = NoVoiceCommands,
+        phone = IosPhoneDevice,
+        platform = IosDashboardPlatform(wheel),
+    )
 
     suspend fun seed() {
         settingsStore.seedDefaultsIfAbsent()

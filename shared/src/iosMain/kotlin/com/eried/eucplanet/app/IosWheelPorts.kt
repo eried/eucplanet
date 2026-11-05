@@ -6,7 +6,6 @@ import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.model.WheelProfile
 import com.eried.eucplanet.data.repository.AccelSplitReset
 import com.eried.eucplanet.data.repository.AppNotices
-import com.eried.eucplanet.data.repository.CheatFlags
 import com.eried.eucplanet.data.repository.EventAnnouncer
 import com.eried.eucplanet.data.repository.ExternalGpsFeed
 import com.eried.eucplanet.data.repository.GpsFix
@@ -66,10 +65,6 @@ internal class MemoryWheelProfiles : WheelProfiles {
     private val byName = mutableMapOf<String, WheelProfile>()
     override suspend fun getByName(name: String): WheelProfile? = lock.withLock { byName[name] }
     override suspend fun upsert(profile: WheelProfile) = lock.withLock { byName[profile.bleName] = profile }
-}
-
-internal object NoCheats : CheatFlags {
-    override val lockAtAnySpeed: StateFlow<Boolean> = MutableStateFlow(false).asStateFlow()
 }
 
 /** The phone accelerometer is not read on iOS yet. */

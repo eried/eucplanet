@@ -1,7 +1,8 @@
 package com.eried.eucplanet.data.model
 
-import org.json.JSONArray
-import org.json.JSONObject
+import com.eried.eucplanet.platform.JSONArray
+import com.eried.eucplanet.platform.JSONObject
+import com.eried.eucplanet.platform.format
 
 /**
  * A user-defined "CUSTOM BLE" action: an ordered list of raw frames written to

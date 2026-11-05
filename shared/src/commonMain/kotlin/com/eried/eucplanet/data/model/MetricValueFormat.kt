@@ -1,5 +1,7 @@
 package com.eried.eucplanet.data.model
 
+import com.eried.eucplanet.platform.format
+
 /**
  * One metric value, formatted with its unit, in the rider's units.
  *

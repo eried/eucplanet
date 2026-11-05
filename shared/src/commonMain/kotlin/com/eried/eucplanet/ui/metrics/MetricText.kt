@@ -5,6 +5,7 @@ import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.util.MetricSanity
 import com.eried.eucplanet.util.Units
 import kotlin.math.absoluteValue
+import com.eried.eucplanet.platform.format
 
 /**
  * Everything [MetricText.of] needs to turn a metric key into the text the

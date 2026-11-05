@@ -9,7 +9,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.eried.eucplanet.R
+import com.eried.eucplanet.platform.stringResource
+import com.eried.eucplanet.resources.*
 import com.eried.eucplanet.ui.theme.appColors
 
 /**
@@ -44,6 +45,6 @@ fun FixButton(
         shape = RoundedCornerShape(12.dp),
         contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
     ) {
-        Text(text ?: androidx.compose.ui.res.stringResource(R.string.warnings_fix_button))
+        Text(text ?: stringResource(Res.string.warnings_fix_button))
     }
 }
