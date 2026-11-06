@@ -30,7 +30,7 @@ Status values:
 | Navigator | not yet | |
 | Radar | not yet | |
 | Onboarding | not yet | |
-| Flic buttons | Android-only | iOS later via the Flic iOS SDK. |
+| Flic buttons | shared | iOS through Flic's iOS SDK (flic2lib 1.7.0). |
 
 ## Features
 
@@ -65,7 +65,7 @@ Status values:
 | HUD | Android-only | The HUD itself runs Android. The phone side talks Wi-Fi, so it can come to iOS later (Local Network permission, Bonjour discovery; archive tag has a start). First in line. |
 | Garmin, Amazfit watches | Android-only | Garmin later via the Connect IQ iOS SDK. Amazfit unsure: the bridge is a local server on the phone. |
 | Home-screen widgets | not yet | iOS as a WidgetKit extension (Swift, not shared code). |
-| Flic buttons | not yet | Shared: the Flic settings screen and view model, the slot rules (`FlicSlots`, the same four slots bound by Bluetooth address, so bindings follow settings.json) and the executor presses run through. The iOS side's Kotlin half (`app/IosFlic.kt`) is written; what is left is adding Flic's iOS SDK (flic2lib, a binary Swift package) to the Xcode project and a Swift wrapper that reports scans and presses to it. |
+| Flic buttons | iOS actual done | Shared: the Flic settings screen and view model, the slot rules (`FlicSlots`, the same four slots bound by Bluetooth address, so bindings follow settings.json) and the executor presses run through. iOS: Flic's iOS SDK (flic2lib 1.7.0, a binary Swift package) behind `iosApp/FlicBridge.swift`, which reports scans, paired buttons and click, double click and hold to `app/IosFlic.kt`; presses arrive in the background through the bluetooth-central mode. The screen opens from the temporary settings tab. Not yet tried with a real button. |
 | Persistent ride notification | iOS actual done (partial) | A Live Activity (lock screen and Dynamic Island) while a wheel is connected, with the wheel's name over the same line as the Android notification (`RideNotificationText`), at most once a second. Swift side: `iosApp/RideLiveActivity.swift` and the `EucPlanetWidgets` extension. Not yet: the quick-action buttons and the navigation line. Checked on the simulator with a virtual wheel. |
 
 ## iOS-specific gaps

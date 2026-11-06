@@ -9,7 +9,7 @@ NAME="${1:-iPhone 17}"
 DD=build/ios-derived
 xcodebuild -project iosApp/iosApp.xcodeproj -scheme EucPlanet -configuration Debug \
   -destination "platform=iOS Simulator,name=$NAME" -derivedDataPath "$DD" \
-  CODE_SIGNING_ALLOWED=NO build | grep -E "error:|BUILD (SUCCEEDED|FAILED)"
+  CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM= PROVISIONING_PROFILE_SPECIFIER= build | grep -E "error:|BUILD (SUCCEEDED|FAILED)"
 DEV=$(xcrun simctl list devices available | grep -m1 "    $NAME (" | grep -oE '[0-9A-F-]{36}')
 xcrun simctl boot "$DEV" 2>/dev/null || true
 xcrun simctl bootstatus "$DEV" -b >/dev/null

@@ -20,6 +20,10 @@ import com.eried.eucplanet.platform.stringResource
 import com.eried.eucplanet.resources.Res
 import com.eried.eucplanet.resources.action_back
 import com.eried.eucplanet.resources.tab_alarms
+import com.eried.eucplanet.resources.section_flic_buttons
+import com.eried.eucplanet.ui.settings.FlicScreen
+import com.eried.eucplanet.ui.settings.FlicViewModel
+import com.eried.eucplanet.app.IosFlic
 import com.eried.eucplanet.ui.settings.AlarmSettingsContent
 import com.eried.eucplanet.ui.settings.AlarmViewModel
 import androidx.compose.foundation.layout.Row
@@ -69,7 +73,7 @@ fun MainViewController(): UIViewController {
             val colors by theme.activeColors.collectAsState()
             EucPlanetTheme(colors = colors) {
                 // A two-screen stack until the shared navigation graph lands.
-                // SIMCTL_CHILD_EUC_SCREEN=scan opens on the scan screen.
+                // SIMCTL_CHILD_EUC_SCREEN=scan opens on the scan screen (also alarms, flic).
                 var screen by remember { mutableStateOf(startScreen ?: "dashboard") }
                 when (screen) {
                     "scan" -> {
@@ -102,6 +106,9 @@ fun MainViewController(): UIViewController {
                             TextButton(onClick = { screen = "alarms" }) {
                                 Text(stringResource(Res.string.tab_alarms))
                             }
+                            TextButton(onClick = { screen = "flic" }) {
+                                Text(stringResource(Res.string.section_flic_buttons))
+                            }
                         }
                         ProbeScreen(link, wheel, 1)
                     }
@@ -122,6 +129,17 @@ fun MainViewController(): UIViewController {
                                 AlarmSettingsContent(viewModel = alarmVm)
                             }
                         }
+                    }
+                    "flic" -> {
+                        val store = remember { ViewModelStore() }
+                        val flicVm = remember {
+                            ViewModelProvider.create(
+                                store,
+                                viewModelFactory { initializer { FlicViewModel(IosAppGraph.settings, IosFlic) } },
+                            )[FlicViewModel::class]
+                        }
+                        DisposableEffect(store) { onDispose { store.clear() } }
+                        FlicScreen(onBack = { screen = "probe" }, viewModel = flicVm)
                     }
                     else -> {
                         val viewModel = remember { IosAppGraph.dashboardViewModel() }
