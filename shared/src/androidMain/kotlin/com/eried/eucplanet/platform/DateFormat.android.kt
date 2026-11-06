@@ -11,3 +11,7 @@ actual class LocalDateParserUs actual constructor(pattern: String) {
 
     actual fun parse(text: String): Long? = try { fmt.parse(text)?.time } catch (_: Exception) { null }
 }
+
+actual fun formatMediumDateShortTime(epochMs: Long): String =
+    java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT, java.util.Locale.getDefault())
+        .format(java.util.Date(epochMs))

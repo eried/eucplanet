@@ -194,7 +194,9 @@ fun NavGraph(navController: NavHostController) {
                 },
                 onReplayTrip = { id ->
                     navController.navigateSingle(Screen.OverlayStudio.createRoute(id))
-                }
+                },
+                viewModel = koinViewModel(),
+                host = com.eried.eucplanet.ui.recording.rememberAndroidRecordingHost(),
             )
         }
         composable(

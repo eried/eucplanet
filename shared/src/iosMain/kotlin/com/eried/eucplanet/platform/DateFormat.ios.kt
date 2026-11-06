@@ -2,6 +2,8 @@ package com.eried.eucplanet.platform
 
 import platform.Foundation.NSDate
 import platform.Foundation.NSDateFormatter
+import platform.Foundation.NSDateFormatterMediumStyle
+import platform.Foundation.NSDateFormatterShortStyle
 import platform.Foundation.NSLocale
 import platform.Foundation.currentLocale
 import platform.Foundation.dateWithTimeIntervalSince1970
@@ -30,4 +32,12 @@ actual class LocalDateParserUs actual constructor(pattern: String) {
 
     actual fun parse(text: String): Long? =
         fmt.dateFromString(text)?.let { (it.timeIntervalSince1970 * 1000.0).toLong() }
+}
+
+actual fun formatMediumDateShortTime(epochMs: Long): String {
+    val f = NSDateFormatter()
+    f.locale = NSLocale.currentLocale
+    f.dateStyle = NSDateFormatterMediumStyle
+    f.timeStyle = NSDateFormatterShortStyle
+    return f.stringFromDate(NSDate.dateWithTimeIntervalSince1970(epochMs / 1000.0))
 }

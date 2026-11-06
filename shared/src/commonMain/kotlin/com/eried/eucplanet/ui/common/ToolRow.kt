@@ -34,7 +34,7 @@ import com.eried.eucplanet.ui.theme.appColors
  * GPS" still read as an action with its reason rather than as two equal lines.
  */
 @Composable
-internal fun ToolRow(
+fun ToolRow(
     icon: ImageVector,
     title: String,
     subtitle: String,

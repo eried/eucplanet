@@ -5,6 +5,7 @@ import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.data.repository.PhoneLocation
 import com.eried.eucplanet.data.repository.WheelChoice
+import androidx.compose.runtime.Composable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import org.jetbrains.compose.resources.StringResource
@@ -86,4 +87,22 @@ interface RecordingOnline {
     fun enqueueUpload(settings: AppSettings)
     /** The server's verdict on [trip] now: "validated", "rejected", "flagged", or null. */
     suspend fun refreshTripVerdict(trip: TripRecord): String?
+}
+
+/** What the trip list screen asks of the platform it is drawn on. */
+interface RecordingHost {
+    /** Rename, change wheel, split and combine can be offered. */
+    val supportsTripTools: Boolean
+
+    /** Swallows or handles the system back gesture while [enabled]. */
+    @Composable
+    fun BackHandler(enabled: Boolean, onBack: () -> Unit)
+
+    /** Asks for location access; [onResult] runs when the rider has answered. */
+    @Composable
+    fun rememberLocationPermissionRequest(onResult: () -> Unit): () -> Unit
+
+    /** A file picker for trips to import (.csv, .zip, .dbb); [onPicked] gets the file's uri. */
+    @Composable
+    fun rememberTripImportPicker(onPicked: (String) -> Unit): () -> Unit
 }

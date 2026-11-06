@@ -22,9 +22,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
+import com.eried.eucplanet.platform.stringResource
 import androidx.compose.ui.unit.dp
-import com.eried.eucplanet.R
+import com.eried.eucplanet.resources.*
 
 /**
  * Chooser shown when the rider taps Share on a trip. Items: Share file, Share
@@ -36,13 +36,14 @@ import com.eried.eucplanet.R
 fun TripActionDialog(
     onShareFile: () -> Unit,
     onViewOnline: () -> Unit,
-    onReplay: () -> Unit,
+    /** Null where the overlay studio is not available: the row is left out. */
+    onReplay: (() -> Unit)?,
     onDismiss: () -> Unit,
     dropboxLinked: Boolean = false,
     onShareViaDropbox: () -> Unit = {},
     onInspectOnline: () -> Unit = {},
 ) {
-    val disabledHint = stringResource(R.string.trip_action_dropbox_disabled)
+    val disabledHint = stringResource(Res.string.trip_action_dropbox_disabled)
     AlertDialog(
         onDismissRequest = onDismiss,
         shape = RoundedCornerShape(12.dp),
@@ -50,31 +51,31 @@ fun TripActionDialog(
             Column {
                 TripActionRow(
                     Icons.Default.Share,
-                    stringResource(R.string.trip_action_share_file),
-                    stringResource(R.string.trip_action_share_file_desc)
+                    stringResource(Res.string.trip_action_share_file),
+                    stringResource(Res.string.trip_action_share_file_desc)
                 ) { onDismiss(); onShareFile() }
                 TripActionRow(
                     Icons.Default.CloudUpload,
-                    stringResource(R.string.trip_action_share_dropbox),
-                    if (dropboxLinked) stringResource(R.string.trip_action_share_dropbox_desc) else disabledHint,
+                    stringResource(Res.string.trip_action_share_dropbox),
+                    if (dropboxLinked) stringResource(Res.string.trip_action_share_dropbox_desc) else disabledHint,
                     enabled = dropboxLinked,
                 ) { onDismiss(); onShareViaDropbox() }
                 TripActionRow(
                     Icons.Default.Public,
-                    stringResource(R.string.trip_action_inspect_online),
-                    if (dropboxLinked) stringResource(R.string.trip_action_inspect_online_desc) else disabledHint,
+                    stringResource(Res.string.trip_action_inspect_online),
+                    if (dropboxLinked) stringResource(Res.string.trip_action_inspect_online_desc) else disabledHint,
                     enabled = dropboxLinked,
                 ) { onDismiss(); onInspectOnline() }
-                TripActionRow(
+                if (onReplay != null) TripActionRow(
                     Icons.Default.History,
-                    stringResource(R.string.trip_action_replay),
-                    stringResource(R.string.trip_action_replay_desc)
+                    stringResource(Res.string.trip_action_replay),
+                    stringResource(Res.string.trip_action_replay_desc)
                 ) { onDismiss(); onReplay() }
             }
         },
         confirmButton = {},
         dismissButton = {
-            TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) }
+            TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) { Text(stringResource(Res.string.action_cancel)) }
         }
     )
 }

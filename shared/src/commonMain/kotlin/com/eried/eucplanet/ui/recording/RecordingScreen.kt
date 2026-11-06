@@ -1,9 +1,5 @@
 package com.eried.eucplanet.ui.recording
 
-import android.net.Uri
-import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
@@ -74,22 +70,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
+import com.eried.eucplanet.platform.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.TripRecord
+import com.eried.eucplanet.platform.System
+import com.eried.eucplanet.platform.format
+import com.eried.eucplanet.platform.formatMediumDateShortTime
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.InfoHint
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.common.DestructiveMenuItem
 import com.eried.eucplanet.ui.common.appMenuItemColors
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import org.koin.compose.viewmodel.koinViewModel
+import com.eried.eucplanet.resources.*
 
 
 
@@ -101,7 +95,8 @@ fun RecordingScreen(
     onOpenBackupSettings: (() -> Unit)? = null,
     onViewOnline: ((Long) -> Unit)? = null,
     onReplayTrip: ((Long) -> Unit)? = null,
-    viewModel: RecordingViewModel = koinViewModel()
+    viewModel: RecordingViewModel,
+    host: RecordingHost,
 ) {
     val recording by viewModel.recording.collectAsState()
     val pendingTripId by viewModel.pendingTripId.collectAsState()
@@ -115,9 +110,7 @@ fun RecordingScreen(
     val gpsFix by viewModel.gpsFix.collectAsState()
     val locationGranted by viewModel.locationPermissionGranted.collectAsState()
 
-    val locationPermissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) {
+    val requestLocationPermission = host.rememberLocationPermissionRequest {
         if (viewModel.refreshLocationPermission()) viewModel.startGpsPreview()
     }
 
@@ -148,7 +141,7 @@ fun RecordingScreen(
     }
 
     // Block back navigation while importing
-    BackHandler(enabled = importing) { /* swallow */ }
+    host.BackHandler(enabled = importing) { /* swallow */ }
 
     // Keep GPS warm while on the recording screen so the user can see fix status
     DisposableEffect(Unit) {
@@ -173,12 +166,8 @@ fun RecordingScreen(
         if (first >= 0) listState.animateScrollToItem(first)
     }
 
-    val importLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocument()
-    ) { uri: Uri? ->
-        if (uri != null) {
-            viewModel.importTrips(uri.toString()) { }
-        }
+    val pickTripsToImport = host.rememberTripImportPicker { uri ->
+        viewModel.importTrips(uri) { }
     }
 
     if (showClearDialog) {
@@ -186,7 +175,7 @@ fun RecordingScreen(
         AlertDialog(
             onDismissRequest = { showClearDialog = false },
             shape = RoundedCornerShape(12.dp),
-            title = { Text(stringResource(R.string.recording_clear_all_title)) },
+            title = { Text(stringResource(Res.string.recording_clear_all_title)) },
             text = {
                 Column {
                     // The warning has to match the box below it: with
@@ -194,8 +183,8 @@ fun RecordingScreen(
                     // undone" would be a lie.
                     Text(
                         stringResource(
-                            if (archiveAll) R.string.recording_clear_all_body_archive
-                            else R.string.recording_clear_all_body
+                            if (archiveAll) Res.string.recording_clear_all_body_archive
+                            else Res.string.recording_clear_all_body
                         )
                     )
                     if (canArchiveTrips) {
@@ -204,8 +193,8 @@ fun RecordingScreen(
                     Spacer(Modifier.height(4.dp))
                     ArchiveChoiceRow(
                         checked = archiveAll,
-                        title = stringResource(R.string.recording_delete_archive),
-                        desc = stringResource(R.string.recording_delete_archive_desc),
+                        title = stringResource(Res.string.recording_delete_archive),
+                        desc = stringResource(Res.string.recording_delete_archive_desc),
                         onCheckedChange = { archiveAll = it },
                     )
                     }
@@ -214,10 +203,10 @@ fun RecordingScreen(
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.clearAllTrips(archiveAll) { showClearDialog = false }
-                }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_delete_all), color = MaterialTheme.appColors.statusDanger) }
+                }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(Res.string.action_delete_all), color = MaterialTheme.appColors.statusDanger) }
             },
             dismissButton = {
-                TextButton(onClick = { showClearDialog = false }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) }
+                TextButton(onClick = { showClearDialog = false }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(Res.string.action_cancel)) }
             }
         )
     }
@@ -227,7 +216,7 @@ fun RecordingScreen(
         TripActionDialog(
             onShareFile = { viewModel.shareTrip(trip) },
             onViewOnline = { onViewOnline?.invoke(trip.id) },
-            onReplay = { onReplayTrip?.invoke(trip.id) },
+            onReplay = onReplayTrip?.let { replay -> { replay(trip.id) } },
             onDismiss = { tripToShare = null },
             dropboxLinked = dropboxLinked,
             onShareViaDropbox = { viewModel.shareViaDropbox(trip) },
@@ -298,7 +287,6 @@ fun RecordingScreen(
     }
 
     combineToolTrip?.let { trip ->
-        val dateFmt = remember { java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT, Locale.getDefault()) }
         CombineTripsDialog(
             anchor = trip,
             // Finished trips only: a recording still being written has no end and
@@ -310,11 +298,11 @@ fun RecordingScreen(
             label = { t ->
                 val secs = ((t.endTime ?: t.startTime) - t.startTime) / 1000
                 val dur = com.eried.eucplanet.util.Units.humanDuration(secs)
-                "${dateFmt.format(Date(t.startTime))}  ·  $dur"
+                "${formatMediumDateShortTime(t.startTime)}  ·  $dur"
             },
             wheelOf = { t ->
                 t.wheelMetaJson
-                    ?.let { runCatching { org.json.JSONObject(it).optString("ble_name") }.getOrNull() }
+                    ?.let { runCatching { com.eried.eucplanet.platform.JSONObject(it).optString("ble_name") }.getOrNull() }
             },
             canArchive = canArchiveTrips,
             onConfirm = { chosen, archiveSources ->
@@ -336,7 +324,7 @@ fun RecordingScreen(
         AlertDialog(
             onDismissRequest = { tripToDelete = null },
             shape = RoundedCornerShape(12.dp),
-            title = { Text(stringResource(R.string.recording_delete_trip_title)) },
+            title = { Text(stringResource(Res.string.recording_delete_trip_title)) },
             text = {
                 Column {
                     // Same rule as delete-all: the question has to match the
@@ -344,11 +332,11 @@ fun RecordingScreen(
                     Text(
                         stringResource(
                             when {
-                                offerArchive && archiveBackups -> R.string.recording_delete_trip_body_archive
+                                offerArchive && archiveBackups -> Res.string.recording_delete_trip_body_archive
                                 // Unarchived, the backup copy stays and the next
                                 // Sync all brings the trip back: say so.
-                                offerArchive -> R.string.recording_delete_trip_body_keeps_backup
-                                else -> R.string.recording_delete_trip_body
+                                offerArchive -> Res.string.recording_delete_trip_body_keeps_backup
+                                else -> Res.string.recording_delete_trip_body
                             }
                         )
                     )
@@ -358,8 +346,8 @@ fun RecordingScreen(
                     Spacer(Modifier.height(4.dp))
                     ArchiveChoiceRow(
                         checked = archiveBackups,
-                        title = stringResource(R.string.recording_delete_archive),
-                        desc = stringResource(R.string.recording_delete_archive_desc),
+                        title = stringResource(Res.string.recording_delete_archive),
+                        desc = stringResource(Res.string.recording_delete_archive_desc),
                         onCheckedChange = { archiveBackups = it },
                     )
                     }
@@ -369,10 +357,10 @@ fun RecordingScreen(
                 TextButton(onClick = {
                     viewModel.deleteTrip(tripToDelete!!, offerArchive && archiveBackups)
                     tripToDelete = null
-                }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_delete), color = MaterialTheme.appColors.statusDanger) }
+                }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(Res.string.action_delete), color = MaterialTheme.appColors.statusDanger) }
             },
             dismissButton = {
-                TextButton(onClick = { tripToDelete = null }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) }
+                TextButton(onClick = { tripToDelete = null }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(Res.string.action_cancel)) }
             }
         )
     }
@@ -394,15 +382,15 @@ fun RecordingScreen(
         },
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.recording_title)) },
+                title = { Text(stringResource(Res.string.recording_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack, enabled = !importing) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back))
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.action_back))
                     }
                 },
                 actions = {
                     IconButton(onClick = { showManageMenu = true }, enabled = !importing) {
-                        Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.action_manage))
+                        Icon(Icons.Default.MoreVert, contentDescription = stringResource(Res.string.action_manage))
                     }
                     DropdownMenu(
                         expanded = showManageMenu,
@@ -412,7 +400,7 @@ fun RecordingScreen(
                     ) {
                         if (onOpenBackupSettings != null) {
                             DropdownMenuItem(
-                                text = { Text(stringResource(R.string.action_trip_backup_options)) },
+                                text = { Text(stringResource(Res.string.action_trip_backup_options)) },
                                 onClick = {
                                     showManageMenu = false
                                     onOpenBackupSettings()
@@ -421,21 +409,15 @@ fun RecordingScreen(
                             HorizontalDivider(color = MaterialTheme.appColors.divider)
                         }
                         DropdownMenuItem(
-                            text = { Text(stringResource(R.string.action_import)) },
+                            text = { Text(stringResource(Res.string.action_import)) },
                             onClick = {
                                 showManageMenu = false
-                                importLauncher.launch(arrayOf(
-                                    "application/octet-stream",
-                                    "application/zip",
-                                    "text/csv",
-                                    "text/comma-separated-values",
-                                    "*/*"
-                                ))
+                                pickTripsToImport()
                             }
                         )
                         // Greyed, not hidden, with no trips: the menu keeps its shape.
                         DropdownMenuItem(
-                            text = { Text(stringResource(R.string.action_export_all)) },
+                            text = { Text(stringResource(Res.string.action_export_all)) },
                             enabled = trips.isNotEmpty(),
                             colors = appMenuItemColors(),
                             onClick = {
@@ -444,7 +426,7 @@ fun RecordingScreen(
                             }
                         )
                         DestructiveMenuItem(
-                            text = stringResource(R.string.recording_clear_all_menu),
+                            text = stringResource(Res.string.recording_clear_all_menu),
                             enabled = trips.isNotEmpty(),
                             onClick = {
                                 showManageMenu = false
@@ -466,7 +448,7 @@ fun RecordingScreen(
                 ) {
                     Icon(
                         if (recording) Icons.Default.Stop else Icons.Default.FiberManualRecord,
-                        contentDescription = if (recording) stringResource(R.string.action_stop) else stringResource(R.string.action_record),
+                        contentDescription = if (recording) stringResource(Res.string.action_stop) else stringResource(Res.string.action_record),
                         tint = MaterialTheme.colorScheme.background
                     )
                 }
@@ -504,22 +486,19 @@ fun RecordingScreen(
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
-                                stringResource(R.string.recording_location_permission_needed),
+                                stringResource(Res.string.recording_location_permission_needed),
                                 style = MaterialTheme.typography.titleLarge
                             )
                         }
                         Text(
-                            stringResource(R.string.recording_location_permission_body),
+                            stringResource(Res.string.recording_location_permission_body),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         TextButton(onClick = {
-                            locationPermissionLauncher.launch(arrayOf(
-                                android.Manifest.permission.ACCESS_FINE_LOCATION,
-                                android.Manifest.permission.ACCESS_COARSE_LOCATION
-                            ))
+                            requestLocationPermission()
                         }) {
-                            Text(stringResource(R.string.action_grant_permission))
+                            Text(stringResource(Res.string.action_grant_permission))
                         }
                     }
                 }
@@ -537,8 +516,8 @@ fun RecordingScreen(
                     Spacer(Modifier.size(6.dp))
                     Text(
                         stringResource(
-                            if (gpsFix) R.string.recording_gps_locked
-                            else R.string.recording_gps_waiting
+                            if (gpsFix) Res.string.recording_gps_locked
+                            else Res.string.recording_gps_waiting
                         ),
                         style = MaterialTheme.typography.bodySmall,
                         color = if (gpsFix) MaterialTheme.appColors.statusGood else MaterialTheme.colorScheme.onSurfaceVariant
@@ -578,19 +557,19 @@ fun RecordingScreen(
                         horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        StatItem(stringResource(R.string.recording_stat_trips), "${trips.size}")
+                        StatItem(stringResource(Res.string.recording_stat_trips), "${trips.size}")
                         StatItem(
-                            stringResource(R.string.recording_stat_distance),
+                            stringResource(Res.string.recording_stat_distance),
                             "%.1f %s".format(com.eried.eucplanet.util.Units.distance(totalKm, distanceUnit), distanceUnitLabel)
                         )
-                        StatItem(stringResource(R.string.recording_stat_time), "${totalHours}h ${totalMins}m")
+                        StatItem(stringResource(Res.string.recording_stat_time), "${totalHours}h ${totalMins}m")
                     }
                 }
             }
 
             if (trips.isEmpty()) {
                 Spacer(Modifier.height(24.dp))
-                InfoHint(text = stringResource(R.string.recording_empty))
+                InfoHint(text = stringResource(Res.string.recording_empty))
             } else {
                 // The currently recording trip has endTime == null
                 val recordingTripId = if (recording) trips.firstOrNull { it.endTime == null }?.id else null
@@ -611,7 +590,7 @@ fun RecordingScreen(
                             liveDistanceKm = if (isRecordingTrip) liveTripKm else null,
                             distanceUnit = distanceUnit,
                             onView = { onViewTrip?.invoke(trip) },
-                            onTools = { tripForTools = trip },
+                            onTools = if (host.supportsTripTools) ({ tripForTools = trip }) else null,
                             onShare = { tripToShare = trip },
                             onDelete = { tripToDelete = trip },
                             onRetryOnline = { viewModel.retryOnlineUploads() },
@@ -648,7 +627,8 @@ private fun TripCard(
     liveDistanceKm: Float?,
     distanceUnit: String,
     onView: () -> Unit,
-    onTools: () -> Unit,
+    /** Null where the trip tools are not available: the button is left out. */
+    onTools: (() -> Unit)?,
     onShare: () -> Unit,
     onDelete: () -> Unit,
     onRetryOnline: () -> Unit = {},
@@ -660,7 +640,6 @@ private fun TripCard(
     onRetryBackup: (TripRecord) -> Unit = {},
 ) {
     val distanceUnitLabel = com.eried.eucplanet.util.Units.distanceUnit(distanceUnit)
-    val dateFormat = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT, Locale.getDefault())
     val disabledColor = MaterialTheme.appColors.textDisabled
 
     // Live ticking elapsed time for the recording trip
@@ -707,7 +686,7 @@ private fun TripCard(
                 Text(
                     // Rider's custom name when set, otherwise the ride's date.
                     trip.customName?.takeIf { it.isNotBlank() }
-                        ?: dateFormat.format(Date(trip.startTime)),
+                        ?: formatMediumDateShortTime(trip.startTime),
                     style = MaterialTheme.typography.bodyLarge,
                     color = if (isRecording) MaterialTheme.appColors.statusDanger else MaterialTheme.colorScheme.onSurface
                 )
@@ -755,10 +734,10 @@ private fun TripCard(
             // Tools. This slot used to hold a "view" eye, which did exactly what
             // tapping the row already does, so it was a second door to the same
             // place. Tools (change wheel, split, combine) has nowhere else to go.
-            IconButton(onClick = onTools, enabled = !isRecording) {
+            if (onTools != null) IconButton(onClick = onTools, enabled = !isRecording) {
                 Icon(
                     Icons.Default.Build,
-                    contentDescription = stringResource(R.string.trip_tools_title),
+                    contentDescription = stringResource(Res.string.trip_tools_title),
                     tint = if (isRecording) disabledColor
                            else MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -767,7 +746,7 @@ private fun TripCard(
             // independent of backup state. Always available except while actively
             // recording (CSV writer is open).
             IconButton(onClick = onShare, enabled = !isRecording) {
-                Icon(Icons.Default.Share, contentDescription = stringResource(R.string.action_share),
+                Icon(Icons.Default.Share, contentDescription = stringResource(Res.string.action_share),
                     tint = if (isRecording) disabledColor
                            else MaterialTheme.colorScheme.onSurfaceVariant)
             }
@@ -776,7 +755,7 @@ private fun TripCard(
             // the pending grace if the deleted trip is the pending one, so the dialog
             // path is the only place that asks the user to confirm.
             IconButton(onClick = onDelete, enabled = !isRecording) {
-                Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.action_delete),
+                Icon(Icons.Default.Delete, contentDescription = stringResource(Res.string.action_delete),
                     tint = if (isRecording) disabledColor
                            else MaterialTheme.colorScheme.onSurfaceVariant)
             }
@@ -786,7 +765,7 @@ private fun TripCard(
 
 @Composable
 private fun PendingStatusIcon() {
-    val msg = stringResource(R.string.discard_trip_pending_label)
+    val msg = stringResource(Res.string.discard_trip_pending_label)
     val snackbar = LocalSnackbar.current
     val scope = LocalSnackbarScope.current
     IconButton(onClick = { showSnackbarLocal(snackbar, scope, msg) }) {
@@ -833,7 +812,6 @@ private fun TripStatusIcon(
     onRetryOnline: () -> Unit,
     onRecheckOnline: () -> Unit,
 ) {
-    val fmt = remember { java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT, Locale.getDefault()) }
 
     // The rider's own backups. These, and only these, pick the icon's color:
     // the question the cloud answers is "is this ride safe", and a ride is
@@ -847,7 +825,7 @@ private fun TripStatusIcon(
     // folder mirror catching up quietly is not something to warn about.
     val backupWaiting = (folderConfigured && trip.uploadStatus == 1) ||
         (dropboxLinked && trip.dropboxStatus == 1)
-    val backupAt = (trip.dropboxUploadedAt ?: trip.uploadedAt)?.let { fmt.format(Date(it)) }
+    val backupAt = (trip.dropboxUploadedAt ?: trip.uploadedAt)?.let { formatMediumDateShortTime(it) }
     val backupHeld = hasBackupCopy(trip)
 
     // The leaderboard used to drive message and tap behaviour only. It now
@@ -900,10 +878,10 @@ private fun TripStatusIcon(
     // something to say, so a trip with no leaderboard life reads as before.
     val parts = mutableListOf<String>()
     parts += when {
-        backupFailed -> stringResource(R.string.backup_status_failed)
-        backupWaiting -> stringResource(R.string.backup_status_pending)
-        backupAt != null -> stringResource(R.string.cloud_uploaded_on, backupAt)
-        else -> stringResource(R.string.cloud_not_uploaded)
+        backupFailed -> stringResource(Res.string.backup_status_failed)
+        backupWaiting -> stringResource(Res.string.backup_status_pending)
+        backupAt != null -> stringResource(Res.string.cloud_uploaded_on, backupAt)
+        else -> stringResource(Res.string.cloud_not_uploaded)
     }
     // Final leaderboard states only. "Uploading" and "held for automated
     // check" are the pipeline's business, not the rider's: a hold months old
@@ -911,9 +889,9 @@ private fun TripStatusIcon(
     // Tapping a held trip still re-asks silently, so stale holds clear
     // themselves without ever being announced.
     when {
-        rejected -> parts += stringResource(R.string.online_status_rejected)
-        trip.eucstatsStatus == 3 -> parts += stringResource(R.string.online_status_failed)
-        onlineDone -> parts += stringResource(R.string.online_status_shared)
+        rejected -> parts += stringResource(Res.string.online_status_rejected)
+        trip.eucstatsStatus == 3 -> parts += stringResource(Res.string.online_status_failed)
+        onlineDone -> parts += stringResource(Res.string.online_status_shared)
     }
     val msg = parts.joinToString(separator = "\n")
 

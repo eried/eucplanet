@@ -35,21 +35,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import com.eried.eucplanet.platform.stringResource
 import androidx.compose.ui.unit.dp
-import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.TripRecord
+import com.eried.eucplanet.platform.formatLocalDate
 import com.eried.eucplanet.data.repository.ExtendPlan
 import com.eried.eucplanet.data.repository.TripSplitDetector
 import com.eried.eucplanet.ui.common.ToolRow
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedFieldColors
+import com.eried.eucplanet.resources.*
 
 /**
  * Trip tools, opened from the wrench in the trip list.
@@ -80,33 +78,33 @@ fun TripToolsDialog(
             Column {
                 ToolRow(
                     Icons.Default.Edit,
-                    stringResource(R.string.trip_tools_rename),
-                    stringResource(R.string.trip_tools_rename_desc),
+                    stringResource(Res.string.trip_tools_rename),
+                    stringResource(Res.string.trip_tools_rename_desc),
                 ) { onDismiss(); onRename() }
                 ToolRow(
                     // Not a vehicle glyph. This tool changes a LABEL, and the
                     // repo's terminology rule is that the device is a wheel,
                     // never a motorbike. A swap arrow says what it does.
                     Icons.Default.SwapHoriz,
-                    stringResource(R.string.trip_tools_change_wheel),
-                    stringResource(R.string.trip_tools_change_wheel_desc),
+                    stringResource(Res.string.trip_tools_change_wheel),
+                    stringResource(Res.string.trip_tools_change_wheel_desc),
                 ) { onDismiss(); onChangeWheel() }
                 ToolRow(
                     Icons.Default.ContentCut,
-                    stringResource(R.string.trip_tools_split),
-                    stringResource(R.string.trip_tools_split_desc),
+                    stringResource(Res.string.trip_tools_split),
+                    stringResource(Res.string.trip_tools_split_desc),
                 ) { onDismiss(); onSplit() }
                 ToolRow(
                     Icons.Default.CallMerge,
-                    stringResource(R.string.trip_tools_extend),
-                    stringResource(R.string.trip_tools_extend_desc),
+                    stringResource(Res.string.trip_tools_extend),
+                    stringResource(Res.string.trip_tools_extend_desc),
                 ) { onDismiss(); onCombine() }
             }
         },
         confirmButton = {},
         dismissButton = {
             TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
-                Text(stringResource(R.string.action_cancel))
+                Text(stringResource(Res.string.action_cancel))
             }
         }
     )
@@ -126,11 +124,11 @@ fun RenameTripDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         shape = RoundedCornerShape(12.dp),
-        title = { Text(stringResource(R.string.trip_tools_rename)) },
+        title = { Text(stringResource(Res.string.trip_tools_rename)) },
         text = {
             Column {
                 Text(
-                    stringResource(R.string.trip_tools_rename_hint),
+                    stringResource(Res.string.trip_tools_rename_hint),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.appColors.textSecondary,
                 )
@@ -156,17 +154,17 @@ fun RenameTripDialog(
                 // it would just be a second Cancel.
                 if (!currentName.isNullOrBlank()) {
                     TextButton(onClick = { onConfirm("") }, shape = RoundedCornerShape(12.dp)) {
-                        Text(stringResource(R.string.action_reset))
+                        Text(stringResource(Res.string.action_reset))
                     }
                 } else {
                     Spacer(Modifier.width(1.dp))
                 }
                 Row {
                     TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
-                        Text(stringResource(R.string.action_cancel))
+                        Text(stringResource(Res.string.action_cancel))
                     }
                     TextButton(onClick = { onConfirm(text.trim()) }, shape = RoundedCornerShape(12.dp)) {
-                        Text(stringResource(R.string.action_save))
+                        Text(stringResource(Res.string.action_save))
                     }
                 }
             }
@@ -218,14 +216,14 @@ fun ChangeWheelDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         shape = RoundedCornerShape(12.dp),
-        title = { Text(stringResource(R.string.trip_tools_change_wheel)) },
+        title = { Text(stringResource(Res.string.trip_tools_change_wheel)) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 // A trip with no wheel recorded says so, instead of quietly
                 // preselecting whatever wheel happened to lead the list.
                 if (currentWheel == null) {
                     Text(
-                        stringResource(R.string.trip_tools_wheel_none),
+                        stringResource(Res.string.trip_tools_wheel_none),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.appColors.textSecondary,
                     )
@@ -258,7 +256,7 @@ fun ChangeWheelDialog(
                             // without changing anything is obviously a no-op.
                             if (wheel.key == currentWheel?.key) {
                                 Text(
-                                    stringResource(R.string.trip_tools_wheel_current),
+                                    stringResource(Res.string.trip_tools_wheel_current),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.appColors.textSecondary,
                                 )
@@ -276,7 +274,7 @@ fun ChangeWheelDialog(
                     RadioButton(selected = usingCustom, onClick = { usingCustom = true })
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        stringResource(R.string.trip_tools_wheel_other),
+                        stringResource(Res.string.trip_tools_wheel_other),
                         color = MaterialTheme.appColors.textPrimary,
                     )
                 }
@@ -297,11 +295,11 @@ fun ChangeWheelDialog(
                 onClick = { chosen?.let(onConfirm) },
                 enabled = chosen != null,
                 shape = RoundedCornerShape(12.dp),
-            ) { Text(stringResource(R.string.action_apply)) }
+            ) { Text(stringResource(Res.string.action_apply)) }
         },
         dismissButton = {
             TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
-                Text(stringResource(R.string.action_cancel))
+                Text(stringResource(Res.string.action_cancel))
             }
         }
     )
@@ -326,17 +324,16 @@ fun SplitTripDialog(
     onConfirm: (List<TripSplitDetector.Cut>, Boolean) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    val clockFmt = remember { SimpleDateFormat("HH:mm:ss", Locale.getDefault()) }
     val selected = remember { mutableStateOf(cuts.map { it.index }.toSet()) }
     var archiveSource by remember { mutableStateOf(true) }
     AlertDialog(
         onDismissRequest = onDismiss,
         shape = RoundedCornerShape(12.dp),
-        title = { Text(stringResource(R.string.trip_tools_split)) },
+        title = { Text(stringResource(Res.string.trip_tools_split)) },
         text = {
             if (cuts.isEmpty()) {
                 Text(
-                    stringResource(R.string.trip_tools_split_none),
+                    stringResource(Res.string.trip_tools_split_none),
                     color = MaterialTheme.appColors.textSecondary,
                 )
             } else {
@@ -354,9 +351,9 @@ fun SplitTripDialog(
                     // beats agreeing with a number that means "no split".
                     Text(
                         if (selected.value.isEmpty()) {
-                            stringResource(R.string.trip_tools_split_pick)
+                            stringResource(Res.string.trip_tools_split_pick)
                         } else {
-                            stringResource(R.string.trip_tools_split_hint, selected.value.size + 1)
+                            stringResource(Res.string.trip_tools_split_hint, selected.value.size + 1)
                         },
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.appColors.textSecondary,
@@ -385,9 +382,9 @@ fun SplitTripDialog(
                                 Text(
                                     stringResource(
                                         when (cut.reason) {
-                                            TripSplitDetector.Reason.WHEEL_CHANGE -> R.string.trip_split_reason_wheel
-                                            TripSplitDetector.Reason.TIME_GAP -> R.string.trip_split_reason_gap
-                                            TripSplitDetector.Reason.STOPPED -> R.string.trip_split_reason_stopped
+                                            TripSplitDetector.Reason.WHEEL_CHANGE -> Res.string.trip_split_reason_wheel
+                                            TripSplitDetector.Reason.TIME_GAP -> Res.string.trip_split_reason_gap
+                                            TripSplitDetector.Reason.STOPPED -> Res.string.trip_split_reason_stopped
                                         }
                                     ),
                                     color = MaterialTheme.appColors.textPrimary,
@@ -401,14 +398,14 @@ fun SplitTripDialog(
                                 // computed all along without being shown.
                                 Text(
                                     buildString {
-                                        append(clockFmt.format(Date(tripStartMs + cut.atElapsedMs)))
+                                        append(formatLocalDate("HH:mm:ss", tripStartMs + cut.atElapsedMs))
                                         append("  ·  ")
                                         append(formatElapsed(cut.atElapsedMs))
                                         if (cut.durationMs > 0L) {
                                             append("  ·  ")
                                             append(
                                                 stringResource(
-                                                    R.string.trip_split_lasted,
+                                                    Res.string.trip_split_lasted,
                                                     formatElapsed(cut.durationMs),
                                                 )
                                             )
@@ -428,8 +425,8 @@ fun SplitTripDialog(
                     Spacer(Modifier.height(4.dp))
                     ArchiveChoiceRow(
                         checked = archiveSource,
-                        title = stringResource(R.string.recording_delete_archive),
-                        desc = stringResource(R.string.recording_delete_archive_desc),
+                        title = stringResource(Res.string.recording_delete_archive),
+                        desc = stringResource(Res.string.recording_delete_archive_desc),
                         onCheckedChange = { archiveSource = it },
                     )
                     }
@@ -445,14 +442,14 @@ fun SplitTripDialog(
                     onClick = { onConfirm(chosen, archiveSource) },
                     enabled = chosen.isNotEmpty(),
                     shape = RoundedCornerShape(12.dp),
-                ) { Text(stringResource(R.string.action_apply)) }
+                ) { Text(stringResource(Res.string.action_apply)) }
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
                 Text(
                     stringResource(
-                        if (cuts.isEmpty()) R.string.action_close else R.string.action_cancel
+                        if (cuts.isEmpty()) Res.string.action_close else Res.string.action_cancel
                     )
                 )
             }
@@ -564,7 +561,7 @@ fun CombineTripsDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         shape = RoundedCornerShape(12.dp),
-        title = { Text(stringResource(R.string.trip_tools_extend)) },
+        title = { Text(stringResource(Res.string.trip_tools_extend)) },
         text = {
             Column(Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState())) {
                 if (ordered.size < 2 || nothingReachable) {
@@ -572,14 +569,14 @@ fun CombineTripsDialog(
                         stringResource(
                             // Different dead ends: nothing else recorded, or
                             // everything nearby is already part of this trip.
-                            if (ordered.size < 2) R.string.trip_tools_combine_none
-                            else R.string.trip_tools_extend_all_inside
+                            if (ordered.size < 2) Res.string.trip_tools_combine_none
+                            else Res.string.trip_tools_extend_all_inside
                         ),
                         color = MaterialTheme.appColors.textSecondary,
                     )
                 } else {
                     Text(
-                        stringResource(R.string.trip_tools_extend_hint),
+                        stringResource(Res.string.trip_tools_extend_hint),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.appColors.textSecondary,
                     )
@@ -589,11 +586,11 @@ fun CombineTripsDialog(
                     // rider reaches for, since an extend usually follows a ride
                     // that got split a moment ago.
                     TripPicker(
-                        title = stringResource(R.string.trip_tools_extend_to),
+                        title = stringResource(Res.string.trip_tools_extend_to),
                         options = listOf(anchorIdx) + fwdIdx,
                         selectedIdx = toIdx,
                         optionLabel = { i ->
-                            if (i == anchorIdx) stringResource(R.string.trip_tools_extend_none)
+                            if (i == anchorIdx) stringResource(Res.string.trip_tools_extend_none)
                             else label(ordered[i])
                         },
                         onSelect = { toIdx = it },
@@ -601,11 +598,11 @@ fun CombineTripsDialog(
                     Spacer(Modifier.height(8.dp))
                     // Earlier end: the anchor plus the nearest trips before it.
                     TripPicker(
-                        title = stringResource(R.string.trip_tools_extend_from),
+                        title = stringResource(Res.string.trip_tools_extend_from),
                         options = backIdx + listOf(anchorIdx),
                         selectedIdx = fromIdx,
                         optionLabel = { i ->
-                            if (i == anchorIdx) stringResource(R.string.trip_tools_extend_none)
+                            if (i == anchorIdx) stringResource(Res.string.trip_tools_extend_none)
                             else label(ordered[i])
                         },
                         onSelect = { fromIdx = it },
@@ -614,15 +611,15 @@ fun CombineTripsDialog(
                     Spacer(Modifier.height(12.dp))
                     Text(
                         if (range.size >= 2)
-                            stringResource(R.string.trip_tools_combine_summary, range.size)
-                        else stringResource(R.string.trip_tools_extend_pick_one),
+                            stringResource(Res.string.trip_tools_combine_summary, range.size)
+                        else stringResource(Res.string.trip_tools_extend_pick_one),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.appColors.textPrimary,
                     )
                     if (skipped > 0) {
                         Spacer(Modifier.height(4.dp))
                         Text(
-                            stringResource(R.string.trip_tools_extend_skipped, skipped),
+                            stringResource(Res.string.trip_tools_extend_skipped, skipped),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.appColors.textSecondary,
                         )
@@ -630,7 +627,7 @@ fun CombineTripsDialog(
                     if (mixedWheels) {
                         Spacer(Modifier.height(4.dp))
                         Text(
-                            stringResource(R.string.trip_tools_combine_mixed_wheels),
+                            stringResource(Res.string.trip_tools_combine_mixed_wheels),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.appColors.statusWarn,
                         )
@@ -643,8 +640,8 @@ fun CombineTripsDialog(
                         Spacer(Modifier.height(4.dp))
                         ArchiveChoiceRow(
                             checked = archiveSources,
-                            title = stringResource(R.string.recording_delete_archive),
-                            desc = stringResource(R.string.recording_delete_archive_desc),
+                            title = stringResource(Res.string.recording_delete_archive),
+                            desc = stringResource(Res.string.recording_delete_archive_desc),
                             onCheckedChange = { archiveSources = it },
                         )
                     }
@@ -657,7 +654,7 @@ fun CombineTripsDialog(
                     onClick = { onConfirm(range, archiveSources) },
                     enabled = range.size >= 2,
                     shape = RoundedCornerShape(12.dp),
-                ) { Text(stringResource(R.string.action_apply)) }
+                ) { Text(stringResource(Res.string.action_apply)) }
             }
         },
         dismissButton = {
@@ -665,8 +662,8 @@ fun CombineTripsDialog(
                 Text(
                     stringResource(
                         // A dead end has nothing to cancel, so it offers Close.
-                        if (ordered.size < 2 || nothingReachable) R.string.action_close
-                        else R.string.action_cancel
+                        if (ordered.size < 2 || nothingReachable) Res.string.action_close
+                        else Res.string.action_cancel
                     )
                 )
             }

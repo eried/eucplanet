@@ -22,3 +22,9 @@ expect class LocalDateParserUs(pattern: String) {
     /** Epoch-millis, or null when [text] does not match the pattern. */
     fun parse(text: String): Long?
 }
+
+/**
+ * `DateFormat.getDateTimeInstance(MEDIUM, SHORT, Locale.getDefault())`: a
+ * date and time as the phone's language writes them ("Nov 6, 2026, 14:05").
+ */
+expect fun formatMediumDateShortTime(epochMs: Long): String
