@@ -57,3 +57,11 @@ sealed interface RegisterResult {
      *  [detail] is the server's "detail" string when present (e.g. display_name_taken). */
     data class Failed(val code: Int, val detail: String?) : RegisterResult
 }
+
+/** Outcome of a EucStatsRepository.syncPendingNow batch. [total] is the
+ *  number of trips that were eligible at the start of the run; [uploaded] is
+ *  the number that landed cleanly. Callers use both to render an honest
+ *  message ("nothing to sync" / "synced N" / "all failed"). */
+data class SyncResult(val total: Int, val uploaded: Int, val cleared: Int = 0) {
+    val allFailed: Boolean get() = total > 0 && uploaded == 0
+}

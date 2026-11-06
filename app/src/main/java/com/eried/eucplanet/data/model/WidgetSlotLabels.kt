@@ -3,7 +3,7 @@ package com.eried.eucplanet.data.model
 import androidx.annotation.StringRes
 import com.eried.eucplanet.R
 
-// Picker labels for the shared widget registries. They stay in :app while the
+// Picker labels for the shared widget and notification registries. They stay in :app while the
 // strings are Android resources.
 
 @get:StringRes
@@ -35,4 +35,16 @@ val WidgetActionType.pickerLabel: Int
         WidgetActionType.RECORD -> R.string.notif_action_record
         WidgetActionType.VOICE -> R.string.widget_action_voice
         WidgetActionType.DISCONNECT -> R.string.notif_action_disconnect
+    }
+
+@get:StringRes
+val NotificationActionType.pickerLabel: Int
+    get() = when (this) {
+        NotificationActionType.STOP_ALL -> R.string.notif_action_stop_all
+        NotificationActionType.LOCK -> R.string.notif_action_lock
+        NotificationActionType.LIGHT -> R.string.notif_action_light
+        NotificationActionType.RECORD -> R.string.notif_action_record
+        NotificationActionType.HORN -> R.string.notif_action_horn
+        NotificationActionType.DISCONNECT -> R.string.notif_action_disconnect
+        NotificationActionType.STOP_NAV -> R.string.notif_action_stop_nav
     }

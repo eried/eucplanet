@@ -2,8 +2,6 @@ package com.eried.eucplanet.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import android.content.Context
-import android.location.Location
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.BatteryPercentSettings
 import com.eried.eucplanet.data.model.ProximityLockSettings
@@ -14,23 +12,20 @@ import com.eried.eucplanet.data.model.ApplyWhenIds
 import com.eried.eucplanet.data.model.CustomBleCommand
 import com.eried.eucplanet.data.model.PairedSurface
 import com.eried.eucplanet.data.model.SettingsLayout
+import com.eried.eucplanet.data.repository.PhoneLocation
 import com.eried.eucplanet.data.repository.SettingsRepository
-import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
-import com.eried.eucplanet.data.eucstats.EucStatsRepository
 import com.eried.eucplanet.data.eucstats.RiderCard
 import com.eried.eucplanet.data.sync.BackupEntry
 import com.eried.eucplanet.data.sync.BackupOutcome
 import com.eried.eucplanet.data.sync.RestorableRider
 import com.eried.eucplanet.data.sync.SyncChoice
-import com.eried.eucplanet.data.sync.SyncManager
 import com.eried.eucplanet.data.sync.SyncResult
-import com.eried.eucplanet.service.AutomationManager
 import com.eried.eucplanet.service.VoiceChoice
 import com.eried.eucplanet.service.VoiceOption
-import com.eried.eucplanet.service.VoiceService
-import android.net.Uri
+import com.eried.eucplanet.platform.System
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -42,7 +37,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import com.eried.eucplanet.data.repository.startLinkFlow
+import kotlin.uuid.Uuid
 
 /**
  * The dashboard metric picker catalog: every metric key a rider can add to the
@@ -55,7 +50,7 @@ import com.eried.eucplanet.data.repository.startLinkFlow
  * Entries that are NOT MetricCatalog keys are intentional aliases; keep them in
  * [DASHBOARD_METRIC_ALIASES] so the drift-guard tolerates them.
  */
-internal val KNOWN_DASHBOARD_METRICS = listOf(
+val KNOWN_DASHBOARD_METRICS = listOf(
     // Currently active by default, keep these 6 first so a fresh install
     // mirrors the hard-coded layout byte-for-byte.
     "BATTERY", "TEMPERATURE", "VOLTAGE", "CURRENT", "LOAD", "TRIP",
@@ -100,72 +95,39 @@ internal val KNOWN_DASHBOARD_METRICS = listOf(
  * [KNOWN_DASHBOARD_METRICS] that isn't a catalog key is a typo / stale entry.
  * Currently empty - every picker entry maps to a real catalog metric.
  */
-internal val DASHBOARD_METRIC_ALIASES = emptySet<String>()
+val DASHBOARD_METRIC_ALIASES = emptySet<String>()
 
 class SettingsViewModel(
     private val settingsRepository: SettingsRepository,
     private val wheelRepository: WheelRepository,
-    private val accelSplitRepository: com.eried.eucplanet.data.repository.AccelSplitRepository,
-    val legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController,
-    private val voiceService: VoiceService,
-    private val tonePlayer: com.eried.eucplanet.service.TonePlayer,
-    private val voiceCommands: com.eried.eucplanet.voice.VoiceCommandController,
-    private val tripRepository: TripRepository,
-    private val syncManager: SyncManager,
-    private val automationManager: AutomationManager,
-    private val wearBridge: com.eried.eucplanet.wear.WearBridge,
-    private val garminBridge: com.eried.eucplanet.garmin.GarminBridge,
-    private val amazfitBridge: com.eried.eucplanet.amazfit.AmazfitBridge,
-    private val engineSoundEngine: com.eried.eucplanet.audio.EngineSoundEngine,
+    private val accelSplitRepository: SplitTimes,
+    val legalLockdown: LockdownSwitch,
+    private val voiceService: SettingsVoice,
+    private val tonePlayer: PromptTones,
+    private val tripRepository: SettingsTrips,
+    private val syncManager: SettingsSync,
+    private val automationManager: SettingsAutomation,
+    private val watches: WatchLinks,
+    private val engineSoundEngine: EngineSoundPreview,
     val cheatState: com.eried.eucplanet.cheats.CheatState,
-    private val overlayPresetStore: com.eried.eucplanet.data.store.OverlayPresetStore,
+    private val hud: HudSettingsLink,
     private val themeController: com.eried.eucplanet.ui.theme.ThemeController,
-    hudCommandSink: com.eried.eucplanet.service.hud.HudCommandSink,
-    hudServer: com.eried.eucplanet.service.hud.HudServer,
-    private val eucStatsRepository: EucStatsRepository,
-    private val dropboxRepository: com.eried.eucplanet.data.repository.DropboxRepository,
-    private val appHealthRepository:
-        com.eried.eucplanet.data.repository.AppHealthRepository,
-    private val context: Context,
-    private val hornPlayer: com.eried.eucplanet.audio.HornPlayer,
+    private val eucStatsRepository: OnlineLeaderboard,
+    val dropboxRepository: com.eried.eucplanet.data.repository.DropboxRepository,
+    private val platform: SettingsPlatform,
+    private val hornPlayer: HornSound,
 ) : ViewModel() {
 
     /** Whether Android will honour a picture-in-picture request from us. */
-    fun pipAllowed(): Boolean = appHealthRepository.pipAllowed()
+    fun pipAllowed(): Boolean = platform.pipAllowed()
 
     /** Opens the per-app picture-in-picture switch in system settings. */
-    fun openPipSettings() = appHealthRepository.openPipSettings()
+    fun openPipSettings() = platform.openPipSettings()
 
-    /** Which discovery channel produced the current HUD link address. */
-    val hudConnectionSource = hudServer.connectionSource
-
-    /**
-     * Bundle the phone-side UDP listener counters into a single state for
-     * the diagnostic card. Polled on a 1s tick from the screen so the user
-     * sees the numbers move without us having to wire every counter into
-     * its own flow.
-     */
-    private val hudListenerRef = hudServer.udpListener
-    fun hudDiagSnapshot(): HudDiagSnapshot = HudDiagSnapshot(
-        listenerReceived = hudListenerRef.totalReceived,
-        listenerLastRxMs = hudListenerRef.lastReceiveAtMs,
-        listenerBindError = hudListenerRef.lastBindError,
-    )
-
-    data class HudDiagSnapshot(
-        val listenerReceived: Long,
-        val listenerLastRxMs: Long,
-        val listenerBindError: String,
-    )
-
-    /** Live HUD protocol compatibility for the Settings/Integration card.
-     *  Surfaces the "update HUD" / "update phone" hints. EXACT means nothing
-     *  to show. */
-    val hudVersionCompat = hudCommandSink.hudVersionCompat
     /** APK version string the HUD reported on pairing, e.g. "0.1.6". Null
      *  when no HUD is currently paired. */
-    val hudVersion = hudCommandSink.hudVersion
-    val hudEverConnected = hudCommandSink.hudEverConnected
+    val hudVersion = hud.hudVersion
+    val hudEverConnected = hud.hudEverConnected
 
     /**
      * Full preset-list snapshot for the HUD overlay picker dialog:
@@ -177,23 +139,7 @@ class SettingsViewModel(
      * The portrait / landscape split uses the same rule as the Studio: more
      * than half of the elements rotated => landscape.
      */
-    suspend fun loadHudOverlayLists(): HudOverlayLists {
-        val hasFolder = overlayPresetStore.presetFolderAvailable()
-        val saved = if (hasFolder) overlayPresetStore.listPresets() else emptyList()
-        val portrait = mutableListOf<String>()
-        val landscape = mutableListOf<String>()
-        overlayPresetStore.listBundledPresets().forEach { name ->
-            val els = overlayPresetStore.loadBundledPreset(name)?.elements
-            if (els != null && els.isNotEmpty() &&
-                els.count { it.rotationDeg != 0f } * 2 > els.size
-            ) {
-                landscape.add(name)
-            } else {
-                portrait.add(name)
-            }
-        }
-        return HudOverlayLists(hasFolder, saved, portrait, landscape)
-    }
+    suspend fun loadHudOverlayLists(): HudOverlayLists = hud.overlayLists()
 
     data class HudOverlayLists(
         val folderAvailable: Boolean,
@@ -212,11 +158,7 @@ class SettingsViewModel(
                 return@launch
             }
             // Bundled first (works without backup folder); saved second.
-            val preset = overlayPresetStore.loadBundledPreset(name)
-                ?: overlayPresetStore.loadPreset(name)
-                ?: return@launch
-            val json = com.eried.eucplanet.data.store.OverlayPresetJson
-                .toJson(preset).toString()
+            val json = hud.overlayJson(name) ?: return@launch
             updateHudCustomOverlay(name, json)
         }
     }
@@ -226,8 +168,7 @@ class SettingsViewModel(
      *  fires openApplication() (the first time it shows a "Launch EUC Planet?"
      *  prompt on the watch). Lets the user verify pairing without restarting. */
     fun testWatchWake() {
-        wearBridge.pingWatchToWake()
-        garminBridge.pingWatchToWake()
+        watches.pingWatchesToWake()
     }
 
     val autoLightsSuspended: StateFlow<Boolean> = automationManager.autoLightsSuspended
@@ -272,14 +213,14 @@ class SettingsViewModel(
      */
     val pairedSurfaces: StateFlow<List<PairedSurface>> =
         combine(
-            wearBridge.pairedNodes,
-            garminBridge.pairedDevices,
+            watches.wearNodes,
+            watches.garminDevices,
             settingsRepository.settings,
-            garminBridge.deliveryRateHz,
-            garminBridge.lastSuccessAtMs,
-            amazfitBridge.pairedDevices,
-            amazfitBridge.deliveryRateHz,
-            amazfitBridge.lastSuccessAtMs
+            watches.garminRateHz,
+            watches.garminLastSuccessAtMs,
+            watches.amazfitDevices,
+            watches.amazfitRateHz,
+            watches.amazfitLastSuccessAtMs
         ) { args ->
             @Suppress("UNCHECKED_CAST") val wear = args[0] as List<String>
             @Suppress("UNCHECKED_CAST") val garmin = args[1] as List<String>
@@ -326,7 +267,7 @@ class SettingsViewModel(
      *  (keep-screen-on, update-rate). Auto-start now works on Garmin too
      *  (openApplication), so it is no longer gated on this. */
     val hasWearOsPaired: StateFlow<Boolean> =
-        wearBridge.pairedNodes
+        watches.wearNodes
             .map { it.isNotEmpty() }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
@@ -335,7 +276,7 @@ class SettingsViewModel(
      *  unsupported on Garmin when a Garmin AND a Wear OS watch are both paired,
      *  and to show auto-start (which DOES work on Garmin now) for Garmin-only setups. */
     val hasGarminPaired: StateFlow<Boolean> =
-        garminBridge.pairedDevices
+        watches.garminDevices
             .map { it.isNotEmpty() }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
@@ -343,7 +284,7 @@ class SettingsViewModel(
      *  tab uses this to show the rows the Amazfit dial honours (keep-on, update
      *  rate) and to badge the ones it cannot do (auto-start, dial rotation). */
     val hasAmazfitPaired: StateFlow<Boolean> =
-        amazfitBridge.pairedDevices
+        watches.amazfitDevices
             .map { it.isNotEmpty() }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
@@ -366,9 +307,9 @@ class SettingsViewModel(
      */
     val hasHardwareButtonCapableWatch: StateFlow<Boolean> =
         combine(
-            wearBridge.pairedNodes,
-            garminBridge.pairedDevices,
-            amazfitBridge.pairedDevices
+            watches.wearNodes,
+            watches.garminDevices,
+            watches.amazfitDevices
         ) { wear, garmin, amazfit ->
             garmin.isNotEmpty() || amazfit.isNotEmpty() ||
                 wear.any { it.contains("Ultra", ignoreCase = true) }
@@ -388,7 +329,7 @@ class SettingsViewModel(
     val availableVoices: StateFlow<List<VoiceOption>> = voiceService.availableVoices
     val availableVoiceChoices: StateFlow<List<VoiceChoice>> = voiceService.availableVoiceChoices
 
-    val currentLocation: StateFlow<Location?> = tripRepository.currentLocation
+    val currentLocation: StateFlow<PhoneLocation?> = tripRepository.currentLocation
 
     private fun update(transform: AppSettings.() -> AppSettings) {
         viewModelScope.launch {
@@ -457,7 +398,7 @@ class SettingsViewModel(
      * so the rider's configuration is untouched by arming.
      */
     suspend fun armLockdown(pin: String): Boolean {
-        if (!com.eried.eucplanet.data.repository.LegalLockdownCode.isValidPin(pin)) return false
+        if (!legalLockdown.isValidPin(pin)) return false
         return legalLockdown.arm(pin, engageNow = wheelRepository.safetySpeedActive.value)
     }
 
@@ -619,7 +560,7 @@ class SettingsViewModel(
     val hornSoundReady: Boolean get() = hornPlayer.isReady
 
     /** Copy the picked clip in; the name is kept for the settings row. */
-    fun importHornSound(uri: android.net.Uri, displayName: String, onResult: (com.eried.eucplanet.audio.HornImportResult) -> Unit) {
+    fun importHornSound(uri: String, displayName: String, onResult: (com.eried.eucplanet.audio.HornImportResult) -> Unit) {
         viewModelScope.launch {
             val r = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { hornPlayer.import(uri) }
             if (r == com.eried.eucplanet.audio.HornImportResult.OK) {
@@ -774,7 +715,7 @@ class SettingsViewModel(
         // activity resume: moving between settings screens is not a resume,
         // so a rider who switches this on and never leaves the app would see
         // no sign that the grant it needs is missing.
-        appHealthRepository.refreshPermissionWarnings(
+        platform.refreshPermissionWarnings(
             mediaRateRequested = v != ApplyWhenIds.NEVER
         )
     }
@@ -784,8 +725,8 @@ class SettingsViewModel(
 
 
     /** Notification access, which the rate feature needs and nothing else does. */
-    fun notificationAccessAllowed(): Boolean = appHealthRepository.notificationAccessAllowed()
-    fun openNotificationAccessSettings() = appHealthRepository.openNotificationAccessSettings()
+    fun notificationAccessAllowed(): Boolean = platform.notificationAccessAllowed()
+    fun openNotificationAccessSettings() = platform.openNotificationAccessSettings()
 
     // Media control (speed-driven music/podcast pause & resume)
     fun updateMediaPauseEnabled(v: Boolean) = update { copy(mediaControl = mediaControl.copy(pauseEnabled = v)) }
@@ -1001,11 +942,7 @@ class SettingsViewModel(
         update { copy(keepAppAlive = v) }
         // Turning it OFF: ask the service to stand down if nothing else needs it.
         // (Turning it ON is handled by MainActivity's reactive service start.)
-        if (!v && com.eried.eucplanet.service.WheelService.isRunning) {
-            val intent = android.content.Intent(context, com.eried.eucplanet.service.WheelService::class.java)
-                .apply { action = com.eried.eucplanet.service.WheelService.ACTION_STOP_KEEPALIVE }
-            try { context.startService(intent) } catch (_: Exception) {}
-        }
+        if (!v) platform.stopKeepAlive()
     }
 
     // HUD companion
@@ -1108,11 +1045,7 @@ class SettingsViewModel(
                 update { copy(phoneHudOverlayName = "", phoneHudOverlayJson = "") }
                 return@launch
             }
-            val preset = overlayPresetStore.loadBundledPreset(name)
-                ?: overlayPresetStore.loadPreset(name)
-                ?: return@launch
-            val json = com.eried.eucplanet.data.store.OverlayPresetJson
-                .toJson(preset).toString()
+            val json = hud.overlayJson(name) ?: return@launch
             update { copy(phoneHudOverlayName = name.trim(), phoneHudOverlayJson = json) }
         }
     }
@@ -1288,7 +1221,7 @@ class SettingsViewModel(
                 } else {
                     settingsRepository.update(current.copy(language = v))
                 }
-                com.eried.eucplanet.util.LocaleHelper.apply(v)
+                platform.applyAppLanguage(v)
             } else if (ttsLang != appLangPrimary) {
                 // Override set AND voice differs from new UI language. Defer
                 // until the rider answers the prompt; show it in the current
@@ -1299,7 +1232,7 @@ class SettingsViewModel(
                 // (rare, but possible if the rider's manual pick happens to
                 // align). Apply directly without prompting.
                 settingsRepository.update(current.copy(language = v))
-                com.eried.eucplanet.util.LocaleHelper.apply(v)
+                platform.applyAppLanguage(v)
             }
         }
     }
@@ -1326,7 +1259,7 @@ class SettingsViewModel(
                 current.copy(language = v, voiceLocaleOverridden = false)
             }
             settingsRepository.update(updated)
-            com.eried.eucplanet.util.LocaleHelper.apply(v)
+            platform.applyAppLanguage(v)
             if (tag != null) voiceService.setVoiceLocale(tag)
             _ttsSwitchPrompt.value = null
         }
@@ -1340,7 +1273,7 @@ class SettingsViewModel(
     fun dismissTtsSwitch() {
         val v = _ttsSwitchPrompt.value ?: return
         update { copy(language = v, voiceLocaleOverridden = true) }
-        com.eried.eucplanet.util.LocaleHelper.apply(v)
+        platform.applyAppLanguage(v)
         _ttsSwitchPrompt.value = null
     }
 
@@ -1406,7 +1339,7 @@ class SettingsViewModel(
 
     fun consumeCloudEvent() { _cloudEvent.value = null }
 
-    fun updateSyncFolder(uri: Uri) {
+    fun updateSyncFolder(uri: String) {
         viewModelScope.launch {
             val ok = syncManager.setSyncFolder(uri)
             _cloudEvent.value = if (ok) CloudEvent.FolderSet else CloudEvent.FolderFailed
@@ -1805,13 +1738,13 @@ class SettingsViewModel(
      * sheet.
      */
     fun createCompositeMetricAt(insertAtIndex: Int): String {
-        val newId = "${COMPOSITE_METRIC_PREFIX}${java.util.UUID.randomUUID().toString().take(8)}"
+        val newId = "${COMPOSITE_METRIC_PREFIX}${Uuid.random().toString().take(8)}"
         viewModelScope.launch {
             val current = settingsRepository.get()
             val root = parseSlotStatsRoot(current.dashboardCompositeMetrics)
-            val node = org.json.JSONObject()
+            val node = com.eried.eucplanet.platform.JSONObject()
                 .put("layout", CompositeLayout.ROW2.name)
-                .put("cells", org.json.JSONArray(listOf("SPEED", "BATTERY")))
+                .put("cells", com.eried.eucplanet.platform.JSONArray(listOf("SPEED", "BATTERY")))
             root.put(newId, node)
 
             // Insert into the order at the target index, replacing whatever
@@ -1849,7 +1782,7 @@ class SettingsViewModel(
         viewModelScope.launch {
             val current = settingsRepository.get()
             val root = parseSlotStatsRoot(current.dashboardCompositeMetrics)
-            val node = root.optJSONObject(id) ?: org.json.JSONObject()
+            val node = root.optJSONObject(id) ?: com.eried.eucplanet.platform.JSONObject()
             node.put("layout", layout.name)
             val truncatedCells = cells.take(layout.cellCount)
             val truncatedStats = cellStats.take(layout.cellCount).let { existing ->
@@ -1858,8 +1791,8 @@ class SettingsViewModel(
                 if (existing.size >= truncatedCells.size) existing
                 else existing + List(truncatedCells.size - existing.size) { DashboardStat.CURRENT }
             }
-            node.put("cells", org.json.JSONArray(truncatedCells))
-            node.put("cellStats", org.json.JSONArray(truncatedStats.map { it.name }))
+            node.put("cells", com.eried.eucplanet.platform.JSONArray(truncatedCells))
+            node.put("cellStats", com.eried.eucplanet.platform.JSONArray(truncatedStats.map { it.name }))
             root.put(id, node)
             settingsRepository.update(current.copy(dashboardCompositeMetrics = root.toString()))
         }
@@ -1907,14 +1840,14 @@ class SettingsViewModel(
     fun getActionGroup(s: AppSettings, id: String): ActionGroup? = listActionGroups(s)[id]
 
     fun createActionGroupAt(insertAtIndex: Int): String {
-        val newId = "${ACTION_GROUP_PREFIX}${java.util.UUID.randomUUID().toString().take(8)}"
+        val newId = "${ACTION_GROUP_PREFIX}${Uuid.random().toString().take(8)}"
         viewModelScope.launch {
             val current = settingsRepository.get()
             val root = parseSlotStatsRoot(current.dashboardActionGroups)
-            val node = org.json.JSONObject()
+            val node = com.eried.eucplanet.platform.JSONObject()
                 .put("name", "")
                 .put("icon", GROUP_DEFAULT_ICON)
-                .put("actions", org.json.JSONArray(emptyList<String>()))
+                .put("actions", com.eried.eucplanet.platform.JSONArray(emptyList<String>()))
             root.put(newId, node)
 
             val order = sanitize(
@@ -1945,10 +1878,10 @@ class SettingsViewModel(
         viewModelScope.launch {
             val current = settingsRepository.get()
             val root = parseSlotStatsRoot(current.dashboardActionGroups)
-            val node = root.optJSONObject(id) ?: org.json.JSONObject()
+            val node = root.optJSONObject(id) ?: com.eried.eucplanet.platform.JSONObject()
             node.put("name", name)
             node.put("icon", icon.ifEmpty { GROUP_DEFAULT_ICON })
-            node.put("actions", org.json.JSONArray(actions.take(4)))
+            node.put("actions", com.eried.eucplanet.platform.JSONArray(actions.take(4)))
             root.put(id, node)
             settingsRepository.update(current.copy(dashboardActionGroups = root.toString()))
         }
@@ -1981,7 +1914,7 @@ class SettingsViewModel(
     fun getCustomBle(s: AppSettings, id: String): CustomBleCommand? = listCustomBle(s)[id]
 
     fun createCustomBleAt(insertAtIndex: Int): String {
-        val newId = CustomBleCommand.newId(java.util.UUID.randomUUID().toString().take(8))
+        val newId = CustomBleCommand.newId(Uuid.random().toString().take(8))
         viewModelScope.launch {
             val current = settingsRepository.get()
             val root = parseSlotStatsRoot(current.dashboardCustomBle)
@@ -1995,11 +1928,11 @@ class SettingsViewModel(
             val initialFamily = wheelRepository.connectedFamilyId ?: "veteran"
             root.put(
                 newId,
-                org.json.JSONObject()
+                com.eried.eucplanet.platform.JSONObject()
                     .put("label", "")
                     .put("icon", CUSTOM_BLE_DEFAULT_ICON)
                     .put("family", initialFamily)
-                    .put("frames", org.json.JSONArray(emptyList<String>()))
+                    .put("frames", com.eried.eucplanet.platform.JSONArray(emptyList<String>()))
             )
             val order = sanitize(
                 current.dashboardActionOrder,
@@ -2034,11 +1967,11 @@ class SettingsViewModel(
         viewModelScope.launch {
             val current = settingsRepository.get()
             val root = parseSlotStatsRoot(current.dashboardCustomBle)
-            val node = root.optJSONObject(id) ?: org.json.JSONObject()
+            val node = root.optJSONObject(id) ?: com.eried.eucplanet.platform.JSONObject()
             node.put("label", label)
             node.put("icon", icon.ifEmpty { CUSTOM_BLE_DEFAULT_ICON })
             node.put("family", family)
-            node.put("frames", org.json.JSONArray(frames.map { CustomBleCommand.bytesToHex(it) }))
+            node.put("frames", com.eried.eucplanet.platform.JSONArray(frames.map { CustomBleCommand.bytesToHex(it) }))
             root.put(id, node)
             settingsRepository.update(current.copy(dashboardCustomBle = root.toString()))
         }
@@ -2089,11 +2022,11 @@ class SettingsViewModel(
     fun getCustomTile(s: AppSettings, id: String): CustomTile? = listCustomTiles(s)[id]
 
     fun createCustomTileAt(insertAtIndex: Int): String {
-        val newId = "${CUSTOM_TILE_PREFIX}${java.util.UUID.randomUUID().toString().take(8)}"
+        val newId = "${CUSTOM_TILE_PREFIX}${Uuid.random().toString().take(8)}"
         viewModelScope.launch {
             val current = settingsRepository.get()
             val root = parseSlotStatsRoot(current.dashboardCustomTiles)
-            val node = org.json.JSONObject()
+            val node = com.eried.eucplanet.platform.JSONObject()
                 .put("text", "")
                 .put("icon", CUSTOM_TILE_DEFAULT_ICON)
                 .put("action", CustomTileAction.NONE.name)
@@ -2128,7 +2061,7 @@ class SettingsViewModel(
         viewModelScope.launch {
             val current = settingsRepository.get()
             val root = parseSlotStatsRoot(current.dashboardCustomTiles)
-            val node = root.optJSONObject(id) ?: org.json.JSONObject()
+            val node = root.optJSONObject(id) ?: com.eried.eucplanet.platform.JSONObject()
             node.put("text", text)
             node.put("icon", icon.ifEmpty { CUSTOM_TILE_DEFAULT_ICON })
             node.put("action", action.name)
@@ -2158,9 +2091,9 @@ class SettingsViewModel(
             if (idx < 0 || idx >= activeCount) return@launch
 
             // Create the new custom tile with defaults; rider edits it via tap.
-            val newId = "${CUSTOM_TILE_PREFIX}${java.util.UUID.randomUUID().toString().take(8)}"
+            val newId = "${CUSTOM_TILE_PREFIX}${Uuid.random().toString().take(8)}"
             val root = parseSlotStatsRoot(current.dashboardCustomTiles)
-            val node = org.json.JSONObject()
+            val node = com.eried.eucplanet.platform.JSONObject()
                 .put("text", "")
                 .put("icon", CUSTOM_TILE_DEFAULT_ICON)
                 .put("action", CustomTileAction.NONE.name)
@@ -2526,7 +2459,7 @@ class SettingsViewModel(
         viewModelScope.launch {
             val current = settingsRepository.get()
             val root = parseSlotStatsRoot(current.dashboardMetricStats)
-            val node = root.optJSONObject(key) ?: org.json.JSONObject()
+            val node = root.optJSONObject(key) ?: com.eried.eucplanet.platform.JSONObject()
             node.put(corner.jsonKey, stat.name)
             root.put(key, node)
             settingsRepository.update(current.copy(dashboardMetricStats = root.toString()))
@@ -2537,7 +2470,7 @@ class SettingsViewModel(
         viewModelScope.launch {
             val current = settingsRepository.get()
             val root = parseSlotStatsRoot(current.dashboardMetricStats)
-            val node = root.optJSONObject(key) ?: org.json.JSONObject()
+            val node = root.optJSONObject(key) ?: com.eried.eucplanet.platform.JSONObject()
             node.put("spark", enabled)
             root.put(key, node)
             settingsRepository.update(current.copy(dashboardMetricStats = root.toString()))
@@ -2553,8 +2486,8 @@ class SettingsViewModel(
         }
     }
 
-    private fun parseSlotStatsRoot(s: String): org.json.JSONObject =
-        try { org.json.JSONObject(s.ifBlank { "{}" }) } catch (_: Exception) { org.json.JSONObject() }
+    private fun parseSlotStatsRoot(s: String): com.eried.eucplanet.platform.JSONObject =
+        try { com.eried.eucplanet.platform.JSONObject(s.ifBlank { "{}" }) } catch (_: Exception) { com.eried.eucplanet.platform.JSONObject() }
 
     private fun parseSlotStats(s: String, key: String): MetricSlotStats {
         val root = parseSlotStatsRoot(s)
@@ -2677,7 +2610,7 @@ class SettingsViewModel(
             settingsRepository.update(current.copy(onlineUploadEnabled = true))
             // Harden the recovery id file now that we're linked (write it if the
             // folder doesn't have it yet); warn instead of clobbering a foreign id.
-            if (syncManager.ensureRiderIdFile(storeId) == SyncManager.RiderFileResult.MISMATCH) {
+            if (syncManager.ensureRiderIdFile(storeId) == com.eried.eucplanet.data.sync.RiderFileResult.MISMATCH) {
                 _cloudEvent.value = CloudEvent.RiderIdConflict
             }
             eucStatsRepository.refreshCard()
@@ -2702,13 +2635,6 @@ class SettingsViewModel(
      *  empty when not linked. Cosmetic only. */
     val dropboxAccountLabel: StateFlow<String> = dropboxRepository.accountLabel
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000L), "")
-
-    /** Kick off OAuth (Chrome Custom Tab). The result lands back via
-     *  MainActivity's intent-filter, which forwards to
-     *  [com.eried.eucplanet.data.repository.DropboxRepository.handleAuthCallback]. */
-    fun linkDropbox(context: android.content.Context) {
-        dropboxRepository.startLinkFlow(context)
-    }
 
     fun unlinkDropbox() {
         viewModelScope.launch {
@@ -2756,7 +2682,7 @@ class SettingsViewModel(
         viewModelScope.launch {
             val id = syncManager.riderStoreId.value
             if (id != null) {
-                if (syncManager.ensureRiderIdFile(id) == SyncManager.RiderFileResult.MISMATCH) {
+                if (syncManager.ensureRiderIdFile(id) == com.eried.eucplanet.data.sync.RiderFileResult.MISMATCH) {
                     _cloudEvent.value = CloudEvent.RiderIdConflict
                 }
             }

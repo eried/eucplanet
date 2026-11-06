@@ -6502,7 +6502,7 @@ private fun HornSection(
             context.contentResolver.query(uri, arrayOf(android.provider.OpenableColumns.DISPLAY_NAME), null, null, null)
                 ?.use { c -> if (c.moveToFirst()) c.getString(0) else null }
         }.getOrNull() ?: uri.lastPathSegment.orEmpty()
-        viewModel.importHornSound(uri, name) { r ->
+        viewModel.importHornSound(uri.toString(), name) { r ->
             soundReady = viewModel.hornSoundReady || r == com.eried.eucplanet.audio.HornImportResult.OK
             val msg = when (r) {
                 com.eried.eucplanet.audio.HornImportResult.OK -> msgOk
@@ -7870,7 +7870,7 @@ private fun CloudTab(
     val pickFolder = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocumentTree()
     ) { uri ->
-        if (uri != null) viewModel.updateSyncFolder(uri)
+        if (uri != null) viewModel.updateSyncFolder(uri.toString())
     }
 
     // Drain one-shot events to Toasts

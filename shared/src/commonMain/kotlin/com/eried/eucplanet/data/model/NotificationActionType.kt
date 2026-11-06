@@ -1,8 +1,5 @@
 package com.eried.eucplanet.data.model
 
-import androidx.annotation.StringRes
-import com.eried.eucplanet.R
-
 /**
  * The quick actions a rider can put on the ongoing notification. The General
  * settings "Customize actions" picker offers [SLOTS] independent slots, each a
@@ -22,14 +19,14 @@ import com.eried.eucplanet.R
  * That means when it is one of the picks, the rider sees fewer buttons while
  * not navigating; that is expected.
  */
-enum class NotificationActionType(val key: String, @StringRes val pickerLabel: Int) {
-    STOP_ALL("STOP_ALL", R.string.notif_action_stop_all),
-    LOCK("LOCK", R.string.notif_action_lock),
-    LIGHT("LIGHT", R.string.notif_action_light),
-    RECORD("RECORD", R.string.notif_action_record),
-    HORN("HORN", R.string.notif_action_horn),
-    DISCONNECT("DISCONNECT", R.string.notif_action_disconnect),
-    STOP_NAV("STOP_NAV", R.string.notif_action_stop_nav);
+enum class NotificationActionType(val key: String) {
+    STOP_ALL("STOP_ALL"),
+    LOCK("LOCK"),
+    LIGHT("LIGHT"),
+    RECORD("RECORD"),
+    HORN("HORN"),
+    DISCONNECT("DISCONNECT"),
+    STOP_NAV("STOP_NAV");
 
     companion object {
         /** Most Android notifications reliably show only three collapsed actions. */

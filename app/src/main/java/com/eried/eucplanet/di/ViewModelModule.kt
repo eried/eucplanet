@@ -37,6 +37,32 @@ import com.eried.eucplanet.ui.scan.AndroidWheelScanner
 import com.eried.eucplanet.ui.scan.ScanPlatform
 import com.eried.eucplanet.ui.scan.ScanViewModel
 import com.eried.eucplanet.ui.scan.WheelScanner
+import com.eried.eucplanet.ui.settings.AndroidEngineSoundPreview
+import com.eried.eucplanet.ui.settings.AndroidHornSound
+import com.eried.eucplanet.ui.settings.AndroidHudSettingsLink
+import com.eried.eucplanet.ui.settings.AndroidLockdownSwitch
+import com.eried.eucplanet.ui.settings.AndroidOnlineLeaderboard
+import com.eried.eucplanet.ui.settings.AndroidPromptTones
+import com.eried.eucplanet.ui.settings.AndroidSettingsAutomation
+import com.eried.eucplanet.ui.settings.AndroidSettingsPlatform
+import com.eried.eucplanet.ui.settings.AndroidSettingsSync
+import com.eried.eucplanet.ui.settings.AndroidSettingsTrips
+import com.eried.eucplanet.ui.settings.AndroidSettingsVoice
+import com.eried.eucplanet.ui.settings.AndroidSplitTimes
+import com.eried.eucplanet.ui.settings.AndroidWatchLinks
+import com.eried.eucplanet.ui.settings.EngineSoundPreview
+import com.eried.eucplanet.ui.settings.HornSound
+import com.eried.eucplanet.ui.settings.HudSettingsLink
+import com.eried.eucplanet.ui.settings.LockdownSwitch
+import com.eried.eucplanet.ui.settings.OnlineLeaderboard
+import com.eried.eucplanet.ui.settings.PromptTones
+import com.eried.eucplanet.ui.settings.SettingsAutomation
+import com.eried.eucplanet.ui.settings.SettingsPlatform
+import com.eried.eucplanet.ui.settings.SettingsSync
+import com.eried.eucplanet.ui.settings.SettingsTrips
+import com.eried.eucplanet.ui.settings.SettingsVoice
+import com.eried.eucplanet.ui.settings.SplitTimes
+import com.eried.eucplanet.ui.settings.WatchLinks
 import com.eried.eucplanet.ui.settings.AlarmViewModel
 import com.eried.eucplanet.ui.settings.ExternalGpsViewModel
 import com.eried.eucplanet.ui.settings.FlicViewModel
@@ -48,7 +74,6 @@ import com.eried.eucplanet.ui.studio.OverlayStudioViewModel
 import com.eried.eucplanet.ui.theme.ThemeEditorViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.singleOf
-import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -69,6 +94,20 @@ val viewModelModule = module {
     // And the scan screen's.
     singleOf(::AndroidWheelScanner) bind WheelScanner::class
     single<ScanPlatform> { AndroidScanPlatform(androidContext()) }
+    // And the settings screen's.
+    singleOf(::AndroidSettingsVoice) bind SettingsVoice::class
+    singleOf(::AndroidPromptTones) bind PromptTones::class
+    singleOf(::AndroidSettingsTrips) bind SettingsTrips::class
+    singleOf(::AndroidSettingsSync) bind SettingsSync::class
+    singleOf(::AndroidSettingsAutomation) bind SettingsAutomation::class
+    singleOf(::AndroidWatchLinks) bind WatchLinks::class
+    singleOf(::AndroidEngineSoundPreview) bind EngineSoundPreview::class
+    singleOf(::AndroidHornSound) bind HornSound::class
+    singleOf(::AndroidSplitTimes) bind SplitTimes::class
+    singleOf(::AndroidLockdownSwitch) bind LockdownSwitch::class
+    singleOf(::AndroidOnlineLeaderboard) bind OnlineLeaderboard::class
+    singleOf(::AndroidHudSettingsLink) bind HudSettingsLink::class
+    single<SettingsPlatform> { AndroidSettingsPlatform(androidContext(), get()) }
 
     viewModelOf(::WheelDiagnosticsViewModel)
     viewModelOf(::ChargingMonitorViewModel)
@@ -88,13 +127,7 @@ val viewModelModule = module {
     viewModelOf(::FlicViewModel)
     viewModelOf(::RadarViewModel)
     viewModelOf(::OfflineDataViewModel)
-    // 24 parameters, past the 22 viewModelOf takes.
-    viewModel {
-        SettingsViewModel(
-            get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(),
-            get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(),
-        )
-    }
+    viewModelOf(::SettingsViewModel)
     viewModelOf(::TpmsViewModel)
     viewModelOf(::OverlayStudioViewModel)
     viewModelOf(::ThemeEditorViewModel)

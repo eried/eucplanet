@@ -22,14 +22,6 @@ const val BACKGROUND_HELD_LIMIT = 20
 /** No practical bound, for the rider-initiated "Sync all". */
 const val ALL_HELD_TRIPS = Int.MAX_VALUE
 
-/** Outcome of a [EucStatsRepository.syncPendingNow] batch. [total] is the
- *  number of trips that were eligible at the start of the run; [uploaded] is
- *  the number that landed cleanly. Callers use both to render an honest
- *  message ("nothing to sync" / "synced N" / "all failed"). */
-data class SyncResult(val total: Int, val uploaded: Int, val cleared: Int = 0) {
-    val allFailed: Boolean get() = total > 0 && uploaded == 0
-}
-
 /**
  * Narrow settings port: exposes only the eucstats-relevant AppSettings
  * fields plus the .txt-backed rider id so [EucStatsRepository] stays
