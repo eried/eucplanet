@@ -240,6 +240,7 @@ class NavigationEngine(
     // standing still.
     private var preMoveCueSpoken = false
     private var rerouteInFlight = false
+    private val rerouteGate = RerouteGate()
     private var waypointAlongM: List<Double> = emptyList()
 
     // Navigator-view arrival time. The moving average spans the whole session
@@ -477,6 +478,7 @@ class NavigationEngine(
         backOnRouteSinceMs = 0L
         lastOffRouteVoiceMs = 0L
         rerouteInFlight = false
+        rerouteGate.reset()
         // 1, not 0, waypoint 0 is the rider's start point, never a goal.
         currentGoal = 1
         lastGoalDistM = Double.NaN
@@ -786,6 +788,7 @@ class NavigationEngine(
             if (now - backOnRouteSinceMs >= offRouteGraceMs) {
                 offRouteSinceMs = 0L
                 backOnRouteSinceMs = 0L
+                rerouteGate.reset()
                 if (_navState.value.offRoute) {
                     _navState.value = _navState.value.copy(offRoute = false)
                 }
@@ -809,7 +812,7 @@ class NavigationEngine(
             lastOffRouteVoiceMs = now
             voiceService.announceEvent(context.getString(R.string.nav_off_route))
         }
-        if (offFor > rerouteAfterMs && !rerouteInFlight &&
+        if (offFor > rerouteAfterMs && !rerouteInFlight && rerouteGate.mayTry(now) &&
             route.travelMode != TravelMode.STRAIGHT
         ) {
             Log.i(TAG, "triggering reroute (offFor=${offFor}ms)")
@@ -820,7 +823,7 @@ class NavigationEngine(
     /** Re-routes from the current position through the not-yet-reached waypoints. */
     private fun reroute(route: NavRoute, from: GeoPoint) {
         rerouteInFlight = true
-        if (voiceEnabled) {
+        if (voiceEnabled && rerouteGate.speak()) {
             voiceService.announceEvent(context.getString(R.string.nav_recalculating))
         }
         // The direction the rider is going now, so the new route carries on
@@ -854,10 +857,15 @@ class NavigationEngine(
                         lastIntermediateAnnounced = 0
                         offRouteSinceMs = 0L
                         backOnRouteSinceMs = 0L
+                        rerouteGate.reset()
                         Log.i(TAG, "Re-routed from current position")
+                    } else if (fresh == null) {
+                        rerouteGate.failed(System.currentTimeMillis(), rerouteAfterMs)
+                        Log.w(TAG, "reroute found no route; next try waits")
                     }
                 }
             } catch (e: Exception) {
+                rerouteGate.failed(System.currentTimeMillis(), rerouteAfterMs)
                 Log.w(TAG, "reroute failed: ${e.message}")
             } finally {
                 rerouteInFlight = false
