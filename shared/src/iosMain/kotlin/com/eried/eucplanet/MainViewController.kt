@@ -12,6 +12,8 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.eried.eucplanet.app.IosDashboardHost
 import com.eried.eucplanet.app.IosScanHost
 import com.eried.eucplanet.app.IosSettingsHost
+import com.eried.eucplanet.app.IosRecordingHost
+import com.eried.eucplanet.ui.recording.RecordingScreen
 import com.eried.eucplanet.app.rememberViewModel
 import com.eried.eucplanet.ui.settings.SettingsScreen
 import com.eried.eucplanet.ui.settings.FlicScreen
@@ -73,7 +75,7 @@ fun MainViewController(): UIViewController {
             val colors by theme.activeColors.collectAsState()
             EucPlanetTheme(colors = colors) {
                 // A small screen stack until the shared navigation graph lands.
-                // SIMCTL_CHILD_EUC_SCREEN=scan opens on the scan screen (also settings, flic).
+                // SIMCTL_CHILD_EUC_SCREEN=scan opens on the scan screen (also settings, flic, trips).
                 var screen by remember { mutableStateOf(startScreen ?: "dashboard") }
                 when (screen) {
                     "scan" -> {
@@ -104,6 +106,15 @@ fun MainViewController(): UIViewController {
                             host = IosSettingsHost,
                         )
                     }
+                    "trips" -> {
+                        val recordingVm = rememberViewModel { IosAppGraph.recordingViewModel() }
+                        RecordingScreen(
+                            onBack = { screen = "dashboard" },
+                            onOpenBackupSettings = { screen = "settings" },
+                            viewModel = recordingVm,
+                            host = IosRecordingHost,
+                        )
+                    }
                     "flic" -> {
                         val flicVm = rememberViewModel { FlicViewModel(IosAppGraph.settings, IosFlic) }
                         FlicScreen(onBack = { screen = "settings" }, viewModel = flicVm)
@@ -114,7 +125,7 @@ fun MainViewController(): UIViewController {
                         DashboardScreen(
                             onNavigateToScan = { screen = "scan" },
                             onNavigateToSettings = { screen = "settings" },
-                            onNavigateToRecording = {},
+                            onNavigateToRecording = { screen = "trips" },
                             viewModel = viewModel,
                             host = host,
                         )

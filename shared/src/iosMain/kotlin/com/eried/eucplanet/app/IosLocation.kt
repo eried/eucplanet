@@ -33,6 +33,9 @@ object IosLocation {
     val fix: StateFlow<PhoneLocation?> = _fix.asStateFlow()
     private val _lastKnown = MutableStateFlow<PhoneLocation?>(null)
     val lastKnown: StateFlow<PhoneLocation?> = _lastKnown.asStateFlow()
+    private val _authorized = MutableStateFlow(false)
+    /** The rider allowed location, while in use or always. */
+    val authorized: StateFlow<Boolean> = _authorized.asStateFlow()
 
     fun start() = sdk?.start() ?: Unit
 
@@ -44,6 +47,11 @@ object IosLocation {
     fun keepInBackground(on: Boolean) = sdk?.keepInBackground(on) ?: Unit
 
     // --- Called from Swift ---
+
+    /** At start and whenever the rider changes the app's location access. */
+    fun onAuthorization(granted: Boolean) {
+        _authorized.value = granted
+    }
 
     /**
      * One CLLocation. Negative accuracies, speed and course mean "not known",

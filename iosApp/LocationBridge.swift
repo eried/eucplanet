@@ -15,6 +15,7 @@ final class LocationBridge: NSObject, LocationSdk, CLLocationManagerDelegate {
         manager.desiredAccuracy = kCLLocationAccuracyBest
         manager.distanceFilter = kCLDistanceFilterNone
         manager.pausesLocationUpdatesAutomatically = false
+        IosLocation.shared.onAuthorization(granted: authorized)
     }
 
     private var authorized: Bool {
@@ -46,6 +47,7 @@ final class LocationBridge: NSObject, LocationSdk, CLLocationManagerDelegate {
     // MARK: CLLocationManagerDelegate
 
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        IosLocation.shared.onAuthorization(granted: authorized)
         if started && authorized { manager.startUpdatingLocation() }
     }
 

@@ -26,6 +26,7 @@ import com.eried.eucplanet.flic.ActionExecutor
 import com.eried.eucplanet.service.AlarmEngine
 import com.eried.eucplanet.ui.scan.ScanViewModel
 import com.eried.eucplanet.ui.settings.AlarmViewModel
+import com.eried.eucplanet.ui.recording.RecordingViewModel
 import com.eried.eucplanet.ui.settings.SettingsViewModel
 import com.eried.eucplanet.weather.WeatherRepository
 import com.eried.eucplanet.ui.theme.ThemeController
@@ -248,6 +249,16 @@ object IosAppGraph {
         dropboxRepository = dropbox,
         platform = IosSettingsPlatform,
         hornPlayer = NoHornSound,
+    )
+
+    /** The trip list's view model, as Koin's viewModelOf builds it on Android. */
+    fun recordingViewModel(): RecordingViewModel = RecordingViewModel(
+        tripRepository = IosTrips,
+        wheelRepository = wheel,
+        settingsRepository = settings,
+        online = NoRecordingOnline,
+        dropboxRepository = dropbox,
+        platform = IosRecordingPlatform,
     )
 
     /** A scan view model, as Koin's viewModelOf builds it on Android. */
