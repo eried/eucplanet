@@ -1,13 +1,20 @@
 package com.eried.eucplanet.util
 
-import android.location.Location
 import com.eried.eucplanet.data.model.WheelData
-import java.io.BufferedWriter
-import java.io.File
-import java.io.FileWriter
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import com.eried.eucplanet.data.repository.PhoneLocation
+import com.eried.eucplanet.platform.Locale
+import com.eried.eucplanet.platform.System
+import com.eried.eucplanet.platform.format
+import com.eried.eucplanet.platform.formatLocalDateUs
+
+/** Where [CsvWriter] puts its lines: a file, opened on the platform's terms. */
+interface TextSink {
+    /** Creates or truncates the file. Throws when it cannot. */
+    fun open()
+    fun writeLine(line: String)
+    fun flush()
+    fun close()
+}
 
 /**
  * Writes DarknessBot-compatible CSV files.
@@ -24,29 +31,28 @@ import java.util.Locale
  * open for future events. Values are sanitised so a BLE name can never break
  * the CSV framing.
  */
-class CsvWriter(private val file: File) {
+class CsvWriter(private val sink: TextSink) {
 
-    private val dateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss.SSS", Locale.US)
-    private var writer: BufferedWriter? = null
+    private var writer: TextSink? = null
     private var rowCount = 0
 
     /** Number of data rows written so far (excluding the header). */
     val rows: Int get() = rowCount
 
     fun open() {
-        writer = BufferedWriter(FileWriter(file))
-        writer?.write("Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Current,PWM,G-Force,G-Force X,G-Force Y,Torque,Phase current,Extra")
-        writer?.newLine()
+        sink.open()
+        writer = sink
+        sink.writeLine("Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Current,PWM,G-Force,G-Force X,G-Force Y,Torque,Phase current,Extra")
     }
 
-    fun writeRow(data: WheelData, location: Location?, externalGpsSpeedKmh: Float? = null, wheelConnected: Boolean = true, extra: String? = null) {
+    fun writeRow(data: WheelData, location: PhoneLocation?, externalGpsSpeedKmh: Float? = null, wheelConnected: Boolean = true, extra: String? = null) {
         val w = writer ?: return
         // Use wallclock so rows recorded without wheel telemetry (disconnected or
         // never connected) still carry a correct date. WheelData.timestamp defaults to
         // app-start time when no packet has arrived, which would freeze every row.
         val nowMs = System.currentTimeMillis()
         val tsMs = if (data.timestamp in (nowMs - 2000L)..nowMs) data.timestamp else nowMs
-        val date = dateFormat.format(Date(tsMs))
+        val date = formatLocalDateUs("dd.MM.yyyy HH:mm:ss.SSS", tsMs)
         val lat = location?.latitude ?: 0.0
         val lon = location?.longitude ?: 0.0
         val alt = location?.altitude ?: 0.0
@@ -66,7 +72,7 @@ class CsvWriter(private val file: File) {
         // are rider-controlled, so scrub rather than quote.
         val extraCell = extra?.replace(Regex("[,\"\\r\\n]+"), " ")?.trim() ?: ""
 
-        w.write(
+        w.writeLine(
             String.format(
                 Locale.US,
                 // Column precision follows what the source actually
@@ -99,7 +105,6 @@ class CsvWriter(private val file: File) {
                 extraCell
             )
         )
-        w.newLine()
         rowCount++
 
         // Flush every 10 rows

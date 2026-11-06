@@ -12,3 +12,10 @@ actual fun formatLocalDate(pattern: String, epochMs: Long): String {
     f.dateFormat = pattern
     return f.stringFromDate(NSDate.dateWithTimeIntervalSince1970(epochMs / 1000.0))
 }
+
+actual fun formatLocalDateUs(pattern: String, epochMs: Long): String {
+    val f = NSDateFormatter()
+    f.locale = NSLocale(localeIdentifier = "en_US_POSIX")
+    f.dateFormat = pattern
+    return f.stringFromDate(NSDate.dateWithTimeIntervalSince1970(epochMs / 1000.0))
+}

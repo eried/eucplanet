@@ -17,6 +17,7 @@ import com.eried.eucplanet.util.AppForeground
 import com.eried.eucplanet.data.sync.SyncManager
 import com.eried.eucplanet.service.VoiceService
 import com.eried.eucplanet.util.CsvWriter
+import com.eried.eucplanet.ui.dashboard.toPhoneLocation
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -868,7 +869,7 @@ class TripRepository(
                     lastWheelTripKm = null
                 }
                 wasConnected = wheelConnected
-                csvWriter?.writeRow(data, location, extSpeed, wheelConnected, pendingExtras.removeFirstOrNull())
+                csvWriter?.writeRow(data, location?.toPhoneLocation(), extSpeed, wheelConnected, pendingExtras.removeFirstOrNull())
                 rowsWritten++
                 if (location != null) {
                     rowsWithGps++
