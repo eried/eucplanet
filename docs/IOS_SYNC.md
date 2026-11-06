@@ -150,3 +150,18 @@ sh iosApp/deploy-device.sh     # build, sign and install on a cabled iPhone
 
 The device script uses the free Apple ID signing set up in Xcode
 (Settings > Accounts). Free installs expire after 7 days; run it again.
+
+### TestFlight
+
+```sh
+TEAM=<team id> ASC_KEY_ID=<key id> ASC_ISSUER_ID=<issuer id> sh iosApp/testflight.sh
+```
+
+archives a Release build and uploads it to App Store Connect. The version is
+Android's `versionName` and the build number the commit count, so every
+upload from a newer commit is accepted. It needs an App Store Connect API key
+with Admin access, its `.p8` saved as
+`~/.appstoreconnect/private_keys/AuthKey_<key id>.p8`; with it Xcode creates
+the distribution certificate and profile itself, so nobody signs in to Xcode.
+The app (bundle id `com.eried.eucplanet.ios`) has to exist in App Store
+Connect first; the API cannot create it.
