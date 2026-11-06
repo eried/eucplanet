@@ -6,7 +6,6 @@ import com.eried.eucplanet.data.eucstats.RiderCard
 import com.eried.eucplanet.data.eucstats.RiderProfile
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.WheelData
-import com.eried.eucplanet.data.repository.PhoneLocation
 import com.eried.eucplanet.data.sync.BackupOutcome
 import com.eried.eucplanet.data.sync.RiderFileResult
 import com.eried.eucplanet.data.sync.SyncChoice
@@ -27,7 +26,6 @@ import com.eried.eucplanet.ui.settings.PromptTones
 import com.eried.eucplanet.ui.settings.SettingsAutomation
 import com.eried.eucplanet.ui.settings.SettingsPlatform
 import com.eried.eucplanet.ui.settings.SettingsSync
-import com.eried.eucplanet.ui.settings.SettingsTrips
 import com.eried.eucplanet.ui.settings.SettingsViewModel
 import com.eried.eucplanet.ui.settings.SettingsVoice
 import com.eried.eucplanet.ui.settings.SplitTimes
@@ -35,7 +33,6 @@ import com.eried.eucplanet.ui.settings.WatchLinks
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -133,15 +130,6 @@ internal object IosPromptTones : PromptTones {
         val r = ToneSynth.renderNotes(notes, gapMs, leadPadMs, volumePct, minFrames = 0) ?: return
         IosTonePlayer.play(r)
     }
-}
-
-/** No trip recorder on iOS yet; the phone's fix joins with it. */
-internal object NoSettingsTrips : SettingsTrips {
-    override val recording: StateFlow<Boolean> = MutableStateFlow(false).asStateFlow()
-    override val tripCount: Flow<Int> = MutableStateFlow(0)
-    override val currentLocation: StateFlow<PhoneLocation?> = MutableStateFlow<PhoneLocation?>(null).asStateFlow()
-    override suspend fun allTripFileNames(): List<String> = emptyList()
-    override suspend fun clearAll() = Unit
 }
 
 /**

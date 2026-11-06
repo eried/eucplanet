@@ -7,6 +7,7 @@ import Shared
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     private let flic = FlicBridge()
+    private let location = LocationBridge()
 
     func application(
         _ application: UIApplication,
@@ -14,6 +15,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ) -> Bool {
         RideActivity.shared.bridge = RideLiveActivity()
         // Early, so presses queued while the app was asleep arrive quickly.
+        IosLocation.shared.sdk = location
         IosFlic.shared.sdk = flic
         flic.start()
         let w = UIWindow(frame: UIScreen.main.bounds)

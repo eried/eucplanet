@@ -51,7 +51,7 @@ import platform.Foundation.stringWithContentsOfFile
  * storage underneath.
  */
 object IosAppGraph {
-    private val documents: String by lazy {
+    internal val documents: String by lazy {
         @OptIn(ExperimentalForeignApi::class)
         val url = NSFileManager.defaultManager.URLForDirectory(
             NSDocumentDirectory, NSUserDomainMask, null, true, null,
@@ -112,7 +112,7 @@ object IosAppGraph {
      */
     val actions: ActionExecutor by lazy {
         ActionExecutor(
-            settings, wheel, NoTrips, voice, NoAutomation, LogNotices, NoLockdown,
+            settings, wheel, IosTrips, voice, NoAutomation, LogNotices, NoLockdown,
             NoVoiceListening, NoMedia, IosPhoneDevice,
         )
     }
@@ -126,7 +126,7 @@ object IosAppGraph {
      * moves). No phone location on iOS yet, so GPS alarms stay quiet.
      */
     val alarmEngine: AlarmEngine by lazy {
-        AlarmEngine(IosPhoneDevice, database.alarmDao(), IosAlarmOutputs, cheats, settings, link, lazyOf(NoTrips))
+        AlarmEngine(IosPhoneDevice, database.alarmDao(), IosAlarmOutputs, cheats, settings, link, lazyOf(IosTrips))
     }
 
     /** The wheel state every screen reads, as on Android. See IosWheelPorts.kt. */
@@ -199,7 +199,7 @@ object IosAppGraph {
     fun dashboardViewModel(): DashboardViewModel = DashboardViewModel(
         wheelRepository = wheel,
         settingsRepository = settings,
-        tripRepository = NoTrips,
+        tripRepository = IosTrips,
         tripMeterRepository = NoTripMeter,
         voiceService = voice,
         automationManager = NoAutomation,
@@ -236,7 +236,7 @@ object IosAppGraph {
         legalLockdown = NoLockdownSwitch,
         voiceService = IosSettingsVoice(voice),
         tonePlayer = IosPromptTones,
-        tripRepository = NoSettingsTrips,
+        tripRepository = IosTrips,
         syncManager = IosSettingsSync,
         automationManager = NoSettingsAutomation,
         watches = NoWatches,

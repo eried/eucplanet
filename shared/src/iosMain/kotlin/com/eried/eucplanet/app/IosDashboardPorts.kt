@@ -43,18 +43,6 @@ import platform.Foundation.NSUserDefaults
 // on iOS yet answers as the Android app does with it switched off, and is
 // replaced when it lands; docs/IOS_PARITY.md tracks which.
 
-/** Trip recording and phone location are not on iOS yet. */
-internal object NoTrips : DashboardTrips {
-    override val recording: StateFlow<Boolean> = MutableStateFlow(false).asStateFlow()
-    override val tripCount: Flow<Int> = flowOf(0)
-    override val newestTripId: Flow<Long?> = flowOf(null)
-    override val currentTripId: StateFlow<Long?> = MutableStateFlow<Long?>(null).asStateFlow()
-    override val currentFix: StateFlow<PhoneLocation?> = MutableStateFlow<PhoneLocation?>(null).asStateFlow()
-    override val lastKnownFix: StateFlow<PhoneLocation?> = MutableStateFlow<PhoneLocation?>(null).asStateFlow()
-    override suspend fun startRecording() = Unit
-    override suspend fun stopRecording() = Unit
-}
-
 internal object NoTripMeter : TripMeterFeed {
     override val state: StateFlow<TripMeterState> = MutableStateFlow(TripMeterState()).asStateFlow()
 }

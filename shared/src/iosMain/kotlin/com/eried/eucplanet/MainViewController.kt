@@ -17,6 +17,8 @@ import com.eried.eucplanet.ui.settings.SettingsScreen
 import com.eried.eucplanet.ui.settings.FlicScreen
 import com.eried.eucplanet.ui.settings.FlicViewModel
 import com.eried.eucplanet.app.IosFlic
+import com.eried.eucplanet.app.IosLocation
+import com.eried.eucplanet.app.IosTrips
 import com.eried.eucplanet.ui.scan.ScanScreen
 import com.eried.eucplanet.ui.scan.ScanViewModel
 import com.eried.eucplanet.app.RideActivity
@@ -41,6 +43,18 @@ fun MainViewController(): UIViewController {
     // SIMCTL_CHILD_EUC_CONNECT=VIRTUAL:<id> xcrun simctl launch ...
     (NSProcessInfo.processInfo.environment["EUC_CONNECT"] as? String)?.let { wheel.connect(it) }
     MainScope().launch { IosAppGraph.seed() }
+    // The phone's GPS for the dashboard and trips, and auto-record, as
+    // WheelService starts them on Android.
+    IosLocation.start()
+    IosTrips.followWheel()
+    // SIMCTL_CHILD_EUC_RECORD=20 records a 20 s trip, for scripted runs.
+    (NSProcessInfo.processInfo.environment["EUC_RECORD"] as? String)?.toLongOrNull()?.let { secs ->
+        MainScope().launch {
+            IosTrips.startRecording()
+            kotlinx.coroutines.delay(secs * 1000)
+            IosTrips.stopRecording()
+        }
+    }
     RideActivity.follow(link, wheel.wheelData)
     // SIMCTL_CHILD_EUC_TAB=1 opens the old probe screen on its backup tab,
     // the wheel protocol probe kept for diagnostics.
