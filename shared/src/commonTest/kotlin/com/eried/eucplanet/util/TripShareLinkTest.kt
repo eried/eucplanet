@@ -1,8 +1,8 @@
 package com.eried.eucplanet.util
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
-import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
+import kotlin.test.Test
 
 /**
  * Spec test vectors for the short share link (`#d-…`). Producer side is what

@@ -1,9 +1,10 @@
 package com.eried.eucplanet.ui.recording
 
-import org.junit.Assert.assertArrayEquals
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertSame
-import org.junit.Test
+import kotlin.test.assertContentEquals
+import kotlin.test.assertEquals
+import kotlin.test.assertSame
+import com.eried.eucplanet.platform.format
+import kotlin.test.Test
 
 class TripTrimTest {
 
@@ -18,7 +19,7 @@ class TripTrimTest {
 
     @Test fun elapsedOffsets_areMillisFromTheFirstSample() {
         val e = TripTrim.elapsedOffsets(points(4))
-        assertArrayEquals(longArrayOf(0L, 1_000L, 2_000L, 3_000L), e)
+        assertContentEquals(longArrayOf(0L, 1_000L, 2_000L, 3_000L), e)
     }
 
     @Test fun elapsedOffsets_onEmptyInput_isEmpty() {
@@ -29,7 +30,7 @@ class TripTrimTest {
         val pts = points(3).toMutableList()
         pts[1] = pts[1].copy(date = "not a date")
         val e = TripTrim.elapsedOffsets(pts)
-        assertArrayEquals(longArrayOf(0L, 0L, 2_000L), e)
+        assertContentEquals(longArrayOf(0L, 0L, 2_000L), e)
     }
 
     @Test fun apply_withNullRange_returnsTheSameListInstance() {
@@ -81,12 +82,12 @@ class TripTrimTest {
             points(1).first().copy(date = "09.08.2026 12:00:00.000"),
             points(1).first().copy(date = "09.08.2026 12:00:02.000"),
         )
-        assertArrayEquals(longArrayOf(0L, 2_000L), TripTrim.elapsedOffsets(pts))
+        assertContentEquals(longArrayOf(0L, 2_000L), TripTrim.elapsedOffsets(pts))
     }
 
     @Test fun elapsedOffsets_whenNoRowParses_areAllZero() {
         val pts = points(3).map { it.copy(date = "nonsense") }
-        assertArrayEquals(longArrayOf(0L, 0L, 0L), TripTrim.elapsedOffsets(pts))
+        assertContentEquals(longArrayOf(0L, 0L, 0L), TripTrim.elapsedOffsets(pts))
     }
 
     @Test fun startIndex_isZeroForTheWholeRide() {
@@ -125,6 +126,6 @@ class TripTrimTest {
             points(1).first().copy(date = "2026-08-09 12:00:00"),
             points(1).first().copy(date = "2026-08-09 12:00:05"),
         )
-        assertArrayEquals(longArrayOf(0L, 5_000L), TripTrim.elapsedOffsets(pts))
+        assertContentEquals(longArrayOf(0L, 5_000L), TripTrim.elapsedOffsets(pts))
     }
 }

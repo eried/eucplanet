@@ -2,9 +2,9 @@ package com.eried.eucplanet.data
 
 import com.eried.eucplanet.data.repository.TripSplitDetector
 import com.eried.eucplanet.data.repository.TripSplitDetector.Reason
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+import kotlin.test.Test
 
 class TripSplitDetectorTest {
 

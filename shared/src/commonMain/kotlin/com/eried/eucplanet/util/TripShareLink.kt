@@ -43,13 +43,15 @@ object TripShareLink {
 
     /** The `d-…` token for [directUrl], or null if it does not qualify. */
     fun encodeToken(directUrl: String): String? {
-        val uri = try { java.net.URI(directUrl) } catch (_: Exception) { return null }
         // scheme https, host exactly dl.dropboxusercontent.com, no fragment.
-        if (uri.scheme != "https") return null
-        if (uri.host != "dl.dropboxusercontent.com") return null
-        if (uri.rawFragment != null) return null
+        if (!directUrl.startsWith("https://")) return null
+        if ('#' in directUrl || directUrl.any { it <= ' ' }) return null
+        val rest = directUrl.removePrefix("https://")
+        val slash = rest.indexOf('/')
+        if (slash < 0) return null
+        if (rest.substring(0, slash) != "dl.dropboxusercontent.com") return null
 
-        val path = uri.rawPath ?: return null
+        val path = rest.substring(slash).substringBefore('?')
         val pm = PATH_RE.matchEntire(path) ?: return null
         val fileId = pm.groupValues[1]
         val digits = pm.groupValues[2] + pm.groupValues[3] // YYYYMMDD + HHMMSS = 14
@@ -57,7 +59,7 @@ object TripShareLink {
         // Query must contain EXACTLY two params: rlkey (valid) and dl=1. Any
         // extra parameter (e.g. the `st=` Dropbox adds to web-UI copies)
         // disqualifies the URL.
-        val query = uri.rawQuery ?: return null
+        val query = rest.substring(slash).substringAfter('?', "").ifEmpty { return null }
         var rlkey: String? = null
         var dlOk = false
         val parts = query.split("&")
@@ -92,7 +94,7 @@ object TripShareLink {
         val fileId = m.groupValues[1]
         val ts36 = m.groupValues[2]
         val rlkey = m.groupValues[3]
-        val n = try { java.lang.Long.parseLong(ts36, 36) } catch (_: Exception) { return null }
+        val n = try { ts36.toLong(36) } catch (_: Exception) { return null }
         if (n < 0 || n > 9007199254740991L) return null // reject unless a safe integer
         val digits = n.toString()
         if (digits.length > 14) return null

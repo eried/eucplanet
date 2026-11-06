@@ -1,6 +1,6 @@
 package com.eried.eucplanet.data.repository
 
-import org.json.JSONObject
+import com.eried.eucplanet.platform.JSONObject
 
 /**
  * One wheel as the change-wheel picker offers it, and as a trip file carries

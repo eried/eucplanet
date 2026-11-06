@@ -41,34 +41,6 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
-data class LatLon(val latitude: Double, val longitude: Double)
-
-data class TripDataPoint(
-    val date: String,
-    val speed: Float,
-    val voltage: Float,
-    val temperature: Float,
-    val battery: Int,
-    val altitude: Float,
-    val latitude: Double,
-    val longitude: Double,
-    val totalMileage: Float,
-    /** Phone-derived GPS speed in km/h, parsed from the legacy `GPS speed` column. 0 if absent. */
-    val gpsSpeed: Float = 0f,
-    /** External-GPS-box speed in km/h (RaceBox). NaN when the row's column was empty. */
-    val extGpsSpeed: Float = Float.NaN,
-    /** Wheel current in amps, signed (negative = regen braking). NaN when the trip's CSV predates the column or the cell is blank. */
-    val current: Float = Float.NaN,
-    /** PWM / motor load in percent. NaN when the trip's CSV predates the column or the cell is blank. */
-    val pwm: Float = Float.NaN,
-    /** Motor torque in Nm, signed. NaN when the trip's CSV predates the column or the cell is blank. */
-    val torque: Float = Float.NaN,
-    /** Motor phase current in amps, signed. NaN when the trip's CSV predates the column or the cell is blank. */
-    val phaseCurrent: Float = Float.NaN,
-    /** Raw Extra-column event ("wheel.name=KS-16SZ", "wheel.disconnected=1", ...). Empty on normal rows. */
-    val extra: String = ""
-)
-
 /** How long a freshly made trip stays flashed in the list. */
 private const val HIGHLIGHT_MS = 3_000L
 
