@@ -3332,7 +3332,10 @@ fun DashboardScreen(
                                                     "Humanitarian OSM Team" to "hotosm.org. HOT style, tiles served by OpenStreetMap France.",
                                                     "CARTO" to "carto.com/attributions. The Voyager and Dark basemaps.",
                                                     "Esri" to "Esri, Maxar, Earthstar Geographics. World Imagery satellite tiles.",
-                                                    "Leaflet" to "leafletjs.com. BSD-2. The map component every in-app map is drawn with."
+                                                    "Leaflet" to "leafletjs.com. BSD-2. The map component every in-app map is drawn with.",
+                                                    "FOSSGIS" to "fossgis.de. The public Valhalla and OSRM routing servers.",
+                                                    "BRouter" to "brouter.de. MIT. Offline routing.",
+                                                    "Protomaps" to "protomaps.com. The OpenStreetMap build the offline maps come from."
                                                 )
                                                 resources.forEachIndexed { idx, (name, why) ->
                                                     if (idx > 0) {

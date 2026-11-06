@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.DropdownMenu
@@ -41,7 +42,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.platform.LocalContext
 import com.eried.eucplanet.ui.theme.appColors
 import androidx.compose.ui.res.stringResource
@@ -225,6 +231,65 @@ fun NavigatorSettingsContent(
             enabled = true,
             onCommit = { viewModel.updateNavRouterUrl(it) },
         )
+        EndpointField(
+            label = stringResource(R.string.nav_setting_valhalla_url),
+            value = settings.navValhallaUrl,
+            enabled = true,
+            onCommit = { viewModel.updateNavValhallaUrl(it) },
+        )
+
+        // --- Offline: whether downloaded areas go first or stay the
+        // backup (default), where they come from, and the screen to get
+        // them (with what is downloaded so far). Nothing changes until one
+        // is there. ---
+        SwitchRow(
+            label = stringResource(R.string.offline_prefer),
+            checked = settings.offlineRouting.mode == com.eried.eucplanet.data.model.OfflineRoutingMode.PREFER,
+            onChange = {
+                viewModel.updateOfflineRoutingMode(
+                    if (it) com.eried.eucplanet.data.model.OfflineRoutingMode.PREFER
+                    else com.eried.eucplanet.data.model.OfflineRoutingMode.FALLBACK
+                )
+            },
+        )
+        EndpointField(
+            label = stringResource(R.string.offline_server_url),
+            value = settings.offlineRouting.serverUrl,
+            enabled = true,
+            onCommit = { viewModel.updateOfflineServerUrl(it) },
+            presets = OFFLINE_SERVER_PRESETS,
+        )
+        var offlineAreasOpen by rememberSaveable { mutableStateOf(false) }
+        val offlineStore = org.koin.compose.koinInject<com.eried.eucplanet.nav.offline.OfflineTileStore>()
+        val ctx = androidx.compose.ui.platform.LocalContext.current
+        // Counted again each time the areas screen closes.
+        val offlineUsed by androidx.compose.runtime.produceState(0L, offlineAreasOpen) {
+            if (!offlineAreasOpen) {
+                value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { offlineStore.usedBytes() }
+            }
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { offlineAreasOpen = true }
+                .padding(vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            val title = stringResource(R.string.offline_data_open)
+            Text(
+                if (offlineUsed > 0) "$title (${android.text.format.Formatter.formatShortFileSize(ctx, offlineUsed)})" else title,
+                color = MaterialTheme.appColors.textPrimary,
+                modifier = Modifier.weight(1f),
+            )
+            Icon(
+                Icons.Default.ChevronRight,
+                contentDescription = null,
+                tint = MaterialTheme.appColors.textSecondary,
+            )
+        }
+        if (offlineAreasOpen) {
+            com.eried.eucplanet.ui.settings.offline.OfflineDataDialog(onDismiss = { offlineAreasOpen = false })
+        }
 
         // --- Avoidances (collapsible; all off by default) ---
         var avoidExpanded by rememberSaveable { mutableStateOf(false) }
@@ -454,6 +519,12 @@ fun NavigatorSettingsContent(
 
 /** Known public Overpass instances; the default first. Same protocol, so they
  *  are interchangeable for the chargers & places query. */
+private val OFFLINE_SERVER_PRESETS = listOf(
+    "EUC Planet mirror (default)" to com.eried.eucplanet.data.model.OfflineRoutingSettings.MIRROR_URL,
+    "EUC Planet mirror, GitHub" to com.eried.eucplanet.data.model.OfflineRoutingSettings.GITHUB_MIRROR_URL,
+    "brouter.de" to com.eried.eucplanet.data.model.OfflineRoutingSettings.BROUTER_URL,
+)
+
 private val OVERPASS_PRESETS = listOf(
     "OpenStreetMap (default)" to "https://overpass-api.de/api/interpreter",
     "OpenStreetMap France" to "https://overpass.openstreetmap.fr/api/interpreter",
@@ -485,6 +556,7 @@ private fun EndpointField(
         if (trimmed != persisted) onCommit(trimmed)
     }
     DisposableEffect(Unit) { onDispose { commit() } }
+    val focusManager = LocalFocusManager.current
 
     // No presets -> no trailing icon at all (a conditionally-empty trailing
     // composable still reserves space and leaves a visible notch on the right).
@@ -503,6 +575,9 @@ private fun EndpointField(
             enabled = enabled,
             label = { Text(label) },
             singleLine = true,
+            // The keyboard's done key saves too, not only leaving the field.
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = { commit(); focusManager.clearFocus() }),
             trailingIcon = dropdownIcon,
             modifier = Modifier
                 .fillMaxWidth()
@@ -548,7 +623,7 @@ private fun SwitchRow(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(label, style = MaterialTheme.typography.bodyLarge)
+        Text(label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
         Switch(
             checked = checked,
             onCheckedChange = onChange,

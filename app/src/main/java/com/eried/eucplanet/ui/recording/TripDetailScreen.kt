@@ -1,5 +1,6 @@
 package com.eried.eucplanet.ui.recording
 
+import androidx.compose.foundation.layout.imePadding
 import android.annotation.SuppressLint
 import android.os.Build
 import android.view.MotionEvent
@@ -637,7 +638,7 @@ fun TripDetailScreen(
                 )
             }
         },
-        snackbarHost = { SnackbarHost(snackbar) }
+        snackbarHost = { SnackbarHost(snackbar, modifier = Modifier.imePadding()) }
     ) { padding ->
         if (loadingTrip) {
             // Reading a long ride takes a moment now that it happens off the main
@@ -2455,10 +2456,16 @@ private fun MapSurface(
                     )
                     settings.javaScriptEnabled = true
                     settings.domStorageEnabled = true
+                    val offlineMap = com.eried.eucplanet.nav.offline.map.OfflineMapWeb.renderer()
                     webViewClient = object : WebViewClient() {
                         override fun onPageFinished(view: WebView?, url: String?) {
                             pageReady = true
                         }
+
+                        override fun shouldInterceptRequest(
+                            view: WebView?,
+                            request: android.webkit.WebResourceRequest?,
+                        ) = com.eried.eucplanet.nav.offline.map.OfflineMapWeb.intercept(offlineMap, request)
                     }
                     setBackgroundColor(android.graphics.Color.parseColor("#0b0f19"))
                     // Own drag gestures on the map: ask the Compose scroll
@@ -2679,6 +2686,9 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
   map.attributionControl.setPrefix('');
   map.attributionControl.setPosition('bottomleft');
   var baseLayer=null;
+  // The downloaded map, under the online one: it shows where tiles fail.
+  ${com.eried.eucplanet.nav.offline.map.OfflineMapWeb.JS}
+  var offlineMap=eucOfflineMap(map);
   var refLayer=null;
   var refLayer2=null;
   // {r} asks the provider for its @2x tile on a high-density screen. Without it
@@ -2706,6 +2716,8 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
     if (layer.ref2){ refLayer2=L.tileLayer(layer.ref2, opts).addTo(map); refLayer2.bringToBack(); }
     if (layer.ref){ refLayer=L.tileLayer(layer.ref, opts).addTo(map); refLayer.bringToBack(); }
     baseLayer.bringToBack();
+    if (!offlineMap.prefer) offlineMap.layer.bringToBack();
+    offlineMap.watch(baseLayer);
   };
   window.setMapType('$initialType');
 

@@ -1,8 +1,15 @@
 package com.eried.eucplanet.hud.ui.screens
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
+import android.hardware.camera2.CameraManager
+import android.media.AudioManager
+import android.os.Handler
+import android.os.Looper
 import android.os.SystemClock
+import androidx.camera.camera2.interop.Camera2CameraInfo
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraState
@@ -16,6 +23,7 @@ import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -46,6 +54,7 @@ import com.eried.eucplanet.hud.R
 import com.eried.eucplanet.hud.protocol.HudState
 import com.eried.eucplanet.hud.ui.HudUnits
 import com.eried.eucplanet.hud.ui.parseHexColor
+import kotlinx.coroutines.delay
 
 /**
  * Rear-camera screen. Live preview from the HUD's rear camera with a small
@@ -64,7 +73,10 @@ fun CameraScreen(
     rotation: Int = 270,
     onCamerasFound: (Int) -> Unit = {},
     cameraHandedOff: Boolean = false,
+    cameraTakeBack: Boolean = false,
+    cameraDiag: String = "",
     onCameraTaken: () -> Unit = {},
+    onOtherAppCamera: (Boolean) -> Unit = {},
 ) {
     val ctx = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -85,7 +97,10 @@ fun CameraScreen(
             rotation = rotation,
             onCamerasFound = onCamerasFound,
             handedOff = cameraHandedOff,
-            onCameraTaken = onCameraTaken
+            takeBack = cameraTakeBack,
+            diag = cameraDiag,
+            onCameraTaken = onCameraTaken,
+            onOtherAppCamera = onOtherAppCamera
         )
 
         // Speed overlay (bottom-right). Same unit code as the dashboard.
@@ -123,7 +138,9 @@ fun CameraScreen(
  * [cameraIndex] picks from the device's cameras, back ones first, wrapping at
  * the count; a new index rebinds. [rotation] turns the picture clockwise.
  * [onCamerasFound] hears how many cameras there are once the provider is up.
+ * [takeBack] opens the camera even while another app holds it (UP).
  * [onCameraTaken] hears that another app has the camera open.
+ * [onOtherAppCamera] hears, while handed off, whether other apps hold a camera.
  */
 @Composable
 fun RearCameraPreview(
@@ -132,30 +149,67 @@ fun RearCameraPreview(
     rotation: Int = 270,
     onCamerasFound: (Int) -> Unit = {},
     handedOff: Boolean = false,
+    takeBack: Boolean = false,
+    diag: String = "",
     onCameraTaken: () -> Unit = {},
+    onOtherAppCamera: (Boolean) -> Unit = {},
 ) {
+    // The camera the preview last opened: only that one has to be free for
+    // the picture to come back.
+    var ourCameraId by remember { mutableStateOf<String?>(null) }
+    var openIds by remember { mutableStateOf(emptySet<String>()) }
+    // Another app already had the camera when the screen opened, so the
+    // message says it is in use rather than freed for the recorder.
+    var busyAtOpen by remember { mutableStateOf(false) }
+    LaunchedEffect(handedOff) { if (!handedOff) busyAtOpen = false }
     // Handed to the MotoEye recorder: the live preview leaves composition,
     // and with it its camera (see LiveCameraPreview's DisposableEffect).
     if (handedOff) {
         val ctx = LocalContext.current
+        OtherAppCameraWatch(ourCameraId, { openIds = it }, onOtherAppCamera)
+        val mic = if (diag.isNotEmpty()) micRecordings() else 0
         Box(modifier.background(Color.Black), contentAlignment = Alignment.Center) {
-            Text(
-                text = ctx.getString(R.string.hud_camera_handed_off),
-                color = Color.White.copy(alpha = 0.7f)
-            )
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = ctx.getString(
+                        if (busyAtOpen) R.string.hud_camera_in_use else R.string.hud_camera_handed_off
+                    ),
+                    color = Color.White.copy(alpha = 0.7f)
+                )
+                // Test builds: what keeps the picture off, for a tester's photo.
+                if (diag.isNotEmpty()) {
+                    Text(
+                        text = "$diag, open cameras ${openIds.sorted()}, ours ${ourCameraId ?: "unknown"}, mic $mic",
+                        color = Color.White.copy(alpha = 0.45f),
+                        fontSize = 11.sp,
+                        modifier = Modifier.padding(top = 8.dp, start = 24.dp, end = 24.dp)
+                    )
+                }
+            }
         }
     } else {
-        LiveCameraPreview(modifier, cameraIndex, rotation, onCamerasFound, onCameraTaken)
+        LiveCameraPreview(
+            modifier, cameraIndex, rotation, takeBack, onCamerasFound, onCameraTaken,
+            onCameraBusy = { id ->
+                ourCameraId = id
+                busyAtOpen = true
+                onCameraTaken()
+            }
+        ) { ourCameraId = it }
     }
 }
 
+@OptIn(ExperimentalCamera2Interop::class)
 @Composable
 private fun LiveCameraPreview(
     modifier: Modifier,
     cameraIndex: Int,
     rotation: Int,
+    takeBack: Boolean,
     onCamerasFound: (Int) -> Unit,
     onCameraTaken: () -> Unit,
+    onCameraBusy: (String) -> Unit,
+    onCameraOpened: (String) -> Unit,
 ) {
     val ctx = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -223,49 +277,62 @@ private fun LiveCameraPreview(
                                 // Slid past before the camera was ready.
                                 if (binding.released) return@addListener
                                 val provider = providerFuture.get()
-                                val preview = Preview.Builder().build().also {
-                                    it.surfaceProvider = view.surfaceProvider
-                                }
-                                provider.unbindAll()
-                                // Start at the rider's pick and fall through
-                                // the rest, so a camera that will not open
-                                // still leaves a picture.
                                 val cameras = orderedCameras(provider.availableCameraInfos)
                                 onCamerasFound(cameras.size)
-                                val selectors = if (cameras.isEmpty()) {
-                                    listOf(CameraSelector.DEFAULT_BACK_CAMERA, CameraSelector.DEFAULT_FRONT_CAMERA)
-                                } else {
-                                    val start = cameraIndex % cameras.size
-                                    cameras.indices.map { i ->
-                                        val info = cameras[(start + i) % cameras.size]
-                                        CameraSelector.Builder()
-                                            .addCameraFilter { _ -> listOf(info) }
-                                            .build()
+                                val firstId = cameras.getOrNull(cameraIndex % cameras.size.coerceAtLeast(1))
+                                    ?.let { runCatching { Camera2CameraInfo.from(it).cameraId }.getOrNull() }
+                                // The MotoEye recorder may already be running
+                                // on this camera. Opening it from the app in
+                                // front would take it from the recorder and
+                                // freeze the clip, so leave it alone.
+                                whenCameraFree(view.context, firstId.takeUnless { takeBack }, onBusy = {
+                                    if (!binding.released && firstId != null) onCameraBusy(firstId)
+                                }) bind@{
+                                    if (binding.released) return@bind
+                                    val preview = Preview.Builder().build().also {
+                                        it.surfaceProvider = view.surfaceProvider
                                     }
-                                }
-                                var bound = false
-                                for (sel in selectors) {
-                                    try {
-                                        val camera = provider.bindToLifecycle(lifecycleOwner, sel, preview)
-                                        binding.hold(provider, preview)
-                                        // The MotoEye recorder already has
-                                        // the camera: let it keep it, rather
-                                        // than open it the moment it stops
-                                        // and block its next start.
-                                        val boundAt = SystemClock.uptimeMillis()
-                                        binding.watch(camera, lifecycleOwner) { st ->
-                                            if (takenByAnotherApp(st.error?.code, SystemClock.uptimeMillis() - boundAt)) {
-                                                onCameraTaken()
-                                            }
+                                    provider.unbindAll()
+                                    // Start at the rider's pick and fall through
+                                    // the rest, so a camera that will not open
+                                    // still leaves a picture.
+                                    val selectors = if (cameras.isEmpty()) {
+                                        listOf(CameraSelector.DEFAULT_BACK_CAMERA, CameraSelector.DEFAULT_FRONT_CAMERA)
+                                    } else {
+                                        val start = cameraIndex % cameras.size
+                                        cameras.indices.map { i ->
+                                            val info = cameras[(start + i) % cameras.size]
+                                            CameraSelector.Builder()
+                                                .addCameraFilter { _ -> listOf(info) }
+                                                .build()
                                         }
-                                        bound = true
-                                        break
-                                    } catch (_: Throwable) {
-                                        // try next
                                     }
+                                    var bound = false
+                                    for (sel in selectors) {
+                                        try {
+                                            val camera = provider.bindToLifecycle(lifecycleOwner, sel, preview)
+                                            binding.hold(provider, preview)
+                                            runCatching { Camera2CameraInfo.from(camera.cameraInfo).cameraId }
+                                                .getOrNull()?.let(onCameraOpened)
+                                            // The MotoEye recorder already has
+                                            // the camera: let it keep it, rather
+                                            // than open it the moment it stops
+                                            // and block its next start.
+                                            val boundAt = SystemClock.uptimeMillis()
+                                            binding.watch(camera, lifecycleOwner) { st ->
+                                                if (takenByAnotherApp(st.error?.code, SystemClock.uptimeMillis() - boundAt)) {
+                                                    onCameraTaken()
+                                                }
+                                            }
+                                            bound = true
+                                            break
+                                        } catch (_: Throwable) {
+                                            // try next
+                                        }
+                                    }
+                                    if (bound) cameraReady = true
+                                    else cameraFailed = true
                                 }
-                                if (bound) cameraReady = true
-                                else cameraFailed = true
                             } catch (_: Throwable) {
                                 cameraFailed = true
                             }
@@ -311,6 +378,137 @@ private fun orderedCameras(infos: List<CameraInfo>): List<CameraInfo> =
         }
     }
 
+/** Whether another app keeps the preview from coming back: it holds the
+ *  preview's own camera, or, before the preview ever opened one, any camera.
+ *  The MotoEye opens every camera and can keep one the preview does not use. */
+internal fun otherAppBusy(open: Set<String>, ourId: String?): Boolean =
+    if (ourId != null) ourId in open else open.isNotEmpty()
+
+/**
+ * Reports whether another app holds the preview's camera ([ourId]) while
+ * the preview holds none, so the preview can come back once the MotoEye
+ * lets go. Starts listening a moment after the hand-off, when our own
+ * camera has closed, and reports "free" only after it has stayed free for
+ * a moment: a recorder stop and the next start, or a switch between
+ * cameras, should not flash the preview. [onOpenIds] hears every open camera.
+ */
+@Composable
+private fun OtherAppCameraWatch(
+    ourId: String?,
+    onOpenIds: (Set<String>) -> Unit,
+    onOtherAppCamera: (Boolean) -> Unit,
+) {
+    val ctx = LocalContext.current
+    var busy by remember { mutableStateOf<Boolean?>(null) }
+    DisposableEffect(Unit) {
+        val mgr = ctx.getSystemService(CameraManager::class.java)
+        val handler = Handler(Looper.getMainLooper())
+        val open = mutableSetOf<String>()
+        val callback = object : CameraManager.AvailabilityCallback() {
+            override fun onCameraAvailable(cameraId: String) {
+                open -= cameraId
+                onOpenIds(open.toSet())
+                busy = otherAppBusy(open, ourId)
+            }
+
+            override fun onCameraUnavailable(cameraId: String) {
+                open += cameraId
+                onOpenIds(open.toSet())
+                busy = otherAppBusy(open, ourId)
+            }
+        }
+        var registered = false
+        val start = Runnable {
+            if (mgr != null) registered = runCatching { mgr.registerAvailabilityCallback(callback, handler) }.isSuccess
+        }
+        handler.postDelayed(start, OWN_CLOSE_MS)
+        onDispose {
+            handler.removeCallbacks(start)
+            if (registered) runCatching { mgr?.unregisterAvailabilityCallback(callback) }
+        }
+    }
+    LaunchedEffect(busy) {
+        when (busy) {
+            true -> onOtherAppCamera(true)
+            false -> {
+                delay(FREE_SETTLE_MS)
+                // Again each second: the controller may still be waiting
+                // for the camera button to settle.
+                while (true) {
+                    onOtherAppCamera(false)
+                    delay(1_000)
+                }
+            }
+            null -> Unit
+        }
+    }
+}
+
+/** How many audio recordings run on the device, checked each second. A
+ *  recorder that saves sound shows here while it records, which may tell
+ *  a MotoEye clip from the MotoEye only keeping the camera open. */
+@Composable
+private fun micRecordings(): Int {
+    val ctx = LocalContext.current
+    var count by remember { mutableStateOf(0) }
+    LaunchedEffect(Unit) {
+        val audio = ctx.getSystemService(AudioManager::class.java) ?: return@LaunchedEffect
+        while (true) {
+            count = runCatching { audio.activeRecordingConfigurations.size }.getOrDefault(-1)
+            delay(1_000)
+        }
+    }
+    return count
+}
+
+private const val OWN_CLOSE_MS = 1_500L
+private const val FREE_SETTLE_MS = 1_500L
+
+/** Whether this app has a preview up, or let one go a moment ago: its own
+ *  camera then shows as taken, which says nothing about the recorder. */
+private object OwnCamera {
+    var holders = 0
+    var releasedAt = -OWN_CLOSE_MS
+}
+
+/**
+ * Runs [onFree] unless another app holds camera [id]; then [onBusy]. No
+ * [id] (unknown, or the rider asked for the camera) skips the check. A
+ * preview this app has up, or is still closing, owns the camera itself,
+ * so the check waits for it to close or skips when one is still up.
+ */
+private fun whenCameraFree(ctx: Context, id: String?, onBusy: () -> Unit, onFree: () -> Unit) {
+    val mgr = ctx.getSystemService(CameraManager::class.java)
+    if (id == null || mgr == null || OwnCamera.holders > 0) {
+        onFree()
+        return
+    }
+    val handler = Handler(Looper.getMainLooper())
+    val closing = (OwnCamera.releasedAt + OWN_CLOSE_MS - SystemClock.uptimeMillis()).coerceAtLeast(0L)
+    handler.postDelayed({
+        if (OwnCamera.holders > 0) {
+            onFree()
+            return@postDelayed
+        }
+        val taken = mutableSetOf<String>()
+        val callback = object : CameraManager.AvailabilityCallback() {
+            override fun onCameraAvailable(cameraId: String) { taken -= cameraId }
+            override fun onCameraUnavailable(cameraId: String) { taken += cameraId }
+        }
+        // Registering reports every camera's current state at once.
+        if (runCatching { mgr.registerAvailabilityCallback(callback, handler) }.isFailure) {
+            onFree()
+            return@postDelayed
+        }
+        handler.postDelayed({
+            runCatching { mgr.unregisterAvailabilityCallback(callback) }
+            if (id in taken) onBusy() else onFree()
+        }, FREE_CHECK_MS)
+    }, closing)
+}
+
+private const val FREE_CHECK_MS = 300L
+
 /** True when a camera error means another app holds the camera. Too many
  *  cameras open also shows up for a moment while UP switches ours, so that
  *  one only counts once the bind has settled. */
@@ -332,10 +530,15 @@ private class CameraBinding {
     private var preview: Preview? = null
     private var state: LiveData<CameraState>? = null
     private var observer: Observer<CameraState>? = null
+    private var counted = false
 
     fun hold(provider: ProcessCameraProvider, preview: Preview) {
         this.provider = provider
         this.preview = preview
+        if (!counted) {
+            counted = true
+            OwnCamera.holders++
+        }
     }
 
     /** Follow [camera]'s state until release; one watch at a time. */
@@ -355,6 +558,11 @@ private class CameraBinding {
 
     fun release() {
         released = true
+        if (counted) {
+            counted = false
+            OwnCamera.holders--
+            OwnCamera.releasedAt = SystemClock.uptimeMillis()
+        }
         unwatch()
         val p = preview ?: return
         runCatching { provider?.unbind(p) }

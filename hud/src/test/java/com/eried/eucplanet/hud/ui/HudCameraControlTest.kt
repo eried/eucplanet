@@ -1,5 +1,7 @@
 package com.eried.eucplanet.hud.ui
 
+import android.view.KeyEvent
+import com.eried.eucplanet.hud.ui.screens.otherAppBusy
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -191,5 +193,177 @@ class HudCameraControlTest {
         val c = onScreen(HudUiController.Screen.Camera)
         c.handOffCamera()
         assertEquals("Show camera", c.shortActions().up)
+    }
+
+    @Test
+    fun thePreviewComesBackWhenTheRecorderLetsGo() {
+        // Josh: the DVR works, but the picture had to be brought back by hand
+        // after every clip.
+        val c = onScreen(HudUiController.Screen.Camera)
+        c.handOffCamera(byKey = true)
+        c.onOtherAppCamera(inUse = false)
+        assertTrue("our own camera closing is not the recorder", c.cameraHandedOff)
+        c.onOtherAppCamera(inUse = true)
+        c.handOffCamera(byKey = true)
+        assertTrue("the stop press keeps it off while recording", c.cameraHandedOff)
+        c.onOtherAppCamera(inUse = false)
+        assertFalse(c.cameraHandedOff)
+    }
+
+    @Test
+    fun withoutTheCameraButtonThePreviewStaysOff() {
+        // The recorder's next start only frees the camera if its button
+        // reaches the HUD; otherwise taking it back would block that start.
+        val c = onScreen(HudUiController.Screen.Camera)
+        c.handOffCamera()
+        c.onOtherAppCamera(inUse = true)
+        c.onOtherAppCamera(inUse = false)
+        assertTrue(c.cameraHandedOff)
+    }
+
+    @Test
+    fun aNewHandOffWaitsForTheRecorderAgain() {
+        val c = onScreen(HudUiController.Screen.Camera)
+        c.handOffCamera(byKey = true)
+        c.onOtherAppCamera(inUse = true)
+        c.onOtherAppCamera(inUse = false)
+        c.handOffCamera(byKey = true)
+        c.onOtherAppCamera(inUse = false)
+        assertTrue(c.cameraHandedOff)
+    }
+
+    @Test
+    fun theRearViewKeepsTheCameraWhileItIsOnScreen() {
+        // The camera app let go for a moment while still in front, and the
+        // preview took the camera back under it.
+        val c = onScreen(HudUiController.Screen.Camera)
+        c.handOffCamera(byKey = true)
+        c.onHudFocus(false)
+        c.onOtherAppCamera(inUse = true)
+        c.onOtherAppCamera(inUse = false)
+        assertTrue(c.cameraHandedOff)
+        c.onHudFocus(true)
+        assertFalse(c.cameraHandedOff)
+    }
+
+    @Test
+    fun onlyThePreviewsOwnCameraKeepsItOff() {
+        // Josh (650c10c21): "other app has camera, HUD in front" long after
+        // the clip. The MotoEye opens every camera and keeps one the preview
+        // does not use.
+        val busy = ::otherAppBusy
+        assertFalse("another camera stays open", busy(setOf("1"), "0"))
+        assertTrue(busy(setOf("0", "1"), "0"))
+        assertFalse(busy(emptySet(), "0"))
+        assertTrue("not opened yet: any camera counts", busy(setOf("1"), null))
+        assertFalse(busy(emptySet(), null))
+    }
+
+    @Test
+    fun diagTellsARearViewPressFromARecorderHold() {
+        // Josh: a press shows the rear view, a hold starts or stops the
+        // recorder, and both arrive as key 132.
+        val c = onScreen(HudUiController.Screen.Camera)
+        c.noteKey(132, down = true, atMs = 1_000)
+        c.noteKey(132, down = false, atMs = 1_120)
+        c.handOffCamera(byKey = true, reason = "key 132")
+        assertTrue(c.cameraDiag, "presses 1, last held 120 ms" in c.cameraDiag)
+        // A hold the remote streams as down and up pairs is one press.
+        c.noteKey(132, down = true, atMs = 5_000)
+        c.noteKey(132, down = false, atMs = 5_050)
+        c.noteKey(132, down = true, atMs = 5_100)
+        assertTrue(c.cameraDiag, "presses 2, last still down" in c.cameraDiag)
+        c.noteKey(132, down = false, atMs = 6_400)
+        assertTrue(c.cameraDiag, "presses 2, last held 1400 ms" in c.cameraDiag)
+    }
+
+    @Test
+    fun upTakesTheCameraEvenWhileAnotherAppHasIt() {
+        // A camera screen opened while the recorder runs stays off on its
+        // own; UP is the rider asking for the picture anyway.
+        val c = onScreen(HudUiController.Screen.Camera)
+        c.handOffCamera()
+        assertFalse(c.cameraTakeBack)
+        c.upAction()
+        assertFalse(c.cameraHandedOff)
+        assertTrue(c.cameraTakeBack)
+        // The next camera button press hands it to the MotoEye again.
+        c.handOffCamera(byKey = true)
+        assertFalse(c.cameraTakeBack)
+        c.downAction()
+        assertTrue(c.cameraTakeBack)
+    }
+
+    @Test
+    fun anotherScreenEndsTheTakeBack() {
+        val c = HudUiController().apply {
+            applyEnabledScreens(listOf("Camera", "Dashboard"))
+        }
+        c.handOffCamera()
+        c.upAction()
+        c.nextScreen()
+        c.previousScreen()
+        assertFalse(c.cameraTakeBack)
+    }
+
+    @Test
+    fun theStopPressComesBackOnceTheCameraStaysFree() {
+        // Josh (c7f8dbe7b): after the stop press no camera was open, yet the
+        // picture stayed off, "other app not seen".
+        var now = 0L
+        val c = onScreen(HudUiController.Screen.Camera).apply { clock = { now } }
+        c.noteKey(132, down = true, atMs = 0)
+        c.handOffCamera(byKey = true, reason = "key 132")
+        now = 1_700
+        c.noteKey(132, down = false, atMs = 1_700)
+        now = 3_000
+        c.onOtherAppCamera(inUse = false)
+        assertTrue("too soon after the release", c.cameraHandedOff)
+        now = 1_700 + HudUiController.BUTTON_SETTLE_MS
+        c.onOtherAppCamera(inUse = false)
+        assertFalse(c.cameraHandedOff)
+    }
+
+    @Test
+    fun aStartHoldKeepsTheCameraFreeForTheRecorder() {
+        // Josh held 3.7 s to start; the recorder opens the cameras after.
+        var now = 0L
+        val c = onScreen(HudUiController.Screen.Camera).apply { clock = { now } }
+        c.noteKey(132, down = true, atMs = 0)
+        c.handOffCamera(byKey = true, reason = "key 132")
+        now = 10_000
+        c.onOtherAppCamera(inUse = false)
+        assertTrue("still held", c.cameraHandedOff)
+        c.noteKey(132, down = false, atMs = 10_000)
+        c.onOtherAppCamera(inUse = true)
+        now = 20_000
+        assertTrue("recording", c.cameraHandedOff)
+    }
+
+    @Test
+    fun aNewPressWaitsAgain() {
+        var now = 0L
+        val c = onScreen(HudUiController.Screen.Camera).apply { clock = { now } }
+        c.noteKey(132, down = true, atMs = 0)
+        c.handOffCamera(byKey = true)
+        c.noteKey(132, down = false, atMs = 100)
+        c.onHudFocus(false)
+        now = 10_000
+        c.onOtherAppCamera(inUse = false)
+        assertTrue("rear view on top", c.cameraHandedOff)
+        c.noteKey(132, down = true, atMs = 10_000)
+        c.handOffCamera(byKey = true)
+        c.noteKey(132, down = false, atMs = 10_100)
+        c.onHudFocus(true)
+        assertTrue("the new press has not settled", c.cameraHandedOff)
+    }
+
+    @Test
+    fun ourOwnKeysAreNotCameraPresses() {
+        val c = onScreen(HudUiController.Screen.Camera)
+        c.noteKey(KeyEvent.KEYCODE_DPAD_UP, down = true, atMs = 0)
+        c.noteKey(KeyEvent.KEYCODE_DPAD_UP, down = false, atMs = 900)
+        c.handOffCamera(byKey = true)
+        assertTrue(c.cameraDiag, "presses none" in c.cameraDiag)
     }
 }

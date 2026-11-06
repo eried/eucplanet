@@ -79,12 +79,13 @@ class NavigationEngine(
         private const val PREPARE_DIST_M = 200.0
         private const val EXECUTE_DIST_M = 30.0
 
-        // Off-route handling, deliberately unhurried so a brief GPS wobble or
-        // a cut corner does not nag the rider.
-        private const val OFF_ROUTE_GRACE_MS = 8_000L
+        // Off-route handling: a brief GPS wobble or a cut corner clears
+        // itself within the grace, a real wrong turn gets a new route in
+        // about 8 s (Organic Maps rebuilds in 5 to 10 s).
+        private const val OFF_ROUTE_GRACE_MS = 4_000L
         private const val OFF_ROUTE_VOICE_AFTER_MS = 14_000L
         private const val OFF_ROUTE_VOICE_COOLDOWN_MS = 35_000L
-        private const val REROUTE_AFTER_MS = 22_000L
+        private const val REROUTE_AFTER_MS = 8_000L
 
         // How long the final "Arrived" banner lingers before the popup
         // self-clears via stop().
@@ -209,6 +210,7 @@ class NavigationEngine(
     private var arrivalRadiusM = 25.0
     private var offRouteToleranceM = 40.0
     private var routerUrl = RoutingService.DEFAULT_ROUTER
+    private var valhallaUrl = RoutingService.effectiveValhallaUrl("")
     /** Route avoidances for mid-trip reroutes; all-off keeps reroutes on OSRM. */
     private var avoidances = RouteAvoidances.NONE
 
@@ -310,6 +312,7 @@ class NavigationEngine(
             arrivalRadiusM = s.navArrivalRadiusM.toDouble()
             offRouteToleranceM = s.navOffRouteToleranceM.toDouble()
             routerUrl = RoutingService.effectiveRouterUrl(s.navRouterUrl)
+            valhallaUrl = RoutingService.effectiveValhallaUrl(s.navValhallaUrl)
             avoidances = RouteAvoidances.from(s)
 
             activeRoute = route
@@ -820,6 +823,9 @@ class NavigationEngine(
         if (voiceEnabled) {
             voiceService.announceEvent(context.getString(R.string.nav_recalculating))
         }
+        // The direction the rider is going now, so the new route carries on
+        // ahead instead of turning them back onto the road they left.
+        val headingNow = heading
         rerouteJob = scope.launch {
             try {
                 val reached = GeoMath.nearestOnPolyline(from, route.geometry)?.alongM ?: 0.0
@@ -828,7 +834,7 @@ class NavigationEngine(
                 }
                 val stops = listOf(Waypoint(from.lat, from.lng)) + remaining
                 if (stops.size >= 2) {
-                    val fresh = routingService.route(route.name, stops, route.travelMode, routerUrl, avoidances)
+                    val fresh = routingService.route(route.name, stops, route.travelMode, routerUrl, avoidances, headingNow, valhallaUrl)
                         ?.let { if (route.isLockedTrack) it.copy(track = route.track) else it }
                     // The session may have been stopped or restarted while the
                     // network request was in flight, only adopt the result if
@@ -1245,7 +1251,7 @@ class NavigationEngine(
         val newLeg = if (mode == TravelMode.STRAIGHT) {
             RoutingService.straightLineRoute(route.name, legWps)
         } else {
-            routingService.route(route.name, legWps, mode, routerUrl, avoidances)
+            routingService.route(route.name, legWps, mode, routerUrl, avoidances, valhalla = valhallaUrl)
                 ?: RoutingService.straightLineRoute(route.name, legWps)
         }
         Log.i(

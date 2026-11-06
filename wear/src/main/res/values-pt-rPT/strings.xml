@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">EUC Planet</string>
+    <string name="watch_waiting_phone">Abra o EUC Planet\nno telemóvel</string>
+    <string name="watch_waiting_wheel">Ligue uma roda\nno EUC Planet</string>
+    <string name="watch_disconnected">Desligado</string>
+    <string name="watch_horn">Buzina</string>
+    <string name="watch_light">Luz</string>
+    <string name="watch_speed_unit">km/h</string>
+    <string name="watch_speed_unit_mph">mph</string>
+    <string name="watch_battery_label">Bateria</string>
+    <string name="watch_voltage_label">Tensão</string>
+    <string name="watch_current_label">Corrente</string>
+    <string name="watch_pwm_label">PWM</string>
+    <string name="watch_pwm_prefix">"PWM: "</string>
+    <string name="watch_power_label">Potência</string>
+    <string name="watch_temp_label">Temp.</string>
+    <string name="watch_trip_label">Percurso</string>
+    <string name="watch_torque_label">Binário</string>
+    <string name="watch_action_failed">Sem ligação ao telemóvel</string>
+    <string name="watch_gps_label">Velocidade GPS</string>
+    <string name="watch_gps_permission">Toque para permitir GPS</string>
+    <string name="watch_gps_waiting">A aguardar sinal…</string>
+
+    <string name="watch_action_horn">Buzina</string>
+    <string name="watch_action_light">Luz</string>
+    <string name="watch_action_lock">Bloquear roda</string>
+    <string name="watch_action_safety">Modo legal</string>
+    <string name="watch_action_safety_on">Modo legal ligado</string>
+    <string name="watch_action_safety_off">Modo legal desligado</string>
+    <string name="watch_action_voice">Relatório de voz</string>
+    <string name="watch_action_record">Gravação</string>
+    <string name="watch_action_record_start">Gravação iniciada</string>
+    <string name="watch_action_record_stop">Gravação parada</string>
+    <string name="watch_action_media_play">Reproduzir / pausa</string>
+    <string name="watch_action_media_next">Faixa seguinte</string>
+    <string name="watch_action_media_prev">Faixa anterior</string>
+    <string name="watch_action_music_start">Iniciar música</string>
+    <string name="watch_action_media_pause">Pausar música</string>
+    <string name="watch_action_long_press_hint">Toque longo: %1$s.</string>
+    <string name="watch_map_phone_disconnected">Sem telemóvel</string>
+    <string name="watch_map_gps_permission">Permitir GPS</string>
+    <string name="watch_map_gps_stale">GPS antigo</string>
+    <string name="watch_map_route_loading">A carregar rota</string>
+    <string name="watch_map_route_unavailable">Sem rota</string>
+    <string name="watch_map_loading">A carregar mapa</string>
+    <string name="watch_map_unavailable">Sem mapa</string>
+    <string name="watch_map_zoom_in">Aproximar</string>
+    <string name="watch_map_zoom_out">Afastar</string>
+    <string name="watch_map_open_phone">Abrir no telemóvel</string>
+    <string name="watch_map_waiting_gps">A aguardar GPS</string>
+    <string name="watch_map_pwm_value">%1$s%%</string>
+    <string name="watch_map_speed_value">%1$s %2$s</string>
+    <string name="watch_map_voltage_value">%1$s V</string>
+    <string name="watch_map_telemetry_description">PWM %1$s, velocidade %2$s, tensão %3$s.</string>
+</resources>

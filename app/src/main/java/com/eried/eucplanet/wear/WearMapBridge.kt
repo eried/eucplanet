@@ -618,7 +618,7 @@ class WearMapBridge(
             val job = scope.launch(Dispatchers.IO, start = CoroutineStart.LAZY) {
                 val png = try {
                     val url = MapLayers.tileUrl(key.layerId, key.z, key.x, key.y)
-                    MapTileCache.encodedTile(context, url)
+                    MapTileCache.encodedTile(context, url, MapTileCache.TileXyz(key.z, key.x, key.y))
                 } catch (cancelled: CancellationException) {
                     throw cancelled
                 } catch (e: Exception) {

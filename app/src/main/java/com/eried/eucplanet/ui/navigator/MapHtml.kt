@@ -20,6 +20,7 @@ internal fun routeBuilderHtmlFor(mapType: String): String =
         .replace("__INITIAL_MAP_TYPE__", mapType)
         .replace("__INITIAL_BG__", mapTypeInitialBg(mapType))
         .replace("__LAYERS_JSON__", mapLayersJson())
+        .replace("__OFFLINE_JS__", com.eried.eucplanet.nav.offline.map.OfflineMapWeb.JS)
 
 /**
  * The shared layer registry as JSON for the Leaflet side.
@@ -91,17 +92,18 @@ private const val ROUTE_BUILDER_HTML_1: String = """
      it defaults to is the one place it cannot live here: the stop list covers
      the bottom and the controls own the right. Stood up along the left edge it
      stays visible and lands in the same place in both orientations, since that
-     edge is the one nothing else uses. */
+     edge is the one nothing else uses. It hangs from just under the top bar
+     (--credit-top, pushed from native): centred, it moved as the stop list
+     grew. */
   .leaflet-control-attribution {
     position: fixed !important;
     left: 0 !important;
-    top: 50% !important;
+    top: var(--credit-top, 112px) !important;
     margin: 0 !important;
     /* vertical-rl runs the text downward, which is the way to tilt the phone
        to read it: turn it clockwise and the credit comes up level, the same
        turn as reading a book spine on a shelf. */
     writing-mode: vertical-rl !important;
-    transform: translateY(-50%) !important;
     /* No plate behind it: a dark halo carries the text over both a pale
        street map and dark satellite imagery, the way map labels do, and
        nothing rectangular sits over the tiles. */
@@ -316,6 +318,10 @@ private const val ROUTE_BUILDER_HTML_1: String = """
   // "Leaflet" is an advert; the provider credit beside it is a licence term.
   map.attributionControl.setPrefix('');
   var tileLayer = null;
+  // The downloaded map, under whichever online map is picked: it shows
+  // through wherever online tiles fail.
+  __OFFLINE_JS__
+  var offlineMap = eucOfflineMap(map, {keepBuffer:8, updateWhenIdle:false, updateWhenZooming:false, updateInterval:1000});
 
   // --- Auto-orient: snap the map's bearing to follow the rider's heading,
   // but back off whenever the rider twists the map manually so we don't
@@ -865,6 +871,7 @@ private const val ROUTE_BUILDER_HTML_1: String = """
     if (refLayer){ map.removeLayer(refLayer); refLayer = null; }
     if (refLayer2){ map.removeLayer(refLayer2); refLayer2 = null; }
     tileLayer = L.tileLayer(url, opts).addTo(map);
+    offlineMap.watch(tileLayer);
     // Esri Canvas labels ride on a separate reference layer. Same options,
     // and Leaflet collapses the duplicate attribution string.
     if (layer.ref){ refLayer = L.tileLayer(layer.ref, opts).addTo(map); }
@@ -874,11 +881,14 @@ private const val ROUTE_BUILDER_HTML_1: String = """
     // looks like a map. We pass through to the native bridge only on
     // the FIRST load -- subsequent layer swaps (user cycling style)
     // don't need to re-fire the gate logic.
-    tileLayer.once('load', function(){
+    // Offline, only the downloaded map loads: either one counts.
+    var tilesShown = function(){
       if (window.AndroidNav && AndroidNav.onTilesLoaded) {
         AndroidNav.onTilesLoaded();
       }
-    });
+    };
+    tileLayer.once('load', tilesShown);
+    offlineMap.layer.once('load', tilesShown);
     // ---- Deep-clamp tile-layer mutation during the auto-follow tween.
     //
     // Symptoms we are fighting:
@@ -955,6 +965,8 @@ private const val ROUTE_BUILDER_HTML_1: String = """
       this._level = level;
       return level;
     };
+    offlineMap.layer._invalidateAll = tileLayer._invalidateAll;
+    offlineMap.layer._updateLevels = tileLayer._updateLevels;
   };
   // Initial tile layer matches the rider's saved map style so the first
   // paint isn't a dark Carto Dark Matter that gets immediately torn
@@ -2250,6 +2262,11 @@ private const val ROUTE_BUILDER_HTML_2: String = """
     // The on-map controls (zoom +/-, recenter) DO follow the theme accent via
     // the --accent CSS variable, so the map chrome is part of the global theme.
     try { document.documentElement.style.setProperty('--accent', hex); } catch(e){}
+  };
+
+  // Where the credit starts: just under the top bar, in CSS px.
+  window.nativeSetCreditTop = function(px){
+    try { document.documentElement.style.setProperty('--credit-top', px + 'px'); } catch(e){}
   };
 
   // Themeable route colors (routeWalk/Bike/Drive/Straight/Preview tokens).

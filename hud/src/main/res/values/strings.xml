@@ -45,6 +45,7 @@
     <string name="hud_camera_unavailable">Rear camera not available on this HUD</string>
     <string name="hud_camera_permission_denied">Camera permission denied. Grant it in device Settings to enable rear-view.</string>
     <string name="hud_camera_handed_off">Camera free for the recorder. UP or DOWN shows it again.</string>
+    <string name="hud_camera_in_use">Camera in use by another app, it comes back once free. UP or DOWN takes it now and can stop a recording.</string>
     <string name="hud_camera_loading">Starting camera…</string>
     <string name="hud_version_update_url">eucplanet.ried.no/hud</string>
     <!--

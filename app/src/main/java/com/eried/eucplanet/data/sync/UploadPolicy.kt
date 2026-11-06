@@ -26,8 +26,29 @@ object UploadPolicy {
      * @param remoteModifiedSec Dropbox's own timestamp, in SECONDS
      * @param localSize bytes on this phone
      * @param localModifiedMs when this phone last wrote the file, in MILLISECONDS
+     * @param remoteHash Dropbox's content_hash from the listing, if it gave one
+     * @param localHash the same hash of this phone's copy; only called when
+     *   the times say upload and the lengths match, so it costs nothing on the
+     *   common untouched trip
      */
     fun needsUpload(
+        remoteSize: Long?,
+        remoteModifiedSec: Long,
+        localSize: Long,
+        localModifiedMs: Long,
+        remoteHash: String? = null,
+        localHash: () -> String? = { null },
+    ): Boolean {
+        val byTime = byTime(remoteSize, remoteModifiedSec, localSize, localModifiedMs)
+        if (!byTime || remoteHash == null || remoteSize != localSize) return byTime
+        // The times disagree but the bytes may not. A file the app does not own
+        // (copied in by a file manager or adb) refuses the Dropbox timestamp
+        // after an upload, so it looked newer on every pass and went up again
+        // forever. The same content on Dropbox is synced, whatever the time says.
+        return localHash() != remoteHash
+    }
+
+    private fun byTime(
         remoteSize: Long?,
         remoteModifiedSec: Long,
         localSize: Long,

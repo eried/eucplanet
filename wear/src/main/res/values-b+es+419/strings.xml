@@ -19,9 +19,9 @@
     <string name="watch_temp_label">Temp</string>
     <string name="watch_trip_label">Viaje</string>
     <string name="watch_torque_label">Torque</string>
-    <string name="watch_action_failed">Sin conexión al teléfono</string>
-    <string name="watch_gps_label">GPS</string>
-    <string name="watch_gps_permission">Toca para activar GPS</string>
+    <string name="watch_action_failed">No se pudo conectar con el teléfono</string>
+    <string name="watch_gps_label">Vel. GPS</string>
+    <string name="watch_gps_permission">Toca para permitir GPS</string>
     <string name="watch_gps_waiting">Esperando señal…</string>
 
     <!-- Labels for hold-action triggers, shown in the watch's transient pill. Short so they fit. -->
@@ -36,8 +36,8 @@
     <string name="watch_action_record_start">Grabación iniciada</string>
     <string name="watch_action_record_stop">Grabación detenida</string>
     <string name="watch_action_media_play">Reproducir / pausar</string>
-    <string name="watch_action_media_next">Siguiente</string>
-    <string name="watch_action_media_prev">Anterior</string>
+    <string name="watch_action_media_next">Pista siguiente</string>
+    <string name="watch_action_media_prev">Pista anterior</string>
     <string name="watch_action_music_start">Iniciar música</string>
     <string name="watch_action_media_pause">Pausar música</string>
     <string name="watch_action_long_press_hint">Mantén presionado para %1$s</string>

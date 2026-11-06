@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">EUC Planet</string>
-    <string name="watch_waiting_phone">Ouvre EUC Planet\nsur ton téléphone</string>
-    <string name="watch_waiting_wheel">Connecte une roue\ndans EUC Planet</string>
+    <string name="watch_waiting_phone">Ouvrez EUC Planet\nsur votre téléphone</string>
+    <string name="watch_waiting_wheel">Connectez une roue\ndans EUC Planet</string>
     <string name="watch_disconnected">Déconnectée</string>
     <string name="watch_horn">Klaxon</string>
     <string name="watch_light">Phare</string>
@@ -21,8 +21,8 @@
     <string name="watch_torque_label">Couple</string>
     <string name="watch_action_failed">Téléphone injoignable</string>
     <string name="watch_gps_label">Vitesse GPS</string>
-    <string name="watch_gps_permission">Touche pour activer le GPS</string>
-    <string name="watch_gps_waiting">En attente du fix…</string>
+    <string name="watch_gps_permission">Appuyez pour autoriser le GPS</string>
+    <string name="watch_gps_waiting">En attente du signal GPS…</string>
 
     <!-- Labels for hold-action triggers, shown in the watch's transient pill. Short so they fit. -->
     <string name="watch_action_horn">Klaxon</string>
@@ -36,13 +36,13 @@
     <string name="watch_action_record_start">Enregistrement lancé</string>
     <string name="watch_action_record_stop">Enregistrement arrêté</string>
     <string name="watch_action_media_play">Lecture / pause</string>
-    <string name="watch_action_media_next">Morceau suivant</string>
-    <string name="watch_action_media_prev">Morceau précédent</string>
+    <string name="watch_action_media_next">Piste suivante</string>
+    <string name="watch_action_media_prev">Piste précédente</string>
     <string name="watch_action_music_start">Lancer la musique</string>
     <string name="watch_action_media_pause">Pause musique</string>
     <string name="watch_action_long_press_hint">Appui long pour %1$s</string>
     <string name="watch_map_phone_disconnected">Pas de téléphone</string>
-    <string name="watch_map_gps_permission">Autoriser GPS</string>
+    <string name="watch_map_gps_permission">Autoriser le GPS</string>
     <string name="watch_map_gps_stale">GPS obsolète</string>
     <string name="watch_map_route_loading">Chargement de l’itinéraire</string>
     <string name="watch_map_route_unavailable">Pas d’itinéraire</string>
@@ -50,8 +50,8 @@
     <string name="watch_map_unavailable">Pas de carte</string>
     <string name="watch_map_zoom_in">Zoom avant</string>
     <string name="watch_map_zoom_out">Zoom arrière</string>
-    <string name="watch_map_open_phone">Ouvrir l’appli mobile</string>
-    <string name="watch_map_waiting_gps">GPS en attente</string>
+    <string name="watch_map_open_phone">Ouvrir sur le téléphone</string>
+    <string name="watch_map_waiting_gps">Attente GPS</string>
     <string name="watch_map_pwm_value">%1$s%%</string>
     <string name="watch_map_speed_value">%1$s %2$s</string>
     <string name="watch_map_voltage_value">%1$s V</string>

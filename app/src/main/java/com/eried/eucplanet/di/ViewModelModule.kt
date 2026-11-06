@@ -42,6 +42,7 @@ import com.eried.eucplanet.ui.settings.ExternalGpsViewModel
 import com.eried.eucplanet.ui.settings.FlicViewModel
 import com.eried.eucplanet.ui.settings.RadarViewModel
 import com.eried.eucplanet.ui.settings.SettingsViewModel
+import com.eried.eucplanet.ui.settings.offline.OfflineDataViewModel
 import com.eried.eucplanet.ui.settings.TpmsViewModel
 import com.eried.eucplanet.ui.studio.OverlayStudioViewModel
 import com.eried.eucplanet.ui.theme.ThemeEditorViewModel
@@ -86,6 +87,7 @@ val viewModelModule = module {
     viewModelOf(::ExternalGpsViewModel)
     viewModelOf(::FlicViewModel)
     viewModelOf(::RadarViewModel)
+    viewModelOf(::OfflineDataViewModel)
     // 24 parameters, past the 22 viewModelOf takes.
     viewModel {
         SettingsViewModel(

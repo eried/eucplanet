@@ -159,6 +159,11 @@ class HudServer(private val context: Context) {
     private val _peer = MutableStateFlow<String?>(null)
     val peer: StateFlow<String?> = _peer.asStateFlow()
 
+    init {
+        // Every map on the HUD asks the paired phone for offline tiles.
+        scope.launch { _peer.collect { HudTileCache.pairedPhone = it } }
+    }
+
     /** Commands the UI wants to send back to the phone. Buffered so a button
      *  press during a disconnect window isn't silently dropped -- the phone
      *  will see it when it reconnects. Replay = 0 because we don't want to

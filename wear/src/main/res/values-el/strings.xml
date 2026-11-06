@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">EUC Planet</string>
+    <string name="watch_waiting_phone">Ανοίξτε το EUC Planet\nστο τηλέφωνο</string>
+    <string name="watch_waiting_wheel">Συνδέστε μονότροχο\nστο EUC Planet</string>
+    <string name="watch_disconnected">Αποσυνδέθηκε</string>
+    <string name="watch_horn">Κόρνα</string>
+    <string name="watch_light">Φως</string>
+    <string name="watch_speed_unit">km/h</string>
+    <string name="watch_speed_unit_mph">mph</string>
+    <string name="watch_battery_label">Μπαταρία</string>
+    <string name="watch_voltage_label">Τάση</string>
+    <string name="watch_current_label">Ρεύμα</string>
+    <string name="watch_pwm_label">PWM</string>
+    <string name="watch_pwm_prefix">"PWM: "</string>
+    <string name="watch_power_label">Ισχύς</string>
+    <string name="watch_temp_label">Θερμ.</string>
+    <string name="watch_trip_label">Διαδρομή</string>
+    <string name="watch_torque_label">Ροπή</string>
+    <string name="watch_action_failed">Δεν βρέθηκε το τηλέφωνο</string>
+    <string name="watch_gps_label">Ταχύτητα GPS</string>
+    <string name="watch_gps_permission">Πατήστε για άδεια GPS</string>
+    <string name="watch_gps_waiting">Αναμονή για σήμα…</string>
+
+    <string name="watch_action_horn">Κόρνα</string>
+    <string name="watch_action_light">Φως</string>
+    <string name="watch_action_lock">Κλείδωμα</string>
+    <string name="watch_action_safety">Νόμιμη λειτουργία</string>
+    <string name="watch_action_safety_on">Νόμιμη λειτ. ενεργή</string>
+    <string name="watch_action_safety_off">Νόμιμη λειτ. ανενεργή</string>
+    <string name="watch_action_voice">Φωνητική αναφορά</string>
+    <string name="watch_action_record">Εγγραφή</string>
+    <string name="watch_action_record_start">Η εγγραφή ξεκίνησε</string>
+    <string name="watch_action_record_stop">Η εγγραφή σταμάτησε</string>
+    <string name="watch_action_media_play">Αναπαραγωγή / παύση</string>
+    <string name="watch_action_media_next">Επόμενο κομμάτι</string>
+    <string name="watch_action_media_prev">Προηγούμενο κομμάτι</string>
+    <string name="watch_action_music_start">Έναρξη μουσικής</string>
+    <string name="watch_action_media_pause">Παύση μουσικής</string>
+    <string name="watch_action_long_press_hint">Παρατεταμένο πάτημα: %1$s</string>
+    <string name="watch_map_phone_disconnected">Χωρίς τηλέφωνο</string>
+    <string name="watch_map_gps_permission">Άδεια GPS</string>
+    <string name="watch_map_gps_stale">Παλιό σήμα GPS</string>
+    <string name="watch_map_route_loading">Φόρτωση δρομολογίου</string>
+    <string name="watch_map_route_unavailable">Χωρίς δρομολόγιο</string>
+    <string name="watch_map_loading">Φόρτωση χάρτη</string>
+    <string name="watch_map_unavailable">Χωρίς χάρτη</string>
+    <string name="watch_map_zoom_in">Μεγέθυνση</string>
+    <string name="watch_map_zoom_out">Σμίκρυνση</string>
+    <string name="watch_map_open_phone">Άνοιγμα στο τηλέφωνο</string>
+    <string name="watch_map_waiting_gps">Αναμονή GPS</string>
+    <string name="watch_map_pwm_value">%1$s%%</string>
+    <string name="watch_map_speed_value">%1$s %2$s</string>
+    <string name="watch_map_voltage_value">%1$s V</string>
+    <string name="watch_map_telemetry_description">PWM %1$s, ταχύτητα %2$s, τάση %3$s.</string>
+</resources>

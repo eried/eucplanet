@@ -1,5 +1,6 @@
 package com.eried.eucplanet
 
+import androidx.compose.foundation.layout.imePadding
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -948,7 +949,7 @@ class MainActivity : AppCompatActivity() {
                         }
                         androidx.compose.material3.SnackbarHost(
                             hostState = rootSnackbar,
-                            modifier = Modifier.align(androidx.compose.ui.Alignment.BottomCenter)
+                            modifier = Modifier.align(androidx.compose.ui.Alignment.BottomCenter).imePadding()
                         )
                     }
                     }

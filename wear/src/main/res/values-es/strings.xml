@@ -21,7 +21,7 @@
     <string name="watch_torque_label">Par</string>
     <string name="watch_action_failed">Sin conexión al móvil</string>
     <string name="watch_gps_label">GPS</string>
-    <string name="watch_gps_permission">Toca para activar GPS</string>
+    <string name="watch_gps_permission">Toca para permitir el GPS</string>
     <string name="watch_gps_waiting">Esperando señal…</string>
 
     <!-- Labels for hold-action triggers, shown in the watch's transient pill. Short so they fit. -->
@@ -31,7 +31,7 @@
     <string name="watch_action_safety">Modo legal</string>
     <string name="watch_action_safety_on">Modo legal activado</string>
     <string name="watch_action_safety_off">Modo legal desactivado</string>
-    <string name="watch_action_voice">Reporte de voz</string>
+    <string name="watch_action_voice">Informe de voz</string>
     <string name="watch_action_record">Grabación</string>
     <string name="watch_action_record_start">Grabación iniciada</string>
     <string name="watch_action_record_stop">Grabación detenida</string>
