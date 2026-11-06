@@ -20,3 +20,12 @@ actual fun rememberStringReader(): (StringResource) -> String =
     androidx.compose.runtime.remember {
         { res -> kotlinx.coroutines.runBlocking { org.jetbrains.compose.resources.getString(res) } }
     }
+
+@Composable
+actual fun rememberStringFormatter(): (StringResource, List<Any>) -> String =
+    androidx.compose.runtime.remember {
+        { res, args ->
+            val raw = kotlinx.coroutines.runBlocking { org.jetbrains.compose.resources.getString(res) }
+            if (args.isEmpty()) raw else raw.format(*args.toTypedArray())
+        }
+    }

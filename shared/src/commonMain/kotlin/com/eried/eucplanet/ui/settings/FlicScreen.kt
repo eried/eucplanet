@@ -252,8 +252,8 @@ private fun ButtonConfig(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                ActionDropdown(stringResource(Res.string.flic_click), clickAction, onClickChange, modifier = Modifier.weight(1f))
-                ActionDropdown(stringResource(Res.string.flic_double_click), doubleClickAction, onDoubleClickChange, modifier = Modifier.weight(1f))
+                FlicActionDropdown(stringResource(Res.string.flic_click), clickAction, onClickChange, modifier = Modifier.weight(1f))
+                FlicActionDropdown(stringResource(Res.string.flic_double_click), doubleClickAction, onDoubleClickChange, modifier = Modifier.weight(1f))
             }
             Spacer(Modifier.height(8.dp))
             // Hold is half width, aligned left, to match the Click row above.
@@ -261,7 +261,7 @@ private fun ButtonConfig(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                ActionDropdown(stringResource(Res.string.flic_hold), holdAction, onHoldChange, modifier = Modifier.weight(1f))
+                FlicActionDropdown(stringResource(Res.string.flic_hold), holdAction, onHoldChange, modifier = Modifier.weight(1f))
                 Spacer(Modifier.weight(1f))
             }
         }
@@ -270,7 +270,7 @@ private fun ButtonConfig(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ActionDropdown(
+private fun FlicActionDropdown(
     label: String,
     currentValue: String,
     onValueChange: (String) -> Unit,

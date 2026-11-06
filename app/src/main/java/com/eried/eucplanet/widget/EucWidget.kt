@@ -15,6 +15,7 @@ import com.eried.eucplanet.data.model.WidgetActionType
 import com.eried.eucplanet.data.model.WidgetMetricType
 import com.eried.eucplanet.data.model.WidgetSettings
 import com.eried.eucplanet.data.model.pickerLabel
+import com.eried.eucplanet.platform.getString
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.service.WheelService
 import kotlinx.coroutines.CoroutineScope

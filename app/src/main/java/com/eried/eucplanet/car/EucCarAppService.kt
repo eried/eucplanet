@@ -26,6 +26,7 @@ import androidx.car.app.navigation.model.MapController
 import androidx.car.app.navigation.model.MapWithContentTemplate
 import androidx.car.app.validation.HostValidator
 import com.eried.eucplanet.data.model.pickerLabel
+import com.eried.eucplanet.platform.getString
 import com.eried.eucplanet.util.speedUnit
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.sample

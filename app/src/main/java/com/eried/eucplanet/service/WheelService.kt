@@ -24,6 +24,7 @@ import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.model.pickerLabel
+import com.eried.eucplanet.platform.getString
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
@@ -987,7 +988,7 @@ class WheelService : LifecycleService() {
         // announceEvent queues (QUEUE_ADD) and never drops, so a step crossed
         // while the previous line is still speaking is voiced right after.
         for (s in accelSplitRepository.onSample(cfg, data.timestamp, speed)) {
-            val text = AccelSplitVoice.splitText(this, s, cfg)
+            val text = AccelSplitVoice.splitText({ r, args -> getString(r, *args.toTypedArray()) }, s, cfg)
             Log.i(TAG, "accel split: $text")
             com.eried.eucplanet.diagnostics.DiagnosticsLogger.note("accel_split: $text")
             voiceService.announceEvent(text)

@@ -242,7 +242,7 @@ object SettingsSearchScan {
         // One function per section keeps each well under the JVM method size limit.
         for ((key, hits) in index) {
             appendLine()
-            appendLine("    private fun ${fnName(key)}() = listOf(")
+            appendLine("    private fun ${fnName(key)}() = listOf<Entry>(")
             for (h in hits) {
                 val under = h.under?.let { "Res.string.$it" } ?: "null"
                 val folds = if (h.folds.isEmpty()) "" else

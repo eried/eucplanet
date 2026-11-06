@@ -54,6 +54,15 @@ actual fun rememberStringReader(): (StringResource) -> String {
     }
 }
 
+@Composable
+actual fun rememberStringFormatter(): (StringResource, List<Any>) -> String {
+    val resources = androidx.compose.ui.platform.LocalContext.current.resources
+    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
+    return androidx.compose.runtime.remember(configuration) {
+        { res, args -> resources.getString(AndroidStrings.id(res), *args.toTypedArray()) }
+    }
+}
+
 /** `Context.getString` for a shared string. */
 fun Context.getString(res: StringResource): String = getString(AndroidStrings.id(res))
 

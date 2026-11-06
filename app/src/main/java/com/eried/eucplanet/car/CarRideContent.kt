@@ -54,6 +54,7 @@ import com.eried.eucplanet.data.model.GeoPoint
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.model.WidgetMetricType
 import com.eried.eucplanet.data.model.pickerLabel
+import com.eried.eucplanet.platform.stringResource
 import com.eried.eucplanet.hud.protocol.MapLayers
 import com.eried.eucplanet.hud.protocol.WebMercator
 import com.eried.eucplanet.map.MapTileCache

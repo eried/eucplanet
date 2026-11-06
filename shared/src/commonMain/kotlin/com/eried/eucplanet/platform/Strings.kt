@@ -35,3 +35,7 @@ expect fun stringResourceInLanguage(res: StringResource, languageTag: String): S
  */
 @Composable
 expect fun rememberStringReader(): (StringResource) -> String
+
+/** [rememberStringReader] with format arguments, as Android's getString(id, args). */
+@Composable
+expect fun rememberStringFormatter(): (StringResource, List<Any>) -> String
