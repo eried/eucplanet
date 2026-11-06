@@ -7,11 +7,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.eried.eucplanet.platform.stringResource
+import com.eried.eucplanet.resources.*
 
 /**
  * Section-action button styled to match the "Synchronize all" button in the
@@ -59,5 +66,24 @@ fun LeftAlignedScanButton(
             com.eried.eucplanet.ui.common.SearchableText(label)
         }
         Spacer(modifier = Modifier.weight(1f))
+    }
+}
+
+@Composable
+fun PlayButton(onClick: () -> Unit, enabled: Boolean = true) {
+    IconButton(
+        onClick = onClick,
+        enabled = enabled,
+        modifier = Modifier.size(20.dp)
+    ) {
+        // Greyed out when disabled so the affordance stays visible, the rider can see
+        // "preview exists, just not while moving" instead of the button vanishing.
+        val baseTint = MaterialTheme.colorScheme.onSurfaceVariant
+        Icon(
+            Icons.Default.PlayArrow,
+            contentDescription = stringResource(Res.string.action_test),
+            modifier = Modifier.size(14.dp),
+            tint = if (enabled) baseTint.copy(alpha = 0.6f) else baseTint.copy(alpha = 0.25f)
+        )
     }
 }

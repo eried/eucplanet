@@ -8761,26 +8761,6 @@ private fun CloudTab(
 // --- Shared components ---
 
 @Composable
-internal fun PlayButton(onClick: () -> Unit, enabled: Boolean = true) {
-    IconButton(
-        onClick = onClick,
-        enabled = enabled,
-        modifier = Modifier.size(20.dp)
-    ) {
-        // Greyed out when disabled so the affordance stays visible, the rider can see
-        // "preview exists, just not while moving" instead of the button vanishing.
-        val baseTint = MaterialTheme.colorScheme.onSurfaceVariant
-        Icon(
-            Icons.Default.PlayArrow,
-            contentDescription = stringResource(R.string.action_test),
-            modifier = Modifier.size(14.dp),
-            tint = if (enabled) baseTint.copy(alpha = 0.6f) else baseTint.copy(alpha = 0.25f)
-        )
-    }
-}
-
-
-@Composable
 private fun AnnounceSwitchSetting(
     label: String,
     checked: Boolean,

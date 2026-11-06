@@ -1,7 +1,6 @@
 package com.eried.eucplanet.ui.common
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -15,6 +14,6 @@ import androidx.compose.ui.unit.dp
  */
 @Composable
 fun dialogContentMaxHeight(preferredDp: Int, reservedDp: Int = 180): Dp {
-    val screenH = LocalConfiguration.current.screenHeightDp
+    val screenH = screenGeometry().heightDp
     return minOf(preferredDp, screenH - reservedDp).coerceAtLeast(96).dp
 }

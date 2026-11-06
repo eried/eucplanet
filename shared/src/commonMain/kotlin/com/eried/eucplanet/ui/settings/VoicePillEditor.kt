@@ -42,18 +42,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.res.stringResource
+import com.eried.eucplanet.platform.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
-import com.eried.eucplanet.R
 import com.eried.eucplanet.service.VoicePill
 import com.eried.eucplanet.service.VoiceReportPlan
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedFieldColors
 import sh.calvin.reorderable.ReorderableColumn
 import com.eried.eucplanet.platform.stringResource
+import com.eried.eucplanet.resources.*
 
 /**
  * One announcement's pills: reordered with the standard drag handle, a
@@ -61,7 +61,7 @@ import com.eried.eucplanet.platform.stringResource
  * Play speaking the real announcement.
  */
 @Composable
-internal fun VoicePillList(
+fun VoicePillList(
     title: String,
     pills: List<VoicePill>,
     onChange: (List<VoicePill>) -> Unit,
@@ -98,13 +98,13 @@ internal fun VoicePillList(
             TextButton(onClick = { addOpen = true }) {
                 Icon(Icons.Default.Add, contentDescription = null, tint = MaterialTheme.appColors.primary)
                 Spacer(Modifier.width(4.dp))
-                Text(stringResource(R.string.voice_pill_add), color = MaterialTheme.appColors.primary)
+                Text(stringResource(Res.string.voice_pill_add), color = MaterialTheme.appColors.primary)
             }
         }
 
         if (items.isEmpty()) {
             Text(
-                stringResource(R.string.voice_pills_empty),
+                stringResource(Res.string.voice_pills_empty),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.appColors.textSecondary,
             )
@@ -172,7 +172,7 @@ private fun PillPickerDialog(onDismiss: () -> Unit, onPick: (String) -> Unit) {
     val labelled = (VoiceReportPlan.KNOWN + VoiceReportPlan.CATALOG.map { VoiceReportPlan.CATALOG_PREFIX + it })
         .map { Triple(it, voiceReportLabel(it), spokenName(it)) }
         .sortedBy { it.second.lowercase() }
-    val messageLabel = stringResource(R.string.voice_pill_message)
+    val messageLabel = stringResource(Res.string.voice_pill_message)
     val all = listOf(Triple(VoicePill.MESSAGE, messageLabel, messageLabel)) + labelled
     val q = query.trim()
     val shown = all.filter {
@@ -187,7 +187,7 @@ private fun PillPickerDialog(onDismiss: () -> Unit, onPick: (String) -> Unit) {
                     value = query,
                     onValueChange = { query = it },
                     singleLine = true,
-                    placeholder = { Text(stringResource(R.string.voice_pill_search)) },
+                    placeholder = { Text(stringResource(Res.string.voice_pill_search)) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     colors = themedFieldColors(),
@@ -215,7 +215,7 @@ private fun PillPickerDialog(onDismiss: () -> Unit, onPick: (String) -> Unit) {
         confirmButton = {},
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.action_cancel), color = MaterialTheme.appColors.primary)
+                Text(stringResource(Res.string.action_cancel), color = MaterialTheme.appColors.primary)
             }
         },
         containerColor = MaterialTheme.appColors.dialog,
@@ -235,7 +235,7 @@ private fun PillRow(
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Icon(
             Icons.Default.DragHandle,
-            contentDescription = stringResource(R.string.action_reorder),
+            contentDescription = stringResource(Res.string.action_reorder),
             modifier = dragHandleModifier.size(28.dp),
             tint = c.textSecondary,
         )
@@ -262,7 +262,7 @@ private fun PillRow(
             }
         }
         IconButton(onClick = onRemove) {
-            Icon(Icons.Default.Close, contentDescription = stringResource(R.string.action_delete), tint = c.textSecondary)
+            Icon(Icons.Default.Close, contentDescription = stringResource(Res.string.action_delete), tint = c.textSecondary)
         }
     }
 }
@@ -314,25 +314,25 @@ private fun MessageDialog(initial: String, onDismiss: () -> Unit, onSave: (Strin
         onDismissRequest = onDismiss,
         // Rule 11: a stray tap must not drop what the rider is typing.
         properties = DialogProperties(dismissOnClickOutside = false),
-        title = { Text(stringResource(R.string.voice_pill_message)) },
+        title = { Text(stringResource(Res.string.voice_pill_message)) },
         text = {
             OutlinedTextField(
                 value = text,
                 onValueChange = { text = it.take(VoicePill.MESSAGE_MAX) },
                 singleLine = true,
-                supportingText = { Text(stringResource(R.string.voice_pill_message_hint)) },
+                supportingText = { Text(stringResource(Res.string.voice_pill_message_hint)) },
                 colors = themedFieldColors(),
                 modifier = Modifier.fillMaxWidth(),
             )
         },
         confirmButton = {
             TextButton(onClick = { onSave(text.trim()) }, enabled = text.isNotBlank()) {
-                Text(stringResource(R.string.action_save), color = MaterialTheme.appColors.primary)
+                Text(stringResource(Res.string.action_save), color = MaterialTheme.appColors.primary)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.action_cancel), color = MaterialTheme.appColors.primary)
+                Text(stringResource(Res.string.action_cancel), color = MaterialTheme.appColors.primary)
             }
         },
         containerColor = MaterialTheme.appColors.dialog,
@@ -343,11 +343,11 @@ private fun MessageDialog(initial: String, onDismiss: () -> Unit, onSave: (Strin
 @Composable
 private fun statLabel(stat: VoicePill.Stat): String = stringResource(
     when (stat) {
-        VoicePill.Stat.NOW -> R.string.voice_stat_now
-        VoicePill.Stat.MAX -> R.string.voice_stat_max
-        VoicePill.Stat.MIN -> R.string.voice_stat_min
-        VoicePill.Stat.AVG -> R.string.voice_stat_avg
-        VoicePill.Stat.PEAK -> R.string.voice_stat_peak
+        VoicePill.Stat.NOW -> Res.string.voice_stat_now
+        VoicePill.Stat.MAX -> Res.string.voice_stat_max
+        VoicePill.Stat.MIN -> Res.string.voice_stat_min
+        VoicePill.Stat.AVG -> Res.string.voice_stat_avg
+        VoicePill.Stat.PEAK -> Res.string.voice_stat_peak
     }
 )
 
@@ -362,7 +362,7 @@ private fun spokenName(item: String): String {
 
 /** The name a report goes by in the editor, the same the old switch rows used. */
 @Composable
-internal fun voiceReportLabel(item: String): String {
+fun voiceReportLabel(item: String): String {
     if (item.startsWith(VoiceReportPlan.CATALOG_PREFIX)) {
         val key = item.removePrefix(VoiceReportPlan.CATALOG_PREFIX)
         val metric = com.eried.eucplanet.data.model.MetricCatalog.all.first { it.key == key }
@@ -374,17 +374,17 @@ internal fun voiceReportLabel(item: String): String {
     }
     return stringResource(
         when (item) {
-            "Speed" -> R.string.report_speed
-            "Battery" -> R.string.report_battery
-            "PhoneBattery" -> R.string.report_phone_battery
-            "Temp" -> R.string.report_temp
-            "PWM" -> R.string.report_pwm
-            "Current" -> R.string.report_current
-            "Power" -> R.string.report_power
-            "Distance" -> R.string.report_distance
-            "Recording" -> R.string.report_recording
-            "Time" -> R.string.report_time
-            else -> R.string.report_navigation
+            "Speed" -> Res.string.report_speed
+            "Battery" -> Res.string.report_battery
+            "PhoneBattery" -> Res.string.report_phone_battery
+            "Temp" -> Res.string.report_temp
+            "PWM" -> Res.string.report_pwm
+            "Current" -> Res.string.report_current
+            "Power" -> Res.string.report_power
+            "Distance" -> Res.string.report_distance
+            "Recording" -> Res.string.report_recording
+            "Time" -> Res.string.report_time
+            else -> Res.string.report_navigation
         }
     )
 }

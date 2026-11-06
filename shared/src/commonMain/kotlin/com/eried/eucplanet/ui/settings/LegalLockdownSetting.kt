@@ -28,7 +28,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import com.eried.eucplanet.platform.stringResource
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.ImeAction
@@ -36,8 +36,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
-import com.eried.eucplanet.R
-import com.eried.eucplanet.data.repository.LegalLockdownCode
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.BluetoothDisabled
 import androidx.compose.material.icons.outlined.Warning
@@ -48,6 +46,7 @@ import com.eried.eucplanet.ui.common.dialogContentMaxHeight
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedSwitchColors
 import kotlinx.coroutines.launch
+import com.eried.eucplanet.resources.*
 
 /**
  * The Legal Mode Lockdown row, in the Wheel parameters tab under Legal mode
@@ -60,7 +59,7 @@ import kotlinx.coroutines.launch
  * screen is unreachable anyway, so only the manufacturer code gets out.
  */
 @Composable
-internal fun LegalLockdownSetting(viewModel: SettingsViewModel) {
+fun LegalLockdownSetting(viewModel: SettingsViewModel) {
     val colors = MaterialTheme.appColors
     val snackbar = LocalSnackbar.current
     val scope = rememberCoroutineScope()
@@ -81,12 +80,12 @@ internal fun LegalLockdownSetting(viewModel: SettingsViewModel) {
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = stringResource(R.string.lockdown_setting_label),
+                text = stringResource(Res.string.lockdown_setting_label),
                 style = MaterialTheme.typography.bodyLarge,
                 color = colors.textPrimary
             )
             Text(
-                text = stringResource(R.string.lockdown_setting_desc),
+                text = stringResource(Res.string.lockdown_setting_desc),
                 style = MaterialTheme.typography.bodySmall,
                 color = colors.textSecondary
             )
@@ -114,15 +113,15 @@ internal fun LegalLockdownSetting(viewModel: SettingsViewModel) {
         var step by remember { mutableIntStateOf(STEP_WARNING) }
         var pin by remember { mutableStateOf("") }
         var confirm by remember { mutableStateOf("") }
-        val validPin = LegalLockdownCode.isValidPin(pin)
+        val validPin = viewModel.legalLockdown.isValidPin(pin)
         val matches = pin == confirm
         val error = when {
             pin.isEmpty() && confirm.isEmpty() -> null
-            !validPin -> stringResource(R.string.lockdown_code_invalid)
-            !matches -> stringResource(R.string.lockdown_code_mismatch)
+            !validPin -> stringResource(Res.string.lockdown_code_invalid)
+            !matches -> stringResource(Res.string.lockdown_code_mismatch)
             else -> null
         }
-        val savedMsg = stringResource(R.string.lockdown_trip_saved)
+        val savedMsg = stringResource(Res.string.lockdown_trip_saved)
         // One action for the Turn on button and for Done on the last field, so
         // finishing the form with the keyboard does the same thing as tapping.
         val arm: () -> Unit = {
@@ -143,7 +142,7 @@ internal fun LegalLockdownSetting(viewModel: SettingsViewModel) {
             // A stray tap must not drop a half-typed code.
             properties = DialogProperties(dismissOnClickOutside = false),
             containerColor = colors.dialog,
-            title = { Text(stringResource(R.string.lockdown_title)) },
+            title = { Text(stringResource(Res.string.lockdown_title)) },
             text = {
                 if (step == STEP_WARNING) {
                     Column(
@@ -166,21 +165,21 @@ internal fun LegalLockdownSetting(viewModel: SettingsViewModel) {
                         // not actually know.
                         when {
                             !connected -> InfoHint(
-                                text = stringResource(R.string.lockdown_warning_no_wheel),
+                                text = stringResource(Res.string.lockdown_warning_no_wheel),
                                 icon = Icons.Outlined.BluetoothDisabled
                             )
                             legalModeOn -> InfoHint(
-                                text = stringResource(R.string.lockdown_warning_now),
+                                text = stringResource(Res.string.lockdown_warning_now),
                                 icon = Icons.Outlined.Warning,
                                 tint = colors.statusWarn
                             )
                             else -> InfoHint(
-                                text = stringResource(R.string.lockdown_warning_waits)
+                                text = stringResource(Res.string.lockdown_warning_waits)
                             )
                         }
                         Spacer(Modifier.height(4.dp))
                         Text(
-                            text = stringResource(R.string.lockdown_warning_intro),
+                            text = stringResource(Res.string.lockdown_warning_intro),
                             style = MaterialTheme.typography.bodySmall,
                             color = colors.textPrimary
                         )
@@ -193,12 +192,12 @@ internal fun LegalLockdownSetting(viewModel: SettingsViewModel) {
                         }
                         Spacer(Modifier.height(4.dp))
                         Text(
-                            text = stringResource(R.string.lockdown_warning_settings_safe),
+                            text = stringResource(Res.string.lockdown_warning_settings_safe),
                             style = MaterialTheme.typography.bodySmall,
                             color = colors.textPrimary
                         )
                         Text(
-                            text = stringResource(R.string.lockdown_warning_recovery),
+                            text = stringResource(Res.string.lockdown_warning_recovery),
                             style = MaterialTheme.typography.bodySmall,
                             color = colors.statusDanger
                         )
@@ -212,8 +211,8 @@ internal fun LegalLockdownSetting(viewModel: SettingsViewModel) {
                         OutlinedTextField(
                             value = pin,
                             onValueChange = { pin = it.filter { c -> c.isDigit() }.take(8) },
-                            label = { Text(stringResource(R.string.lockdown_set_code)) },
-                            placeholder = { Text(stringResource(R.string.lockdown_code_hint)) },
+                            label = { Text(stringResource(Res.string.lockdown_set_code)) },
+                            placeholder = { Text(stringResource(Res.string.lockdown_code_hint)) },
                             singleLine = true,
                             visualTransformation = PasswordVisualTransformation(),
                             // Enter moves to the repeat field. Left to itself
@@ -233,7 +232,7 @@ internal fun LegalLockdownSetting(viewModel: SettingsViewModel) {
                         OutlinedTextField(
                             value = confirm,
                             onValueChange = { confirm = it.filter { c -> c.isDigit() }.take(8) },
-                            label = { Text(stringResource(R.string.lockdown_confirm_code)) },
+                            label = { Text(stringResource(Res.string.lockdown_confirm_code)) },
                             singleLine = true,
                             isError = error != null,
                             visualTransformation = PasswordVisualTransformation(),
@@ -268,23 +267,23 @@ internal fun LegalLockdownSetting(viewModel: SettingsViewModel) {
             confirmButton = {
                 if (step == STEP_WARNING) {
                     TextButton(onClick = { step = STEP_CODE }) {
-                        Text(stringResource(R.string.lockdown_continue))
+                        Text(stringResource(Res.string.lockdown_continue))
                     }
                 } else {
                     TextButton(
                         enabled = validPin && matches,
                         onClick = arm
-                    ) { Text(stringResource(R.string.lockdown_arm)) }
+                    ) { Text(stringResource(Res.string.lockdown_arm)) }
                 }
             },
             dismissButton = {
                 if (step == STEP_WARNING) {
                     TextButton(onClick = { showDialog = false }) {
-                        Text(stringResource(R.string.action_cancel))
+                        Text(stringResource(Res.string.action_cancel))
                     }
                 } else {
                     TextButton(onClick = { step = STEP_WARNING }) {
-                        Text(stringResource(R.string.action_back))
+                        Text(stringResource(Res.string.action_back))
                     }
                 }
             }
@@ -304,22 +303,22 @@ private const val STEP_CODE = 1
  */
 @Composable
 private fun lockdownLimitStrings(): List<String> = listOf(
-    stringResource(R.string.lockdown_limit_1),
-    stringResource(R.string.lockdown_limit_2),
-    stringResource(R.string.lockdown_limit_3),
-    stringResource(R.string.lockdown_limit_4),
-    stringResource(R.string.lockdown_limit_5),
-    stringResource(R.string.lockdown_limit_6),
-    stringResource(R.string.lockdown_limit_7),
-    stringResource(R.string.lockdown_limit_8),
-    stringResource(R.string.lockdown_limit_9),
-    stringResource(R.string.lockdown_limit_10),
-    stringResource(R.string.lockdown_limit_11),
-    stringResource(R.string.lockdown_limit_12),
-    stringResource(R.string.lockdown_limit_13),
-    stringResource(R.string.lockdown_limit_14),
-    stringResource(R.string.lockdown_limit_15),
-    stringResource(R.string.lockdown_limit_16),
-    stringResource(R.string.lockdown_limit_17),
-    stringResource(R.string.lockdown_limit_18),
+    stringResource(Res.string.lockdown_limit_1),
+    stringResource(Res.string.lockdown_limit_2),
+    stringResource(Res.string.lockdown_limit_3),
+    stringResource(Res.string.lockdown_limit_4),
+    stringResource(Res.string.lockdown_limit_5),
+    stringResource(Res.string.lockdown_limit_6),
+    stringResource(Res.string.lockdown_limit_7),
+    stringResource(Res.string.lockdown_limit_8),
+    stringResource(Res.string.lockdown_limit_9),
+    stringResource(Res.string.lockdown_limit_10),
+    stringResource(Res.string.lockdown_limit_11),
+    stringResource(Res.string.lockdown_limit_12),
+    stringResource(Res.string.lockdown_limit_13),
+    stringResource(Res.string.lockdown_limit_14),
+    stringResource(Res.string.lockdown_limit_15),
+    stringResource(Res.string.lockdown_limit_16),
+    stringResource(Res.string.lockdown_limit_17),
+    stringResource(Res.string.lockdown_limit_18),
 )
