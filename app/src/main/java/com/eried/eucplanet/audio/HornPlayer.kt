@@ -35,8 +35,6 @@ class HornPlayer(
         private const val FILE_NAME = "horn_sound"
     }
 
-    enum class ImportResult { OK, TOO_LONG, TOO_BIG, UNREADABLE }
-
     private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     private val attributes = AudioAttributes.Builder()
         .setUsage(AudioAttributes.USAGE_MEDIA)
@@ -63,25 +61,25 @@ class HornPlayer(
     override val isReady: Boolean get() = ready
 
     /** Copy [uri] in as the horn sound after checking it is a short, readable clip. */
-    fun import(uri: Uri): ImportResult {
+    fun import(uri: Uri): HornImportResult {
         val tmp = File(context.cacheDir, "horn_import")
         try {
             context.contentResolver.openInputStream(uri)?.use { input ->
                 tmp.outputStream().use { out ->
                     val copied = input.copyTo(out)
-                    if (copied > MAX_FILE_BYTES) return ImportResult.TOO_BIG
+                    if (copied > MAX_FILE_BYTES) return HornImportResult.TOO_BIG
                 }
-            } ?: return ImportResult.UNREADABLE
-            val duration = durationOf(tmp) ?: return ImportResult.UNREADABLE
-            if (duration > MAX_DURATION_MS) return ImportResult.TOO_LONG
+            } ?: return HornImportResult.UNREADABLE
+            val duration = durationOf(tmp) ?: return HornImportResult.UNREADABLE
+            if (duration > MAX_DURATION_MS) return HornImportResult.TOO_LONG
             val dest = file()
             dest.parentFile?.mkdirs()
             tmp.copyTo(dest, overwrite = true)
             load()
-            return ImportResult.OK
+            return HornImportResult.OK
         } catch (e: Exception) {
             Log.w(TAG, "import failed", e)
-            return ImportResult.UNREADABLE
+            return HornImportResult.UNREADABLE
         } finally {
             tmp.delete()
         }

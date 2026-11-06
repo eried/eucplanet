@@ -25,25 +25,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Locale
 
-data class VoiceOption(val locale: Locale, val displayName: String)
-
-/**
- * One selectable TTS voice within a locale. A language often exposes several
- * (different speakers, plus higher-quality "network" voices). [name] is the
- * stable engine id we persist and apply with `tts.setVoice`; [index] is a
- * 1-based position for a friendly "Voice N" label; [networkRequired] flags the
- * online voices so the UI can tag them.
- */
-data class VoiceChoice(
-    val name: String,
-    val localeTag: String,
-    val index: Int,
-    val networkRequired: Boolean,
-    // Android Voice.getQuality(): QUALITY_VERY_LOW(100)..QUALITY_VERY_HIGH(500).
-    // The UI turns >=HIGH into "high quality" and <=LOW into "basic".
-    val quality: Int
-)
-
 class VoiceService(
     private val context: Context,
     private val settingsRepository: SettingsRepository,
@@ -347,7 +328,7 @@ class VoiceService(
                 val lang = locale.getDisplayLanguage(locale)
                 val country = locale.getDisplayCountry(locale)
                 val label = if (country.isNullOrBlank()) lang else "$lang ($country)"
-                VoiceOption(locale, label)
+                VoiceOption(locale.toString(), label)
             }?.sortedBy { it.displayName } ?: emptyList()
         } catch (e: Exception) {
             Log.w(TAG, "Failed to load voices", e)
@@ -462,7 +443,7 @@ class VoiceService(
             val match = locales.firstOrNull { it.language.lowercase() in acceptable }
             // Return Locale.toString() form ("nb_NO") not toLanguageTag()
             // ("nb-NO") so the saved voiceLocale matches what the voice
-            // picker compares against (`it.locale.toString()`).
+            // picker compares against (`it.localeId`).
             match?.toString()
         } catch (e: Exception) {
             Log.w(TAG, "pickVoiceForLanguage failed", e)

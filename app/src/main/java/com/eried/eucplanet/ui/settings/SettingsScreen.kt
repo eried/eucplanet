@@ -6503,12 +6503,12 @@ private fun HornSection(
                 ?.use { c -> if (c.moveToFirst()) c.getString(0) else null }
         }.getOrNull() ?: uri.lastPathSegment.orEmpty()
         viewModel.importHornSound(uri, name) { r ->
-            soundReady = viewModel.hornSoundReady || r == com.eried.eucplanet.audio.HornPlayer.ImportResult.OK
+            soundReady = viewModel.hornSoundReady || r == com.eried.eucplanet.audio.HornImportResult.OK
             val msg = when (r) {
-                com.eried.eucplanet.audio.HornPlayer.ImportResult.OK -> msgOk
-                com.eried.eucplanet.audio.HornPlayer.ImportResult.TOO_LONG -> msgLong
-                com.eried.eucplanet.audio.HornPlayer.ImportResult.TOO_BIG -> msgBig
-                com.eried.eucplanet.audio.HornPlayer.ImportResult.UNREADABLE -> msgBad
+                com.eried.eucplanet.audio.HornImportResult.OK -> msgOk
+                com.eried.eucplanet.audio.HornImportResult.TOO_LONG -> msgLong
+                com.eried.eucplanet.audio.HornImportResult.TOO_BIG -> msgBig
+                com.eried.eucplanet.audio.HornImportResult.UNREADABLE -> msgBad
             }
             com.eried.eucplanet.ui.common.showSnackbar(snackbar, snackbarScope, msg)
         }
@@ -8577,9 +8577,10 @@ private fun CloudTab(
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.appColors.textSecondary,
                         )
-                        if (card.mileageRank != null) {
+                        val rank = card.mileageRank
+                        if (rank != null) {
                             Text(
-                                stringResource(R.string.online_upload_mileage_rank, card.mileageRank),
+                                stringResource(R.string.online_upload_mileage_rank, rank),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.appColors.textSecondary,
                             )
@@ -9694,7 +9695,7 @@ private fun VoiceSelector(
     // Tolerant of either tag form: Locale.toString() ("nb_NO") or
     // toLanguageTag() ("nb-NO"). Older stored values may use either.
     val normalized = currentLocale.replace('-', '_')
-    val currentVoice = voices.find { it.locale.toString().replace('-', '_') == normalized }
+    val currentVoice = voices.find { it.localeId.replace('-', '_') == normalized }
     val displayText = currentVoice?.displayName ?: currentLocale
 
     ExposedDropdownMenuBox(
@@ -9722,7 +9723,7 @@ private fun VoiceSelector(
                 DropdownMenuItem(
                     text = { Text(voice.displayName) },
                     onClick = {
-                        onVoiceSelected(voice.locale.toString())
+                        onVoiceSelected(voice.localeId)
                         expanded = false
                     }
                 )

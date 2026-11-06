@@ -619,10 +619,10 @@ class SettingsViewModel(
     val hornSoundReady: Boolean get() = hornPlayer.isReady
 
     /** Copy the picked clip in; the name is kept for the settings row. */
-    fun importHornSound(uri: android.net.Uri, displayName: String, onResult: (com.eried.eucplanet.audio.HornPlayer.ImportResult) -> Unit) {
+    fun importHornSound(uri: android.net.Uri, displayName: String, onResult: (com.eried.eucplanet.audio.HornImportResult) -> Unit) {
         viewModelScope.launch {
             val r = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { hornPlayer.import(uri) }
-            if (r == com.eried.eucplanet.audio.HornPlayer.ImportResult.OK) {
+            if (r == com.eried.eucplanet.audio.HornImportResult.OK) {
                 update { copy(horn = horn.copy(soundName = displayName)) }
             }
             onResult(r)

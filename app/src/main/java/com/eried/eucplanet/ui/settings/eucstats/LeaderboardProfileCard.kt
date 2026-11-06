@@ -61,11 +61,12 @@ fun LeaderboardProfileCard(card: RiderCard, modifier: Modifier = Modifier) {
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
             val nameAndFlag = buildString {
                 if (!card.displayName.isNullOrBlank()) append(card.displayName)
-                if (!card.flag.isNullOrBlank()) {
+                val flag = card.flag
+                if (!flag.isNullOrBlank()) {
                     if (isNotEmpty()) append("  ")
                     // Show the flag emoji (e.g. NO becomes the Norwegian flag)
                     // instead of the raw code.
-                    append(flagEmoji(card.flag).ifEmpty { card.flag })
+                    append(flagEmoji(flag).ifEmpty { flag })
                 }
             }
             if (nameAndFlag.isNotEmpty()) {
@@ -75,9 +76,10 @@ fun LeaderboardProfileCard(card: RiderCard, modifier: Modifier = Modifier) {
                     color = MaterialTheme.appColors.textPrimary,
                 )
             }
-            if (!card.country.isNullOrBlank()) {
+            val country = card.country
+            if (!country.isNullOrBlank()) {
                 Text(
-                    card.country,
+                    country,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.appColors.textSecondary,
                 )
