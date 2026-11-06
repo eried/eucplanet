@@ -122,7 +122,7 @@ class TripNameTravelsTest {
     }
 
     @Test fun `the dialog's reset clears and accepts in one tap`() {
-        val dialog = File("src/main/java/com/eried/eucplanet/ui/recording/TripToolsDialog.kt").readText()
+        val dialog = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/ui/recording/TripToolsDialog.kt").readText()
         val rename = dialog.substringAfter("fun RenameTripDialog").substringBefore("fun ")
         assertTrue("reset does not confirm the cleared name",
             rename.contains("""onConfirm("")"""))
