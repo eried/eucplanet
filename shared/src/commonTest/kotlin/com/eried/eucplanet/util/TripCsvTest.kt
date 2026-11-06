@@ -1,9 +1,9 @@
 package com.eried.eucplanet.util
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 /**
  * Locks the trip-metrics fix: duration + distance must come out right for every
@@ -18,14 +18,14 @@ class TripCsvTest {
     fun parsesDarknessBotMillisFormat() {
         // The exact stamp from the reported broken trip (trip_20260625_153002.csv).
         val t = TripCsv.parseDate("25.06.2026 15:30:02.741")
-        assertTrue("dd.MM.yyyy HH:mm:ss.SSS must parse", t != null && t > 0)
+        assertTrue(t != null && t > 0, "dd.MM.yyyy HH:mm:ss.SSS must parse")
     }
 
     @Test
     fun parsesEucWorldIsoMicrosFormat() {
         // EUC World writes 6 fractional digits; we truncate to ms before parsing.
         val t = TripCsv.parseDate("2024-06-29T19:55:32.123456")
-        assertTrue("ISO micros must parse (truncated to ms)", t != null && t > 0)
+        assertTrue(t != null && t > 0, "ISO micros must parse (truncated to ms)")
     }
 
     @Test
@@ -76,7 +76,7 @@ class TripCsvTest {
         )
         val m = TripCsv.metricsFrom(rows)
         // ~0.222 km from GPS, NOT the 5033 odometer reading.
-        assertTrue("expected ~0.22 km, got ${m.distanceKm}", m.distanceKm in 0.18f..0.27f)
+        assertTrue(m.distanceKm in 0.18f..0.27f, "expected ~0.22 km, got ${m.distanceKm}")
     }
 
     @Test
@@ -125,6 +125,6 @@ class TripCsvTest {
             TripCsv.Quad("25.06.2026 15:30:02.000", 45.0000, -74.0, 0f), // teleport, ignored
         )
         val m = TripCsv.metricsFrom(rows)
-        assertTrue("only the ~0.11 km step should count, got ${m.distanceKm}", m.distanceKm in 0.08f..0.15f)
+        assertTrue(m.distanceKm in 0.08f..0.15f, "only the ~0.11 km step should count, got ${m.distanceKm}")
     }
 }

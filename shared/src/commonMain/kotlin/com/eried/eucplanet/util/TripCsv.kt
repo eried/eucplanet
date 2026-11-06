@@ -1,7 +1,11 @@
 package com.eried.eucplanet.util
 
-import java.text.SimpleDateFormat
-import java.util.Locale
+import com.eried.eucplanet.platform.LocalDateParserUs
+import com.eried.eucplanet.platform.Math
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 /**
  * Shared, format-tolerant helpers for reading trip CSVs.
@@ -22,14 +26,15 @@ object TripCsv {
     // Most-specific first. We normalise the fractional second to 3 digits
     // before parsing (see [parseDate]), so the millisecond variants cover
     // both DarknessBot (.SSS) and EUC World (.SSSSSS, truncated).
-    private val FORMATS = listOf(
+    private val PATTERNS = listOf(
         "dd.MM.yyyy HH:mm:ss.SSS",
         "dd.MM.yyyy HH:mm:ss",
         "yyyy-MM-dd'T'HH:mm:ss.SSS",
         "yyyy-MM-dd'T'HH:mm:ss",
         "yyyy-MM-dd HH:mm:ss.SSS",
         "yyyy-MM-dd HH:mm:ss",
-    ).map { SimpleDateFormat(it, Locale.US).apply { isLenient = false } }
+    )
+    private val FORMATS = PATTERNS.map { LocalDateParserUs(it) }
 
     /**
      * Parse a trip timestamp to epoch-millis, or null if no known format
@@ -41,11 +46,7 @@ object TripCsv {
         val s = raw?.trim().orEmpty()
         if (s.isEmpty()) return null
         val normalised = normaliseFraction(s)
-        for (fmt in FORMATS) {
-            try {
-                return fmt.parse(normalised)?.time
-            } catch (_: Exception) { /* try next */ }
-        }
+        for (fmt in FORMATS) fmt.parse(normalised)?.let { return it }
         return null
     }
 
@@ -59,21 +60,19 @@ object TripCsv {
      * parsing itself. Every row in one trip CSV shares a format, so callers
      * walking a whole file should resolve it once here and reuse the result.
      *
-     * The matched formatter is cloned: SimpleDateFormat is not thread-safe, and
-     * the returned parser must not share mutable state with [parseDate].
+     * The matched parser is a new one: parsers are not thread-safe, and the
+     * returned one must not share mutable state with [parseDate].
      */
     fun parserFor(sample: String?): ((String?) -> Long?)? {
         val s = sample?.trim().orEmpty()
         if (s.isEmpty()) return null
         val normalised = normaliseFraction(s)
-        for (fmt in FORMATS) {
-            val matched = try { fmt.parse(normalised) } catch (_: Exception) { null } ?: continue
-            @Suppress("UNUSED_VARIABLE") val ignored = matched
-            val bound = fmt.clone() as SimpleDateFormat
+        for ((i, fmt) in FORMATS.withIndex()) {
+            fmt.parse(normalised) ?: continue
+            val bound = LocalDateParserUs(PATTERNS[i])
             return { raw ->
                 val t = raw?.trim().orEmpty()
-                if (t.isEmpty()) null
-                else try { bound.parse(normaliseFraction(t))?.time } catch (_: Exception) { null }
+                if (t.isEmpty()) null else bound.parse(normaliseFraction(t))
             }
         }
         return null
@@ -102,10 +101,10 @@ object TripCsv {
         val r = 6_371_000.0
         val dLat = Math.toRadians(lat2 - lat1)
         val dLon = Math.toRadians(lon2 - lon1)
-        val a = Math.sin(dLat / 2).let { it * it } +
-            Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
-            Math.sin(dLon / 2).let { it * it }
-        return r * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+        val a = sin(dLat / 2).let { it * it } +
+            cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) *
+            sin(dLon / 2).let { it * it }
+        return r * 2 * atan2(sqrt(a), sqrt(1 - a))
     }
 
     /** Metrics derived from a trip's samples. [valid] is false when we had no
