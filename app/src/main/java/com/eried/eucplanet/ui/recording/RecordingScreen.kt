@@ -177,7 +177,7 @@ fun RecordingScreen(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri: Uri? ->
         if (uri != null) {
-            viewModel.importTrips(uri) { }
+            viewModel.importTrips(uri.toString()) { }
         }
     }
 

@@ -18,8 +18,14 @@ import java.io.File
  */
 class BackupStatusIconTest {
 
-    private val screen = File("src/main/java/com/eried/eucplanet/ui/recording/RecordingScreen.kt").readText()
-    private val vm = File("src/main/java/com/eried/eucplanet/ui/recording/RecordingViewModel.kt").readText()
+    // The trip list lives in :shared; read it where it is.
+    private fun src(path: String) = listOf(
+        File("src/main/java/com/eried/eucplanet/$path"),
+        File("../shared/src/commonMain/kotlin/com/eried/eucplanet/$path"),
+    ).first { it.exists() }.readText()
+
+    private val screen = src("ui/recording/RecordingScreen.kt")
+    private val vm = src("ui/recording/RecordingViewModel.kt")
     private val worker = File("src/main/java/com/eried/eucplanet/data/sync/DropboxSyncWorker.kt").readText()
     private val repo = File("src/main/java/com/eried/eucplanet/data/repository/TripRepository.kt").readText()
     private val sync = File("src/main/java/com/eried/eucplanet/data/sync/SyncManager.kt").readText()

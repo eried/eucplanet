@@ -1,21 +1,18 @@
 package com.eried.eucplanet.ui.recording
 
-import android.Manifest
-import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.net.Uri
-import android.util.Log
-import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.TripRecord
+import com.eried.eucplanet.data.repository.DropboxRepository
 import com.eried.eucplanet.data.repository.SettingsRepository
-import com.eried.eucplanet.data.repository.TripRepository
+import com.eried.eucplanet.data.repository.WheelRepository
+import com.eried.eucplanet.platform.FormUrl
+import com.eried.eucplanet.platform.Log
+import com.eried.eucplanet.platform.System
+import com.eried.eucplanet.resources.*
 import com.eried.eucplanet.util.TripCsv
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.Job
@@ -29,29 +26,17 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.BufferedInputStream
-import java.io.BufferedOutputStream
-import java.io.BufferedReader
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.FileReader
-import java.io.InputStreamReader
-import java.util.zip.ZipEntry
-import java.util.zip.ZipInputStream
-import java.util.zip.ZipOutputStream
 
 /** How long a freshly made trip stays flashed in the list. */
 private const val HIGHLIGHT_MS = 3_000L
 
 class RecordingViewModel(
-    private val tripRepository: TripRepository,
-    private val wheelRepository: com.eried.eucplanet.data.repository.WheelRepository,
+    private val tripRepository: RecordingTrips,
+    private val wheelRepository: WheelRepository,
     private val settingsRepository: SettingsRepository,
-    private val syncManager: com.eried.eucplanet.data.sync.SyncManager,
-    private val eucStatsRepository: com.eried.eucplanet.data.eucstats.EucStatsRepository,
-    private val dropboxRepository: com.eried.eucplanet.data.repository.DropboxRepository,
-    private val context: Context
+    private val online: RecordingOnline,
+    private val dropboxRepository: DropboxRepository,
+    private val platform: RecordingPlatform,
 ) : ViewModel() {
 
     companion object {
@@ -76,21 +61,21 @@ class RecordingViewModel(
                 // Prereqs gone since the icon was shown (unlinked, deleted,
                 // folder lost). Don't attempt the upload and don't relight the
                 // worker safety net, it would just bail at the gate anyway.
-                if (!settings.onlineUploadEnabled || syncManager.riderStoreId.value == null) {
-                    _toasts.send(context.getString(R.string.online_upload_sync_nothing))
+                if (!settings.onlineUploadEnabled || !online.riderLinked) {
+                    _toasts.send(platform.text(Res.string.online_upload_sync_nothing))
                     return@launch
                 }
-                _toasts.send(context.getString(R.string.online_status_pending))
-                val result = eucStatsRepository.syncPendingNow { _, _ -> }
+                _toasts.send(platform.text(Res.string.online_status_pending))
+                val result = online.syncPendingNow()
                 val msg = when {
-                    result.total == 0 -> context.getString(R.string.online_upload_sync_nothing)
-                    result.allFailed -> context.getString(R.string.online_status_failed)
-                    else -> context.getString(R.string.online_upload_sync_done, result.uploaded)
+                    result.total == 0 -> platform.text(Res.string.online_upload_sync_nothing)
+                    result.allFailed -> platform.text(Res.string.online_status_failed)
+                    else -> platform.text(Res.string.online_upload_sync_done, result.uploaded)
                 }
                 _toasts.send(msg)
                 // Background safety net for the next network change. Skipped when
                 // we early-bailed above so we don't queue work doomed to no-op.
-                syncManager.enqueueEucStatsUpload(settings)
+                online.enqueueUpload(settings)
             } finally {
                 _onlineRetryRunning.value = false
             }
@@ -106,12 +91,12 @@ class RecordingViewModel(
      */
     fun recheckHeldTrip(trip: TripRecord) {
         viewModelScope.launch {
-            _toasts.send(context.getString(R.string.online_status_checking))
-            val msg = when (runCatching { eucStatsRepository.refreshTripVerdict(trip) }.getOrNull()) {
-                "validated" -> context.getString(R.string.online_status_shared)
-                "rejected" -> context.getString(R.string.online_status_rejected)
-                "flagged" -> context.getString(R.string.online_status_flagged_why)
-                else -> context.getString(R.string.online_status_check_failed)
+            _toasts.send(platform.text(Res.string.online_status_checking))
+            val msg = when (runCatching { online.refreshTripVerdict(trip) }.getOrNull()) {
+                "validated" -> platform.text(Res.string.online_status_shared)
+                "rejected" -> platform.text(Res.string.online_status_rejected)
+                "flagged" -> platform.text(Res.string.online_status_flagged_why)
+                else -> platform.text(Res.string.online_status_check_failed)
             }
             _toasts.send(msg)
         }
@@ -337,11 +322,7 @@ class RecordingViewModel(
     private val _toasts = Channel<String>(capacity = Channel.BUFFERED)
     val toasts: Flow<String> = _toasts.receiveAsFlow()
 
-    private fun hasLocationPermission(): Boolean =
-        ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ==
-                PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) ==
-                PackageManager.PERMISSION_GRANTED
+    private fun hasLocationPermission(): Boolean = platform.hasLocationPermission()
 
     fun refreshLocationPermission(): Boolean {
         val granted = hasLocationPermission()
@@ -370,8 +351,8 @@ class RecordingViewModel(
                 tripRepository.startRecording()
                 val s = settingsRepository.get()
                 if (s.autoRecord && s.autoRecordStartInMotion && s.autoRecordStopIdleSeconds > 0) {
-                    val msg = context.getString(
-                        R.string.recording_will_auto_stop,
+                    val msg = platform.text(
+                        Res.string.recording_will_auto_stop,
                         s.autoRecordStopIdleSeconds
                     )
                     _toasts.send(msg)
@@ -398,17 +379,7 @@ class RecordingViewModel(
     }
 
     fun shareTrip(trip: TripRecord) {
-        viewModelScope.launch {
-            val csvFile = tripRepository.getTripFile(trip)
-            if (!csvFile.exists()) return@launch
-            val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", csvFile)
-            val intent = Intent(Intent.ACTION_SEND).apply {
-                type = "text/csv"
-                putExtra(Intent.EXTRA_STREAM, uri)
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-            context.startActivity(Intent.createChooser(intent, context.getString(R.string.share_trip_chooser)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-        }
+        platform.shareTripFile(trip)
     }
 
     /** True while a Dropbox account is linked, toggles the two extra
@@ -427,19 +398,12 @@ class RecordingViewModel(
      */
     fun shareViaDropbox(trip: TripRecord) {
         viewModelScope.launch {
-            _toasts.send(context.getString(R.string.dropbox_preparing))
+            _toasts.send(platform.text(Res.string.dropbox_preparing))
             val link = ensureDropboxLink(trip) ?: run {
                 _toasts.send(shareFailureMessage())
                 return@launch
             }
-            val intent = Intent(Intent.ACTION_SEND).apply {
-                type = "text/plain"
-                putExtra(Intent.EXTRA_TEXT, link)
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-            context.startActivity(Intent.createChooser(
-                intent, context.getString(R.string.share_trip_chooser)
-            ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            platform.shareText(link)
         }
     }
 
@@ -452,15 +416,9 @@ class RecordingViewModel(
      */
     fun inspectOnline(trip: TripRecord) {
         viewModelScope.launch {
-            _toasts.send(context.getString(R.string.dropbox_preparing))
+            _toasts.send(platform.text(Res.string.dropbox_preparing))
             val viewerUrl = ensureEucviewerUrl(trip) ?: return@launch
-            val send = Intent(Intent.ACTION_SEND).apply {
-                type = "text/plain"
-                putExtra(Intent.EXTRA_TEXT, viewerUrl)
-            }
-            val chooser = Intent.createChooser(send, null)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            context.startActivity(chooser)
+            platform.shareText(viewerUrl)
         }
     }
 
@@ -482,7 +440,7 @@ class RecordingViewModel(
         val direct = toDropboxDirectUrl(link)
         return com.eried.eucplanet.util.TripShareLink.shortViewerUrl(direct)
             ?: ("https://eucviewer.ried.no/?file=" +
-                java.net.URLEncoder.encode(direct, "UTF-8"))
+                FormUrl.encode(direct))
     }
 
     /** Convert a www.dropbox.com share URL into a dl.dropboxusercontent.com
@@ -504,20 +462,19 @@ class RecordingViewModel(
 
     /** Share-failure message: a specific reason when Dropbox supplied one
      *  (e.g. an unverified account email), else the generic failure. */
-    private fun shareFailureMessage(): String = context.getString(
+    private fun shareFailureMessage(): String = platform.text(
         when (dropboxRepository.lastShareErrorTag) {
-            "email_not_verified" -> R.string.dropbox_email_unverified
-            else -> R.string.dropbox_share_failed
+            "email_not_verified" -> Res.string.dropbox_email_unverified
+            else -> Res.string.dropbox_share_failed
         }
     )
 
     private suspend fun ensureDropboxLink(trip: TripRecord): String? {
-        val file = tripRepository.getTripFile(trip)
-        if (!file.exists()) return null
-        val remote = "/trips/${file.name}"
+        val bytes = tripRepository.readTripBytes(trip) ?: return null
+        val remote = "/trips/${trip.fileName}"
         // Upload first (idempotent; Dropbox dedupes content by hash so a
         // repeat call returns instantly). Then ask for the shared link.
-        val ok = dropboxRepository.uploadFile(remote, file.readBytes())
+        val ok = dropboxRepository.uploadFile(remote, bytes)
         if (!ok) return null
         // Prefer a persistent shared link; fall back to a ~4-hour temporary
         // link (needs only files.content.read) so sharing always works even
@@ -527,32 +484,7 @@ class RecordingViewModel(
     }
 
     fun exportAllAsZip() {
-        viewModelScope.launch {
-            val tripsDir = tripRepository.getTripsDir()
-            val csvFiles = tripsDir.listFiles { f -> f.extension == "csv" } ?: return@launch
-            if (csvFiles.isEmpty()) return@launch
-
-            // Plain .zip so phones and desktops open it natively; the importer
-            // (ours and the viewer's) accepts .zip and .dbb alike. Drop any
-            // stale archive from the .dbb era.
-            File(tripsDir, "trips_export.dbb").delete()
-            val zipFile = File(tripsDir, "trips_export.zip")
-            ZipOutputStream(BufferedOutputStream(FileOutputStream(zipFile))).use { zos ->
-                for (csv in csvFiles) {
-                    zos.putNextEntry(ZipEntry(csv.name))
-                    BufferedInputStream(FileInputStream(csv)).use { it.copyTo(zos) }
-                    zos.closeEntry()
-                }
-            }
-
-            val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", zipFile)
-            val intent = Intent(Intent.ACTION_SEND).apply {
-                type = "application/zip"
-                putExtra(Intent.EXTRA_STREAM, uri)
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-            context.startActivity(Intent.createChooser(intent, context.getString(R.string.export_trips_chooser)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-        }
+        viewModelScope.launch { platform.exportAllAsZip() }
     }
 
     // --- Import ---
@@ -561,7 +493,7 @@ class RecordingViewModel(
      * Import trips from a .dbb (ZIP of CSVs) or .csv URI.
      * Returns the number of trips imported.
      */
-    fun importTrips(uri: Uri, onResult: (Int) -> Unit) {
+    fun importTrips(uri: String, onResult: (Int) -> Unit) {
         viewModelScope.launch {
             _importing.value = true
             try {
@@ -573,57 +505,11 @@ class RecordingViewModel(
         }
     }
 
-    private suspend fun importTripsFromUri(uri: Uri): Int {
-        val contentResolver = context.contentResolver
-        // Resolve actual filename from content URI
-        val displayName = contentResolver.query(uri, arrayOf(android.provider.OpenableColumns.DISPLAY_NAME), null, null, null)?.use { cursor ->
-            if (cursor.moveToFirst()) cursor.getString(0) else null
-        }?.lowercase() ?: uri.lastPathSegment?.substringAfterLast("/")?.lowercase() ?: ""
-
-        Log.i(TAG, "Import: displayName=$displayName")
+    private suspend fun importTripsFromUri(uri: String): Int {
         var imported = 0
-
         try {
-            if (displayName.endsWith(".dbb") || displayName.endsWith(".zip")) {
-                contentResolver.openInputStream(uri)?.use { inputStream ->
-                    ZipInputStream(BufferedInputStream(inputStream)).use { zis ->
-                        var entry = zis.nextEntry
-                        while (entry != null) {
-                            val name = entry.name.lowercase()
-                            if (!entry.isDirectory && name.endsWith(".csv") && !name.startsWith("__macosx")) {
-                                if (importSingleCsv(entry.name, zis.readBytes())) imported++
-                            }
-                            entry = zis.nextEntry
-                        }
-                    }
-                }
-            } else if (displayName.endsWith(".csv")) {
-                contentResolver.openInputStream(uri)?.use { inputStream ->
-                    val csvName = displayName.substringAfterLast("/").ifEmpty { "imported_${System.currentTimeMillis()}.csv" }
-                    if (importSingleCsv(csvName, inputStream.readBytes())) imported++
-                }
-            } else {
-                // Unknown extension, try as ZIP first, fall back to CSV
-                contentResolver.openInputStream(uri)?.use { inputStream ->
-                    val bytes = inputStream.readBytes()
-                    if (bytes.size >= 4 && bytes[0] == 0x50.toByte() && bytes[1] == 0x4B.toByte()) {
-                        // ZIP magic bytes, treat as .dbb
-                        ZipInputStream(BufferedInputStream(bytes.inputStream())).use { zis ->
-                            var entry = zis.nextEntry
-                            while (entry != null) {
-                                val name = entry.name.lowercase()
-                                if (!entry.isDirectory && name.endsWith(".csv") && !name.startsWith("__macosx")) {
-                                    if (importSingleCsv(entry.name, zis.readBytes())) imported++
-                                }
-                                entry = zis.nextEntry
-                            }
-                        }
-                    } else {
-                        // Try as CSV
-                        val csvName = displayName.ifEmpty { "imported_${System.currentTimeMillis()}.csv" }
-                        if (importSingleCsv(csvName, bytes)) imported++
-                    }
-                }
+            for (file in platform.readImport(uri)) {
+                if (importSingleCsv(file.name, file.bytes)) imported++
             }
         } catch (e: Exception) {
             Log.e(TAG, "Import failed", e)
@@ -708,18 +594,11 @@ class RecordingViewModel(
         }
         if (out == 0) return null
         Log.i(TAG, "Import: converted euc.world CSV ($out rows, wheel: ${id["model"] ?: id["name"] ?: "unknown"})")
-        return sb.toString().toByteArray()
+        return sb.toString().encodeToByteArray()
     }
 
     private suspend fun importSingleCsv(originalName: String, csvBytes: ByteArray): Boolean {
-        val tripsDir = tripRepository.getTripsDir()
         val baseName = originalName.removeSuffix(".csv").removeSuffix(".CSV")
-        var targetFile = File(tripsDir, "$baseName.csv")
-        var counter = 1
-        while (targetFile.exists()) {
-            targetFile = File(tripsDir, "${baseName}_$counter.csv")
-            counter++
-        }
 
         // euc.world's native app export uses its own lowercase header
         // (datetime, gps_lat, ...). Stored verbatim it mis-parses: the
@@ -729,11 +608,11 @@ class RecordingViewModel(
         // through untouched.
         val storedBytes = convertEucWorldCsvOrNull(csvBytes) ?: csvBytes
 
-        targetFile.writeBytes(storedBytes)
+        val targetName = tripRepository.writeImportedTrip(baseName, storedBytes)
 
         val lines = storedBytes.decodeToString().lines()
         if (lines.size < 2) {
-            targetFile.delete()
+            tripRepository.deleteTripFile(targetName)
             return false
         }
 
@@ -782,7 +661,7 @@ class RecordingViewModel(
             TripRecord(
                 startTime = startTime,
                 endTime = endTime,
-                fileName = targetFile.name,
+                fileName = targetName,
                 distanceKm = distance
             )
         )
@@ -804,8 +683,8 @@ class RecordingViewModel(
             if (archive) {
                 val n = tripRepository.archiveAllTrips()
                 _toasts.send(
-                    if (n > 0) context.getString(R.string.trip_tools_archived, n)
-                    else context.getString(R.string.trip_tools_archive_failed)
+                    if (n > 0) platform.text(Res.string.trip_tools_archived, n)
+                    else platform.text(Res.string.trip_tools_archive_failed)
                 )
                 // Whatever could not be archived stays: the rider asked to
                 // keep the files, so nothing goes without its copy being safe.
@@ -833,7 +712,7 @@ class RecordingViewModel(
     fun changeTripWheel(trip: TripRecord, wheel: com.eried.eucplanet.data.repository.WheelChoice) {
         viewModelScope.launch {
             tripRepository.changeTripWheel(trip, wheel)
-            _toasts.send(context.getString(R.string.trip_tools_wheel_changed, wheel.label))
+            _toasts.send(platform.text(Res.string.trip_tools_wheel_changed, wheel.label))
         }
     }
 
@@ -915,13 +794,13 @@ class RecordingViewModel(
                 readTripData(trip).firstNotNullOfOrNull { TripCsv.parseDate(it.date) }
             }
             if (base == null) {
-                _toasts.send(context.getString(R.string.trip_tools_split_failed))
+                _toasts.send(platform.text(Res.string.trip_tools_split_failed))
                 return@launch
             }
             val pieces = tripRepository.splitTrip(trip, cuts.map { base + it.atElapsedMs })
             _toasts.send(
-                if (pieces.isEmpty()) context.getString(R.string.trip_tools_split_failed)
-                else context.getString(R.string.trip_tools_split_done, pieces.size)
+                if (pieces.isEmpty()) platform.text(Res.string.trip_tools_split_failed)
+                else platform.text(Res.string.trip_tools_split_done, pieces.size)
             )
             // Only once there are pieces to replace it with: a failed split
             // that archived its source would leave the rider with neither.
@@ -939,8 +818,8 @@ class RecordingViewModel(
         viewModelScope.launch {
             val made = tripRepository.combineTrips(range)
             _toasts.send(
-                context.getString(
-                    if (made != null) R.string.trip_tools_combine_done else R.string.trip_tools_combine_failed
+                platform.text(
+                    if (made != null) Res.string.trip_tools_combine_done else Res.string.trip_tools_combine_failed
                 )
             )
             // Flash it rather than open it. Opening was the stronger signal for
@@ -956,8 +835,8 @@ class RecordingViewModel(
     private suspend fun archive(sources: List<TripRecord>) {
         val n = tripRepository.archiveTrips(sources)
         _toasts.send(
-            if (n == sources.size) context.getString(R.string.trip_tools_archived, n)
-            else context.getString(R.string.trip_tools_archive_failed)
+            if (n == sources.size) platform.text(Res.string.trip_tools_archived, n)
+            else platform.text(Res.string.trip_tools_archive_failed)
         )
     }
 
@@ -965,20 +844,18 @@ class RecordingViewModel(
         viewModelScope.launch {
             val saved = tripRepository.saveTripSection(trip, startMs, endMs)
             _toasts.send(
-                context.getString(
-                    if (saved != null) R.string.trip_section_saved else R.string.trip_section_failed
+                platform.text(
+                    if (saved != null) Res.string.trip_section_saved else Res.string.trip_section_failed
                 )
             )
         }
     }
 
     fun readTripData(trip: TripRecord): List<TripDataPoint> {
-        val file = tripRepository.getTripFile(trip)
-        if (!file.exists()) return emptyList()
-
         val points = mutableListOf<TripDataPoint>()
-        BufferedReader(FileReader(file)).use { reader ->
-            val headerLine = reader.readLine() ?: return emptyList()
+        tripRepository.readTripLines(trip) { lines ->
+            val reader = lines.iterator()
+            val headerLine = if (reader.hasNext()) reader.next() else return@readTripLines
             val headers = headerLine.lowercase().split(",").map { it.trim() }
 
             // Detect column indices from header to support DarknessBot and similar formats
@@ -1004,8 +881,8 @@ class RecordingViewModel(
             val iPhase = TripCsv.Columns.phaseCurrent(headers)
             val iExtra = headers.indexOfFirst { it == "extra" }
 
-            var line = reader.readLine()
-            while (line != null) {
+            while (reader.hasNext()) {
+                val line = reader.next()
                 try {
                     val parts = line.split(",")
                     if (parts.size > maxOf(iSpeed, iVoltage, iTemp, iBattery)) {
@@ -1050,7 +927,6 @@ class RecordingViewModel(
                         )
                     }
                 } catch (_: Exception) { }
-                line = reader.readLine()
             }
         }
         return points

@@ -31,6 +31,12 @@ import com.eried.eucplanet.ui.navigator.NavigationOverlayViewModel
 import com.eried.eucplanet.ui.navigator.RouteBuilderViewModel
 import com.eried.eucplanet.ui.radar.RadarOverlayViewModel
 import com.eried.eucplanet.ui.recording.EucViewerViewModel
+import com.eried.eucplanet.ui.recording.AndroidRecordingOnline
+import com.eried.eucplanet.ui.recording.AndroidRecordingPlatform
+import com.eried.eucplanet.ui.recording.AndroidRecordingTrips
+import com.eried.eucplanet.ui.recording.RecordingOnline
+import com.eried.eucplanet.ui.recording.RecordingPlatform
+import com.eried.eucplanet.ui.recording.RecordingTrips
 import com.eried.eucplanet.ui.recording.RecordingViewModel
 import com.eried.eucplanet.ui.scan.AndroidScanPlatform
 import com.eried.eucplanet.ui.scan.AndroidWheelScanner
@@ -108,6 +114,9 @@ val viewModelModule = module {
     singleOf(::AndroidOnlineLeaderboard) bind OnlineLeaderboard::class
     singleOf(::AndroidHudSettingsLink) bind HudSettingsLink::class
     single<SettingsPlatform> { AndroidSettingsPlatform(androidContext(), get()) }
+    singleOf(::AndroidRecordingTrips) bind RecordingTrips::class
+    singleOf(::AndroidRecordingOnline) bind RecordingOnline::class
+    single<RecordingPlatform> { AndroidRecordingPlatform(androidContext(), get()) }
 
     viewModelOf(::WheelDiagnosticsViewModel)
     viewModelOf(::ChargingMonitorViewModel)
