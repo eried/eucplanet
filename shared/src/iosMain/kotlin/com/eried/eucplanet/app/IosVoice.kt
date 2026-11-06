@@ -118,8 +118,7 @@ internal class IosVoice(
         }
 
     private fun announce(data: WheelData, s: AppSettings, periodic: Boolean) {
-        // No trip recording on iOS yet, so "recording" is always off.
-        val parts = reports.buildReportParts(data, s, isRecording = false, periodic = periodic, vctx = Strings)
+        val parts = reports.buildReportParts(data, s, isRecording = IosTrips.recording.value, periodic = periodic, vctx = Strings)
         if (parts.isEmpty()) return
         Log.i("Voice", "announced (${if (periodic) "periodic" else "trigger"}): \"${parts.joinToString(", ")}\"")
         speak(parts.joinToString(", "), s)
