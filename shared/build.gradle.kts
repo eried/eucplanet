@@ -113,6 +113,10 @@ compose.resources {
     )
 }
 
+// The settings search reads its words from the settings code, not a hand list.
+apply(from = "settings-search-index.gradle.kts")
+kotlin.sourceSets.getByName("commonMain").kotlin.srcDir(tasks.named("generateSettingsSearchIndex"))
+
 android {
     namespace = "com.eried.eucplanet.shared"
     compileSdk = 36

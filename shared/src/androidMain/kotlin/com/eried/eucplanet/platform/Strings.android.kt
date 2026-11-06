@@ -45,6 +45,15 @@ actual fun stringResourceInLanguage(res: StringResource, languageTag: String): S
     }
 }
 
+@Composable
+actual fun rememberStringReader(): (StringResource) -> String {
+    val resources = androidx.compose.ui.platform.LocalContext.current.resources
+    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
+    return androidx.compose.runtime.remember(configuration) {
+        { res -> resources.getString(AndroidStrings.id(res)) }
+    }
+}
+
 /** `Context.getString` for a shared string. */
 fun Context.getString(res: StringResource): String = getString(AndroidStrings.id(res))
 

@@ -27,3 +27,11 @@ expect fun stringResource(res: StringResource, vararg formatArgs: Any): String
  */
 @Composable
 expect fun stringResourceInLanguage(res: StringResource, languageTag: String): String
+
+/**
+ * Reads strings outside composition, in the app's language, for code that
+ * reads hundreds at once (the settings search). A new reader comes back
+ * when the language changes, so it can key a remember.
+ */
+@Composable
+expect fun rememberStringReader(): (StringResource) -> String

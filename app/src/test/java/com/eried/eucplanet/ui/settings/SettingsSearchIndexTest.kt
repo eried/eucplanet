@@ -1,6 +1,5 @@
 package com.eried.eucplanet.ui.settings
 
-import com.eried.eucplanet.R
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -8,13 +7,18 @@ import java.io.File
 
 /**
  * The settings search reads its words from the code through a generated
- * index (app/settings-search-index.gradle.kts). These pin what it must find,
+ * index (shared/settings-search-index.gradle.kts). These pin what it must find,
  * so a change to how the settings are written cannot quietly empty it.
  */
 class SettingsSearchIndexTest {
 
-    private fun entry(section: String, res: Int) =
-        SettingsSearchIndex.sections.getValue(section).firstOrNull { it.res == res }
+    private fun entry(section: String, name: String) =
+        SettingsSearchIndex.sections.getValue(section).firstOrNull { it.res.key == name }
+
+    /** The settings code, wherever it lives now: :app's and :shared's. */
+    private fun settingsSources() = (File("src/main/java/com/eried/eucplanet/ui/settings").walk() +
+        File("../shared/src/commonMain/kotlin/com/eried/eucplanet/ui/settings").walk())
+        .filter { it.extension == "kt" }
 
     @Test fun `every section has its texts`() {
         assertEquals(
@@ -31,59 +35,56 @@ class SettingsSearchIndexTest {
         // The rule the hand-written lists kept missing: "Home screen widget"
         // and six older headings once shipped that nobody could search for.
         // Read off the source, because a heading is a call, not data.
-        val headings = File("src/main/java/com/eried/eucplanet/ui/settings").walk()
-            .filter { it.extension == "kt" }
-            .flatMap { Regex("""SectionHeader\(\s*stringResource\(R\.string\.(\w+)""").findAll(it.readText()) }
+        val headings = settingsSources()
+            .flatMap { Regex("""SectionHeader\(\s*stringResource\((?:Res|R)\.string\.(\w+)""").findAll(it.readText()) }
             .map { it.groupValues[1] }.toSet()
         assertTrue("found no headings at all", headings.size > 15)
-        val names = headings.associateWith { name -> R.string::class.java.getField(name).getInt(null) }
-        val indexed = SettingsSearchIndex.sections.values.flatten().map { it.res }.toSet()
-        val missing = names.filterValues { it !in indexed }.keys.sorted()
+        val indexed = SettingsSearchIndex.sections.values.flatten().map { it.res.key }.toSet()
+        val missing = headings.filter { it !in indexed }.sorted()
         assertTrue("These headings are not searchable: $missing", missing.isEmpty())
     }
 
     @Test fun `buttons are found, with the heading they sit under`() {
-        val crew = entry("cloud", R.string.crews_pass_action)!!
+        val crew = entry("cloud", "crews_pass_action")!!
         assertEquals(SettingsSearchIndex.Kind.BUTTON, crew.kind)
-        assertEquals(R.string.section_online_stats, crew.under)
-        assertEquals(SettingsSearchIndex.Kind.BUTTON, entry("integration", R.string.flic_start_scan)!!.kind)
+        assertEquals("section_online_stats", crew.under?.key)
+        assertEquals(SettingsSearchIndex.Kind.BUTTON, entry("integration", "flic_start_scan")!!.kind)
     }
 
     @Test fun `rows and descriptions are told apart`() {
-        assertEquals(SettingsSearchIndex.Kind.LABEL, entry("voice", R.string.voice_speech_speed)!!.kind)
-        assertEquals(SettingsSearchIndex.Kind.DESCRIPTION, entry("cloud", R.string.cloud_trips_caption)!!.kind)
+        assertEquals(SettingsSearchIndex.Kind.LABEL, entry("voice", "voice_speech_speed")!!.kind)
+        assertEquals(SettingsSearchIndex.Kind.DESCRIPTION, entry("cloud", "cloud_trips_caption")!!.kind)
     }
 
     @Test fun `a label picked in a when is found`() {
-        assertTrue(entry("voice", R.string.report_speed) != null)
+        assertTrue(entry("voice", "report_speed") != null)
     }
 
-    private fun anywhere(res: Int) =
-        SettingsSearchIndex.sections.values.flatten().first { it.res == res }
+    private fun anywhere(name: String) =
+        SettingsSearchIndex.sections.values.flatten().first { it.res.key == name }
 
     @Test fun `a text in a card inside a card knows both, outermost first`() {
         assertEquals(
-            listOf(R.string.widget_section, R.string.widget_customize),
-            anywhere(R.string.widget_pick_desc).folds.toList(),
+            listOf("widget_section", "widget_customize"),
+            anywhere("widget_pick_desc").folds.map { it.key },
         )
         // The card's own title shows while it is shut, so it is not in itself.
-        assertEquals(listOf(R.string.widget_section), anywhere(R.string.widget_customize).folds.toList())
+        assertEquals(listOf("widget_section"), anywhere("widget_customize").folds.map { it.key })
     }
 
     @Test fun `a card's info line is folded with it`() {
         assertEquals(
-            listOf(R.string.watch_buttons_touch_label),
-            anywhere(R.string.watch_buttons_touch_info).folds.toList(),
+            listOf("watch_buttons_touch_label"),
+            anywhere("watch_buttons_touch_info").folds.map { it.key },
         )
     }
 
     @Test fun `every card in the code is known to the search`() {
         // A card is found by its name, so one added later is covered without
         // anyone listing it. This fails if that stops being true.
-        val titles = File("src/main/java/com/eried/eucplanet/ui/settings").walk()
-            .filter { it.extension == "kt" }
+        val titles = settingsSources()
             .flatMap {
-                Regex("""\b(\w*Collaps\w*)\(\s*(?:title\s*=\s*)?stringResource\(\s*R\.string\.(\w+)""")
+                Regex("""\b(\w*Collaps\w*)\(\s*(?:title\s*=\s*)?stringResource\(\s*(?:Res|R)\.string\.(\w+)""")
                     .findAll(it.readText())
             }
             // The top-level sections count their own matches; this is about
@@ -92,12 +93,12 @@ class SettingsSearchIndexTest {
             .map { it.groupValues[2] }
             .toSet()
         assertTrue("found no cards at all", titles.size > 10)
-        val folded = SettingsSearchIndex.sections.values.flatten().flatMap { it.folds.toList() }.toSet()
-        val missing = titles.filter { R.string::class.java.getField(it).getInt(null) !in folded }.sorted()
+        val folded = SettingsSearchIndex.sections.values.flatten().flatMap { e -> e.folds.map { it.key } }.toSet()
+        val missing = titles.filter { it !in folded }.sorted()
         assertTrue("These cards hide texts the search cannot point to: $missing", missing.isEmpty())
     }
 
     @Test fun `what only shows in a dialog is left out`() {
-        assertEquals(null, entry("speed", R.string.lockdown_title))
+        assertEquals(null, entry("speed", "lockdown_title"))
     }
 }

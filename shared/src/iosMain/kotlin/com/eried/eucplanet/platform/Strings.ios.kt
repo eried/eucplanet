@@ -14,3 +14,9 @@ actual fun stringResource(res: StringResource, vararg formatArgs: Any): String =
 @Composable
 actual fun stringResourceInLanguage(res: StringResource, languageTag: String): String =
     org.jetbrains.compose.resources.stringResource(res)
+
+@Composable
+actual fun rememberStringReader(): (StringResource) -> String =
+    androidx.compose.runtime.remember {
+        { res -> kotlinx.coroutines.runBlocking { org.jetbrains.compose.resources.getString(res) } }
+    }
