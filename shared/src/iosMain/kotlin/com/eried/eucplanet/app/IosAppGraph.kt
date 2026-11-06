@@ -26,6 +26,7 @@ import com.eried.eucplanet.flic.ActionExecutor
 import com.eried.eucplanet.service.AlarmEngine
 import com.eried.eucplanet.ui.scan.ScanViewModel
 import com.eried.eucplanet.ui.settings.AlarmViewModel
+import com.eried.eucplanet.ui.settings.SettingsViewModel
 import com.eried.eucplanet.weather.WeatherRepository
 import com.eried.eucplanet.ui.theme.ThemeController
 import platform.UIKit.UIScreen
@@ -225,6 +226,28 @@ object IosAppGraph {
         tonePlayer = IosAlarmOutputs,
         settingsRepository = settings,
         bleConnectionManager = link,
+    )
+
+    /** The settings view model, as Koin's viewModelOf builds it on Android. */
+    fun settingsViewModel(): SettingsViewModel = SettingsViewModel(
+        settingsRepository = settings,
+        wheelRepository = wheel,
+        accelSplitRepository = NoSplitTimes,
+        legalLockdown = NoLockdownSwitch,
+        voiceService = IosSettingsVoice(voice),
+        tonePlayer = IosPromptTones,
+        tripRepository = NoSettingsTrips,
+        syncManager = IosSettingsSync,
+        automationManager = NoSettingsAutomation,
+        watches = NoWatches,
+        engineSoundEngine = NoEngineSound,
+        cheatState = cheats,
+        hud = NoHud,
+        themeController = theme,
+        eucStatsRepository = NoLeaderboard,
+        dropboxRepository = dropbox,
+        platform = IosSettingsPlatform,
+        hornPlayer = NoHornSound,
     )
 
     /** A scan view model, as Koin's viewModelOf builds it on Android. */

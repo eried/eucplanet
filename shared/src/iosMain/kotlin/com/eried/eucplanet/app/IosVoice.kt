@@ -125,6 +125,19 @@ internal class IosVoice(
         speak(parts.joinToString(", "), s)
     }
 
+    /** The settings preview: the configured announcement over the live values. */
+    fun previewReport(data: WheelData, s: AppSettings, isRecording: Boolean, periodic: Boolean) {
+        val parts = reports.buildReportParts(data, s, isRecording, periodic = periodic, vctx = Strings, preview = true)
+        if (parts.isEmpty()) return
+        Log.i("Voice", "preview (${if (periodic) "periodic" else "trigger"}): \"${parts.joinToString(", ")}\"")
+        speak(parts.joinToString(", "), s)
+    }
+
+    /** A sentence already set up with its own voice and pace (the settings test). */
+    fun speakNow(utterance: AVSpeechUtterance) {
+        speech.speakUtterance(utterance)
+    }
+
     override fun welcomeOnce() {
         if (welcomed) return
         welcomed = true

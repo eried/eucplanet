@@ -637,6 +637,8 @@ private fun SettingsScreenContent(
     val titleDashboard = stringResource(Res.string.tab_dashboard)
 
     val corpora = rememberSearchCorpora()
+    // Sections this phone has nothing to put in.
+    val hiddenSections = LocalSettingsHost.current.hiddenSections
 
     // Section handles for the reorganize editor (key, title, icon). Every section
     // is reorderable and hideable now, including Advanced (which defaults to last).
@@ -656,7 +658,7 @@ private fun SettingsScreenContent(
         SectionHandle("integration", titleIntegration, Icons.Default.Extension),
         SectionHandle("watch", titleWatch, Icons.Default.Watch),
         SectionHandle("advanced", titleAdvanced, Icons.Default.Build),
-    )
+    ).filter { it.key !in hiddenSections }
 
     val sections: List<SectionDef> = listOf(
         SectionDef("general", titleGeneral, Icons.Default.Tune, corpora.getValue("general")) {
@@ -710,7 +712,7 @@ private fun SettingsScreenContent(
         SectionDef("advanced", titleAdvanced, Icons.Default.Build, corpora.getValue("advanced")) {
             AdvancedTab(settings, viewModel, movableHandles)
         }
-    )
+    ).filter { it.key !in hiddenSections }
 
     Scaffold(
         topBar = {
@@ -7862,9 +7864,11 @@ private fun CloudTab(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        HintText(stringResource(Res.string.cloud_caption))
+        if (host.supportsBackupFolder) HintText(stringResource(Res.string.cloud_caption))
 
-        if (hasFolder) {
+        if (!host.supportsBackupFolder) {
+            // Dropbox is the whole of it here; there is no folder to choose.
+        } else if (hasFolder) {
             val openFolderInBrowser: () -> Unit = openFolder@{
                 val uri = settings.syncFolderUri ?: return@openFolder
                 host.openFolder(uri)
@@ -7907,8 +7911,8 @@ private fun CloudTab(
         // Only shown once a SAF folder is chosen, the cloud copy is
         // framed as a mirror of the local backup, so it doesn't make
         // sense to offer Dropbox before the rider has set up the local
-        // side first.
-        if (hasFolder) run {
+        // side first. A phone without folders has Dropbox alone.
+        if (hasFolder || !host.supportsBackupFolder) run {
             val dbxLinked by viewModel.dropboxLinked.collectAsState()
             val dbxAccount by viewModel.dropboxAccountLabel.collectAsState()
             val lastSyncAt by viewModel.dropboxLastSyncAt.collectAsState()

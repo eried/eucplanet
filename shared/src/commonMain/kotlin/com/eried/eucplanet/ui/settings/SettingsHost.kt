@@ -31,6 +31,12 @@ interface SettingsHost {
     /** The volume keys can be bound to actions. */
     val supportsVolumeKeys: Boolean
 
+    /** A backup folder can be picked (Android's document tree); without one, Dropbox is the backup. */
+    val supportsBackupFolder: Boolean
+
+    /** Keys of the sections this platform leaves out ("watch", "motor"...), for a phone without them. */
+    val hiddenSections: Set<String>
+
     /** A folder picker; the returned function opens it. */
     @Composable
     fun rememberFolderPicker(onPicked: (String) -> Unit): () -> Unit
