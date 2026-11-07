@@ -22,7 +22,7 @@ import java.io.File
 class CrewPassLayoutTest {
 
     private val src =
-        File("src/main/java/com/eried/eucplanet/crews/CrewsPairActivity.kt").readText()
+        File("../shared/src/commonMain/kotlin/com/eried/eucplanet/crews/CrewsPairScreen.kt").readText()
 
     @Test fun `every spinner on the pass screen is centred`() {
         // Each call, from its opening parenthesis to the matching close - spinners take a

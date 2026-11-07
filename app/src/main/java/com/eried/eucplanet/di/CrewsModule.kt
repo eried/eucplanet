@@ -5,7 +5,7 @@ import com.eried.eucplanet.crews.PairApi
 import com.eried.eucplanet.data.sync.SyncManager
 import com.eried.eucplanet.data.repository.SettingsRepository
 import kotlinx.coroutines.runBlocking
-import org.koin.core.module.dsl.singleOf
+import com.eried.eucplanet.platform.HttpClient
 import org.koin.dsl.module
 
 /**
@@ -17,7 +17,7 @@ import org.koin.dsl.module
  * second APK. Everything else in the app keeps using the base url it always did.
  */
 val crewsModule = module {
-    singleOf(::PairApi)
+    single { PairApi(HttpClient()) }
     single {
         val syncManager: SyncManager = get()
         val settingsRepository: SettingsRepository = get()

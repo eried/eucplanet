@@ -8,6 +8,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     private let flic = FlicBridge()
     private let location = LocationBridge()
+    private let qrCamera = QrScannerBridge()
 
     func application(
         _ application: UIApplication,
@@ -17,6 +18,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Early, so presses queued while the app was asleep arrive quickly.
         IosLocation.shared.sdk = location
         IosFlic.shared.sdk = flic
+        IosCrews.shared.camera = qrCamera
         flic.start()
         let w = UIWindow(frame: UIScreen.main.bounds)
         // Same as the launch screen colour, so there is no flash before the
@@ -29,5 +31,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         w.makeKeyAndVisible()
         window = w
         return true
+    }
+
+    // eucplanet://pair links (Info.plist CFBundleURLTypes): the crew pass.
+    // Also called after a cold launch from a link.
+    func application(
+        _ app: UIApplication,
+        open url: URL,
+        options: [UIApplication.OpenURLOptionsKey: Any] = [:]
+    ) -> Bool {
+        IosCrews.shared.handleUrl(url: url.absoluteString)
     }
 }

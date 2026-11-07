@@ -18,6 +18,7 @@
 		ED0000000000000000000051 /* FlicBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000050 /* FlicBridge.swift */; };
 		ED0000000000000000000054 /* flic2lib in Frameworks */ = {isa = PBXBuildFile; productRef = ED0000000000000000000053 /* flic2lib */; };
 		ED0000000000000000000056 /* LocationBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000055 /* LocationBridge.swift */; };
+		ED0000000000000000000090 /* QrScannerBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000091 /* QrScannerBridge.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +58,7 @@
 		ED0000000000000000000034 /* EucPlanetWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = EucPlanetWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED0000000000000000000050 /* FlicBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlicBridge.swift; sourceTree = "<group>"; };
 		ED0000000000000000000055 /* LocationBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationBridge.swift; sourceTree = "<group>"; };
+		ED0000000000000000000091 /* QrScannerBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QrScannerBridge.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -84,6 +86,7 @@
 				ED0000000000000000000005 /* AppDelegate.swift */,
 				ED0000000000000000000050 /* FlicBridge.swift */,
 				ED0000000000000000000055 /* LocationBridge.swift */,
+				ED0000000000000000000091 /* QrScannerBridge.swift */,
 				ED0000000000000000000030 /* RideActivityAttributes.swift */,
 				ED0000000000000000000031 /* RideLiveActivity.swift */,
 				ED0000000000000000000049 /* Widgets */,
@@ -243,6 +246,7 @@
 				ED0000000000000000000006 /* AppDelegate.swift in Sources */,
 				ED0000000000000000000051 /* FlicBridge.swift in Sources */,
 				ED0000000000000000000056 /* LocationBridge.swift in Sources */,
+				ED0000000000000000000090 /* QrScannerBridge.swift in Sources */,
 				ED0000000000000000000035 /* RideActivityAttributes.swift in Sources */,
 				ED0000000000000000000036 /* RideLiveActivity.swift in Sources */,
 			);

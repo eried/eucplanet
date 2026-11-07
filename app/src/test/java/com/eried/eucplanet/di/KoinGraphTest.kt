@@ -33,7 +33,8 @@ class KoinGraphTest {
      * the generic types Koin keys by their erased class, which the modules
      * provide by name (the adapter sets, the eucstats lambdas and strings) or
      * as a Lazy through inject(). The offline tile store's folder and the
-     * offline router's timeout and engine are built in their definitions.
+     * offline router's timeout and engine, and the crews pairing HTTP client,
+     * are built in their definitions.
      */
     @OptIn(KoinExperimentalAPI::class)
     @Test fun `every definition can be built`() {
@@ -49,6 +50,7 @@ class KoinGraphTest {
                 Function2::class,
                 java.io.File::class,
                 Long::class,
+                com.eried.eucplanet.platform.HttpClient::class,
             ),
         )
     }

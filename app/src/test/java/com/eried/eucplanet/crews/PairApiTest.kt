@@ -1,7 +1,7 @@
 package com.eried.eucplanet.crews
 
 import kotlinx.coroutines.runBlocking
-import okhttp3.OkHttpClient
+import com.eried.eucplanet.platform.HttpClient
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.json.JSONObject
@@ -11,7 +11,6 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import java.util.concurrent.TimeUnit
 
 /**
  * The two calls that are the whole of the phone's part in crews, against a real socket.
@@ -37,11 +36,7 @@ class PairApiTest {
     fun setUp() {
         server = MockWebServer()
         server.start()
-        api = PairApi(
-            OkHttpClient.Builder()
-                .callTimeout(5, TimeUnit.SECONDS)
-                .build(),
-        )
+        api = PairApi(HttpClient(connectTimeoutMs = 5_000, readTimeoutMs = 5_000))
     }
 
     @After

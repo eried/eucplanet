@@ -88,6 +88,21 @@
         <key>NSAllowsLocalNetworking</key>
         <true/>
     </dict>
+    <!-- eucplanet://pair?code=...: the crew pass, as Android's CrewsPairActivity
+         intent filter. The link carries a short-lived code, never an identity. -->
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLName</key>
+            <string>com.eried.eucplanet.pair</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>eucplanet</string>
+            </array>
+        </dict>
+    </array>
+    <key>NSCameraUsageDescription</key>
+    <string>EUC Planet reads the crew pass QR code shown on eucstats.</string>
     <key>NSBluetoothAlwaysUsageDescription</key>
     <string>EUC Planet connects to your wheel over Bluetooth to show live ride data.</string>
     <key>NSLocationWhenInUseUsageDescription</key>

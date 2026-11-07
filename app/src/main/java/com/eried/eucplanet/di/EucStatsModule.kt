@@ -16,14 +16,10 @@ import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.sync.SyncManager
 import com.eried.eucplanet.platform.HttpClient
-import okhttp3.OkHttpClient
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
 val eucStatsModule = module {
-
-    // The crews pairing calls (PairApi) take this one.
-    single<OkHttpClient> { OkHttpClient.Builder().build() }
 
     single<EucStatsApiContract> { EucStatsApi(HttpClient()) { BuildConfig.EUCSTATS_API_BASE_URL } }
 

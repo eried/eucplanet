@@ -39,7 +39,7 @@ internal object IosSettingsHost : SettingsHost {
     // No backup folder on iOS: Dropbox is the only sync.
     override fun openFolder(uri: String) = Unit
 
-    override fun openCrewsPairing() = Unit
+    override fun openCrewsPairing() = IosCrews.open(null)
 
     // The settings, alarms and themes sync through Dropbox; no folder here yet.
     override val supportsBackupFolder = false

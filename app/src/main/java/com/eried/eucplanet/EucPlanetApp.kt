@@ -58,6 +58,8 @@ class EucPlanetApp : Application(), Configuration.Provider {
     override fun onCreate() {
         // Before injection: a singleton may read a shared string as it is built.
         com.eried.eucplanet.platform.AndroidStrings.install(StringIds::id)
+        // The server this build talks to, which a crews pairing code is checked against.
+        com.eried.eucplanet.data.eucstats.EucStatsServer.apiBaseUrl = BuildConfig.EUCSTATS_API_BASE_URL
         super.onCreate()
         startKoin {
             androidContext(this@EucPlanetApp)

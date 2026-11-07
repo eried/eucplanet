@@ -22,6 +22,10 @@ import com.eried.eucplanet.app.IosFlic
 import com.eried.eucplanet.app.IosLocation
 import com.eried.eucplanet.app.IosTrips
 import com.eried.eucplanet.app.IosEucStats
+import com.eried.eucplanet.app.IosCrews
+import com.eried.eucplanet.app.IosCrewsHost
+import com.eried.eucplanet.crews.CrewsPairScreen
+import androidx.compose.runtime.key
 import com.eried.eucplanet.ui.scan.ScanScreen
 import com.eried.eucplanet.ui.scan.ScanViewModel
 import com.eried.eucplanet.app.RideActivity
@@ -80,6 +84,15 @@ fun MainViewController(): UIViewController {
                 // A small screen stack until the shared navigation graph lands.
                 // SIMCTL_CHILD_EUC_SCREEN=scan opens on the scan screen (also settings, flic, trips).
                 var screen by remember { mutableStateOf(startScreen ?: "dashboard") }
+                var leaderboardTab by remember { mutableStateOf(settingsTab) }
+                // The crew pass sends a rider with no leaderboard profile to join one.
+                val toLeaderboard by IosCrews.openLeaderboard.collectAsState()
+                LaunchedEffect(toLeaderboard) {
+                    if (toLeaderboard > 0) {
+                        leaderboardTab = SETTINGS_TAB_CLOUD
+                        screen = "settings"
+                    }
+                }
                 when (screen) {
                     "scan" -> {
                         // Owned by a store cleared when the screen leaves, so the
@@ -104,7 +117,7 @@ fun MainViewController(): UIViewController {
                         SettingsScreen(
                             onBack = { screen = "dashboard" },
                             onNavigateToFlic = { screen = "flic" },
-                            initialTab = settingsTab,
+                            initialTab = leaderboardTab,
                             viewModel = settingsVm,
                             host = IosSettingsHost,
                         )
@@ -134,7 +147,22 @@ fun MainViewController(): UIViewController {
                         )
                     }
                 }
+                // The crew pass, over whatever is showing, as Android's own activity is.
+                val pass by IosCrews.request.collectAsState()
+                pass?.let { p ->
+                    key(p.id) {
+                        CrewsPairScreen(
+                            deps = IosCrews.deps,
+                            initialLink = p.link,
+                            onDone = { IosCrews.close() },
+                            host = IosCrewsHost,
+                        )
+                    }
+                }
             }
         }
     }
 }
+
+/** SettingsScreen's "Backups & leaderboards" section, LeaderboardSetupLaunch.SETTINGS_TAB_CLOUD on Android. */
+private const val SETTINGS_TAB_CLOUD = 4
