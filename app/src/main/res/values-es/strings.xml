@@ -2922,10 +2922,10 @@
     <string name="offline_data_route_q">¿Descargar las zonas de tu ruta (%1$s)?</string>
     <string name="offline_data_no_route">Primero planifica una ruta.</string>
     <string name="offline_data_route_all_here">Todas las zonas de tu ruta están descargadas.</string>
-    <string name="offline_ride_title">Parte de tu ruta no está sin conexión</string>
-    <string name="offline_ride_body">Sin cobertura allí, el mapa se queda en blanco y no se puede recalcular la ruta. Descarga esas zonas mientras tengas cobertura.</string>
-    <string name="offline_ride_download">Descargar zonas</string>
+    <string name="offline_ride_title">¿Descargar mapas sin conexión?</string>
+    <string name="offline_ride_body">Parte de esta ruta está fuera de tus mapas sin conexión. Podemos descargarlos ahora para que el mapa y el recálculo de ruta sigan funcionando sin cobertura.</string>
+    <string name="offline_ride_download">Descargar mapas</string>
     <string name="offline_ride_start">Iniciar igualmente</string>
     <string name="offline_ride_never">No volver a preguntar</string>
-    <string name="offline_remind_before_ride">Preguntar antes de una ruta fuera de las zonas sin conexión</string>
+    <string name="offline_remind_before_ride">Revisar mapas sin conexión antes de una ruta</string>
 </resources>

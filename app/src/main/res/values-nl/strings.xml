@@ -2926,10 +2926,10 @@
     <string name="offline_data_route_q">Gebieden op je route downloaden (%1$s)?</string>
     <string name="offline_data_no_route">Plan eerst een route.</string>
     <string name="offline_data_route_all_here">Alle gebieden op je route zijn gedownload.</string>
-    <string name="offline_ride_title">Een deel van je route is niet offline</string>
-    <string name="offline_ride_body">Zonder bereik blijft de kaart daar leeg en kan de route niet opnieuw worden berekend. Download die gebieden zolang je bereik hebt.</string>
-    <string name="offline_ride_download">Gebieden downloaden</string>
+    <string name="offline_ride_title">Offline kaarten downloaden?</string>
+    <string name="offline_ride_body">Een deel van deze route valt buiten je offline kaarten. We kunnen ze nu downloaden, zodat de kaart en het herberekenen ook zonder bereik werken.</string>
+    <string name="offline_ride_download">Kaarten downloaden</string>
     <string name="offline_ride_start">Toch starten</string>
     <string name="offline_ride_never">Niet meer vragen</string>
-    <string name="offline_remind_before_ride">Vragen voor een rit buiten offline gebieden</string>
+    <string name="offline_remind_before_ride">Offline kaarten controleren voor een rit</string>
 </resources>

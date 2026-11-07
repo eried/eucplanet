@@ -2729,10 +2729,10 @@
     <string name="offline_data_route_q">Stáhnout oblasti na trase (%1$s)?</string>
     <string name="offline_data_no_route">Nejdřív naplánujte trasu.</string>
     <string name="offline_data_route_all_here">Všechny oblasti na trase jsou stažené.</string>
-    <string name="offline_ride_title">Část trasy není offline</string>
-    <string name="offline_ride_body">Bez signálu tam bude mapa prázdná a trasa se nepřepočítá. Stáhněte si tyto oblasti, dokud máte signál.</string>
-    <string name="offline_ride_download">Stáhnout oblasti</string>
+    <string name="offline_ride_title">Stáhnout offline mapy?</string>
+    <string name="offline_ride_body">Část této trasy je mimo vaše offline mapy. Můžeme je stáhnout hned, aby mapa i přepočet trasy fungovaly i bez signálu.</string>
+    <string name="offline_ride_download">Stáhnout mapy</string>
     <string name="offline_ride_start">Přesto spustit</string>
     <string name="offline_ride_never">Už se neptat</string>
-    <string name="offline_remind_before_ride">Ptát se před jízdou mimo offline oblasti</string>
+    <string name="offline_remind_before_ride">Zkontrolovat offline mapy před jízdou</string>
 </resources>

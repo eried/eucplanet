@@ -2829,10 +2829,10 @@
     <string name="offline_data_route_q">Scaricare le aree del tuo percorso (%1$s)?</string>
     <string name="offline_data_no_route">Prima pianifica un percorso.</string>
     <string name="offline_data_route_all_here">Tutte le aree del percorso sono scaricate.</string>
-    <string name="offline_ride_title">Parte del percorso non è offline</string>
-    <string name="offline_ride_body">Senza segnale lì, la mappa resta vuota e il percorso non si ricalcola. Scarica quelle aree finché hai segnale.</string>
-    <string name="offline_ride_download">Scarica aree</string>
+    <string name="offline_ride_title">Scaricare le mappe offline?</string>
+    <string name="offline_ride_body">Parte di questo percorso è fuori dalle tue mappe offline. Possiamo scaricarle ora, così mappa e ricalcolo funzionano anche senza segnale.</string>
+    <string name="offline_ride_download">Scarica mappe</string>
     <string name="offline_ride_start">Avvia comunque</string>
     <string name="offline_ride_never">Non chiedere più</string>
-    <string name="offline_remind_before_ride">Chiedi prima di un giro fuori dalle aree offline</string>
+    <string name="offline_remind_before_ride">Controlla le mappe offline prima di un giro</string>
 </resources>

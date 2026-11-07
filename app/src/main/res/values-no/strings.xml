@@ -2811,10 +2811,10 @@
     <string name="offline_data_route_q">Laste ned områdene på ruten (%1$s)?</string>
     <string name="offline_data_no_route">Planlegg en rute først.</string>
     <string name="offline_data_route_all_here">Alle områdene på ruten er lastet ned.</string>
-    <string name="offline_ride_title">En del av ruten er ikke frakoblet</string>
-    <string name="offline_ride_body">Uten dekning der blir kartet tomt, og ruten kan ikke beregnes på nytt. Last ned de områdene mens du har dekning.</string>
-    <string name="offline_ride_download">Last ned områder</string>
+    <string name="offline_ride_title">Laste ned frakoblede kart?</string>
+    <string name="offline_ride_body">En del av denne ruten er utenfor de frakoblede kartene dine. Vi kan laste dem ned nå, så kartet og ny ruteberegning virker uten dekning.</string>
+    <string name="offline_ride_download">Last ned kart</string>
     <string name="offline_ride_start">Start likevel</string>
     <string name="offline_ride_never">Ikke spør igjen</string>
-    <string name="offline_remind_before_ride">Spør før en tur utenfor frakoblede områder</string>
+    <string name="offline_remind_before_ride">Sjekk frakoblede kart før en tur</string>
 </resources>

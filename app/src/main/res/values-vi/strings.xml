@@ -2720,10 +2720,10 @@
     <string name="offline_data_route_q">Tải các khu vực trên lộ trình của bạn (%1$s)?</string>
     <string name="offline_data_no_route">Hãy lập lộ trình trước.</string>
     <string name="offline_data_route_all_here">Mọi khu vực trên lộ trình của bạn đã được tải.</string>
-    <string name="offline_ride_title">Một phần lộ trình chưa có ngoại tuyến</string>
-    <string name="offline_ride_body">Khi mất sóng ở đó, bản đồ sẽ trống và không thể tính lại lộ trình. Hãy tải các khu vực đó khi còn sóng.</string>
-    <string name="offline_ride_download">Tải khu vực</string>
+    <string name="offline_ride_title">Tải bản đồ ngoại tuyến?</string>
+    <string name="offline_ride_body">Một phần lộ trình này nằm ngoài bản đồ ngoại tuyến của bạn. Chúng tôi có thể tải ngay để bản đồ và việc tính lại lộ trình vẫn hoạt động khi mất sóng.</string>
+    <string name="offline_ride_download">Tải bản đồ</string>
     <string name="offline_ride_start">Vẫn bắt đầu</string>
     <string name="offline_ride_never">Không hỏi lại</string>
-    <string name="offline_remind_before_ride">Hỏi trước khi đi ra ngoài khu vực ngoại tuyến</string>
+    <string name="offline_remind_before_ride">Kiểm tra bản đồ ngoại tuyến trước khi đi</string>
 </resources>
