@@ -15,6 +15,7 @@ import com.eried.eucplanet.data.model.GpsTier
 import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.util.AppForeground
 import com.eried.eucplanet.data.sync.SyncManager
+import com.eried.eucplanet.data.sync.eucStatsUploadsOn
 import com.eried.eucplanet.service.VoiceService
 import com.eried.eucplanet.util.CsvWriter
 import com.eried.eucplanet.ui.dashboard.toPhoneLocation
@@ -253,7 +254,7 @@ class TripRepository(
             if (appSettings.syncFolderUri != null) {
                 syncManager.enqueueTripUpload(appSettings)
             }
-            if (appSettings.onlineUploadEnabled && syncManager.riderStoreId.value != null) {
+            if (eucStatsUploadsOn(appSettings, syncManager.riderStoreId.value)) {
                 syncManager.enqueueEucStatsUpload(appSettings)
             }
             if (appSettings.dropboxAccessToken.isNotBlank()) {
@@ -963,7 +964,7 @@ class TripRepository(
         }
 
         val willSync = appSettings.syncFolderUri != null
-        val willEucstats = appSettings.onlineUploadEnabled && syncManager.riderStoreId.value != null
+        val willEucstats = eucStatsUploadsOn(appSettings, syncManager.riderStoreId.value)
 
         // No upload destination at all: nothing to defer. Trip is already
         // saved locally above; just exit.
@@ -1009,7 +1010,7 @@ class TripRepository(
         val trip = pendingTrip ?: return
         val appSettings = settingsRepository.get()
         val willSync = appSettings.syncFolderUri != null
-        val willEucstats = appSettings.onlineUploadEnabled && syncManager.riderStoreId.value != null
+        val willEucstats = eucStatsUploadsOn(appSettings, syncManager.riderStoreId.value)
         // One targeted update: the row read before the grace window is stale by
         // now (a Dropbox pass may have marked it), so only the two statuses go.
         if (willSync || willEucstats) {
@@ -1025,7 +1026,7 @@ class TripRepository(
         // for upload (pending=1 / failed=3 / orphaned=0), so this is also the
         // automatic retry path: a trip that failed last ride gets one more
         // shot the next time the rider finishes a ride.
-        if (appSettings.onlineUploadEnabled && syncManager.riderStoreId.value != null) {
+        if (eucStatsUploadsOn(appSettings, syncManager.riderStoreId.value)) {
             syncManager.enqueueEucStatsUpload(appSettings)
             Log.i(TAG, "Eucstats upload enqueued (incl. retry sweep for prior failures)")
         }

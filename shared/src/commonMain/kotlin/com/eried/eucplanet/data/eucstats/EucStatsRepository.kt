@@ -3,15 +3,18 @@ package com.eried.eucplanet.data.eucstats
 import com.eried.eucplanet.data.db.TripDao
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.TripRecord
+import com.eried.eucplanet.platform.JSONObject
+import com.eried.eucplanet.platform.System
+import com.eried.eucplanet.platform.gzip
+import com.eried.eucplanet.platform.localTimeZoneId
+import com.eried.eucplanet.platform.localTimeZoneOffsetMs
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
-import org.json.JSONObject
-import java.io.ByteArrayOutputStream
-import java.util.TimeZone
-import java.util.UUID
-import java.util.zip.GZIPOutputStream
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 /** Outcome of a single [EucStatsRepository.uploadTrip] call. */
 enum class Outcome { UPLOADED, FAILED_PERMANENT, NEEDS_RETRY }
@@ -56,6 +59,8 @@ class EucStatsRepository(
     private val osVersion: String,
     /** Millisecond clock, injectable for tests. */
     private val clock: () -> Long = { System.currentTimeMillis() },
+    /** The store the server reads the rider's OS from: "google_play" (Android) or "apple" (iOS). */
+    private val platform: String = "google_play",
 ) {
 
     private val _card = MutableStateFlow<RiderCard?>(null)
@@ -87,12 +92,13 @@ class EucStatsRepository(
         flag: String,
         avatarPngBase64: String,
     ): RegisterResult = withContext(Dispatchers.IO) {
-        val storeId = settings.riderStoreId() ?: UUID.randomUUID().toString()
+        @OptIn(ExperimentalUuidApi::class)
+        val storeId = settings.riderStoreId() ?: Uuid.random().toString()
 
         // Build the payload without attestation first so we can hash it.
         val payload = JSONObject().apply {
             put("store_id", storeId)
-            put("platform", "google_play")
+            put("platform", platform)
             put("display_name", displayName)
             put("flag", flag)
             put("avatar_png_base64", avatarPngBase64)
@@ -173,8 +179,10 @@ class EucStatsRepository(
             storeId = storeId,
             appVersion = appVersion,
             osVersion = osVersion,
-            tz = TimeZone.getDefault(),
+            tzId = localTimeZoneId(),
+            tzOffsetMs = ::localTimeZoneOffsetMs,
             csvBytes = csv,
+            platform = platform,
         )
 
         val hash = CanonicalJson.requestHash(meta)
@@ -353,13 +361,4 @@ class EucStatsRepository(
         api.exportRider(storeId)
     }
 
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
-
-    private fun gzip(bytes: ByteArray): ByteArray {
-        val bos = ByteArrayOutputStream()
-        GZIPOutputStream(bos).use { it.write(bytes) }
-        return bos.toByteArray()
-    }
 }

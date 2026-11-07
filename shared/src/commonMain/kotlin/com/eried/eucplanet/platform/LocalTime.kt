@@ -14,3 +14,9 @@ data class LocalTimeParts(
 
 /** [epochMs] in the device's current time zone. */
 expect fun localTimeParts(epochMs: Long): LocalTimeParts
+
+/** The device's time zone id, "Europe/Oslo": `TimeZone.getDefault().id`. */
+expect fun localTimeZoneId(): String
+
+/** The device's time zone offset from UTC at [epochMs], in ms: `TimeZone.getDefault().getOffset(epochMs)`. */
+expect fun localTimeZoneOffsetMs(epochMs: Long): Int

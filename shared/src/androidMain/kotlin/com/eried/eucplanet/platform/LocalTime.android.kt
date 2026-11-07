@@ -14,3 +14,7 @@ actual fun localTimeParts(epochMs: Long): LocalTimeParts {
         millis = c.get(Calendar.MILLISECOND),
     )
 }
+
+actual fun localTimeZoneId(): String = java.util.TimeZone.getDefault().id
+
+actual fun localTimeZoneOffsetMs(epochMs: Long): Int = java.util.TimeZone.getDefault().getOffset(epochMs)

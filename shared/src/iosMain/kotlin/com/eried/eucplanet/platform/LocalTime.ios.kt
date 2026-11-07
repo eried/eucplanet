@@ -8,6 +8,8 @@ import platform.Foundation.NSCalendarUnitMonth
 import platform.Foundation.NSCalendarUnitSecond
 import platform.Foundation.NSCalendarUnitYear
 import platform.Foundation.NSDate
+import platform.Foundation.NSTimeZone
+import platform.Foundation.localTimeZone
 import platform.Foundation.dateWithTimeIntervalSince1970
 
 actual fun localTimeParts(epochMs: Long): LocalTimeParts {
@@ -27,3 +29,8 @@ actual fun localTimeParts(epochMs: Long): LocalTimeParts {
         millis = epochMs.mod(1000L).toInt(),
     )
 }
+
+actual fun localTimeZoneId(): String = NSTimeZone.localTimeZone.name
+
+actual fun localTimeZoneOffsetMs(epochMs: Long): Int =
+    NSTimeZone.localTimeZone.secondsFromGMTForDate(NSDate.dateWithTimeIntervalSince1970(epochMs / 1000.0)).toInt() * 1000

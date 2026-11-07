@@ -1,8 +1,9 @@
 package com.eried.eucplanet.data.eucstats
 
-import org.json.JSONArray
-import org.json.JSONObject
-import java.security.MessageDigest
+import com.eried.eucplanet.platform.JSONArray
+import com.eried.eucplanet.platform.JSONNull
+import com.eried.eucplanet.platform.JSONObject
+import com.eried.eucplanet.platform.sha256
 
 /** Serializes a meta envelope to the SAME bytes as the server's
  *  json.dumps(sort_keys=True, separators=(",",":"), ensure_ascii=False),
@@ -13,12 +14,11 @@ object CanonicalJson {
         val stripped = JSONObject(meta.toString())
         stripped.remove("attestation")
         val canon = canonical(stripped)
-        val digest = MessageDigest.getInstance("SHA-256").digest(canon.toByteArray(Charsets.UTF_8))
-        return digest.joinToString("") { "%02x".format(it) }
+        return sha256(canon.encodeToByteArray()).toLowerHex()
     }
 
     fun canonical(value: Any?): String = when (value) {
-        null, JSONObject.NULL -> "null"
+        null, JSONNull -> "null"
         is JSONObject -> value.keys().asSequence().sorted().joinToString(",", "{", "}") { k ->
             "${quote(k)}:${canonical(value.get(k))}"
         }
@@ -35,8 +35,13 @@ object CanonicalJson {
         for (c in s) when (c) {
             '\\' -> sb.append("\\\\"); '"' -> sb.append("\\\"")
             '\n' -> sb.append("\\n"); '\r' -> sb.append("\\r"); '\t' -> sb.append("\\t")
-            else -> if (c < ' ') sb.append("\\u%04x".format(c.code)) else sb.append(c)
+            else -> if (c < ' ') sb.append("\\u").append(c.code.toString(16).padStart(4, '0')) else sb.append(c)
         }
         return sb.append("\"").toString()
     }
+}
+
+/** Lowercase hex, two digits a byte: what `joinToString("") { "%02x".format(it) }` wrote. */
+internal fun ByteArray.toLowerHex(): String = joinToString("") {
+    (it.toInt() and 0xFF).toString(16).padStart(2, '0')
 }

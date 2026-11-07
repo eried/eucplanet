@@ -6,12 +6,12 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.eried.eucplanet.data.db.TripDao
 import com.eried.eucplanet.data.eucstats.EucStatsRepository
-import com.eried.eucplanet.data.eucstats.Outcome
 import com.eried.eucplanet.data.repository.SettingsRepository
 
 /**
  * Drains any trips that still need to be uploaded to EucStats.
- * Enqueued after each recording ends and on manual retry.
+ * Enqueued after each recording ends and on manual retry. The sweep itself is
+ * the shared [sweepEucStatsUploads]; this schedules its retry chain.
  */
 class EucStatsUploadWorker(
     ctx: Context,
@@ -25,50 +25,16 @@ class EucStatsUploadWorker(
     companion object { private const val TAG = "EucStatsUploadWorker" }
 
     override suspend fun doWork(): Result {
-        // Bail (kills the retry chain) when the prerequisites for online uploads
-        // are gone. The rider id lives in the SAF backup folder, so unlinking the
-        // folder, toggling leaderboards off, or deleting the account all converge
-        // to "no rider id / disabled" and the worker should stop, not loop.
-        val settings = settingsRepository.get()
-        if (!settings.onlineUploadEnabled) {
-            Log.i(TAG, "Online uploads disabled; retry chain ends")
-            return Result.success()
-        }
-        // The riderStoreId StateFlow is read asynchronously, so on a cold-start
-        // reconcile it may not be populated yet. Re-read the file before giving
-        // up, otherwise the chain would bail and leave a queued trip stranded.
-        if (syncManager.riderStoreId.value == null && syncManager.readRiderIdFile() == null) {
-            Log.i(TAG, "No rider id (folder unlinked / account deleted); retry chain ends")
-            return Result.success()
-        }
-
-        val pending = tripDao.getPendingEucstatsUploads()
-        // Re-read the verdict of any trip the server is still holding. This runs before the
-        // "nothing pending" bail on purpose: a held trip has already uploaded, so it is
-        // never in `pending`, and its verdict can still change afterwards when a human
-        // approves it. Without this the rider keeps an "under review" cloud forever on a
-        // ride that is already counting. Failures here are ignored - it is a refresh, and
-        // it must never turn into a retry loop or block the upload sweep.
-        val cleared = runCatching { eucStatsRepository.refreshHeldTrips() }.getOrDefault(0)
-        if (cleared > 0) Log.i(TAG, "$cleared held trip(s) changed verdict")
-
-        if (pending.isEmpty()) {
-            Log.i(TAG, "No pending eucstats uploads")
-            return Result.success()
-        }
-
-        val outcomes = mutableListOf<Outcome>()
-        for (trip in pending) {
-            val outcome = eucStatsRepository.uploadTrip(trip)
-            outcomes += outcome
-            when (outcome) {
-                Outcome.UPLOADED -> Log.i(TAG, "Uploaded trip ${trip.tripUuid}")
-                Outcome.FAILED_PERMANENT -> Log.w(TAG, "Permanent failure for trip ${trip.tripUuid}")
-                Outcome.NEEDS_RETRY -> Log.w(TAG, "Will retry trip ${trip.tripUuid}")
-            }
-        }
-
-        if (workerResultRetry(outcomes)) {
+        val sweep = sweepEucStatsUploads(
+            settings = settingsRepository.get(),
+            // The riderStoreId StateFlow is read asynchronously, so on a cold-start
+            // reconcile it may not be populated yet: re-read the file before giving up.
+            riderStoreId = { syncManager.riderStoreId.value ?: syncManager.readRiderIdFile() },
+            tripDao = tripDao,
+            eucStatsRepository = eucStatsRepository,
+            tag = TAG,
+        )
+        if (sweep.retry) {
             val attempt = inputData.getInt(SyncManager.KEY_ATTEMPT, 0)
             val next = attempt + 1
             Log.i(TAG, "Scheduling retry attempt $next in ${SyncManager.delayForAttempt(next)}s")
@@ -77,10 +43,3 @@ class EucStatsUploadWorker(
         return Result.success()
     }
 }
-
-/**
- * Pure decision function: returns true if the worker should be retried.
- * Extracted so it can be unit-tested without Koin or Android dependencies.
- */
-internal fun workerResultRetry(outcomes: List<Outcome>): Boolean =
-    outcomes.any { it == Outcome.NEEDS_RETRY }

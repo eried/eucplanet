@@ -1,7 +1,7 @@
 package com.eried.eucplanet.data.eucstats
 
 import kotlinx.coroutines.runBlocking
-import okhttp3.OkHttpClient
+import com.eried.eucplanet.platform.HttpClient
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
@@ -15,7 +15,7 @@ class EucStatsApiTest {
 
     @Before fun setup() {
         server = MockWebServer(); server.start()
-        api = EucStatsApi(OkHttpClient()) { server.url("/api/v1").toString().trimEnd('/') }
+        api = EucStatsApi(HttpClient()) { server.url("/api/v1").toString().trimEnd('/') }
     }
     @After fun teardown() { server.shutdown() }
 
@@ -56,11 +56,7 @@ class EucStatsApiTest {
     /** Regression: an unreachable server must NOT throw (which previously crashed
      *  the app when registering with no connectivity), it returns safe defaults. */
     @Test fun unreachableServer_returnsSafeDefaults_neverThrows() = runBlocking {
-        val dead = EucStatsApi(
-            OkHttpClient.Builder()
-                .connectTimeout(200, java.util.concurrent.TimeUnit.MILLISECONDS)
-                .build()
-        ) { "http://127.0.0.1:1/api/v1" } // port 1: connection refused
+        val dead = EucStatsApi(HttpClient(connectTimeoutMs = 200)) { "http://127.0.0.1:1/api/v1" } // port 1: connection refused
         // A network failure -> Failed with code 0 (no response) and no detail.
         assertEquals(RegisterResult.Failed(0, null), dead.registerRider(org.json.JSONObject().put("store_id", "s")))
         assertNull(dead.getCard("s"))

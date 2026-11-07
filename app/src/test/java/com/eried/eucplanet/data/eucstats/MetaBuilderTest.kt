@@ -18,7 +18,7 @@ class MetaBuilderTest {
         val csv = "Date,Speed\n01.06.2026 20:24:31.204,5\n".toByteArray()
         val meta = MetaBuilder.build(
             trip, storeId = "store-1", appVersion = "3.4.1", osVersion = "16",
-            tz = TimeZone.getTimeZone("Europe/Oslo"), csvBytes = csv,
+            tzId = "Europe/Oslo", tzOffsetMs = TimeZone.getTimeZone("Europe/Oslo")::getOffset, csvBytes = csv,
         )
         assertEquals("store-1", meta.getString("store_id"))
         assertEquals("google_play", meta.getString("platform"))

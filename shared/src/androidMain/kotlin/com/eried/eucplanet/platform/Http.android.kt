@@ -2,6 +2,7 @@ package com.eried.eucplanet.platform
 
 import okhttp3.FormBody
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
@@ -25,10 +26,25 @@ actual class HttpClient actual constructor(
             is HttpRequest.Body.Form -> FormBody.Builder().apply {
                 b.fields.forEach { (k, v) -> add(k, v) }
             }.build()
+            is HttpRequest.Body.Multipart -> MultipartBody.Builder().setType(MultipartBody.FORM).apply {
+                b.parts.forEach { p ->
+                    if (p.fileName == null) addFormDataPart(p.name, p.bytes.decodeToString())
+                    else addFormDataPart(
+                        p.name, p.fileName,
+                        RequestBody.create(p.contentType?.toMediaTypeOrNull(), p.bytes),
+                    )
+                }
+            }.build()
         }
         val req = Request.Builder().url(request.url).apply {
             request.headers.forEach { (k, v) -> addHeader(k, v) }
-        }.apply { if (body == null) get() else post(body) }.build()
+        }.apply {
+            when (request.method) {
+                null -> if (body == null) get() else post(body)
+                "DELETE" -> if (body == null) delete() else delete(body)
+                else -> method(request.method, body)
+            }
+        }.build()
         return http.newCall(req).execute().use { resp ->
             HttpResponse(
                 code = resp.code,

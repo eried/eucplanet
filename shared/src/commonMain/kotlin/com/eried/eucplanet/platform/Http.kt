@@ -2,7 +2,7 @@ package com.eried.eucplanet.platform
 
 /**
  * The few HTTP calls shared code makes (Dropbox's REST API, the weather
- * forecast), blocking, to run
+ * forecast, the eucstats leaderboard), blocking, to run
  * inside `withContext(Dispatchers.IO)` the way the OkHttp calls ran.
  *
  * Android sends them through OkHttp exactly as before: a [Body.Text] goes out
@@ -14,7 +14,15 @@ class HttpRequest(
     val url: String,
     val body: Body,
     val headers: List<Pair<String, String>> = emptyList(),
+    /**
+     * "PATCH", "DELETE"...; null is a GET without a body and a POST with one.
+     * A DELETE with [Body.None] goes out with an empty body, like OkHttp's `delete()`.
+     */
+    val method: String? = null,
 ) {
+    /** The verb this request goes out with. */
+    val verb: String get() = method ?: if (body == Body.None) "GET" else "POST"
+
     sealed interface Body {
         /** Raw bytes; [contentType] null sends no Content-Type, like `create(null, bytes)`. */
         class Bytes(val contentType: String?, val bytes: ByteArray) : Body
@@ -22,8 +30,23 @@ class HttpRequest(
         class Text(val contentType: String, val text: String) : Body
         /** `application/x-www-form-urlencoded`, like OkHttp's FormBody. */
         class Form(val fields: List<Pair<String, String>>) : Body
+        /** `multipart/form-data`, like OkHttp's `MultipartBody` with `setType(FORM)`. */
+        class Multipart(val parts: List<Part>) : Body
+
         /** No body: the request is a GET. */
         data object None : Body
+    }
+
+    /** One form part: a plain field when [fileName] is null, else a file with its type. */
+    class Part(
+        val name: String,
+        val bytes: ByteArray,
+        val fileName: String? = null,
+        val contentType: String? = null,
+    ) {
+        companion object {
+            fun field(name: String, value: String) = Part(name, value.encodeToByteArray())
+        }
     }
 }
 

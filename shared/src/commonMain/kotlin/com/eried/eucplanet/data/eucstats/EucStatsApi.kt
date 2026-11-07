@@ -1,16 +1,13 @@
 package com.eried.eucplanet.data.eucstats
 
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.MultipartBody
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody.Companion.toRequestBody
-import org.json.JSONObject
+import com.eried.eucplanet.platform.HttpClient
+import com.eried.eucplanet.platform.HttpRequest
+import com.eried.eucplanet.platform.JSONObject
 
 /**
  * Contract for the eucstats HTTP API. Extracted as an interface so
  * [EucStatsRepository] can be tested with a fake implementation on the JVM
- * without a live server or OkHttp.
+ * without a live server or an HTTP client.
  */
 interface EucStatsApiContract {
     fun registerRider(payload: JSONObject): RegisterResult
@@ -31,22 +28,25 @@ interface EucStatsApiContract {
 }
 
 class EucStatsApi(
-    private val client: OkHttpClient,
+    private val client: HttpClient,
     private val baseUrl: () -> String,
 ) : EucStatsApiContract {
-    private val json = "application/json; charset=utf-8".toMediaType()
+    // OkHttp adds "; charset=utf-8" to a text body, so this is the same
+    // "application/json; charset=utf-8" the calls always sent.
+    private fun json(o: JSONObject) = HttpRequest.Body.Text("application/json", o.toString())
 
-    // Every call wraps OkHttp in try/catch: a network failure (no connectivity,
+    private fun get(path: String) = HttpRequest("${baseUrl()}$path", HttpRequest.Body.None)
+
+    // Every call wraps the HTTP client in try/catch: a network failure (no connectivity,
     // timeout, unreachable host) must surface as a null/"couldn't tell" result,
     // NEVER an uncaught exception that crashes the app (e.g. registering while
     // the server is unreachable). uploadTrip already does this.
 
     override fun registerRider(payload: JSONObject): RegisterResult {
-        val req = Request.Builder().url("${baseUrl()}/riders")
-            .post(payload.toString().toRequestBody(json)).build()
+        val req = HttpRequest("${baseUrl()}/riders", json(payload))
         return try {
-            client.newCall(req).execute().use { resp ->
-                val body = resp.body?.string().orEmpty()
+            client.execute(req).let { resp ->
+                val body = resp.text()
                 when {
                     // store_id is client-generated, so we don't read the body on
                     // success; a non-empty 2xx is enough.
@@ -69,11 +69,11 @@ class EucStatsApi(
     }
 
     override fun getCard(storeId: String): RiderCard? {
-        val req = Request.Builder().url("${baseUrl()}/riders/$storeId/card").get().build()
+        val req = get("/riders/$storeId/card")
         return try {
-            client.newCall(req).execute().use { resp ->
-                if (!resp.isSuccessful) return@use null
-                val o = JSONObject(resp.body?.string().orEmpty())
+            client.execute(req).let { resp ->
+                if (!resp.isSuccessful) return@let null
+                val o = JSONObject(resp.text())
                 // Stats live under "stats" and ranks under "ranks" in the response.
                 val stats = o.optJSONObject("stats") ?: JSONObject()
                 val ranks = o.optJSONObject("ranks") ?: JSONObject()
@@ -98,11 +98,11 @@ class EucStatsApi(
     }
 
     override fun getProfile(storeId: String): RiderProfile? {
-        val req = Request.Builder().url("${baseUrl()}/riders/$storeId").get().build()
+        val req = get("/riders/$storeId")
         return try {
-            client.newCall(req).execute().use { resp ->
-                if (!resp.isSuccessful) return@use null
-                val o = JSONObject(resp.body?.string().orEmpty())
+            client.execute(req).let { resp ->
+                if (!resp.isSuccessful) return@let null
+                val o = JSONObject(resp.text())
                 RiderProfile(
                     displayName = o.optString("display_name").ifEmpty { null },
                     flag = o.optString("flag").ifEmpty { null },
@@ -119,9 +119,9 @@ class EucStatsApi(
     }
 
     override fun riderExists(storeId: String): Boolean? {
-        val req = Request.Builder().url("${baseUrl()}/riders/$storeId").get().build()
+        val req = get("/riders/$storeId")
         return try {
-            client.newCall(req).execute().use { resp ->
+            client.execute(req).let { resp ->
                 when {
                     resp.isSuccessful -> true
                     resp.code == 404 -> false
@@ -134,39 +134,38 @@ class EucStatsApi(
     }
 
     override fun patchRider(storeId: String, payload: JSONObject): Int {
-        val req = Request.Builder().url("${baseUrl()}/riders/$storeId")
-            .patch(payload.toString().toRequestBody(json)).build()
+        val req = HttpRequest("${baseUrl()}/riders/$storeId", json(payload), method = "PATCH")
         return try {
-            client.newCall(req).execute().use { it.code }
+            client.execute(req).code
         } catch (e: Exception) {
             0 // network failure: caller treats any non-2xx as an error
         }
     }
 
     override fun deleteRider(storeId: String): Boolean {
-        val req = Request.Builder().url("${baseUrl()}/riders/$storeId").delete().build()
+        val req = HttpRequest("${baseUrl()}/riders/$storeId", HttpRequest.Body.None, method = "DELETE")
         return try {
-            client.newCall(req).execute().use { it.isSuccessful }
+            client.execute(req).isSuccessful
         } catch (e: Exception) {
             false
         }
     }
 
     override fun exportRider(storeId: String): String? {
-        val req = Request.Builder().url("${baseUrl()}/riders/$storeId/export").get().build()
+        val req = get("/riders/$storeId/export")
         return try {
-            client.newCall(req).execute().use { if (it.isSuccessful) it.body?.string() else null }
+            client.execute(req).let { if (it.isSuccessful) it.text() else null }
         } catch (e: Exception) {
             null
         }
     }
 
     override fun getTripStatus(tripUuid: String): TripStatus? {
-        val req = Request.Builder().url("${baseUrl()}/trips/$tripUuid").get().build()
+        val req = get("/trips/$tripUuid")
         return try {
-            client.newCall(req).execute().use { resp ->
-                if (!resp.isSuccessful) return@use null
-                val o = JSONObject(resp.body?.string().orEmpty())
+            client.execute(req).let { resp ->
+                if (!resp.isSuccessful) return@let null
+                val o = JSONObject(resp.text())
                 val arr = o.optJSONArray("reasons")
                 TripStatus(
                     validationStatus = o.optString("validation_status").ifEmpty { null },
@@ -182,15 +181,14 @@ class EucStatsApi(
 
     /** POST /trips multipart: meta (JSON string) + trip (gzipped CSV). */
     override fun uploadTrip(metaJson: String, gzippedCsv: ByteArray): UploadResult {
-        val body = MultipartBody.Builder().setType(MultipartBody.FORM)
-            .addFormDataPart("meta", metaJson)
-            .addFormDataPart("trip", "trip.csv.gz",
-                gzippedCsv.toRequestBody("application/gzip".toMediaType()))
-            .build()
-        val req = Request.Builder().url("${baseUrl()}/trips").post(body).build()
+        val body = HttpRequest.Body.Multipart(listOf(
+            HttpRequest.Part.field("meta", metaJson),
+            HttpRequest.Part("trip", gzippedCsv, fileName = "trip.csv.gz", contentType = "application/gzip"),
+        ))
+        val req = HttpRequest("${baseUrl()}/trips", body)
         return try {
-            client.newCall(req).execute().use { resp ->
-                val text = resp.body?.string().orEmpty()
+            client.execute(req).let { resp ->
+                val text = resp.text()
                 when (resp.code) {
                     200, 201, 202 -> {
                         val o = runCatching { JSONObject(text) }.getOrNull()

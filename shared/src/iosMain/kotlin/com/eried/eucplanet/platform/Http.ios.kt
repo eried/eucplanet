@@ -43,8 +43,12 @@ actual class HttpClient actual constructor(
             is HttpRequest.Body.Text -> "${b.contentType}; charset=utf-8" to b.text.encodeToByteArray()
             is HttpRequest.Body.Form -> "application/x-www-form-urlencoded" to
                 b.fields.joinToString("&") { (k, v) -> formEncode(k) + "=" + formEncode(v) }.encodeToByteArray()
+            is HttpRequest.Body.Multipart -> {
+                val boundary = "eucplanet-" + kotlin.uuid.Uuid.random().toHexString()
+                "multipart/form-data; boundary=$boundary" to multipart(boundary, b.parts)
+            }
         }
-        req.setHTTPMethod(if (bytes == null) "GET" else "POST")
+        req.setHTTPMethod(request.verb)
         type?.let { req.setValue(it, forHTTPHeaderField = "Content-Type") }
         bytes?.let { req.setHTTPBody(it.toNSData()) }
 
@@ -65,6 +69,24 @@ actual class HttpClient actual constructor(
         val resp = result ?: throw IllegalStateException(failure ?: "no response")
         onResponse(request, resp)
         return resp
+    }
+
+    /** The parts as OkHttp's MultipartBody writes them: CRLF lines, quoted names. */
+    private fun multipart(boundary: String, parts: List<HttpRequest.Part>): ByteArray {
+        val out = ByteArrayOutputStream()
+        fun line(s: String) = out.write((s + "\r\n").encodeToByteArray())
+        for (p in parts) {
+            line("--$boundary")
+            val file = p.fileName?.let { "; filename=\"$it\"" }.orEmpty()
+            line("Content-Disposition: form-data; name=\"${p.name}\"$file")
+            p.contentType?.let { line("Content-Type: $it") }
+            line("Content-Length: ${p.bytes.size}")
+            line("")
+            out.write(p.bytes)
+            line("")
+        }
+        line("--$boundary--")
+        return out.toByteArray()
     }
 
     /** OkHttp's FormBody encoding: everything outside the unreserved set, space as %20. */
