@@ -2720,4 +2720,10 @@
     <string name="offline_data_route_q">ดาวน์โหลดพื้นที่ตามเส้นทางของคุณ (%1$s) ไหม?</string>
     <string name="offline_data_no_route">วางแผนเส้นทางก่อน</string>
     <string name="offline_data_route_all_here">ดาวน์โหลดทุกพื้นที่ตามเส้นทางของคุณแล้ว</string>
+    <string name="offline_ride_title">ดาวน์โหลดแผนที่ออฟไลน์ไหม</string>
+    <string name="offline_ride_body">บางส่วนของเส้นทางนี้อยู่นอกแผนที่ออฟไลน์ของคุณ เราดาวน์โหลดให้ได้เลยตอนนี้ เพื่อให้แผนที่และการคำนวณเส้นทางใหม่ใช้งานได้แม้ไม่มีสัญญาณ</string>
+    <string name="offline_ride_download">ดาวน์โหลดแผนที่</string>
+    <string name="offline_ride_start">เริ่มเลย</string>
+    <string name="offline_ride_never">ไม่ต้องถามอีก</string>
+    <string name="offline_remind_before_ride">ตรวจแผนที่ออฟไลน์ก่อนขี่</string>
 </resources>

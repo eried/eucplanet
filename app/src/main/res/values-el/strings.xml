@@ -2804,4 +2804,10 @@
     <string name="offline_data_route_q">Λήψη των περιοχών στο δρομολόγιό σας (%1$s);</string>
     <string name="offline_data_no_route">Σχεδιάστε πρώτα ένα δρομολόγιο.</string>
     <string name="offline_data_route_all_here">Όλες οι περιοχές στο δρομολόγιό σας έχουν ληφθεί.</string>
+    <string name="offline_ride_title">Λήψη χαρτών εκτός σύνδεσης;</string>
+    <string name="offline_ride_body">Μέρος αυτής της διαδρομής είναι εκτός των χαρτών σου εκτός σύνδεσης. Μπορούμε να τους κατεβάσουμε τώρα, ώστε ο χάρτης και ο επανυπολογισμός να λειτουργούν και χωρίς σήμα.</string>
+    <string name="offline_ride_download">Λήψη χαρτών</string>
+    <string name="offline_ride_start">Έναρξη ούτως ή άλλως</string>
+    <string name="offline_ride_never">Να μην ξαναρωτηθώ</string>
+    <string name="offline_remind_before_ride">Έλεγχος χαρτών εκτός σύνδεσης πριν από διαδρομή</string>
 </resources>

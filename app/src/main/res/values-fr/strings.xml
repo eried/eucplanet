@@ -2929,4 +2929,10 @@
     <string name="offline_data_route_q">Télécharger les zones de votre itinéraire (%1$s) ?</string>
     <string name="offline_data_no_route">Planifiez d’abord un itinéraire.</string>
     <string name="offline_data_route_all_here">Toutes les zones de votre itinéraire sont téléchargées.</string>
+    <string name="offline_ride_title">Télécharger les cartes hors ligne ?</string>
+    <string name="offline_ride_body">Une partie de cet itinéraire est hors de tes cartes hors ligne. On peut les télécharger maintenant pour que la carte et le recalcul fonctionnent sans réseau.</string>
+    <string name="offline_ride_download">Télécharger les cartes</string>
+    <string name="offline_ride_start">Démarrer quand même</string>
+    <string name="offline_ride_never">Ne plus demander</string>
+    <string name="offline_remind_before_ride">Vérifier les cartes hors ligne avant un trajet</string>
 </resources>

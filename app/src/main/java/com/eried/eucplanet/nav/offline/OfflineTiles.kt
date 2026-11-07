@@ -49,6 +49,10 @@ class OfflineTiles(
 
     private class Listing(val tiles: Map<String, RemoteTile>, val source: TileSource, val lookupsUrl: String)
 
+    /** The squares the server listed last time it was read, or null when
+     *  it has not been read since the app started. */
+    fun served(): Set<String>? = known?.tiles?.keys
+
     /** The server's tiles, or null when it cannot be reached. When the
      *  chosen server fails, the next of [TileSource.fallbacks] stands in.
      *  A BRouter server has no maps, so those come from our mirror when one

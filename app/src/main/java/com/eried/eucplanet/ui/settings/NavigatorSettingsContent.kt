@@ -290,6 +290,11 @@ fun NavigatorSettingsContent(
         if (offlineAreasOpen) {
             com.eried.eucplanet.ui.settings.offline.OfflineDataDialog(onDismiss = { offlineAreasOpen = false })
         }
+        SwitchRow(
+            label = stringResource(R.string.offline_remind_before_ride),
+            checked = settings.offlineRouting.remindBeforeRide,
+            onChange = { viewModel.updateOfflineRemindBeforeRide(it) },
+        )
 
         // --- Avoidances (collapsible; all off by default) ---
         var avoidExpanded by rememberSaveable { mutableStateOf(false) }

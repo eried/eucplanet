@@ -2789,4 +2789,10 @@
     <string name="offline_data_route_q">下载路线上的区域（%1$s）？</string>
     <string name="offline_data_no_route">请先规划路线。</string>
     <string name="offline_data_route_all_here">路线上的所有区域均已下载。</string>
+    <string name="offline_ride_title">下载离线地图？</string>
+    <string name="offline_ride_body">这条路线有一部分不在你的离线地图内。现在下载，没有信号时地图和重新规划路线也能正常使用。</string>
+    <string name="offline_ride_download">下载地图</string>
+    <string name="offline_ride_start">仍然开始</string>
+    <string name="offline_ride_never">不再询问</string>
+    <string name="offline_remind_before_ride">骑行前检查离线地图</string>
 </resources>

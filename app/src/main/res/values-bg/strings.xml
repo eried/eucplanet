@@ -2886,4 +2886,10 @@
     <string name="offline_data_route_q">Да се изтеглят ли зоните по маршрута ви (%1$s)?</string>
     <string name="offline_data_no_route">Първо планирайте маршрут.</string>
     <string name="offline_data_route_all_here">Всички зони по маршрута ви са изтеглени.</string>
+    <string name="offline_ride_title">Изтегляне на офлайн карти?</string>
+    <string name="offline_ride_body">Част от този маршрут е извън офлайн картите ви. Можем да ги изтеглим сега, за да работят картата и преизчисляването на маршрута и без сигнал.</string>
+    <string name="offline_ride_download">Изтегли карти</string>
+    <string name="offline_ride_start">Започни въпреки това</string>
+    <string name="offline_ride_never">Не питай повече</string>
+    <string name="offline_remind_before_ride">Проверка на офлайн картите преди каране</string>
 </resources>

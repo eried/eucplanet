@@ -2805,4 +2805,10 @@
     <string name="offline_data_route_q">Transferir as áreas da sua rota (%1$s)?</string>
     <string name="offline_data_no_route">Planeie primeiro uma rota.</string>
     <string name="offline_data_route_all_here">Todas as áreas da sua rota estão transferidas.</string>
+    <string name="offline_ride_title">Transferir mapas offline?</string>
+    <string name="offline_ride_body">Parte deste percurso está fora dos seus mapas offline. Podemos transferi-los agora para que o mapa e o recálculo do percurso funcionem sem rede.</string>
+    <string name="offline_ride_download">Transferir mapas</string>
+    <string name="offline_ride_start">Iniciar mesmo assim</string>
+    <string name="offline_ride_never">Não perguntar novamente</string>
+    <string name="offline_remind_before_ride">Verificar mapas offline antes de um percurso</string>
 </resources>
