@@ -89,6 +89,7 @@ class RouteBuilderViewModel(
     private val pendingShareJoin: PendingShareJoin,
     private val wheelRepository: com.eried.eucplanet.data.repository.WheelRepository,
     private val tripMeterRepository: com.eried.eucplanet.data.repository.TripMeterRepository,
+    private val offlineTiles: com.eried.eucplanet.nav.offline.OfflineTiles,
     private val context: Context
 ) : ViewModel() {
 
@@ -2387,6 +2388,51 @@ class RouteBuilderViewModel(
     }
 
     // --- Starting navigation -----------------------------------------------------
+
+    /** Squares being downloaded now: they count as there, so a rider who
+     *  just started the download is not asked again. */
+    private val downloadingTiles: StateFlow<Set<String>> = offlineTiles.progress
+        .map { it.keys }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptySet())
+
+    /**
+     * The squares this ride crosses that are not downloaded, for the question
+     * Start asks first. Empty when it should not ask: the rider turned the
+     * reminder off, or [startNavigation] would refuse anyway (no stop, no
+     * location, too far), or every square is on the phone.
+     */
+    suspend fun offlineGap(force: Boolean): List<String> {
+        if (!settingsRepository.currentOrLoad().offlineRouting.remindBeforeRide) return emptyList()
+        val dests = _waypoints.value
+        val loc = currentLocation.value ?: return emptyList()
+        if (dests.isEmpty()) return emptyList()
+        val me = GeoPoint(loc.latitude, loc.longitude)
+        val ahead = dests.filter { !it.passed }.ifEmpty { listOf(dests.first()) }
+        if (!force && !NavStartGuard.originWithinStart(me, ahead.first().point(), advanced.value.navMaxStartDistanceKm)) {
+            return emptyList()
+        }
+        val solved = _route.value?.geometry.orEmpty()
+        val line = when {
+            _track.value.size >= 2 -> _track.value
+            solved.size >= 2 -> solved
+            else -> ahead.map { it.point() }
+        }
+        val busy = downloadingTiles.value
+        return withContext(Dispatchers.IO) {
+            com.eried.eucplanet.nav.offline.OfflineRideCheck.missing(
+                listOf(me) + line,
+                has = { offlineTiles.store.has(it) || it in busy },
+                served = offlineTiles.served(),
+            )
+        }
+    }
+
+    /** "Don't ask again" in the question before a ride. Settings turns it back on. */
+    fun stopRemindingBeforeRide() {
+        viewModelScope.launch {
+            settingsRepository.update { it.copy(offlineRouting = it.offlineRouting.copy(remindBeforeRide = false)) }
+        }
+    }
 
     /** The Start in flight: solving the route, then handing it to the engine. */
     private var startJob: Job? = null

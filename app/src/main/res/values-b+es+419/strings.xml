@@ -2943,4 +2943,10 @@
     <string name="offline_data_route_q">¿Descargar las zonas de tu ruta (%1$s)?</string>
     <string name="offline_data_no_route">Primero planea una ruta.</string>
     <string name="offline_data_route_all_here">Todas las zonas de tu ruta están descargadas.</string>
+    <string name="offline_ride_title">Parte de tu ruta no está sin conexión</string>
+    <string name="offline_ride_body">Sin señal ahí, el mapa queda en blanco y no se puede recalcular la ruta. Descarga esas zonas mientras tienes señal.</string>
+    <string name="offline_ride_download">Descargar zonas</string>
+    <string name="offline_ride_start">Iniciar igual</string>
+    <string name="offline_ride_never">No volver a preguntar</string>
+    <string name="offline_remind_before_ride">Preguntar antes de salir fuera de las zonas sin conexión</string>
 </resources>

@@ -11,6 +11,7 @@ ride, this is the branch.
 
 - 0.23.0 beta: everything below from next-experimental, on the Play beta track.
 - Navigation: when a reroute cannot be found (no signal and outside your offline areas) it no longer says "Rerouting" every second. It tries again after 8 s, then waits longer each time, and says it once.
+- Navigation: Start asks first when your route leaves your offline areas: download them, start anyway, or don't ask again (Navigator settings turns it back on).
 - Release builds are obfuscated (Play asks for it by Feb 2027). Branch APKs are debug builds and do not change.
 - Navigator view: turn card, speed, arrival time and your own tiles on the map while navigating. Pick the tiles in Settings.
 - Map: while navigating it faces where you ride (heading-up), turning on curves from the wheel's speed. Tap the compass for north-up.
@@ -49,6 +50,7 @@ ride, this is the branch.
 - Navigate a 2-stop route in Full path and Next segment: turn card, arrival time, the next stop counting down and ticked off, End navigation?
 - Is the zoom right near turns and when riding slowly?
 - In flight mode, ride off your route outside your offline areas: "Rerouting" once, not over and over?
+- Start a ride to somewhere you have not downloaded: does the question make sense, and does "Download areas" offer the right size?
 - Load a GPX track and ride it: cues at real turns, named places announced? Convert to stops works?
 - After arriving, Reverse route: does it take you back a sensible way?
 - Landscape and north-up: everything readable and reachable?

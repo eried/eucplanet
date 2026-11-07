@@ -2921,4 +2921,10 @@
     <string name="offline_data_route_q">Rotanızdaki bölgeler indirilsin mi (%1$s)?</string>
     <string name="offline_data_no_route">Önce bir rota planlayın.</string>
     <string name="offline_data_route_all_here">Rotanızdaki tüm bölgeler indirildi.</string>
+    <string name="offline_ride_title">Rotanın bir kısmı çevrimdışı değil</string>
+    <string name="offline_ride_body">Orada sinyal yoksa harita boş kalır ve rota yeniden hesaplanamaz. Sinyal varken o bölgeleri indir.</string>
+    <string name="offline_ride_download">Bölgeleri indir</string>
+    <string name="offline_ride_start">Yine de başlat</string>
+    <string name="offline_ride_never">Bir daha sorma</string>
+    <string name="offline_remind_before_ride">Çevrimdışı bölgeler dışına sürüşten önce sor</string>
 </resources>

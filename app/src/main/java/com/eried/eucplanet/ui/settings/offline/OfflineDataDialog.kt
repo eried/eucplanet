@@ -65,10 +65,16 @@ private data class Pending(val row: TileRow, val mobileWarn: Boolean = false)
  * Offline areas: a map of 5 degree squares, each a map and routing. Tap one
  * to download, stop or delete it. The squares around the rider or along the
  * planned route come from one small menu, after a question with their size.
+ * [routeSquares] (from Start, before a ride) asks about those squares as
+ * soon as the server list is in, so the sizes are right.
  */
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
-fun OfflineDataDialog(onDismiss: () -> Unit, viewModel: OfflineDataViewModel = koinViewModel()) {
+fun OfflineDataDialog(
+    onDismiss: () -> Unit,
+    routeSquares: List<String>? = null,
+    viewModel: OfflineDataViewModel = koinViewModel(),
+) {
     val ctx = LocalContext.current
     val colors = MaterialTheme.appColors
     val state by viewModel.state.collectAsState()
@@ -88,6 +94,14 @@ fun OfflineDataDialog(onDismiss: () -> Unit, viewModel: OfflineDataViewModel = k
     val noLocation = stringResource(R.string.offline_data_no_location)
 
     fun size(b: Long) = Formatter.formatShortFileSize(ctx, b)
+
+    var routeAsked by remember { mutableStateOf(false) }
+    LaunchedEffect(state.loading) {
+        if (routeSquares == null || routeAsked || state.loading) return@LaunchedEffect
+        routeAsked = true
+        val missing = viewModel.missingOf(routeSquares)
+        if (missing.isEmpty()) notice = allHere else bulk = Bulk(missing, route = true)
+    }
 
     fun ask(row: TileRow) {
         pending = Pending(row, row.status == TileStatus.AVAILABLE && OfflineDataState.warnSize(row.bytes, viewModel.onWifi()))

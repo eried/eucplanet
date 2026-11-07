@@ -2727,4 +2727,10 @@
     <string name="offline_data_route_q">Ladataanko reittisi alueet (%1$s)?</string>
     <string name="offline_data_no_route">Suunnittele ensin reitti.</string>
     <string name="offline_data_route_all_here">Kaikki reittisi alueet on ladattu.</string>
+    <string name="offline_ride_title">Osa reitistä ei ole offline-tilassa</string>
+    <string name="offline_ride_body">Ilman signaalia kartta jää siellä tyhjäksi eikä reittiä voi laskea uudelleen. Lataa alueet, kun sinulla on signaali.</string>
+    <string name="offline_ride_download">Lataa alueet</string>
+    <string name="offline_ride_start">Aloita silti</string>
+    <string name="offline_ride_never">Älä kysy uudelleen</string>
+    <string name="offline_remind_before_ride">Kysy ennen ajoa offline-alueiden ulkopuolelle</string>
 </resources>

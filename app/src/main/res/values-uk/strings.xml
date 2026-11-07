@@ -2923,4 +2923,10 @@
     <string name="offline_data_route_q">Завантажити області маршруту (%1$s)?</string>
     <string name="offline_data_no_route">Спершу побудуйте маршрут.</string>
     <string name="offline_data_route_all_here">Усі області маршруту завантажено.</string>
+    <string name="offline_ride_title">Частина маршруту недоступна офлайн</string>
+    <string name="offline_ride_body">Без сигналу карта там буде порожньою, а маршрут не перерахується. Завантажте ці області, поки є сигнал.</string>
+    <string name="offline_ride_download">Завантажити області</string>
+    <string name="offline_ride_start">Усе одно почати</string>
+    <string name="offline_ride_never">Більше не питати</string>
+    <string name="offline_remind_before_ride">Питати перед поїздкою поза офлайн-областями</string>
 </resources>

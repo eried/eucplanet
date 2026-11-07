@@ -2921,4 +2921,10 @@
     <string name="offline_data_route_q">要下載路線上的區域（%1$s）嗎？</string>
     <string name="offline_data_no_route">請先規劃路線。</string>
     <string name="offline_data_route_all_here">路線上的所有區域皆已下載。</string>
+    <string name="offline_ride_title">部分路線沒有離線資料</string>
+    <string name="offline_ride_body">那裡沒有訊號時，地圖會變成空白，也無法重新計算路線。請趁有訊號時下載這些區域。</string>
+    <string name="offline_ride_download">下載區域</string>
+    <string name="offline_ride_start">仍然開始</string>
+    <string name="offline_ride_never">不再詢問</string>
+    <string name="offline_remind_before_ride">在離線區域外騎乘前詢問</string>
 </resources>

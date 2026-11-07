@@ -2939,4 +2939,10 @@
     <string name="offline_data_route_q">Hent områderne på din rute (%1$s)?</string>
     <string name="offline_data_no_route">Planlæg en rute først.</string>
     <string name="offline_data_route_all_here">Alle områder på din rute er hentet.</string>
+    <string name="offline_ride_title">En del af ruten er ikke offline</string>
+    <string name="offline_ride_body">Uden signal dér bliver kortet tomt, og ruten kan ikke beregnes igen. Hent de områder, mens du har signal.</string>
+    <string name="offline_ride_download">Hent områder</string>
+    <string name="offline_ride_start">Start alligevel</string>
+    <string name="offline_ride_never">Spørg ikke igen</string>
+    <string name="offline_remind_before_ride">Spørg før en tur uden for offline-områder</string>
 </resources>

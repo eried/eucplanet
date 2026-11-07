@@ -2888,4 +2888,10 @@
     <string name="offline_data_route_q">Stiahnuť oblasti na vašej trase (%1$s)?</string>
     <string name="offline_data_no_route">Najprv naplánujte trasu.</string>
     <string name="offline_data_route_all_here">Všetky oblasti na vašej trase sú stiahnuté.</string>
+    <string name="offline_ride_title">Časť trasy nie je offline</string>
+    <string name="offline_ride_body">Bez signálu tam bude mapa prázdna a trasa sa neprepočíta. Stiahnite si tieto oblasti, kým máte signál.</string>
+    <string name="offline_ride_download">Stiahnuť oblasti</string>
+    <string name="offline_ride_start">Aj tak spustiť</string>
+    <string name="offline_ride_never">Už sa nepýtať</string>
+    <string name="offline_remind_before_ride">Pýtať sa pred jazdou mimo offline oblastí</string>
 </resources>

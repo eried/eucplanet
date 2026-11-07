@@ -278,6 +278,8 @@ fun RouteBuilderScreen(
     // *at* the marker instead of at the centre of the map.
     var selfMenuOffset by remember { mutableStateOf(DpOffset.Zero) }
     var clearConfirmOpen by remember { mutableStateOf(false) }
+    var offlineAsk by remember { mutableStateOf<OfflineAsk?>(null) }
+    var offlineDownload by remember { mutableStateOf<OfflineAsk?>(null) }
     var solveDialogOpen by remember { mutableStateOf(false) }
     // The picked GPX waiting on a "replace the current route?" confirmation.
     // Held only after the rider has actually chosen a file (asking BEFORE
@@ -816,17 +818,21 @@ fun RouteBuilderScreen(
     // launches Treasure Hunt; the routed modes launch turn-by-turn guidance.
     // Shared by the menu item and the bottom button. A second tap while the
     // route is still being solved is ignored in the ViewModel.
-    val startNav: () -> Unit = {
+    // Before it starts, a route that leaves the downloaded areas asks once:
+    // download them, start anyway, or never ask again (Navigator settings
+    // turns it back on). Back cancels the Start.
+    fun beginNav(force: Boolean) {
         val mode = if (travelMode == TravelMode.STRAIGHT && !trackLocked)
             NavMode.TREASURE_HUNT else NavMode.TURN_BY_TURN
-        viewModel.startNavigation(mode) { panelExpanded = false }
+        scope.launch {
+            val gap = viewModel.offlineGap(force)
+            if (gap.isNotEmpty()) offlineAsk = OfflineAsk(gap, mode, force)
+            else viewModel.startNavigation(mode, force) { panelExpanded = false }
+        }
     }
+    val startNav: () -> Unit = { beginNav(force = false) }
     // Hold-to-override: skip the too-far guard and start anyway.
-    val startNavForce: () -> Unit = {
-        val mode = if (travelMode == TravelMode.STRAIGHT && !trackLocked)
-            NavMode.TREASURE_HUNT else NavMode.TURN_BY_TURN
-        viewModel.startNavigation(mode, force = true) { panelExpanded = false }
-    }
+    val startNavForce: () -> Unit = { beginNav(force = true) }
 
     // Landscape: the stops panel docks as a sidebar on the rider's chosen
     // side (Screen geometry setting) and its header moves into the top bar.
@@ -1944,6 +1950,42 @@ fun RouteBuilderScreen(
                         }
                     )
                 }
+            }
+
+            offlineAsk?.let { ask ->
+                fun go() {
+                    offlineAsk = null
+                    viewModel.startNavigation(ask.mode, ask.force) { panelExpanded = false }
+                }
+                androidx.compose.material3.AlertDialog(
+                    onDismissRequest = { offlineAsk = null },
+                    title = { Text(stringResource(R.string.offline_ride_title)) },
+                    text = { Text(stringResource(R.string.offline_ride_body)) },
+                    confirmButton = {
+                        Column(horizontalAlignment = Alignment.End) {
+                            TextButton(onClick = { offlineAsk = null; offlineDownload = ask }, shape = RoundedCornerShape(12.dp)) {
+                                Text(stringResource(R.string.offline_ride_download))
+                            }
+                            TextButton(onClick = { go() }, shape = RoundedCornerShape(12.dp)) {
+                                Text(stringResource(R.string.offline_ride_start))
+                            }
+                            TextButton(onClick = { viewModel.stopRemindingBeforeRide(); go() }, shape = RoundedCornerShape(12.dp)) {
+                                Text(stringResource(R.string.offline_ride_never))
+                            }
+                        }
+                    },
+                )
+            }
+            // Downloads go on in the background: closing the areas starts
+            // the ride the rider asked for.
+            offlineDownload?.let { ask ->
+                com.eried.eucplanet.ui.settings.offline.OfflineDataDialog(
+                    routeSquares = ask.squares,
+                    onDismiss = {
+                        offlineDownload = null
+                        viewModel.startNavigation(ask.mode, ask.force) { panelExpanded = false }
+                    },
+                )
             }
 
             // Confirm before discarding an edited multi-stop route.
@@ -3866,3 +3908,6 @@ private fun jsString(raw: String): String =
         .replace("\r", "\\r")
         .replace(" ", "\\u2028")
         .replace(" ", "\\u2029") + "'"
+
+/** Start, held while the rider answers the question about offline areas. */
+private class OfflineAsk(val squares: List<String>, val mode: NavMode, val force: Boolean)
