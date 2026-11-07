@@ -194,6 +194,12 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips {
         val distance = if (wheelKm > 0f) wheelKm else gpsKm.toFloat()
         dao.update(t.copy(endTime = System.currentTimeMillis(), distanceKm = distance, sampleCount = rows))
         Log.i(TAG, "Recording stopped: ${t.fileName}, $rows rows, $distance km")
+        // As Android's cloud-only finalize: no folder here, so no discard grace.
+        // The sweep also retries any trip a previous ride left behind.
+        if (IosEucStats.uploadsOn(IosAppGraph.settings.get())) {
+            dao.markFinalized(t.id, folder = false, eucstats = true)
+            IosEucStats.sweep()
+        }
         if (IosAppGraph.settings.get().announceRecording) {
             IosAppGraph.voice.announceEvent(IosPhoneDevice.text(Res.string.voice_recording_finished))
         }

@@ -80,6 +80,14 @@
     <!-- The ride Live Activity, Android's ongoing ride notification. -->
     <key>NSSupportsLiveActivities</key>
     <true/>
+    <!-- Plain http to a local server only (a dev eucstats or a crews pairing
+         against a laptop, launched with EUCSTATS_API_BASE_URL). Everything
+         else stays HTTPS. -->
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsLocalNetworking</key>
+        <true/>
+    </dict>
     <key>NSBluetoothAlwaysUsageDescription</key>
     <string>EUC Planet connects to your wheel over Bluetooth to show live ride data.</string>
     <key>NSLocationWhenInUseUsageDescription</key>

@@ -98,14 +98,6 @@ internal fun topViewController(): UIViewController? {
     return vc
 }
 
-/** No leaderboard on iOS yet: nothing is ever pending. */
-internal object NoRecordingOnline : RecordingOnline {
-    override val riderLinked = false
-    override suspend fun syncPendingNow() = SyncResult(total = 0, uploaded = 0)
-    override fun enqueueUpload(settings: AppSettings) = Unit
-    override suspend fun refreshTripVerdict(trip: TripRecord): String? = null
-}
-
 internal object IosRecordingHost : RecordingHost {
     override val supportsTripTools = false
 

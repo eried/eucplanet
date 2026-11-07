@@ -50,8 +50,9 @@ import platform.Foundation.NSUserDefaults
 
 // The iOS side of SettingsPorts. What the iPhone has (voices, cues, Dropbox
 // sync) is real; what it does not have yet, or ever (watches, the HUD, the
-// folder backups, the leaderboard), is an empty stand-in, and the iOS
-// SettingsHost leaves its rows out. See docs/IOS_PARITY.md.
+// folder backups), is an empty stand-in, and the iOS
+// SettingsHost leaves its rows out. The leaderboard is real (IosEucStats.kt).
+// See docs/IOS_PARITY.md.
 
 /** The system voices, grouped by language as Android's TTS engine lists them. */
 internal class IosSettingsVoice(private val voice: IosVoice) : SettingsVoice {
@@ -157,18 +158,26 @@ internal object IosSettingsSync : SettingsSync, DashboardSync by NoFolderSync {
     override suspend fun backupSettingsAs(name: String?, overwrite: Boolean) = BackupOutcome.Failed
     override fun cancelActiveSync() = IosDropboxSync.stop()
     override fun cancelDropboxSync() = IosDropboxSync.stop()
-    override fun cancelEucStatsUpload() = Unit
+    override fun cancelEucStatsUpload() = IosEucStats.cancel()
     override fun cancelSyncConflict() = IosDropboxSync.resolve(SyncChoice.CANCEL)
     override suspend fun clearSyncFolder() = Unit
     override fun consumeSyncResult() = Unit
-    override suspend fun deleteRiderIdFile() = false
-    override fun enqueueEucStatsUpload(settings: AppSettings) = Unit
+    override suspend fun deleteRiderIdFile() = IosEucStats.deleteRiderId()
+    override fun enqueueEucStatsUpload(settings: AppSettings) = IosEucStats.sweep()
     override fun enqueueTripUpload(settings: AppSettings) = Unit
-    override suspend fun ensureRiderIdFile(storeId: String) = RiderFileResult.SKIPPED
+    // The rider id is a file in the app's own Documents, so it is the one this phone has.
+    override suspend fun ensureRiderIdFile(storeId: String) = when (IosEucStats.readRiderId()) {
+        storeId -> RiderFileResult.ALREADY_PRESENT
+        null -> if (IosEucStats.writeRiderId(storeId)) RiderFileResult.WROTE else RiderFileResult.SKIPPED
+        else -> RiderFileResult.MISMATCH
+    }
+    override val riderIdNeedsFolder = false
+    override val riderStoreId: StateFlow<String?> get() = IosEucStats.riderStoreId
+    override suspend fun writeRiderId(storeId: String) = IosEucStats.writeRiderId(storeId)
     override fun getSyncFolderDisplayName(settings: AppSettings): String? = null
     override fun listFolderTripNames(settings: AppSettings): List<String>? = null
-    override suspend fun resetAllEucstatsRows() = Unit
-    override suspend fun resetUnfinishedEucstatsRows() = Unit
+    override suspend fun resetAllEucstatsRows() = IosAppGraph.database.tripDao().resetAllEucstatsStatuses()
+    override suspend fun resetUnfinishedEucstatsRows() = IosAppGraph.database.tripDao().resetUnfinishedEucstatsStatuses()
     override fun resolveSyncConflict(choice: SyncChoice) = IosDropboxSync.resolve(choice)
     override fun sanitizeBackupName(raw: String): String? = null
     override fun startDropboxSync() = IosDropboxSync.syncNow()
@@ -221,22 +230,6 @@ internal object NoLockdownSwitch : LockdownSwitch {
     override fun isEngaged() = false
     override suspend fun arm(pin: String, engageNow: Boolean) = false
     override suspend fun disarmIfNotEngaged() = Unit
-}
-
-/** The online leaderboard is not on iOS yet. */
-internal object NoLeaderboard : OnlineLeaderboard {
-    override val card: StateFlow<RiderCard?> = MutableStateFlow<RiderCard?>(null).asStateFlow()
-    override val cardLoaded: StateFlow<Boolean> = MutableStateFlow(true).asStateFlow()
-    override val cardMissing: StateFlow<Boolean> = MutableStateFlow(false).asStateFlow()
-    override suspend fun refreshCard() = Unit
-    override suspend fun register(displayName: String, flag: String, avatarPngBase64: String): RegisterResult =
-        RegisterResult.Failed(0, null)
-    override suspend fun syncPendingNow(onProgress: (done: Int, total: Int) -> Unit) =
-        com.eried.eucplanet.data.eucstats.SyncResult(0, 0)
-    override suspend fun fetchProfile(): RiderProfile? = null
-    override suspend fun editProfile(displayName: String?, flag: String?, avatarPngBase64: String?) = 0
-    override suspend fun deleteAccount() = false
-    override suspend fun exportData(): String? = null
 }
 
 /** The HUD companion is an Android device; the iPhone does not talk to it. */

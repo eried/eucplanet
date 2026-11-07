@@ -42,11 +42,13 @@ Seams that need both sides on every change:
 | Seam | Common | Android | iOS |
 |---|---|---|---|
 | Wheel link (BLE) | `ble/WheelLink.kt` | `app/.../ble/BleConnectionManager.kt` | `iosMain/.../ble/IosWheelLink.kt` |
-| Log, clock, charsets, CRC, format, local time, JSON, HTTP, SHA-256, dates, strings | `platform/*.kt` | `platform/*.android.kt` | `platform/*.ios.kt` |
+| Log, clock, charsets, CRC, format, local time and time zone, JSON, HTTP, SHA-256, gzip, dates, strings | `platform/*.kt` | `platform/*.android.kt` | `platform/*.ios.kt` |
 | Settings file | `data/store/SettingsStore.kt` | `app/.../data/store/SettingsStoreAndroid.kt` (DataStore, imperial check) | `iosMain/.../app/IosAppGraph.kt` |
 | Dropbox link | `DropboxRepository.beginLink` / `handleAuthCode` | `app/.../data/repository/DropboxLinkAndroid.kt` (Custom Tab, verifier in SharedPreferences) | `iosMain/.../app/IosDropboxLink.kt` (ASWebAuthenticationSession) |
 | Ride Live Activity | `service/RideNotificationText.kt` (the text), `iosMain/.../app/RideActivity.kt` (when) | `WheelService` notification | `iosApp/RideLiveActivity.swift` (ActivityKit), `iosApp/Widgets/` (the look) |
 | Alarm rules for settings.json | `data/sync/DropboxSettingsSync.AlarmRuleStore` | `SyncManager` (AlarmDao) | `IosAppGraph.alarms` (a JSON file until Room moves) |
+| Leaderboard rider id and upload trigger | `data/sync/EucStatsSweep.kt`, `EucStatsSettingsPort` | `SyncManager` (rider id in the backup folder), `EucStatsUploadWorker` (WorkManager) | `iosMain/.../app/IosEucStats.kt` (Documents file; trip finish, launch, foreground) |
+| Leaderboard picture | `SettingsHost.rememberAvatarPicker` | `AndroidSettingsHost` (gallery, UserMarkerCropDialog) | `iosMain/.../app/IosAvatarPicker.kt` (UIImagePickerController) |
 | Object graph | `di/SharedKoin.kt` (Koin) | `app/.../di/SharedModule.kt` hands the Koin singletons to Hilt; `AppModule` builds the moved repositories | `MainViewController.kt` reads Koin; `app/IosAppGraph.kt` builds the rest |
 
 The table grows as packages move; keep it current.
