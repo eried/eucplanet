@@ -15,22 +15,37 @@ data class SampleSection(
     val durationMs: Int get() = (endMs - startMs).coerceAtLeast(0)
 }
 
+/** How a [EngineProfile.Kind.SYNTH] engine makes its tone. */
+enum class SynthVoice {
+    /** Sine partials with a slow wobble: hums, saucers, blades. */
+    HUM,
+    /** Bandlimited saw pair, thick and gritty. */
+    SAW,
+    /** Bandlimited square with a sub octave: the digital edge. */
+    SQUARE,
+    /** Shaped noise (rumble and roar) under a spooling shaft whine. */
+    TURBINE,
+    /** Clean motor whine with its inverter partials and a little wind. */
+    ELECTRIC,
+}
+
 /**
  * A virtual engine personality. Drives [EngineSynth].
  *
  * Two flavors:
- *  - [Kind.ICE], internal combustion model. Per-cylinder firing pulses at
- *    [firingAngles] in the crank cycle, harmonics layered on top, exhaust grit
- *    noise modulated by load.
- *  - [Kind.SYNTH], pure oscillator/FM. Frequency rides on virtual RPM with
- *    [baseHz]..[maxHz]; no cylinder model, no gearbox.
+ *  - [Kind.ICE], internal combustion. Each cylinder fires at its angle of the
+ *    crank cycle and sends an exhaust pulse into a pipe: a few resonators tuned
+ *    by [pipeHz] that give the engine its body, intake and valve noise rising
+ *    with load, an optional ring ([ringHz]) for 2-strokes and screamers.
+ *  - [Kind.SYNTH], a [SynthVoice] whose pitch rides on virtual RPM between
+ *    [synthBaseHz] and [synthMaxHz]; no cylinders, no gearbox.
  *
  * Profiles are stateless, runtime state lives in [EngineParams].
  */
 data class EngineProfile(
     /** Stable ID used in settings storage. */
     val key: String,
-    /** Display label for UI (English; localized via strings.xml resolveDisplayName). */
+    /** Display label for UI (English; localized via strings.xml engine_preset_<key>). */
     val displayName: String,
     val kind: Kind,
     /** Lowest "running" RPM. Idle revs around here. */
@@ -43,30 +58,37 @@ data class EngineProfile(
     val cylinderCount: Int = 1,
     /**
      * Firing angles within a single engine cycle (in degrees).
-     * 4-stroke = 720° cycle. 2-stroke = 360° cycle. SYNTH = ignored.
+     * 4-stroke = 720 degree cycle. 2-stroke = 360 degree cycle. SYNTH = ignored.
      */
     val firingAngles: FloatArray = floatArrayOf(0f),
-    /** True for 2-stroke (cycle = 360°), false for 4-stroke (cycle = 720°). */
+    /** True for 2-stroke (cycle = 360 degrees), false for 4-stroke (cycle = 720 degrees). */
     val twoStroke: Boolean = false,
-    /**
-     * Harmonic series amplitudes for the fundamental + overtones (h1..h6).
-     * h1 is the engine firing pulse fundamental; higher harmonics add brightness.
-     */
-    val harmonics: FloatArray = floatArrayOf(1f, 0.6f, 0.35f, 0.2f, 0.12f, 0.07f),
+    /** Exhaust pipe body: the lowest resonance in Hz. Big pipes low, small pipes high. */
+    val pipeHz: Float = 150f,
+    /** How long the pipe rings after each pulse; 1 is a stock muffler, higher is tinnier. */
+    val pipeQ: Float = 1f,
+    /** A high ring excited by every firing (2-stroke expansion chamber, a V12 scream), 0 for none. */
+    val ringHz: Float = 0f,
+    val ringAmount: Float = 0f,
+    /** Intake roar and valvetrain noise, rises with load. */
+    val intakeNoise: Float = 0.3f,
+    /** Length of each exhaust pulse in ms. A few ms for a bang, tens of ms for a steam chuff. */
+    val pulseMs: Float = 3f,
     /** Mix of exhaust hiss/noise; richer at high load. */
     val exhaustGrit: Float = 0.15f,
     /** Pop probability per decel event (0..1), multiplied by the user's decel character. */
     val decelPopProbability: Float = 0.4f,
-    /** Brightness of the firing pulse, 1 = punchy click, 0 = soft thump. */
+    /** Brightness of the firing pulse, 1 = sharp crack, 0 = soft thump. */
     val compressionTone: Float = 0.5f,
+    /** Level trim so every engine sits at about the same loudness. */
+    val gainTrim: Float = 1f,
     // --- SYNTH-only params ---
     /** Synth base frequency at idle (Hz). */
-    val synthBaseHz: Float = 80f,
+    val synthBaseHz: Float = 160f,
     /** Synth peak frequency at max RPM (Hz). */
     val synthMaxHz: Float = 1200f,
-    /** Synth waveform shape, 0 = sine, 1 = saw, 2 = square. */
-    val synthShape: Int = 1,
-    /** FM modulation depth for synth (0..1). */
+    val voice: SynthVoice = SynthVoice.SAW,
+    /** Wobble depth for synth (0..1): vibrato and tremolo. */
     val synthFmDepth: Float = 0.3f,
     /**
      * Resource basename for sample-based rendering, looked up under `res/raw/`.
@@ -129,10 +151,12 @@ data class EngineProfile(
                 displayName = "2-stroke",
                 kind = Kind.ICE,
                 idleRpm = 1400, maxRpm = 11000,
-                gearless = true,                       // 2-stroke wheels usually don't shift on EUC sim
+                gearless = true,
                 cylinderCount = 1, twoStroke = true,
                 firingAngles = floatArrayOf(0f),
-                harmonics = floatArrayOf(1f, 0.85f, 0.7f, 0.55f, 0.4f, 0.25f),
+                pipeHz = 260f, pipeQ = 1.2f,
+                ringHz = 2600f, ringAmount = 0.35f,
+                intakeNoise = 0.5f,
                 exhaustGrit = 0.4f,
                 decelPopProbability = 0.25f,
                 compressionTone = 0.85f
@@ -144,23 +168,27 @@ data class EngineProfile(
                 idleRpm = 900, maxRpm = 7500,
                 cylinderCount = 1,
                 firingAngles = floatArrayOf(0f),
-                harmonics = floatArrayOf(1f, 0.55f, 0.3f, 0.18f, 0.1f, 0.05f),
+                pipeHz = 200f, pipeQ = 1f,
+                intakeNoise = 0.3f,
                 exhaustGrit = 0.18f,
                 decelPopProbability = 0.45f,
-                compressionTone = 0.6f
+                compressionTone = 0.6f,
+                gainTrim = 1.6f
             ),
             EngineProfile(
                 key = "QUAD_BIKE", preview = true,
                 displayName = "Quad bike",
                 kind = Kind.ICE,
                 idleRpm = 850, maxRpm = 6200,
-                gearless = true,                        // most ATVs are CVT to the rider's ear
+                gearless = true,
                 cylinderCount = 1,
                 firingAngles = floatArrayOf(0f),
-                harmonics = floatArrayOf(1f, 0.7f, 0.5f, 0.3f, 0.18f, 0.1f),
+                pipeHz = 210f, pipeQ = 1.1f,
+                intakeNoise = 0.45f,
                 exhaustGrit = 0.3f,
                 decelPopProbability = 0.3f,
-                compressionTone = 0.7f
+                compressionTone = 0.7f,
+                gainTrim = 1.6f
             ),
             // --- Multi-cylinder ICE ---
             EngineProfile(
@@ -169,12 +197,14 @@ data class EngineProfile(
                 kind = Kind.ICE,
                 idleRpm = 950, maxRpm = 6500,
                 cylinderCount = 2,
-                // 45° V-twin: classic uneven "potato-potato", second cylinder fires 315° after the first
+                // 45 degree V-twin: the uneven "potato-potato", second cylinder fires 315 degrees after the first
                 firingAngles = floatArrayOf(0f, 315f),
-                harmonics = floatArrayOf(1f, 0.65f, 0.4f, 0.22f, 0.12f, 0.06f),
+                pipeHz = 210f, pipeQ = 1.1f,
+                intakeNoise = 0.5f,
                 exhaustGrit = 0.22f,
                 decelPopProbability = 0.5f,
-                compressionTone = 0.65f
+                compressionTone = 0.75f,
+                gainTrim = 1.3f
             ),
             EngineProfile(
                 key = "INLINE_4", preview = true,
@@ -183,7 +213,9 @@ data class EngineProfile(
                 idleRpm = 1100, maxRpm = 13500,
                 cylinderCount = 4,
                 firingAngles = floatArrayOf(0f, 180f, 360f, 540f),
-                harmonics = floatArrayOf(1f, 0.5f, 0.3f, 0.2f, 0.12f, 0.07f),
+                pipeHz = 230f, pipeQ = 0.9f,
+                ringHz = 3200f, ringAmount = 0.1f,
+                intakeNoise = 0.4f,
                 exhaustGrit = 0.16f,
                 decelPopProbability = 0.5f,
                 compressionTone = 0.55f
@@ -195,7 +227,8 @@ data class EngineProfile(
                 idleRpm = 700, maxRpm = 7000,
                 cylinderCount = 8,
                 firingAngles = floatArrayOf(0f, 90f, 180f, 270f, 360f, 450f, 540f, 630f),
-                harmonics = floatArrayOf(1f, 0.7f, 0.5f, 0.35f, 0.22f, 0.13f),
+                pipeHz = 200f, pipeQ = 1.1f,
+                intakeNoise = 0.35f,
                 exhaustGrit = 0.28f,
                 decelPopProbability = 0.55f,
                 compressionTone = 0.7f
@@ -207,7 +240,9 @@ data class EngineProfile(
                 idleRpm = 800, maxRpm = 8500,
                 cylinderCount = 12,
                 firingAngles = FloatArray(12) { i -> i * 60f },
-                harmonics = floatArrayOf(1f, 0.75f, 0.55f, 0.4f, 0.27f, 0.16f),
+                pipeHz = 240f, pipeQ = 0.8f,
+                ringHz = 3000f, ringAmount = 0.15f,
+                intakeNoise = 0.3f,
                 exhaustGrit = 0.14f,
                 decelPopProbability = 0.35f,
                 compressionTone = 0.55f
@@ -219,7 +254,8 @@ data class EngineProfile(
                 idleRpm = 550, maxRpm = 6500,
                 cylinderCount = 16,
                 firingAngles = FloatArray(16) { i -> i * 45f },
-                harmonics = floatArrayOf(1f, 0.85f, 0.65f, 0.45f, 0.3f, 0.18f),
+                pipeHz = 200f, pipeQ = 0.9f,
+                intakeNoise = 0.15f,
                 exhaustGrit = 0.1f,
                 decelPopProbability = 0.2f,
                 compressionTone = 0.45f
@@ -231,9 +267,11 @@ data class EngineProfile(
                 kind = Kind.ICE,
                 idleRpm = 850, maxRpm = 7800,
                 cylinderCount = 6,
-                // Flat-6 firing pattern (Porsche-ish): even 120° steps in 720° cycle
+                // Flat-6 firing pattern (Porsche-ish): even 120 degree steps in the 720 degree cycle
                 firingAngles = floatArrayOf(0f, 120f, 240f, 360f, 480f, 600f),
-                harmonics = floatArrayOf(1f, 0.55f, 0.45f, 0.28f, 0.18f, 0.1f),
+                pipeHz = 210f, pipeQ = 1f,
+                ringHz = 2400f, ringAmount = 0.12f,
+                intakeNoise = 0.35f,
                 exhaustGrit = 0.18f,
                 decelPopProbability = 0.45f,
                 compressionTone = 0.5f
@@ -245,7 +283,8 @@ data class EngineProfile(
                 idleRpm = 700, maxRpm = 7000,
                 cylinderCount = 6,
                 firingAngles = floatArrayOf(0f, 120f, 240f, 360f, 480f, 600f),
-                harmonics = floatArrayOf(1f, 0.8f, 0.6f, 0.42f, 0.28f, 0.17f),
+                pipeHz = 220f, pipeQ = 0.8f,
+                intakeNoise = 0.2f,
                 exhaustGrit = 0.08f,
                 decelPopProbability = 0.25f,
                 compressionTone = 0.4f
@@ -257,7 +296,10 @@ data class EngineProfile(
                 idleRpm = 450, maxRpm = 2400,
                 cylinderCount = 1,
                 firingAngles = floatArrayOf(0f),
-                harmonics = floatArrayOf(1f, 0.9f, 0.75f, 0.55f, 0.35f, 0.2f),
+                pipeHz = 230f, pipeQ = 1.4f,
+                gainTrim = 2.4f,
+                intakeNoise = 0.4f,
+                pulseMs = 6f,
                 exhaustGrit = 0.5f,
                 decelPopProbability = 0.55f,
                 compressionTone = 0.95f
@@ -266,12 +308,16 @@ data class EngineProfile(
                 key = "STEAM_LOCO", preview = true,
                 displayName = "Steam locomotive",
                 kind = Kind.ICE, gearless = true,
-                idleRpm = 180, maxRpm = 900,
+                // Driving wheel turns: four chuffs each, a crawl to a run
+                idleRpm = 60, maxRpm = 420,
                 cylinderCount = 2,
-                // Two cylinders firing 180° apart, that's the classic "chuff-chuff"
+                // Two cylinders 180 degrees apart, double acting: four chuffs per turn
                 firingAngles = floatArrayOf(0f, 180f),
                 twoStroke = true,
-                harmonics = floatArrayOf(1f, 0.95f, 0.85f, 0.7f, 0.5f, 0.3f),
+                pipeHz = 320f, pipeQ = 0.5f,
+                intakeNoise = 0.2f,
+                pulseMs = 160f,
+                gainTrim = 6f,
                 exhaustGrit = 0.7f,
                 decelPopProbability = 0.0f,
                 compressionTone = 0.9f
@@ -282,8 +328,8 @@ data class EngineProfile(
                 displayName = "Tron whine",
                 kind = Kind.SYNTH, gearless = true,
                 idleRpm = 600, maxRpm = 14000,
-                synthBaseHz = 110f, synthMaxHz = 2400f,
-                synthShape = 2,           // square, bright digital edge
+                synthBaseHz = 200f, synthMaxHz = 2400f,
+                voice = SynthVoice.SQUARE,
                 synthFmDepth = 0.15f,
                 exhaustGrit = 0.05f,
                 decelPopProbability = 0.0f
@@ -293,20 +339,20 @@ data class EngineProfile(
                 displayName = "Pod racer",
                 kind = Kind.SYNTH, gearless = true,
                 idleRpm = 500, maxRpm = 10000,
-                synthBaseHz = 65f, synthMaxHz = 950f,
-                synthShape = 1,           // saw, gritty turbine
+                synthBaseHz = 110f, synthMaxHz = 950f,
+                voice = SynthVoice.SAW,
                 synthFmDepth = 0.6f,
                 exhaustGrit = 0.45f,
-                decelPopProbability = 0.0f
+                decelPopProbability = 0.3f
             ),
             EngineProfile(
                 key = "LIGHTSABER", preview = true,
                 displayName = "Lightsaber",
                 kind = Kind.SYNTH, gearless = true,
                 idleRpm = 300, maxRpm = 1800,
-                synthBaseHz = 55f, synthMaxHz = 220f,
-                synthShape = 0,           // sine, pure hum
-                synthFmDepth = 0.75f,     // heavy modulation gives the wobble
+                synthBaseHz = 190f, synthMaxHz = 380f,
+                voice = SynthVoice.HUM,
+                synthFmDepth = 0.75f,
                 exhaustGrit = 0.02f,
                 decelPopProbability = 0.0f
             ),
@@ -315,10 +361,10 @@ data class EngineProfile(
                 displayName = "Jet turbine",
                 kind = Kind.SYNTH, gearless = true,
                 idleRpm = 1500, maxRpm = 18000,
-                synthBaseHz = 180f, synthMaxHz = 3800f,
-                synthShape = 2,           // square, bright whine
-                synthFmDepth = 0.08f,     // tight, only a touch of warble
-                exhaustGrit = 0.55f,      // turbine air hiss
+                synthBaseHz = 320f, synthMaxHz = 3000f,
+                voice = SynthVoice.TURBINE,
+                synthFmDepth = 0.08f,
+                exhaustGrit = 0.55f,
                 decelPopProbability = 0.0f
             ),
             EngineProfile(
@@ -326,9 +372,9 @@ data class EngineProfile(
                 displayName = "UFO hover",
                 kind = Kind.SYNTH, gearless = true,
                 idleRpm = 700, maxRpm = 3200,
-                synthBaseHz = 95f, synthMaxHz = 460f,
-                synthShape = 0,           // sine
-                synthFmDepth = 1.0f,      // huge wobble, the cliche flying-saucer warble
+                synthBaseHz = 220f, synthMaxHz = 620f,
+                voice = SynthVoice.HUM,
+                synthFmDepth = 1.0f,
                 exhaustGrit = 0.1f,
                 decelPopProbability = 0.0f
             ),
@@ -337,8 +383,8 @@ data class EngineProfile(
                 displayName = "F1 electric whine",
                 kind = Kind.SYNTH, gearless = true,
                 idleRpm = 800, maxRpm = 20000,
-                synthBaseHz = 220f, synthMaxHz = 5200f,
-                synthShape = 1,           // saw, rich harmonic content
+                synthBaseHz = 220f, synthMaxHz = 3600f,
+                voice = SynthVoice.ELECTRIC,
                 synthFmDepth = 0.04f,
                 exhaustGrit = 0.0f,
                 decelPopProbability = 0.0f
@@ -348,8 +394,8 @@ data class EngineProfile(
                 displayName = "Hover bike",
                 kind = Kind.SYNTH, gearless = true,
                 idleRpm = 500, maxRpm = 7000,
-                synthBaseHz = 90f, synthMaxHz = 1400f,
-                synthShape = 1,           // saw + sine FM = thick mid
+                synthBaseHz = 150f, synthMaxHz = 1400f,
+                voice = SynthVoice.SAW,
                 synthFmDepth = 0.35f,
                 exhaustGrit = 0.25f,
                 decelPopProbability = 0.0f
