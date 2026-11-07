@@ -81,6 +81,8 @@ interface SettingsSync : DashboardSync {
     fun sanitizeBackupName(raw: String): String?
     fun startDropboxSync()
     fun stopDropboxSync()
+    /** The leaderboard rider id lives in the backup folder, so joining needs one (Android). */
+    val riderIdNeedsFolder: Boolean get() = true
 }
 
 /** The light, lock and media automations (AutomationManager). */

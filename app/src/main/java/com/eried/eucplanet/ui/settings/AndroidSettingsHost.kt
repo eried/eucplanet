@@ -15,7 +15,11 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.eried.eucplanet.data.eucstats.RiderCard
+import androidx.compose.ui.graphics.asImageBitmap
+import com.eried.eucplanet.ui.navigator.UserMarkerCropDialog
+import com.eried.eucplanet.ui.navigator.decodeDownsampledBitmap
+import com.eried.eucplanet.ui.settings.eucstats.AvatarPicker
+import com.eried.eucplanet.ui.settings.eucstats.PickedAvatar
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.repository.DropboxRepository
 import com.eried.eucplanet.data.repository.startLinkFlow
@@ -186,21 +190,53 @@ private class AndroidSettingsHost(
     }
 
     @Composable
-    override fun LeaderboardProfileCard(card: RiderCard) {
-        com.eried.eucplanet.ui.settings.eucstats.LeaderboardProfileCard(card)
+    override fun rememberAvatarPicker(onPicked: (PickedAvatar?) -> Unit): AvatarPicker {
+        var picked by remember { mutableStateOf<android.graphics.Bitmap?>(null) }
+        var showCrop by remember { mutableStateOf(false) }
+        val launcher = rememberLauncherForActivityResult(
+            ActivityResultContracts.GetContent()
+        ) { uri ->
+            if (uri == null) return@rememberLauncherForActivityResult
+            // Downsample on decode: a full-res gallery photo would OOM / blow the
+            // canvas bitmap limit in the crop dialog and crash the app.
+            val bmp = runCatching { decodeDownsampledBitmap(context, uri) }
+                .getOrNull() ?: return@rememberLauncherForActivityResult
+            picked = bmp
+            onPicked(null)
+            showCrop = true
+        }
+        val src = picked
+        // The crop step renders full-screen; the dialog that asked draws nothing else meanwhile.
+        if (src != null && showCrop) {
+            UserMarkerCropDialog(
+                source = src,
+                onCancel = { showCrop = false },
+                onApply = { cropped ->
+                    onPicked(PickedAvatar(cropped.asImageBitmap(), cropped.toPngBase64()))
+                    showCrop = false
+                },
+                // 256px so the 96dp preview is crisp (server still re-encodes to 64).
+                outputSize = 256,
+            )
+        }
+        return AvatarPicker(launch = { launcher.launch("image/*") }, cropping = src != null && showCrop)
     }
 
-    @Composable
-    override fun OnlineUploadOnboardingDialog(viewModel: SettingsViewModel, onDismiss: () -> Unit, onRegistered: () -> Unit) {
-        com.eried.eucplanet.ui.settings.eucstats.OnlineUploadOnboardingDialog(
-            onDismiss = onDismiss,
-            onRegistered = onRegistered,
-            viewModel = viewModel,
-        )
+    override fun shareJson(json: String, subject: String) {
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "application/json"
+            putExtra(Intent.EXTRA_TEXT, json)
+            putExtra(Intent.EXTRA_SUBJECT, subject)
+        }
+        runCatching {
+            context.startActivity(Intent.createChooser(shareIntent, null))
+        }
     }
+}
 
-    @Composable
-    override fun OnlineProfileDialog(viewModel: SettingsViewModel, onDismiss: () -> Unit) {
-        com.eried.eucplanet.ui.settings.eucstats.OnlineProfileDialog(onDismiss = onDismiss, viewModel = viewModel)
-    }
+/** The cropped avatar as a base64 PNG (no data-URL prefix). */
+private fun android.graphics.Bitmap.toPngBase64(): String {
+    val baos = java.io.ByteArrayOutputStream()
+    compress(android.graphics.Bitmap.CompressFormat.PNG, 100, baos)
+    return android.util.Base64.encodeToString(baos.toByteArray(), android.util.Base64.NO_WRAP)
 }

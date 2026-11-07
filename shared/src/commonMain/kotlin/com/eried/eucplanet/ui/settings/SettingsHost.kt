@@ -2,8 +2,9 @@ package com.eried.eucplanet.ui.settings
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.staticCompositionLocalOf
-import com.eried.eucplanet.data.eucstats.RiderCard
 import com.eried.eucplanet.data.model.AppSettings
+import com.eried.eucplanet.ui.settings.eucstats.AvatarPicker
+import com.eried.eucplanet.ui.settings.eucstats.PickedAvatar
 
 /**
  * What SettingsScreen asks of the platform it runs on: the system screens and
@@ -82,16 +83,16 @@ interface SettingsHost {
     @Composable
     fun VoiceVocabularyDialog(onDismiss: () -> Unit, languageTag: String)
 
+    /**
+     * The leaderboard picture picker: the platform's photo picker and a
+     * square crop to 256 px. [onPicked] gets null when a new photo is chosen
+     * (the previous crop is dropped) and the cropped picture once applied.
+     */
     @Composable
-    fun LeaderboardProfileCard(card: RiderCard)
+    fun rememberAvatarPicker(onPicked: (PickedAvatar?) -> Unit): AvatarPicker
 
-    /** Joining the online leaderboard: name, flag and avatar. */
-    @Composable
-    fun OnlineUploadOnboardingDialog(viewModel: SettingsViewModel, onDismiss: () -> Unit, onRegistered: () -> Unit)
-
-    /** The rider's leaderboard profile, to edit or delete. */
-    @Composable
-    fun OnlineProfileDialog(viewModel: SettingsViewModel, onDismiss: () -> Unit)
+    /** Hands [json] to the share sheet, as the leaderboard's "export my data". */
+    fun shareJson(json: String, subject: String)
 }
 
 /** A permission the rider grants outside the app. */

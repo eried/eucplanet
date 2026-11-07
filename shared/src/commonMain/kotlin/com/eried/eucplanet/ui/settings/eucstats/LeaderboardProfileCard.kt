@@ -96,5 +96,5 @@ fun LeaderboardProfileCard(card: RiderCard, modifier: Modifier = Modifier) {
  * surrogate to Text, which draws a tofu box. A name with no letter or digit in
  * it at all falls back to a question mark.
  */
-internal fun avatarInitial(name: String?): String =
+fun avatarInitial(name: String?): String =
     name?.firstOrNull { it.isLetterOrDigit() }?.uppercaseChar()?.toString() ?: "?"

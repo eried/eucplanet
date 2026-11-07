@@ -3,7 +3,6 @@ package com.eried.eucplanet.data.eucstats
 import com.eried.eucplanet.data.db.TripDao
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.TripRecord
-import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
@@ -608,22 +607,22 @@ class EucStatsRepositoryTest {
 class ProfileEditGatingTest {
 
     @Test fun isEditable_nullCanChangeAfter_isEditable() {
-        assertTrue(com.eried.eucplanet.ui.settings.eucstats.isEditableOn(null, java.time.LocalDate.of(2026, 6, 4)))
+        assertTrue(com.eried.eucplanet.ui.settings.eucstats.isEditableOn(null, "2026-06-04"))
     }
 
     @Test fun isEditable_todayIsExactlyGateDate_isEditable() {
-        assertTrue(com.eried.eucplanet.ui.settings.eucstats.isEditableOn("2026-06-04", java.time.LocalDate.of(2026, 6, 4)))
+        assertTrue(com.eried.eucplanet.ui.settings.eucstats.isEditableOn("2026-06-04", "2026-06-04"))
     }
 
     @Test fun isEditable_gateDateInPast_isEditable() {
-        assertTrue(com.eried.eucplanet.ui.settings.eucstats.isEditableOn("2026-01-01", java.time.LocalDate.of(2026, 6, 4)))
+        assertTrue(com.eried.eucplanet.ui.settings.eucstats.isEditableOn("2026-01-01", "2026-06-04"))
     }
 
     @Test fun isEditable_gateDateInFuture_notEditable() {
-        assertFalse(com.eried.eucplanet.ui.settings.eucstats.isEditableOn("2026-12-31", java.time.LocalDate.of(2026, 6, 4)))
+        assertFalse(com.eried.eucplanet.ui.settings.eucstats.isEditableOn("2026-12-31", "2026-06-04"))
     }
 
     @Test fun isEditable_unparsableDate_treatedAsEditable() {
-        assertTrue(com.eried.eucplanet.ui.settings.eucstats.isEditableOn("not-a-date", java.time.LocalDate.of(2026, 6, 4)))
+        assertTrue(com.eried.eucplanet.ui.settings.eucstats.isEditableOn("not-a-date", "2026-06-04"))
     }
 }

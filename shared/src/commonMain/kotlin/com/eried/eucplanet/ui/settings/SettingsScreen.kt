@@ -8141,7 +8141,10 @@ private fun CloudTab(
         // Crew pass only shows for a rider on the leaderboard. Searching for it
         // without one lands on the leaderboard heading; this says why the
         // button is not there and what brings it.
-        val crewPassShown = settings.syncFolderUri != null && settings.onlineUploadEnabled && riderStoreId != null
+        // The rider id is kept in the backup folder; a phone without folders
+        // (iOS) keeps it in the app's own files, so there it needs none.
+        val riderIdHome = settings.syncFolderUri != null || !host.supportsBackupFolder
+        val crewPassShown = riderIdHome && settings.onlineUploadEnabled && riderStoreId != null
         val searchQuery = LocalSettingsSearchQuery.current.trim()
         val crewPassLabel = stringResource(Res.string.crews_pass_action)
         val crewPassHint = stringResource(Res.string.crews_pass_search_hint)
@@ -8211,7 +8214,7 @@ private fun CloudTab(
         }
 
         if (showOnboarding) {
-            LocalSettingsHost.current.OnlineUploadOnboardingDialog(
+            com.eried.eucplanet.ui.settings.eucstats.OnlineUploadOnboardingDialog(
                 onDismiss = { showOnboarding = false },
                 onRegistered = {
                     showOnboarding = false
@@ -8222,7 +8225,7 @@ private fun CloudTab(
         }
 
         if (showOnlineProfile) {
-            LocalSettingsHost.current.OnlineProfileDialog(
+            com.eried.eucplanet.ui.settings.eucstats.OnlineProfileDialog(
                 onDismiss = {
                     showOnlineProfile = false
                     viewModel.refreshOnlineUploadCard()
@@ -8252,7 +8255,7 @@ private fun CloudTab(
         }
 
         // Online leaderboards, only shown once a backup folder is configured.
-        if (settings.syncFolderUri != null) {
+        if (riderIdHome) {
             SectionHeader(stringResource(Res.string.section_online_stats))
 
             // Join whenever there is no rider to upload as, not only while
@@ -8294,7 +8297,7 @@ private fun CloudTab(
         }
 
         // Rider card + actions: shown when online upload is enabled and storeId is known.
-        if (settings.syncFolderUri != null && settings.onlineUploadEnabled && riderStoreId != null) {
+        if (riderIdHome && settings.onlineUploadEnabled && riderStoreId != null) {
             LaunchedEffect(Unit) { viewModel.refreshOnlineUploadCard() }
             val riderCard by viewModel.onlineUploadCard.collectAsStateWithLifecycle()
             val cardLoaded by viewModel.onlineUploadCardLoaded.collectAsStateWithLifecycle()
@@ -8345,7 +8348,7 @@ private fun CloudTab(
                         // Avatar + name/flag row. The one leaderboard profile
                         // card in the app: the live share dialog draws the
                         // same composable, so the two cannot drift apart.
-                        LocalSettingsHost.current.LeaderboardProfileCard(card)
+                        com.eried.eucplanet.ui.settings.eucstats.LeaderboardProfileCard(card)
 
                         // Stats, shown in the unit system the app is currently set to
                         // (not both metric + imperial). 1 decimal for small distances.

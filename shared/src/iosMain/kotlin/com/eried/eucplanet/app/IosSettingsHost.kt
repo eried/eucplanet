@@ -4,18 +4,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.eried.eucplanet.data.eucstats.RiderCard
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.ui.settings.AlarmViewModel
 import com.eried.eucplanet.ui.settings.FlicViewModel
 import com.eried.eucplanet.ui.settings.PermissionGate
 import com.eried.eucplanet.ui.settings.SettingsHost
 import com.eried.eucplanet.ui.settings.SettingsViewModel
+import com.eried.eucplanet.ui.settings.eucstats.AvatarPicker
+import com.eried.eucplanet.ui.settings.eucstats.PickedAvatar
+import platform.UIKit.UIActivityViewController
 import platform.Foundation.NSURL
 import platform.UIKit.UIApplication
 
@@ -91,16 +94,17 @@ internal object IosSettingsHost : SettingsHost {
     }
 
     @Composable
-    override fun LeaderboardProfileCard(card: RiderCard) = Unit
-
-    @Composable
-    override fun OnlineUploadOnboardingDialog(viewModel: SettingsViewModel, onDismiss: () -> Unit, onRegistered: () -> Unit) {
-        LaunchedEffect(Unit) { onDismiss() }
+    override fun rememberAvatarPicker(onPicked: (PickedAvatar?) -> Unit): AvatarPicker {
+        val callback = rememberUpdatedState(onPicked)
+        // The photo library's own square crop runs inside its sheet, so the
+        // dialog that asked never has to step aside for it.
+        return remember { AvatarPicker(launch = { IosAvatarPicker.open { callback.value(it) } }, cropping = false) }
     }
 
-    @Composable
-    override fun OnlineProfileDialog(viewModel: SettingsViewModel, onDismiss: () -> Unit) {
-        LaunchedEffect(Unit) { onDismiss() }
+    override fun shareJson(json: String, subject: String) {
+        val top = topViewController() ?: return
+        val sheet = UIActivityViewController(activityItems = listOf(json), applicationActivities = null)
+        top.presentViewController(sheet, animated = true, completion = null)
     }
 }
 

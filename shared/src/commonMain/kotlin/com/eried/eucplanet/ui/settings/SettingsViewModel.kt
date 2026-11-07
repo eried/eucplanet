@@ -2606,7 +2606,7 @@ class SettingsViewModel(
             val current = settingsRepository.get()
             val storeId = syncManager.riderStoreId.value
             // Preconditions: sync folder configured AND already registered.
-            if (current.syncFolderUri == null || storeId == null) return@launch
+            if ((current.syncFolderUri == null && syncManager.riderIdNeedsFolder) || storeId == null) return@launch
             settingsRepository.update(current.copy(onlineUploadEnabled = true))
             // Harden the recovery id file now that we're linked (write it if the
             // folder doesn't have it yet); warn instead of clobbering a foreign id.

@@ -1,10 +1,5 @@
 package com.eried.eucplanet.ui.settings.eucstats
 
-import android.content.Intent
-import android.graphics.Bitmap
-import android.util.Base64
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -52,20 +47,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.eried.eucplanet.R
 import com.eried.eucplanet.data.eucstats.RiderProfile
-import com.eried.eucplanet.ui.navigator.UserMarkerCropDialog
-import com.eried.eucplanet.ui.navigator.decodeDownsampledBitmap
+import com.eried.eucplanet.platform.System
+import com.eried.eucplanet.platform.localTimeParts
+import com.eried.eucplanet.platform.rememberStringFormatter
+import com.eried.eucplanet.platform.stringResource
+import com.eried.eucplanet.resources.*
+import com.eried.eucplanet.ui.settings.LocalSettingsHost
 import com.eried.eucplanet.ui.settings.SettingsViewModel
 import com.eried.eucplanet.ui.theme.appColors
-import com.eried.eucplanet.ui.theme.FieldNotchLabel
 import com.eried.eucplanet.ui.theme.themedFieldColors
-import java.io.ByteArrayOutputStream
-import java.time.LocalDate
 
 // ---------------------------------------------------------------------------
 // Gating helper
@@ -80,14 +72,34 @@ import java.time.LocalDate
  * a field due to a server-format change.
  *
  * @param canChangeAfter ISO date string (yyyy-MM-dd) or null.
- * @param today          The reference date (default: today).
+ * @param today          The reference date as yyyy-MM-dd (default: today, local time).
  */
-fun isEditableOn(canChangeAfter: String?, today: LocalDate = LocalDate.now()): Boolean {
+fun isEditableOn(canChangeAfter: String?, today: String = localIsoDate()): Boolean {
     if (canChangeAfter == null) return true
-    return runCatching {
-        val gate = LocalDate.parse(canChangeAfter)
-        !today.isBefore(gate)   // today >= gate → editable
-    }.getOrDefault(true)        // parse failure → editable
+    val gate = parseIsoDate(canChangeAfter) ?: return true   // parse failure → editable
+    val now = parseIsoDate(today) ?: return true
+    return now >= gate          // today >= gate → editable
+}
+
+/** Today in the device's time zone, yyyy-MM-dd (what `LocalDate.now().toString()` gave). */
+fun localIsoDate(epochMs: Long = System.currentTimeMillis()): String {
+    val t = localTimeParts(epochMs)
+    return t.year.toString().padStart(4, '0') + "-" +
+        t.month.toString().padStart(2, '0') + "-" + t.day.toString().padStart(2, '0')
+}
+
+/**
+ * `LocalDate.parse`'s strict yyyy-MM-dd, as one comparable number, or null for
+ * anything that is not a real calendar date.
+ */
+private fun parseIsoDate(s: String): Int? {
+    val m = Regex("^(\\d{4})-(\\d{2})-(\\d{2})$").matchEntire(s) ?: return null
+    val (y, mo, d) = m.destructured.toList().map { it.toInt() }
+    if (mo !in 1..12) return null
+    val leap = (y % 4 == 0 && y % 100 != 0) || y % 400 == 0
+    val days = intArrayOf(31, if (leap) 29 else 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)[mo - 1]
+    if (d !in 1..days) return null
+    return y * 10_000 + mo * 100 + d
 }
 
 // ---------------------------------------------------------------------------
@@ -103,7 +115,8 @@ fun OnlineProfileDialog(
     onDismiss: () -> Unit,
     viewModel: SettingsViewModel,
 ) {
-    val context = LocalContext.current
+    val host = LocalSettingsHost.current
+    val formatString = rememberStringFormatter()
 
     // ---- Loading state -------------------------------------------------------
     var loading by remember { mutableStateOf(true) }
@@ -114,9 +127,7 @@ fun OnlineProfileDialog(
     var flagCode    by rememberSaveable { mutableStateOf("") }
 
     // Avatar
-    var pickedBitmap   by remember { mutableStateOf<Bitmap?>(null) }
-    var croppedBitmap  by remember { mutableStateOf<Bitmap?>(null) }
-    var showCropDialog by remember { mutableStateOf(false) }
+    var croppedAvatar  by remember { mutableStateOf<PickedAvatar?>(null) }
     var showCountryPicker by remember { mutableStateOf(false) }
 
     // ---- Operation state -----------------------------------------------------
@@ -137,36 +148,10 @@ fun OnlineProfileDialog(
         }
     }
 
-    // ---- Image picker --------------------------------------------------------
-    val imagePicker = rememberLauncherForActivityResult(
-        ActivityResultContracts.GetContent()
-    ) { uri ->
-        if (uri == null) return@rememberLauncherForActivityResult
-        // Downsample on decode: a full-res gallery photo would OOM / blow the
-        // canvas bitmap limit in the crop dialog and crash the app.
-        val bmp = runCatching { decodeDownsampledBitmap(context, uri) }
-            .getOrNull() ?: return@rememberLauncherForActivityResult
-        pickedBitmap  = bmp
-        croppedBitmap = null
-        showCropDialog = true
-    }
-
-    // ---- Avatar crop sub-dialog (renders full-screen, blocks the main dialog) -
-    pickedBitmap?.let { src ->
-        if (showCropDialog) {
-            UserMarkerCropDialog(
-                source = src,
-                onCancel = { showCropDialog = false },
-                onApply  = { cropped ->
-                    croppedBitmap  = cropped
-                    showCropDialog = false
-                },
-                // 256px so the preview is crisp (server still re-encodes to 64).
-                outputSize = 256,
-            )
-            return
-        }
-    }
+    // ---- Image picker and its crop step (renders full-screen, blocks the main dialog)
+    // A new pick clears the previous crop (null) until the crop is applied.
+    val imagePicker = host.rememberAvatarPicker { croppedAvatar = it }
+    if (imagePicker.cropping) return
 
     // ---- Delete-confirm sub-dialog -------------------------------------------
     if (showDeleteConfirm) {
@@ -174,13 +159,13 @@ fun OnlineProfileDialog(
             onDismissRequest = { if (!deleting) showDeleteConfirm = false },
             title = {
                 Text(
-                    text = stringResource(R.string.online_profile_delete_confirm_title),
+                    text = stringResource(Res.string.online_profile_delete_confirm_title),
                     color = MaterialTheme.appColors.statusDanger,
                 )
             },
             text = {
                 Text(
-                    text = stringResource(R.string.online_profile_delete_confirm_body),
+                    text = stringResource(Res.string.online_profile_delete_confirm_body),
                     color = MaterialTheme.appColors.textPrimary,
                     style = MaterialTheme.typography.bodyMedium,
                 )
@@ -215,7 +200,7 @@ fun OnlineProfileDialog(
                         ),
                         shape = RoundedCornerShape(12.dp),
                     ) {
-                        Text(stringResource(R.string.online_profile_delete_confirm_action))
+                        Text(stringResource(Res.string.online_profile_delete_confirm_action))
                     }
                 }
             },
@@ -228,14 +213,14 @@ fun OnlineProfileDialog(
                     ),
                     shape = RoundedCornerShape(12.dp),
                 ) {
-                    Text(stringResource(R.string.action_cancel))
+                    Text(stringResource(Res.string.action_cancel))
                 }
             }
         )
     }
 
     // ---- Gating helpers (computed after profile is loaded) -------------------
-    val today = remember { LocalDate.now() }
+    val today = remember { localIsoDate() }
     val nameEditable   = isEditableOn(profile?.canChangeNameAfter,   today)
     val flagEditable   = isEditableOn(profile?.canChangeFlagAfter,   today)
     val avatarEditable = isEditableOn(profile?.canChangeAvatarAfter, today)
@@ -244,7 +229,7 @@ fun OnlineProfileDialog(
     val hasChanges   = !loading && (
         displayName.trim() != (profile?.displayName.orEmpty()) ||
         flagCode.uppercase() != (profile?.flag.orEmpty()) ||
-        croppedBitmap != null
+        croppedAvatar != null
     )
     val canSave = hasChanges && !saving && (flagCode.isEmpty() || flagValid)
 
@@ -260,7 +245,7 @@ fun OnlineProfileDialog(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(
-                    text = stringResource(R.string.online_profile_title),
+                    text = stringResource(Res.string.online_profile_title),
                     color = MaterialTheme.appColors.textPrimary,
                     modifier = Modifier.weight(1f),
                 )
@@ -272,14 +257,7 @@ fun OnlineProfileDialog(
                         onClick = {
                             viewModel.exportOnlineData { json ->
                                 if (json != null) {
-                                    val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                                        type = "application/json"
-                                        putExtra(Intent.EXTRA_TEXT, json)
-                                        putExtra(Intent.EXTRA_SUBJECT, "EUC Stats profile export")
-                                    }
-                                    runCatching {
-                                        context.startActivity(Intent.createChooser(shareIntent, null))
-                                    }
+                                    host.shareJson(json, subject = "EUC Stats profile export")
                                 }
                             }
                         },
@@ -287,7 +265,7 @@ fun OnlineProfileDialog(
                     ) {
                         Icon(
                             Icons.Default.Share,
-                            contentDescription = stringResource(R.string.online_profile_export_data),
+                            contentDescription = stringResource(Res.string.online_profile_export_data),
                             tint = MaterialTheme.appColors.textSecondary,
                         )
                     }
@@ -312,14 +290,14 @@ fun OnlineProfileDialog(
                             color = MaterialTheme.appColors.primary,
                         )
                         Text(
-                            text = stringResource(R.string.online_upload_card_loading),
+                            text = stringResource(Res.string.online_upload_card_loading),
                             color = MaterialTheme.appColors.textSecondary,
                             style = MaterialTheme.typography.bodySmall,
                         )
                     }
                 } else if (profile == null) {
                     Text(
-                        text = stringResource(R.string.online_upload_card_unavailable),
+                        text = stringResource(Res.string.online_upload_card_unavailable),
                         color = MaterialTheme.appColors.textSecondary,
                         style = MaterialTheme.typography.bodyMedium,
                     )
@@ -334,7 +312,7 @@ fun OnlineProfileDialog(
                             }
                         },
                         shape = RoundedCornerShape(12.dp),
-                    ) { Text(stringResource(R.string.online_profile_retry)) }
+                    ) { Text(stringResource(Res.string.online_profile_retry)) }
                 } else {
                     // ---- Avatar (centered, tappable) -------------------------
                     Column(
@@ -342,13 +320,13 @@ fun OnlineProfileDialog(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
-                        val cropped = croppedBitmap
+                        val cropped = croppedAvatar
                         val avatarBorder = if (cropped != null || profile?.hasAvatar == true)
                             MaterialTheme.appColors.primary else MaterialTheme.appColors.outline
                         Box(
                             modifier = Modifier
                                 .size(96.dp)
-                                .clickable(enabled = avatarEditable && !saving) { imagePicker.launch("image/*") },
+                                .clickable(enabled = avatarEditable && !saving) { imagePicker.launch() },
                             contentAlignment = Alignment.Center,
                         ) {
                             // Circular avatar (clipped). The edit badge is a sibling
@@ -363,7 +341,7 @@ fun OnlineProfileDialog(
                             ) {
                                 when {
                                     cropped != null -> Image(
-                                        bitmap = remember(cropped) { cropped.asImageBitmap() },
+                                        bitmap = cropped.image,
                                         contentDescription = null,
                                         modifier = Modifier.size(96.dp).clip(CircleShape),
                                     )
@@ -409,7 +387,7 @@ fun OnlineProfileDialog(
                         }
                         if (avatarEditable && cropped == null && profile?.hasAvatar != true) {
                             Text(
-                                text = stringResource(R.string.online_upload_profile_avatar_hint),
+                                text = stringResource(Res.string.online_upload_profile_avatar_hint),
                                 color = MaterialTheme.appColors.textSecondary,
                                 style = MaterialTheme.typography.bodySmall,
                             )
@@ -420,7 +398,7 @@ fun OnlineProfileDialog(
                     OutlinedTextField(
                         value = displayName,
                         onValueChange = { if (nameEditable) displayName = it },
-                        label = { Text(stringResource(R.string.online_upload_profile_name_label)) },
+                        label = { Text(stringResource(Res.string.online_upload_profile_name_label)) },
                         singleLine = true,
                         enabled = nameEditable && !saving,
                         modifier = Modifier.fillMaxWidth(),
@@ -436,11 +414,11 @@ fun OnlineProfileDialog(
                     Box(modifier = Modifier.fillMaxWidth()) {
                         OutlinedTextField(
                             value = if (flagValid) "${flagEmoji(flagCode)}  ${countryName(flagCode)}"
-                                    else stringResource(R.string.online_upload_profile_country_select),
+                                    else stringResource(Res.string.online_upload_profile_country_select),
                             onValueChange = {},
                             readOnly = true,
                             singleLine = true,
-                            label = { Text(stringResource(R.string.online_upload_profile_country_label)) },
+                            label = { Text(stringResource(Res.string.online_upload_profile_country_label)) },
                             trailingIcon = {
                                 Icon(Icons.Default.ArrowDropDown, contentDescription = null)
                             },
@@ -473,7 +451,7 @@ fun OnlineProfileDialog(
                     ).maxOrNull()
                     if (anyLocked && lockedUntil != null) {
                         Text(
-                            text = stringResource(R.string.online_profile_changeable_on, lockedUntil),
+                            text = stringResource(Res.string.online_profile_changeable_on, lockedUntil),
                             color = MaterialTheme.appColors.textSecondary,
                             style = MaterialTheme.typography.bodySmall,
                             modifier = Modifier.fillMaxWidth(),
@@ -512,7 +490,7 @@ fun OnlineProfileDialog(
                     ),
                     shape = RoundedCornerShape(12.dp),
                 ) {
-                    Text(stringResource(R.string.online_profile_delete_account))
+                    Text(stringResource(Res.string.online_profile_delete_account))
                 }
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -533,7 +511,7 @@ fun OnlineProfileDialog(
                         ),
                         shape = RoundedCornerShape(12.dp),
                     ) {
-                        Text(stringResource(R.string.action_cancel))
+                        Text(stringResource(Res.string.action_cancel))
                     }
                     Button(
                         onClick = {
@@ -541,12 +519,7 @@ fun OnlineProfileDialog(
                             saveError = null
                             val newName   = displayName.trim().takeIf { nameEditable && it != profile?.displayName.orEmpty() }
                             val newFlag   = flagCode.uppercase().takeIf { flagEditable && it != profile?.flag.orEmpty() }
-                            val newAvatar = croppedBitmap?.takeIf { avatarEditable }
-                                ?.let { bmp ->
-                                    val baos = ByteArrayOutputStream()
-                                    bmp.compress(Bitmap.CompressFormat.PNG, 100, baos)
-                                    Base64.encodeToString(baos.toByteArray(), Base64.NO_WRAP)
-                                }
+                            val newAvatar = croppedAvatar?.takeIf { avatarEditable }?.pngBase64
                             viewModel.editOnlineProfile(
                                 displayName    = newName,
                                 flag           = newFlag,
@@ -555,8 +528,8 @@ fun OnlineProfileDialog(
                                 saving = false
                                 when (code) {
                                     200, 201, 204 -> onDismiss()
-                                    429 -> saveError = context.getString(R.string.online_profile_save_rate_limited)
-                                    else -> saveError = context.getString(R.string.online_profile_save_failed, code)
+                                    429 -> saveError = formatString(Res.string.online_profile_save_rate_limited, emptyList())
+                                    else -> saveError = formatString(Res.string.online_profile_save_failed, listOf(code))
                                 }
                             }
                         },
@@ -569,7 +542,7 @@ fun OnlineProfileDialog(
                         ),
                         shape = RoundedCornerShape(12.dp),
                     ) {
-                        Text(stringResource(R.string.action_save))
+                        Text(stringResource(Res.string.action_save))
                     }
                 }
             }
