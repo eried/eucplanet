@@ -113,6 +113,20 @@ compose.resources {
     )
 }
 
+// The iPhone's trip map inlines the same Leaflet the phone app ships in its
+// assets, so it draws without the CDN. iOS resources only: the APK already
+// carries these files.
+val iosLeaflet = tasks.register<Sync>("generateIosLeaflet") {
+    from(rootProject.file("app/src/main/assets")) { include("leaflet.js", "leaflet.css") }
+    into(layout.buildDirectory.dir("generated/iosLeaflet/files"))
+}
+compose.resources {
+    customDirectory(
+        sourceSetName = "iosMain",
+        directoryProvider = iosLeaflet.map { layout.buildDirectory.dir("generated/iosLeaflet").get() },
+    )
+}
+
 // The settings search reads its words from the settings code, not a hand list.
 apply(from = "settings-search-index.gradle.kts")
 kotlin.sourceSets.getByName("commonMain").kotlin.srcDir(tasks.named("generateSettingsSearchIndex"))

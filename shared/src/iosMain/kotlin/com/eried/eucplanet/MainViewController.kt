@@ -14,6 +14,8 @@ import com.eried.eucplanet.app.IosScanHost
 import com.eried.eucplanet.app.IosSettingsHost
 import com.eried.eucplanet.app.IosRecordingHost
 import com.eried.eucplanet.ui.recording.RecordingScreen
+import com.eried.eucplanet.ui.recording.TripDetailScreen
+import com.eried.eucplanet.app.IosTripDetailHost
 import com.eried.eucplanet.app.rememberViewModel
 import com.eried.eucplanet.ui.settings.SettingsScreen
 import com.eried.eucplanet.ui.settings.FlicScreen
@@ -99,10 +101,12 @@ fun MainViewController(): UIViewController {
             val colors by theme.activeColors.collectAsState()
             EucPlanetTheme(colors = colors) {
                 // A small screen stack until the shared navigation graph lands.
-                // SIMCTL_CHILD_EUC_SCREEN=scan opens on the scan screen (also settings, flic, trips, tripmeter, metric:<key>, charging, charging:details).
+                // SIMCTL_CHILD_EUC_SCREEN=scan opens on the scan screen (also settings, flic, trips, trip, trip:<id>, tripmeter, metric:<key>, charging, charging:details).
                 // "metric:VOLTAGE" opens a metric's detail, with the dashboard's route argument.
                 var screen by remember { mutableStateOf(startScreen?.substringBefore(':') ?: "dashboard") }
                 var metricArg by remember { mutableStateOf(startScreen?.substringAfter(':', "BATTERY") ?: "BATTERY") }
+                // The trip the viewer shows ("trip:12"); blank opens the newest.
+                var tripArg by remember { mutableStateOf(if (startScreen?.startsWith("trip:") == true) startScreen.substringAfter(':') else "") }
                 // Where the metric detail goes back to: the dashboard, or the charging monitor's history.
                 var metricBack by remember { mutableStateOf("dashboard") }
                 // Settings goes back to where it was opened from (the dashboard or the charging monitor).
@@ -155,14 +159,35 @@ fun MainViewController(): UIViewController {
                             host = IosSettingsHost,
                         )
                     }
-                    "trips" -> {
+                    // One branch, so the trip list and the trip viewer share the view
+                    // model, as NavGraph hands Recording's to TripDetail on Android.
+                    "trips", "trip" -> {
                         val recordingVm = rememberViewModel { IosAppGraph.recordingViewModel() }
-                        RecordingScreen(
-                            onBack = { screen = "dashboard" },
-                            onOpenBackupSettings = { screen = "settings" },
-                            viewModel = recordingVm,
-                            host = IosRecordingHost,
-                        )
+                        if (screen == "trips") {
+                            RecordingScreen(
+                                onBack = { screen = "dashboard" },
+                                onViewTrip = { trip ->
+                                    tripArg = trip.id.toString()
+                                    screen = "trip"
+                                },
+                                onOpenBackupSettings = { screen = "settings" },
+                                viewModel = recordingVm,
+                                host = IosRecordingHost,
+                            )
+                        } else {
+                            // "trip:<id>", or "trip" alone for the newest trip.
+                            val trips by recordingVm.trips.collectAsState()
+                            val trip = tripArg.toLongOrNull()?.let { id -> trips.find { it.id == id } }
+                                ?: if (tripArg.isBlank()) trips.firstOrNull() else null
+                            if (trip != null) {
+                                TripDetailScreen(
+                                    trip = trip,
+                                    onBack = { screen = "trips" },
+                                    viewModel = recordingVm,
+                                    host = IosTripDetailHost,
+                                )
+                            }
+                        }
                     }
                     "tripmeter" -> {
                         val tripMeterVm = rememberViewModel {

@@ -1678,7 +1678,7 @@ fun TripDetailScreen(
  *    appears automatically at the end. Visibility is a separate hidden-set (a
  *    key absent from the hidden set is shown), so the new key defaults to shown.
  */
-private fun applyOrder(defaultKeys: List<String>, savedOrder: List<String>): List<String> {
+internal fun applyOrder(defaultKeys: List<String>, savedOrder: List<String>): List<String> {
     val known = defaultKeys.toSet()
     val saved = savedOrder.filter { it in known }
     return saved + defaultKeys.filter { it !in saved }
@@ -2732,7 +2732,7 @@ data class TripBatteryStats(
  * Degenerate fallback: when no point survives both filters, the raw min/max
  * over all points is used so the card still shows something instead of crashing.
  */
-private fun computeBatteryStats(points: List<TripDataPoint>): TripBatteryStats {
+internal fun computeBatteryStats(points: List<TripDataPoint>): TripBatteryStats {
     if (points.isEmpty()) {
         return TripBatteryStats(0, 0, 0, 0, 0, 0, 0f, 0f, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN)
     }
