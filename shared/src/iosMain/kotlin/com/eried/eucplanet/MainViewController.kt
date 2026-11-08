@@ -63,7 +63,11 @@ fun MainViewController(): UIViewController {
     // For scripted runs on the simulator, which cannot tap:
     // SIMCTL_CHILD_EUC_CONNECT=VIRTUAL:<id> xcrun simctl launch ...
     (NSProcessInfo.processInfo.environment["EUC_CONNECT"] as? String)?.let { wheel.connect(it) }
-    MainScope().launch { IosAppGraph.seed() }
+    MainScope().launch {
+        IosAppGraph.seed()
+        // A recording the app was killed in, finalized or dropped, as on Android.
+        IosTrips.recoverKilled()
+    }
     // The phone's GPS for the dashboard and trips, and auto-record, as
     // WheelService starts them on Android.
     IosLocation.start()

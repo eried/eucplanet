@@ -11,6 +11,7 @@ import com.eried.eucplanet.resources.voice_recording_finished
 import com.eried.eucplanet.resources.voice_recording_started
 import com.eried.eucplanet.service.AutoRecordPolicy
 import com.eried.eucplanet.data.repository.WheelChoice
+import com.eried.eucplanet.data.repository.recoverKilledRecordings
 import com.eried.eucplanet.ui.dashboard.DashboardTrips
 import com.eried.eucplanet.ui.recording.RecordingTrips
 import com.eried.eucplanet.ui.settings.SettingsTrips
@@ -56,8 +57,11 @@ import platform.Foundation.writeData
  * rider's recording interval, with the phone's GPS from [IosLocation].
  *
  * What Android's recorder also does and this one does not yet: the GPS power
- * tiers, the wheel identity in the Extra column, the external GPS box, the
- * discard grace before a sync. A finished trip goes to Dropbox through
+ * tiers, the wheel identity in the Extra column, the external GPS box. The
+ * discard grace before a sync exists on Android only with a backup folder,
+ * which iOS has none of, so a stopped trip is final at once there as here. A
+ * recording the app was killed in is finalized or dropped at the next start
+ * ([recoverKilledRecordings], the same sweep). A finished trip goes to Dropbox through
  * [IosDropboxSync]. The trip list reads it as [RecordingTrips]; the trip
  * tools (rename, wheel, split, combine, section) are not on iOS yet, so
  * their screens hide them. See docs/IOS_PARITY.md.
@@ -83,7 +87,8 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips {
     override val lastKnownFix: StateFlow<PhoneLocation?> get() = IosLocation.lastKnown
     override val currentLocation: StateFlow<PhoneLocation?> get() = IosLocation.fix
     override val allTrips: Flow<List<TripRecord>> get() = dao.observeAll()
-    // No discard grace on iOS yet: a stopped trip is final at once.
+    // The discard grace waits for a folder backup, which iOS has none of, so a
+    // stopped trip is final at once, as on an Android phone without a folder.
     override val pendingTripId: StateFlow<Long?> = MutableStateFlow(null)
     private val _liveGpsKm = MutableStateFlow(0f)
     override val liveGpsDistanceKm: StateFlow<Float> = _liveGpsKm.asStateFlow()
@@ -93,6 +98,30 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips {
     private var loop: Job? = null
     private var gpsKm = 0.0
     private var wheelKm = 0f
+
+    /**
+     * The start-up sweep Android's TripRepository runs: a recording the app
+     * was killed in is finalized from its CSV, or dropped with its file when
+     * nothing usable was written, so no 0 s trip is left in the list.
+     */
+    suspend fun recoverKilled() {
+        runCatching {
+            recoverKilledRecordings(
+                dao.getUnfinished(),
+                liveTripId = _currentTripId.value,
+                readCsv = { t -> NSString.stringWithContentsOfFile("$tripsDir/${t.fileName}", NSUTF8StringEncoding, null) },
+                keep = { finalized, rows ->
+                    dao.update(finalized)
+                    Log.i(TAG, "Finalized killed recording ${finalized.fileName} ($rows rows, ${finalized.distanceKm} km)")
+                },
+                drop = { t ->
+                    dao.delete(t)
+                    NSFileManager.defaultManager.removeItemAtPath("$tripsDir/${t.fileName}", null)
+                    Log.i(TAG, "Dropped empty killed recording ${t.fileName}")
+                },
+            )
+        }.onFailure { Log.w(TAG, "killed-recording sweep failed", it) }
+    }
 
     override suspend fun allTripFileNames(): List<String> = dao.observeAll().first().map { it.fileName }
 

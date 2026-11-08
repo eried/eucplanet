@@ -629,27 +629,27 @@ class TripRepository(
      * dropped (row + file) and can't then be re-adopted. Idempotent: once an
      * end time is set the row no longer matches [TripDao.getUnfinished].
      */
-    suspend fun finalizeUnfinishedTrips() {
-        for (trip in tripDao.getUnfinished()) {
-            // Never touch the live recording (none at cold start, but guard).
-            if (trip.id == _currentTripId.value) continue
+    suspend fun finalizeUnfinishedTrips() = recoverKilledRecordings(
+        tripDao.getUnfinished(),
+        // Never touch the live recording (none at cold start, but guard).
+        liveTripId = _currentTripId.value,
+        readCsv = { trip ->
             val file = getTripFile(trip)
-            val text = if (file.exists()) runCatching { file.readText() }.getOrNull() else null
-            val rows = text?.let { (it.count { c -> c == '\n' } - 1).coerceAtLeast(0) } ?: 0
-            val metrics = text?.let { TripCsv.metricsFrom(parseTripQuads(it)) }
-            val finalized = finalizedTripOrNull(trip, metrics, rows)
-            if (finalized != null) {
-                tripDao.update(finalized)
-                Log.i(TAG, "Finalized killed recording ${trip.fileName} ($rows rows, ${finalized.distanceKm} km)")
-            } else {
-                // Nothing usable was captured before the kill: drop the zombie row
-                // and its empty file so it doesn't linger as a 0 km trip.
-                tripDao.delete(trip)
-                runCatching { if (file.exists()) file.delete() }
-                Log.i(TAG, "Dropped empty killed recording ${trip.fileName}")
-            }
-        }
-    }
+            if (file.exists()) runCatching { file.readText() }.getOrNull() else null
+        },
+        keep = { finalized, rows ->
+            tripDao.update(finalized)
+            Log.i(TAG, "Finalized killed recording ${finalized.fileName} ($rows rows, ${finalized.distanceKm} km)")
+        },
+        drop = { trip ->
+            // Nothing usable was captured before the kill: drop the zombie row
+            // and its empty file so it doesn't linger as a 0 km trip.
+            tripDao.delete(trip)
+            val file = getTripFile(trip)
+            runCatching { if (file.exists()) file.delete() }
+            Log.i(TAG, "Dropped empty killed recording ${trip.fileName}")
+        },
+    )
 
     // Wall-clock of the last failed recording start (e.g. an unwritable trips
     // directory). Used to throttle the motion-gated auto-record path so it
@@ -1575,40 +1575,3 @@ fun buildWheelMetaJson(
     return if (obj.length() == 0) null else obj.toString()
 }
 
-/**
- * Header-driven extraction of (date, lat, lon, mileage) rows from a trip CSV.
- * Top-level so the orphan-adopt and killed-recording finalize share it and it is
- * unit-testable without Room / files.
- */
-internal fun parseTripQuads(text: String): List<TripCsv.Quad> {
-    val lines = text.split('\n')
-    if (lines.size < 2) return emptyList()
-    val h = lines[0].split(',').map { it.trim().lowercase(Locale.US) }
-    val iDate = TripCsv.Columns.date(h); if (iDate < 0) return emptyList()
-    val iLat = TripCsv.Columns.latitude(h); val iLon = TripCsv.Columns.longitude(h)
-    val iMile = TripCsv.Columns.mileage(h)
-    return lines.asSequence().drop(1).mapNotNull { ln ->
-        val c = ln.split(',')
-        if (iDate >= c.size || c[iDate].isBlank()) return@mapNotNull null
-        fun d(i: Int) = if (i in 0 until c.size) c[i].trim().toDoubleOrNull() ?: 0.0 else 0.0
-        fun fl(i: Int) = if (i in 0 until c.size) c[i].trim().toFloatOrNull() ?: 0f else 0f
-        TripCsv.Quad(c[iDate].trim(), d(iLat), d(iLon), fl(iMile))
-    }.toList()
-}
-
-/**
- * The finalized copy of a killed recording, reconstructed from its CSV metrics,
- * or null when nothing usable was captured (empty / header-only / no valid rows)
- * so the caller drops the zombie row. Always a copy of the SAME row (id /
- * fileName / uuid preserved) -- the finalize path UPDATEs, never inserts, so
- * recovery can never produce a duplicate. Pure, for unit tests.
- */
-internal fun finalizedTripOrNull(trip: TripRecord, metrics: TripCsv.Metrics?, rows: Int): TripRecord? {
-    if (metrics == null || !metrics.valid || rows <= 0) return null
-    return trip.copy(
-        startTime = metrics.startMs,
-        endTime = metrics.endMs,
-        distanceKm = metrics.distanceKm,
-        sampleCount = rows,
-    )
-}
