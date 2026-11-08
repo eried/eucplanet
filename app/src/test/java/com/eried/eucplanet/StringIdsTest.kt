@@ -1,6 +1,7 @@
 package com.eried.eucplanet
 
 import com.eried.eucplanet.audio.EngineProfile
+import com.eried.eucplanet.data.model.MetricCatalog
 import com.eried.eucplanet.ui.settings.SettingsSearchIndex
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -29,5 +30,14 @@ class StringIdsTest {
         val declared = java.io.File("src/main/res/values/strings.xml").readText()
         val expected = missing.filter { "name=\"$it\"" in declared }
         assertTrue("No R.string id for: $expected", expected.isEmpty())
+    }
+
+    /** metricChipLabel(short = true) looks the tile label up by name. */
+    @Test fun `every short tile label has an id`() {
+        val declared = java.io.File("src/main/res/values/strings.xml").readText()
+        val missing = MetricCatalog.all.map { "metric_chip_" + it.key.lowercase() + "_tile" }
+            .filter { "name=\"$it\"" in declared }
+            .filter { StringIds.id(it) == 0 }
+        assertTrue("No R.string id for: $missing", missing.isEmpty())
     }
 }

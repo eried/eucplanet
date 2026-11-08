@@ -14,13 +14,13 @@ abstract class StringIdsTask : DefaultTask() {
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val sources: ConfigurableFileCollection
 
-    /** strings.xml, for the keys shared code builds at runtime ([dynamicPrefixes]). */
+    /** strings.xml, for the keys shared code builds at runtime ([dynamicKeys]). */
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val strings: RegularFileProperty
-    /** Key prefixes shared code looks up by name (Res.allStringResources). */
+    /** Key patterns shared code looks up by name (Res.allStringResources). */
     @get:Input
-    abstract val dynamicPrefixes: ListProperty<String>
+    abstract val dynamicKeys: ListProperty<String>
     @get:OutputDirectory
     abstract val outputDir: DirectoryProperty
 
@@ -30,10 +30,10 @@ abstract class StringIdsTask : DefaultTask() {
         val keys = sources.files.filter { it.extension == "kt" }
             .flatMap { f -> key.findAll(f.readText()).map { it.groupValues[1] } }
             .toSortedSet()
-        val prefixes = dynamicPrefixes.get()
+        val patterns = dynamicKeys.get().map { Regex(it) }
         Regex("""<string\s+name="(\w+)"""").findAll(strings.get().asFile.readText())
             .map { it.groupValues[1] }
-            .filter { name -> prefixes.any { name.startsWith(it) } }
+            .filter { name -> patterns.any { it.matches(name) } }
             .forEach { keys += it }
         val sb = StringBuilder()
         sb.append("package com.eried.eucplanet\n\n")
@@ -65,7 +65,8 @@ tasks.register<StringIdsTask>("generateStringIds") {
     sources.from(fileTree(rootProject.file("shared/build/generated/settingsSearch")))
     dependsOn(":shared:generateSettingsSearchIndex")
     strings.set(file("src/main/res/values/strings.xml"))
-    // The engine sound picker names its presets engine_preset_<key>.
-    dynamicPrefixes.set(listOf("engine_preset_"))
+    // The engine sound picker names its presets engine_preset_<key>, and the
+    // dashboard tiles their short labels metric_chip_<key>_tile.
+    dynamicKeys.set(listOf("""engine_preset_\w+""", """metric_chip_\w+_tile"""))
     outputDir.set(layout.buildDirectory.dir("generated/stringIds"))
 }
