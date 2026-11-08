@@ -127,6 +127,7 @@
 				ED0000000000000000000009 /* Frameworks */,
 				ED0000000000000000000022 /* Resources */,
 				ED0000000000000000000043 /* Embed Foundation Extensions */,
+				ED00000000000000000000A0 /* Stamp version */,
 			);
 			buildRules = (
 			);
@@ -148,6 +149,7 @@
 				ED0000000000000000000041 /* Sources */,
 				ED0000000000000000000042 /* Frameworks */,
 				ED000000000000000000004A /* Resources */,
+				ED00000000000000000000A1 /* Stamp version */,
 			);
 			buildRules = (
 			);
@@ -235,6 +237,46 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "cd \"$SRCROOT/..\"\nexport JAVA_HOME=\"${JAVA_HOME:-$(/usr/libexec/java_home -v 17)}\"\nexport ANDROID_HOME=\"${ANDROID_HOME:-$HOME/Library/Android/sdk}\"\nsh gradlew $EUC_GRADLE_ARGS :shared:embedAndSignAppleFrameworkForXcode\n";
+		};
+		ED00000000000000000000A0 /* Stamp version */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(TARGET_BUILD_DIR)/$(INFOPLIST_PATH)",
+			);
+			name = "Stamp version";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "sh \"$SRCROOT/stamp-version.sh\"\n";
+		};
+		ED00000000000000000000A1 /* Stamp version */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(TARGET_BUILD_DIR)/$(INFOPLIST_PATH)",
+			);
+			name = "Stamp version";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "sh \"$SRCROOT/stamp-version.sh\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
