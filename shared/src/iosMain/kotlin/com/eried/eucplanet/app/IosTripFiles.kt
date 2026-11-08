@@ -1,5 +1,9 @@
 package com.eried.eucplanet.app
 
+import com.eried.eucplanet.data.repository.LineSink
+import com.eried.eucplanet.data.repository.LineSource
+import com.eried.eucplanet.data.repository.TripToolFiles
+import com.eried.eucplanet.data.repository.readerLines
 import com.eried.eucplanet.data.sync.TripFile
 import com.eried.eucplanet.data.sync.TripFileStore
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -90,5 +94,49 @@ internal class IosTripFile(private val path: String, override val name: String) 
         val text = NSString.stringWithContentsOfFile(path, NSUTF8StringEncoding, null)
             ?: error("Could not read $name")
         return block(text.lineSequence())
+    }
+}
+
+/**
+ * Documents/trips for the shared trip tools (split, combine, rename, change
+ * wheel). A file is read whole, as the trip viewer reads it, and a rewrite is
+ * written in one go when its last line is in.
+ */
+@OptIn(ExperimentalForeignApi::class)
+internal class IosTripToolFiles(private val dir: () -> String) : TripToolFiles {
+    private val fm get() = NSFileManager.defaultManager
+    private fun path(name: String) = "${dir()}/$name"
+
+    override fun exists(name: String) = fm.fileExistsAtPath(path(name))
+
+    override fun length(name: String): Long =
+        (fm.attributesOfItemAtPath(path(name), null)?.get(NSFileSize) as? NSNumber)?.longLongValue ?: 0L
+
+    override fun delete(name: String): Boolean = fm.removeItemAtPath(path(name), null)
+
+    override fun rename(from: String, to: String): Boolean = fm.moveItemAtPath(path(from), path(to), null)
+
+    override fun lines(name: String): LineSource = object : LineSource {
+        override fun <R> useLines(block: (Sequence<String>) -> R): R {
+            val text = NSString.stringWithContentsOfFile(path(name), NSUTF8StringEncoding, null)
+                ?: error("Could not read $name")
+            return block(text.readerLines())
+        }
+    }
+
+    override fun <R> write(name: String, block: (LineSink) -> R): R {
+        val out = StringBuilder()
+        var any = false
+        val result = block(LineSink { line ->
+            any = true
+            out.append(line).append('\n')
+        })
+        if (any) {
+            fm.createDirectoryAtPath(dir(), true, null, null)
+            val bytes = out.toString().encodeToByteArray()
+            val data = bytes.usePinned { NSData.dataWithBytes(it.addressOf(0), bytes.size.toULong()) }
+            if (!data.writeToFile(path(name), atomically = true)) error("Could not write $name")
+        }
+        return result
     }
 }

@@ -924,17 +924,7 @@ class SyncManager(
                 if (!ok) scheduleTripUploadAttempt(1)
             }
             if (settings.dropboxAccessToken.isNotBlank()) {
-                tripDao.setDropboxStatusByName(trip.fileName, 1, null)
-                val editedBytes = file.readBytes()
-                val sec = dropboxRepository.uploadFileStamped("/trips/${trip.fileName}", editedBytes)
-                if (sec != null) {
-                    markDropboxSynced(trip.fileName, editedBytes)
-                    if (sec > 0L) file.setLastModified(sec * 1000L)
-                    tripDao.setDropboxStatusByName(trip.fileName, 2, System.currentTimeMillis())
-                } else {
-                    tripDao.setDropboxStatusByName(trip.fileName, 3, null)
-                    scheduleDropboxSyncAttempt(1)
-                }
+                dropboxTrips.pushEditedTrip(trip.fileName)
             }
         }
     }

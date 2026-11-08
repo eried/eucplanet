@@ -1,6 +1,7 @@
 package com.eried.eucplanet.data
 
 import com.eried.eucplanet.data.repository.TripDerive
+import com.eried.eucplanet.data.repository.rewriteWheelIdentity
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule

@@ -1,0 +1,309 @@
+package com.eried.eucplanet.data.repository
+
+import com.eried.eucplanet.util.TripCsv
+
+/**
+ * Building new trip files out of existing ones: a section of one ride, or
+ * several rides joined together. The same on both phones: Android reads and
+ * writes `java.io.File`s through it, the iPhone files in Documents/trips.
+ *
+ * ## Why "derived" is encoded in the file name
+ *
+ * A derived trip must never reach the eucstats leaderboard: it is a view the
+ * rider constructed, not a ride as recorded. Upload eligibility is a database
+ * query that needs a non-null `tripUuid`, so leaving that null is enough day to
+ * day. It is not enough after a database rebuild: TripRepository adopts any
+ * orphan CSV it finds and hands it a fresh UUID, which would quietly make these
+ * uploadable. The file name is the only thing that survives that, so it carries
+ * the marker.
+ *
+ * Backups need no special handling in the other direction. Dropbox and local
+ * sync walk the trips directory for `*.csv`, so a derived file is included
+ * automatically, which is what the rider wants.
+ *
+ * Rows are copied verbatim from the source CSV rather than re-serialised from
+ * parsed points. A trip file can carry columns the app does not model, and a
+ * round trip through [com.eried.eucplanet.ui.recording.TripDataPoint] would
+ * silently drop them.
+ */
+object TripDerive {
+
+    /** Marks a file as built by the app rather than recorded. */
+    const val DERIVED_MARKER = "_derived"
+
+    fun isDerived(fileName: String): Boolean = fileName.contains(DERIVED_MARKER)
+
+    /** A free file name next to [source], carrying the derived marker. */
+    fun sectionFileName(sourceName: String, stamp: String): String {
+        val base = sourceName.removeSuffix(".csv").removeSuffix(".CSV")
+        return "$base$DERIVED_MARKER$stamp.csv"
+    }
+
+    private fun extraIndex(header: String): Int =
+        header.lowercase().split(",").map { it.trim() }.indexOf("extra")
+
+    /**
+     * Copy the header plus every data row whose timestamp falls within
+     * [startMs]..[endMs] into [dest].
+     *
+     * Selection is by timestamp, not row index: [readTripData] skips malformed
+     * lines, so an index taken from the parsed list would not line up with the
+     * file once a single row is short of columns.
+     *
+     * @return rows written, excluding the header. 0 means nothing matched and
+     *   the caller should discard [dest].
+     */
+    fun writeSection(source: LineSource, dest: LineSink, startMs: Long, endMs: Long): Int =
+        source.useLines { lines ->
+            val it = lines.iterator()
+            if (!it.hasNext()) return@useLines 0
+            dest.write(it.next())
+            var written = 0
+            // One parser for the file, resolved from the first row that
+            // yields one. See TripCsv.parserFor for why probing per row is
+            // expensive.
+            var parse: ((String?) -> Long?)? = null
+            while (it.hasNext()) {
+                val line = it.next()
+                val dateCell = line.substringBefore(',')
+                if (parse == null) parse = TripCsv.parserFor(dateCell)
+                val t = parse?.invoke(dateCell) ?: continue
+                if (t in startMs..endMs) {
+                    dest.write(line)
+                    written++
+                }
+            }
+            written
+        }
+
+    /**
+     * Rewrite the wheel identity recorded in [source]'s Extra column into [dest].
+     *
+     * The Extra column is what eucviewer, a shared file and the trip map read,
+     * so correcting only the database row would leave the file disagreeing with
+     * the app. Rows carrying `wheel.name=` or `wheel.mac=` get the new value;
+     * everything else is copied byte for byte.
+     *
+     * When the file records no wheel at all - a GPS-only ride, or a foreign
+     * import - the pair is placed into the first rows with an empty Extra cell,
+     * the same way a trip name is. Without that, assigning a wheel to such a
+     * trip lived only in the database: it survived in the app and vanished the
+     * moment the file was shared, synced or re-imported.
+     *
+     * @return rows rewritten, 0 when the file has no Extra column to carry it.
+     */
+    fun rewriteWheelIdentity(source: LineSource, dest: LineSink, name: String, mac: String?): Int =
+        rewriteWheelIdentity(source, dest, linkedMapOf<String, String>().apply {
+            if (name.isNotBlank()) put("name", name)
+            mac?.takeIf { it.isNotBlank() }?.let { put("mac", it) }
+        })
+
+    /**
+     * Replace the wheel identity a file carries with [identity]: keys are the
+     * Extra-column fields (name, mac, brand, model, serial), values the new
+     * ones. Every wheel.* line the file has is rewritten to the new identity
+     * or cleared if the new identity has no such field; fields the file never
+     * carried are placed into free Extra cells. Mirrors eucviewer: picking a
+     * known wheel copies the whole identity, a custom name is one line, and
+     * nothing of the old wheel survives either way - eucviewer labels by
+     * brand/model before name, so a stale wheel.model= would keep a
+     * reassigned trip filed under the old wheel there.
+     *
+     * @return rows rewritten, 0 when the file has no Extra column to carry it.
+     */
+    fun rewriteWheelIdentity(source: LineSource, dest: LineSink, identity: Map<String, String>): Int {
+        val clean = identity.mapValues { (k, v) ->
+            val one = v.replace(Regex("[,\"\\s]+"), " ").trim().take(60)
+            if (k == "mac") one.replace(":", "").replace("-", "").uppercase() else one
+        }.filterValues { it.isNotEmpty() }
+        val known = listOf("name", "mac", "brand", "model", "serial", "firmware")
+
+        // Pass 1: which identity fields does the file already carry?
+        val present = HashSet<String>()
+        val carries = source.useLines { lines ->
+            val it = lines.iterator()
+            if (!it.hasNext()) return@useLines false
+            val idx = extraIndex(it.next())
+            if (idx < 0) return@useLines false
+            while (it.hasNext()) {
+                val cell = it.next().split(",").getOrNull(idx)?.trim().orEmpty()
+                if (cell.startsWith("wheel.")) {
+                    val f = cell.substringAfter("wheel.").substringBefore('=')
+                    if (f in known) present += f
+                }
+            }
+            true
+        }
+        if (!carries) return 0
+        val toPlace = ArrayDeque(clean.keys.filter { it !in present })
+
+        return source.useLines { lines ->
+            val it = lines.iterator()
+            if (!it.hasNext()) return@useLines 0
+            val headerLine = it.next()
+            val extraIdx = extraIndex(headerLine)
+            dest.write(headerLine)
+            var changed = 0
+            while (it.hasNext()) {
+                val line = it.next()
+                if (extraIdx < 0) { dest.write(line); continue }
+                val cells = line.split(",")
+                val cell = cells.getOrNull(extraIdx)?.trim().orEmpty()
+                val replacement: String? = when {
+                    cell.startsWith("wheel.") -> {
+                        val f = cell.substringAfter("wheel.").substringBefore('=')
+                        when {
+                            f !in known -> null
+                            // A field the new identity has: rewrite every
+                            // occurrence (reconnects re-emit the block).
+                            clean.containsKey(f) -> "wheel.$f=" + clean.getValue(f)
+                            // A field it lacks belongs to the old wheel.
+                            else -> ""
+                        }
+                    }
+                    // Nothing recorded this field: the first free cell takes it.
+                    cell.isEmpty() && extraIdx < cells.size && toPlace.isNotEmpty() -> {
+                        val f = toPlace.removeFirst()
+                        "wheel.$f=" + clean.getValue(f)
+                    }
+                    else -> null
+                }
+                if (replacement == null) { dest.write(line); continue }
+                val rebuilt = cells.toMutableList()
+                rebuilt[extraIdx] = replacement
+                dest.write(rebuilt.joinToString(","))
+                changed++
+            }
+            changed
+        }
+    }
+
+    /**
+     * Upsert a rider-set trip name into the CSV Extra column as a single
+     * `trip.name=<name>` pair, so a rename survives export and a Dropbox
+     * round-trip with no sidecar file (the same convention eucviewer reads).
+     *
+     * A blank [name] removes the pair (the reader then falls back to the date).
+     * The name is sanitised like any Extra cell (commas / quotes / newlines
+     * collapse to a space) and capped at 60 chars to match the reader.
+     *
+     * Placement: the first existing `trip.name=` cell is rewritten (and any
+     * further duplicates cleared) so the reader, which takes the first hit,
+     * always sees the new value. If none exists, the pair is dropped into the
+     * first row whose Extra cell is empty - the same place wheel.* pairs ride,
+     * a normal telemetry row, never a fabricated one.
+     *
+     * @return 1 if the name was written/updated/removed, 0 if the file has no
+     *   Extra column (a foreign import) or no slot was available.
+     */
+    fun rewriteTripName(source: LineSource, dest: LineSink, name: String): Int {
+        // Collapse commas / quotes / any whitespace run to a single space so the
+        // name can't break CSV framing and reads cleanly. Capped to match reader.
+        val clean = name.replace(Regex("[,\"\\s]+"), " ").trim().take(60)
+        // Pass 1: is there already a trip.name= row to overwrite in place?
+        // Null: no header or no Extra column, nothing to write.
+        val hasExisting: Boolean = source.useLines { lines ->
+            val it = lines.iterator()
+            if (!it.hasNext()) return@useLines null
+            val idx = extraIndex(it.next())
+            if (idx < 0) return@useLines null
+            while (it.hasNext()) {
+                val cell = it.next().split(",").getOrNull(idx)?.trim().orEmpty()
+                if (cell.startsWith("trip.name=", ignoreCase = true)) return@useLines true
+            }
+            false
+        } ?: return 0
+        return source.useLines { lines ->
+            val it = lines.iterator()
+            if (!it.hasNext()) return@useLines 0
+            val header = it.next()
+            val idx = extraIndex(header)
+            dest.write(header)
+            var wrote = 0
+            var placed = false
+            while (it.hasNext()) {
+                val line = it.next()
+                if (idx < 0) { dest.write(line); continue }
+                val cells = line.split(",").toMutableList()
+                val cell = cells.getOrNull(idx)?.trim().orEmpty()
+                val newCell: String? = when {
+                    cell.startsWith("trip.name=", ignoreCase = true) ->
+                        if (!placed && clean.isNotEmpty()) { placed = true; "trip.name=$clean" }
+                        else "" // clear duplicates, or blank the name entirely
+                    !placed && !hasExisting && clean.isNotEmpty() && cell.isEmpty() &&
+                        idx < cells.size -> { placed = true; "trip.name=$clean" }
+                    else -> null
+                }
+                if (newCell == null) { dest.write(line); continue }
+                cells[idx] = newCell
+                dest.write(cells.joinToString(","))
+                wrote = 1
+            }
+            wrote
+        }
+    }
+
+    /**
+     * Make a freshly derived file (a split piece, a join) describe itself.
+     *
+     * A piece cut from the second half of a ride carried no wheel at all:
+     * the recorder writes the identity once, near the top, so everything
+     * after the cut was anonymous and eucviewer filed it as a generic wheel.
+     * The identity is re-emitted into the piece from the source trip.
+     *
+     * And a piece or a join inherited whatever trip.name= row it happened to
+     * contain, while the app lists derived trips by date: the file said
+     * "test 3" to eucviewer and the phone said Aug 19. Derived trips start
+     * nameless in the file too, so the two agree until the rider names it.
+     *
+     * @return false when the file has no Extra column to carry any of it.
+     */
+    fun stampDerived(files: TripToolFiles, name: String, identity: Map<String, String>): Boolean {
+        val tmp = "$name.rewrite"
+        fun swapIn(): Boolean {
+            if (!files.exists(tmp) || files.length(tmp) == 0L) { runCatching { files.delete(tmp) }; return false }
+            return files.delete(name) && files.rename(tmp, name)
+        }
+        // A file that is gone gives nothing to swap in, as an empty rewrite does.
+        if (!files.exists(name)) { runCatching { files.delete(tmp) }; return false }
+        if (files.write(tmp) { rewriteTripName(files.lines(name), it, "") } < 0) return false
+        if (!swapIn()) return false
+        if (identity.isEmpty()) return true
+        files.write(tmp) { rewriteWheelIdentity(files.lines(name), it, identity) }
+        return swapIn()
+    }
+
+    /**
+     * Concatenate [sources] into [dest], oldest first, keeping one header.
+     *
+     * Each source's header is read and discarded rather than assumed identical:
+     * trips recorded across app versions can carry different column sets. The
+     * FIRST file's header wins, so a later file with extra columns loses them
+     * rather than producing rows that do not match the header. Callers should
+     * therefore order sources deliberately. Callers leave out files that are gone.
+     *
+     * @return rows written, excluding the header.
+     */
+    fun writeJoined(sources: List<LineSource>, dest: LineSink): Int {
+        var written = 0
+        var headerWritten = false
+        for (source in sources) {
+            source.useLines { lines ->
+                val it = lines.iterator()
+                if (!it.hasNext()) return@useLines
+                val header = it.next()
+                if (!headerWritten) {
+                    dest.write(header)
+                    headerWritten = true
+                }
+                while (it.hasNext()) {
+                    val line = it.next()
+                    if (line.isBlank()) continue
+                    dest.write(line)
+                    written++
+                }
+            }
+        }
+        return written
+    }
+}

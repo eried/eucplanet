@@ -51,8 +51,11 @@ class BackupStatusIconTest {
         assertTrue("edits are handed back to WorkManager alone",
             resync.contains("pushEditedTripNow"))
         val push = sync.substringAfter("fun pushEditedTripNow").take(2400)
+        // The Dropbox half is the shared DropboxTripSync.pushEditedTrip, which the iPhone runs too.
+        assertTrue("the direct push no longer reaches Dropbox", push.contains("dropboxTrips.pushEditedTrip("))
+        val sharedPush = worker.substringAfter("suspend fun pushEditedTrip(").take(1200)
         assertTrue("a failed direct Dropbox push is not handed to the retry worker",
-            push.contains("scheduleDropboxSyncAttempt(1)"))
+            sharedPush.contains("host.scheduleRetry(1)"))
         assertTrue("a failed direct folder push is not handed to the retry worker",
             push.contains("scheduleTripUploadAttempt(1)"))
         assertTrue("the direct push skips the folder pass lock",

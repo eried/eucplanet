@@ -124,7 +124,7 @@ internal fun topViewController(): UIViewController? {
 }
 
 internal object IosRecordingHost : RecordingHost {
-    override val supportsTripTools = false
+    override val supportsTripTools = true
 
     // The picker holds its delegate weakly: the one open is kept alive here.
     private var pickerDelegate: PickerDelegate? = null

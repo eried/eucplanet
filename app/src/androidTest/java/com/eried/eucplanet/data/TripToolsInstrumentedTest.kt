@@ -2,6 +2,9 @@ package com.eried.eucplanet.data
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.eried.eucplanet.data.repository.TripDerive
+import com.eried.eucplanet.data.repository.writeSection
+import com.eried.eucplanet.data.repository.writeJoined
+import com.eried.eucplanet.data.repository.rewriteWheelIdentity
 import com.eried.eucplanet.data.repository.TripSplitDetector
 import com.eried.eucplanet.util.TripCsv
 import org.junit.Assert.assertEquals

@@ -1,6 +1,7 @@
 package com.eried.eucplanet.data
 
 import com.eried.eucplanet.data.repository.TripDerive
+import com.eried.eucplanet.data.repository.rewriteTripName
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -156,7 +157,9 @@ class TripNameTravelsTest {
         assertTrue("no backfill sweep at start", repo.contains("backfillWheelMetaFromFiles()"))
         // Files with no wheel rows are stamped "{}" - looked, nothing there -
         // so the sweep converges instead of re-reading every start.
-        assertTrue(repo.contains("""tripDao.updateWheelMeta(trip.id, json ?: "{}")"""))
+        // The sweep itself is the shared TripTools one, which the iPhone runs too.
+        val tools = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/data/repository/TripTools.kt").readText()
+        assertTrue(tools.contains("""tripDao.updateWheelMeta(trip.id, json ?: "{}")"""))
         val dao = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/data/db/TripDao.kt").readText()
         assertTrue(dao.contains("WHERE wheelMetaJson IS NULL AND endTime IS NOT NULL"))
     }

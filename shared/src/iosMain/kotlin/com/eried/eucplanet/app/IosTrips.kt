@@ -12,6 +12,7 @@ import com.eried.eucplanet.resources.voice_recording_started
 import com.eried.eucplanet.service.AutoRecordPolicy
 import com.eried.eucplanet.data.repository.WheelChoice
 import com.eried.eucplanet.data.repository.recoverKilledRecordings
+import com.eried.eucplanet.data.repository.TripTools
 import com.eried.eucplanet.ui.dashboard.DashboardTrips
 import com.eried.eucplanet.ui.recording.RecordingTrips
 import com.eried.eucplanet.ui.settings.SettingsTrips
@@ -63,8 +64,8 @@ import platform.Foundation.writeData
  * recording the app was killed in is finalized or dropped at the next start
  * ([recoverKilledRecordings], the same sweep). A finished trip goes to Dropbox through
  * [IosDropboxSync]. The trip list reads it as [RecordingTrips]; the trip
- * tools (rename, wheel, split, combine, section) are not on iOS yet, so
- * their screens hide them. See docs/IOS_PARITY.md.
+ * tools (rename, wheel, split, combine, section) are the shared [TripTools],
+ * so they write the files and rows Android's do. See docs/IOS_PARITY.md.
  */
 @OptIn(ExperimentalForeignApi::class)
 internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips {
@@ -272,13 +273,51 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips {
 
     override suspend fun archiveAllTrips(): Int = archiveTrips(dao.observeAll().first())
 
-    override suspend fun knownWheels(): List<WheelChoice> = emptyList()
-    override suspend fun changeTripWheel(trip: TripRecord, wheel: WheelChoice) = Unit
-    override suspend fun renameTrip(trip: TripRecord, name: String) = Unit
-    override suspend fun resyncTrip(tripId: Long) = Unit
-    override suspend fun splitTrip(source: TripRecord, boundariesMs: List<Long>): List<TripRecord> = emptyList()
-    override suspend fun combineTrips(sources: List<TripRecord>): TripRecord? = null
-    override suspend fun saveTripSection(source: TripRecord, startMs: Long, endMs: Long): TripRecord? = null
+    // --- the trip tools, shared with Android's TripRepository ---
+
+    private val tools by lazy {
+        TripTools(
+            dao,
+            IosTripToolFiles { tripsDir },
+            profileNames = { IosAppGraph.database.wheelProfileDao().allNames() },
+            resync = { resyncEdited(it) },
+        )
+    }
+
+    /** Reads the wheel out of trip files never asked, as Android does at start. */
+    suspend fun backfillWheelMeta() {
+        runCatching { tools.backfillWheelMetaFromFiles() }
+            .onFailure { Log.w(TAG, "wheel backfill failed", it) }
+    }
+
+    override suspend fun knownWheels(): List<WheelChoice> = tools.knownWheels()
+    override suspend fun changeTripWheel(trip: TripRecord, wheel: WheelChoice) {
+        tools.changeTripWheel(trip, wheel)
+    }
+    override suspend fun renameTrip(trip: TripRecord, name: String) {
+        tools.renameTrip(trip, name)
+    }
+    override suspend fun resyncTrip(tripId: Long) = resyncEdited(tripId)
+    override suspend fun splitTrip(source: TripRecord, boundariesMs: List<Long>): List<TripRecord> =
+        tools.splitTrip(source, boundariesMs)
+    override suspend fun combineTrips(sources: List<TripRecord>): TripRecord? = tools.combineTrips(sources)
+    override suspend fun saveTripSection(source: TripRecord, startMs: Long, endMs: Long): TripRecord? =
+        tools.saveTripSection(source, startMs, endMs)
+
+    /**
+     * As TripRepository.resyncEditedTrip, less the backup folder iOS has none
+     * of: the row shows backing up at once, then the trip goes up to Dropbox
+     * straight away rather than at the next pass.
+     */
+    private suspend fun resyncEdited(tripId: Long) {
+        if (IosAppGraph.settings.get().dropboxAccessToken.isBlank()) return
+        runCatching { dao.setDropboxStatus(tripId, 1) }
+        val trip = dao.getById(tripId) ?: return
+        scope.launch {
+            runCatching { IosDropboxSync.trips.pushEditedTrip(trip.fileName) }
+                .onFailure { Log.w(TAG, "push of edited ${trip.fileName} failed", it) }
+        }
+    }
 
     override fun <R> readTripLines(trip: TripRecord, block: (Sequence<String>) -> R): R? {
         val text = NSString.stringWithContentsOfFile("$tripsDir/${trip.fileName}", NSUTF8StringEncoding, null)

@@ -68,6 +68,8 @@ fun MainViewController(): UIViewController {
         IosAppGraph.seed()
         // A recording the app was killed in, finalized or dropped, as on Android.
         IosTrips.recoverKilled()
+        // Then the wheel out of any trip file never asked, as Android's start does.
+        IosTrips.backfillWheelMeta()
     }
     // The phone's GPS for the dashboard and trips, and auto-record, as
     // WheelService starts them on Android.

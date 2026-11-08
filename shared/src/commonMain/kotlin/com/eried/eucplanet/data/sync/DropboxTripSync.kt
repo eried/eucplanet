@@ -153,6 +153,29 @@ class DropboxTripSync(
     }
 
     /**
+     * Upload one trip the rider just edited or made (a rename, a wheel change,
+     * a split piece, a join) right away, rather than at the next pass. The
+     * row shows backing up, then backed up or failed; a failure queues the
+     * first retry. Android's pushEditedTripNow and the iPhone's resync both
+     * run it.
+     */
+    suspend fun pushEditedTrip(fileName: String) {
+        val file = files.file(fileName)
+        if (!file.exists()) return
+        tripDao.setDropboxStatusByName(fileName, 1, null)
+        val editedBytes = file.readBytes()
+        val sec = dropboxRepository.uploadFileStamped("/trips/$fileName", editedBytes)
+        if (sec != null) {
+            markDropboxSynced(fileName, editedBytes)
+            if (sec > 0L) file.setLastModified(sec * 1000L)
+            tripDao.setDropboxStatusByName(fileName, 2, System.currentTimeMillis())
+        } else {
+            tripDao.setDropboxStatusByName(fileName, 3, null)
+            host.scheduleRetry(1)
+        }
+    }
+
+    /**
      * Follow archives made on another phone. A split, an extend or a delete
      * with "archive" moves the trip on Dropbox into /trips/archive. A phone
      * that still had it then saw a trip Dropbox lacked and uploaded it again,

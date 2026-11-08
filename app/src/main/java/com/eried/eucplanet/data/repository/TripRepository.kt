@@ -1078,73 +1078,22 @@ class TripRepository(
     }
 
     /**
-     * Write a section of [source] out as a new trip and return its row.
-     *
-     * Non-destructive: [source] is untouched, so a misjudged range costs the
-     * rider nothing but a spare entry they can delete.
-     *
-     * The new trip gets no `tripUuid`, which is what keeps it off the eucstats
-     * leaderboard: upload eligibility is a query requiring a non-null uuid. It
-     * still lands in the trips directory, so Dropbox and local backup pick it up
-     * like any other file.
-     *
-     * @param startMs absolute epoch millis, inclusive
-     * @param endMs absolute epoch millis, inclusive
-     * @return the new trip, or null when the range held no rows
+     * The trip tools (section, split, combine, rename, change wheel), shared
+     * with the iPhone in [TripTools] so both write the same files and rows.
+     * Lazy: the init block's backfill can reach it before this line runs.
      */
-    suspend fun saveTripSection(source: TripRecord, startMs: Long, endMs: Long): TripRecord? {
-        val srcFile = getTripFile(source)
-        if (!srcFile.exists()) return null
-        return saveSectionInternal(source, srcFile, startMs, endMs, index = 0)
-    }
-
-    /** Shared by [saveTripSection] and [splitTrip]. [index] > 0 numbers the
-     *  piece so a split does not produce several identically named files. */
-    private suspend fun saveSectionInternal(
-        source: TripRecord,
-        srcFile: File,
-        startMs: Long,
-        endMs: Long,
-        index: Int,
-    ): TripRecord? {
-        val stamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date()) +
-            if (index > 0) "_$index" else ""
-        val destName = TripDerive.sectionFileName(source.fileName, stamp)
-        val destFile = File(getTripsDir(), destName)
-        val rows = runCatching { TripDerive.writeSection(srcFile, destFile, startMs, endMs) }
-            .getOrElse { e ->
-                Log.e(TAG, "Could not write trip section", e)
-                runCatching { destFile.delete() }
-                return null
-            }
-        if (rows <= 0) {
-            runCatching { destFile.delete() }
-            return null
-        }
-        stampDerived(destFile, source.wheelMetaJson)
-        val metrics = TripCsv.metricsFrom(readQuads(destFile))
-        val record = TripRecord(
-            fileName = destName,
-            startTime = if (metrics.valid) metrics.startMs else startMs,
-            endTime = if (metrics.valid) metrics.endMs else endMs,
-            distanceKm = metrics.distanceKm,
-            sampleCount = rows,
-            // Deliberately null. See the KDoc above and TripDerive.
-            tripUuid = null,
-            wheelMetaJson = source.wheelMetaJson,
+    private val tools by lazy {
+        TripTools(
+            tripDao,
+            AndroidTripToolFiles { getTripsDir() },
+            profileNames = { wheelProfileDao.allNames() },
+            resync = { resyncEditedTrip(it) },
         )
-        val id = tripDao.insert(record)
-        return record.copy(id = id)
     }
 
-    /** The wheel the trip row knows, written into a derived file; see
-     *  [TripDerive.stampDerived]. Best effort: a file that cannot carry it
-     *  is still a valid trip. */
-    private fun stampDerived(file: File, wheelJson: String?) {
-        val identity = WheelChoice.fromJson(wheelJson)?.extraFields().orEmpty()
-        runCatching { TripDerive.stampDerived(file, identity) }
-            .onFailure { Log.w(TAG, "Could not stamp derived ${file.name}", it) }
-    }
+    /** See [TripTools.saveTripSection]. */
+    suspend fun saveTripSection(source: TripRecord, startMs: Long, endMs: Long): TripRecord? =
+        tools.saveTripSection(source, startMs, endMs)
 
     /** First trip.name= in the Extra column, the way the sync parser reads it. */
     private fun readTripNameFromCsv(file: File): String? {
@@ -1164,179 +1113,17 @@ class TripRepository(
         return null
     }
 
-    /** Date, lat, lon and odometer per row, for metric recomputation. */
-    private fun readQuads(file: File): List<TripCsv.Quad> {
-        val out = ArrayList<TripCsv.Quad>()
-        file.bufferedReader().use { reader ->
-            val header = reader.readLine()?.lowercase()?.split(",")?.map { it.trim() } ?: return out
-            val iLat = TripCsv.Columns.latitude(header)
-            val iLon = TripCsv.Columns.longitude(header)
-            val iMil = TripCsv.Columns.mileage(header)
-            while (true) {
-                val line = reader.readLine() ?: break
-                val p = line.split(",")
-                out.add(
-                    TripCsv.Quad(
-                        date = p.getOrNull(0).orEmpty(),
-                        lat = p.getOrNull(iLat)?.toDoubleOrNull() ?: 0.0,
-                        lon = p.getOrNull(iLon)?.toDoubleOrNull() ?: 0.0,
-                        mileage = p.getOrNull(iMil)?.toFloatOrNull() ?: 0f,
-                    )
-                )
-            }
-        }
-        return out
-    }
+    /** See [TripTools.backfillWheelMetaFromFiles]. */
+    private suspend fun backfillWheelMetaFromFiles() = tools.backfillWheelMetaFromFiles()
 
-    /**
-     * Reassign which wheel a trip was ridden on.
-     *
-     * Rewrites BOTH the database row and the CSV's Extra column, so the app,
-     * a shared file and eucviewer agree. The original CSV is kept alongside as
-     * `.bak` until the rewrite succeeds, then replaced atomically-ish, because a
-     * half-written trip file would be unrecoverable.
-     *
-     * This never touches an existing leaderboard entry: the caller warns the
-     * rider when [TripRecord.eucstatsStatus] says the ride is already up there.
-     *
-     * @return true when the row was updated
-     */
-    /**
-     * Every wheel name worth offering in the trip-tools picker.
-     *
-     * Two sources, because neither is complete on its own. Saved profiles cover
-     * wheels this phone has paired with; the trips themselves cover wheels that
-     * only ever arrived as an imported CSV, which is exactly the case where the
-     * rider is most likely to be correcting a wrong label.
-     */
-    private suspend fun backfillWheelMetaFromFiles() {
-        for (trip in tripDao.tripsWithoutWheelMeta()) {
-            val file = getTripFile(trip)
-            if (!file.exists()) continue
-            val json = runCatching { readWheelJsonFromCsv(file) }.getOrNull()
-            // "{}" = looked, nothing there. Distinguishable from NULL (never
-            // looked) so the sweep converges instead of re-reading forever.
-            tripDao.updateWheelMeta(trip.id, json ?: "{}")
-        }
-    }
+    /** See [TripTools.knownWheels]. */
+    suspend fun knownWheels(): List<WheelChoice> = tools.knownWheels()
 
-    /** First wheel.name= / wheel.mac= / brand / model in the Extra column,
-     *  as the same JSON shape the recorder caches. Streams; a long ride
-     *  never sits in memory. */
-    private fun readWheelJsonFromCsv(file: java.io.File): String? {
-        var name: String? = null; var mac: String? = null
-        var brand: String? = null; var model: String? = null
-        file.bufferedReader().use { reader ->
-            val header = reader.readLine() ?: return null
-            val idx = header.lowercase().split(",").map { it.trim() }.indexOf("extra")
-            if (idx < 0) return null
-            reader.forEachLine { line ->
-                val cell = line.split(",").getOrNull(idx)?.trim().orEmpty()
-                if (cell.startsWith("wheel.", ignoreCase = true)) {
-                    val v = cell.substringAfter('=').trim().take(80)
-                    if (v.isNotEmpty()) when {
-                        cell.startsWith("wheel.name=", true) -> name = name ?: v
-                        cell.startsWith("wheel.mac=", true) -> mac = mac ?: v
-                        cell.startsWith("wheel.brand=", true) -> brand = brand ?: v
-                        cell.startsWith("wheel.model=", true) -> model = model ?: v
-                    }
-                }
-            }
-        }
-        if (name == null && mac == null) return null
-        return org.json.JSONObject().apply {
-            name?.let { put("ble_name", it) }
-            mac?.let { put("ble_mac", it) }
-            brand?.let { put("brand", it) }
-            model?.let { put("model", it) }
-        }.toString()
-    }
+    /** See [TripTools.changeTripWheel]. */
+    suspend fun changeTripWheel(trip: TripRecord, wheel: WheelChoice): Boolean = tools.changeTripWheel(trip, wheel)
 
-    suspend fun knownWheels(): List<WheelChoice> {
-        val fromProfiles = runCatching { wheelProfileDao.allNames() }.getOrDefault(emptyList())
-            .map { WheelChoice(name = it) }
-        val fromTrips = runCatching {
-            tripDao.allWheelMeta().mapNotNull { WheelChoice.fromJson(it) }
-        }.getOrDefault(emptyList())
-        // Distinct the way eucviewer groups: label plus serial or MAC. A
-        // profile that only knows a name folds into a trip identity with the
-        // same label once one exists, so the list does not show a wheel twice.
-        val byKey = LinkedHashMap<String, WheelChoice>()
-        for (w in fromTrips + fromProfiles) {
-            if (w.isEmpty) continue
-            if (byKey.values.any { it.label == w.label && (w.mac == null || it.mac == w.mac) }) continue
-            byKey.putIfAbsent(w.key, w)
-        }
-        return byKey.values.sortedBy { it.label.lowercase() }
-    }
-
-    suspend fun changeTripWheel(trip: TripRecord, wheel: WheelChoice): Boolean {
-        val file = getTripFile(trip)
-        if (file.exists()) {
-            val tmp = File(file.parentFile, file.name + ".rewrite")
-            val ok = runCatching { TripDerive.rewriteWheelIdentity(file, tmp, wheel.extraFields()) >= 0 }
-                .getOrElse { e ->
-                    Log.e(TAG, "Wheel rewrite failed for ${trip.fileName}", e)
-                    runCatching { tmp.delete() }
-                    false
-                }
-            if (ok && tmp.exists()) {
-                val bak = File(file.parentFile, file.name + ".bak")
-                runCatching { bak.delete() }
-                if (file.renameTo(bak) && tmp.renameTo(file)) {
-                    runCatching { bak.delete() }
-                } else {
-                    // Put things back rather than leaving the rider with neither.
-                    runCatching { if (!file.exists()) bak.renameTo(file) }
-                    runCatching { tmp.delete() }
-                    Log.e(TAG, "Could not swap in the rewritten ${trip.fileName}")
-                }
-            }
-        }
-        // The cache is replaced, not merged: merging kept the old wheel's
-        // brand and model under the new name, the same stale identity the
-        // file rewrite above now clears.
-        tripDao.updateWheelMeta(trip.id, wheel.toJson())
-        resyncEditedTrip(trip.id)
-        return true
-    }
-
-    /**
-     * Give a trip a rider-set name (blank clears it, falling back to the date).
-     *
-     * The name is written into the CSV Extra column as `trip.name=` so it
-     * survives export and a Dropbox round-trip with no sidecar file, and cached
-     * on the DB row for a fast list / title. Same atomic .rewrite -> .bak swap
-     * as [changeTripWheel] so a mid-write kill can never leave the rider with
-     * neither file. Re-syncs afterwards.
-     */
-    suspend fun renameTrip(trip: TripRecord, name: String): Boolean {
-        val clean = name.trim().take(60)
-        val file = getTripFile(trip)
-        if (file.exists()) {
-            val tmp = File(file.parentFile, file.name + ".rewrite")
-            val ok = runCatching { TripDerive.rewriteTripName(file, tmp, clean) >= 0 }
-                .getOrElse { e ->
-                    Log.e(TAG, "Trip name rewrite failed for ${trip.fileName}", e)
-                    runCatching { tmp.delete() }
-                    false
-                }
-            if (ok && tmp.exists()) {
-                val bak = File(file.parentFile, file.name + ".bak")
-                runCatching { bak.delete() }
-                if (file.renameTo(bak) && tmp.renameTo(file)) {
-                    runCatching { bak.delete() }
-                } else {
-                    runCatching { if (!file.exists()) bak.renameTo(file) }
-                    runCatching { tmp.delete() }
-                    Log.e(TAG, "Could not swap in the renamed ${trip.fileName}")
-                }
-            }
-        }
-        tripDao.updateCustomName(trip.id, clean.ifBlank { null })
-        resyncEditedTrip(trip.id)
-        return true
-    }
+    /** See [TripTools.renameTrip]. */
+    suspend fun renameTrip(trip: TripRecord, name: String): Boolean = tools.renameTrip(trip, name)
 
     /**
      * Push a trip whose file was edited in place (rename / change wheel) back to
@@ -1368,69 +1155,12 @@ class TripRepository(
         runCatching { syncManager.pushEditedTripNow(tripId) }
     }
 
-    /**
-     * Cut [source] into pieces at [boundariesMs] (absolute epoch millis, each
-     * the first sample of a new piece) and save each as its own trip.
-     *
-     * Non-destructive: [source] is untouched. Pieces carry no `tripUuid`, so
-     * they are backed up but never reach the leaderboard.
-     *
-     * @return the pieces created, empty when nothing could be written
-     */
-    suspend fun splitTrip(source: TripRecord, boundariesMs: List<Long>): List<TripRecord> {
-        if (boundariesMs.isEmpty()) return emptyList()
-        val srcFile = getTripFile(source)
-        if (!srcFile.exists()) return emptyList()
-        // Turn the cut points into inclusive ranges covering the whole ride.
-        val edges = (listOf(Long.MIN_VALUE) + boundariesMs.sorted()) + listOf(Long.MAX_VALUE)
-        val out = ArrayList<TripRecord>()
-        for (i in 0 until edges.size - 1) {
-            val from = edges[i]
-            val to = if (edges[i + 1] == Long.MAX_VALUE) Long.MAX_VALUE else edges[i + 1] - 1
-            val piece = saveSectionInternal(source, srcFile, from, to, index = i + 1)
-            if (piece != null) out.add(piece)
-        }
-        // A piece is a new file in the trips folder, which the folder worker
-        // and the Dropbox sync would both pick up eventually - but only at
-        // their next run. A rename pushes straight away, and a rider who just
-        // cut a ride in three has the same expectation.
-        out.forEach { resyncEditedTrip(it.id) }
-        return out
-    }
+    /** See [TripTools.splitTrip]. */
+    suspend fun splitTrip(source: TripRecord, boundariesMs: List<Long>): List<TripRecord> =
+        tools.splitTrip(source, boundariesMs)
 
-    /**
-     * Merge [sources] into one new trip, oldest first.
-     *
-     * Non-destructive, and the result carries no `tripUuid` for the same reason
-     * a split piece does not: it is a trip the rider assembled, not one the app
-     * recorded.
-     */
-    suspend fun combineTrips(sources: List<TripRecord>): TripRecord? {
-        val ordered = sources.sortedBy { it.startTime }
-        val files = ordered.map { getTripFile(it) }.filter { it.exists() }
-        if (files.size < 2) return null
-        val stamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-        val destName = TripDerive.sectionFileName(ordered.first().fileName, stamp + "_join")
-        val destFile = File(getTripsDir(), destName)
-        val rows = runCatching { TripDerive.writeJoined(files, destFile) }.getOrElse { e ->
-            Log.e(TAG, "Could not join trips", e)
-            runCatching { destFile.delete() }
-            return null
-        }
-        if (rows <= 0) { runCatching { destFile.delete() }; return null }
-        stampDerived(destFile, ordered.first().wheelMetaJson)
-        val metrics = TripCsv.metricsFrom(readQuads(destFile))
-        val record = TripRecord(
-            fileName = destName,
-            startTime = if (metrics.valid) metrics.startMs else ordered.first().startTime,
-            endTime = if (metrics.valid) metrics.endMs else ordered.last().endTime,
-            distanceKm = metrics.distanceKm,
-            sampleCount = rows,
-            tripUuid = null,
-            wheelMetaJson = ordered.first().wheelMetaJson,
-        )
-        return record.copy(id = tripDao.insert(record)).also { resyncEditedTrip(it.id) }
-    }
+    /** See [TripTools.combineTrips]. */
+    suspend fun combineTrips(sources: List<TripRecord>): TripRecord? = tools.combineTrips(sources)
 
     /**
      * Delete [trips] from this phone, moving their backup copies into the
