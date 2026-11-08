@@ -7,7 +7,9 @@ only when you can cut the ride short.
 ## Worked on
 
 - iPhone app (TestFlight): connects to the wheel, with the same dashboard, alarms, voice reports, settings, themes, Flic buttons, Dropbox sync, trip recording and trip list as Android.
-- Inside: the dashboard, settings, alarms, trips and the wheel link moved to a library shared with the iPhone. Nothing should change on screen.
+- iPhone app: leaderboards and crew pass, trip details with the map, trip meter, metric details and the charging monitor with charge alerts.
+- Inside: the dashboard, settings, alarms, trips, trip details, leaderboards, Dropbox sync and the wheel link moved to a library shared with the iPhone. Nothing should change on screen.
+- Settings, Dashboard layout no longer closes the app.
 - Release builds are obfuscated (Play asks for it by Feb 2027). Branch APKs are debug builds and do not change.
 - Navigator view: turn card, speed, arrival time and your own tiles on the map while navigating. Pick the tiles in Settings.
 - Map: while navigating it faces where you ride (heading-up), turning on curves from the wheel's speed. Tap the compass for north-up.
@@ -44,9 +46,12 @@ only when you can cut the ride short.
 
 **iPhone** (TestFlight)
 - Connect your wheel, ride with alarms and voice on, record a trip: does it match the Android app?
+- Open the trip: map, tiles and charts right? Link Dropbox and sync: does the trip show up on your Android phone?
+- Leaderboards (Settings, Backups): join, upload a ride, scan a crew pass QR.
+- Charge the wheel with the Battery monitor open: do the 80% and full alerts come?
 
 **Android, after the move to the shared library**
-- Dashboard, Settings, alarm editor, Scan and the trip list: anything that looks or acts differently from the last build is a bug.
+- Dashboard, Settings, alarm editor, Scan, the trip list, trip details, trip meter, metric details, battery monitor and leaderboards: anything that looks or acts differently from the last build is a bug.
 
 **Map / navigation**
 - Navigate a 2-stop route in Full path and Next segment: turn card, arrival time, the next stop counting down and ticked off, End navigation?
