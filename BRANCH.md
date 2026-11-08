@@ -8,8 +8,9 @@ only when you can cut the ride short.
 
 - iPhone app (TestFlight): connects to the wheel, with the same dashboard, alarms, voice reports, settings, themes, Flic buttons, Dropbox sync, trip recording and trip list as Android.
 - iPhone app: leaderboards and crew pass, trip details with the map, trip meter, metric details and the charging monitor with charge alerts.
+- iPhone app: trip tools (rename, change wheel, split, extend), and the wheel reconnects by itself after a drop, as on Android.
 - iPhone app: the Needs attention warnings (location, Bluetooth, notifications, backups), and a recording cut short by closing the app is saved or dropped at the next start, as on Android.
-- Inside: the dashboard, settings, alarms, trips, trip details, leaderboards, Dropbox sync and the wheel link moved to a library shared with the iPhone. Nothing should change on screen.
+- Inside: the dashboard, settings, alarms, trips, trip details, trip tools, the reconnect timing, leaderboards, Dropbox sync and the wheel link moved to a library shared with the iPhone. Nothing should change on screen.
 - Settings, Dashboard layout no longer closes the app.
 - Settings search no longer finds rows a phone does not show.
 - Release builds are obfuscated (Play asks for it by Feb 2027). Branch APKs are debug builds and do not change.
@@ -52,8 +53,10 @@ only when you can cut the ride short.
 - Leaderboards (Settings, Backups): join, upload a ride, scan a crew pass QR.
 - Charge the wheel with the Battery monitor open: do the 80% and full alerts come?
 - Tap the warning icon on the dashboard: does each Fix take you to the right place?
+- Turn the wheel off mid-ride and on again: does the iPhone reconnect by itself? Rename and split a trip: does Android see it after a sync?
 
 **Android, after the move to the shared library**
+- Turn the wheel off and on, and Bluetooth off and on: does it reconnect as before? Trip tools (rename, split, extend) work as before?
 - Dashboard, Settings, alarm editor, Scan, the trip list, trip details, trip meter, metric details, battery monitor and leaderboards: anything that looks or acts differently from the last build is a bug.
 
 **Map / navigation**
