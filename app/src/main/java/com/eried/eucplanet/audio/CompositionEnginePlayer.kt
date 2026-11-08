@@ -124,10 +124,13 @@ class CompositionEnginePlayer(private val context: Context) {
         lastRpmNorm = rpmNorm.coerceIn(0f, 1f)
         lastVolume = volume.coerceIn(0f, 1f)
 
-        // Equal-power crossfade between idle and rev. At rpm=0.5 each contributes
-        // sqrt(0.5)≈0.71, summing close to 1 in perceived loudness.
-        val targetIdle = if (rev == null) lastVolume else kotlin.math.sqrt(1f - lastRpmNorm) * lastVolume
-        val targetRev  = if (rev == null) 0f else kotlin.math.sqrt(lastRpmNorm) * lastVolume
+        // Equal-power crossfade between idle and rev, done by 70% of the rev band:
+        // an EUC spends its life in the lower half of the band (the gearbox drops
+        // the revs at every shift), so a fade that only completes at the redline
+        // left riders with the idle loop at every speed they actually ride.
+        val fade = (lastRpmNorm / 0.7f).coerceAtMost(1f)
+        val targetIdle = if (rev == null) lastVolume else kotlin.math.sqrt(1f - fade) * lastVolume
+        val targetRev  = if (rev == null) 0f else kotlin.math.sqrt(fade) * lastVolume
 
         smoothedIdleVol += (targetIdle - smoothedIdleVol) * volSmoothingAlpha
         smoothedRevVol  += (targetRev  - smoothedRevVol)  * volSmoothingAlpha
@@ -148,11 +151,17 @@ class CompositionEnginePlayer(private val context: Context) {
         // time-stretch, and Sonic's stretching painted artifacts over every
         // loop; matched speed and pitch below is plain resampling - the tape
         // effect the old MediaPlayer path had - which Sonic handles cleanly.
-        val rate = 0.9f + 0.5f * lastRpmNorm
-        if (abs(rate - lastRate) > 0.01f) {
-            idle?.setRate(rate)
-            rev?.setRate(rate)
-            lastRate = rate
+        // Each loop sits at its natural pitch where it carries the sound: the idle
+        // loop at 1.0 when parked and pulled up to twice its pitch by the redline,
+        // the rev loop (recorded near the redline) at 1.0 there and slowed on the
+        // way up to meet it. 0.9 to 1.4 for both, the previous range, moved the
+        // pitch so little that riders heard the engine stuck at idle.
+        val idleRate = 0.95f + 1.05f * lastRpmNorm
+        val revRate = 0.6f + 0.4f * lastRpmNorm
+        if (abs(idleRate - lastRate) > 0.01f) {
+            idle?.setRate(idleRate)
+            rev?.setRate(revRate)
+            lastRate = idleRate
         }
     }
 

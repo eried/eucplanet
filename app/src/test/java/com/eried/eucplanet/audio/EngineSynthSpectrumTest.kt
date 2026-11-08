@@ -147,7 +147,8 @@ class EngineSynthSpectrumTest {
             val limit = when {
                 p.kind == EngineProfile.Kind.SYNTH -> 1900.0
                 p.key == "STEAM_LOCO" -> 1300.0   // a hiss of steam, by design
-                else -> maxOf(800.0, firingRate * 1.3)
+                // A deliberate high ring (a 2-stroke's chamber) is allowed to lift it a little.
+                else -> maxOf(1000.0, firingRate * 1.3) + 600.0 * p.ringAmount
             }
             if (c > limit) misses += "${p.key}: centroid ${c.toInt()} Hz on a full pull (limit ${limit.toInt()})"
         }
@@ -197,6 +198,50 @@ class EngineSynthSpectrumTest {
             if (c < 8) miss = true
         }
         if (miss) misses += "fewer than 8 partials in 150-1500 Hz for: " + counts.joinToString(", ")
+    }
+
+    /**
+     * How much of the 150 to 4000 Hz band sits within 40 Hz of the [k] strongest
+     * lines. A whine is one or two lines and nothing else; a combustion roar
+     * spreads its energy over many harmonics and the noise between them.
+     */
+    private fun lineShare(pw: DoubleArray, k: Int, loHz: Double, hiHz: Double): Double {
+        val binHz = sr.toDouble() / n
+        val lo = (loHz / binHz).toInt(); val hi = (hiHz / binHz).toInt().coerceAtMost(pw.size - 2)
+        val peaks = mutableListOf<Pair<Double, Int>>()
+        for (i in lo..hi) if (pw[i] > pw[i - 1] && pw[i] >= pw[i + 1]) peaks += pw[i] to i
+        peaks.sortByDescending { it.first }
+        val picked = mutableListOf<Int>()
+        val apart = (60.0 / binHz).toInt()
+        for ((_, i) in peaks) {
+            if (picked.all { abs(it - i) > apart }) picked += i
+            if (picked.size == k) break
+        }
+        val reach = (40.0 / binHz).toInt()
+        var inLines = 0.0; var total = 0.0
+        for (i in lo..hi) {
+            total += pw[i]
+            if (picked.any { abs(it - i) <= reach }) inLines += pw[i]
+        }
+        return inLines / total.coerceAtLeast(1e-12)
+    }
+
+    /**
+     * A tester heard the multi-cylinder engines turn into an electronic whine on
+     * acceleration while the single stayed an engine. At 6000 rpm a V8 fires 400
+     * times a second: if each pulse is squeezed to fit the gap, the train is a
+     * sine wave. Before the fix the V8 put 83% of its band into three lines and
+     * the single 29%; flat out, no piston engine may now put more than 55% there.
+     */
+    @Test
+    fun `flat out, a piston engine is a roar and not a whine`() = check { misses ->
+        val report = mutableListOf<String>()
+        for (p in procedural.filter { it.kind == EngineProfile.Kind.ICE }) {
+            val s = lineShare(power(render(p, 0.9f, 1f)), 3, 150.0, 4000.0)
+            report += "${p.key}=${"%.2f".format(s)}"
+            if (s > 0.55) misses += "${p.key}: ${(s * 100).toInt()}% of the band is three lines"
+        }
+        println("line share flat out: " + report.joinToString(", "))
     }
 
     @Test

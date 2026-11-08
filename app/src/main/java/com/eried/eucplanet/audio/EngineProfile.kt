@@ -63,6 +63,12 @@ data class EngineProfile(
     val firingAngles: FloatArray = floatArrayOf(0f),
     /** True for 2-stroke (cycle = 360 degrees), false for 4-stroke (cycle = 720 degrees). */
     val twoStroke: Boolean = false,
+    /**
+     * Which exhaust bank (0 or 1) each firing in [firingAngles] order breathes into.
+     * Empty means the firings alternate. A cross-plane V8 does not: each bank gets
+     * an uneven run of pulses, which is its burble.
+     */
+    val banks: IntArray = IntArray(0),
     /** Exhaust pipe body: the lowest resonance in Hz. Big pipes low, small pipes high. */
     val pipeHz: Float = 150f,
     /** How long the pipe rings after each pulse; 1 is a stock muffler, higher is tinnier. */
@@ -156,11 +162,11 @@ data class EngineProfile(
                 firingAngles = floatArrayOf(0f),
                 gainTrim = 1.4f,
                 pipeHz = 260f, pipeQ = 1.2f,
-                ringHz = 2600f, ringAmount = 0.3f,
-                intakeNoise = 0.45f,
+                ringHz = 2600f, ringAmount = 0.22f,
+                intakeNoise = 0.4f,
                 exhaustGrit = 0.4f,
                 decelPopProbability = 0.25f,
-                compressionTone = 0.85f
+                compressionTone = 0.8f
             ),
             EngineProfile(
                 key = "FOUR_STROKE_SINGLE",
@@ -185,11 +191,11 @@ data class EngineProfile(
                 cylinderCount = 1,
                 firingAngles = floatArrayOf(0f),
                 pipeHz = 210f, pipeQ = 1.1f,
-                intakeNoise = 0.45f,
+                intakeNoise = 0.35f,
                 exhaustGrit = 0.3f,
                 decelPopProbability = 0.3f,
-                compressionTone = 0.7f,
-                gainTrim = 2.2f
+                compressionTone = 0.65f,
+                gainTrim = 2.5f
             ),
             // --- Multi-cylinder ICE ---
             EngineProfile(
@@ -211,7 +217,7 @@ data class EngineProfile(
                 key = "INLINE_4",
                 displayName = "Inline-4",
                 kind = Kind.ICE,
-                idleRpm = 1100, maxRpm = 13500,
+                idleRpm = 1100, maxRpm = 11000,
                 cylinderCount = 4,
                 firingAngles = floatArrayOf(0f, 180f, 360f, 540f),
                 gainTrim = 1.3f,
@@ -229,6 +235,8 @@ data class EngineProfile(
                 idleRpm = 700, maxRpm = 7000,
                 cylinderCount = 8,
                 firingAngles = floatArrayOf(0f, 90f, 180f, 270f, 360f, 450f, 540f, 630f),
+                // Cross-plane, firing order 1-8-4-3-6-5-7-2: the banks go L R R L R L L R
+                banks = intArrayOf(0, 1, 1, 0, 1, 0, 0, 1),
                 pipeHz = 200f, pipeQ = 1.1f,
                 intakeNoise = 0.35f,
                 exhaustGrit = 0.28f,
@@ -239,7 +247,7 @@ data class EngineProfile(
                 key = "V12_ITALIAN",
                 displayName = "V12 (Italian)",
                 kind = Kind.ICE,
-                idleRpm = 800, maxRpm = 8500,
+                idleRpm = 800, maxRpm = 7500,
                 cylinderCount = 12,
                 firingAngles = FloatArray(12) { i -> i * 60f },
                 pipeHz = 240f, pipeQ = 0.8f,
@@ -253,10 +261,11 @@ data class EngineProfile(
                 key = "V16_LUXURY", preview = true,
                 displayName = "V16 (luxury)",
                 kind = Kind.ICE,
-                idleRpm = 550, maxRpm = 6500,
+                idleRpm = 550, maxRpm = 5800,
                 cylinderCount = 16,
                 firingAngles = FloatArray(16) { i -> i * 45f },
                 pipeHz = 200f, pipeQ = 0.9f,
+                gainTrim = 1.25f,
                 intakeNoise = 0.15f,
                 exhaustGrit = 0.1f,
                 decelPopProbability = 0.2f,
@@ -283,15 +292,15 @@ data class EngineProfile(
                 key = "INLINE_6_SILKY", preview = true,
                 displayName = "Inline-6 (silky)",
                 kind = Kind.ICE,
-                idleRpm = 700, maxRpm = 7000,
+                idleRpm = 700, maxRpm = 6500,
                 cylinderCount = 6,
                 firingAngles = floatArrayOf(0f, 120f, 240f, 360f, 480f, 600f),
                 gainTrim = 1.3f,
                 pipeHz = 220f, pipeQ = 0.8f,
-                intakeNoise = 0.2f,
-                exhaustGrit = 0.08f,
+                intakeNoise = 0.3f,
+                exhaustGrit = 0.12f,
                 decelPopProbability = 0.25f,
-                compressionTone = 0.4f
+                compressionTone = 0.5f
             ),
             EngineProfile(
                 key = "TRACTOR", preview = true,
@@ -321,10 +330,10 @@ data class EngineProfile(
                 pipeHz = 320f, pipeQ = 0.5f,
                 intakeNoise = 0.2f,
                 pulseMs = 160f,
-                gainTrim = 6f,
+                gainTrim = 5f,
                 exhaustGrit = 0.7f,
                 decelPopProbability = 0.0f,
-                compressionTone = 0.9f
+                compressionTone = 0.75f
             ),
             // --- Synth / futuristic (gearless) ---
             EngineProfile(

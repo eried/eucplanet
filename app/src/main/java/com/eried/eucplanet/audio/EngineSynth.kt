@@ -2,7 +2,6 @@ package com.eried.eucplanet.audio
 
 import kotlin.math.PI
 import kotlin.math.abs
-import kotlin.math.cos
 import kotlin.math.exp
 import kotlin.math.sin
 
@@ -32,11 +31,21 @@ class EngineSynth(private val sampleRate: Int = 44100) {
     private var schedule: FiringSchedule? = null
     private var scheduleKey: String? = null
     private var cylGain: FloatArray = FloatArray(0)   // each cylinder a touch louder or quieter
+    private var cylLen: FloatArray = FloatArray(0)    // and its own exhaust length, so its pulse bleeds off differently
+    private var cylDelay: IntArray = IntArray(0)      // samples from the firing to the pulse reaching the collector
+    private var cylBank: IntArray = IntArray(0)
     private var combustion: Float = 0f               // slow cycle-to-cycle drift of the burn
-    private var pulseAge: Float = 1e9f               // seconds since the last firing
-    private var pulseAmp: Float = 0f
-    private var pulseLen: Float = 0.003f
-    private var pulseBank: Int = 0
+    // Pulses on their way down unequal header pipes: amplitude, bank, samples to go.
+    private val pendAmp = FloatArray(PENDING)
+    private val pendBank = IntArray(PENDING)
+    private val pendLeft = IntArray(PENDING)
+    // The exhaust pulse per bank as three decays: the pressure (slow), the front that
+    // carves its rise (fast), the undershoot behind it (slower, negative). Each firing
+    // adds to them, so pulses pile up at high revs instead of being squeezed shorter.
+    private val pressure = FloatArray(2)
+    private val front = FloatArray(2)
+    private val wake = FloatArray(2)
+    private var crackEnv: Float = 0f                 // the noise burst on the front of a pulse
     private var tickAge: Float = 1e9f
     private val pipeA = Pipe(sampleRate)
     private val pipeB = Pipe(sampleRate)
@@ -120,11 +129,18 @@ class EngineSynth(private val sampleRate: Int = 44100) {
             // Every cylinder its own voice, fixed for this engine, so the cycle is
             // heard as a pattern and not as a metronome.
             var seed = profile.key.hashCode()
-            cylGain = FloatArray(profile.firingAngles.size.coerceAtLeast(1)) {
-                seed = seed * 1103515245 + 12345
-                0.86f + 0.28f * (((seed ushr 8) and 0xFFFF) / 65535f)
-            }
+            fun unit(): Float { seed = seed * 1103515245 + 12345; return ((seed ushr 8) and 0xFFFF) / 65535f }
+            val cyls = profile.firingAngles.size.coerceAtLeast(1)
+            cylGain = FloatArray(cyls) { 0.75f + 0.5f * unit() }
+            cylLen = FloatArray(cyls) { 0.85f + 0.3f * unit() }
+            // Unequal headers: each cylinder's pulse reaches the collector up to 1.6 ms
+            // late, so even an even-firing engine's train is never quite regular.
+            // That irregularity is the roar's half-orders.
+            cylDelay = IntArray(cyls) { (unit() * 0.0016f * sampleRate).toInt() }
+            cylBank = IntArray(cyls) { i -> if (i < profile.banks.size) profile.banks[i] and 1 else i and 1 }
             combustion = 0f
+            pressure.fill(0f); front.fill(0f); wake.fill(0f); crackEnv = 0f
+            pendLeft.fill(0)
             pipeA.reset(); pipeB.reset(); cross1.reset(); cross2.reset(); body.reset()
             bark.reset(); ring.reset(); intake.reset(); tick.reset()
         }
@@ -139,7 +155,8 @@ class EngineSynth(private val sampleRate: Int = 44100) {
         // the only thing the revs do to it. Multi-cylinder engines breathe through
         // two banks, the second a shade longer, so the two beat against each other.
         val pipeHz = profile.pipeHz * (1f + 0.08f * rpmNorm)
-        val feedback = 0.58f + 0.1f * profile.pipeQ - 0.1f * rpmNorm
+        // The pipe rings less as the gas flow rises: at full chat it is the pulses you hear, not the pipe.
+        val feedback = 0.58f + 0.1f * profile.pipeQ - 0.18f * rpmNorm
         val damping = 2600f + 2400f * rpmNorm
         pipeA.set(pipeHz, feedback, damping)
         pipeB.set(pipeHz * 1.045f, feedback, damping)
@@ -166,7 +183,6 @@ class EngineSynth(private val sampleRate: Int = 44100) {
         val barkAmt = 0.25f + 0.55f * rpmNorm
         val gritAmt = profile.exhaustGrit * (0.05f + 0.95f * load + 0.5f * params.decelAmount)
         val intakeAmt = profile.intakeNoise * (0.12f + 0.88f * load) * (0.3f + 0.7f * rpmNorm)
-        val tickAmt = 0.35f * (0.3f + 0.7f * rpmNorm) * (0.5f + profile.compressionTone)
         // The pipe's upper modes open up with the revs; at idle it is mostly the note.
         val crossAmt = 0.65f * (0.6f + 0.4f * rpmNorm)
         val brakeAmt = params.engineBrakeAmount
@@ -177,8 +193,18 @@ class EngineSynth(private val sampleRate: Int = 44100) {
         // own idle rate, so a slow single and a V16 get the same treatment.
         val idleRate = (profile.idleRpm / 60f) * (360f / profile.cycleDegrees) * profile.cylinderCount
         val rateComp = 1f / kotlin.math.sqrt(1f + (firingRate - idleRate).coerceAtLeast(0f) / (2f * idleRate))
-        // A slow engine's pulse can be long, but never longer than the gap to the next one.
-        val pulseSecondsNow = (pulseSeconds * 1.6f).coerceAtMost(0.9f / firingRate.coerceAtLeast(1f))
+        // The valve tick: one per firing, so on a fast engine it is a buzz; let it thin out as they merge.
+        val tickAmt = 0.35f * (0.3f + 0.7f * rpmNorm) * (0.5f + profile.compressionTone) * rateComp
+        // How a pulse bleeds off: the profile's length, however fast the engine fires.
+        // A pulse squeezed to fit the gap turns a fast engine into a sine wave; letting
+        // them overlap keeps the front of every bang, which is what an engine is. Only
+        // a chuff longer than the gap (steam) is shortened, so chuffs stay chuffs.
+        val pulseEff = minOf(pulseSeconds, maxOf(0.0033f, 0.42f / firingRate.coerceAtLeast(1f)))
+        val bleedCoef = exp(-dt / (pulseEff * 1.2f))
+        val frontCoef = exp(-dt / 0.0002f)                       // the front rises in a fifth of a millisecond
+        val wakeCoef = exp(-dt / (pulseEff * 2.6f))              // the undershoot behind the pressure
+        // The noise on the front: a millisecond for a bang, a long hiss for a steam chuff.
+        val crackCoef = exp(-dt / maxOf(0.0012f, pulseEff * 0.12f))
         val brakeHz = (firingRate * (if (profile.twoStroke) 9f else 7f)).coerceIn(600f, 3400f)
         val cracklePerFiring = 0.35f * brakeAmt
         val tickLen = 0.0015f
@@ -189,40 +215,55 @@ class EngineSynth(private val sampleRate: Int = 44100) {
             // Crank turns; every firing that the step crosses starts a pulse.
             val fired = sched.advance(cycleStep)
             if (fired > 0) {
-                pulseAge = 0f
                 tickAge = 0f
-                pulseLen = pulseSecondsNow
-                val cyl = sched.lastFired
-                pulseBank = cyl and 1
+                val cyl = sched.lastFired.coerceIn(0, cylGain.size - 1)
                 // The burn drifts a little from cycle to cycle, and each cylinder
                 // has its own voice: no two firings alike.
-                combustion = (combustion * 0.9f + 0.05f * nextNoise()).coerceIn(-0.2f, 0.2f)
-                pulseAmp = rateComp * (0.6f + 0.4f * load) * cylGain[cyl.coerceIn(0, cylGain.size - 1)] *
+                combustion = (combustion * 0.9f + 0.07f * nextNoise()).coerceIn(-0.3f, 0.3f)
+                val amp = rateComp * (0.6f + 0.4f * load) * cylGain[cyl] * cylLen[cyl] *
                     (1f + combustion) * (0.95f + 0.1f * abs(nextNoise()))
+                // Down the header it goes; the oldest slot gives way if all are busy.
+                var slot = 0
+                for (s in 0 until PENDING) if (pendLeft[s] <= 0) { slot = s; break } else if (pendLeft[s] < pendLeft[slot]) slot = s
+                pendAmp[slot] = amp
+                pendBank[slot] = if (twoBanks) cylBank[cyl] else 0
+                pendLeft[slot] = cylDelay[cyl] + 1
                 if (brakeAmt > 0.01f && abs(nextNoise()) < cracklePerFiring) {
                     popQueue.addLast(Pop(remaining = (sampleRate * 0.05f).toInt(), gain = 0.35f))
                 }
             }
-            // The pulse: pressure that rises fast and bleeds off slowly, a crack of noise on its front.
-            var excite = 0f
-            if (pulseAge < pulseLen) {
-                val t = pulseAge / pulseLen
-                val thump = if (t < 0.12f) 0.5f - 0.5f * cos((PI * t / 0.12f).toFloat())
-                            else exp(-3.5f * (t - 0.12f) / 0.88f) * (1f - t * t)
-                val crackEnv = exp(-9f * t)
-                excite = pulseAmp * (thump * (1.1f - 0.5f * crack) + crackEnv * crack * 0.8f * nextNoise())
+            // Pulses arriving at the collector: pressure with its front, and the undershoot behind.
+            for (s in 0 until PENDING) {
+                if (pendLeft[s] > 0 && --pendLeft[s] == 0) {
+                    val b = pendBank[s]; val amp = pendAmp[s]
+                    pressure[b] += amp
+                    front[b] += amp
+                    wake[b] += amp * 0.55f
+                    crackEnv += amp
+                }
             }
-            pulseAge += dt
+            // Each bank's pulse: pressure minus its front (so it rises in a third of a
+            // millisecond however fast the engine fires), minus the undershoot that follows.
+            var exciteSum = 0f
+            for (b in 0..1) {
+                pressure[b] *= bleedCoef; front[b] *= frontCoef; wake[b] *= wakeCoef
+            }
+            val exciteA = pressure[0] - front[0] - wake[0] * 0.55f
+            val exciteB = pressure[1] - front[1] - wake[1] * 0.55f
+            // A crack of noise on the front of every bang, sharper with the revs.
+            crackEnv *= crackCoef
+            val crackN = crackEnv * crack * (1f + 0.6f * load) * nextNoise()
+            exciteSum = (exciteA + exciteB) * (1.1f - 0.5f * crack) + crackN
 
             // Pops: a bang through the same pipe, decaying.
             var popIn = 0f
             if (popQueue.isNotEmpty()) popIn = renderPops()
 
             val shared = popIn * 2f + gritAmt * 0.2f * nextNoise()
-            val pipeIn = excite + shared
+            val pipeIn = exciteSum + shared
             val exhaust = if (twoBanks) {
-                pipeA.process((if (pulseBank == 0) excite else 0f) + shared * 0.5f) +
-                    pipeB.process((if (pulseBank == 1) excite else 0f) + shared * 0.5f)
+                pipeA.process(exciteA * (1.1f - 0.5f * crack) + crackN * 0.5f + shared * 0.5f) +
+                    pipeB.process(exciteB * (1.1f - 0.5f * crack) + crackN * 0.5f + shared * 0.5f)
             } else {
                 pipeA.process(pipeIn)
             }
@@ -231,11 +272,11 @@ class EngineSynth(private val sampleRate: Int = 44100) {
                 cross2.process(pipeIn) * crossAmt * 0.7f +
                 body.process(exhaust) * 0.35f +
                 bark.process(pipeIn * load) * barkAmt
-            if (ringOn) sample += ring.process(excite * crack) * ringAmt
+            if (ringOn) sample += ring.process(exciteSum * crack) * ringAmt
 
             // Air: intake roar, a valve tick per firing, and exhaust grit.
             val pinkN = pink.next()
-            sample += intake.process(pinkN) * intakeAmt * 1.6f
+            sample += intake.process(pinkN) * intakeAmt * 2f
             if (tickAge < tickLen) {
                 sample += tick.process(nextNoise()) * tickAmt * (1f - tickAge / tickLen)
             }
@@ -438,9 +479,9 @@ class EngineSynth(private val sampleRate: Int = 44100) {
     fun reset() {
         schedule = null
         scheduleKey = null
-        pulseAge = 1e9f
         tickAge = 1e9f
-        pulseAmp = 0f
+        pressure.fill(0f); front.fill(0f); wake.fill(0f); crackEnv = 0f
+        pendLeft.fill(0)
         combustion = 0f
         oscPhase = 0.0; osc2Phase = 0.0; subPhase = 0.0; lfoPhase = 0.0; lfo2Phase = 0.0
         brakePhase = 0.0; gearPhase = 0.0
@@ -460,6 +501,7 @@ class EngineSynth(private val sampleRate: Int = 44100) {
 
     private companion object {
         const val OUT_LEVEL = 0.9f
+        const val PENDING = 16
     }
 }
 
