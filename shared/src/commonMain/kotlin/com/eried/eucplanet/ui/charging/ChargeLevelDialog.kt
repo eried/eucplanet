@@ -15,10 +15,10 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
-import com.eried.eucplanet.R
+import com.eried.eucplanet.platform.stringResource
+import com.eried.eucplanet.resources.*
 import com.eried.eucplanet.service.ChargeAlertPolicy
 import com.eried.eucplanet.ui.settings.NumberUpDown
 import com.eried.eucplanet.ui.theme.appColors
@@ -45,7 +45,7 @@ fun ChargeLevelDialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(dismissOnClickOutside = false),
         shape = RoundedCornerShape(12.dp),
-        title = { Text(stringResource(R.string.charging_notify_at)) },
+        title = { Text(stringResource(Res.string.charging_notify_at)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 NumberUpDown(
@@ -63,7 +63,7 @@ fun ChargeLevelDialog(
                 // like the lockdown code check.
                 if (!valid) {
                     Text(
-                        stringResource(R.string.charging_notify_custom_range),
+                        stringResource(Res.string.charging_notify_custom_range),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.appColors.statusDanger,
                     )
@@ -76,12 +76,12 @@ fun ChargeLevelDialog(
                 enabled = valid,
                 shape = RoundedCornerShape(12.dp),
             ) {
-                Text(stringResource(R.string.action_save))
+                Text(stringResource(Res.string.action_save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
-                Text(stringResource(R.string.action_cancel))
+                Text(stringResource(Res.string.action_cancel))
             }
         },
     )

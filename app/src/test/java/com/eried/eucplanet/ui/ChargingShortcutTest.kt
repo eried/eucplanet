@@ -13,7 +13,7 @@ class ChargingShortcutTest {
 
     private val dash = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/ui/dashboard/DashboardScreen.kt").readText()
     private val nav = File("src/main/java/com/eried/eucplanet/ui/navigation/NavGraph.kt").readText()
-    private val screen = File("src/main/java/com/eried/eucplanet/ui/charging/ChargingMonitorScreen.kt").readText()
+    private val screen = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/ui/charging/ChargingMonitorScreen.kt").readText()
 
     @Test fun `the battery icon can be held`() {
         val icon = dash.substringAfter("if (showChargingIcon)").take(900)

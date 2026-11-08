@@ -22,6 +22,7 @@ import com.eried.eucplanet.di.SharedKoin
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import com.eried.eucplanet.ui.dashboard.DashboardViewModel
+import com.eried.eucplanet.ui.charging.ChargingMonitorViewModel
 import com.eried.eucplanet.flic.ActionExecutor
 import com.eried.eucplanet.service.AlarmEngine
 import com.eried.eucplanet.ui.scan.ScanViewModel
@@ -218,6 +219,15 @@ object IosAppGraph {
         voiceCommands = NoVoiceCommands,
         phone = IosPhoneDevice,
         platform = IosDashboardPlatform(wheel, IosTripMeter.meter),
+    )
+
+    /** The charging monitor's view model, as Koin's viewModelOf builds it on Android. */
+    fun chargingViewModel(): ChargingMonitorViewModel = ChargingMonitorViewModel(
+        wheelRepository = wheel,
+        settingsRepository = settings,
+        csvFiles = IosChargingCsvFiles,
+        phone = IosPhoneDevice,
+        appNotifier = LogNotices,
     )
 
     /** The alarm editor's view model, as Koin builds it on Android. */

@@ -281,7 +281,9 @@ fun NavGraph(navController: NavHostController) {
                 initialDetailsOpen = backStackEntry.arguments?.getBoolean("details") == true,
                 onBack = { navController.popSingle() },
                 onOpenHistory = { navController.navigateSingle(Screen.MetricDetail.createRoute("BATTERY")) },
-                onOpenSettings = { navController.navigateSingle(Screen.Settings.createRoute(9)) }
+                onOpenSettings = { navController.navigateSingle(Screen.Settings.createRoute(9)) },
+                viewModel = koinViewModel(),
+                host = com.eried.eucplanet.ui.charging.rememberAndroidChargingHost(),
             )
         }
     }

@@ -21,6 +21,10 @@ import com.eried.eucplanet.ui.settings.FlicViewModel
 import com.eried.eucplanet.app.IosFlic
 import com.eried.eucplanet.app.IosLocation
 import com.eried.eucplanet.app.IosTrips
+import com.eried.eucplanet.app.IosChargeAlerts
+import com.eried.eucplanet.app.IosChargingHost
+import com.eried.eucplanet.ui.charging.ChargingMonitorLaunch
+import com.eried.eucplanet.ui.charging.ChargingMonitorScreen
 import com.eried.eucplanet.app.IosTripMeter
 import com.eried.eucplanet.app.IosDropboxSync
 import com.eried.eucplanet.app.IosEucStats
@@ -65,6 +69,8 @@ fun MainViewController(): UIViewController {
     IosTripMeter.meter
     // Leaderboard uploads at launch and on every return to the front.
     IosEucStats.start()
+    // The charge alerts, as WheelService posts them on Android.
+    IosChargeAlerts.start()
     // Dropbox trips at launch, on every return to the front and while open.
     IosDropboxSync.start()
     // SIMCTL_CHILD_EUC_RECORD=20 records a 20 s trip, for scripted runs.
@@ -93,12 +99,24 @@ fun MainViewController(): UIViewController {
             val colors by theme.activeColors.collectAsState()
             EucPlanetTheme(colors = colors) {
                 // A small screen stack until the shared navigation graph lands.
-                // SIMCTL_CHILD_EUC_SCREEN=scan opens on the scan screen (also settings, flic, trips, tripmeter, metric:<key>).
+                // SIMCTL_CHILD_EUC_SCREEN=scan opens on the scan screen (also settings, flic, trips, tripmeter, metric:<key>, charging, charging:details).
                 // "metric:VOLTAGE" opens a metric's detail, with the dashboard's route argument.
                 var screen by remember { mutableStateOf(startScreen?.substringBefore(':') ?: "dashboard") }
                 var metricArg by remember { mutableStateOf(startScreen?.substringAfter(':', "BATTERY") ?: "BATTERY") }
                 // Where the metric detail goes back to: the dashboard, or the charging monitor's history.
                 var metricBack by remember { mutableStateOf("dashboard") }
+                // Settings goes back to where it was opened from (the dashboard or the charging monitor).
+                var settingsBack by remember { mutableStateOf("dashboard") }
+                // "charging:details" opens the monitor with its details flyout up, as the battery icon's hold does.
+                var chargingDetails by remember { mutableStateOf(startScreen == "charging:details") }
+                // A charge alert's tap opens the monitor, as MainActivity does with ChargingMonitorLaunch.
+                val chargingRequested by ChargingMonitorLaunch.pending.collectAsState()
+                LaunchedEffect(chargingRequested) {
+                    if (ChargingMonitorLaunch.consume()) {
+                        chargingDetails = false
+                        screen = "charging"
+                    }
+                }
                 var leaderboardTab by remember { mutableStateOf(settingsTab) }
                 // The crew pass sends a rider with no leaderboard profile to join one.
                 val toLeaderboard by IosCrews.openLeaderboard.collectAsState()
@@ -130,7 +148,7 @@ fun MainViewController(): UIViewController {
                     "settings" -> {
                         val settingsVm = rememberViewModel { IosAppGraph.settingsViewModel() }
                         SettingsScreen(
-                            onBack = { screen = "dashboard" },
+                            onBack = { screen = settingsBack },
                             onNavigateToFlic = { screen = "flic" },
                             initialTab = leaderboardTab,
                             viewModel = settingsVm,
@@ -166,6 +184,27 @@ fun MainViewController(): UIViewController {
                             )
                         }
                     }
+                    "charging" -> {
+                        val chargingVm = rememberViewModel { IosAppGraph.chargingViewModel() }
+                        key(chargingDetails) {
+                            ChargingMonitorScreen(
+                                onBack = { screen = "dashboard" },
+                                onOpenHistory = {
+                                    metricArg = "BATTERY"
+                                    metricBack = "charging"
+                                    screen = "metric"
+                                },
+                                onOpenSettings = {
+                                    leaderboardTab = SETTINGS_TAB_CHARGING
+                                    settingsBack = "charging"
+                                    screen = "settings"
+                                },
+                                initialDetailsOpen = chargingDetails,
+                                viewModel = chargingVm,
+                                host = IosChargingHost,
+                            )
+                        }
+                    }
                     "flic" -> {
                         val flicVm = rememberViewModel { FlicViewModel(IosAppGraph.settings, IosFlic) }
                         FlicScreen(onBack = { screen = "settings" }, viewModel = flicVm)
@@ -175,7 +214,19 @@ fun MainViewController(): UIViewController {
                         val host = remember { IosDashboardHost() }
                         DashboardScreen(
                             onNavigateToScan = { screen = "scan" },
-                            onNavigateToSettings = { screen = "settings" },
+                            onNavigateToSettings = { tab ->
+                                leaderboardTab = tab ?: 0
+                                settingsBack = "dashboard"
+                                screen = "settings"
+                            },
+                            onNavigateToCharging = {
+                                chargingDetails = false
+                                screen = "charging"
+                            },
+                            onNavigateToChargingDetails = {
+                                chargingDetails = true
+                                screen = "charging"
+                            },
                             onNavigateToRecording = { screen = "trips" },
                             onNavigateToTripMeter = { screen = "tripmeter" },
                             onNavigateToMetric = { metric ->
@@ -207,3 +258,6 @@ fun MainViewController(): UIViewController {
 
 /** SettingsScreen's "Backups & leaderboards" section, LeaderboardSetupLaunch.SETTINGS_TAB_CLOUD on Android. */
 private const val SETTINGS_TAB_CLOUD = 4
+
+/** The section the charging monitor's Settings item opens, Screen.Settings.createRoute(9) on Android. */
+private const val SETTINGS_TAB_CHARGING = 9

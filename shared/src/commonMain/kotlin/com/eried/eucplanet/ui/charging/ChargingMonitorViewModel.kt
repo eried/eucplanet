@@ -1,13 +1,17 @@
 package com.eried.eucplanet.ui.charging
 
-import android.content.Context
-import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.ChargeStatus
-import com.eried.eucplanet.util.AppNotifier
+import com.eried.eucplanet.data.repository.AppNotices
+import com.eried.eucplanet.data.repository.PhoneDevice
+import com.eried.eucplanet.platform.Locale
+import com.eried.eucplanet.platform.Log
+import com.eried.eucplanet.platform.format
+import com.eried.eucplanet.platform.formatLocalDateUs
+import com.eried.eucplanet.resources.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.repository.ChargingSnapshot
 import com.eried.eucplanet.data.repository.MetricSample
@@ -99,10 +103,11 @@ data class ChargingUiState(
  * the running prediction instead of starting over.
  */
 class ChargingMonitorViewModel(
-    private val context: Context,
     private val wheelRepository: WheelRepository,
     private val settingsRepository: SettingsRepository,
-    private val appNotifier: AppNotifier,
+    private val csvFiles: ChargingCsvFiles,
+    private val phone: PhoneDevice,
+    private val appNotifier: AppNotices,
 ) : ViewModel() {
 
     // Latched per connection so the Packs / Power tabs don't flicker in/out on a
@@ -185,76 +190,25 @@ class ChargingMonitorViewModel(
         wheelRepository.resetChargingSession()
     }
 
-    /** Write the session CSV to [uri] (three-dots -> Export) and report the result. */
-    fun saveCsv(uri: Uri) {
+    /**
+     * Write the session CSV to [target] (three-dots -> Export; the platform's
+     * handle from ChargingHost.rememberCsvSaver) and report the result.
+     */
+    fun saveCsv(target: String) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val csv = buildCsvOrNull()
+                val csv = ChargingCsv.build(uiState.value)
                 if (csv == null) {
-                    appNotifier.post(context.getString(R.string.charging_export_failed))
+                    appNotifier.post(phone.text(Res.string.charging_export_failed))
                     return@launch
                 }
-                context.contentResolver.openOutputStream(uri)?.use { it.write(csv.toByteArray()) }
-                appNotifier.post(context.getString(R.string.charging_export_saved))
+                csvFiles.write(target, csv.encodeToByteArray())
+                appNotifier.post(phone.text(Res.string.charging_export_saved))
             } catch (e: Exception) {
-                android.util.Log.w("ChargingMonitorVM", "saveCsv failed", e)
-                appNotifier.post(context.getString(R.string.charging_export_failed))
+                Log.w("ChargingMonitorVM", "saveCsv failed", e)
+                appNotifier.post(phone.text(Res.string.charging_export_failed))
             }
         }
-    }
-
-    /**
-     * Build a CSV of the current charging session for the Export menu item: the
-     * downsampled time series (charge %, voltage, temp, and each pack's cell-spread
-     * min / max / avg) followed by a trailing block of the latest per-cell voltages.
-     * Returns null when there is no session data yet. Pure - reads the UI state only.
-     */
-    private fun buildCsvOrNull(): String? {
-        val s = uiState.value
-        val charge = s.chargeHistory
-        if (charge.isEmpty()) return null
-        val volt = s.voltageHistory
-        val temp = s.tempHistory
-        val packMin = s.packMinHistory
-        val packMax = s.packMaxHistory
-        val packAvg = s.packAvgHistory
-        val nPacks = packMin.size
-        val unit = s.packSeriesUnit
-        val stamp = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.US)
-        fun num(v: Float?, dp: Int) =
-            if (v == null) "" else String.format(java.util.Locale.US, "%.${dp}f", v)
-        val sb = StringBuilder()
-        sb.append("time,elapsed_s,charge_pct,voltage_v,temp_c")
-        for (p in 0 until nPacks) {
-            sb.append(",pack${p + 1}_min_$unit,pack${p + 1}_max_$unit,pack${p + 1}_avg_$unit")
-        }
-        sb.append('\n')
-        val t0 = charge.first().timestampMs
-        for (i in charge.indices) {
-            val t = charge[i].timestampMs
-            sb.append(stamp.format(java.util.Date(t)))
-            sb.append(',').append((t - t0) / 1000)
-            sb.append(',').append(num(charge[i].value, 2))
-            sb.append(',').append(num(volt.getOrNull(i)?.value, 3))
-            sb.append(',').append(num(temp.getOrNull(i)?.value, 1))
-            for (p in 0 until nPacks) {
-                sb.append(',').append(num(packMin[p].getOrNull(i)?.value, 3))
-                sb.append(',').append(num(packMax[p].getOrNull(i)?.value, 3))
-                sb.append(',').append(num(packAvg[p].getOrNull(i)?.value, 3))
-            }
-            sb.append('\n')
-        }
-        // Latest per-cell voltages are not recorded over time, so append them as a
-        // trailing snapshot block.
-        if (s.bms.packs.any { it.knownCells.isNotEmpty() }) {
-            sb.append("\npack,cell,voltage_v\n")
-            s.bms.packs.forEachIndexed { pi, pack ->
-                pack.knownCells.forEachIndexed { ci, cell ->
-                    sb.append("${pi + 1},${ci + 1},").append(num(cell.second, 3)).append('\n')
-                }
-            }
-        }
-        return sb.toString()
     }
 
     private fun buildState(
@@ -358,4 +312,65 @@ class ChargingMonitorViewModel(
         d.battery1Percent > 0f -> d.battery1Percent
         else -> d.batteryPercent.toFloat()
     }
+}
+
+/** The Export menu item's CSV. */
+object ChargingCsv {
+    /**
+     * Build a CSV of the current charging session for the Export menu item: the
+     * downsampled time series (charge %, voltage, temp, and each pack's cell-spread
+     * min / max / avg) followed by a trailing block of the latest per-cell voltages.
+     * Returns null when there is no session data yet. Pure: reads the UI state only.
+     */
+    fun build(s: ChargingUiState): String? {
+        val charge = s.chargeHistory
+        if (charge.isEmpty()) return null
+        val volt = s.voltageHistory
+        val temp = s.tempHistory
+        val packMin = s.packMinHistory
+        val packMax = s.packMaxHistory
+        val packAvg = s.packAvgHistory
+        val nPacks = packMin.size
+        val unit = s.packSeriesUnit
+        fun num(v: Float?, dp: Int) =
+            if (v == null) "" else String.format(Locale.US, "%.${dp}f", v)
+        val sb = StringBuilder()
+        sb.append("time,elapsed_s,charge_pct,voltage_v,temp_c")
+        for (p in 0 until nPacks) {
+            sb.append(",pack${p + 1}_min_$unit,pack${p + 1}_max_$unit,pack${p + 1}_avg_$unit")
+        }
+        sb.append('\n')
+        val t0 = charge.first().timestampMs
+        for (i in charge.indices) {
+            val t = charge[i].timestampMs
+            sb.append(formatLocalDateUs("yyyy-MM-dd HH:mm:ss", t))
+            sb.append(',').append((t - t0) / 1000)
+            sb.append(',').append(num(charge[i].value, 2))
+            sb.append(',').append(num(volt.getOrNull(i)?.value, 3))
+            sb.append(',').append(num(temp.getOrNull(i)?.value, 1))
+            for (p in 0 until nPacks) {
+                sb.append(',').append(num(packMin[p].getOrNull(i)?.value, 3))
+                sb.append(',').append(num(packMax[p].getOrNull(i)?.value, 3))
+                sb.append(',').append(num(packAvg[p].getOrNull(i)?.value, 3))
+            }
+            sb.append('\n')
+        }
+        // Latest per-cell voltages are not recorded over time, so append them as a
+        // trailing snapshot block.
+        if (s.bms.packs.any { it.knownCells.isNotEmpty() }) {
+            sb.append("\npack,cell,voltage_v\n")
+            s.bms.packs.forEachIndexed { pi, pack ->
+                pack.knownCells.forEachIndexed { ci, cell ->
+                    sb.append("${pi + 1},${ci + 1},").append(num(cell.second, 3)).append('\n')
+                }
+            }
+        }
+        return sb.toString()
+    }
+}
+
+/** Where the exported CSV goes: Android's picked document, iOS's share sheet. */
+interface ChargingCsvFiles {
+    /** Writes [bytes] to [target], the handle ChargingHost.rememberCsvSaver gave. Throws on failure. */
+    fun write(target: String, bytes: ByteArray)
 }

@@ -1,7 +1,5 @@
 package com.eried.eucplanet.ui.charging
 
-import android.content.res.Configuration
-import android.view.Surface
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -89,19 +87,12 @@ import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.ChargeStatus
 import com.eried.eucplanet.data.repository.MetricSample
 import com.eried.eucplanet.ui.dashboard.MetricGraph
@@ -109,12 +100,18 @@ import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.GraphBounds
 import com.eried.eucplanet.util.GraphScale
 import com.eried.eucplanet.ui.common.DestructiveMenuItem
-import java.util.Date
 import kotlin.math.abs
 import kotlin.math.exp
 import kotlin.math.roundToInt
 import kotlin.math.sin
-import org.koin.compose.viewmodel.koinViewModel
+import com.eried.eucplanet.platform.System
+import com.eried.eucplanet.platform.format
+import com.eried.eucplanet.platform.formatLocalDateUs
+import com.eried.eucplanet.platform.rememberShortTimeFormatter
+import com.eried.eucplanet.platform.rememberStringFormatter
+import com.eried.eucplanet.platform.stringResource
+import com.eried.eucplanet.resources.*
+import com.eried.eucplanet.ui.common.screenGeometry
 
 // How far the animated % may run ahead of the last reading.
 private const val MAX_LEAD = 1.2f
@@ -129,10 +126,10 @@ fun ChargingMonitorScreen(
     /** Open with the details flyout already up - the dashboard battery
      *  icon's long-press promises the graphs, not the dial. */
     initialDetailsOpen: Boolean = false,
-    viewModel: ChargingMonitorViewModel = koinViewModel(),
+    viewModel: ChargingMonitorViewModel,
+    host: ChargingHost,
 ) {
     val state by viewModel.uiState.collectAsState()
-    val ctx = LocalContext.current
     val charging = state.status == ChargeStatus.Charging || state.status == ChargeStatus.Full
 
     var showSheet by remember { mutableStateOf(initialDetailsOpen) }
@@ -145,9 +142,7 @@ fun ChargingMonitorScreen(
 
     // Export the session as CSV (three-dots -> Export). The system save dialog
     // picks the destination; the ViewModel streams the CSV in off the main thread.
-    val exportLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.CreateDocument("text/csv")
-    ) { uri -> uri?.let { viewModel.saveCsv(it) } }
+    val exportCsv = host.rememberCsvSaver { target -> viewModel.saveCsv(target) }
 
     val pct = rememberAnimatedPercent(state.percent, state.ratePctPerMin, charging, full = state.status == ChargeStatus.Full)
     // Live clock so the ETA counts down in real time between telemetry frames.
@@ -157,19 +152,17 @@ fun ChargingMonitorScreen(
             delay(1_000)
         }
     }
-    val clockAt: (Long) -> String = { ms ->
-        android.text.format.DateFormat.getTimeFormat(ctx).format(Date(ms))
-    }
+    val clockAt: (Long) -> String = rememberShortTimeFormatter()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.charging_monitor)) },
+                title = { Text(stringResource(Res.string.charging_monitor)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.charging_back),
+                            contentDescription = stringResource(Res.string.charging_back),
                         )
                     }
                 },
@@ -184,11 +177,11 @@ fun ChargingMonitorScreen(
                         )
                     }
                     IconButton(onClick = { menuOpen = true }) {
-                        Icon(Icons.Filled.MoreVert, contentDescription = stringResource(R.string.charging_options))
+                        Icon(Icons.Filled.MoreVert, contentDescription = stringResource(Res.string.charging_options))
                     }
                     DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
                         DropdownMenuItem(
-                            text = { Text(stringResource(R.string.charging_estimate_to_full)) },
+                            text = { Text(stringResource(Res.string.charging_estimate_to_full)) },
                             onClick = {
                                 viewModel.setEstimateToFull(!state.estimateToFull)
                                 menuOpen = false
@@ -201,7 +194,7 @@ fun ChargingMonitorScreen(
                         // The two charge alerts. Both off unless asked for: a
                         // notification nobody wanted is worse than no feature.
                         DropdownMenuItem(
-                            text = { Text(stringResource(R.string.charging_notify_80)) },
+                            text = { Text(stringResource(Res.string.charging_notify_80)) },
                             onClick = {
                                 viewModel.setNotify80(!state.notify80)
                                 menuOpen = false
@@ -211,7 +204,7 @@ fun ChargingMonitorScreen(
                             },
                         )
                         DropdownMenuItem(
-                            text = { Text(stringResource(R.string.charging_notify_full)) },
+                            text = { Text(stringResource(Res.string.charging_notify_full)) },
                             onClick = {
                                 viewModel.setNotifyFull(!state.notifyFull)
                                 menuOpen = false
@@ -228,8 +221,8 @@ fun ChargingMonitorScreen(
                             text = {
                                 Text(
                                     if (state.notifyCustom)
-                                        stringResource(R.string.charging_notify_custom, state.notifyCustomPct)
-                                    else stringResource(R.string.charging_notify_at_ask)
+                                        stringResource(Res.string.charging_notify_custom, state.notifyCustomPct)
+                                    else stringResource(Res.string.charging_notify_at_ask)
                                 )
                             },
                             onClick = {
@@ -243,24 +236,23 @@ fun ChargingMonitorScreen(
                         )
                         HorizontalDivider()
                         DropdownMenuItem(
-                            text = { Text(stringResource(R.string.battery_history)) },
+                            text = { Text(stringResource(Res.string.battery_history)) },
                             onClick = {
                                 menuOpen = false
                                 onOpenHistory()
                             },
                         )
                         DropdownMenuItem(
-                            text = { Text(stringResource(R.string.charging_export)) },
+                            text = { Text(stringResource(Res.string.charging_export)) },
                             onClick = {
                                 menuOpen = false
                                 val name = "eucplanet_battery_" +
-                                    java.text.SimpleDateFormat("yyyyMMdd_HHmmss", java.util.Locale.US)
-                                        .format(java.util.Date()) + ".csv"
-                                exportLauncher.launch(name)
+                                    formatLocalDateUs("yyyyMMdd_HHmmss", System.currentTimeMillis()) + ".csv"
+                                exportCsv(name)
                             },
                         )
                         DropdownMenuItem(
-                            text = { Text(stringResource(R.string.settings)) },
+                            text = { Text(stringResource(Res.string.settings)) },
                             onClick = {
                                 menuOpen = false
                                 onOpenSettings()
@@ -268,7 +260,7 @@ fun ChargingMonitorScreen(
                         )
                         HorizontalDivider()
                         DestructiveMenuItem(
-                            text = stringResource(R.string.charging_reset_data),
+                            text = stringResource(Res.string.charging_reset_data),
                             onClick = {
                                 menuOpen = false
                                 viewModel.resetData()
@@ -308,8 +300,7 @@ fun ChargingMonitorScreen(
 
             // Show the % whenever a wheel is connected; the prediction only while
             // charging (idle = just the % over the battery).
-            val landscape =
-                LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+            val landscape = screenGeometry().landscape
             // No decimals at 100 %, it reads a clean "100%".
             val decimalsVisible = charging && state.warmedUp &&
                 state.status != ChargeStatus.Full && state.percent < 99.5f
@@ -354,7 +345,7 @@ fun ChargingMonitorScreen(
             // last-seen values of the preserved session, not a live feed.
             if (state.frozen) {
                 Text(
-                    stringResource(R.string.connection_disconnected),
+                    stringResource(Res.string.connection_disconnected),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.appColors.textPrimary.copy(alpha = 0.7f),
                     modifier = Modifier
@@ -410,7 +401,7 @@ fun ChargingMonitorScreen(
                     tint = detailsColor,
                 )
                 Text(
-                    stringResource(R.string.charging_details),
+                    stringResource(Res.string.charging_details),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     color = detailsColor,
@@ -521,22 +512,22 @@ private fun PredictionText(state: ChargingUiState, nowMs: Long, clockAt: (Long) 
             !state.estimateToFull && state.targetEtaMs != null && state.targetEtaMs!! - nowMs > 0L -> {
                 val eta = state.targetEtaMs!!
                 Text(
-                    stringResource(R.string.charging_eta_to_target, mmss(eta - nowMs), state.targetPercent.roundToInt()),
+                    stringResource(Res.string.charging_eta_to_target, mmss(eta - nowMs), state.targetPercent.roundToInt()),
                     fontSize = 40.sp, fontWeight = FontWeight.Bold, color = color, style = glow,
                 )
-                Text(stringResource(R.string.charging_eta_at, clockAt(eta)), fontSize = 26.sp, color = color, style = glow)
+                Text(stringResource(Res.string.charging_eta_at, clockAt(eta)), fontSize = 26.sp, color = color, style = glow)
             }
             state.fullEtaMs != null && state.fullEtaMs!! - nowMs > 0L -> {
                 val eta = state.fullEtaMs!!
                 Text(
-                    stringResource(R.string.charging_eta_to_full, mmss(eta - nowMs)),
+                    stringResource(Res.string.charging_eta_to_full, mmss(eta - nowMs)),
                     fontSize = 40.sp, fontWeight = FontWeight.Bold, color = color, style = glow,
                 )
-                Text(stringResource(R.string.charging_eta_at, clockAt(eta)), fontSize = 26.sp, color = color, style = glow)
+                Text(stringResource(Res.string.charging_eta_at, clockAt(eta)), fontSize = 26.sp, color = color, style = glow)
             }
             // Charging but not warmed up yet, or the countdown already elapsed.
             else ->
-                Text(stringResource(R.string.charging_charging), fontSize = 40.sp, fontWeight = FontWeight.Bold, color = color, style = glow)
+                Text(stringResource(Res.string.charging_charging), fontSize = 40.sp, fontWeight = FontWeight.Bold, color = color, style = glow)
         }
     }
 }
@@ -620,7 +611,7 @@ private fun BatteryScrubOverlay(
                 )
                 if (etaText != null) {
                     Text(
-                        stringResource(R.string.charging_eta_at, etaText),
+                        stringResource(Res.string.charging_eta_at, etaText),
                         color = lineColor, fontSize = 16.sp, style = glow,
                     )
                 }
@@ -730,11 +721,6 @@ private fun BatteryFillGraphic(
 
     // --- Fluid surface: the top of the liquid sloshes with the phone's tilt
     // (accelerometer gravity) and rotation (gyroscope). ---
-    val ctx = LocalContext.current
-    // Accelerometer values are in the device's fixed frame, so we remap them to
-    // the current display rotation, otherwise the liquid tilts the wrong way in
-    // landscape (device X no longer points along the screen's horizontal).
-    val view = LocalView.current
     val surfH = remember { FloatArray(FLUID_COLS + 1) }
     val surfV = remember { FloatArray(FLUID_COLS + 1) }
     val tiltX = remember { mutableFloatStateOf(0f) }
@@ -747,7 +733,7 @@ private fun BatteryFillGraphic(
     val dvy = remember { FloatArray(maxDrops) }
     val dlife = remember { FloatArray(maxDrops) }
     val geo = remember { FloatArray(3) }   // [w, h, yTop] published by the Canvas
-    val rnd = remember { java.util.Random() }
+    val rnd = remember { kotlin.random.Random }
     // Faint bubbles drifting up through the liquid.
     val maxBubbles = 140
     val bubX = remember { FloatArray(maxBubbles) }
@@ -756,37 +742,12 @@ private fun BatteryFillGraphic(
     val bubS = remember { FloatArray(maxBubbles) }
     val bubA = remember { FloatArray(maxBubbles) }
     val bubF = remember { FloatArray(maxBubbles) }
-    DisposableEffect(Unit) {
-        val sm = ctx.getSystemService(android.content.Context.SENSOR_SERVICE) as? android.hardware.SensorManager
-        val listener = object : android.hardware.SensorEventListener {
-            override fun onSensorChanged(e: android.hardware.SensorEvent) {
-                when (e.sensor.type) {
-                    android.hardware.Sensor.TYPE_ACCELEROMETER -> {
-                        // Gravity component along the SCREEN's horizontal, remapped
-                        // from the device frame by the display rotation so the
-                        // liquid sloshes the right way in every orientation.
-                        val horiz = when (view.display?.rotation) {
-                            Surface.ROTATION_90 -> -e.values[1]
-                            Surface.ROTATION_180 -> -e.values[0]
-                            Surface.ROTATION_270 -> e.values[1]
-                            else -> e.values[0]
-                        }
-                        tiltX.floatValue = (horiz / 9.81f).coerceIn(-1f, 1f)
-                    }
-                    android.hardware.Sensor.TYPE_GYROSCOPE ->
-                        gyroKick.floatValue = (gyroKick.floatValue - e.values[1]).coerceIn(-12f, 12f)
-                }
-            }
-            override fun onAccuracyChanged(s: android.hardware.Sensor?, a: Int) {}
-        }
-        sm?.getDefaultSensor(android.hardware.Sensor.TYPE_ACCELEROMETER)?.let {
-            sm.registerListener(listener, it, android.hardware.SensorManager.SENSOR_DELAY_GAME)
-        }
-        sm?.getDefaultSensor(android.hardware.Sensor.TYPE_GYROSCOPE)?.let {
-            sm.registerListener(listener, it, android.hardware.SensorManager.SENSOR_DELAY_GAME)
-        }
-        onDispose { sm?.unregisterListener(listener) }
-    }
+    // Gravity along the screen's horizontal tilts the surface; the gyro's
+    // turn about the screen's vertical axis kicks a slosh.
+    PhoneMotionEffect(
+        onGravityX = { horiz -> tiltX.floatValue = (horiz / 9.81f).coerceIn(-1f, 1f) },
+        onGyroY = { rate -> gyroKick.floatValue = (gyroKick.floatValue - rate).coerceIn(-12f, 12f) },
+    )
 
     LaunchedEffect(Unit) {
         var prev = 0L
@@ -1046,12 +1007,12 @@ private fun InfoTabs(state: ChargingUiState) {
     // session, revisit if we add a dedicated History tab.
     // Dynamic tabs, only show what this wheel actually reports.
     val tabs = buildList {
-        add(stringResource(R.string.charging_tab_charge) to "charge")
-        if (state.hasPacks) add(stringResource(R.string.charging_tab_packs) to "packs")
-        if (state.hasRealCurrent) add(stringResource(R.string.charging_tab_power) to "power")
+        add(stringResource(Res.string.charging_tab_charge) to "charge")
+        if (state.hasPacks) add(stringResource(Res.string.charging_tab_packs) to "packs")
+        if (state.hasRealCurrent) add(stringResource(Res.string.charging_tab_power) to "power")
         // Smart-BMS wheels (Lynx / Sherman L / Oryx / NOSFET / Patton-with-BMS)
         // report per-cell voltages; everyone else has empty packs and skips it.
-        if (state.bms.hasCells) add(stringResource(R.string.charging_tab_cells) to "cells")
+        if (state.bms.hasCells) add(stringResource(Res.string.charging_tab_cells) to "cells")
     }
     var selected by remember { mutableIntStateOf(0) }
     if (selected >= tabs.size) selected = 0
@@ -1061,8 +1022,7 @@ private fun InfoTabs(state: ChargingUiState) {
     // need room on V14 4-pack rigs and Veteran-family 42-cell packs; the Packs
     // chart wants the room too); shorter tabs just have extra space below their
     // content, and each tab scrolls vertically inside that height.
-    val configuration = LocalConfiguration.current
-    val screenH = configuration.screenHeightDp.dp
+    val screenH = screenGeometry().heightDp.dp
     // Max height for the tab content: the sheet wraps its content (so a short tab
     // like Charge shows just the chart + stats with no empty filler) but never grows
     // past this, so it stays clear of the status bar; tall tabs (Packs / Cells) cap
@@ -1137,7 +1097,7 @@ private fun InfoTabs(state: ChargingUiState) {
                             predictionPath = predictionMarkers,
                         ) { _, _ -> GraphScale.fixed(0f, 100f) }
                         Spacer(Modifier.height(8.dp))
-                        StatRow(stringResource(R.string.charging_stat_added), "%+.1f%%".format(state.addedPercent))
+                        StatRow(stringResource(Res.string.charging_stat_added), "%+.1f%%".format(state.addedPercent))
                         // Rate: prefer W (EV/charger convention) when the wheel reports a
                         // real current; %/min becomes the secondary read either way so the
                         // sign of a discharging slope is still visible.
@@ -1145,7 +1105,7 @@ private fun InfoTabs(state: ChargingUiState) {
                             state.powerW?.takeIf { it > 0 }?.let { append("%d W  ·  ".format(it)) }
                             append("%+.2f %%/min".format(state.ratePctPerMin))
                         }
-                        StatRow(stringResource(R.string.charging_stat_rate), rateText)
+                        StatRow(stringResource(Res.string.charging_stat_rate), rateText)
                         // Energy split by direction: what the ride Used (real
                         // current on the discharge, so it shows even on a V14 whose
                         // charge current reads ~0 A) and what the charge has put
@@ -1157,7 +1117,7 @@ private fun InfoTabs(state: ChargingUiState) {
                         // "Used" is the discharge (idle self-draw); hide it while
                         // charging, where it only reads as a contradiction.
                         if (state.energyUsedWh >= 1f && !state.charging) {
-                            StatRow(stringResource(R.string.charging_stat_used), fmtWh(state.energyUsedWh))
+                            StatRow(stringResource(Res.string.charging_stat_used), fmtWh(state.energyUsedWh))
                         }
                         // Charged: the percentage times the rider's pack size on
                         // the wheels that report no charge current, otherwise the
@@ -1167,13 +1127,13 @@ private fun InfoTabs(state: ChargingUiState) {
                         // through a charge that had actually put back 120.
                         if (state.estimatedChargedWh >= 1f) {
                             StatRow(
-                                stringResource(R.string.charging_stat_charged_est),
+                                stringResource(Res.string.charging_stat_charged_est),
                                 "~" + fmtWh(state.estimatedChargedWh),
                             )
                         } else if (state.energyChargedWh >= 1f) {
-                            StatRow(stringResource(R.string.charging_stat_charged), fmtWh(state.energyChargedWh))
+                            StatRow(stringResource(Res.string.charging_stat_charged), fmtWh(state.energyChargedWh))
                         }
-                        StatRow(stringResource(R.string.charging_stat_voltage), "%.1f V".format(state.voltage))
+                        StatRow(stringResource(Res.string.charging_stat_voltage), "%.1f V".format(state.voltage))
                     }
                     "packs" -> {
                       // Which pack bands are hidden. Tap a tile to toggle its band
@@ -1260,7 +1220,7 @@ private fun InfoTabs(state: ChargingUiState) {
                             if (packVolts.size >= 2) {
                                 // Imbalance as a mV spread -- the real pack-health
                                 // signal, and the number balance chargers read.
-                                StatRow(stringResource(R.string.charging_stat_balance),
+                                StatRow(stringResource(Res.string.charging_stat_balance),
                                     "%+.0f mV".format((packVolts.max() - packVolts.min()) * 1000f))
                             }
                         } else {
@@ -1282,17 +1242,17 @@ private fun InfoTabs(state: ChargingUiState) {
                             if (packs.size >= 2) {
                                 // 2 decimals + explicit sign so a fully balanced
                                 // pack reads "+0.00%" rather than an empty line.
-                                StatRow(stringResource(R.string.charging_stat_balance),
+                                StatRow(stringResource(Res.string.charging_stat_balance),
                                     "%+.2f%%".format(packs.max() - packs.min()))
                             }
                         }
-                        StatRow(stringResource(R.string.charging_stat_temp), "%.0f°C".format(state.maxTemp))
+                        StatRow(stringResource(Res.string.charging_stat_temp), "%.0f°C".format(state.maxTemp))
                       }
                     }
                     "power" -> {
-                        StatRow(stringResource(R.string.charging_stat_power), "${state.powerW ?: 0} W")
-                        StatRow(stringResource(R.string.charging_stat_current), "%.1f A".format(abs(state.current)))
-                        StatRow(stringResource(R.string.charging_stat_voltage), "%.1f V".format(state.voltage))
+                        StatRow(stringResource(Res.string.charging_stat_power), "${state.powerW ?: 0} W")
+                        StatRow(stringResource(Res.string.charging_stat_current), "%.1f A".format(abs(state.current)))
+                        StatRow(stringResource(Res.string.charging_stat_voltage), "%.1f V".format(state.voltage))
                     }
                     "cells" -> {
                         CellsTabContent(state.bms, state.cellLowWarnMv, state.cellLowDangerMv, state.cellHighMv)
@@ -1318,8 +1278,7 @@ private fun ChargingChart(
     boundsFor: (Float, Float) -> GraphBounds,
 ) {
     // Taller in portrait; landscape is short, so it keeps the compact height.
-    val chartH = if (LocalConfiguration.current.orientation ==
-        Configuration.ORIENTATION_LANDSCAPE) 200.dp else 288.dp
+    val chartH = if (screenGeometry().landscape) 200.dp else 288.dp
     if (samples.size >= 2) {
         // Reuse the app's interactive history chart, units, time axis, and
         // hold-to-scrub, same as the metric graphs elsewhere in the app.
@@ -1350,7 +1309,7 @@ private fun ChargingChart(
                 .background(MaterialTheme.appColors.tileBackground),
             contentAlignment = Alignment.Center,
         ) {
-            Text(stringResource(R.string.charging_chart_empty), color = MaterialTheme.appColors.hint, fontSize = 13.sp)
+            Text(stringResource(Res.string.charging_chart_empty), color = MaterialTheme.appColors.hint, fontSize = 13.sp)
         }
     }
 }
@@ -1391,8 +1350,7 @@ private fun PacksChart(
 ) {
     val colors = MaterialTheme.appColors
     // Taller in portrait; landscape is short, so it keeps the compact height.
-    val chartH = if (LocalConfiguration.current.orientation ==
-        Configuration.ORIENTATION_LANDSCAPE) 200.dp else 288.dp
+    val chartH = if (screenGeometry().landscape) 200.dp else 288.dp
     // Cells-per-pack, so whole-pack volts convert to per-cell mV for the
     // imbalance readouts (the balance-charger scale the tiles use). 1 = no-op.
     fun cnt(p: Int) = cellCounts.getOrElse(p) { 1 }.coerceAtLeast(1)
@@ -1410,7 +1368,7 @@ private fun PacksChart(
                 .background(colors.tileBackground),
             contentAlignment = Alignment.Center,
         ) {
-            Text(stringResource(R.string.charging_chart_empty), color = colors.hint, fontSize = 13.sp)
+            Text(stringResource(Res.string.charging_chart_empty), color = colors.hint, fontSize = 13.sp)
         }
         Spacer(Modifier.height(12.dp))
         return
@@ -1466,9 +1424,9 @@ private fun PacksChart(
     // Multiline scrub tooltip: one line per visible pack (its whole voltage and
     // its band thickness as an imbalance in mV), then the global pack-to-pack
     // imbalance. Strings resolved here; the lambda runs in the draw scope.
-    val ctx = LocalContext.current
-    val deltaGlyph = stringResource(R.string.charging_cells_delta)
-    val imbalanceLabel = stringResource(R.string.charging_stat_balance)
+    val formatString = rememberStringFormatter()
+    val deltaGlyph = stringResource(Res.string.charging_cells_delta)
+    val imbalanceLabel = stringResource(Res.string.charging_stat_balance)
     val tooltipLines: (Long) -> List<String> = { tMs ->
         val ref = packAvg[0]
         val nearest = ref.indexOfLast { it.timestampMs <= tMs }
@@ -1486,7 +1444,7 @@ private fun PacksChart(
                     val packNumber: Int = p + 1
                     add(
                         buildString {
-                            append(ctx.getString(R.string.charging_cells_pack_n, packNumber))
+                            append(formatString(Res.string.charging_cells_pack_n, listOf(packNumber)))
                             append("  ")
                             append(if (toMilli) "%.1f V".format(v) else "%.1f%%".format(v))
                             append("  ")
@@ -1565,7 +1523,7 @@ private fun CellsTabContent(
         // yet, show the hint instead of an empty surface.
         Box(modifier = Modifier.fillMaxWidth().padding(top = 24.dp), contentAlignment = Alignment.Center) {
             Text(
-                stringResource(R.string.charging_cells_waiting),
+                stringResource(Res.string.charging_cells_waiting),
                 color = colors.hint,
                 style = MaterialTheme.typography.bodyMedium,
             )
@@ -1598,7 +1556,7 @@ private fun CellsTabContent(
             }
             if (packs.size > 1) {
                 Text(
-                    stringResource(R.string.charging_cells_pack_n, pack.packIndex + 1),
+                    stringResource(Res.string.charging_cells_pack_n, pack.packIndex + 1),
                     style = MaterialTheme.typography.titleSmall,
                     color = colors.metricVoltage,
                     fontWeight = FontWeight.SemiBold,
@@ -1608,10 +1566,10 @@ private fun CellsTabContent(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                CellHeaderStat(stringResource(R.string.charging_cells_count), "${cells.size}", modifier = Modifier.weight(1f))
-                CellHeaderStat(stringResource(R.string.charging_cells_min), "%.3f V".format(mn), modifier = Modifier.weight(1f))
-                CellHeaderStat(stringResource(R.string.charging_cells_max), "%.3f V".format(mx), modifier = Modifier.weight(1f))
-                CellHeaderStat(stringResource(R.string.charging_cells_delta), "$deltaMv mV", color = deltaColor, modifier = Modifier.weight(1f))
+                CellHeaderStat(stringResource(Res.string.charging_cells_count), "${cells.size}", modifier = Modifier.weight(1f))
+                CellHeaderStat(stringResource(Res.string.charging_cells_min), "%.3f V".format(mn), modifier = Modifier.weight(1f))
+                CellHeaderStat(stringResource(Res.string.charging_cells_max), "%.3f V".format(mx), modifier = Modifier.weight(1f))
+                CellHeaderStat(stringResource(Res.string.charging_cells_delta), "$deltaMv mV", color = deltaColor, modifier = Modifier.weight(1f))
             }
             // Cell grid: 8 columns so a 32-cell V14 pack lands as a clean
             // 4x8 block; larger Veteran-family packs (42 cells) get 5-6 rows.
@@ -1862,7 +1820,7 @@ private fun PackTile(
                 // same Δ glyph the Cells tab uses, colored by severity:
                 // >= 100 mV danger, >= 50 mV warn, else good.
                 Text(
-                    "${stringResource(R.string.charging_cells_delta)} $internalDeltaMv mV",
+                    "${stringResource(Res.string.charging_cells_delta)} $internalDeltaMv mV",
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Medium,
                     color = when {

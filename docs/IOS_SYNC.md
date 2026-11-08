@@ -53,6 +53,7 @@ Seams that need both sides on every change:
 | Crew pass camera and links | `crews/CrewsPairScreen.kt` (`CrewsPairHost`) | `app/.../crews/CrewsPairActivity.kt` (CameraX, intent filter) | `iosMain/.../app/IosCrews.kt`, `iosApp/QrScannerBridge.swift`, `AppDelegate` open URL |
 | Leaderboard picture | `SettingsHost.rememberAvatarPicker` | `AndroidSettingsHost` (gallery, UserMarkerCropDialog) | `iosMain/.../app/IosAvatarPicker.kt` (UIImagePickerController) |
 | Trip meter | `data/repository/TripMeterRepository.kt` (`TripMeterFixes`), `data/store/TripMeterStore.kt` (a DataStore) | `AndroidTripMeterFixes` (TripRepository, `Location.distanceBetween`), `TripMeterStoreAndroid.kt` | `iosMain/.../app/IosTripMeter.kt` (IosLocation, haversine, Documents/datastore) |
+| Charging monitor | `ui/charging/` (`ChargingHost`, `ChargingCsvFiles`, `PhoneMotionEffect`), `service/ChargeAlertPolicy.kt` | `ChargingPortsAndroid.kt` (CreateDocument, ContentResolver), `PhoneMotion.android.kt` (SensorManager), `WheelService` charge alert notifications | `iosMain/.../app/IosCharging.kt` (share sheet), `PhoneMotion.ios.kt` (CoreMotion), `app/IosChargeAlerts.kt` (UNUserNotificationCenter) |
 | Object graph | `di/SharedKoin.kt` (Koin) | `app/.../di/SharedModule.kt` hands the Koin singletons to Hilt; `AppModule` builds the moved repositories | `MainViewController.kt` reads Koin; `app/IosAppGraph.kt` builds the rest |
 
 The table grows as packages move; keep it current.
