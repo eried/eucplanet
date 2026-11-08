@@ -1135,39 +1135,37 @@ class WheelService : LifecycleService() {
         navActive: Boolean,
         data: WheelData?
     ): List<NotificationCompat.Action> {
-        if (!notifActionsEnabledCached) return emptyList()
-        val locked = wheelRepository.locked.value
-        val lightOn = data?.lightOn ?: false
+        // Which buttons and their labels are RideQuickActions, shared with the
+        // iPhone's Live Activity; the lockdown check is buildNotification's.
         val recording = tripRepository.recording.value
-        return com.eried.eucplanet.data.model.NotificationActionType
-            .parse(notifActionsCsvCached).mapNotNull { type ->
-                when (type) {
-                    com.eried.eucplanet.data.model.NotificationActionType.STOP_ALL ->
-                        notifAction(type, android.R.drawable.ic_menu_close_clear_cancel,
-                            getString(R.string.notif_btn_stop_all), ACTION_STOP_ALL_AND_KILL)
-                    com.eried.eucplanet.data.model.NotificationActionType.LOCK ->
-                        notifAction(type, android.R.drawable.ic_lock_lock,
-                            getString(if (locked) R.string.notif_btn_unlock else R.string.notif_btn_lock),
-                            ACTION_TOGGLE_LOCK)
-                    com.eried.eucplanet.data.model.NotificationActionType.LIGHT ->
-                        notifAction(type, android.R.drawable.ic_menu_view,
-                            getString(if (lightOn) R.string.notif_btn_light_off else R.string.notif_btn_light_on),
-                            ACTION_TOGGLE_LIGHT)
-                    com.eried.eucplanet.data.model.NotificationActionType.RECORD ->
-                        notifAction(type, android.R.drawable.ic_menu_save,
-                            getString(if (recording) R.string.notif_btn_stop_record else R.string.notif_btn_record),
-                            if (recording) ACTION_STOP_RECORDING else ACTION_START_RECORDING)
-                    com.eried.eucplanet.data.model.NotificationActionType.HORN ->
-                        notifAction(type, android.R.drawable.ic_lock_silent_mode_off,
-                            getString(R.string.notif_btn_horn), ACTION_HORN)
-                    com.eried.eucplanet.data.model.NotificationActionType.DISCONNECT ->
-                        notifAction(type, android.R.drawable.ic_menu_close_clear_cancel,
-                            getString(R.string.notif_btn_disconnect), ACTION_DISCONNECT)
-                    com.eried.eucplanet.data.model.NotificationActionType.STOP_NAV ->
-                        if (navActive) notifAction(type, android.R.drawable.ic_menu_directions,
-                            getString(R.string.notif_btn_stop_nav), ACTION_STOP_NAVIGATION) else null
-                }
+        return RideQuickActions.resolve(
+            enabled = notifActionsEnabledCached,
+            csv = notifActionsCsvCached,
+            lockedDown = false,
+            navActive = navActive,
+            locked = wheelRepository.locked.value,
+            lightOn = data?.lightOn ?: false,
+            recording = recording,
+        ).map { quick ->
+            val (icon, action) = when (quick.type) {
+                com.eried.eucplanet.data.model.NotificationActionType.STOP_ALL ->
+                    android.R.drawable.ic_menu_close_clear_cancel to ACTION_STOP_ALL_AND_KILL
+                com.eried.eucplanet.data.model.NotificationActionType.LOCK ->
+                    android.R.drawable.ic_lock_lock to ACTION_TOGGLE_LOCK
+                com.eried.eucplanet.data.model.NotificationActionType.LIGHT ->
+                    android.R.drawable.ic_menu_view to ACTION_TOGGLE_LIGHT
+                com.eried.eucplanet.data.model.NotificationActionType.RECORD ->
+                    android.R.drawable.ic_menu_save to
+                        if (recording) ACTION_STOP_RECORDING else ACTION_START_RECORDING
+                com.eried.eucplanet.data.model.NotificationActionType.HORN ->
+                    android.R.drawable.ic_lock_silent_mode_off to ACTION_HORN
+                com.eried.eucplanet.data.model.NotificationActionType.DISCONNECT ->
+                    android.R.drawable.ic_menu_close_clear_cancel to ACTION_DISCONNECT
+                com.eried.eucplanet.data.model.NotificationActionType.STOP_NAV ->
+                    android.R.drawable.ic_menu_directions to ACTION_STOP_NAVIGATION
             }
+            notifAction(quick.type, icon, getString(quick.label), action)
+        }
     }
 
     private fun notifAction(

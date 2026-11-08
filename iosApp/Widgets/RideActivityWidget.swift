@@ -18,6 +18,7 @@ struct RideActivityWidget: Widget {
             VStack(alignment: .leading, spacing: 4) {
                 Text(context.state.title).font(.headline)
                 Text(context.state.text).font(.body).monospacedDigit()
+                RideActionRow(actions: context.state.actions)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding()
@@ -30,6 +31,7 @@ struct RideActivityWidget: Widget {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(context.state.title).font(.headline)
                         Text(context.state.text).monospacedDigit()
+                        RideActionRow(actions: context.state.actions)
                     }
                 }
             } compactLeading: {
@@ -41,6 +43,45 @@ struct RideActivityWidget: Widget {
             } minimal: {
                 Image(systemName: "bolt.fill")
             }
+        }
+    }
+}
+
+// The rider's quick actions, the Android notification's buttons, in slot
+// order. Button(intent:) needs iOS 17; on 16 the row is left out, as the
+// buttons were before.
+struct RideActionRow: View {
+    let actions: [RideActionButton]
+
+    var body: some View {
+        if #available(iOS 17.0, *), !actions.isEmpty {
+            HStack(spacing: 8) {
+                ForEach(Array(actions.enumerated()), id: \.offset) { _, action in
+                    Button(intent: RideActionIntent(key: action.key)) {
+                        Label(action.label, systemImage: symbol(action.key))
+                            .font(.caption.weight(.semibold))
+                            .lineLimit(1)
+                            .frame(maxWidth: .infinity)
+                    }
+                    .tint(.white)
+                    .foregroundColor(.black)
+                    .buttonStyle(.borderedProminent)
+                }
+            }
+            .padding(.top, 4)
+        }
+    }
+
+    private func symbol(_ key: String) -> String {
+        switch key {
+        case "STOP_ALL": return "xmark.circle"
+        case "LOCK": return "lock"
+        case "LIGHT": return "flashlight.on.fill"
+        case "RECORD": return "record.circle"
+        case "HORN": return "speaker.wave.2.fill"
+        case "DISCONNECT": return "antenna.radiowaves.left.and.right.slash"
+        case "STOP_NAV": return "location.slash"
+        default: return "circle"
         }
     }
 }

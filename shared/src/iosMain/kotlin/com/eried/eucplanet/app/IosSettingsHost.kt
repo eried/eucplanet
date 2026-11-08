@@ -54,12 +54,12 @@ internal object IosSettingsHost : SettingsHost {
 
     // What the iPhone has no counterpart for: no back on the dashboard, no
     // keep-alive service, no picture-in-picture, home widget or showing over
-    // the lock screen, rotation is the system's; and the Live Activity has no
-    // quick actions and spoken commands are not on iOS yet.
+    // the lock screen, rotation is the system's; and spoken commands are not
+    // on iOS yet. The notification's quick actions are the Live Activity's
+    // buttons here.
     override val hiddenRows = setOf(
         SettingsRow.BACK_ACTION,
         SettingsRow.KEEP_ALIVE,
-        SettingsRow.NOTIFICATION_ACTIONS,
         SettingsRow.PICTURE_IN_PICTURE,
         SettingsRow.HOME_WIDGET,
         SettingsRow.SHOW_OVER_LOCK_SCREEN,

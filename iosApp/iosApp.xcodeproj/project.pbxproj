@@ -19,6 +19,8 @@
 		ED0000000000000000000054 /* flic2lib in Frameworks */ = {isa = PBXBuildFile; productRef = ED0000000000000000000053 /* flic2lib */; };
 		ED0000000000000000000056 /* LocationBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000055 /* LocationBridge.swift */; };
 		ED0000000000000000000090 /* QrScannerBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000091 /* QrScannerBridge.swift */; };
+		ED00000000000000000000C1 /* RideActionIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000C0 /* RideActionIntent.swift */; };
+		ED00000000000000000000C2 /* RideActionIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000000000C0 /* RideActionIntent.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -59,6 +61,7 @@
 		ED0000000000000000000050 /* FlicBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlicBridge.swift; sourceTree = "<group>"; };
 		ED0000000000000000000055 /* LocationBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationBridge.swift; sourceTree = "<group>"; };
 		ED0000000000000000000091 /* QrScannerBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QrScannerBridge.swift; sourceTree = "<group>"; };
+		ED00000000000000000000C0 /* RideActionIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RideActionIntent.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -89,6 +92,7 @@
 				ED0000000000000000000091 /* QrScannerBridge.swift */,
 				ED0000000000000000000030 /* RideActivityAttributes.swift */,
 				ED0000000000000000000031 /* RideLiveActivity.swift */,
+				ED00000000000000000000C0 /* RideActionIntent.swift */,
 				ED0000000000000000000049 /* Widgets */,
 				ED0000000000000000000013 /* Info.plist */,
 				ED0000000000000000000020 /* Assets.xcassets */,
@@ -291,6 +295,7 @@
 				ED0000000000000000000090 /* QrScannerBridge.swift in Sources */,
 				ED0000000000000000000035 /* RideActivityAttributes.swift in Sources */,
 				ED0000000000000000000036 /* RideLiveActivity.swift in Sources */,
+				ED00000000000000000000C1 /* RideActionIntent.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -300,6 +305,7 @@
 			files = (
 				ED0000000000000000000037 /* RideActivityAttributes.swift in Sources */,
 				ED0000000000000000000038 /* RideActivityWidget.swift in Sources */,
+				ED00000000000000000000C2 /* RideActionIntent.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

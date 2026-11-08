@@ -15,6 +15,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         RideActivity.shared.bridge = RideLiveActivity()
+        // The Live Activity's quick-action buttons land here (RideActionIntent).
+        if #available(iOS 17.0, *) {
+            RideActionIntentHandler.run = { key in
+                await MainActor.run { RideActivity.shared.press(key: key) }
+            }
+        }
         // Early, so presses queued while the app was asleep arrive quickly.
         IosLocation.shared.sdk = location
         IosFlic.shared.sdk = flic

@@ -23,7 +23,7 @@ class SettingsSearchHiddenRowsTest {
 
     /** What the iPhone leaves out (IosSettingsHost), with its host switches. */
     private val iphone = setOf(
-        SettingsRow.BACK_ACTION, SettingsRow.KEEP_ALIVE, SettingsRow.NOTIFICATION_ACTIONS,
+        SettingsRow.BACK_ACTION, SettingsRow.KEEP_ALIVE,
         SettingsRow.PICTURE_IN_PICTURE, SettingsRow.HOME_WIDGET, SettingsRow.SHOW_OVER_LOCK_SCREEN,
         SettingsRow.ROTATION_LOCK, SettingsRow.VOICE_COMMANDS, SettingsRow.VOLUME_KEYS,
         SettingsRow.BACKUP_FOLDER,
@@ -58,6 +58,8 @@ class SettingsSearchHiddenRowsTest {
         // What it does draw is still found.
         assertTrue(found("voice", "voice_speech_speed", iphone))
         assertTrue(found("cloud", "crews_pass_action", iphone))
+        // The notification's quick actions are the Live Activity's buttons there.
+        assertTrue(found("general", "notif_actions_enable", iphone))
     }
 
     @Test fun aHeadingStaysWhileAnyOfItsRowsShows() {
