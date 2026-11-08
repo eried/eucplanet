@@ -54,9 +54,7 @@ internal class IosDashboardHost : DashboardHost {
     override fun exitApp() = Unit
     override fun moveToBackground() = Unit
 
-    override fun linkDropbox() {
-        MainScope().launch { IosDropboxLink.link(IosAppGraph.dropbox) }
-    }
+    override fun linkDropbox() = IosDropboxSync.link()
 
     // No system back on iOS: the dashboard is the root screen.
     @Composable

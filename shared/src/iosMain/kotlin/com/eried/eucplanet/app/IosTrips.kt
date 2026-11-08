@@ -57,10 +57,10 @@ import platform.Foundation.writeData
  *
  * What Android's recorder also does and this one does not yet: the GPS power
  * tiers, the wheel identity in the Extra column, the external GPS box, the
- * discard grace before a sync and the trip upload. The trip list reads it as
- * [RecordingTrips]; the trip tools (rename, wheel, split, combine, section)
- * and the archive are not on iOS yet, so their screens hide them. See
- * docs/IOS_PARITY.md.
+ * discard grace before a sync. A finished trip goes to Dropbox through
+ * [IosDropboxSync]. The trip list reads it as [RecordingTrips]; the trip
+ * tools (rename, wheel, split, combine, section) are not on iOS yet, so
+ * their screens hide them. See docs/IOS_PARITY.md.
  */
 @OptIn(ExperimentalForeignApi::class)
 internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips {
@@ -200,6 +200,8 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips {
             dao.markFinalized(t.id, folder = false, eucstats = true)
             IosEucStats.sweep()
         }
+        // Dropbox mirrors the trip too when it is linked, as finalizePendingTrip does.
+        if (IosAppGraph.settings.get().dropboxAccessToken.isNotBlank()) IosDropboxSync.enqueue()
         if (IosAppGraph.settings.get().announceRecording) {
             IosAppGraph.voice.announceEvent(IosPhoneDevice.text(Res.string.voice_recording_finished))
         }
@@ -218,10 +220,28 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips {
         dao.delete(trip)
     }
 
-    // Trips have no backups on iOS yet, so there is nothing to archive into;
-    // archiving reports none moved and keeps the trips.
-    override suspend fun archiveTrips(trips: List<TripRecord>): Int = 0
-    override suspend fun archiveAllTrips(): Int = 0
+    /**
+     * As TripRepository.archiveTrips: the Dropbox copies move into
+     * /trips/archive first, and only the trips that made it are removed here,
+     * so the next sync does not hand them straight back.
+     */
+    override suspend fun archiveTrips(trips: List<TripRecord>): Int {
+        if (trips.isEmpty()) return 0
+        val archived = runCatching { IosDropboxSync.trips.archiveTripFiles(trips.map { it.fileName }) }
+            .getOrDefault(emptySet())
+        var done = 0
+        for (t in trips) {
+            if (t.fileName !in archived) {
+                Log.w(TAG, "Could not archive ${t.fileName}, leaving the trip alone")
+                continue
+            }
+            deleteTrip(t)
+            done++
+        }
+        return done
+    }
+
+    override suspend fun archiveAllTrips(): Int = archiveTrips(dao.observeAll().first())
 
     override suspend fun knownWheels(): List<WheelChoice> = emptyList()
     override suspend fun changeTripWheel(trip: TripRecord, wheel: WheelChoice) = Unit

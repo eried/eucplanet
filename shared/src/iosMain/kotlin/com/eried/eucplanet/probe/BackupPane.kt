@@ -34,6 +34,9 @@ fun BackupPane() {
     val running by IosDropboxSync.running.collectAsState()
     val conflict by IosDropboxSync.conflict.collectAsState()
     val firstSettings by IosDropboxSync.firstSettings.collectAsState()
+    val progress by IosDropboxSync.progress.collectAsState()
+    val cancelling by IosDropboxSync.cancelling.collectAsState()
+    val conflictCount by IosDropboxSync.conflictCount.collectAsState()
     Column(
         Modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -44,11 +47,11 @@ fun BackupPane() {
             lastSyncAt = settings.dropboxLastSyncAt,
             syncRunning = running,
             showProgress = running,
-            progress = null,
-            cancelling = false,
-            syncPending = false,
-            pendingCount = 0,
-            syncTotal = 0,
+            progress = progress,
+            cancelling = cancelling,
+            syncPending = settings.dropboxSyncPending,
+            pendingCount = settings.dropboxPendingCount,
+            syncTotal = settings.dropboxSyncTotal,
             onSyncNow = { IosDropboxSync.syncNow() },
             onUnlink = { IosDropboxSync.unlink() },
             onLink = { IosDropboxSync.link() },
@@ -69,7 +72,7 @@ fun BackupPane() {
     }
     if (conflict) {
         SyncConflictDialog(
-            count = 1,
+            count = conflictCount ?: 1,
             isDropbox = true,
             firstSettings = firstSettings,
             onChoice = { IosDropboxSync.resolve(it) },

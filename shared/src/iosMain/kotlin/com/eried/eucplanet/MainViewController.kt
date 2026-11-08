@@ -21,6 +21,7 @@ import com.eried.eucplanet.ui.settings.FlicViewModel
 import com.eried.eucplanet.app.IosFlic
 import com.eried.eucplanet.app.IosLocation
 import com.eried.eucplanet.app.IosTrips
+import com.eried.eucplanet.app.IosDropboxSync
 import com.eried.eucplanet.app.IosEucStats
 import com.eried.eucplanet.app.IosCrews
 import com.eried.eucplanet.app.IosCrewsHost
@@ -56,6 +57,8 @@ fun MainViewController(): UIViewController {
     IosTrips.followWheel()
     // Leaderboard uploads at launch and on every return to the front.
     IosEucStats.start()
+    // Dropbox trips at launch, on every return to the front and while open.
+    IosDropboxSync.start()
     // SIMCTL_CHILD_EUC_RECORD=20 records a 20 s trip, for scripted runs.
     (NSProcessInfo.processInfo.environment["EUC_RECORD"] as? String)?.toLongOrNull()?.let { secs ->
         MainScope().launch {

@@ -134,9 +134,9 @@ internal object IosPromptTones : PromptTones {
 }
 
 /**
- * Dropbox sync through [IosDropboxSync], with its conflict question surfaced
- * the way SyncManager surfaces it. No backup folder on iOS: the folder rows
- * report no folder.
+ * Dropbox sync through [IosDropboxSync], its conflict question, progress and
+ * result surfaced the way SyncManager surfaces them. No backup folder on iOS:
+ * the folder rows report no folder.
  */
 internal object IosSettingsSync : SettingsSync, DashboardSync by NoFolderSync {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
@@ -145,23 +145,21 @@ internal object IosSettingsSync : SettingsSync, DashboardSync by NoFolderSync {
         .map { if (it) SyncConflictKind.DROPBOX else null }
         .stateIn(scope, SharingStarted.Eagerly, null)
     override val syncRunning: StateFlow<Boolean> = IosDropboxSync.running
-    override val syncCancelling: StateFlow<Boolean> = MutableStateFlow(false).asStateFlow()
+    override val syncCancelling: StateFlow<Boolean> = IosDropboxSync.cancelling
     override val syncConflictFirstSettings: StateFlow<Boolean> = IosDropboxSync.firstSettings
     override val syncConflictKind: StateFlow<SyncConflictKind> =
         MutableStateFlow(SyncConflictKind.DROPBOX).asStateFlow()
-    override val syncConflictPrompt: StateFlow<Int?> = IosDropboxSync.conflict
-        .map { if (it) 1 else null }
-        .stateIn(scope, SharingStarted.Eagerly, null)
-    override val syncProgress: StateFlow<Pair<Int, Int>?> = MutableStateFlow<Pair<Int, Int>?>(null).asStateFlow()
-    override val syncResult: StateFlow<SyncResult?> = MutableStateFlow<SyncResult?>(null).asStateFlow()
+    override val syncConflictPrompt: StateFlow<Int?> = IosDropboxSync.conflictCount
+    override val syncProgress: StateFlow<Pair<Int, Int>?> = IosDropboxSync.progress
+    override val syncResult: StateFlow<SyncResult?> = IosDropboxSync.result
 
     override suspend fun backupSettingsAs(name: String?, overwrite: Boolean) = BackupOutcome.Failed
-    override fun cancelActiveSync() = IosDropboxSync.stop()
-    override fun cancelDropboxSync() = IosDropboxSync.stop()
+    override fun cancelActiveSync() = IosDropboxSync.cancelActive()
+    override fun cancelDropboxSync() = IosDropboxSync.cancelQueuedPass()
     override fun cancelEucStatsUpload() = IosEucStats.cancel()
     override fun cancelSyncConflict() = IosDropboxSync.resolve(SyncChoice.CANCEL)
     override suspend fun clearSyncFolder() = Unit
-    override fun consumeSyncResult() = Unit
+    override fun consumeSyncResult() = IosDropboxSync.consumeResult()
     override suspend fun deleteRiderIdFile() = IosEucStats.deleteRiderId()
     override fun enqueueEucStatsUpload(settings: AppSettings) = IosEucStats.sweep()
     override fun enqueueTripUpload(settings: AppSettings) = Unit
