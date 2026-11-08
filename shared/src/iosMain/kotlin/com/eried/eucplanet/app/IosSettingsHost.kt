@@ -15,6 +15,7 @@ import com.eried.eucplanet.ui.settings.AlarmViewModel
 import com.eried.eucplanet.ui.settings.FlicViewModel
 import com.eried.eucplanet.ui.settings.PermissionGate
 import com.eried.eucplanet.ui.settings.SettingsHost
+import com.eried.eucplanet.ui.settings.SettingsRow
 import com.eried.eucplanet.ui.settings.SettingsViewModel
 import com.eried.eucplanet.ui.settings.eucstats.AvatarPicker
 import com.eried.eucplanet.ui.settings.eucstats.PickedAvatar
@@ -50,6 +51,21 @@ internal object IosSettingsHost : SettingsHost {
     // Their content is platform code still on Android only: the automations,
     // the navigator, the external sensors, the engine sound and the watches.
     override val hiddenSections = setOf("auto", "navigator", "location", "motor", "watch")
+
+    // What the iPhone has no counterpart for: no back on the dashboard, no
+    // keep-alive service, no picture-in-picture, home widget or showing over
+    // the lock screen, rotation is the system's; and the Live Activity has no
+    // quick actions and spoken commands are not on iOS yet.
+    override val hiddenRows = setOf(
+        SettingsRow.BACK_ACTION,
+        SettingsRow.KEEP_ALIVE,
+        SettingsRow.NOTIFICATION_ACTIONS,
+        SettingsRow.PICTURE_IN_PICTURE,
+        SettingsRow.HOME_WIDGET,
+        SettingsRow.SHOW_OVER_LOCK_SCREEN,
+        SettingsRow.ROTATION_LOCK,
+        SettingsRow.VOICE_COMMANDS,
+    )
 
     @Composable
     override fun rememberFolderPicker(onPicked: (String) -> Unit): () -> Unit = {}

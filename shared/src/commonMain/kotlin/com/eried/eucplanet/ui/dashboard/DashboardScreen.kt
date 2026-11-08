@@ -2270,10 +2270,12 @@ fun DashboardScreen(
                                     // One row that always opens a fresh window,
                                     // whatever voice is doing. Stopping is a
                                     // tap on the tile, which toggles.
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(Res.string.menu_voice_ask)) },
-                                        onClick = { dismiss(); viewModel.onVoiceAsk() }
-                                    )
+                                    if (host.supportsVoiceCommands) {
+                                        DropdownMenuItem(
+                                            text = { Text(stringResource(Res.string.menu_voice_ask)) },
+                                            onClick = { dismiss(); viewModel.onVoiceAsk() }
+                                        )
+                                    }
                                     DropdownMenuItem(
                                         text = { Text(stringResource(Res.string.menu_voice_speak_report)) },
                                         onClick = { dismiss(); viewModel.onVoiceAnnounce() }
@@ -2332,10 +2334,12 @@ fun DashboardScreen(
                                     // One row that always opens a fresh window,
                                     // whatever voice is doing. Stopping is a
                                     // tap on the tile, which toggles.
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(Res.string.menu_voice_ask)) },
-                                        onClick = { dismiss(); viewModel.onVoiceAsk() }
-                                    )
+                                    if (host.supportsVoiceCommands) {
+                                        DropdownMenuItem(
+                                            text = { Text(stringResource(Res.string.menu_voice_ask)) },
+                                            onClick = { dismiss(); viewModel.onVoiceAsk() }
+                                        )
+                                    }
                                     DropdownMenuItem(
                                         text = { Text(stringResource(Res.string.menu_voice_speak_report)) },
                                         onClick = { dismiss(); viewModel.onVoiceAnnounce() }
@@ -2343,16 +2347,19 @@ fun DashboardScreen(
                                     androidx.compose.material3.HorizontalDivider(
                                         color = MaterialTheme.appColors.divider.copy(alpha = 0.2f)
                                     )
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(Res.string.menu_switch_to_voice_command)) },
-                                        onClick = {
-                                            dismiss()
-                                            viewModel.switchVoiceTile("VOICE_ANNOUNCE", "VOICE_LISTEN")
-                                        }
-                                    )
-                                    androidx.compose.material3.HorizontalDivider(
-                                        color = MaterialTheme.appColors.divider.copy(alpha = 0.2f)
-                                    )
+                                    // A tile that would only sit there where commands do not run.
+                                    if (host.supportsVoiceCommands) {
+                                        DropdownMenuItem(
+                                            text = { Text(stringResource(Res.string.menu_switch_to_voice_command)) },
+                                            onClick = {
+                                                dismiss()
+                                                viewModel.switchVoiceTile("VOICE_ANNOUNCE", "VOICE_LISTEN")
+                                            }
+                                        )
+                                        androidx.compose.material3.HorizontalDivider(
+                                            color = MaterialTheme.appColors.divider.copy(alpha = 0.2f)
+                                        )
+                                    }
                                     DropdownMenuItem(
                                         text = { Text(stringResource(Res.string.tab_voice)) },
                                         onClick = { dismiss(); onNavigateToSettings(3) }

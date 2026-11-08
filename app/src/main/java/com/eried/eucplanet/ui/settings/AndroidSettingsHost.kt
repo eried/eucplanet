@@ -94,6 +94,7 @@ private class AndroidSettingsHost(
     override val supportsVolumeKeys = true
     override val supportsBackupFolder = true
     override val hiddenSections = emptySet<String>()
+    override val hiddenRows = emptySet<SettingsRow>()
 
     @Composable
     override fun rememberFolderPicker(onPicked: (String) -> Unit): () -> Unit {

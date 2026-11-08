@@ -37,7 +37,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import platform.CoreLocation.CLGeocoder
+import platform.CoreLocation.CLLocation
+import platform.CoreLocation.CLPlacemark
 import platform.Foundation.NSUserDefaults
+import platform.darwin.DISPATCH_TIME_NOW
+import platform.darwin.NSEC_PER_SEC
+import platform.darwin.dispatch_semaphore_create
+import platform.darwin.dispatch_semaphore_signal
+import platform.darwin.dispatch_semaphore_wait
+import platform.darwin.dispatch_time
 
 // The iOS side of DashboardPorts. Like IosWheelPorts, a feature that is not
 // on iOS yet answers as the Android app does with it switched off, and is
@@ -142,11 +151,30 @@ internal class IosDashboardPlatform(
     private val wheel: WheelRepository,
     private val tripMeter: TripMeterRepository,
 ) : DashboardPlatform {
-    // Location and reverse geocoding arrive with CoreLocation.
-    override fun placeName(lat: Double, lon: Double): String? = null
-    override fun hasFineLocationPermission() = false
-    override fun hasLocationPermission() = false
-    override fun locationServicesOn() = false
+    // The weather chip's place, as Android's Geocoder names it. Called off
+    // the main thread (the view model's IO dispatcher), so it can wait for
+    // CLGeocoder, which answers on the main queue.
+    override fun placeName(lat: Double, lon: Double): String? {
+        val done = dispatch_semaphore_create(0)
+        var name: String? = null
+        CLGeocoder().reverseGeocodeLocation(CLLocation(latitude = lat, longitude = lon)) { marks, _ ->
+            val p = marks?.firstOrNull() as? CLPlacemark
+            // A place, never a house number, the city first: as on Android.
+            name = listOfNotNull(
+                p?.locality, p?.subLocality, p?.subAdministrativeArea,
+                p?.thoroughfare, p?.administrativeArea, p?.name,
+            ).firstOrNull { it.isNotBlank() && it.any { c -> c.isLetter() } }
+            dispatch_semaphore_signal(done)
+        }
+        dispatch_semaphore_wait(done, dispatch_time(DISPATCH_TIME_NOW, 10L * NSEC_PER_SEC.toLong()))
+        return name
+    }
+
+    // CoreLocation through iosApp/LocationBridge.swift. iOS has no coarse-only
+    // grant to tell apart, and a phone with location off reports no access.
+    override fun hasFineLocationPermission() = IosLocation.authorized.value
+    override fun hasLocationPermission() = IosLocation.authorized.value
+    override fun locationServicesOn() = IosLocation.authorized.value
     // Home screen widgets are not on iOS yet.
     override fun publishWeatherWidgets(forecast: WeatherForecast, settings: AppSettings, place: String?) = Unit
     // CoreBluetooth asks for permission itself on first use.

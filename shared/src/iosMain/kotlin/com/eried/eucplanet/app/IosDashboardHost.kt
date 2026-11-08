@@ -38,6 +38,8 @@ internal class IosDashboardHost : DashboardHost {
     override val buildStamp: String = ""
     override val isDebugBuild: Boolean = false
     override val isDevBuild: Boolean = false
+    // Spoken commands are not on iOS yet (IosDashboardPorts' NoVoiceCommands).
+    override val supportsVoiceCommands: Boolean = false
 
     // The LICENSE file is not in the iOS bundle yet.
     override fun licenseText(): String = ""

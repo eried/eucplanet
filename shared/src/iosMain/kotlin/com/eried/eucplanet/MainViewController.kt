@@ -2,6 +2,7 @@ package com.eried.eucplanet
 
 import androidx.compose.ui.window.ComposeUIViewController
 import com.eried.eucplanet.app.IosAppGraph
+import com.eried.eucplanet.app.IosDisplayPrefs
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -75,6 +76,8 @@ fun MainViewController(): UIViewController {
     IosChargeAlerts.start()
     // Dropbox trips at launch, on every return to the front and while open.
     IosDropboxSync.start()
+    // Keep screen on, and the language picker showing the applied language.
+    IosDisplayPrefs.start()
     // SIMCTL_CHILD_EUC_RECORD=20 records a 20 s trip, for scripted runs.
     (NSProcessInfo.processInfo.environment["EUC_RECORD"] as? String)?.toLongOrNull()?.let { secs ->
         MainScope().launch {
@@ -236,6 +239,11 @@ fun MainViewController(): UIViewController {
                     }
                     else -> {
                         val viewModel = remember { IosAppGraph.dashboardViewModel() }
+                        // The GPS icon follows the location grant, which CoreLocation
+                        // reports a moment after launch and whenever the rider changes it.
+                        LaunchedEffect(viewModel) {
+                            IosLocation.authorized.collect { viewModel.refreshLocationPermission() }
+                        }
                         val host = remember { IosDashboardHost() }
                         DashboardScreen(
                             onNavigateToScan = { screen = "scan" },

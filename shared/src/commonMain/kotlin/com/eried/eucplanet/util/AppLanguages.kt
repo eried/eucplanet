@@ -51,4 +51,35 @@ object AppLanguages {
         Language("zh", "简体中文"),
         Language("zh-TW", "繁體中文"),
     )
+
+    /** Tags with no region part, so a bare language ("fi") matches them directly. */
+    private val plainTags: Set<String> = SUPPORTED.map { it.tag }.filter { '-' !in it }.toSet()
+
+    /**
+     * Maps a platform's language tag back to a key in [SUPPORTED]. Android
+     * stores Norwegian as "nb" / "nb-NO" after we apply "no", iOS names it
+     * "nb"; Latin-American Spanish is "es-419" or a country; Portuguese is
+     * "pt-BR" or "pt-PT"; Indonesian can be the legacy "in"; Chinese can carry
+     * its script ("zh-Hans", "zh-Hant-TW").
+     * Returns the input unchanged if no normalisation is needed.
+     */
+    fun normalizeToSupportedTag(tag: String): String {
+        val lower = tag.lowercase()
+        return when {
+            lower.startsWith("nb") || lower.startsWith("nn") -> "no"
+            lower.startsWith("pt-pt") -> "pt-PT"
+            lower == "pt" || lower.startsWith("pt-") -> "pt-BR"
+            lower == "in" || lower.startsWith("in-") -> "id"
+            lower == "es-419" -> "es-419"
+            lower.startsWith("es-") && lower != "es-es" -> "es-419"
+            lower.startsWith("es") -> "es"
+            // Traditional Chinese is a different script, not an accent: folding
+            // it into "zh" would show a Taipei rider simplified characters.
+            lower.startsWith("zh-tw") || lower.startsWith("zh-hant") ||
+                lower.startsWith("zh-hk") || lower.startsWith("zh-mo") -> "zh-TW"
+            else -> lower.substringBefore('-').let { primary ->
+                if (primary in plainTags) primary else tag
+            }
+        }
+    }
 }

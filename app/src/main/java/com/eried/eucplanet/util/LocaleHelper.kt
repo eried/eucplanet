@@ -38,32 +38,8 @@ object LocaleHelper {
         return loc.toLanguageTag()
     }
 
-    /**
-     * Maps an Android-normalised tag back to a key in our supported list.
-     * Android stores Norwegian as "nb" / "nb-NO" after we apply "no";
-     * Latin-American Spanish as "es-419"; Portuguese as "pt-BR" or "pt-PT";
-     * Indonesian as the legacy "in".
-     * Returns the input unchanged if no normalisation is needed.
-     */
-    fun normalizeToSupportedTag(tag: String): String {
-        val lower = tag.lowercase()
-        return when {
-            lower.startsWith("nb") || lower.startsWith("nn") -> "no"
-            lower.startsWith("pt-pt") -> "pt-PT"
-            lower == "pt" || lower.startsWith("pt-") -> "pt-BR"
-            lower == "in" || lower.startsWith("in-") -> "id"
-            lower == "es-419" -> "es-419"
-            lower.startsWith("es-") && lower != "es-es" -> "es-419"
-            lower.startsWith("es") -> "es"
-            // Traditional Chinese is a different script, not an accent: folding
-            // it into "zh" would show a Taipei rider simplified characters.
-            lower.startsWith("zh-tw") || lower.startsWith("zh-hant") ||
-                lower.startsWith("zh-hk") || lower.startsWith("zh-mo") -> "zh-TW"
-            else -> lower.substringBefore('-').let { primary ->
-                if (primary in plainTags) primary else tag
-            }
-        }
-    }
+    /** A platform tag mapped back to a key in [SUPPORTED]; see [AppLanguages.normalizeToSupportedTag]. */
+    fun normalizeToSupportedTag(tag: String): String = AppLanguages.normalizeToSupportedTag(tag)
 
     /**
      * On first launch, pick a default app language based on the phone's system

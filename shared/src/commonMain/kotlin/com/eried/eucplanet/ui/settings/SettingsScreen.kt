@@ -1212,25 +1212,37 @@ private fun GeneralTab(
             }
         }
 
-        SectionHeader(stringResource(Res.string.section_application))
+        // A platform can leave out rows it has no counterpart for; a heading
+        // with every row under it left out goes too.
+        val hiddenRows = LocalSettingsHost.current.hiddenRows
+        val liveViewsShown = listOf(
+            SettingsRow.NOTIFICATION_ACTIONS, SettingsRow.PICTURE_IN_PICTURE, SettingsRow.HOME_WIDGET,
+        ).any { it !in hiddenRows }
+        if (SettingsRow.BACK_ACTION !in hiddenRows || SettingsRow.KEEP_ALIVE !in hiddenRows) {
+            SectionHeader(stringResource(Res.string.section_application))
+        }
 
-        SegmentedChoice(
-            label = stringResource(Res.string.back_button_action),
-            options = listOf(
-                "ASK" to stringResource(Res.string.back_button_action_ask),
-                "BACKGROUND" to stringResource(Res.string.back_button_action_background),
-                "STOP_ALL" to stringResource(Res.string.back_button_action_stop),
-            ),
-            current = settings.backButtonAction,
-            onChange = { viewModel.updateBackButtonAction(it) },
-        )
-        HintText(stringResource(Res.string.back_button_action_desc), small = true)
+        if (SettingsRow.BACK_ACTION !in hiddenRows) {
+            SegmentedChoice(
+                label = stringResource(Res.string.back_button_action),
+                options = listOf(
+                    "ASK" to stringResource(Res.string.back_button_action_ask),
+                    "BACKGROUND" to stringResource(Res.string.back_button_action_background),
+                    "STOP_ALL" to stringResource(Res.string.back_button_action_stop),
+                ),
+                current = settings.backButtonAction,
+                onChange = { viewModel.updateBackButtonAction(it) },
+            )
+            HintText(stringResource(Res.string.back_button_action_desc), small = true)
+        }
 
-        SwitchSetting(
-            stringResource(Res.string.keep_app_alive),
-            settings.keepAppAlive,
-        ) { viewModel.updateKeepAppAlive(it) }
-        HintText(stringResource(Res.string.keep_app_alive_desc), small = true)
+        if (SettingsRow.KEEP_ALIVE !in hiddenRows) {
+            SwitchSetting(
+                stringResource(Res.string.keep_app_alive),
+                settings.keepAppAlive,
+            ) { viewModel.updateKeepAppAlive(it) }
+            HintText(stringResource(Res.string.keep_app_alive_desc), small = true)
+        }
 
         // Everywhere the app shows telemetry OUTSIDE the dashboard, under one
         // header: the ongoing notification, the home screen widget, and the
@@ -1239,106 +1251,110 @@ private fun GeneralTab(
         // question - where do I want to see my wheel. Each is a collapsable, so
         // the group costs three lines until a rider opens one, and a new
         // surface costs no new top-level entry.
-        SectionHeader(stringResource(Res.string.section_surfaces))
+        if (liveViewsShown) SectionHeader(stringResource(Res.string.section_surfaces))
 
         // Rider-chosen quick actions on the ongoing notification (Tesla-style).
         // A not-applicable pick (Stop navigation while not navigating) is
         // hidden at build time, since Android cannot grey out a notification
         // action.
-        AdvancedCollapsable(
-            title = stringResource(Res.string.surface_notification),
-            stateKey = "surface-notification",
-        ) {
-            SwitchSetting(
-                stringResource(Res.string.notif_actions_enable),
-                settings.notificationActionsEnabled,
-            ) { viewModel.updateNotificationActionsEnabled(it) }
-            HintText(stringResource(Res.string.notif_actions_enable_desc), small = true)
+        if (SettingsRow.NOTIFICATION_ACTIONS !in hiddenRows) {
+            AdvancedCollapsable(
+                title = stringResource(Res.string.surface_notification),
+                stateKey = "surface-notification",
+            ) {
+                SwitchSetting(
+                    stringResource(Res.string.notif_actions_enable),
+                    settings.notificationActionsEnabled,
+                ) { viewModel.updateNotificationActionsEnabled(it) }
+                HintText(stringResource(Res.string.notif_actions_enable_desc), small = true)
 
-            // Only offer the picker while the feature is on; the toggle above
-            // stays visible so it can be turned back on.
-            if (settings.notificationActionsEnabled) {
-                val actionSlots = remember(settings.notificationActions) {
-                    NotificationActionType.slots(settings.notificationActions)
-                }
-                HintText(
-                    stringResource(Res.string.notif_actions_pick_desc, NotificationActionType.SLOTS),
-                    small = true,
-                )
-                // Half-width combos like the Flic pickers: two per row, the
-                // third half-width below.
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    NotificationActionSlotDropdown(
-                        label = stringResource(Res.string.notif_action_slot, 1),
-                        currentKey = actionSlots[0],
-                        onSelect = { viewModel.updateNotificationActionSlot(0, it) },
-                        modifier = Modifier.weight(1f),
+                // Only offer the picker while the feature is on; the toggle above
+                // stays visible so it can be turned back on.
+                if (settings.notificationActionsEnabled) {
+                    val actionSlots = remember(settings.notificationActions) {
+                        NotificationActionType.slots(settings.notificationActions)
+                    }
+                    HintText(
+                        stringResource(Res.string.notif_actions_pick_desc, NotificationActionType.SLOTS),
+                        small = true,
                     )
-                    NotificationActionSlotDropdown(
-                        label = stringResource(Res.string.notif_action_slot, 2),
-                        currentKey = actionSlots[1],
-                        onSelect = { viewModel.updateNotificationActionSlot(1, it) },
-                        modifier = Modifier.weight(1f),
-                    )
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    NotificationActionSlotDropdown(
-                        label = stringResource(Res.string.notif_action_slot, 3),
-                        currentKey = actionSlots[2],
-                        onSelect = { viewModel.updateNotificationActionSlot(2, it) },
-                        modifier = Modifier.weight(1f),
-                    )
-                    Spacer(Modifier.weight(1f))
+                    // Half-width combos like the Flic pickers: two per row, the
+                    // third half-width below.
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        NotificationActionSlotDropdown(
+                            label = stringResource(Res.string.notif_action_slot, 1),
+                            currentKey = actionSlots[0],
+                            onSelect = { viewModel.updateNotificationActionSlot(0, it) },
+                            modifier = Modifier.weight(1f),
+                        )
+                        NotificationActionSlotDropdown(
+                            label = stringResource(Res.string.notif_action_slot, 2),
+                            currentKey = actionSlots[1],
+                            onSelect = { viewModel.updateNotificationActionSlot(1, it) },
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        NotificationActionSlotDropdown(
+                            label = stringResource(Res.string.notif_action_slot, 3),
+                            currentKey = actionSlots[2],
+                            onSelect = { viewModel.updateNotificationActionSlot(2, it) },
+                            modifier = Modifier.weight(1f),
+                        )
+                        Spacer(Modifier.weight(1f))
+                    }
                 }
             }
         }
 
         // Picture-in-picture. One control rather than a switch plus a mode
         // picker: "off" is simply the third choice.
-        AdvancedCollapsable(
-            title = stringResource(Res.string.pip_section),
-            stateKey = "surface-pip",
-        ) {
-            HintText(stringResource(Res.string.pip_desc), small = true)
-            SegmentedChoice(
-                // Not pip_section: the collapsable above already carries that
-                // name, and repeating it on the control reads as a stutter.
-                label = stringResource(Res.string.pip_mode_label),
-                options = listOf(
-                    "OFF" to stringResource(Res.string.pip_mode_off),
-                    "SIMPLE" to stringResource(Res.string.pip_mode_simple),
-                    "DASHBOARD" to stringResource(Res.string.pip_mode_dashboard),
-                ),
-                current = settings.pipMode,
-                onChange = { viewModel.updatePipMode(it) },
-            )
-            // Said here as well as on the dashboard, because this is where the
-            // rider finds out: picking a mode Android will refuse would
-            // otherwise look like it worked, right up until it silently did
-            // not. Re-read on resume so returning from the system switch
-            // clears it. Same shape as the Phone HUD permission block below.
-            var pipAllowed by remember { mutableStateOf(viewModel.pipAllowed()) }
-            val pipLifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
-            androidx.compose.runtime.DisposableEffect(pipLifecycleOwner) {
-                val obs = androidx.lifecycle.LifecycleEventObserver { _, event ->
-                    if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
-                        pipAllowed = viewModel.pipAllowed()
-                    }
-                }
-                pipLifecycleOwner.lifecycle.addObserver(obs)
-                onDispose { pipLifecycleOwner.lifecycle.removeObserver(obs) }
-            }
-            if (!pipAllowed && settings.pipMode != "OFF") {
-                HintText(stringResource(Res.string.warnings_pip_blocked_body), small = true)
-                com.eried.eucplanet.ui.common.FixButton(
-                    onClick = { viewModel.openPipSettings() }
+        if (SettingsRow.PICTURE_IN_PICTURE !in hiddenRows) {
+            AdvancedCollapsable(
+                title = stringResource(Res.string.pip_section),
+                stateKey = "surface-pip",
+            ) {
+                HintText(stringResource(Res.string.pip_desc), small = true)
+                SegmentedChoice(
+                    // Not pip_section: the collapsable above already carries that
+                    // name, and repeating it on the control reads as a stutter.
+                    label = stringResource(Res.string.pip_mode_label),
+                    options = listOf(
+                        "OFF" to stringResource(Res.string.pip_mode_off),
+                        "SIMPLE" to stringResource(Res.string.pip_mode_simple),
+                        "DASHBOARD" to stringResource(Res.string.pip_mode_dashboard),
+                    ),
+                    current = settings.pipMode,
+                    onChange = { viewModel.updatePipMode(it) },
                 )
+                // Said here as well as on the dashboard, because this is where the
+                // rider finds out: picking a mode Android will refuse would
+                // otherwise look like it worked, right up until it silently did
+                // not. Re-read on resume so returning from the system switch
+                // clears it. Same shape as the Phone HUD permission block below.
+                var pipAllowed by remember { mutableStateOf(viewModel.pipAllowed()) }
+                val pipLifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+                androidx.compose.runtime.DisposableEffect(pipLifecycleOwner) {
+                    val obs = androidx.lifecycle.LifecycleEventObserver { _, event ->
+                        if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                            pipAllowed = viewModel.pipAllowed()
+                        }
+                    }
+                    pipLifecycleOwner.lifecycle.addObserver(obs)
+                    onDispose { pipLifecycleOwner.lifecycle.removeObserver(obs) }
+                }
+                if (!pipAllowed && settings.pipMode != "OFF") {
+                    HintText(stringResource(Res.string.warnings_pip_blocked_body), small = true)
+                    com.eried.eucplanet.ui.common.FixButton(
+                        onClick = { viewModel.openPipSettings() }
+                    )
+                }
             }
         }
 
@@ -1347,132 +1363,134 @@ private fun GeneralTab(
 
         // One collapsable rather than a header plus an inner "Customize": that
         // extra level only earned its keep while this was a top-level section.
-        AdvancedCollapsable(
-            title = stringResource(Res.string.widget_section),
-            stateKey = "surface-widget",
-        ) {
-            val metricSlots = remember(settings.widget.metrics) {
-                WidgetMetricType.slots(settings.widget.metrics)
-            }
-            val actionSlots2 = remember(settings.widget.actions) {
-                WidgetActionType.slots(settings.widget.actions)
-            }
-            val metricOptions = WidgetMetricType.entries.map { it.key to stringResource(it.pickerLabel) }
-            val actionOptions = WidgetActionType.entries.map { it.key to stringResource(it.pickerLabel) }
-            // How to place one, left outside the collapsable. Everything else
-            // here configures a widget, which is no use to a rider who has not
-            // added one yet, and collapsed the section would otherwise be a
-            // header with nothing under it.
-            HintText(stringResource(Res.string.widget_how_to_add), small = true)
+        if (SettingsRow.HOME_WIDGET !in hiddenRows) {
             AdvancedCollapsable(
-                title = stringResource(Res.string.widget_customize),
-                stateKey = "widget-customize",
+                title = stringResource(Res.string.widget_section),
+                stateKey = "surface-widget",
             ) {
-            HintText(
-                stringResource(
-                    Res.string.widget_pick_desc,
-                    WidgetMetricType.SLOTS, WidgetActionType.SLOTS,
-                ),
-                small = true,
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                repeat(2) { i ->
+                val metricSlots = remember(settings.widget.metrics) {
+                    WidgetMetricType.slots(settings.widget.metrics)
+                }
+                val actionSlots2 = remember(settings.widget.actions) {
+                    WidgetActionType.slots(settings.widget.actions)
+                }
+                val metricOptions = WidgetMetricType.entries.map { it.key to stringResource(it.pickerLabel) }
+                val actionOptions = WidgetActionType.entries.map { it.key to stringResource(it.pickerLabel) }
+                // How to place one, left outside the collapsable. Everything else
+                // here configures a widget, which is no use to a rider who has not
+                // added one yet, and collapsed the section would otherwise be a
+                // header with nothing under it.
+                HintText(stringResource(Res.string.widget_how_to_add), small = true)
+                AdvancedCollapsable(
+                    title = stringResource(Res.string.widget_customize),
+                    stateKey = "widget-customize",
+                ) {
+                HintText(
+                    stringResource(
+                        Res.string.widget_pick_desc,
+                        WidgetMetricType.SLOTS, WidgetActionType.SLOTS,
+                    ),
+                    small = true,
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    repeat(2) { i ->
+                        WidgetSlotDropdown(
+                            label = stringResource(Res.string.widget_metric_slot, i + 1),
+                            currentLabel = WidgetMetricType.byKey(metricSlots[i])
+                                ?.let { stringResource(it.pickerLabel) } ?: "",
+                            options = metricOptions,
+                            onSelect = { viewModel.updateWidgetMetricSlot(i, it) },
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
                     WidgetSlotDropdown(
-                        label = stringResource(Res.string.widget_metric_slot, i + 1),
-                        currentLabel = WidgetMetricType.byKey(metricSlots[i])
+                        label = stringResource(Res.string.widget_metric_slot, 3),
+                        currentLabel = WidgetMetricType.byKey(metricSlots[2])
                             ?.let { stringResource(it.pickerLabel) } ?: "",
                         options = metricOptions,
-                        onSelect = { viewModel.updateWidgetMetricSlot(i, it) },
+                        onSelect = { viewModel.updateWidgetMetricSlot(2, it) },
                         modifier = Modifier.weight(1f),
                     )
+                    Spacer(Modifier.weight(1f))
                 }
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                WidgetSlotDropdown(
-                    label = stringResource(Res.string.widget_metric_slot, 3),
-                    currentLabel = WidgetMetricType.byKey(metricSlots[2])
-                        ?.let { stringResource(it.pickerLabel) } ?: "",
-                    options = metricOptions,
-                    onSelect = { viewModel.updateWidgetMetricSlot(2, it) },
-                    modifier = Modifier.weight(1f),
-                )
-                Spacer(Modifier.weight(1f))
-            }
-            // Buttons laid out two-then-one, matching the readings above, so
-            // the two groups line up instead of each finding its own rhythm.
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                repeat(2) { i ->
+                // Buttons laid out two-then-one, matching the readings above, so
+                // the two groups line up instead of each finding its own rhythm.
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    repeat(2) { i ->
+                        WidgetSlotDropdown(
+                            label = stringResource(Res.string.widget_action_slot, i + 1),
+                            currentLabel = WidgetActionType.byKey(actionSlots2[i])
+                                ?.let { stringResource(it.pickerLabel) } ?: "",
+                            options = actionOptions,
+                            onSelect = { viewModel.updateWidgetActionSlot(i, it) },
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
                     WidgetSlotDropdown(
-                        label = stringResource(Res.string.widget_action_slot, i + 1),
-                        currentLabel = WidgetActionType.byKey(actionSlots2[i])
+                        label = stringResource(Res.string.widget_action_slot, 3),
+                        currentLabel = WidgetActionType.byKey(actionSlots2[2])
                             ?.let { stringResource(it.pickerLabel) } ?: "",
                         options = actionOptions,
-                        onSelect = { viewModel.updateWidgetActionSlot(i, it) },
+                        onSelect = { viewModel.updateWidgetActionSlot(2, it) },
                         modifier = Modifier.weight(1f),
                     )
+                    Spacer(Modifier.weight(1f))
                 }
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                WidgetSlotDropdown(
-                    label = stringResource(Res.string.widget_action_slot, 3),
-                    currentLabel = WidgetActionType.byKey(actionSlots2[2])
-                        ?.let { stringResource(it.pickerLabel) } ?: "",
-                    options = actionOptions,
-                    onSelect = { viewModel.updateWidgetActionSlot(2, it) },
-                    modifier = Modifier.weight(1f),
-                )
-                Spacer(Modifier.weight(1f))
-            }
 
-            // The button-only widgets get their own three actions. A button row
-            // inside a dashboard widget and a bare button sitting alone on a
-            // home screen are different jobs, and sharing one list forced a
-            // compromise between them.
-            val standaloneSlots = remember(settings.widget.standaloneActions) {
-                WidgetActionType.slots(settings.widget.standaloneActions)
-            }
-            HintText(stringResource(Res.string.widget_standalone_desc), small = true)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                repeat(2) { i ->
+                // The button-only widgets get their own three actions. A button row
+                // inside a dashboard widget and a bare button sitting alone on a
+                // home screen are different jobs, and sharing one list forced a
+                // compromise between them.
+                val standaloneSlots = remember(settings.widget.standaloneActions) {
+                    WidgetActionType.slots(settings.widget.standaloneActions)
+                }
+                HintText(stringResource(Res.string.widget_standalone_desc), small = true)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    repeat(2) { i ->
+                        WidgetSlotDropdown(
+                            label = stringResource(Res.string.widget_standalone_slot, i + 1),
+                            currentLabel = WidgetActionType.byKey(standaloneSlots[i])
+                                ?.let { stringResource(it.pickerLabel) } ?: "",
+                            options = actionOptions,
+                            onSelect = { viewModel.updateWidgetStandaloneSlot(i, it) },
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
                     WidgetSlotDropdown(
-                        label = stringResource(Res.string.widget_standalone_slot, i + 1),
-                        currentLabel = WidgetActionType.byKey(standaloneSlots[i])
+                        label = stringResource(Res.string.widget_standalone_slot, 3),
+                        currentLabel = WidgetActionType.byKey(standaloneSlots[2])
                             ?.let { stringResource(it.pickerLabel) } ?: "",
                         options = actionOptions,
-                        onSelect = { viewModel.updateWidgetStandaloneSlot(i, it) },
+                        onSelect = { viewModel.updateWidgetStandaloneSlot(2, it) },
                         modifier = Modifier.weight(1f),
                     )
+                    Spacer(Modifier.weight(1f))
                 }
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                WidgetSlotDropdown(
-                    label = stringResource(Res.string.widget_standalone_slot, 3),
-                    currentLabel = WidgetActionType.byKey(standaloneSlots[2])
-                        ?.let { stringResource(it.pickerLabel) } ?: "",
-                    options = actionOptions,
-                    onSelect = { viewModel.updateWidgetStandaloneSlot(2, it) },
-                    modifier = Modifier.weight(1f),
-                )
-                Spacer(Modifier.weight(1f))
-            }
+                }
             }
         }
 
@@ -1806,14 +1824,16 @@ private fun AdvancedTab(
         // Screen geometry: one collapsible card per screen (same pattern as
         // the Timings groups below), plus the app-wide upside-down lockout.
         AdvSectionTitle(stringResource(Res.string.section_screen_geometry))
-        SwitchSetting(
-            stringResource(Res.string.setting_block_upside_down),
-            settings.blockUpsideDown
-        ) { viewModel.updateBlockUpsideDown(it) }
-        SwitchSetting(
-            stringResource(Res.string.setting_ignore_system_rotate_lock),
-            settings.ignoreSystemRotateLock
-        ) { viewModel.updateIgnoreSystemRotateLock(it) }
+        if (SettingsRow.ROTATION_LOCK !in LocalSettingsHost.current.hiddenRows) {
+            SwitchSetting(
+                stringResource(Res.string.setting_block_upside_down),
+                settings.blockUpsideDown
+            ) { viewModel.updateBlockUpsideDown(it) }
+            SwitchSetting(
+                stringResource(Res.string.setting_ignore_system_rotate_lock),
+                settings.ignoreSystemRotateLock
+            ) { viewModel.updateIgnoreSystemRotateLock(it) }
+        }
 
         // Small muted surface badges shown after row labels, instead of noisy
         // "(landscape)" / "(compact)" text suffixes.
@@ -5840,8 +5860,10 @@ private fun DisplayTab(
             viewModel.updatePhoneKeepScreenOn(it)
         }
 
-        SwitchSetting(stringResource(Res.string.phone_show_over_lock), settings.phoneShowOverLockScreen) {
-            viewModel.updatePhoneShowOverLockScreen(it)
+        if (SettingsRow.SHOW_OVER_LOCK_SCREEN !in LocalSettingsHost.current.hiddenRows) {
+            SwitchSetting(stringResource(Res.string.phone_show_over_lock), settings.phoneShowOverLockScreen) {
+                viewModel.updatePhoneShowOverLockScreen(it)
+            }
         }
 
         SimpleDropdown(
@@ -6595,161 +6617,163 @@ private fun VoiceTab(
         // Voice commands. Its own heading rather than its own section: the
         // whole area is a toggle, a segmented row, a number and a viewer, which
         // beside a dozen announcement rows would be a section that looks empty.
-        SectionHeader(stringResource(Res.string.voice_commands_title))
-        // No enable switch. Nothing here runs until the rider presses a button,
-        // so a toggle only added a second thing to find and a way for that
-        // press to do nothing. A rider who does not want it simply does not
-        // put the action on a surface.
-        // The list used to be a button of its own under a gap, which put a
-        // lot of empty space between the section and the only thing in it that
-        // is not a control. It reads better as a link on the sentence that
-        // already explains the feature.
-        var vocabularyOpen by remember { mutableStateOf(false) }
-        // No spacers between these. The section column already puts 8dp
-        // between its children, and a Spacer is another child, so the 6dp I
-        // added made it 22 and the two paragraphs read as unrelated.
-        //
-        // The link lives in the first paragraph, next to the sentence that
-        // sends a rider looking for a button: what they can say is the next
-        // thing they will want, and a paragraph of its own to hold one link
-        // was a paragraph earning nothing.
-        val linkColor = MaterialTheme.appColors.primary
-        val vocabularyLabel = stringResource(Res.string.voice_command_vocabulary)
-        // Resolved here rather than inside the preview lambdas: a lambda that
-        // runs on a click is not a composition, so stringResource cannot be
-        // called from one.
-        val listeningWord = stringResource(Res.string.voice_cue_listening)
-        val unknownSample = stringResource(
-            Res.string.voice_answer_unknown,
-            stringResource(Res.string.voice_command_vocabulary),
-        )
-        val introText = stringResource(Res.string.voice_commands_enable_desc)
-        Text(
-            buildAnnotatedString {
-                append(introText)
-                append(" ")
-                // Only the link is tappable: LinkAnnotation scopes the tap to
-                // its own span, so the explanation around it stays text.
-                withLink(
-                    LinkAnnotation.Clickable(
-                        tag = "vocabulary",
-                        styles = TextLinkStyles(
-                            style = SpanStyle(
-                                color = linkColor,
-                                textDecoration = TextDecoration.Underline,
-                            )
-                        ),
-                    ) { vocabularyOpen = true }
-                ) { append(vocabularyLabel) }
-            },
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.appColors.textSecondary,
-            modifier = Modifier.fillMaxWidth(),
-        )
-        HintText(stringResource(Res.string.voice_commands_bind_desc))
-
-        // The permission, offered here rather than only discovered by pressing
-        // a button and being turned down. Re-read on resume: the rider grants
-        // it outside the app and comes back, so a value captured once would be
-        // stale exactly when it matters. Same shape as the phone HUD section.
-        val mic = LocalSettingsHost.current.rememberMicPermission()
-        if (!mic.granted) {
-            // No line of explanation above it: the button says what it does,
-            // and the paragraph above already says the feature needs a
-            // microphone.
-            com.eried.eucplanet.ui.common.FixButton(
-                text = stringResource(Res.string.voice_mic_grant),
-                onClick = mic.request,
+        if (SettingsRow.VOICE_COMMANDS !in LocalSettingsHost.current.hiddenRows) {
+            SectionHeader(stringResource(Res.string.voice_commands_title))
+            // No enable switch. Nothing here runs until the rider presses a button,
+            // so a toggle only added a second thing to find and a way for that
+            // press to do nothing. A rider who does not want it simply does not
+            // put the action on a surface.
+            // The list used to be a button of its own under a gap, which put a
+            // lot of empty space between the section and the only thing in it that
+            // is not a control. It reads better as a link on the sentence that
+            // already explains the feature.
+            var vocabularyOpen by remember { mutableStateOf(false) }
+            // No spacers between these. The section column already puts 8dp
+            // between its children, and a Spacer is another child, so the 6dp I
+            // added made it 22 and the two paragraphs read as unrelated.
+            //
+            // The link lives in the first paragraph, next to the sentence that
+            // sends a rider looking for a button: what they can say is the next
+            // thing they will want, and a paragraph of its own to hold one link
+            // was a paragraph earning nothing.
+            val linkColor = MaterialTheme.appColors.primary
+            val vocabularyLabel = stringResource(Res.string.voice_command_vocabulary)
+            // Resolved here rather than inside the preview lambdas: a lambda that
+            // runs on a click is not a composition, so stringResource cannot be
+            // called from one.
+            val listeningWord = stringResource(Res.string.voice_cue_listening)
+            val unknownSample = stringResource(
+                Res.string.voice_answer_unknown,
+                stringResource(Res.string.voice_command_vocabulary),
             )
-        }
-        // The cue, and the way out of it. A rider on a headset that plays its
-        // own tone when it opens the microphone has been hearing two of them,
-        // and the only way to stop ours was to stop using the feature.
-        SegmentedChoice(
-            label = stringResource(Res.string.voice_prompt_cue),
-            options = listOf(
-                com.eried.eucplanet.data.model.VoiceCommandSettings.CUE_BEEP to stringResource(Res.string.voice_cue_beep),
-                com.eried.eucplanet.data.model.VoiceCommandSettings.CUE_VOICE to stringResource(Res.string.voice_cue_spoken),
-                com.eried.eucplanet.data.model.VoiceCommandSettings.CUE_NONE to stringResource(Res.string.voice_cue_off),
-            ),
-            current = settings.voiceCommands.promptCue,
-            // Rule 10, without a button: choosing an option plays that
-            // option, so what a rider hears is always what they just picked.
-            // Tapping the one already selected plays it again.
-            onChange = { viewModel.updateVoicePromptCue(it, listeningWord) },
-        )
-
-        // Assistants and cars take the music down while they listen; through
-        // the phone speaker the microphone otherwise hears the song.
-        SegmentedChoice(
-            label = stringResource(Res.string.voice_music_listening),
-            options = listOf(
-                com.eried.eucplanet.data.model.VoiceCommandSettings.MUSIC_PAUSE to stringResource(Res.string.voice_music_pause),
-                com.eried.eucplanet.data.model.VoiceCommandSettings.MUSIC_DUCK to stringResource(Res.string.voice_music_duck),
-                com.eried.eucplanet.data.model.VoiceCommandSettings.MUSIC_KEEP to stringResource(Res.string.voice_music_keep),
-            ),
-            current = settings.voiceCommands.musicWhileListening,
-            onChange = { viewModel.updateVoiceMusicWhileListening(it) },
-        )
-        HintText(stringResource(Res.string.voice_music_listening_desc))
-
-        SegmentedChoice(
-            label = stringResource(Res.string.voice_unknown_cue),
-            options = listOf(
-                com.eried.eucplanet.data.model.VoiceCommandSettings.UNKNOWN_MESSAGE to stringResource(Res.string.voice_unknown_message),
-                com.eried.eucplanet.data.model.VoiceCommandSettings.UNKNOWN_BEEP to stringResource(Res.string.voice_cue_beep),
-                com.eried.eucplanet.data.model.VoiceCommandSettings.UNKNOWN_NONE to stringResource(Res.string.voice_cue_off),
-            ),
-            current = settings.voiceCommands.unknownCue,
-            onChange = { viewModel.updateVoiceUnknownCue(it, unknownSample) },
-        )
-
-        // The language the rider speaks, which is not always the language the
-        // app is in and not always the one it answers in. Blank follows the
-        // speaking voice, which is what almost everyone wants and what the
-        // feature used to assume without saying so.
-        VoiceCommandLanguagePicker(
-            current = settings.voiceCommands.recognitionLocale,
-            onSelected = { viewModel.updateVoiceRecognitionLocale(it) },
-        )
-        HintText(stringResource(Res.string.voice_recognition_desc))
-
-        // One three-way row, Off last like the two cue rows above it. Off is
-        // the old switch turned off; Listen and Announce turn it on and pick
-        // what the press does.
-        val headsetOff = "OFF"
-        SegmentedChoice(
-            label = stringResource(Res.string.voice_headset_button),
-            options = listOf(
-                com.eried.eucplanet.data.model.VoiceCommandSettings.HEADSET_LISTEN to
-                    stringResource(Res.string.action_chip_voice_listen),
-                com.eried.eucplanet.data.model.VoiceCommandSettings.HEADSET_ANNOUNCE to
-                    stringResource(Res.string.voice_headset_announce),
-                headsetOff to stringResource(Res.string.voice_cue_off),
-            ),
-            current = if (settings.voiceCommands.headsetButton) settings.voiceCommands.headsetAction
-                else headsetOff,
-            onChange = {
-                if (it == headsetOff) viewModel.updateVoiceHeadsetButton(false)
-                else viewModel.updateVoiceHeadsetMode(it)
-            },
-        )
-        if (settings.voiceCommands.headsetButton) {
-            HintText(stringResource(Res.string.voice_headset_chooser_hint))
-        }
-
-        if (vocabularyOpen) {
-            LocalSettingsHost.current.VoiceVocabularyDialog(
-                onDismiss = { vocabularyOpen = false },
-                languageTag = settings.voiceCommands.recognitionLocale
-                    .ifBlank { settings.voiceLocale },
+            val introText = stringResource(Res.string.voice_commands_enable_desc)
+            Text(
+                buildAnnotatedString {
+                    append(introText)
+                    append(" ")
+                    // Only the link is tappable: LinkAnnotation scopes the tap to
+                    // its own span, so the explanation around it stays text.
+                    withLink(
+                        LinkAnnotation.Clickable(
+                            tag = "vocabulary",
+                            styles = TextLinkStyles(
+                                style = SpanStyle(
+                                    color = linkColor,
+                                    textDecoration = TextDecoration.Underline,
+                                )
+                            ),
+                        ) { vocabularyOpen = true }
+                    ) { append(vocabularyLabel) }
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.appColors.textSecondary,
+                modifier = Modifier.fillMaxWidth(),
             )
-        }
-        run {
-            // No spacer: SegmentedChoice already pads itself top and bottom,
-            // and adding eight more put this row seventeen pixels down while
-            // every other row in Settings sits at nine.
-            Spacer(Modifier.height(8.dp))
+            HintText(stringResource(Res.string.voice_commands_bind_desc))
+
+            // The permission, offered here rather than only discovered by pressing
+            // a button and being turned down. Re-read on resume: the rider grants
+            // it outside the app and comes back, so a value captured once would be
+            // stale exactly when it matters. Same shape as the phone HUD section.
+            val mic = LocalSettingsHost.current.rememberMicPermission()
+            if (!mic.granted) {
+                // No line of explanation above it: the button says what it does,
+                // and the paragraph above already says the feature needs a
+                // microphone.
+                com.eried.eucplanet.ui.common.FixButton(
+                    text = stringResource(Res.string.voice_mic_grant),
+                    onClick = mic.request,
+                )
+            }
+            // The cue, and the way out of it. A rider on a headset that plays its
+            // own tone when it opens the microphone has been hearing two of them,
+            // and the only way to stop ours was to stop using the feature.
+            SegmentedChoice(
+                label = stringResource(Res.string.voice_prompt_cue),
+                options = listOf(
+                    com.eried.eucplanet.data.model.VoiceCommandSettings.CUE_BEEP to stringResource(Res.string.voice_cue_beep),
+                    com.eried.eucplanet.data.model.VoiceCommandSettings.CUE_VOICE to stringResource(Res.string.voice_cue_spoken),
+                    com.eried.eucplanet.data.model.VoiceCommandSettings.CUE_NONE to stringResource(Res.string.voice_cue_off),
+                ),
+                current = settings.voiceCommands.promptCue,
+                // Rule 10, without a button: choosing an option plays that
+                // option, so what a rider hears is always what they just picked.
+                // Tapping the one already selected plays it again.
+                onChange = { viewModel.updateVoicePromptCue(it, listeningWord) },
+            )
+
+            // Assistants and cars take the music down while they listen; through
+            // the phone speaker the microphone otherwise hears the song.
+            SegmentedChoice(
+                label = stringResource(Res.string.voice_music_listening),
+                options = listOf(
+                    com.eried.eucplanet.data.model.VoiceCommandSettings.MUSIC_PAUSE to stringResource(Res.string.voice_music_pause),
+                    com.eried.eucplanet.data.model.VoiceCommandSettings.MUSIC_DUCK to stringResource(Res.string.voice_music_duck),
+                    com.eried.eucplanet.data.model.VoiceCommandSettings.MUSIC_KEEP to stringResource(Res.string.voice_music_keep),
+                ),
+                current = settings.voiceCommands.musicWhileListening,
+                onChange = { viewModel.updateVoiceMusicWhileListening(it) },
+            )
+            HintText(stringResource(Res.string.voice_music_listening_desc))
+
+            SegmentedChoice(
+                label = stringResource(Res.string.voice_unknown_cue),
+                options = listOf(
+                    com.eried.eucplanet.data.model.VoiceCommandSettings.UNKNOWN_MESSAGE to stringResource(Res.string.voice_unknown_message),
+                    com.eried.eucplanet.data.model.VoiceCommandSettings.UNKNOWN_BEEP to stringResource(Res.string.voice_cue_beep),
+                    com.eried.eucplanet.data.model.VoiceCommandSettings.UNKNOWN_NONE to stringResource(Res.string.voice_cue_off),
+                ),
+                current = settings.voiceCommands.unknownCue,
+                onChange = { viewModel.updateVoiceUnknownCue(it, unknownSample) },
+            )
+
+            // The language the rider speaks, which is not always the language the
+            // app is in and not always the one it answers in. Blank follows the
+            // speaking voice, which is what almost everyone wants and what the
+            // feature used to assume without saying so.
+            VoiceCommandLanguagePicker(
+                current = settings.voiceCommands.recognitionLocale,
+                onSelected = { viewModel.updateVoiceRecognitionLocale(it) },
+            )
+            HintText(stringResource(Res.string.voice_recognition_desc))
+
+            // One three-way row, Off last like the two cue rows above it. Off is
+            // the old switch turned off; Listen and Announce turn it on and pick
+            // what the press does.
+            val headsetOff = "OFF"
+            SegmentedChoice(
+                label = stringResource(Res.string.voice_headset_button),
+                options = listOf(
+                    com.eried.eucplanet.data.model.VoiceCommandSettings.HEADSET_LISTEN to
+                        stringResource(Res.string.action_chip_voice_listen),
+                    com.eried.eucplanet.data.model.VoiceCommandSettings.HEADSET_ANNOUNCE to
+                        stringResource(Res.string.voice_headset_announce),
+                    headsetOff to stringResource(Res.string.voice_cue_off),
+                ),
+                current = if (settings.voiceCommands.headsetButton) settings.voiceCommands.headsetAction
+                    else headsetOff,
+                onChange = {
+                    if (it == headsetOff) viewModel.updateVoiceHeadsetButton(false)
+                    else viewModel.updateVoiceHeadsetMode(it)
+                },
+            )
+            if (settings.voiceCommands.headsetButton) {
+                HintText(stringResource(Res.string.voice_headset_chooser_hint))
+            }
+
+            if (vocabularyOpen) {
+                LocalSettingsHost.current.VoiceVocabularyDialog(
+                    onDismiss = { vocabularyOpen = false },
+                    languageTag = settings.voiceCommands.recognitionLocale
+                        .ifBlank { settings.voiceLocale },
+                )
+            }
+            run {
+                // No spacer: SegmentedChoice already pads itself top and bottom,
+                // and adding eight more put this row seventeen pixels down while
+                // every other row in Settings sits at nine.
+                Spacer(Modifier.height(8.dp))
+            }
         }
 
         // Report status: the periodic-report enable + when/interval, then the

@@ -47,6 +47,7 @@ private class AndroidDashboardHost(
     override val buildStamp: String = BuildConfig.BUILD_STAMP
     override val isDebugBuild: Boolean = BuildConfig.DEBUG
     override val isDevBuild: Boolean = BuildConfig.IS_DEV
+    override val supportsVoiceCommands: Boolean = true
 
     override fun licenseText(): String =
         try {

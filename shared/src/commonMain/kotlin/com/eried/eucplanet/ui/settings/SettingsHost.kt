@@ -38,6 +38,9 @@ interface SettingsHost {
     /** Keys of the sections this platform leaves out ("watch", "motor"...), for a phone without them. */
     val hiddenSections: Set<String>
 
+    /** Rows inside a shown section that this platform cannot act on, so it leaves them out. */
+    val hiddenRows: Set<SettingsRow>
+
     /** A folder picker; the returned function opens it. */
     @Composable
     fun rememberFolderPicker(onPicked: (String) -> Unit): () -> Unit
@@ -93,6 +96,38 @@ interface SettingsHost {
 
     /** Hands [json] to the share sheet, as the leaderboard's "export my data". */
     fun shareJson(json: String, subject: String)
+}
+
+/**
+ * A row (or block of rows) in a section both phones show that only some
+ * platforms can act on. A platform lists the ones it lacks in
+ * [SettingsHost.hiddenRows] and the screen draws nothing for them, so no
+ * switch sits there doing nothing.
+ */
+enum class SettingsRow {
+    /** What back on the dashboard does; a phone with no back there has nothing to choose. */
+    BACK_ACTION,
+
+    /** The keep-alive notification that holds the app open with no wheel. */
+    KEEP_ALIVE,
+
+    /** The rider's quick actions on the ride notification. */
+    NOTIFICATION_ACTIONS,
+
+    /** The picture-in-picture window. */
+    PICTURE_IN_PICTURE,
+
+    /** The home-screen widget. */
+    HOME_WIDGET,
+
+    /** Showing the dashboard over the lock screen. */
+    SHOW_OVER_LOCK_SCREEN,
+
+    /** The upside-down lockout and ignoring the system rotation lock. */
+    ROTATION_LOCK,
+
+    /** Spoken commands: the microphone, the cues and the headset button. */
+    VOICE_COMMANDS,
 }
 
 /** A permission the rider grants outside the app. */
