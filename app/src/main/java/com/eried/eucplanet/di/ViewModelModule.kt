@@ -48,7 +48,7 @@ import com.eried.eucplanet.ui.scan.WheelScanner
 import com.eried.eucplanet.ui.settings.AndroidEngineSoundPreview
 import com.eried.eucplanet.ui.settings.AndroidHornSound
 import com.eried.eucplanet.ui.settings.AndroidHudSettingsLink
-import com.eried.eucplanet.ui.settings.AndroidLockdownSwitch
+import com.eried.eucplanet.ui.settings.ControllerLockdownSwitch
 import com.eried.eucplanet.ui.settings.AndroidOnlineLeaderboard
 import com.eried.eucplanet.ui.settings.AndroidPromptTones
 import com.eried.eucplanet.ui.settings.AndroidSettingsAutomation
@@ -112,7 +112,7 @@ val viewModelModule = module {
     singleOf(::AndroidEngineSoundPreview) bind EngineSoundPreview::class
     singleOf(::AndroidHornSound) bind HornSound::class
     singleOf(::AndroidSplitTimes) bind SplitTimes::class
-    singleOf(::AndroidLockdownSwitch) bind LockdownSwitch::class
+    singleOf(::ControllerLockdownSwitch) bind LockdownSwitch::class
     singleOf(::AndroidOnlineLeaderboard) bind OnlineLeaderboard::class
     singleOf(::AndroidHudSettingsLink) bind HudSettingsLink::class
     single<SettingsPlatform> { AndroidSettingsPlatform(androidContext(), get()) }

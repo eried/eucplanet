@@ -11,8 +11,6 @@ import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.repository.AccelSplitRepository
 import com.eried.eucplanet.data.repository.AppHealthRepository
-import com.eried.eucplanet.data.repository.LegalLockdownCode
-import com.eried.eucplanet.data.repository.LegalLockdownController
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.startLinkFlow
 import com.eried.eucplanet.data.store.OverlayPresetJson
@@ -143,14 +141,6 @@ class AndroidHornSound(private val horn: HornPlayer) : HornSound {
 class AndroidSplitTimes(private val splits: AccelSplitRepository) : SplitTimes {
     override val session = splits.session
     override fun reset() = splits.reset()
-}
-
-class AndroidLockdownSwitch(private val lockdown: LegalLockdownController) : LockdownSwitch {
-    override val armed = lockdown.armed
-    override fun isValidPin(pin: String) = LegalLockdownCode.isValidPin(pin)
-    override fun isEngaged() = lockdown.isEngaged()
-    override suspend fun arm(pin: String, engageNow: Boolean) = lockdown.arm(pin, engageNow)
-    override suspend fun disarmIfNotEngaged() = lockdown.disarmIfNotEngaged()
 }
 
 class AndroidOnlineLeaderboard(private val stats: EucStatsRepository) : OnlineLeaderboard {

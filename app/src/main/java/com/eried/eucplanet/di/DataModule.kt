@@ -42,7 +42,9 @@ import org.koin.dsl.module
  */
 val dataModule = module {
     singleOf(::SettingsRepository)
-    singleOf(::LegalLockdownController) { bind<LegalLockdownGate>() }
+    // Explicit: the constructor's optional initial state (iOS seeds it) is not
+    // a Koin dependency, and singleOf would try to resolve it.
+    single { LegalLockdownController(get()) } bind LegalLockdownGate::class
     single {
         TripRepository(
             get(), get(), get(), get(), get(), get(), get(), get(), get(),

@@ -82,6 +82,15 @@ internal class IosVoice(
     }
 
     override fun announceEvent(text: String) {
+        // Legal Mode Lockdown silences app chatter, including anything that
+        // would say "legal mode" or "recording". Alarms speak through
+        // [speakAlarm] instead, so the rider's own alarms still fire.
+        if (IosLockdown.controller.isEngaged()) return
+        scope.launch { speak(text, settings.currentOrLoad()) }
+    }
+
+    /** An alarm's voice text, which lockdown leaves alone (Android's VoiceService.speak). */
+    fun speakAlarm(text: String) {
         scope.launch { speak(text, settings.currentOrLoad()) }
     }
 
@@ -118,6 +127,8 @@ internal class IosVoice(
         }
 
     private fun announce(data: WheelData, s: AppSettings, periodic: Boolean) {
+        // Lockdown silences the periodic and on-demand reports, as on Android.
+        if (IosLockdown.controller.isEngaged()) return
         val parts = reports.buildReportParts(data, s, isRecording = IosTrips.recording.value, periodic = periodic, vctx = Strings)
         if (parts.isEmpty()) return
         Log.i("Voice", "announced (${if (periodic) "periodic" else "trigger"}): \"${parts.joinToString(", ")}\"")

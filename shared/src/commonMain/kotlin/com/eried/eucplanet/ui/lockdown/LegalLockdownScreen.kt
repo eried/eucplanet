@@ -1,7 +1,6 @@
 package com.eried.eucplanet.ui.lockdown
 
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,19 +41,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
+import com.eried.eucplanet.platform.stringResource
+import com.eried.eucplanet.platform.format
+import com.eried.eucplanet.resources.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.eried.eucplanet.BuildConfig
-import com.eried.eucplanet.R
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.ui.dashboard.ConnectionDot
 import com.eried.eucplanet.ui.dashboard.SpeedGauge
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.Units
-import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * The Legal Mode Lockdown screen.
@@ -72,7 +70,8 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun LegalLockdownScreen(
     onNavigateToScan: () -> Unit,
-    viewModel: LegalLockdownViewModel = koinViewModel()
+    viewModel: LegalLockdownViewModel,
+    host: LegalLockdownHost,
 ) {
     val wheelData by viewModel.wheelData.collectAsStateWithLifecycle()
     val connectionState by viewModel.connectionState.collectAsState()
@@ -105,7 +104,7 @@ fun LegalLockdownScreen(
     }
 
     // Locked means locked. Back must not drop out of the mode.
-    BackHandler(enabled = true) { }
+    host.BackHandler { }
 
     Surface(modifier = Modifier.fillMaxSize(), color = colors.appBackground) {
         Column(
@@ -133,11 +132,11 @@ fun LegalLockdownScreen(
                 Spacer(Modifier.width(8.dp))
                 Text(
                     text = when (connectionState) {
-                        ConnectionState.CONNECTED -> stringResource(R.string.connection_connected)
-                        ConnectionState.CONNECTING -> stringResource(R.string.connection_connecting)
-                        ConnectionState.INITIALIZING -> stringResource(R.string.connection_initializing)
-                        ConnectionState.SCANNING -> stringResource(R.string.connection_scanning)
-                        ConnectionState.DISCONNECTED -> stringResource(R.string.connection_disconnected)
+                        ConnectionState.CONNECTED -> stringResource(Res.string.connection_connected)
+                        ConnectionState.CONNECTING -> stringResource(Res.string.connection_connecting)
+                        ConnectionState.INITIALIZING -> stringResource(Res.string.connection_initializing)
+                        ConnectionState.SCANNING -> stringResource(Res.string.connection_scanning)
+                        ConnectionState.DISCONNECTED -> stringResource(Res.string.connection_disconnected)
                     },
                     style = MaterialTheme.typography.titleMedium,
                     color = colors.textPrimary,
@@ -150,7 +149,7 @@ fun LegalLockdownScreen(
                     Icon(
                         imageVector = if (connected) Icons.Default.BluetoothConnected
                         else Icons.Default.Bluetooth,
-                        contentDescription = stringResource(R.string.lockdown_connect),
+                        contentDescription = stringResource(Res.string.lockdown_connect),
                         tint = if (connected) colors.connectionActive else colors.connectionIdle
                     )
                 }
@@ -175,15 +174,15 @@ fun LegalLockdownScreen(
             // to, with the trip meter standing in for the wheel's own trip
             // counter because recording is stopped and the meter is not.
             val metrics = listOf(
-                stringResource(R.string.metric_chip_battery) to "${wheelData.batteryPercent}%",
-                stringResource(R.string.metric_chip_temperature) to "%.0f%s".format(
+                stringResource(Res.string.metric_chip_battery) to "${wheelData.batteryPercent}%",
+                stringResource(Res.string.metric_chip_temperature) to "%.0f%s".format(
                     Units.temperature(wheelData.maxTemperature, tempUnit),
                     Units.tempUnit(tempUnit)
                 ),
-                stringResource(R.string.metric_chip_voltage) to "%.1fV".format(wheelData.voltage),
-                stringResource(R.string.metric_chip_current) to "%.1fA".format(wheelData.current),
-                stringResource(R.string.metric_chip_load) to "%.0f%%".format(wheelData.pwm),
-                stringResource(R.string.metric_chip_trip_meter) to "%.2f %s".format(
+                stringResource(Res.string.metric_chip_voltage) to "%.1fV".format(wheelData.voltage),
+                stringResource(Res.string.metric_chip_current) to "%.1fA".format(wheelData.current),
+                stringResource(Res.string.metric_chip_load) to "%.0f%%".format(wheelData.pwm),
+                stringResource(Res.string.metric_chip_trip_meter) to "%.2f %s".format(
                     Units.distance(tripMeter.distanceKm, distanceUnit),
                     Units.distanceUnit(distanceUnit)
                 )
@@ -221,14 +220,14 @@ fun LegalLockdownScreen(
             ) {
                 LockdownButton(
                     icon = Icons.Default.Campaign,
-                    label = stringResource(R.string.action_horn),
+                    label = stringResource(Res.string.action_horn),
                     enabled = connected,
                     onClick = { viewModel.onHornPress() },
                     modifier = Modifier.weight(1f)
                 )
                 LockdownButton(
                     icon = Icons.Default.FlashlightOn,
-                    label = stringResource(R.string.action_light),
+                    label = stringResource(Res.string.action_light),
                     enabled = connected && !lightBusy,
                     active = wheelData.lightOn,
                     onClick = { viewModel.onLightToggle() },
@@ -243,14 +242,14 @@ fun LegalLockdownScreen(
             ) {
                 LockdownButton(
                     icon = Icons.Default.Speed,
-                    label = stringResource(R.string.lockdown_action_speed_limit),
+                    label = stringResource(Res.string.lockdown_action_speed_limit),
                     enabled = true,
                     onClick = { showUnlock = true },
                     modifier = Modifier.weight(1f)
                 )
                 LockdownButton(
                     icon = Icons.Default.TwoWheeler,
-                    label = stringResource(R.string.lockdown_action_vehicle),
+                    label = stringResource(Res.string.lockdown_action_vehicle),
                     enabled = true,
                     onClick = { showVehicle = true },
                     modifier = Modifier.weight(1f)
@@ -261,7 +260,7 @@ fun LegalLockdownScreen(
 
             // Static. Tapping it does not open About in this mode.
             Text(
-                text = "EUC Planet ${BuildConfig.VERSION_NAME}",
+                text = "EUC Planet ${host.versionName}",
                 style = MaterialTheme.typography.labelSmall,
                 color = colors.textSecondary,
                 textAlign = TextAlign.Center,

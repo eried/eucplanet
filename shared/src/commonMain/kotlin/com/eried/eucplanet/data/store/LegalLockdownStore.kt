@@ -1,12 +1,10 @@
 package com.eried.eucplanet.data.store
 
-import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -27,6 +25,15 @@ data class LockdownState(
     val codeHash: String = ""
 )
 
+/** Where [LockdownState] is kept, so the controller can be tested without a disk. */
+interface LockdownStore {
+    val state: Flow<LockdownState>
+    suspend fun get(): LockdownState
+    suspend fun set(armed: Boolean, engaged: Boolean, codeHash: String)
+    /** Latch the mode on without touching the armed flag or the code. */
+    suspend fun setEngaged(engaged: Boolean)
+}
+
 /**
  * Legal Mode Lockdown state, deliberately NOT an [com.eried.eucplanet.data.model.AppSettings]
  * field and deliberately not in the `eucplanet_settings` store.
@@ -45,13 +52,15 @@ data class LockdownState(
  *
  * Excluded from Android auto-backup and device transfer in `backup_rules.xml`
  * and `data_extraction_rules.xml`, so the lock does not ride a cloud backup onto
- * a new phone and a reinstall is genuinely clean.
+ * a new phone and a reinstall is genuinely clean. iOS keeps the file in a
+ * folder marked excluded from iCloud and device backups, for the same reason.
+ *
+ * The DataStore itself comes from the platform: Android's `legal_lockdown`
+ * preferences file (LegalLockdownDataStore.kt), iOS's IosLockdown.
  */
-class LegalLockdownStore(private val context: Context) {
+class LegalLockdownStore(private val dataStore: DataStore<Preferences>) : LockdownStore {
 
-    private val dataStore: DataStore<Preferences> get() = context.lockdownDataStore
-
-    val state: Flow<LockdownState> = dataStore.data.map { prefs ->
+    override val state: Flow<LockdownState> = dataStore.data.map { prefs ->
         LockdownState(
             armed = prefs[KEY_ARMED] ?: false,
             engaged = prefs[KEY_ENGAGED] ?: false,
@@ -59,9 +68,9 @@ class LegalLockdownStore(private val context: Context) {
         )
     }
 
-    suspend fun get(): LockdownState = state.first()
+    override suspend fun get(): LockdownState = state.first()
 
-    suspend fun set(armed: Boolean, engaged: Boolean, codeHash: String) {
+    override suspend fun set(armed: Boolean, engaged: Boolean, codeHash: String) {
         dataStore.edit { prefs ->
             prefs[KEY_ARMED] = armed
             prefs[KEY_ENGAGED] = engaged
@@ -69,8 +78,7 @@ class LegalLockdownStore(private val context: Context) {
         }
     }
 
-    /** Latch the mode on without touching the armed flag or the code. */
-    suspend fun setEngaged(engaged: Boolean) {
+    override suspend fun setEngaged(engaged: Boolean) {
         dataStore.edit { prefs -> prefs[KEY_ENGAGED] = engaged }
     }
 
@@ -80,6 +88,3 @@ class LegalLockdownStore(private val context: Context) {
         val KEY_HASH = stringPreferencesKey("codeHash")
     }
 }
-
-private val Context.lockdownDataStore: DataStore<Preferences>
-        by preferencesDataStore(name = "legal_lockdown")

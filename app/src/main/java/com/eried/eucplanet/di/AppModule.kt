@@ -14,6 +14,8 @@ import com.eried.eucplanet.data.db.TripDao
 import com.eried.eucplanet.data.db.WheelProfileDao
 import com.eried.eucplanet.data.store.SettingsJson
 import com.eried.eucplanet.data.store.LegalLockdownStore
+import com.eried.eucplanet.data.store.LockdownStore
+import com.eried.eucplanet.data.store.lockdownDataStore
 import com.eried.eucplanet.data.store.SettingsStore
 import com.eried.eucplanet.data.store.androidImperialLocale
 import com.eried.eucplanet.data.store.settingsDataStore
@@ -32,7 +34,7 @@ val appModule = module {
     // :shared, takes it in its constructor instead of a Context.
     single { androidContext().settingsDataStore }
     single { AppModule.provideSettingsStore(androidContext(), get()) }
-    single { AppModule.provideLegalLockdownStore(androidContext()) }
+    single<LockdownStore> { AppModule.provideLegalLockdownStore(androidContext()) }
     single { AppModule.provideDatabase(androidContext()) }
     factory { AppModule.provideTripDao(get()) }
     factory { AppModule.provideAlarmDao(get()) }
@@ -56,7 +58,7 @@ object AppModule {
 
     /** Legal Mode Lockdown state. Its own store, never part of AppSettings. */
     fun provideLegalLockdownStore(context: Context): LegalLockdownStore =
-        LegalLockdownStore(context)
+        LegalLockdownStore(context.lockdownDataStore)
 
     fun provideDatabase(context: Context): AppDatabase {
         return openOrRecover(context)

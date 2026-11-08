@@ -32,7 +32,7 @@ internal object IosAlarmOutputs : AlarmOutputs {
     override fun stopStream() = IosTonePlayer.stopStream()
 
     // The alarm's own text, at the voice settings' rate and language.
-    override fun speak(text: String) = IosAppGraph.voice.announceEvent(text)
+    override fun speak(text: String) = IosAppGraph.voice.speakAlarm(text)
 
     override fun vibrate(durationMs: Long) = AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
     override fun vibrateWatch(durationMs: Int) = Unit

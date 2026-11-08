@@ -140,6 +140,17 @@ interface LockdownSwitch {
     suspend fun disarmIfNotEngaged()
 }
 
+/** The switch over the shared controller, on both phones. */
+class ControllerLockdownSwitch(
+    private val lockdown: com.eried.eucplanet.data.repository.LegalLockdownController,
+) : LockdownSwitch {
+    override val armed = lockdown.armed
+    override fun isValidPin(pin: String) = com.eried.eucplanet.data.repository.LegalLockdownCode.isValidPin(pin)
+    override fun isEngaged() = lockdown.isEngaged()
+    override suspend fun arm(pin: String, engageNow: Boolean) = lockdown.arm(pin, engageNow)
+    override suspend fun disarmIfNotEngaged() = lockdown.disarmIfNotEngaged()
+}
+
 /** The online leaderboard account (EucStatsRepository). */
 interface OnlineLeaderboard {
     val card: StateFlow<RiderCard?>

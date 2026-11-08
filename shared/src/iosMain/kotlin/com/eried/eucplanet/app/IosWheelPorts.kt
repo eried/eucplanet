@@ -7,7 +7,6 @@ import com.eried.eucplanet.data.repository.AccelSplitReset
 import com.eried.eucplanet.data.repository.AppNotices
 import com.eried.eucplanet.data.repository.ExternalGpsFeed
 import com.eried.eucplanet.data.repository.GpsFix
-import com.eried.eucplanet.data.repository.LegalLockdownGate
 import com.eried.eucplanet.data.repository.PhoneDevice
 import com.eried.eucplanet.data.repository.PhoneHorn
 import com.eried.eucplanet.data.repository.PhoneImu
@@ -52,12 +51,6 @@ internal object NoExternalGps : ExternalGpsFeed {
         MutableStateFlow(ConnectionState.DISCONNECTED).asStateFlow()
     override val currentSample: StateFlow<ExternalGpsSample?> =
         MutableStateFlow<ExternalGpsSample?>(null).asStateFlow()
-}
-
-/** Legal Mode Lockdown is not on iOS yet: never engaged. */
-internal object NoLockdown : LegalLockdownGate {
-    override fun isEngaged(): Boolean = false
-    override fun onLegalModeActivated() = Unit
 }
 
 /** TPMS caps are not on iOS yet; no paired sensor reading. */

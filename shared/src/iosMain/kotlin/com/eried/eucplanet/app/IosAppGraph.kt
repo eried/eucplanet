@@ -115,7 +115,7 @@ object IosAppGraph {
      */
     val actions: ActionExecutor by lazy {
         ActionExecutor(
-            settings, wheel, IosTrips, voice, NoAutomation, LogNotices, NoLockdown,
+            settings, wheel, IosTrips, voice, NoAutomation, LogNotices, IosLockdown.controller,
             NoVoiceListening, NoMedia, IosPhoneDevice,
         )
     }
@@ -153,7 +153,7 @@ object IosAppGraph {
             cheatState = cheats,
             phoneSensorRepository = NoPhoneImu,
             externalGpsRepository = NoExternalGps,
-            legalLockdown = NoLockdown,
+            legalLockdown = IosLockdown.controller,
             tpmsRepository = NoTyrePressure,
             accelSplitRepository = NoAccelSplits,
             tripRepositoryLazy = lazyOf(NoRecording),
@@ -245,7 +245,7 @@ object IosAppGraph {
         settingsRepository = settings,
         wheelRepository = wheel,
         accelSplitRepository = NoSplitTimes,
-        legalLockdown = NoLockdownSwitch,
+        legalLockdown = com.eried.eucplanet.ui.settings.ControllerLockdownSwitch(IosLockdown.controller),
         voiceService = IosSettingsVoice(voice),
         tonePlayer = IosPromptTones,
         tripRepository = IosTrips,

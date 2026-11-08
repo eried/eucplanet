@@ -4,6 +4,8 @@ import androidx.compose.ui.window.ComposeUIViewController
 import com.eried.eucplanet.app.IosAppGraph
 import com.eried.eucplanet.app.IosDisplayPrefs
 import com.eried.eucplanet.app.IosAppHealth
+import com.eried.eucplanet.app.IosLockdown
+import com.eried.eucplanet.ui.lockdown.LegalLockdownScreen
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -89,6 +91,9 @@ fun MainViewController(): UIViewController {
     IosDisplayPrefs.start()
     // The dashboard's "Needs attention" list, as MainActivity refreshes it on Android.
     IosAppHealth.start()
+    // Legal Mode Lockdown: read before the first frame, and service mode
+    // stopped while it runs, as EucPlanetApp does on Android.
+    IosLockdown.start()
     // SIMCTL_CHILD_EUC_RECORD=20 records a 20 s trip, for scripted runs.
     (NSProcessInfo.processInfo.environment["EUC_RECORD"] as? String)?.toLongOrNull()?.let { secs ->
         MainScope().launch {
@@ -147,7 +152,35 @@ fun MainViewController(): UIViewController {
                         screen = "settings"
                     }
                 }
-                when (screen) {
+                // Legal Mode Lockdown replaces every screen, as MainActivity swaps
+                // its whole graph: only the locked screen and the scan screen exist.
+                val lockedDown by IosLockdown.controller.engaged.collectAsState()
+                if (lockedDown) {
+                    var lockScreen by remember { mutableStateOf("lockdown") }
+                    if (lockScreen == "scan") {
+                        val store = remember { ViewModelStore() }
+                        val scanVm = remember {
+                            ViewModelProvider.create(
+                                store,
+                                viewModelFactory { initializer { IosAppGraph.scanViewModel() } },
+                            )[ScanViewModel::class]
+                        }
+                        DisposableEffect(store) { onDispose { store.clear() } }
+                        ScanScreen(
+                            onDeviceSelected = { lockScreen = "lockdown" },
+                            onBack = { lockScreen = "lockdown" },
+                            viewModel = scanVm,
+                            host = IosScanHost,
+                        )
+                    } else {
+                        val lockVm = rememberViewModel { IosLockdown.viewModel() }
+                        LegalLockdownScreen(
+                            onNavigateToScan = { lockScreen = "scan" },
+                            viewModel = lockVm,
+                            host = IosLockdown.Host,
+                        )
+                    }
+                } else when (screen) {
                     "scan" -> {
                         // Owned by a store cleared when the screen leaves, so the
                         // view model's onCleared re-arms auto-connect, as on Android.

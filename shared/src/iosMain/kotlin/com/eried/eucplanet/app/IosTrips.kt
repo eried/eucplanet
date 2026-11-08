@@ -134,6 +134,9 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips {
     }
 
     override suspend fun startRecording() {
+        // Legal Mode Lockdown stops the recorders, as Android's TripRepository
+        // does. Auto-record reaches this same function, so the policy is covered.
+        if (IosLockdown.controller.isEngaged()) return
         if (!_recording.compareAndSet(expect = false, update = true)) return
         IosLocation.start()
         IosLocation.keepInBackground(true)
@@ -351,6 +354,14 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips {
 
     /** Auto-record, as WheelService runs it on Android: start on motion, stop when idle. */
     fun followWheel() {
+        // Lockdown can engage long after it was armed, the moment legal mode
+        // comes on, so a ride may already be in progress. Finalise and save it
+        // rather than leaving a partial trip open behind a locked screen.
+        scope.launch {
+            IosLockdown.controller.engaged.collect { engaged ->
+                if (engaged && _recording.value) stopRecording()
+            }
+        }
         scope.launch {
             var lastMotionAt = 0L
             IosAppGraph.wheel.wheelData.collect { data ->

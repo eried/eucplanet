@@ -27,17 +27,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import com.eried.eucplanet.platform.stringResource
+import com.eried.eucplanet.platform.format
+import com.eried.eucplanet.resources.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
-import com.eried.eucplanet.R
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.Units
-import com.eried.eucplanet.util.speedUnit
 import kotlinx.coroutines.launch
 
 /**
@@ -61,7 +61,6 @@ fun LockdownUnlockDialog(
 ) {
     val colors = MaterialTheme.appColors
     val scope = rememberCoroutineScope()
-    val context = androidx.compose.ui.platform.LocalContext.current
     val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
 
     var pin by remember { mutableStateOf("") }
@@ -83,7 +82,7 @@ fun LockdownUnlockDialog(
         // A stray tap must not drop a half-typed code.
         properties = DialogProperties(dismissOnClickOutside = false),
         containerColor = colors.dialog,
-        title = { Text(stringResource(R.string.lockdown_speed_limit_title)) },
+        title = { Text(stringResource(Res.string.lockdown_speed_limit_title)) },
         text = {
             Column {
                 // Half and half, the same shape the Legal Tiltback / Legal Alarm
@@ -91,13 +90,13 @@ fun LockdownUnlockDialog(
                 // are read-only: this dialog reports them, it does not set them.
                 androidx.compose.foundation.layout.Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     ReadOnlySpeedField(
-                        label = stringResource(R.string.lockdown_action_speed_limit),
-                        value = formatSpeed(legalTiltbackKmh, speedUnit, context),
+                        label = stringResource(Res.string.lockdown_action_speed_limit),
+                        value = formatSpeed(legalTiltbackKmh, speedUnit),
                         modifier = Modifier.fillMaxWidth()
                     )
                     ReadOnlySpeedField(
-                        label = stringResource(R.string.lockdown_tiltback_alarm),
-                        value = formatSpeed(legalAlarmKmh, speedUnit, context),
+                        label = stringResource(Res.string.lockdown_tiltback_alarm),
+                        value = formatSpeed(legalAlarmKmh, speedUnit),
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -108,7 +107,7 @@ fun LockdownUnlockDialog(
                         // Digits only, and never longer than the longest code.
                         pin = it.filter { c -> c.isDigit() }.take(8)
                     },
-                    label = { Text(stringResource(R.string.lockdown_unlock_prompt)) },
+                    label = { Text(stringResource(Res.string.lockdown_unlock_prompt)) },
                     singleLine = true,
                     visualTransformation = PasswordVisualTransformation(),
                     // Done unlocks, the way finishing any form with the
@@ -131,10 +130,10 @@ fun LockdownUnlockDialog(
             TextButton(
                 enabled = pin.isNotEmpty(),
                 onClick = unlock
-            ) { Text(stringResource(R.string.lockdown_unlock)) }
+            ) { Text(stringResource(Res.string.lockdown_unlock)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_close)) }
+            TextButton(onClick = onDismiss) { Text(stringResource(Res.string.action_close)) }
         }
     )
 }
@@ -183,39 +182,38 @@ fun LockdownVehicleDialog(
     onDismiss: () -> Unit
 ) {
     val colors = MaterialTheme.appColors
-    val context = androidx.compose.ui.platform.LocalContext.current
     AlertDialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(dismissOnClickOutside = false),
         containerColor = colors.dialog,
-        title = { Text(stringResource(R.string.lockdown_action_vehicle)) },
+        title = { Text(stringResource(Res.string.lockdown_action_vehicle)) },
         text = {
             if (!connected) {
-                Text(stringResource(R.string.lockdown_no_wheel))
+                Text(stringResource(Res.string.lockdown_no_wheel))
             } else {
                 Column {
                     LockdownInfoRow(
-                        stringResource(R.string.lockdown_vehicle_name),
+                        stringResource(Res.string.lockdown_vehicle_name),
                         deviceName.orEmpty().ifBlank { "-" }
                     )
                     LockdownInfoRow(
-                        stringResource(R.string.lockdown_vehicle_brand),
+                        stringResource(Res.string.lockdown_vehicle_brand),
                         brand.orEmpty().ifBlank { "-" }
                     )
                     LockdownInfoRow(
-                        stringResource(R.string.lockdown_vehicle_model),
+                        stringResource(Res.string.lockdown_vehicle_model),
                         model.orEmpty().ifBlank { "-" }
                     )
                     LockdownInfoRow(
-                        stringResource(R.string.lockdown_vehicle_max_speed),
-                        formatSpeed(legalTiltbackKmh, speedUnit, context)
+                        stringResource(Res.string.lockdown_vehicle_max_speed),
+                        formatSpeed(legalTiltbackKmh, speedUnit)
                     )
                     LockdownInfoRow(
-                        stringResource(R.string.lockdown_vehicle_alarm),
-                        formatSpeed(legalAlarmKmh, speedUnit, context)
+                        stringResource(Res.string.lockdown_vehicle_alarm),
+                        formatSpeed(legalAlarmKmh, speedUnit)
                     )
                     LockdownInfoRow(
-                        stringResource(R.string.lockdown_vehicle_odometer),
+                        stringResource(Res.string.lockdown_vehicle_odometer),
                         "%.0f %s".format(
                             Units.distance(odometerKm, distanceUnit),
                             Units.distanceUnit(distanceUnit)
@@ -225,7 +223,7 @@ fun LockdownVehicleDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_close)) }
+            TextButton(onClick = onDismiss) { Text(stringResource(Res.string.action_close)) }
         }
     )
 }
@@ -254,5 +252,6 @@ private fun LockdownInfoRow(label: String, value: String) {
     }
 }
 
-private fun formatSpeed(kmh: Float, unit: String, context: android.content.Context): String =
-    "%.0f %s".format(Units.speed(kmh, unit), Units.speedUnit(context, unit))
+@Composable
+private fun formatSpeed(kmh: Float, unit: String): String =
+    "%.0f %s".format(Units.speed(kmh, unit), stringResource(Units.speedUnitRes(unit)))

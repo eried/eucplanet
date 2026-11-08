@@ -20,7 +20,6 @@ import com.eried.eucplanet.ui.dashboard.DashboardSync
 import com.eried.eucplanet.ui.settings.EngineSoundPreview
 import com.eried.eucplanet.ui.settings.HornSound
 import com.eried.eucplanet.ui.settings.HudSettingsLink
-import com.eried.eucplanet.ui.settings.LockdownSwitch
 import com.eried.eucplanet.ui.settings.OnlineLeaderboard
 import com.eried.eucplanet.ui.settings.PromptTones
 import com.eried.eucplanet.ui.settings.SettingsAutomation
@@ -219,15 +218,6 @@ internal object NoSplitTimes : SplitTimes {
     override val session: StateFlow<AccelSplitTracker.Session> =
         MutableStateFlow(AccelSplitTracker.Session()).asStateFlow()
     override fun reset() = Unit
-}
-
-/** Legal Mode Lockdown is not on iOS yet: never armed, arming refused. */
-internal object NoLockdownSwitch : LockdownSwitch {
-    override val armed: StateFlow<Boolean> = MutableStateFlow(false).asStateFlow()
-    override fun isValidPin(pin: String) = Regex("^[0-9]{4,8}$").matches(pin)
-    override fun isEngaged() = false
-    override suspend fun arm(pin: String, engageNow: Boolean) = false
-    override suspend fun disarmIfNotEngaged() = Unit
 }
 
 /** The HUD companion is an Android device; the iPhone does not talk to it. */

@@ -1,14 +1,16 @@
 package com.eried.eucplanet.data.repository
 
-import com.eried.eucplanet.data.store.LegalLockdownStore
+import com.eried.eucplanet.data.store.LockdownState
+import com.eried.eucplanet.data.store.LockdownStore
+import com.eried.eucplanet.platform.md5
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.security.MessageDigest
 
 /**
  * Manufacturer code rules for Legal Mode Lockdown.
@@ -24,10 +26,10 @@ object LegalLockdownCode {
 
     fun isValidPin(pin: String): Boolean = PIN.matches(pin)
 
+    /** Lower-case hex MD5 of the UTF-8 code, the same 32 characters on both phones. */
     fun hash(pin: String): String =
-        MessageDigest.getInstance("MD5")
-            .digest(pin.toByteArray(Charsets.UTF_8))
-            .joinToString("") { "%02x".format(it) }
+        md5(pin.encodeToByteArray())
+            .joinToString("") { (it.toInt() and 0xFF).toString(16).padStart(2, '0') }
 
     /** A blank stored hash never matches, so an unconfigured lock cannot be opened. */
     fun matches(pin: String, storedHash: String): Boolean =
@@ -47,16 +49,22 @@ object LegalLockdownCode {
  * a hub that depends on half the app and cannot be constructed in a test.
  */
 class LegalLockdownController(
-    private val store: LegalLockdownStore
+    private val store: LockdownStore,
+    /**
+     * The state already read from [store], when the caller has it. iOS reads
+     * it before its first frame so a locked phone never flashes the dashboard;
+     * Android leaves it null and the collector below seeds the flags.
+     */
+    initial: LockdownState? = null,
 ) : LegalLockdownGate {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     /** The resident setting. Armed and waiting, or off. */
-    private val _armed = MutableStateFlow(false)
+    private val _armed = MutableStateFlow(initial?.armed ?: false)
     val armed: StateFlow<Boolean> = _armed.asStateFlow()
 
     /** The mode actually running. This is what every gate and the UI key on. */
-    private val _engaged = MutableStateFlow(false)
+    private val _engaged = MutableStateFlow(initial?.engaged ?: false)
     val engaged: StateFlow<Boolean> = _engaged.asStateFlow()
 
     init {

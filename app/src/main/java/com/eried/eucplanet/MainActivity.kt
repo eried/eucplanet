@@ -790,7 +790,9 @@ class MainActivity : AppCompatActivity() {
                                                 launchSingleTop = true
                                             }
                                         }
-                                    }
+                                    },
+                                    viewModel = org.koin.compose.viewmodel.koinViewModel(),
+                                    host = com.eried.eucplanet.ui.lockdown.AndroidLegalLockdownHost,
                                 )
                             }
                             composable(Screen.Scan.route) {

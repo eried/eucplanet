@@ -7,6 +7,8 @@ import kotlinx.cinterop.allocArray
 import kotlinx.cinterop.get
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.usePinned
+import platform.CoreCrypto.CC_MD5
+import platform.CoreCrypto.CC_MD5_DIGEST_LENGTH
 import platform.CoreCrypto.CC_SHA256
 import platform.CoreCrypto.CC_SHA256_DIGEST_LENGTH
 import platform.Security.SecRandomCopyBytes
@@ -18,6 +20,17 @@ actual fun sha256(data: ByteArray): ByteArray = memScoped {
     if (data.isEmpty()) CC_SHA256(null, 0u, out)
     else data.usePinned { CC_SHA256(it.addressOf(0), data.size.toUInt(), out) }
     ByteArray(CC_SHA256_DIGEST_LENGTH) { out[it].toByte() }
+}
+
+// CC_MD5 is deprecated for security use; here it only has to match Android's
+// MessageDigest MD5 (the lockdown code hash, see LegalLockdownCode).
+@OptIn(ExperimentalForeignApi::class)
+@Suppress("DEPRECATION")
+actual fun md5(data: ByteArray): ByteArray = memScoped {
+    val out = allocArray<UByteVar>(CC_MD5_DIGEST_LENGTH)
+    if (data.isEmpty()) CC_MD5(null, 0u, out)
+    else data.usePinned { CC_MD5(it.addressOf(0), data.size.toUInt(), out) }
+    ByteArray(CC_MD5_DIGEST_LENGTH) { out[it].toByte() }
 }
 
 @OptIn(ExperimentalForeignApi::class)
