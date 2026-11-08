@@ -1,0 +1,79 @@
+package com.eried.eucplanet.ui.settings
+
+import com.eried.eucplanet.data.model.ActionCatalog
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
+
+/**
+ * The settings search finds only what the phone draws. A row a platform
+ * leaves out (SettingsHost.hiddenRows, the volume keys, the backup folder)
+ * used to still come up in the search on iOS, landing the rider on nothing.
+ * The generated index carries each text's row gates; these pin that it reads
+ * them and that the filter drops what the phone leaves out.
+ */
+class SettingsSearchHiddenRowsTest {
+
+    private fun entry(section: String, key: String) =
+        SettingsSearchIndex.sections.getValue(section).first { it.res.key == key }
+
+    private fun found(section: String, key: String, absent: Set<SettingsRow>) =
+        SettingsSearchIndex.sections.getValue(section).any { it.res.key == key && it.shownWithout(absent) }
+
+    /** What the iPhone leaves out (IosSettingsHost), with its host switches. */
+    private val iphone = setOf(
+        SettingsRow.BACK_ACTION, SettingsRow.KEEP_ALIVE, SettingsRow.NOTIFICATION_ACTIONS,
+        SettingsRow.PICTURE_IN_PICTURE, SettingsRow.HOME_WIDGET, SettingsRow.SHOW_OVER_LOCK_SCREEN,
+        SettingsRow.ROTATION_LOCK, SettingsRow.VOICE_COMMANDS, SettingsRow.VOLUME_KEYS,
+        SettingsRow.BACKUP_FOLDER,
+    )
+
+    @Test fun gatedRowsCarryTheirGate() {
+        assertEquals(listOf(setOf(SettingsRow.BACK_ACTION)), entry("general", "back_button_action").gates)
+        assertEquals(
+            listOf(setOf(SettingsRow.BACK_ACTION, SettingsRow.KEEP_ALIVE)),
+            entry("general", "section_application").gates,
+        )
+        assertTrue(listOf(setOf(SettingsRow.VOLUME_KEYS)) == entry("integration", "section_volume_keys").gates)
+        assertEquals(listOf(setOf(SettingsRow.BACKUP_FOLDER)), entry("cloud", "cloud_choose_folder").gates)
+        assertEquals(listOf(setOf(SettingsRow.VOICE_COMMANDS)), entry("voice", "voice_music_listening").gates)
+        // An ungated row has none.
+        assertTrue(entry("voice", "voice_speech_speed").gates.isEmpty())
+    }
+
+    @Test fun androidFindsEverything() {
+        for ((section, list) in SettingsSearchIndex.sections) {
+            for (e in list) assertTrue(e.shownWithout(emptySet()), "${e.res.key} in $section")
+        }
+    }
+
+    @Test fun theIphoneDoesNotFindWhatItLeavesOut() {
+        assertFalse(found("general", "back_button_action", iphone))
+        assertFalse(found("general", "section_application", iphone))
+        assertFalse(found("integration", "section_volume_keys", iphone))
+        assertFalse(found("integration", "volume_keys_enable", iphone))
+        assertFalse(found("cloud", "cloud_choose_folder", iphone))
+        assertFalse(found("voice", "voice_music_listening", iphone))
+        // What it does draw is still found.
+        assertTrue(found("voice", "voice_speech_speed", iphone))
+        assertTrue(found("cloud", "crews_pass_action", iphone))
+    }
+
+    @Test fun aHeadingStaysWhileAnyOfItsRowsShows() {
+        assertTrue(found("general", "section_application", setOf(SettingsRow.BACK_ACTION)))
+        assertFalse(found("general", "section_application", setOf(SettingsRow.BACK_ACTION, SettingsRow.KEEP_ALIVE)))
+    }
+
+    @Test fun listenIsOnlyOfferedWithSpokenCommands() {
+        val all = ActionCatalog.all.map { it.key }
+        assertTrue("VOICE_LISTEN" in ActionCatalog.pickableKeys(all, voiceCommands = true))
+        val iphone = ActionCatalog.pickableKeys(all, voiceCommands = false)
+        assertFalse("VOICE_LISTEN" in iphone)
+        assertEquals(all.size - 1, iphone.size)
+        // A Listen tile already placed draws as its pair; everything else as itself.
+        assertEquals("VOICE_ANNOUNCE", ActionCatalog.tileKeyOn("VOICE_LISTEN", voiceCommands = false))
+        assertEquals("VOICE_LISTEN", ActionCatalog.tileKeyOn("VOICE_LISTEN", voiceCommands = true))
+        assertEquals("HORN", ActionCatalog.tileKeyOn("HORN", voiceCommands = false))
+    }
+}

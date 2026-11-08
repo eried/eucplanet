@@ -636,7 +636,7 @@ private fun SettingsScreenContent(
     val titleGpsSensors = stringResource(Res.string.section_external_gps)
     val titleDashboard = stringResource(Res.string.tab_dashboard)
 
-    val corpora = rememberSearchCorpora()
+    val corpora = rememberSearchCorpora(LocalSettingsHost.current.absentRows)
     // Sections this phone has nothing to put in.
     val hiddenSections = LocalSettingsHost.current.hiddenSections
 
@@ -1215,9 +1215,6 @@ private fun GeneralTab(
         // A platform can leave out rows it has no counterpart for; a heading
         // with every row under it left out goes too.
         val hiddenRows = LocalSettingsHost.current.hiddenRows
-        val liveViewsShown = listOf(
-            SettingsRow.NOTIFICATION_ACTIONS, SettingsRow.PICTURE_IN_PICTURE, SettingsRow.HOME_WIDGET,
-        ).any { it !in hiddenRows }
         if (SettingsRow.BACK_ACTION !in hiddenRows || SettingsRow.KEEP_ALIVE !in hiddenRows) {
             SectionHeader(stringResource(Res.string.section_application))
         }
@@ -1251,7 +1248,10 @@ private fun GeneralTab(
         // question - where do I want to see my wheel. Each is a collapsable, so
         // the group costs three lines until a rider opens one, and a new
         // surface costs no new top-level entry.
-        if (liveViewsShown) SectionHeader(stringResource(Res.string.section_surfaces))
+        // Spelled out rather than kept in a val, so the settings search reads the gate too.
+        if (SettingsRow.NOTIFICATION_ACTIONS !in hiddenRows || SettingsRow.PICTURE_IN_PICTURE !in hiddenRows ||
+            SettingsRow.HOME_WIDGET !in hiddenRows
+        ) SectionHeader(stringResource(Res.string.section_surfaces))
 
         // Rider-chosen quick actions on the ongoing notification (Tesla-style).
         // A not-applicable pick (Stop navigation while not navigating) is
@@ -2270,8 +2270,12 @@ private fun DashboardLayoutTab(
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+            // Listen is left out where spoken commands do not run (iOS).
+            val voiceCommands = SettingsRow.VOICE_COMMANDS !in LocalSettingsHost.current.hiddenRows
             ActionPool(
-                catalogKeys = viewModel.knownDashboardActions,
+                catalogKeys = com.eried.eucplanet.data.model.ActionCatalog.pickableKeys(
+                    viewModel.knownDashboardActions, voiceCommands,
+                ),
                 onTap = { _ -> showPoolTapToast() },
                 controller = dragController
             )
@@ -4459,8 +4463,11 @@ private fun ActionGroupSheet(
             // for groups with fewer than four actions. Packing two per
             // row keeps the sheet from getting tall, and the labels on
             // each field communicate which slot they map to.
-            val actionOptions = remember(viewModel) {
-                listOf("") + viewModel.knownDashboardActions
+            val voiceCommands = SettingsRow.VOICE_COMMANDS !in LocalSettingsHost.current.hiddenRows
+            val actionOptions = remember(viewModel, voiceCommands) {
+                listOf("") + com.eried.eucplanet.data.model.ActionCatalog.pickableKeys(
+                    viewModel.knownDashboardActions, voiceCommands,
+                )
             }
             for (rowIdx in 0 until 2) {
                 Row(

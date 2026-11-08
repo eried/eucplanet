@@ -69,8 +69,11 @@ private const val EXACT_ROW_WEIGHT = 100
  * holds no text for the index to find: the dashboard's metric and action
  * tiles, and every Advanced row.
  */
-private fun registryNames(): Map<String, List<Pair<StringResource, StringResource?>>> = mapOf(
-    "dashboard" to (MetricCatalog.all.map { it.labelRes } + ActionCatalog.all.map { it.labelRes }).map { it to null },
+private fun registryNames(absent: Set<SettingsRow>): Map<String, List<Pair<StringResource, StringResource?>>> = mapOf(
+    // Only the actions this phone's editor offers (no Listen without spoken commands).
+    "dashboard" to (MetricCatalog.all.map { it.labelRes } +
+        ActionCatalog.pickableKeys(ActionCatalog.all.map { it.key }, SettingsRow.VOICE_COMMANDS !in absent)
+            .mapNotNull { ActionCatalog.byKey(it)?.labelRes }).map { it to null },
     // Each Advanced row sits in its group's card.
     "advanced" to AdvGroup.entries.map { it.titleRes to null } +
         ADVANCED_SPECS.map { it.label to it.group.titleRes },
@@ -78,17 +81,22 @@ private fun registryNames(): Map<String, List<Pair<StringResource, StringResourc
     "integration" to listOf(Res.string.hud_search_corpus to null),
 )
 
+/** Whether this text is drawn on a phone that leaves out [absent]: every gate it sits in has a row shown. */
+fun SettingsSearchIndex.Entry.shownWithout(absent: Set<SettingsRow>): Boolean =
+    gates.all { gate -> gate.any { it !in absent } }
+
 /**
  * Every section's searchable texts, read once per language. They used to be
- * rebuilt from hundreds of string lookups on every keystroke.
+ * rebuilt from hundreds of string lookups on every keystroke. Rows the phone
+ * leaves out ([absent], see [SettingsHost.absentRows]) are not in them.
  */
 @Composable
-fun rememberSearchCorpora(): Map<String, List<SearchEntry>> {
+fun rememberSearchCorpora(absent: Set<SettingsRow>): Map<String, List<SearchEntry>> {
     val text = rememberStringReader()
-    return remember(text) {
-        val extras = registryNames()
+    return remember(text, absent) {
+        val extras = registryNames(absent)
         (SettingsSearchIndex.sections.keys + extras.keys).associateWith { key ->
-            val found = SettingsSearchIndex.sections[key].orEmpty().map { e ->
+            val found = SettingsSearchIndex.sections[key].orEmpty().filter { it.shownWithout(absent) }.map { e ->
                 SearchEntry(
                     text(e.res),
                     e.kind,

@@ -7,6 +7,10 @@
 // every text they show, with what kind of text it is and the sub-heading it
 // sits under, so a new row or button is searchable the day it is added.
 //
+// A text inside a block only some phones draw (`if (SettingsRow.X !in
+// hiddenRows)`, `if (host.supportsVolumeKeys)`) carries that gate, so a phone
+// that leaves the row out does not find it either.
+//
 // Writes SettingsSearchIndex.kt into :shared's build/generated, naming the
 // texts as Res.string so both phones read the same index; nothing is committed.
 // SettingsSearchIndexTest pins what it must find.
@@ -41,7 +45,21 @@ object SettingsSearchScan {
         val under: String?,
         val placed: Boolean = false,
         val folds: List<String> = emptyList(),
+        /**
+         * The [SettingsRow] gates it sits inside, outermost first. Each gate
+         * is the rows any one of which, when shown, draws the block.
+         */
+        val gates: List<List<String>> = emptyList(),
     )
+
+    /** One `if` the rows inside depend on: the block and the rows that draw it. */
+    private class Gate(val span: IntRange, val rows: List<String>)
+
+    private val ifCall = Regex("""\bif\s*\(""")
+    private val rowTerm = Regex("""^SettingsRow\.(\w+)\s*!in\s*[\w.]*hiddenRows$""")
+    // Host switches that stand for a row: the volume keys and the backup folder.
+    private val hostFlags = mapOf("supportsVolumeKeys" to "VOLUME_KEYS", "supportsBackupFolder" to "BACKUP_FOLDER")
+    private val flagTerm = Regex("""^(!?)\s*host\.(\w+)$""")
 
     /** Calls whose content is not on the page until the rider opens it. */
     private val hiddenCall = Regex(
@@ -122,6 +140,60 @@ object SettingsSearchScan {
         return out
     }
 
+    /** Where [i] lands after any whitespace. */
+    private fun skipSpace(s: String, from: Int): Int {
+        var i = from
+        while (i < s.length && s[i].isWhitespace()) i++
+        return i
+    }
+
+    /**
+     * The extent of the statement or block starting at [at]: a `{...}` block,
+     * or one call with its trailing lambda. Null for anything else.
+     */
+    private fun statementAt(s: String, at: Int): IntRange? {
+        if (at >= s.length) return null
+        if (s[at] == '{') return at..close(s, at)
+        val m = Regex("""^[\w.]+\s*\(""").find(s.substring(at, minOf(s.length, at + 200))) ?: return null
+        return at..callSpan(s, at + m.range.last).last
+    }
+
+    /**
+     * The row gates in [body]. A condition is read only when every term is a
+     * row or host switch this file knows, so anything else gates nothing. A
+     * negated host switch (`if (!host.supportsBackupFolder) {} else ...`)
+     * gates its else chain instead.
+     */
+    private fun gates(body: String): List<Gate> = ifCall.findAll(body).mapNotNull { m ->
+        val paren = m.range.last
+        val condEnd = close(body, paren)
+        val terms = body.substring(paren + 1, condEnd).split("||").map { it.trim().replace(Regex("""\s+"""), " ") }
+        val rows = terms.map { t -> rowTerm.find(t)?.groupValues?.get(1) }
+        if (rows.all { it != null }) {
+            val span = statementAt(body, skipSpace(body, condEnd + 1)) ?: return@mapNotNull null
+            return@mapNotNull Gate(span, rows.filterNotNull())
+        }
+        val flag = terms.singleOrNull()?.let { flagTerm.find(it) } ?: return@mapNotNull null
+        val row = hostFlags[flag.groupValues[2]] ?: return@mapNotNull null
+        val then = statementAt(body, skipSpace(body, condEnd + 1)) ?: return@mapNotNull null
+        if (flag.groupValues[1].isEmpty()) return@mapNotNull Gate(then, listOf(row))
+        // Negated: the else chain is what needs the switch.
+        var end = then.last
+        var j = skipSpace(body, end + 1)
+        if (!body.startsWith("else", j)) return@mapNotNull null
+        val elseAt = j
+        while (body.startsWith("else", j)) {
+            j = skipSpace(body, j + 4)
+            if (body.startsWith("if", j)) {
+                val p = body.indexOf('(', j)
+                j = skipSpace(body, close(body, p) + 1)
+            }
+            end = (statementAt(body, j) ?: break).last
+            j = skipSpace(body, end + 1)
+        }
+        Gate(elseAt..end, listOf(row))
+    }.toList()
+
     private fun kindOf(id: String, inButton: Boolean): String = when {
         inButton -> "BUTTON"
         Regex("""_(desc|caption|hint|help|body|explain|detail|subtitle|note|info|summary)(_\w+)?$""").containsMatchIn(id) -> "DESCRIPTION"
@@ -171,10 +243,14 @@ object SettingsSearchScan {
         visited: MutableSet<String>,
         hits: MutableMap<String, Hit>,
         startFolds: List<String> = emptyList(),
+        startGates: List<List<String>> = emptyList(),
     ) {
         val cards = folds(body)
         fun foldsAt(at: Int) =
             startFolds + cards.filter { at in it.first }.sortedBy { it.first.first }.map { it.second }
+        val gated = gates(body)
+        fun gatesAt(at: Int) =
+            startGates + gated.filter { at in it.span }.sortedBy { it.span.first }.map { it.rows }
         val hidden = hiddenCall.findAll(body).map { callSpan(body, it.range.last) }.toList()
         val buttons = buttonCall.findAll(body)
             .filter { b -> listOf("Radio", "Segmented", "Icon").none { it in b.groupValues[1] } }
@@ -193,21 +269,27 @@ object SettingsSearchScan {
         for (e in events) when (e.kind) {
             0 -> {
                 under = e.value
-                hits.putIfAbsent(e.value, Hit(e.value, "TITLE", null, folds = foldsAt(e.at)))
+                hits.putIfAbsent(e.value, Hit(e.value, "TITLE", null, folds = foldsAt(e.at), gates = gatesAt(e.at)))
                 headerAt += body.indexOf("stringResource", e.at)
             }
             1 -> if (e.at !in headerAt) {
                 // A text read in more than one place counts where it shows the
                 // most: the button it labels, not a line that only reads it.
                 val inButton = inside(buttons, e.at)
-                val hit = Hit(e.value, kindOf(e.value, inButton), under, placed = inButton, folds = foldsAt(e.at))
+                val hit = Hit(
+                    e.value, kindOf(e.value, inButton), under, placed = inButton,
+                    folds = foldsAt(e.at), gates = gatesAt(e.at),
+                )
                 val had = hits[e.value]
                 val better = had == null || strength(hit.kind) > strength(had.kind) ||
                     (strength(hit.kind) == strength(had.kind) && hit.placed && !had.placed)
-                if (better) hits[e.value] = hit
+                // Shown anywhere without a gate is shown: keep only the gates both share.
+                val shared = if (had == null) hit.gates else hit.gates.filter { it in had.gates }
+                if (better) hits[e.value] = hit.copy(gates = shared)
+                else if (had != null && shared != had.gates) hits[e.value] = had.copy(gates = shared)
             }
             else -> if (visited.add(e.value)) {
-                for (b in fns.getValue(e.value)) walk(b, under, fns, visited, hits, foldsAt(e.at))
+                for (b in fns.getValue(e.value)) walk(b, under, fns, visited, hits, foldsAt(e.at), gatesAt(e.at))
             }
         }
     }
@@ -224,13 +306,15 @@ object SettingsSearchScan {
         appendLine()
         appendLine("    /**")
         appendLine("     * A text one section shows: what it is, the sub-heading (null for none) it")
-        appendLine("     * sits under, and the titles of the cards it is folded into, outermost first.")
+        appendLine("     * sits under, the titles of the cards it is folded into, outermost first, and")
+        appendLine("     * the row gates it sits inside: it shows only when each gate has a row shown.")
         appendLine("     */")
         appendLine("    class Entry(")
         appendLine("        val res: StringResource,")
         appendLine("        val kind: Kind,")
         appendLine("        val under: StringResource?,")
         appendLine("        val folds: List<StringResource> = emptyList(),")
+        appendLine("        val gates: List<Set<SettingsRow>> = emptyList(),")
         appendLine("    )")
         appendLine()
         appendLine("    /** Every section's texts, by section key, in the order they appear. */")
@@ -245,9 +329,11 @@ object SettingsSearchScan {
             appendLine("    private fun ${fnName(key)}() = listOf<Entry>(")
             for (h in hits) {
                 val under = h.under?.let { "Res.string.$it" } ?: "null"
-                val folds = if (h.folds.isEmpty()) "" else
+                val folds = if (h.folds.isEmpty() && h.gates.isEmpty()) "" else
                     ", listOf(" + h.folds.joinToString { "Res.string.$it" } + ")"
-                appendLine("        Entry(Res.string.${h.id}, Kind.${h.kind}, $under$folds),")
+                val gates = if (h.gates.isEmpty()) "" else
+                    ", listOf(" + h.gates.joinToString { g -> "setOf(" + g.joinToString { "SettingsRow.$it" } + ")" } + ")"
+                appendLine("        Entry(Res.string.${h.id}, Kind.${h.kind}, $under$folds$gates),")
             }
             appendLine("    )")
         }

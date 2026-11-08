@@ -2202,7 +2202,12 @@ fun DashboardScreen(
                         val slotIdx = rowIdx * buttonCols + colIdx
                         val rawKey = activeActionKeys.getOrNull(slotIdx)
                         // Same EMPTY_SLOT_KEY handling as the metric grid.
-                        val key = if (rawKey == com.eried.eucplanet.ui.settings.EMPTY_SLOT_KEY) null else rawKey
+                        val key = if (rawKey == com.eried.eucplanet.ui.settings.EMPTY_SLOT_KEY) null
+                            else rawKey?.let {
+                                // A Listen tile synced from a phone with spoken
+                                // commands draws as the voice report here.
+                                com.eried.eucplanet.data.model.ActionCatalog.tileKeyOn(it, host.supportsVoiceCommands)
+                            }
                         if (key == null) {
                             Box(modifier = Modifier.weight(1f))
                             continue

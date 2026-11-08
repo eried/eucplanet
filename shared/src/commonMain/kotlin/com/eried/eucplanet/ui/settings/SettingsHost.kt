@@ -128,7 +128,23 @@ enum class SettingsRow {
 
     /** Spoken commands: the microphone, the cues and the headset button. */
     VOICE_COMMANDS,
+
+    /** Binding actions to the volume keys. Follows [SettingsHost.supportsVolumeKeys]; not listed in hiddenRows. */
+    VOLUME_KEYS,
+
+    /** Choosing a backup folder. Follows [SettingsHost.supportsBackupFolder]; not listed in hiddenRows. */
+    BACKUP_FOLDER,
 }
+
+/**
+ * Every row this platform leaves out, its host switches included. The
+ * settings search reads it, so a row the screen does not draw is not found.
+ */
+val SettingsHost.absentRows: Set<SettingsRow>
+    get() = hiddenRows + buildSet {
+        if (!supportsVolumeKeys) add(SettingsRow.VOLUME_KEYS)
+        if (!supportsBackupFolder) add(SettingsRow.BACKUP_FOLDER)
+    }
 
 /** A permission the rider grants outside the app. */
 class PermissionGate(val granted: Boolean, val request: () -> Unit)

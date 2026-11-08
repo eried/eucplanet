@@ -373,6 +373,26 @@ object ActionCatalog {
         ActionSurface.ALARM_FIRE -> all.filter { it.isEyesFreeSafe }.map { it.key }
     }
 
+    /** Actions that need spoken commands, which not every phone runs. */
+    private val voiceCommandKeys = setOf("VOICE_LISTEN")
+
+    /**
+     * [keys] as a phone offers them in its pickers: without spoken commands
+     * ([voiceCommands] false, as on iOS) Listen is left out, since it could
+     * only do nothing. The saved order keeps it, so a layout synced from a
+     * phone that has it is not changed.
+     */
+    fun pickableKeys(keys: List<String>, voiceCommands: Boolean): List<String> =
+        if (voiceCommands) keys else keys.filterNot { it in voiceCommandKeys }
+
+    /**
+     * The tile a placed [key] draws as. A Listen tile synced onto a phone
+     * without spoken commands draws as its pair, the voice report, which
+     * shares its slot on every phone.
+     */
+    fun tileKeyOn(key: String, voiceCommands: Boolean): String =
+        if (!voiceCommands && key in voiceCommandKeys) "VOICE_ANNOUNCE" else key
+
     /**
      * The set of surfaces an action can be bound to. Derived from
      * [ActionSpec.isEyesFreeSafe]: eyes-free actions land on every
