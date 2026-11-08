@@ -92,26 +92,6 @@ private fun tripLabel(t: TripRecord, distanceUnit: String): String {
 private fun speedLabel(s: Float): String =
     if (s == s.toInt().toFloat()) "${s.toInt()}×" else "$s×"
 
-/**
- * A timeline handle: a 5-sided "home plate" with a square body and a triangular
- * point. The point sits on the track at [x]; [down] true points it downward.
- */
-internal fun handlePentagon(x: Float, trackY: Float, down: Boolean): Path {
-    val hw = 16f          // half width, visual only; the drag hitbox is the
-                          // whole top/bottom half of the track, not this shape
-    val point = 18f       // height of the pointed part
-    val total = 42f       // full height (point + square body)
-    val s = if (down) -1f else 1f
-    return Path().apply {
-        moveTo(x, trackY)
-        lineTo(x + hw, trackY + s * point)
-        lineTo(x + hw, trackY + s * total)
-        lineTo(x - hw, trackY + s * total)
-        lineTo(x - hw, trackY + s * point)
-        close()
-    }
-}
-
 /** Photoshop-style transparency checkerboard, drawn behind a replay session. */
 fun DrawScope.replayCheckerboard() {
     val tile = 26.dp.toPx().coerceAtLeast(1f)

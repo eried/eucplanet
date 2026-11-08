@@ -18,7 +18,7 @@ import java.io.File
  */
 class TripTileRegistryTest {
 
-    private val src = File("src/main/java/com/eried/eucplanet/ui/recording/TripDetailScreen.kt").readText()
+    private val src = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/ui/recording/TripDetailScreen.kt").readText()
 
     /** The `listOf(...)` / `setOf(...)` block that follows [anchor], to its matching close. */
     private fun listBlock(anchor: String): String {

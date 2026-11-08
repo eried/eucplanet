@@ -139,4 +139,14 @@ class MapProvidersTest {
         assertEquals(MapLayers.ALL.map(::hud), com.eried.eucplanet.map.MapLayers.ALL.map(::shared))
         assertEquals("SATELLITE", com.eried.eucplanet.map.MapLayers.byId("SAT").id)
     }
+
+    @Test fun `the trip viewer's style menu is the navigator's`() {
+        // The trip viewer is shared code and names its menu with Res strings;
+        // the navigator's list stays in :app. Same layers, order and names.
+        fun rName(id: Int) = com.eried.eucplanet.R.string::class.java.fields.first { it.getInt(null) == id }.name
+        val nav = com.eried.eucplanet.ui.navigator.RouteBuilderViewModel.MAP_LAYERS.map { it.id to rName(it.labelRes) }
+        val trip = com.eried.eucplanet.ui.recording.TRIP_MAP_LAYER_LABELS.map { it.id to it.label.key }
+        assertEquals(nav, trip)
+        assertEquals(MapLayers.ALL.map { it.id }, trip.map { it.first })
+    }
 }

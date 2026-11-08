@@ -1,8 +1,8 @@
 package com.eried.eucplanet.ui.recording
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+import kotlin.test.Test
 
 /** Every metric a comparison can draw names a real Trip Details chart. */
 class CompareMetricRegistryTest {
@@ -13,17 +13,17 @@ class CompareMetricRegistryTest {
         current = current,
     )
 
-    @Test fun `compare keys are chart keys`() {
+    @Test fun compareKeysAreChartKeys() {
         val missing = CompareMetric.entries.map { it.key }.filter { it !in CHART_KEYS_DEFAULT }
-        assertTrue("Not a chart: $missing", missing.isEmpty())
+        assertTrue(missing.isEmpty(), "Not a chart: $missing")
     }
 
-    @Test fun `keys are unique`() {
+    @Test fun keysAreUnique() {
         val keys = CompareMetric.entries.map { it.key }
         assertEquals(keys.size, keys.toSet().size)
     }
 
-    @Test fun `an empty or all-zero column is not shared`() {
+    @Test fun anEmptyOrAllzeroColumnIsNotShared() {
         val a = listOf(point(speed = 10f, current = 5f), point(speed = 12f, current = 6f))
         val b = listOf(point(speed = 8f), point(speed = 9f))
         val shared = CompareMetric.shared(a, b)

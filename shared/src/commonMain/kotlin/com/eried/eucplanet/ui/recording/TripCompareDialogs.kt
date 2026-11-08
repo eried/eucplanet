@@ -1,6 +1,5 @@
 package com.eried.eucplanet.ui.recording
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
@@ -49,7 +48,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.res.stringResource
+import com.eried.eucplanet.platform.stringResource
+import com.eried.eucplanet.platform.format
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -57,7 +57,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
-import com.eried.eucplanet.R
+import com.eried.eucplanet.resources.*
 import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.ui.settings.DropdownSelect
 import com.eried.eucplanet.ui.settings.NumberUpDown
@@ -69,9 +69,8 @@ import com.eried.eucplanet.ui.theme.themedSwitchColors
 import com.eried.eucplanet.util.Units
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import com.eried.eucplanet.platform.formatLocalDate
+import org.jetbrains.compose.resources.StringResource
 
 /**
  * The metrics two trips can be compared on, keyed like the Trip Details charts
@@ -80,20 +79,20 @@ import java.util.Locale
  */
 internal enum class CompareMetric(
     val key: String,
-    @StringRes val label: Int,
+    val label: StringResource,
     val raw: (TripDataPoint) -> Float,
 ) {
-    SPEED("speed", R.string.metric_chip_speed, { it.speed }),
-    BATTERY("battery", R.string.metric_chip_battery, { it.battery.toFloat() }),
-    TEMP("temp", R.string.metric_chip_temperature, { it.temperature }),
-    VOLTAGE("voltage", R.string.metric_chip_voltage, { it.voltage }),
-    CURRENT("current", R.string.metric_chip_current, { it.current }),
-    PWM("pwm", R.string.metric_chip_load, { it.pwm }),
-    TORQUE("torque", R.string.metric_chip_torque, { it.torque }),
-    PHASE_CURRENT("phaseCurrent", R.string.metric_chip_phase_current, { it.phaseCurrent }),
-    POWER("power", R.string.metric_chip_battery_power,
+    SPEED("speed", Res.string.metric_chip_speed, { it.speed }),
+    BATTERY("battery", Res.string.metric_chip_battery, { it.battery.toFloat() }),
+    TEMP("temp", Res.string.metric_chip_temperature, { it.temperature }),
+    VOLTAGE("voltage", Res.string.metric_chip_voltage, { it.voltage }),
+    CURRENT("current", Res.string.metric_chip_current, { it.current }),
+    PWM("pwm", Res.string.metric_chip_load, { it.pwm }),
+    TORQUE("torque", Res.string.metric_chip_torque, { it.torque }),
+    PHASE_CURRENT("phaseCurrent", Res.string.metric_chip_phase_current, { it.phaseCurrent }),
+    POWER("power", Res.string.metric_chip_battery_power,
         { if (it.current.isNaN()) Float.NaN else it.voltage * it.current }),
-    ALTITUDE("altitude", R.string.metric_chip_gps_altitude, { it.altitude });
+    ALTITUDE("altitude", Res.string.metric_chip_gps_altitude, { it.altitude });
 
     /** A column that is empty or all zero counts as missing, as on the web. */
     fun presentIn(points: List<TripDataPoint>): Boolean =
@@ -122,10 +121,10 @@ internal class CompareTrip(
 private const val VIEW_STACKED = "stacked"
 private const val VIEW_OVERLAY = "overlay"
 
-private val compareDateFmt = SimpleDateFormat("dd/MM/yyyy, HH:mm", Locale.getDefault())
+private const val COMPARE_DATE_PATTERN = "dd/MM/yyyy, HH:mm"
 
 internal fun compareTripLabel(t: TripRecord): String =
-    t.customName?.takeIf { it.isNotBlank() } ?: compareDateFmt.format(Date(t.startTime))
+    t.customName?.takeIf { it.isNotBlank() } ?: formatLocalDate(COMPARE_DATE_PATTERN, t.startTime)
 
 /**
  * Step one: which trip to compare with. Every trip is listed, this one too
@@ -144,20 +143,20 @@ internal fun TripComparePickDialog(
         val q = filter.trim().lowercase()
         trips.sortedByDescending { it.startTime }.filter { t ->
             q.isEmpty() || compareTripLabel(t).lowercase().contains(q) ||
-                compareDateFmt.format(Date(t.startTime)).contains(q) ||
+                formatLocalDate(COMPARE_DATE_PATTERN, t.startTime).contains(q) ||
                 t.fileName.lowercase().contains(q)
         }
     }
     AlertDialog(
         onDismissRequest = onDismiss,
         shape = RoundedCornerShape(12.dp),
-        title = { Text(stringResource(R.string.trip_compare_pick_title)) },
+        title = { Text(stringResource(Res.string.trip_compare_pick_title)) },
         text = {
             Column {
                 OutlinedTextField(
                     value = filter,
                     onValueChange = { filter = it },
-                    placeholder = { Text(stringResource(R.string.trip_compare_filter)) },
+                    placeholder = { Text(stringResource(Res.string.trip_compare_filter)) },
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp),
                     colors = themedFieldColors(),
@@ -166,7 +165,7 @@ internal fun TripComparePickDialog(
                 Spacer(Modifier.height(8.dp))
                 if (shown.isEmpty()) {
                     Text(
-                        stringResource(R.string.trip_compare_no_match),
+                        stringResource(Res.string.trip_compare_no_match),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.appColors.textSecondary,
                         modifier = Modifier.padding(vertical = 12.dp),
@@ -182,7 +181,7 @@ internal fun TripComparePickDialog(
         confirmButton = {},
         dismissButton = {
             TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
-                Text(stringResource(R.string.action_cancel))
+                Text(stringResource(Res.string.action_cancel))
             }
         },
     )
@@ -221,7 +220,7 @@ private fun PickRow(t: TripRecord, isCurrent: Boolean, distanceUnit: String, onC
                 border = BorderStroke(1.dp, MaterialTheme.appColors.primary),
             ) {
                 Text(
-                    stringResource(R.string.trip_compare_this_trip),
+                    stringResource(Res.string.trip_compare_this_trip),
                     fontSize = 11.sp,
                     color = MaterialTheme.appColors.primary,
                     modifier = Modifier.padding(horizontal = 6.dp, vertical = 1.dp),
@@ -291,7 +290,7 @@ internal fun TripCompareAlignDialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(dismissOnClickOutside = false),
         shape = RoundedCornerShape(12.dp),
-        title = { Text(stringResource(R.string.trip_compare)) },
+        title = { Text(stringResource(Res.string.trip_compare)) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -299,7 +298,7 @@ internal fun TripCompareAlignDialog(
                     Spacer(Modifier.width(8.dp))
                     Column(Modifier.weight(1f)) {
                         Text(
-                            b?.let { compareTripLabel(it.trip) } ?: stringResource(R.string.trip_compare_loading),
+                            b?.let { compareTripLabel(it.trip) } ?: stringResource(Res.string.trip_compare_loading),
                             color = MaterialTheme.appColors.chartCompare,
                             fontWeight = FontWeight.Medium,
                             maxLines = 1,
@@ -314,7 +313,7 @@ internal fun TripCompareAlignDialog(
                         }
                     }
                     TextButton(onClick = onChange, shape = RoundedCornerShape(12.dp)) {
-                        Text(stringResource(R.string.trip_compare_change))
+                        Text(stringResource(Res.string.trip_compare_change))
                     }
                 }
 
@@ -327,7 +326,7 @@ internal fun TripCompareAlignDialog(
                 if (shared.isEmpty()) {
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        stringResource(R.string.trip_compare_no_shared),
+                        stringResource(Res.string.trip_compare_no_shared),
                         color = MaterialTheme.appColors.statusDanger,
                         style = MaterialTheme.typography.bodySmall,
                     )
@@ -347,7 +346,7 @@ internal fun TripCompareAlignDialog(
                 )
                 if (overlap == null) {
                     Text(
-                        stringResource(R.string.trip_compare_no_overlap),
+                        stringResource(Res.string.trip_compare_no_overlap),
                         color = MaterialTheme.appColors.statusDanger,
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.padding(top = 4.dp),
@@ -358,7 +357,7 @@ internal fun TripCompareAlignDialog(
                 Spacer(Modifier.height(8.dp))
                 Row(verticalAlignment = Alignment.Top) {
                     DropdownSelect(
-                        label = stringResource(R.string.trip_compare_metric),
+                        label = stringResource(Res.string.trip_compare_metric),
                         selected = stringResource(m.label),
                         options = shared.map { it.key to stringResource(it.label) },
                         onSelect = { key -> CompareMetric.byKey(key)?.let { metric = it } },
@@ -373,7 +372,7 @@ internal fun TripCompareAlignDialog(
                             value = TripCompare.toSeconds(offsetMs).toInt().coerceIn(lo, hi),
                             onValueChange = { offsetMs = it * 1000L; autoSpent = true },
                             range = lo..hi,
-                            label = stringResource(R.string.trip_compare_offset),
+                            label = stringResource(Res.string.trip_compare_offset),
                             format = { TripCompare.formatOffset(it * 1000L) },
                             parse = { TripCompare.parseTypedSeconds(it) },
                             allowSign = true,
@@ -382,7 +381,7 @@ internal fun TripCompareAlignDialog(
                         // Auto is the offset's default: the app's restore chip,
                         // lit once the rider has moved it by hand.
                         RestoreChip(
-                            text = stringResource(R.string.trip_compare_auto),
+                            text = stringResource(Res.string.trip_compare_auto),
                             enabled = autoSpent,
                         ) { autoSpent = false; autoRun++ }
                     }
@@ -390,10 +389,10 @@ internal fun TripCompareAlignDialog(
 
                 Spacer(Modifier.height(12.dp))
                 SegmentedChoice(
-                    label = stringResource(R.string.trip_compare_view),
+                    label = stringResource(Res.string.trip_compare_view),
                     options = listOf(
-                        VIEW_STACKED to stringResource(R.string.trip_compare_stacked),
-                        VIEW_OVERLAY to stringResource(R.string.trip_compare_overlay),
+                        VIEW_STACKED to stringResource(Res.string.trip_compare_stacked),
+                        VIEW_OVERLAY to stringResource(Res.string.trip_compare_overlay),
                     ),
                     current = if (stacked) VIEW_STACKED else VIEW_OVERLAY,
                     onChange = { stacked = it == VIEW_STACKED },
@@ -406,7 +405,7 @@ internal fun TripCompareAlignDialog(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        stringResource(R.string.trip_compare_deltas),
+                        stringResource(Res.string.trip_compare_deltas),
                         color = MaterialTheme.appColors.textPrimary,
                         modifier = Modifier.weight(1f),
                     )
@@ -420,18 +419,18 @@ internal fun TripCompareAlignDialog(
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 if (onStop != null) {
                     TextButton(onClick = onStop, shape = RoundedCornerShape(12.dp)) {
-                        Text(stringResource(R.string.trip_compare_stop))
+                        Text(stringResource(Res.string.trip_compare_stop))
                     }
                 } else Spacer(Modifier.width(1.dp))
                 Row {
                     TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
-                        Text(stringResource(R.string.action_cancel))
+                        Text(stringResource(Res.string.action_cancel))
                     }
                     TextButton(
                         onClick = { onApply(offsetMs, stacked, deltas) },
                         enabled = b != null && shared.isNotEmpty() && overlap != null,
                         shape = RoundedCornerShape(12.dp),
-                    ) { Text(stringResource(R.string.action_apply)) }
+                    ) { Text(stringResource(Res.string.action_apply)) }
                 }
             }
         },
@@ -539,7 +538,7 @@ internal fun TripCompareStrip(
     subtitle: String,
     onEdit: () -> Unit,
 ) {
-    val editLabel = stringResource(R.string.trip_compare_edit)
+    val editLabel = stringResource(Res.string.trip_compare_edit)
     androidx.compose.material3.Card(
         onClick = onEdit,
         colors = androidx.compose.material3.CardDefaults.cardColors(

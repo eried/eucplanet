@@ -18,13 +18,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.res.stringResource
+import com.eried.eucplanet.platform.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
-import com.eried.eucplanet.R
+import com.eried.eucplanet.resources.*
 import com.eried.eucplanet.ui.studio.formatReplayClock
 import com.eried.eucplanet.ui.studio.parseReplayClock
 
@@ -59,7 +59,7 @@ fun TrimTimeDialog(
     /** Dialog heading. Defaults to Overlay Studio's wording, where the range
      *  really does trim the trip being replayed. Callers that only narrow what
      *  is on screen should pass their own. */
-    title: String = stringResource(R.string.studio_replay_trim_title),
+    title: String = stringResource(Res.string.studio_replay_trim_title),
     /** Minimum samples the selection must contain for Apply to enable. 0 disables the check. */
     minPoints: Int = 0,
     /** How many samples fall in a candidate range. Only called when [minPoints] > 0. */
@@ -97,19 +97,19 @@ fun TrimTimeDialog(
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 TrimTimeField(
-                    label = stringResource(R.string.studio_replay_trim_start),
+                    label = stringResource(Res.string.studio_replay_trim_start),
                     state = start,
                     isError = !startOk,
                     afterChange = syncDuration
                 )
                 TrimTimeField(
-                    label = stringResource(R.string.studio_replay_trim_end),
+                    label = stringResource(Res.string.studio_replay_trim_end),
                     state = end,
                     isError = !endOk,
                     afterChange = syncDuration
                 )
                 TrimTimeField(
-                    label = stringResource(R.string.studio_replay_trim_duration),
+                    label = stringResource(Res.string.studio_replay_trim_duration),
                     state = dur,
                     supporting = "MM:SS  ·  max ${fmt(durationMs)}",
                     afterChange = {
@@ -135,15 +135,15 @@ fun TrimTimeDialog(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 TextButton(onClick = { onConfirm(0L, durationMs) }, shape = RoundedCornerShape(12.dp)) {
-                    Text(stringResource(R.string.studio_replay_trim_reset))
+                    Text(stringResource(Res.string.studio_replay_trim_reset))
                 }
                 Spacer(Modifier.weight(1f))
-                TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) }
+                TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) { Text(stringResource(Res.string.action_cancel)) }
                 TextButton(
                     onClick = { if (valid) onConfirm(startParsed!!, endParsed!!) },
                     enabled = valid,
                     shape = RoundedCornerShape(12.dp)
-                ) { Text(stringResource(R.string.action_apply)) }
+                ) { Text(stringResource(Res.string.action_apply)) }
             }
         }
     )

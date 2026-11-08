@@ -103,7 +103,7 @@ class BatteryEnvelopeTest {
     }
 
     @Test fun `the chart ships off, opt-in like the other extras`() {
-        val td = File("src/main/java/com/eried/eucplanet/ui/recording/TripDetailScreen.kt").readText()
+        val td = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/ui/recording/TripDetailScreen.kt").readText()
         val extras = td.substringAfter("EXTRA_CHART_KEYS = setOf(").substringBefore(")")
         assertTrue(extras.contains("\"batteryEnvelope\""))
         assertTrue(td.contains("\"batteryEnvelope\" in extraCharts"))

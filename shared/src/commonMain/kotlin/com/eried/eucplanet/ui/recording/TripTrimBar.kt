@@ -30,9 +30,9 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.stringResource
+import com.eried.eucplanet.platform.stringResource
 import androidx.compose.ui.unit.dp
-import com.eried.eucplanet.R
+import com.eried.eucplanet.resources.*
 import com.eried.eucplanet.ui.studio.formatReplayClock
 import com.eried.eucplanet.ui.studio.handlePentagon
 import com.eried.eucplanet.ui.theme.appColors
@@ -241,7 +241,7 @@ fun TripTrimBar(
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             TextButton(onClick = onReset, shape = RoundedCornerShape(12.dp)) {
-                Text(stringResource(R.string.studio_replay_trim_reset))
+                Text(stringResource(Res.string.studio_replay_trim_reset))
             }
             // The span is the button that opens the exact-times editor, styled
             // exactly as Overlay Studio styles its own: parenthesised and in the
@@ -251,7 +251,7 @@ fun TripTrimBar(
             Text(
                 if (trimmed)
                     "( ${formatReplayClock(startMs)}  -  ${formatReplayClock(endMs)} )"
-                else stringResource(R.string.studio_replay_trim),
+                else stringResource(Res.string.studio_replay_trim),
                 modifier = Modifier
                     .clip(RoundedCornerShape(6.dp))
                     .clickable(onClick = onEditExact)

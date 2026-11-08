@@ -232,7 +232,8 @@ fun NavGraph(navController: NavHostController) {
                     onReplayTrip = { id ->
                         navController.navigateSingle(Screen.OverlayStudio.createRoute(id))
                     },
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    host = com.eried.eucplanet.ui.recording.rememberAndroidTripDetailHost(),
                 )
             }
             if (notFound) {
