@@ -1,16 +1,14 @@
 package com.eried.eucplanet.data.store
 
-import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import com.eried.eucplanet.data.model.TripMeterSplit
 import com.eried.eucplanet.data.model.TripMeterState
 import kotlinx.coroutines.flow.first
-import org.json.JSONArray
-import org.json.JSONObject
+import com.eried.eucplanet.platform.JSONArray
+import com.eried.eucplanet.platform.JSONObject
 
 /**
  * Persists the single [TripMeterState] as one JSON blob in its own DataStore
@@ -18,13 +16,14 @@ import org.json.JSONObject
  * one meter, so a JSON blob is plenty (no Room, no per-split rows). Cleared only
  * when the repository writes an empty state (manual Reset or Stop All).
  *
- * Lives in app-private storage (`<app>/files/datastore/eucplanet_trip_meter.preferences_pb`)
- * and survives app updates. A missing / unreadable blob restores a fresh meter.
+ * Lives in app-private storage and survives app updates: on Android
+ * `<app>/files/datastore/eucplanet_trip_meter.preferences_pb` (TripMeterStoreAndroid.kt),
+ * on iOS the same file name in the app's Documents folder. A missing /
+ * unreadable blob restores a fresh meter.
  */
 class TripMeterStore(
-    private val context: Context,
+    private val dataStore: DataStore<Preferences>,
 ) {
-    private val dataStore: DataStore<Preferences> get() = context.tripMeterDataStore
 
     suspend fun load(): TripMeterState {
         val json = dataStore.data.first()[KEY_JSON] ?: return TripMeterState()
@@ -84,6 +83,3 @@ class TripMeterStore(
         }
     }
 }
-
-private val Context.tripMeterDataStore: DataStore<Preferences>
-        by preferencesDataStore(name = "eucplanet_trip_meter")

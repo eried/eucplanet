@@ -1,15 +1,16 @@
 package com.eried.eucplanet.data.repository
 
-import android.location.Location
-import android.util.Log
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.TripMeterAccumulator
 import com.eried.eucplanet.data.model.TripMeterState
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.store.TripMeterStore
+import com.eried.eucplanet.platform.Log
+import com.eried.eucplanet.platform.System
 import com.eried.eucplanet.util.Units
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,6 +19,17 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlin.math.abs
+
+/**
+ * Where the trip meter reads the phone's position: TripRepository's current
+ * fix on Android, CoreLocation's on iOS.
+ */
+interface TripMeterFixes {
+    /** The phone's fix right now, or null. Read once per tick. */
+    fun currentFix(): PhoneLocation?
+    /** Metres from [from] to [to], as the platform measures them. */
+    fun distanceMeters(from: PhoneLocation, to: PhoneLocation): Float
+}
 
 /**
  * Car-odometer-style running trip meter, independent of the recording feature.
@@ -31,12 +43,13 @@ import kotlin.math.abs
  * At each 10 km / 10 mi boundary (following the rider's distance unit) it appends
  * a split via the pure [TripMeterAccumulator]. State is a single JSON blob in
  * [TripMeterStore]. WheelRepository injects TripRepository through a Lazy to
- * break a DI cycle; we do the same for both so this repository can never form one.
+ * break a DI cycle; we do the same for both so this repository can never form one
+ * (Android's [TripMeterFixes] holds TripRepository through a Lazy too).
  */
 class TripMeterRepository(
     private val store: TripMeterStore,
     private val wheelRepositoryLazy: Lazy<WheelRepository>,
-    private val tripRepositoryLazy: Lazy<TripRepository>,
+    private val fixes: TripMeterFixes,
     private val settingsRepository: SettingsRepository,
 ) {
     companion object {
@@ -70,7 +83,7 @@ class TripMeterRepository(
     val distanceKm: Float get() = _state.value.distanceKm
 
     // Per-connection tick state, reset on each (re)connect.
-    private var lastGpsPoint: Location? = null
+    private var lastGpsPoint: PhoneLocation? = null
     private var lastWheelOdoKm: Float = 0f
     private var lastTickMs: Long = 0L
     private var lastPersistMs: Long = 0L
@@ -102,7 +115,6 @@ class TripMeterRepository(
     }
 
     private fun wheelRepository(): WheelRepository = wheelRepositoryLazy.value
-    private fun tripRepository(): TripRepository = tripRepositoryLazy.value
 
     /** The split step in km: 10 in the rider's distance unit, stored as km. */
     private fun intervalKmFor(s: com.eried.eucplanet.data.model.AppSettings): Float =
@@ -119,7 +131,7 @@ class TripMeterRepository(
         Log.i(TAG, "Trip meter accumulating (connected)")
         while (true) {
             val wheel = wheelRepository().wheelData.value
-            val loc = tripRepository().currentLocation.value
+            val loc = fixes.currentFix()
             val now = System.currentTimeMillis()
 
             val dKm = perTickDistanceKm(loc, wheel)
@@ -151,11 +163,11 @@ class TripMeterRepository(
      * back to the wheel's lifetime odometer delta (small forward steps only).
      * Mirrors the recorder's source order without depending on its state.
      */
-    private fun perTickDistanceKm(loc: Location?, wheel: WheelData): Float {
+    private fun perTickDistanceKm(loc: PhoneLocation?, wheel: WheelData): Float {
         if (loc != null) {
             val prev = lastGpsPoint
             val gpsKm = if (prev != null && loc.accuracy <= GPS_MAX_ACCURACY_M) {
-                val stepM = prev.distanceTo(loc)
+                val stepM = fixes.distanceMeters(prev, loc)
                 if (stepM in GPS_MIN_STEP_M..GPS_MAX_STEP_M) stepM / 1000f else 0f
             } else 0f
             lastGpsPoint = loc

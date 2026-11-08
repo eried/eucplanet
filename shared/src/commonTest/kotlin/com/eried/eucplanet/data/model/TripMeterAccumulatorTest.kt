@@ -1,11 +1,11 @@
 package com.eried.eucplanet.data.model
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 /**
- * Pure-JVM guard for the trip-meter split accumulator: crossing 10 km boundaries
+ * Guard (JVM and iOS) for the trip-meter split accumulator: crossing 10 km boundaries
  * must append correctly-indexed splits with the right segment time / avg / max /
  * battery, the in-progress tail must stay out of the split log, and reset must
  * wipe everything.
@@ -34,7 +34,7 @@ class TripMeterAccumulatorTest {
     }
 
     @Test
-    fun `crossing 10km boundaries produces indexed splits with correct segment stats`() {
+    fun crossingTenKmBoundariesProducesIndexedSplitsWithSegmentStats() {
         val acc = TripMeterAccumulator(intervalKm = 10f)
 
         // Segment 1: 10 x 1 km at 36 s each -> 360 s active -> 100 km/h avg. Max 55.
@@ -79,11 +79,11 @@ class TripMeterAccumulatorTest {
 
         assertEquals(20f, state.distanceKm, 0.001f)
         assertEquals(1_080_000L, state.activeMs)
-        assertTrue("startedAtMs stamped on first motion", state.startedAtMs > 0L)
+        assertTrue(state.startedAtMs > 0L, "startedAtMs stamped on first motion")
     }
 
     @Test
-    fun `in-progress partial segment does not create a split`() {
+    fun inProgressPartialSegmentDoesNotCreateASplit() {
         val acc = TripMeterAccumulator(intervalKm = 10f)
         feedSegment(
             acc,
@@ -103,7 +103,7 @@ class TripMeterAccumulatorTest {
     }
 
     @Test
-    fun `reset clears totals and split log`() {
+    fun resetClearsTotalsAndSplitLog() {
         val acc = TripMeterAccumulator(intervalKm = 10f)
         feedSegment(
             acc,
@@ -125,7 +125,7 @@ class TripMeterAccumulatorTest {
     }
 
     @Test
-    fun `imperial interval marks at 10 mi worth of km`() {
+    fun imperialIntervalMarksAtTenMilesWorthOfKm() {
         // 10 mi = ~16.09344 km; a mi rider's first boundary lands there.
         val acc = TripMeterAccumulator(intervalKm = 16.09344f)
         repeat(17) { acc.onTick(1.0f, 60_000L, 60f, 70, 0L) }

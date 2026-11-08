@@ -201,7 +201,7 @@ object IosAppGraph {
         wheelRepository = wheel,
         settingsRepository = settings,
         tripRepository = IosTrips,
-        tripMeterRepository = NoTripMeter,
+        tripMeterRepository = IosTripMeter.feed,
         voiceService = voice,
         automationManager = NoAutomation,
         flicManager = actions,
@@ -210,14 +210,14 @@ object IosAppGraph {
         experimentalBannerState = IosBannerFlag,
         cheatState = cheats,
         appHealthRepository = MemoryAppHealth(),
-        metricsReset = IosMetricsResetter(wheel),
+        metricsReset = IosMetricsResetter(wheel, IosTripMeter.meter),
         weatherRepository = weather,
         dropboxRepository = dropbox,
         appNotifier = LogNotices,
         navigationEngine = NoRoute,
         voiceCommands = NoVoiceCommands,
         phone = IosPhoneDevice,
-        platform = IosDashboardPlatform(wheel),
+        platform = IosDashboardPlatform(wheel, IosTripMeter.meter),
     )
 
     /** The alarm editor's view model, as Koin builds it on Android. */

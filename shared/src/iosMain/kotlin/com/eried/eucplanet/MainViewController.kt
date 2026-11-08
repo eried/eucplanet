@@ -21,6 +21,7 @@ import com.eried.eucplanet.ui.settings.FlicViewModel
 import com.eried.eucplanet.app.IosFlic
 import com.eried.eucplanet.app.IosLocation
 import com.eried.eucplanet.app.IosTrips
+import com.eried.eucplanet.app.IosTripMeter
 import com.eried.eucplanet.app.IosDropboxSync
 import com.eried.eucplanet.app.IosEucStats
 import com.eried.eucplanet.app.IosCrews
@@ -55,6 +56,8 @@ fun MainViewController(): UIViewController {
     // WheelService starts them on Android.
     IosLocation.start()
     IosTrips.followWheel()
+    // The trip meter counts while a wheel is connected, dashboard open or not.
+    IosTripMeter.meter
     // Leaderboard uploads at launch and on every return to the front.
     IosEucStats.start()
     // Dropbox trips at launch, on every return to the front and while open.

@@ -1,11 +1,11 @@
 package com.eried.eucplanet.app
 
 import com.eried.eucplanet.data.model.AppSettings
-import com.eried.eucplanet.data.model.TripMeterState
 import com.eried.eucplanet.data.model.Waypoint
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.repository.AppWarning
 import com.eried.eucplanet.data.repository.PhoneLocation
+import com.eried.eucplanet.data.repository.TripMeterRepository
 import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.data.sync.BackupEntry
 import com.eried.eucplanet.data.sync.RestorableRider
@@ -23,7 +23,6 @@ import com.eried.eucplanet.ui.dashboard.DashboardVoiceCommands
 import com.eried.eucplanet.ui.dashboard.ExperimentalBannerFlag
 import com.eried.eucplanet.ui.dashboard.MetricsResetResult
 import com.eried.eucplanet.ui.dashboard.MetricsResetter
-import com.eried.eucplanet.ui.dashboard.TripMeterFeed
 import com.eried.eucplanet.voice.VoiceCommandUiState
 import com.eried.eucplanet.weather.WeatherForecast
 import kotlinx.coroutines.Dispatchers
@@ -36,16 +35,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import platform.Foundation.NSUserDefaults
 
 // The iOS side of DashboardPorts. Like IosWheelPorts, a feature that is not
 // on iOS yet answers as the Android app does with it switched off, and is
 // replaced when it lands; docs/IOS_PARITY.md tracks which.
-
-internal object NoTripMeter : TripMeterFeed {
-    override val state: StateFlow<TripMeterState> = MutableStateFlow(TripMeterState()).asStateFlow()
-}
 
 internal object NoVoiceCommands : DashboardVoiceCommands {
     override val state: StateFlow<VoiceCommandUiState> =
@@ -114,9 +110,13 @@ internal class MemoryAppHealth : AppHealth {
     override fun refreshBackupWarning(hasFolder: Boolean, hasTrips: Boolean) = Unit
 }
 
-/** Android's MetricsReset without the trip meter, which is not on iOS yet. */
-internal class IosMetricsResetter(private val wheel: WheelRepository) : MetricsResetter {
+/** Android's MetricsReset: the trip meter, the metric history and the ride energy. */
+internal class IosMetricsResetter(
+    private val wheel: WheelRepository,
+    private val tripMeter: TripMeterRepository,
+) : MetricsResetter {
     override suspend fun resetAll(): MetricsResetResult {
+        tripMeter.resetAndPersist()
         wheel.resetAllHistory()
         wheel.resetRideEnergy()
         // BLE write, off the main thread like every other command path.
@@ -138,7 +138,10 @@ internal object IosBannerFlag : ExperimentalBannerFlag {
         set(value) = defaults.setBool(value, forKey = "explainer_seen")
 }
 
-internal class IosDashboardPlatform(private val wheel: WheelRepository) : DashboardPlatform {
+internal class IosDashboardPlatform(
+    private val wheel: WheelRepository,
+    private val tripMeter: TripMeterRepository,
+) : DashboardPlatform {
     // Location and reverse geocoding arrive with CoreLocation.
     override fun placeName(lat: Double, lon: Double): String? = null
     override fun hasFineLocationPermission() = false
@@ -151,6 +154,12 @@ internal class IosDashboardPlatform(private val wheel: WheelRepository) : Dashbo
     override fun connect(address: String, name: String?) = wheel.connect(address, name, isAuto = true)
     override fun disconnect() = wheel.disconnect()
     override fun closeWatchesBlocking() = Unit
-    /** iOS apps do not quit themselves; stopping everything is dropping the wheel. */
-    override fun stopAllAndExit() = wheel.disconnect()
+    /**
+     * iOS apps do not quit themselves; stopping everything is dropping the
+     * wheel and, as Stop All on Android, clearing the trip meter.
+     */
+    override fun stopAllAndExit() {
+        runBlocking { tripMeter.resetAndPersist() }
+        wheel.disconnect()
+    }
 }

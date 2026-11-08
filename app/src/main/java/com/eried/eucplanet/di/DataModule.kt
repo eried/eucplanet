@@ -18,6 +18,8 @@ import com.eried.eucplanet.data.repository.RideRecording
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.SharedPrefsDropboxLinkScratch
 import com.eried.eucplanet.data.repository.TripMeterRepository
+import com.eried.eucplanet.data.repository.AndroidTripMeterFixes
+import com.eried.eucplanet.data.repository.TripMeterFixes
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelProfiles
 import com.eried.eucplanet.data.repository.WheelRepository
@@ -25,6 +27,7 @@ import com.eried.eucplanet.data.store.NavMarkerStore
 import com.eried.eucplanet.data.store.OverlayPresetStore
 import com.eried.eucplanet.data.store.ThemeStore
 import com.eried.eucplanet.data.store.TripMeterStore
+import com.eried.eucplanet.data.store.tripMeterDataStore
 import com.eried.eucplanet.data.sync.SyncManager
 import com.eried.eucplanet.weather.WeatherRepository
 import org.koin.android.ext.koin.androidContext
@@ -65,11 +68,12 @@ val dataModule = module {
         TripMeterRepository(
             store = get(),
             wheelRepositoryLazy = inject(),
-            tripRepositoryLazy = inject(),
+            fixes = get(),
             settingsRepository = get(),
         )
     }
-    singleOf(::TripMeterStore)
+    single<TripMeterFixes> { AndroidTripMeterFixes(inject()) }
+    single { TripMeterStore(androidContext().tripMeterDataStore) }
     singleOf(::NavMarkerStore)
     singleOf(::OverlayPresetStore)
     singleOf(::ThemeStore) { bind<com.eried.eucplanet.ui.theme.ThemeFiles>() }
