@@ -2421,6 +2421,13 @@
     <string name="warnings_hud_blocked_body">Quyền hiển thị trên ứng dụng khác đã bị thu hồi, nên lớp phủ sẽ không hiện trên bản đồ hay trình phát nhạc.</string>
     <string name="warnings_no_backup_title">Chuyến đi chưa được sao lưu</string>
     <string name="warnings_no_backup_body">Chúng chỉ có trên điện thoại này. Hãy chọn thư mục sao lưu để không mất chuyến đi khi mất hoặc xóa sạch điện thoại.</string>
+    <string name="warnings_location_always_title">Vị trí chưa đặt Luôn luôn</string>
+    <string name="warnings_location_always_body">Tự động ghi không thể lưu lộ trình khi ứng dụng chạy nền. Hãy cho phép vị trí Luôn luôn.</string>
+    <string name="warnings_bluetooth_denied_title">Bluetooth không được phép</string>
+    <string name="warnings_bluetooth_denied_body">EUC Planet không kết nối được với xe cho đến khi được phép dùng Bluetooth. Chạm để cho phép.</string>
+    <string name="warnings_bluetooth_off_body">EUC Planet không kết nối được với xe cho đến khi bật Bluetooth.</string>
+    <string name="warnings_perm_notifications_alerts_body">Cảnh báo sạc sẽ không đến được với bạn cho đến khi EUC Planet được phép gửi thông báo. Chạm để cho phép.</string>
+    <string name="warnings_no_backup_dropbox_body">Chúng chỉ có trên điện thoại này. Liên kết Dropbox để điện thoại bị mất hoặc bị xóa không mang theo các chuyến đi của bạn.</string>
     <string name="warnings_pip_blocked_title">Hình trong hình bị chặn</string>
     <string name="warnings_pip_blocked_body">Android đang từ chối tính năng này cho EUC Planet, nên cửa sổ nổi sẽ không hiện khi bạn rời ứng dụng.</string>
     <string name="online_rejoin_confirm">Tham gia lại</string>

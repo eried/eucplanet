@@ -33,7 +33,10 @@ import platform.CoreBluetooth.CBCharacteristicPropertyWrite
 import platform.CoreBluetooth.CBCharacteristicPropertyWriteWithoutResponse
 import platform.CoreBluetooth.CBCharacteristicWriteWithResponse
 import platform.CoreBluetooth.CBCharacteristicWriteWithoutResponse
+import platform.CoreBluetooth.CBManagerStatePoweredOff
 import platform.CoreBluetooth.CBManagerStatePoweredOn
+import platform.CoreBluetooth.CBManagerStateUnauthorized
+import platform.CoreBluetooth.CBManagerStateUnsupported
 import platform.CoreBluetooth.CBPeripheral
 import platform.CoreBluetooth.CBPeripheralDelegateProtocol
 import platform.CoreBluetooth.CBService
@@ -86,6 +89,9 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
     val scanResults: StateFlow<List<ScannedWheel>> = _scanResults.asStateFlow()
     private val _bluetoothOn = MutableStateFlow(false)
     val bluetoothOn: StateFlow<Boolean> = _bluetoothOn.asStateFlow()
+    private val _radio = MutableStateFlow(BluetoothRadio.UNKNOWN)
+    /** The radio as CoreBluetooth reports it, for the "needs attention" list. */
+    val radio: StateFlow<BluetoothRadio> = _radio.asStateFlow()
 
     private val writeQueue = BleWriteQueue()
     private val writeSignal = Channel<Unit>(Channel.CONFLATED)
@@ -262,6 +268,13 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
     private inner class CentralDelegate : NSObject(), CBCentralManagerDelegateProtocol {
         override fun centralManagerDidUpdateState(central: CBCentralManager) {
             _bluetoothOn.value = central.state == CBManagerStatePoweredOn
+            _radio.value = when (central.state) {
+                CBManagerStatePoweredOn -> BluetoothRadio.ON
+                CBManagerStatePoweredOff -> BluetoothRadio.OFF
+                CBManagerStateUnauthorized -> BluetoothRadio.NOT_ALLOWED
+                CBManagerStateUnsupported -> BluetoothRadio.UNSUPPORTED
+                else -> BluetoothRadio.UNKNOWN
+            }
             if (_bluetoothOn.value && wantScan) central.scanForPeripheralsWithServices(null, null)
         }
 
@@ -423,3 +436,6 @@ private fun ByteArray.toNSData(): NSData {
     if (isEmpty()) return NSData()
     return usePinned { NSData.create(bytes = it.addressOf(0), length = size.toULong()) }
 }
+
+/** What CoreBluetooth says of the radio. UNKNOWN until it has said (and while it resets). */
+enum class BluetoothRadio { UNKNOWN, ON, OFF, NOT_ALLOWED, UNSUPPORTED }

@@ -2019,6 +2019,13 @@
     <string name="warnings_hud_blocked_body">「在其他應用程式上層顯示」權限已遭撤銷，因此疊加層不會顯示在地圖或音樂上方。</string>
     <string name="warnings_no_backup_title">行程未備份</string>
     <string name="warnings_no_backup_body">行程只存在這支手機上。請選擇備份資料夾，以免手機遺失或被清除時連帶失去行程。</string>
+    <string name="warnings_location_always_title">位置權限未設為「永遠」</string>
+    <string name="warnings_location_always_body">應用程式在背景時，自動記錄無法記錄路線。請將位置權限設為「永遠」。</string>
+    <string name="warnings_bluetooth_denied_title">未允許使用藍牙</string>
+    <string name="warnings_bluetooth_denied_body">在取得藍牙權限之前，EUC Planet 無法連線到你的獨輪車。點一下以允許。</string>
+    <string name="warnings_bluetooth_off_body">藍牙開啟之前，EUC Planet 無法連線到你的獨輪車。</string>
+    <string name="warnings_perm_notifications_alerts_body">在 EUC Planet 獲准傳送通知之前，充電提醒無法送達。點一下以允許。</string>
+    <string name="warnings_no_backup_dropbox_body">它們只存在於這支手機上。連結 Dropbox，手機遺失或被清除時行程才不會一起消失。</string>
     <string name="warnings_pip_blocked_title">子母畫面已被封鎖</string>
     <string name="warnings_pip_blocked_body">Android 設定為拒絕 EUC Planet 使用子母畫面，因此離開應用程式時不會出現浮動視窗。</string>
     <string name="online_rejoin_confirm">重新加入</string>

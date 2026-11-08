@@ -2421,6 +2421,13 @@
     <string name="warnings_hud_blocked_body">สิทธิ์แสดงทับแอปอื่นถูกเพิกถอน โอเวอร์เลย์จึงจะไม่แสดงทับแผนที่หรือเพลง</string>
     <string name="warnings_no_backup_title">ทริปยังไม่ได้สำรอง</string>
     <string name="warnings_no_backup_body">ทริปมีอยู่แค่ในโทรศัพท์นี้ เลือกโฟลเดอร์สำรองข้อมูลเพื่อไม่ให้การขี่ของคุณหายไปพร้อมโทรศัพท์ที่หายหรือถูกล้างข้อมูล</string>
+    <string name="warnings_location_always_title">ตำแหน่งไม่ได้ตั้งเป็นตลอดเวลา</string>
+    <string name="warnings_location_always_body">การบันทึกอัตโนมัติบันทึกเส้นทางไม่ได้ขณะแอปทำงานเบื้องหลัง อนุญาตตำแหน่งแบบตลอดเวลา</string>
+    <string name="warnings_bluetooth_denied_title">ไม่ได้อนุญาตบลูทูธ</string>
+    <string name="warnings_bluetooth_denied_body">EUC Planet เชื่อมต่อล้อของคุณไม่ได้จนกว่าจะได้รับอนุญาตให้ใช้บลูทูธ แตะเพื่ออนุญาต</string>
+    <string name="warnings_bluetooth_off_body">EUC Planet เชื่อมต่อล้อของคุณไม่ได้จนกว่าจะเปิดบลูทูธ</string>
+    <string name="warnings_perm_notifications_alerts_body">การแจ้งเตือนการชาร์จจะไม่ถึงคุณจนกว่า EUC Planet จะได้รับอนุญาตให้ส่งการแจ้งเตือน แตะเพื่ออนุญาต</string>
+    <string name="warnings_no_backup_dropbox_body">ข้อมูลอยู่บนโทรศัพท์เครื่องนี้เท่านั้น เชื่อมต่อ Dropbox เพื่อไม่ให้ทริปหายไปพร้อมโทรศัพท์ที่หายหรือถูกล้าง</string>
     <string name="warnings_pip_blocked_title">ภาพซ้อนภาพถูกบล็อก</string>
     <string name="warnings_pip_blocked_body">Android ตั้งค่าไม่ให้ EUC Planet ใช้ฟีเจอร์นี้ หน้าต่างลอยจึงจะไม่แสดงเมื่อคุณออกจากแอป</string>
     <string name="online_rejoin_confirm">เข้าร่วมอีกครั้ง</string>

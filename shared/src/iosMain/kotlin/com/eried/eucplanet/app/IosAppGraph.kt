@@ -210,7 +210,7 @@ object IosAppGraph {
         externalGpsRepository = NoExternalGps,
         experimentalBannerState = IosBannerFlag,
         cheatState = cheats,
-        appHealthRepository = MemoryAppHealth(),
+        appHealthRepository = IosAppHealth,
         metricsReset = IosMetricsResetter(wheel, IosTripMeter.meter),
         weatherRepository = weather,
         dropboxRepository = dropbox,

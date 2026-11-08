@@ -2383,6 +2383,13 @@
     <string name="warnings_hud_blocked_body">A más alkalmazások fölé rajzolás engedélyét visszavonták, így az átfedés nem jelenik meg a térkép vagy a zene fölött.</string>
     <string name="warnings_no_backup_title">A menetekről nincs biztonsági mentés</string>
     <string name="warnings_no_backup_body">Csak ezen a telefonon léteznek. Válassz mentési mappát, hogy egy elveszett vagy törölt telefon ne vigye magával a meneteidet.</string>
+    <string name="warnings_location_always_title">A helyzet nem Mindig</string>
+    <string name="warnings_location_always_body">Az automatikus rögzítés nem tudja rögzíteni az útvonalat, amíg az alkalmazás a háttérben fut. Engedélyezd a helyzetet Mindig.</string>
+    <string name="warnings_bluetooth_denied_title">A Bluetooth nincs engedélyezve</string>
+    <string name="warnings_bluetooth_denied_body">Az EUC Planet nem éri el az egykerekűt, amíg nem használhatja a Bluetootht. Koppints az engedélyezéshez.</string>
+    <string name="warnings_bluetooth_off_body">Az EUC Planet nem éri el az egykerekűt, amíg a Bluetooth ki van kapcsolva.</string>
+    <string name="warnings_perm_notifications_alerts_body">A töltési értesítések nem érnek el, amíg az EUC Planet nem küldhet értesítéseket. Koppints az engedélyezéshez.</string>
+    <string name="warnings_no_backup_dropbox_body">Csak ezen a telefonon vannak meg. Kapcsold össze a Dropboxot, hogy egy elveszett vagy törölt telefon ne vigye magával az útjaidat.</string>
     <string name="warnings_pip_blocked_title">A kép a képben le van tiltva</string>
     <string name="warnings_pip_blocked_body">Az Android úgy van beállítva, hogy megtagadja az EUC Planettől, így a lebegő ablak nem jelenik meg, amikor elhagyod az alkalmazást.</string>
     <string name="online_rejoin_confirm">Újracsatlakozás</string>

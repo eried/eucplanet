@@ -1374,6 +1374,13 @@
     <string name="warnings_hud_blocked_body">Дозвіл малювати поверх інших застосунків відкликано, тому накладання не з\'явиться поверх карт чи музики.</string>
     <string name="warnings_no_backup_title">Резервних копій поїздок немає</string>
     <string name="warnings_no_backup_body">Вони існують лише на цьому телефоні. Виберіть папку для резервних копій, щоб загублений або очищений телефон не забрав ваші поїздки з собою.</string>
+    <string name="warnings_location_always_title">Геопозиція не «Завжди»</string>
+    <string name="warnings_location_always_body">Автозапис не може записати маршрут, поки застосунок у фоні. Дозвольте геопозицію «Завжди».</string>
+    <string name="warnings_bluetooth_denied_title">Bluetooth не дозволено</string>
+    <string name="warnings_bluetooth_denied_body">EUC Planet не з\'єднається з колесом, доки йому не дозволено Bluetooth. Торкніться, щоб дозволити.</string>
+    <string name="warnings_bluetooth_off_body">EUC Planet не з\'єднається з колесом, доки Bluetooth вимкнено.</string>
+    <string name="warnings_perm_notifications_alerts_body">Сповіщення про заряджання не дійдуть, доки EUC Planet не дозволено надсилати сповіщення. Торкніться, щоб дозволити.</string>
+    <string name="warnings_no_backup_dropbox_body">Вони є лише на цьому телефоні. Підключіть Dropbox, щоб загублений або стертий телефон не забрав ваші поїздки.</string>
     <string name="warnings_pip_blocked_title">Картинку в картинці заблоковано</string>
     <string name="warnings_pip_blocked_body">Android блокує цю функцію для EUC Planet, тому плаваюче вікно не з\'явиться, коли ви вийдете із застосунку.</string>
     <string name="online_rejoin_confirm">Приєднатись знову</string>

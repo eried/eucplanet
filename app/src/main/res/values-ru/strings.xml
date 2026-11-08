@@ -2023,6 +2023,13 @@
     <string name="warnings_hud_blocked_body">Разрешение рисовать поверх других приложений отозвано, поэтому наложение не появится поверх карт или музыки.</string>
     <string name="warnings_no_backup_title">Нет резервной копии поездок</string>
     <string name="warnings_no_backup_body">Они хранятся только на этом телефоне. Выберите папку резервных копий, чтобы не потерять поездки вместе с утерянным или сброшенным телефоном.</string>
+    <string name="warnings_location_always_title">Геопозиция не «Всегда»</string>
+    <string name="warnings_location_always_body">Автозапись не может записать маршрут, пока приложение в фоне. Разрешите геопозицию «Всегда».</string>
+    <string name="warnings_bluetooth_denied_title">Bluetooth не разрешён</string>
+    <string name="warnings_bluetooth_denied_body">EUC Planet не подключится к моноколесу, пока ему не разрешён Bluetooth. Нажмите, чтобы разрешить.</string>
+    <string name="warnings_bluetooth_off_body">EUC Planet не подключится к моноколесу, пока Bluetooth выключен.</string>
+    <string name="warnings_perm_notifications_alerts_body">Оповещения о зарядке не дойдут, пока EUC Planet не разрешено отправлять уведомления. Нажмите, чтобы разрешить.</string>
+    <string name="warnings_no_backup_dropbox_body">Они есть только на этом телефоне. Подключите Dropbox, чтобы потерянный или сброшенный телефон не унёс ваши поездки.</string>
     <string name="warnings_pip_blocked_title">Картинка в картинке заблокирована</string>
     <string name="warnings_pip_blocked_body">Android запрещает её для EUC Planet, поэтому плавающее окно не появится, когда вы выйдете из приложения.</string>
     <string name="online_rejoin_confirm">Вернуться</string>

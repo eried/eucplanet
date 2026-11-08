@@ -2643,6 +2643,13 @@
     <string name="warnings_hud_blocked_body">Permission to draw over other apps was withdrawn, so the overlay will not appear on top of maps or music.</string>
     <string name="warnings_no_backup_title">Trips are not backed up</string>
     <string name="warnings_no_backup_body">They exist only on this phone. Choose a backup folder so a lost or wiped phone does not take your rides with it.</string>
+    <string name="warnings_location_always_title">Location not set to Always</string>
+    <string name="warnings_location_always_body">Auto-record cannot log a route while the app is in the background. Allow location Always.</string>
+    <string name="warnings_bluetooth_denied_title">Bluetooth not allowed</string>
+    <string name="warnings_bluetooth_denied_body">EUC Planet cannot reach your wheel until it may use Bluetooth. Tap to allow.</string>
+    <string name="warnings_bluetooth_off_body">EUC Planet cannot reach your wheel until Bluetooth is on.</string>
+    <string name="warnings_perm_notifications_alerts_body">Charge alerts cannot reach you until EUC Planet may send notifications. Tap to allow.</string>
+    <string name="warnings_no_backup_dropbox_body">They exist only on this phone. Link Dropbox so a lost or wiped phone does not take your rides with it.</string>
     <string name="warnings_pip_blocked_title">Picture-in-picture is blocked</string>
     <string name="warnings_pip_blocked_body">Android is set to refuse it for EUC Planet, so the floating window will not appear when you leave the app.</string>
     <string name="online_rejoin_confirm">Rejoin</string>

@@ -15,7 +15,20 @@ final class LocationBridge: NSObject, LocationSdk, CLLocationManagerDelegate {
         manager.desiredAccuracy = kCLLocationAccuracyBest
         manager.distanceFilter = kCLDistanceFilterNone
         manager.pausesLocationUpdatesAutomatically = false
+        report()
+    }
+
+    // The grant, and whether Location Services is on for the phone. Apple asks
+    // for locationServicesEnabled off the main thread; the answer goes back on it.
+    private func report() {
+        let status = manager.authorizationStatus
         IosLocation.shared.onAuthorization(granted: authorized)
+        DispatchQueue.global(qos: .utility).async {
+            let on = CLLocationManager.locationServicesEnabled()
+            DispatchQueue.main.async {
+                IosLocation.shared.onAccess(status: Int32(status.rawValue), servicesEnabled: on)
+            }
+        }
     }
 
     private var authorized: Bool {
@@ -39,6 +52,10 @@ final class LocationBridge: NSObject, LocationSdk, CLLocationManagerDelegate {
         manager.stopUpdatingLocation()
     }
 
+    func requestAlways() {
+        manager.requestAlwaysAuthorization()
+    }
+
     func keepInBackground(on: Bool) {
         manager.allowsBackgroundLocationUpdates = on
         manager.showsBackgroundLocationIndicator = on
@@ -47,7 +64,7 @@ final class LocationBridge: NSObject, LocationSdk, CLLocationManagerDelegate {
     // MARK: CLLocationManagerDelegate
 
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        IosLocation.shared.onAuthorization(granted: authorized)
+        report()
         if started && authorized { manager.startUpdatingLocation() }
     }
 

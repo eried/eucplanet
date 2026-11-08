@@ -2580,6 +2580,13 @@
     <string name="warnings_hud_blocked_body">Разрешението за показване върху други приложения е оттеглено, така че наслагването няма да се появява върху карти или музика.</string>
     <string name="warnings_no_backup_title">Пътуванията не са архивирани</string>
     <string name="warnings_no_backup_body">Те съществуват само на този телефон. Изберете папка за архиви, за да не изгубите каранията си с изгубен или изтрит телефон.</string>
+    <string name="warnings_location_always_title">Местоположението не е „Винаги“</string>
+    <string name="warnings_location_always_body">Автоматичният запис не може да записва маршрут, докато приложението е във фонов режим. Разрешете местоположение „Винаги“.</string>
+    <string name="warnings_bluetooth_denied_title">Bluetooth не е разрешен</string>
+    <string name="warnings_bluetooth_denied_body">EUC Planet не може да се свърже с моноколелото, докато няма разрешение за Bluetooth. Докоснете, за да разрешите.</string>
+    <string name="warnings_bluetooth_off_body">EUC Planet не може да се свърже с моноколелото, докато Bluetooth е изключен.</string>
+    <string name="warnings_perm_notifications_alerts_body">Известията за зареждане няма да стигат до вас, докато EUC Planet няма право да изпраща известия. Докоснете, за да разрешите.</string>
+    <string name="warnings_no_backup_dropbox_body">Те са само на този телефон. Свържете Dropbox, за да не изчезнат пътуванията ви с изгубен или изтрит телефон.</string>
     <string name="warnings_pip_blocked_title">Картина в картината е блокирана</string>
     <string name="warnings_pip_blocked_body">Android е настроен да я отказва за EUC Planet, така че плаващият прозорец няма да се появява, когато излезете от приложението.</string>
     <string name="online_rejoin_confirm">Включи се отново</string>

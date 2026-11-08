@@ -2020,6 +2020,13 @@
     <string name="warnings_hud_blocked_body">다른 앱 위에 그리기 권한이 취소되어 지도나 음악 위에 오버레이가 나타나지 않습니다.</string>
     <string name="warnings_no_backup_title">주행 기록이 백업되지 않았습니다</string>
     <string name="warnings_no_backup_body">이 휴대전화에만 있습니다. 백업 폴더를 선택하면 휴대전화를 잃어버리거나 초기화해도 주행 기록이 사라지지 않습니다.</string>
+    <string name="warnings_location_always_title">위치가 ‘항상’이 아님</string>
+    <string name="warnings_location_always_body">앱이 백그라운드에 있을 때는 자동 기록이 경로를 남길 수 없습니다. 위치를 ‘항상’으로 허용하세요.</string>
+    <string name="warnings_bluetooth_denied_title">블루투스 허용 안 됨</string>
+    <string name="warnings_bluetooth_denied_body">블루투스를 사용할 수 있을 때까지 EUC Planet이 휠에 연결할 수 없습니다. 탭하여 허용하세요.</string>
+    <string name="warnings_bluetooth_off_body">블루투스가 켜질 때까지 EUC Planet이 휠에 연결할 수 없습니다.</string>
+    <string name="warnings_perm_notifications_alerts_body">EUC Planet이 알림을 보낼 수 있을 때까지 충전 알림이 전달되지 않습니다. 탭하여 허용하세요.</string>
+    <string name="warnings_no_backup_dropbox_body">이 휴대폰에만 있습니다. Dropbox를 연결하면 휴대폰을 잃어버리거나 초기화해도 주행 기록이 사라지지 않습니다.</string>
     <string name="warnings_pip_blocked_title">PIP 모드가 차단되었습니다</string>
     <string name="warnings_pip_blocked_body">Android에서 EUC Planet의 PIP 모드를 거부하도록 설정되어 있어, 앱을 나가도 플로팅 창이 나타나지 않습니다.</string>
     <string name="online_rejoin_confirm">다시 참여</string>

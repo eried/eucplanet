@@ -2019,6 +2019,13 @@
     <string name="warnings_hud_blocked_body">Behörigheten att rita över andra appar drogs tillbaka, så överlägget visas inte ovanpå kartor eller musik.</string>
     <string name="warnings_no_backup_title">Turer säkerhetskopieras inte</string>
     <string name="warnings_no_backup_body">De finns bara på den här telefonen. Välj en backupmapp så att en borttappad eller rensad telefon inte tar med sig dina turer.</string>
+    <string name="warnings_location_always_title">Plats är inte inställd på Alltid</string>
+    <string name="warnings_location_always_body">Automatisk inspelning kan inte logga rutten medan appen är i bakgrunden. Tillåt plats Alltid.</string>
+    <string name="warnings_bluetooth_denied_title">Bluetooth inte tillåtet</string>
+    <string name="warnings_bluetooth_denied_body">EUC Planet når inte ditt hjul förrän appen får använda Bluetooth. Tryck för att tillåta.</string>
+    <string name="warnings_bluetooth_off_body">EUC Planet når inte ditt hjul förrän Bluetooth är på.</string>
+    <string name="warnings_perm_notifications_alerts_body">Laddningsaviseringar når dig inte förrän EUC Planet får skicka aviseringar. Tryck för att tillåta.</string>
+    <string name="warnings_no_backup_dropbox_body">De finns bara på den här telefonen. Länka Dropbox så att en borttappad eller rensad telefon inte tar dina turer med sig.</string>
     <string name="warnings_pip_blocked_title">Bild-i-bild är blockerat</string>
     <string name="warnings_pip_blocked_body">Android är inställt på att neka det för EUC Planet, så det flytande fönstret visas inte när du lämnar appen.</string>
     <string name="online_rejoin_confirm">Gå med igen</string>

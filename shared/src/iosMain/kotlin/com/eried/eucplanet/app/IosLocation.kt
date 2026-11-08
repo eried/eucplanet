@@ -18,6 +18,8 @@ interface LocationSdk {
     fun stop()
     /** While a trip records, fixes keep coming with the screen off. */
     fun keepInBackground(on: Boolean)
+    /** Asks for Always, which iOS shows once, as an upgrade from while in use. */
+    fun requestAlways()
 }
 
 /**
@@ -36,6 +38,12 @@ object IosLocation {
     private val _authorized = MutableStateFlow(false)
     /** The rider allowed location, while in use or always. */
     val authorized: StateFlow<Boolean> = _authorized.asStateFlow()
+    private val _access = MutableStateFlow(LocationAccess.NOT_ASKED)
+    /** The app's location grant, finer than [authorized]. */
+    val access: StateFlow<LocationAccess> = _access.asStateFlow()
+    private val _servicesOn = MutableStateFlow(true)
+    /** Location Services on for the whole phone (iPhone Settings -> Privacy). */
+    val servicesOn: StateFlow<Boolean> = _servicesOn.asStateFlow()
 
     fun start() = sdk?.start() ?: Unit
 
@@ -46,11 +54,28 @@ object IosLocation {
 
     fun keepInBackground(on: Boolean) = sdk?.keepInBackground(on) ?: Unit
 
+    fun requestAlways() = sdk?.requestAlways() ?: Unit
+
     // --- Called from Swift ---
 
     /** At start and whenever the rider changes the app's location access. */
     fun onAuthorization(granted: Boolean) {
         _authorized.value = granted
+    }
+
+    /**
+     * The grant as CLAuthorizationStatus numbers it (0 not asked, 1 restricted,
+     * 2 denied, 3 always, 4 while in use), and whether Location Services is on
+     * for the phone. Reported with [onAuthorization], whenever either changes.
+     */
+    fun onAccess(status: Int, servicesEnabled: Boolean) {
+        _access.value = when (status) {
+            0 -> LocationAccess.NOT_ASKED
+            3 -> LocationAccess.ALWAYS
+            4 -> LocationAccess.WHILE_IN_USE
+            else -> LocationAccess.DENIED
+        }
+        _servicesOn.value = servicesEnabled
     }
 
     /**
@@ -79,3 +104,6 @@ object IosLocation {
         _lastKnown.value = fix
     }
 }
+
+/** The app's location grant on the iPhone. Restricted (parental controls) counts as denied. */
+enum class LocationAccess { NOT_ASKED, DENIED, WHILE_IN_USE, ALWAYS }

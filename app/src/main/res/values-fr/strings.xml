@@ -1374,6 +1374,13 @@
     <string name="warnings_hud_blocked_body">L\'autorisation de superposition aux autres applications a été retirée : la surimpression n\'apparaîtra pas sur les cartes ou la musique.</string>
     <string name="warnings_no_backup_title">Les trajets ne sont pas sauvegardés</string>
     <string name="warnings_no_backup_body">Ils n\'existent que sur ce téléphone. Choisissez un dossier de sauvegarde pour ne pas perdre vos trajets avec un téléphone perdu ou réinitialisé.</string>
+    <string name="warnings_location_always_title">Position pas sur Toujours</string>
+    <string name="warnings_location_always_body">L\'enregistrement auto ne peut pas tracer l\'itinéraire quand l\'app est en arrière-plan. Autorisez la position Toujours.</string>
+    <string name="warnings_bluetooth_denied_title">Bluetooth non autorisé</string>
+    <string name="warnings_bluetooth_denied_body">EUC Planet ne peut pas joindre votre roue tant qu\'il n\'a pas accès au Bluetooth. Touchez pour autoriser.</string>
+    <string name="warnings_bluetooth_off_body">EUC Planet ne peut pas joindre votre roue tant que le Bluetooth est désactivé.</string>
+    <string name="warnings_perm_notifications_alerts_body">Les alertes de charge ne vous parviendront pas tant qu\'EUC Planet ne peut pas envoyer de notifications. Touchez pour autoriser.</string>
+    <string name="warnings_no_backup_dropbox_body">Ils ne sont que sur ce téléphone. Liez Dropbox pour qu\'un téléphone perdu ou effacé n\'emporte pas vos trajets.</string>
     <string name="warnings_pip_blocked_title">L\'image dans l\'image est bloquée</string>
     <string name="warnings_pip_blocked_body">Android la refuse à EUC Planet : la fenêtre flottante n\'apparaîtra pas quand vous quittez l\'application.</string>
     <string name="online_rejoin_confirm">Rejoindre</string>

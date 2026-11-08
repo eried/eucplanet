@@ -3,7 +3,6 @@ package com.eried.eucplanet.app
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.Waypoint
 import com.eried.eucplanet.data.model.WheelData
-import com.eried.eucplanet.data.repository.AppWarning
 import com.eried.eucplanet.data.repository.PhoneLocation
 import com.eried.eucplanet.data.repository.TripMeterRepository
 import com.eried.eucplanet.data.repository.WheelRepository
@@ -14,7 +13,6 @@ import com.eried.eucplanet.platform.System
 import com.eried.eucplanet.flic.MediaControls
 import com.eried.eucplanet.flic.VoiceListening
 import com.eried.eucplanet.ui.dashboard.ActiveRoute
-import com.eried.eucplanet.ui.dashboard.AppHealth
 import com.eried.eucplanet.ui.dashboard.DashboardAutomation
 import com.eried.eucplanet.ui.dashboard.DashboardPlatform
 import com.eried.eucplanet.ui.dashboard.DashboardSync
@@ -103,20 +101,6 @@ internal object NoFolderSync : DashboardSync {
     override suspend fun findRestorableRider(): RestorableRider? = null
     override suspend fun writeRiderId(storeId: String) = false
     override fun startSync() = Unit
-}
-
-/** Needs attention: the same upsert / dismiss list as Android's repository. */
-internal class MemoryAppHealth : AppHealth {
-    private val list = MutableStateFlow<List<AppWarning>>(emptyList())
-    override val warnings: StateFlow<List<AppWarning>> = list.asStateFlow()
-    override fun upsert(warning: AppWarning) {
-        list.value = list.value.filterNot { it.id == warning.id } + warning
-    }
-    override fun dismiss(id: String) {
-        list.value = list.value.filterNot { it.id == id }
-    }
-    // The no-backup warning needs trips, which iOS does not record yet.
-    override fun refreshBackupWarning(hasFolder: Boolean, hasTrips: Boolean) = Unit
 }
 
 /** Android's MetricsReset: the trip meter, the metric history and the ride energy. */

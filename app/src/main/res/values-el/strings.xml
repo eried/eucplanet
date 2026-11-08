@@ -2500,6 +2500,13 @@
     <string name="warnings_hud_blocked_body">Η άδεια εμφάνισης πάνω από άλλες εφαρμογές ανακλήθηκε, οπότε η επικάλυψη δεν θα εμφανίζεται πάνω από χάρτες ή μουσική.</string>
     <string name="warnings_no_backup_title">Δεν υπάρχει αντίγραφο ασφαλείας των διαδρομών</string>
     <string name="warnings_no_backup_body">Υπάρχουν μόνο σε αυτό το τηλέφωνο. Επιλέξτε φάκελο αντιγράφων ασφαλείας, ώστε ένα χαμένο ή διαγραμμένο τηλέφωνο να μην πάρει μαζί του τις βόλτες σας.</string>
+    <string name="warnings_location_always_title">Η τοποθεσία δεν είναι σε «Πάντα»</string>
+    <string name="warnings_location_always_body">Η αυτόματη εγγραφή δεν μπορεί να καταγράψει διαδρομή όσο η εφαρμογή είναι στο παρασκήνιο. Επιτρέψτε την τοποθεσία «Πάντα».</string>
+    <string name="warnings_bluetooth_denied_title">Το Bluetooth δεν επιτρέπεται</string>
+    <string name="warnings_bluetooth_denied_body">Το EUC Planet δεν μπορεί να συνδεθεί με το μονότροχο μέχρι να του επιτραπεί το Bluetooth. Πατήστε για να το επιτρέψετε.</string>
+    <string name="warnings_bluetooth_off_body">Το EUC Planet δεν μπορεί να συνδεθεί με το μονότροχο μέχρι να ανοίξει το Bluetooth.</string>
+    <string name="warnings_perm_notifications_alerts_body">Οι ειδοποιήσεις φόρτισης δεν θα σας φτάνουν μέχρι το EUC Planet να μπορεί να στέλνει ειδοποιήσεις. Πατήστε για να το επιτρέψετε.</string>
+    <string name="warnings_no_backup_dropbox_body">Υπάρχουν μόνο σε αυτό το τηλέφωνο. Συνδέστε το Dropbox, ώστε ένα χαμένο ή διαγραμμένο τηλέφωνο να μην πάρει μαζί του τις διαδρομές σας.</string>
     <string name="warnings_pip_blocked_title">Η λειτουργία εικόνας σε εικόνα έχει αποκλειστεί</string>
     <string name="warnings_pip_blocked_body">Το Android είναι ρυθμισμένο να την απορρίπτει για το EUC Planet, οπότε το αιωρούμενο παράθυρο δεν θα εμφανίζεται όταν βγαίνετε από την εφαρμογή.</string>
     <string name="online_rejoin_confirm">Επανασύνδεση</string>
