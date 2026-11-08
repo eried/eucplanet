@@ -84,3 +84,11 @@ expect class HttpClient(
 ) {
     fun execute(request: HttpRequest): HttpResponse
 }
+
+/**
+ * Something that answers a request: an [HttpClient] in the apps, a fake
+ * server in tests (the in-memory Dropbox the shared sync is tested against).
+ */
+fun interface HttpExecutor {
+    fun execute(request: HttpRequest): HttpResponse
+}

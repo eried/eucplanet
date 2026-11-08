@@ -47,6 +47,7 @@ Seams that need both sides on every change:
 | Dropbox link | `DropboxRepository.beginLink` / `handleAuthCode` | `app/.../data/repository/DropboxLinkAndroid.kt` (Custom Tab, verifier in SharedPreferences) | `iosMain/.../app/IosDropboxLink.kt` (ASWebAuthenticationSession) |
 | Ride Live Activity | `service/RideNotificationText.kt` (the text), `iosMain/.../app/RideActivity.kt` (when) | `WheelService` notification | `iosApp/RideLiveActivity.swift` (ActivityKit), `iosApp/Widgets/` (the look) |
 | Alarm rules for settings.json | `data/sync/DropboxSettingsSync.AlarmRuleStore` | `SyncManager` (AlarmDao) | `IosAppGraph.alarms` (a JSON file until Room moves) |
+| Dropbox HTTP | `DropboxRepository(transport)`, `platform.HttpExecutor` | `HttpClient` (OkHttp) | `HttpClient` (NSURLSession); tests run against `commonTest/.../FakeDropbox.kt` |
 | Leaderboard rider id and upload trigger | `data/sync/EucStatsSweep.kt`, `EucStatsSettingsPort` | `SyncManager` (rider id in the backup folder), `EucStatsUploadWorker` (WorkManager) | `iosMain/.../app/IosEucStats.kt` (Documents file; trip finish, launch, foreground) |
 | Crew pass camera and links | `crews/CrewsPairScreen.kt` (`CrewsPairHost`) | `app/.../crews/CrewsPairActivity.kt` (CameraX, intent filter) | `iosMain/.../app/IosCrews.kt`, `iosApp/QrScannerBridge.swift`, `AppDelegate` open URL |
 | Leaderboard picture | `SettingsHost.rememberAvatarPicker` | `AndroidSettingsHost` (gallery, UserMarkerCropDialog) | `iosMain/.../app/IosAvatarPicker.kt` (UIImagePickerController) |

@@ -26,7 +26,8 @@ class BackupStatusIconTest {
 
     private val screen = src("ui/recording/RecordingScreen.kt")
     private val vm = src("ui/recording/RecordingViewModel.kt")
-    private val worker = File("src/main/java/com/eried/eucplanet/data/sync/DropboxSyncWorker.kt").readText()
+    // The worker runs the shared background pass (DropboxTripSync.backgroundPass).
+    private val worker = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/data/sync/DropboxTripSync.kt").readText()
     private val repo = File("src/main/java/com/eried/eucplanet/data/repository/TripRepository.kt").readText()
     private val sync = File("src/main/java/com/eried/eucplanet/data/sync/SyncManager.kt").readText()
 

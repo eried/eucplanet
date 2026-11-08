@@ -19,7 +19,8 @@ import java.io.File
 class DropboxRefusalTest {
 
     private val repo = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/data/repository/DropboxRepository.kt").readText()
-    private val worker = File("src/main/java/com/eried/eucplanet/data/sync/DropboxSyncWorker.kt").readText()
+    /** The Dropbox trip passes, shared with the iPhone; the worker runs backgroundPass. */
+    private val trips = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/data/sync/DropboxTripSync.kt").readText()
     private val sync = File("src/main/java/com/eried/eucplanet/data/sync/SyncManager.kt").readText()
 
     @Test fun `a refusal is told apart from a rate limit`() {
@@ -31,10 +32,14 @@ class DropboxRefusalTest {
         // Checked in the HTTP client itself rather than in each response
         // handler. There are a dozen of those, and the one that gets missed is
         // the one that loops.
-        val client = repo.substringAfter("private val http = HttpClient").take(600)
-        assertTrue("the client does not watch for refusals", client.startsWith(" { req, resp ->"))
+        val client = repo.substringAfter("private val noticeRefusal").take(600)
+        assertTrue("the client does not watch for refusals", client.contains("= { req, resp ->"))
         assertTrue("403 is not what it watches for", client.contains("resp.code == 403"))
         assertTrue("it does not raise the flag", client.contains("refused = true"))
+        // Both senders, the real client and a test's fake, pass every answer by it.
+        val http = repo.substringAfter("private val http: HttpExecutor").take(400)
+        assertTrue("the platform client skips it", http.contains("HttpClient(onResponse = noticeRefusal)"))
+        assertTrue("a fake transport skips it", http.contains("noticeRefusal(req, it)"))
     }
 
     @Test fun `starting a sync clears it, so the flag describes this run`() {
@@ -51,17 +56,17 @@ class DropboxRefusalTest {
     @Test fun `the worker waits instead of retrying, at the call that fails first`() {
         // A refusal fails on the pass's first call, so the early return is the
         // one that ran all night. WorkManager's own retry must not take it.
-        val early = worker.substringAfter("if (remoteTrips == null) {").take(900)
+        val early = trips.substringAfter("if (remoteTrips == null) {").take(900)
         assertTrue("the first failure still goes to WorkManager's retry",
             early.contains("dropboxRepository.refused"))
         assertTrue("no long backoff is scheduled there",
             early.contains("REFUSED_RETRY_SECONDS"))
         assertTrue("it still reports a retry, which reschedules on its own terms",
-            early.indexOf("return Result.success()") < early.indexOf("return Result.retry()"))
+            early.indexOf("return BackgroundOutcome.DONE") < early.indexOf("return BackgroundOutcome.RETRY"))
     }
 
     @Test fun `the foreground sync backs off too, and still tells the rider`() {
-        val branch = sync.substringAfter("dropboxRepository.refused").take(700)
+        val branch = trips.substringAfter("} else if (dropboxRepository.refused)").take(700)
         assertTrue("the rider is told nothing", branch.contains("SyncResult.RateLimited"))
         assertTrue("their trips are not marked done", branch.contains("dropboxSyncPending = true"))
         assertTrue("it comes straight back", branch.contains("REFUSED_RETRY_SECONDS"))

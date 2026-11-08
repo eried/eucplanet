@@ -26,6 +26,10 @@ class DropboxRateLimitTest {
     private val sync: String by lazy {
         File("src/main/java/com/eried/eucplanet/data/sync/SyncManager.kt").readText()
     }
+    /** The Dropbox trip passes, shared with the iPhone. */
+    private val trips: String by lazy {
+        File("../shared/src/commonMain/kotlin/com/eried/eucplanet/data/sync/DropboxTripSync.kt").readText()
+    }
 
     @Test fun `downloads wait out a rate limit instead of returning null`() {
         val body = repo.substringAfter("suspend fun downloadFile").substringBefore("suspend fun listFolder")
@@ -55,16 +59,16 @@ class DropboxRateLimitTest {
 
     @Test fun `giving up sets a flag the sync can report`() {
         assertTrue(repo.contains("rateLimited = true"))
-        assertTrue("the sync never reads it", sync.contains("dropboxRepository.rateLimited"))
+        assertTrue("the sync never reads it", trips.contains("dropboxRepository.rateLimited"))
     }
 
     @Test fun `the flag describes this run, not the last one`() {
         assertTrue("nothing clears it at the start of a sync",
-            sync.contains("clearRateLimited()"))
+            trips.contains("clearRateLimited()"))
     }
 
     @Test fun `a rate-limited sync tells the rider, rather than a bare count`() {
-        assertTrue(sync.contains("SyncResult.RateLimited"))
+        assertTrue(trips.contains("SyncResult.RateLimited"))
         val strings = File("src/main/res/values/strings.xml").readText()
         assertTrue("no message for it", strings.contains("sync_rate_limited"))
     }
@@ -75,11 +79,13 @@ class DropboxRateLimitTest {
         // means sitting and watching it for the better part of an hour, and
         // losing it the moment Android reclaimed the app.
         val worker = File("src/main/java/com/eried/eucplanet/data/sync/DropboxSyncWorker.kt").readText()
-        assertTrue("the worker never downloads", worker.contains("downloadMissingTrips"))
+        assertTrue("the worker does not run the shared pass", worker.contains("backgroundPass("))
+        val pass = trips.substringAfter("suspend fun backgroundPass").substringBefore("suspend fun downloadMissingTrips")
+        assertTrue("the background pass never downloads", pass.contains("downloadMissingTrips("))
     }
 
     @Test fun `a download pass is time-bounded and asks to be run again`() {
-        val worker = File("src/main/java/com/eried/eucplanet/data/sync/DropboxSyncWorker.kt").readText()
+        val worker = trips
         // WorkManager gives a job about ten minutes; taking what fits and
         // rescheduling is what lets a big library arrive across several runs.
         assertTrue("no budget on the download pass", worker.contains("DOWNLOAD_BUDGET_MS"))
@@ -95,14 +101,14 @@ class DropboxRateLimitTest {
     }
 
     @Test fun `the download pass stops when the rider cancels`() {
-        assertTrue(sync.contains("isStopped: () -> Boolean"))
+        assertTrue(trips.contains("isStopped: () -> Boolean"))
     }
 
     @Test fun `nothing downloads unless the rider asked for it`() {
         // Downloading is a lot of data and a lot of battery, and someone who
         // links Dropbox to back trips *up* should not find a library arriving.
         // The worker only ever finishes a pull that was requested.
-        val pass = sync.substringAfter("suspend fun downloadMissingTrips").substringBefore("private fun parseCsvMeta")
+        val pass = trips.substringAfter("suspend fun downloadMissingTrips").substringBefore("suspend fun archiveTripFile")
         assertTrue("the download pass does not check for a request",
             pass.contains("if (!settings.dropboxPullRequested) return 0"))
     }
@@ -134,13 +140,13 @@ class DropboxRateLimitTest {
     }
 
     @Test fun `finishing the pull clears the request`() {
-        assertTrue(sync.contains("dropboxPullRequested = left > 0"))
+        assertTrue(trips.contains("dropboxPullRequested = left > 0"))
     }
 
     @Test fun `a trip pulled from Dropbox is queued for the backup folder`() {
         // Downloads used to insert with uploadStatus 0, which the folder worker
         // skips, so the two backups disagreed until the rider pressed Sync all.
-        val download = sync.substringAfter("for (name in toDownload)").substringBefore("// Refresh settings.json")
+        val download = trips.substringAfter("for (name in toDownload)").substringBefore("// Refresh settings.json")
         assertTrue("a downloaded trip is not queued for the folder",
             download.contains("uploadStatus = if (settings.syncFolderUri != null) 4 else 0"))
         assertFalse("still inserting as nothing-to-do", download.contains("uploadStatus = 0,"))

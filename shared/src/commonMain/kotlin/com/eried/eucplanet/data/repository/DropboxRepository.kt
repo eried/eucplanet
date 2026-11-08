@@ -1,6 +1,7 @@
 package com.eried.eucplanet.data.repository
 
 import com.eried.eucplanet.platform.HttpClient
+import com.eried.eucplanet.platform.HttpExecutor
 import com.eried.eucplanet.platform.HttpRequest
 import com.eried.eucplanet.platform.HttpResponse
 import com.eried.eucplanet.platform.JSONArray
@@ -67,20 +68,33 @@ interface DropboxLinkScratch {
 class DropboxRepository(
     private val settingsRepository: SettingsRepository,
     private val linkScratch: DropboxLinkScratch,
+    /**
+     * Who answers the requests. Null is the platform [HttpClient] (OkHttp on
+     * Android, NSURLSession on iOS); the shared tests hand in an in-memory
+     * Dropbox, so the sync runs end to end without an account.
+     */
+    transport: HttpExecutor? = null,
 ) {
 
     /**
-     * Every Dropbox request goes through here, which is the point: a refusal
+     * Every Dropbox response passes here, which is the point: a refusal
      * has to be noticed wherever it lands, not only at the call that happened
      * to be first. Scattering the check over a dozen response handlers would
      * mean the one that was missed is the one that loops.
      */
-    private val http = HttpClient { req, resp ->
+    private val noticeRefusal: (HttpRequest, HttpResponse) -> Unit = { req, resp ->
         if (resp.code == 403) {
             refused = true
             Log.w("DBXSHARE", "refused by Dropbox (403): " +
                 "/" + req.url.substringAfter("://").substringAfter('/', ""))
         }
+    }
+
+    /** Every Dropbox request goes through here, and every answer through [noticeRefusal]. */
+    private val http: HttpExecutor = if (transport == null) {
+        HttpClient(onResponse = noticeRefusal).let { client -> HttpExecutor { client.execute(it) } }
+    } else {
+        HttpExecutor { req -> transport.execute(req).also { noticeRefusal(req, it) } }
     }
 
     /**

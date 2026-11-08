@@ -128,12 +128,12 @@ class ArchivePolicyTest {
         // again: the same file names arrive at the archive a second time. An
         // archive that overwrote them would destroy the first generation, which
         // is the one thing archiving promises not to do.
-        val sync = File("src/main/java/com/eried/eucplanet/data/sync/SyncManager.kt").readText()
+        val sync = File("../app/src/main/java/com/eried/eucplanet/data/sync/SyncManager.kt").readText()
         assertTrue("the folder archive does not look for a free name",
             sync.contains("freeArchiveName"))
         assertTrue("the archive name is not made unique",
             sync.contains("archive.findFile(candidate) == null"))
-        val repo = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/data/repository/DropboxRepository.kt").readText()
+        val repo = File("src/commonMain/kotlin/com/eried/eucplanet/data/repository/DropboxRepository.kt").readText()
         val move = repo.substringAfter("suspend fun moveFile").take(600)
         assertTrue("the Dropbox move would overwrite", move.contains("autorename"))
     }
