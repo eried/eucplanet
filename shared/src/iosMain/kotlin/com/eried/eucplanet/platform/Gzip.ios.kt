@@ -7,6 +7,7 @@ import kotlinx.cinterop.usePinned
 import platform.Foundation.NSData
 import platform.Foundation.NSDataCompressionAlgorithmZlib
 import platform.Foundation.compressedDataUsingAlgorithm
+import platform.Foundation.decompressedDataUsingAlgorithm
 import platform.Foundation.create
 
 /**
@@ -30,4 +31,13 @@ actual fun gzip(bytes: ByteArray): ByteArray {
     le32(crc32(bytes))
     le32(bytes.size.toLong() and 0xFFFFFFFFL)
     return out.toByteArray()
+}
+
+/** Apple's "zlib" algorithm is raw DEFLATE, the same bytes a zip entry holds. */
+@OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
+actual fun inflateRaw(bytes: ByteArray): ByteArray {
+    if (bytes.isEmpty()) return ByteArray(0)
+    val input = bytes.usePinned { NSData.create(bytes = it.addressOf(0), length = bytes.size.toULong()) }
+    return input.decompressedDataUsingAlgorithm(NSDataCompressionAlgorithmZlib, null)?.toByteArray()
+        ?: throw IllegalArgumentException("inflate failed")
 }

@@ -12,6 +12,14 @@ import com.eried.eucplanet.ui.recording.ImportedFile
 import com.eried.eucplanet.ui.recording.RecordingHost
 import com.eried.eucplanet.ui.recording.RecordingOnline
 import com.eried.eucplanet.ui.recording.RecordingPlatform
+import com.eried.eucplanet.util.ZipFiles
+import kotlinx.cinterop.addressOf
+import kotlinx.cinterop.usePinned
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import platform.Foundation.NSTemporaryDirectory
+import platform.Foundation.dataWithBytes
+import platform.Foundation.writeToFile
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.readBytes
 import kotlinx.coroutines.flow.drop
@@ -48,18 +56,28 @@ internal object IosRecordingPlatform : RecordingPlatform {
     override fun shareText(text: String) = share(listOf(text))
 
     /**
-     * Android zips the trips into one file; iOS has no zip writer at hand, and
-     * the share sheet takes several files at once, so it offers every CSV.
+     * As Android: every trip CSV in one plain trips_export.zip, shared through
+     * the share sheet. Written to the temporary folder, not beside the trips.
      */
     override suspend fun exportAllAsZip() {
-        val dir = IosTrips.tripsDir
-        val names = NSFileManager.defaultManager.contentsOfDirectoryAtPath(dir, null)
-            ?.filterIsInstance<String>()?.filter { it.endsWith(".csv") }.orEmpty()
-        if (names.isEmpty()) return
-        share(names.sorted().map { NSURL.fileURLWithPath("$dir/$it") })
+        val path = withContext(Dispatchers.Default) {
+            val dir = IosTrips.tripsDir
+            val names = NSFileManager.defaultManager.contentsOfDirectoryAtPath(dir, null)
+                ?.filterIsInstance<String>()?.filter { it.endsWith(".csv") }.orEmpty()
+            if (names.isEmpty()) return@withContext null
+            val files = IosTripFiles { dir }
+            val zip = ZipFiles.write(names.sorted().map { ZipFiles.Entry(it, files.file(it).readBytes()) })
+            val path = NSTemporaryDirectory() + "trips_export.zip"
+            val data = zip.usePinned { NSData.dataWithBytes(it.addressOf(0), zip.size.toULong()) }
+            if (data.writeToFile(path, atomically = true)) path else {
+                Log.w(TAG, "Export: could not write $path")
+                null
+            }
+        } ?: return
+        withContext(Dispatchers.Main) { share(listOf(NSURL.fileURLWithPath(path))) }
     }
 
-    /** A picked CSV. A .zip or .dbb is not unpacked on iOS yet, so it imports nothing. */
+    /** A picked CSV, or the CSVs in a .zip or .dbb (sniffed by its magic, as Android does for an unknown name). */
     override suspend fun readImport(uri: String): List<ImportedFile> {
         val url = NSURL.URLWithString(uri) ?: return emptyList()
         val scoped = url.startAccessingSecurityScopedResource()
@@ -67,9 +85,16 @@ internal object IosRecordingPlatform : RecordingPlatform {
             val data = NSData.dataWithContentsOfURL(url) ?: return emptyList()
             val n = data.length.toInt()
             val bytes = if (n == 0) ByteArray(0) else data.bytes!!.readBytes(n)
-            if (bytes.size >= 4 && bytes[0] == 0x50.toByte() && bytes[1] == 0x4B.toByte()) {
-                Log.w(TAG, "Import: ${url.lastPathComponent} is a zip; not supported on iOS yet")
-                return emptyList()
+            val displayName = url.lastPathComponent?.lowercase().orEmpty()
+            val isZip = displayName.endsWith(".zip") || displayName.endsWith(".dbb") ||
+                (bytes.size >= 4 && bytes[0] == 0x50.toByte() && bytes[1] == 0x4B.toByte())
+            if (isZip) {
+                return try {
+                    ZipFiles.tripCsvs(bytes).map { ImportedFile(it.name, it.bytes) }
+                } catch (e: Exception) {
+                    Log.w(TAG, "Import: ${url.lastPathComponent} is not a readable zip: ${e.message}")
+                    emptyList()
+                }
             }
             val name = url.lastPathComponent?.takeIf { it.isNotBlank() } ?: "imported_${com.eried.eucplanet.platform.System.currentTimeMillis()}.csv"
             return listOf(ImportedFile(name, bytes))
