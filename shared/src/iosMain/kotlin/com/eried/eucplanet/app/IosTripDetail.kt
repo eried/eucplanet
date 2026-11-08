@@ -89,7 +89,8 @@ internal object IosTripDetailHost : TripDetailHost {
     override fun FullscreenMapWindow() = Unit
 }
 
-private class MapNavigationDelegate(private val onLoaded: () -> Unit) : NSObject(), WKNavigationDelegateProtocol {
+/** Tells [onLoaded] when the page has loaded; the trip map and the EUC Viewer use it. */
+internal class MapNavigationDelegate(private val onLoaded: () -> Unit) : NSObject(), WKNavigationDelegateProtocol {
     override fun webView(webView: WKWebView, didFinishNavigation: WKNavigation?) {
         onLoaded()
     }

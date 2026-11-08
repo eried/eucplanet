@@ -169,7 +169,9 @@ fun NavGraph(navController: NavHostController) {
         ) { backStackEntry ->
             EucViewerScreen(
                 tripId = backStackEntry.arguments?.getLong("tripId") ?: -1L,
-                onBack = { navController.popSingle() }
+                onBack = { navController.popSingle() },
+                viewModel = koinViewModel(),
+                host = com.eried.eucplanet.ui.recording.AndroidEucViewerHost,
             )
         }
         composable(Screen.RouteBuilder.route) {

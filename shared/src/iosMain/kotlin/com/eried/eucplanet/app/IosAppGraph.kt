@@ -27,6 +27,7 @@ import com.eried.eucplanet.flic.ActionExecutor
 import com.eried.eucplanet.service.AlarmEngine
 import com.eried.eucplanet.ui.scan.ScanViewModel
 import com.eried.eucplanet.ui.settings.AlarmViewModel
+import com.eried.eucplanet.ui.recording.EucViewerViewModel
 import com.eried.eucplanet.ui.recording.RecordingViewModel
 import com.eried.eucplanet.ui.settings.SettingsViewModel
 import com.eried.eucplanet.weather.WeatherRepository
@@ -262,6 +263,8 @@ object IosAppGraph {
     )
 
     /** The trip list's view model, as Koin's viewModelOf builds it on Android. */
+    fun eucViewerViewModel(): EucViewerViewModel = EucViewerViewModel(IosTrips)
+
     fun recordingViewModel(): RecordingViewModel = RecordingViewModel(
         tripRepository = IosTrips,
         wheelRepository = wheel,

@@ -15,8 +15,10 @@ import com.eried.eucplanet.app.IosDashboardHost
 import com.eried.eucplanet.app.IosScanHost
 import com.eried.eucplanet.app.IosSettingsHost
 import com.eried.eucplanet.app.IosRecordingHost
+import com.eried.eucplanet.ui.recording.EucViewerScreen
 import com.eried.eucplanet.ui.recording.RecordingScreen
 import com.eried.eucplanet.ui.recording.TripDetailScreen
+import com.eried.eucplanet.app.IosEucViewerHost
 import com.eried.eucplanet.app.IosTripDetailHost
 import com.eried.eucplanet.app.rememberViewModel
 import com.eried.eucplanet.ui.settings.SettingsScreen
@@ -113,12 +115,15 @@ fun MainViewController(): UIViewController {
             val colors by theme.activeColors.collectAsState()
             EucPlanetTheme(colors = colors) {
                 // A small screen stack until the shared navigation graph lands.
-                // SIMCTL_CHILD_EUC_SCREEN=scan opens on the scan screen (also settings, flic, trips, trip, trip:<id>, tripmeter, metric:<key>, charging, charging:details).
+                // SIMCTL_CHILD_EUC_SCREEN=scan opens on the scan screen (also settings, flic, trips, trip, trip:<id>, viewer:<id>, tripmeter, metric:<key>, charging, charging:details).
                 // "metric:VOLTAGE" opens a metric's detail, with the dashboard's route argument.
                 var screen by remember { mutableStateOf(startScreen?.substringBefore(':') ?: "dashboard") }
                 var metricArg by remember { mutableStateOf(startScreen?.substringAfter(':', "BATTERY") ?: "BATTERY") }
                 // The trip the viewer shows ("trip:12"); blank opens the newest.
                 var tripArg by remember { mutableStateOf(if (startScreen?.startsWith("trip:") == true) startScreen.substringAfter(':') else "") }
+                // The trip View online shows ("viewer:12"), and where its back arrow goes.
+                var viewerArg by remember { mutableStateOf(if (startScreen?.startsWith("viewer:") == true) startScreen.substringAfter(':') else "") }
+                var viewerBack by remember { mutableStateOf("trips") }
                 // Where the metric detail goes back to: the dashboard, or the charging monitor's history.
                 var metricBack by remember { mutableStateOf("dashboard") }
                 // Settings goes back to where it was opened from (the dashboard or the charging monitor).
@@ -183,6 +188,11 @@ fun MainViewController(): UIViewController {
                                     screen = "trip"
                                 },
                                 onOpenBackupSettings = { screen = "settings" },
+                                onViewOnline = { id ->
+                                    viewerArg = id.toString()
+                                    viewerBack = "trips"
+                                    screen = "viewer"
+                                },
                                 viewModel = recordingVm,
                                 host = IosRecordingHost,
                             )
@@ -195,10 +205,28 @@ fun MainViewController(): UIViewController {
                                 TripDetailScreen(
                                     trip = trip,
                                     onBack = { screen = "trips" },
+                                    onViewOnline = { id ->
+                                        viewerArg = id.toString()
+                                        tripArg = trip.id.toString()
+                                        viewerBack = "trip"
+                                        screen = "viewer"
+                                    },
                                     viewModel = recordingVm,
                                     host = IosTripDetailHost,
                                 )
                             }
+                        }
+                    }
+                    // View online: the EUC Viewer with the trip loaded (SIMCTL_CHILD_EUC_SCREEN=viewer:<id>).
+                    "viewer" -> {
+                        val viewerVm = rememberViewModel { IosAppGraph.eucViewerViewModel() }
+                        key(viewerArg) {
+                            EucViewerScreen(
+                                tripId = viewerArg.toLongOrNull() ?: -1L,
+                                onBack = { screen = viewerBack },
+                                viewModel = viewerVm,
+                                host = IosEucViewerHost,
+                            )
                         }
                     }
                     "tripmeter" -> {
