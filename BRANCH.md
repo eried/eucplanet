@@ -37,6 +37,7 @@ only when you can cut the ride short.
 - Messages no longer hide under the keyboard, like "Search needs signal" or one that comes while typing in a number field.
 - Languages: 7 new (Portuguese for Portugal, Indonesian, Vietnamese, Thai, Greek, Bulgarian, Slovak), 30 in all. The other 22 were reviewed to read like a native app: one word per term, no word-for-word phrases, leftover English translated.
 - Inside: wiring moved to a library that also runs on iPhone, build tools updated (Kotlin 2.3.21, Koin 4.2.2). Nothing should change on screen.
+- Engine sound: the synthesized engines are rebuilt for a phone speaker. Each cylinder fires at its real crank angle into a real pipe, so the note sits where the speaker plays and the pitch follows the wheel without turning into a screech. Six more engines in the picker: V-twin, Inline-4, Boxer 6, Tron whine, Steam locomotive, UFO hover.
 
 ## Please test
 
@@ -52,6 +53,10 @@ only when you can cut the ride short.
 - Download the squares you ride in, turn on airplane mode, plan a route: does it come, do turn cues play, and does the map still show with street names? Airplane mode off: does your normal map come back within half a minute?
 - Turn on "Prefer offline map and routing" with signal on: does the navigator show the offline map in your squares, and is the route as good as the online one?
 - Offline areas, Select, Around me: does it pick the squares you expect, and say the size before downloading?
+
+**Engine sound** (Settings, search "engine", switch it on)
+- Pick each of the ten engines and ride: does the pitch follow the wheel, and does a hard pull stay an engine instead of a whistle? Say which engine and when.
+- On the phone speaker, not only headphones: is it loud enough at idle and not harsh at speed?
 
 **Android Auto** (install from the Play internal sharing link, a sideloaded APK never shows in the car)
 - Navigate from the car screen: turn-by-turn shows, and your four numbers beside it?

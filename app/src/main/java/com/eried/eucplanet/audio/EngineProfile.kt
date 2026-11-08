@@ -193,7 +193,7 @@ data class EngineProfile(
             ),
             // --- Multi-cylinder ICE ---
             EngineProfile(
-                key = "V_TWIN", preview = true,
+                key = "V_TWIN",
                 displayName = "V-twin",
                 kind = Kind.ICE,
                 idleRpm = 950, maxRpm = 6500,
@@ -208,7 +208,7 @@ data class EngineProfile(
                 gainTrim = 1.7f
             ),
             EngineProfile(
-                key = "INLINE_4", preview = true,
+                key = "INLINE_4",
                 displayName = "Inline-4",
                 kind = Kind.ICE,
                 idleRpm = 1100, maxRpm = 13500,
@@ -264,7 +264,7 @@ data class EngineProfile(
             ),
             // --- Extra ICE flavors ---
             EngineProfile(
-                key = "BOXER_6", preview = true,
+                key = "BOXER_6",
                 displayName = "Boxer 6",
                 kind = Kind.ICE,
                 idleRpm = 850, maxRpm = 7800,
@@ -309,7 +309,7 @@ data class EngineProfile(
                 compressionTone = 0.6f
             ),
             EngineProfile(
-                key = "STEAM_LOCO", preview = true,
+                key = "STEAM_LOCO",
                 displayName = "Steam locomotive",
                 kind = Kind.ICE, gearless = true,
                 // Driving wheel turns: four chuffs each, a crawl to a run
@@ -328,7 +328,7 @@ data class EngineProfile(
             ),
             // --- Synth / futuristic (gearless) ---
             EngineProfile(
-                key = "TRON_WHINE", preview = true,
+                key = "TRON_WHINE",
                 displayName = "Tron whine",
                 kind = Kind.SYNTH, gearless = true,
                 idleRpm = 600, maxRpm = 14000,
@@ -372,7 +372,7 @@ data class EngineProfile(
                 decelPopProbability = 0.0f
             ),
             EngineProfile(
-                key = "UFO_HOVER", preview = true,
+                key = "UFO_HOVER",
                 displayName = "UFO hover",
                 kind = Kind.SYNTH, gearless = true,
                 idleRpm = 700, maxRpm = 3200,
