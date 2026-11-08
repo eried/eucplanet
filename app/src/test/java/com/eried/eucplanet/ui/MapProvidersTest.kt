@@ -22,7 +22,7 @@ class MapProvidersTest {
             "../hud/src/main/java/com/eried/eucplanet/hud/net/HudTileCache.kt",
             "src/main/java/com/eried/eucplanet/ui/navigator/MapHtml.kt",
             "src/main/java/com/eried/eucplanet/map/MapTileCache.kt",
-            "src/main/java/com/eried/eucplanet/ui/recording/TripDetailScreen.kt",
+            "../shared/src/commonMain/kotlin/com/eried/eucplanet/ui/recording/TripMapHtml.kt",
         )
         val offenders = sources.filter { File(it).readText().contains("cartocdn") }
         assertTrue("still on carto: $offenders", offenders.isEmpty())
@@ -118,11 +118,25 @@ class MapProvidersTest {
     }
 
     @Test fun `both leaflet surfaces draw the reference layer`() {
-        val tripHtml = File("src/main/java/com/eried/eucplanet/ui/recording/TripDetailScreen.kt").readText()
+        val tripHtml = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/ui/recording/TripMapHtml.kt").readText()
         val navHtml = File("src/main/java/com/eried/eucplanet/ui/navigator/MapHtml.kt").readText()
+        val table = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/map/MapLayersJs.kt").readText()
         assertTrue(tripHtml.contains("if (layer.ref)"))
         assertTrue(navHtml.contains("if (layer.ref)"))
         // The JSON bridge carries the field at all.
-        assertTrue(navHtml.contains("ref:'\${l.refUrlTemplate}'"))
+        assertTrue(table.contains("ref:'\${l.refUrlTemplate}'"))
+    }
+
+    @Test fun `shared code reads the same layer table as the hud protocol`() {
+        // shared/build.gradle.kts compiles hud-protocol's MapLayers.kt into
+        // :shared under com.eried.eucplanet.map, for the trip viewer on both
+        // phones. The two must be one table, entry for entry.
+        fun hud(l: MapLayers.Layer) = listOf(l.id, l.urlTemplate, l.refUrlTemplate, l.extraRefUrlTemplate,
+            l.attribution, l.attributionShort, l.maxNativeZoom, l.subdomains, l.detectRetina, l.communityHosted)
+        fun shared(l: com.eried.eucplanet.map.MapLayers.Layer) = listOf(l.id, l.urlTemplate, l.refUrlTemplate,
+            l.extraRefUrlTemplate, l.attribution, l.attributionShort, l.maxNativeZoom, l.subdomains,
+            l.detectRetina, l.communityHosted)
+        assertEquals(MapLayers.ALL.map(::hud), com.eried.eucplanet.map.MapLayers.ALL.map(::shared))
+        assertEquals("SATELLITE", com.eried.eucplanet.map.MapLayers.byId("SAT").id)
     }
 }

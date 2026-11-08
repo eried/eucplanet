@@ -23,18 +23,10 @@ internal fun routeBuilderHtmlFor(mapType: String): String =
         .replace("__OFFLINE_JS__", com.eried.eucplanet.nav.offline.map.OfflineMapWeb.JS)
 
 /**
- * The shared layer registry as JSON for the Leaflet side.
- *
- * Built from [com.eried.eucplanet.hud.protocol.MapLayers] rather than written
- * out again here, so a layer cannot exist on one map screen and not another,
- * and cannot be drawn anywhere without the credit its licence requires.
+ * The shared layer registry as JSON for the Leaflet side: the same table the
+ * trip viewer's page reads (com.eried.eucplanet.map.MapLayersJs).
  */
-internal fun mapLayersJson(): String =
-    com.eried.eucplanet.hud.protocol.MapLayers.ALL.joinToString(",", "{", "}") { l ->
-        val esc = l.attribution.replace("\\", "\\\\").replace("'", "\'")
-        "'${l.id}':{url:'${l.urlTemplate}',ref:'${l.refUrlTemplate}',ref2:'${l.extraRefUrlTemplate}',attr:'$esc'," +
-            "maxNative:${l.maxNativeZoom},subs:'${l.subdomains}',retina:${l.detectRetina}}"
-    }
+internal fun mapLayersJson(): String = com.eried.eucplanet.map.MapLayersJs.table()
 
 /**
  * The self-contained HTML document for the Route Builder's Leaflet map.

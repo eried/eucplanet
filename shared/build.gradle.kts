@@ -117,6 +117,19 @@ compose.resources {
 apply(from = "settings-search-index.gradle.kts")
 kotlin.sourceSets.getByName("commonMain").kotlin.srcDir(tasks.named("generateSettingsSearchIndex"))
 
+// The map layer table is hud-protocol's MapLayers.kt, which the HUD app reads
+// and which cannot depend on :shared. Shared code compiles the same file under
+// its own package (com.eried.eucplanet.map), so the trip viewer's Leaflet page
+// on both phones reads the very table the navigator, the Studio and the HUD do.
+val sharedMapLayers = tasks.register<Sync>("generateSharedMapLayers") {
+    from(rootProject.file("hud-protocol/src/main/java/com/eried/eucplanet/hud/protocol/MapLayers.kt"))
+    into(layout.buildDirectory.dir("generated/mapLayers/com/eried/eucplanet/map"))
+    filter { line ->
+        line.replace("package com.eried.eucplanet.hud.protocol", "package com.eried.eucplanet.map")
+    }
+}
+kotlin.sourceSets.getByName("commonMain").kotlin.srcDir(sharedMapLayers)
+
 android {
     namespace = "com.eried.eucplanet.shared"
     compileSdk = 36
