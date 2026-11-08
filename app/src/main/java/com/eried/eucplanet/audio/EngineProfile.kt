@@ -154,9 +154,10 @@ data class EngineProfile(
                 gearless = true,
                 cylinderCount = 1, twoStroke = true,
                 firingAngles = floatArrayOf(0f),
+                gainTrim = 1.4f,
                 pipeHz = 260f, pipeQ = 1.2f,
-                ringHz = 2600f, ringAmount = 0.35f,
-                intakeNoise = 0.5f,
+                ringHz = 2600f, ringAmount = 0.3f,
+                intakeNoise = 0.45f,
                 exhaustGrit = 0.4f,
                 decelPopProbability = 0.25f,
                 compressionTone = 0.85f
@@ -173,7 +174,7 @@ data class EngineProfile(
                 exhaustGrit = 0.18f,
                 decelPopProbability = 0.45f,
                 compressionTone = 0.6f,
-                gainTrim = 1.6f
+                gainTrim = 2.2f
             ),
             EngineProfile(
                 key = "QUAD_BIKE", preview = true,
@@ -188,7 +189,7 @@ data class EngineProfile(
                 exhaustGrit = 0.3f,
                 decelPopProbability = 0.3f,
                 compressionTone = 0.7f,
-                gainTrim = 1.6f
+                gainTrim = 2.2f
             ),
             // --- Multi-cylinder ICE ---
             EngineProfile(
@@ -204,7 +205,7 @@ data class EngineProfile(
                 exhaustGrit = 0.22f,
                 decelPopProbability = 0.5f,
                 compressionTone = 0.75f,
-                gainTrim = 1.3f
+                gainTrim = 1.7f
             ),
             EngineProfile(
                 key = "INLINE_4", preview = true,
@@ -213,6 +214,7 @@ data class EngineProfile(
                 idleRpm = 1100, maxRpm = 13500,
                 cylinderCount = 4,
                 firingAngles = floatArrayOf(0f, 180f, 360f, 540f),
+                gainTrim = 1.3f,
                 pipeHz = 230f, pipeQ = 0.9f,
                 ringHz = 3200f, ringAmount = 0.1f,
                 intakeNoise = 0.4f,
@@ -269,6 +271,7 @@ data class EngineProfile(
                 cylinderCount = 6,
                 // Flat-6 firing pattern (Porsche-ish): even 120 degree steps in the 720 degree cycle
                 firingAngles = floatArrayOf(0f, 120f, 240f, 360f, 480f, 600f),
+                gainTrim = 1.3f,
                 pipeHz = 210f, pipeQ = 1f,
                 ringHz = 2400f, ringAmount = 0.12f,
                 intakeNoise = 0.35f,
@@ -283,6 +286,7 @@ data class EngineProfile(
                 idleRpm = 700, maxRpm = 7000,
                 cylinderCount = 6,
                 firingAngles = floatArrayOf(0f, 120f, 240f, 360f, 480f, 600f),
+                gainTrim = 1.3f,
                 pipeHz = 220f, pipeQ = 0.8f,
                 intakeNoise = 0.2f,
                 exhaustGrit = 0.08f,
@@ -297,12 +301,12 @@ data class EngineProfile(
                 cylinderCount = 1,
                 firingAngles = floatArrayOf(0f),
                 pipeHz = 230f, pipeQ = 1.4f,
-                gainTrim = 2.4f,
-                intakeNoise = 0.4f,
+                gainTrim = 3.0f,
+                intakeNoise = 0.25f,
                 pulseMs = 6f,
-                exhaustGrit = 0.5f,
+                exhaustGrit = 0.35f,
                 decelPopProbability = 0.55f,
-                compressionTone = 0.95f
+                compressionTone = 0.6f
             ),
             EngineProfile(
                 key = "STEAM_LOCO", preview = true,
@@ -328,7 +332,7 @@ data class EngineProfile(
                 displayName = "Tron whine",
                 kind = Kind.SYNTH, gearless = true,
                 idleRpm = 600, maxRpm = 14000,
-                synthBaseHz = 200f, synthMaxHz = 2400f,
+                synthBaseHz = 180f, synthMaxHz = 1500f,
                 voice = SynthVoice.SQUARE,
                 synthFmDepth = 0.15f,
                 exhaustGrit = 0.05f,
@@ -339,7 +343,7 @@ data class EngineProfile(
                 displayName = "Pod racer",
                 kind = Kind.SYNTH, gearless = true,
                 idleRpm = 500, maxRpm = 10000,
-                synthBaseHz = 110f, synthMaxHz = 950f,
+                synthBaseHz = 110f, synthMaxHz = 720f,
                 voice = SynthVoice.SAW,
                 synthFmDepth = 0.6f,
                 exhaustGrit = 0.45f,
@@ -361,7 +365,7 @@ data class EngineProfile(
                 displayName = "Jet turbine",
                 kind = Kind.SYNTH, gearless = true,
                 idleRpm = 1500, maxRpm = 18000,
-                synthBaseHz = 320f, synthMaxHz = 3000f,
+                synthBaseHz = 300f, synthMaxHz = 2000f,
                 voice = SynthVoice.TURBINE,
                 synthFmDepth = 0.08f,
                 exhaustGrit = 0.55f,
@@ -383,7 +387,7 @@ data class EngineProfile(
                 displayName = "F1 electric whine",
                 kind = Kind.SYNTH, gearless = true,
                 idleRpm = 800, maxRpm = 20000,
-                synthBaseHz = 220f, synthMaxHz = 3600f,
+                synthBaseHz = 220f, synthMaxHz = 1900f,
                 voice = SynthVoice.ELECTRIC,
                 synthFmDepth = 0.04f,
                 exhaustGrit = 0.0f,
@@ -394,7 +398,7 @@ data class EngineProfile(
                 displayName = "Hover bike",
                 kind = Kind.SYNTH, gearless = true,
                 idleRpm = 500, maxRpm = 7000,
-                synthBaseHz = 150f, synthMaxHz = 1400f,
+                synthBaseHz = 210f, synthMaxHz = 1000f,
                 voice = SynthVoice.SAW,
                 synthFmDepth = 0.35f,
                 exhaustGrit = 0.25f,

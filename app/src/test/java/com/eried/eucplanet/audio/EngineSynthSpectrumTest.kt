@@ -6,6 +6,7 @@ import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.log10
+import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.math.sqrt
 
@@ -121,13 +122,81 @@ class EngineSynthSpectrumTest {
         }
     }
 
+    /** A steam engine chuffs faster when it runs, it does not change pitch; every other engine climbs. */
     @Test
     fun `revving moves the sound up`() = check { misses ->
-        for (p in procedural) {
+        for (p in procedural.filter { it.key != "STEAM_LOCO" }) {
             val lo = centroid(power(render(p, 0.1f, 0.3f)))
             val hi = centroid(power(render(p, 0.9f, 0.9f)))
-            if (hi <= lo * 1.3) misses += "${p.key}: ${lo.toInt()} Hz at low revs, ${hi.toInt()} Hz at high"
+            if (hi <= lo * 1.15) misses += "${p.key}: ${lo.toInt()} Hz at low revs, ${hi.toInt()} Hz at high"
         }
+    }
+
+    /**
+     * A tester heard some engines turn into a screech under acceleration. A
+     * piston engine's weight stays in the low mids when it pulls, unless its
+     * firing rate itself is up there (a V12 at 8500 rpm fires 850 times a
+     * second); the synth whines may climb, but not out of the comfortable band.
+     */
+    @Test
+    fun `a hard pull does not turn into a screech`() = check { misses ->
+        for (p in procedural) {
+            val c = centroid(power(render(p, 0.9f, 1f)))
+            val rpm = p.idleRpm + (p.maxRpm - p.idleRpm) * 0.9
+            val firingRate = rpm / 60.0 * (360.0 / p.cycleDegrees) * p.cylinderCount
+            val limit = when {
+                p.kind == EngineProfile.Kind.SYNTH -> 1900.0
+                p.key == "STEAM_LOCO" -> 1300.0   // a hiss of steam, by design
+                else -> maxOf(800.0, firingRate * 1.3)
+            }
+            if (c > limit) misses += "${p.key}: centroid ${c.toInt()} Hz on a full pull (limit ${limit.toInt()})"
+        }
+    }
+
+    /**
+     * Distinct partials between [loHz] and [hiHz]: the spectrum smoothed to about
+     * 6 Hz, then every bump that stands 6 dB above the dip on both sides within
+     * 25 Hz and within 36 dB of the loudest bin. A rich engine has many.
+     */
+    private fun partials(pw: DoubleArray, loHz: Double, hiHz: Double): Int {
+        val binHz = sr.toDouble() / n
+        val sm = DoubleArray(pw.size)
+        val w = 4
+        for (i in pw.indices) {
+            var s = 0.0; var c = 0
+            for (k in (i - w).coerceAtLeast(0)..(i + w).coerceAtMost(pw.size - 1)) { s += pw[k]; c++ }
+            sm[i] = s / c
+        }
+        val lo = (loHz / binHz).toInt(); val hi = (hiHz / binHz).toInt().coerceAtMost(sm.size - 1)
+        var top = 0.0
+        for (i in lo..hi) if (sm[i] > top) top = sm[i]
+        val floor = top * 10.0.pow(-3.6)
+        val reach = (25.0 / binHz).toInt()
+        var count = 0
+        var i = lo
+        while (i <= hi) {
+            if (sm[i] >= floor && sm[i] >= sm[i - 1] && sm[i] > sm[i + 1]) {
+                var dipL = sm[i]; var dipR = sm[i]
+                for (k in (i - reach).coerceAtLeast(1) until i) if (sm[k] < dipL) dipL = sm[k]
+                for (k in i + 1..(i + reach).coerceAtMost(sm.size - 2)) if (sm[k] < dipR) dipR = sm[k]
+                if (sm[i] > dipL * 4 && sm[i] > dipR * 4) { count++; i += reach / 2 }
+            }
+            i++
+        }
+        return count
+    }
+
+    /** Richness: a piston engine under load is many partials, not one note with air around it. */
+    @Test
+    fun `a piston engine under load has many partials`() = check { misses ->
+        val counts = mutableListOf<String>()
+        var miss = false
+        for (p in procedural.filter { it.kind == EngineProfile.Kind.ICE && it.key != "STEAM_LOCO" }) {
+            val c = partials(power(render(p, 0.5f, 0.8f)), 150.0, 1500.0)
+            counts += "${p.key}=$c"
+            if (c < 8) miss = true
+        }
+        if (miss) misses += "fewer than 8 partials in 150-1500 Hz for: " + counts.joinToString(", ")
     }
 
     @Test
