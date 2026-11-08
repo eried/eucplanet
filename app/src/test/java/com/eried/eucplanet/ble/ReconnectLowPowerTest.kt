@@ -10,14 +10,14 @@ class ReconnectLowPowerTest {
     private val start = 5_000_000L
 
     @Test fun `still full speed at 9 min 59 s`() {
-        assertFalse(BleConnectionManager.reconnectLowPowerDue(start + 9 * 60_000L + 59_000L, start))
+        assertFalse(WheelReconnect.lowPowerDue(start + 9 * 60_000L + 59_000L, start))
     }
 
     @Test fun `low power from exactly 10 min`() {
-        assertTrue(BleConnectionManager.reconnectLowPowerDue(start + 10 * 60_000L, start))
+        assertTrue(WheelReconnect.lowPowerDue(start + 10 * 60_000L, start))
     }
 
     @Test fun `a hunt that just began is full speed`() {
-        assertFalse(BleConnectionManager.reconnectLowPowerDue(start, start))
+        assertFalse(WheelReconnect.lowPowerDue(start, start))
     }
 }

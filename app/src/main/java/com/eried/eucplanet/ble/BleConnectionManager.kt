@@ -83,23 +83,8 @@ class BleConnectionManager(
          *  stack's own 30 s supervision window so a legitimately slow callback
          *  still wins. */
         private const val CONNECT_NO_CALLBACK_TIMEOUT_MS = 35_000L
-        /** One reconnect-scan window. Bounded so a LOW_LATENCY scan is never
-         *  held open forever (Android downgrades or blocks abusive scanners). */
-        private const val RECONNECT_SCAN_WINDOW_MS = 60_000L
-        /** Pauses between re-armed reconnect-scan cycles. Grows so a wheel
-         *  that is genuinely gone (powered off, left at home) costs little
-         *  battery, while one that comes back mid-ride is still caught. */
-        private val RECONNECT_SCAN_PAUSES_MS = longArrayOf(5_000L, 15_000L, 30_000L, 60_000L)
-        /** How long a reconnect hunt scans at full speed. After that the wheel
-         *  is most likely off or left behind, and a LOW_LATENCY scan half the
-         *  time all night kept the phone warm, so it drops to LOW_POWER: a
-         *  wheel coming back is still found, a few seconds later. Opening the
-         *  app restarts the full-speed hunt. */
-        private const val RECONNECT_LOW_POWER_AFTER_MS = 10 * 60_000L
-
-        /** True once a reconnect hunt that began at [huntStartMs] has run its full-speed stretch. */
-        internal fun reconnectLowPowerDue(nowMs: Long, huntStartMs: Long): Boolean =
-            nowMs - huntStartMs >= RECONNECT_LOW_POWER_AFTER_MS
+        // The reconnect hunt's windows, pauses, low-power switch and delays
+        // are shared with the iPhone: see WheelReconnect.
 
         // Client Characteristic Configuration Descriptor: same for every wheel family.
         val CCCD_UUID: UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
@@ -175,7 +160,7 @@ class BleConnectionManager(
      */
     override val connectedSinceMs: StateFlow<Long> = _connectedSinceMs.asStateFlow()
 
-    // Poll the link RSSI once a second while connected so the BT dBm metric and
+    // Poll the link RSSI once a second (WheelReconnect.RSSI_POLL_MS) while connected so the BT dBm metric and
     // the proximity-lock feature stay snappy. A no-op on virtual connections.
     private val rssiJob = scope.launch {
         while (true) {
@@ -183,7 +168,7 @@ class BleConnectionManager(
                 _rssiDbm.value = null
                 _connectionState.first { it == ConnectionState.CONNECTED }
             }
-            delay(1_000)
+            delay(WheelReconnect.RSSI_POLL_MS)
             if (_connectionState.value == ConnectionState.CONNECTED) {
                 runCatching { gatt?.readRemoteRssi() }
             }
@@ -234,7 +219,7 @@ class BleConnectionManager(
     @Volatile private var connectAttemptSeq = 0
 
     // Completed reconnect-scan windows since the link was last up. Indexes into
-    // RECONNECT_SCAN_PAUSES_MS; reset when the wheel is seen or connects.
+    // WheelReconnect.SCAN_PAUSES_MS; reset when the wheel is seen or connects.
     @Volatile private var reconnectScanCycle = 0
     // When the current reconnect hunt began (elapsedRealtime), 0 when none is
     // running, and whether it has dropped to the low-power scan.
@@ -359,12 +344,15 @@ class BleConnectionManager(
         scope.launch {
             // The BLE stack isn't ready the instant the adapter reports ON.
             // Give it a beat, then re-check nothing changed before reconnecting.
-            delay(1500)
-            if (shouldReconnect &&
-                !autoConnectSuppressed &&
-                currentAddress == address &&
-                _connectionState.value != ConnectionState.CONNECTED &&
-                bluetoothManager.adapter?.isEnabled == true
+            delay(WheelReconnect.BLUETOOTH_ON_SETTLE_MS)
+            if (WheelReconnect.huntAfterBluetoothOn(
+                    armed = shouldReconnect,
+                    suppressed = autoConnectSuppressed,
+                    target = currentAddress,
+                    address = address,
+                    state = _connectionState.value,
+                    adapterOn = bluetoothManager.adapter?.isEnabled == true,
+                )
             ) {
                 Log.i(TAG, "Bluetooth turned on; scanning to reconnect to $address")
                 reconnectViaScan(address, currentName)
@@ -392,7 +380,7 @@ class BleConnectionManager(
         _connectionState.value = ConnectionState.SCANNING
         val now = android.os.SystemClock.elapsedRealtime()
         if (reconnectScanCycle == 0 || reconnectHuntStartMs == 0L) reconnectHuntStartMs = now
-        val lowPower = reconnectLowPowerDue(now, reconnectHuntStartMs)
+        val lowPower = WheelReconnect.lowPowerDue(now, reconnectHuntStartMs)
         if (lowPower && !reconnectLowPower) {
             Log.i(TAG, "Reconnect scan for $address: no wheel for 10 min, low-power scan from now")
         }
@@ -433,7 +421,7 @@ class BleConnectionManager(
         // back in range at minute 3, no event ever fires, and the app sits
         // disconnected until the rider opens it.
         scope.launch {
-            delay(RECONNECT_SCAN_WINDOW_MS)
+            delay(WheelReconnect.SCAN_WINDOW_MS)
             if (reconnectScanCallback !== cb) return@launch
             Log.i(TAG, "Reconnect scan window over for $address (cycle $reconnectScanCycle)")
             stopReconnectScan()
@@ -441,14 +429,12 @@ class BleConnectionManager(
                 _connectionState.value = ConnectionState.DISCONNECTED
         _connectedSinceMs.value = 0L
             }
-            val pause = RECONNECT_SCAN_PAUSES_MS[
-                minOf(reconnectScanCycle, RECONNECT_SCAN_PAUSES_MS.lastIndex)
-            ]
+            val pause = WheelReconnect.pauseAfterWindow(reconnectScanCycle)
             reconnectScanCycle++
             delay(pause)
-            if (shouldReconnect && !autoConnectSuppressed &&
-                currentAddress == address &&
-                _connectionState.value == ConnectionState.DISCONNECTED
+            if (WheelReconnect.huntAgain(
+                    shouldReconnect, autoConnectSuppressed, currentAddress, address, _connectionState.value,
+                )
             ) {
                 reconnectViaScan(address, name)
             }
@@ -469,12 +455,16 @@ class BleConnectionManager(
      * over, so it drops back to low power after the same 10 minutes.
      */
     private fun onAppForeground() {
-        if (!shouldReconnect || autoConnectSuppressed || reconnectHuntStartMs == 0L) return
         val address = currentAddress ?: return
-        if (bluetoothManager.adapter?.isEnabled != true) return
-        val state = _connectionState.value
-        if (state == ConnectionState.DISCONNECTED ||
-            (state == ConnectionState.SCANNING && reconnectLowPower)
+        if (WheelReconnect.restartOnForeground(
+                armed = shouldReconnect,
+                suppressed = autoConnectSuppressed,
+                hunting = reconnectHuntStartMs != 0L,
+                hasTarget = true,
+                adapterOn = bluetoothManager.adapter?.isEnabled == true,
+                state = _connectionState.value,
+                lowPower = reconnectLowPower,
+            )
         ) {
             Log.i(TAG, "App opened; full-speed reconnect scan for $address")
             reconnectScanCycle = 0
@@ -1068,16 +1058,16 @@ class BleConnectionManager(
                     } else if (shouldReconnect && status != 0) {
                         val reconnectAddress = currentAddress
                         scope.launch {
-                            delay(2000)
+                            delay(WheelReconnect.DROP_DELAY_MS)
                             // Hold the auto-reconnect while the rider is on the
                             // scan screen choosing a wheel; resume once they
                             // leave it. Skip if they meanwhile picked another
                             // wheel or a connection is already underway.
-                            while (autoConnectSuppressed) delay(300)
-                            if (shouldReconnect &&
-                                reconnectAddress != null &&
-                                currentAddress == reconnectAddress &&
-                                _connectionState.value == ConnectionState.DISCONNECTED
+                            while (autoConnectSuppressed) delay(WheelReconnect.SUPPRESSED_POLL_MS)
+                            if (reconnectAddress != null &&
+                                WheelReconnect.huntAfterDrop(
+                                    shouldReconnect, currentAddress, reconnectAddress, _connectionState.value,
+                                )
                             ) {
                                 // Scan-first, not a blind connectGatt: a wheel
                                 // that just dropped takes seconds to resume

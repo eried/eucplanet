@@ -44,7 +44,10 @@ import platform.CoreBluetooth.CBUUID
 import platform.Foundation.NSData
 import platform.Foundation.NSError
 import platform.Foundation.NSNumber
+import platform.Foundation.NSNotificationCenter
+import platform.Foundation.NSOperationQueue
 import platform.Foundation.NSUUID
+import platform.UIKit.UIApplicationWillEnterForegroundNotification
 import platform.Foundation.create
 import platform.darwin.NSObject
 import platform.posix.memcpy
@@ -62,8 +65,14 @@ data class ScannedWheel(val address: String, val name: String?, val rssi: Int)
  * Virtual wheels ("VIRTUAL:<id>") run without the radio, so the simulator
  * can exercise the whole path.
  *
- * Not here yet (Android has them): auto-reconnect with a filtered scan,
- * the status-133 retries (Android-only), RSSI polling.
+ * A wheel that drops is hunted as Android hunts it ([WheelReconnectHunt],
+ * the shared rules): a scan for it in bounded windows with growing pauses,
+ * plus a pending CoreBluetooth connect during each window, which iOS keeps
+ * waiting in the background where a scan with no service filter finds
+ * nothing. A disconnect the rider asks for, a virtual wheel or the scan
+ * screen stops it. CoreBluetooth has no low-power scan, so a long hunt keeps
+ * its scan. The link's RSSI is read once a second while connected.
+ * Android's status-133 retries have no CoreBluetooth counterpart.
  */
 class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
 
@@ -111,6 +120,60 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
     private val centralDelegate = CentralDelegate()
     private val peripheralDelegate = PeripheralDelegate()
     private val central = CBCentralManager(centralDelegate, null)
+    private var rssiJob: Job? = null
+
+    /** The wheel a hunt is scanning for, null when none is. */
+    private var huntTarget: String? = null
+
+    private val hunt = WheelReconnectHunt(
+        radio = object : HuntRadio {
+            override val adapterOn: Boolean get() = _bluetoothOn.value
+            override var state: ConnectionState
+                get() = _connectionState.value
+                set(value) { _connectionState.value = value }
+
+            override fun startHuntScan(address: String, lowPower: Boolean): Boolean {
+                huntTarget = address
+                Log.i(TAG, "Scanning to reconnect to $address" + if (lowPower) " (long hunt)" else "")
+                central.scanForPeripheralsWithServices(null, null)
+                // Also leave a connect waiting: iOS completes it when the wheel
+                // comes back, in the background too, where the scan sees nothing.
+                knownPeripheral(address)?.let { p ->
+                    peripheral = p
+                    p.delegate = peripheralDelegate
+                    central.connectPeripheral(p, null)
+                }
+                return true
+            }
+
+            override fun stopHuntScan() {
+                huntTarget = null
+                if (!wantScan) central.stopScan()
+                // The waiting connect goes with the window, as Android's scan does.
+                val state = _connectionState.value
+                if (state == ConnectionState.SCANNING || state == ConnectionState.DISCONNECTED) {
+                    peripheral?.let { central.cancelPeripheralConnection(it) }
+                    peripheral = null
+                }
+            }
+
+            override fun connect(address: String, name: String?) = this@IosWheelLink.connect(address, name, isAuto = true)
+        },
+        clock = { System.currentTimeMillis() },
+        timer = { delayMs, block -> scope.launch { delay(delayMs); block() } },
+    )
+
+    init {
+        // As Android's AppForeground: opening the app restarts a slow hunt at full speed.
+        NSNotificationCenter.defaultCenter.addObserverForName(
+            UIApplicationWillEnterForegroundNotification, null, NSOperationQueue.mainQueue,
+        ) { _ -> hunt.foreground() }
+    }
+
+    private fun knownPeripheral(address: String): CBPeripheral? = peripherals[address]
+        ?: runCatching { NSUUID(uUIDString = address) }.getOrNull()?.let { id ->
+            central.retrievePeripheralsWithIdentifiers(listOf(id)).firstOrNull() as? CBPeripheral
+        }
 
     fun startScan() {
         wantScan = true
@@ -131,31 +194,56 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
     }
 
     override fun connect(address: String, name: String?, isAuto: Boolean) {
-        disconnect()
-        currentName = name
+        val virtualId = VirtualWheelRegistry.parsePseudoAddress(address)
+        // While the rider is on the scan screen every automatic connect is held.
+        if (!hunt.connectRequested(address, name, isAuto, virtual = virtualId != null)) {
+            Log.i(TAG, "Auto-connect to $address held: scan screen is open")
+            return
+        }
+        teardown()
+        // Kept across reconnects, so a wheel that drops comes back under the same name.
+        currentName = hunt.targetName
         _connectedAddress.value = address
-        VirtualWheelRegistry.parsePseudoAddress(address)?.let { connectVirtual(it); return }
+        virtualId?.let { connectVirtual(it); return }
 
-        val p = peripherals[address]
-            ?: (central.retrievePeripheralsWithIdentifiers(listOf(NSUUID(uUIDString = address)))
-                .firstOrNull() as? CBPeripheral)
+        // As Android: with Bluetooth off, remember the wheel and let Bluetooth
+        // coming on start the hunt (connecting now would only fail).
+        if (!_bluetoothOn.value) {
+            Log.i(TAG, "connect($address) deferred: Bluetooth is off")
+            _connectionState.value = ConnectionState.DISCONNECTED
+            return
+        }
+        val p = knownPeripheral(address)
         if (p == null) {
             Log.e(TAG, "Unknown peripheral $address")
             _connectedAddress.value = null
             return
         }
         stopScan()
-        DiagnosticsLogger.note("Connect requested: name=${name ?: "(unknown)"} addr=$address")
-        adapter.notifyConnectingTo(name)?.let { _decodedResults.tryEmit(it) }
+        DiagnosticsLogger.note("Connect requested: name=${currentName ?: "(unknown)"} addr=$address")
+        adapter.notifyConnectingTo(currentName)?.let { _decodedResults.tryEmit(it) }
         _connectedBrand.value = adapter.brand
-        _connectedDeviceName.value = name
+        _connectedDeviceName.value = currentName
         _connectionState.value = ConnectionState.CONNECTING
         peripheral = p
         p.delegate = peripheralDelegate
         central.connectPeripheral(p, null)
     }
 
+    /** The rider's disconnect: forget the wheel, so it is not hunted. */
     override fun disconnect() {
+        hunt.disconnectRequested()
+        teardown()
+        _connectedAddress.value = null
+        _connectedDeviceName.value = null
+        _connectedBrand.value = null
+        currentName = null
+    }
+
+    /** Drops the link and everything about it, keeping the wheel to come back to. */
+    private fun teardown() {
+        rssiJob?.cancel()
+        rssiJob = null
         virtualTickJob?.cancel()
         virtualTickJob = null
         virtualWheel = null
@@ -168,9 +256,6 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
         notifyChar = null
         if (_connectionState.value != ConnectionState.DISCONNECTED) adapter.onDisconnect()
         _connectionState.value = ConnectionState.DISCONNECTED
-        _connectedAddress.value = null
-        _connectedDeviceName.value = null
-        _connectedBrand.value = null
         _connectedSinceMs.value = 0L
         _rssiDbm.value = null
     }
@@ -184,9 +269,18 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
         writeSignal.trySend(Unit)
     }
 
-    override fun suppressAutoConnect() = stopScan()
+    override fun suppressAutoConnect() {
+        stopScan()
+        // The scan screen runs its own scan: no hunt beside it, and a wheel the
+        // app connected by itself is let go. One the rider picked stays.
+        if (hunt.suppress()) {
+            Log.i(TAG, "Scan opened while auto-connected/connecting; dropping it")
+            disconnect()
+        }
+    }
 
     override fun resumeAutoConnect(reconnectAddress: String?, reconnectName: String?) {
+        hunt.resume()
         if (reconnectAddress != null && _connectionState.value == ConnectionState.DISCONNECTED) {
             connect(reconnectAddress, reconnectName, isAuto = true)
         }
@@ -224,6 +318,14 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
         _connectedSinceMs.value = System.currentTimeMillis()
         DiagnosticsLogger.note("Connected: name=${currentName ?: "(none)"} adapter=${adapter.familyDisplayName}")
         writerJob = scope.launch { drainWrites() }
+        // The BT signal metric and proximity lock read it, as on Android. A
+        // virtual wheel has no radio, so it stays unknown.
+        rssiJob = scope.launch {
+            while (_connectionState.value == ConnectionState.CONNECTED) {
+                delay(WheelReconnect.RSSI_POLL_MS)
+                if (_connectionState.value == ConnectionState.CONNECTED) peripheral?.readRSSI()
+            }
+        }
     }
 
     private fun emitNotification(bytes: ByteArray) {
@@ -276,6 +378,16 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
                 else -> BluetoothRadio.UNKNOWN
             }
             if (_bluetoothOn.value && wantScan) central.scanForPeripheralsWithServices(null, null)
+            if (_bluetoothOn.value) {
+                hunt.bluetoothOn()
+            } else {
+                hunt.bluetoothOff()
+                // As Android: the link is gone with the radio; keep the wheel to come back to.
+                if (virtualWheel == null && _connectionState.value != ConnectionState.DISCONNECTED) {
+                    Log.i(TAG, "Bluetooth turned off; forcing disconnect")
+                    teardown()
+                }
+            }
         }
 
         override fun centralManager(
@@ -284,8 +396,14 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
             advertisementData: Map<Any?, *>,
             RSSI: NSNumber,
         ) {
-            val name = didDiscoverPeripheral.name ?: return
             val id = didDiscoverPeripheral.identifier.UUIDString
+            if (id == huntTarget) {
+                peripherals[id] = didDiscoverPeripheral
+                Log.i(TAG, "Reconnect scan found $id; connecting")
+                hunt.seen(id)
+                if (!wantScan) return
+            }
+            val name = didDiscoverPeripheral.name ?: return
             peripherals[id] = didDiscoverPeripheral
             val seen = ScannedWheel(id, name, RSSI.intValue)
             _scanResults.value = (_scanResults.value.filter { it.address != id } + seen)
@@ -294,6 +412,16 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
 
         override fun centralManager(central: CBCentralManager, didConnectPeripheral: CBPeripheral) {
             if (didConnectPeripheral !== peripheral) return
+            val state = _connectionState.value
+            if (state == ConnectionState.SCANNING || state == ConnectionState.DISCONNECTED) {
+                // The connect left waiting by the hunt landed: it is a reconnect.
+                Log.i(TAG, "Wheel came back; reconnected")
+                _connectionState.value = ConnectionState.CONNECTING
+                hunt.reconnected()
+                adapter.notifyConnectingTo(currentName)?.let { _decodedResults.tryEmit(it) }
+                _connectedBrand.value = adapter.brand
+                _connectedDeviceName.value = currentName
+            }
             _connectionState.value = ConnectionState.INITIALIZING
             // All services: the adapter may need to re-route by what is there.
             didConnectPeripheral.discoverServices(null)
@@ -303,14 +431,17 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
         override fun centralManager(central: CBCentralManager, didFailToConnectPeripheral: CBPeripheral, error: NSError?) {
             if (didFailToConnectPeripheral !== peripheral) return
             DiagnosticsLogger.note("Connect failed: ${error?.localizedDescription}")
-            disconnect()
+            teardown()
+            hunt.dropped(unexpected = true)
         }
 
         @ObjCSignatureOverride
         override fun centralManager(central: CBCentralManager, didDisconnectPeripheral: CBPeripheral, error: NSError?) {
             if (didDisconnectPeripheral !== peripheral) return
             DiagnosticsLogger.note("Disconnected: ${error?.localizedDescription ?: "by request"}")
-            disconnect()
+            teardown()
+            // No error: the app asked for it. An error: the wheel went away.
+            hunt.dropped(unexpected = error != null)
         }
     }
 
@@ -394,7 +525,8 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
         }
 
         override fun peripheral(peripheral: CBPeripheral, didReadRSSI: NSNumber, error: NSError?) {
-            if (error == null) _rssiDbm.value = didReadRSSI.intValue
+            // A read that lands after the link dropped would leave a stale value up.
+            if (error == null && _connectionState.value == ConnectionState.CONNECTED) _rssiDbm.value = didReadRSSI.intValue
         }
     }
 
