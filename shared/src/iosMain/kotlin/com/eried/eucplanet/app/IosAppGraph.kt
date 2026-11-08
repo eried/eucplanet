@@ -31,6 +31,7 @@ import com.eried.eucplanet.ui.recording.EucViewerViewModel
 import com.eried.eucplanet.ui.recording.RecordingViewModel
 import com.eried.eucplanet.ui.settings.SettingsViewModel
 import com.eried.eucplanet.weather.WeatherRepository
+import com.eried.eucplanet.util.AppNotifier
 import com.eried.eucplanet.ui.theme.ThemeController
 import platform.UIKit.UIScreen
 import platform.UIKit.UIUserInterfaceStyle
@@ -110,12 +111,19 @@ object IosAppGraph {
     val link: IosWheelLink by lazy { IosWheelLink(adapter) }
 
     /**
+     * Notices from code with no screen of its own (the wheel, Dropbox, the
+     * trip tools), shown by the root snackbar host in MainViewController, as
+     * MainActivity shows AppNotifier's on Android.
+     */
+    val notices: AppNotifier by lazy { AppNotifier() }
+
+    /**
      * Every rider action (dashboard tiles, and Flic once its iOS SDK is in),
      * the same table Android's FlicManager hands its presses to.
      */
     val actions: ActionExecutor by lazy {
         ActionExecutor(
-            settings, wheel, IosTrips, voice, NoAutomation, LogNotices, IosLockdown.controller,
+            settings, wheel, IosTrips, voice, NoAutomation, notices, IosLockdown.controller,
             NoVoiceListening, NoMedia, IosPhoneDevice,
         )
     }
@@ -157,7 +165,7 @@ object IosAppGraph {
             tpmsRepository = NoTyrePressure,
             accelSplitRepository = NoAccelSplits,
             tripRepositoryLazy = lazyOf(NoRecording),
-            appNotifier = LogNotices,
+            appNotifier = notices,
             hornPlayer = NoPhoneHorn,
             phone = IosPhoneDevice,
         )
@@ -215,7 +223,7 @@ object IosAppGraph {
         metricsReset = IosMetricsResetter(wheel, IosTripMeter.meter),
         weatherRepository = weather,
         dropboxRepository = dropbox,
-        appNotifier = LogNotices,
+        appNotifier = notices,
         navigationEngine = NoRoute,
         voiceCommands = NoVoiceCommands,
         phone = IosPhoneDevice,
@@ -228,7 +236,7 @@ object IosAppGraph {
         settingsRepository = settings,
         csvFiles = IosChargingCsvFiles,
         phone = IosPhoneDevice,
-        appNotifier = LogNotices,
+        appNotifier = notices,
     )
 
     /** The alarm editor's view model, as Koin builds it on Android. */
@@ -279,7 +287,7 @@ object IosAppGraph {
         bleScanner = IosWheelScanner(link),
         settingsRepository = settings,
         bleConnectionManager = link,
-        appNotifier = LogNotices,
+        appNotifier = notices,
         phone = IosPhoneDevice,
         platform = IosScanPlatform(link),
     )

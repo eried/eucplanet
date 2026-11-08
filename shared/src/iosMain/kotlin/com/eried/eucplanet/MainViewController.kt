@@ -56,6 +56,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.eried.eucplanet.probe.ProbeScreen
 import kotlinx.coroutines.MainScope
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import com.eried.eucplanet.platform.Log
 import kotlinx.coroutines.launch
 import platform.Foundation.NSProcessInfo
 import platform.UIKit.UIViewController
@@ -180,7 +188,8 @@ fun MainViewController(): UIViewController {
                             host = IosLockdown.Host,
                         )
                     }
-                } else when (screen) {
+                } else Box(Modifier.fillMaxSize()) {
+                when (screen) {
                     "scan" -> {
                         // Owned by a store cleared when the screen leaves, so the
                         // view model's onCleared re-arms auto-connect, as on Android.
@@ -345,6 +354,20 @@ fun MainViewController(): UIViewController {
                             host = host,
                         )
                     }
+                }
+                // Notices from code with no screen (AppNotifier), as MainActivity's
+                // root snackbar host shows them over every screen but the locked one.
+                val rootSnackbar = remember { SnackbarHostState() }
+                LaunchedEffect(Unit) {
+                    IosAppGraph.notices.messages.collect { msg ->
+                        Log.i("Notice", msg)
+                        rootSnackbar.showSnackbar(msg)
+                    }
+                }
+                SnackbarHost(
+                    hostState = rootSnackbar,
+                    modifier = Modifier.align(Alignment.BottomCenter).imePadding(),
+                )
                 }
                 // The crew pass, over whatever is showing, as Android's own activity is.
                 val pass by IosCrews.request.collectAsState()

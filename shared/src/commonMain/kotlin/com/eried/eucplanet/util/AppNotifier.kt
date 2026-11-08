@@ -16,7 +16,12 @@ import kotlinx.coroutines.flow.asSharedFlow
  * doesn't match the rest of the UI. They now [post] here instead, and a single
  * root-level Snackbar host in MainActivity collects [messages] and shows them
  * over whatever screen is on top -- so every user-facing transient is a
- * Material 3 Snackbar, per the project convention.
+ * Material 3 Snackbar, per the project convention. The iPhone's root host is
+ * in MainViewController, the same snackbar over whatever screen is up.
+ *
+ * Neither phone turns a notice into a system notification: one posted while
+ * the app is in the background reaches the snackbar host, never the lock
+ * screen.
  *
  * [post] is non-suspending and safe to call from any thread; the buffer drops
  * the oldest pending message if a burst arrives faster than the host can show

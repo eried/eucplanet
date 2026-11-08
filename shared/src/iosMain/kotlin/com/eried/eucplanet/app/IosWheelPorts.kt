@@ -4,7 +4,6 @@ import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.ExternalGpsSample
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.repository.AccelSplitReset
-import com.eried.eucplanet.data.repository.AppNotices
 import com.eried.eucplanet.data.repository.ExternalGpsFeed
 import com.eried.eucplanet.data.repository.GpsFix
 import com.eried.eucplanet.data.repository.PhoneDevice
@@ -14,7 +13,6 @@ import com.eried.eucplanet.data.repository.PhoneImuSample
 import com.eried.eucplanet.data.repository.RideRecording
 import com.eried.eucplanet.data.repository.RouteKeepAlive
 import com.eried.eucplanet.data.repository.TyrePressureFeed
-import com.eried.eucplanet.platform.Log
 import com.eried.eucplanet.platform.format
 import com.eried.eucplanet.tpms.TpmsReading
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -69,10 +67,6 @@ internal object NoRecording : RideRecording {
     override fun currentFix(): GpsFix? = null
 }
 
-/** No snackbar host on iOS yet: notices go to the log. */
-internal object LogNotices : AppNotices {
-    override fun post(message: String) { Log.i("Notice", message) }
-}
 
 /** No horn sound on iOS yet, so a horn tap uses the wheel or the fallback. */
 internal object NoPhoneHorn : PhoneHorn {
