@@ -44,8 +44,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
@@ -55,20 +53,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.TripMeterSplit
 import com.eried.eucplanet.data.model.TripMeterState
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripMeterRepository
+import com.eried.eucplanet.platform.format
+import com.eried.eucplanet.platform.stringResource
+import com.eried.eucplanet.resources.*
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.GraphScale
 import com.eried.eucplanet.util.Units
-import com.eried.eucplanet.util.speedUnit
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * View model for the trip-meter detail view. Reads the running [TripMeterState]
@@ -105,17 +103,16 @@ private enum class TripMeterTab { SPEED, BATTERY, TIME }
 @Composable
 fun TripMeterDetailScreen(
     onBack: () -> Unit,
-    viewModel: TripMeterDetailViewModel = koinViewModel(),
+    viewModel: TripMeterDetailViewModel,
 ) {
     val state by viewModel.state.collectAsState()
     val speedUnit by viewModel.speedUnit.collectAsState()
     val distanceUnit by viewModel.distanceUnit.collectAsState()
-    val context = LocalContext.current
 
     var tab by remember { mutableIntStateOf(0) }
     var showResetConfirm by remember { mutableStateOf(false) }
 
-    val speedUnitLabel = Units.speedUnit(context, speedUnit)
+    val speedUnitLabel = stringResource(Units.speedUnitRes(speedUnit))
     val distUnitLabel = Units.distanceUnit(distanceUnit)
 
     val accent = MaterialTheme.appColors.metricPosition       // purple, matches the tile
@@ -124,12 +121,12 @@ fun TripMeterDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.trip_meter_detail_title)) },
+                title = { Text(stringResource(Res.string.trip_meter_detail_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.action_back)
+                            contentDescription = stringResource(Res.string.action_back)
                         )
                     }
                 },
@@ -172,9 +169,9 @@ fun TripMeterDetailScreen(
 
             PrimaryTabRow(selectedTabIndex = tab, modifier = Modifier.fillMaxWidth()) {
                 val titles = listOf(
-                    R.string.trip_meter_tab_speed,
-                    R.string.trip_meter_tab_battery,
-                    R.string.trip_meter_tab_time,
+                    Res.string.trip_meter_tab_speed,
+                    Res.string.trip_meter_tab_battery,
+                    Res.string.trip_meter_tab_time,
                 )
                 titles.forEachIndexed { idx, res ->
                     Tab(
@@ -269,7 +266,7 @@ fun TripMeterDetailScreen(
                             // Screen is already titled "Trip meter", so the button
                             // just reads "Reset" (the confirm dialog carries the full
                             // "Reset trip meter" title + the danger copy).
-                            stringResource(R.string.action_reset),
+                            stringResource(Res.string.action_reset),
                             color = accent,
                             fontWeight = FontWeight.Medium,
                             fontSize = 13.sp,
@@ -285,8 +282,8 @@ fun TripMeterDetailScreen(
                 AlertDialog(
                     onDismissRequest = { showResetConfirm = false },
                     shape = RoundedCornerShape(12.dp),
-                    title = { Text(stringResource(R.string.trip_meter_reset)) },
-                    text = { Text(stringResource(R.string.trip_meter_reset_msg)) },
+                    title = { Text(stringResource(Res.string.trip_meter_reset)) },
+                    text = { Text(stringResource(Res.string.trip_meter_reset_msg)) },
                     confirmButton = {
                         TextButton(
                             onClick = {
@@ -294,13 +291,13 @@ fun TripMeterDetailScreen(
                                 showResetConfirm = false
                             },
                             shape = RoundedCornerShape(12.dp)
-                        ) { Text(stringResource(R.string.action_reset)) }
+                        ) { Text(stringResource(Res.string.action_reset)) }
                     },
                     dismissButton = {
                         TextButton(
                             onClick = { showResetConfirm = false },
                             shape = RoundedCornerShape(12.dp)
-                        ) { Text(stringResource(R.string.action_cancel)) }
+                        ) { Text(stringResource(Res.string.action_cancel)) }
                     }
                 )
             }
@@ -323,8 +320,8 @@ private fun HeaderRow(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        HeaderStat(stringResource(R.string.trip_meter_active), totalTime, accent, Modifier.weight(1f))
-        HeaderStat(stringResource(R.string.trip_meter_avg), overallAvg, accent, Modifier.weight(1f))
+        HeaderStat(stringResource(Res.string.trip_meter_active), totalTime, accent, Modifier.weight(1f))
+        HeaderStat(stringResource(Res.string.trip_meter_avg), overallAvg, accent, Modifier.weight(1f))
     }
 }
 
@@ -360,7 +357,7 @@ private fun EmptyMeter(accent: Color) {
         contentAlignment = Alignment.Center
     ) {
         Text(
-            stringResource(R.string.trip_meter_empty),
+            stringResource(Res.string.trip_meter_empty),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontSize = 13.sp,
             textAlign = TextAlign.Center,
@@ -477,12 +474,12 @@ private fun SplitTable(
     Column(modifier = Modifier.fillMaxWidth()) {
         // Header row.
         Row(modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp)) {
-            TableCell(stringResource(R.string.trip_meter_col_split), weight = 0.6f, header = true)
-            TableCell(stringResource(R.string.trip_meter_col_dist), weight = 1f, header = true)
-            TableCell(stringResource(R.string.trip_meter_col_time), weight = 1f, header = true)
-            TableCell(stringResource(R.string.trip_meter_avg), weight = 1f, header = true)
-            TableCell(stringResource(R.string.trip_meter_col_max), weight = 1f, header = true)
-            TableCell(stringResource(R.string.trip_meter_col_batt), weight = 0.9f, header = true)
+            TableCell(stringResource(Res.string.trip_meter_col_split), weight = 0.6f, header = true)
+            TableCell(stringResource(Res.string.trip_meter_col_dist), weight = 1f, header = true)
+            TableCell(stringResource(Res.string.trip_meter_col_time), weight = 1f, header = true)
+            TableCell(stringResource(Res.string.trip_meter_avg), weight = 1f, header = true)
+            TableCell(stringResource(Res.string.trip_meter_col_max), weight = 1f, header = true)
+            TableCell(stringResource(Res.string.trip_meter_col_batt), weight = 0.9f, header = true)
         }
         splits.forEach { s ->
             Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
@@ -500,7 +497,7 @@ private fun SplitTable(
         val partialKm = state.distanceKm - lastMark
         if (partialKm > 0.01f) {
             Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
-                TableCell(stringResource(R.string.trip_meter_partial), weight = 0.6f)
+                TableCell(stringResource(Res.string.trip_meter_partial), weight = 0.6f)
                 TableCell("%.1f %s".format(Units.distance(state.distanceKm, distanceUnit), distUnitLabel), weight = 1f)
                 TableCell(Units.humanDuration(((state.activeMs - lastCumMs).coerceAtLeast(0L)) / 1000L), weight = 1f)
                 TableCell("--", weight = 1f)

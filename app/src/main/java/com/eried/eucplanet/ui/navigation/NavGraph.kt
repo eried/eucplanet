@@ -274,7 +274,8 @@ fun NavGraph(navController: NavHostController) {
         }
         composable(Screen.TripMeterDetail.route) {
             com.eried.eucplanet.ui.dashboard.TripMeterDetailScreen(
-                onBack = { navController.popSingle() }
+                onBack = { navController.popSingle() },
+                viewModel = koinViewModel(),
             )
         }
         composable(

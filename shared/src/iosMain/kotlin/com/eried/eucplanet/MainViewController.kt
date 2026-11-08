@@ -32,6 +32,8 @@ import com.eried.eucplanet.ui.scan.ScanScreen
 import com.eried.eucplanet.ui.scan.ScanViewModel
 import com.eried.eucplanet.app.RideActivity
 import com.eried.eucplanet.ui.dashboard.DashboardScreen
+import com.eried.eucplanet.ui.dashboard.TripMeterDetailScreen
+import com.eried.eucplanet.ui.dashboard.TripMeterDetailViewModel
 import com.eried.eucplanet.ui.theme.EucPlanetTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -88,7 +90,7 @@ fun MainViewController(): UIViewController {
             val colors by theme.activeColors.collectAsState()
             EucPlanetTheme(colors = colors) {
                 // A small screen stack until the shared navigation graph lands.
-                // SIMCTL_CHILD_EUC_SCREEN=scan opens on the scan screen (also settings, flic, trips).
+                // SIMCTL_CHILD_EUC_SCREEN=scan opens on the scan screen (also settings, flic, trips, tripmeter).
                 var screen by remember { mutableStateOf(startScreen ?: "dashboard") }
                 var leaderboardTab by remember { mutableStateOf(settingsTab) }
                 // The crew pass sends a rider with no leaderboard profile to join one.
@@ -137,6 +139,12 @@ fun MainViewController(): UIViewController {
                             host = IosRecordingHost,
                         )
                     }
+                    "tripmeter" -> {
+                        val tripMeterVm = rememberViewModel {
+                            TripMeterDetailViewModel(IosTripMeter.meter, IosAppGraph.settings)
+                        }
+                        TripMeterDetailScreen(onBack = { screen = "dashboard" }, viewModel = tripMeterVm)
+                    }
                     "flic" -> {
                         val flicVm = rememberViewModel { FlicViewModel(IosAppGraph.settings, IosFlic) }
                         FlicScreen(onBack = { screen = "settings" }, viewModel = flicVm)
@@ -148,6 +156,7 @@ fun MainViewController(): UIViewController {
                             onNavigateToScan = { screen = "scan" },
                             onNavigateToSettings = { screen = "settings" },
                             onNavigateToRecording = { screen = "trips" },
+                            onNavigateToTripMeter = { screen = "tripmeter" },
                             viewModel = viewModel,
                             host = host,
                         )
