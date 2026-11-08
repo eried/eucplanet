@@ -242,7 +242,11 @@ fun MainViewController(): UIViewController {
                     }
                     "flic" -> {
                         val flicVm = rememberViewModel { FlicViewModel(IosAppGraph.settings, IosFlic) }
-                        FlicScreen(onBack = { screen = "settings" }, viewModel = flicVm)
+                        FlicScreen(
+                            onBack = { screen = "settings" },
+                            viewModel = flicVm,
+                            voiceCommands = com.eried.eucplanet.ui.settings.SettingsRow.VOICE_COMMANDS !in IosSettingsHost.hiddenRows,
+                        )
                     }
                     else -> {
                         val viewModel = remember { IosAppGraph.dashboardViewModel() }

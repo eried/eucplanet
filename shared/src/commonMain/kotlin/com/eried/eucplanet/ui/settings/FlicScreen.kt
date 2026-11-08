@@ -41,6 +41,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import com.eried.eucplanet.ui.common.rememberScanStarter
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -55,9 +57,27 @@ import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedFieldColors
 
-@OptIn(ExperimentalMaterial3Api::class)
+/** Whether the phone runs spoken commands; without them Listen is not offered. */
+private val LocalFlicVoiceCommands = staticCompositionLocalOf { true }
+
+/**
+ * [voiceCommands] false (iOS) leaves Listen out of the button pickers, as the
+ * dashboard's pickers do, since it could only do nothing there.
+ */
 @Composable
 fun FlicScreen(
+    onBack: () -> Unit,
+    viewModel: FlicViewModel,
+    voiceCommands: Boolean = true,
+) {
+    CompositionLocalProvider(LocalFlicVoiceCommands provides voiceCommands) {
+        FlicScreenContent(onBack, viewModel)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun FlicScreenContent(
     onBack: () -> Unit,
     viewModel: FlicViewModel,
 ) {
@@ -277,9 +297,13 @@ private fun FlicActionDropdown(
     modifier: Modifier = Modifier,
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val flicKeys = remember {
-        com.eried.eucplanet.data.model.ActionCatalog.keysFor(
-            com.eried.eucplanet.data.model.ActionSurface.FLIC
+    val voiceCommands = LocalFlicVoiceCommands.current
+    val flicKeys = remember(voiceCommands) {
+        com.eried.eucplanet.data.model.ActionCatalog.pickableKeys(
+            com.eried.eucplanet.data.model.ActionCatalog.keysFor(
+                com.eried.eucplanet.data.model.ActionSurface.FLIC
+            ),
+            voiceCommands,
         )
     }
     val noneLabel = stringResource(Res.string.flic_action_none)

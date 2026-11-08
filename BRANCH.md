@@ -8,8 +8,10 @@ only when you can cut the ride short.
 
 - iPhone app (TestFlight): connects to the wheel, with the same dashboard, alarms, voice reports, settings, themes, Flic buttons, Dropbox sync, trip recording and trip list as Android.
 - iPhone app: leaderboards and crew pass, trip details with the map, trip meter, metric details and the charging monitor with charge alerts.
+- iPhone app: the Needs attention warnings (location, Bluetooth, notifications, backups), and a recording cut short by closing the app is saved or dropped at the next start, as on Android.
 - Inside: the dashboard, settings, alarms, trips, trip details, leaderboards, Dropbox sync and the wheel link moved to a library shared with the iPhone. Nothing should change on screen.
 - Settings, Dashboard layout no longer closes the app.
+- Settings search no longer finds rows a phone does not show.
 - Release builds are obfuscated (Play asks for it by Feb 2027). Branch APKs are debug builds and do not change.
 - Navigator view: turn card, speed, arrival time and your own tiles on the map while navigating. Pick the tiles in Settings.
 - Map: while navigating it faces where you ride (heading-up), turning on curves from the wheel's speed. Tap the compass for north-up.
@@ -49,6 +51,7 @@ only when you can cut the ride short.
 - Open the trip: map, tiles and charts right? Link Dropbox and sync: does the trip show up on your Android phone?
 - Leaderboards (Settings, Backups): join, upload a ride, scan a crew pass QR.
 - Charge the wheel with the Battery monitor open: do the 80% and full alerts come?
+- Tap the warning icon on the dashboard: does each Fix take you to the right place?
 
 **Android, after the move to the shared library**
 - Dashboard, Settings, alarm editor, Scan, the trip list, trip details, trip meter, metric details, battery monitor and leaderboards: anything that looks or acts differently from the last build is a bug.
