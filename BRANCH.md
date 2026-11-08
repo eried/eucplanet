@@ -37,7 +37,7 @@ only when you can cut the ride short.
 - Messages no longer hide under the keyboard, like "Search needs signal" or one that comes while typing in a number field.
 - Languages: 7 new (Portuguese for Portugal, Indonesian, Vietnamese, Thai, Greek, Bulgarian, Slovak), 30 in all. The other 22 were reviewed to read like a native app: one word per term, no word-for-word phrases, leftover English translated.
 - Inside: wiring moved to a library that also runs on iPhone, build tools updated (Kotlin 2.3.21, Koin 4.2.2). Nothing should change on screen.
-- Engine sound: the synthesized engines are rebuilt for a phone speaker. Each cylinder fires at its real crank angle into a real pipe, so the note sits where the speaker plays and the pitch follows the wheel without turning into a screech. Six more engines in the picker: V-twin, Inline-4, Boxer 6, Tron whine, Steam locomotive, UFO hover.
+- Engine sound: the synthesized engines are rebuilt for a phone speaker. Each cylinder fires at its real crank angle into a real pipe, so the note sits where the speaker plays and the pitch follows the wheel without turning into a screech. Thirteen more engines in the picker: V-twin, Inline-4, Boxer 6, Inline-6, V16, 2-stroke, Quad bike, Tractor, Tron whine, Steam locomotive, UFO hover, Pod racer (two turbines beating), Hover bike (ducted fans).
 - Engine sound: the multi-cylinder engines (V8, V12, Inline-4, Boxer 6, V-twin) no longer turn into an electronic whine when accelerating; every bang keeps its edge at speed and the V8 has its real cross-plane burble. Recorded engines (the "Sampled" ones) now double their pitch across the rev band and hand over to the revving loop earlier, so they should no longer sit in the idle loop while riding.
 
 ## Please test
@@ -56,7 +56,7 @@ only when you can cut the ride short.
 - Offline areas, Select, Around me: does it pick the squares you expect, and say the size before downloading?
 
 **Engine sound** (Settings, search "engine", switch it on)
-- Pick each of the ten engines and ride: does the pitch follow the wheel, and does a hard pull stay an engine instead of a whistle? Say which engine and when.
+- Pick each of the seventeen engines and ride: does the pitch follow the wheel, and does a hard pull stay an engine instead of a whistle? Say which engine and when.
 - V8, V12, Inline-4, Boxer 6: accelerate hard from 15 to 40 km/h. Engine or electronic whine? Say which one and at what speed it turns.
 - A recorded engine ("Sampled" in the list): ride from a stop to 30 km/h. Does the pitch climb and the sound change to the revving recording, or does it stay on the idle loop?
 - On the phone speaker, not only headphones: is it loud enough at idle and not harsh at speed?

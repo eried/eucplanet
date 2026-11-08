@@ -384,11 +384,16 @@ class EngineSynth(private val sampleRate: Int = 44100) {
                     val air = rumble.process(pn) * (0.5f + 0.5f * n) * 1.6f + roar.process(pn) * (0.15f + 0.85f * n) * 1.3f
                     sample = air * (0.5f + grit)
                     // The shaft whine and its blade-pass partials, louder as it spools up.
-                    val w = 0.06f + 0.3f * n
+                    val w = (0.06f + 0.3f * n) * profile.synthWhine
                     sample += whine(0, inc) * w +
                         whine(1, inc * 1.47) * w * 0.4f +
                         whine(2, inc * 2.0) * w * 0.35f +
                         whine(3, inc * 3.0) * w * 0.2f
+                    // Two engines: a second shaft a shade off the first, so they beat and the air throbs.
+                    if (wobble > 0.2f) {
+                        sample += whine(4, inc * (1.0 + 0.045 * wobble)) * w * 0.8f
+                        sample *= 1f - 0.35f * wobble * trem
+                    }
                     sample += nextNoise() * 0.02f * n
                 }
                 SynthVoice.ELECTRIC -> {

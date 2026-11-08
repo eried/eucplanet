@@ -94,8 +94,10 @@ data class EngineProfile(
     /** Synth peak frequency at max RPM (Hz). */
     val synthMaxHz: Float = 1200f,
     val voice: SynthVoice = SynthVoice.SAW,
-    /** Wobble depth for synth (0..1): vibrato and tremolo. */
+    /** Wobble depth for synth (0..1): vibrato and tremolo. On a turbine above 0.2 it is a second shaft, detuned, so the two beat. */
     val synthFmDepth: Float = 0.3f,
+    /** Turbine voice: how much shaft whine over the air noise. 1 is a jet, less is a ducted fan. */
+    val synthWhine: Float = 1f,
     /**
      * Resource basename for sample-based rendering, looked up under `res/raw/`.
      *
@@ -153,7 +155,7 @@ data class EngineProfile(
         val PROFILES: List<EngineProfile> = listOf(
             // --- Singles & small thumpers (gearless because EUCs don't shift like these) ---
             EngineProfile(
-                key = "TWO_STROKE", preview = true,
+                key = "TWO_STROKE",
                 displayName = "2-stroke",
                 kind = Kind.ICE,
                 idleRpm = 1400, maxRpm = 11000,
@@ -183,18 +185,20 @@ data class EngineProfile(
                 gainTrim = 2.2f
             ),
             EngineProfile(
-                key = "QUAD_BIKE", preview = true,
+                key = "QUAD_BIKE",
                 displayName = "Quad bike",
                 kind = Kind.ICE,
                 idleRpm = 850, maxRpm = 6200,
                 gearless = true,
                 cylinderCount = 1,
                 firingAngles = floatArrayOf(0f),
-                pipeHz = 210f, pipeQ = 1.1f,
-                intakeNoise = 0.35f,
-                exhaustGrit = 0.3f,
+                // A big, lazy single with a fat pipe: deeper and gruffer than the road single
+                pipeHz = 170f, pipeQ = 0.8f,
+                pulseMs = 4.5f,
+                intakeNoise = 0.42f,
+                exhaustGrit = 0.35f,
                 decelPopProbability = 0.3f,
-                compressionTone = 0.65f,
+                compressionTone = 0.6f,
                 gainTrim = 2.5f
             ),
             // --- Multi-cylinder ICE ---
@@ -258,18 +262,19 @@ data class EngineProfile(
                 compressionTone = 0.55f
             ),
             EngineProfile(
-                key = "V16_LUXURY", preview = true,
+                key = "V16_LUXURY",
                 displayName = "V16 (luxury)",
                 kind = Kind.ICE,
                 idleRpm = 550, maxRpm = 5800,
                 cylinderCount = 16,
                 firingAngles = FloatArray(16) { i -> i * 45f },
-                pipeHz = 200f, pipeQ = 0.9f,
-                gainTrim = 1.25f,
+                // Big pipes, soft pulses: a deep wave of an engine, nothing sharp in it
+                pipeHz = 160f, pipeQ = 0.7f,
+                gainTrim = 1.3f,
                 intakeNoise = 0.15f,
                 exhaustGrit = 0.1f,
                 decelPopProbability = 0.2f,
-                compressionTone = 0.45f
+                compressionTone = 0.4f
             ),
             // --- Extra ICE flavors ---
             EngineProfile(
@@ -289,21 +294,23 @@ data class EngineProfile(
                 compressionTone = 0.5f
             ),
             EngineProfile(
-                key = "INLINE_6_SILKY", preview = true,
+                key = "INLINE_6_SILKY",
                 displayName = "Inline-6 (silky)",
                 kind = Kind.ICE,
                 idleRpm = 700, maxRpm = 6500,
                 cylinderCount = 6,
                 firingAngles = floatArrayOf(0f, 120f, 240f, 360f, 480f, 600f),
                 gainTrim = 1.3f,
-                pipeHz = 220f, pipeQ = 0.8f,
+                // A longer, cleaner pipe than the boxer's rasp: the note sings more than it barks
+                pipeHz = 220f, pipeQ = 1.3f,
+                ringHz = 2000f, ringAmount = 0.06f,
                 intakeNoise = 0.3f,
                 exhaustGrit = 0.12f,
                 decelPopProbability = 0.25f,
                 compressionTone = 0.5f
             ),
             EngineProfile(
-                key = "TRACTOR", preview = true,
+                key = "TRACTOR",
                 displayName = "Tractor",
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 450, maxRpm = 2400,
@@ -348,14 +355,16 @@ data class EngineProfile(
                 decelPopProbability = 0.0f
             ),
             EngineProfile(
-                key = "POD_RACER", preview = true,
+                key = "POD_RACER",
                 displayName = "Pod racer",
                 kind = Kind.SYNTH, gearless = true,
                 idleRpm = 500, maxRpm = 10000,
-                synthBaseHz = 110f, synthMaxHz = 720f,
-                voice = SynthVoice.SAW,
+                // Two big turbines side by side, a shade apart in speed, so they beat and throb
+                synthBaseHz = 140f, synthMaxHz = 800f,
+                voice = SynthVoice.TURBINE,
                 synthFmDepth = 0.6f,
-                exhaustGrit = 0.45f,
+                synthWhine = 0.6f,
+                exhaustGrit = 0.65f,
                 decelPopProbability = 0.3f
             ),
             EngineProfile(
@@ -403,14 +412,16 @@ data class EngineProfile(
                 decelPopProbability = 0.0f
             ),
             EngineProfile(
-                key = "HOVER_BIKE", preview = true,
+                key = "HOVER_BIKE",
                 displayName = "Hover bike",
                 kind = Kind.SYNTH, gearless = true,
                 idleRpm = 500, maxRpm = 7000,
-                synthBaseHz = 210f, synthMaxHz = 1000f,
-                voice = SynthVoice.SAW,
-                synthFmDepth = 0.35f,
-                exhaustGrit = 0.25f,
+                // Ducted fans: mostly air, a low fan note under it, no scream
+                synthBaseHz = 170f, synthMaxHz = 650f,
+                voice = SynthVoice.TURBINE,
+                synthFmDepth = 0.1f,
+                synthWhine = 0.45f,
+                exhaustGrit = 0.4f,
                 decelPopProbability = 0.0f
             ),
             // --- Sampled (real recordings, all CC0 from BigSoundBank, see Credits) ---

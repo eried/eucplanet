@@ -232,11 +232,13 @@ class EngineSynthSpectrumTest {
      * times a second: if each pulse is squeezed to fit the gap, the train is a
      * sine wave. Before the fix the V8 put 83% of its band into three lines and
      * the single 29%; flat out, no piston engine may now put more than 55% there.
+     * The turbines (jet, pod racer, hover bike) are air with a whine on top and
+     * are held to the same bar; the hums and the Tron square are whines by design.
      */
     @Test
     fun `flat out, a piston engine is a roar and not a whine`() = check { misses ->
         val report = mutableListOf<String>()
-        for (p in procedural.filter { it.kind == EngineProfile.Kind.ICE }) {
+        for (p in procedural.filter { it.kind == EngineProfile.Kind.ICE || it.voice == SynthVoice.TURBINE }) {
             val s = lineShare(power(render(p, 0.9f, 1f)), 3, 150.0, 4000.0)
             report += "${p.key}=${"%.2f".format(s)}"
             if (s > 0.55) misses += "${p.key}: ${(s * 100).toInt()}% of the band is three lines"
