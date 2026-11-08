@@ -77,7 +77,8 @@ val dataModule = module {
     singleOf(::AppHealthRepository)
     // DropboxRepository lives in :shared; the PKCE scratch is Android's SharedPreferences.
     single<DropboxLinkScratch> { SharedPrefsDropboxLinkScratch(androidContext()) }
-    singleOf(::DropboxRepository)
+    // Not singleOf: it would ask Koin for the optional test transport and crash at start.
+    single { DropboxRepository(get(), get()) }
     singleOf(::IncomingShareRepository)
     singleOf(::MetricsReset)
     singleOf(::PhoneSensorRepository) { bind<PhoneImu>() }

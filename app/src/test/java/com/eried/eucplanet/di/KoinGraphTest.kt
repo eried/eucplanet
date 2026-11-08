@@ -120,4 +120,39 @@ class KoinGraphTest {
         val missing = requested.filterKeys { it !in defined }
         assertTrue("asked of Koin but not defined in any module: $missing", missing.isEmpty())
     }
+
+    /**
+     * `singleOf(::X)` asks Koin for every constructor parameter, the optional
+     * and nullable ones too, but [verify] skips those. DropboxRepository's
+     * optional test transport passed verify and crashed the app at start.
+     */
+    @OptIn(KoinInternalApi::class)
+    @Test fun `constructor references get every parameter they ask for`() {
+        val koin = koinApplication { modules(appModules) }.koin
+        val definitions = koin.instanceRegistry.instances.values.map { it.beanDefinition }
+        val defined = definitions
+            .flatMap { listOf(it.primaryType) + it.secondaryTypes }
+            .toSet()
+        val byName = definitions.associateBy { it.primaryType.simpleName }
+
+        val referenced = File("src/main/java/com/eried/eucplanet/di")
+            .walkTopDown().filter { it.extension == "kt" }
+            .flatMap { f ->
+                Regex("\\b(?:singleOf|factoryOf|viewModelOf|workerOf)\\(::(\\w+)\\)")
+                    .findAll(stripComments(f.readText())).map { it.groupValues[1] }
+            }
+            .toSet()
+        assertTrue("only ${referenced.size} constructor references found", referenced.size >= 30)
+
+        val missing = mutableListOf<String>()
+        for (name in referenced) {
+            val ctor = byName[name]?.primaryType?.constructors?.singleOrNull() ?: continue
+            for (p in ctor.parameters) {
+                if (!p.isOptional && !p.type.isMarkedNullable) continue
+                val type = p.type.classifier as? kotlin.reflect.KClass<*> ?: continue
+                if (type !in defined) missing += "$name(${p.name}: ${type.simpleName})"
+            }
+        }
+        assertTrue("optional parameters Koin cannot provide: $missing", missing.isEmpty())
+    }
 }
