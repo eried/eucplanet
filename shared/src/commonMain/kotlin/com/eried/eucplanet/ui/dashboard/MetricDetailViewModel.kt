@@ -40,3 +40,23 @@ class MetricDetailViewModel(
     /** Wipe every metric's rolling history. */
     fun resetAllHistory() = wheelRepository.resetAllHistory()
 }
+
+/**
+ * The metric detail's route argument, as the dashboard hands it over:
+ *   "BATTERY"               one tab
+ *   "SPEED,BATTERY,POWER"   three tabs, the first selected
+ *   "SPEED,BATTERY,POWER|2" three tabs, POWER selected
+ * The "|<index>" suffix lets a composite tile's side tap pre-select a tab
+ * without changing the tab order.
+ */
+data class MetricDetailRoute(val keys: List<String>, val initialIndex: Int) {
+    companion object {
+        fun parse(arg: String): MetricDetailRoute {
+            val (keysPart, idxPart) = arg.split("|", limit = 2)
+                .let { if (it.size == 2) it[0] to it[1] else arg to "0" }
+            val keys = keysPart.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+            val initialIdx = idxPart.toIntOrNull()?.coerceIn(0, (keys.size - 1).coerceAtLeast(0)) ?: 0
+            return MetricDetailRoute(keys, initialIdx)
+        }
+    }
+}

@@ -17,7 +17,6 @@ import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import com.eried.eucplanet.platform.stringResource
-import com.eried.eucplanet.util.speedUnit
 import kotlinx.coroutines.withTimeoutOrNull
 import androidx.compose.foundation.gestures.drag
 import androidx.compose.foundation.layout.Arrangement
@@ -70,14 +69,12 @@ import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.MetricRegistry
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.repository.MetricSample
@@ -89,20 +86,24 @@ import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.remap
 import com.eried.eucplanet.util.GraphBounds
 import com.eried.eucplanet.util.GraphScale
-import org.koin.compose.viewmodel.koinViewModel
+import com.eried.eucplanet.platform.format
+import com.eried.eucplanet.platform.localTimeParts
+import com.eried.eucplanet.platform.rememberClockAxisFormatter
+import com.eried.eucplanet.resources.*
+import org.jetbrains.compose.resources.StringResource
 
 /**
  * Legacy enum kept for the 6 buffered metrics whose detail rendering has
  * bespoke graph bounds + unit conversion. The unified [MetricDetailScreen]
  * derives the rest of its metadata from [com.eried.eucplanet.data.model.MetricCatalog].
  */
-enum class MetricType(val titleRes: Int, val unit: String, val color: Color) {
-    BATTERY(R.string.metric_battery, "%", AccentGreen),
-    TEMPERATURE(R.string.metric_temperature, "°C", AccentOrange),
-    VOLTAGE(R.string.metric_voltage, "V", AccentBlue),
-    CURRENT(R.string.metric_current, "A", AccentBlue),
-    LOAD(R.string.metric_load, "%", AccentOrange),
-    SPEED(R.string.metric_speed, "km/h", AccentGreen)
+enum class MetricType(val titleRes: StringResource, val unit: String, val color: Color) {
+    BATTERY(Res.string.metric_battery, "%", AccentGreen),
+    TEMPERATURE(Res.string.metric_temperature, "°C", AccentOrange),
+    VOLTAGE(Res.string.metric_voltage, "V", AccentBlue),
+    CURRENT(Res.string.metric_current, "A", AccentBlue),
+    LOAD(Res.string.metric_load, "%", AccentOrange),
+    SPEED(Res.string.metric_speed, "km/h", AccentGreen)
 }
 
 /**
@@ -115,7 +116,7 @@ enum class MetricType(val titleRes: Int, val unit: String, val color: Color) {
  * implausible temperature slot and a tyre pressure with no sensor all come
  * through unfiltered, and a missing temperature slot reads 0.
  */
-internal fun rawCurrentValueFor(key: String, w: WheelData): Float =
+fun rawCurrentValueFor(key: String, w: WheelData): Float =
     if (key in DETAIL_RAW_VALUE_KEYS) MetricRegistry.readRaw(key, w) ?: 0f else 0f
 
 /**
@@ -146,7 +147,7 @@ fun MetricDetailScreen(
     metricKeys: List<String>,
     onBack: () -> Unit,
     initialTabIndex: Int = 0,
-    viewModel: MetricDetailViewModel = koinViewModel()
+    viewModel: MetricDetailViewModel,
 ) {
     val keys = remember(metricKeys) { metricKeys.filter { it.isNotBlank() } }
     if (keys.isEmpty()) {
@@ -179,7 +180,7 @@ fun MetricDetailScreen(
     val titleLabel = if (keys.size == 1) {
         com.eried.eucplanet.data.model.MetricCatalog.byKey(keys[0])
             ?.let { stringResource(it.labelRes) } ?: keys[0]
-    } else stringResource(R.string.metric_detail_title)
+    } else stringResource(Res.string.metric_detail_title)
 
     Scaffold(
         topBar = {
@@ -189,7 +190,7 @@ fun MetricDetailScreen(
                     IconButton(onClick = onBack) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.action_back)
+                            contentDescription = stringResource(Res.string.action_back)
                         )
                     }
                 },
@@ -262,19 +263,19 @@ fun MetricDetailScreen(
                 AlertDialog(
                     onDismissRequest = { showResetAllConfirm = false },
                     shape = RoundedCornerShape(12.dp),
-                    title = { Text(stringResource(R.string.metric_detail_reset_all_confirm_title)) },
-                    text = { Text(stringResource(R.string.metric_detail_reset_all_confirm_body)) },
+                    title = { Text(stringResource(Res.string.metric_detail_reset_all_confirm_title)) },
+                    text = { Text(stringResource(Res.string.metric_detail_reset_all_confirm_body)) },
                     confirmButton = {
                         androidx.compose.material3.TextButton(onClick = {
                             viewModel.resetAllHistory()
                             showResetAllConfirm = false
                         }, shape = RoundedCornerShape(12.dp)) {
-                            Text(stringResource(R.string.metric_detail_reset_all))
+                            Text(stringResource(Res.string.metric_detail_reset_all))
                         }
                     },
                     dismissButton = {
                         androidx.compose.material3.TextButton(onClick = { showResetAllConfirm = false }, shape = RoundedCornerShape(12.dp)) {
-                            Text(stringResource(R.string.action_cancel))
+                            Text(stringResource(Res.string.action_cancel))
                         }
                     }
                 )
@@ -313,7 +314,7 @@ private fun ResetWithLongPressConfirm(
             )
             Spacer(Modifier.width(6.dp))
             Text(
-                stringResource(R.string.metric_detail_reset),
+                stringResource(Res.string.metric_detail_reset),
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Medium,
                 fontSize = 13.sp
@@ -394,9 +395,7 @@ private fun MetricDetailBody(
 
     val unitLabel = when {
         isTempMetric -> com.eried.eucplanet.util.Units.tempUnit(tempUnit)
-        isSpeedMetric -> com.eried.eucplanet.util.Units.speedUnit(
-            androidx.compose.ui.platform.LocalContext.current, speedUnit
-        )
+        isSpeedMetric -> stringResource(com.eried.eucplanet.util.Units.speedUnitRes(speedUnit))
         isDistanceMetric -> com.eried.eucplanet.util.Units.distanceUnit(distanceUnit)
         isPressureMetric -> com.eried.eucplanet.util.Units.pressureUnit(pressureUnit)
         isAltitudeMetric -> if (distanceUnit == "mi") "ft" else "m"
@@ -479,21 +478,21 @@ private fun MetricDetailBody(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         StatPill(
-            label = stringResource(R.string.metric_min),
+            label = stringResource(Res.string.metric_min),
             value = minStr,
             unit = unitLabel,
             accent = accentColor,
             modifier = Modifier.weight(1f)
         )
         StatPill(
-            label = stringResource(R.string.metric_avg),
+            label = stringResource(Res.string.metric_avg),
             value = avgStr,
             unit = unitLabel,
             accent = accentColor,
             modifier = Modifier.weight(1f)
         )
         StatPill(
-            label = stringResource(R.string.metric_max),
+            label = stringResource(Res.string.metric_max),
             value = maxStr,
             unit = unitLabel,
             accent = accentColor,
@@ -680,7 +679,7 @@ private fun EmptyGraph(
 ) {
     val gridColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f)
     val labelColor = MaterialTheme.colorScheme.onSurfaceVariant
-    val noDataLabel = stringResource(R.string.metric_no_data)
+    val noDataLabel = stringResource(Res.string.metric_no_data)
     val textMeasurer = rememberTextMeasurer()
     Box(
         modifier = modifier
@@ -752,7 +751,7 @@ data class GraphBandSpec(
 )
 
 @Composable
-internal fun MetricGraph(
+fun MetricGraph(
     samples: List<MetricSample>,
     color: Color,
     boundsFor: (Float, Float) -> GraphBounds,
@@ -880,11 +879,7 @@ internal fun MetricGraph(
     // Locale clock format for the Clock-axis path. We don't need a
     // SimpleDateFormat per draw -- remember one, keyed on the 24 h preference,
     // and the TimeZone update is automatic via Calendar.getInstance().
-    val ctx = androidx.compose.ui.platform.LocalContext.current
-    val is24h = remember(ctx) { android.text.format.DateFormat.is24HourFormat(ctx) }
-    val clockFmt = remember(is24h) {
-        java.text.SimpleDateFormat(if (is24h) "HH:mm" else "h:mm a", java.util.Locale.getDefault())
-    }
+    val clockFmt = rememberClockAxisFormatter()
     // X-axis time range. When prediction markers exist, push the right edge
     // out to the latest marker so future-dated points (predicted ETAs)
     // remain on-canvas instead of getting clipped at samples.last().
@@ -993,18 +988,14 @@ internal fun MetricGraph(
                         spanMin > 150L   -> 30L * 60_000L
                         else             -> gridStepMs
                     }
-                    val cal = java.util.Calendar.getInstance().apply {
-                        timeInMillis = xMinMs
-                        // Round UP to the next 15-min boundary so the first
-                        // gridline lands on a "nice" wall-clock minute.
-                        val rem = (get(java.util.Calendar.MINUTE) % 15) * 60_000L +
-                            get(java.util.Calendar.SECOND) * 1000L +
-                            get(java.util.Calendar.MILLISECOND)
-                        if (rem > 0L) add(java.util.Calendar.MILLISECOND, (gridStepMs - rem).toInt())
-                        set(java.util.Calendar.SECOND, 0)
-                        set(java.util.Calendar.MILLISECOND, 0)
+                    // Round UP to the next 15-min boundary (local wall clock)
+                    // so the first gridline lands on a "nice" minute; the step
+                    // already zeroes the seconds and millis.
+                    val firstTickMs = localTimeParts(xMinMs).let { t ->
+                        val rem = (t.minute % 15) * 60_000L + t.second * 1000L + t.millis
+                        if (rem > 0L) xMinMs + (gridStepMs - rem) else xMinMs
                     }
-                    var tickMs = cal.timeInMillis
+                    var tickMs = firstTickMs
                     // Hard ceiling on the tick loop -- a defensive backstop in
                     // case xMaxMs drifts off-the-rails despite the cap above.
                     // The grid auto-relaxes to 30 / 60 min for long spans so
@@ -1014,9 +1005,9 @@ internal fun MetricGraph(
                     while (tickMs <= xMaxMs && safety < MAX_TICK_COUNT) {
                         val x = w * (tickMs - xMinMs).toFloat() / xSpanMs.toFloat()
                         drawLine(gridColor, Offset(x, 0f), Offset(x, h), strokeWidth = 1f, pathEffect = dash)
-                        if ((tickMs - cal.timeInMillis) % labelStepMs == 0L) {
+                        if ((tickMs - firstTickMs) % labelStepMs == 0L) {
                             val label = textMeasurer.measure(
-                                clockFmt.format(java.util.Date(tickMs)),
+                                clockFmt(tickMs),
                                 TextStyle(fontSize = 10.sp, color = axisLabelColor),
                             )
                             drawText(label, topLeft = Offset(x - label.size.width / 2f, h + 6f))
@@ -1301,7 +1292,7 @@ internal fun MetricGraph(
                         if (timeAxisFormat == TimeAxisFormat.Clock) {
                             // Wall-clock time under the cursor (extended, so a
                             // future minute in the prediction region reads right).
-                            append(clockFmt.format(java.util.Date(tTargetExtended)))
+                            append(clockFmt(tTargetExtended))
                             append("  •  ")
                         }
                         append(if (unitLabel.isBlank()) "%.1f".format(value) else "%.1f %s".format(value, unitLabel))

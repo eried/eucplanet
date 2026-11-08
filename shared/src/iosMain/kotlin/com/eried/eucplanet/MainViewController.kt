@@ -33,6 +33,9 @@ import com.eried.eucplanet.ui.scan.ScanViewModel
 import com.eried.eucplanet.app.RideActivity
 import com.eried.eucplanet.ui.dashboard.DashboardScreen
 import com.eried.eucplanet.ui.dashboard.TripMeterDetailScreen
+import com.eried.eucplanet.ui.dashboard.MetricDetailRoute
+import com.eried.eucplanet.ui.dashboard.MetricDetailScreen
+import com.eried.eucplanet.ui.dashboard.MetricDetailViewModel
 import com.eried.eucplanet.ui.dashboard.TripMeterDetailViewModel
 import com.eried.eucplanet.ui.theme.EucPlanetTheme
 import androidx.compose.runtime.getValue
@@ -90,8 +93,12 @@ fun MainViewController(): UIViewController {
             val colors by theme.activeColors.collectAsState()
             EucPlanetTheme(colors = colors) {
                 // A small screen stack until the shared navigation graph lands.
-                // SIMCTL_CHILD_EUC_SCREEN=scan opens on the scan screen (also settings, flic, trips, tripmeter).
-                var screen by remember { mutableStateOf(startScreen ?: "dashboard") }
+                // SIMCTL_CHILD_EUC_SCREEN=scan opens on the scan screen (also settings, flic, trips, tripmeter, metric:<key>).
+                // "metric:VOLTAGE" opens a metric's detail, with the dashboard's route argument.
+                var screen by remember { mutableStateOf(startScreen?.substringBefore(':') ?: "dashboard") }
+                var metricArg by remember { mutableStateOf(startScreen?.substringAfter(':', "BATTERY") ?: "BATTERY") }
+                // Where the metric detail goes back to: the dashboard, or the charging monitor's history.
+                var metricBack by remember { mutableStateOf("dashboard") }
                 var leaderboardTab by remember { mutableStateOf(settingsTab) }
                 // The crew pass sends a rider with no leaderboard profile to join one.
                 val toLeaderboard by IosCrews.openLeaderboard.collectAsState()
@@ -145,6 +152,20 @@ fun MainViewController(): UIViewController {
                         }
                         TripMeterDetailScreen(onBack = { screen = "dashboard" }, viewModel = tripMeterVm)
                     }
+                    "metric" -> {
+                        val metricVm = rememberViewModel {
+                            MetricDetailViewModel(IosAppGraph.wheel, IosAppGraph.settings)
+                        }
+                        val route = remember(metricArg) { MetricDetailRoute.parse(metricArg) }
+                        key(metricArg) {
+                            MetricDetailScreen(
+                                metricKeys = route.keys,
+                                onBack = { screen = metricBack },
+                                initialTabIndex = route.initialIndex,
+                                viewModel = metricVm,
+                            )
+                        }
+                    }
                     "flic" -> {
                         val flicVm = rememberViewModel { FlicViewModel(IosAppGraph.settings, IosFlic) }
                         FlicScreen(onBack = { screen = "settings" }, viewModel = flicVm)
@@ -157,6 +178,11 @@ fun MainViewController(): UIViewController {
                             onNavigateToSettings = { screen = "settings" },
                             onNavigateToRecording = { screen = "trips" },
                             onNavigateToTripMeter = { screen = "tripmeter" },
+                            onNavigateToMetric = { metric ->
+                                metricArg = metric
+                                metricBack = "dashboard"
+                                screen = "metric"
+                            },
                             viewModel = viewModel,
                             host = host,
                         )
