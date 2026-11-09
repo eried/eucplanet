@@ -1069,7 +1069,7 @@
     <string name="engine_preset_steam_loco">Lokomotif uap</string>
     <string name="engine_preset_tron_whine">Dengung Tron</string>
     <string name="engine_preset_pod_racer">Pod racer</string>
-    <string name="engine_preset_lightsaber">Lightsaber</string>
+    <string name="engine_preset_lightsaber">Dengung digital</string>
     <string name="engine_preset_jet_turbine">Turbin jet</string>
     <string name="engine_preset_ufo_hover">UFO melayang</string>
     <string name="engine_preset_f1_electric">Dengung listrik F1</string>
@@ -1077,7 +1077,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V-twin Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">Truk diesel</string>
-    <string name="engine_preset_sampled_motorcycle">Sepeda motor</string>
+    <string name="engine_preset_sampled_motorcycle">Motor trail kecil</string>
     <string name="engine_preset_sampled_city_car">Mobil kota</string>
     <string name="engine_preset_sampled_helicopter">Helikopter</string>
     <string name="engine_preset_sampled_tractor">Traktor</string>

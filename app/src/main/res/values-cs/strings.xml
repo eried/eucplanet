@@ -1063,7 +1063,7 @@
     <string name="engine_preset_steam_loco">Parní lokomotiva</string>
     <string name="engine_preset_tron_whine">Kvílení Tron</string>
     <string name="engine_preset_pod_racer">Pod racer</string>
-    <string name="engine_preset_lightsaber">Světelný meč</string>
+    <string name="engine_preset_lightsaber">Digitální hukot</string>
     <string name="engine_preset_jet_turbine">Proudová turbína</string>
     <string name="engine_preset_ufo_hover">Vznášející se UFO</string>
     <string name="engine_preset_f1_electric">Elektrické kvílení F1</string>
@@ -1071,7 +1071,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">Dvouválec do V Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">Dieselový kamion</string>
-    <string name="engine_preset_sampled_motorcycle">Motocykl</string>
+    <string name="engine_preset_sampled_motorcycle">Malá krosová motorka</string>
     <string name="engine_preset_sampled_city_car">Městské auto</string>
     <string name="engine_preset_sampled_helicopter">Vrtulník</string>
     <string name="engine_preset_sampled_tractor">Traktor</string>

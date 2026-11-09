@@ -12,6 +12,8 @@ enum class SynthVoice {
     TURBINE,
     /** Clean motor whine with its inverter partials and a little wind. */
     ELECTRIC,
+    /** A run of tonal blips that comes faster and higher with speed: the Jetsons car. */
+    BUBBLE,
 }
 
 /**
@@ -95,6 +97,11 @@ data class EngineProfile(
      * docs/SFX_SOURCES.md. Null means the engine is synthesised.
      */
     val grainAsset: String? = null,
+    /**
+     * A steam whistle: blown once when the engine comes on, a toot on the throttle
+     * chop in place of pops, and the boiler blows off a little at a standstill.
+     */
+    val whistle: Boolean = false,
     // --- Per-engine feature support, drives which rows the Settings panel shows ---
     /** Whether the muffler/exhaust LPF row applies to this engine. */
     val supportsMuffler: Boolean = true,
@@ -156,9 +163,9 @@ data class EngineProfile(
                 key = "QUAD_BIKE",
                 displayName = "Quad bike",
                 kind = Kind.ICE,
-                // Recorded: a quad started and revved in the yard (BigSoundBank s0712)
-                grainAsset = "grain_quad_bike",
-                idleRpm = 1000, maxRpm = 3600,
+                // Synthesised: the recording (SAMPLED_QUAD_ATV) only revs to 1.7 times idle
+                // and the tester preferred this one.
+                idleRpm = 850, maxRpm = 6200,
                 gearless = true,
                 cylinderCount = 1,
                 firingAngles = floatArrayOf(0f),
@@ -187,7 +194,7 @@ data class EngineProfile(
                 exhaustGrit = 0.22f,
                 decelPopProbability = 0.5f,
                 compressionTone = 0.75f,
-                gainTrim = 1.7f
+                gainTrim = 1.2f
             ),
             EngineProfile(
                 key = "INLINE_4",
@@ -291,18 +298,18 @@ data class EngineProfile(
                 key = "TRACTOR",
                 displayName = "Tractor",
                 kind = Kind.ICE, gearless = true,
-                // Recorded: an old tractor idling (BigSoundBank)
-                grainAsset = "grain_tractor",
-                idleRpm = 450, maxRpm = 1500,
+                // Synthesised: the recording (SAMPLED_TRACTOR) only idles and the tester
+                // found this one more powerful.
+                idleRpm = 450, maxRpm = 2400,
                 cylinderCount = 1,
                 firingAngles = floatArrayOf(0f),
                 pipeHz = 230f, pipeQ = 1.4f,
                 gainTrim = 3.0f,
-                intakeNoise = 0.25f,
+                intakeNoise = 0.22f,
                 pulseMs = 6f,
                 exhaustGrit = 0.35f,
                 decelPopProbability = 0.55f,
-                compressionTone = 0.6f
+                compressionTone = 0.5f
             ),
             EngineProfile(
                 key = "STEAM_LOCO",
@@ -311,6 +318,7 @@ data class EngineProfile(
                 // Recorded: a locomotive under way (BigSoundBank). Driving wheel
                 // turns: four chuffs each, a crawl to a run
                 grainAsset = "grain_steam_loco",
+                whistle = true,
                 idleRpm = 50, maxRpm = 220,
                 cylinderCount = 2,
                 // Two cylinders 180 degrees apart, double acting: four chuffs per turn
@@ -319,9 +327,10 @@ data class EngineProfile(
                 pipeHz = 320f, pipeQ = 0.5f,
                 intakeNoise = 0.2f,
                 pulseMs = 160f,
-                gainTrim = 5f,
+                gainTrim = 2f,
                 exhaustGrit = 0.7f,
-                decelPopProbability = 0.0f,
+                // A "pop" is a toot of the whistle on the throttle chop
+                decelPopProbability = 0.35f,
                 compressionTone = 0.75f
             ),
             // --- Synth / futuristic (gearless) ---
@@ -350,8 +359,8 @@ data class EngineProfile(
                 decelPopProbability = 0.3f
             ),
             EngineProfile(
-                key = "LIGHTSABER", preview = true,
-                displayName = "Lightsaber",
+                key = "LIGHTSABER",
+                displayName = "Digital hum",
                 kind = Kind.SYNTH, gearless = true,
                 idleRpm = 300, maxRpm = 1800,
                 synthBaseHz = 190f, synthMaxHz = 380f,
@@ -398,12 +407,11 @@ data class EngineProfile(
                 displayName = "Hover bike",
                 kind = Kind.SYNTH, gearless = true,
                 idleRpm = 500, maxRpm = 7000,
-                // Ducted fans: mostly air, a low fan note under it, no scream
-                synthBaseHz = 170f, synthMaxHz = 650f,
-                voice = SynthVoice.TURBINE,
-                synthFmDepth = 0.1f,
-                synthWhine = 0.45f,
-                exhaustGrit = 0.4f,
+                // The Jetsons car: a bubbling run of blips, faster and higher with speed
+                synthBaseHz = 420f, synthMaxHz = 1050f,
+                voice = SynthVoice.BUBBLE,
+                synthFmDepth = 0.35f,
+                exhaustGrit = 0.06f,
                 decelPopProbability = 0.0f
             ),
             // --- Recorded engines without a synthesised twin (all CC0, see docs/SFX_SOURCES.md) ---
@@ -433,16 +441,17 @@ data class EngineProfile(
                 intakeNoise = 0.3f, exhaustGrit = 0.5f,
                 decelPopProbability = 0.6f, compressionTone = 0.8f
             ),
-            // Hidden: thin recordings, kept for riders who picked them before.
             EngineProfile(
-                key = "SAMPLED_MOTORCYCLE", preview = true,
-                displayName = "Motorcycle",
+                key = "SAMPLED_MOTORCYCLE",
+                displayName = "Small dirt bike",
                 kind = Kind.ICE,
+                // Recorded: a small motorcycle, starts and revs (BigSoundBank s0281)
                 grainAsset = "grain_motorcycle",
                 idleRpm = 1000, maxRpm = 3500,
                 cylinderCount = 2, firingAngles = floatArrayOf(0f, 360f),
-                pipeHz = 220f, pipeQ = 1f, gainTrim = 1.7f
+                pipeHz = 220f, pipeQ = 1f, gainTrim = 1.2f
             ),
+            // Hidden: thin recordings, kept for riders who picked them before.
             EngineProfile(
                 key = "SAMPLED_LAWNMOWER", preview = true,
                 displayName = "Lawn mower",
@@ -474,16 +483,16 @@ data class EngineProfile(
                 cylinderCount = 4, firingAngles = floatArrayOf(0f, 180f, 360f, 540f), pipeHz = 230f),
             EngineProfile(key = "SAMPLED_TRACTOR", preview = true, displayName = "Tractor", kind = Kind.ICE, gearless = true,
                 grainAsset = "grain_tractor", idleRpm = 450, maxRpm = 1500,
-                cylinderCount = 1, firingAngles = floatArrayOf(0f), pipeHz = 230f, pulseMs = 6f, gainTrim = 3f),
+                cylinderCount = 1, firingAngles = floatArrayOf(0f), pipeHz = 230f, pulseMs = 6f, gainTrim = 1.9f),
             EngineProfile(key = "SAMPLED_STEAM_LOCO", preview = true, displayName = "Steam locomotive", kind = Kind.ICE, gearless = true,
-                grainAsset = "grain_steam_loco", idleRpm = 50, maxRpm = 220,
-                cylinderCount = 2, firingAngles = floatArrayOf(0f, 180f), twoStroke = true, pipeHz = 320f, pulseMs = 160f, gainTrim = 5f),
+                grainAsset = "grain_steam_loco", whistle = true, idleRpm = 50, maxRpm = 220, decelPopProbability = 0.35f,
+                cylinderCount = 2, firingAngles = floatArrayOf(0f, 180f), twoStroke = true, pipeHz = 320f, pulseMs = 160f, gainTrim = 2f),
             EngineProfile(key = "SAMPLED_ASTON_MARTIN", preview = true, displayName = "Aston Martin", kind = Kind.ICE,
                 grainAsset = "grain_v12_italian", idleRpm = 900, maxRpm = 4000,
                 cylinderCount = 12, firingAngles = FloatArray(12) { i -> i * 60f }, pipeHz = 240f),
             EngineProfile(key = "SAMPLED_QUAD_ATV", preview = true, displayName = "Quad ATV", kind = Kind.ICE, gearless = true,
                 grainAsset = "grain_quad_bike", idleRpm = 1000, maxRpm = 3600,
-                cylinderCount = 1, firingAngles = floatArrayOf(0f), pipeHz = 170f, pulseMs = 4.5f, gainTrim = 2.5f)
+                cylinderCount = 1, firingAngles = floatArrayOf(0f), pipeHz = 170f, pulseMs = 4.5f, gainTrim = 1.3f)
         )
 
         /** Returns the profile for [key] or the default 4-stroke single if unknown. */

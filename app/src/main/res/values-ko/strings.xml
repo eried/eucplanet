@@ -854,7 +854,7 @@
     <string name="engine_preset_steam_loco">증기 기관차</string>
     <string name="engine_preset_tron_whine">트론 사운드</string>
     <string name="engine_preset_pod_racer">포드 레이서</string>
-    <string name="engine_preset_lightsaber">라이트세이버</string>
+    <string name="engine_preset_lightsaber">디지털 험</string>
     <string name="engine_preset_jet_turbine">제트 터빈</string>
     <string name="engine_preset_ufo_hover">UFO 호버</string>
     <string name="engine_preset_f1_electric">F1 전기 사운드</string>
@@ -862,7 +862,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V-twin Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">디젤 트럭</string>
-    <string name="engine_preset_sampled_motorcycle">오토바이</string>
+    <string name="engine_preset_sampled_motorcycle">소형 더트바이크</string>
     <string name="engine_preset_sampled_city_car">시티카</string>
     <string name="engine_preset_sampled_helicopter">헬리콥터</string>
     <string name="engine_preset_sampled_tractor">트랙터</string>

@@ -854,7 +854,7 @@
     <string name="engine_preset_steam_loco">Ånglok</string>
     <string name="engine_preset_tron_whine">Tron-tjut</string>
     <string name="engine_preset_pod_racer">Pod racer</string>
-    <string name="engine_preset_lightsaber">Ljussvärd</string>
+    <string name="engine_preset_lightsaber">Digitalt brum</string>
     <string name="engine_preset_jet_turbine">Jetturbin</string>
     <string name="engine_preset_ufo_hover">UFO i sväv</string>
     <string name="engine_preset_f1_electric">F1 elektrisk</string>
@@ -862,7 +862,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V-twin Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">Diesellastbil</string>
-    <string name="engine_preset_sampled_motorcycle">Motorcykel</string>
+    <string name="engine_preset_sampled_motorcycle">Liten crosshoj</string>
     <string name="engine_preset_sampled_city_car">Stadsbil</string>
     <string name="engine_preset_sampled_helicopter">Helikopter</string>
     <string name="engine_preset_sampled_tractor">Traktor</string>

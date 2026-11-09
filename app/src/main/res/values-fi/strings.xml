@@ -1063,7 +1063,7 @@
     <string name="engine_preset_steam_loco">Höyryveturi</string>
     <string name="engine_preset_tron_whine">Tron-vinkuna</string>
     <string name="engine_preset_pod_racer">Pod-kilpuri</string>
-    <string name="engine_preset_lightsaber">Valomiekka</string>
+    <string name="engine_preset_lightsaber">Digitaalinen hurina</string>
     <string name="engine_preset_jet_turbine">Suihkuturbiini</string>
     <string name="engine_preset_ufo_hover">UFO-leijunta</string>
     <string name="engine_preset_f1_electric">F1:n sähkövinkuna</string>
@@ -1071,7 +1071,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V-kaksoismoottori Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">Dieselrekka</string>
-    <string name="engine_preset_sampled_motorcycle">Moottoripyörä</string>
+    <string name="engine_preset_sampled_motorcycle">Pieni crossipyörä</string>
     <string name="engine_preset_sampled_city_car">Kaupunkiauto</string>
     <string name="engine_preset_sampled_helicopter">Helikopteri</string>
     <string name="engine_preset_sampled_tractor">Traktori</string>

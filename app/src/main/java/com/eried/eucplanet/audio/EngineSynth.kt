@@ -53,6 +53,8 @@ class EngineSynth(
     private val streamIdx = IntArray(2)
     private var grainAge = 0f                       // seconds since this engine came on
     private var startupSeconds = 0f
+    private val whistle = Whistle()
+    private var blowOff = 0f                        // the boiler hissing at a standstill, 0..1
 
     // --- ICE state ---
     private var schedule: FiringSchedule? = null
@@ -94,6 +96,11 @@ class EngineSynth(
     private var lfoPhase: Double = 0.0
     private var lfo2Phase: Double = 0.0
     private var spooledNorm: Float = -1f
+    // BUBBLE voice: where we are in the run of blips, and the blip in the air.
+    private var blipPhase: Float = 1f
+    private var blipT: Float = 1e9f
+    private var blipLen: Float = 0.1f
+    private var blipHz: Float = 500f
     private val rumble = Resonator()
     private val roar = Resonator()
     private val wind = Resonator()
@@ -121,9 +128,11 @@ class EngineSynth(
 
     /** Render [count] samples into [out] from [outOffset]. Returns the peak, for diagnostics. */
     fun render(params: EngineParams, out: FloatArray, outOffset: Int, count: Int): Float {
-        repeat(params.pendingPops) { popQueue.addLast(Pop(remaining = (sampleRate * 0.16f).toInt())) }
-
         val profile = params.profile
+        // A synthesised engine pops with a burst of noise through its pipe; a recorded one
+        // pops with its own recording, or a bang the grain player shapes itself.
+        if (profile.grainAsset == null) repeat(params.pendingPops) { popQueue.addLast(Pop(remaining = (sampleRate * 0.16f).toInt())) }
+
         val effRpm = (params.rpm + params.revBump).coerceAtLeast(0f)
         val rpmRange = (profile.maxRpm - profile.idleRpm).coerceAtLeast(1)
         val rpmNorm = ((effRpm - profile.idleRpm) / rpmRange).coerceIn(0f, 1f)
@@ -135,13 +144,15 @@ class EngineSynth(
         val cutoffHz = 900f + (7000f - 900f) * open * open
         val lpAlpha = onePoleAlpha(cutoffHz)
         // Sub cut: two one-pole high-passes at 100 Hz. The speaker plays none of it anyway.
-        // A recording carries the real low end, which the speaker would only turn into
-        // mud and lost loudness, so it is cut higher.
-        val hpCoef = 1f - onePoleAlpha(if (profile.grainAsset != null) 160f else 100f)
+        val hpCoef = 1f - onePoleAlpha(100f)
 
         var peak = 0f
         if (profile.grainAsset != null) {
-            peak = renderGrains(profile, params, effRpm, masterGain, lpAlpha, hpCoef, out, outOffset, count)
+            // Throttle shut at speed: no fuel, so the exhaust goes quiet and dull and what
+            // is left is the engine turning over. The recording was made under power.
+            val overrun = (1f - params.load.coerceIn(0f, 1f)) * rpmNorm
+            val lpOver = onePoleAlpha(cutoffHz * (1f - 0.65f * overrun))
+            peak = renderGrains(profile, params, effRpm, rpmNorm, overrun, masterGain, lpOver, hpCoef, out, outOffset, count)
         } else if (profile.kind == EngineProfile.Kind.SYNTH) {
             peak = renderSynth(profile, params, rpmNorm, masterGain, lpAlpha, hpCoef, out, outOffset, count)
         } else {
@@ -164,7 +175,7 @@ class EngineSynth(
     }
 
     private fun renderGrains(
-        profile: EngineProfile, params: EngineParams, effRpm: Float,
+        profile: EngineProfile, params: EngineParams, effRpm: Float, rpmNorm: Float, overrun: Float,
         masterGain: Float, lpAlpha: Float, hpCoef: Float, out: FloatArray, outOffset: Int, count: Int
     ): Float {
         val asset = profile.grainAsset!!
@@ -175,6 +186,8 @@ class EngineSynth(
             gBuf.fill(null); hopLeft = 0f
             streamBand.fill(-1); streamRun.fill(null)
             grainAge = 0f
+            pipeA.reset(); body.reset(); wind.reset(); popQueue.clear()
+            blowOff = 0f
             val b = bank
             startupSeconds = 0f
             if (b != null && b.startup.isNotEmpty()) {
@@ -182,12 +195,12 @@ class EngineSynth(
                 lay(b.startup, 1f)
                 startupSeconds = b.startup.size.toFloat() / sampleRate
             }
+            // The locomotive announces itself.
+            if (profile.whistle) whistle.blow(1.2f, after = 0.4f)
         }
         val b = bank
         if (b == null) {
             // No bank: the ICE model stands in, so a missing asset is never silence.
-            val rpmRange = (profile.maxRpm - profile.idleRpm).coerceAtLeast(1)
-            val rpmNorm = ((effRpm - profile.idleRpm) / rpmRange).coerceIn(0f, 1f)
             return renderIce(profile, params, effRpm, rpmNorm, masterGain, lpAlpha, hpCoef, out, outOffset, count)
         }
         val load = params.load
@@ -208,15 +221,30 @@ class EngineSynth(
         // engine grow louder with the revs as a real one does.
         val dens0 = kotlin.math.sqrt(bands[lo].hz / f).coerceIn(0.35f, 1.4f)
         val dens1 = kotlin.math.sqrt(bands[hi].hz / f).coerceIn(0.35f, 1.4f)
-        val loadGain = 0.8f + 0.2f * load
+        val loadGain = (0.8f + 0.2f * load) * (1f - 0.5f * overrun)
         val brakeAmt = params.engineBrakeAmount
-        val brakeHz = (f * 24f).coerceIn(600f, 3400f)
-        crackleBand.set(1800f, 1.2f, sampleRate)
+        // On the overrun the gear train sings, faintly, well under the recording.
+        val whineHz = (f * 12f).coerceIn(400f, 1400f)
+        // A bang for the engines whose recording has no backfire: a burst through a pipe
+        // the size of this engine's and the body around it, not a naked hiss.
+        pipeA.set(profile.pipeHz, 0.72f, 3200f)
+        body.set(330f, 1.3f, sampleRate)
+        val popsRecorded = b.pops.isNotEmpty()
+        val popGain = if (profile.whistle) 0f else 1f
 
-        // Pops: the recording's own if it has any, otherwise the pipe's crack.
+        // Pops: a toot of the whistle, the recording's own backfire, or the pipe's bang.
         repeat(params.pendingPops) {
-            if (b.pops.isNotEmpty()) lay(b.pops[(abs(nextNoise()) * b.pops.size).toInt().coerceAtMost(b.pops.size - 1)], 0.9f)
-            else popQueue.addLast(Pop(remaining = (sampleRate * 0.16f).toInt()))
+            when {
+                profile.whistle -> whistle.blow(0.45f + 0.25f * abs(nextNoise()))
+                popsRecorded -> lay(b.pops[(abs(nextNoise()) * b.pops.size).toInt().coerceAtMost(b.pops.size - 1)], 0.9f)
+                else -> popQueue.addLast(Pop(remaining = (sampleRate * 0.14f).toInt()))
+            }
+        }
+        // The boiler blows off while the locomotive stands; it stops as soon as it moves.
+        if (profile.whistle) {
+            val standing = if (effRpm <= profile.idleRpm * 1.03f) 1f else 0f
+            blowOff += (count * dt) / (if (standing > blowOff) 4f else 0.6f) * (standing - blowOff)
+            wind.set(2600f, 0.35f, sampleRate)
         }
 
         // How far the grains are pushed past the rate they were recorded at. Laid down
@@ -239,6 +267,10 @@ class EngineSynth(
                 val g = fadeIn * loadGain * (0.9f + 0.2f * abs(nextNoise()))
                 if (w0 > 0.001f) lay(nextGrain(0, bands[lo], stretch0), w0 * dens0 * g)
                 if (hi != lo && w1 > 0.001f) lay(nextGrain(1, bands[hi], stretch1), w1 * dens1 * g)
+                // Overrun crackle: now and then one of the recording's own pops, quietly.
+                if (popsRecorded && brakeAmt > 0.05f && abs(nextNoise()) < 0.05f * brakeAmt) {
+                    lay(b.pops[(abs(nextNoise()) * b.pops.size).toInt().coerceAtMost(b.pops.size - 1)], 0.3f)
+                }
             }
             var sample = 0f
             for (s in 0 until GRAINS) {
@@ -247,11 +279,18 @@ class EngineSynth(
                 sample += buf[p] * gGain[s]
                 if (p + 1 >= buf.size) gBuf[s] = null else gPos[s] = p + 1
             }
-            if (popQueue.isNotEmpty()) sample += crackleBand.process(renderPops()) * 2f
+            if (popQueue.isNotEmpty()) {
+                val bang = renderPops() * popGain
+                sample += pipeA.process(bang * 1.6f) * 0.9f + body.process(bang) * 0.5f
+            }
             if (brakeAmt > 0.001f) {
-                brakePhase += brakeHz * dt
+                brakePhase += whineHz * dt
                 if (brakePhase >= 1.0) brakePhase -= 1.0
-                sample += brakeAmt * (sin(twoPi * brakePhase).toFloat() * 0.07f + crackleBand.process(nextNoise()) * 0.1f)
+                sample += brakeAmt * sin(twoPi * brakePhase).toFloat() * 0.025f
+            }
+            if (profile.whistle) {
+                if (whistle.active) sample += whistle.next(dt) { nextNoise() }
+                if (blowOff > 0.002f) sample += wind.process(nextNoise()) * 0.05f * blowOff
             }
             grainAge += dt
 
@@ -503,8 +542,11 @@ class EngineSynth(
                 roar.set(1300f + 900f * n, 0.6f, sampleRate)
             }
             SynthVoice.ELECTRIC -> wind.set(2500f + 1500f * n, 0.5f, sampleRate)
+            SynthVoice.BUBBLE -> wind.set(900f + 600f * n, 0.6f, sampleRate)
             else -> wind.set(1800f, 0.8f, sampleRate)
         }
+        // The Jetsons car: blips come 5 a second at rest, 14 a second flat out.
+        val blipRate = 5f + 9f * n
 
         val twoPi = 2.0 * PI
         var peak = 0f
@@ -571,6 +613,32 @@ class EngineSynth(
                         sample *= 1f - 0.35f * wobble * trem
                     }
                     sample += nextNoise() * 0.02f * n
+                }
+                SynthVoice.BUBBLE -> {
+                    // A run of blips. Each one is a short "bloop": the level swells in four
+                    // milliseconds and rings off, the pitch slides down a fourth as it goes,
+                    // and every blip sits a little off the last so the run bubbles rather than beeps.
+                    blipPhase += blipRate * dt
+                    if (blipPhase >= 1f) {
+                        blipPhase -= 1f
+                        blipT = 0f
+                        blipLen = 0.6f / blipRate
+                        blipHz = freq * (1f + 0.3f * wobble * nextNoise())
+                    }
+                    val u = blipT / blipLen
+                    if (u < 1f) {
+                        val glide = blipHz * (1f - 0.28f * u)
+                        oscPhase = wrap(oscPhase + (glide * dt).toDouble())
+                        val env = (blipT / 0.004f).coerceAtMost(1f) * exp(-3.2f * u)
+                        val p = twoPi * oscPhase
+                        sample = (sin(p).toFloat() * 0.75f + sin(2.0 * p).toFloat() * 0.2f) * env
+                    }
+                    blipT += dt
+                    // The hull: a soft hum an octave under the blips, and a breath of air.
+                    subPhase = wrap(subPhase + inc * 0.5)
+                    sample += sin(twoPi * subPhase).toFloat() * 0.1f * (0.7f + 0.3f * trem)
+                    sample += wind.process(pink.next()) * grit * (1f + 2f * load)
+                    sample *= 0.8f
                 }
                 SynthVoice.ELECTRIC -> {
                     // Motor whine, its inverter partials and a touch of saw for bite.
@@ -663,6 +731,8 @@ class EngineSynth(
         bankKey = null; bank = null
         gBuf.fill(null); hopLeft = 0f; grainAge = 0f
         streamBand.fill(-1); streamRun.fill(null)
+        whistle.stop(); blowOff = 0f
+        blipPhase = 1f; blipT = 1e9f
         tickAge = 1e9f
         pressure.fill(0f); front.fill(0f); wake.fill(0f); crackEnv = 0f
         pendLeft.fill(0)
@@ -681,6 +751,57 @@ class EngineSynth(
 
     private class Pop(var remaining: Int, val gain: Float = 1f) {
         val total: Int = remaining.coerceAtLeast(1)
+    }
+
+    /**
+     * A steam whistle: three chimes a third and a fifth apart with their second
+     * harmonics, a breath of steam shaped by the note, the pitch coming up as the
+     * valve opens and sagging as it shuts.
+     */
+    private class Whistle {
+        private var left = 0f
+        private var total = 0f
+        private var delay = 0f
+        private val phase = DoubleArray(3)
+        private var vib = 0.0
+        private var breath = 0f
+        val active: Boolean get() = left > 0f || delay > 0f
+
+        fun blow(seconds: Float, after: Float = 0f) {
+            if (left > 0f && delay <= 0f) { left = maxOf(left, seconds); total = maxOf(total, left); return }
+            total = seconds; left = seconds; delay = after
+        }
+
+        fun stop() { left = 0f; delay = 0f }
+
+        fun next(dt: Float, noise: () -> Float): Float {
+            if (delay > 0f) { delay -= dt; return 0f }
+            if (left <= 0f) return 0f
+            val t = total - left
+            left -= dt
+            val rise = (t / 0.14f).coerceIn(0f, 1f)
+            val fall = (left / 0.22f).coerceIn(0f, 1f)
+            val env = rise * fall
+            val pitch = 1f - 0.2f * (1f - rise) - 0.1f * (1f - fall)
+            vib += 5.5 * dt
+            if (vib >= 1.0) vib -= 1.0
+            val f0 = 466f * pitch * (1f + 0.006f * sin(2.0 * PI * vib).toFloat())
+            var s = 0f
+            for (i in 0..2) {
+                phase[i] += f0 * RATIOS[i] * dt
+                if (phase[i] >= 1.0) phase[i] -= 1.0
+                val p = 2.0 * PI * phase[i]
+                s += (sin(p).toFloat() + 0.3f * sin(2.0 * p).toFloat()) * AMPS[i]
+            }
+            breath += 0.35f * (noise() - breath)
+            s += breath * 0.3f
+            return s * env * 0.42f
+        }
+
+        private companion object {
+            val RATIOS = floatArrayOf(1f, 1.26f, 1.5f)
+            val AMPS = floatArrayOf(0.5f, 0.32f, 0.28f)
+        }
     }
 
     private companion object {

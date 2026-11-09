@@ -94,11 +94,17 @@ class EngineSynthSpectrumTest {
         assertTrue(misses.joinToString("\n", prefix = "\n"), misses.isEmpty())
     }
 
+    /**
+     * A recording keeps its real low end for headphones, with the low end's rhythm
+     * copied into the speaker band by the bank tool (speakerLift), so its bar is looser:
+     * a real V8 idles at 46 Hz and no lift should pretend otherwise.
+     */
     @Test
     fun `at idle most of the sound is where a phone speaker plays`() = check { misses ->
         for (p in procedural) {
             val sub = share(power(render(p, 0f, 0.05f)), 0.0, 180.0)
-            if (sub >= 0.45) misses += "${p.key}: ${(sub * 100).toInt()}% of the idle is under 180 Hz"
+            val bar = if (p.recorded) 0.6 else 0.45
+            if (sub >= bar) misses += "${p.key}: ${(sub * 100).toInt()}% of the idle is under 180 Hz"
         }
     }
 
@@ -267,5 +273,31 @@ class EngineSynthSpectrumTest {
         val plainTop = share(power(plain), 1500.0, 6000.0)
         val brakeTop = share(power(braking), 1500.0, 6000.0)
         assertTrue("overrun adds nothing above 1.5 kHz ($plainTop vs $brakeTop)", brakeTop > plainTop * 1.5)
+    }
+
+    /**
+     * A tester heard the throttle chop and the coast of the recorded engines as
+     * noise, and they were: every pop played as a naked burst of white noise (twice
+     * for a bank with no backfire of its own) and the overrun laid a 1.5 kHz sine and a
+     * hiss over the recording. Now the overrun is the engine quieter and duller with
+     * a faint gear whine, and a pop is the recording's own backfire, a toot of the
+     * steam whistle, or a bang through a pipe. Neither may add hiss above 1.5 kHz.
+     */
+    @Test
+    fun `the overrun and the pops of a recorded engine are not hiss`() = check { misses ->
+        for (p in procedural.filter { it.recorded }) {
+            val pulled = share(power(render(p, 0.6f, 0.9f)), 1500.0, sr / 2.0)
+            val coasting = share(power(render(p, 0.6f, 0f, brake = 1f)), 1500.0, sr / 2.0)
+            if (coasting > pulled + 0.05) misses += "${p.key}: ${(coasting * 100).toInt()}% above 1.5 kHz on the overrun, ${(pulled * 100).toInt()}% under power"
+            val synth = EngineSynth(sr, TestGrainBanks.loader(sr))
+            val rpm = p.idleRpm + (p.maxRpm - p.idleRpm) * 0.6f
+            val quiet = EngineParams(rpm = rpm, load = 0f, idleAmount = 1f, masterGain = 1f, profile = p)
+            val warm = FloatArray(4096)
+            repeat(40) { synth.render(quiet, warm, 0, warm.size) }
+            val out = FloatArray(n)
+            synth.render(quiet.copy(pendingPops = 3), out, 0, n)
+            val popped = share(power(out), 1500.0, sr / 2.0)
+            if (popped > pulled + 0.10) misses += "${p.key}: ${(popped * 100).toInt()}% above 1.5 kHz with three pops, ${(pulled * 100).toInt()}% under power"
+        }
     }
 }

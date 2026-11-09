@@ -2,19 +2,28 @@
 
 A recorded engine is rebuilt from short grains of a real recording. Each
 grain is two pattern periods long (a pattern is one crank revolution for a
-piston engine, one chuff for the steam engine), Hann windowed and centred
-on the same point of the cycle as its neighbours, so grains laid end to end
-at their own rate give the recording back. At another rate the app lays the
-same grains closer together or further apart: the firing rate follows the
-wheel while the pipes keep their real pitch, which is what a real engine
-does. The grains are grouped into bands by pattern frequency so the app can
-pick the band the recording made at about the target speed.
+piston engine, one chuff for the steam engine), Hann windowed and centred on
+the combustion pulse, so grains laid end to end at their own rate give the
+recording back and grains from anywhere in the bank line up pulse on pulse.
+At another rate the app lays the same grains closer together or further
+apart: the firing rate follows the wheel while the pipes keep their real
+pitch, which is what a real engine does. The grains are grouped into bands
+by pattern frequency so the app can pick the band the recording made at
+about the target speed.
 
 usage: python tools/engine-sounds/grains.py [--only KEY,KEY] [--report]
 
 Reads tools/engine-sounds/grains.json and the recordings in
 tools/engine-sounds/src/, writes app/src/main/res/raw/grain_<key>.bin.
 Needs ffmpeg on the PATH and numpy + scipy.
+
+Per engine in grains.json (besides the sources, hints and regions):
+  grainsPerBand   grains kept per band (default 20)
+  average         consecutive cycles averaged into each grain, 1 or 3 (default 1):
+                  the engine repeats cycle to cycle, wind and hiss do not, so
+                  three cycles averaged take 4.8 dB off the noise and leave the engine
+  speakerLift     how much of the low end's rhythm is put into the speaker band (default 0.8)
+  rumbleHz        everything under this is cut before the grains are made (default 70)
 
 Bank format, little endian:
   "EUCG" u16 version=1  u16 sampleRate  f32 patternPerRev  u16 bands  u16 oneShots
@@ -23,7 +32,6 @@ Bank format, little endian:
 """
 import argparse, json, os, struct, subprocess, sys
 import numpy as np
-from numpy.fft import rfft
 from scipy.signal import butter, medfilt, sosfiltfilt
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -32,9 +40,17 @@ SRC = os.path.join(HERE, "src")
 OUT = os.path.join(ROOT, "app", "src", "main", "res", "raw")
 SR = 22050
 FRAME, HOP = 4096, 1024
-# A phone speaker plays nothing under about 160 Hz; what a recording has down
-# there would only be mud and lost loudness, so the grains carry none of it.
-SPEAKER_HP = butter(4, 160, btype="highpass", fs=SR, output="sos")
+# Rumble under 70 Hz is mud on any speaker; the firing harmonics above it are the engine.
+# A recording that is nearly all thump (a small bike close to its pipe) is cut higher.
+def rumble_hp(hz):
+    return butter(2, hz, btype="highpass", fs=SR, output="sos")
+# A phone speaker plays nothing under about 170 Hz, where a piston engine's firing
+# fundamental and first harmonics sit: the chop of the engine. What a bass enhancer
+# does: the low band is pushed through a curve that makes its harmonics, and those
+# are added back where the speaker starts, so the low end's rhythm is heard on the
+# phone while headphones still get the real low end.
+LOW_BAND = butter(2, [40, 170], btype="bandpass", fs=SR, output="sos")
+LIFT_BAND = butter(2, [160, 520], btype="bandpass", fs=SR, output="sos")
 JUMP_COST = float(os.environ.get("GRAIN_JUMP_COST", "0.5"))
 
 
@@ -42,6 +58,16 @@ def decode(path):
     raw = subprocess.run(["ffmpeg", "-v", "error", "-i", path, "-ac", "1", "-ar", str(SR), "-f", "f32le", "-"],
                          capture_output=True, check=True).stdout
     return np.frombuffer(raw, dtype=np.float32).astype(np.float64)
+
+
+def speaker_lift(x, amount):
+    if amount <= 0:
+        return x
+    low = sosfiltfilt(LOW_BAND, x)
+    rms = np.sqrt(np.mean(low ** 2)) + 1e-9
+    harm = sosfiltfilt(LIFT_BAND, low * np.abs(low) / rms + 0.5 * low * low / rms)
+    hr = np.sqrt(np.mean(harm ** 2)) + 1e-9
+    return x + harm * (amount * rms / hr)
 
 
 def yin_scores(x, hz_lo, hz_hi):
@@ -104,9 +130,10 @@ def resolve_factor(tracked_low, expected):
     return best
 
 
-def cut_grains(x, times, fpat, usable):
-    """Consecutive two-period grains, each centred where it best lines up with the one before."""
-    grains = []
+def cut_centres(x, times, fpat, usable):
+    """Consecutive grain centres one period apart, each where it best lines up with the one before.
+    Returns (hz, centre, period, run) per grain; a run is an unbroken stretch of the recording."""
+    out = []
     dt = times[1] - times[0]
     end = len(x) - 2
     pos = FRAME // 2
@@ -119,9 +146,7 @@ def cut_grains(x, times, fpat, usable):
         hz = fpat[fi]; P = int(round(SR / hz))
         if pos + 2 * P >= end: break
         if prev_c is None:
-            k = max(1, P // 16)
-            env = np.convolve(np.abs(x[pos:pos + P]), np.ones(k) / k, mode="same")
-            c = pos + int(np.argmax(env))
+            c = pos + P
         else:
             c0 = prev_c + P
             best, bestv = c0, -1e18
@@ -136,9 +161,49 @@ def cut_grains(x, times, fpat, usable):
             c = best
         a, b = c - P, c + P
         if a < 0: pos += P; continue
-        grains.append((hz, c, (x[a:b] * np.hanning(b - a)).astype(np.float32), run))
+        out.append((hz, c, P, run))
         prev_c, prev_raw = c, x[a:b]
         pos = c + P // 2
+    return out
+
+
+def centre_on_pulse(x, items):
+    """Moves every run of centres onto its combustion pulse: the loudest point of the cycle, found
+    on each grain's smoothed envelope and taken as the run's median so a run keeps its continuity.
+    Grains anywhere in the bank then line up pulse on pulse when the app crossfades or jumps."""
+    out = []
+    runs = {}
+    for it in items: runs.setdefault(it[3], []).append(it)
+    for run, its in runs.items():
+        offs = []
+        for hz, c, P, _ in its:
+            k = max(3, P // 24)
+            seg = np.abs(x[c - P // 2:c + P // 2])
+            env = np.convolve(seg, np.ones(k) / k, mode="same")
+            offs.append(int(np.argmax(env)) - P // 2)
+        shift = int(np.median(offs))
+        for hz, c, P, _ in its:
+            c2 = c + shift
+            if c2 - P >= 0 and c2 + P < len(x): out.append((hz, c2, P, run))
+    return out
+
+
+def warp(a, L):
+    return np.interp(np.linspace(0, len(a) - 1, L), np.arange(len(a)), a)
+
+
+def window_grains(x, items, average):
+    """The grains: two periods around each centre, the neighbours in the run averaged in when asked
+    (each warped to this grain's length so the cycles sit on top of each other), Hann windowed."""
+    grains = []
+    raw = [x[c - P:c + P] for hz, c, P, run in items]
+    half = average // 2
+    for i, (hz, c, P, run) in enumerate(items):
+        acc = raw[i].copy(); n = 1
+        for j in range(i - half, i + half + 1):
+            if j == i or j < 0 or j >= len(items) or items[j][3] != run: continue
+            acc += warp(raw[j], len(acc)); n += 1
+        grains.append((hz, c, (acc / n * np.hanning(len(acc))).astype(np.float32), run))
     return grains
 
 
@@ -189,6 +254,9 @@ def build(engine, report):
     files = {f: decode(os.path.join(SRC, f)) for f in engine["sources"]}
     fpr, ppr = engine["firingsPerRev"], engine.get("patternPerRev", 1.0)
     idle_rpm, max_rpm = engine["idleRpmHint"], engine["maxRpmHint"]
+    average = int(engine.get("average", 1))
+    lift = float(engine.get("speakerLift", 0.8))
+    hp = rumble_hp(float(engine.get("rumbleHz", 70)))
     excl = {f: [] for f in files}
     for kind in ("startup", "shutdown"):
         if kind in engine: excl[engine[kind][0]].append(engine[kind][1:3])
@@ -205,9 +273,10 @@ def build(engine, report):
         if not loud.any(): continue
         k = resolve_factor(np.percentile(ff[loud], 15), idle_rpm / 60 * ppr)
         fpat = ff / k
-        xs = sosfiltfilt(SPEAKER_HP, x)
+        xs = speaker_lift(sosfiltfilt(hp, x), lift)
         files[name] = xs
-        g = cut_grains(xs, times, fpat, loud)
+        items = centre_on_pulse(xs, cut_centres(xs, times, fpat, loud))
+        g = window_grains(xs, items, average)
         for hz, c, arr, run in g: all_grains.append((hz, c, arr, run + run_base))
         run_base += 10000
         if report:

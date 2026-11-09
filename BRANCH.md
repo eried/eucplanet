@@ -37,8 +37,9 @@ only when you can cut the ride short.
 - Messages no longer hide under the keyboard, like "Search needs signal" or one that comes while typing in a number field.
 - Languages: 7 new (Portuguese for Portugal, Indonesian, Vietnamese, Thai, Greek, Bulgarian, Slovak), 30 in all. The other 22 were reviewed to read like a native app: one word per term, no word-for-word phrases, leftover English translated.
 - Inside: wiring moved to a library that also runs on iPhone, build tools updated (Kotlin 2.3.21, Koin 4.2.2). Nothing should change on screen.
-- Engine sound: nine engines are now real recordings, not synthesis: V8 (an AC Cobra), V-twin (a Ducati), Inline-4, V12 (an Aston Martin), Quad bike, Diesel truck, Tractor, Steam locomotive, Broken exhaust. The app plays short pieces of the real engine's cycle and lays them closer together as the wheel speeds up, so the firing rate follows the wheel while the exhaust keeps its real voice. They start with the recording's own start-up and pop with its own backfires. The old "Sampled" engines are gone from the list (their keys still work and play the same recordings).
-- Engine sound: the synthesised engines stay for what nobody has recorded: 4-stroke single, 2-stroke, Boxer 6, Inline-6, V16, and the fantasy set (Jet turbine, Pod racer, Hover bike, Tron whine, UFO hover). Each cylinder fires at its real crank angle into a real pipe; the multi-cylinder ones no longer turn into an electronic whine when accelerating.
+- Engine sound: eight engines are real recordings, not synthesis: V8 (an AC Cobra), V-twin (a Ducati), Inline-4, V12 (an Aston Martin), Diesel truck, Small dirt bike, Steam locomotive, Broken exhaust. The app plays short pieces of the real engine's cycle and lays them closer together as the wheel speeds up, so the firing rate follows the wheel while the exhaust keeps its real voice. They start with the recording's own start-up and pop with its own backfires. The old "Sampled" engines are gone from the list (their keys still work and play the same recordings).
+- Engine sound: the recorded engines keep their low end now and no longer hiss when you shut the throttle: letting off at speed makes them quieter and duller like a real engine, and a pop is a bang, not a burst of noise. The steam locomotive whistles when it comes on and toots when you let off, and blows off steam while it stands.
+- Engine sound: the synthesised engines stay for what nobody has recorded: 4-stroke single, 2-stroke, Quad bike, Tractor, Boxer 6, Inline-6, V16, and the fantasy set (Jet turbine, Pod racer, Hover bike, Tron whine, UFO hover, Digital hum). The hover bike is now the Jetsons car, a bubbling run of blips that comes faster with speed.
 - The APK is about 5 MB smaller: the recordings are shipped as grain banks instead of whole clips.
 
 ## Please test
@@ -57,9 +58,11 @@ only when you can cut the ride short.
 - Offline areas, Select, Around me: does it pick the squares you expect, and say the size before downloading?
 
 **Engine sound** (Settings, search "engine", switch it on)
-- The recorded engines (V8, V-twin, Inline-4, V12, Quad bike, Diesel truck, Tractor, Steam locomotive, Broken exhaust): does each start like an engine, idle like the real thing, and rev with the wheel from a stop to 30 km/h? Does a hard pull still sound like that engine, or like a buzz? Say which engine and at what speed.
+- The recorded engines (V8, V-twin, Inline-4, V12, Diesel truck, Small dirt bike, Steam locomotive, Broken exhaust): does each start like an engine, idle like the real thing, and rev with the wheel from a stop to 30 km/h? Does a hard pull still sound like that engine, or like a buzz? Say which engine and at what speed.
+- Ride at 30 km/h and let off completely: does the engine go quiet and dull like a real one, or do you hear hiss, a whistle or clicks? Which engine?
 - Do you hear a loop or a stutter when standing still with the engine idling? Which engine?
-- Synthesised engines (4-stroke single, 2-stroke, Boxer 6, Inline-6, V16): accelerate hard from 15 to 40 km/h. Engine or electronic whine? Which one and at what speed.
+- Synthesised engines (4-stroke single, 2-stroke, Quad bike, Tractor, Boxer 6, Inline-6, V16): accelerate hard from 15 to 40 km/h. Engine or electronic whine? Which one and at what speed.
+- Steam locomotive: do you hear the whistle when the sound comes on and a toot when you let off at speed? Hover bike: does it sound like the Jetsons car to you?
 - On the phone speaker, not only headphones: is it loud enough at idle and not harsh at speed? Are the recorded and the synthesised engines about as loud as each other?
 
 **Android Auto** (install from the Play internal sharing link, a sideloaded APK never shows in the car)

@@ -1095,7 +1095,7 @@
     <string name="engine_preset_steam_loco">Ατμομηχανή</string>
     <string name="engine_preset_tron_whine">Σφύριγμα Tron</string>
     <string name="engine_preset_pod_racer">Pod racer</string>
-    <string name="engine_preset_lightsaber">Φωτόσπαθο</string>
+    <string name="engine_preset_lightsaber">Ψηφιακός βόμβος</string>
     <string name="engine_preset_jet_turbine">Τουρμπίνα τζετ</string>
     <string name="engine_preset_ufo_hover">Αιώρηση UFO</string>
     <string name="engine_preset_f1_electric">Ηλεκτρική F1</string>
@@ -1103,7 +1103,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V-twin Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">Φορτηγό ντίζελ</string>
-    <string name="engine_preset_sampled_motorcycle">Μοτοσικλέτα</string>
+    <string name="engine_preset_sampled_motorcycle">Μικρή μοτοσικλέτα κρος</string>
     <string name="engine_preset_sampled_city_car">Αυτοκίνητο πόλης</string>
     <string name="engine_preset_sampled_helicopter">Ελικόπτερο</string>
     <string name="engine_preset_sampled_tractor">Τρακτέρ</string>

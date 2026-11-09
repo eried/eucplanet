@@ -1118,7 +1118,7 @@
     <string name="engine_preset_steam_loco">Парен локомотив</string>
     <string name="engine_preset_tron_whine">Вой от Tron</string>
     <string name="engine_preset_pod_racer">Pod racer</string>
-    <string name="engine_preset_lightsaber">Светлинен меч</string>
+    <string name="engine_preset_lightsaber">Дигитално бръмчене</string>
     <string name="engine_preset_jet_turbine">Реактивна турбина</string>
     <string name="engine_preset_ufo_hover">НЛО</string>
     <string name="engine_preset_f1_electric">Електрически F1</string>
@@ -1126,7 +1126,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V-twin Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">Дизелов камион</string>
-    <string name="engine_preset_sampled_motorcycle">Мотоциклет</string>
+    <string name="engine_preset_sampled_motorcycle">Малък крос мотор</string>
     <string name="engine_preset_sampled_city_car">Градски автомобил</string>
     <string name="engine_preset_sampled_helicopter">Хеликоптер</string>
     <string name="engine_preset_sampled_tractor">Трактор</string>

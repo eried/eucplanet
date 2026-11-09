@@ -1158,7 +1158,7 @@
     <string name="engine_preset_steam_loco">Steam locomotive</string>
     <string name="engine_preset_tron_whine">Tron whine</string>
     <string name="engine_preset_pod_racer">Pod racer</string>
-    <string name="engine_preset_lightsaber">Lightsaber</string>
+    <string name="engine_preset_lightsaber">Digital hum</string>
     <string name="engine_preset_jet_turbine">Jet turbine</string>
     <string name="engine_preset_ufo_hover">UFO hover</string>
     <string name="engine_preset_f1_electric">F1 electric whine</string>
@@ -1166,7 +1166,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V-twin Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">Diesel truck</string>
-    <string name="engine_preset_sampled_motorcycle">Motorcycle</string>
+    <string name="engine_preset_sampled_motorcycle">Small dirt bike</string>
     <string name="engine_preset_sampled_city_car">City car</string>
     <string name="engine_preset_sampled_helicopter">Helicopter</string>
     <string name="engine_preset_sampled_tractor">Tractor</string>

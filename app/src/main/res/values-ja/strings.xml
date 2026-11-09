@@ -854,7 +854,7 @@
     <string name="engine_preset_steam_loco">蒸気機関車</string>
     <string name="engine_preset_tron_whine">トロンの唸り</string>
     <string name="engine_preset_pod_racer">ポッドレーサー</string>
-    <string name="engine_preset_lightsaber">ライトセーバー</string>
+    <string name="engine_preset_lightsaber">デジタルハム</string>
     <string name="engine_preset_jet_turbine">ジェットタービン</string>
     <string name="engine_preset_ufo_hover">UFO ホバー</string>
     <string name="engine_preset_f1_electric">F1 電気の唸り</string>
@@ -862,7 +862,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V-twin Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">ディーゼルトラック</string>
-    <string name="engine_preset_sampled_motorcycle">モーターサイクル</string>
+    <string name="engine_preset_sampled_motorcycle">小型ダートバイク</string>
     <string name="engine_preset_sampled_city_car">シティカー</string>
     <string name="engine_preset_sampled_helicopter">ヘリコプター</string>
     <string name="engine_preset_sampled_tractor">トラクター</string>

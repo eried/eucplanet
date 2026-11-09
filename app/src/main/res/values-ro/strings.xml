@@ -1063,7 +1063,7 @@
     <string name="engine_preset_steam_loco">Locomotivă cu abur</string>
     <string name="engine_preset_tron_whine">Șuierat Tron</string>
     <string name="engine_preset_pod_racer">Pod racer</string>
-    <string name="engine_preset_lightsaber">Sabie laser</string>
+    <string name="engine_preset_lightsaber">Zumzet digital</string>
     <string name="engine_preset_jet_turbine">Turbină cu reacție</string>
     <string name="engine_preset_ufo_hover">OZN în plutire</string>
     <string name="engine_preset_f1_electric">Șuierat electric de F1</string>
@@ -1071,7 +1071,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">Bicilindru în V Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">Camion diesel</string>
-    <string name="engine_preset_sampled_motorcycle">Motocicletă</string>
+    <string name="engine_preset_sampled_motorcycle">Moto cross mică</string>
     <string name="engine_preset_sampled_city_car">Mașină de oraș</string>
     <string name="engine_preset_sampled_helicopter">Elicopter</string>
     <string name="engine_preset_sampled_tractor">Tractor</string>

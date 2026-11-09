@@ -858,7 +858,7 @@
     <string name="engine_preset_steam_loco">Lokomotywa parowa</string>
     <string name="engine_preset_tron_whine">Świst z Trona</string>
     <string name="engine_preset_pod_racer">Pod racer</string>
-    <string name="engine_preset_lightsaber">Miecz świetlny</string>
+    <string name="engine_preset_lightsaber">Cyfrowe buczenie</string>
     <string name="engine_preset_jet_turbine">Turbina odrzutowa</string>
     <string name="engine_preset_ufo_hover">UFO w zawisie</string>
     <string name="engine_preset_f1_electric">Elektryczny świst F1</string>
@@ -866,7 +866,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V-twin Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">Ciężarówka diesel</string>
-    <string name="engine_preset_sampled_motorcycle">Motocykl</string>
+    <string name="engine_preset_sampled_motorcycle">Mały motocykl crossowy</string>
     <string name="engine_preset_sampled_city_car">Auto miejskie</string>
     <string name="engine_preset_sampled_helicopter">Helikopter</string>
     <string name="engine_preset_sampled_tractor">Traktor</string>

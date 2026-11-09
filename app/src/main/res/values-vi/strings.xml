@@ -1069,7 +1069,7 @@
     <string name="engine_preset_steam_loco">Đầu máy hơi nước</string>
     <string name="engine_preset_tron_whine">Tiếng rít Tron</string>
     <string name="engine_preset_pod_racer">Pod racer</string>
-    <string name="engine_preset_lightsaber">Kiếm ánh sáng</string>
+    <string name="engine_preset_lightsaber">Tiếng ù kỹ thuật số</string>
     <string name="engine_preset_jet_turbine">Động cơ phản lực</string>
     <string name="engine_preset_ufo_hover">UFO lơ lửng</string>
     <string name="engine_preset_f1_electric">Tiếng rít F1 điện</string>
@@ -1077,7 +1077,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V-twin Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">Xe tải diesel</string>
-    <string name="engine_preset_sampled_motorcycle">Xe máy</string>
+    <string name="engine_preset_sampled_motorcycle">Xe cào cào nhỏ</string>
     <string name="engine_preset_sampled_city_car">Ô tô đô thị</string>
     <string name="engine_preset_sampled_helicopter">Trực thăng</string>
     <string name="engine_preset_sampled_tractor">Máy kéo</string>

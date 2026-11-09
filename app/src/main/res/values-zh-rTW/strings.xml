@@ -853,7 +853,7 @@
     <string name="engine_preset_steam_loco">蒸汽機車</string>
     <string name="engine_preset_tron_whine">Tron 嘯鳴</string>
     <string name="engine_preset_pod_racer">飛梭賽車</string>
-    <string name="engine_preset_lightsaber">光劍</string>
+    <string name="engine_preset_lightsaber">數位嗡鳴</string>
     <string name="engine_preset_jet_turbine">噴射渦輪</string>
     <string name="engine_preset_ufo_hover">UFO 懸浮</string>
     <string name="engine_preset_f1_electric">F1 電動嘯鳴</string>
@@ -861,7 +861,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V 型雙缸 Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">柴油卡車</string>
-    <string name="engine_preset_sampled_motorcycle">機車</string>
+    <string name="engine_preset_sampled_motorcycle">小型越野摩托車</string>
     <string name="engine_preset_sampled_city_car">城市小車</string>
     <string name="engine_preset_sampled_helicopter">直升機</string>
     <string name="engine_preset_sampled_tractor">曳引機</string>

@@ -854,7 +854,7 @@
     <string name="engine_preset_steam_loco">Buharlı lokomotif</string>
     <string name="engine_preset_tron_whine">Tron vızıltısı</string>
     <string name="engine_preset_pod_racer">Pod yarışçısı</string>
-    <string name="engine_preset_lightsaber">Işın kılıcı</string>
+    <string name="engine_preset_lightsaber">Dijital uğultu</string>
     <string name="engine_preset_jet_turbine">Jet türbini</string>
     <string name="engine_preset_ufo_hover">UFO süzülmesi</string>
     <string name="engine_preset_f1_electric">F1 elektrik vızıltısı</string>
@@ -862,7 +862,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V-twin Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">Dizel kamyon</string>
-    <string name="engine_preset_sampled_motorcycle">Motosiklet</string>
+    <string name="engine_preset_sampled_motorcycle">Küçük arazi motosikleti</string>
     <string name="engine_preset_sampled_city_car">Şehir aracı</string>
     <string name="engine_preset_sampled_helicopter">Helikopter</string>
     <string name="engine_preset_sampled_tractor">Traktör</string>

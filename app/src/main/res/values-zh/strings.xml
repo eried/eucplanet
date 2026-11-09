@@ -729,9 +729,9 @@
     <string name="engine_preset_ufo_hover">UFO悬停</string>
     <string name="engine_preset_f1_electric">F1 电动</string>
     <string name="engine_preset_hover_bike">悬浮摩托</string>
-    <string name="engine_preset_lightsaber">光剑</string>
+    <string name="engine_preset_lightsaber">数字嗡鸣</string>
     <string name="engine_preset_sampled_diesel_iveco">柴油卡车</string>
-    <string name="engine_preset_sampled_motorcycle">摩托车</string>
+    <string name="engine_preset_sampled_motorcycle">小型越野摩托</string>
     <string name="engine_preset_sampled_city_car">城市轿车</string>
     <string name="engine_preset_sampled_helicopter">直升机</string>
     <string name="engine_preset_sampled_tractor">拖拉机</string>

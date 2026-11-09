@@ -1,5 +1,5 @@
 {
-  "_comment": "One entry per grain bank. sources are files in tools/engine-sounds/src (all CC0, see docs/SFX_SOURCES.md). firingsPerRev tells the tracker what a firing rate means for this engine; patternPerRev is the grain rate per crank revolution (1 for pistons, 4 chuffs per wheel turn for steam). The rpm hints only bound the tracker; the recording decides. startup/pops/exclude are [file, startMs, endMs]. grainsPerBand caps the bank size (default 24); long-period engines take fewer since each grain is long.",
+  "_comment": "One entry per grain bank. sources are files in tools/engine-sounds/src (all CC0, see docs/SFX_SOURCES.md). firingsPerRev tells the tracker what a firing rate means for this engine; patternPerRev is the grain rate per crank revolution (1 for pistons, 4 chuffs per wheel turn for steam). The rpm hints only bound the tracker; the recording decides. startup/pops/exclude are [file, startMs, endMs]. grainsPerBand caps the bank size (default 20); long-period engines take fewer since each grain is long. average 3 averages each grain with its neighbours (noise and wind down 4.8 dB, the engine untouched) for recordings made in the open. speakerLift (default 0.8) is how much of the low end's rhythm is put into the speaker band. rumbleHz (default 70) cuts everything under it first; a recording that is nearly all thump is cut higher so a phone speaker still gets an engine.",
   "engines": [
     {
       "key": "V8_MUSCLE",
@@ -28,7 +28,9 @@
           25440
         ]
       ],
-      "grainsPerBand": 20
+      "grainsPerBand": 20,
+      "average": 3,
+      "speakerLift": 1.0
     },
     {
       "key": "V_TWIN",
@@ -65,7 +67,8 @@
           32697,
           41169
         ]
-      ]
+      ],
+      "average": 3
     },
     {
       "key": "V12_ITALIAN",
@@ -87,7 +90,8 @@
           19924
         ]
       ],
-      "grainsPerBand": 24
+      "grainsPerBand": 24,
+      "average": 3
     },
     {
       "key": "QUAD_BIKE",
@@ -108,7 +112,9 @@
           30230,
           33312
         ]
-      ]
+      ],
+      "rumbleHz": 170,
+      "speakerLift": 1.0
     },
     {
       "key": "DIESEL_TRUCK",
@@ -200,7 +206,8 @@
           48671
         ]
       ],
-      "asset": "grain_broken_exhaust"
+      "asset": "grain_broken_exhaust",
+      "speakerLift": 1.0
     },
     {
       "key": "MOTORCYCLE",
@@ -221,7 +228,10 @@
           11923,
           13558
         ]
-      ]
+      ],
+      "average": 3,
+      "rumbleHz": 130,
+      "speakerLift": 1.0
     },
     {
       "key": "LAWNMOWER",

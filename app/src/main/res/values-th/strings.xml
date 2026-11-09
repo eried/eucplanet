@@ -1069,7 +1069,7 @@
     <string name="engine_preset_steam_loco">หัวรถจักรไอน้ำ</string>
     <string name="engine_preset_tron_whine">เสียงหวีดแบบ Tron</string>
     <string name="engine_preset_pod_racer">พ็อดเรเซอร์</string>
-    <string name="engine_preset_lightsaber">ไลท์เซเบอร์</string>
+    <string name="engine_preset_lightsaber">เสียงฮัมดิจิทัล</string>
     <string name="engine_preset_jet_turbine">เทอร์ไบน์เจ็ต</string>
     <string name="engine_preset_ufo_hover">ยูเอฟโอลอยตัว</string>
     <string name="engine_preset_f1_electric">เสียงหวีด F1 ไฟฟ้า</string>
@@ -1077,7 +1077,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V-twin Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">รถบรรทุกดีเซล</string>
-    <string name="engine_preset_sampled_motorcycle">มอเตอร์ไซค์</string>
+    <string name="engine_preset_sampled_motorcycle">รถวิบากเล็ก</string>
     <string name="engine_preset_sampled_city_car">รถเก๋งในเมือง</string>
     <string name="engine_preset_sampled_helicopter">เฮลิคอปเตอร์</string>
     <string name="engine_preset_sampled_tractor">รถแทรกเตอร์</string>
