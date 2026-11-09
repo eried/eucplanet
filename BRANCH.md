@@ -41,7 +41,7 @@ only when you can cut the ride short.
 - Engine sound: the recorded engines keep their low end now and no longer hiss when you shut the throttle: letting off at speed makes them quieter and duller like a real engine, and a pop is a bang, not a burst of noise. The steam locomotive whistles when it comes on and toots when you let off, and blows off steam while it stands.
 - Engine sound: the synthesised engines stay for what nobody has recorded: 4-stroke single, 2-stroke, Quad bike, Tractor, Boxer 6, Inline-6, V16, and the fantasy set (Jet turbine, Pod racer, Hover bike, Tron whine, UFO hover, Digital hum). The hover bike is now the Jetsons car, a bubbling run of blips that comes faster with speed.
 - Engine sound: the synthesised engines breathe. Their intake and exhaust air used to run as a steady hiss under the bangs; now each firing draws a breath that dies away before the next one at idle, so the 4-stroke single and the 2-stroke idle without the "shhh" behind them. At speed nothing changes.
-- Engine sound: Reset all to defaults at the bottom of the section, greyed until you change something, and it tells you what it will change before it does.
+- Engine sound: Reset all to defaults at the bottom of the section, greyed until you change something, and it tells you what it will change before it does. The Advanced reset moved to the left to sit where every other reset in the app is.
 - The APK is about 5 MB smaller: the recordings are shipped as grain banks instead of whole clips.
 
 ## Please test

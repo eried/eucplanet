@@ -2196,8 +2196,10 @@ private fun AdvancedTab(
         // Timing knobs, under their own big title.
         AdvSectionTitle(stringResource(R.string.adv_timings_title))
         MetricInfoBox(stringResource(R.string.adv_rates_warning))
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-            // Disabled (greyed) when nothing is off default; otherwise confirm first.
+        // On the left like every other reset in the app (trip layout, metric history,
+        // dashboard slots, the editor dialogs). Greyed when nothing is off default;
+        // otherwise confirm first.
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) {
             TextButton(onClick = { showResetConfirm = true }, enabled = changed.isNotEmpty(), shape = RoundedCornerShape(12.dp)) {
                 Icon(Icons.Default.Restore, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
