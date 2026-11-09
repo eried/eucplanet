@@ -13,13 +13,15 @@ import com.eried.eucplanet.diagnostics.DiagnosticsLogger
 import kotlin.concurrent.thread
 
 /**
- * Motor sound generator. Synthesises a virtual engine driven by real-time
+ * Motor sound generator. Plays a virtual engine driven by real-time
  * (speed, pwm) telemetry. Lives as a singleton; [WheelService] feeds telemetry
  * and lifecycle events.
  *
  * The motion model is [EngineDynamics] (pure Kotlin, shared with the offline
- * ride renderer); this class owns the Android side: settings, the AudioTrack
- * and producer thread for the synth, the sampled players, audio focus.
+ * ride renderer) and every engine, recorded or synthesised, is rendered by
+ * [EngineSynth] into one AudioTrack. This class owns the Android side:
+ * settings, the AudioTrack and producer thread, the grain banks in
+ * `res/raw`, audio focus.
  *
  * Threading:
  *  - Main / coroutine thread calls [applySettings], [pushTelemetry], [start], [stop],
@@ -27,10 +29,7 @@ import kotlin.concurrent.thread
  *  - The audio producer thread reads the volatile params snapshot every buffer fill
  *    and writes PCM to AudioTrack. Allocations are kept off the hot path.
  */
-class EngineSoundEngine(
-    private val context: Context,
-    private val sfxSidecar: SfxSidecar
-) {
+class EngineSoundEngine(private val context: Context) {
 
     private val sampleRate = 44100
     private val bufferFrames = 1024     // ~23ms at 44.1k, small enough for live response
@@ -44,9 +43,7 @@ class EngineSoundEngine(
     @Volatile private var running: Boolean = false
 
     @Volatile private var paramsSnapshot: EngineParams = EngineParams.SILENT
-    private val synth = EngineSynth(sampleRate)
-    private val sampledPlayer = SampledEnginePlayer(context)
-    private val compositionPlayer = CompositionEnginePlayer(context)
+    private val synth = EngineSynth(sampleRate) { asset -> openBank(asset) }
 
     // Guards the model: pushTelemetry runs on the service's worker thread (and
     // the preview thread) while the disconnect reset in setConnected runs on
@@ -64,6 +61,16 @@ class EngineSoundEngine(
 
     // Audio focus
     private var focusRequest: AudioFocusRequest? = null
+
+    /** A recorded engine's grain bank from `res/raw`, or null when the resource is missing or broken. */
+    private fun openBank(asset: String): GrainBank? {
+        val id = context.resources.getIdentifier(asset, "raw", context.packageName)
+        if (id == 0) {
+            Log.w(TAG, "No grain bank $asset, the synthesised engine stands in")
+            return null
+        }
+        return GrainBank.load(sampleRate) { context.resources.openRawResource(id) }
+    }
 
     /** Apply settings, called whenever AppSettings changes. */
     fun applySettings(s: AppSettings) {
@@ -88,7 +95,7 @@ class EngineSoundEngine(
         // never per-tick telemetry. DiagnosticsLogger.info() is a no-op when service
         // mode is off, so this costs nothing in normal operation.
         if (s.engineSoundEnabled && previousProfileKey != profile.key) {
-            val pathKind = if (profile.sampleAssetBase != null) "sampled" else profile.kind.name.lowercase()
+            val pathKind = if (profile.grainAsset != null) "recorded" else profile.kind.name.lowercase()
             DiagnosticsLogger.info("engine: ${profile.key} ($pathKind)")
         }
         if (previousEnabled != s.engineSoundEnabled) {
@@ -102,7 +109,7 @@ class EngineSoundEngine(
             stop()
             return
         }
-        // Engine type swap while running: restart the correct path.
+        // Engine type swap while running: restart so the new engine starts clean.
         if (running && previousProfileKey != profile.key) {
             stop()
             start()
@@ -196,7 +203,7 @@ class EngineSoundEngine(
     private fun pushParamsDirect(rpmFraction: Float, load: Float) {
         synchronized(telemetryLock) {
             val now = System.currentTimeMillis()
-            emit(model.direct(now, rpmFraction, load), now)
+            paramsSnapshot = model.direct(now, rpmFraction, load)
         }
     }
 
@@ -204,33 +211,7 @@ class EngineSoundEngine(
     fun pushTelemetry(speedKmh: Float, pwmPercent: Float) {
         synchronized(telemetryLock) {
             val now = System.currentTimeMillis()
-            emit(model.tick(now, speedKmh, pwmPercent), now)
-        }
-    }
-
-    private fun emit(params: EngineParams, now: Long) {
-        paramsSnapshot = params
-        // Sample-based engine takes its parameters from the same snapshot.
-        val rpmNorm = model.rpmNorm(now)
-        val sampledVolume = params.masterGain * params.idleAmount
-        val pops = params.pendingPops
-
-        if (compositionPlayer.isPlaying()) {
-            compositionPlayer.update(rpmNorm, sampledVolume)
-            if (params.decelAmount > 0.6f && pops == 0) {
-                // Decel transient hasn't been queued as a pop, but the envelope is high
-                //, likely a clean throttle-close. Fire the composition's decel one-shot.
-                compositionPlayer.fireDecel()
-            }
-        } else if (sampledPlayer.isPlaying()) {
-            sampledPlayer.update(rpmNorm, sampledVolume)
-        }
-        // Pops on either sampled path go through SoundPool, the synth path consumes them
-        // by rendering them into its own buffer, but neither MediaPlayer path has a mix point.
-        if (pops > 0 && profile.supportsPops && profile.sampleAssetBase != null) {
-            if (profile.popSampleAsset != null) {
-                repeat(pops) { sfxSidecar.firePop(profile.popSampleAsset, sampledVolume) }
-            }
+            paramsSnapshot = model.tick(now, speedKmh, pwmPercent)
         }
     }
 
@@ -243,22 +224,8 @@ class EngineSoundEngine(
         }
         running = true
         requestAudioFocus()
-        // Multi-section composition wins over single-asset playback, when a profile
-        // declares sampleSections, we use [CompositionEnginePlayer] for proper
-        // idle ↔ rev crossfading plus startup/decel/shutdown one-shots.
-        if (profile.sampleSections != null) {
-            sfxSidecar.load(profile)
-            compositionPlayer.start(profile)
-            return
-        }
-        if (profile.sampleAssetBase != null) {
-            // Preload pop/brake SFX so the first trigger doesn't get dropped while
-            // SoundPool decodes. firePop() drops the call if the asset isn't ready yet,
-            // but we want pops to land from the first decel event.
-            sfxSidecar.load(profile)
-            sampledPlayer.start(profile)
-            return
-        }
+        // A recorded engine's bank is read here, off the audio thread.
+        synth.preload(profile)
         try {
             val minBuf = AudioTrack.getMinBufferSize(
                 sampleRate, channelMask, AudioFormat.ENCODING_PCM_FLOAT
@@ -306,9 +273,6 @@ class EngineSoundEngine(
             }
         }
         audioTrack = null
-        sampledPlayer.stop()
-        compositionPlayer.stop()
-        sfxSidecar.release()
         abandonAudioFocus()
         synth.reset()
         synchronized(telemetryLock) { model.resetRev() }

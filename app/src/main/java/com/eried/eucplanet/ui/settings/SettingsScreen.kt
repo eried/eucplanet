@@ -10236,7 +10236,7 @@ private fun EngineTypePicker(
     var expanded by remember { mutableStateOf(false) }
 
     val currentProfile = profiles.firstOrNull { it.key == currentKey }
-    val sourceLabel = if (currentProfile?.sampleAssetBase != null)
+    val sourceLabel = if (currentProfile?.grainAsset != null)
         stringResource(R.string.engine_source_sampled)
     else
         stringResource(R.string.engine_source_synth)
@@ -10262,7 +10262,7 @@ private fun EngineTypePicker(
             // Source icon: Album (vinyl) = sampled / analog. Equalizer (bars) = synth / digital.
             // Sits on the LEFT of the engine name so two presets that share a name
             // (e.g. "Tractor" Synth vs "Tractor" Sampled) are visually distinct at a glance.
-            val isSampled = currentProfile?.sampleAssetBase != null
+            val isSampled = currentProfile?.grainAsset != null
             OutlinedTextField(
                 value = displayFor(currentKey),
                 onValueChange = {},
@@ -10304,7 +10304,7 @@ private fun EngineTypePicker(
                 containerColor = MaterialTheme.appColors.menuBackground
             ) {
                 profiles.forEach { p ->
-                    val itemIsSampled = p.sampleAssetBase != null
+                    val itemIsSampled = p.grainAsset != null
                     DropdownMenuItem(
                         leadingIcon = {
                             if (itemIsSampled) {

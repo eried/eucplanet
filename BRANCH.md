@@ -37,8 +37,9 @@ only when you can cut the ride short.
 - Messages no longer hide under the keyboard, like "Search needs signal" or one that comes while typing in a number field.
 - Languages: 7 new (Portuguese for Portugal, Indonesian, Vietnamese, Thai, Greek, Bulgarian, Slovak), 30 in all. The other 22 were reviewed to read like a native app: one word per term, no word-for-word phrases, leftover English translated.
 - Inside: wiring moved to a library that also runs on iPhone, build tools updated (Kotlin 2.3.21, Koin 4.2.2). Nothing should change on screen.
-- Engine sound: the synthesized engines are rebuilt for a phone speaker. Each cylinder fires at its real crank angle into a real pipe, so the note sits where the speaker plays and the pitch follows the wheel without turning into a screech. Thirteen more engines in the picker: V-twin, Inline-4, Boxer 6, Inline-6, V16, 2-stroke, Quad bike, Tractor, Tron whine, Steam locomotive, UFO hover, Pod racer (two turbines beating), Hover bike (ducted fans).
-- Engine sound: the multi-cylinder engines (V8, V12, Inline-4, Boxer 6, V-twin) no longer turn into an electronic whine when accelerating; every bang keeps its edge at speed and the V8 has its real cross-plane burble. Recorded engines (the "Sampled" ones) now double their pitch across the rev band and hand over to the revving loop earlier, so they should no longer sit in the idle loop while riding.
+- Engine sound: nine engines are now real recordings, not synthesis: V8 (an AC Cobra), V-twin (a Ducati), Inline-4, V12 (an Aston Martin), Quad bike, Diesel truck, Tractor, Steam locomotive, Broken exhaust. The app plays short pieces of the real engine's cycle and lays them closer together as the wheel speeds up, so the firing rate follows the wheel while the exhaust keeps its real voice. They start with the recording's own start-up and pop with its own backfires. The old "Sampled" engines are gone from the list (their keys still work and play the same recordings).
+- Engine sound: the synthesised engines stay for what nobody has recorded: 4-stroke single, 2-stroke, Boxer 6, Inline-6, V16, and the fantasy set (Jet turbine, Pod racer, Hover bike, Tron whine, UFO hover). Each cylinder fires at its real crank angle into a real pipe; the multi-cylinder ones no longer turn into an electronic whine when accelerating.
+- The APK is about 5 MB smaller: the recordings are shipped as grain banks instead of whole clips.
 
 ## Please test
 
@@ -56,10 +57,10 @@ only when you can cut the ride short.
 - Offline areas, Select, Around me: does it pick the squares you expect, and say the size before downloading?
 
 **Engine sound** (Settings, search "engine", switch it on)
-- Pick each of the seventeen engines and ride: does the pitch follow the wheel, and does a hard pull stay an engine instead of a whistle? Say which engine and when.
-- V8, V12, Inline-4, Boxer 6: accelerate hard from 15 to 40 km/h. Engine or electronic whine? Say which one and at what speed it turns.
-- A recorded engine ("Sampled" in the list): ride from a stop to 30 km/h. Does the pitch climb and the sound change to the revving recording, or does it stay on the idle loop?
-- On the phone speaker, not only headphones: is it loud enough at idle and not harsh at speed?
+- The recorded engines (V8, V-twin, Inline-4, V12, Quad bike, Diesel truck, Tractor, Steam locomotive, Broken exhaust): does each start like an engine, idle like the real thing, and rev with the wheel from a stop to 30 km/h? Does a hard pull still sound like that engine, or like a buzz? Say which engine and at what speed.
+- Do you hear a loop or a stutter when standing still with the engine idling? Which engine?
+- Synthesised engines (4-stroke single, 2-stroke, Boxer 6, Inline-6, V16): accelerate hard from 15 to 40 km/h. Engine or electronic whine? Which one and at what speed.
+- On the phone speaker, not only headphones: is it loud enough at idle and not harsh at speed? Are the recorded and the synthesised engines about as loud as each other?
 
 **Android Auto** (install from the Play internal sharing link, a sideloaded APK never shows in the car)
 - Navigate from the car screen: turn-by-turn shows, and your four numbers beside it?

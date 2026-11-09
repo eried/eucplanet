@@ -2,7 +2,6 @@ package com.eried.eucplanet.di
 
 import com.eried.eucplanet.audio.EngineSoundEngine
 import com.eried.eucplanet.audio.HornPlayer
-import com.eried.eucplanet.audio.SfxSidecar
 import com.eried.eucplanet.cheats.CheatState
 import com.eried.eucplanet.flic.FlicManager
 import com.eried.eucplanet.service.AlarmEngine
@@ -49,7 +48,6 @@ val serviceModule = module {
     singleOf(::CheatState)
     singleOf(::EngineSoundEngine)
     singleOf(::HornPlayer)
-    singleOf(::SfxSidecar)
     singleOf(::ThemeController)
     singleOf(::ExperimentalBannerState)
 }

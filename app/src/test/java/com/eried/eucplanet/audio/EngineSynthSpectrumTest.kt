@@ -23,13 +23,13 @@ class EngineSynthSpectrumTest {
     private val n = 1 shl 16   // 1.5 s
 
     private fun render(profile: EngineProfile, rpmFrac: Float, load: Float, brake: Float = 0f): FloatArray {
-        val synth = EngineSynth(sr)
+        val synth = EngineSynth(sr, TestGrainBanks.loader(sr))
         val rpm = profile.idleRpm + (profile.maxRpm - profile.idleRpm) * rpmFrac
         val p = EngineParams(rpm = rpm, load = load, idleAmount = 1f, masterGain = 1f, profile = profile, engineBrakeAmount = brake)
         val out = FloatArray(n)
-        // Warm up so resonators and envelopes settle.
+        // Warm up so resonators and envelopes settle and a recorded engine's start is over.
         val warm = FloatArray(4096)
-        repeat(12) { synth.render(p, warm, 0, warm.size) }
+        repeat(40) { synth.render(p, warm, 0, warm.size) }
         synth.render(p, out, 0, n)
         return out
     }
@@ -82,7 +82,11 @@ class EngineSynthSpectrumTest {
 
     private fun db(x: FloatArray) = 20 * log10(sqrt(x.sumOf { (it * it).toDouble() } / x.size).coerceAtLeast(1e-9))
 
-    private val procedural = EngineProfile.PROFILES.filter { it.sampleAssetBase == null }
+    /** Every synthesised engine, and each recorded bank once (the hidden old keys share banks with listed engines). */
+    private val procedural = EngineProfile.PROFILES.filter { p ->
+        p.grainAsset == null || EngineProfile.PROFILES.first { it.grainAsset == p.grainAsset } === p
+    }
+    private val EngineProfile.recorded: Boolean get() = grainAsset != null
 
     private fun check(all: (MutableList<String>) -> Unit) {
         val misses = mutableListOf<String>()
@@ -122,10 +126,15 @@ class EngineSynthSpectrumTest {
         }
     }
 
-    /** A steam engine chuffs faster when it runs, it does not change pitch; every other engine climbs. */
+    /**
+     * A steam engine chuffs faster when it runs, it does not change pitch; every other
+     * synthesised engine climbs. A recorded engine keeps its real pipes whatever the
+     * revs, so its weight stays where the recording put it; that its firing rate
+     * follows the wheel is checked in [GrainBankTest].
+     */
     @Test
     fun `revving moves the sound up`() = check { misses ->
-        for (p in procedural.filter { it.key != "STEAM_LOCO" }) {
+        for (p in procedural.filter { it.key != "STEAM_LOCO" && !it.recorded }) {
             val lo = centroid(power(render(p, 0.1f, 0.3f)))
             val hi = centroid(power(render(p, 0.9f, 0.9f)))
             if (hi <= lo * 1.15) misses += "${p.key}: ${lo.toInt()} Hz at low revs, ${hi.toInt()} Hz at high"
@@ -145,6 +154,7 @@ class EngineSynthSpectrumTest {
             val rpm = p.idleRpm + (p.maxRpm - p.idleRpm) * 0.9
             val firingRate = rpm / 60.0 * (360.0 / p.cycleDegrees) * p.cylinderCount
             val limit = when {
+                p.recorded -> 2200.0   // real air and real valves, as recorded
                 p.kind == EngineProfile.Kind.SYNTH -> 1900.0
                 p.key == "STEAM_LOCO" -> 1300.0   // a hiss of steam, by design
                 // A deliberate high ring (a 2-stroke's chamber) is allowed to lift it a little.
@@ -187,12 +197,12 @@ class EngineSynthSpectrumTest {
         return count
     }
 
-    /** Richness: a piston engine under load is many partials, not one note with air around it. */
+    /** Richness: a synthesised piston engine under load is many partials, not one note with air around it. */
     @Test
     fun `a piston engine under load has many partials`() = check { misses ->
         val counts = mutableListOf<String>()
         var miss = false
-        for (p in procedural.filter { it.kind == EngineProfile.Kind.ICE && it.key != "STEAM_LOCO" }) {
+        for (p in procedural.filter { it.kind == EngineProfile.Kind.ICE && it.key != "STEAM_LOCO" && !it.recorded }) {
             val c = partials(power(render(p, 0.5f, 0.8f)), 150.0, 1500.0)
             counts += "${p.key}=$c"
             if (c < 8) miss = true
@@ -234,11 +244,14 @@ class EngineSynthSpectrumTest {
      * the single 29%; flat out, no piston engine may now put more than 55% there.
      * The turbines (jet, pod racer, hover bike) are air with a whine on top and
      * are held to the same bar; the hums and the Tron square are whines by design.
+     * The recorded engines are exempt: a real Cobra at idle puts 95% of this band
+     * into its three lowest harmonics and nobody calls it a whine, so the bar is a
+     * synthesiser's bar. Their rate following the wheel is pinned in [GrainBankTest].
      */
     @Test
     fun `flat out, a piston engine is a roar and not a whine`() = check { misses ->
         val report = mutableListOf<String>()
-        for (p in procedural.filter { it.kind == EngineProfile.Kind.ICE || it.voice == SynthVoice.TURBINE }) {
+        for (p in procedural.filter { !it.recorded && (it.kind == EngineProfile.Kind.ICE || it.voice == SynthVoice.TURBINE) }) {
             val s = lineShare(power(render(p, 0.9f, 1f)), 3, 150.0, 4000.0)
             report += "${p.key}=${"%.2f".format(s)}"
             if (s > 0.55) misses += "${p.key}: ${(s * 100).toInt()}% of the band is three lines"

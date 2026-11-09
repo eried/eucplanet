@@ -1,0 +1,251 @@
+{
+  "_comment": "One entry per grain bank. sources are files in tools/engine-sounds/src (all CC0, see docs/SFX_SOURCES.md). firingsPerRev tells the tracker what a firing rate means for this engine; patternPerRev is the grain rate per crank revolution (1 for pistons, 4 chuffs per wheel turn for steam). The rpm hints only bound the tracker; the recording decides. startup/pops/exclude are [file, startMs, endMs]. grainsPerBand caps the bank size (default 24); long-period engines take fewer since each grain is long.",
+  "engines": [
+    {
+      "key": "V8_MUSCLE",
+      "sources": [
+        "engine_v8_cobra.ogg"
+      ],
+      "idleRpmHint": 700,
+      "maxRpmHint": 3000,
+      "firingsPerRev": 4,
+      "startup": [
+        "engine_v8_cobra.ogg",
+        92,
+        1805
+      ],
+      "pops": [
+        [
+          "engine_v8_cobra.ogg",
+          20143,
+          20527
+        ]
+      ],
+      "exclude": [
+        [
+          "engine_v8_cobra.ogg",
+          21677,
+          25440
+        ]
+      ],
+      "grainsPerBand": 20
+    },
+    {
+      "key": "V_TWIN",
+      "sources": [
+        "engine_vtwin_ducati.ogg"
+      ],
+      "idleRpmHint": 1000,
+      "maxRpmHint": 6000,
+      "firingsPerRev": 1,
+      "startup": [
+        "engine_vtwin_ducati.ogg",
+        476,
+        3096
+      ],
+      "exclude": [
+        [
+          "engine_vtwin_ducati.ogg",
+          36108,
+          41433
+        ]
+      ]
+    },
+    {
+      "key": "INLINE_4",
+      "sources": [
+        "src_bsb_0187.ogg"
+      ],
+      "idleRpmHint": 870,
+      "maxRpmHint": 4500,
+      "firingsPerRev": 2,
+      "exclude": [
+        [
+          "src_bsb_0187.ogg",
+          32697,
+          41169
+        ]
+      ]
+    },
+    {
+      "key": "V12_ITALIAN",
+      "sources": [
+        "src_ia_vanquish.ogg"
+      ],
+      "idleRpmHint": 900,
+      "maxRpmHint": 3500,
+      "firingsPerRev": 6,
+      "startup": [
+        "src_ia_vanquish.ogg",
+        713,
+        3455
+      ],
+      "exclude": [
+        [
+          "src_ia_vanquish.ogg",
+          18282,
+          19924
+        ]
+      ],
+      "grainsPerBand": 24
+    },
+    {
+      "key": "QUAD_BIKE",
+      "sources": [
+        "src_bsb_0712.ogg"
+      ],
+      "idleRpmHint": 1200,
+      "maxRpmHint": 4500,
+      "firingsPerRev": 0.5,
+      "startup": [
+        "src_bsb_0712.ogg",
+        0,
+        1449
+      ],
+      "exclude": [
+        [
+          "src_bsb_0712.ogg",
+          30230,
+          33312
+        ]
+      ]
+    },
+    {
+      "key": "DIESEL_TRUCK",
+      "sources": [
+        "src_bsb_1146.ogg",
+        "src_bsb_1147.ogg"
+      ],
+      "idleRpmHint": 800,
+      "maxRpmHint": 3200,
+      "firingsPerRev": 2,
+      "startup": [
+        "src_bsb_1146.ogg",
+        0,
+        2394
+      ],
+      "pops": [
+        [
+          "src_bsb_1146.ogg",
+          21106,
+          21674
+        ]
+      ],
+      "exclude": [
+        [
+          "src_bsb_1146.ogg",
+          32536,
+          35771
+        ]
+      ],
+      "asset": "grain_diesel_truck"
+    },
+    {
+      "key": "TRACTOR",
+      "sources": [
+        "engine_tractor.ogg"
+      ],
+      "idleRpmHint": 450,
+      "maxRpmHint": 1800,
+      "firingsPerRev": 1,
+      "startup": [
+        "engine_tractor.ogg",
+        0,
+        1776
+      ],
+      "exclude": [
+        [
+          "engine_tractor.ogg",
+          41695,
+          46648
+        ]
+      ],
+      "grainsPerBand": 16
+    },
+    {
+      "key": "STEAM_LOCO",
+      "sources": [
+        "engine_steam_loco.ogg"
+      ],
+      "idleRpmHint": 50,
+      "maxRpmHint": 400,
+      "firingsPerRev": 4,
+      "patternPerRev": 4,
+      "grainsPerBand": 10
+    },
+    {
+      "key": "BROKEN_EXHAUST",
+      "sources": [
+        "engine_damaged_muffler.ogg"
+      ],
+      "idleRpmHint": 800,
+      "maxRpmHint": 3000,
+      "firingsPerRev": 2,
+      "startup": [
+        "engine_damaged_muffler.ogg",
+        391,
+        3277
+      ],
+      "pops": [
+        [
+          "engine_damaged_muffler.ogg",
+          34606,
+          36748
+        ]
+      ],
+      "exclude": [
+        [
+          "engine_damaged_muffler.ogg",
+          46793,
+          48671
+        ]
+      ],
+      "asset": "grain_broken_exhaust"
+    },
+    {
+      "key": "MOTORCYCLE",
+      "sources": [
+        "engine_motorcycle.ogg"
+      ],
+      "idleRpmHint": 1100,
+      "maxRpmHint": 3500,
+      "firingsPerRev": 1,
+      "startup": [
+        "engine_motorcycle.ogg",
+        147,
+        1272
+      ],
+      "exclude": [
+        [
+          "engine_motorcycle.ogg",
+          11923,
+          13558
+        ]
+      ]
+    },
+    {
+      "key": "LAWNMOWER",
+      "sources": [
+        "src_bsb_0763.ogg"
+      ],
+      "idleRpmHint": 1900,
+      "maxRpmHint": 3600,
+      "firingsPerRev": 0.5,
+      "startup": [
+        "src_bsb_0763.ogg",
+        0,
+        2498
+      ]
+    },
+    {
+      "key": "BIG_DIESEL",
+      "sources": [
+        "engine_big_diesel.ogg"
+      ],
+      "idleRpmHint": 600,
+      "maxRpmHint": 2000,
+      "firingsPerRev": 2,
+      "grainsPerBand": 16
+    }
+  ]
+}

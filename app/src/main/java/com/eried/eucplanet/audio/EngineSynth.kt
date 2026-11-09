@@ -3,6 +3,7 @@ package com.eried.eucplanet.audio
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.exp
+import kotlin.math.ln
 import kotlin.math.sin
 
 /**
@@ -14,18 +15,44 @@ import kotlin.math.sin
  * plays, roughly 150 Hz to 6 kHz: the engine's note is carried by the firing
  * rate shaping the pipe's ring, not by a sub-bass fundamental nobody hears.
  *
- * Two paths:
+ * Three paths:
+ *  - Recorded ([EngineProfile.grainAsset]): grains of a real engine from a
+ *    [GrainBank], laid down one pattern period apart. The wheel sets how close
+ *    together they come, so the engine fires faster or slower while its pipes
+ *    keep their real pitch, like a real engine does. Nothing is synthesised.
  *  - ICE: each cylinder fires at its angle of the crank cycle ([FiringSchedule])
  *    and drops an exhaust pulse (a thump plus a crack of noise) into a pipe of
  *    three resonators tuned by the profile, with intake roar and valvetrain
  *    noise rising on load, a high ring for 2-strokes and screamers, crackle on
- *    the overrun, pops on the throttle chop.
+ *    the overrun, pops on the throttle chop. For engines nobody has recorded.
  *  - SYNTH: a [SynthVoice] (bandlimited saw or square, hum partials, a
  *    turbine of shaped noise and whine, an electric motor) riding on RPM.
+ *
+ * [grainLoader] opens a bank by its asset name (Android resources on the
+ * phone, a folder in tests). Banks are kept once loaded.
  */
-class EngineSynth(private val sampleRate: Int = 44100) {
+class EngineSynth(
+    private val sampleRate: Int = 44100,
+    private val grainLoader: ((String) -> GrainBank?)? = null,
+) {
 
     private val dt: Float = 1f / sampleRate
+
+    // --- Recorded engine state ---
+    private val banks = HashMap<String, GrainBank?>()
+    private var bank: GrainBank? = null
+    private var bankKey: String? = null
+    // The grains in the air right now: a pool of arrays being summed, each at a gain.
+    private val gBuf = arrayOfNulls<FloatArray>(GRAINS)
+    private val gPos = IntArray(GRAINS)
+    private val gGain = FloatArray(GRAINS)
+    private var hopLeft = 0f                        // samples until the next grain is laid
+    // Two streams: the band just below the target rate and the band just above, crossfaded.
+    private val streamBand = IntArray(2) { -1 }
+    private val streamRun = arrayOfNulls<Array<FloatArray>>(2)
+    private val streamIdx = IntArray(2)
+    private var grainAge = 0f                       // seconds since this engine came on
+    private var startupSeconds = 0f
 
     // --- ICE state ---
     private var schedule: FiringSchedule? = null
@@ -108,15 +135,164 @@ class EngineSynth(private val sampleRate: Int = 44100) {
         val cutoffHz = 900f + (7000f - 900f) * open * open
         val lpAlpha = onePoleAlpha(cutoffHz)
         // Sub cut: two one-pole high-passes at 100 Hz. The speaker plays none of it anyway.
-        val hpCoef = 1f - onePoleAlpha(100f)
+        // A recording carries the real low end, which the speaker would only turn into
+        // mud and lost loudness, so it is cut higher.
+        val hpCoef = 1f - onePoleAlpha(if (profile.grainAsset != null) 160f else 100f)
 
         var peak = 0f
-        if (profile.kind == EngineProfile.Kind.SYNTH) {
+        if (profile.grainAsset != null) {
+            peak = renderGrains(profile, params, effRpm, masterGain, lpAlpha, hpCoef, out, outOffset, count)
+        } else if (profile.kind == EngineProfile.Kind.SYNTH) {
             peak = renderSynth(profile, params, rpmNorm, masterGain, lpAlpha, hpCoef, out, outOffset, count)
         } else {
             peak = renderIce(profile, params, effRpm, rpmNorm, masterGain, lpAlpha, hpCoef, out, outOffset, count)
         }
         return peak
+    }
+
+    /** Opens the recorded engine's bank before the audio thread needs it. Safe to call for any profile. */
+    fun preload(profile: EngineProfile) {
+        val asset = profile.grainAsset ?: return
+        if (!banks.containsKey(asset)) banks[asset] = grainLoader?.invoke(asset)
+    }
+
+    /** True when the profile is a recorded engine whose bank is available. */
+    fun hasBank(profile: EngineProfile): Boolean {
+        val asset = profile.grainAsset ?: return false
+        preload(profile)
+        return banks[asset] != null
+    }
+
+    private fun renderGrains(
+        profile: EngineProfile, params: EngineParams, effRpm: Float,
+        masterGain: Float, lpAlpha: Float, hpCoef: Float, out: FloatArray, outOffset: Int, count: Int
+    ): Float {
+        val asset = profile.grainAsset!!
+        if (bankKey != profile.key) {
+            preload(profile)
+            bank = banks[asset]
+            bankKey = profile.key
+            gBuf.fill(null); hopLeft = 0f
+            streamBand.fill(-1); streamRun.fill(null)
+            grainAge = 0f
+            val b = bank
+            startupSeconds = 0f
+            if (b != null && b.startup.isNotEmpty()) {
+                // The engine starts: the recording's own start, the running grains coming in under it.
+                lay(b.startup, 1f)
+                startupSeconds = b.startup.size.toFloat() / sampleRate
+            }
+        }
+        val b = bank
+        if (b == null) {
+            // No bank: the ICE model stands in, so a missing asset is never silence.
+            val rpmRange = (profile.maxRpm - profile.idleRpm).coerceAtLeast(1)
+            val rpmNorm = ((effRpm - profile.idleRpm) / rpmRange).coerceIn(0f, 1f)
+            return renderIce(profile, params, effRpm, rpmNorm, masterGain, lpAlpha, hpCoef, out, outOffset, count)
+        }
+        val load = params.load
+        // The recording's slowest band is this engine at idle; the wheel scales it from there.
+        val f = (b.lowestHz * effRpm / profile.idleRpm.coerceAtLeast(1)).coerceAtLeast(b.lowestHz * 0.5f)
+        val hop = sampleRate / f
+        // The bands either side of the target rate, and how far between them it sits.
+        val bands = b.bands
+        var lo = 0
+        while (lo + 1 < bands.size && bands[lo + 1].hz <= f) lo++
+        val hi = if (lo + 1 < bands.size && f > bands[lo].hz) lo + 1 else lo
+        val wHi = if (hi == lo) 0f else (ln(f / bands[lo].hz) / ln(bands[hi].hz / bands[lo].hz)).coerceIn(0f, 1f)
+        val w0 = kotlin.math.sqrt(1f - wHi)
+        val w1 = kotlin.math.sqrt(wHi)
+        if (streamBand[0] != lo) { streamBand[0] = lo; streamRun[0] = null }
+        if (streamBand[1] != hi) { streamBand[1] = hi; streamRun[1] = null }
+        // Grains laid closer than they were recorded pile up: level them, but let the
+        // engine grow louder with the revs as a real one does.
+        val dens0 = kotlin.math.sqrt(bands[lo].hz / f).coerceIn(0.35f, 1.4f)
+        val dens1 = kotlin.math.sqrt(bands[hi].hz / f).coerceIn(0.35f, 1.4f)
+        val loadGain = 0.8f + 0.2f * load
+        val brakeAmt = params.engineBrakeAmount
+        val brakeHz = (f * 24f).coerceIn(600f, 3400f)
+        crackleBand.set(1800f, 1.2f, sampleRate)
+
+        // Pops: the recording's own if it has any, otherwise the pipe's crack.
+        repeat(params.pendingPops) {
+            if (b.pops.isNotEmpty()) lay(b.pops[(abs(nextNoise()) * b.pops.size).toInt().coerceAtMost(b.pops.size - 1)], 0.9f)
+            else popQueue.addLast(Pop(remaining = (sampleRate * 0.16f).toInt()))
+        }
+
+        // How far the grains are pushed past the rate they were recorded at. Laid down
+        // dead regular they would be a perfectly periodic train, a whine; a real engine
+        // never fires twice alike, so each cycle lands a little early or late and a
+        // little louder or softer, and the further the stretch the more the grains
+        // are drawn from all over the band instead of in recorded order.
+        val stretch0 = f / bands[lo].hz
+        val stretch1 = f / bands[hi].hz
+        val jitter = 0.025f * hop
+
+        val twoPi = 2.0 * PI
+        var peak = 0f
+        for (i in 0 until count) {
+            hopLeft -= 1f
+            if (hopLeft <= 0f) {
+                hopLeft += hop + jitter * nextNoise()
+                // The running engine comes in under the last two thirds of the start.
+                val fadeIn = if (startupSeconds > 0f) ((grainAge - startupSeconds * 0.3f) / (startupSeconds * 0.7f)).coerceIn(0f, 1f) else 1f
+                val g = fadeIn * loadGain * (0.9f + 0.2f * abs(nextNoise()))
+                if (w0 > 0.001f) lay(nextGrain(0, bands[lo], stretch0), w0 * dens0 * g)
+                if (hi != lo && w1 > 0.001f) lay(nextGrain(1, bands[hi], stretch1), w1 * dens1 * g)
+            }
+            var sample = 0f
+            for (s in 0 until GRAINS) {
+                val buf = gBuf[s] ?: continue
+                val p = gPos[s]
+                sample += buf[p] * gGain[s]
+                if (p + 1 >= buf.size) gBuf[s] = null else gPos[s] = p + 1
+            }
+            if (popQueue.isNotEmpty()) sample += crackleBand.process(renderPops()) * 2f
+            if (brakeAmt > 0.001f) {
+                brakePhase += brakeHz * dt
+                if (brakePhase >= 1.0) brakePhase -= 1.0
+                sample += brakeAmt * (sin(twoPi * brakePhase).toFloat() * 0.07f + crackleBand.process(nextNoise()) * 0.1f)
+            }
+            grainAge += dt
+
+            lpf1 += lpAlpha * (sample - lpf1)
+            lpf2 += lpAlpha * (lpf1 - lpf2)
+            val h1 = hpCoef * (hpf1Out + lpf2 - hpf1In); hpf1In = lpf2; hpf1Out = h1
+            val h2 = hpCoef * (hpf2Out + h1 - hpf2In); hpf2In = h1; hpf2Out = h2
+            val o = softClip(h2 * masterGain * GRAIN_LEVEL)
+            out[outOffset + i] = o
+            val a = abs(o)
+            if (a > peak) peak = a
+        }
+        return peak
+    }
+
+    /**
+     * The next grain of a stream: the one after the last in the recording, with a
+     * jump now and then so no loop is heard, and more jumps the further the band is
+     * stretched, so the piled-up grains are not copies of each other.
+     */
+    private fun nextGrain(stream: Int, band: GrainBank.Band, stretch: Float): FloatArray {
+        var run = streamRun[stream]
+        val jump = 0.03f + 0.3f * (stretch - 1f).coerceIn(0f, 1f)
+        if (run == null || streamIdx[stream] >= run.size || abs(nextNoise()) < jump) {
+            run = band.runs[(abs(nextNoise()) * band.runs.size).toInt().coerceAtMost(band.runs.size - 1)]
+            streamRun[stream] = run
+            streamIdx[stream] = if (run.size > 8) (abs(nextNoise()) * (run.size - 4)).toInt() else 0
+        }
+        return run[streamIdx[stream]++]
+    }
+
+    /** Puts a grain (or a start, or a pop) into the air; the quietest slot gives way if all are busy. */
+    private fun lay(buf: FloatArray, gain: Float) {
+        var slot = -1
+        var quietest = 0
+        for (s in 0 until GRAINS) {
+            if (gBuf[s] == null) { slot = s; break }
+            if (gGain[s] * (gBuf[s]!!.size - gPos[s]) < gGain[quietest] * (gBuf[quietest]!!.size - gPos[quietest])) quietest = s
+        }
+        if (slot < 0) slot = quietest
+        gBuf[slot] = buf; gPos[slot] = 0; gGain[slot] = gain
     }
 
     private fun renderIce(
@@ -484,6 +660,9 @@ class EngineSynth(private val sampleRate: Int = 44100) {
     fun reset() {
         schedule = null
         scheduleKey = null
+        bankKey = null; bank = null
+        gBuf.fill(null); hopLeft = 0f; grainAge = 0f
+        streamBand.fill(-1); streamRun.fill(null)
         tickAge = 1e9f
         pressure.fill(0f); front.fill(0f); wake.fill(0f); crackEnv = 0f
         pendLeft.fill(0)
@@ -507,6 +686,10 @@ class EngineSynth(private val sampleRate: Int = 44100) {
     private companion object {
         const val OUT_LEVEL = 0.9f
         const val PENDING = 16
+        /** Grains in the air at once: at six times the recorded rate, twelve overlap. */
+        const val GRAINS = 24
+        /** Banks are cut to -16 dB rms at idle, where the synth engines sit; the revs are louder as recorded. */
+        const val GRAIN_LEVEL = 1.0f
     }
 }
 

@@ -8,7 +8,7 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
 /**
- * Records every procedural engine riding [EngineRide.fullRide] to a WAV, for
+ * Records every engine, recorded and synthesised, riding [EngineRide.fullRide] to a WAV, for
  * listening and for the spectrum analysis in tools/engine-sounds. Runs only
  * when EUC_ENGINE_RENDER_DIR names the output folder:
  *
@@ -31,12 +31,14 @@ class EngineRideRenderTest {
         val only = System.getenv("EUC_ENGINE_ONLY")?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() }
         val phases = EngineRide.fullRide()
         File(dir, "phases.txt").writeText(phases.joinToString("\n") { "${it.startMs / 1000f}s ${it.name}" } + "\n")
-        val profiles = EngineProfile.PROFILES.filter { it.sampleAssetBase == null && (only == null || it.key in only) }
+        val profiles = EngineProfile.PROFILES.filter { only == null || it.key in only }
         for (p in profiles) {
             val pcm = render(p, phases)
             writeWav(File(dir, "${p.key.lowercase()}.wav"), pcm)
         }
-        File(dir, "engines.txt").writeText(profiles.joinToString("\n") { "${it.key}\t${it.displayName}\t${it.kind}\t${if (it.preview) "hidden" else "listed"}" } + "\n")
+        File(dir, "engines.txt").writeText(profiles.joinToString("\n") {
+            "${it.key}\t${it.displayName}\t${if (it.grainAsset != null) "RECORDED" else it.kind.toString()}\t${if (it.preview) "hidden" else "listed"}"
+        } + "\n")
     }
 
     private fun render(profile: EngineProfile, phases: List<EngineRide.Phase>): FloatArray {
@@ -46,7 +48,7 @@ class EngineRideRenderTest {
             var seed = 12345L
             random = { seed = (seed * 6364136223846793005L + 1442695040888963407L); ((seed ushr 11).toDouble() / (1L shl 53).toDouble()) }
         }
-        val synth = EngineSynth(sampleRate)
+        val synth = EngineSynth(sampleRate, TestGrainBanks.loader(sampleRate))
         val steps = phases.flatMap { it.steps }
         val totalMs = steps.sumOf { it.holdMs }
         val totalFrames = (totalMs * sampleRate / 1000).toInt()

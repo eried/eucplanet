@@ -1,20 +1,5 @@
 package com.eried.eucplanet.audio
 
-/**
- * A clipped window inside a raw resource. The player seeks to [startMs] and
- * loops/stops at [endMs]. For looped sections (idle_loop, rev_loop) the player
- * seeks back to startMs when reaching endMs; for one-shots (startup, decel,
- * shutdown, pops) the player stops at endMs.
- */
-data class SampleSection(
-    /** res/raw filename without extension (any decoder-supported format works, ogg/mp3/wav/flac). */
-    val rawAsset: String,
-    val startMs: Int,
-    val endMs: Int,
-) {
-    val durationMs: Int get() = (endMs - startMs).coerceAtLeast(0)
-}
-
 /** How a [EngineProfile.Kind.SYNTH] engine makes its tone. */
 enum class SynthVoice {
     /** Sine partials with a slow wobble: hums, saucers, blades. */
@@ -32,11 +17,17 @@ enum class SynthVoice {
 /**
  * A virtual engine personality. Drives [EngineSynth].
  *
- * Two flavors:
- *  - [Kind.ICE], internal combustion. Each cylinder fires at its angle of the
- *    crank cycle and sends an exhaust pulse into a pipe: a few resonators tuned
- *    by [pipeHz] that give the engine its body, intake and valve noise rising
- *    with load, an optional ring ([ringHz]) for 2-strokes and screamers.
+ * Three flavors:
+ *  - Recorded: [grainAsset] names a [GrainBank] cut from a real recording of
+ *    this engine. The wheel sets how fast the recorded cycles come; the pipes
+ *    keep their real pitch. [idleRpm] is the recording's idle and [maxRpm] how
+ *    far the wheel may push it.
+ *  - [Kind.ICE], internal combustion, synthesised. Each cylinder fires at its
+ *    angle of the crank cycle and sends an exhaust pulse into a pipe: a few
+ *    resonators tuned by [pipeHz] that give the engine its body, intake and
+ *    valve noise rising with load, an optional ring ([ringHz]) for 2-strokes
+ *    and screamers. Also what a recorded engine falls back to if its bank is
+ *    missing.
  *  - [Kind.SYNTH], a [SynthVoice] whose pitch rides on virtual RPM between
  *    [synthBaseHz] and [synthMaxHz]; no cylinders, no gearbox.
  *
@@ -99,41 +90,18 @@ data class EngineProfile(
     /** Turbine voice: how much shaft whine over the air noise. 1 is a jet, less is a ducted fan. */
     val synthWhine: Float = 1f,
     /**
-     * Resource basename for sample-based rendering, looked up under `res/raw/`.
-     *
-     * - `${sampleAssetBase}_idle` is the looped idle sample (required)
-     * - `${sampleAssetBase}_rev`  is the optional mid/high-RPM loop (crossfaded by load)
-     *
-     * When set, the engine is rendered by playing back and pitch-shifting these
-     * samples instead of the procedural [EngineSynth]. Null = procedural.
+     * `res/raw` name (no extension) of the [GrainBank] a recorded engine plays from,
+     * cut by tools/engine-sounds/grains.py from the recordings listed in
+     * docs/SFX_SOURCES.md. Null means the engine is synthesised.
      */
-    val sampleAssetBase: String? = null,
-    // --- Per-engine feature support ---
-    // ICE / SYNTH profiles use the in-house DSP so every effect is "free" and these default to true.
-    // Sampled profiles can only do what MediaPlayer + SoundPool sidecars give us:
-    //  - muffler LPF: only the DSP path has a filter, set false on sampled profiles
-    //  - pops / brake whine: only available if a SoundPool side-channel asset is wired
-    //    (popSampleAsset / brakeWhineSampleAsset). Until the sidecars ship, sampled
-    //    profiles set these false so the UI can grey-out the controls per engine.
+    val grainAsset: String? = null,
+    // --- Per-engine feature support, drives which rows the Settings panel shows ---
     /** Whether the muffler/exhaust LPF row applies to this engine. */
     val supportsMuffler: Boolean = true,
     /** Whether the decel-pops/backfire row applies to this engine. */
     val supportsPops: Boolean = true,
     /** Whether the engine-brake whine row applies to this engine. */
     val supportsBrakeWhine: Boolean = true,
-    /** Optional res/raw name (without extension) for a sampled pop SFX, played via SoundPool. */
-    val popSampleAsset: String? = null,
-    /** Optional res/raw name (without extension) for a sampled brake-whine loop. */
-    val brakeWhineSampleAsset: String? = null,
-    /**
-     * Multi-section composition. When set, the engine is rendered by
-     * [com.eried.eucplanet.audio.CompositionEnginePlayer] (cross-fading
-     * idle_loop ↔ rev_loop, with one-shot startup / decel / shutdown).
-     * Section keys: "startup", "idle_loop", "rev_up", "rev_loop", "decel", "shutdown".
-     */
-    val sampleSections: Map<String, SampleSection>? = null,
-    /** Optional pop SFX variants, picked at random when a pop fires. Supersedes [popSampleAsset]. */
-    val popSections: List<SampleSection>? = null,
     /**
      * Preview / hidden engines are excluded from the picker. The full PROFILES list
      * is kept so the runtime can still resolve a stored key (e.g. the user picked
@@ -188,7 +156,9 @@ data class EngineProfile(
                 key = "QUAD_BIKE",
                 displayName = "Quad bike",
                 kind = Kind.ICE,
-                idleRpm = 850, maxRpm = 6200,
+                // Recorded: a quad started and revved in the yard (BigSoundBank s0712)
+                grainAsset = "grain_quad_bike",
+                idleRpm = 1000, maxRpm = 3600,
                 gearless = true,
                 cylinderCount = 1,
                 firingAngles = floatArrayOf(0f),
@@ -206,7 +176,9 @@ data class EngineProfile(
                 key = "V_TWIN",
                 displayName = "V-twin",
                 kind = Kind.ICE,
-                idleRpm = 950, maxRpm = 6500,
+                // Recorded: a Ducati from start to a hard rev (BigSoundBank s0884)
+                grainAsset = "grain_v_twin",
+                idleRpm = 1000, maxRpm = 6500,
                 cylinderCount = 2,
                 // 45 degree V-twin: the uneven "potato-potato", second cylinder fires 315 degrees after the first
                 firingAngles = floatArrayOf(0f, 315f),
@@ -221,7 +193,9 @@ data class EngineProfile(
                 key = "INLINE_4",
                 displayName = "Inline-4",
                 kind = Kind.ICE,
-                idleRpm = 1100, maxRpm = 11000,
+                // Recorded: a Citroen Saxo, idle and revs (BigSoundBank s0187)
+                grainAsset = "grain_inline_4",
+                idleRpm = 900, maxRpm = 4000,
                 cylinderCount = 4,
                 firingAngles = floatArrayOf(0f, 180f, 360f, 540f),
                 gainTrim = 1.3f,
@@ -236,7 +210,9 @@ data class EngineProfile(
                 key = "V8_MUSCLE",
                 displayName = "V8 muscle",
                 kind = Kind.ICE,
-                idleRpm = 700, maxRpm = 7000,
+                // Recorded: an AC Cobra 427 (BigSoundBank s0534)
+                grainAsset = "grain_v8_muscle",
+                idleRpm = 700, maxRpm = 3200,
                 cylinderCount = 8,
                 firingAngles = floatArrayOf(0f, 90f, 180f, 270f, 360f, 450f, 540f, 630f),
                 // Cross-plane, firing order 1-8-4-3-6-5-7-2: the banks go L R R L R L L R
@@ -251,7 +227,9 @@ data class EngineProfile(
                 key = "V12_ITALIAN",
                 displayName = "V12 (Italian)",
                 kind = Kind.ICE,
-                idleRpm = 800, maxRpm = 7500,
+                // Recorded: an Aston Martin Vanquish V12 (Internet Archive, CC0)
+                grainAsset = "grain_v12_italian",
+                idleRpm = 900, maxRpm = 4000,
                 cylinderCount = 12,
                 firingAngles = FloatArray(12) { i -> i * 60f },
                 pipeHz = 240f, pipeQ = 0.8f,
@@ -313,7 +291,9 @@ data class EngineProfile(
                 key = "TRACTOR",
                 displayName = "Tractor",
                 kind = Kind.ICE, gearless = true,
-                idleRpm = 450, maxRpm = 2400,
+                // Recorded: an old tractor idling (BigSoundBank)
+                grainAsset = "grain_tractor",
+                idleRpm = 450, maxRpm = 1500,
                 cylinderCount = 1,
                 firingAngles = floatArrayOf(0f),
                 pipeHz = 230f, pipeQ = 1.4f,
@@ -328,8 +308,10 @@ data class EngineProfile(
                 key = "STEAM_LOCO",
                 displayName = "Steam locomotive",
                 kind = Kind.ICE, gearless = true,
-                // Driving wheel turns: four chuffs each, a crawl to a run
-                idleRpm = 60, maxRpm = 420,
+                // Recorded: a locomotive under way (BigSoundBank). Driving wheel
+                // turns: four chuffs each, a crawl to a run
+                grainAsset = "grain_steam_loco",
+                idleRpm = 50, maxRpm = 220,
                 cylinderCount = 2,
                 // Two cylinders 180 degrees apart, double acting: four chuffs per turn
                 firingAngles = floatArrayOf(0f, 180f),
@@ -424,267 +406,84 @@ data class EngineProfile(
                 exhaustGrit = 0.4f,
                 decelPopProbability = 0.0f
             ),
-            // --- Sampled (real recordings, all CC0 from BigSoundBank, see Credits) ---
-            // For sampled engines the procedural [kind] flags below are unused; the SampledEnginePlayer
-            // handles render. Idle/max RPM still drive the playback-speed mapping.
+            // --- Recorded engines without a synthesised twin (all CC0, see docs/SFX_SOURCES.md) ---
             EngineProfile(
-                key = "SAMPLED_V8_COBRA",
-                displayName = "V8 (Cobra, sampled)",
-                kind = Kind.ICE, gearless = true,
-                idleRpm = 700, maxRpm = 6500,
-                sampleAssetBase = "engine_v8_cobra",
-                supportsMuffler = false, supportsBrakeWhine = false,
-                supportsPops = true, popSampleAsset = "sfx_pop_crack",
-                sampleSections = mapOf(
-                    "startup"   to SampleSection("engine_v8_cobra",     92,  1805),
-                    "idle_loop" to SampleSection("engine_v8_cobra",  13129, 19688),
-                    "rev_up"    to SampleSection("engine_v8_cobra",   9949, 11120),
-                    "rev_loop"  to SampleSection("engine_v8_cobra",   3313,  6703),
-                    "decel"     to SampleSection("engine_v8_cobra",  11166, 12429),
-                    "shutdown"  to SampleSection("engine_v8_cobra",  21677, 25440)
-                ),
-                popSections = listOf(SampleSection("engine_v8_cobra", 20143, 20527))
-            ),
-            EngineProfile(
-                key = "SAMPLED_VTWIN_DUCATI", preview = true,
-                displayName = "V-twin (Ducati, sampled)",
-                kind = Kind.ICE, gearless = true,
-                idleRpm = 950, maxRpm = 9000,
-                sampleAssetBase = "engine_vtwin_ducati",
-                supportsMuffler = false, supportsBrakeWhine = false,
-                supportsPops = true, popSampleAsset = "sfx_pop_crack",
-                sampleSections = mapOf(
-                    "startup"   to SampleSection("engine_vtwin_ducati",   476,  3096),
-                    "idle_loop" to SampleSection("engine_vtwin_ducati", 10346, 13347),
-                    "rev_up"    to SampleSection("engine_vtwin_ducati", 30830, 33412),
-                    "rev_loop"  to SampleSection("engine_vtwin_ducati",  3658,  6393),
-                    "decel"     to SampleSection("engine_vtwin_ducati", 33955, 35984),
-                    "shutdown"  to SampleSection("engine_vtwin_ducati", 36108, 41433)
-                ),
-                popSections = listOf(SampleSection("src_bsb_0281", 10343, 10667))
-            ),
-            EngineProfile(
-                key = "SAMPLED_DIESEL_IVECO", preview = true,
-                displayName = "Diesel truck (sampled)",
-                kind = Kind.ICE, gearless = true,
-                idleRpm = 800, maxRpm = 3200,
-                sampleAssetBase = "engine_diesel_iveco",
-                supportsMuffler = false, supportsBrakeWhine = false,
-                supportsPops = true, popSampleAsset = "sfx_pop_snap",
-                sampleSections = mapOf(
-                    "startup"   to SampleSection("engine_diesel_iveco",     0,  1584),
-                    "idle_loop" to SampleSection("src_bsb_1146",         8008, 10057),
-                    "rev_up"    to SampleSection("src_bsb_1146",        10467, 12702),
-                    "rev_loop"  to SampleSection("src_bsb_1147",         3823,  6423),
-                    "decel"     to SampleSection("src_bsb_1147",        16105, 17829),
-                    "shutdown"  to SampleSection("engine_diesel_iveco", 32984, 35278)
-                ),
-                popSections = listOf(SampleSection("src_bsb_1146", 21077, 21616))
-            ),
-            EngineProfile(
-                key = "SAMPLED_MOTORCYCLE", preview = true,
-                displayName = "Motorcycle (sampled)",
-                kind = Kind.ICE, gearless = true,
-                idleRpm = 1100, maxRpm = 10500,
-                sampleAssetBase = "engine_motorcycle",
-                supportsMuffler = false, supportsBrakeWhine = false,
-                supportsPops = true, popSampleAsset = "sfx_pop_crack",
-                sampleSections = mapOf(
-                    "startup"   to SampleSection("engine_motorcycle",              147,  1272),
-                    "idle_loop" to SampleSection("src_fs_119774_moto_start",      2860,  3603),
-                    "rev_up"    to SampleSection("engine_motorcycle",             6653,  7419),
-                    "rev_loop"  to SampleSection("engine_motorcycle",            10125, 10896),
-                    "decel"     to SampleSection("src_fs_119774_moto_start",      4257,  5156),
-                    "shutdown"  to SampleSection("engine_motorcycle",            11923, 13558)
-                ),
-                popSections = listOf(SampleSection("src_fs_119774_moto_start", 857, 956))
-            ),
-            EngineProfile(
-                key = "SAMPLED_CITY_CAR", preview = true,
-                displayName = "City car (sampled)",
-                kind = Kind.ICE, gearless = true,
-                idleRpm = 850, maxRpm = 6000,
-                sampleAssetBase = "engine_citycar_saxo",
-                supportsMuffler = false, supportsBrakeWhine = false,
-                supportsPops = true, popSampleAsset = "sfx_pop_snap",
-                sampleSections = mapOf(
-                    "startup"   to SampleSection("engine_citycar_saxo",     0,  1420),
-                    "idle_loop" to SampleSection("src_bsb_0187",        22388, 26996),
-                    "rev_up"    to SampleSection("engine_citycar_saxo",  4363,  5872),
-                    "rev_loop"  to SampleSection("engine_citycar_saxo",  6447,  8024),
-                    "decel"     to SampleSection("src_bsb_0966",         4174,  8028),
-                    "shutdown"  to SampleSection("src_bsb_0187",        32697, 41169)
-                )
-            ),
-            EngineProfile(
-                key = "SAMPLED_HELICOPTER", preview = true,
-                displayName = "Helicopter (sampled)",
-                kind = Kind.ICE, gearless = true,
-                // Helicopter rotor "RPM" is metaphorical here, drives playback speed mapping
-                idleRpm = 250, maxRpm = 1100,
-                sampleAssetBase = "engine_helicopter",
-                supportsMuffler = false, supportsBrakeWhine = false,
-                supportsPops = true, popSampleAsset = "sfx_pop_snap",
-                sampleSections = mapOf(
-                    "startup"   to SampleSection("src_fs_559340_heli_long",      0,   7833),
-                    "idle_loop" to SampleSection("src_fs_559340_heli_long",  27395,  38701),
-                    "rev_up"    to SampleSection("src_fs_559340_heli_long",  53325,  55987),
-                    "rev_loop"  to SampleSection("src_fs_559340_heli_long",  59498,  61852),
-                    "decel"     to SampleSection("src_fs_559340_heli_long",  61968,  67717),
-                    "shutdown"  to SampleSection("src_fs_559340_heli_long", 119768, 141723)
-                ),
-                popSections = listOf(SampleSection("src_fs_559340_heli_long", 79023, 80296))
-            ),
-            EngineProfile(
-                key = "SAMPLED_TRACTOR", preview = true,
-                displayName = "Tractor (sampled)",
-                kind = Kind.ICE, gearless = true,
-                idleRpm = 600, maxRpm = 2600,
-                sampleAssetBase = "engine_tractor",
-                supportsMuffler = false, supportsPops = false, supportsBrakeWhine = false,
-                sampleSections = mapOf(
-                    "startup"   to SampleSection("engine_tractor",                  0,  1776),
-                    "idle_loop" to SampleSection("src_fs_256808_tractor_clean", 6436,  7944),
-                    "rev_loop"  to SampleSection("engine_tractor",               5921,  9672),
-                    "shutdown"  to SampleSection("engine_tractor",              41695, 46648)
-                )
-            ),
-            EngineProfile(
-                key = "SAMPLED_LAWNMOWER", preview = true,
-                displayName = "Lawn mower (sampled)",
-                kind = Kind.ICE, gearless = true,
-                idleRpm = 1800, maxRpm = 3600,
-                sampleAssetBase = "engine_lawnmower",
-                supportsMuffler = false, supportsPops = false, supportsBrakeWhine = false,
-                sampleSections = mapOf(
-                    "startup"   to SampleSection("src_bsb_0763",         0,  2498),
-                    "rev_up"    to SampleSection("engine_lawnmower",  1174,  2771),
-                    "idle_loop" to SampleSection("src_bsb_0763",      7073, 12346)
-                    // No decel / rev_loop / shutdown, omitted per user inventory.
-                )
-            ),
-            EngineProfile(
-                key = "SAMPLED_STEAM_LOCO", preview = true,
-                displayName = "Steam locomotive (sampled)",
-                kind = Kind.ICE, gearless = true,
-                idleRpm = 200, maxRpm = 900,
-                sampleAssetBase = "engine_steam_loco",
-                supportsMuffler = false, supportsBrakeWhine = false,
-                supportsPops = true, popSampleAsset = "sfx_pop_snap",
-                sampleSections = mapOf(
-                    "startup"   to SampleSection("src_fs_784612_bulleid",       0,  12161),
-                    "idle_loop" to SampleSection("engine_steam_loco",        9042,  17316),
-                    "rev_up"    to SampleSection("engine_steam_loco",       82374,  93361),
-                    "rev_loop"  to SampleSection("engine_steam_loco",       40147,  54208),
-                    "decel"     to SampleSection("engine_steam_loco",       67093,  78260),
-                    "shutdown"  to SampleSection("src_fs_784612_bulleid", 108707, 112272)
-                ),
-                popSections = listOf(SampleSection("src_fs_784612_bulleid", 76172, 78541))
-            ),
-            EngineProfile(
-                key = "SAMPLED_CAR_CRUISE", preview = true,
-                displayName = "Car cruise (sampled)",
-                kind = Kind.ICE, gearless = true,
-                idleRpm = 1000, maxRpm = 5500,
-                sampleAssetBase = "engine_car_cruise",
-                supportsMuffler = false, supportsBrakeWhine = false,
-                supportsPops = true, popSampleAsset = "sfx_pop_snap",
-                sampleSections = mapOf(
-                    "startup"   to SampleSection("src_bsb_0872",     6572, 10439),
-                    "idle_loop" to SampleSection("src_bsb_0872",    19678, 23269),
-                    "rev_up"    to SampleSection("src_bsb_0291",     1040,  1647),
-                    "rev_loop"  to SampleSection("src_bsb_0291",     3216,  4146),
-                    "decel"     to SampleSection("src_bsb_0291",     4739,  5647),
-                    "shutdown"  to SampleSection("src_bsb_0966",    46435, 50020)
-                ),
-                popSections = listOf(SampleSection("engine_car_cruise", 48719, 51509))
-            ),
-            EngineProfile(
-                key = "SAMPLED_ASTON_MARTIN", preview = true,
-                displayName = "Aston Martin (sampled)",
-                kind = Kind.ICE, gearless = true,
-                idleRpm = 900, maxRpm = 7500,
-                sampleAssetBase = "engine_aston_martin",
-                supportsMuffler = false, supportsBrakeWhine = false,
-                supportsPops = true, popSampleAsset = "sfx_pop_crack",
-                // Multi-section composition picked in deletelater.html: Vanquish full life
-                // cycle from src_ia_vanquish.mp3 + rev_up from the original aston_martin clip
-                // + 3 pop variants from src_ia_v12vantage.mp3.
-                sampleSections = mapOf(
-                    "startup"   to SampleSection("src_ia_vanquish",     713, 3455),
-                    "idle_loop" to SampleSection("src_ia_vanquish",    4012, 10662),
-                    "rev_up"    to SampleSection("engine_aston_martin",   0, 2309),
-                    "rev_loop"  to SampleSection("src_ia_vanquish",   16592, 18134),
-                    "decel"     to SampleSection("src_ia_vanquish",   11748, 13161),
-                    "shutdown"  to SampleSection("src_ia_vanquish",   18282, 19924)
-                ),
-                popSections = listOf(
-                    SampleSection("src_ia_v12vantage", 4457, 7206),  // pop_a
-                    SampleSection("src_ia_v12vantage", 7624, 9699),  // pop_b
-                    SampleSection("src_ia_v12vantage", 1862, 3761)   // pop_c
-                )
-            ),
-            EngineProfile(
-                key = "SAMPLED_BIG_DIESEL", preview = true,
-                displayName = "Big diesel (sampled)",
-                kind = Kind.ICE, gearless = true,
-                idleRpm = 600, maxRpm = 2800,
-                sampleAssetBase = "engine_big_diesel",
-                supportsMuffler = false, supportsBrakeWhine = false,
-                // User layered a "pop_a" clatter from src_bsb_1146 so flip pops on.
-                // Uses sfx_pop_snap (BSB bang-snaps, the lighter of our two pop SFX) since
-                // diesel "pops" are mechanical clatter / turbo wastegate, not spark backfire.
-                supportsPops = true, popSampleAsset = "sfx_pop_snap",
-                // Multi-section composition. Where two regions share a type, the LATER
-                // entry in the user's export wins (the user adds regions iteratively as
-                // they refine their pick).
-                sampleSections = mapOf(
-                    "startup"   to SampleSection("src_bsb_1146",     0, 2394),
-                    "idle_loop" to SampleSection("src_bsb_1146", 22098, 23888),
-                    "rev_up"    to SampleSection("src_bsb_1146", 10237, 11682),
-                    "rev_loop"  to SampleSection("src_bsb_1147",  8433, 10980),
-                    "decel"     to SampleSection("src_bsb_1147", 16454, 18697),
-                    "shutdown"  to SampleSection("src_bsb_1146", 32536, 35771)
-                ),
-                popSections = listOf(
-                    SampleSection("src_bsb_1146", 21106, 21674)   // pop_a, mechanical clatter
-                )
+                key = "SAMPLED_DIESEL_IVECO",
+                displayName = "Diesel truck",
+                kind = Kind.ICE,
+                // Recorded: an Iveco Daily 3.0 diesel, small and big accelerations (BigSoundBank s1146, s1147)
+                grainAsset = "grain_diesel_truck",
+                idleRpm = 800, maxRpm = 3600,
+                cylinderCount = 4,
+                firingAngles = floatArrayOf(0f, 180f, 360f, 540f),
+                pipeHz = 180f, pipeQ = 0.8f,
+                intakeNoise = 0.3f, exhaustGrit = 0.3f,
+                decelPopProbability = 0.1f, compressionTone = 0.8f
             ),
             EngineProfile(
                 key = "SAMPLED_BROKEN_EXHAUST",
-                displayName = "Broken exhaust (sampled)",
-                kind = Kind.ICE, gearless = true,
-                idleRpm = 800, maxRpm = 5000,
-                sampleAssetBase = "engine_damaged_muffler",
-                supportsMuffler = false, supportsBrakeWhine = false,
-                supportsPops = true, popSampleAsset = "sfx_pop_crack",
-                sampleSections = mapOf(
-                    "startup"   to SampleSection("engine_damaged_muffler",   391,  3277),
-                    "idle_loop" to SampleSection("engine_damaged_muffler", 41081, 44573),
-                    "rev_up"    to SampleSection("engine_damaged_muffler",  5380,  8324),
-                    "rev_loop"  to SampleSection("engine_damaged_muffler", 15709, 25323),
-                    "decel"     to SampleSection("engine_damaged_muffler", 30674, 33598),
-                    "shutdown"  to SampleSection("engine_damaged_muffler", 46793, 48671)
-                ),
-                popSections = listOf(SampleSection("engine_damaged_muffler", 34606, 36748))
+                displayName = "Broken exhaust",
+                kind = Kind.ICE,
+                // Recorded: a car with a holed muffler (BigSoundBank)
+                grainAsset = "grain_broken_exhaust",
+                idleRpm = 800, maxRpm = 3000,
+                cylinderCount = 4,
+                firingAngles = floatArrayOf(0f, 180f, 360f, 540f),
+                pipeHz = 190f, pipeQ = 0.6f,
+                intakeNoise = 0.3f, exhaustGrit = 0.5f,
+                decelPopProbability = 0.6f, compressionTone = 0.8f
+            ),
+            // Hidden: thin recordings, kept for riders who picked them before.
+            EngineProfile(
+                key = "SAMPLED_MOTORCYCLE", preview = true,
+                displayName = "Motorcycle",
+                kind = Kind.ICE,
+                grainAsset = "grain_motorcycle",
+                idleRpm = 1000, maxRpm = 3500,
+                cylinderCount = 2, firingAngles = floatArrayOf(0f, 360f),
+                pipeHz = 220f, pipeQ = 1f, gainTrim = 1.7f
             ),
             EngineProfile(
-                key = "SAMPLED_QUAD_ATV", preview = true,
-                displayName = "Quad ATV (sampled)",
+                key = "SAMPLED_LAWNMOWER", preview = true,
+                displayName = "Lawn mower",
                 kind = Kind.ICE, gearless = true,
-                idleRpm = 900, maxRpm = 6500,
-                sampleAssetBase = "engine_quad_atv",
-                supportsMuffler = false, supportsBrakeWhine = false,
-                supportsPops = true, popSampleAsset = "sfx_pop_crack",
-                sampleSections = mapOf(
-                    "startup"   to SampleSection("src_bsb_0712",     0,  1449),
-                    "idle_loop" to SampleSection("src_bsb_0712",  4354,  5939),
-                    "rev_up"    to SampleSection("src_bsb_0712",  2585,  3707),
-                    "rev_loop"  to SampleSection("src_bsb_0712", 14081, 16809),
-                    "decel"     to SampleSection("src_bsb_0712",  6789,  8796),
-                    "shutdown"  to SampleSection("src_bsb_0712", 30230, 33312)
-                )
-            )
+                grainAsset = "grain_lawnmower",
+                idleRpm = 2300, maxRpm = 4600,
+                cylinderCount = 1, firingAngles = floatArrayOf(0f),
+                pipeHz = 260f, pipeQ = 0.8f, gainTrim = 2.2f
+            ),
+            EngineProfile(
+                key = "SAMPLED_BIG_DIESEL", preview = true,
+                displayName = "Big diesel",
+                kind = Kind.ICE,
+                grainAsset = "grain_big_diesel",
+                idleRpm = 600, maxRpm = 1800,
+                cylinderCount = 6, firingAngles = FloatArray(6) { i -> i * 120f },
+                pipeHz = 150f, pipeQ = 0.7f, gainTrim = 1.3f
+            ),
+            // Hidden: the old "sampled" keys, each the same recording as a listed engine,
+            // so a rider who picked one keeps their sound.
+            EngineProfile(key = "SAMPLED_V8_COBRA", preview = true, displayName = "V8 Cobra", kind = Kind.ICE,
+                grainAsset = "grain_v8_muscle", idleRpm = 700, maxRpm = 3200,
+                cylinderCount = 8, firingAngles = FloatArray(8) { i -> i * 90f }, banks = intArrayOf(0, 1, 1, 0, 1, 0, 0, 1), pipeHz = 200f),
+            EngineProfile(key = "SAMPLED_VTWIN_DUCATI", preview = true, displayName = "V-twin Ducati", kind = Kind.ICE,
+                grainAsset = "grain_v_twin", idleRpm = 1000, maxRpm = 6500,
+                cylinderCount = 2, firingAngles = floatArrayOf(0f, 315f), pipeHz = 210f, gainTrim = 1.7f),
+            EngineProfile(key = "SAMPLED_CITY_CAR", preview = true, displayName = "City car", kind = Kind.ICE,
+                grainAsset = "grain_inline_4", idleRpm = 900, maxRpm = 4000,
+                cylinderCount = 4, firingAngles = floatArrayOf(0f, 180f, 360f, 540f), pipeHz = 230f),
+            EngineProfile(key = "SAMPLED_TRACTOR", preview = true, displayName = "Tractor", kind = Kind.ICE, gearless = true,
+                grainAsset = "grain_tractor", idleRpm = 450, maxRpm = 1500,
+                cylinderCount = 1, firingAngles = floatArrayOf(0f), pipeHz = 230f, pulseMs = 6f, gainTrim = 3f),
+            EngineProfile(key = "SAMPLED_STEAM_LOCO", preview = true, displayName = "Steam locomotive", kind = Kind.ICE, gearless = true,
+                grainAsset = "grain_steam_loco", idleRpm = 50, maxRpm = 220,
+                cylinderCount = 2, firingAngles = floatArrayOf(0f, 180f), twoStroke = true, pipeHz = 320f, pulseMs = 160f, gainTrim = 5f),
+            EngineProfile(key = "SAMPLED_ASTON_MARTIN", preview = true, displayName = "Aston Martin", kind = Kind.ICE,
+                grainAsset = "grain_v12_italian", idleRpm = 900, maxRpm = 4000,
+                cylinderCount = 12, firingAngles = FloatArray(12) { i -> i * 60f }, pipeHz = 240f),
+            EngineProfile(key = "SAMPLED_QUAD_ATV", preview = true, displayName = "Quad ATV", kind = Kind.ICE, gearless = true,
+                grainAsset = "grain_quad_bike", idleRpm = 1000, maxRpm = 3600,
+                cylinderCount = 1, firingAngles = floatArrayOf(0f), pipeHz = 170f, pulseMs = 4.5f, gainTrim = 2.5f)
         )
 
         /** Returns the profile for [key] or the default 4-stroke single if unknown. */
