@@ -75,6 +75,7 @@ class EngineSynth(
     private val front = FloatArray(2)
     private val wake = FloatArray(2)
     private var crackEnv: Float = 0f                 // the noise burst on the front of a pulse
+    private var breath: Float = 0f                   // the intake and exhaust air of the last firing, dying away
     private var tickAge: Float = 1e9f
     private val pipeA = Pipe(sampleRate)
     private val pipeB = Pipe(sampleRate)
@@ -354,7 +355,7 @@ class EngineSynth(
             cylDelay = IntArray(cyls) { (unit() * 0.0016f * sampleRate).toInt() }
             cylBank = IntArray(cyls) { i -> if (i < profile.banks.size) profile.banks[i] and 1 else i and 1 }
             combustion = 0f
-            pressure.fill(0f); front.fill(0f); wake.fill(0f); crackEnv = 0f
+            pressure.fill(0f); front.fill(0f); wake.fill(0f); crackEnv = 0f; breath = 0f
             pendLeft.fill(0)
             pipeA.reset(); pipeB.reset(); cross1.reset(); cross2.reset(); body.reset()
             bark.reset(); ring.reset(); intake.reset(); tick.reset()
@@ -397,7 +398,7 @@ class EngineSynth(
         val crack = profile.compressionTone * (0.5f + 0.3f * rpmNorm)
         val barkAmt = 0.25f + 0.55f * rpmNorm
         val gritAmt = profile.exhaustGrit * (0.05f + 0.95f * load + 0.5f * params.decelAmount)
-        val intakeAmt = profile.intakeNoise * (0.12f + 0.88f * load) * (0.3f + 0.7f * rpmNorm)
+        val intakeAmt = profile.intakeNoise * (0.08f + 0.92f * load) * (0.3f + 0.7f * rpmNorm)
         // The pipe's upper modes open up with the revs; at idle it is mostly the note.
         val crossAmt = 0.65f * (0.6f + 0.4f * rpmNorm)
         val brakeAmt = params.engineBrakeAmount
@@ -420,6 +421,11 @@ class EngineSynth(
         val wakeCoef = exp(-dt / (pulseEff * 2.6f))              // the undershoot behind the pressure
         // The noise on the front: a millisecond for a bang, a long hiss for a steam chuff.
         val crackCoef = exp(-dt / maxOf(0.0012f, pulseEff * 0.12f))
+        // The air is not a steady hiss: each firing draws a breath and blows it out, and
+        // the breath dies away before the next one at idle. At speed the breaths run into
+        // each other and it is the roar it always was. A tester heard the steady hiss
+        // behind a single at idle and asked for it to breathe.
+        val breathCoef = exp(-dt / (0.3f / firingRate.coerceAtLeast(1f)))
         val brakeHz = (firingRate * (if (profile.twoStroke) 9f else 7f)).coerceIn(600f, 3400f)
         val cracklePerFiring = 0.35f * brakeAmt
         val tickLen = 0.0015f
@@ -431,6 +437,7 @@ class EngineSynth(
             val fired = sched.advance(cycleStep)
             if (fired > 0) {
                 tickAge = 0f
+                breath = 1f
                 val cyl = sched.lastFired.coerceIn(0, cylGain.size - 1)
                 // The burn drifts a little from cycle to cycle, and each cylinder
                 // has its own voice: no two firings alike.
@@ -474,7 +481,9 @@ class EngineSynth(
             var popIn = 0f
             if (popQueue.isNotEmpty()) popIn = renderPops()
 
-            val shared = popIn * 2f + gritAmt * 0.2f * nextNoise()
+            breath *= breathCoef
+            val air = 0.25f + 0.75f * breath
+            val shared = popIn * 2f + gritAmt * air * 0.2f * nextNoise()
             val pipeIn = exciteSum + shared
             val exhaust = if (twoBanks) {
                 pipeA.process(exciteA * (1.1f - 0.5f * crack) + crackN * 0.5f + shared * 0.5f) +
@@ -491,13 +500,13 @@ class EngineSynth(
 
             // Air: intake roar, a valve tick per firing, and exhaust grit.
             val pinkN = pink.next()
-            sample += intake.process(pinkN) * intakeAmt * 2f
+            sample += intake.process(pinkN) * intakeAmt * air * 2f
             if (tickAge < tickLen) {
                 sample += tick.process(nextNoise()) * tickAmt * (1f - tickAge / tickLen)
             }
             tickAge += dt
             // Grit: a little pink rumble and a rasp of white on top.
-            sample += gritAmt * (0.1f * pinkN + 0.08f * nextNoise())
+            sample += gritAmt * air * (0.1f * pinkN + 0.08f * nextNoise())
 
             // Overrun whine and crackle.
             if (brakeAmt > 0.001f) {
@@ -734,7 +743,7 @@ class EngineSynth(
         whistle.stop(); blowOff = 0f
         blipPhase = 1f; blipT = 1e9f
         tickAge = 1e9f
-        pressure.fill(0f); front.fill(0f); wake.fill(0f); crackEnv = 0f
+        pressure.fill(0f); front.fill(0f); wake.fill(0f); crackEnv = 0f; breath = 0f
         pendLeft.fill(0)
         combustion = 0f
         oscPhase = 0.0; osc2Phase = 0.0; subPhase = 0.0; lfoPhase = 0.0; lfo2Phase = 0.0
