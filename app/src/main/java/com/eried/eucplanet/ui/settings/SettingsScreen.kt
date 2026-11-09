@@ -10205,14 +10205,16 @@ private fun EngineSoundSection(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
-        // The way back, in the shape the Advanced section established (rule 9): the
-        // Restore button is greyed while every value is on its default, otherwise it
-        // asks first and lists what it will change. The on/off switch is not an engine
-        // value: the rider asked to reset the engine, not to turn it off.
+        // The way back (rule 9), the way the app does it everywhere else: a text
+        // button on the left with the Restore icon, greyed while every value is on
+        // its default (trip layout, metric history, dashboard slots). The label and
+        // the confirmation are the Advanced section's, which lists each value it will
+        // change. The on/off switch is not an engine value: the rider asked to reset
+        // the engine, not to turn it off.
         val engineDefaults = remember { com.eried.eucplanet.data.model.EngineSoundSettings() }
         val engineChanges = engineSoundChanges(settings.engineSound, engineDefaults)
         var showEngineReset by remember { mutableStateOf(false) }
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) {
             TextButton(onClick = { showEngineReset = true }, enabled = engineChanges.isNotEmpty(), shape = RoundedCornerShape(12.dp)) {
                 Icon(Icons.Default.Restore, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
