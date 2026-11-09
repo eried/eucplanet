@@ -10204,8 +10204,109 @@ private fun EngineSoundSection(
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+
+        // The way back, in the shape the Advanced section established (rule 9): the
+        // Restore button is greyed while every value is on its default, otherwise it
+        // asks first and lists what it will change. The on/off switch is not an engine
+        // value: the rider asked to reset the engine, not to turn it off.
+        val engineDefaults = remember { com.eried.eucplanet.data.model.EngineSoundSettings() }
+        val engineChanges = engineSoundChanges(settings.engineSound, engineDefaults)
+        var showEngineReset by remember { mutableStateOf(false) }
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            TextButton(onClick = { showEngineReset = true }, enabled = engineChanges.isNotEmpty(), shape = RoundedCornerShape(12.dp)) {
+                Icon(Icons.Default.Restore, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.adv_reset_all))
+            }
+        }
+        if (showEngineReset && engineChanges.isNotEmpty()) {
+            AlertDialog(
+                onDismissRequest = { showEngineReset = false },
+                shape = RoundedCornerShape(12.dp),
+                title = { Text(stringResource(R.string.adv_reset_all)) },
+                text = {
+                    Column(
+                        modifier = Modifier
+                            .heightIn(max = com.eried.eucplanet.ui.common.dialogContentMaxHeight(360))
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        Text(stringResource(R.string.adv_reset_confirm_msg))
+                        Spacer(Modifier.height(8.dp))
+                        engineChanges.forEach { (label, from, to) ->
+                            com.eried.eucplanet.ui.common.BulletPoint(
+                                text = "$label:  $from  \u2192  $to",
+                                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
+                                modifier = Modifier.padding(vertical = 1.dp),
+                            )
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        viewModel.resetEngineSoundDefaults()
+                        showEngineReset = false
+                    }, shape = RoundedCornerShape(12.dp)) { com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.adv_reset_all)) }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showEngineReset = false }, shape = RoundedCornerShape(12.dp)) {
+                        Text(stringResource(android.R.string.cancel))
+                    }
+                },
+            )
+        }
     }
     }
+}
+
+/**
+ * Every Motor sound value that is off its default, as (label, current, default) in
+ * the rider's own words, for the Reset all button and its confirmation. Compared on
+ * the stored values, not the labels, so two engines that share a name still count
+ * as a change; the volume curve is compared point by point so "0:1.00" and "0:1"
+ * are the same curve.
+ */
+@Composable
+private fun engineSoundChanges(
+    current: com.eried.eucplanet.data.model.EngineSoundSettings,
+    defaults: com.eried.eucplanet.data.model.EngineSoundSettings,
+): List<Triple<String, String, String>> {
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    fun s(id: Int) = ctx.getString(id)
+    fun engineName(key: String): String {
+        val resId = ctx.resources.getIdentifier("engine_preset_" + key.lowercase(), "string", ctx.packageName)
+        return if (resId != 0) ctx.getString(resId)
+            else com.eried.eucplanet.audio.EngineProfile.PROFILES.firstOrNull { it.key == key }?.displayName ?: key
+    }
+    fun curve(points: List<Pair<Float, Float>>): String =
+        points.joinToString(", ") { (_, m) -> "${Math.round(m * 100f)}%" }
+    fun choice(labels: Map<String, Int>) = { key: String -> labels[key]?.let { s(it) } ?: key }
+    fun onOff(v: Boolean) = s(if (v) R.string.state_on else R.string.state_off)
+
+    val rows = mutableListOf<Triple<String, String, String>>()
+    fun <T> row(label: Int, a: T, b: T, show: (T) -> String) {
+        if (a != b) rows += Triple(s(label), show(a), show(b))
+    }
+    row(R.string.engine_type_label, current.type, defaults.type, ::engineName)
+    row(
+        R.string.engine_volume,
+        com.eried.eucplanet.service.parseVolumeCurve(current.volumeAutoCurve),
+        com.eried.eucplanet.service.parseVolumeCurve(defaults.volumeAutoCurve),
+        ::curve,
+    )
+    row(R.string.engine_muffler_label, current.muffler, defaults.muffler, choice(mapOf(
+        "OPEN" to R.string.engine_muffler_open, "HALF" to R.string.engine_muffler_half, "MUFFLED" to R.string.engine_muffler_muffled)))
+    row(R.string.engine_gearbox_label, current.gearbox, defaults.gearbox, choice(mapOf(
+        "OFF" to R.string.engine_gearbox_off, "FOUR" to R.string.engine_gearbox_four, "SIX" to R.string.engine_gearbox_six)))
+    row(R.string.engine_idle_label, current.idleBehavior, defaults.idleBehavior, choice(mapOf(
+        "ALWAYS" to R.string.engine_idle_always, "FADE" to R.string.engine_idle_fade, "MOVING" to R.string.engine_idle_moving)))
+    row(R.string.engine_decel_label, current.decelChar, defaults.decelChar, choice(mapOf(
+        "SMOOTH" to R.string.engine_decel_smooth, "STANDARD" to R.string.engine_decel_standard, "BACKFIRE" to R.string.engine_decel_backfire)))
+    row(R.string.engine_brake_label, current.brake, defaults.brake, choice(mapOf(
+        "OFF" to R.string.engine_brake_off, "LIGHT" to R.string.engine_brake_light, "STRONG" to R.string.engine_brake_strong)))
+    row(R.string.engine_duck_label, current.duckOnVoice, defaults.duckOnVoice, choice(mapOf(
+        "DUCK" to R.string.engine_duck_duck, "PAUSE" to R.string.engine_duck_pause, "MIX" to R.string.engine_duck_mix)))
+    row(R.string.engine_headphones_only, current.headphonesOnly, defaults.headphonesOnly, ::onOff)
+    return rows
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
