@@ -316,8 +316,12 @@
     <string name="gps_show_on_dashboard">Vis fart på dashbordet</string>
     <string name="gps_show_on_dashboard_desc">Legger en farget prikk på fartsmåleren med GPS-verdien.</string>
     <string name="section_volume_keys">Volumtaster</string>
-    <string name="volume_keys_caption">Volumtaster som snarveier (kun når appen er synlig)</string>
+    <string name="volume_keys_caption">Volumknappene som snarveier mens appen er på skjermen</string>
     <string name="volume_keys_enable">Slå på volumtast-handlinger</string>
+    <string name="volume_keys_screen_off">Også med skjermen av</string>
+    <string name="volume_keys_screen_off_caption">Knappene slutter å endre telefonens volum. En musikkapp som spiller tar dem tilbake til den stopper.</string>
+    <string name="volume_keys_screen_off_warn">Volumknappene utfører handlingene dine med skjermen av og med andre apper foran. Så lenge dette er på, endrer knappene ikke lenger telefonens volum, og en musikkapp som spiller tar dem tilbake til den stopper. Endre volumet med glidebryteren på skjermen, eller slå dette av.</string>
+    <string name="volume_keys_screen_off_confirm">Slå på</string>
     <string name="volume_up">Volum opp</string>
     <string name="volume_down">Volum ned</string>
 

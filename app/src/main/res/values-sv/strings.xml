@@ -942,8 +942,12 @@
     <string name="gps_show_on_dashboard">Visa fart på instrumentpanelen</string>
     <string name="gps_show_on_dashboard_desc">Lägger till en färgad prick på hastighetsmätaren med GPS-värdet.</string>
     <string name="section_volume_keys">Volymknappar</string>
-    <string name="volume_keys_caption">Använd telefonens volymknappar som genvägar (bara när appen är synlig)</string>
+    <string name="volume_keys_caption">Volymknapparna som genvägar medan appen är på skärmen</string>
     <string name="volume_keys_enable">Aktivera åtgärder för volymknappar</string>
+    <string name="volume_keys_screen_off">Även med skärmen av</string>
+    <string name="volume_keys_screen_off_caption">Knapparna slutar ändra telefonens volym. En musikapp som spelar tar tillbaka dem tills den stannar.</string>
+    <string name="volume_keys_screen_off_warn">Volymknapparna kör dina åtgärder med skärmen av och med andra appar framför. Så länge detta är på ändrar knapparna inte längre telefonens volym, och en musikapp som spelar tar tillbaka dem tills den stannar. Ändra volymen med reglaget på skärmen, eller stäng av detta.</string>
+    <string name="volume_keys_screen_off_confirm">Slå på</string>
     <string name="volume_up">Volym upp</string>
     <string name="volume_down">Volym ned</string>
 

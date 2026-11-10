@@ -43,6 +43,7 @@ only when you can cut the ride short.
 - Engine sound: the synthesised engines breathe. Their intake and exhaust air used to run as a steady hiss under the bangs; now each firing draws a breath that dies away before the next one at idle, so the 4-stroke single and the 2-stroke idle without the "shhh" behind them. At speed nothing changes.
 - Engine sound: Reset all to defaults at the bottom of the section, greyed until you change something, and it tells you what it will change before it does. The Advanced reset moved to the left to sit where every other reset in the app is.
 - The APK is about 5 MB smaller: the recordings are shipped as grain banks instead of whole clips.
+- Volume keys: "Also when the screen is off" under the volume key actions. The app claims the buttons through a media session, so a click or hold fires its action with the screen off or another app in front. It asks before turning on, because the buttons then stop changing the phone volume, and a playing music app takes them back until it stops.
 
 ## Please test
 
@@ -67,6 +68,11 @@ only when you can cut the ride short.
 - 4-stroke single and 2-stroke standing still: is there still a steady hiss behind the bangs, or does the air puff with each one?
 - Steam locomotive: do you hear the whistle when the sound comes on and a toot when you let off at speed? Hover bike: does it sound like the Jetsons car to you?
 - On the phone speaker, not only headphones: is it loud enough at idle and not harsh at speed? Are the recorded and the synthesised engines about as loud as each other?
+
+**Volume keys with the screen off** (Settings, search "volume")
+- Turn on the volume key actions, then "Also when the screen is off" and accept the warning. Lock the phone and press volume up: does the click action fire (horn by default)? Hold it: the hold action (voice report by default)? Does it work with another app in front? Say your phone model.
+- Start music in another app, press the buttons: does the music volume change (expected), and do the actions come back once the music stops?
+- Turn the option off: do the buttons change the phone volume again at once?
 
 **Android Auto** (install from the Play internal sharing link, a sideloaded APK never shows in the car)
 - Navigate from the car screen: turn-by-turn shows, and your four numbers beside it?

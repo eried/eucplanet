@@ -1153,8 +1153,12 @@
     <string name="gps_show_on_dashboard">แสดงความเร็วบนแดชบอร์ด</string>
     <string name="gps_show_on_dashboard_desc">เพิ่มจุดสีบนหน้าปัดความเร็วที่แสดงค่าจาก GPS</string>
     <string name="section_volume_keys">ปุ่มปรับเสียง</string>
-    <string name="volume_keys_caption">ใช้ปุ่มปรับเสียงของโทรศัพท์เป็นทางลัด (เฉพาะเมื่อแอปแสดงอยู่)</string>
+    <string name="volume_keys_caption">ใช้ปุ่มระดับเสียงเป็นทางลัดขณะที่แอปอยู่บนหน้าจอ</string>
     <string name="volume_keys_enable">เปิดใช้คำสั่งปุ่มปรับเสียง</string>
+    <string name="volume_keys_screen_off">แม้ตอนปิดหน้าจอ</string>
+    <string name="volume_keys_screen_off_caption">ปุ่มจะไม่ปรับระดับเสียงของโทรศัพท์อีก แอปเพลงที่กำลังเล่นจะดึงปุ่มกลับไปจนกว่าจะหยุด</string>
+    <string name="volume_keys_screen_off_warn">ปุ่มระดับเสียงจะสั่งงานของคุณแม้ตอนปิดหน้าจอและเมื่อมีแอปอื่นอยู่ด้านหน้า ขณะที่เปิดอยู่ ปุ่มจะไม่ปรับระดับเสียงของโทรศัพท์อีก และแอปเพลงที่กำลังเล่นจะดึงปุ่มกลับไปจนกว่าจะหยุด ปรับระดับเสียงจากแถบเลื่อนบนหน้าจอ หรือปิดตัวเลือกนี้</string>
+    <string name="volume_keys_screen_off_confirm">เปิด</string>
     <string name="volume_up">เพิ่มเสียง</string>
     <string name="volume_down">ลดเสียง</string>
     <string name="section_radar">เรดาร์มองหลัง</string>

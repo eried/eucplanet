@@ -325,6 +325,8 @@ data class AppSettings(
     val volumeUpHold: String = "VOICE_ANNOUNCE",
     val volumeDownClick: String = "LIGHT_TOGGLE",
     val volumeDownHold: String = "SAFETY_TOGGLE",
+    /** Claim the volume buttons through a media session so they fire with the screen off. */
+    val volumeKeysScreenOff: Boolean = false,
 
     // Appearance
     // language: BCP-47 tag (e.g. "en", "es", "es-419", "no", "pt-BR"). Empty string

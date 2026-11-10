@@ -946,8 +946,12 @@
     <string name="gps_show_on_dashboard">Pokaż prędkość na pulpicie</string>
     <string name="gps_show_on_dashboard_desc">Dodaje na prędkościomierzu kolorową kropkę z odczytem GPS.</string>
     <string name="section_volume_keys">Klawisze głośności</string>
-    <string name="volume_keys_caption">Używaj przycisków głośności telefonu jako skrótów (tylko gdy aplikacja jest widoczna)</string>
+    <string name="volume_keys_caption">Przyciski głośności jako skróty, gdy aplikacja jest na ekranie</string>
     <string name="volume_keys_enable">Włącz akcje klawiszy głośności</string>
+    <string name="volume_keys_screen_off">Także przy wyłączonym ekranie</string>
+    <string name="volume_keys_screen_off_caption">Przyciski przestają zmieniać głośność telefonu. Grająca aplikacja muzyczna przejmuje je, dopóki nie przestanie grać.</string>
+    <string name="volume_keys_screen_off_warn">Przyciski głośności będą uruchamiać Twoje akcje przy wyłączonym ekranie i z innymi aplikacjami na wierzchu. Gdy to jest włączone, przyciski nie zmieniają już głośności telefonu, a grająca aplikacja muzyczna przejmuje je, dopóki nie przestanie grać. Zmieniaj głośność suwakiem na ekranie albo wyłącz tę opcję.</string>
+    <string name="volume_keys_screen_off_confirm">Włącz</string>
     <string name="volume_up">Głośność w górę</string>
     <string name="volume_down">Głośność w dół</string>
 

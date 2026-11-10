@@ -1404,6 +1404,7 @@ class SettingsViewModel(
     fun updateVolumeUpHold(v: String) = update { copy(volumeUpHold = v) }
     fun updateVolumeDownClick(v: String) = update { copy(volumeDownClick = v) }
     fun updateVolumeDownHold(v: String) = update { copy(volumeDownHold = v) }
+    fun updateVolumeKeysScreenOff(v: Boolean) = update { copy(volumeKeysScreenOff = v) }
 
     // Cloud sync
     private val _cloudEvent = MutableStateFlow<CloudEvent?>(null)

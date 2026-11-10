@@ -942,8 +942,12 @@
     <string name="gps_show_on_dashboard">대시보드에 속도 표시</string>
     <string name="gps_show_on_dashboard_desc">속도 다이얼에 GPS 값을 나타내는 색상 점을 추가합니다.</string>
     <string name="section_volume_keys">볼륨 버튼</string>
-    <string name="volume_keys_caption">휴대전화 볼륨 버튼을 바로가기로 사용합니다(앱이 화면에 보일 때만)</string>
+    <string name="volume_keys_caption">앱이 화면에 보이는 동안 볼륨 버튼을 바로가기로 사용</string>
     <string name="volume_keys_enable">볼륨 버튼 단축키 활성화</string>
+    <string name="volume_keys_screen_off">화면이 꺼져 있을 때도</string>
+    <string name="volume_keys_screen_off_caption">버튼으로 휴대전화 볼륨이 바뀌지 않습니다. 재생 중인 음악 앱이 멈출 때까지 버튼을 가져갑니다.</string>
+    <string name="volume_keys_screen_off_warn">화면이 꺼져 있거나 다른 앱이 앞에 있어도 볼륨 버튼이 동작을 실행합니다. 켜져 있는 동안 버튼으로 휴대전화 볼륨이 바뀌지 않고, 재생 중인 음악 앱이 멈출 때까지 버튼을 가져갑니다. 볼륨은 화면의 슬라이더로 바꾸거나 이 설정을 끄세요.</string>
+    <string name="volume_keys_screen_off_confirm">켜기</string>
     <string name="volume_up">볼륨 올리기</string>
     <string name="volume_down">볼륨 내리기</string>
 

@@ -942,8 +942,12 @@
     <string name="gps_show_on_dashboard">Gösterge panelinde hız göster</string>
     <string name="gps_show_on_dashboard_desc">Hız kadranına GPS okumasıyla renkli bir nokta ekler.</string>
     <string name="section_volume_keys">Ses tuşları</string>
-    <string name="volume_keys_caption">Telefon ses düğmelerini kısayol olarak kullan (yalnızca uygulama görünürken)</string>
+    <string name="volume_keys_caption">Uygulama ekrandayken ses tuşlarını kısayol olarak kullan</string>
     <string name="volume_keys_enable">Ses tuşu eylemlerini etkinleştir</string>
+    <string name="volume_keys_screen_off">Ekran kapalıyken de</string>
+    <string name="volume_keys_screen_off_caption">Tuşlar artık telefonun sesini değiştirmez. Çalan bir müzik uygulaması, durana kadar tuşları geri alır.</string>
+    <string name="volume_keys_screen_off_warn">Ses tuşları ekran kapalıyken ve önde başka uygulamalar varken de eylemlerini çalıştırır. Bu açıkken tuşlar artık telefonun sesini değiştirmez ve çalan bir müzik uygulaması, durana kadar tuşları geri alır. Sesi ekrandaki kaydırıcıdan değiştir ya da bunu kapat.</string>
+    <string name="volume_keys_screen_off_confirm">Aç</string>
     <string name="volume_up">Sesi Artır</string>
     <string name="volume_down">Sesi Azalt</string>
 

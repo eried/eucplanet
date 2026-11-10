@@ -1147,8 +1147,12 @@
     <string name="gps_show_on_dashboard">Arată viteza în tabloul de bord</string>
     <string name="gps_show_on_dashboard_desc">Adaugă un punct colorat pe cadranul vitezei cu citirea GPS.</string>
     <string name="section_volume_keys">Butoane de volum</string>
-    <string name="volume_keys_caption">Folosește butoanele de volum ale telefonului ca scurtături (doar când aplicația este vizibilă)</string>
+    <string name="volume_keys_caption">Butoanele de volum ca scurtături cât timp aplicația e pe ecran</string>
     <string name="volume_keys_enable">Activează acțiunile butoanelor de volum</string>
+    <string name="volume_keys_screen_off">Și cu ecranul stins</string>
+    <string name="volume_keys_screen_off_caption">Butoanele nu mai schimbă volumul telefonului. O aplicație de muzică ce redă le ia înapoi până se oprește.</string>
+    <string name="volume_keys_screen_off_warn">Butoanele de volum vor declanșa acțiunile tale cu ecranul stins și cu alte aplicații în față. Cât timp e pornit, butoanele nu mai schimbă volumul telefonului, iar o aplicație de muzică ce redă le ia înapoi până se oprește. Schimbă volumul din cursorul de pe ecran, sau oprește asta.</string>
+    <string name="volume_keys_screen_off_confirm">Pornește</string>
     <string name="volume_up">Volum plus</string>
     <string name="volume_down">Volum minus</string>
     <string name="section_radar">Radar pentru spate</string>

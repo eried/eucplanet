@@ -7850,6 +7850,33 @@ private fun FlicTab(
                     }
                 }
             }
+            // Screen off: the keys are claimed through a media session, which
+            // takes them from the phone volume. Turning it on asks first, since
+            // the rider loses the volume buttons until they turn it off again.
+            var askScreenOff by remember { mutableStateOf(false) }
+            SwitchSetting(stringResource(R.string.volume_keys_screen_off), settings.volumeKeysScreenOff) { on ->
+                if (on) askScreenOff = true else settingsViewModel.updateVolumeKeysScreenOff(false)
+            }
+            HintText(stringResource(R.string.volume_keys_screen_off_caption), small = true)
+            if (askScreenOff) {
+                AlertDialog(
+                    onDismissRequest = { askScreenOff = false },
+                    shape = RoundedCornerShape(12.dp),
+                    title = { Text(stringResource(R.string.volume_keys_screen_off)) },
+                    text = { Text(stringResource(R.string.volume_keys_screen_off_warn)) },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            settingsViewModel.updateVolumeKeysScreenOff(true)
+                            askScreenOff = false
+                        }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.volume_keys_screen_off_confirm)) }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { askScreenOff = false }, shape = RoundedCornerShape(12.dp)) {
+                            Text(stringResource(android.R.string.cancel))
+                        }
+                    }
+                )
+            }
         }
         }   // end volumeKeysEnabled BringIntoViewSection
 

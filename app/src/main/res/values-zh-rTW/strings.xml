@@ -941,8 +941,12 @@
     <string name="gps_show_on_dashboard">在儀表板顯示速度</string>
     <string name="gps_show_on_dashboard_desc">在速度錶上加一個彩色圓點，顯示 GPS 讀數。</string>
     <string name="section_volume_keys">音量鍵</string>
-    <string name="volume_keys_caption">將手機音量鍵當成快捷鍵（僅限應用程式顯示在畫面上時）</string>
+    <string name="volume_keys_caption">應用程式顯示在螢幕上時，用手機音量鍵作為快捷鍵</string>
     <string name="volume_keys_enable">啟用音量鍵操作</string>
+    <string name="volume_keys_screen_off">螢幕關閉時也生效</string>
+    <string name="volume_keys_screen_off_caption">音量鍵不再改變手機音量。正在播放的音樂應用程式會拿回音量鍵，直到停止播放。</string>
+    <string name="volume_keys_screen_off_warn">螢幕關閉時以及其他應用程式在前景時，音量鍵也會執行你的動作。開啟期間，音量鍵不再改變手機音量，正在播放的音樂應用程式會拿回音量鍵，直到停止播放。請用螢幕上的滑桿調整音量，或關閉此項。</string>
+    <string name="volume_keys_screen_off_confirm">開啟</string>
     <string name="volume_up">調高音量</string>
     <string name="volume_down">調低音量</string>
 

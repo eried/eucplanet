@@ -946,8 +946,12 @@
     <string name="gps_show_on_dashboard">Mostrar velocidade no painel</string>
     <string name="gps_show_on_dashboard_desc">Adiciona um ponto colorido no velocímetro com a leitura do GPS.</string>
     <string name="section_volume_keys">Teclas de volume</string>
-    <string name="volume_keys_caption">Use os botões de volume como atalhos (só quando o app está visível)</string>
+    <string name="volume_keys_caption">Usar os botões de volume como atalhos enquanto o app está na tela</string>
     <string name="volume_keys_enable">Ativar ações das teclas de volume</string>
+    <string name="volume_keys_screen_off">Também com a tela desligada</string>
+    <string name="volume_keys_screen_off_caption">Os botões deixam de mudar o volume do celular. Um app de música tocando os retoma até parar.</string>
+    <string name="volume_keys_screen_off_warn">Os botões de volume vão disparar suas ações com a tela desligada e com outros apps na frente. Enquanto isso estiver ligado, os botões não mudam mais o volume do celular, e um app de música tocando os retoma até parar. Mude o volume pelo controle na tela, ou desligue isto.</string>
+    <string name="volume_keys_screen_off_confirm">Ligar</string>
     <string name="volume_up">Volume para cima</string>
     <string name="volume_down">Volume para baixo</string>
 

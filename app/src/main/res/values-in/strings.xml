@@ -1153,8 +1153,12 @@
     <string name="gps_show_on_dashboard">Tampilkan kecepatan di dasbor</string>
     <string name="gps_show_on_dashboard_desc">Menambahkan titik berwarna di dial kecepatan dengan bacaan GPS.</string>
     <string name="section_volume_keys">Tombol volume</string>
-    <string name="volume_keys_caption">Gunakan tombol volume ponsel sebagai pintasan (hanya saat aplikasi terlihat)</string>
+    <string name="volume_keys_caption">Gunakan tombol volume sebagai pintasan selama aplikasi tampil di layar</string>
     <string name="volume_keys_enable">Aktifkan tindakan tombol volume</string>
+    <string name="volume_keys_screen_off">Juga saat layar mati</string>
+    <string name="volume_keys_screen_off_caption">Tombol berhenti mengubah volume ponsel. Aplikasi musik yang sedang memutar mengambilnya kembali sampai berhenti.</string>
+    <string name="volume_keys_screen_off_warn">Tombol volume akan menjalankan aksi Anda saat layar mati dan saat aplikasi lain ada di depan. Selama ini aktif, tombol tidak lagi mengubah volume ponsel, dan aplikasi musik yang sedang memutar mengambilnya kembali sampai berhenti. Ubah volume dari penggeser di layar, atau matikan ini.</string>
+    <string name="volume_keys_screen_off_confirm">Aktifkan</string>
     <string name="volume_up">Volume Naik</string>
     <string name="volume_down">Volume Turun</string>
     <string name="section_radar">Radar belakang</string>

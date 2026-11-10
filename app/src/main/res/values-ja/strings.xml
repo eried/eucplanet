@@ -942,8 +942,12 @@
     <string name="gps_show_on_dashboard">速度をダッシュボードに表示</string>
     <string name="gps_show_on_dashboard_desc">速度ダイヤルに GPS 読み取り値の色付きドットを追加します。</string>
     <string name="section_volume_keys">音量キー</string>
-    <string name="volume_keys_caption">スマホの音量ボタンをショートカットとして使用（アプリ表示中のみ）</string>
+    <string name="volume_keys_caption">アプリが画面に表示されている間、音量ボタンをショートカットとして使う</string>
     <string name="volume_keys_enable">音量キーアクションを有効にする</string>
+    <string name="volume_keys_screen_off">画面が消えているときも</string>
+    <string name="volume_keys_screen_off_caption">ボタンで端末の音量は変わらなくなります。再生中の音楽アプリは、停止するまでボタンを取り戻します。</string>
+    <string name="volume_keys_screen_off_warn">画面が消えているときや他のアプリが前面にあるときも、音量ボタンで操作が実行されます。オンの間、ボタンで端末の音量は変わらなくなり、再生中の音楽アプリは停止するまでボタンを取り戻します。音量は画面のスライダーで変えるか、この設定をオフにしてください。</string>
+    <string name="volume_keys_screen_off_confirm">オンにする</string>
     <string name="volume_up">音量アップ</string>
     <string name="volume_down">音量ダウン</string>
 

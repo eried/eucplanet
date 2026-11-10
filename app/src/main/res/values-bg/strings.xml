@@ -1207,8 +1207,12 @@
     <string name="gps_show_on_dashboard">Скорост на таблото</string>
     <string name="gps_show_on_dashboard_desc">Добавя цветна точка на скоростомера с показанието на GPS.</string>
     <string name="section_volume_keys">Бутони за сила на звука</string>
-    <string name="volume_keys_caption">Бутоните за сила на звука като преки пътища (само когато приложението е видимо)</string>
+    <string name="volume_keys_caption">Бутоните за звук като преки пътища, докато приложението е на екрана</string>
     <string name="volume_keys_enable">Действия с бутоните за звук</string>
+    <string name="volume_keys_screen_off">И при изключен екран</string>
+    <string name="volume_keys_screen_off_caption">Бутоните спират да променят силата на звука на телефона. Свирещо музикално приложение ги взема обратно, докато не спре.</string>
+    <string name="volume_keys_screen_off_warn">Бутоните за звук ще задействат действията ви при изключен екран и с други приложения отпред. Докато това е включено, бутоните вече не променят силата на звука на телефона, а свирещо музикално приложение ги взема обратно, докато не спре. Сменяйте звука от плъзгача на екрана или изключете това.</string>
+    <string name="volume_keys_screen_off_confirm">Включи</string>
     <string name="volume_up">Звук нагоре</string>
     <string name="volume_down">Звук надолу</string>
 

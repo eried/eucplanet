@@ -319,8 +319,12 @@
     <string name="gps_show_on_dashboard">在仪表盘显示速度</string>
     <string name="gps_show_on_dashboard_desc">在速度表上叠加一个彩色圆点显示 GPS 读数。</string>
     <string name="section_volume_keys">音量键</string>
-    <string name="volume_keys_caption">将手机音量键用作快捷键（仅在应用显示时）。</string>
+    <string name="volume_keys_caption">应用显示在屏幕上时，用手机音量键作为快捷键</string>
     <string name="volume_keys_enable">启用音量键操作</string>
+    <string name="volume_keys_screen_off">熄屏时也生效</string>
+    <string name="volume_keys_screen_off_caption">音量键不再改变手机音量。正在播放的音乐应用会拿回音量键，直到停止播放。</string>
+    <string name="volume_keys_screen_off_warn">熄屏时以及其他应用在前台时，音量键也会执行你的操作。开启期间，音量键不再改变手机音量，正在播放的音乐应用会拿回音量键，直到停止播放。请用屏幕上的滑块调节音量，或关闭此项。</string>
+    <string name="volume_keys_screen_off_confirm">开启</string>
     <string name="volume_up">音量+</string>
     <string name="volume_down">音量-</string>
 

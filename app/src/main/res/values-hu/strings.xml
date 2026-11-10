@@ -1147,8 +1147,12 @@
     <string name="gps_show_on_dashboard">Sebesség mutatása a műszerfalon</string>
     <string name="gps_show_on_dashboard_desc">Színes pontot ad a sebességmérőhöz a GPS-értékkel.</string>
     <string name="section_volume_keys">Hangerőgombok</string>
-    <string name="volume_keys_caption">Használd a telefon hangerőgombjait parancsikonként (csak amikor az alkalmazás látható)</string>
+    <string name="volume_keys_caption">Hangerőgombok gyorsbillentyűként, amíg az app a képernyőn van</string>
     <string name="volume_keys_enable">Hangerőgomb-műveletek bekapcsolása</string>
+    <string name="volume_keys_screen_off">Kikapcsolt képernyőnél is</string>
+    <string name="volume_keys_screen_off_caption">A gombok nem állítják többé a telefon hangerejét. Egy éppen játszó zenei app visszaveszi őket, amíg le nem áll.</string>
+    <string name="volume_keys_screen_off_warn">A hangerőgombok kikapcsolt képernyőnél és más appok előtérben is a műveleteidet indítják. Amíg ez be van kapcsolva, a gombok nem állítják a telefon hangerejét, és egy éppen játszó zenei app visszaveszi őket, amíg le nem áll. A hangerőt a képernyőn lévő csúszkával állítsd, vagy kapcsold ki ezt.</string>
+    <string name="volume_keys_screen_off_confirm">Bekapcsolás</string>
     <string name="volume_up">Hangerő fel</string>
     <string name="volume_down">Hangerő le</string>
     <string name="section_radar">Hátratekintő radar</string>

@@ -946,8 +946,12 @@
     <string name="gps_show_on_dashboard">Показывать скорость на панели</string>
     <string name="gps_show_on_dashboard_desc">Добавляет цветную точку на спидометре с показаниями GPS.</string>
     <string name="section_volume_keys">Кнопки громкости</string>
-    <string name="volume_keys_caption">Кнопки громкости как быстрые действия (только при открытом приложении)</string>
+    <string name="volume_keys_caption">Кнопки громкости как ярлыки, пока приложение на экране</string>
     <string name="volume_keys_enable">Включить действия по кнопкам громкости</string>
+    <string name="volume_keys_screen_off">И при выключенном экране</string>
+    <string name="volume_keys_screen_off_caption">Кнопки перестают менять громкость телефона. Играющее музыкальное приложение забирает их, пока не остановится.</string>
+    <string name="volume_keys_screen_off_warn">Кнопки громкости будут запускать ваши действия при выключенном экране и с другими приложениями поверх. Пока это включено, кнопки больше не меняют громкость телефона, а играющее музыкальное приложение забирает их, пока не остановится. Меняйте громкость ползунком на экране или выключите это.</string>
+    <string name="volume_keys_screen_off_confirm">Включить</string>
     <string name="volume_up">Громкость +</string>
     <string name="volume_down">Громкость −</string>
 

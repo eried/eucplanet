@@ -1247,8 +1247,12 @@
     <string name="gps_show_on_dashboard">Show speed on dashboard</string>
     <string name="gps_show_on_dashboard_desc">Adds a coloured dot on the speed dial with the GPS reading.</string>
     <string name="section_volume_keys">Volume keys</string>
-    <string name="volume_keys_caption">Use phone volume buttons as shortcuts (only when app is visible)</string>
+    <string name="volume_keys_caption">Use phone volume buttons as shortcuts while the app is on screen</string>
     <string name="volume_keys_enable">Enable volume key actions</string>
+    <string name="volume_keys_screen_off">Also when the screen is off</string>
+    <string name="volume_keys_screen_off_caption">The buttons stop changing the phone volume. A music app that is playing takes them back until it stops.</string>
+    <string name="volume_keys_screen_off_warn">The volume buttons will fire your actions with the screen off and with other apps in front. While this is on, the buttons no longer change the phone volume, and a music app that is playing takes them back until it stops. Change the volume from the on-screen slider, or turn this off.</string>
+    <string name="volume_keys_screen_off_confirm">Turn on</string>
     <string name="volume_up">Volume Up</string>
     <string name="volume_down">Volume Down</string>
 

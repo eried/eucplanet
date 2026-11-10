@@ -402,8 +402,12 @@
     <string name="gps_show_on_dashboard">Mostra velocità sulla dashboard</string>
     <string name="gps_show_on_dashboard_desc">Aggiunge un puntino colorato sul tachimetro con la lettura GPS.</string>
     <string name="section_volume_keys">Tasti volume</string>
-    <string name="volume_keys_caption">Tasti volume come scorciatoie (solo con l\'app visibile)</string>
+    <string name="volume_keys_caption">Tasti volume come scorciatoie finché l\'app è sullo schermo</string>
     <string name="volume_keys_enable">Attiva azioni dei tasti volume</string>
+    <string name="volume_keys_screen_off">Anche a schermo spento</string>
+    <string name="volume_keys_screen_off_caption">I tasti non cambiano più il volume del telefono. Un\'app musicale in riproduzione se li riprende finché non si ferma.</string>
+    <string name="volume_keys_screen_off_warn">I tasti volume eseguiranno le tue azioni a schermo spento e con altre app in primo piano. Finché è attivo, i tasti non cambiano più il volume del telefono, e un\'app musicale in riproduzione se li riprende finché non si ferma. Cambia il volume dal cursore sullo schermo, oppure disattiva questa opzione.</string>
+    <string name="volume_keys_screen_off_confirm">Attiva</string>
     <string name="volume_up">Volume su</string>
     <string name="volume_down">Volume giù</string>
 

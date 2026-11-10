@@ -1208,8 +1208,12 @@
     <string name="gps_show_on_dashboard">Zobraziť rýchlosť na paneli</string>
     <string name="gps_show_on_dashboard_desc">Pridá na rýchlomer farebnú bodku s hodnotou GPS.</string>
     <string name="section_volume_keys">Tlačidlá hlasitosti</string>
-    <string name="volume_keys_caption">Použite tlačidlá hlasitosti telefónu ako skratky (len keď je aplikácia viditeľná).</string>
+    <string name="volume_keys_caption">Tlačidlá hlasitosti ako skratky, kým je aplikácia na obrazovke</string>
     <string name="volume_keys_enable">Zapnúť akcie tlačidiel hlasitosti</string>
+    <string name="volume_keys_screen_off">Aj pri vypnutej obrazovke</string>
+    <string name="volume_keys_screen_off_caption">Tlačidlá prestanú meniť hlasitosť telefónu. Hrajúca hudobná aplikácia si ich vezme späť, kým neprestane hrať.</string>
+    <string name="volume_keys_screen_off_warn">Tlačidlá hlasitosti spustia vaše akcie aj pri vypnutej obrazovke a s inými aplikáciami v popredí. Kým je to zapnuté, tlačidlá už nemenia hlasitosť telefónu a hrajúca hudobná aplikácia si ich vezme späť, kým neprestane hrať. Hlasitosť meňte posuvníkom na obrazovke, alebo toto vypnite.</string>
+    <string name="volume_keys_screen_off_confirm">Zapnúť</string>
     <string name="volume_up">Zvýšiť hlasitosť</string>
     <string name="volume_down">Znížiť hlasitosť</string>
 

@@ -946,8 +946,12 @@
     <string name="gps_show_on_dashboard">Показувати швидкість на панелі</string>
     <string name="gps_show_on_dashboard_desc">Додає кольорову точку на спідометрі з показанням GPS.</string>
     <string name="section_volume_keys">Кнопки гучності</string>
-    <string name="volume_keys_caption">Кнопки гучності як швидкі дії (лише коли застосунок відкритий)</string>
+    <string name="volume_keys_caption">Кнопки гучності як ярлики, поки застосунок на екрані</string>
     <string name="volume_keys_enable">Увімкнути дії на кнопках гучності</string>
+    <string name="volume_keys_screen_off">І з вимкненим екраном</string>
+    <string name="volume_keys_screen_off_caption">Кнопки перестають змінювати гучність телефону. Музичний застосунок, що грає, забирає їх, доки не зупиниться.</string>
+    <string name="volume_keys_screen_off_warn">Кнопки гучності запускатимуть ваші дії з вимкненим екраном і з іншими застосунками зверху. Поки це ввімкнено, кнопки більше не змінюють гучність телефону, а музичний застосунок, що грає, забирає їх, доки не зупиниться. Змінюйте гучність повзунком на екрані або вимкніть це.</string>
+    <string name="volume_keys_screen_off_confirm">Увімкнути</string>
     <string name="volume_up">Гучніше</string>
     <string name="volume_down">Тихіше</string>
 

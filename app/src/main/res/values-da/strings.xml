@@ -946,8 +946,12 @@
     <string name="gps_show_on_dashboard">Vis fart på dashboardet</string>
     <string name="gps_show_on_dashboard_desc">Tilføjer en farvet prik på speedometeret med GPS-værdien.</string>
     <string name="section_volume_keys">Lydstyrketaster</string>
-    <string name="volume_keys_caption">Brug telefonens lydstyrketaster som genveje (kun når appen er synlig)</string>
+    <string name="volume_keys_caption">Lydstyrkeknapperne som genveje, mens appen er på skærmen</string>
     <string name="volume_keys_enable">Aktivér handlinger på lydstyrketaster</string>
+    <string name="volume_keys_screen_off">Også med skærmen slukket</string>
+    <string name="volume_keys_screen_off_caption">Knapperne holder op med at ændre telefonens lydstyrke. En musikapp, der spiller, tager dem tilbage, indtil den stopper.</string>
+    <string name="volume_keys_screen_off_warn">Lydstyrkeknapperne udfører dine handlinger med skærmen slukket og med andre apps forrest. Så længe dette er slået til, ændrer knapperne ikke længere telefonens lydstyrke, og en musikapp, der spiller, tager dem tilbage, indtil den stopper. Skift lydstyrken med skyderen på skærmen, eller slå dette fra.</string>
+    <string name="volume_keys_screen_off_confirm">Slå til</string>
     <string name="volume_up">Lyd op</string>
     <string name="volume_down">Lyd ned</string>
 

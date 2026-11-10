@@ -942,8 +942,12 @@
     <string name="gps_show_on_dashboard">GPS-Geschwindigkeit im Dashboard zeigen</string>
     <string name="gps_show_on_dashboard_desc">Setzt einen farbigen Punkt mit dem GPS-Wert auf den Tacho.</string>
     <string name="section_volume_keys">Lautstärketasten</string>
-    <string name="volume_keys_caption">Lautstärketasten als Kurzbefehle nutzen (nur bei sichtbarer App)</string>
+    <string name="volume_keys_caption">Lautstärketasten als Kurzbefehle nutzen, solange die App auf dem Bildschirm ist</string>
     <string name="volume_keys_enable">Lautstärketasten-Aktionen aktivieren</string>
+    <string name="volume_keys_screen_off">Auch bei ausgeschaltetem Bildschirm</string>
+    <string name="volume_keys_screen_off_caption">Die Tasten ändern die Telefonlautstärke nicht mehr. Eine spielende Musik-App holt sie sich zurück, bis sie stoppt.</string>
+    <string name="volume_keys_screen_off_warn">Die Lautstärketasten lösen deine Aktionen auch bei ausgeschaltetem Bildschirm und mit anderen Apps im Vordergrund aus. Solange das an ist, ändern die Tasten die Telefonlautstärke nicht mehr, und eine spielende Musik-App holt sie sich zurück, bis sie stoppt. Ändere die Lautstärke über den Regler auf dem Bildschirm, oder schalte das aus.</string>
+    <string name="volume_keys_screen_off_confirm">Einschalten</string>
     <string name="volume_up">Lautstärke +</string>
     <string name="volume_down">Lautstärke −</string>
 
