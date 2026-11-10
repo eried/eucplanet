@@ -11,6 +11,7 @@ only when you can cut the ride short.
 - iPhone app: leaderboards and crew pass, trip details with the map, trip meter, metric details and the charging monitor with charge alerts.
 - iPhone app: trip tools (rename, change wheel, split, extend), and the wheel reconnects by itself after a drop, as on Android.
 - iPhone app: Legal Mode, the quick-action buttons on the lock screen (iOS 17), and messages like "Battery data exported" show at the bottom of the screen.
+- iPhone app: Service Mode log and crash log to send, trips name the wheel, GPS saves power like Android, and the wheel link writes like Android's (fixes for InMotion V1 drops and repeated commands).
 - iPhone app: the Needs attention warnings (location, Bluetooth, notifications, backups), and a recording cut short by closing the app is saved or dropped at the next start, as on Android.
 - Inside: the dashboard, settings, alarms, trips, trip details, trip tools, Legal Mode, the notification buttons, the reconnect timing, leaderboards, Dropbox sync and the wheel link moved to a library shared with the iPhone. Nothing should change on screen.
 - Settings, Dashboard layout no longer closes the app.
@@ -56,6 +57,7 @@ only when you can cut the ride short.
 - Charge the wheel with the Battery monitor open: do the 80% and full alerts come?
 - Tap the warning icon on the dashboard: does each Fix take you to the right place?
 - Legal Mode: arm it, lock, close and reopen the app, unlock with your code. Lock screen buttons (Settings, General, quick actions): do they act on the wheel?
+- Your wheel brand: does it connect, show live numbers, and do light, horn and lock work? If not, a Service Mode log (hold the logo on About) helps most.
 - Turn the wheel off mid-ride and on again: does the iPhone reconnect by itself? Rename and split a trip: does Android see it after a sync?
 
 **Android, after the move to the shared library**
@@ -104,4 +106,4 @@ only when you can cut the ride short.
 
 Open an issue with your wheel model and firmware (for Android Auto, the car
 screen model and a photo). A Service Mode log beats a description; if it
-crashed, Share crash log on the About screen.
+crashed, send the EUCPlanet-crashlog file from Downloads (iPhone: Share crash log on the About screen).
