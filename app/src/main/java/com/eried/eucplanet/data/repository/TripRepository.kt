@@ -9,6 +9,7 @@ import android.util.Log
 import com.eried.eucplanet.R
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.db.TripDao
+import com.eried.eucplanet.data.model.GpsIdleOff
 import com.eried.eucplanet.data.model.GpsPowerPolicy
 import com.eried.eucplanet.data.model.GpsSignalEvent
 import com.eried.eucplanet.data.model.GpsTier
@@ -141,13 +142,10 @@ class TripRepository(
     @Volatile private var tripHadMockFix = false
 
     // The wheel's identity for the active recording, accumulated while it is still
-    // connected. Snapshotting only at stop loses it whenever the rider powers the wheel
-    // off to end the ride - see [WheelIdentity].
-    private val wheelIdentity = WheelIdentity()
-
-    // Last identity JSON already flushed to the current row, so the mid-ride persist
-    // writes only when it actually changes (≈once per ride) rather than every tick.
-    private var lastPersistedWheelMeta: String? = null
+    // connected, and the Extra-column pairs it streams. Snapshotting only at stop
+    // loses it whenever the rider powers the wheel off to end the ride - see
+    // [WheelIdentity] and [TripWheelLog], shared with the iPhone's recorder.
+    private val wheelLog = TripWheelLog()
 
     // Advanced: phone GPS (fused-location) update interval, mirrored from settings
     // so the non-suspend location-request builder can read it synchronously. A
@@ -176,7 +174,7 @@ class TripRepository(
     @Volatile private var currentGpsTier: GpsTier? = null
     // Pending fully-off after the idle grace (gpsIdleOffDelaySec); cancelled the
     // moment any input changes, since recompute re-decides.
-    private var idleOffJob: kotlinx.coroutines.Job? = null
+    private val idleOff = GpsIdleOff(scope)
     // GPS signal state machine (drives the "GPS acquired/lost" voice). It runs
     // ONLY while a trip is recording or navigation is active - when GPS is both
     // needed AND the app is kept awake, so a stale stream means a genuine
@@ -412,29 +410,9 @@ class TripRepository(
             watchMapVisible = gpsWatchMapVisible,
             hudMapLinked = gpsHudMapLinked,
         )
-        if (tier == GpsTier.OFF) {
-            // Already off, or an off-grace already pending: stay put. Do NOT
-            // re-bridge or reschedule on every recompute - the wheel's connection
-            // state flips during reconnect scans, and re-entering here would
-            // thrash GPS on and off (spurious acquired/lost, wasted battery).
-            if (currentGpsTier == GpsTier.OFF || idleOffJob != null) return
-            if (gpsIdleOffDelaySec <= 0) {
-                applyTier(GpsTier.OFF)
-            } else {
-                // Hold a cheap low-power fix through the grace, then fully off if
-                // still idle - so a quick app switch doesn't drop the GPS.
-                applyTier(GpsTier.LOW)
-                idleOffJob = scope.launch {
-                    delay(gpsIdleOffDelaySec * 1000L)
-                    applyTier(GpsTier.OFF)
-                    idleOffJob = null
-                }
-            }
-        } else {
-            // Leaving idle: cancel any pending off and apply the live tier.
-            idleOffJob?.cancel(); idleOffJob = null
-            applyTier(tier)
-        }
+        // OFF goes through the idle grace (a LOW fix, then released); any
+        // other tier cancels a pending off. Shared with the iPhone.
+        idleOff.decide(tier, currentGpsTier, gpsIdleOffDelaySec, ::applyTier)
     }
 
     @SuppressLint("MissingPermission")
@@ -656,16 +634,9 @@ class TripRepository(
     // doesn't reattempt on every telemetry packet after a failure.
     @Volatile private var lastStartFailureMs = 0L
 
-    /** Fold whatever the wheel currently reports into [wheelIdentity]; blanks are ignored. */
+    /** Fold whatever the wheel currently reports into the trip's identity; blanks are ignored. */
     private suspend fun captureWheelIdentity() {
-        wheelIdentity.merge(
-            brand = wheelRepository.connectedBrand.value,
-            model = wheelRepository.modelName.value,
-            serial = wheelRepository.wheelSerial.value,
-            bleMac = settingsRepository.currentOrLoad().lastDeviceAddress,
-            bleName = wheelRepository.connectedDeviceName.value,
-            firmware = wheelRepository.firmwareVersion.value,
-        )
+        wheelLog.capture(wheelRepository, settingsRepository.currentOrLoad().lastDeviceAddress)
     }
 
     // Multi-wheel distance: the wheel's session trip counter is only
@@ -676,21 +647,8 @@ class TripRepository(
     private var tripWheelKmAccum = 0f
     private var lastWheelTripKm: Float? = null
 
-    // CSV Extra-column event queue: one key=value pair leaves per written
-    // row, so a multi-key event (the wheel identity block) spills onto
-    // consecutive rows exactly like euc.world's extra column does.
-    private val pendingExtras = ArrayDeque<String>()
-    // Pairs already written to the CSV for the CURRENT connection block, so a
-    // late-arriving serial adds one row instead of repeating the whole block,
-    // while a reconnect (cleared set) re-emits everything.
-    private val emittedExtras = HashSet<String>()
-
     /** Queue any not-yet-written identity pairs of the current connection block. */
-    private fun queueWheelIdentityExtras() {
-        for (pair in wheelIdentity.extraPairs()) {
-            if (emittedExtras.add(pair)) pendingExtras.addLast(pair)
-        }
-    }
+    private fun queueWheelIdentityExtras() = wheelLog.queueIdentity()
 
     /**
      * Flush the accumulated wheel identity onto the current row the first time it
@@ -703,10 +661,8 @@ class TripRepository(
      * same accumulator value, so the two can never disagree.
      */
     private suspend fun persistWheelIdentityIfChanged() {
-        val json = wheelIdentity.toJson() ?: return
-        if (json == lastPersistedWheelMeta) return
         val id = currentTrip?.id ?: return
-        lastPersistedWheelMeta = json
+        val json = wheelLog.jsonIfChanged() ?: return
         runCatching { tripDao.updateWheelMeta(id, json) }
     }
 
@@ -774,10 +730,7 @@ class TripRepository(
         _liveGpsDistanceKm.value = 0f
         lastGpsPoint = null
         tripHadMockFix = false
-        wheelIdentity.clear()          // never inherit the previous ride's wheel
-        lastPersistedWheelMeta = null
-        pendingExtras.clear()
-        emittedExtras.clear()
+        wheelLog.reset()               // never inherit the previous ride's wheel
         tripWheelKmAccum = 0f
         lastWheelTripKm = null
         captureWheelIdentity()
@@ -852,7 +805,7 @@ class TripRepository(
                 // wheel.disconnected marker on drop, so a trip that switches wheels
                 // mid-ride stays reconstructable from the file alone.
                 if (wheelConnected) {
-                    if (!wasConnected) emittedExtras.clear() // reconnect: re-emit the block
+                    if (!wasConnected) wheelLog.onReconnect() // reconnect: re-emit the block
                     captureWheelIdentity()
                     persistWheelIdentityIfChanged()
                     queueWheelIdentityExtras()
@@ -866,11 +819,11 @@ class TripRepository(
                     }
                     lastWheelTripKm = wtd
                 } else if (wasConnected) {
-                    pendingExtras.addLast("wheel.disconnected=1")
+                    wheelLog.onDisconnect()
                     lastWheelTripKm = null
                 }
                 wasConnected = wheelConnected
-                csvWriter?.writeRow(data, location?.toPhoneLocation(), extSpeed, wheelConnected, pendingExtras.removeFirstOrNull())
+                csvWriter?.writeRow(data, location?.toPhoneLocation(), extSpeed, wheelConnected, wheelLog.nextExtra())
                 rowsWritten++
                 if (location != null) {
                     rowsWithGps++
@@ -940,7 +893,7 @@ class TripRepository(
         // accumulated - by now a powered-off wheel reads back as all-nulls, which merge
         // ignores rather than letting it erase what we already know.
         captureWheelIdentity()
-        val wheelMeta = wheelIdentity.toJson()
+        val wheelMeta = wheelLog.identity.toJson()
         val finishedTrip = trip.copy(
             endTime = System.currentTimeMillis(),
             distanceKm = distance,
@@ -1221,87 +1174,4 @@ class TripRepository(
 internal fun isMockLocation(loc: Location): Boolean =
     if (Build.VERSION.SDK_INT >= 31) loc.isMock
     else @Suppress("DEPRECATION") loc.isFromMockProvider
-
-/**
- * Accumulates the connected wheel's identity over the course of a ride.
- *
- * Model, serial and firmware live in [WheelRepository] StateFlows that are nulled the
- * moment BLE drops, and the normal way to end a ride is to power the wheel off, so
- * reading them once at stop hands back nulls, the upload carries no serial or MAC, and
- * eucstats has nothing to key the wheel on. Such a trip still counts for the rider but
- * reaches no wheel or brand board at all.
- *
- * Merging as the ride runs fixes that: once a field is known it stays known, because a
- * later blank is ignored. A real value still replaces an earlier real value (identity
- * trickles in - the MAC at connect, the serial only once the wheel answers).
- */
-class WheelIdentity {
-    private val fields = java.util.concurrent.ConcurrentHashMap<String, String>()
-
-    fun merge(
-        brand: String? = null,
-        model: String? = null,
-        serial: String? = null,
-        bleMac: String? = null,
-        bleName: String? = null,
-        firmware: String? = null,
-    ) {
-        put("brand", brand); put("model", model); put("serial", serial)
-        put("ble_mac", bleMac); put("ble_name", bleName); put("firmware", firmware)
-    }
-
-    private fun put(key: String, value: String?) {
-        if (!value.isNullOrBlank()) fields[key] = value
-    }
-
-    fun clear() = fields.clear()
-
-    /**
-     * The identity as CSV Extra-column pairs, stable order. MAC is upper
-     * case without separators (the ecosystem convention for wheel MACs).
-     */
-    fun extraPairs(): List<String> {
-        val out = ArrayList<String>(6)
-        fields["ble_name"]?.let { out.add("wheel.name=$it") }
-        fields["ble_mac"]?.let { out.add("wheel.mac=" + it.replace(":", "").replace("-", "").uppercase()) }
-        fields["brand"]?.let { out.add("wheel.brand=$it") }
-        fields["model"]?.let { out.add("wheel.model=$it") }
-        fields["serial"]?.let { out.add("wheel.serial=$it") }
-        fields["firmware"]?.let { out.add("wheel.firmware=$it") }
-        return out
-    }
-
-    /** Same shape and blank-handling as [buildWheelMetaJson] - it delegates to it. */
-    fun toJson(): String? = buildWheelMetaJson(
-        brand = fields["brand"],
-        model = fields["model"],
-        serial = fields["serial"],
-        bleMac = fields["ble_mac"],
-        bleName = fields["ble_name"],
-        firmware = fields["firmware"],
-    )
-}
-
-/**
- * Builds a JSON object string with the connected wheel's metadata.
- * Returns null if ALL fields are null or blank (nothing to record).
- * Only non-null, non-blank values are included in the JSON.
- */
-fun buildWheelMetaJson(
-    brand: String?,
-    model: String?,
-    serial: String?,
-    bleMac: String?,
-    bleName: String?,
-    firmware: String?,
-): String? {
-    val obj = org.json.JSONObject()
-    if (!brand.isNullOrBlank())    obj.put("brand", brand)
-    if (!model.isNullOrBlank())    obj.put("model", model)
-    if (!serial.isNullOrBlank())   obj.put("serial", serial)
-    if (!bleMac.isNullOrBlank())   obj.put("ble_mac", bleMac)
-    if (!bleName.isNullOrBlank())  obj.put("ble_name", bleName)
-    if (!firmware.isNullOrBlank()) obj.put("firmware", firmware)
-    return if (obj.length() == 0) null else obj.toString()
-}
 

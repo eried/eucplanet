@@ -1,8 +1,14 @@
 package com.eried.eucplanet.data.model
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
 /**
  * GPS power tiers, from most to least battery-hungry. Mapped to a fused
- * LocationRequest priority + interval by [com.eried.eucplanet.data.repository.TripRepository].
+ * LocationRequest priority + interval by Android's TripRepository, and to a
+ * CoreLocation accuracy and distance filter by the iPhone's IosGpsPower.
  */
 enum class GpsTier { HIGH, BALANCED, LOW, OFF }
 
@@ -53,5 +59,52 @@ object GpsPowerPolicy {
         recording || navigating || sharing || watchMapVisible || hudMapLinked -> GpsTier.HIGH
         !appVisible -> if (connected) GpsTier.HIGH else GpsTier.OFF
         else -> GpsTier.BALANCED
+    }
+}
+
+/**
+ * The step from a tier to OFF, shared by both phones. When [GpsPowerPolicy]
+ * says nothing needs a position, a cheap LOW fix is held through the rider's
+ * idle grace (gpsIdleOffDelaySec) and only then released, so a quick app
+ * switch does not drop the GPS. Any tier above OFF cancels the pending off.
+ */
+class GpsIdleOff(
+    /** Runs the block after the delay; the function it returns cancels it. */
+    private val after: (delayMs: Long, block: () -> Unit) -> () -> Unit,
+) {
+    constructor(scope: CoroutineScope) : this({ ms, block ->
+        val job: Job = scope.launch { delay(ms); block() }
+        ({ job.cancel() })
+    })
+
+    private var pending: (() -> Unit)? = null
+
+    /**
+     * [tier] is what the policy picked, [current] what is applied now and
+     * [apply] switches the GPS to a tier.
+     */
+    fun decide(tier: GpsTier, current: GpsTier?, idleOffDelaySec: Int, apply: (GpsTier) -> Unit) {
+        if (tier == GpsTier.OFF) {
+            // Already off, or an off-grace already pending: stay put. Do NOT
+            // re-bridge or reschedule on every recompute - the wheel's connection
+            // state flips during reconnect scans, and re-entering here would
+            // thrash GPS on and off (spurious acquired/lost, wasted battery).
+            if (current == GpsTier.OFF || pending != null) return
+            if (idleOffDelaySec <= 0) {
+                apply(GpsTier.OFF)
+            } else {
+                // Hold a cheap low-power fix through the grace, then fully off if
+                // still idle - so a quick app switch doesn't drop the GPS.
+                apply(GpsTier.LOW)
+                pending = after(idleOffDelaySec * 1000L) {
+                    apply(GpsTier.OFF)
+                    pending = null
+                }
+            }
+        } else {
+            // Leaving idle: cancel any pending off and apply the live tier.
+            pending?.invoke(); pending = null
+            apply(tier)
+        }
     }
 }

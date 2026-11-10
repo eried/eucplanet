@@ -52,6 +52,13 @@ final class LocationBridge: NSObject, LocationSdk, CLLocationManagerDelegate {
         manager.stopUpdatingLocation()
     }
 
+    // The GPS power tier (IosGpsPower): CoreLocation applies a change to a
+    // running manager without a restart.
+    func setPower(desiredAccuracy: Double, distanceFilter: Double) {
+        manager.desiredAccuracy = desiredAccuracy
+        manager.distanceFilter = distanceFilter
+    }
+
     func requestAlways() {
         manager.requestAlwaysAuthorization()
     }

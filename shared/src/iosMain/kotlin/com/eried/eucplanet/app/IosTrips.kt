@@ -13,6 +13,7 @@ import com.eried.eucplanet.service.AutoRecordPolicy
 import com.eried.eucplanet.data.repository.WheelChoice
 import com.eried.eucplanet.data.repository.recoverKilledRecordings
 import com.eried.eucplanet.data.repository.TripTools
+import com.eried.eucplanet.data.repository.TripWheelLog
 import com.eried.eucplanet.ui.dashboard.DashboardTrips
 import com.eried.eucplanet.ui.recording.RecordingTrips
 import com.eried.eucplanet.ui.settings.SettingsTrips
@@ -57,8 +58,9 @@ import platform.Foundation.writeData
  * trip row in the shared database as Android's TripRepository, written at the
  * rider's recording interval, with the phone's GPS from [IosLocation].
  *
- * What Android's recorder also does and this one does not yet: the GPS power
- * tiers, the wheel identity in the Extra column, the external GPS box. The
+ * The wheel's identity streams into the Extra column and the trip row through
+ * the shared [TripWheelLog], as on Android. What Android's recorder also does
+ * and this one does not yet: the external GPS box. The
  * discard grace before a sync exists on Android only with a backup folder,
  * which iOS has none of, so a stopped trip is final at once there as here. A
  * recording the app was killed in is finalized or dropped at the next start
@@ -99,6 +101,14 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips {
     private var loop: Job? = null
     private var gpsKm = 0.0
     private var wheelKm = 0f
+    private val wheelLog = TripWheelLog()
+
+    /**
+     * What the wheel reports right now. The address is a CoreBluetooth id on
+     * the iPhone, not the wheel's MAC, so it is left out ([TripWheelLog.macOrNull]).
+     */
+    private suspend fun captureWheel() =
+        wheelLog.capture(IosAppGraph.wheel, TripWheelLog.macOrNull(IosAppGraph.settings.currentOrLoad().lastDeviceAddress))
 
     /**
      * The start-up sweep Android's TripRepository runs: a recording the app
@@ -138,8 +148,8 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips {
         // does. Auto-record reaches this same function, so the policy is covered.
         if (IosLockdown.controller.isEngaged()) return
         if (!_recording.compareAndSet(expect = false, update = true)) return
+        // The GPS goes to HIGH and keeps running in the background (IosGpsPower).
         IosLocation.start()
-        IosLocation.keepInBackground(true)
 
         val now = System.currentTimeMillis()
         val fileName = "trip_${formatLocalDateUs("yyyyMMdd_HHmmss", now)}.csv"
@@ -168,6 +178,9 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips {
         gpsKm = 0.0
         _liveGpsKm.value = 0f
         wheelKm = 0f
+        wheelLog.reset()
+        captureWheel()
+        if (IosAppGraph.wheel.connectionState.value == ConnectionState.CONNECTED) wheelLog.queueIdentity()
         Log.i(TAG, "Recording started: $fileName")
         if (IosAppGraph.settings.get().announceRecording) {
             IosAppGraph.voice.announceEvent(IosPhoneDevice.text(Res.string.voice_recording_started))
@@ -180,22 +193,34 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips {
             var lastFix: PhoneLocation? = null
             var lastWheelTripKm: Float? = null
             val wheel = IosAppGraph.wheel
+            var wasConnected = wheel.connectionState.value == ConnectionState.CONNECTED
             while (_recording.value) {
                 val data = wheel.wheelData.value
                 val connected = wheel.connectionState.value == ConnectionState.CONNECTED
                 val fix = IosLocation.fix.value?.takeIf {
                     System.currentTimeMillis() - it.time < fixMaxAgeMs && it.accuracy <= MAX_PLOT_ACCURACY_M
                 }
-                // Per-segment wheel distance: only forward, plausible steps.
+                // The wheel's identity, as Android writes it: kept on the trip row
+                // as soon as it is known, so a killed recording still names its
+                // wheel, and streamed into the Extra column, one pair per row.
                 if (connected) {
+                    if (!wasConnected) wheelLog.onReconnect()
+                    captureWheel()
+                    val id = trip?.id
+                    val json = if (id != null) wheelLog.jsonIfChanged() else null
+                    if (id != null && json != null) runCatching { dao.updateWheelMeta(id, json) }
+                    wheelLog.queueIdentity()
+                    // Per-segment wheel distance: only forward, plausible steps.
                     val wtd = data.tripDistance
                     val last = lastWheelTripKm
                     if (last != null && wtd >= last && wtd - last < 1f) wheelKm += wtd - last
                     lastWheelTripKm = wtd
-                } else {
+                } else if (wasConnected) {
+                    wheelLog.onDisconnect()
                     lastWheelTripKm = null
                 }
-                writer?.writeRow(data, fix, wheelConnected = connected)
+                wasConnected = connected
+                writer?.writeRow(data, fix, wheelConnected = connected, extra = wheelLog.nextExtra())
                 if (fix != null) {
                     val prev = lastFix
                     if (prev != null && fix.accuracy <= 25f) {
@@ -219,13 +244,19 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips {
         val rows = writer?.rows ?: 0
         writer?.close()
         writer = null
-        IosLocation.keepInBackground(false)
         val t = trip ?: return
         trip = null
         _currentTripId.value = null
         // As on Android: the wheel's own per-segment distance, else the GPS's.
         val distance = if (wheelKm > 0f) wheelKm else gpsKm.toFloat()
-        dao.update(t.copy(endTime = System.currentTimeMillis(), distanceKm = distance, sampleCount = rows))
+        // A last look in case the wheel is still connected, then what the ride gathered.
+        captureWheel()
+        dao.update(
+            t.copy(
+                endTime = System.currentTimeMillis(), distanceKm = distance, sampleCount = rows,
+                wheelMetaJson = wheelLog.identity.toJson(),
+            )
+        )
         Log.i(TAG, "Recording stopped: ${t.fileName}, $rows rows, $distance km")
         // As Android's cloud-only finalize: no folder here, so no discard grace.
         // The sweep also retries any trip a previous ride left behind.

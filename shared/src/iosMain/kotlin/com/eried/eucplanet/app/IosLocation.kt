@@ -16,6 +16,11 @@ interface LocationSdk {
     /** Asks for permission the first time, then keeps the fixes coming. */
     fun start()
     fun stop()
+    /**
+     * How hard the GPS works, in CoreLocation's terms: the desired accuracy
+     * (kCLLocationAccuracy*, metres) and the distance filter (metres, -1 none).
+     */
+    fun setPower(desiredAccuracy: Double, distanceFilter: Double)
     /** While a trip records, fixes keep coming with the screen off. */
     fun keepInBackground(on: Boolean)
     /** Asks for Always, which iOS shows once, as an upgrade from while in use. */
@@ -24,9 +29,9 @@ interface LocationSdk {
 
 /**
  * The phone's own GPS, as TripRepository's fused location client gives it
- * on Android: the freshest fix, and the last one known. Updates run while
- * the app is in front; a recording keeps them running in the background
- * (the location background mode in Info.plist).
+ * on Android: the freshest fix, and the last one known. How hard it works,
+ * and whether it keeps going in the background (the location background
+ * mode in Info.plist), is Android's GPS power tiers ([IosGpsPower]).
  */
 object IosLocation {
     var sdk: LocationSdk? = null
@@ -45,9 +50,19 @@ object IosLocation {
     /** Location Services on for the whole phone (iPhone Settings -> Privacy). */
     val servicesOn: StateFlow<Boolean> = _servicesOn.asStateFlow()
 
-    fun start() = sdk?.start() ?: Unit
+    /** A consumer wants positions; [IosGpsPower] picks the tier. */
+    fun start() = IosGpsPower.request()
 
-    fun stop() {
+    /** Stops the GPS until the next [start], as Android's Stop all. */
+    fun stop() = IosGpsPower.release()
+
+    internal fun startUpdates(desiredAccuracy: Double, distanceFilter: Double) {
+        sdk?.setPower(desiredAccuracy, distanceFilter)
+        sdk?.start()
+    }
+
+    /** Released: the last position goes too, so the fix icon reads honestly, as on Android. */
+    internal fun stopUpdates() {
         sdk?.stop()
         _fix.value = null
     }
