@@ -59,6 +59,7 @@ Seams that need both sides on every change:
 | Service Mode and crash logs | `diagnostics/WheelDiagnosticsDialog.kt`, `WheelDiagnosticsViewModel.kt` (`DiagnosticsPlatform`), `DiagnosticsLogger.kt`, `CrashReport.kt` (names, header, retention) | `app/.../diagnostics/AndroidDiagnosticsPlatform.kt` (session lines, Wear, packages, the share intent), `util/CrashHandler.kt` (filesDir and Downloads) | `iosMain/.../app/IosDiagnostics.kt` (session lines, share sheet, `IosCrashLog` in Documents/crashes) |
 | Trip wheel identity | `data/repository/WheelIdentity.kt` (`WheelIdentity`, `TripWheelLog`) | `TripRepository` | `iosMain/.../app/IosTrips.kt` |
 | GPS power tiers | `data/model/GpsPowerPolicy.kt` (`GpsPowerPolicy`, `GpsIdleOff`) | `TripRepository` (fused priority and interval) | `iosMain/.../app/IosGpsPower.kt` (CoreLocation accuracy and distance filter), `iosApp/LocationBridge.swift` |
+| Automations | `service/AutomationManager.kt` (`AutomationWheel`, `MediaAutomation`), `ui/settings/AutomationsContent.kt` | `di/ServiceModule.kt` builds it; `service/AndroidMediaAutomation.kt` (AudioManager volume, media keys) | `iosMain/.../app/IosAppGraph.automation` (no media half) |
 | Object graph | `di/SharedKoin.kt` (Koin) | `app/.../di/SharedModule.kt` hands the Koin singletons to Hilt; `AppModule` builds the moved repositories | `MainViewController.kt` reads Koin; `app/IosAppGraph.kt` builds the rest |
 
 The table grows as packages move; keep it current.

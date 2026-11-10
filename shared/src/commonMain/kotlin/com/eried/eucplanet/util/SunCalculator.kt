@@ -1,7 +1,9 @@
 package com.eried.eucplanet.util
 
-import java.util.Calendar
-import java.util.TimeZone
+import com.eried.eucplanet.platform.Math
+import com.eried.eucplanet.platform.System
+import com.eried.eucplanet.platform.localTimeParts
+import com.eried.eucplanet.platform.localTimeZoneOffsetMs
 import kotlin.math.acos
 import kotlin.math.asin
 import kotlin.math.cos
@@ -21,18 +23,23 @@ object SunCalculator {
         object PolarNight : SunResult
     }
 
-    fun calculateState(latitude: Double, longitude: Double, timeZone: TimeZone = TimeZone.getDefault()): SunResult {
-        val cal = Calendar.getInstance(timeZone)
-        val year = cal.get(Calendar.YEAR)
-        val month = cal.get(Calendar.MONTH) + 1
-        val day = cal.get(Calendar.DAY_OF_MONTH)
+    /**
+     * Today's sunrise and sunset in the phone's time zone, as of [nowMs]. The
+     * day, its UTC offset and its local midnight are what Calendar
+     * gave the Android-only version, read through the platform clock.
+     */
+    fun calculateState(latitude: Double, longitude: Double, nowMs: Long = System.currentTimeMillis()): SunResult {
+        val today = localTimeParts(nowMs)
+        val year = today.year
+        val month = today.month
+        val day = today.day
 
         val n1 = floor(275.0 * month / 9.0)
         val n2 = floor((month + 9.0) / 12.0)
         val n3 = 1.0 + floor((year - 4.0 * floor(year / 4.0) + 2.0) / 3.0)
         val dayOfYear = n1 - n2 * n3 + day - 30
 
-        val tzOffset = timeZone.getOffset(cal.timeInMillis) / 3600000.0
+        val tzOffset = localTimeZoneOffsetMs(nowMs) / 3600000.0
 
         val cosH = computeCosH(dayOfYear, latitude, longitude)
         if (cosH > 1) return SunResult.PolarNight
@@ -41,17 +48,24 @@ object SunCalculator {
         val sunrise = calcSunTime(dayOfYear, latitude, longitude, tzOffset, true) ?: return SunResult.PolarNight
         val sunset = calcSunTime(dayOfYear, latitude, longitude, tzOffset, false) ?: return SunResult.PolarNight
 
-        val base = Calendar.getInstance(timeZone).apply {
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }.timeInMillis
+        val base = localMidnight(nowMs)
 
         return SunResult.Normal(
             sunriseMillis = base + (sunrise * 3600000).toLong(),
             sunsetMillis = base + (sunset * 3600000).toLong()
         )
+    }
+
+    /**
+     * Today's 00:00 in the phone's time zone, as Calendar's set-the-fields-to-zero
+     * gave it: the wall clock wound back to midnight, then corrected by the
+     * offset change when a DST switch lies between midnight and [nowMs].
+     */
+    fun localMidnight(nowMs: Long): Long {
+        val t = localTimeParts(nowMs)
+        val sinceMidnight = ((t.hour * 60L + t.minute) * 60L + t.second) * 1000L + t.millis
+        val guess = nowMs - sinceMidnight
+        return guess + (localTimeZoneOffsetMs(nowMs) - localTimeZoneOffsetMs(guess))
     }
 
     private fun computeCosH(dayOfYear: Double, latitude: Double, longitude: Double): Double {

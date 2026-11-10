@@ -31,6 +31,7 @@ import com.eried.eucplanet.app.IosFlic
 import com.eried.eucplanet.app.IosLocation
 import com.eried.eucplanet.app.IosTrips
 import com.eried.eucplanet.app.IosChargeAlerts
+import com.eried.eucplanet.app.IosAutomation
 import com.eried.eucplanet.app.IosChargingHost
 import com.eried.eucplanet.ui.charging.ChargingMonitorLaunch
 import com.eried.eucplanet.ui.charging.ChargingMonitorScreen
@@ -96,6 +97,8 @@ fun MainViewController(): UIViewController {
     IosEucStats.start()
     // The charge alerts, as WheelService posts them on Android.
     IosChargeAlerts.start()
+    // The light, beeper and proximity lock automations, as WheelService runs them.
+    IosAutomation.start()
     // Dropbox trips at launch, on every return to the front and while open.
     IosDropboxSync.start()
     // Keep screen on, and the language picker showing the applied language.

@@ -25,6 +25,8 @@ import com.eried.eucplanet.ui.dashboard.DashboardViewModel
 import com.eried.eucplanet.ui.charging.ChargingMonitorViewModel
 import com.eried.eucplanet.flic.ActionExecutor
 import com.eried.eucplanet.service.AlarmEngine
+import com.eried.eucplanet.service.AutomationManager
+import com.eried.eucplanet.service.asAutomationWheel
 import com.eried.eucplanet.ui.scan.ScanViewModel
 import com.eried.eucplanet.ui.settings.AlarmViewModel
 import com.eried.eucplanet.ui.recording.EucViewerViewModel
@@ -123,7 +125,7 @@ object IosAppGraph {
      */
     val actions: ActionExecutor by lazy {
         ActionExecutor(
-            settings, wheel, IosTrips, voice, NoAutomation, notices, IosLockdown.controller,
+            settings, wheel, IosTrips, voice, automation, notices, IosLockdown.controller,
             NoVoiceListening, NoMedia, IosPhoneDevice,
         )
     }
@@ -171,6 +173,19 @@ object IosAppGraph {
         )
     }
 
+    /**
+     * The light, beeper and proximity lock automations, the same class
+     * Android runs. iOS has no media automation (MediaAutomation.None): no app
+     * may set the media volume or pause another app's music.
+     */
+    val automation: AutomationManager by lazy {
+        AutomationManager(
+            wheel = wheel.asAutomationWheel(),
+            lockedDown = IosLockdown.controller::isEngaged,
+            location = { IosLocation.fix.value },
+        )
+    }
+
     val dropbox: DropboxRepository by lazy {
         DropboxRepository(settings, object : DropboxLinkScratch {
             private val defaults = NSUserDefaults(suiteName = "dropbox_link")
@@ -213,7 +228,7 @@ object IosAppGraph {
         tripRepository = IosTrips,
         tripMeterRepository = IosTripMeter.feed,
         voiceService = voice,
-        automationManager = NoAutomation,
+        automationManager = automation,
         flicManager = actions,
         syncManager = IosSettingsSync,
         externalGpsRepository = NoExternalGps,
@@ -258,7 +273,7 @@ object IosAppGraph {
         tonePlayer = IosPromptTones,
         tripRepository = IosTrips,
         syncManager = IosSettingsSync,
-        automationManager = NoSettingsAutomation,
+        automationManager = automation,
         watches = NoWatches,
         engineSoundEngine = NoEngineSound,
         cheatState = cheats,

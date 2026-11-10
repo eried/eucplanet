@@ -9,7 +9,6 @@ import com.eried.eucplanet.ui.charging.ChargingMonitorViewModel
 import com.eried.eucplanet.ui.dashboard.ActiveRoute
 import com.eried.eucplanet.ui.dashboard.AndroidActiveRoute
 import com.eried.eucplanet.ui.dashboard.AndroidAppHealth
-import com.eried.eucplanet.ui.dashboard.AndroidDashboardAutomation
 import com.eried.eucplanet.ui.dashboard.AndroidDashboardPlatform
 import com.eried.eucplanet.ui.dashboard.AndroidDashboardSync
 import com.eried.eucplanet.ui.dashboard.AndroidDashboardTrips
@@ -53,7 +52,6 @@ import com.eried.eucplanet.ui.settings.AndroidHudSettingsLink
 import com.eried.eucplanet.ui.settings.ControllerLockdownSwitch
 import com.eried.eucplanet.ui.settings.AndroidOnlineLeaderboard
 import com.eried.eucplanet.ui.settings.AndroidPromptTones
-import com.eried.eucplanet.ui.settings.AndroidSettingsAutomation
 import com.eried.eucplanet.ui.settings.AndroidSettingsPlatform
 import com.eried.eucplanet.ui.settings.AndroidSettingsSync
 import com.eried.eucplanet.ui.settings.AndroidSettingsTrips
@@ -95,7 +93,8 @@ val viewModelModule = module {
     singleOf(::AndroidTripMeterFeed) bind TripMeterFeed::class
     singleOf(::AndroidDashboardVoice) bind DashboardVoice::class
     singleOf(::AndroidDashboardVoiceCommands) bind DashboardVoiceCommands::class
-    singleOf(::AndroidDashboardAutomation) bind DashboardAutomation::class
+    // The light and lock automations are the shared AutomationManager itself.
+    single<DashboardAutomation> { get<com.eried.eucplanet.service.AutomationManager>() }
     singleOf(::AndroidDashboardSync) bind DashboardSync::class
     singleOf(::AndroidAppHealth) bind AppHealth::class
     singleOf(::AndroidMetricsResetter) bind MetricsResetter::class
@@ -109,7 +108,7 @@ val viewModelModule = module {
     singleOf(::AndroidPromptTones) bind PromptTones::class
     singleOf(::AndroidSettingsTrips) bind SettingsTrips::class
     singleOf(::AndroidSettingsSync) bind SettingsSync::class
-    singleOf(::AndroidSettingsAutomation) bind SettingsAutomation::class
+    single<SettingsAutomation> { get<com.eried.eucplanet.service.AutomationManager>() }
     singleOf(::AndroidWatchLinks) bind WatchLinks::class
     singleOf(::AndroidEngineSoundPreview) bind EngineSoundPreview::class
     singleOf(::AndroidHornSound) bind HornSound::class

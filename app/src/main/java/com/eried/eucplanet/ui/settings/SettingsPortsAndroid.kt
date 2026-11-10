@@ -17,14 +17,11 @@ import com.eried.eucplanet.data.store.OverlayPresetJson
 import com.eried.eucplanet.data.store.OverlayPresetStore
 import com.eried.eucplanet.data.sync.SyncManager
 import com.eried.eucplanet.garmin.GarminBridge
-import com.eried.eucplanet.service.AutomationManager
 import com.eried.eucplanet.service.TonePlayer
 import com.eried.eucplanet.service.VoiceService
 import com.eried.eucplanet.service.WheelService
 import com.eried.eucplanet.service.hud.HudCommandSink
-import com.eried.eucplanet.ui.dashboard.AndroidDashboardAutomation
 import com.eried.eucplanet.ui.dashboard.AndroidDashboardSync
-import com.eried.eucplanet.ui.dashboard.DashboardAutomation
 import com.eried.eucplanet.ui.dashboard.DashboardSync
 import com.eried.eucplanet.ui.dashboard.toPhoneLocation
 import com.eried.eucplanet.wear.WearBridge
@@ -97,13 +94,6 @@ class AndroidSettingsSync(private val sync: SyncManager) :
     override fun sanitizeBackupName(raw: String) = sync.sanitizeBackupName(raw)
     override fun startDropboxSync() = sync.startDropboxSync()
     override fun stopDropboxSync() = sync.stopDropboxSync()
-}
-
-class AndroidSettingsAutomation(private val automation: AutomationManager) :
-    SettingsAutomation, DashboardAutomation by AndroidDashboardAutomation(automation) {
-    override fun resetMediaControl() = automation.resetMediaControl()
-    override fun resetProximityLock() = automation.resetProximityLock()
-    override fun restoreBaselineVolume() = automation.restoreBaselineVolume()
 }
 
 class AndroidWatchLinks(

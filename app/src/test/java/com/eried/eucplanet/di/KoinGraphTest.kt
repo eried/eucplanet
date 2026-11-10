@@ -30,7 +30,8 @@ class KoinGraphTest {
      * Every definition's constructor parameters resolve. The extra types are
      * the ones the graph does not define itself: the Android context (from
      * androidContext), WorkerParameters (handed in by the worker factory), and
-     * the generic types Koin keys by their erased class, which the modules
+     * the generic types Koin keys by their erased class (the automations take
+     * their clock and sun as lambdas), which the modules
      * provide by name (the adapter sets, the eucstats lambdas and strings) or
      * as a Lazy through inject(). The offline tile store's folder and the
      * offline router's timeout and engine, and the crews pairing HTTP client,
@@ -48,6 +49,7 @@ class KoinGraphTest {
                 Function0::class,
                 Function1::class,
                 Function2::class,
+                Function3::class,
                 java.io.File::class,
                 Long::class,
                 com.eried.eucplanet.platform.HttpClient::class,

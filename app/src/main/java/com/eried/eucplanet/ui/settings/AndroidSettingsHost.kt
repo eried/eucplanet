@@ -148,11 +148,6 @@ private class AndroidSettingsHost(
     override fun flicViewModel(): FlicViewModel = koinViewModel()
 
     @Composable
-    override fun Automations() {
-        AutomationsContent()
-    }
-
-    @Composable
     override fun NavigatorSettings(scrollToWeather: Boolean, onWeatherTop: (Float) -> Unit) {
         NavigatorSettingsContent(scrollToWeather = scrollToWeather, onWeatherTop = onWeatherTop)
     }

@@ -15,14 +15,12 @@ import com.eried.eucplanet.service.AccelSplitTracker
 import com.eried.eucplanet.service.ToneSynth
 import com.eried.eucplanet.service.VoiceChoice
 import com.eried.eucplanet.service.VoiceOption
-import com.eried.eucplanet.ui.dashboard.DashboardAutomation
 import com.eried.eucplanet.ui.dashboard.DashboardSync
 import com.eried.eucplanet.ui.settings.EngineSoundPreview
 import com.eried.eucplanet.ui.settings.HornSound
 import com.eried.eucplanet.ui.settings.HudSettingsLink
 import com.eried.eucplanet.ui.settings.OnlineLeaderboard
 import com.eried.eucplanet.ui.settings.PromptTones
-import com.eried.eucplanet.ui.settings.SettingsAutomation
 import com.eried.eucplanet.ui.settings.SettingsPlatform
 import com.eried.eucplanet.ui.settings.SettingsSync
 import com.eried.eucplanet.ui.settings.SettingsViewModel
@@ -179,12 +177,6 @@ internal object IosSettingsSync : SettingsSync, DashboardSync by NoFolderSync {
     override fun sanitizeBackupName(raw: String): String? = null
     override fun startDropboxSync() = IosDropboxSync.syncNow()
     override fun stopDropboxSync() = IosDropboxSync.stop()
-}
-
-internal object NoSettingsAutomation : SettingsAutomation, DashboardAutomation by NoAutomation {
-    override fun resetMediaControl() = Unit
-    override fun resetProximityLock() = Unit
-    override fun restoreBaselineVolume() = Unit
 }
 
 /** No watches on iOS. */

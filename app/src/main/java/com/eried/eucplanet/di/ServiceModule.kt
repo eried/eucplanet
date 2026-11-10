@@ -15,6 +15,7 @@ import com.eried.eucplanet.flic.AndroidFlicPairing
 import com.eried.eucplanet.flic.FlicManager
 import com.eried.eucplanet.service.AlarmEngine
 import com.eried.eucplanet.service.AutomationManager
+import com.eried.eucplanet.service.asAutomationWheel
 import com.eried.eucplanet.service.TonePlayer
 import com.eried.eucplanet.service.VoiceService
 import com.eried.eucplanet.ui.common.ExperimentalBannerState
@@ -42,7 +43,27 @@ val serviceModule = module {
     single<com.eried.eucplanet.service.AlarmOutputs> {
         com.eried.eucplanet.service.AndroidAlarmOutputs(androidContext(), get(), get(), get())
     }
-    singleOf(::AutomationManager)
+    // The shared automations, over the wheel and Android's own media half.
+    single<com.eried.eucplanet.service.AutomationWheel> {
+        get<com.eried.eucplanet.data.repository.WheelRepository>().asAutomationWheel()
+    }
+    single<com.eried.eucplanet.service.MediaAutomation> {
+        com.eried.eucplanet.service.AndroidMediaAutomation(androidContext(), get(), get())
+    }
+    single {
+        val lockdown: com.eried.eucplanet.data.repository.LegalLockdownController = get()
+        val trips: com.eried.eucplanet.data.repository.TripRepository = get()
+        AutomationManager(
+            wheel = get(),
+            lockedDown = lockdown::isEngaged,
+            location = {
+                trips.currentLocation.value?.let {
+                    com.eried.eucplanet.data.repository.PhoneLocation(it.latitude, it.longitude)
+                }
+            },
+            media = get(),
+        )
+    }
     singleOf(::TonePlayer) { bind<RouteKeepAlive>() }
     single {
         VoiceService(

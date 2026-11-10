@@ -46,16 +46,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.res.stringResource
+import com.eried.eucplanet.platform.stringResource
+import com.eried.eucplanet.platform.format
+import com.eried.eucplanet.platform.formatLocalDate
+import com.eried.eucplanet.platform.Locale
+import com.eried.eucplanet.platform.System
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.eried.eucplanet.R
+import com.eried.eucplanet.resources.*
 import com.eried.eucplanet.data.model.ApplyWhenIds
-import com.eried.eucplanet.service.PlaybackRatePolicy
 import com.eried.eucplanet.service.AUTO_VOLUME_MAX_MULTIPLIER
 import com.eried.eucplanet.service.encodeVolumeCurve
 import com.eried.eucplanet.service.parseVolumeCurve
@@ -67,25 +70,18 @@ import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.SunCalculator
 import com.eried.eucplanet.util.Units
-import com.eried.eucplanet.util.speedUnit
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
 import kotlin.math.roundToInt
 import com.eried.eucplanet.ui.theme.themedSwitchColors
 import com.eried.eucplanet.ui.theme.themedSliderColors
-import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun AutomationsContent(
-    viewModel: SettingsViewModel = koinViewModel()
-) {
+fun AutomationsContent(viewModel: SettingsViewModel) {
     val settingsState by viewModel.settings.collectAsState()
     val location by viewModel.currentLocation.collectAsState()
     val autoLightsSuspended by viewModel.autoLightsSuspended.collectAsState()
     val autoLockSuspended by viewModel.autoLockSuspended.collectAsState()
     val settings = settingsState ?: return
+    val hiddenRows = LocalSettingsHost.current.hiddenRows
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -93,11 +89,11 @@ fun AutomationsContent(
     ) {
         // --- Lights Section ---
         BringIntoViewSection(expanded = settings.lights.applyWhen != ApplyWhenIds.NEVER) {
-        Text(stringResource(R.string.auto_lights_title), style = MaterialTheme.typography.headlineMedium,
+        Text(stringResource(Res.string.auto_lights_title), style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary)
 
         ApplyWhenSelector(
-            label = stringResource(R.string.auto_lights_when),
+            label = stringResource(Res.string.auto_lights_when),
             current = settings.lights.applyWhen,
             onPick = { viewModel.updateAutoLightsApplyWhen(it) },
         )
@@ -116,7 +112,7 @@ fun AutomationsContent(
                             tint = MaterialTheme.appColors.statusWarn
                         )
                         Text(
-                            stringResource(R.string.auto_lights_suspended),
+                            stringResource(Res.string.auto_lights_suspended),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.appColors.statusWarn
                         )
@@ -135,7 +131,7 @@ fun AutomationsContent(
                     range = 0..120,
                     step = 10,
                     suffix = "min",
-                    label = stringResource(R.string.auto_lights_on_before_sunset),
+                    label = stringResource(Res.string.auto_lights_on_before_sunset),
                     modifier = Modifier.weight(1f),
                 )
                 NumberFieldWithDefault(
@@ -145,7 +141,7 @@ fun AutomationsContent(
                     range = 0..120,
                     step = 10,
                     suffix = "min",
-                    label = stringResource(R.string.auto_lights_off_after_sunrise),
+                    label = stringResource(Res.string.auto_lights_off_after_sunrise),
                     modifier = Modifier.weight(1f),
                 )
             }
@@ -166,22 +162,22 @@ fun AutomationsContent(
                         longitude = loc.longitude
                     )
                     SunCalculator.SunResult.MidnightSun -> PolarStateCard(
-                        title = stringResource(R.string.auto_midnight_sun_title),
-                        description = stringResource(R.string.auto_midnight_sun_body),
+                        title = stringResource(Res.string.auto_midnight_sun_title),
+                        description = stringResource(Res.string.auto_midnight_sun_body),
                         latitude = loc.latitude,
                         longitude = loc.longitude,
                         accent = MaterialTheme.appColors.gaugeWarn
                     )
                     SunCalculator.SunResult.PolarNight -> PolarStateCard(
-                        title = stringResource(R.string.auto_polar_night_title),
-                        description = stringResource(R.string.auto_polar_night_body),
+                        title = stringResource(Res.string.auto_polar_night_title),
+                        description = stringResource(Res.string.auto_polar_night_body),
                         latitude = loc.latitude,
                         longitude = loc.longitude,
                         accent = MaterialTheme.appColors.metricVoltage
                     )
                 }
             } else {
-                HintText(stringResource(R.string.auto_waiting_gps), small = true)
+                HintText(stringResource(Res.string.auto_waiting_gps), small = true)
             }
 
             // Independent of the schedule above: it decides whether a light is
@@ -191,7 +187,7 @@ fun AutomationsContent(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(stringResource(R.string.auto_lights_off_slow),
+                Text(stringResource(Res.string.auto_lights_off_slow),
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.weight(1f))
                 Switch(checked = settings.lights.offWhenSlow,
@@ -206,7 +202,7 @@ fun AutomationsContent(
                 // kind of control than the ones it sits with.
                 Row(modifier = Modifier.fillMaxWidth()) {
                     SpeedNumberSetting(
-                        label = stringResource(R.string.auto_lights_off_below),
+                        label = stringResource(Res.string.auto_lights_off_below),
                         valueKmh = settings.lights.offBelowKmh,
                         defaultKmh = SETTINGS_DEFAULTS.lights.offBelowKmh,
                         rangeKmh = 1f..15f,
@@ -222,15 +218,18 @@ fun AutomationsContent(
 
         Spacer(Modifier.height(8.dp))
 
+        // The phone's media volume by speed. iOS lets no app set it, so
+        // the iPhone leaves this out (SettingsHost.hiddenRows).
+        if (SettingsRow.AUTO_VOLUME !in hiddenRows) {
         // --- Volume Section ---
         BringIntoViewSection(expanded = settings.autoVolumeApplyWhen != ApplyWhenIds.NEVER) {
-        Text(stringResource(R.string.auto_volume_title), style = MaterialTheme.typography.headlineMedium,
+        Text(stringResource(Res.string.auto_volume_title), style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary)
 
         // One control, not two: the selector says whether this runs at all
         // and what it waits for. Never hides everything under it.
         ApplyWhenSelector(
-            label = stringResource(R.string.auto_volume_when),
+            label = stringResource(Res.string.auto_volume_when),
             current = settings.autoVolumeApplyWhen,
             onPick = { viewModel.updateAutoVolumeApplyWhen(it) },
         )
@@ -268,10 +267,14 @@ fun AutomationsContent(
         }   // end Volume BringIntoViewSection
 
         Spacer(Modifier.height(8.dp))
+        }   // end volume gate
 
+        // Media pause and resume drive other apps' players, which iOS keeps
+        // to themselves, so a phone without media keys leaves this out.
+        if (SettingsRow.MEDIA_CONTROL !in hiddenRows) {
         // --- Media control Section ---
         BringIntoViewSection(expanded = settings.mediaControl.pauseEnabled || settings.mediaControl.resumeEnabled) {
-        Text(stringResource(R.string.media_control_title), style = MaterialTheme.typography.headlineMedium,
+        Text(stringResource(Res.string.media_control_title), style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary)
 
         // Pause when slow
@@ -280,7 +283,7 @@ fun AutomationsContent(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(stringResource(R.string.media_control_pause),
+            Text(stringResource(Res.string.media_control_pause),
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.weight(1f))
             Switch(checked = settings.mediaControl.pauseEnabled,
@@ -291,7 +294,7 @@ fun AutomationsContent(
             // Range-capped so the pause speed can never reach the resume speed:
             // a >=2 km/h dead-band is always kept, which prevents a play/pause loop.
             SpeedNumberSetting(
-                label = stringResource(R.string.media_control_pause_below),
+                label = stringResource(Res.string.media_control_pause_below),
                 valueKmh = settings.mediaControl.pauseBelowKmh.toFloat(),
                 defaultKmh = SETTINGS_DEFAULTS.mediaControl.pauseBelowKmh.toFloat(),
                 rangeKmh = 1f..(settings.mediaControl.resumeAboveKmh - 2).coerceAtLeast(1).toFloat(),
@@ -309,7 +312,7 @@ fun AutomationsContent(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(stringResource(R.string.media_control_resume),
+                Text(stringResource(Res.string.media_control_resume),
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.weight(1f))
                 Switch(checked = settings.mediaControl.resumeEnabled,
@@ -319,7 +322,7 @@ fun AutomationsContent(
             if (settings.mediaControl.resumeEnabled) {
                 // Floored at pause + 2 km/h so resume always sits above pause (dead-band).
                 SpeedNumberSetting(
-                    label = stringResource(R.string.media_control_resume_above),
+                    label = stringResource(Res.string.media_control_resume_above),
                     valueKmh = settings.mediaControl.resumeAboveKmh.toFloat(),
                     defaultKmh = SETTINGS_DEFAULTS.mediaControl.resumeAboveKmh.toFloat(),
                     rangeKmh = (settings.mediaControl.pauseBelowKmh + 2).toFloat()..60f,
@@ -334,7 +337,7 @@ fun AutomationsContent(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(stringResource(R.string.automation_require_external),
+                    Text(stringResource(Res.string.automation_require_external),
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.weight(1f))
                     Switch(checked = settings.mediaControl.requireExternalOutput,
@@ -346,6 +349,7 @@ fun AutomationsContent(
         }   // end Media control BringIntoViewSection
 
         Spacer(Modifier.height(8.dp))
+        }   // end media control gate
 
         // --- Media speed control Section: PARKED ---
         //
@@ -370,11 +374,11 @@ fun AutomationsContent(
         // uses: the curve is the identical "speed:value" shape, so a rider who
         // has shaped one already knows this one.
         BringIntoViewSection(expanded = settings.mediaControl.rateApplyWhen != ApplyWhenIds.NEVER) {
-        Text(stringResource(R.string.media_rate_title), style = MaterialTheme.typography.headlineMedium,
+        Text(stringResource(Res.string.media_rate_title), style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary)
 
         ApplyWhenSelector(
-            label = stringResource(R.string.media_rate_when),
+            label = stringResource(Res.string.media_rate_when),
             current = settings.mediaControl.rateApplyWhen,
             onPick = { viewModel.updateMediaRateApplyWhenPicked(it) },
         )
@@ -399,9 +403,9 @@ fun AutomationsContent(
                 onDispose { rateLifecycleOwner.lifecycle.removeObserver(obs) }
             }
             if (!accessAllowed) {
-                HintText(stringResource(R.string.media_rate_permission_desc), small = true)
+                HintText(stringResource(Res.string.media_rate_permission_desc), small = true)
                 com.eried.eucplanet.ui.common.FixButton(
-                    text = stringResource(R.string.media_rate_grant),
+                    text = stringResource(Res.string.media_rate_grant),
                     onClick = { viewModel.openNotificationAccessSettings() },
                 )
             }
@@ -435,7 +439,7 @@ fun AutomationsContent(
             // Not every player accepts a rate from outside itself, and there
             // is nothing the app can do about the ones that do not.
             com.eried.eucplanet.ui.common.InfoHint(
-                text = stringResource(R.string.media_rate_note),
+                text = stringResource(Res.string.media_rate_note),
             )
         }
         }   // end Media speed control BringIntoViewSection
@@ -445,7 +449,7 @@ fun AutomationsContent(
 
         // --- Wheel lock (Bluetooth proximity) Section ---
         BringIntoViewSection(expanded = settings.proximityLock.lockEnabled) {
-        Text(stringResource(R.string.proximity_lock_title), style = MaterialTheme.typography.headlineMedium,
+        Text(stringResource(Res.string.proximity_lock_title), style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary)
 
         // Lock when walking away
@@ -454,7 +458,7 @@ fun AutomationsContent(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(stringResource(R.string.proximity_lock_enable),
+            Text(stringResource(Res.string.proximity_lock_enable),
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.weight(1f))
             Switch(checked = settings.proximityLock.lockEnabled,
@@ -475,7 +479,7 @@ fun AutomationsContent(
                             tint = MaterialTheme.appColors.statusWarn
                         )
                         Text(
-                            stringResource(R.string.auto_lock_suspended),
+                            stringResource(Res.string.auto_lock_suspended),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.appColors.statusWarn
                         )
@@ -497,7 +501,7 @@ fun AutomationsContent(
             val hasReading = wheelConnected && liveRssi != 0
             Text(
                 stringResource(
-                    R.string.proximity_lock_signal_live,
+                    Res.string.proximity_lock_signal_live,
                     if (hasReading) "$liveRssi dBm" else "-- dBm"
                 ),
                 style = MaterialTheme.typography.titleMedium,
@@ -514,22 +518,22 @@ fun AutomationsContent(
                 step = 1,
                 suffix = "dBm",
                 allowSign = true,
-                label = stringResource(R.string.proximity_lock_below),
+                label = stringResource(Res.string.proximity_lock_below),
                 modifier = Modifier.fillMaxWidth(0.5f),
             )
 
-            HintText(stringResource(R.string.proximity_lock_hint), small = true)
+            HintText(stringResource(Res.string.proximity_lock_hint), small = true)
 
             // Unlock is only offered once Lock is on - it only reverses this
             // lock. Never is one of the three answers rather than a separate
             // switch: it is the same question, so it is the same control.
             val unlockWhenEntries = listOf(
                 ProximityLockSettings.UNLOCK_WHEN_NEVER to
-                    stringResource(R.string.proximity_unlock_when_never),
+                    stringResource(Res.string.proximity_unlock_when_never),
                 ProximityLockSettings.UNLOCK_WHEN_RETURN to
-                    stringResource(R.string.proximity_unlock_when_return),
+                    stringResource(Res.string.proximity_unlock_when_return),
                 ProximityLockSettings.UNLOCK_WHEN_NEAR to
-                    stringResource(R.string.proximity_unlock_when_near),
+                    stringResource(Res.string.proximity_unlock_when_near),
             )
             Box(modifier = Modifier.fillMaxWidth().padding(top = 9.dp)) {
                 SingleChoiceSegmentedButtonRow(
@@ -548,7 +552,7 @@ fun AutomationsContent(
                         ) { Text(label) }
                     }
                 }
-                FieldNotchLabel(stringResource(R.string.proximity_unlock_when))
+                FieldNotchLabel(stringResource(Res.string.proximity_unlock_when))
             }
 
             if (settings.proximityLock.unlockWhen != ProximityLockSettings.UNLOCK_WHEN_NEVER) {
@@ -560,7 +564,7 @@ fun AutomationsContent(
                     step = 1,
                     suffix = "dBm",
                     allowSign = true,
-                    label = stringResource(R.string.proximity_unlock_above),
+                    label = stringResource(Res.string.proximity_unlock_above),
                     modifier = Modifier.fillMaxWidth(0.5f),
                 )
             }
@@ -604,13 +608,13 @@ private fun SunScheduleGraph(
     latitude: Double = 0.0,
     longitude: Double = 0.0
 ) {
-    val fmt = SimpleDateFormat("HH:mm", Locale.getDefault())
-    val sunriseStr = fmt.format(Date(sunriseMillis))
-    val sunsetStr = fmt.format(Date(sunsetMillis))
+    fun hhmm(ms: Long) = formatLocalDate("HH:mm", ms)
+    val sunriseStr = hhmm(sunriseMillis)
+    val sunsetStr = hhmm(sunsetMillis)
     val lightsOnMillis = sunsetMillis - lightsOnMinutesBefore * 60_000L
     val lightsOffMillis = sunriseMillis + lightsOffMinutesAfter * 60_000L
-    val lightsOnStr = fmt.format(Date(lightsOnMillis))
-    val lightsOffStr = fmt.format(Date(lightsOffMillis))
+    val lightsOnStr = hhmm(lightsOnMillis)
+    val lightsOffStr = hhmm(lightsOffMillis)
 
     // Night-mode deep blue: a data-viz fill for the night portion of the
     // day/night timeline bar, not app chrome, kept as a literal so it
@@ -625,17 +629,12 @@ private fun SunScheduleGraph(
     val nowMillis = remember { System.currentTimeMillis() }
 
     // Day boundaries: midnight to midnight
-    val cal = Calendar.getInstance()
-    cal.set(Calendar.HOUR_OF_DAY, 0)
-    cal.set(Calendar.MINUTE, 0)
-    cal.set(Calendar.SECOND, 0)
-    cal.set(Calendar.MILLISECOND, 0)
-    val dayStartMillis = cal.timeInMillis
+    val dayStartMillis = SunCalculator.localMidnight(System.currentTimeMillis())
     val dayEndMillis = dayStartMillis + 24 * 3600_000L
 
     Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(stringResource(R.string.auto_sunrise_sunset), style = MaterialTheme.typography.titleMedium,
+            Text(stringResource(Res.string.auto_sunrise_sunset), style = MaterialTheme.typography.titleMedium,
                 color = sunriseColor)
             if (latitude != 0.0 || longitude != 0.0) {
                 Text(
@@ -778,7 +777,7 @@ private fun SplineCurveEditor(
     valueStep: Float = 0f,
 ) {
     val maxSpeed = 75f
-    val speedUnitLabel = Units.speedUnit(androidx.compose.ui.platform.LocalContext.current, speedUnit)
+    val speedUnitLabel = stringResource(Units.speedUnitRes(speedUnit))
     val multiplierRange = maxMultiplier - minMultiplier
     val gridColor = MaterialTheme.colorScheme.surfaceVariant
     val labelColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -850,7 +849,7 @@ private fun SplineCurveEditor(
                                     newM = newM.coerceIn(prevM, nextM)
                                 }
                                 if (valueStep > 0f) {
-                                    newM = (Math.round(newM / valueStep) * valueStep)
+                                    newM = ((newM / valueStep).roundToInt() * valueStep)
                                         .coerceIn(minMultiplier, maxMultiplier)
                                 }
                                 val (oldS, _) = pointsRef.value[dragIndex]
@@ -897,7 +896,7 @@ private fun SplineCurveEditor(
                 val y = h - (mult - minMultiplier) / multiplierRange * h
                 drawLine(gridColor, Offset(0f, y), Offset(w, y), strokeWidth = 1f, pathEffect = dash)
                 val label = if (tickStep >= 1f) "${mult.toInt()}x"
-                            else "%.1fx".format(java.util.Locale.US, mult)
+                            else "%.1fx".format(Locale.US, mult)
                 val measured = textMeasurer.measure(label, TextStyle(fontSize = 9.sp, color = labelColor))
                 drawText(measured, topLeft = Offset(-measured.size.width - 4f, y - measured.size.height / 2f))
                 tick += tickStep
@@ -984,9 +983,9 @@ private fun ApplyWhenSelector(label: String, current: String, onPick: (String) -
     SegmentedChoice(
         label = label,
         options = listOf(
-            ApplyWhenIds.NEVER to stringResource(R.string.auto_record_mode_never),
-            ApplyWhenIds.CONNECTED to stringResource(R.string.auto_record_mode_connected),
-            ApplyWhenIds.RIDING to stringResource(R.string.auto_record_mode_riding),
+            ApplyWhenIds.NEVER to stringResource(Res.string.auto_record_mode_never),
+            ApplyWhenIds.CONNECTED to stringResource(Res.string.auto_record_mode_connected),
+            ApplyWhenIds.RIDING to stringResource(Res.string.auto_record_mode_riding),
         ),
         current = current,
         onChange = onPick,

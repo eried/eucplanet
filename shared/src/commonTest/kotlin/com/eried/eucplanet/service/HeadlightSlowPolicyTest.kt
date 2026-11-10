@@ -1,10 +1,10 @@
 package com.eried.eucplanet.service
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
+import kotlin.test.Test
 
 /**
  * The walking-pace cut-off. Both edges are sticky on purpose: a headlight
@@ -32,9 +32,9 @@ class HeadlightSlowPolicyTest {
         assertFalse(st.forcedOff)
     }
 
-    @Test fun `rolling to a stop turns it off, once the hold has passed`() {
+    @Test fun `rolling to a stop turns it off once the hold has passed`() {
         val almost = run(1f to 0L, 0f to 2_000L)
-        assertFalse("held for 2s only", almost.forcedOff)
+        assertFalse(almost.forcedOff, "held for 2s only")
         val st = run(1f to 0L, 0f to 2_000L, 0f to 3_100L)
         assertTrue(st.forcedOff)
     }
@@ -47,7 +47,7 @@ class HeadlightSlowPolicyTest {
         assertTrue(st.forcedOff)
         // Genuinely moving releases it, once it has lasted.
         st = p.step(st, threshold + HeadlightSlowPolicy.REARM_GAP_KMH, threshold, t0 + 7_000L, enabled = true)
-        assertTrue("not before the re-arm hold", st.forcedOff)
+        assertTrue(st.forcedOff, "not before the re-arm hold")
         st = p.step(st, threshold + HeadlightSlowPolicy.REARM_GAP_KMH, threshold,
             t0 + 7_000L + HeadlightSlowPolicy.REARM_HOLD_MS, enabled = true)
         assertFalse(st.forcedOff)
@@ -66,7 +66,7 @@ class HeadlightSlowPolicyTest {
             st = p.step(st, threshold + 1f, threshold, t0 + t + 600L, enabled = true)
             t += 1_000L
         }
-        assertTrue("the light must stay off while walking", st.forcedOff)
+        assertTrue(st.forcedOff, "the light must stay off while walking")
     }
 
     @Test fun `riding off from a crossing brings it back within the re-arm hold`() {
@@ -84,7 +84,7 @@ class HeadlightSlowPolicyTest {
         val forced = run(0f to 0L, 0f to 5_000L)
         assertTrue(forced.forcedOff)
         val cleared = p.step(forced, 0f, threshold, t0 + 6_000L, enabled = false)
-        assertFalse("the schedule must get the beam back immediately", cleared.forcedOff)
+        assertFalse(cleared.forcedOff, "the schedule must get the beam back immediately")
     }
 
     @Test fun `a rider who never slows is never touched`() {
@@ -102,20 +102,20 @@ class HeadlightSlowPolicyTest {
         var slow = HeadlightSlowPolicy.State()
         // Once a minute: the first slow sample only starts the clock.
         slow = HeadlightSlowPolicy.step(slow, 1f, 4f, t0, enabled = true)
-        assertFalse("nothing can fire on the first sample", slow.forcedOff)
+        assertFalse(slow.forcedOff, "nothing can fire on the first sample")
         slow = HeadlightSlowPolicy.step(slow, 1f, 4f, t0 + 60_000L, enabled = true)
-        assertTrue("a minute later is far too late to be useful", slow.forcedOff)
+        assertTrue(slow.forcedOff, "a minute later is far too late to be useful")
 
         // At telemetry rate, it goes out just after the hold.
         var fast = HeadlightSlowPolicy.State()
         var t = t0
         while (t < t0 + HeadlightSlowPolicy.HOLD_MS) {
             fast = HeadlightSlowPolicy.step(fast, 1f, 4f, t, enabled = true)
-            assertFalse("fired before the hold elapsed at t=" + (t - t0), fast.forcedOff)
+            assertFalse(fast.forcedOff, "fired before the hold elapsed at t=" + (t - t0))
             t += 200L
         }
         fast = HeadlightSlowPolicy.step(fast, 1f, 4f, t0 + HeadlightSlowPolicy.HOLD_MS, enabled = true)
-        assertTrue("should have fired once the hold elapsed", fast.forcedOff)
+        assertTrue(fast.forcedOff, "should have fired once the hold elapsed")
     }
 
     @Test fun `the cutoff beats the sunset schedule`() {

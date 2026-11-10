@@ -1,10 +1,10 @@
 package com.eried.eucplanet.service
 
 import com.eried.eucplanet.data.model.ApplyWhenIds
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
+import kotlin.test.Test
 
 /**
  * The four headlight rules together, since they only misbehave together.
@@ -64,7 +64,7 @@ class HeadlightRulesTest {
         )
     }
 
-    @Test fun `slowing to a walk takes the light off, after the hold`() {
+    @Test fun `slowing to a walk takes the light off after the hold`() {
         val out = ride(
             listOf(
                 20f to t0,
@@ -79,7 +79,7 @@ class HeadlightRulesTest {
         assertEquals(listOf(true, null, null, false, false), out)
     }
 
-    @Test fun `the cutoff beats the schedule, which is the whole point`() {
+    @Test fun `the cutoff beats the schedule which is the whole point`() {
         // Dark, so the schedule wants the light; slowed, so it goes off anyway.
         var state = HeadlightSlowPolicy.State()
         listOf(t0, t0 + 3_500L).forEach { t ->
@@ -100,7 +100,7 @@ class HeadlightRulesTest {
         assertEquals(false, d.beamOn)
         // Genuinely riding again does it.
         d = HeadlightRules.decide(d.slow, input(threshold + HeadlightSlowPolicy.REARM_GAP_KMH, t0 + 6_000))
-        assertEquals("not before the re-arm hold", false, d.beamOn)
+        assertEquals(false, d.beamOn, "not before the re-arm hold")
         d = HeadlightRules.decide(d.slow,
             input(threshold + HeadlightSlowPolicy.REARM_GAP_KMH, t0 + 6_000 + HeadlightSlowPolicy.REARM_HOLD_MS))
         assertEquals(true, d.beamOn)
@@ -111,7 +111,7 @@ class HeadlightRulesTest {
         // "not riding" at the exact speed the cutoff acts on, and nothing
         // happened at all.
         val out = ride(listOf(0f to t0, 0f to t0 + 4_000))
-        assertEquals("the automation must still be running while stopped", 2, out.size)
+        assertEquals(2, out.size, "the automation must still be running while stopped")
         assertEquals(false, out.last())
     }
 
@@ -139,7 +139,7 @@ class HeadlightRulesTest {
             listOf(3f to t0, 3f to t0 + 1_000, 3f to t0 + 2_000, 3f to t0 + 3_200),
             applyWhen = ApplyWhenIds.CONNECTED, rode = false,
         )
-        assertTrue("never asked on", out.none { it == true })
+        assertTrue(out.none { it == true }, "never asked on")
         assertEquals(false, out.last())
     }
 
@@ -166,7 +166,7 @@ class HeadlightRulesTest {
             listOf(20f to t0, 0f to t0 + 4_000, 0f to t0 + 9_000),
             offWhenSlow = false,
         )
-        assertEquals("stopping must not touch the beam", listOf(true, true, true), out)
+        assertEquals(listOf(true, true, true), out, "stopping must not touch the beam")
     }
 
     @Test fun `switching the cutoff off mid-stop hands the light straight back`() {
@@ -176,17 +176,17 @@ class HeadlightRulesTest {
         }
         assertTrue(state.forcedOff)
         val d = HeadlightRules.decide(state, input(1f, t0 + 4_000, offWhenSlow = false))
-        assertEquals("the schedule takes over at once", true, d.beamOn)
+        assertEquals(true, d.beamOn, "the schedule takes over at once")
     }
 
-    @Test fun `daylight wants no light, slowed or not`() {
+    @Test fun `daylight wants no light slowed or not`() {
         assertEquals(
             listOf(false, false),
             ride(listOf(20f to t0, 0f to t0 + 9_000), dark = false),
         )
     }
 
-    @Test fun `with no fix the cutoff still acts, and nothing else does`() {
+    @Test fun `with no fix the cutoff still acts and nothing else does`() {
         // No location has arrived, so the schedule has no answer. Riding leaves
         // the beam alone; slowing still takes it off.
         val out = ride(
@@ -205,6 +205,6 @@ class HeadlightRulesTest {
         }
         val gone = HeadlightRules.decide(state, input(1f, t0 + 4_000, connected = false))
         assertNull(gone.beamOn)
-        assertTrue("the cutoff is remembered", gone.slow.forcedOff)
+        assertTrue(gone.slow.forcedOff, "the cutoff is remembered")
     }
 }

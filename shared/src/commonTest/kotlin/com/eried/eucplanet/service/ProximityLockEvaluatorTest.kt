@@ -2,8 +2,8 @@ package com.eried.eucplanet.service
 
 import com.eried.eucplanet.data.model.ProximityLockSettings
 import com.eried.eucplanet.service.ProximityLockEvaluator.Action
-import org.junit.Assert.assertEquals
-import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.Test
 
 /**
  * The proximity lock is hard to test on a wheel: it needs a real rider walking
@@ -48,7 +48,7 @@ class ProximityLockEvaluatorTest {
     }
 
     @Test
-    fun `walking away locks after the hold, not before`() {
+    fun `walking away locks after the hold not before`() {
         val e = ProximityLockEvaluator()
         assertEquals(Action.NONE, e.evaluate(0, -75, false, both))
         assertEquals(Action.NONE, e.evaluate(hold - 1, -75, false, both))

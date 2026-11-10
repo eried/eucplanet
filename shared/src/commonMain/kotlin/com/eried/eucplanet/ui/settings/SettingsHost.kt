@@ -60,9 +60,6 @@ interface SettingsHost {
     fun flicViewModel(): FlicViewModel
 
     @Composable
-    fun Automations()
-
-    @Composable
     fun NavigatorSettings(scrollToWeather: Boolean, onWeatherTop: (Float) -> Unit)
 
     @Composable
@@ -128,6 +125,12 @@ enum class SettingsRow {
 
     /** Spoken commands: the microphone, the cues and the headset button. */
     VOICE_COMMANDS,
+
+    /** The phone's media volume following the speed (Automations). */
+    AUTO_VOLUME,
+
+    /** Pausing and resuming other apps' music by speed (Automations). */
+    MEDIA_CONTROL,
 
     /** Binding actions to the volume keys. Follows [SettingsHost.supportsVolumeKeys]; not listed in hiddenRows. */
     VOLUME_KEYS,

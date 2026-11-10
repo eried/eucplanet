@@ -18,7 +18,6 @@ import com.eried.eucplanet.data.repository.startLinkFlow
 import com.eried.eucplanet.data.sync.SyncManager
 import com.eried.eucplanet.garmin.GarminBridge
 import com.eried.eucplanet.nav.NavigationEngine
-import com.eried.eucplanet.service.AutomationManager
 import com.eried.eucplanet.service.WheelService
 import com.eried.eucplanet.voice.VoiceCommandController
 import com.eried.eucplanet.wear.WearBridge
@@ -79,16 +78,6 @@ class AndroidDashboardVoiceCommands(private val commands: VoiceCommandController
     override fun listen() = commands.listen()
     override fun ask() = commands.ask()
     override fun showingListeningCue(): () -> Unit = commands.showingListeningCue()
-}
-
-class AndroidDashboardAutomation(private val automation: AutomationManager) : DashboardAutomation {
-    override val autoLightsSuspended = automation.autoLightsSuspended
-    override val autoLockSuspended = automation.autoLockSuspended
-    override fun notifyManualLightChange() = automation.notifyManualLightChange()
-    override fun notifyManualLockChange() = automation.notifyManualLockChange()
-    override fun clearLightsSuspension() = automation.clearLightsSuspension()
-    override fun clearLockSuspension() = automation.clearLockSuspension()
-    override fun triggerImmediateLightEvaluation() = automation.triggerImmediateLightEvaluation()
 }
 
 class AndroidDashboardSync(private val sync: SyncManager) : DashboardSync {

@@ -48,15 +48,16 @@ internal object IosSettingsHost : SettingsHost {
     // iOS gives apps no access to the volume buttons.
     override val supportsVolumeKeys = false
 
-    // Their content is platform code still on Android only: the automations,
-    // the navigator, the external sensors, the engine sound and the watches.
-    override val hiddenSections = setOf("auto", "navigator", "location", "motor", "watch")
+    // Their content is platform code still on Android only: the navigator,
+    // the external sensors, the engine sound and the watches.
+    override val hiddenSections = setOf("navigator", "location", "motor", "watch")
 
     // What the iPhone has no counterpart for: no back on the dashboard, no
     // keep-alive service, no picture-in-picture, home widget or showing over
     // the lock screen, rotation is the system's; and spoken commands are not
     // on iOS yet. The notification's quick actions are the Live Activity's
-    // buttons here.
+    // buttons here. iOS lets no app set the media volume or play and pause
+    // another app's music, so those two automations are left out.
     override val hiddenRows = setOf(
         SettingsRow.BACK_ACTION,
         SettingsRow.KEEP_ALIVE,
@@ -65,6 +66,8 @@ internal object IosSettingsHost : SettingsHost {
         SettingsRow.SHOW_OVER_LOCK_SCREEN,
         SettingsRow.ROTATION_LOCK,
         SettingsRow.VOICE_COMMANDS,
+        SettingsRow.AUTO_VOLUME,
+        SettingsRow.MEDIA_CONTROL,
     )
 
     @Composable
@@ -82,9 +85,6 @@ internal object IosSettingsHost : SettingsHost {
 
     @Composable
     override fun flicViewModel(): FlicViewModel = rememberViewModel { FlicViewModel(IosAppGraph.settings, IosFlic) }
-
-    @Composable
-    override fun Automations() = Unit
 
     @Composable
     override fun NavigatorSettings(scrollToWeather: Boolean, onWeatherTop: (Float) -> Unit) = Unit

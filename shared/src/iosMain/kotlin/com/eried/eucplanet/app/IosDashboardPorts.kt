@@ -13,7 +13,6 @@ import com.eried.eucplanet.platform.System
 import com.eried.eucplanet.flic.MediaControls
 import com.eried.eucplanet.flic.VoiceListening
 import com.eried.eucplanet.ui.dashboard.ActiveRoute
-import com.eried.eucplanet.ui.dashboard.DashboardAutomation
 import com.eried.eucplanet.ui.dashboard.DashboardPlatform
 import com.eried.eucplanet.ui.dashboard.DashboardSync
 import com.eried.eucplanet.ui.dashboard.DashboardTrips
@@ -57,17 +56,6 @@ internal object NoVoiceCommands : DashboardVoiceCommands {
     override fun listen() = Unit
     override fun ask() = Unit
     override fun showingListeningCue(): () -> Unit = {}
-}
-
-/** The light and lock automations are not on iOS yet: never suspended. */
-internal object NoAutomation : DashboardAutomation {
-    override val autoLightsSuspended: StateFlow<Boolean> = MutableStateFlow(false).asStateFlow()
-    override val autoLockSuspended: StateFlow<Boolean> = MutableStateFlow(false).asStateFlow()
-    override fun notifyManualLightChange() = Unit
-    override fun notifyManualLockChange() = Unit
-    override fun clearLightsSuspension() = Unit
-    override fun clearLockSuspension() = Unit
-    override fun triggerImmediateLightEvaluation() = Unit
 }
 
 /**
@@ -172,6 +160,10 @@ internal class IosDashboardPlatform(
      */
     override fun stopAllAndExit() {
         runBlocking { tripMeter.resetAndPersist() }
+        // As WheelService.onDestroy: the automations forget this session.
+        IosAppGraph.automation.restoreBaselineVolume()
+        IosAppGraph.automation.resetMediaControl()
+        IosAppGraph.automation.resetProximityLock()
         wheel.disconnect()
     }
 }

@@ -692,7 +692,7 @@ private fun SettingsScreenContent(
             AlarmSettingsContent(viewModel = LocalSettingsHost.current.alarmViewModel())
         },
         SectionDef("auto", titleAuto, Icons.Default.AutoAwesome, corpora.getValue("auto")) {
-            LocalSettingsHost.current.Automations()
+            AutomationsContent(viewModel)
         },
         SectionDef("navigator", titleNavigator, Icons.Default.Navigation, corpora.getValue("navigator")) {
             LocalSettingsHost.current.NavigatorSettings(
