@@ -37,6 +37,7 @@ import platform.Foundation.create
 import platform.Foundation.currentLocale
 import platform.Foundation.localTimeZone
 import platform.Foundation.localeIdentifier
+import platform.Foundation.preferredLanguages
 import platform.Foundation.timeIntervalSince1970
 import platform.Foundation.writeToFile
 import platform.UIKit.UIActivityViewController
@@ -90,7 +91,8 @@ internal object IosDiagnosticsPlatform : DiagnosticsPlatform {
         val device = UIDevice.currentDevice
         add("phone Apple ${device.model} (${machine()})")
         add("ios ${device.systemVersion}  abi=arm64")
-        add("locale ${NSLocale.currentLocale.localeIdentifier}  tz=${NSTimeZone.localTimeZone.name}")
+        // en_US, as Android's Locale.toString; iOS adds region overrides after an @.
+        add("locale ${NSLocale.currentLocale.localeIdentifier.substringBefore('@')}  tz=${NSTimeZone.localTimeZone.name}")
         val screen = UIScreen.mainScreen
         val dark = screen.traitCollection.userInterfaceStyle == UIUserInterfaceStyle.UIUserInterfaceStyleDark
         add("display ${displaySize()} @ ${screen.scale}x (${if (dark) "dark" else "light"} theme)")
@@ -164,13 +166,14 @@ internal object IosCrashLog {
         val device = UIDevice.currentDevice
         val header = listOf(
             // Java's Date.toString() layout, which Android's crash header carries.
-            "Time: ${formatLocalDateUs("EEE MMM dd HH:mm:ss zzz yyyy", now)}",
+            "Time: ${formatLocalDateUs("EEE MMM dd HH:mm:ss ZZZZ yyyy", now)}",
             "App: ${NSBundle.mainBundle.bundleIdentifier ?: "?"} ${info?.get("CFBundleShortVersionString") ?: "?"}",
             "iOS: ${device.systemVersion}",
             "Device: Apple ${device.model} (${machine()})",
             "ABI: arm64",
             "Display: ${IosDiagnosticsPlatform.displaySize()} @${UIScreen.mainScreen.scale}x",
-            "Locale: ${NSLocale.currentLocale.localeIdentifier}",
+            // A language tag (en-US), as Android's toLanguageTag.
+            "Locale: ${NSLocale.preferredLanguages.firstOrNull() as? String ?: "?"}",
             "Memory: ${NSProcessInfo.processInfo.physicalMemory / (1024uL * 1024uL)}MB device",
             "Thread: ${if (NSThread.isMainThread) "main" else (NSThread.currentThread.name?.takeIf { it.isNotBlank() } ?: "background")}",
         )

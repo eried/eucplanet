@@ -2,6 +2,7 @@ package com.eried.eucplanet.ble
 
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.model.WheelSettings
+import com.eried.eucplanet.platform.format
 import com.eried.eucplanet.util.BatteryPercentEstimator
 import kotlin.uuid.Uuid
 
@@ -104,6 +105,25 @@ data class BleProfile(
                 profileWriteType
             }
         }
+
+        /**
+         * The Service Mode line saying what the write characteristic offers
+         * and which write type the link uses: the first thing to check when a
+         * wheel connects but says nothing. Both phones log it.
+         */
+        fun writeTypeNote(charProperties: Int, resolvedWriteType: Int, switched: Boolean): String =
+            "Write characteristic props=0x${"%02x".format(charProperties)}" +
+                " (" + buildString {
+                    if (charProperties and GattCharacteristic.PROPERTY_WRITE != 0) append("write ")
+                    if (charProperties and GattCharacteristic.PROPERTY_WRITE_NO_RESPONSE != 0) {
+                        append("write-no-response")
+                    }
+                }.trim().ifEmpty { "none" } + ")" +
+                ", using " +
+                (if (resolvedWriteType == GattCharacteristic.WRITE_TYPE_NO_RESPONSE) {
+                    "write-no-response"
+                } else "write-with-response") +
+                (if (switched) " (switched from the family default)" else "")
 
         /** Nordic UART used by the InMotion V2 family (V11/V12/V13/V14). */
         val NORDIC_UART = BleProfile(

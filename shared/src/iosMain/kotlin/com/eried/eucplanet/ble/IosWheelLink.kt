@@ -39,6 +39,7 @@ import platform.CoreBluetooth.CBManagerStateUnauthorized
 import platform.CoreBluetooth.CBManagerStateUnsupported
 import platform.CoreBluetooth.CBPeripheral
 import platform.CoreBluetooth.CBPeripheralDelegateProtocol
+import platform.CoreBluetooth.CBPeripheralStateConnected
 import platform.CoreBluetooth.CBService
 import platform.CoreBluetooth.CBUUID
 import platform.Foundation.NSData
@@ -121,6 +122,8 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
     private val peripheralDelegate = PeripheralDelegate()
     private val central = CBCentralManager(centralDelegate, null)
     private var rssiJob: Job? = null
+    // Services whose characteristics have not been reported yet (1, or 2 for InMotion V1).
+    private var servicesAwaitingCharacteristics = 0
 
     /** The wheel a hunt is scanning for, null when none is. */
     private var huntTarget: String? = null
@@ -263,10 +266,15 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
     override fun writeCommand(data: ByteArray, kind: BleWriteQueue.Kind) {
         if (data.isEmpty()) return
         DiagnosticsLogger.tx(data)
-        if (!writeQueue.offer(kind, data)) {
-            DiagnosticsLogger.note("Write DROPPED (${data.size}B) - the command queue is full")
+        // The queue is not thread safe and the writer takes from it on the main
+        // thread, while the wheel's polling calls in from Dispatchers.IO; Android
+        // guards it with a lock. On the main thread already, this runs inline.
+        scope.launch(Dispatchers.Main.immediate) {
+            if (!writeQueue.offer(kind, data)) {
+                DiagnosticsLogger.note("Write DROPPED (${data.size}B) - the command queue is full")
+            }
+            writeSignal.trySend(Unit)
         }
-        writeSignal.trySend(Unit)
     }
 
     override fun suppressAutoConnect() {
@@ -347,24 +355,44 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
             }
             val p = peripheral ?: return
             val c = writeChar ?: return
-            val maxAttempts = BleWriteQueue.maxAttempts(entry.kind)
-            for (attempt in 1..maxAttempts) {
-                if (writeType == GattCharacteristic.WRITE_TYPE_NO_RESPONSE) {
-                    p.writeValue(entry.data.toNSData(), c, CBCharacteristicWriteWithoutResponse)
-                    // CoreBluetooth gives no callback for these. Android waits up to
-                    // 200 ms for its local one; a short gap keeps HM-10 modules paced.
-                    delay(NO_RESPONSE_GAP_MS)
-                    break
-                }
-                val ack = Channel<Boolean>(1)
-                pendingWriteAck = ack
-                p.writeValue(entry.data.toNSData(), c, CBCharacteristicWriteWithResponse)
-                val ok = withTimeoutOrNull(WRITE_ACK_TIMEOUT_MS) { ack.receive() } ?: false
-                pendingWriteAck = null
-                if (ok) break
-                if (attempt < maxAttempts) delay(BleWriteQueue.retryDelayMs(attempt))
+            // One frame can be several writes on a profile with a write size
+            // limit (InMotion V1's 20 bytes). All of them go out here, each
+            // acked before the next, as on Android; a whole V1 frame in one
+            // write would be a GATT long write, which drops the V1's link.
+            for (piece in adapter.bleProfile().writePieces(entry.data)) {
+                // A piece that never went leaves half a frame; the rest is dropped.
+                if (!writePiece(p, c, piece)) break
             }
         }
+    }
+
+    /**
+     * One write, then its ack, as Android's writePiece. CoreBluetooth never
+     * refuses a write on the spot, so every write counts as accepted and is
+     * never sent twice (Android retries only a write the stack refused): a
+     * late or refused ack is logged and the queue moves on. False when the
+     * link is gone, so the caller drops the rest of the frame.
+     */
+    private suspend fun writePiece(p: CBPeripheral, c: CBCharacteristic, piece: ByteArray): Boolean {
+        if (p.state != CBPeripheralStateConnected) return false
+        if (writeType == GattCharacteristic.WRITE_TYPE_NO_RESPONSE) {
+            // CoreBluetooth drops a no-response write while its buffer is full;
+            // wait for room, up to the 200 ms Android gives its local callback.
+            withTimeoutOrNull(WRITE_ACK_NO_RESPONSE_MS) {
+                while (!p.canSendWriteWithoutResponse) delay(5)
+            }
+            p.writeValue(piece.toNSData(), c, CBCharacteristicWriteWithoutResponse)
+            // No callback for these; a short gap keeps HM-10 modules paced.
+            delay(NO_RESPONSE_GAP_MS)
+            return true
+        }
+        val ack = Channel<Boolean>(1)
+        pendingWriteAck = ack
+        p.writeValue(piece.toNSData(), c, CBCharacteristicWriteWithResponse)
+        val acked = withTimeoutOrNull(WRITE_ACK_TIMEOUT_MS) { ack.receive() }
+        pendingWriteAck = null
+        if (acked == null) DiagnosticsLogger.note("Write ACK timed out after $WRITE_ACK_TIMEOUT_MS ms (${piece.size}B)")
+        return true
     }
 
     private inner class CentralDelegate : NSObject(), CBCentralManagerDelegateProtocol {
@@ -464,8 +492,16 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
                 disconnect()
                 return
             }
+            servicesAwaitingCharacteristics = if (writeService !== notifyService) 2 else 1
             peripheral.discoverCharacteristics(null, notifyService)
             if (writeService !== notifyService) peripheral.discoverCharacteristics(null, writeService)
+        }
+
+        /** As Android's failConnectAndTeardown: say why, then let the wheel go. */
+        private fun failConnect(reason: String) {
+            Log.e(TAG, "Connect failed: $reason")
+            DiagnosticsLogger.note("Connect failed: name=${currentName ?: "(unknown)"} reason=$reason")
+            disconnect()
         }
 
         override fun peripheral(
@@ -474,6 +510,10 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
             error: NSError?,
         ) {
             val profile = adapter.bleProfile()
+            if (error != null) {
+                failConnect("Characteristic discovery failed (${error.localizedDescription})")
+                return
+            }
             for (ch in didDiscoverCharacteristicsForService.characteristics.orEmpty()) {
                 val c = ch as CBCharacteristic
                 val u = c.UUID.toUuid()
@@ -491,8 +531,20 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
                 }
                 if (u == profile.writeCharacteristic && writeChar == null) {
                     writeChar = c
-                    writeType = BleProfile.writeTypeFor(profile.writeType, c.properties.toGattProperties())
+                    val props = c.properties.toGattProperties()
+                    writeType = BleProfile.writeTypeFor(profile.writeType, props)
+                    DiagnosticsLogger.note(BleProfile.writeTypeNote(props, writeType, switched = writeType != profile.writeType))
                 }
+            }
+            // Both services reported and a characteristic is still missing: the
+            // link would sit initializing forever, so give up as Android does.
+            servicesAwaitingCharacteristics--
+            if (servicesAwaitingCharacteristics <= 0 && (writeChar == null || notifyChar == null)) {
+                failConnect(
+                    "Adapter characteristics not found (write ${profile.writeCharacteristic} on " +
+                        "service ${profile.effectiveWriteServiceUuid}, notify ${profile.notifyCharacteristic} " +
+                        "on service ${profile.serviceUuid})"
+                )
             }
         }
 
@@ -502,7 +554,13 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
             didUpdateNotificationStateForCharacteristic: CBCharacteristic,
             error: NSError?,
         ) {
-            if (didUpdateNotificationStateForCharacteristic === notifyChar && writeChar != null) markConnected()
+            if (didUpdateNotificationStateForCharacteristic !== notifyChar) return
+            // Whether we are subscribed decides how to read a silent wheel, as on Android.
+            DiagnosticsLogger.note(
+                if (error == null) "Subscribed to wheel notifications"
+                else "Notification subscribe FAILED (${error.localizedDescription}) - replies cannot reach us"
+            )
+            if (writeChar != null) markConnected()
         }
 
         @ObjCSignatureOverride
@@ -521,6 +579,9 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
             didWriteValueForCharacteristic: CBCharacteristic,
             error: NSError?,
         ) {
+            // A refused write never reached the firmware; without this line it
+            // looks the same as a delivered one in the log, as on Android.
+            if (error != null) DiagnosticsLogger.note("Write REFUSED by the wheel (${error.localizedDescription})")
             pendingWriteAck?.trySend(error == null)
         }
 
@@ -535,6 +596,8 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
         const val CCCD_TIMEOUT_MS = 4_000L
         const val WRITE_ACK_TIMEOUT_MS = 1_500L
         const val NO_RESPONSE_GAP_MS = 20L
+        // Android's WRITE_ACK_NO_RESPONSE_MS.
+        const val WRITE_ACK_NO_RESPONSE_MS = 200L
     }
 }
 

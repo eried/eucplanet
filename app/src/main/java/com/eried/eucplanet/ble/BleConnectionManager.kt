@@ -1158,18 +1158,7 @@ class BleConnectionManager(
             val resolvedWriteType = BleProfile.writeTypeFor(profile.writeType, props)
             forcedWriteType = resolvedWriteType.takeIf { it != profile.writeType }
             com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
-                "Write characteristic props=0x${"%02x".format(props)}" +
-                    " (" + buildString {
-                        if (props and BluetoothGattCharacteristic.PROPERTY_WRITE != 0) append("write ")
-                        if (props and BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE != 0) {
-                            append("write-no-response")
-                        }
-                    }.trim().ifEmpty { "none" } + ")" +
-                    ", using " +
-                    (if (resolvedWriteType == BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE) {
-                        "write-no-response"
-                    } else "write-with-response") +
-                    (if (forcedWriteType != null) " (switched from the family default)" else "")
+                BleProfile.writeTypeNote(props, resolvedWriteType, switched = forcedWriteType != null)
             )
 
             // Enable notifications on TX. The CCCD descriptor write is what
