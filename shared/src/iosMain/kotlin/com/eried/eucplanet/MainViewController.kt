@@ -23,6 +23,7 @@ import com.eried.eucplanet.ui.recording.TripDetailScreen
 import com.eried.eucplanet.app.IosEucViewerHost
 import com.eried.eucplanet.app.IosTripDetailHost
 import com.eried.eucplanet.app.rememberViewModel
+import com.eried.eucplanet.app.IosCrashLog
 import com.eried.eucplanet.ui.settings.SettingsScreen
 import com.eried.eucplanet.ui.settings.FlicScreen
 import com.eried.eucplanet.ui.settings.FlicViewModel
@@ -71,6 +72,8 @@ import platform.UIKit.UIViewController
 /** Entry point the Swift host (iosApp/AppDelegate.swift) shows. */
 @Suppress("FunctionName", "unused")
 fun MainViewController(): UIViewController {
+    // Uncaught Kotlin exceptions to Documents/crashes, as Android's CrashHandler.
+    IosCrashLog.install()
     val link = IosAppGraph.link
     val wheel = IosAppGraph.wheel
     // For scripted runs on the simulator, which cannot tap:

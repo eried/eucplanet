@@ -3159,6 +3159,20 @@ fun DashboardScreen(
                                     .align(Alignment.CenterHorizontally)
                                     .clickable { host.openUrl("https://eucplanet.ried.no") }
                             )
+                            // The iPhone's crash log, for a tester to send (DashboardHost.hasCrashLog).
+                            val hasCrashLog = remember { host.hasCrashLog() }
+                            if (hasCrashLog) {
+                                Spacer(Modifier.height(8.dp))
+                                Text(
+                                    stringResource(Res.string.about_share_crash),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.appColors.link,
+                                    modifier = Modifier
+                                        .align(Alignment.CenterHorizontally)
+                                        .clickable { host.shareCrashLog() }
+                                        .padding(8.dp)
+                                )
+                            }
                             Spacer(Modifier.height(16.dp))
 
                             Text(

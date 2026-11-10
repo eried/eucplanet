@@ -67,6 +67,16 @@ interface DashboardHost {
     @Composable
     fun VoiceVocabularyDialog(onDismiss: () -> Unit, languageTag: String)
 
+    /**
+     * A saved crash log About can share. Android leaves it out: its crash
+     * logs also land in Downloads, where a rider reaches them even when the
+     * app crashes on open. The iPhone has no such folder.
+     */
+    fun hasCrashLog(): Boolean = false
+
+    /** Opens the share sheet on the newest crash log. */
+    fun shareCrashLog() = Unit
+
     /** Service mode: the wheel diagnostics. */
     @Composable
     fun DiagnosticsDialog(onDismiss: () -> Unit)

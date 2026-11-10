@@ -1,6 +1,5 @@
 package com.eried.eucplanet.diagnostics
 
-import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -85,7 +84,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -95,11 +93,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import org.koin.compose.viewmodel.koinViewModel
+import com.eried.eucplanet.platform.format
+import com.eried.eucplanet.platform.formatLocalDateUs
+import com.eried.eucplanet.ui.common.edgeToEdgeDialogProperties
 
 /**
  * Full-screen Service-Mode dialog. Three tabs:
@@ -111,11 +107,15 @@ import org.koin.compose.viewmodel.koinViewModel
  * disables the logger and clears the buffer), and a Close arrow that just
  * dismisses the dialog (logger keeps recording in the background, version
  * text in the dashboard keeps blinking).
+ *
+ * Shared by both phones. [onShare] hands the rendered log and its file name
+ * (diagnostics-<stamp>.txt) to the platform's share sheet.
  */
 @Composable
 fun WheelDiagnosticsDialog(
     onDismiss: () -> Unit,
-    vm: WheelDiagnosticsViewModel = koinViewModel()
+    vm: WheelDiagnosticsViewModel,
+    onShare: (fileName: String, text: String) -> Unit,
 ) {
     // Session-info dump is one-shot per enable cycle so reopening the dialog
     // doesn't duplicate the phone / wheel / Wear block in the log.
@@ -124,14 +124,10 @@ fun WheelDiagnosticsDialog(
     }
 
     var stopConfirm by remember { mutableStateOf(false) }
-    val context = LocalContext.current
 
     Dialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(
-            usePlatformDefaultWidth = false,
-            decorFitsSystemWindows = false
-        )
+        properties = edgeToEdgeDialogProperties()
     ) {
         // Force a light + rectangular theme regardless of the user's app
         // theme so Service Mode reads as a different surface, clearly
@@ -162,9 +158,10 @@ fun WheelDiagnosticsDialog(
                     onClose = onDismiss,
                     onStop = { stopConfirm = true },
                     onShare = {
-                        vm.buildShareIntent()?.let {
-                            context.startActivity(Intent.createChooser(it, "Share log"))
-                        }
+                        onShare(
+                            WheelDiagnosticsViewModel.shareFileName(com.eried.eucplanet.platform.System.currentTimeMillis()),
+                            vm.renderLog(),
+                        )
                     }
                 )
 
@@ -344,6 +341,7 @@ private fun CommentRow(vm: WheelDiagnosticsViewModel) {
     }
     if (showAttachDialog) {
         AttachDataDialog(
+            categories = vm.attachCategories,
             onDismiss = { showAttachDialog = false },
             onSubmit = { selected ->
                 vm.attach(selected)
@@ -360,12 +358,13 @@ private fun CommentRow(vm: WheelDiagnosticsViewModel) {
  */
 @Composable
 private fun AttachDataDialog(
+    categories: List<WheelDiagnosticsViewModel.AttachCategory>,
     onDismiss: () -> Unit,
     onSubmit: (Set<WheelDiagnosticsViewModel.AttachCategory>) -> Unit
 ) {
     val selected = remember {
         mutableStateMapOf<WheelDiagnosticsViewModel.AttachCategory, Boolean>().apply {
-            WheelDiagnosticsViewModel.AttachCategory.entries.forEach { put(it, false) }
+            categories.forEach { put(it, false) }
         }
     }
     AlertDialog(
@@ -379,7 +378,7 @@ private fun AttachDataDialog(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(Modifier.height(8.dp))
-                WheelDiagnosticsViewModel.AttachCategory.entries.forEach { cat ->
+                categories.forEach { cat ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -447,7 +446,7 @@ private fun CollapsibleSection(
 @Composable
 private fun LogRow(e: DiagnosticsLogger.Entry) {
     val ts = remember(e.timestampMs) {
-        TIME_FMT.format(Date(e.timestampMs))
+        clockTime(e.timestampMs)
     }
     val color = when (e.kind) {
         DiagnosticsLogger.Kind.RECV -> Color(0xFF40C4FF)
@@ -721,7 +720,6 @@ private fun FilterTab(vm: WheelDiagnosticsViewModel) {
     val timeModes = listOf("Time", "Delta", "Both", "None")
     var timeMode by remember { mutableStateOf(0) }
     var timeMenuOpen by remember { mutableStateOf(false) }
-    val timeFmt = remember { SimpleDateFormat("HH:mm:ss.SSS", java.util.Locale.US) }
 
     val shown = remember(entries, active) {
         if (active.isEmpty()) emptyList()
@@ -823,7 +821,7 @@ private fun FilterTab(vm: WheelDiagnosticsViewModel) {
                     Row(modifier = Modifier.padding(vertical = 1.dp)) {
                         if (timeMode == 0 || timeMode == 2) {
                             Text(
-                                timeFmt.format(java.util.Date(e.timestampMs)),
+                                clockTime(e.timestampMs),
                                 style = mono,
                                 color = Color(0xFF00FF41).copy(alpha = 0.6f)
                             )
@@ -1364,7 +1362,8 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
 }
 
 
-private val TIME_FMT = SimpleDateFormat("HH:mm:ss.SSS", Locale.US)
+/** HH:mm:ss.SSS in the phone's time zone. */
+private fun clockTime(ms: Long): String = formatLocalDateUs("HH:mm:ss.SSS", ms)
 
 // Clearance below the last row of each scrollable tab so the final element
 // (Send button, last command, last byte row) stays comfortably reachable

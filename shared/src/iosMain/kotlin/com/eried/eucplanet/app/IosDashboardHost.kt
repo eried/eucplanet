@@ -26,7 +26,7 @@ import platform.UIKit.UIApplication
 
 /**
  * The iOS [DashboardHost]. The panels that are still Android code (radar,
- * diagnostics, data sources, voice vocabulary, QR) are not on iOS yet: each
+ * data sources, voice vocabulary, QR) are not on iOS yet: each
  * closes itself or keeps its space, and docs/IOS_PARITY.md lists them.
  */
 internal class IosDashboardHost : DashboardHost {
@@ -80,9 +80,21 @@ internal class IosDashboardHost : DashboardHost {
         LaunchedEffect(Unit) { onDismiss() }
     }
 
+    override fun hasCrashLog(): Boolean = IosCrashLog.list().isNotEmpty()
+
+    override fun shareCrashLog() {
+        IosCrashLog.shareLatest()
+    }
+
+    /** Service Mode: the shared dialog, its log shared through the share sheet. */
     @Composable
     override fun DiagnosticsDialog(onDismiss: () -> Unit) {
-        LaunchedEffect(Unit) { onDismiss() }
+        val vm = rememberViewModel { IosDiagnostics.viewModel() }
+        com.eried.eucplanet.diagnostics.WheelDiagnosticsDialog(
+            onDismiss = onDismiss,
+            vm = vm,
+            onShare = { name, text -> IosDiagnostics.share(name, text) },
+        )
     }
 
     @Composable

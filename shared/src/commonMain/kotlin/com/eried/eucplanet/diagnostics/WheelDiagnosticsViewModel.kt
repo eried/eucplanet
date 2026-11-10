@@ -1,53 +1,57 @@
 package com.eried.eucplanet.diagnostics
 
-import android.app.ActivityManager
-import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothManager
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
-import android.content.res.Configuration
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
-import android.os.BatteryManager
-import android.os.Build
-import android.os.StatFs
-import android.util.DisplayMetrics
-import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.eried.eucplanet.BuildConfig
-import com.eried.eucplanet.ble.BleConnectionManager
 import com.eried.eucplanet.ble.WheelAdapter
+import com.eried.eucplanet.ble.WheelLink
+import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.data.repository.SettingsRepository
-import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
-import kotlinx.coroutines.flow.first
-import com.google.android.gms.tasks.Tasks
-import com.google.android.gms.wearable.Wearable
+import com.eried.eucplanet.platform.format
+import com.eried.eucplanet.platform.formatLocalDateUs
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import java.util.TimeZone
 
 /**
- * Backs the Wheel Diagnostics dialog. Holds direct refs to the BLE manager
+ * What the Wheel Diagnostics dialog needs from the phone it runs on: the
+ * phone, OS and build lines that open a capture, and the attachable data
+ * only the platform can read. Android's lives in :app
+ * (AndroidDiagnosticsPlatform), the iPhone's in IosDiagnostics.
+ */
+interface DiagnosticsPlatform {
+    /** The app, phone, OS and radio lines, logged as INFO before the wheel's. */
+    fun sessionInfo(): List<String>
+
+    /** Lines that take a while to learn (Android's paired watches), logged after. */
+    suspend fun lateSessionInfo(): List<String> = emptyList()
+
+    /** Every saved trip, for the trip history summary. */
+    suspend fun trips(): List<TripRecord>
+
+    /** The phone lists other installed apps (an iPhone does not). */
+    val listsInstalledApps: Boolean
+
+    /** Installed package names, or null where the phone does not list them. */
+    fun installedApps(): List<String>?
+
+    /** Saved crash logs, newest first: each one's file name and size in bytes. */
+    fun crashes(): List<Pair<String, Long>>
+}
+
+/**
+ * Backs the Wheel Diagnostics dialog. Holds direct refs to the wheel link
  * (so test commands can be fired) and the wheel adapter (so its diagnostic
  * command list comes through with no UI plumbing). Logger state is read
- * straight from the [DiagnosticsLogger] singleton.
+ * straight from the [DiagnosticsLogger] singleton. Shared by both phones.
  */
 class WheelDiagnosticsViewModel(
-    private val context: Context,
-    private val bleManager: BleConnectionManager,
+    private val bleManager: WheelLink,
     private val wheelAdapter: WheelAdapter,
     private val wheelRepository: WheelRepository,
     private val settingsRepository: SettingsRepository,
-    private val tripRepository: TripRepository
+    private val platform: DiagnosticsPlatform,
 ) : ViewModel() {
 
     val entries: StateFlow<List<DiagnosticsLogger.Entry>> = DiagnosticsLogger.entries
@@ -61,71 +65,8 @@ class WheelDiagnosticsViewModel(
     /** Drop NOTEs with phone, app, BLE, and watch identity context so the
      *  shared log carries everything we'd ask for in a bug report. */
     fun captureSessionInfo() {
-        // App + build
-        val branchSuffix = BuildConfig.GIT_BRANCH.takeIf { it.isNotBlank() && it != "main" }?.let { " branch=$it" } ?: ""
-        DiagnosticsLogger.info("app v${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE}) build ${BuildConfig.BUILD_STAMP}$branchSuffix")
-        DiagnosticsLogger.info("package ${context.packageName}")
-
-        // Phone hardware + Android OS
-        DiagnosticsLogger.info("phone ${Build.MANUFACTURER} ${Build.MODEL} (${Build.DEVICE})")
-        DiagnosticsLogger.info("android ${Build.VERSION.RELEASE} (sdk ${Build.VERSION.SDK_INT})  abi=${Build.SUPPORTED_ABIS.firstOrNull() ?: "?"}")
-        DiagnosticsLogger.info("locale ${Locale.getDefault()}  tz=${TimeZone.getDefault().id}")
-        val dm: DisplayMetrics = context.resources.displayMetrics
-        val nightMode = (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
-            Configuration.UI_MODE_NIGHT_YES
-        DiagnosticsLogger.info("display ${dm.widthPixels}x${dm.heightPixels} @ ${dm.densityDpi}dpi (${if (nightMode) "dark" else "light"} theme)")
-
-        // RAM
-        try {
-            val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-            val mem = ActivityManager.MemoryInfo()
-            am.getMemoryInfo(mem)
-            val totalMb = mem.totalMem / (1024L * 1024L)
-            val availMb = mem.availMem / (1024L * 1024L)
-            DiagnosticsLogger.info("memory: ${availMb} / ${totalMb} MB free (lowMem=${mem.lowMemory})")
-        } catch (_: Exception) {}
-
-        // Storage on the data partition
-        try {
-            val statFs = StatFs(context.filesDir.absolutePath)
-            val totalGb = statFs.totalBytes / (1024.0 * 1024.0 * 1024.0)
-            val freeGb = statFs.availableBytes / (1024.0 * 1024.0 * 1024.0)
-            DiagnosticsLogger.info("storage: %.1f / %.1f GB free".format(freeGb, totalGb))
-        } catch (_: Exception) {}
-
-        // Phone battery, useful when a connection drop coincides with low pwr
-        try {
-            val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
-            val level = intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
-            val scale = intent?.getIntExtra(BatteryManager.EXTRA_SCALE, 100) ?: 100
-            val plugged = (intent?.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0) ?: 0) != 0
-            val pct = if (level >= 0 && scale > 0) level * 100 / scale else -1
-            DiagnosticsLogger.info("phone battery: ${pct}%${if (plugged) " (charging)" else ""}")
-        } catch (_: Exception) {}
-
-        // Network type, explains failed cloud sync / play-store update issues
-        try {
-            val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-            val net = cm.activeNetwork
-            val caps = net?.let { cm.getNetworkCapabilities(it) }
-            val type = when {
-                caps == null -> "none"
-                caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> "wifi"
-                caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> "cellular"
-                caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> "ethernet"
-                else -> "other"
-            }
-            DiagnosticsLogger.info("network: $type")
-        } catch (_: Exception) {}
-
-        // BLE adapter state, names/MACs require runtime permission so we
-        // only log what's safe without one
-        try {
-            val mgr = context.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
-            val adapter: BluetoothAdapter? = mgr?.adapter
-            val on = adapter?.isEnabled == true
-            DiagnosticsLogger.info("ble adapter ${if (on) "ON" else "OFF/missing"}")
-        } catch (_: Exception) {}
+        // App, build, phone, OS, memory, storage, battery, network and radio
+        platform.sessionInfo().forEach { DiagnosticsLogger.info(it) }
 
         // Connection + wheel
         DiagnosticsLogger.info("connection state: ${bleManager.connectionState.value}")
@@ -135,22 +76,9 @@ class WheelDiagnosticsViewModel(
         val data = wheelRepository.wheelData.value
         DiagnosticsLogger.info("battery=${data.batteryPercent}%  voltage=${data.voltage}V  speed=${data.speed} km/h  lightOn=${data.lightOn}")
 
-        // Wear OS, list connected nodes so we know if a watch is paired
+        // Android: Wear OS, list connected nodes so we know if a watch is paired
         viewModelScope.launch {
-            try {
-                val nodes = withContext(Dispatchers.IO) {
-                    Tasks.await(Wearable.getNodeClient(context).connectedNodes)
-                }
-                if (nodes.isEmpty()) {
-                    DiagnosticsLogger.info("wear: no paired nodes")
-                } else {
-                    nodes.forEach { n ->
-                        DiagnosticsLogger.info("wear node: ${n.displayName} (${n.id}) nearby=${n.isNearby}")
-                    }
-                }
-            } catch (e: Exception) {
-                DiagnosticsLogger.info("wear: query failed (${e.javaClass.simpleName})")
-            }
+            platform.lateSessionInfo().forEach { DiagnosticsLogger.info(it) }
         }
     }
 
@@ -320,6 +248,9 @@ class WheelDiagnosticsViewModel(
 
     companion object {
         const val MAX_RAW_BYTES = 64
+
+        /** The shared .txt's name, diagnostics-<yyyyMMdd-HHmmss>.txt on both phones. */
+        fun shareFileName(nowMs: Long): String = "diagnostics-${formatLocalDateUs("yyyyMMdd-HHmmss", nowMs)}.txt"
     }
 
     fun addComment(text: String) {
@@ -361,6 +292,10 @@ class WheelDiagnosticsViewModel(
         INSTALLED_APPS("Installed apps"),
         CRASHES("Recent crashes")
     }
+
+    /** What this phone can attach: an iPhone does not list other apps. */
+    val attachCategories: List<AttachCategory> =
+        AttachCategory.entries.filter { it != AttachCategory.INSTALLED_APPS || platform.listsInstalledApps }
 
     /**
      * Dump the selected categories into the live log as NOTE entries. Each
@@ -410,14 +345,14 @@ class WheelDiagnosticsViewModel(
     }
 
     private suspend fun attachTripsSummary() {
-        val all = tripRepository.allTrips.first()
+        val all = platform.trips()
         val totalKm = all.sumOf { it.distanceKm.toDouble() }
         DiagnosticsLogger.note("--- BEGIN trips summary ---")
         DiagnosticsLogger.note("trips=${all.size}  total=${"%.2f".format(totalKm)} km")
         // Only the most recent 20, older trips are rarely interesting for
         // a fresh bug report and would crowd the log.
         all.sortedByDescending { it.startTime }.take(20).forEach { t ->
-            val started = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US).format(Date(t.startTime))
+            val started = formatLocalDateUs("yyyy-MM-dd HH:mm", t.startTime)
             val durMin = ((t.endTime ?: t.startTime) - t.startTime) / 60_000
             DiagnosticsLogger.note("trip ${t.id}: $started  ${"%.2f".format(t.distanceKm)} km  ${durMin} min  upl=${t.uploadStatus}")
         }
@@ -425,11 +360,8 @@ class WheelDiagnosticsViewModel(
     }
 
     private suspend fun attachInstalledApps() {
-        val pm = context.packageManager
         val apps = try {
-            pm.getInstalledApplications(0)
-                .map { it.packageName }
-                .sorted()
+            platform.installedApps()?.sorted() ?: return
         } catch (e: Exception) {
             DiagnosticsLogger.note("attach installed apps failed: ${e.message}")
             return
@@ -442,13 +374,13 @@ class WheelDiagnosticsViewModel(
     }
 
     private fun attachCrashes() {
-        val crashes = com.eried.eucplanet.util.CrashHandler.listCrashes(context)
+        val crashes = platform.crashes()
         DiagnosticsLogger.note("--- BEGIN recent crashes (${crashes.size}) ---")
         if (crashes.isEmpty()) {
             DiagnosticsLogger.note("(none)")
         } else {
-            crashes.take(5).forEach { f ->
-                DiagnosticsLogger.note("crash ${f.name}  ${f.length()} bytes")
+            crashes.take(5).forEach { (name, size) ->
+                DiagnosticsLogger.note("crash $name  $size bytes")
             }
         }
         DiagnosticsLogger.note("--- END recent crashes ---")
@@ -459,33 +391,8 @@ class WheelDiagnosticsViewModel(
         DiagnosticsLogger.clear()
     }
 
-    /** Build a share intent backed by a temp .txt under the app's cache dir.
-     *  The FileProvider entry for `cache-path name="diagnostics"` must exist
-     *  in res/xml/file_paths.xml or getUriForFile throws and we end up with
-     *  a silently dead Share button. */
-    fun buildShareIntent(): Intent? {
-        val dir = File(context.cacheDir, "diagnostics").apply { mkdirs() }
-        val stamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(Date())
-        val file = File(dir, "diagnostics-$stamp.txt")
-        return try {
-            file.writeText(DiagnosticsLogger.render())
-            val uri = FileProvider.getUriForFile(
-                context, "${context.packageName}.fileprovider", file
-            )
-            Intent(Intent.ACTION_SEND).apply {
-                type = "text/plain"
-                putExtra(Intent.EXTRA_STREAM, uri)
-                putExtra(Intent.EXTRA_SUBJECT, "EUC Planet diagnostics ${file.name}")
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-        } catch (e: Exception) {
-            // Don't swallow silently, surface in logcat so a future
-            // misconfiguration is obvious instead of a dead button.
-            android.util.Log.e("WheelDiagnostics", "Share failed", e)
-            DiagnosticsLogger.note("share failed: ${e.javaClass.simpleName}: ${e.message}")
-            null
-        }
-    }
+    /** The whole log as the shared file carries it. */
+    fun renderLog(): String = DiagnosticsLogger.render()
 
     private fun parseHex(input: String): ByteArray? {
         val cleaned = input.replace("0x", "", ignoreCase = true)

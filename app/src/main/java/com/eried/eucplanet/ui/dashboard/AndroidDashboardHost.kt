@@ -139,8 +139,14 @@ private class AndroidDashboardHost(
         com.eried.eucplanet.ui.settings.VoiceVocabularyDialog(onDismiss = onDismiss, languageTag = languageTag)
 
     @Composable
-    override fun DiagnosticsDialog(onDismiss: () -> Unit) =
-        com.eried.eucplanet.diagnostics.WheelDiagnosticsDialog(onDismiss = onDismiss)
+    override fun DiagnosticsDialog(onDismiss: () -> Unit) {
+        val context = androidx.compose.ui.platform.LocalContext.current
+        com.eried.eucplanet.diagnostics.WheelDiagnosticsDialog(
+            onDismiss = onDismiss,
+            vm = org.koin.compose.viewmodel.koinViewModel(),
+            onShare = { name, text -> com.eried.eucplanet.diagnostics.shareDiagnosticsLog(context, name, text) },
+        )
+    }
 
     @Composable
     override fun QrCode(content: String, sizeDp: Int) = QrCodeImage(content = content, sizeDp = sizeDp)

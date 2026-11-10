@@ -1,5 +1,7 @@
 package com.eried.eucplanet.di
 
+import com.eried.eucplanet.diagnostics.AndroidDiagnosticsPlatform
+import com.eried.eucplanet.diagnostics.DiagnosticsPlatform
 import com.eried.eucplanet.diagnostics.WheelDiagnosticsViewModel
 import com.eried.eucplanet.ui.charging.AndroidChargingCsvFiles
 import com.eried.eucplanet.ui.charging.ChargingCsvFiles
@@ -120,6 +122,7 @@ val viewModelModule = module {
     singleOf(::AndroidRecordingOnline) bind RecordingOnline::class
     single<RecordingPlatform> { AndroidRecordingPlatform(androidContext(), get()) }
 
+    single<DiagnosticsPlatform> { AndroidDiagnosticsPlatform(androidContext(), get()) }
     viewModelOf(::WheelDiagnosticsViewModel)
     single<ChargingCsvFiles> { AndroidChargingCsvFiles(androidContext()) }
     viewModelOf(::ChargingMonitorViewModel)

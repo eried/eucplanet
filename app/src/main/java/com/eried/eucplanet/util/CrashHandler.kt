@@ -5,16 +5,18 @@ import android.content.Context
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import com.eried.eucplanet.diagnostics.CrashReport
 import java.io.File
 import java.io.PrintWriter
 import java.io.StringWriter
-import java.text.SimpleDateFormat
 import java.util.Date
-import java.util.Locale
 
+/**
+ * Writes an uncaught exception to the crashes folder and Downloads. The names,
+ * the header layout and the retention are the shared [CrashReport], which the
+ * iPhone writes too.
+ */
 object CrashHandler {
-
-    private const val MAX_FILES = 20
 
     fun install(context: Context) {
         val appContext = context.applicationContext
@@ -32,13 +34,13 @@ object CrashHandler {
     }
 
     fun listCrashes(context: Context): List<File> =
-        crashesDir(context).listFiles { f -> f.isFile && f.name.endsWith(".txt") }
+        crashesDir(context).listFiles { f -> f.isFile && CrashReport.isCrashLog(f.name) }
             ?.sortedByDescending { it.lastModified() } ?: emptyList()
 
     private fun writeCrash(context: Context, thread: Thread, throwable: Throwable) {
         val dir = crashesDir(context)
-        val ts = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-        val file = File(dir, "crash_$ts.txt")
+        val ts = CrashReport.stamp(System.currentTimeMillis())
+        val file = File(dir, CrashReport.fileName(ts))
 
         val sw = StringWriter()
         throwable.printStackTrace(PrintWriter(sw))
@@ -57,19 +59,18 @@ object CrashHandler {
         val memMb = (rt.totalMemory() - rt.freeMemory()) / (1024 * 1024)
         val maxMb = rt.maxMemory() / (1024 * 1024)
 
-        val header = buildString {
-            appendLine("Time: ${Date()}")
-            appendLine("App: ${context.packageName} $versionName")
-            appendLine("Android: ${Build.VERSION.RELEASE} (SDK ${Build.VERSION.SDK_INT})")
-            appendLine("Device: ${Build.MANUFACTURER} ${Build.MODEL} (${Build.DEVICE})")
-            appendLine("ABI: ${Build.SUPPORTED_ABIS.joinToString(",")}")
-            appendLine("Display: ${dm.widthPixels}x${dm.heightPixels} @${dm.densityDpi}dpi (x${dm.density})")
-            appendLine("Locale: $locale")
-            appendLine("Memory: ${memMb}MB used / ${maxMb}MB max")
-            appendLine("Thread: ${thread.name}")
-            appendLine()
-        }
-        val report = header + sw.toString()
+        val header = listOf(
+            "Time: ${Date()}",
+            "App: ${context.packageName} $versionName",
+            "Android: ${Build.VERSION.RELEASE} (SDK ${Build.VERSION.SDK_INT})",
+            "Device: ${Build.MANUFACTURER} ${Build.MODEL} (${Build.DEVICE})",
+            "ABI: ${Build.SUPPORTED_ABIS.joinToString(",")}",
+            "Display: ${dm.widthPixels}x${dm.heightPixels} @${dm.densityDpi}dpi (x${dm.density})",
+            "Locale: $locale",
+            "Memory: ${memMb}MB used / ${maxMb}MB max",
+            "Thread: ${thread.name}",
+        )
+        val report = CrashReport.report(header, sw.toString())
         file.writeText(report)
 
         // Also drop a copy in public Downloads so a rider whose app crashes on
@@ -77,21 +78,16 @@ object CrashHandler {
         // find the trace and send it to us. No permission needed on minSdk 29+
         // via MediaStore. Best-effort: a failure here must not break the save
         // above or re-enter the crash path.
-        runCatching { writeToDownloads(context, "$DOWNLOADS_PREFIX$ts.txt", report) }
+        // Crash logs land in Downloads as EUCPlanet-crashlog-<timestamp>.txt so
+        // repeated crashes don't overwrite each other. Nothing there is ever
+        // deleted - the rider owns their Downloads.
+        runCatching { writeToDownloads(context, CrashReport.publicName(ts), report) }
 
-        // Retention: keep newest MAX_FILES
-        val all = dir.listFiles { f -> f.isFile && f.name.endsWith(".txt") } ?: return
-        if (all.size > MAX_FILES) {
-            all.sortedByDescending { it.lastModified() }
-                .drop(MAX_FILES)
-                .forEach { runCatching { it.delete() } }
-        }
+        // Retention: keep newest CrashReport.MAX_FILES
+        val all = dir.listFiles { f -> f.isFile && CrashReport.isCrashLog(f.name) } ?: return
+        CrashReport.beyondRetention(all.map { it.name to it.lastModified() })
+            .forEach { runCatching { File(dir, it).delete() } }
     }
-
-    /** Crash logs land in Downloads as EUCPlanet-crashlog-<timestamp>.txt so
-     *  repeated crashes don't overwrite each other. Nothing here is ever
-     *  deleted - the rider owns their Downloads. */
-    private const val DOWNLOADS_PREFIX = "EUCPlanet-crashlog-"
 
     /** Write [content] to public Downloads as [name] via MediaStore. No
      *  permission needed on Android 10+ (our minSdk), and no deletion. */
