@@ -18,6 +18,7 @@ class OfflineRoutingSettingsJsonTest {
         assertEquals("https://raw.githubusercontent.com/eried/eucplanet-maps/main/routing/index.json", OfflineRoutingSettings.GITHUB_MIRROR_URL)
         assertEquals("https://brouter.de/brouter", OfflineRoutingSettings.BROUTER_URL)
         assertEquals(false, d.wifiAutoUpdate)
+        assertEquals(true, d.remindBeforeRide)
     }
 
     @Test fun roundTrip() {
@@ -26,6 +27,7 @@ class OfflineRoutingSettingsJsonTest {
                 mode = OfflineRoutingMode.PREFER,
                 serverUrl = "https://example.org/tiles",
                 wifiAutoUpdate = true,
+                remindBeforeRide = false,
             )
         )
         val restored = SettingsJson.fromJson(SettingsJson.toJson(saved), AppSettings())

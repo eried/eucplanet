@@ -2931,4 +2931,10 @@
     <string name="offline_data_route_q">Ladda ner områdena på din rutt (%1$s)?</string>
     <string name="offline_data_no_route">Planera en rutt först.</string>
     <string name="offline_data_route_all_here">Alla områden på din rutt är nedladdade.</string>
+    <string name="offline_ride_title">Ladda ner offlinekartor?</string>
+    <string name="offline_ride_body">En del av den här rutten ligger utanför dina offlinekartor. Vi kan ladda ner dem nu, så att kartan och omräkningen av rutten fungerar utan täckning.</string>
+    <string name="offline_ride_download">Ladda ner kartor</string>
+    <string name="offline_ride_start">Starta ändå</string>
+    <string name="offline_ride_never">Fråga inte igen</string>
+    <string name="offline_remind_before_ride">Kontrollera offlinekartor före en tur</string>
 </resources>

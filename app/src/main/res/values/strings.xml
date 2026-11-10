@@ -2959,4 +2959,10 @@
     <string name="offline_data_route_q">Download the areas on your route (%1$s)?</string>
     <string name="offline_data_no_route">Plan a route first.</string>
     <string name="offline_data_route_all_here">Every area on your route is downloaded.</string>
+    <string name="offline_ride_title">Download offline maps?</string>
+    <string name="offline_ride_body">Part of this route is outside your offline maps. We can download them now, so the map and rerouting keep working without signal.</string>
+    <string name="offline_ride_download">Download maps</string>
+    <string name="offline_ride_start">Start anyway</string>
+    <string name="offline_ride_never">Don\'t ask again</string>
+    <string name="offline_remind_before_ride">Check offline maps before a ride</string>
 </resources>

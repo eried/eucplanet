@@ -394,6 +394,7 @@ object SettingsJson {
             put("mode", s.offlineRouting.mode.name)
             put("serverUrl", s.offlineRouting.serverUrl)
             put("wifiAutoUpdate", s.offlineRouting.wifiAutoUpdate)
+            put("remindBeforeRide", s.offlineRouting.remindBeforeRide)
         })
         put("navOverpassUrl", s.navOverpassUrl)
         put("navOcmApiKey", s.navOcmApiKey)
@@ -873,6 +874,7 @@ object SettingsJson {
                 mode = com.eried.eucplanet.data.model.OfflineRoutingMode.fromName(o.optString("mode")),
                 serverUrl = o.optString("serverUrl", base.offlineRouting.serverUrl),
                 wifiAutoUpdate = o.optBoolean("wifiAutoUpdate", base.offlineRouting.wifiAutoUpdate),
+                remindBeforeRide = o.optBoolean("remindBeforeRide", base.offlineRouting.remindBeforeRide),
             )
         } ?: base.offlineRouting,
         navOverpassUrl = j.optString("navOverpassUrl", base.navOverpassUrl),

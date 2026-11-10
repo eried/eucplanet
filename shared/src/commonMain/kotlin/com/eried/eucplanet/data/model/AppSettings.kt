@@ -1815,11 +1815,14 @@ enum class OfflineRoutingMode {
  * `profiles2/lookups.dat`. When it cannot be reached, the other mirror and
  * then [BROUTER_URL] stand in.
  * [wifiAutoUpdate] lets downloaded tiles update by themselves on Wi-Fi.
+ * [remindBeforeRide]: Start asks first when the route leaves the downloaded
+ * areas.
  */
 data class OfflineRoutingSettings(
     val mode: OfflineRoutingMode = OfflineRoutingMode.FALLBACK,
     val serverUrl: String = MIRROR_URL,
     val wifiAutoUpdate: Boolean = false,
+    val remindBeforeRide: Boolean = true,
 ) {
     companion object {
         const val MIRROR_URL = "https://huggingface.co/datasets/eucplanet/eucplanet-maps/resolve/main/routing/index.json"

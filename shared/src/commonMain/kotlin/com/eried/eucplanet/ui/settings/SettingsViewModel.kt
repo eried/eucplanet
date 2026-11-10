@@ -1195,6 +1195,8 @@ class SettingsViewModel(
     fun updateOfflineServerUrl(v: String) = update { copy(offlineRouting = offlineRouting.copy(serverUrl = v)) }
     fun updateOfflineWifiAutoUpdate(b: Boolean) =
         update { copy(offlineRouting = offlineRouting.copy(wifiAutoUpdate = b)) }
+    fun updateOfflineRemindBeforeRide(b: Boolean) =
+        update { copy(offlineRouting = offlineRouting.copy(remindBeforeRide = b)) }
     fun updateNavOverpassUrl(v: String) = update { copy(navOverpassUrl = v) }
     fun updateNavOcmApiKey(v: String) = update { copy(navOcmApiKey = v) }
 

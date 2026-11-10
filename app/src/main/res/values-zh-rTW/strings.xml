@@ -2928,4 +2928,10 @@
     <string name="offline_data_route_q">要下載路線上的區域（%1$s）嗎？</string>
     <string name="offline_data_no_route">請先規劃路線。</string>
     <string name="offline_data_route_all_here">路線上的所有區域皆已下載。</string>
+    <string name="offline_ride_title">下載離線地圖？</string>
+    <string name="offline_ride_body">這條路線有一部分不在你的離線地圖內。現在下載，沒有訊號時地圖和重新計算路線也能正常使用。</string>
+    <string name="offline_ride_download">下載地圖</string>
+    <string name="offline_ride_start">仍然開始</string>
+    <string name="offline_ride_never">不再詢問</string>
+    <string name="offline_remind_before_ride">騎乘前檢查離線地圖</string>
 </resources>

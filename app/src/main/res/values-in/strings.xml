@@ -2727,4 +2727,10 @@
     <string name="offline_data_route_q">Unduh area di rute Anda (%1$s)?</string>
     <string name="offline_data_no_route">Rencanakan rute dulu.</string>
     <string name="offline_data_route_all_here">Semua area di rute Anda sudah diunduh.</string>
+    <string name="offline_ride_title">Unduh peta offline?</string>
+    <string name="offline_ride_body">Sebagian rute ini berada di luar peta offline Anda. Kami bisa mengunduhnya sekarang agar peta dan penghitungan ulang rute tetap berfungsi tanpa sinyal.</string>
+    <string name="offline_ride_download">Unduh peta</string>
+    <string name="offline_ride_start">Tetap mulai</string>
+    <string name="offline_ride_never">Jangan tanya lagi</string>
+    <string name="offline_remind_before_ride">Periksa peta offline sebelum berkendara</string>
 </resources>

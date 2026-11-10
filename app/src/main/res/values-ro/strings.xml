@@ -2735,4 +2735,10 @@
     <string name="offline_data_route_q">Descarci zonele de pe traseu (%1$s)?</string>
     <string name="offline_data_no_route">Planifică mai întâi un traseu.</string>
     <string name="offline_data_route_all_here">Toate zonele de pe traseu sunt descărcate.</string>
+    <string name="offline_ride_title">Descarci hărțile offline?</string>
+    <string name="offline_ride_body">O parte din acest traseu este în afara hărților tale offline. Le putem descărca acum, ca harta și recalcularea traseului să meargă și fără semnal.</string>
+    <string name="offline_ride_download">Descarcă hărțile</string>
+    <string name="offline_ride_start">Pornește oricum</string>
+    <string name="offline_ride_never">Nu mai întreba</string>
+    <string name="offline_remind_before_ride">Verifică hărțile offline înainte de o tură</string>
 </resources>

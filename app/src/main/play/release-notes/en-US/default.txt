@@ -1,10 +1,10 @@
-Route sharing, Android Auto, two-way Dropbox and better battery life.
+Offline maps and routing, a navigator view, and 7 new languages.
 
-- Map: share a route by link or QR, Satellite hybrid.
-- Android Auto: your stats and wheel buttons on the car screen.
-- Wear OS watch map. Thanks to ZiraiMode.
-- Dropbox syncs settings and trips both ways.
-- Much less battery drain with no wheel or the screen off.
-- Voice: music commands, your own voice report.
-- Crews: fly your crew colours on eucstats.
-- InMotion X1 and V6, KingSong lock and horn, Begode fixes.
+- Offline areas: download where you ride, and the map, routes and turn cues work with no signal.
+- Navigator view: turn card, arrival time and your tiles while navigating; heading-up map.
+- Ride a GPX track as drawn, reverse a route, solve the shortest stop order.
+- Quieter bike routes, faster reroutes.
+- Android Auto: turn-by-turn on the car screen.
+- Compare two trips.
+- 30 languages, all reviewed.
+- InMotion V8S and V6 fixes.

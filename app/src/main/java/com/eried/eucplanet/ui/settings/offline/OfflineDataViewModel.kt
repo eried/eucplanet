@@ -105,6 +105,9 @@ class OfflineDataViewModel(
         return missing(RoutingTiles.tilesAround(GeoPoint(here.latitude, here.longitude), km))
     }
 
+    /** Which of [names] still need a download, now the server list is known. */
+    fun missingOf(names: List<String>): List<String> = missing(names.toSet())
+
     private fun missing(names: Set<String>): List<String> {
         // Squares the server lists; open sea has none. Without the list,
         // all of them, and a missing one fails without retrying. A square

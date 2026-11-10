@@ -2934,4 +2934,10 @@
     <string name="offline_data_route_q">Baixar as áreas da sua rota (%1$s)?</string>
     <string name="offline_data_no_route">Planeje uma rota primeiro.</string>
     <string name="offline_data_route_all_here">Todas as áreas da sua rota estão baixadas.</string>
+    <string name="offline_ride_title">Baixar mapas offline?</string>
+    <string name="offline_ride_body">Parte desta rota está fora dos seus mapas offline. Podemos baixá-los agora para que o mapa e o recálculo da rota funcionem sem sinal.</string>
+    <string name="offline_ride_download">Baixar mapas</string>
+    <string name="offline_ride_start">Iniciar mesmo assim</string>
+    <string name="offline_ride_never">Não perguntar de novo</string>
+    <string name="offline_remind_before_ride">Verificar mapas offline antes de rodar</string>
 </resources>

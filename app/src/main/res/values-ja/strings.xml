@@ -2931,4 +2931,10 @@
     <string name="offline_data_route_q">ルート上のエリアをダウンロードしますか（%1$s）？</string>
     <string name="offline_data_no_route">先にルートを作成してください。</string>
     <string name="offline_data_route_all_here">ルート上のエリアはすべてダウンロード済みです。</string>
+    <string name="offline_ride_title">オフライン地図をダウンロードしますか？</string>
+    <string name="offline_ride_body">このルートの一部はオフライン地図の範囲外です。今ダウンロードすれば、電波がなくても地図とルートの再計算が使えます。</string>
+    <string name="offline_ride_download">地図をダウンロード</string>
+    <string name="offline_ride_start">このまま開始</string>
+    <string name="offline_ride_never">今後表示しない</string>
+    <string name="offline_remind_before_ride">走行前にオフライン地図を確認</string>
 </resources>

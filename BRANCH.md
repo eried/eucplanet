@@ -6,6 +6,7 @@ only when you can cut the ride short.
 
 ## Worked on
 
+- Merged the latest next-experimental (reroute wait, offline-map question before a ride) into the iPhone branch.
 - iPhone app (TestFlight): connects to the wheel, with the same dashboard, alarms, voice reports, settings, themes, Flic buttons, Dropbox sync, trip recording and trip list as Android.
 - iPhone app: leaderboards and crew pass, trip details with the map, trip meter, metric details and the charging monitor with charge alerts.
 - iPhone app: trip tools (rename, change wheel, split, extend), and the wheel reconnects by itself after a drop, as on Android.

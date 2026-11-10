@@ -2734,4 +2734,10 @@
     <string name="offline_data_route_q">Letöltöd az útvonal területeit (%1$s)?</string>
     <string name="offline_data_no_route">Előbb tervezz útvonalat.</string>
     <string name="offline_data_route_all_here">Az útvonal minden területe le van töltve.</string>
+    <string name="offline_ride_title">Letöltöd az offline térképeket?</string>
+    <string name="offline_ride_body">Az útvonal egy része kívül esik az offline térképeiden. Most letölthetjük őket, így a térkép és az újratervezés térerő nélkül is működik.</string>
+    <string name="offline_ride_download">Térképek letöltése</string>
+    <string name="offline_ride_start">Indítás mégis</string>
+    <string name="offline_ride_never">Ne kérdezze újra</string>
+    <string name="offline_remind_before_ride">Offline térképek ellenőrzése út előtt</string>
 </resources>

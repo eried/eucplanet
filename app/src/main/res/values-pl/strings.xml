@@ -2933,4 +2933,10 @@
     <string name="offline_data_route_q">Pobrać obszary na trasie (%1$s)?</string>
     <string name="offline_data_no_route">Najpierw zaplanuj trasę.</string>
     <string name="offline_data_route_all_here">Wszystkie obszary na trasie są pobrane.</string>
+    <string name="offline_ride_title">Pobrać mapy offline?</string>
+    <string name="offline_ride_body">Część tej trasy jest poza Twoimi mapami offline. Możemy je pobrać teraz, aby mapa i przeliczanie trasy działały bez zasięgu.</string>
+    <string name="offline_ride_download">Pobierz mapy</string>
+    <string name="offline_ride_start">Rozpocznij mimo to</string>
+    <string name="offline_ride_never">Nie pytaj więcej</string>
+    <string name="offline_remind_before_ride">Sprawdzaj mapy offline przed jazdą</string>
 </resources>

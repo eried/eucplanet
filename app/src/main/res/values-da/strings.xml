@@ -2946,4 +2946,10 @@
     <string name="offline_data_route_q">Hent områderne på din rute (%1$s)?</string>
     <string name="offline_data_no_route">Planlæg en rute først.</string>
     <string name="offline_data_route_all_here">Alle områder på din rute er hentet.</string>
+    <string name="offline_ride_title">Hent offline-kort?</string>
+    <string name="offline_ride_body">En del af denne rute ligger uden for dine offline-kort. Vi kan hente dem nu, så kortet og ny ruteberegning virker uden signal.</string>
+    <string name="offline_ride_download">Hent kort</string>
+    <string name="offline_ride_start">Start alligevel</string>
+    <string name="offline_ride_never">Spørg ikke igen</string>
+    <string name="offline_remind_before_ride">Tjek offline-kort før en tur</string>
 </resources>
