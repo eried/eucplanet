@@ -60,6 +60,7 @@ Seams that need both sides on every change:
 | Trip wheel identity | `data/repository/WheelIdentity.kt` (`WheelIdentity`, `TripWheelLog`) | `TripRepository` | `iosMain/.../app/IosTrips.kt` |
 | GPS power tiers | `data/model/GpsPowerPolicy.kt` (`GpsPowerPolicy`, `GpsIdleOff`) | `TripRepository` (fused priority and interval) | `iosMain/.../app/IosGpsPower.kt` (CoreLocation accuracy and distance filter), `iosApp/LocationBridge.swift` |
 | Automations | `service/AutomationManager.kt` (`AutomationWheel`, `MediaAutomation`), `ui/settings/AutomationsContent.kt` | `di/ServiceModule.kt` builds it; `service/AndroidMediaAutomation.kt` (AudioManager volume, media keys) | `iosMain/.../app/IosAppGraph.automation` (no media half) |
+| Ride session | `service/RideSession.kt` (`RideWheel`, `RideRecorder`, `RideVoice`) | `WheelService` (builds it, adds the notification, widget, engine sound, HUD, accel splits) | `iosMain/.../app/IosRideSession.kt` (adds nothing; the Live Activity follows the link itself) |
 | Object graph | `di/SharedKoin.kt` (Koin) | `app/.../di/SharedModule.kt` hands the Koin singletons to Hilt; `AppModule` builds the moved repositories | `MainViewController.kt` reads Koin; `app/IosAppGraph.kt` builds the rest |
 
 The table grows as packages move; keep it current.
@@ -178,3 +179,63 @@ with Admin access, its `.p8` saved as
 the distribution certificate and profile itself, so nobody signs in to Xcode.
 The app (bundle id `com.eried.eucplanet.ios`) has to exist in App Store
 Connect first; the API cannot create it.
+
+## Duplication sweep (2026-11-10)
+
+Logic written twice, once in `:app` and once in `iosMain/.../app/Ios*.kt`,
+and what became of it. Only rules both phones apply were moved; platform
+plumbing (notification posting, audio routes, background scheduling) stays
+with each platform.
+
+| Duplicate | Outcome |
+|---|---|
+| Light and lock automations (`AutomationManager`, Android only; iOS answered "switched off") | Moved to `service/AutomationManager.kt` with `HeadlightRules`, `HeadlightSlowPolicy`, `ApplyWhenGate`, `ProximityLockEvaluator`, `SunCalculator`. The media half stays Android's (`AndroidMediaAutomation`). |
+| What a connect and a disconnect do (WheelService's connection collector; iOS had a partial copy for the automations) | Moved to `RideSession.followConnection`: suspensions cleared, connection announcements, auto-record on connect, the automation resets, the voice load window cleared. Each platform passes only its own extras. The iPhone gains the connect / disconnect announcements its settings already offered. |
+| Per-frame work (WheelService's telemetry collector; iOS spread over IosVoice, IosTrips, IosChargeAlerts and the automation runner) | Moved to `RideSession.onFrame`: the voice load window, the automations, the lights announcement, auto-record on motion, the charge alerts. The iPhone gains the lights announcement. |
+| Auto-record start and idle stop (WheelService, IosTrips.followWheel) | Moved to `RideSession`. The iPhone had drifted: no start on connect when not gated on motion, and the idle stop only ran on telemetry frames, so a disconnected wheel never stopped its trip. Both fixed by sharing. |
+| Periodic voice reports loop (WheelService.startVoiceLoop, IosVoice.initialize) | Moved to `RideSession.startVoiceLoop`; the platforms supply the report and the external-audio check (`RideVoice`). |
+| Charge alert decision and text (WheelService.checkChargeAlerts, IosChargeAlerts) | Moved to `RideSession`; the platforms only post the title and text (`ChargeAlertNotification`, UNUserNotificationCenter). |
+| Stop all resets (WheelService.onDestroy, IosDashboardPlatform.stopAllAndExit) | Both call `RideSession.resetAutomations()`. The rest of Stop all is platform teardown. |
+| Ride notification text and buttons | Already shared (`RideNotificationText`, `RideQuickActions`); left. |
+| Quick-action presses (WheelService intents, RideActivity.press) | Left: iOS goes through the shared `ActionExecutor`, Android's intents call the same repository methods; a few lines each, no rule of their own. |
+| Lockdown stops a recording (TripRepository, IosTrips.followWheel) | Left: three lines each over the shared `LegalLockdownController`; moving it would need the whole trip recorder shared. |
+| Dropbox pass triggers (SyncManager / WorkManager, IosDropboxSync) | Left: the pass itself is shared (`DropboxTripSync`); only the scheduling differs (WorkManager against in-process retries). |
+| Leaderboard upload trigger (EucStatsUploadWorker, IosEucStats) | Left: the sweep is shared (`EucStatsSweep`); only the trigger differs. |
+| Keep screen on (MainActivity, IosDisplayPrefs) | Left: a settings flow into a platform flag, no rule to share. |
+| GPS acquired / lost announcements | Android only (TripRepository's signal state machine); not a duplicate. The iPhone shows the switch but has no event source yet (IOS_PARITY). |
+
+## How to keep iOS paired
+
+For every change:
+
+1. **Put the rule in commonMain.** A decision (when, whether, what text)
+   goes in `shared/src/commonMain`, usually `service/` or `data/`. A
+   platform file should only carry out an answer. If you are about to write
+   the same `if` in `WheelService` and in an `Ios*.kt`, it belongs in
+   `RideSession`, `AutomationManager` or a new shared class instead.
+2. **Reach the platform through a small port.** An interface beside the
+   shared class (`AutomationWheel`, `MediaAutomation`, `RideVoice`,
+   `RideRecorder`, `*Host`, `*Ports.kt`), implemented in `:app` and in
+   `iosMain/.../app/Ios*.kt`. Keep it to what differs.
+3. **Test it in commonTest.** Tests there run on the JVM (`gradlew test`) and
+   on the iOS simulator (`:shared:iosSimulatorArm64Test`), so the rule is
+   proven on both. Test names must be legal on Kotlin/Native (no commas,
+   dots or colons inside backticks). `RideSessionTest` and
+   `AutomationManagerTest` guard the ride session; `CommonMainGuardTest`
+   keeps Android APIs out of commonMain; `KoinGraphTest` checks Android's
+   wiring; `SettingsSearchHiddenRowsTest` checks what each phone shows.
+4. **A feature iOS cannot do** is a `SettingsRow` the iOS host lists in
+   `hiddenRows` (or a host flag), and a line in `docs/IOS_PARITY.md`, never a
+   dead switch.
+5. **New UI strings** go in `app/src/main/res/values*/strings.xml` for every
+   locale; shared code names them as `Res.string.x`.
+6. **Run both apps.** The gate plus the Xcode build, then look at the
+   changed screens on the Android emulator and the iOS simulator (a virtual
+   wheel: `SIMCTL_CHILD_EUC_CONNECT=VIRTUAL:<id>`).
+7. **Update `docs/IOS_PARITY.md`** in the same commit, and the seam table
+   above when a new port appears.
+8. **Merging next-experimental into feature/ios**: after the merge, grep the
+   incoming `:app` changes to `WheelService`, `service/`, `data/repository`
+   and `voice/` for rules that now live in shared code (`RideSession`,
+   `AutomationManager`); port the change there rather than restoring the
+   Android copy, then run the gate and both apps.

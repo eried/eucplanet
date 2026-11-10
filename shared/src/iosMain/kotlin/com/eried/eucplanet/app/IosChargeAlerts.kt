@@ -2,7 +2,6 @@ package com.eried.eucplanet.app
 
 import com.eried.eucplanet.platform.Log
 import com.eried.eucplanet.resources.*
-import com.eried.eucplanet.service.ChargeAlertPolicy
 import com.eried.eucplanet.ui.charging.ChargingMonitorLaunch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,10 +26,10 @@ import platform.UserNotifications.UNUserNotificationCenterDelegateProtocol
 import platform.darwin.NSObject
 
 /**
- * The charge alerts on iOS, as WheelService.checkChargeAlerts posts them on
- * Android: the same ChargeAlertPolicy on every frame, the same titles and
- * text, as a local notification. Tapping one opens the charging monitor.
- * Permission is asked the first time an alert is switched on.
+ * The charge alerts on iOS: the shared RideSession decides them on every
+ * frame, as on Android, and hands the title and text here to post as a
+ * local notification. Tapping one opens the charging monitor. Permission is
+ * asked the first time an alert is switched on.
  */
 internal object IosChargeAlerts {
     private const val TAG = "ChargeAlerts"
@@ -38,7 +37,6 @@ internal object IosChargeAlerts {
     private const val REQUEST_ID = "charge_alert"
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
-    private var state = ChargeAlertPolicy.State()
     private val center get() = UNUserNotificationCenter.currentNotificationCenter()
     /** Held here: the notification center keeps its delegate weakly. */
     private val delegate = Delegate()
@@ -51,33 +49,6 @@ internal object IosChargeAlerts {
                 .distinctUntilChanged()
                 .collect { wanted -> if (wanted) askPermission() }
         }
-        scope.launch {
-            IosAppGraph.wheel.wheelData.collect { data ->
-                val settings = IosAppGraph.settings.current.value
-                val step = ChargeAlertPolicy.step(
-                    state,
-                    IosAppGraph.wheel.chargeStatus.value,
-                    data.batteryPercent,
-                    want80 = settings.chargingNotify80,
-                    wantFull = settings.chargingNotifyFull,
-                    customMark = if (settings.chargingNotifyCustom) settings.chargingNotifyCustomPct else 0,
-                )
-                state = step.state
-                when (step.alert) {
-                    ChargeAlertPolicy.Alert.AT_80 -> post(
-                        getString(Res.string.charge_alert_80_title), getString(Res.string.charge_alert_80_text),
-                    )
-                    ChargeAlertPolicy.Alert.FULL -> post(
-                        getString(Res.string.charge_alert_full_title), getString(Res.string.charge_alert_full_text),
-                    )
-                    ChargeAlertPolicy.Alert.CUSTOM -> post(
-                        IosPhoneDevice.text(Res.string.charge_alert_custom_title, settings.chargingNotifyCustomPct),
-                        getString(Res.string.charge_alert_custom_text),
-                    )
-                    ChargeAlertPolicy.Alert.NONE -> Unit
-                }
-            }
-        }
     }
 
     private fun askPermission() {
@@ -86,7 +57,7 @@ internal object IosChargeAlerts {
         }
     }
 
-    private fun post(title: String, text: String) {
+    fun post(title: String, text: String) {
         val content = UNMutableNotificationContent().apply {
             setTitle(title)
             setBody(text)

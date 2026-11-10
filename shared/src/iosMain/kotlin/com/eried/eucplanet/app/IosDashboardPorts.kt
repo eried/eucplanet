@@ -161,9 +161,7 @@ internal class IosDashboardPlatform(
     override fun stopAllAndExit() {
         runBlocking { tripMeter.resetAndPersist() }
         // As WheelService.onDestroy: the automations forget this session.
-        IosAppGraph.automation.restoreBaselineVolume()
-        IosAppGraph.automation.resetMediaControl()
-        IosAppGraph.automation.resetProximityLock()
+        IosRideSession.session.resetAutomations()
         wheel.disconnect()
     }
 }

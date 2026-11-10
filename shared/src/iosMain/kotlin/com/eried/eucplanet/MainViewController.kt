@@ -31,7 +31,7 @@ import com.eried.eucplanet.app.IosFlic
 import com.eried.eucplanet.app.IosLocation
 import com.eried.eucplanet.app.IosTrips
 import com.eried.eucplanet.app.IosChargeAlerts
-import com.eried.eucplanet.app.IosAutomation
+import com.eried.eucplanet.app.IosRideSession
 import com.eried.eucplanet.app.IosChargingHost
 import com.eried.eucplanet.ui.charging.ChargingMonitorLaunch
 import com.eried.eucplanet.ui.charging.ChargingMonitorScreen
@@ -87,8 +87,8 @@ fun MainViewController(): UIViewController {
         // Then the wheel out of any trip file never asked, as Android's start does.
         IosTrips.backfillWheelMeta()
     }
-    // The phone's GPS for the dashboard and trips, and auto-record, as
-    // WheelService starts them on Android.
+    // The phone's GPS for the dashboard and trips, as WheelService starts it
+    // on Android, and lockdown stopping a recording.
     IosLocation.start()
     IosTrips.followWheel()
     // The trip meter counts while a wheel is connected, dashboard open or not.
@@ -97,8 +97,9 @@ fun MainViewController(): UIViewController {
     IosEucStats.start()
     // The charge alerts, as WheelService posts them on Android.
     IosChargeAlerts.start()
-    // The light, beeper and proximity lock automations, as WheelService runs them.
-    IosAutomation.start()
+    // What runs around a ride (automations, announcements, auto-record,
+    // charge alerts, periodic reports): the shared RideSession, as WheelService runs it.
+    IosRideSession.start()
     // Dropbox trips at launch, on every return to the front and while open.
     IosDropboxSync.start()
     // Keep screen on, and the language picker showing the applied language.

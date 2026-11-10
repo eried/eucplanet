@@ -9,7 +9,7 @@ import com.eried.eucplanet.platform.formatLocalDateUs
 import com.eried.eucplanet.resources.Res
 import com.eried.eucplanet.resources.voice_recording_finished
 import com.eried.eucplanet.resources.voice_recording_started
-import com.eried.eucplanet.service.AutoRecordPolicy
+import com.eried.eucplanet.service.RideRecorder
 import com.eried.eucplanet.data.repository.WheelChoice
 import com.eried.eucplanet.data.repository.recoverKilledRecordings
 import com.eried.eucplanet.data.repository.TripTools
@@ -70,7 +70,7 @@ import platform.Foundation.writeData
  * so they write the files and rows Android's do. See docs/IOS_PARITY.md.
  */
 @OptIn(ExperimentalForeignApi::class)
-internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips {
+internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips, RideRecorder {
     private const val TAG = "Trips"
     // Fixes worse than this are left off the recorded track, as on Android.
     private const val MAX_PLOT_ACCURACY_M = 50f
@@ -383,7 +383,10 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips {
         NSFileManager.defaultManager.removeItemAtPath("$tripsDir/$fileName", null)
     }
 
-    /** Auto-record, as WheelService runs it on Android: start on motion, stop when idle. */
+    /**
+     * Lockdown stops a recording. Auto-record's start and idle stop are the
+     * shared RideSession's, as on Android.
+     */
     fun followWheel() {
         // Lockdown can engage long after it was armed, the moment legal mode
         // comes on, so a ride may already be in progress. Finalise and save it
@@ -391,23 +394,6 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips {
         scope.launch {
             IosLockdown.controller.engaged.collect { engaged ->
                 if (engaged && _recording.value) stopRecording()
-            }
-        }
-        scope.launch {
-            var lastMotionAt = 0L
-            IosAppGraph.wheel.wheelData.collect { data ->
-                val s = IosAppGraph.settings.currentOrLoad()
-                val connected = IosAppGraph.wheel.connectionState.value == ConnectionState.CONNECTED
-                val moving = connected && AutoRecordPolicy.isMoving(data.speed)
-                if (moving) lastMotionAt = System.currentTimeMillis()
-                if (AutoRecordPolicy.shouldStart(s, moving, connected, _recording.value)) {
-                    startRecording()
-                } else if (_recording.value && !moving) {
-                    if (lastMotionAt == 0L) lastMotionAt = System.currentTimeMillis()
-                    if (AutoRecordPolicy.shouldStop(s, true, System.currentTimeMillis() - lastMotionAt)) {
-                        stopRecording()
-                    }
-                }
             }
         }
     }

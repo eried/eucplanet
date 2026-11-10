@@ -59,7 +59,6 @@ class WheelService : LifecycleService() {
         // so the two never drift. Small enough to catch a real roll, large
         // enough to ignore sensor jitter at a standstill.
         // One definition, shared with the tests through AutoRecordPolicy.
-        private const val MOTION_MIN_KMH = AutoRecordPolicy.MOTION_MIN_KMH
         /** Phone HUD redraw interval. 5 Hz reads as live without recomposing
          *  a window-manager view at BLE frame rate for a whole ride. */
         private const val PHONE_HUD_INTERVAL_MS = 200L
@@ -236,17 +235,39 @@ class WheelService : LifecycleService() {
         com.eried.eucplanet.ui.studio.camera.StudioCameraHub()
     }
 
-    // Voice announcement
-    private var voiceJob: Job? = null
+    /**
+     * What runs around a ride on both phones (shared RideSession): the
+     * connect and disconnect rules, the automations, the lights
+     * announcement, auto-record, the charge alerts and the periodic voice
+     * reports. This service adds only what Android has of its own.
+     */
+    private val rideSession by lazy {
+        RideSession(
+            wheel = wheelRepository.asRideWheel(),
+            settings = settingsRepository,
+            automation = automationManager,
+            trips = object : RideRecorder {
+                override val recording = tripRepository.recording
+                override suspend fun startRecording() = tripRepository.startRecording()
+                override suspend fun stopRecording() = tripRepository.stopRecording()
+            },
+            voice = object : RideVoice {
+                override fun announceEvent(text: String) = voiceService.announceEvent(text)
+                override fun recordTelemetry(data: WheelData) = voiceService.recordTelemetry(data)
+                override fun clearTelemetryHistory() = voiceService.clearTelemetryHistory()
+                override fun announceStatus(data: WheelData, settings: AppSettings, isRecording: Boolean) =
+                    voiceService.announceStatus(data, settings, isRecording)
+                override fun externalOutputActive() = AudioOutput.isExternalActive(audioManager)
+            },
+            phone = get(),
+            scope = lifecycleScope,
+            postChargeAlert = ::postChargeAlert,
+        )
+    }
     // RaceBox-style acceleration splits. The session lives in a repository so
     // the settings screen can show and clear it; config is re-read each sample
     // so a settings change or the dashboard button takes effect at once.
     val accelSplitRepository: com.eried.eucplanet.data.repository.AccelSplitRepository = get()
-    private var lastConnectionState: ConnectionState? = null
-    // Written by the telemetry collector (a worker thread) and cleared on
-    // disconnect from the main thread.
-    @Volatile
-    private var lastLightOn: Boolean? = null
     // Flipped true by ACTION_STOP_ALL_AND_KILL so onDestroy knows to
     // SIGKILL the process at the end of cleanup. Set only once -- never
     // cleared, the process is going away anyway.
@@ -337,22 +358,17 @@ class WheelService : LifecycleService() {
         lifecycleScope.launch(Dispatchers.Default) {
             wheelRepository.wheelData.collect { data ->
                 updateNotification(data)
-                // Every frame, so the load-style voice reports average over a
-                // real window instead of whatever the wheel was doing at the
-                // instant a report fired.
-                voiceService.recordTelemetry(data)
                 pushWidget(data)
                 pushPhoneHud(data)
                 val settings = settingsRepository.currentOrLoad()
-                automationManager.evaluate(settings)
+                // The voice's load window, the automations, the lights
+                // announcement, auto-record and the charge alerts: shared.
+                rideSession.onFrame(data, settings)
                 shareSession.publishTick()
-                checkLightTransition(data.lightOn, settings)
-                evaluateAutoRecordOnTelemetry(data, settings)
                 if (settings.engineSoundEnabled) {
                     engineSoundEngine.pushTelemetry(data.speed, data.pwm)
                 }
                 handleAccelSplits(data, settings)
-                checkChargeAlerts(data, settings)
                 logGpsFix(data)
             }
         }
@@ -442,17 +458,14 @@ class WheelService : LifecycleService() {
         }
 
         // Start periodic voice announcements
-        startVoiceLoop()
+        rideSession.startVoiceLoop()
 
-        // Auto-record idle timeout loop (1 Hz)
-        startAutoRecordIdleLoop()
+        // Auto-record idle timeout loop (1 Hz), with its timer reset whenever
+        // a new recording starts.
+        rideSession.startAutoRecordIdleLoop()
 
-        // Reset idle timer whenever a new recording starts so the stop-after-idle
-        // threshold is measured from the fresh start, not from some stale
-        // lastMotionAtMs left over from a prior session.
         lifecycleScope.launch {
-            tripRepository.recording.collect { isRecording ->
-                if (isRecording) lastMotionAtMs = System.currentTimeMillis()
+            tripRepository.recording.collect {
                 // Repaint: a RECORD button's label and the action behind it both
                 // depend on this. Everything else the widget shows arrives on a
                 // telemetry frame, but recording can start and stop with no
@@ -481,72 +494,34 @@ class WheelService : LifecycleService() {
             wheelRepository.locked.collect { renderWidgetFromCurrentState() }
         }
 
-        // Monitor connection state for announcements + auto-record
-        lifecycleScope.launch {
-            wheelRepository.connectionState.collect { state ->
-                if (lastConnectionState != null && state != lastConnectionState) {
-                    val settings = settingsRepository.get()
-
-                    when (state) {
-                        ConnectionState.CONNECTED -> {
-                            // Fresh connection: the session suspensions are spent,
-                            // auto-lights and proximity lock follow their settings again
-                            automationManager.clearLightsSuspension()
-                            automationManager.clearLockSuspension()
-                            if (settings.announceConnection) {
-                                voiceService.announceEvent(getString(R.string.voice_wheel_connected))
-                            }
-                            // Auto-record: start recording when wheel connects, unless the user
-                            // gated it on "start in motion"; then the telemetry handler starts it.
-                            if (settings.autoRecord && !settings.autoRecordStartInMotion &&
-                                !tripRepository.recording.value) {
-                                lifecycleScope.launch { tripRepository.startRecording() }
-                            }
-                            engineSoundEngine.setConnected(true, settings)
-                        }
-                        ConnectionState.DISCONNECTED -> {
-                            // A new wheel, or the same one after a gap, must not
-                            // average across the break.
-                            voiceService.clearTelemetryHistory()
-                            // Drop the widget back to dashes. Without this it
-                            // keeps the last live numbers, which a rider
-                            // glancing at the launcher reads as current.
-                            renderWidget(null)
-                            // Same for the ongoing notification. The repository
-                            // zeroes the speed on disconnect, but that final
-                            // emission can land inside updateNotification's
-                            // 1 Hz throttle and be dropped, leaving the last
-                            // "1.4 mph | 84%" line up for hours. Post the state
-                            // once, unthrottled, so it reads "Disconnected".
-                            if (!shuttingDown) {
-                                postNotificationIfChanged(buildNotification(null))
-                            }
-                            // Only announce if we were actually connected (not just reconnect cycling)
-                            if (lastConnectionState == ConnectionState.CONNECTED && settings.announceConnection) {
-                                voiceService.announceEvent(getString(R.string.voice_wheel_disconnected))
-                            }
-                            lastLightOn = null
-                            engineSoundEngine.setConnected(false, settings)
-                            // Speed-based auto-volume drives STREAM_MUSIC down at
-                            // standstill; put the rider's baseline back on
-                            // disconnect so it isn't left turned down.
-                            automationManager.restoreBaselineVolume()
-                            automationManager.resetMediaControl()
-                            automationManager.onProximityLinkLost()
-                            // Drop the run in flight so the gap until the next
-                            // sample cannot be read as one very slow step. The
-                            // session's times are kept: a wheel powered off for
-                            // a coffee is the same wheel, and the rider is still
-                            // racing the same numbers. A different wheel resets
-                            // them in WheelRepository.connect().
-                            accelSplitRepository.pause()
-                        }
-                        else -> {}
-                    }
+        // Connection changes: the shared rules (announcements, auto-record,
+        // the automations) run first, then what only Android has.
+        rideSession.followConnection(
+            onConnected = { settings -> engineSoundEngine.setConnected(true, settings) },
+            onDisconnected = { settings ->
+                // Drop the widget back to dashes. Without this it
+                // keeps the last live numbers, which a rider
+                // glancing at the launcher reads as current.
+                renderWidget(null)
+                // Same for the ongoing notification. The repository
+                // zeroes the speed on disconnect, but that final
+                // emission can land inside updateNotification's
+                // 1 Hz throttle and be dropped, leaving the last
+                // "1.4 mph | 84%" line up for hours. Post the state
+                // once, unthrottled, so it reads "Disconnected".
+                if (!shuttingDown) {
+                    postNotificationIfChanged(buildNotification(null))
                 }
-                lastConnectionState = state
-            }
-        }
+                engineSoundEngine.setConnected(false, settings)
+                // Drop the run in flight so the gap until the next
+                // sample cannot be read as one very slow step. The
+                // session's times are kept: a wheel powered off for
+                // a coffee is the same wheel, and the rider is still
+                // racing the same numbers. A different wheel resets
+                // them in WheelRepository.connect().
+                accelSplitRepository.pause()
+            },
+        )
 
         // GPS voice: speak only GENUINE satellite acquired/lost events. The
         // TripRepository signal state machine emits these and never the app's own
@@ -813,14 +788,12 @@ class WheelService : LifecycleService() {
         try { phoneHudWindow.hide() } catch (_: Exception) {}
         synchronized(phoneHudHistory) { phoneHudHistory.clear() }
         try { hudServer.stop() } catch (_: Exception) {}
-        voiceJob?.cancel()
+        rideSession.stopVoiceLoop()
         engineSoundEngine.stop()
         // Restore the rider's media volume if speed-based auto-volume scaled it
         // down. onDestroy cancels the connection-state collector above, so the
         // disconnect restore may not run on Stop All - do it explicitly here.
-        automationManager.restoreBaselineVolume()
-        automationManager.resetMediaControl()
-        automationManager.resetProximityLock()
+        rideSession.resetAutomations()
         shareSession.leave()
         voiceService.shutdown()
         wearMapBridge.onServiceStopped()
@@ -849,122 +822,8 @@ class WheelService : LifecycleService() {
         }
     }
 
-    // --- Auto-record motion gating ---
-
-    // Timestamp of the last sample in motion (|speed| > MOTION_MIN_KMH) while
-    // connected. Used by the idle-timeout loop to decide when to auto-stop.
-    // Written from the telemetry collector's worker thread and from the main
-    // thread loops, so it must be visible to both.
-    @Volatile
-    private var lastMotionAtMs: Long = 0L
-
-    private fun evaluateAutoRecordOnTelemetry(
-        data: WheelData,
-        settings: com.eried.eucplanet.data.model.AppSettings
-    ) {
-        if (!settings.autoRecord) return
-        val moving = AutoRecordPolicy.isMoving(data.speed)
-        if (moving) lastMotionAtMs = System.currentTimeMillis()
-
-        // Motion-linked loop: start on first motion and restart after each idle auto-stop.
-        if (AutoRecordPolicy.shouldStart(
-                settings,
-                moving = moving,
-                connected = wheelRepository.connectionState.value == ConnectionState.CONNECTED,
-                alreadyRecording = tripRepository.recording.value,
-            )
-        ) {
-            lifecycleScope.launch { tripRepository.startRecording() }
-        }
-    }
-
-    private fun startAutoRecordIdleLoop() {
-        lifecycleScope.launch {
-            while (true) {
-                // Only a recording can be auto-stopped. Waiting here instead of
-                // checking once a second keeps an idle phone asleep; it used to
-                // parse every setting on the main thread each second, all night.
-                if (!tripRepository.recording.value) tripRepository.recording.first { it }
-                delay(1000L)
-                val settings = settingsRepository.currentOrLoad()
-                if (!settings.autoRecord || !settings.autoRecordStartInMotion) continue
-                if (!tripRepository.recording.value) continue
-
-                val connected = wheelRepository.connectionState.value == ConnectionState.CONNECTED
-                val moving = connected && kotlin.math.abs(wheelRepository.wheelData.value.speed) > MOTION_MIN_KMH
-                if (moving) {
-                    lastMotionAtMs = System.currentTimeMillis()
-                    continue
-                }
-
-                // Idle = not moving OR disconnected. Give a short grace period when we just started
-                // recording so we don't instantly stop a recording that began before the wheel moves.
-                if (lastMotionAtMs == 0L) lastMotionAtMs = System.currentTimeMillis()
-                val idleMs = System.currentTimeMillis() - lastMotionAtMs
-                if (AutoRecordPolicy.shouldStop(settings, recording = true, idleMs = idleMs)) {
-                    Log.i(TAG, "Auto-stop: idle for ${idleMs / 1000}s (connected=$connected)")
-                    tripRepository.stopRecording()
-                }
-            }
-        }
-    }
-
-    private fun checkLightTransition(current: Boolean, settings: com.eried.eucplanet.data.model.AppSettings) {
-        val previous = lastLightOn
-        lastLightOn = current
-        // Skip the first observation; that's the state we inherit on connect,
-        // not a change the user should hear.
-        if (previous == null || previous == current) return
-        if (!settings.announceLights) return
-        voiceService.announceEvent(
-            getString(if (current) R.string.voice_lights_on else R.string.voice_lights_off)
-        )
-    }
-
-    // --- Periodic voice announcements ---
-
     private val audioManager by lazy {
         getSystemService(Context.AUDIO_SERVICE) as AudioManager
-    }
-
-    private fun startVoiceLoop() {
-        voiceJob?.cancel()
-        voiceJob = lifecycleScope.launch {
-            while (true) {
-                delay(settingsRepository.currentOrLoad().voiceIntervalSeconds * 1000L)
-                // Re-read settings *after* the wait, not before it. If the rider
-                // turns "Report status periodically" off during the countdown, the
-                // pending report is dropped instead of one last one slipping through.
-                // Only this periodic report is gated here, alarm/trigger/nav voice
-                // lives on separate paths and is unaffected.
-                val settings = settingsRepository.currentOrLoad()
-                // Gate on the single visible "Enable periodic reports" toggle
-                // (voiceEnabled). The old `&& voicePeriodicEnabled` required a
-                // second flag that no Settings control ever set - it defaulted
-                // false and was only reachable from the dashboard voice menu /
-                // wizard, so turning the labelled Settings toggle on produced no
-                // periodic reports at all. voicePeriodicEnabled is now retired
-                // (the dashboard quick-toggle drives voiceEnabled too).
-                if (settings.voiceEnabled) {
-                    val connected = wheelRepository.connectionState.value == ConnectionState.CONNECTED
-                    val data = wheelRepository.wheelData.value
-                    // "RIDING" = the same "in motion" test that auto-starts a trip
-                    // recording (shared MOTION_MIN_KMH), so the two stay in lockstep.
-                    val moving = connected && kotlin.math.abs(data.speed) > MOTION_MIN_KMH
-                    val allowed = when (settings.voiceAnnounceWhen) {
-                        "ALWAYS" -> true
-                        "RIDING" -> moving
-                        else -> connected   // "CONNECTED" + any legacy/unknown value
-                    }
-                    if (!allowed) continue
-                    // Extra opt-in condition: only speak while audio is on an
-                    // external output (headphones / Bluetooth / wired / USB).
-                    if (settings.voiceAnnounceRequireExternal &&
-                        !AudioOutput.isExternalActive(audioManager)) continue
-                    voiceService.announceStatus(data, settings, isRecording = tripRepository.recording.value)
-                }
-            }
-        }
     }
 
     // --- Acceleration splits (RaceBox-style) ---
@@ -1020,43 +879,6 @@ class WheelService : LifecycleService() {
     }
 
     // --- Charge alerts ---
-
-    private var chargeAlertState = ChargeAlertPolicy.State()
-
-    /**
-     * Tell the rider when the pack passes 80%, their own level, or
-     * finishes, if they asked.
-     *
-     * Runs on every telemetry frame, which is why the deciding is in
-     * [ChargeAlertPolicy] and only the posting is here.
-     */
-    private fun checkChargeAlerts(data: WheelData, settings: AppSettings) {
-        val step = ChargeAlertPolicy.step(
-            chargeAlertState,
-            wheelRepository.chargeStatus.value,
-            data.batteryPercent,
-            want80 = settings.chargingNotify80,
-            wantFull = settings.chargingNotifyFull,
-            customMark = if (settings.chargingNotifyCustom) settings.chargingNotifyCustomPct else 0,
-        )
-        chargeAlertState = step.state
-        when (step.alert) {
-            ChargeAlertPolicy.Alert.AT_80 -> postChargeAlert(
-                R.string.charge_alert_80_title, R.string.charge_alert_80_text,
-            )
-            ChargeAlertPolicy.Alert.FULL -> postChargeAlert(
-                R.string.charge_alert_full_title, R.string.charge_alert_full_text,
-            )
-            ChargeAlertPolicy.Alert.CUSTOM -> postChargeAlert(
-                getString(R.string.charge_alert_custom_title, settings.chargingNotifyCustomPct),
-                getString(R.string.charge_alert_custom_text),
-            )
-            ChargeAlertPolicy.Alert.NONE -> Unit
-        }
-    }
-
-    private fun postChargeAlert(titleRes: Int, textRes: Int) =
-        postChargeAlert(getString(titleRes), getString(textRes))
 
     private fun postChargeAlert(title: String, text: String) {
         if (shuttingDown) return
