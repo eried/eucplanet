@@ -45,6 +45,7 @@ only when you can cut the ride short.
 - The APK is about 5 MB smaller: the recordings are shipped as grain banks instead of whole clips.
 - Volume keys: "Also when the screen is off" under the volume key actions. The app claims the buttons through a media session, so a click or hold fires its action with the screen off or another app in front. It asks before turning on, because the buttons then stop changing the phone volume. It keeps the buttons while music plays and when the song changes.
 - Voice: pressing Listen without the microphone permission now asks for it, from any button or tile. With the screen off it says so and adds a Needs attention entry. Needs attention also says when Bluetooth is not allowed.
+- Begode: a wheel whose name the app does not know (the Panther, issue #34) connected and showed no speed. It is now recognised from its first data frame.
 - Actions: Volume up, Volume down, Mute / unmute, Phone flashlight and Engine sound on/off can be bound to a Flic, the volume keys, the watch or a dashboard tile.
 
 ## Please test
@@ -89,6 +90,9 @@ only when you can cut the ride short.
 
 **InMotion V8S (or any V1 wheel)**
 - Ride as usual: how many disconnects, compared with EUC World? A Service Mode log covering any drop helps most.
+
+**Begode Panther, or any Begode the app lists under another name** (issue #34)
+- Connect and ride: do speed, battery, PWM and temperature show? Say the name the wheel has in the scan list, and whether the battery percent looks right.
 
 **InMotion V6** (issue #33)
 - Tap Light in the app: does the wheel light switch on and off?

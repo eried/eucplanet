@@ -129,7 +129,11 @@ class CompositeWheelAdapter(
 
     override fun bleProfile(): BleProfile = active.bleProfile()
 
+    /** The advertised name of the wheel being connected, kept for a later family swap. */
+    @Volatile private var connectingName: String? = null
+
     override fun notifyConnectingTo(deviceName: String?): DecodeResult.ModelName? {
+        connectingName = deviceName
         active = pickAdapter(deviceName)
         return active.notifyConnectingTo(deviceName)
     }
@@ -229,8 +233,22 @@ class CompositeWheelAdapter(
             active = veteran
             active.notifyConnectingTo(null)
         }
+        // The same rescue for Begode. A Begode whose name is not in our list
+        // (the Panther, issue #34) falls through the name router, and the
+        // HM-10 fallback in [pickAdapterByDiscoveredServices] guesses KingSong:
+        // it connected and showed nothing, every reading blank. The first
+        // frame settles it. A KingSong notification always opens `AA 55`, so one that opens
+        // `55 AA` is a Begode frame and cannot be anything KingSong sends.
+        // Only away from the KingSong guess, never back, like the swap above.
+        if (active is KingsongAdapter && startsWithBegodeHeader(rawBytes)) {
+            active = begode
+            active.notifyConnectingTo(connectingName)
+        }
         return active.onRawNotification(rawBytes)
     }
+
+    private fun startsWithBegodeHeader(bytes: ByteArray): Boolean =
+        bytes.size >= 2 && bytes[0] == 0x55.toByte() && bytes[1] == 0xAA.toByte()
 
     private fun containsVeteranMagic(bytes: ByteArray): Boolean {
         if (bytes.size < 3) return false
