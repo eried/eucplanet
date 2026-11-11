@@ -97,7 +97,8 @@ class VoiceCommandController(
          * that reports the end early, short enough that it reads as done.
          */
         const val ANSWER_LINGER_MS = 600L
-        const val MIC_REFUSAL_LINGER_MS = 4000L
+        /** A refusal nobody hears (voice off, phone muted) still has to be readable. */
+        const val REFUSAL_MIN_MS = 2000L
 
         /**
          * After the reply is said and the app has let go of the audio, how
@@ -330,10 +331,16 @@ class VoiceCommandController(
                 com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
                     "Voice: refused, no microphone permission"
                 )
-                // Long enough to read. The usual linger follows a spoken answer
-                // the rider is already hearing; this one may be the only sign
-                // with the phone muted, and it was gone in half a second.
-                delay(MIC_REFUSAL_LINGER_MS)
+                // On screen like every other answer: for as long as it is being
+                // said, then the usual short tail. It used to skip the wait and
+                // was gone 600 ms in, mid-sentence. With the voice off there is
+                // no speech to wait for, so it never shows for less than
+                // [REFUSAL_MIN_MS], the time it takes to read it.
+                val shownAt = android.os.SystemClock.elapsedRealtime()
+                withTimeoutOrNull(SPEECH_START_WAIT_MS) { voiceService.isSpeaking.first { it } }
+                withTimeoutOrNull(SPEECH_END_WAIT_MS) { voiceService.isSpeaking.first { !it } }
+                val shown = android.os.SystemClock.elapsedRealtime() - shownAt
+                delay(maxOf(ANSWER_LINGER_MS, REFUSAL_MIN_MS - shown))
                 _state.value = UiState.Idle
                 return@launch
             }
