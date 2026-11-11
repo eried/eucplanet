@@ -347,6 +347,8 @@
     <string name="voice_mic_grant">อนุญาตไมโครโฟน</string>
     <string name="warnings_perm_mic_title">ไม่ได้อนุญาตไมโครโฟน</string>
     <string name="warnings_perm_mic_body">คำสั่งเสียงจะฟังไม่ได้จนกว่าแอปจะได้รับอนุญาตให้ใช้ไมโครโฟน</string>
+    <string name="warnings_perm_bluetooth_title">ไม่ได้อนุญาตบลูทูธ</string>
+    <string name="warnings_perm_bluetooth_body">แอปค้นหาหรือเชื่อมต่อกับล้อของคุณไม่ได้ แตะเพื่ออนุญาต</string>
     <string name="voice_answer_unknown">ฟังไม่ทัน พูดว่า %1$s เพื่อขอความช่วยเหลือ</string>
     <string name="voice_help_terms">พูดอะไรได้บ้าง,ช่วยเหลือ,ทำอะไรได้บ้าง</string>
     <string name="voice_stat_max_terms">สูงสุด,มากสุด,แม็กซ์</string>
@@ -425,6 +427,10 @@
     <string name="action_chip_media_prev">เพลงก่อนหน้า</string>
     <string name="action_chip_music_start">เปิดเพลง</string>
     <string name="action_chip_media_pause">หยุดเพลง</string>
+    <string name="action_chip_phone_volume_up">เพิ่มเสียง</string>
+    <string name="action_chip_phone_volume_down">ลดเสียง</string>
+    <string name="action_chip_phone_mute">ปิด</string>
+    <string name="action_chip_phone_torch">ไฟฉายโทรศัพท์</string>
     <string name="action_chip_open_navigation">แสดงแผนที่</string>
     <string name="action_chip_open_studio">สตูดิโอโอเวอร์เลย์</string>
     <string name="action_chip_open_about">เกี่ยวกับ</string>
@@ -1069,7 +1075,7 @@
     <string name="engine_preset_steam_loco">หัวรถจักรไอน้ำ</string>
     <string name="engine_preset_tron_whine">เสียงหวีดแบบ Tron</string>
     <string name="engine_preset_pod_racer">พ็อดเรเซอร์</string>
-    <string name="engine_preset_lightsaber">ไลท์เซเบอร์</string>
+    <string name="engine_preset_lightsaber">เสียงฮัมดิจิทัล</string>
     <string name="engine_preset_jet_turbine">เทอร์ไบน์เจ็ต</string>
     <string name="engine_preset_ufo_hover">ยูเอฟโอลอยตัว</string>
     <string name="engine_preset_f1_electric">เสียงหวีด F1 ไฟฟ้า</string>
@@ -1077,7 +1083,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V-twin Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">รถบรรทุกดีเซล</string>
-    <string name="engine_preset_sampled_motorcycle">มอเตอร์ไซค์</string>
+    <string name="engine_preset_sampled_motorcycle">รถวิบากเล็ก</string>
     <string name="engine_preset_sampled_city_car">รถเก๋งในเมือง</string>
     <string name="engine_preset_sampled_helicopter">เฮลิคอปเตอร์</string>
     <string name="engine_preset_sampled_tractor">รถแทรกเตอร์</string>
@@ -1153,8 +1159,13 @@
     <string name="gps_show_on_dashboard">แสดงความเร็วบนแดชบอร์ด</string>
     <string name="gps_show_on_dashboard_desc">เพิ่มจุดสีบนหน้าปัดความเร็วที่แสดงค่าจาก GPS</string>
     <string name="section_volume_keys">ปุ่มปรับเสียง</string>
-    <string name="volume_keys_caption">ใช้ปุ่มปรับเสียงของโทรศัพท์เป็นทางลัด (เฉพาะเมื่อแอปแสดงอยู่)</string>
+    <string name="volume_keys_caption">ใช้ปุ่มระดับเสียงเป็นทางลัดขณะที่แอปอยู่บนหน้าจอ</string>
     <string name="volume_keys_enable">เปิดใช้คำสั่งปุ่มปรับเสียง</string>
+    <string name="volume_keys_screen_off">แม้ตอนปิดหน้าจอ</string>
+    <string name="volume_keys_screen_off_caption">ใช้ได้ตอนล็อกโทรศัพท์หรือมีแอปอื่นอยู่ด้านหน้า ปุ่มจะไม่ปรับระดับเสียงของโทรศัพท์อีก</string>
+    <string name="volume_keys_screen_off_warn">Android ส่งการกดปุ่มระดับเสียงให้เฉพาะแอปที่อยู่บนหน้าจอ เพื่อให้รับได้ตอนปิดหน้าจอ EUC Planet จะลงทะเบียนเป็นเครื่องเล่นสื่อที่ใช้งานอยู่ของโทรศัพท์ Android จึงส่งปุ่มระดับเสียงมาที่แอปแทนการปรับเสียง\n\nขณะที่เปิดอยู่ ปุ่มจะไม่ปรับระดับเสียงของโทรศัพท์</string>
+    <string name="volume_keys_screen_off_confirm">เปิด</string>
+    <string name="volume_keys_screen_off_title">ให้แอปควบคุมปุ่มระดับเสียงไหม</string>
     <string name="volume_up">เพิ่มเสียง</string>
     <string name="volume_down">ลดเสียง</string>
     <string name="section_radar">เรดาร์มองหลัง</string>

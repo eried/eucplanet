@@ -40,6 +40,11 @@
     <string name="watch_action_media_prev">Pista anterior</string>
     <string name="watch_action_music_start">Iniciar música</string>
     <string name="watch_action_media_pause">Pausar música</string>
+    <string name="watch_action_phone_volume_up">Subir volumen</string>
+    <string name="watch_action_phone_volume_down">Bajar volumen</string>
+    <string name="watch_action_phone_mute">Silenciar / activar</string>
+    <string name="watch_action_phone_torch">Linterna del teléfono</string>
+    <string name="watch_action_engine_sound">Sonido de motor</string>
     <string name="watch_action_long_press_hint">Mantén presionado para %1$s</string>
     <string name="watch_map_phone_disconnected">Sin teléfono</string>
     <string name="watch_map_gps_permission">Permitir GPS</string>

@@ -9,9 +9,7 @@ ride, this is the branch.
 
 ## Worked on
 
-- 0.23.0 beta: everything below from next-experimental, on the Play beta track.
-- Navigation: when a reroute cannot be found (no signal and outside your offline areas) it no longer says "Rerouting" every second. It tries again after 8 s, then waits longer each time, and says it once.
-- Navigation: Start offers to download offline maps when part of your route is outside them: download, start anyway, or don't ask again ("Check offline maps before a ride" in Navigator settings).
+- 0.24.0 beta: everything below from next-experimental, on the Play beta track. New since 0.23.0: the engine sounds, volume keys with the screen off, and five new actions.
 - Release builds are obfuscated (Play asks for it by Feb 2027). Branch APKs are debug builds and do not change.
 - Navigator view: turn card, speed, arrival time and your own tiles on the map while navigating. Pick the tiles in Settings.
 - Map: while navigating it faces where you ride (heading-up), turning on curves from the wheel's speed. Tap the compass for north-up.
@@ -43,14 +41,21 @@ ride, this is the branch.
 - Messages no longer hide under the keyboard, like "Search needs signal" or one that comes while typing in a number field.
 - Languages: 7 new (Portuguese for Portugal, Indonesian, Vietnamese, Thai, Greek, Bulgarian, Slovak), 30 in all. The other 22 were reviewed to read like a native app: one word per term, no word-for-word phrases, leftover English translated.
 - Inside: wiring moved to a library that also runs on iPhone, build tools updated (Kotlin 2.3.21, Koin 4.2.2). Nothing should change on screen.
+- Engine sound: eight engines are real recordings, not synthesis: V8 (an AC Cobra), V-twin (a Ducati), Inline-4, V12 (an Aston Martin), Diesel truck, Small dirt bike, Steam locomotive, Broken exhaust. The app plays short pieces of the real engine's cycle and lays them closer together as the wheel speeds up, so the firing rate follows the wheel while the exhaust keeps its real voice. They start with the recording's own start-up and pop with its own backfires. The old "Sampled" engines are gone from the list (their keys still work and play the same recordings).
+- Engine sound: the recorded engines keep their low end now and no longer hiss when you shut the throttle: letting off at speed makes them quieter and duller like a real engine, and a pop is a bang, not a burst of noise. The steam locomotive whistles when it comes on and toots when you let off, and blows off steam while it stands.
+- Engine sound: the synthesised engines stay for what nobody has recorded: 4-stroke single, 2-stroke, Quad bike, Tractor, Boxer 6, Inline-6, V16, and the fantasy set (Jet turbine, Pod racer, Hover bike, Tron whine, UFO hover, Digital hum). The hover bike is now the Jetsons car, a bubbling run of blips that comes faster with speed.
+- Engine sound: the synthesised engines breathe. Their intake and exhaust air used to run as a steady hiss under the bangs; now each firing draws a breath that dies away before the next one at idle, so the 4-stroke single and the 2-stroke idle without the "shhh" behind them. At speed nothing changes.
+- Engine sound: Reset all to defaults at the bottom of the section, greyed until you change something, and it tells you what it will change before it does. The Advanced reset moved to the left to sit where every other reset in the app is.
+- The APK is about 5 MB smaller: the recordings are shipped as grain banks instead of whole clips.
+- Volume keys: "Also when the screen is off" under the volume key actions. The app claims the buttons through a media session, so a click or hold fires its action with the screen off or another app in front. It asks before turning on, because the buttons then stop changing the phone volume. It keeps the buttons while music plays and when the song changes.
+- Voice: pressing Listen without the microphone permission now asks for it, from any button or tile. With the screen off it says so and adds a Needs attention entry. Needs attention also says when Bluetooth is not allowed.
+- Actions: Volume up, Volume down, Mute / unmute, Phone flashlight and Engine sound on/off can be bound to a Flic, the volume keys, the watch or a dashboard tile.
 
 ## Please test
 
 **Map / navigation**
 - Navigate a 2-stop route in Full path and Next segment: turn card, arrival time, the next stop counting down and ticked off, End navigation?
 - Is the zoom right near turns and when riding slowly?
-- In flight mode, ride off your route outside your offline areas: "Rerouting" once, not over and over?
-- Start a ride to somewhere you have not downloaded: does the question make sense, and does "Download maps" offer the right size?
 - Load a GPX track and ride it: cues at real turns, named places announced? Convert to stops works?
 - After arriving, Reverse route: does it take you back a sensible way?
 - Landscape and north-up: everything readable and reachable?
@@ -61,7 +66,23 @@ ride, this is the branch.
 - Turn on "Prefer offline map and routing" with signal on: does the navigator show the offline map in your squares, and is the route as good as the online one?
 - Offline areas, Select, Around me: does it pick the squares you expect, and say the size before downloading?
 
-**Android Auto** (install the Play beta, a sideloaded APK never shows in the car)
+**Engine sound** (Settings, search "engine", switch it on)
+- The recorded engines (V8, V-twin, Inline-4, V12, Diesel truck, Small dirt bike, Steam locomotive, Broken exhaust): does each start like an engine, idle like the real thing, and rev with the wheel from a stop to 30 km/h? Does a hard pull still sound like that engine, or like a buzz? Say which engine and at what speed.
+- Ride at 30 km/h and let off completely: does the engine go quiet and dull like a real one, or do you hear hiss, a whistle or clicks? Which engine?
+- Do you hear a loop or a stutter when standing still with the engine idling? Which engine?
+- Synthesised engines (4-stroke single, 2-stroke, Quad bike, Tractor, Boxer 6, Inline-6, V16): accelerate hard from 15 to 40 km/h. Engine or electronic whine? Which one and at what speed.
+- 4-stroke single and 2-stroke standing still: is there still a steady hiss behind the bangs, or does the air puff with each one?
+- Steam locomotive: do you hear the whistle when the sound comes on and a toot when you let off at speed? Hover bike: does it sound like the Jetsons car to you?
+- On the phone speaker, not only headphones: is it loud enough at idle and not harsh at speed? Are the recorded and the synthesised engines about as loud as each other?
+
+**Volume keys with the screen off** (Settings, search "volume")
+- Turn on the volume key actions, then "Also when the screen is off" and accept the warning. Lock the phone and press volume up: does the click action fire (horn by default)? Hold it: the hold action (voice report by default)? Does it work with another app in front? Say your phone model.
+- Start music in another app and let it change song a few times: do the buttons keep firing their actions, screen on and off? Does the phone volume ever move by itself?
+- Turn the option off: do the buttons change the phone volume again at once?
+- Take the microphone permission away in Android settings, press a button bound to Listen with the app open: does Android ask? Deny it: is it spoken, and is it in Needs attention?
+- Bind Volume up to a click and the horn to a hold on the same button: do both work with the screen off? Try Phone flashlight and Engine sound from a Flic too.
+
+**Android Auto** (install from the Play internal sharing link, a sideloaded APK never shows in the car)
 - Navigate from the car screen: turn-by-turn shows, and your four numbers beside it?
 - Load a GPX track on the phone, then Places, Planned route in the car: does it follow the track?
 
@@ -83,7 +104,6 @@ ride, this is the branch.
 - Use the app in your language for a ride: anything that sounds stiff, wrong for riders, or does not fit its button? Say the screen and the better words.
 
 **Any wheel**
-- Update over 0.22.0 from the Play beta: your settings, trips and paired wheel are still there?
 - Ride with voice alarms on, open the main screens, sync, widgets and the watch: anything that acts differently from the last build is a bug.
 
 ## Reporting back

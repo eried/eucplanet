@@ -346,6 +346,8 @@
     <string name="voice_mic_grant">Permite microfonul</string>
     <string name="warnings_perm_mic_title">Microfon nepermis</string>
     <string name="warnings_perm_mic_body">Comenzile vocale nu pot asculta până când aplicația nu are acces la microfon.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth nepermis</string>
+    <string name="warnings_perm_bluetooth_body">Aplicația nu poate găsi roata și nu se poate conecta la ea. Atinge pentru a permite.</string>
     <string name="voice_answer_unknown">Nu am înțeles. Spune %1$s pentru ajutor.</string>
     <string name="voice_help_terms">ce pot spune,ajutor,ce pot cere</string>
     <string name="voice_stat_max_terms">maxim,max,cel mai mare</string>
@@ -424,6 +426,10 @@
     <string name="action_chip_media_prev">Piesa anterioară</string>
     <string name="action_chip_music_start">Pornește muzica</string>
     <string name="action_chip_media_pause">Pauză muzică</string>
+    <string name="action_chip_phone_volume_up">Volum mai tare</string>
+    <string name="action_chip_phone_volume_down">Volum mai încet</string>
+    <string name="action_chip_phone_mute">Fără sunet</string>
+    <string name="action_chip_phone_torch">Lanterna telefonului</string>
     <string name="action_chip_open_navigation">Arată harta</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
     <string name="action_chip_open_about">Despre</string>
@@ -1063,7 +1069,7 @@
     <string name="engine_preset_steam_loco">Locomotivă cu abur</string>
     <string name="engine_preset_tron_whine">Șuierat Tron</string>
     <string name="engine_preset_pod_racer">Pod racer</string>
-    <string name="engine_preset_lightsaber">Sabie laser</string>
+    <string name="engine_preset_lightsaber">Zumzet digital</string>
     <string name="engine_preset_jet_turbine">Turbină cu reacție</string>
     <string name="engine_preset_ufo_hover">OZN în plutire</string>
     <string name="engine_preset_f1_electric">Șuierat electric de F1</string>
@@ -1071,7 +1077,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">Bicilindru în V Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">Camion diesel</string>
-    <string name="engine_preset_sampled_motorcycle">Motocicletă</string>
+    <string name="engine_preset_sampled_motorcycle">Moto cross mică</string>
     <string name="engine_preset_sampled_city_car">Mașină de oraș</string>
     <string name="engine_preset_sampled_helicopter">Elicopter</string>
     <string name="engine_preset_sampled_tractor">Tractor</string>
@@ -1147,8 +1153,13 @@
     <string name="gps_show_on_dashboard">Arată viteza în tabloul de bord</string>
     <string name="gps_show_on_dashboard_desc">Adaugă un punct colorat pe cadranul vitezei cu citirea GPS.</string>
     <string name="section_volume_keys">Butoane de volum</string>
-    <string name="volume_keys_caption">Folosește butoanele de volum ale telefonului ca scurtături (doar când aplicația este vizibilă)</string>
+    <string name="volume_keys_caption">Butoanele de volum ca scurtături cât timp aplicația e pe ecran.</string>
     <string name="volume_keys_enable">Activează acțiunile butoanelor de volum</string>
+    <string name="volume_keys_screen_off">Și cu ecranul stins</string>
+    <string name="volume_keys_screen_off_caption">Funcționează cu telefonul blocat sau cu altă aplicație în față. Butoanele nu mai schimbă volumul telefonului.</string>
+    <string name="volume_keys_screen_off_warn">Android trimite apăsările de volum doar aplicației de pe ecran. Ca să le primească și cu ecranul stins, EUC Planet se înregistrează ca playerul media activ al telefonului, iar Android îi trimite butoanele de volum în loc să schimbe volumul.\n\nCât timp este activ, butoanele nu mai schimbă volumul telefonului.</string>
+    <string name="volume_keys_screen_off_confirm">Pornește</string>
+    <string name="volume_keys_screen_off_title">Preiei butoanele de volum?</string>
     <string name="volume_up">Volum plus</string>
     <string name="volume_down">Volum minus</string>
     <string name="section_radar">Radar pentru spate</string>

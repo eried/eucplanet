@@ -371,6 +371,8 @@
     <string name="voice_mic_grant">Разреши микрофона</string>
     <string name="warnings_perm_mic_title">Микрофонът не е разрешен</string>
     <string name="warnings_perm_mic_body">Гласовите команди не могат да слушат, докато приложението няма разрешение за микрофона.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth не е разрешен</string>
+    <string name="warnings_perm_bluetooth_body">Приложението не може да намери колелото ви или да се свърже с него. Докоснете, за да разрешите.</string>
     <string name="voice_answer_unknown">Не разбрах. Кажете %1$s за помощ.</string>
     <string name="voice_help_terms">какво мога да кажа,помощ,какво мога да правя</string>
     <string name="voice_stat_max_terms">макс,максимум,максимална,най-висока</string>
@@ -449,6 +451,10 @@
     <string name="action_chip_media_prev">Предишна песен</string>
     <string name="action_chip_music_start">Пусни музика</string>
     <string name="action_chip_media_pause">Спри музиката</string>
+    <string name="action_chip_phone_volume_up">Усилване на звука</string>
+    <string name="action_chip_phone_volume_down">Намаляване на звука</string>
+    <string name="action_chip_phone_mute">Заглушаване</string>
+    <string name="action_chip_phone_torch">Фенерче на телефона</string>
     <string name="action_chip_open_navigation">Покажи картата</string>
     <string name="action_chip_open_studio">Студио за наслагване</string>
     <string name="action_chip_open_about">Относно</string>
@@ -1118,7 +1124,7 @@
     <string name="engine_preset_steam_loco">Парен локомотив</string>
     <string name="engine_preset_tron_whine">Вой от Tron</string>
     <string name="engine_preset_pod_racer">Pod racer</string>
-    <string name="engine_preset_lightsaber">Светлинен меч</string>
+    <string name="engine_preset_lightsaber">Дигитално бръмчене</string>
     <string name="engine_preset_jet_turbine">Реактивна турбина</string>
     <string name="engine_preset_ufo_hover">НЛО</string>
     <string name="engine_preset_f1_electric">Електрически F1</string>
@@ -1126,7 +1132,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V-twin Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">Дизелов камион</string>
-    <string name="engine_preset_sampled_motorcycle">Мотоциклет</string>
+    <string name="engine_preset_sampled_motorcycle">Малък крос мотор</string>
     <string name="engine_preset_sampled_city_car">Градски автомобил</string>
     <string name="engine_preset_sampled_helicopter">Хеликоптер</string>
     <string name="engine_preset_sampled_tractor">Трактор</string>
@@ -1207,8 +1213,13 @@
     <string name="gps_show_on_dashboard">Скорост на таблото</string>
     <string name="gps_show_on_dashboard_desc">Добавя цветна точка на скоростомера с показанието на GPS.</string>
     <string name="section_volume_keys">Бутони за сила на звука</string>
-    <string name="volume_keys_caption">Бутоните за сила на звука като преки пътища (само когато приложението е видимо)</string>
+    <string name="volume_keys_caption">Бутоните за звук като преки пътища, докато приложението е на екрана.</string>
     <string name="volume_keys_enable">Действия с бутоните за звук</string>
+    <string name="volume_keys_screen_off">И при изключен екран</string>
+    <string name="volume_keys_screen_off_caption">Работи при заключен телефон или друго приложение отпред. Бутоните вече не променят силата на звука.</string>
+    <string name="volume_keys_screen_off_warn">Android изпраща натисканията на бутоните за звук само на приложението на екрана. За да ги получава при изключен екран, EUC Planet се регистрира като активния медиен плейър на телефона и Android му изпраща бутоните, вместо да променя звука.\n\nДокато това е включено, бутоните не променят силата на звука на телефона.</string>
+    <string name="volume_keys_screen_off_confirm">Включи</string>
+    <string name="volume_keys_screen_off_title">Да поеме ли бутоните за звук?</string>
     <string name="volume_up">Звук нагоре</string>
     <string name="volume_down">Звук надолу</string>
 

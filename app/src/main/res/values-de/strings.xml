@@ -383,6 +383,8 @@
     <string name="voice_mic_grant">Mikrofon erlauben</string>
     <string name="warnings_perm_mic_title">Mikrofon nicht erlaubt</string>
     <string name="warnings_perm_mic_body">Sprachbefehle können nicht zuhören, solange die App das Mikrofon nicht nutzen darf.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth nicht erlaubt</string>
+    <string name="warnings_perm_bluetooth_body">Die App kann dein Wheel weder finden noch verbinden. Zum Erlauben tippen.</string>
     <string name="voice_answer_unknown">Das habe ich nicht verstanden. Sag %1$s für Hilfe.</string>
     <string name="voice_help_terms">was kann ich sagen,hilfe,was kann ich fragen</string>
     <string name="voice_stat_max_terms">maximum,max,höchste</string>
@@ -461,6 +463,10 @@
     <string name="action_chip_media_prev">Vorheriger Titel</string>
     <string name="action_chip_music_start">Musik starten</string>
     <string name="action_chip_media_pause">Musik pausieren</string>
+    <string name="action_chip_phone_volume_up">Lauter</string>
+    <string name="action_chip_phone_volume_down">Leiser</string>
+    <string name="action_chip_phone_mute">Stumm</string>
+    <string name="action_chip_phone_torch">Handy-Taschenlampe</string>
     <string name="action_chip_open_navigation">Karte zeigen</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
     <string name="action_chip_open_about">Über</string>
@@ -854,7 +860,7 @@
     <string name="engine_preset_steam_loco">Dampflok</string>
     <string name="engine_preset_tron_whine">Tron-Surren</string>
     <string name="engine_preset_pod_racer">Pod Racer</string>
-    <string name="engine_preset_lightsaber">Lichtschwert</string>
+    <string name="engine_preset_lightsaber">Digitales Brummen</string>
     <string name="engine_preset_jet_turbine">Jet-Turbine</string>
     <string name="engine_preset_ufo_hover">Schwebendes UFO</string>
     <string name="engine_preset_f1_electric">F1 Elektro-Surren</string>
@@ -862,7 +868,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V-Twin Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">Diesel-LKW</string>
-    <string name="engine_preset_sampled_motorcycle">Motorrad</string>
+    <string name="engine_preset_sampled_motorcycle">Kleine Crossmaschine</string>
     <string name="engine_preset_sampled_city_car">Kleinwagen</string>
     <string name="engine_preset_sampled_helicopter">Hubschrauber</string>
     <string name="engine_preset_sampled_tractor">Traktor</string>
@@ -942,8 +948,13 @@
     <string name="gps_show_on_dashboard">GPS-Geschwindigkeit im Dashboard zeigen</string>
     <string name="gps_show_on_dashboard_desc">Setzt einen farbigen Punkt mit dem GPS-Wert auf den Tacho.</string>
     <string name="section_volume_keys">Lautstärketasten</string>
-    <string name="volume_keys_caption">Lautstärketasten als Kurzbefehle nutzen (nur bei sichtbarer App)</string>
+    <string name="volume_keys_caption">Lautstärketasten als Kurzbefehle nutzen, solange die App auf dem Bildschirm ist.</string>
     <string name="volume_keys_enable">Lautstärketasten-Aktionen aktivieren</string>
+    <string name="volume_keys_screen_off">Auch bei ausgeschaltetem Bildschirm</string>
+    <string name="volume_keys_screen_off_caption">Funktioniert bei gesperrtem Telefon oder mit einer anderen App im Vordergrund. Die Tasten ändern die Telefonlautstärke nicht mehr.</string>
+    <string name="volume_keys_screen_off_warn">Android schickt Lautstärketasten nur an die App auf dem Bildschirm. Um sie auch bei ausgeschaltetem Bildschirm zu bekommen, meldet sich EUC Planet als aktiver Mediaplayer des Telefons an, und Android schickt die Tasten dorthin, statt die Lautstärke zu ändern.\n\nSolange das an ist, ändern die Tasten die Telefonlautstärke nicht mehr.</string>
+    <string name="volume_keys_screen_off_confirm">Einschalten</string>
+    <string name="volume_keys_screen_off_title">Lautstärketasten übernehmen?</string>
     <string name="volume_up">Lautstärke +</string>
     <string name="volume_down">Lautstärke −</string>
 

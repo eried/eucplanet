@@ -388,6 +388,8 @@
     <string name="voice_mic_grant">Allow microphone</string>
     <string name="warnings_perm_mic_title">Microphone not allowed</string>
     <string name="warnings_perm_mic_body">Voice commands cannot listen until the app is allowed to use the microphone.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth not allowed</string>
+    <string name="warnings_perm_bluetooth_body">The app cannot find or connect to your wheel. Tap to allow.</string>
     <string name="voice_answer_unknown">I did not catch that. Say %1$s for help.</string>
     <string name="voice_help_terms">what can I say,help,what can I do</string>
     <string name="voice_stat_max_terms">max,maximum,highest</string>
@@ -466,6 +468,10 @@
     <string name="action_chip_media_prev">Prev track</string>
     <string name="action_chip_music_start">Start music</string>
     <string name="action_chip_media_pause">Pause music</string>
+    <string name="action_chip_phone_volume_up">Vol up</string>
+    <string name="action_chip_phone_volume_down">Vol down</string>
+    <string name="action_chip_phone_mute">Mute</string>
+    <string name="action_chip_phone_torch">Flashlight</string>
     <string name="action_chip_open_navigation">Show map</string>
     <string name="action_chip_open_studio">Overlay studio</string>
     <string name="action_chip_open_about">About</string>
@@ -1158,7 +1164,7 @@
     <string name="engine_preset_steam_loco">Steam locomotive</string>
     <string name="engine_preset_tron_whine">Tron whine</string>
     <string name="engine_preset_pod_racer">Pod racer</string>
-    <string name="engine_preset_lightsaber">Lightsaber</string>
+    <string name="engine_preset_lightsaber">Digital hum</string>
     <string name="engine_preset_jet_turbine">Jet turbine</string>
     <string name="engine_preset_ufo_hover">UFO hover</string>
     <string name="engine_preset_f1_electric">F1 electric whine</string>
@@ -1166,7 +1172,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V-twin Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">Diesel truck</string>
-    <string name="engine_preset_sampled_motorcycle">Motorcycle</string>
+    <string name="engine_preset_sampled_motorcycle">Small dirt bike</string>
     <string name="engine_preset_sampled_city_car">City car</string>
     <string name="engine_preset_sampled_helicopter">Helicopter</string>
     <string name="engine_preset_sampled_tractor">Tractor</string>
@@ -1247,8 +1253,13 @@
     <string name="gps_show_on_dashboard">Show speed on dashboard</string>
     <string name="gps_show_on_dashboard_desc">Adds a coloured dot on the speed dial with the GPS reading.</string>
     <string name="section_volume_keys">Volume keys</string>
-    <string name="volume_keys_caption">Use phone volume buttons as shortcuts (only when app is visible)</string>
+    <string name="volume_keys_caption">Use phone volume buttons as shortcuts while the app is on screen.</string>
     <string name="volume_keys_enable">Enable volume key actions</string>
+    <string name="volume_keys_screen_off">Also when the screen is off</string>
+    <string name="volume_keys_screen_off_caption">Works with the phone locked or another app in front. The buttons no longer change the phone volume.</string>
+    <string name="volume_keys_screen_off_warn">Android only sends volume presses to the app on screen. To get them with the screen off, EUC Planet registers as the phone\'s active media player, so Android sends the volume buttons to it instead of changing the volume.\n\nWhile this is on, the buttons no longer change the phone volume.</string>
+    <string name="volume_keys_screen_off_confirm">Turn on</string>
+    <string name="volume_keys_screen_off_title">Take over the volume buttons?</string>
     <string name="volume_up">Volume Up</string>
     <string name="volume_down">Volume Down</string>
 

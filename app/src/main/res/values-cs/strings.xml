@@ -346,6 +346,8 @@
     <string name="voice_mic_grant">Povolit mikrofon</string>
     <string name="warnings_perm_mic_title">Mikrofon není povolen</string>
     <string name="warnings_perm_mic_body">Hlasové příkazy nemohou poslouchat, dokud aplikace nesmí používat mikrofon.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth není povolen</string>
+    <string name="warnings_perm_bluetooth_body">Aplikace nemůže najít vaše kolo ani se k němu připojit. Klepnutím povolíte.</string>
     <string name="voice_answer_unknown">Nerozumím. Pro nápovědu řekněte %1$s.</string>
     <string name="voice_help_terms">co můžu říct,pomoc,na co se můžu zeptat</string>
     <string name="voice_stat_max_terms">maximum,max,nejvyšší</string>
@@ -424,6 +426,10 @@
     <string name="action_chip_media_prev">Předchozí skladba</string>
     <string name="action_chip_music_start">Spustit hudbu</string>
     <string name="action_chip_media_pause">Pozastavit hudbu</string>
+    <string name="action_chip_phone_volume_up">Zvýšit hlasitost</string>
+    <string name="action_chip_phone_volume_down">Snížit hlasitost</string>
+    <string name="action_chip_phone_mute">Ztlumit</string>
+    <string name="action_chip_phone_torch">Svítilna telefonu</string>
     <string name="action_chip_open_navigation">Zobrazit mapu</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
     <string name="action_chip_open_about">O aplikaci</string>
@@ -1063,7 +1069,7 @@
     <string name="engine_preset_steam_loco">Parní lokomotiva</string>
     <string name="engine_preset_tron_whine">Kvílení Tron</string>
     <string name="engine_preset_pod_racer">Pod racer</string>
-    <string name="engine_preset_lightsaber">Světelný meč</string>
+    <string name="engine_preset_lightsaber">Digitální hukot</string>
     <string name="engine_preset_jet_turbine">Proudová turbína</string>
     <string name="engine_preset_ufo_hover">Vznášející se UFO</string>
     <string name="engine_preset_f1_electric">Elektrické kvílení F1</string>
@@ -1071,7 +1077,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">Dvouválec do V Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">Dieselový kamion</string>
-    <string name="engine_preset_sampled_motorcycle">Motocykl</string>
+    <string name="engine_preset_sampled_motorcycle">Malá krosová motorka</string>
     <string name="engine_preset_sampled_city_car">Městské auto</string>
     <string name="engine_preset_sampled_helicopter">Vrtulník</string>
     <string name="engine_preset_sampled_tractor">Traktor</string>
@@ -1147,8 +1153,13 @@
     <string name="gps_show_on_dashboard">Zobrazit rychlost na palubní desce</string>
     <string name="gps_show_on_dashboard_desc">Přidá barevnou tečku s údajem GPS na ciferník rychlosti.</string>
     <string name="section_volume_keys">Tlačítka hlasitosti</string>
-    <string name="volume_keys_caption">Použít tlačítka hlasitosti telefonu jako zkratky (jen když je aplikace viditelná)</string>
+    <string name="volume_keys_caption">Tlačítka hlasitosti jako zkratky, dokud je aplikace na obrazovce.</string>
     <string name="volume_keys_enable">Zapnout akce tlačítek hlasitosti</string>
+    <string name="volume_keys_screen_off">I při vypnuté obrazovce</string>
+    <string name="volume_keys_screen_off_caption">Funguje se zamčeným telefonem nebo s jinou aplikací v popředí. Tlačítka už nemění hlasitost telefonu.</string>
+    <string name="volume_keys_screen_off_warn">Android posílá stisky hlasitosti jen aplikaci na obrazovce. Aby je EUC Planet dostal i při vypnuté obrazovce, zaregistruje se jako aktivní přehrávač médií v telefonu, a Android mu tlačítka hlasitosti posílá místo změny hlasitosti.\n\nDokud je to zapnuté, tlačítka nemění hlasitost telefonu.</string>
+    <string name="volume_keys_screen_off_confirm">Zapnout</string>
+    <string name="volume_keys_screen_off_title">Převzít tlačítka hlasitosti?</string>
     <string name="volume_up">Hlasitost nahoru</string>
     <string name="volume_down">Hlasitost dolů</string>
     <string name="section_radar">Radar do zpětného zrcátka</string>

@@ -609,6 +609,10 @@ class SettingsViewModel(
     fun updateEngineBrake(v: String) = update { copy(engineSound = engineSound.copy(brake = v)) }
     fun updateEngineDuckOnVoice(v: String) = update { copy(engineSound = engineSound.copy(duckOnVoice = v)) }
     fun updateEngineHeadphonesOnly(v: Boolean) = update { copy(engineSound = engineSound.copy(headphonesOnly = v)) }
+    /** Every engine value back to shipped; the on/off switch stays as it was. */
+    fun resetEngineSoundDefaults() = update {
+        copy(engineSound = com.eried.eucplanet.data.model.EngineSoundSettings(enabled = engineSound.enabled))
+    }
 
     fun updateHornMode(v: String) = update { copy(horn = horn.copy(mode = v)) }
     fun updateHornHeadphonesOnly(v: Boolean) = update { copy(horn = horn.copy(headphonesOnly = v)) }
@@ -1400,6 +1404,7 @@ class SettingsViewModel(
     fun updateVolumeUpHold(v: String) = update { copy(volumeUpHold = v) }
     fun updateVolumeDownClick(v: String) = update { copy(volumeDownClick = v) }
     fun updateVolumeDownHold(v: String) = update { copy(volumeDownHold = v) }
+    fun updateVolumeKeysScreenOff(v: Boolean) = update { copy(volumeKeysScreenOff = v) }
 
     // Cloud sync
     private val _cloudEvent = MutableStateFlow<CloudEvent?>(null)

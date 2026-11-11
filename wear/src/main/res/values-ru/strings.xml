@@ -40,6 +40,11 @@
     <string name="watch_action_media_prev">Предыдущий трек</string>
     <string name="watch_action_music_start">Включить музыку</string>
     <string name="watch_action_media_pause">Пауза</string>
+    <string name="watch_action_phone_volume_up">Громче</string>
+    <string name="watch_action_phone_volume_down">Тише</string>
+    <string name="watch_action_phone_mute">Без звука / со звуком</string>
+    <string name="watch_action_phone_torch">Фонарик телефона</string>
+    <string name="watch_action_engine_sound">Звук двигателя</string>
     <string name="watch_action_long_press_hint">Удерживайте: %1$s</string>
     <string name="watch_map_phone_disconnected">Нет телефона</string>
     <string name="watch_map_gps_permission">Доступ к GPS</string>

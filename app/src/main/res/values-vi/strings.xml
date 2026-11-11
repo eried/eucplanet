@@ -347,6 +347,8 @@
     <string name="voice_mic_grant">Cho phép micrô</string>
     <string name="warnings_perm_mic_title">Chưa cho phép micrô</string>
     <string name="warnings_perm_mic_body">Lệnh giọng nói không thể nghe cho đến khi ứng dụng được phép dùng micrô.</string>
+    <string name="warnings_perm_bluetooth_title">Chưa cho phép Bluetooth</string>
+    <string name="warnings_perm_bluetooth_body">Ứng dụng không thể tìm hoặc kết nối với bánh xe của bạn. Chạm để cho phép.</string>
     <string name="voice_answer_unknown">Tôi chưa nghe rõ. Hãy nói %1$s để được trợ giúp.</string>
     <string name="voice_help_terms">tôi có thể nói gì,trợ giúp,giúp tôi,tôi làm được gì</string>
     <string name="voice_stat_max_terms">tối đa,cao nhất,lớn nhất</string>
@@ -425,6 +427,10 @@
     <string name="action_chip_media_prev">Bài trước</string>
     <string name="action_chip_music_start">Phát nhạc</string>
     <string name="action_chip_media_pause">Tạm dừng nhạc</string>
+    <string name="action_chip_phone_volume_up">Tăng âm lượng</string>
+    <string name="action_chip_phone_volume_down">Giảm âm lượng</string>
+    <string name="action_chip_phone_mute">Tắt</string>
+    <string name="action_chip_phone_torch">Đèn pin điện thoại</string>
     <string name="action_chip_open_navigation">Hiện bản đồ</string>
     <string name="action_chip_open_studio">Studio lớp phủ</string>
     <string name="action_chip_open_about">Giới thiệu</string>
@@ -1069,7 +1075,7 @@
     <string name="engine_preset_steam_loco">Đầu máy hơi nước</string>
     <string name="engine_preset_tron_whine">Tiếng rít Tron</string>
     <string name="engine_preset_pod_racer">Pod racer</string>
-    <string name="engine_preset_lightsaber">Kiếm ánh sáng</string>
+    <string name="engine_preset_lightsaber">Tiếng ù kỹ thuật số</string>
     <string name="engine_preset_jet_turbine">Động cơ phản lực</string>
     <string name="engine_preset_ufo_hover">UFO lơ lửng</string>
     <string name="engine_preset_f1_electric">Tiếng rít F1 điện</string>
@@ -1077,7 +1083,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V-twin Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">Xe tải diesel</string>
-    <string name="engine_preset_sampled_motorcycle">Xe máy</string>
+    <string name="engine_preset_sampled_motorcycle">Xe cào cào nhỏ</string>
     <string name="engine_preset_sampled_city_car">Ô tô đô thị</string>
     <string name="engine_preset_sampled_helicopter">Trực thăng</string>
     <string name="engine_preset_sampled_tractor">Máy kéo</string>
@@ -1153,8 +1159,13 @@
     <string name="gps_show_on_dashboard">Hiện tốc độ trên bảng điều khiển</string>
     <string name="gps_show_on_dashboard_desc">Thêm một chấm màu trên đồng hồ tốc độ theo số đo GPS.</string>
     <string name="section_volume_keys">Phím âm lượng</string>
-    <string name="volume_keys_caption">Dùng nút âm lượng điện thoại làm phím tắt (chỉ khi ứng dụng đang hiển thị).</string>
+    <string name="volume_keys_caption">Dùng nút âm lượng làm phím tắt khi ứng dụng đang trên màn hình.</string>
     <string name="volume_keys_enable">Bật thao tác phím âm lượng</string>
+    <string name="volume_keys_screen_off">Cả khi màn hình tắt</string>
+    <string name="volume_keys_screen_off_caption">Hoạt động khi điện thoại khóa hoặc ứng dụng khác đang ở phía trước. Các nút không còn chỉnh âm lượng điện thoại.</string>
+    <string name="volume_keys_screen_off_warn">Android chỉ gửi thao tác nhấn nút âm lượng cho ứng dụng đang trên màn hình. Để nhận được khi màn hình tắt, EUC Planet đăng ký làm trình phát đa phương tiện đang hoạt động của điện thoại, nên Android gửi nút âm lượng cho ứng dụng thay vì chỉnh âm lượng.\n\nKhi bật tính năng này, các nút không còn chỉnh âm lượng điện thoại.</string>
+    <string name="volume_keys_screen_off_confirm">Bật</string>
+    <string name="volume_keys_screen_off_title">Giành quyền điều khiển nút âm lượng?</string>
     <string name="volume_up">Tăng âm lượng</string>
     <string name="volume_down">Giảm âm lượng</string>
     <string name="section_radar">Radar chiếu hậu</string>

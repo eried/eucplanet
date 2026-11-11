@@ -41,6 +41,11 @@
     <string name="watch_action_media_prev">이전 트랙</string>
     <string name="watch_action_music_start">음악 시작</string>
     <string name="watch_action_media_pause">음악 일시정지</string>
+    <string name="watch_action_phone_volume_up">볼륨 높이기</string>
+    <string name="watch_action_phone_volume_down">볼륨 낮추기</string>
+    <string name="watch_action_phone_mute">음소거 / 해제</string>
+    <string name="watch_action_phone_torch">휴대전화 손전등</string>
+    <string name="watch_action_engine_sound">엔진 사운드</string>
     <string name="watch_action_long_press_hint">길게 누르면 %1$s</string>
     <string name="watch_map_phone_disconnected">휴대전화 없음</string>
     <string name="watch_map_gps_permission">GPS 허용</string>

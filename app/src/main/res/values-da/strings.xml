@@ -383,6 +383,8 @@
     <string name="voice_mic_grant">Tillad mikrofon</string>
     <string name="warnings_perm_mic_title">Mikrofon ikke tilladt</string>
     <string name="warnings_perm_mic_body">Stemmekommandoer kan ikke lytte, før appen må bruge mikrofonen.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth er ikke tilladt</string>
+    <string name="warnings_perm_bluetooth_body">Appen kan ikke finde eller forbinde til dit hjul. Tryk for at tillade.</string>
     <string name="voice_answer_unknown">Det forstod jeg ikke. Sig %1$s for at få hjælp.</string>
     <string name="voice_help_terms">hvad kan jeg sige,hjælp,hvad kan jeg spørge om</string>
     <string name="voice_stat_max_terms">maksimum,maks,højeste</string>
@@ -461,6 +463,10 @@
     <string name="action_chip_media_prev">Forrige nummer</string>
     <string name="action_chip_music_start">Start musik</string>
     <string name="action_chip_media_pause">Sæt musik på pause</string>
+    <string name="action_chip_phone_volume_up">Lydstyrke op</string>
+    <string name="action_chip_phone_volume_down">Lydstyrke ned</string>
+    <string name="action_chip_phone_mute">Lyd fra</string>
+    <string name="action_chip_phone_torch">Telefonens lommelygte</string>
     <string name="action_chip_open_navigation">Vis kort</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
     <string name="action_chip_open_about">Om</string>
@@ -858,7 +864,7 @@
     <string name="engine_preset_steam_loco">Damplokomotiv</string>
     <string name="engine_preset_tron_whine">Tron-hyl</string>
     <string name="engine_preset_pod_racer">Pod racer</string>
-    <string name="engine_preset_lightsaber">Lyssværd</string>
+    <string name="engine_preset_lightsaber">Digital brummen</string>
     <string name="engine_preset_jet_turbine">Jet-turbine</string>
     <string name="engine_preset_ufo_hover">UFO svævende</string>
     <string name="engine_preset_f1_electric">F1 elektrisk hyl</string>
@@ -866,7 +872,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V-twin Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">Diesellastbil</string>
-    <string name="engine_preset_sampled_motorcycle">Motorcykel</string>
+    <string name="engine_preset_sampled_motorcycle">Lille crosser</string>
     <string name="engine_preset_sampled_city_car">Bybil</string>
     <string name="engine_preset_sampled_helicopter">Helikopter</string>
     <string name="engine_preset_sampled_tractor">Traktor</string>
@@ -946,8 +952,13 @@
     <string name="gps_show_on_dashboard">Vis fart på dashboardet</string>
     <string name="gps_show_on_dashboard_desc">Tilføjer en farvet prik på speedometeret med GPS-værdien.</string>
     <string name="section_volume_keys">Lydstyrketaster</string>
-    <string name="volume_keys_caption">Brug telefonens lydstyrketaster som genveje (kun når appen er synlig)</string>
+    <string name="volume_keys_caption">Lydstyrkeknapperne som genveje, mens appen er på skærmen.</string>
     <string name="volume_keys_enable">Aktivér handlinger på lydstyrketaster</string>
+    <string name="volume_keys_screen_off">Også med skærmen slukket</string>
+    <string name="volume_keys_screen_off_caption">Virker med låst telefon eller en anden app forrest. Knapperne ændrer ikke længere telefonens lydstyrke.</string>
+    <string name="volume_keys_screen_off_warn">Android sender kun lydstyrketryk til appen på skærmen. For at få dem med slukket skærm melder EUC Planet sig som telefonens aktive medieafspiller, så Android sender lydstyrkeknapperne til den i stedet for at ændre lydstyrken.\n\nSå længe dette er slået til, ændrer knapperne ikke telefonens lydstyrke.</string>
+    <string name="volume_keys_screen_off_confirm">Slå til</string>
+    <string name="volume_keys_screen_off_title">Overtag lydstyrkeknapperne?</string>
     <string name="volume_up">Lyd op</string>
     <string name="volume_down">Lyd ned</string>
 

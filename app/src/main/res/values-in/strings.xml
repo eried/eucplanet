@@ -347,6 +347,8 @@
     <string name="voice_mic_grant">Izinkan mikrofon</string>
     <string name="warnings_perm_mic_title">Mikrofon tidak diizinkan</string>
     <string name="warnings_perm_mic_body">Perintah suara tidak bisa mendengarkan sampai aplikasi diizinkan menggunakan mikrofon.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth tidak diizinkan</string>
+    <string name="warnings_perm_bluetooth_body">Aplikasi tidak dapat menemukan atau terhubung ke roda Anda. Ketuk untuk mengizinkan.</string>
     <string name="voice_answer_unknown">Saya tidak menangkapnya. Ucapkan %1$s untuk bantuan.</string>
     <string name="voice_help_terms">apa yang bisa saya ucapkan,bantuan,tolong,apa yang bisa saya lakukan</string>
     <string name="voice_stat_max_terms">maks,maksimum,tertinggi</string>
@@ -425,6 +427,10 @@
     <string name="action_chip_media_prev">Trek sebelumnya</string>
     <string name="action_chip_music_start">Mulai musik</string>
     <string name="action_chip_media_pause">Jeda musik</string>
+    <string name="action_chip_phone_volume_up">Volume naik</string>
+    <string name="action_chip_phone_volume_down">Volume turun</string>
+    <string name="action_chip_phone_mute">Bisukan</string>
+    <string name="action_chip_phone_torch">Senter ponsel</string>
     <string name="action_chip_open_navigation">Tampilkan peta</string>
     <string name="action_chip_open_studio">Studio overlay</string>
     <string name="action_chip_open_about">Tentang</string>
@@ -1069,7 +1075,7 @@
     <string name="engine_preset_steam_loco">Lokomotif uap</string>
     <string name="engine_preset_tron_whine">Dengung Tron</string>
     <string name="engine_preset_pod_racer">Pod racer</string>
-    <string name="engine_preset_lightsaber">Lightsaber</string>
+    <string name="engine_preset_lightsaber">Dengung digital</string>
     <string name="engine_preset_jet_turbine">Turbin jet</string>
     <string name="engine_preset_ufo_hover">UFO melayang</string>
     <string name="engine_preset_f1_electric">Dengung listrik F1</string>
@@ -1077,7 +1083,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V-twin Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">Truk diesel</string>
-    <string name="engine_preset_sampled_motorcycle">Sepeda motor</string>
+    <string name="engine_preset_sampled_motorcycle">Motor trail kecil</string>
     <string name="engine_preset_sampled_city_car">Mobil kota</string>
     <string name="engine_preset_sampled_helicopter">Helikopter</string>
     <string name="engine_preset_sampled_tractor">Traktor</string>
@@ -1153,8 +1159,13 @@
     <string name="gps_show_on_dashboard">Tampilkan kecepatan di dasbor</string>
     <string name="gps_show_on_dashboard_desc">Menambahkan titik berwarna di dial kecepatan dengan bacaan GPS.</string>
     <string name="section_volume_keys">Tombol volume</string>
-    <string name="volume_keys_caption">Gunakan tombol volume ponsel sebagai pintasan (hanya saat aplikasi terlihat)</string>
+    <string name="volume_keys_caption">Gunakan tombol volume sebagai pintasan selama aplikasi tampil di layar.</string>
     <string name="volume_keys_enable">Aktifkan tindakan tombol volume</string>
+    <string name="volume_keys_screen_off">Juga saat layar mati</string>
+    <string name="volume_keys_screen_off_caption">Berfungsi saat ponsel terkunci atau aplikasi lain di depan. Tombol tidak lagi mengubah volume ponsel.</string>
+    <string name="volume_keys_screen_off_warn">Android hanya mengirim tekanan tombol volume ke aplikasi di layar. Agar tetap menerimanya saat layar mati, EUC Planet mendaftar sebagai pemutar media aktif ponsel, sehingga Android mengirim tombol volume kepadanya dan tidak mengubah volume.\n\nSelama ini aktif, tombol tidak lagi mengubah volume ponsel.</string>
+    <string name="volume_keys_screen_off_confirm">Aktifkan</string>
+    <string name="volume_keys_screen_off_title">Ambil alih tombol volume?</string>
     <string name="volume_up">Volume Naik</string>
     <string name="volume_down">Volume Turun</string>
     <string name="section_radar">Radar belakang</string>

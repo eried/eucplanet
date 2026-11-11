@@ -2196,8 +2196,10 @@ private fun AdvancedTab(
         // Timing knobs, under their own big title.
         AdvSectionTitle(stringResource(R.string.adv_timings_title))
         MetricInfoBox(stringResource(R.string.adv_rates_warning))
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-            // Disabled (greyed) when nothing is off default; otherwise confirm first.
+        // On the left like every other reset in the app (trip layout, metric history,
+        // dashboard slots, the editor dialogs). Greyed when nothing is off default;
+        // otherwise confirm first.
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) {
             TextButton(onClick = { showResetConfirm = true }, enabled = changed.isNotEmpty(), shape = RoundedCornerShape(12.dp)) {
                 Icon(Icons.Default.Restore, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
@@ -7325,16 +7327,34 @@ private fun VoiceTab(
             micLifecycle.lifecycle.addObserver(obs)
             onDispose { micLifecycle.lifecycle.removeObserver(obs) }
         }
+        var micAskedAt by remember { mutableStateOf(0L) }
         val micLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
             androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
-        ) { granted -> micGranted = granted }
+        ) { granted ->
+            micGranted = granted
+            // After two refusals Android stops showing the prompt and answers
+            // no at once, which left this button doing nothing. An answer that
+            // fast was not the rider's, so take them to the app's settings
+            // page, the only place the permission can still be given.
+            if (!granted && android.os.SystemClock.elapsedRealtime() - micAskedAt < 500L) {
+                runCatching {
+                    micCtx.startActivity(
+                        android.content.Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                            .setData(android.net.Uri.fromParts("package", micCtx.packageName, null))
+                    )
+                }
+            }
+        }
         if (!micGranted) {
             // No line of explanation above it: the button says what it does,
             // and the paragraph above already says the feature needs a
             // microphone.
             com.eried.eucplanet.ui.common.FixButton(
                 text = stringResource(R.string.voice_mic_grant),
-                onClick = { micLauncher.launch(android.Manifest.permission.RECORD_AUDIO) },
+                onClick = {
+                    micAskedAt = android.os.SystemClock.elapsedRealtime()
+                    micLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
+                },
             )
         }
         // The cue, and the way out of it. A rider on a headset that plays its
@@ -7847,6 +7867,33 @@ private fun FlicTab(
                         ActionDropdown(stringResource(R.string.flic_hold), settings.volumeDownHold, onValueChange = { settingsViewModel.updateVolumeDownHold(it) }, modifier = Modifier.weight(1f))
                     }
                 }
+            }
+            // Screen off: the keys are claimed through a media session, which
+            // takes them from the phone volume. Turning it on asks first, since
+            // the rider loses the volume buttons until they turn it off again.
+            var askScreenOff by remember { mutableStateOf(false) }
+            SwitchSetting(stringResource(R.string.volume_keys_screen_off), settings.volumeKeysScreenOff) { on ->
+                if (on) askScreenOff = true else settingsViewModel.updateVolumeKeysScreenOff(false)
+            }
+            HintText(stringResource(R.string.volume_keys_screen_off_caption), small = true)
+            if (askScreenOff) {
+                AlertDialog(
+                    onDismissRequest = { askScreenOff = false },
+                    shape = RoundedCornerShape(12.dp),
+                    title = { Text(stringResource(R.string.volume_keys_screen_off_title)) },
+                    text = { Text(stringResource(R.string.volume_keys_screen_off_warn)) },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            settingsViewModel.updateVolumeKeysScreenOff(true)
+                            askScreenOff = false
+                        }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.volume_keys_screen_off_confirm)) }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { askScreenOff = false }, shape = RoundedCornerShape(12.dp)) {
+                            Text(stringResource(android.R.string.cancel))
+                        }
+                    }
+                )
             }
         }
         }   // end volumeKeysEnabled BringIntoViewSection
@@ -9878,6 +9925,7 @@ private fun ThemeDropdown(
             value = displayName(current),
             onValueChange = {},
             readOnly = true,
+            singleLine = true,
             label = { Text(highlightMatches(label, LocalSettingsSearchQuery.current), modifier = Modifier.settingsSearchLabel(label)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
@@ -9934,6 +9982,7 @@ private fun SimpleDropdown(
             value = currentLabel,
             onValueChange = {},
             readOnly = true,
+            singleLine = true,
             label = { Text(highlightMatches(label, LocalSettingsSearchQuery.current), modifier = Modifier.settingsSearchLabel(label)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
@@ -10204,8 +10253,111 @@ private fun EngineSoundSection(
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+
+        // The way back (rule 9), the way the app does it everywhere else: a text
+        // button on the left with the Restore icon, greyed while every value is on
+        // its default (trip layout, metric history, dashboard slots). The label and
+        // the confirmation are the Advanced section's, which lists each value it will
+        // change. The on/off switch is not an engine value: the rider asked to reset
+        // the engine, not to turn it off.
+        val engineDefaults = remember { com.eried.eucplanet.data.model.EngineSoundSettings() }
+        val engineChanges = engineSoundChanges(settings.engineSound, engineDefaults)
+        var showEngineReset by remember { mutableStateOf(false) }
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) {
+            TextButton(onClick = { showEngineReset = true }, enabled = engineChanges.isNotEmpty(), shape = RoundedCornerShape(12.dp)) {
+                Icon(Icons.Default.Restore, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.adv_reset_all))
+            }
+        }
+        if (showEngineReset && engineChanges.isNotEmpty()) {
+            AlertDialog(
+                onDismissRequest = { showEngineReset = false },
+                shape = RoundedCornerShape(12.dp),
+                title = { Text(stringResource(R.string.adv_reset_all)) },
+                text = {
+                    Column(
+                        modifier = Modifier
+                            .heightIn(max = com.eried.eucplanet.ui.common.dialogContentMaxHeight(360))
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        Text(stringResource(R.string.adv_reset_confirm_msg))
+                        Spacer(Modifier.height(8.dp))
+                        engineChanges.forEach { (label, from, to) ->
+                            com.eried.eucplanet.ui.common.BulletPoint(
+                                text = "$label:  $from  \u2192  $to",
+                                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
+                                modifier = Modifier.padding(vertical = 1.dp),
+                            )
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        viewModel.resetEngineSoundDefaults()
+                        showEngineReset = false
+                    }, shape = RoundedCornerShape(12.dp)) { com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.adv_reset_all)) }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showEngineReset = false }, shape = RoundedCornerShape(12.dp)) {
+                        Text(stringResource(android.R.string.cancel))
+                    }
+                },
+            )
+        }
     }
     }
+}
+
+/**
+ * Every Motor sound value that is off its default, as (label, current, default) in
+ * the rider's own words, for the Reset all button and its confirmation. Compared on
+ * the stored values, not the labels, so two engines that share a name still count
+ * as a change; the volume curve is compared point by point so "0:1.00" and "0:1"
+ * are the same curve.
+ */
+@Composable
+private fun engineSoundChanges(
+    current: com.eried.eucplanet.data.model.EngineSoundSettings,
+    defaults: com.eried.eucplanet.data.model.EngineSoundSettings,
+): List<Triple<String, String, String>> {
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    fun s(id: Int) = ctx.getString(id)
+    fun engineName(key: String): String {
+        val resId = ctx.resources.getIdentifier("engine_preset_" + key.lowercase(), "string", ctx.packageName)
+        return if (resId != 0) ctx.getString(resId)
+            else com.eried.eucplanet.audio.EngineProfile.PROFILES.firstOrNull { it.key == key }?.displayName ?: key
+    }
+    fun curve(points: List<Pair<Float, Float>>): String =
+        points.joinToString(", ") { (_, m) -> "${Math.round(m * 100f)}%" }
+    fun choice(labels: Map<String, Int>) = { key: String -> labels[key]?.let { s(it) } ?: key }
+    fun onOff(v: Boolean) = s(if (v) R.string.state_on else R.string.state_off)
+
+    val rows = mutableListOf<Triple<String, String, String>>()
+    fun <T> row(label: Int, a: T, b: T, show: (T) -> String) {
+        if (a != b) rows += Triple(s(label), show(a), show(b))
+    }
+    row(R.string.engine_type_label, current.type, defaults.type, ::engineName)
+    row(
+        R.string.engine_volume,
+        com.eried.eucplanet.service.parseVolumeCurve(current.volumeAutoCurve),
+        com.eried.eucplanet.service.parseVolumeCurve(defaults.volumeAutoCurve),
+        ::curve,
+    )
+    row(R.string.engine_muffler_label, current.muffler, defaults.muffler, choice(mapOf(
+        "OPEN" to R.string.engine_muffler_open, "HALF" to R.string.engine_muffler_half, "MUFFLED" to R.string.engine_muffler_muffled)))
+    row(R.string.engine_gearbox_label, current.gearbox, defaults.gearbox, choice(mapOf(
+        "OFF" to R.string.engine_gearbox_off, "FOUR" to R.string.engine_gearbox_four, "SIX" to R.string.engine_gearbox_six)))
+    row(R.string.engine_idle_label, current.idleBehavior, defaults.idleBehavior, choice(mapOf(
+        "ALWAYS" to R.string.engine_idle_always, "FADE" to R.string.engine_idle_fade, "MOVING" to R.string.engine_idle_moving)))
+    row(R.string.engine_decel_label, current.decelChar, defaults.decelChar, choice(mapOf(
+        "SMOOTH" to R.string.engine_decel_smooth, "STANDARD" to R.string.engine_decel_standard, "BACKFIRE" to R.string.engine_decel_backfire)))
+    row(R.string.engine_brake_label, current.brake, defaults.brake, choice(mapOf(
+        "OFF" to R.string.engine_brake_off, "LIGHT" to R.string.engine_brake_light, "STRONG" to R.string.engine_brake_strong)))
+    row(R.string.engine_duck_label, current.duckOnVoice, defaults.duckOnVoice, choice(mapOf(
+        "DUCK" to R.string.engine_duck_duck, "PAUSE" to R.string.engine_duck_pause, "MIX" to R.string.engine_duck_mix)))
+    row(R.string.engine_headphones_only, current.headphonesOnly, defaults.headphonesOnly, ::onOff)
+    return rows
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -10236,7 +10388,7 @@ private fun EngineTypePicker(
     var expanded by remember { mutableStateOf(false) }
 
     val currentProfile = profiles.firstOrNull { it.key == currentKey }
-    val sourceLabel = if (currentProfile?.sampleAssetBase != null)
+    val sourceLabel = if (currentProfile?.grainAsset != null)
         stringResource(R.string.engine_source_sampled)
     else
         stringResource(R.string.engine_source_synth)
@@ -10262,11 +10414,12 @@ private fun EngineTypePicker(
             // Source icon: Album (vinyl) = sampled / analog. Equalizer (bars) = synth / digital.
             // Sits on the LEFT of the engine name so two presets that share a name
             // (e.g. "Tractor" Synth vs "Tractor" Sampled) are visually distinct at a glance.
-            val isSampled = currentProfile?.sampleAssetBase != null
+            val isSampled = currentProfile?.grainAsset != null
             OutlinedTextField(
                 value = displayFor(currentKey),
                 onValueChange = {},
                 readOnly = true,
+                singleLine = true,
                 leadingIcon = {
                     if (isSampled) {
                         Icon(
@@ -10304,7 +10457,7 @@ private fun EngineTypePicker(
                 containerColor = MaterialTheme.appColors.menuBackground
             ) {
                 profiles.forEach { p ->
-                    val itemIsSampled = p.sampleAssetBase != null
+                    val itemIsSampled = p.grainAsset != null
                     DropdownMenuItem(
                         leadingIcon = {
                             if (itemIsSampled) {
@@ -10380,6 +10533,7 @@ private fun VoiceCommandLanguagePicker(
             value = displayText,
             onValueChange = {},
             readOnly = true,
+            singleLine = true,
             label = { Text(stringResource(R.string.voice_recognition_language)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
@@ -10429,6 +10583,7 @@ private fun VoiceSelector(
             value = displayText,
             onValueChange = {},
             readOnly = true,
+            singleLine = true,
             label = { Text(stringResource(R.string.voice_selector_label)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
@@ -10513,6 +10668,7 @@ private fun VoiceVariantSelector(
             value = displayText,
             onValueChange = {},
             readOnly = true,
+            singleLine = true,
             label = { Text(stringResource(R.string.voice_variant_label)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
@@ -10696,6 +10852,7 @@ private fun ActionDropdown(
             value = currentLabel,
             onValueChange = {},
             readOnly = true,
+            singleLine = true,
             label = { Text(highlightMatches(label, LocalSettingsSearchQuery.current), modifier = Modifier.settingsSearchLabel(label)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
@@ -11091,6 +11248,7 @@ internal fun RestorePickerDialog(
                         value = selected?.let { entryLabel(it) } ?: defaultLabel,
                         onValueChange = {},
                         readOnly = true,
+                        singleLine = true,
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropdownOpen) },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -12194,6 +12352,7 @@ private fun HudMapStylePicker(
             value = currentLabel,
             onValueChange = {},
             readOnly = true,
+            singleLine = true,
             label = { Text(stringResource(R.string.hud_map_style_label)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier

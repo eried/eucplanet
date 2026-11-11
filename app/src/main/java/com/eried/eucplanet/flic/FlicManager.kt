@@ -409,14 +409,11 @@ class FlicManager(
             "SAFETY_OFF" -> wheelRepository.disableSafetySpeed()
             "VOICE_LISTEN" -> {
                 // Legal Mode already refused above, for every surface at once.
-                // What is left is the microphone: without it there is nothing
-                // to listen with, and a rider pressing a button deserves to be
-                // told that rather than to hear silence.
-                if (!voiceCommands.hasMicPermission()) {
-                    appNotifier.post(context.getString(R.string.voice_answer_no_mic_permission))
-                } else {
-                    voiceCommands.listen()
-                }
+                // A missing microphone permission is the controller's to
+                // answer, the same way for a button as for the dashboard tile:
+                // the system prompt while the app is on screen, otherwise the
+                // spoken sentence and a Needs attention entry.
+                voiceCommands.listen()
             }
             "VOICE_ANNOUNCE" -> {
                 voiceService.announceTrigger(
@@ -451,6 +448,13 @@ class FlicManager(
             "MEDIA_PAUSE" -> { musicStart?.cancel(); sendMediaKey(KeyEvent.KEYCODE_MEDIA_PAUSE) }
             "MEDIA_NEXT" -> sendMediaKey(KeyEvent.KEYCODE_MEDIA_NEXT)
             "MEDIA_PREVIOUS" -> sendMediaKey(KeyEvent.KEYCODE_MEDIA_PREVIOUS)
+            "PHONE_VOLUME_UP" -> adjustPhoneVolume(AudioManager.ADJUST_RAISE)
+            "PHONE_VOLUME_DOWN" -> adjustPhoneVolume(AudioManager.ADJUST_LOWER)
+            "PHONE_MUTE_TOGGLE" -> adjustPhoneVolume(AudioManager.ADJUST_TOGGLE_MUTE)
+            "PHONE_TORCH_TOGGLE" -> togglePhoneTorch()
+            "ENGINE_SOUND_TOGGLE" -> settingsRepository.update { s ->
+                s.copy(engineSound = s.engineSound.copy(enabled = !s.engineSound.enabled))
+            }
             else -> Log.w(TAG, "Unknown / unsupported action key for physical surface: $key")
         }
     }
@@ -621,6 +625,47 @@ class FlicManager(
             )
         }
         return true
+    }
+
+    /**
+     * One step of the media volume, with the system slider shown. Aimed at the
+     * music stream by name: "the suggested stream" would be our own volume key
+     * session while it holds the buttons, and the press would come back to us.
+     */
+    private fun adjustPhoneVolume(direction: Int) {
+        val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        runCatching {
+            audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, direction, AudioManager.FLAG_SHOW_UI)
+        }.onFailure { Log.w(TAG, "phone volume change refused", it) }
+    }
+
+    /** What the torch is doing right now, kept by the callback below once it is registered. */
+    @Volatile private var torchOn = false
+    private var torchWatched = false
+
+    /**
+     * The phone's flashlight, flipped. The system tells every app the torch
+     * state through a callback, so a torch the rider switched on from the
+     * quick settings is switched off here, not "on" a second time.
+     */
+    private fun togglePhoneTorch() {
+        runCatching {
+            val cm = context.getSystemService(Context.CAMERA_SERVICE) as android.hardware.camera2.CameraManager
+            val id = cm.cameraIdList.firstOrNull {
+                cm.getCameraCharacteristics(it)
+                    .get(android.hardware.camera2.CameraCharacteristics.FLASH_INFO_AVAILABLE) == true
+            } ?: return
+            if (!torchWatched) {
+                torchWatched = true
+                cm.registerTorchCallback(object : android.hardware.camera2.CameraManager.TorchCallback() {
+                    override fun onTorchModeChanged(cameraId: String, enabled: Boolean) {
+                        if (cameraId == id) torchOn = enabled
+                    }
+                }, android.os.Handler(android.os.Looper.getMainLooper()))
+            }
+            cm.setTorchMode(id, !torchOn)
+            torchOn = !torchOn
+        }.onFailure { Log.w(TAG, "phone torch refused", it) }
     }
 
     private fun sendMediaKey(keyCode: Int) {

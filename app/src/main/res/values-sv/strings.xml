@@ -383,6 +383,8 @@
     <string name="voice_mic_grant">Tillåt mikrofon</string>
     <string name="warnings_perm_mic_title">Mikrofonen är inte tillåten</string>
     <string name="warnings_perm_mic_body">Röstkommandon kan inte lyssna förrän appen får använda mikrofonen.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth är inte tillåtet</string>
+    <string name="warnings_perm_bluetooth_body">Appen kan inte hitta eller ansluta till ditt hjul. Tryck för att tillåta.</string>
     <string name="voice_answer_unknown">Jag uppfattade inte det. Säg %1$s för hjälp.</string>
     <string name="voice_help_terms">vad kan jag säga,hjälp,vad kan jag fråga</string>
     <string name="voice_stat_max_terms">maximum,max,högsta</string>
@@ -461,6 +463,10 @@
     <string name="action_chip_media_prev">Föreg. spår</string>
     <string name="action_chip_music_start">Starta musik</string>
     <string name="action_chip_media_pause">Pausa musik</string>
+    <string name="action_chip_phone_volume_up">Volym upp</string>
+    <string name="action_chip_phone_volume_down">Volym ner</string>
+    <string name="action_chip_phone_mute">Ljud av</string>
+    <string name="action_chip_phone_torch">Telefonens ficklampa</string>
     <string name="action_chip_open_navigation">Visa karta</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
     <string name="action_chip_open_about">Om</string>
@@ -854,7 +860,7 @@
     <string name="engine_preset_steam_loco">Ånglok</string>
     <string name="engine_preset_tron_whine">Tron-tjut</string>
     <string name="engine_preset_pod_racer">Pod racer</string>
-    <string name="engine_preset_lightsaber">Ljussvärd</string>
+    <string name="engine_preset_lightsaber">Digitalt brum</string>
     <string name="engine_preset_jet_turbine">Jetturbin</string>
     <string name="engine_preset_ufo_hover">UFO i sväv</string>
     <string name="engine_preset_f1_electric">F1 elektrisk</string>
@@ -862,7 +868,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V-twin Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">Diesellastbil</string>
-    <string name="engine_preset_sampled_motorcycle">Motorcykel</string>
+    <string name="engine_preset_sampled_motorcycle">Liten crosshoj</string>
     <string name="engine_preset_sampled_city_car">Stadsbil</string>
     <string name="engine_preset_sampled_helicopter">Helikopter</string>
     <string name="engine_preset_sampled_tractor">Traktor</string>
@@ -942,8 +948,13 @@
     <string name="gps_show_on_dashboard">Visa fart på instrumentpanelen</string>
     <string name="gps_show_on_dashboard_desc">Lägger till en färgad prick på hastighetsmätaren med GPS-värdet.</string>
     <string name="section_volume_keys">Volymknappar</string>
-    <string name="volume_keys_caption">Använd telefonens volymknappar som genvägar (bara när appen är synlig)</string>
+    <string name="volume_keys_caption">Volymknapparna som genvägar medan appen är på skärmen.</string>
     <string name="volume_keys_enable">Aktivera åtgärder för volymknappar</string>
+    <string name="volume_keys_screen_off">Även med skärmen av</string>
+    <string name="volume_keys_screen_off_caption">Fungerar med låst telefon eller en annan app framför. Knapparna ändrar inte längre telefonens volym.</string>
+    <string name="volume_keys_screen_off_warn">Android skickar bara volymtryck till appen på skärmen. För att få dem med skärmen av anmäler sig EUC Planet som telefonens aktiva mediespelare, så Android skickar volymknapparna dit i stället för att ändra volymen.\n\nSå länge detta är på ändrar knapparna inte telefonens volym.</string>
+    <string name="volume_keys_screen_off_confirm">Slå på</string>
+    <string name="volume_keys_screen_off_title">Ta över volymknapparna?</string>
     <string name="volume_up">Volym upp</string>
     <string name="volume_down">Volym ned</string>
 

@@ -316,8 +316,13 @@
     <string name="gps_show_on_dashboard">Vis fart på dashbordet</string>
     <string name="gps_show_on_dashboard_desc">Legger en farget prikk på fartsmåleren med GPS-verdien.</string>
     <string name="section_volume_keys">Volumtaster</string>
-    <string name="volume_keys_caption">Volumtaster som snarveier (kun når appen er synlig)</string>
+    <string name="volume_keys_caption">Volumknappene som snarveier mens appen er på skjermen.</string>
     <string name="volume_keys_enable">Slå på volumtast-handlinger</string>
+    <string name="volume_keys_screen_off">Også med skjermen av</string>
+    <string name="volume_keys_screen_off_caption">Virker med låst telefon eller en annen app foran. Knappene endrer ikke lenger telefonvolumet.</string>
+    <string name="volume_keys_screen_off_warn">Android sender bare volumtrykk til appen på skjermen. For å få dem med skjermen av melder EUC Planet seg som telefonens aktive mediespiller, så Android sender volumknappene dit i stedet for å endre volumet.\n\nMens dette er på, endrer ikke knappene telefonvolumet.</string>
+    <string name="volume_keys_screen_off_confirm">Slå på</string>
+    <string name="volume_keys_screen_off_title">La appen ta over volumknappene?</string>
     <string name="volume_up">Volum opp</string>
     <string name="volume_down">Volum ned</string>
 
@@ -746,9 +751,9 @@
     <string name="engine_preset_ufo_hover">UFO i sveving</string>
     <string name="engine_preset_f1_electric">F1 elektrisk</string>
     <string name="engine_preset_hover_bike">Svevesykkel</string>
-    <string name="engine_preset_lightsaber">Lyssverd</string>
+    <string name="engine_preset_lightsaber">Digital summing</string>
     <string name="engine_preset_sampled_diesel_iveco">Diesellastebil</string>
-    <string name="engine_preset_sampled_motorcycle">Motorsykkel</string>
+    <string name="engine_preset_sampled_motorcycle">Liten crosser</string>
     <string name="engine_preset_sampled_city_car">Bybil</string>
     <string name="engine_preset_sampled_helicopter">Helikopter</string>
     <string name="engine_preset_sampled_tractor">Traktor</string>
@@ -1364,6 +1369,10 @@
     <string name="action_chip_media_prev">Forrige spor</string>
     <string name="action_chip_music_start">Start musikk</string>
     <string name="action_chip_media_pause">Pause musikk</string>
+    <string name="action_chip_phone_volume_up">Volum opp</string>
+    <string name="action_chip_phone_volume_down">Volum ned</string>
+    <string name="action_chip_phone_mute">Lyd av</string>
+    <string name="action_chip_phone_torch">Telefonens lommelykt</string>
     <string name="action_chip_mute_alarms">Demp alarmer</string>
     <string name="action_chip_open_about">Om</string>
     <string name="action_chip_open_navigation">Vis kart</string>
@@ -1429,6 +1438,8 @@
     <string name="voice_mic_grant">Tillat mikrofon</string>
     <string name="warnings_perm_mic_title">Mikrofon ikke tillatt</string>
     <string name="warnings_perm_mic_body">Talekommandoer kan ikke lytte før appen får bruke mikrofonen.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth er ikke tillatt</string>
+    <string name="warnings_perm_bluetooth_body">Appen kan ikke finne eller koble til hjulet ditt. Trykk for å tillate.</string>
     <string name="voice_answer_unknown">Det fikk jeg ikke med meg. Si %1$s for hjelp.</string>
     <string name="voice_help_terms">hva kan jeg si,hjelp,hva kan jeg spørre om</string>
     <string name="voice_stat_max_terms">maksimum,maks,høyeste</string>

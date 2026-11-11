@@ -383,6 +383,8 @@
     <string name="voice_mic_grant">마이크 허용</string>
     <string name="warnings_perm_mic_title">마이크가 허용되지 않음</string>
     <string name="warnings_perm_mic_body">앱이 마이크를 사용할 수 있게 될 때까지 음성 명령은 들을 수 없습니다.</string>
+    <string name="warnings_perm_bluetooth_title">블루투스가 허용되지 않음</string>
+    <string name="warnings_perm_bluetooth_body">앱이 휠을 찾거나 연결할 수 없습니다. 탭하여 허용하세요.</string>
     <string name="voice_answer_unknown">잘 알아듣지 못했습니다. 도움말을 들으려면 %1$s 하고 말하세요.</string>
     <string name="voice_help_terms">뭐라고 말하면 돼,도움말,뭘 물어볼 수 있어</string>
     <string name="voice_stat_max_terms">최대,맥스</string>
@@ -461,6 +463,10 @@
     <string name="action_chip_media_prev">이전 트랙</string>
     <string name="action_chip_music_start">음악 시작</string>
     <string name="action_chip_media_pause">음악 일시정지</string>
+    <string name="action_chip_phone_volume_up">볼륨 높이기</string>
+    <string name="action_chip_phone_volume_down">볼륨 낮추기</string>
+    <string name="action_chip_phone_mute">음소거</string>
+    <string name="action_chip_phone_torch">휴대전화 손전등</string>
     <string name="action_chip_open_navigation">지도 보기</string>
     <string name="action_chip_open_studio">오버레이 스튜디오</string>
     <string name="action_chip_open_about">정보</string>
@@ -854,7 +860,7 @@
     <string name="engine_preset_steam_loco">증기 기관차</string>
     <string name="engine_preset_tron_whine">트론 사운드</string>
     <string name="engine_preset_pod_racer">포드 레이서</string>
-    <string name="engine_preset_lightsaber">라이트세이버</string>
+    <string name="engine_preset_lightsaber">디지털 험</string>
     <string name="engine_preset_jet_turbine">제트 터빈</string>
     <string name="engine_preset_ufo_hover">UFO 호버</string>
     <string name="engine_preset_f1_electric">F1 전기 사운드</string>
@@ -862,7 +868,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V-twin Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">디젤 트럭</string>
-    <string name="engine_preset_sampled_motorcycle">오토바이</string>
+    <string name="engine_preset_sampled_motorcycle">소형 더트바이크</string>
     <string name="engine_preset_sampled_city_car">시티카</string>
     <string name="engine_preset_sampled_helicopter">헬리콥터</string>
     <string name="engine_preset_sampled_tractor">트랙터</string>
@@ -942,8 +948,13 @@
     <string name="gps_show_on_dashboard">대시보드에 속도 표시</string>
     <string name="gps_show_on_dashboard_desc">속도 다이얼에 GPS 값을 나타내는 색상 점을 추가합니다.</string>
     <string name="section_volume_keys">볼륨 버튼</string>
-    <string name="volume_keys_caption">휴대전화 볼륨 버튼을 바로가기로 사용합니다(앱이 화면에 보일 때만)</string>
+    <string name="volume_keys_caption">앱이 화면에 보이는 동안 볼륨 버튼을 바로가기로 사용.</string>
     <string name="volume_keys_enable">볼륨 버튼 단축키 활성화</string>
+    <string name="volume_keys_screen_off">화면이 꺼져 있을 때도</string>
+    <string name="volume_keys_screen_off_caption">휴대전화가 잠겨 있거나 다른 앱이 앞에 있어도 작동합니다. 버튼으로 휴대전화 볼륨이 더 이상 바뀌지 않습니다.</string>
+    <string name="volume_keys_screen_off_warn">Android는 볼륨 버튼 입력을 화면에 있는 앱에만 보냅니다. 화면이 꺼져 있을 때도 받기 위해 EUC Planet이 휴대전화의 활성 미디어 플레이어로 등록되고, Android는 볼륨을 바꾸는 대신 버튼을 앱으로 보냅니다.\n\n켜져 있는 동안 버튼으로 휴대전화 볼륨이 바뀌지 않습니다.</string>
+    <string name="volume_keys_screen_off_confirm">켜기</string>
+    <string name="volume_keys_screen_off_title">볼륨 버튼을 앱이 가져갈까요?</string>
     <string name="volume_up">볼륨 올리기</string>
     <string name="volume_down">볼륨 내리기</string>
 

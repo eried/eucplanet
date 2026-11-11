@@ -427,6 +427,7 @@ fun NavigatorSettingsContent(
                     value = com.eried.eucplanet.weather.WeatherSource.byId(settings.weather.source).label,
                     onValueChange = {},
                     readOnly = true,
+                    singleLine = true,
                     label = { Text(stringResource(R.string.weather_source_label)) },
                     trailingIcon = { androidx.compose.material3.ExposedDropdownMenuDefaults.TrailingIcon(expanded = sourceExpanded) },
                     modifier = Modifier

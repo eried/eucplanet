@@ -382,6 +382,8 @@
     <string name="voice_mic_grant">允許麥克風</string>
     <string name="warnings_perm_mic_title">未允許麥克風</string>
     <string name="warnings_perm_mic_body">在應用程式取得麥克風權限之前，語音指令無法聆聽。</string>
+    <string name="warnings_perm_bluetooth_title">未允許藍牙</string>
+    <string name="warnings_perm_bluetooth_body">應用程式無法找到或連接你的獨輪車。點按以允許。</string>
     <string name="voice_answer_unknown">我沒聽清楚。請說「%1$s」取得說明。</string>
     <string name="voice_help_terms">我能說什麼,幫助,說明,我能問什麼</string>
     <string name="voice_stat_max_terms">最大,最高</string>
@@ -460,6 +462,10 @@
     <string name="action_chip_media_prev">上一首</string>
     <string name="action_chip_music_start">開始音樂</string>
     <string name="action_chip_media_pause">暫停音樂</string>
+    <string name="action_chip_phone_volume_up">調高音量</string>
+    <string name="action_chip_phone_volume_down">調低音量</string>
+    <string name="action_chip_phone_mute">靜音</string>
+    <string name="action_chip_phone_torch">手機手電筒</string>
     <string name="action_chip_open_navigation">顯示地圖</string>
     <string name="action_chip_open_studio">疊加層工作室</string>
     <string name="action_chip_open_about">關於</string>
@@ -853,7 +859,7 @@
     <string name="engine_preset_steam_loco">蒸汽機車</string>
     <string name="engine_preset_tron_whine">Tron 嘯鳴</string>
     <string name="engine_preset_pod_racer">飛梭賽車</string>
-    <string name="engine_preset_lightsaber">光劍</string>
+    <string name="engine_preset_lightsaber">數位嗡鳴</string>
     <string name="engine_preset_jet_turbine">噴射渦輪</string>
     <string name="engine_preset_ufo_hover">UFO 懸浮</string>
     <string name="engine_preset_f1_electric">F1 電動嘯鳴</string>
@@ -861,7 +867,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V 型雙缸 Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">柴油卡車</string>
-    <string name="engine_preset_sampled_motorcycle">機車</string>
+    <string name="engine_preset_sampled_motorcycle">小型越野摩托車</string>
     <string name="engine_preset_sampled_city_car">城市小車</string>
     <string name="engine_preset_sampled_helicopter">直升機</string>
     <string name="engine_preset_sampled_tractor">曳引機</string>
@@ -941,8 +947,13 @@
     <string name="gps_show_on_dashboard">在儀表板顯示速度</string>
     <string name="gps_show_on_dashboard_desc">在速度錶上加一個彩色圓點，顯示 GPS 讀數。</string>
     <string name="section_volume_keys">音量鍵</string>
-    <string name="volume_keys_caption">將手機音量鍵當成快捷鍵（僅限應用程式顯示在畫面上時）</string>
+    <string name="volume_keys_caption">應用程式顯示在螢幕上時，用手機音量鍵作為快捷鍵。</string>
     <string name="volume_keys_enable">啟用音量鍵操作</string>
+    <string name="volume_keys_screen_off">螢幕關閉時也生效</string>
+    <string name="volume_keys_screen_off_caption">手機鎖定或其他應用程式在前景時也有效。音量鍵不再改變手機音量。</string>
+    <string name="volume_keys_screen_off_warn">Android 只把音量鍵按壓傳給螢幕上的應用程式。為了在螢幕關閉時也能收到，EUC Planet 會註冊為手機目前的媒體播放器，Android 就把音量鍵傳給它，而不是調整音量。\n\n開啟期間，音量鍵不再改變手機音量。</string>
+    <string name="volume_keys_screen_off_confirm">開啟</string>
+    <string name="volume_keys_screen_off_title">接管音量鍵？</string>
     <string name="volume_up">調高音量</string>
     <string name="volume_down">調低音量</string>
 

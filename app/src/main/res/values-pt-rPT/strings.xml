@@ -361,6 +361,8 @@
     <string name="voice_mic_grant">Permitir microfone</string>
     <string name="warnings_perm_mic_title">Microfone não permitido</string>
     <string name="warnings_perm_mic_body">Os comandos de voz não podem ouvir até a app ter autorização para usar o microfone.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth não permitido</string>
+    <string name="warnings_perm_bluetooth_body">A app não consegue encontrar nem ligar à sua roda. Toque para permitir.</string>
     <string name="voice_answer_unknown">Não percebi. Diga %1$s para ajuda.</string>
     <string name="voice_help_terms">o que posso dizer,ajuda,o que posso fazer</string>
     <string name="voice_stat_max_terms">máx,máximo,máxima,mais alto</string>
@@ -439,6 +441,10 @@
     <string name="action_chip_media_prev">Faixa anterior</string>
     <string name="action_chip_music_start">Iniciar música</string>
     <string name="action_chip_media_pause">Pausar música</string>
+    <string name="action_chip_phone_volume_up">Aumentar volume</string>
+    <string name="action_chip_phone_volume_down">Diminuir volume</string>
+    <string name="action_chip_phone_mute">Silenciar</string>
+    <string name="action_chip_phone_torch">Lanterna do telemóvel</string>
     <string name="action_chip_open_navigation">Ver mapa</string>
     <string name="action_chip_open_studio">Estúdio de overlay</string>
     <string name="action_chip_open_about">Acerca de</string>
@@ -1095,7 +1101,7 @@
     <string name="engine_preset_steam_loco">Locomotiva a vapor</string>
     <string name="engine_preset_tron_whine">Zumbido Tron</string>
     <string name="engine_preset_pod_racer">Pod racer</string>
-    <string name="engine_preset_lightsaber">Sabre de luz</string>
+    <string name="engine_preset_lightsaber">Zumbido digital</string>
     <string name="engine_preset_jet_turbine">Turbina a jato</string>
     <string name="engine_preset_ufo_hover">OVNI a pairar</string>
     <string name="engine_preset_f1_electric">Zumbido F1 elétrico</string>
@@ -1103,7 +1109,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V2 Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">Camião a gasóleo</string>
-    <string name="engine_preset_sampled_motorcycle">Mota</string>
+    <string name="engine_preset_sampled_motorcycle">Moto de cross pequena</string>
     <string name="engine_preset_sampled_city_car">Carro citadino</string>
     <string name="engine_preset_sampled_helicopter">Helicóptero</string>
     <string name="engine_preset_sampled_tractor">Trator</string>
@@ -1182,8 +1188,13 @@
     <string name="gps_show_on_dashboard">Mostrar velocidade no painel</string>
     <string name="gps_show_on_dashboard_desc">Adiciona um ponto colorido no velocímetro com a leitura do GPS.</string>
     <string name="section_volume_keys">Teclas de volume</string>
-    <string name="volume_keys_caption">Use os botões de volume do telemóvel como atalhos (só com a app visível).</string>
+    <string name="volume_keys_caption">Usar os botões de volume como atalhos enquanto a app está no ecrã.</string>
     <string name="volume_keys_enable">Ativar ações das teclas de volume</string>
+    <string name="volume_keys_screen_off">Também com o ecrã desligado</string>
+    <string name="volume_keys_screen_off_caption">Funciona com o telemóvel bloqueado ou com outra app à frente. Os botões deixam de alterar o volume do telemóvel.</string>
+    <string name="volume_keys_screen_off_warn">O Android só envia os toques de volume para a app que está no ecrã. Para os receber com o ecrã desligado, o EUC Planet regista-se como o leitor multimédia ativo do telemóvel, e o Android envia-lhe os botões de volume em vez de alterar o volume.\n\nEnquanto isto estiver ativo, os botões não alteram o volume do telemóvel.</string>
+    <string name="volume_keys_screen_off_confirm">Ligar</string>
+    <string name="volume_keys_screen_off_title">Assumir os botões de volume?</string>
     <string name="volume_up">Aumentar volume</string>
     <string name="volume_down">Diminuir volume</string>
 

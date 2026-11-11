@@ -383,6 +383,8 @@
     <string name="voice_mic_grant">Mikrofona izin ver</string>
     <string name="warnings_perm_mic_title">Mikrofona izin verilmedi</string>
     <string name="warnings_perm_mic_body">Uygulamanın mikrofonu kullanmasına izin verilene kadar sesli komutlar dinleyemez.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth\'a izin verilmedi</string>
+    <string name="warnings_perm_bluetooth_body">Uygulama tekerinizi bulamıyor ve bağlanamıyor. İzin vermek için dokunun.</string>
     <string name="voice_answer_unknown">Anlayamadım. Yardım için %1$s deyin.</string>
     <string name="voice_help_terms">ne diyebilirim,yardım,ne sorabilirim</string>
     <string name="voice_stat_max_terms">maksimum,maks,en yüksek</string>
@@ -461,6 +463,10 @@
     <string name="action_chip_media_prev">Önceki parça</string>
     <string name="action_chip_music_start">Müziği başlat</string>
     <string name="action_chip_media_pause">Müziği duraklat</string>
+    <string name="action_chip_phone_volume_up">Sesi aç</string>
+    <string name="action_chip_phone_volume_down">Sesi kıs</string>
+    <string name="action_chip_phone_mute">Sessiz</string>
+    <string name="action_chip_phone_torch">Telefon feneri</string>
     <string name="action_chip_open_navigation">Haritayı göster</string>
     <string name="action_chip_open_studio">Kaplama stüdyosu</string>
     <string name="action_chip_open_about">Hakkında</string>
@@ -854,7 +860,7 @@
     <string name="engine_preset_steam_loco">Buharlı lokomotif</string>
     <string name="engine_preset_tron_whine">Tron vızıltısı</string>
     <string name="engine_preset_pod_racer">Pod yarışçısı</string>
-    <string name="engine_preset_lightsaber">Işın kılıcı</string>
+    <string name="engine_preset_lightsaber">Dijital uğultu</string>
     <string name="engine_preset_jet_turbine">Jet türbini</string>
     <string name="engine_preset_ufo_hover">UFO süzülmesi</string>
     <string name="engine_preset_f1_electric">F1 elektrik vızıltısı</string>
@@ -862,7 +868,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V-twin Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">Dizel kamyon</string>
-    <string name="engine_preset_sampled_motorcycle">Motosiklet</string>
+    <string name="engine_preset_sampled_motorcycle">Küçük arazi motosikleti</string>
     <string name="engine_preset_sampled_city_car">Şehir aracı</string>
     <string name="engine_preset_sampled_helicopter">Helikopter</string>
     <string name="engine_preset_sampled_tractor">Traktör</string>
@@ -942,8 +948,13 @@
     <string name="gps_show_on_dashboard">Gösterge panelinde hız göster</string>
     <string name="gps_show_on_dashboard_desc">Hız kadranına GPS okumasıyla renkli bir nokta ekler.</string>
     <string name="section_volume_keys">Ses tuşları</string>
-    <string name="volume_keys_caption">Telefon ses düğmelerini kısayol olarak kullan (yalnızca uygulama görünürken)</string>
+    <string name="volume_keys_caption">Uygulama ekrandayken ses tuşlarını kısayol olarak kullan.</string>
     <string name="volume_keys_enable">Ses tuşu eylemlerini etkinleştir</string>
+    <string name="volume_keys_screen_off">Ekran kapalıyken de</string>
+    <string name="volume_keys_screen_off_caption">Telefon kilitliyken veya başka bir uygulama öndeyken de çalışır. Tuşlar artık telefonun sesini değiştirmez.</string>
+    <string name="volume_keys_screen_off_warn">Android ses tuşu basışlarını yalnızca ekrandaki uygulamaya gönderir. Ekran kapalıyken de alabilmek için EUC Planet telefonun etkin medya oynatıcısı olarak kaydolur ve Android sesi değiştirmek yerine ses tuşlarını ona gönderir.\n\nBu açıkken tuşlar telefonun sesini değiştirmez.</string>
+    <string name="volume_keys_screen_off_confirm">Aç</string>
+    <string name="volume_keys_screen_off_title">Ses tuşları devralınsın mı?</string>
     <string name="volume_up">Sesi Artır</string>
     <string name="volume_down">Sesi Azalt</string>
 

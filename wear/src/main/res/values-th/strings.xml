@@ -36,6 +36,11 @@
     <string name="watch_action_media_prev">เพลงก่อนหน้า</string>
     <string name="watch_action_music_start">เปิดเพลง</string>
     <string name="watch_action_media_pause">หยุดเพลง</string>
+    <string name="watch_action_phone_volume_up">เพิ่มเสียง</string>
+    <string name="watch_action_phone_volume_down">ลดเสียง</string>
+    <string name="watch_action_phone_mute">ปิด / เปิดเสียง</string>
+    <string name="watch_action_phone_torch">ไฟฉายโทรศัพท์</string>
+    <string name="watch_action_engine_sound">เสียงเครื่องยนต์</string>
     <string name="watch_action_long_press_hint">กดค้างเพื่อ%1$s</string>
     <string name="watch_map_phone_disconnected">ไม่มีโทรศัพท์</string>
     <string name="watch_map_gps_permission">อนุญาต GPS</string>

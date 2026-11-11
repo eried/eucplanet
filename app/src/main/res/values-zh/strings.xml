@@ -319,8 +319,13 @@
     <string name="gps_show_on_dashboard">在仪表盘显示速度</string>
     <string name="gps_show_on_dashboard_desc">在速度表上叠加一个彩色圆点显示 GPS 读数。</string>
     <string name="section_volume_keys">音量键</string>
-    <string name="volume_keys_caption">将手机音量键用作快捷键（仅在应用显示时）。</string>
+    <string name="volume_keys_caption">应用显示在屏幕上时，用手机音量键作为快捷键。</string>
     <string name="volume_keys_enable">启用音量键操作</string>
+    <string name="volume_keys_screen_off">熄屏时也生效</string>
+    <string name="volume_keys_screen_off_caption">手机锁屏或其他应用在前台时也有效。音量键不再改变手机音量。</string>
+    <string name="volume_keys_screen_off_warn">Android 只把音量键按压发给屏幕上的应用。为了在熄屏时也能收到，EUC Planet 会注册为手机当前的媒体播放器，Android 就把音量键发给它，而不是调节音量。\n\n开启期间，音量键不再改变手机音量。</string>
+    <string name="volume_keys_screen_off_confirm">开启</string>
+    <string name="volume_keys_screen_off_title">接管音量键？</string>
     <string name="volume_up">音量+</string>
     <string name="volume_down">音量-</string>
 
@@ -729,9 +734,9 @@
     <string name="engine_preset_ufo_hover">UFO悬停</string>
     <string name="engine_preset_f1_electric">F1 电动</string>
     <string name="engine_preset_hover_bike">悬浮摩托</string>
-    <string name="engine_preset_lightsaber">光剑</string>
+    <string name="engine_preset_lightsaber">数字嗡鸣</string>
     <string name="engine_preset_sampled_diesel_iveco">柴油卡车</string>
-    <string name="engine_preset_sampled_motorcycle">摩托车</string>
+    <string name="engine_preset_sampled_motorcycle">小型越野摩托</string>
     <string name="engine_preset_sampled_city_car">城市轿车</string>
     <string name="engine_preset_sampled_helicopter">直升机</string>
     <string name="engine_preset_sampled_tractor">拖拉机</string>
@@ -1347,6 +1352,10 @@
     <string name="action_chip_media_prev">上一曲</string>
     <string name="action_chip_music_start">开始音乐</string>
     <string name="action_chip_media_pause">暂停音乐</string>
+    <string name="action_chip_phone_volume_up">调高音量</string>
+    <string name="action_chip_phone_volume_down">调低音量</string>
+    <string name="action_chip_phone_mute">静音</string>
+    <string name="action_chip_phone_torch">手机手电筒</string>
     <string name="action_chip_mute_alarms">静音报警</string>
     <string name="action_chip_open_about">关于</string>
     <string name="action_chip_open_navigation">显示地图</string>
@@ -1412,6 +1421,8 @@
     <string name="voice_mic_grant">允许麦克风</string>
     <string name="warnings_perm_mic_title">未允许麦克风</string>
     <string name="warnings_perm_mic_body">在应用获得麦克风权限之前，语音指令无法聆听。</string>
+    <string name="warnings_perm_bluetooth_title">未允许蓝牙</string>
+    <string name="warnings_perm_bluetooth_body">应用无法找到或连接你的独轮车。点按以允许。</string>
     <string name="voice_answer_unknown">没听清。请说“%1$s”获取帮助。</string>
     <string name="voice_help_terms">我能说什么,帮助,我能问什么</string>
     <string name="voice_stat_max_terms">最大,最高</string>

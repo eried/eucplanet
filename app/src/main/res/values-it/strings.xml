@@ -402,8 +402,13 @@
     <string name="gps_show_on_dashboard">Mostra velocità sulla dashboard</string>
     <string name="gps_show_on_dashboard_desc">Aggiunge un puntino colorato sul tachimetro con la lettura GPS.</string>
     <string name="section_volume_keys">Tasti volume</string>
-    <string name="volume_keys_caption">Tasti volume come scorciatoie (solo con l\'app visibile)</string>
+    <string name="volume_keys_caption">Tasti volume come scorciatoie finché l\'app è sullo schermo.</string>
     <string name="volume_keys_enable">Attiva azioni dei tasti volume</string>
+    <string name="volume_keys_screen_off">Anche a schermo spento</string>
+    <string name="volume_keys_screen_off_caption">Funziona a telefono bloccato o con un\'altra app in primo piano. I tasti non cambiano più il volume del telefono.</string>
+    <string name="volume_keys_screen_off_warn">Android invia le pressioni del volume solo all\'app sullo schermo. Per riceverle a schermo spento, EUC Planet si registra come lettore multimediale attivo del telefono, e Android gli invia i tasti volume invece di cambiare il volume.\n\nFinché è attivo, i tasti non cambiano più il volume del telefono.</string>
+    <string name="volume_keys_screen_off_confirm">Attiva</string>
+    <string name="volume_keys_screen_off_title">Prendere il controllo dei tasti volume?</string>
     <string name="volume_up">Volume su</string>
     <string name="volume_down">Volume giù</string>
 
@@ -765,9 +770,9 @@
     <string name="engine_preset_ufo_hover">UFO in stazionamento</string>
     <string name="engine_preset_f1_electric">F1 elettrica</string>
     <string name="engine_preset_hover_bike">Moto volante</string>
-    <string name="engine_preset_lightsaber">Spada laser</string>
+    <string name="engine_preset_lightsaber">Ronzio digitale</string>
     <string name="engine_preset_sampled_diesel_iveco">Camion diesel</string>
-    <string name="engine_preset_sampled_motorcycle">Motocicletta</string>
+    <string name="engine_preset_sampled_motorcycle">Piccola moto da cross</string>
     <string name="engine_preset_sampled_city_car">Citycar</string>
     <string name="engine_preset_sampled_helicopter">Elicottero</string>
     <string name="engine_preset_sampled_tractor">Trattore</string>
@@ -1383,6 +1388,10 @@
     <string name="action_chip_media_prev">Brano prec.</string>
     <string name="action_chip_music_start">Avvia musica</string>
     <string name="action_chip_media_pause">Pausa musica</string>
+    <string name="action_chip_phone_volume_up">Volume su</string>
+    <string name="action_chip_phone_volume_down">Volume giù</string>
+    <string name="action_chip_phone_mute">Muto</string>
+    <string name="action_chip_phone_torch">Torcia del telefono</string>
     <string name="action_chip_mute_alarms">Silenzia allarmi</string>
     <string name="action_chip_open_about">Informazioni</string>
     <string name="action_chip_open_navigation">Mostra mappa</string>
@@ -1448,6 +1457,8 @@
     <string name="voice_mic_grant">Consenti microfono</string>
     <string name="warnings_perm_mic_title">Microfono non consentito</string>
     <string name="warnings_perm_mic_body">I comandi vocali non possono ascoltare finché l\'app non può usare il microfono.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth non consentito</string>
+    <string name="warnings_perm_bluetooth_body">L\'app non può trovare la tua ruota né collegarsi. Tocca per consentire.</string>
     <string name="voice_answer_unknown">Non ho capito. Di\' %1$s per avere aiuto.</string>
     <string name="voice_help_terms">cosa posso dire,aiuto,cosa posso chiedere</string>
     <string name="voice_stat_max_terms">massimo,max</string>
