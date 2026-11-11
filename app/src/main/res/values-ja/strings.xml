@@ -951,10 +951,10 @@
     <string name="volume_keys_caption">アプリが画面に表示されている間、音量ボタンをショートカットとして使う。</string>
     <string name="volume_keys_enable">音量キーアクションを有効にする</string>
     <string name="volume_keys_screen_off">画面が消えているときも</string>
-    <string name="volume_keys_screen_off_caption">ボタンで端末の音量は変わらなくなります。</string>
-    <string name="volume_keys_screen_off_warn">画面が消えているときや他のアプリが前面にあるときも、音量ボタンで操作が実行されます。ボタンで端末の音量は変わらなくなります。音量は画面のスライダーで変えるか、この設定をオフにしてください。</string>
+    <string name="volume_keys_screen_off_caption">端末のロック中や他のアプリが前面にあるときも動作します。ボタンで端末の音量は変わらなくなります。</string>
+    <string name="volume_keys_screen_off_warn">Androidは音量ボタンの操作を画面上のアプリにしか送りません。画面オフでも受け取れるよう、EUC Planetは端末のアクティブなメディアプレーヤーとして登録され、Androidは音量を変える代わりにボタンをアプリへ送ります。\n\nオンの間、ボタンで端末の音量は変わりません。</string>
     <string name="volume_keys_screen_off_confirm">オンにする</string>
-    <string name="volume_keys_screen_off_title">画面オフでも使いますか？</string>
+    <string name="volume_keys_screen_off_title">音量ボタンを引き継ぎますか？</string>
     <string name="volume_keys_screen_off_tip">ボタンで音量を変えたい場合は、「音量を上げる」または「音量を下げる」を割り当ててください。</string>
     <string name="volume_up">音量アップ</string>
     <string name="volume_down">音量ダウン</string>

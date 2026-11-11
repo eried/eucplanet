@@ -322,10 +322,10 @@
     <string name="volume_keys_caption">应用显示在屏幕上时，用手机音量键作为快捷键。</string>
     <string name="volume_keys_enable">启用音量键操作</string>
     <string name="volume_keys_screen_off">熄屏时也生效</string>
-    <string name="volume_keys_screen_off_caption">音量键不再改变手机音量。</string>
-    <string name="volume_keys_screen_off_warn">熄屏时以及其他应用在前台时，音量键也会执行你的操作。音量键不再改变手机音量。请用屏幕上的滑块调节音量，或关闭此项。</string>
+    <string name="volume_keys_screen_off_caption">手机锁屏或其他应用在前台时也有效。音量键不再改变手机音量。</string>
+    <string name="volume_keys_screen_off_warn">Android 只把音量键按压发给屏幕上的应用。为了在熄屏时也能收到，EUC Planet 会注册为手机当前的媒体播放器，Android 就把音量键发给它，而不是调节音量。\n\n开启期间，音量键不再改变手机音量。</string>
     <string name="volume_keys_screen_off_confirm">开启</string>
-    <string name="volume_keys_screen_off_title">熄屏时也使用？</string>
+    <string name="volume_keys_screen_off_title">接管音量键？</string>
     <string name="volume_keys_screen_off_tip">想让某个按键继续调节音量，请为它设置“调高音量”或“调低音量”。</string>
     <string name="volume_up">音量+</string>
     <string name="volume_down">音量-</string>

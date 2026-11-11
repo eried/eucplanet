@@ -951,10 +951,10 @@
     <string name="volume_keys_caption">Uygulama ekrandayken ses tuşlarını kısayol olarak kullan.</string>
     <string name="volume_keys_enable">Ses tuşu eylemlerini etkinleştir</string>
     <string name="volume_keys_screen_off">Ekran kapalıyken de</string>
-    <string name="volume_keys_screen_off_caption">Tuşlar artık telefonun sesini değiştirmez.</string>
-    <string name="volume_keys_screen_off_warn">Ses tuşları ekran kapalıyken ve önde başka uygulamalar varken de eylemlerini çalıştırır. Tuşlar artık telefonun sesini değiştirmez. Sesi ekrandaki kaydırıcıdan değiştir ya da bunu kapat.</string>
+    <string name="volume_keys_screen_off_caption">Telefon kilitliyken veya başka bir uygulama öndeyken de çalışır. Tuşlar artık telefonun sesini değiştirmez.</string>
+    <string name="volume_keys_screen_off_warn">Android ses tuşu basışlarını yalnızca ekrandaki uygulamaya gönderir. Ekran kapalıyken de alabilmek için EUC Planet telefonun etkin medya oynatıcısı olarak kaydolur ve Android sesi değiştirmek yerine ses tuşlarını ona gönderir.\n\nBu açıkken tuşlar telefonun sesini değiştirmez.</string>
     <string name="volume_keys_screen_off_confirm">Aç</string>
-    <string name="volume_keys_screen_off_title">Ekran kapalıyken kullanılsın mı?</string>
+    <string name="volume_keys_screen_off_title">Ses tuşları devralınsın mı?</string>
     <string name="volume_keys_screen_off_tip">Bir tuşta ses ayarını korumak için ona Sesi aç veya Sesi kıs eylemini atayın.</string>
     <string name="volume_up">Sesi Artır</string>
     <string name="volume_down">Sesi Azalt</string>

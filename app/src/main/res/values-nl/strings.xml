@@ -955,10 +955,10 @@
     <string name="volume_keys_caption">Volumeknoppen als snelkoppelingen zolang de app op het scherm staat.</string>
     <string name="volume_keys_enable">Volumeknopacties inschakelen</string>
     <string name="volume_keys_screen_off">Ook met het scherm uit</string>
-    <string name="volume_keys_screen_off_caption">De knoppen veranderen het telefoonvolume niet meer.</string>
-    <string name="volume_keys_screen_off_warn">De volumeknoppen voeren je acties uit met het scherm uit en met andere apps op de voorgrond. De knoppen veranderen het telefoonvolume niet meer. Verander het volume met de schuifregelaar op het scherm, of zet dit uit.</string>
+    <string name="volume_keys_screen_off_caption">Werkt met vergrendelde telefoon of een andere app op de voorgrond. De knoppen veranderen het telefoonvolume niet meer.</string>
+    <string name="volume_keys_screen_off_warn">Android stuurt volumeknoppen alleen naar de app op het scherm. Om ze ook met het scherm uit te krijgen, meldt EUC Planet zich aan als de actieve mediaspeler van de telefoon, zodat Android de volumeknoppen daarheen stuurt in plaats van het volume te wijzigen.\n\nZolang dit aanstaat, veranderen de knoppen het telefoonvolume niet.</string>
     <string name="volume_keys_screen_off_confirm">Aanzetten</string>
-    <string name="volume_keys_screen_off_title">Gebruiken met scherm uit?</string>
+    <string name="volume_keys_screen_off_title">Volumeknoppen overnemen?</string>
     <string name="volume_keys_screen_off_tip">Wil je het volume op een knop houden, wijs er dan Volume omhoog of Volume omlaag aan toe.</string>
     <string name="volume_up">Volume omhoog</string>
     <string name="volume_down">Volume omlaag</string>

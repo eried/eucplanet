@@ -955,10 +955,10 @@
     <string name="volume_keys_caption">Utiliser les boutons de volume comme raccourcis tant que l\'app est à l\'écran.</string>
     <string name="volume_keys_enable">Activer les actions des touches de volume</string>
     <string name="volume_keys_screen_off">Aussi écran éteint</string>
-    <string name="volume_keys_screen_off_caption">Les boutons ne changent plus le volume du téléphone.</string>
-    <string name="volume_keys_screen_off_warn">Les boutons de volume déclencheront vos actions écran éteint et avec d\'autres apps au premier plan. Les boutons ne changent plus le volume du téléphone. Changez le volume avec le curseur à l\'écran, ou désactivez ceci.</string>
+    <string name="volume_keys_screen_off_caption">Fonctionne téléphone verrouillé ou avec une autre app au premier plan. Les boutons ne changent plus le volume du téléphone.</string>
+    <string name="volume_keys_screen_off_warn">Android n\'envoie les appuis de volume qu\'à l\'app à l\'écran. Pour les recevoir écran éteint, EUC Planet se déclare comme lecteur multimédia actif du téléphone, et Android lui envoie les boutons de volume au lieu de changer le volume.\n\nTant que c\'est activé, les boutons ne changent plus le volume du téléphone.</string>
     <string name="volume_keys_screen_off_confirm">Activer</string>
-    <string name="volume_keys_screen_off_title">Utiliser écran éteint ?</string>
+    <string name="volume_keys_screen_off_title">Prendre le contrôle des boutons de volume ?</string>
     <string name="volume_keys_screen_off_tip">Pour garder le volume sur un bouton, attribuez-lui Volume + ou Volume -.</string>
     <string name="volume_up">Volume haut</string>
     <string name="volume_down">Volume bas</string>

@@ -955,10 +955,10 @@
     <string name="volume_keys_caption">Кнопки гучності як ярлики, поки застосунок на екрані.</string>
     <string name="volume_keys_enable">Увімкнути дії на кнопках гучності</string>
     <string name="volume_keys_screen_off">І з вимкненим екраном</string>
-    <string name="volume_keys_screen_off_caption">Кнопки перестають змінювати гучність телефону.</string>
-    <string name="volume_keys_screen_off_warn">Кнопки гучності запускатимуть ваші дії з вимкненим екраном і з іншими застосунками зверху. Кнопки перестають змінювати гучність телефону. Змінюйте гучність повзунком на екрані або вимкніть це.</string>
+    <string name="volume_keys_screen_off_caption">Працює на заблокованому телефоні та коли відкрито інший застосунок. Кнопки більше не змінюють гучність телефона.</string>
+    <string name="volume_keys_screen_off_warn">Android передає натискання кнопок гучності лише застосунку на екрані. Щоб отримувати їх із вимкненим екраном, EUC Planet реєструється як активний медіаплеєр телефона, і Android надсилає кнопки йому, а не змінює гучність.\n\nПоки це ввімкнено, кнопки не змінюють гучність телефона.</string>
     <string name="volume_keys_screen_off_confirm">Увімкнути</string>
-    <string name="volume_keys_screen_off_title">Використовувати з вимкненим екраном?</string>
+    <string name="volume_keys_screen_off_title">Перебрати кнопки гучності?</string>
     <string name="volume_keys_screen_off_tip">Щоб залишити гучність на кнопці, призначте їй «Гучніше» або «Тихіше».</string>
     <string name="volume_up">Гучніше</string>
     <string name="volume_down">Тихіше</string>

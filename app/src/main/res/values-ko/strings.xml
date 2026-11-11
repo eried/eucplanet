@@ -951,10 +951,10 @@
     <string name="volume_keys_caption">앱이 화면에 보이는 동안 볼륨 버튼을 바로가기로 사용.</string>
     <string name="volume_keys_enable">볼륨 버튼 단축키 활성화</string>
     <string name="volume_keys_screen_off">화면이 꺼져 있을 때도</string>
-    <string name="volume_keys_screen_off_caption">버튼으로 휴대전화 볼륨이 바뀌지 않습니다.</string>
-    <string name="volume_keys_screen_off_warn">화면이 꺼져 있거나 다른 앱이 앞에 있어도 볼륨 버튼이 동작을 실행합니다. 버튼으로 휴대전화 볼륨이 바뀌지 않습니다. 볼륨은 화면의 슬라이더로 바꾸거나 이 설정을 끄세요.</string>
+    <string name="volume_keys_screen_off_caption">휴대전화가 잠겨 있거나 다른 앱이 앞에 있어도 작동합니다. 버튼으로 휴대전화 볼륨이 더 이상 바뀌지 않습니다.</string>
+    <string name="volume_keys_screen_off_warn">Android는 볼륨 버튼 입력을 화면에 있는 앱에만 보냅니다. 화면이 꺼져 있을 때도 받기 위해 EUC Planet이 휴대전화의 활성 미디어 플레이어로 등록되고, Android는 볼륨을 바꾸는 대신 버튼을 앱으로 보냅니다.\n\n켜져 있는 동안 버튼으로 휴대전화 볼륨이 바뀌지 않습니다.</string>
     <string name="volume_keys_screen_off_confirm">켜기</string>
-    <string name="volume_keys_screen_off_title">화면이 꺼져 있을 때도 사용할까요?</string>
+    <string name="volume_keys_screen_off_title">볼륨 버튼을 앱이 가져갈까요?</string>
     <string name="volume_keys_screen_off_tip">버튼으로 볼륨을 계속 조절하려면 볼륨 높이기 또는 볼륨 낮추기를 지정하세요.</string>
     <string name="volume_up">볼륨 올리기</string>
     <string name="volume_down">볼륨 내리기</string>

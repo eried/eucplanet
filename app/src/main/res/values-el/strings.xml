@@ -1191,10 +1191,10 @@
     <string name="volume_keys_caption">Τα κουμπιά έντασης ως συντομεύσεις όσο η εφαρμογή είναι στην οθόνη.</string>
     <string name="volume_keys_enable">Ενέργειες πλήκτρων έντασης</string>
     <string name="volume_keys_screen_off">Και με σβηστή οθόνη</string>
-    <string name="volume_keys_screen_off_caption">Τα κουμπιά παύουν να αλλάζουν την ένταση του τηλεφώνου.</string>
-    <string name="volume_keys_screen_off_warn">Τα κουμπιά έντασης θα εκτελούν τις ενέργειές σου με σβηστή οθόνη και με άλλες εφαρμογές μπροστά. Τα κουμπιά παύουν να αλλάζουν την ένταση του τηλεφώνου. Άλλαξε την ένταση από το ρυθμιστικό στην οθόνη, ή απενεργοποίησέ το.</string>
+    <string name="volume_keys_screen_off_caption">Λειτουργεί με κλειδωμένο τηλέφωνο ή με άλλη εφαρμογή μπροστά. Τα κουμπιά δεν αλλάζουν πια την ένταση του τηλεφώνου.</string>
+    <string name="volume_keys_screen_off_warn">Το Android στέλνει τα πατήματα έντασης μόνο στην εφαρμογή που είναι στην οθόνη. Για να τα λαμβάνει με σβηστή οθόνη, το EUC Planet δηλώνεται ως το ενεργό πρόγραμμα αναπαραγωγής του τηλεφώνου, και το Android του στέλνει τα κουμπιά έντασης αντί να αλλάζει την ένταση.\n\nΌσο είναι ενεργό, τα κουμπιά δεν αλλάζουν την ένταση του τηλεφώνου.</string>
     <string name="volume_keys_screen_off_confirm">Ενεργοποίηση</string>
-    <string name="volume_keys_screen_off_title">Χρήση με σβηστή οθόνη;</string>
+    <string name="volume_keys_screen_off_title">Ανάληψη των κουμπιών έντασης;</string>
     <string name="volume_keys_screen_off_tip">Για να κρατήσετε την ένταση σε ένα κουμπί, ορίστε του Αύξηση έντασης ή Μείωση έντασης.</string>
     <string name="volume_up">Αύξηση έντασης</string>
     <string name="volume_down">Μείωση έντασης</string>

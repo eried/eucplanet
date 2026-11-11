@@ -951,10 +951,10 @@
     <string name="volume_keys_caption">Lautstärketasten als Kurzbefehle nutzen, solange die App auf dem Bildschirm ist.</string>
     <string name="volume_keys_enable">Lautstärketasten-Aktionen aktivieren</string>
     <string name="volume_keys_screen_off">Auch bei ausgeschaltetem Bildschirm</string>
-    <string name="volume_keys_screen_off_caption">Die Tasten ändern die Telefonlautstärke nicht mehr.</string>
-    <string name="volume_keys_screen_off_warn">Die Lautstärketasten lösen deine Aktionen auch bei ausgeschaltetem Bildschirm und mit anderen Apps im Vordergrund aus. Die Tasten ändern die Telefonlautstärke nicht mehr. Ändere die Lautstärke über den Regler auf dem Bildschirm, oder schalte das aus.</string>
+    <string name="volume_keys_screen_off_caption">Funktioniert bei gesperrtem Telefon oder mit einer anderen App im Vordergrund. Die Tasten ändern die Telefonlautstärke nicht mehr.</string>
+    <string name="volume_keys_screen_off_warn">Android schickt Lautstärketasten nur an die App auf dem Bildschirm. Um sie auch bei ausgeschaltetem Bildschirm zu bekommen, meldet sich EUC Planet als aktiver Mediaplayer des Telefons an, und Android schickt die Tasten dorthin, statt die Lautstärke zu ändern.\n\nSolange das an ist, ändern die Tasten die Telefonlautstärke nicht mehr.</string>
     <string name="volume_keys_screen_off_confirm">Einschalten</string>
-    <string name="volume_keys_screen_off_title">Bei ausgeschaltetem Bildschirm nutzen?</string>
+    <string name="volume_keys_screen_off_title">Lautstärketasten übernehmen?</string>
     <string name="volume_keys_screen_off_tip">Soll eine Taste die Lautstärke behalten, belege sie mit Lauter oder Leiser.</string>
     <string name="volume_up">Lautstärke +</string>
     <string name="volume_down">Lautstärke −</string>

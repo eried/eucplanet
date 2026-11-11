@@ -1156,10 +1156,10 @@
     <string name="volume_keys_caption">Butoanele de volum ca scurtături cât timp aplicația e pe ecran.</string>
     <string name="volume_keys_enable">Activează acțiunile butoanelor de volum</string>
     <string name="volume_keys_screen_off">Și cu ecranul stins</string>
-    <string name="volume_keys_screen_off_caption">Butoanele nu mai schimbă volumul telefonului.</string>
-    <string name="volume_keys_screen_off_warn">Butoanele de volum vor declanșa acțiunile tale cu ecranul stins și cu alte aplicații în față. Butoanele nu mai schimbă volumul telefonului. Schimbă volumul din cursorul de pe ecran, sau oprește asta.</string>
+    <string name="volume_keys_screen_off_caption">Funcționează cu telefonul blocat sau cu altă aplicație în față. Butoanele nu mai schimbă volumul telefonului.</string>
+    <string name="volume_keys_screen_off_warn">Android trimite apăsările de volum doar aplicației de pe ecran. Ca să le primească și cu ecranul stins, EUC Planet se înregistrează ca playerul media activ al telefonului, iar Android îi trimite butoanele de volum în loc să schimbe volumul.\n\nCât timp este activ, butoanele nu mai schimbă volumul telefonului.</string>
     <string name="volume_keys_screen_off_confirm">Pornește</string>
-    <string name="volume_keys_screen_off_title">Folosești cu ecranul stins?</string>
+    <string name="volume_keys_screen_off_title">Preiei butoanele de volum?</string>
     <string name="volume_keys_screen_off_tip">Ca să păstrezi volumul pe un buton, atribuie-i Volum mai tare sau Volum mai încet.</string>
     <string name="volume_up">Volum plus</string>
     <string name="volume_down">Volum minus</string>

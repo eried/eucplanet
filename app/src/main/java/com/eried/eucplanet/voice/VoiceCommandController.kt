@@ -97,6 +97,7 @@ class VoiceCommandController(
          * that reports the end early, short enough that it reads as done.
          */
         const val ANSWER_LINGER_MS = 600L
+        const val MIC_REFUSAL_LINGER_MS = 4000L
 
         /**
          * After the reply is said and the app has let go of the audio, how
@@ -329,7 +330,10 @@ class VoiceCommandController(
                 com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
                     "Voice: refused, no microphone permission"
                 )
-                delay(ANSWER_LINGER_MS)
+                // Long enough to read. The usual linger follows a spoken answer
+                // the rider is already hearing; this one may be the only sign
+                // with the phone muted, and it was gone in half a second.
+                delay(MIC_REFUSAL_LINGER_MS)
                 _state.value = UiState.Idle
                 return@launch
             }

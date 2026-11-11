@@ -1216,10 +1216,10 @@
     <string name="volume_keys_caption">Бутоните за звук като преки пътища, докато приложението е на екрана.</string>
     <string name="volume_keys_enable">Действия с бутоните за звук</string>
     <string name="volume_keys_screen_off">И при изключен екран</string>
-    <string name="volume_keys_screen_off_caption">Бутоните спират да променят силата на звука на телефона.</string>
-    <string name="volume_keys_screen_off_warn">Бутоните за звук ще задействат действията ви при изключен екран и с други приложения отпред. Бутоните спират да променят силата на звука на телефона. Сменяйте звука от плъзгача на екрана или изключете това.</string>
+    <string name="volume_keys_screen_off_caption">Работи при заключен телефон или друго приложение отпред. Бутоните вече не променят силата на звука.</string>
+    <string name="volume_keys_screen_off_warn">Android изпраща натисканията на бутоните за звук само на приложението на екрана. За да ги получава при изключен екран, EUC Planet се регистрира като активния медиен плейър на телефона и Android му изпраща бутоните, вместо да променя звука.\n\nДокато това е включено, бутоните не променят силата на звука на телефона.</string>
     <string name="volume_keys_screen_off_confirm">Включи</string>
-    <string name="volume_keys_screen_off_title">Да работят при изключен екран?</string>
+    <string name="volume_keys_screen_off_title">Да поеме ли бутоните за звук?</string>
     <string name="volume_keys_screen_off_tip">За да запазите звука на бутон, задайте му Усилване или Намаляване на звука.</string>
     <string name="volume_up">Звук нагоре</string>
     <string name="volume_down">Звук надолу</string>

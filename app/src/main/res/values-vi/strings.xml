@@ -1162,10 +1162,10 @@
     <string name="volume_keys_caption">Dùng nút âm lượng làm phím tắt khi ứng dụng đang trên màn hình.</string>
     <string name="volume_keys_enable">Bật thao tác phím âm lượng</string>
     <string name="volume_keys_screen_off">Cả khi màn hình tắt</string>
-    <string name="volume_keys_screen_off_caption">Các nút không còn đổi âm lượng điện thoại.</string>
-    <string name="volume_keys_screen_off_warn">Các nút âm lượng sẽ chạy hành động của bạn khi màn hình tắt và khi có ứng dụng khác ở trước. Các nút không còn đổi âm lượng điện thoại. Đổi âm lượng bằng thanh trượt trên màn hình, hoặc tắt mục này.</string>
+    <string name="volume_keys_screen_off_caption">Hoạt động khi điện thoại khóa hoặc ứng dụng khác đang ở phía trước. Các nút không còn chỉnh âm lượng điện thoại.</string>
+    <string name="volume_keys_screen_off_warn">Android chỉ gửi thao tác nhấn nút âm lượng cho ứng dụng đang trên màn hình. Để nhận được khi màn hình tắt, EUC Planet đăng ký làm trình phát đa phương tiện đang hoạt động của điện thoại, nên Android gửi nút âm lượng cho ứng dụng thay vì chỉnh âm lượng.\n\nKhi bật tính năng này, các nút không còn chỉnh âm lượng điện thoại.</string>
     <string name="volume_keys_screen_off_confirm">Bật</string>
-    <string name="volume_keys_screen_off_title">Dùng khi màn hình tắt?</string>
+    <string name="volume_keys_screen_off_title">Giành quyền điều khiển nút âm lượng?</string>
     <string name="volume_keys_screen_off_tip">Để nút vẫn chỉnh âm lượng, hãy gán Tăng âm lượng hoặc Giảm âm lượng cho nút đó.</string>
     <string name="volume_up">Tăng âm lượng</string>
     <string name="volume_down">Giảm âm lượng</string>

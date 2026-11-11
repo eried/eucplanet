@@ -1156,10 +1156,10 @@
     <string name="volume_keys_caption">Äänenvoimakkuuspainikkeet pikatoimintoina, kun sovellus on näytöllä.</string>
     <string name="volume_keys_enable">Ota äänenvoimakkuusnäppäinten toiminnot käyttöön</string>
     <string name="volume_keys_screen_off">Myös näytön ollessa pois päältä</string>
-    <string name="volume_keys_screen_off_caption">Painikkeet eivät enää muuta puhelimen äänenvoimakkuutta.</string>
-    <string name="volume_keys_screen_off_warn">Äänenvoimakkuuspainikkeet käynnistävät toimintosi näytön ollessa pois päältä ja muiden sovellusten ollessa edessä. Painikkeet eivät enää muuta puhelimen äänenvoimakkuutta. Muuta äänenvoimakkuutta näytön liukusäätimestä tai kytke tämä pois.</string>
+    <string name="volume_keys_screen_off_caption">Toimii puhelin lukittuna tai toisen sovelluksen ollessa edessä. Painikkeet eivät enää muuta puhelimen äänenvoimakkuutta.</string>
+    <string name="volume_keys_screen_off_warn">Android lähettää äänenvoimakkuuspainallukset vain näytöllä olevalle sovellukselle. Saadakseen ne näyttö sammutettuna EUC Planet ilmoittautuu puhelimen aktiiviseksi mediasoittimeksi, jolloin Android lähettää painikkeet sille eikä muuta äänenvoimakkuutta.\n\nKun tämä on päällä, painikkeet eivät muuta puhelimen äänenvoimakkuutta.</string>
     <string name="volume_keys_screen_off_confirm">Ota käyttöön</string>
-    <string name="volume_keys_screen_off_title">Käytetäänkö näyttö sammutettuna?</string>
+    <string name="volume_keys_screen_off_title">Otetaanko äänenvoimakkuuspainikkeet käyttöön?</string>
     <string name="volume_keys_screen_off_tip">Jos haluat säilyttää äänenvoimakkuuden painikkeessa, valitse sille Ääni kovemmalle tai Ääni hiljemmalle.</string>
     <string name="volume_up">Äänenvoimakkuus ylös</string>
     <string name="volume_down">Äänenvoimakkuus alas</string>

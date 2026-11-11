@@ -955,10 +955,10 @@
     <string name="volume_keys_caption">Przyciski głośności jako skróty, gdy aplikacja jest na ekranie.</string>
     <string name="volume_keys_enable">Włącz akcje klawiszy głośności</string>
     <string name="volume_keys_screen_off">Także przy wyłączonym ekranie</string>
-    <string name="volume_keys_screen_off_caption">Przyciski przestają zmieniać głośność telefonu.</string>
-    <string name="volume_keys_screen_off_warn">Przyciski głośności będą uruchamiać Twoje akcje przy wyłączonym ekranie i z innymi aplikacjami na wierzchu. Przyciski przestają zmieniać głośność telefonu. Zmieniaj głośność suwakiem na ekranie albo wyłącz tę opcję.</string>
+    <string name="volume_keys_screen_off_caption">Działa przy zablokowanym telefonie i z inną aplikacją na wierzchu. Przyciski nie zmieniają już głośności telefonu.</string>
+    <string name="volume_keys_screen_off_warn">Android wysyła naciśnięcia przycisków głośności tylko do aplikacji na ekranie. Aby odbierać je przy wyłączonym ekranie, EUC Planet zgłasza się jako aktywny odtwarzacz multimediów telefonu, a Android wysyła mu przyciski zamiast zmieniać głośność.\n\nGdy ta opcja jest włączona, przyciski nie zmieniają głośności telefonu.</string>
     <string name="volume_keys_screen_off_confirm">Włącz</string>
-    <string name="volume_keys_screen_off_title">Używać przy wyłączonym ekranie?</string>
+    <string name="volume_keys_screen_off_title">Przejąć przyciski głośności?</string>
     <string name="volume_keys_screen_off_tip">Aby zachować głośność na przycisku, przypisz mu Głośniej lub Ciszej.</string>
     <string name="volume_up">Głośność w górę</string>
     <string name="volume_down">Głośność w dół</string>

@@ -319,10 +319,10 @@
     <string name="volume_keys_caption">Volumknappene som snarveier mens appen er på skjermen.</string>
     <string name="volume_keys_enable">Slå på volumtast-handlinger</string>
     <string name="volume_keys_screen_off">Også med skjermen av</string>
-    <string name="volume_keys_screen_off_caption">Knappene slutter å endre telefonens volum.</string>
-    <string name="volume_keys_screen_off_warn">Volumknappene utfører handlingene dine med skjermen av og med andre apper foran. Knappene slutter å endre telefonens volum. Endre volumet med glidebryteren på skjermen, eller slå dette av.</string>
+    <string name="volume_keys_screen_off_caption">Virker med låst telefon eller en annen app foran. Knappene endrer ikke lenger telefonvolumet.</string>
+    <string name="volume_keys_screen_off_warn">Android sender bare volumtrykk til appen på skjermen. For å få dem med skjermen av melder EUC Planet seg som telefonens aktive mediespiller, så Android sender volumknappene dit i stedet for å endre volumet.\n\nMens dette er på, endrer ikke knappene telefonvolumet.</string>
     <string name="volume_keys_screen_off_confirm">Slå på</string>
-    <string name="volume_keys_screen_off_title">Bruke med skjermen av?</string>
+    <string name="volume_keys_screen_off_title">La appen ta over volumknappene?</string>
     <string name="volume_keys_screen_off_tip">Vil du beholde volumet på en knapp, gi den Volum opp eller Volum ned.</string>
     <string name="volume_up">Volum opp</string>
     <string name="volume_down">Volum ned</string>

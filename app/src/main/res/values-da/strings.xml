@@ -955,10 +955,10 @@
     <string name="volume_keys_caption">Lydstyrkeknapperne som genveje, mens appen er på skærmen.</string>
     <string name="volume_keys_enable">Aktivér handlinger på lydstyrketaster</string>
     <string name="volume_keys_screen_off">Også med skærmen slukket</string>
-    <string name="volume_keys_screen_off_caption">Knapperne holder op med at ændre telefonens lydstyrke.</string>
-    <string name="volume_keys_screen_off_warn">Lydstyrkeknapperne udfører dine handlinger med skærmen slukket og med andre apps forrest. Knapperne holder op med at ændre telefonens lydstyrke. Skift lydstyrken med skyderen på skærmen, eller slå dette fra.</string>
+    <string name="volume_keys_screen_off_caption">Virker med låst telefon eller en anden app forrest. Knapperne ændrer ikke længere telefonens lydstyrke.</string>
+    <string name="volume_keys_screen_off_warn">Android sender kun lydstyrketryk til appen på skærmen. For at få dem med slukket skærm melder EUC Planet sig som telefonens aktive medieafspiller, så Android sender lydstyrkeknapperne til den i stedet for at ændre lydstyrken.\n\nSå længe dette er slået til, ændrer knapperne ikke telefonens lydstyrke.</string>
     <string name="volume_keys_screen_off_confirm">Slå til</string>
-    <string name="volume_keys_screen_off_title">Brug med slukket skærm?</string>
+    <string name="volume_keys_screen_off_title">Overtag lydstyrkeknapperne?</string>
     <string name="volume_keys_screen_off_tip">Vil du beholde lydstyrken på en knap, så giv den Lydstyrke op eller Lydstyrke ned.</string>
     <string name="volume_up">Lyd op</string>
     <string name="volume_down">Lyd ned</string>

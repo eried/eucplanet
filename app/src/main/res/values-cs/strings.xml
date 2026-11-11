@@ -1156,10 +1156,10 @@
     <string name="volume_keys_caption">Tlačítka hlasitosti jako zkratky, dokud je aplikace na obrazovce.</string>
     <string name="volume_keys_enable">Zapnout akce tlačítek hlasitosti</string>
     <string name="volume_keys_screen_off">I při vypnuté obrazovce</string>
-    <string name="volume_keys_screen_off_caption">Tlačítka přestanou měnit hlasitost telefonu.</string>
-    <string name="volume_keys_screen_off_warn">Tlačítka hlasitosti spustí vaše akce i při vypnuté obrazovce a s jinými aplikacemi v popředí. Tlačítka přestanou měnit hlasitost telefonu. Hlasitost měňte posuvníkem na obrazovce, nebo tohle vypněte.</string>
+    <string name="volume_keys_screen_off_caption">Funguje se zamčeným telefonem nebo s jinou aplikací v popředí. Tlačítka už nemění hlasitost telefonu.</string>
+    <string name="volume_keys_screen_off_warn">Android posílá stisky hlasitosti jen aplikaci na obrazovce. Aby je EUC Planet dostal i při vypnuté obrazovce, zaregistruje se jako aktivní přehrávač médií v telefonu, a Android mu tlačítka hlasitosti posílá místo změny hlasitosti.\n\nDokud je to zapnuté, tlačítka nemění hlasitost telefonu.</string>
     <string name="volume_keys_screen_off_confirm">Zapnout</string>
-    <string name="volume_keys_screen_off_title">Používat při vypnuté obrazovce?</string>
+    <string name="volume_keys_screen_off_title">Převzít tlačítka hlasitosti?</string>
     <string name="volume_keys_screen_off_tip">Chcete-li na tlačítku ponechat hlasitost, přiřaďte mu Zvýšit hlasitost nebo Snížit hlasitost.</string>
     <string name="volume_up">Hlasitost nahoru</string>
     <string name="volume_down">Hlasitost dolů</string>

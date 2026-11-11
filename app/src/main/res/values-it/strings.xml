@@ -405,10 +405,10 @@
     <string name="volume_keys_caption">Tasti volume come scorciatoie finché l\'app è sullo schermo.</string>
     <string name="volume_keys_enable">Attiva azioni dei tasti volume</string>
     <string name="volume_keys_screen_off">Anche a schermo spento</string>
-    <string name="volume_keys_screen_off_caption">I tasti non cambiano più il volume del telefono.</string>
-    <string name="volume_keys_screen_off_warn">I tasti volume eseguiranno le tue azioni a schermo spento e con altre app in primo piano. I tasti non cambiano più il volume del telefono. Cambia il volume dal cursore sullo schermo, oppure disattiva questa opzione.</string>
+    <string name="volume_keys_screen_off_caption">Funziona a telefono bloccato o con un\'altra app in primo piano. I tasti non cambiano più il volume del telefono.</string>
+    <string name="volume_keys_screen_off_warn">Android invia le pressioni del volume solo all\'app sullo schermo. Per riceverle a schermo spento, EUC Planet si registra come lettore multimediale attivo del telefono, e Android gli invia i tasti volume invece di cambiare il volume.\n\nFinché è attivo, i tasti non cambiano più il volume del telefono.</string>
     <string name="volume_keys_screen_off_confirm">Attiva</string>
-    <string name="volume_keys_screen_off_title">Usare a schermo spento?</string>
+    <string name="volume_keys_screen_off_title">Prendere il controllo dei tasti volume?</string>
     <string name="volume_keys_screen_off_tip">Per tenere il volume su un tasto, assegnagli Volume su o Volume giù.</string>
     <string name="volume_up">Volume su</string>
     <string name="volume_down">Volume giù</string>

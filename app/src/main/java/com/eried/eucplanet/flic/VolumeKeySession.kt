@@ -62,10 +62,24 @@ class VolumeKeySession(
     private var session: MediaSession? = null
     private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
+    private var provider: VolumeProvider? = null
+
+    private val mirror = Runnable {
+        provider?.currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+    }
+
+    /** After the bound action has had time to change the volume, and once more for a slow one. */
+    private fun mirrorSoon() {
+        handler.removeCallbacks(mirror)
+        handler.postDelayed(mirror, 120L)
+        handler.postDelayed(mirror, 700L)
+    }
+
     private val reclaim = Runnable {
         val s = session ?: return@Runnable
         s.setPlaybackState(state(PlaybackState.STATE_PAUSED))
         s.setPlaybackState(state(PlaybackState.STATE_PLAYING))
+        mirror.run()
     }
 
     /** Fires when any app starts, stops or changes what it plays. Says nothing about which app. */
@@ -99,13 +113,27 @@ class VolumeKeySession(
             return
         }
         s.setCallback(object : MediaSession.Callback() {}, handler)
-        s.setPlaybackToRemote(object : VolumeProvider(VOLUME_CONTROL_RELATIVE, 100, 50) {
+        // Android draws a slider for this "remote" volume on every press, the way it
+        // does for a cast device, and moves it a step by itself. Left alone it
+        // was a made-up 0 to 100 bar that crept up and down while the real
+        // volume stood still (seen on a Pixel). So it is given the media
+        // stream's own range and put back on the real value after each press:
+        // the bar then shows the phone's volume, and moves only when a bound
+        // Volume up or Volume down action really moved it.
+        val p = object : VolumeProvider(
+            VOLUME_CONTROL_RELATIVE,
+            audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC),
+            audioManager.getStreamVolume(AudioManager.STREAM_MUSIC),
+        ) {
             override fun onAdjustVolume(direction: Int) {
                 val now = SystemClock.uptimeMillis()
                 presses.adjust(direction, now).forEach(::fire)
                 schedule()
+                mirrorSoon()
             }
-        })
+        }
+        provider = p
+        s.setPlaybackToRemote(p)
         // "Playing" is what makes it the session the keys go to. No audio is involved.
         s.setPlaybackState(state(PlaybackState.STATE_PLAYING))
         s.isActive = true
@@ -117,6 +145,8 @@ class VolumeKeySession(
     fun stop() {
         handler.removeCallbacks(expire)
         handler.removeCallbacks(reclaim)
+        handler.removeCallbacks(mirror)
+        provider = null
         runCatching { audioManager.unregisterAudioPlaybackCallback(playbackWatcher) }
         session?.let {
             it.isActive = false

@@ -955,10 +955,10 @@
     <string name="volume_keys_caption">Usar os botões de volume como atalhos enquanto o app está na tela.</string>
     <string name="volume_keys_enable">Ativar ações das teclas de volume</string>
     <string name="volume_keys_screen_off">Também com a tela desligada</string>
-    <string name="volume_keys_screen_off_caption">Os botões deixam de mudar o volume do celular.</string>
-    <string name="volume_keys_screen_off_warn">Os botões de volume vão disparar suas ações com a tela desligada e com outros apps na frente. Os botões deixam de mudar o volume do celular. Mude o volume pelo controle na tela, ou desligue isto.</string>
+    <string name="volume_keys_screen_off_caption">Funciona com o celular bloqueado ou com outro app na frente. Os botões não mudam mais o volume do celular.</string>
+    <string name="volume_keys_screen_off_warn">O Android só envia os toques de volume para o app que está na tela. Para recebê-los com a tela desligada, o EUC Planet se registra como o reprodutor de mídia ativo do celular, e o Android envia os botões de volume para ele em vez de mudar o volume.\n\nEnquanto isso estiver ativo, os botões não mudam o volume do celular.</string>
     <string name="volume_keys_screen_off_confirm">Ligar</string>
-    <string name="volume_keys_screen_off_title">Usar com a tela desligada?</string>
+    <string name="volume_keys_screen_off_title">Assumir os botões de volume?</string>
     <string name="volume_keys_screen_off_tip">Para manter o volume em um botão, atribua a ele Aumentar volume ou Diminuir volume.</string>
     <string name="volume_up">Volume para cima</string>
     <string name="volume_down">Volume para baixo</string>

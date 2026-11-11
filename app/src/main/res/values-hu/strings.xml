@@ -1156,10 +1156,10 @@
     <string name="volume_keys_caption">Hangerőgombok gyorsbillentyűként, amíg az app a képernyőn van.</string>
     <string name="volume_keys_enable">Hangerőgomb-műveletek bekapcsolása</string>
     <string name="volume_keys_screen_off">Kikapcsolt képernyőnél is</string>
-    <string name="volume_keys_screen_off_caption">A gombok nem állítják többé a telefon hangerejét.</string>
-    <string name="volume_keys_screen_off_warn">A hangerőgombok kikapcsolt képernyőnél és más appok előtérben is a műveleteidet indítják. A gombok nem állítják többé a telefon hangerejét. A hangerőt a képernyőn lévő csúszkával állítsd, vagy kapcsold ki ezt.</string>
+    <string name="volume_keys_screen_off_caption">Zárolt telefonnal és más alkalmazás mögött is működik. A gombok többé nem állítják a telefon hangerejét.</string>
+    <string name="volume_keys_screen_off_warn">Az Android a hangerőgombok lenyomását csak a képernyőn lévő alkalmazásnak küldi el. Hogy kikapcsolt képernyőnél is megkapja, az EUC Planet a telefon aktív médialejátszójaként jelentkezik be, így az Android neki küldi a hangerőgombokat a hangerő állítása helyett.\n\nAmíg ez be van kapcsolva, a gombok nem állítják a telefon hangerejét.</string>
     <string name="volume_keys_screen_off_confirm">Bekapcsolás</string>
-    <string name="volume_keys_screen_off_title">Kikapcsolt képernyővel is?</string>
+    <string name="volume_keys_screen_off_title">Átvegye a hangerőgombokat?</string>
     <string name="volume_keys_screen_off_tip">Ha egy gombon meg akarja tartani a hangerőt, rendelje hozzá a Hangerő fel vagy a Hangerő le műveletet.</string>
     <string name="volume_up">Hangerő fel</string>
     <string name="volume_down">Hangerő le</string>

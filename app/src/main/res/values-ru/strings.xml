@@ -955,10 +955,10 @@
     <string name="volume_keys_caption">Кнопки громкости как ярлыки, пока приложение на экране.</string>
     <string name="volume_keys_enable">Включить действия по кнопкам громкости</string>
     <string name="volume_keys_screen_off">И при выключенном экране</string>
-    <string name="volume_keys_screen_off_caption">Кнопки перестают менять громкость телефона.</string>
-    <string name="volume_keys_screen_off_warn">Кнопки громкости будут запускать ваши действия при выключенном экране и с другими приложениями поверх. Кнопки перестают менять громкость телефона. Меняйте громкость ползунком на экране или выключите это.</string>
+    <string name="volume_keys_screen_off_caption">Работает на заблокированном телефоне и когда открыто другое приложение. Кнопки больше не меняют громкость телефона.</string>
+    <string name="volume_keys_screen_off_warn">Android передаёт нажатия кнопок громкости только приложению на экране. Чтобы получать их при выключенном экране, EUC Planet регистрируется как активный медиаплеер телефона, и Android отправляет кнопки ему, а не меняет громкость.\n\nПока это включено, кнопки не меняют громкость телефона.</string>
     <string name="volume_keys_screen_off_confirm">Включить</string>
-    <string name="volume_keys_screen_off_title">Использовать при выключенном экране?</string>
+    <string name="volume_keys_screen_off_title">Забрать кнопки громкости?</string>
     <string name="volume_keys_screen_off_tip">Чтобы оставить громкость на кнопке, назначьте ей «Громче» или «Тише».</string>
     <string name="volume_up">Громкость +</string>
     <string name="volume_down">Громкость −</string>
