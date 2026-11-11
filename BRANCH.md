@@ -44,6 +44,7 @@ only when you can cut the ride short.
 - Engine sound: Reset all to defaults at the bottom of the section, greyed until you change something, and it tells you what it will change before it does. The Advanced reset moved to the left to sit where every other reset in the app is.
 - The APK is about 5 MB smaller: the recordings are shipped as grain banks instead of whole clips.
 - Volume keys: "Also when the screen is off" under the volume key actions. The app claims the buttons through a media session, so a click or hold fires its action with the screen off or another app in front. It asks before turning on, because the buttons then stop changing the phone volume, and a playing music app takes them back until it stops.
+- Actions: Volume up, Volume down, Mute / unmute, Phone flashlight and Engine sound on/off can be bound to a Flic, the volume keys, the watch or a dashboard tile.
 
 ## Please test
 
@@ -73,6 +74,7 @@ only when you can cut the ride short.
 - Turn on the volume key actions, then "Also when the screen is off" and accept the warning. Lock the phone and press volume up: does the click action fire (horn by default)? Hold it: the hold action (voice report by default)? Does it work with another app in front? Say your phone model.
 - Start music in another app, press the buttons: does the music volume change (expected), and do the actions come back once the music stops?
 - Turn the option off: do the buttons change the phone volume again at once?
+- Bind Volume up to a click and the horn to a hold on the same button: do both work with the screen off? Try Phone flashlight and Engine sound from a Flic too.
 
 **Android Auto** (install from the Play internal sharing link, a sideloaded APK never shows in the car)
 - Navigate from the car screen: turn-by-turn shows, and your four numbers beside it?

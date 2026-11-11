@@ -38,6 +38,11 @@
     <string name="watch_action_media_prev">Predchádzajúca skladba</string>
     <string name="watch_action_music_start">Spustiť hudbu</string>
     <string name="watch_action_media_pause">Pozastaviť hudbu</string>
+    <string name="watch_action_phone_volume_up">Zvýšiť hlasitosť</string>
+    <string name="watch_action_phone_volume_down">Znížiť hlasitosť</string>
+    <string name="watch_action_phone_mute">Stlmiť / zapnúť</string>
+    <string name="watch_action_phone_torch">Baterka telefónu</string>
+    <string name="watch_action_engine_sound">Zvuk motora</string>
     <string name="watch_action_long_press_hint">Dlhým stlačením: %1$s</string>
     <string name="watch_map_phone_disconnected">Bez telefónu</string>
     <string name="watch_map_gps_permission">Povoliť GPS</string>

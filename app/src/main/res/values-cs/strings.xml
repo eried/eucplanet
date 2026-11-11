@@ -424,6 +424,10 @@
     <string name="action_chip_media_prev">Předchozí skladba</string>
     <string name="action_chip_music_start">Spustit hudbu</string>
     <string name="action_chip_media_pause">Pozastavit hudbu</string>
+    <string name="action_chip_phone_volume_up">Zvýšit hlasitost</string>
+    <string name="action_chip_phone_volume_down">Snížit hlasitost</string>
+    <string name="action_chip_phone_mute">Ztlumit / zapnout</string>
+    <string name="action_chip_phone_torch">Svítilna telefonu</string>
     <string name="action_chip_open_navigation">Zobrazit mapu</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
     <string name="action_chip_open_about">O aplikaci</string>
@@ -1147,12 +1151,14 @@
     <string name="gps_show_on_dashboard">Zobrazit rychlost na palubní desce</string>
     <string name="gps_show_on_dashboard_desc">Přidá barevnou tečku s údajem GPS na ciferník rychlosti.</string>
     <string name="section_volume_keys">Tlačítka hlasitosti</string>
-    <string name="volume_keys_caption">Tlačítka hlasitosti jako zkratky, dokud je aplikace na obrazovce</string>
+    <string name="volume_keys_caption">Tlačítka hlasitosti jako zkratky, dokud je aplikace na obrazovce.</string>
     <string name="volume_keys_enable">Zapnout akce tlačítek hlasitosti</string>
     <string name="volume_keys_screen_off">I při vypnuté obrazovce</string>
     <string name="volume_keys_screen_off_caption">Tlačítka přestanou měnit hlasitost telefonu. Hrající hudební aplikace si je vezme zpět, dokud nepřestane hrát.</string>
     <string name="volume_keys_screen_off_warn">Tlačítka hlasitosti spustí vaše akce i při vypnuté obrazovce a s jinými aplikacemi v popředí. Dokud je to zapnuté, tlačítka už nemění hlasitost telefonu a hrající hudební aplikace si je vezme zpět, dokud nepřestane hrát. Hlasitost měňte posuvníkem na obrazovce, nebo tohle vypněte.</string>
     <string name="volume_keys_screen_off_confirm">Zapnout</string>
+    <string name="volume_keys_screen_off_title">Používat při vypnuté obrazovce?</string>
+    <string name="volume_keys_screen_off_tip">Chcete-li na tlačítku ponechat hlasitost, přiřaďte mu Zvýšit hlasitost nebo Snížit hlasitost.</string>
     <string name="volume_up">Hlasitost nahoru</string>
     <string name="volume_down">Hlasitost dolů</string>
     <string name="section_radar">Radar do zpětného zrcátka</string>

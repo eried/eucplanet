@@ -36,6 +36,11 @@
     <string name="watch_action_media_prev">Trek sebelumnya</string>
     <string name="watch_action_music_start">Mulai musik</string>
     <string name="watch_action_media_pause">Jeda musik</string>
+    <string name="watch_action_phone_volume_up">Volume naik</string>
+    <string name="watch_action_phone_volume_down">Volume turun</string>
+    <string name="watch_action_phone_mute">Bisukan / bunyikan</string>
+    <string name="watch_action_phone_torch">Senter ponsel</string>
+    <string name="watch_action_engine_sound">Suara mesin</string>
     <string name="watch_action_long_press_hint">Tekan lama untuk %1$s</string>
     <string name="watch_map_phone_disconnected">Tidak ada ponsel</string>
     <string name="watch_map_gps_permission">Izinkan GPS</string>

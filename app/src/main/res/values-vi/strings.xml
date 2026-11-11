@@ -425,6 +425,10 @@
     <string name="action_chip_media_prev">Bài trước</string>
     <string name="action_chip_music_start">Phát nhạc</string>
     <string name="action_chip_media_pause">Tạm dừng nhạc</string>
+    <string name="action_chip_phone_volume_up">Tăng âm lượng</string>
+    <string name="action_chip_phone_volume_down">Giảm âm lượng</string>
+    <string name="action_chip_phone_mute">Tắt / bật tiếng</string>
+    <string name="action_chip_phone_torch">Đèn pin điện thoại</string>
     <string name="action_chip_open_navigation">Hiện bản đồ</string>
     <string name="action_chip_open_studio">Studio lớp phủ</string>
     <string name="action_chip_open_about">Giới thiệu</string>
@@ -1153,12 +1157,14 @@
     <string name="gps_show_on_dashboard">Hiện tốc độ trên bảng điều khiển</string>
     <string name="gps_show_on_dashboard_desc">Thêm một chấm màu trên đồng hồ tốc độ theo số đo GPS.</string>
     <string name="section_volume_keys">Phím âm lượng</string>
-    <string name="volume_keys_caption">Dùng nút âm lượng làm phím tắt khi ứng dụng đang trên màn hình</string>
+    <string name="volume_keys_caption">Dùng nút âm lượng làm phím tắt khi ứng dụng đang trên màn hình.</string>
     <string name="volume_keys_enable">Bật thao tác phím âm lượng</string>
     <string name="volume_keys_screen_off">Cả khi màn hình tắt</string>
     <string name="volume_keys_screen_off_caption">Các nút không còn đổi âm lượng điện thoại. Một ứng dụng nhạc đang phát sẽ lấy lại các nút cho đến khi dừng.</string>
     <string name="volume_keys_screen_off_warn">Các nút âm lượng sẽ chạy hành động của bạn khi màn hình tắt và khi có ứng dụng khác ở trước. Khi bật, các nút không còn đổi âm lượng điện thoại, và một ứng dụng nhạc đang phát sẽ lấy lại các nút cho đến khi dừng. Đổi âm lượng bằng thanh trượt trên màn hình, hoặc tắt mục này.</string>
     <string name="volume_keys_screen_off_confirm">Bật</string>
+    <string name="volume_keys_screen_off_title">Dùng khi màn hình tắt?</string>
+    <string name="volume_keys_screen_off_tip">Để nút vẫn chỉnh âm lượng, hãy gán Tăng âm lượng hoặc Giảm âm lượng cho nút đó.</string>
     <string name="volume_up">Tăng âm lượng</string>
     <string name="volume_down">Giảm âm lượng</string>
     <string name="section_radar">Radar chiếu hậu</string>

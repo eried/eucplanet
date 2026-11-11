@@ -37,6 +37,11 @@
     <string name="watch_action_media_prev">Előző szám</string>
     <string name="watch_action_music_start">Zene indítása</string>
     <string name="watch_action_media_pause">Zene szüneteltetése</string>
+    <string name="watch_action_phone_volume_up">Hangerő fel</string>
+    <string name="watch_action_phone_volume_down">Hangerő le</string>
+    <string name="watch_action_phone_mute">Némítás / hang</string>
+    <string name="watch_action_phone_torch">Telefon zseblámpája</string>
+    <string name="watch_action_engine_sound">Motorhang</string>
     <string name="watch_action_long_press_hint">Hosszan nyomva: %1$s</string>
     <string name="watch_map_phone_disconnected">Nincs telefon</string>
     <string name="watch_map_gps_permission">GPS engedélyezése</string>

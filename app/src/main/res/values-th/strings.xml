@@ -425,6 +425,10 @@
     <string name="action_chip_media_prev">เพลงก่อนหน้า</string>
     <string name="action_chip_music_start">เปิดเพลง</string>
     <string name="action_chip_media_pause">หยุดเพลง</string>
+    <string name="action_chip_phone_volume_up">เพิ่มเสียง</string>
+    <string name="action_chip_phone_volume_down">ลดเสียง</string>
+    <string name="action_chip_phone_mute">ปิด / เปิดเสียง</string>
+    <string name="action_chip_phone_torch">ไฟฉายโทรศัพท์</string>
     <string name="action_chip_open_navigation">แสดงแผนที่</string>
     <string name="action_chip_open_studio">สตูดิโอโอเวอร์เลย์</string>
     <string name="action_chip_open_about">เกี่ยวกับ</string>
@@ -1159,6 +1163,8 @@
     <string name="volume_keys_screen_off_caption">ปุ่มจะไม่ปรับระดับเสียงของโทรศัพท์อีก แอปเพลงที่กำลังเล่นจะดึงปุ่มกลับไปจนกว่าจะหยุด</string>
     <string name="volume_keys_screen_off_warn">ปุ่มระดับเสียงจะสั่งงานของคุณแม้ตอนปิดหน้าจอและเมื่อมีแอปอื่นอยู่ด้านหน้า ขณะที่เปิดอยู่ ปุ่มจะไม่ปรับระดับเสียงของโทรศัพท์อีก และแอปเพลงที่กำลังเล่นจะดึงปุ่มกลับไปจนกว่าจะหยุด ปรับระดับเสียงจากแถบเลื่อนบนหน้าจอ หรือปิดตัวเลือกนี้</string>
     <string name="volume_keys_screen_off_confirm">เปิด</string>
+    <string name="volume_keys_screen_off_title">ใช้ตอนปิดหน้าจอด้วยไหม</string>
+    <string name="volume_keys_screen_off_tip">หากต้องการให้ปุ่มยังปรับเสียงได้ ให้กำหนดเป็น เพิ่มเสียง หรือ ลดเสียง</string>
     <string name="volume_up">เพิ่มเสียง</string>
     <string name="volume_down">ลดเสียง</string>
     <string name="section_radar">เรดาร์มองหลัง</string>

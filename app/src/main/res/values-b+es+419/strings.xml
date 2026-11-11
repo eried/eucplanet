@@ -461,6 +461,10 @@
     <string name="action_chip_media_prev">Anterior</string>
     <string name="action_chip_music_start">Iniciar música</string>
     <string name="action_chip_media_pause">Pausar música</string>
+    <string name="action_chip_phone_volume_up">Subir volumen</string>
+    <string name="action_chip_phone_volume_down">Bajar volumen</string>
+    <string name="action_chip_phone_mute">Silenciar / activar</string>
+    <string name="action_chip_phone_torch">Linterna del teléfono</string>
     <string name="action_chip_open_navigation">Ver mapa</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
     <string name="action_chip_open_about">Acerca de</string>
@@ -946,12 +950,14 @@
     <string name="gps_show_on_dashboard">Mostrar velocidad en el panel</string>
     <string name="gps_show_on_dashboard_desc">Agrega un punto de color en el velocímetro con la lectura del GPS.</string>
     <string name="section_volume_keys">Teclas de volumen</string>
-    <string name="volume_keys_caption">Usar los botones de volumen como atajos mientras la app está en pantalla</string>
+    <string name="volume_keys_caption">Usar los botones de volumen como atajos mientras la app está en pantalla.</string>
     <string name="volume_keys_enable">Activar acciones con teclas de volumen</string>
     <string name="volume_keys_screen_off">También con la pantalla apagada</string>
     <string name="volume_keys_screen_off_caption">Los botones dejan de cambiar el volumen del teléfono. Una app de música que esté sonando los recupera hasta que se detenga.</string>
     <string name="volume_keys_screen_off_warn">Los botones de volumen ejecutarán tus acciones con la pantalla apagada y con otras apps adelante. Mientras esté activo, los botones ya no cambian el volumen del teléfono, y una app de música que esté sonando los recupera hasta que se detenga. Cambia el volumen desde el control en pantalla, o desactiva esto.</string>
     <string name="volume_keys_screen_off_confirm">Activar</string>
+    <string name="volume_keys_screen_off_title">¿Usar con la pantalla apagada?</string>
+    <string name="volume_keys_screen_off_tip">Para conservar el volumen en un botón, asígnale Subir volumen o Bajar volumen.</string>
     <string name="volume_up">Volumen arriba</string>
     <string name="volume_down">Volumen abajo</string>
 

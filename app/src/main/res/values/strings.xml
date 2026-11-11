@@ -466,6 +466,10 @@
     <string name="action_chip_media_prev">Prev track</string>
     <string name="action_chip_music_start">Start music</string>
     <string name="action_chip_media_pause">Pause music</string>
+    <string name="action_chip_phone_volume_up">Volume up</string>
+    <string name="action_chip_phone_volume_down">Volume down</string>
+    <string name="action_chip_phone_mute">Mute / unmute</string>
+    <string name="action_chip_phone_torch">Phone flashlight</string>
     <string name="action_chip_open_navigation">Show map</string>
     <string name="action_chip_open_studio">Overlay studio</string>
     <string name="action_chip_open_about">About</string>
@@ -1247,12 +1251,14 @@
     <string name="gps_show_on_dashboard">Show speed on dashboard</string>
     <string name="gps_show_on_dashboard_desc">Adds a coloured dot on the speed dial with the GPS reading.</string>
     <string name="section_volume_keys">Volume keys</string>
-    <string name="volume_keys_caption">Use phone volume buttons as shortcuts while the app is on screen</string>
+    <string name="volume_keys_caption">Use phone volume buttons as shortcuts while the app is on screen.</string>
     <string name="volume_keys_enable">Enable volume key actions</string>
     <string name="volume_keys_screen_off">Also when the screen is off</string>
     <string name="volume_keys_screen_off_caption">The buttons stop changing the phone volume. A music app that is playing takes them back until it stops.</string>
     <string name="volume_keys_screen_off_warn">The volume buttons will fire your actions with the screen off and with other apps in front. While this is on, the buttons no longer change the phone volume, and a music app that is playing takes them back until it stops. Change the volume from the on-screen slider, or turn this off.</string>
     <string name="volume_keys_screen_off_confirm">Turn on</string>
+    <string name="volume_keys_screen_off_title">Use with the screen off?</string>
+    <string name="volume_keys_screen_off_tip">To keep the volume on a button, bind Volume up or Volume down to it.</string>
     <string name="volume_up">Volume Up</string>
     <string name="volume_down">Volume Down</string>
 

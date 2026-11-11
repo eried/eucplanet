@@ -37,6 +37,11 @@
     <string name="watch_action_media_prev">Предишна песен</string>
     <string name="watch_action_music_start">Пусни музика</string>
     <string name="watch_action_media_pause">Спри музиката</string>
+    <string name="watch_action_phone_volume_up">Усилване на звука</string>
+    <string name="watch_action_phone_volume_down">Намаляване на звука</string>
+    <string name="watch_action_phone_mute">Заглушаване / звук</string>
+    <string name="watch_action_phone_torch">Фенерче на телефона</string>
+    <string name="watch_action_engine_sound">Звук на двигател</string>
     <string name="watch_action_long_press_hint">Задръжте за %1$s</string>
     <string name="watch_map_phone_disconnected">Няма телефон</string>
     <string name="watch_map_gps_permission">Разрешете GPS</string>

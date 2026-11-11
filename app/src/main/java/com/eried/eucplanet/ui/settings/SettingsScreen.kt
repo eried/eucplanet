@@ -7862,8 +7862,13 @@ private fun FlicTab(
                 AlertDialog(
                     onDismissRequest = { askScreenOff = false },
                     shape = RoundedCornerShape(12.dp),
-                    title = { Text(stringResource(R.string.volume_keys_screen_off)) },
-                    text = { Text(stringResource(R.string.volume_keys_screen_off_warn)) },
+                    title = { Text(stringResource(R.string.volume_keys_screen_off_title)) },
+                    text = {
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(stringResource(R.string.volume_keys_screen_off_warn))
+                            Text(stringResource(R.string.volume_keys_screen_off_tip))
+                        }
+                    },
                     confirmButton = {
                         TextButton(onClick = {
                             settingsViewModel.updateVolumeKeysScreenOff(true)

@@ -439,6 +439,10 @@
     <string name="action_chip_media_prev">Προηγ. κομμάτι</string>
     <string name="action_chip_music_start">Έναρξη μουσικής</string>
     <string name="action_chip_media_pause">Παύση μουσικής</string>
+    <string name="action_chip_phone_volume_up">Αύξηση έντασης</string>
+    <string name="action_chip_phone_volume_down">Μείωση έντασης</string>
+    <string name="action_chip_phone_mute">Σίγαση / ήχος</string>
+    <string name="action_chip_phone_torch">Φακός τηλεφώνου</string>
     <string name="action_chip_open_navigation">Χάρτης</string>
     <string name="action_chip_open_studio">Studio επικάλυψης</string>
     <string name="action_chip_open_about">Πληροφορίες</string>
@@ -1182,12 +1186,14 @@
     <string name="gps_show_on_dashboard">Ταχύτητα στον πίνακα οργάνων</string>
     <string name="gps_show_on_dashboard_desc">Προσθέτει μια χρωματιστή κουκκίδα στο καντράν ταχύτητας με την ένδειξη του GPS.</string>
     <string name="section_volume_keys">Πλήκτρα έντασης</string>
-    <string name="volume_keys_caption">Τα κουμπιά έντασης ως συντομεύσεις όσο η εφαρμογή είναι στην οθόνη</string>
+    <string name="volume_keys_caption">Τα κουμπιά έντασης ως συντομεύσεις όσο η εφαρμογή είναι στην οθόνη.</string>
     <string name="volume_keys_enable">Ενέργειες πλήκτρων έντασης</string>
     <string name="volume_keys_screen_off">Και με σβηστή οθόνη</string>
     <string name="volume_keys_screen_off_caption">Τα κουμπιά παύουν να αλλάζουν την ένταση του τηλεφώνου. Μια εφαρμογή μουσικής που παίζει τα παίρνει πίσω μέχρι να σταματήσει.</string>
     <string name="volume_keys_screen_off_warn">Τα κουμπιά έντασης θα εκτελούν τις ενέργειές σου με σβηστή οθόνη και με άλλες εφαρμογές μπροστά. Όσο είναι ενεργό, τα κουμπιά δεν αλλάζουν πια την ένταση του τηλεφώνου, και μια εφαρμογή μουσικής που παίζει τα παίρνει πίσω μέχρι να σταματήσει. Άλλαξε την ένταση από το ρυθμιστικό στην οθόνη, ή απενεργοποίησέ το.</string>
     <string name="volume_keys_screen_off_confirm">Ενεργοποίηση</string>
+    <string name="volume_keys_screen_off_title">Χρήση με σβηστή οθόνη;</string>
+    <string name="volume_keys_screen_off_tip">Για να κρατήσετε την ένταση σε ένα κουμπί, ορίστε του Αύξηση έντασης ή Μείωση έντασης.</string>
     <string name="volume_up">Αύξηση έντασης</string>
     <string name="volume_down">Μείωση έντασης</string>
 

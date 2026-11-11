@@ -424,6 +424,10 @@
     <string name="action_chip_media_prev">Piesa anterioară</string>
     <string name="action_chip_music_start">Pornește muzica</string>
     <string name="action_chip_media_pause">Pauză muzică</string>
+    <string name="action_chip_phone_volume_up">Volum mai tare</string>
+    <string name="action_chip_phone_volume_down">Volum mai încet</string>
+    <string name="action_chip_phone_mute">Fără sunet / cu sunet</string>
+    <string name="action_chip_phone_torch">Lanterna telefonului</string>
     <string name="action_chip_open_navigation">Arată harta</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
     <string name="action_chip_open_about">Despre</string>
@@ -1147,12 +1151,14 @@
     <string name="gps_show_on_dashboard">Arată viteza în tabloul de bord</string>
     <string name="gps_show_on_dashboard_desc">Adaugă un punct colorat pe cadranul vitezei cu citirea GPS.</string>
     <string name="section_volume_keys">Butoane de volum</string>
-    <string name="volume_keys_caption">Butoanele de volum ca scurtături cât timp aplicația e pe ecran</string>
+    <string name="volume_keys_caption">Butoanele de volum ca scurtături cât timp aplicația e pe ecran.</string>
     <string name="volume_keys_enable">Activează acțiunile butoanelor de volum</string>
     <string name="volume_keys_screen_off">Și cu ecranul stins</string>
     <string name="volume_keys_screen_off_caption">Butoanele nu mai schimbă volumul telefonului. O aplicație de muzică ce redă le ia înapoi până se oprește.</string>
     <string name="volume_keys_screen_off_warn">Butoanele de volum vor declanșa acțiunile tale cu ecranul stins și cu alte aplicații în față. Cât timp e pornit, butoanele nu mai schimbă volumul telefonului, iar o aplicație de muzică ce redă le ia înapoi până se oprește. Schimbă volumul din cursorul de pe ecran, sau oprește asta.</string>
     <string name="volume_keys_screen_off_confirm">Pornește</string>
+    <string name="volume_keys_screen_off_title">Folosești cu ecranul stins?</string>
+    <string name="volume_keys_screen_off_tip">Ca să păstrezi volumul pe un buton, atribuie-i Volum mai tare sau Volum mai încet.</string>
     <string name="volume_up">Volum plus</string>
     <string name="volume_down">Volum minus</string>
     <string name="section_radar">Radar pentru spate</string>

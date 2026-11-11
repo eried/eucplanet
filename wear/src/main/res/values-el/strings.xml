@@ -37,6 +37,11 @@
     <string name="watch_action_media_prev">Προηγούμενο κομμάτι</string>
     <string name="watch_action_music_start">Έναρξη μουσικής</string>
     <string name="watch_action_media_pause">Παύση μουσικής</string>
+    <string name="watch_action_phone_volume_up">Αύξηση έντασης</string>
+    <string name="watch_action_phone_volume_down">Μείωση έντασης</string>
+    <string name="watch_action_phone_mute">Σίγαση / ήχος</string>
+    <string name="watch_action_phone_torch">Φακός τηλεφώνου</string>
+    <string name="watch_action_engine_sound">Ήχος μηχανής</string>
     <string name="watch_action_long_press_hint">Παρατεταμένο πάτημα: %1$s</string>
     <string name="watch_map_phone_disconnected">Χωρίς τηλέφωνο</string>
     <string name="watch_map_gps_permission">Άδεια GPS</string>

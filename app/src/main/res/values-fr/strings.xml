@@ -461,6 +461,10 @@
     <string name="action_chip_media_prev">Piste préc.</string>
     <string name="action_chip_music_start">Lancer la musique</string>
     <string name="action_chip_media_pause">Pause musique</string>
+    <string name="action_chip_phone_volume_up">Volume +</string>
+    <string name="action_chip_phone_volume_down">Volume -</string>
+    <string name="action_chip_phone_mute">Couper / rétablir le son</string>
+    <string name="action_chip_phone_torch">Lampe du téléphone</string>
     <string name="action_chip_open_navigation">Voir carte</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
     <string name="action_chip_open_about">À propos</string>
@@ -946,12 +950,14 @@
     <string name="gps_show_on_dashboard">Afficher la vitesse sur le tableau de bord</string>
     <string name="gps_show_on_dashboard_desc">Ajoute un point coloré sur le compteur avec la valeur GPS.</string>
     <string name="section_volume_keys">Touches de volume</string>
-    <string name="volume_keys_caption">Utiliser les boutons de volume comme raccourcis tant que l\'app est à l\'écran</string>
+    <string name="volume_keys_caption">Utiliser les boutons de volume comme raccourcis tant que l\'app est à l\'écran.</string>
     <string name="volume_keys_enable">Activer les actions des touches de volume</string>
     <string name="volume_keys_screen_off">Aussi écran éteint</string>
     <string name="volume_keys_screen_off_caption">Les boutons ne changent plus le volume du téléphone. Une app de musique en lecture les reprend jusqu\'à son arrêt.</string>
     <string name="volume_keys_screen_off_warn">Les boutons de volume déclencheront vos actions écran éteint et avec d\'autres apps au premier plan. Tant que c\'est activé, les boutons ne changent plus le volume du téléphone, et une app de musique en lecture les reprend jusqu\'à son arrêt. Changez le volume avec le curseur à l\'écran, ou désactivez ceci.</string>
     <string name="volume_keys_screen_off_confirm">Activer</string>
+    <string name="volume_keys_screen_off_title">Utiliser écran éteint ?</string>
+    <string name="volume_keys_screen_off_tip">Pour garder le volume sur un bouton, attribuez-lui Volume + ou Volume -.</string>
     <string name="volume_up">Volume haut</string>
     <string name="volume_down">Volume bas</string>
 

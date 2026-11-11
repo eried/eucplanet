@@ -461,6 +461,10 @@
     <string name="action_chip_media_prev">Vorheriger Titel</string>
     <string name="action_chip_music_start">Musik starten</string>
     <string name="action_chip_media_pause">Musik pausieren</string>
+    <string name="action_chip_phone_volume_up">Lauter</string>
+    <string name="action_chip_phone_volume_down">Leiser</string>
+    <string name="action_chip_phone_mute">Stumm / laut</string>
+    <string name="action_chip_phone_torch">Handy-Taschenlampe</string>
     <string name="action_chip_open_navigation">Karte zeigen</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
     <string name="action_chip_open_about">Über</string>
@@ -942,12 +946,14 @@
     <string name="gps_show_on_dashboard">GPS-Geschwindigkeit im Dashboard zeigen</string>
     <string name="gps_show_on_dashboard_desc">Setzt einen farbigen Punkt mit dem GPS-Wert auf den Tacho.</string>
     <string name="section_volume_keys">Lautstärketasten</string>
-    <string name="volume_keys_caption">Lautstärketasten als Kurzbefehle nutzen, solange die App auf dem Bildschirm ist</string>
+    <string name="volume_keys_caption">Lautstärketasten als Kurzbefehle nutzen, solange die App auf dem Bildschirm ist.</string>
     <string name="volume_keys_enable">Lautstärketasten-Aktionen aktivieren</string>
     <string name="volume_keys_screen_off">Auch bei ausgeschaltetem Bildschirm</string>
     <string name="volume_keys_screen_off_caption">Die Tasten ändern die Telefonlautstärke nicht mehr. Eine spielende Musik-App holt sie sich zurück, bis sie stoppt.</string>
     <string name="volume_keys_screen_off_warn">Die Lautstärketasten lösen deine Aktionen auch bei ausgeschaltetem Bildschirm und mit anderen Apps im Vordergrund aus. Solange das an ist, ändern die Tasten die Telefonlautstärke nicht mehr, und eine spielende Musik-App holt sie sich zurück, bis sie stoppt. Ändere die Lautstärke über den Regler auf dem Bildschirm, oder schalte das aus.</string>
     <string name="volume_keys_screen_off_confirm">Einschalten</string>
+    <string name="volume_keys_screen_off_title">Bei ausgeschaltetem Bildschirm nutzen?</string>
+    <string name="volume_keys_screen_off_tip">Soll eine Taste die Lautstärke behalten, belege sie mit Lauter oder Leiser.</string>
     <string name="volume_up">Lautstärke +</string>
     <string name="volume_down">Lautstärke −</string>
 

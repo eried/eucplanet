@@ -37,6 +37,11 @@
     <string name="watch_action_media_prev">上一曲</string>
     <string name="watch_action_music_start">开始音乐</string>
     <string name="watch_action_media_pause">暂停音乐</string>
+    <string name="watch_action_phone_volume_up">调高音量</string>
+    <string name="watch_action_phone_volume_down">调低音量</string>
+    <string name="watch_action_phone_mute">静音 / 取消静音</string>
+    <string name="watch_action_phone_torch">手机手电筒</string>
+    <string name="watch_action_engine_sound">引擎声</string>
     <string name="watch_action_long_press_hint">长按以执行 %1$s</string>
     <string name="watch_map_phone_disconnected">未连接手机</string>
     <string name="watch_map_gps_permission">允许 GPS</string>
