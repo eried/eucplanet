@@ -319,8 +319,8 @@
     <string name="volume_keys_caption">Volumknappene som snarveier mens appen er på skjermen.</string>
     <string name="volume_keys_enable">Slå på volumtast-handlinger</string>
     <string name="volume_keys_screen_off">Også med skjermen av</string>
-    <string name="volume_keys_screen_off_caption">Knappene slutter å endre telefonens volum. En musikkapp som spiller tar dem tilbake til den stopper.</string>
-    <string name="volume_keys_screen_off_warn">Volumknappene utfører handlingene dine med skjermen av og med andre apper foran. Så lenge dette er på, endrer knappene ikke lenger telefonens volum, og en musikkapp som spiller tar dem tilbake til den stopper. Endre volumet med glidebryteren på skjermen, eller slå dette av.</string>
+    <string name="volume_keys_screen_off_caption">Knappene slutter å endre telefonens volum.</string>
+    <string name="volume_keys_screen_off_warn">Volumknappene utfører handlingene dine med skjermen av og med andre apper foran. Knappene slutter å endre telefonens volum. Endre volumet med glidebryteren på skjermen, eller slå dette av.</string>
     <string name="volume_keys_screen_off_confirm">Slå på</string>
     <string name="volume_keys_screen_off_title">Bruke med skjermen av?</string>
     <string name="volume_keys_screen_off_tip">Vil du beholde volumet på en knapp, gi den Volum opp eller Volum ned.</string>
@@ -1439,6 +1439,8 @@
     <string name="voice_mic_grant">Tillat mikrofon</string>
     <string name="warnings_perm_mic_title">Mikrofon ikke tillatt</string>
     <string name="warnings_perm_mic_body">Talekommandoer kan ikke lytte før appen får bruke mikrofonen.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth er ikke tillatt</string>
+    <string name="warnings_perm_bluetooth_body">Appen kan ikke finne eller koble til hjulet ditt. Trykk for å tillate.</string>
     <string name="voice_answer_unknown">Det fikk jeg ikke med meg. Si %1$s for hjelp.</string>
     <string name="voice_help_terms">hva kan jeg si,hjelp,hva kan jeg spørre om</string>
     <string name="voice_stat_max_terms">maksimum,maks,høyeste</string>

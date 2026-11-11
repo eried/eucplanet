@@ -361,6 +361,8 @@
     <string name="voice_mic_grant">Permitir microfone</string>
     <string name="warnings_perm_mic_title">Microfone não permitido</string>
     <string name="warnings_perm_mic_body">Os comandos de voz não podem ouvir até a app ter autorização para usar o microfone.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth não permitido</string>
+    <string name="warnings_perm_bluetooth_body">A app não consegue encontrar nem ligar à sua roda. Toque para permitir.</string>
     <string name="voice_answer_unknown">Não percebi. Diga %1$s para ajuda.</string>
     <string name="voice_help_terms">o que posso dizer,ajuda,o que posso fazer</string>
     <string name="voice_stat_max_terms">máx,máximo,máxima,mais alto</string>
@@ -1189,8 +1191,8 @@
     <string name="volume_keys_caption">Usar os botões de volume como atalhos enquanto a app está no ecrã.</string>
     <string name="volume_keys_enable">Ativar ações das teclas de volume</string>
     <string name="volume_keys_screen_off">Também com o ecrã desligado</string>
-    <string name="volume_keys_screen_off_caption">Os botões deixam de mudar o volume do telemóvel. Uma app de música a tocar fica com eles até parar.</string>
-    <string name="volume_keys_screen_off_warn">Os botões de volume vão disparar as suas ações com o ecrã desligado e com outras apps à frente. Enquanto isto estiver ligado, os botões deixam de mudar o volume do telemóvel, e uma app de música a tocar fica com eles até parar. Mude o volume no controlo do ecrã, ou desligue isto.</string>
+    <string name="volume_keys_screen_off_caption">Os botões deixam de mudar o volume do telemóvel.</string>
+    <string name="volume_keys_screen_off_warn">Os botões de volume vão disparar as suas ações com o ecrã desligado e com outras apps à frente. Os botões deixam de mudar o volume do telemóvel. Mude o volume no controlo do ecrã, ou desligue isto.</string>
     <string name="volume_keys_screen_off_confirm">Ligar</string>
     <string name="volume_keys_screen_off_title">Usar com o ecrã desligado?</string>
     <string name="volume_keys_screen_off_tip">Para manter o volume num botão, atribua-lhe Aumentar volume ou Diminuir volume.</string>

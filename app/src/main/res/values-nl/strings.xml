@@ -383,6 +383,8 @@
     <string name="voice_mic_grant">Microfoon toestaan</string>
     <string name="warnings_perm_mic_title">Microfoon niet toegestaan</string>
     <string name="warnings_perm_mic_body">Spraakopdrachten kunnen niet luisteren zolang de app de microfoon niet mag gebruiken.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth niet toegestaan</string>
+    <string name="warnings_perm_bluetooth_body">De app kan je wheel niet vinden of ermee verbinden. Tik om toe te staan.</string>
     <string name="voice_answer_unknown">Ik heb dat niet verstaan. Zeg %1$s voor hulp.</string>
     <string name="voice_help_terms">wat kan ik zeggen,help,wat kan ik vragen</string>
     <string name="voice_stat_max_terms">maximum,max,hoogste</string>
@@ -953,8 +955,8 @@
     <string name="volume_keys_caption">Volumeknoppen als snelkoppelingen zolang de app op het scherm staat.</string>
     <string name="volume_keys_enable">Volumeknopacties inschakelen</string>
     <string name="volume_keys_screen_off">Ook met het scherm uit</string>
-    <string name="volume_keys_screen_off_caption">De knoppen veranderen het telefoonvolume niet meer. Een spelende muziek-app neemt ze terug tot die stopt.</string>
-    <string name="volume_keys_screen_off_warn">De volumeknoppen voeren je acties uit met het scherm uit en met andere apps op de voorgrond. Zolang dit aanstaat, veranderen de knoppen het telefoonvolume niet meer, en een spelende muziek-app neemt ze terug tot die stopt. Verander het volume met de schuifregelaar op het scherm, of zet dit uit.</string>
+    <string name="volume_keys_screen_off_caption">De knoppen veranderen het telefoonvolume niet meer.</string>
+    <string name="volume_keys_screen_off_warn">De volumeknoppen voeren je acties uit met het scherm uit en met andere apps op de voorgrond. De knoppen veranderen het telefoonvolume niet meer. Verander het volume met de schuifregelaar op het scherm, of zet dit uit.</string>
     <string name="volume_keys_screen_off_confirm">Aanzetten</string>
     <string name="volume_keys_screen_off_title">Gebruiken met scherm uit?</string>
     <string name="volume_keys_screen_off_tip">Wil je het volume op een knop houden, wijs er dan Volume omhoog of Volume omlaag aan toe.</string>

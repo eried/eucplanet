@@ -372,6 +372,8 @@
     <string name="voice_mic_grant">Povoliť mikrofón</string>
     <string name="warnings_perm_mic_title">Mikrofón nie je povolený</string>
     <string name="warnings_perm_mic_body">Hlasové príkazy nemôžu počúvať, kým aplikácia nemá povolený mikrofón.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth nie je povolený</string>
+    <string name="warnings_perm_bluetooth_body">Aplikácia nemôže nájsť vaše koleso ani sa k nemu pripojiť. Klepnutím povolíte.</string>
     <string name="voice_answer_unknown">Nerozumel som. Pre pomoc povedzte %1$s.</string>
     <string name="voice_help_terms">čo môžem povedať,pomoc,čo môžem robiť</string>
     <string name="voice_stat_max_terms">max,maximum,najvyššia</string>
@@ -1215,8 +1217,8 @@
     <string name="volume_keys_caption">Tlačidlá hlasitosti ako skratky, kým je aplikácia na obrazovke.</string>
     <string name="volume_keys_enable">Zapnúť akcie tlačidiel hlasitosti</string>
     <string name="volume_keys_screen_off">Aj pri vypnutej obrazovke</string>
-    <string name="volume_keys_screen_off_caption">Tlačidlá prestanú meniť hlasitosť telefónu. Hrajúca hudobná aplikácia si ich vezme späť, kým neprestane hrať.</string>
-    <string name="volume_keys_screen_off_warn">Tlačidlá hlasitosti spustia vaše akcie aj pri vypnutej obrazovke a s inými aplikáciami v popredí. Kým je to zapnuté, tlačidlá už nemenia hlasitosť telefónu a hrajúca hudobná aplikácia si ich vezme späť, kým neprestane hrať. Hlasitosť meňte posuvníkom na obrazovke, alebo toto vypnite.</string>
+    <string name="volume_keys_screen_off_caption">Tlačidlá prestanú meniť hlasitosť telefónu.</string>
+    <string name="volume_keys_screen_off_warn">Tlačidlá hlasitosti spustia vaše akcie aj pri vypnutej obrazovke a s inými aplikáciami v popredí. Tlačidlá prestanú meniť hlasitosť telefónu. Hlasitosť meňte posuvníkom na obrazovke, alebo toto vypnite.</string>
     <string name="volume_keys_screen_off_confirm">Zapnúť</string>
     <string name="volume_keys_screen_off_title">Používať pri vypnutej obrazovke?</string>
     <string name="volume_keys_screen_off_tip">Ak chcete na tlačidle ponechať hlasitosť, priraďte mu Zvýšiť hlasitosť alebo Znížiť hlasitosť.</string>

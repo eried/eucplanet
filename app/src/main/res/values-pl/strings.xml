@@ -383,6 +383,8 @@
     <string name="voice_mic_grant">Zezwól na mikrofon</string>
     <string name="warnings_perm_mic_title">Brak dostępu do mikrofonu</string>
     <string name="warnings_perm_mic_body">Polecenia głosowe nie zadziałają, dopóki aplikacja nie dostanie dostępu do mikrofonu.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth niedozwolony</string>
+    <string name="warnings_perm_bluetooth_body">Aplikacja nie może znaleźć koła ani się z nim połączyć. Dotknij, aby zezwolić.</string>
     <string name="voice_answer_unknown">Nie rozumiem. Powiedz %1$s, aby uzyskać pomoc.</string>
     <string name="voice_help_terms">co mogę powiedzieć,pomoc,o co mogę zapytać</string>
     <string name="voice_stat_max_terms">maksimum,maks,najwyższy</string>
@@ -953,8 +955,8 @@
     <string name="volume_keys_caption">Przyciski głośności jako skróty, gdy aplikacja jest na ekranie.</string>
     <string name="volume_keys_enable">Włącz akcje klawiszy głośności</string>
     <string name="volume_keys_screen_off">Także przy wyłączonym ekranie</string>
-    <string name="volume_keys_screen_off_caption">Przyciski przestają zmieniać głośność telefonu. Grająca aplikacja muzyczna przejmuje je, dopóki nie przestanie grać.</string>
-    <string name="volume_keys_screen_off_warn">Przyciski głośności będą uruchamiać Twoje akcje przy wyłączonym ekranie i z innymi aplikacjami na wierzchu. Gdy to jest włączone, przyciski nie zmieniają już głośności telefonu, a grająca aplikacja muzyczna przejmuje je, dopóki nie przestanie grać. Zmieniaj głośność suwakiem na ekranie albo wyłącz tę opcję.</string>
+    <string name="volume_keys_screen_off_caption">Przyciski przestają zmieniać głośność telefonu.</string>
+    <string name="volume_keys_screen_off_warn">Przyciski głośności będą uruchamiać Twoje akcje przy wyłączonym ekranie i z innymi aplikacjami na wierzchu. Przyciski przestają zmieniać głośność telefonu. Zmieniaj głośność suwakiem na ekranie albo wyłącz tę opcję.</string>
     <string name="volume_keys_screen_off_confirm">Włącz</string>
     <string name="volume_keys_screen_off_title">Używać przy wyłączonym ekranie?</string>
     <string name="volume_keys_screen_off_tip">Aby zachować głośność na przycisku, przypisz mu Głośniej lub Ciszej.</string>

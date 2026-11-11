@@ -346,6 +346,8 @@
     <string name="voice_mic_grant">Permite microfonul</string>
     <string name="warnings_perm_mic_title">Microfon nepermis</string>
     <string name="warnings_perm_mic_body">Comenzile vocale nu pot asculta până când aplicația nu are acces la microfon.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth nepermis</string>
+    <string name="warnings_perm_bluetooth_body">Aplicația nu poate găsi roata și nu se poate conecta la ea. Atinge pentru a permite.</string>
     <string name="voice_answer_unknown">Nu am înțeles. Spune %1$s pentru ajutor.</string>
     <string name="voice_help_terms">ce pot spune,ajutor,ce pot cere</string>
     <string name="voice_stat_max_terms">maxim,max,cel mai mare</string>
@@ -1154,8 +1156,8 @@
     <string name="volume_keys_caption">Butoanele de volum ca scurtături cât timp aplicația e pe ecran.</string>
     <string name="volume_keys_enable">Activează acțiunile butoanelor de volum</string>
     <string name="volume_keys_screen_off">Și cu ecranul stins</string>
-    <string name="volume_keys_screen_off_caption">Butoanele nu mai schimbă volumul telefonului. O aplicație de muzică ce redă le ia înapoi până se oprește.</string>
-    <string name="volume_keys_screen_off_warn">Butoanele de volum vor declanșa acțiunile tale cu ecranul stins și cu alte aplicații în față. Cât timp e pornit, butoanele nu mai schimbă volumul telefonului, iar o aplicație de muzică ce redă le ia înapoi până se oprește. Schimbă volumul din cursorul de pe ecran, sau oprește asta.</string>
+    <string name="volume_keys_screen_off_caption">Butoanele nu mai schimbă volumul telefonului.</string>
+    <string name="volume_keys_screen_off_warn">Butoanele de volum vor declanșa acțiunile tale cu ecranul stins și cu alte aplicații în față. Butoanele nu mai schimbă volumul telefonului. Schimbă volumul din cursorul de pe ecran, sau oprește asta.</string>
     <string name="volume_keys_screen_off_confirm">Pornește</string>
     <string name="volume_keys_screen_off_title">Folosești cu ecranul stins?</string>
     <string name="volume_keys_screen_off_tip">Ca să păstrezi volumul pe un buton, atribuie-i Volum mai tare sau Volum mai încet.</string>

@@ -383,6 +383,8 @@
     <string name="voice_mic_grant">Mikrofona izin ver</string>
     <string name="warnings_perm_mic_title">Mikrofona izin verilmedi</string>
     <string name="warnings_perm_mic_body">Uygulamanın mikrofonu kullanmasına izin verilene kadar sesli komutlar dinleyemez.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth\'a izin verilmedi</string>
+    <string name="warnings_perm_bluetooth_body">Uygulama tekerinizi bulamıyor ve bağlanamıyor. İzin vermek için dokunun.</string>
     <string name="voice_answer_unknown">Anlayamadım. Yardım için %1$s deyin.</string>
     <string name="voice_help_terms">ne diyebilirim,yardım,ne sorabilirim</string>
     <string name="voice_stat_max_terms">maksimum,maks,en yüksek</string>
@@ -949,8 +951,8 @@
     <string name="volume_keys_caption">Uygulama ekrandayken ses tuşlarını kısayol olarak kullan.</string>
     <string name="volume_keys_enable">Ses tuşu eylemlerini etkinleştir</string>
     <string name="volume_keys_screen_off">Ekran kapalıyken de</string>
-    <string name="volume_keys_screen_off_caption">Tuşlar artık telefonun sesini değiştirmez. Çalan bir müzik uygulaması, durana kadar tuşları geri alır.</string>
-    <string name="volume_keys_screen_off_warn">Ses tuşları ekran kapalıyken ve önde başka uygulamalar varken de eylemlerini çalıştırır. Bu açıkken tuşlar artık telefonun sesini değiştirmez ve çalan bir müzik uygulaması, durana kadar tuşları geri alır. Sesi ekrandaki kaydırıcıdan değiştir ya da bunu kapat.</string>
+    <string name="volume_keys_screen_off_caption">Tuşlar artık telefonun sesini değiştirmez.</string>
+    <string name="volume_keys_screen_off_warn">Ses tuşları ekran kapalıyken ve önde başka uygulamalar varken de eylemlerini çalıştırır. Tuşlar artık telefonun sesini değiştirmez. Sesi ekrandaki kaydırıcıdan değiştir ya da bunu kapat.</string>
     <string name="volume_keys_screen_off_confirm">Aç</string>
     <string name="volume_keys_screen_off_title">Ekran kapalıyken kullanılsın mı?</string>
     <string name="volume_keys_screen_off_tip">Bir tuşta ses ayarını korumak için ona Sesi aç veya Sesi kıs eylemini atayın.</string>

@@ -347,6 +347,8 @@
     <string name="voice_mic_grant">Cho phép micrô</string>
     <string name="warnings_perm_mic_title">Chưa cho phép micrô</string>
     <string name="warnings_perm_mic_body">Lệnh giọng nói không thể nghe cho đến khi ứng dụng được phép dùng micrô.</string>
+    <string name="warnings_perm_bluetooth_title">Chưa cho phép Bluetooth</string>
+    <string name="warnings_perm_bluetooth_body">Ứng dụng không thể tìm hoặc kết nối với bánh xe của bạn. Chạm để cho phép.</string>
     <string name="voice_answer_unknown">Tôi chưa nghe rõ. Hãy nói %1$s để được trợ giúp.</string>
     <string name="voice_help_terms">tôi có thể nói gì,trợ giúp,giúp tôi,tôi làm được gì</string>
     <string name="voice_stat_max_terms">tối đa,cao nhất,lớn nhất</string>
@@ -1160,8 +1162,8 @@
     <string name="volume_keys_caption">Dùng nút âm lượng làm phím tắt khi ứng dụng đang trên màn hình.</string>
     <string name="volume_keys_enable">Bật thao tác phím âm lượng</string>
     <string name="volume_keys_screen_off">Cả khi màn hình tắt</string>
-    <string name="volume_keys_screen_off_caption">Các nút không còn đổi âm lượng điện thoại. Một ứng dụng nhạc đang phát sẽ lấy lại các nút cho đến khi dừng.</string>
-    <string name="volume_keys_screen_off_warn">Các nút âm lượng sẽ chạy hành động của bạn khi màn hình tắt và khi có ứng dụng khác ở trước. Khi bật, các nút không còn đổi âm lượng điện thoại, và một ứng dụng nhạc đang phát sẽ lấy lại các nút cho đến khi dừng. Đổi âm lượng bằng thanh trượt trên màn hình, hoặc tắt mục này.</string>
+    <string name="volume_keys_screen_off_caption">Các nút không còn đổi âm lượng điện thoại.</string>
+    <string name="volume_keys_screen_off_warn">Các nút âm lượng sẽ chạy hành động của bạn khi màn hình tắt và khi có ứng dụng khác ở trước. Các nút không còn đổi âm lượng điện thoại. Đổi âm lượng bằng thanh trượt trên màn hình, hoặc tắt mục này.</string>
     <string name="volume_keys_screen_off_confirm">Bật</string>
     <string name="volume_keys_screen_off_title">Dùng khi màn hình tắt?</string>
     <string name="volume_keys_screen_off_tip">Để nút vẫn chỉnh âm lượng, hãy gán Tăng âm lượng hoặc Giảm âm lượng cho nút đó.</string>

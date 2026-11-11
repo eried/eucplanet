@@ -371,6 +371,8 @@
     <string name="voice_mic_grant">Разреши микрофона</string>
     <string name="warnings_perm_mic_title">Микрофонът не е разрешен</string>
     <string name="warnings_perm_mic_body">Гласовите команди не могат да слушат, докато приложението няма разрешение за микрофона.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth не е разрешен</string>
+    <string name="warnings_perm_bluetooth_body">Приложението не може да намери колелото ви или да се свърже с него. Докоснете, за да разрешите.</string>
     <string name="voice_answer_unknown">Не разбрах. Кажете %1$s за помощ.</string>
     <string name="voice_help_terms">какво мога да кажа,помощ,какво мога да правя</string>
     <string name="voice_stat_max_terms">макс,максимум,максимална,най-висока</string>
@@ -1214,8 +1216,8 @@
     <string name="volume_keys_caption">Бутоните за звук като преки пътища, докато приложението е на екрана.</string>
     <string name="volume_keys_enable">Действия с бутоните за звук</string>
     <string name="volume_keys_screen_off">И при изключен екран</string>
-    <string name="volume_keys_screen_off_caption">Бутоните спират да променят силата на звука на телефона. Свирещо музикално приложение ги взема обратно, докато не спре.</string>
-    <string name="volume_keys_screen_off_warn">Бутоните за звук ще задействат действията ви при изключен екран и с други приложения отпред. Докато това е включено, бутоните вече не променят силата на звука на телефона, а свирещо музикално приложение ги взема обратно, докато не спре. Сменяйте звука от плъзгача на екрана или изключете това.</string>
+    <string name="volume_keys_screen_off_caption">Бутоните спират да променят силата на звука на телефона.</string>
+    <string name="volume_keys_screen_off_warn">Бутоните за звук ще задействат действията ви при изключен екран и с други приложения отпред. Бутоните спират да променят силата на звука на телефона. Сменяйте звука от плъзгача на екрана или изключете това.</string>
     <string name="volume_keys_screen_off_confirm">Включи</string>
     <string name="volume_keys_screen_off_title">Да работят при изключен екран?</string>
     <string name="volume_keys_screen_off_tip">За да запазите звука на бутон, задайте му Усилване или Намаляване на звука.</string>

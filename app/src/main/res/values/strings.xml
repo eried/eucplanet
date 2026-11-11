@@ -388,6 +388,8 @@
     <string name="voice_mic_grant">Allow microphone</string>
     <string name="warnings_perm_mic_title">Microphone not allowed</string>
     <string name="warnings_perm_mic_body">Voice commands cannot listen until the app is allowed to use the microphone.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth not allowed</string>
+    <string name="warnings_perm_bluetooth_body">The app cannot find or connect to your wheel. Tap to allow.</string>
     <string name="voice_answer_unknown">I did not catch that. Say %1$s for help.</string>
     <string name="voice_help_terms">what can I say,help,what can I do</string>
     <string name="voice_stat_max_terms">max,maximum,highest</string>
@@ -1254,8 +1256,8 @@
     <string name="volume_keys_caption">Use phone volume buttons as shortcuts while the app is on screen.</string>
     <string name="volume_keys_enable">Enable volume key actions</string>
     <string name="volume_keys_screen_off">Also when the screen is off</string>
-    <string name="volume_keys_screen_off_caption">The buttons stop changing the phone volume. A music app that is playing takes them back until it stops.</string>
-    <string name="volume_keys_screen_off_warn">The volume buttons will fire your actions with the screen off and with other apps in front. While this is on, the buttons no longer change the phone volume, and a music app that is playing takes them back until it stops. Change the volume from the on-screen slider, or turn this off.</string>
+    <string name="volume_keys_screen_off_caption">The buttons stop changing the phone volume.</string>
+    <string name="volume_keys_screen_off_warn">The volume buttons will fire your actions with the screen off and with other apps in front. The buttons stop changing the phone volume. Change the volume from the on-screen slider, or turn this off.</string>
     <string name="volume_keys_screen_off_confirm">Turn on</string>
     <string name="volume_keys_screen_off_title">Use with the screen off?</string>
     <string name="volume_keys_screen_off_tip">To keep the volume on a button, bind Volume up or Volume down to it.</string>

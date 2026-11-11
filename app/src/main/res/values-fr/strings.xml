@@ -383,6 +383,8 @@
     <string name="voice_mic_grant">Autoriser le micro</string>
     <string name="warnings_perm_mic_title">Micro non autorisé</string>
     <string name="warnings_perm_mic_body">Les commandes vocales ne peuvent pas écouter tant que l\'application n\'a pas accès au micro.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth non autorisé</string>
+    <string name="warnings_perm_bluetooth_body">L\'app ne peut ni trouver votre roue ni s\'y connecter. Touchez pour autoriser.</string>
     <string name="voice_answer_unknown">Je n\'ai pas compris. Dites %1$s pour obtenir de l\'aide.</string>
     <string name="voice_help_terms">que puis-je dire,aide,que puis-je demander</string>
     <string name="voice_stat_max_terms">maximum,max,plus haut</string>
@@ -953,8 +955,8 @@
     <string name="volume_keys_caption">Utiliser les boutons de volume comme raccourcis tant que l\'app est à l\'écran.</string>
     <string name="volume_keys_enable">Activer les actions des touches de volume</string>
     <string name="volume_keys_screen_off">Aussi écran éteint</string>
-    <string name="volume_keys_screen_off_caption">Les boutons ne changent plus le volume du téléphone. Une app de musique en lecture les reprend jusqu\'à son arrêt.</string>
-    <string name="volume_keys_screen_off_warn">Les boutons de volume déclencheront vos actions écran éteint et avec d\'autres apps au premier plan. Tant que c\'est activé, les boutons ne changent plus le volume du téléphone, et une app de musique en lecture les reprend jusqu\'à son arrêt. Changez le volume avec le curseur à l\'écran, ou désactivez ceci.</string>
+    <string name="volume_keys_screen_off_caption">Les boutons ne changent plus le volume du téléphone.</string>
+    <string name="volume_keys_screen_off_warn">Les boutons de volume déclencheront vos actions écran éteint et avec d\'autres apps au premier plan. Les boutons ne changent plus le volume du téléphone. Changez le volume avec le curseur à l\'écran, ou désactivez ceci.</string>
     <string name="volume_keys_screen_off_confirm">Activer</string>
     <string name="volume_keys_screen_off_title">Utiliser écran éteint ?</string>
     <string name="volume_keys_screen_off_tip">Pour garder le volume sur un bouton, attribuez-lui Volume + ou Volume -.</string>

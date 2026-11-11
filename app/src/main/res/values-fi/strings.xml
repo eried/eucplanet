@@ -346,6 +346,8 @@
     <string name="voice_mic_grant">Salli mikrofoni</string>
     <string name="warnings_perm_mic_title">Mikrofonia ei sallittu</string>
     <string name="warnings_perm_mic_body">Äänikomennot eivät voi kuunnella ennen kuin sovellus saa käyttää mikrofonia.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetoothia ei ole sallittu</string>
+    <string name="warnings_perm_bluetooth_body">Sovellus ei voi löytää pyörääsi eikä yhdistää siihen. Salli napauttamalla.</string>
     <string name="voice_answer_unknown">En saanut selvää. Sano %1$s saadaksesi apua.</string>
     <string name="voice_help_terms">mitä voin sanoa,apua,mitä voin kysyä</string>
     <string name="voice_stat_max_terms">maksimi,max,suurin</string>
@@ -1154,8 +1156,8 @@
     <string name="volume_keys_caption">Äänenvoimakkuuspainikkeet pikatoimintoina, kun sovellus on näytöllä.</string>
     <string name="volume_keys_enable">Ota äänenvoimakkuusnäppäinten toiminnot käyttöön</string>
     <string name="volume_keys_screen_off">Myös näytön ollessa pois päältä</string>
-    <string name="volume_keys_screen_off_caption">Painikkeet eivät enää muuta puhelimen äänenvoimakkuutta. Soittava musiikkisovellus ottaa ne takaisin, kunnes se pysähtyy.</string>
-    <string name="volume_keys_screen_off_warn">Äänenvoimakkuuspainikkeet käynnistävät toimintosi näytön ollessa pois päältä ja muiden sovellusten ollessa edessä. Kun tämä on päällä, painikkeet eivät enää muuta puhelimen äänenvoimakkuutta, ja soittava musiikkisovellus ottaa ne takaisin, kunnes se pysähtyy. Muuta äänenvoimakkuutta näytön liukusäätimestä tai kytke tämä pois.</string>
+    <string name="volume_keys_screen_off_caption">Painikkeet eivät enää muuta puhelimen äänenvoimakkuutta.</string>
+    <string name="volume_keys_screen_off_warn">Äänenvoimakkuuspainikkeet käynnistävät toimintosi näytön ollessa pois päältä ja muiden sovellusten ollessa edessä. Painikkeet eivät enää muuta puhelimen äänenvoimakkuutta. Muuta äänenvoimakkuutta näytön liukusäätimestä tai kytke tämä pois.</string>
     <string name="volume_keys_screen_off_confirm">Ota käyttöön</string>
     <string name="volume_keys_screen_off_title">Käytetäänkö näyttö sammutettuna?</string>
     <string name="volume_keys_screen_off_tip">Jos haluat säilyttää äänenvoimakkuuden painikkeessa, valitse sille Ääni kovemmalle tai Ääni hiljemmalle.</string>

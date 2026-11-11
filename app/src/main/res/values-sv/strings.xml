@@ -383,6 +383,8 @@
     <string name="voice_mic_grant">Tillåt mikrofon</string>
     <string name="warnings_perm_mic_title">Mikrofonen är inte tillåten</string>
     <string name="warnings_perm_mic_body">Röstkommandon kan inte lyssna förrän appen får använda mikrofonen.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth är inte tillåtet</string>
+    <string name="warnings_perm_bluetooth_body">Appen kan inte hitta eller ansluta till ditt hjul. Tryck för att tillåta.</string>
     <string name="voice_answer_unknown">Jag uppfattade inte det. Säg %1$s för hjälp.</string>
     <string name="voice_help_terms">vad kan jag säga,hjälp,vad kan jag fråga</string>
     <string name="voice_stat_max_terms">maximum,max,högsta</string>
@@ -949,8 +951,8 @@
     <string name="volume_keys_caption">Volymknapparna som genvägar medan appen är på skärmen.</string>
     <string name="volume_keys_enable">Aktivera åtgärder för volymknappar</string>
     <string name="volume_keys_screen_off">Även med skärmen av</string>
-    <string name="volume_keys_screen_off_caption">Knapparna slutar ändra telefonens volym. En musikapp som spelar tar tillbaka dem tills den stannar.</string>
-    <string name="volume_keys_screen_off_warn">Volymknapparna kör dina åtgärder med skärmen av och med andra appar framför. Så länge detta är på ändrar knapparna inte längre telefonens volym, och en musikapp som spelar tar tillbaka dem tills den stannar. Ändra volymen med reglaget på skärmen, eller stäng av detta.</string>
+    <string name="volume_keys_screen_off_caption">Knapparna slutar ändra telefonens volym.</string>
+    <string name="volume_keys_screen_off_warn">Volymknapparna kör dina åtgärder med skärmen av och med andra appar framför. Knapparna slutar ändra telefonens volym. Ändra volymen med reglaget på skärmen, eller stäng av detta.</string>
     <string name="volume_keys_screen_off_confirm">Slå på</string>
     <string name="volume_keys_screen_off_title">Använda med skärmen av?</string>
     <string name="volume_keys_screen_off_tip">Vill du behålla volymen på en knapp, ge den Volym upp eller Volym ner.</string>

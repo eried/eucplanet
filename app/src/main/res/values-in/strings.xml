@@ -347,6 +347,8 @@
     <string name="voice_mic_grant">Izinkan mikrofon</string>
     <string name="warnings_perm_mic_title">Mikrofon tidak diizinkan</string>
     <string name="warnings_perm_mic_body">Perintah suara tidak bisa mendengarkan sampai aplikasi diizinkan menggunakan mikrofon.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth tidak diizinkan</string>
+    <string name="warnings_perm_bluetooth_body">Aplikasi tidak dapat menemukan atau terhubung ke roda Anda. Ketuk untuk mengizinkan.</string>
     <string name="voice_answer_unknown">Saya tidak menangkapnya. Ucapkan %1$s untuk bantuan.</string>
     <string name="voice_help_terms">apa yang bisa saya ucapkan,bantuan,tolong,apa yang bisa saya lakukan</string>
     <string name="voice_stat_max_terms">maks,maksimum,tertinggi</string>
@@ -1160,8 +1162,8 @@
     <string name="volume_keys_caption">Gunakan tombol volume sebagai pintasan selama aplikasi tampil di layar.</string>
     <string name="volume_keys_enable">Aktifkan tindakan tombol volume</string>
     <string name="volume_keys_screen_off">Juga saat layar mati</string>
-    <string name="volume_keys_screen_off_caption">Tombol berhenti mengubah volume ponsel. Aplikasi musik yang sedang memutar mengambilnya kembali sampai berhenti.</string>
-    <string name="volume_keys_screen_off_warn">Tombol volume akan menjalankan aksi Anda saat layar mati dan saat aplikasi lain ada di depan. Selama ini aktif, tombol tidak lagi mengubah volume ponsel, dan aplikasi musik yang sedang memutar mengambilnya kembali sampai berhenti. Ubah volume dari penggeser di layar, atau matikan ini.</string>
+    <string name="volume_keys_screen_off_caption">Tombol berhenti mengubah volume ponsel.</string>
+    <string name="volume_keys_screen_off_warn">Tombol volume akan menjalankan aksi Anda saat layar mati dan saat aplikasi lain ada di depan. Tombol berhenti mengubah volume ponsel. Ubah volume dari penggeser di layar, atau matikan ini.</string>
     <string name="volume_keys_screen_off_confirm">Aktifkan</string>
     <string name="volume_keys_screen_off_title">Gunakan saat layar mati?</string>
     <string name="volume_keys_screen_off_tip">Agar tombol tetap mengatur volume, pasang Volume naik atau Volume turun padanya.</string>

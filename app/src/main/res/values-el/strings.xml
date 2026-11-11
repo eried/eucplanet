@@ -361,6 +361,8 @@
     <string name="voice_mic_grant">Να επιτρέπεται το μικρόφωνο</string>
     <string name="warnings_perm_mic_title">Το μικρόφωνο δεν επιτρέπεται</string>
     <string name="warnings_perm_mic_body">Οι φωνητικές εντολές δεν μπορούν να ακούσουν μέχρι να επιτραπεί στην εφαρμογή η χρήση του μικροφώνου.</string>
+    <string name="warnings_perm_bluetooth_title">Το Bluetooth δεν επιτρέπεται</string>
+    <string name="warnings_perm_bluetooth_body">Η εφαρμογή δεν μπορεί να βρει τον τροχό σας ούτε να συνδεθεί. Πατήστε για να το επιτρέψετε.</string>
     <string name="voice_answer_unknown">Δεν το κατάλαβα. Πείτε %1$s για βοήθεια.</string>
     <string name="voice_help_terms">τι μπορώ να πω,βοήθεια,τι μπορώ να κάνω</string>
     <string name="voice_stat_max_terms">μέγιστη,μέγιστο,μάξιμουμ,υψηλότερη</string>
@@ -1189,8 +1191,8 @@
     <string name="volume_keys_caption">Τα κουμπιά έντασης ως συντομεύσεις όσο η εφαρμογή είναι στην οθόνη.</string>
     <string name="volume_keys_enable">Ενέργειες πλήκτρων έντασης</string>
     <string name="volume_keys_screen_off">Και με σβηστή οθόνη</string>
-    <string name="volume_keys_screen_off_caption">Τα κουμπιά παύουν να αλλάζουν την ένταση του τηλεφώνου. Μια εφαρμογή μουσικής που παίζει τα παίρνει πίσω μέχρι να σταματήσει.</string>
-    <string name="volume_keys_screen_off_warn">Τα κουμπιά έντασης θα εκτελούν τις ενέργειές σου με σβηστή οθόνη και με άλλες εφαρμογές μπροστά. Όσο είναι ενεργό, τα κουμπιά δεν αλλάζουν πια την ένταση του τηλεφώνου, και μια εφαρμογή μουσικής που παίζει τα παίρνει πίσω μέχρι να σταματήσει. Άλλαξε την ένταση από το ρυθμιστικό στην οθόνη, ή απενεργοποίησέ το.</string>
+    <string name="volume_keys_screen_off_caption">Τα κουμπιά παύουν να αλλάζουν την ένταση του τηλεφώνου.</string>
+    <string name="volume_keys_screen_off_warn">Τα κουμπιά έντασης θα εκτελούν τις ενέργειές σου με σβηστή οθόνη και με άλλες εφαρμογές μπροστά. Τα κουμπιά παύουν να αλλάζουν την ένταση του τηλεφώνου. Άλλαξε την ένταση από το ρυθμιστικό στην οθόνη, ή απενεργοποίησέ το.</string>
     <string name="volume_keys_screen_off_confirm">Ενεργοποίηση</string>
     <string name="volume_keys_screen_off_title">Χρήση με σβηστή οθόνη;</string>
     <string name="volume_keys_screen_off_tip">Για να κρατήσετε την ένταση σε ένα κουμπί, ορίστε του Αύξηση έντασης ή Μείωση έντασης.</string>

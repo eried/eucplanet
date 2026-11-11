@@ -409,14 +409,11 @@ class FlicManager(
             "SAFETY_OFF" -> wheelRepository.disableSafetySpeed()
             "VOICE_LISTEN" -> {
                 // Legal Mode already refused above, for every surface at once.
-                // What is left is the microphone: without it there is nothing
-                // to listen with, and a rider pressing a button deserves to be
-                // told that rather than to hear silence.
-                if (!voiceCommands.hasMicPermission()) {
-                    appNotifier.post(context.getString(R.string.voice_answer_no_mic_permission))
-                } else {
-                    voiceCommands.listen()
-                }
+                // A missing microphone permission is the controller's to
+                // answer, the same way for a button as for the dashboard tile:
+                // the system prompt while the app is on screen, otherwise the
+                // spoken sentence and a Needs attention entry.
+                voiceCommands.listen()
             }
             "VOICE_ANNOUNCE" -> {
                 voiceService.announceTrigger(

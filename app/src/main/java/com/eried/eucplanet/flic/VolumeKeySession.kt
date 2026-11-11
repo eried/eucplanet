@@ -1,6 +1,8 @@
 package com.eried.eucplanet.flic
 
 import android.content.Context
+import android.media.AudioManager
+import android.media.AudioPlaybackConfiguration
 import android.media.VolumeProvider
 import android.media.session.MediaSession
 import android.media.session.PlaybackState
@@ -26,8 +28,16 @@ import kotlinx.coroutines.launch
  * playing, every volume press is routed to its [VolumeProvider] instead of
  * the phone volume, screen off included. That is also the price, written in
  * the warning the rider accepts to turn this on: the buttons stop changing
- * the phone volume, and a music app that starts playing takes them back
- * until it stops, because its session is then the more recent one.
+ * the phone volume.
+ *
+ * "Most recent" is the catch. A music app that starts, or only moves to its
+ * next song, becomes the more recent session and the buttons go back to
+ * changing its volume (seen on a Pixel: actions until the song changed, then
+ * volume, then actions again once the app was opened). So the session
+ * listens for any change in what is playing on the phone and claims the
+ * buttons again, by stepping to paused and back to playing, which is the
+ * transition Android ranks sessions on. Media buttons are not affected: those
+ * follow the app that is really producing sound.
  *
  * Nothing is played. The session only claims the keys; [VolumeKeyPresses]
  * reads the adjust calls back into clicks and holds, and the bound action
@@ -50,6 +60,28 @@ class VolumeKeySession(
     private val presses = VolumeKeyPresses()
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var session: MediaSession? = null
+    private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
+    private val reclaim = Runnable {
+        val s = session ?: return@Runnable
+        s.setPlaybackState(state(PlaybackState.STATE_PAUSED))
+        s.setPlaybackState(state(PlaybackState.STATE_PLAYING))
+    }
+
+    /** Fires when any app starts, stops or changes what it plays. Says nothing about which app. */
+    private val playbackWatcher = object : AudioManager.AudioPlaybackCallback() {
+        override fun onPlaybackConfigChanged(configs: MutableList<AudioPlaybackConfiguration>?) {
+            // Twice: Android reorders the sessions a moment after the audio
+            // changes, and a claim made before that is undone by it.
+            handler.removeCallbacks(reclaim)
+            handler.postDelayed(reclaim, 300L)
+            handler.postDelayed(reclaim, 1500L)
+        }
+    }
+
+    private fun state(state: Int) = PlaybackState.Builder()
+        .setState(state, PlaybackState.PLAYBACK_POSITION_UNKNOWN, 1f)
+        .build()
 
     private val expire = object : Runnable {
         override fun run() {
@@ -75,18 +107,17 @@ class VolumeKeySession(
             }
         })
         // "Playing" is what makes it the session the keys go to. No audio is involved.
-        s.setPlaybackState(
-            PlaybackState.Builder()
-                .setState(PlaybackState.STATE_PLAYING, PlaybackState.PLAYBACK_POSITION_UNKNOWN, 1f)
-                .build()
-        )
+        s.setPlaybackState(state(PlaybackState.STATE_PLAYING))
         s.isActive = true
         session = s
+        runCatching { audioManager.registerAudioPlaybackCallback(playbackWatcher, handler) }
         Log.i(TAG, "Volume keys claimed for the screen-off bindings")
     }
 
     fun stop() {
         handler.removeCallbacks(expire)
+        handler.removeCallbacks(reclaim)
+        runCatching { audioManager.unregisterAudioPlaybackCallback(playbackWatcher) }
         session?.let {
             it.isActive = false
             it.release()

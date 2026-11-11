@@ -7327,16 +7327,34 @@ private fun VoiceTab(
             micLifecycle.lifecycle.addObserver(obs)
             onDispose { micLifecycle.lifecycle.removeObserver(obs) }
         }
+        var micAskedAt by remember { mutableStateOf(0L) }
         val micLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
             androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
-        ) { granted -> micGranted = granted }
+        ) { granted ->
+            micGranted = granted
+            // After two refusals Android stops showing the prompt and answers
+            // no at once, which left this button doing nothing. An answer that
+            // fast was not the rider's, so take them to the app's settings
+            // page, the only place the permission can still be given.
+            if (!granted && android.os.SystemClock.elapsedRealtime() - micAskedAt < 500L) {
+                runCatching {
+                    micCtx.startActivity(
+                        android.content.Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                            .setData(android.net.Uri.fromParts("package", micCtx.packageName, null))
+                    )
+                }
+            }
+        }
         if (!micGranted) {
             // No line of explanation above it: the button says what it does,
             // and the paragraph above already says the feature needs a
             // microphone.
             com.eried.eucplanet.ui.common.FixButton(
                 text = stringResource(R.string.voice_mic_grant),
-                onClick = { micLauncher.launch(android.Manifest.permission.RECORD_AUDIO) },
+                onClick = {
+                    micAskedAt = android.os.SystemClock.elapsedRealtime()
+                    micLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
+                },
             )
         }
         // The cue, and the way out of it. A rider on a headset that plays its

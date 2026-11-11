@@ -383,6 +383,8 @@
     <string name="voice_mic_grant">Разрешить микрофон</string>
     <string name="warnings_perm_mic_title">Микрофон запрещён</string>
     <string name="warnings_perm_mic_body">Голосовые команды не могут слушать, пока приложению не разрешён микрофон.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth не разрешён</string>
+    <string name="warnings_perm_bluetooth_body">Приложение не может найти колесо и подключиться к нему. Нажмите, чтобы разрешить.</string>
     <string name="voice_answer_unknown">Команда не распознана. Скажите %1$s, чтобы получить подсказку.</string>
     <string name="voice_help_terms">что можно сказать,помощь,что можно спросить</string>
     <string name="voice_stat_max_terms">максимум,макс,наибольший</string>
@@ -953,8 +955,8 @@
     <string name="volume_keys_caption">Кнопки громкости как ярлыки, пока приложение на экране.</string>
     <string name="volume_keys_enable">Включить действия по кнопкам громкости</string>
     <string name="volume_keys_screen_off">И при выключенном экране</string>
-    <string name="volume_keys_screen_off_caption">Кнопки перестают менять громкость телефона. Играющее музыкальное приложение забирает их, пока не остановится.</string>
-    <string name="volume_keys_screen_off_warn">Кнопки громкости будут запускать ваши действия при выключенном экране и с другими приложениями поверх. Пока это включено, кнопки больше не меняют громкость телефона, а играющее музыкальное приложение забирает их, пока не остановится. Меняйте громкость ползунком на экране или выключите это.</string>
+    <string name="volume_keys_screen_off_caption">Кнопки перестают менять громкость телефона.</string>
+    <string name="volume_keys_screen_off_warn">Кнопки громкости будут запускать ваши действия при выключенном экране и с другими приложениями поверх. Кнопки перестают менять громкость телефона. Меняйте громкость ползунком на экране или выключите это.</string>
     <string name="volume_keys_screen_off_confirm">Включить</string>
     <string name="volume_keys_screen_off_title">Использовать при выключенном экране?</string>
     <string name="volume_keys_screen_off_tip">Чтобы оставить громкость на кнопке, назначьте ей «Громче» или «Тише».</string>

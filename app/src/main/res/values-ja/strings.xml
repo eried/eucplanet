@@ -383,6 +383,8 @@
     <string name="voice_mic_grant">マイクを許可</string>
     <string name="warnings_perm_mic_title">マイクが許可されていません</string>
     <string name="warnings_perm_mic_body">アプリがマイクを使えるようになるまで、音声コマンドは待ち受けできません。</string>
+    <string name="warnings_perm_bluetooth_title">Bluetoothが許可されていません</string>
+    <string name="warnings_perm_bluetooth_body">アプリがホイールを検出・接続できません。タップして許可してください。</string>
     <string name="voice_answer_unknown">聞き取れませんでした。ヘルプは「%1$s」と言ってください。</string>
     <string name="voice_help_terms">何と言えばいい,ヘルプ,何を聞ける</string>
     <string name="voice_stat_max_terms">最大,マックス</string>
@@ -949,8 +951,8 @@
     <string name="volume_keys_caption">アプリが画面に表示されている間、音量ボタンをショートカットとして使う。</string>
     <string name="volume_keys_enable">音量キーアクションを有効にする</string>
     <string name="volume_keys_screen_off">画面が消えているときも</string>
-    <string name="volume_keys_screen_off_caption">ボタンで端末の音量は変わらなくなります。再生中の音楽アプリは、停止するまでボタンを取り戻します。</string>
-    <string name="volume_keys_screen_off_warn">画面が消えているときや他のアプリが前面にあるときも、音量ボタンで操作が実行されます。オンの間、ボタンで端末の音量は変わらなくなり、再生中の音楽アプリは停止するまでボタンを取り戻します。音量は画面のスライダーで変えるか、この設定をオフにしてください。</string>
+    <string name="volume_keys_screen_off_caption">ボタンで端末の音量は変わらなくなります。</string>
+    <string name="volume_keys_screen_off_warn">画面が消えているときや他のアプリが前面にあるときも、音量ボタンで操作が実行されます。ボタンで端末の音量は変わらなくなります。音量は画面のスライダーで変えるか、この設定をオフにしてください。</string>
     <string name="volume_keys_screen_off_confirm">オンにする</string>
     <string name="volume_keys_screen_off_title">画面オフでも使いますか？</string>
     <string name="volume_keys_screen_off_tip">ボタンで音量を変えたい場合は、「音量を上げる」または「音量を下げる」を割り当ててください。</string>

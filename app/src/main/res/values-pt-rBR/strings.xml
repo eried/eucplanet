@@ -383,6 +383,8 @@
     <string name="voice_mic_grant">Permitir microfone</string>
     <string name="warnings_perm_mic_title">Microfone não permitido</string>
     <string name="warnings_perm_mic_body">Os comandos de voz não podem ouvir até o app ter permissão para usar o microfone.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth não permitido</string>
+    <string name="warnings_perm_bluetooth_body">O app não consegue encontrar nem conectar ao seu monociclo. Toque para permitir.</string>
     <string name="voice_answer_unknown">Não entendi. Diga %1$s para ajuda.</string>
     <string name="voice_help_terms">o que posso dizer,ajuda,o que posso pedir</string>
     <string name="voice_stat_max_terms">máximo,max</string>
@@ -953,8 +955,8 @@
     <string name="volume_keys_caption">Usar os botões de volume como atalhos enquanto o app está na tela.</string>
     <string name="volume_keys_enable">Ativar ações das teclas de volume</string>
     <string name="volume_keys_screen_off">Também com a tela desligada</string>
-    <string name="volume_keys_screen_off_caption">Os botões deixam de mudar o volume do celular. Um app de música tocando os retoma até parar.</string>
-    <string name="volume_keys_screen_off_warn">Os botões de volume vão disparar suas ações com a tela desligada e com outros apps na frente. Enquanto isso estiver ligado, os botões não mudam mais o volume do celular, e um app de música tocando os retoma até parar. Mude o volume pelo controle na tela, ou desligue isto.</string>
+    <string name="volume_keys_screen_off_caption">Os botões deixam de mudar o volume do celular.</string>
+    <string name="volume_keys_screen_off_warn">Os botões de volume vão disparar suas ações com a tela desligada e com outros apps na frente. Os botões deixam de mudar o volume do celular. Mude o volume pelo controle na tela, ou desligue isto.</string>
     <string name="volume_keys_screen_off_confirm">Ligar</string>
     <string name="volume_keys_screen_off_title">Usar com a tela desligada?</string>
     <string name="volume_keys_screen_off_tip">Para manter o volume em um botão, atribua a ele Aumentar volume ou Diminuir volume.</string>

@@ -383,6 +383,8 @@
     <string name="voice_mic_grant">Дозволити мікрофон</string>
     <string name="warnings_perm_mic_title">Мікрофон заборонено</string>
     <string name="warnings_perm_mic_body">Голосові команди не можуть слухати, доки застосунку не дозволено мікрофон.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth не дозволено</string>
+    <string name="warnings_perm_bluetooth_body">Застосунок не може знайти колесо та підключитися до нього. Натисніть, щоб дозволити.</string>
     <string name="voice_answer_unknown">Не зрозуміло. Скажіть %1$s, щоб отримати підказку.</string>
     <string name="voice_help_terms">що можна сказати,допомога,що можна запитати</string>
     <string name="voice_stat_max_terms">максимум,макс,найбільший</string>
@@ -953,8 +955,8 @@
     <string name="volume_keys_caption">Кнопки гучності як ярлики, поки застосунок на екрані.</string>
     <string name="volume_keys_enable">Увімкнути дії на кнопках гучності</string>
     <string name="volume_keys_screen_off">І з вимкненим екраном</string>
-    <string name="volume_keys_screen_off_caption">Кнопки перестають змінювати гучність телефону. Музичний застосунок, що грає, забирає їх, доки не зупиниться.</string>
-    <string name="volume_keys_screen_off_warn">Кнопки гучності запускатимуть ваші дії з вимкненим екраном і з іншими застосунками зверху. Поки це ввімкнено, кнопки більше не змінюють гучність телефону, а музичний застосунок, що грає, забирає їх, доки не зупиниться. Змінюйте гучність повзунком на екрані або вимкніть це.</string>
+    <string name="volume_keys_screen_off_caption">Кнопки перестають змінювати гучність телефону.</string>
+    <string name="volume_keys_screen_off_warn">Кнопки гучності запускатимуть ваші дії з вимкненим екраном і з іншими застосунками зверху. Кнопки перестають змінювати гучність телефону. Змінюйте гучність повзунком на екрані або вимкніть це.</string>
     <string name="volume_keys_screen_off_confirm">Увімкнути</string>
     <string name="volume_keys_screen_off_title">Використовувати з вимкненим екраном?</string>
     <string name="volume_keys_screen_off_tip">Щоб залишити гучність на кнопці, призначте їй «Гучніше» або «Тихіше».</string>

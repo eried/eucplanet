@@ -346,6 +346,8 @@
     <string name="voice_mic_grant">Mikrofon engedélyezése</string>
     <string name="warnings_perm_mic_title">A mikrofon nincs engedélyezve</string>
     <string name="warnings_perm_mic_body">A hangparancsok nem tudnak figyelni, amíg az alkalmazás nem használhatja a mikrofont.</string>
+    <string name="warnings_perm_bluetooth_title">A Bluetooth nincs engedélyezve</string>
+    <string name="warnings_perm_bluetooth_body">Az app nem találja a kereket, és nem tud csatlakozni hozzá. Koppintson az engedélyezéshez.</string>
     <string name="voice_answer_unknown">Nem értettem. Mondd: %1$s segítségért.</string>
     <string name="voice_help_terms">mit mondhatok,segítség,mit kérdezhetek</string>
     <string name="voice_stat_max_terms">maximum,max,legmagasabb</string>
@@ -1154,8 +1156,8 @@
     <string name="volume_keys_caption">Hangerőgombok gyorsbillentyűként, amíg az app a képernyőn van.</string>
     <string name="volume_keys_enable">Hangerőgomb-műveletek bekapcsolása</string>
     <string name="volume_keys_screen_off">Kikapcsolt képernyőnél is</string>
-    <string name="volume_keys_screen_off_caption">A gombok nem állítják többé a telefon hangerejét. Egy éppen játszó zenei app visszaveszi őket, amíg le nem áll.</string>
-    <string name="volume_keys_screen_off_warn">A hangerőgombok kikapcsolt képernyőnél és más appok előtérben is a műveleteidet indítják. Amíg ez be van kapcsolva, a gombok nem állítják a telefon hangerejét, és egy éppen játszó zenei app visszaveszi őket, amíg le nem áll. A hangerőt a képernyőn lévő csúszkával állítsd, vagy kapcsold ki ezt.</string>
+    <string name="volume_keys_screen_off_caption">A gombok nem állítják többé a telefon hangerejét.</string>
+    <string name="volume_keys_screen_off_warn">A hangerőgombok kikapcsolt képernyőnél és más appok előtérben is a műveleteidet indítják. A gombok nem állítják többé a telefon hangerejét. A hangerőt a képernyőn lévő csúszkával állítsd, vagy kapcsold ki ezt.</string>
     <string name="volume_keys_screen_off_confirm">Bekapcsolás</string>
     <string name="volume_keys_screen_off_title">Kikapcsolt képernyővel is?</string>
     <string name="volume_keys_screen_off_tip">Ha egy gombon meg akarja tartani a hangerőt, rendelje hozzá a Hangerő fel vagy a Hangerő le műveletet.</string>

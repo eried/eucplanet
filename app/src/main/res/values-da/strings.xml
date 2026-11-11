@@ -383,6 +383,8 @@
     <string name="voice_mic_grant">Tillad mikrofon</string>
     <string name="warnings_perm_mic_title">Mikrofon ikke tilladt</string>
     <string name="warnings_perm_mic_body">Stemmekommandoer kan ikke lytte, før appen må bruge mikrofonen.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth er ikke tilladt</string>
+    <string name="warnings_perm_bluetooth_body">Appen kan ikke finde eller forbinde til dit hjul. Tryk for at tillade.</string>
     <string name="voice_answer_unknown">Det forstod jeg ikke. Sig %1$s for at få hjælp.</string>
     <string name="voice_help_terms">hvad kan jeg sige,hjælp,hvad kan jeg spørge om</string>
     <string name="voice_stat_max_terms">maksimum,maks,højeste</string>
@@ -953,8 +955,8 @@
     <string name="volume_keys_caption">Lydstyrkeknapperne som genveje, mens appen er på skærmen.</string>
     <string name="volume_keys_enable">Aktivér handlinger på lydstyrketaster</string>
     <string name="volume_keys_screen_off">Også med skærmen slukket</string>
-    <string name="volume_keys_screen_off_caption">Knapperne holder op med at ændre telefonens lydstyrke. En musikapp, der spiller, tager dem tilbage, indtil den stopper.</string>
-    <string name="volume_keys_screen_off_warn">Lydstyrkeknapperne udfører dine handlinger med skærmen slukket og med andre apps forrest. Så længe dette er slået til, ændrer knapperne ikke længere telefonens lydstyrke, og en musikapp, der spiller, tager dem tilbage, indtil den stopper. Skift lydstyrken med skyderen på skærmen, eller slå dette fra.</string>
+    <string name="volume_keys_screen_off_caption">Knapperne holder op med at ændre telefonens lydstyrke.</string>
+    <string name="volume_keys_screen_off_warn">Lydstyrkeknapperne udfører dine handlinger med skærmen slukket og med andre apps forrest. Knapperne holder op med at ændre telefonens lydstyrke. Skift lydstyrken med skyderen på skærmen, eller slå dette fra.</string>
     <string name="volume_keys_screen_off_confirm">Slå til</string>
     <string name="volume_keys_screen_off_title">Brug med slukket skærm?</string>
     <string name="volume_keys_screen_off_tip">Vil du beholde lydstyrken på en knap, så giv den Lydstyrke op eller Lydstyrke ned.</string>

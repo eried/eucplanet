@@ -383,6 +383,8 @@
     <string name="voice_mic_grant">마이크 허용</string>
     <string name="warnings_perm_mic_title">마이크가 허용되지 않음</string>
     <string name="warnings_perm_mic_body">앱이 마이크를 사용할 수 있게 될 때까지 음성 명령은 들을 수 없습니다.</string>
+    <string name="warnings_perm_bluetooth_title">블루투스가 허용되지 않음</string>
+    <string name="warnings_perm_bluetooth_body">앱이 휠을 찾거나 연결할 수 없습니다. 탭하여 허용하세요.</string>
     <string name="voice_answer_unknown">잘 알아듣지 못했습니다. 도움말을 들으려면 %1$s 하고 말하세요.</string>
     <string name="voice_help_terms">뭐라고 말하면 돼,도움말,뭘 물어볼 수 있어</string>
     <string name="voice_stat_max_terms">최대,맥스</string>
@@ -949,8 +951,8 @@
     <string name="volume_keys_caption">앱이 화면에 보이는 동안 볼륨 버튼을 바로가기로 사용.</string>
     <string name="volume_keys_enable">볼륨 버튼 단축키 활성화</string>
     <string name="volume_keys_screen_off">화면이 꺼져 있을 때도</string>
-    <string name="volume_keys_screen_off_caption">버튼으로 휴대전화 볼륨이 바뀌지 않습니다. 재생 중인 음악 앱이 멈출 때까지 버튼을 가져갑니다.</string>
-    <string name="volume_keys_screen_off_warn">화면이 꺼져 있거나 다른 앱이 앞에 있어도 볼륨 버튼이 동작을 실행합니다. 켜져 있는 동안 버튼으로 휴대전화 볼륨이 바뀌지 않고, 재생 중인 음악 앱이 멈출 때까지 버튼을 가져갑니다. 볼륨은 화면의 슬라이더로 바꾸거나 이 설정을 끄세요.</string>
+    <string name="volume_keys_screen_off_caption">버튼으로 휴대전화 볼륨이 바뀌지 않습니다.</string>
+    <string name="volume_keys_screen_off_warn">화면이 꺼져 있거나 다른 앱이 앞에 있어도 볼륨 버튼이 동작을 실행합니다. 버튼으로 휴대전화 볼륨이 바뀌지 않습니다. 볼륨은 화면의 슬라이더로 바꾸거나 이 설정을 끄세요.</string>
     <string name="volume_keys_screen_off_confirm">켜기</string>
     <string name="volume_keys_screen_off_title">화면이 꺼져 있을 때도 사용할까요?</string>
     <string name="volume_keys_screen_off_tip">버튼으로 볼륨을 계속 조절하려면 볼륨 높이기 또는 볼륨 낮추기를 지정하세요.</string>

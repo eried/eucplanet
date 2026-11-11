@@ -382,6 +382,8 @@
     <string name="voice_mic_grant">允許麥克風</string>
     <string name="warnings_perm_mic_title">未允許麥克風</string>
     <string name="warnings_perm_mic_body">在應用程式取得麥克風權限之前，語音指令無法聆聽。</string>
+    <string name="warnings_perm_bluetooth_title">未允許藍牙</string>
+    <string name="warnings_perm_bluetooth_body">應用程式無法找到或連接你的獨輪車。點按以允許。</string>
     <string name="voice_answer_unknown">我沒聽清楚。請說「%1$s」取得說明。</string>
     <string name="voice_help_terms">我能說什麼,幫助,說明,我能問什麼</string>
     <string name="voice_stat_max_terms">最大,最高</string>
@@ -948,8 +950,8 @@
     <string name="volume_keys_caption">應用程式顯示在螢幕上時，用手機音量鍵作為快捷鍵。</string>
     <string name="volume_keys_enable">啟用音量鍵操作</string>
     <string name="volume_keys_screen_off">螢幕關閉時也生效</string>
-    <string name="volume_keys_screen_off_caption">音量鍵不再改變手機音量。正在播放的音樂應用程式會拿回音量鍵，直到停止播放。</string>
-    <string name="volume_keys_screen_off_warn">螢幕關閉時以及其他應用程式在前景時，音量鍵也會執行你的動作。開啟期間，音量鍵不再改變手機音量，正在播放的音樂應用程式會拿回音量鍵，直到停止播放。請用螢幕上的滑桿調整音量，或關閉此項。</string>
+    <string name="volume_keys_screen_off_caption">音量鍵不再改變手機音量。</string>
+    <string name="volume_keys_screen_off_warn">螢幕關閉時以及其他應用程式在前景時，音量鍵也會執行你的動作。音量鍵不再改變手機音量。請用螢幕上的滑桿調整音量，或關閉此項。</string>
     <string name="volume_keys_screen_off_confirm">開啟</string>
     <string name="volume_keys_screen_off_title">螢幕關閉時也使用？</string>
     <string name="volume_keys_screen_off_tip">想讓某個按鍵繼續調整音量，請為它設定「調高音量」或「調低音量」。</string>

@@ -383,6 +383,8 @@
     <string name="voice_mic_grant">Mikrofon erlauben</string>
     <string name="warnings_perm_mic_title">Mikrofon nicht erlaubt</string>
     <string name="warnings_perm_mic_body">Sprachbefehle können nicht zuhören, solange die App das Mikrofon nicht nutzen darf.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth nicht erlaubt</string>
+    <string name="warnings_perm_bluetooth_body">Die App kann dein Wheel weder finden noch verbinden. Zum Erlauben tippen.</string>
     <string name="voice_answer_unknown">Das habe ich nicht verstanden. Sag %1$s für Hilfe.</string>
     <string name="voice_help_terms">was kann ich sagen,hilfe,was kann ich fragen</string>
     <string name="voice_stat_max_terms">maximum,max,höchste</string>
@@ -949,8 +951,8 @@
     <string name="volume_keys_caption">Lautstärketasten als Kurzbefehle nutzen, solange die App auf dem Bildschirm ist.</string>
     <string name="volume_keys_enable">Lautstärketasten-Aktionen aktivieren</string>
     <string name="volume_keys_screen_off">Auch bei ausgeschaltetem Bildschirm</string>
-    <string name="volume_keys_screen_off_caption">Die Tasten ändern die Telefonlautstärke nicht mehr. Eine spielende Musik-App holt sie sich zurück, bis sie stoppt.</string>
-    <string name="volume_keys_screen_off_warn">Die Lautstärketasten lösen deine Aktionen auch bei ausgeschaltetem Bildschirm und mit anderen Apps im Vordergrund aus. Solange das an ist, ändern die Tasten die Telefonlautstärke nicht mehr, und eine spielende Musik-App holt sie sich zurück, bis sie stoppt. Ändere die Lautstärke über den Regler auf dem Bildschirm, oder schalte das aus.</string>
+    <string name="volume_keys_screen_off_caption">Die Tasten ändern die Telefonlautstärke nicht mehr.</string>
+    <string name="volume_keys_screen_off_warn">Die Lautstärketasten lösen deine Aktionen auch bei ausgeschaltetem Bildschirm und mit anderen Apps im Vordergrund aus. Die Tasten ändern die Telefonlautstärke nicht mehr. Ändere die Lautstärke über den Regler auf dem Bildschirm, oder schalte das aus.</string>
     <string name="volume_keys_screen_off_confirm">Einschalten</string>
     <string name="volume_keys_screen_off_title">Bei ausgeschaltetem Bildschirm nutzen?</string>
     <string name="volume_keys_screen_off_tip">Soll eine Taste die Lautstärke behalten, belege sie mit Lauter oder Leiser.</string>

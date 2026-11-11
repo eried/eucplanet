@@ -383,6 +383,8 @@
     <string name="voice_mic_grant">Permitir micrófono</string>
     <string name="warnings_perm_mic_title">Micrófono no permitido</string>
     <string name="warnings_perm_mic_body">Los comandos de voz no pueden escuchar hasta que la app tenga permiso para usar el micrófono.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth no permitido</string>
+    <string name="warnings_perm_bluetooth_body">La app no puede encontrar tu rueda ni conectarse a ella. Toca para permitirlo.</string>
     <string name="voice_answer_unknown">No te entendí. Di %1$s para pedir ayuda.</string>
     <string name="voice_help_terms">qué puedo decir,ayuda,qué puedo pedir</string>
     <string name="voice_stat_max_terms">máximo,máxima,max</string>
@@ -953,8 +955,8 @@
     <string name="volume_keys_caption">Usar los botones de volumen como atajos mientras la app está en pantalla.</string>
     <string name="volume_keys_enable">Activar acciones con teclas de volumen</string>
     <string name="volume_keys_screen_off">También con la pantalla apagada</string>
-    <string name="volume_keys_screen_off_caption">Los botones dejan de cambiar el volumen del teléfono. Una app de música que esté sonando los recupera hasta que se detenga.</string>
-    <string name="volume_keys_screen_off_warn">Los botones de volumen ejecutarán tus acciones con la pantalla apagada y con otras apps adelante. Mientras esté activo, los botones ya no cambian el volumen del teléfono, y una app de música que esté sonando los recupera hasta que se detenga. Cambia el volumen desde el control en pantalla, o desactiva esto.</string>
+    <string name="volume_keys_screen_off_caption">Los botones dejan de cambiar el volumen del teléfono.</string>
+    <string name="volume_keys_screen_off_warn">Los botones de volumen ejecutarán tus acciones con la pantalla apagada y con otras apps adelante. Los botones dejan de cambiar el volumen del teléfono. Cambia el volumen desde el control en pantalla, o desactiva esto.</string>
     <string name="volume_keys_screen_off_confirm">Activar</string>
     <string name="volume_keys_screen_off_title">¿Usar con la pantalla apagada?</string>
     <string name="volume_keys_screen_off_tip">Para conservar el volumen en un botón, asígnale Subir volumen o Bajar volumen.</string>
