@@ -299,6 +299,7 @@ private fun ActionDropdown(
             value = currentLabel,
             onValueChange = {},
             readOnly = true,
+            singleLine = true,
             label = { Text(label) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier

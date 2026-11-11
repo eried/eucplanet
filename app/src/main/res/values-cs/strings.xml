@@ -428,7 +428,7 @@
     <string name="action_chip_media_pause">Pozastavit hudbu</string>
     <string name="action_chip_phone_volume_up">Zvýšit hlasitost</string>
     <string name="action_chip_phone_volume_down">Snížit hlasitost</string>
-    <string name="action_chip_phone_mute">Ztlumit / zapnout</string>
+    <string name="action_chip_phone_mute">Ztlumit</string>
     <string name="action_chip_phone_torch">Svítilna telefonu</string>
     <string name="action_chip_open_navigation">Zobrazit mapu</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
@@ -1160,7 +1160,6 @@
     <string name="volume_keys_screen_off_warn">Android posílá stisky hlasitosti jen aplikaci na obrazovce. Aby je EUC Planet dostal i při vypnuté obrazovce, zaregistruje se jako aktivní přehrávač médií v telefonu, a Android mu tlačítka hlasitosti posílá místo změny hlasitosti.\n\nDokud je to zapnuté, tlačítka nemění hlasitost telefonu.</string>
     <string name="volume_keys_screen_off_confirm">Zapnout</string>
     <string name="volume_keys_screen_off_title">Převzít tlačítka hlasitosti?</string>
-    <string name="volume_keys_screen_off_tip">Chcete-li na tlačítku ponechat hlasitost, přiřaďte mu Zvýšit hlasitost nebo Snížit hlasitost.</string>
     <string name="volume_up">Hlasitost nahoru</string>
     <string name="volume_down">Hlasitost dolů</string>
     <string name="section_radar">Radar do zpětného zrcátka</string>

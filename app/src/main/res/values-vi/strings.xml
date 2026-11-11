@@ -429,7 +429,7 @@
     <string name="action_chip_media_pause">Tạm dừng nhạc</string>
     <string name="action_chip_phone_volume_up">Tăng âm lượng</string>
     <string name="action_chip_phone_volume_down">Giảm âm lượng</string>
-    <string name="action_chip_phone_mute">Tắt / bật tiếng</string>
+    <string name="action_chip_phone_mute">Tắt</string>
     <string name="action_chip_phone_torch">Đèn pin điện thoại</string>
     <string name="action_chip_open_navigation">Hiện bản đồ</string>
     <string name="action_chip_open_studio">Studio lớp phủ</string>
@@ -1166,7 +1166,6 @@
     <string name="volume_keys_screen_off_warn">Android chỉ gửi thao tác nhấn nút âm lượng cho ứng dụng đang trên màn hình. Để nhận được khi màn hình tắt, EUC Planet đăng ký làm trình phát đa phương tiện đang hoạt động của điện thoại, nên Android gửi nút âm lượng cho ứng dụng thay vì chỉnh âm lượng.\n\nKhi bật tính năng này, các nút không còn chỉnh âm lượng điện thoại.</string>
     <string name="volume_keys_screen_off_confirm">Bật</string>
     <string name="volume_keys_screen_off_title">Giành quyền điều khiển nút âm lượng?</string>
-    <string name="volume_keys_screen_off_tip">Để nút vẫn chỉnh âm lượng, hãy gán Tăng âm lượng hoặc Giảm âm lượng cho nút đó.</string>
     <string name="volume_up">Tăng âm lượng</string>
     <string name="volume_down">Giảm âm lượng</string>
     <string name="section_radar">Radar chiếu hậu</string>

@@ -428,7 +428,7 @@
     <string name="action_chip_media_pause">Pauză muzică</string>
     <string name="action_chip_phone_volume_up">Volum mai tare</string>
     <string name="action_chip_phone_volume_down">Volum mai încet</string>
-    <string name="action_chip_phone_mute">Fără sunet / cu sunet</string>
+    <string name="action_chip_phone_mute">Fără sunet</string>
     <string name="action_chip_phone_torch">Lanterna telefonului</string>
     <string name="action_chip_open_navigation">Arată harta</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
@@ -1160,7 +1160,6 @@
     <string name="volume_keys_screen_off_warn">Android trimite apăsările de volum doar aplicației de pe ecran. Ca să le primească și cu ecranul stins, EUC Planet se înregistrează ca playerul media activ al telefonului, iar Android îi trimite butoanele de volum în loc să schimbe volumul.\n\nCât timp este activ, butoanele nu mai schimbă volumul telefonului.</string>
     <string name="volume_keys_screen_off_confirm">Pornește</string>
     <string name="volume_keys_screen_off_title">Preiei butoanele de volum?</string>
-    <string name="volume_keys_screen_off_tip">Ca să păstrezi volumul pe un buton, atribuie-i Volum mai tare sau Volum mai încet.</string>
     <string name="volume_up">Volum plus</string>
     <string name="volume_down">Volum minus</string>
     <string name="section_radar">Radar pentru spate</string>

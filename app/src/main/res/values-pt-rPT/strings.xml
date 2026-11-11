@@ -443,7 +443,7 @@
     <string name="action_chip_media_pause">Pausar música</string>
     <string name="action_chip_phone_volume_up">Aumentar volume</string>
     <string name="action_chip_phone_volume_down">Diminuir volume</string>
-    <string name="action_chip_phone_mute">Silenciar / ativar som</string>
+    <string name="action_chip_phone_mute">Silenciar</string>
     <string name="action_chip_phone_torch">Lanterna do telemóvel</string>
     <string name="action_chip_open_navigation">Ver mapa</string>
     <string name="action_chip_open_studio">Estúdio de overlay</string>
@@ -1195,7 +1195,6 @@
     <string name="volume_keys_screen_off_warn">O Android só envia os toques de volume para a app que está no ecrã. Para os receber com o ecrã desligado, o EUC Planet regista-se como o leitor multimédia ativo do telemóvel, e o Android envia-lhe os botões de volume em vez de alterar o volume.\n\nEnquanto isto estiver ativo, os botões não alteram o volume do telemóvel.</string>
     <string name="volume_keys_screen_off_confirm">Ligar</string>
     <string name="volume_keys_screen_off_title">Assumir os botões de volume?</string>
-    <string name="volume_keys_screen_off_tip">Para manter o volume num botão, atribua-lhe Aumentar volume ou Diminuir volume.</string>
     <string name="volume_up">Aumentar volume</string>
     <string name="volume_down">Diminuir volume</string>
 

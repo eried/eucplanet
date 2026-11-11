@@ -453,7 +453,7 @@
     <string name="action_chip_media_pause">Спри музиката</string>
     <string name="action_chip_phone_volume_up">Усилване на звука</string>
     <string name="action_chip_phone_volume_down">Намаляване на звука</string>
-    <string name="action_chip_phone_mute">Заглушаване / звук</string>
+    <string name="action_chip_phone_mute">Заглушаване</string>
     <string name="action_chip_phone_torch">Фенерче на телефона</string>
     <string name="action_chip_open_navigation">Покажи картата</string>
     <string name="action_chip_open_studio">Студио за наслагване</string>
@@ -1220,7 +1220,6 @@
     <string name="volume_keys_screen_off_warn">Android изпраща натисканията на бутоните за звук само на приложението на екрана. За да ги получава при изключен екран, EUC Planet се регистрира като активния медиен плейър на телефона и Android му изпраща бутоните, вместо да променя звука.\n\nДокато това е включено, бутоните не променят силата на звука на телефона.</string>
     <string name="volume_keys_screen_off_confirm">Включи</string>
     <string name="volume_keys_screen_off_title">Да поеме ли бутоните за звук?</string>
-    <string name="volume_keys_screen_off_tip">За да запазите звука на бутон, задайте му Усилване или Намаляване на звука.</string>
     <string name="volume_up">Звук нагоре</string>
     <string name="volume_down">Звук надолу</string>
 

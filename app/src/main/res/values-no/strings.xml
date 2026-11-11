@@ -323,7 +323,6 @@
     <string name="volume_keys_screen_off_warn">Android sender bare volumtrykk til appen på skjermen. For å få dem med skjermen av melder EUC Planet seg som telefonens aktive mediespiller, så Android sender volumknappene dit i stedet for å endre volumet.\n\nMens dette er på, endrer ikke knappene telefonvolumet.</string>
     <string name="volume_keys_screen_off_confirm">Slå på</string>
     <string name="volume_keys_screen_off_title">La appen ta over volumknappene?</string>
-    <string name="volume_keys_screen_off_tip">Vil du beholde volumet på en knapp, gi den Volum opp eller Volum ned.</string>
     <string name="volume_up">Volum opp</string>
     <string name="volume_down">Volum ned</string>
 
@@ -1372,7 +1371,7 @@
     <string name="action_chip_media_pause">Pause musikk</string>
     <string name="action_chip_phone_volume_up">Volum opp</string>
     <string name="action_chip_phone_volume_down">Volum ned</string>
-    <string name="action_chip_phone_mute">Lyd av / på</string>
+    <string name="action_chip_phone_mute">Lyd av</string>
     <string name="action_chip_phone_torch">Telefonens lommelykt</string>
     <string name="action_chip_mute_alarms">Demp alarmer</string>
     <string name="action_chip_open_about">Om</string>

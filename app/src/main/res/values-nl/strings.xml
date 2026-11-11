@@ -465,7 +465,7 @@
     <string name="action_chip_media_pause">Muziek pauzeren</string>
     <string name="action_chip_phone_volume_up">Volume omhoog</string>
     <string name="action_chip_phone_volume_down">Volume omlaag</string>
-    <string name="action_chip_phone_mute">Dempen / geluid aan</string>
+    <string name="action_chip_phone_mute">Dempen</string>
     <string name="action_chip_phone_torch">Zaklamp van telefoon</string>
     <string name="action_chip_open_navigation">Kaart tonen</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
@@ -959,7 +959,6 @@
     <string name="volume_keys_screen_off_warn">Android stuurt volumeknoppen alleen naar de app op het scherm. Om ze ook met het scherm uit te krijgen, meldt EUC Planet zich aan als de actieve mediaspeler van de telefoon, zodat Android de volumeknoppen daarheen stuurt in plaats van het volume te wijzigen.\n\nZolang dit aanstaat, veranderen de knoppen het telefoonvolume niet.</string>
     <string name="volume_keys_screen_off_confirm">Aanzetten</string>
     <string name="volume_keys_screen_off_title">Volumeknoppen overnemen?</string>
-    <string name="volume_keys_screen_off_tip">Wil je het volume op een knop houden, wijs er dan Volume omhoog of Volume omlaag aan toe.</string>
     <string name="volume_up">Volume omhoog</string>
     <string name="volume_down">Volume omlaag</string>
 

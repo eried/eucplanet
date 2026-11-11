@@ -326,7 +326,6 @@
     <string name="volume_keys_screen_off_warn">Android 只把音量键按压发给屏幕上的应用。为了在熄屏时也能收到，EUC Planet 会注册为手机当前的媒体播放器，Android 就把音量键发给它，而不是调节音量。\n\n开启期间，音量键不再改变手机音量。</string>
     <string name="volume_keys_screen_off_confirm">开启</string>
     <string name="volume_keys_screen_off_title">接管音量键？</string>
-    <string name="volume_keys_screen_off_tip">想让某个按键继续调节音量，请为它设置“调高音量”或“调低音量”。</string>
     <string name="volume_up">音量+</string>
     <string name="volume_down">音量-</string>
 
@@ -1355,7 +1354,7 @@
     <string name="action_chip_media_pause">暂停音乐</string>
     <string name="action_chip_phone_volume_up">调高音量</string>
     <string name="action_chip_phone_volume_down">调低音量</string>
-    <string name="action_chip_phone_mute">静音 / 取消静音</string>
+    <string name="action_chip_phone_mute">静音</string>
     <string name="action_chip_phone_torch">手机手电筒</string>
     <string name="action_chip_mute_alarms">静音报警</string>
     <string name="action_chip_open_about">关于</string>

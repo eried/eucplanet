@@ -465,7 +465,7 @@
     <string name="action_chip_media_pause">Pausa musik</string>
     <string name="action_chip_phone_volume_up">Volym upp</string>
     <string name="action_chip_phone_volume_down">Volym ner</string>
-    <string name="action_chip_phone_mute">Ljud av / på</string>
+    <string name="action_chip_phone_mute">Ljud av</string>
     <string name="action_chip_phone_torch">Telefonens ficklampa</string>
     <string name="action_chip_open_navigation">Visa karta</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
@@ -955,7 +955,6 @@
     <string name="volume_keys_screen_off_warn">Android skickar bara volymtryck till appen på skärmen. För att få dem med skärmen av anmäler sig EUC Planet som telefonens aktiva mediespelare, så Android skickar volymknapparna dit i stället för att ändra volymen.\n\nSå länge detta är på ändrar knapparna inte telefonens volym.</string>
     <string name="volume_keys_screen_off_confirm">Slå på</string>
     <string name="volume_keys_screen_off_title">Ta över volymknapparna?</string>
-    <string name="volume_keys_screen_off_tip">Vill du behålla volymen på en knapp, ge den Volym upp eller Volym ner.</string>
     <string name="volume_up">Volym upp</string>
     <string name="volume_down">Volym ned</string>
 

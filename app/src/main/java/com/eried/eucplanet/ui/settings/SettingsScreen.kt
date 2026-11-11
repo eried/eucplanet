@@ -7881,12 +7881,7 @@ private fun FlicTab(
                     onDismissRequest = { askScreenOff = false },
                     shape = RoundedCornerShape(12.dp),
                     title = { Text(stringResource(R.string.volume_keys_screen_off_title)) },
-                    text = {
-                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Text(stringResource(R.string.volume_keys_screen_off_warn))
-                            Text(stringResource(R.string.volume_keys_screen_off_tip))
-                        }
-                    },
+                    text = { Text(stringResource(R.string.volume_keys_screen_off_warn)) },
                     confirmButton = {
                         TextButton(onClick = {
                             settingsViewModel.updateVolumeKeysScreenOff(true)
@@ -9930,6 +9925,7 @@ private fun ThemeDropdown(
             value = displayName(current),
             onValueChange = {},
             readOnly = true,
+            singleLine = true,
             label = { Text(highlightMatches(label, LocalSettingsSearchQuery.current), modifier = Modifier.settingsSearchLabel(label)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
@@ -9986,6 +9982,7 @@ private fun SimpleDropdown(
             value = currentLabel,
             onValueChange = {},
             readOnly = true,
+            singleLine = true,
             label = { Text(highlightMatches(label, LocalSettingsSearchQuery.current), modifier = Modifier.settingsSearchLabel(label)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
@@ -10422,6 +10419,7 @@ private fun EngineTypePicker(
                 value = displayFor(currentKey),
                 onValueChange = {},
                 readOnly = true,
+                singleLine = true,
                 leadingIcon = {
                     if (isSampled) {
                         Icon(
@@ -10535,6 +10533,7 @@ private fun VoiceCommandLanguagePicker(
             value = displayText,
             onValueChange = {},
             readOnly = true,
+            singleLine = true,
             label = { Text(stringResource(R.string.voice_recognition_language)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
@@ -10584,6 +10583,7 @@ private fun VoiceSelector(
             value = displayText,
             onValueChange = {},
             readOnly = true,
+            singleLine = true,
             label = { Text(stringResource(R.string.voice_selector_label)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
@@ -10668,6 +10668,7 @@ private fun VoiceVariantSelector(
             value = displayText,
             onValueChange = {},
             readOnly = true,
+            singleLine = true,
             label = { Text(stringResource(R.string.voice_variant_label)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
@@ -10851,6 +10852,7 @@ private fun ActionDropdown(
             value = currentLabel,
             onValueChange = {},
             readOnly = true,
+            singleLine = true,
             label = { Text(highlightMatches(label, LocalSettingsSearchQuery.current), modifier = Modifier.settingsSearchLabel(label)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
@@ -11246,6 +11248,7 @@ internal fun RestorePickerDialog(
                         value = selected?.let { entryLabel(it) } ?: defaultLabel,
                         onValueChange = {},
                         readOnly = true,
+                        singleLine = true,
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropdownOpen) },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -12349,6 +12352,7 @@ private fun HudMapStylePicker(
             value = currentLabel,
             onValueChange = {},
             readOnly = true,
+            singleLine = true,
             label = { Text(stringResource(R.string.hud_map_style_label)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier

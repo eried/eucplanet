@@ -465,7 +465,7 @@
     <string name="action_chip_media_pause">Pausar música</string>
     <string name="action_chip_phone_volume_up">Subir volumen</string>
     <string name="action_chip_phone_volume_down">Bajar volumen</string>
-    <string name="action_chip_phone_mute">Silenciar / activar</string>
+    <string name="action_chip_phone_mute">Silenciar</string>
     <string name="action_chip_phone_torch">Linterna del teléfono</string>
     <string name="action_chip_open_navigation">Ver mapa</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
@@ -959,7 +959,6 @@
     <string name="volume_keys_screen_off_warn">Android solo envía las pulsaciones de volumen a la app en pantalla. Para recibirlas con la pantalla apagada, EUC Planet se registra como el reproductor multimedia activo del teléfono, y Android le envía los botones de volumen en lugar de cambiar el volumen.\n\nMientras esté activo, los botones ya no cambian el volumen del teléfono.</string>
     <string name="volume_keys_screen_off_confirm">Activar</string>
     <string name="volume_keys_screen_off_title">¿Tomar el control de los botones de volumen?</string>
-    <string name="volume_keys_screen_off_tip">Para conservar el volumen en un botón, asígnale Subir volumen o Bajar volumen.</string>
     <string name="volume_up">Volumen arriba</string>
     <string name="volume_down">Volumen abajo</string>
 

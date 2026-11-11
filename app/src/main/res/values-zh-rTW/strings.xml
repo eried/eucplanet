@@ -464,7 +464,7 @@
     <string name="action_chip_media_pause">暫停音樂</string>
     <string name="action_chip_phone_volume_up">調高音量</string>
     <string name="action_chip_phone_volume_down">調低音量</string>
-    <string name="action_chip_phone_mute">靜音 / 取消靜音</string>
+    <string name="action_chip_phone_mute">靜音</string>
     <string name="action_chip_phone_torch">手機手電筒</string>
     <string name="action_chip_open_navigation">顯示地圖</string>
     <string name="action_chip_open_studio">疊加層工作室</string>
@@ -954,7 +954,6 @@
     <string name="volume_keys_screen_off_warn">Android 只把音量鍵按壓傳給螢幕上的應用程式。為了在螢幕關閉時也能收到，EUC Planet 會註冊為手機目前的媒體播放器，Android 就把音量鍵傳給它，而不是調整音量。\n\n開啟期間，音量鍵不再改變手機音量。</string>
     <string name="volume_keys_screen_off_confirm">開啟</string>
     <string name="volume_keys_screen_off_title">接管音量鍵？</string>
-    <string name="volume_keys_screen_off_tip">想讓某個按鍵繼續調整音量，請為它設定「調高音量」或「調低音量」。</string>
     <string name="volume_up">調高音量</string>
     <string name="volume_down">調低音量</string>
 

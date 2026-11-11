@@ -443,7 +443,7 @@
     <string name="action_chip_media_pause">Παύση μουσικής</string>
     <string name="action_chip_phone_volume_up">Αύξηση έντασης</string>
     <string name="action_chip_phone_volume_down">Μείωση έντασης</string>
-    <string name="action_chip_phone_mute">Σίγαση / ήχος</string>
+    <string name="action_chip_phone_mute">Σίγαση</string>
     <string name="action_chip_phone_torch">Φακός τηλεφώνου</string>
     <string name="action_chip_open_navigation">Χάρτης</string>
     <string name="action_chip_open_studio">Studio επικάλυψης</string>
@@ -1195,7 +1195,6 @@
     <string name="volume_keys_screen_off_warn">Το Android στέλνει τα πατήματα έντασης μόνο στην εφαρμογή που είναι στην οθόνη. Για να τα λαμβάνει με σβηστή οθόνη, το EUC Planet δηλώνεται ως το ενεργό πρόγραμμα αναπαραγωγής του τηλεφώνου, και το Android του στέλνει τα κουμπιά έντασης αντί να αλλάζει την ένταση.\n\nΌσο είναι ενεργό, τα κουμπιά δεν αλλάζουν την ένταση του τηλεφώνου.</string>
     <string name="volume_keys_screen_off_confirm">Ενεργοποίηση</string>
     <string name="volume_keys_screen_off_title">Ανάληψη των κουμπιών έντασης;</string>
-    <string name="volume_keys_screen_off_tip">Για να κρατήσετε την ένταση σε ένα κουμπί, ορίστε του Αύξηση έντασης ή Μείωση έντασης.</string>
     <string name="volume_up">Αύξηση έντασης</string>
     <string name="volume_down">Μείωση έντασης</string>
 

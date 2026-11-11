@@ -465,7 +465,7 @@
     <string name="action_chip_media_pause">음악 일시정지</string>
     <string name="action_chip_phone_volume_up">볼륨 높이기</string>
     <string name="action_chip_phone_volume_down">볼륨 낮추기</string>
-    <string name="action_chip_phone_mute">음소거 / 해제</string>
+    <string name="action_chip_phone_mute">음소거</string>
     <string name="action_chip_phone_torch">휴대전화 손전등</string>
     <string name="action_chip_open_navigation">지도 보기</string>
     <string name="action_chip_open_studio">오버레이 스튜디오</string>
@@ -955,7 +955,6 @@
     <string name="volume_keys_screen_off_warn">Android는 볼륨 버튼 입력을 화면에 있는 앱에만 보냅니다. 화면이 꺼져 있을 때도 받기 위해 EUC Planet이 휴대전화의 활성 미디어 플레이어로 등록되고, Android는 볼륨을 바꾸는 대신 버튼을 앱으로 보냅니다.\n\n켜져 있는 동안 버튼으로 휴대전화 볼륨이 바뀌지 않습니다.</string>
     <string name="volume_keys_screen_off_confirm">켜기</string>
     <string name="volume_keys_screen_off_title">볼륨 버튼을 앱이 가져갈까요?</string>
-    <string name="volume_keys_screen_off_tip">버튼으로 볼륨을 계속 조절하려면 볼륨 높이기 또는 볼륨 낮추기를 지정하세요.</string>
     <string name="volume_up">볼륨 올리기</string>
     <string name="volume_down">볼륨 내리기</string>
 

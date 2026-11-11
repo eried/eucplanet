@@ -465,7 +465,7 @@
     <string name="action_chip_media_pause">Пауза музыки</string>
     <string name="action_chip_phone_volume_up">Громче</string>
     <string name="action_chip_phone_volume_down">Тише</string>
-    <string name="action_chip_phone_mute">Без звука / со звуком</string>
+    <string name="action_chip_phone_mute">Без звука</string>
     <string name="action_chip_phone_torch">Фонарик телефона</string>
     <string name="action_chip_open_navigation">Показать карту</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
@@ -959,7 +959,6 @@
     <string name="volume_keys_screen_off_warn">Android передаёт нажатия кнопок громкости только приложению на экране. Чтобы получать их при выключенном экране, EUC Planet регистрируется как активный медиаплеер телефона, и Android отправляет кнопки ему, а не меняет громкость.\n\nПока это включено, кнопки не меняют громкость телефона.</string>
     <string name="volume_keys_screen_off_confirm">Включить</string>
     <string name="volume_keys_screen_off_title">Забрать кнопки громкости?</string>
-    <string name="volume_keys_screen_off_tip">Чтобы оставить громкость на кнопке, назначьте ей «Громче» или «Тише».</string>
     <string name="volume_up">Громкость +</string>
     <string name="volume_down">Громкость −</string>
 

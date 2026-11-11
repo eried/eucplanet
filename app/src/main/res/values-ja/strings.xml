@@ -465,7 +465,7 @@
     <string name="action_chip_media_pause">音楽を一時停止</string>
     <string name="action_chip_phone_volume_up">音量を上げる</string>
     <string name="action_chip_phone_volume_down">音量を下げる</string>
-    <string name="action_chip_phone_mute">ミュート / 解除</string>
+    <string name="action_chip_phone_mute">ミュート</string>
     <string name="action_chip_phone_torch">スマホのライト</string>
     <string name="action_chip_open_navigation">マップを表示</string>
     <string name="action_chip_open_studio">オーバーレイスタジオ</string>
@@ -955,7 +955,6 @@
     <string name="volume_keys_screen_off_warn">Androidは音量ボタンの操作を画面上のアプリにしか送りません。画面オフでも受け取れるよう、EUC Planetは端末のアクティブなメディアプレーヤーとして登録され、Androidは音量を変える代わりにボタンをアプリへ送ります。\n\nオンの間、ボタンで端末の音量は変わりません。</string>
     <string name="volume_keys_screen_off_confirm">オンにする</string>
     <string name="volume_keys_screen_off_title">音量ボタンを引き継ぎますか？</string>
-    <string name="volume_keys_screen_off_tip">ボタンで音量を変えたい場合は、「音量を上げる」または「音量を下げる」を割り当ててください。</string>
     <string name="volume_up">音量アップ</string>
     <string name="volume_down">音量ダウン</string>
 

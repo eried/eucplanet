@@ -428,7 +428,7 @@
     <string name="action_chip_media_pause">Zene szüneteltetése</string>
     <string name="action_chip_phone_volume_up">Hangerő fel</string>
     <string name="action_chip_phone_volume_down">Hangerő le</string>
-    <string name="action_chip_phone_mute">Némítás / hang</string>
+    <string name="action_chip_phone_mute">Némítás</string>
     <string name="action_chip_phone_torch">Telefon zseblámpája</string>
     <string name="action_chip_open_navigation">Térkép mutatása</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
@@ -1160,7 +1160,6 @@
     <string name="volume_keys_screen_off_warn">Az Android a hangerőgombok lenyomását csak a képernyőn lévő alkalmazásnak küldi el. Hogy kikapcsolt képernyőnél is megkapja, az EUC Planet a telefon aktív médialejátszójaként jelentkezik be, így az Android neki küldi a hangerőgombokat a hangerő állítása helyett.\n\nAmíg ez be van kapcsolva, a gombok nem állítják a telefon hangerejét.</string>
     <string name="volume_keys_screen_off_confirm">Bekapcsolás</string>
     <string name="volume_keys_screen_off_title">Átvegye a hangerőgombokat?</string>
-    <string name="volume_keys_screen_off_tip">Ha egy gombon meg akarja tartani a hangerőt, rendelje hozzá a Hangerő fel vagy a Hangerő le műveletet.</string>
     <string name="volume_up">Hangerő fel</string>
     <string name="volume_down">Hangerő le</string>
     <string name="section_radar">Hátratekintő radar</string>

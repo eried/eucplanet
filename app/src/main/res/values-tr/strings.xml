@@ -465,7 +465,7 @@
     <string name="action_chip_media_pause">Müziği duraklat</string>
     <string name="action_chip_phone_volume_up">Sesi aç</string>
     <string name="action_chip_phone_volume_down">Sesi kıs</string>
-    <string name="action_chip_phone_mute">Sessiz / sesli</string>
+    <string name="action_chip_phone_mute">Sessiz</string>
     <string name="action_chip_phone_torch">Telefon feneri</string>
     <string name="action_chip_open_navigation">Haritayı göster</string>
     <string name="action_chip_open_studio">Kaplama stüdyosu</string>
@@ -955,7 +955,6 @@
     <string name="volume_keys_screen_off_warn">Android ses tuşu basışlarını yalnızca ekrandaki uygulamaya gönderir. Ekran kapalıyken de alabilmek için EUC Planet telefonun etkin medya oynatıcısı olarak kaydolur ve Android sesi değiştirmek yerine ses tuşlarını ona gönderir.\n\nBu açıkken tuşlar telefonun sesini değiştirmez.</string>
     <string name="volume_keys_screen_off_confirm">Aç</string>
     <string name="volume_keys_screen_off_title">Ses tuşları devralınsın mı?</string>
-    <string name="volume_keys_screen_off_tip">Bir tuşta ses ayarını korumak için ona Sesi aç veya Sesi kıs eylemini atayın.</string>
     <string name="volume_up">Sesi Artır</string>
     <string name="volume_down">Sesi Azalt</string>
 

@@ -465,7 +465,7 @@
     <string name="action_chip_media_pause">Pause musique</string>
     <string name="action_chip_phone_volume_up">Volume +</string>
     <string name="action_chip_phone_volume_down">Volume -</string>
-    <string name="action_chip_phone_mute">Couper / rétablir le son</string>
+    <string name="action_chip_phone_mute">Couper</string>
     <string name="action_chip_phone_torch">Lampe du téléphone</string>
     <string name="action_chip_open_navigation">Voir carte</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
@@ -959,7 +959,6 @@
     <string name="volume_keys_screen_off_warn">Android n\'envoie les appuis de volume qu\'à l\'app à l\'écran. Pour les recevoir écran éteint, EUC Planet se déclare comme lecteur multimédia actif du téléphone, et Android lui envoie les boutons de volume au lieu de changer le volume.\n\nTant que c\'est activé, les boutons ne changent plus le volume du téléphone.</string>
     <string name="volume_keys_screen_off_confirm">Activer</string>
     <string name="volume_keys_screen_off_title">Prendre le contrôle des boutons de volume ?</string>
-    <string name="volume_keys_screen_off_tip">Pour garder le volume sur un bouton, attribuez-lui Volume + ou Volume -.</string>
     <string name="volume_up">Volume haut</string>
     <string name="volume_down">Volume bas</string>
 

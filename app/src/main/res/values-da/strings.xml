@@ -465,7 +465,7 @@
     <string name="action_chip_media_pause">Sæt musik på pause</string>
     <string name="action_chip_phone_volume_up">Lydstyrke op</string>
     <string name="action_chip_phone_volume_down">Lydstyrke ned</string>
-    <string name="action_chip_phone_mute">Lyd fra / til</string>
+    <string name="action_chip_phone_mute">Lyd fra</string>
     <string name="action_chip_phone_torch">Telefonens lommelygte</string>
     <string name="action_chip_open_navigation">Vis kort</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
@@ -959,7 +959,6 @@
     <string name="volume_keys_screen_off_warn">Android sender kun lydstyrketryk til appen på skærmen. For at få dem med slukket skærm melder EUC Planet sig som telefonens aktive medieafspiller, så Android sender lydstyrkeknapperne til den i stedet for at ændre lydstyrken.\n\nSå længe dette er slået til, ændrer knapperne ikke telefonens lydstyrke.</string>
     <string name="volume_keys_screen_off_confirm">Slå til</string>
     <string name="volume_keys_screen_off_title">Overtag lydstyrkeknapperne?</string>
-    <string name="volume_keys_screen_off_tip">Vil du beholde lydstyrken på en knap, så giv den Lydstyrke op eller Lydstyrke ned.</string>
     <string name="volume_up">Lyd op</string>
     <string name="volume_down">Lyd ned</string>
 

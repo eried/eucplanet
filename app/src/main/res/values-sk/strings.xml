@@ -454,7 +454,7 @@
     <string name="action_chip_media_pause">Pozastaviť hudbu</string>
     <string name="action_chip_phone_volume_up">Zvýšiť hlasitosť</string>
     <string name="action_chip_phone_volume_down">Znížiť hlasitosť</string>
-    <string name="action_chip_phone_mute">Stlmiť / zapnúť</string>
+    <string name="action_chip_phone_mute">Stlmiť</string>
     <string name="action_chip_phone_torch">Baterka telefónu</string>
     <string name="action_chip_open_navigation">Zobraziť mapu</string>
     <string name="action_chip_open_studio">Štúdio prekrytia</string>
@@ -1221,7 +1221,6 @@
     <string name="volume_keys_screen_off_warn">Android posiela stlačenia hlasitosti len aplikácii na obrazovke. Aby ich EUC Planet dostal aj pri vypnutej obrazovke, zaregistruje sa ako aktívny prehrávač médií v telefóne, a Android mu tlačidlá hlasitosti posiela namiesto zmeny hlasitosti.\n\nKým je to zapnuté, tlačidlá nemenia hlasitosť telefónu.</string>
     <string name="volume_keys_screen_off_confirm">Zapnúť</string>
     <string name="volume_keys_screen_off_title">Prevziať tlačidlá hlasitosti?</string>
-    <string name="volume_keys_screen_off_tip">Ak chcete na tlačidle ponechať hlasitosť, priraďte mu Zvýšiť hlasitosť alebo Znížiť hlasitosť.</string>
     <string name="volume_up">Zvýšiť hlasitosť</string>
     <string name="volume_down">Znížiť hlasitosť</string>
 

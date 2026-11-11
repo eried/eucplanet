@@ -429,7 +429,7 @@
     <string name="action_chip_media_pause">Jeda musik</string>
     <string name="action_chip_phone_volume_up">Volume naik</string>
     <string name="action_chip_phone_volume_down">Volume turun</string>
-    <string name="action_chip_phone_mute">Bisukan / bunyikan</string>
+    <string name="action_chip_phone_mute">Bisukan</string>
     <string name="action_chip_phone_torch">Senter ponsel</string>
     <string name="action_chip_open_navigation">Tampilkan peta</string>
     <string name="action_chip_open_studio">Studio overlay</string>
@@ -1166,7 +1166,6 @@
     <string name="volume_keys_screen_off_warn">Android hanya mengirim tekanan tombol volume ke aplikasi di layar. Agar tetap menerimanya saat layar mati, EUC Planet mendaftar sebagai pemutar media aktif ponsel, sehingga Android mengirim tombol volume kepadanya dan tidak mengubah volume.\n\nSelama ini aktif, tombol tidak lagi mengubah volume ponsel.</string>
     <string name="volume_keys_screen_off_confirm">Aktifkan</string>
     <string name="volume_keys_screen_off_title">Ambil alih tombol volume?</string>
-    <string name="volume_keys_screen_off_tip">Agar tombol tetap mengatur volume, pasang Volume naik atau Volume turun padanya.</string>
     <string name="volume_up">Volume Naik</string>
     <string name="volume_down">Volume Turun</string>
     <string name="section_radar">Radar belakang</string>

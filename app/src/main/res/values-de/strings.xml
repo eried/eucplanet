@@ -465,7 +465,7 @@
     <string name="action_chip_media_pause">Musik pausieren</string>
     <string name="action_chip_phone_volume_up">Lauter</string>
     <string name="action_chip_phone_volume_down">Leiser</string>
-    <string name="action_chip_phone_mute">Stumm / laut</string>
+    <string name="action_chip_phone_mute">Stumm</string>
     <string name="action_chip_phone_torch">Handy-Taschenlampe</string>
     <string name="action_chip_open_navigation">Karte zeigen</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
@@ -955,7 +955,6 @@
     <string name="volume_keys_screen_off_warn">Android schickt Lautstärketasten nur an die App auf dem Bildschirm. Um sie auch bei ausgeschaltetem Bildschirm zu bekommen, meldet sich EUC Planet als aktiver Mediaplayer des Telefons an, und Android schickt die Tasten dorthin, statt die Lautstärke zu ändern.\n\nSolange das an ist, ändern die Tasten die Telefonlautstärke nicht mehr.</string>
     <string name="volume_keys_screen_off_confirm">Einschalten</string>
     <string name="volume_keys_screen_off_title">Lautstärketasten übernehmen?</string>
-    <string name="volume_keys_screen_off_tip">Soll eine Taste die Lautstärke behalten, belege sie mit Lauter oder Leiser.</string>
     <string name="volume_up">Lautstärke +</string>
     <string name="volume_down">Lautstärke −</string>
 

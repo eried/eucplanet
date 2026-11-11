@@ -428,7 +428,7 @@
     <string name="action_chip_media_pause">Keskeytä musiikki</string>
     <string name="action_chip_phone_volume_up">Ääni kovemmalle</string>
     <string name="action_chip_phone_volume_down">Ääni hiljemmalle</string>
-    <string name="action_chip_phone_mute">Mykistä / palauta</string>
+    <string name="action_chip_phone_mute">Mykistä</string>
     <string name="action_chip_phone_torch">Puhelimen taskulamppu</string>
     <string name="action_chip_open_navigation">Näytä kartta</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
@@ -1160,7 +1160,6 @@
     <string name="volume_keys_screen_off_warn">Android lähettää äänenvoimakkuuspainallukset vain näytöllä olevalle sovellukselle. Saadakseen ne näyttö sammutettuna EUC Planet ilmoittautuu puhelimen aktiiviseksi mediasoittimeksi, jolloin Android lähettää painikkeet sille eikä muuta äänenvoimakkuutta.\n\nKun tämä on päällä, painikkeet eivät muuta puhelimen äänenvoimakkuutta.</string>
     <string name="volume_keys_screen_off_confirm">Ota käyttöön</string>
     <string name="volume_keys_screen_off_title">Otetaanko äänenvoimakkuuspainikkeet käyttöön?</string>
-    <string name="volume_keys_screen_off_tip">Jos haluat säilyttää äänenvoimakkuuden painikkeessa, valitse sille Ääni kovemmalle tai Ääni hiljemmalle.</string>
     <string name="volume_up">Äänenvoimakkuus ylös</string>
     <string name="volume_down">Äänenvoimakkuus alas</string>
     <string name="section_radar">Taaksepäin katsova tutka</string>

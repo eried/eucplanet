@@ -465,7 +465,7 @@
     <string name="action_chip_media_pause">Пауза музики</string>
     <string name="action_chip_phone_volume_up">Гучніше</string>
     <string name="action_chip_phone_volume_down">Тихіше</string>
-    <string name="action_chip_phone_mute">Без звуку / зі звуком</string>
+    <string name="action_chip_phone_mute">Без звуку</string>
     <string name="action_chip_phone_torch">Ліхтарик телефона</string>
     <string name="action_chip_open_navigation">Показати карту</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
@@ -959,7 +959,6 @@
     <string name="volume_keys_screen_off_warn">Android передає натискання кнопок гучності лише застосунку на екрані. Щоб отримувати їх із вимкненим екраном, EUC Planet реєструється як активний медіаплеєр телефона, і Android надсилає кнопки йому, а не змінює гучність.\n\nПоки це ввімкнено, кнопки не змінюють гучність телефона.</string>
     <string name="volume_keys_screen_off_confirm">Увімкнути</string>
     <string name="volume_keys_screen_off_title">Перебрати кнопки гучності?</string>
-    <string name="volume_keys_screen_off_tip">Щоб залишити гучність на кнопці, призначте їй «Гучніше» або «Тихіше».</string>
     <string name="volume_up">Гучніше</string>
     <string name="volume_down">Тихіше</string>
 

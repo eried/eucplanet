@@ -429,7 +429,7 @@
     <string name="action_chip_media_pause">หยุดเพลง</string>
     <string name="action_chip_phone_volume_up">เพิ่มเสียง</string>
     <string name="action_chip_phone_volume_down">ลดเสียง</string>
-    <string name="action_chip_phone_mute">ปิด / เปิดเสียง</string>
+    <string name="action_chip_phone_mute">ปิด</string>
     <string name="action_chip_phone_torch">ไฟฉายโทรศัพท์</string>
     <string name="action_chip_open_navigation">แสดงแผนที่</string>
     <string name="action_chip_open_studio">สตูดิโอโอเวอร์เลย์</string>
@@ -1166,7 +1166,6 @@
     <string name="volume_keys_screen_off_warn">Android ส่งการกดปุ่มระดับเสียงให้เฉพาะแอปที่อยู่บนหน้าจอ เพื่อให้รับได้ตอนปิดหน้าจอ EUC Planet จะลงทะเบียนเป็นเครื่องเล่นสื่อที่ใช้งานอยู่ของโทรศัพท์ Android จึงส่งปุ่มระดับเสียงมาที่แอปแทนการปรับเสียง\n\nขณะที่เปิดอยู่ ปุ่มจะไม่ปรับระดับเสียงของโทรศัพท์</string>
     <string name="volume_keys_screen_off_confirm">เปิด</string>
     <string name="volume_keys_screen_off_title">ให้แอปควบคุมปุ่มระดับเสียงไหม</string>
-    <string name="volume_keys_screen_off_tip">หากต้องการให้ปุ่มยังปรับเสียงได้ ให้กำหนดเป็น เพิ่มเสียง หรือ ลดเสียง</string>
     <string name="volume_up">เพิ่มเสียง</string>
     <string name="volume_down">ลดเสียง</string>
     <string name="section_radar">เรดาร์มองหลัง</string>

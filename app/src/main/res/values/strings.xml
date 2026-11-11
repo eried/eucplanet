@@ -468,10 +468,10 @@
     <string name="action_chip_media_prev">Prev track</string>
     <string name="action_chip_music_start">Start music</string>
     <string name="action_chip_media_pause">Pause music</string>
-    <string name="action_chip_phone_volume_up">Volume up</string>
-    <string name="action_chip_phone_volume_down">Volume down</string>
-    <string name="action_chip_phone_mute">Mute / unmute</string>
-    <string name="action_chip_phone_torch">Phone flashlight</string>
+    <string name="action_chip_phone_volume_up">Vol up</string>
+    <string name="action_chip_phone_volume_down">Vol down</string>
+    <string name="action_chip_phone_mute">Mute</string>
+    <string name="action_chip_phone_torch">Flashlight</string>
     <string name="action_chip_open_navigation">Show map</string>
     <string name="action_chip_open_studio">Overlay studio</string>
     <string name="action_chip_open_about">About</string>
@@ -1260,7 +1260,6 @@
     <string name="volume_keys_screen_off_warn">Android only sends volume presses to the app on screen. To get them with the screen off, EUC Planet registers as the phone\'s active media player, so Android sends the volume buttons to it instead of changing the volume.\n\nWhile this is on, the buttons no longer change the phone volume.</string>
     <string name="volume_keys_screen_off_confirm">Turn on</string>
     <string name="volume_keys_screen_off_title">Take over the volume buttons?</string>
-    <string name="volume_keys_screen_off_tip">To keep the volume on a button, bind Volume up or Volume down to it.</string>
     <string name="volume_up">Volume Up</string>
     <string name="volume_down">Volume Down</string>
 
