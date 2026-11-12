@@ -264,7 +264,45 @@ class SyncManager(
      * them creating one file does not fail: the document provider renames the
      * loser, leaving "trip (1) (1).csv" beside the backup. Seen happening.
      */
-    private suspend fun runSync() = withUploadPass { runSyncPass() }
+    private suspend fun runSync() = withUploadPass {
+        try {
+            runSyncPass()
+        } finally {
+            // The rider just picked a side, or skipped, or cancelled: the
+            // warning must say what the folder holds now, not what the worker
+            // saw on its last pass. Counted even after a cancel, which is why
+            // it cannot itself be cancelled.
+            withContext(kotlinx.coroutines.NonCancellable) {
+                val settings = settingsRepository.get()
+                if (settings.syncFolderUri != null) refreshFolderConflictCount(settings)
+            }
+        }
+    }
+
+    /**
+     * Count the trips whose phone and folder copies differ and store it for
+     * the Backup conflicts warning. The one place that number is written:
+     * the folder worker calls it on every pass with the listing it already
+     * has, and a manual sync calls it when it ends. A folder that cannot be
+     * listed leaves the number alone.
+     */
+    suspend fun refreshFolderConflictCount(
+        settings: AppSettings,
+        folderSizes: Map<String, Long>? = listFolderTripSizes(settings),
+    ) {
+        if (folderSizes == null) return
+        val tripsDir = getTripsDir()
+        val localSizes = HashMap<String, Long>()
+        for (trip in tripDao.observeAll().first()) {
+            if (trip.endTime == null) continue
+            val file = File(tripsDir, trip.fileName)
+            if (file.exists()) localSizes[trip.fileName] = file.length()
+        }
+        val conflicts = countFolderConflicts(localSizes, folderSizes)
+        if (settings.folderConflictCount != conflicts) {
+            settingsRepository.update { it.copy(folderConflictCount = conflicts) }
+        }
+    }
 
     private suspend fun runSyncPass() {
         val settings = settingsRepository.get()
