@@ -109,5 +109,10 @@ class FolderMirrorTest {
             sync.contains("knownNames?.get(localFile.name.lowercase())"))
         assertTrue("the unguided lookup still matches by exact case",
             sync.contains("it.name.equals(localFile.name, ignoreCase = true)"))
+        // And the archive: a copy it could not find by exact name stayed in
+        // the folder, so the next sync brought a deleted trip back.
+        val archive = sync.substringAfter("private fun archiveInBackupFolder").take(1200)
+        assertTrue("archiving looks the folder copy up by exact case",
+            archive.contains("it.name.equals(fileName, ignoreCase = true)"))
     }
 }
