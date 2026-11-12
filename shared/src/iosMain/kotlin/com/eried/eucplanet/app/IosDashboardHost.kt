@@ -2,7 +2,6 @@ package com.eried.eucplanet.app
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -11,10 +10,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.eried.eucplanet.data.model.NavRoute
 import com.eried.eucplanet.data.model.NavState
+import com.eried.eucplanet.resources.Res
+import com.eried.eucplanet.resources.ic_launcher_foreground
 import com.eried.eucplanet.ui.dashboard.DashboardHost
 import com.eried.eucplanet.ui.dashboard.DashboardNavigation
 import com.eried.eucplanet.ui.dashboard.ExperimentalBannerFlag
-import com.eried.eucplanet.ui.theme.appColors
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -102,10 +102,17 @@ internal class IosDashboardHost : DashboardHost {
         com.eried.eucplanet.ui.dashboard.QrCodeCanvas(content = content, sizeDp = sizeDp)
 
     @Composable
-    override fun AppLogo(modifier: Modifier) = Box(modifier)
+    override fun AppLogo(modifier: Modifier) = androidx.compose.foundation.Image(
+        // The phone app's launcher foreground, copied in by generateIosAppArt.
+        painter = org.jetbrains.compose.resources.painterResource(Res.drawable.ic_launcher_foreground),
+        contentDescription = null,
+        modifier = modifier,
+    )
 
+    // The launcher icon's own backdrop (Android's ic_launcher_background), the
+    // same on every theme as the icon on the home screen is.
     @Composable
-    override fun appLogoBackground(): Color = MaterialTheme.appColors.menuBackground
+    override fun appLogoBackground(): Color = Color(0xFF0D0D0D)
 
     @Composable
     override fun DataSourcesSheet(speedUnit: String, onDismiss: () -> Unit) {

@@ -129,6 +129,26 @@ compose.resources {
     )
 }
 
+// The welcome tour's clip and the launcher artwork for About, from the phone
+// app's assets and drawables. iOS resources only: the APK already carries them.
+val iosAppArt = tasks.register<Sync>("generateIosAppArt") {
+    from(rootProject.file("app/src/main/assets")) {
+        include("welcome_clip.webp")
+        into("files")
+    }
+    from(rootProject.file("app/src/main/res/drawable")) {
+        include("ic_launcher_foreground.xml")
+        into("drawable")
+    }
+    into(layout.buildDirectory.dir("generated/iosAppArt"))
+}
+compose.resources {
+    customDirectory(
+        sourceSetName = "iosMain",
+        directoryProvider = iosAppArt.map { layout.buildDirectory.dir("generated/iosAppArt").get() },
+    )
+}
+
 // The settings search reads its words from the settings code, not a hand list.
 apply(from = "settings-search-index.gradle.kts")
 kotlin.sourceSets.getByName("commonMain").kotlin.srcDir(tasks.named("generateSettingsSearchIndex"))
