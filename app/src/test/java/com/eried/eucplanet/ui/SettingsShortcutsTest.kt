@@ -140,4 +140,19 @@ class SettingsShortcutsTest {
             rows.contains("R.string.hud_app_installed") && rows.contains("R.string.hud_app_available") &&
                 Regex("Column").findAll(rows).count() == 2)
     }
+
+    @Test fun `with a HUD linked its app card slides in and the find-the-HUD setup folds away`() {
+        val screen = File("src/main/java/com/eried/eucplanet/ui/settings/SettingsScreen.kt").readText()
+        val section = screen.substringAfter("private fun HudIntegrationSection(").substringBefore("R.string.hud_server_enabled")
+        assertTrue("the HUD app card pops in instead of sliding",
+            Regex("""AnimatedVisibility\(visible = pairedHudVersion != null && hudTakesApp\) \{\s*HudAppCard\(viewModel\)""")
+                .containsMatchIn(section))
+        val setup = section.substringAfter("AnimatedVisibility(visible = pairedHudVersion == null)", "")
+        assertTrue("discovery mode and the address stay on screen while a HUD is linked",
+            setup.contains("R.string.hud_discovery_mode") && setup.contains("R.string.hud_ip_label"))
+        // The switch that drops the link must never fold away with them.
+        assertTrue("the link switch went into the folded part",
+            screen.substringAfter("// end AnimatedVisibility for the find-the-HUD setup").take(900)
+                .contains("R.string.hud_server_enabled"))
+    }
 }

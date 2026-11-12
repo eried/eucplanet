@@ -11767,8 +11767,13 @@ private fun HudAppCard(viewModel: SettingsViewModel) {
     val takesApp by viewModel.hudTakesApp.collectAsState()
     val sender = viewModel.hudAppSender
     val state by sender.state.collectAsState()
-    val version = hudVersion
-    if (version == null || !takesApp) return
+    // The section slides this card in and out with the link. While it
+    // slides out the HUD is already gone, so the last version it reported
+    // is kept to draw until the card has closed.
+    val lastVersion = remember { arrayOfNulls<String>(1) }
+    if (hudVersion != null) lastVersion[0] = hudVersion
+    val version = hudVersion ?: lastVersion[0] ?: return
+    val linked = hudVersion != null && takesApp
     val hudBuild by viewModel.hudBuild.collectAsState()
     // An older HUD or another build is sent on the tap. The very same build
     // can go too, after a question. Only a newer HUD is left alone.
@@ -11864,13 +11869,13 @@ private fun HudAppCard(viewModel: SettingsViewModel) {
             ) {
                 Button(
                     onClick = { if (older) sender.send() else confirmResend = true },
-                    enabled = sendable && !sending && !resting,
+                    enabled = linked && sendable && !sending && !resting,
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp)
                 ) { Text(stringResource(R.string.hud_app_send), maxLines = 1) }
                 Button(
                     onClick = { confirmRemove = true },
-                    enabled = !sending && !resting,
+                    enabled = linked && !sending && !resting,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.appColors.statusDanger,
                         contentColor = MaterialTheme.appColors.onPrimary,
@@ -12135,7 +12140,12 @@ private fun HudIntegrationSection(
             pairedHudVersion = pairedHudVersion,
             hudEverConnected = hudEverConnected
         )
-        HudAppCard(viewModel)
+        // Slides in when a HUD that takes the app links, and out when the
+        // link drops, the way the address row below opens and closes.
+        val hudTakesApp by viewModel.hudTakesApp.collectAsState()
+        AnimatedVisibility(visible = pairedHudVersion != null && hudTakesApp) {
+            HudAppCard(viewModel)
+        }
 
         // Hotspot hint sits ABOVE the link controls -- it's the usual
         // setup step. Optional: some riders put the HUD on their home
@@ -12146,6 +12156,11 @@ private fun HudIntegrationSection(
         // the link drops, which is when it is useful again.
         HudHotspotHint(linked = pairedHudVersion != null)
 
+        // How to find the HUD is setup, like the hotspot hint: with a HUD
+        // linked it is found, and these rows are locked anyway. They fold
+        // away and come back when the link drops.
+        AnimatedVisibility(visible = pairedHudVersion == null) {
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         // Discovery mode comes FIRST -- it decides whether the rider needs to
         // know the IP at all. Auto finds the HUD on its own; Fixed uses only
         // the address below; Both tries auto then falls back to it. Locked
@@ -12269,6 +12284,8 @@ private fun HudIntegrationSection(
             )
         }
         }  // end AnimatedVisibility for the IP/port row
+        }
+        }  // end AnimatedVisibility for the find-the-HUD setup
 
         // Toggle goes UNDER the IP/port -- the rider configures the
         // address first and then flips the switch to dial out. Flipping
