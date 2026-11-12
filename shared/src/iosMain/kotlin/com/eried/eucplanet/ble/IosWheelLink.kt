@@ -156,7 +156,7 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
                 // The waiting connect goes with the window, as Android's scan does.
                 val state = _connectionState.value
                 if (state == ConnectionState.SCANNING || state == ConnectionState.DISCONNECTED) {
-                    peripheral?.let { central.cancelPeripheralConnection(it) }
+                    peripheral?.let { cancelLink(it) }
                     peripheral = null
                 }
             }
@@ -281,7 +281,7 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
         writerJob?.cancel()
         writerJob = null
         writeQueue.clear()
-        peripheral?.let { central.cancelPeripheralConnection(it) }
+        peripheral?.let { cancelLink(it) }
         peripheral = null
         writeChar = null
         notifyChar = null
@@ -438,6 +438,28 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
     private fun isOurs(p: CBPeripheral): Boolean =
         peripheral?.identifier?.UUIDString == p.identifier.UUIDString
 
+    /** Links this app cancelled itself, whose "disconnected" report is not news. */
+    private val cancelledLinks = mutableMapOf<String, Int>()
+
+    private fun cancelLink(p: CBPeripheral) {
+        val id = p.identifier.UUIDString
+        cancelledLinks[id] = (cancelledLinks[id] ?: 0) + 1
+        central.cancelPeripheralConnection(p)
+    }
+
+    /**
+     * The report for a link this app cancelled. Matching by id, the cancel of
+     * the hunt's waiting connect would otherwise read as the fresh connect to
+     * the same wheel ending, and tear it down.
+     */
+    private fun consumeCancelled(p: CBPeripheral, error: NSError?): Boolean {
+        if (error != null) return false
+        val id = p.identifier.UUIDString
+        val n = cancelledLinks[id] ?: return false
+        if (n <= 1) cancelledLinks.remove(id) else cancelledLinks[id] = n - 1
+        return true
+    }
+
     private inner class CentralDelegate : NSObject(), CBCentralManagerDelegateProtocol {
         override fun centralManagerDidUpdateState(central: CBCentralManager) {
             _bluetoothOn.value = central.state == CBManagerStatePoweredOn
@@ -513,6 +535,7 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
         @ObjCSignatureOverride
         override fun centralManager(central: CBCentralManager, didFailToConnectPeripheral: CBPeripheral, error: NSError?) {
             Log.w(TAG, "Link failed: ${error?.localizedDescription}")
+            if (consumeCancelled(didFailToConnectPeripheral, error)) return
             if (!isOurs(didFailToConnectPeripheral)) return
             DiagnosticsLogger.note("Connect failed: ${error?.localizedDescription}")
             teardown()
@@ -522,6 +545,7 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
         @ObjCSignatureOverride
         override fun centralManager(central: CBCentralManager, didDisconnectPeripheral: CBPeripheral, error: NSError?) {
             Log.i(TAG, "Link down: ${error?.localizedDescription ?: "by request"}")
+            if (consumeCancelled(didDisconnectPeripheral, error)) return
             if (!isOurs(didDisconnectPeripheral)) return
             DiagnosticsLogger.note("Disconnected: ${error?.localizedDescription ?: "by request"}")
             teardown()
