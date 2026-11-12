@@ -1252,6 +1252,7 @@
     <string name="scan_bluetooth_off_title">Bluetooth đang tắt</string>
     <string name="scan_bluetooth_off_body">Bật Bluetooth để quét tìm xe.</string>
     <string name="scan_enable_bluetooth">Bật Bluetooth</string>
+    <string name="bluetooth_turn_on_control_center">Bật Bluetooth trong Trung tâm điều khiển</string>
     <string name="scan_show_all_title">Hiện mọi thiết bị</string>
     <string name="scan_show_all_subtitle">Bật nếu xe của bạn không xuất hiện.</string>
     <string name="metric_detail_title">Lịch sử</string>

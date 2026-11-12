@@ -2054,6 +2054,7 @@
     <string name="scan_bluetooth_off_body">Teker aramak için Bluetooth\'u açın.</string>
     <string name="scan_bluetooth_off_title">Bluetooth kapalı</string>
     <string name="scan_enable_bluetooth">Bluetooth\'u aç</string>
+    <string name="bluetooth_turn_on_control_center">Bluetooth\'u Denetim Merkezi\'nden açın</string>
     <string name="studio_cfg_radar_distance_labels">Mesafe etiketleri</string>
     <string name="studio_radar_none">Radar yok</string>
     <string name="studio_radar_clear">Temiz</string>

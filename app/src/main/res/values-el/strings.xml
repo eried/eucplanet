@@ -1290,6 +1290,7 @@
     <string name="scan_bluetooth_off_title">Το Bluetooth είναι απενεργοποιημένο</string>
     <string name="scan_bluetooth_off_body">Ενεργοποιήστε το Bluetooth για αναζήτηση μονότροχων.</string>
     <string name="scan_enable_bluetooth">Ενεργοποίηση Bluetooth</string>
+    <string name="bluetooth_turn_on_control_center">Ενεργοποιήστε το Bluetooth από το Κέντρο ελέγχου</string>
     <string name="scan_show_all_title">Εμφάνιση όλων των συσκευών</string>
     <string name="scan_show_all_subtitle">Ενεργοποιήστε το αν δεν εμφανίζεται το μονότροχό σας.</string>
 

@@ -1951,6 +1951,7 @@
     <string name="scan_bluetooth_off_body">请打开蓝牙以搜索独轮车。</string>
     <string name="scan_bluetooth_off_title">蓝牙已关闭</string>
     <string name="scan_enable_bluetooth">开启蓝牙</string>
+    <string name="bluetooth_turn_on_control_center">请在控制中心打开蓝牙</string>
     <string name="studio_cfg_radar_distance_labels">距离标签</string>
     <string name="studio_radar_none">无雷达</string>
     <string name="studio_radar_clear">无车</string>

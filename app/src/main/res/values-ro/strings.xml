@@ -1246,6 +1246,7 @@
     <string name="scan_bluetooth_off_title">Bluetooth este oprit</string>
     <string name="scan_bluetooth_off_body">Pornește Bluetooth pentru a căuta monocicluri.</string>
     <string name="scan_enable_bluetooth">Pornește Bluetooth</string>
+    <string name="bluetooth_turn_on_control_center">Pornește Bluetooth din Centrul de control</string>
     <string name="scan_show_all_title">Arată toate dispozitivele</string>
     <string name="scan_show_all_subtitle">Pornește dacă monociclul tău nu apare.</string>
     <string name="metric_detail_title">Istoric</string>

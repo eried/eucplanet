@@ -1968,6 +1968,7 @@
     <string name="scan_bluetooth_off_body">Slå på Bluetooth for å søke etter hjul.</string>
     <string name="scan_bluetooth_off_title">Bluetooth er av</string>
     <string name="scan_enable_bluetooth">Slå på Bluetooth</string>
+    <string name="bluetooth_turn_on_control_center">Slå på Bluetooth i Kontrollsenter</string>
     <string name="studio_cfg_radar_distance_labels">Avstandsmerker</string>
     <string name="studio_radar_none">Ingen radar</string>
     <string name="studio_radar_clear">Klart</string>

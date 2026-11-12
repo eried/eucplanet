@@ -2081,6 +2081,7 @@
     <string name="scan_bluetooth_off_body">Schakel Bluetooth in om naar wielen te zoeken.</string>
     <string name="scan_bluetooth_off_title">Bluetooth is uit</string>
     <string name="scan_enable_bluetooth">Bluetooth inschakelen</string>
+    <string name="bluetooth_turn_on_control_center">Schakel Bluetooth in via het bedieningspaneel</string>
     <string name="studio_cfg_radar_distance_labels">Afstandslabels</string>
     <string name="studio_radar_none">Geen radar</string>
     <string name="studio_radar_clear">Vrij</string>

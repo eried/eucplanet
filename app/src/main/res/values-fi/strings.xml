@@ -1246,6 +1246,7 @@
     <string name="scan_bluetooth_off_title">Bluetooth on pois päältä</string>
     <string name="scan_bluetooth_off_body">Ota Bluetooth käyttöön hakeaksesi yksipyöräisiä.</string>
     <string name="scan_enable_bluetooth">Ota Bluetooth käyttöön</string>
+    <string name="bluetooth_turn_on_control_center">Ota Bluetooth käyttöön Ohjauskeskuksessa</string>
     <string name="scan_show_all_title">Näytä kaikki laitteet</string>
     <string name="scan_show_all_subtitle">Ota käyttöön, jos yksipyöräisesi ei näy.</string>
     <string name="metric_detail_title">Historia</string>

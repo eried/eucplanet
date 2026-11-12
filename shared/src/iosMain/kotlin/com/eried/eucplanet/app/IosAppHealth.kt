@@ -191,10 +191,11 @@ internal object IosAppHealth : AppHealth {
             w.id, Res.string.warnings_bluetooth_denied_title, Res.string.warnings_bluetooth_denied_body,
             fix = ::openAppSettings,
         )
-        // No public way to open the Bluetooth switch: the app's page is the nearest.
+        // No public way to open the Bluetooth switch: iOS's own turn-on alert
+        // goes there, and Control Center is named when iOS will not show it.
         IosWarning.BLUETOOTH_OFF -> AppWarning(
             w.id, Res.string.scan_bluetooth_off_title, Res.string.warnings_bluetooth_off_body,
-            fix = ::openAppSettings,
+            fix = IosBluetoothPrompt::askToTurnOn,
         )
         IosWarning.NOTIFICATIONS_OFF -> AppWarning(
             w.id, Res.string.warnings_perm_notifications_title, Res.string.warnings_perm_notifications_alerts_body,

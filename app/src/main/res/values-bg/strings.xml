@@ -1326,6 +1326,7 @@
     <string name="scan_bluetooth_off_title">Bluetooth е изключен</string>
     <string name="scan_bluetooth_off_body">Включете Bluetooth, за да търсите моноколела.</string>
     <string name="scan_enable_bluetooth">Включи Bluetooth</string>
+    <string name="bluetooth_turn_on_control_center">Включете Bluetooth от Контролния център</string>
     <string name="scan_show_all_title">Покажи всички устройства</string>
     <string name="scan_show_all_subtitle">Включете, ако моноколелото ви не се появява.</string>
 

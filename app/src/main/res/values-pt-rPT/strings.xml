@@ -1290,6 +1290,7 @@
     <string name="scan_bluetooth_off_title">O Bluetooth está desligado</string>
     <string name="scan_bluetooth_off_body">Ative o Bluetooth para procurar rodas.</string>
     <string name="scan_enable_bluetooth">Ativar Bluetooth</string>
+    <string name="bluetooth_turn_on_control_center">Ative o Bluetooth na central de controlo</string>
     <string name="scan_show_all_title">Mostrar todos os dispositivos</string>
     <string name="scan_show_all_subtitle">Ative se a sua roda não aparecer.</string>
 

@@ -2080,6 +2080,7 @@
     <string name="scan_bluetooth_off_body">Увімкніть Bluetooth, щоб шукати колеса.</string>
     <string name="scan_bluetooth_off_title">Bluetooth вимкнено</string>
     <string name="scan_enable_bluetooth">Увімкнути Bluetooth</string>
+    <string name="bluetooth_turn_on_control_center">Увімкніть Bluetooth у Пункті керування</string>
     <string name="studio_cfg_radar_distance_labels">Мітки відстані</string>
     <string name="studio_radar_none">Немає радара</string>
     <string name="studio_radar_clear">Чисто</string>

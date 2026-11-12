@@ -2054,6 +2054,7 @@
     <string name="scan_bluetooth_off_body">ホイールを検索するには Bluetooth をオンにしてください。</string>
     <string name="scan_bluetooth_off_title">Bluetooth がオフです</string>
     <string name="scan_enable_bluetooth">Bluetooth をオンにする</string>
+    <string name="bluetooth_turn_on_control_center">コントロールセンターで Bluetooth をオンにしてください</string>
     <string name="studio_cfg_radar_distance_labels">距離ラベル</string>
     <string name="studio_radar_none">レーダーなし</string>
     <string name="studio_radar_clear">クリア</string>

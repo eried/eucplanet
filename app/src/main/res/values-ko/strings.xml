@@ -2054,6 +2054,7 @@
     <string name="scan_bluetooth_off_body">휠을 검색하려면 블루투스를 켜세요.</string>
     <string name="scan_bluetooth_off_title">블루투스가 꺼져 있습니다</string>
     <string name="scan_enable_bluetooth">블루투스 켜기</string>
+    <string name="bluetooth_turn_on_control_center">제어 센터에서 블루투스를 켜세요</string>
     <string name="studio_cfg_radar_distance_labels">거리 레이블</string>
     <string name="studio_radar_none">레이더 없음</string>
     <string name="studio_radar_clear">안전</string>

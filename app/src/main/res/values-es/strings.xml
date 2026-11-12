@@ -2081,6 +2081,7 @@
     <string name="scan_bluetooth_off_body">Activa el Bluetooth para buscar ruedas.</string>
     <string name="scan_bluetooth_off_title">Bluetooth desactivado</string>
     <string name="scan_enable_bluetooth">Activar Bluetooth</string>
+    <string name="bluetooth_turn_on_control_center">Activa el Bluetooth en el Centro de control</string>
     <string name="studio_cfg_radar_distance_labels">Etiquetas de distancia</string>
     <string name="studio_radar_none">Sin radar</string>
     <string name="studio_radar_clear">Despejado</string>

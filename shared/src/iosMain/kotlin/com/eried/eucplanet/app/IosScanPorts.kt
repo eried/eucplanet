@@ -3,6 +3,7 @@ package com.eried.eucplanet.app
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import com.eried.eucplanet.ble.BleDevice
+import com.eried.eucplanet.ble.BluetoothRadio
 import com.eried.eucplanet.ble.IosWheelLink
 import com.eried.eucplanet.ble.isLikelyWheelName
 import com.eried.eucplanet.ui.scan.ScanHost
@@ -61,7 +62,11 @@ internal class IosScanPlatform(private val link: IosWheelLink) : ScanPlatform {
     }
 }
 
-/** No permission dialog to raise on iOS; Bluetooth is turned on in Control Centre. */
+/**
+ * No permission dialog to raise on iOS. "Enable Bluetooth" raises iOS's own
+ * turn-on alert while the radio is off, and opens the app's page in Settings
+ * when Bluetooth is not allowed, since switching the radio on would not help.
+ */
 internal object IosScanHost : ScanHost {
     @Composable
     override fun rememberPermissionRequest(onResult: () -> Unit): (List<String>) -> Unit =
@@ -69,7 +74,13 @@ internal object IosScanHost : ScanHost {
 
     @Composable
     override fun rememberEnableBluetooth(onResult: () -> Unit): () -> Unit =
-        remember { { openAppSettings(); onResult() } }
+        remember {
+            {
+                if (IosAppGraph.link.radio.value == BluetoothRadio.NOT_ALLOWED) openAppSettings()
+                else IosBluetoothPrompt.askToTurnOn()
+                onResult()
+            }
+        }
 
     override fun openAppSettings() {
         val url = NSURL.URLWithString(UIApplicationOpenSettingsURLString) ?: return

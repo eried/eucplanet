@@ -1327,6 +1327,7 @@
     <string name="scan_bluetooth_off_title">Bluetooth je vypnutý</string>
     <string name="scan_bluetooth_off_body">Ak chcete hľadať kolesá, zapnite Bluetooth.</string>
     <string name="scan_enable_bluetooth">Zapnúť Bluetooth</string>
+    <string name="bluetooth_turn_on_control_center">Zapnite Bluetooth v Ovládacom centre</string>
     <string name="scan_show_all_title">Zobraziť všetky zariadenia</string>
     <string name="scan_show_all_subtitle">Zapnite, ak sa vaše koleso nezobrazuje.</string>
 
