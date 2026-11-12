@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -17,17 +18,18 @@ import platform.AVFAudio.AVAudioEngine
 import platform.AVFAudio.AVAudioFormat
 import platform.AVFAudio.AVAudioPCMBuffer
 import platform.AVFAudio.AVAudioPlayerNode
-import platform.AVFAudio.AVAudioSession
-import platform.AVFAudio.AVAudioSessionCategoryOptionDuckOthers
-import platform.AVFAudio.AVAudioSessionCategoryPlayback
-import platform.AVFAudio.setActive
+import platform.Foundation.NSLock
 import kotlin.coroutines.resume
 
 /**
  * The app's tones on iOS: the shared ToneSynth samples played through one
  * AVAudioEngine player node. The counterpart of Android's TonePlayer, which
- * writes the same samples to an AudioTrack. Tones duck other audio rather
- * than stop it, so a rider's music comes back after the beep.
+ * writes the same samples to an AudioTrack. As there, a tone plays over the
+ * rider's music without lowering or stopping it (Android's tones ask for no
+ * audio focus). The audio session is held through [IosAudioSession] only
+ * while tones play, and a short while after so a burst of beeps does not
+ * stop and start the engine each time; then the engine stops and the hold
+ * goes, so the session is let go once nothing else holds it.
  */
 @OptIn(ExperimentalForeignApi::class)
 internal object IosTonePlayer {
@@ -38,21 +40,59 @@ internal object IosTonePlayer {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var started = false
 
+    // The session hold: taken by the first tone, given back [LINGER_MS] after
+    // the last one ends (no figure playing, no studio stream).
+    private const val LINGER_MS = 1500L
+    private val lock = NSLock()
+    private var held = false
+    private var playing = 0
+    private var lingerJob: Job? = null
+
     init {
         engine.attachNode(node)
         engine.connect(node, engine.mainMixerNode, format)
     }
 
-    private fun ensureStarted(): Boolean {
-        if (started && engine.running) return true
-        runCatching {
-            val session = AVAudioSession.sharedInstance()
-            session.setCategory(AVAudioSessionCategoryPlayback, AVAudioSessionCategoryOptionDuckOthers, null)
-            session.setActive(true, null)
+    private inline fun <T> locked(block: () -> T): T {
+        lock.lock()
+        try { return block() } finally { lock.unlock() }
+    }
+
+    /** Holds the session and runs the engine; false when it would not start. */
+    private fun ensureStarted(): Boolean = locked {
+        lingerJob?.cancel()
+        lingerJob = null
+        if (!held) {
+            IosAudioSession.acquire(IosAudioSession.Others.LEAVE)
+            held = true
+        } else if (!engine.running) {
+            // Held, but the engine stopped under us (an interruption, a route
+            // change): the session needs activating again before it restarts.
+            IosAudioSession.reassert()
         }
+        if (started && engine.running) return@locked true
         started = engine.startAndReturnError(null)
         if (started) node.play() else Log.e(TAG, "audio engine did not start")
-        return started
+        started
+    }
+
+    /** A figure or the stream is done: let the session go once nothing plays for a while. */
+    private fun scheduleRelease() = locked {
+        if (playing > 0 || streamJob?.isActive == true || !held) return@locked
+        lingerJob?.cancel()
+        lingerJob = scope.launch {
+            delay(LINGER_MS)
+            locked {
+                if (playing > 0 || streamJob?.isActive == true || !held) return@locked
+                // Stop the engine first: letting the session go with it still
+                // running fails as busy and would leave the others lowered.
+                node.stop()
+                engine.stop()
+                started = false
+                held = false
+                IosAudioSession.release(IosAudioSession.Others.LEAVE)
+            }
+        }
     }
 
     private fun toBuffer(samples: ShortArray, frames: Int): AVAudioPCMBuffer {
@@ -65,10 +105,16 @@ internal object IosTonePlayer {
 
     /** Plays one rendered figure and returns once it has played out. */
     suspend fun play(rendered: ToneSynth.Rendered) {
-        if (!ensureStarted()) return
-        val buf = toBuffer(rendered.samples, rendered.frames)
-        suspendCancellableCoroutine { cont ->
-            node.scheduleBuffer(buf) { if (cont.isActive) cont.resume(Unit) }
+        locked { playing++ }
+        try {
+            if (!ensureStarted()) return
+            val buf = toBuffer(rendered.samples, rendered.frames)
+            suspendCancellableCoroutine { cont ->
+                node.scheduleBuffer(buf) { if (cont.isActive) cont.resume(Unit) }
+            }
+        } finally {
+            locked { playing-- }
+            scheduleRelease()
         }
     }
 
@@ -81,7 +127,8 @@ internal object IosTonePlayer {
 
     fun startStream(freq: Int, dur: Int, gap: Int, vol: Int, trans: Int, wave: Int, effect: Int) {
         updateStream(freq, dur, gap, vol, trans, wave, effect)
-        if (streamJob?.isActive == true || !ensureStarted()) return
+        if (streamJob?.isActive == true) return
+        if (!ensureStarted()) { scheduleRelease(); return }
         streamJob = scope.launch {
             val synth = ToneSynth.Stream()
             // Three ~12 ms buffers in flight: gapless, and a slider move is heard
@@ -106,5 +153,6 @@ internal object IosTonePlayer {
     fun stopStream() {
         streamJob?.cancel()
         streamJob = null
+        scheduleRelease()
     }
 }

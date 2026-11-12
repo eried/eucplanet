@@ -6566,10 +6566,14 @@ private fun VoiceTab(
                 onChange = { viewModel.updateVoiceAudioFocus(it) }
             )
 
-            OutputChannelSelector(
-                current = settings.voiceOutputChannel,
-                onChange = { viewModel.updateVoiceOutputChannel(it) }
-            )
+            // Android's media, notification and alarm streams; the iPhone has
+            // one, so it leaves this out (SettingsHost.hiddenRows).
+            if (SettingsRow.VOICE_OUTPUT_CHANNEL !in LocalSettingsHost.current.hiddenRows) {
+                OutputChannelSelector(
+                    current = settings.voiceOutputChannel,
+                    onChange = { viewModel.updateVoiceOutputChannel(it) }
+                )
+            }
         }
 
         SectionHeader(stringResource(Res.string.section_announcements))

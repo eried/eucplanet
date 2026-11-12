@@ -132,6 +132,9 @@ enum class SettingsRow {
     /** Pausing and resuming other apps' music by speed (Automations). */
     MEDIA_CONTROL,
 
+    /** Which system stream the voice speaks on (media, notification or alarm). */
+    VOICE_OUTPUT_CHANNEL,
+
     /** Binding actions to the volume keys. Follows [SettingsHost.supportsVolumeKeys]; not listed in hiddenRows. */
     VOLUME_KEYS,
 

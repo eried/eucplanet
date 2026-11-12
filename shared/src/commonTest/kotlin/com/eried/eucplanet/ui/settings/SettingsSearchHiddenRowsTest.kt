@@ -26,7 +26,7 @@ class SettingsSearchHiddenRowsTest {
         SettingsRow.BACK_ACTION, SettingsRow.KEEP_ALIVE,
         SettingsRow.PICTURE_IN_PICTURE, SettingsRow.HOME_WIDGET, SettingsRow.SHOW_OVER_LOCK_SCREEN,
         SettingsRow.ROTATION_LOCK, SettingsRow.VOICE_COMMANDS, SettingsRow.VOLUME_KEYS,
-        SettingsRow.BACKUP_FOLDER,
+        SettingsRow.BACKUP_FOLDER, SettingsRow.VOICE_OUTPUT_CHANNEL,
     )
 
     @Test fun gatedRowsCarryTheirGate() {
@@ -38,6 +38,7 @@ class SettingsSearchHiddenRowsTest {
         assertTrue(listOf(setOf(SettingsRow.VOLUME_KEYS)) == entry("integration", "section_volume_keys").gates)
         assertEquals(listOf(setOf(SettingsRow.BACKUP_FOLDER)), entry("cloud", "cloud_choose_folder").gates)
         assertEquals(listOf(setOf(SettingsRow.VOICE_COMMANDS)), entry("voice", "voice_music_listening").gates)
+        assertEquals(listOf(setOf(SettingsRow.VOICE_OUTPUT_CHANNEL)), entry("voice", "voice_output_channel_label").gates)
         // An ungated row has none.
         assertTrue(entry("voice", "voice_speech_speed").gates.isEmpty())
     }
@@ -55,6 +56,9 @@ class SettingsSearchHiddenRowsTest {
         assertFalse(found("integration", "volume_keys_enable", iphone))
         assertFalse(found("cloud", "cloud_choose_folder", iphone))
         assertFalse(found("voice", "voice_music_listening", iphone))
+        assertFalse(found("voice", "voice_output_channel_label", iphone))
+        // "While speaking" works there, through the audio session.
+        assertTrue(found("voice", "voice_audio_focus_label", iphone))
         // What it does draw is still found.
         assertTrue(found("voice", "voice_speech_speed", iphone))
         assertTrue(found("cloud", "crews_pass_action", iphone))
