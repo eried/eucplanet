@@ -517,9 +517,11 @@
     <string name="hud_app_on_hud">Στο HUD: %1$s</string>
     <string name="hud_app_in_phone">Σε αυτή την εφαρμογή: %1$s</string>
     <string name="hud_app_send">Αποστολή στο HUD</string>
-    <string name="hud_app_remove">Κατάργηση</string>
+    <string name="hud_app_remove">Απεγκατάσταση</string>
     <string name="hud_app_sending">Αποστολή, %1$d%%</string>
-    <string name="hud_app_sent">Στάλθηκε. Επιβεβαιώστε στο HUD.</string>
+    <string name="hud_app_sent">Συνεχίστε στο HUD.</string>
+    <string name="hud_app_remove_title">Απεγκατάσταση της εφαρμογής HUD;</string>
+    <string name="hud_app_remove_body">Το HUD θα ζητήσει απεγκατάσταση. Για νέα εγκατάσταση χρειάζεται καλώδιο.</string>
     <string name="hud_app_failed">Το HUD δεν απαντά. Δοκιμάστε ξανά.</string>
     <string name="section_watch_general">Γενικά</string>
     <string name="section_watch_display">Οθόνη</string>

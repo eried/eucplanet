@@ -545,7 +545,9 @@
     <string name="hud_app_send">Naar HUD sturen</string>
     <string name="hud_app_remove">Verwijderen</string>
     <string name="hud_app_sending">Verzenden, %1$d%%</string>
-    <string name="hud_app_sent">Verzonden. Bevestig op de HUD.</string>
+    <string name="hud_app_sent">Ga verder op de HUD.</string>
+    <string name="hud_app_remove_title">HUD-app verwijderen?</string>
+    <string name="hud_app_remove_body">De HUD vraagt om de app te verwijderen. Opnieuw installeren kan alleen met een kabel.</string>
     <string name="hud_app_failed">HUD niet bereikbaar. Probeer opnieuw.</string>
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">Algemeen</string>

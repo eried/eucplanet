@@ -1828,9 +1828,11 @@
     <string name="hud_app_on_hud">På HUD: %1$s</string>
     <string name="hud_app_in_phone">I denne appen: %1$s</string>
     <string name="hud_app_send">Send til HUD</string>
-    <string name="hud_app_remove">Fjern</string>
+    <string name="hud_app_remove">Avinstaller</string>
     <string name="hud_app_sending">Sender, %1$d%%</string>
-    <string name="hud_app_sent">Sendt. Bekreft på HUD.</string>
+    <string name="hud_app_sent">Fortsett på HUD.</string>
+    <string name="hud_app_remove_title">Avinstallere HUD-appen?</string>
+    <string name="hud_app_remove_body">HUD-en ber om å avinstallere den. Du trenger kabel for å installere den igjen.</string>
     <string name="hud_app_failed">Fikk ikke kontakt med HUD. Prøv igjen.</string>
     <string name="nav_setting_full_path">Beregn alltid hele ruten</string>
     <string name="nav_setting_full_path_desc">Av beregner bare neste stopp og viser resten som stiplet forhåndsvisning.</string>

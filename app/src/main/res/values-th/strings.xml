@@ -498,9 +498,11 @@
     <string name="hud_app_on_hud">บน HUD: %1$s</string>
     <string name="hud_app_in_phone">ในแอปนี้: %1$s</string>
     <string name="hud_app_send">ส่งไปยัง HUD</string>
-    <string name="hud_app_remove">ลบออก</string>
+    <string name="hud_app_remove">ถอนการติดตั้ง</string>
     <string name="hud_app_sending">กำลังส่ง %1$d%%</string>
-    <string name="hud_app_sent">ส่งแล้ว ยืนยันบน HUD</string>
+    <string name="hud_app_sent">ดำเนินการต่อบน HUD</string>
+    <string name="hud_app_remove_title">ถอนการติดตั้งแอป HUD หรือไม่</string>
+    <string name="hud_app_remove_body">HUD จะถามเพื่อถอนการติดตั้ง การติดตั้งใหม่ต้องใช้สายเคเบิล</string>
     <string name="hud_app_failed">ติดต่อ HUD ไม่ได้ ลองอีกครั้ง</string>
     <string name="section_watch_general">ทั่วไป</string>
     <string name="section_watch_display">การแสดงผล</string>

@@ -1847,9 +1847,11 @@
     <string name="hud_app_on_hud">Sul HUD: %1$s</string>
     <string name="hud_app_in_phone">In questa app: %1$s</string>
     <string name="hud_app_send">Invia al HUD</string>
-    <string name="hud_app_remove">Rimuovi</string>
+    <string name="hud_app_remove">Disinstalla</string>
     <string name="hud_app_sending">Invio, %1$d%%</string>
-    <string name="hud_app_sent">Inviata. Conferma sul HUD.</string>
+    <string name="hud_app_sent">Continua sul HUD.</string>
+    <string name="hud_app_remove_title">Disinstallare l\'app HUD?</string>
+    <string name="hud_app_remove_body">Il HUD chiederà di disinstallarla. Per reinstallarla serve un cavo.</string>
     <string name="hud_app_failed">HUD non raggiungibile. Riprova.</string>
     <string name="nav_setting_full_path">Calcola sempre l\'intero percorso</string>
     <string name="nav_setting_full_path_desc">Disattivato calcola solo la prossima tappa e mostra il resto come anteprima tratteggiata.</string>

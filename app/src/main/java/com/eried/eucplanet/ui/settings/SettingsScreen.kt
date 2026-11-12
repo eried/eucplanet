@@ -11714,9 +11714,9 @@ private fun HudInstallHint(pairedHudVersion: String?, hudEverConnected: Boolean)
 /**
  * The HUD's own app, looked after from the phone. Shows while a HUD that can
  * take it is linked: which version it runs, a button to send the one this
- * phone app carries when the HUD's is older, and one to remove it. Nothing is
- * sent without the tap, and the HUD still asks its rider before it installs
- * or removes anything.
+ * phone app carries (live only while the HUD's is older), and one to remove
+ * it, behind a confirm. Nothing is sent without the tap, and the HUD still
+ * asks its rider before it installs or removes anything.
  */
 @Composable
 private fun HudAppCard(viewModel: SettingsViewModel) {
@@ -11729,6 +11729,31 @@ private fun HudAppCard(viewModel: SettingsViewModel) {
     if (version == null || !takesApp) return
     val older = com.eried.eucplanet.hud.protocol.HudAppPush.isOlder(hudCode, sender.carriedVersionCode)
     val sending = state is com.eried.eucplanet.service.hud.HudAppSender.State.Sending
+    // After a send or a remove request the next step is on the HUD. Both
+    // buttons rest a few seconds so a second tap cannot stack a second
+    // question there, and a toast says where to look.
+    var resting by remember { mutableStateOf(false) }
+    var confirmRemove by remember { mutableStateOf(false) }
+    val snackbar = com.eried.eucplanet.ui.common.LocalSnackbar.current
+    val snackbarScope = com.eried.eucplanet.ui.common.LocalSnackbarScope.current
+    val sentText = stringResource(R.string.hud_app_sent)
+    val failedText = stringResource(R.string.hud_app_failed)
+    LaunchedEffect(state) {
+        when (state) {
+            com.eried.eucplanet.service.hud.HudAppSender.State.Sent -> {
+                com.eried.eucplanet.ui.common.showSnackbar(snackbar, snackbarScope, sentText)
+                resting = true
+                kotlinx.coroutines.delay(5_000L)
+                resting = false
+                sender.reset()
+            }
+            com.eried.eucplanet.service.hud.HudAppSender.State.Failed -> {
+                com.eried.eucplanet.ui.common.showSnackbar(snackbar, snackbarScope, failedText)
+                sender.reset()
+            }
+            else -> Unit
+        }
+    }
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.small,
@@ -11769,45 +11794,33 @@ private fun HudAppCard(viewModel: SettingsViewModel) {
                     }
                 }
             }
-            when (val st = state) {
-                is com.eried.eucplanet.service.hud.HudAppSender.State.Sending -> {
-                    LinearProgressIndicator(
-                        progress = { st.fraction },
-                        modifier = Modifier.fillMaxWidth(),
-                        gapSize = 0.dp,
-                        drawStopIndicator = {},
-                    )
-                    Text(
-                        stringResource(R.string.hud_app_sending, (st.fraction * 100).toInt()),
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-                com.eried.eucplanet.service.hud.HudAppSender.State.Sent -> Text(
-                    stringResource(R.string.hud_app_sent),
+            (state as? com.eried.eucplanet.service.hud.HudAppSender.State.Sending)?.let { st ->
+                LinearProgressIndicator(
+                    progress = { st.fraction },
+                    modifier = Modifier.fillMaxWidth(),
+                    gapSize = 0.dp,
+                    drawStopIndicator = {},
+                )
+                Text(
+                    stringResource(R.string.hud_app_sending, (st.fraction * 100).toInt()),
                     style = MaterialTheme.typography.bodySmall
                 )
-                com.eried.eucplanet.service.hud.HudAppSender.State.Failed -> Text(
-                    stringResource(R.string.hud_app_failed),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.appColors.statusDanger
-                )
-                com.eried.eucplanet.service.hud.HudAppSender.State.Idle -> Unit
             }
+            // Always the same two halves. Send is only live while the HUD's
+            // app is older than the one this phone carries.
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                if (older) {
-                    Button(
-                        onClick = { sender.send() },
-                        enabled = !sending,
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(12.dp)
-                    ) { Text(stringResource(R.string.hud_app_send), maxLines = 1) }
-                }
                 Button(
-                    onClick = { sender.remove() },
-                    enabled = !sending,
+                    onClick = { sender.send() },
+                    enabled = older && !sending && !resting,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp)
+                ) { Text(stringResource(R.string.hud_app_send), maxLines = 1) }
+                Button(
+                    onClick = { confirmRemove = true },
+                    enabled = !sending && !resting,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.appColors.statusDanger,
                         contentColor = MaterialTheme.appColors.onPrimary,
@@ -11818,10 +11831,36 @@ private fun HudAppCard(viewModel: SettingsViewModel) {
             }
         }
     }
+    if (confirmRemove) {
+        AlertDialog(
+            onDismissRequest = { confirmRemove = false },
+            shape = RoundedCornerShape(12.dp),
+            title = { Text(stringResource(R.string.hud_app_remove_title)) },
+            text = { Text(stringResource(R.string.hud_app_remove_body)) },
+            confirmButton = {
+                TextButton(
+                    onClick = { confirmRemove = false; sender.remove() },
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(
+                        stringResource(R.string.hud_app_remove),
+                        color = MaterialTheme.appColors.statusDanger
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { confirmRemove = false },
+                    shape = RoundedCornerShape(12.dp)
+                ) { Text(stringResource(R.string.action_cancel)) }
+            }
+        )
+    }
 }
 
 @Composable
-private fun HudHotspotHint() {
+private fun HudHotspotHint(linked: Boolean) {
+    if (linked) return
     val ctx = LocalContext.current
     var probed by remember { mutableStateOf(false) }
     var hotspotOn by remember { mutableStateOf<Boolean?>(null) }
@@ -12023,7 +12062,9 @@ private fun HudIntegrationSection(
         // wifi or a separate router, in which case the hotspot doesn't
         // matter. The hint copy makes that explicit so a rider whose
         // hotspot is intentionally off doesn't think anything is wrong.
-        HudHotspotHint()
+        // Nothing to set up while a HUD is linked: the hint returns when
+        // the link drops, which is when it is useful again.
+        HudHotspotHint(linked = pairedHudVersion != null)
 
         // Discovery mode comes FIRST -- it decides whether the rider needs to
         // know the IP at all. Auto finds the HUD on its own; Fixed uses only

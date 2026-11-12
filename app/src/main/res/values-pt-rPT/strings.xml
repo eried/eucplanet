@@ -517,9 +517,11 @@
     <string name="hud_app_on_hud">No HUD: %1$s</string>
     <string name="hud_app_in_phone">Nesta app: %1$s</string>
     <string name="hud_app_send">Enviar para o HUD</string>
-    <string name="hud_app_remove">Remover</string>
+    <string name="hud_app_remove">Desinstalar</string>
     <string name="hud_app_sending">A enviar, %1$d%%</string>
-    <string name="hud_app_sent">Enviada. Confirme no HUD.</string>
+    <string name="hud_app_sent">Veja o HUD para continuar.</string>
+    <string name="hud_app_remove_title">Desinstalar a app do HUD?</string>
+    <string name="hud_app_remove_body">O HUD vai pedir para desinstalar. Para instalar de novo é preciso um cabo.</string>
     <string name="hud_app_failed">Não foi possível contactar o HUD. Tente de novo.</string>
     <string name="section_watch_general">Geral</string>
     <string name="section_watch_display">Ecrã</string>

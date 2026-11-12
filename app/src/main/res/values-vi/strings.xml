@@ -498,9 +498,11 @@
     <string name="hud_app_on_hud">Trên HUD: %1$s</string>
     <string name="hud_app_in_phone">Trong ứng dụng này: %1$s</string>
     <string name="hud_app_send">Gửi tới HUD</string>
-    <string name="hud_app_remove">Gỡ bỏ</string>
+    <string name="hud_app_remove">Gỡ cài đặt</string>
     <string name="hud_app_sending">Đang gửi, %1$d%%</string>
-    <string name="hud_app_sent">Đã gửi. Xác nhận trên HUD.</string>
+    <string name="hud_app_sent">Tiếp tục trên HUD.</string>
+    <string name="hud_app_remove_title">Gỡ cài đặt ứng dụng HUD?</string>
+    <string name="hud_app_remove_body">HUD sẽ hỏi để gỡ cài đặt. Cài lại cần có cáp.</string>
     <string name="hud_app_failed">Không kết nối được HUD. Thử lại.</string>
     <string name="section_watch_general">Chung</string>
     <string name="section_watch_display">Hiển thị</string>

@@ -543,9 +543,11 @@
     <string name="hud_app_on_hud">Sur le HUD : %1$s</string>
     <string name="hud_app_in_phone">Dans cette app : %1$s</string>
     <string name="hud_app_send">Envoyer au HUD</string>
-    <string name="hud_app_remove">Supprimer</string>
+    <string name="hud_app_remove">Désinstaller</string>
     <string name="hud_app_sending">Envoi, %1$d%%</string>
-    <string name="hud_app_sent">Envoyée. Confirmez sur le HUD.</string>
+    <string name="hud_app_sent">Continuez sur le HUD.</string>
+    <string name="hud_app_remove_title">Désinstaller l\'app HUD ?</string>
+    <string name="hud_app_remove_body">Le HUD demandera de la désinstaller. La réinstaller nécessite un câble.</string>
     <string name="hud_app_failed">HUD injoignable. Réessayez.</string>
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">Général</string>

@@ -1811,9 +1811,11 @@
     <string name="hud_app_on_hud">HUD 上：%1$s</string>
     <string name="hud_app_in_phone">本应用内：%1$s</string>
     <string name="hud_app_send">发送到 HUD</string>
-    <string name="hud_app_remove">移除</string>
+    <string name="hud_app_remove">卸载</string>
     <string name="hud_app_sending">正在发送 %1$d%%</string>
-    <string name="hud_app_sent">已发送。请在 HUD 上确认。</string>
+    <string name="hud_app_sent">请在 HUD 上继续。</string>
+    <string name="hud_app_remove_title">卸载 HUD 应用？</string>
+    <string name="hud_app_remove_body">HUD 会询问是否卸载。重新安装需要数据线。</string>
     <string name="hud_app_failed">无法连接 HUD。请重试。</string>
     <string name="nav_setting_full_path">始终计算完整路线</string>
     <string name="nav_setting_full_path_desc">关闭时仅计算到下一个途经点的路线，其余以虚线预览显示。</string>

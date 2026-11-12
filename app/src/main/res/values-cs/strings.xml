@@ -492,9 +492,11 @@
     <string name="hud_app_on_hud">Na HUD: %1$s</string>
     <string name="hud_app_in_phone">V této aplikaci: %1$s</string>
     <string name="hud_app_send">Odeslat do HUD</string>
-    <string name="hud_app_remove">Odebrat</string>
+    <string name="hud_app_remove">Odinstalovat</string>
     <string name="hud_app_sending">Odesílání, %1$d%%</string>
-    <string name="hud_app_sent">Odesláno. Potvrďte na HUD.</string>
+    <string name="hud_app_sent">Pokračujte na HUD.</string>
+    <string name="hud_app_remove_title">Odinstalovat aplikaci HUD?</string>
+    <string name="hud_app_remove_body">HUD požádá o odinstalaci. K nové instalaci je potřeba kabel.</string>
     <string name="hud_app_failed">HUD není dostupný. Zkuste to znovu.</string>
     <string name="section_watch_general">Obecné</string>
     <string name="section_watch_display">Zobrazení</string>

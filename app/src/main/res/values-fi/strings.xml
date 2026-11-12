@@ -492,9 +492,11 @@
     <string name="hud_app_on_hud">HUD:ssa: %1$s</string>
     <string name="hud_app_in_phone">Tässä sovelluksessa: %1$s</string>
     <string name="hud_app_send">Lähetä HUD:iin</string>
-    <string name="hud_app_remove">Poista</string>
+    <string name="hud_app_remove">Poista asennus</string>
     <string name="hud_app_sending">Lähetetään, %1$d%%</string>
-    <string name="hud_app_sent">Lähetetty. Vahvista HUD:ssa.</string>
+    <string name="hud_app_sent">Jatka HUD:ssa.</string>
+    <string name="hud_app_remove_title">Poistetaanko HUD-sovelluksen asennus?</string>
+    <string name="hud_app_remove_body">HUD pyytää poistamaan sen. Uudelleenasennus vaatii kaapelin.</string>
     <string name="hud_app_failed">HUD:iin ei saatu yhteyttä. Yritä uudelleen.</string>
     <string name="section_watch_general">Yleiset</string>
     <string name="section_watch_display">Näyttö</string>

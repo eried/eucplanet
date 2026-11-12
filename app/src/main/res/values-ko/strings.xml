@@ -543,9 +543,11 @@
     <string name="hud_app_on_hud">HUD: %1$s</string>
     <string name="hud_app_in_phone">이 앱: %1$s</string>
     <string name="hud_app_send">HUD로 보내기</string>
-    <string name="hud_app_remove">삭제</string>
+    <string name="hud_app_remove">제거</string>
     <string name="hud_app_sending">보내는 중, %1$d%%</string>
-    <string name="hud_app_sent">보냈습니다. HUD에서 확인하세요.</string>
+    <string name="hud_app_sent">HUD에서 계속하세요.</string>
+    <string name="hud_app_remove_title">HUD 앱을 제거할까요?</string>
+    <string name="hud_app_remove_body">HUD에서 삭제 여부를 묻습니다. 다시 설치하려면 케이블이 필요합니다.</string>
     <string name="hud_app_failed">HUD에 연결할 수 없습니다. 다시 시도하세요.</string>
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">일반</string>

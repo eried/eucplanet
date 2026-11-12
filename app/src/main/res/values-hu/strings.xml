@@ -494,7 +494,9 @@
     <string name="hud_app_send">Küldés a HUD-ra</string>
     <string name="hud_app_remove">Eltávolítás</string>
     <string name="hud_app_sending">Küldés, %1$d%%</string>
-    <string name="hud_app_sent">Elküldve. Erősítsd meg a HUD-on.</string>
+    <string name="hud_app_sent">Folytasd a HUD-on.</string>
+    <string name="hud_app_remove_title">Eltávolítod a HUD-alkalmazást?</string>
+    <string name="hud_app_remove_body">A HUD rákérdez az eltávolításra. Az újratelepítéshez kábel kell.</string>
     <string name="hud_app_failed">A HUD nem érhető el. Próbáld újra.</string>
     <string name="section_watch_general">Általános</string>
     <string name="section_watch_display">Megjelenítés</string>

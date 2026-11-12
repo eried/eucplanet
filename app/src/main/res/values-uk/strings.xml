@@ -545,7 +545,9 @@
     <string name="hud_app_send">Надіслати на HUD</string>
     <string name="hud_app_remove">Видалити</string>
     <string name="hud_app_sending">Надсилання, %1$d%%</string>
-    <string name="hud_app_sent">Надіслано. Підтвердьте на HUD.</string>
+    <string name="hud_app_sent">Продовжте на HUD.</string>
+    <string name="hud_app_remove_title">Видалити застосунок HUD?</string>
+    <string name="hud_app_remove_body">HUD попросить видалити застосунок. Для повторного встановлення потрібен кабель.</string>
     <string name="hud_app_failed">HUD недоступний. Спробуйте ще раз.</string>
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">Загальні</string>

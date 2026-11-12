@@ -531,9 +531,11 @@
     <string name="hud_app_on_hud">На HUD: %1$s</string>
     <string name="hud_app_in_phone">В това приложение: %1$s</string>
     <string name="hud_app_send">Изпрати към HUD</string>
-    <string name="hud_app_remove">Премахни</string>
+    <string name="hud_app_remove">Деинсталирай</string>
     <string name="hud_app_sending">Изпращане, %1$d%%</string>
-    <string name="hud_app_sent">Изпратено. Потвърдете на HUD.</string>
+    <string name="hud_app_sent">Продължете на HUD.</string>
+    <string name="hud_app_remove_title">Деинсталиране на приложението за HUD?</string>
+    <string name="hud_app_remove_body">HUD ще поиска деинсталиране. За повторно инсталиране е нужен кабел.</string>
     <string name="hud_app_failed">Няма връзка с HUD. Опитайте отново.</string>
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">Общи</string>

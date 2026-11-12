@@ -543,9 +543,11 @@
     <string name="hud_app_on_hud">På HUD: %1$s</string>
     <string name="hud_app_in_phone">I denne app: %1$s</string>
     <string name="hud_app_send">Send til HUD</string>
-    <string name="hud_app_remove">Fjern</string>
+    <string name="hud_app_remove">Afinstaller</string>
     <string name="hud_app_sending">Sender, %1$d%%</string>
-    <string name="hud_app_sent">Sendt. Bekræft på HUD.</string>
+    <string name="hud_app_sent">Fortsæt på HUD.</string>
+    <string name="hud_app_remove_title">Afinstaller HUD-appen?</string>
+    <string name="hud_app_remove_body">HUD\'en beder om at afinstallere den. Det kræver et kabel at installere den igen.</string>
     <string name="hud_app_failed">Kunne ikke nå HUD. Prøv igen.</string>
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">Generelt</string>

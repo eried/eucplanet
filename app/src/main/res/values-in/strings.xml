@@ -498,9 +498,11 @@
     <string name="hud_app_on_hud">Di HUD: %1$s</string>
     <string name="hud_app_in_phone">Di aplikasi ini: %1$s</string>
     <string name="hud_app_send">Kirim ke HUD</string>
-    <string name="hud_app_remove">Hapus</string>
+    <string name="hud_app_remove">Uninstal</string>
     <string name="hud_app_sending">Mengirim, %1$d%%</string>
-    <string name="hud_app_sent">Terkirim. Konfirmasi di HUD.</string>
+    <string name="hud_app_sent">Lanjutkan di HUD.</string>
+    <string name="hud_app_remove_title">Uninstal aplikasi HUD?</string>
+    <string name="hud_app_remove_body">HUD akan meminta untuk mencopotnya. Memasangnya lagi perlu kabel.</string>
     <string name="hud_app_failed">HUD tidak terjangkau. Coba lagi.</string>
     <string name="section_watch_general">Umum</string>
     <string name="section_watch_display">Tampilan</string>

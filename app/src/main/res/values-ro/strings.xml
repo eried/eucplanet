@@ -492,9 +492,11 @@
     <string name="hud_app_on_hud">Pe HUD: %1$s</string>
     <string name="hud_app_in_phone">În această aplicație: %1$s</string>
     <string name="hud_app_send">Trimite la HUD</string>
-    <string name="hud_app_remove">Elimină</string>
+    <string name="hud_app_remove">Dezinstalează</string>
     <string name="hud_app_sending">Se trimite, %1$d%%</string>
-    <string name="hud_app_sent">Trimisă. Confirmă pe HUD.</string>
+    <string name="hud_app_sent">Continuă pe HUD.</string>
+    <string name="hud_app_remove_title">Dezinstalezi aplicația HUD?</string>
+    <string name="hud_app_remove_body">HUD-ul va cere dezinstalarea. Pentru reinstalare este nevoie de un cablu.</string>
     <string name="hud_app_failed">HUD-ul nu răspunde. Încearcă din nou.</string>
     <string name="section_watch_general">General</string>
     <string name="section_watch_display">Afișare</string>
