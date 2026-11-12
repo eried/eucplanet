@@ -28,7 +28,7 @@ only when you can cut the ride short.
 - Voice alarms: a PWM alarm says "PWM" again in Italian, Norwegian and Chinese, it was left out.
 - InMotion V8S and other V1 wheels: commands go out in small pieces like EUC World does, so the link should stop dropping.
 - InMotion V8S: the light button and auto-lights follow the wheel's real light state, and Charging shows (also V8F, V10).
-- InMotion V6: the light button sends the two-byte form the P6 uses. The V14 form did nothing on a V6.
+- InMotion V6: the light button sends the two-byte form the P6 uses. The V14 form did nothing on a V6. The button now stays lit and switches the light off again; before, it went dark after a moment and every tap sent "on".
 - InMotion V6: a V6 whose Bluetooth name has no "V6" in it (firmware 2.2.4) showed its motor duty as speed and 0 % battery. It now reads speed, battery, PWM, trip and temperature.
 - Lights: a reconnect while walking the wheel no longer turns the light on and off again.
 - Dropbox: a few trips no longer upload again on every sync when nothing changed.
@@ -100,7 +100,7 @@ only when you can cut the ride short.
 
 **InMotion V6** (issue #33)
 - If your V6 showed a speed while standing still or 0 % battery: connect and check speed, battery percent and temperature against the wheel's own app.
-- Tap Light in the app: does the wheel light switch on and off?
+- Tap Light in the app: does the wheel light switch on, the button stay lit, and a second tap switch it off?
 
 **Trip compare**
 - Open a trip, tap Compare, pick a ride over the same road: does Auto line them up? Try Stacked and Overlay, Show differences, and scrub the charts.
