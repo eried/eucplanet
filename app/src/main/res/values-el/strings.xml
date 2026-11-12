@@ -513,6 +513,18 @@
 
     <string name="hud_install_hint">Χρειάζεστε την εφαρμογή HUD; Κατεβάστε τη από <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">Εφαρμογή HUD</string>
+    <string name="hud_app_installed">Εγκατεστημένη:</string>
+    <string name="hud_app_available">Διαθέσιμη:</string>
+    <string name="hud_app_send">Αποστολή στο HUD</string>
+    <string name="hud_app_remove">Απεγκατάσταση</string>
+    <string name="hud_app_sending">Αποστολή, %1$d%%</string>
+    <string name="hud_app_sent">Συνεχίστε στο HUD.</string>
+    <string name="hud_app_resend_title">Ήδη ενημερωμένο</string>
+    <string name="hud_app_resend_body">Το HUD έχει ήδη αυτή την έκδοση. Αποστολή ούτως ή άλλως;</string>
+    <string name="hud_app_remove_title">Απεγκατάσταση της εφαρμογής HUD;</string>
+    <string name="hud_app_remove_body">Το HUD θα ζητήσει απεγκατάσταση. Για νέα εγκατάσταση χρειάζεται καλώδιο.</string>
+    <string name="hud_app_failed">Το HUD δεν απαντά. Δοκιμάστε ξανά.</string>
     <string name="section_watch_general">Γενικά</string>
     <string name="section_watch_display">Οθόνη</string>
     <string name="section_watch_advanced">Για προχωρημένους</string>
@@ -2632,7 +2644,7 @@
     <string name="lockdown_warning_no_wheel">Δεν υπάρχει συνδεδεμένο μονότροχο, οπότε η κατάσταση της Νόμιμης λειτουργίας είναι άγνωστη. Η εφαρμογή κλειδώνει την επόμενη φορά που θα ενεργοποιηθεί η Νόμιμη λειτουργία.</string>
     <string name="lockdown_continue">Συνέχεια</string>
     <string name="trip_tools_wheel_none">Δεν έχει καταγραφεί ακόμα μονότροχο σε αυτή τη διαδρομή.</string>
-    <string name="backup_conflict_warning">Ορισμένα αντίγραφα ασφαλείας διαδρομών χρειάζονται χειροκίνητο συγχρονισμό: τα αντίγραφα διαφέρουν. Πατήστε Συγχρονισμός και επιλέξτε ποια πλευρά υπερισχύει.</string>
+    <string name="backup_conflict_warning">Ορισμένες διαδρομές σε αυτό το τηλέφωνο διαφέρουν από τα αντίγραφα στον φάκελο αντιγράφων. Πατήστε %1$s, μετά στο %2$s πατήστε \"%3$s\" και επιλέξτε ποιο αντίγραφο θα κρατήσετε.</string>
     <string name="backup_conflict_title">Διενέξεις αντιγράφων ασφαλείας</string>
     <string name="widget_act_1_short">Ενέργεια 1</string>
     <string name="widget_act_2_short">Ενέργεια 2</string>

@@ -181,6 +181,10 @@ class HudServer(
         .retryOnConnectionFailure(true)
         .build()
 
+    /** Sends the HUD app this phone carries to the linked HUD, on the
+     *  rider's tap in Settings. */
+    val appSender = HudAppSender(context, http) { currentPeer }
+
     /** True when the app UI is actually on-screen (process importance
      *  FOREGROUND), not merely the ride foreground service running
      *  (FOREGROUND_SERVICE). Once the UI is gone, Samsung / Android 16 throttle
@@ -1181,6 +1185,7 @@ class HudServer(
                 ws = null
                 currentPeer = null
                 commandSink.onHudDisconnected()
+                appSender.reset()
                 done.complete(true)
             }
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
@@ -1197,6 +1202,7 @@ class HudServer(
                 ws = null
                 currentPeer = null
                 commandSink.onHudDisconnected()
+                appSender.reset()
                 done.complete(false)
             }
         }
@@ -1212,6 +1218,42 @@ class HudServer(
     private fun backoff(attempt: Int): Long {
         val expanded = backoffMinMs shl attempt.coerceAtMost(3)
         return expanded.coerceAtMost(backoffMaxMs)
+    }
+
+    /** The map heading, kept through a stop so the HUD map does not swing
+     *  back to north-up at every halt. */
+    private val heldHeading = com.eried.eucplanet.hud.protocol.HeldHeading()
+
+    // The last route piece cut for the HUD map and what it was cut from. The
+    // state goes out several times a second and a fix arrives once, so most
+    // frames reuse the string.
+    private var routeWindowLeg: com.eried.eucplanet.data.model.NavRoute? = null
+    private var routeWindowLat = Double.NaN
+    private var routeWindowLng = Double.NaN
+    private var routeWindowFlat = DoubleArray(0)
+    private var routeWindowEncoded = ""
+
+    /** The route line around ([lat], [lng]) for the HUD map, "" without one. */
+    private fun routeWindow(lat: Double, lng: Double): String {
+        val leg = navigationEngine.activeLeg.value
+        if (leg == null || leg.geometry.size < 2) return ""
+        if (leg !== routeWindowLeg) {
+            routeWindowLeg = leg
+            routeWindowFlat = DoubleArray(leg.geometry.size * 2).also { flat ->
+                leg.geometry.forEachIndexed { i, p ->
+                    flat[2 * i] = p.lat
+                    flat[2 * i + 1] = p.lng
+                }
+            }
+            routeWindowLat = Double.NaN
+        }
+        if (lat != routeWindowLat || lng != routeWindowLng) {
+            routeWindowLat = lat
+            routeWindowLng = lng
+            routeWindowEncoded = com.eried.eucplanet.hud.protocol.RouteWindow
+                .encodeAround(routeWindowFlat, lat, lng)
+        }
+        return routeWindowEncoded
     }
 
     private suspend fun snapshot(): HudState {
@@ -1303,8 +1345,10 @@ class HudServer(
             phoneGpsSpeedKmh = if (location?.hasSpeed() == true) location.speed * 3.6f else Float.NaN,
             externalGpsSpeedKmh = if (externalFresh) external!!.speedKmh else Float.NaN,
             gpsHasFix = location != null,
-            gpsHeadingDeg = if (location?.hasBearing() == true) location.bearing
-                else Float.NaN,
+            gpsHeadingDeg = heldHeading.update(
+                bearingDeg = if (location?.hasBearing() == true) location.bearing else null,
+                speedMs = if (location?.hasSpeed() == true) location.speed else null,
+            ),
             gpsAltitudeM = if (location?.hasAltitude() == true) location.altitude.toFloat()
                 else Float.NaN,
             externalGpsBatteryPercent = if (externalFresh) (external!!.batteryPercent ?: -1) else -1,
@@ -1350,6 +1394,9 @@ class HudServer(
             navPrimary = d?.navPrimary ?: nav.primaryText,
             navDistance = d?.navDistance ?: nav.distanceText,
             navArrived = d?.navArrived ?: nav.arrived,
+            navRoute = if (d == null && nav.active && !nav.arrived && location != null) {
+                routeWindow(location.latitude, location.longitude)
+            } else "",
             // Human-readable labels for the HUD joystick long-press guide.
             // The HUD has no access to the phone's action config, so resolve
             // each configured slot key to its catalog label here. Reuses the

@@ -513,6 +513,18 @@
 
     <string name="hud_install_hint">Precisa da app do HUD? Obtenha-a em <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">App do HUD</string>
+    <string name="hud_app_installed">Instalada:</string>
+    <string name="hud_app_available">Disponível:</string>
+    <string name="hud_app_send">Enviar para o HUD</string>
+    <string name="hud_app_remove">Desinstalar</string>
+    <string name="hud_app_sending">A enviar, %1$d%%</string>
+    <string name="hud_app_sent">Veja o HUD para continuar.</string>
+    <string name="hud_app_resend_title">Já está atualizada</string>
+    <string name="hud_app_resend_body">O HUD já tem esta versão. Enviar mesmo assim?</string>
+    <string name="hud_app_remove_title">Desinstalar a app do HUD?</string>
+    <string name="hud_app_remove_body">O HUD vai pedir para desinstalar. Para instalar de novo é preciso um cabo.</string>
+    <string name="hud_app_failed">Não foi possível contactar o HUD. Tente de novo.</string>
     <string name="section_watch_general">Geral</string>
     <string name="section_watch_display">Ecrã</string>
     <string name="section_watch_advanced">Avançado</string>
@@ -2632,7 +2644,7 @@
     <string name="lockdown_warning_no_wheel">Nenhuma roda ligada, por isso o estado do Modo legal é desconhecido. A app bloqueia da próxima vez que o Modo legal for ligado.</string>
     <string name="lockdown_continue">Continuar</string>
     <string name="trip_tools_wheel_none">Ainda não há roda registada neste percurso.</string>
-    <string name="backup_conflict_warning">Algumas cópias de percursos precisam de sincronização manual: as cópias são diferentes. Prima Sincronizar e escolha que lado prevalece.</string>
+    <string name="backup_conflict_warning">Algumas viagens neste telemóvel diferem das cópias na pasta de cópia de segurança. Toque em %1$s, depois em %2$s toque em \"%3$s\" e escolha que cópia manter.</string>
     <string name="backup_conflict_title">Conflitos nas cópias</string>
     <string name="widget_act_1_short">Ação 1</string>
     <string name="widget_act_2_short">Ação 2</string>

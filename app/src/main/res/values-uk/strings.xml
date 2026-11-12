@@ -539,6 +539,18 @@
     -->
     <string name="hud_install_hint">Потрібен застосунок HUD? Завантажте його з eucplanet.ried.no/hud</string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">Застосунок HUD</string>
+    <string name="hud_app_installed">Встановлено:</string>
+    <string name="hud_app_available">Доступно:</string>
+    <string name="hud_app_send">Надіслати на HUD</string>
+    <string name="hud_app_remove">Видалити</string>
+    <string name="hud_app_sending">Надсилання, %1$d%%</string>
+    <string name="hud_app_sent">Продовжте на HUD.</string>
+    <string name="hud_app_resend_title">Уже оновлено</string>
+    <string name="hud_app_resend_body">На HUD уже ця версія. Усе одно надіслати?</string>
+    <string name="hud_app_remove_title">Видалити застосунок HUD?</string>
+    <string name="hud_app_remove_body">HUD попросить видалити застосунок. Для повторного встановлення потрібен кабель.</string>
+    <string name="hud_app_failed">HUD недоступний. Спробуйте ще раз.</string>
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">Загальні</string>
     <string name="section_watch_display">Екран</string>
@@ -2713,7 +2725,7 @@
     <string name="lockdown_warning_no_wheel">Колесо не підключено, тому стан легального режиму невідомий. Застосунок заблокується наступного разу, коли легальний режим буде увімкнено.</string>
     <string name="lockdown_continue">Далі</string>
     <string name="trip_tools_wheel_none">Для цієї поїздки колесо ще не записано.</string>
-    <string name="backup_conflict_warning">Деякі резервні копії поїздок потребують ручної синхронізації: копії різняться. Торкніться «Синхр. усе» й виберіть, яка сторона правильна.</string>
+    <string name="backup_conflict_warning">Деякі поїздки на цьому телефоні відрізняються від копій у теці резервної копії. Натисніть %1$s, потім у розділі %2$s натисніть \"%3$s\" і виберіть, яку копію залишити.</string>
     <string name="backup_conflict_title">Конфлікти резервних копій</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Їдемо?</string>

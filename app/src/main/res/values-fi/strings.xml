@@ -488,6 +488,18 @@
     <string name="hud_map_brightness_label">Kirkkaus</string>
     <string name="hud_install_hint">Tarvitsetko HUD-sovelluksen? Hae se osoitteesta <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">HUD-sovellus</string>
+    <string name="hud_app_installed">Asennettu:</string>
+    <string name="hud_app_available">Saatavilla:</string>
+    <string name="hud_app_send">Lähetä HUD:iin</string>
+    <string name="hud_app_remove">Poista asennus</string>
+    <string name="hud_app_sending">Lähetetään, %1$d%%</string>
+    <string name="hud_app_sent">Jatka HUD:ssa.</string>
+    <string name="hud_app_resend_title">Jo ajan tasalla</string>
+    <string name="hud_app_resend_body">HUD:ssa on jo tämä versio. Lähetetäänkö silti?</string>
+    <string name="hud_app_remove_title">Poistetaanko HUD-sovelluksen asennus?</string>
+    <string name="hud_app_remove_body">HUD pyytää poistamaan sen. Uudelleenasennus vaatii kaapelin.</string>
+    <string name="hud_app_failed">HUD:iin ei saatu yhteyttä. Yritä uudelleen.</string>
     <string name="section_watch_general">Yleiset</string>
     <string name="section_watch_display">Näyttö</string>
     <string name="section_watch_advanced">Lisäasetukset</string>
@@ -2519,7 +2531,7 @@
     <string name="lockdown_warning_no_wheel">Yksipyöräistä ei ole yhdistetty, joten laillisen tilan tila on tuntematon. Sovellus lukittuu, kun laillinen tila seuraavan kerran otetaan käyttöön.</string>
     <string name="lockdown_continue">Jatka</string>
     <string name="trip_tools_wheel_none">Tälle matkalle ei ole vielä kirjattu yksipyöräistä.</string>
-    <string name="backup_conflict_warning">Jotkin matkan varmuuskopiot vaativat manuaalisen synkronoinnin: kopiot eroavat. Paina Synkronoi ja valitse kumpi pätee.</string>
+    <string name="backup_conflict_warning">Jotkin tämän puhelimen matkat eroavat varmuuskopiokansion kopioista. Napauta %1$s, paina sitten kohdassa %2$s \"%3$s\" ja valitse säilytettävä kopio.</string>
     <string name="backup_conflict_title">Varmuuskopioristiriidat</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Ajellaan?</string>

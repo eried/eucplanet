@@ -539,6 +539,18 @@
     -->
     <string name="hud_install_hint">Precisa do app HUD? Baixe em <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">App do HUD</string>
+    <string name="hud_app_installed">Instalada:</string>
+    <string name="hud_app_available">Disponível:</string>
+    <string name="hud_app_send">Enviar ao HUD</string>
+    <string name="hud_app_remove">Desinstalar</string>
+    <string name="hud_app_sending">Enviando, %1$d%%</string>
+    <string name="hud_app_sent">Confira o HUD para continuar.</string>
+    <string name="hud_app_resend_title">Já está atualizado</string>
+    <string name="hud_app_resend_body">O HUD já tem esta versão. Enviar mesmo assim?</string>
+    <string name="hud_app_remove_title">Desinstalar o app do HUD?</string>
+    <string name="hud_app_remove_body">O HUD vai pedir para desinstalar. Para instalar de novo é preciso um cabo.</string>
+    <string name="hud_app_failed">Não foi possível acessar o HUD. Tente de novo.</string>
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">Geral</string>
     <string name="section_watch_display">Tela</string>
@@ -2718,7 +2730,7 @@
     <string name="lockdown_warning_no_wheel">Nenhuma roda conectada, então o estado do Modo Legal é desconhecido. O app vai travar na próxima vez que o Modo Legal for ligado.</string>
     <string name="lockdown_continue">Continuar</string>
     <string name="trip_tools_wheel_none">Esta viagem ainda não tem roda registrada.</string>
-    <string name="backup_conflict_warning">Alguns backups de viagens precisam de sincronização manual: as cópias diferem. Toque em Sincronizar e escolha qual vale.</string>
+    <string name="backup_conflict_warning">Algumas viagens neste celular diferem das cópias na pasta de backup. Toque em %1$s, depois em %2$s toque em \"%3$s\" e escolha qual cópia manter.</string>
     <string name="backup_conflict_title">Conflitos de backup</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Rodar?</string>

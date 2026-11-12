@@ -8,7 +8,9 @@ import android.net.NetworkRequest
 import android.net.wifi.SupplicantState
 import android.net.wifi.WifiManager
 import android.util.Log
+import com.eried.eucplanet.hud.protocol.HudAppPush
 import com.eried.eucplanet.hud.protocol.HudCommand
+import com.eried.eucplanet.hud.update.HudAppUpdate
 import com.eried.eucplanet.hud.protocol.HudDebug
 import com.eried.eucplanet.hud.protocol.HudDiscovery
 import com.eried.eucplanet.hud.protocol.HudState
@@ -20,6 +22,11 @@ import com.eried.eucplanet.hud.protocol.StaleLink
 import io.ktor.server.application.install
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.embeddedServer
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.call
+import io.ktor.server.request.receiveChannel
+import io.ktor.server.response.respondText
+import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import io.ktor.server.websocket.WebSockets
 import io.ktor.server.websocket.webSocket
@@ -156,6 +163,16 @@ class HudServer(private val context: Context) {
 
     /** Address of the phone currently connected to us, e.g. "192.168.43.5".
      *  Null when no client is attached. */
+    /** The linked phone by address, not by name: the name of one and the
+     *  same phone can read differently from one request to the next. */
+    @Volatile private var peerAddress: String? = null
+
+    /** [host] as a numeric address. The server hands back a name for a
+     *  socket it has already looked up and digits for one it has not, so the
+     *  linked phone read "localhost" on its state socket and "127.0.0.1" on
+     *  its next request. */
+    private fun numeric(host: String): String =
+        runCatching { java.net.InetAddress.getByName(host).hostAddress }.getOrNull() ?: host
     private val _peer = MutableStateFlow<String?>(null)
     val peer: StateFlow<String?> = _peer.asStateFlow()
 
@@ -291,6 +308,50 @@ class HudServer(private val context: Context) {
                 timeoutMillis = 12_000L
             }
             routing {
+                // The phone sending this app's next version, or asking for it
+                // to be removed. Only the phone on the state socket may: on a
+                // shared network anyone can reach this port, and neither
+                // should be something a stranger can put on the rider's HUD.
+                post(HudAppPush.PATH_UPDATE) {
+                    if (numeric(call.request.local.remoteAddress) != peerAddress) {
+                        call.respondText("not the linked phone", status = HttpStatusCode.Forbidden)
+                        return@post
+                    }
+                    // Read the body as it arrives. The blocking stream view of
+                    // it stalled on a real file (a 2.5 MB post never finished).
+                    val answer = runCatching {
+                        val ctx = this@HudServer.context
+                        val body = call.receiveChannel()
+                        val file = HudAppUpdate.incomingFile(ctx)
+                        var total = 0L
+                        file.outputStream().use { out ->
+                            val buf = ByteArray(64 * 1024)
+                            while (total <= HudAppPush.MAX_BYTES) {
+                                val n = body.readAvailable(buf, 0, buf.size)
+                                if (n < 0) break
+                                out.write(buf, 0, n)
+                                total += n
+                            }
+                        }
+                        HudAppUpdate.received(ctx, file, total)
+                    }.getOrElse {
+                        HudDiag.log("update", "receive failed: ${it.message}")
+                        HudAppPush.ANSWER_NOT_AN_APP
+                    }
+                    call.respondText(
+                        answer,
+                        status = if (answer == HudAppPush.ANSWER_READY) HttpStatusCode.OK
+                            else HttpStatusCode.UnprocessableEntity
+                    )
+                }
+                post(HudAppPush.PATH_REMOVE) {
+                    if (numeric(call.request.local.remoteAddress) != peerAddress) {
+                        call.respondText("not the linked phone", status = HttpStatusCode.Forbidden)
+                        return@post
+                    }
+                    HudAppUpdate.askRemove()
+                    call.respondText("ok")
+                }
                 webSocket(HudDiscovery.PATH_STATE) {
                     val remote = call.request.local.remoteHost
                     // Token for THIS connection. With fast heartbeats a phone
@@ -300,6 +361,7 @@ class HudServer(private val context: Context) {
                     val myConn = connSeq.incrementAndGet()
                     Log.i(TAG, "phone connected: $remote (#$myConn)")
                     _peer.value = remote
+                    peerAddress = numeric(remote)
                     _status.value = Status.CONNECTED
                     liveSession = this
                     // Diagnostic: remember the phone IP across reconnects
@@ -334,6 +396,8 @@ class HudServer(private val context: Context) {
                                 hudVersion = com.eried.eucplanet.hud.BuildConfig.VERSION_NAME,
                                 hudProtocolMajor = sendMajor,
                                 hudProtocolMinor = sendMinor,
+                                hudVersionCode = com.eried.eucplanet.hud.BuildConfig.VERSION_CODE,
+                                hudBuild = com.eried.eucplanet.hud.BuildConfig.BUILD_ID,
                                 recoveryNote = recoveryNote
                             )
                         ))
@@ -398,6 +462,7 @@ class HudServer(private val context: Context) {
                         // HUD back to LISTENING while a fresh phone is connected.
                         if (connSeq.get() == myConn) {
                             _peer.value = null
+                            peerAddress = null
                             _status.value = Status.LISTENING
                             liveSession = null
                         }
@@ -478,6 +543,7 @@ class HudServer(private val context: Context) {
         try { server?.stop(1_000L, 2_000L) } catch (_: Throwable) {}
         server = null
         _peer.value = null
+        peerAddress = null
         _status.value = Status.LISTENING
         releaseWakeLock()
         releaseWifiLock()

@@ -539,6 +539,18 @@
     -->
     <string name="hud_install_hint">HUD uygulamasına mı ihtiyacınız var? <b>eucplanet.ried.no/hud</b> adresinden edinin</string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">HUD uygulaması</string>
+    <string name="hud_app_installed">Yüklü:</string>
+    <string name="hud_app_available">Mevcut:</string>
+    <string name="hud_app_send">HUD\'a gönder</string>
+    <string name="hud_app_remove">Kaldır</string>
+    <string name="hud_app_sending">Gönderiliyor, %%%1$d</string>
+    <string name="hud_app_sent">HUD\'da devam edin.</string>
+    <string name="hud_app_resend_title">Zaten güncel</string>
+    <string name="hud_app_resend_body">HUD\'da zaten bu sürüm var. Yine de gönderilsin mi?</string>
+    <string name="hud_app_remove_title">HUD uygulaması kaldırılsın mı?</string>
+    <string name="hud_app_remove_body">HUD kaldırmak için onay isteyecek. Yeniden kurmak için kablo gerekir.</string>
+    <string name="hud_app_failed">HUD\'a ulaşılamadı. Tekrar deneyin.</string>
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">Genel</string>
     <string name="section_watch_display">Ekran</string>
@@ -2713,7 +2725,7 @@
     <string name="lockdown_warning_no_wheel">Bağlı teker yok, bu yüzden Yasal modun durumu bilinmiyor. Uygulama, Yasal mod bir sonraki açıldığında kilitlenir.</string>
     <string name="lockdown_continue">Devam</string>
     <string name="trip_tools_wheel_none">Bu sürüş için henüz bir teker kaydedilmedi.</string>
-    <string name="backup_conflict_warning">Bazı sürüş yedeklerinin elle eşitlenmesi gerekiyor: kopyalar farklı. Eşitle\'ye basıp hangi tarafın geçerli olacağını seçin.</string>
+    <string name="backup_conflict_warning">Bu telefondaki bazı sürüşler yedek klasöründeki kopyalardan farklı. %1$s düğmesine dokunun, sonra %2$s altında \"%3$s\" düğmesine basın ve hangi kopyanın kalacağını seçin.</string>
     <string name="backup_conflict_title">Yedek çakışmaları</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Sürelim mi?</string>

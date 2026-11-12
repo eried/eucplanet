@@ -56,7 +56,7 @@ class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
         when (intent.action) {
             ACTION_SURVEY_APPLY -> applyConfig(intent)
             ACTION_SURVEY_CONNECT_VIRTUAL -> connectVirtual(context, intent)
-            ACTION_SURVEY_START_NAV -> startNav()
+            ACTION_SURVEY_START_NAV -> startNav(intent.getStringExtra(EXTRA_GEOMETRY))
             ACTION_SURVEY_CAR_ALARM -> carAlarm(context)
             ACTION_SURVEY_SOUND -> sound(intent.getStringExtra(EXTRA_KIND) ?: "beep")
             ACTION_SURVEY_SET -> set(intent)
@@ -128,10 +128,18 @@ class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
         com.eried.eucplanet.car.CarAlarmNotification.post(context, "PWM", "92 %")
     }
 
-    /** A two-point straight line through Oslo, enough for navState.active. */
-    private fun startNav() {
-        val a = GeoPoint(59.9139, 10.7522)
-        val b = GeoPoint(59.9239, 10.7622)
+    /** A two-point straight line through Oslo, enough for navState.active,
+     *  or the line in [geometry] ("lat,lng;lat,lng;...") when one is given,
+     *  for screens that draw the route itself. */
+    private fun startNav(geometry: String?) {
+        val line = geometry.orEmpty().split(';').mapNotNull { pair ->
+            val c = pair.split(',')
+            val lat = c.getOrNull(0)?.trim()?.toDoubleOrNull()
+            val lng = c.getOrNull(1)?.trim()?.toDoubleOrNull()
+            if (lat != null && lng != null) GeoPoint(lat, lng) else null
+        }.takeIf { it.size >= 2 }
+        val a = line?.first() ?: GeoPoint(59.9139, 10.7522)
+        val b = line?.last() ?: GeoPoint(59.9239, 10.7622)
         val route = NavRoute(
             name = "Survey route",
             waypoints = listOf(
@@ -139,7 +147,7 @@ class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
                 Waypoint(b.lat, b.lng, "End"),
             ),
             travelMode = TravelMode.entries.first(),
-            geometry = listOf(a, b),
+            geometry = line ?: listOf(a, b),
             maneuvers = emptyList(),
             totalDistanceM = 1400.0,
         )
@@ -182,6 +190,7 @@ class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
         const val ACTION_SURVEY_SOUND = "com.eried.eucplanet.SURVEY_SOUND"
         const val ACTION_SURVEY_SET = "com.eried.eucplanet.SURVEY_SET"
         const val EXTRA_KIND = "kind"
+        const val EXTRA_GEOMETRY = "geometry"
         const val EXTRA_NOTIF_ACTIONS = "notif_actions"
         const val EXTRA_WARM_ROUTE_MS = "warm_route_ms"
 

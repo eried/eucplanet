@@ -56,6 +56,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.VolumeDown
@@ -435,6 +436,10 @@ fun SettingsScreen(
     // tab 12 opens Voice at its Speed splits block, for the splits tile's
     // long-press menu: the block sits below every voice setting.
     val scrollToSplits = initialTab == 12
+    // tab 13 opens Backups at its Trips backup block, for the Backup conflicts
+    // warning: the Sync button it asks for sits below the folder, Dropbox and
+    // settings backup blocks, off screen from the section top.
+    val scrollToTripsBackup = initialTab == 13
     val targetSectionKey = remember(initialTab) { initialTabSectionKey(initialTab) }
     // expandedSections is rememberSaveable above and only seeds on first ever
     // composition; on subsequent visits the user's saved expansion state can hide
@@ -685,7 +690,11 @@ fun SettingsScreen(
             EngineSoundSection(settings, viewModel, engineParked)
         },
         SectionDef("cloud", titleCloud, Icons.Default.Archive, corpora.getValue("cloud")) {
-            CloudTab(settings, viewModel, snackbar, snackbarScope)
+            CloudTab(
+                settings, viewModel, snackbar, snackbarScope,
+                scrollToTripsBackup = scrollToTripsBackup,
+                onTripsBackupTop = { y -> targetSectionTop = y },
+            )
         },
         SectionDef("alarms", titleAlarms, Icons.Default.NotificationsActive, corpora.getValue("alarms")) {
             AlarmSettingsContent()
@@ -884,7 +893,7 @@ fun SettingsScreen(
                     val isExpanded = explicitlyExpanded || openedByQuery
                     var sectionModifier = if (
                         sec.key == targetSectionKey && !scrollToBattery && !scrollToWeather &&
-                            !scrollToSplits
+                            !scrollToSplits && !scrollToTripsBackup
                     ) {
                         Modifier.onGloballyPositioned {
                             targetSectionTop = it.positionInWindow().y
@@ -979,6 +988,8 @@ private fun initialTabSectionKey(initialTab: Int): String? = when (initialTab) {
     11 -> "navigator"
     // Speed splits live inside Voice; scrollToSplits picks the block.
     12 -> "voice"
+    // Trips backup lives inside Backups; scrollToTripsBackup picks the block.
+    13 -> "cloud"
     else -> null
 }
 
@@ -8471,7 +8482,9 @@ private fun CloudTab(
     settings: com.eried.eucplanet.data.model.AppSettings,
     viewModel: SettingsViewModel,
     snackbar: androidx.compose.material3.SnackbarHostState,
-    snackbarScope: kotlinx.coroutines.CoroutineScope
+    snackbarScope: kotlinx.coroutines.CoroutineScope,
+    scrollToTripsBackup: Boolean = false,
+    onTripsBackupTop: (Float) -> Unit = {},
 ) {
     val context = LocalContext.current
     val cloudEvent by viewModel.cloudEvent.collectAsState()
@@ -9029,7 +9042,13 @@ private fun CloudTab(
                 small = true
             )
 
-            SectionHeader(stringResource(R.string.section_cloud_trips))
+            Box(
+                modifier = if (scrollToTripsBackup) {
+                    Modifier.onGloballyPositioned { onTripsBackupTop(it.positionInWindow().y) }
+                } else Modifier,
+            ) {
+                SectionHeader(stringResource(R.string.section_cloud_trips))
+            }
             HintText(stringResource(R.string.cloud_trips_caption))
             var showResetLocalDialog by remember { mutableStateOf(false) }
             val hasLocalTrips by viewModel.hasLocalTrips.collectAsState()
@@ -11710,8 +11729,223 @@ private fun HudInstallHint(pairedHudVersion: String?, hudEverConnected: Boolean)
     }
 }
 
+/**
+ * The HUD's own app, looked after from the phone. Shows while a HUD that can
+ * take it is linked: which version it runs, a button to send the one this
+ * phone app carries (it asks first when the HUD already runs that build), and one to remove
+ * it, behind a confirm. Nothing is sent without the tap, and the HUD still
+ * asks its rider before it installs or removes anything.
+ */
+/**
+ * The HUD app on the HUD and the one this phone carries, as two rows. The
+ * names sit in one column and the versions in the next, so the versions
+ * start at the same place and are compared at a glance.
+ */
 @Composable
-private fun HudHotspotHint() {
+private fun HudAppVersions(installed: String, available: String?, color: Color) {
+    val style = MaterialTheme.typography.bodySmall
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column {
+            Text(stringResource(R.string.hud_app_installed), style = style, color = color, maxLines = 1)
+            if (available != null) {
+                Text(stringResource(R.string.hud_app_available), style = style, color = color, maxLines = 1)
+            }
+        }
+        Column(modifier = Modifier.weight(1f)) {
+            Text(installed, style = style, color = color, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            if (available != null) {
+                Text(available, style = style, color = color, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+        }
+    }
+}
+
+@Composable
+private fun HudAppCard(viewModel: SettingsViewModel) {
+    val hudVersion by viewModel.hudVersion.collectAsState()
+    val hudCode by viewModel.hudVersionCode.collectAsState()
+    val takesApp by viewModel.hudTakesApp.collectAsState()
+    val sender = viewModel.hudAppSender
+    val state by sender.state.collectAsState()
+    // The section slides this card in and out with the link. While it
+    // slides out the HUD is already gone, so the last version it reported
+    // is kept to draw until the card has closed.
+    val lastVersion = remember { arrayOfNulls<String>(1) }
+    if (hudVersion != null) lastVersion[0] = hudVersion
+    val version = hudVersion ?: lastVersion[0] ?: return
+    val linked = hudVersion != null && takesApp
+    val hudBuild by viewModel.hudBuild.collectAsState()
+    // An older HUD or another build is sent on the tap. The very same build
+    // can go too, after a question. Only a newer HUD is left alone.
+    val offer = com.eried.eucplanet.hud.protocol.HudAppPush.offer(
+        hudCode, hudBuild, sender.carriedVersionCode, sender.carriedBuild
+    )
+    val older = offer == com.eried.eucplanet.hud.protocol.HudAppPush.Offer.SEND
+    val sendable = offer != com.eried.eucplanet.hud.protocol.HudAppPush.Offer.NONE
+    var confirmResend by remember { mutableStateOf(false) }
+    // Two builds of one version read the same by number, so the build is
+    // shown beside it whenever it is known.
+    fun label(name: String, build: String) = if (build.isEmpty()) name else "$name ($build)"
+    val sending = state is com.eried.eucplanet.service.hud.HudAppSender.State.Sending
+    // After a send or a remove request the next step is on the HUD. Both
+    // buttons rest a few seconds so a second tap cannot stack a second
+    // question there, and a toast says where to look.
+    var resting by remember { mutableStateOf(false) }
+    var confirmRemove by remember { mutableStateOf(false) }
+    val snackbar = com.eried.eucplanet.ui.common.LocalSnackbar.current
+    val snackbarScope = com.eried.eucplanet.ui.common.LocalSnackbarScope.current
+    val sentText = stringResource(R.string.hud_app_sent)
+    val failedText = stringResource(R.string.hud_app_failed)
+    LaunchedEffect(state) {
+        when (state) {
+            com.eried.eucplanet.service.hud.HudAppSender.State.Sent -> {
+                com.eried.eucplanet.ui.common.showSnackbar(snackbar, snackbarScope, sentText)
+                resting = true
+                kotlinx.coroutines.delay(5_000L)
+                resting = false
+                sender.reset()
+            }
+            com.eried.eucplanet.service.hud.HudAppSender.State.Failed -> {
+                com.eried.eucplanet.ui.common.showSnackbar(snackbar, snackbarScope, failedText)
+                sender.reset()
+            }
+            else -> Unit
+        }
+    }
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.small,
+        color = MaterialTheme.appColors.surface,
+        contentColor = MaterialTheme.appColors.textPrimary
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.SystemUpdate,
+                    contentDescription = null,
+                    modifier = Modifier.size(22.dp)
+                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        stringResource(R.string.hud_app_title),
+                        style = MaterialTheme.typography.titleSmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    // Always both, also when they match: the rider reads
+                    // that the two are the same instead of taking it on trust.
+                    HudAppVersions(
+                        installed = label(version, hudBuild),
+                        available = if (sender.carriedVersionCode > 0) {
+                            label(sender.carriedVersionName, sender.carriedBuild)
+                        } else null,
+                        color = LocalContentColor.current.copy(alpha = 0.72f)
+                    )
+                }
+            }
+            (state as? com.eried.eucplanet.service.hud.HudAppSender.State.Sending)?.let { st ->
+                LinearProgressIndicator(
+                    progress = { st.fraction },
+                    modifier = Modifier.fillMaxWidth(),
+                    gapSize = 0.dp,
+                    drawStopIndicator = {},
+                )
+                Text(
+                    stringResource(R.string.hud_app_sending, (st.fraction * 100).toInt()),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+            // Always the same two halves. Send only goes dead for a HUD that
+            // runs a newer app than this phone carries.
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Button(
+                    onClick = { if (older) sender.send() else confirmResend = true },
+                    enabled = linked && sendable && !sending && !resting,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp)
+                ) { Text(stringResource(R.string.hud_app_send), maxLines = 1) }
+                Button(
+                    onClick = { confirmRemove = true },
+                    enabled = linked && !sending && !resting,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.appColors.statusDanger,
+                        contentColor = MaterialTheme.appColors.onPrimary,
+                    ),
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp)
+                ) { Text(stringResource(R.string.hud_app_remove), maxLines = 1) }
+            }
+        }
+    }
+    if (confirmResend) {
+        AlertDialog(
+            onDismissRequest = { confirmResend = false },
+            shape = RoundedCornerShape(12.dp),
+            title = { Text(stringResource(R.string.hud_app_resend_title)) },
+            text = {
+                // The question, then both versions to compare.
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(stringResource(R.string.hud_app_resend_body))
+                    HudAppVersions(
+                        installed = label(version, hudBuild),
+                        available = label(sender.carriedVersionName, sender.carriedBuild),
+                        color = LocalContentColor.current
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = { confirmResend = false; sender.send() },
+                    shape = RoundedCornerShape(12.dp)
+                ) { Text(stringResource(R.string.hud_app_send)) }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { confirmResend = false },
+                    shape = RoundedCornerShape(12.dp)
+                ) { Text(stringResource(R.string.action_cancel)) }
+            }
+        )
+    }
+    if (confirmRemove) {
+        AlertDialog(
+            onDismissRequest = { confirmRemove = false },
+            shape = RoundedCornerShape(12.dp),
+            title = { Text(stringResource(R.string.hud_app_remove_title)) },
+            text = { Text(stringResource(R.string.hud_app_remove_body)) },
+            confirmButton = {
+                TextButton(
+                    onClick = { confirmRemove = false; sender.remove() },
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(
+                        stringResource(R.string.hud_app_remove),
+                        color = MaterialTheme.appColors.statusDanger
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { confirmRemove = false },
+                    shape = RoundedCornerShape(12.dp)
+                ) { Text(stringResource(R.string.action_cancel)) }
+            }
+        )
+    }
+}
+
+@Composable
+private fun HudHotspotHint(linked: Boolean) {
+    if (linked) return
     val ctx = LocalContext.current
     var probed by remember { mutableStateOf(false) }
     var hotspotOn by remember { mutableStateOf<Boolean?>(null) }
@@ -11906,14 +12140,27 @@ private fun HudIntegrationSection(
             pairedHudVersion = pairedHudVersion,
             hudEverConnected = hudEverConnected
         )
+        // Slides in when a HUD that takes the app links, and out when the
+        // link drops, the way the address row below opens and closes.
+        val hudTakesApp by viewModel.hudTakesApp.collectAsState()
+        AnimatedVisibility(visible = pairedHudVersion != null && hudTakesApp) {
+            HudAppCard(viewModel)
+        }
 
         // Hotspot hint sits ABOVE the link controls -- it's the usual
         // setup step. Optional: some riders put the HUD on their home
         // wifi or a separate router, in which case the hotspot doesn't
         // matter. The hint copy makes that explicit so a rider whose
         // hotspot is intentionally off doesn't think anything is wrong.
-        HudHotspotHint()
+        // Nothing to set up while a HUD is linked: the hint returns when
+        // the link drops, which is when it is useful again.
+        HudHotspotHint(linked = pairedHudVersion != null)
 
+        // How to find the HUD is setup, like the hotspot hint: with a HUD
+        // linked it is found, and these rows are locked anyway. They fold
+        // away and come back when the link drops.
+        AnimatedVisibility(visible = pairedHudVersion == null) {
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         // Discovery mode comes FIRST -- it decides whether the rider needs to
         // know the IP at all. Auto finds the HUD on its own; Fixed uses only
         // the address below; Both tries auto then falls back to it. Locked
@@ -12037,6 +12284,8 @@ private fun HudIntegrationSection(
             )
         }
         }  // end AnimatedVisibility for the IP/port row
+        }
+        }  // end AnimatedVisibility for the find-the-HUD setup
 
         // Toggle goes UNDER the IP/port -- the rider configures the
         // address first and then flips the switch to dial out. Flipping

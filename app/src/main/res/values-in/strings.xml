@@ -494,6 +494,18 @@
     <string name="hud_map_brightness_label">Kecerahan</string>
     <string name="hud_install_hint">Perlu aplikasi HUD? Dapatkan di <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">Aplikasi HUD</string>
+    <string name="hud_app_installed">Terpasang:</string>
+    <string name="hud_app_available">Tersedia:</string>
+    <string name="hud_app_send">Kirim ke HUD</string>
+    <string name="hud_app_remove">Uninstal</string>
+    <string name="hud_app_sending">Mengirim, %1$d%%</string>
+    <string name="hud_app_sent">Lanjutkan di HUD.</string>
+    <string name="hud_app_resend_title">Sudah terbaru</string>
+    <string name="hud_app_resend_body">HUD sudah memakai versi ini. Tetap kirim?</string>
+    <string name="hud_app_remove_title">Uninstal aplikasi HUD?</string>
+    <string name="hud_app_remove_body">HUD akan meminta untuk mencopotnya. Memasangnya lagi perlu kabel.</string>
+    <string name="hud_app_failed">HUD tidak terjangkau. Coba lagi.</string>
     <string name="section_watch_general">Umum</string>
     <string name="section_watch_display">Tampilan</string>
     <string name="section_watch_advanced">Lanjutan</string>
@@ -2551,7 +2563,7 @@
     <string name="lockdown_warning_no_wheel">Tidak ada EUC terhubung, jadi status Mode Legal tidak diketahui. Aplikasi terkunci saat Mode Legal diaktifkan berikutnya.</string>
     <string name="lockdown_continue">Lanjutkan</string>
     <string name="trip_tools_wheel_none">Belum ada EUC yang tercatat pada perjalanan ini.</string>
-    <string name="backup_conflict_warning">Beberapa cadangan perjalanan perlu sinkronisasi manual: salinannya berbeda. Tekan Sinkronkan dan pilih sisi yang menang.</string>
+    <string name="backup_conflict_warning">Beberapa perjalanan di ponsel ini berbeda dari salinan di folder cadangan. Ketuk %1$s, lalu di %2$s tekan \"%3$s\" dan pilih salinan yang disimpan.</string>
     <string name="backup_conflict_title">Konflik cadangan</string>
     <string name="widget_act_1_short">Tindakan 1</string>
     <string name="widget_act_2_short">Tindakan 2</string>

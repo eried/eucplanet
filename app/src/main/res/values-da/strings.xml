@@ -539,6 +539,18 @@
     -->
     <string name="hud_install_hint">Mangler du HUD-appen? Hent den på <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">HUD-app</string>
+    <string name="hud_app_installed">Installeret:</string>
+    <string name="hud_app_available">Tilgængelig:</string>
+    <string name="hud_app_send">Send til HUD</string>
+    <string name="hud_app_remove">Afinstaller</string>
+    <string name="hud_app_sending">Sender, %1$d%%</string>
+    <string name="hud_app_sent">Fortsæt på HUD.</string>
+    <string name="hud_app_resend_title">Allerede opdateret</string>
+    <string name="hud_app_resend_body">HUD\'en har allerede denne version. Send alligevel?</string>
+    <string name="hud_app_remove_title">Afinstaller HUD-appen?</string>
+    <string name="hud_app_remove_body">HUD\'en beder om at afinstallere den. Det kræver et kabel at installere den igen.</string>
+    <string name="hud_app_failed">Kunne ikke nå HUD. Prøv igen.</string>
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">Generelt</string>
     <string name="section_watch_display">Skærm</string>
@@ -2731,7 +2743,7 @@
     <string name="lockdown_warning_no_wheel">Intet hjul er forbundet, så det er ukendt, om Legal-tilstand er slået til. Appen låser, næste gang Legal-tilstand slås til.</string>
     <string name="lockdown_continue">Fortsæt</string>
     <string name="trip_tools_wheel_none">Der er endnu ikke registreret et hjul for denne tur.</string>
-    <string name="backup_conflict_warning">Nogle backupper af ture skal synkroniseres manuelt: kopierne er forskellige. Tryk på Synkronisér, og vælg, hvilken side der gælder.</string>
+    <string name="backup_conflict_warning">Nogle ture på denne telefon er forskellige fra kopierne i backupmappen. Tryk på %1$s, tryk derefter på \"%3$s\" under %2$s, og vælg, hvilken kopi der skal beholdes.</string>
     <string name="backup_conflict_title">Backupkonflikter</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Ud at køre?</string>

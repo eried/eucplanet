@@ -1064,6 +1064,8 @@ class TripRepository(
         tripDao.delete(trip)
         val file = File(getTripsDir(), trip.fileName)
         if (file.exists()) file.delete()
+        // The trip may have been one of the copies that differed.
+        syncManager.recountFolderConflictsIfWarned()
     }
 
     /**
@@ -1471,6 +1473,8 @@ class TripRepository(
             if (f.extension.lowercase() in listOf("csv", "dbb")) f.delete()
         }
         tripDao.deleteAll()
+        // Nothing left on the phone to differ from the folder.
+        syncManager.recountFolderConflictsIfWarned()
     }
 
     fun getTripFile(trip: TripRecord): File = File(getTripsDir(), trip.fileName)

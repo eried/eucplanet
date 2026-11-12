@@ -48,6 +48,12 @@
     <uses-feature android:name="android.hardware.camera.any" android:required="false" />
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
 
+    <!-- The phone can send this app's next version over the link, or ask for
+         it to be removed. Both still go through Android's own prompt on the
+         HUD; these only let the app open that prompt. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
+
     <!-- BLE not needed: the HUD is a renderer, not a wheel client. The phone
          keeps owning the BLE link. -->
 
@@ -72,5 +78,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Starts the HUD again after it updated itself. -->
+        <receiver
+            android:name=".update.HudRelaunchReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

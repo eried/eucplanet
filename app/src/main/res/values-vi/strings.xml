@@ -494,6 +494,18 @@
     <string name="hud_map_brightness_label">Độ sáng</string>
     <string name="hud_install_hint">Cần ứng dụng HUD? Tải tại <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">Ứng dụng HUD</string>
+    <string name="hud_app_installed">Đã cài:</string>
+    <string name="hud_app_available">Có sẵn:</string>
+    <string name="hud_app_send">Gửi tới HUD</string>
+    <string name="hud_app_remove">Gỡ cài đặt</string>
+    <string name="hud_app_sending">Đang gửi, %1$d%%</string>
+    <string name="hud_app_sent">Tiếp tục trên HUD.</string>
+    <string name="hud_app_resend_title">Đã cập nhật</string>
+    <string name="hud_app_resend_body">HUD đã có phiên bản này. Vẫn gửi?</string>
+    <string name="hud_app_remove_title">Gỡ cài đặt ứng dụng HUD?</string>
+    <string name="hud_app_remove_body">HUD sẽ hỏi để gỡ cài đặt. Cài lại cần có cáp.</string>
+    <string name="hud_app_failed">Không kết nối được HUD. Thử lại.</string>
     <string name="section_watch_general">Chung</string>
     <string name="section_watch_display">Hiển thị</string>
     <string name="section_watch_advanced">Nâng cao</string>
@@ -2551,7 +2563,7 @@
     <string name="lockdown_warning_no_wheel">Chưa kết nối xe, nên chưa rõ trạng thái Chế độ hợp luật. Ứng dụng sẽ khóa lần tới khi Chế độ hợp luật được bật.</string>
     <string name="lockdown_continue">Tiếp tục</string>
     <string name="trip_tools_wheel_none">Chuyến đi này chưa ghi nhận xe nào.</string>
-    <string name="backup_conflict_warning">Một số bản sao lưu chuyến đi cần đồng bộ thủ công: các bản khác nhau. Nhấn Đồng bộ và chọn bên nào được giữ.</string>
+    <string name="backup_conflict_warning">Một số chuyến đi trên điện thoại này khác với bản sao trong thư mục sao lưu. Nhấn %1$s, rồi trong %2$s nhấn \"%3$s\" và chọn bản sao cần giữ.</string>
     <string name="backup_conflict_title">Xung đột sao lưu</string>
     <string name="widget_act_1_short">Thao tác 1</string>
     <string name="widget_act_2_short">Thao tác 2</string>

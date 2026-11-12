@@ -557,6 +557,18 @@
     -->
     <string name="hud_install_hint">Need the HUD app? Get it at <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">HUD app</string>
+    <string name="hud_app_installed">Installed:</string>
+    <string name="hud_app_available">Available:</string>
+    <string name="hud_app_send">Send to HUD</string>
+    <string name="hud_app_remove">Uninstall</string>
+    <string name="hud_app_sending">Sending, %1$d%%</string>
+    <string name="hud_app_sent">Check the HUD to continue.</string>
+    <string name="hud_app_resend_title">Already up to date</string>
+    <string name="hud_app_resend_body">The HUD already runs this version. Send it anyway?</string>
+    <string name="hud_app_remove_title">Uninstall the HUD app?</string>
+    <string name="hud_app_remove_body">The HUD will ask to uninstall it. Installing it again needs a cable.</string>
+    <string name="hud_app_failed">Could not reach the HUD. Try again.</string>
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">General</string>
     <string name="section_watch_display">Display</string>
@@ -2777,7 +2789,7 @@
     <string name="lockdown_warning_no_wheel">No wheel is connected, so the Legal Mode state is unknown. The app locks the next time Legal Mode is switched on.</string>
     <string name="lockdown_continue">Continue</string>
     <string name="trip_tools_wheel_none">No wheel is recorded on this trip yet.</string>
-    <string name="backup_conflict_warning">Some trip backups need a manual sync: the copies differ. Press Sync and pick which side wins.</string>
+    <string name="backup_conflict_warning">Some trips on this phone differ from the copies in your backup folder. Tap %1$s, then under %2$s press \"%3$s\" and pick which copy to keep.</string>
     <string name="backup_conflict_title">Backup conflicts</string>
     <string name="widget_act_1_short">Action 1</string>
     <string name="widget_act_2_short">Action 2</string>

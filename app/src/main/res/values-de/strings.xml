@@ -539,6 +539,18 @@
     -->
     <string name="hud_install_hint">Brauchst du die HUD-App? Hol sie dir unter <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">HUD-App</string>
+    <string name="hud_app_installed">Installiert:</string>
+    <string name="hud_app_available">Verfügbar:</string>
+    <string name="hud_app_send">An HUD senden</string>
+    <string name="hud_app_remove">Deinstallieren</string>
+    <string name="hud_app_sending">Wird gesendet, %1$d%%</string>
+    <string name="hud_app_sent">Am HUD fortfahren.</string>
+    <string name="hud_app_resend_title">Bereits aktuell</string>
+    <string name="hud_app_resend_body">Das HUD hat diese Version bereits. Trotzdem senden?</string>
+    <string name="hud_app_remove_title">HUD-App deinstallieren?</string>
+    <string name="hud_app_remove_body">Das HUD fragt nach der Deinstallation. Für eine neue Installation ist ein Kabel nötig.</string>
+    <string name="hud_app_failed">HUD nicht erreichbar. Erneut versuchen.</string>
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">Allgemein</string>
     <string name="section_watch_display">Anzeige</string>
@@ -2736,7 +2748,7 @@
     <string name="lockdown_warning_no_wheel">Kein Wheel verbunden, der Zustand des Legal-Modus ist also unbekannt. Die App sperrt beim nächsten Einschalten des Legal-Modus.</string>
     <string name="lockdown_continue">Weiter</string>
     <string name="trip_tools_wheel_none">Für diese Fahrt ist noch kein Wheel hinterlegt.</string>
-    <string name="backup_conflict_warning">Einige Fahrten-Backups brauchen einen manuellen Abgleich: Die Kopien unterscheiden sich. Auf Alle abgleichen tippen und die gültige Seite wählen.</string>
+    <string name="backup_conflict_warning">Einige Fahrten auf diesem Handy unterscheiden sich von den Kopien im Sicherungsordner. Auf %1$s tippen, dann unter %2$s auf \"%3$s\" tippen und wählen, welche Kopie bleibt.</string>
     <string name="backup_conflict_title">Backup-Konflikte</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Fahren?</string>

@@ -1824,6 +1824,18 @@
     <string name="hud_map_brightness_label">Lysstyrke</string>
     <string name="hud_install_hint">Trenger du HUD-appen? Hent den fra <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">HUD-app</string>
+    <string name="hud_app_installed">Installert:</string>
+    <string name="hud_app_available">Tilgjengelig:</string>
+    <string name="hud_app_send">Send til HUD</string>
+    <string name="hud_app_remove">Avinstaller</string>
+    <string name="hud_app_sending">Sender, %1$d%%</string>
+    <string name="hud_app_sent">Fortsett på HUD.</string>
+    <string name="hud_app_resend_title">Allerede oppdatert</string>
+    <string name="hud_app_resend_body">HUD-en har allerede denne versjonen. Sende likevel?</string>
+    <string name="hud_app_remove_title">Avinstallere HUD-appen?</string>
+    <string name="hud_app_remove_body">HUD-en ber om å avinstallere den. Du trenger kabel for å installere den igjen.</string>
+    <string name="hud_app_failed">Fikk ikke kontakt med HUD. Prøv igjen.</string>
     <string name="nav_setting_full_path">Beregn alltid hele ruten</string>
     <string name="nav_setting_full_path_desc">Av beregner bare neste stopp og viser resten som stiplet forhåndsvisning.</string>
     <string name="studio_cfg_clock_24h">24-timers format</string>
@@ -2603,7 +2615,7 @@
     <string name="lockdown_warning_no_wheel">Ingen hjul er tilkoblet, så tilstanden til lovlig modus er ukjent. Appen låses neste gang lovlig modus slås på.</string>
     <string name="lockdown_continue">Fortsett</string>
     <string name="trip_tools_wheel_none">Ingen hjul er registrert for denne turen ennå.</string>
-    <string name="backup_conflict_warning">Noen tursikkerhetskopier trenger manuell synkronisering: kopiene er ulike. Trykk Synkroniser og velg hvilken side som gjelder.</string>
+    <string name="backup_conflict_warning">Noen turer på denne telefonen er ulike kopiene i sikkerhetskopimappen. Trykk %1$s, trykk så \"%3$s\" under %2$s og velg hvilken kopi som skal beholdes.</string>
     <string name="backup_conflict_title">Sikkerhetskopikonflikter</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Kjøre?</string>

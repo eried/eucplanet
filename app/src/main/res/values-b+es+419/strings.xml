@@ -539,6 +539,18 @@
     -->
     <string name="hud_install_hint">¿Necesitas la app del HUD? Descárgala en <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">App del HUD</string>
+    <string name="hud_app_installed">Instalada:</string>
+    <string name="hud_app_available">Disponible:</string>
+    <string name="hud_app_send">Enviar al HUD</string>
+    <string name="hud_app_remove">Desinstalar</string>
+    <string name="hud_app_sending">Enviando, %1$d%%</string>
+    <string name="hud_app_sent">Revisa el HUD para continuar.</string>
+    <string name="hud_app_resend_title">Ya está actualizada</string>
+    <string name="hud_app_resend_body">El HUD ya tiene esta versión. ¿Enviarla de todos modos?</string>
+    <string name="hud_app_remove_title">¿Desinstalar la app del HUD?</string>
+    <string name="hud_app_remove_body">El HUD pedirá desinstalarla. Para instalarla otra vez hace falta un cable.</string>
+    <string name="hud_app_failed">No se pudo conectar con el HUD. Intenta de nuevo.</string>
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">General</string>
     <string name="section_watch_display">Pantalla</string>
@@ -2734,7 +2746,7 @@
     <string name="lockdown_warning_no_wheel">No hay rueda conectada, así que el estado del Modo Legal es desconocido. La app se bloqueará la próxima vez que se active el Modo Legal.</string>
     <string name="lockdown_continue">Continuar</string>
     <string name="trip_tools_wheel_none">Este viaje aún no tiene rueda registrada.</string>
-    <string name="backup_conflict_warning">Algunos respaldos de viajes necesitan una sincronización manual: las copias no coinciden. Toca Sincronizar y elige qué versión se queda.</string>
+    <string name="backup_conflict_warning">Algunos viajes de este teléfono difieren de las copias de tu carpeta de respaldo. Toca %1$s, luego en %2$s toca \"%3$s\" y elige qué copia conservar.</string>
     <string name="backup_conflict_title">Conflictos de respaldo</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">¿Rodar?</string>

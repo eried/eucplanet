@@ -528,6 +528,18 @@
 
     <string name="hud_install_hint">Potrebujete aplikáciu HUD? Získate ju na <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">Aplikácia HUD</string>
+    <string name="hud_app_installed">Nainštalované:</string>
+    <string name="hud_app_available">K dispozícii:</string>
+    <string name="hud_app_send">Odoslať do HUD</string>
+    <string name="hud_app_remove">Odinštalovať</string>
+    <string name="hud_app_sending">Odosiela sa, %1$d%%</string>
+    <string name="hud_app_sent">Pokračujte na HUD.</string>
+    <string name="hud_app_resend_title">Už aktuálna</string>
+    <string name="hud_app_resend_body">HUD už túto verziu má. Napriek tomu odoslať?</string>
+    <string name="hud_app_remove_title">Odinštalovať aplikáciu HUD?</string>
+    <string name="hud_app_remove_body">HUD požiada o odinštalovanie. Na novú inštaláciu je potrebný kábel.</string>
+    <string name="hud_app_failed">HUD nie je dostupný. Skúste to znova.</string>
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">Všeobecné</string>
     <string name="section_watch_display">Displej</string>
@@ -2714,7 +2726,7 @@
     <string name="lockdown_warning_no_wheel">Nie je pripojené žiadne koleso, takže stav legálneho režimu nie je známy. Aplikácia sa uzamkne pri ďalšom zapnutí legálneho režimu.</string>
     <string name="lockdown_continue">Pokračovať</string>
     <string name="trip_tools_wheel_none">Pre túto jazdu zatiaľ nie je zaznamenané žiadne koleso.</string>
-    <string name="backup_conflict_warning">Niektoré zálohy jázd potrebujú ručnú synchronizáciu: kópie sa líšia. Stlačte Synchronizovať a vyberte, ktorá strana vyhrá.</string>
+    <string name="backup_conflict_warning">Niektoré jazdy v tomto telefóne sa líšia od kópií v priečinku zálohy. Klepnite na %1$s, potom v časti %2$s stlačte \"%3$s\" a vyberte, ktorú kópiu ponechať.</string>
     <string name="backup_conflict_title">Konflikty záloh</string>
     <string name="widget_act_1_short">Akcia 1</string>
     <string name="widget_act_2_short">Akcia 2</string>

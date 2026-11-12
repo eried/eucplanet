@@ -488,6 +488,18 @@
     <string name="hud_map_brightness_label">Fényerő</string>
     <string name="hud_install_hint">Kell a HUD alkalmazás? Szerezd be itt: <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">HUD-alkalmazás</string>
+    <string name="hud_app_installed">Telepítve:</string>
+    <string name="hud_app_available">Elérhető:</string>
+    <string name="hud_app_send">Küldés a HUD-ra</string>
+    <string name="hud_app_remove">Eltávolítás</string>
+    <string name="hud_app_sending">Küldés, %1$d%%</string>
+    <string name="hud_app_sent">Folytasd a HUD-on.</string>
+    <string name="hud_app_resend_title">Már naprakész</string>
+    <string name="hud_app_resend_body">A HUD-on már ez a verzió fut. Mégis elküldöd?</string>
+    <string name="hud_app_remove_title">Eltávolítod a HUD-alkalmazást?</string>
+    <string name="hud_app_remove_body">A HUD rákérdez az eltávolításra. Az újratelepítéshez kábel kell.</string>
+    <string name="hud_app_failed">A HUD nem érhető el. Próbáld újra.</string>
     <string name="section_watch_general">Általános</string>
     <string name="section_watch_display">Megjelenítés</string>
     <string name="section_watch_advanced">Speciális</string>
@@ -2519,7 +2531,7 @@
     <string name="lockdown_warning_no_wheel">Nincs csatlakoztatott egykerekű, így a legális mód állapota ismeretlen. Az alkalmazás akkor zárol, amikor legközelebb bekapcsolják a legális módot.</string>
     <string name="lockdown_continue">Tovább</string>
     <string name="trip_tools_wheel_none">Ehhez a menethez még nincs egykerekű rögzítve.</string>
-    <string name="backup_conflict_warning">Néhány menet mentése kézi szinkronizálást igényel: a másolatok eltérnek. Nyomd meg a Szinkronizálást, és válaszd ki, melyik változat maradjon.</string>
+    <string name="backup_conflict_warning">A telefon néhány útja eltér a mentési mappában lévő példánytól. Koppints ide: %1$s, majd a(z) %2$s részben nyomd meg: \"%3$s\", és válaszd ki, melyik példány maradjon.</string>
     <string name="backup_conflict_title">Mentési ütközések</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Megyünk?</string>

@@ -539,6 +539,18 @@
     -->
     <string name="hud_install_hint">Нужно приложение HUD? Скачайте его на <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">Приложение HUD</string>
+    <string name="hud_app_installed">Установлено:</string>
+    <string name="hud_app_available">Доступно:</string>
+    <string name="hud_app_send">Отправить на HUD</string>
+    <string name="hud_app_remove">Удалить</string>
+    <string name="hud_app_sending">Отправка, %1$d%%</string>
+    <string name="hud_app_sent">Продолжите на HUD.</string>
+    <string name="hud_app_resend_title">Уже обновлено</string>
+    <string name="hud_app_resend_body">На HUD уже эта версия. Всё равно отправить?</string>
+    <string name="hud_app_remove_title">Удалить приложение HUD?</string>
+    <string name="hud_app_remove_body">HUD попросит удалить приложение. Для повторной установки нужен кабель.</string>
+    <string name="hud_app_failed">HUD недоступен. Попробуйте снова.</string>
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">Общие</string>
     <string name="section_watch_display">Экран</string>
@@ -2716,7 +2728,7 @@
     <string name="lockdown_warning_no_wheel">Моноколесо не подключено, поэтому состояние легального режима неизвестно. Приложение заблокируется при следующем включении легального режима.</string>
     <string name="lockdown_continue">Далее</string>
     <string name="trip_tools_wheel_none">Для этой поездки моноколесо ещё не указано.</string>
-    <string name="backup_conflict_warning">Некоторые резервные копии поездок нужно синхронизировать вручную: копии различаются. Нажмите «Синхр. всё» и выберите, какую версию оставить.</string>
+    <string name="backup_conflict_warning">Некоторые поездки на этом телефоне отличаются от копий в папке резервной копии. Нажмите %1$s, затем в разделе %2$s нажмите \"%3$s\" и выберите, какую копию оставить.</string>
     <string name="backup_conflict_title">Конфликты резервных копий</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Кататься?</string>

@@ -539,6 +539,18 @@
     -->
     <string name="hud_install_hint">HUD 앱이 필요하신가요? <b>eucplanet.ried.no/hud</b>에서 받으세요</string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">HUD 앱</string>
+    <string name="hud_app_installed">설치됨:</string>
+    <string name="hud_app_available">사용 가능:</string>
+    <string name="hud_app_send">HUD로 보내기</string>
+    <string name="hud_app_remove">제거</string>
+    <string name="hud_app_sending">보내는 중, %1$d%%</string>
+    <string name="hud_app_sent">HUD에서 계속하세요.</string>
+    <string name="hud_app_resend_title">이미 최신 버전입니다</string>
+    <string name="hud_app_resend_body">HUD에 이미 이 버전이 있습니다. 그래도 보낼까요?</string>
+    <string name="hud_app_remove_title">HUD 앱을 제거할까요?</string>
+    <string name="hud_app_remove_body">HUD에서 삭제 여부를 묻습니다. 다시 설치하려면 케이블이 필요합니다.</string>
+    <string name="hud_app_failed">HUD에 연결할 수 없습니다. 다시 시도하세요.</string>
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">일반</string>
     <string name="section_watch_display">화면</string>
@@ -2715,7 +2727,7 @@
     <string name="lockdown_warning_no_wheel">연결된 휠이 없어 리걸 모드 상태를 알 수 없습니다. 다음에 리걸 모드를 켤 때 앱이 잠깁니다.</string>
     <string name="lockdown_continue">계속</string>
     <string name="trip_tools_wheel_none">이 주행에는 아직 휠이 기록되지 않았습니다.</string>
-    <string name="backup_conflict_warning">일부 주행 기록 백업은 사본이 서로 달라 수동 동기화가 필요합니다. 동기화를 누르고 남길 쪽을 선택하세요.</string>
+    <string name="backup_conflict_warning">이 휴대폰의 일부 주행이 백업 폴더의 사본과 다릅니다. %1$s을(를) 누른 다음 %2$s에서 \"%3$s\"을(를) 누르고 남길 사본을 선택하세요.</string>
     <string name="backup_conflict_title">백업 충돌</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">탈까요?</string>

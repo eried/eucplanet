@@ -494,6 +494,18 @@
     <string name="hud_map_brightness_label">ความสว่าง</string>
     <string name="hud_install_hint">ต้องการแอป HUD ใช่ไหม? ดาวน์โหลดได้ที่ <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">แอป HUD</string>
+    <string name="hud_app_installed">ติดตั้งแล้ว:</string>
+    <string name="hud_app_available">พร้อมใช้งาน:</string>
+    <string name="hud_app_send">ส่งไปยัง HUD</string>
+    <string name="hud_app_remove">ถอนการติดตั้ง</string>
+    <string name="hud_app_sending">กำลังส่ง %1$d%%</string>
+    <string name="hud_app_sent">ดำเนินการต่อบน HUD</string>
+    <string name="hud_app_resend_title">เป็นเวอร์ชันล่าสุดแล้ว</string>
+    <string name="hud_app_resend_body">HUD มีเวอร์ชันนี้อยู่แล้ว ส่งต่อไปหรือไม่</string>
+    <string name="hud_app_remove_title">ถอนการติดตั้งแอป HUD หรือไม่</string>
+    <string name="hud_app_remove_body">HUD จะถามเพื่อถอนการติดตั้ง การติดตั้งใหม่ต้องใช้สายเคเบิล</string>
+    <string name="hud_app_failed">ติดต่อ HUD ไม่ได้ ลองอีกครั้ง</string>
     <string name="section_watch_general">ทั่วไป</string>
     <string name="section_watch_display">การแสดงผล</string>
     <string name="section_watch_advanced">ขั้นสูง</string>
@@ -2551,7 +2563,7 @@
     <string name="lockdown_warning_no_wheel">ไม่ได้เชื่อมต่อล้อ จึงไม่ทราบสถานะโหมดถูกกฎหมาย แอปจะล็อกในครั้งถัดไปที่เปิดโหมดถูกกฎหมาย</string>
     <string name="lockdown_continue">ดำเนินการต่อ</string>
     <string name="trip_tools_wheel_none">ทริปนี้ยังไม่มีข้อมูลล้อ</string>
-    <string name="backup_conflict_warning">ข้อมูลสำรองทริปบางรายการต้องซิงค์เอง เพราะสำเนาไม่ตรงกัน กดซิงค์แล้วเลือกฝั่งที่จะใช้</string>
+    <string name="backup_conflict_warning">ทริปบางรายการในโทรศัพท์เครื่องนี้ต่างจากสำเนาในโฟลเดอร์สำรอง แตะ %1$s จากนั้นใน %2$s กด \"%3$s\" แล้วเลือกสำเนาที่จะเก็บไว้</string>
     <string name="backup_conflict_title">ข้อมูลสำรองขัดแย้งกัน</string>
     <string name="widget_act_1_short">คำสั่ง 1</string>
     <string name="widget_act_2_short">คำสั่ง 2</string>

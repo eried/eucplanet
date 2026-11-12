@@ -488,6 +488,18 @@
     <string name="hud_map_brightness_label">Luminozitate</string>
     <string name="hud_install_hint">Ai nevoie de aplicația HUD? Ia-o de la <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">Aplicația HUD</string>
+    <string name="hud_app_installed">Instalată:</string>
+    <string name="hud_app_available">Disponibilă:</string>
+    <string name="hud_app_send">Trimite la HUD</string>
+    <string name="hud_app_remove">Dezinstalează</string>
+    <string name="hud_app_sending">Se trimite, %1$d%%</string>
+    <string name="hud_app_sent">Continuă pe HUD.</string>
+    <string name="hud_app_resend_title">Deja la zi</string>
+    <string name="hud_app_resend_body">HUD-ul are deja această versiune. Trimiți oricum?</string>
+    <string name="hud_app_remove_title">Dezinstalezi aplicația HUD?</string>
+    <string name="hud_app_remove_body">HUD-ul va cere dezinstalarea. Pentru reinstalare este nevoie de un cablu.</string>
+    <string name="hud_app_failed">HUD-ul nu răspunde. Încearcă din nou.</string>
     <string name="section_watch_general">General</string>
     <string name="section_watch_display">Afișare</string>
     <string name="section_watch_advanced">Avansat</string>
@@ -2519,7 +2531,7 @@
     <string name="lockdown_warning_no_wheel">Niciun monociclu conectat, deci starea modului legal este necunoscută. Aplicația se va bloca data viitoare când modul legal este pornit.</string>
     <string name="lockdown_continue">Continuă</string>
     <string name="trip_tools_wheel_none">Această cursă nu are încă un monociclu înregistrat.</string>
-    <string name="backup_conflict_warning">Unele copii de rezervă ale curselor trebuie sincronizate manual: copiile diferă. Apasă pe sincronizare și alege care variantă rămâne.</string>
+    <string name="backup_conflict_warning">Unele trasee de pe acest telefon diferă de copiile din folderul de backup. Atinge %1$s, apoi la %2$s apasă \"%3$s\" și alege ce copie păstrezi.</string>
     <string name="backup_conflict_title">Conflicte între copiile de rezervă</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Mergem?</string>

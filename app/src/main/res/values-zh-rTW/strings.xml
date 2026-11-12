@@ -538,6 +538,18 @@
     -->
     <string name="hud_install_hint">需要 HUD 應用程式？請至 <b>eucplanet.ried.no/hud</b> 取得</string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">HUD 應用程式</string>
+    <string name="hud_app_installed">已安裝：</string>
+    <string name="hud_app_available">可用：</string>
+    <string name="hud_app_send">傳送到 HUD</string>
+    <string name="hud_app_remove">解除安裝</string>
+    <string name="hud_app_sending">正在傳送 %1$d%%</string>
+    <string name="hud_app_sent">請在 HUD 上繼續。</string>
+    <string name="hud_app_resend_title">已是最新</string>
+    <string name="hud_app_resend_body">HUD 已是此版本。仍要傳送嗎？</string>
+    <string name="hud_app_remove_title">解除安裝 HUD 應用程式？</string>
+    <string name="hud_app_remove_body">HUD 會詢問是否解除安裝。重新安裝需要傳輸線。</string>
+    <string name="hud_app_failed">無法連線 HUD。請重試。</string>
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">一般</string>
     <string name="section_watch_display">顯示</string>
@@ -2714,7 +2726,7 @@
     <string name="lockdown_warning_no_wheel">未連線獨輪車，因此無法得知限速模式的狀態。下次開啟限速模式時，應用程式就會鎖定。</string>
     <string name="lockdown_continue">繼續</string>
     <string name="trip_tools_wheel_none">此行程尚未記錄獨輪車。</string>
-    <string name="backup_conflict_warning">部分行程備份需要手動同步：兩邊的副本不同。請輕觸「同步」並選擇以哪一邊為準。</string>
+    <string name="backup_conflict_warning">此手機上的部分行程與備份資料夾中的副本不同。點按%1$s，然後在%2$s下點按「%3$s」，選擇保留哪一份。</string>
     <string name="backup_conflict_title">備份衝突</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">騎嗎？</string>

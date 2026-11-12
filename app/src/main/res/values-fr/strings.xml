@@ -539,6 +539,18 @@
     -->
     <string name="hud_install_hint">Besoin de l\'application HUD ? Téléchargez-la sur eucplanet.ried.no/hud</string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">App HUD</string>
+    <string name="hud_app_installed">Installée :</string>
+    <string name="hud_app_available">Disponible :</string>
+    <string name="hud_app_send">Envoyer au HUD</string>
+    <string name="hud_app_remove">Désinstaller</string>
+    <string name="hud_app_sending">Envoi, %1$d%%</string>
+    <string name="hud_app_sent">Continuez sur le HUD.</string>
+    <string name="hud_app_resend_title">Déjà à jour</string>
+    <string name="hud_app_resend_body">Le HUD a déjà cette version. L\'envoyer quand même ?</string>
+    <string name="hud_app_remove_title">Désinstaller l\'app HUD ?</string>
+    <string name="hud_app_remove_body">Le HUD demandera de la désinstaller. La réinstaller nécessite un câble.</string>
+    <string name="hud_app_failed">HUD injoignable. Réessayez.</string>
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">Général</string>
     <string name="section_watch_display">Affichage</string>
@@ -2720,7 +2732,7 @@
     <string name="lockdown_warning_no_wheel">Aucune roue connectée, l’état du mode légal est donc inconnu. L’application se verrouillera à la prochaine activation du mode légal.</string>
     <string name="lockdown_continue">Continuer</string>
     <string name="trip_tools_wheel_none">Aucune roue enregistrée pour ce trajet pour le moment.</string>
-    <string name="backup_conflict_warning">Certaines sauvegardes de trajets demandent une synchronisation manuelle : les copies diffèrent. Appuyez sur Synchroniser et choisissez la bonne version.</string>
+    <string name="backup_conflict_warning">Certains trajets de ce téléphone diffèrent des copies de votre dossier de sauvegarde. Appuyez sur %1$s, puis sous %2$s appuyez sur \"%3$s\" et choisissez la copie à garder.</string>
     <string name="backup_conflict_title">Conflits de sauvegarde</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Rouler ?</string>

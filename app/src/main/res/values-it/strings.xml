@@ -1843,6 +1843,18 @@
     <string name="hud_map_brightness_label">Luminosità</string>
     <string name="hud_install_hint">Ti serve l\'app HUD? Scaricala da <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">App HUD</string>
+    <string name="hud_app_installed">Installata:</string>
+    <string name="hud_app_available">Disponibile:</string>
+    <string name="hud_app_send">Invia al HUD</string>
+    <string name="hud_app_remove">Disinstalla</string>
+    <string name="hud_app_sending">Invio, %1$d%%</string>
+    <string name="hud_app_sent">Continua sul HUD.</string>
+    <string name="hud_app_resend_title">Già aggiornata</string>
+    <string name="hud_app_resend_body">Il HUD ha già questa versione. Inviarla comunque?</string>
+    <string name="hud_app_remove_title">Disinstallare l\'app HUD?</string>
+    <string name="hud_app_remove_body">Il HUD chiederà di disinstallarla. Per reinstallarla serve un cavo.</string>
+    <string name="hud_app_failed">HUD non raggiungibile. Riprova.</string>
     <string name="nav_setting_full_path">Calcola sempre l\'intero percorso</string>
     <string name="nav_setting_full_path_desc">Disattivato calcola solo la prossima tappa e mostra il resto come anteprima tratteggiata.</string>
     <string name="studio_cfg_clock_24h">Formato 24 ore</string>
@@ -2620,7 +2632,7 @@
     <string name="lockdown_warning_no_wheel">Nessuna ruota collegata, quindi lo stato della modalità legale è sconosciuto. L’app si bloccherà alla prossima attivazione della modalità legale.</string>
     <string name="lockdown_continue">Continua</string>
     <string name="trip_tools_wheel_none">Nessuna ruota registrata per questo viaggio.</string>
-    <string name="backup_conflict_warning">Alcuni backup di viaggi richiedono una sincronizzazione manuale: le copie differiscono. Premi Sincronizza e scegli quale vale.</string>
+    <string name="backup_conflict_warning">Alcuni viaggi su questo telefono differiscono dalle copie nella cartella di backup. Tocca %1$s, poi in %2$s premi \"%3$s\" e scegli quale copia tenere.</string>
     <string name="backup_conflict_title">Conflitti di backup</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Si gira?</string>
