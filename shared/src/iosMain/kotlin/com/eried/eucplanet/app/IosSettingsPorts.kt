@@ -112,9 +112,7 @@ internal class IosSettingsVoice(private val voice: IosVoice) : SettingsVoice {
     override fun testSpeak(text: String, speechRate: Float, localeTag: String, voiceName: String) {
         val utterance = AVSpeechUtterance.speechUtteranceWithString(text)
         utterance.rate = (AVSpeechUtteranceDefaultSpeechRate * speechRate).coerceIn(0.1f, 1f)
-        val picked = voiceName.takeIf { it.isNotBlank() }?.let { AVSpeechSynthesisVoice.voiceWithIdentifier(it) }
-            ?: localeTag.takeIf { it.isNotBlank() }?.let { AVSpeechSynthesisVoice.voiceWithLanguage(it.replace('_', '-')) }
-        picked?.let { utterance.voice = it }
+        voice.voiceFor(localeTag, voiceName)?.let { utterance.voice = it }
         voice.speakNow(utterance)
     }
 }

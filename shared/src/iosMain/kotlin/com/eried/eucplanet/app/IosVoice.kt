@@ -67,15 +67,27 @@ internal class IosVoice(
         }.stringFromDate(NSDate())
     }
 
+    /**
+     * The voice picked in Settings when it speaks the voice language, else the
+     * language's default voice, as Android's VoiceService.applyLocale: a name
+     * left over from another language never overrides the language.
+     */
+    fun voiceFor(localeTag: String, voiceName: String): AVSpeechSynthesisVoice? {
+        val language = localeTag.replace('_', '-')
+        val named = voiceName.takeIf { it.isNotBlank() }?.let { AVSpeechSynthesisVoice.voiceWithIdentifier(it) }
+        if (named != null &&
+            named.language.substringBefore('-').equals(language.substringBefore('-'), ignoreCase = true)
+        ) return named
+        return language.takeIf { it.isNotBlank() }?.let { AVSpeechSynthesisVoice.voiceWithLanguage(it) }
+    }
+
     fun speak(text: String, s: AppSettings? = null) {
         val utterance = AVSpeechUtterance.speechUtteranceWithString(text)
         if (s != null) {
             // Android's 1.0 is the engine's normal pace; iOS's normal is its default rate.
             utterance.rate = (AVSpeechUtteranceDefaultSpeechRate * s.voiceSpeechRate).coerceIn(0.1f, 1f)
             utterance.volume = s.voiceVolumePercent / 100f
-            if (s.voiceLocale.isNotBlank()) {
-                AVSpeechSynthesisVoice.voiceWithLanguage(s.voiceLocale.replace("_", "-"))?.let { utterance.voice = it }
-            }
+            voiceFor(s.voiceLocale, s.voiceName)?.let { utterance.voice = it }
         }
         speech.speakUtterance(utterance)
     }
