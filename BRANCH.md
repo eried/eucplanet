@@ -17,6 +17,8 @@ only when you can cut the ride short.
 - Android Auto: navigation on the car screen, with your four numbers beside it. Planned route rides a loaded track.
 - HUD map: keeps working with the phone app in the background and no wheel connected. It now says when it is waiting for the phone GPS.
 - HUD map: no more white "Map data not yet available" screen. Where the map has no detail that deep it shows the closest zoom it has.
+- HUD map: the route is drawn on the map while navigating. Needs this phone APK and this HUD APK together.
+- HUD map: keeps facing the way you were riding when you stop, instead of swinging back to north.
 - HUD camera: let go of the camera when you leave the Camera screen, so the MotoEye recorder can start.
 - HUD camera: UP picks the next camera, DOWN turns the picture 90 degrees. Each camera keeps its own turn, and the HUD remembers them.
 - HUD camera: the MotoEye camera button frees the camera, so its rear view and recorder work from any screen. The picture comes back by itself a few seconds after you stop recording or close the rear view. UP or DOWN also brings it back.
@@ -84,6 +86,8 @@ only when you can cut the ride short.
 - Load a GPX track on the phone, then Places, Planned route in the car: does it follow the track?
 
 **HUD (MotoEye)**
+- Start a route on the phone and open Map on the HUD: is the route line there, on the right streets, and does it keep up as you ride?
+- Stop at a junction: does the map stay facing your direction of travel?
 - Install the phone and the HUD APK from this build. Open the HUD Map screen, leave the phone app, no wheel connected: does the map stay? And with the wheel connected, on any map style and zoom?
 - Camera screen: turn the front camera, switch to the rear one and back. Does each keep its own turn, also after restarting the HUD?
 - MotoEye, without pressing UP or DOWN: 1) Camera screen, hold to start recording, then hold again to stop. Does the picture come back about 5 s after the stop? 2) Short press for the rear view and close it, does it come back? 3) Dashboard, start recording, go to the Camera screen (it should say "in use"), back, stop: does that file play to the end? If the picture stays off, send a photo of the small grey line.

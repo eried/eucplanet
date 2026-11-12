@@ -22,6 +22,10 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.FilterQuality
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntOffset
@@ -32,6 +36,7 @@ import kotlin.math.roundToInt
 import com.eried.eucplanet.hud.R
 import com.eried.eucplanet.hud.net.HudTileCache
 import com.eried.eucplanet.hud.protocol.HudState
+import com.eried.eucplanet.hud.protocol.RouteWindow
 import com.eried.eucplanet.hud.protocol.WebMercator
 import com.eried.eucplanet.hud.ui.parseHexColor
 import kotlinx.coroutines.Dispatchers
@@ -117,6 +122,9 @@ fun MapScreen(hud: HudState, zoom: Float, peer: String?, cache: HudTileCache) {
         val tilePx = 256f * zScale
         val cx = WebMercator.tileX(hud.longitude, z)
         val cy = WebMercator.tileY(hud.latitude, z)
+        // The route line the phone sends around the rider. Decoded once per
+        // new string: it only changes when the phone has a new fix.
+        val route = remember(hud.navRoute) { RouteWindow.decode(hud.navRoute) }
 
         // Kick off async fetches for the visible tile window whenever the
         // viewport center or zoom changes. The fetch coroutine bumps `tick`
@@ -205,6 +213,26 @@ fun MapScreen(hud: HudState, zoom: Float, peer: String?, cache: HudTileCache) {
                                 size = Size(dst.toFloat(), dst.toFloat())
                             )
                         }
+                    }
+
+                    // The route, inside the rotation so it turns with the
+                    // map. A dark edge under the accent line keeps it
+                    // readable on a pale street and on a dark one.
+                    if (route.size >= 4) {
+                        val path = Path()
+                        for (i in 0 until route.size / 2) {
+                            val x = centerPx.x + ((WebMercator.tileX(route[2 * i + 1], z) - cx) * tilePx).toFloat()
+                            val y = centerPx.y + ((WebMercator.tileY(route[2 * i], z) - cy) * tilePx).toFloat()
+                            if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
+                        }
+                        drawPath(
+                            path, Color(0xCC000000),
+                            style = Stroke(9.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
+                        )
+                        drawPath(
+                            path, accent,
+                            style = Stroke(5.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
+                        )
                     }
                 }
 
