@@ -22,9 +22,10 @@ import java.io.File
  *
  * Installing a HUD by hand means a cable, a file manager and the unit's own
  * installer. Once this app is on the HUD, the phone can send the next one
- * over the link: the file lands here, the rider confirms on the HUD, and
- * Android's own prompt does the rest. Nothing installs or leaves without
- * both of those.
+ * over the link: the file lands here and goes straight to Android's own
+ * prompt. The rider already asked for it with a tap on the phone, and
+ * Android asks on the HUD before anything installs or leaves, so the HUD
+ * adds no question of its own in between.
  */
 object HudAppUpdate {
     private const val TAG = "HudAppUpdate"
@@ -32,9 +33,17 @@ object HudAppUpdate {
     /** Marks the install result coming back to the activity. */
     const val ACTION_INSTALL_STATUS = "com.eried.eucplanet.hud.INSTALL_STATUS"
 
-    /** A file that arrived, checked, and waits for the rider's OK. */
+    /** A file that arrived and passed the checks. */
     data class Pending(val file: File, val versionName: String)
 
+    /** Just arrived: the activity hands it to Android at once. */
+    private val _arrived = MutableStateFlow<Pending?>(null)
+    val arrived: StateFlow<Pending?> = _arrived.asStateFlow()
+
+    /**
+     * An offer Android's prompt left without installing. Only this one is
+     * asked about on the HUD: OK tries again, BACK drops it.
+     */
     private val _pending = MutableStateFlow<Pending?>(null)
     val pending: StateFlow<Pending?> = _pending.asStateFlow()
 
@@ -49,6 +58,7 @@ object HudAppUpdate {
     /** Where a posted file is written before it is checked. A new post
      *  replaces whatever was waiting. */
     fun incomingFile(context: Context): File {
+        _arrived.value = null
         _pending.value = null
         offered = null
         return File(File(context.cacheDir, "update").apply { mkdirs() }, "hud.apk")
@@ -77,22 +87,22 @@ object HudAppUpdate {
             HudDiag.log("update", "file from the phone is older ($code, running ${BuildConfig.VERSION_CODE})")
             return HudAppPush.ANSWER_OLDER
         }
-        HudDiag.log("update", "received ${info.versionName} ($code), $total bytes, waiting for OK")
+        HudDiag.log("update", "received ${info.versionName} ($code), $total bytes")
         _problem.value = null
-        _pending.value = Pending(file, info.versionName ?: "")
+        _arrived.value = Pending(file, info.versionName ?: "")
         return HudAppPush.ANSWER_READY
     }
 
     /**
-     * The offer the rider said OK to, kept until it is installed or skipped.
+     * The offer handed to Android, kept until it is installed or skipped.
      * Android's prompt can end without installing: the first time it sends
      * the rider to Settings to allow installs from this app, and the prompt
-     * is gone when they come back. The question then returns, so one send
-     * from the phone is enough.
+     * is gone when they come back. The HUD then asks, so one send from the
+     * phone is enough.
      */
     @Volatile private var offered: Pending? = null
 
-    /** The HUD is in front again: ask again if an offer was left hanging. */
+    /** The HUD is in front again: ask if an offer was left hanging. */
     fun onResume() {
         val o = offered ?: return
         if (_pending.value == null && o.file.exists()) _pending.value = o
@@ -100,16 +110,18 @@ object HudAppUpdate {
 
     /** The rider said no: drop the file. */
     fun skip() {
-        (_pending.value ?: offered)?.file?.delete()
+        (_pending.value ?: _arrived.value ?: offered)?.file?.delete()
         offered = null
+        _arrived.value = null
         _pending.value = null
         _problem.value = null
     }
 
-    /** The rider said OK: hand the file to Android, which asks once more. */
+    /** Hand the file to Android, which asks the rider before it installs. */
     fun install(activity: Activity) {
-        val p = _pending.value ?: return
+        val p = _arrived.value ?: _pending.value ?: return
         offered = p
+        _arrived.value = null
         _pending.value = null
         Thread {
             try {
