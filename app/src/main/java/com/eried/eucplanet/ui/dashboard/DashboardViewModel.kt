@@ -368,7 +368,7 @@ class DashboardViewModel(
                                 id = "backup_conflicts",
                                 titleRes = com.eried.eucplanet.R.string.backup_conflict_title,
                                 bodyRes = com.eried.eucplanet.R.string.backup_conflict_warning,
-                                settingsTab = 4,
+                                settingsTab = 13,
                             )
                         )
                     } else {

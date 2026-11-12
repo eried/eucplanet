@@ -436,6 +436,10 @@ fun SettingsScreen(
     // tab 12 opens Voice at its Speed splits block, for the splits tile's
     // long-press menu: the block sits below every voice setting.
     val scrollToSplits = initialTab == 12
+    // tab 13 opens Backups at its Trips backup block, for the Backup conflicts
+    // warning: the Sync button it asks for sits below the folder, Dropbox and
+    // settings backup blocks, off screen from the section top.
+    val scrollToTripsBackup = initialTab == 13
     val targetSectionKey = remember(initialTab) { initialTabSectionKey(initialTab) }
     // expandedSections is rememberSaveable above and only seeds on first ever
     // composition; on subsequent visits the user's saved expansion state can hide
@@ -686,7 +690,11 @@ fun SettingsScreen(
             EngineSoundSection(settings, viewModel, engineParked)
         },
         SectionDef("cloud", titleCloud, Icons.Default.Archive, corpora.getValue("cloud")) {
-            CloudTab(settings, viewModel, snackbar, snackbarScope)
+            CloudTab(
+                settings, viewModel, snackbar, snackbarScope,
+                scrollToTripsBackup = scrollToTripsBackup,
+                onTripsBackupTop = { y -> targetSectionTop = y },
+            )
         },
         SectionDef("alarms", titleAlarms, Icons.Default.NotificationsActive, corpora.getValue("alarms")) {
             AlarmSettingsContent()
@@ -885,7 +893,7 @@ fun SettingsScreen(
                     val isExpanded = explicitlyExpanded || openedByQuery
                     var sectionModifier = if (
                         sec.key == targetSectionKey && !scrollToBattery && !scrollToWeather &&
-                            !scrollToSplits
+                            !scrollToSplits && !scrollToTripsBackup
                     ) {
                         Modifier.onGloballyPositioned {
                             targetSectionTop = it.positionInWindow().y
@@ -980,6 +988,8 @@ private fun initialTabSectionKey(initialTab: Int): String? = when (initialTab) {
     11 -> "navigator"
     // Speed splits live inside Voice; scrollToSplits picks the block.
     12 -> "voice"
+    // Trips backup lives inside Backups; scrollToTripsBackup picks the block.
+    13 -> "cloud"
     else -> null
 }
 
@@ -8472,7 +8482,9 @@ private fun CloudTab(
     settings: com.eried.eucplanet.data.model.AppSettings,
     viewModel: SettingsViewModel,
     snackbar: androidx.compose.material3.SnackbarHostState,
-    snackbarScope: kotlinx.coroutines.CoroutineScope
+    snackbarScope: kotlinx.coroutines.CoroutineScope,
+    scrollToTripsBackup: Boolean = false,
+    onTripsBackupTop: (Float) -> Unit = {},
 ) {
     val context = LocalContext.current
     val cloudEvent by viewModel.cloudEvent.collectAsState()
@@ -9030,7 +9042,13 @@ private fun CloudTab(
                 small = true
             )
 
-            SectionHeader(stringResource(R.string.section_cloud_trips))
+            Box(
+                modifier = if (scrollToTripsBackup) {
+                    Modifier.onGloballyPositioned { onTripsBackupTop(it.positionInWindow().y) }
+                } else Modifier,
+            ) {
+                SectionHeader(stringResource(R.string.section_cloud_trips))
+            }
             HintText(stringResource(R.string.cloud_trips_caption))
             var showResetLocalDialog by remember { mutableStateOf(false) }
             val hasLocalTrips by viewModel.hasLocalTrips.collectAsState()
