@@ -2275,7 +2275,13 @@ class WheelRepository(
                     // carried across or every frame resets them to their default.
                 ).carryPhoneSideFrom(previous)
                 _wheelSeriesCells.value = wheelAdapter.seriesCells
-                _chargeStatus.value = deriveChargeStatus(_wheelData.value)
+                val newStatus = deriveChargeStatus(_wheelData.value)
+                if (newStatus != _chargeStatus.value) {
+                    val d = _wheelData.value
+                    Log.i(TAG, "Charge status ${_chargeStatus.value} -> $newStatus (flag=${d.charging} " +
+                        "pct=${d.batteryPercent} A=${d.current} speed=${d.speed})")
+                }
+                _chargeStatus.value = newStatus
                 // Families that report lock in their telemetry rather than in a
                 // settings frame. Null means the family says nothing, which must
                 // not be read as "unlocked".

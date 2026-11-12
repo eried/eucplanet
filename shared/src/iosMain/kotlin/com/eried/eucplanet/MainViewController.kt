@@ -2,6 +2,7 @@ package com.eried.eucplanet
 
 import androidx.compose.ui.window.ComposeUIViewController
 import com.eried.eucplanet.app.IosAppGraph
+import com.eried.eucplanet.app.IosDebugSnaps
 import com.eried.eucplanet.app.IosDisplayPrefs
 import com.eried.eucplanet.app.IosThemeEditor
 import com.eried.eucplanet.app.StatusBarHost
@@ -111,6 +112,8 @@ fun MainViewController(): UIViewController {
     // Legal Mode Lockdown: read before the first frame, and service mode
     // stopped while it runs, as EucPlanetApp does on Android.
     IosLockdown.start()
+    // EUC_SNAP="15,20,100" saves a burst of window screenshots (field debugging).
+    IosDebugSnaps.start()
     // SIMCTL_CHILD_EUC_RECORD=20 records a 20 s trip, for scripted runs.
     (NSProcessInfo.processInfo.environment["EUC_RECORD"] as? String)?.toLongOrNull()?.let { secs ->
         MainScope().launch {
