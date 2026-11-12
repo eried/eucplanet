@@ -1,11 +1,5 @@
 package com.eried.eucplanet.ui.theme
 
-import android.app.Activity
-import android.graphics.Bitmap
-import android.graphics.Rect
-import android.os.Handler
-import android.os.Looper
-import android.view.PixelCopy
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -51,11 +45,10 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
-import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.eried.eucplanet.R
+import com.eried.eucplanet.platform.stringResource
+import com.eried.eucplanet.resources.*
 import kotlin.math.roundToInt
 import kotlinx.coroutines.delay
 
@@ -97,6 +90,8 @@ fun Color.adjustLightness(factor: Float): Color = if (factor >= 1f) {
 @Composable
 fun ThemeTargetOverlay(
     base: AppThemeColors,
+    /** The window under the overlay, and its pixels. */
+    surface: ThemeEditorSurface,
     ring: Offset,
     /** True while the finger is still held on the eyedropper button (live aim). */
     fingerDown: Boolean,
@@ -108,7 +103,6 @@ fun ThemeTargetOverlay(
     onPicked: (ThemeTokenSpec) -> Unit,
     onCancel: () -> Unit,
 ) {
-    val view = LocalView.current
     var boxWin by remember { mutableStateOf(Offset.Zero) }
     var candidates by remember { mutableStateOf<List<ThemeTokenSpec>?>(null) }
     var chosen by remember { mutableStateOf<ThemeTokenSpec?>(null) }
@@ -131,32 +125,19 @@ fun ThemeTargetOverlay(
     // Sample the screen pixel under the crosshair → matching tokens. The spotlight
     // hole keeps the dim from tinting the sampled pixel.
     fun sample() {
-        val window = (view.context as? Activity)?.window ?: return
-        if (view.width <= 0 || view.height <= 0) return
+        if (surface.width <= 0 || surface.height <= 0) return
         // Sample point in window coordinates, clamped inside the view bounds.
-        val sx = (boxWin.x + ringState.value.x).roundToInt().coerceIn(0, view.width - 1)
-        val sy = (boxWin.y + ringState.value.y).roundToInt().coerceIn(0, view.height - 1)
-        // Copy ONLY a 1x1 region around the crosshair -- never the whole window.
-        // A full-screen ARGB_8888 bitmap is ~18 MB on a 1440p phone, and
-        // allocating + PixelCopy-ing that synchronously on the main thread on
-        // every Identify froze low-RAM / large-screen devices. One pixel is all
-        // we need to match a token. (Window+Rect overload is API 26+; minSdk 29.)
-        val src = Rect(sx, sy, sx + 1, sy + 1)
-        val bmp = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
-        runCatching {
-            PixelCopy.request(window, src, bmp, { result ->
-                if (result == PixelCopy.SUCCESS) {
-                    chosen = null
-                    candidates = nearestTokens(Color(bmp.getPixel(0, 0)), base)
-                }
-                bmp.recycle()
-            }, Handler(Looper.getMainLooper()))
-        }.onFailure { bmp.recycle() }
+        val sx = (boxWin.x + ringState.value.x).roundToInt().coerceIn(0, surface.width - 1)
+        val sy = (boxWin.y + ringState.value.y).roundToInt().coerceIn(0, surface.height - 1)
+        surface.samplePixel(sx, sy) { pixel ->
+            chosen = null
+            candidates = nearestTokens(pixel, base)
+        }
     }
 
     // Drag-off-button release: sample the moment the finger lifts. A short delay
     // lets the spotlight settle on the release point; the fallback re-shows the
-    // buttons if PixelCopy returned nothing.
+    // buttons if the platform returned no pixel.
     LaunchedEffect(autoIdentify) {
         if (autoIdentify) {
             autoFallback = false
@@ -224,10 +205,10 @@ fun ThemeTargetOverlay(
                         val spot = spotlightDp.toPx()
                         val belowY = boxWin.y + ring.y + spot + margin
                         val aboveY = boxWin.y + ring.y - spot - margin - rowH
-                        val y = (if (belowY + rowH <= view.height) belowY else aboveY)
-                            .coerceIn(0f, (view.height - rowH).coerceAtLeast(0f))
+                        val y = (if (belowY + rowH <= surface.height) belowY else aboveY)
+                            .coerceIn(0f, (surface.height - rowH).coerceAtLeast(0f))
                         val x = (boxWin.x + ring.x - rowW / 2f)
-                            .coerceIn(0f, (view.width - rowW).coerceAtLeast(0f))
+                            .coerceIn(0f, (surface.width - rowW).coerceAtLeast(0f))
                         IntOffset(x.roundToInt(), y.roundToInt())
                     }
                     .onGloballyPositioned { rowWpx = it.size.width; rowHpx = it.size.height },
@@ -235,8 +216,8 @@ fun ThemeTargetOverlay(
             ) {
                 // Cancel on the left, primary (Identify) on the right, matching the
                 // app's dialog button convention (dismiss left, confirm right).
-                TextButton(onClick = onCancel, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) }
-                FilledTonalButton(onClick = { sample() }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.theme_identify)) }
+                TextButton(onClick = onCancel, shape = RoundedCornerShape(12.dp)) { Text(stringResource(Res.string.action_cancel)) }
+                FilledTonalButton(onClick = { sample() }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(Res.string.theme_identify)) }
             }
         } else if (choosing) {
             // Centered chooser: title + tap-to-blink list (scrolls if many) + buttons.
@@ -254,7 +235,7 @@ fun ThemeTargetOverlay(
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
                     Text(
-                        stringResource(R.string.theme_identify_results_title),
+                        stringResource(Res.string.theme_identify_results_title),
                         style = MaterialTheme.typography.titleSmall,
                         modifier = Modifier.padding(start = 6.dp, bottom = 8.dp)
                     )
@@ -296,12 +277,12 @@ fun ThemeTargetOverlay(
                         horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
                     ) {
                         TextButton(onClick = { candidates = null; chosen = null; onCancel() }) {
-                            Text(stringResource(R.string.action_cancel))
+                            Text(stringResource(Res.string.action_cancel))
                         }
                         TextButton(
                             enabled = chosen != null,
                             onClick = { chosen?.let { candidates = null; onPicked(it) } }
-                        ) { Text(stringResource(R.string.action_select)) }
+                        ) { Text(stringResource(Res.string.action_select)) }
                     }
                 }
             }

@@ -61,6 +61,7 @@ Seams that need both sides on every change:
 | GPS power tiers | `data/model/GpsPowerPolicy.kt` (`GpsPowerPolicy`, `GpsIdleOff`) | `TripRepository` (fused priority and interval) | `iosMain/.../app/IosGpsPower.kt` (CoreLocation accuracy and distance filter), `iosApp/LocationBridge.swift` |
 | Automations | `service/AutomationManager.kt` (`AutomationWheel`, `MediaAutomation`), `ui/settings/AutomationsContent.kt` | `di/ServiceModule.kt` builds it; `service/AndroidMediaAutomation.kt` (AudioManager volume, media keys) | `iosMain/.../app/IosAppGraph.automation` (no media half) |
 | Ride session | `service/RideSession.kt` (`RideWheel`, `RideRecorder`, `RideVoice`) | `WheelService` (builds it, adds the notification, widget, engine sound, HUD, accel splits) | `iosMain/.../app/IosRideSession.kt` (adds nothing; the Live Activity follows the link itself) |
+| Theme editor | `ui/theme/ThemeEditorWidget.kt`, `ThemeTargetTool.kt`, `ThemeEditorSurface` (window size and one pixel) | `app/.../ui/theme/AndroidThemeEditorSurface.kt` (the view, PixelCopy); MainActivity mounts the widget | `iosMain/.../app/IosThemeEditor.kt` (a recorded root layer), `app/StatusBarHost.kt` (status bar style from the theme) |
 | Object graph | `di/SharedKoin.kt` (Koin) | `app/.../di/SharedModule.kt` hands the Koin singletons to Hilt; `AppModule` builds the moved repositories | `MainViewController.kt` reads Koin; `app/IosAppGraph.kt` builds the rest |
 
 The table grows as packages move; keep it current.

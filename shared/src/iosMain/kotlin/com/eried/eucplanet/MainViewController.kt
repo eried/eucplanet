@@ -3,6 +3,8 @@ package com.eried.eucplanet
 import androidx.compose.ui.window.ComposeUIViewController
 import com.eried.eucplanet.app.IosAppGraph
 import com.eried.eucplanet.app.IosDisplayPrefs
+import com.eried.eucplanet.app.IosThemeEditor
+import com.eried.eucplanet.app.StatusBarHost
 import com.eried.eucplanet.app.IosAppHealth
 import com.eried.eucplanet.app.IosLockdown
 import com.eried.eucplanet.ui.lockdown.LegalLockdownScreen
@@ -125,7 +127,9 @@ fun MainViewController(): UIViewController {
     // SIMCTL_CHILD_EUC_SETTINGS_TAB=4 opens Settings on a section, as the
     // dashboard's shortcuts do (initialTabSectionKey).
     val settingsTab = (NSProcessInfo.processInfo.environment["EUC_SETTINGS_TAB"] as? String)?.toIntOrNull() ?: 0
-    return ComposeUIViewController {
+    IosThemeEditor.start()
+    val statusBar = StatusBarHost()
+    val compose = ComposeUIViewController {
         if (tab != null) {
             ProbeScreen(link, wheel, tab)
         } else {
@@ -133,7 +137,11 @@ fun MainViewController(): UIViewController {
             val theme = IosAppGraph.theme
             LaunchedEffect(Unit) { theme.ensureResolved() }
             val colors by theme.activeColors.collectAsState()
+            // The status bar's text follows the theme: dark on a light theme.
+            LaunchedEffect(colors.isLight) { statusBar.lightContent = !colors.isLight }
             EucPlanetTheme(colors = colors) {
+              // The floating theme editor over every screen, as MainActivity mounts it.
+              IosThemeEditor.Root {
                 // A small screen stack until the shared navigation graph lands.
                 // SIMCTL_CHILD_EUC_SCREEN=scan opens on the scan screen (also settings, flic, trips, trip, trip:<id>, viewer:<id>, tripmeter, metric:<key>, charging, charging:details).
                 // "metric:VOLTAGE" opens a metric's detail, with the dashboard's route argument.
@@ -388,9 +396,12 @@ fun MainViewController(): UIViewController {
                         )
                     }
                 }
+              }
             }
         }
     }
+    statusBar.child = compose
+    return statusBar
 }
 
 /** SettingsScreen's "Backups & leaderboards" section, LeaderboardSetupLaunch.SETTINGS_TAB_CLOUD on Android. */

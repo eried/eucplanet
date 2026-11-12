@@ -64,19 +64,17 @@ import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
-import com.eried.eucplanet.R
+import com.eried.eucplanet.platform.stringResource
+import com.eried.eucplanet.resources.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
-import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * Theme customization widget, a floating, draggable, collapsible color editor. Mounted at the
@@ -87,7 +85,9 @@ import org.koin.compose.viewmodel.koinViewModel
  */
 @Composable
 fun ThemeEditorWidget(
-    vm: ThemeEditorViewModel = koinViewModel()
+    vm: ThemeEditorViewModel,
+    /** The window the widget floats over, and its pixels for the color identifier. */
+    surface: ThemeEditorSurface,
 ) {
     val settings = vm.settings.collectAsState().value ?: return
     val liveColors = vm.live.collectAsState().value
@@ -109,12 +109,11 @@ fun ThemeEditorWidget(
     var collapsed by remember { mutableStateOf(false) }
     // Keep the widget fully on-screen, whatever its current size (collapsed pill
     // or expanded card), so a drag can never push it out of reach and lose it.
-    val view = LocalView.current
     var widgetSize by remember { mutableStateOf(IntSize.Zero) }
     fun clampToScreen(o: Offset): Offset {
-        if (view.width == 0 || view.height == 0) return o
-        val maxX = (view.width - widgetSize.width).coerceAtLeast(0).toFloat()
-        val maxY = (view.height - widgetSize.height).coerceAtLeast(0).toFloat()
+        if (surface.width == 0 || surface.height == 0) return o
+        val maxX = (surface.width - widgetSize.width).coerceAtLeast(0).toFloat()
+        val maxY = (surface.height - widgetSize.height).coerceAtLeast(0).toFloat()
         return Offset(o.x.coerceIn(0f, maxX), o.y.coerceIn(0f, maxY))
     }
     var selectedKey by remember { mutableStateOf<String?>(null) }
@@ -213,7 +212,7 @@ fun ThemeEditorWidget(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    Icons.Filled.Palette, contentDescription = stringResource(R.string.theme_editor_widget),
+                    Icons.Filled.Palette, contentDescription = stringResource(Res.string.theme_editor_widget),
                     tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(20.dp)
                 )
             }
@@ -255,14 +254,14 @@ fun ThemeEditorWidget(
                 )
                 // Order: minimize, save, eyedropper (rightmost).
                 IconButton(onClick = { collapsed = true }, modifier = Modifier.size(36.dp)) {
-                    Icon(Icons.Filled.Minimize, contentDescription = stringResource(R.string.nav_minimize),
+                    Icon(Icons.Filled.Minimize, contentDescription = stringResource(Res.string.nav_minimize),
                         modifier = Modifier.size(18.dp))
                 }
                 IconButton(onClick = {
                     if (choices.folderAvailable) showSave = true
                     else showNoFolder = true
                 }, modifier = Modifier.size(36.dp)) {
-                    Icon(Icons.Filled.Save, contentDescription = stringResource(R.string.theme_editor_save_as),
+                    Icon(Icons.Filled.Save, contentDescription = stringResource(Res.string.theme_editor_save_as),
                         modifier = Modifier.size(18.dp))
                 }
                 // Eyedropper. Two flows decided by where the finger lifts:
@@ -306,7 +305,7 @@ fun ThemeEditorWidget(
                         },
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Filled.Colorize, contentDescription = stringResource(R.string.theme_editor_pick_color),
+                    Icon(Icons.Filled.Colorize, contentDescription = stringResource(Res.string.theme_editor_pick_color),
                         modifier = Modifier.size(18.dp))
                 }
             }
@@ -369,6 +368,7 @@ fun ThemeEditorWidget(
     if (pickMode) {
         ThemeTargetOverlay(
             base = base,
+            surface = surface,
             ring = ringPos,
             fingerDown = fingerDown,
             autoIdentify = autoIdentify,
@@ -391,11 +391,11 @@ fun ThemeEditorWidget(
             // A stray tap outside must not drop the typed name.
             properties = DialogProperties(dismissOnClickOutside = false),
             shape = RoundedCornerShape(12.dp),
-            title = { Text(stringResource(R.string.theme_editor_save_title)) },
+            title = { Text(stringResource(Res.string.theme_editor_save_title)) },
             text = {
                 OutlinedTextField(
                     value = name, onValueChange = { name = it },
-                    singleLine = true, label = { Text(stringResource(R.string.theme_editor_name_label)) },
+                    singleLine = true, label = { Text(stringResource(Res.string.theme_editor_name_label)) },
                     colors = themedFieldColors()
                 )
             },
@@ -418,9 +418,9 @@ fun ThemeEditorWidget(
                             vm.saveAs(n) { showSave = false }
                         }
                     }
-                ) { Text(stringResource(R.string.action_save)) }
+                ) { Text(stringResource(Res.string.action_save)) }
             },
-            dismissButton = { TextButton(onClick = { showSave = false }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) } }
+            dismissButton = { TextButton(onClick = { showSave = false }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(Res.string.action_cancel)) } }
         )
     }
 
@@ -429,15 +429,15 @@ fun ThemeEditorWidget(
         AlertDialog(
             onDismissRequest = { pendingReplaceName = null },
             shape = RoundedCornerShape(12.dp),
-            title = { Text(stringResource(R.string.theme_editor_replace_title)) },
-            text = { Text(stringResource(R.string.theme_editor_replace_body, n)) },
+            title = { Text(stringResource(Res.string.theme_editor_replace_title)) },
+            text = { Text(stringResource(Res.string.theme_editor_replace_body, n)) },
             confirmButton = {
                 TextButton(onClick = {
                     vm.saveAs(n) { showSave = false; pendingReplaceName = null }
-                }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_replace)) }
+                }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(Res.string.action_replace)) }
             },
             dismissButton = {
-                TextButton(onClick = { pendingReplaceName = null }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) }
+                TextButton(onClick = { pendingReplaceName = null }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(Res.string.action_cancel)) }
             }
         )
     }
@@ -448,13 +448,13 @@ fun ThemeEditorWidget(
         AlertDialog(
             onDismissRequest = { pendingOverwrite = false; vm.preview(null) },
             shape = RoundedCornerShape(12.dp),
-            title = { Text(stringResource(R.string.theme_editor_discard_title)) },
-            text = { Text(stringResource(R.string.theme_editor_discard_body)) },
+            title = { Text(stringResource(Res.string.theme_editor_discard_title)) },
+            text = { Text(stringResource(Res.string.theme_editor_discard_body)) },
             confirmButton = {
-                TextButton(onClick = { pendingOverwrite = false; vm.commit() }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_continue)) }
+                TextButton(onClick = { pendingOverwrite = false; vm.commit() }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(Res.string.action_continue)) }
             },
             dismissButton = {
-                TextButton(onClick = { pendingOverwrite = false; vm.preview(null) }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) }
+                TextButton(onClick = { pendingOverwrite = false; vm.preview(null) }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(Res.string.action_cancel)) }
             }
         )
     }
@@ -466,18 +466,18 @@ fun ThemeEditorWidget(
         AlertDialog(
             onDismissRequest = { showNoFolder = false },
             shape = RoundedCornerShape(12.dp),
-            title = { Text(stringResource(R.string.theme_editor_no_folder_title)) },
+            title = { Text(stringResource(Res.string.theme_editor_no_folder_title)) },
             text = {
                 Text(
                     stringResource(
-                        R.string.theme_editor_no_folder_body,
-                        stringResource(R.string.tab_cloud),
-                        stringResource(R.string.cloud_choose_folder)
+                        Res.string.theme_editor_no_folder_body,
+                        stringResource(Res.string.tab_cloud),
+                        stringResource(Res.string.cloud_choose_folder)
                     )
                 )
             },
             confirmButton = {
-                TextButton(onClick = { showNoFolder = false }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_ok)) }
+                TextButton(onClick = { showNoFolder = false }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(Res.string.action_ok)) }
             }
         )
     }
@@ -513,7 +513,7 @@ private fun TokenRow(
         IconButton(onClick = onPlay, modifier = Modifier.size(28.dp)) {
             Icon(
                 Icons.Filled.PlayArrow,
-                contentDescription = stringResource(R.string.theme_editor_replay_blink),
+                contentDescription = stringResource(Res.string.theme_editor_replay_blink),
                 modifier = Modifier.size(16.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )

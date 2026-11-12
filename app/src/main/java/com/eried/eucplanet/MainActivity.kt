@@ -911,7 +911,10 @@ class MainActivity : AppCompatActivity() {
                         // costing anything) when the rider enables it in
                         // Settings -> Display -> Theme editor.
                         if (s?.themeEditorEnabled == true) {
-                            com.eried.eucplanet.ui.theme.ThemeEditorWidget()
+                            com.eried.eucplanet.ui.theme.ThemeEditorWidget(
+                                vm = org.koin.compose.viewmodel.koinViewModel(),
+                                surface = com.eried.eucplanet.ui.theme.rememberAndroidThemeEditorSurface(),
+                            )
                         }
                         // Radar mini lane lives inside DashboardScreen now,
                         // mounted directly in the dial Box. Keeping the radar
