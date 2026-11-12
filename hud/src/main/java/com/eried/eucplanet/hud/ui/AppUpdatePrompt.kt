@@ -29,8 +29,10 @@ import com.eried.eucplanet.hud.R
 import com.eried.eucplanet.hud.update.HudAppUpdate
 
 /**
- * Full-screen question over the HUD when the phone has sent a newer HUD app:
- * OK installs it, BACK drops it. Also carries the one line shown when an
+ * Full-screen question over the HUD when an app sent by the phone went to
+ * Android's prompt and came back without installing: OK tries again, BACK
+ * drops it. A fresh arrival is not asked about, it goes to Android's prompt
+ * directly. Also carries the one line shown when an
  * install did not go through. The keys are read in the activity. A HUD has
  * no touch, but the app also runs on a phone or tablet used as one, and
  * there a tap is the only OK there is: the button installs, the line under

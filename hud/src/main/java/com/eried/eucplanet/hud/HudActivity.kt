@@ -176,6 +176,13 @@ class HudActivity : ComponentActivity() {
                 .collect { tileCache.applyStyle(it) }
         }
 
+        // The phone sent a HUD app: straight to Android's own prompt. The
+        // rider asked for it on the phone and Android asks here, a question
+        // of ours in between was one OK too many.
+        lifecycleScope.launch {
+            HudAppUpdate.arrived.collect { p -> if (p != null) HudAppUpdate.install(this@HudActivity) }
+        }
+
         // The phone asked for this app to be removed: Android's own prompt
         // asks the rider, nothing goes without their answer on the HUD.
         lifecycleScope.launch {
@@ -216,9 +223,10 @@ class HudActivity : ComponentActivity() {
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        // An update from the phone waits for one answer and takes every key
-        // until it has it: OK installs, BACK drops it. Acting on the release
-        // keeps the press from also reaching the screen underneath.
+        // An update Android's prompt left hanging waits for one answer and
+        // takes every key until it has it: OK tries again, BACK drops it.
+        // Acting on the release keeps the press from also reaching the
+        // screen underneath.
         if (HudAppUpdate.pending.value != null) {
             if (event.action == KeyEvent.ACTION_UP) when (event.keyCode) {
                 KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER -> HudAppUpdate.install(this)
