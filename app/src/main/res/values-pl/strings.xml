@@ -2080,6 +2080,7 @@
     <string name="scan_bluetooth_off_title">Bluetooth jest wyłączony</string>
     <string name="scan_enable_bluetooth">Włącz Bluetooth</string>
     <string name="bluetooth_turn_on_control_center">Włącz Bluetooth w centrum sterowania</string>
+    <string name="platform_feature_not_yet">Jeszcze niedostępne na iPhonie</string>
     <string name="studio_cfg_radar_distance_labels">Etykiety odległości</string>
     <string name="studio_radar_none">Brak radaru</string>
     <string name="studio_radar_clear">Czysto</string>

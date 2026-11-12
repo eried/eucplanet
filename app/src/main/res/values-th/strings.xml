@@ -1253,6 +1253,7 @@
     <string name="scan_bluetooth_off_body">เปิดบลูทูธเพื่อสแกนหาล้อ</string>
     <string name="scan_enable_bluetooth">เปิดบลูทูธ</string>
     <string name="bluetooth_turn_on_control_center">เปิดบลูทูธในศูนย์ควบคุม</string>
+    <string name="platform_feature_not_yet">ยังไม่มีบน iPhone</string>
     <string name="scan_show_all_title">แสดงอุปกรณ์ทั้งหมด</string>
     <string name="scan_show_all_subtitle">เปิดใช้หากล้อของคุณไม่ปรากฏ</string>
     <string name="metric_detail_title">ประวัติ</string>

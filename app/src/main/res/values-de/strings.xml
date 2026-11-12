@@ -2102,6 +2102,7 @@
     <string name="scan_bluetooth_off_title">Bluetooth ist aus</string>
     <string name="scan_enable_bluetooth">Bluetooth einschalten</string>
     <string name="bluetooth_turn_on_control_center">Bluetooth im Kontrollzentrum einschalten</string>
+    <string name="platform_feature_not_yet">Noch nicht auf dem iPhone</string>
     <string name="studio_cfg_radar_distance_labels">Entfernungsbeschriftungen</string>
     <string name="studio_radar_none">Kein Radar</string>
     <string name="studio_radar_clear">Frei</string>

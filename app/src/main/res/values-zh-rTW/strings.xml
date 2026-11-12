@@ -2054,6 +2054,7 @@
     <string name="scan_bluetooth_off_title">藍牙已關閉</string>
     <string name="scan_enable_bluetooth">開啟藍牙</string>
     <string name="bluetooth_turn_on_control_center">請在控制中心開啟藍牙</string>
+    <string name="platform_feature_not_yet">iPhone 版尚未支援</string>
     <string name="studio_cfg_radar_distance_labels">距離標籤</string>
     <string name="studio_radar_none">無雷達</string>
     <string name="studio_radar_clear">無車</string>

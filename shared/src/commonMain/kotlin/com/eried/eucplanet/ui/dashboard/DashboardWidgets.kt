@@ -796,7 +796,9 @@ fun ActionButton(
     onClick: () -> Unit,
     onLongClick: (() -> Unit)? = null,
     aspectRatio: Float? = 1f,
-    heightDp: Int? = null
+    heightDp: Int? = null,
+    /** Drawn in the disabled ink but still tappable: a feature this phone lacks yet. */
+    muted: Boolean = false,
 ) {
     val disabledAlpha = 0.35f
     val container = when {
@@ -806,6 +808,7 @@ fun ActionButton(
     }
     val content = when {
         !enabled -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = disabledAlpha)
+        muted -> MaterialTheme.appColors.textDisabled
         active -> activeColor
         else -> MaterialTheme.appColors.tileLabel
     }

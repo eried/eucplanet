@@ -1247,6 +1247,7 @@
     <string name="scan_bluetooth_off_body">Zapněte Bluetooth, aby šlo hledat monokola.</string>
     <string name="scan_enable_bluetooth">Zapnout Bluetooth</string>
     <string name="bluetooth_turn_on_control_center">Zapněte Bluetooth v Ovládacím centru</string>
+    <string name="platform_feature_not_yet">Na iPhonu zatím není</string>
     <string name="scan_show_all_title">Zobrazit všechna zařízení</string>
     <string name="scan_show_all_subtitle">Zapněte, pokud se vaše monokolo neobjeví.</string>
     <string name="metric_detail_title">Historie</string>

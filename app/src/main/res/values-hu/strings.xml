@@ -1247,6 +1247,7 @@
     <string name="scan_bluetooth_off_body">Kapcsold be a Bluetootht az egykerekűek kereséséhez.</string>
     <string name="scan_enable_bluetooth">Bluetooth bekapcsolása</string>
     <string name="bluetooth_turn_on_control_center">Kapcsold be a Bluetootht a Vezérlőközpontban</string>
+    <string name="platform_feature_not_yet">iPhone-on még nem érhető el</string>
     <string name="scan_show_all_title">Összes eszköz mutatása</string>
     <string name="scan_show_all_subtitle">Kapcsold be, ha az egykerekűd nem jelenik meg.</string>
     <string name="metric_detail_title">Előzmények</string>

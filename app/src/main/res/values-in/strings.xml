@@ -1253,6 +1253,7 @@
     <string name="scan_bluetooth_off_body">Aktifkan Bluetooth untuk memindai EUC.</string>
     <string name="scan_enable_bluetooth">Aktifkan Bluetooth</string>
     <string name="bluetooth_turn_on_control_center">Aktifkan Bluetooth di Pusat Kontrol</string>
+    <string name="platform_feature_not_yet">Belum ada di iPhone</string>
     <string name="scan_show_all_title">Tampilkan semua perangkat</string>
     <string name="scan_show_all_subtitle">Aktifkan jika EUC Anda tidak muncul.</string>
     <string name="metric_detail_title">Riwayat</string>

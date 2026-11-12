@@ -2088,6 +2088,7 @@
     <string name="scan_bluetooth_off_title">Bluetooth désactivé</string>
     <string name="scan_enable_bluetooth">Activer le Bluetooth</string>
     <string name="bluetooth_turn_on_control_center">Activez le Bluetooth dans le Centre de contrôle</string>
+    <string name="platform_feature_not_yet">Pas encore sur iPhone</string>
     <string name="studio_cfg_radar_distance_labels">Étiquettes de distance</string>
     <string name="studio_radar_none">Pas de radar</string>
     <string name="studio_radar_clear">Dégagé</string>

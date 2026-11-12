@@ -1,5 +1,9 @@
 package com.eried.eucplanet.ui.settings
 
+import com.eried.eucplanet.platform.PlatformFeature
+import com.eried.eucplanet.platform.available
+import com.eried.eucplanet.ui.common.NotYetSettingsRow
+import com.eried.eucplanet.ui.common.rememberNotYetTap
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.ui.draw.rotate
 import androidx.compose.animation.animateContentSize
@@ -583,8 +587,14 @@ private fun SettingsScreenContent(
         val searchCorpus: List<SearchEntry>,
         val content: @Composable () -> Unit
     ) {
+        /**
+         * A section this phone does not have yet (PlatformFeature): listed,
+         * muted, never opened, and left out of the search.
+         */
+        val unavailable: Boolean get() = PlatformFeature.forSection(key)?.available == false
+
         private fun hits(query: String): List<SearchEntry> =
-            if (query.isEmpty()) emptyList()
+            if (query.isEmpty() || unavailable) emptyList()
             else searchCorpus.filter { it.text.contains(query, ignoreCase = true) }
 
         fun matchCount(query: String): Int = hits(query).size
@@ -600,7 +610,7 @@ private fun SettingsScreenContent(
          * more than a description that mentions the word in passing.
          */
         fun searchScore(query: String): Int {
-            if (query.isEmpty()) return 0
+            if (query.isEmpty() || unavailable) return 0
             return sectionScore(title, hits(query), query, TITLE_WEIGHT)
         }
 
@@ -868,12 +878,14 @@ private fun SettingsScreenContent(
                 com.eried.eucplanet.ui.common.LocalSettingsSearchScroller provides searchScroller,
                 LocalSearchFolds provides searchFolds,
             ) {
+                val notYet = rememberNotYetTap()
+
                 @Composable
                 fun SectionCard(sec: SectionDef, indent: Boolean = false) {
                     // Everything stays on the page while searching. Only the
                     // first match opens; the rest report how many labels they
                     // hit and stay shut.
-                    val explicitlyExpanded = expandedSections.contains(sec.key)
+                    val explicitlyExpanded = !sec.unavailable && expandedSections.contains(sec.key)
                     val openedByQuery = searching && sec.key == searchScrollKey
                     val isExpanded = explicitlyExpanded || openedByQuery
                     var sectionModifier = if (
@@ -900,8 +912,10 @@ private fun SettingsScreenContent(
                         query = query,
                         autoExpandedByQuery = !explicitlyExpanded && openedByQuery,
                         matchCount = if (searching && !isExpanded) sec.matchCount(query) else 0,
+                        muted = sec.unavailable,
                         onToggle = {
-                            if (explicitlyExpanded) expandedSections.remove(sec.key)
+                            if (sec.unavailable) notYet()
+                            else if (explicitlyExpanded) expandedSections.remove(sec.key)
                             else expandedSections.add(sec.key)
                         }
                     ) {
@@ -1030,6 +1044,8 @@ private fun CollapsibleSection(
      * in all of them.
      */
     matchCount: Int = 0,
+    /** A section this phone does not have yet: icon and title in the disabled ink. */
+    muted: Boolean = false,
     content: @Composable () -> Unit
 ) {
     // Bring the section header into view when the rider explicitly toggles
@@ -1068,7 +1084,7 @@ private fun CollapsibleSection(
                 Icon(
                     icon,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = if (muted) MaterialTheme.appColors.textDisabled else MaterialTheme.colorScheme.primary
                 )
                 Spacer(Modifier.width(17.dp))
                 Text(
@@ -1077,7 +1093,7 @@ private fun CollapsibleSection(
                     // Section title is body text, not an accent: keep it the
                     // theme's primary text color (off-white on dark, dark ink on
                     // light) so it doesn't share the leading icon's accent tint.
-                    color = MaterialTheme.appColors.textPrimary,
+                    color = if (muted) MaterialTheme.appColors.textDisabled else MaterialTheme.appColors.textPrimary,
                     modifier = Modifier.weight(1f)
                 )
                 SearchCountPill(matchCount)
@@ -1493,6 +1509,8 @@ private fun GeneralTab(
                 }
             }
         }
+        // Where the iPhone will have the widget: named, muted, "not yet".
+        NotYetSettingsRow(PlatformFeature.HOME_WIDGETS)
 
         Box(
             modifier = if (scrollToBattery) {

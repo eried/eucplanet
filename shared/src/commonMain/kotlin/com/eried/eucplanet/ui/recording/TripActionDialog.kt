@@ -1,5 +1,8 @@
 package com.eried.eucplanet.ui.recording
 
+import com.eried.eucplanet.platform.PlatformFeature
+import com.eried.eucplanet.platform.available
+import com.eried.eucplanet.ui.common.notYetText
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Column
@@ -71,6 +74,13 @@ fun TripActionDialog(
                     stringResource(Res.string.trip_action_replay),
                     stringResource(Res.string.trip_action_replay_desc)
                 ) { onDismiss(); onReplay() }
+                // The Studio is coming to this phone: the row shows, greyed, saying so.
+                else if (!PlatformFeature.CAMERA_STUDIO.available) TripActionRow(
+                    Icons.Default.History,
+                    stringResource(Res.string.trip_action_replay),
+                    notYetText(),
+                    enabled = false,
+                ) {}
             }
         },
         confirmButton = {},

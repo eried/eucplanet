@@ -75,7 +75,10 @@ import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
 import com.eried.eucplanet.platform.stringResource
 import com.eried.eucplanet.resources.*
+import com.eried.eucplanet.platform.PlatformFeature
+import com.eried.eucplanet.platform.available
 import com.eried.eucplanet.ui.common.HintText
+import com.eried.eucplanet.ui.common.NotYetNote
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedSwitchColors
 
@@ -126,6 +129,8 @@ private data class TutorialStep(
      *  link-bearing bullets (eucviewer + eucstats). Mutually exclusive with
      *  [showClip]; the body [text] is ignored when this is true. */
     val showShare: Boolean = false,
+    /** The feature this step shows; where this phone lacks it, the card says so. */
+    val feature: PlatformFeature? = null,
 )
 
 /**
@@ -153,12 +158,16 @@ private fun tutorialSteps(): List<TutorialStep> = listOf(
             stringResource(Res.string.dashboard_section_actions)
         )
     ),
-    TutorialStep(TutorialTarget.MAP_BUTTON, stringResource(Res.string.welcome_tut_map)),
+    TutorialStep(TutorialTarget.MAP_BUTTON, stringResource(Res.string.welcome_tut_map), feature = PlatformFeature.NAVIGATION),
     TutorialStep(
         TutorialTarget.GPS_BUTTON,
-        stringResource(Res.string.welcome_tut_gps, stringResource(Res.string.section_speed_calibration))
+        stringResource(Res.string.welcome_tut_gps, stringResource(Res.string.section_speed_calibration)),
+        feature = PlatformFeature.GPS_SENSORS,
     ),
-    TutorialStep(TutorialTarget.CAMERA_BUTTON, stringResource(Res.string.welcome_tut_camera)),
+    TutorialStep(
+        TutorialTarget.CAMERA_BUTTON, stringResource(Res.string.welcome_tut_camera),
+        feature = PlatformFeature.CAMERA_STUDIO,
+    ),
     TutorialStep(
         TutorialTarget.PARK_DRIVE,
         stringResource(Res.string.welcome_tut_pd, stringResource(Res.string.section_speed_limits))
@@ -455,6 +464,10 @@ fun WelcomeTutorialOverlay(
                         } else {
                             Spacer(Modifier.height(8.dp))
                             Text(s.text, style = MaterialTheme.typography.bodyLarge)
+                            if (s.feature?.available == false) {
+                                Spacer(Modifier.height(8.dp))
+                                NotYetNote()
+                            }
                             // Step 0: voice opt-in. Same row pattern as every other
                             // SwitchSetting in Settings (label on the left, themed
                             // Switch on the right) + a HintText below, so this card

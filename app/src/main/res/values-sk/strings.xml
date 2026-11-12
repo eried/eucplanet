@@ -1328,6 +1328,7 @@
     <string name="scan_bluetooth_off_body">Ak chcete hľadať kolesá, zapnite Bluetooth.</string>
     <string name="scan_enable_bluetooth">Zapnúť Bluetooth</string>
     <string name="bluetooth_turn_on_control_center">Zapnite Bluetooth v Ovládacom centre</string>
+    <string name="platform_feature_not_yet">Na iPhone zatiaľ nie je</string>
     <string name="scan_show_all_title">Zobraziť všetky zariadenia</string>
     <string name="scan_show_all_subtitle">Zapnite, ak sa vaše koleso nezobrazuje.</string>
 

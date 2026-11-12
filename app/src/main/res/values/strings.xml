@@ -1371,6 +1371,7 @@
     <string name="scan_bluetooth_off_body">Turn on Bluetooth to scan for wheels.</string>
     <string name="scan_enable_bluetooth">Enable Bluetooth</string>
     <string name="bluetooth_turn_on_control_center">Turn on Bluetooth in Control Center</string>
+    <string name="platform_feature_not_yet">Not on iPhone yet</string>
     <string name="scan_show_all_title">Show all devices</string>
     <string name="scan_show_all_subtitle">Turn on if your wheel does not appear.</string>
 

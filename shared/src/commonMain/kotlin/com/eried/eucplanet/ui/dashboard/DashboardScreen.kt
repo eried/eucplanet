@@ -1,5 +1,7 @@
 package com.eried.eucplanet.ui.dashboard
 
+import com.eried.eucplanet.platform.PlatformFeature
+import com.eried.eucplanet.platform.available
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.foundation.layout.imePadding
@@ -412,6 +414,14 @@ fun DashboardScreen(
     // MainActivity shows a voice session as one line that replaces itself
     // (VoiceCommandController.toast), on every screen.
     val snackbarScope = rememberCoroutineScope()
+    // What this phone does not have yet (PlatformFeature) stays on screen,
+    // muted, and a tap says so. Android has them all.
+    val notYet: () -> Unit = {
+        snackbarScope.launch { snackbar.showSnackbar(getString(Res.string.platform_feature_not_yet)) }
+    }
+    val navAvailable = PlatformFeature.NAVIGATION.available
+    val sourcesAvailable = PlatformFeature.GPS_SENSORS.available
+    val studioAvailable = PlatformFeature.CAMERA_STUDIO.available
     LaunchedEffect(Unit) {
         viewModel.cloudToasts.collect { resId ->
             // Backup/restore failures get a Retry action that re-runs the op.
@@ -1104,7 +1114,7 @@ fun DashboardScreen(
                         .offset(x = 4.dp)
                         .padding(top = 8.dp)
                         .combinedClickable(
-                            onClick = { showSourcesSheet = true },
+                            onClick = { if (sourcesAvailable) showSourcesSheet = true else notYet() },
                             onLongClick = { showGpsMenu = true }
                         ),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -1127,6 +1137,8 @@ fun DashboardScreen(
                             activeColor = if (useAccent) primary else MaterialTheme.appColors.statusGood
                         )
                     }
+                    val gpsItemInk = if (sourcesAvailable) Color.Unspecified
+                    else MaterialTheme.appColors.textDisabled
                     DropdownMenu(
                         expanded = showGpsMenu,
                         onDismissRequest = { showGpsMenu = false },
@@ -1135,14 +1147,14 @@ fun DashboardScreen(
                     ) {
                         DropdownMenuItem(
                             text = {
-                                Text(stringResource(Res.string.dash_external_gps_settings))
+                                Text(stringResource(Res.string.dash_external_gps_settings), color = gpsItemInk)
                             },
                             onClick = {
                                 showGpsMenu = false
+                                if (sourcesAvailable) onNavigateToSettings(10) else notYet()
                                 // External GPS lives in GPS & sensors, which
                                 // no tab number could reach; 7 landed on
                                 // Integration instead.
-                                onNavigateToSettings(10)
                             }
                         )
                     }
@@ -1158,14 +1170,15 @@ fun DashboardScreen(
                     DashIndicatorIcon(
                         icon = Icons.Default.PhotoCamera,
                         active = true,
-                        activeColor = MaterialTheme.appColors.dashIcon,
+                        activeColor = if (studioAvailable) MaterialTheme.appColors.dashIcon
+                        else MaterialTheme.appColors.textDisabled,
                         modifier = Modifier
                             .offset(x = 4.dp)
                             .padding(bottom = 8.dp)
                             .combinedClickable(
                                 onClickLabel = stringResource(Res.string.studio_open),
-                                onClick = { onNavigateToStudio() },
-                                onLongClick = { showStudioMenu = true }
+                                onClick = { if (studioAvailable) onNavigateToStudio() else notYet() },
+                                onLongClick = { if (studioAvailable) showStudioMenu = true else notYet() }
                             )
                     )
                     DropdownMenu(
@@ -1300,7 +1313,8 @@ fun DashboardScreen(
                         imageVector = if (navActive) Icons.Default.Navigation
                         else Icons.Default.Map,
                         contentDescription = stringResource(Res.string.nav_open),
-                        tint = MaterialTheme.appColors.dashIcon,
+                        tint = if (navAvailable) MaterialTheme.appColors.dashIcon
+                        else MaterialTheme.appColors.textDisabled,
                         modifier = Modifier
                             // The tutorial spotlights this icon alone, not the
                             // column it shares with the weather entry above.
@@ -1309,10 +1323,11 @@ fun DashboardScreen(
                             .size(32.dp)
                             .combinedClickable(
                                 onClick = {
-                                    if (navActive) navOverlayVm.requestPopup()
+                                    if (!navAvailable) notYet()
+                                    else if (navActive) navOverlayVm.requestPopup()
                                     else onNavigateToNavigator()
                                 },
-                                onLongClick = { showMapMenu = true }
+                                onLongClick = { if (navAvailable) showMapMenu = true else notYet() }
                             )
                             .rotate(if (navActive) navBtnAngle else 0f)
                     )
@@ -2719,11 +2734,14 @@ fun DashboardScreen(
                                             }
                                         )
                                     } else {
+                                        // A tile for a feature this phone lacks yet: muted, says so.
+                                        val notHere = PlatformFeature.forAction(key)?.available == false
                                         ActionButton(
                                             icon = actionSpec?.icon ?: Icons.Default.Campaign,
                                             label = labelText,
                                             enabled = connectionState == ConnectionState.CONNECTED || offlineSafe,
-                                            onClick = tap,
+                                            muted = notHere,
+                                            onClick = if (notHere) notYet else tap,
                                             modifier = Modifier.weight(1f),
                                             aspectRatio = actionAspect, heightDp = actionHeight
                                         )

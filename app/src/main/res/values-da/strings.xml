@@ -2097,6 +2097,7 @@
     <string name="scan_bluetooth_off_title">Bluetooth er slukket</string>
     <string name="scan_enable_bluetooth">Tænd Bluetooth</string>
     <string name="bluetooth_turn_on_control_center">Slå Bluetooth til i Kontrolcenter</string>
+    <string name="platform_feature_not_yet">Ikke på iPhone endnu</string>
     <string name="studio_cfg_radar_distance_labels">Afstandsmærker</string>
     <string name="studio_radar_none">Ingen radar</string>
     <string name="studio_radar_clear">Fri</string>

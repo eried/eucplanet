@@ -11,6 +11,8 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.eried.eucplanet.data.model.AppSettings
+import com.eried.eucplanet.platform.PlatformFeature
+import com.eried.eucplanet.ui.common.NotYetSettingsRow
 import com.eried.eucplanet.ui.settings.AlarmViewModel
 import com.eried.eucplanet.ui.settings.FlicViewModel
 import com.eried.eucplanet.ui.settings.PermissionGate
@@ -25,8 +27,9 @@ import platform.UIKit.UIApplication
 
 /**
  * The iOS [SettingsHost]. The sections iOS has no counterpart for (the HUD,
- * the car screen, the phone HUD window, watches' radar and tyre sensors, the
- * folder backups) draw nothing; see docs/IOS_PARITY.md for what joins later.
+ * the car screen, the phone HUD window, the watches, the folder backups) draw
+ * nothing; the radar and tyre sensors, coming later, draw a muted "not yet"
+ * row. See docs/IOS_PARITY.md for the split.
  */
 internal object IosSettingsHost : SettingsHost {
 
@@ -48,9 +51,10 @@ internal object IosSettingsHost : SettingsHost {
     // iOS gives apps no access to the volume buttons.
     override val supportsVolumeKeys = false
 
-    // Their content is platform code still on Android only: the navigator,
-    // the external sensors, the engine sound and the watches.
-    override val hiddenSections = setOf("navigator", "location", "motor", "watch")
+    // The watches have no iPhone side planned yet. The navigator, the
+    // external sensors and the engine sound are coming: their sections show
+    // muted with a "not yet" tap (platform/PlatformFeatures.ios.kt).
+    override val hiddenSections = setOf("watch")
 
     // What the iPhone has no counterpart for: no back on the dashboard, no
     // keep-alive service, no picture-in-picture, home widget or showing over
@@ -95,11 +99,12 @@ internal object IosSettingsHost : SettingsHost {
     @Composable
     override fun ExternalGpsSettings() = Unit
 
+    // Coming to the iPhone: named, muted, and a tap says not yet.
     @Composable
-    override fun RadarSettings() = Unit
+    override fun RadarSettings() = NotYetSettingsRow(PlatformFeature.RADAR)
 
     @Composable
-    override fun TpmsSettings() = Unit
+    override fun TpmsSettings() = NotYetSettingsRow(PlatformFeature.TPMS)
 
     @Composable
     override fun HudAndCarSettings(settings: AppSettings, viewModel: SettingsViewModel) = Unit
