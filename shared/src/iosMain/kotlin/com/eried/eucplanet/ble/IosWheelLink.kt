@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
+import platform.CoreBluetooth.CBAdvertisementDataLocalNameKey
 import platform.CoreBluetooth.CBCentralManager
 import platform.CoreBluetooth.CBCentralManagerDelegateProtocol
 import platform.CoreBluetooth.CBCharacteristic
@@ -181,7 +182,34 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
     fun startScan() {
         wantScan = true
         _scanResults.value = emptyList()
-        if (_bluetoothOn.value) central.scanForPeripheralsWithServices(null, null)
+        loggedSightings.clear()
+        if (_bluetoothOn.value) {
+            central.scanForPeripheralsWithServices(null, null)
+            listSystemConnectedWheels()
+        }
+    }
+
+    /** Ids already logged this scan, so the log names each device once. */
+    private val loggedSightings = HashSet<String>()
+
+    /**
+     * A wheel the iPhone already holds (paired in Settings, or still linked
+     * from another app) stops advertising, so the scan never sees it; Android
+     * lists bonded wheels the same way. Ask iOS for every connected device
+     * with a wheel's service and list it like a scan result.
+     */
+    private fun listSystemConnectedWheels() {
+        val services = WHEEL_SERVICES.map { CBUUID.UUIDWithString(it) }
+        val held = central.retrieveConnectedPeripheralsWithServices(services).map { it as CBPeripheral }
+        for (p in held) {
+            val id = p.identifier.UUIDString
+            val name = p.name ?: continue
+            peripherals[id] = p
+            Log.i(TAG, "Scan: $name ($id) is already connected to the iPhone")
+            if (_scanResults.value.none { it.address == id }) {
+                _scanResults.value = _scanResults.value + ScannedWheel(id, name, HELD_RSSI)
+            }
+        }
     }
 
     fun stopScan() {
@@ -323,6 +351,8 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
     private fun markConnected() {
         if (_connectionState.value == ConnectionState.CONNECTED) return
         _connectionState.value = ConnectionState.CONNECTED
+        Log.i(TAG, "Connected: ${currentName ?: "(none)"} as ${adapter.familyDisplayName}")
+        rxCount = 0
         _connectedSinceMs.value = System.currentTimeMillis()
         DiagnosticsLogger.note("Connected: name=${currentName ?: "(none)"} adapter=${adapter.familyDisplayName}")
         writerJob = scope.launch { drainWrites() }
@@ -336,7 +366,11 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
         }
     }
 
+    /** Frames since the link came up; the first few are logged for the field log. */
+    private var rxCount = 0
+
     private fun emitNotification(bytes: ByteArray) {
+        if (rxCount++ < 3) Log.i(TAG, "Wheel data: ${bytes.size} bytes")
         DiagnosticsLogger.rx(bytes)
         for (result in adapter.onRawNotification(bytes)) _decodedResults.tryEmit(result)
     }
@@ -405,7 +439,10 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
                 CBManagerStateUnsupported -> BluetoothRadio.UNSUPPORTED
                 else -> BluetoothRadio.UNKNOWN
             }
-            if (_bluetoothOn.value && wantScan) central.scanForPeripheralsWithServices(null, null)
+            if (_bluetoothOn.value && wantScan) {
+                central.scanForPeripheralsWithServices(null, null)
+                listSystemConnectedWheels()
+            }
             if (_bluetoothOn.value) {
                 hunt.bluetoothOn()
             } else {
@@ -431,7 +468,12 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
                 hunt.seen(id)
                 if (!wantScan) return
             }
-            val name = didDiscoverPeripheral.name ?: return
+            // The advertised name when iOS has not cached one yet, as Android
+            // reads the scan record's name.
+            val name = didDiscoverPeripheral.name
+                ?: advertisementData[CBAdvertisementDataLocalNameKey] as? String
+                ?: return
+            if (loggedSightings.add(id)) Log.i(TAG, "Scan: $name ($id) rssi=${RSSI.intValue}")
             peripherals[id] = didDiscoverPeripheral
             val seen = ScannedWheel(id, name, RSSI.intValue)
             _scanResults.value = (_scanResults.value.filter { it.address != id } + seen)
@@ -439,7 +481,11 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
         }
 
         override fun centralManager(central: CBCentralManager, didConnectPeripheral: CBPeripheral) {
-            if (didConnectPeripheral !== peripheral) return
+            Log.i(TAG, "Link up: ${didConnectPeripheral.name} (${didConnectPeripheral.identifier.UUIDString}), state=${_connectionState.value}")
+            if (didConnectPeripheral !== peripheral) {
+                Log.w(TAG, "Link up on a peripheral this connect is not for; ignored")
+                return
+            }
             val state = _connectionState.value
             if (state == ConnectionState.SCANNING || state == ConnectionState.DISCONNECTED) {
                 // The connect left waiting by the hunt landed: it is a reconnect.
@@ -457,6 +503,7 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
 
         @ObjCSignatureOverride
         override fun centralManager(central: CBCentralManager, didFailToConnectPeripheral: CBPeripheral, error: NSError?) {
+            Log.w(TAG, "Link failed: ${error?.localizedDescription}")
             if (didFailToConnectPeripheral !== peripheral) return
             DiagnosticsLogger.note("Connect failed: ${error?.localizedDescription}")
             teardown()
@@ -465,6 +512,7 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
 
         @ObjCSignatureOverride
         override fun centralManager(central: CBCentralManager, didDisconnectPeripheral: CBPeripheral, error: NSError?) {
+            Log.i(TAG, "Link down: ${error?.localizedDescription ?: "by request"}")
             if (didDisconnectPeripheral !== peripheral) return
             DiagnosticsLogger.note("Disconnected: ${error?.localizedDescription ?: "by request"}")
             teardown()
@@ -476,6 +524,7 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
     private inner class PeripheralDelegate : NSObject(), CBPeripheralDelegateProtocol {
         override fun peripheral(peripheral: CBPeripheral, didDiscoverServices: NSError?) {
             val services = peripheral.services.orEmpty().map { it as CBService }
+            Log.i(TAG, "Services: ${services.map { it.UUID.UUIDString }}" + (didDiscoverServices?.let { " error=${it.localizedDescription}" } ?: ""))
             var profile = adapter.bleProfile()
             if (services.none { it.UUID.toUuid() == profile.serviceUuid }) {
                 val discovered = services.mapTo(HashSet()) { it.UUID.toUuid() }
@@ -560,6 +609,7 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
                 if (error == null) "Subscribed to wheel notifications"
                 else "Notification subscribe FAILED (${error.localizedDescription}) - replies cannot reach us"
             )
+            Log.i(TAG, "Subscribe: " + (error?.localizedDescription ?: "ok"))
             if (writeChar != null) markConnected()
         }
 
@@ -594,6 +644,16 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
     private companion object {
         const val TAG = "IosWheelLink"
         const val CCCD_TIMEOUT_MS = 4_000L
+
+        /** The wheels' services: HM-10 (KingSong, Begode, Veteran, InMotion V1 notify), InMotion V1 write, Nordic UART. */
+        val WHEEL_SERVICES = listOf(
+            "FFE0",
+            "FFE5",
+            "6E400001-B5A3-F393-E0A9-E50E24DCCA9E",
+        )
+
+        /** A wheel already linked has no scan signal; list it as strong, it is right here. */
+        const val HELD_RSSI = -40
         const val WRITE_ACK_TIMEOUT_MS = 1_500L
         const val NO_RESPONSE_GAP_MS = 20L
         // Android's WRITE_ACK_NO_RESPONSE_MS.
