@@ -2730,7 +2730,7 @@
     <string name="lockdown_warning_no_wheel">Geen wiel verbonden, de staat van de legale modus is dus onbekend. De app vergrendelt de volgende keer dat de legale modus wordt aangezet.</string>
     <string name="lockdown_continue">Doorgaan</string>
     <string name="trip_tools_wheel_none">Voor deze rit is nog geen wiel vastgelegd.</string>
-    <string name="backup_conflict_warning">Sommige ritback-ups hebben een handmatige synchronisatie nodig: de kopieën verschillen. Druk op Synchroniseren en kies welke kant telt.</string>
+    <string name="backup_conflict_warning">Sommige ritten op deze telefoon verschillen van de kopieën in je back-upmap. Tik op %1$s, tik dan onder %2$s op \"%3$s\" en kies welke kopie blijft.</string>
     <string name="backup_conflict_title">Back-upconflicten</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Rijden?</string>

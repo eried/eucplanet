@@ -2726,7 +2726,7 @@
     <string name="lockdown_warning_no_wheel">Nie je pripojené žiadne koleso, takže stav legálneho režimu nie je známy. Aplikácia sa uzamkne pri ďalšom zapnutí legálneho režimu.</string>
     <string name="lockdown_continue">Pokračovať</string>
     <string name="trip_tools_wheel_none">Pre túto jazdu zatiaľ nie je zaznamenané žiadne koleso.</string>
-    <string name="backup_conflict_warning">Niektoré zálohy jázd potrebujú ručnú synchronizáciu: kópie sa líšia. Stlačte Synchronizovať a vyberte, ktorá strana vyhrá.</string>
+    <string name="backup_conflict_warning">Niektoré jazdy v tomto telefóne sa líšia od kópií v priečinku zálohy. Klepnite na %1$s, potom v časti %2$s stlačte \"%3$s\" a vyberte, ktorú kópiu ponechať.</string>
     <string name="backup_conflict_title">Konflikty záloh</string>
     <string name="widget_act_1_short">Akcia 1</string>
     <string name="widget_act_2_short">Akcia 2</string>

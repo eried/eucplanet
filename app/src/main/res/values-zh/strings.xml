@@ -2594,7 +2594,7 @@
     <string name="lockdown_warning_no_wheel">未连接独轮车，因此合规模式的状态未知。下次开启合规模式时应用才会锁定。</string>
     <string name="lockdown_continue">继续</string>
     <string name="trip_tools_wheel_none">此行程尚未记录独轮车。</string>
-    <string name="backup_conflict_warning">部分行程备份需要手动同步：两侧副本不一致。点按“同步”并选择以哪一侧为准。</string>
+    <string name="backup_conflict_warning">此手机上的部分行程与备份文件夹中的副本不同。点按%1$s，然后在%2$s下点按“%3$s”，选择保留哪一份。</string>
     <string name="backup_conflict_title">备份冲突</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">骑吗？</string>

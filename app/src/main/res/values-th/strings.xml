@@ -2563,7 +2563,7 @@
     <string name="lockdown_warning_no_wheel">ไม่ได้เชื่อมต่อล้อ จึงไม่ทราบสถานะโหมดถูกกฎหมาย แอปจะล็อกในครั้งถัดไปที่เปิดโหมดถูกกฎหมาย</string>
     <string name="lockdown_continue">ดำเนินการต่อ</string>
     <string name="trip_tools_wheel_none">ทริปนี้ยังไม่มีข้อมูลล้อ</string>
-    <string name="backup_conflict_warning">ข้อมูลสำรองทริปบางรายการต้องซิงค์เอง เพราะสำเนาไม่ตรงกัน กดซิงค์แล้วเลือกฝั่งที่จะใช้</string>
+    <string name="backup_conflict_warning">ทริปบางรายการในโทรศัพท์เครื่องนี้ต่างจากสำเนาในโฟลเดอร์สำรอง แตะ %1$s จากนั้นใน %2$s กด \"%3$s\" แล้วเลือกสำเนาที่จะเก็บไว้</string>
     <string name="backup_conflict_title">ข้อมูลสำรองขัดแย้งกัน</string>
     <string name="widget_act_1_short">คำสั่ง 1</string>
     <string name="widget_act_2_short">คำสั่ง 2</string>

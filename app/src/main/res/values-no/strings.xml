@@ -2615,7 +2615,7 @@
     <string name="lockdown_warning_no_wheel">Ingen hjul er tilkoblet, så tilstanden til lovlig modus er ukjent. Appen låses neste gang lovlig modus slås på.</string>
     <string name="lockdown_continue">Fortsett</string>
     <string name="trip_tools_wheel_none">Ingen hjul er registrert for denne turen ennå.</string>
-    <string name="backup_conflict_warning">Noen tursikkerhetskopier trenger manuell synkronisering: kopiene er ulike. Trykk Synkroniser og velg hvilken side som gjelder.</string>
+    <string name="backup_conflict_warning">Noen turer på denne telefonen er ulike kopiene i sikkerhetskopimappen. Trykk %1$s, trykk så \"%3$s\" under %2$s og velg hvilken kopi som skal beholdes.</string>
     <string name="backup_conflict_title">Sikkerhetskopikonflikter</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Kjøre?</string>

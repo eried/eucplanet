@@ -2743,7 +2743,7 @@
     <string name="lockdown_warning_no_wheel">Intet hjul er forbundet, så det er ukendt, om Legal-tilstand er slået til. Appen låser, næste gang Legal-tilstand slås til.</string>
     <string name="lockdown_continue">Fortsæt</string>
     <string name="trip_tools_wheel_none">Der er endnu ikke registreret et hjul for denne tur.</string>
-    <string name="backup_conflict_warning">Nogle backupper af ture skal synkroniseres manuelt: kopierne er forskellige. Tryk på Synkronisér, og vælg, hvilken side der gælder.</string>
+    <string name="backup_conflict_warning">Nogle ture på denne telefon er forskellige fra kopierne i backupmappen. Tryk på %1$s, tryk derefter på \"%3$s\" under %2$s, og vælg, hvilken kopi der skal beholdes.</string>
     <string name="backup_conflict_title">Backupkonflikter</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Ud at køre?</string>

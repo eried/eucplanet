@@ -2644,7 +2644,7 @@
     <string name="lockdown_warning_no_wheel">Nenhuma roda ligada, por isso o estado do Modo legal é desconhecido. A app bloqueia da próxima vez que o Modo legal for ligado.</string>
     <string name="lockdown_continue">Continuar</string>
     <string name="trip_tools_wheel_none">Ainda não há roda registada neste percurso.</string>
-    <string name="backup_conflict_warning">Algumas cópias de percursos precisam de sincronização manual: as cópias são diferentes. Prima Sincronizar e escolha que lado prevalece.</string>
+    <string name="backup_conflict_warning">Algumas viagens neste telemóvel diferem das cópias na pasta de cópia de segurança. Toque em %1$s, depois em %2$s toque em \"%3$s\" e escolha que cópia manter.</string>
     <string name="backup_conflict_title">Conflitos nas cópias</string>
     <string name="widget_act_1_short">Ação 1</string>
     <string name="widget_act_2_short">Ação 2</string>

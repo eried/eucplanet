@@ -2726,7 +2726,7 @@
     <string name="lockdown_warning_no_wheel">未連線獨輪車，因此無法得知限速模式的狀態。下次開啟限速模式時，應用程式就會鎖定。</string>
     <string name="lockdown_continue">繼續</string>
     <string name="trip_tools_wheel_none">此行程尚未記錄獨輪車。</string>
-    <string name="backup_conflict_warning">部分行程備份需要手動同步：兩邊的副本不同。請輕觸「同步」並選擇以哪一邊為準。</string>
+    <string name="backup_conflict_warning">此手機上的部分行程與備份資料夾中的副本不同。點按%1$s，然後在%2$s下點按「%3$s」，選擇保留哪一份。</string>
     <string name="backup_conflict_title">備份衝突</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">騎嗎？</string>

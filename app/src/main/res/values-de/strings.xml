@@ -2748,7 +2748,7 @@
     <string name="lockdown_warning_no_wheel">Kein Wheel verbunden, der Zustand des Legal-Modus ist also unbekannt. Die App sperrt beim nächsten Einschalten des Legal-Modus.</string>
     <string name="lockdown_continue">Weiter</string>
     <string name="trip_tools_wheel_none">Für diese Fahrt ist noch kein Wheel hinterlegt.</string>
-    <string name="backup_conflict_warning">Einige Fahrten-Backups brauchen einen manuellen Abgleich: Die Kopien unterscheiden sich. Auf Alle abgleichen tippen und die gültige Seite wählen.</string>
+    <string name="backup_conflict_warning">Einige Fahrten auf diesem Handy unterscheiden sich von den Kopien im Sicherungsordner. Auf %1$s tippen, dann unter %2$s auf \"%3$s\" tippen und wählen, welche Kopie bleibt.</string>
     <string name="backup_conflict_title">Backup-Konflikte</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Fahren?</string>

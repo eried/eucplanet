@@ -2531,7 +2531,7 @@
     <string name="lockdown_warning_no_wheel">Nincs csatlakoztatott egykerekű, így a legális mód állapota ismeretlen. Az alkalmazás akkor zárol, amikor legközelebb bekapcsolják a legális módot.</string>
     <string name="lockdown_continue">Tovább</string>
     <string name="trip_tools_wheel_none">Ehhez a menethez még nincs egykerekű rögzítve.</string>
-    <string name="backup_conflict_warning">Néhány menet mentése kézi szinkronizálást igényel: a másolatok eltérnek. Nyomd meg a Szinkronizálást, és válaszd ki, melyik változat maradjon.</string>
+    <string name="backup_conflict_warning">A telefon néhány útja eltér a mentési mappában lévő példánytól. Koppints ide: %1$s, majd a(z) %2$s részben nyomd meg: \"%3$s\", és válaszd ki, melyik példány maradjon.</string>
     <string name="backup_conflict_title">Mentési ütközések</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Megyünk?</string>

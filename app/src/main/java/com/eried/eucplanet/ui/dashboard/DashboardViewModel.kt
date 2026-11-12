@@ -368,6 +368,15 @@ class DashboardViewModel(
                                 id = "backup_conflicts",
                                 titleRes = com.eried.eucplanet.R.string.backup_conflict_title,
                                 bodyRes = com.eried.eucplanet.R.string.backup_conflict_warning,
+                                // Where to go, by the names on screen in this
+                                // language: the Fix button, the Trips backup
+                                // header it lands on, the Sync button there.
+                                // No count: the sync dialog gives it.
+                                bodyArgs = listOf(
+                                    com.eried.eucplanet.R.string.warnings_fix_button,
+                                    com.eried.eucplanet.R.string.section_cloud_trips,
+                                    com.eried.eucplanet.R.string.cloud_retry_now,
+                                ).map { com.eried.eucplanet.data.repository.WarningTextRes(it) },
                                 settingsTab = 13,
                             )
                         )

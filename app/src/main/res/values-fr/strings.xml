@@ -2732,7 +2732,7 @@
     <string name="lockdown_warning_no_wheel">Aucune roue connectée, l’état du mode légal est donc inconnu. L’application se verrouillera à la prochaine activation du mode légal.</string>
     <string name="lockdown_continue">Continuer</string>
     <string name="trip_tools_wheel_none">Aucune roue enregistrée pour ce trajet pour le moment.</string>
-    <string name="backup_conflict_warning">Certaines sauvegardes de trajets demandent une synchronisation manuelle : les copies diffèrent. Appuyez sur Synchroniser et choisissez la bonne version.</string>
+    <string name="backup_conflict_warning">Certains trajets de ce téléphone diffèrent des copies de votre dossier de sauvegarde. Appuyez sur %1$s, puis sous %2$s appuyez sur \"%3$s\" et choisissez la copie à garder.</string>
     <string name="backup_conflict_title">Conflits de sauvegarde</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Rouler ?</string>

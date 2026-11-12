@@ -2729,7 +2729,7 @@
     <string name="lockdown_warning_no_wheel">ホイールが接続されていないため、リーガルモードの状態は不明です。次にリーガルモードがオンになったときにアプリがロックされます。</string>
     <string name="lockdown_continue">次へ</string>
     <string name="trip_tools_wheel_none">このトリップにはまだホイールが記録されていません。</string>
-    <string name="backup_conflict_warning">一部のトリップのバックアップは内容が異なるため、手動で同期する必要があります。「同期」を押して、どちらを残すか選んでください。</string>
+    <string name="backup_conflict_warning">このスマホの一部の走行が、バックアップフォルダのコピーと異なります。%1$s をタップし、%2$s の「%3$s」を押して、残すコピーを選んでください。</string>
     <string name="backup_conflict_title">バックアップの競合</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">走る？</string>

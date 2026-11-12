@@ -2726,7 +2726,7 @@
     <string name="lockdown_warning_no_wheel">Няма свързано моноколело, така че състоянието на Законовия режим е неизвестно. Приложението се заключва следващия път, когато Законовият режим бъде включен.</string>
     <string name="lockdown_continue">Продължи</string>
     <string name="trip_tools_wheel_none">Още няма записано моноколело за това пътуване.</string>
-    <string name="backup_conflict_warning">Някои архиви на пътувания изискват ръчна синхронизация: копията се различават. Натиснете Синхронизирай и изберете коя страна печели.</string>
+    <string name="backup_conflict_warning">Някои пътувания на този телефон се различават от копията в папката за архив. Докоснете %1$s, после в %2$s натиснете \"%3$s\" и изберете кое копие да остане.</string>
     <string name="backup_conflict_title">Конфликти в архивите</string>
     <string name="widget_act_1_short">Действие 1</string>
     <string name="widget_act_2_short">Действие 2</string>

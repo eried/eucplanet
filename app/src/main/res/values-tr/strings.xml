@@ -2725,7 +2725,7 @@
     <string name="lockdown_warning_no_wheel">Bağlı teker yok, bu yüzden Yasal modun durumu bilinmiyor. Uygulama, Yasal mod bir sonraki açıldığında kilitlenir.</string>
     <string name="lockdown_continue">Devam</string>
     <string name="trip_tools_wheel_none">Bu sürüş için henüz bir teker kaydedilmedi.</string>
-    <string name="backup_conflict_warning">Bazı sürüş yedeklerinin elle eşitlenmesi gerekiyor: kopyalar farklı. Eşitle\'ye basıp hangi tarafın geçerli olacağını seçin.</string>
+    <string name="backup_conflict_warning">Bu telefondaki bazı sürüşler yedek klasöründeki kopyalardan farklı. %1$s düğmesine dokunun, sonra %2$s altında \"%3$s\" düğmesine basın ve hangi kopyanın kalacağını seçin.</string>
     <string name="backup_conflict_title">Yedek çakışmaları</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Sürelim mi?</string>

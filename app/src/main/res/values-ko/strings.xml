@@ -2727,7 +2727,7 @@
     <string name="lockdown_warning_no_wheel">연결된 휠이 없어 리걸 모드 상태를 알 수 없습니다. 다음에 리걸 모드를 켤 때 앱이 잠깁니다.</string>
     <string name="lockdown_continue">계속</string>
     <string name="trip_tools_wheel_none">이 주행에는 아직 휠이 기록되지 않았습니다.</string>
-    <string name="backup_conflict_warning">일부 주행 기록 백업은 사본이 서로 달라 수동 동기화가 필요합니다. 동기화를 누르고 남길 쪽을 선택하세요.</string>
+    <string name="backup_conflict_warning">이 휴대폰의 일부 주행이 백업 폴더의 사본과 다릅니다. %1$s을(를) 누른 다음 %2$s에서 \"%3$s\"을(를) 누르고 남길 사본을 선택하세요.</string>
     <string name="backup_conflict_title">백업 충돌</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">탈까요?</string>

@@ -2725,7 +2725,7 @@
     <string name="lockdown_warning_no_wheel">Колесо не підключено, тому стан легального режиму невідомий. Застосунок заблокується наступного разу, коли легальний режим буде увімкнено.</string>
     <string name="lockdown_continue">Далі</string>
     <string name="trip_tools_wheel_none">Для цієї поїздки колесо ще не записано.</string>
-    <string name="backup_conflict_warning">Деякі резервні копії поїздок потребують ручної синхронізації: копії різняться. Торкніться «Синхр. усе» й виберіть, яка сторона правильна.</string>
+    <string name="backup_conflict_warning">Деякі поїздки на цьому телефоні відрізняються від копій у теці резервної копії. Натисніть %1$s, потім у розділі %2$s натисніть \"%3$s\" і виберіть, яку копію залишити.</string>
     <string name="backup_conflict_title">Конфлікти резервних копій</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Їдемо?</string>

@@ -2531,7 +2531,7 @@
     <string name="lockdown_warning_no_wheel">Yksipyöräistä ei ole yhdistetty, joten laillisen tilan tila on tuntematon. Sovellus lukittuu, kun laillinen tila seuraavan kerran otetaan käyttöön.</string>
     <string name="lockdown_continue">Jatka</string>
     <string name="trip_tools_wheel_none">Tälle matkalle ei ole vielä kirjattu yksipyöräistä.</string>
-    <string name="backup_conflict_warning">Jotkin matkan varmuuskopiot vaativat manuaalisen synkronoinnin: kopiot eroavat. Paina Synkronoi ja valitse kumpi pätee.</string>
+    <string name="backup_conflict_warning">Jotkin tämän puhelimen matkat eroavat varmuuskopiokansion kopioista. Napauta %1$s, paina sitten kohdassa %2$s \"%3$s\" ja valitse säilytettävä kopio.</string>
     <string name="backup_conflict_title">Varmuuskopioristiriidat</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Ajellaan?</string>

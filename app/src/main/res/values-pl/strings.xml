@@ -2728,7 +2728,7 @@
     <string name="lockdown_warning_no_wheel">Brak połączonego koła, więc stan trybu legalnego jest nieznany. Aplikacja zablokuje się przy następnym włączeniu trybu legalnego.</string>
     <string name="lockdown_continue">Dalej</string>
     <string name="trip_tools_wheel_none">Ten przejazd nie ma jeszcze zapisanego koła.</string>
-    <string name="backup_conflict_warning">Niektóre kopie zapasowe przejazdów wymagają ręcznej synchronizacji, bo się różnią. Naciśnij Synchronizuj wszystko i wybierz, która wersja ma zostać.</string>
+    <string name="backup_conflict_warning">Niektóre przejazdy na tym telefonie różnią się od kopii w folderze kopii zapasowej. Dotknij %1$s, potem w sekcji %2$s naciśnij \"%3$s\" i wybierz, którą kopię zachować.</string>
     <string name="backup_conflict_title">Konflikty kopii zapasowych</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Jedziemy?</string>

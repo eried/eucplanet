@@ -2531,7 +2531,7 @@
     <string name="lockdown_warning_no_wheel">Není připojeno žádné monokolo, takže stav legálního režimu je neznámý. Aplikace se zamkne, až se legální režim příště zapne.</string>
     <string name="lockdown_continue">Pokračovat</string>
     <string name="trip_tools_wheel_none">K této jízdě zatím není zaznamenané žádné monokolo.</string>
-    <string name="backup_conflict_warning">Některé zálohy jízd vyžadují ruční synchronizaci: kopie se liší. Stiskněte Synchronizovat a vyberte platnou stranu.</string>
+    <string name="backup_conflict_warning">Některé jízdy v tomto telefonu se liší od kopií ve složce zálohy. Klepněte na %1$s, pak v části %2$s stiskněte \"%3$s\" a vyberte, kterou kopii ponechat.</string>
     <string name="backup_conflict_title">Konflikty záloh</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Jedeme?</string>

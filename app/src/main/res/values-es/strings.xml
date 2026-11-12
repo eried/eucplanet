@@ -2725,7 +2725,7 @@
     <string name="lockdown_warning_no_wheel">No hay ninguna rueda conectada, así que no se sabe si el modo legal está activo. La app se bloqueará la próxima vez que se active el modo legal.</string>
     <string name="lockdown_continue">Continuar</string>
     <string name="trip_tools_wheel_none">Este viaje aún no tiene rueda registrada.</string>
-    <string name="backup_conflict_warning">Algunas copias de viajes necesitan una sincronización manual porque las versiones no coinciden. Pulsa Sincronizar y elige cuál vale.</string>
+    <string name="backup_conflict_warning">Algunos viajes de este teléfono difieren de las copias de tu carpeta de respaldo. Pulsa %1$s, luego en %2$s pulsa \"%3$s\" y elige qué copia conservar.</string>
     <string name="backup_conflict_title">Conflictos en las copias</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">¿Rodar?</string>
