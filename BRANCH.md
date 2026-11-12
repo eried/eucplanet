@@ -14,6 +14,7 @@ only when you can cut the ride short.
 - iPhone app: Service Mode log and crash log to send, trips name the wheel, GPS saves power like Android, and the wheel link writes like Android's (fixes for InMotion V1 drops and repeated commands).
 - iPhone app: automatic lights at sunset, Lock when I walk away, auto-record on connect, and the wheel connected and lights announcements, from the same code as Android.
 - iPhone app: the theme editor and colour identifier, the top bar follows light and dark themes, custom tiles show their QR code, and the picked voice speaks every report.
+- iPhone app: music no longer stays quieter after an alarm beep, and While speaking (lower, pause or leave other audio) works as on Android.
 - iPhone app: the Needs attention warnings (location, Bluetooth, notifications, backups), and a recording cut short by closing the app is saved or dropped at the next start, as on Android.
 - Inside: the dashboard, settings, alarms, trips, trip details, trip tools, Legal Mode, the notification buttons, the reconnect timing, leaderboards, Dropbox sync, the wheel link, the theme editor, the automations and what runs on connect and every wheel update moved to a library shared with the iPhone. Nothing should change on screen.
 - Settings, Dashboard layout no longer closes the app.
@@ -61,7 +62,7 @@ only when you can cut the ride short.
 - Legal Mode: arm it, lock, close and reopen the app, unlock with your code. Lock screen buttons (Settings, General, quick actions): do they act on the wheel?
 - Your wheel brand: does it connect, show live numbers, and do light, horn and lock work? If not, a Service Mode log (hold the logo on About) helps most.
 - Turn the wheel off mid-ride and on again: does the iPhone reconnect by itself? Rename and split a trip: does Android see it after a sync?
-- Display: turn on the theme widget, change a colour, and use the picker to identify one. Voice: pick a voice, does every report use it?
+- Display: turn on the theme widget, change a colour, and use the picker to identify one. Voice: pick a voice, does every report use it? Play music with alarms and reports on: is it lowered or paused only while the app speaks?
 - Automations (Settings): set lights to follow sunset, and turn on Lock when I walk away. Does the light switch and the wheel lock as on Android?
 
 **Android, after the move to the shared library**
