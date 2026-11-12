@@ -54,6 +54,7 @@ ride, this is the branch.
 - Volume keys: "Also when the screen is off" under the volume key actions. The app claims the buttons through a media session, so a click or hold fires its action with the screen off or another app in front. It asks before turning on, because the buttons then stop changing the phone volume. It keeps the buttons while music plays and when the song changes.
 - Voice: pressing Listen without the microphone permission now asks for it, from any button or tile. With the screen off it says so and adds a Needs attention entry. Needs attention also says when Bluetooth is not allowed.
 - Actions: Volume up, Volume down, Mute / unmute, Phone flashlight and Engine sound on/off can be bound to a Flic, the volume keys, the watch or a dashboard tile.
+- Backup conflicts: the warning goes as soon as you settle them with Sync all, says where that button is, and Fix opens Trips backup. It also goes when you unlink the folder or delete the trips.
 
 ## Please test
 
@@ -113,6 +114,7 @@ ride, this is the branch.
 - Use the app in your language for a ride: anything that sounds stiff, wrong for riders, or does not fit its button? Say the screen and the better words.
 
 **Any wheel**
+- Had a Backup conflicts warning that would not go away? Tap Fix, then Sync all, pick a side: is it gone at once?
 - Ride with voice alarms on, open the main screens, sync, widgets and the watch: anything that acts differently from the last build is a bug.
 
 ## Reporting back
