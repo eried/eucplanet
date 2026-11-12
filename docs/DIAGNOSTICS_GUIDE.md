@@ -53,8 +53,14 @@ Examples:
 
 ```
 Speed looks too low, feels like 25 but app shows 18
+```
+```
 Battery % jumps from 60 to 45 and back while riding
+```
+```
 No temperature shown anywhere, V11
+```
+```
 Horn button in the app does nothing
 ```
 
