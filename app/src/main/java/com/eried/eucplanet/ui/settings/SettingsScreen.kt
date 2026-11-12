@@ -56,6 +56,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.VolumeDown
@@ -11710,6 +11711,115 @@ private fun HudInstallHint(pairedHudVersion: String?, hudEverConnected: Boolean)
     }
 }
 
+/**
+ * The HUD's own app, looked after from the phone. Shows while a HUD that can
+ * take it is linked: which version it runs, a button to send the one this
+ * phone app carries when the HUD's is older, and one to remove it. Nothing is
+ * sent without the tap, and the HUD still asks its rider before it installs
+ * or removes anything.
+ */
+@Composable
+private fun HudAppCard(viewModel: SettingsViewModel) {
+    val hudVersion by viewModel.hudVersion.collectAsState()
+    val hudCode by viewModel.hudVersionCode.collectAsState()
+    val takesApp by viewModel.hudTakesApp.collectAsState()
+    val sender = viewModel.hudAppSender
+    val state by sender.state.collectAsState()
+    val version = hudVersion
+    if (version == null || !takesApp) return
+    val older = com.eried.eucplanet.hud.protocol.HudAppPush.isOlder(hudCode, sender.carriedVersionCode)
+    val sending = state is com.eried.eucplanet.service.hud.HudAppSender.State.Sending
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.small,
+        color = MaterialTheme.appColors.surface,
+        contentColor = MaterialTheme.appColors.textPrimary
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.SystemUpdate,
+                    contentDescription = null,
+                    modifier = Modifier.size(22.dp)
+                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        stringResource(R.string.hud_app_title),
+                        style = MaterialTheme.typography.titleSmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        stringResource(R.string.hud_app_on_hud, version),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = LocalContentColor.current.copy(alpha = 0.72f)
+                    )
+                    if (older) {
+                        Text(
+                            stringResource(R.string.hud_app_in_phone, sender.carriedVersionName),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = LocalContentColor.current.copy(alpha = 0.72f)
+                        )
+                    }
+                }
+            }
+            when (val st = state) {
+                is com.eried.eucplanet.service.hud.HudAppSender.State.Sending -> {
+                    LinearProgressIndicator(
+                        progress = { st.fraction },
+                        modifier = Modifier.fillMaxWidth(),
+                        gapSize = 0.dp,
+                        drawStopIndicator = {},
+                    )
+                    Text(
+                        stringResource(R.string.hud_app_sending, (st.fraction * 100).toInt()),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                com.eried.eucplanet.service.hud.HudAppSender.State.Sent -> Text(
+                    stringResource(R.string.hud_app_sent),
+                    style = MaterialTheme.typography.bodySmall
+                )
+                com.eried.eucplanet.service.hud.HudAppSender.State.Failed -> Text(
+                    stringResource(R.string.hud_app_failed),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.appColors.statusDanger
+                )
+                com.eried.eucplanet.service.hud.HudAppSender.State.Idle -> Unit
+            }
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                if (older) {
+                    Button(
+                        onClick = { sender.send() },
+                        enabled = !sending,
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp)
+                    ) { Text(stringResource(R.string.hud_app_send), maxLines = 1) }
+                }
+                Button(
+                    onClick = { sender.remove() },
+                    enabled = !sending,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.appColors.statusDanger,
+                        contentColor = MaterialTheme.appColors.onPrimary,
+                    ),
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp)
+                ) { Text(stringResource(R.string.hud_app_remove), maxLines = 1) }
+            }
+        }
+    }
+}
+
 @Composable
 private fun HudHotspotHint() {
     val ctx = LocalContext.current
@@ -11906,6 +12016,7 @@ private fun HudIntegrationSection(
             pairedHudVersion = pairedHudVersion,
             hudEverConnected = hudEverConnected
         )
+        HudAppCard(viewModel)
 
         // Hotspot hint sits ABOVE the link controls -- it's the usual
         // setup step. Optional: some riders put the HUD on their home

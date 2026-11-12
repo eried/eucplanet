@@ -15,6 +15,7 @@ only when you can cut the ride short.
 - Map: Reverse route turns the stops round for the way back. Start far from a track rides you to its start first.
 - Menus: options that cannot run grey out instead of disappearing, and delete rows are red with a bin.
 - Android Auto: navigation on the car screen, with your four numbers beside it. Planned route rides a loaded track.
+- HUD app update from the phone: the phone app carries the HUD app and sends it over the link on a tap, when the HUD's is older. Remove from the same card. The first install is still by cable.
 - HUD map: keeps working with the phone app in the background and no wheel connected. It now says when it is waiting for the phone GPS.
 - HUD map: no more white "Map data not yet available" screen. Where the map has no detail that deep it shows the closest zoom it has.
 - HUD map: the route is drawn on the map while navigating. Needs this phone APK and this HUD APK together.
@@ -86,6 +87,8 @@ only when you can cut the ride short.
 - Load a GPX track on the phone, then Places, Planned route in the car: does it follow the track?
 
 **HUD (MotoEye)**
+- With this HUD app on the HUD and a later build on the phone: Settings, HUD shows a HUD app card with Send to HUD. Tap it, press OK on the HUD, confirm Android's prompt. Does it install, and can you work both prompts with the remote? Does the HUD ask you to allow installs first, and can you get through that?
+- Same card, Remove: does the HUD show Android's uninstall prompt?
 - Start a route on the phone and open Map on the HUD: is the route line there, on the right streets, and does it keep up as you ride?
 - Stop at a junction: does the map stay facing your direction of travel?
 - Install the phone and the HUD APK from this build. Open the HUD Map screen, leave the phone app, no wheel connected: does the map stay? And with the wheel connected, on any map style and zoom?

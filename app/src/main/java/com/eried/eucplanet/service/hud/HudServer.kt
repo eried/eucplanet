@@ -181,6 +181,10 @@ class HudServer(
         .retryOnConnectionFailure(true)
         .build()
 
+    /** Sends the HUD app this phone carries to the linked HUD, on the
+     *  rider's tap in Settings. */
+    val appSender = HudAppSender(context, http) { currentPeer }
+
     /** True when the app UI is actually on-screen (process importance
      *  FOREGROUND), not merely the ride foreground service running
      *  (FOREGROUND_SERVICE). Once the UI is gone, Samsung / Android 16 throttle
@@ -1181,6 +1185,7 @@ class HudServer(
                 ws = null
                 currentPeer = null
                 commandSink.onHudDisconnected()
+                appSender.reset()
                 done.complete(true)
             }
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
@@ -1197,6 +1202,7 @@ class HudServer(
                 ws = null
                 currentPeer = null
                 commandSink.onHudDisconnected()
+                appSender.reset()
                 done.complete(false)
             }
         }

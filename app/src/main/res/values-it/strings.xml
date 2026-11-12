@@ -1843,6 +1843,14 @@
     <string name="hud_map_brightness_label">Luminosità</string>
     <string name="hud_install_hint">Ti serve l\'app HUD? Scaricala da <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">App HUD</string>
+    <string name="hud_app_on_hud">Sul HUD: %1$s</string>
+    <string name="hud_app_in_phone">In questa app: %1$s</string>
+    <string name="hud_app_send">Invia al HUD</string>
+    <string name="hud_app_remove">Rimuovi</string>
+    <string name="hud_app_sending">Invio, %1$d%%</string>
+    <string name="hud_app_sent">Inviata. Conferma sul HUD.</string>
+    <string name="hud_app_failed">HUD non raggiungibile. Riprova.</string>
     <string name="nav_setting_full_path">Calcola sempre l\'intero percorso</string>
     <string name="nav_setting_full_path_desc">Disattivato calcola solo la prossima tappa e mostra il resto come anteprima tratteggiata.</string>
     <string name="studio_cfg_clock_24h">Formato 24 ore</string>

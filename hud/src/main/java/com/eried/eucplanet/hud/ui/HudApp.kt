@@ -300,6 +300,11 @@ fun HudApp(
                 // first because that's the actionable problem).
                 VersionMismatchSurface(compat = compat)
 
+                // A newer HUD app the phone sent, waiting for OK or BACK.
+                // Over everything: it is the one thing on screen that needs
+                // an answer.
+                AppUpdatePrompt(accent = accent)
+
                 // Phone-Wi-Fi interference advisory. BOTTOM-START -- the one
                 // corner the other persistent overlays leave free (disconnect /
                 // clock = TopEnd, version = BottomEnd, screen toast = TopStart).

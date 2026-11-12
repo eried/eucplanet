@@ -557,6 +557,14 @@
     -->
     <string name="hud_install_hint">Need the HUD app? Get it at <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">HUD app</string>
+    <string name="hud_app_on_hud">On the HUD: %1$s</string>
+    <string name="hud_app_in_phone">In this app: %1$s</string>
+    <string name="hud_app_send">Send to HUD</string>
+    <string name="hud_app_remove">Remove</string>
+    <string name="hud_app_sending">Sending, %1$d%%</string>
+    <string name="hud_app_sent">Sent. Confirm on the HUD.</string>
+    <string name="hud_app_failed">Could not reach the HUD. Try again.</string>
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">General</string>
     <string name="section_watch_display">Display</string>

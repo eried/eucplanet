@@ -1824,6 +1824,14 @@
     <string name="hud_map_brightness_label">Lysstyrke</string>
     <string name="hud_install_hint">Trenger du HUD-appen? Hent den fra <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">HUD-app</string>
+    <string name="hud_app_on_hud">På HUD: %1$s</string>
+    <string name="hud_app_in_phone">I denne appen: %1$s</string>
+    <string name="hud_app_send">Send til HUD</string>
+    <string name="hud_app_remove">Fjern</string>
+    <string name="hud_app_sending">Sender, %1$d%%</string>
+    <string name="hud_app_sent">Sendt. Bekreft på HUD.</string>
+    <string name="hud_app_failed">Fikk ikke kontakt med HUD. Prøv igjen.</string>
     <string name="nav_setting_full_path">Beregn alltid hele ruten</string>
     <string name="nav_setting_full_path_desc">Av beregner bare neste stopp og viser resten som stiplet forhåndsvisning.</string>
     <string name="studio_cfg_clock_24h">24-timers format</string>

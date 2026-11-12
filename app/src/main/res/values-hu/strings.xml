@@ -488,6 +488,14 @@
     <string name="hud_map_brightness_label">Fényerő</string>
     <string name="hud_install_hint">Kell a HUD alkalmazás? Szerezd be itt: <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">HUD-alkalmazás</string>
+    <string name="hud_app_on_hud">A HUD-on: %1$s</string>
+    <string name="hud_app_in_phone">Ebben az alkalmazásban: %1$s</string>
+    <string name="hud_app_send">Küldés a HUD-ra</string>
+    <string name="hud_app_remove">Eltávolítás</string>
+    <string name="hud_app_sending">Küldés, %1$d%%</string>
+    <string name="hud_app_sent">Elküldve. Erősítsd meg a HUD-on.</string>
+    <string name="hud_app_failed">A HUD nem érhető el. Próbáld újra.</string>
     <string name="section_watch_general">Általános</string>
     <string name="section_watch_display">Megjelenítés</string>
     <string name="section_watch_advanced">Speciális</string>

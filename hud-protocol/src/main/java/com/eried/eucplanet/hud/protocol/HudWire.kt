@@ -341,8 +341,11 @@ data class HudState(
          * 20: [HudState.navRoute], the route line for the HUD map. An older
          *    HUD ignores it and keeps showing the turn badge alone, so the
          *    bump is what tells the rider there is a line to gain.
+         * 21: the HUD takes its own app from the phone and a request to
+         *    remove it (see [HudAppPush]), and reports its version code in
+         *    [HudCommand.Pair]. The phone offers neither to an older HUD.
          */
-        const val PROTOCOL_MINOR: Int = 20
+        const val PROTOCOL_MINOR: Int = 21
 
         /** Legacy alias. New code should read [PROTOCOL_MAJOR] / [PROTOCOL_MINOR]. */
         @Deprecated(
@@ -448,6 +451,10 @@ sealed class HudCommand {
         val hudVersion: String,
         val hudProtocolMajor: Int = 0,
         val hudProtocolMinor: Int = 0,
+        /** The HUD app's own version code, so the phone can tell an older
+         *  HUD from the one it carries (see [HudAppPush]). 0 from a HUD
+         *  that does not say. Added at PROTOCOL_MINOR 21. */
+        val hudVersionCode: Int = 0,
         /** Compact human-readable summary of the HUD's most recent WiFi
          *  self-heal, threaded back so it lands in the rider's shareable
          *  diagnostics .txt (the phone logs the Pair greeting as a NOTE).

@@ -513,6 +513,14 @@
 
     <string name="hud_install_hint">Precisa da app do HUD? Obtenha-a em <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">App do HUD</string>
+    <string name="hud_app_on_hud">No HUD: %1$s</string>
+    <string name="hud_app_in_phone">Nesta app: %1$s</string>
+    <string name="hud_app_send">Enviar para o HUD</string>
+    <string name="hud_app_remove">Remover</string>
+    <string name="hud_app_sending">A enviar, %1$d%%</string>
+    <string name="hud_app_sent">Enviada. Confirme no HUD.</string>
+    <string name="hud_app_failed">Não foi possível contactar o HUD. Tente de novo.</string>
     <string name="section_watch_general">Geral</string>
     <string name="section_watch_display">Ecrã</string>
     <string name="section_watch_advanced">Avançado</string>

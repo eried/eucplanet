@@ -488,6 +488,14 @@
     <string name="hud_map_brightness_label">Kirkkaus</string>
     <string name="hud_install_hint">Tarvitsetko HUD-sovelluksen? Hae se osoitteesta <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">HUD-sovellus</string>
+    <string name="hud_app_on_hud">HUD:ssa: %1$s</string>
+    <string name="hud_app_in_phone">Tässä sovelluksessa: %1$s</string>
+    <string name="hud_app_send">Lähetä HUD:iin</string>
+    <string name="hud_app_remove">Poista</string>
+    <string name="hud_app_sending">Lähetetään, %1$d%%</string>
+    <string name="hud_app_sent">Lähetetty. Vahvista HUD:ssa.</string>
+    <string name="hud_app_failed">HUD:iin ei saatu yhteyttä. Yritä uudelleen.</string>
     <string name="section_watch_general">Yleiset</string>
     <string name="section_watch_display">Näyttö</string>
     <string name="section_watch_advanced">Lisäasetukset</string>

@@ -165,6 +165,9 @@ class SettingsViewModel(
      *  when no HUD is currently paired. */
     val hudVersion = hudCommandSink.hudVersion
     val hudEverConnected = hudCommandSink.hudEverConnected
+    val hudVersionCode = hudCommandSink.hudVersionCode
+    val hudTakesApp = hudCommandSink.hudTakesApp
+    val hudAppSender = hudServer.appSender
 
     /**
      * Full preset-list snapshot for the HUD overlay picker dialog:

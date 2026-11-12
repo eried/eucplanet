@@ -539,6 +539,14 @@
     -->
     <string name="hud_install_hint">Potrzebujesz aplikacji HUD? Pobierz ją z <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">Aplikacja HUD</string>
+    <string name="hud_app_on_hud">Na HUD: %1$s</string>
+    <string name="hud_app_in_phone">W tej aplikacji: %1$s</string>
+    <string name="hud_app_send">Wyślij do HUD</string>
+    <string name="hud_app_remove">Usuń</string>
+    <string name="hud_app_sending">Wysyłanie, %1$d%%</string>
+    <string name="hud_app_sent">Wysłano. Potwierdź na HUD.</string>
+    <string name="hud_app_failed">Nie można połączyć się z HUD. Spróbuj ponownie.</string>
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">Ogólne</string>
     <string name="section_watch_display">Ekran</string>

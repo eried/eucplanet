@@ -539,6 +539,14 @@
     -->
     <string name="hud_install_hint">Потрібен застосунок HUD? Завантажте його з eucplanet.ried.no/hud</string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">Застосунок HUD</string>
+    <string name="hud_app_on_hud">На HUD: %1$s</string>
+    <string name="hud_app_in_phone">У цьому застосунку: %1$s</string>
+    <string name="hud_app_send">Надіслати на HUD</string>
+    <string name="hud_app_remove">Видалити</string>
+    <string name="hud_app_sending">Надсилання, %1$d%%</string>
+    <string name="hud_app_sent">Надіслано. Підтвердьте на HUD.</string>
+    <string name="hud_app_failed">HUD недоступний. Спробуйте ще раз.</string>
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">Загальні</string>
     <string name="section_watch_display">Екран</string>
