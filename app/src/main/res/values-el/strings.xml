@@ -514,8 +514,8 @@
     <string name="hud_install_hint">Χρειάζεστε την εφαρμογή HUD; Κατεβάστε τη από <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
     <string name="hud_app_title">Εφαρμογή HUD</string>
-    <string name="hud_app_on_hud">Στο HUD: %1$s</string>
-    <string name="hud_app_in_phone">Σε αυτή την εφαρμογή: %1$s</string>
+    <string name="hud_app_installed">Εγκατεστημένη:</string>
+    <string name="hud_app_available">Διαθέσιμη:</string>
     <string name="hud_app_send">Αποστολή στο HUD</string>
     <string name="hud_app_remove">Απεγκατάσταση</string>
     <string name="hud_app_sending">Αποστολή, %1$d%%</string>

@@ -540,8 +540,8 @@
     <string name="hud_install_hint">HUD アプリが必要ですか？<b>eucplanet.ried.no/hud</b> から入手してください</string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
     <string name="hud_app_title">HUDアプリ</string>
-    <string name="hud_app_on_hud">HUD側: %1$s</string>
-    <string name="hud_app_in_phone">このアプリ内: %1$s</string>
+    <string name="hud_app_installed">インストール済み:</string>
+    <string name="hud_app_available">利用可能:</string>
     <string name="hud_app_send">HUDに送信</string>
     <string name="hud_app_remove">アンインストール</string>
     <string name="hud_app_sending">送信中 %1$d%%</string>

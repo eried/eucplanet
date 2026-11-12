@@ -540,8 +540,8 @@
     <string name="hud_install_hint">Mangler du HUD-appen? Hent den på <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
     <string name="hud_app_title">HUD-app</string>
-    <string name="hud_app_on_hud">På HUD: %1$s</string>
-    <string name="hud_app_in_phone">I denne app: %1$s</string>
+    <string name="hud_app_installed">Installeret:</string>
+    <string name="hud_app_available">Tilgængelig:</string>
     <string name="hud_app_send">Send til HUD</string>
     <string name="hud_app_remove">Afinstaller</string>
     <string name="hud_app_sending">Sender, %1$d%%</string>

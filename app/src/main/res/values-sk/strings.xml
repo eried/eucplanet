@@ -529,8 +529,8 @@
     <string name="hud_install_hint">Potrebujete aplikáciu HUD? Získate ju na <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
     <string name="hud_app_title">Aplikácia HUD</string>
-    <string name="hud_app_on_hud">Na HUD: %1$s</string>
-    <string name="hud_app_in_phone">V tejto aplikácii: %1$s</string>
+    <string name="hud_app_installed">Nainštalované:</string>
+    <string name="hud_app_available">K dispozícii:</string>
     <string name="hud_app_send">Odoslať do HUD</string>
     <string name="hud_app_remove">Odinštalovať</string>
     <string name="hud_app_sending">Odosiela sa, %1$d%%</string>

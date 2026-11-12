@@ -528,8 +528,8 @@
     <string name="hud_install_hint">Нужно ви е приложението за HUD? Изтеглете го от <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
     <string name="hud_app_title">Приложение за HUD</string>
-    <string name="hud_app_on_hud">На HUD: %1$s</string>
-    <string name="hud_app_in_phone">В това приложение: %1$s</string>
+    <string name="hud_app_installed">Инсталирано:</string>
+    <string name="hud_app_available">Налично:</string>
     <string name="hud_app_send">Изпрати към HUD</string>
     <string name="hud_app_remove">Деинсталирай</string>
     <string name="hud_app_sending">Изпращане, %1$d%%</string>

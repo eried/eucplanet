@@ -495,8 +495,8 @@
     <string name="hud_install_hint">Perlu aplikasi HUD? Dapatkan di <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
     <string name="hud_app_title">Aplikasi HUD</string>
-    <string name="hud_app_on_hud">Di HUD: %1$s</string>
-    <string name="hud_app_in_phone">Di aplikasi ini: %1$s</string>
+    <string name="hud_app_installed">Terpasang:</string>
+    <string name="hud_app_available">Tersedia:</string>
     <string name="hud_app_send">Kirim ke HUD</string>
     <string name="hud_app_remove">Uninstal</string>
     <string name="hud_app_sending">Mengirim, %1$d%%</string>
