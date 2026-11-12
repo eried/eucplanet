@@ -117,7 +117,7 @@ internal class IosVoice(
     }
 
     fun speak(text: String, s: AppSettings? = null) {
-        val utterance = AVSpeechUtterance.speechUtteranceWithString(text)
+        val utterance = AVSpeechUtterance.speechUtteranceWithString(spoken(text))
         if (s != null) {
             // Android's 1.0 is the engine's normal pace; iOS's normal is its default rate.
             utterance.rate = (AVSpeechUtteranceDefaultSpeechRate * s.voiceSpeechRate).coerceIn(0.1f, 1f)
@@ -256,8 +256,15 @@ internal class IosVoice(
 
     override fun shutdown() = Unit
 
-    private companion object {
-        const val RELEASE_DELAY_MS = 300L
-        const val WATCHDOG_MS = 1000L
+    companion object {
+        private const val RELEASE_DELAY_MS = 300L
+        private const val WATCHDOG_MS = 1000L
+        private val EUC = Regex("\\bEUC\\b")
+
+        /**
+         * The text as the iPhone should say it. Its speech engine reads "EUC"
+         * as a word ("EU Planet"); Android's spells it, so spell it here too.
+         */
+        fun spoken(text: String): String = text.replace(EUC, "E U C")
     }
 }
