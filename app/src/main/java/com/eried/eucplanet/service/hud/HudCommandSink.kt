@@ -66,6 +66,10 @@ class HudCommandSink(
      *  linked. Compared with the HUD app this phone carries. */
     val hudVersionCode: StateFlow<Int> = _hudVersionCode.asStateFlow()
 
+    private val _hudBuild = MutableStateFlow("")
+    /** Which build of its version the linked HUD runs, "" when unknown. */
+    val hudBuild: StateFlow<String> = _hudBuild.asStateFlow()
+
     private val _hudTakesApp = MutableStateFlow(false)
     /** Whether the linked HUD can be sent its app, or asked to remove it. */
     val hudTakesApp: StateFlow<Boolean> = _hudTakesApp.asStateFlow()
@@ -76,6 +80,7 @@ class HudCommandSink(
         _hudVersionCompat.value = VersionCompat.EXACT
         _hudVersion.value = null
         _hudVersionCode.value = 0
+        _hudBuild.value = ""
         _hudTakesApp.value = false
     }
 
@@ -90,6 +95,7 @@ class HudCommandSink(
                 _hudVersionCompat.value = VersionCompat.classify(major, cmd.hudProtocolMinor)
                 _hudVersion.value = cmd.hudVersion.ifBlank { null }
                 _hudVersionCode.value = cmd.hudVersionCode
+                _hudBuild.value = cmd.hudBuild
                 _hudTakesApp.value = HudAppPush.canReceive(major, cmd.hudProtocolMinor)
                 _hudEverConnected.value = true
                 // Also record the HUD's reported version in the shareable Service

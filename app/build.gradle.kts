@@ -78,6 +78,8 @@ android {
         val hudVersionName = Regex("versionName\\s*=\\s*\"([^\"]+)\"").find(hudGradle)?.groupValues?.get(1) ?: ""
         buildConfigField("int", "HUD_VERSION_CODE", hudVersionCode)
         buildConfigField("String", "HUD_VERSION_NAME", "\"$hudVersionName\"")
+        // The packed HUD app is built from this same commit.
+        buildConfigField("String", "HUD_BUILD_ID", "\"${git("rev-parse", "--short=9", "HEAD")}\"")
 
         // A "dev" build is any branch build other than main. Same signal the
         // About dialog uses to show the branch tag: a real branch name that is

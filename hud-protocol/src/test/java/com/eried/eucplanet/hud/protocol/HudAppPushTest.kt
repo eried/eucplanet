@@ -21,15 +21,34 @@ class HudAppPushTest {
         assertTrue(HudAppPush.canReceive(HudState.PROTOCOL_MAJOR, HudState.PROTOCOL_MINOR))
     }
 
-    @Test fun `an older HUD is offered the app, the same or a newer one is not`() {
-        assertTrue(HudAppPush.isOlder(hudVersionCode = 300015, carriedVersionCode = 300016))
-        assertFalse(HudAppPush.isOlder(hudVersionCode = 300016, carriedVersionCode = 300016))
-        assertFalse(HudAppPush.isOlder(hudVersionCode = 300017, carriedVersionCode = 300016))
+    @Test fun `an older HUD is offered the app, a newer one is not`() {
+        assertEquals(HudAppPush.Offer.SEND, HudAppPush.offer(300015, "aaa", 300016, "bbb"))
+        assertEquals(HudAppPush.Offer.NONE, HudAppPush.offer(300017, "aaa", 300016, "bbb"))
+    }
+
+    @Test fun `another build of the same version is offered like an older one`() {
+        assertEquals(HudAppPush.Offer.SEND, HudAppPush.offer(300016, "aaa", 300016, "bbb"))
+    }
+
+    @Test fun `the very same build can still go, after a question`() {
+        assertEquals(HudAppPush.Offer.SAME_BUILD, HudAppPush.offer(300016, "bbb", 300016, "bbb"))
+    }
+
+    @Test fun `an unknown build reads as another build`() {
+        assertEquals(HudAppPush.Offer.SEND, HudAppPush.offer(300016, "", 300016, "bbb"))
+        assertEquals(HudAppPush.Offer.SEND, HudAppPush.offer(300016, "aaa", 300016, ""))
+        assertEquals(HudAppPush.Offer.SEND, HudAppPush.offer(300016, "", 300016, ""))
     }
 
     @Test fun `an unknown version on either side offers nothing`() {
-        assertFalse(HudAppPush.isOlder(hudVersionCode = 0, carriedVersionCode = 300016))
-        assertFalse(HudAppPush.isOlder(hudVersionCode = 300015, carriedVersionCode = 0))
+        assertEquals(HudAppPush.Offer.NONE, HudAppPush.offer(0, "aaa", 300016, "bbb"))
+        assertEquals(HudAppPush.Offer.NONE, HudAppPush.offer(300015, "aaa", 0, "bbb"))
+    }
+
+    @Test fun `the HUD keeps the same version or a newer one, never an older`() {
+        assertTrue(HudAppPush.accepts(runningVersionCode = 300016, postedVersionCode = 300016))
+        assertTrue(HudAppPush.accepts(runningVersionCode = 300016, postedVersionCode = 300017))
+        assertFalse(HudAppPush.accepts(runningVersionCode = 300016, postedVersionCode = 300015))
     }
 
     @Test fun `a pair greeting without a version code still reads`() {
@@ -38,5 +57,6 @@ class HudAppPushTest {
             """{"type":"com.eried.eucplanet.hud.protocol.HudCommand.Pair","hudId":"x","hudVersion":"0.1.14"}"""
         ) as HudCommand.Pair
         assertEquals(0, old.hudVersionCode)
+        assertEquals("", old.hudBuild)
     }
 }

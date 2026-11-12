@@ -495,6 +495,8 @@
     <string name="hud_app_remove">Odinstalovat</string>
     <string name="hud_app_sending">Odesílání, %1$d%%</string>
     <string name="hud_app_sent">Pokračujte na HUD.</string>
+    <string name="hud_app_resend_title">Již aktuální</string>
+    <string name="hud_app_resend_body">HUD už tuto verzi má. Přesto odeslat?</string>
     <string name="hud_app_remove_title">Odinstalovat aplikaci HUD?</string>
     <string name="hud_app_remove_body">HUD požádá o odinstalaci. K nové instalaci je potřeba kabel.</string>
     <string name="hud_app_failed">HUD není dostupný. Zkuste to znovu.</string>

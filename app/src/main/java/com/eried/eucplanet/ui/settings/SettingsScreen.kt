@@ -11714,7 +11714,7 @@ private fun HudInstallHint(pairedHudVersion: String?, hudEverConnected: Boolean)
 /**
  * The HUD's own app, looked after from the phone. Shows while a HUD that can
  * take it is linked: which version it runs, a button to send the one this
- * phone app carries (live only while the HUD's is older), and one to remove
+ * phone app carries (it asks first when the HUD already runs that build), and one to remove
  * it, behind a confirm. Nothing is sent without the tap, and the HUD still
  * asks its rider before it installs or removes anything.
  */
@@ -11727,7 +11727,18 @@ private fun HudAppCard(viewModel: SettingsViewModel) {
     val state by sender.state.collectAsState()
     val version = hudVersion
     if (version == null || !takesApp) return
-    val older = com.eried.eucplanet.hud.protocol.HudAppPush.isOlder(hudCode, sender.carriedVersionCode)
+    val hudBuild by viewModel.hudBuild.collectAsState()
+    // An older HUD or another build is sent on the tap. The very same build
+    // can go too, after a question. Only a newer HUD is left alone.
+    val offer = com.eried.eucplanet.hud.protocol.HudAppPush.offer(
+        hudCode, hudBuild, sender.carriedVersionCode, sender.carriedBuild
+    )
+    val older = offer == com.eried.eucplanet.hud.protocol.HudAppPush.Offer.SEND
+    val sendable = offer != com.eried.eucplanet.hud.protocol.HudAppPush.Offer.NONE
+    var confirmResend by remember { mutableStateOf(false) }
+    // Two builds of one version read the same by number, so the build is
+    // shown beside it whenever it is known.
+    fun label(name: String, build: String) = if (build.isEmpty()) name else "$name ($build)"
     val sending = state is com.eried.eucplanet.service.hud.HudAppSender.State.Sending
     // After a send or a remove request the next step is on the HUD. Both
     // buttons rest a few seconds so a second tap cannot stack a second
@@ -11781,13 +11792,13 @@ private fun HudAppCard(viewModel: SettingsViewModel) {
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
-                        stringResource(R.string.hud_app_on_hud, version),
+                        stringResource(R.string.hud_app_on_hud, label(version, hudBuild)),
                         style = MaterialTheme.typography.bodySmall,
                         color = LocalContentColor.current.copy(alpha = 0.72f)
                     )
                     if (older) {
                         Text(
-                            stringResource(R.string.hud_app_in_phone, sender.carriedVersionName),
+                            stringResource(R.string.hud_app_in_phone, label(sender.carriedVersionName, sender.carriedBuild)),
                             style = MaterialTheme.typography.bodySmall,
                             color = LocalContentColor.current.copy(alpha = 0.72f)
                         )
@@ -11806,15 +11817,15 @@ private fun HudAppCard(viewModel: SettingsViewModel) {
                     style = MaterialTheme.typography.bodySmall
                 )
             }
-            // Always the same two halves. Send is only live while the HUD's
-            // app is older than the one this phone carries.
+            // Always the same two halves. Send only goes dead for a HUD that
+            // runs a newer app than this phone carries.
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Button(
-                    onClick = { sender.send() },
-                    enabled = older && !sending && !resting,
+                    onClick = { if (older) sender.send() else confirmResend = true },
+                    enabled = sendable && !sending && !resting,
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp)
                 ) { Text(stringResource(R.string.hud_app_send), maxLines = 1) }
@@ -11830,6 +11841,26 @@ private fun HudAppCard(viewModel: SettingsViewModel) {
                 ) { Text(stringResource(R.string.hud_app_remove), maxLines = 1) }
             }
         }
+    }
+    if (confirmResend) {
+        AlertDialog(
+            onDismissRequest = { confirmResend = false },
+            shape = RoundedCornerShape(12.dp),
+            title = { Text(stringResource(R.string.hud_app_resend_title)) },
+            text = { Text(stringResource(R.string.hud_app_resend_body)) },
+            confirmButton = {
+                TextButton(
+                    onClick = { confirmResend = false; sender.send() },
+                    shape = RoundedCornerShape(12.dp)
+                ) { Text(stringResource(R.string.hud_app_send)) }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { confirmResend = false },
+                    shape = RoundedCornerShape(12.dp)
+                ) { Text(stringResource(R.string.action_cancel)) }
+            }
+        )
     }
     if (confirmRemove) {
         AlertDialog(

@@ -546,6 +546,8 @@
     <string name="hud_app_remove">제거</string>
     <string name="hud_app_sending">보내는 중, %1$d%%</string>
     <string name="hud_app_sent">HUD에서 계속하세요.</string>
+    <string name="hud_app_resend_title">이미 최신 버전입니다</string>
+    <string name="hud_app_resend_body">HUD에 이미 이 버전이 있습니다. 그래도 보낼까요?</string>
     <string name="hud_app_remove_title">HUD 앱을 제거할까요?</string>
     <string name="hud_app_remove_body">HUD에서 삭제 여부를 묻습니다. 다시 설치하려면 케이블이 필요합니다.</string>
     <string name="hud_app_failed">HUD에 연결할 수 없습니다. 다시 시도하세요.</string>

@@ -520,6 +520,8 @@
     <string name="hud_app_remove">Απεγκατάσταση</string>
     <string name="hud_app_sending">Αποστολή, %1$d%%</string>
     <string name="hud_app_sent">Συνεχίστε στο HUD.</string>
+    <string name="hud_app_resend_title">Ήδη ενημερωμένο</string>
+    <string name="hud_app_resend_body">Το HUD έχει ήδη αυτή την έκδοση. Αποστολή ούτως ή άλλως;</string>
     <string name="hud_app_remove_title">Απεγκατάσταση της εφαρμογής HUD;</string>
     <string name="hud_app_remove_body">Το HUD θα ζητήσει απεγκατάσταση. Για νέα εγκατάσταση χρειάζεται καλώδιο.</string>
     <string name="hud_app_failed">Το HUD δεν απαντά. Δοκιμάστε ξανά.</string>

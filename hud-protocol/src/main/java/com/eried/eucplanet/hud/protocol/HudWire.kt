@@ -455,6 +455,11 @@ sealed class HudCommand {
          *  HUD from the one it carries (see [HudAppPush]). 0 from a HUD
          *  that does not say. Added at PROTOCOL_MINOR 21. */
         val hudVersionCode: Int = 0,
+        /** Which build of that version the HUD runs (the commit it was
+         *  built from), so the phone can tell its own build of the same
+         *  version from another one. Empty when unknown. Added with
+         *  [hudVersionCode]. */
+        val hudBuild: String = "",
         /** Compact human-readable summary of the HUD's most recent WiFi
          *  self-heal, threaded back so it lands in the rider's shareable
          *  diagnostics .txt (the phone logs the Pair greeting as a NOTE).

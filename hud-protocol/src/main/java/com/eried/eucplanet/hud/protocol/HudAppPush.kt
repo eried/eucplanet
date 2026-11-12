@@ -26,7 +26,7 @@ object HudAppPush {
     /** What the HUD answers to a posted file, as the response text. */
     const val ANSWER_READY: String = "ready"
     const val ANSWER_NOT_AN_APP: String = "not-an-app"
-    const val ANSWER_NOT_NEWER: String = "not-newer"
+    const val ANSWER_OLDER: String = "older"
     const val ANSWER_TOO_BIG: String = "too-big"
 
     /** Whether a HUD that paired with this protocol version takes the posts.
@@ -34,10 +34,38 @@ object HudAppPush {
     fun canReceive(hudMajor: Int, hudMinor: Int): Boolean =
         hudMajor == HudState.PROTOCOL_MAJOR && hudMinor >= MIN_MINOR
 
+    /** What the phone can do with the app it carries, for the linked HUD. */
+    enum class Offer {
+        /** The HUD runs an older app, or another build of the same version. */
+        SEND,
+        /** The HUD already runs this very build. Sending it again is
+         *  allowed, a tester may want a clean copy, but the phone asks first. */
+        SAME_BUILD,
+        /** Nothing to send: the HUD runs a newer app, which Android would
+         *  refuse to take back, or a version is unknown. */
+        NONE,
+    }
+
     /**
-     * Whether the HUD runs an older app than the one the phone carries.
-     * 0 on either side means unknown, and nothing is offered on a guess.
+     * Testers move between builds of one version all the time and Android
+     * installs the same number over itself, so only a step back is ruled
+     * out. 0 for a version code means unknown, and nothing is offered on a
+     * guess. An empty build on either side reads as another build.
      */
-    fun isOlder(hudVersionCode: Int, carriedVersionCode: Int): Boolean =
-        hudVersionCode > 0 && carriedVersionCode > 0 && hudVersionCode < carriedVersionCode
+    fun offer(
+        hudVersionCode: Int,
+        hudBuild: String,
+        carriedVersionCode: Int,
+        carriedBuild: String,
+    ): Offer = when {
+        hudVersionCode <= 0 || carriedVersionCode <= 0 -> Offer.NONE
+        hudVersionCode > carriedVersionCode -> Offer.NONE
+        hudVersionCode < carriedVersionCode -> Offer.SEND
+        hudBuild.isNotEmpty() && hudBuild == carriedBuild -> Offer.SAME_BUILD
+        else -> Offer.SEND
+    }
+
+    /** Whether the HUD keeps a posted app: anything but a step back. */
+    fun accepts(runningVersionCode: Int, postedVersionCode: Int): Boolean =
+        postedVersionCode >= runningVersionCode
 }

@@ -1814,6 +1814,8 @@
     <string name="hud_app_remove">卸载</string>
     <string name="hud_app_sending">正在发送 %1$d%%</string>
     <string name="hud_app_sent">请在 HUD 上继续。</string>
+    <string name="hud_app_resend_title">已是最新</string>
+    <string name="hud_app_resend_body">HUD 已是此版本。仍要发送吗？</string>
     <string name="hud_app_remove_title">卸载 HUD 应用？</string>
     <string name="hud_app_remove_body">HUD 会询问是否卸载。重新安装需要数据线。</string>
     <string name="hud_app_failed">无法连接 HUD。请重试。</string>

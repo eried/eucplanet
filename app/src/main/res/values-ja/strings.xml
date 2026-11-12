@@ -546,6 +546,8 @@
     <string name="hud_app_remove">アンインストール</string>
     <string name="hud_app_sending">送信中 %1$d%%</string>
     <string name="hud_app_sent">HUDで続けてください。</string>
+    <string name="hud_app_resend_title">すでに最新です</string>
+    <string name="hud_app_resend_body">HUDにはすでにこのバージョンが入っています。それでも送信しますか？</string>
     <string name="hud_app_remove_title">HUDアプリをアンインストールしますか？</string>
     <string name="hud_app_remove_body">HUDがアンインストールの確認を表示します。再インストールにはケーブルが必要です。</string>
     <string name="hud_app_failed">HUDに接続できません。もう一度お試しください。</string>

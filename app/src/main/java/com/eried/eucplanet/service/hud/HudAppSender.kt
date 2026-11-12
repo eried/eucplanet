@@ -55,6 +55,8 @@ class HudAppSender(
     /** Version code of the HUD app inside this phone app, 0 when none is. */
     val carriedVersionCode: Int = if (hasAsset()) BuildConfig.HUD_VERSION_CODE else 0
     val carriedVersionName: String = BuildConfig.HUD_VERSION_NAME
+    /** The commit the carried HUD app was built from, the phone's own. */
+    val carriedBuild: String = BuildConfig.HUD_BUILD_ID
 
     private fun hasAsset(): Boolean =
         runCatching { context.assets.open(ASSET).use { true } }.getOrDefault(false)

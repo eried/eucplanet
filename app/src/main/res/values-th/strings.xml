@@ -501,6 +501,8 @@
     <string name="hud_app_remove">ถอนการติดตั้ง</string>
     <string name="hud_app_sending">กำลังส่ง %1$d%%</string>
     <string name="hud_app_sent">ดำเนินการต่อบน HUD</string>
+    <string name="hud_app_resend_title">เป็นเวอร์ชันล่าสุดแล้ว</string>
+    <string name="hud_app_resend_body">HUD มีเวอร์ชันนี้อยู่แล้ว ส่งต่อไปหรือไม่</string>
     <string name="hud_app_remove_title">ถอนการติดตั้งแอป HUD หรือไม่</string>
     <string name="hud_app_remove_body">HUD จะถามเพื่อถอนการติดตั้ง การติดตั้งใหม่ต้องใช้สายเคเบิล</string>
     <string name="hud_app_failed">ติดต่อ HUD ไม่ได้ ลองอีกครั้ง</string>

@@ -55,8 +55,8 @@ object HudAppUpdate {
     }
 
     /**
-     * A posted [file] of [total] bytes has landed: keep it if it is a newer
-     * build of this app. Returns one of the [HudAppPush] answers.
+     * A posted [file] of [total] bytes has landed: keep it if it is this app and
+     * not a step back. Returns one of the [HudAppPush] answers.
      */
     fun received(context: Context, file: File, total: Long): String {
         if (total > HudAppPush.MAX_BYTES) {
@@ -72,10 +72,10 @@ object HudAppUpdate {
         }
         @Suppress("DEPRECATION")
         val code = info.versionCode
-        if (code <= BuildConfig.VERSION_CODE) {
+        if (!HudAppPush.accepts(BuildConfig.VERSION_CODE, code)) {
             file.delete()
-            HudDiag.log("update", "file from the phone is not newer ($code, running ${BuildConfig.VERSION_CODE})")
-            return HudAppPush.ANSWER_NOT_NEWER
+            HudDiag.log("update", "file from the phone is older ($code, running ${BuildConfig.VERSION_CODE})")
+            return HudAppPush.ANSWER_OLDER
         }
         HudDiag.log("update", "received ${info.versionName} ($code), $total bytes, waiting for OK")
         _problem.value = null

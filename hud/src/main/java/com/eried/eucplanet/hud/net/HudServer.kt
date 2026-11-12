@@ -397,6 +397,7 @@ class HudServer(private val context: Context) {
                                 hudProtocolMajor = sendMajor,
                                 hudProtocolMinor = sendMinor,
                                 hudVersionCode = com.eried.eucplanet.hud.BuildConfig.VERSION_CODE,
+                                hudBuild = com.eried.eucplanet.hud.BuildConfig.BUILD_ID,
                                 recoveryNote = recoveryNote
                             )
                         ))

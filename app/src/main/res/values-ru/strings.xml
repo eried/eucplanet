@@ -546,6 +546,8 @@
     <string name="hud_app_remove">Удалить</string>
     <string name="hud_app_sending">Отправка, %1$d%%</string>
     <string name="hud_app_sent">Продолжите на HUD.</string>
+    <string name="hud_app_resend_title">Уже обновлено</string>
+    <string name="hud_app_resend_body">На HUD уже эта версия. Всё равно отправить?</string>
     <string name="hud_app_remove_title">Удалить приложение HUD?</string>
     <string name="hud_app_remove_body">HUD попросит удалить приложение. Для повторной установки нужен кабель.</string>
     <string name="hud_app_failed">HUD недоступен. Попробуйте снова.</string>

@@ -564,6 +564,8 @@
     <string name="hud_app_remove">Uninstall</string>
     <string name="hud_app_sending">Sending, %1$d%%</string>
     <string name="hud_app_sent">Check the HUD to continue.</string>
+    <string name="hud_app_resend_title">Already up to date</string>
+    <string name="hud_app_resend_body">The HUD already runs this version. Send it anyway?</string>
     <string name="hud_app_remove_title">Uninstall the HUD app?</string>
     <string name="hud_app_remove_body">The HUD will ask to uninstall it. Installing it again needs a cable.</string>
     <string name="hud_app_failed">Could not reach the HUD. Try again.</string>

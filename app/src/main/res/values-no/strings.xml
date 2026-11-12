@@ -1831,6 +1831,8 @@
     <string name="hud_app_remove">Avinstaller</string>
     <string name="hud_app_sending">Sender, %1$d%%</string>
     <string name="hud_app_sent">Fortsett på HUD.</string>
+    <string name="hud_app_resend_title">Allerede oppdatert</string>
+    <string name="hud_app_resend_body">HUD-en har allerede denne versjonen. Sende likevel?</string>
     <string name="hud_app_remove_title">Avinstallere HUD-appen?</string>
     <string name="hud_app_remove_body">HUD-en ber om å avinstallere den. Du trenger kabel for å installere den igjen.</string>
     <string name="hud_app_failed">Fikk ikke kontakt med HUD. Prøv igjen.</string>

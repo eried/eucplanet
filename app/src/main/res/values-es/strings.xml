@@ -546,6 +546,8 @@
     <string name="hud_app_remove">Desinstalar</string>
     <string name="hud_app_sending">Enviando, %1$d%%</string>
     <string name="hud_app_sent">Revisa el HUD para continuar.</string>
+    <string name="hud_app_resend_title">Ya está actualizada</string>
+    <string name="hud_app_resend_body">El HUD ya tiene esta versión. ¿Enviarla de todos modos?</string>
     <string name="hud_app_remove_title">¿Desinstalar la app del HUD?</string>
     <string name="hud_app_remove_body">El HUD pedirá desinstalarla. Para instalarla otra vez hace falta un cable.</string>
     <string name="hud_app_failed">No se pudo conectar con el HUD. Inténtalo de nuevo.</string>

@@ -15,6 +15,18 @@ val keystoreProps = Properties().apply {
     }
 }
 
+// The commit this HUD was built from, reported to the phone so it can tell
+// two builds of one version apart (see HudAppPush). Through the provider API
+// so the configuration cache tracks it. -PhudBuildId=x overrides it, to test
+// the phone's "another build" path from a single checkout.
+val hudBuildId: String = (project.findProperty("hudBuildId") as? String) ?: runCatching {
+    providers.exec {
+        commandLine("git", "rev-parse", "--short=9", "HEAD")
+        workingDir = projectDir
+        isIgnoreExitValue = true
+    }.standardOutput.asText.get().trim()
+}.getOrDefault("")
+
 android {
     androidResources {
         // Keep only this module's own languages from library resources
@@ -49,6 +61,7 @@ android {
         // both are visible in the same release notes.
         versionCode = 300016
         versionName = "0.1.15"
+        buildConfigField("String", "BUILD_ID", "\"$hudBuildId\"")
     }
 
     signingConfigs {

@@ -520,6 +520,8 @@
     <string name="hud_app_remove">Desinstalar</string>
     <string name="hud_app_sending">A enviar, %1$d%%</string>
     <string name="hud_app_sent">Veja o HUD para continuar.</string>
+    <string name="hud_app_resend_title">Já está atualizada</string>
+    <string name="hud_app_resend_body">O HUD já tem esta versão. Enviar mesmo assim?</string>
     <string name="hud_app_remove_title">Desinstalar a app do HUD?</string>
     <string name="hud_app_remove_body">O HUD vai pedir para desinstalar. Para instalar de novo é preciso um cabo.</string>
     <string name="hud_app_failed">Não foi possível contactar o HUD. Tente de novo.</string>

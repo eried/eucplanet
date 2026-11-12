@@ -495,6 +495,8 @@
     <string name="hud_app_remove">Dezinstalează</string>
     <string name="hud_app_sending">Se trimite, %1$d%%</string>
     <string name="hud_app_sent">Continuă pe HUD.</string>
+    <string name="hud_app_resend_title">Deja la zi</string>
+    <string name="hud_app_resend_body">HUD-ul are deja această versiune. Trimiți oricum?</string>
     <string name="hud_app_remove_title">Dezinstalezi aplicația HUD?</string>
     <string name="hud_app_remove_body">HUD-ul va cere dezinstalarea. Pentru reinstalare este nevoie de un cablu.</string>
     <string name="hud_app_failed">HUD-ul nu răspunde. Încearcă din nou.</string>

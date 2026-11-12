@@ -535,6 +535,8 @@
     <string name="hud_app_remove">Odinštalovať</string>
     <string name="hud_app_sending">Odosiela sa, %1$d%%</string>
     <string name="hud_app_sent">Pokračujte na HUD.</string>
+    <string name="hud_app_resend_title">Už aktuálna</string>
+    <string name="hud_app_resend_body">HUD už túto verziu má. Napriek tomu odoslať?</string>
     <string name="hud_app_remove_title">Odinštalovať aplikáciu HUD?</string>
     <string name="hud_app_remove_body">HUD požiada o odinštalovanie. Na novú inštaláciu je potrebný kábel.</string>
     <string name="hud_app_failed">HUD nie je dostupný. Skúste to znova.</string>

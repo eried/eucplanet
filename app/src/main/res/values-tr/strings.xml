@@ -546,6 +546,8 @@
     <string name="hud_app_remove">Kaldır</string>
     <string name="hud_app_sending">Gönderiliyor, %%%1$d</string>
     <string name="hud_app_sent">HUD\'da devam edin.</string>
+    <string name="hud_app_resend_title">Zaten güncel</string>
+    <string name="hud_app_resend_body">HUD\'da zaten bu sürüm var. Yine de gönderilsin mi?</string>
     <string name="hud_app_remove_title">HUD uygulaması kaldırılsın mı?</string>
     <string name="hud_app_remove_body">HUD kaldırmak için onay isteyecek. Yeniden kurmak için kablo gerekir.</string>
     <string name="hud_app_failed">HUD\'a ulaşılamadı. Tekrar deneyin.</string>
