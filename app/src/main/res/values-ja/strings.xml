@@ -539,6 +539,18 @@
     -->
     <string name="hud_install_hint">HUD アプリが必要ですか？<b>eucplanet.ried.no/hud</b> から入手してください</string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">HUDアプリ</string>
+    <string name="hud_app_on_hud">HUD側: %1$s</string>
+    <string name="hud_app_in_phone">このアプリ内: %1$s</string>
+    <string name="hud_app_send">HUDに送信</string>
+    <string name="hud_app_remove">アンインストール</string>
+    <string name="hud_app_sending">送信中 %1$d%%</string>
+    <string name="hud_app_sent">HUDで続けてください。</string>
+    <string name="hud_app_resend_title">すでに最新です</string>
+    <string name="hud_app_resend_body">HUDにはすでにこのバージョンが入っています。それでも送信しますか？</string>
+    <string name="hud_app_remove_title">HUDアプリをアンインストールしますか？</string>
+    <string name="hud_app_remove_body">HUDがアンインストールの確認を表示します。再インストールにはケーブルが必要です。</string>
+    <string name="hud_app_failed">HUDに接続できません。もう一度お試しください。</string>
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">一般</string>
     <string name="section_watch_display">表示</string>

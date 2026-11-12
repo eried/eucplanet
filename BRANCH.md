@@ -19,8 +19,11 @@ ride, this is the branch.
 - Map: Reverse route turns the stops round for the way back. Start far from a track rides you to its start first.
 - Menus: options that cannot run grey out instead of disappearing, and delete rows are red with a bin.
 - Android Auto: navigation on the car screen, with your four numbers beside it. Planned route rides a loaded track.
+- HUD app update from the phone: the phone app carries the HUD app and sends it over the link on a tap. It asks first when the HUD already runs that build, and leaves a newer HUD alone. Uninstall from the same card. The first install is still by cable.
 - HUD map: keeps working with the phone app in the background and no wheel connected. It now says when it is waiting for the phone GPS.
 - HUD map: no more white "Map data not yet available" screen. Where the map has no detail that deep it shows the closest zoom it has.
+- HUD map: the route is drawn on the map while navigating. Needs this phone APK and this HUD APK together.
+- HUD map: keeps facing the way you were riding when you stop, instead of swinging back to north.
 - HUD camera: let go of the camera when you leave the Camera screen, so the MotoEye recorder can start.
 - HUD camera: UP picks the next camera, DOWN turns the picture 90 degrees. Each camera keeps its own turn, and the HUD remembers them.
 - HUD camera: the MotoEye camera button frees the camera, so its rear view and recorder work from any screen. The picture comes back by itself a few seconds after you stop recording or close the rear view. UP or DOWN also brings it back.
@@ -29,7 +32,8 @@ ride, this is the branch.
 - Voice alarms: a PWM alarm says "PWM" again in Italian, Norwegian and Chinese, it was left out.
 - InMotion V8S and other V1 wheels: commands go out in small pieces like EUC World does, so the link should stop dropping.
 - InMotion V8S: the light button and auto-lights follow the wheel's real light state, and Charging shows (also V8F, V10).
-- InMotion V6: the light button sends the two-byte form the P6 uses. The V14 form did nothing on a V6.
+- InMotion V6: the light button sends the two-byte form the P6 uses. The V14 form did nothing on a V6. The button now stays lit and switches the light off again; before, it went dark after a moment and every tap sent "on".
+- InMotion V6: a V6 whose Bluetooth name has no "V6" in it (firmware 2.2.4) showed its motor duty as speed and 0 % battery. It now reads speed, battery, PWM, trip and temperature.
 - Lights: a reconnect while walking the wheel no longer turns the light on and off again.
 - Dropbox: a few trips no longer upload again on every sync when nothing changed.
 - Trip Details: Compare (the two-arrow icon) puts another trip beside this one, like eucviewer. Auto lines them up, tiles and charts show both or the differences, the map marks the other trip.
@@ -87,6 +91,10 @@ ride, this is the branch.
 - Load a GPX track on the phone, then Places, Planned route in the car: does it follow the track?
 
 **HUD (MotoEye)**
+- With this HUD app on the HUD and a later build on the phone: Settings, HUD shows a HUD app card with Send to HUD. Tap it, press OK on the HUD, confirm Android's prompt. Does it install, and can you work both prompts with the remote? Does the HUD ask you to allow installs first, and can you get through that?
+- Same card, Uninstall: does the HUD show Android's uninstall prompt?
+- Start a route on the phone and open Map on the HUD: is the route line there, on the right streets, and does it keep up as you ride?
+- Stop at a junction: does the map stay facing your direction of travel?
 - Install the phone and the HUD APK from this build. Open the HUD Map screen, leave the phone app, no wheel connected: does the map stay? And with the wheel connected, on any map style and zoom?
 - Camera screen: turn the front camera, switch to the rear one and back. Does each keep its own turn, also after restarting the HUD?
 - MotoEye, without pressing UP or DOWN: 1) Camera screen, hold to start recording, then hold again to stop. Does the picture come back about 5 s after the stop? 2) Short press for the rear view and close it, does it come back? 3) Dashboard, start recording, go to the Camera screen (it should say "in use"), back, stop: does that file play to the end? If the picture stays off, send a photo of the small grey line.
@@ -95,7 +103,8 @@ ride, this is the branch.
 - Ride as usual: how many disconnects, compared with EUC World? A Service Mode log covering any drop helps most.
 
 **InMotion V6** (issue #33)
-- Tap Light in the app: does the wheel light switch on and off?
+- If your V6 showed a speed while standing still or 0 % battery: connect and check speed, battery percent and temperature against the wheel's own app.
+- Tap Light in the app: does the wheel light switch on, the button stay lit, and a second tap switch it off?
 
 **Trip compare**
 - Open a trip, tap Compare, pick a ride over the same road: does Auto line them up? Try Stacked and Overlay, Show differences, and scrub the charts.

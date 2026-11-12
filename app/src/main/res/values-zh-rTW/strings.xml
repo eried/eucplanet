@@ -538,6 +538,18 @@
     -->
     <string name="hud_install_hint">需要 HUD 應用程式？請至 <b>eucplanet.ried.no/hud</b> 取得</string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">HUD 應用程式</string>
+    <string name="hud_app_on_hud">HUD 上：%1$s</string>
+    <string name="hud_app_in_phone">本應用程式內：%1$s</string>
+    <string name="hud_app_send">傳送到 HUD</string>
+    <string name="hud_app_remove">解除安裝</string>
+    <string name="hud_app_sending">正在傳送 %1$d%%</string>
+    <string name="hud_app_sent">請在 HUD 上繼續。</string>
+    <string name="hud_app_resend_title">已是最新</string>
+    <string name="hud_app_resend_body">HUD 已是此版本。仍要傳送嗎？</string>
+    <string name="hud_app_remove_title">解除安裝 HUD 應用程式？</string>
+    <string name="hud_app_remove_body">HUD 會詢問是否解除安裝。重新安裝需要傳輸線。</string>
+    <string name="hud_app_failed">無法連線 HUD。請重試。</string>
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">一般</string>
     <string name="section_watch_display">顯示</string>

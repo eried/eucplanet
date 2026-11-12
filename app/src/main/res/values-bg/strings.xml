@@ -527,6 +527,18 @@
 
     <string name="hud_install_hint">Нужно ви е приложението за HUD? Изтеглете го от <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">Приложение за HUD</string>
+    <string name="hud_app_on_hud">На HUD: %1$s</string>
+    <string name="hud_app_in_phone">В това приложение: %1$s</string>
+    <string name="hud_app_send">Изпрати към HUD</string>
+    <string name="hud_app_remove">Деинсталирай</string>
+    <string name="hud_app_sending">Изпращане, %1$d%%</string>
+    <string name="hud_app_sent">Продължете на HUD.</string>
+    <string name="hud_app_resend_title">Вече е актуално</string>
+    <string name="hud_app_resend_body">HUD вече има тази версия. Изпращане въпреки това?</string>
+    <string name="hud_app_remove_title">Деинсталиране на приложението за HUD?</string>
+    <string name="hud_app_remove_body">HUD ще поиска деинсталиране. За повторно инсталиране е нужен кабел.</string>
+    <string name="hud_app_failed">Няма връзка с HUD. Опитайте отново.</string>
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">Общи</string>
     <string name="section_watch_display">Дисплей</string>
