@@ -203,4 +203,32 @@ class InMotionV6Test {
         // Split the checksum for readability in the two 0x13 asserts.
         return if (s.length == 18) s.substring(0, 16) + " " + s.substring(16) else s
     }
+
+    @Test
+    fun v6OnThePlainPoll_readsItsOwnLayout() {
+        // A V6 on firmware 2.2.4 whose name carries no "V6": it is known only
+        // from its car type and answers the plain `01 04` realtime poll. The
+        // frame is verbatim from that rider's Service Mode log, standing still
+        // (phone GPS 0.00 km/h). Read as a V14 it showed 4.92 km/h and 0 %.
+        val adapter = InMotionV2Adapter()
+        adapter.notifyConnectingTo("InMotion-1234")
+        fun frame(vararg b: Int): ByteArray {
+            val body = b.map { it.toByte() }
+            val ck = body.fold(0) { acc, x -> acc xor (x.toInt() and 0xFF) }
+            return (listOf(0xAA.toByte(), 0xAA.toByte()) + body + ck.toByte()).toByteArray()
+        }
+        adapter.onRawNotification(frame(0x14, 0x08, 0x82, 0x01, 0x02, 0x0e, 0x01, 0x01, 0x01, 0x00))
+        val realtime = ("aa aa 14 43 84 e8 13 24 00 00 00 f4 fc ec 01 00 00 00 00 00 00 0e 00 38 00 " +
+            "2f 00 7d 00 a9 1a 01 1a b8 0b 24 09 dc 05 00 00 00 00 00 00 d9 b0 00 d7 b0 d4 b0 " +
+            "00 00 00 00 00 00 00 53 00 00 00 00 00 00 00 00 00 00 00 5b")
+            .split(" ").map { it.toInt(16).toByte() }.toByteArray()
+        val d = adapter.onRawNotification(realtime)
+            .filterIsInstance<DecodeResult.Telemetry>().single().data
+        assertEquals(50.96f, d.voltage, 0.001f)
+        assertEquals(0f, d.speed, 0.001f)
+        assertEquals(4.92f, d.pwm, 0.001f)
+        assertEquals(66, d.batteryPercent)
+        assertEquals(1.25f, d.tripDistance, 0.001f)
+        assertEquals(36f, d.maxTemperature, 0.001f)
+    }
 }
