@@ -1808,8 +1808,8 @@
     <string name="hud_install_hint">需要 HUD 应用？请前往 <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
     <string name="hud_app_title">HUD 应用</string>
-    <string name="hud_app_on_hud">HUD 上：%1$s</string>
-    <string name="hud_app_in_phone">本应用内：%1$s</string>
+    <string name="hud_app_installed">已安装：</string>
+    <string name="hud_app_available">可用：</string>
     <string name="hud_app_send">发送到 HUD</string>
     <string name="hud_app_remove">卸载</string>
     <string name="hud_app_sending">正在发送 %1$d%%</string>

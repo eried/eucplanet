@@ -11736,6 +11736,30 @@ private fun HudInstallHint(pairedHudVersion: String?, hudEverConnected: Boolean)
  * it, behind a confirm. Nothing is sent without the tap, and the HUD still
  * asks its rider before it installs or removes anything.
  */
+/**
+ * The HUD app on the HUD and the one this phone carries, as two rows. The
+ * names sit in one column and the versions in the next, so the versions
+ * start at the same place and are compared at a glance.
+ */
+@Composable
+private fun HudAppVersions(installed: String, available: String?, color: Color) {
+    val style = MaterialTheme.typography.bodySmall
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column {
+            Text(stringResource(R.string.hud_app_installed), style = style, color = color, maxLines = 1)
+            if (available != null) {
+                Text(stringResource(R.string.hud_app_available), style = style, color = color, maxLines = 1)
+            }
+        }
+        Column(modifier = Modifier.weight(1f)) {
+            Text(installed, style = style, color = color, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            if (available != null) {
+                Text(available, style = style, color = color, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+        }
+    }
+}
+
 @Composable
 private fun HudAppCard(viewModel: SettingsViewModel) {
     val hudVersion by viewModel.hudVersion.collectAsState()
@@ -11809,20 +11833,15 @@ private fun HudAppCard(viewModel: SettingsViewModel) {
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-                    Text(
-                        stringResource(R.string.hud_app_on_hud, label(version, hudBuild)),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = LocalContentColor.current.copy(alpha = 0.72f)
-                    )
                     // Always both, also when they match: the rider reads
                     // that the two are the same instead of taking it on trust.
-                    if (sender.carriedVersionCode > 0) {
-                        Text(
-                            stringResource(R.string.hud_app_in_phone, label(sender.carriedVersionName, sender.carriedBuild)),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = LocalContentColor.current.copy(alpha = 0.72f)
-                        )
-                    }
+                    HudAppVersions(
+                        installed = label(version, hudBuild),
+                        available = if (sender.carriedVersionCode > 0) {
+                            label(sender.carriedVersionName, sender.carriedBuild)
+                        } else null,
+                        color = LocalContentColor.current.copy(alpha = 0.72f)
+                    )
                 }
             }
             (state as? com.eried.eucplanet.service.hud.HudAppSender.State.Sending)?.let { st ->
@@ -11871,16 +11890,11 @@ private fun HudAppCard(viewModel: SettingsViewModel) {
                 // The question, then both versions to compare.
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(stringResource(R.string.hud_app_resend_body))
-                    Column {
-                        Text(
-                            stringResource(R.string.hud_app_on_hud, label(version, hudBuild)),
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                        Text(
-                            stringResource(R.string.hud_app_in_phone, label(sender.carriedVersionName, sender.carriedBuild)),
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    }
+                    HudAppVersions(
+                        installed = label(version, hudBuild),
+                        available = label(sender.carriedVersionName, sender.carriedBuild),
+                        color = LocalContentColor.current
+                    )
                 }
             },
             confirmButton = {

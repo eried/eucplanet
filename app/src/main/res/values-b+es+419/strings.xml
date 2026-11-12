@@ -540,8 +540,8 @@
     <string name="hud_install_hint">¿Necesitas la app del HUD? Descárgala en <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
     <string name="hud_app_title">App del HUD</string>
-    <string name="hud_app_on_hud">En el HUD: %1$s</string>
-    <string name="hud_app_in_phone">En esta app: %1$s</string>
+    <string name="hud_app_installed">Instalada:</string>
+    <string name="hud_app_available">Disponible:</string>
     <string name="hud_app_send">Enviar al HUD</string>
     <string name="hud_app_remove">Desinstalar</string>
     <string name="hud_app_sending">Enviando, %1$d%%</string>

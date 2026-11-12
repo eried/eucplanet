@@ -133,6 +133,11 @@ class SettingsShortcutsTest {
             !card.contains("if (older) {"))
         val dialog = card.substringAfter("if (confirmResend)")
         assertTrue("the resend question does not show the two versions",
-            dialog.contains("R.string.hud_app_on_hud") && dialog.contains("R.string.hud_app_in_phone"))
+            dialog.contains("HudAppVersions("))
+        // One column of names, one of versions, so the versions line up.
+        val rows = screen.substringAfter("private fun HudAppVersions(").substringBefore("private fun HudAppCard(")
+        assertTrue("the two versions are not in a column of their own",
+            rows.contains("R.string.hud_app_installed") && rows.contains("R.string.hud_app_available") &&
+                Regex("Column").findAll(rows).count() == 2)
     }
 }

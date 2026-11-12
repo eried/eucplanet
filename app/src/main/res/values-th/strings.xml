@@ -495,8 +495,8 @@
     <string name="hud_install_hint">ต้องการแอป HUD ใช่ไหม? ดาวน์โหลดได้ที่ <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
     <string name="hud_app_title">แอป HUD</string>
-    <string name="hud_app_on_hud">บน HUD: %1$s</string>
-    <string name="hud_app_in_phone">ในแอปนี้: %1$s</string>
+    <string name="hud_app_installed">ติดตั้งแล้ว:</string>
+    <string name="hud_app_available">พร้อมใช้งาน:</string>
     <string name="hud_app_send">ส่งไปยัง HUD</string>
     <string name="hud_app_remove">ถอนการติดตั้ง</string>
     <string name="hud_app_sending">กำลังส่ง %1$d%%</string>

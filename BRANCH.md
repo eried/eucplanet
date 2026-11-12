@@ -19,7 +19,7 @@ ride, this is the branch.
 - Map: Reverse route turns the stops round for the way back. Start far from a track rides you to its start first.
 - Menus: options that cannot run grey out instead of disappearing, and delete rows are red with a bin.
 - Android Auto: navigation on the car screen, with your four numbers beside it. Planned route rides a loaded track.
-- HUD app update from the phone: the phone app carries the HUD app and sends it over the link on a tap. It asks first when the HUD already runs that build, and leaves a newer HUD alone. The card and that question show both versions, the HUD's and the one in the phone. On a phone or tablet used as a HUD the OK and the skip can be tapped. Uninstall from the same card. The first install is still by cable.
+- HUD app update from the phone: the phone app carries the HUD app and sends it over the link on a tap. It asks first when the HUD already runs that build, and leaves a newer HUD alone. The card and that question show both versions lined up, Installed (on the HUD) and Available (in the phone). On a phone or tablet used as a HUD the OK and the skip can be tapped. Uninstall from the same card. The first install is still by cable.
 - HUD map: keeps working with the phone app in the background and no wheel connected. It now says when it is waiting for the phone GPS.
 - HUD map: no more white "Map data not yet available" screen. Where the map has no detail that deep it shows the closest zoom it has.
 - HUD map: the route is drawn on the map while navigating. Needs this phone APK and this HUD APK together.
