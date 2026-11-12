@@ -88,7 +88,14 @@ class SettingsShortcutsTest {
         assertTrue("the standalone banner is back", !dash.contains("backup_conflict_warning"))
         val reg = vm.substringAfter("it.folderConflictCount").take(900)
         assertTrue(reg.contains("appHealthRepository.upsert"))
-        assertTrue("Fix does not open the Backups section", reg.contains("settingsTab = 4"))
+        // Tab 13 is Backups at its Trips backup block, where the Sync button
+        // is. Tab 4 opened the section top, with the button off screen below.
+        assertTrue("Fix does not open Trips backup", reg.contains("settingsTab = 13"))
+        val map = settings.substringAfter("fun initialTabSectionKey").substringBefore("}")
+        assertTrue(map.contains("13 -> \"cloud\""))
+        assertTrue("tab 13 lands on the section top, not the Trips backup block",
+            settings.contains("val scrollToTripsBackup = initialTab == 13") &&
+                settings.contains("onTripsBackupTop(it.positionInWindow().y)"))
         assertTrue("the warning never clears", reg.contains("dismiss(\"backup_conflicts\")"))
     }
 
