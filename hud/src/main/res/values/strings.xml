@@ -68,10 +68,6 @@
     <string name="hud_wifi_advisory_title">Phone Wi-Fi interrupting HUD</string>
     <string name="hud_wifi_advisory_detail">Turn off phone Wi-Fi for a stable link</string>
     <!-- The phone sent a newer HUD app over the link. -->
-    <string name="hud_update_title">Update from phone</string>
-    <string name="hud_update_version">EUC Planet HUD %1$s</string>
-    <string name="hud_update_ok">OK to install</string>
-    <string name="hud_update_skip">BACK to skip</string>
     <string name="hud_update_failed">Update not installed</string>
     <string name="hud_update_dismiss">Any key closes this</string>
 </resources>

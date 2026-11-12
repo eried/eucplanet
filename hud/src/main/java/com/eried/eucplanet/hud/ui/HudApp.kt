@@ -303,7 +303,7 @@ fun HudApp(
                 // A newer HUD app the phone sent, waiting for OK or BACK.
                 // Over everything: it is the one thing on screen that needs
                 // an answer.
-                AppUpdatePrompt(accent = accent)
+                AppUpdatePrompt()
 
                 // Phone-Wi-Fi interference advisory. BOTTOM-START -- the one
                 // corner the other persistent overlays leave free (disconnect /
