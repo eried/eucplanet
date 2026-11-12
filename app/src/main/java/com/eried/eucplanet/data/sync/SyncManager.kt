@@ -1965,7 +1965,14 @@ class SyncManager(
             ?.findFile(TRIPS_SUBFOLDER)?.takeIf { it.isDirectory }
             ?: return true
         return try {
-            val doc = tripsDir.findFile(fileName)?.takeIf { it.isFile } ?: return true
+            // Shared storage ignores case and the folder may spell the name
+            // its own way ("Inmotion_V14" for the app's "inmotion_v14").
+            // findFile matches exactly, so such a copy read as "nothing to
+            // move", stayed in the folder, and the next sync brought the
+            // deleted trip back.
+            val doc = (tripsDir.findFile(fileName)
+                ?: tripsDir.listFiles().firstOrNull { it.name.equals(fileName, ignoreCase = true) })
+                ?.takeIf { it.isFile } ?: return true
             val archive = tripsDir.findFile("archive")?.takeIf { it.isDirectory }
                 ?: tripsDir.createDirectory("archive") ?: return false
             // An archive never destroys: a name already in there is an earlier
