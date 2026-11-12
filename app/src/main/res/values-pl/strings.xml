@@ -542,6 +542,7 @@
     <string name="hud_app_title">Aplikacja HUD</string>
     <string name="hud_app_installed">Zainstalowana:</string>
     <string name="hud_app_available">Dostępna:</string>
+    <string name="hud_app_connected">Połączono:</string>
     <string name="hud_app_send">Wyślij do HUD</string>
     <string name="hud_app_remove">Odinstaluj</string>
     <string name="hud_app_sending">Wysyłanie, %1$d%%</string>

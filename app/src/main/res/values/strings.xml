@@ -560,6 +560,7 @@
     <string name="hud_app_title">HUD app</string>
     <string name="hud_app_installed">Installed:</string>
     <string name="hud_app_available">Available:</string>
+    <string name="hud_app_connected">Connected:</string>
     <string name="hud_app_send">Send to HUD</string>
     <string name="hud_app_remove">Uninstall</string>
     <string name="hud_app_sending">Sending, %1$d%%</string>

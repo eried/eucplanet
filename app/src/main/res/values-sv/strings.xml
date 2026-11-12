@@ -542,6 +542,7 @@
     <string name="hud_app_title">HUD-app</string>
     <string name="hud_app_installed">Installerad:</string>
     <string name="hud_app_available">Tillgänglig:</string>
+    <string name="hud_app_connected">Ansluten:</string>
     <string name="hud_app_send">Skicka till HUD</string>
     <string name="hud_app_remove">Avinstallera</string>
     <string name="hud_app_sending">Skickar, %1$d%%</string>

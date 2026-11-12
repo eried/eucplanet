@@ -542,6 +542,7 @@
     <string name="hud_app_title">HUD 앱</string>
     <string name="hud_app_installed">설치됨:</string>
     <string name="hud_app_available">사용 가능:</string>
+    <string name="hud_app_connected">연결됨:</string>
     <string name="hud_app_send">HUD로 보내기</string>
     <string name="hud_app_remove">제거</string>
     <string name="hud_app_sending">보내는 중, %1$d%%</string>

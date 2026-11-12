@@ -491,6 +491,7 @@
     <string name="hud_app_title">Aplikace HUD</string>
     <string name="hud_app_installed">Nainstalováno:</string>
     <string name="hud_app_available">K dispozici:</string>
+    <string name="hud_app_connected">Připojeno:</string>
     <string name="hud_app_send">Odeslat do HUD</string>
     <string name="hud_app_remove">Odinstalovat</string>
     <string name="hud_app_sending">Odesílání, %1$d%%</string>

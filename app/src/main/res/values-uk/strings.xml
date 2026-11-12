@@ -542,6 +542,7 @@
     <string name="hud_app_title">Застосунок HUD</string>
     <string name="hud_app_installed">Встановлено:</string>
     <string name="hud_app_available">Доступно:</string>
+    <string name="hud_app_connected">Підключено:</string>
     <string name="hud_app_send">Надіслати на HUD</string>
     <string name="hud_app_remove">Видалити</string>
     <string name="hud_app_sending">Надсилання, %1$d%%</string>

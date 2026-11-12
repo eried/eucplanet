@@ -491,6 +491,7 @@
     <string name="hud_app_title">Aplicația HUD</string>
     <string name="hud_app_installed">Instalată:</string>
     <string name="hud_app_available">Disponibilă:</string>
+    <string name="hud_app_connected">Conectat:</string>
     <string name="hud_app_send">Trimite la HUD</string>
     <string name="hud_app_remove">Dezinstalează</string>
     <string name="hud_app_sending">Se trimite, %1$d%%</string>

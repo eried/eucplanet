@@ -541,6 +541,7 @@
     <string name="hud_app_title">HUD 應用程式</string>
     <string name="hud_app_installed">已安裝：</string>
     <string name="hud_app_available">可用：</string>
+    <string name="hud_app_connected">已連線：</string>
     <string name="hud_app_send">傳送到 HUD</string>
     <string name="hud_app_remove">解除安裝</string>
     <string name="hud_app_sending">正在傳送 %1$d%%</string>

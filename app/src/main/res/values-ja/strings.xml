@@ -542,6 +542,7 @@
     <string name="hud_app_title">HUDアプリ</string>
     <string name="hud_app_installed">インストール済み:</string>
     <string name="hud_app_available">利用可能:</string>
+    <string name="hud_app_connected">接続先:</string>
     <string name="hud_app_send">HUDに送信</string>
     <string name="hud_app_remove">アンインストール</string>
     <string name="hud_app_sending">送信中 %1$d%%</string>

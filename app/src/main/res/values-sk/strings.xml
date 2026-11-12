@@ -531,6 +531,7 @@
     <string name="hud_app_title">Aplikácia HUD</string>
     <string name="hud_app_installed">Nainštalované:</string>
     <string name="hud_app_available">K dispozícii:</string>
+    <string name="hud_app_connected">Pripojené:</string>
     <string name="hud_app_send">Odoslať do HUD</string>
     <string name="hud_app_remove">Odinštalovať</string>
     <string name="hud_app_sending">Odosiela sa, %1$d%%</string>

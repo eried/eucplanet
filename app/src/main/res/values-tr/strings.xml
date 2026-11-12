@@ -542,6 +542,7 @@
     <string name="hud_app_title">HUD uygulaması</string>
     <string name="hud_app_installed">Yüklü:</string>
     <string name="hud_app_available">Mevcut:</string>
+    <string name="hud_app_connected">Bağlı:</string>
     <string name="hud_app_send">HUD\'a gönder</string>
     <string name="hud_app_remove">Kaldır</string>
     <string name="hud_app_sending">Gönderiliyor, %%%1$d</string>
