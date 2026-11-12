@@ -19,6 +19,7 @@ class SettingsShortcutsTest {
     private val settings = File("src/main/java/com/eried/eucplanet/ui/settings/SettingsScreen.kt").readText()
     private val dash = File("src/main/java/com/eried/eucplanet/ui/dashboard/DashboardScreen.kt").readText()
     private val worker = File("src/main/java/com/eried/eucplanet/data/sync/TripUploadWorker.kt").readText()
+    private val sync = File("src/main/java/com/eried/eucplanet/data/sync/SyncManager.kt").readText()
     private val vm = File("src/main/java/com/eried/eucplanet/ui/dashboard/DashboardViewModel.kt").readText()
 
     // --- deep-link scroll --------------------------------------------------
@@ -58,12 +59,26 @@ class SettingsShortcutsTest {
         // A conflict is the one state the mirror must not repair alone: both
         // sides have the file, with different bytes. Missing files are the
         // sweep's job; matching files are done; size mismatch needs the rider.
-        val block = worker.substringAfter("val conflicts =").substringBefore("if (pending.isEmpty()")
-        assertTrue(block.contains("local.length() != folderLen"))
+        // One function does the counting, for the worker and the manual sync.
+        assertTrue("the worker no longer counts on every pass",
+            worker.substringBefore("if (pending.isEmpty()")
+                .contains("syncManager.refreshFolderConflictCount(settings, folderSizes)"))
+        val block = sync.substringAfter("suspend fun refreshFolderConflictCount").take(1100)
+        assertTrue(block.contains("countFolderConflicts(localSizes, folderSizes)"))
         assertTrue("unfinished recordings counted as conflicts",
-            block.contains("t.endTime == null"))
+            block.contains("trip.endTime == null"))
         assertTrue("the count is not written back",
             block.contains("folderConflictCount = conflicts"))
+    }
+
+    @Test fun `a manual sync counts again when it ends, however it ends`() {
+        // The warning stayed up after the rider picked a side, until the
+        // worker's next pass, 15 minutes or a ride later. It read as a bug.
+        val body = sync.substringAfter("fun runSync() = withUploadPass {").take(700)
+        assertTrue("the manual sync leaves the old count standing",
+            body.contains("finally") && body.contains("refreshFolderConflictCount(settings)"))
+        assertTrue("a cancelled sync skips the count",
+            body.contains("NonCancellable"))
     }
 
     @Test fun `the conflicts register in Needs attention, with Fix going to Backups`() {
