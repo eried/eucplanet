@@ -26,7 +26,7 @@ import platform.UIKit.UIApplication
 
 /**
  * The iOS [DashboardHost]. The panels that are still Android code (radar,
- * data sources, voice vocabulary, QR) are not on iOS yet: each
+ * data sources, voice vocabulary) are not on iOS yet: each
  * closes itself or keeps its space, and docs/IOS_PARITY.md lists them.
  */
 internal class IosDashboardHost : DashboardHost {
@@ -98,7 +98,8 @@ internal class IosDashboardHost : DashboardHost {
     }
 
     @Composable
-    override fun QrCode(content: String, sizeDp: Int) = Box(Modifier.size(sizeDp.dp))
+    override fun QrCode(content: String, sizeDp: Int) =
+        com.eried.eucplanet.ui.dashboard.QrCodeCanvas(content = content, sizeDp = sizeDp)
 
     @Composable
     override fun AppLogo(modifier: Modifier) = Box(modifier)

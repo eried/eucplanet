@@ -82,6 +82,8 @@ kotlin {
             // The platform JSON facade is the framework's org.json, which the
             // stub android.jar cannot run.
             implementation("org.json:json:20240303")
+            // QrEncoderZxingTest checks the shared QR encoder against the one Android draws with.
+            implementation(libs.zxing.core)
         }
     }
 }
