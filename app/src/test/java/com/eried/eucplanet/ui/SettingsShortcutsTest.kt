@@ -63,12 +63,25 @@ class SettingsShortcutsTest {
         assertTrue("the worker no longer counts on every pass",
             worker.substringBefore("if (pending.isEmpty()")
                 .contains("syncManager.refreshFolderConflictCount(settings, folderSizes)"))
-        val block = sync.substringAfter("suspend fun refreshFolderConflictCount").take(1100)
+        val block = sync.substringAfter("suspend fun refreshFolderConflictCount").take(1300)
         assertTrue(block.contains("countFolderConflicts(localSizes, folderSizes)"))
         assertTrue("unfinished recordings counted as conflicts",
             block.contains("trip.endTime == null"))
         assertTrue("the count is not written back",
             block.contains("folderConflictCount = conflicts"))
+    }
+
+    @Test fun `the warning follows the folder and the library, not only the syncs`() {
+        // Each of these left the warning up with nothing behind it.
+        val unlink = sync.substringAfter("suspend fun clearSyncFolder").take(900)
+        assertTrue("unlinking the folder leaves the warning up", unlink.contains("folderConflictCount = 0"))
+        val link = sync.substringAfter("suspend fun setSyncFolder").take(700)
+        assertTrue("a new folder keeps the old folder's count", link.contains("refreshFolderConflictCount("))
+        val repo = File("src/main/java/com/eried/eucplanet/data/repository/TripRepository.kt").readText()
+        assertTrue("deleting a trip leaves its conflict counted",
+            repo.substringAfter("suspend fun deleteTrip(").take(900).contains("recountFolderConflictsIfWarned()"))
+        assertTrue("clearing the library leaves the conflicts counted",
+            repo.substringAfter("suspend fun clearAll()").take(900).contains("recountFolderConflictsIfWarned()"))
     }
 
     @Test fun `a manual sync counts again when it ends, however it ends`() {
@@ -86,7 +99,10 @@ class SettingsShortcutsTest {
         // attention dialog with every other fixable problem, so the amber
         // triangle, the count badge and the Fix button all come for free.
         assertTrue("the standalone banner is back", !dash.contains("backup_conflict_warning"))
-        val reg = vm.substringAfter("it.folderConflictCount").take(900)
+        val reg = vm.substringAfter("it.folderConflictCount").take(1500)
+        // The text says where to go, by the labels as they read on screen.
+        assertTrue("the warning no longer names where the Sync button is",
+            reg.contains("R.string.section_cloud_trips") && reg.contains("R.string.cloud_retry_now"))
         assertTrue(reg.contains("appHealthRepository.upsert"))
         // Tab 13 is Backups at its Trips backup block, where the Sync button
         // is. Tab 4 opened the section top, with the button off screen below.

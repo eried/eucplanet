@@ -288,9 +288,9 @@ class SyncManager(
      */
     suspend fun refreshFolderConflictCount(
         settings: AppSettings,
-        folderSizes: Map<String, Long>? = listFolderTripSizes(settings),
-    ) {
-        if (folderSizes == null) return
+        folderSizes: Map<String, Long>? = null,
+    ) = withContext(Dispatchers.IO) {
+        val folderSizes = folderSizes ?: listFolderTripSizes(settings) ?: return@withContext
         val tripsDir = getTripsDir()
         val localSizes = HashMap<String, Long>()
         for (trip in tripDao.observeAll().first()) {
@@ -301,6 +301,18 @@ class SyncManager(
         val conflicts = countFolderConflicts(localSizes, folderSizes)
         if (settings.folderConflictCount != conflicts) {
             settingsRepository.update { it.copy(folderConflictCount = conflicts) }
+        }
+    }
+
+    /**
+     * Count again, but only while the warning is up. For a change on the
+     * phone that can only settle a conflict, never make one: a trip deleted,
+     * or the library cleared. Costs nothing when there is no warning.
+     */
+    suspend fun recountFolderConflictsIfWarned() {
+        val settings = settingsRepository.get()
+        if (settings.folderConflictCount > 0 && settings.syncFolderUri != null) {
+            refreshFolderConflictCount(settings)
         }
     }
 
@@ -654,6 +666,8 @@ class SyncManager(
             context.contentResolver.takePersistableUriPermission(uri, flags)
             val current = settingsRepository.get()
             settingsRepository.update(current.copy(syncFolderUri = uri.toString()))
+            // The count belonged to the folder before this one.
+            refreshFolderConflictCount(settingsRepository.get())
             true
         } catch (e: SecurityException) {
             Log.e(TAG, "Could not take persistable permission for $uri", e)
@@ -677,6 +691,7 @@ class SyncManager(
             syncFolderUri = null,
             lastSettingsBackupAt = null,
             onlineUploadEnabled = false,  // online upload requires a folder
+            folderConflictCount = 0,      // no folder, nothing to differ from
         ))
         // Both destinations just lost their prerequisites: folder is gone, and
         // the rider id file went with it. Drop any pending retries so we don't

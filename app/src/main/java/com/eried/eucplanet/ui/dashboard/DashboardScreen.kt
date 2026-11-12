@@ -569,8 +569,13 @@ fun DashboardScreen(
                                         stringResource(w.titleRes),
                                         style = MaterialTheme.typography.titleSmall
                                     )
+                                    val bodyArgs = w.bodyArgs.map { arg ->
+                                        if (arg is com.eried.eucplanet.data.repository.WarningTextRes) {
+                                            stringResource(arg.res)
+                                        } else arg
+                                    }
                                     Text(
-                                        stringResource(w.bodyRes),
+                                        stringResource(w.bodyRes, *bodyArgs.toTypedArray()),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.appColors.textSecondary
                                     )
