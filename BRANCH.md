@@ -13,7 +13,7 @@ only when you can cut the ride short.
 - iPhone app: Legal Mode, the quick-action buttons on the lock screen (iOS 17), and messages like "Battery data exported" show at the bottom of the screen.
 - iPhone app: Service Mode log and crash log to send, trips name the wheel, GPS saves power like Android, and the wheel link writes like Android's (fixes for InMotion V1 drops and repeated commands).
 - iPhone app: automatic lights at sunset, Lock when I walk away, auto-record on connect, and the wheel connected and lights announcements, from the same code as Android.
-- iPhone app: real wheels now connect (iOS held the wheel but the app kept searching), and the scan lists a wheel the iPhone already holds. The welcome tour plays its clip, About shows the logo, and the voice says E U C.
+- iPhone app: real wheels now connect (iOS held the wheel but the app kept searching), and the scan lists a wheel the iPhone already holds. The welcome tour plays its clip, About shows the logo, and the voice says E U C. What the iPhone lacks yet (navigation, GPS sensors, radar, TPMS, camera, motor sound, widget) shows greyed with "Not on iPhone yet", and Enable Bluetooth asks iOS to turn it on.
 - iPhone app: the theme editor and colour identifier, the top bar follows light and dark themes, custom tiles show their QR code, and the picked voice speaks every report.
 - iPhone app: music no longer stays quieter after an alarm beep, and While speaking (lower, pause or leave other audio) works as on Android.
 - iPhone app: the Needs attention warnings (location, Bluetooth, notifications, backups), and a recording cut short by closing the app is saved or dropped at the next start, as on Android.
