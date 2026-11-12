@@ -429,6 +429,15 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
         return true
     }
 
+    /**
+     * Whether a callback is about the wheel this link is for. By identifier,
+     * not by reference: Kotlin/Native can hand the same CBPeripheral back as
+     * a different reference, and the connect was then ignored, so iOS held
+     * the wheel while the app kept searching.
+     */
+    private fun isOurs(p: CBPeripheral): Boolean =
+        peripheral?.identifier?.UUIDString == p.identifier.UUIDString
+
     private inner class CentralDelegate : NSObject(), CBCentralManagerDelegateProtocol {
         override fun centralManagerDidUpdateState(central: CBCentralManager) {
             _bluetoothOn.value = central.state == CBManagerStatePoweredOn
@@ -482,7 +491,7 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
 
         override fun centralManager(central: CBCentralManager, didConnectPeripheral: CBPeripheral) {
             Log.i(TAG, "Link up: ${didConnectPeripheral.name} (${didConnectPeripheral.identifier.UUIDString}), state=${_connectionState.value}")
-            if (didConnectPeripheral !== peripheral) {
+            if (!isOurs(didConnectPeripheral)) {
                 Log.w(TAG, "Link up on a peripheral this connect is not for; ignored")
                 return
             }
@@ -504,7 +513,7 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
         @ObjCSignatureOverride
         override fun centralManager(central: CBCentralManager, didFailToConnectPeripheral: CBPeripheral, error: NSError?) {
             Log.w(TAG, "Link failed: ${error?.localizedDescription}")
-            if (didFailToConnectPeripheral !== peripheral) return
+            if (!isOurs(didFailToConnectPeripheral)) return
             DiagnosticsLogger.note("Connect failed: ${error?.localizedDescription}")
             teardown()
             hunt.dropped(unexpected = true)
@@ -513,7 +522,7 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
         @ObjCSignatureOverride
         override fun centralManager(central: CBCentralManager, didDisconnectPeripheral: CBPeripheral, error: NSError?) {
             Log.i(TAG, "Link down: ${error?.localizedDescription ?: "by request"}")
-            if (didDisconnectPeripheral !== peripheral) return
+            if (!isOurs(didDisconnectPeripheral)) return
             DiagnosticsLogger.note("Disconnected: ${error?.localizedDescription ?: "by request"}")
             teardown()
             // No error: the app asked for it. An error: the wheel went away.
@@ -541,9 +550,9 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
                 disconnect()
                 return
             }
-            servicesAwaitingCharacteristics = if (writeService !== notifyService) 2 else 1
+            servicesAwaitingCharacteristics = if (writeService.UUID != notifyService.UUID) 2 else 1
             peripheral.discoverCharacteristics(null, notifyService)
-            if (writeService !== notifyService) peripheral.discoverCharacteristics(null, writeService)
+            if (writeService.UUID != notifyService.UUID) peripheral.discoverCharacteristics(null, writeService)
         }
 
         /** As Android's failConnectAndTeardown: say why, then let the wheel go. */
@@ -603,7 +612,7 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
             didUpdateNotificationStateForCharacteristic: CBCharacteristic,
             error: NSError?,
         ) {
-            if (didUpdateNotificationStateForCharacteristic !== notifyChar) return
+            if (didUpdateNotificationStateForCharacteristic.UUID != notifyChar?.UUID) return
             // Whether we are subscribed decides how to read a silent wheel, as on Android.
             DiagnosticsLogger.note(
                 if (error == null) "Subscribed to wheel notifications"
