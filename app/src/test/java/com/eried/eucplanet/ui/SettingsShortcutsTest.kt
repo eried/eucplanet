@@ -125,4 +125,14 @@ class SettingsShortcutsTest {
             }.map { it.name }
         assertTrue("locales missing conflict strings: $missing", missing.isEmpty())
     }
+
+    @Test fun `the HUD app card and its resend question show both versions`() {
+        val screen = File("src/main/java/com/eried/eucplanet/ui/settings/SettingsScreen.kt").readText()
+        val card = screen.substringAfter("private fun HudAppCard(").substringBefore("if (confirmRemove)")
+        assertTrue("the phone's own version only shows for an older HUD",
+            !card.contains("if (older) {"))
+        val dialog = card.substringAfter("if (confirmResend)")
+        assertTrue("the resend question does not show the two versions",
+            dialog.contains("R.string.hud_app_on_hud") && dialog.contains("R.string.hud_app_in_phone"))
+    }
 }

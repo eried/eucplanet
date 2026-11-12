@@ -11814,7 +11814,9 @@ private fun HudAppCard(viewModel: SettingsViewModel) {
                         style = MaterialTheme.typography.bodySmall,
                         color = LocalContentColor.current.copy(alpha = 0.72f)
                     )
-                    if (older) {
+                    // Always both, also when they match: the rider reads
+                    // that the two are the same instead of taking it on trust.
+                    if (sender.carriedVersionCode > 0) {
                         Text(
                             stringResource(R.string.hud_app_in_phone, label(sender.carriedVersionName, sender.carriedBuild)),
                             style = MaterialTheme.typography.bodySmall,
@@ -11865,7 +11867,22 @@ private fun HudAppCard(viewModel: SettingsViewModel) {
             onDismissRequest = { confirmResend = false },
             shape = RoundedCornerShape(12.dp),
             title = { Text(stringResource(R.string.hud_app_resend_title)) },
-            text = { Text(stringResource(R.string.hud_app_resend_body)) },
+            text = {
+                // The question, then both versions to compare.
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(stringResource(R.string.hud_app_resend_body))
+                    Column {
+                        Text(
+                            stringResource(R.string.hud_app_on_hud, label(version, hudBuild)),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        Text(
+                            stringResource(R.string.hud_app_in_phone, label(sender.carriedVersionName, sender.carriedBuild)),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
+            },
             confirmButton = {
                 TextButton(
                     onClick = { confirmResend = false; sender.send() },
