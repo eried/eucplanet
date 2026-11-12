@@ -210,11 +210,6 @@ class HudActivity : ComponentActivity() {
         super.onDestroy()
     }
 
-    override fun onResume() {
-        super.onResume()
-        HudAppUpdate.onResume()
-    }
-
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         if (intent.action == HudAppUpdate.ACTION_INSTALL_STATUS) {
@@ -223,17 +218,7 @@ class HudActivity : ComponentActivity() {
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        // An update Android's prompt left hanging waits for one answer and
-        // takes every key until it has it: OK tries again, BACK drops it.
-        // Acting on the release keeps the press from also reaching the
-        // screen underneath.
-        if (HudAppUpdate.pending.value != null) {
-            if (event.action == KeyEvent.ACTION_UP) when (event.keyCode) {
-                KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER -> HudAppUpdate.install(this)
-                KeyEvent.KEYCODE_BACK, KeyEvent.KEYCODE_ESCAPE -> HudAppUpdate.skip()
-            }
-            return true
-        }
+        // The line about an update that did not install takes the next key.
         if (HudAppUpdate.problem.value != null) {
             if (event.action == KeyEvent.ACTION_UP) HudAppUpdate.dismissProblem()
             return true

@@ -40,13 +40,6 @@ object HudAppUpdate {
     private val _arrived = MutableStateFlow<Pending?>(null)
     val arrived: StateFlow<Pending?> = _arrived.asStateFlow()
 
-    /**
-     * An offer Android's prompt left without installing. Only this one is
-     * asked about on the HUD: OK tries again, BACK drops it.
-     */
-    private val _pending = MutableStateFlow<Pending?>(null)
-    val pending: StateFlow<Pending?> = _pending.asStateFlow()
-
     /** True from the phone's remove request until the activity acts on it. */
     private val _removeAsked = MutableStateFlow(false)
     val removeAsked: StateFlow<Boolean> = _removeAsked.asStateFlow()
@@ -59,8 +52,6 @@ object HudAppUpdate {
      *  replaces whatever was waiting. */
     fun incomingFile(context: Context): File {
         _arrived.value = null
-        _pending.value = null
-        offered = null
         return File(File(context.cacheDir, "update").apply { mkdirs() }, "hud.apk")
     }
 
@@ -93,36 +84,10 @@ object HudAppUpdate {
         return HudAppPush.ANSWER_READY
     }
 
-    /**
-     * The offer handed to Android, kept until it is installed or skipped.
-     * Android's prompt can end without installing: the first time it sends
-     * the rider to Settings to allow installs from this app, and the prompt
-     * is gone when they come back. The HUD then asks, so one send from the
-     * phone is enough.
-     */
-    @Volatile private var offered: Pending? = null
-
-    /** The HUD is in front again: ask if an offer was left hanging. */
-    fun onResume() {
-        val o = offered ?: return
-        if (_pending.value == null && o.file.exists()) _pending.value = o
-    }
-
-    /** The rider said no: drop the file. */
-    fun skip() {
-        (_pending.value ?: _arrived.value ?: offered)?.file?.delete()
-        offered = null
-        _arrived.value = null
-        _pending.value = null
-        _problem.value = null
-    }
-
     /** Hand the file to Android, which asks the rider before it installs. */
     fun install(activity: Activity) {
-        val p = _arrived.value ?: _pending.value ?: return
-        offered = p
+        val p = _arrived.value ?: return
         _arrived.value = null
-        _pending.value = null
         Thread {
             try {
                 val installer = activity.packageManager.packageInstaller
@@ -143,6 +108,7 @@ object HudAppUpdate {
             } catch (t: Throwable) {
                 Log.w(TAG, "install failed", t)
                 HudDiag.log("update", "install failed: ${t.message}")
+                p.file.delete()
                 _problem.value = t.message ?: t.javaClass.simpleName
             }
         }.start()
@@ -165,7 +131,10 @@ object HudAppUpdate {
             else -> {
                 val why = intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE) ?: "status $status"
                 HudDiag.log("update", "installer said no: $why")
-                // The rider pressing Cancel on Android's prompt is not a fault.
+                // Nothing is kept for a second try: the phone sends it again
+                // on a tap. The rider pressing Cancel on Android's prompt is
+                // not a fault.
+                File(File(activity.cacheDir, "update"), "hud.apk").delete()
                 _problem.value = if (status == PackageInstaller.STATUS_FAILURE_ABORTED) null else why
             }
         }
