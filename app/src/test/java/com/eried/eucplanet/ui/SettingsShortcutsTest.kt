@@ -155,4 +155,17 @@ class SettingsShortcutsTest {
             screen.substringAfter("// end AnimatedVisibility for the find-the-HUD setup").take(900)
                 .contains("R.string.hud_server_enabled"))
     }
+
+    @Test fun `the HUD app card says where the HUD was reached and how`() {
+        val screen = File("src/main/java/com/eried/eucplanet/ui/settings/SettingsScreen.kt").readText()
+        val card = screen.substringAfter("private fun HudAppCard(").substringBefore("if (confirmResend)")
+        assertTrue("the card no longer shows the HUD address",
+            card.contains("viewModel.hudPeer") && card.contains("connected = connected"))
+        // Every way of finding it by itself reads Auto, the typed address Fixed.
+        assertTrue("how the HUD was found is not told in the Discovery mode words",
+            card.contains("R.string.hud_discovery_auto") && card.contains("R.string.hud_discovery_fixed"))
+        val server = File("src/main/java/com/eried/eucplanet/service/hud/HudServer.kt").readText()
+        assertTrue("the address shown is not the one the link uses",
+            server.contains("set(value) { _peer.value = value }"))
+    }
 }

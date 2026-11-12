@@ -497,6 +497,7 @@
     <string name="hud_app_title">Ứng dụng HUD</string>
     <string name="hud_app_installed">Đã cài:</string>
     <string name="hud_app_available">Có sẵn:</string>
+    <string name="hud_app_connected">Đã kết nối:</string>
     <string name="hud_app_send">Gửi tới HUD</string>
     <string name="hud_app_remove">Gỡ cài đặt</string>
     <string name="hud_app_sending">Đang gửi, %1$d%%</string>

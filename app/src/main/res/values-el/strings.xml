@@ -516,6 +516,7 @@
     <string name="hud_app_title">Εφαρμογή HUD</string>
     <string name="hud_app_installed">Εγκατεστημένη:</string>
     <string name="hud_app_available">Διαθέσιμη:</string>
+    <string name="hud_app_connected">Συνδέθηκε:</string>
     <string name="hud_app_send">Αποστολή στο HUD</string>
     <string name="hud_app_remove">Απεγκατάσταση</string>
     <string name="hud_app_sending">Αποστολή, %1$d%%</string>

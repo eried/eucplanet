@@ -209,7 +209,13 @@ class HudServer(
     /** "ip:port" of the HUD the live WebSocket is talking to; null when down.
      *  Read by the network-loss probe to test whether the peer is still
      *  reachable after a WiFi transition. */
-    @Volatile private var currentPeer: String? = null
+    private val _peer = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
+    /** The same address for the settings screen, which shows it on the HUD
+     *  app card beside how it was found. */
+    val peer: kotlinx.coroutines.flow.StateFlow<String?> get() = _peer
+    private var currentPeer: String?
+        get() = _peer.value
+        set(value) { _peer.value = value }
 
     /**
      * Cancels any pending dial-loop backoff the moment something interesting

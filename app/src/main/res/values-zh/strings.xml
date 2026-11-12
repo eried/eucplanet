@@ -1810,6 +1810,7 @@
     <string name="hud_app_title">HUD 应用</string>
     <string name="hud_app_installed">已安装：</string>
     <string name="hud_app_available">可用：</string>
+    <string name="hud_app_connected">已连接：</string>
     <string name="hud_app_send">发送到 HUD</string>
     <string name="hud_app_remove">卸载</string>
     <string name="hud_app_sending">正在发送 %1$d%%</string>

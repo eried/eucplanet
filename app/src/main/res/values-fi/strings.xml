@@ -491,6 +491,7 @@
     <string name="hud_app_title">HUD-sovellus</string>
     <string name="hud_app_installed">Asennettu:</string>
     <string name="hud_app_available">Saatavilla:</string>
+    <string name="hud_app_connected">Yhdistetty:</string>
     <string name="hud_app_send">Lähetä HUD:iin</string>
     <string name="hud_app_remove">Poista asennus</string>
     <string name="hud_app_sending">Lähetetään, %1$d%%</string>

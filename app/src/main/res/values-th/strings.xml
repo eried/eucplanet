@@ -497,6 +497,7 @@
     <string name="hud_app_title">แอป HUD</string>
     <string name="hud_app_installed">ติดตั้งแล้ว:</string>
     <string name="hud_app_available">พร้อมใช้งาน:</string>
+    <string name="hud_app_connected">เชื่อมต่อแล้ว:</string>
     <string name="hud_app_send">ส่งไปยัง HUD</string>
     <string name="hud_app_remove">ถอนการติดตั้ง</string>
     <string name="hud_app_sending">กำลังส่ง %1$d%%</string>

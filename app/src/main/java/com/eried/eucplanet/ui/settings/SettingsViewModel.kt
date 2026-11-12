@@ -138,6 +138,9 @@ class SettingsViewModel(
     /** Which discovery channel produced the current HUD link address. */
     val hudConnectionSource = hudServer.connectionSource
 
+    /** "ip:port" of the linked HUD, null while there is none. */
+    val hudPeer = hudServer.peer
+
     /**
      * Bundle the phone-side UDP listener counters into a single state for
      * the diagnostic card. Polled on a 1s tick from the screen so the user

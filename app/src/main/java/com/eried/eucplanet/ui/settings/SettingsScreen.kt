@@ -11742,7 +11742,7 @@ private fun HudInstallHint(pairedHudVersion: String?, hudEverConnected: Boolean)
  * start at the same place and are compared at a glance.
  */
 @Composable
-private fun HudAppVersions(installed: String, available: String?, color: Color) {
+private fun HudAppVersions(installed: String, available: String?, color: Color, connected: String? = null) {
     val style = MaterialTheme.typography.bodySmall
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Column {
@@ -11750,11 +11750,17 @@ private fun HudAppVersions(installed: String, available: String?, color: Color) 
             if (available != null) {
                 Text(stringResource(R.string.hud_app_available), style = style, color = color, maxLines = 1)
             }
+            if (connected != null) {
+                Text(stringResource(R.string.hud_app_connected), style = style, color = color, maxLines = 1)
+            }
         }
         Column(modifier = Modifier.weight(1f)) {
             Text(installed, style = style, color = color, maxLines = 1, overflow = TextOverflow.Ellipsis)
             if (available != null) {
                 Text(available, style = style, color = color, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+            if (connected != null) {
+                Text(connected, style = style, color = color, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         }
     }
@@ -11774,6 +11780,22 @@ private fun HudAppCard(viewModel: SettingsViewModel) {
     if (hudVersion != null) lastVersion[0] = hudVersion
     val version = hudVersion ?: lastVersion[0] ?: return
     val linked = hudVersion != null && takesApp
+    // Where the phone reached the HUD and how it got the address, in the
+    // words of the Discovery mode choice. That choice folds away while a
+    // HUD is linked, so this row is where the rider reads the address off,
+    // for instance to type it under Fixed later.
+    val peer by viewModel.hudPeer.collectAsState()
+    val source by viewModel.hudConnectionSource.collectAsState()
+    val how = when (source) {
+        com.eried.eucplanet.service.hud.HudServer.ConnectionSource.UDP_BEACON,
+        com.eried.eucplanet.service.hud.HudServer.ConnectionSource.MDNS,
+        com.eried.eucplanet.service.hud.HudServer.ConnectionSource.SUBNET_PROBE ->
+            stringResource(R.string.hud_discovery_auto)
+        com.eried.eucplanet.service.hud.HudServer.ConnectionSource.MANUAL ->
+            stringResource(R.string.hud_discovery_fixed)
+        else -> null
+    }
+    val connected = peer?.let { if (how == null) it else "$it ($how)" }
     val hudBuild by viewModel.hudBuild.collectAsState()
     // An older HUD or another build is sent on the tap. The very same build
     // can go too, after a question. Only a newer HUD is left alone.
@@ -11845,7 +11867,8 @@ private fun HudAppCard(viewModel: SettingsViewModel) {
                         available = if (sender.carriedVersionCode > 0) {
                             label(sender.carriedVersionName, sender.carriedBuild)
                         } else null,
-                        color = LocalContentColor.current.copy(alpha = 0.72f)
+                        color = LocalContentColor.current.copy(alpha = 0.72f),
+                        connected = connected
                     )
                 }
             }
