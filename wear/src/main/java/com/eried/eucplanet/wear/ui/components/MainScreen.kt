@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ElectricScooter
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Watch
 import androidx.compose.runtime.Composable
@@ -473,7 +472,7 @@ private fun BatteryRow(
         // becomes null + dash whenever its source isn't live, so the layout
         // doesn't reflow when a wheel disconnects or the phone hasn't pushed.
         if (showWheelChip) {
-            BatteryChip(Icons.Filled.ElectricScooter, wheelPercent, accent, useAccentTint, fontSize, iconSize)
+            BatteryChip(WheelIcon, wheelPercent, accent, useAccentTint, fontSize, iconSize)
         }
         if (showPhoneChip) {
             BatteryChip(Icons.Filled.PhoneAndroid, phonePercent, accent, useAccentTint, fontSize, iconSize)
