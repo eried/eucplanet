@@ -210,6 +210,9 @@ fun CrewsPairScreen(
           // The camera square is as tall as the card is wide, so in landscape the body has to
           // scroll to reach the buttons -- the same reason the join scanner sets it.
           scrollable = true,
+          // Scanning, typing a code and waiting on the server have no Close of their own,
+          // and an iPhone has no system back: the X is the way out in every step.
+          onClose = onDone,
       ) {
         when (val s = step) {
             is Step.Scanning -> {
