@@ -2,6 +2,10 @@ package com.eried.eucplanet.ui.settings
 
 import com.eried.eucplanet.data.model.AlarmMetric
 import com.eried.eucplanet.service.AlarmLogic
+import com.eried.eucplanet.service.displayDecimals
+import com.eried.eucplanet.service.displayScale
+import com.eried.eucplanet.service.displayThreshold
+import com.eried.eucplanet.service.formatThreshold
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test

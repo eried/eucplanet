@@ -1692,11 +1692,15 @@ data class EngineSoundSettings(
     val enabled: Boolean = false,
     /** Preset key. See [com.eried.eucplanet.audio.EngineProfile.PROFILES]. */
     val type: String = "FOUR_STROKE_SINGLE",
-    /** In-app gain 0..1 over the media stream. */
+    /**
+     * Legacy. Was the fixed in-app gain 0..1. Nothing reads it: the speed curve
+     * ([volumeAutoCurve]) is the engine volume. Kept only so old backups and
+     * synced settings still load and round-trip.
+     */
     val volume: Float = 0.6f,
     /**
      * Legacy. Was a paired "fixed volume" toggle (with [volume] as the slider) that
-     * could disable the speed curve. The current UI always uses the curve so this field
+     * could disable the speed curve. The engine always uses the curve so this field
      * is unused, kept only for backup/sync compatibility with v0.5.x exports.
      */
     val volumeAutoEnabled: Boolean = false,

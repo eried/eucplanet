@@ -124,6 +124,11 @@ import com.eried.eucplanet.data.model.AlarmComparator
 import com.eried.eucplanet.data.model.AlarmMetric
 import com.eried.eucplanet.data.model.groupKey
 import com.eried.eucplanet.service.AlarmLogic
+import com.eried.eucplanet.service.displayDecimals
+import com.eried.eucplanet.service.displayScale
+import com.eried.eucplanet.service.displayThreshold
+import com.eried.eucplanet.service.formatThreshold
+import com.eried.eucplanet.service.spokenAlarmValue
 import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.InfoHint
@@ -149,81 +154,10 @@ private fun leadSeconds(ms: Int): String =
     String.format(java.util.Locale.US, "%.1f", ms / 1000f).removeSuffix(".0")
 
 /**
- * Metrics whose useful range is too short for whole numbers are edited in
- * tenths.
- *
- * The stepper holds an Int. A tyre runs about 1 to 4 bar and g-force about 0
- * to 3, so whole units would offer a rider four settings across the entire
- * range they care about. For those the displayed number is ten times the
- * reading and [NumberUpDown]'s format/parse put the point back. psi is 15 to
- * 60 and needs no help, which is why pressure's scale depends on the unit and
- * g-force's does not.
+ * A threshold the rider typed, back to the unit rules are stored in. The
+ * inverse of [displayThreshold], which lives beside the alarm engine with the
+ * rest of the reading-to-text conversion.
  */
-internal fun displayScale(metric: AlarmMetric, pressureUnit: String): Float = when (metric) {
-    // Each pressure unit needs its own scale, not just bar. A tyre tops out
-    // near 5 bar, 5.1 kgf/cm2 or 0.5 MPa, so in MPa whole numbers gave the
-    // rider a range of nought to nought and a stepper that would not move at
-    // all. The scale is whatever it takes to keep the useful range about fifty
-    // steps wide.
-    AlarmMetric.TIRE_PRESSURE -> when (pressureUnit) {
-        "bar", "kgf" -> 10f
-        "mpa" -> 100f
-        else -> 1f      // psi and kPa are already wide enough
-    }
-    AlarmMetric.G_FORCE, AlarmMetric.LATERAL_G -> 10f
-    else -> 1f
-}
-
-/** Decimals implied by [displayScale], for formatting and parsing. */
-internal fun displayDecimals(metric: AlarmMetric, pressureUnit: String): Int =
-    when (displayScale(metric, pressureUnit)) {
-        100f -> 2
-        10f -> 1
-        else -> 0
-    }
-
-/**
- * The threshold as the rider reads it, decimals and all.
- *
- * The list rows used to print the raw scaled integer, so a three bar rule read
- * "< 30bar" and a 1.5 g rule read the same way. The scale is an editing
- * device, never something to show.
- */
-internal fun formatThreshold(
-    metric: AlarmMetric,
-    valueInternal: Float,
-    speedUnit: String,
-    tempUnit: String,
-    pressureUnit: String,
-): String {
-    val shown = displayThreshold(metric, valueInternal, speedUnit, tempUnit, pressureUnit) /
-        displayScale(metric, pressureUnit)
-    val decimals = displayDecimals(metric, pressureUnit)
-    return if (decimals == 0) shown.roundToInt().toString()
-    else String.format(java.util.Locale.US, "%.${decimals}f", shown)
-}
-
-internal fun displayThreshold(
-    metric: AlarmMetric,
-    valueInternal: Float,
-    speedUnit: String,
-    tempUnit: String,
-    pressureUnit: String,
-): Float =
-    when (metric) {
-        AlarmMetric.SPEED, AlarmMetric.GPS_SPEED, AlarmMetric.EXTERNAL_GPS_SPEED -> Units.speed(valueInternal, speedUnit)
-        // The three sensors convert exactly like the metric they were hiding in.
-        AlarmMetric.TEMPERATURE,
-        AlarmMetric.MOTOR_TEMP,
-        AlarmMetric.CONTROLLER_TEMP,
-        AlarmMetric.BATTERY_TEMP -> Units.temperature(valueInternal, tempUnit)
-        AlarmMetric.TIRE_PRESSURE ->
-            Units.pressure(valueInternal, pressureUnit) * displayScale(metric, pressureUnit)
-        AlarmMetric.G_FORCE, AlarmMetric.LATERAL_G ->
-            valueInternal * displayScale(metric, pressureUnit)
-        else -> valueInternal
-    }
-
 internal fun internalThreshold(
     metric: AlarmMetric,
     valueDisplayed: Float,
@@ -1092,12 +1026,13 @@ private fun AlarmRuleEditorDialog(
                     title = stringResource(R.string.alarm_section_voice),
                     color = MaterialTheme.appColors.statusGood,
                     enabled = voiceEnabled,
-                    // The threshold as the rider reads it. displayedThreshold is the
-                    // stepper's scaled integer (tenths of a bar or g), not a reading.
+                    // The same text the engine speaks when the rule fires.
+                    // displayedThreshold is the stepper's scaled integer
+                    // (tenths of a bar or g), not a reading.
                     onPreview = {
                         onPreviewVoice(
                             voiceText, selectedMetric,
-                            formatThreshold(selectedMetric, threshold, speedUnit, tempUnit, pressureUnit),
+                            spokenAlarmValue(selectedMetric.name, threshold, speedUnit, tempUnit, pressureUnit),
                         )
                     }
                 )

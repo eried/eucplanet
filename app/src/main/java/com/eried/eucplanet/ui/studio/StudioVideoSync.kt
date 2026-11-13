@@ -30,11 +30,38 @@ fun edgeVideoTimeUs(cursorMs: Long, offsetMs: Long, videoDurationMs: Long, edge:
     }
 }
 
+/** What a VIDEO replay face puts in its pane at one point of the ride. */
+enum class ReplayVideoFill {
+    /** The clip's frame for the cursor (or nothing, where the clip has none). */
+    FRAME,
+    /** Solid black: the cursor is outside the clip and the edge is "BLACK". */
+    BLACK,
+    /** The "No media" placeholder: no clip is bound, or it cannot be read. */
+    NO_MEDIA,
+}
+
+/**
+ * Decides a VIDEO replay face's pane content. The on-screen preview and the
+ * offscreen export both ask this, so a pane with no usable clip shows the same
+ * placeholder in the exported file as on screen, and a Black edge blacks out the
+ * same span of the ride. [hasUsableClip] is false when no clip is bound or the
+ * bound one failed to open or decode.
+ */
+fun replayVideoFill(
+    hasUsableClip: Boolean,
+    cursorMs: Long,
+    offsetMs: Long,
+    videoDurationMs: Long,
+    edge: String,
+): ReplayVideoFill = when {
+    !hasUsableClip -> ReplayVideoFill.NO_MEDIA
+    videoEdgeIsBlack(cursorMs, offsetMs, videoDurationMs, edge) -> ReplayVideoFill.BLACK
+    else -> ReplayVideoFill.FRAME
+}
+
 /**
  * True when a face set to the "BLACK" [edge] has its cursor outside the clip
- * window, so the pane is filled black instead of showing a frame. The on-screen
- * preview and the offscreen export both ask this, so they black out the same
- * span of the ride.
+ * window, so the pane is filled black instead of showing a frame.
  */
 fun videoEdgeIsBlack(cursorMs: Long, offsetMs: Long, videoDurationMs: Long, edge: String): Boolean {
     if (edge != "BLACK") return false

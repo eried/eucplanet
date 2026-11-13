@@ -597,7 +597,6 @@ class SettingsViewModel(
             val s = settingsRepository.get()
             engineSoundEngine.previewProfile(
                 key = key,
-                volume = s.engineVolume,
                 muffler = s.engineMuffler,
                 gearbox = s.engineGearbox
             )
@@ -618,7 +617,6 @@ class SettingsViewModel(
             val s = settingsRepository.get()
             engineSoundEngine.previewProfile(
                 key = s.engineType,
-                volume = s.engineVolume,
                 muffler = s.engineMuffler,
                 gearbox = s.engineGearbox,
                 scenario = scenario

@@ -80,6 +80,45 @@ class StudioVideoSyncTest {
         assertFalse(videoEdgeIsBlack(cursorMs = 20_000, offsetMs = 5000, videoDurationMs = 10_000, edge = "LOOP"))
     }
 
+    // --- what the pane shows: one decision for preview and export --------------
+
+    @Test fun fill_noUsableClip_isThePlaceholder_whateverTheEdge() {
+        // No clip bound, or one that will not open: the rider sees "No media"
+        // on screen, so the export has to carry it too, on every frame.
+        for (edge in listOf("FREEZE", "LOOP", "BLACK")) {
+            for (cursor in listOf(0L, 7000L, 20_000L)) {
+                assertEquals(
+                    "$edge at $cursor",
+                    ReplayVideoFill.NO_MEDIA,
+                    replayVideoFill(false, cursor, offsetMs = 5000, videoDurationMs = 0, edge = edge)
+                )
+            }
+        }
+    }
+    @Test fun fill_usableClip_insideWindow_isTheFrame() {
+        for (edge in listOf("FREEZE", "LOOP", "BLACK")) {
+            assertEquals(
+                edge,
+                ReplayVideoFill.FRAME,
+                replayVideoFill(true, cursorMs = 7000, offsetMs = 5000, videoDurationMs = 10_000, edge = edge)
+            )
+        }
+    }
+    @Test fun fill_usableClip_outOfRange_followsTheEdge() {
+        assertEquals(
+            ReplayVideoFill.BLACK,
+            replayVideoFill(true, cursorMs = 20_000, offsetMs = 5000, videoDurationMs = 10_000, edge = "BLACK")
+        )
+        assertEquals(
+            ReplayVideoFill.FRAME,
+            replayVideoFill(true, cursorMs = 20_000, offsetMs = 5000, videoDurationMs = 10_000, edge = "FREEZE")
+        )
+        assertEquals(
+            ReplayVideoFill.FRAME,
+            replayVideoFill(true, cursorMs = 20_000, offsetMs = 5000, videoDurationMs = 10_000, edge = "LOOP")
+        )
+    }
+
     @Test fun edge_zeroDuration_isNull() {
         assertNull(
             edgeVideoTimeUs(cursorMs = 5000, offsetMs = 0, videoDurationMs = 0, edge = "FREEZE")
