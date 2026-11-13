@@ -61,7 +61,7 @@ internal object IosSettingsHost : SettingsHost {
     // the lock screen, rotation is the system's; and spoken commands are not
     // on iOS yet. The notification's quick actions are the Live Activity's
     // buttons here. iOS lets no app set the media volume or play and pause
-    // another app's music, so those two automations are left out. Nor does it
+    // another app's music, so those two automations and the volume actions are left out. Nor does it
     // have Android's separate media, notification and alarm streams for the
     // voice to pick from.
     override val hiddenRows = setOf(
@@ -74,6 +74,7 @@ internal object IosSettingsHost : SettingsHost {
         SettingsRow.VOICE_COMMANDS,
         SettingsRow.AUTO_VOLUME,
         SettingsRow.MEDIA_CONTROL,
+        SettingsRow.PHONE_VOLUME,
         SettingsRow.VOICE_OUTPUT_CHANNEL,
     )
 

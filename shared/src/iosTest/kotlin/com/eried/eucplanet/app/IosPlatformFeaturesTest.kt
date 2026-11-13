@@ -29,5 +29,7 @@ class IosPlatformFeaturesTest {
     @Test fun neverFeaturesStayHidden() {
         assertTrue("watch" in IosSettingsHost.hiddenSections)
         assertFalse(IosSettingsHost.supportsVolumeKeys)
+        // iOS lets no app set the volume, so the volume actions are not offered.
+        assertTrue(com.eried.eucplanet.ui.settings.SettingsRow.PHONE_VOLUME in IosSettingsHost.hiddenRows)
     }
 }

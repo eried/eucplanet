@@ -70,9 +70,14 @@ private const val EXACT_ROW_WEIGHT = 100
  * tiles, and every Advanced row.
  */
 private fun registryNames(absent: Set<SettingsRow>): Map<String, List<Pair<StringResource, StringResource?>>> = mapOf(
-    // Only the actions this phone's editor offers (no Listen without spoken commands).
+    // Only the actions this phone's editor offers (no Listen without spoken
+    // commands, no volume actions where an app cannot set the volume).
     "dashboard" to (MetricCatalog.all.map { it.labelRes } +
-        ActionCatalog.pickableKeys(ActionCatalog.all.map { it.key }, SettingsRow.VOICE_COMMANDS !in absent)
+        ActionCatalog.pickableKeys(
+            ActionCatalog.all.map { it.key },
+            SettingsRow.VOICE_COMMANDS !in absent,
+            SettingsRow.PHONE_VOLUME !in absent,
+        )
             .mapNotNull { ActionCatalog.byKey(it)?.labelRes }).map { it to null },
     // Each Advanced row sits in its group's card.
     "advanced" to AdvGroup.entries.map { it.titleRes to null } +

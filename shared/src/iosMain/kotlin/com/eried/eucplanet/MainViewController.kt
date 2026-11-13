@@ -354,6 +354,7 @@ fun MainViewController(): UIViewController {
                             onBack = { screen = "settings" },
                             viewModel = flicVm,
                             voiceCommands = com.eried.eucplanet.ui.settings.SettingsRow.VOICE_COMMANDS !in IosSettingsHost.hiddenRows,
+                            phoneVolume = com.eried.eucplanet.ui.settings.SettingsRow.PHONE_VOLUME !in IosSettingsHost.hiddenRows,
                         )
                     }
                     else -> {

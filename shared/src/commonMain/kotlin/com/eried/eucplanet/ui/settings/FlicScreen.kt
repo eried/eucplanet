@@ -60,17 +60,25 @@ import com.eried.eucplanet.ui.theme.themedFieldColors
 /** Whether the phone runs spoken commands; without them Listen is not offered. */
 private val LocalFlicVoiceCommands = staticCompositionLocalOf { true }
 
+/** Whether an app can set the phone's volume; without it the volume actions are not offered. */
+private val LocalFlicPhoneVolume = staticCompositionLocalOf { true }
+
 /**
- * [voiceCommands] false (iOS) leaves Listen out of the button pickers, as the
- * dashboard's pickers do, since it could only do nothing there.
+ * [voiceCommands] false (iOS) leaves Listen out of the button pickers, and
+ * [phoneVolume] false (iOS) Volume up, Volume down and Mute, as the
+ * dashboard's pickers do, since they could only do nothing there.
  */
 @Composable
 fun FlicScreen(
     onBack: () -> Unit,
     viewModel: FlicViewModel,
     voiceCommands: Boolean = true,
+    phoneVolume: Boolean = true,
 ) {
-    CompositionLocalProvider(LocalFlicVoiceCommands provides voiceCommands) {
+    CompositionLocalProvider(
+        LocalFlicVoiceCommands provides voiceCommands,
+        LocalFlicPhoneVolume provides phoneVolume,
+    ) {
         FlicScreenContent(onBack, viewModel)
     }
 }
@@ -298,12 +306,14 @@ private fun FlicActionDropdown(
 ) {
     var expanded by remember { mutableStateOf(false) }
     val voiceCommands = LocalFlicVoiceCommands.current
-    val flicKeys = remember(voiceCommands) {
+    val phoneVolume = LocalFlicPhoneVolume.current
+    val flicKeys = remember(voiceCommands, phoneVolume) {
         com.eried.eucplanet.data.model.ActionCatalog.pickableKeys(
             com.eried.eucplanet.data.model.ActionCatalog.keysFor(
                 com.eried.eucplanet.data.model.ActionSurface.FLIC
             ),
             voiceCommands,
+            phoneVolume,
         )
     }
     val noneLabel = stringResource(Res.string.flic_action_none)

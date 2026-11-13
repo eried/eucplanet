@@ -2300,11 +2300,14 @@ private fun DashboardLayoutTab(
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            // Listen is left out where spoken commands do not run (iOS).
-            val voiceCommands = SettingsRow.VOICE_COMMANDS !in LocalSettingsHost.current.hiddenRows
+            // Listen and the volume actions are left out where they could
+            // only do nothing (iOS).
+            val hiddenRows = LocalSettingsHost.current.hiddenRows
+            val voiceCommands = SettingsRow.VOICE_COMMANDS !in hiddenRows
+            val phoneVolume = SettingsRow.PHONE_VOLUME !in hiddenRows
             ActionPool(
                 catalogKeys = com.eried.eucplanet.data.model.ActionCatalog.pickableKeys(
-                    viewModel.knownDashboardActions, voiceCommands,
+                    viewModel.knownDashboardActions, voiceCommands, phoneVolume,
                 ),
                 onTap = { _ -> showPoolTapToast() },
                 controller = dragController
@@ -4493,10 +4496,12 @@ private fun ActionGroupSheet(
             // for groups with fewer than four actions. Packing two per
             // row keeps the sheet from getting tall, and the labels on
             // each field communicate which slot they map to.
-            val voiceCommands = SettingsRow.VOICE_COMMANDS !in LocalSettingsHost.current.hiddenRows
-            val actionOptions = remember(viewModel, voiceCommands) {
+            val hiddenRows = LocalSettingsHost.current.hiddenRows
+            val voiceCommands = SettingsRow.VOICE_COMMANDS !in hiddenRows
+            val phoneVolume = SettingsRow.PHONE_VOLUME !in hiddenRows
+            val actionOptions = remember(viewModel, voiceCommands, phoneVolume) {
                 listOf("") + com.eried.eucplanet.data.model.ActionCatalog.pickableKeys(
-                    viewModel.knownDashboardActions, voiceCommands,
+                    viewModel.knownDashboardActions, voiceCommands, phoneVolume,
                 )
             }
             for (rowIdx in 0 until 2) {

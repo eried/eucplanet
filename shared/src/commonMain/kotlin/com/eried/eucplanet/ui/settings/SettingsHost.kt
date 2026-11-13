@@ -132,6 +132,9 @@ enum class SettingsRow {
     /** Pausing and resuming other apps' music by speed (Automations). */
     MEDIA_CONTROL,
 
+    /** The actions that set the phone's media volume: Volume up, Volume down and Mute. */
+    PHONE_VOLUME,
+
     /** Which system stream the voice speaks on (media, notification or alarm). */
     VOICE_OUTPUT_CHANNEL,
 

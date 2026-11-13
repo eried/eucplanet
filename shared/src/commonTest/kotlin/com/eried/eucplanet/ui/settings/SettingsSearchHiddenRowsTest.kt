@@ -82,4 +82,18 @@ class SettingsSearchHiddenRowsTest {
         assertEquals("VOICE_LISTEN", ActionCatalog.tileKeyOn("VOICE_LISTEN", voiceCommands = true))
         assertEquals("HORN", ActionCatalog.tileKeyOn("HORN", voiceCommands = false))
     }
+
+    @Test fun volumeActionsAreOnlyOfferedWhereTheVolumeCanBeSet() {
+        val all = ActionCatalog.all.map { it.key }
+        val volume = setOf("PHONE_VOLUME_UP", "PHONE_VOLUME_DOWN", "PHONE_MUTE_TOGGLE")
+        // Every guarded key is a real action, so a rename cannot slip past.
+        assertEquals(volume, ActionCatalog.phoneVolumeKeys)
+        assertTrue(all.containsAll(volume))
+        assertTrue(ActionCatalog.pickableKeys(all, voiceCommands = true).containsAll(volume))
+        val iphone = ActionCatalog.pickableKeys(all, voiceCommands = false, phoneVolume = false)
+        assertTrue(iphone.none { it in volume || it == "VOICE_LISTEN" })
+        assertEquals(all.size - volume.size - 1, iphone.size)
+        // A volume tile synced from Android still draws as itself (it does nothing there).
+        assertEquals("PHONE_MUTE_TOGGLE", ActionCatalog.tileKeyOn("PHONE_MUTE_TOGGLE", voiceCommands = false))
+    }
 }

@@ -418,14 +418,21 @@ object ActionCatalog {
     /** Actions that need spoken commands, which not every phone runs. */
     private val voiceCommandKeys = setOf("VOICE_LISTEN")
 
+    /** Actions that set the phone's media volume, which not every phone lets an app do. */
+    val phoneVolumeKeys = setOf("PHONE_VOLUME_UP", "PHONE_VOLUME_DOWN", "PHONE_MUTE_TOGGLE")
+
     /**
      * [keys] as a phone offers them in its pickers: without spoken commands
-     * ([voiceCommands] false, as on iOS) Listen is left out, since it could
-     * only do nothing. The saved order keeps it, so a layout synced from a
-     * phone that has it is not changed.
+     * ([voiceCommands] false, as on iOS) Listen is left out, and without a
+     * way to set the media volume ([phoneVolume] false, as on iOS) Volume up,
+     * Volume down and Mute are, since they could only do nothing. The saved
+     * order keeps them, so a layout or binding synced from a phone that has
+     * them is not changed; there they stay and do nothing.
      */
-    fun pickableKeys(keys: List<String>, voiceCommands: Boolean): List<String> =
-        if (voiceCommands) keys else keys.filterNot { it in voiceCommandKeys }
+    fun pickableKeys(keys: List<String>, voiceCommands: Boolean, phoneVolume: Boolean = true): List<String> =
+        keys.filterNot {
+            (!voiceCommands && it in voiceCommandKeys) || (!phoneVolume && it in phoneVolumeKeys)
+        }
 
     /**
      * The tile a placed [key] draws as. A Listen tile synced onto a phone
