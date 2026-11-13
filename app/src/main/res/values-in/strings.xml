@@ -1013,6 +1013,7 @@
     <string name="welcome_tut_outro_buttons">Banyak tombol punya tindakan tambahan, coba tekan lama</string>
     <string name="welcome_tut_outro_alarms">Jelajahi editor alarm kustom yang canggih di Setelan → %1$s</string>
     <string name="welcome_tut_outro_integrations">Jelajahi integrasinya: HUD helm, jam tangan WearOS, tombol Flic, Garmin Connect IQ, dan radar belakang</string>
+    <string name="welcome_tut_outro_integrations_iphone">Jelajahi integrasinya: tombol Flic. HUD helm, jam tangan, dan radar belakang belum ada di iPhone</string>
     <string name="welcome_tut_outro_end">Tetap fokus ke jalan dan jauhkan mata dari aplikasi ini saat berkendara!</string>
     <string name="welcome_tut_share">Cadangkan perjalanan Anda di Setelan → %1$s. Lihat di %2$s, atau analisis cadangannya di eucviewer.ried.no.\n\nDi bagian yang sama Anda bisa bergabung ke papan peringkat publik di eucstats.ried.no</string>
     <string name="welcome_tut_speed">Kecepatan langsung Anda. Ubah satuan di Setelan → %1$s</string>

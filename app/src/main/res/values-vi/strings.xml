@@ -1013,6 +1013,7 @@
     <string name="welcome_tut_outro_buttons">Nhiều nút có thao tác phụ, hãy thử nhấn giữ</string>
     <string name="welcome_tut_outro_alarms">Khám phá trình soạn cảnh báo tùy chỉnh mạnh mẽ trong Cài đặt → %1$s</string>
     <string name="welcome_tut_outro_integrations">Khám phá các tích hợp: HUD gắn mũ bảo hiểm, đồng hồ WearOS, nút Flic, Garmin Connect IQ và radar chiếu hậu</string>
+    <string name="welcome_tut_outro_integrations_iphone">Khám phá các tích hợp: nút Flic. HUD gắn mũ bảo hiểm, đồng hồ và radar chiếu hậu chưa có trên iPhone</string>
     <string name="welcome_tut_outro_end">Hãy nhìn đường, đừng nhìn ứng dụng khi đang chạy xe!</string>
     <string name="welcome_tut_share">Sao lưu chuyến đi trong Cài đặt → %1$s. Xem lại trong %2$s, hoặc phân tích bản sao lưu tại eucviewer.ried.no.\n\nTrong cùng mục, bạn có thể tham gia bảng xếp hạng công khai tại eucstats.ried.no</string>
     <string name="welcome_tut_speed">Tốc độ trực tiếp của bạn. Đổi đơn vị trong Cài đặt → %1$s</string>

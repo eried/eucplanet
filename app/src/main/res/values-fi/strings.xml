@@ -1007,6 +1007,7 @@
     <string name="welcome_tut_outro_buttons">Monilla painikkeilla on lisätoimintoja, kokeile pitkää painallusta</string>
     <string name="welcome_tut_outro_alarms">Tutustu tehokkaaseen mukautettujen hälytysten muokkaimeen kohdassa Asetukset → %1$s</string>
     <string name="welcome_tut_outro_integrations">Tutustu integraatioihin: kypärä-HUDit, Wear OS -kellot, Flic-painikkeet, Garmin Connect IQ ja taaksepäin katsova tutka</string>
+    <string name="welcome_tut_outro_integrations_iphone">Tutustu integraatioihin: Flic-painikkeet. Kypärä-HUDit, kellot ja taaksepäin katsova tutka eivät ole vielä iPhonessa</string>
     <string name="welcome_tut_outro_end">Pidä katse tiessä äläkä tässä sovelluksessa, kun ajat yksipyöräisellä!</string>
     <string name="welcome_tut_share">Varmuuskopioi matkasi kohdassa Asetukset → %1$s. Katso ne sovelluksessa %2$s tai analysoi varmuuskopiot osoitteessa eucviewer.ried.no.\n\nSamassa osiossa voit liittyä julkisiin tulostauluihin osoitteessa eucstats.ried.no</string>
     <string name="welcome_tut_speed">Reaaliaikainen nopeutesi. Vaihda yksiköt kohdassa Asetukset → %1$s</string>

@@ -802,6 +802,7 @@
     <string name="welcome_tut_outro_buttons">許多按鈕有額外動作，試試長按</string>
     <string name="welcome_tut_outro_alarms">在設定 → %1$s 中探索強大的自訂警報編輯器</string>
     <string name="welcome_tut_outro_integrations">探索各項整合：安全帽 HUD、Wear OS 手錶、Flic 按鈕、Garmin Connect IQ 和後視雷達</string>
+    <string name="welcome_tut_outro_integrations_iphone">探索各項整合：Flic 按鈕。安全帽 HUD、手錶和後視雷達 iPhone 版尚未支援</string>
     <string name="welcome_tut_share">在設定 → %1$s 中備份你的行程。可以在 %2$s 中查看，或到 eucviewer.ried.no 分析備份。\n\n在同一區段也可以到 eucstats.ried.no 加入公開排行榜</string>
     <string name="welcome_tut_outro_end">騎乘時請專心看路，別盯著這個應用程式！</string>
     <string name="welcome_tut_speed">你的即時速度。可在設定 → %1$s 中變更單位</string>

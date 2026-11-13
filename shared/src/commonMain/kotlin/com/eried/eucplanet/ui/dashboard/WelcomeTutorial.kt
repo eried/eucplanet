@@ -453,7 +453,16 @@ fun WelcomeTutorialOverlay(
                                 )
                             )
                             Spacer(Modifier.height(8.dp))
-                            OutroBullet(stringResource(Res.string.welcome_tut_outro_integrations))
+                            // Where the radar is not here yet (iPhone), the line
+                            // names only Flic and says the rest is still to come.
+                            // The HUD and watches are left out there entirely, not
+                            // listed as PlatformFeatures, so the radar decides.
+                            OutroBullet(
+                                stringResource(
+                                    if (PlatformFeature.RADAR.available) Res.string.welcome_tut_outro_integrations
+                                    else Res.string.welcome_tut_outro_integrations_iphone
+                                )
+                            )
                             Spacer(Modifier.height(12.dp))
                             Text(
                                 stringResource(Res.string.welcome_tut_outro_end),

@@ -803,6 +803,7 @@
     <string name="welcome_tut_outro_buttons">Viele Tasten haben Zusatzfunktionen, einfach lang drücken</string>
     <string name="welcome_tut_outro_alarms">Entdecke den leistungsstarken Alarm-Editor unter Einstellungen → %1$s</string>
     <string name="welcome_tut_outro_integrations">Entdecke die Integrationen: Helm-HUDs, WearOS-Uhren, Flic-Tasten, Garmin Connect IQ und das Heckradar</string>
+    <string name="welcome_tut_outro_integrations_iphone">Entdecke die Integrationen: Flic-Tasten. Helm-HUDs, Uhren und das Heckradar gibt es noch nicht auf dem iPhone</string>
     <string name="welcome_tut_share">Sichere deine Fahrten in Einstellungen → %1$s. Sieh sie in %2$s an oder analysiere die Backups auf eucviewer.ried.no.\n\nIm selben Abschnitt kannst du den öffentlichen Bestenlisten auf eucstats.ried.no beitreten</string>
     <string name="welcome_tut_outro_end">Augen auf die Straße, nicht auf die App, wenn du fährst!</string>
     <string name="welcome_tut_speed">Deine aktuelle Geschwindigkeit. Einheiten ändern unter Einstellungen → %1$s</string>

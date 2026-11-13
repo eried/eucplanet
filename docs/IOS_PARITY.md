@@ -86,7 +86,7 @@ its iOS side lands.
 |---|---|
 | Navigation, route builder | dashboard map button and its menu, the Open navigation tile, the Navigation and weather section, the tour's map step |
 | GPS sensors (external GPS, RaceBox, data sources) | the GPS icon's tap and its External GPS settings item, the GPS and sensors section, the tour's GPS step |
-| Rear radar | the radar row in Integration |
+| Rear radar | the radar row in Integration; the tour's last page names only Flic and says the HUDs, watches and radar are not on iPhone yet |
 | TPMS | the TPMS row in Integration |
 | Camera, Overlay Studio | the dashboard camera button and its menu, the Overlay studio tile, the trip share dialog's Replay row, the tour's camera step |
 | Motor sound | the Motor sound section |

@@ -1013,6 +1013,7 @@
     <string name="welcome_tut_outro_buttons">ปุ่มหลายปุ่มมีคำสั่งเพิ่มเติม ลองกดค้างดู</string>
     <string name="welcome_tut_outro_alarms">ลองใช้ตัวแก้ไขสัญญาณเตือนแบบกำหนดเองที่ทรงพลังในการตั้งค่า → %1$s</string>
     <string name="welcome_tut_outro_integrations">ลองใช้การเชื่อมต่อต่างๆ: HUD บนหมวกกันน็อก นาฬิกา WearOS ปุ่ม Flic, Garmin Connect IQ และเรดาร์มองหลัง</string>
+    <string name="welcome_tut_outro_integrations_iphone">ลองใช้การเชื่อมต่อ: ปุ่ม Flic ส่วน HUD บนหมวกกันน็อก นาฬิกา และเรดาร์มองหลังยังไม่มีบน iPhone</string>
     <string name="welcome_tut_outro_end">ขณะขี่ล้อ ให้สายตาอยู่บนถนน ไม่ใช่บนแอปนี้!</string>
     <string name="welcome_tut_share">สำรองทริปของคุณในการตั้งค่า → %1$s ดูทริปได้ใน %2$s หรือวิเคราะห์ข้อมูลสำรองที่ eucviewer.ried.no\n\nในส่วนเดียวกันคุณเข้าร่วมกระดานผู้นำสาธารณะได้ที่ eucstats.ried.no</string>
     <string name="welcome_tut_speed">ความเร็วสดของคุณ เปลี่ยนหน่วยได้ในการตั้งค่า → %1$s</string>

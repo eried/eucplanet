@@ -1726,6 +1726,7 @@
     <string name="welcome_tut_pd">Mostra Park o Drive. Toccalo per impostare la tua %1$s</string>
     <string name="welcome_tut_outro_alarms">Esplora il potente editor di allarmi personalizzati in Impostazioni → %1$s</string>
     <string name="welcome_tut_outro_integrations">Esplora le integrazioni: HUD da casco, orologi Wear OS, pulsanti Flic, Garmin Connect IQ e il radar posteriore</string>
+    <string name="welcome_tut_outro_integrations_iphone">Esplora le integrazioni: pulsanti Flic. HUD da casco, orologi e il radar posteriore non sono ancora su iPhone</string>
     <string name="welcome_tut_share">Salva i tuoi viaggi in Impostazioni → %1$s. Vedili in %2$s, oppure analizza i backup su eucviewer.ried.no.\n\nNella stessa sezione puoi entrare nelle classifiche pubbliche su eucstats.ried.no</string>
     <string name="welcome_tut_outro_end">Quando sei in sella, occhi sulla strada e non su questa app!</string>
 

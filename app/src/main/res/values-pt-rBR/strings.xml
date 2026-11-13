@@ -807,6 +807,7 @@
     <string name="welcome_tut_outro_buttons">Muitos botões têm ações extras, experimente pressionar e segurar</string>
     <string name="welcome_tut_outro_alarms">Explore o poderoso editor de alarmes personalizados em Configurações → %1$s</string>
     <string name="welcome_tut_outro_integrations">Explore as integrações: HUDs de capacete, relógios WearOS, botões Flic, Garmin Connect IQ e o radar traseiro</string>
+    <string name="welcome_tut_outro_integrations_iphone">Explore as integrações: botões Flic. HUDs de capacete, relógios e o radar traseiro ainda não estão disponíveis no iPhone</string>
     <string name="welcome_tut_share">Faça backup das viagens em Configurações → %1$s. Veja-as em %2$s ou analise os backups em eucviewer.ried.no.\n\nNa mesma seção você pode entrar nos rankings públicos em eucstats.ried.no</string>
     <string name="welcome_tut_outro_end">Atenção na estrada e longe deste app enquanto anda na roda!</string>
     <string name="welcome_tut_speed">Sua velocidade ao vivo. Mude as unidades em Configurações → %1$s</string>

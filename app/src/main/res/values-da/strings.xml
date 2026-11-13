@@ -807,6 +807,7 @@
     <string name="welcome_tut_outro_buttons">Mange knapper har ekstra funktioner, prøv at holde dem nede</string>
     <string name="welcome_tut_outro_alarms">Udforsk den kraftfulde alarmredigering under Indstillinger → %1$s</string>
     <string name="welcome_tut_outro_integrations">Udforsk integrationerne: hjelm-HUD\'er, Wear OS-ure, Flic-knapper, Garmin Connect IQ og bagudvendt radar</string>
+    <string name="welcome_tut_outro_integrations_iphone">Udforsk integrationerne: Flic-knapper. Hjelm-HUD\'er, ure og bagudvendt radar er ikke på iPhone endnu</string>
     <string name="welcome_tut_share">Tag backup af dine ture under Indstillinger → %1$s. Se dem i %2$s, eller analysér backupperne på eucviewer.ried.no.\n\nI samme afsnit kan du tilmelde dig de offentlige ranglister på eucstats.ried.no</string>
     <string name="welcome_tut_outro_end">Hold øjnene på vejen og væk fra appen, mens du kører!</string>
     <string name="welcome_tut_speed">Din aktuelle fart. Skift enheder under Indstillinger → %1$s</string>

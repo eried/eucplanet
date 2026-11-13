@@ -1098,6 +1098,7 @@
     <string name="welcome_tut_outro_buttons">Many buttons have extra actions, try long-pressing them</string>
     <string name="welcome_tut_outro_alarms">Explore the powerful custom alarm editor in Settings → %1$s</string>
     <string name="welcome_tut_outro_integrations">Explore the integrations: helmet HUDs, WearOS watches, Flic buttons, Garmin Connect IQ, and the rear-view radar</string>
+    <string name="welcome_tut_outro_integrations_iphone">Explore the integrations: Flic buttons. Helmet HUDs, watches and the rear-view radar are not on iPhone yet</string>
     <string name="welcome_tut_outro_end">Keep the eyes on the road and away from this app while unicycling!</string>
     <string name="welcome_tut_share">Back up your trips in Settings → %1$s. Check them in %2$s, or analyze the backups at eucviewer.ried.no.\n\nIn the same section you can join the public leaderboards at eucstats.ried.no</string>
     <string name="welcome_tut_speed">Your live speed. Change units in Settings → %1$s</string>
