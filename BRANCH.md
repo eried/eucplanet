@@ -1,11 +1,8 @@
-# next-version
+# next-experimental
 
-The next release, settling. Features arrive here once they have been ridden on
-next-experimental and stopped changing shape. Settings stay where they are put
-and a build here is meant to get you home.
-
-This is what the Play beta is cut from. If you want to help without gambling a
-ride, this is the branch.
+New features land here first. They work on the wheels they were written for
+and may not work on yours yet, and settings can move between builds. Ride it
+only when you can cut the ride short.
 
 ## Worked on
 
