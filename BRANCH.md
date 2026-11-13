@@ -9,6 +9,7 @@ ride, this is the branch.
 
 ## Worked on
 
+- Every window has a visible way out: an X on the crew pass (scanner and Enter manually), the studio side panels and the HUD preset picker, and Cancel on the ride-without-offline-maps question.
 - 0.24.0 beta: everything below from next-experimental, on the Play beta track. New since 0.23.0: the engine sounds, volume keys with the screen off, and five new actions.
 - Release builds are obfuscated (Play asks for it by Feb 2027). Branch APKs are debug builds and do not change.
 - Navigator view: turn card, speed, arrival time and your own tiles on the map while navigating. Pick the tiles in Settings.
@@ -57,6 +58,9 @@ ride, this is the branch.
 - Backup conflicts: the warning goes as soon as you settle them with Sync all, says where that button is, and Fix opens Trips backup. It also goes when you unlink the folder or delete the trips.
 
 ## Please test
+
+**Closing windows**
+- Crew pass, studio panels, HUD preset picker: does the X close them? Anywhere else you can only leave with the back gesture?
 
 **Map / navigation**
 - Navigate a 2-stop route in Full path and Next segment: turn card, arrival time, the next stop counting down and ticked off, End navigation?
