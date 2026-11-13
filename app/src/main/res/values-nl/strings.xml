@@ -5,7 +5,6 @@
     <string name="notification_channel_description">Toont verbindingsstatus en telemetrie van het wiel.</string>
 
     <!-- Notification quick actions -->
-    <string name="notif_actions_section">Aanpassen</string>
     <string name="notif_actions_enable">Meldingsacties tonen</string>
     <string name="notif_actions_enable_desc">Voeg snelactieknoppen toe aan de actieve melding.</string>
     <string name="notif_actions_pick_desc">Kies maximaal %1$d acties. Dezelfde actie mag herhaald worden.</string>
@@ -39,9 +38,6 @@
     <string name="state_off">Uit</string>
     <string name="action_done">Klaar</string>
     <string name="action_close">Sluiten</string>
-<string name="crash_log_action_prompt">Je hebt %1$s lang ingedrukt. Verwijder alleen dit log, of alles. Tik op Annuleren en dan op het bestand om het te delen.</string>
-    <string name="crash_log_delete_all">Alles verwijderen</string>
-    <string name="crash_log_delete_all_warning">Alle opgeslagen crashlogs verwijderen? Dit kan niet ongedaan worden gemaakt.</string>
     <string name="action_save">Opslaan</string>
     <string name="action_apply">Toepassen</string>
     <string name="action_delete">Verwijderen</string>
@@ -135,12 +131,10 @@
     <string name="tab_dashboard">Dashboard-indeling</string>
     <string name="dashboard_section_metrics">Meetwaarden</string>
     <string name="dashboard_section_actions">Actieknoppen</string>
-    <string name="dashboard_columns">Kolommen</string>
     <string name="dashboard_grid_hint">Lang indrukken om te slepen, tikken om te bewerken.</string>
     <string name="dashboard_pool_metrics">Beschikbare meetwaarden</string>
     <string name="dashboard_pool_actions">Beschikbare acties</string>
     <string name="dashboard_pool_tap_toast">Lang indrukken en naar een vak hierboven slepen</string>
-    <string name="dashboard_rolling_window">Statistiekvenster</string>
     <string name="dashboard_stats_length">Duur statistieken</string>
     <string name="dashboard_view">Weergave</string>
     <string name="dashboard_view_default">Standaard</string>
@@ -614,7 +608,6 @@
     <string name="watch_haptic_on_action_desc">Korte trilling bij elke druk, indien ondersteund.</string>
 
     <!-- Settings: Backup -->
-    <string name="section_cloud_folder">Back-upmap</string>
     <string name="cloud_caption">Je back-upmap voor ritten, instellingen, thema\'s en overlays.</string>
     <string name="cloud_choose_folder">Map kiezen</string>
     <string name="cloud_change_folder">Map wijzigen</string>
@@ -635,7 +628,6 @@
     <string name="section_cloud_trips">Back-up van ritten</string>
     <string name="cloud_trips_caption">Ritten blijven op deze telefoon en synchroniseren vanzelf naar je back-upmap. Wissen verwijdert de ritten in de app, niet die in je back-upmap.</string>
     <string name="cloud_retry_now">Alles synchr.</string>
-    <string name="cloud_retry_enqueued">Upload ingepland</string>
     <string name="sync_progress">Synchroniseren: %1$d van %2$d</string>
     <string name="sync_no_folder">Kies eerst een back-upmap</string>
     <string name="sync_rate_limited">Dropbox beperkt dit account. %1$d van %2$d ritten gesynchroniseerd, de rest wordt opnieuw geprobeerd.</string>
@@ -665,7 +657,6 @@
     <string name="cloud_backup_replace_body_dated">De back-up van %1$s wordt overschreven met je huidige instellingen.</string>
     <string name="cloud_restore_picker_default">(jouw back-up)</string>
     <string name="cloud_restore_picker_factory">(fabrieksinstellingen)</string>
-    <string name="cloud_restore_picker_empty">Geen back-ups in de map</string>
     <string name="cloud_factory_confirm_title">Terugzetten naar fabrieksinstellingen?</string>
     <string name="cloud_factory_confirm_body_p1">Zet alle app-instellingen terug naar de standaardwaarden.</string>
     <string name="cloud_factory_confirm_body_p2">Je gekoppelde apparaten en opgeslagen back-ups blijven behouden. Dit kan niet ongedaan gemaakt worden.</string>
@@ -674,10 +665,7 @@
     <!-- Settings: General -->
     <string name="section_recording">Opname</string>
     <string name="section_connection">Verbinding</string>
-    <string name="section_display">Weergave</string>
-    <string name="auto_record_on_start">Automatisch opnemen bij verbinden</string>
     <string name="auto_record_caption">Neemt een rit op zodra het wiel verbonden is.</string>
-    <string name="auto_record_start_in_motion">Opname starten bij beweging</string>
     <string name="auto_record_start_in_motion_caption">Start bij beweging, stopt na inactiviteit, herstart bij de volgende rit.</string>
     <string name="auto_record_stop_idle_seconds">Stoppen na inactiviteit van</string>
     <string name="auto_connect_on_start">Automatisch verbinden bij starten</string>
@@ -887,11 +875,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Dieseltruck</string>
     <string name="engine_preset_sampled_motorcycle">Kleine crossmotor</string>
     <string name="engine_preset_sampled_city_car">Stadsauto</string>
-    <string name="engine_preset_sampled_helicopter">Helikopter</string>
     <string name="engine_preset_sampled_tractor">Tractor</string>
     <string name="engine_preset_sampled_lawnmower">Grasmaaier</string>
     <string name="engine_preset_sampled_steam_loco">Stoomlocomotief</string>
-    <string name="engine_preset_sampled_car_cruise">Auto onderweg</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
     <string name="engine_preset_sampled_big_diesel">Grote diesel</string>
     <string name="engine_preset_sampled_broken_exhaust">Kapotte uitlaat</string>
@@ -1169,12 +1155,10 @@
     <string name="auto_lights_when">Zon volgen wanneer</string>
     <string name="auto_lights_off_slow">Licht uit bij vertragen</string>
     <string name="auto_lights_off_below">Uit onder</string>
-    <string name="auto_lights_desc">Schakel de koplampen aan of uit op basis van zonsopkomst en zonsondergang.</string>
     <string name="auto_lights_on_before_sunset">Licht AAN voor</string>
     <string name="auto_lights_off_after_sunrise">Licht UIT na</string>
     <string name="auto_waiting_gps">Wachten op GPS-locatie…</string>
     <string name="auto_volume_title">Volumeregeling</string>
-    <string name="auto_volume_desc">Muziekvolume verhogen op basis van snelheid.</string>
     <string name="auto_volume_when">Volume verhogen wanneer</string>
     <string name="media_rate_when">Afspeelsnelheid aanpassen wanneer</string>
     <string name="media_rate_permission_desc">Android vraagt hier apart om. Zonder dit kan de afspeelsnelheid niet worden gewijzigd.</string>
@@ -1184,14 +1168,12 @@
     <string name="media_rate_grant">Toestaan</string>
     <string name="warnings_media_access_title">Meldingstoegang staat uit</string>
     <string name="warnings_media_access_body">Zonder dit kan de afspeelsnelheid je snelheid niet volgen. Tik om toe te staan.</string>
-    <string name="media_control_desc">Pauzeert de muziek als je vaart mindert en hervat als je sneller gaat.</string>
     <string name="media_control_pause">Pauzeren als ik vaart minder</string>
     <string name="media_control_pause_below">Pauzeren op of onder</string>
     <string name="media_control_resume">Hervatten als ik sneller ga</string>
     <string name="media_control_resume_above">Hervatten op of boven</string>
     <string name="automation_require_external">Alleen bij koptelefoon of Bluetooth</string>
     <string name="proximity_lock_title">Wiel vergrendelen</string>
-    <string name="proximity_lock_desc">Vergrendelt het wiel als je wegloopt en ontgrendelt het als je terugkomt, op basis van de Bluetooth-signaalsterkte.</string>
     <string name="proximity_lock_enable">Vergrendelen als ik wegloop</string>
     <string name="proximity_lock_below">Signaal onder</string>
     <string name="proximity_unlock_when">Automatisch ontgrendelen</string>
@@ -1298,9 +1280,6 @@
     <string name="alarm_predict_help_lead">Waarschuwt ongeveer %1$s s voordat %2$s, op basis van de recente trend.</string>
 
     <!-- About / crash logs -->
-    <string name="about_crash_logs">Crashlogs</string>
-    <string name="about_crash_logs_empty">Geen crashes geregistreerd</string>
-    <string name="about_share_crash">Crashlog delen</string>
     <string name="about_thanks">Met dank aan</string>
     <string name="about_thanks_body">Ik werd moe van EUC-apps die te traag evolueren, er gedateerd uitzien, draconische regels hanteren rond nieuwe functies, hun communities als klanten behandelen, en vergeten dat EUC-rijders op hun best zijn als ze elkaar helpen. Deze probeert het tegenovergestelde te zijn.</string>
     <string name="about_license">Licentie</string>
@@ -1357,11 +1336,8 @@
     <string name="online_upload_total_km">%1$s %2$s</string>
     <string name="online_upload_join">Aanmelden bij klassement</string>
     <string name="online_status_shared">Gedeeld op het klassement</string>
-    <string name="online_status_flagged">Gedeeld, wordt beoordeeld</string>
     <string name="online_status_pending">Uploaden naar klassement…</string>
     <string name="online_status_failed">Upload mislukt, tik om opnieuw te proberen</string>
-    <string name="online_status_checking">Controleren bij het klassement…</string>
-    <string name="online_status_check_failed">Kon nu niet controleren, probeer het later opnieuw</string>
     <string name="online_status_rejected">Niet geaccepteerd voor het klassement</string>
     <string name="online_upload_join_caption">Meld je aan om je statistieken en ritten op het openbare klassement te zetten op.</string>
     <string name="online_upload_linked_caption">Je statistieken en ritten verschijnen op het openbare klassement op.</string>
@@ -1383,7 +1359,6 @@
     <string name="online_profile_delete_confirm_action">Permanent verwijderen</string>
     <string name="online_profile_save_rate_limited">Limiet bereikt, probeer het later opnieuw.</string>
     <string name="online_profile_save_failed">Opslaan mislukt (HTTP %1$d). Probeer opnieuw.</string>
-    <string name="online_status_flagged_why">Ingehouden voor een korte automatische controle. Zodra die klaar is, verschijnt het op het klassement.</string>
     <string name="online_restore_title">Opgeslagen profiel gevonden</string>
     <string name="online_restore_body_new">We vonden hier een opgeslagen profiel: %1$s. Als je doorgaat, doe je weer mee aan het openbare klassement als die rijder. Naam, vlag, avatar en rijstatistieken zijn openbaar. Er wordt geen nieuw profiel aangemaakt.</string>
     <string name="online_restore_body_switch">We vonden een ander opgeslagen profiel: %1$s. Doorgaan schakelt deze telefoon over naar die rijder; je huidige profiel wordt eerst geback-upt.</string>
@@ -1621,9 +1596,6 @@
     <string name="studio_cfg_time_window_fmt">%1$ds</string>
     <string name="studio_cfg_trail_label">Spoorlengte</string>
     <string name="studio_cfg_map_style">Kaartstijl</string>
-    <string name="studio_cfg_map_street">Straat</string>
-    <string name="studio_cfg_map_dark">Donker</string>
-    <string name="studio_cfg_map_satellite">Satelliet</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
     <string name="studio_cfg_map_attribution">Kaartvermelding tonen</string>
     <string name="studio_cfg_map_attribution_off">De kaartlicentie vereist deze vermelding op alles wat je deelt. Uitzetten is jouw keuze.</string>
@@ -1722,7 +1694,6 @@
     <string name="trip_meter_tab_speed">Snelheid</string>
     <string name="trip_meter_tab_battery">Accu</string>
     <string name="trip_meter_tab_time">Tijd</string>
-    <string name="trip_meter_total">Totaal</string>
     <string name="trip_meter_active">Actief</string>
     <string name="trip_meter_avg">Gem.</string>
     <string name="trip_meter_reset">Ritteller resetten</string>
@@ -1786,7 +1757,6 @@
     <string name="nav_clear_confirm_body">Je huidige stops worden gewist.</string>
     <string name="nav_load_confirm">Huidige route vervangen door de geladen GPX?</string>
     <string name="nav_menu_load_short">Laden</string>
-    <string name="nav_tap_on_self">Druk in de Stops-lijst lang op een stop om die op je locatie te zetten</string>
     <string name="nav_start_short">Navigatie starten</string>
     <string name="nav_stop_short">Navigatie stoppen</string>
     <string name="nav_stops_left">Resterende stops: %1$d</string>
@@ -1872,8 +1842,6 @@
     <string name="share_alone">Hier is nog niemand anders.</string>
     <string name="share_open">Openen</string>
     <string name="share_copy">Kopiëren</string>
-    <string name="share_menu_join">Deelnemen aan groepsrit</string>
-    <string name="share_menu_join_desc">Scan een QR-code.</string>
     <string name="share_menu_live">Live locatie delen</string>
     <string name="share_menu_live_desc">Start een groepsrit.</string>
     <string name="share_menu_static">Locatie versturen</string>
@@ -1951,7 +1919,6 @@
     <string name="nav_setting_arrival_radius_desc">Hoe dichtbij telt als het bereiken van een stop.</string>
     <string name="nav_setting_offroute">Tolerantie buiten route</string>
     <string name="nav_setting_offroute_desc">Hoe ver van de route voordat de melding “buiten route” verschijnt.</string>
-    <string name="nav_setting_default_mode">Standaard reismodus</string>
     <string name="nav_setting_params">Navigatie en weer</string>
     <string name="weather_section">Weer</string>
     <string name="weather_icon_desc">Weersvoorspelling</string>
@@ -1972,7 +1939,6 @@
     <string name="weather_enable_desc">Zet een weericoon boven de kaartknop: tik erop voor een rijdbaarheidsverwachting.</string>
     <string name="weather_window_label">Voorspellingsvenster</string>
     <string name="weather_source_label">Voorspellingsbron</string>
-    <string name="weather_comfort_desc">Comfortdrempels voor de score. Temperatuur volgt je eenheden; wind volgt je snelheidseenheid.</string>
     <string name="weather_cold">Te koud onder</string>
     <string name="weather_hot">Te warm boven</string>
     <string name="weather_breezy">Winderig boven</string>
@@ -1999,7 +1965,6 @@
     <string name="weather_lvl_prime_2">Topdag om te zweven!</string>
     <string name="weather_expand">Details</string>
     <string name="weather_chart_temp">Temp., vocht en neerslag</string>
-    <string name="weather_chart_precip">Neerslag</string>
     <string name="weather_chart_wind">Wind en stoten</string>
     <string name="weather_adv_snow_now">Het sneeuwt, grip is weg.</string>
     <string name="weather_adv_snow_in">Sneeuw verwacht over %1$s.</string>
@@ -2535,8 +2500,6 @@
     <string name="trip_split_reason_wheel">Een ander wiel nam het over</string>
     <string name="trip_split_reason_gap">Gat in de opname</string>
     <string name="trip_split_reason_stopped">Lang stilgestaan</string>
-    <string name="trip_tools_combine">Ritten samenvoegen</string>
-    <string name="trip_tools_combine_desc">Voegt andere ritten samen tot een nieuwe rit, originelen blijven.</string>
     <string name="trip_tools_combine_none">Geen andere voltooide ritten om mee samen te voegen.</string>
     <string name="trip_tools_combine_mixed_wheels">Sommige zijn op een ander wiel gereden. Afstand en energie worden opgeteld.</string>
     <string name="trip_tools_wheel_changed">Wiel ingesteld op %1$s</string>
@@ -2643,8 +2606,6 @@
     <string name="studio_video_fit">Passend</string>
     <string name="studio_video_fit_stretch">Uitrekken</string>
     <string name="studio_video_offset">Verschuiving</string>
-    <string name="studio_video_offset_value_fmt">%1$d ms</string>
-    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
     <string name="studio_video_set_offset">Huidig</string>
     <string name="studio_video_no_media">Geen media</string>
     <string name="studio_replay_cd_move">Paneel verplaatsen</string>
@@ -2652,7 +2613,6 @@
     <string name="studio_video_edge_freeze">Bevriezen</string>
     <string name="studio_video_edge_loop">Herhalen</string>
     <string name="studio_video_edge_black">Zwart</string>
-    <string name="wheel_no_data_reconnecting">Geen gegevens van het wiel. Opnieuw verbinden…</string>
     <string name="wheel_no_data_reset">Nog steeds geen gegevens van het wiel. Zet het uit en weer aan.</string>
     <string name="trip_map_ride_start">Begin rit: %1$s</string>
     <string name="trip_map_reconnected">Opnieuw verbonden: %1$s</string>
@@ -2670,7 +2630,6 @@
     <string name="trip_tools_rename">Rit hernoemen</string>
     <string name="trip_tools_rename_desc">Geef deze rit een naam. Staat in het bestand, dus gaat mee met export en synchronisatie.</string>
     <string name="trip_tools_rename_hint">Laat leeg om de datum te gebruiken.</string>
-    <string name="trip_tools_renamed">Rit hernoemd</string>
     <string name="trip_tools_archived">%1$d gearchiveerd</string>
     <string name="trip_tools_archive_failed">Sommige ritten konden niet worden gearchiveerd en staan er nog</string>
     <string name="recording_delete_archive">Back-upkopieën archiveren</string>
@@ -2778,7 +2737,6 @@
     <string name="action_reset_metrics_wheel_done">Meetwaarden gereset, ritteller van het wiel gewist</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
     <string name="tpms_waiting">Wachten op gegevens</string>
-    <string name="status_live">Live</string>
     <string name="status_idle">Inactief</string>
     <string name="tpms_state_leaking">Verliest lucht</string>
     <string name="tpms_state_inflating">Oppompen</string>
@@ -2799,7 +2757,6 @@
     <string name="horn_mode_sound">Eigen</string>
     <string name="horn_mode_both">Mix</string>
     <string name="horn_mode_hint">Eigen speelt je eigen geluid op de telefoon. Mix voegt het toe aan de claxon van het wiel, voor een externe speaker. Kan de telefoon het niet afspelen, dan klinkt de claxon van het wiel.</string>
-    <string name="horn_sound_none">Geen geluid gekozen</string>
     <string name="horn_sound_current">Geluid: %1$s</string>
     <string name="horn_sound_choose">Geluid kiezen</string>
     <string name="horn_sound_imported">Claxongeluid opgeslagen</string>
@@ -2815,7 +2772,6 @@
     <string name="voice_stat_min">Min</string>
     <string name="voice_stat_avg">Gem</string>
     <string name="voice_stat_peak">Piek</string>
-    <string name="crews_title">Crews</string>
     <string name="crews_pass_action">Crewpas</string>
     <string name="crews_pass_search_hint">Crewpas verschijnt zodra je meedoet aan de online klassementen.</string>
     <string name="crews_scan_hint">Open eucstats in een browser, tik op Crews, en richt dit op de code die verschijnt.</string>
@@ -2921,7 +2877,6 @@
     <string name="nav_unlock_stops">Stops</string>
     <string name="nav_unlock_off">Wijkt tot %1$s af van de track</string>
     <string name="nav_unlock_confirm">Omzetten</string>
-    <string name="nav_track_badge">Vergrendelde track</string>
     <string name="voice_nav_place_reached">%1$s bereikt</string>
     <string name="offline_data_open">Offline gebieden</string>
     <string name="offline_server_url">Server voor offline data</string>

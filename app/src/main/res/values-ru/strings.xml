@@ -5,7 +5,6 @@
     <string name="notification_channel_description">Показывает статус подключения и телеметрию.</string>
 
     <!-- Notification quick actions -->
-    <string name="notif_actions_section">Настроить</string>
     <string name="notif_actions_enable">Показывать действия в уведомлении</string>
     <string name="notif_actions_enable_desc">Добавляет кнопки быстрых действий в постоянное уведомление.</string>
     <string name="notif_actions_pick_desc">Выберите до %1$d действий. Действия могут повторяться.</string>
@@ -39,9 +38,6 @@
     <string name="state_off">Выкл</string>
     <string name="action_done">Готово</string>
     <string name="action_close">Закрыть</string>
-<string name="crash_log_action_prompt">Вы удерживали %1$s. Удалить только этот журнал или все? Чтобы поделиться им, нажмите «Отмена», а затем нажмите на файл.</string>
-    <string name="crash_log_delete_all">Удалить все</string>
-    <string name="crash_log_delete_all_warning">Удалить все сохранённые журналы сбоев? Это действие нельзя отменить.</string>
     <string name="action_save">Сохранить</string>
     <string name="action_apply">Применить</string>
     <string name="action_delete">Удалить</string>
@@ -135,12 +131,10 @@
     <string name="tab_dashboard">Макет панели</string>
     <string name="dashboard_section_metrics">Метрики</string>
     <string name="dashboard_section_actions">Кнопки действий</string>
-    <string name="dashboard_columns">Колонки</string>
     <string name="dashboard_grid_hint">Удерживайте, чтобы перетащить, нажмите, чтобы изменить.</string>
     <string name="dashboard_pool_metrics">Доступные метрики</string>
     <string name="dashboard_pool_actions">Доступные действия</string>
     <string name="dashboard_pool_tap_toast">Удерживайте и перетащите в ячейку выше, чтобы использовать</string>
-    <string name="dashboard_rolling_window">Окно скользящей статистики</string>
     <string name="dashboard_stats_length">Период статистики</string>
     <string name="dashboard_view">Вид</string>
     <string name="dashboard_view_default">По умолчанию</string>
@@ -614,7 +608,6 @@
     <string name="watch_haptic_on_action_desc">Короткая вибрация при каждом нажатии, если поддерживается.</string>
 
     <!-- Settings: Backup -->
-    <string name="section_cloud_folder">Папка резервных копий</string>
     <string name="cloud_caption">Ваша папка резервных копий для поездок, настроек, тем и оверлеев.</string>
     <string name="cloud_choose_folder">Выбрать папку</string>
     <string name="cloud_change_folder">Сменить папку</string>
@@ -635,7 +628,6 @@
     <string name="section_cloud_trips">Резервная копия поездок</string>
     <string name="cloud_trips_caption">Поездки остаются на этом телефоне и сами синхронизируются с папкой резервных копий. Очистка удаляет поездки внутри приложения, но не в папке копий.</string>
     <string name="cloud_retry_now">Синхр. всё</string>
-    <string name="cloud_retry_enqueued">Загрузка запланирована</string>
     <string name="sync_progress">Синхронизация %1$d из %2$d</string>
     <string name="sync_no_folder">Сначала выберите папку для копий</string>
     <string name="sync_rate_limited">Dropbox ограничивает этот аккаунт. Синхронизировано поездок: %1$d из %2$d, остальные будут отправлены позже.</string>
@@ -665,7 +657,6 @@
     <string name="cloud_backup_replace_body_dated">Копия, сохранённая %1$s, будет перезаписана текущими настройками.</string>
     <string name="cloud_restore_picker_default">(ваша копия)</string>
     <string name="cloud_restore_picker_factory">(заводские)</string>
-    <string name="cloud_restore_picker_empty">В папке нет резервных копий</string>
     <string name="cloud_factory_confirm_title">Сбросить до заводских настроек?</string>
     <string name="cloud_factory_confirm_body_p1">Сбрасывает все настройки приложения к значениям по умолчанию.</string>
     <string name="cloud_factory_confirm_body_p2">Сопряжённые устройства и сохранённые резервные копии останутся. Это действие нельзя отменить.</string>
@@ -674,10 +665,7 @@
     <!-- Settings: General -->
     <string name="section_recording">Запись поездок</string>
     <string name="section_connection">Подключение</string>
-    <string name="section_display">Внешний вид</string>
-    <string name="auto_record_on_start">Автоматически начинать запись</string>
     <string name="auto_record_caption">Записывает поездку, когда моноколесо подключено.</string>
-    <string name="auto_record_start_in_motion">Начинать запись при движении</string>
     <string name="auto_record_start_in_motion_caption">Начинает при движении, останавливается после простоя и снова начинает в следующей поездке.</string>
     <string name="auto_record_stop_idle_seconds">Остановка после простоя</string>
     <string name="auto_connect_on_start">Автоматически подключаться</string>
@@ -887,11 +875,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Дизельный грузовик</string>
     <string name="engine_preset_sampled_motorcycle">Малый кроссовый мотоцикл</string>
     <string name="engine_preset_sampled_city_car">Городское авто</string>
-    <string name="engine_preset_sampled_helicopter">Вертолёт</string>
     <string name="engine_preset_sampled_tractor">Трактор</string>
     <string name="engine_preset_sampled_lawnmower">Газонокосилка</string>
     <string name="engine_preset_sampled_steam_loco">Паровоз</string>
-    <string name="engine_preset_sampled_car_cruise">Авто в пути</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
     <string name="engine_preset_sampled_big_diesel">Большой дизель</string>
     <string name="engine_preset_sampled_broken_exhaust">Дырявый глушитель</string>
@@ -1169,12 +1155,10 @@
     <string name="auto_lights_when">Следовать закату и восходу, когда</string>
     <string name="auto_lights_off_slow">Гасить фару при замедлении</string>
     <string name="auto_lights_off_below">Гасить ниже</string>
-    <string name="auto_lights_desc">Включать и выключать фару по закату и восходу.</string>
     <string name="auto_lights_on_before_sunset">Включить за</string>
     <string name="auto_lights_off_after_sunrise">Выключить через</string>
     <string name="auto_waiting_gps">Ожидание GPS…</string>
     <string name="auto_volume_title">Управление громкостью</string>
-    <string name="auto_volume_desc">Повышает громкость музыки в зависимости от скорости.</string>
     <string name="auto_volume_when">Повышать громкость, когда</string>
     <string name="media_rate_when">Менять скорость воспроизведения, когда</string>
     <string name="media_rate_permission_desc">Android запрашивает это разрешение отдельно. Без него скорость воспроизведения изменить нельзя.</string>
@@ -1184,14 +1168,12 @@
     <string name="media_rate_grant">Разрешить</string>
     <string name="warnings_media_access_title">Доступ к уведомлениям выключен</string>
     <string name="warnings_media_access_body">Без него скорость воспроизведения не может следовать за вашей скоростью. Нажмите, чтобы разрешить.</string>
-    <string name="media_control_desc">Ставит музыку на паузу при снижении скорости и возобновляет при разгоне.</string>
     <string name="media_control_pause">Пауза при снижении скорости</string>
     <string name="media_control_pause_below">Пауза на этой скорости или ниже</string>
     <string name="media_control_resume">Возобновлять при разгоне</string>
     <string name="media_control_resume_above">Возобновлять на этой скорости или выше</string>
     <string name="automation_require_external">Только через наушники или Bluetooth</string>
     <string name="proximity_lock_title">Блокировка моноколеса</string>
-    <string name="proximity_lock_desc">Блокирует моноколесо, когда вы отходите, и разблокирует, когда возвращаетесь, по силе сигнала Bluetooth.</string>
     <string name="proximity_lock_enable">Блокировать при отходе</string>
     <string name="proximity_lock_below">Сигнал ниже</string>
     <string name="proximity_unlock_when">Разблокировать автоматически</string>
@@ -1300,9 +1282,6 @@
     <string name="alarm_predict_help_lead">Сигнал примерно за %1$s с до того, как %2$s, по недавней динамике.</string>
 
     <!-- About / crash logs -->
-    <string name="about_crash_logs">Журналы сбоев</string>
-    <string name="about_crash_logs_empty">Сбоев нет</string>
-    <string name="about_share_crash">Поделиться журналом сбоя</string>
     <string name="about_thanks">Благодарности</string>
     <string name="about_thanks_body">Мне надоели приложения для моноколёс, которые развиваются слишком медленно, выглядят устаревшими, держат драконовские правила для новых функций, относятся к сообществу как к клиентам и забывают, что райдеры сильнее всего, когда помогают друг другу. Это приложение старается быть их противоположностью.</string>
     <string name="about_license">Лицензия</string>
@@ -1359,11 +1338,8 @@
     <string name="online_upload_total_km">%1$s %2$s</string>
     <string name="online_upload_join">Присоединиться</string>
     <string name="online_status_shared">Опубликовано в таблице лидеров</string>
-    <string name="online_status_flagged">Опубликовано, на проверке</string>
     <string name="online_status_pending">Загрузка в таблицу лидеров…</string>
     <string name="online_status_failed">Не удалось загрузить, нажмите, чтобы повторить</string>
-    <string name="online_status_checking">Проверка в таблице лидеров…</string>
-    <string name="online_status_check_failed">Сейчас не удалось проверить, попробуйте позже</string>
     <string name="online_status_rejected">Не принято в таблицу лидеров</string>
     <string name="online_upload_join_caption">Присоединитесь, чтобы отправлять статистику и поездки в публичную таблицу лидеров на.</string>
     <string name="online_upload_linked_caption">Ваша статистика и поездки отображаются в публичной таблице лидеров на.</string>
@@ -1385,7 +1361,6 @@
     <string name="online_profile_delete_confirm_action">Удалить навсегда</string>
     <string name="online_profile_save_rate_limited">Слишком много запросов, попробуйте позже.</string>
     <string name="online_profile_save_failed">Не удалось сохранить (HTTP %1$d). Попробуйте снова.</string>
-    <string name="online_status_flagged_why">Отправлено на быструю автоматическую проверку. После неё запись появится в таблице лидеров.</string>
     <string name="online_restore_title">Найден сохранённый профиль</string>
     <string name="online_restore_body_new">В этой папке найден сохранённый профиль: %1$s. Если продолжить, вы снова войдёте в публичную таблицу лидеров как этот райдер: его ник, флаг, аватар и статистика поездок публичны. Новый профиль не создаётся.</string>
     <string name="online_restore_body_switch">Найден другой сохранённый профиль: %1$s. Если продолжить, этот телефон переключится на этого райдера, а ваш текущий профиль сначала будет сохранён в резервную копию.</string>
@@ -1587,9 +1562,6 @@
     <string name="studio_cfg_time_window_fmt">%1$d с</string>
     <string name="studio_cfg_trail_label">Длина следа</string>
     <string name="studio_cfg_map_style">Стиль карты</string>
-    <string name="studio_cfg_map_street">Улицы</string>
-    <string name="studio_cfg_map_dark">Тёмная</string>
-    <string name="studio_cfg_map_satellite">Спутник</string>
     <string name="studio_cfg_map_zoom">Масштаб</string>
     <string name="studio_cfg_map_attribution">Показывать источник карты</string>
     <string name="studio_cfg_map_attribution_off">Лицензия карты требует указывать источник на всём, чем вы делитесь. Отключать его или нет, решать вам.</string>
@@ -1677,7 +1649,6 @@
     <string name="trip_meter_tab_speed">Скорость</string>
     <string name="trip_meter_tab_battery">Заряд</string>
     <string name="trip_meter_tab_time">Время</string>
-    <string name="trip_meter_total">Всего</string>
     <string name="trip_meter_active">Активно</string>
     <string name="trip_meter_avg">Сред.</string>
     <string name="trip_meter_reset">Сбросить счётчик поездки</string>
@@ -1731,7 +1702,6 @@
     <string name="nav_clear_confirm_body">Текущие точки маршрута будут удалены.</string>
     <string name="nav_load_confirm">Заменить текущий маршрут загруженным GPX?</string>
     <string name="nav_menu_load_short">Загрузить</string>
-    <string name="nav_tap_on_self">В списке точек удерживайте точку, чтобы перенести её в ваше местоположение</string>
     <string name="nav_start_short">Начать навигацию</string>
     <string name="nav_stop_short">Остановить навигацию</string>
     <string name="nav_stops_left">Осталось точек: %1$d</string>
@@ -1817,8 +1787,6 @@
     <string name="share_alone">Здесь пока никого больше нет.</string>
     <string name="share_open">Открыть</string>
     <string name="share_copy">Копировать</string>
-    <string name="share_menu_join">Присоединиться к группе</string>
-    <string name="share_menu_join_desc">Сканировать QR-код.</string>
     <string name="share_menu_live">Делиться геопозицией</string>
     <string name="share_menu_live_desc">Начать групповую поездку.</string>
     <string name="share_menu_static">Отправить геопозицию</string>
@@ -1896,7 +1864,6 @@
     <string name="nav_setting_arrival_radius_desc">На каком расстоянии точка считается достигнутой.</string>
     <string name="nav_setting_offroute">Допуск отклонения от маршрута</string>
     <string name="nav_setting_offroute_desc">Насколько можно отклониться от маршрута, прежде чем сработает оповещение «Вне маршрута».</string>
-    <string name="nav_setting_default_mode">Способ передвижения по умолчанию</string>
     <string name="nav_setting_params">Навигация и погода</string>
     <string name="weather_section">Погода</string>
     <string name="weather_icon_desc">Прогноз погоды</string>
@@ -1917,7 +1884,6 @@
     <string name="weather_enable_desc">Добавляет значок погоды над кнопкой карты: нажмите, чтобы узнать, подходит ли погода для катания.</string>
     <string name="weather_window_label">Окно прогноза</string>
     <string name="weather_source_label">Источник прогноза</string>
-    <string name="weather_comfort_desc">Пороги комфорта для оценки. Температура в ваших единицах; ветер - в единицах скорости.</string>
     <string name="weather_cold">Слишком холодно ниже</string>
     <string name="weather_hot">Слишком жарко выше</string>
     <string name="weather_breezy">Ветрено выше</string>
@@ -1944,7 +1910,6 @@
     <string name="weather_lvl_prime_2">Лучшая погода для катания!</string>
     <string name="weather_expand">Подробности</string>
     <string name="weather_chart_temp">Темп., влажность и осадки</string>
-    <string name="weather_chart_precip">Осадки</string>
     <string name="weather_chart_wind">Ветер и порывы</string>
     <string name="weather_adv_snow_now">Идёт снег, сцепления нет.</string>
     <string name="weather_adv_snow_in">Снег примерно через %1$s.</string>
@@ -2533,8 +2498,6 @@
     <string name="trip_split_reason_wheel">Подключилось другое моноколесо</string>
     <string name="trip_split_reason_gap">Пропуск в записи</string>
     <string name="trip_split_reason_stopped">Долгая остановка</string>
-    <string name="trip_tools_combine">Объединить поездки</string>
-    <string name="trip_tools_combine_desc">Объединяет другие поездки в новую, сохраняя оригиналы.</string>
     <string name="trip_tools_combine_none">Нет других завершённых поездок для объединения.</string>
     <string name="trip_tools_combine_mixed_wheels">Часть этих поездок была на другом моноколесе. Расстояние и энергия будут суммированы.</string>
     <string name="trip_tools_wheel_changed">Выбрано моноколесо: %1$s</string>
@@ -2641,8 +2604,6 @@
     <string name="studio_video_fit">Вписать</string>
     <string name="studio_video_fit_stretch">Растянуть</string>
     <string name="studio_video_offset">Смещение</string>
-    <string name="studio_video_offset_value_fmt">%1$d мс</string>
-    <string name="studio_video_offset_nudge_fmt">%1$+d мс</string>
     <string name="studio_video_set_offset">Текущее</string>
     <string name="studio_video_no_media">Нет медиа</string>
     <string name="studio_replay_cd_move">Переместить панель</string>
@@ -2650,7 +2611,6 @@
     <string name="studio_video_edge_freeze">Стоп-кадр</string>
     <string name="studio_video_edge_loop">Цикл</string>
     <string name="studio_video_edge_black">Чёрный</string>
-    <string name="wheel_no_data_reconnecting">Нет данных от моноколеса. Переподключение…</string>
     <string name="wheel_no_data_reset">По-прежнему нет данных от моноколеса. Попробуйте выключить и снова включить его.</string>
     <string name="trip_map_ride_start">Начало поездки: %1$s</string>
     <string name="trip_map_reconnected">Переподключено: %1$s</string>
@@ -2668,7 +2628,6 @@
     <string name="trip_tools_rename">Переименовать поездку</string>
     <string name="trip_tools_rename_desc">Дайте поездке название. Оно хранится в её файле, поэтому сохраняется при экспорте и синхронизации.</string>
     <string name="trip_tools_rename_hint">Оставьте пустым, чтобы использовать дату.</string>
-    <string name="trip_tools_renamed">Поездка переименована</string>
     <string name="trip_tools_archived">Архивировано: %1$d</string>
     <string name="trip_tools_archive_failed">Некоторые поездки не удалось архивировать, они остались здесь</string>
     <string name="recording_delete_archive">Архивировать резервные копии</string>
@@ -2776,7 +2735,6 @@
     <string name="action_reset_metrics_wheel_done">Показатели сброшены, счётчик поездки моноколеса обнулён</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
     <string name="tpms_waiting">Ожидание данных</string>
-    <string name="status_live">Активно</string>
     <string name="status_idle">Ожидание</string>
     <string name="tpms_state_leaking">Спускает</string>
     <string name="tpms_state_inflating">Накачивается</string>
@@ -2797,7 +2755,6 @@
     <string name="horn_mode_sound">Свой</string>
     <string name="horn_mode_both">Микс</string>
     <string name="horn_mode_hint">«Свой» проигрывает ваш звук на телефоне. «Микс» добавляет его к гудку моноколеса, для внешней колонки. Если телефон не может его проиграть, звучит гудок моноколеса.</string>
-    <string name="horn_sound_none">Звук не выбран</string>
     <string name="horn_sound_current">Звук: %1$s</string>
     <string name="horn_sound_choose">Выбрать звук</string>
     <string name="horn_sound_imported">Звук гудка сохранён</string>
@@ -2813,7 +2770,6 @@
     <string name="voice_stat_min">Мин</string>
     <string name="voice_stat_avg">Сред</string>
     <string name="voice_stat_peak">Пик</string>
-    <string name="crews_title">Кланы</string>
     <string name="crews_pass_action">Пропуск клана</string>
     <string name="crews_pass_search_hint">Пропуск клана появится, когда вы присоединитесь к онлайн-таблицам лидеров.</string>
     <string name="crews_scan_hint">Откройте eucstats в браузере, нажмите Crews и наведите камеру на показанный код.</string>
@@ -2921,7 +2877,6 @@
     <string name="nav_unlock_stops">Точки</string>
     <string name="nav_unlock_off">Отклоняется от трека до %1$s</string>
     <string name="nav_unlock_confirm">Преобразовать</string>
-    <string name="nav_track_badge">Заблокированный трек</string>
     <string name="voice_nav_place_reached">%1$s: на месте</string>
     <string name="offline_data_open">Офлайн-области</string>
     <string name="offline_server_url">Сервер офлайн-данных</string>

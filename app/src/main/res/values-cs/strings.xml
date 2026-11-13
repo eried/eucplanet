@@ -5,7 +5,6 @@
     <string name="notification_channel_description">Zobrazuje stav připojení monokola a telemetrii.</string>
     <string name="keep_app_alive">Nechat aplikaci běžet</string>
     <string name="keep_app_alive_desc">Ponechá trvalé oznámení, takže aplikace zůstane běžet na pozadí. Synchronizace jízd a hlas fungují i bez připojeného monokola. Spotřebuje o něco více baterie.</string>
-    <string name="notif_actions_section">Přizpůsobit</string>
     <string name="notif_actions_enable">Zobrazit akce v oznámení</string>
     <string name="notif_actions_enable_desc">Přidá tlačítka rychlých akcí do trvalého oznámení.</string>
     <string name="notif_actions_pick_desc">Vyberte akce, nejvýše %1$d. Stejnou akci lze použít vícekrát.</string>
@@ -37,9 +36,6 @@
     <string name="state_off">Vypnuto</string>
     <string name="action_done">Hotovo</string>
     <string name="action_close">Zavřít</string>
-    <string name="crash_log_action_prompt">Dlouze jste stiskli %1$s. Smažte jen tento záznam, nebo smažte všechny. Chcete-li jej sdílet, klepněte na Zrušit a pak na soubor.</string>
-    <string name="crash_log_delete_all">Smazat vše</string>
-    <string name="crash_log_delete_all_warning">Smazat všechny uložené záznamy o pádech? Tuto akci nelze vrátit zpět.</string>
     <string name="action_save">Uložit</string>
     <string name="action_apply">Použít</string>
     <string name="action_reset">Obnovit</string>
@@ -120,12 +116,10 @@
     <string name="tab_dashboard">Rozvržení palubní desky</string>
     <string name="dashboard_section_metrics">Metriky</string>
     <string name="dashboard_section_actions">Tlačítka akcí</string>
-    <string name="dashboard_columns">Sloupce</string>
     <string name="dashboard_grid_hint">Dlouhým stiskem přetáhnete, klepnutím upravíte.</string>
     <string name="dashboard_pool_metrics">Dostupné metriky</string>
     <string name="dashboard_pool_actions">Dostupné akce</string>
     <string name="dashboard_pool_tap_toast">Dlouze stiskněte a přetáhněte na pole výše</string>
-    <string name="dashboard_rolling_window">Okno průběžných statistik</string>
     <string name="dashboard_stats_length">Délka statistik</string>
     <string name="dashboard_view">Zobrazení</string>
     <string name="dashboard_view_default">Výchozí</string>
@@ -744,7 +738,6 @@
     <string name="watch_screen_button_2">Tlačítko 2</string>
     <string name="watch_haptic_on_action">Vibrovat při akci</string>
     <string name="watch_haptic_on_action_desc">Krátká vibrace hodinek při každém stisku, kde je podporována.</string>
-    <string name="section_cloud_folder">Složka záloh</string>
     <string name="cloud_caption">Vaše složka záloh pro jízdy, nastavení, motivy a překryvy.</string>
     <string name="cloud_choose_folder">Vybrat složku</string>
     <string name="cloud_change_folder">Změnit složku</string>
@@ -768,7 +761,6 @@
     <string name="cloud_reset_local">Vymazat místní jízdy</string>
     <string name="cloud_reset_local_title">Vymazat místní jízdy?</string>
     <string name="cloud_reset_local_body">Odstraní všechny jízdy uložené v tomto telefonu. Vaše složka záloh zůstane nedotčena, takže synchronizované jízdy z ní lze obnovit.</string>
-    <string name="cloud_retry_enqueued">Nahrávání naplánováno</string>
     <string name="action_retry">Zkusit znovu</string>
     <string name="sync_progress">Synchronizuji %1$d z %2$d</string>
     <string name="sync_no_folder">Nejprve vyberte složku záloh</string>
@@ -802,17 +794,13 @@
     <string name="cloud_backup_replace_body_dated">Záloha uložená %1$s bude přepsána vaším aktuálním nastavením.</string>
     <string name="cloud_restore_picker_default">(vaše záloha)</string>
     <string name="cloud_restore_picker_factory">(tovární)</string>
-    <string name="cloud_restore_picker_empty">V synchronizační složce nebyly nalezeny žádné zálohy</string>
     <string name="cloud_factory_confirm_title">Obnovit tovární nastavení?</string>
     <string name="cloud_factory_confirm_body_p1">Obnoví všechna nastavení aplikace na výchozí hodnoty.</string>
     <string name="cloud_factory_confirm_body_p2">Vaše spárovaná zařízení a uložené zálohy zůstanou. Tuto akci nelze vrátit zpět.</string>
     <string name="cloud_factory_confirm_action">Obnovit</string>
     <string name="section_recording">Nahrávání</string>
     <string name="section_connection">Připojení</string>
-    <string name="section_display">Zobrazení</string>
-    <string name="auto_record_on_start">Automatické nahrávání při startu</string>
     <string name="auto_record_caption">Nahraje jízdu, jakmile je monokolo připojeno.</string>
-    <string name="auto_record_start_in_motion">Spustit nahrávání při pohybu</string>
     <string name="auto_record_start_in_motion_caption">Spustí se při pohybu, po nečinnosti se zastaví, při další jízdě se znovu spustí.</string>
     <string name="auto_record_stop_idle_seconds">Zastavit po nečinnosti</string>
     <string name="auto_record_mode_label">Automatické spuštění nahrávání jízdy</string>
@@ -1092,11 +1080,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Dieselový kamion</string>
     <string name="engine_preset_sampled_motorcycle">Malá krosová motorka</string>
     <string name="engine_preset_sampled_city_car">Městské auto</string>
-    <string name="engine_preset_sampled_helicopter">Vrtulník</string>
     <string name="engine_preset_sampled_tractor">Traktor</string>
     <string name="engine_preset_sampled_lawnmower">Sekačka na trávu</string>
     <string name="engine_preset_sampled_steam_loco">Parní lokomotiva</string>
-    <string name="engine_preset_sampled_car_cruise">Auto na volné jízdě</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
     <string name="engine_preset_sampled_big_diesel">Velký diesel</string>
     <string name="engine_preset_sampled_broken_exhaust">Prasklý výfuk</string>
@@ -1287,7 +1273,6 @@
     <string name="trip_meter_tab_speed">Rychlost</string>
     <string name="trip_meter_tab_battery">Baterie</string>
     <string name="trip_meter_tab_time">Čas</string>
-    <string name="trip_meter_total">Celkem</string>
     <string name="trip_meter_active">Aktivní</string>
     <string name="trip_meter_avg">Prům</string>
     <string name="trip_meter_reset">Vynulovat počítadlo jízdy</string>
@@ -1441,8 +1426,6 @@
     <string name="trip_split_reason_wheel">Převzalo jiné monokolo</string>
     <string name="trip_split_reason_gap">Mezera v nahrávání</string>
     <string name="trip_split_reason_stopped">Dlouho zastaveno</string>
-    <string name="trip_tools_combine">Spojit jízdy</string>
-    <string name="trip_tools_combine_desc">Sloučí ostatní jízdy do této jako novou jízdu, původní zůstanou zachovány.</string>
     <string name="trip_tools_combine_none">Žádné další dokončené jízdy ke spojení.</string>
     <string name="trip_tools_combine_mixed_wheels">Některé z nich byly jety na jiném monokole. Vzdálenost a energie budou sečteny.</string>
     <string name="trip_tools_combine_done">Jízdy spojeny do nové</string>
@@ -1478,12 +1461,10 @@
     <string name="auto_lights_when">Řídit se sluncem když</string>
     <string name="auto_lights_off_slow">Zhasnout světlo při zpomalení</string>
     <string name="auto_lights_off_below">Zhasnout pod</string>
-    <string name="auto_lights_desc">Zapne nebo vypne světlomety podle západu a východu slunce.</string>
     <string name="auto_lights_on_before_sunset">Rozsvítit před</string>
     <string name="auto_lights_off_after_sunrise">Zhasnout po</string>
     <string name="auto_waiting_gps">Čekám na polohu GPS…</string>
     <string name="auto_volume_title">Ovládání hlasitosti</string>
-    <string name="auto_volume_desc">Zesílí hudbu podle rychlosti.</string>
     <string name="auto_volume_when">Zvýšit hlasitost když</string>
     <string name="media_rate_when">Měnit rychlost přehrávání když</string>
     <string name="media_rate_permission_desc">Android o to žádá zvlášť. Bez toho nelze měnit rychlost přehrávání.</string>
@@ -1493,14 +1474,12 @@
     <string name="media_rate_grant">Udělit</string>
     <string name="warnings_media_access_title">Přístup k oznámením je vypnutý</string>
     <string name="warnings_media_access_body">Bez něj nemůže rychlost přehrávání sledovat vaši rychlost. Klepnutím povolíte.</string>
-    <string name="media_control_desc">Pozastaví hudbu, když zpomalíte, a obnoví ji, když zrychlíte.</string>
     <string name="media_control_pause">Pozastavit, když zpomalím</string>
     <string name="media_control_pause_below">Pozastavit při nebo pod</string>
     <string name="media_control_resume">Obnovit, když zrychlím</string>
     <string name="media_control_resume_above">Obnovit při nebo nad</string>
     <string name="automation_require_external">Jen na sluchátkách nebo Bluetooth</string>
     <string name="proximity_lock_title">Zámek monokola</string>
-    <string name="proximity_lock_desc">Zamkne monokolo, když se vzdálíte, a odemkne je, když se vrátíte, podle síly signálu Bluetooth.</string>
     <string name="proximity_lock_enable">Zamknout, když se vzdálím</string>
     <string name="proximity_lock_below">Signál pod</string>
     <string name="proximity_unlock_when">Odemknout automaticky</string>
@@ -1614,9 +1593,6 @@
     <string name="alarm_predict_help_lead">Upozorní asi %1$s s před %2$s, podle nedávného trendu.</string>
     <string name="alarm_predict_label">Prediktivní spuštění</string>
     <string name="alarm_predict_realtime">Teď</string>
-    <string name="about_crash_logs">Záznamy o pádech</string>
-    <string name="about_crash_logs_empty">Žádné zaznamenané pády</string>
-    <string name="about_share_crash">Sdílet záznam o pádu</string>
     <string name="about_thanks">Poděkování</string>
     <string name="about_thanks_body">Omrzely mě aplikace pro monokola, které se vyvíjejí příliš pomalu, vypadají zastarale, mají drakonická pravidla kolem nových funkcí, chovají se ke komunitě jako k zákazníkům a zapomínají, že jezdci na monokolech jsou nejlepší, když si navzájem pomáhají. Tato se snaží být opakem.</string>
     <string name="about_license">Licence</string>
@@ -1627,7 +1603,6 @@
     <string name="service_mode_link">Více informací na eucplanet.ried.no/service.</string>
     <string name="service_mode_enter">Vstoupit</string>
     <string name="toast_external_speed_change">Rychlost aktualizována z monokola: %1$d km/h tiltback, %2$d km/h alarm</string>
-    <string name="wheel_no_data_reconnecting">Žádná data z monokola. Připojuji znovu…</string>
     <string name="wheel_no_data_reset">Z monokola stále nejdou data. Zkuste je vypnout a zapnout.</string>
     <string name="trip_map_ride_start">Začátek jízdy: %1$s</string>
     <string name="trip_map_reconnected">Znovu připojeno: %1$s</string>
@@ -1669,11 +1644,8 @@
     <string name="online_upload_total_km">%1$s %2$s</string>
     <string name="online_upload_join">Připojit se k žebříčku</string>
     <string name="online_status_shared">Sdíleno v žebříčku</string>
-    <string name="online_status_flagged">Sdíleno, prochází kontrolou</string>
     <string name="online_status_pending">Nahrávám do žebříčku…</string>
     <string name="online_status_failed">Online nahrání selhalo, klepnutím to zkusíte znovu</string>
-    <string name="online_status_checking">Ověřuji u žebříčku…</string>
-    <string name="online_status_check_failed">Teď se nepodařilo ověřit, zkuste to později</string>
     <string name="online_status_rejected">Nepřijato do žebříčku</string>
     <string name="online_upload_join_caption">Připojte se a posílejte své statistiky a jízdy do veřejného žebříčku na.</string>
     <string name="online_upload_linked_caption">Vaše statistiky a jízdy se objevují ve veřejném žebříčku na.</string>
@@ -1693,7 +1665,6 @@
     <string name="online_profile_delete_confirm_action">Trvale smazat</string>
     <string name="online_profile_save_rate_limited">Omezeno kvůli četnosti, zkuste to později.</string>
     <string name="online_profile_save_failed">Uložení selhalo (HTTP %1$d). Zkuste to znovu.</string>
-    <string name="online_status_flagged_why">Pozdrženo kvůli rychlé automatické kontrole. Do žebříčku se zapojí, jakmile projde.</string>
     <string name="online_restore_title">Byl nalezen uložený profil</string>
     <string name="online_restore_body_new">Našli jsme zde uložený profil: %1$s. Pokračováním se znovu připojíte k veřejnému žebříčku jako tento jezdec, jeho jméno, vlajka, avatar a statistiky jízd jsou veřejné. Nevytvoří se nový profil.</string>
     <string name="online_restore_body_switch">Našli jsme jiný uložený profil: %1$s. Pokračováním přepnete tento telefon na tohoto jezdce; váš současný profil se nejprve zálohuje.</string>
@@ -1828,8 +1799,6 @@
     <string name="studio_video_fit">Přizpůsobit</string>
     <string name="studio_video_fit_stretch">Roztáhnout</string>
     <string name="studio_video_offset">Posun</string>
-    <string name="studio_video_offset_value_fmt">%1$d ms</string>
-    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
     <string name="studio_video_set_offset">Aktuální</string>
     <string name="studio_video_edge">Mimo rozsah</string>
     <string name="studio_video_edge_freeze">Zmrazit</string>
@@ -1890,9 +1859,6 @@
     <string name="studio_cfg_time_window_fmt">%1$ds</string>
     <string name="studio_cfg_trail_label">Délka stopy</string>
     <string name="studio_cfg_map_style">Styl mapy</string>
-    <string name="studio_cfg_map_street">Ulice</string>
-    <string name="studio_cfg_map_dark">Tmavá</string>
-    <string name="studio_cfg_map_satellite">Satelitní</string>
     <string name="studio_cfg_map_zoom">Přiblížení</string>
     <string name="studio_cfg_map_attribution">Zobrazit autorství mapy</string>
     <string name="studio_cfg_map_attribution_off">Licence mapy vyžaduje toto autorství u všeho, co sdílíte. Vypnutí je na vás.</string>
@@ -2049,7 +2015,6 @@
     <string name="trip_action_inspect_online">Prozkoumat online</string>
     <string name="trip_action_inspect_online_desc">Sdílet odkaz eucviewer.ried.no pro zobrazení této jízdy online.</string>
     <string name="trip_action_dropbox_disabled">Pro zapnutí propojte Dropbox v nastavení</string>
-    <string name="nav_tap_on_self">V seznamu Zastávky dlouze stiskněte zastávku, ať ji nastavíte na svou polohu</string>
     <string name="nav_start_short">Spustit navigaci</string>
     <string name="nav_start_btn">Start</string>
     <string name="nav_stop_short">Ukončit navigaci</string>
@@ -2134,8 +2099,6 @@
     <string name="share_alone">Zatím tu není nikdo jiný.</string>
     <string name="share_open">Otevřít</string>
     <string name="share_copy">Kopírovat</string>
-    <string name="share_menu_join">Připojit se k jízdě</string>
-    <string name="share_menu_join_desc">Naskenovat QR kód.</string>
     <string name="share_menu_live">Sdílet polohu živě</string>
     <string name="share_menu_live_desc">Začít skupinovou jízdu.</string>
     <string name="share_menu_static">Poslat polohu</string>
@@ -2206,7 +2169,6 @@
     <string name="nav_setting_arrival_radius_desc">Jak blízko se počítá za dosažení zastávky.</string>
     <string name="nav_setting_offroute">Tolerance mimo trasu</string>
     <string name="nav_setting_offroute_desc">Jak daleko od trasy, než se spustí upozornění na opuštění trasy.</string>
-    <string name="nav_setting_default_mode">Výchozí způsob cesty</string>
     <string name="nav_setting_params">Navigace a počasí</string>
     <string name="weather_section">Počasí</string>
     <string name="weather_icon_desc">Předpověď počasí</string>
@@ -2227,7 +2189,6 @@
     <string name="weather_enable_desc">Přidá ikonu počasí nad tlačítko mapy: klepnutím zobrazíte předpověď pro jízdu.</string>
     <string name="weather_window_label">Okno předpovědi</string>
     <string name="weather_source_label">Zdroj předpovědi</string>
-    <string name="weather_comfort_desc">Prahy komfortu pro skóre. Teplota dle vašich jednotek; vítr dle jednotky rychlosti.</string>
     <string name="weather_cold">Příliš chladno pod</string>
     <string name="weather_hot">Příliš horko nad</string>
     <string name="weather_breezy">Větrno nad</string>
@@ -2254,7 +2215,6 @@
     <string name="weather_lvl_prime_2">Ideální den na jízdu!</string>
     <string name="weather_expand">Podrobnosti</string>
     <string name="weather_chart_temp">Teplota, vlhkost a srážky</string>
-    <string name="weather_chart_precip">Srážky</string>
     <string name="weather_chart_wind">Vítr a nárazy</string>
     <string name="weather_adv_snow_now">Sněží, přilnavost je pryč.</string>
     <string name="weather_adv_snow_in">Sníh se čeká za %1$s.</string>
@@ -2470,7 +2430,6 @@
     <string name="trip_tools_rename">Přejmenovat jízdu</string>
     <string name="trip_tools_rename_desc">Pojmenujte tuto jízdu. Uloží se do jejího souboru, takže putuje s exporty i synchronizací.</string>
     <string name="trip_tools_rename_hint">Nechte prázdné pro datum.</string>
-    <string name="trip_tools_renamed">Jízda přejmenována</string>
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="trip_tools_archived">Archivováno: %1$d</string>
     <string name="trip_tools_archive_failed">Některé jízdy se nepodařilo archivovat a zůstávají tady</string>
@@ -2579,7 +2538,6 @@
     <string name="action_reset_metrics_wheel_done">Metriky vynulovány, denní počítadlo monokola smazáno</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
     <string name="tpms_waiting">Čeká se na data</string>
-    <string name="status_live">Živě</string>
     <string name="status_idle">Nečinné</string>
     <string name="tpms_state_leaking">Uniká vzduch</string>
     <string name="tpms_state_inflating">Hustí se</string>
@@ -2600,7 +2558,6 @@
     <string name="horn_mode_sound">Vlastní</string>
     <string name="horn_mode_both">Mix</string>
     <string name="horn_mode_hint">Vlastní přehraje váš zvuk v telefonu. Mix ho přidá ke klaksonu monokola, pro externí reproduktor. Když ho telefon nemůže přehrát, zazní klakson monokola.</string>
-    <string name="horn_sound_none">Není vybrán žádný zvuk</string>
     <string name="horn_sound_current">Zvuk: %1$s</string>
     <string name="horn_sound_choose">Vybrat zvuk</string>
     <string name="horn_sound_imported">Zvuk klaksonu uložen</string>
@@ -2616,7 +2573,6 @@
     <string name="voice_stat_min">Min</string>
     <string name="voice_stat_avg">Prům</string>
     <string name="voice_stat_peak">Špička</string>
-    <string name="crews_title">Crews</string>
     <string name="crews_pass_action">Průkaz crew</string>
     <string name="crews_pass_search_hint">Průkaz crew se zobrazí, až se připojíte k online žebříčkům.</string>
     <string name="crews_scan_hint">Otevřete eucstats v prohlížeči, klepněte na Crews a namiřte telefon na kód, který se objeví.</string>
@@ -2724,7 +2680,6 @@
     <string name="nav_unlock_stops">Zastávky</string>
     <string name="nav_unlock_off">Odchyluje se až o %1$s od trasy</string>
     <string name="nav_unlock_confirm">Převést</string>
-    <string name="nav_track_badge">Zamčená trasa</string>
     <string name="voice_nav_place_reached">%1$s dosaženo</string>
     <string name="offline_data_open">Offline oblasti</string>
     <string name="offline_server_url">Server offline dat</string>

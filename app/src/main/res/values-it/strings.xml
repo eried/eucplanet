@@ -5,7 +5,6 @@
     <string name="notification_channel_description">Mostra lo stato della connessione e la telemetria della ruota.</string>
 
     <!-- Notification quick actions -->
-    <string name="notif_actions_section">Personalizza</string>
     <string name="notif_actions_enable">Mostra azioni della notifica</string>
     <string name="notif_actions_enable_desc">Aggiungi pulsanti di azione rapida alla notifica attiva.</string>
     <string name="notif_actions_pick_desc">Scegli fino a %1$d azioni. La stessa azione può ripetersi.</string>
@@ -39,9 +38,6 @@
     <string name="state_off">Off</string>
     <string name="action_done">Fatto</string>
     <string name="action_close">Chiudi</string>
-<string name="crash_log_action_prompt">Hai tenuto premuto %1$s. Elimina solo questo log, o tutti. Per condividerlo, tocca Annulla e poi tocca il file.</string>
-    <string name="crash_log_delete_all">Elimina tutto</string>
-    <string name="crash_log_delete_all_warning">Eliminare tutti i log dei crash salvati? Questa operazione non può essere annullata.</string>
     <string name="action_save">Salva</string>
     <string name="action_delete">Elimina</string>
     <string name="action_test">Prova</string>
@@ -184,7 +180,6 @@
     <string name="watch_button_hold_label">Tieni</string>
 
     <!-- Settings: Backup -->
-    <string name="section_cloud_folder">Cartella di backup</string>
     <string name="cloud_caption">Cartella dove finiscono i CSV dei viaggi e il backup delle impostazioni.</string>
     <string name="cloud_choose_folder">Scegli cartella</string>
     <string name="cloud_change_folder">Cambia cartella</string>
@@ -205,7 +200,6 @@
     <string name="section_cloud_trips">Backup dei viaggi</string>
     <string name="cloud_trips_caption">I viaggi restano su questo telefono e si sincronizzano da soli nella tua cartella dei backup. Cancellare elimina i viaggi dentro l\'app, non quelli nella cartella dei backup.</string>
     <string name="cloud_retry_now">Sincr. tutto</string>
-    <string name="cloud_retry_enqueued">Caricamento programmato</string>
     <string name="sync_progress">Sincronizzazione %1$d di %2$d</string>
     <string name="sync_no_folder">Scegli prima una cartella di backup</string>
     <string name="sync_rate_limited">Dropbox sta limitando questo account. Viaggi sincronizzati: %1$d su %2$d, il resto verrà riprovato.</string>
@@ -239,15 +233,11 @@
     <string name="cloud_factory_confirm_body_p1">Ripristina tutte le impostazioni dell\'app ai valori predefiniti.</string>
     <string name="cloud_factory_confirm_body_p2">I tuoi dispositivi accoppiati e i backup salvati vengono mantenuti. L\'azione non può essere annullata.</string>
     <string name="cloud_factory_confirm_action">Ripristina</string>
-    <string name="cloud_restore_picker_empty">Nessun backup trovato nella cartella</string>
 
     <!-- Settings: General -->
     <string name="section_recording">Registrazione</string>
     <string name="section_connection">Connessione</string>
-    <string name="section_display">Schermo</string>
-    <string name="auto_record_on_start">Registra automaticamente all\'avvio</string>
     <string name="auto_record_caption">Registra un viaggio quando la ruota è connessa.</string>
-    <string name="auto_record_start_in_motion">Avvia registrazione in movimento</string>
     <string name="auto_record_start_in_motion_caption">Parte al movimento, si ferma dopo inattività, riparte al prossimo giro.</string>
     <string name="auto_record_stop_idle_seconds">Ferma dopo inattività di</string>
     <string name="auto_connect_on_start">Connessione automatica all\'avvio</string>
@@ -584,12 +574,10 @@
     <string name="auto_lights_when">Segui il sole quando</string>
     <string name="auto_lights_off_slow">Spegni il faro quando rallenti</string>
     <string name="auto_lights_off_below">Spento sotto</string>
-    <string name="auto_lights_desc">Accende o spegne il faro in base al tramonto e all\'alba.</string>
     <string name="auto_lights_on_before_sunset">Luce ON prima</string>
     <string name="auto_lights_off_after_sunrise">Luce OFF dopo</string>
     <string name="auto_waiting_gps">In attesa della posizione GPS…</string>
     <string name="auto_volume_title">Controllo volume</string>
-    <string name="auto_volume_desc">Aumenta il volume della musica in base alla velocità.</string>
     <string name="auto_volume_when">Alza il volume quando</string>
     <string name="media_rate_when">Cambia la velocità quando</string>
     <string name="media_rate_permission_desc">Android la chiede a parte. Senza, la velocità di riproduzione non può essere cambiata.</string>
@@ -599,14 +587,12 @@
     <string name="media_rate_grant">Consenti</string>
     <string name="warnings_media_access_title">Accesso alle notifiche disattivato</string>
     <string name="warnings_media_access_body">Senza, la velocità di riproduzione non può seguire la tua andatura. Tocca per consentire.</string>
-    <string name="media_control_desc">Mette in pausa la musica quando rallenti e la riprende quando acceleri.</string>
     <string name="media_control_pause">Pausa quando rallento</string>
     <string name="media_control_pause_below">Pausa a questa velocità o sotto</string>
     <string name="media_control_resume">Riprendi quando accelero</string>
     <string name="media_control_resume_above">Riprendi a questa velocità o sopra</string>
     <string name="automation_require_external">Solo con cuffie o Bluetooth</string>
     <string name="proximity_lock_title">Blocco della ruota</string>
-    <string name="proximity_lock_desc">Blocca la ruota quando ti allontani e la sblocca al tuo ritorno, in base alla potenza del segnale Bluetooth.</string>
     <string name="proximity_lock_enable">Blocca se mi allontano</string>
     <string name="proximity_lock_below">Segnale sotto</string>
     <string name="proximity_unlock_when">Sblocca automaticamente</string>
@@ -712,9 +698,6 @@
     <string name="alarm_predict_help_lead">Avvisa circa %1$s s in anticipo, quando %2$s, in base alla tendenza recente.</string>
 
     <!-- About / crash logs -->
-    <string name="about_crash_logs">Log dei crash</string>
-    <string name="about_crash_logs_empty">Nessun crash registrato</string>
-    <string name="about_share_crash">Condividi log del crash</string>
     <string name="about_thanks">Crediti</string>
     <string name="about_thanks_body">Mi sono stancato delle app per EUC che evolvono troppo lentamente, sembrano datate, hanno regole draconiane sulle nuove funzioni, trattano le proprie comunità come clienti e dimenticano che i rider EUC danno il meglio quando si aiutano a vicenda. Questa cerca di essere l\'opposto.</string>
     <string name="toast_external_speed_change">Velocità aggiornata dalla ruota: tiltback %1$d km/h, allarme %2$d km/h</string>
@@ -774,12 +757,10 @@
     <string name="engine_preset_sampled_diesel_iveco">Camion diesel</string>
     <string name="engine_preset_sampled_motorcycle">Piccola moto da cross</string>
     <string name="engine_preset_sampled_city_car">Citycar</string>
-    <string name="engine_preset_sampled_helicopter">Elicottero</string>
     <string name="engine_preset_sampled_tractor">Trattore</string>
     <string name="engine_preset_sampled_lawnmower">Tagliaerba</string>
     <string name="engine_preset_sampled_steam_loco">Locomotiva a vapore</string>
     <string name="engine_preset_sampled_big_diesel">Grosso diesel</string>
-    <string name="engine_preset_sampled_car_cruise">Auto in viaggio</string>
     <string name="engine_preset_sampled_broken_exhaust">Marmitta rotta</string>
     <string name="engine_preset_sampled_quad_atv">Quad</string>
 
@@ -881,8 +862,6 @@
     <string name="share_alone">Per ora non c\'è nessun altro qui.</string>
     <string name="share_open">Apri</string>
     <string name="share_copy">Copia</string>
-    <string name="share_menu_join">Unisciti al gruppo</string>
-    <string name="share_menu_join_desc">Scansiona un QR.</string>
     <string name="share_menu_live">Condividi posizione live</string>
     <string name="share_menu_live_desc">Avvia un giro di gruppo.</string>
     <string name="share_menu_static">Invia la posizione</string>
@@ -958,7 +937,6 @@
     <string name="nav_self_add_stop">Aggiungi come tappa</string>
     <string name="nav_setting_arrival_radius">Raggio di arrivo</string>
     <string name="nav_setting_arrival_radius_desc">A che distanza una tappa conta come raggiunta.</string>
-    <string name="nav_setting_default_mode">Modalità di viaggio predefinita</string>
     <string name="nav_setting_endpoints">Servizi di routing</string>
     <string name="nav_setting_endpoints_hint">OpenStreetMap pubblico di default; modifica per usare il tuo server. Valhalla calcola i percorsi in bici e con esclusioni, OSRM a piedi e in auto.</string>
     <string name="nav_setting_geocoder_url">URL ricerca indirizzi</string>
@@ -984,7 +962,6 @@
     <string name="weather_enable_desc">Aggiunge un\'icona meteo sopra il pulsante mappa: toccala per la previsione di guidabilità.</string>
     <string name="weather_window_label">Finestra di previsione</string>
     <string name="weather_source_label">Fonte delle previsioni</string>
-    <string name="weather_comfort_desc">Soglie di comfort per il punteggio. La temperatura segue le tue unità; il vento, l’unità di velocità.</string>
     <string name="weather_cold">Troppo freddo sotto</string>
     <string name="weather_hot">Troppo caldo sopra</string>
     <string name="weather_breezy">Ventilato oltre</string>
@@ -1011,7 +988,6 @@
     <string name="weather_lvl_prime_2">Giornata da sogno!</string>
     <string name="weather_expand">Dettagli</string>
     <string name="weather_chart_temp">Temp., umidità e precip.</string>
-    <string name="weather_chart_precip">Precipitazioni</string>
     <string name="weather_chart_wind">Vento e raffiche</string>
     <string name="weather_adv_snow_now">Nevica, aderenza azzerata.</string>
     <string name="weather_adv_snow_in">Neve attesa tra %1$s.</string>
@@ -1055,7 +1031,6 @@
     <string name="nav_start_short">Avvia navigazione</string>
     <string name="nav_stop_short">Ferma navigazione</string>
     <string name="nav_stops_left">Tappe rimaste: %1$d</string>
-    <string name="nav_tap_on_self">Nell\'elenco Tappe, tieni premuta una tappa per spostarla sulla tua posizione</string>
     <string name="nav_title">Creatore di percorsi</string>
     <string name="nav_too_far_to_start">Troppo lontano dalla prima tappa. Tieni premuto Avvia per partire comunque.</string>
     <string name="nav_turn_left">Gira a sinistra</string>
@@ -1227,7 +1202,6 @@
     <string name="trip_meter_tab_speed">Velocità</string>
     <string name="trip_meter_tab_battery">Batteria</string>
     <string name="trip_meter_tab_time">Tempo</string>
-    <string name="trip_meter_total">Totale</string>
     <string name="trip_meter_active">Attivo</string>
     <string name="trip_meter_avg">Media</string>
     <string name="trip_meter_reset">Azzera contachilometri parziale</string>
@@ -1304,9 +1278,6 @@
     <string name="studio_element_map">Mappa</string>
     <string name="studio_hint_map">Una mini-mappa dal vivo con il tuo percorso</string>
     <string name="studio_cfg_map_style">Stile mappa</string>
-    <string name="studio_cfg_map_street">Stradale</string>
-    <string name="studio_cfg_map_dark">Scuro</string>
-    <string name="studio_cfg_map_satellite">Satellite</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
     <string name="studio_cfg_map_attribution">Mostra crediti mappa</string>
     <string name="studio_cfg_map_attribution_off">La licenza della mappa richiede questo credito su tutto ciò che condividi. Toglierlo è una tua scelta.</string>
@@ -1526,7 +1497,6 @@
     <string name="voice_answer_mic_busy">Il microfono è già in uso.</string>
     <string name="voice_answer_which">Intendevi %1$s o %2$s?</string>
     <string name="dashboard_close">Chiudi</string>
-    <string name="dashboard_columns">Colonne</string>
     <string name="dashboard_composite_blank_label">(vuota)</string>
     <string name="dashboard_composite_cell_label">Cella %1$d</string>
     <string name="dashboard_composite_empty_label">(libera)</string>
@@ -1556,7 +1526,6 @@
     <string name="dashboard_pool_metrics">Metriche disponibili</string>
     <string name="dashboard_pool_tap_toast">Tieni premuto e trascina in uno slot sopra per usarlo</string>
     <string name="dashboard_restore_slot">Ripristina slot</string>
-    <string name="dashboard_rolling_window">Finestra statistiche</string>
     <string name="dashboard_rolling_window_10m">10 min</string>
     <string name="dashboard_rolling_window_15m">15 min</string>
     <string name="dashboard_rolling_window_1h">1 ora</string>
@@ -1897,11 +1866,8 @@
     <string name="online_upload_total_km">%1$s %2$s</string>
     <string name="online_upload_join">Entra in classifica</string>
     <string name="online_status_shared">Pubblicato in classifica</string>
-    <string name="online_status_flagged">Pubblicato, in revisione</string>
     <string name="online_status_pending">Caricamento in classifica…</string>
     <string name="online_status_failed">Caricamento non riuscito, tocca per riprovare</string>
-    <string name="online_status_checking">Verifica con la classifica…</string>
-    <string name="online_status_check_failed">Impossibile verificare ora, riprova più tardi</string>
     <string name="online_status_rejected">Non accettato per la classifica</string>
     <string name="online_upload_join_caption">Iscriviti per inviare statistiche e viaggi alla classifica pubblica su.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
@@ -1923,7 +1889,6 @@
     <string name="online_profile_save_rate_limited">Troppe richieste, riprova più tardi.</string>
     <string name="online_profile_save_failed">Salvataggio non riuscito (HTTP %1$d). Riprova.</string>
 
-    <string name="online_status_flagged_why">In attesa di un breve controllo automatico. Apparirà in classifica non appena superato.</string>
     <string name="online_restore_title">Ripristinare il profilo rider?</string>
     <string name="online_restore_body_new">Questa cartella contiene un profilo salvato per %1$s. Ripristinalo per mantenere la tua identità in classifica e le tue statistiche.</string>
     <string name="online_restore_body_switch">Questa cartella appartiene a %1$s. Il ripristino passa questo telefono a quel rider. Il tuo profilo attuale viene salvato come backup prima, così puoi tornare indietro.</string>
@@ -2437,8 +2402,6 @@
     <string name="trip_split_reason_wheel">Subentrata un\'altra ruota</string>
     <string name="trip_split_reason_gap">Buco nella registrazione</string>
     <string name="trip_split_reason_stopped">Fermo a lungo</string>
-    <string name="trip_tools_combine">Unisci viaggi</string>
-    <string name="trip_tools_combine_desc">Unisce altri viaggi in questo come nuovo, mantenendo gli originali.</string>
     <string name="trip_tools_combine_none">Nessun altro viaggio concluso da unire.</string>
     <string name="trip_tools_combine_mixed_wheels">Alcuni sono stati fatti con un\'altra ruota. Distanza ed energia verranno sommate.</string>
     <string name="trip_tools_wheel_changed">Ruota impostata su %1$s</string>
@@ -2545,8 +2508,6 @@
     <string name="studio_video_fit">Adatta</string>
     <string name="studio_video_fit_stretch">Allunga</string>
     <string name="studio_video_offset">Sfasamento</string>
-    <string name="studio_video_offset_value_fmt">%1$d ms</string>
-    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
     <string name="studio_video_set_offset">Attuale</string>
     <string name="studio_video_no_media">Nessun contenuto</string>
     <string name="studio_replay_cd_move">Sposta pannello</string>
@@ -2554,7 +2515,6 @@
     <string name="studio_video_edge_freeze">Blocca</string>
     <string name="studio_video_edge_loop">Ciclo</string>
     <string name="studio_video_edge_black">Nero</string>
-    <string name="wheel_no_data_reconnecting">Nessun dato dalla ruota. Riconnessione…</string>
     <string name="wheel_no_data_reset">Ancora nessun dato dalla ruota. Prova a spegnerla e riaccenderla.</string>
     <string name="trip_map_ride_start">Inizio del giro: %1$s</string>
     <string name="trip_map_reconnected">Riconnesso: %1$s</string>
@@ -2572,7 +2532,6 @@
     <string name="trip_tools_rename">Rinomina viaggio</string>
     <string name="trip_tools_rename_desc">Dai un nome a questo viaggio. È salvato nel suo file, quindi resta anche in esportazioni e sincronizzazione.</string>
     <string name="trip_tools_rename_hint">Lascia vuoto per usare la data.</string>
-    <string name="trip_tools_renamed">Viaggio rinominato</string>
     <string name="trip_tools_archived">Archiviate: %1$d</string>
     <string name="trip_tools_archive_failed">Alcuni viaggi non sono stati archiviati e sono ancora qui</string>
     <string name="recording_delete_archive">Archivia le copie di backup</string>
@@ -2680,7 +2639,6 @@
     <string name="action_reset_metrics_wheel_done">Metriche azzerate, parziale della ruota cancellato</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
     <string name="tpms_waiting">In attesa di dati</string>
-    <string name="status_live">Live</string>
     <string name="status_idle">Inattivo</string>
     <string name="tpms_state_leaking">Perde aria</string>
     <string name="tpms_state_inflating">In gonfiaggio</string>
@@ -2701,7 +2659,6 @@
     <string name="horn_mode_sound">Personale</string>
     <string name="horn_mode_both">Mix</string>
     <string name="horn_mode_hint">Personale riproduce il tuo suono sul telefono. Mix lo aggiunge al clacson della ruota, per una cassa esterna. Se il telefono non può riprodurlo, suona il clacson della ruota.</string>
-    <string name="horn_sound_none">Nessun suono scelto</string>
     <string name="horn_sound_current">Suono: %1$s</string>
     <string name="horn_sound_choose">Scegli suono</string>
     <string name="horn_sound_imported">Suono del clacson salvato</string>
@@ -2717,7 +2674,6 @@
     <string name="voice_stat_min">Min</string>
     <string name="voice_stat_avg">Media</string>
     <string name="voice_stat_peak">Picco</string>
-    <string name="crews_title">Squadre</string>
     <string name="crews_pass_action">Pass squadra</string>
     <string name="crews_pass_search_hint">Il pass squadra compare quando ti unisci alle classifiche online.</string>
     <string name="crews_scan_hint">Apri eucstats nel browser, tocca Crews e punta questo sul codice che compare.</string>
@@ -2824,7 +2780,6 @@
     <string name="nav_unlock_stops">Tappe</string>
     <string name="nav_unlock_off">Si discosta fino a %1$s dalla traccia</string>
     <string name="nav_unlock_confirm">Converti</string>
-    <string name="nav_track_badge">Traccia bloccata</string>
     <string name="voice_nav_place_reached">%1$s raggiunto</string>
     <string name="offline_data_open">Aree offline</string>
     <string name="offline_server_url">Server dei dati offline</string>

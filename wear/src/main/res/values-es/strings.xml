@@ -1,16 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">EUC Planet</string>
-    <string name="watch_waiting_phone">Abre EUC Planet\nen tu móvil</string>
-    <string name="watch_waiting_wheel">Conecta una rueda\nen EUC Planet</string>
     <string name="watch_disconnected">Desconectada</string>
-    <string name="watch_horn">Bocina</string>
-    <string name="watch_light">Luz</string>
     <string name="watch_speed_unit">km/h</string>
     <string name="watch_speed_unit_mph">mph</string>
     <string name="watch_speed_unit_ms" translatable="false">m/s</string>
     <string name="watch_speed_unit_kn" translatable="false">kn</string>
-    <string name="watch_battery_label">Batería</string>
     <string name="watch_voltage_label">Voltaje</string>
     <string name="watch_current_label">Corriente</string>
     <string name="watch_pwm_label">PWM</string>
@@ -19,10 +14,6 @@
     <string name="watch_temp_label">Temp</string>
     <string name="watch_trip_label">Viaje</string>
     <string name="watch_torque_label">Par</string>
-    <string name="watch_action_failed">Sin conexión al móvil</string>
-    <string name="watch_gps_label">GPS</string>
-    <string name="watch_gps_permission">Toca para permitir el GPS</string>
-    <string name="watch_gps_waiting">Esperando señal…</string>
 
     <!-- Labels for hold-action triggers, shown in the watch's transient pill. Short so they fit. -->
     <string name="watch_action_horn">Bocina</string>

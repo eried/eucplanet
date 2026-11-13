@@ -7,7 +7,6 @@
     <!-- Notification quick actions -->
     <string name="keep_app_alive">Keep app running</string>
     <string name="keep_app_alive_desc">Keeps an ongoing notification so the app stays alive in the background. Trip sync and voice keep working even with no wheel connected. Uses a little more battery.</string>
-    <string name="notif_actions_section">Customize</string>
     <string name="notif_actions_enable">Show notification actions</string>
     <string name="notif_actions_enable_desc">Add quick action buttons to the ongoing notification.</string>
     <string name="notif_actions_pick_desc">Pick up to %1$d actions. The same action can repeat.</string>
@@ -41,9 +40,6 @@
     <string name="state_off">Off</string>
     <string name="action_done">Done</string>
     <string name="action_close">Close</string>
-<string name="crash_log_action_prompt">You long-pressed %1$s. Delete just this log, or delete all. To share it instead, tap Cancel and then tap the file.</string>
-    <string name="crash_log_delete_all">Delete all</string>
-    <string name="crash_log_delete_all_warning">Delete every saved crash log? This cannot be undone.</string>
     <string name="action_save">Save</string>
     <string name="action_apply">Apply</string>
     <string name="action_reset">Reset</string>
@@ -139,12 +135,10 @@
     <string name="tab_dashboard">Dashboard layout</string>
     <string name="dashboard_section_metrics">Metrics</string>
     <string name="dashboard_section_actions">Action buttons</string>
-    <string name="dashboard_columns">Columns</string>
     <string name="dashboard_grid_hint">Long-press to drag, tap to edit.</string>
     <string name="dashboard_pool_metrics">Available metrics</string>
     <string name="dashboard_pool_actions">Available actions</string>
     <string name="dashboard_pool_tap_toast">Long-press and drag onto a slot above to use</string>
-    <string name="dashboard_rolling_window">Rolling stats window</string>
     <string name="dashboard_stats_length">Stats length</string>
     <string name="dashboard_view">View</string>
     <string name="dashboard_view_default">Default</string>
@@ -823,7 +817,6 @@
     <string name="watch_haptic_on_action_desc">Brief watch vibration on each press, where supported.</string>
 
     <!-- Settings: Backup -->
-    <string name="section_cloud_folder">Backup folder</string>
     <string name="cloud_caption">Your backup folder for trips, settings, themes and overlays.</string>
     <string name="cloud_choose_folder">Choose folder</string>
     <string name="cloud_change_folder">Change folder</string>
@@ -847,7 +840,6 @@
     <string name="cloud_reset_local">Clear local trips</string>
     <string name="cloud_reset_local_title">Clear local trips?</string>
     <string name="cloud_reset_local_body">Removes every trip saved on this phone. Your backup folder is untouched, so synced trips can be restored from there.</string>
-    <string name="cloud_retry_enqueued">Upload scheduled</string>
     <string name="action_retry">Retry</string>
     <string name="sync_progress">Synchronizing %1$d of %2$d</string>
     <string name="sync_no_folder">Pick a backup folder first</string>
@@ -881,7 +873,6 @@
     <string name="cloud_backup_replace_body_dated">The backup saved on %1$s will be overwritten with your current settings.</string>
     <string name="cloud_restore_picker_default">(user saved)</string>
     <string name="cloud_restore_picker_factory">(factory)</string>
-    <string name="cloud_restore_picker_empty">No backups found in the sync folder</string>
     <string name="cloud_factory_confirm_title">Reset to factory defaults?</string>
     <string name="cloud_factory_confirm_body_p1">Resets all app settings to their defaults.</string>
     <string name="cloud_factory_confirm_body_p2">Your paired devices and saved backups are kept. This can\'t be undone.</string>
@@ -890,10 +881,7 @@
     <!-- Settings: General -->
     <string name="section_recording">Recording</string>
     <string name="section_connection">Connection</string>
-    <string name="section_display">Display</string>
-    <string name="auto_record_on_start">Auto-record on start</string>
     <string name="auto_record_caption">Records a trip when the wheel is connected.</string>
-    <string name="auto_record_start_in_motion">Start recording when in motion</string>
     <string name="auto_record_start_in_motion_caption">Starts on movement, auto-stops after idle, restarts next ride.</string>
     <string name="auto_record_stop_idle_seconds">Stop after idle for</string>
     <string name="auto_record_mode_label">Auto-start trip recording</string>
@@ -1187,11 +1175,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Diesel truck</string>
     <string name="engine_preset_sampled_motorcycle">Small dirt bike</string>
     <string name="engine_preset_sampled_city_car">City car</string>
-    <string name="engine_preset_sampled_helicopter">Helicopter</string>
     <string name="engine_preset_sampled_tractor">Tractor</string>
     <string name="engine_preset_sampled_lawnmower">Lawn mower</string>
     <string name="engine_preset_sampled_steam_loco">Steam locomotive</string>
-    <string name="engine_preset_sampled_car_cruise">Car cruise</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
     <string name="engine_preset_sampled_big_diesel">Big diesel</string>
     <string name="engine_preset_sampled_broken_exhaust">Broken exhaust</string>
@@ -1415,7 +1401,6 @@
     <string name="trip_meter_tab_speed">Speed</string>
     <string name="trip_meter_tab_battery">Battery</string>
     <string name="trip_meter_tab_time">Time</string>
-    <string name="trip_meter_total">Total</string>
     <string name="trip_meter_active">Active</string>
     <string name="trip_meter_avg">Avg</string>
     <string name="trip_meter_reset">Reset trip meter</string>
@@ -1581,7 +1566,6 @@
     <string name="trip_tools_rename">Rename trip</string>
     <string name="trip_tools_rename_desc">Give this ride a name. Stored in its file, so it travels with exports and sync.</string>
     <string name="trip_tools_rename_hint">Leave blank to use the date.</string>
-    <string name="trip_tools_renamed">Trip renamed</string>
     <string name="trip_tools_change_wheel">Change wheel</string>
     <string name="trip_tools_change_wheel_desc">Correct which wheel this ride was on. Updates the trip and its file.</string>
     <string name="trip_tools_wheel_other">Another wheel</string>
@@ -1612,8 +1596,6 @@
     <string name="trip_split_reason_wheel">A different wheel took over</string>
     <string name="trip_split_reason_gap">Gap in the recording</string>
     <string name="trip_split_reason_stopped">Stopped for a long time</string>
-    <string name="trip_tools_combine">Combine trips</string>
-    <string name="trip_tools_combine_desc">Merge other rides into this one as a new trip, keeping the originals.</string>
     <string name="trip_tools_combine_none">No other finished trips to combine with.</string>
     <string name="trip_tools_combine_mixed_wheels">Some of these were ridden on a different wheel. Distance and energy will be combined.</string>
     <string name="trip_tools_combine_done">Trips combined into a new one</string>
@@ -1651,12 +1633,10 @@
     <string name="auto_lights_when">Follow sunset and sunrise when</string>
     <string name="auto_lights_off_slow">Turn the light off when slowing down</string>
     <string name="auto_lights_off_below">Off below</string>
-    <string name="auto_lights_desc">Turn on or off the headlights based on sunset and sunrise.</string>
     <string name="auto_lights_on_before_sunset">Light ON before</string>
     <string name="auto_lights_off_after_sunrise">Light OFF after</string>
     <string name="auto_waiting_gps">Waiting for GPS location\u2026</string>
     <string name="auto_volume_title">Volume control</string>
-    <string name="auto_volume_desc">Boost music volume based on speed.</string>
     <string name="auto_volume_when">Raise volume when</string>
     <string name="media_rate_when">Alter playback rate when</string>
     <string name="media_rate_permission_desc">Android asks for this separately. Without it the playback rate cannot be changed.</string>
@@ -1666,14 +1646,12 @@
     <string name="media_rate_grant">Grant</string>
     <string name="warnings_media_access_title">Notification access is off</string>
     <string name="warnings_media_access_body">Playback rate cannot follow your speed without it. Tap to allow.</string>
-    <string name="media_control_desc">Pause music when you slow down, resume it when you speed up.</string>
     <string name="media_control_pause">Pause when I slow down</string>
     <string name="media_control_pause_below">Pause at or below</string>
     <string name="media_control_resume">Resume when I speed up</string>
     <string name="media_control_resume_above">Resume at or above</string>
     <string name="automation_require_external">Only on headphones or Bluetooth</string>
     <string name="proximity_lock_title">Wheel lock</string>
-    <string name="proximity_lock_desc">Lock the wheel when you walk away and unlock it when you return, using the Bluetooth signal strength.</string>
     <string name="proximity_lock_enable">Lock when I walk away</string>
     <string name="proximity_lock_below">Signal below</string>
     <string name="proximity_unlock_when">Unlock automatically</string>
@@ -1800,10 +1778,7 @@
     <string name="alarm_predict_label">Predictive trigger</string>
     <string name="alarm_predict_realtime">Now</string>
 
-    <!-- About / crash logs -->
-    <string name="about_crash_logs">Crash logs</string>
-    <string name="about_crash_logs_empty">No crashes recorded</string>
-    <string name="about_share_crash">Share crash log</string>
+    <!-- About -->
     <string name="about_thanks">Credits</string>
     <string name="about_thanks_body">I got tired of EUC apps that evolve too slowly, look dated, have draconian rules around new features, treat their communities as customers, and forget that EUC riders are at their best when they help each other. This one tries to be the opposite.</string>
     <string name="about_license">License</string>
@@ -1815,7 +1790,6 @@
     <string name="service_mode_enter">Enter</string>
     <string name="toast_external_speed_change">Speed updated from wheel: %1$d km/h tiltback, %2$d km/h alarm</string>
     <!-- Connected-but-no-telemetry recovery (phantom link after a wheel BT restart) -->
-    <string name="wheel_no_data_reconnecting">No data from the wheel. Reconnecting…</string>
     <string name="wheel_no_data_reset">Still no data from the wheel. Try turning it off and on.</string>
 
     <!-- Trip map marker popups (%1$s is the wheel name) -->
@@ -1869,11 +1843,8 @@
     <string name="online_upload_total_km">%1$s %2$s</string>
     <string name="online_upload_join">Join leaderboard</string>
     <string name="online_status_shared">Shared on the leaderboard</string>
-    <string name="online_status_flagged">Shared, under review</string>
     <string name="online_status_pending">Uploading to leaderboard…</string>
     <string name="online_status_failed">Online upload failed, tap to retry</string>
-    <string name="online_status_checking">Checking with the leaderboard…</string>
-    <string name="online_status_check_failed">Could not check right now, try again later</string>
     <string name="online_status_rejected">Not accepted for the leaderboard</string>
     <string name="online_upload_join_caption">Join to send your stats and trips to the public leaderboard at.</string>
     <string name="online_upload_linked_caption">Your stats and trips appear on the public leaderboard at.</string>
@@ -1895,7 +1866,6 @@
     <string name="online_profile_delete_confirm_action">Delete permanently</string>
     <string name="online_profile_save_rate_limited">Rate limited, try again later.</string>
     <string name="online_profile_save_failed">Save failed (HTTP %1$d). Try again.</string>
-    <string name="online_status_flagged_why">Held for a quick automated check. It joins the leaderboard once it clears.</string>
     <string name="online_restore_title">A saved profile was found</string>
     <string name="online_restore_body_new">We found a saved profile here: %1$s. Continuing rejoins the public leaderboard as that rider, its name, flag, avatar and ride stats are public. It does not create a new profile.</string>
     <string name="online_restore_body_switch">We found a different saved profile: %1$s. Continuing switches this phone to that rider; your current profile is backed up first.</string>
@@ -2058,8 +2028,6 @@
     <string name="studio_video_fit">Fit</string>
     <string name="studio_video_fit_stretch">Stretch</string>
     <string name="studio_video_offset">Offset</string>
-    <string name="studio_video_offset_value_fmt">%1$d ms</string>
-    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
     <string name="studio_video_set_offset">Current</string>
     <string name="studio_video_edge">Out of range</string>
     <string name="studio_video_edge_freeze">Freeze</string>
@@ -2124,9 +2092,6 @@
     <string name="studio_cfg_time_window_fmt">%1$ds</string>
     <string name="studio_cfg_trail_label">Trail length</string>
     <string name="studio_cfg_map_style">Map style</string>
-    <string name="studio_cfg_map_street">Street</string>
-    <string name="studio_cfg_map_dark">Dark</string>
-    <string name="studio_cfg_map_satellite">Satellite</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
     <string name="studio_cfg_map_attribution">Show map credit</string>
     <string name="studio_cfg_map_attribution_off">The map licence requires this credit on anything you share. Turning it off is your call.</string>
@@ -2298,7 +2263,6 @@
     <string name="trip_action_inspect_online">Inspect online</string>
     <string name="trip_action_inspect_online_desc">Share a eucviewer.ried.no link to view this ride online.</string>
     <string name="trip_action_dropbox_disabled">Link Dropbox in settings to enable this</string>
-    <string name="nav_tap_on_self">In the Stops list, long-press a stop to set it to your location</string>
     <string name="nav_start_short">Start navigation</string>
     <string name="nav_start_btn">Start</string>
     <string name="nav_stop_short">Stop navigation</string>
@@ -2415,7 +2379,6 @@
     <string name="nav_setting_arrival_radius_desc">How close counts as reaching a stop.</string>
     <string name="nav_setting_offroute">Off-route tolerance</string>
     <string name="nav_setting_offroute_desc">How far off the route before the off-route alert triggers.</string>
-    <string name="nav_setting_default_mode">Default travel mode</string>
     <string name="nav_setting_params">Navigation &amp; weather</string>
     <string name="weather_section">Weather</string>
     <string name="weather_icon_desc">Weather forecast</string>
@@ -2436,7 +2399,6 @@
     <string name="weather_enable_desc">Adds a weather icon above the map button: tap it for a ridability forecast.</string>
     <string name="weather_window_label">Forecast window</string>
     <string name="weather_source_label">Forecast source</string>
-    <string name="weather_comfort_desc">Comfort thresholds feeding the score. Temperatures follow your unit setting; wind follows your speed unit.</string>
     <string name="weather_cold">Too cold below</string>
     <string name="weather_hot">Too hot above</string>
     <string name="weather_breezy">Breezy above</string>
@@ -2463,7 +2425,6 @@
     <string name="weather_lvl_prime_2">Prime riding weather!</string>
     <string name="weather_expand">Details</string>
     <string name="weather_chart_temp">Temp, humidity &amp; precip</string>
-    <string name="weather_chart_precip">Precipitation</string>
     <string name="weather_chart_wind">Wind &amp; gusts</string>
     <string name="weather_adv_snow_now">Snowing now - grip is gone.</string>
     <string name="weather_adv_snow_in">Snow expected in %1$s.</string>
@@ -2591,8 +2552,6 @@
     <string name="share_alone">No one else here yet.</string>
     <string name="share_copy">Copy</string>
     <string name="share_open">Open</string>
-    <string name="share_menu_join">Join group ride</string>
-    <string name="share_menu_join_desc">Scan a QR code.</string>
     <string name="share_menu_live">Share live location</string>
     <string name="share_menu_live_desc">Start a group ride.</string>
     <string name="share_menu_static">Share static location</string>
@@ -2801,7 +2760,6 @@
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
     <string name="tpms_family_ly" translatable="false">Wicarlink</string>
     <string name="tpms_waiting">Waiting for data</string>
-    <string name="status_live">Live</string>
     <string name="status_idle">Idle</string>
     <string name="tpms_state_leaking">Leaking</string>
     <string name="tpms_state_inflating">Inflating</string>
@@ -2822,7 +2780,6 @@
     <string name="horn_mode_sound">Custom</string>
     <string name="horn_mode_both">Mix</string>
     <string name="horn_mode_hint">Custom plays your own sound on the phone. Mix adds it to the wheel horn, for an external speaker. If the phone cannot play it, the wheel horn sounds instead.</string>
-    <string name="horn_sound_none">No sound chosen</string>
     <string name="horn_sound_current">Sound: %1$s</string>
     <string name="horn_sound_choose">Choose sound</string>
     <string name="horn_sound_imported">Horn sound saved</string>
@@ -2841,7 +2798,6 @@
 
     <!-- Crews pairing. Kept here rather than in the Kotlin so the 21 locales pick them
          up with everything else; hardcoded strings are strings that never get translated. -->
-    <string name="crews_title">Crews</string>
     <string name="crews_pass_action">Crew pass</string>
     <string name="crews_pass_search_hint">Crew pass shows once you join the online leaderboards.</string>
     <string name="crews_scan_hint">Open eucstats in a browser, hit Crews, and point this at the code it shows.</string>
@@ -2947,7 +2903,6 @@
     <string name="nav_unlock_stops">Stops</string>
     <string name="nav_unlock_off">Strays up to %1$s from the track</string>
     <string name="nav_unlock_confirm">Convert</string>
-    <string name="nav_track_badge">Locked track</string>
     <string name="voice_nav_place_reached">%1$s reached</string>
     <string name="offline_data_open">Offline areas</string>
     <string name="offline_server_url">Offline data server</string>

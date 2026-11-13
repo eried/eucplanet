@@ -5,7 +5,6 @@
     <string name="notification_channel_description">Arată starea conexiunii cu monociclul și telemetria.</string>
     <string name="keep_app_alive">Menține aplicația pornită</string>
     <string name="keep_app_alive_desc">Păstrează o notificare permanentă, astfel încât aplicația rămâne activă în fundal. Sincronizarea curselor și vocea funcționează chiar și fără monociclu conectat. Consumă puțin mai multă baterie.</string>
-    <string name="notif_actions_section">Personalizează</string>
     <string name="notif_actions_enable">Arată acțiunile din notificare</string>
     <string name="notif_actions_enable_desc">Adaugă butoane de acțiuni rapide la notificarea permanentă.</string>
     <string name="notif_actions_pick_desc">Alege până la %1$d acțiuni. Aceeași acțiune se poate repeta.</string>
@@ -37,9 +36,6 @@
     <string name="state_off">Oprit</string>
     <string name="action_done">Gata</string>
     <string name="action_close">Închide</string>
-    <string name="crash_log_action_prompt">Ai apăsat lung pe %1$s. Șterge doar acest jurnal sau șterge-le pe toate. Dacă vrei să îl partajezi, atinge Anulează, apoi atinge fișierul.</string>
-    <string name="crash_log_delete_all">Șterge tot</string>
-    <string name="crash_log_delete_all_warning">Ștergi toate jurnalele de blocare salvate? Această acțiune nu poate fi anulată.</string>
     <string name="action_save">Salvează</string>
     <string name="action_apply">Aplică</string>
     <string name="action_reset">Resetează</string>
@@ -120,12 +116,10 @@
     <string name="tab_dashboard">Aranjarea tabloului de bord</string>
     <string name="dashboard_section_metrics">Indicatori</string>
     <string name="dashboard_section_actions">Butoane de acțiune</string>
-    <string name="dashboard_columns">Coloane</string>
     <string name="dashboard_grid_hint">Apasă lung pentru a trage, atinge pentru a edita.</string>
     <string name="dashboard_pool_metrics">Indicatori disponibili</string>
     <string name="dashboard_pool_actions">Acțiuni disponibile</string>
     <string name="dashboard_pool_tap_toast">Apasă lung și trage pe un loc de mai sus</string>
-    <string name="dashboard_rolling_window">Fereastra statisticilor mobile</string>
     <string name="dashboard_stats_length">Lungimea statisticilor</string>
     <string name="dashboard_view">Vizualizare</string>
     <string name="dashboard_view_default">Implicit</string>
@@ -744,7 +738,6 @@
     <string name="watch_screen_button_2">Butonul 2</string>
     <string name="watch_haptic_on_action">Vibrează la acțiune</string>
     <string name="watch_haptic_on_action_desc">Scurtă vibrație a ceasului la fiecare apăsare, unde este acceptată.</string>
-    <string name="section_cloud_folder">Dosarul copiilor de rezervă</string>
     <string name="cloud_caption">Dosarul tău de rezervă pentru curse, setări, teme și suprapuneri.</string>
     <string name="cloud_choose_folder">Alege dosarul</string>
     <string name="cloud_change_folder">Schimbă dosarul</string>
@@ -768,7 +761,6 @@
     <string name="cloud_reset_local">Șterge cursele locale</string>
     <string name="cloud_reset_local_title">Ștergi cursele locale?</string>
     <string name="cloud_reset_local_body">Elimină fiecare cursă salvată pe acest telefon. Dosarul tău de rezervă rămâne neatins, deci cursele sincronizate pot fi restaurate de acolo.</string>
-    <string name="cloud_retry_enqueued">Încărcare programată</string>
     <string name="action_retry">Reîncearcă</string>
     <string name="sync_progress">Se sincronizează %1$d din %2$d</string>
     <string name="sync_no_folder">Alege mai întâi un dosar de rezervă</string>
@@ -802,17 +794,13 @@
     <string name="cloud_backup_replace_body_dated">Copia salvată pe %1$s va fi suprascrisă cu setările actuale.</string>
     <string name="cloud_restore_picker_default">(copia ta)</string>
     <string name="cloud_restore_picker_factory">(din fabrică)</string>
-    <string name="cloud_restore_picker_empty">Nu s-au găsit copii în dosarul de sincronizare</string>
     <string name="cloud_factory_confirm_title">Revii la setările din fabrică?</string>
     <string name="cloud_factory_confirm_body_p1">Resetează toate setările aplicației la valorile implicite.</string>
     <string name="cloud_factory_confirm_body_p2">Dispozitivele asociate și copiile salvate se păstrează. Această acțiune nu poate fi anulată.</string>
     <string name="cloud_factory_confirm_action">Resetează</string>
     <string name="section_recording">Înregistrare</string>
     <string name="section_connection">Conexiune</string>
-    <string name="section_display">Afișare</string>
-    <string name="auto_record_on_start">Înregistrare automată la pornire</string>
     <string name="auto_record_caption">Înregistrează o cursă atunci când monociclul este conectat.</string>
-    <string name="auto_record_start_in_motion">Începe înregistrarea la mișcare</string>
     <string name="auto_record_start_in_motion_caption">Pornește la mișcare, se oprește după inactivitate, repornește la cursa următoare.</string>
     <string name="auto_record_stop_idle_seconds">Oprește după inactivitate de</string>
     <string name="auto_record_mode_label">Pornire automată a înregistrării cursei</string>
@@ -1092,11 +1080,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Camion diesel</string>
     <string name="engine_preset_sampled_motorcycle">Moto cross mică</string>
     <string name="engine_preset_sampled_city_car">Mașină de oraș</string>
-    <string name="engine_preset_sampled_helicopter">Elicopter</string>
     <string name="engine_preset_sampled_tractor">Tractor</string>
     <string name="engine_preset_sampled_lawnmower">Mașină de tuns iarba</string>
     <string name="engine_preset_sampled_steam_loco">Locomotivă cu abur</string>
-    <string name="engine_preset_sampled_car_cruise">Mașină la viteză constantă</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
     <string name="engine_preset_sampled_big_diesel">Diesel mare</string>
     <string name="engine_preset_sampled_broken_exhaust">Eșapament spart</string>
@@ -1287,7 +1273,6 @@
     <string name="trip_meter_tab_speed">Viteză</string>
     <string name="trip_meter_tab_battery">Baterie</string>
     <string name="trip_meter_tab_time">Timp</string>
-    <string name="trip_meter_total">Total</string>
     <string name="trip_meter_active">Activ</string>
     <string name="trip_meter_avg">Med</string>
     <string name="trip_meter_reset">Resetează contorul de cursă</string>
@@ -1441,8 +1426,6 @@
     <string name="trip_split_reason_wheel">A preluat alt monociclu</string>
     <string name="trip_split_reason_gap">Întrerupere în înregistrare</string>
     <string name="trip_split_reason_stopped">Oprit timp îndelungat</string>
-    <string name="trip_tools_combine">Combină cursele</string>
-    <string name="trip_tools_combine_desc">Îmbină alte curse în aceasta ca o cursă nouă, păstrând originalele.</string>
     <string name="trip_tools_combine_none">Nu există alte curse finalizate cu care să combini.</string>
     <string name="trip_tools_combine_mixed_wheels">Unele dintre acestea au fost făcute pe alt monociclu. Distanța și energia vor fi însumate.</string>
     <string name="trip_tools_combine_done">Cursele au fost combinate într-una nouă</string>
@@ -1478,12 +1461,10 @@
     <string name="auto_lights_when">Urmează soarele când</string>
     <string name="auto_lights_off_slow">Stinge farul la încetinire</string>
     <string name="auto_lights_off_below">Stins sub</string>
-    <string name="auto_lights_desc">Pornește sau oprește farurile în funcție de apus și răsărit.</string>
     <string name="auto_lights_on_before_sunset">Aprinde înainte</string>
     <string name="auto_lights_off_after_sunrise">Stinge după</string>
     <string name="auto_waiting_gps">Se așteaptă poziția GPS…</string>
     <string name="auto_volume_title">Control volum</string>
-    <string name="auto_volume_desc">Crește volumul muzicii în funcție de viteză.</string>
     <string name="auto_volume_when">Crește volumul când</string>
     <string name="media_rate_when">Schimbă viteza de redare când</string>
     <string name="media_rate_permission_desc">Android cere asta separat. Fără el viteza de redare nu poate fi schimbată.</string>
@@ -1493,14 +1474,12 @@
     <string name="media_rate_grant">Acordă</string>
     <string name="warnings_media_access_title">Accesul la notificări este oprit</string>
     <string name="warnings_media_access_body">Fără el viteza de redare nu poate urma mersul. Atinge pentru a permite.</string>
-    <string name="media_control_desc">Oprește temporar muzica atunci când încetinești și o reia când accelerezi.</string>
     <string name="media_control_pause">Oprește temporar când încetinesc</string>
     <string name="media_control_pause_below">Oprește la sau sub</string>
     <string name="media_control_resume">Reia când accelerez</string>
     <string name="media_control_resume_above">Reia la sau peste</string>
     <string name="automation_require_external">Doar pe căști sau Bluetooth</string>
     <string name="proximity_lock_title">Blocarea monociclului</string>
-    <string name="proximity_lock_desc">Blochează monociclul când te îndepărtezi și îl deblochează când revii, folosind puterea semnalului Bluetooth.</string>
     <string name="proximity_lock_enable">Blochează când mă îndepărtez</string>
     <string name="proximity_lock_below">Semnal sub</string>
     <string name="proximity_unlock_when">Deblocare automată</string>
@@ -1614,9 +1593,6 @@
     <string name="alarm_predict_help_lead">Alertează cu circa %1$s s înainte ca %2$s, pe baza tendinței recente.</string>
     <string name="alarm_predict_label">Declanșare predictivă</string>
     <string name="alarm_predict_realtime">Acum</string>
-    <string name="about_crash_logs">Jurnale de blocare</string>
-    <string name="about_crash_logs_empty">Nicio blocare înregistrată</string>
-    <string name="about_share_crash">Partajează jurnalul de blocare</string>
     <string name="about_thanks">Mulțumiri</string>
     <string name="about_thanks_body">M-am săturat de aplicațiile pentru monocicluri care evoluează prea încet, arată învechit, au reguli draconice în jurul funcțiilor noi, își tratează comunitatea ca pe niște clienți și uită că cei care merg pe monociclu sunt la înălțime atunci când se ajută între ei. Aceasta încearcă să fie opusul.</string>
     <string name="about_license">Licență</string>
@@ -1627,7 +1603,6 @@
     <string name="service_mode_link">Vizitează eucplanet.ried.no/service pentru mai multe informații.</string>
     <string name="service_mode_enter">Intră</string>
     <string name="toast_external_speed_change">Viteză actualizată de la monociclu: %1$d km/h tiltback, %2$d km/h alarmă</string>
-    <string name="wheel_no_data_reconnecting">Nicio dată de la monociclu. Se reconectează…</string>
     <string name="wheel_no_data_reset">Tot nu vin date de la monociclu. Încearcă să îl oprești și să îl pornești.</string>
     <string name="trip_map_ride_start">Începutul cursei: %1$s</string>
     <string name="trip_map_reconnected">Reconectat: %1$s</string>
@@ -1669,11 +1644,8 @@
     <string name="online_upload_total_km">%1$s %2$s</string>
     <string name="online_upload_join">Alătură-te clasamentului</string>
     <string name="online_status_shared">Partajat în clasament</string>
-    <string name="online_status_flagged">Partajat, în verificare</string>
     <string name="online_status_pending">Se încarcă în clasament…</string>
     <string name="online_status_failed">Încărcarea online a eșuat, atinge pentru a reîncerca</string>
-    <string name="online_status_checking">Se verifică în clasament…</string>
-    <string name="online_status_check_failed">Nu s-a putut verifica acum, încearcă mai târziu</string>
     <string name="online_status_rejected">Neacceptat pentru clasament</string>
     <string name="online_upload_join_caption">Alătură-te ca să îți trimiți statisticile și cursele în clasamentul public de la.</string>
     <string name="online_upload_linked_caption">Statisticile și cursele tale apar în clasamentul public de la.</string>
@@ -1693,7 +1665,6 @@
     <string name="online_profile_delete_confirm_action">Șterge definitiv</string>
     <string name="online_profile_save_rate_limited">Limită de cereri atinsă, încearcă mai târziu.</string>
     <string name="online_profile_save_failed">Salvarea a eșuat (HTTP %1$d). Încearcă din nou.</string>
-    <string name="online_status_flagged_why">Reținut pentru o verificare automată rapidă. Intră în clasament imediat ce trece.</string>
     <string name="online_restore_title">S-a găsit un profil salvat</string>
     <string name="online_restore_body_new">Am găsit aici un profil salvat: %1$s. Dacă continui, te alături din nou clasamentului public cu acest profil, iar numele, steagul, avatarul și statisticile lui de mers sunt publice. Nu se creează un profil nou.</string>
     <string name="online_restore_body_switch">Am găsit un alt profil salvat: %1$s. Dacă continui, acest telefon trece pe acel profil; profilul tău actual este salvat mai întâi.</string>
@@ -1828,8 +1799,6 @@
     <string name="studio_video_fit">Potrivire</string>
     <string name="studio_video_fit_stretch">Întindere</string>
     <string name="studio_video_offset">Decalaj</string>
-    <string name="studio_video_offset_value_fmt">%1$d ms</string>
-    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
     <string name="studio_video_set_offset">Curent</string>
     <string name="studio_video_edge">În afara intervalului</string>
     <string name="studio_video_edge_freeze">Îngheață</string>
@@ -1890,9 +1859,6 @@
     <string name="studio_cfg_time_window_fmt">%1$ds</string>
     <string name="studio_cfg_trail_label">Lungimea urmei</string>
     <string name="studio_cfg_map_style">Stilul hărții</string>
-    <string name="studio_cfg_map_street">Stradă</string>
-    <string name="studio_cfg_map_dark">Întunecat</string>
-    <string name="studio_cfg_map_satellite">Satelit</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
     <string name="studio_cfg_map_attribution">Afișează creditul hărții</string>
     <string name="studio_cfg_map_attribution_off">Licența hărții cere acest credit pe tot ce distribui. Dezactivarea ține de tine.</string>
@@ -2049,7 +2015,6 @@
     <string name="trip_action_inspect_online">Inspectează online</string>
     <string name="trip_action_inspect_online_desc">Partajează un link eucviewer.ried.no pentru a vedea această cursă online.</string>
     <string name="trip_action_dropbox_disabled">Conectează Dropbox în setări pentru a activa asta</string>
-    <string name="nav_tap_on_self">În lista Opriri, apasă lung o oprire ca să o setezi pe locația ta</string>
     <string name="nav_start_short">Începe navigarea</string>
     <string name="nav_start_btn">Start</string>
     <string name="nav_stop_short">Oprește navigarea</string>
@@ -2134,8 +2099,6 @@
     <string name="share_alone">Încă nu mai e nimeni altcineva aici.</string>
     <string name="share_open">Deschide</string>
     <string name="share_copy">Copiază</string>
-    <string name="share_menu_join">Intră în grup</string>
-    <string name="share_menu_join_desc">Scanează un cod QR.</string>
     <string name="share_menu_live">Partajează locația live</string>
     <string name="share_menu_live_desc">Pornește o tură în grup.</string>
     <string name="share_menu_static">Trimite locația</string>
@@ -2206,7 +2169,6 @@
     <string name="nav_setting_arrival_radius_desc">Cât de aproape înseamnă atingerea unei opriri.</string>
     <string name="nav_setting_offroute">Toleranța de ieșire de pe traseu</string>
     <string name="nav_setting_offroute_desc">Cât de departe de traseu până se declanșează alerta de ieșire.</string>
-    <string name="nav_setting_default_mode">Mod de deplasare implicit</string>
     <string name="nav_setting_params">Navigație și vreme</string>
     <string name="weather_section">Vreme</string>
     <string name="weather_icon_desc">Prognoza meteo</string>
@@ -2227,7 +2189,6 @@
     <string name="weather_enable_desc">Adaugă o pictogramă meteo deasupra butonului hărții: atinge-o pentru prognoza de rulare.</string>
     <string name="weather_window_label">Fereastra prognozei</string>
     <string name="weather_source_label">Sursa prognozei</string>
-    <string name="weather_comfort_desc">Praguri de confort pentru scor. Temperatura urmează unitățile tale; vântul, unitatea de viteză.</string>
     <string name="weather_cold">Prea frig sub</string>
     <string name="weather_hot">Prea cald peste</string>
     <string name="weather_breezy">Vânt peste</string>
@@ -2254,7 +2215,6 @@
     <string name="weather_lvl_prime_2">Zi ideală de plutit!</string>
     <string name="weather_expand">Detalii</string>
     <string name="weather_chart_temp">Temp., umiditate și precip.</string>
-    <string name="weather_chart_precip">Precipitații</string>
     <string name="weather_chart_wind">Vânt și rafale</string>
     <string name="weather_adv_snow_now">Ninge, aderența e zero.</string>
     <string name="weather_adv_snow_in">Ninsoare în circa %1$s.</string>
@@ -2470,7 +2430,6 @@
     <string name="trip_tools_rename">Redenumește cursa</string>
     <string name="trip_tools_rename_desc">Dă un nume acestei curse. Se salvează în fișierul ei, deci rămâne și în exporturi și la sincronizare.</string>
     <string name="trip_tools_rename_hint">Lasă gol pentru a folosi data.</string>
-    <string name="trip_tools_renamed">Cursă redenumită</string>
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="trip_tools_archived">Arhivate: %1$d</string>
     <string name="trip_tools_archive_failed">Unele curse nu au putut fi arhivate și sunt încă aici</string>
@@ -2579,7 +2538,6 @@
     <string name="action_reset_metrics_wheel_done">Valori resetate, contorul de cursă al monociclului a fost șters</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
     <string name="tpms_waiting">Se așteaptă date</string>
-    <string name="status_live">În direct</string>
     <string name="status_idle">Inactiv</string>
     <string name="tpms_state_leaking">Pierde aer</string>
     <string name="tpms_state_inflating">Se umflă</string>
@@ -2600,7 +2558,6 @@
     <string name="horn_mode_sound">Propriu</string>
     <string name="horn_mode_both">Mix</string>
     <string name="horn_mode_hint">Propriu redă sunetul tău pe telefon. Mix îl adaugă la claxonul monociclului, pentru o boxă externă. Dacă telefonul nu îl poate reda, sună claxonul monociclului.</string>
-    <string name="horn_sound_none">Niciun sunet ales</string>
     <string name="horn_sound_current">Sunet: %1$s</string>
     <string name="horn_sound_choose">Alege sunet</string>
     <string name="horn_sound_imported">Sunetul claxonului a fost salvat</string>
@@ -2616,7 +2573,6 @@
     <string name="voice_stat_min">Min</string>
     <string name="voice_stat_avg">Med</string>
     <string name="voice_stat_peak">Vârf</string>
-    <string name="crews_title">Crews</string>
     <string name="crews_pass_action">Acces crew</string>
     <string name="crews_pass_search_hint">Accesul crew apare după ce te alături clasamentelor online.</string>
     <string name="crews_scan_hint">Deschide eucstats în browser, apasă Crews și îndreaptă camera spre codul afișat.</string>
@@ -2723,7 +2679,6 @@
     <string name="nav_unlock_stops">Opriri</string>
     <string name="nav_unlock_off">Se abate până la %1$s de la traseu</string>
     <string name="nav_unlock_confirm">Transformă</string>
-    <string name="nav_track_badge">Traseu blocat</string>
     <string name="voice_nav_place_reached">%1$s atins</string>
     <string name="offline_data_open">Zone offline</string>
     <string name="offline_server_url">Server de date offline</string>

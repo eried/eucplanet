@@ -5,7 +5,6 @@
     <string name="notification_channel_description">ホイールの接続状態とテレメトリを表示します。</string>
 
     <!-- Notification quick actions -->
-    <string name="notif_actions_section">カスタマイズ</string>
     <string name="notif_actions_enable">通知アクションを表示</string>
     <string name="notif_actions_enable_desc">実行中の通知にクイックアクションボタンを追加します。</string>
     <string name="notif_actions_pick_desc">最大%1$d個のアクションを選べます。同じアクションを複数回選ぶこともできます。</string>
@@ -39,9 +38,6 @@
     <string name="state_off">オフ</string>
     <string name="action_done">完了</string>
     <string name="action_close">閉じる</string>
-<string name="crash_log_action_prompt">%1$s を長押ししました。このログのみ削除、またはすべて削除できます。共有する場合はキャンセルをタップしてからファイルをタップしてください。</string>
-    <string name="crash_log_delete_all">すべて削除</string>
-    <string name="crash_log_delete_all_warning">保存されたクラッシュログをすべて削除しますか？この操作は取り消せません。</string>
     <string name="action_save">保存</string>
     <string name="action_apply">適用</string>
     <string name="action_delete">削除</string>
@@ -135,12 +131,10 @@
     <string name="tab_dashboard">ダッシュボードレイアウト</string>
     <string name="dashboard_section_metrics">メトリクス</string>
     <string name="dashboard_section_actions">アクションボタン</string>
-    <string name="dashboard_columns">列</string>
     <string name="dashboard_grid_hint">長押しでドラッグ、タップで編集。</string>
     <string name="dashboard_pool_metrics">利用可能なメトリクス</string>
     <string name="dashboard_pool_actions">利用可能なアクション</string>
     <string name="dashboard_pool_tap_toast">長押しして上のスロットにドラッグして使用</string>
-    <string name="dashboard_rolling_window">ローリング統計ウィンドウ</string>
     <string name="dashboard_stats_length">統計期間</string>
     <string name="dashboard_view">表示</string>
     <string name="dashboard_view_default">デフォルト</string>
@@ -614,7 +608,6 @@
     <string name="watch_haptic_on_action_desc">対応ウォッチでは、押すたびに短く振動します。</string>
 
     <!-- Settings: Backup -->
-    <string name="section_cloud_folder">バックアップフォルダ</string>
     <string name="cloud_caption">トリップ、設定、テーマ、オーバーレイのバックアップフォルダ。</string>
     <string name="cloud_choose_folder">フォルダを選択</string>
     <string name="cloud_change_folder">フォルダを変更</string>
@@ -635,7 +628,6 @@
     <string name="section_cloud_trips">トリップバックアップ</string>
     <string name="cloud_trips_caption">トリップはこのスマホに保存され、バックアップフォルダへ自動で同期されます。消去するとアプリ内のトリップだけが削除され、バックアップフォルダ内のものは残ります。</string>
     <string name="cloud_retry_now">すべて同期</string>
-    <string name="cloud_retry_enqueued">アップロードを予約しました</string>
     <string name="sync_progress">%1$d / %2$d を同期中</string>
     <string name="sync_no_folder">先にバックアップフォルダを選択してください</string>
     <string name="sync_rate_limited">Dropbox がこのアカウントを制限しています。%2$d 件中 %1$d 件のトリップを同期しました。残りは再試行します。</string>
@@ -665,7 +657,6 @@
     <string name="cloud_backup_replace_body_dated">%1$s に保存したバックアップが現在の設定で上書きされます。</string>
     <string name="cloud_restore_picker_default">（自分で保存）</string>
     <string name="cloud_restore_picker_factory">（工場出荷時）</string>
-    <string name="cloud_restore_picker_empty">同期フォルダにバックアップが見つかりません</string>
     <string name="cloud_factory_confirm_title">工場出荷時の設定にリセットしますか？</string>
     <string name="cloud_factory_confirm_body_p1">すべてのアプリ設定をデフォルトにリセットします。</string>
     <string name="cloud_factory_confirm_body_p2">ペアリング済みデバイスと保存済みバックアップは保持されます。この操作は取り消せません。</string>
@@ -674,10 +665,7 @@
     <!-- Settings: General -->
     <string name="section_recording">記録</string>
     <string name="section_connection">接続</string>
-    <string name="section_display">表示</string>
-    <string name="auto_record_on_start">起動時に自動記録</string>
     <string name="auto_record_caption">ホイール接続時にトリップを記録します。</string>
-    <string name="auto_record_start_in_motion">走行中に記録を開始</string>
     <string name="auto_record_start_in_motion_caption">動き始めると記録を開始し、停止が続くと自動で終了します。次に走り出すと再び開始します。</string>
     <string name="auto_record_stop_idle_seconds">停止が続いたら終了</string>
     <string name="auto_connect_on_start">起動時に自動接続</string>
@@ -883,11 +871,9 @@
     <string name="engine_preset_sampled_diesel_iveco">ディーゼルトラック</string>
     <string name="engine_preset_sampled_motorcycle">小型ダートバイク</string>
     <string name="engine_preset_sampled_city_car">シティカー</string>
-    <string name="engine_preset_sampled_helicopter">ヘリコプター</string>
     <string name="engine_preset_sampled_tractor">トラクター</string>
     <string name="engine_preset_sampled_lawnmower">芝刈り機</string>
     <string name="engine_preset_sampled_steam_loco">蒸気機関車</string>
-    <string name="engine_preset_sampled_car_cruise">カークルーズ</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
     <string name="engine_preset_sampled_big_diesel">大型ディーゼル</string>
     <string name="engine_preset_sampled_broken_exhaust">壊れたマフラー</string>
@@ -1166,12 +1152,10 @@
     <string name="auto_lights_when">日の出・日の入りに合わせる条件</string>
     <string name="auto_lights_off_slow">減速時にライトを消す</string>
     <string name="auto_lights_off_below">この速度未満で消灯</string>
-    <string name="auto_lights_desc">日の入りと日の出に基づいてヘッドライトをオン / オフにします。</string>
     <string name="auto_lights_on_before_sunset">日没前に点灯</string>
     <string name="auto_lights_off_after_sunrise">日の出後に消灯</string>
     <string name="auto_waiting_gps">GPS 位置情報を待機中…</string>
     <string name="auto_volume_title">音量コントロール</string>
-    <string name="auto_volume_desc">速度に応じて音楽の音量を上げます。</string>
     <string name="auto_volume_when">音量を上げる条件</string>
     <string name="media_rate_when">再生速度を変える条件</string>
     <string name="media_rate_permission_desc">この権限は Android が別途確認します。許可しないと再生速度を変更できません。</string>
@@ -1181,14 +1165,12 @@
     <string name="media_rate_grant">許可</string>
     <string name="warnings_media_access_title">通知へのアクセスがオフです</string>
     <string name="warnings_media_access_body">これがないと再生速度が走行速度に追従できません。タップして許可してください。</string>
-    <string name="media_control_desc">速度を落とすと音楽を一時停止し、速度を上げると再開します。</string>
     <string name="media_control_pause">減速したら一時停止</string>
     <string name="media_control_pause_below">この速度以下で一時停止</string>
     <string name="media_control_resume">加速したら再開</string>
     <string name="media_control_resume_above">この速度以上で再開</string>
     <string name="automation_require_external">ヘッドフォンまたはBluetoothのみ</string>
     <string name="proximity_lock_title">ホイールロック</string>
-    <string name="proximity_lock_desc">離れるとホイールをロックし、戻ると解除します。Bluetooth 信号強度を使用します。</string>
     <string name="proximity_lock_enable">離れたらロック</string>
     <string name="proximity_lock_below">信号がこの値未満</string>
     <string name="proximity_unlock_when">自動でロック解除</string>
@@ -1297,9 +1279,6 @@
     <string name="alarm_predict_help_lead">最近の傾向から、%2$s になる約 %1$s 秒前に通知します。</string>
 
     <!-- About / crash logs -->
-    <string name="about_crash_logs">クラッシュログ</string>
-    <string name="about_crash_logs_empty">クラッシュは記録されていません</string>
-    <string name="about_share_crash">クラッシュログを共有</string>
     <string name="about_thanks">クレジット</string>
     <string name="about_thanks_body">進化が遅く、見た目が古く、新機能に厳格なルールを設け、コミュニティを顧客扱いし、ライダーが互いに助け合う姿を忘れた EUC アプリにうんざりしていました。このアプリはその逆を目指しています。</string>
     <string name="about_license">ライセンス</string>
@@ -1356,11 +1335,8 @@
     <string name="online_upload_total_km">%1$s %2$s</string>
     <string name="online_upload_join">リーダーボードに参加</string>
     <string name="online_status_shared">リーダーボードで共有中</string>
-    <string name="online_status_flagged">共有中、審査中</string>
     <string name="online_status_pending">リーダーボードにアップロード中…</string>
     <string name="online_status_failed">アップロードに失敗しました。タップして再試行</string>
-    <string name="online_status_checking">リーダーボードを確認中…</string>
-    <string name="online_status_check_failed">現在確認できません。あとでもう一度お試しください</string>
     <string name="online_status_rejected">リーダーボードに登録されませんでした</string>
     <string name="online_upload_join_caption">参加すると、統計とトリップを次の公開リーダーボードに送信します:</string>
     <string name="online_upload_linked_caption">統計とトリップは次の公開リーダーボードに表示されています:</string>
@@ -1382,7 +1358,6 @@
     <string name="online_profile_delete_confirm_action">完全に削除</string>
     <string name="online_profile_save_rate_limited">レート制限中です。しばらくしてから再試行してください。</string>
     <string name="online_profile_save_failed">保存できませんでした（HTTP %1$d）。もう一度お試しください。</string>
-    <string name="online_status_flagged_why">自動チェック中です。クリアされるとリーダーボードに追加されます。</string>
     <string name="online_restore_title">保存済みプロフィールが見つかりました</string>
     <string name="online_restore_body_new">保存済みのプロフィールが見つかりました: %1$s。続行すると、そのライダーとして公開リーダーボードに再参加し、名前、国旗、アバター、走行統計が公開されます。新しいプロフィールは作成されません。</string>
     <string name="online_restore_body_switch">別の保存済みプロフィールが見つかりました: %1$s。続けるとこのスマホをそのライダーに切り替えます。現在のプロフィールは先にバックアップされます。</string>
@@ -1584,9 +1559,6 @@
     <string name="studio_cfg_time_window_fmt">%1$d 秒</string>
     <string name="studio_cfg_trail_label">トレイルの長さ</string>
     <string name="studio_cfg_map_style">マップスタイル</string>
-    <string name="studio_cfg_map_street">ストリート</string>
-    <string name="studio_cfg_map_dark">ダーク</string>
-    <string name="studio_cfg_map_satellite">衛星</string>
     <string name="studio_cfg_map_zoom">ズーム</string>
     <string name="studio_cfg_map_attribution">地図のクレジットを表示</string>
     <string name="studio_cfg_map_attribution_off">地図のライセンスでは、共有するものすべてにこのクレジットの表示が求められています。オフにするかどうかはご自身で判断してください。</string>
@@ -1674,7 +1646,6 @@
     <string name="trip_meter_tab_speed">速度</string>
     <string name="trip_meter_tab_battery">バッテリー</string>
     <string name="trip_meter_tab_time">時間</string>
-    <string name="trip_meter_total">合計</string>
     <string name="trip_meter_active">走行</string>
     <string name="trip_meter_avg">平均</string>
     <string name="trip_meter_reset">トリップメーターをリセット</string>
@@ -1728,7 +1699,6 @@
     <string name="nav_clear_confirm_body">現在の経由地がクリアされます。</string>
     <string name="nav_load_confirm">現在のルートを読み込んだ GPX に置き換えますか？</string>
     <string name="nav_menu_load_short">読み込む</string>
-    <string name="nav_tap_on_self">経由地リストで経由地を長押しして現在地に設定できます</string>
     <string name="nav_start_short">ナビ開始</string>
     <string name="nav_stop_short">ナビ停止</string>
     <string name="nav_stops_left">残り %1$d 箇所</string>
@@ -1814,8 +1784,6 @@
     <string name="share_alone">まだ他に誰もいません。</string>
     <string name="share_open">開く</string>
     <string name="share_copy">コピー</string>
-    <string name="share_menu_join">グループに参加</string>
-    <string name="share_menu_join_desc">QR コードを読み取ります。</string>
     <string name="share_menu_live">現在地をライブ共有</string>
     <string name="share_menu_live_desc">グループライドを開始します。</string>
     <string name="share_menu_static">現在地を送る</string>
@@ -1893,7 +1861,6 @@
     <string name="nav_setting_arrival_radius_desc">経由地に到着したとみなす距離です。</string>
     <string name="nav_setting_offroute">ルート逸脱の許容範囲</string>
     <string name="nav_setting_offroute_desc">ルートからどれだけ外れたらルート逸脱アラートを出すかを設定します。</string>
-    <string name="nav_setting_default_mode">デフォルトの移動手段</string>
     <string name="nav_setting_params">ナビと天気</string>
     <string name="weather_section">天気</string>
     <string name="weather_icon_desc">天気予報</string>
@@ -1914,7 +1881,6 @@
     <string name="weather_enable_desc">マップボタンの上に天気アイコンを追加します。タップすると走行しやすさの予報を表示します。</string>
     <string name="weather_window_label">予報ウィンドウ</string>
     <string name="weather_source_label">予報ソース</string>
-    <string name="weather_comfort_desc">スコアに使う快適さのしきい値です。気温は温度単位、風は速度単位の設定に従います。</string>
     <string name="weather_cold">これ未満は寒すぎ</string>
     <string name="weather_hot">これ超は暑すぎ</string>
     <string name="weather_breezy">これ超は風あり</string>
@@ -1941,7 +1907,6 @@
     <string name="weather_lvl_prime_2">最高の走行日和！</string>
     <string name="weather_expand">詳細</string>
     <string name="weather_chart_temp">気温・湿度・降水</string>
-    <string name="weather_chart_precip">降水</string>
     <string name="weather_chart_wind">風と突風</string>
     <string name="weather_adv_snow_now">降雪中。グリップなし。</string>
     <string name="weather_adv_snow_in">%1$s後に雪の予報。</string>
@@ -2534,8 +2499,6 @@
     <string name="trip_split_reason_wheel">別のホイールに切り替わりました</string>
     <string name="trip_split_reason_gap">記録の欠落</string>
     <string name="trip_split_reason_stopped">長時間停止</string>
-    <string name="trip_tools_combine">トリップを結合</string>
-    <string name="trip_tools_combine_desc">他のトリップをこのトリップと結合して、新しいトリップを作成します。元のトリップは残ります。</string>
     <string name="trip_tools_combine_none">結合できる完了済みのトリップがほかにありません。</string>
     <string name="trip_tools_combine_mixed_wheels">一部は別のホイールで走行したものです。距離とエネルギーは合算されます。</string>
     <string name="trip_tools_wheel_changed">ホイールを %1$s に設定しました</string>
@@ -2642,8 +2605,6 @@
     <string name="studio_video_fit">フィット</string>
     <string name="studio_video_fit_stretch">引き伸ばし</string>
     <string name="studio_video_offset">オフセット</string>
-    <string name="studio_video_offset_value_fmt">%1$d ms</string>
-    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
     <string name="studio_video_set_offset">現在</string>
     <string name="studio_video_no_media">メディアなし</string>
     <string name="studio_replay_cd_move">パネルを移動</string>
@@ -2651,7 +2612,6 @@
     <string name="studio_video_edge_freeze">静止</string>
     <string name="studio_video_edge_loop">ループ</string>
     <string name="studio_video_edge_black">黒</string>
-    <string name="wheel_no_data_reconnecting">ホイールからのデータがありません。再接続中…</string>
     <string name="wheel_no_data_reset">まだホイールからのデータがありません。電源を入れ直してください。</string>
     <string name="trip_map_ride_start">走行開始: %1$s</string>
     <string name="trip_map_reconnected">再接続: %1$s</string>
@@ -2669,7 +2629,6 @@
     <string name="trip_tools_rename">トリップの名前を変更</string>
     <string name="trip_tools_rename_desc">このトリップに名前を付けます。名前はファイルに保存されるため、エクスポートや同期後も引き継がれます。</string>
     <string name="trip_tools_rename_hint">空欄にすると日付を使います。</string>
-    <string name="trip_tools_renamed">トリップの名前を変更しました</string>
     <string name="trip_tools_archived">%1$d 件をアーカイブしました</string>
     <string name="trip_tools_archive_failed">アーカイブできなかったトリップがあり、ここに残っています</string>
     <string name="recording_delete_archive">バックアップのコピーをアーカイブ</string>
@@ -2777,7 +2736,6 @@
     <string name="action_reset_metrics_wheel_done">メトリクスをリセットし、ホイールのトリップ距離も消去しました</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
     <string name="tpms_waiting">データ待ち</string>
-    <string name="status_live">受信中</string>
     <string name="status_idle">待機</string>
     <string name="tpms_state_leaking">空気漏れ</string>
     <string name="tpms_state_inflating">空気充填中</string>
@@ -2798,7 +2756,6 @@
     <string name="horn_mode_sound">カスタム</string>
     <string name="horn_mode_both">ミックス</string>
     <string name="horn_mode_hint">「カスタム」はスマホで自分の音を鳴らします。「ミックス」はホイールのホーンに重ねて鳴らします（外部スピーカー向け）。スマホで再生できない場合は、代わりにホイールのホーンが鳴ります。</string>
-    <string name="horn_sound_none">音が選択されていません</string>
     <string name="horn_sound_current">サウンド: %1$s</string>
     <string name="horn_sound_choose">音を選ぶ</string>
     <string name="horn_sound_imported">ホーンの音を保存しました</string>
@@ -2814,7 +2771,6 @@
     <string name="voice_stat_min">最小</string>
     <string name="voice_stat_avg">平均</string>
     <string name="voice_stat_peak">ピーク</string>
-    <string name="crews_title">クルー</string>
     <string name="crews_pass_action">クルーパス</string>
     <string name="crews_pass_search_hint">クルーパスは、オンラインリーダーボードに参加すると表示されます。</string>
     <string name="crews_scan_hint">ブラウザで eucstats を開いて「Crews」を押し、表示されたコードにカメラを向けてください。</string>
@@ -2919,7 +2875,6 @@
     <string name="nav_unlock_stops">経由地</string>
     <string name="nav_unlock_off">トラックから最大 %1$s ずれます</string>
     <string name="nav_unlock_confirm">変換</string>
-    <string name="nav_track_badge">ロック中のトラック</string>
     <string name="voice_nav_place_reached">%1$s に到着</string>
     <string name="offline_data_open">オフラインエリア</string>
     <string name="offline_server_url">オフラインデータのサーバー</string>

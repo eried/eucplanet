@@ -5,7 +5,6 @@
     <string name="notification_channel_description">แสดงสถานะการเชื่อมต่อและข้อมูลจากล้อ</string>
     <string name="keep_app_alive">ให้แอปทำงานต่อเนื่อง</string>
     <string name="keep_app_alive_desc">แสดงการแจ้งเตือนค้างไว้เพื่อให้แอปทำงานในเบื้องหลัง การซิงค์ทริปและเสียงยังทำงานได้แม้ไม่ได้เชื่อมต่อล้อ ใช้แบตเตอรี่เพิ่มขึ้นเล็กน้อย</string>
-    <string name="notif_actions_section">ปรับแต่ง</string>
     <string name="notif_actions_enable">แสดงปุ่มทางลัดในการแจ้งเตือน</string>
     <string name="notif_actions_enable_desc">เพิ่มปุ่มทางลัดในการแจ้งเตือนที่แสดงค้างไว้</string>
     <string name="notif_actions_pick_desc">เลือกได้สูงสุด %1$d รายการ ใช้รายการเดิมซ้ำได้</string>
@@ -37,9 +36,6 @@
     <string name="state_off">ปิด</string>
     <string name="action_done">เสร็จสิ้น</string>
     <string name="action_close">ปิด</string>
-    <string name="crash_log_action_prompt">คุณกดค้างที่ %1$s ลบเฉพาะบันทึกนี้หรือลบทั้งหมด หากต้องการแชร์ ให้แตะยกเลิกแล้วแตะที่ไฟล์</string>
-    <string name="crash_log_delete_all">ลบทั้งหมด</string>
-    <string name="crash_log_delete_all_warning">ลบบันทึกข้อขัดข้องที่บันทึกไว้ทั้งหมดใช่ไหม? การดำเนินการนี้ย้อนกลับไม่ได้</string>
     <string name="action_save">บันทึก</string>
     <string name="action_apply">ใช้</string>
     <string name="action_reset">รีเซ็ต</string>
@@ -120,12 +116,10 @@
     <string name="tab_dashboard">เลย์เอาต์แดชบอร์ด</string>
     <string name="dashboard_section_metrics">ค่าที่แสดง</string>
     <string name="dashboard_section_actions">ปุ่มคำสั่ง</string>
-    <string name="dashboard_columns">คอลัมน์</string>
     <string name="dashboard_grid_hint">กดค้างเพื่อลาก แตะเพื่อแก้ไข</string>
     <string name="dashboard_pool_metrics">ค่าที่มีให้เลือก</string>
     <string name="dashboard_pool_actions">คำสั่งที่มีให้เลือก</string>
     <string name="dashboard_pool_tap_toast">กดค้างแล้วลากไปวางในช่องด้านบนเพื่อใช้งาน</string>
-    <string name="dashboard_rolling_window">ช่วงเวลาสถิติแบบเลื่อน</string>
     <string name="dashboard_stats_length">ความยาวสถิติ</string>
     <string name="dashboard_view">มุมมอง</string>
     <string name="dashboard_view_default">ค่าเริ่มต้น</string>
@@ -750,7 +744,6 @@
     <string name="watch_screen_button_2">ปุ่ม 2</string>
     <string name="watch_haptic_on_action">สั่นเมื่อสั่งงาน</string>
     <string name="watch_haptic_on_action_desc">นาฬิกาสั่นสั้นๆ ทุกครั้งที่กด หากรองรับ</string>
-    <string name="section_cloud_folder">โฟลเดอร์สำรองข้อมูล</string>
     <string name="cloud_caption">โฟลเดอร์สำรองข้อมูลสำหรับทริป การตั้งค่า ธีม และโอเวอร์เลย์</string>
     <string name="cloud_choose_folder">เลือกโฟลเดอร์</string>
     <string name="cloud_change_folder">เปลี่ยนโฟลเดอร์</string>
@@ -774,7 +767,6 @@
     <string name="cloud_reset_local">ล้างทริปในเครื่อง</string>
     <string name="cloud_reset_local_title">ล้างทริปในเครื่องใช่ไหม?</string>
     <string name="cloud_reset_local_body">ลบทุกทริปที่บันทึกไว้ในโทรศัพท์นี้ โฟลเดอร์สำรองข้อมูลจะไม่ถูกแตะต้อง จึงกู้คืนทริปที่ซิงค์แล้วจากที่นั่นได้</string>
-    <string name="cloud_retry_enqueued">กำหนดเวลาอัปโหลดแล้ว</string>
     <string name="action_retry">ลองอีกครั้ง</string>
     <string name="sync_progress">กำลังซิงค์ %1$d จาก %2$d</string>
     <string name="sync_no_folder">เลือกโฟลเดอร์สำรองข้อมูลก่อน</string>
@@ -808,17 +800,13 @@
     <string name="cloud_backup_replace_body_dated">ข้อมูลสำรองที่บันทึกเมื่อ %1$s จะถูกเขียนทับด้วยการตั้งค่าปัจจุบัน</string>
     <string name="cloud_restore_picker_default">(ผู้ใช้บันทึก)</string>
     <string name="cloud_restore_picker_factory">(ค่าจากโรงงาน)</string>
-    <string name="cloud_restore_picker_empty">ไม่พบข้อมูลสำรองในโฟลเดอร์ซิงค์</string>
     <string name="cloud_factory_confirm_title">รีเซ็ตเป็นค่าจากโรงงานใช่ไหม?</string>
     <string name="cloud_factory_confirm_body_p1">รีเซ็ตการตั้งค่าแอปทั้งหมดเป็นค่าเริ่มต้น</string>
     <string name="cloud_factory_confirm_body_p2">อุปกรณ์ที่จับคู่และข้อมูลสำรองที่บันทึกไว้จะยังอยู่ การดำเนินการนี้ย้อนกลับไม่ได้</string>
     <string name="cloud_factory_confirm_action">รีเซ็ต</string>
     <string name="section_recording">การบันทึก</string>
     <string name="section_connection">การเชื่อมต่อ</string>
-    <string name="section_display">การแสดงผล</string>
-    <string name="auto_record_on_start">บันทึกอัตโนมัติเมื่อเริ่ม</string>
     <string name="auto_record_caption">บันทึกทริปเมื่อเชื่อมต่อล้อ</string>
-    <string name="auto_record_start_in_motion">เริ่มบันทึกเมื่อเคลื่อนที่</string>
     <string name="auto_record_start_in_motion_caption">เริ่มเมื่อเคลื่อนที่ หยุดเองเมื่อจอดนิ่ง และเริ่มใหม่ในการขี่ครั้งถัดไป</string>
     <string name="auto_record_stop_idle_seconds">หยุดเมื่อจอดนิ่งนาน</string>
     <string name="auto_record_mode_label">เริ่มบันทึกทริปอัตโนมัติ</string>
@@ -1098,11 +1086,9 @@
     <string name="engine_preset_sampled_diesel_iveco">รถบรรทุกดีเซล</string>
     <string name="engine_preset_sampled_motorcycle">รถวิบากเล็ก</string>
     <string name="engine_preset_sampled_city_car">รถเก๋งในเมือง</string>
-    <string name="engine_preset_sampled_helicopter">เฮลิคอปเตอร์</string>
     <string name="engine_preset_sampled_tractor">รถแทรกเตอร์</string>
     <string name="engine_preset_sampled_lawnmower">เครื่องตัดหญ้า</string>
     <string name="engine_preset_sampled_steam_loco">หัวรถจักรไอน้ำ</string>
-    <string name="engine_preset_sampled_car_cruise">รถยนต์วิ่งทางไกล</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
     <string name="engine_preset_sampled_big_diesel">ดีเซลใหญ่</string>
     <string name="engine_preset_sampled_broken_exhaust">ท่อแตก</string>
@@ -1293,7 +1279,6 @@
     <string name="trip_meter_tab_speed">ความเร็ว</string>
     <string name="trip_meter_tab_battery">แบตเตอรี่</string>
     <string name="trip_meter_tab_time">เวลา</string>
-    <string name="trip_meter_total">รวม</string>
     <string name="trip_meter_active">ขณะขี่</string>
     <string name="trip_meter_avg">เฉลี่ย</string>
     <string name="trip_meter_reset">รีเซ็ตมาตรวัดทริป</string>
@@ -1449,7 +1434,6 @@
     <string name="trip_tools_rename">เปลี่ยนชื่อทริป</string>
     <string name="trip_tools_rename_desc">ตั้งชื่อให้การขี่ครั้งนี้ ชื่อจะเก็บไว้ในไฟล์ จึงติดไปกับการส่งออกและการซิงค์</string>
     <string name="trip_tools_rename_hint">เว้นว่างไว้เพื่อใช้วันที่</string>
-    <string name="trip_tools_renamed">เปลี่ยนชื่อทริปแล้ว</string>
     <string name="trip_tools_change_wheel">เปลี่ยนล้อ</string>
     <string name="trip_tools_change_wheel_desc">แก้ไขว่าการขี่ครั้งนี้ใช้ล้อคันไหน อัปเดตทั้งทริปและไฟล์</string>
     <string name="trip_tools_wheel_other">ล้ออื่น</string>
@@ -1480,8 +1464,6 @@
     <string name="trip_split_reason_wheel">เปลี่ยนไปใช้ล้ออีกคัน</string>
     <string name="trip_split_reason_gap">การบันทึกขาดช่วง</string>
     <string name="trip_split_reason_stopped">หยุดนาน</string>
-    <string name="trip_tools_combine">รวมทริป</string>
-    <string name="trip_tools_combine_desc">รวมการขี่อื่นเข้ากับครั้งนี้เป็นทริปใหม่ โดยเก็บต้นฉบับไว้</string>
     <string name="trip_tools_combine_none">ไม่มีทริปที่เสร็จแล้วอื่นให้รวม</string>
     <string name="trip_tools_combine_mixed_wheels">บางทริปขี่ด้วยล้อคันอื่น ระยะทางและพลังงานจะถูกรวมกัน</string>
     <string name="trip_tools_combine_done">รวมทริปเป็นทริปใหม่แล้ว</string>
@@ -1517,12 +1499,10 @@
     <string name="auto_lights_when">ตามเวลาพระอาทิตย์ตกและขึ้นเมื่อ</string>
     <string name="auto_lights_off_slow">ปิดไฟเมื่อชะลอความเร็ว</string>
     <string name="auto_lights_off_below">ปิดเมื่อต่ำกว่า</string>
-    <string name="auto_lights_desc">เปิดหรือปิดไฟหน้าตามเวลาพระอาทิตย์ตกและขึ้น</string>
     <string name="auto_lights_on_before_sunset">เปิดไฟก่อน</string>
     <string name="auto_lights_off_after_sunrise">ปิดไฟหลัง</string>
     <string name="auto_waiting_gps">กำลังรอตำแหน่ง GPS…</string>
     <string name="auto_volume_title">ควบคุมระดับเสียง</string>
-    <string name="auto_volume_desc">เพิ่มเสียงเพลงตามความเร็ว</string>
     <string name="auto_volume_when">เพิ่มเสียงเมื่อ</string>
     <string name="media_rate_when">ปรับความเร็วการเล่นเมื่อ</string>
     <string name="media_rate_permission_desc">Android จะขอสิทธิ์นี้แยกต่างหาก หากไม่มีสิทธิ์จะเปลี่ยนความเร็วการเล่นไม่ได้</string>
@@ -1532,14 +1512,12 @@
     <string name="media_rate_grant">ให้สิทธิ์</string>
     <string name="warnings_media_access_title">การเข้าถึงการแจ้งเตือนปิดอยู่</string>
     <string name="warnings_media_access_body">หากไม่มีสิทธิ์นี้ ความเร็วการเล่นจะปรับตามความเร็วของคุณไม่ได้ แตะเพื่ออนุญาต</string>
-    <string name="media_control_desc">หยุดเพลงเมื่อคุณชะลอ และเล่นต่อเมื่อคุณเร่งความเร็ว</string>
     <string name="media_control_pause">หยุดเมื่อฉันชะลอ</string>
     <string name="media_control_pause_below">หยุดที่หรือต่ำกว่า</string>
     <string name="media_control_resume">เล่นต่อเมื่อฉันเร่ง</string>
     <string name="media_control_resume_above">เล่นต่อที่หรือสูงกว่า</string>
     <string name="automation_require_external">เฉพาะหูฟังหรือบลูทูธ</string>
     <string name="proximity_lock_title">ล็อกล้อ</string>
-    <string name="proximity_lock_desc">ล็อกล้อเมื่อคุณเดินออกไป และปลดล็อกเมื่อคุณกลับมา โดยใช้ความแรงสัญญาณบลูทูธ</string>
     <string name="proximity_lock_enable">ล็อกเมื่อฉันเดินออกไป</string>
     <string name="proximity_lock_below">สัญญาณต่ำกว่า</string>
     <string name="proximity_unlock_when">ปลดล็อกอัตโนมัติ</string>
@@ -1653,9 +1631,6 @@
     <string name="alarm_predict_help_lead">เตือนประมาณ %1$s วิ ก่อน %2$s จากแนวโน้มล่าสุด</string>
     <string name="alarm_predict_label">การเตือนแบบคาดการณ์</string>
     <string name="alarm_predict_realtime">ทันที</string>
-    <string name="about_crash_logs">บันทึกข้อขัดข้อง</string>
-    <string name="about_crash_logs_empty">ไม่มีบันทึกข้อขัดข้อง</string>
-    <string name="about_share_crash">แชร์บันทึกข้อขัดข้อง</string>
     <string name="about_thanks">เครดิต</string>
     <string name="about_thanks_body">ผมเบื่อแอป EUC ที่พัฒนาช้าเกินไป ดูล้าสมัย มีกฎเข้มงวดเกินเหตุกับฟีเจอร์ใหม่ ปฏิบัติต่อชุมชนเหมือนเป็นแค่ลูกค้า และลืมไปว่าผู้ขี่ EUC จะดีที่สุดเมื่อช่วยเหลือกัน แอปนี้พยายามเป็นสิ่งตรงข้าม</string>
     <string name="about_license">สัญญาอนุญาต</string>
@@ -1666,7 +1641,6 @@
     <string name="service_mode_link">ดูข้อมูลเพิ่มเติมที่ eucplanet.ried.no/service</string>
     <string name="service_mode_enter">เข้าสู่โหมด</string>
     <string name="toast_external_speed_change">อัปเดตความเร็วจากล้อแล้ว: tiltback %1$d กม./ชม. เตือน %2$d กม./ชม.</string>
-    <string name="wheel_no_data_reconnecting">ไม่มีข้อมูลจากล้อ กำลังเชื่อมต่อใหม่…</string>
     <string name="wheel_no_data_reset">ยังไม่มีข้อมูลจากล้อ ลองปิดแล้วเปิดล้อใหม่</string>
     <string name="trip_map_ride_start">เริ่มขี่: %1$s</string>
     <string name="trip_map_reconnected">เชื่อมต่อใหม่: %1$s</string>
@@ -1708,11 +1682,8 @@
     <string name="online_upload_total_km">%1$s %2$s</string>
     <string name="online_upload_join">เข้าร่วมกระดานผู้นำ</string>
     <string name="online_status_shared">แชร์บนกระดานผู้นำแล้ว</string>
-    <string name="online_status_flagged">แชร์แล้ว อยู่ระหว่างตรวจสอบ</string>
     <string name="online_status_pending">กำลังอัปโหลดไปยังกระดานผู้นำ…</string>
     <string name="online_status_failed">อัปโหลดออนไลน์ไม่สำเร็จ แตะเพื่อลองใหม่</string>
-    <string name="online_status_checking">กำลังตรวจสอบกับกระดานผู้นำ…</string>
-    <string name="online_status_check_failed">ตรวจสอบไม่ได้ในตอนนี้ ลองใหม่ภายหลัง</string>
     <string name="online_status_rejected">ไม่ได้รับการยอมรับในกระดานผู้นำ</string>
     <string name="online_upload_join_caption">เข้าร่วมเพื่อส่งสถิติและทริปของคุณไปยังกระดานผู้นำสาธารณะที่</string>
     <string name="online_upload_linked_caption">สถิติและทริปของคุณแสดงบนกระดานผู้นำสาธารณะที่</string>
@@ -1732,7 +1703,6 @@
     <string name="online_profile_delete_confirm_action">ลบถาวร</string>
     <string name="online_profile_save_rate_limited">ถูกจำกัดอัตรา ลองใหม่ภายหลัง</string>
     <string name="online_profile_save_failed">บันทึกไม่สำเร็จ (HTTP %1$d) ลองอีกครั้ง</string>
-    <string name="online_status_flagged_why">รอการตรวจสอบอัตโนมัติสั้นๆ จะเข้าสู่กระดานผู้นำเมื่อผ่านการตรวจ</string>
     <string name="online_restore_title">พบโปรไฟล์ที่บันทึกไว้</string>
     <string name="online_restore_body_new">เราพบโปรไฟล์ที่บันทึกไว้ที่นี่: %1$s การดำเนินการต่อจะกลับเข้าร่วมกระดานผู้นำสาธารณะในฐานะผู้ขี่คนนั้น ชื่อ ธง รูปโปรไฟล์ และสถิติการขี่จะเป็นสาธารณะ จะไม่สร้างโปรไฟล์ใหม่</string>
     <string name="online_restore_body_switch">เราพบโปรไฟล์อื่นที่บันทึกไว้: %1$s การดำเนินการต่อจะสลับโทรศัพท์นี้ไปเป็นผู้ขี่คนนั้น โดยจะสำรองโปรไฟล์ปัจจุบันไว้ก่อน</string>
@@ -1867,8 +1837,6 @@
     <string name="studio_video_fit">พอดี</string>
     <string name="studio_video_fit_stretch">ยืด</string>
     <string name="studio_video_offset">เลื่อนเวลา</string>
-    <string name="studio_video_offset_value_fmt">%1$d ms</string>
-    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
     <string name="studio_video_set_offset">ปัจจุบัน</string>
     <string name="studio_video_edge">นอกช่วง</string>
     <string name="studio_video_edge_freeze">หยุดภาพ</string>
@@ -1929,9 +1897,6 @@
     <string name="studio_cfg_time_window_fmt">%1$d วิ</string>
     <string name="studio_cfg_trail_label">ความยาวรอย</string>
     <string name="studio_cfg_map_style">รูปแบบแผนที่</string>
-    <string name="studio_cfg_map_street">ถนน</string>
-    <string name="studio_cfg_map_dark">มืด</string>
-    <string name="studio_cfg_map_satellite">ดาวเทียม</string>
     <string name="studio_cfg_map_zoom">ซูม</string>
     <string name="studio_cfg_map_attribution">แสดงเครดิตแผนที่</string>
     <string name="studio_cfg_map_attribution_off">สัญญาอนุญาตของแผนที่กำหนดให้แสดงเครดิตนี้ในทุกสิ่งที่คุณแชร์ การปิดเป็นการตัดสินใจของคุณเอง</string>
@@ -2088,7 +2053,6 @@
     <string name="trip_action_inspect_online">ดูออนไลน์</string>
     <string name="trip_action_inspect_online_desc">แชร์ลิงก์ eucviewer.ried.no เพื่อดูการขี่ครั้งนี้ออนไลน์</string>
     <string name="trip_action_dropbox_disabled">ลิงก์ Dropbox ในการตั้งค่าเพื่อเปิดใช้</string>
-    <string name="nav_tap_on_self">ในรายการจุดแวะ กดค้างที่จุดแวะเพื่อตั้งเป็นตำแหน่งของคุณ</string>
     <string name="nav_start_short">เริ่มนำทาง</string>
     <string name="nav_start_btn">เริ่ม</string>
     <string name="nav_stop_short">หยุดนำทาง</string>
@@ -2196,7 +2160,6 @@
     <string name="nav_setting_arrival_radius_desc">ระยะใกล้แค่ไหนที่นับว่าถึงจุดแวะ</string>
     <string name="nav_setting_offroute">ระยะยอมให้ออกนอกเส้นทาง</string>
     <string name="nav_setting_offroute_desc">ระยะห่างจากเส้นทางก่อนจะเตือนว่าออกนอกเส้นทาง</string>
-    <string name="nav_setting_default_mode">โหมดเดินทางเริ่มต้น</string>
     <string name="nav_setting_params">การนำทางและสภาพอากาศ</string>
     <string name="weather_section">สภาพอากาศ</string>
     <string name="weather_icon_desc">พยากรณ์อากาศ</string>
@@ -2217,7 +2180,6 @@
     <string name="weather_enable_desc">เพิ่มไอคอนสภาพอากาศเหนือปุ่มแผนที่ แตะเพื่อดูพยากรณ์ว่าเหมาะกับการขี่ไหม</string>
     <string name="weather_window_label">ช่วงพยากรณ์</string>
     <string name="weather_source_label">แหล่งพยากรณ์</string>
-    <string name="weather_comfort_desc">เกณฑ์ความสบายที่ใช้คิดคะแนน อุณหภูมิใช้ตามหน่วยที่คุณตั้ง ลมใช้ตามหน่วยความเร็วของคุณ</string>
     <string name="weather_cold">หนาวเกินไปเมื่อต่ำกว่า</string>
     <string name="weather_hot">ร้อนเกินไปเมื่อสูงกว่า</string>
     <string name="weather_breezy">ลมโชยเมื่อสูงกว่า</string>
@@ -2244,7 +2206,6 @@
     <string name="weather_lvl_prime_2">อากาศดีที่สุดสำหรับขี่!</string>
     <string name="weather_expand">รายละเอียด</string>
     <string name="weather_chart_temp">อุณหภูมิ ความชื้น และฝน</string>
-    <string name="weather_chart_precip">ปริมาณน้ำฝน</string>
     <string name="weather_chart_wind">ลมและลมกระโชก</string>
     <string name="weather_adv_snow_now">หิมะกำลังตก - ล้อไม่เกาะถนนแล้ว</string>
     <string name="weather_adv_snow_in">คาดว่าหิมะจะตกในอีก %1$s</string>
@@ -2371,8 +2332,6 @@
     <string name="share_alone">ยังไม่มีใครอยู่ที่นี่</string>
     <string name="share_copy">คัดลอก</string>
     <string name="share_open">เปิด</string>
-    <string name="share_menu_join">เข้าร่วมขี่เป็นกลุ่ม</string>
-    <string name="share_menu_join_desc">สแกนคิวอาร์โค้ด</string>
     <string name="share_menu_live">แชร์ตำแหน่งสด</string>
     <string name="share_menu_live_desc">เริ่มขี่เป็นกลุ่ม</string>
     <string name="share_menu_static">แชร์ตำแหน่งปัจจุบัน</string>
@@ -2574,7 +2533,6 @@
     <string name="action_reset_metrics_wheel_done">รีเซ็ตค่าแล้ว ล้างทริปของล้อแล้ว</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
     <string name="tpms_waiting">กำลังรอข้อมูล</string>
-    <string name="status_live">ใช้งานอยู่</string>
     <string name="status_idle">ว่าง</string>
     <string name="tpms_state_leaking">ลมรั่ว</string>
     <string name="tpms_state_inflating">กำลังเติมลม</string>
@@ -2594,7 +2552,6 @@
     <string name="horn_mode_sound">กำหนดเอง</string>
     <string name="horn_mode_both">ผสม</string>
     <string name="horn_mode_hint">กำหนดเองจะเล่นเสียงของคุณบนโทรศัพท์ ผสมจะเพิ่มเสียงนั้นเข้ากับแตรของล้อ สำหรับลำโพงภายนอก หากโทรศัพท์เล่นเสียงไม่ได้ จะใช้แตรของล้อแทน</string>
-    <string name="horn_sound_none">ยังไม่ได้เลือกเสียง</string>
     <string name="horn_sound_current">เสียง: %1$s</string>
     <string name="horn_sound_choose">เลือกเสียง</string>
     <string name="horn_sound_imported">บันทึกเสียงแตรแล้ว</string>
@@ -2610,7 +2567,6 @@
     <string name="voice_stat_min">ต่ำสุด</string>
     <string name="voice_stat_avg">เฉลี่ย</string>
     <string name="voice_stat_peak">พีค</string>
-    <string name="crews_title">ครูว์</string>
     <string name="crews_pass_action">บัตรผ่านครูว์</string>
     <string name="crews_pass_search_hint">บัตรผ่านครูว์จะแสดงเมื่อคุณเข้าร่วมกระดานผู้นำออนไลน์</string>
     <string name="crews_scan_hint">เปิด eucstats ในเบราว์เซอร์ กดครูว์ แล้วส่องกล้องไปที่โค้ดที่แสดง</string>
@@ -2715,7 +2671,6 @@
     <string name="nav_unlock_stops">จุดแวะ</string>
     <string name="nav_unlock_off">คลาดจากเส้นทางได้สูงสุด %1$s</string>
     <string name="nav_unlock_confirm">แปลง</string>
-    <string name="nav_track_badge">เส้นทางล็อก</string>
     <string name="voice_nav_place_reached">ถึง %1$s แล้ว</string>
     <string name="offline_data_open">พื้นที่ออฟไลน์</string>
     <string name="offline_server_url">เซิร์ฟเวอร์ข้อมูลออฟไลน์</string>

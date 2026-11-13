@@ -6,7 +6,6 @@
 
     <string name="keep_app_alive">Διατήρηση εφαρμογής σε λειτουργία</string>
     <string name="keep_app_alive_desc">Διατηρεί μια μόνιμη ειδοποίηση ώστε η εφαρμογή να μένει ενεργή στο παρασκήνιο. Ο συγχρονισμός διαδρομών και η φωνή λειτουργούν ακόμη και χωρίς συνδεδεμένο μονότροχο. Καταναλώνει λίγο περισσότερη μπαταρία.</string>
-    <string name="notif_actions_section">Προσαρμογή</string>
     <string name="notif_actions_enable">Εμφάνιση ενεργειών ειδοποίησης</string>
     <string name="notif_actions_enable_desc">Προσθέτει κουμπιά γρήγορων ενεργειών στη μόνιμη ειδοποίηση.</string>
     <string name="notif_actions_pick_desc">Επιλέξτε έως %1$d ενέργειες. Η ίδια ενέργεια μπορεί να επαναλαμβάνεται.</string>
@@ -39,9 +38,6 @@
     <string name="state_off">Ανενεργό</string>
     <string name="action_done">Τέλος</string>
     <string name="action_close">Κλείσιμο</string>
-    <string name="crash_log_action_prompt">Πατήσατε παρατεταμένα το %1$s. Διαγράψτε μόνο αυτό το αρχείο καταγραφής ή όλα. Για κοινοποίηση, πατήστε Ακύρωση και μετά πατήστε το αρχείο.</string>
-    <string name="crash_log_delete_all">Διαγραφή όλων</string>
-    <string name="crash_log_delete_all_warning">Διαγραφή όλων των αποθηκευμένων αρχείων σφαλμάτων; Η ενέργεια δεν αναιρείται.</string>
     <string name="action_save">Αποθήκευση</string>
     <string name="action_apply">Εφαρμογή</string>
     <string name="action_reset">Επαναφορά</string>
@@ -130,12 +126,10 @@
     <string name="tab_dashboard">Διάταξη πίνακα οργάνων</string>
     <string name="dashboard_section_metrics">Μετρήσεις</string>
     <string name="dashboard_section_actions">Κουμπιά ενεργειών</string>
-    <string name="dashboard_columns">Στήλες</string>
     <string name="dashboard_grid_hint">Πατήστε παρατεταμένα για μετακίνηση, πατήστε για επεξεργασία.</string>
     <string name="dashboard_pool_metrics">Διαθέσιμες μετρήσεις</string>
     <string name="dashboard_pool_actions">Διαθέσιμες ενέργειες</string>
     <string name="dashboard_pool_tap_toast">Πατήστε παρατεταμένα και σύρετε σε μια θέση παραπάνω για χρήση</string>
-    <string name="dashboard_rolling_window">Παράθυρο κυλιόμενων στατιστικών</string>
     <string name="dashboard_stats_length">Διάρκεια στατιστικών</string>
     <string name="dashboard_view">Προβολή</string>
     <string name="dashboard_view_default">Προεπιλογή</string>
@@ -772,7 +766,6 @@
     <string name="watch_haptic_on_action">Δόνηση σε ενέργεια</string>
     <string name="watch_haptic_on_action_desc">Σύντομη δόνηση του ρολογιού σε κάθε πάτημα, όπου υποστηρίζεται.</string>
 
-    <string name="section_cloud_folder">Φάκελος αντιγράφων</string>
     <string name="cloud_caption">Ο φάκελος αντιγράφων ασφαλείας για διαδρομές, ρυθμίσεις, θέματα και επικαλύψεις.</string>
     <string name="cloud_choose_folder">Επιλογή φακέλου</string>
     <string name="cloud_change_folder">Αλλαγή φακέλου</string>
@@ -796,7 +789,6 @@
     <string name="cloud_reset_local">Εκκαθάριση τοπικών διαδρομών</string>
     <string name="cloud_reset_local_title">Εκκαθάριση τοπικών διαδρομών;</string>
     <string name="cloud_reset_local_body">Αφαιρεί κάθε διαδρομή που είναι αποθηκευμένη σε αυτό το τηλέφωνο. Ο φάκελος αντιγράφων δεν αγγίζεται, οπότε οι συγχρονισμένες διαδρομές μπορούν να επαναφερθούν από εκεί.</string>
-    <string name="cloud_retry_enqueued">Η μεταφόρτωση προγραμματίστηκε</string>
     <string name="action_retry">Επανάληψη</string>
     <string name="sync_progress">Συγχρονισμός %1$d από %2$d</string>
     <string name="sync_no_folder">Επιλέξτε πρώτα φάκελο αντιγράφων</string>
@@ -830,7 +822,6 @@
     <string name="cloud_backup_replace_body_dated">Το αντίγραφο της %1$s θα αντικατασταθεί με τις τρέχουσες ρυθμίσεις.</string>
     <string name="cloud_restore_picker_default">(του χρήστη)</string>
     <string name="cloud_restore_picker_factory">(εργοστασιακές)</string>
-    <string name="cloud_restore_picker_empty">Δεν βρέθηκαν αντίγραφα στον φάκελο συγχρονισμού</string>
     <string name="cloud_factory_confirm_title">Επαναφορά εργοστασιακών ρυθμίσεων;</string>
     <string name="cloud_factory_confirm_body_p1">Επαναφέρει όλες τις ρυθμίσεις της εφαρμογής στις προεπιλογές.</string>
     <string name="cloud_factory_confirm_body_p2">Οι συζευγμένες συσκευές και τα αποθηκευμένα αντίγραφα διατηρούνται. Η ενέργεια δεν αναιρείται.</string>
@@ -838,10 +829,7 @@
 
     <string name="section_recording">Εγγραφή</string>
     <string name="section_connection">Σύνδεση</string>
-    <string name="section_display">Οθόνη</string>
-    <string name="auto_record_on_start">Αυτόματη εγγραφή στην έναρξη</string>
     <string name="auto_record_caption">Καταγράφει διαδρομή όταν το μονότροχο είναι συνδεδεμένο.</string>
-    <string name="auto_record_start_in_motion">Έναρξη εγγραφής με την κίνηση</string>
     <string name="auto_record_start_in_motion_caption">Ξεκινά με την κίνηση, σταματά μετά από αδράνεια και ξαναρχίζει στην επόμενη βόλτα.</string>
     <string name="auto_record_stop_idle_seconds">Διακοπή μετά από αδράνεια</string>
     <string name="auto_record_mode_label">Αυτόματη εγγραφή διαδρομής</string>
@@ -1124,11 +1112,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Φορτηγό ντίζελ</string>
     <string name="engine_preset_sampled_motorcycle">Μικρή μοτοσικλέτα κρος</string>
     <string name="engine_preset_sampled_city_car">Αυτοκίνητο πόλης</string>
-    <string name="engine_preset_sampled_helicopter">Ελικόπτερο</string>
     <string name="engine_preset_sampled_tractor">Τρακτέρ</string>
     <string name="engine_preset_sampled_lawnmower">Χλοοκοπτικό</string>
     <string name="engine_preset_sampled_steam_loco">Ατμομηχανή</string>
-    <string name="engine_preset_sampled_car_cruise">Αυτοκίνητο σε ταξίδι</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
     <string name="engine_preset_sampled_big_diesel">Μεγάλο ντίζελ</string>
     <string name="engine_preset_sampled_broken_exhaust">Τρύπια εξάτμιση</string>
@@ -1333,7 +1319,6 @@
     <string name="trip_meter_tab_speed">Ταχύτητα</string>
     <string name="trip_meter_tab_battery">Μπαταρία</string>
     <string name="trip_meter_tab_time">Χρόνος</string>
-    <string name="trip_meter_total">Σύνολο</string>
     <string name="trip_meter_active">Ενεργός</string>
     <string name="trip_meter_avg">Μέσος</string>
     <string name="trip_meter_reset">Μηδενισμός χιλιομετρητή</string>
@@ -1491,7 +1476,6 @@
     <string name="trip_tools_rename">Μετονομασία διαδρομής</string>
     <string name="trip_tools_rename_desc">Δώστε όνομα σε αυτή τη βόλτα. Αποθηκεύεται στο αρχείο της, οπότε ακολουθεί τις εξαγωγές και τον συγχρονισμό.</string>
     <string name="trip_tools_rename_hint">Αφήστε το κενό για να χρησιμοποιηθεί η ημερομηνία.</string>
-    <string name="trip_tools_renamed">Η διαδρομή μετονομάστηκε</string>
     <string name="trip_tools_change_wheel">Αλλαγή μονότροχου</string>
     <string name="trip_tools_change_wheel_desc">Διορθώστε σε ποιο μονότροχο έγινε αυτή η βόλτα. Ενημερώνει τη διαδρομή και το αρχείο της.</string>
     <string name="trip_tools_wheel_other">Άλλο μονότροχο</string>
@@ -1522,8 +1506,6 @@
     <string name="trip_split_reason_wheel">Ανέλαβε άλλο μονότροχο</string>
     <string name="trip_split_reason_gap">Κενό στην εγγραφή</string>
     <string name="trip_split_reason_stopped">Στάση για πολλή ώρα</string>
-    <string name="trip_tools_combine">Συνδυασμός διαδρομών</string>
-    <string name="trip_tools_combine_desc">Συγχωνεύει άλλες βόλτες με αυτή σε μια νέα διαδρομή, διατηρώντας τα πρωτότυπα.</string>
     <string name="trip_tools_combine_none">Δεν υπάρχουν άλλες ολοκληρωμένες διαδρομές για συνδυασμό.</string>
     <string name="trip_tools_combine_mixed_wheels">Κάποιες από αυτές έγιναν με άλλο μονότροχο. Η απόσταση και η ενέργεια θα αθροιστούν.</string>
     <string name="trip_tools_combine_done">Οι διαδρομές συνδυάστηκαν σε μία νέα</string>
@@ -1560,12 +1542,10 @@
     <string name="auto_lights_when">Ακολούθηση δύσης και ανατολής όταν</string>
     <string name="auto_lights_off_slow">Σβήσιμο του φωτός όταν επιβραδύνετε</string>
     <string name="auto_lights_off_below">Σβήσιμο κάτω από</string>
-    <string name="auto_lights_desc">Ανάβει ή σβήνει τους προβολείς ανάλογα με τη δύση και την ανατολή του ηλίου.</string>
     <string name="auto_lights_on_before_sunset">Φως ΑΝΑΜΜΕΝΟ πριν από</string>
     <string name="auto_lights_off_after_sunrise">Φως ΣΒΗΣΤΟ μετά από</string>
     <string name="auto_waiting_gps">Αναμονή για θέση GPS…</string>
     <string name="auto_volume_title">Έλεγχος έντασης</string>
-    <string name="auto_volume_desc">Αυξάνει την ένταση της μουσικής ανάλογα με την ταχύτητα.</string>
     <string name="auto_volume_when">Αύξηση έντασης όταν</string>
     <string name="media_rate_when">Αλλαγή ταχύτητας αναπαραγωγής όταν</string>
     <string name="media_rate_permission_desc">Το Android τη ζητά ξεχωριστά. Χωρίς αυτή η ταχύτητα αναπαραγωγής δεν μπορεί να αλλάξει.</string>
@@ -1575,14 +1555,12 @@
     <string name="media_rate_grant">Παραχώρηση</string>
     <string name="warnings_media_access_title">Η πρόσβαση στις ειδοποιήσεις είναι ανενεργή</string>
     <string name="warnings_media_access_body">Χωρίς αυτήν, η ταχύτητα αναπαραγωγής δεν μπορεί να ακολουθεί την ταχύτητά σας. Πατήστε για να την επιτρέψετε.</string>
-    <string name="media_control_desc">Παύση της μουσικής όταν επιβραδύνετε, συνέχιση όταν επιταχύνετε.</string>
     <string name="media_control_pause">Παύση όταν επιβραδύνω</string>
     <string name="media_control_pause_below">Παύση στα ή κάτω από</string>
     <string name="media_control_resume">Συνέχιση όταν επιταχύνω</string>
     <string name="media_control_resume_above">Συνέχιση στα ή πάνω από</string>
     <string name="automation_require_external">Μόνο με ακουστικά ή Bluetooth</string>
     <string name="proximity_lock_title">Κλείδωμα μονότροχου</string>
-    <string name="proximity_lock_desc">Κλειδώνει το μονότροχο όταν απομακρύνεστε και το ξεκλειδώνει όταν επιστρέφετε, με βάση την ισχύ του σήματος Bluetooth.</string>
     <string name="proximity_lock_enable">Κλείδωμα όταν απομακρύνομαι</string>
     <string name="proximity_lock_below">Σήμα κάτω από</string>
     <string name="proximity_unlock_when">Αυτόματο ξεκλείδωμα</string>
@@ -1700,9 +1678,6 @@
     <string name="alarm_predict_label">Προγνωστική ενεργοποίηση</string>
     <string name="alarm_predict_realtime">Τώρα</string>
 
-    <string name="about_crash_logs">Αρχεία σφαλμάτων</string>
-    <string name="about_crash_logs_empty">Δεν έχουν καταγραφεί σφάλματα</string>
-    <string name="about_share_crash">Κοινοποίηση αρχείου σφάλματος</string>
     <string name="about_thanks">Ευχαριστίες</string>
     <string name="about_thanks_body">Βαρέθηκα τις εφαρμογές EUC που εξελίσσονται πολύ αργά, δείχνουν παρωχημένες, έχουν δρακόντειους κανόνες για νέες λειτουργίες, αντιμετωπίζουν τις κοινότητές τους σαν πελάτες και ξεχνούν ότι οι αναβάτες EUC δίνουν τον καλύτερό τους εαυτό όταν βοηθούν ο ένας τον άλλον. Αυτή προσπαθεί να είναι το αντίθετο.</string>
     <string name="about_license">Άδεια χρήσης</string>
@@ -1713,7 +1688,6 @@
     <string name="service_mode_link">Επισκεφθείτε το eucplanet.ried.no/service για περισσότερες πληροφορίες.</string>
     <string name="service_mode_enter">Είσοδος</string>
     <string name="toast_external_speed_change">Η ταχύτητα ενημερώθηκε από το μονότροχο: tilt-back %1$d km/h, συναγερμός %2$d km/h</string>
-    <string name="wheel_no_data_reconnecting">Δεν λαμβάνονται δεδομένα από το μονότροχο. Επανασύνδεση…</string>
     <string name="wheel_no_data_reset">Ακόμα κανένα δεδομένο από το μονότροχο. Δοκιμάστε να το απενεργοποιήσετε και να το ενεργοποιήσετε ξανά.</string>
 
     <string name="trip_map_ride_start">Έναρξη βόλτας: %1$s</string>
@@ -1759,11 +1733,8 @@
     <string name="online_upload_total_km">%1$s %2$s</string>
     <string name="online_upload_join">Συμμετοχή στην κατάταξη</string>
     <string name="online_status_shared">Κοινοποιήθηκε στην κατάταξη</string>
-    <string name="online_status_flagged">Κοινοποιήθηκε, υπό έλεγχο</string>
     <string name="online_status_pending">Μεταφόρτωση στην κατάταξη…</string>
     <string name="online_status_failed">Η διαδικτυακή μεταφόρτωση απέτυχε, πατήστε για επανάληψη</string>
-    <string name="online_status_checking">Έλεγχος με την κατάταξη…</string>
-    <string name="online_status_check_failed">Δεν ήταν δυνατός ο έλεγχος τώρα, δοκιμάστε ξανά αργότερα</string>
     <string name="online_status_rejected">Δεν έγινε δεκτό στην κατάταξη</string>
     <string name="online_upload_join_caption">Εγγραφείτε για να στέλνετε τα στατιστικά και τις διαδρομές σας στη δημόσια κατάταξη στο.</string>
     <string name="online_upload_linked_caption">Τα στατιστικά και οι διαδρομές σας εμφανίζονται στη δημόσια κατάταξη στο.</string>
@@ -1784,7 +1755,6 @@
     <string name="online_profile_delete_confirm_action">Οριστική διαγραφή</string>
     <string name="online_profile_save_rate_limited">Πάρα πολλά αιτήματα, δοκιμάστε ξανά αργότερα.</string>
     <string name="online_profile_save_failed">Η αποθήκευση απέτυχε (HTTP %1$d). Δοκιμάστε ξανά.</string>
-    <string name="online_status_flagged_why">Σε αναμονή για έναν σύντομο αυτόματο έλεγχο. Μπαίνει στην κατάταξη μόλις εγκριθεί.</string>
     <string name="online_restore_title">Βρέθηκε αποθηκευμένο προφίλ</string>
     <string name="online_restore_body_new">Βρήκαμε ένα αποθηκευμένο προφίλ εδώ: %1$s. Αν συνεχίσετε, επιστρέφετε στη δημόσια κατάταξη ως αυτός ο αναβάτης. Το όνομα, η σημαία, το avatar και τα στατιστικά βόλτας είναι δημόσια. Δεν δημιουργείται νέο προφίλ.</string>
     <string name="online_restore_body_switch">Βρήκαμε ένα διαφορετικό αποθηκευμένο προφίλ: %1$s. Αν συνεχίσετε, αυτό το τηλέφωνο αλλάζει σε εκείνον τον αναβάτη. Πρώτα δημιουργείται αντίγραφο ασφαλείας του τρέχοντος προφίλ σας.</string>
@@ -1933,8 +1903,6 @@
     <string name="studio_video_fit">Προσαρμογή</string>
     <string name="studio_video_fit_stretch">Τέντωμα</string>
     <string name="studio_video_offset">Μετατόπιση</string>
-    <string name="studio_video_offset_value_fmt">%1$d ms</string>
-    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
     <string name="studio_video_set_offset">Τρέχουσα</string>
     <string name="studio_video_edge">Εκτός εύρους</string>
     <string name="studio_video_edge_freeze">Πάγωμα</string>
@@ -1997,9 +1965,6 @@
     <string name="studio_cfg_time_window_fmt">%1$ds</string>
     <string name="studio_cfg_trail_label">Μήκος ίχνους</string>
     <string name="studio_cfg_map_style">Στυλ χάρτη</string>
-    <string name="studio_cfg_map_street">Οδικός</string>
-    <string name="studio_cfg_map_dark">Σκοτεινός</string>
-    <string name="studio_cfg_map_satellite">Δορυφόρος</string>
     <string name="studio_cfg_map_zoom">Ζουμ</string>
     <string name="studio_cfg_map_attribution">Εμφάνιση πίστωσης χάρτη</string>
     <string name="studio_cfg_map_attribution_off">Η άδεια του χάρτη απαιτεί αυτή την πίστωση σε ό,τι μοιράζεστε. Η απενεργοποίηση είναι δική σας ευθύνη.</string>
@@ -2163,7 +2128,6 @@
     <string name="trip_action_inspect_online">Προβολή online</string>
     <string name="trip_action_inspect_online_desc">Κοινοποιήστε έναν σύνδεσμο eucviewer.ried.no για να δείτε αυτή τη βόλτα online.</string>
     <string name="trip_action_dropbox_disabled">Συνδέστε το Dropbox στις ρυθμίσεις για να ενεργοποιηθεί</string>
-    <string name="nav_tap_on_self">Στη λίστα Στάσεις, πατήστε παρατεταμένα μια στάση για να την ορίσετε στην τοποθεσία σας</string>
     <string name="nav_start_short">Έναρξη πλοήγησης</string>
     <string name="nav_start_btn">Έναρξη</string>
     <string name="nav_stop_short">Διακοπή πλοήγησης</string>
@@ -2275,7 +2239,6 @@
     <string name="nav_setting_arrival_radius_desc">Πόσο κοντά μετράει ως άφιξη σε στάση.</string>
     <string name="nav_setting_offroute">Ανοχή εκτός δρομολογίου</string>
     <string name="nav_setting_offroute_desc">Πόσο μακριά από το δρομολόγιο πριν ενεργοποιηθεί η ειδοποίηση εκτός δρομολογίου.</string>
-    <string name="nav_setting_default_mode">Προεπιλεγμένος τρόπος μετακίνησης</string>
     <string name="nav_setting_params">Πλοήγηση &amp; καιρός</string>
     <string name="weather_section">Καιρός</string>
     <string name="weather_icon_desc">Πρόγνωση καιρού.</string>
@@ -2296,7 +2259,6 @@
     <string name="weather_enable_desc">Προσθέτει ένα εικονίδιο καιρού πάνω από το κουμπί του χάρτη: πατήστε το για πρόγνωση καταλληλότητας για βόλτα.</string>
     <string name="weather_window_label">Χρονικό εύρος πρόγνωσης</string>
     <string name="weather_source_label">Πηγή πρόγνωσης</string>
-    <string name="weather_comfort_desc">Όρια άνεσης που διαμορφώνουν τη βαθμολογία. Οι θερμοκρασίες ακολουθούν τη ρύθμιση μονάδων σας, ο άνεμος ακολουθεί τη μονάδα ταχύτητας.</string>
     <string name="weather_cold">Πολύ κρύο κάτω από</string>
     <string name="weather_hot">Πολύ ζέστη πάνω από</string>
     <string name="weather_breezy">Αεράκι πάνω από</string>
@@ -2323,7 +2285,6 @@
     <string name="weather_lvl_prime_2">Ιδανικός καιρός για βόλτα!</string>
     <string name="weather_expand">Λεπτομέρειες</string>
     <string name="weather_chart_temp">Θερμ., υγρασία &amp; κατακρημν.</string>
-    <string name="weather_chart_precip">Κατακρημνίσματα</string>
     <string name="weather_chart_wind">Άνεμος &amp; ριπές</string>
     <string name="weather_adv_snow_now">Χιονίζει τώρα - η πρόσφυση χάθηκε.</string>
     <string name="weather_adv_snow_in">Αναμένεται χιόνι σε %1$s.</string>
@@ -2450,8 +2411,6 @@
     <string name="share_alone">Δεν υπάρχει κανείς άλλος ακόμα.</string>
     <string name="share_copy">Αντιγραφή</string>
     <string name="share_open">Άνοιγμα</string>
-    <string name="share_menu_join">Συμμετοχή σε ομαδική βόλτα</string>
-    <string name="share_menu_join_desc">Σαρώστε έναν κωδικό QR.</string>
     <string name="share_menu_live">Ζωντανή τοποθεσία</string>
     <string name="share_menu_live_desc">Ξεκινήστε μια ομαδική βόλτα.</string>
     <string name="share_menu_static">Στατική τοποθεσία</string>
@@ -2655,7 +2614,6 @@
     <string name="action_reset_metrics_wheel_done">Οι μετρήσεις επαναφέρθηκαν, η διαδρομή του μονότροχου μηδενίστηκε</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
     <string name="tpms_waiting">Αναμονή για δεδομένα</string>
-    <string name="status_live">Ζωντανά</string>
     <string name="status_idle">Αδράνεια</string>
     <string name="tpms_state_leaking">Διαρροή</string>
     <string name="tpms_state_inflating">Φούσκωμα</string>
@@ -2676,7 +2634,6 @@
     <string name="horn_mode_sound">Προσαρμοσμένη</string>
     <string name="horn_mode_both">Μίξη</string>
     <string name="horn_mode_hint">Η Προσαρμοσμένη παίζει τον δικό σας ήχο στο τηλέφωνο. Η Μίξη τον προσθέτει στην κόρνα του μονότροχου, για εξωτερικό ηχείο. Αν το τηλέφωνο δεν μπορεί να τον παίξει, ακούγεται η κόρνα του μονότροχου.</string>
-    <string name="horn_sound_none">Δεν επιλέχθηκε ήχος</string>
     <string name="horn_sound_current">Ήχος: %1$s</string>
     <string name="horn_sound_choose">Επιλογή ήχου</string>
     <string name="horn_sound_imported">Ο ήχος κόρνας αποθηκεύτηκε</string>
@@ -2693,7 +2650,6 @@
     <string name="voice_stat_avg">Μ.Ο.</string>
     <string name="voice_stat_peak">Κορυφή</string>
 
-    <string name="crews_title">Ομάδες</string>
     <string name="crews_pass_action">Πάσο ομάδας</string>
     <string name="crews_pass_search_hint">Το πάσο ομάδας εμφανίζεται μόλις συμμετάσχετε στις online κατατάξεις.</string>
     <string name="crews_scan_hint">Ανοίξτε το eucstats σε πρόγραμμα περιήγησης, πατήστε Crews και στρέψτε την κάμερα στον κωδικό που εμφανίζει.</string>
@@ -2799,7 +2755,6 @@
     <string name="nav_unlock_stops">Στάσεις</string>
     <string name="nav_unlock_off">Απόκλιση έως %1$s από την πορεία</string>
     <string name="nav_unlock_confirm">Μετατροπή</string>
-    <string name="nav_track_badge">Κλειδωμένη πορεία</string>
     <string name="voice_nav_place_reached">Φτάσατε: %1$s</string>
     <string name="offline_data_open">Περιοχές εκτός σύνδεσης</string>
     <string name="offline_server_url">Διακομιστής δεδομένων εκτός σύνδεσης</string>
