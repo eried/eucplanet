@@ -45,21 +45,10 @@ class ThemeEditorViewModel(
     /** Persist the current preview into the working draft (on release). */
     fun commit() = viewModelScope.launch { themeController.commitLive() }
 
-    fun selectTheme(name: String) = viewModelScope.launch {
-        themeController.previewLive(null)
-        themeController.selectTheme(name)
-    }
-
     fun saveAs(name: String, onDone: (Boolean) -> Unit) = viewModelScope.launch {
         themeController.commitLive()
         val ok = themeController.saveAs(name)
         if (ok) themeController.previewLive(null)
         onDone(ok)
-    }
-
-    fun closeEditor() = viewModelScope.launch {
-        themeController.commitLive()
-        themeController.previewLive(null)
-        themeController.setEditorEnabled(false)
     }
 }

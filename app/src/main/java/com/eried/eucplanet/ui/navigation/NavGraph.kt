@@ -135,7 +135,6 @@ fun NavGraph(navController: NavHostController) {
             val tab = backStackEntry.arguments?.getInt("tab") ?: 0
             SettingsScreen(
                 onBack = { navController.popSingle() },
-                onNavigateToFlic = { navController.navigateSingle(Screen.Flic.route) },
                 initialTab = tab,
                 viewModel = koinViewModel(),
                 host = com.eried.eucplanet.ui.settings.rememberAndroidSettingsHost(),

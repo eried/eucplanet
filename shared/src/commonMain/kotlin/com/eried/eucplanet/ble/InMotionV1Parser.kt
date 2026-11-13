@@ -28,10 +28,6 @@ object InMotionV1Parser {
         return (ByteUtils.getUint32LE(unwrapped, 0).toInt())
     }
 
-    /** True when this is an extended (variable-length) frame per spec 3.2. */
-    fun isExtended(unwrapped: ByteArray): Boolean =
-        unwrapped.size > 12 && (unwrapped[12].toInt() and 0xFF) == 0xFE
-
     /**
      * Slice the extended payload (everything after the 16-byte CAN prefix).
      * Empty array when the frame is not extended.
@@ -171,7 +167,7 @@ object InMotionV1Parser {
 
     /**
      * Mileage at offset 44 varies across firmware revisions; see spec
-     * section 4.2. L6 stores u32 LE in centimetres (multiply by 100 to get
+     * section 4.2. L6 stores u32 LE in units of 100 m (multiply by 100 to get
      * metres); every other current model stores u32 LE in metres directly.
      */
     private fun readTotalDistanceMeters(payload: ByteArray, model: InMotionV1Model?): Float {

@@ -241,12 +241,8 @@ class DropboxTripSync(
         val remoteByLower = remote.keys.associateBy { it.lowercase() }
         val remoteMetaByLower = remote.entries.associate { it.key.lowercase() to it.value }
 
-        // A same-name file is a real conflict only when its CONTENT differs (byte
-        // size). Same name + same size means it is already synced, so it is
-        // neither a conflict nor work. Previously every already-synced trip was
-        // flagged as a conflict, so the dialog popped for nothing and "Skip all"
-        // still left genuinely new/changed trips to upload - hence "0 trips" yet
-        // one still synced. This now matches the background worker's size check.
+        // A same-name file is a conflict only when the copies differ. Same name
+        // and same size is already synced: neither a conflict nor work.
         val bothNames = remoteByLower.keys intersect localByLower.keys
         // Same name, different size: the copies differ. The fingerprint of the
         // version last synced tells which side moved on, so an edit made on one
@@ -332,7 +328,6 @@ class DropboxTripSync(
         val settingsOutcome = dropboxSettings.carryOut(settingsPlan, settingsAction) {
             host.snapshotBeforeRestore() // best-effort undo point (needs a SAF folder)
         }
-        var extra = if (settingsOutcome.changed) 1 else 0
         val settingsFailed = settingsOutcome.failed
 
         val total = toUpload.size + toDownload.size
@@ -434,7 +429,7 @@ class DropboxTripSync(
             ui.progress(done, total)
         }
 
-        extra += host.syncFolders(settings, choice)
+        host.syncFolders(settings, choice)
 
         if (failed == 0) {
             // Only stamp the sync time on a clean pass, so a partial run stays
@@ -450,7 +445,7 @@ class DropboxTripSync(
                 )
             }
             // "Synchronized N trips" counts TRIPS only, not the settings.json /
-            // themes / overlays mirror (extra) - counting those made an all-synced
+            // themes / overlays mirror - counting those made an all-synced
             // pass that merely refreshed settings report "1 trip". When no trip
             // moved, say "already up to date" instead of "0 trips".
             ui.result(if (total == 0) SyncResult.UpToDate else SyncResult.Finished(total))
@@ -555,13 +550,9 @@ class DropboxTripSync(
             .associate { it.fileName.lowercase() to it.dropboxStatus }
         var anyFailed = false
         var uploaded = 0
-        // How many trips still need uploading. A trip is "already up" when Dropbox
-        // holds a file of the SAME byte length (trip CSVs are append-only, so a
-        // matching size means matching content). We deliberately do NOT compare by
-        // modified-time: the local mtime gets bumped by on-device rewrites, which
-        // made every trip look "newer" and re-upload forever, so the sync never
-        // converged and the indicator never cleared. failedTrips tracks how many
-        // of the needed uploads never made it this pass.
+        // How many trips still need uploading, decided by needsUpload below
+        // (UploadPolicy: Dropbox's timestamp, then the content hash). failedTrips
+        // counts the needed uploads that did not make it this pass.
         // Dropbox ignores case like the phone does; a name the two spell
         // differently is still the same trip, not one to upload again.
         val remoteByLower = remoteTrips.mapKeys { it.key.lowercase() }

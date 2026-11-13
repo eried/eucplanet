@@ -360,7 +360,6 @@ fun OfflineDataDialog(
     }
 }
 
-/** A small pill over the map. */
 /** Squares picked together, waiting for the rider's yes. */
 private class Bulk(val names: List<String>, val route: Boolean)
 
@@ -368,6 +367,7 @@ private class Bulk(val names: List<String>, val route: Boolean)
 private const val NEAR_KM = 50.0
 private const val WIDE_KM = 200.0
 
+/** A small pill over the map. */
 @Composable
 private fun MapChip(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, onClick: () -> Unit) {
     val colors = MaterialTheme.appColors

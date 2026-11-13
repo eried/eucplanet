@@ -85,9 +85,8 @@ fun LockdownUnlockDialog(
         title = { Text(stringResource(Res.string.lockdown_speed_limit_title)) },
         text = {
             Column {
-                // Half and half, the same shape the Legal Tiltback / Legal Alarm
-                // pair uses in settings, so the two limits read as a pair. Both
-                // are read-only: this dialog reports them, it does not set them.
+                // Two full-width pills, one under the other. Both are
+                // read-only: this dialog reports them, it does not set them.
                 androidx.compose.foundation.layout.Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     ReadOnlySpeedField(
                         label = stringResource(Res.string.lockdown_action_speed_limit),

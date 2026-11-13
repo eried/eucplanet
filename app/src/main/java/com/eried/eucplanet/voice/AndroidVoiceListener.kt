@@ -85,8 +85,7 @@ class AndroidVoiceListener(
         recognizer = r
         r.setRecognitionListener(listener)
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-            // The source Android tunes for speech in noise, which is the whole
-            // problem on a wheel at speed.
+            // Free-form model: riders ask whole sentences, not search terms.
             putExtra(
                 RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM,

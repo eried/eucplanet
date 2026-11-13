@@ -20,7 +20,7 @@ object Units {
 
     /**
      * Converts a stored km/h value to the user's chosen speed unit.
-     * [unit] is "kmh", "mph" or "ms".
+     * [unit] is "kmh", "mph", "ms" or "kn".
      */
     fun speed(kmh: Float, unit: String): Float = when (unit) {
         "mph" -> kmh * 0.621371f
@@ -31,7 +31,7 @@ object Units {
 
     /**
      * Converts a stored km value to the user's chosen distance unit.
-     * [unit] is "km", "mi" or "m".
+     * [unit] is "km", "mi", "m", "ft" or "mil".
      */
     fun distance(km: Float, unit: String): Float = when (unit) {
         "mi" -> km * 0.621371f
@@ -83,7 +83,7 @@ object Units {
         else -> value
     }
 
-    /** Distance unit symbol for "km", "mi" or "m". */
+    /** Distance unit symbol for "km", "mi", "m", "ft" or "mil". */
     fun distanceUnit(unit: String): String = when (unit) {
         "mi" -> "mi"
         "m" -> "m"
@@ -99,7 +99,7 @@ object Units {
         else -> "°C"
     }
 
-    /** Converts a stored kPa tire-pressure value to the chosen unit ("psi" or "bar"). */
+    /** Converts a stored kPa tire-pressure value to the chosen unit ("psi", "bar", "kgf" or "mpa"). */
     fun pressure(kpa: Float, unit: String): Float = when (unit) {
         "psi" -> kpa * 0.145038f
         "bar" -> kpa / 100f
@@ -160,7 +160,7 @@ object Units {
         return "%.${pressureDecimals(unit)}f %s".format(value, pressureUnit(unit))
     }
 
-    /** Tire-pressure unit symbol for "psi" or "bar" (kPa otherwise). */
+    /** Tire-pressure unit symbol for "psi", "bar", "kgf" or "mpa" (kPa otherwise). */
     fun pressureUnit(unit: String): String = when (unit) {
         "psi" -> "psi"
         "bar" -> "bar"
@@ -169,11 +169,6 @@ object Units {
         else -> "kPa"
     }
 
-    /**
-     * Effective tire-pressure unit. No dedicated per-metric setting yet, so it
-     * follows the rider's distance unit: imperial (mi) -> psi, everything else
-     * -> bar. A standalone pressure-unit picker can be added later.
-     */
     /**
      * The rider's pressure unit.
      *
@@ -192,14 +187,14 @@ object Units {
     enum class UnitSystem { METRIC, IMPERIAL, CUSTOM }
 
     /**
-     * The effective speed unit ("kmh", "mph" or "ms"). A blank [AppSettings.unitSpeed]
+     * The effective speed unit ("kmh", "mph", "ms" or "kn"). A blank [AppSettings.unitSpeed]
      * is the pre-migration value: fall back to the legacy [AppSettings.imperialUnits] flag.
      */
     fun effectiveSpeedUnit(s: AppSettings): String =
         if (s.unitSpeed.isBlank()) (if (s.imperialUnits) "mph" else "kmh") else s.unitSpeed
 
     /**
-     * The effective distance unit ("km", "mi" or "m"). A blank [AppSettings.unitDistance]
+     * The effective distance unit ("km", "mi", "m", "ft" or "mil"). A blank [AppSettings.unitDistance]
      * is the pre-migration value: fall back to the legacy [AppSettings.imperialUnits] flag.
      */
     fun effectiveDistanceUnit(s: AppSettings): String =

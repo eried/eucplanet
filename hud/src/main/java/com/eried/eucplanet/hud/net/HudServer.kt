@@ -43,9 +43,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -161,8 +159,6 @@ class HudServer(private val context: Context) {
     private val _localIp = MutableStateFlow<String?>(null)
     val localIp: StateFlow<String?> = _localIp.asStateFlow()
 
-    /** Address of the phone currently connected to us, e.g. "192.168.43.5".
-     *  Null when no client is attached. */
     /** The linked phone by address, not by name: the name of one and the
      *  same phone can read differently from one request to the next. */
     @Volatile private var peerAddress: String? = null
@@ -173,6 +169,8 @@ class HudServer(private val context: Context) {
      *  its next request. */
     private fun numeric(host: String): String =
         runCatching { java.net.InetAddress.getByName(host).hostAddress }.getOrNull() ?: host
+    /** Address of the phone currently connected to us, e.g. "192.168.43.5".
+     *  Null when no client is attached. */
     private val _peer = MutableStateFlow<String?>(null)
     val peer: StateFlow<String?> = _peer.asStateFlow()
 
@@ -183,8 +181,7 @@ class HudServer(private val context: Context) {
 
     /** Commands the UI wants to send back to the phone. Buffered so a button
      *  press during a disconnect window isn't silently dropped -- the phone
-     *  will see it when it reconnects. Replay = 0 because we don't want to
-     *  re-fire commands on every new connection, only deliver pending ones. */
+     *  will see it when it reconnects. Each command is delivered once. */
     private val outboundCommands = Channel<HudCommand>(capacity = Channel.UNLIMITED)
 
     private var server: io.ktor.server.engine.ApplicationEngine? = null
@@ -206,15 +203,10 @@ class HudServer(private val context: Context) {
      *  it" failure. A high-perf / low-latency WiFi lock keeps the radio awake. */
     private var wifiLock: WifiManager.WifiLock? = null
 
-    // --- Diagnostics (surfaced on the HUD stats card + logcat) so the next
-    // "link died, had to reboot" report carries the cause, not just the
-    // symptom. ---
+    // --- Diagnostics (logcat) so the next "link died, had to reboot" report
+    // carries the cause, not just the symptom. ---
     /** How many times the watchdog has force-restarted the server this run. */
     @Volatile var watchdogRestarts: Int = 0; private set
-    /** Why the last phone connection ended (clean close / timeout / exception). */
-    @Volatile var lastEndReason: String = ""; private set
-    /** Wall-clock of the last disconnect, 0 if still on the first connection. */
-    @Volatile var lastDisconnectMs: Long = 0L; private set
     /** Self-heal watchdog. Polls the local listener and the current IPv4 every
      *  [WATCHDOG_INTERVAL_MS] so a hotspot IP-renew or a silently-dead Ktor
      *  socket gets fixed without the rider having to reboot the HUD. */
@@ -245,8 +237,8 @@ class HudServer(private val context: Context) {
     @Volatile private var rcRestart: Int = 0
     @Volatile private var rcReassoc: Int = 0
     @Volatile private var rcToggle: Int = 0
-    /** Number of off-air episodes we've auto-recovered from this run -- surfaced
-     *  on the stats card so a "had to reboot" report can instead read "recovered
+    /** Number of off-air episodes we've auto-recovered from this run -- put in
+     *  the recovery note so a "had to reboot" report can instead read "recovered
      *  N times on its own". */
     @Volatile var offAirRecoveries: Int = 0; private set
     /** Set once the HUD has been HEALTHY with a usable IP at least once this
@@ -364,10 +356,6 @@ class HudServer(private val context: Context) {
                     peerAddress = numeric(remote)
                     _status.value = Status.CONNECTED
                     liveSession = this
-                    // Diagnostic: remember the phone IP across reconnects
-                    // so the HUD-side stats card can show "last phone: X"
-                    // even after the link drops.
-                    phoneFinder.notePhone(remote)
 
                     // Greet the phone with our version. The phone uses
                     // this to decide whether to show "update HUD" or
@@ -454,8 +442,6 @@ class HudServer(private val context: Context) {
                     } finally {
                         sender.cancel()
                         Log.i(TAG, "phone disconnected: $remote (#$myConn, $endReason)")
-                        lastEndReason = endReason
-                        lastDisconnectMs = System.currentTimeMillis()
                         // Only surrender the connection state if no newer
                         // connection has taken over since we opened. Otherwise
                         // a slow-timing-out stale handler would wrongly flip the
@@ -472,7 +458,7 @@ class HudServer(private val context: Context) {
         }.start(wait = false)
         server = s
         startMdnsAdvertise()
-        // Beacon re-resolves its own IPv4 each tick now, so we can fire it
+        // Beacon re-resolves its own IPv4 each tick, so we can fire it
         // immediately even when the local IP isn't ready yet -- the first
         // few ticks may be no-ops while DHCP completes and the beacon will
         // pick up the address as soon as it's assigned.
@@ -611,8 +597,9 @@ class HudServer(private val context: Context) {
      * had to reboot the Motoeye (diagnosed from the 2026-06-29 tester log: the
      * HUD's UDP beacon vanished at 07:18:52 and never returned).
      *
-     * Now each tick gathers real radio signals (WiFi association + a probe to
-     * the phone we last talked to) and feeds them to [LinkWatchdog.assess]:
+     * Now each tick gathers the HUD's own radio state (WiFi association and
+     * local IP) plus a loopback probe of the server, and feeds them to
+     * [LinkWatchdog.assess]:
      *   - HEALTHY        -> reset streaks, refresh IP/mDNS, relax cadence.
      *   - SERVER_WEDGED  -> radio fine but listener dead: restart the server
      *                       (the old behaviour, now correctly scoped to the
@@ -750,8 +737,8 @@ class HudServer(private val context: Context) {
     private fun wifiManager(): WifiManager? =
         context.applicationContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager
 
-    /** Keep the on-screen IP + mDNS advertise fresh. Lifted out of the old
-     *  watchdog loop so both the healthy and server-wedged paths share it. */
+    /** Keep the on-screen IP + mDNS advertise fresh. Shared by the healthy
+     *  and server-wedged paths. */
     private fun refreshIpAndMdns() {
         val current = pickLocalIp()
         val prior = _localIp.value

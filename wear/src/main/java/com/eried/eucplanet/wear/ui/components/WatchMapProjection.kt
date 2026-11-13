@@ -285,10 +285,10 @@ internal class WatchMapProjection(
 
     private fun rotatedTileIntersectsViewport(left: Double, top: Double, size: Double): Boolean {
         val tile = listOf(
-            rotateAround(left, top, size),
-            rotateAround(left + size, top, size),
-            rotateAround(left + size, top + size, size),
-            rotateAround(left, top + size, size),
+            rotateAround(left, top),
+            rotateAround(left + size, top),
+            rotateAround(left + size, top + size),
+            rotateAround(left, top + size),
         )
         val screen = listOf(
             0.0 to 0.0,
@@ -299,7 +299,7 @@ internal class WatchMapProjection(
         return polygonsIntersect(tile, screen)
     }
 
-    private fun rotateAround(x: Double, y: Double, size: Double): Pair<Double, Double> {
+    private fun rotateAround(x: Double, y: Double): Pair<Double, Double> {
         val rotated = rotatePoint(x - pivotX, y - pivotY, rotation)
         return pivotX + rotated.first to pivotY + rotated.second
     }

@@ -17,8 +17,8 @@ import kotlin.concurrent.Volatile
  *     [BegodeParser.voltageRatioFor].
  *
  * Outbound commands are short ASCII strings written WITHOUT response; see
- * [BegodeCommands]. Begode pushes telemetry unsolicited; init / poll loops
- * are empty.
+ * [BegodeCommands]. Begode pushes telemetry unsolicited; the only writes
+ * from the init / poll loops are the V / N banner probes.
  */
 class BegodeAdapter : WheelAdapter {
     override val familyId = "begode"
@@ -28,14 +28,6 @@ class BegodeAdapter : WheelAdapter {
     @Volatile private var detectedModel: BegodeModel? = null
 
     override val nominalPackVoltage: Int? get() = detectedModel?.nominalVoltage
-
-    /**
-     * Tracks the wheel's current light state across off/on/strobe so the
-     * boolean [setLight] toggle can rotate predictably. Begode is the only
-     * brand with a 3-state light (spec 6.5); we collapse strobe to "on" for
-     * the on/off API and skip the strobe state in the cycle.
-     */
-    @Volatile private var lightOn: Boolean = false
 
     /**
      * Lazy V/N probe state: we ask the wheel for its firmware banner once
@@ -83,7 +75,6 @@ class BegodeAdapter : WheelAdapter {
      * "cycle light" UI affordance.
      */
     override fun setLight(on: Boolean): ByteArray {
-        lightOn = on
         return if (on) BegodeCommands.lightOn() else BegodeCommands.lightOff()
     }
 
@@ -168,7 +159,6 @@ class BegodeAdapter : WheelAdapter {
         detectedFirmware = null
         detectedModelName = null
         pendingProbe = null
-        lightOn = false
     }
 
     /**

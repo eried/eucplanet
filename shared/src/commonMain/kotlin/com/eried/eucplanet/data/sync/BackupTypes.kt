@@ -17,7 +17,7 @@ sealed interface BackupOutcome {
 data class BackupEntry(val fileName: String, val label: String?, val isFactory: Boolean = false)
 
 /**
- * The rider identity carried by a settings backup, read without applying it.
- * Used to offer "restore your existing rider" when a sync folder is linked.
+ * The rider id found in the sync folder's eucstats_riderid.txt. Used to
+ * offer "restore your existing rider" when a sync folder is linked.
  */
 data class RestorableRider(val fileName: String, val storeId: String)

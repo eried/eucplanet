@@ -88,8 +88,6 @@ fun qrBitmap(content: String, size: Int, ecc: ErrorCorrectionLevel = ErrorCorrec
 
 private fun encodeQr(content: String, size: Int, ecc: ErrorCorrectionLevel): Bitmap {
     val side = size.coerceAtLeast(64)
-    // Q-level (~25% recoverable) is a good balance for short URLs scanned
-    // at arm's length on a phone screen.
     val hints = mapOf<EncodeHintType, Any>(
         EncodeHintType.ERROR_CORRECTION to ecc,
         EncodeHintType.MARGIN to 0

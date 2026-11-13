@@ -237,7 +237,7 @@ fun SyncProgressWithCancel(
             }
         }
         // Static half-width Cancel on the right, matching the other action
-        // buttons. weight(1f) fixes its width so it no longer resizes between
+        // buttons. weight(1f) fixes its width so it does not resize between
         // "Cancel" and "Stopping...".
         androidx.compose.material3.OutlinedButton(
             onClick = onCancel,

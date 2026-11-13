@@ -24,7 +24,8 @@ object VoiceVocabulary {
         /** One of the spoken reports VoiceReportPlan already assembles. */
         REPORT,
 
-        /** An acceleration split, rendered by AccelSplitVoice. */
+        /** The last acceleration split. Listed in the vocabulary; the
+         *  controller has no reading for it and answers "no data yet". */
         SPLIT,
 
         /** A request for the list itself, answered with examples. */
@@ -65,7 +66,6 @@ object VoiceVocabulary {
         const val UPTIME = "SP_UPTIME"
         const val NAV_NEXT = "SP_NAV"
         const val LAST_TRIP = "SP_LAST_TRIP"
-        const val ALARMS = "SP_ALARMS"
 
         /**
          * The three readings inside the forecast, askable on their own.

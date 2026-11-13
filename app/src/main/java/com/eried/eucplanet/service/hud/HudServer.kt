@@ -9,7 +9,6 @@ import android.net.NetworkRequest
 import android.net.wifi.WifiManager
 import android.util.Log
 import com.eried.eucplanet.ble.ConnectionState
-import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.HudDiscoveryMode
 import com.eried.eucplanet.data.model.arrowAngleDeg
 import com.eried.eucplanet.data.repository.ExternalGpsRepository
@@ -25,14 +24,11 @@ import com.eried.eucplanet.hud.protocol.RadarTargetWire
 import com.eried.eucplanet.hud.protocol.StaleLink
 import com.eried.eucplanet.hud.protocol.WifiInterferenceDetector
 import com.eried.eucplanet.nav.NavigationEngine
-import com.eried.eucplanet.ui.theme.AccentOptions
-import com.eried.eucplanet.ui.theme.AccentTeal
 import com.eried.eucplanet.util.AppForeground
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -141,13 +137,10 @@ class HudServer(
          *  moved HUD long before any heartbeat would while still leaving a
          *  healthy link almost entirely alone. */
         private const val BEACON_MISMATCH_PROBE_MS = 5_000L
-        // Default carousel order shipped with all 12 known screens.
-        // Mirrors SettingsViewModel.defaultEnabledHudScreens so a fresh
-        // install gets a non-empty wire field on the first frame --
-        // lets the HUD distinguish "no frame received yet" (empty)
-        // from "rider's choice" (non-empty). Updated from the original
-        // 7 after preview-3 tester feedback that the opt-in screens
-        // were invisible to most testers.
+        // Default carousel order, sent when the rider has not customised
+        // it, so a fresh install gets a non-empty wire field on the first
+        // frame. That lets the HUD distinguish "no frame received yet"
+        // (empty) from "rider's choice" (non-empty).
         private val DEFAULT_HUD_SCREENS = listOf(
             "Dashboard", "Camera", "Telemetry",
             "Custom", "CustomCam", "Map", "Nav",
@@ -676,18 +669,18 @@ class HudServer(
      * Outer loop: discover-or-read the HUD address, open a WebSocket, pump
      * state until it dies, back off, retry.
      *
-     * In AUTO (default) and BOTH modes we walk a priority chain on each
-     * iteration:
+     * In AUTO (default) and BOTH modes every channel runs at once and the
+     * first answer wins, see [resolvePeer]:
      *
-     *   1. UDP beacon sighting (freshest first; cheap, the most reliable
-     *      channel because it works on hotspots that block multicast)
-     *   2. mDNS browse on `_eucplanet._tcp.local.` (5 s wait)
-     *   3. Manual `hudIp` from settings, BOTH mode only (a last-known hint,
-     *      not the only truth). AUTO skips this so a stale IP the rider cannot
-     *      see (the field is hidden) can never win the race - the bug that had
-     *      a stale entry beat a HUD that had already announced itself.
-     *   4. /24 subnet probe of the phone's own IP (slow, ~3 s, only fires
-     *      when the first channels failed)
+     *   - UDP beacon sighting (cheap, the most reliable channel because it
+     *     works on hotspots that block multicast)
+     *   - mDNS browse on `_eucplanet._tcp.local.`
+     *   - /24 subnet probe of the phone's own networks, rate limited by
+     *     sweepIntervalMs
+     *   - Manual `hudIp` from settings, BOTH mode only and after a short
+     *     grace delay (a last-known hint, not the only truth). AUTO skips
+     *     this so a stale IP the rider cannot see (the field is hidden) can
+     *     never win the race.
      *
      * FIXED mode skips discovery entirely and uses only the manual IP - an
      * escape hatch for the rare environment where every auto channel misleads
@@ -772,12 +765,6 @@ class HudServer(
         }
     }
 
-    /**
-     * Run the discovery priority chain and return the first usable
-     * `host:port` plus the source it came from. Each step's timing is
-     * tuned so the full chain bottoms out in ~10 s even in the worst case
-     * (no UDP, no mDNS, no manual hint, subnet probe runs).
-     */
     /**
      * Resolve a peer when auto-discovery is OFF. We trust whatever the rider
      * typed, fill in only what's missing with mDNS (no UDP, no subnet probe
@@ -989,7 +976,7 @@ class HudServer(
 
     /** Resolve `_eucplanet._tcp.local.` on whatever subnet we have. Returns
      *  `host:port` of the first matching HUD with a compatible protocol
-     *  version, or null if nothing answered within [MDNS_RESOLVE_TIMEOUT_MS].
+     *  version, or null if nothing answered within [mdnsTimeoutMs].
      *
      *  Each call opens its own JmDNS instance so a network change between
      *  attempts (rider switching hotspot on, walking out of range) gets a
@@ -1341,7 +1328,7 @@ class HudServer(
             unitTemp = com.eried.eucplanet.util.Units.effectiveTempUnit(s),
             unitPressure = com.eried.eucplanet.util.Units.effectivePressureUnit(s),
             batteryEnvelope = wd.batteryEnvelope,
-            accentArgb = resolveAccentArgb(s),
+            accentArgb = resolveAccentArgb(),
             latitude = (location?.latitude ?: 0.0) + (d?.dLat ?: 0.0),
             longitude = (location?.longitude ?: 0.0) + (d?.dLng ?: 0.0),
             gpsSpeedKmh = gpsSpeedPair?.first ?: Float.NaN,
@@ -1382,7 +1369,7 @@ class HudServer(
                 // ALWAYS ship a non-empty list. The HUD treats an empty
                 // enabledHudScreens as "no wire frame received yet" and
                 // shows a waiting splash; if the rider hasn't customised
-                // we ship the default seven so the HUD has something to
+                // we ship the default list so the HUD has something to
                 // render the moment a real frame arrives.
                 if (order.isEmpty() && enabled.isEmpty()) {
                     DEFAULT_HUD_SCREENS
@@ -1438,6 +1425,6 @@ class HudServer(
         return context.getString(spec.labelRes)
     }
 
-    private fun resolveAccentArgb(s: AppSettings): String =
+    private fun resolveAccentArgb(): String =
         com.eried.eucplanet.ui.theme.ThemeAccent.primaryArgb(themeController.activeColors.value)
 }

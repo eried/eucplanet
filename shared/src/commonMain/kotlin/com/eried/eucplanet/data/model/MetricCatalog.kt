@@ -16,13 +16,9 @@ import com.eried.eucplanet.ui.theme.AccentPurple
  * in [MetricCatalog.all]; the editor / live dashboard / debug overlay
  * all pick it up automatically.
  *
- * The catalog deliberately stores UI-affecting metadata (accent color,
- * sparkline style, supports-stats flag) but NOT raw value extraction or
- * unit conversion. Those stay in the live dashboard because they need
- * AppSettings (for imperial/metric) and WheelData (for the wheel
- * snapshot), keeping the catalog free of those references means it
- * stays a pure metadata declaration that compiles with no dependencies
- * beyond Compose colour primitives.
+ * The catalog stores UI metadata only (accent color, sparkline style,
+ * supports-stats flag). Raw value extraction lives in [MetricRegistry].
+ * Unit conversion and formatting stay with the consumers.
  *
  * The PER-METRIC sparkline style is what gives each tile its identity
  * on the live dashboard: CURRENT renders as a bipolar area (regen vs
@@ -109,7 +105,7 @@ data class MetricSpec(
 object MetricCatalog {
 
     val all: List<MetricSpec> = listOf(
-        // ---- Default active grid (first 6 on a fresh install) ----
+        // ---- Core tiles (the default grid is AppSettings.dashboardMetricOrder) ----
         MetricSpec(
             key = "BATTERY",
             labelRes = Res.string.metric_chip_battery,
@@ -179,12 +175,9 @@ object MetricCatalog {
             accent = AccentGreen,
             sparkline = SparklineStyle.SMOOTH_LINE
         ),
-        // POWER was a duplicate of BATTERY_POWER (both read
-        // wheelData.batteryPower in displayValueFor). Removed from the
-        // catalog so the editor only surfaces one "power" tile that
-        // names what it actually measures. Existing dashboards that
-        // still reference "POWER" fall through to placeholder until the
-        // rider re-adds BATTERY_POWER from the pool.
+        // No POWER entry: it duplicated BATTERY_POWER. Saved layouts with
+        // POWER are rewritten in DashboardViewModel.migrateLegacyMetricKeys,
+        // and MetricRegistry keeps POWER as an alias.
         MetricSpec(
             key = "ODOMETER",
             labelRes = Res.string.metric_chip_odometer,

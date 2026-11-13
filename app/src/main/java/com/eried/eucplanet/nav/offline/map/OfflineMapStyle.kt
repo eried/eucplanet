@@ -18,7 +18,6 @@ object OfflineMapStyle {
     const val RAIL = 0xFF707070.toInt()
     const val FERRY = 0xFF6699CC.toInt()
     const val TEXT = 0xFF333333.toInt()
-    const val WATER_TEXT = 0xFF4D80B3.toInt()
     const val HALO = 0xFFFFFFFF.toInt()
     const val NUMBER = 0xFF8A7F77.toInt()
 

@@ -7,12 +7,13 @@ import kotlinx.coroutines.flow.asStateFlow
 /**
  * Lets surfaces that live outside the dashboard composition, specifically the
  * floating service-mode debug overlay, ask the dashboard to open one of its
- * local dialogs (About, Service Mode). Those dialogs are dashboard-local state,
+ * local dialogs (About, Service Mode, the weather panel). Those dialogs are dashboard-local state,
  * so the overlay can't toggle them directly; it posts a request here and
  * navigates to the dashboard, which observes [pending], opens the matching
  * dialog, and calls [consume].
  *
- * Values: "about" → About dialog, "service" → Service Mode / diagnostics dialog.
+ * Values: "about" → About dialog, "service" → Service Mode / diagnostics dialog,
+ * "weather" → the weather panel.
  */
 object DashboardDialogBus {
     private val _pending = MutableStateFlow<String?>(null)

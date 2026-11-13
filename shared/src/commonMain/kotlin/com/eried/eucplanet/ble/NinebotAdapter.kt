@@ -126,8 +126,9 @@ class NinebotAdapter : WheelAdapter {
             // the wheel expects for this single bootstrap frame.
             NinebotCommands.getKey(),
             // BleVersion read confirms the wheel speaks Z; serial + firmware
-            // populate the identity card. These are encrypted-on-send by the
-            // crypto helper as soon as the GetKey reply lands.
+            // populate the identity card. The whole list is built before the
+            // GetKey reply arrives, so encryptForSend finds no key and these
+            // three go out in plaintext.
             encryptForSend(NinebotCommands.getBleVersion()),
             encryptForSend(NinebotCommands.getSerialNumber()),
             encryptForSend(NinebotCommands.getFirmware())
@@ -174,9 +175,9 @@ class NinebotAdapter : WheelAdapter {
      * Z encodes max-speed and alarm in separate params. The shared API only
      * gives us one tiltback + one alarm slot, so we map alarm -> alarm 1
      * and leave alarms 2..3 untouched (the user can twist them later via a
-     * dedicated alarms screen). Returns the tiltback packet; the alarm
-     * follow-up rides on [setMaxSpeedCommit] so the connection manager
-     * paces them on consecutive ticks rather than one big write burst.
+     * dedicated alarms screen). Returns the tiltback packet;
+     * [setMaxSpeedCommit] enables limited mode and [setAlarmSpeedCommit]
+     * carries alarm 1.
      */
     override fun setMaxSpeed(tiltbackKmh: Float, alarmKmh: Float): ByteArray? = when (activeProtocol) {
         NinebotProtocol.Z -> encryptForSend(NinebotCommands.setSpeedLimit(tiltbackKmh))
@@ -318,10 +319,8 @@ class NinebotAdapter : WheelAdapter {
                 listOf(DecodeResult.Settings(settingsSnapshot))
             }
             NinebotCommands.Param.SPEAKER_VOLUME -> {
-                // The shared WheelSettings record doesn't carry volume, but we
-                // still parse the param so the snapshot stays self-consistent
-                // and a future UI surfacing can read the raw byte without a
-                // schema change here. Drop on the floor for now.
+                // The shared WheelSettings record doesn't carry volume, so the
+                // reply is dropped.
                 emptyList()
             }
             NinebotCommands.Param.DRIVE_FLAGS -> {

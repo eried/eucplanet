@@ -70,8 +70,8 @@ import org.koin.compose.viewmodel.koinViewModel
  * app while guidance is running.
  *
  * Each new cue pops a big arrow card in the centre of the screen on a rounded
- * translucent background; it times out (AppSettings.navPopupTimeoutMs) to a
- * small corner pill. Tapping the pill re-opens it. The X ends navigation after a
+ * translucent background; it times out (AppSettings.navPopupTimeoutMs) and
+ * hides. The dashboard navigator button re-opens it. The X ends navigation after a
  * confirmation. The empty area around the card does not intercept touches.
  */
 @Composable
@@ -90,7 +90,7 @@ fun NavigationOverlay(
     var showEndConfirm by remember { mutableStateOf(false) }
 
     // The centred popup is transient: it appears on each new cue, then times
-    // out to the pill. popGen bumps on every new cue (and on a manual re-open)
+    // out and hides. popGen bumps on every new cue (and on a manual re-open)
     // so the show-then-hide cycle restarts each time.
     var popGen by remember { mutableIntStateOf(0) }
     var popupShown by remember { mutableStateOf(false) }
@@ -347,20 +347,6 @@ private fun CenterPopup(
             }
         }
     }
-}
-
-/** Colour the cue takes: red when off-route, green on arrival, warmth-tinted in Treasure Hunt. */
-@Composable
-private fun cueColor(state: NavState, accent: Color): Color = when {
-    state.offRoute -> MaterialTheme.appColors.statusDanger
-    state.arrived -> MaterialTheme.appColors.statusGood
-    state.mode == NavMode.TREASURE_HUNT -> when (state.proximity) {
-        Proximity.HOT -> MaterialTheme.appColors.statusDanger
-        Proximity.WARM -> MaterialTheme.appColors.statusWarn
-        Proximity.COLD -> MaterialTheme.appColors.metricVoltage
-        null -> accent
-    }
-    else -> accent
 }
 
 @Composable

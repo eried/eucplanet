@@ -70,7 +70,7 @@ import org.koin.compose.viewmodel.koinViewModel
  * Bottom sheet opened by tapping the GPS indicator in the dashboard top-right.
  * Shows tabbed live data from each available source (Phone IMU + GPS, Wheel
  * BLE telemetry, optional External GPS box), plus a Compare tab that lets
- * the rider pick two sources and see their deltas as small line graphs.
+ * the rider pick two sources and compare them.
  *
  * The sheet starts the phone IMU listener on open and stops it on dismiss
  * so the sensor isn't running when no one's looking at the readout.
@@ -416,9 +416,7 @@ private fun SourceTab(
         // a speed reading, but specifically valuable on the GPS-only
         // sources where there is no IMU -- riders can still see a
         // launch / brake event without one. On the wheel source the
-        // line is an estimate that the rider can eyeball against the
-        // IMU rows below (useful for diagnostics: stale GPS, wheel
-        // speed mis-calibration, etc.).
+        // line is an estimate.
         if (snapshot.speedKmh != null && speedSeries.points.size >= 2) {
             GForceSparkline(
                 speedSeries = speedSeries,
@@ -718,9 +716,9 @@ private fun GForceCrosshair(
 
 /**
  * Compare body. A and B are picked from the top and bottom tab rows
- * respectively, no in-body picker. Renders a stack of graphical comparison
- * panels: line charts of the rolling time series for each pair of sources
- * that share a metric, plus the mini-map for position.
+ * respectively, no in-body picker. Shows the speed chart with the
+ * calibration action, a table of the other shared metrics, and the
+ * mini-map for position.
  */
 @Composable
 private fun CompareTab(
@@ -937,8 +935,8 @@ private fun shortestArc(a: Float, b: Float): Float {
 
 /**
  * Side-by-side line graph for a single metric. Both lines share Y axis
- * (auto-fit), X axis is wall-clock time over the rolling [SERIES_WINDOW_MS]
- * window from the viewmodel. Header shows the current numeric Δ in the
+ * (auto-fit), X axis is wall-clock time over the most recent 20 s to
+ * 2 min. Header shows the current numeric Δ in the
  * metric's unit so the value is glanceable without staring at the lines.
  *
  * Empty series degrade to a flat dashed "no data" placeholder.
@@ -1069,7 +1067,8 @@ private fun computeTimedAverage(
 /**
  * Time-aligned average of B minus A across the rolling window. We pair each
  * B sample with the nearest-in-time A sample and average the deltas. The
- * window is whatever the ViewModel keeps in the series buffers (~30 s today).
+ * window is whatever the ViewModel keeps in the series buffers
+ * (SERIES_WINDOW_MS, 5 minutes).
  */
 private fun computeAverageDeltaKmh(
     a: DataSourcesViewModel.TimedSeries,
@@ -1141,14 +1140,14 @@ private fun LineChart(
     seriesC: DataSourcesViewModel.TimedSeries = DataSourcesViewModel.TimedSeries(),
     colorC: Color = Color.Gray,
     /**
-     * When non-null, the Y axis centers on the most recent A-or-B value with
-     * top/bottom at ±[centerOnLatestPct] % of that value. Lets two near-equal
-     * but oscillating sources show as a visible spread instead of flattening
-     * into a thin band at the top of the chart. Null = auto-fit min/max.
+     * When non-null, the Y axis fits the visible values with 25 % padding,
+     * never tighter than ±[centerOnLatestPct] % of the centre value. Null =
+     * auto-fit min/max.
      */
     centerOnLatestPct: Float? = null,
-    /** Render with units appended next to each value label in the tooltip. */
+    /** Enables the touch scrub line and value labels. */
     interactive: Boolean = false,
+    /** Unit appended to each scrub value label. */
     valueUnit: String = ""
 ) {
     val measurer = rememberTextMeasurer()
@@ -1249,15 +1248,10 @@ private fun LineChart(
             val yMin: Float
             val yMax: Float
             if (centerOnLatestPct != null) {
-                // Fit the full visible window's spread (not just the latest
-                // A/B values) so the rider can see the whole 5-minute speed
-                // history with breathing room above and below. Earlier we
-                // centred tightly on the most recent two points, which
-                // collapsed the chart to a narrow band and hid the rest of
-                // the ride. Now: take min/max across every transformed
-                // value in view, expand by 25 %, with a floor of |centre|
-                // × centerOnLatestPct % so a flat parked emulator (both
-                // values near zero) doesn't collapse to a hairline.
+                // Fit the spread of the whole visible window, not only the
+                // latest values: min/max across every transformed value in
+                // view, expanded by 25 %, with a floor so a flat parked
+                // reading does not collapse to a hairline.
                 val active = transformedValues.filter { it.isFinite() }
                 val vMin = active.minOrNull() ?: 0f
                 val vMax = active.maxOrNull() ?: 0f

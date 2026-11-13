@@ -25,13 +25,6 @@ object KingsongParser {
     private const val HEADER0: Byte = 0xAA.toByte()
     private const val HEADER1: Byte = 0x55.toByte()
 
-    /** Type byte at offset 16 of any complete 20-byte frame. */
-    fun typeOf(frame: ByteArray): Int? {
-        if (frame.size < 20) return null
-        if (frame[0] != HEADER0 || frame[1] != HEADER1) return null
-        return frame[16].toInt() and 0xFF
-    }
-
     /**
      * Live telemetry, frame `0xA9`. Speed and voltage are u16 LE / 100; the
      * 4-byte distance field at offsets 6..9 uses the documented word-swapped
@@ -184,9 +177,8 @@ object KingsongParser {
     }
 
     /**
-     * CPU and PWM frame `0xF5`. PWM is reported as an unsigned percent at
-     * offset 15; our [WheelData.pwm] convention is hundredths-of-percent so
-     * we scale by 100 to match the V14 dashboard.
+     * CPU and PWM frame `0xF5`. PWM is reported as an unsigned whole percent
+     * at offset 15 and stored as is.
      */
     fun parseCpuPwm(frame: ByteArray): WheelData? {
         if (frame.size < 20) return null

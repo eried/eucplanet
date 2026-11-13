@@ -179,8 +179,8 @@ object MetricText {
             // Link RSSI from the GATT layer (0 = not yet read).
             "BT_RSSI" -> if (wheelData.rssiDbm != 0) "${wheelData.rssiDbm} dBm" else placeholder
             // Ride energy since connect (the Battery screen's running
-            // integral). Wh/km divides by trip distance once there's a
-            // little of it, so a tiny denominator can't spike the number.
+            // integral). Wh/km is the rolling-window rate, NaN until the
+            // window holds enough distance.
             "WH_CONSUMED" -> if (wheelData.whConsumed > 0f) "%.0f Wh".format(wheelData.whConsumed) else placeholder
             "REGEN_WH" -> if (wheelData.whRegen > 0f) "%.0f Wh".format(wheelData.whRegen) else placeholder
             "WH_PER_KM" -> whPerDistance(wheelData.whPerKmRecent, distanceUnit)

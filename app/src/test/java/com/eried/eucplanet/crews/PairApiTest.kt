@@ -19,7 +19,7 @@ import org.junit.Test
  * it exists because the half of the handshake that cannot be reached on a device without a
  * linked eucstats account is exactly the half that sends the rider's store_id: `confirm`.
  * Driving the UI proved `describe` against a live server, including a genuine 410 for a code
- * that had never existed, and then stopped at "You're not on eucstats yet" — correctly, and
+ * that had never existed, and then stopped at "You're not on eucstats yet": correctly, and
  * before the interesting line of code.
  *
  * The shapes asserted here are the server's, read off `web/crews_api.py` in the eucstats

@@ -178,11 +178,6 @@ object SettingsJson {
             put("deviceSecret", s.share.deviceSecret)
         })
         put("tpms", JSONObject().apply {
-            // Never written until now, so a paired sensor was forgotten on
-            // every restart and a rider who picked psi got it back as bar. The
-            // fields existed on the model and the model was simply not on this
-            // list, which is the one way a setting can look wired up and still
-            // go nowhere.
             put("pairedAddress", s.tpms.pairedAddress)
             put("pairedAddresses", JSONArray(s.tpms.pairedAddresses))
             put("pressureUnit", s.tpms.pressureUnit)
@@ -275,8 +270,7 @@ object SettingsJson {
         put("androidAutoAlarmNotifications", s.androidAuto.alarmNotifications)
         put("navigatorViewMetrics", s.navigatorView.metrics)
         put("navigatorViewNorthUp", s.navigatorView.northUp)
-        // Nested voice extras, written as flat keys so the file stays readable
-        // and a future move back to top level would not break existing saves.
+        // Weather group, written as flat keys.
         put("weatherEnabled", s.weather.enabled)
         put("weatherWindowHours", s.weather.windowHours)
         put("weatherOpenExpanded", s.weather.openExpanded)
@@ -829,8 +823,8 @@ object SettingsJson {
         watchHapticOnAction = j.optBoolean("watchHapticOnAction", base.watchHapticOnAction),
         watchUpdateRate = when {
             j.has("watchUpdateRate") -> j.optString("watchUpdateRate", base.watchUpdateRate)
-            // Migrate the legacy boolean: ON used the 150 ms fast poll, OFF the
-            // 250 ms default. The new 500 ms "CONSERVATIVE" tier is opt-in only.
+            // Migrate the legacy boolean: ON was the 150 ms fast poll, OFF the
+            // 250 ms default. CONSERVATIVE (750 ms) is opt-in only.
             j.has("fasterRefresh") -> if (j.optBoolean("fasterRefresh", false)) "FAST" else "NORMAL"
             else -> base.watchUpdateRate
         },

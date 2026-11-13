@@ -11,11 +11,9 @@ import com.eried.eucplanet.util.TripCsv
  *
  * A derived trip must never reach the eucstats leaderboard: it is a view the
  * rider constructed, not a ride as recorded. Upload eligibility is a database
- * query that needs a non-null `tripUuid`, so leaving that null is enough day to
- * day. It is not enough after a database rebuild: TripRepository adopts any
- * orphan CSV it finds and hands it a fresh UUID, which would quietly make these
- * uploadable. The file name is the only thing that survives that, so it carries
- * the marker.
+ * query that needs a non-null `tripUuid`, and neither a derived trip nor an
+ * adopted orphan CSV gets one. The file name still carries the marker so a
+ * derived file stays recognisable after a database rebuild.
  *
  * Backups need no special handling in the other direction. Dropbox and local
  * sync walk the trips directory for `*.csv`, so a derived file is included

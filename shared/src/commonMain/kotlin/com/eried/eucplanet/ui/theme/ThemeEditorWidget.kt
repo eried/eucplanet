@@ -94,9 +94,8 @@ fun ThemeEditorWidget(
     val choices = vm.choices.collectAsState().value
     val scope = rememberCoroutineScope()
 
-    // Refresh available themes / folder state when the widget shows and whenever
-    // the backup folder or saved set changes (so Save-as enables + the combo
-    // separator below updates).
+    // Refresh folder state and the saved set when the widget shows or either
+    // changes, so Save-as and the overwrite check are current.
     LaunchedEffect(settings.syncFolderUri, settings.activeThemeName) { vm.refreshChoices() }
 
     // Active theme colors come from ThemeController (in memory); the live preview
@@ -363,8 +362,8 @@ fun ThemeEditorWidget(
         }
     }
 
-    // Target tool: full-screen crosshair over the app. Picking a token opens its
-    // editor and blinks it once so you can confirm you grabbed the right one.
+    // Target tool: full-screen crosshair over the app. Tapping a candidate blinks
+    // it so you can confirm you grabbed the right one, Select opens its editor.
     if (pickMode) {
         ThemeTargetOverlay(
             base = base,

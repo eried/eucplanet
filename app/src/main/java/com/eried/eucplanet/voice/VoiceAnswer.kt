@@ -104,8 +104,8 @@ object VoiceAnswer {
      * Three things a rider could ask for, for when they asked what they can
      * ask for.
      *
-     * Drawn from their own dashboard first, same as [notUnderstood], because
-     * the tiles they chose are the values they care about. Three rather than
+     * Drawn from their own dashboard first, because the tiles they chose
+     * are the values they care about. Three rather than
      * the whole catalog: this is spoken, usually while moving.
      */
     fun examples(vocabulary: List<SpokenTerm>, onDashboard: Set<String>): Answer {
@@ -122,7 +122,7 @@ object VoiceAnswer {
      * and telling an Italian rider to say "help" would be telling them to say
      * a word the matcher will not be listening for.
      */
-    fun notUnderstood(vocabulary: List<SpokenTerm>, onDashboard: Set<String>): Answer {
+    fun notUnderstood(vocabulary: List<SpokenTerm>): Answer {
         val help = vocabulary.firstOrNull { it.kind == VoiceVocabulary.Kind.HELP }
         return Answer.NotUnderstood(help?.name.orEmpty())
     }

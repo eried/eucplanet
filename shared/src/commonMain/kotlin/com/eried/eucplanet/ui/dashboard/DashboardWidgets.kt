@@ -153,22 +153,19 @@ fun SpeedGauge(
     speed: Float,
     maxSpeed: Float,
     speedUnit: String,
-    overrideColor: Color? = null,
     showColorBand: Boolean = false,
     orangeThresholdPct: Int = 65,
     redThresholdPct: Int = 85,
     safeBandColor: Color = MaterialTheme.appColors.gaugeFill,
     /** External GPS speed in km/h, or null when no external GPS box is connected.
-     *  Drives a small marker on the dial and a smaller readout under the main number,
-     *  both in [externalAccentColor]. */
+     *  Drives a small marker on the dial in [externalAccentColor]. */
     externalSpeed: Float? = null,
     externalAccentColor: Color = MaterialTheme.appColors.metricPosition,
     modifier: Modifier = Modifier
 ) {
     // Speed-arc + speed-number colour rule (phone & watch share this rule):
-    //  - Color band ON  → band tier wins (safe / orange / red), even if the user
-    //    has a custom accent, the band is a safety signal, not a style choice.
-    //  - Color band OFF → custom accent wins (overrideColor), else stay safe-green.
+    //  - Color band ON  → band tier wins (safe / orange / red).
+    //  - Color band OFF → the gaugeFill token.
     val orangeFrac = (orangeThresholdPct / 100f).coerceIn(0.05f, 0.95f)
     val redFrac = (redThresholdPct / 100f).coerceIn(orangeFrac + 0.04f, 0.95f)
     val speedFraction = (speed / maxSpeed).coerceIn(0f, 1f)
@@ -182,8 +179,7 @@ fun SpeedGauge(
         showColorBand && speedFraction >= redFrac    -> bandDangerColor
         showColorBand && speedFraction >= orangeFrac -> bandWarnColor
         showColorBand                                -> safeBandColor
-        overrideColor != null                        -> overrideColor
-        else                                          -> safeBandColor
+        else                                         -> safeBandColor
     }
     val trackColor = MaterialTheme.appColors.gaugeTrack
     val dimColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -202,7 +198,7 @@ fun SpeedGauge(
 
         val startAngle = 140f
         val sweepTotal = 260f
-        // speedFraction is computed at the top of the composable now (for speedColor),
+        // speedFraction is computed at the top of the composable (for speedColor),
         // so the band-drawing branch reuses it.
         val speedSweep = sweepTotal * speedFraction
 
@@ -318,19 +314,8 @@ fun SpeedGauge(
                 )
             )
         }
-        // Digit-stable reference height (measured from "0" at the BASE font
-        // factor), used to pin the unit label so it doesn't dance when the
-        // speed text width-clamps to a smaller size at 2+ digits.
-        val refHeight = textMeasurer.measure(
-            "0",
-            style = TextStyle(
-                fontSize = (size.minDimension * baseFactor).sp,
-                fontWeight = FontWeight.Bold
-            )
-        ).size.height.toFloat()
-        // Speed text: vertically centered against its OWN measured height, so
-        // smaller (width-clamped) variants still look centered rather than
-        // glued to the top of the refHeight box.
+        // Speed text is centered on its own measured height, so a
+        // width-clamped number still looks centered.
         drawText(
             speedMeasured,
             topLeft = Offset(
@@ -345,8 +330,7 @@ fun SpeedGauge(
         // onto the cards row when the experimental banner squeezed the
         // gauge vertically (Pixel 6 Pro / Begode Race).
 
-        // External GPS marker. Tiny dot on the arc at the angle matching the
-        // external speed, plus a small numeric readout under the main number.
+        // External GPS marker: a dot on the arc at the external speed.
         // Drawn last so it sits on top of the speed arc.
         if (externalSpeed != null) {
             val extFraction = (externalSpeed / maxSpeed).coerceIn(0f, 1f)
@@ -411,87 +395,6 @@ fun DashIndicatorIcon(
         tint = if (active) activeColor else dim,
         modifier = modifier.size(32.dp)
     )
-}
-
-// --- Stat card with sparkline ---
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun StatCard(
-    label: String,
-    value: String,
-    color: Color,
-    sparkData: List<Float> = emptyList(),
-    modifier: Modifier = Modifier,
-    onClick: (() -> Unit)? = null,
-    onLongClick: (() -> Unit)? = null
-) {
-    val clickModifier = when {
-        onClick != null || onLongClick != null -> Modifier.combinedClickable(
-            onClick = { onClick?.invoke() },
-            onLongClick = onLongClick
-        )
-        else -> Modifier
-    }
-    Box(
-        modifier = modifier
-            .heightIn(min = 61.dp)
-            .clip(RoundedCornerShape(10.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .then(clickModifier),
-        contentAlignment = Alignment.Center
-    ) {
-        // Sparkline background
-        if (sparkData.size >= 2) {
-            Canvas(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .matchParentSize()
-            ) {
-                val min = sparkData.min()
-                val max = sparkData.max()
-                val range = (max - min).coerceAtLeast(0.1f)
-                val padding = size.height * 0.15f
-                val drawHeight = size.height - padding * 2
-                val stepX = size.width / (sparkData.size - 1).toFloat()
-
-                val path = androidx.compose.ui.graphics.Path()
-                sparkData.forEachIndexed { idx, v ->
-                    val x = idx * stepX
-                    val y = padding + drawHeight - ((v - min) / range) * drawHeight
-                    if (idx == 0) path.moveTo(x, y) else path.lineTo(x, y)
-                }
-                // Filled area under curve
-                val fillPath = androidx.compose.ui.graphics.Path()
-                fillPath.addPath(path)
-                fillPath.lineTo(size.width, size.height)
-                fillPath.lineTo(0f, size.height)
-                fillPath.close()
-                drawPath(fillPath, color = color.copy(alpha = 0.08f))
-                // Line on top
-                drawPath(path, color = color.copy(alpha = 0.4f), style = Stroke(width = 2.5f))
-            }
-        }
-
-        // Text content centered
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 10.dp, horizontal = 12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(label, fontSize = 10.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontWeight = FontWeight.Medium,
-                letterSpacing = 0.5.sp)
-            Spacer(Modifier.height(2.dp))
-            Text(value,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = color,
-                maxLines = 1)
-        }
-    }
 }
 
 // --- Bottom info box: ODO + firmware ---
@@ -771,7 +674,6 @@ fun ActionGroupPopover(
                                     modifier = Modifier
                                         .width(buttonWidthDp)
                                         .height(buttonHeightDp),
-                                    aspectRatio = null,
                                     heightDp = null
                                 )
                             }
@@ -795,7 +697,6 @@ fun ActionButton(
     enabled: Boolean = true,
     onClick: () -> Unit,
     onLongClick: (() -> Unit)? = null,
-    aspectRatio: Float? = 1f,
     heightDp: Int? = null,
     /** Drawn in the disabled ink but still tappable: a feature this phone lacks yet. */
     muted: Boolean = false,
@@ -814,7 +715,6 @@ fun ActionButton(
     }
     Box(
         modifier = modifier
-            .let { if (aspectRatio != null) it.aspectRatio(aspectRatio) else it }
             .let { if (heightDp != null) it.height(heightDp.dp) else it }
             .clip(RoundedCornerShape(12.dp))
             .background(container)
@@ -843,9 +743,8 @@ fun ActionButton(
 /**
  * Label + value cell without corner stats or sparkline, the live value in the
  * metric's accent. Tap opens the same destination as the full tile (Battery
- * monitor / metric history). Two sizes: the flat compact-pager cell, and
- * [tall], which copies the ActionButton silhouette (same corner radius and
- * 104 dp height) so the landscape metric grid mirrors the button grid.
+ * monitor / metric history). Fills its row height and copies the ActionButton
+ * corner radius so the metric grid mirrors the button grid.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -854,28 +753,27 @@ fun MicroMetricTile(
     value: String,
     accent: Color,
     modifier: Modifier = Modifier,
-    tall: Boolean = false,
     onClick: () -> Unit = {}
 ) {
     Column(
         modifier = modifier
-            .let { if (tall) it.fillMaxHeight() else it }
+            .fillMaxHeight()
             .clip(RoundedCornerShape(12.dp))
             .background(MaterialTheme.appColors.tileBackground)
             .combinedClickable(onClick = onClick)
-            .padding(vertical = if (tall) 6.dp else 5.dp, horizontal = 4.dp),
+            .padding(vertical = 6.dp, horizontal = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = if (tall) Arrangement.Center else Arrangement.Top
+        verticalArrangement = Arrangement.Center
     ) {
         Text(
-            label, fontSize = if (tall) 11.sp else 9.sp,
-            fontWeight = if (tall) FontWeight.Medium else FontWeight.Normal,
+            label, fontSize = 11.sp,
+            fontWeight = FontWeight.Medium,
             color = MaterialTheme.appColors.tileLabel,
             maxLines = 1, textAlign = TextAlign.Center
         )
-        if (tall) Spacer(Modifier.height(2.dp))
+        Spacer(Modifier.height(2.dp))
         Text(
-            value, fontSize = if (tall) 19.sp else 14.sp, fontWeight = FontWeight.SemiBold,
+            value, fontSize = 19.sp, fontWeight = FontWeight.SemiBold,
             color = accent, maxLines = 1
         )
     }
@@ -892,7 +790,6 @@ fun ActionTile(
     active: Boolean = false,
     activeColor: Color = MaterialTheme.colorScheme.primary,
     enabled: Boolean = true,
-    aspectRatio: Float? = 1f,
     heightDp: Int? = null
 ) {
     Box(modifier = modifier) {
@@ -906,7 +803,6 @@ fun ActionTile(
             onClick = onClick,
             onLongClick = { menuOpen = true },
             modifier = Modifier.fillMaxWidth(),
-            aspectRatio = aspectRatio,
             heightDp = heightDp
         )
         DropdownMenu(

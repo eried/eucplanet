@@ -110,7 +110,6 @@ object InMotionV2Protocol {
 
         if (payload.size < 3) return null
         val flags = payload[0]
-        val length = payload[1].toInt() and 0xFF
         val command = payload[2]
         val data = if (payload.size > 3) payload.copyOfRange(3, payload.size) else byteArrayOf()
 

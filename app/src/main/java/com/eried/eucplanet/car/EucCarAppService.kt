@@ -197,14 +197,9 @@ class EucCarAppService : CarAppService() {
         }
 
         /**
-         * POI, not NAVIGATION, and the rider's numbers live in the car's own
-         * content pane rather than in a corner of our map.
-         *
-         * Two reasons, both from testers. Android Auto runs one navigation app
-         * at a time, so being one meant EUC Planet vanished the moment someone
-         * opened Maps. And the stats drawn on our surface were too small to
-         * read: the host draws a content pane large and legible for free, and
-         * NF-2 wants the surface carrying map content anyway.
+         * Without a route, the rider's numbers go in the car's own content
+         * pane, which the host draws large and legible. With a route running,
+         * the navigation template takes over (see [CarNavigation.template]).
          */
         override fun onGetTemplate(): Template {
             val nav = navigationEngine.navState.value
@@ -289,13 +284,13 @@ class EucCarAppService : CarAppService() {
                 // white. Seen on the car emulator, not guessed.
                 MapWithContentTemplate.Builder()
                     .setContentTemplate(PaneTemplate.Builder(built).setTitle(title).build())
-                    .apply { actionStrip(false)?.let { setActionStrip(it) } }
+                    .apply { actionStrip()?.let { setActionStrip(it) } }
                     .setMapController(MapController.Builder().build())
                     .build()
             } else {
                 PaneTemplate.Builder(built)
                     .setTitle(title)
-                    .apply { actionStrip(false, iconOnly = true, max = 2)?.let { setActionStrip(it) } }
+                    .apply { actionStrip(iconOnly = true, max = 2)?.let { setActionStrip(it) } }
                     .build()
             }
         }
@@ -387,7 +382,6 @@ class EucCarAppService : CarAppService() {
          * degrade, so every one of them has to be found by running the path.
          */
         private fun actionStrip(
-            navigating: Boolean,
             iconOnly: Boolean = false,
             max: Int = Int.MAX_VALUE,
         ): ActionStrip? {

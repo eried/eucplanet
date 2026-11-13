@@ -2,9 +2,7 @@ package com.eried.eucplanet.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.repository.SettingsRepository
-import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.util.Units
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -12,20 +10,15 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
 /**
- * Backs the TPMS sensors settings section. For now it surfaces the wheel-relayed
- * tire pressure (InMotion P6 and any wheel that relays a bound sensor) - the
- * section shows the live value when a sensor is reporting and nothing when it
- * isn't. Direct BLE-sensor pairing lands once that sensor's profile is captured.
+ * Backs the TPMS sensors settings section: the rider's paired caps, the
+ * wheel's own relayed reading (InMotion P6 and any wheel that relays a bound
+ * sensor), and the scan that pairs a new cap.
  */
 class TpmsViewModel(
-    wheelRepository: WheelRepository,
     settingsRepository: SettingsRepository,
     private val scanner: com.eried.eucplanet.tpms.TpmsScanner,
     private val tpms: com.eried.eucplanet.tpms.TpmsRepository,
 ) : ViewModel() {
-
-    /** The rider's own sensor, or null when they have none. */
-    val paired: StateFlow<String?> = tpms.pairedAddress
 
     /** The cap currently speaking for the tyre, or null when the wheel is. */
     val activeAddress: StateFlow<String?> = tpms.activeAddress
@@ -40,12 +33,6 @@ class TpmsViewModel(
     val tempUnit: StateFlow<String> = settingsRepository.settings
         .map { com.eried.eucplanet.util.Units.effectiveTempUnit(it) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), "C")
-
-    val pairedKpa: StateFlow<Float?> = tpms.current
-        .map { it?.takeIf { r -> r.source == com.eried.eucplanet.tpms.TpmsSource.PAIRED }?.kpa }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
-
-    fun forgetPaired() = tpms.forgetPaired()
 
     /** Remove one cap, leaving the rider's other wheels alone. */
     fun forget(address: String) = tpms.forget(address)
@@ -76,10 +63,6 @@ class TpmsViewModel(
     val tirePressureKpa: StateFlow<Float> = tpms.wheelSensor
         .map { it?.kpa ?: 0f }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0f)
-
-    val connected: StateFlow<Boolean> = wheelRepository.connectionState
-        .map { it == ConnectionState.CONNECTED }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
 
     /** The rider's own pressure unit. */
     val pressureUnit: StateFlow<String> = settingsRepository.settings

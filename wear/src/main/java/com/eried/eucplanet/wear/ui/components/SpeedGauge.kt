@@ -35,10 +35,8 @@ fun SpeedGauge(
     /** Rider's speed unit code: "kmh" / "mph" / "ms" / "kn". */
     speedUnit: String,
     accent: Color,
-    /** Matches the phone's overrideColor semantics. When true the accent
-     *  paints the speed arc + number; when false (i.e. accentKey == "default"
-     *  on the phone) the gauge falls back to safe-green so both surfaces show
-     *  the same color for the default theme. */
+    /** When true the accent paints the speed arc and number; when false the
+     *  gauge uses [fillColor], the same color the phone's dial draws. */
     useAccent: Boolean = false,
     showColorBand: Boolean = true,
     orangeThresholdPct: Int = 65,
@@ -113,11 +111,10 @@ fun SpeedGauge(
             style = Stroke(width = arcThickness, cap = StrokeCap.Round)
         )
 
-        // Thin color band behind the arc: safe (green) > warning (yellow) >
-        // danger (red). Hardcoded green for the safe zone so the gauge keeps
-        // its safety semantics regardless of which accent the user picked
-        //, using accent here meant a teal accent matched the safe zone but
-        // a red accent made the whole band look like one long danger zone.
+        // Thin color band behind the arc: safe > warning > danger, in the
+        // theme's gauge colors, never the accent, so the gauge keeps its
+        // safety semantics: a red accent would make the whole band look
+        // like one long danger zone.
         if (showColorBand) {
             val bandThickness = arcThickness * 0.35f
             val bandRadius = arcRadius + arcThickness * 0.55f + bandThickness * 0.5f

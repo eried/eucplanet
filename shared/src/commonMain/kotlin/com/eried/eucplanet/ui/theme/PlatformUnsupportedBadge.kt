@@ -4,9 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,17 +12,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
  * "Not supported on this platform" markers, informational badges that flag a
  * feature/control the active companion can't do (Garmin, HUD). The diagonal
- * slash is the universal "no". Colors come from the theme tokens (ink =
- * secondary text, slash = danger), so they track the active theme.
+ * slash is the universal "no". Colors come from the theme's disabled-text
+ * token, so they track the active theme.
  */
 
 /**
@@ -60,31 +56,6 @@ fun PlatformUnsupportedTextBadge(
                 start = Offset(0f, size.height),
                 end = Offset(size.width, 0f),
                 strokeWidth = 0.6.dp.toPx(),
-                cap = StrokeCap.Round,
-            )
-        }
-    }
-}
-
-/** Icon variant: a platform [icon] with a diagonal slash drawn across it. */
-@Composable
-fun PlatformUnsupportedBadge(
-    icon: ImageVector,
-    contentDescription: String?,
-    modifier: Modifier = Modifier,
-    size: Dp = 16.dp,
-) {
-    val ink = MaterialTheme.appColors.textSecondary
-    val slash = MaterialTheme.appColors.statusDanger
-    Box(modifier = modifier.size(size), contentAlignment = Alignment.Center) {
-        Icon(icon, contentDescription = contentDescription, tint = ink, modifier = Modifier.size(size))
-        Canvas(Modifier.size(size)) {
-            val pad = this.size.minDimension * 0.06f
-            drawLine(
-                color = slash,
-                start = Offset(pad, this.size.height - pad),
-                end = Offset(this.size.width - pad, pad),
-                strokeWidth = this.size.minDimension * 0.12f,
                 cap = StrokeCap.Round,
             )
         }

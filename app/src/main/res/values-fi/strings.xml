@@ -5,7 +5,6 @@
     <string name="notification_channel_description">Näyttää yksipyöräisen yhteystilan ja telemetrian.</string>
     <string name="keep_app_alive">Pidä sovellus käynnissä</string>
     <string name="keep_app_alive_desc">Pitää jatkuvan ilmoituksen näkyvissä, jotta sovellus pysyy käynnissä taustalla. Matkojen synkronointi ja ääni toimivat, vaikka yksipyöräistä ei olisi yhdistetty. Kuluttaa hieman enemmän akkua.</string>
-    <string name="notif_actions_section">Mukauta</string>
     <string name="notif_actions_enable">Näytä ilmoituksen toiminnot</string>
     <string name="notif_actions_enable_desc">Lisää pikatoimintopainikkeet jatkuvaan ilmoitukseen.</string>
     <string name="notif_actions_pick_desc">Valitse enintään %1$d toimintoa. Sama toiminto voi toistua.</string>
@@ -37,9 +36,6 @@
     <string name="state_off">Pois</string>
     <string name="action_done">Valmis</string>
     <string name="action_close">Sulje</string>
-    <string name="crash_log_action_prompt">Painoit pitkään kohdetta %1$s. Poista vain tämä loki tai poista kaikki. Jos haluat jakaa sen, valitse Peruuta ja napauta sitten tiedostoa.</string>
-    <string name="crash_log_delete_all">Poista kaikki</string>
-    <string name="crash_log_delete_all_warning">Poistetaanko kaikki tallennetut kaatumislokit? Tätä ei voi kumota.</string>
     <string name="action_save">Tallenna</string>
     <string name="action_apply">Käytä</string>
     <string name="action_reset">Palauta</string>
@@ -120,12 +116,10 @@
     <string name="tab_dashboard">Mittariston asettelu</string>
     <string name="dashboard_section_metrics">Mittarit</string>
     <string name="dashboard_section_actions">Toimintopainikkeet</string>
-    <string name="dashboard_columns">Sarakkeet</string>
     <string name="dashboard_grid_hint">Vedä pitkällä painalluksella, muokkaa napauttamalla.</string>
     <string name="dashboard_pool_metrics">Käytettävissä olevat mittarit</string>
     <string name="dashboard_pool_actions">Käytettävissä olevat toiminnot</string>
     <string name="dashboard_pool_tap_toast">Paina pitkään ja vedä yllä olevaan paikkaan</string>
-    <string name="dashboard_rolling_window">Liukuvien tilastojen ikkuna</string>
     <string name="dashboard_stats_length">Tilastojen pituus</string>
     <string name="dashboard_view">Näkymä</string>
     <string name="dashboard_view_default">Oletus</string>
@@ -744,7 +738,6 @@
     <string name="watch_screen_button_2">Painike 2</string>
     <string name="watch_haptic_on_action">Värinä toiminnosta</string>
     <string name="watch_haptic_on_action_desc">Lyhyt kellon värinä jokaisesta painalluksesta, jos tuettu.</string>
-    <string name="section_cloud_folder">Varmuuskopiokansio</string>
     <string name="cloud_caption">Varmuuskopiokansiosi matkoille, asetuksille, teemoille ja päällysteille.</string>
     <string name="cloud_choose_folder">Valitse kansio</string>
     <string name="cloud_change_folder">Vaihda kansio</string>
@@ -768,7 +761,6 @@
     <string name="cloud_reset_local">Tyhjennä paikalliset matkat</string>
     <string name="cloud_reset_local_title">Tyhjennetäänkö paikalliset matkat?</string>
     <string name="cloud_reset_local_body">Poistaa kaikki tähän puhelimeen tallennetut matkat. Varmuuskopiokansioosi ei kosketa, joten synkronoidut matkat voi palauttaa sieltä.</string>
-    <string name="cloud_retry_enqueued">Lähetys ajastettu</string>
     <string name="action_retry">Yritä uudelleen</string>
     <string name="sync_progress">Synkronoidaan %1$d / %2$d</string>
     <string name="sync_no_folder">Valitse ensin varmuuskopiokansio</string>
@@ -809,10 +801,7 @@
     <string name="cloud_factory_confirm_action">Palauta</string>
     <string name="section_recording">Tallennus</string>
     <string name="section_connection">Yhteys</string>
-    <string name="section_display">Näyttö</string>
-    <string name="auto_record_on_start">Automaattitallennus käynnistyksessä</string>
     <string name="auto_record_caption">Tallentaa matkan, kun yksipyöräinen on yhdistetty.</string>
-    <string name="auto_record_start_in_motion">Aloita tallennus liikkeestä</string>
     <string name="auto_record_start_in_motion_caption">Alkaa liikkeestä, pysähtyy joutokäynnin jälkeen, käynnistyy taas seuraavalla ajolla.</string>
     <string name="auto_record_stop_idle_seconds">Pysäytä joutokäynnin jälkeen</string>
     <string name="auto_record_mode_label">Matkan tallennuksen automaattikäynnistys</string>
@@ -1093,11 +1082,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Dieselrekka</string>
     <string name="engine_preset_sampled_motorcycle">Pieni crossipyörä</string>
     <string name="engine_preset_sampled_city_car">Kaupunkiauto</string>
-    <string name="engine_preset_sampled_helicopter">Helikopteri</string>
     <string name="engine_preset_sampled_tractor">Traktori</string>
     <string name="engine_preset_sampled_lawnmower">Ruohonleikkuri</string>
     <string name="engine_preset_sampled_steam_loco">Höyryveturi</string>
-    <string name="engine_preset_sampled_car_cruise">Auto tasaisella</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
     <string name="engine_preset_sampled_big_diesel">Iso diesel</string>
     <string name="engine_preset_sampled_broken_exhaust">Rikkinäinen pakoputki</string>
@@ -1290,7 +1277,6 @@
     <string name="trip_meter_tab_speed">Nopeus</string>
     <string name="trip_meter_tab_battery">Akku</string>
     <string name="trip_meter_tab_time">Aika</string>
-    <string name="trip_meter_total">Yhteensä</string>
     <string name="trip_meter_active">Aktiivinen</string>
     <string name="trip_meter_avg">Ka</string>
     <string name="trip_meter_reset">Nollaa matkamittari</string>
@@ -1444,8 +1430,6 @@
     <string name="trip_split_reason_wheel">Toinen yksipyöräinen otti vallan</string>
     <string name="trip_split_reason_gap">Katko tallennuksessa</string>
     <string name="trip_split_reason_stopped">Pysähdyksissä pitkään</string>
-    <string name="trip_tools_combine">Yhdistä matkat</string>
-    <string name="trip_tools_combine_desc">Yhdistää muut ajot tähän uudeksi matkaksi, alkuperäiset säilyvät.</string>
     <string name="trip_tools_combine_none">Ei muita valmiita matkoja yhdistettäväksi.</string>
     <string name="trip_tools_combine_mixed_wheels">Osa näistä ajettiin eri yksipyöräisellä. Matka ja energia lasketaan yhteen.</string>
     <string name="trip_tools_combine_done">Matkat yhdistetty uudeksi</string>
@@ -1481,12 +1465,10 @@
     <string name="auto_lights_when">Seuraa auringonlaskua kun</string>
     <string name="auto_lights_off_slow">Sammuta valo hidastaessa</string>
     <string name="auto_lights_off_below">Sammuta alle</string>
-    <string name="auto_lights_desc">Sytyttää tai sammuttaa ajovalot auringonlaskun ja -nousun mukaan.</string>
     <string name="auto_lights_on_before_sunset">Valo PÄÄLLE ennen</string>
     <string name="auto_lights_off_after_sunrise">Valo POIS jälkeen</string>
     <string name="auto_waiting_gps">Odotetaan GPS-sijaintia…</string>
     <string name="auto_volume_title">Äänenvoimakkuus</string>
-    <string name="auto_volume_desc">Nostaa musiikin voimakkuutta nopeuden mukaan.</string>
     <string name="auto_volume_when">Nosta äänenvoimakkuutta kun</string>
     <string name="media_rate_when">Muuta toistonopeutta kun</string>
     <string name="media_rate_permission_desc">Android kysyy tämän erikseen. Ilman sitä toistonopeutta ei voi muuttaa.</string>
@@ -1496,14 +1478,12 @@
     <string name="media_rate_grant">Myönnä</string>
     <string name="warnings_media_access_title">Ilmoitusten käyttöoikeus on pois</string>
     <string name="warnings_media_access_body">Ilman sitä toistonopeus ei voi seurata vauhtiasi. Napauta salliaksesi.</string>
-    <string name="media_control_desc">Keskeyttää musiikin kun hidastat ja jatkaa kun kiihdytät.</string>
     <string name="media_control_pause">Keskeytä kun hidastan</string>
     <string name="media_control_pause_below">Keskeytä nopeudella tai alle</string>
     <string name="media_control_resume">Jatka kun kiihdytän</string>
     <string name="media_control_resume_above">Jatka nopeudella tai yli</string>
     <string name="automation_require_external">Vain kuulokkeilla tai Bluetoothilla</string>
     <string name="proximity_lock_title">Yksipyöräisen lukitus</string>
-    <string name="proximity_lock_desc">Lukitsee yksipyöräisen kun kävelet pois ja avaa lukituksen kun palaat, Bluetooth-signaalin voimakkuuden perusteella.</string>
     <string name="proximity_lock_enable">Lukitse kun kävelen pois</string>
     <string name="proximity_lock_below">Signaali alle</string>
     <string name="proximity_unlock_when">Avaa lukitus automaattisesti</string>
@@ -1617,8 +1597,6 @@
     <string name="alarm_predict_help_lead">Hälyttää noin %1$s s ennen kuin %2$s, lähitrendin perusteella.</string>
     <string name="alarm_predict_label">Ennakoiva laukaisu</string>
     <string name="alarm_predict_realtime">Nyt</string>
-    <string name="about_crash_logs">Kaatumislokit</string>
-    <string name="about_crash_logs_empty">Ei tallennettuja kaatumisia</string>
     <string name="about_share_crash">Jaa kaatumisloki</string>
     <string name="about_thanks">Kiitokset</string>
     <string name="about_thanks_body">Kyllästyin yksipyöräissovelluksiin, jotka kehittyvät liian hitaasti, näyttävät vanhentuneilta, pitävät kiinni ankarista säännöistä uusien ominaisuuksien suhteen, kohtelevat yhteisöään asiakkaina ja unohtavat, että ajajat ovat parhaimmillaan auttaessaan toisiaan. Tämä yrittää olla päinvastainen.</string>
@@ -1630,7 +1608,6 @@
     <string name="service_mode_link">Lisätietoja osoitteessa eucplanet.ried.no/service.</string>
     <string name="service_mode_enter">Siirry</string>
     <string name="toast_external_speed_change">Nopeus päivitetty yksipyöräisestä: %1$d km/h tiltback, %2$d km/h hälytys</string>
-    <string name="wheel_no_data_reconnecting">Ei dataa yksipyöräiseltä. Yhdistetään uudelleen…</string>
     <string name="wheel_no_data_reset">Yhä ei dataa yksipyöräiseltä. Kokeile sammuttaa ja käynnistää se.</string>
     <string name="trip_map_ride_start">Ajon alku: %1$s</string>
     <string name="trip_map_reconnected">Yhdistetty uudelleen: %1$s</string>
@@ -1672,11 +1649,8 @@
     <string name="online_upload_total_km">%1$s %2$s</string>
     <string name="online_upload_join">Liity tulostauluun</string>
     <string name="online_status_shared">Jaettu tulostaulussa</string>
-    <string name="online_status_flagged">Jaettu, tarkistettavana</string>
     <string name="online_status_pending">Lähetetään tulostauluun…</string>
     <string name="online_status_failed">Verkkolähetys epäonnistui, yritä uudelleen napauttamalla</string>
-    <string name="online_status_checking">Tarkistetaan tulostaulusta…</string>
-    <string name="online_status_check_failed">Tarkistus ei onnistunut nyt, yritä myöhemmin</string>
     <string name="online_status_rejected">Ei hyväksytty tulostauluun</string>
     <string name="online_upload_join_caption">Liity lähettääksesi tilastosi ja matkasi julkiseen tulostauluun osoitteessa.</string>
     <string name="online_upload_linked_caption">Tilastosi ja matkasi näkyvät julkisessa tulostaulussa osoitteessa.</string>
@@ -1696,7 +1670,6 @@
     <string name="online_profile_delete_confirm_action">Poista pysyvästi</string>
     <string name="online_profile_save_rate_limited">Liian monta pyyntöä, yritä myöhemmin uudelleen.</string>
     <string name="online_profile_save_failed">Tallennus epäonnistui (HTTP %1$d). Yritä uudelleen.</string>
-    <string name="online_status_flagged_why">Pidätetty nopeaa automaattitarkistusta varten. Se liittyy tulostauluun heti kun se läpäisee tarkistuksen.</string>
     <string name="online_restore_title">Tallennettu profiili löytyi</string>
     <string name="online_restore_body_new">Löysimme täältä tallennetun profiilin: %1$s. Jatkaminen liittää sinut uudelleen julkiseen tulostauluun tuona ajajana, jonka nimi, lippu, profiilikuva ja ajotilastot ovat julkisia. Se ei luo uutta profiilia.</string>
     <string name="online_restore_body_switch">Löysimme toisen tallennetun profiilin: %1$s. Jatkaminen vaihtaa tämän puhelimen tuolle ajajalle; nykyinen profiilisi varmuuskopioidaan ensin.</string>
@@ -1831,8 +1804,6 @@
     <string name="studio_video_fit">Sovita</string>
     <string name="studio_video_fit_stretch">Venytä</string>
     <string name="studio_video_offset">Siirtymä</string>
-    <string name="studio_video_offset_value_fmt">%1$d ms</string>
-    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
     <string name="studio_video_set_offset">Nykyinen</string>
     <string name="studio_video_edge">Alueen ulkopuolella</string>
     <string name="studio_video_edge_freeze">Pysäytä</string>
@@ -1893,9 +1864,6 @@
     <string name="studio_cfg_time_window_fmt">%1$ds</string>
     <string name="studio_cfg_trail_label">Jäljen pituus</string>
     <string name="studio_cfg_map_style">Kartan tyyli</string>
-    <string name="studio_cfg_map_street">Katu</string>
-    <string name="studio_cfg_map_dark">Tumma</string>
-    <string name="studio_cfg_map_satellite">Satelliitti</string>
     <string name="studio_cfg_map_zoom">Zoomaus</string>
     <string name="studio_cfg_map_attribution">Näytä kartan lähde</string>
     <string name="studio_cfg_map_attribution_off">Kartan lisenssi vaatii tämän maininnan kaikessa, mitä jaat. Poistaminen on sinun vastuullasi.</string>
@@ -2052,7 +2020,6 @@
     <string name="trip_action_inspect_online">Tarkastele verkossa</string>
     <string name="trip_action_inspect_online_desc">Jaa eucviewer.ried.no-linkki tämän ajon katseluun verkossa.</string>
     <string name="trip_action_dropbox_disabled">Linkitä Dropbox asetuksissa ottaaksesi tämän käyttöön</string>
-    <string name="nav_tap_on_self">Paina Pysähdykset-listassa pysähdystä pitkään asettaaksesi sen sijaintiisi</string>
     <string name="nav_start_short">Aloita navigointi</string>
     <string name="nav_start_btn">Aloita</string>
     <string name="nav_stop_short">Lopeta navigointi</string>
@@ -2137,8 +2104,6 @@
     <string name="share_alone">Täällä ei ole vielä ketään muuta.</string>
     <string name="share_open">Avaa</string>
     <string name="share_copy">Kopioi</string>
-    <string name="share_menu_join">Liity ryhmäajoon</string>
-    <string name="share_menu_join_desc">Skannaa QR-koodi.</string>
     <string name="share_menu_live">Jaa sijainti livenä</string>
     <string name="share_menu_live_desc">Aloita ryhmäajo.</string>
     <string name="share_menu_static">Lähetä sijainti</string>
@@ -2209,7 +2174,6 @@
     <string name="nav_setting_arrival_radius_desc">Kuinka lähellä lasketaan pysähdyksen saavuttamiseksi.</string>
     <string name="nav_setting_offroute">Reitiltä poikkeamisen toleranssi</string>
     <string name="nav_setting_offroute_desc">Kuinka kauas reitiltä ennen kuin poikkeamisilmoitus laukeaa.</string>
-    <string name="nav_setting_default_mode">Oletuskulkutapa</string>
     <string name="nav_setting_params">Navigointi ja sää</string>
     <string name="weather_section">Sää</string>
     <string name="weather_icon_desc">Sääennuste</string>
@@ -2230,7 +2194,6 @@
     <string name="weather_enable_desc">Lisää sääkuvakkeen karttapainikkeen yläpuolelle: napauta nähdäksesi ajettavuusennusteen.</string>
     <string name="weather_window_label">Ennusteikkuna</string>
     <string name="weather_source_label">Ennusteen lähde</string>
-    <string name="weather_comfort_desc">Mukavuusrajat pisteille. Lämpötila seuraa yksiköitäsi; tuuli nopeusyksikköä.</string>
     <string name="weather_cold">Liian kylmä alle</string>
     <string name="weather_hot">Liian kuuma yli</string>
     <string name="weather_breezy">Tuulista yli</string>
@@ -2257,7 +2220,6 @@
     <string name="weather_lvl_prime_2">Priima leijuntakeli!</string>
     <string name="weather_expand">Tiedot</string>
     <string name="weather_chart_temp">Lämpö, kosteus ja sade</string>
-    <string name="weather_chart_precip">Sade</string>
     <string name="weather_chart_wind">Tuuli ja puuskat</string>
     <string name="weather_adv_snow_now">Sataa lunta, pito on poissa.</string>
     <string name="weather_adv_snow_in">Lunta odotettavissa %1$s kuluttua.</string>
@@ -2480,7 +2442,6 @@
     <string name="trip_tools_rename">Nimeä matka uudelleen</string>
     <string name="trip_tools_rename_desc">Anna tälle matkalle nimi. Se tallentuu matkan tiedostoon, joten se säilyy viennissä ja synkronoinnissa.</string>
     <string name="trip_tools_rename_hint">Jätä tyhjäksi käyttääksesi päivämäärää.</string>
-    <string name="trip_tools_renamed">Matka nimetty uudelleen</string>
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="trip_tools_archived">Arkistoitu: %1$d</string>
     <string name="trip_tools_archive_failed">Joitakin matkoja ei voitu arkistoida, ne ovat yhä täällä</string>
@@ -2589,7 +2550,6 @@
     <string name="action_reset_metrics_wheel_done">Mittarit nollattu, yksipyöräisen matkamittari tyhjennetty</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
     <string name="tpms_waiting">Odotetaan tietoja</string>
-    <string name="status_live">Live</string>
     <string name="status_idle">Lepotila</string>
     <string name="tpms_state_leaking">Vuotaa</string>
     <string name="tpms_state_inflating">Täytetään</string>
@@ -2610,7 +2570,6 @@
     <string name="horn_mode_sound">Oma</string>
     <string name="horn_mode_both">Sekoitus</string>
     <string name="horn_mode_hint">Oma soittaa oman äänesi puhelimessa. Sekoitus lisää sen yksipyöräisen äänimerkkiin ulkoista kaiutinta varten. Jos puhelin ei voi soittaa sitä, kuuluu yksipyöräisen äänimerkki.</string>
-    <string name="horn_sound_none">Ääntä ei ole valittu</string>
     <string name="horn_sound_current">Ääni: %1$s</string>
     <string name="horn_sound_choose">Valitse ääni</string>
     <string name="horn_sound_imported">Äänimerkin ääni tallennettu</string>
@@ -2626,7 +2585,6 @@
     <string name="voice_stat_min">Min</string>
     <string name="voice_stat_avg">Ka</string>
     <string name="voice_stat_peak">Huippu</string>
-    <string name="crews_title">Crewit</string>
     <string name="crews_pass_action">Crew-passi</string>
     <string name="crews_pass_search_hint">Crew-passi näkyy, kun liityt verkkotulostauluihin.</string>
     <string name="crews_scan_hint">Avaa eucstats selaimessa, paina Crews ja suuntaa tämä koodiin.</string>
@@ -2732,7 +2690,6 @@
     <string name="nav_unlock_stops">Pysähdykset</string>
     <string name="nav_unlock_off">Poikkeaa jäljestä enintään %1$s</string>
     <string name="nav_unlock_confirm">Muunna</string>
-    <string name="nav_track_badge">Lukittu jälki</string>
     <string name="voice_nav_place_reached">%1$s saavutettu</string>
     <string name="offline_data_open">Offline-alueet</string>
     <string name="offline_server_url">Offline-datan palvelin</string>

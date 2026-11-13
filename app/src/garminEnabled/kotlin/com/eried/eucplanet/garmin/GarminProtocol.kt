@@ -7,7 +7,7 @@ package com.eried.eucplanet.garmin
  * a wire-format break.
  *
  * Payload is a `Dictionary<String, Object>` per CIQ's `Communications.transmit`
- * contract. Keys stay short because every byte rides Bluetooth at 5 Hz.
+ * contract. Keys stay short because every byte rides Bluetooth on each frame.
  */
 internal object GarminKeys {
     const val CONNECTED = "c"
@@ -32,8 +32,8 @@ internal object GarminKeys {
     const val ACCENT = "ac"
     const val TIMESTAMP = "ts"
     // Per-device STATE sequence number. The watch echoes the last one it
-    // received on its ALIVE heartbeat ("alive:<seq>") so the phone can cap how
-    // far ahead of the watch it publishes, bounding end-to-end lag.
+    // received in the "sq" field of its ALIVE heartbeat, so the phone can cap
+    // how far ahead of the watch it publishes, bounding end-to-end lag.
     const val SEQ = "sq"
 
     const val GPS_SPEED = "gs"
@@ -110,11 +110,11 @@ internal object GarminControl {
     const val WATCH_INFO_PREFIX = "info:"
     /** Heartbeat from the watch, sent every 5 s while the dial is on-screen.
      *  The bridge uses these (not sendMessage success callbacks) to drive
-     *  the Live indicator + delivery-rate badge: in TETHERED mode the SDK
+     *  the Live indicator and the pacing window: in TETHERED mode the SDK
      *  reports send-success on writes into a half-dead local socket, so
      *  acks are the only end-to-end proof the watch is actually consuming
-     *  frames. After 30 s without an ack the bridge resets the CIQ
-     *  transport so a fresh socket can land. */
+     *  frames. On the TETHERED dev path, 30 s without an ack resets the
+     *  CIQ transport so a fresh socket can land. */
     const val ALIVE = "alive"
     /** Input-event report from the watch (tap coords, key codes, which
      *  binding fired). Only sent while [GarminKeys.DIAG] is true in the
@@ -132,9 +132,3 @@ internal object GarminControl {
  *  to this id. Riders with a pre-change sideloaded watch app must update it
  *  before this phone build can find it. */
 internal const val GARMIN_APP_UUID = "67a42836-76c6-4415-a35c-f02edea339f1"
-
-/** Connect IQ "store" application ID used when prompting the user to install
- *  the companion from the Connect IQ store. This is the 2026-07-07 listing;
- *  the original (630e5d32-637d-4612-84e3-35e6d0bbee10) is frozen on a lost
- *  signing key and archived. */
-internal const val GARMIN_STORE_APP_ID = "14c2d086-fcb5-4042-bd5b-034519d18a71"

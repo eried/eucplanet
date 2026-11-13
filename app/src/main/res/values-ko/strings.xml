@@ -5,7 +5,6 @@
     <string name="notification_channel_description">휠 연결 상태와 텔레메트리를 표시합니다.</string>
 
     <!-- Notification quick actions -->
-    <string name="notif_actions_section">사용자화</string>
     <string name="notif_actions_enable">알림 동작 버튼 표시</string>
     <string name="notif_actions_enable_desc">진행 중인 알림에 빠른 동작 버튼을 추가합니다.</string>
     <string name="notif_actions_pick_desc">동작을 최대 %1$d개까지 선택하세요. 같은 동작을 여러 번 넣을 수 있습니다.</string>
@@ -39,9 +38,6 @@
     <string name="state_off">꺼짐</string>
     <string name="action_done">완료</string>
     <string name="action_close">닫기</string>
-<string name="crash_log_action_prompt">%1$s을(를) 길게 눌렀습니다. 이 로그만 삭제하거나 전체 삭제할 수 있습니다. 공유하려면 취소 후 파일을 탭하세요.</string>
-    <string name="crash_log_delete_all">전체 삭제</string>
-    <string name="crash_log_delete_all_warning">저장된 충돌 로그를 모두 삭제하시겠습니까? 되돌릴 수 없습니다.</string>
     <string name="action_save">저장</string>
     <string name="action_apply">적용</string>
     <string name="action_delete">삭제</string>
@@ -135,12 +131,10 @@
     <string name="tab_dashboard">대시보드 레이아웃</string>
     <string name="dashboard_section_metrics">지표</string>
     <string name="dashboard_section_actions">동작 버튼</string>
-    <string name="dashboard_columns">열</string>
     <string name="dashboard_grid_hint">길게 눌러 드래그하고, 탭하여 편집하세요.</string>
     <string name="dashboard_pool_metrics">사용 가능한 지표</string>
     <string name="dashboard_pool_actions">사용 가능한 동작</string>
     <string name="dashboard_pool_tap_toast">길게 눌러 위쪽 슬롯으로 드래그하세요</string>
-    <string name="dashboard_rolling_window">롤링 통계 구간</string>
     <string name="dashboard_stats_length">통계 구간</string>
     <string name="dashboard_view">보기</string>
     <string name="dashboard_view_default">기본</string>
@@ -614,7 +608,6 @@
     <string name="watch_haptic_on_action_desc">지원되는 경우 버튼을 누를 때마다 워치가 짧게 진동합니다.</string>
 
     <!-- Settings: Backup -->
-    <string name="section_cloud_folder">백업 폴더</string>
     <string name="cloud_caption">주행 기록, 설정, 테마, 오버레이를 백업하는 폴더입니다.</string>
     <string name="cloud_choose_folder">폴더 선택</string>
     <string name="cloud_change_folder">폴더 변경</string>
@@ -635,7 +628,6 @@
     <string name="section_cloud_trips">주행 기록 백업</string>
     <string name="cloud_trips_caption">주행 기록은 이 휴대전화에 저장되며 백업 폴더로 자동 동기화됩니다. 지우기를 하면 앱 안의 주행 기록만 삭제되고 백업 폴더의 기록은 남습니다.</string>
     <string name="cloud_retry_now">전체 동기화</string>
-    <string name="cloud_retry_enqueued">업로드 예약됨</string>
     <string name="sync_progress">동기화 중 %1$d / %2$d</string>
     <string name="sync_no_folder">먼저 백업 폴더를 선택하세요</string>
     <string name="sync_rate_limited">Dropbox가 이 계정을 제한하고 있습니다. 주행 기록 %2$d개 중 %1$d개를 동기화했으며 나머지는 다시 시도합니다.</string>
@@ -674,10 +666,7 @@
     <!-- Settings: General -->
     <string name="section_recording">주행 기록</string>
     <string name="section_connection">연결</string>
-    <string name="section_display">화면</string>
-    <string name="auto_record_on_start">시작 시 자동 기록</string>
     <string name="auto_record_caption">휠이 연결되면 주행을 기록합니다.</string>
-    <string name="auto_record_start_in_motion">움직이면 기록 시작</string>
     <string name="auto_record_start_in_motion_caption">움직이면 시작하고, 멈춰 있으면 자동으로 끝내며, 다음 주행에서 다시 시작합니다.</string>
     <string name="auto_record_stop_idle_seconds">정지 후 종료 시간</string>
     <string name="auto_connect_on_start">시작 시 자동 연결</string>
@@ -884,11 +873,9 @@
     <string name="engine_preset_sampled_diesel_iveco">디젤 트럭</string>
     <string name="engine_preset_sampled_motorcycle">소형 더트바이크</string>
     <string name="engine_preset_sampled_city_car">시티카</string>
-    <string name="engine_preset_sampled_helicopter">헬리콥터</string>
     <string name="engine_preset_sampled_tractor">트랙터</string>
     <string name="engine_preset_sampled_lawnmower">잔디깎기</string>
     <string name="engine_preset_sampled_steam_loco">증기 기관차</string>
-    <string name="engine_preset_sampled_car_cruise">자동차 크루즈</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
     <string name="engine_preset_sampled_big_diesel">대형 디젤</string>
     <string name="engine_preset_sampled_broken_exhaust">파손된 배기관</string>
@@ -1167,12 +1154,10 @@
     <string name="auto_lights_when">일몰·일출에 맞출 조건</string>
     <string name="auto_lights_off_slow">감속하면 전조등 끄기</string>
     <string name="auto_lights_off_below">이 속도 미만에서 끄기</string>
-    <string name="auto_lights_desc">일몰과 일출에 맞춰 전조등을 자동으로 켜고 끕니다.</string>
     <string name="auto_lights_on_before_sunset">일몰 전 켜기</string>
     <string name="auto_lights_off_after_sunrise">일출 후 끄기</string>
     <string name="auto_waiting_gps">GPS 위치 대기 중…</string>
     <string name="auto_volume_title">볼륨 제어</string>
-    <string name="auto_volume_desc">속도에 따라 음악 볼륨을 높입니다.</string>
     <string name="auto_volume_when">볼륨을 올릴 때</string>
     <string name="media_rate_when">재생 속도를 바꿀 때</string>
     <string name="media_rate_permission_desc">Android에서 따로 요청합니다. 허용하지 않으면 재생 속도를 바꿀 수 없습니다.</string>
@@ -1182,14 +1167,12 @@
     <string name="media_rate_grant">허용</string>
     <string name="warnings_media_access_title">알림 접근이 꺼져 있습니다</string>
     <string name="warnings_media_access_body">허용하지 않으면 재생 속도가 주행 속도를 따라갈 수 없습니다. 탭하여 허용하세요.</string>
-    <string name="media_control_desc">속도를 줄이면 음악을 일시정지하고, 속도를 높이면 다시 재생합니다.</string>
     <string name="media_control_pause">감속하면 일시정지</string>
     <string name="media_control_pause_below">이 속도 이하에서 일시정지</string>
     <string name="media_control_resume">가속하면 다시 재생</string>
     <string name="media_control_resume_above">이 속도 이상에서 다시 재생</string>
     <string name="automation_require_external">헤드폰 또는 블루투스에서만</string>
     <string name="proximity_lock_title">휠 잠금</string>
-    <string name="proximity_lock_desc">블루투스 신호 강도를 이용해 멀어지면 휠을 잠그고 돌아오면 잠금을 해제합니다.</string>
     <string name="proximity_lock_enable">멀어지면 잠금</string>
     <string name="proximity_lock_below">이 신호 미만</string>
     <string name="proximity_unlock_when">자동으로 잠금 해제</string>
@@ -1296,11 +1279,9 @@
     <string name="alarm_repeat_help_many_instant">%1$s인 동안 측정값마다 다시 알립니다.</string>
     <string name="alarm_predict_help_now">%1$s 상태가 되는 즉시 알립니다.</string>
     <string name="alarm_predict_help_lead">최근 추세를 바탕으로 %2$s 상태가 되기 약 %1$s초 전에 알립니다.</string>
+    <string name="about_share_crash">충돌 로그 공유</string>
 
     <!-- About / crash logs -->
-    <string name="about_crash_logs">충돌 로그</string>
-    <string name="about_crash_logs_empty">기록된 충돌이 없습니다</string>
-    <string name="about_share_crash">충돌 로그 공유</string>
     <string name="about_thanks">크레딧</string>
     <string name="about_thanks_body">너무 느리게 발전하고, 구식으로 보이며, 새 기능에 독단적인 규칙을 적용하고, 커뮤니티를 고객 취급하며, 라이더끼리 서로 돕는 문화를 잊어버린 EUC 앱에 지쳐 만들었습니다. 이 앱은 그 반대를 추구합니다.</string>
     <string name="about_license">라이선스</string>
@@ -1357,11 +1338,8 @@
     <string name="online_upload_total_km">%1$s %2$s</string>
     <string name="online_upload_join">리더보드 참여</string>
     <string name="online_status_shared">리더보드에 공유됨</string>
-    <string name="online_status_flagged">공유됨, 검토 중</string>
     <string name="online_status_pending">리더보드에 업로드 중…</string>
     <string name="online_status_failed">업로드하지 못했습니다. 탭하여 다시 시도하세요</string>
-    <string name="online_status_checking">리더보드에서 확인 중…</string>
-    <string name="online_status_check_failed">지금은 확인할 수 없습니다. 나중에 다시 시도하세요</string>
     <string name="online_status_rejected">리더보드에 등록되지 않음</string>
     <string name="online_upload_join_caption">참여하면 통계와 주행 기록을 다음 공개 리더보드로 보냅니다.</string>
     <string name="online_upload_linked_caption">통계와 주행 기록이 다음 공개 리더보드에 표시됩니다.</string>
@@ -1383,7 +1361,6 @@
     <string name="online_profile_delete_confirm_action">영구 삭제</string>
     <string name="online_profile_save_rate_limited">요청이 너무 잦습니다. 나중에 다시 시도하세요.</string>
     <string name="online_profile_save_failed">저장하지 못했습니다(HTTP %1$d). 다시 시도하세요.</string>
-    <string name="online_status_flagged_why">자동 검사 중입니다. 통과되면 리더보드에 반영됩니다.</string>
     <string name="online_restore_title">저장된 프로필을 찾았습니다</string>
     <string name="online_restore_body_new">저장된 프로필을 찾았습니다: %1$s. 계속하면 이 라이더로 공개 리더보드에 다시 참여하며, 이름, 국기, 사진, 주행 통계가 공개됩니다. 새 프로필은 만들지 않습니다.</string>
     <string name="online_restore_body_switch">다른 저장된 프로필을 찾았습니다: %1$s. 계속하면 이 휴대전화가 해당 라이더로 전환됩니다. 현재 프로필은 먼저 백업됩니다.</string>
@@ -1585,9 +1562,6 @@
     <string name="studio_cfg_time_window_fmt">%1$d초</string>
     <string name="studio_cfg_trail_label">궤적 길이</string>
     <string name="studio_cfg_map_style">지도 스타일</string>
-    <string name="studio_cfg_map_street">도로</string>
-    <string name="studio_cfg_map_dark">다크</string>
-    <string name="studio_cfg_map_satellite">위성</string>
     <string name="studio_cfg_map_zoom">줌</string>
     <string name="studio_cfg_map_attribution">지도 출처 표시</string>
     <string name="studio_cfg_map_attribution_off">지도 라이선스에 따라 공유하는 모든 결과물에 이 출처를 표시해야 합니다. 끌지는 직접 판단하세요.</string>
@@ -1675,7 +1649,6 @@
     <string name="trip_meter_tab_speed">속도</string>
     <string name="trip_meter_tab_battery">배터리</string>
     <string name="trip_meter_tab_time">시간</string>
-    <string name="trip_meter_total">총계</string>
     <string name="trip_meter_active">주행</string>
     <string name="trip_meter_avg">평균</string>
     <string name="trip_meter_reset">트립 미터 초기화</string>
@@ -1729,7 +1702,6 @@
     <string name="nav_clear_confirm_body">현재 경유지가 모두 지워집니다.</string>
     <string name="nav_load_confirm">현재 경로를 불러온 GPX로 교체하시겠습니까?</string>
     <string name="nav_menu_load_short">불러오기</string>
-    <string name="nav_tap_on_self">경유지 목록에서 경유지를 길게 눌러 내 위치로 설정하세요</string>
     <string name="nav_start_short">내비게이션 시작</string>
     <string name="nav_stop_short">내비게이션 중지</string>
     <string name="nav_stops_left">경유지 %1$d개 남음</string>
@@ -1815,8 +1787,6 @@
     <string name="share_alone">아직 아무도 없습니다.</string>
     <string name="share_open">열기</string>
     <string name="share_copy">복사</string>
-    <string name="share_menu_join">그룹 라이드 참여</string>
-    <string name="share_menu_join_desc">QR 코드를 스캔합니다.</string>
     <string name="share_menu_live">실시간 위치 공유</string>
     <string name="share_menu_live_desc">그룹 라이드를 시작합니다.</string>
     <string name="share_menu_static">현재 위치 보내기</string>
@@ -1894,7 +1864,6 @@
     <string name="nav_setting_arrival_radius_desc">이 거리 안에 들어오면 경유지에 도착한 것으로 봅니다.</string>
     <string name="nav_setting_offroute">경로 이탈 허용 거리</string>
     <string name="nav_setting_offroute_desc">경로에서 이만큼 벗어나면 경로 이탈 알림이 울립니다.</string>
-    <string name="nav_setting_default_mode">기본 이동 수단</string>
     <string name="nav_setting_params">내비게이션 및 날씨</string>
     <string name="weather_section">날씨</string>
     <string name="weather_icon_desc">일기 예보</string>
@@ -1915,7 +1884,6 @@
     <string name="weather_enable_desc">지도 버튼 위에 날씨 아이콘을 추가합니다. 탭하면 주행 적합도 예보가 열립니다.</string>
     <string name="weather_window_label">예보 기간</string>
     <string name="weather_source_label">예보 제공처</string>
-    <string name="weather_comfort_desc">점수에 반영되는 쾌적 기준입니다. 온도는 온도 단위를, 바람은 속도 단위를 따릅니다.</string>
     <string name="weather_cold">이보다 낮으면 너무 추움</string>
     <string name="weather_hot">이보다 높으면 너무 더움</string>
     <string name="weather_breezy">이보다 높으면 바람 있음</string>
@@ -1942,7 +1910,6 @@
     <string name="weather_lvl_prime_2">최고의 주행 날씨!</string>
     <string name="weather_expand">상세</string>
     <string name="weather_chart_temp">기온·습도·강수</string>
-    <string name="weather_chart_precip">강수</string>
     <string name="weather_chart_wind">바람과 돌풍</string>
     <string name="weather_adv_snow_now">지금 눈이 옵니다. 접지력이 거의 없습니다.</string>
     <string name="weather_adv_snow_in">%1$s 후 눈이 예상됩니다.</string>
@@ -2542,8 +2509,6 @@
     <string name="trip_split_reason_wheel">다른 휠로 바뀌었습니다</string>
     <string name="trip_split_reason_gap">기록 공백</string>
     <string name="trip_split_reason_stopped">장시간 정지</string>
-    <string name="trip_tools_combine">주행 합치기</string>
-    <string name="trip_tools_combine_desc">다른 주행을 합쳐 새 주행을 만듭니다. 원본은 남습니다.</string>
     <string name="trip_tools_combine_none">합칠 수 있는 다른 완료된 주행이 없습니다.</string>
     <string name="trip_tools_combine_mixed_wheels">일부는 다른 휠로 주행했습니다. 거리와 에너지가 합산됩니다.</string>
     <string name="trip_tools_wheel_changed">휠을 %1$s(으)로 설정했습니다</string>
@@ -2650,8 +2615,6 @@
     <string name="studio_video_fit">맞춤</string>
     <string name="studio_video_fit_stretch">늘이기</string>
     <string name="studio_video_offset">오프셋</string>
-    <string name="studio_video_offset_value_fmt">%1$d ms</string>
-    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
     <string name="studio_video_set_offset">현재</string>
     <string name="studio_video_no_media">미디어 없음</string>
     <string name="studio_replay_cd_move">패널 이동</string>
@@ -2659,7 +2622,6 @@
     <string name="studio_video_edge_freeze">정지</string>
     <string name="studio_video_edge_loop">반복</string>
     <string name="studio_video_edge_black">검정</string>
-    <string name="wheel_no_data_reconnecting">휠에서 데이터가 없습니다. 다시 연결하는 중…</string>
     <string name="wheel_no_data_reset">여전히 휠에서 데이터가 없습니다. 휠을 껐다가 켜 보세요.</string>
     <string name="trip_map_ride_start">주행 시작: %1$s</string>
     <string name="trip_map_reconnected">재연결됨: %1$s</string>
@@ -2677,7 +2639,6 @@
     <string name="trip_tools_rename">주행 이름 변경</string>
     <string name="trip_tools_rename_desc">이 주행에 이름을 붙입니다. 파일에 저장되므로 내보내기와 동기화에도 따라갑니다.</string>
     <string name="trip_tools_rename_hint">비워 두면 날짜를 사용합니다.</string>
-    <string name="trip_tools_renamed">주행 이름을 변경했습니다</string>
     <string name="trip_tools_archived">%1$d개를 보관했습니다</string>
     <string name="trip_tools_archive_failed">일부 주행을 보관하지 못해 여기에 남아 있습니다</string>
     <string name="recording_delete_archive">백업 사본 보관</string>
@@ -2785,7 +2746,6 @@
     <string name="action_reset_metrics_wheel_done">지표를 초기화하고 휠 트립도 지웠습니다</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
     <string name="tpms_waiting">데이터 대기 중</string>
-    <string name="status_live">수신 중</string>
     <string name="status_idle">대기</string>
     <string name="tpms_state_leaking">공기 누출</string>
     <string name="tpms_state_inflating">공기 주입 중</string>
@@ -2806,7 +2766,6 @@
     <string name="horn_mode_sound">사용자 소리</string>
     <string name="horn_mode_both">함께</string>
     <string name="horn_mode_hint">사용자 소리는 휴대전화에서 내 소리를 재생합니다. 함께는 외부 스피커용으로 휠 경적과 함께 재생합니다. 휴대전화에서 재생할 수 없으면 휠 경적이 대신 울립니다.</string>
-    <string name="horn_sound_none">선택한 소리 없음</string>
     <string name="horn_sound_current">소리: %1$s</string>
     <string name="horn_sound_choose">소리 선택</string>
     <string name="horn_sound_imported">경적 소리를 저장했습니다</string>
@@ -2822,7 +2781,6 @@
     <string name="voice_stat_min">최소</string>
     <string name="voice_stat_avg">평균</string>
     <string name="voice_stat_peak">피크</string>
-    <string name="crews_title">크루</string>
     <string name="crews_pass_action">크루 패스</string>
     <string name="crews_pass_search_hint">크루 패스는 온라인 리더보드에 참여하면 표시됩니다.</string>
     <string name="crews_scan_hint">브라우저에서 eucstats를 열고 Crews를 누른 다음, 표시되는 코드에 카메라를 맞추세요.</string>
@@ -2927,7 +2885,6 @@
     <string name="nav_unlock_stops">경유지</string>
     <string name="nav_unlock_off">트랙에서 최대 %1$s 벗어남</string>
     <string name="nav_unlock_confirm">변환</string>
-    <string name="nav_track_badge">잠긴 트랙</string>
     <string name="voice_nav_place_reached">%1$s 도착</string>
     <string name="offline_data_open">오프라인 지역</string>
     <string name="offline_server_url">오프라인 데이터 서버</string>

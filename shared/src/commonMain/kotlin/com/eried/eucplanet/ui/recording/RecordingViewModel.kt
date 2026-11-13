@@ -82,26 +82,6 @@ class RecordingViewModel(
         }
     }
 
-    /**
-     * Re-ask the server what a held trip's verdict is now.
-     *
-     * A hold is not a failure and not something the rider can fix: re-uploading returns the
-     * same verdict from the server's dedupe, so asking is the only thing that can clear the
-     * icon. Reports the answer either way, so a tap never looks like it did nothing.
-     */
-    fun recheckHeldTrip(trip: TripRecord) {
-        viewModelScope.launch {
-            _toasts.send(platform.text(Res.string.online_status_checking))
-            val msg = when (runCatching { online.refreshTripVerdict(trip) }.getOrNull()) {
-                "validated" -> platform.text(Res.string.online_status_shared)
-                "rejected" -> platform.text(Res.string.online_status_rejected)
-                "flagged" -> platform.text(Res.string.online_status_flagged_why)
-                else -> platform.text(Res.string.online_status_check_failed)
-            }
-            _toasts.send(msg)
-        }
-    }
-
     val recording: StateFlow<Boolean> = tripRepository.recording
 
     val speedUnit: StateFlow<String> = settingsRepository.settings
@@ -251,9 +231,8 @@ class RecordingViewModel(
         }
     }
 
-    /** Restore the Trip Details layout to defaults: every tile and graph shown,
-     *  in default order. Clears the four compact customizer settings so nothing
-     *  stays hidden or reordered. */
+    /** Restore the Trip Details layout to defaults: clears the six customizer
+     *  settings, so nothing stays hidden, switched on or reordered. */
     fun resetTripLayout() {
         viewModelScope.launch {
             settingsRepository.update { s ->
@@ -273,8 +252,8 @@ class RecordingViewModel(
         csv.split(',').map { it.trim() }.filter { it.isNotEmpty() }
 
     /**
-     * Id of the just-stopped trip waiting in the 10s discard-grace window. The trip
-     * row for this id shows an hourglass instead of the upload-success tick. Tapping
+     * Id of the just-stopped trip waiting out the discard grace window (Advanced,
+     * 15 s by default). Its row shows the pending dots instead of the cloud. Tapping
      * delete on that row goes through the regular confirmation dialog;
      * TripRepository.deleteTrip cancels the pending grace if the deleted trip is
      * the pending one.
@@ -335,12 +314,6 @@ class RecordingViewModel(
     fun startGpsPreview() {
         if (!hasLocationPermission()) return
         tripRepository.startLocationUpdates()
-    }
-
-    fun stopGpsPreview() {
-        // No-op: GPS is now demand-driven (GpsPowerPolicy). Leaving this screen
-        // just lets the tier fall back to idle keep-warm on its own; a full stop
-        // here would kill the stream other consumers / the Navigator rely on.
     }
 
     fun toggleRecording() {
@@ -696,15 +669,7 @@ class RecordingViewModel(
     }
 
 
-    /**
-     * Save the rider's trimmed selection as a new trip, leaving the original
-     * alone. [startMs] / [endMs] are absolute epoch millis.
-     *
-     * The result never reaches the eucstats leaderboard (it is a view the rider
-     * built, not a ride as recorded) but is backed up like any other trip. See
-     * [com.eried.eucplanet.data.repository.TripDerive].
-     */
-    /** BLE names of every wheel the rider has a profile for, for the wheel picker. */
+    /** Wheels for the picker: saved profiles plus the wheel identities existing trips carry. */
     suspend fun knownWheels(): List<com.eried.eucplanet.data.repository.WheelChoice> =
         tripRepository.knownWheels()
 
@@ -756,7 +721,6 @@ class RecordingViewModel(
             )
         }
 
-    /** Apply the chosen cuts, leaving the original trip untouched. */
     /**
      * Trips just produced by a tool, for the list to point at.
      *
@@ -784,6 +748,7 @@ class RecordingViewModel(
         }
     }
 
+    /** Apply the chosen cuts, leaving the original trip untouched. */
     fun splitTrip(
         trip: TripRecord,
         cuts: List<com.eried.eucplanet.data.repository.TripSplitDetector.Cut>,
@@ -840,6 +805,14 @@ class RecordingViewModel(
         )
     }
 
+    /**
+     * Save the rider's trimmed selection as a new trip, leaving the original
+     * alone. [startMs] / [endMs] are absolute epoch millis.
+     *
+     * The result never reaches the eucstats leaderboard (it is a view the rider
+     * built, not a ride as recorded) but is backed up like any other trip. See
+     * [com.eried.eucplanet.data.repository.TripDerive].
+     */
     fun saveTripSection(trip: TripRecord, startMs: Long, endMs: Long) {
         viewModelScope.launch {
             val saved = tripRepository.saveTripSection(trip, startMs, endMs)
@@ -858,7 +831,6 @@ class RecordingViewModel(
             val headerLine = if (reader.hasNext()) reader.next() else return@readTripLines
             val headers = headerLine.lowercase().split(",").map { it.trim() }
 
-            // Detect column indices from header to support DarknessBot and similar formats
             // Format-tolerant column resolution (canonical EUC Planet /
             // DarknessBot names first, EUC World aliases after) lives in
             // TripCsv.Columns so every trip-CSV path resolves identically.
@@ -873,8 +845,7 @@ class RecordingViewModel(
             // -1 when the column is absent (older trip files / foreign exports).
             val iGpsSpeed = TripCsv.Columns.gpsSpeed(headers)
             val iExtGps = headers.indexOfFirst { it.startsWith("ext gps") || it.startsWith("ext_gps") || it == "external gps speed" }
-            // Format-tolerant current/pwm resolution (from next-version) plus the
-            // recorder's "Extra" wheel-identity column (from multi-wheel-record).
+            // -1 when absent, like gpsSpeed.
             val iCurrent = TripCsv.Columns.current(headers)
             val iPwm = TripCsv.Columns.pwm(headers)
             val iTorque = TripCsv.Columns.torque(headers)

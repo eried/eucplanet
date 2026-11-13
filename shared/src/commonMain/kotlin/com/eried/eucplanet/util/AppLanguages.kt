@@ -13,8 +13,8 @@ object AppLanguages {
      * Every shipped language, in picker order: English first, then by tag.
      *
      * One list because adding a language used to mean editing four places -
-     * the strings folder, locales_config.xml, the settings picker, and the two
-     * sets below - and missing one was silent. Japanese, Korean and Turkish
+     * the strings folder, locales_config.xml, the settings picker, and the tag
+     * sets - and missing one was silent. Japanese, Korean and Turkish
      * shipped complete translations for months while LocaleHelper.detectSystemLanguage
      * still fell through to English for those phones, because only the sets
      * were missed. LocaleCoverageTest now fails the build on that mismatch.

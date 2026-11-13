@@ -1,7 +1,7 @@
 package com.eried.eucplanet.ui.recording
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -93,8 +93,9 @@ internal fun RouteMapView(
     // A marker only, like eucviewer: B's whole route would crowd A's.
     compareLat: Double? = null,
     compareLon: Double? = null,
-    // Mid-ride wheel changes (yellow circle + yellow trace onward) and the
-    // start marker's popup text (the recording's first wheel identity,
+    // Wheel-identity markers after the ride start (a purple square and purple
+    // trace onward for a different wheel, a small grey square for a reconnect)
+    // and the start marker's popup text (the recording's first wheel identity,
     // empty = no popup).
     wheelSwitches: List<WheelSwitchMarker> = emptyList(),
     startLabel: String = "",
@@ -210,23 +211,15 @@ private fun MapSurface(
     val startLabelJs = remember(startLabel) { TripMapHtml.quote(startLabel) }
     val endLabelJs = remember(endLabel) { TripMapHtml.quote(endLabel) }
     var page by remember { mutableStateOf<TripMapPage?>(null) }
-    // Same seven as the navigator and eucviewer, same order. No overlays
-    // here: a recorded trip has no chargers or places to draw.
-    // Straight from the registry: this list once said SAT while the tile table
-    // said SATELLITE, so picking satellite silently fell back to plain OSM.
-    val mapTypes = MapLayers.ALL.map { it.id }
     // The JS hooks only exist once the document has finished loading, so trace
     // pushes wait for this rather than being silently dropped.
     var pageReady by remember { mutableStateOf(false) }
-    // Rebuilt whenever the trace changes (a trim, for instance) or we enter or
-    // leave live mode. Bake the CURRENT style into the initial HTML so a
-    // freshly-opened surface (e.g. fullscreen) starts on the shared style rather
-    // than flashing light first; style cycles afterwards go through JS.
-    // Built ONCE, from whatever the trace was when this surface first composed:
+    // Built ONCE, from the trace and style this surface first composed with:
     // it is only ever handed to the factory below, and every later change goes
-    // through setTrace(). Keying it on the trace re-serialised twenty thousand
-    // coordinates into a fresh string on every trim, for a document nothing
-    // loaded.
+    // through setTrace() and setMapType(). Baking the current style in means a
+    // freshly-opened surface (e.g. fullscreen) does not flash light first.
+    // Keying it on the trace would re-serialise twenty thousand coordinates
+    // into a fresh string on every trim, for a document nothing loads.
     val html = remember {
         TripMapHtml.build(
             coordsJson, fadedCoordsJson, switchesJson, fadedSwitchesJson,
@@ -343,20 +336,18 @@ private fun MapSurface(
     }
 }
 
-@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 private fun MapButton(
     icon: ImageVector,
     desc: String,
     onClick: () -> Unit,
-    onLongClick: (() -> Unit)? = null,
 ) {
     Box(
         Modifier
             .size(40.dp)
             .clip(RoundedCornerShape(10.dp))
             .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.92f))
-            .combinedClickable(onClick = onClick, onLongClick = onLongClick),
+            .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         Icon(icon, contentDescription = desc, tint = MaterialTheme.colorScheme.onSurface)

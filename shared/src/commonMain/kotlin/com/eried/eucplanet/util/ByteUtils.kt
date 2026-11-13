@@ -69,9 +69,6 @@ object ByteUtils {
         )
     }
 
-    fun ByteArray.toHexString(): String =
-        joinToString(" ") { "%02x".format(it) }
-
     fun parseTemperature(raw: Byte): Float {
         return (raw.toInt() and 0xFF) - 176f
     }

@@ -85,6 +85,19 @@ class ActionExecutor(
         }
     }
 
+    /**
+     * Executes the action identified by [key]. Unknown / blank / "NONE" keys
+     * are no-ops. The dispatch table below is the SINGLE source of behavior
+     * for every physical surface (Flic, volume key, watch), adding a new
+     * action means:
+     *   1. Append to [com.eried.eucplanet.data.model.ActionCatalog.all] (metadata)
+     *   2. Add a branch here (behavior)
+     * That's it, no other file in the action layer needs to grow.
+     *
+     * Dashboard-only actions (OPEN_*, MUTE_ALARMS, RESET_TRIP, TOGGLE_UNITS)
+     * route through a different executor in the UI layer because they need
+     * navigation / Snackbar / Compose handles this service doesn't have.
+     */
     suspend fun executeAction(key: String, settings: AppSettings) {
         if (key.isEmpty() || key == "NONE") return
         _lastActionAt.value = System.currentTimeMillis()

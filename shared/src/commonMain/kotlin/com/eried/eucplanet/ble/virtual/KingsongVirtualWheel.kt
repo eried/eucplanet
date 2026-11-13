@@ -138,7 +138,7 @@ class KingsongVirtualWheel : VirtualWheel {
         // Frames as the 18XL sent them on 2026-09-16 16:51 UTC.
         /** 0xA9 live: 82.18 V, 0 km/h, odometer, 0.12 A, 31.00 C, mode byte + E0 sentinel. */
         private val LIVE_FRAME = ks(0xA9, "1a 20 00 00 04 00 1d 45 0c 00 1c 0c 00 e0")
-        /** 0xB9 trip: byte 10 echoes the light mode (0x12 off, 0x13 on, 0x14 auto). */
+        /** 0xB9 trip: byte 10 echoes the light mode (0x12 on, 0x13 off, 0x14 auto). */
         private val TRIP_FRAME = ks(0xB9, "00 00 2b 24 0e 05 06 0b 13 00 00 00 b8 0b")
         /** 0xBB name: "KS-18L-0200", model plus firmware 2.00. */
         private val NAME_FRAME = ks(0xBB, "4b 53 2d 31 38 4c 2d 30 32 30 30 00 00 00")

@@ -244,7 +244,6 @@ fun MainViewController(): UIViewController {
                         IosBackHandler { screen = settingsBack }
                         SettingsScreen(
                             onBack = { screen = settingsBack },
-                            onNavigateToFlic = { screen = "flic" },
                             initialTab = leaderboardTab,
                             viewModel = settingsVm,
                             host = IosSettingsHost,

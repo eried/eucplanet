@@ -17,10 +17,10 @@ import com.eried.eucplanet.weather.WeatherFace
 import kotlin.math.roundToInt
 
 /**
- * Weather on the home screen, in three sizes.
+ * Weather on the home screen, in two widgets.
  *
- * All three paint the same [WeatherSnapshot], so a rider with more than one
- * placed never sees them disagree. None of them fetch: a widget is a broadcast
+ * Both paint the same [WeatherSnapshot], so a rider with more than one
+ * placed never sees them disagree. Neither fetches: a widget is a broadcast
  * receiver with ten seconds to live, so refreshing is [WeatherWidgetWorker]'s
  * job and these only draw what it left behind.
  *
@@ -281,8 +281,7 @@ abstract class WeatherWidgetBase(private val layout: Int, private val size: Size
         }
 
         /** How much of the widget's height the curve may take. The tiny one has
-         *  no graph; the compact one is mostly graph; the panel keeps room for
-         *  its readouts. */
+         *  no graph; the forecast one gives the curve about half its height. */
         private fun graphShare(size: Size): Float = when (size) {
             Size.TINY -> 0f
             Size.FORECAST -> 0.55f

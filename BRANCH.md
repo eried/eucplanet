@@ -6,7 +6,7 @@ only when you can cut the ride short.
 
 ## Worked on
 
-- Merged the latest next-experimental (HUD app from the phone, recorded engines, volume keys with the screen off, a way out of every window) into the iPhone branch.
+- Merged the latest next-experimental (HUD app from the phone, recorded engines, volume keys with the screen off, a way out of every window, the wheel icon, and the code and string clean-up) into the iPhone branch.
 - iPhone app (TestFlight): connects to the wheel, with the same dashboard, alarms, voice reports, settings, themes, Flic buttons, Dropbox sync, trip recording and trip list as Android.
 - iPhone app: leaderboards and crew pass, trip details with the map, trip meter, metric details and the charging monitor with charge alerts.
 - iPhone app: trip tools (rename, change wheel, split, extend), and the wheel reconnects by itself after a drop, as on Android.
@@ -23,7 +23,7 @@ only when you can cut the ride short.
 - Settings, Dashboard layout no longer closes the app.
 - Settings search no longer finds rows a phone does not show.
 - Every window has a visible way out: an X on the crew pass (scanner and Enter manually), the studio side panels and the HUD preset picker, and Cancel on the ride-without-offline-maps question.
-- A wheel icon (shell, tyre, pedals and a cushioned seat) replaces the bicycle on the studio Wheel name element and the motorcycle on the Legal Mode Wheel button.
+- A wheel icon (shell, tyre, pedals and a cushioned seat) replaces the bicycle on the studio Wheel name element, the motorcycle on the Legal Mode Wheel button and the scooter on the watch's wheel battery.
 - 0.24.0 beta: everything below from next-experimental, on the Play beta track. New since 0.23.0: the engine sounds, volume keys with the screen off, and five new actions.
 - Release builds are obfuscated (Play asks for it by Feb 2027). Branch APKs are debug builds and do not change.
 - Navigator view: turn card, speed, arrival time and your own tiles on the map while navigating. Pick the tiles in Settings.

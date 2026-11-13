@@ -102,8 +102,7 @@ private fun HudInstallHint(pairedHudVersion: String?, hudEverConnected: Boolean)
     val raw = stringResource(Res.string.hud_install_hint)
         .replace("<b>", "").replace("</b>", "")
     val linkColor = MaterialTheme.colorScheme.primary
-    // Mirror the welcome tutorial's link handling (OutroLinkBullet): locate the
-    // URL run by text, not via HtmlCompat bold-span detection, which wasn't
+    // Locate the URL run by text, not via HtmlCompat bold-span detection, which wasn't
     // reliably tagging the run, so no clickable link was ever added, and attach
     // a LinkAnnotation.Url. The https:// prefix is required or ACTION_VIEW has no
     // scheme to launch.
@@ -240,7 +239,7 @@ private fun HudAppCard(viewModel: SettingsViewModel) {
     val sending = state is com.eried.eucplanet.service.hud.HudAppSender.State.Sending
     // After a send or a remove request the next step is on the HUD. Both
     // buttons rest a few seconds so a second tap cannot stack a second
-    // question there, and a toast says where to look.
+    // question there, and a snackbar says where to look.
     var resting by remember { mutableStateOf(false) }
     var confirmRemove by remember { mutableStateOf(false) }
     val snackbar = com.eried.eucplanet.ui.common.LocalSnackbar.current
@@ -446,8 +445,8 @@ private fun HudHotspotHint(linked: Boolean) {
 }
 
 /**
- * Two-stage hotspot detection. Returns true or false only when a stage
- * actually answered, and null when neither could tell.
+ * Two-stage hotspot detection. Returns true when a stage proves the hotspot
+ * is on, and null when neither could tell. It never returns false.
  *
  * The null matters. This used to return false when nothing answered, so the
  * card stated "Phone hotspot is off" to riders whose hotspot was plainly on,
@@ -482,7 +481,7 @@ private fun detectHotspotEnabled(ctx: android.content.Context): Boolean? {
     // Finding one proves the hotspot is up. NOT finding one proves nothing:
     // the list is a guess at OEM naming, and an OEM we have not met names it
     // something else. So a hit returns true and a miss returns null, never
-    // false. Only stage 1 can report a trustworthy "off".
+    // false.
     val sawSoftAp = runCatching {
         val ifs = java.net.NetworkInterface.getNetworkInterfaces()?.toList().orEmpty()
         ifs.any { iface ->
@@ -497,23 +496,9 @@ private fun detectHotspotEnabled(ctx: android.content.Context): Boolean? {
 }
 
 /**
- * HUD companion settings, surfaced as a section at the bottom of the
- * Integration tab next to Flic 2 buttons and Volume keys.
- *
- * Intentionally minimal in v0.1, one master switch plus the port and a
- * mirror-navigation toggle. Anything else is wired to the same shared
- * settings the phone already exposes (units, accent, gauge thresholds), so
- * a single source of truth governs phone + watch + HUD.
- *
- * The phone-side server is gated on [com.eried.eucplanet.data.model.AppSettings.hudServerEnabled]
- * and on the [com.eried.eucplanet.service.WheelService] being alive; it
- * binds a listening socket only while the rider has the app actively open.
- */
-/**
  * Android Auto's stat boxes and buttons, picked like the home screen widget's
  * slots but saved apart: the car and the home screen are different jobs.
- * Three buttons, and all three are the rider's. Navigate used to lead the
- * strip and took a slot; it went when this stopped being a navigation app.
+ * Three buttons, and all three are the rider's.
  */
 @Composable
 internal fun AndroidAutoSection(
@@ -753,11 +738,8 @@ internal fun HudIntegrationSection(
 
         // Discovery activity (which channel found the HUD, probes, dial
         // attempts, transient reconnects after a WiFi switch, etc.) is
-        // piped to the Service Mode log as NOTE entries. Riders don't see
-        // any of it unless they explicitly open the diagnostics dialog.
-        // The connection-source StateFlow on HudServer stays around because
-        // the watchdog and tests still consult it; only the rider-facing
-        // surface is gone.
+        // piped to the Service Mode log as NOTE entries. The rider only
+        // sees the resulting address and source in the HUD app card.
 
         // Three top-level collapsibles under the Integration card.
         // HUD screens first because the reorder list inside is the
@@ -976,9 +958,9 @@ private fun HudScreenList(
     }
 }
 
-/** Disable the Checkbox visually when it's the last enabled screen AND
- *  already checked -- prevents the rider from tapping the only screen
- *  they have off, while letting them tick disabled screens back on. */
+/** Disables the Switch when it is the last enabled screen, so the rider
+ *  cannot turn off the only screen left. Disabled screens can always be
+ *  turned back on. */
 private fun wantCheckedCanFlip(currentlyChecked: Boolean, canUncheck: Boolean): Boolean {
     if (!currentlyChecked) return true
     return canUncheck
@@ -1011,11 +993,8 @@ private fun hudScreenDisplayName(ctx: android.content.Context, id: String): Stri
  * swaps URL templates + clears its bitmap LRU so the change is visible
  * within a few seconds.
  *
- * Five Carto raster styles cover the readability range riders care about:
- * Voyager (default, neutral parchment), Dark + Dark-no-labels (night riding
- * / OLED-style cockpits), Light (high contrast on bright prisms), and
- * Positron (low-key low-saturation). All five are free with CDN attribution
- * (handled in the HUD's MapScreen footer).
+ * Offers the raw style codes: osm, cyclosm, topo, hot, satellite, light,
+ * dark. Blank falls back to light.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -1310,10 +1289,7 @@ internal fun PhoneHudSection(
                         }
                     }
                 }
-                // No caption under this one. The switch says what it does,
-                // and the portrait-only limit is enforced by the picker
-                // simply not offering landscape layouts, so explaining it
-                // here was words for something the rider cannot hit.
+                // No caption under this one. The switch says what it does.
                 SwitchSetting(
                     stringResource(Res.string.phone_hud_only_away),
                     settings.phoneHudOnlyWhenAway,

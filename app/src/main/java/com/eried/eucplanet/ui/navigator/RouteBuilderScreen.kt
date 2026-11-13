@@ -182,7 +182,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * The Route Builder: a full-bleed Leaflet map (WebView) with a top search bar,
- * a hamburger menu (save / load / clear / start / exit) and a bottom panel for
+ * an overflow menu (load / save / new route / optimize / reverse) and a bottom panel for
  * the travel mode and the draggable list of stops. Tapping the map drops a pin.
  */
 
@@ -327,13 +327,12 @@ fun RouteBuilderScreen(
     // A share link the rider opened from outside the app, waiting on an
     // answer (see MainActivity's App Link handling).
     val pendingJoin by viewModel.pendingJoin.collectAsState()
-    // The ride the rider last left, if any: the start dialog offers it back.
     val shareSpeedUnit by viewModel.speedUnit.collectAsState()
     val shareTempUnit by viewModel.tempUnit.collectAsState()
     val shareRelayHost by viewModel.relayHost.collectAsState()
-    // The Share button, not in a ride: a menu of the four things the icon can
+    // The Share button, not in a ride: a menu of the five things the icon can
     // mean. Two of them are finished inside the menu (a Maps link, the
-    // coordinates on the clipboard); the other two open one of the windows
+    // coordinates on the clipboard); the other three open one of the windows
     // below.
     var shareMenuOpen by remember { mutableStateOf(false) }
     // The camera, and the ride it read. The link is held rather than joined on
@@ -495,18 +494,7 @@ fun RouteBuilderScreen(
     LaunchedEffect(pageReady) {
         val wv = webView ?: return@LaunchedEffect
         if (!pageReady) return@LaunchedEffect
-        val v = viewModel.savedView.value
-        if (v == null) {
-            android.util.Log.i(
-                "RouteBuilderVM",
-                "MAP-OPEN no savedView -- auto-follow / fit will set view"
-            )
-            return@LaunchedEffect
-        }
-        android.util.Log.i(
-            "RouteBuilderVM",
-            "MAP-OPEN restoring savedView lat=${v.lat} lng=${v.lng} zoom=${v.zoom}"
-        )
+        val v = viewModel.savedView.value ?: return@LaunchedEffect
         wv.evaluateJavascript("nativeRecenter(${v.lat}, ${v.lng}, ${v.zoom});", null)
     }
 
@@ -686,7 +674,7 @@ fun RouteBuilderScreen(
         }
     }
 
-    // Push the rider's theme accent into the map so the route line follows it.
+    // Push the rider's theme accent into the map (the --accent CSS variable).
     val accentHex = "#%06X".format(0xFFFFFF and MaterialTheme.colorScheme.primary.toArgb())
     LaunchedEffect(pageReady, accentHex) {
         if (pageReady) {
@@ -816,7 +804,7 @@ fun RouteBuilderScreen(
 
     // Starting navigation, Direct mode has no street-by-street routing, so it
     // launches Treasure Hunt; the routed modes launch turn-by-turn guidance.
-    // Shared by the menu item and the bottom button. A second tap while the
+    // Shared by the header button and the dock button. A second tap while the
     // route is still being solved is ignored in the ViewModel.
     // Before it starts, a route that leaves the downloaded areas asks once:
     // download them, start anyway, or never ask again (Navigator settings
@@ -1020,7 +1008,6 @@ fun RouteBuilderScreen(
                         }
                         BuilderMenu(
                             expanded = menuOpen,
-                            canStart = userLocation != null && waypoints.isNotEmpty(),
                             onDismiss = { menuOpen = false },
                             onSave = { saveLauncher.launch(viewModel.suggestedFileName()) },
                             onLoad = {
@@ -1051,7 +1038,6 @@ fun RouteBuilderScreen(
                                     clearConfirmOpen = true
                                 } else viewModel.clear()
                             },
-                            onStart = startNav,
                             hasStops = waypoints.isNotEmpty(),
                             hasHome = homePlace != null,
                             hasWork = workPlace != null,
@@ -1210,8 +1196,8 @@ fun RouteBuilderScreen(
                         // a dark navy that clashes with a LIGHT / SATELLITE
                         // tile choice. mapType is collected at the top of this
                         // composable; we read its snapshot value here for the
-                        // initial paint and re-apply on every recomposition
-                        // below in case the rider cycles the style.
+                        // initial paint. Later style changes go through
+                        // nativeSetMapType.
                         setBackgroundColor(
                             android.graphics.Color.parseColor(
                                 mapTypeInitialBg(viewModel.mapType.value)
@@ -1371,7 +1357,7 @@ fun RouteBuilderScreen(
             // flicker, and a button that comes and goes is one the rider has
             // to hunt for. Dimmed it reads as "nothing to reset" while still
             // showing which way the map is turned.
-            // Its own composable: the map reports every 1.5 degrees of turn
+            // Its own composable: the map reports each degree of turn
             // during heading-up, and collecting that here recomposed the whole
             // map screen for the whole ride.
             // In landscape it clears the right-hand stops sidebar, so the
@@ -1522,14 +1508,10 @@ fun RouteBuilderScreen(
                 }
             }
 
-            // Overlay FABs (charger / places / layers / my-location) as a
+            // Overlay FABs (Layers, My location) as a
             // reusable block: they float on the map (landscape) or sit above
             // the bottom dock (portrait).
             val overlayFabs: @Composable ColumnScope.() -> Unit = {
-                // The charger + places overlay toggles only exist when advanced
-                // map features are on. The icon stays visible while loading (a
-                // ring overlays it) so the button is always tappable, and the
-                // spinner only shows on the layer(s) actually being fetched.
                 // One button for everything that changes what the map draws:
                 // the basemap and the overlays on top of it. It used to be
                 // three (chargers, attractions, layers) stacked above the
@@ -1653,12 +1635,9 @@ fun RouteBuilderScreen(
                                 onClick = {
                                     val l = viewModel.recenterOnUser()
                                     if (l != null) {
-                                        // Tell the JS how much of the map's bottom is
-                                        // occluded by the stops panel so the rider's pin
+                                        // Pass the measured offset so the rider's pin
                                         // ends up in the middle of the VISIBLE map area,
-                                        // not buried under the dock. Expanded panel is
-                                        // about 300 dp; collapsed (just the header row)
-                                        // about 80 dp.
+                                        // not buried under the dock.
                                         webView?.evaluateJavascript(
                                             "nativeRecenter(${l.latitude},${l.longitude},16,$recenterOffsetPx);",
                                             null
@@ -1825,12 +1804,6 @@ fun RouteBuilderScreen(
                     onDismiss = { viewModel.dismissPoiDetails() }
                 )
             }
-
-            // Locating gate is rendered right after the WebView (further up
-            // in this Box) so it covers only the map area, not the top bar
-            // or the bottom stops panel / FABs which sit on top of it in
-            // z-order. See the AnimatedVisibility just below the AndroidView
-            // for the actual cover.
 
             // Rider-position menu, anchored at the rider's marker via
             // selfMenuOffset (the JS bridge pushes the marker's screen-space
@@ -2359,12 +2332,10 @@ fun RouteBuilderScreen(
 @Composable
 private fun BuilderMenu(
     expanded: Boolean,
-    canStart: Boolean,
     onDismiss: () -> Unit,
     onSave: () -> Unit,
     onLoad: () -> Unit,
     onClear: () -> Unit,
-    onStart: () -> Unit,
     hasStops: Boolean,
     hasHome: Boolean,
     hasWork: Boolean,
@@ -2668,8 +2639,7 @@ private fun StopsHeader(
             }
             }
             // Compact start / stop. Hidden while the dock's list is open (its
-            // big button does the same job) and
-            // when there is nothing to start (no waypoints, no fix yet).
+            // big button does the same job).
             //
             // Animation rule:
             //   * Expanding -- the compact button vanishes INSTANTLY
@@ -3591,11 +3561,6 @@ private fun OcmCommunityCard(ocm: OcmCharger, onOpenUrl: (String) -> Unit) {
 }
 
 /**
- * A FAB-styled toggle whose icon stays visible while [loading] (a ring overlays
- * it, so the button is always tappable) and that supports an optional
- * long-press. Used for the charger / places overlay toggles.
- */
-/**
  * The compass, top right. Outside guidance it resets the map to north; while
  * navigating it toggles heading-up and north-up. It collects the map bearing
  * itself so a turn recomposes only this button. [endInset] keeps it clear of
@@ -3658,6 +3623,11 @@ private fun BoxScope.NavCompassButton(
     )
 }
 
+/**
+ * A FAB-styled button whose icon stays visible while [loading] (a ring overlays
+ * it, so the button is always tappable). Used for the Layers button and the
+ * compass.
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun OverlayFab(
@@ -3667,7 +3637,6 @@ private fun OverlayFab(
     contentDescription: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    onLongClick: (() -> Unit)? = null,
     /** Turns the glyph inside, not the button. The compass needle has to point
      *  where the map is turned while its housing stays square to the screen. */
     iconRotation: Float = 0f,
@@ -3683,7 +3652,7 @@ private fun OverlayFab(
         shadowElevation = 6.dp,
         modifier = modifier
             .size(56.dp)
-            .combinedClickable(enabled = enabled, onClick = onClick, onLongClick = onLongClick)
+            .combinedClickable(enabled = enabled, onClick = onClick)
     ) {
         Box(contentAlignment = Alignment.Center) {
             Icon(
@@ -3703,7 +3672,7 @@ private fun OverlayFab(
     }
 }
 
-/** String resource for a place category label (used by the long-press picker). */
+/** String resource for a place category label, for the Layers menu. */
 private fun placeCategoryLabel(kind: PoiKind): Int = when (kind) {
     PoiKind.STORE -> R.string.nav_poi_store
     PoiKind.FOOD -> R.string.nav_poi_food

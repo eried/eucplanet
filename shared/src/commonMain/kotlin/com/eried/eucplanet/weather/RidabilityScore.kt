@@ -50,7 +50,7 @@ data class HourForecast(
  *    breezy+0.5; then 0.30/ms + 0.15/ms^2, capped at 7. A cold-wind chill
  *    term adds up to 1.5 when it is cold AND windy.
  *  - rain: 1 + 1.5 * min(1, mm/2); snow: 1 + 1.5 * min(1, cm/2) plus 1.2
- *    when at or below freezing. Wet AND past the windy threshold adds 1.5.
+ *    at or below +1 C. Wet AND past the windy threshold adds 1.5.
  *  - night: a flat 0.6.
  *  - traces below 0.15 mm/h rain or 0.05 cm/h snow count as dry, so
  *    provider noise can never flip the score.
@@ -74,7 +74,7 @@ data class HourForecast(
  *  - measurable rain caps the score at +1, snow at 0 (wet pavement is wet);
  *  - wet plus near-gale (W' >= windy + 3.5) pins to -5;
  *  - liquid rain at or below +1.5 C (glaze ice) pins to -4 or lower;
- *  - gusts reaching 17 m/s pin to -4 or lower.
+ *  - effective wind (W') reaching 17 m/s pins to -4 or lower.
  * Everything clamps to -5..+5.
  */
 object RidabilityScore {
@@ -136,10 +136,10 @@ object RidabilityScore {
     /** How far a temperature preference moves the comfort band, in degrees.
      *
      *  Disliking cold does not only make a cold hour cost more, it makes the
-     *  cold START three degrees earlier: at +7 C a rider who had said they
+     *  cold START 3.5 degrees earlier: at +7 C a rider who had said they
      *  dislike cold was still being told +3, because scaling a deficit that
-     *  had barely begun scales almost nothing. Liking it widens the band the
-     *  same amount the other way. */
+     *  had barely begun scales almost nothing. Liking it widens the band
+     *  2 degrees the other way. */
     private fun bandShift(p: Pref): Float = when (p) {
         Pref.DISLIKE -> 3.5f
         Pref.NEUTRAL -> 0f
@@ -236,7 +236,7 @@ object RidabilityScore {
         if (snow) s = min(s, 0f)
         if (wet && wEff >= windyMs + 3.5f) s = min(s, -5f)
         if (rain && h.tempC <= 1.5f) s = min(s, -4f)   // glaze ice
-        if (wEff >= 17f) s = min(s, -4f)               // near-gale gusts
+        if (wEff >= 17f) s = min(s, -4f)               // near-gale effective wind
 
         return Breakdown(
             score = s.coerceIn(-5f, 5f),

@@ -212,20 +212,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Pinging both watch bridges on every resume rather than only at process
-     * start makes auto-launch reliable: opening the phone app brings the watch
-     * app to the foreground each time, even if the watch service was killed for
-     * memory after the previous session. On Garmin this now fires Connect IQ's
-     * openApplication() (a one-time "Always" consent on the watch, then
-     * automatic), so the Garmin path below is a real launch, not a no-op.
-     */
-    /**
-     * Shrink into picture-in-picture as the rider leaves, the way a video app
-     * does. Off unless asked for, and from any screen but the Overlay Studio:
-     * PIP swaps in its own face, so where the rider happened to be does not
-     * change what the little window shows.
-     */
-    /**
      * What the PIP window shows. Two faces, picked by the rider: four large
      * readings, or the gauge beside their own dashboard metrics.
      */
@@ -262,6 +248,13 @@ class MainActivity : AppCompatActivity() {
             )
         }
     }
+
+    /**
+     * Shrink into picture-in-picture as the rider leaves, the way a video app
+     * does. Off unless asked for, and from any screen but the Overlay Studio:
+     * PIP swaps in its own face, so where the rider happened to be does not
+     * change what the little window shows.
+     */
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
         // Every branch below says why it did nothing. PIP failing looks
@@ -319,6 +312,12 @@ class MainActivity : AppCompatActivity() {
             runOnUiThread { micPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO) }
         }
         ensureWatchMapService(_settings.value)
+        // Pinging both watch bridges on every resume rather than only at process
+        // start makes auto-launch reliable: opening the phone app brings the watch
+        // app to the foreground each time, even if the watch service was killed for
+        // memory after the previous session. On Garmin this fires Connect IQ's
+        // openApplication() (a one-time "Always" consent on the watch, then
+        // automatic), so the Garmin call is a real launch, not a no-op.
         wearBridge.pingWatchToWake()
         garminBridge.pingWatchToWake()
         // Catch permission flips done in Settings while the app was in the
@@ -421,10 +420,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        // The launchMode is "standard"; a second SEND will start a new
-        // task. This onNewIntent handles the case where Android delivers
-        // the intent to an already-running instance instead (singleTop
-        // semantics, which we get when the rider just shared again).
+        // MainActivity is singleTask, so a share or link that arrives while
+        // it is running lands here instead of in onCreate.
         consumeShareIntent(intent)
         consumeWeatherIntent(intent)
         consumeChargingIntent(intent)
@@ -514,7 +511,7 @@ class MainActivity : AppCompatActivity() {
                 setShowWhenLocked(it.phoneShowOverLockScreen)
                 // Detect a default app language as soon as we see a blank
                 // `settings.language`, not only on the very first settings
-                // emission. The synchronous seed above sets _settings.value
+                // emission. The synchronous seed below sets _settings.value
                 // before this collect runs, so `first` is already false here
                 // and the original gate never fired -- on a clean install the
                 // app would end up with language="" and an empty picker. The
@@ -661,11 +658,6 @@ class MainActivity : AppCompatActivity() {
                     // action hooks (toggle units, mute, reset trip), nav actions
                     // run synchronously on the click thread and don't need it.
                     val overlayScope = androidx.compose.runtime.rememberCoroutineScope()
-                    // When a Share-to-app intent dropped a pending stop into
-                    // the repository (see consumeShareIntent), jump straight
-                    // to the route builder. The Builder's own LaunchedEffect
-                    // then consumes the request and either drops the pin or
-                    // surfaces a snackbar.
                     // A charge alert was tapped before the graph existed;
                     // now it does, so honour it.
                     val pendingCharge by com.eried.eucplanet.ui.charging
@@ -695,6 +687,11 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
                     }
+                    // When a Share-to-app intent dropped a pending stop into
+                    // the repository (see consumeShareIntent), jump straight
+                    // to the route builder. The Builder's own LaunchedEffect
+                    // then consumes the request and either drops the pin or
+                    // surfaces a snackbar.
                     val pendingShare by incomingShareRepository.pending
                         .collectAsState()
                     androidx.compose.runtime.LaunchedEffect(pendingShare) {
@@ -904,9 +901,6 @@ class MainActivity : AppCompatActivity() {
                                                 }
                                             }
                                             override fun resetMetrics() {
-                                                // Was sending only the wheel command and
-                                                // dropping the answer, so on a family without
-                                                // one this button did nothing and said nothing.
                                                 overlayScope.launch { metricsReset.resetAll() }
                                             }
                                         },
@@ -930,13 +924,6 @@ class MainActivity : AppCompatActivity() {
                                 surface = com.eried.eucplanet.ui.theme.rememberAndroidThemeEditorSurface(),
                             )
                         }
-                        // Radar mini lane lives inside DashboardScreen now,
-                        // mounted directly in the dial Box. Keeping the radar
-                        // visible only while the rider is on the dashboard
-                        // matches where their eyes already are and avoids
-                        // fighting other screens (navigator, studio, settings)
-                        // for the screen-edge gutter.
-
                         // Root-level snackbar host for app-global transient
                         // messages posted from background code (services,
                         // repositories, the OAuth intent handler) via

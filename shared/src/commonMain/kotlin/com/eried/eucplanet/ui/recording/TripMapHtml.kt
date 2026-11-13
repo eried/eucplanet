@@ -154,15 +154,6 @@ $leafletHead
   var offlineMap=eucOfflineMap(map);
   var refLayer=null;
   var refLayer2=null;
-  // {r} asks the provider for its @2x tile on a high-density screen. Without it
-  // a phone upscales a 256 px tile threefold or more, which is most of why the
-  // map read as soft and short on detail. Esri's tiles carry no {r}, so it
-  // expands to "" there and the URL is unchanged.
-  // LIGHT is OpenStreetMap's own rendering, the same source Overlay Studio uses.
-  // Carto's light_all was here before and is drawn from an OSM extract they
-  // refresh on their own schedule: side by side on the same tile it loses the
-  // street names, the POIs and most of the building detail, which is what made
-  // this map look dated next to the Studio one.
   var MAP_LAYERS = ${MapLayersJs.table()};
   window.setMapType=function(t){
     if(baseLayer) map.removeLayer(baseLayer);

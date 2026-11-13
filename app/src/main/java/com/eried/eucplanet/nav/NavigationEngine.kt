@@ -144,12 +144,9 @@ class NavigationEngine(
             }
         }
         // Live navigation parameters: arrival radius, off-route tolerance,
-        // voice toggle and imperial units. Used to snapshot only at start();
-        // now they re-flow whenever the rider edits a setting mid-trip, so
-        // the Navigation Settings shortcut in the builder menu is meaningful
-        // even with guidance running. Per-waypoint radii (Waypoint.radiusM)
-        // still override the global. The engine reads the cached fields on
-        // every fix, so updates take effect on the next GPS update.
+        // voice toggle and imperial units. They follow the settings flow, so
+        // an edit mid-trip takes effect on the next GPS fix. Per-waypoint
+        // radii (Waypoint.radiusM) still override the global.
         scope.launch {
             settingsRepository.settings.collect { s ->
                 imperial = com.eried.eucplanet.util.Units.effectiveDistanceUnit(s) == "mi"
@@ -204,7 +201,8 @@ class NavigationEngine(
     @Volatile private var activeRoute: NavRoute? = null
     private var navMode: NavMode = NavMode.TURN_BY_TURN
 
-    // Settings snapshot, refreshed on start().
+    // Mirrored from settings: the first four update live, router URLs and
+    // avoidances are read at start().
     private var imperial = false
     private var voiceEnabled = true
     private var arrivalRadiusM = 25.0
@@ -542,15 +540,12 @@ class NavigationEngine(
             // first fix.
             //
             // If the rider is INSIDE the current goal's arrival radius
-            // before any heading materialises, advance past it. We are
-            // always on a single-leg route now (origin + one stop) so
-            // currentGoal here is always 1 and waypoints[1] is that one
-            // stop; advancing past it triggers handleArrival, which the
-            // VM picks up to mark the stop passed and request the next
-            // leg. The check has no "first fix only" gate any more --
-            // a delayed / cached first fix used to skip this branch and
-            // leave the rider stuck on 'Start riding' next to a stop
-            // they were on top of.
+            // before any heading materialises, advance past it. On a
+            // single-leg route (origin + one stop) that is the only
+            // stop, so handleArrival runs. The check is not limited to
+            // the first fix: a delayed / cached first fix would
+            // otherwise leave the rider stuck on 'Start riding' next to
+            // a stop they were on top of.
             // Heading-null shortcut: armed on the first leg
             // (lastArrivalPoint == null) and re-armed on follow-on legs
             // once the rider has moved MIN_INTER_STOP_MOVE_M from the
@@ -592,8 +587,8 @@ class NavigationEngine(
             val distanceText = if (!distToGoal.isNaN()) {
                 NavFormat.distance(context, distToGoal, imperial)
             } else ""
-            // Mirror currentGoal into navState so the VM trim drops stops
-            // we already advanced past in the loop above.
+            // Mirror currentGoal into navState so the builder drops a stop
+            // already advanced past.
             val goalCount = (route.waypoints.size - 1).coerceAtLeast(1)
             _navState.value = _navState.value.copy(
                 waiting = true,
@@ -1099,7 +1094,7 @@ class NavigationEngine(
         // whether the trip ends here or continues to the next stop.
         //
         // The intermediate path shows a brief "Goal N reached" flag flash
-        // BEFORE building the next leg, so the popup pops with the
+        // BEFORE advancing to the next leg, so the popup pops with the
         // correct content from frame zero -- without this, the flag would
         // briefly carry the previous leg's primaryText ("Start riding"),
         // then change. onFix is gated on arrivalHandled so a fresh GPS
@@ -1298,7 +1293,7 @@ class NavigationEngine(
 
     /**
      * Heading-relative direction word for Treasure Hunt. Buckets the relative
-     * bearing into six bands per side, so the back-diagonals ("behind you, on
+     * bearing into ahead, behind and three bands per side, so the back-diagonals ("behind you, on
      * your right") read distinct from sideways or straight behind:
      *
      *     |rel|  0..25   25..65   65..110   110..155   >=155

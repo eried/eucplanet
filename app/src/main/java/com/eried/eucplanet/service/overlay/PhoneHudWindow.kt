@@ -55,7 +55,7 @@ import com.eried.eucplanet.ui.theme.EucPlanetTheme
  * through to whatever is underneath. That is the whole point: an overlay that
  * ate touches would make the app beneath it unusable. It also means the rider
  * cannot move or dismiss this by touching it, which is why it is turned off
- * from Settings and from the ongoing notification instead.
+ * from Settings instead.
  *
  * **No viewport panes.** Only [StudioElementLayer] is drawn, never the preset's
  * background panes. Painting those would put an opaque rectangle over the whole
@@ -64,11 +64,6 @@ import com.eried.eucplanet.ui.theme.EucPlanetTheme
  *
  * **No camera or map elements.** A floating camera has no preview surface here,
  * and a map element fetches tiles, which is silent background data mid-ride.
- *
- * **Portrait presets only.** The Studio bakes a per-element rotation into
- * landscape presets on a portrait-normalised canvas; undoing that on a
- * different surface is what cost the HUD renderer two failed attempts and an
- * ANR. Landscape presets are refused rather than drawn half-right.
  */
 class PhoneHudWindow(
     private val context: Context,
@@ -199,8 +194,8 @@ class PhoneHudWindow(
          * What is left of a preset once the types this window cannot draw are
          * removed.
          *
-         * Landscape presets are NOT refused. The window is locked to one
-         * orientation and never re-lays out, so a preset is drawn exactly as it
+         * Landscape presets are NOT refused. The window rotates with the
+         * phone and the content is turned back, so a preset is drawn as it
          * was authored, per-element rotation included. That is the honest
          * result: the rider sees what they built, rather than geometry the app
          * guessed at correcting.
@@ -230,9 +225,6 @@ private fun Content(
 ) {
     val data by snapshot
     val els by elements
-    // Default palette rather than the rider's chosen theme: resolving that
-    // needs the settings pipeline an Activity has, and every element carries
-    // its own colours anyway. The theme only supplies fallbacks here.
     // Turned back by however much the display is turned, so the overlay stays
     // put on the glass while the phone and the app underneath rotate freely.
     //
@@ -255,6 +247,9 @@ private fun Content(
         else -> 0f
     }
 
+    // Default palette rather than the rider's chosen theme: resolving that
+    // needs the settings pipeline an Activity has, and every element carries
+    // its own colours anyway. The theme only supplies fallbacks here.
     EucPlanetTheme {
         BoxWithConstraints(Modifier.fillMaxSize()) {
             val d = data ?: return@BoxWithConstraints

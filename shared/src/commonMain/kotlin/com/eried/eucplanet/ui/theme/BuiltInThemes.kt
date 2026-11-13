@@ -112,8 +112,6 @@ object BuiltInThemes {
 
     fun byName(name: String): BuiltInTheme? = all.firstOrNull { it.name == name }
 
-    fun isBuiltIn(name: String): Boolean = byName(name) != null
-
     /** First-launch / migration pick: OS-light → Light, OS-dark → Pure Black. */
     fun forSystemDark(systemDark: Boolean): BuiltInTheme = if (systemDark) pureBlack else light
 }

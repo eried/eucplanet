@@ -5,7 +5,6 @@
     <string name="notification_channel_description">Zeigt Verbindungsstatus und Telemetrie des Wheels.</string>
 
     <!-- Notification quick actions -->
-    <string name="notif_actions_section">Anpassen</string>
     <string name="notif_actions_enable">Benachrichtigungsaktionen anzeigen</string>
     <string name="notif_actions_enable_desc">Schnellaktionen zur laufenden Benachrichtigung hinzufügen.</string>
     <string name="notif_actions_pick_desc">Bis zu %1$d Aktionen wählen. Dieselbe Aktion kann mehrfach vorkommen.</string>
@@ -39,9 +38,6 @@
     <string name="state_off">Aus</string>
     <string name="action_done">Fertig</string>
     <string name="action_close">Schließen</string>
-<string name="crash_log_action_prompt">Du hast %1$s lang gedrückt. Nur diesen Log löschen oder alle. Zum Teilen auf Abbrechen tippen, dann auf die Datei.</string>
-    <string name="crash_log_delete_all">Alle löschen</string>
-    <string name="crash_log_delete_all_warning">Alle gespeicherten Absturzlogs löschen? Das lässt sich nicht rückgängig machen.</string>
     <string name="action_save">Speichern</string>
     <string name="action_apply">Anwenden</string>
     <string name="action_delete">Löschen</string>
@@ -135,12 +131,10 @@
     <string name="tab_dashboard">Dashboard-Layout</string>
     <string name="dashboard_section_metrics">Werte</string>
     <string name="dashboard_section_actions">Aktionstasten</string>
-    <string name="dashboard_columns">Spalten</string>
     <string name="dashboard_grid_hint">Lang drücken zum Ziehen, tippen zum Bearbeiten.</string>
     <string name="dashboard_pool_metrics">Verfügbare Werte</string>
     <string name="dashboard_pool_actions">Verfügbare Aktionen</string>
     <string name="dashboard_pool_tap_toast">Lang drücken und auf einen Platz oben ziehen, um es zu nutzen</string>
-    <string name="dashboard_rolling_window">Gleitendes Statistikfenster</string>
     <string name="dashboard_stats_length">Statistiklänge</string>
     <string name="dashboard_view">Ansicht</string>
     <string name="dashboard_view_default">Standard</string>
@@ -614,7 +608,6 @@
     <string name="watch_haptic_on_action_desc">Kurze Vibration bei jedem Druck, sofern unterstützt.</string>
 
     <!-- Settings: Backup -->
-    <string name="section_cloud_folder">Backup-Ordner</string>
     <string name="cloud_caption">Dein Backup-Ordner für Fahrten, Einstellungen, Themes und Overlays.</string>
     <string name="cloud_choose_folder">Ordner wählen</string>
     <string name="cloud_change_folder">Ordner ändern</string>
@@ -635,7 +628,6 @@
     <string name="section_cloud_trips">Fahrten-Backup</string>
     <string name="cloud_trips_caption">Fahrten bleiben auf diesem Handy und werden automatisch in deinen Backup-Ordner synchronisiert. Löschen entfernt die Fahrten in der App, nicht die im Backup-Ordner.</string>
     <string name="cloud_retry_now">Alle abgleichen</string>
-    <string name="cloud_retry_enqueued">Upload geplant</string>
     <string name="sync_progress">Synchronisiere %1$d von %2$d</string>
     <string name="sync_no_folder">Zuerst einen Backup-Ordner wählen</string>
     <string name="sync_rate_limited">Dropbox drosselt dieses Konto. %1$d von %2$d Fahrten synchronisiert, der Rest wird erneut versucht.</string>
@@ -674,10 +666,7 @@
     <!-- Settings: General -->
     <string name="section_recording">Aufnahme</string>
     <string name="section_connection">Verbindung</string>
-    <string name="section_display">Anzeige</string>
-    <string name="auto_record_on_start">Automatisch aufnehmen</string>
     <string name="auto_record_caption">Zeichnet eine Fahrt auf, wenn das Wheel verbunden ist.</string>
-    <string name="auto_record_start_in_motion">Aufnahme bei Bewegung starten</string>
     <string name="auto_record_start_in_motion_caption">Startet bei Bewegung, stoppt nach Stillstand, läuft bei der nächsten Fahrt wieder an.</string>
     <string name="auto_record_stop_idle_seconds">Stoppen nach Stillstand von</string>
     <string name="auto_connect_on_start">Automatisch verbinden</string>
@@ -884,11 +873,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Diesel-LKW</string>
     <string name="engine_preset_sampled_motorcycle">Kleine Crossmaschine</string>
     <string name="engine_preset_sampled_city_car">Kleinwagen</string>
-    <string name="engine_preset_sampled_helicopter">Hubschrauber</string>
     <string name="engine_preset_sampled_tractor">Traktor</string>
     <string name="engine_preset_sampled_lawnmower">Rasenmäher</string>
     <string name="engine_preset_sampled_steam_loco">Dampflok</string>
-    <string name="engine_preset_sampled_car_cruise">Auto, Reisetempo</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
     <string name="engine_preset_sampled_big_diesel">Großer Diesel</string>
     <string name="engine_preset_sampled_broken_exhaust">Kaputter Auspuff</string>
@@ -1166,12 +1153,10 @@
     <string name="auto_lights_when">Sonnenauf- und -untergang folgen, wenn</string>
     <string name="auto_lights_off_slow">Licht beim Langsamerwerden ausschalten</string>
     <string name="auto_lights_off_below">Aus unter</string>
-    <string name="auto_lights_desc">Licht automatisch bei Sonnenuntergang und -aufgang schalten.</string>
     <string name="auto_lights_on_before_sunset">Licht AN vor</string>
     <string name="auto_lights_off_after_sunrise">Licht AUS nach</string>
     <string name="auto_waiting_gps">Warte auf GPS-Position…</string>
     <string name="auto_volume_title">Lautstärkeregelung</string>
-    <string name="auto_volume_desc">Musiklautstärke je nach Geschwindigkeit anheben.</string>
     <string name="auto_volume_when">Lautstärke anheben, wenn</string>
     <string name="media_rate_when">Wiedergabetempo ändern, wenn</string>
     <string name="media_rate_permission_desc">Android fragt das getrennt ab. Ohne das lässt sich das Wiedergabetempo nicht ändern.</string>
@@ -1181,14 +1166,12 @@
     <string name="media_rate_grant">Erlauben</string>
     <string name="warnings_media_access_title">Benachrichtigungszugriff ist aus</string>
     <string name="warnings_media_access_body">Ohne ihn kann das Wiedergabetempo der Geschwindigkeit nicht folgen. Zum Erlauben tippen.</string>
-    <string name="media_control_desc">Pausiert die Musik, wenn du langsamer wirst, und setzt sie fort, wenn du schneller wirst.</string>
     <string name="media_control_pause">Pausieren beim Langsamerwerden</string>
     <string name="media_control_pause_below">Pausieren bei oder unter</string>
     <string name="media_control_resume">Fortsetzen beim Schnellerwerden</string>
     <string name="media_control_resume_above">Fortsetzen bei oder über</string>
     <string name="automation_require_external">Nur über Kopfhörer oder Bluetooth</string>
     <string name="proximity_lock_title">Wheel-Sperre</string>
-    <string name="proximity_lock_desc">Sperrt das Wheel, wenn du dich entfernst, und entsperrt es bei deiner Rückkehr, anhand der Bluetooth-Signalstärke.</string>
     <string name="proximity_lock_enable">Sperren, wenn ich weggehe</string>
     <string name="proximity_lock_below">Signal unter</string>
     <string name="proximity_unlock_when">Automatisch entsperren</string>
@@ -1296,11 +1279,9 @@
     <string name="alarm_predict_help_lead">Warnt anhand des aktuellen Trends rund %1$s s, bevor dies gilt: %2$s.</string>
     <string name="alarm_predict_label">Vorausschauende Auslösung</string>
     <string name="alarm_predict_realtime">Jetzt</string>
+    <string name="about_share_crash">Absturzlog teilen</string>
 
     <!-- About / crash logs -->
-    <string name="about_crash_logs">Absturzlogs</string>
-    <string name="about_crash_logs_empty">Keine Abstürze aufgezeichnet</string>
-    <string name="about_share_crash">Absturzlog teilen</string>
     <string name="about_thanks">Danksagungen</string>
     <string name="about_thanks_body">Ich hatte genug von EUC-Apps, die sich zu langsam weiterentwickeln, veraltet aussehen, neue Funktionen mit drakonischen Regeln belegen, ihre Community wie Kunden behandeln und vergessen, dass EUC-Fahrer am besten sind, wenn sie sich gegenseitig helfen. Diese hier versucht, das Gegenteil zu sein.</string>
     <string name="about_license">Lizenz</string>
@@ -1357,11 +1338,8 @@
     <string name="online_upload_total_km">%1$s %2$s</string>
     <string name="online_upload_join">Bestenliste beitreten</string>
     <string name="online_status_shared">In der Bestenliste</string>
-    <string name="online_status_flagged">Geteilt, wird geprüft</string>
     <string name="online_status_pending">Wird hochgeladen…</string>
     <string name="online_status_failed">Upload fehlgeschlagen, tippen zum Wiederholen</string>
-    <string name="online_status_checking">Wird mit der Bestenliste abgeglichen…</string>
-    <string name="online_status_check_failed">Prüfung derzeit nicht möglich, später erneut versuchen</string>
     <string name="online_status_rejected">Nicht für die Bestenliste akzeptiert</string>
     <string name="online_upload_join_caption">Tritt bei, um deine Statistiken und Fahrten in der öffentlichen Bestenliste zu teilen auf.</string>
     <string name="online_upload_linked_caption">Deine Statistiken und Fahrten erscheinen in der öffentlichen Bestenliste auf.</string>
@@ -1383,7 +1361,6 @@
     <string name="online_profile_delete_confirm_action">Dauerhaft löschen</string>
     <string name="online_profile_save_rate_limited">Zu viele Anfragen, bitte später erneut versuchen.</string>
     <string name="online_profile_save_failed">Speichern fehlgeschlagen (HTTP %1$d). Erneut versuchen.</string>
-    <string name="online_status_flagged_why">Wird kurz automatisch geprüft. Sobald die Prüfung abgeschlossen ist, erscheint der Eintrag in der Bestenliste.</string>
     <string name="online_restore_title">Gespeichertes Profil gefunden</string>
     <string name="online_restore_body_new">Wir haben ein gespeichertes Profil gefunden: %1$s. Durch Fortfahren trittst du der öffentlichen Bestenliste mit diesem Fahrerprofil bei, Name, Flagge, Avatar und Fahrtstatistiken sind öffentlich. Es wird kein neues Profil erstellt.</string>
     <string name="online_restore_body_switch">Wir haben ein anderes gespeichertes Profil gefunden: %1$s. Durch Fortfahren wird dieses Handy auf dieses Fahrerprofil umgestellt. Dein aktuelles Profil wird vorher gesichert.</string>
@@ -1605,9 +1582,6 @@
     <string name="studio_cfg_time_window_fmt">%1$ds</string>
     <string name="studio_cfg_trail_label">Spurlänge</string>
     <string name="studio_cfg_map_style">Kartenstil</string>
-    <string name="studio_cfg_map_street">Straße</string>
-    <string name="studio_cfg_map_dark">Dunkel</string>
-    <string name="studio_cfg_map_satellite">Satellit</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
     <string name="studio_cfg_map_attribution">Kartenhinweis anzeigen</string>
     <string name="studio_cfg_map_attribution_off">Die Kartenlizenz verlangt diesen Hinweis auf allem, was du teilst. Ausschalten ist deine Entscheidung.</string>
@@ -1705,7 +1679,6 @@
     <string name="trip_meter_tab_speed">Tempo</string>
     <string name="trip_meter_tab_battery">Akku</string>
     <string name="trip_meter_tab_time">Zeit</string>
-    <string name="trip_meter_total">Gesamt</string>
     <string name="trip_meter_active">Aktiv</string>
     <string name="trip_meter_avg">Ø</string>
     <string name="trip_meter_reset">Tripzähler zurücksetzen</string>
@@ -1769,7 +1742,6 @@
     <string name="nav_clear_confirm_body">Die aktuellen Stopps werden gelöscht.</string>
     <string name="nav_load_confirm">Aktuelle Route durch geladene GPX ersetzen?</string>
     <string name="nav_menu_load_short">Laden</string>
-    <string name="nav_tap_on_self">In der Stoppliste einen Stopp lang drücken, um ihn auf deinen Standort zu setzen</string>
     <string name="nav_start_short">Navigation starten</string>
     <string name="nav_stop_short">Navigation stoppen</string>
     <string name="nav_stops_left">Verbleibende Stopps: %1$d</string>
@@ -1855,8 +1827,6 @@
     <string name="share_alone">Noch ist niemand sonst hier.</string>
     <string name="share_open">Öffnen</string>
     <string name="share_copy">Kopieren</string>
-    <string name="share_menu_join">Gruppenfahrt beitreten</string>
-    <string name="share_menu_join_desc">QR-Code scannen.</string>
     <string name="share_menu_live">Live-Standort teilen</string>
     <string name="share_menu_live_desc">Gruppenfahrt starten.</string>
     <string name="share_menu_static">Standort teilen</string>
@@ -1934,7 +1904,6 @@
     <string name="nav_setting_arrival_radius_desc">Ab welcher Nähe ein Stopp als erreicht gilt.</string>
     <string name="nav_setting_offroute">Toleranz bei Routenabweichung</string>
     <string name="nav_setting_offroute_desc">Wie weit du von der Route abweichen darfst, bevor die Abweichungswarnung kommt.</string>
-    <string name="nav_setting_default_mode">Standard-Fortbewegungsart</string>
     <string name="nav_setting_params">Navigation &amp; Wetter</string>
     <string name="weather_section">Wetter</string>
     <string name="weather_icon_desc">Wettervorhersage</string>
@@ -1955,7 +1924,6 @@
     <string name="weather_enable_desc">Fügt über der Kartentaste ein Wettersymbol ein: antippen für die Fahrbarkeits-Prognose.</string>
     <string name="weather_window_label">Vorhersagefenster</string>
     <string name="weather_source_label">Vorhersagequelle</string>
-    <string name="weather_comfort_desc">Komfortschwellen für die Bewertung. Temperatur folgt deinen Einheiten, Wind der Tempo-Einheit.</string>
     <string name="weather_cold">Zu kalt unter</string>
     <string name="weather_hot">Zu heiß über</string>
     <string name="weather_breezy">Leichter Wind über</string>
@@ -1982,7 +1950,6 @@
     <string name="weather_lvl_prime_2">Bestes Gleitwetter!</string>
     <string name="weather_expand">Details</string>
     <string name="weather_chart_temp">Temp., Feuchte und Niederschlag</string>
-    <string name="weather_chart_precip">Niederschlag</string>
     <string name="weather_chart_wind">Wind und Böen</string>
     <string name="weather_adv_snow_now">Es schneit, kein Grip mehr.</string>
     <string name="weather_adv_snow_in">Schnee in etwa %1$s erwartet.</string>
@@ -2563,8 +2530,6 @@
     <string name="trip_split_reason_wheel">Ein anderes Wheel übernahm</string>
     <string name="trip_split_reason_gap">Lücke in der Aufnahme</string>
     <string name="trip_split_reason_stopped">Lange gestanden</string>
-    <string name="trip_tools_combine">Fahrten zusammenfügen</string>
-    <string name="trip_tools_combine_desc">Fügt andere Fahrten zu einer neuen Fahrt zusammen, die Originale bleiben erhalten.</string>
     <string name="trip_tools_combine_none">Keine anderen abgeschlossenen Fahrten zum Zusammenfügen.</string>
     <string name="trip_tools_combine_mixed_wheels">Einige davon wurden auf einem anderen Wheel gefahren. Distanz und Energie werden zusammengelegt.</string>
     <string name="trip_tools_wheel_changed">Wheel auf %1$s gesetzt</string>
@@ -2671,8 +2636,6 @@
     <string name="studio_video_fit">Anpassung</string>
     <string name="studio_video_fit_stretch">Strecken</string>
     <string name="studio_video_offset">Versatz</string>
-    <string name="studio_video_offset_value_fmt">%1$d ms</string>
-    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
     <string name="studio_video_set_offset">Aktuell</string>
     <string name="studio_video_no_media">Kein Medium</string>
     <string name="studio_replay_cd_move">Panel verschieben</string>
@@ -2680,7 +2643,6 @@
     <string name="studio_video_edge_freeze">Einfrieren</string>
     <string name="studio_video_edge_loop">Schleife</string>
     <string name="studio_video_edge_black">Schwarz</string>
-    <string name="wheel_no_data_reconnecting">Keine Daten vom Wheel. Verbinde erneut…</string>
     <string name="wheel_no_data_reset">Weiterhin keine Daten vom Wheel. Schalte es aus und wieder ein.</string>
     <string name="trip_map_ride_start">Fahrtbeginn: %1$s</string>
     <string name="trip_map_reconnected">Wieder verbunden: %1$s</string>
@@ -2698,7 +2660,6 @@
     <string name="trip_tools_rename">Fahrt umbenennen</string>
     <string name="trip_tools_rename_desc">Gib dieser Fahrt einen Namen. Steht in ihrer Datei, kommt also bei Export und Sync mit.</string>
     <string name="trip_tools_rename_hint">Leer lassen für das Datum.</string>
-    <string name="trip_tools_renamed">Fahrt umbenannt</string>
     <string name="trip_tools_archived">%1$d archiviert</string>
     <string name="trip_tools_archive_failed">Einige Fahrten konnten nicht archiviert werden und sind noch da</string>
     <string name="recording_delete_archive">Backup-Kopien archivieren</string>
@@ -2806,7 +2767,6 @@
     <string name="action_reset_metrics_wheel_done">Werte zurückgesetzt, Trip des Wheels gelöscht</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
     <string name="tpms_waiting">Warte auf Daten</string>
-    <string name="status_live">Live</string>
     <string name="status_idle">Inaktiv</string>
     <string name="tpms_state_leaking">Verliert Luft</string>
     <string name="tpms_state_inflating">Wird aufgepumpt</string>
@@ -2827,7 +2787,6 @@
     <string name="horn_mode_sound">Eigener</string>
     <string name="horn_mode_both">Mix</string>
     <string name="horn_mode_hint">Eigener spielt deinen Klang am Handy. Mix legt ihn zur Hupe des Wheels, für einen externen Lautsprecher. Kann das Handy ihn nicht spielen, hupt stattdessen das Wheel.</string>
-    <string name="horn_sound_none">Kein Klang gewählt</string>
     <string name="horn_sound_current">Klang: %1$s</string>
     <string name="horn_sound_choose">Klang wählen</string>
     <string name="horn_sound_imported">Hupenklang gespeichert</string>
@@ -2843,7 +2802,6 @@
     <string name="voice_stat_min">Min</string>
     <string name="voice_stat_avg">Schnitt</string>
     <string name="voice_stat_peak">Spitze</string>
-    <string name="crews_title">Crews</string>
     <string name="crews_pass_action">Crew-Pass</string>
     <string name="crews_pass_search_hint">Der Crew-Pass erscheint, sobald du den Online-Bestenlisten beitrittst.</string>
     <string name="crews_scan_hint">Öffne eucstats im Browser, tippe auf Crews und richte die Kamera auf den angezeigten Code.</string>
@@ -2949,7 +2907,6 @@
     <string name="nav_unlock_stops">Stopps</string>
     <string name="nav_unlock_off">Weicht bis zu %1$s vom Track ab</string>
     <string name="nav_unlock_confirm">Umwandeln</string>
-    <string name="nav_track_badge">Gesperrter Track</string>
     <string name="voice_nav_place_reached">%1$s erreicht</string>
     <string name="offline_data_open">Offline-Gebiete</string>
     <string name="offline_server_url">Server für Offline-Daten</string>

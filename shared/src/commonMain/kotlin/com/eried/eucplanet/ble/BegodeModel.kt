@@ -7,8 +7,9 @@ package com.eried.eucplanet.ble
  *
  * Voltage-class is the most important per-model attribute because Begode's
  * realtime telemetry voltage field is a raw u16 BE that must be scaled by a
- * nominal-voltage-derived ratio (84 V wheels use 0.625, 100 V wheels use ~0.74,
- * 126 V wheels use ~0.94, etc.) to land on real volts.
+ * nominal-voltage-derived ratio (67 V = 1.00, 84 V = 1.25, 100 V = 1.50,
+ * 126 V = 1.875, 134 V = 2.00, see BegodeParser.voltageRatioFor) to land on
+ * real volts.
  *
  * Spec: docs/protocols/begode.md.
  */

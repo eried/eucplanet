@@ -255,16 +255,6 @@ class BleConnectionManager(
     private enum class WriteOutcome { ACCEPTED, REJECTED, CONNECTION_LOST }
 
     /**
-     * How many times a rejected write is re-offered before it is given up on.
-     *
-     * The queue below assumes a write succeeded once 200 ms have passed with no
-     * callback, because some stacks never deliver one. On a slow phone the
-     * callback can arrive later than that, so the next write lands while the
-     * previous is still in flight and the stack answers 201 (write busy). That
-     * used to be logged and thrown away: a rider's lock command simply never
-     * left the phone, which reads as the button doing nothing.
-     */
-    /**
      * Backstop for a write-response that never arrives, on the families that
      * write WITH one. Generous on purpose: it is not the pacing, the callback
      * is. A rider's log showed the stack busy for up to about 300 ms at a time
@@ -656,13 +646,13 @@ class BleConnectionManager(
         }
     }
 
+    @Volatile private var virtualTickJob: kotlinx.coroutines.Job? = null
+
     /**
      * Skip GATT entirely and run a simulated wheel. The fake produces the same
      * raw-byte responses a real wheel would emit, so the parser/adapter/repository
      * pipeline runs unchanged. Disconnect by calling [disconnect] as usual.
      */
-    @Volatile private var virtualTickJob: kotlinx.coroutines.Job? = null
-
     private fun connectVirtual(id: String) {
         val wheel = VirtualWheelRegistry.create(id) ?: run {
             Log.e(TAG, "Unknown virtual wheel id: $id")
@@ -991,14 +981,6 @@ class BleConnectionManager(
                     reconnectScanCycle = 0
                     reconnectHuntStartMs = 0L
                     _connectionState.value = ConnectionState.INITIALIZING
-                    // (Removed the InMotion V1 requestConnectionPriority(HIGH)
-                    // experiment: the tester's failure logs show a RX-perfect /
-                    // TX-dead pattern - the wheel streams 0x0F060101 at 10 Hz for
-                    // ~9 s while NONE of our ~18 writes get acked - which a
-                    // connection-interval change cannot fix and may worsen by
-                    // contending with the GATT setup on budget stacks. The write
-                    // instrumentation in processWriteQueue now records whether each
-                    // write is even accepted by the stack, to tell TX-layer vs RF.)
                     // Go straight to service discovery instead of gating on an
                     // MTU exchange the wheel may never acknowledge. KingSong
                     // S18 (and other cheap HM-10 modules) silently drop the
@@ -1234,9 +1216,9 @@ class BleConnectionManager(
          * Tear down the GATT and surface a visible disconnect when the
          * connect flow fails after STATE_CONNECTED but before CONNECTED.
          * Without this, the UI sits in INITIALIZING forever because no
-         * other code path transitions state out of that. The app-level
-         * auto-reconnect at line ~348 picks up from the
-         * STATE_DISCONNECTED callback that gatt.disconnect() triggers.
+         * other code path transitions state out of that. The reconnect in
+         * onConnectionStateChange picks up from the STATE_DISCONNECTED
+         * callback that gatt.disconnect() triggers.
          */
         @SuppressLint("MissingPermission")
         private fun failConnectAndTeardown(gatt: BluetoothGatt, reason: String) {
@@ -1329,8 +1311,6 @@ class BleConnectionManager(
         com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
             "Connected: name=${currentName ?: "(unknown)"} adapter=${wheelAdapter.familyDisplayName}"
         )
-        // (InMotion V1 connection-priority request now happens at STATE_CONNECTED,
-        // before service discovery, so the whole setup runs at the fast interval.)
         // Fire-and-forget MTU bump. Has to happen AFTER the CCCD descriptor
         // write completes - Android GATT is strictly serial and overlapping
         // requestMtu with a pending descriptor write can wedge with status

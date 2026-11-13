@@ -160,7 +160,7 @@ class ShareSession(
         return ShareCrypto.hmacSha256(ShareCrypto.unb64u(secret), roomId.toByteArray())
     }
 
-    /** "Rider #NNNN" from the room id bytes: the same phone keeps the same
+    /** "Rider #NNNN" from this phone's sender id in the room: the same phone keeps the same
      *  number in the same room across rejoins. */
     private fun anonymousName(idBytes: ByteArray): String {
         val v = ((idBytes[0].toInt() and 0xFF) shl 8) or (idBytes[1].toInt() and 0xFF)
@@ -375,7 +375,7 @@ class ShareSession(
      * instead of freezing until the peer goes LOST.
      */
     fun ageTick() { val now = System.currentTimeMillis()
-        // A rider who left, or went silent, stays greyed only while their trail
+        // A rider who said they left stays greyed only while their trail
         // is still fading; after that there is nothing left to show, and an
         // anonymous rider who rejoins under a new id would otherwise pile up
         // orphans for the whole ride.

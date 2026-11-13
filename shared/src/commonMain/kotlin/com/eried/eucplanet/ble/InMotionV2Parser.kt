@@ -156,7 +156,6 @@ object InMotionV2Parser {
         // The V14 carType payload is just 6 bytes; an earlier `< 8` guard
         // wrongly rejected it, so the model never resolved on real V14s.
         if (data.size < 3) return null
-        val mainSeries = data[0].toInt() and 0xFF
         val series = data[1].toInt() and 0xFF
         val type = data[2].toInt() and 0xFF
         val modelId = series * 10 + type
@@ -212,9 +211,9 @@ object InMotionV2Parser {
      *
      * What we trust today: voltage and current at offsets 0/2 match the InMotion
      * app's reported values across all captures (Voltage 230 V, Current ≈ 0 A
-     * while parked). Battery percent is derived linearly from voltage on the
-     * 56s pack curve (3.0–4.2 V per cell → 165–235 V end-to-end), which is
-     * rough but lets the dashboard ring fill in.
+     * while parked). Battery percent is the average of the two per-pack values
+     * at offsets 20/22; the 56s voltage line (165–235 V) is only a fallback
+     * while those read 0.
      *
      * Speed, PWM, torque, temperatures and trip distance sit at P6-specific
      * offsets recovered from labelled captures (see the inline notes). Battery
@@ -301,7 +300,6 @@ object InMotionV2Parser {
         // -48 °C). Matches the community 0x84 decode (TempOffset80). Verified
         // against a tester's 18-frame screen capture vs that ride's btsnoop
         // (rmse 0.4 °C, reproduces a mid-ride dip and a 130 °C plateau).
-        // Analysis in tools/p6-temp-analysis.
         val motorC: Float? = data.getOrNull(31)
             ?.toInt()?.plus(80)
             ?.takeIf { it in -40..200 }
@@ -366,8 +364,7 @@ object InMotionV2Parser {
 
     /**
      * Parse the P6 settings response (sub 0x20 with arg 0x20). Layout
-     * confirmed against a labelled InMotion-app capture (see
-     * docs/P6_CAPTURE_LABELS.md). The 51-byte body, after stripping the
+     * confirmed against a labelled InMotion-app capture. The 51-byte body, after stripping the
      * leading 0x20 sub-cmd echo:
      *
      *   d[8..9]   tiltback set speed     uint16 LE / 100 = km/h
@@ -425,10 +422,6 @@ object InMotionV2Parser {
         )
     }
 
-    /**
-     * Extract the ASCII serial from the data block of a `21 02 86 01 00 …` info
-     * bundle response. Returns null if the layout doesn't match what we've seen.
-     */
     /**
      * Parse V6 realtime telemetry from the body of a `02 84` extended reply
      * (the two routing bytes already stripped; body[0] is the first data byte).
@@ -508,6 +501,10 @@ object InMotionV2Parser {
         return ByteUtils.getUint32LE(body, 0) / 100f
     }
 
+    /**
+     * Extract the ASCII serial from the data block of a `21 02 86 01 00 …` info
+     * bundle response. Returns null if the layout doesn't match what we've seen.
+     */
     fun parseP6Serial(data: ByteArray): String? {
         if (data.size < 17 || data[0] != 0x01.toByte()) return null
         val serialBytes = data.copyOfRange(1, 17)

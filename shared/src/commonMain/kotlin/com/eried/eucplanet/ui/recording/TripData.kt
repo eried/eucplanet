@@ -53,8 +53,8 @@ data class WheelSwitchMarker(
     val lon: Double,
     val label: String,
     // true = a genuinely different wheel took over here (trace colour switches
-    // + purple circle); false = the same wheel reconnected (unbroken trace, a
-    // small dot only).
+    // + purple square); false = the same wheel reconnected (unbroken trace, a
+    // small grey square only).
     val isChange: Boolean,
 )
 
@@ -68,7 +68,7 @@ data class WheelSwitchMarker(
 // reconnect, a block start alone does not mean the wheel changed - we compare
 // the identity VALUES. name is the primary per-device key (it carries the
 // device suffix, e.g. Adventure-E0000298); mac backs it up. Same identity = a
-// reconnect (one trace colour, dot only); different identity = a real swap.
+// reconnect (one trace colour, grey square only); different identity = a real swap.
 fun extractExtraEvents(points: List<TripDataPoint>): List<TripExtraEvent> {
     val out = ArrayList<TripExtraEvent>()
     var block: MutableSet<String>? = null

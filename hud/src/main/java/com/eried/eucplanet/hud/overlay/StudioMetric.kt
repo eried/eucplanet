@@ -6,9 +6,10 @@ import com.eried.eucplanet.hud.ui.HudUnits
 import kotlin.math.absoluteValue
 
 /**
- * HUD-side copy of [com.eried.eucplanet.ui.studio.StudioMetric]. Identical
- * structure so the ported renderer code compiles unchanged. The only
- * divergence: unit conversion goes through [HudUnits] (which already lives
+ * HUD-side copy of [com.eried.eucplanet.ui.studio.StudioMetric], a subset
+ * with the same structure so the ported renderer code compiles unchanged.
+ * Metrics missing here fall back to SPEED in [StudioMetric.fromKey]. Unit
+ * conversion goes through [HudUnits] (which already lives
  * in :hud), and metric display names are hard-coded English here -- adding
  * proper localisation later is one stringResource swap.
  */

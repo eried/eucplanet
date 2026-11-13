@@ -43,16 +43,11 @@ class AlarmViewModel(
         .map { com.eried.eucplanet.util.Units.effectiveSpeedUnit(it) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "kmh")
 
-    val distanceUnit: StateFlow<String> = settingsRepository.settings
-        .map { com.eried.eucplanet.util.Units.effectiveDistanceUnit(it) }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "km")
-
     val tempUnit: StateFlow<String> = settingsRepository.settings
         .map { com.eried.eucplanet.util.Units.effectiveTempUnit(it) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "C")
 
-    /** "psi" or "bar", following the rider's distance unit, for the tire
-     *  pressure threshold. */
+    /** The rider's pressure unit, for the tire pressure threshold. */
     val pressureUnit: StateFlow<String> = settingsRepository.settings
         .map { com.eried.eucplanet.util.Units.effectivePressureUnit(it) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "bar")
@@ -100,9 +95,6 @@ class AlarmViewModel(
     private fun severityComparator(): Comparator<AlarmRule> =
         compareByDescending { severityOf(it) }
 
-    /** Group rules by metric (most-severe first inside each); order the groups by
-     *  priority = the lowest sortOrder in each group (what the rider dragged).
-     *  This is both the display order and the engine's group-priority order. */
     /**
      * The family a rule belongs to, falling back to its own metric name for
      * anything the enum does not recognise.
@@ -110,6 +102,9 @@ class AlarmViewModel(
     private fun familyOf(metricName: String): String =
         runCatching { AlarmMetric.valueOf(metricName).groupKey }.getOrDefault(metricName)
 
+    /** Group rules by family (most-severe first inside each); order the groups by
+     *  priority = the lowest sortOrder in each group (what the rider dragged).
+     *  This is both the display order and the engine's group-priority order. */
     private fun buildGroups(list: List<AlarmRule>): List<MetricGroup> =
         // Grouped by FAMILY, not by metric. Battery and Battery (est) measure
         // the same thing two ways and read as one heading with two rules
@@ -122,30 +117,6 @@ class AlarmViewModel(
     val groupedRules: StateFlow<List<MetricGroup>> = rules
         .map { buildGroups(it) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-
-    /**
-     * Order rules read top-to-bottom the way [autoSmartSort] would: grouped by
-     * metric (enum order), most severe first (higher threshold for `>=`, lower
-     * for `<`). Shared by the sort action and the "already sorted?" check so the
-     * Auto-sort button can disable itself when there's nothing to do.
-     */
-    private fun sortComparator(): Comparator<AlarmRule> {
-        val metricOrder = AlarmMetric.entries.withIndex().associate { (i, m) -> m.name to i }
-        // Sort by family first so auto-sort cannot split one apart, then by
-        // the metric's own position inside it.
-        val familyOrder = AlarmMetric.entries
-            .groupBy { it.groupKey }
-            .mapValues { (_, ms) -> ms.minOf { AlarmMetric.entries.indexOf(it) } }
-        return compareBy<AlarmRule> { familyOrder[familyOf(it.metric)] ?: Int.MAX_VALUE }
-            .thenBy { metricOrder[it.metric] ?: Int.MAX_VALUE }
-            .thenByDescending { severityOf(it) }
-    }
-
-    /** True when the list is already in auto-sort order (so Auto-sort is a no-op
-     *  and its button should be disabled). Recomputed on every add/remove/swap. */
-    val rulesSorted: StateFlow<Boolean> = rules
-        .map { list -> list.size < 2 || list == list.sortedWith(sortComparator()) }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
 
     /**
      * The radar alarm metrics (RADAR_DISTANCE, RADAR_APPROACH_SPEED) only
@@ -175,41 +146,6 @@ class AlarmViewModel(
         viewModelScope.launch { alarmDao.delete(rule) }
     }
 
-    fun moveUp(rule: AlarmRule) {
-        viewModelScope.launch {
-            val all = rules.value.toMutableList()
-            val idx = all.indexOfFirst { it.id == rule.id }
-            if (idx > 0) {
-                val prev = all[idx - 1]
-                alarmDao.update(rule.copy(sortOrder = prev.sortOrder))
-                alarmDao.update(prev.copy(sortOrder = rule.sortOrder))
-            }
-        }
-    }
-
-    fun moveDown(rule: AlarmRule) {
-        viewModelScope.launch {
-            val all = rules.value.toMutableList()
-            val idx = all.indexOfFirst { it.id == rule.id }
-            if (idx >= 0 && idx < all.size - 1) {
-                val next = all[idx + 1]
-                alarmDao.update(rule.copy(sortOrder = next.sortOrder))
-                alarmDao.update(next.copy(sortOrder = rule.sortOrder))
-            }
-        }
-    }
-
-    /** Drag-to-reorder: move the rule at [from] to [to] and renumber sortOrder
-     *  so the new order persists. Indices are into the currently displayed list. */
-    fun moveRule(from: Int, to: Int) {
-        viewModelScope.launch {
-            val list = rules.value.toMutableList()
-            if (from !in list.indices || to !in list.indices || from == to) return@launch
-            list.add(to, list.removeAt(from))
-            list.forEachIndexed { i, r -> if (r.sortOrder != i) alarmDao.update(r.copy(sortOrder = i)) }
-        }
-    }
-
     /** Drag-to-reorder GROUPS (metric priority). Renumbers every rule's sortOrder
      *  so the new group order -- and most-severe-first within each group -- sticks. */
     fun moveGroup(from: Int, to: Int) {
@@ -223,22 +159,6 @@ class AlarmViewModel(
                     if (r.sortOrder != order) alarmDao.update(r.copy(sortOrder = order))
                     order++
                 }
-            }
-        }
-    }
-
-    /**
-     * Tidy the list: group rules by metric (in the metric enum's order) and,
-     * within each group, put the most severe first -- higher threshold for "≥"
-     * rules, lower threshold for "<" rules. Purely cosmetic now that the engine
-     * fires the most-relevant rule per metric regardless of order; it just makes
-     * the list read the way riders think about it.
-     */
-    fun autoSmartSort() {
-        viewModelScope.launch {
-            val sorted = alarmDao.getAll().sortedWith(sortComparator())
-            sorted.forEachIndexed { i, r ->
-                if (r.sortOrder != i) alarmDao.update(r.copy(sortOrder = i))
             }
         }
     }

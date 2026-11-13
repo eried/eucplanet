@@ -31,7 +31,7 @@ import kotlinx.coroutines.launch
  * The HUD is a kiosk-style device: app is always foreground, no system bars,
  * navigation is exclusively via the IR remote (LEFT/RIGHT/UP/DOWN/CENTER/ESC).
  * We intercept key events at the Activity level so even Compose-internal focus
- * handling doesn't swallow them, the four screens are not "focusable" widgets
+ * handling doesn't swallow them, the screens are not "focusable" widgets
  * in the Compose sense, they're a custom carousel driven by [HudUiController].
  */
 class HudActivity : ComponentActivity() {
@@ -59,12 +59,11 @@ class HudActivity : ComponentActivity() {
     private val releasePending = HashMap<Int, Runnable>()
     private val singleTapPending = HashMap<Int, Runnable>()
     private val consumed = java.util.HashSet<Int>()
-    // One shared tile cache for the lifetime of the activity. Both the
-    // Map screen and the Custom overlay's MAP element read from this, so
-    // tiles fetched on either side stay warm when the rider navigates
-    // away and back. Without this lift, each screen used to allocate a
-    // fresh empty HudTileCache on entry -- the rider saw the checker-
-    // board placeholder every time they returned to a map view.
+    // One tile cache for the Map and MapNav screens, kept for the
+    // lifetime of the activity so tiles stay warm when the rider
+    // navigates away and back. A cache per screen entry would show the
+    // placeholder every time they returned to a map view. The Custom
+    // overlay's MAP element keeps its own cache.
     private val tileCache = HudTileCache()
     // Activity-scoped session accumulators (Power sparkline buffer, trip
     // stats, safety-screen sag baseline). Survive screen switches so the
@@ -193,13 +192,11 @@ class HudActivity : ComponentActivity() {
             HudApp(
                 state = server.state,
                 status = server.status,
-                peer = server.peer,
                 localIp = server.localIp,
                 versionCompat = server.versionCompat,
                 controller = controller,
                 tileCache = tileCache,
-                sessionState = sessionState,
-                onCommand = server::sendCommand
+                sessionState = sessionState
             )
         }
     }

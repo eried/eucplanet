@@ -83,7 +83,7 @@ class AndroidSettingsSync(private val sync: SyncManager) :
     override suspend fun clearSyncFolder() = sync.clearSyncFolder()
     override fun consumeSyncResult() = sync.consumeSyncResult()
     override suspend fun deleteRiderIdFile() = sync.deleteRiderIdFile()
-    override fun enqueueEucStatsUpload(settings: AppSettings) = sync.enqueueEucStatsUpload(settings)
+    override fun enqueueEucStatsUpload(settings: AppSettings) = sync.enqueueEucStatsUpload()
     override fun enqueueTripUpload(settings: AppSettings) = sync.enqueueTripUpload(settings)
     override suspend fun ensureRiderIdFile(storeId: String) = sync.ensureRiderIdFile(storeId)
     override fun getSyncFolderDisplayName(settings: AppSettings) = sync.getSyncFolderDisplayName(settings)

@@ -178,11 +178,11 @@ class WheelService : LifecycleService() {
     // connected (e.g. while "Connecting" or after a drop).
     @Volatile
     private var lastDeviceNameCached: String? = null
-    // Notification quick-action config, mirrored from settings so the
-    // notification builder can read it without suspending.
     // Mirrored so the widget painter can read it without suspending.
     @Volatile
     private var voicePeriodicCached: Boolean = false
+    // Notification quick-action config, mirrored from settings so the
+    // notification builder can read it without suspending.
     @Volatile
     private var notifActionsEnabledCached: Boolean = true
     @Volatile
@@ -351,7 +351,8 @@ class WheelService : LifecycleService() {
 
         voiceService.initialize()
 
-        // Update notification + check alarms + automations on telemetry updates.
+        // Update the notification, widget, Phone HUD and automations on telemetry
+        // updates. Alarms are evaluated in WheelRepository.
         // Off the main thread: a frame builds a notification, paints the widget
         // and copies the Phone HUD history, none of which needs the UI thread,
         // and at BLE rate it was competing with Compose for it. wheelData is a
@@ -1078,15 +1079,6 @@ class WheelService : LifecycleService() {
     private var widgetPlaced = false
     private var widgetPlacedCheckedMs = 0L
 
-    /** Paints the widget in the rider's own units, one entry per configured
-     *  slot. [data] null paints the disconnected state. */
-    /**
-     * Repaint the widget from whatever is true right now.
-     *
-     * For the state changes that are not telemetry: with no wheel connected no
-     * frame is coming, so a caller that changes recording or lock state has to
-     * ask for the repaint itself.
-     */
     /**
      * Put the Phone HUD window up or take it down to match the settings.
      *
@@ -1139,14 +1131,6 @@ class WheelService : LifecycleService() {
     }
 
     /**
-     * Feed the Phone HUD, throttled well below the telemetry rate.
-     *
-     * A window-manager view recomposing at BLE frame rate for a whole ride is
-     * real battery for no visible gain, and the HUD renderer has already been
-     * pushed into ANR territory by exactly that. The live G-force trail is left
-     * out for the same reason: it is a 1100-sample buffer at IMU rate.
-     */
-    /**
      * While Service Mode is recording, log the GPS fix as its own observation.
      *
      * The log is worth reading because every line is something that actually
@@ -1175,6 +1159,14 @@ class WheelService : LifecycleService() {
         DiagnosticsLogger.note("gps %s: %.2f km/h%s".format(source, speed, accuracy))
     }
 
+    /**
+     * Feed the Phone HUD, throttled well below the telemetry rate.
+     *
+     * A window-manager view recomposing at BLE frame rate for a whole ride is
+     * real battery for no visible gain, and the HUD renderer has already been
+     * pushed into ANR territory by exactly that. The live G-force trail is left
+     * out for the same reason: it is a 1100-sample buffer at IMU rate.
+     */
     private fun pushPhoneHud(rawData: WheelData) {
         if (legalLockdown.isEngaged()) return  // lockdown stops the overlay updates
         if (!phoneHudWindow.isShowing) return
@@ -1246,6 +1238,13 @@ class WheelService : LifecycleService() {
         )
     }
 
+    /**
+     * Repaint the widget from whatever is true right now.
+     *
+     * For the state changes that are not telemetry: with no wheel connected no
+     * frame is coming, so a caller that changes recording or lock state has to
+     * ask for the repaint itself.
+     */
     private fun renderWidgetFromCurrentState() {
         renderWidget(
             wheelRepository.wheelData.value.takeIf {
@@ -1254,6 +1253,8 @@ class WheelService : LifecycleService() {
         )
     }
 
+    /** Paints the widget in the rider's own units, one entry per configured
+     *  slot. [data] null paints the disconnected state. */
     private fun renderWidget(data: WheelData?, placedKnown: Boolean = false) {
         if (legalLockdown.isEngaged()) return  // lockdown stops the widgets
         if (!placedKnown && !com.eried.eucplanet.widget.EucWidget.isPlaced(this)) return

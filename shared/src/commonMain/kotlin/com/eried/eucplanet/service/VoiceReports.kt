@@ -167,7 +167,7 @@ class VoiceReports(
      * "Estimated battery, 43%" for a report the metric catalog already knows.
      *
      * Name, value and units all come from the catalog, so the sentence needs
-     * no format string of its own in twenty-three languages and cannot drift
+     * no format string of its own in every language and cannot drift
      * from the tile. Null when the wheel has sent nothing usable: a row is
      * skipped rather than announcing a confident zero, the same rule the
      * hand-written load reports follow.

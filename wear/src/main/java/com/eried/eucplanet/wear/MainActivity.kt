@@ -250,13 +250,6 @@ class MainActivity : ComponentActivity() {
     }
 
     /**
-     * Dispatches an ActionCatalog key (com.eried.eucplanet.data.model.ActionCatalog). HORN and
-     * LIGHT_TOGGLE use the existing dedicated control intents so older watch
-     * builds without the action: prefix handler still work; everything else
-     * goes through the prefixed passthrough that PhoneWearListenerService
-     * forwards to FlicManager.dispatchActionByName().
-     */
-    /**
      * Input-event report for the phone's Service Mode Wearables tab. A no-op
      * unless the phone flagged diag recording in the state frames, so a
      * normal ride sends nothing extra over the Data Layer.
@@ -266,6 +259,13 @@ class MainActivity : ComponentActivity() {
         WatchStateRepository.sendControl(this, WatchControl.DEBUG_PREFIX + msg)
     }
 
+    /**
+     * Dispatches an ActionCatalog key (com.eried.eucplanet.data.model.ActionCatalog). HORN and
+     * LIGHT_TOGGLE use the existing dedicated control intents so older watch
+     * builds without the action: prefix handler still work; everything else
+     * goes through the prefixed passthrough that PhoneWearListenerService
+     * forwards to FlicManager.dispatchActionByName().
+     */
     private fun dispatchAction(action: String) {
         val intent = when (action) {
             "HORN" -> WatchControl.HORN
@@ -276,10 +276,9 @@ class MainActivity : ComponentActivity() {
             else -> WatchControl.ACTION_PREFIX + action
         }
         WatchStateRepository.sendControl(this, intent)
-        // Mirror the touch-button path's haptic so the rider's
-        // watchHapticOnAction setting works for hardware buttons too, // previously this path was silent and only on-screen taps
-        // produced the buzz. Garmin's Actions.mc:dispatch already fires
-        // haptic for both press kinds, so this brings Wear OS to parity.
+        // Same haptic as the touch buttons, so the rider's
+        // watchHapticOnAction setting covers hardware buttons too, as
+        // Garmin's Actions.mc:dispatch does for both press kinds.
         if (WatchStateRepository.state.value.hapticOnAction) {
             val vib = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 (getSystemService(Context.VIBRATOR_MANAGER_SERVICE)

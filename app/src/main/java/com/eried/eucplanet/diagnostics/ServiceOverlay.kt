@@ -71,8 +71,8 @@ data class ConnectionInfo(
 
 /**
  * Snapshot fed to [ServiceModeOverlay]. Captured when the overlay opens (and
- * re-captured after every Fire, or continuously while Live is on) so the
- * readouts reflect current state.
+ * re-captured after every Fire or Refresh) so the readouts reflect current
+ * state.
  */
 data class ServiceOverlaySnapshot(
     val wheel: WheelData,
@@ -134,11 +134,11 @@ object ServiceOverlayState {
 /**
  * Compact debug overlay with three tabs:
  *   - Actions     → fire any catalog action; shows its metadata + status
- *   - Metrics     → live dump of every WheelData field (reflection)
+ *   - Metrics     → one catalog metric: label, raw value, history stats
  *   - Connections → wheel / watch / Flic / HUD transports, combo + detail
  *
- * Developer surface. Frozen on open; toggle Live (top-right) for continuous
- * updates, or re-fire to re-read.
+ * Developer surface. Frozen on open; Refresh (top-right) or firing an action
+ * re-reads.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -410,8 +410,7 @@ private fun actionStatusText(key: String, snapshot: ServiceOverlaySnapshot): Str
 }
 
 /** @Composable wrapper for the selected metric's detail, label/description
- *  (stringResource-backed) + raw value + history stats, then a full reflection
- *  dump of every WheelData field for the "see everything internal" view. */
+ *  (stringResource-backed) + raw value + history stats. */
 @Composable
 private fun composeMetricDetailText(key: String, snapshot: ServiceOverlaySnapshot): String {
     val label = metricChipLabel(key)
@@ -439,9 +438,9 @@ private fun composeMetricDetailText(key: String, snapshot: ServiceOverlaySnapsho
 }
 
 /**
- * Order matches knownDashboardMetrics. Duplicated here to keep the diagnostics
- * module free of a settings-module dependency for the key list itself; the
- * reflection dump below covers any field not in this curated set.
+ * Order matches SettingsViewModel.knownDashboardMetrics. A hand-kept copy,
+ * update both. The reflection dump under Connections covers any field not in
+ * this curated set.
  */
 private val serviceMetricKeys: List<String> = listOf(
     "BATTERY", "TEMPERATURE", "VOLTAGE", "CURRENT", "LOAD", "TRIP",

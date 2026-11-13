@@ -5,7 +5,6 @@
     <string name="notification_channel_description">Menampilkan status koneksi dan telemetri EUC.</string>
     <string name="keep_app_alive">Biarkan aplikasi tetap berjalan</string>
     <string name="keep_app_alive_desc">Menyimpan notifikasi berkelanjutan agar aplikasi tetap aktif di latar belakang. Sinkronisasi perjalanan dan suara tetap berfungsi meski tidak ada EUC yang terhubung. Sedikit lebih boros baterai.</string>
-    <string name="notif_actions_section">Sesuaikan</string>
     <string name="notif_actions_enable">Tampilkan tindakan notifikasi</string>
     <string name="notif_actions_enable_desc">Tambahkan tombol tindakan cepat ke notifikasi berkelanjutan.</string>
     <string name="notif_actions_pick_desc">Pilih hingga %1$d tindakan. Tindakan yang sama boleh diulang.</string>
@@ -37,9 +36,6 @@
     <string name="state_off">Nonaktif</string>
     <string name="action_done">Selesai</string>
     <string name="action_close">Tutup</string>
-    <string name="crash_log_action_prompt">Anda menekan lama %1$s. Hapus log ini saja, atau hapus semua. Untuk membagikannya, ketuk Batal lalu ketuk filenya.</string>
-    <string name="crash_log_delete_all">Hapus semua</string>
-    <string name="crash_log_delete_all_warning">Hapus semua log error yang tersimpan? Tindakan ini tidak dapat diurungkan.</string>
     <string name="action_save">Simpan</string>
     <string name="action_apply">Terapkan</string>
     <string name="action_reset">Reset</string>
@@ -120,12 +116,10 @@
     <string name="tab_dashboard">Tata letak dasbor</string>
     <string name="dashboard_section_metrics">Metrik</string>
     <string name="dashboard_section_actions">Tombol tindakan</string>
-    <string name="dashboard_columns">Kolom</string>
     <string name="dashboard_grid_hint">Tekan lama untuk menarik, ketuk untuk mengedit.</string>
     <string name="dashboard_pool_metrics">Metrik tersedia</string>
     <string name="dashboard_pool_actions">Tindakan tersedia</string>
     <string name="dashboard_pool_tap_toast">Tekan lama dan tarik ke slot di atas untuk menggunakannya</string>
-    <string name="dashboard_rolling_window">Jendela statistik bergulir</string>
     <string name="dashboard_stats_length">Rentang statistik</string>
     <string name="dashboard_view">Tampilan</string>
     <string name="dashboard_view_default">Default</string>
@@ -750,7 +744,6 @@
     <string name="watch_screen_button_2">Tombol 2</string>
     <string name="watch_haptic_on_action">Getar saat tindakan</string>
     <string name="watch_haptic_on_action_desc">Getaran singkat di jam tangan pada setiap tekanan, jika didukung.</string>
-    <string name="section_cloud_folder">Folder cadangan</string>
     <string name="cloud_caption">Folder cadangan untuk perjalanan, setelan, tema, dan overlay Anda.</string>
     <string name="cloud_choose_folder">Pilih folder</string>
     <string name="cloud_change_folder">Ganti folder</string>
@@ -774,7 +767,6 @@
     <string name="cloud_reset_local">Hapus perjalanan lokal</string>
     <string name="cloud_reset_local_title">Hapus perjalanan lokal?</string>
     <string name="cloud_reset_local_body">Menghapus semua perjalanan yang tersimpan di ponsel ini. Folder cadangan Anda tidak disentuh, jadi perjalanan yang sudah disinkronkan bisa dipulihkan dari sana.</string>
-    <string name="cloud_retry_enqueued">Unggahan dijadwalkan</string>
     <string name="action_retry">Coba lagi</string>
     <string name="sync_progress">Menyinkronkan %1$d dari %2$d</string>
     <string name="sync_no_folder">Pilih folder cadangan dulu</string>
@@ -815,10 +807,7 @@
     <string name="cloud_factory_confirm_action">Reset</string>
     <string name="section_recording">Perekaman</string>
     <string name="section_connection">Koneksi</string>
-    <string name="section_display">Tampilan</string>
-    <string name="auto_record_on_start">Rekam otomatis saat mulai</string>
     <string name="auto_record_caption">Merekam perjalanan saat EUC terhubung.</string>
-    <string name="auto_record_start_in_motion">Mulai merekam saat bergerak</string>
     <string name="auto_record_start_in_motion_caption">Mulai saat bergerak, berhenti otomatis setelah diam, mulai lagi di perjalanan berikutnya.</string>
     <string name="auto_record_stop_idle_seconds">Berhenti setelah diam selama</string>
     <string name="auto_record_mode_label">Mulai otomatis rekam perjalanan</string>
@@ -1099,11 +1088,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Truk diesel</string>
     <string name="engine_preset_sampled_motorcycle">Motor trail kecil</string>
     <string name="engine_preset_sampled_city_car">Mobil kota</string>
-    <string name="engine_preset_sampled_helicopter">Helikopter</string>
     <string name="engine_preset_sampled_tractor">Traktor</string>
     <string name="engine_preset_sampled_lawnmower">Mesin pemotong rumput</string>
     <string name="engine_preset_sampled_steam_loco">Lokomotif uap</string>
-    <string name="engine_preset_sampled_car_cruise">Mobil melaju</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
     <string name="engine_preset_sampled_big_diesel">Diesel besar</string>
     <string name="engine_preset_sampled_broken_exhaust">Knalpot bocor</string>
@@ -1296,7 +1283,6 @@
     <string name="trip_meter_tab_speed">Kecepatan</string>
     <string name="trip_meter_tab_battery">Baterai</string>
     <string name="trip_meter_tab_time">Waktu</string>
-    <string name="trip_meter_total">Total</string>
     <string name="trip_meter_active">Aktif</string>
     <string name="trip_meter_avg">Rata2</string>
     <string name="trip_meter_reset">Reset trip meter</string>
@@ -1452,7 +1438,6 @@
     <string name="trip_tools_rename">Ganti nama perjalanan</string>
     <string name="trip_tools_rename_desc">Beri nama perjalanan ini. Disimpan di filenya, jadi ikut terbawa saat ekspor dan sinkronisasi.</string>
     <string name="trip_tools_rename_hint">Kosongkan untuk memakai tanggal.</string>
-    <string name="trip_tools_renamed">Nama perjalanan diganti</string>
     <string name="trip_tools_change_wheel">Ganti EUC</string>
     <string name="trip_tools_change_wheel_desc">Koreksi EUC yang dipakai pada perjalanan ini. Memperbarui perjalanan dan filenya.</string>
     <string name="trip_tools_wheel_other">EUC lain</string>
@@ -1483,8 +1468,6 @@
     <string name="trip_split_reason_wheel">EUC lain mengambil alih</string>
     <string name="trip_split_reason_gap">Celah dalam rekaman</string>
     <string name="trip_split_reason_stopped">Berhenti dalam waktu lama</string>
-    <string name="trip_tools_combine">Gabungkan perjalanan</string>
-    <string name="trip_tools_combine_desc">Gabungkan perjalanan lain ke yang ini sebagai perjalanan baru, yang asli tetap disimpan.</string>
     <string name="trip_tools_combine_none">Tidak ada perjalanan selesai lain untuk digabungkan.</string>
     <string name="trip_tools_combine_mixed_wheels">Beberapa di antaranya dikendarai dengan EUC lain. Jarak dan energi akan digabungkan.</string>
     <string name="trip_tools_combine_done">Perjalanan digabung menjadi yang baru</string>
@@ -1520,12 +1503,10 @@
     <string name="auto_lights_when">Ikuti matahari terbenam dan terbit saat</string>
     <string name="auto_lights_off_slow">Matikan lampu saat melambat</string>
     <string name="auto_lights_off_below">Mati di bawah</string>
-    <string name="auto_lights_desc">Nyalakan atau matikan lampu depan berdasarkan matahari terbenam dan terbit.</string>
     <string name="auto_lights_on_before_sunset">Lampu NYALA sebelum</string>
     <string name="auto_lights_off_after_sunrise">Lampu MATI setelah</string>
     <string name="auto_waiting_gps">Menunggu lokasi GPS…</string>
     <string name="auto_volume_title">Kontrol volume</string>
-    <string name="auto_volume_desc">Naikkan volume musik berdasarkan kecepatan.</string>
     <string name="auto_volume_when">Naikkan volume saat</string>
     <string name="media_rate_when">Ubah kecepatan putar saat</string>
     <string name="media_rate_permission_desc">Android meminta izin ini secara terpisah. Tanpanya kecepatan putar tidak dapat diubah.</string>
@@ -1535,14 +1516,12 @@
     <string name="media_rate_grant">Izinkan</string>
     <string name="warnings_media_access_title">Akses notifikasi nonaktif</string>
     <string name="warnings_media_access_body">Kecepatan putar tidak bisa mengikuti kecepatan Anda tanpanya. Ketuk untuk mengizinkan.</string>
-    <string name="media_control_desc">Jeda musik saat Anda melambat, lanjutkan saat Anda mempercepat.</string>
     <string name="media_control_pause">Jeda saat saya melambat</string>
     <string name="media_control_pause_below">Jeda pada atau di bawah</string>
     <string name="media_control_resume">Lanjutkan saat saya mempercepat</string>
     <string name="media_control_resume_above">Lanjutkan pada atau di atas</string>
     <string name="automation_require_external">Hanya dengan headphone atau Bluetooth</string>
     <string name="proximity_lock_title">Kunci EUC</string>
-    <string name="proximity_lock_desc">Kunci EUC saat Anda menjauh dan buka kuncinya saat Anda kembali, berdasarkan kekuatan sinyal Bluetooth.</string>
     <string name="proximity_lock_enable">Kunci saat saya menjauh</string>
     <string name="proximity_lock_below">Sinyal di bawah</string>
     <string name="proximity_unlock_when">Buka kunci otomatis</string>
@@ -1656,8 +1635,6 @@
     <string name="alarm_predict_help_lead">Memperingatkan sekitar %1$s dtk sebelum %2$s, dari tren terbaru.</string>
     <string name="alarm_predict_label">Pemicu prediktif</string>
     <string name="alarm_predict_realtime">Kini</string>
-    <string name="about_crash_logs">Log error</string>
-    <string name="about_crash_logs_empty">Tidak ada error yang tercatat</string>
     <string name="about_share_crash">Bagikan log error</string>
     <string name="about_thanks">Kredit</string>
     <string name="about_thanks_body">Saya lelah dengan aplikasi EUC yang berkembang terlalu lambat, tampak kuno, punya aturan kaku soal fitur baru, memperlakukan komunitasnya sebagai pelanggan, dan lupa bahwa pengendara EUC paling hebat saat saling membantu. Aplikasi ini berusaha menjadi kebalikannya.</string>
@@ -1669,7 +1646,6 @@
     <string name="service_mode_link">Kunjungi eucplanet.ried.no/service untuk informasi lebih lanjut.</string>
     <string name="service_mode_enter">Masuk</string>
     <string name="toast_external_speed_change">Kecepatan diperbarui dari EUC: tiltback %1$d km/j, alarm %2$d km/j</string>
-    <string name="wheel_no_data_reconnecting">Tidak ada data dari EUC. Menghubungkan ulang…</string>
     <string name="wheel_no_data_reset">Masih tidak ada data dari EUC. Coba matikan lalu nyalakan.</string>
     <string name="trip_map_ride_start">Mulai berkendara: %1$s</string>
     <string name="trip_map_reconnected">Terhubung ulang: %1$s</string>
@@ -1711,11 +1687,8 @@
     <string name="online_upload_total_km">%1$s %2$s</string>
     <string name="online_upload_join">Gabung papan peringkat</string>
     <string name="online_status_shared">Dibagikan di papan peringkat</string>
-    <string name="online_status_flagged">Dibagikan, sedang ditinjau</string>
     <string name="online_status_pending">Mengunggah ke papan peringkat…</string>
     <string name="online_status_failed">Unggahan online gagal, ketuk untuk mencoba lagi</string>
-    <string name="online_status_checking">Memeriksa dengan papan peringkat…</string>
-    <string name="online_status_check_failed">Tidak dapat memeriksa sekarang, coba lagi nanti</string>
     <string name="online_status_rejected">Tidak diterima untuk papan peringkat</string>
     <string name="online_upload_join_caption">Bergabunglah untuk mengirim statistik dan perjalanan Anda ke papan peringkat publik di.</string>
     <string name="online_upload_linked_caption">Statistik dan perjalanan Anda muncul di papan peringkat publik di.</string>
@@ -1735,7 +1708,6 @@
     <string name="online_profile_delete_confirm_action">Hapus permanen</string>
     <string name="online_profile_save_rate_limited">Terlalu banyak permintaan, coba lagi nanti.</string>
     <string name="online_profile_save_failed">Gagal menyimpan (HTTP %1$d). Coba lagi.</string>
-    <string name="online_status_flagged_why">Ditahan untuk pemeriksaan otomatis singkat. Akan masuk papan peringkat setelah lolos.</string>
     <string name="online_restore_title">Profil tersimpan ditemukan</string>
     <string name="online_restore_body_new">Kami menemukan profil tersimpan di sini: %1$s. Melanjutkan berarti bergabung lagi ke papan peringkat publik sebagai pengendara tersebut, nama, bendera, avatar, dan statistik perjalanannya bersifat publik. Ini tidak membuat profil baru.</string>
     <string name="online_restore_body_switch">Kami menemukan profil tersimpan yang berbeda: %1$s. Melanjutkan akan mengalihkan ponsel ini ke pengendara tersebut; profil Anda saat ini dicadangkan dulu.</string>
@@ -1870,8 +1842,6 @@
     <string name="studio_video_fit">Pas</string>
     <string name="studio_video_fit_stretch">Regangkan</string>
     <string name="studio_video_offset">Offset</string>
-    <string name="studio_video_offset_value_fmt">%1$d ms</string>
-    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
     <string name="studio_video_set_offset">Saat ini</string>
     <string name="studio_video_edge">Di luar rentang</string>
     <string name="studio_video_edge_freeze">Bekukan</string>
@@ -1932,9 +1902,6 @@
     <string name="studio_cfg_time_window_fmt">%1$d dtk</string>
     <string name="studio_cfg_trail_label">Panjang jejak</string>
     <string name="studio_cfg_map_style">Gaya peta</string>
-    <string name="studio_cfg_map_street">Jalan</string>
-    <string name="studio_cfg_map_dark">Gelap</string>
-    <string name="studio_cfg_map_satellite">Satelit</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
     <string name="studio_cfg_map_attribution">Tampilkan kredit peta</string>
     <string name="studio_cfg_map_attribution_off">Lisensi peta mewajibkan kredit ini pada apa pun yang Anda bagikan. Mematikannya adalah keputusan Anda.</string>
@@ -2091,7 +2058,6 @@
     <string name="trip_action_inspect_online">Periksa online</string>
     <string name="trip_action_inspect_online_desc">Bagikan tautan eucviewer.ried.no untuk melihat perjalanan ini secara online.</string>
     <string name="trip_action_dropbox_disabled">Tautkan Dropbox di setelan untuk mengaktifkan ini</string>
-    <string name="nav_tap_on_self">Di daftar Perhentian, tekan lama perhentian untuk mengaturnya ke lokasi Anda</string>
     <string name="nav_start_short">Mulai navigasi</string>
     <string name="nav_start_btn">Mulai</string>
     <string name="nav_stop_short">Hentikan navigasi</string>
@@ -2199,7 +2165,6 @@
     <string name="nav_setting_arrival_radius_desc">Seberapa dekat dianggap sudah mencapai perhentian.</string>
     <string name="nav_setting_offroute">Toleransi keluar rute</string>
     <string name="nav_setting_offroute_desc">Seberapa jauh dari rute sebelum peringatan keluar rute terpicu.</string>
-    <string name="nav_setting_default_mode">Mode perjalanan default</string>
     <string name="nav_setting_params">Navigasi &amp; cuaca</string>
     <string name="weather_section">Cuaca</string>
     <string name="weather_icon_desc">Prakiraan cuaca</string>
@@ -2220,7 +2185,6 @@
     <string name="weather_enable_desc">Menambahkan ikon cuaca di atas tombol peta: ketuk untuk prakiraan kelayakan berkendara.</string>
     <string name="weather_window_label">Jendela prakiraan</string>
     <string name="weather_source_label">Sumber prakiraan</string>
-    <string name="weather_comfort_desc">Ambang kenyamanan yang memengaruhi skor. Suhu mengikuti setelan satuan Anda; angin mengikuti satuan kecepatan Anda.</string>
     <string name="weather_cold">Terlalu dingin di bawah</string>
     <string name="weather_hot">Terlalu panas di atas</string>
     <string name="weather_breezy">Berangin di atas</string>
@@ -2247,7 +2211,6 @@
     <string name="weather_lvl_prime_2">Cuaca terbaik untuk berkendara!</string>
     <string name="weather_expand">Detail</string>
     <string name="weather_chart_temp">Suhu, kelembapan &amp; presipitasi</string>
-    <string name="weather_chart_precip">Presipitasi</string>
     <string name="weather_chart_wind">Angin &amp; hembusan</string>
     <string name="weather_adv_snow_now">Sedang bersalju - cengkeraman hilang.</string>
     <string name="weather_adv_snow_in">Salju diperkirakan dalam %1$s.</string>
@@ -2374,8 +2337,6 @@
     <string name="share_alone">Belum ada orang lain di sini.</string>
     <string name="share_copy">Salin</string>
     <string name="share_open">Buka</string>
-    <string name="share_menu_join">Gabung konvoi</string>
-    <string name="share_menu_join_desc">Pindai kode QR.</string>
     <string name="share_menu_live">Bagikan lokasi langsung</string>
     <string name="share_menu_live_desc">Mulai konvoi.</string>
     <string name="share_menu_static">Bagikan lokasi statis</string>
@@ -2584,7 +2545,6 @@
     <string name="action_reset_metrics_wheel_done">Metrik direset, trip EUC dihapus</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
     <string name="tpms_waiting">Menunggu data</string>
-    <string name="status_live">Aktif</string>
     <string name="status_idle">Diam</string>
     <string name="tpms_state_leaking">Bocor</string>
     <string name="tpms_state_inflating">Dipompa</string>
@@ -2604,7 +2564,6 @@
     <string name="horn_mode_sound">Kustom</string>
     <string name="horn_mode_both">Campur</string>
     <string name="horn_mode_hint">Kustom memutar suara Anda sendiri di ponsel. Campur menambahkannya ke klakson EUC, untuk speaker eksternal. Jika ponsel tidak bisa memutarnya, klakson EUC yang berbunyi.</string>
-    <string name="horn_sound_none">Belum ada suara dipilih</string>
     <string name="horn_sound_current">Suara: %1$s</string>
     <string name="horn_sound_choose">Pilih suara</string>
     <string name="horn_sound_imported">Suara klakson disimpan</string>
@@ -2620,7 +2579,6 @@
     <string name="voice_stat_min">Min</string>
     <string name="voice_stat_avg">Rata2</string>
     <string name="voice_stat_peak">Puncak</string>
-    <string name="crews_title">Kru</string>
     <string name="crews_pass_action">Pass kru</string>
     <string name="crews_pass_search_hint">Pass kru muncul setelah Anda bergabung ke papan peringkat online.</string>
     <string name="crews_scan_hint">Buka eucstats di browser, tekan Crews, lalu arahkan ini ke kode yang ditampilkan.</string>
@@ -2725,7 +2683,6 @@
     <string name="nav_unlock_stops">Perhentian</string>
     <string name="nav_unlock_off">Menyimpang hingga %1$s dari jalur</string>
     <string name="nav_unlock_confirm">Ubah</string>
-    <string name="nav_track_badge">Jalur terkunci</string>
     <string name="voice_nav_place_reached">%1$s tercapai</string>
     <string name="offline_data_open">Area offline</string>
     <string name="offline_server_url">Server data offline</string>

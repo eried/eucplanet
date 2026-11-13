@@ -30,9 +30,6 @@ class AndroidMediaAutomation(
 ) : MediaAutomation {
     companion object {
         private const val TAG = "AutomationManager"
-        // Below this multiplier we treat manual volume changes as direct baseline edits
-        // (avoids divide-by-near-zero amplification when standing still).
-        private const val MIN_REBASE_MULTIPLIER = 0.05f
     }
 
     private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -45,12 +42,8 @@ class AndroidMediaAutomation(
     // evaluateVolume so restoreBaselineVolume() can put it back without suspending.
     @Volatile private var cachedBaselinePercent: Int = -1
 
-    // Media control state. mediaAutoPaused = this feature paused playback and may
-    // resume it; we never resume media the rider paused themselves. The candidate
-    // timestamps implement the "hold past the line" debounce (0 = the condition is
-    // not currently met).
-    @Volatile private var mediaAutoPaused: Boolean = false
-    // The rules themselves live in MediaControlPolicy, where they are tested.
+    // Media control state. The rules themselves live in MediaControlPolicy,
+    // where they are tested.
     private var mediaState = MediaControlPolicy.State()
     private var rateState = PlaybackRatePolicy.State()
 
@@ -108,13 +101,7 @@ class AndroidMediaAutomation(
         // Manual change detection: if the system volume isn't what we last wrote, the user moved
         // the slider since our previous tick. Rebase the baseline.
         if (lastWrittenSystemVol != -1 && systemVol != lastWrittenSystemVol) {
-            val newBaseline = if (multiplier >= MIN_REBASE_MULTIPLIER) {
-                (systemPercent / multiplier).roundToInt().coerceIn(0, 100)
-            } else {
-                // Near-zero multiplier (typically standstill): treat manual change as a direct
-                // baseline edit. Dividing by ~0 would explode.
-                systemPercent.roundToInt().coerceIn(0, 100)
-            }
+            val newBaseline = (systemPercent / multiplier).roundToInt().coerceIn(0, 100)
             if (newBaseline != baseline) {
                 Log.i(TAG, "Auto-volume baseline rebased: $baseline% -> $newBaseline% " +
                     "(manual=${systemPercent.roundToInt()}%, multiplier=${"%.2f".format(multiplier)})")
@@ -147,7 +134,7 @@ class AndroidMediaAutomation(
      * dead-band that prevents rapid flipping; on top of that the speed must hold past
      * the line for [MediaControlPolicy.HOLD_MS] before we act, so a brief GPS / speed blip
      * is ignored. Resume only ever restarts playback THIS feature paused
-     * ([mediaAutoPaused]), so speeding up never starts music the rider deliberately
+     * ([MediaControlPolicy.State.autoPaused]), so speeding up never starts music the rider deliberately
      * stopped.
      */
     @Synchronized
@@ -174,7 +161,6 @@ class AndroidMediaAutomation(
             connected = true,
         )
         mediaState = step.state
-        mediaAutoPaused = step.state.autoPaused
         when (step.action) {
             MediaControlPolicy.Action.PAUSE -> {
                 sendMediaKey(KeyEvent.KEYCODE_MEDIA_PAUSE)
@@ -295,7 +281,6 @@ class AndroidMediaAutomation(
      */
     @Synchronized
     override fun resetMediaControl() {
-        mediaAutoPaused = false
         mediaState = MediaControlPolicy.State()
         resetPlaybackRate()
     }

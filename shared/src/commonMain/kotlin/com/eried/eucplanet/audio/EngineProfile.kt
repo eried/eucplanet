@@ -123,10 +123,7 @@ data class EngineProfile(
     val cycleDegrees: Float get() = if (twoStroke) 360f else 720f
 
     companion object {
-        /**
-         * Catalog of v1 presets. Order is also the picker order in the UI.
-         * Strings.xml lookup happens at render time via [displayNameResId].
-         */
+        /** Catalog of presets. Order is also the picker order in the UI. */
         val PROFILES: List<EngineProfile> = listOf(
             // --- Singles & small thumpers (gearless because EUCs don't shift like these) ---
             EngineProfile(

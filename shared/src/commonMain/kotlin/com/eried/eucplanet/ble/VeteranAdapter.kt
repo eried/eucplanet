@@ -19,10 +19,9 @@ import kotlin.concurrent.Volatile
  *   - Speed is i16 BE in 0.1 km/h; reverse motion produces small negatives.
  *   - Long frames carry per-cell BMS data with a `pnum` slice tag at off 46.
  *
- * Outbound commands are limited compared to KingSong/Begode: 14-byte horn
- * blob, `SetLightON/OFF`, `SETh/m/s` pedal stiffness, `CLEARMETER` trip
- * reset. No software lock, no volume, no max-speed write (the SET* family
- * sets thresholds, not absolute max; see spec section 6 "Notes").
+ * Outbound: horn (LkAp + LdAp pair, or legacy `b`), low and high beam,
+ * `SETh/m/s` pedal stiffness, `CLEARMETER` trip reset, tiltback and alarm
+ * speed, and the 25-byte lock frame. No volume.
  */
 class VeteranAdapter : WheelAdapter {
     override val familyId = "veteran"
@@ -111,8 +110,7 @@ class VeteranAdapter : WheelAdapter {
 
     // Veteran writes tilt-back and alarm thresholds as two separate frames
     // (different magic + sub-op per setting), so we leave the combined
-    // setMaxSpeed null and route through setMaxSpeedCommit / setAlarmSpeedCommit
-    // The same flow P6 already uses for its two-packet flash-commit.
+    // setMaxSpeed null and route through setMaxSpeedCommit / setAlarmSpeedCommit.
     override fun setMaxSpeed(tiltbackKmh: Float, alarmKmh: Float): ByteArray? = null
 
     override fun setMaxSpeedCommit(tiltbackKmh: Float): ByteArray =
@@ -176,13 +174,9 @@ class VeteranAdapter : WheelAdapter {
 
     /**
      * Per-wheel diagnostic commands surfaced in the Wheel Diagnostics dialog.
-     * Veteran's command surface is unusually small (see docs/protocols/veteran.md
-     * section 6): only horn, light, pedals stiffness and trip-reset have
-     * publicly documented wire formats. There is no documented max-speed,
-     * alarm-speed, lock or volume write, so those buttons are deliberately
-     * absent; the spec calls out section 9 "Open questions" for capturing
-     * the official app and decoding them. Adding speculative bytes here
-     * would risk faulting the wheel.
+     * The catalogue covers horn, light, pedals stiffness and trip-reset.
+     * Speed and lock writes are left out of it; they are reachable from the
+     * normal UI.
      *
      * Both horn variants remain available for protocol research; the runtime
      * [horn] chooses the legacy `b` for Sherman-family mVer 0/1.
@@ -226,8 +220,7 @@ class VeteranAdapter : WheelAdapter {
      * lives in the first ~36 bytes of every frame regardless of LEN, so
      * parseTelemetry runs for both short and long frames. Long (smart-BMS)
      * frames additionally carry per-cell data after offset 46; the cell
-     * slice is decoded but currently discarded until the dashboard grows
-     * a BMS panel. Without this, BMS-equipped wheels (Lynx S, Patton with
+     * slice is emitted as DecodeResult.Bms for the Cells tab. Without this, BMS-equipped wheels (Lynx S, Patton with
      * smart BMS, Oryx) connect but the dashboard stays at zero because
      * they only ever emit long frames.
      */

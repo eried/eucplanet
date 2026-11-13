@@ -6,10 +6,6 @@ package com.eried.eucplanet.ble
  *
  * Each model has flags that drive per-model command and parser dispatch
  * in [InMotionV2Adapter].
- *
- * Phase 2 only declares the registry; per-model command branching lands
- * in Phase 3 when V12 / V11 / V13 owners can validate against real
- * hardware.
  */
 enum class InMotionV2Model(
     val modelId: Int,
@@ -28,7 +24,7 @@ enum class InMotionV2Model(
     /**
      * V12 HS / HT / Pro use a two-beam light packet `[0x50, low, high]`
      * (`InMotionV2LegacyCommands.setLightV12`). V14 family + everything
-     * else uses the single-byte `[0x4B, on]` form. False means the V14
+     * else uses the single-byte `[0x50, on]` form. False means the V14
      * single-byte form; flag was added when riders reported the V12
      * light toggle did nothing.
      */
@@ -36,7 +32,7 @@ enum class InMotionV2Model(
     /**
      * Upper bound for the user-configurable tiltback slider in km/h.
      * Numbers mirror the published per-model speed table; P6 gets
-     * 130 km/h to match community-reported top speeds.
+     * 150 km/h to match community-reported top speeds.
      * This is *not* the firmware-enforced cap; V14 firmware steps
      * 70 → 80 → 90 km/h depending on revision and break-in mileage. The slider
      * just lets the user request up to this value; the wheel clamps further
@@ -46,12 +42,10 @@ enum class InMotionV2Model(
     val maxSpeedKmh: Int
 ) {
     /**
-     * The P6 actually uses an extended-routing-only variant of the V2 protocol
-     * (every query goes `02 21 [sub]`, every response `21 02 [sub|0x80]`) per
-     * BLE captures. We don't have a P6 parser yet; this entry exists so the
-     * developer P6 simulator can identify itself, and so future Phase 4 work
-     * has the model already wired in. The flags here are placeholders that
-     * keep the simulator on the V14 command path.
+     * The P6 uses an extended-routing-only variant of the V2 protocol
+     * (every query goes `02 21 [sub]`, every response `21 02 [sub|0x80]`).
+     * The adapter switches to that dialect from the BLE name; the flags here
+     * only apply to the V14-shaped simulator path.
      */
     P6(     21, "InMotion P6",         maxSpeedHasAlarms = true,  hornOpcode = 0x18, maxSpeedKmh = 150),
     V11(    61, "InMotion V11",        maxSpeedHasAlarms = false, hornOpcode = 0x18, maxSpeedKmh = 60),
@@ -79,8 +73,6 @@ enum class InMotionV2Model(
     companion object {
         /** Horn sub-cmd byte for `playBeep` (V13 / V14 / V11Y). */
         const val HORN_PLAY_BEEP: Byte = 0x02
-        /** Horn sub-cmd byte for `playSound` (V11 / V12HS / HT / PRO / V12S / V9). */
-        const val HORN_PLAY_SOUND: Byte = 0x18
 
         fun fromId(modelId: Int): InMotionV2Model? =
             values().firstOrNull { it.modelId == modelId }

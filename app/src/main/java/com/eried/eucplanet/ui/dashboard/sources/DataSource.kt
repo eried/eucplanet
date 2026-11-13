@@ -27,7 +27,6 @@ enum class DataSource(val labelRes: Int, val color: Color) {
      * branching deep inside the view code. Update these alongside the
      * underlying repository when a new metric becomes available.
      */
-    val hasSpeed: Boolean get() = true                  // all three expose speed
     val hasPosition: Boolean get() = this != WHEEL      // wheel has no GPS
     val hasImu: Boolean get() = this == PHONE || this == RACEBOX
 }

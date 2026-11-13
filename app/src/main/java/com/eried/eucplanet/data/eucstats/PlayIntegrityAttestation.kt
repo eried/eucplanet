@@ -11,7 +11,7 @@ import kotlin.coroutines.resumeWithException
 
 // ---------------------------------------------------------------------------
 // Play Integrity implementation (config-gated; used only when a non-zero
-// EUCSTATS_GCP_PROJECT_NUMBER is configured, see DI provider in AppModule).
+// EUCSTATS_GCP_PROJECT_NUMBER is configured, see the provider in EucStatsModule).
 // ---------------------------------------------------------------------------
 
 class PlayIntegrityAttestation(

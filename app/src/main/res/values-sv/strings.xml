@@ -5,7 +5,6 @@
     <string name="notification_channel_description">Visar anslutningsstatus och telemetri från hjulet.</string>
 
     <!-- Notification quick actions -->
-    <string name="notif_actions_section">Anpassa</string>
     <string name="notif_actions_enable">Visa aviseringsåtgärder</string>
     <string name="notif_actions_enable_desc">Lägg till snabbknappar i den aktiva aviseringen.</string>
     <string name="notif_actions_pick_desc">Välj upp till %1$d åtgärder. Samma åtgärd kan upprepas.</string>
@@ -39,9 +38,6 @@
     <string name="state_off">Av</string>
     <string name="action_done">Klar</string>
     <string name="action_close">Stäng</string>
-<string name="crash_log_action_prompt">Du tryckte länge på %1$s. Radera bara den här loggen eller alla. Tryck på Avbryt och sedan på filen om du vill dela den i stället.</string>
-    <string name="crash_log_delete_all">Radera alla</string>
-    <string name="crash_log_delete_all_warning">Radera alla sparade kraschloggar? Det går inte att ångra.</string>
     <string name="action_save">Spara</string>
     <string name="action_apply">Använd</string>
     <string name="action_delete">Radera</string>
@@ -135,12 +131,10 @@
     <string name="tab_dashboard">Instrumentpanelens layout</string>
     <string name="dashboard_section_metrics">Mätvärden</string>
     <string name="dashboard_section_actions">Åtgärdsknappar</string>
-    <string name="dashboard_columns">Kolumner</string>
     <string name="dashboard_grid_hint">Tryck länge för att dra, tryck för att redigera.</string>
     <string name="dashboard_pool_metrics">Tillgängliga mätvärden</string>
     <string name="dashboard_pool_actions">Tillgängliga åtgärder</string>
     <string name="dashboard_pool_tap_toast">Tryck länge och dra till en plats ovan för att använda den</string>
-    <string name="dashboard_rolling_window">Rullande statistikfönster</string>
     <string name="dashboard_stats_length">Statistiklängd</string>
     <string name="dashboard_view">Vy</string>
     <string name="dashboard_view_default">Standard</string>
@@ -614,7 +608,6 @@
     <string name="watch_haptic_on_action_desc">Kort vibration vid varje tryck, där det stöds.</string>
 
     <!-- Settings: Backup -->
-    <string name="section_cloud_folder">Backupmapp</string>
     <string name="cloud_caption">Din backupmapp för turer, inställningar, teman och överlägg.</string>
     <string name="cloud_choose_folder">Välj mapp</string>
     <string name="cloud_change_folder">Byt mapp</string>
@@ -635,7 +628,6 @@
     <string name="section_cloud_trips">Säkerhetskopia av turer</string>
     <string name="cloud_trips_caption">Turerna sparas på den här telefonen och synkas automatiskt till din backupmapp. Rensa tar bort turerna i appen, inte dem i backupmappen.</string>
     <string name="cloud_retry_now">Synka allt</string>
-    <string name="cloud_retry_enqueued">Uppladdning schemalagd</string>
     <string name="sync_progress">Synkroniserar %1$d av %2$d</string>
     <string name="sync_no_folder">Välj en backupmapp först</string>
     <string name="sync_rate_limited">Dropbox begränsar det här kontot. %1$d av %2$d turer synkroniserade, resten försöker igen.</string>
@@ -674,10 +666,7 @@
     <!-- Settings: General -->
     <string name="section_recording">Inspelning</string>
     <string name="section_connection">Anslutning</string>
-    <string name="section_display">Visning</string>
-    <string name="auto_record_on_start">Spela in automatiskt vid start</string>
     <string name="auto_record_caption">Spelar in en tur när hjulet är anslutet.</string>
-    <string name="auto_record_start_in_motion">Starta inspelning vid rörelse</string>
     <string name="auto_record_start_in_motion_caption">Startar vid rörelse, stannar automatiskt efter inaktivitet och startar igen vid nästa tur.</string>
     <string name="auto_record_stop_idle_seconds">Stoppa efter inaktivitet i</string>
     <string name="auto_connect_on_start">Anslut automatiskt vid start</string>
@@ -884,11 +873,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Diesellastbil</string>
     <string name="engine_preset_sampled_motorcycle">Liten crosshoj</string>
     <string name="engine_preset_sampled_city_car">Stadsbil</string>
-    <string name="engine_preset_sampled_helicopter">Helikopter</string>
     <string name="engine_preset_sampled_tractor">Traktor</string>
     <string name="engine_preset_sampled_lawnmower">Gräsklippare</string>
     <string name="engine_preset_sampled_steam_loco">Ånglok</string>
-    <string name="engine_preset_sampled_car_cruise">Bil på motorväg</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
     <string name="engine_preset_sampled_big_diesel">Stor diesel</string>
     <string name="engine_preset_sampled_broken_exhaust">Trasigt avgasrör</string>
@@ -1166,12 +1153,10 @@
     <string name="auto_lights_when">Följ solnedgång och soluppgång när</string>
     <string name="auto_lights_off_slow">Släck ljuset när du saktar ner</string>
     <string name="auto_lights_off_below">Av under</string>
-    <string name="auto_lights_desc">Tänd och släck strålkastaren efter solens upp- och nedgång.</string>
     <string name="auto_lights_on_before_sunset">Ljus PÅ före</string>
     <string name="auto_lights_off_after_sunrise">Ljus AV efter</string>
     <string name="auto_waiting_gps">Väntar på GPS-position…</string>
     <string name="auto_volume_title">Volymkontroll</string>
-    <string name="auto_volume_desc">Höj musikvolymen efter farten.</string>
     <string name="auto_volume_when">Höj volymen när</string>
     <string name="media_rate_when">Ändra uppspelningshastighet när</string>
     <string name="media_rate_permission_desc">Android frågar om detta separat. Utan det går uppspelningshastigheten inte att ändra.</string>
@@ -1181,14 +1166,12 @@
     <string name="media_rate_grant">Tillåt</string>
     <string name="warnings_media_access_title">Aviseringsåtkomst är av</string>
     <string name="warnings_media_access_body">Utan den kan uppspelningshastigheten inte följa din fart. Tryck för att tillåta.</string>
-    <string name="media_control_desc">Pausar musiken när du saktar in och återupptar den när du ökar farten.</string>
     <string name="media_control_pause">Pausa när jag saktar in</string>
     <string name="media_control_pause_below">Pausa vid eller under</string>
     <string name="media_control_resume">Återuppta när jag ökar farten</string>
     <string name="media_control_resume_above">Återuppta vid eller över</string>
     <string name="automation_require_external">Endast med hörlurar eller Bluetooth</string>
     <string name="proximity_lock_title">Hjullås</string>
-    <string name="proximity_lock_desc">Lås hjulet när du går iväg och lås upp det när du kommer tillbaka, med hjälp av Bluetooth-signalstyrkan.</string>
     <string name="proximity_lock_enable">Lås när jag går iväg</string>
     <string name="proximity_lock_below">Signal under</string>
     <string name="proximity_unlock_when">Lås upp automatiskt</string>
@@ -1295,11 +1278,9 @@
     <string name="alarm_repeat_help_many_instant">Larmar igen vid varje avläsning medan %1$s.</string>
     <string name="alarm_predict_help_now">Larmar i samma stund som %1$s.</string>
     <string name="alarm_predict_help_lead">Larmar cirka %1$s s innan %2$s, utifrån den senaste trenden.</string>
+    <string name="about_share_crash">Dela kraschlogg</string>
 
     <!-- About / crash logs -->
-    <string name="about_crash_logs">Kraschloggar</string>
-    <string name="about_crash_logs_empty">Inga krascher registrerade</string>
-    <string name="about_share_crash">Dela kraschlogg</string>
     <string name="about_thanks">Tack till</string>
     <string name="about_thanks_body">Jag tröttnade på EUC-appar som utvecklas för långsamt, ser föråldrade ut, har strikta regler kring nya funktioner, behandlar sina communities som kunder och glömmer att EUC-åkare är som bäst när de hjälper varandra. Den här försöker vara tvärtom.</string>
     <string name="about_license">Licens</string>
@@ -1356,11 +1337,8 @@
     <string name="online_upload_total_km">%1$s %2$s</string>
     <string name="online_upload_join">Gå med i topplistan</string>
     <string name="online_status_shared">Delad på topplistan</string>
-    <string name="online_status_flagged">Delad, granskas</string>
     <string name="online_status_pending">Laddar upp till topplistan…</string>
     <string name="online_status_failed">Uppladdning misslyckades, tryck för att försöka igen</string>
-    <string name="online_status_checking">Kontrollerar mot topplistan…</string>
-    <string name="online_status_check_failed">Kunde inte kontrollera nu, försök igen senare</string>
     <string name="online_status_rejected">Inte godkänd för topplistan</string>
     <string name="online_upload_join_caption">Gå med för att skicka din statistik och dina turer till den offentliga topplistan på.</string>
     <string name="online_upload_linked_caption">Din statistik och dina turer visas på den offentliga topplistan på.</string>
@@ -1382,7 +1360,6 @@
     <string name="online_profile_delete_confirm_action">Radera permanent</string>
     <string name="online_profile_save_rate_limited">För många förfrågningar, försök igen senare.</string>
     <string name="online_profile_save_failed">Sparandet misslyckades (HTTP %1$d). Försök igen.</string>
-    <string name="online_status_flagged_why">Hålls för en kort automatisk kontroll. Turen läggs till på topplistan när den godkänns.</string>
     <string name="online_restore_title">En sparad profil hittades</string>
     <string name="online_restore_body_new">Vi hittade en sparad profil här: %1$s. Om du fortsätter går du med i den offentliga topplistan igen som den åkaren. Namn, flagga, profilfoto och åkstatistik är offentliga. Ingen ny profil skapas.</string>
     <string name="online_restore_body_switch">Vi hittade en annan sparad profil: %1$s. Om du fortsätter byter den här telefonen till den åkaren. Din nuvarande profil säkerhetskopieras först.</string>
@@ -1584,9 +1561,6 @@
     <string name="studio_cfg_time_window_fmt">%1$ds</string>
     <string name="studio_cfg_trail_label">Spårlängd</string>
     <string name="studio_cfg_map_style">Kartstil</string>
-    <string name="studio_cfg_map_street">Gata</string>
-    <string name="studio_cfg_map_dark">Mörk</string>
-    <string name="studio_cfg_map_satellite">Satellit</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
     <string name="studio_cfg_map_attribution">Visa kartkälla</string>
     <string name="studio_cfg_map_attribution_off">Kartlicensen kräver den här källangivelsen på allt du delar. Du väljer själv om du stänger av den.</string>
@@ -1674,7 +1648,6 @@
     <string name="trip_meter_tab_speed">Fart</string>
     <string name="trip_meter_tab_battery">Batteri</string>
     <string name="trip_meter_tab_time">Tid</string>
-    <string name="trip_meter_total">Totalt</string>
     <string name="trip_meter_active">Aktiv</string>
     <string name="trip_meter_avg">Snitt</string>
     <string name="trip_meter_reset">Nollställ trippmätare</string>
@@ -1728,7 +1701,6 @@
     <string name="nav_clear_confirm_body">Dina nuvarande stopp rensas.</string>
     <string name="nav_load_confirm">Ersätta nuvarande rutt med den inlästa GPX-filen?</string>
     <string name="nav_menu_load_short">Läs in</string>
-    <string name="nav_tap_on_self">Tryck länge på ett stopp i stopplistan för att flytta det till din plats</string>
     <string name="nav_start_short">Starta navigering</string>
     <string name="nav_stop_short">Stoppa navigering</string>
     <string name="nav_stops_left">%1$d stopp kvar</string>
@@ -1814,8 +1786,6 @@
     <string name="share_alone">Ingen annan är här än.</string>
     <string name="share_open">Öppna</string>
     <string name="share_copy">Kopiera</string>
-    <string name="share_menu_join">Gå med i grupptur</string>
-    <string name="share_menu_join_desc">Skanna en QR-kod.</string>
     <string name="share_menu_live">Dela position live</string>
     <string name="share_menu_live_desc">Starta en grupptur.</string>
     <string name="share_menu_static">Skicka min position</string>
@@ -1893,7 +1863,6 @@
     <string name="nav_setting_arrival_radius_desc">Hur nära som räknas som att ett stopp nåtts.</string>
     <string name="nav_setting_offroute">Tolerans för avvikelse</string>
     <string name="nav_setting_offroute_desc">Hur långt från rutten innan varningen om avvikelse utlöses.</string>
-    <string name="nav_setting_default_mode">Standardfärdsätt</string>
     <string name="nav_setting_params">Navigering och väder</string>
     <string name="weather_section">Väder</string>
     <string name="weather_icon_desc">Väderprognos</string>
@@ -1914,7 +1883,6 @@
     <string name="weather_enable_desc">Lägger en väderikon ovanför kartknappen: tryck på den för en åkväderprognos.</string>
     <string name="weather_window_label">Prognosfönster</string>
     <string name="weather_source_label">Prognoskälla</string>
-    <string name="weather_comfort_desc">Komforttrösklar för poängen. Temperatur följer din enhetsinställning, vind följer din hastighetsenhet.</string>
     <string name="weather_cold">För kallt under</string>
     <string name="weather_hot">För varmt över</string>
     <string name="weather_breezy">Blåsigt över</string>
@@ -1941,7 +1909,6 @@
     <string name="weather_lvl_prime_2">Toppendag att sväva!</string>
     <string name="weather_expand">Detaljer</string>
     <string name="weather_chart_temp">Temp., fukt och nederbörd</string>
-    <string name="weather_chart_precip">Nederbörd</string>
     <string name="weather_chart_wind">Vind och byar</string>
     <string name="weather_adv_snow_now">Det snöar, greppet är borta.</string>
     <string name="weather_adv_snow_in">Snö väntas om %1$s.</string>
@@ -2543,8 +2510,6 @@
     <string name="trip_split_reason_wheel">Ett annat hjul tog över</string>
     <string name="trip_split_reason_gap">Lucka i inspelningen</string>
     <string name="trip_split_reason_stopped">Stod stilla länge</string>
-    <string name="trip_tools_combine">Slå ihop turer</string>
-    <string name="trip_tools_combine_desc">Slår ihop andra turer till en ny tur, originalen behålls.</string>
     <string name="trip_tools_combine_none">Inga andra avslutade turer att slå ihop med.</string>
     <string name="trip_tools_combine_mixed_wheels">Några av dessa åktes på ett annat hjul. Distans och energi slås ihop.</string>
     <string name="trip_tools_wheel_changed">Hjulet ändrat till %1$s</string>
@@ -2651,8 +2616,6 @@
     <string name="studio_video_fit">Anpassning</string>
     <string name="studio_video_fit_stretch">Sträck</string>
     <string name="studio_video_offset">Förskjutning</string>
-    <string name="studio_video_offset_value_fmt">%1$d ms</string>
-    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
     <string name="studio_video_set_offset">Aktuell</string>
     <string name="studio_video_no_media">Inga medier</string>
     <string name="studio_replay_cd_move">Flytta panel</string>
@@ -2660,7 +2623,6 @@
     <string name="studio_video_edge_freeze">Frys</string>
     <string name="studio_video_edge_loop">Slinga</string>
     <string name="studio_video_edge_black">Svart</string>
-    <string name="wheel_no_data_reconnecting">Inga data från hjulet. Återansluter…</string>
     <string name="wheel_no_data_reset">Fortfarande inga data från hjulet. Prova att stänga av och slå på det.</string>
     <string name="trip_map_ride_start">Start på turen: %1$s</string>
     <string name="trip_map_reconnected">Återansluten: %1$s</string>
@@ -2678,7 +2640,6 @@
     <string name="trip_tools_rename">Byt namn på turen</string>
     <string name="trip_tools_rename_desc">Ge den här turen ett namn. Sparas i dess fil, så det följer med export och synk.</string>
     <string name="trip_tools_rename_hint">Lämna tomt för att använda datumet.</string>
-    <string name="trip_tools_renamed">Turen har bytt namn</string>
     <string name="trip_tools_archived">Arkiverade: %1$d</string>
     <string name="trip_tools_archive_failed">Vissa turer kunde inte arkiveras och finns kvar här</string>
     <string name="recording_delete_archive">Arkivera säkerhetskopiorna</string>
@@ -2786,7 +2747,6 @@
     <string name="action_reset_metrics_wheel_done">Mätvärdena har nollställts, hjulets trippmätare rensad</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
     <string name="tpms_waiting">Väntar på data</string>
-    <string name="status_live">Live</string>
     <string name="status_idle">Inaktiv</string>
     <string name="tpms_state_leaking">Läcker luft</string>
     <string name="tpms_state_inflating">Pumpar</string>
@@ -2807,7 +2767,6 @@
     <string name="horn_mode_sound">Eget</string>
     <string name="horn_mode_both">Mix</string>
     <string name="horn_mode_hint">Eget spelar ditt ljud i telefonen. Mix lägger det ovanpå hjulets tuta, för en extern högtalare. Kan telefonen inte spela det tutar hjulet i stället.</string>
-    <string name="horn_sound_none">Inget ljud valt</string>
     <string name="horn_sound_current">Ljud: %1$s</string>
     <string name="horn_sound_choose">Välj ljud</string>
     <string name="horn_sound_imported">Tutljudet har sparats</string>
@@ -2823,7 +2782,6 @@
     <string name="voice_stat_min">Min</string>
     <string name="voice_stat_avg">Snitt</string>
     <string name="voice_stat_peak">Topp</string>
-    <string name="crews_title">Crews</string>
     <string name="crews_pass_action">Crew-pass</string>
     <string name="crews_pass_search_hint">Crew-pass visas när du går med i online-topplistorna.</string>
     <string name="crews_scan_hint">Öppna eucstats i en webbläsare, tryck på Crews, och rikta den här mot koden som visas.</string>
@@ -2929,7 +2887,6 @@
     <string name="nav_unlock_stops">Stopp</string>
     <string name="nav_unlock_off">Avviker upp till %1$s från spåret</string>
     <string name="nav_unlock_confirm">Konvertera</string>
-    <string name="nav_track_badge">Låst spår</string>
     <string name="voice_nav_place_reached">%1$s nått</string>
     <string name="offline_data_open">Offlineområden</string>
     <string name="offline_server_url">Server för offlinedata</string>

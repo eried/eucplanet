@@ -296,7 +296,6 @@ fun ChargingMonitorScreen(
                 base = lerp(MaterialTheme.appColors.metricVoltage, Color.Black, 0.28f),
                 added = lerp(MaterialTheme.appColors.metricBattery, Color.Green, 0.4f),
                 outlineColor = MaterialTheme.appColors.textPrimary,
-                bubbleColor = MaterialTheme.appColors.onPrimary,
                 modifier = Modifier.fillMaxSize(),
             )
 
@@ -425,7 +424,7 @@ fun ChargingMonitorScreen(
     }
 }
 
-/** Big percentage with a smooth grow/shrink and a soft pink glow. */
+/** Big percentage with a smooth grow/shrink and a contrast glow. */
 @Composable
 private fun PercentReadout(pctState: State<Float>, decimalsVisible: Boolean, connected: Boolean = true) {
     val mainSp by animateFloatAsState(
@@ -676,11 +675,9 @@ private fun rememberAnimatedPercent(measured: Float, ratePerMin: Float, charging
 private fun fillFraction(pct: Float): Float = (pct / 100f).coerceIn(0f, 1f)
 
 /**
- * The battery: a lightly-rounded tall rectangle (no terminal nub) with a faint
- * rounded-cell texture. While charging the fill rises to the current % with a
- * pink→green vertical gradient (green leading the top like fresh charge; the pink
- * fades toward green as the pack nears 80–100 %). When idle the whole battery is
- * pink and the bubbles just float. Rising bubbles ease in/out with the charge.
+ * The battery as a full-screen liquid fill. Blue up to the level at session
+ * start, green for charge added this session, fading back to blue after
+ * charging stops. The surface sloshes with phone tilt.
  */
 @Composable
 private fun BatteryFillGraphic(
@@ -695,12 +692,11 @@ private fun BatteryFillGraphic(
     base: Color,
     added: Color,
     outlineColor: Color,
-    bubbleColor: Color,
     modifier: Modifier = Modifier,
 ) {
     // Green amount: eases in (~4 s) when charging starts and fades out slowly
     // (~60 s) when it stops, a brief pause keeps the green, a long stop merges
-    // back to all blue. Drives the fill colour and the dot rise.
+    // back to all blue. Drives the fill colour.
     val g = animateFloatAsState(
         if (charging) 1f else 0f,
         animationSpec = tween(durationMillis = if (charging) 4000 else 60000, easing = FastOutSlowInEasing),
@@ -718,7 +714,6 @@ private fun BatteryFillGraphic(
     LaunchedEffect(charging, startPercent) {
         if (charging) frozenStart.floatValue = (startPercent / 100f).coerceIn(0f, 1f)
     }
-    val rise = remember { mutableFloatStateOf(0f) }
     val clock = remember { mutableFloatStateOf(0f) }
 
     // --- Fluid surface: the top of the liquid sloshes with the phone's tilt
@@ -736,14 +731,6 @@ private fun BatteryFillGraphic(
     val dlife = remember { FloatArray(maxDrops) }
     val geo = remember { FloatArray(3) }   // [w, h, yTop] published by the Canvas
     val rnd = remember { kotlin.random.Random }
-    // Faint bubbles drifting up through the liquid.
-    val maxBubbles = 140
-    val bubX = remember { FloatArray(maxBubbles) }
-    val bubY = remember { FloatArray(maxBubbles) { -1f } }
-    val bubR = remember { FloatArray(maxBubbles) }
-    val bubS = remember { FloatArray(maxBubbles) }
-    val bubA = remember { FloatArray(maxBubbles) }
-    val bubF = remember { FloatArray(maxBubbles) }
     // Gravity along the screen's horizontal tilts the surface; the gyro's
     // turn about the screen's vertical axis kicks a slosh.
     PhoneMotionEffect(
@@ -757,7 +744,6 @@ private fun BatteryFillGraphic(
             withFrameNanos { now ->
                 if (prev != 0L) {
                     val dt = ((now - prev) / 1_000_000_000f).coerceIn(0f, 0.05f)
-                    rise.floatValue = (rise.floatValue + g.value * 0.04f * dt) % 1f
                     val tilt = tiltX.floatValue
                     val kick = gyroKick.floatValue
                     gyroKick.floatValue = kick * 0.86f
@@ -816,7 +802,6 @@ private fun BatteryFillGraphic(
                             }
                             if (dpx[k] < -30f || dpx[k] > ww + 30f) dlife[k] = 0f
                         }
-                        // Bubble animation disabled for now (kept for easy re-enable).
                     }
                     // Energy gate: only advance the clock (and therefore keep
                     // forcing Canvas redraws / withFrameNanos wake-ups) while
@@ -859,18 +844,15 @@ private fun BatteryFillGraphic(
         // Whole-screen battery: the fill IS the background, no frame, edge to edge.
         val fillLeft = 0f
         val fillRight = w
-        val fillTop = 0f
         val fillBottom = h
         val fillW = w
         val fillH = h
         fun yFor(frac: Float) = fillBottom - frac.coerceIn(0f, 1f) * fillH
 
         val gv = g.value
-        val idleAmount = 1f - gv
         // Linear, precise fill to the actual battery level.
         val curFrac = fillFraction(percent)
         val yTop = yFor(curFrac)
-        val regionH = (fillBottom - yTop).coerceAtLeast(1f)
         geo[0] = w; geo[1] = h; geo[2] = yTop
         // Session-start level, frozen so it doesn't jump when charging stops; it
         // just fades out with gv. Clamped to the current level.
@@ -988,8 +970,6 @@ private fun BatteryFillGraphic(
                     size = Size(fillW, gDown),
                 )
             }
-
-            // Bubble animation disabled for now.
         }
         // Splash droplets -- only when connected.
         if (connected) {
@@ -1022,11 +1002,6 @@ private fun InfoTabs(state: ChargingUiState) {
     var selected by remember { mutableIntStateOf(0) }
     if (selected >= tabs.size) selected = 0
 
-    // One constant content height for EVERY tab so switching Charge / Packs /
-    // Cells never resizes the sheet. Uses the taller "cells" height (128 cells
-    // need room on V14 4-pack rigs and Veteran-family 42-cell packs; the Packs
-    // chart wants the room too); shorter tabs just have extra space below their
-    // content, and each tab scrolls vertically inside that height.
     val screenH = screenGeometry().heightDp.dp
     // Max height for the tab content: the sheet wraps its content (so a short tab
     // like Charge shows just the chart + stats with no empty filler) but never grows
@@ -1175,8 +1150,8 @@ private fun InfoTabs(state: ChargingUiState) {
                         // Per-pack whole-pack-voltage band chart above the tiles:
                         // one filled band per pack (its cell spread in whole-pack
                         // volts) plus the global pack-to-pack imbalance as a dashed
-                        // right-axis line. Hidden with fewer than 2 packs or 2
-                        // samples (guarded inside PacksChart).
+                        // right-axis line. Shows a collecting-data placeholder
+                        // until two packs each have two samples.
                         PacksChart(
                             packMin = state.packMinHistory,
                             packMax = state.packMaxHistory,

@@ -2,6 +2,9 @@ package com.eried.eucplanet.data.repository
 
 import org.jetbrains.compose.resources.StringResource
 
+/** A string resource used as an argument of a warning's text. */
+data class WarningTextRes(val res: StringResource)
+
 /**
  * A single user-actionable warning surfaced in the dashboard top bar.
  *
@@ -10,9 +13,6 @@ import org.jetbrains.compose.resources.StringResource
  * the Fix button, typically opens the system Settings App-Details page, but
  * future warning sources (failed trip import, …) can pass any handler.
  */
-/** A string resource used as an argument of a warning's text. */
-data class WarningTextRes(val res: StringResource)
-
 data class AppWarning(
     val id: String,
     val titleRes: StringResource,

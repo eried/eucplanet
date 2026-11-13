@@ -21,7 +21,7 @@ import org.koin.core.component.get
 
 /**
  * Debug-only receiver that lets a host script (Python + adb shell am broadcast)
- * drive the UI survey harness in DELETE_LATER_SURVEY_UI/. Two actions:
+ * drive the app. Actions:
  *
  *   - SURVEY_APPLY: overwrite the dashboard layout JSON blobs in AppSettings
  *     so the next screenshot shows a freshly randomised configuration.
@@ -39,9 +39,10 @@ import org.koin.core.component.get
  *     car screen used to die the moment a route went active, and proving that
  *     needs navState.active true on a machine with no GPS and no destination
  *     to search for.
+ *   - SURVEY_CAR_ALARM: post one car-screen alarm card.
  *
- * Only present in debug builds, never merged into the release manifest, * so the production app surface stays unchanged. See the matching debug
- * AndroidManifest at app/src/debug/AndroidManifest.xml.
+ * Only in debug builds, and in a release built with -PaaosTest. See the
+ * matching manifests at app/src/debug and app/src/aaosTest.
  */
 class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
 

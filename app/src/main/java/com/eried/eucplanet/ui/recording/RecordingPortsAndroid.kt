@@ -108,7 +108,7 @@ class AndroidRecordingOnline(
 ) : RecordingOnline {
     override val riderLinked get() = syncManager.riderStoreId.value != null
     override suspend fun syncPendingNow(): SyncResult = eucStats.syncPendingNow { _, _ -> }
-    override fun enqueueUpload(settings: AppSettings) = syncManager.enqueueEucStatsUpload(settings)
+    override fun enqueueUpload(settings: AppSettings) = syncManager.enqueueEucStatsUpload()
     override suspend fun refreshTripVerdict(trip: TripRecord) = eucStats.refreshTripVerdict(trip)
 }
 

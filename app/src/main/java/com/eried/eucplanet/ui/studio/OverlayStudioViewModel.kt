@@ -45,9 +45,6 @@ enum class ReplayPhotoFormat(
     PNG(true),
     JPG(false),
     WEBP(true);
-    // GIF removed as a photo option (kept only as a video output). To restore,
-    // re-add GIF(true) here plus the ReplayPhotoFormat.GIF when-branches in
-    // OverlayStudioScreen and the chip in ExportFormatChooser.
 
     companion object {
         fun fromKey(key: String): ReplayPhotoFormat =
@@ -126,9 +123,8 @@ class OverlayStudioViewModel(
         private const val DRAFT_DEBOUNCE_MS = 600L
         /** Hard cap on overlay elements in one layout. */
         const val MAX_ELEMENTS = 32
-        /** Max samples kept in the live G-Force trail buffer. The longest
-         *  configurable trail is 20 s; at the IMU's 50 Hz that's 1000 samples,
-         *  with 10 % headroom for jitter. */
+        /** Max samples kept in the live G-Force trail buffer. The overlay
+         *  takes up to 20 s at the IMU's 50 Hz plus a 15 % exit-fade tail. */
         private const val LIVE_TRAIL_MAX = 1100
     }
 
@@ -198,8 +194,7 @@ class OverlayStudioViewModel(
     // Rolling trail buffer fed at the IMU's 50 Hz rate from [liveGForce]; the
     // dashboard's crosshair uses an equivalent buffer. The G-Force overlay's
     // trail AND its dot both read from here, so they share their data source
-    // and stay visually connected. Capped at LIVE_TRAIL_MAX entries which is
-    // sized for the largest configurable trail window (~22 s × 50 Hz). The
+    // and stay visually connected. Capped at LIVE_TRAIL_MAX entries. The
     // overlay slices off as many recent entries as its graphWindowSec needs.
     private val _liveGForceTrail = MutableStateFlow<List<androidx.compose.ui.geometry.Offset>>(emptyList())
     val liveGForceTrail: StateFlow<List<androidx.compose.ui.geometry.Offset>> =
@@ -479,9 +474,6 @@ class OverlayStudioViewModel(
     }
 
     fun selectElement(id: String?) { _selectedElementId.value = id }
-
-    fun selectedElement(): OverlayElement? =
-        _preset.value.elements.firstOrNull { it.id == _selectedElementId.value }
 
     // --- Preset files --------------------------------------------------------
 

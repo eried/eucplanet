@@ -445,7 +445,7 @@ private fun SplitBarChart(
                 drawText(lbl, topLeft = Offset(cx - lbl.size.width / 2f, h + 6f))
             }
 
-            // Overlay (segment max) as a dotted line + dots on top of the bars.
+            // Overlay (segment max) as a line with dots on top of the bars.
             if (overlay != null && overlay.size == n) {
                 var prev: Offset? = null
                 overlay.forEachIndexed { idx, v ->

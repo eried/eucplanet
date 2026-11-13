@@ -5,7 +5,6 @@
     <string name="notification_channel_description">Teker bağlantı durumunu ve telemetriyi gösterir.</string>
 
     <!-- Notification quick actions -->
-    <string name="notif_actions_section">Özelleştir</string>
     <string name="notif_actions_enable">Bildirim eylemlerini göster</string>
     <string name="notif_actions_enable_desc">Etkin bildirime hızlı eylem düğmeleri ekleyin.</string>
     <string name="notif_actions_pick_desc">En fazla %1$d eylem seçin. Aynı eylem tekrarlanabilir.</string>
@@ -39,9 +38,6 @@
     <string name="state_off">Kapalı</string>
     <string name="action_done">Bitti</string>
     <string name="action_close">Kapat</string>
-<string name="crash_log_action_prompt">Uzun basılan günlük: %1$s. Yalnızca bunu ya da tümünü silebilirsiniz. Paylaşmak için İptal\'e, ardından dosyaya dokunun.</string>
-    <string name="crash_log_delete_all">Tümünü sil</string>
-    <string name="crash_log_delete_all_warning">Tüm çökme günlükleri silinsin mi? Bu işlem geri alınamaz.</string>
     <string name="action_save">Kaydet</string>
     <string name="action_apply">Uygula</string>
     <string name="action_delete">Sil</string>
@@ -135,12 +131,10 @@
     <string name="tab_dashboard">Gösterge paneli düzeni</string>
     <string name="dashboard_section_metrics">Metrikler</string>
     <string name="dashboard_section_actions">Eylem düğmeleri</string>
-    <string name="dashboard_columns">Sütunlar</string>
     <string name="dashboard_grid_hint">Taşımak için uzun basın, düzenlemek için dokunun.</string>
     <string name="dashboard_pool_metrics">Mevcut metrikler</string>
     <string name="dashboard_pool_actions">Mevcut eylemler</string>
     <string name="dashboard_pool_tap_toast">Kullanmak için yukarıdaki bir yuvaya uzun basarak sürükleyin</string>
-    <string name="dashboard_rolling_window">Kayan istatistik penceresi</string>
     <string name="dashboard_stats_length">İstatistik uzunluğu</string>
     <string name="dashboard_view">Görünüm</string>
     <string name="dashboard_view_default">Varsayılan</string>
@@ -614,7 +608,6 @@
     <string name="watch_haptic_on_action_desc">Desteklendiğinde her basışta kısa saat titreşimi.</string>
 
     <!-- Settings: Backup -->
-    <string name="section_cloud_folder">Yedek klasörü</string>
     <string name="cloud_caption">Sürüşler, ayarlar, temalar ve kaplamalar için yedek klasörünüz.</string>
     <string name="cloud_choose_folder">Klasör seç</string>
     <string name="cloud_change_folder">Klasörü değiştir</string>
@@ -635,7 +628,6 @@
     <string name="section_cloud_trips">Sürüş yedeği</string>
     <string name="cloud_trips_caption">Sürüşler bu telefonda kalır ve yedek klasörünüze otomatik olarak eşitlenir. Temizleme, uygulamadaki sürüşleri siler, yedek klasörünüzdekileri silmez.</string>
     <string name="cloud_retry_now">Tümünü eşitle</string>
-    <string name="cloud_retry_enqueued">Yükleme planlandı</string>
     <string name="sync_progress">Eşitleniyor: %1$d / %2$d</string>
     <string name="sync_no_folder">Önce bir yedek klasörü seçin</string>
     <string name="sync_rate_limited">Dropbox bu hesabı sınırlıyor. Eşitlenen sürüş: %1$d / %2$d, kalanlar yeniden denenecek.</string>
@@ -674,10 +666,7 @@
     <!-- Settings: General -->
     <string name="section_recording">Kayıt</string>
     <string name="section_connection">Bağlantı</string>
-    <string name="section_display">Ekran</string>
-    <string name="auto_record_on_start">Başlangıçta otomatik kayıt</string>
     <string name="auto_record_caption">Teker bağlandığında sürüşü kaydeder.</string>
-    <string name="auto_record_start_in_motion">Harekette kaydı başlat</string>
     <string name="auto_record_start_in_motion_caption">Harekette başlar, boşta kalınca otomatik durur, sonraki sürüşte yeniden başlar.</string>
     <string name="auto_record_stop_idle_seconds">Boşta kalınca dur</string>
     <string name="auto_connect_on_start">Başlangıçta otomatik bağlan</string>
@@ -884,11 +873,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Dizel kamyon</string>
     <string name="engine_preset_sampled_motorcycle">Küçük arazi motosikleti</string>
     <string name="engine_preset_sampled_city_car">Şehir aracı</string>
-    <string name="engine_preset_sampled_helicopter">Helikopter</string>
     <string name="engine_preset_sampled_tractor">Traktör</string>
     <string name="engine_preset_sampled_lawnmower">Çim biçme makinesi</string>
     <string name="engine_preset_sampled_steam_loco">Buharlı lokomotif</string>
-    <string name="engine_preset_sampled_car_cruise">Araba seyir</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
     <string name="engine_preset_sampled_big_diesel">Büyük dizel</string>
     <string name="engine_preset_sampled_broken_exhaust">Arızalı egzoz</string>
@@ -1167,12 +1154,10 @@
     <string name="auto_lights_when">Gün batımı ve doğumunu izle</string>
     <string name="auto_lights_off_slow">Yavaşlarken farı kapat</string>
     <string name="auto_lights_off_below">Şu hızın altında kapat</string>
-    <string name="auto_lights_desc">Gün batımı ve doğumuna göre farları açıp kapatır.</string>
     <string name="auto_lights_on_before_sunset">Gün batımından önce AÇ</string>
     <string name="auto_lights_off_after_sunrise">Gün doğumundan sonra KAPAT</string>
     <string name="auto_waiting_gps">GPS konumu bekleniyor…</string>
     <string name="auto_volume_title">Ses denetimi</string>
-    <string name="auto_volume_desc">Müzik sesini hıza göre artır.</string>
     <string name="auto_volume_when">Sesi yükselt</string>
     <string name="media_rate_when">Oynatma hızını değiştir</string>
     <string name="media_rate_permission_desc">Android bunu ayrıca ister. Bu olmadan oynatma hızı değiştirilemez.</string>
@@ -1182,14 +1167,12 @@
     <string name="media_rate_grant">İzin ver</string>
     <string name="warnings_media_access_title">Bildirim erişimi kapalı</string>
     <string name="warnings_media_access_body">Bu izin olmadan oynatma hızı sürüş hızınızı izleyemez. İzin vermek için dokunun.</string>
-    <string name="media_control_desc">Yavaşladığınızda müziği duraklatır, hızlandığınızda devam ettirir.</string>
     <string name="media_control_pause">Yavaşlayınca duraklat</string>
     <string name="media_control_pause_below">Bu hızda veya altında duraklat</string>
     <string name="media_control_resume">Hızlanınca devam et</string>
     <string name="media_control_resume_above">Bu hızda veya üstünde devam et</string>
     <string name="automation_require_external">Yalnızca kulaklık veya Bluetooth\'ta</string>
     <string name="proximity_lock_title">Teker kilidi</string>
-    <string name="proximity_lock_desc">Bluetooth sinyal gücünü kullanarak, uzaklaştığınızda tekeri kilitler, döndüğünüzde kilidini açar.</string>
     <string name="proximity_lock_enable">Uzaklaşınca kilitle</string>
     <string name="proximity_lock_below">Sinyal altında</string>
     <string name="proximity_unlock_when">Otomatik kilit aç</string>
@@ -1296,11 +1279,9 @@
     <string name="alarm_repeat_help_many_instant">%1$s iken her okumada yeniden uyarır.</string>
     <string name="alarm_predict_help_now">%1$s olduğu an uyarır.</string>
     <string name="alarm_predict_help_lead">Son eğilime göre, %2$s olmadan yaklaşık %1$s sn önce uyarır.</string>
+    <string name="about_share_crash">Çökme günlüğünü paylaş</string>
 
     <!-- About / crash logs -->
-    <string name="about_crash_logs">Çökme günlükleri</string>
-    <string name="about_crash_logs_empty">Çökme kaydedilmedi</string>
-    <string name="about_share_crash">Çökme günlüğünü paylaş</string>
     <string name="about_thanks">Katkılar</string>
     <string name="about_thanks_body">Çok yavaş gelişen, eski görünen, yeni özelliklere katı kurallar koyan, topluluklarını müşteri gibi gören ve EUC kullanıcılarının birbirine yardım ettiğinde en iyi hâllerinde olduğunu unutan EUC uygulamalarından bıktım. Bu uygulama tam tersini yapmaya çalışıyor.</string>
     <string name="about_license">Lisans</string>
@@ -1357,11 +1338,8 @@
     <string name="online_upload_total_km">%1$s %2$s</string>
     <string name="online_upload_join">Lider tablosuna katıl</string>
     <string name="online_status_shared">Lider tablosunda paylaşıldı</string>
-    <string name="online_status_flagged">Paylaşıldı, inceleniyor</string>
     <string name="online_status_pending">Lider tablosuna yükleniyor…</string>
     <string name="online_status_failed">Çevrimiçi yükleme başarısız, yeniden denemek için dokunun</string>
-    <string name="online_status_checking">Lider tablosunda kontrol ediliyor…</string>
-    <string name="online_status_check_failed">Şu anda kontrol edilemedi, daha sonra tekrar deneyin</string>
     <string name="online_status_rejected">Lider tablosuna kabul edilmedi</string>
     <string name="online_upload_join_caption">İstatistiklerinizi ve sürüşlerinizi şu adresteki herkese açık lider tablosuna göndermek için katılın.</string>
     <string name="online_upload_linked_caption">İstatistikleriniz ve sürüşleriniz şu adresteki herkese açık lider tablosunda görünüyor.</string>
@@ -1383,7 +1361,6 @@
     <string name="online_profile_delete_confirm_action">Kalıcı olarak sil</string>
     <string name="online_profile_save_rate_limited">İstek sınırına ulaşıldı, daha sonra tekrar deneyin.</string>
     <string name="online_profile_save_failed">Kaydetme başarısız (HTTP %1$d). Tekrar deneyin.</string>
-    <string name="online_status_flagged_why">Otomatik kontrol için bekletildi. Kontrol geçtikten sonra lider tablosuna katılır.</string>
     <string name="online_restore_title">Kaydedilmiş bir profil bulundu</string>
     <string name="online_restore_body_new">Burada kayıtlı bir profil bulduk: %1$s. Devam ederseniz o kullanıcı olarak herkese açık lider tablosuna yeniden katılırsınız; adı, bayrağı, avatarı ve sürüş istatistikleri herkese açıktır. Yeni profil oluşturulmaz.</string>
     <string name="online_restore_body_switch">Farklı bir kayıtlı profil bulduk: %1$s. Devam ederseniz bu telefon o kullanıcıya geçer; mevcut profiliniz önce yedeklenir.</string>
@@ -1585,9 +1562,6 @@
     <string name="studio_cfg_time_window_fmt">%1$d sn</string>
     <string name="studio_cfg_trail_label">İz uzunluğu</string>
     <string name="studio_cfg_map_style">Harita stili</string>
-    <string name="studio_cfg_map_street">Sokak</string>
-    <string name="studio_cfg_map_dark">Koyu</string>
-    <string name="studio_cfg_map_satellite">Uydu</string>
     <string name="studio_cfg_map_zoom">Yakınlaştırma</string>
     <string name="studio_cfg_map_attribution">Harita künyesini göster</string>
     <string name="studio_cfg_map_attribution_off">Harita lisansı, paylaştığınız her şeyde bu künyeyi ister. Kapatmak sizin kararınız.</string>
@@ -1675,7 +1649,6 @@
     <string name="trip_meter_tab_speed">Hız</string>
     <string name="trip_meter_tab_battery">Batarya</string>
     <string name="trip_meter_tab_time">Süre</string>
-    <string name="trip_meter_total">Toplam</string>
     <string name="trip_meter_active">Aktif</string>
     <string name="trip_meter_avg">Ort.</string>
     <string name="trip_meter_reset">Mesafe sayacını sıfırla</string>
@@ -1729,7 +1702,6 @@
     <string name="nav_clear_confirm_body">Mevcut duraklarınız temizlenecek.</string>
     <string name="nav_load_confirm">Mevcut rota yüklenen GPX ile değiştirilsin mi?</string>
     <string name="nav_menu_load_short">Yükle</string>
-    <string name="nav_tap_on_self">Duraklar listesinde bir durağa uzun basarak konumunuza ayarlayın</string>
     <string name="nav_start_short">Navigasyonu başlat</string>
     <string name="nav_stop_short">Navigasyonu durdur</string>
     <string name="nav_stops_left">%1$d durak kaldı</string>
@@ -1815,8 +1787,6 @@
     <string name="share_alone">Henüz burada başka kimse yok.</string>
     <string name="share_open">Aç</string>
     <string name="share_copy">Kopyala</string>
-    <string name="share_menu_join">Grup sürüşüne katıl</string>
-    <string name="share_menu_join_desc">QR kodu tarayın.</string>
     <string name="share_menu_live">Konumu canlı paylaş</string>
     <string name="share_menu_live_desc">Grup sürüşü başlatın.</string>
     <string name="share_menu_static">Konumu gönder</string>
@@ -1894,7 +1864,6 @@
     <string name="nav_setting_arrival_radius_desc">Bir durağa ulaşmak için ne kadar yakın olmak gerekir.</string>
     <string name="nav_setting_offroute">Rota dışı toleransı</string>
     <string name="nav_setting_offroute_desc">Rota dışı uyarısının tetiklenmesi için rotadan ne kadar uzaklaşmak gerekir.</string>
-    <string name="nav_setting_default_mode">Varsayılan seyahat modu</string>
     <string name="nav_setting_params">Navigasyon ve hava</string>
     <string name="weather_section">Hava</string>
     <string name="weather_icon_desc">Hava tahmini</string>
@@ -1915,7 +1884,6 @@
     <string name="weather_enable_desc">Harita düğmesinin üstüne hava simgesi ekler: dokunarak sürülebilirlik tahminini açın.</string>
     <string name="weather_window_label">Tahmin penceresi</string>
     <string name="weather_source_label">Tahmin kaynağı</string>
-    <string name="weather_comfort_desc">Puanı belirleyen konfor eşikleri. Sıcaklıklar birim ayarınızı, rüzgar ise hız biriminizi izler.</string>
     <string name="weather_cold">Altında çok soğuk</string>
     <string name="weather_hot">Üstünde çok sıcak</string>
     <string name="weather_breezy">Üstünde esintili</string>
@@ -1942,7 +1910,6 @@
     <string name="weather_lvl_prime_2">Sürüş için birebir hava!</string>
     <string name="weather_expand">Ayrıntılar</string>
     <string name="weather_chart_temp">Sıcaklık, nem ve yağış</string>
-    <string name="weather_chart_precip">Yağış</string>
     <string name="weather_chart_wind">Rüzgar ve ani esintiler</string>
     <string name="weather_adv_snow_now">Kar yağıyor, tutuş yok.</string>
     <string name="weather_adv_snow_in">%1$s içinde kar bekleniyor.</string>
@@ -2540,8 +2507,6 @@
     <string name="trip_split_reason_wheel">Başka bir teker devraldı</string>
     <string name="trip_split_reason_gap">Kayıtta boşluk</string>
     <string name="trip_split_reason_stopped">Uzun süre durdu</string>
-    <string name="trip_tools_combine">Sürüşleri birleştir</string>
-    <string name="trip_tools_combine_desc">Diğer sürüşleri yeni bir sürüş olarak birleştirir, orijinaller kalır.</string>
     <string name="trip_tools_combine_none">Birleştirilecek başka tamamlanmış sürüş yok.</string>
     <string name="trip_tools_combine_mixed_wheels">Bunların bazıları başka bir tekerde yapıldı. Mesafe ve enerji birleştirilecek.</string>
     <string name="trip_tools_wheel_changed">Teker %1$s olarak ayarlandı</string>
@@ -2648,8 +2613,6 @@
     <string name="studio_video_fit">Sığdır</string>
     <string name="studio_video_fit_stretch">Uzat</string>
     <string name="studio_video_offset">Kaydırma</string>
-    <string name="studio_video_offset_value_fmt">%1$d ms</string>
-    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
     <string name="studio_video_set_offset">Geçerli</string>
     <string name="studio_video_no_media">Medya yok</string>
     <string name="studio_replay_cd_move">Paneli taşı</string>
@@ -2657,7 +2620,6 @@
     <string name="studio_video_edge_freeze">Dondur</string>
     <string name="studio_video_edge_loop">Döngü</string>
     <string name="studio_video_edge_black">Siyah</string>
-    <string name="wheel_no_data_reconnecting">Tekerden veri yok. Yeniden bağlanılıyor…</string>
     <string name="wheel_no_data_reset">Tekerden hâlâ veri yok. Kapatıp açmayı deneyin.</string>
     <string name="trip_map_ride_start">Sürüş başlangıcı: %1$s</string>
     <string name="trip_map_reconnected">Yeniden bağlandı: %1$s</string>
@@ -2675,7 +2637,6 @@
     <string name="trip_tools_rename">Sürüşü yeniden adlandır</string>
     <string name="trip_tools_rename_desc">Bu sürüşe bir ad verin. Dosyasında saklanır, böylece dışa aktarma ve eşitlemeyle birlikte taşınır.</string>
     <string name="trip_tools_rename_hint">Tarihi kullanmak için boş bırakın.</string>
-    <string name="trip_tools_renamed">Sürüş yeniden adlandırıldı</string>
     <string name="trip_tools_archived">Arşivlenen: %1$d</string>
     <string name="trip_tools_archive_failed">Bazı sürüşler arşivlenemedi ve hâlâ burada</string>
     <string name="recording_delete_archive">Yedekteki kopyaları arşivle</string>
@@ -2783,7 +2744,6 @@
     <string name="action_reset_metrics_wheel_done">Ölçümler sıfırlandı, tekerin mesafe sayacı temizlendi</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
     <string name="tpms_waiting">Veri bekleniyor</string>
-    <string name="status_live">Canlı</string>
     <string name="status_idle">Boşta</string>
     <string name="tpms_state_leaking">Hava kaçırıyor</string>
     <string name="tpms_state_inflating">Şişiriliyor</string>
@@ -2804,7 +2764,6 @@
     <string name="horn_mode_sound">Özel</string>
     <string name="horn_mode_both">Karma</string>
     <string name="horn_mode_hint">Özel, kendi sesinizi telefonda çalar. Karma, harici bir hoparlör için bu sesi tekerin kornasına ekler. Telefon çalamazsa tekerin kornası çalar.</string>
-    <string name="horn_sound_none">Ses seçilmedi</string>
     <string name="horn_sound_current">Ses: %1$s</string>
     <string name="horn_sound_choose">Ses seç</string>
     <string name="horn_sound_imported">Korna sesi kaydedildi</string>
@@ -2820,7 +2779,6 @@
     <string name="voice_stat_min">Min</string>
     <string name="voice_stat_avg">Ort</string>
     <string name="voice_stat_peak">Tepe</string>
-    <string name="crews_title">Ekipler</string>
     <string name="crews_pass_action">Ekip pası</string>
     <string name="crews_pass_search_hint">Ekip pası, çevrimiçi lider tablolarına katıldığınızda görünür.</string>
     <string name="crews_scan_hint">eucstats\'ı tarayıcıda açın, Crews\'a basın ve telefonu çıkan koda tutun.</string>
@@ -2926,7 +2884,6 @@
     <string name="nav_unlock_stops">Duraklar</string>
     <string name="nav_unlock_off">İzden en fazla %1$s sapar</string>
     <string name="nav_unlock_confirm">Dönüştür</string>
-    <string name="nav_track_badge">Kilitli iz</string>
     <string name="voice_nav_place_reached">Ulaşıldı: %1$s</string>
     <string name="offline_data_open">Çevrimdışı bölgeler</string>
     <string name="offline_server_url">Çevrimdışı veri sunucusu</string>

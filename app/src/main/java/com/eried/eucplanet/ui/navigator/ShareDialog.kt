@@ -129,19 +129,20 @@ import java.util.Locale
  * Everything behind the navigator's Share button.
  *
  * Not in a ride yet, the button opens a short list of what it can mean
- * ([ShareMenuDialog], built like the trip tools dialog): three of the four
- * things a rider wants from that icon are one tap of work (scan a friend's QR,
- * send a Maps pin, copy the coordinates) and only the fourth opens a group. A
- * dialog that asked "how do you want to appear?" before the rider had said
- * what they were doing put the identity question in front of all four.
+ * ([ShareMenuDialog], built like the trip tools dialog): four of the five
+ * things a rider wants from that icon are one tap of work (scan a code, show
+ * the route as a QR, send a Maps pin, copy the coordinates) and only one opens
+ * a group. A dialog that asked "how do you want to appear?" before the rider
+ * had said what they were doing put the identity question in front of all five.
  *
  * That list leads to [ShareScannerDialog] (the camera), then to
  * [ShareIdentityDialog] (how the group sees this rider), which is also where
  * "start a group ride" goes directly. Once in a ride the button opens
  * [ShareGroupDialog]: the QR to hand out on one tab, who is in on the other.
  *
- * Every dialog here keeps dismissOnClickOutside off, so a stray tap on the map
- * behind cannot drop a half-typed name or a room link the rider is reading.
+ * The scanner, identity and group dialogs keep dismissOnClickOutside off, so a
+ * stray tap on the map behind cannot drop a half-typed name or a room link the
+ * rider is reading.
  *
  * Controls are the app's canonical ones, not local copies: the identity picker
  * is [SegmentedChoice] (the 56 dp row with the notched label every settings
@@ -396,7 +397,7 @@ internal fun parseShareText(raw: String): ShareLink? {
 }
 
 /**
- * The Share button's window when the rider is not in a ride: four things the
+ * The Share button's window when the rider is not in a ride: five things the
  * icon can mean, each said in one line with the detail under it.
  *
  * Built exactly like the trip tools dialog (same [ToolRow] rows, same 12 dp
@@ -512,15 +513,6 @@ fun ShareMenuDialog(
     )
 }
 
-/**
- * The camera, as its own window.
- *
- * It used to be a tab of the start dialog, which meant the camera came up
- * whenever the rider was only trying to start a ride of their own. Behind its
- * own menu item it is opened by a rider who is holding a phone up at a
- * friend's screen and nothing else, so it is the whole window: a live square
- * and one way out.
- */
 /** What the one scanner can find. */
 sealed class ScannedCode {
     data class Join(val link: ShareLink) : ScannedCode()
@@ -531,6 +523,10 @@ internal fun parseScannedCode(raw: String): ScannedCode? =
     com.eried.eucplanet.nav.RouteLinks.parse(raw.trim())?.let { ScannedCode.Route(it) }
         ?: parseShareText(raw)?.let { ScannedCode.Join(it) }
 
+/**
+ * The camera, as its own window: a live square and one way out. It reads a
+ * group ride to join or a route to open.
+ */
 @Composable
 fun ShareScannerDialog(
     onLink: (ShareLink) -> Unit,
@@ -977,9 +973,8 @@ enum class GroupTab { QR, CONNECTED }
  *
  * They were one long column, which meant the riders sat under a full-width QR
  * and were reached by scrolling past it every single time. Tabs put the two
- * jobs side by side, and the selected one is remembered only while the dialog
- * is open: reopening lands on the QR again, because a rider who reopens this
- * mid-ride is usually showing it to someone.
+ * jobs side by side, and the selected one is kept for the app run (see
+ * [initialTab]).
  */
 @Composable
 fun ShareGroupDialog(

@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
  * fire a snackbar without prop-drilling the host through every layer.
  *
  * The screen's root provides both locals, the snackbar host lives inside the
- * Scaffold's `snackbarHost` slot, and consumers call [showSnackbarOrToast] to
+ * Scaffold's `snackbarHost` slot, and consumers call [showSnackbar] to
  * post a message. Following the project convention every user-facing transient
  * uses a Material 3 Snackbar rather than the native Android Toast (which sits
  * behind the soft keyboard and doesn't match the rest of the UI).
@@ -21,8 +21,7 @@ val LocalSnackbarScope = staticCompositionLocalOf<CoroutineScope?> { null }
 
 /**
  * Fire a snackbar via [LocalSnackbar] when both locals are provided. No-op if
- * the screen forgot to provide them (so a missing provider can't crash a
- * release build); in debug we surface the gap via a Logcat warning.
+ * the screen forgot to provide them, so a missing provider can't crash.
  */
 fun showSnackbar(
     host: SnackbarHostState?,

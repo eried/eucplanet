@@ -64,7 +64,7 @@ object InMotionV2ParserV12 {
         val motorPower = ByteUtils.getInt16LE(data, 12)
         val pitchAngle = ByteUtils.getInt16LE(data, 16) / 100f
         val rollAngle = ByteUtils.getInt16LE(data, 20) / 100f
-        // Mileage stored in units of 100m → convert to km
+        // Mileage in units of 0.01 km
         val tripDistanceKm = ByteUtils.getUint16LE(data, 22) / 100f
         // V12 reports a single battery level (0..10000 → 0..100%)
         val batteryLevel = ByteUtils.getUint16LE(data, 24) / 100f
@@ -146,7 +146,6 @@ object InMotionV2ParserV12 {
         val pedalsAdjust = ByteUtils.getInt16LE(data, 15) / 10f
         val standbyDelaySec = ByteUtils.getUint16LE(data, 17)
 
-        val classicMode = (data[19].toInt() and 0x01) != 0
         val fancierMode = ((data[19].toInt() shr 4) and 0x01) != 0
 
         val byte39 = data[39].toInt() and 0xFF

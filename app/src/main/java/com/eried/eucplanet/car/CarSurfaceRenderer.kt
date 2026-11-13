@@ -26,8 +26,8 @@ import androidx.savedstate.setViewTreeSavedStateRegistryOwner
  * Android Auto hands a navigation app a bare Surface. The usual way to put
  * real views on it, and the one map SDKs use for their car extensions, is a
  * private virtual display on that surface with a Presentation showing the
- * views. That lets the car screen reuse the same WebView map and the same
- * Compose stat boxes, colored from the same theme tokens, as the phone.
+ * views. That lets the car screen draw Compose content colored from the same
+ * theme tokens as the phone.
  *
  * [visibleArea] is the part Android Auto leaves uncovered by its own chrome
  * (action strip, turn card); the content keeps its stats inside it.

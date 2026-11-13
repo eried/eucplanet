@@ -5,7 +5,6 @@
     <string name="notification_channel_description">显示独轮车的连接状态和实时数据。</string>
 
     <!-- Notification quick actions -->
-    <string name="notif_actions_section">自定义</string>
     <string name="notif_actions_enable">显示通知操作</string>
     <string name="notif_actions_enable_desc">在进行中的通知上添加快捷操作按钮。</string>
     <string name="notif_actions_pick_desc">最多选择 %1$d 个操作。同一操作可重复。</string>
@@ -38,9 +37,6 @@
     <string name="state_off">关</string>
     <string name="action_done">完成</string>
     <string name="action_close">关闭</string>
-<string name="crash_log_action_prompt">你长按了 %1$s。可删除此日志或全部删除。如需分享，请点按“取消”后再点按该文件。</string>
-    <string name="crash_log_delete_all">全部删除</string>
-    <string name="crash_log_delete_all_warning">删除所有已保存的崩溃日志吗？此操作无法撤销。</string>
     <string name="action_save">保存</string>
     <string name="action_delete">删除</string>
     <string name="action_test">测试</string>
@@ -113,7 +109,6 @@
     <string name="hud_hotspot_on_hint">手机热点正在广播。将 HUD 连接到此手机的 WiFi 以启用连接。</string>
     <string name="hud_custom_overlay_none">无</string>
 
-    <string name="section_cloud_folder">备份文件夹</string>
     <string name="cloud_caption">用于存放行程、设置、主题和叠加层的备份文件夹。</string>
     <string name="cloud_choose_folder">选择文件夹</string>
     <string name="cloud_change_folder">更换文件夹</string>
@@ -134,7 +129,6 @@
     <string name="section_cloud_trips">行程备份</string>
     <string name="cloud_trips_caption">行程留在这台手机上，并自动同步到你的备份文件夹。清除只删除应用内的行程，不会动备份文件夹里的。</string>
     <string name="cloud_retry_now">全部同步</string>
-    <string name="cloud_retry_enqueued">已安排上传</string>
     <string name="cloud_uploaded_on">于 %1$s 备份</string>
     <string name="cloud_not_uploaded">尚未备份</string>
     <string name="cloud_restore_confirm_title">恢复设置</string>
@@ -172,10 +166,7 @@
 
     <string name="section_recording">行程记录</string>
     <string name="section_connection">连接</string>
-    <string name="section_display">显示</string>
-    <string name="auto_record_on_start">启动时自动记录</string>
     <string name="auto_record_caption">连接独轮车后自动开始记录行程。</string>
-    <string name="auto_record_start_in_motion">开始移动时记录</string>
     <string name="auto_record_start_in_motion_caption">开始移动时记录，静止一段时间后自动停止，下次骑行时重新开始。</string>
     <string name="auto_record_stop_idle_seconds">空闲多久后停止</string>
     <string name="auto_connect_on_start">启动时自动连接</string>
@@ -482,12 +473,10 @@
     <string name="auto_lights_when">按日出日落开关灯</string>
     <string name="auto_lights_off_slow">减速时关闭大灯</string>
     <string name="auto_lights_off_below">低于此速度关闭</string>
-    <string name="auto_lights_desc">根据日出日落自动开关大灯。</string>
     <string name="auto_lights_on_before_sunset">提前开灯</string>
     <string name="auto_lights_off_after_sunrise">延后关灯</string>
     <string name="auto_waiting_gps">等待 GPS 定位\u2026</string>
     <string name="auto_volume_title">音量控制</string>
-    <string name="auto_volume_desc">根据速度提高音乐音量。</string>
     <string name="auto_volume_when">提高音量的时机</string>
     <string name="media_rate_when">调整播放速度的时机</string>
     <string name="media_rate_permission_desc">Android 会单独请求该权限。没有它就无法更改播放速度。</string>
@@ -497,14 +486,12 @@
     <string name="media_rate_grant">授予</string>
     <string name="warnings_media_access_title">通知访问已关闭</string>
     <string name="warnings_media_access_body">没有此权限，播放速度无法随骑行速度变化。点按即可允许。</string>
-    <string name="media_control_desc">减速时暂停音乐，加速时恢复播放。</string>
     <string name="media_control_pause">减速时暂停</string>
     <string name="media_control_pause_below">在此速度或以下暂停</string>
     <string name="media_control_resume">加速时恢复</string>
     <string name="media_control_resume_above">在此速度或以上恢复</string>
     <string name="automation_require_external">仅限耳机或蓝牙</string>
     <string name="proximity_lock_title">独轮车锁定</string>
-    <string name="proximity_lock_desc">借助蓝牙信号强度，在你走远时锁定独轮车，回来时自动解锁。</string>
     <string name="proximity_lock_enable">走远时锁定</string>
     <string name="proximity_lock_below">信号低于</string>
     <string name="proximity_unlock_when">自动解锁</string>
@@ -601,10 +588,8 @@
     <string name="alarm_repeat_help_many_instant">在 %1$s 期间，每次读数都重新报警。</string>
     <string name="alarm_predict_help_now">在 %1$s 的瞬间立即报警。</string>
     <string name="alarm_predict_help_lead">根据近期趋势，在 %2$s 前约 %1$s 秒报警。</string>
-
-    <string name="about_crash_logs">崩溃日志</string>
-    <string name="about_crash_logs_empty">没有崩溃记录</string>
     <string name="about_share_crash">分享崩溃日志</string>
+
     <string name="about_thanks">致谢</string>
     <string name="about_thanks_body">我厌倦了那些更新缓慢、界面陈旧、对新功能管控严苛、把社区当客户、忘记了 EUC 骑友互相帮助才最棒的应用。这一款想做相反的事。</string>
     <string name="action_reorder">拖动以重新排序</string>
@@ -738,12 +723,10 @@
     <string name="engine_preset_sampled_diesel_iveco">柴油卡车</string>
     <string name="engine_preset_sampled_motorcycle">小型越野摩托</string>
     <string name="engine_preset_sampled_city_car">城市轿车</string>
-    <string name="engine_preset_sampled_helicopter">直升机</string>
     <string name="engine_preset_sampled_tractor">拖拉机</string>
     <string name="engine_preset_sampled_lawnmower">割草机</string>
     <string name="engine_preset_sampled_steam_loco">蒸汽机车</string>
     <string name="engine_preset_sampled_big_diesel">大型柴油</string>
-    <string name="engine_preset_sampled_car_cruise">汽车巡航</string>
     <string name="engine_preset_sampled_broken_exhaust">破损排气</string>
     <string name="engine_preset_sampled_quad_atv">四轮越野车</string>
 
@@ -845,8 +828,6 @@
     <string name="share_alone">这里还没有其他人。</string>
     <string name="share_open">打开</string>
     <string name="share_copy">复制</string>
-    <string name="share_menu_join">加入组队骑行</string>
-    <string name="share_menu_join_desc">扫描二维码。</string>
     <string name="share_menu_live">共享实时位置</string>
     <string name="share_menu_live_desc">发起组队骑行。</string>
     <string name="share_menu_static">发送当前位置</string>
@@ -922,7 +903,6 @@
     <string name="nav_self_add_stop">添加为途经点</string>
     <string name="nav_setting_arrival_radius">到达半径</string>
     <string name="nav_setting_arrival_radius_desc">距离多近算作抵达某个途经点。</string>
-    <string name="nav_setting_default_mode">默认出行方式</string>
     <string name="nav_setting_endpoints">路线规划服务</string>
     <string name="nav_setting_endpoints_hint">默认使用免费公开的 OpenStreetMap 服务，也可改用自己的服务器。骑行路线和避让由 Valhalla 计算，步行和驾车由 OSRM 计算。</string>
     <string name="nav_setting_geocoder_url">地址搜索 URL</string>
@@ -948,7 +928,6 @@
     <string name="weather_enable_desc">在地图按钮上方添加天气图标，点按即可查看骑行天气预报。</string>
     <string name="weather_window_label">预报窗口</string>
     <string name="weather_source_label">预报来源</string>
-    <string name="weather_comfort_desc">用于计算评分的舒适阈值。温度使用你设置的温度单位，风速使用你的速度单位。</string>
     <string name="weather_cold">低于此值太冷</string>
     <string name="weather_hot">高于此值太热</string>
     <string name="weather_breezy">高于此值有风</string>
@@ -975,7 +954,6 @@
     <string name="weather_lvl_prime_2">绝佳漂浮日！</string>
     <string name="weather_expand">详情</string>
     <string name="weather_chart_temp">气温、湿度与降水</string>
-    <string name="weather_chart_precip">降水</string>
     <string name="weather_chart_wind">风与阵风</string>
     <string name="weather_adv_snow_now">正在下雪，抓地力全无。</string>
     <string name="weather_adv_snow_in">约%1$s后有雪。</string>
@@ -1019,7 +997,6 @@
     <string name="nav_start_short">开始导航</string>
     <string name="nav_stop_short">停止导航</string>
     <string name="nav_stops_left">还剩 %1$d 个途经点</string>
-    <string name="nav_tap_on_self">在途经点列表中，长按某个途经点即可将其设为你的位置</string>
     <string name="nav_title">路线编辑器</string>
     <string name="nav_too_far_to_start">离第一站太远。长按“开始”可强制开始。</string>
     <string name="nav_turn_left">左转</string>
@@ -1191,7 +1168,6 @@
     <string name="trip_meter_tab_speed">速度</string>
     <string name="trip_meter_tab_battery">电量</string>
     <string name="trip_meter_tab_time">时间</string>
-    <string name="trip_meter_total">总计</string>
     <string name="trip_meter_active">骑行</string>
     <string name="trip_meter_avg">平均</string>
     <string name="trip_meter_reset">重置行程里程表</string>
@@ -1268,9 +1244,6 @@
     <string name="studio_element_map">地图</string>
     <string name="studio_hint_map">带轨迹的实时小地图</string>
     <string name="studio_cfg_map_style">地图样式</string>
-    <string name="studio_cfg_map_street">街道</string>
-    <string name="studio_cfg_map_dark">深色</string>
-    <string name="studio_cfg_map_satellite">卫星</string>
     <string name="studio_cfg_map_zoom">缩放</string>
     <string name="studio_cfg_map_attribution">显示地图署名</string>
     <string name="studio_cfg_map_attribution_off">地图许可要求你分享的内容都带上这个署名。关掉与否由你决定。</string>
@@ -1490,7 +1463,6 @@
     <string name="voice_answer_mic_busy">其他应用正在使用麦克风。</string>
     <string name="voice_answer_which">你是指%1$s还是%2$s？</string>
     <string name="dashboard_close">关闭</string>
-    <string name="dashboard_columns">列</string>
     <string name="dashboard_composite_blank_label">（空）</string>
     <string name="dashboard_composite_cell_label">单元 %1$d</string>
     <string name="dashboard_composite_empty_label">（空白）</string>
@@ -1520,7 +1492,6 @@
     <string name="dashboard_pool_metrics">可用指标</string>
     <string name="dashboard_pool_tap_toast">长按并拖到上方的槽位以使用</string>
     <string name="dashboard_restore_slot">恢复槽位</string>
-    <string name="dashboard_rolling_window">滚动统计窗口</string>
     <string name="dashboard_rolling_window_10m">10 分钟</string>
     <string name="dashboard_rolling_window_15m">15 分钟</string>
     <string name="dashboard_rolling_window_1h">1 小时</string>
@@ -1862,11 +1833,8 @@
     <string name="online_upload_total_km">%1$s %2$s</string>
     <string name="online_upload_join">加入排行榜</string>
     <string name="online_status_shared">已分享到排行榜</string>
-    <string name="online_status_flagged">已分享，审核中</string>
     <string name="online_status_pending">正在上传到排行榜…</string>
     <string name="online_status_failed">上传失败，点按重试</string>
-    <string name="online_status_checking">正在与排行榜核对…</string>
-    <string name="online_status_check_failed">暂时无法核对，请稍后再试</string>
     <string name="online_status_rejected">未被排行榜接受</string>
     <string name="online_upload_join_caption">加入后，你的统计数据和行程会发送到公开排行榜。</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
@@ -1888,7 +1856,6 @@
     <string name="online_profile_save_rate_limited">操作过于频繁，请稍后再试。</string>
     <string name="online_profile_save_failed">保存失败（HTTP %1$d），请重试。</string>
 
-    <string name="online_status_flagged_why">正在进行自动审核，通过后即加入排行榜。</string>
     <string name="online_restore_title">找到已保存的资料</string>
     <string name="online_restore_body_new">在这里找到一份已保存的资料：%1$s。继续后将以该骑手身份重新加入公开排行榜，其名称、旗帜、头像和骑行数据均会公开。不会创建新资料。</string>
     <string name="online_restore_body_switch">找到另一份已保存的资料：%1$s。继续后本机将切换为该骑手；当前资料会先备份。</string>
@@ -2409,8 +2376,6 @@
     <string name="trip_split_reason_wheel">换成了另一台独轮车</string>
     <string name="trip_split_reason_gap">记录中断</string>
     <string name="trip_split_reason_stopped">长时间停留</string>
-    <string name="trip_tools_combine">合并行程</string>
-    <string name="trip_tools_combine_desc">将其他行程合并为一个新行程，保留原有行程。</string>
     <string name="trip_tools_combine_none">没有其他已完成的行程可合并。</string>
     <string name="trip_tools_combine_mixed_wheels">其中部分行程使用的是另一台独轮车。距离和能耗将合并计算。</string>
     <string name="trip_tools_wheel_changed">独轮车已设为 %1$s</string>
@@ -2517,8 +2482,6 @@
     <string name="studio_video_fit">适配</string>
     <string name="studio_video_fit_stretch">拉伸</string>
     <string name="studio_video_offset">偏移</string>
-    <string name="studio_video_offset_value_fmt">%1$d ms</string>
-    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
     <string name="studio_video_set_offset">当前</string>
     <string name="studio_video_no_media">无媒体</string>
     <string name="studio_replay_cd_move">移动面板</string>
@@ -2526,7 +2489,6 @@
     <string name="studio_video_edge_freeze">冻结</string>
     <string name="studio_video_edge_loop">循环</string>
     <string name="studio_video_edge_black">黑色</string>
-    <string name="wheel_no_data_reconnecting">没有来自独轮车的数据。正在重新连接…</string>
     <string name="wheel_no_data_reset">仍然没有来自独轮车的数据。请尝试将其关闭再打开。</string>
     <string name="trip_map_ride_start">骑行开始：%1$s</string>
     <string name="trip_map_reconnected">已重新连接：%1$s</string>
@@ -2544,7 +2506,6 @@
     <string name="trip_tools_rename">重命名行程</string>
     <string name="trip_tools_rename_desc">给这次骑行起个名字。保存在它的文件里，所以会随导出和同步一起走。</string>
     <string name="trip_tools_rename_hint">留空则使用日期。</string>
-    <string name="trip_tools_renamed">行程已重命名</string>
     <string name="trip_tools_archived">已归档 %1$d 个</string>
     <string name="trip_tools_archive_failed">有些行程无法归档，仍然留在这里</string>
     <string name="recording_delete_archive">归档备份里的副本</string>
@@ -2652,7 +2613,6 @@
     <string name="action_reset_metrics_wheel_done">数据已重置，独轮车里程已清零</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
     <string name="tpms_waiting">等待数据</string>
-    <string name="status_live">实时</string>
     <string name="status_idle">空闲</string>
     <string name="tpms_state_leaking">漏气</string>
     <string name="tpms_state_inflating">充气中</string>
@@ -2673,7 +2633,6 @@
     <string name="horn_mode_sound">自定义</string>
     <string name="horn_mode_both">混合</string>
     <string name="horn_mode_hint">自定义会在手机播放你的声音。混合会在独轮车喇叭之外混合播放，适合外接音箱。手机无法播放时，改由独轮车喇叭发声。</string>
-    <string name="horn_sound_none">未选择声音</string>
     <string name="horn_sound_current">音效：%1$s</string>
     <string name="horn_sound_choose">选择声音</string>
     <string name="horn_sound_imported">已保存喇叭声音</string>
@@ -2689,7 +2648,6 @@
     <string name="voice_stat_min">最小</string>
     <string name="voice_stat_avg">平均</string>
     <string name="voice_stat_peak">峰值</string>
-    <string name="crews_title">战队</string>
     <string name="crews_pass_action">战队通行证</string>
     <string name="crews_pass_search_hint">加入在线排行榜后就会显示战队通行证。</string>
     <string name="crews_scan_hint">在浏览器中打开 eucstats，点按 Crews，然后用它对准页面上显示的码。</string>
@@ -2794,7 +2752,6 @@
     <string name="nav_unlock_stops">途经点</string>
     <string name="nav_unlock_off">最多偏离轨迹 %1$s</string>
     <string name="nav_unlock_confirm">转换</string>
-    <string name="nav_track_badge">已锁定的轨迹</string>
     <string name="voice_nav_place_reached">已到达 %1$s</string>
     <string name="offline_data_open">离线区域</string>
     <string name="offline_server_url">离线数据服务器</string>

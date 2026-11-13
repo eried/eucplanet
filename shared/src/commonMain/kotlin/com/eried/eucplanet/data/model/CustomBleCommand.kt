@@ -17,7 +17,7 @@ import com.eried.eucplanet.platform.format
  *
  * Frames are sent verbatim (one BLE write each, in order), the user pastes
  * complete frames, typically copied from a btsnoop, so any required CRC is
- * already baked in. See docs/superpowers/specs/2026-06-01-custom-ble-action-design.md.
+ * already baked in.
  */
 data class CustomBleCommand(
     val id: String,
@@ -29,7 +29,7 @@ data class CustomBleCommand(
     /** At least one non-empty frame to send. A command with none is a no-op. */
     val isSendable: Boolean get() = frames.any { it.isNotEmpty() }
 
-    // Explicit equals/hashCode because [frames] is a List<ByteArray] (reference
+    // Explicit equals/hashCode because [frames] is a List<ByteArray> (reference
     // equality by default). Mirrors VeteranParser.Frame.
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -37,10 +37,9 @@ data class MetricHistory(
     val voltage: List<Float> = emptyList(),
     val current: List<Float> = emptyList(),
     val load: List<Float> = emptyList(),
-    val speed: List<Float> = emptyList(),
     /**
      * Sparkline / stat window for every non-legacy catalog metric, keyed by
-     * metric key (MOTOR_POWER, GPS_SPEED, MOTOR_TEMP, ...). Mirrors the six
+     * metric key (MOTOR_POWER, GPS_SPEED, MOTOR_TEMP, ...). Mirrors the
      * typed lists above but data-driven off [FullMetricHistory.extras], so the
      * dashboard's corner stats and sparklines work for any supportsStats tile,
      * not just the legacy six. Values are raw (WheelData canonical units); the
@@ -184,9 +183,6 @@ class DashboardViewModel(
             }
         }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    /** Fetch if stale (or [force]); needs a location fix of any age - the
-     *  forecast cell is kilometres wide, so a stale fix is still the right
-     *  weather. No fix at all leaves the flyout to say so. */
     /** Whether to ask for 15-minute steps: only worth it on a short window,
      *  where hourly dots leave the curve looking blocky, and only out to
      *  where the providers publish them. */
@@ -195,6 +191,9 @@ class DashboardViewModel(
     /** The forecast waiting for a first location fix; see [refreshWeather]. */
     private var locationWait: kotlinx.coroutines.Job? = null
 
+    /** Fetch if stale (or [force]); needs a location fix of any age - the
+     *  forecast cell is kilometres wide, so a stale fix is still the right
+     *  weather. No fix at all leaves the flyout to say so. */
     fun refreshWeather(force: Boolean = false) {
         // No location, nothing to ask about. Returning quietly left the panel
         // reading "Fetching..." forever with nothing in flight, which is the
@@ -325,8 +324,6 @@ class DashboardViewModel(
 
     val locked: StateFlow<Boolean> = wheelRepository.locked
     val lockBusy: StateFlow<Boolean> = wheelRepository.lockBusy
-    // Proximity auto-lock automation on? Long-pressing the dashboard lock button
-    // toggles it - a quick shortcut without opening Settings.
     init {
         // Trips whose file differs between phone and backup folder; only the
         // rider can pick a side, in the sync conflict dialog. Set by the
@@ -413,6 +410,8 @@ class DashboardViewModel(
         }
     }
 
+    // Proximity auto-lock automation on? Long-pressing the dashboard lock button
+    // toggles it - a quick shortcut without opening Settings.
     val autoLockEnabled: StateFlow<Boolean> = settingsRepository.settings
         .map { it.proximityLock.lockEnabled }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), initialSettings.proximityLock.lockEnabled)
@@ -466,8 +465,8 @@ class DashboardViewModel(
      *
      * Emits a `Pair<speedKmh, sourceKey>` where sourceKey is "EXTERNAL" or
      * "PHONE" so the dashboard can pick the colour. Null when nothing to show.
-     * The speedometer renders a small accent-coloured marker on the dial and a
-     * numeric readout under the main speed when this is non-null.
+     * The speedometer renders a small accent-coloured marker on the dial when
+     * this is non-null.
      */
     val gpsExtraSpeed: StateFlow<Pair<Float, String>?> = kotlinx.coroutines.flow.combine(
         settingsRepository.settings,
@@ -487,11 +486,6 @@ class DashboardViewModel(
             else -> null
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
-
-    /** Convenience: just the speed part of [gpsExtraSpeed] for legacy callers. */
-    val externalGpsSpeedKmh: StateFlow<Float?> = gpsExtraSpeed
-        .map { it?.first }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     /** External GPS box battery percent [0..100] for the optional dashboard
      *  tile, freshness-gated to 5 s so a dropped box doesn't leave a stale
@@ -528,6 +522,7 @@ class DashboardViewModel(
 
     private fun hasLocationPermission(): Boolean = platform.hasLocationPermission()
 
+    /** Re-reads the location grant. The iPhone calls it when CoreLocation reports a change. */
     fun refreshLocationPermission() {
         _locationPermissionGranted.value = hasLocationPermission()
     }
@@ -940,8 +935,6 @@ class DashboardViewModel(
         viewModelScope.launch { syncManager.restoreFactoryDefaults() }
     }
 
-    /** Whether a trip sync is running (disables the dev wizard's Sync button while
-     *  it works). */
     /**
      * A sync is happening, whether or not it is the one on screen.
      *
@@ -1001,12 +994,6 @@ class DashboardViewModel(
         }
     }
 
-    /**
-     * Send the family-specific "reset onboard trip meter" command to the
-     * wheel. Returns true on Veteran (CLEARMETER); false on every other
-     * family until a documented reset command is added. Callers should
-     * snackbar the result so riders know whether the tap took effect.
-     */
     /** Clears the trip meter and the metric history, and the wheel's own trip
      *  odometer where the family supports it. See [MetricsReset]. */
     suspend fun resetMetrics(): MetricsResetResult =
@@ -1023,7 +1010,6 @@ class DashboardViewModel(
                 voltage = full.voltage.takeLast(SPARKLINE_SIZE).map { it.value },
                 current = full.current.takeLast(SPARKLINE_SIZE).map { it.value },
                 load = full.load.takeLast(SPARKLINE_SIZE).map { it.value },
-                speed = full.speed.takeLast(SPARKLINE_SIZE).map { it.value },
                 // Same window as the legacy six, applied per extras buffer so
                 // every catalog metric's corner stats / sparkline resolve.
                 extras = full.extras.mapValues { (_, list) ->

@@ -24,7 +24,6 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.RadioButton
 import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -710,9 +709,6 @@ fun TripDetailScreen(
             val tripDistance = com.eried.eucplanet.util.Units.distance(distanceKm, distanceUnit)
             val maxTemp = com.eried.eucplanet.util.Units.temperature(maxTempRaw, tempUnit)
 
-            // Shared scrub index: scrubbing any chart moves the map marker and the
-            // cursor on every other chart to the same sample.
-
             val gpsPoints = remember(dataPoints) {
                 dataPoints.filter { it.latitude != 0.0 && it.longitude != 0.0 }
             }
@@ -735,7 +731,7 @@ fun TripDetailScreen(
             }
             // Extra-column events: shown in the Extra details section, and the
             // wheel identity blocks drive the map (start popup, a colour switch +
-            // purple circle at a real wheel change, a small dot at a same-wheel
+            // purple square at a real wheel change, a small grey one at a same-wheel
             // reconnect).
             val extraEvents = remember(dataPoints) { extractExtraEvents(dataPoints) }
             val wheelStarts = remember(extraEvents) { extraEvents.filter { it.isWheelStart } }
@@ -766,7 +762,7 @@ fun TripDetailScreen(
             }
             // Every identity block after the ride start becomes a map marker:
             // isChange drives whether it also switches the trace colour (a real
-            // wheel swap = "New wheel") or is just a reconnect dot on the
+            // wheel swap = "New wheel") or is just a reconnect square on the
             // unbroken trace (= "Reconnected").
             val wheelSwitches = remember(wheelStarts, dataPoints, text) {
                 wheelStarts.drop(1).filter { it.lat != 0.0 && it.lon != 0.0 }.map { e ->
@@ -803,7 +799,7 @@ fun TripDetailScreen(
                         WheelSwitchMarker(0, e.lat, e.lon, "${e.time} - $label", e.isWheelChange)
                     }
             }
-            val isLive by viewModel.isTripLiveRecording(trip).collectAsState(initial = false)
+            val isLive = isLiveTrip
             val liveLocation by viewModel.liveLocation.collectAsState()
             val hasMap = gpsPoints.size >= 2 || (isLive && liveLocation != null)
             // The trace baked into the map. While this trip is still recording,
@@ -831,9 +827,8 @@ fun TripDetailScreen(
             // Tooltip for that dot: the wall-clock time of the sample and how far
             // into the ride it is. The dot alone says where, not when, which is
             // the question being asked when a rider drags a chart cursor and
-            // watches the map. Elapsed is computed from the two timestamps rather
-            // than from elapsedMs, which only exists while the trim UI is open,
-            // and the parser is resolved once per section instead of per drag.
+            // watches the map. Elapsed is computed from the two timestamps, with
+            // the parser resolved once per section instead of per drag.
             val scrubParse = remember(dataPoints) {
                 dataPoints.firstNotNullOfOrNull { TripCsv.parserFor(it.date) }
             }
@@ -960,8 +955,6 @@ fun TripDetailScreen(
                 "ms" -> GraphScale.SPAN_SPEED_MS
                 else -> GraphScale.SPAN_SPEED_KMH
             }
-            val speedPeakRaw = dataPoints.map { it.speed }.maxOrNull() ?: 0f
-            val speedPeak = com.eried.eucplanet.util.Units.speed(speedPeakRaw, speedUnit)
             // The speed chart's axis cap and peak badge, over the WHOLE ride.
             // The Top Speed tile follows the trim, which is the point of
             // trimming; the chart's vertical scale does not, or zooming into a
@@ -988,7 +981,8 @@ fun TripDetailScreen(
             val tempMinSpan = if (tempUnit == "F") GraphScale.SPAN_TEMPERATURE_F
                 else GraphScale.SPAN_TEMPERATURE_C
 
-            // Route map, reused inline (portrait) and permanent-left (landscape).
+            // Route map, reused inline (portrait) and docked on the rider's chosen
+            // side (landscape).
             val routeMap: @Composable (Modifier) -> Unit = { mod ->
                 RouteMapView(
                     points = mapPoints,
@@ -1033,13 +1027,12 @@ fun TripDetailScreen(
                     val aRaw = aTileNumbers[key] ?: return "--"
                     b - compareTileDisplay(key, aRaw, speedUnit, distanceUnit, tempUnit)
                 } else b
-                return formatCompareTile(key, shown, compareDeltas, speedUnit, distanceUnit, tempUnit,
+                return formatCompareTile(key, shown, compareDeltas, distanceUnit,
                     speedUnitLabel, distanceUnitLabel, tempUnitLabel)
             }
 
-            // Stat tiles, as a keyed list so the customizer can hide any of them.
-            // Each tile keeps the exact SummaryCard content and colors it had
-            // before. Order matches the original 4 rows of 3.
+            // Stat tiles, as a keyed list so the customizer can hide or reorder
+            // them. Order here must equal TILE_KEYS_DEFAULT.
             val allTiles: List<Pair<String, @Composable RowScope.() -> Unit>> = listOf(
                 "distance" to { SummaryCard(stringResource(Res.string.recording_summary_distance), "%.1f %s".format(tripDistance, distanceUnitLabel), MaterialTheme.appColors.metricVoltage, Modifier.weight(1f), secondary = cmpTile("distance")) },
                 "duration" to { SummaryCard(stringResource(Res.string.recording_summary_duration), com.eried.eucplanet.util.Units.humanDuration(duration), MaterialTheme.appColors.metricVoltage, Modifier.weight(1f), secondary = cmpTile("duration")) },
@@ -1263,10 +1256,8 @@ fun TripDetailScreen(
                 visibleTiles.chunked(3).forEachIndexed { rowIndex, rowTiles ->
                     if (rowIndex > 0) Spacer(Modifier.height(8.dp))
                     // Row height comes from its tallest tile, and every tile
-                    // fills it (see SummaryCard): cards in one row are always
-                    // level, and since each card reserves its two-line label
-                    // space, toggling tiles in the customizer cannot nudge row
-                    // heights as a wrapped label moves between rows.
+                    // fills it (see SummaryCard), so cards in one row are
+                    // always level.
                     Row(
                         Modifier.fillMaxWidth().height(androidx.compose.foundation.layout.IntrinsicSize.Min),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -1496,9 +1487,7 @@ fun TripDetailScreen(
                 }
             }
 
-            // Effective chart order via the same shared helper (see applyOrder):
-            // covers all six keys so the customizer list is stable even for a trip
-            // that has no current / pwm data.
+            // Effective chart order via the same shared helper (see applyOrder).
             // Every graph is listed, so the customizer shows the smoothed ones
             // sitting under the series they smooth. Whether each is switched on
             // is a separate question, answered by hiddenCharts / extraCharts.
@@ -2000,9 +1989,9 @@ private fun TripDetailsSection(events: List<TripExtraEvent>) {
                 }
                 // The first wheel identity is the ride start (green, matching the
                 // map's green start marker). A genuinely different wheel later is
-                // a change (purple, matching its purple map circle). The same
+                // a change (purple, matching its purple map square). The same
                 // wheel simply reconnecting is muted - it is not a wheel change,
-                // it only gets a dot on the map.
+                // it only gets a small grey square on the map.
                 var firstWheelSeen = false
                 events.forEach { e ->
                     val isFirstWheel = e.isWheelStart && !firstWheelSeen
@@ -2053,15 +2042,6 @@ internal val CHART_KEYS_DEFAULT = listOf(
     "altitude",
 )
 
-/**
- * The graphs that start switched OFF.
- *
- * They need a separate settings key from the rest, because the hidden-charts CSV
- * records only what was HIDDEN: a key absent from it shows, so listing new keys
- * there would have made six graphs appear unannounced for every rider on
- * upgrade. The rider sees one list either way, the difference is only which
- * store the switch writes to.
- */
 /** How long a trip may take to load before the skeleton is shown. */
 private const val SKELETON_REVEAL_MS = 120L
 // While the open trip is the one still recording, re-read its (still-open) CSV
@@ -2090,13 +2070,21 @@ private val TILE_KEYS_DEFAULT = listOf(
  * [EXTRA_CHART_KEYS]: the tripHiddenTiles store records only what was HIDDEN, so
  * it can't express "new and off until asked for". These live in the inverted
  * tripExtraTiles store instead. `batteryRange` is the combined-trip-friendly
- * start->end readout; `energy` / `consumption` were previously defined but never
- * wired into the default order, so this also makes them reachable at last.
+ * start->end readout.
  */
 private val EXTRA_TILE_KEYS = setOf(
     "batteryRange", "energy", "consumption", "maxTorque", "maxPhaseCurrent",
 )
 
+/**
+ * The graphs that start switched OFF.
+ *
+ * They need a separate settings key from the rest, because the hidden-charts CSV
+ * records only what was HIDDEN: a key absent from it shows, so listing new keys
+ * there would have made every new graph appear unannounced for every rider on
+ * upgrade. The rider sees one list either way, the difference is only which
+ * store the switch writes to.
+ */
 private val EXTRA_CHART_KEYS = setOf(
     "speedSmooth", "batterySmooth", "currentSmooth", "pwmSmooth", "power", "altitude",
     "torque", "phaseCurrent", "batteryEnvelope",
@@ -2177,7 +2165,8 @@ fun ChartCard(
     peak: Float? = null,
     // Shared scrub cursor: [scrubIndex] is the sample index highlighted across
     // every chart and the map; [onScrub] reports this chart's own scrub position
-    // (or null on release) so the other charts and the map marker follow along.
+    // so the other charts and the map marker follow along. The screen's timer
+    // clears it after release.
     scrubIndex: Int? = null,
     onScrub: ((Int?) -> Unit)? = null,
     // Shared zoom window (fractions of the ride) and its updater. Two-finger
@@ -2198,8 +2187,7 @@ fun ChartCard(
     if (values.isEmpty()) return
 
     // Zoom windowing: shadow the inputs with the visible slice, so the whole
-    // body below (bounds, drawing, scrub) simply works on what is on screen.
-    // The y-axis re-fits the slice, which is what makes zooming useful.
+    // body below (drawing, scrub) simply works on what is on screen.
     // Indices crossing the boundary are mapped back to the full-ride domain,
     // so the map marker and the other charts keep meaning the same moment.
     val fullValues = values
@@ -2927,7 +2915,7 @@ private fun rememberChartSeries(
 /**
  * Placeholder shown while a trip's CSV is being read.
  *
- * Mirrors the real layout, a map above stat tiles above chart cards, so the
+ * Mirrors the real portrait layout, stat tiles above a map above chart cards, so the
  * screen does not jump when the data lands. A slow shimmer travels across the
  * blocks to say "working", which a static grey layout does not.
  *
@@ -3130,9 +3118,7 @@ private fun formatCompareTile(
     key: String,
     raw: Float,
     signed: Boolean,
-    speedUnit: String,
     distanceUnit: String,
-    tempUnit: String,
     speedUnitLabel: String,
     distanceUnitLabel: String,
     tempUnitLabel: String,

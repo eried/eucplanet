@@ -152,8 +152,6 @@ fun StudioReplayDialog(
         // surfaceVariant title strip that doubles as the drag handle. A bounded
         // width (not full-width) leaves room to drag it sideways; the caller docks
         // it and clamps the drag so the whole card stays on screen.
-        // Width is supplied by the caller (adaptive: wide, but always leaving
-        // side room to drag). The caller also docks + screen-clamps it.
         modifier = modifier,
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
@@ -164,7 +162,8 @@ fun StudioReplayDialog(
         border = BorderStroke(1.dp, MaterialTheme.appColors.outline)
     ) {
         Column {
-            // 0 = transport, 1 = trip list, 2 = speed list. Inline pickers so
+            // 0 = transport, 1 = trip list, 2 = speed list, 3 = export format.
+            // Inline pickers so
             // they rotate with the panel instead of escaping as popups.
             var picker by remember { mutableStateOf(0) }
             var showTrimDialog by remember { mutableStateOf(false) }
@@ -542,8 +541,6 @@ private fun ExportFormatChooser(
             // Chroma + force-opaque only actually affect alpha-less formats (JPG /
             // MP4), but the rider already knows that -- keep the controls fully
             // enabled rather than greying them out.
-            val opaqueAffects = true
-            val ctrlAlpha = 1f
             Text(
                 stringResource(R.string.studio_export_scale),
                 style = MaterialTheme.typography.labelMedium,
@@ -564,13 +561,12 @@ private fun ExportFormatChooser(
             Text(
                 stringResource(R.string.studio_export_chroma),
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.appColors.textSecondary.copy(alpha = ctrlAlpha),
+                color = MaterialTheme.appColors.textSecondary,
                 modifier = Modifier.padding(bottom = 6.dp)
             )
             var showChromaPicker by remember { mutableStateOf(false) }
             Row(
                 Modifier
-                    .alpha(ctrlAlpha)
                     .horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
@@ -587,11 +583,7 @@ private fun ExportFormatChooser(
                                 else MaterialTheme.appColors.textSecondary.copy(alpha = 0.6f),
                                 shape = CircleShape
                             )
-                            .then(
-                                if (opaqueAffects)
-                                    Modifier.clickable { onChromaColor(argb) }
-                                else Modifier
-                            ),
+                            .clickable { onChromaColor(argb) },
                         contentAlignment = Alignment.Center
                     ) {
                         if (selected) {
@@ -612,7 +604,7 @@ private fun ExportFormatChooser(
                 CustomColorSwatch(
                     current = prefs.chromaColor,
                     isActive = chromaPresets.none { it.second == prefs.chromaColor },
-                    onClick = { if (opaqueAffects) showChromaPicker = true }
+                    onClick = { showChromaPicker = true }
                 )
             }
             if (showChromaPicker) {
@@ -625,19 +617,14 @@ private fun ExportFormatChooser(
             }
 
             // Force-opaque: a partly-transparent element would blend with
-            // the chroma fill of an alpha-less format. Disabled when both
-            // picked formats carry alpha (the toggle would have no effect).
+            // the chroma fill of an alpha-less format. Always enabled; it only
+            // has an effect on JPG and MP4.
             Spacer(Modifier.height(12.dp))
             Row(
                 Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(8.dp))
-                    .alpha(ctrlAlpha)
-                    .then(
-                        if (opaqueAffects)
-                            Modifier.clickable { onForceOpaque(!prefs.forceOpaque) }
-                        else Modifier
-                    )
+                    .clickable { onForceOpaque(!prefs.forceOpaque) }
                     .padding(vertical = 4.dp, horizontal = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -648,8 +635,7 @@ private fun ExportFormatChooser(
                 )
                 Switch(
                     checked = prefs.forceOpaque,
-                    onCheckedChange = if (opaqueAffects)
-                        { v -> onForceOpaque(v) } else null,
+                    onCheckedChange = { v -> onForceOpaque(v) },
                     colors = SwitchDefaults.colors(
                         checkedThumbColor = MaterialTheme.appColors.primary,
                         checkedTrackColor = MaterialTheme.appColors.primary.copy(alpha = 0.45f)
@@ -662,7 +648,7 @@ private fun ExportFormatChooser(
                     .fillMaxWidth()
                     .padding(horizontal = 4.dp, vertical = 2.dp),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.appColors.textSecondary.copy(alpha = ctrlAlpha)
+                color = MaterialTheme.appColors.textSecondary
             )
         }
         Spacer(Modifier.height(4.dp))
@@ -723,9 +709,10 @@ private fun FormatChip(
 }
 
 /**
- * Two-row timeline. The range trim handles are down-chevrons in the top row;
- * the playhead is a larger up-chevron in the (taller) bottom row. A drag in the
- * lower half always grabs the playhead, so it never fights a trim handle.
+ * Two-row timeline. The range trim handles are down-pointing pentagons above
+ * the track; the playhead is an up-pointing one of the same size below it. A
+ * drag in the lower half always grabs the playhead, so it never fights a trim
+ * handle.
  */
 @Composable
 private fun ReplayTimeline(

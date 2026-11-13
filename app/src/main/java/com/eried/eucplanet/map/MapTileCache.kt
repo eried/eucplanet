@@ -28,7 +28,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
-/** Process-wide raster cache shared by Studio maps and the Wear map publisher.
+/** Process-wide raster cache shared by Studio maps, Android Auto and the Wear map publisher.
  *  A tile the provider cannot give, with no signal say, is drawn from the
  *  downloaded offline map when one covers it. */
 internal object MapTileCache {

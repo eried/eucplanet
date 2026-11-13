@@ -20,7 +20,6 @@ class FlicViewModel(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), AppSettings())
 
     val scanning: StateFlow<Boolean> = flicManager.scanning
-    val scanStatus: StateFlow<String> = flicManager.scanStatus
     val pairedButtons: StateFlow<List<FlicButtonInfo>> = flicManager.pairedButtons
 
     fun startScan() = flicManager.startScan()

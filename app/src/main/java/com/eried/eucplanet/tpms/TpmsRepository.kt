@@ -36,9 +36,8 @@ class TpmsRepository(
     private val _pairedAddress = MutableStateFlow<String?>(null)
 
     /**
-     * The sensor the rider owns, kept so the section has something to show and
-     * something to remove. One at a time: a wheel has one tyre, and two would
-     * leave "the tire pressure" meaning whichever spoke last.
+     * The first paired sensor, or null when none is paired. The scanner
+     * follows it to start and stop monitoring.
      */
     val pairedAddress: StateFlow<String?> = _pairedAddress.asStateFlow()
 
@@ -100,14 +99,13 @@ class TpmsRepository(
     val sensors: StateFlow<List<SensorState>> = _sensors.asStateFlow()
 
     init {
-        // Below _pairedAddress on purpose: initialisers run in declaration
+        // Below _sensors on purpose: initialisers run in declaration
         // order, so loading from up beside the constructor read a field that
         // did not exist yet and threw the moment a store answered straight
         // away.
         //
-        // A sensor paired on a previous run is still the rider's sensor. Only
-        // taken if nothing has been adopted since, so a scan that found one
-        // while this was still loading is not overwritten by an older answer.
+        // A sensor paired on a previous run is still the rider's sensor.
+        // Merged into whatever a scan adopted while this was still loading.
         pairing.load { saved ->
             // Merged, not "only if empty". The read comes back on an IO
             // thread and a scan can adopt before it lands, and the old rule
@@ -152,15 +150,7 @@ class TpmsRepository(
         recompute(nowMs)
     }
 
-    /** A directly paired sensor reported. */
-    /**
-     * A sensor reported. The first one seen becomes the rider's; after that
-     * only that one is listened to.
-     *
-     * It used to take whichever packet arrived, so two caps in range - a
-     * second tyre, a neighbour's car - traded the reading back and forth and
-     * the pressure looked wrong because it was two tyres at once.
-     */
+    /** A directly paired sensor reported. An unknown address is adopted, a known one updates its row. */
     fun submitPaired(kpa: Float, address: String? = null, nowMs: Long = System.currentTimeMillis()) {
         if (address != null) {
             // Every paired cap is heard, not just the first one. A rider with

@@ -5,7 +5,6 @@
     <string name="notification_channel_description">Az egykerekű kapcsolati állapotát és telemetriáját mutatja.</string>
     <string name="keep_app_alive">Alkalmazás futva tartása</string>
     <string name="keep_app_alive_desc">Folyamatos értesítést tart fenn, így az alkalmazás a háttérben is fut. A menetek szinkronizálása és a hang akkor is működik, ha nincs csatlakoztatott egykerekű. Kicsit jobban meríti az akkumulátort.</string>
-    <string name="notif_actions_section">Testreszabás</string>
     <string name="notif_actions_enable">Műveletek megjelenítése az értesítésben</string>
     <string name="notif_actions_enable_desc">Gyorsműveleti gombokat ad a folyamatos értesítéshez.</string>
     <string name="notif_actions_pick_desc">Válassz legfeljebb %1$d műveletet. Ugyanaz a művelet ismétlődhet.</string>
@@ -37,9 +36,6 @@
     <string name="state_off">Ki</string>
     <string name="action_done">Kész</string>
     <string name="action_close">Bezárás</string>
-    <string name="crash_log_action_prompt">Hosszan nyomtad ezt: %1$s. Töröld csak ezt a naplót, vagy töröld mindet. Ha inkább megosztanád, koppints a Mégse gombra, majd a fájlra.</string>
-    <string name="crash_log_delete_all">Összes törlése</string>
-    <string name="crash_log_delete_all_warning">Törlöd az összes mentett összeomlási naplót? Ezt nem lehet visszavonni.</string>
     <string name="action_save">Mentés</string>
     <string name="action_apply">Alkalmaz</string>
     <string name="action_reset">Visszaállítás</string>
@@ -120,12 +116,10 @@
     <string name="tab_dashboard">Műszerfal elrendezése</string>
     <string name="dashboard_section_metrics">Mérőszámok</string>
     <string name="dashboard_section_actions">Műveleti gombok</string>
-    <string name="dashboard_columns">Oszlopok</string>
     <string name="dashboard_grid_hint">Hosszan nyomva húzhatod, koppintva szerkesztheted.</string>
     <string name="dashboard_pool_metrics">Elérhető mérőszámok</string>
     <string name="dashboard_pool_actions">Elérhető műveletek</string>
     <string name="dashboard_pool_tap_toast">Nyomd hosszan és húzd a fenti helyre</string>
-    <string name="dashboard_rolling_window">Gördülő statisztika ablaka</string>
     <string name="dashboard_stats_length">Statisztika hossza</string>
     <string name="dashboard_view">Nézet</string>
     <string name="dashboard_view_default">Alapértelmezett</string>
@@ -744,7 +738,6 @@
     <string name="watch_screen_button_2">2. gomb</string>
     <string name="watch_haptic_on_action">Rezgés műveletnél</string>
     <string name="watch_haptic_on_action_desc">Rövid óra-rezgés minden megnyomásnál, ahol támogatott.</string>
-    <string name="section_cloud_folder">Biztonsági mentés mappája</string>
     <string name="cloud_caption">A menetek, beállítások, témák és átfedések biztonsági mentési mappája.</string>
     <string name="cloud_choose_folder">Mappa kiválasztása</string>
     <string name="cloud_change_folder">Mappa módosítása</string>
@@ -768,7 +761,6 @@
     <string name="cloud_reset_local">Helyi menetek törlése</string>
     <string name="cloud_reset_local_title">Törlöd a helyi meneteket?</string>
     <string name="cloud_reset_local_body">Eltávolít minden, ezen a telefonon tárolt menetet. A mentési mappád érintetlen marad, így a szinkronizált menetek onnan visszaállíthatók.</string>
-    <string name="cloud_retry_enqueued">Feltöltés ütemezve</string>
     <string name="action_retry">Újra</string>
     <string name="sync_progress">Szinkronizálás: %1$d / %2$d</string>
     <string name="sync_no_folder">Előbb válassz mentési mappát</string>
@@ -809,10 +801,7 @@
     <string name="cloud_factory_confirm_action">Visszaállítás</string>
     <string name="section_recording">Rögzítés</string>
     <string name="section_connection">Kapcsolat</string>
-    <string name="section_display">Megjelenítés</string>
-    <string name="auto_record_on_start">Automatikus rögzítés induláskor</string>
     <string name="auto_record_caption">Menetet rögzít, amikor az egykerekű csatlakozik.</string>
-    <string name="auto_record_start_in_motion">Rögzítés indítása mozgásra</string>
     <string name="auto_record_start_in_motion_caption">Mozgásra indul, tétlenség után leáll, a következő menetnél újraindul.</string>
     <string name="auto_record_stop_idle_seconds">Leállítás tétlenség után</string>
     <string name="auto_record_mode_label">Menetrögzítés automatikus indítása</string>
@@ -1093,11 +1082,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Dízel kamion</string>
     <string name="engine_preset_sampled_motorcycle">Kis krosszmotor</string>
     <string name="engine_preset_sampled_city_car">Városi autó</string>
-    <string name="engine_preset_sampled_helicopter">Helikopter</string>
     <string name="engine_preset_sampled_tractor">Traktor</string>
     <string name="engine_preset_sampled_lawnmower">Fűnyíró</string>
     <string name="engine_preset_sampled_steam_loco">Gőzmozdony</string>
-    <string name="engine_preset_sampled_car_cruise">Autó tempótartáson</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
     <string name="engine_preset_sampled_big_diesel">Nagy dízel</string>
     <string name="engine_preset_sampled_broken_exhaust">Törött kipufogó</string>
@@ -1290,7 +1277,6 @@
     <string name="trip_meter_tab_speed">Sebesség</string>
     <string name="trip_meter_tab_battery">Akkumulátor</string>
     <string name="trip_meter_tab_time">Idő</string>
-    <string name="trip_meter_total">Összesen</string>
     <string name="trip_meter_active">Aktív</string>
     <string name="trip_meter_avg">Átl</string>
     <string name="trip_meter_reset">Menetszámláló nullázása</string>
@@ -1444,8 +1430,6 @@
     <string name="trip_split_reason_wheel">Másik egykerekű vette át</string>
     <string name="trip_split_reason_gap">Kihagyás a rögzítésben</string>
     <string name="trip_split_reason_stopped">Hosszan állt</string>
-    <string name="trip_tools_combine">Menetek egyesítése</string>
-    <string name="trip_tools_combine_desc">Más meneteket olvaszt ebbe új menetként, az eredetiek megmaradnak.</string>
     <string name="trip_tools_combine_none">Nincs más befejezett menet az egyesítéshez.</string>
     <string name="trip_tools_combine_mixed_wheels">Néhányat közülük másik egykerekűn tettek meg. A távolság és az energia összeadódik.</string>
     <string name="trip_tools_combine_done">A menetek egy újba egyesültek</string>
@@ -1481,12 +1465,10 @@
     <string name="auto_lights_when">Napnyugta és napkelte követése, ha</string>
     <string name="auto_lights_off_slow">Fény lekapcsolása lassításkor</string>
     <string name="auto_lights_off_below">Ki ez alatt</string>
-    <string name="auto_lights_desc">Be- vagy kikapcsolja a fényszórót napnyugta és napkelte alapján.</string>
     <string name="auto_lights_on_before_sunset">Fény BE előtte</string>
     <string name="auto_lights_off_after_sunrise">Fény KI utána</string>
     <string name="auto_waiting_gps">Várakozás GPS-helyre…</string>
     <string name="auto_volume_title">Hangerő-szabályzás</string>
-    <string name="auto_volume_desc">A zene hangerejét a sebesség alapján növeli.</string>
     <string name="auto_volume_when">Hangerő emelése, ha</string>
     <string name="media_rate_when">Lejátszási sebesség módosítása, ha</string>
     <string name="media_rate_permission_desc">Az Android külön kéri. Enélkül a lejátszási sebesség nem módosítható.</string>
@@ -1496,14 +1478,12 @@
     <string name="media_rate_grant">Megadás</string>
     <string name="warnings_media_access_title">Az értesítés-hozzáférés ki van kapcsolva</string>
     <string name="warnings_media_access_body">Enélkül a lejátszási sebesség nem követheti a tempódat. Koppints az engedélyezéshez.</string>
-    <string name="media_control_desc">Szünetelteti a zenét, ha lassítasz, és folytatja, ha gyorsítasz.</string>
     <string name="media_control_pause">Szüneteltetés lassításkor</string>
     <string name="media_control_pause_below">Szüneteltetés ennél vagy alatta</string>
     <string name="media_control_resume">Folytatás gyorsításkor</string>
     <string name="media_control_resume_above">Folytatás ennél vagy felette</string>
     <string name="automation_require_external">Csak fejhallgatón vagy Bluetoothon</string>
     <string name="proximity_lock_title">Egykerekű zárolása</string>
-    <string name="proximity_lock_desc">Zárolja az egykerekűt, ha elsétálsz, és feloldja, ha visszatérsz, a Bluetooth-jel erőssége alapján.</string>
     <string name="proximity_lock_enable">Zárolás, ha elsétálok</string>
     <string name="proximity_lock_below">Jel alatt</string>
     <string name="proximity_unlock_when">Automatikus feloldás</string>
@@ -1617,8 +1597,6 @@
     <string name="alarm_predict_help_lead">Körülbelül %1$s másodperccel azelőtt riaszt, hogy %2$s, a friss trend alapján.</string>
     <string name="alarm_predict_label">Előrejelző kiváltás</string>
     <string name="alarm_predict_realtime">Most</string>
-    <string name="about_crash_logs">Összeomlási naplók</string>
-    <string name="about_crash_logs_empty">Nincs rögzített összeomlás</string>
     <string name="about_share_crash">Összeomlási napló megosztása</string>
     <string name="about_thanks">Köszönet</string>
     <string name="about_thanks_body">Elegem lett az olyan egykerekű-alkalmazásokból, amelyek túl lassan fejlődnek, elavultnak látszanak, drákói szabályokat követnek az új funkciók körül, ügyfélként kezelik a közösségüket, és elfelejtik, hogy az egykerekűsök akkor a legjobbak, amikor segítenek egymásnak. Ez az ellenkezőjére törekszik.</string>
@@ -1630,7 +1608,6 @@
     <string name="service_mode_link">További információ: eucplanet.ried.no/service.</string>
     <string name="service_mode_enter">Belépés</string>
     <string name="toast_external_speed_change">Sebesség frissítve az egykerekűről: %1$d km/h tiltback, %2$d km/h riasztás</string>
-    <string name="wheel_no_data_reconnecting">Nincs adat az egykerekűtől. Újracsatlakozás…</string>
     <string name="wheel_no_data_reset">Továbbra sincs adat az egykerekűtől. Próbáld ki- és bekapcsolni.</string>
     <string name="trip_map_ride_start">Menet kezdete: %1$s</string>
     <string name="trip_map_reconnected">Újracsatlakozva: %1$s</string>
@@ -1672,11 +1649,8 @@
     <string name="online_upload_total_km">%1$s %2$s</string>
     <string name="online_upload_join">Csatlakozás a ranglistához</string>
     <string name="online_status_shared">Megosztva a ranglistán</string>
-    <string name="online_status_flagged">Megosztva, ellenőrzés alatt</string>
     <string name="online_status_pending">Feltöltés a ranglistára…</string>
     <string name="online_status_failed">Az online feltöltés nem sikerült, koppints az újrapróbáláshoz</string>
-    <string name="online_status_checking">Ellenőrzés a ranglistán…</string>
-    <string name="online_status_check_failed">Most nem sikerült ellenőrizni, próbáld később</string>
     <string name="online_status_rejected">Nem került fel a ranglistára</string>
     <string name="online_upload_join_caption">Csatlakozz, hogy elküldd a statisztikáidat és meneteidet a nyilvános ranglistára itt:</string>
     <string name="online_upload_linked_caption">A statisztikáid és meneteid megjelennek a nyilvános ranglistán itt:</string>
@@ -1696,7 +1670,6 @@
     <string name="online_profile_delete_confirm_action">Végleges törlés</string>
     <string name="online_profile_save_rate_limited">Túl sok kérés, próbáld később.</string>
     <string name="online_profile_save_failed">A mentés nem sikerült (HTTP %1$d). Próbáld újra.</string>
-    <string name="online_status_flagged_why">Gyors automatikus ellenőrzésre visszatartva. Amint átmegy rajta, felkerül a ranglistára.</string>
     <string name="online_restore_title">Mentett profilt találtunk</string>
     <string name="online_restore_body_new">Mentett profilt találtunk itt: %1$s. A folytatással ezzel a profillal csatlakozol újra a nyilvános ranglistához, így a neve, zászlaja, profilképe és menetstatisztikái nyilvánosak. Nem hoz létre új profilt.</string>
     <string name="online_restore_body_switch">Egy másik mentett profilt találtunk: %1$s. A folytatással ez a telefon erre a profilra vált, a jelenlegi profilodról előbb mentés készül.</string>
@@ -1831,8 +1804,6 @@
     <string name="studio_video_fit">Illesztés</string>
     <string name="studio_video_fit_stretch">Nyújtás</string>
     <string name="studio_video_offset">Eltolás</string>
-    <string name="studio_video_offset_value_fmt">%1$d ms</string>
-    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
     <string name="studio_video_set_offset">Jelenlegi</string>
     <string name="studio_video_edge">Tartományon kívül</string>
     <string name="studio_video_edge_freeze">Kimerevítés</string>
@@ -1893,9 +1864,6 @@
     <string name="studio_cfg_time_window_fmt">%1$ds</string>
     <string name="studio_cfg_trail_label">Nyomvonal hossza</string>
     <string name="studio_cfg_map_style">Térkép stílusa</string>
-    <string name="studio_cfg_map_street">Utca</string>
-    <string name="studio_cfg_map_dark">Sötét</string>
-    <string name="studio_cfg_map_satellite">Műhold</string>
     <string name="studio_cfg_map_zoom">Nagyítás</string>
     <string name="studio_cfg_map_attribution">Térkép forrásának mutatása</string>
     <string name="studio_cfg_map_attribution_off">A térkép licence megköveteli ezt a forrásmegjelölést mindenen, amit megosztasz. A kikapcsolás a te felelősséged.</string>
@@ -2052,7 +2020,6 @@
     <string name="trip_action_inspect_online">Online megtekintés</string>
     <string name="trip_action_inspect_online_desc">Ossz meg egy eucviewer.ried.no hivatkozást a menet online megtekintéséhez.</string>
     <string name="trip_action_dropbox_disabled">Ehhez kapcsold össze a Dropboxot a beállításokban</string>
-    <string name="nav_tap_on_self">A Megállók listában nyomj hosszan egy megállót, hogy a helyzetedre állítsd</string>
     <string name="nav_start_short">Navigáció indítása</string>
     <string name="nav_start_btn">Indítás</string>
     <string name="nav_stop_short">Navigáció leállítása</string>
@@ -2137,8 +2104,6 @@
     <string name="share_alone">Egyelőre senki más nincs itt.</string>
     <string name="share_open">Megnyitás</string>
     <string name="share_copy">Másolás</string>
-    <string name="share_menu_join">Csatlakozás csoporthoz</string>
-    <string name="share_menu_join_desc">QR-kód beolvasása.</string>
     <string name="share_menu_live">Élő helyzet megosztása</string>
     <string name="share_menu_live_desc">Csoportos túra indítása.</string>
     <string name="share_menu_static">Helyzet elküldése</string>
@@ -2209,7 +2174,6 @@
     <string name="nav_setting_arrival_radius_desc">Milyen közel számít egy megálló elérésének.</string>
     <string name="nav_setting_offroute">Útvonalelhagyás tűrése</string>
     <string name="nav_setting_offroute_desc">Milyen messze az útvonaltól, mielőtt megszólal az elhagyási figyelmeztetés.</string>
-    <string name="nav_setting_default_mode">Alapértelmezett közlekedési mód</string>
     <string name="nav_setting_params">Navigáció és időjárás</string>
     <string name="weather_section">Időjárás</string>
     <string name="weather_icon_desc">Időjárás-előrejelzés</string>
@@ -2230,7 +2194,6 @@
     <string name="weather_enable_desc">Időjárás ikont tesz a térkép gomb fölé: koppints rá, és megtudod, jó idő van-e egy menethez.</string>
     <string name="weather_window_label">Előrejelzési ablak</string>
     <string name="weather_source_label">Előrejelzés forrása</string>
-    <string name="weather_comfort_desc">Komfortküszöbök a pontszámhoz. A hőmérséklet a te egységeidet követi; a szél a sebességét.</string>
     <string name="weather_cold">Túl hideg ez alatt</string>
     <string name="weather_hot">Túl meleg e felett</string>
     <string name="weather_breezy">Szeles e felett</string>
@@ -2257,7 +2220,6 @@
     <string name="weather_lvl_prime_2">Álomidő egy menethez!</string>
     <string name="weather_expand">Részletek</string>
     <string name="weather_chart_temp">Hő, pára és csapadék</string>
-    <string name="weather_chart_precip">Csapadék</string>
     <string name="weather_chart_wind">Szél és lökések</string>
     <string name="weather_adv_snow_now">Havazik, nincs tapadás.</string>
     <string name="weather_adv_snow_in">Havazás várható %1$s múlva.</string>
@@ -2480,7 +2442,6 @@
     <string name="trip_tools_rename">Menet átnevezése</string>
     <string name="trip_tools_rename_desc">Adj nevet ennek a menetnek. A fájljába kerül, így az exporttal és a szinkronizálással együtt utazik.</string>
     <string name="trip_tools_rename_hint">Ha üresen hagyod, a dátum lesz a neve.</string>
-    <string name="trip_tools_renamed">Menet átnevezve</string>
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="trip_tools_archived">Archiválva: %1$d</string>
     <string name="trip_tools_archive_failed">Néhány menetet nem sikerült archiválni, ezek még itt vannak</string>
@@ -2589,7 +2550,6 @@
     <string name="action_reset_metrics_wheel_done">Mérések nullázva, az egykerekű menetszámlálója törölve</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
     <string name="tpms_waiting">Várakozás adatra</string>
-    <string name="status_live">Élő</string>
     <string name="status_idle">Tétlen</string>
     <string name="tpms_state_leaking">Szivárog</string>
     <string name="tpms_state_inflating">Felfújás</string>
@@ -2610,7 +2570,6 @@
     <string name="horn_mode_sound">Saját</string>
     <string name="horn_mode_both">Együtt</string>
     <string name="horn_mode_hint">A Saját a te hangodat játssza le a telefonon. Az Együtt az egykerekű dudája mellé szólaltatja, külső hangszóróhoz. Ha a telefon nem tudja lejátszani, az egykerekű dudája szól.</string>
-    <string name="horn_sound_none">Nincs kiválasztott hang</string>
     <string name="horn_sound_current">Hang: %1$s</string>
     <string name="horn_sound_choose">Hang kiválasztása</string>
     <string name="horn_sound_imported">Duda hangja mentve</string>
@@ -2626,7 +2585,6 @@
     <string name="voice_stat_min">Min</string>
     <string name="voice_stat_avg">Átl</string>
     <string name="voice_stat_peak">Csúcs</string>
-    <string name="crews_title">Crews</string>
     <string name="crews_pass_action">Crew-belépő</string>
     <string name="crews_pass_search_hint">A Crew-belépő az online ranglistákhoz való csatlakozás után jelenik meg.</string>
     <string name="crews_scan_hint">Nyisd meg az eucstatsot böngészőben, nyomd meg a Crews gombot, és irányítsd ezt a megjelenő kódra.</string>
@@ -2732,7 +2690,6 @@
     <string name="nav_unlock_stops">Megállók</string>
     <string name="nav_unlock_off">Legfeljebb %1$s eltérés a nyomvonaltól</string>
     <string name="nav_unlock_confirm">Átalakítás</string>
-    <string name="nav_track_badge">Zárolt nyomvonal</string>
     <string name="voice_nav_place_reached">%1$s elérve</string>
     <string name="offline_data_open">Offline területek</string>
     <string name="offline_server_url">Offline adatszerver</string>

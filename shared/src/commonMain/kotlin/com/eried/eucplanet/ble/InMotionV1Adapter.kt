@@ -59,8 +59,8 @@ class InMotionV1Adapter : WheelAdapter {
 
     /**
      * 6-digit PIN for the V1 auth handshake (spec section 7). null means "use
-     * the factory default" ([DEFAULT_PIN]); a future "Saved PINs" preference
-     * can set a custom one here. The handshake is sent on every connect - the
+     * the factory default" ([DEFAULT_PIN]); Advanced settings sets a custom
+     * one through CompositeWheelAdapter.setInmotionV1Pin. The handshake is sent on every connect - the
      * wheel ignores it when no PIN is configured, so it is safe to always send.
      */
     @Volatile var pin: String? = null

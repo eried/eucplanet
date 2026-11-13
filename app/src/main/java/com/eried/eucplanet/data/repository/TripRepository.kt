@@ -181,7 +181,7 @@ class TripRepository(
     // satellite loss rather than OEM doze throttling our background location. It
     // never voices the app's own power management (idle power-down, or re-engage
     // on app open / wheel connect). Announces only a GENUINE satellite loss/regain.
-    @Volatile private var gpsTracking = false        // true while tier == HIGH
+    @Volatile private var gpsTracking = false        // true while recording or navigating
     @Volatile private var gpsHasFix = false          // FIXED (true) vs ACQUIRING (false) while tracking
     @Volatile private var acquiringFromLoss = false  // this ACQUIRING followed a genuine loss, not a power-on
     @Volatile private var lastFixMs = 0L
@@ -216,7 +216,7 @@ class TripRepository(
         scope.launch { wheelRepository.connectionState.collect { recomputeGpsTier() } }
         scope.launch { AppForeground.isForeground.collect { recomputeGpsTier() } }
         // Joining or leaving a group changes the tier the same way navigation
-        // does. Resolved here, off the constructor thread, so the Provider
+        // does. Resolved here, off the constructor thread, so the Lazy
         // above never re-enters this repository's own construction.
         scope.launch { shareSession.value.sharing.collect { gpsSharing = it; recomputeGpsTier() } }
     }
@@ -253,7 +253,7 @@ class TripRepository(
                 syncManager.enqueueTripUpload(appSettings)
             }
             if (eucStatsUploadsOn(appSettings, syncManager.riderStoreId.value)) {
-                syncManager.enqueueEucStatsUpload(appSettings)
+                syncManager.enqueueEucStatsUpload()
             }
             if (appSettings.dropboxAccessToken.isNotBlank()) {
                 syncManager.enqueueDropboxSync()
@@ -325,7 +325,7 @@ class TripRepository(
         }
     }
 
-    /** Enter tracking (tier just became HIGH). Silent: a recent fix stays FIXED,
+    /** Enter tracking (a recording or navigation just started). Silent: a recent fix stays FIXED,
      *  otherwise we wait for the first fix, which is a power-on and not voiced. */
     private fun startGpsTracking() {
         if (gpsTracking) return
@@ -335,7 +335,7 @@ class TripRepository(
         if (gpsHasFix) armLossWatchdog()
     }
 
-    /** Leave tracking (tier dropped below HIGH, or GPS off). Silent. */
+    /** Leave tracking (no recording or navigation, or GPS off). Silent. */
     private fun stopGpsTracking() {
         gpsTracking = false
         gpsHasFix = false
@@ -559,7 +559,7 @@ class TripRepository(
         for (f in csvs) {
             if (f.name in known) continue
             val text = runCatching { f.readText() }.getOrNull() ?: continue
-            val quads = parseQuadsForMetrics(text)
+            val quads = parseTripQuads(text)
             val m = TripCsv.metricsFrom(quads)
             val rows = (text.count { it == '\n' } - 1).coerceAtLeast(0)  // minus header
             tripDao.insert(
@@ -577,7 +577,8 @@ class TripRepository(
                     // backup, and anything a rider dropped in the folder, and
                     // the upload sweep has no age limit, so a whole back
                     // catalogue went to the leaderboard at once. Live
-                    // recording mints its own at save time (see startTrip).
+                    // recording mints its own when the row is created (see
+                    // startRecording).
                     tripUuid = null,
                     // The file's own name, the way every other road in reads
                     // it. Ten real files adopted on the emulator showed "test
@@ -594,9 +595,6 @@ class TripRepository(
         }
         if (adopted > 0 && hasFolder && settings != null) syncManager.enqueueTripUpload(settings)
     }
-
-    /** Header-driven extraction of (date, lat, lon, mileage) rows for metrics. */
-    private fun parseQuadsForMetrics(text: String): List<TripCsv.Quad> = parseTripQuads(text)
 
     /**
      * Finalize any trip left with no end time by a previous session that was
@@ -980,7 +978,7 @@ class TripRepository(
         // automatic retry path: a trip that failed last ride gets one more
         // shot the next time the rider finishes a ride.
         if (eucStatsUploadsOn(appSettings, syncManager.riderStoreId.value)) {
-            syncManager.enqueueEucStatsUpload(appSettings)
+            syncManager.enqueueEucStatsUpload()
             Log.i(TAG, "Eucstats upload enqueued (incl. retry sweep for prior failures)")
         }
         // Dropbox mirrors the trip too if the rider has it linked. Runs
@@ -1080,12 +1078,6 @@ class TripRepository(
     /** See [TripTools.renameTrip]. */
     suspend fun renameTrip(trip: TripRecord, name: String): Boolean = tools.renameTrip(trip, name)
 
-    /**
-     * Push a trip whose file was edited in place (rename / change wheel) back to
-     * the backup folder and Dropbox. The folder worker only walks uploadStatus
-     * 1/3, so the row is re-flagged first; Dropbox re-uploads on a size change.
-     * Best-effort and gated on the rider having each destination configured.
-     */
     /** Dropbox backup state for one trip, by file name. */
     suspend fun setDropboxStatusByName(fileName: String, status: Int, at: Long?) =
         tripDao.setDropboxStatusByName(fileName, status, at)
@@ -1094,6 +1086,12 @@ class TripRepository(
      *  backup in the trip list. */
     suspend fun resyncTrip(tripId: Long) = resyncEditedTrip(tripId)
 
+    /**
+     * Push a trip whose file was edited in place (rename / change wheel) back to
+     * the backup folder and Dropbox. The folder worker only walks uploadStatus
+     * 1/3, so the row is re-flagged first; Dropbox re-uploads on a size change.
+     * Best-effort and gated on the rider having each destination configured.
+     */
     private suspend fun resyncEditedTrip(tripId: Long) {
         val appSettings = settingsRepository.get()
         val hasFolder = appSettings.syncFolderUri != null

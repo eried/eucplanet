@@ -268,7 +268,6 @@ private fun displayUnit(
 fun AlarmSettingsContent(
     viewModel: AlarmViewModel
 ) {
-    val rules by viewModel.rules.collectAsState()
     val groups by viewModel.groupedRules.collectAsState()
     val studioPlaying by viewModel.studioPlaying.collectAsState()
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
@@ -512,7 +511,7 @@ private fun AlarmRuleCard(
         ),
         shape = RoundedCornerShape(12.dp)
     ) {
-        // Drag handle | tap-to-edit text | enable switch.
+        // Indent | tap-to-edit text | enable switch.
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -612,7 +611,6 @@ private fun AlarmRuleEditorDialog(
 ) {
     val initial = rule ?: AlarmRule()
 
-    var name by remember { mutableStateOf(initial.name) }
     var metric by remember { mutableStateOf(initial.metric) }
     var comparator by remember { mutableStateOf(initial.comparator) }
     var threshold by remember { mutableFloatStateOf(initial.threshold) }
@@ -632,8 +630,6 @@ private fun AlarmRuleEditorDialog(
     var beepEffect by remember { mutableIntStateOf(initial.beepEffect) }
     var beepVolume by remember { mutableIntStateOf(initial.beepVolume) }
     var beepVolumeModulation by remember { mutableIntStateOf(initial.beepVolumeModulation) }
-    var beepModulationReachPct by remember { mutableIntStateOf(initial.beepModulationReachPct) }
-    var beepVolumeReachPct by remember { mutableIntStateOf(initial.beepVolumeReachPct) }
     var showStudio by remember { mutableStateOf(false) }
 
     var voiceEnabled by remember { mutableStateOf(initial.voiceEnabled) }
@@ -810,7 +806,7 @@ private fun AlarmRuleEditorDialog(
                         .weight(1f, fill = false)
                         .verticalScroll(rememberScrollState())
                 ) {
-                // Metric (60%) + comparator (40%) share a row so the editor
+                // Metric + comparator share a row (half each) so the editor
                 // stays compact vertically. Comparator field shows just the
                 // glyph (≥ or <) when collapsed but opens to full-word labels
                 // so first-time users still understand what each option means.
@@ -1177,10 +1173,8 @@ private fun AlarmRuleEditorDialog(
                 Spacer(Modifier.height(8.dp))
 
                 // --- Advanced (collapsed) ---
-                // Cooldown, repeat mode and anticipation live here. Their
-                // defaults (5 s, Single, Realtime) suit most alarms, so a new
-                // rule never needs to open this. It auto-opens when editing a
-                // rule that already uses non-default values.
+                // Cooldown, repeat mode, anticipation and the wheel binding
+                // live here, collapsed until the rider opens it.
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -1367,7 +1361,6 @@ private fun AlarmRuleEditorDialog(
                             onClick = {
                                 onSave(
                                     (rule ?: AlarmRule()).copy(
-                                        name = name,
                                         metric = metric,
                                         comparator = comparator,
                                         threshold = threshold,
@@ -1382,8 +1375,6 @@ private fun AlarmRuleEditorDialog(
                                         beepEffect = beepEffect,
                                         beepVolume = beepVolume,
                                         beepVolumeModulation = beepVolumeModulation,
-                                        beepModulationReachPct = beepModulationReachPct,
-                                        beepVolumeReachPct = beepVolumeReachPct,
                                         voiceEnabled = voiceEnabled,
                                         voiceText = voiceText,
                                         vibrateEnabled = vibrateEnabled,
@@ -1789,10 +1780,10 @@ private fun SectionTitleWithPreview(
 private val NEW_RULE = com.eried.eucplanet.data.model.AlarmRule()
 
 /**
- * Numeric up/down as one cohesive pill: a borderless centered number with its
- * unit, flanked by - / + steppers inside a single rounded field-coloured
- * surface. Optional caption above. Values clamp to [range]; the number reflects
- * the live value when unfocused and lets the user type freely while focused
+ * Numeric field: a bordered box with the value right-aligned against its unit
+ * and an optional notched label. While focused, an up/down stepper bubble
+ * appears beside it. Values clamp to [range]; the number reflects the live
+ * value when unfocused and lets the user type freely while focused
  * (reconciling to the clamped value on blur).
  */
 @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)

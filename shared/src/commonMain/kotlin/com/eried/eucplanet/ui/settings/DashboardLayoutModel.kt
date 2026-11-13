@@ -30,9 +30,7 @@ enum class CompositeLayout(val cellCount: Int) {
 
 /**
  * Definition of a single composite metric instance. Stored in
- * [AppSettings.dashboardCompositeMetrics] as `{ id: { layout, cells } }`.
- * Sub-metric stats (min/max/avg) are intentionally NOT supported here, a
- * composite always shows current values for each sub-metric.
+ * [AppSettings.dashboardCompositeMetrics] as `{ id: { layout, cells, cellStats } }`.
  */
 data class MetricComposite(
     val layout: CompositeLayout = CompositeLayout.ROW2,
@@ -178,13 +176,6 @@ fun isActionGroupKey(key: String): Boolean = key.startsWith(ACTION_GROUP_PREFIX)
 fun isCustomBleKey(key: String): Boolean =
     key.startsWith(com.eried.eucplanet.data.model.CustomBleCommand.ID_PREFIX)
 fun isCustomTileKey(key: String): Boolean = key.startsWith(CUSTOM_TILE_PREFIX)
-fun isTextCell(key: String): Boolean = key.startsWith(COMPOSITE_TEXT_PREFIX) || key == "EMPTY"
-fun textCellContent(key: String): String = when {
-    key == "EMPTY" -> ""
-    key.startsWith(COMPOSITE_TEXT_PREFIX) -> key.removePrefix(COMPOSITE_TEXT_PREFIX)
-    else -> ""
-}
-fun wrapAsTextCell(content: String): String = COMPOSITE_TEXT_PREFIX + content
 
 // Stats are listed in dropdown order. SUSTAINED_PEAK sits next to MAX because
 // it's a softer "Peak ignoring spikes shorter than 2s" companion, the same
@@ -237,7 +228,6 @@ sealed interface CloudEvent {
     data class BackupExists(val name: String) : CloudEvent
     data object RestoreSuccess : CloudEvent
     data object RestoreFailed : CloudEvent
-    data object UploadEnqueued : CloudEvent
     data object SyncNoFolder : CloudEvent
     data class SyncFinished(val count: Int) : CloudEvent
     /** A sync ran but nothing needed transferring (everything already backed up). */

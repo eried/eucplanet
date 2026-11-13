@@ -33,7 +33,7 @@ import com.eried.eucplanet.ui.theme.appColors
  *
  * Visual contract: when the rider hasn't customized the layout, the
  * default tiles (BATTERY / TEMPERATURE / VOLTAGE / CURRENT / LOAD / TRIP)
- * render exactly like the old hardcoded StatCard. Riders who customize
+ * render exactly like the original fixed tile. Riders who customize
  * to a less-common metric get the same overall shape (label on top, big
  * centered value, sparkline behind) with a style that fits the metric's
  * shape (line for slow-moving, area for accumulating, bipolar-area for
@@ -52,7 +52,7 @@ fun LiveMetricTile(
     modifier: Modifier = Modifier,
     /** Baseline for [SparklineStyle.AREA_BIPOLAR]; ignored for other styles. */
     bipolarBaseline: Float = 0f,
-    /** Negative-lobe colour for [SparklineStyle.AREA_BIPOLAR]; defaults to a darker [accent]. */
+    /** Negative-lobe colour for [SparklineStyle.AREA_BIPOLAR]; defaults to [accent]. */
     bipolarNegativeAccent: Color? = null,
     /** Top-left side readout, label "MIN" / "MAX" / "AVG" / "P75", etc. */
     cornerLeftLabel: String? = null,
@@ -78,13 +78,7 @@ fun LiveMetricTile(
         )
         else -> Modifier
     }
-    // No data → no chart. The default 5 metrics (BATTERY, TEMPERATURE,
-    // VOLTAGE, CURRENT, LOAD) get their own bespoke disconnected demos
-    // from DashboardScreen so cold-boot still has personality; every
-    // other catalog metric renders empty until real samples arrive.
-    // An empty tile honestly signals "no data yet", better than a
-    // synthetic curve that riders could mistake for telemetry.
-    val effectiveSparkData = sparkData
+    // No data, no chart: a tile stays empty until real samples arrive.
     Box(
         modifier = modifier
             // Fixed height matches the composite-tile renderer in
@@ -99,11 +93,9 @@ fun LiveMetricTile(
             .then(clickModifier),
         contentAlignment = Alignment.Center
     ) {
-        // Sparkline canvas, drawn whenever the rider has it enabled
-        // AND the metric style isn't NONE. effectiveSparkData supplies
-        // a decorative sine when real samples haven't arrived yet so
-        // every catalog tile looks alive on cold boot.
-        if (sparklineEnabled && sparkStyle != SparklineStyle.NONE && effectiveSparkData.size >= 2) {
+        // Sparkline canvas, drawn when the rider has it enabled, the
+        // style is not NONE, and there are at least 2 samples.
+        if (sparklineEnabled && sparkStyle != SparklineStyle.NONE && sparkData.size >= 2) {
             Canvas(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -111,9 +103,9 @@ fun LiveMetricTile(
             ) {
                 val padding = size.height * 0.15f
                 val drawHeight = size.height - padding * 2
-                val stepX = size.width / (effectiveSparkData.size - 1).toFloat()
-                val min = effectiveSparkData.min()
-                val max = effectiveSparkData.max()
+                val stepX = size.width / (sparkData.size - 1).toFloat()
+                val min = sparkData.min()
+                val max = sparkData.max()
                 // Bipolar style anchors the visible range to span the
                 // baseline, so the chart honestly shows "this much
                 // above zero" vs "this much below zero" rather than
@@ -136,7 +128,7 @@ fun LiveMetricTile(
                 when (sparkStyle) {
                     SparklineStyle.LINE -> {
                         val path = Path()
-                        effectiveSparkData.forEachIndexed { idx, v ->
+                        sparkData.forEachIndexed { idx, v ->
                             val x = idx * stepX
                             val y = yFor(v)
                             if (idx == 0) path.moveTo(x, y) else path.lineTo(x, y)
@@ -148,15 +140,15 @@ fun LiveMetricTile(
                         // Catmull-Rom-ish smoothing via quadratic
                         // beziers between midpoints. Cheaper than a
                         // true Catmull-Rom and visually indistinguishable
-                        // at 15-sample sparkline scale.
+                        // at sparkline scale.
                         val path = Path()
-                        if (effectiveSparkData.isNotEmpty()) {
+                        if (sparkData.isNotEmpty()) {
                             var prevX = 0f
-                            var prevY = yFor(effectiveSparkData[0])
+                            var prevY = yFor(sparkData[0])
                             path.moveTo(prevX, prevY)
-                            for (i in 1 until effectiveSparkData.size) {
+                            for (i in 1 until sparkData.size) {
                                 val curX = i * stepX
-                                val curY = yFor(effectiveSparkData[i])
+                                val curY = yFor(sparkData[i])
                                 val midX = (prevX + curX) / 2f
                                 val midY = (prevY + curY) / 2f
                                 path.quadraticTo(prevX, prevY, midX, midY)
@@ -170,9 +162,9 @@ fun LiveMetricTile(
                     SparklineStyle.AREA -> {
                         // Today's default look: stroke + faint fill
                         // underneath. Keeps the default tiles visually
-                        // identical to the old hardcoded StatCard.
+                        // identical to the original fixed tile.
                         val linePath = Path()
-                        effectiveSparkData.forEachIndexed { idx, v ->
+                        sparkData.forEachIndexed { idx, v ->
                             val x = idx * stepX
                             val y = yFor(v)
                             if (idx == 0) linePath.moveTo(x, y) else linePath.lineTo(x, y)
@@ -193,7 +185,7 @@ fun LiveMetricTile(
                         // baseline for samples that sit above baseline.
                         val posFill = Path()
                         posFill.moveTo(0f, baselineY)
-                        effectiveSparkData.forEachIndexed { idx, v ->
+                        sparkData.forEachIndexed { idx, v ->
                             val x = idx * stepX
                             val y = yFor(v)
                             // Cap below the baseline so the negative
@@ -207,7 +199,7 @@ fun LiveMetricTile(
                         // Negative lobe, mirror logic for samples below baseline.
                         val negFill = Path()
                         negFill.moveTo(0f, baselineY)
-                        effectiveSparkData.forEachIndexed { idx, v ->
+                        sparkData.forEachIndexed { idx, v ->
                             val x = idx * stepX
                             val y = yFor(v)
                             negFill.lineTo(x, kotlin.math.max(y, baselineY))
@@ -219,7 +211,7 @@ fun LiveMetricTile(
                         // Stroke the polyline on top of both fills so
                         // the rider sees the actual curve clearly.
                         val linePath = Path()
-                        effectiveSparkData.forEachIndexed { idx, v ->
+                        sparkData.forEachIndexed { idx, v ->
                             val x = idx * stepX
                             val y = yFor(v)
                             if (idx == 0) linePath.moveTo(x, y) else linePath.lineTo(x, y)

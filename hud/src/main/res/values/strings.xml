@@ -27,17 +27,10 @@
     <string name="hud_screen_safety_desc">PWM, temperature, voltage sag</string>
     <string name="hud_screen_big_clock">Big clock</string>
     <string name="hud_screen_big_clock_desc">Watch face with current speed</string>
-    <string name="hud_status_waiting">Waiting for phone companion…</string>
-    <string name="hud_status_paired">Paired with %1$s</string>
-    <string name="hud_status_press_center_to_pair">Press OK to pair</string>
-    <string name="hud_status_enable_hint">EUC Planet → Settings / Integration / Motoeye HUD</string>
-    <string name="hud_status_ready_label">Type this into EUC Planet on your phone</string>
-    <string name="hud_status_ready_at">HUD ready at %1$s:%2$d</string>
     <string name="hud_status_ip_unknown">no wifi</string>
     <string name="hud_disconnected_title">Phone disconnected</string>
     <string name="hud_disconnected_instructions">Type the IP and Port into EUC Planet → Settings / Integration / Motoeye HUD</string>
     <string name="hud_dash_battery">Battery</string>
-    <string name="hud_dash_voltage">Volts</string>
     <string name="hud_dash_pwm">PWM</string>
     <string name="hud_dash_temp">Temp</string>
     <string name="hud_dash_trip">Trip</string>
@@ -57,7 +50,6 @@
     -->
     <string name="hud_version_block_hud_behind_title">HUD update required</string>
     <string name="hud_version_block_phone_behind_title">Phone update required</string>
-    <string name="hud_version_block_subtitle">Get the matching version at %1$s</string>
     <string name="hud_version_minor_hud_behind">HUD update available</string>
     <string name="hud_version_minor_phone_behind">Phone update available</string>
     <string name="hud_map_no_gps">Waiting for the phone GPS position</string>

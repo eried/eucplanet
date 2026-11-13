@@ -8,16 +8,16 @@ import com.eried.eucplanet.data.eucstats.EucStatsServer
  *
  * The QR carries the host it was served from rather than relying on one compiled into the
  * app. That is deliberate and it is what lets a single build pair against a laptop while
- * somebody is working on the feature and against the real server in a rider's pocket  -  no
+ * somebody is working on the feature and against the real server in a rider's pocket: no
  * debug flavour, no second APK, no special rider id that routes elsewhere.
  *
  * It is also the obvious way to hand somebody else's app to somebody else's server, so the
  * host is only *adopted* under the rules in [trust].
  */
 data class PairLink(
-    /** Origin of the server, e.g. `https://eucstats.ried.no`  -  no trailing slash. */
+    /** Origin of the server, e.g. `https://eucstats.ried.no`, no trailing slash. */
     val host: String,
-    /** The six-character code, upper case. */
+    /** The pairing code, 4 to 12 letters or digits, upper case. */
     val code: String,
 ) {
     val apiBase: String get() = "$host/api/v1"
@@ -35,7 +35,7 @@ data class PairLink(
          *   https://eucstats.ried.no/p/AB12CD        (what the QR encodes)
          *   eucplanet://pair?code=AB12CD&host=...    (the button on that landing page)
          *
-         * Anything else  -  a wifi code, a product barcode, a URL from another site  -  is null,
+         * Anything else (a wifi code, a product barcode, a URL from another site) is null,
          * and the scanner carries on looking.
          */
         fun parse(text: String?): PairLink? {
@@ -72,7 +72,7 @@ data class PairLink(
             return PairLink(host, code)
         }
 
-        /** `https://host[:port]/p/AB12CD`  -  exactly that, nothing longer. */
+        /** `https://host[:port]/p/AB12CD`, exactly that, nothing longer. */
         private fun parseWebUrl(scheme: String, rest: String): PairLink? {
             val authority = rest.substringBefore('/')
             val path = rest.removePrefix(authority).substringBefore('?').substringBefore('#')
@@ -143,7 +143,7 @@ enum class PairTrust {
  * the production host.
  *
  * Note what is NOT a rule here: whether the host looks local. 10.0.2.2 and 192.168.x.x are
- * convenient for development, but "it is a private address" is not a safety property  -  the
+ * convenient for development, but "it is a private address" is not a safety property: the
  * person holding the QR code may well be on the same wifi.
  */
 fun PairLink.trust(developerMode: Boolean): PairTrust = when {

@@ -22,8 +22,9 @@ import com.eried.eucplanet.platform.JSONObject
  * theme editor is closed, reading a token costs the same as reading
  * `MaterialTheme.colorScheme.*` and never triggers an extra recomposition.
  *
- * To add a token: add the field here, add a [ThemeTokens] spec entry (so it
- * serializes + shows in the editor), and set it in every built-in.
+ * To add a token: add the field here (default [Color.Unspecified]), a
+ * [fillDerived] fallback, and a [ThemeTokens] spec entry (so it serializes +
+ * shows in the editor).
  */
 @Immutable
 data class AppThemeColors(
@@ -152,7 +153,7 @@ data class AppThemeColors(
     val routeDrive: Color = Color.Unspecified,
     val routeStraight: Color = Color.Unspecified,
     val routePreview: Color = Color.Unspecified,
-    // Trip Details: the mid-ride wheel-change marker + trace onward + the
+    // Trip Details: the mid-ride wheel-change square + trace onward + the
     // Extra-details "new wheel" row. Purple, distinct from the amber live /
     // scrub position marker so a wheel change never reads as the cursor.
     val wheelChange: Color = Color.Unspecified,
@@ -192,8 +193,8 @@ fun AppThemeColors.fillDerived(): AppThemeColors = copy(
     tileLabel = tileLabel.takeOrElse { textSecondary },
     cornerStatLabel = cornerStatLabel.takeOrElse { textSecondary },
     dashIcon = dashIcon.takeOrElse { statusGood },
-    // Two thirds of the way to black keeps it unmistakably the same hue while
-    // separating clearly from statusGood at icon size.
+    // Darkened to 62 % brightness: clearly the same hue, clearly apart from
+    // statusGood at icon size.
     cloudBackupOnly = cloudBackupOnly.takeOrElse {
         Color(
             red = statusGood.red * 0.62f,
@@ -228,7 +229,7 @@ fun AppThemeColors.fillDerived(): AppThemeColors = copy(
     routeDrive = routeDrive.takeOrElse { Color(0xFFFB8C00) },
     routeStraight = routeStraight.takeOrElse { Color(0xFF42A5F5) },
     routePreview = routePreview.takeOrElse { Color(0xFFFFCA28) },
-    // Matches the map's wheel-change hex (#AB47BC) so the map circle/trace and
+    // Matches the map's wheel-change hex (#AB47BC) so the map square/trace and
     // the Extra-details row read as the same "new wheel" colour.
     wheelChange = wheelChange.takeOrElse { Color(0xFFAB47BC) },
     chargingAccent = chargingAccent.takeOrElse { statusGood },
@@ -282,12 +283,9 @@ fun AppThemeColors.toColorScheme(): ColorScheme {
         outline = outline,
         outlineVariant = outline,
         scrim = scrim,
-        // The surfaceContainer family, which the comment above claimed was
-        // already covered and was not. Material3 paints its own components from
-        // these rather than from `surface`, so every AlertDialog in the app was
-        // coming out in Material's pale lavender no matter what theme the rider
-        // had chosen, and the only ones that looked right were those that had
-        // been overridden by hand at the call site.
+        // The surfaceContainer family. Material3 paints its own components from
+        // these, not from `surface`, so unmapped they come out in Material's
+        // pale lavender whatever the theme.
         //
         // Mapped to the token that matches each component's job, so a dialog
         // takes the dialog colour, a dropdown the menu colour and a bottom
@@ -489,11 +487,6 @@ object ThemeJson {
         }
         return result
     }
-
-    fun colorsToString(c: AppThemeColors): String = colorsToJson(c).toString()
-
-    fun colorsFromString(s: String, fallback: AppThemeColors): AppThemeColors? =
-        runCatching { colorsFromJson(JSONObject(s), fallback) }.getOrNull()
 }
 
 /**

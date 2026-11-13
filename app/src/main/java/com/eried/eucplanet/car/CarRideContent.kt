@@ -265,49 +265,6 @@ private fun CarMap(state: CarRideState, mapType: String, accent: Color, ring: Co
     }
 }
 
-@Composable
-private fun StatsPanel(modifier: Modifier, wheel: WheelData, s: AppSettings, phoneBattery: Int) {
-    val c = MaterialTheme.appColors
-    val context = LocalContext.current
-    val speedUnit = Units.effectiveSpeedUnit(s)
-    val distUnit = Units.effectiveDistanceUnit(s)
-    val tempUnit = Units.effectiveTempUnit(s)
-    Column(modifier, verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Row(verticalAlignment = Alignment.Bottom) {
-            Text(
-                "%.0f".format(Units.speed(wheel.speed, speedUnit)),
-                color = c.textPrimary, fontSize = 56.sp, fontWeight = FontWeight.Bold,
-            )
-            Text(
-                Units.speedUnit(context, speedUnit),
-                color = c.textSecondary, fontSize = 18.sp,
-                modifier = Modifier.padding(start = 6.dp, bottom = 10.dp),
-            )
-        }
-        AndroidAutoSettings.metricSlots(s.androidAuto.metrics).chunked(2).forEach { pair ->
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                pair.forEach { key ->
-                    val type = WidgetMetricType.byKey(key)
-                    Column(
-                        Modifier.weight(1f)
-                            .background(c.surfaceVariant, RoundedCornerShape(10.dp))
-                            .padding(vertical = 6.dp, horizontal = 8.dp)
-                    ) {
-                        if (type != null) {
-                            Text(stringResource(type.pickerLabel), color = c.textSecondary, fontSize = 12.sp, maxLines = 1)
-                            Text(
-                                WidgetMetricFormat.value(type, wheel, speedUnit, distUnit, tempUnit, phoneBattery) +
-                                    " " + WidgetMetricFormat.unit(context, type, speedUnit, distUnit, tempUnit),
-                                color = c.textPrimary, fontSize = 20.sp, fontWeight = FontWeight.SemiBold, maxLines = 1,
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
 /**
  * Where the host draws its navigation cards, as shares of the height above
  * the car's bottom bar: the inset from the screen's edge, the bottom of the turn card and

@@ -35,9 +35,6 @@ class OfflineMapRenderer(private val dir: File) {
         override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, VectorTile>?) = size > 48
     }
 
-    /** True when a downloaded square holds this tile. */
-    fun has(z: Int, x: Int, y: Int): Boolean = square(z, x, y) != null
-
     /** The tile drawn [size] pixels wide, or null when no square has it. */
     fun render(z: Int, x: Int, y: Int, size: Int = 256): Bitmap? {
         val pm = square(z, x, y) ?: return null

@@ -219,8 +219,8 @@ class ExternalGpsViewModel(
     private var autoDetectJob: Job? = null
 
     /** Output axis we assign each captured raw axis to. Convention:
-     *   forward (axis X) = lateral push of the wheel direction of travel
-     *   lateral (axis Y) = side-to-side
+     *   lateral (axis X) = side-to-side
+     *   forward (axis Y) = direction of travel
      *   vertical (axis Z) = up/down
      * which mirrors the rider's body frame and the existing crosshair plot. */
     fun startAutoDetect(onApply: (mapX: String, mapY: String, mapZ: String) -> Unit) {
@@ -247,8 +247,7 @@ class ExternalGpsViewModel(
                 kotlinx.coroutines.delay(1000)
                 val lateral = repository.captureDominantAxis(2000) ?: "X"
 
-                // Vertical: slowly lower the device to the ground. Shorter
-                // window because the motion itself is brief (~2 s).
+                // Vertical: slowly lower the device to the ground.
                 _autoDetect.value = AutoDetectPhase.VerticalInstruct
                 nextSignal.first()
                 _autoDetect.value = AutoDetectPhase.VerticalCapture

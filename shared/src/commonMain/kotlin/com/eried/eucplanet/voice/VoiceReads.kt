@@ -48,9 +48,8 @@ val VOICE_READS: List<Pair<String, Boolean>> = listOf(
 )
 
 /**
- * Live values for the metrics with no spoken report of their own. Numbers
- * without units for now: the units live in the dashboard's per-key formatter,
- * and lifting them out is its own change.
+ * Live raw values for the metrics with no spoken report of their own.
+ * Callers format them with formatMetric, which adds the rider's units.
  */
 val EXTRACTORS: Map<String, (com.eried.eucplanet.data.model.WheelData) -> Float?> =
     VOICE_READS.associate { (key, filtered) ->

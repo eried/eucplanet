@@ -35,7 +35,8 @@ import java.nio.charset.StandardCharsets
 /**
  * Thin orange strip on the dashboard inviting users to report issues for
  * preliminary-supported wheels. Hidden when no wheel is connected and when the
- * connected wheel is the verified V14 family. Click flow:
+ * connected wheel is in the verified or rider-tested set (see
+ * VERIFIED_WHEEL_TOKENS). Click flow:
  *
  *   first click  → explainer dialog → [Report an issue] opens GitHub Issues form
  *                                   → [Cancel] keeps the dialog reappearing on next click
@@ -51,7 +52,7 @@ fun ExperimentalBanner(
     detectedWheelName: String? = null,
     detectedFirmware: String? = null
 ) {
-    // Only show for wheels other than the verified V14 family. A null name
+    // Only show for wheels outside the verified or rider-tested set. A null name
     // (disconnected) hides the banner, there's nothing to report yet.
     if (!isPreliminaryWheel(detectedWheelName)) return
 

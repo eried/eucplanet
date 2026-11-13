@@ -121,7 +121,7 @@ fun CompositeMetricBody(
     // and gets the divider treatment, just over the real cell count.
     val populated = cells.mapIndexedNotNull { i, key ->
         val k = key.trim()
-        // COMPOSITE_CELL_EMPTY ("(none)") collapses the slot -- drop it.
+        // COMPOSITE_CELL_EMPTY ("(blank)") collapses the slot -- drop it.
         // COMPOSITE_CELL_BLANK ("(empty)") reserves the slot -- keep it
         // so the layout count stays put; CompositeCell renders an empty Box.
         if (k.isEmpty() || k == COMPOSITE_CELL_EMPTY) null
@@ -206,12 +206,9 @@ fun CustomTileBody(tile: CustomTile) {
     // For OPEN_URL and SHOW_QR tiles, replace the rider's chosen group
     // icon with the action's own glyph (link / qr) so the tile itself
     // tells you what tapping it will do. NONE-action tiles keep the
-    // Truly-empty tiles (no text, no url, no action) fall back to the
-    // current default-icon constant so the dashboard reads "blank slot,
+    // rider's icon. Truly-empty tiles (no text, no url, no action) show
+    // CUSTOM_TILE_DEFAULT_ICON so the dashboard reads "blank slot,
     // configure me" with the same glyph the rider sees on fresh tiles.
-    // Previously this was hardcoded to "EMPTY" (outlined checkbox);
-    // tracking CUSTOM_TILE_DEFAULT_ICON keeps the unconfigured visual
-    // aligned with whatever default the codebase has chosen.
     val isTrulyEmpty = tile.text.isBlank() && tile.url.isBlank() &&
         tile.action == CustomTileAction.NONE
     val mainIcon = when {
@@ -282,10 +279,8 @@ fun groupIconFor(key: String): ImageVector = when (key) {
     "WARNING" -> Icons.Filled.Warning
     "NOTIFICATIONS" -> Icons.Filled.Notifications
     "LINK" -> Icons.Filled.Link
-    // Outlined square placeholder for freshly-spawned / never-configured
-    // custom tiles, so the dashboard doesn't pretend an unconfigured tile
-    // is a link/qr. The rider can still pick this from the icon grid as
-    // an explicit "blank slot" visual.
+    // Legacy key: the old default icon for custom tiles. Not offered in
+    // the picker, kept so an old saved value still resolves.
     "EMPTY" -> Icons.Filled.CheckBoxOutlineBlank
     else -> Icons.Filled.Folder
 }
@@ -418,10 +413,7 @@ fun CompositeCell(
     valueOf: (String, DashboardStat) -> String,
     modifier: Modifier = Modifier
 ) {
-    val isNone = key.isEmpty() || key == COMPOSITE_CELL_EMPTY
     val isBlank = key == COMPOSITE_CELL_BLANK
-    val isEmpty = isNone || isBlank
-    val accent = if (!isEmpty) metricAccentColor(key) else MaterialTheme.colorScheme.onSurfaceVariant
     if (isBlank) {
         // "(empty)" placeholder: reserves the slot but draws nothing,
         // so the surrounding composite layout stays the size the rider
@@ -429,25 +421,7 @@ fun CompositeCell(
         Box(modifier = modifier)
         return
     }
-    if (isNone) {
-        // "(none)": the slot ITSELF is meant to read as "deliberately
-        // blank, prefer to collapse". The CompositeMetricBody filter
-        // drops these from the layout entirely; the dash here is for
-        // any code path that still renders the cell (the editor list
-        // before the filter, for instance).
-        Box(
-            modifier = modifier,
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                "–",
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                maxLines = 1
-            )
-        }
-        return
-    }
+    val accent = metricAccentColor(key)
     val label = metricChipLabel(key, short = true).uppercase()
     val value = valueOf(key, stat)
     // Stat indicator on top, only shown when the rider picked a non-
@@ -504,26 +478,9 @@ fun CompositeCellRow(
     valueOf: (String, DashboardStat) -> String,
     modifier: Modifier = Modifier
 ) {
-    val isNone = key.isEmpty() || key == COMPOSITE_CELL_EMPTY
     val isBlank = key == COMPOSITE_CELL_BLANK
     if (isBlank) {
         Box(modifier = modifier)
-        return
-    }
-    if (isNone) {
-        Box(
-            modifier = modifier.padding(horizontal = 8.dp),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            Text(
-                stringResource(Res.string.dashboard_composite_empty_label),
-                fontSize = 10.sp,
-                fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
         return
     }
     val accent = metricAccentColor(key)

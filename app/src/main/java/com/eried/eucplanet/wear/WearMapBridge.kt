@@ -890,7 +890,6 @@ class WearMapBridge(
     ) {
         if (write.targetNodeId.isBlank() || write.key !in allowedTileWriteKeys) return
         try {
-            if (write.key !in allowedTileWriteKeys) return
             Tasks.await(
                 messageClient.sendMessage(
                     write.targetNodeId,

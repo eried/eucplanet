@@ -24,7 +24,7 @@ sealed interface PairResult {
 }
 
 /**
- * The app's half of the crews pairing handshake  -  two calls, and that is the whole of the
+ * The app's half of the crews pairing handshake: two calls, and that is the whole of the
  * phone's involvement in crews.
  *
  * It takes the server origin per call rather than from the injected base url, because the
@@ -37,7 +37,8 @@ class PairApi(private val client: HttpClient) {
      * Ask what a code is for, before showing an approve button.
      *
      * A confirmation screen that only says "Allow?" is a screen people learn to tap through,
-     * so the app asks the server what it is being asked to approve and puts that on screen.
+     * so the app asks the server what it is being asked to approve first. The approve
+     * button only shows once the server has answered.
      */
     suspend fun describe(link: PairLink): PairOffer? = withContext(Dispatchers.IO) {
         val req = HttpRequest("${link.apiBase}/pair/describe?code=${link.code}", HttpRequest.Body.None)

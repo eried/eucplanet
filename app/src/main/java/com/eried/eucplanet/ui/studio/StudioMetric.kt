@@ -17,7 +17,7 @@ enum class StudioMetricKind { SPEED, DISTANCE, ALTITUDE, TEMPERATURE, PRESSURE, 
  *
  * The rider's setting when there is one. Blank falls back to deriving it from
  * the distance unit, which is what [Units.effectivePressureUnit] does with an
- * unset setting and what every caller here used to do unconditionally.
+ * unset setting.
  */
 private fun pressureUnitFor(distUnit: String, pressureUnit: String): String =
     pressureUnit.ifBlank { if (distUnit == "mi") "psi" else "bar" }
@@ -72,9 +72,9 @@ enum class StudioMetric(
     EXTERNAL_GPS_SPEED("EXT_GPS_SPEED", "Ext GPS speed", StudioMetricKind.SPEED, "", 1, 60f, { it.externalGpsSpeedKmh.coerceAtLeast(0f) }),
     TIRE_PRESSURE("TIRE_PRESSURE", "Tire pressure", StudioMetricKind.PRESSURE, "", 1, 50f, { it.tirePressureKpa }),
     GPS_SPEED("GPS_SPEED", "GPS speed", StudioMetricKind.SPEED, "", 1, 60f, { it.gpsSpeedKmh.coerceAtLeast(0f) }),
-    // Altitude is a DISTANCE so it follows the rider's distance unit the way
-    // the dashboard tile does (metres, or feet on miles). NaN means no fix
-    // yet; 0 would draw a rider at sea level who is not.
+    // Altitude has its own kind: metres, or feet for a rider on miles, the way
+    // the dashboard tile does. NaN means no fix yet and reads as 0, the same
+    // stand-in as Consumption and Range.
     GPS_ALTITUDE("GPS_ALTITUDE", "Altitude", StudioMetricKind.ALTITUDE, "", 0, 1000f,
         { if (it.gpsAltitudeM.isNaN()) 0f else it.gpsAltitudeM }),
     // A lat/lng pair shown as text (not a scalar), so it only makes sense on a

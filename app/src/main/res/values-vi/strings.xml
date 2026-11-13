@@ -5,7 +5,6 @@
     <string name="notification_channel_description">Hiển thị trạng thái kết nối và dữ liệu đo từ xe.</string>
     <string name="keep_app_alive">Giữ ứng dụng chạy</string>
     <string name="keep_app_alive_desc">Giữ một thông báo thường trực để ứng dụng tiếp tục chạy nền. Đồng bộ chuyến đi và giọng nói vẫn hoạt động khi chưa kết nối xe. Tốn pin hơn một chút.</string>
-    <string name="notif_actions_section">Tùy chỉnh</string>
     <string name="notif_actions_enable">Hiện thao tác trên thông báo</string>
     <string name="notif_actions_enable_desc">Thêm nút thao tác nhanh vào thông báo thường trực.</string>
     <string name="notif_actions_pick_desc">Chọn tối đa %1$d thao tác. Có thể lặp lại cùng một thao tác.</string>
@@ -37,9 +36,6 @@
     <string name="state_off">Tắt</string>
     <string name="action_done">Xong</string>
     <string name="action_close">Đóng</string>
-    <string name="crash_log_action_prompt">Bạn đã nhấn giữ %1$s. Chỉ xóa nhật ký này, hay xóa tất cả. Để chia sẻ, hãy chạm Hủy rồi chạm vào tệp.</string>
-    <string name="crash_log_delete_all">Xóa tất cả</string>
-    <string name="crash_log_delete_all_warning">Xóa mọi nhật ký sự cố đã lưu? Không thể hoàn tác.</string>
     <string name="action_save">Lưu</string>
     <string name="action_apply">Áp dụng</string>
     <string name="action_reset">Đặt lại</string>
@@ -120,12 +116,10 @@
     <string name="tab_dashboard">Bố cục bảng điều khiển</string>
     <string name="dashboard_section_metrics">Chỉ số</string>
     <string name="dashboard_section_actions">Nút thao tác</string>
-    <string name="dashboard_columns">Số cột</string>
     <string name="dashboard_grid_hint">Nhấn giữ để kéo, chạm để sửa.</string>
     <string name="dashboard_pool_metrics">Chỉ số có sẵn</string>
     <string name="dashboard_pool_actions">Thao tác có sẵn</string>
     <string name="dashboard_pool_tap_toast">Nhấn giữ và kéo vào một ô bên trên để dùng</string>
-    <string name="dashboard_rolling_window">Khoảng thống kê trượt</string>
     <string name="dashboard_stats_length">Độ dài thống kê</string>
     <string name="dashboard_view">Chế độ xem</string>
     <string name="dashboard_view_default">Mặc định</string>
@@ -750,7 +744,6 @@
     <string name="watch_screen_button_2">Nút 2</string>
     <string name="watch_haptic_on_action">Rung khi thao tác</string>
     <string name="watch_haptic_on_action_desc">Đồng hồ rung nhẹ mỗi lần nhấn, nếu được hỗ trợ.</string>
-    <string name="section_cloud_folder">Thư mục sao lưu</string>
     <string name="cloud_caption">Thư mục sao lưu chuyến đi, cài đặt, giao diện và lớp phủ của bạn.</string>
     <string name="cloud_choose_folder">Chọn thư mục</string>
     <string name="cloud_change_folder">Đổi thư mục</string>
@@ -774,7 +767,6 @@
     <string name="cloud_reset_local">Xóa chuyến đi trên máy</string>
     <string name="cloud_reset_local_title">Xóa chuyến đi trên máy?</string>
     <string name="cloud_reset_local_body">Xóa mọi chuyến đi đã lưu trên điện thoại này. Thư mục sao lưu không bị ảnh hưởng, nên có thể khôi phục các chuyến đã đồng bộ từ đó.</string>
-    <string name="cloud_retry_enqueued">Đã lên lịch tải lên</string>
     <string name="action_retry">Thử lại</string>
     <string name="sync_progress">Đang đồng bộ %1$d / %2$d</string>
     <string name="sync_no_folder">Hãy chọn thư mục sao lưu trước</string>
@@ -815,10 +807,7 @@
     <string name="cloud_factory_confirm_action">Đặt lại</string>
     <string name="section_recording">Ghi hành trình</string>
     <string name="section_connection">Kết nối</string>
-    <string name="section_display">Hiển thị</string>
-    <string name="auto_record_on_start">Tự ghi khi khởi động</string>
     <string name="auto_record_caption">Ghi chuyến đi khi xe được kết nối.</string>
-    <string name="auto_record_start_in_motion">Bắt đầu ghi khi di chuyển</string>
     <string name="auto_record_start_in_motion_caption">Bắt đầu khi di chuyển, tự dừng sau khi đứng yên, ghi lại ở chuyến sau.</string>
     <string name="auto_record_stop_idle_seconds">Dừng sau khi đứng yên</string>
     <string name="auto_record_mode_label">Tự ghi chuyến đi</string>
@@ -1099,11 +1088,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Xe tải diesel</string>
     <string name="engine_preset_sampled_motorcycle">Xe cào cào nhỏ</string>
     <string name="engine_preset_sampled_city_car">Ô tô đô thị</string>
-    <string name="engine_preset_sampled_helicopter">Trực thăng</string>
     <string name="engine_preset_sampled_tractor">Máy kéo</string>
     <string name="engine_preset_sampled_lawnmower">Máy cắt cỏ</string>
     <string name="engine_preset_sampled_steam_loco">Đầu máy hơi nước</string>
-    <string name="engine_preset_sampled_car_cruise">Ô tô chạy đều</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
     <string name="engine_preset_sampled_big_diesel">Diesel lớn</string>
     <string name="engine_preset_sampled_broken_exhaust">Ống xả thủng</string>
@@ -1296,7 +1283,6 @@
     <string name="trip_meter_tab_speed">Tốc độ</string>
     <string name="trip_meter_tab_battery">Pin</string>
     <string name="trip_meter_tab_time">Thời gian</string>
-    <string name="trip_meter_total">Tổng</string>
     <string name="trip_meter_active">Đang chạy</string>
     <string name="trip_meter_avg">TB</string>
     <string name="trip_meter_reset">Đặt lại đồng hồ chuyến</string>
@@ -1452,7 +1438,6 @@
     <string name="trip_tools_rename">Đổi tên chuyến đi</string>
     <string name="trip_tools_rename_desc">Đặt tên cho chuyến đi này. Tên được lưu trong tệp nên đi kèm khi xuất và đồng bộ.</string>
     <string name="trip_tools_rename_hint">Để trống để dùng ngày.</string>
-    <string name="trip_tools_renamed">Đã đổi tên chuyến đi</string>
     <string name="trip_tools_change_wheel">Đổi xe</string>
     <string name="trip_tools_change_wheel_desc">Sửa lại xe đã dùng cho chuyến này. Cập nhật chuyến đi và tệp của nó.</string>
     <string name="trip_tools_wheel_other">Xe khác</string>
@@ -1483,8 +1468,6 @@
     <string name="trip_split_reason_wheel">Một xe khác được dùng</string>
     <string name="trip_split_reason_gap">Khoảng trống trong bản ghi</string>
     <string name="trip_split_reason_stopped">Dừng trong thời gian dài</string>
-    <string name="trip_tools_combine">Gộp chuyến đi</string>
-    <string name="trip_tools_combine_desc">Gộp các chuyến khác vào chuyến này thành một chuyến mới, giữ lại bản gốc.</string>
     <string name="trip_tools_combine_none">Không có chuyến đã hoàn tất nào khác để gộp.</string>
     <string name="trip_tools_combine_mixed_wheels">Một số chuyến được chạy bằng xe khác. Quãng đường và năng lượng sẽ được cộng gộp.</string>
     <string name="trip_tools_combine_done">Đã gộp các chuyến thành chuyến mới</string>
@@ -1520,12 +1503,10 @@
     <string name="auto_lights_when">Theo giờ mặt trời lặn và mọc khi</string>
     <string name="auto_lights_off_slow">Tắt đèn khi giảm tốc</string>
     <string name="auto_lights_off_below">Tắt dưới</string>
-    <string name="auto_lights_desc">Bật hoặc tắt đèn pha theo giờ mặt trời lặn và mọc.</string>
     <string name="auto_lights_on_before_sunset">BẬT đèn trước</string>
     <string name="auto_lights_off_after_sunrise">TẮT đèn sau</string>
     <string name="auto_waiting_gps">Đang chờ vị trí GPS…</string>
     <string name="auto_volume_title">Điều khiển âm lượng</string>
-    <string name="auto_volume_desc">Tăng âm lượng nhạc theo tốc độ.</string>
     <string name="auto_volume_when">Tăng âm lượng khi</string>
     <string name="media_rate_when">Đổi tốc độ phát khi</string>
     <string name="media_rate_permission_desc">Android yêu cầu quyền này riêng. Thiếu quyền thì không thể đổi tốc độ phát.</string>
@@ -1535,14 +1516,12 @@
     <string name="media_rate_grant">Cấp quyền</string>
     <string name="warnings_media_access_title">Quyền truy cập thông báo đang tắt</string>
     <string name="warnings_media_access_body">Thiếu quyền này, tốc độ phát không thể theo tốc độ của bạn. Chạm để cho phép.</string>
-    <string name="media_control_desc">Tạm dừng nhạc khi bạn giảm tốc, phát tiếp khi bạn tăng tốc.</string>
     <string name="media_control_pause">Tạm dừng khi giảm tốc</string>
     <string name="media_control_pause_below">Tạm dừng khi bằng hoặc dưới</string>
     <string name="media_control_resume">Phát tiếp khi tăng tốc</string>
     <string name="media_control_resume_above">Phát tiếp khi bằng hoặc trên</string>
     <string name="automation_require_external">Chỉ khi dùng tai nghe hoặc Bluetooth</string>
     <string name="proximity_lock_title">Khóa xe</string>
-    <string name="proximity_lock_desc">Khóa xe khi bạn đi xa và mở khóa khi bạn quay lại, dựa trên cường độ tín hiệu Bluetooth.</string>
     <string name="proximity_lock_enable">Khóa khi tôi đi xa</string>
     <string name="proximity_lock_below">Tín hiệu dưới</string>
     <string name="proximity_unlock_when">Tự mở khóa</string>
@@ -1656,8 +1635,6 @@
     <string name="alarm_predict_help_lead">Báo khoảng %1$s s trước khi %2$s, dựa trên xu hướng gần đây.</string>
     <string name="alarm_predict_label">Kích hoạt dự đoán</string>
     <string name="alarm_predict_realtime">Ngay</string>
-    <string name="about_crash_logs">Nhật ký sự cố</string>
-    <string name="about_crash_logs_empty">Chưa ghi nhận sự cố nào</string>
     <string name="about_share_crash">Chia sẻ nhật ký sự cố</string>
     <string name="about_thanks">Ghi công</string>
     <string name="about_thanks_body">Tôi đã chán những ứng dụng EUC phát triển quá chậm, giao diện lỗi thời, có những quy định khắt khe với tính năng mới, coi cộng đồng như khách hàng, và quên rằng người chạy xe EUC tuyệt vời nhất khi giúp đỡ lẫn nhau. Ứng dụng này cố gắng làm điều ngược lại.</string>
@@ -1669,7 +1646,6 @@
     <string name="service_mode_link">Truy cập eucplanet.ried.no/service để biết thêm thông tin.</string>
     <string name="service_mode_enter">Vào</string>
     <string name="toast_external_speed_change">Đã cập nhật tốc độ từ xe: tiltback %1$d km/h, cảnh báo %2$d km/h</string>
-    <string name="wheel_no_data_reconnecting">Không có dữ liệu từ xe. Đang kết nối lại…</string>
     <string name="wheel_no_data_reset">Vẫn chưa có dữ liệu từ xe. Hãy thử tắt rồi bật lại xe.</string>
     <string name="trip_map_ride_start">Bắt đầu chạy: %1$s</string>
     <string name="trip_map_reconnected">Đã kết nối lại: %1$s</string>
@@ -1711,11 +1687,8 @@
     <string name="online_upload_total_km">%1$s %2$s</string>
     <string name="online_upload_join">Tham gia bảng xếp hạng</string>
     <string name="online_status_shared">Đã chia sẻ lên bảng xếp hạng</string>
-    <string name="online_status_flagged">Đã chia sẻ, đang xét duyệt</string>
     <string name="online_status_pending">Đang tải lên bảng xếp hạng…</string>
     <string name="online_status_failed">Tải lên thất bại, chạm để thử lại</string>
-    <string name="online_status_checking">Đang kiểm tra với bảng xếp hạng…</string>
-    <string name="online_status_check_failed">Không thể kiểm tra lúc này, hãy thử lại sau</string>
     <string name="online_status_rejected">Không được chấp nhận vào bảng xếp hạng</string>
     <string name="online_upload_join_caption">Tham gia để gửi thống kê và chuyến đi lên bảng xếp hạng công khai tại.</string>
     <string name="online_upload_linked_caption">Thống kê và chuyến đi của bạn xuất hiện trên bảng xếp hạng công khai tại.</string>
@@ -1735,7 +1708,6 @@
     <string name="online_profile_delete_confirm_action">Xóa vĩnh viễn</string>
     <string name="online_profile_save_rate_limited">Bị giới hạn tần suất, hãy thử lại sau.</string>
     <string name="online_profile_save_failed">Lưu thất bại (HTTP %1$d). Hãy thử lại.</string>
-    <string name="online_status_flagged_why">Đang chờ kiểm tra tự động nhanh. Chuyến đi sẽ vào bảng xếp hạng khi được thông qua.</string>
     <string name="online_restore_title">Đã tìm thấy hồ sơ đã lưu</string>
     <string name="online_restore_body_new">Chúng tôi tìm thấy hồ sơ đã lưu tại đây: %1$s. Tiếp tục sẽ tham gia lại bảng xếp hạng công khai với danh tính người chạy xe đó, tên, cờ, ảnh đại diện và thống kê chuyến đi đều công khai. Không tạo hồ sơ mới.</string>
     <string name="online_restore_body_switch">Chúng tôi tìm thấy một hồ sơ đã lưu khác: %1$s. Tiếp tục sẽ chuyển điện thoại này sang người chạy xe đó; hồ sơ hiện tại được sao lưu trước.</string>
@@ -1870,8 +1842,6 @@
     <string name="studio_video_fit">Vừa khung</string>
     <string name="studio_video_fit_stretch">Kéo giãn</string>
     <string name="studio_video_offset">Độ lệch</string>
-    <string name="studio_video_offset_value_fmt">%1$d ms</string>
-    <string name="studio_video_offset_nudge_fmt">%1$+d ms</string>
     <string name="studio_video_set_offset">Hiện tại</string>
     <string name="studio_video_edge">Ngoài phạm vi</string>
     <string name="studio_video_edge_freeze">Đứng hình</string>
@@ -1932,9 +1902,6 @@
     <string name="studio_cfg_time_window_fmt">%1$ds</string>
     <string name="studio_cfg_trail_label">Độ dài vết</string>
     <string name="studio_cfg_map_style">Kiểu bản đồ</string>
-    <string name="studio_cfg_map_street">Đường phố</string>
-    <string name="studio_cfg_map_dark">Tối</string>
-    <string name="studio_cfg_map_satellite">Vệ tinh</string>
     <string name="studio_cfg_map_zoom">Thu phóng</string>
     <string name="studio_cfg_map_attribution">Hiện ghi công bản đồ</string>
     <string name="studio_cfg_map_attribution_off">Giấy phép bản đồ yêu cầu ghi công trên mọi thứ bạn chia sẻ. Tắt đi là quyết định của bạn.</string>
@@ -2091,7 +2058,6 @@
     <string name="trip_action_inspect_online">Xem trực tuyến</string>
     <string name="trip_action_inspect_online_desc">Chia sẻ liên kết eucviewer.ried.no để xem chuyến đi này trực tuyến.</string>
     <string name="trip_action_dropbox_disabled">Liên kết Dropbox trong cài đặt để bật tính năng này</string>
-    <string name="nav_tap_on_self">Trong danh sách Điểm dừng, nhấn giữ một điểm để đặt nó thành vị trí của bạn</string>
     <string name="nav_start_short">Bắt đầu dẫn đường</string>
     <string name="nav_start_btn">Bắt đầu</string>
     <string name="nav_stop_short">Dừng dẫn đường</string>
@@ -2199,7 +2165,6 @@
     <string name="nav_setting_arrival_radius_desc">Khoảng cách được tính là đã đến điểm dừng.</string>
     <string name="nav_setting_offroute">Dung sai lệch đường</string>
     <string name="nav_setting_offroute_desc">Lệch khỏi lộ trình bao xa thì cảnh báo lệch đường được kích hoạt.</string>
-    <string name="nav_setting_default_mode">Chế độ di chuyển mặc định</string>
     <string name="nav_setting_params">Dẫn đường &amp; thời tiết</string>
     <string name="weather_section">Thời tiết</string>
     <string name="weather_icon_desc">Dự báo thời tiết</string>
@@ -2220,7 +2185,6 @@
     <string name="weather_enable_desc">Thêm biểu tượng thời tiết phía trên nút bản đồ: chạm để xem dự báo khả năng chạy xe.</string>
     <string name="weather_window_label">Khoảng dự báo</string>
     <string name="weather_source_label">Nguồn dự báo</string>
-    <string name="weather_comfort_desc">Các ngưỡng dễ chịu dùng để tính điểm. Nhiệt độ theo đơn vị bạn đặt; gió theo đơn vị tốc độ.</string>
     <string name="weather_cold">Quá lạnh khi dưới</string>
     <string name="weather_hot">Quá nóng khi trên</string>
     <string name="weather_breezy">Gió nhẹ khi trên</string>
@@ -2247,7 +2211,6 @@
     <string name="weather_lvl_prime_2">Thời tiết chạy xe tuyệt vời!</string>
     <string name="weather_expand">Chi tiết</string>
     <string name="weather_chart_temp">Nhiệt độ, độ ẩm &amp; lượng mưa</string>
-    <string name="weather_chart_precip">Lượng mưa</string>
     <string name="weather_chart_wind">Gió &amp; gió giật</string>
     <string name="weather_adv_snow_now">Đang có tuyết - mất độ bám.</string>
     <string name="weather_adv_snow_in">Dự kiến có tuyết sau %1$s.</string>
@@ -2374,8 +2337,6 @@
     <string name="share_alone">Chưa có ai khác ở đây.</string>
     <string name="share_copy">Sao chép</string>
     <string name="share_open">Mở</string>
-    <string name="share_menu_join">Tham gia chuyến đi nhóm</string>
-    <string name="share_menu_join_desc">Quét mã QR.</string>
     <string name="share_menu_live">Chia sẻ vị trí trực tiếp</string>
     <string name="share_menu_live_desc">Bắt đầu chuyến đi nhóm.</string>
     <string name="share_menu_static">Chia sẻ vị trí cố định</string>
@@ -2584,7 +2545,6 @@
     <string name="action_reset_metrics_wheel_done">Đã đặt lại chỉ số, đã xóa quãng đường chuyến trên xe</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
     <string name="tpms_waiting">Đang chờ dữ liệu</string>
-    <string name="status_live">Trực tiếp</string>
     <string name="status_idle">Chờ</string>
     <string name="tpms_state_leaking">Đang xì hơi</string>
     <string name="tpms_state_inflating">Đang bơm</string>
@@ -2604,7 +2564,6 @@
     <string name="horn_mode_sound">Tùy chỉnh</string>
     <string name="horn_mode_both">Kết hợp</string>
     <string name="horn_mode_hint">Tùy chỉnh phát âm thanh riêng của bạn trên điện thoại. Kết hợp thêm âm đó vào còi xe, cho loa ngoài. Nếu điện thoại không phát được, còi xe sẽ kêu thay.</string>
-    <string name="horn_sound_none">Chưa chọn âm thanh</string>
     <string name="horn_sound_current">Âm thanh: %1$s</string>
     <string name="horn_sound_choose">Chọn âm thanh</string>
     <string name="horn_sound_imported">Đã lưu âm thanh còi</string>
@@ -2620,7 +2579,6 @@
     <string name="voice_stat_min">Min</string>
     <string name="voice_stat_avg">TB</string>
     <string name="voice_stat_peak">Đỉnh</string>
-    <string name="crews_title">Đội nhóm</string>
     <string name="crews_pass_action">Thẻ đội</string>
     <string name="crews_pass_search_hint">Thẻ đội sẽ xuất hiện khi bạn tham gia bảng xếp hạng trực tuyến.</string>
     <string name="crews_scan_hint">Mở eucstats trên trình duyệt, nhấn Crews, rồi hướng camera vào mã hiển thị.</string>
@@ -2725,7 +2683,6 @@
     <string name="nav_unlock_stops">Điểm dừng</string>
     <string name="nav_unlock_off">Lệch tối đa %1$s so với vết</string>
     <string name="nav_unlock_confirm">Chuyển đổi</string>
-    <string name="nav_track_badge">Vết đã khóa</string>
     <string name="voice_nav_place_reached">Đã đến %1$s</string>
     <string name="offline_data_open">Khu vực ngoại tuyến</string>
     <string name="offline_server_url">Máy chủ dữ liệu ngoại tuyến</string>

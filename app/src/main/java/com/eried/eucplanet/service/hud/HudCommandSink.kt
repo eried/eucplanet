@@ -36,9 +36,8 @@ class HudCommandSink(
     companion object { private const val TAG = "HudCommandSink" }
 
     // Reading the rider's joystick bindings is a suspend call (settings live in
-    // DataStore), so HudCommand.Action handling hops onto a coroutine. Main
-    // immediate keeps the common "already on main" dispatch synchronous-ish and
-    // matches where HudServer delivers commands from.
+    // DataStore), so HudCommand.Action handling hops onto a main-thread
+    // coroutine. Commands arrive on OkHttp's reader thread.
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     private val _hudVersionCompat = MutableStateFlow(VersionCompat.EXACT)
@@ -74,8 +73,8 @@ class HudCommandSink(
     /** Whether the linked HUD can be sent its app, or asked to remove it. */
     val hudTakesApp: StateFlow<Boolean> = _hudTakesApp.asStateFlow()
 
-    /** Called by [HudServer] on every WS open / close so the UI hint
-     *  doesn't linger after the HUD has disconnected. */
+    /** Called by [HudServer] when the WebSocket closes or fails, so the UI
+     *  hint doesn't linger after the HUD has disconnected. */
     fun onHudDisconnected() {
         _hudVersionCompat.value = VersionCompat.EXACT
         _hudVersion.value = null

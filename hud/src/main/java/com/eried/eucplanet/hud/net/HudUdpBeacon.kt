@@ -59,11 +59,8 @@ class HudUdpBeacon(
         kickCh.trySend(Unit)
     }
 
-    /** Stats for the HUD-side diagnostics card. Atomic counters so the UI
-     *  can subscribe without a flow contention surface. */
-    @Volatile var lastTickAtMs: Long = 0L; private set
+    /** Beacons sent so far, for the log line below. */
     @Volatile var totalTicks: Long = 0L; private set
-    @Volatile var lastResolvedIp: String = ""; private set
 
     /**
      * Start the beacon. [hudPort] is the WebSocket port the phone should
@@ -96,7 +93,6 @@ class HudUdpBeacon(
                         delayOrKick()
                         continue
                     }
-                    lastResolvedIp = ip
                     val payload = "${HudDiscovery.BEACON_PREFIX} ip=$ip port=$hudPort\n"
                     val bytes = payload.toByteArray(Charsets.US_ASCII)
                     val targets = broadcastTargets()
@@ -110,7 +106,6 @@ class HudUdpBeacon(
                         }
                     }
                     if (sentOk > 0) {
-                        lastTickAtMs = System.currentTimeMillis()
                         totalTicks++
                         if (totalTicks <= 3L || totalTicks % 10 == 0L) {
                             Log.i(TAG, "beacon tick #$totalTicks ip=$ip targets=${targets.size} sentOk=$sentOk")
