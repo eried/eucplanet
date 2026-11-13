@@ -8,12 +8,15 @@ import androidx.compose.ui.graphics.vector.addPathNodes
 import androidx.compose.ui.unit.dp
 
 /**
- * An electric unicycle, side on: the tyre with its hub, the seat on a short
- * post and the pedals across the lower half. Material has no unicycle, and its
- * bicycle and motorcycle icons call the wheel something it is not.
+ * An electric unicycle, side on: the shell, rounded on top and following the
+ * tyre below, with the tyre showing through, the pedals across it with the hub
+ * half under them, and a cushioned seat sunk into the top. Material has no
+ * unicycle, and its bicycle and motorcycle icons call the wheel something it
+ * is not.
  *
  * Drawn on Material's 24 grid in black like the stock icons, so `Icon` tints it
- * from the theme the same way.
+ * from the theme the same way. Parts that touch overlap rather than share an
+ * edge, so no hairline shows between them.
  */
 val WheelIcon: ImageVector by lazy {
     ImageVector.Builder(
@@ -23,18 +26,17 @@ val WheelIcon: ImageVector by lazy {
         viewportWidth = 24f,
         viewportHeight = 24f,
     ).apply {
-        // Tyre, a ring.
+        // Shell with the tyre opening.
         addPath(
-            pathData = addPathNodes("M12 7.5a6.5 6.5 0 1 1 0 13a6.5 6.5 0 1 1 0-13zm0 2.2a4.3 4.3 0 1 0 0 8.6a4.3 4.3 0 1 0 0-8.6z"),
+            pathData = addPathNodes("M4.5 14.5V10a3 3 0 0 1 3-3h9a3 3 0 0 1 3 3v4.5a7.5 7.5 0 0 1-15 0zM12 9.5a5 5 0 1 0 0 10a5 5 0 1 0 0-10z"),
             pathFillType = PathFillType.EvenOdd,
             fill = SolidColor(Color.Black),
         )
-        // Hub, seat post, seat and pedals.
+        // Hub, pedals and seat.
         listOf(
-            "M12 12.6a1.4 1.4 0 1 1 0 2.8a1.4 1.4 0 1 1 0-2.8z",
-            "M12 4.6a1 1 0 0 1 1 1v2a1 1 0 0 1-2 0v-2a1 1 0 0 1 1-1z",
-            "M10 3.6h4a1 1 0 0 1 0 2h-4a1 1 0 0 1 0-2z",
-            "M9.5 16.6h5a.9.9 0 0 1 0 1.8h-5a.9.9 0 0 1 0-1.8z",
+            "M8.1 14.9a3.9 3.9 0 0 1 7.8 0z",
+            "M8 14.5h8a1 1 0 0 1 0 2h-8a1 1 0 0 1 0-2z",
+            "M8 7.4q4-2.4 8 0v.4a.6 .6 0 0 1-.6 .6h-6.8a.6 .6 0 0 1-.6-.6z",
         ).forEach { addPath(pathData = addPathNodes(it), fill = SolidColor(Color.Black)) }
     }.build()
 }
