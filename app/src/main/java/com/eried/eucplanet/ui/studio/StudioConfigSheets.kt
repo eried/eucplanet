@@ -43,7 +43,7 @@ import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.DragIndicator
+import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.FolderOff
 import androidx.compose.material.icons.filled.FormatColorFill
 import androidx.compose.material.icons.filled.FormatColorReset
@@ -2887,9 +2887,9 @@ private fun ManageElementRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            Icons.Default.DragIndicator,
+            Icons.Default.DragHandle,
             contentDescription = stringResource(R.string.studio_cd_drag_reorder),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            tint = MaterialTheme.appColors.textSecondary,
             modifier = dragHandle
         )
         Spacer(Modifier.width(8.dp))

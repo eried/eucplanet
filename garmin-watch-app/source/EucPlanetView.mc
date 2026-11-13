@@ -85,6 +85,16 @@ class EucPlanetView extends WatchUi.View {
         maybeLoadDemo();
     }
 
+    //! Release builds (the store .iq, and any .prg built with -r) carry this
+    //! empty variant, so a rider without a phone sees "waiting for phone",
+    //! never invented telemetry.
+    (:release)
+    function maybeLoadDemo() as Void {
+    }
+
+    //! Debug builds only (simulator runs): a synthetic frame so the dial
+    //! layout can be previewed without a phone attached.
+    (:debug)
     function maybeLoadDemo() as Void {
         // Only fire when the dial is still waiting on the phone. As soon as
         // a real frame lands `phoneSynced` flips true and we leave the demo

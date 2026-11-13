@@ -645,7 +645,8 @@ private val LOG_FILTERS = listOf(
     LogFilter("racebox") { it.text.startsWith("racebox") },
     LogFilter("flic") { it.text.startsWith("flic") },
     LogFilter("radar") { it.text.startsWith("radar") },
-    LogFilter("tpms") { it.text.startsWith("tpms") },
+    // The scanner's decode trail is written in capitals ("TPMS adv ...").
+    LogFilter("TPMS") { it.text.startsWith("TPMS") },
     LogFilter("SEND") { it.kind == DiagnosticsLogger.Kind.SEND },
     LogFilter("RECV") { it.kind == DiagnosticsLogger.Kind.RECV },
     LogFilter("NOTE") { it.kind == DiagnosticsLogger.Kind.NOTE },

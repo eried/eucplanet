@@ -935,6 +935,19 @@ private fun RadarMinimal(element: OverlayElement, data: StudioElementData) {
  *  buffer) are decimated by an even stride down to this. */
 private const val TRAIL_MAX_POINTS = 200
 
+/** Shortest and longest G-Force trail the rider can pick, in seconds. */
+internal const val GFORCE_TRAIL_MIN_SEC = 2
+internal const val GFORCE_TRAIL_MAX_SEC = 20
+
+/**
+ * Live samples a [windowSec] trail reads: 50 Hz x seconds, plus a 15% exit-fade
+ * tail so the oldest segments can fade their alpha to 0 before they leave the
+ * array. A hard cutoff makes the curve geometry visibly snap. The view model's
+ * buffer has to hold at least this many for the longest trail.
+ */
+internal fun gForceTrailSamples(windowSec: Int): Int =
+    ((windowSec * 50f) * 1.15f).toInt().coerceAtLeast(2)
+
 /**
  * A circular crosshair plotting live lateral × forward G-force with a fading
  * comet trail, the studio twin of the dashboard's GForceCrosshair. Live, the
@@ -955,12 +968,9 @@ private fun GForceTrailElement(element: OverlayElement, data: StudioElementData)
     //   • Replay mode → derive the same shape from the trip CSV row history
     //     (already in `data.history` at ~10 Hz), so scrubbing the timeline
     //     animates the trail back through the recorded motion.
-    val windowSec = element.graphWindowSec.coerceIn(2, 20)
+    val windowSec = element.graphWindowSec.coerceIn(GFORCE_TRAIL_MIN_SEC, GFORCE_TRAIL_MAX_SEC)
     val trail = if (data.liveGForceTrail.isNotEmpty()) {
-        // 50 Hz × seconds, plus 15% exit-fade buffer so the oldest segments
-        // can fade their alpha to 0 *before* being removed from the array;
-        // a hard cutoff makes the curve geometry visibly snap.
-        val take = ((windowSec * 50f) * 1.15f).toInt().coerceAtLeast(2)
+        val take = gForceTrailSamples(windowSec)
         val src = data.liveGForceTrail
         if (src.size > take) src.subList(src.size - take, src.size) else src
     } else {

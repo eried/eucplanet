@@ -2131,7 +2131,7 @@
     <string name="nav_poi_website">Вебсайт</string>
     <string name="nav_pois_failed">Не вдалося завантажити місця. Перевірте з\'єднання</string>
     <string name="nav_pois_none">Поблизу цього маршруту нічого не знайдено</string>
-    <string name="nav_pois_places_hint">Порада: утримуйте цю кнопку, щоб вибрати, які місця показувати.</string>
+    <string name="nav_pois_places_hint">Порада: виберіть у списку нижче, які місця показувати.</string>
     <string name="nav_setting_advanced_map">Розширені функції карти</string>
     <string name="nav_setting_advanced_map_desc">Показувати зарядки та місця вздовж маршруту.</string>
     <string name="nav_setting_avoid">Уникати під час маршрутизації</string>

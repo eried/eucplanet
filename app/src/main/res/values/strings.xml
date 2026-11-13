@@ -2476,7 +2476,7 @@
     <string name="nav_show_places">Show places (stores, food, sights)</string>
     <string name="nav_pois_failed">Couldn\'t load places. Check your connection</string>
     <string name="nav_pois_none">Nothing found near this route</string>
-    <string name="nav_pois_places_hint">Tip: hold this button to choose which places to show.</string>
+    <string name="nav_pois_places_hint">Tip: choose which places to show in the list below.</string>
     <string name="nav_poi_charger">Charging station</string>
     <string name="nav_poi_store">Shops</string>
     <string name="nav_poi_food">Food &amp; drink</string>

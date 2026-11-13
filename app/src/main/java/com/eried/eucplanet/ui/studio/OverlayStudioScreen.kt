@@ -776,10 +776,29 @@ fun OverlayStudioScreen(
                                 )
                                 idx to (if (timeUs == null) null else videoHub.frameAt(uri, timeUs))
                             }.toMap()
+                        // Panes past their clip with the Black edge are filled
+                        // black, as the on-screen replay does. An unreadable
+                        // clip is left out: it has no window to be outside of.
+                        val blackVideoPanes: Set<Int> =
+                            preset.viewports.mapIndexedNotNull { idx, vp ->
+                                val face = vp.replay
+                                val uri = face?.videoUri
+                                if (face?.source != ReplaySourceType.VIDEO || uri == null ||
+                                    videoHub.isInvalid(uri)
+                                ) {
+                                    return@mapIndexedNotNull null
+                                }
+                                idx.takeIf {
+                                    videoEdgeIsBlack(
+                                        pos, face.videoOffsetMs, videoHub.durationMs(uri), face.videoEdge
+                                    )
+                                }
+                            }.toSet()
                         OverlayFrameSpec(
                             elements = frameElements,
                             preset = preset,
                             videoFrames = videoFrames,
+                            blackVideoPanes = blackVideoPanes,
                             data = StudioElementData(
                                 wheelData = trip.dataAt(pos),
                                 wheelName = displayWheelName,

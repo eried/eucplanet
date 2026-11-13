@@ -935,19 +935,9 @@ class SyncManager(
     suspend fun restoreFactoryDefaults(): Boolean {
         val current = settingsRepository.get()
         return try {
-            val factoryJson = SettingsJson.toJson(SettingsJson.stripDeviceBindings(AppSettings()))
             // Factory reset keeps device bindings (pairings, sync folder) and
             // the live Dropbox link, same as the restore path above.
-            val parsedReset = SettingsJson.fromJson(factoryJson, current)
-            val reset = parsedReset.copy(
-                dropboxAccessToken = current.dropboxAccessToken,
-                dropboxRefreshToken = current.dropboxRefreshToken,
-                dropboxAccessTokenExpiresAt = current.dropboxAccessTokenExpiresAt,
-                dropboxAccountLabel = current.dropboxAccountLabel,
-                dropboxLastSyncAt = current.dropboxLastSyncAt,
-                share = parsedReset.share.copy(deviceSecret = current.share.deviceSecret),
-            )
-            settingsRepository.update(reset)
+            settingsRepository.update(SettingsJson.factoryReset(current))
             alarmDao.deleteAll()
             true
         } catch (e: Exception) {

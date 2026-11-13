@@ -2257,7 +2257,7 @@
     <string name="nav_show_places">Tampilkan tempat (toko, makanan, wisata)</string>
     <string name="nav_pois_failed">Tidak dapat memuat tempat. Periksa koneksi Anda</string>
     <string name="nav_pois_none">Tidak ada yang ditemukan di dekat rute ini</string>
-    <string name="nav_pois_places_hint">Tips: tahan tombol ini untuk memilih tempat yang ditampilkan.</string>
+    <string name="nav_pois_places_hint">Tips: pilih tempat yang ditampilkan di daftar di bawah.</string>
     <string name="nav_poi_charger">Stasiun pengisian</string>
     <string name="nav_poi_store">Toko</string>
     <string name="nav_poi_food">Makanan &amp; minuman</string>

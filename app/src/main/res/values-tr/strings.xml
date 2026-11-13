@@ -2131,7 +2131,7 @@
     <string name="nav_poi_website">Web sitesi</string>
     <string name="nav_pois_failed">Yerler yüklenemedi. Bağlantınızı kontrol edin</string>
     <string name="nav_pois_none">Bu rotanın yakınında bir şey bulunamadı</string>
-    <string name="nav_pois_places_hint">İpucu: hangi yerlerin gösterileceğini seçmek için bu düğmeyi basılı tutun.</string>
+    <string name="nav_pois_places_hint">İpucu: hangi yerlerin gösterileceğini aşağıdaki listeden seçin.</string>
     <string name="nav_setting_advanced_map">Gelişmiş harita özellikleri</string>
     <string name="nav_setting_advanced_map_desc">Rota boyunca şarj istasyonlarını ve yerleri gösterir.</string>
     <string name="nav_setting_avoid">Rotalamada kaçınılacaklar</string>

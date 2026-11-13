@@ -54,6 +54,11 @@ data class OverlayFrameSpec(
     val data: StudioElementData,
     val preset: OverlayPreset,
     val videoFrames: Map<Int, ImageBitmap?> = emptyMap(),
+    /**
+     * Pane indexes whose VIDEO face is outside its clip window with the Black
+     * edge on this frame. They are filled black instead of left untouched.
+     */
+    val blackVideoPanes: Set<Int> = emptySet(),
 )
 
 /**
@@ -179,6 +184,7 @@ class StudioOffscreenSession private constructor(
                                     editable = false,
                                     replayMode = true,
                                     prebuiltVideoFrame = { spec.videoFrames[it] },
+                                    prebuiltVideoBlack = { it in spec.blackVideoPanes },
                                     onDividerChange = {},
                                     onConfigViewport = {},
                                     onConfigDivider = {},

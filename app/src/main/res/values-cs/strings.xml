@@ -2266,7 +2266,7 @@
     <string name="nav_show_places">Zobrazit místa (obchody, jídlo, památky)</string>
     <string name="nav_pois_failed">Místa se nepodařilo načíst. Zkontrolujte připojení</string>
     <string name="nav_pois_none">V okolí této trasy nic nenalezeno</string>
-    <string name="nav_pois_places_hint">Tip: podržením tohoto tlačítka vyberete, která místa zobrazit.</string>
+    <string name="nav_pois_places_hint">Tip: v seznamu níže vyberte, která místa zobrazit.</string>
     <string name="nav_poi_charger">Nabíjecí stanice</string>
     <string name="nav_poi_store">Obchody</string>
     <string name="nav_poi_food">Jídlo a pití</string>

@@ -29,3 +29,15 @@ fun edgeVideoTimeUs(cursorMs: Long, offsetMs: Long, videoDurationMs: Long, edge:
         else -> null
     }
 }
+
+/**
+ * True when a face set to the "BLACK" [edge] has its cursor outside the clip
+ * window, so the pane is filled black instead of showing a frame. The on-screen
+ * preview and the offscreen export both ask this, so they black out the same
+ * span of the ride.
+ */
+fun videoEdgeIsBlack(cursorMs: Long, offsetMs: Long, videoDurationMs: Long, edge: String): Boolean {
+    if (edge != "BLACK") return false
+    val into = cursorMs - offsetMs
+    return !(videoDurationMs > 0L && into in 0L..videoDurationMs)
+}

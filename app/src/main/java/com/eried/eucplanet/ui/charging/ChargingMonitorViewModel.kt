@@ -64,6 +64,7 @@ data class ChargingUiState(
     val notifyFull: Boolean = false,
     val notifyCustom: Boolean = false,
     val notifyCustomPct: Int = 60,
+    /** The level the first estimate runs to (Advanced, Charging, Target percent). */
     val targetPercent: Float = 80f,
     val chargeHistory: List<MetricSample> = emptyList(),
     val voltageHistory: List<MetricSample> = emptyList(),
@@ -117,7 +118,8 @@ class ChargingMonitorViewModel(
         buildState(quad.data, quad.status, quad.name, quad.snap, settings.chargingEstimateToFull,
             settings.chargingNotify80, settings.chargingNotifyFull, settings.chargingNotifyCustom, settings.chargingNotifyCustomPct, bms,
             settings.advanced.cellLowWarnMv, settings.advanced.cellLowDangerMv,
-            settings.advanced.cellHighMv)
+            settings.advanced.cellHighMv,
+            targetPercent = settings.chargingTargetPercent.toFloat())
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5_000),
@@ -266,6 +268,7 @@ class ChargingMonitorViewModel(
         cellLowWarnMv: Int = 30,
         cellLowDangerMv: Int = 80,
         cellHighMv: Int = 40,
+        targetPercent: Float = 80f,
     ): ChargingUiState {
         val charging = status == ChargeStatus.Charging || status == ChargeStatus.Full
         val connected = status != ChargeStatus.Disconnected
@@ -327,6 +330,7 @@ class ChargingMonitorViewModel(
             notifyFull = notifyFull,
             notifyCustom = notifyCustom,
             notifyCustomPct = notifyCustomPct,
+            targetPercent = targetPercent,
             chargeHistory = snap.chargeHistory,
             voltageHistory = snap.voltageHistory,
             tempHistory = snap.tempHistory,

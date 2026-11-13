@@ -2481,7 +2481,7 @@ private fun MapSurface(
         ) {
             MapButton(
                 icon = if (fullscreen) Icons.Default.FullscreenExit else Icons.Default.Fullscreen,
-                desc = "Fullscreen map",
+                desc = stringResource(R.string.studio_layout_full_screen),
                 onClick = onToggleFullscreen,
             )
             Box {

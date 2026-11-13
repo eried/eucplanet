@@ -4324,7 +4324,6 @@ private fun DashboardSlotSheet(
                     )
                     metricDescription(target.key)?.let { MetricInfoBox(it) }
                     SlotStatsEditor(
-                        key = target.key,
                         stats = stats,
                         onCornerChange = { corner, stat ->
                             viewModel.updateDashboardMetricSlotStat(target.key, corner, stat)
@@ -5683,7 +5682,6 @@ private fun MetricInfoBox(text: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SlotStatsEditor(
-    key: String,
     stats: MetricSlotStats,
     onCornerChange: (SlotCorner, DashboardStat) -> Unit
 ) {
@@ -5711,21 +5709,9 @@ private fun SlotStatsEditor(
             DashboardStat.P75, DashboardStat.P95, DashboardStat.P99
         )
     }
-    // Self-documenting metrics (e.g. Forward G is speed-derived) explain themselves
-    // right here in the editor, the descriptionRes shows as an italic subtitle.
-    val descRes = remember(key) {
-        com.eried.eucplanet.data.model.MetricCatalog.all.firstOrNull { it.key == key }?.descriptionRes
-    }
+    // The metric's description is not repeated here: the slot sheet shows it
+    // once, in the info box right above this editor.
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        descRes?.let {
-            Text(
-                stringResource(it),
-                style = MaterialTheme.typography.bodySmall.copy(
-                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
-                ),
-                color = MaterialTheme.appColors.textSecondary,
-            )
-        }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             CornerStatDropdown(
                 modifier = Modifier.weight(1f),

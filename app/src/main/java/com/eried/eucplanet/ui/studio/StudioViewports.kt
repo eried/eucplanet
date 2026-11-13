@@ -157,6 +157,12 @@ fun StudioViewportLayer(
      * clip through [ReplayVideoPlayer].
      */
     prebuiltVideoFrame: ((Int) -> ImageBitmap?)? = null,
+    /**
+     * Offscreen export only, beside [prebuiltVideoFrame]: true for a pane whose
+     * VIDEO face is outside its clip window with the Black edge, so the export
+     * fills it black the way the on-screen replay does.
+     */
+    prebuiltVideoBlack: (Int) -> Boolean = { false },
     onDividerChange: (List<Float>) -> Unit,
     onConfigViewport: (Int) -> Unit,
     onConfigDivider: () -> Unit,
@@ -203,7 +209,7 @@ fun StudioViewportLayer(
                 if (replayMode) {
                     ReplayFacePane(
                         config?.replay, videoHub, replayCursorMs, index,
-                        prebuiltVideoFrame, replayPlaying, replaySpeed
+                        prebuiltVideoFrame, prebuiltVideoBlack, replayPlaying, replaySpeed
                     )
                 } else {
                     when (config?.source) {
@@ -255,6 +261,7 @@ private fun ReplayFacePane(
     cursorMs: Long,
     paneIndex: Int,
     prebuiltVideoFrame: ((Int) -> ImageBitmap?)?,
+    prebuiltVideoBlack: (Int) -> Boolean,
     replayPlaying: Boolean,
     replaySpeed: Float
 ) {
@@ -276,7 +283,7 @@ private fun ReplayFacePane(
         ReplaySourceType.VIDEO ->
             ReplayVideoPane(
                 face, videoHub, cursorMs, paneIndex,
-                prebuiltVideoFrame, replayPlaying, replaySpeed
+                prebuiltVideoFrame, prebuiltVideoBlack, replayPlaying, replaySpeed
             )
     }
 }
@@ -287,8 +294,10 @@ private fun ReplayFacePane(
  * - Offscreen export ([prebuiltVideoFrame] non-null): the frame for [paneIndex]
  *   was already resolved on the producing side (via [StudioVideoHub.frameAt], a
  *   frame-accurate offline decode) for this export frame's cursor, so it is drawn
- *   as-is. null = nothing (out of range / no clip). This path never touches a
- *   player and keeps export deterministic.
+ *   as-is. null = nothing (out of range / no clip), unless [prebuiltVideoBlack]
+ *   says this pane is past its clip with the Black edge, which fills it black
+ *   like the preview's scrim. This path never touches a player and keeps export
+ *   deterministic.
  * - Interactive preview (on-screen): a real [ReplayVideoPlayer] (ExoPlayer into a
  *   TextureView) that plays with the replay clock and seeks while scrubbing. The
  *   retriever is only consulted for [StudioVideoHub.durationMs] to compute the
@@ -303,6 +312,7 @@ private fun ReplayVideoPane(
     cursorMs: Long,
     paneIndex: Int,
     prebuiltVideoFrame: ((Int) -> ImageBitmap?)?,
+    prebuiltVideoBlack: (Int) -> Boolean,
     replayPlaying: Boolean,
     replaySpeed: Float
 ) {
@@ -315,6 +325,8 @@ private fun ReplayVideoPane(
                 contentScale = contentScaleOf(face.videoFit),
                 modifier = Modifier.fillMaxSize()
             )
+        } else if (prebuiltVideoBlack(paneIndex)) {
+            Box(Modifier.fillMaxSize().background(Color.Black))
         } else {
             Box(Modifier.fillMaxSize())
         }
@@ -352,7 +364,7 @@ private fun ReplayVideoPane(
             fit = face.videoFit,
             modifier = Modifier.fillMaxSize()
         )
-        if (!inWindow && face.videoEdge == "BLACK") {
+        if (videoEdgeIsBlack(cursorMs, face.videoOffsetMs, duration, face.videoEdge)) {
             Box(Modifier.fillMaxSize().background(Color.Black))
         }
     }

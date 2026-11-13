@@ -297,6 +297,7 @@ fun ChargingMonitorScreen(
                 connected = state.connected,
                 frozen = state.frozen,
                 estimateToFull = state.estimateToFull,
+                targetPercent = state.targetPercent,
                 scrubFrac = scrubFrac,
                 // Deep blue main liquid + a more neon green for the freshly-added band.
                 base = lerp(MaterialTheme.appColors.metricVoltage, Color.Black, 0.28f),
@@ -695,6 +696,8 @@ private fun BatteryFillGraphic(
     /** Disconnected but showing a preserved session: draw the liquid, skip live FX. */
     frozen: Boolean = false,
     estimateToFull: Boolean,
+    /** The rider's charge target, where the dotted line sits. */
+    targetPercent: Float = 80f,
     scrubFrac: Float? = null,
     base: Color,
     added: Color,
@@ -968,13 +971,13 @@ private fun BatteryFillGraphic(
                 drawRect(color = col, topLeft = Offset(fillLeft, y - lw / 2f), size = Size(len, lw), blendMode = bm)
                 drawRect(color = col, topLeft = Offset(fillRight - len, y - lw / 2f), size = Size(len, lw), blendMode = bm)
             }
-            // One dotted line: the 80 % target (joins the side ticks) when idle,
+            // One dotted line: the rider's target (joins the side ticks) when idle,
             // but while the rider is scrubbing it becomes the cursor and follows
             // the finger instead - same style, so there's never two lines. Hidden
             // only when estimating straight to 100 % AND not scrubbing.
             val lineFrac = when {
                 scrubFrac != null -> scrubFrac
-                connected && !estimateToFull -> 0.8f
+                connected && !estimateToFull -> fillFraction(targetPercent)
                 else -> null
             }
             if (lineFrac != null) {
@@ -1088,11 +1091,11 @@ private fun InfoTabs(state: ChargingUiState) {
                         // through both (see predictionPath) -- two legs, because the
                         // two ETAs come from separate estimators with different
                         // timing, so a single line to 100% would miss the 80% dot.
-                        val predictionMarkers = remember(state.predictionHistory) {
+                        val predictionMarkers = remember(state.predictionHistory, state.targetPercent) {
                             val latest = state.predictionHistory.lastOrNull()
                             buildList {
                                 latest?.targetEtaMs?.let {
-                                    add(com.eried.eucplanet.ui.dashboard.PredictionMarker(it, 80f))
+                                    add(com.eried.eucplanet.ui.dashboard.PredictionMarker(it, state.targetPercent))
                                 }
                                 latest?.fullEtaMs?.let {
                                     add(com.eried.eucplanet.ui.dashboard.PredictionMarker(it, 100f))

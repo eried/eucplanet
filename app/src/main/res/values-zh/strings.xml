@@ -2000,7 +2000,7 @@
     <string name="nav_poi_website">网站</string>
     <string name="nav_pois_failed">无法加载地点。请检查网络连接</string>
     <string name="nav_pois_none">此路线附近未找到任何地点</string>
-    <string name="nav_pois_places_hint">提示：长按此按钮可选择要显示的地点。</string>
+    <string name="nav_pois_places_hint">提示：在下方列表中选择要显示的地点。</string>
     <string name="nav_setting_advanced_map">高级地图功能</string>
     <string name="nav_setting_advanced_map_desc">显示沿途的充电桩和地点。</string>
     <string name="nav_setting_avoid">规划时避开</string>

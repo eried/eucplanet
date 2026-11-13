@@ -2019,7 +2019,7 @@
     <string name="nav_poi_website">Nettsted</string>
     <string name="nav_pois_failed">Klarte ikke å laste steder. Sjekk tilkoblingen</string>
     <string name="nav_pois_none">Ingenting funnet nær denne ruten</string>
-    <string name="nav_pois_places_hint">Tips: hold inne denne knappen for å velge hvilke steder som vises.</string>
+    <string name="nav_pois_places_hint">Tips: velg hvilke steder som vises i listen nedenfor.</string>
     <string name="nav_setting_advanced_map">Avanserte kartfunksjoner</string>
     <string name="nav_setting_advanced_map_desc">Vis ladere og steder langs ruten.</string>
     <string name="nav_setting_avoid">Unngå ved ruteberegning</string>

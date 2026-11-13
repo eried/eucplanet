@@ -2266,7 +2266,7 @@
     <string name="nav_show_places">Arată locuri (magazine, mâncare, obiective)</string>
     <string name="nav_pois_failed">Locurile nu au putut fi încărcate. Verifică-ți conexiunea</string>
     <string name="nav_pois_none">Nu s-a găsit nimic în apropierea acestui traseu</string>
-    <string name="nav_pois_places_hint">Sfat: ține apăsat acest buton ca să alegi ce locuri să fie afișate.</string>
+    <string name="nav_pois_places_hint">Sfat: alege din lista de mai jos ce locuri să fie afișate.</string>
     <string name="nav_poi_charger">Stație de încărcare</string>
     <string name="nav_poi_store">Magazine</string>
     <string name="nav_poi_food">Mâncare și băutură</string>

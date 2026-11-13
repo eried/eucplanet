@@ -1,7 +1,9 @@
 package com.eried.eucplanet.ui.studio
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class StudioVideoSyncTest {
@@ -57,6 +59,27 @@ class StudioVideoSyncTest {
             edgeVideoTimeUs(cursorMs = 20_000, offsetMs = 5000, videoDurationMs = 10_000, edge = "BLACK")
         )
     }
+    // --- the Black edge: preview and export fill the same span ----------------
+
+    @Test fun black_outOfRange_fillsBlack() {
+        // Wherever the export has no frame for a Black-edge face, it has to be
+        // told to fill black. Otherwise the pane exports see-through while the
+        // preview shows black.
+        for (cursor in listOf(1000L, 20_000L)) {
+            assertNull(edgeVideoTimeUs(cursor, offsetMs = 5000, videoDurationMs = 10_000, edge = "BLACK"))
+            assertTrue(videoEdgeIsBlack(cursor, offsetMs = 5000, videoDurationMs = 10_000, edge = "BLACK"))
+        }
+    }
+    @Test fun black_insideWindow_showsTheClip() {
+        assertFalse(videoEdgeIsBlack(cursorMs = 7000, offsetMs = 5000, videoDurationMs = 10_000, edge = "BLACK"))
+        assertFalse(videoEdgeIsBlack(cursorMs = 5000, offsetMs = 5000, videoDurationMs = 10_000, edge = "BLACK"))
+        assertFalse(videoEdgeIsBlack(cursorMs = 15_000, offsetMs = 5000, videoDurationMs = 10_000, edge = "BLACK"))
+    }
+    @Test fun black_onlyForTheBlackEdge() {
+        assertFalse(videoEdgeIsBlack(cursorMs = 20_000, offsetMs = 5000, videoDurationMs = 10_000, edge = "FREEZE"))
+        assertFalse(videoEdgeIsBlack(cursorMs = 20_000, offsetMs = 5000, videoDurationMs = 10_000, edge = "LOOP"))
+    }
+
     @Test fun edge_zeroDuration_isNull() {
         assertNull(
             edgeVideoTimeUs(cursorMs = 5000, offsetMs = 0, videoDurationMs = 0, edge = "FREEZE")

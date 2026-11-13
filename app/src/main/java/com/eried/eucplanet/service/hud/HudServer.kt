@@ -18,6 +18,7 @@ import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.hud.protocol.HudCommand
 import com.eried.eucplanet.hud.protocol.HudDebug
 import com.eried.eucplanet.hud.protocol.HudDiscovery
+import com.eried.eucplanet.hud.protocol.HudScreens
 import com.eried.eucplanet.hud.protocol.HudState
 import com.eried.eucplanet.hud.protocol.RadarTargetWire
 import com.eried.eucplanet.hud.protocol.StaleLink
@@ -136,15 +137,6 @@ class HudServer(
          *  moved HUD long before any heartbeat would while still leaving a
          *  healthy link almost entirely alone. */
         private const val BEACON_MISMATCH_PROBE_MS = 5_000L
-        // Default carousel order, sent when the rider has not customised
-        // it, so a fresh install gets a non-empty wire field on the first
-        // frame. That lets the HUD distinguish "no frame received yet"
-        // (empty) from "rider's choice" (non-empty).
-        private val DEFAULT_HUD_SCREENS = listOf(
-            "Dashboard", "Camera", "Telemetry",
-            "Custom", "CustomCam", "Map", "Nav",
-            "Power", "TripStats", "Compass", "Safety", "BigClock"
-        )
     }
 
     private val json = Json {
@@ -1353,32 +1345,13 @@ class HudServer(
             wheelRollDeg = wd.rollAngle,
             wheelPitchDeg = wd.pitchAngle,
             customOverlayJson = s.hudCustomOverlayJson,
-            enabledHudScreens = run {
-                // Carousel order = the rider's preferred row order,
-                // filtered to keep only the enabled screens. Both
-                // fields are independent in storage so toggling a row
-                // off doesn't move it in the Personalize list.
-                val order = s.hudScreensOrder.split(",")
-                    .map { it.trim() }
-                    .filter { it.isNotEmpty() }
-                val enabled = s.hudScreensEnabled.split(",")
-                    .map { it.trim() }
-                    .filter { it.isNotEmpty() }
-                    .toSet()
-                // ALWAYS ship a non-empty list. The HUD treats an empty
-                // enabledHudScreens as "no wire frame received yet" and
-                // shows a waiting splash; if the rider hasn't customised
-                // we ship the default list so the HUD has something to
-                // render the moment a real frame arrives.
-                if (order.isEmpty() && enabled.isEmpty()) {
-                    DEFAULT_HUD_SCREENS
-                } else if (order.isEmpty()) {
-                    enabled.toList()
-                } else {
-                    order.filter { it in enabled }
-                        .ifEmpty { DEFAULT_HUD_SCREENS }
-                }
-            },
+            // Carousel order = the rider's preferred row order, filtered
+            // to keep only the enabled screens. Both fields are
+            // independent in storage so toggling a row off doesn't move
+            // it in the Personalize list. Never empty: the HUD treats an
+            // empty list as "no wire frame received yet" and shows a
+            // waiting splash.
+            enabledHudScreens = HudScreens.carousel(s.hudScreensOrder, s.hudScreensEnabled),
             hudMapStyle = s.hudMapStyle,
             hudMapContrastPct = s.hudMapContrastPct,
             hudMapBrightnessPct = s.hudMapBrightnessPct,

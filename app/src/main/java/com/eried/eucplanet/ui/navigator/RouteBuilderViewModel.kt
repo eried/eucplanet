@@ -533,7 +533,9 @@ class RouteBuilderViewModel(
             _placeCats.value = parsePlaceCats(s.navPlaceCategories)
             placesHintShown = s.navPlacesHintShown
             _travelMode.value = TravelMode.fromName(s.navDefaultTravelMode)
-            _mapType.value = s.navMapType.ifBlank { "LIGHT" }
+            // Blank resolves to OSM, the settings default and what
+            // MapLayers.byId gives the watch and car maps for the same value.
+            _mapType.value = s.navMapType.ifBlank { com.eried.eucplanet.hud.protocol.MapLayers.OSM }
             defaultRadiusM = s.navArrivalRadiusM
             _solveFullPath.value = s.navSolveFullPath
             _home.value = placeFromJson(s.navHomeJson)
@@ -2023,7 +2025,8 @@ class RouteBuilderViewModel(
         val turningOn = _placeCats.value.isEmpty()
         _placeCats.value = if (turningOn) PoiKind.PLACES else emptySet()
         persistLayers()
-        // First time the rider enables places, point them at the long-press menu.
+        // First time the rider enables places, point them at the per-kind
+        // checkboxes under this item in the layers menu.
         if (turningOn && !placesHintShown) {
             placesHintShown = true
             _messages.tryEmit(R.string.nav_pois_places_hint)

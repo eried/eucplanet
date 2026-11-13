@@ -481,8 +481,13 @@ class MainActivity : AppCompatActivity() {
         // composed, so the dialog always lands on top of a real UI.
 
         lifecycleScope.launch {
+            // True for the first settings emission this activity sees. Counted
+            // here, not read off _settings being null: the synchronous seed
+            // below usually fills _settings before the first emission lands.
+            var firstEmission = true
             settingsRepository.settings.collect {
-                val first = _settings.value == null
+                val first = firstEmission
+                firstEmission = false
                 // Session-only theme widget: on the first load of a fresh process,
                 // clear any persisted "on" (and mask this emission so it never
                 // flashes on). In-session toggles after this pass through normally.
@@ -510,12 +515,10 @@ class MainActivity : AppCompatActivity() {
                 setShowWhenLocked(it.phoneShowOverLockScreen)
                 // Detect a default app language as soon as we see a blank
                 // `settings.language`, not only on the very first settings
-                // emission. The synchronous seed below sets _settings.value
-                // before this collect runs, so `first` is already false here
-                // and the original gate never fired -- on a clean install the
-                // app would end up with language="" and an empty picker. The
-                // process-level languageReconciled flag stops this re-firing
-                // every time settings update.
+                // emission, so a language that turns up blank later (a reset,
+                // a restored file) is filled in too and the picker is never
+                // empty. The process-level languageReconciled flag stops this
+                // re-firing every time settings update.
                 if (it.language.isBlank() && !languageReconciled) {
                     languageReconciled = true
                     val detected = com.eried.eucplanet.util.LocaleHelper.detectSystemLanguage()
@@ -541,8 +544,7 @@ class MainActivity : AppCompatActivity() {
                     // Reconcile to whatever AppCompatDelegate actually has
                     // applied so the in-app language picker shows the truth,
                     // not a stale column. The blank-language path is handled
-                    // separately above so on a clean install the picker is
-                    // populated regardless of whether `first` ever fires.
+                    // separately above.
                     if (it.language.isNotBlank()) {
                         val applied = com.eried.eucplanet.util.LocaleHelper.current()
                         if (applied.isNotBlank()) {
@@ -563,16 +565,10 @@ class MainActivity : AppCompatActivity() {
                 )
                 // Deliberately outside the `first` gate above.
                 //
-                // `first` is always false here: the synchronous seed below sets
-                // _settings.value before this collector ever runs, which is the
-                // same trap the language reconciliation had to be lifted out of.
-                // Left inside, the service was only ever started from the
-                // permission-request callback, so on every launch after the one
-                // where the rider granted permissions there was no service - and
-                // therefore no Phone HUD, no HUD companion server, no keep-alive
-                // and no always-on voice, until something else happened to start
-                // it. Out here it is also re-evaluated when the rider switches
-                // one of those on mid-session, instead of at the next launch.
+                // The service carries the Phone HUD, the HUD companion server,
+                // keep-alive and always-on voice. Evaluated on every emission so
+                // it starts on each launch and also when the rider switches one
+                // of those on mid-session, instead of at the next launch.
                 //
                 // Gated on permission because Android 14+ crashes startForeground
                 // with location/connectedDevice types if neither perm is granted.

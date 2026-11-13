@@ -2131,7 +2131,7 @@
     <string name="nav_poi_website">ウェブサイト</string>
     <string name="nav_pois_failed">場所を読み込めませんでした。接続を確認してください</string>
     <string name="nav_pois_none">このルート付近には見つかりませんでした</string>
-    <string name="nav_pois_places_hint">ヒント: このボタンを長押しすると表示する場所を選択できます。</string>
+    <string name="nav_pois_places_hint">ヒント: 下のリストで表示する場所を選択できます。</string>
     <string name="nav_setting_advanced_map">高度なマップ機能</string>
     <string name="nav_setting_advanced_map_desc">ルート沿いの充電器とスポットを表示します。</string>
     <string name="nav_setting_avoid">ルート探索時に回避</string>

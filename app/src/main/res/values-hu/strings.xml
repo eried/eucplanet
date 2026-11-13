@@ -2266,7 +2266,7 @@
     <string name="nav_show_places">Helyek mutatása (boltok, étel, látnivalók)</string>
     <string name="nav_pois_failed">A helyeket nem sikerült betölteni. Ellenőrizd a kapcsolatot</string>
     <string name="nav_pois_none">Nem található semmi az útvonal közelében</string>
-    <string name="nav_pois_places_hint">Tipp: tartsd nyomva ezt a gombot a megjelenítendő helyek kiválasztásához.</string>
+    <string name="nav_pois_places_hint">Tipp: az alábbi listában választhatod ki a megjelenítendő helyeket.</string>
     <string name="nav_poi_charger">Töltőállomás</string>
     <string name="nav_poi_store">Boltok</string>
     <string name="nav_poi_food">Étel és ital</string>

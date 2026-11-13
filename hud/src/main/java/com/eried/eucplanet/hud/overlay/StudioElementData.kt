@@ -79,6 +79,10 @@ data class StudioElementData(
                     hud.gpsSource == "PHONE" -> hud.gpsSpeedKmh
                     else -> -1f
                 },
+                gpsAltitudeM = hud.gpsAltitudeM,
+                whConsumed = hud.whConsumed,
+                whPerKmRecent = hud.whPerKm,
+                rangeKmEstimate = hud.rangeKm,
                 tripMeterKm = hud.tripMeterKm,
                 tirePressureKpa = hud.tirePressureKpa,
                 lightOn = hud.lightOn,

@@ -170,9 +170,10 @@ class GarminBridge(
 
     /**
      * Timestamp of the last ALIVE heartbeat received from the watch (ms
-     * since epoch). Drives the Settings UI's Live/Idle badge with a
-     * generous 10-second tolerance, the watch heartbeats every 5 s, so
-     * 10 s tolerates one missed beat without flapping.
+     * since epoch). Drives the Settings UI's Live/Idle badge through
+     * [com.eried.eucplanet.data.model.PairedSurface.GARMIN_LIVE_WINDOW_MS]:
+     * the watch heartbeats every 1.5 s but skips beats while a transmit is
+     * outstanding, so the window is sized for that gap, not for one beat.
      *
      * Intentionally NOT updated from sendMessage success callbacks: in
      * TETHERED mode (and occasionally in WIRELESS too) the SDK returns

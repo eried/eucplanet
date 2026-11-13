@@ -24,7 +24,8 @@ module Units {
         if (unit.equals("mi"))  { return km * 0.6213712; }
         if (unit.equals("m"))   { return km * 1000.0; }
         if (unit.equals("ft"))  { return km * 3280.84; }
-        if (unit.equals("mil")) { return km * 0.5399568; }
+        // Scandinavian mil: 1 mil = 10 km.
+        if (unit.equals("mil")) { return km / 10.0; }
         return km;
     }
 

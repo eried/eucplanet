@@ -2266,7 +2266,7 @@
     <string name="nav_show_places">Näytä paikat (kaupat, ruoka, nähtävyydet)</string>
     <string name="nav_pois_failed">Paikkoja ei voitu ladata. Tarkista yhteytesi</string>
     <string name="nav_pois_none">Tämän reitin läheltä ei löytynyt mitään</string>
-    <string name="nav_pois_places_hint">Vinkki: pidä tätä painiketta pohjassa valitaksesi mitkä paikat näytetään.</string>
+    <string name="nav_pois_places_hint">Vinkki: valitse näytettävät paikat alla olevasta luettelosta.</string>
     <string name="nav_poi_charger">Latausasema</string>
     <string name="nav_poi_store">Kaupat</string>
     <string name="nav_poi_food">Ruoka ja juoma</string>

@@ -1876,8 +1876,9 @@ private const val ROUTE_BUILDER_HTML_2: String = """
   // so a second rider's dot cannot sit on top of the lines being read.
   function peerHasMore(rec){
     var p = rec && rec.data; if (!p) return false;
-    var st = p.stats;
-    var hasStats = !!(st && (st.speedKmh != null || st.batteryPct != null || st.tempC != null));
+    // Same test peerLabelHtml uses to draw the stats line: Kotlin sends the
+    // stats as finished text in statsText, and null when none are shared.
+    var hasStats = typeof p.statsText === 'string' && p.statsText !== '';
     return hasStats || (p.freshness && p.freshness !== 'FRESH');
   }
 

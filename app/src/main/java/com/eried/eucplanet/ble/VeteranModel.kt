@@ -27,8 +27,9 @@ enum class VeteranModel(
     // tag here routed Abrams through the wrong scaler and showed a
     // flat 100 % battery to riders.
     ABRAMS(        "Veteran Abrams",       100, 120),
-    // mVer 3: Sherman S still sits in the <4 / 100 V battery family.
-    SHERMAN_S(     "Veteran Sherman S",    134, 100),
+    // mVer 3: Sherman S still sits in the <4 / 100 V battery family
+    // (24S pack, same curve as Sherman and Abrams).
+    SHERMAN_S(     "Veteran Sherman S",    100, 100),
     // Retained for backward compatibility with existing settings;
     // treated as Sherman at runtime.
     SHERMAN_MAX(   "Veteran Sherman Max",  134, 100),

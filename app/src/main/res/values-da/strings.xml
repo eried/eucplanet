@@ -2149,7 +2149,7 @@
     <string name="nav_poi_website">Websted</string>
     <string name="nav_pois_failed">Kunne ikke indlæse steder. Tjek din forbindelse</string>
     <string name="nav_pois_none">Intet fundet nær denne rute</string>
-    <string name="nav_pois_places_hint">Tip: hold denne knap nede for at vælge, hvilke steder der vises.</string>
+    <string name="nav_pois_places_hint">Tip: vælg, hvilke steder der vises, i listen nedenfor.</string>
     <string name="nav_setting_advanced_map">Avancerede kortfunktioner</string>
     <string name="nav_setting_advanced_map_desc">Vis ladestationer og steder langs ruten.</string>
     <string name="nav_setting_avoid">Undgå ved ruteplanlægning</string>

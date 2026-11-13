@@ -608,7 +608,7 @@ private fun AlarmRuleEditorDialog(
     onDelete: (() -> Unit)? = null,
     onPreviewBeep: (Int, Int, Int, Int, Int, Int, Int, Int) -> Unit,
     onPreviewTone: (Int, Int) -> Unit,
-    onPreviewVoice: (String, AlarmMetric, Float) -> Unit,
+    onPreviewVoice: (String, AlarmMetric, String) -> Unit,
     onPreviewVibrate: (Int) -> Unit,
     studioPlaying: Boolean = false,
     onStudioTone: (Int, Int, Int, Int, Int, Int, Int, Int) -> Unit = { _, _, _, _, _, _, _, _ -> },
@@ -685,7 +685,12 @@ private fun AlarmRuleEditorDialog(
         BeepStudioDialog(
             metric = selectedMetric,
             unit = displayedUnit,
-            toDisplay = { displayThreshold(selectedMetric, it, speedUnit, tempUnit, pressureUnit) },
+            // Divided back out of the stepper's scale, so the studio labels
+            // read the real value (3 bar, 1.5 g) and not the editing integer.
+            toDisplay = {
+                displayThreshold(selectedMetric, it, speedUnit, tempUnit, pressureUnit) /
+                    displayScale(selectedMetric, pressureUnit)
+            },
             comparator = comparator,
             threshold = threshold,
             baseFreq = beepFrequency,
@@ -1087,7 +1092,14 @@ private fun AlarmRuleEditorDialog(
                     title = stringResource(R.string.alarm_section_voice),
                     color = MaterialTheme.appColors.statusGood,
                     enabled = voiceEnabled,
-                    onPreview = { onPreviewVoice(voiceText, selectedMetric, displayedThreshold) }
+                    // The threshold as the rider reads it. displayedThreshold is the
+                    // stepper's scaled integer (tenths of a bar or g), not a reading.
+                    onPreview = {
+                        onPreviewVoice(
+                            voiceText, selectedMetric,
+                            formatThreshold(selectedMetric, threshold, speedUnit, tempUnit, pressureUnit),
+                        )
+                    }
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -1206,7 +1218,7 @@ private fun AlarmRuleEditorDialog(
                     // threshold + unit, and the comparator direction). "triggered"
                     // is the alarm side; "safe" is its inverse (for the re-arm).
                     val metricName = stringResource(selectedMetric.labelRes)
-                    val thrText = "${displayedThreshold.roundToInt()} $displayedUnit"
+                    val thrText = "${formatThreshold(selectedMetric, threshold, speedUnit, tempUnit, pressureUnit)} $displayedUnit"
                     val isGe = AlarmComparator.parse(comparator) == AlarmComparator.GREATER_EQUAL
                     val triggeredPhrase = stringResource(
                         if (isGe) R.string.alarm_state_atleast else R.string.alarm_state_below,
@@ -1502,7 +1514,7 @@ private fun BeepStudioDialog(
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     NumberFieldWithDefault(
                         value = pitchFactor,
-                        default = NEW_RULE.beepModulationReachPct,
+                        default = NEW_RULE.beepModulation,
                         onValueChange = { pitchFactor = it },
                         range = 10..1000, step = 10,
                         format = { "%.1fx".format(it / 100f) },
@@ -1512,7 +1524,7 @@ private fun BeepStudioDialog(
                     )
                     NumberFieldWithDefault(
                         value = volFactor,
-                        default = NEW_RULE.beepVolumeReachPct,
+                        default = NEW_RULE.beepVolumeModulation,
                         onValueChange = { volFactor = it },
                         range = 10..1000, step = 10,
                         format = { "%.1fx".format(it / 100f) },

@@ -30,8 +30,6 @@ import com.eried.eucplanet.hud.R
 import com.eried.eucplanet.hud.protocol.HudState
 import com.eried.eucplanet.hud.ui.HudUnits
 import com.eried.eucplanet.hud.ui.parseHexColor
-import kotlin.math.cos
-import kotlin.math.sin
 import kotlin.math.min
 
 /**
@@ -298,17 +296,24 @@ private fun SpeedDial(
         // Needle: a short radial line at the end of the sweep so the position
         // is unambiguous even when the dial sweep is dim against the band.
         rotate(degrees = startAngle + sweep, pivot = center) {
-            val r = diameter / 2f - 2.dp.toPx()
+            val (inner, outer) = speedNeedleRadii(diameter, stroke)
             drawLine(
                 color = Color.White,
-                start = Offset(center.x + r * cos(0.0).toFloat() - 0.dp.toPx(),
-                               center.y + r * sin(0.0).toFloat()),
-                end = Offset(center.x + r, center.y),
+                start = Offset(center.x + inner, center.y),
+                end = Offset(center.x + outer, center.y),
                 strokeWidth = (stroke * 0.3f).coerceAtLeast(2.dp.toPx())
             )
         }
     }
 }
+
+/**
+ * Inner and outer radius of the speed dial's needle, in px from the centre.
+ * The ring is drawn on a circle of [diameter] with a line [stroke] wide, so
+ * the needle crosses it from one edge to the other.
+ */
+internal fun speedNeedleRadii(diameter: Float, stroke: Float): Pair<Float, Float> =
+    (diameter / 2f - stroke / 2f) to (diameter / 2f + stroke / 2f)
 
 private fun pwmAccent(pwm: Float, orange: Int, red: Int, accent: Color): Color = when {
     pwm >= red -> Color(0xFFD50000)

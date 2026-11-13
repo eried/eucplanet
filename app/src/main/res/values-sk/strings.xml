@@ -2413,7 +2413,7 @@
     <string name="nav_show_places">Zobraziť miesta (obchody, jedlo, pamiatky)</string>
     <string name="nav_pois_failed">Miesta sa nepodarilo načítať. Skontrolujte pripojenie</string>
     <string name="nav_pois_none">V blízkosti trasy sa nič nenašlo</string>
-    <string name="nav_pois_places_hint">Tip: podržaním tohto tlačidla vyberiete, ktoré miesta zobraziť.</string>
+    <string name="nav_pois_places_hint">Tip: v zozname nižšie vyberte, ktoré miesta zobraziť.</string>
     <string name="nav_poi_charger">Nabíjacia stanica</string>
     <string name="nav_poi_store">Obchody</string>
     <string name="nav_poi_food">Jedlo a pitie</string>

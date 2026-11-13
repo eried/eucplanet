@@ -1030,6 +1030,30 @@ object SettingsJson {
           )
         }
 
+    /**
+     * Factory defaults merged onto [current]: every preference reverts, while
+     * the rider's pairings, sync folder, backup history, live Dropbox link and
+     * share identity stay. Most bindings survive because a null leaves no key
+     * in the factory JSON, so [fromJson] falls back to [current]. The ones the
+     * JSON does carry (blank tokens, an empty sensor list) are copied back
+     * here. Pure; SyncManager does the IO.
+     */
+    fun factoryReset(current: AppSettings): AppSettings {
+        val parsed = fromJson(toJson(stripDeviceBindings(AppSettings())), current)
+        return parsed.copy(
+            dropboxAccessToken = current.dropboxAccessToken,
+            dropboxRefreshToken = current.dropboxRefreshToken,
+            dropboxAccessTokenExpiresAt = current.dropboxAccessTokenExpiresAt,
+            dropboxAccountLabel = current.dropboxAccountLabel,
+            dropboxLastSyncAt = current.dropboxLastSyncAt,
+            share = parsed.share.copy(deviceSecret = current.share.deviceSecret),
+            tpms = parsed.tpms.copy(
+                pairedAddress = current.tpms.pairedAddress,
+                pairedAddresses = current.tpms.pairedAddresses,
+            ),
+        )
+    }
+
     /** `optString` returns `""` for null and absent keys, which we cannot
      *  distinguish from a legitimate empty-string value. This helper keeps
      *  null vs explicit value vs absent semantics intact for nullable fields. */

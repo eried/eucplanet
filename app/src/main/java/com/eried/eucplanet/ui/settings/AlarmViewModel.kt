@@ -244,11 +244,12 @@ class AlarmViewModel(
         stopStudio()
     }
 
-    fun previewVoice(text: String, metric: AlarmMetric, threshold: Float) {
+    /** [threshold] is the rule's threshold already formatted in the rider's unit. */
+    fun previewVoice(text: String, metric: AlarmMetric, threshold: String) {
         val metricLabel = context.getString(metric.voiceLabelRes)
         // {value} and {threshold} both read back the rider's chosen threshold,
         // so the preview sounds like the alarm they actually configured.
-        val thresh = "%.0f".format(threshold)
+        val thresh = threshold
         val preview = text.ifBlank { context.getString(R.string.alarm_test_default) }
             .replace("{speed}", "35")
             .replace("{battery}", "80")

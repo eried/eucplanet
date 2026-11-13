@@ -2257,7 +2257,7 @@
     <string name="nav_show_places">Hiện địa điểm (cửa hàng, ăn uống, tham quan)</string>
     <string name="nav_pois_failed">Không thể tải địa điểm. Kiểm tra kết nối</string>
     <string name="nav_pois_none">Không tìm thấy gì gần lộ trình này</string>
-    <string name="nav_pois_places_hint">Mẹo: giữ nút này để chọn loại địa điểm hiển thị.</string>
+    <string name="nav_pois_places_hint">Mẹo: chọn loại địa điểm hiển thị trong danh sách bên dưới.</string>
     <string name="nav_poi_charger">Trạm sạc</string>
     <string name="nav_poi_store">Cửa hàng</string>
     <string name="nav_poi_food">Ăn &amp; uống</string>

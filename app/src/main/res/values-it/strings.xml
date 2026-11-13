@@ -2038,7 +2038,7 @@
     <string name="nav_poi_website">Sito web</string>
     <string name="nav_pois_failed">Impossibile caricare i luoghi. Controlla la connessione</string>
     <string name="nav_pois_none">Niente trovato vicino a questo percorso</string>
-    <string name="nav_pois_places_hint">Suggerimento: tieni premuto questo pulsante per scegliere quali luoghi mostrare.</string>
+    <string name="nav_pois_places_hint">Suggerimento: scegli quali luoghi mostrare nell\'elenco qui sotto.</string>
     <string name="nav_setting_advanced_map">Funzioni avanzate della mappa</string>
     <string name="nav_setting_advanced_map_desc">Mostra stazioni di ricarica e luoghi lungo il percorso.</string>
     <string name="nav_setting_avoid">Evita durante il percorso</string>

@@ -146,5 +146,6 @@ class OfflineDataViewModel(
         return caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
     }
 
-    suspend fun mapType(): String = settings.currentOrLoad().navMapType.ifBlank { "LIGHT" }
+    suspend fun mapType(): String = settings.currentOrLoad().navMapType
+        .ifBlank { com.eried.eucplanet.hud.protocol.MapLayers.OSM }
 }

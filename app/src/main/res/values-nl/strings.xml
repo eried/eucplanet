@@ -2132,7 +2132,7 @@
     <string name="nav_poi_website">Website</string>
     <string name="nav_pois_failed">Kan plaatsen niet laden. Controleer je verbinding</string>
     <string name="nav_pois_none">Niets gevonden in de buurt van deze route</string>
-    <string name="nav_pois_places_hint">Tip: houd deze knop ingedrukt om te kiezen welke plaatsen je wilt tonen.</string>
+    <string name="nav_pois_places_hint">Tip: kies in de lijst hieronder welke plaatsen je wilt tonen.</string>
     <string name="nav_setting_advanced_map">Geavanceerde kaartfuncties</string>
     <string name="nav_setting_advanced_map_desc">Toon laadpunten en plaatsen langs de route.</string>
     <string name="nav_setting_avoid">Vermijden bij routering</string>

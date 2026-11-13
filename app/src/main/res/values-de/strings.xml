@@ -2154,7 +2154,7 @@
     <string name="nav_poi_website">Website</string>
     <string name="nav_pois_failed">Orte konnten nicht geladen werden. Prüfe deine Verbindung</string>
     <string name="nav_pois_none">Nichts in der Nähe dieser Route gefunden</string>
-    <string name="nav_pois_places_hint">Tipp: Diese Taste halten, um zu wählen, welche Orte angezeigt werden.</string>
+    <string name="nav_pois_places_hint">Tipp: In der Liste unten wählen, welche Orte angezeigt werden.</string>
     <string name="nav_setting_advanced_map">Erweiterte Kartenfunktionen</string>
     <string name="nav_setting_advanced_map_desc">Ladestationen und Orte entlang der Route anzeigen.</string>
     <string name="nav_setting_avoid">Beim Routing vermeiden</string>
