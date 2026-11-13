@@ -19,11 +19,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -54,10 +52,8 @@ import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
-import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
@@ -68,7 +64,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
-import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -102,10 +97,12 @@ import java.util.Locale
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
- * Full-screen Service-Mode dialog. Three tabs:
- *  - Log: live BLE-traffic view, comment box, share button.
+ * Full-screen Service-Mode dialog. The live BLE-traffic log and a comment box
+ * sit on top, then four tabs:
  *  - Commands: per-wheel test command grid (e.g. P6 light variants).
+ *  - Inspector: live bytes of the latest frame of one message type.
  *  - Raw: free-form hex sender for one-off probes.
+ *  - Filter: slices of the log by subsystem or kind.
  *
  * The header bar carries the recording dot, a Stop-recording button (which
  * disables the logger and clears the buffer), and a Close arrow that just
@@ -449,14 +446,7 @@ private fun LogRow(e: DiagnosticsLogger.Entry) {
     val ts = remember(e.timestampMs) {
         TIME_FMT.format(Date(e.timestampMs))
     }
-    val color = when (e.kind) {
-        DiagnosticsLogger.Kind.RECV -> Color(0xFF40C4FF)
-        DiagnosticsLogger.Kind.SEND -> Color(0xFFFFAB40)
-        DiagnosticsLogger.Kind.TEST -> Color(0xFFE040FB)
-        DiagnosticsLogger.Kind.NOTE -> Color(0xFF4DD0E1)
-        DiagnosticsLogger.Kind.INFO -> Color(0xFF00FF41)
-        DiagnosticsLogger.Kind.USER -> Color(0xFFFFEB3B)
-    }
+    val color = kindColor(e.kind)
     Text(
         "$ts ${e.kind.name.padEnd(4)} ${e.text}",
         style = MaterialTheme.typography.labelSmall.copy(
@@ -623,14 +613,6 @@ private fun shortInspectLabel(prefix: String, familyDisplayName: String): String
     return prefix.replaceFirstChar { it.uppercase() }
 }
 
-/**
- * Live byte interpreter. Picks the most recent NOTE entry whose text starts
- * with the selected message type prefix and renders every byte as a small
- * tappable cell showing offset, hex, and decimal. Tapping a cell drops a
- * structured COMMENT into the log so the user can correlate the byte they
- * just clicked with whatever value the wheel's own UI is showing, useful
- * for finding unknown offsets like motor temp.
- */
 /** Tab with tight padding so four fit without the stock 16 dp side gutters. */
 @Composable
 private fun CompactTab(label: String, selected: Boolean, onClick: () -> Unit) {
@@ -862,6 +844,14 @@ private fun kindColor(kind: DiagnosticsLogger.Kind): Color = when (kind) {
     DiagnosticsLogger.Kind.USER -> Color(0xFFFFEB3B)
 }
 
+/**
+ * Live byte interpreter. Picks the most recent NOTE entry whose text starts
+ * with the selected message type prefix and renders every byte as a small
+ * tappable cell showing offset, hex, and decimal. Tapping a cell drops a
+ * structured COMMENT into the log so the user can correlate the byte they
+ * just clicked with whatever value the wheel's own UI is showing, useful
+ * for finding unknown offsets like motor temp.
+ */
 @Composable
 private fun InspectTab(vm: WheelDiagnosticsViewModel) {
     val entries by vm.entries.collectAsState()
@@ -1287,8 +1277,6 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
             // Veteran and Begode commands are literal (fixed opcodes / ASCII
             // strings already including their full wire format), so LITERAL
             // covers them, no separate WRAP_VETERAN / WRAP_BEGODE entries.
-            // The segmented row stays scrollable so newer protocols can
-            // join without redesigning the layout.
             val modes = listOf(
                 WheelDiagnosticsViewModel.WrapMode.LITERAL to "Literal",
                 WheelDiagnosticsViewModel.WrapMode.WRAP_EXTENDED to "V2 ext",
@@ -1319,7 +1307,7 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
 
         Spacer(Modifier.height(8.dp))
 
-        // Bytes-to-send row: read-only field on the left, big SEND on the right.
+        // Bytes-to-send row: read-only field on the left, send on the right.
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically

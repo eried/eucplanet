@@ -8,14 +8,15 @@ using Toybox.System;
 //! CIQ buttons are normalised through `BehaviorDelegate`'s named callbacks:
 //!   onSelect  -> primary action button (start/stop on Fenix, lap on Edge)
 //!   onMenu    -> menu / up button
-//!   onBack    -> back button (intercepted so the app stays foregrounded)
-//!   onKey     -> raw fallback for the light key (LIGHT) and the wheel
-//!                rotation on Venu/Vivoactive
+//!   onBack    -> back button, left to the system so the rider can leave
+//!   onKey     -> raw keys: ENTER and MENU as a fallback, UP = button 2,
+//!                DOWN = button 3
 //!
 //! The Wear OS app exposes stem1/stem2 bindings on the rider's two
 //! programmable buttons. Here we treat:
 //!   - onSelect -> stem1
 //!   - onMenu   -> stem2
+//!   - Down key -> stem3 (Garmin only)
 //! so the binding model stays identical and the phone Settings UI doesn't
 //! need a separate "Garmin" section.
 class EucPlanetDelegate extends WatchUi.BehaviorDelegate {

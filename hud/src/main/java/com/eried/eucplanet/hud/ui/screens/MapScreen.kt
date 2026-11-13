@@ -1,6 +1,5 @@
 package com.eried.eucplanet.hud.ui.screens
 
-import android.graphics.BitmapFactory
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -48,7 +47,7 @@ import kotlin.math.floor
  * Simple Web-Mercator XYZ tile stitcher.
  *
  * No MapLibre, no Leaflet, we draw a 4×3 (or whatever fits) grid of 256-px
- * raster tiles fetched from the phone's [HudTileCache], centred on the
+ * raster tiles from [HudTileCache], centred on the
  * rider's last GPS fix, then stamp a rider marker on top. Pan tracks GPS,
  * UP/DOWN on the remote zoom in/out (driven by [zoom]).
  *
@@ -59,7 +58,7 @@ import kotlin.math.floor
  * map. A 4×3 grid does that.
  */
 @Composable
-fun MapScreen(hud: HudState, zoom: Float, peer: String?, cache: HudTileCache) {
+fun MapScreen(hud: HudState, zoom: Float, cache: HudTileCache) {
     val ctx = LocalContext.current
     val accent = parseHexColor(hud.accentArgb)
     // Cache is owned by HudActivity and passed in: previously the cache
@@ -287,9 +286,6 @@ fun MapScreen(hud: HudState, zoom: Float, peer: String?, cache: HudTileCache) {
     }
 }
 
-/** WGS84 (lon, lat) -> fractional XYZ tile coordinates at zoom z. Returns
- *  (tileX, tileY) where the integer parts are the tile indices and the
- *  fractional parts give the pixel offset inside that tile. */
 /**
  * Build a ColorMatrix-based filter from the wire-format contrast +
  * brightness percentages. Returns null when both are at neutral so the

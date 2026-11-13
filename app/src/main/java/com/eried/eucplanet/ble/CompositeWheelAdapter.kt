@@ -40,11 +40,9 @@ internal fun wheelFamilyForName(deviceName: String?): WheelFamily {
     }
 }
 
-/** V1 protocol family detector: the pre-V11 V-series (V3/V5/V6/V8/V10 and the
- *  odd/rare low numbers), L6, Glide, Lively, IM<digits>. The V-series protocol
- *  boundary is V11: V11+ speak V2 and must stay there. Matching an explicit
- *  {3,5,8,10} list silently mis-routed anything else (e.g. a `V6-800679D7`
- *  advertising wheel) to the V2 default, which connects but decodes no stats.
+/** V1 protocol family detector: the pre-V11 V-series (V3/V5/V8/V10 and the
+ *  rare low numbers) except V6, plus L6, Glide, Lively, Solowheel,
+ *  IM<digits>. V11+ and the 2026 V6 speak V2.
  *  Pure; takes a lowercased name. */
 internal fun isV1WheelName(n: String): Boolean {
     if (n.startsWith("l6") || n.startsWith("lively") || n.startsWith("glide") ||
@@ -150,10 +148,10 @@ class CompositeWheelAdapter(
      * brand). InMotion V1 split-service (FFE0+FFE5) -> InMotion V1. Bare HM-10
      * (FFE0+FFE1) is ambiguous between KingSong / Begode / Veteran; we default
      * to KingSong because the failing case (`RW`-named S18, blank-named KS) is
-     * the common one. Names like `Sherman` / `Begode_*` always match in
-     * [pickAdapter] above so they don't reach this code path. First-frame
-     * magic-byte disambiguation for blank-named Begode / Veteran lives in the
-     * per-adapter `onRawNotification` and can be added without changing here.
+     * the common one. Names like `Sherman` / `Begode_*` match in
+     * [wheelFamilyForName] and never reach this path. A Veteran wheel that
+     * lands on the wrong HM-10 adapter is rescued in [onRawNotification] by
+     * its `DC 5A 5C` magic.
      */
     override fun pickAdapterByDiscoveredServices(
         discoveredServiceUuids: Set<UUID>,
@@ -208,8 +206,8 @@ class CompositeWheelAdapter(
 
     // Without this the composite answered the interface default (false) and
     // the repository never ran the connect handshake, however loudly the
-    // family adapter asked for it. The P6's control-endpoint priming and the
-    // V6's session keepalive both hang off this flag.
+    // family adapter asked for it. The V6's session keepalive hangs off
+    // this flag.
     override fun requiresConnectAuth(): Boolean = active.requiresConnectAuth()
 
     override fun onRawNotification(rawBytes: ByteArray): List<DecodeResult> {

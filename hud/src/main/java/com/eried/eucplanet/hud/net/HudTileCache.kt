@@ -22,7 +22,8 @@ import java.util.concurrent.TimeUnit
  * Talks directly to the tile provider of the rider's layer, from the
  * [MapLayers] registry every map surface shares. The HUD has its own wifi
  * adapter and is generally on the rider's hotspot (or an external AP),
- * so it hits the provider directly without routing through the phone.
+ * so it hits the provider directly, and asks the paired phone's offline
+ * map when that fails.
  *
  * Style is picked by the rider on the phone side and shipped over the
  * wire as [com.eried.eucplanet.hud.protocol.HudState.hudMapStyle]; the
@@ -31,7 +32,7 @@ import java.util.concurrent.TimeUnit
  * cancel in-flight fetches so the rider sees the new style within a
  * few seconds instead of waiting for tiles to age out.
  *
- * LRU keeps memory bounded: 64 tiles × ~30 KB each ≈ 2 MB. Tiles
+ * LRU keeps memory bounded: 64 decoded tiles, about 16 MB. Tiles
  * outside the cache fall through to the placeholder in
  * [com.eried.eucplanet.hud.ui.screens.MapScreen] until they load.
  */
@@ -67,7 +68,7 @@ class HudTileCache(
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     /** The layer whose tiles we fetch. Resolved through [MapLayers.byId], so
-     *  the phone's seven picker codes and the CARTO slugs older phones still
+     *  the phone's picker codes and the CARTO slugs older phones still
      *  send all land on a real entry instead of one hardcoded chart. */
     @Volatile
     private var layer: MapLayers.Layer = MapLayers.byId(DEFAULT_STYLE)

@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.Log
 import com.eried.eucplanet.data.db.AlarmDao
 import com.eried.eucplanet.data.model.AlarmMetric
-import com.eried.eucplanet.util.MetricSanity
 import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.data.model.ExternalGpsSample
 import com.eried.eucplanet.data.model.RadarFrame
@@ -133,8 +132,8 @@ class AlarmEngine(
      * Per metric, the *most severe* matching rule fires -- not the first one in
      * the list. So two speed alarms at 30 and 35 both work: crossing 35 fires
      * the 35 rule even though the 30 rule is also (still) matched and may be
-     * mid-cooldown. Order in the list no longer changes which alarm you get,
-     * which kills the old "the lower alarm ate the higher one" bug. Each rule
+     * mid-cooldown. Within a metric, order in the list does not change which
+     * alarm you get, so a lower alarm cannot eat a higher one. Each rule
      * keeps its own cooldown / edge state, so escalating through tiers fires
      * each tier once as you reach it.
      */
@@ -148,7 +147,7 @@ class AlarmEngine(
             // Read inside the launch so we always see the latest store value.
             if (settingsRepository.currentOrLoad().alarmsMuted) { stopConstantTone(); return@withLock }
             // Rules bound to a specific wheel only run while THAT wheel is the
-            // connected one; unbound rules behave exactly as before.
+            // connected one; unbound rules always run.
             val pass = AlarmWheelPass.evaluate(
                 evaluator,
                 currentEnabledRules(),
@@ -282,11 +281,12 @@ class AlarmEngine(
     /**
      * External-GPS-side evaluator. Called from
      * [com.eried.eucplanet.data.repository.ExternalGpsRepository] on each new
-     * sample. Only handles [AlarmMetric.EXTERNAL_GPS_BATTERY]; walks the same
-     * per-rule cooldown state as the wheel path so a low-battery rule fires
-     * once as the box crosses the threshold. A sample whose battery is null
-     * (Dragy before its first FD04 read, or a frame without the field) is a
-     * no-reading SKIP, so the rule state just waits rather than resetting.
+     * sample. Handles [AlarmMetric.EXTERNAL_GPS_BATTERY] and
+     * [AlarmMetric.EXTERNAL_GPS_SPEED]; walks the same per-rule cooldown state
+     * as the wheel path so a low-battery rule fires once as the box crosses
+     * the threshold. A sample whose battery is null (Dragy before its first
+     * FD04 read, or a frame without the field) is a no-reading SKIP, so the
+     * rule state just waits rather than resetting.
      */
     fun evaluateExternalGps(sample: ExternalGpsSample) {
         if (cheatState.godmode.value) return

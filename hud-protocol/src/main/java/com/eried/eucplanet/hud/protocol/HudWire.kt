@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
  * Lives in its own module so both Gradle projects compile against the same
  * Kotlin types and the JSON encoding can't drift between sides. The HUD is a
  * passive renderer: every field here is something the HUD knows how to draw
- * on one of its four screens. Anything the HUD cannot use stays on the phone.
+ * on one of its screens. Anything the HUD cannot use stays on the phone.
  *
  * Versioning: see [PROTOCOL_MAJOR] / [PROTOCOL_MINOR] below. Additions are
  * always backwards-compatible because the JSON decoder runs with
@@ -178,8 +178,8 @@ data class HudState(
 
     /** Ordered list of HUD screens the rider has enabled, by stable id
      *  ("Dashboard", "Camera", "Telemetry", "Custom", "CustomCam",
-     *  "Map", "Nav"). Empty list = default (all seven in declaration
-     *  order). Non-empty = use EXACTLY this list in this order; any
+     *  "Map", "Nav", ...). Empty = no list yet, the HUD keeps its
+     *  waiting splash. Non-empty = use EXACTLY this list in this order; any
      *  screen not in the list is hidden from the carousel.
      *
      *  Lets the rider trim and reorder screens on the phone side
@@ -190,13 +190,10 @@ data class HudState(
      *  a "no such screen" state. */
     val enabledHudScreens: List<String> = emptyList(),
 
-    /** Map-tile style code the HUD should use for its Map screen and
-     *  for any MAP element inside a Custom overlay. Empty = HUD picks
-     *  its compiled-in default. Recognised codes mirror CartoCDN's
-     *  basemap raster styles: "voyager", "dark_matter",
-     *  "dark_matter_nolabels", "light_all", "positron". Any other value
-     *  is treated as empty so a rider can't get a blank map by typing
-     *  garbage into a future free-form picker. */
+    /** Map layer id for the HUD's Map screen, resolved by
+     *  [MapLayers.byId]. Empty = the HUD's default (LIGHT). Old Carto
+     *  slugs ("voyager", "dark_matter", ...) still resolve; an unknown
+     *  id falls back to OSM. */
     val hudMapStyle: String = "",
     /** Per-axis tile post-processing applied as a ColorMatrix on the
      *  drawn tile bitmaps. Both default to neutral; the HUD skips the
@@ -431,8 +428,8 @@ enum class VersionCompat {
 }
 
 /**
- * One-shot commands the HUD sends back to the phone. Posted to /command as
- * `{"type": "...", ...}`. Each remote-button binding on the HUD maps to one.
+ * One-shot commands the HUD sends back to the phone on the state WebSocket,
+ * as `{"type": "...", ...}`. Each remote-button binding on the HUD maps to one.
  */
 @Serializable
 sealed class HudCommand {
@@ -520,21 +517,13 @@ object HudDiscovery {
         }
     }
 
-    /** TXT-record key for the wire protocol version. HUD refuses to pair
-     *  against a phone advertising a higher major version than it speaks. */
+    /** TXT-record key for the wire protocol major version the HUD speaks. */
     const val TXT_VERSION: String = "v"
-    /** TXT-record key for the SSE state-stream path. */
+    /** TXT-record key for the state WebSocket path. */
     const val TXT_STATE_PATH: String = "state"
-    /** TXT-record key for the command POST path. */
-    const val TXT_COMMAND_PATH: String = "cmd"
-    /** TXT-record key for the map-tile proxy path prefix. */
-    const val TXT_TILES_PATH: String = "tiles"
 
-    /** Canonical endpoint paths. */
+    /** Path of the state WebSocket on the HUD's server. */
     const val PATH_STATE: String = "/state"
-    const val PATH_COMMAND: String = "/command"
-    const val PATH_TILES_PREFIX: String = "/tiles"
-    const val PATH_HEALTH: String = "/health"
 
     /**
      * UDP beacon port. The HUD broadcasts a small text packet here every

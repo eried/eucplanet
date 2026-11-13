@@ -45,13 +45,13 @@ import org.json.JSONObject
 import java.io.File
 
 /**
- * Coordinates cloud sync via the Storage Access Framework.
+ * Coordinates backup and sync: the SAF backup folder the rider picks (trips,
+ * settings.json, themes, overlays, the eucstats rider id file), the Dropbox
+ * mirror through [DropboxRepository], and the WorkManager jobs that retry both.
  *
- * The user picks a folder in any DocumentsProvider (OneDrive, Google Drive,
- * Dropbox, local device storage, etc.) with ACTION_OPEN_DOCUMENT_TREE. We take
- * persistable permission and store the tree URI in settings. Trip CSVs and a
- * `settings.json` backup are written through DocumentFile, no provider-specific
- * code, no OAuth, the cloud app handles the upload.
+ * The folder is picked in any DocumentsProvider with ACTION_OPEN_DOCUMENT_TREE.
+ * We take persistable permission and store the tree URI in settings, and write
+ * through DocumentFile.
  */
 class SyncManager(
     private val context: Context,
@@ -331,8 +331,8 @@ class SyncManager(
         val folderSizeByLower = folderSizes.mapKeys { it.key.lowercase() }
 
         val dbTrips = tripDao.observeAll().first()
-        val folderByLower = folderNames.associateBy { it.lowercase() }
         // Handed to uploadCsv so it does not re-list the folder per trip.
+        val folderByLower = folderNames.associateBy { it.lowercase() }
         val dbByLower = dbTrips.associateBy { it.fileName.lowercase() }
 
         // A trip both sides hold is a conflict only when the copies differ; the
@@ -439,8 +439,8 @@ class SyncManager(
             _syncProgress.value = done to total
         }
 
-        // Failed uploads are uploadStatus=3; the folder-backup worker retries
-        // status IN (1,3), so kick it so they keep retrying in the background.
+        // Failed uploads are uploadStatus=3, which the folder-backup worker
+        // retries, so kick it so they keep retrying in the background.
         // The result is always Finished -- no error toast; failed folder uploads
         // finish silently once conditions recover.
         if (failed > 0) enqueueTripUpload(settings)
@@ -1035,7 +1035,7 @@ class SyncManager(
 
     /** Initial enqueue of the eucstats worker. Retries are scheduled by the worker
      *  itself via [scheduleEucStatsUploadAttempt]. */
-    fun enqueueEucStatsUpload(settings: AppSettings) {
+    fun enqueueEucStatsUpload() {
         scheduleEucStatsUploadAttempt(attempt = 0)
     }
 
@@ -1063,7 +1063,7 @@ class SyncManager(
      * catches an upload the rider "closed too early" -- next open, it lands.
      */
     fun reconcilePendingTripUploads() {
-        // Not attempt 0: a job due at once started while the main thread was
+        // Not immediate: a job due at once started while the main thread was
         // still busy with start-up, and its onStartJob timed out (an ANR on a
         // slow phone). KEEP leaves a retry chain that is already queued alone.
         val request = OneTimeWorkRequestBuilder<TripUploadWorker>()
@@ -1120,7 +1120,7 @@ class SyncManager(
     /** Cancel any queued / in-backoff eucstats-upload work. Used when the rider
      *  toggles leaderboards off, deletes their account, or unlinks the sync
      *  folder (since the rider id lives in that folder). Without this, a retry
-     *  parked on the 32m / 1h step would still fire later and find the
+     *  waiting in backoff would still fire later and find the
      *  prerequisites gone; cancelling here keeps the trip icons and WorkManager
      *  state in lockstep. */
     fun cancelEucStatsUpload() {
@@ -1172,9 +1172,6 @@ class SyncManager(
         )
     }
 
-    /** Initial enqueue of the Dropbox sync worker. Retries reschedule
-     *  themselves via [scheduleDropboxSyncAttempt]. Caller should check
-     *  the linked state before calling, this is unconditional. */
     /**
      * Push one edited trip to every configured backup, right now, in-process.
      *
@@ -1222,6 +1219,9 @@ class SyncManager(
         }
     }
 
+    /** Initial enqueue of the Dropbox sync worker. Retries reschedule
+     *  themselves via [scheduleDropboxSyncAttempt]. Caller should check
+     *  the linked state before calling, this is unconditional. */
     fun enqueueDropboxSync() {
         // Do NOT set the pending flag here. This runs on every app start
         // (TripRepository reconcile) whenever Dropbox is linked, so flipping it
@@ -1278,13 +1278,6 @@ class SyncManager(
     }
 
     /**
-     * Foreground "Sync all" for Dropbox. Mirrors [startSync] but talks to
-     * Dropbox: compare local trips dir against /trips/, prompt the rider
-     * on shared file names with the same conflict dialog the SAF sync uses,
-     * then upload / download to reconcile. Runs in the app-scoped coroutine
-     * so leaving Settings does NOT cancel a half-finished reconcile.
-     */
-    /**
      * Ask for the Dropbox library to come down, without taking over the screen.
      *
      * For linking, where the rider has just said "bring my trips over" but is
@@ -1299,6 +1292,13 @@ class SyncManager(
         }
     }
 
+    /**
+     * Foreground "Sync all" for Dropbox. Mirrors [startSync] but talks to
+     * Dropbox: compare local trips dir against /trips/, prompt the rider
+     * on shared file names with the same conflict dialog the SAF sync uses,
+     * then upload / download to reconcile. Runs in the app-scoped coroutine
+     * so leaving Settings does NOT cancel a half-finished reconcile.
+     */
     fun startDropboxSync() {
         if (!_syncRunning.compareAndSet(false, true)) return
         _activeSyncKind.value = SyncConflictKind.DROPBOX
@@ -1444,12 +1444,8 @@ class SyncManager(
         val remoteByLower = remote.keys.associateBy { it.lowercase() }
         val remoteMetaByLower = remote.entries.associate { it.key.lowercase() to it.value }
 
-        // A same-name file is a real conflict only when its CONTENT differs (byte
-        // size). Same name + same size means it is already synced, so it is
-        // neither a conflict nor work. Previously every already-synced trip was
-        // flagged as a conflict, so the dialog popped for nothing and "Skip all"
-        // still left genuinely new/changed trips to upload - hence "0 trips" yet
-        // one still synced. This now matches the background worker's size check.
+        // A same-name file is a conflict only when the copies differ. Same name
+        // and same size is already synced: neither a conflict nor work.
         val bothNames = remoteByLower.keys intersect localByLower.keys
         // Same name, different size: the copies differ. The fingerprint of the
         // version last synced tells which side moved on, so an edit made on one
@@ -1548,12 +1544,10 @@ class SyncManager(
         // Settings go first, right after the decision: deciding now and writing
         // after a library-sized transfer left minutes for another phone to
         // change them in between, and that change would have been overwritten.
-        var extra = 0
         var settingsFailed = false
         when (settingsAction) {
             SettingsSyncAction.UPLOAD -> {
                 if (dropboxRepository.uploadFile("/settings.json", phoneSettingsBytes)) {
-                    extra++
                     settingsRepository.update { it.copy(dropboxSettingsBaseHash = phoneSettingsHash) }
                 } else settingsFailed = true
             }
@@ -1561,7 +1555,6 @@ class SyncManager(
                 if (remoteSettingsBytes != null) {
                     snapshotBeforeRestore() // best-effort undo point (needs a SAF folder)
                     if (applySettingsFromJson(remoteSettingsBytes)) {
-                        extra++
                         settingsRepository.update {
                             it.copy(dropboxSettingsBaseHash = remoteSettingsHash ?: it.dropboxSettingsBaseHash)
                         }
@@ -1682,7 +1675,7 @@ class SyncManager(
             _syncProgress.value = done to total
         }
 
-        extra += syncBackupSubdirs(settings, choice)
+        syncBackupSubdirs(settings, choice)
 
         if (failed == 0) {
             // Only stamp the sync time on a clean pass, so a partial run stays
@@ -1698,7 +1691,7 @@ class SyncManager(
                 )
             }
             // "Synchronized N trips" counts TRIPS only, not the settings.json /
-            // themes / overlays mirror (extra) - counting those made an all-synced
+            // themes / overlays mirror - counting those made an all-synced
             // pass that merely refreshed settings report "1 trip". When no trip
             // moved, say "already up to date" instead of "0 trips".
             _syncResult.value =
@@ -1837,19 +1830,6 @@ class SyncManager(
         return n
     }
 
-    /**
-     * Move a trip's file out of the way on every destination it reached.
-     *
-     * A trip that was extended into a longer one, or split into pieces, still
-     * has its own file sitting in Dropbox and in the backup folder. Leave it
-     * there and the same ride is stored twice, and the copy comes back down
-     * the next time the rider syncs on another phone. Archiving moves it into
-     * an "archive" subfolder on both: out of the listing the sync walks, but
-     * still the rider's data.
-     *
-     * Best effort per destination. Dropbox reports a missing file as done,
-     * since a trip that never got there needs no archiving.
-     */
     /**
      * Move a trip's file out of the way on every destination that has it.
      *
@@ -2087,10 +2067,6 @@ class SyncManager(
     fun listFolderTripNames(settings: AppSettings): List<String>? =
         listFolderTripSizes(settings)?.keys?.toList()
 
-    /** CSV name -> byte size for the trips subfolder, in one directory walk.
-     *  Sizes are what tell an already-backed-up trip from a conflict: same
-     *  name, different bytes means the two sides disagree and neither may be
-     *  overwritten without the rider choosing. */
     /**
      * Delete the renamed duplicates a case mismatch used to leave in the
      * backup folder's trips, see [RenamedCopyCleanup]. Names and sizes come
@@ -2140,6 +2116,10 @@ class SyncManager(
         return removed
     }
 
+    /** CSV name -> byte size for the trips subfolder, in one directory walk.
+     *  Sizes are what tell an already-backed-up trip from a conflict: same
+     *  name, different bytes means the two sides disagree and neither may be
+     *  overwritten without the rider choosing. */
     fun listFolderTripSizes(settings: AppSettings): Map<String, Long>? {
         val root = getSyncFolder(settings) ?: return null
         val trips = root.findFile(TRIPS_SUBFOLDER) ?: return emptyMap()
@@ -2360,7 +2340,7 @@ sealed interface BackupOutcome {
 data class BackupEntry(val fileName: String, val label: String?, val isFactory: Boolean = false)
 
 /**
- * The rider identity carried by a settings backup, read without applying it.
- * Used to offer "restore your existing rider" when a sync folder is linked.
+ * The rider id found in the sync folder's eucstats_riderid.txt. Used to
+ * offer "restore your existing rider" when a sync folder is linked.
  */
 data class RestorableRider(val fileName: String, val storeId: String)

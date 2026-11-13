@@ -11,7 +11,7 @@ using Toybox.Timer;
 //! Inbound: the phone calls `ConnectIQ.sendMessage(device, app, dict, ...)`
 //! and we get one frame here via `onMessage`. Outbound: `transmitControl`
 //! wraps a control intent in `{Control.PAYLOAD_KEY: <intent>}` so the phone
-//! listener can route it the same way `PhoneGarminListenerService` does.
+//! side (GarminBridge) can route it.
 class PhoneBridge {
     //! Heartbeat timer. Fires every 1.5 s and transmits Control.ALIVE so the
     //! phone can drive its Live indicator from actual end-to-end delivery
@@ -26,7 +26,7 @@ class PhoneBridge {
     //! Cleared from the shared TransmitListener when each transmit finishes.
     private var _txBusy as Lang.Boolean = false;
     //! When the current transmit started (System.getTimer ms). If its listener
-    //! callback is lost, transmitControl abandons the busy flag after ~4 s so a
+    //! callback is lost, txSlotFree abandons the busy flag after TX_ABANDON_MS so a
     //! stuck flag can't silence the watch->phone link forever.
     private var _txBusySinceMs as Lang.Number = 0;
     private var _txListener as TransmitListener?;
@@ -41,14 +41,13 @@ class PhoneBridge {
         _txListener = new TransmitListener(self);
     }
 
-    //! Wire the listener up. The View calls this in onShow() so the watch
-    //! only consumes incoming frames while the dial is on screen, same
-    //! lifecycle as the Wear OS `WatchBridgeService` registration.
+    //! Wire the listener up. Called from EucPlanetApp.onStart, so the watch
+    //! consumes incoming frames for as long as the app runs.
     function start() as Void {
         Communications.registerForPhoneAppMessages(method(:onMessage));
         sendWatchInfo();
         // Heartbeat. First ack goes out immediately so the phone's Live
-        // indicator doesn't wait 5 s for the bridge to come up.
+        // indicator doesn't wait a full beat for the bridge to come up.
         sendAlive();
         _aliveTimer = new Timer.Timer();
         // 1.5 s, not the old 5 s: the phone's backlog cap only advances on our
@@ -127,8 +126,7 @@ class PhoneBridge {
             // The phone fires this whenever its app comes to foreground. The
             // phone separately calls ConnectIQ.openApplication() to actually
             // launch this app when it was closed; this message only nudges an
-            // already-open app, so we just bump the snapshot's last-update to
-            // clear the disconnected placeholder if it was up.
+            // already-open app, so we just mark the phone as seen.
             WatchState.snapshot.phoneSynced = true;
         } else if (kind.equals(Keys.KIND_QUIT)) {
             // User picked "Stop all" on the phone with "close watch on exit"
@@ -143,18 +141,17 @@ class PhoneBridge {
         }
     }
 
-    //! Input-event report for the phone's Service Mode Wearables tab. A
-    //! no-op unless the phone flagged diag recording in the state frames,
-    //! so a normal ride sends nothing extra. Best-effort like every other
-    //! control: _txBusy may drop one, and that is fine for diagnostics.
-    //! Debug lines waiting for a free transmit slot. Dropping them (the old
-    //! behavior) made the diag stream lossy in exactly the interesting
+    //! Debug lines waiting for a free transmit slot. Dropping them would
+    //! make the diag stream lossy in exactly the interesting
     //! moments: a press produces 2-3 events milliseconds apart, one transmit
     //! holds the slot for seconds on a slow link, so only the FIRST line of
-    //! every burst survived (field log: onKeyPressed with no onSelect after
-    //! it). Buffered lines flush as ONE joined frame when the slot frees.
+    //! every burst would survive (field log: onKeyPressed with no onSelect
+    //! after it). Buffered lines flush as ONE joined frame when the slot frees.
     private var _pendingDebug as Lang.Array = [];
 
+    //! Input-event report for the phone's Service Mode Wearables tab. A
+    //! no-op unless the phone flagged diag recording in the state frames,
+    //! so a normal ride sends nothing extra.
     function sendDebug(msg as Lang.String) as Void {
         // Println first: on real watches it goes nowhere (unless an app log
         // file exists), but in the CIQ simulator it lands in the console -

@@ -245,9 +245,8 @@ fun MetricDetailScreen(
 
                 // Reset footer. Tap = reset active tab's metric history;
                 // long-press = open confirm dialog, then wipe ALL buffers.
-                // The old "Reset all" button is gone, collapsed into a
-                // long-press gesture so the toolbar reads cleaner and the
-                // destructive action is harder to fire accidentally.
+                // A long-press keeps the toolbar clean and makes the
+                // destructive action harder to fire accidentally.
                 ResetWithLongPressConfirm(
                     onResetActive = { viewModel.resetHistory(activeKey) },
                     onRequestResetAll = { showResetAllConfirm = true }
@@ -828,9 +827,8 @@ internal fun MetricGraph(
      */
     showMainLine: Boolean = true,
     /**
-     * Shaded / dotted bands on the left axis, drawn behind the lines on the
-     * shared left-axis bounds. See [GraphBandSpec]. The Packs chart passes one
-     * filled band per pack plus a dotted pack-average envelope.
+     * Shaded bands on the left axis, drawn behind the lines on the shared
+     * left-axis bounds. See [GraphBandSpec].
      */
     bands: List<GraphBandSpec> = emptyList(),
     /**
@@ -1169,10 +1167,10 @@ internal fun MetricGraph(
                 }
             }
 
-            // Prediction line: a dashed straight segment from the last recorded
-            // point to the predicted 100% target. The rider can scrub along it
-            // and read the projected % at any future minute -- a plain linear
-            // extrapolation, drawn under the marker dots so they sit on top.
+            // Prediction path: dashed legs from the last recorded point through
+            // each predicted point. The rider can scrub along it and read the
+            // projected % at any future minute. Drawn under the marker dots so
+            // they sit on top.
             if (predictionPath.isNotEmpty()) {
                 val lastS = samples.last()
                 var prevX = w * (lastS.timestampMs - xMinMs).toFloat() / xSpanMs
@@ -1226,9 +1224,8 @@ internal fun MetricGraph(
                 val tTargetExtended = xMinMs + (frac * xSpanMs.toDouble()).toLong()
                 val inHistory = tTargetExtended <= tN
                 // Value at the cursor time. In the recorded region we interpolate
-                // the samples; past "now" we follow the straight prediction line
-                // to the target (100%); past the target it is null so nothing is
-                // drawn (no more pinning the last recorded % across the future).
+                // the samples; past "now" we follow the prediction legs; past
+                // the last point it is null so nothing is drawn.
                 val value: Float? = when {
                     inHistory -> {
                         val li = samples.indexOfLast { it.timestampMs <= tTargetExtended }.coerceIn(0, samples.size - 1)

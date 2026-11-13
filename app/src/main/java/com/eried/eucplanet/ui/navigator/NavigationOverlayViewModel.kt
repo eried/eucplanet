@@ -51,7 +51,7 @@ class NavigationOverlayViewModel(
         .map { r -> r?.takeIf { it.waypoints.isNotEmpty() } }
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
-    /** Advanced: how long the expanded turn cue stays before minimizing (ms). */
+    /** Advanced: how long the turn cue popup stays before it hides (ms). */
     val popupTimeoutMs: StateFlow<Long> = settingsRepository.settings
         .map { it.navPopupTimeoutMs.toLong() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 5000L)

@@ -64,8 +64,8 @@ import org.koin.android.ext.android.get
 /**
  * Crews pairing: scan a code from a browser, see what it would grant, approve it.
  *
- * This is the entire job of the phone in Crews. Everything else — founding a crew, joining
- * one, approving members, looking at territory — happens in a browser on eucstats. The app is
+ * This is the entire job of the phone in Crews. Everything else (founding a crew, joining
+ * one, approving members, looking at territory) happens in a browser on eucstats. The app is
  * here because it is the only thing that holds the rider's store_id, and the point of the
  * handshake is that the store_id never has to be typed into a web form.
  *
@@ -82,7 +82,7 @@ class CrewsPairActivity : ComponentActivity() {
      *
      * This activity is singleTop, so a second pairing link while it is already open arrives
      * through [onNewIntent] rather than building a new activity. Reading the intent once in
-     * onCreate meant that second scan changed nothing on screen — the rider was left looking
+     * onCreate meant that second scan changed nothing on screen: the rider was left looking
      * at the previous code with no sign anything had happened.
      */
     private val link = mutableStateOf<PairLink?>(null)
@@ -161,8 +161,6 @@ fun CrewsPairScreen(
         )
     }
 
-    // Ask the server what the code is for as soon as there is one, so the approve button is
-    // never the first thing the rider sees with nothing but "Allow?" above it.
     // Typing a code, for the case the web copy has always described: the app did not open by
     // itself, and a phone cannot photograph its own screen. A code with no host means THIS
     // build's own server -- `PairLink.parseAppScheme` does the same when `host` is absent --
@@ -183,6 +181,8 @@ fun CrewsPairScreen(
         else Step.Confirming(link, null)
     }
 
+    // Ask the server what the code is for as soon as there is one, so the approve button is
+    // never the first thing the rider sees with nothing but "Allow?" above it.
     val pending = (step as? Step.Confirming)?.takeIf { it.offer == null }?.link
     LaunchedEffect(pending) {
         val link = pending ?: return@LaunchedEffect
@@ -210,8 +210,8 @@ fun CrewsPairScreen(
           // The camera square is as tall as the card is wide, so in landscape the body has to
           // scroll to reach the buttons -- the same reason the join scanner sets it.
           scrollable = true,
-          // Scanning, typing a code and waiting on the server have no Close of their own,
-          // and an iPhone has no system back: the X is the way out in every step.
+          // Scanning, typing a code and waiting on the server have no Close of their own:
+          // the X is the way out in every step.
           onClose = onDone,
       ) {
         when (val s = step) {
@@ -318,10 +318,7 @@ fun CrewsPairScreen(
                 Spacer(Modifier.height(12.dp))
                 if (s.offer == null) {
                     // Centred for the same reason the code above it is: the card's body is a
-                    // Column that aligns its children to the start. `Step.Sending` below was
-                    // given this and this one was not, so the spinner the rider actually waits
-                    // on -- the one between scanning the code and being asked to grant it --
-                    // sat against the left edge under a centred six-character code.
+                    // Column that aligns its children to the start.
                     CircularProgressIndicator(
                         Modifier
                             .height(26.dp)
@@ -405,7 +402,7 @@ fun CrewsPairScreen(
 
             is Step.Sending -> {
                 Spacer(Modifier.height(30.dp))
-                // The old scaffold centred every child; the card's body does not.
+                // The card's body aligns children to the start, so centre the spinner.
                 CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally))
             }
 

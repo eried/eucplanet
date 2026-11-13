@@ -103,14 +103,6 @@ class ThemeStore(
         }
     }
 
-    /** Delete the named saved theme file. `name` may be passed with or
-     *  without the `.json` suffix. */
-    suspend fun deleteTheme(name: String): Boolean = withContext(Dispatchers.IO) {
-        val folder = themesFolder() ?: return@withContext false
-        val withSuffix = if (name.endsWith(SUFFIX, ignoreCase = true)) name else "$name$SUFFIX"
-        folder.findFile(withSuffix)?.delete() ?: false
-    }
-
     /** The `themes/` subfolder of the backup folder, created on demand. */
     private suspend fun themesFolder() = withContext(Dispatchers.IO) {
         val root = syncManager.getSyncFolder(settingsRepository.get()) ?: return@withContext null

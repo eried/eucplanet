@@ -504,7 +504,7 @@ fun AutomationsContent(
                     else MaterialTheme.appColors.textDisabled,
             )
 
-            // Capped below unlock (>=10 dBm gap) so a lock/unlock loop is impossible.
+            // Capped 2 dBm below unlock so a lock/unlock loop is impossible.
             NumberFieldWithDefault(
                 value = settings.proximityLock.lockBelowDbm,
                 default = SETTINGS_DEFAULTS.proximityLock.lockBelowDbm,
@@ -613,7 +613,7 @@ private fun SunScheduleGraph(
 
     // Night-mode deep blue: a data-viz fill for the night portion of the
     // day/night timeline bar, not app chrome, kept as a literal so it
-    // doesn't follow the theme's surface tokens. See report.
+    // doesn't follow the theme's surface tokens.
     val nightColor = Color(0xFF1A237E)
     val dayColor = MaterialTheme.appColors.gaugeWarn.copy(alpha = 0.25f)
     val lightsMarkerColor = MaterialTheme.appColors.statusGood
@@ -750,7 +750,7 @@ private fun SunScheduleGraph(
     }
 }
 
-// --- Editable PCHIP volume-multiplier graph (0 km/h locked at 0x) ---
+// --- Editable PCHIP volume-multiplier graph (0 km/h locked at 1x) ---
 
 @Composable
 private fun SplineCurveEditor(
@@ -824,7 +824,7 @@ private fun SplineCurveEditor(
                                 .filter { it.second < 100f }
                                 .minByOrNull { it.second }
 
-                            // Index 0 (0 km/h) is locked at 0x and not draggable.
+                            // Index 0 (0 km/h) is locked at 1x and not draggable.
                             if (nearest != null && nearest.first != 0) {
                                 dragIndex = nearest.first
                                 probeSpeed = null
@@ -956,8 +956,7 @@ private fun SplineCurveEditor(
                 drawText(probeMeasured, topLeft = Offset(labelX, labelY))
             }
 
-            // Control point handles. Index 0 (0 km/h locked at 0x) has no visible handle , 
-            // the curve simply starts at the origin.
+            // Control point handles. Index 0 (0 km/h locked at 1x) has no visible handle.
             for ((idx, p) in points.withIndex()) {
                 if (idx == 0) continue
                 val (s, m) = p

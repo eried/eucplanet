@@ -129,14 +129,14 @@ class RouteBuilderViewModel(
             MapLayer("SATELLITE_LABELS", com.eried.eucplanet.R.string.nav_layer_satellite_labels),
         )
 
+        /** Unlock track opens with the fewest stops that keep this close. */
+        const val UNLOCK_TARGET_OFF_M = 50.0
+
         /**
          * Listed destinations + stops (the rider is the implicit origin).
          * OSRM solves the whole chain in one /route request, so this cap is a
          * usability limit (a manageable list), not a router limit.
          */
-        /** Unlock track opens with the fewest stops that keep this close. */
-        const val UNLOCK_TARGET_OFF_M = 50.0
-
         const val MAX_WAYPOINTS = 50
 
         /** How far the rider moves before the route preview is recomputed. */
@@ -190,7 +190,8 @@ class RouteBuilderViewModel(
     val showChargers: StateFlow<Boolean> = _showChargers.asStateFlow()
 
     /** Enabled "places" categories (subset of STORE/FOOD/REST/SIGHTS). The
-     *  places FAB toggles the whole group; long-press picks individual ones. */
+     *  Layers menu's Places row toggles the whole group; the rows under it
+     *  pick individual ones. */
     private val _placeCats = MutableStateFlow<Set<PoiKind>>(emptySet())
     val placeCats: StateFlow<Set<PoiKind>> = _placeCats.asStateFlow()
 
@@ -221,7 +222,7 @@ class RouteBuilderViewModel(
     /** True once the "hold for categories" hint toast has been shown. */
     private var placesHintShown = false
 
-    /** True while each layer's fetch is in flight (drives that FAB's spinner). */
+    /** True while each layer's fetch is in flight (drives the Layers button's spinner). */
     private val _chargerLoading = MutableStateFlow(false)
     val chargerLoading: StateFlow<Boolean> = _chargerLoading.asStateFlow()
     private val _placeLoading = MutableStateFlow(false)
@@ -255,13 +256,6 @@ class RouteBuilderViewModel(
     val solveFullPath: StateFlow<Boolean> = _solveFullPath.asStateFlow()
 
     /**
-     * Distance to show in the builder header: the WHOLE remaining tour, not
-     * just the first leg. In Full path the solved route already spans every
-     * stop, so its [NavRoute.totalDistanceM] is the answer. In Next segment
-     * the solved route is only the first leg, so we add the straight-line
-     * length through the remaining non-passed stops. Null when nothing to show.
-     */
-    /**
      * True when the solved line runs to the last stop still ahead. During
      * navigation it only reaches the next stop even in Full path, and the
      * stops past it measured along it all came out as 0 m.
@@ -272,6 +266,13 @@ class RouteBuilderViewModel(
         return GeoMath.distanceM(end, last.point()) <= SPANS_TOUR_M
     }
 
+    /**
+     * Distance to show in the builder header: the WHOLE remaining tour, not
+     * just the first leg. In Full path the solved route already spans every
+     * stop, so its [NavRoute.totalDistanceM] is the answer. In Next segment
+     * the solved route is only the first leg, so we add the straight-line
+     * length through the remaining non-passed stops. Null when nothing to show.
+     */
     val tourDistanceM: StateFlow<Double?> =
         combine(_route, _waypoints, _solveFullPath) { route, wps, full ->
             val routed = route?.totalDistanceM ?: 0.0
@@ -317,21 +318,8 @@ class RouteBuilderViewModel(
     val savedView: StateFlow<MapView?> = _savedView.asStateFlow()
 
     fun setSavedView(lat: Double, lng: Double, zoom: Float) {
-        // Throttle the log; this fires on every moveend (including each
-        // auto-follow tween frame's setView, ~60 Hz when the rider is
-        // navigating) and would otherwise dominate logcat.
-        val now = System.currentTimeMillis()
-        if (now - lastSavedViewLogMs > 500) {
-            lastSavedViewLogMs = now
-            android.util.Log.i(
-                "RouteBuilderVM",
-                "SAVED-VIEW lat=${"%.5f".format(lat)} lng=${"%.5f".format(lng)} " +
-                    "zoom=${"%.2f".format(zoom)}"
-            )
-        }
         _savedView.value = MapView(lat, lng, zoom)
     }
-    private var lastSavedViewLogMs = 0L
 
     /** Sets the rider-marker photo (or clears it), writing it to its on-disk PNG
      *  (NavMarkerStore) -- not the settings JSON. */
@@ -591,12 +579,6 @@ class RouteBuilderViewModel(
                     }
                 }
             }
-            android.util.Log.i(
-                "RouteBuilderVM",
-                "RESTORE engineActive=${navigationEngine.isActive} " +
-                    "hasRoute=${currentRouteStore.get() != null} " +
-                    "_waypoints=${_waypoints.value.size}"
-            )
             // Signal restore-complete after the section above finishes --
             // independent of whether anything was actually restored.
             restoreReady.complete(Unit)
@@ -609,14 +591,6 @@ class RouteBuilderViewModel(
         // which move past a stop without raising arrived. The engine trims
         // the in-memory CurrentRouteStore itself, so re-opening the builder
         // after the ride shows only what is left.
-        // In Next segment each leg is a single-destination
-        // route (origin -> next non-passed stop). On arrival, mark the
-        // first non-passed stop as passed (don't remove -- the rider
-        // still wants to see it in the list, struck-through). If any
-        // non-passed stops remain, build a new single-destination route
-        // to the new "next" and call advanceLeg so guidance continues
-        // without ending the nav session. If they're all passed, the
-        // final destination arrival stands.
         //
         // arrivalProcessed guards against the collector firing more than
         // once per arrival: the routing call after each arrival is async
@@ -634,13 +608,7 @@ class RouteBuilderViewModel(
             // skip the mark, and the rider would see the entire route
             // disappear when the engine's stop() finally fired.
             restoreReady.await()
-            android.util.Log.i("RouteBuilderVM", "COLLECT-READY")
             navigationEngine.navState.collect { nav ->
-                android.util.Log.i(
-                    "RouteBuilderVM",
-                    "NAV-STATE active=${nav.active} arrived=${nav.arrived} " +
-                        "arrivalProcessed=$arrivalProcessed wpCount=${_waypoints.value.size}"
-                )
                 // Full path and Treasure hunt move on past a stop without an
                 // arrival: tick off every stop before the one being ridden to.
                 // Matched by position, so a re-route keeps working. In Next
@@ -659,31 +627,14 @@ class RouteBuilderViewModel(
                 }
                 if (arrivalProcessed) return@collect
                 arrivalProcessed = true
-                // The engine is now the sole orchestrator of multi-stop
+                // The engine is the sole orchestrator of multi-stop
                 // progress: it writes passed=true to the in-memory current
-                // route (CurrentRouteStore) itself
-                // and (for intermediate stops) builds the next leg + calls
-                // advanceLeg from inside its own scope. The Navigator VM
-                // used to race the engine's intermediate-flash window by
-                // running its own leg-building coroutine and calling
-                // advanceLeg the instant arrived=true fired -- which
-                // emitted arrived=false again and yanked the "Reached
-                // goal N" popup off-screen ~150 ms in. Now we just mirror
-                // the passed flag into the visible list so the marker
-                // flips to a flag immediately; the engine's write to the
-                // in-memory current route (CurrentRouteStore) below is the
-                // source of truth, and
-                // _route is updated by the engine's advanceLeg-driven
-                // navState emission picked up by other observers /
-                // bumpRender paths.
+                // route (CurrentRouteStore) itself and (for intermediate
+                // stops) builds the next leg. Here we only mirror the
+                // passed flag into the visible list so the marker flips
+                // to a flag immediately.
                 val current = _waypoints.value
                 val nextIdx = current.indexOfFirst { !it.passed }
-                android.util.Log.i(
-                    "RouteBuilderVM",
-                    "ARRIVE-COLLECT active=true arrived=true " +
-                        "wpCount=${current.size} nextNonPassedIdx=$nextIdx " +
-                        "passedFlags=${current.map { it.passed }}"
-                )
                 if (nextIdx < 0) return@collect
                 // The arrived frame names the stop just reached: tick it off
                 // and any before it (a Full path that homed past them). When
@@ -742,12 +693,6 @@ class RouteBuilderViewModel(
                     // the track itself, so the rider sees where it goes.
                     geometry = if (leg.isLockedTrack && leg.travelMode != TravelMode.STRAIGHT)
                         leg.geometry + leg.track else leg.geometry
-                )
-                android.util.Log.i(
-                    "RouteBuilderVM",
-                    "ACTIVE-LEG-OBS legGeomPts=${leg.geometry.size} " +
-                        "mergedWpCount=${merged.waypoints.size} " +
-                        "passedFlags=${merged.waypoints.map { it.passed }}"
                 )
                 _route.value = merged
                 _routing.value = false
@@ -840,18 +785,10 @@ class RouteBuilderViewModel(
     // --- Waypoint editing --------------------------------------------------------
 
     /**
-     * The rider tapped their own position marker on the map: hint how to make
-     * a pin track them rather than dropping a pin on top of them.
-     */
-    fun notifyTapOnSelf() {
-        _messages.tryEmit(R.string.nav_tap_on_self)
-    }
-
-    /**
      * Apply a "Share to EUC Planet" payload from MainActivity. Coordinates
      * jump straight to addWaypoint with a fit-to-bounds; a search query
-     * is geocoded against the rider's current location and the first hit
-     * is added. While guidance is already running we refuse the add and
+     * fills the search field and runs the search, so the rider picks the
+     * match. While guidance is already running we refuse the add and
      * surface a snackbar -- editing the route mid-trip would also need
      * us to interrupt the engine to re-solve, which is hostile.
      */
@@ -955,8 +892,7 @@ class RouteBuilderViewModel(
             return
         }
         // Surface the query in the screen's address field so the rider sees
-        // what was shared, then kick off the geocoder lookup that already
-        // adds the first hit as a waypoint.
+        // what was shared, then run the search so the results list opens.
         _fillSearchText.tryEmit(q)
         search(q)
     }
@@ -970,12 +906,12 @@ class RouteBuilderViewModel(
      * `www.google.com/maps?...` -> `consent.google.com/?continue=...` ->
      * actual maps page with `@lat,lng`. We follow them all manually
      * (instanceFollowRedirects is too eager for cross-host hops on
-     * Android) and log each hop so non-coord results are diagnosable.
+     * Android).
      */
     private fun resolveShortlink(url: String): String? {
         return try {
             var current = url
-            repeat(5) { hop ->
+            repeat(5) {
                 val conn = (java.net.URL(current).openConnection() as java.net.HttpURLConnection).apply {
                     instanceFollowRedirects = false
                     requestMethod = "GET"
@@ -1363,20 +1299,6 @@ class RouteBuilderViewModel(
     // --- Map style ---------------------------------------------------------------
 
     /**
-     * Cycles the base map style Dark, Light, Satellite, Dark.
-     *
-     * A Terrain style briefly sat between Light and Satellite. It was dropped:
-     * its Esri topographic tiles are visibly older and thinner than the others,
-     * missing street names, POIs and building detail, so cycling through it made
-     * the app look like it had stale map data.
-     */
-    fun cycleMapType() {
-        val ids = MAP_LAYERS.map { it.id }
-        val next = ids[(ids.indexOf(_mapType.value).coerceAtLeast(0) + 1) % ids.size]
-        setMapType(next)
-    }
-
-    /**
      * How far the map is turned from north, in degrees, as the JS reports it.
      *
      * Drives the reset-to-north button: a two-finger twist is easy to trigger
@@ -1655,12 +1577,8 @@ class RouteBuilderViewModel(
     }
 
     /**
-     * Clears the in-memory current route ([CurrentRouteStore]). Used by [clear]
-     * and the GPX load-replace flow so the rider's "I'm done with this route"
-     * action is honoured across the next Builder open. We deliberately NEVER
-     * cache a draft route here (that's done only when navigation actually
-     * starts -- see startNavigation), because draft pins are explicitly
-     * disposable per the design (the rider saves a GPX if they want them back).
+     * Clears the in-memory current route ([CurrentRouteStore]), so a cleared
+     * route does not come back on the next Builder open.
      */
     private fun clearCurrentRoute() {
         currentRouteStore.clear()
@@ -1939,10 +1857,6 @@ class RouteBuilderViewModel(
                 put("passed", w.passed)
             })
         }
-        android.util.Log.i(
-            "RouteBuilderVM",
-            "WP-JSON passedFlags=${_waypoints.value.map { it.passed }}"
-        )
         return arr.toString()
     }
 
@@ -2084,10 +1998,6 @@ class RouteBuilderViewModel(
         _route.value?.geometry?.forEach { p ->
             arr.put(JSONArray().put(p.lat).put(p.lng))
         }
-        android.util.Log.i(
-            "RouteBuilderVM",
-            "GEOM-JSON pts=${_route.value?.geometry?.size ?: 0}"
-        )
         return arr.toString()
     }
 
@@ -2124,7 +2034,7 @@ class RouteBuilderViewModel(
         refreshPlaces(userInitiated = true)
     }
 
-    /** Long-press menu: toggles one place category on/off. */
+    /** Layers menu: toggles one place category on/off. */
     fun setPlaceCategory(kind: PoiKind, on: Boolean) {
         _placeCats.value = if (on) _placeCats.value + kind else _placeCats.value - kind
         persistLayers()
@@ -2582,8 +2492,6 @@ class RouteBuilderViewModel(
      *  they have not answered yet. Held in a singleton because it crosses from
      *  MainActivity's intent handling into this nav-scoped ViewModel. */
     val pendingJoin: StateFlow<ShareLink?> = pendingShareJoin.pending
-
-    fun offerJoin(link: ShareLink) = pendingShareJoin.offer(link)
 
     fun dismissJoin() = pendingShareJoin.clear()
 

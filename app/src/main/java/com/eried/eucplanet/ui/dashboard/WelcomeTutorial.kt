@@ -127,17 +127,17 @@ private data class TutorialStep(
     val target: TutorialTarget?,
     val text: String,
     val showClip: Boolean = false,
-    /** True for the "save & share" step that renders its own title + two
-     *  link-bearing bullets (eucviewer + eucstats). Mutually exclusive with
-     *  [showClip]; the body [text] is ignored when this is true. */
+    /** True for the save and share step: one line whose eucviewer and
+     *  eucstats markers become links. Mutually exclusive with [showClip];
+     *  the body [text] is ignored when this is true. */
     val showShare: Boolean = false,
 )
 
 /**
  * The ordered steps. Copy is composed from the EXISTING Settings label string
  * resources (the trailing arguments) so the names shown here always match the
- * real UI and follow the same translations. The final step bundles the backup,
- * extra-actions and sign-off tips and carries the looping welcome clip.
+ * real UI and follow the same translations. The final step carries the looping
+ * welcome clip, the extra tips and the sign-off.
  */
 @Composable
 private fun tutorialSteps(): List<TutorialStep> = listOf(
@@ -170,7 +170,7 @@ private fun tutorialSteps(): List<TutorialStep> = listOf(
     ),
     TutorialStep(TutorialTarget.VERSION, stringResource(R.string.welcome_tut_version)),
     // Share step: links to the trip-viewer (folder sync) and the
-    // leaderboards (eucstats). No spotlight, two link-bearing bullets.
+    // leaderboards (eucstats). No spotlight, one line with two links.
     TutorialStep(null, "", showShare = true),
     // Outro: no single text -- the card renders a title + bulleted tips + clip.
     TutorialStep(null, "", showClip = true)
@@ -445,10 +445,7 @@ fun WelcomeTutorialOverlay(
                                 style = MaterialTheme.typography.bodyLarge,
                             )
                         } else if (s.showClip) {
-                            // Outro: clip + a tidy title and bulleted tips.
-                            // The "save your trips" line moved out into the
-                            // dedicated share step above so the outro can
-                            // focus on the long-tail tips and the sign-off.
+                            // Outro: clip, a title and bulleted tips.
                             Spacer(Modifier.height(12.dp))
                             LoopingClip(
                                 assetName = "welcome_clip.webp",

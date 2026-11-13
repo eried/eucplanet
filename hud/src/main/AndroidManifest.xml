@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- HUD subscribes to the phone's local HTTP/SSE server over the phone's
+    <!-- The HUD runs a WebSocket server the phone dials into over the phone's
          hotspot. INTERNET covers the socket; ACCESS_WIFI_STATE +
          ACCESS_NETWORK_STATE let us notice when the hotspot dis/reconnects
          and gate discovery. CHANGE_WIFI_MULTICAST_STATE is required so JmDNS

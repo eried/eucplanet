@@ -12,8 +12,6 @@ class VectorTile(val layers: Map<String, Layer>) {
      *  single points for points. Coordinates are x, y pairs. */
     class Feature(val type: Int, val tags: Map<String, Any>, val rings: List<IntArray>) {
         fun str(key: String): String? = tags[key] as? String
-        fun num(key: String): Double? = (tags[key] as? Number)?.toDouble()
-        fun bool(key: String): Boolean = tags[key] == true
     }
 
     companion object {

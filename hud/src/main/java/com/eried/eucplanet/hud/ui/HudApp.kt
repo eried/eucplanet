@@ -1,23 +1,15 @@
 package com.eried.eucplanet.hud.ui
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -28,7 +20,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PhonelinkOff
@@ -57,7 +48,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eried.eucplanet.hud.R
 import com.eried.eucplanet.hud.net.HudServer
-import com.eried.eucplanet.hud.protocol.HudCommand
 import com.eried.eucplanet.hud.protocol.HudDiscovery
 import com.eried.eucplanet.hud.protocol.HudState
 import com.eried.eucplanet.hud.ui.screens.CameraScreen
@@ -76,7 +66,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlin.math.min
 
 /**
- * Root composable: fades between the four HUD screens driven by the
+ * Root composable: shows the current HUD screen driven by the
  * [HudUiController] and overlays a center modal when the phone isn't
  * connected. The disconnected modal carries the HUD's own IP so the rider
  * can type it into the phone app without leaving the helmet.
@@ -89,17 +79,14 @@ import kotlin.math.min
 fun HudApp(
     state: StateFlow<HudState>,
     status: StateFlow<HudServer.Status>,
-    peer: StateFlow<String?>,
     localIp: StateFlow<String?>,
     versionCompat: StateFlow<com.eried.eucplanet.hud.protocol.VersionCompat>,
     controller: HudUiController,
     tileCache: com.eried.eucplanet.hud.net.HudTileCache,
-    sessionState: HudSessionState,
-    onCommand: (HudCommand) -> Unit
+    sessionState: HudSessionState
 ) {
     val hud by state.collectAsStateWithLifecycle()
     val st by status.collectAsStateWithLifecycle()
-    val pr by peer.collectAsStateWithLifecycle()
     val ip by localIp.collectAsStateWithLifecycle()
     val compat by versionCompat.collectAsStateWithLifecycle()
 
@@ -207,9 +194,9 @@ fun HudApp(
                                 onOtherAppCamera = controller::onOtherAppCamera
                             )
                         HudUiController.Screen.MapNav ->
-                            MapNavScreen(hud = hud, zoom = controller.mapZoom, peer = pr, cache = tileCache)
+                            MapNavScreen(hud = hud, zoom = controller.mapZoom, cache = tileCache)
                         HudUiController.Screen.Map ->
-                            MapScreen(hud = hud, zoom = controller.mapZoom, peer = pr, cache = tileCache)
+                            MapScreen(hud = hud, zoom = controller.mapZoom, cache = tileCache)
                         HudUiController.Screen.Nav ->
                             NavScreen(hud = hud)
                         HudUiController.Screen.Power ->
@@ -300,9 +287,8 @@ fun HudApp(
                 // first because that's the actionable problem).
                 VersionMismatchSurface(compat = compat)
 
-                // A newer HUD app the phone sent, waiting for OK or BACK.
-                // Over everything: it is the one thing on screen that needs
-                // an answer.
+                // The line shown when an app sent by the phone did not
+                // install. Over everything; any key closes it.
                 AppUpdatePrompt()
 
                 // Phone-Wi-Fi interference advisory. BOTTOM-START -- the one
@@ -316,7 +302,7 @@ fun HudApp(
 
 /**
  * Protocol-mismatch corner badge, BOTTOM-END only. Same chrome family
- * as [DisconnectedBadge] and [WallClockBadge] (8.dp rounded, 0xE6111111
+ * as [DisconnectedBadge] (square corners, 0xE6111111
  * fill, colored stroke). The stroke + icon switches between a yellow
  * "info" tone for minor mismatches and a red "warning" tone for major
  * mismatches; copy always names WHICH side needs the update so the
@@ -360,10 +346,9 @@ private fun BoxScope.VersionMismatchSurface(
 
     // The HUD has no touchscreen, so the badge stays display-only --
     // the URL text is shown for the rider to type into a phone /
-    // computer. Dropped the .clickable + ACTION_VIEW intent that used
-    // to open a browser; on the real MotoEye E6 there's no browser to
-    // launch anyway, and the underlined text was misleading the rider
-    // into thinking the HUD was tap-aware.
+    // computer. No click handler: on the real MotoEye E6 there's no
+    // browser to launch, and a link look would suggest the HUD is
+    // tap-aware.
     Row(
         modifier = Modifier
             .align(Alignment.BottomEnd)
@@ -498,7 +483,7 @@ private fun ScreenChangeToast(
             HudUiController.Screen.BigClock ->
                 R.string.hud_screen_big_clock to R.string.hud_screen_big_clock_desc
         }
-        // Same chrome as DisconnectedBadge: 8.dp rounded corners, 0xE6111111
+        // Same chrome as DisconnectedBadge: square corners, 0xE6111111
         // fill, 0xFF6B6B6B 1.dp border, same horizontal/vertical padding.
         // Stacked title + description because the screen name and the
         // contents blurb don't fit comfortably on one line, but the typography
@@ -553,7 +538,7 @@ private fun ScreenChangeToast(
  *            [HudState] ([up]/[down]/[left]/[right]), rendered "<label> (2x)".
  *            Omitted when the label is empty (slot unbound).
  *
- * A direction with NEITHER a short line nor a long label is dimmed/skipped --
+ * A direction with NEITHER a short line nor a long label is skipped --
  * there's nothing to teach for that arm. The whole overlay is skipped when no
  * direction has anything to show.
  *
@@ -572,7 +557,7 @@ private fun ButtonActionGuideOverlay(
     modifier: Modifier = Modifier
 ) {
     // Per-direction rows. Each carries the short line (may be null) and the long
-    // label (may be blank). A row with neither is "empty" and gets dimmed.
+    // label (may be blank). A row with neither is left out.
     data class Arm(val glyph: String, val shortLine: String?, val longLabel: String)
     val arms = listOf(
         Arm("▲", shortActions.up, up),
@@ -585,7 +570,7 @@ private fun ButtonActionGuideOverlay(
 
     var visible by remember { mutableStateOf(false) }
     // Re-show only on screen change (rides with the screen toast); a d-pad press
-    // no longer flashes it on its own.
+    // does not flash it on its own.
     androidx.compose.runtime.LaunchedEffect(screen) {
         visible = true
         kotlinx.coroutines.delay(JOYSTICK_GUIDE_DURATION_MS)
@@ -621,8 +606,7 @@ private fun ButtonActionGuideOverlay(
 }
 
 /** One direction row of [ButtonActionGuideOverlay]: an accent-tinted glyph
- *  followed by its short line (top) and "<label> (2x)" line (bottom). A row
- *  with neither dims the glyph so the rider can see the direction is free. */
+ *  followed by its short line (top) and "<label> (2x)" line (bottom). */
 @Composable
 private fun ButtonActionArm(
     glyph: String,
@@ -632,11 +616,10 @@ private fun ButtonActionArm(
 ) {
     val hasShort = !shortLine.isNullOrBlank()
     val hasLong = longLabel.isNotBlank()
-    val empty = !hasShort && !hasLong
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
             text = glyph,
-            color = if (empty) Color(0xFF6B6B6B) else accent,
+            color = accent,
             fontSize = 12.sp,
             fontWeight = FontWeight.Bold,
             maxLines = 1
@@ -661,33 +644,20 @@ private fun ButtonActionArm(
                     maxLines = 1
                 )
             }
-            // Direction free in BOTH meanings: a single dim dash so the row
-            // still occupies its place in the cross without looking broken.
-            if (empty) {
-                Text(
-                    text = "--",
-                    color = Color(0xFF808080),
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 1
-                )
-            }
         }
     }
 }
 
 private const val SCREEN_TOAST_DURATION_MS: Long = 3_000L
-/** How long the button-action guide stays up after a screen change or a d-pad
- *  press. Matches the screen-change toast so both transient hints fade
+/** How long the button-action guide stays up after a screen change. Matches the screen-change toast so both transient hints fade
  *  together. */
 private const val JOYSTICK_GUIDE_DURATION_MS: Long = 3_000L
 /** Boot-time grace before the disconnect chrome can appear. Covers the
  *  worst case of HUD boot + phone hotspot DHCP + phone-app cold start +
  *  WS handshake + at least one reconnect backoff (1 s) without ever
- *  flashing the dialog at the rider. After the grace elapses or after
- *  we've been connected at least once, disconnects show immediately --
- *  those are real events, not boot noise. Resets only on process
- *  restart. */
+ *  flashing the dialog at the rider. Used only until the first
+ *  connection; later drops use DISCONNECT_RECONNECT_GRACE_MS. Resets
+ *  only on process restart. */
 private const val DISCONNECT_BOOT_GRACE_MS: Long = 15_000L
 /** Grace before the disconnect chrome appears AFTER we've been connected
  *  at least once. The phone-side dial loop backs off 1s -> 2s -> 4s ->
@@ -797,7 +767,7 @@ private fun DisconnectedDialog(localIp: String?) {
             }
             // 2×2 grid: column 1 = labels, column 2 = cells. Both columns
             // share fixed widths so corners line up cleanly. The inner pad
-            // (side * 0.05f) gives the block visual margin against the
+            // (side * 0.03f) gives the block visual margin against the
             // dialog edge so it doesn't feel crammed against the border.
             Box(modifier = Modifier.padding(horizontal = (side * 0.03f).dp)) {
                 IpPortMatrix(
@@ -911,7 +881,7 @@ private fun IpPortMatrix(
 }
 
 /** A single label-on-left, value-cell-on-right row. Both labels share
- *  [labelMinW] and both cells share [cellW] so the two rows form a clean
+ *  [labelColW] and both cells share [cellW] so the two rows form a clean
  *  aligned grid. */
 @Composable
 private fun AddressRow(
@@ -1022,9 +992,8 @@ private fun DisconnectedBadge(localIp: String?, modifier: Modifier = Modifier) {
     }
 }
 
-/** Ambient wall clock shown across screens. Matches the disconnect badge
- *  chrome (8.dp rounded, 0xE6111111 fill, 0xFF6B6B6B 1.dp stroke) for
- *  visual consistency with the other persistent overlays. Updates every
+/** Ambient wall clock shown across screens: a borderless translucent
+ *  black box. Updates every
  *  15 s -- the rider doesn't need second-precision out of the corner of
  *  their eye. Uses the system's 24h / 12h preference. */
 @Composable
@@ -1066,20 +1035,15 @@ private fun WallClockBadge(modifier: Modifier = Modifier) {
 
 /**
  * Cold-boot splash shown until the first wire frame from the phone
- * arrives. Replaces the legacy behaviour where the HUD would briefly
- * render the compiled default 7 screens on every restart -- riders who
- * had customised the carousel on the phone would see disabled screens
- * flash through for a beat. Now the HUD waits.
+ * arrives. Rendering a compiled default carousel first would flash
+ * screens the rider disabled on the phone, so the HUD waits.
  *
- * Deliberately minimal: a single line + a pulsing dot. No app chrome
+ * Deliberately minimal: one static line. No app chrome
  * (no clock badge, no screen toast) -- that all comes back once
  * controller.hasReceivedCarousel flips true.
  */
 @Composable
 private fun WaitingForPhoneSplash(modifier: Modifier = Modifier) {
-    // Plain static label. No pulsing dot, no animation -- the rider's
-    // attention should be on the diagnostic info above (IP, beacon ticks)
-    // rather than on a moving artefact.
     Box(modifier = modifier, contentAlignment = Alignment.Center) {
         Text(
             text = "Waiting for phone",

@@ -161,11 +161,6 @@ import com.eried.eucplanet.ui.theme.themedFieldColors
 import com.eried.eucplanet.ui.common.appMenuItemColors
 import org.koin.compose.viewmodel.koinViewModel
 
-/**
- * Opens the system gallery to the videos or photos collection. Overlay Studio
- * saves into Movies/EUC Planet and Pictures/EUC Planet; Android has no reliable
- * "open exactly this folder" intent, so this filters the gallery by media type.
- */
 /** How long the wheel must have been at standstill before charging-rising-edge
  *  is allowed to trigger the Battery monitor auto-open. Short enough that a
  *  rider who just stopped and plugged in still gets the auto-open within a
@@ -173,6 +168,11 @@ import org.koin.compose.viewmodel.koinViewModel
  *  can't slip through. */
 private const val AUTO_OPEN_STILL_MS = 3000L
 
+/**
+ * Opens the system gallery to the videos or photos collection. Overlay Studio
+ * saves into Movies/EUC Planet and Pictures/EUC Planet; Android has no reliable
+ * "open exactly this folder" intent, so this filters the gallery by media type.
+ */
 private fun openMediaGallery(context: Context, video: Boolean, onNoGalleryApp: () -> Unit) {
     val collection = if (video) MediaStore.Video.Media.EXTERNAL_CONTENT_URI
     else MediaStore.Images.Media.EXTERNAL_CONTENT_URI
@@ -252,10 +252,7 @@ fun DashboardScreen(
     val tripCount by viewModel.tripCount.collectAsState()
     val tiltbackSpeed by viewModel.tiltbackSpeed.collectAsState()
     val safetyTiltbackSpeed by viewModel.safetyTiltbackSpeed.collectAsState()
-    val realHistory by viewModel.history.collectAsStateWithLifecycle()
-    // No fake disconnected demo. The dashboard shows real samples only, // sparklines remain empty until the wheel sends at least 2 frames,
-    // matching the per-catalog metric behavior we adopted in Phase 2.
-    val history = realHistory
+    val history by viewModel.history.collectAsStateWithLifecycle()
     // Full (Stats-length window) buffer for corner / composite STAT MATH, so a
     // tile's Min/Max/Avg matches the metric-detail screen. `history` above is
     // capped to SPARKLINE_SIZE (5 min) for drawing the wave; using it for stats
@@ -295,12 +292,8 @@ fun DashboardScreen(
     // this the rider could be coasting down the street and have the Battery
     // monitor steal the dashboard, which is both wrong and unsafe.
     val chargeStatusForAutoOpen by viewModel.chargeStatus.collectAsState()
-    // Drives the listening tile and the transcript pill.
+    // Drives the listening tile's active state.
     val voiceCommandState by viewModel.voiceCommandState.collectAsState()
-    // The live transcript, and then the answer, as a snackbar rather than a
-    // dialog: fired from a Flic at speed the rider cannot look at the screen
-    // anyway, and a modal is something they could be left holding. Rule 3 makes
-    // this the transient surface.
 
     val chargingAutoOpen by viewModel.chargingAutoOpen.collectAsState()
     var lastChargeStatus by remember { mutableStateOf(chargeStatusForAutoOpen) }
@@ -425,9 +418,8 @@ fun DashboardScreen(
     val hasSyncFolder by viewModel.hasSyncFolder.collectAsState()
     val activity = LocalContext.current as? Activity
     val toastContext = LocalContext.current
-    // Unified Material3 snackbar host, replaces the older Toast popups so the
-    // dashboard styles match Overlay Studio / Navigator / Settings (no system
-    // icon, swipe-to-dismiss).
+    // Material3 snackbar host, styled like Overlay Studio / Navigator /
+    // Settings (no system icon, swipe-to-dismiss).
     val snackbar = remember { androidx.compose.material3.SnackbarHostState() }
     // The live transcript and the answer are not shown here: the root host in
     // MainActivity shows a voice session as one line that replaces itself
@@ -940,10 +932,9 @@ fun DashboardScreen(
             // Foldables / tablets: cap the speedo and use a 3-column stat grid so
             // the whole dashboard fits without the footer falling off-screen.
             val wideStats = LocalConfiguration.current.screenWidthDp >= 600
-            // Landscape (phones): lay the dashboard out as a Row -- speedo on the
-            // left, a scrollable panel (metrics in one row + buttons + odo) on the
-            // right -- instead of the tall portrait Column. Driven off orientation
-            // so it kicks in on any short-and-wide screen, tablets included.
+            // Landscape: micro metrics on one side, the dial in the middle,
+            // buttons on the other side. Driven off orientation, so tablets
+            // get it too.
             val landscape = LocalConfiguration.current.orientation ==
                 android.content.res.Configuration.ORIENTATION_LANDSCAPE
             // Compact mode, the flip-cover layout: speedo plus one swipeable
@@ -972,7 +963,7 @@ fun DashboardScreen(
             BoxWithConstraints(
                 modifier = speedoModifier
             ) {
-                // Landscape: near-square dial that fills the left panel. Portrait
+                // Landscape: near-square dial in the middle panel. Portrait
                 // phone keeps the ~square dial; wide tablets get the car-dash arc.
                 val widthFraction =
                     if (tinyScreen) 0.92f
@@ -1037,9 +1028,6 @@ fun DashboardScreen(
                     speed = animatedSpeed,
                     maxSpeed = gaugeMax,
                     speedUnit = speedUnit,
-                    // Accents are gone; the speed arc now follows the themeable
-                    // gaugeFill token (so it matches the watch and is editable).
-                    overrideColor = null,
                     showColorBand = showGaugeColorBand,
                     orangeThresholdPct = gaugeOrangePct,
                     redThresholdPct = gaugeRedPct,
@@ -1394,12 +1382,8 @@ fun DashboardScreen(
                         )
                     }
                 }
-                // Radar mini lanes. CenterStart / CenterEnd line up
-                // vertically through the Map (BottomStart) and Studio
-                // (BottomEnd) glyphs ,  one straight left/right axis from
-                // each lane down to the corner button beneath it.
                 // Radar mini lanes. Horizontal bias -1 / +1 = same as
-                // CenterStart / CenterEnd. Vertical bias +0.3 drops them
+                // CenterStart / CenterEnd. Vertical bias +0.45 drops them
                 // a bit below the dial centre so they sit above the Map
                 // and Studio corner glyphs rather than crowding the
                 // top P/D and GPS clusters.
@@ -1466,10 +1450,7 @@ fun DashboardScreen(
                 else -> metricTempColor
             }
 
-            // Em-dash reads as a substantial "no data" symbol in the stat
-            // card; a plain hyphen looked too small for the card layout.
-            // (The no-em-dashes rule applies to sentence punctuation, not
-            // to a single decorative placeholder glyph.)
+            // No-data placeholder for tile values.
             val placeholder = "--"
 
             val tempValue = com.eried.eucplanet.util.Units.temperature(wheelData.maxTemperature, tempUnit)
@@ -1511,11 +1492,8 @@ fun DashboardScreen(
                 val defaults = listOf("BATTERY", "TEMPERATURE", "VOLTAGE", "CURRENT", "LOAD", "TRIP")
                 (parsed + defaults).distinct().take(6)
             }
-            // Landscape: all metrics in a single row (1 tall). Tablets force 3
-            // columns to honour wideStats. Phones use whatever the rider set in
-            // the editor (2 or 3).
-            val metricColumns = if (landscape) 1
-                else if (wideStats) 3
+            // Tablets force 3 columns. Phones use the rider's setting (2 or 3).
+            val metricColumns = if (wideStats) 3
                 else dashboardMetricsColumnsSetting.coerceIn(2, 3)
             val metricRows = (activeMetricKeys.size + metricColumns - 1) / metricColumns
 
@@ -1566,8 +1544,8 @@ fun DashboardScreen(
                 }
             }
 
-            // Compute a corner-stat value for a metric key from its 5-min
-            // sparkline history. Returns a pre-formatted string like "82%" /
+            // Compute a corner-stat value for a metric key from its full
+            // stats history. Returns a pre-formatted string like "82%" /
             // "27°" / "84.1V" so the tile can drop it straight into a corner
             // chip without re-deriving units.
             //
@@ -1713,19 +1691,13 @@ fun DashboardScreen(
                     context.packageManager.getPackageInfo(context.packageName, 0).versionCode
                 } catch (_: Exception) { 0 }
             }
-            // Metric grid as its own block. Portrait: 2-3 columns stacked under
-            // the dial. Landscape: a single column (metricColumns == 1) forming
-            // the middle "1 x N" panel between the dial and the buttons -- full
-            // tiles keep their value + min/max/avg corner stats.
-            val metricsBlock: @Composable (androidx.compose.ui.unit.Dp?) -> Unit = { tileHeight ->
+            // Metric grid, portrait only: 2 or 3 columns under the dial.
+            // Landscape and compact use micro tiles.
+            val metricsBlock: @Composable () -> Unit = {
             for (rowIdx in 0 until metricRows) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        // Landscape passes a fixed per-row height so all N metrics
-                        // fill the middle column without scrolling; portrait passes
-                        // null and rows keep their natural height.
-                        .then(if (tileHeight != null) Modifier.height(tileHeight) else Modifier)
                         // Spotlight the WHOLE metrics grid: each row unions into
                         // one rect for the welcome tour.
                         .coachmarkTargetUnion(coachmark, TutorialTarget.METRICS),
@@ -1765,7 +1737,7 @@ fun DashboardScreen(
                         val cornerRightValue = cornerStatValueFor(key, slotStats.right)
                         // Per-key value / colour / click ingredients.
                         // The default 6 keys preserve every quirk of the
-                        // old StatCard era, long-press on CURRENT toggles
+                        // original fixed tiles, long-press on CURRENT toggles
                         // A↔W, tap on TRIP opens the latest trip detail.
                         // New / customized keys still render via the
                         // catalog with a placeholder value where the
@@ -1926,9 +1898,7 @@ fun DashboardScreen(
                                     // popup opens on that cell's tab.
                                     // COL3 splits horizontally into
                                     // thirds, COL2 in halves, ROW2 splits
-                                    // vertically. Tap position is the
-                                    // only signal; long-press still goes
-                                    // through the drag controller above.
+                                    // vertically.
                                     // Only real-metric cells become History tabs and tap targets.
                                     // Drop "(none)"/text ("TEXT:...") and reserved "BLANK:" spacers so
                                     // this list matches what CompositeMetricBody actually renders; the
@@ -1943,7 +1913,6 @@ fun DashboardScreen(
                                                     !it.startsWith(com.eried.eucplanet.ui.settings.COMPOSITE_CELL_BLANK)
                                             }.orEmpty()
                                     }
-                                    val tappedCellIndex = remember { mutableStateOf(0) }
                                     val tileSize = remember { mutableStateOf(androidx.compose.ui.unit.IntSize.Zero) }
                                     fun openTabsStartingAt(cellIdx: Int) {
                                         if (allCells.isEmpty()) {
@@ -1966,10 +1935,7 @@ fun DashboardScreen(
                                     // matching history buffer when
                                     // available. CURRENT short-circuits
                                     // to displayValueFor for live wheel
-                                    // values; computed stats render with
-                                    // no unit suffix because the buffer
-                                    // values are already in display
-                                    // units (BATTERY %, etc.).
+                                    // values.
                                     // Full window for stat math, matching the corner chips and the
                                     // metric-detail screen (not the SPARKLINE_SIZE-capped `history`).
                                     val historySnapshot = statHistory
@@ -2047,7 +2013,6 @@ fun DashboardScreen(
                                                         else ->
                                                             (offset.x / (sz.width / n)).toInt().coerceIn(0, n - 1)
                                                     }
-                                                    tappedCellIndex.value = idx
                                                     openTabsStartingAt(idx)
                                                 }
                                             }
@@ -2127,20 +2092,10 @@ fun DashboardScreen(
                                     }
                                 }
                                 else -> {
-                                    // Catalog-driven generic rendering for any
-                                    // other static metric the rider drops into
-                                    // a slot (BATTERY_1/2, MOTOR_TEMP,
-                                    // CONTROLLER_TEMP, PHONE_BATTERY, DYN_*,
-                                    // GPS_*, etc.). These tiles honour the
-                                    // same per-slot corner stats as the
-                                    // hardcoded 5 above, without this the
-                                    // rider's Left/Right/Center pick from the
-                                    // slot editor would silently vanish.
-                                    // History buffers only exist for the six
-                                    // sparkline-backed metrics; for everything
-                                    // else cornerStatValueFor returns the
-                                    // placeholder dash so the chip still
-                                    // confirms the picked stat visually.
+                                    // Catalog-driven tile for any other metric.
+                                    // Corner stats and the sparkline come from
+                                    // the metric's extras buffer, empty until
+                                    // its first sample.
                                     val tileCtx = LocalContext.current
                                     val tileLabelOverrideId = remember(key) {
                                         tileCtx.resources.getIdentifier(
@@ -2157,9 +2112,6 @@ fun DashboardScreen(
                                         },
                                         value = centerOverride ?: displayValueFor(key),
                                         accent = spec?.accent?.let { MaterialTheme.appColors.remap(it) } ?: primary,
-                                        // Generic tiles now get a sparkline too, from
-                                        // the metric's extras buffer (empty until the
-                                        // first sample or for unsourced metrics).
                                         sparkData = history.extras[key].orEmpty(),
                                         sparkStyle = spec?.sparkline ?: SparklineStyle.NONE,
                                         sparklineEnabled = sparklineEnabled,
@@ -2193,9 +2145,8 @@ fun DashboardScreen(
             // three button rows fill the whole column; null keeps the fixed
             // per-form-factor heights.
             val buttonsBlock: @Composable (Int?) -> Unit = { actionHeightOverride ->
-            val actionAspect: Float? = null
-            // Tiny cover screens get short icon-only buttons (ActionButton hides
-            // the label below 64 dp) so all six fit in a single row.
+            // Compact screens get short icon-only buttons (ActionButton hides
+            // the label below 64 dp).
             val actionHeight: Int? = actionHeightOverride
                 ?: if (tinyScreen) 55 else if (wideStats) 88 else 104
 
@@ -2236,10 +2187,8 @@ fun DashboardScreen(
             val lockKnown by viewModel.lockKnown.collectAsState()
             val wheelHasSpeedLimit by viewModel.wheelHasSpeedLimit.collectAsState()
 
-            // Portrait: two rows of 3 (today's layout). Landscape: a single row
-            // so the buttons sit in one line under the one-row metrics.
-            // Tiny cover screens always render 3 x 2: the grid lives in the
-            // swipeable pager page next to the micro metrics.
+            // Portrait and compact: two rows of 3. Landscape: three rows of 2,
+            // forming a side column.
             val buttonCols = if (tinyScreen) 3 else if (landscape) 2 else 3
             val buttonRows = if (tinyScreen) 2 else if (landscape) 3 else 2
             for (rowIdx in 0 until buttonRows) {
@@ -2273,7 +2222,7 @@ fun DashboardScreen(
                                 enabled = connectionState == ConnectionState.CONNECTED,
                                 onClick = { viewModel.onHornPress() },
                                 modifier = Modifier.weight(1f),
-                                aspectRatio = actionAspect, heightDp = actionHeight
+                                heightDp = actionHeight
                             )
                             "LIGHT_TOGGLE" -> ActionTile(
                                 modifier = Modifier.weight(1f),
@@ -2283,7 +2232,7 @@ fun DashboardScreen(
                                 activeColor = if (useAccent) primary else MaterialTheme.appColors.gaugeWarn,
                                 enabled = connectionState == ConnectionState.CONNECTED && !lightBusy,
                                 onClick = { viewModel.onLightToggle() },
-                                aspectRatio = actionAspect, heightDp = actionHeight,
+                                heightDp = actionHeight,
                                 menu = { dismiss ->
                                     DropdownMenuItem(
                                         text = { Text(stringResource(R.string.menu_auto_lights)) },
@@ -2310,7 +2259,7 @@ fun DashboardScreen(
                                 onClick = { viewModel.onVoiceListen() },
                                 active = voiceCommandState !is
                                     com.eried.eucplanet.voice.VoiceCommandController.UiState.Idle,
-                                aspectRatio = actionAspect, heightDp = actionHeight,
+                                heightDp = actionHeight,
                                 menu = { dismiss ->
                                     // One menu for both voice tiles. They
                                     // are a pair sharing a slot, so a rider
@@ -2372,7 +2321,7 @@ fun DashboardScreen(
                                 icon = Icons.Default.RecordVoiceOver,
                                 label = stringResource(R.string.action_voice),
                                 onClick = { viewModel.onVoiceAnnounce() },
-                                aspectRatio = actionAspect, heightDp = actionHeight,
+                                heightDp = actionHeight,
                                 menu = { dismiss ->
                                     // One menu for both voice tiles. They
                                     // are a pair sharing a slot, so a rider
@@ -2437,7 +2386,7 @@ fun DashboardScreen(
                                 activeColor = if (useAccent) primary else MaterialTheme.appColors.statusWarn,
                                 enabled = connectionState == ConnectionState.CONNECTED && wheelHasSpeedLimit,
                                 onClick = { viewModel.onSafetySpeedToggle() },
-                                aspectRatio = actionAspect, heightDp = actionHeight,
+                                heightDp = actionHeight,
                                 menu = { dismiss ->
                                     DropdownMenuItem(
                                         text = { Text(stringResource(R.string.section_legal_mode_speed)) },
@@ -2465,7 +2414,7 @@ fun DashboardScreen(
                                         viewModel.onLockToggle()
                                     }
                                 },
-                                aspectRatio = actionAspect, heightDp = actionHeight,
+                                heightDp = actionHeight,
                                 menu = { dismiss ->
                                     DropdownMenuItem(
                                         text = { Text(stringResource(R.string.menu_auto_lock_settings)) },
@@ -2496,7 +2445,7 @@ fun DashboardScreen(
                                 active = recording,
                                 activeColor = if (useAccent) primary else MaterialTheme.appColors.statusDanger,
                                 onClick = { onNavigateToRecording() },
-                                aspectRatio = actionAspect, heightDp = actionHeight,
+                                heightDp = actionHeight,
                                 menu = { dismiss ->
                                     val targetTripId = currentTripId ?: latestTripId
                                     DropdownMenuItem(
@@ -2536,15 +2485,6 @@ fun DashboardScreen(
                                 }
                             )
                             else -> when {
-                                // Action group instance (G:uuid). Reads
-                                // the rider's chosen name + icon from
-                                // dashboardActionGroupsJson. Tapping a
-                                // group should open a popover with its
-                                // sub-actions (matches the editor's
-                                // preview), but the popover machinery
-                                // lives in the settings module; for
-                                // now the tap is a no-op so the rider
-                                // still sees a recognisable tile.
                                 key.startsWith("B:") -> {
                                     // Custom BLE command instance (B:uuid).
                                     // Reads the rider's label + icon from
@@ -2577,7 +2517,7 @@ fun DashboardScreen(
                                             enabled = true,
                                             onClick = { viewModel.dispatchActionByName(key) },
                                             modifier = Modifier.fillMaxWidth(),
-                                            aspectRatio = actionAspect, heightDp = actionHeight
+                                            heightDp = actionHeight
                                         )
                                     }
                                 }
@@ -2649,7 +2589,7 @@ fun DashboardScreen(
                                                 }
                                             },
                                             modifier = Modifier.fillMaxWidth(),
-                                            aspectRatio = actionAspect, heightDp = actionHeight
+                                            heightDp = actionHeight
                                         )
                                         if (popoverOpen) {
                                             ActionGroupPopover(
@@ -2750,7 +2690,7 @@ fun DashboardScreen(
                                             label = labelText,
                                             active = splitMode != com.eried.eucplanet.data.model.AccelSplitMode.OFF,
                                             onClick = tap,
-                                            aspectRatio = actionAspect, heightDp = actionHeight,
+                                            heightDp = actionHeight,
                                             menu = { dismiss ->
                                                 DropdownMenuItem(
                                                     text = { Text(stringResource(R.string.section_accel_splits)) },
@@ -2765,7 +2705,7 @@ fun DashboardScreen(
                                             enabled = connectionState == ConnectionState.CONNECTED || offlineSafe,
                                             onClick = tap,
                                             modifier = Modifier.weight(1f),
-                                            aspectRatio = actionAspect, heightDp = actionHeight
+                                            heightDp = actionHeight
                                         )
                                     }
                                 }
@@ -2825,13 +2765,12 @@ fun DashboardScreen(
                     else -> microDefaultAccent
                 }
             }
-            val microTileFor: @Composable (String, Modifier, Boolean) -> Unit = { key, mod, tall ->
+            val microTileFor: @Composable (String, Modifier) -> Unit = { key, mod ->
                 MicroMetricTile(
                     label = com.eried.eucplanet.ui.settings.metricChipLabel(key, short = true),
                     value = displayValueFor(key),
                     accent = microAccentFor(key),
                     modifier = mod,
-                    tall = tall,
                     onClick = {
                         if (key == "BATTERY") onNavigateToCharging()
                         else if (key == "TRIP_METER") onNavigateToTripMeter()
@@ -2893,7 +2832,7 @@ fun DashboardScreen(
                                             Box(modifier = Modifier.weight(1f))
                                             continue
                                         }
-                                        microTileFor(key, Modifier.weight(1f), true)
+                                        microTileFor(key, Modifier.weight(1f))
                                     }
                                 }
                                 if (microRow == 0) Spacer(Modifier.height(8.dp))
@@ -2947,7 +2886,7 @@ fun DashboardScreen(
                                             Box(modifier = Modifier.weight(1f))
                                             continue
                                         }
-                                        microTileFor(key, Modifier.weight(1f), true)
+                                        microTileFor(key, Modifier.weight(1f))
                                     }
                                 }
                                 if (microRow < 2) Spacer(Modifier.height(rowGap))
@@ -2984,7 +2923,7 @@ fun DashboardScreen(
             } else {
                 speedoBlock(Modifier.fillMaxWidth().weight(1f, fill = true))
                 Spacer(Modifier.height(16.dp))
-                metricsBlock(null)
+                metricsBlock()
                 Spacer(Modifier.height(14.dp))
                 buttonsBlock(null)
                 Spacer(Modifier.height(12.dp))
@@ -3098,11 +3037,8 @@ fun DashboardScreen(
                         shape = RoundedCornerShape(12.dp),
                         color = MaterialTheme.colorScheme.surface
                     ) {
-                      // Debug builds get a big translucent "DEBUG" stamped
-                      // over the About dialog so the rider can tell at a
-                      // glance whether they're on a debug APK (signed with
-                      // the debug key, no Play store) vs the release one.
-                      // Drawn last so it floats above every tab's content.
+                      // Wrapper Box so the debug-build stamp below can float
+                      // above every tab's content.
                       Box(modifier = Modifier.fillMaxSize()) {
                         Column(modifier = Modifier.padding(20.dp)) {
                             Box(
@@ -3660,22 +3596,19 @@ internal fun SpeedGauge(
     speed: Float,
     maxSpeed: Float,
     speedUnit: String,
-    overrideColor: Color? = null,
     showColorBand: Boolean = false,
     orangeThresholdPct: Int = 65,
     redThresholdPct: Int = 85,
     safeBandColor: Color = MaterialTheme.appColors.gaugeFill,
     /** External GPS speed in km/h, or null when no external GPS box is connected.
-     *  Drives a small marker on the dial and a smaller readout under the main number,
-     *  both in [externalAccentColor]. */
+     *  Drives a small marker on the dial in [externalAccentColor]. */
     externalSpeed: Float? = null,
     externalAccentColor: Color = MaterialTheme.appColors.metricPosition,
     modifier: Modifier = Modifier
 ) {
     // Speed-arc + speed-number colour rule (phone & watch share this rule):
-    //  - Color band ON  → band tier wins (safe / orange / red), even if the user
-    //    has a custom accent, the band is a safety signal, not a style choice.
-    //  - Color band OFF → custom accent wins (overrideColor), else stay safe-green.
+    //  - Color band ON  → band tier wins (safe / orange / red).
+    //  - Color band OFF → the gaugeFill token.
     val orangeFrac = (orangeThresholdPct / 100f).coerceIn(0.05f, 0.95f)
     val redFrac = (redThresholdPct / 100f).coerceIn(orangeFrac + 0.04f, 0.95f)
     val speedFraction = (speed / maxSpeed).coerceIn(0f, 1f)
@@ -3689,8 +3622,7 @@ internal fun SpeedGauge(
         showColorBand && speedFraction >= redFrac    -> bandDangerColor
         showColorBand && speedFraction >= orangeFrac -> bandWarnColor
         showColorBand                                -> safeBandColor
-        overrideColor != null                        -> overrideColor
-        else                                          -> safeBandColor
+        else                                         -> safeBandColor
     }
     val trackColor = MaterialTheme.appColors.gaugeTrack
     val dimColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -3709,7 +3641,7 @@ internal fun SpeedGauge(
 
         val startAngle = 140f
         val sweepTotal = 260f
-        // speedFraction is computed at the top of the composable now (for speedColor),
+        // speedFraction is computed at the top of the composable (for speedColor),
         // so the band-drawing branch reuses it.
         val speedSweep = sweepTotal * speedFraction
 
@@ -3825,19 +3757,8 @@ internal fun SpeedGauge(
                 )
             )
         }
-        // Digit-stable reference height (measured from "0" at the BASE font
-        // factor), used to pin the unit label so it doesn't dance when the
-        // speed text width-clamps to a smaller size at 2+ digits.
-        val refHeight = textMeasurer.measure(
-            "0",
-            style = TextStyle(
-                fontSize = (size.minDimension * baseFactor).sp,
-                fontWeight = FontWeight.Bold
-            )
-        ).size.height.toFloat()
-        // Speed text: vertically centered against its OWN measured height, so
-        // smaller (width-clamped) variants still look centered rather than
-        // glued to the top of the refHeight box.
+        // Speed text is centered on its own measured height, so a
+        // width-clamped number still looks centered.
         drawText(
             speedMeasured,
             topLeft = Offset(
@@ -3852,8 +3773,7 @@ internal fun SpeedGauge(
         // onto the cards row when the experimental banner squeezed the
         // gauge vertically (Pixel 6 Pro / Begode Race).
 
-        // External GPS marker. Tiny dot on the arc at the angle matching the
-        // external speed, plus a small numeric readout under the main number.
+        // External GPS marker: a dot on the arc at the external speed.
         // Drawn last so it sits on top of the speed arc.
         if (externalSpeed != null) {
             val extFraction = (externalSpeed / maxSpeed).coerceIn(0f, 1f)
@@ -3918,87 +3838,6 @@ private fun DashIndicatorIcon(
         tint = if (active) activeColor else dim,
         modifier = modifier.size(32.dp)
     )
-}
-
-// --- Stat card with sparkline ---
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun StatCard(
-    label: String,
-    value: String,
-    color: Color,
-    sparkData: List<Float> = emptyList(),
-    modifier: Modifier = Modifier,
-    onClick: (() -> Unit)? = null,
-    onLongClick: (() -> Unit)? = null
-) {
-    val clickModifier = when {
-        onClick != null || onLongClick != null -> Modifier.combinedClickable(
-            onClick = { onClick?.invoke() },
-            onLongClick = onLongClick
-        )
-        else -> Modifier
-    }
-    Box(
-        modifier = modifier
-            .heightIn(min = 61.dp)
-            .clip(RoundedCornerShape(10.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .then(clickModifier),
-        contentAlignment = Alignment.Center
-    ) {
-        // Sparkline background
-        if (sparkData.size >= 2) {
-            Canvas(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .matchParentSize()
-            ) {
-                val min = sparkData.min()
-                val max = sparkData.max()
-                val range = (max - min).coerceAtLeast(0.1f)
-                val padding = size.height * 0.15f
-                val drawHeight = size.height - padding * 2
-                val stepX = size.width / (sparkData.size - 1).toFloat()
-
-                val path = androidx.compose.ui.graphics.Path()
-                sparkData.forEachIndexed { idx, v ->
-                    val x = idx * stepX
-                    val y = padding + drawHeight - ((v - min) / range) * drawHeight
-                    if (idx == 0) path.moveTo(x, y) else path.lineTo(x, y)
-                }
-                // Filled area under curve
-                val fillPath = androidx.compose.ui.graphics.Path()
-                fillPath.addPath(path)
-                fillPath.lineTo(size.width, size.height)
-                fillPath.lineTo(0f, size.height)
-                fillPath.close()
-                drawPath(fillPath, color = color.copy(alpha = 0.08f))
-                // Line on top
-                drawPath(path, color = color.copy(alpha = 0.4f), style = Stroke(width = 2.5f))
-            }
-        }
-
-        // Text content centered
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 10.dp, horizontal = 12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(label, fontSize = 10.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontWeight = FontWeight.Medium,
-                letterSpacing = 0.5.sp)
-            Spacer(Modifier.height(2.dp))
-            Text(value,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = color,
-                maxLines = 1)
-        }
-    }
 }
 
 // --- Bottom info box: ODO + firmware ---
@@ -4276,7 +4115,6 @@ private fun ActionGroupPopover(
                                     modifier = Modifier
                                         .width(buttonWidthDp)
                                         .height(buttonHeightDp),
-                                    aspectRatio = null,
                                     heightDp = null
                                 )
                             }
@@ -4300,7 +4138,6 @@ private fun ActionButton(
     enabled: Boolean = true,
     onClick: () -> Unit,
     onLongClick: (() -> Unit)? = null,
-    aspectRatio: Float? = 1f,
     heightDp: Int? = null
 ) {
     val disabledAlpha = 0.35f
@@ -4316,7 +4153,6 @@ private fun ActionButton(
     }
     Box(
         modifier = modifier
-            .let { if (aspectRatio != null) it.aspectRatio(aspectRatio) else it }
             .let { if (heightDp != null) it.height(heightDp.dp) else it }
             .clip(RoundedCornerShape(12.dp))
             .background(container)
@@ -4345,9 +4181,8 @@ private fun ActionButton(
 /**
  * Label + value cell without corner stats or sparkline, the live value in the
  * metric's accent. Tap opens the same destination as the full tile (Battery
- * monitor / metric history). Two sizes: the flat compact-pager cell, and
- * [tall], which copies the ActionButton silhouette (same corner radius and
- * 104 dp height) so the landscape metric grid mirrors the button grid.
+ * monitor / metric history). Fills its row height and copies the ActionButton
+ * corner radius so the metric grid mirrors the button grid.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -4356,28 +4191,27 @@ private fun MicroMetricTile(
     value: String,
     accent: Color,
     modifier: Modifier = Modifier,
-    tall: Boolean = false,
     onClick: () -> Unit = {}
 ) {
     Column(
         modifier = modifier
-            .let { if (tall) it.fillMaxHeight() else it }
+            .fillMaxHeight()
             .clip(RoundedCornerShape(12.dp))
             .background(MaterialTheme.appColors.tileBackground)
             .combinedClickable(onClick = onClick)
-            .padding(vertical = if (tall) 6.dp else 5.dp, horizontal = 4.dp),
+            .padding(vertical = 6.dp, horizontal = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = if (tall) Arrangement.Center else Arrangement.Top
+        verticalArrangement = Arrangement.Center
     ) {
         Text(
-            label, fontSize = if (tall) 11.sp else 9.sp,
-            fontWeight = if (tall) FontWeight.Medium else FontWeight.Normal,
+            label, fontSize = 11.sp,
+            fontWeight = FontWeight.Medium,
             color = MaterialTheme.appColors.tileLabel,
             maxLines = 1, textAlign = TextAlign.Center
         )
-        if (tall) Spacer(Modifier.height(2.dp))
+        Spacer(Modifier.height(2.dp))
         Text(
-            value, fontSize = if (tall) 19.sp else 14.sp, fontWeight = FontWeight.SemiBold,
+            value, fontSize = 19.sp, fontWeight = FontWeight.SemiBold,
             color = accent, maxLines = 1
         )
     }
@@ -4394,7 +4228,6 @@ private fun ActionTile(
     active: Boolean = false,
     activeColor: Color = MaterialTheme.colorScheme.primary,
     enabled: Boolean = true,
-    aspectRatio: Float? = 1f,
     heightDp: Int? = null
 ) {
     Box(modifier = modifier) {
@@ -4408,7 +4241,6 @@ private fun ActionTile(
             onClick = onClick,
             onLongClick = { menuOpen = true },
             modifier = Modifier.fillMaxWidth(),
-            aspectRatio = aspectRatio,
             heightDp = heightDp
         )
         DropdownMenu(

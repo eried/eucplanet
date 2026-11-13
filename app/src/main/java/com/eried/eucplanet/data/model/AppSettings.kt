@@ -212,9 +212,6 @@ data class AppSettings(
     // Baseline starts at -1 (uninitialized) and is captured from the system music volume on first
     // tick after enable. Manual volume changes during motion rebase: baseline = manual / multiplier.
 
-    // Only adjust the media volume while a wheel is connected (i.e. actually
-    // riding). On by default so auto-volume never touches the phone's volume
-    // when the app is used without a wheel.
     /** When the speed-driven automations may act: "NEVER" (no condition),
      *  "CONNECTED" (a wheel is linked) or "RIDING" (linked and moving). See
      *  [com.eried.eucplanet.service.ApplyWhen]. */
@@ -380,9 +377,9 @@ data class AppSettings(
     /** Snapshot name of the most-recent backup, null for the unnamed default. */
     val lastSettingsBackupName: String? = null,
 
-    // External BLE GPS pairing (RaceBox today; future Draggy/VBox/etc. share this slot).
+    // External BLE GPS pairing (RaceBox or Dragy, one slot).
     // Three values stored: BLE MAC, advertised name (for display), and the source-family
-    // enum name as a string ("RACEBOX") so we know which adapter to instantiate on connect.
+    // enum name as a string ("RACEBOX" / "DRAGY") so we know which adapter to instantiate on connect.
     val externalGpsAddress: String? = null,
     val externalGpsName: String? = null,
     val externalGpsSource: String? = null,
@@ -447,7 +444,8 @@ data class AppSettings(
     /** Overpass (chargers / stations POI source) endpoint, overridable for self-hosting. */
     val navOverpassUrl: String = "https://overpass-api.de/api/interpreter",
     /**
-     * Open Charge Map API key (free, from openchargemap.org). Blank by default, * when set, the charger flyout enriches with OCM community data (rating,
+     * Open Charge Map API key (free, from openchargemap.org). Blank by default.
+     * When set, the charger flyout enriches with OCM community data (rating,
      * comments, connectors, photos). Only used in advanced map mode for chargers.
      */
     val navOcmApiKey: String = "",
@@ -458,7 +456,6 @@ data class AppSettings(
     //  - the custom user-marker photo -> its own PNG file in noBackupFilesDir
     //    (com.eried.eucplanet.data.store.NavMarkerStore); survives app updates but
     //    not a full uninstall / new device (never recovered).
-    /** Route Builder map style: DARK / LIGHT / SATELLITE. */
     /** Route Builder base layer. Plain OSM, which draws paths and tracks;
      *  the Carto styles mute them by design, so trails read as missing. */
     val navMapType: String = "OSM",
@@ -601,7 +598,7 @@ data class AppSettings(
     val watchShowNavigation: Boolean = true,
     val watchMap: WatchMapSettings = WatchMapSettings(),
 
-    // --- HUD companion (paired by typing the HUD IP, see HudServer) ---
+    // --- HUD companion (see HudServer and HudDiscoveryMode) ---
     /**
      * Master switch for the phone-side WebSocket dialer that pushes telemetry
      * to an external HUD (e.g. an aftermarket E6-class motorcycle HUD). Off
@@ -613,18 +610,8 @@ data class AppSettings(
      * existing rider settings -- the meaning is "HUD link active", role was
      * inverted in v0.1.4.
      *
-     * Default: false in release, true in debug builds. Debug-only opt-in
-     * by default means a fresh sideload-for-testing install dials the HUD
-     * immediately without the rider having to find the toggle in Settings, * which is exactly the flow the dev loop runs every reinstall. Release
-     * users still see it disabled so a HUDless rider doesn't burn battery
-     * on a dial loop they'll never use.
-     */
-    /**
-     * Link master switch. Always OFF by default -- the rider has to opt
-     * in by flipping it on. Used to default to BuildConfig.DEBUG so debug
-     * builds came pre-armed, but that hid a real-world quirk (the rider
-     * never saw the toggle) and conflated "is this a debug APK?" with
-     * "should the radio be running?". The two should be independent.
+     * Off by default, the rider opts in. Not tied to BuildConfig.DEBUG, so
+     * a debug APK does not start the radio by itself.
      */
     val hudServerEnabled: Boolean = false,
     /**
@@ -632,7 +619,7 @@ data class AppSettings(
      *
      * Off, and the rider has to find it. A pairing QR is a thing anybody can print and tape
      * to a wall, and approving one sends this rider's store_id to whatever server the code
-     * names — so a code pointing anywhere unexpected is refused outright unless the rider has
+     * names, so a code pointing anywhere unexpected is refused outright unless the rider has
      * deliberately turned this on. It costs nothing in the normal case, because the normal
      * case is a code from the usual server, which never consults this.
      */
@@ -665,12 +652,8 @@ data class AppSettings(
      */
     val hudServerPort: Int = 28080,
     /**
-     * IPv4 of the HUD the rider reads off its on-screen banner and types into
-     * the phone settings. Blank means "no HUD configured"; we won't try to
-     * dial out until the rider fills this in. mDNS auto-discovery may
-     * populate this in a future build, but right now manual entry is the
-     * only path because softAP multicast filtering kills discovery on too
-     * many phones.
+     * IPv4 of the HUD, typed by the rider from its on-screen banner. Only
+     * used when [hudDiscoveryMode] is FIXED or BOTH. Blank means none saved.
      */
     val hudIp: String = "",
     /**
@@ -738,17 +721,14 @@ data class AppSettings(
     val pipMode: String = "OFF",
     /**
      * Ordered list of HUD screens the rider has enabled, by stable id
-     * ("Dashboard", "Camera", "Telemetry", "Custom", "CustomCam",
-     * "Map", "Nav"). Stored as a comma-separated string so it slots
-     * cleanly into the existing key/value DataStore.
+     * (see SettingsViewModel.defaultEnabledHudScreens), comma-separated.
      *
-     * Empty string = "use the default carousel" (= all seven screens in
-     * declaration order). Non-empty = each comma-separated id is one
-     * screen and the order is the carousel order.
+     * Empty string = "use the default carousel". Non-empty = each
+     * comma-separated id is one screen and the order is the carousel order.
      *
      * The phone-side UI enforces a minimum of one screen so the rider
      * can't disable everything and lose access to the HUD; the HUD
-     * also falls back to the default seven on an empty-list wire frame
+     * also falls back to its own default list on an empty-list wire frame
      * as belt-and-suspenders.
      */
     val hudScreensEnabled: String = "",
@@ -816,9 +796,6 @@ data class AppSettings(
      * the chroma fill and look wrong. Default on.
      */
     val studioReplayForceOpaque: Boolean = true,
-    // MOV alpha codec (studioReplayMovQtrle) removed: the ffmpeg ProRes/.mov
-    // export path is disabled app-wide. Any leftover value in a persisted JSON
-    // blob is simply ignored by Gson.
 
     // Dashboard layout (customizable home screen).
     //
@@ -905,8 +882,8 @@ data class AppSettings(
     /** Show the Battery monitor access icon (spark) in the dashboard top bar. */
     val chargingDashboardIcon: Boolean = true,
 
-    // --- Dropbox online backup (Phase 1: link state only) ---------------
-    /** Long-lived Dropbox short-lived access token (4h TTL on Dropbox). */
+    // --- Dropbox online backup: link and sync state ---------------------
+    /** Dropbox access token, short-lived (about 4 h). Renewed with [dropboxRefreshToken]. */
     val dropboxAccessToken: String = "",
     /** Refresh token kept across launches; used to mint new access tokens. */
     val dropboxRefreshToken: String = "",
@@ -955,10 +932,6 @@ data class AppSettings(
      */
     val dropboxPullRequested: Boolean = false
 ) {
-    // Delegating getters so reads like `settings.wheelPollIntervalMs` keep working
-    // after the 46 advanced fields moved into the nested [AdvancedSettings] (which
-    // keeps AppSettings' copy() under the JVM/dex 255-argument limit). Writes use
-    // copy(advanced = advanced.copy(...)).
     // Voice report toggles, read exactly as before the move into [voiceReports],
     // so every read site stayed untouched. Writes go through the nested copy.
     val voiceReportSpeed: Boolean get() = voiceReports.periodicSpeed
@@ -980,6 +953,8 @@ data class AppSettings(
     val triggerReportPhoneBattery: Boolean get() = voiceReports.triggerPhoneBattery
     val triggerReportRecording: Boolean get() = voiceReports.triggerRecording
 
+    // Delegating getters for the nested [AdvancedSettings] fields. Writes use
+    // copy(advanced = advanced.copy(...)).
     val wheelPollIntervalMs: Int get() = advanced.wheelPollIntervalMs
     val graphSampleIntervalMs: Int get() = advanced.graphSampleIntervalMs
     val smoothingWindowSamples: Int get() = advanced.smoothingWindowSamples
@@ -1107,18 +1082,6 @@ data class AccelSplitSettings(
 )
 
 /**
- * Speed-driven media control (music / podcasts). Pauses playback when the rider
- * slows down (e.g. rolling slowly around people) and resumes it when they speed
- * back up. A feature-local group (not a global), nested so AppSettings.copy()
- * stays under the JVM/dex 255-argument limit. Thresholds are in km/h.
- *
- * The gap between [pauseBelowKmh] and [resumeAboveKmh] is a dead-band that stops
- * rapid play/pause flipping near one speed; AutomationManager also requires the
- * condition to hold briefly before acting. Resume only ever restarts playback
- * this feature itself paused, so speeding up never blasts music the rider had
- * deliberately stopped.
- */
-/**
  * Headlight control: when the automation may act, the sun schedule it follows,
  * and the walking-pace cut-off.
  *
@@ -1148,9 +1111,20 @@ object ApplyWhenIds {
     const val NEVER = "NEVER"
     const val CONNECTED = "CONNECTED"
     const val RIDING = "RIDING"
-    val ALL = listOf(NEVER, CONNECTED, RIDING)
 }
 
+/**
+ * Speed-driven media control (music / podcasts). Pauses playback when the rider
+ * slows down (e.g. rolling slowly around people) and resumes it when they speed
+ * back up. A feature-local group (not a global), nested so AppSettings.copy()
+ * stays under the JVM/dex 255-argument limit. Thresholds are in km/h.
+ *
+ * The gap between [pauseBelowKmh] and [resumeAboveKmh] is a dead-band that stops
+ * rapid play/pause flipping near one speed; AutomationManager also requires the
+ * condition to hold briefly before acting. Resume only ever restarts playback
+ * this feature itself paused, so speeding up never blasts music the rider had
+ * deliberately stopped.
+ */
 data class MediaControlSettings(
     val pauseEnabled: Boolean = false,
     // Pause when speed is at or below this (km/h).
@@ -1197,17 +1171,6 @@ data class ShareSettings(
 }
 
 /**
- * Bluetooth-signal proximity lock / unlock. Locks the wheel as the rider walks
- * away (the BT signal fades while still just connected) and, optionally, unlocks
- * it as they return (the signal strengthens). A feature-local group (not a
- * global), nested so AppSettings.copy() stays under the JVM/dex 255-argument
- * limit. Thresholds are RSSI in dBm (higher = stronger / closer, e.g. -50 is
- * near, -85 is far). unlockAboveDbm sits above lockBelowDbm with a gap - a
- * dead-band that stops lock/unlock flipping; AutomationManager also holds the
- * condition a few seconds before acting. Locking needs a live BLE link, so it
- * fires while the signal is fading, not after a full disconnect.
- */
-/**
  * How the battery percentage on screen is worked out.
  *
  * Some wheels report a percentage that disagrees with their own display, so
@@ -1221,13 +1184,6 @@ data class ShareSettings(
  * which every family records; [seriesCells] is asked of the rider only when the
  * model is unrecognised, since a live pack voltage alone cannot distinguish a
  * 20S from a 30S.
- */
-/**
- * Everything the voice-command area configures.
- *
- * A group rather than three fields on [AppSettings], because that class sits
- * one field short of the 255-argument JVM limit: past it, `copy()` fails
- * verification and the app dies at runtime rather than at build time (rule 8).
  */
 data class BatteryPercentSettings(
     /**
@@ -1286,6 +1242,17 @@ data class BatteryPercentSettings(
     }
 }
 
+/**
+ * Bluetooth-signal proximity lock / unlock. Locks the wheel as the rider walks
+ * away (the BT signal fades while still just connected) and, optionally, unlocks
+ * it as they return (the signal strengthens). A feature-local group (not a
+ * global), nested so AppSettings.copy() stays under the JVM/dex 255-argument
+ * limit. Thresholds are RSSI in dBm (higher = stronger / closer, e.g. -50 is
+ * near, -85 is far). unlockAboveDbm sits above lockBelowDbm with a gap - a
+ * dead-band that stops lock/unlock flipping; AutomationManager also holds the
+ * condition a few seconds before acting. Locking needs a live BLE link, so it
+ * fires while the signal is fading, not after a full disconnect.
+ */
 data class ProximityLockSettings(
     val lockEnabled: Boolean = false,
     // Lock when the signal is at or below this (dBm) - the rider is walking away.
@@ -1328,38 +1295,10 @@ data class ProximityLockSettings(
 }
 
 /**
- * Which items the periodic and on-trigger voice reports speak.
+ * The rider's tire-pressure sensors and how pressure is shown.
  *
- * Nested under [AppSettings.voiceReports] rather than living as top-level
- * flags. Kotlin generates a static `copy$default` taking the receiver, every
- * property, one int bitmask per 32 properties and a marker; cross 255 slots and
- * the class fails to verify AT RUNTIME with an ART VerifyError, so `copy()`
- * crashes on the first settings write. These 18 flags had AppSettings sitting
- * exactly on that limit, with no room for another report type. Moving them here
- * bought back 17 slots. That is what rule 8 in CLAUDE.md is about, and
- * AppSettingsArgLimitTest now guards it.
- *
- * Add new report toggles HERE, never to AppSettings.
- *
- * Current and Power exist because PWM is the only limit-style report a wheel can
- * offer, and plenty of wheels never report PWM at all. Both are spoken as an
- * average over the recent window, not an instantaneous reading, since a
- * momentary peak tells a rider nothing useful about how hard the wheel is
- * working.
- */
-/**
- * The weather module's own knobs. Disabled by default: enabling it adds the
- * weather icon above the dashboard's map button. Comfort thresholds are the
- * rider's, stored metric (°C and tenths of m/s so the shared NumberUpDown
- * stepper can drive them as Ints); display follows the unit settings.
- */
-/**
- * The rider's tire-pressure sensor and how pressure is shown.
- *
- * [pairedAddress] is a sensor the rider adopted by scanning. One at a time: a
- * wheel has one tyre, and two paired sensors would leave "the tire pressure"
- * meaning whichever spoke last. Pairing another replaces it, which is also
- * what the section has always said about replacing the wheel's own.
+ * [pairedAddresses] holds every cap the rider adopted by scanning, one per
+ * wheel. [pairedAddress] is the legacy single slot, kept for downgrade.
  */
 data class TpmsSettings(
     /**
@@ -1394,6 +1333,11 @@ data class TpmsSettings(
     }
 }
 
+/**
+ * The weather module's own knobs. On by default: it adds the weather icon
+ * above the dashboard's map button. Riding preferences are stored here, the
+ * comfort thresholds live in Advanced settings (Weather score group).
+ */
 data class WeatherSettings(
     val enabled: Boolean = true,
     /** How many hours ahead the panel shows, 2..168. Free-form rather than
@@ -1418,6 +1362,26 @@ data class WeatherSettings(
     val prefGolden: String = "NEUTRAL",
 )
 
+/**
+ * Which items the periodic and on-trigger voice reports speak.
+ *
+ * Nested under [AppSettings.voiceReports] rather than living as top-level
+ * flags. Kotlin generates a static `copy$default` taking the receiver, every
+ * property, one int bitmask per 32 properties and a marker; cross 255 slots and
+ * the class fails to verify AT RUNTIME with an ART VerifyError, so `copy()`
+ * crashes on the first settings write. These 18 flags had AppSettings sitting
+ * exactly on that limit, with no room for another report type. Moving them here
+ * bought back 17 slots. That is what rule 8 in CLAUDE.md is about, and
+ * AppSettingsArgLimitTest now guards it.
+ *
+ * Add new report toggles HERE, never to AppSettings.
+ *
+ * Current and Power exist because PWM is the only limit-style report a wheel can
+ * offer, and plenty of wheels never report PWM at all. Both are spoken as an
+ * average over the recent window, not an instantaneous reading, since a
+ * momentary peak tells a rider nothing useful about how hard the wheel is
+ * working.
+ */
 data class VoiceReportSettings(
     // Periodic report.
     val periodicSpeed: Boolean = true,
@@ -1701,12 +1665,6 @@ data class AdvancedSettings(
     // action (issue #19 capture, 2026-09-22).
     val kingsongPassword: Int = 0,
 )
-
-// FlicAction enum removed (2026-05). Replaced by
-// [com.eried.eucplanet.data.model.ActionCatalog] which is the single source
-// of truth for every rider-triggerable command and the surfaces it can be
-// bound to. Settings still store the action name as a String (e.g. "HORN",
-// "VOICE_ANNOUNCE", or "NONE" for unbound) so there is no schema change.
 
 /**
  * Flip the three unit fields between a clean metric trio and a clean imperial

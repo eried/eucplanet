@@ -248,7 +248,7 @@ private fun ButtonConfig(
 
             Spacer(Modifier.height(12.dp))
 
-            // Click + Double click share a row (half each); Hold spans below.
+            // Click + Double click share a row (half each).
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)

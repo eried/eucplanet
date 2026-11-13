@@ -125,12 +125,11 @@ internal fun AppSettings.sanitized(): AppSettings = copy(
     // What the dialog lets a rider save: a synced file cannot ask for 300%, or 80.
     chargingNotifyCustomPct = com.eried.eucplanet.service.ChargeAlertPolicy
         .sanitizeCustom(chargingNotifyCustomPct),
-    // Weather comfort thresholds from a synced or hand-edited file: keep
-    // the window one of the offered four, the bands ordered and sane.
+    // Weather settings from a synced or hand-edited file: clamp the
+    // window, reset unknown preferences.
     weather = weather.copy(
-        // Any number of hours now, clamped rather than snapped to a preset.
-        // Two is the shortest that draws a curve; a week is where every
-        // source runs out.
+        // Window in hours, clamped. Two is the shortest that draws a
+        // curve, a week is where every source runs out.
         windowHours = weather.windowHours.coerceIn(2, 168),
         prefHot = weather.prefHot.takeIf { it in PREF_VALUES } ?: "NEUTRAL",
         prefCold = weather.prefCold.takeIf { it in PREF_VALUES } ?: "NEUTRAL",
@@ -143,7 +142,8 @@ internal fun AppSettings.sanitized(): AppSettings = copy(
     // Clamp every Advanced knob to its spec range so a 0 / negative / absurd
     // value (from an imported or Dropbox-synced settings file, not just the
     // steppers) can never busy-loop a delay(), divide by zero, or starve the
-    // BLE/IO loops. Every settings read, get() and the settings Flow, // passes through here, so consumers never see an unsafe value.
+    // BLE/IO loops. Every settings read, get() and the settings Flow,
+    // passes through here, so consumers never see an unsafe value.
     advanced = ADVANCED_SPECS.fold(advanced) { a, s -> s.set(a, s.get(a).coerceIn(s.range)) },
     // A hand-edited or synced file could carry a floor above full charge, or
     // a cell count that makes every pack read 100%. Clamped here so the
@@ -177,9 +177,6 @@ internal fun AppSettings.sanitized(): AppSettings = copy(
         musicWhileListening = voiceCommands.musicWhileListening.takeIf { it in VoiceCommandSettings.MUSIC_MODES }
             ?: VoiceCommandSettings.MUSIC_PAUSE,
     ),
-    // An imported or Dropbox-synced file can carry an unlockWhen this build
-    // does not know. Fall back to never rather than letting an unrecognised
-    // value decide when a wheel unlocks itself.
     // A horn mode this build does not know (a newer backup) falls back to the
     // wheel's own horn, which every build understands.
     horn = (if (horn.mode in com.eried.eucplanet.data.model.HornSettings.MODES) horn
@@ -190,6 +187,9 @@ internal fun AppSettings.sanitized(): AppSettings = copy(
             beepVolumeRiding = it.beepVolumeRiding.coerceIn(1, 9),
         )
     },
+    // An imported or Dropbox-synced file can carry an unlockWhen this build
+    // does not know. Fall back to never rather than letting an unrecognised
+    // value decide when a wheel unlocks itself.
     proximityLock = if (proximityLock.unlockWhen in ProximityLockSettings.UNLOCK_WHEN_VALUES) {
         proximityLock
     } else {

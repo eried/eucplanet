@@ -6,7 +6,7 @@ package com.eried.eucplanet.hud.overlay
  * code that takes a WheelData parameter compiles unchanged on the HUD.
  *
  * Populated by adapting [com.eried.eucplanet.hud.protocol.HudState] in
- * [HudStudioElementData.from] each frame.
+ * [StudioElementData.from] each frame.
  */
 
 data class WheelData(
@@ -40,7 +40,8 @@ data class WheelData(
     /** Ground speed in km/h from the paired external GPS box, -1 when none. */
     val externalGpsSpeedKmh: Float = -1f,
     /** Ground speed in km/h from the PHONE's fused GPS, -1 when no fix.
-     *  Fed from HudState.gpsSpeedKmh when gpsSource == "PHONE". */
+     *  Fed from HudState.phoneGpsSpeedKmh, or from HudState.gpsSpeedKmh
+     *  when an older phone sends only that and gpsSource == "PHONE". */
     val gpsSpeedKmh: Float = -1f,
     /** Running trip-meter distance in km (connect-scoped car odometer), -1 when
      *  none. Fed from HudState.tripMeterKm. */

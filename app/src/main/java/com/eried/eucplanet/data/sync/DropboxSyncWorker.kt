@@ -38,17 +38,6 @@ class DropboxSyncWorker(
     companion object {
         private const val TAG = "DropboxSyncWorker"
 
-        /**
-         * How far Dropbox's copy must be ahead of this phone's before it counts
-         * as someone else's edit rather than clock skew.
-         *
-         * In seconds, matching what Dropbox reports. Dropbox stamps with its
-         * clock and the filesystem with the phone's, so a little slack is
-         * needed. Not much: an edit made in another tool is
-         * hours or days later, and slack this small still keeps a local change
-         * winning when the two happen close together.
-         */
-        private const val EDIT_GRACE_SEC = 2L * 60
         /** Leaves room inside WorkManager's ~10 minute window for the upload
          *  half and the folder mirror that run before it. */
         private const val DOWNLOAD_BUDGET_MS = 6 * 60_000L
@@ -116,13 +105,9 @@ class DropboxSyncWorker(
             .associate { it.fileName.lowercase() to it.dropboxStatus }
         var anyFailed = false
         var uploaded = 0
-        // How many trips still need uploading. A trip is "already up" when Dropbox
-        // holds a file of the SAME byte length (trip CSVs are append-only, so a
-        // matching size means matching content). We deliberately do NOT compare by
-        // modified-time: the local mtime gets bumped by on-device rewrites, which
-        // made every trip look "newer" and re-upload forever, so the sync never
-        // converged and the indicator never cleared. failedTrips tracks how many
-        // of the needed uploads never made it this pass.
+        // How many trips still need uploading, decided by needsUpload below
+        // (UploadPolicy: Dropbox's timestamp, then the content hash). failedTrips
+        // counts the needed uploads that did not make it this pass.
         // Dropbox ignores case like the phone does; a name the two spell
         // differently is still the same trip, not one to upload again.
         val remoteByLower = remoteTrips.mapKeys { it.key.lowercase() }

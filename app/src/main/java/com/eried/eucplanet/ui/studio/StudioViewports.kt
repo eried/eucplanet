@@ -77,13 +77,11 @@ private const val MIN_PANE = 0.12f
 /**
  * Pane rectangles for [layout] given current [dividers] (clamped, ordered).
  * The layout is fixed; it does not transpose with device orientation, so the
- * geometry the rider picked is exactly what records. ([landscape] is kept for
- * call-site compatibility but no longer changes the result.)
+ * geometry the rider picked is exactly what records.
  */
 fun paneRects(
     layout: ViewportLayout,
-    dividers: List<Float>,
-    landscape: Boolean = false
+    dividers: List<Float>
 ): List<PaneRect> {
     fun d(i: Int, fallback: Float) = dividers.getOrNull(i)?.coerceIn(MIN_PANE, 1f - MIN_PANE)
         ?: fallback
@@ -135,8 +133,9 @@ fun paneRects(
  * Draws the viewport panes, the divider lines, and, when [editable], the
  * per-pane source button and the divider handles. In live mode each pane
  * shows its camera/solid/gradient/image source; in [replayMode] it shows the
- * pane's replay face instead (transparent/solid/gradient/image/video, video
- * decoded from [videoHub] at [replayCursorMs]).
+ * pane's replay face instead (transparent/solid/gradient/image/video; video
+ * plays through [ReplayVideoPlayer] at [replayCursorMs], [videoHub] only
+ * supplies the clip length).
  */
 @Composable
 fun StudioViewportLayer(
@@ -151,11 +150,11 @@ fun StudioViewportLayer(
     replaySpeed: Float = 1f,
     /**
      * Offscreen export shim: when non-null, a VIDEO replay face draws
-     * `prebuiltVideoFrame(paneIndex)` instead of decoding from [videoHub].
+     * `prebuiltVideoFrame(paneIndex)` instead of running a player.
      * The export loop resolves every pane's frame on the producing side (for
      * that export frame's cursor position) so the offscreen frame clock never
-     * calls into the retriever. Null (the live/on-screen default) keeps the
-     * existing hub-decode behavior.
+     * calls into the retriever. Null (the live/on-screen default) plays the
+     * clip through [ReplayVideoPlayer].
      */
     prebuiltVideoFrame: ((Int) -> ImageBitmap?)? = null,
     onDividerChange: (List<Float>) -> Unit,
@@ -182,8 +181,7 @@ fun StudioViewportLayer(
         val h = maxHeight
         val widthPx = constraints.maxWidth.toFloat().coerceAtLeast(1f)
         val heightPx = constraints.maxHeight.toFloat().coerceAtLeast(1f)
-        val landscape = LocalStudioRotation.current.let { it == 90 || it == 270 }
-        val rects = paneRects(preset.layout, preset.dividers, landscape)
+        val rects = paneRects(preset.layout, preset.dividers)
 
         rects.forEachIndexed { index, r ->
             val config = preset.viewports.getOrNull(index)
@@ -235,7 +233,6 @@ fun StudioViewportLayer(
             preset = preset,
             widthPx = widthPx,
             heightPx = heightPx,
-            landscape = landscape,
             editable = paneEditable,
             onDividerChange = onDividerChange,
             onConfigDivider = onConfigDivider
@@ -247,7 +244,7 @@ fun StudioViewportLayer(
  * Renders one pane's REPLAY face: transparent (nothing, the editor checkerboard
  * shows through), a static solid/gradient/image (the same renderers the live
  * face uses, colour-grade/zoom neutral since replay faces don't carry them), or
- * a video frame decoded from [videoHub] at the current [cursorMs]. `null`
+ * the video face at the current [cursorMs] (see [ReplayVideoPane]). `null`
  * (no replay face configured yet) reads as transparent, matching the default
  * on old presets.
  */
@@ -670,7 +667,8 @@ private fun PaneButton(icon: ImageVector, modifier: Modifier, onClick: () -> Uni
         Icon(
             icon,
             contentDescription = null,
-            // Themed chip: light surface in light theme, primary-tinted icon, // consistent with the selected-element config wrench.
+            // Themed chip: light surface in light theme, primary-tinted icon,
+            // consistent with the selected-element config wrench.
             tint = MaterialTheme.appColors.primary,
             modifier = Modifier
                 .size(18.dp)
@@ -688,7 +686,6 @@ private fun BoxWithConstraintsScope.DividerLayer(
     preset: OverlayPreset,
     widthPx: Float,
     heightPx: Float,
-    landscape: Boolean,
     editable: Boolean,
     onDividerChange: (List<Float>) -> Unit,
     onConfigDivider: () -> Unit

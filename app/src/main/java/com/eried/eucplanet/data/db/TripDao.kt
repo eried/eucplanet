@@ -30,7 +30,8 @@ interface TripDao {
     suspend fun deleteAll()
 
     /**
-     * Trips that still need to be uploaded (pending or failed, and recording finished).
+     * Trips that still need to go to the backup folder (pending, failed, or
+     * mirror-if-absent, and recording finished).
      * Returned newest-first so a single pass starts with the trip just completed.
      */
     @Query("SELECT * FROM trips WHERE endTime IS NOT NULL AND uploadStatus IN (1, 3, 4) ORDER BY startTime DESC")
@@ -85,7 +86,7 @@ interface TripDao {
     suspend fun updateCustomName(id: Long, name: String?)
 
     /** Re-flag a trip for folder upload after its file was edited in place
-     *  (rename / change wheel). The folder worker only walks uploadStatus 1/3,
+     *  (rename / change wheel). The folder worker only walks uploadStatus 1/3/4,
      *  so an already-uploaded (2) trip would otherwise never re-sync. */
     @Query("UPDATE trips SET uploadStatus = 1 WHERE id = :id")
     suspend fun markPendingFolderUpload(id: Long)

@@ -264,9 +264,8 @@ private fun PairedRadarCard(
                         color = MaterialTheme.appColors.statusGood
                     )
                 } else {
-                    // Debug-friendly per-target dump so the user can confirm
-                    // the parser works against their actual hardware before
-                    // we commit to the overlay UI. Fixed-height scroll area
+                    // Per-target list so the rider can see what the radar
+                    // reports. Fixed-height scroll area
                     // so the card stays a constant size while threat count
                     // bounces around in demo / busy-road mode.
                     Text(

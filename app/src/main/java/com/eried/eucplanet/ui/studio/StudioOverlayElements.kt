@@ -500,8 +500,7 @@ private fun StudioElementBox(
             // system. Measuring it INSIDE the rotated layer fed the rotation
             // back into the angle it was computing and spun wildly. It is still
             // POSITIONED at the element's rotated bottom-left corner so it looks
-            // attached at any angle; the offset is frozen mid-drag (below) so
-            // the coordinate frame can't move while the gesture computes angles.
+            // attached at any angle.
             if (selected) {
                 val density = LocalDensity.current
                 val handlePx = with(density) { 30.dp.toPx() }
@@ -932,18 +931,15 @@ private fun RadarMinimal(element: OverlayElement, data: StudioElementData) {
     }
 }
 
-/** Max source samples used to build a G-Force trail Path. With the studio
- *  history sampled at ~10 Hz and trails capped at 20 s, the upper bound is
- *  ~200 points; we keep all of them up to this ceiling so the curve has
- *  proper resolution. The cost is still small (one quadratic-Bezier Path,
- *  built once per dial per frame, drawn in five overlapping passes). */
+/** Most points drawn for a G-Force trail. Longer sources (the 50 Hz live
+ *  buffer) are decimated by an even stride down to this. */
 private const val TRAIL_MAX_POINTS = 200
 
 /**
  * A circular crosshair plotting live lateral × forward G-force with a fading
- * comet trail, the studio twin of the dashboard's GForceCrosshair. The trail
- * is rebuilt from [StudioElementData.history] each frame, so it works for both
- * live recording and trip replay (history is the trip up to the scrub point).
+ * comet trail, the studio twin of the dashboard's GForceCrosshair. Live, the
+ * trail is the view model's 50 Hz IMU buffer; in replay it is rebuilt from
+ * [StudioElementData.history] (the trip up to the scrub point).
  */
 @Composable
 private fun GForceTrailElement(element: OverlayElement, data: StudioElementData) {
@@ -1015,15 +1011,7 @@ private fun GForceTrailElement(element: OverlayElement, data: StudioElementData)
             drawLine(grid, Offset(0f, cy), Offset(w, cy), strokeWidth = 1f, pathEffect = dash)
             drawLine(grid, Offset(cx, 0f), Offset(cx, h), strokeWidth = 1f, pathEffect = dash)
 
-            // Comet tail. Two-pass smooth path:
-            //   1) the *full* trail as a quadratic-smoothed Path, drawn once
-            //      with a moderate stroke / low alpha (the older fading body).
-            //   2) the most-recent third of the trail as a second Path, drawn
-            //      thicker / brighter on top (the bright comet head).
-            // One Path-build + two drawPath calls per dial replaces the per-
-            // segment drawLine loop that was making four dials look glitchy and
-            // expensive. drawPath uses Skia's native stroker so the curve looks
-            // smooth even with a modest point count.
+            // Comet tail.
             if (trail.size >= 2) {
                 val srcN = trail.size
                 val stride = (srcN / TRAIL_MAX_POINTS).coerceAtLeast(1)
@@ -1106,9 +1094,8 @@ private fun GForceTrailElement(element: OverlayElement, data: StudioElementData)
                 }
             }
 
-            // Live dot, eased toward the current lateral / forward G-force.
-            // Slightly larger than the previous radii so the head reads as the
-            // focal point even with the brighter, thicker comet tail.
+            // Live dot at the newest sample, sized so the head reads as the
+            // focal point over the comet tail.
             val gx = liveG.x.coerceIn(-maxG, maxG)
             val gy = liveG.y.coerceIn(-maxG, maxG)
             val center = Offset(cx + gx * unit, cy - gy * unit)
@@ -1153,9 +1140,7 @@ private fun ClockElement(element: OverlayElement, data: StudioElementData) {
             "STOPWATCH" -> SevenSegmentDisplay(formatStopwatch(data.stopwatchMs), fg)
             "TEXT" -> BoxWithConstraints {
                 val w = maxWidth.value
-                // Honor the per-element 12/24 switch the customizer ships;
-                // it was silently ignored here before, so the toggle felt
-                // dead even though the underlying flag was being persisted.
+                // Honor the per-element 12/24 switch.
                 val pattern = if (element.clock24Hour) "HH:mm:ss" else "h:mm:ss a"
                 Column {
                     androidx.compose.material3.Text(
@@ -2068,9 +2053,7 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
         val fg = Color(element.foreground)
 
         // Decode the rider's custom marker photo once per data-url so the
-        // canvas can stamp it on every frame without re-parsing base64. The
-        // result already has a circular alpha mask burned in (see
-        // UserMarkerCropDialog.renderCircleCrop), so we just draw it as-is.
+        // canvas can stamp it on every frame without re-parsing base64.
         // Null when the toggle is off OR no photo is set OR decode failed.
         val markerPhoto: ImageBitmap? = remember(
             element.mapUseCustomMarker, data.riderMarkerPhotoDataUrl
@@ -2154,7 +2137,7 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
                     // A dark casing under the bright line so it reads on any
                     // tile. Both strokes are deliberately bold so the trace
                     // is easy to follow on a video frame: bright line 10 px,
-                    // casing 16 px (≈ 2.5x the original 4 / 7 widths).
+                    // casing 16 px.
                     drawPath(
                         path = path,
                         color = Color.Black.copy(alpha = 0.45f),

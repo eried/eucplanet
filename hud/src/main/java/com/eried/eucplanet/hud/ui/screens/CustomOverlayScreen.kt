@@ -28,9 +28,6 @@ import com.eried.eucplanet.hud.protocol.OverlayElement
 import com.eried.eucplanet.hud.protocol.OverlayPreset
 import com.eried.eucplanet.hud.protocol.OverlayElementType
 import com.eried.eucplanet.hud.protocol.MapTraceMode
-import com.eried.eucplanet.hud.protocol.ViewportLayout
-import com.eried.eucplanet.hud.protocol.ViewportConfig
-import com.eried.eucplanet.hud.protocol.ViewportSourceType
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -39,7 +36,7 @@ import org.json.JSONObject
  * screen, optionally with the rear-camera preview as the background.
  *
  * Two layout modes, picked from the dominant element rotationDeg in the
- * preset (see OverlayStudioScreen.kt:1539: rotationDeg = (360 - deviceRotation)
+ * preset (see OverlayStudioScreen: rotationDeg = (360 - deviceRotation)
  * % 360 -- the studio stamps each new element with this on placement):
  *
  *   - Portrait preset (rotationDeg = 0): coords are in the rider's view
@@ -60,10 +57,10 @@ import org.json.JSONObject
  *     way the rider sees it on their landscape phone in the studio.
  *
  * Sizing inside the rotated landscape mode tracks the studio: the
- * portrait sub-canvas is sized so its post-rotation width fills the HUD
- * width, with a 9:19.5 aspect (modern-phone default -- we don't store
- * the rider's actual screen aspect in the preset). Vertical letterbox
- * appears top/bottom on the HUD if the panel is taller than 9:19.5.
+ * portrait sub-canvas has a 9:19.5 aspect (modern-phone default -- we
+ * don't store the rider's actual screen aspect in the preset) and is
+ * scaled so its rotated short side fills the HUD height; the long side
+ * overflows the width.
  */
 @Composable
 fun CustomOverlayScreen(
@@ -203,19 +200,9 @@ private fun BoxScope.LandscapeRotatedCanvas(
     hudH: Dp
 ) {
     // Portrait sub-canvas at the 9:19.5 modern-phone aspect. This is
-    // the aspect element coords are normalized against. Sized so the
-    // post-rotation width fills the HUD width; post-rotation height
-    // ends up being hudW * 9/19.5 = ~46% of hudW. On a 16:9-ish HUD
-    // that leaves a vertical letterbox above and below the overlay.
-    //
-    // The letterbox is the price of preserving the rider's layout
-    // exactly. A previous attempt at HUD-native canvas dimensions
-    // (480x800) eliminated the letterbox but reinterpreted every
-    // y-coord on a 19% shorter vertical axis -- the layout drifted
-    // and the rider called it out. A second attempt scaled the
-    // rotated canvas to fill the HUD vertically -- that worked
-    // arithmetically but the canvas became wider than the HUD and
-    // edge-positioned elements got clipped off the sides.
+    // the aspect element coords are normalized against. HUD-native
+    // canvas dimensions (480x800) would reinterpret every y-coord on a
+    // 19% shorter vertical axis and the layout drifts.
     val portraitAspect = 9f / 19.5f
     val portraitH = hudW
     val portraitW = portraitH * portraitAspect
@@ -342,12 +329,8 @@ private fun parseElement(o: JSONObject): OverlayElement? {
         cameraKey = o.optString("cameraKey", d.cameraKey),
         clockStyle = o.optString("clockStyle", d.clockStyle),
         clockShowDate = o.optBoolean("clockShowDate", d.clockShowDate),
-        // Was missing from the HUD-side parser, so every preset arrived
-        // with clock24Hour back at its default (true = 24h) regardless
-        // of what the rider picked in the phone customizer. Phone-side
-        // OverlayPresetJson DOES emit the field; the HUD just wasn't
-        // reading it. Tester confirmed the symptom: 12h in the editor
-        // preview, 24h on the actual HUD.
+        // Must be read here: without it every preset shows 24h on the
+        // HUD regardless of what the rider picked on the phone.
         clock24Hour = o.optBoolean("clock24Hour", d.clock24Hour),
         mapStyle = o.optString("mapStyle", d.mapStyle),
         mapZoom = o.optInt("mapZoom", d.mapZoom),

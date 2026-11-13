@@ -10,9 +10,8 @@ import kotlinx.coroutines.flow.asStateFlow
  * driven by live navigation. Deliberately **not persisted**: a route is session
  * state, so it survives navigating away from the Builder and back (this singleton
  * outlives the screen's ViewModel) but is gone on process death / reinstall, the
- * rider always starts from zero. Replaces the old `navCurrentRouteJson` /
- * `navCurrentRouteSavedAt` settings fields, so nothing route-related ever lands
- * in the settings JSON or the backup.
+ * rider always starts from zero. Nothing route-related ever lands in the
+ * settings JSON or the backup.
  */
 class CurrentRouteStore {
     private val _route = MutableStateFlow<NavRoute?>(null)

@@ -27,12 +27,11 @@ data class ChargingUiState(
     val connected: Boolean = false,
     /** Disconnected, but the last session's data is still held and shown frozen. */
     val frozen: Boolean = false,
-    val wheelName: String? = null,
     /** Current battery %, fractional when the wheel reports it. */
     val percent: Float = 0f,
     /** Battery % when this charging session started. */
     val startPercent: Float = 0f,
-    /** % added since the session started (drives the green segment). */
+    /** % added since the session started (the Added stat row). */
     val addedPercent: Float = 0f,
     val voltage: Float = 0f,
     val current: Float = 0f,
@@ -46,8 +45,6 @@ data class ChargingUiState(
     val battery1: Float = 0f,
     val battery2: Float = 0f,
     val ratePctPerMin: Float = 0f,
-    /** Signed Wh integrated this session (+ charging, − discharging). */
-    val energyWh: Float = 0f,
     /** Wh used while discharging this session (the ride loss). */
     val energyUsedWh: Float = 0f,
     /** Wh added while charging this session. */
@@ -58,8 +55,6 @@ data class ChargingUiState(
     /** True while the wheel reports itself charging (or full). */
     val charging: Boolean = false,
     val warmedUp: Boolean = false,
-    val minutesToTarget: Float? = null,
-    val minutesToFull: Float? = null,
     /** Smoothed absolute finish times (ms), count down to these in real time. */
     val targetEtaMs: Long? = null,
     val fullEtaMs: Long? = null,
@@ -90,7 +85,6 @@ data class ChargingUiState(
     val cellLowWarnMv: Int = 30,
     val cellLowDangerMv: Int = 80,
     val cellHighMv: Int = 40,
-    val packBalanceTolerancePct: Int = 5,
 )
 
 /**
@@ -123,7 +117,7 @@ class ChargingMonitorViewModel(
         buildState(quad.data, quad.status, quad.name, quad.snap, settings.chargingEstimateToFull,
             settings.chargingNotify80, settings.chargingNotifyFull, settings.chargingNotifyCustom, settings.chargingNotifyCustomPct, bms,
             settings.advanced.cellLowWarnMv, settings.advanced.cellLowDangerMv,
-            settings.advanced.cellHighMv, settings.advanced.packBalanceTolerancePct)
+            settings.advanced.cellHighMv)
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5_000),
@@ -146,7 +140,7 @@ class ChargingMonitorViewModel(
         val snap: ChargingSnapshot,
     )
 
-    /** Toggle whether the prediction targets 100 % instead of 80 % (persisted). */
+    /** Charge alert at 80 % (persisted). */
     fun setNotify80(value: Boolean) {
         viewModelScope.launch {
             settingsRepository.update(settingsRepository.get().copy(chargingNotify80 = value))
@@ -174,6 +168,7 @@ class ChargingMonitorViewModel(
         }
     }
 
+    /** Toggle whether the prediction targets 100 % instead of 80 % (persisted). */
     fun setEstimateToFull(value: Boolean) {
         viewModelScope.launch {
             settingsRepository.update(settingsRepository.get().copy(chargingEstimateToFull = value))
@@ -271,7 +266,6 @@ class ChargingMonitorViewModel(
         cellLowWarnMv: Int = 30,
         cellLowDangerMv: Int = 80,
         cellHighMv: Int = 40,
-        packBalanceTolerancePct: Int = 5,
     ): ChargingUiState {
         val charging = status == ChargeStatus.Charging || status == ChargeStatus.Full
         val connected = status != ChargeStatus.Disconnected
@@ -295,7 +289,6 @@ class ChargingMonitorViewModel(
             status = status,
             connected = connected,
             frozen = frozen,
-            wheelName = name,
             // Connected: live level. Frozen: hold the last sampled level so the fill
             // stays put. Truly empty (no session): 0 so the gauge reads empty.
             percent = when {
@@ -322,14 +315,11 @@ class ChargingMonitorViewModel(
             // At 100 % the charge is done, stop reporting a rate (the wheel just
             // balances cells, so any residual slope is noise, not charging).
             ratePctPerMin = if (status == ChargeStatus.Full) 0f else est.ratePctPerMin,
-            energyWh = snap.sessionEnergyWh,
             energyUsedWh = snap.sessionEnergyOutWh,
             energyChargedWh = snap.sessionEnergyInWh,
             estimatedChargedWh = snap.estimatedChargedWh,
             charging = charging,
             warmedUp = est.warmedUp,
-            minutesToTarget = est.minutesToTarget,
-            minutesToFull = est.minutesToFull,
             targetEtaMs = snap.targetEtaMs,
             fullEtaMs = snap.fullEtaMs,
             estimateToFull = estimateToFull,
@@ -349,7 +339,6 @@ class ChargingMonitorViewModel(
             cellLowWarnMv = cellLowWarnMv,
             cellLowDangerMv = cellLowDangerMv,
             cellHighMv = cellHighMv,
-            packBalanceTolerancePct = packBalanceTolerancePct,
         )
     }
 

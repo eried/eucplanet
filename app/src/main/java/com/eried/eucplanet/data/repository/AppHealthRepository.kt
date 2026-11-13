@@ -17,6 +17,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
+/** A string resource used as an argument of a warning's text. */
+data class WarningTextRes(val res: Int)
+
 /**
  * A single user-actionable warning surfaced in the dashboard top bar.
  *
@@ -25,9 +28,6 @@ import kotlinx.coroutines.flow.asStateFlow
  * the Fix button, typically opens the system Settings App-Details page, but
  * future warning sources (failed trip import, …) can pass any handler.
  */
-/** A string resource used as an argument of a warning's text. */
-data class WarningTextRes(val res: Int)
-
 data class AppWarning(
     val id: String,
     val titleRes: Int,
@@ -49,10 +49,9 @@ data class AppWarning(
 
 /**
  * Aggregates "things the rider should know about" into a single flow that the
- * dashboard top-bar reads. Currently surfaces missing notification permission;
- * structure is deliberately generic so future sources (a failed trip import,
- * a corrupt setting that needs reset, an outdated wheel firmware that we'd
- * like to flag) can call [upsert] / [dismiss] without touching the UI layer.
+ * dashboard top-bar reads: missing permissions, blocked PIP or overlay,
+ * battery optimisation, no backup folder. Other sources can call [upsert] /
+ * [dismiss] without touching the UI layer.
  *
  * Permission checks run in [refreshPermissionWarnings] and are typically
  * invoked from MainActivity.onResume + after permissionLauncher's callback,
@@ -106,11 +105,6 @@ class AppHealthRepository(
     private var hudNoticePending = false
 
     /**
-     * Re-evaluates every permission the dashboard cares about and upserts or
-     * dismisses the corresponding warning. Idempotent, safe to call from
-     * onResume on every dashboard visit.
-     */
-    /**
      * Set when a rider pressed a listen button and the microphone was not
      * ours to open.
      *
@@ -146,6 +140,11 @@ class AppHealthRepository(
         fix = { openAppSettings() }
     )
 
+    /**
+     * Re-evaluates every permission the dashboard cares about and upserts or
+     * dismisses the corresponding warning. Idempotent, safe to call from
+     * onResume on every dashboard visit.
+     */
     fun refreshPermissionWarnings(
         pipRequested: Boolean = false,
         phoneHudRequested: Boolean = false,
@@ -436,14 +435,6 @@ class AppHealthRepository(
         return mode == AppOpsManager.MODE_ALLOWED
     }
 
-    /**
-     * Open the per-app picture-in-picture switch.
-     *
-     * The action is not a public constant - android.provider.Settings has no
-     * PIP entry - so it is named literally and only used if something answers.
-     * App info is the guaranteed fallback: the PIP switch lives inside it on
-     * stock Android, so the rider still lands somewhere they can fix this.
-     */
     /** Whether the rider has granted notification access, which is what
      *  MediaSessionManager.getActiveSessions() checks. */
     fun notificationAccessAllowed(): Boolean {
@@ -455,7 +446,6 @@ class AppHealthRepository(
         return enabled.split(":").any { it.startsWith(context.packageName + "/") }
     }
 
-    /** The system's notification-access list, where that grant lives. */
     /** Android's own location screen, where the master switch lives. */
     private fun openLocationSettings() {
         runCatching {
@@ -466,6 +456,7 @@ class AppHealthRepository(
         }.onFailure { openAppSettings() }
     }
 
+    /** The system's notification-access list, where that grant lives. */
     fun openNotificationAccessSettings() {
         val direct = Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS").apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -474,6 +465,14 @@ class AppHealthRepository(
         openAppSettings()
     }
 
+    /**
+     * Open the per-app picture-in-picture switch.
+     *
+     * The action is not a public constant - android.provider.Settings has no
+     * PIP entry - so it is named literally and only used if something answers.
+     * App info is the guaranteed fallback: the PIP switch lives inside it on
+     * stock Android, so the rider still lands somewhere they can fix this.
+     */
     fun openPipSettings() {
         val direct = Intent("android.settings.PICTURE_IN_PICTURE_SETTINGS").apply {
             data = Uri.fromParts("package", context.packageName, null)

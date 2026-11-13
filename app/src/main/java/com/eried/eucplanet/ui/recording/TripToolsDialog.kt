@@ -54,9 +54,6 @@ import com.eried.eucplanet.ui.theme.themedFieldColors
 /**
  * Trip tools, opened from the wrench in the trip list.
  *
- * Replaces the eye that used to sit there: the whole row already opens the trip,
- * so that icon was a second way to do the same thing and the slot was free.
- *
  * Everything here PRODUCES trips rather than altering the ride: a split leaves
  * the original alone, a join leaves its sources alone. The only tool that edits
  * in place is Change wheel, which corrects a label rather than the data.
@@ -66,7 +63,6 @@ import com.eried.eucplanet.ui.theme.themedFieldColors
  */
 @Composable
 fun TripToolsDialog(
-    trip: TripRecord,
     onDismiss: () -> Unit,
     onRename: () -> Unit,
     onChangeWheel: () -> Unit,
@@ -148,8 +144,7 @@ fun RenameTripDialog(
             // Reset sits alone on the far left, apart from Cancel/Save: it is
             // the one action that destroys something (the rider's name), and
             // distance is what keeps it from being hit while reaching for
-            // Save. No other dialog has a third action yet; this is the
-            // pattern when one does.
+            // Save. TripCompareAlignDialog's Stop follows the same pattern.
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 // One tap back to the date: clears the name AND accepts. Only
                 // offered while there is a name to clear - on an unnamed trip
@@ -344,10 +339,8 @@ fun SplitTripDialog(
                     Modifier.heightIn(max = 360.dp).verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(2.dp),
                 ) {
-                    // Counts the TICKED cuts, not every one proposed. It read
-                    // cuts.size + 1 before, so the "this makes N trips" line
-                    // never moved as the rider ticked boxes, which is precisely
-                    // the number they are deciding about.
+                    // Counts the TICKED cuts, not every one proposed: that is
+                    // the number the rider is deciding about.
                     // Nothing ticked has its own line rather than "this makes 1
                     // trips": the count is only ever singular in the one case
                     // where splitting does nothing, so saying what to do next
@@ -397,8 +390,7 @@ fun SplitTripDialog(
                                 // because it locates the cut on the graphs.
                                 // Then how long the gap or stop actually lasted,
                                 // which is the whole basis for deciding whether
-                                // it was a break or a traffic light, and was
-                                // computed all along without being shown.
+                                // it was a break or a traffic light.
                                 Text(
                                     buildString {
                                         append(clockFmt.format(Date(tripStartMs + cut.atElapsedMs)))
@@ -500,15 +492,6 @@ internal fun ArchiveChoiceRow(
 }
 
 /**
- * How far either end of an Extend reaches, in trips.
- *
- * A rider with hundreds of trips got every one of them in both dropdowns, and
- * an extend is always the legs on either side of the same ride: a leg eight
- * trips away is not part of it.
- */
-private const val EXTEND_REACH = 8
-
-/**
  * Choose how far to extend a merge, as a continuous span of rides.
  *
  * Combining is a RANGE, not an arbitrary pick. A ride is a stretch of time, and
@@ -518,8 +501,8 @@ private const val EXTEND_REACH = 8
  * between is swept in, which is also what "combine until the 10pm trip" means
  * when someone says it out loud.
  *
- * The anchor is fixed and marked; the radio picks the far end. Direction does
- * not matter, an earlier trip extends the span backwards just as well.
+ * The anchor is fixed. Two dropdowns pick how far the span reaches after it
+ * and before it; both start on the trip itself.
  */
 @Composable
 fun CombineTripsDialog(

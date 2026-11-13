@@ -2,7 +2,6 @@ package com.eried.eucplanet.hud.overlay
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.Image
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,7 +27,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.nativeCanvas
-import androidx.core.graphics.drawable.toBitmap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -65,7 +62,6 @@ import kotlin.math.PI
  * Custom screen.
  *
  * Differences from the phone source:
- *   - APP_BADGE shows a wordmark only (no app icon resource on the HUD).
  *   - CLOCK ANALOG / STOPWATCH styles fall back to a digital readout
  *     (those need shared AnalogClock / SevenSegmentDisplay composables
  *     that are not yet ported).
@@ -735,8 +731,8 @@ private fun GForceElement(element: OverlayElement, data: StudioElementData) {
     val fg = Color(element.foreground)
     val bg = Color(element.background)
     val maxG = element.gForceScale.coerceIn(0.25f, 6f)
-    // Lateral G from wheel roll angle (approximation), longitudinal from
-    // sample-over-sample speed change.
+    // Lateral G from wheel roll angle (approximation). Longitudinal is not
+    // tracked on the HUD.
     val lateralG = tan(data.wheelData.rollAngle * PI.toFloat() / 180f).coerceIn(-maxG, maxG)
     val longG = 0f // HUD doesn't track this yet; can extend with speed delta
     Box(
@@ -778,9 +774,9 @@ private fun GForceElement(element: OverlayElement, data: StudioElementData) {
 private fun MapElement(element: OverlayElement, data: StudioElementData) {
     val cache = remember { com.eried.eucplanet.hud.net.HudTileCache() }
     var tick by remember { mutableStateOf(0) }
-    // Fetch no deeper than the provider renders (Esri Canvas stops at 16);
-    // beyond that the tiles are drawn scaled up. styleVersion is read so a
-    // layer swap on the phone recomputes the cap.
+    // This element keeps its own cache, always on the default layer. Fetch
+    // no deeper than the provider renders (Esri Canvas stops at 16); beyond
+    // that the tiles are drawn scaled up.
     cache.styleVersion
     val zWanted = element.mapZoom.coerceIn(10, 19)
     val z = zWanted.coerceAtMost(cache.maxNativeZoom)
@@ -842,8 +838,7 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
             drawCircle(color = Color.White, radius = 9.dp.toPx(), center = centerPx)
             drawCircle(color = accent, radius = 7.dp.toPx(), center = centerPx)
         }
-        // Trigger tile fetches when the rider moves or the rider swaps
-        // map styles on the phone (styleVersion bumps in that case).
+        // Trigger tile fetches when the rider moves.
         LaunchedEffect(z, cx.toInt(), cy.toInt(), cache.styleVersion) {
             val cols = 4
             val rows = 4

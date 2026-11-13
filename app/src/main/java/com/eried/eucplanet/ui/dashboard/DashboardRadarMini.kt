@@ -32,16 +32,20 @@ import com.eried.eucplanet.ui.radar.RadarOverlayViewModel
 import com.eried.eucplanet.ui.theme.appColors
 import org.koin.compose.viewmodel.koinViewModel
 
+private const val LANE_RANGE_M = 140  // matches Garmin Varia's advertised reach
+private const val LANE_WIDTH_DP = 38
+private const val LANE_HEIGHT_DP = 168
+private const val SQUARE_SIZE_DP = 28
+
 /**
- * Compact radar lane shown inside the dashboard's dial Box. Replaces the
- * earlier full-screen edge bar so the rider's peripheral attention isn't
- * pulled across every screen ,  the overlay only matters while looking at
- * the speedo anyway, and the dashboard already has natural gutters either
- * side of the dial where a thin lane fits without competing with anything.
+ * Compact radar lane shown inside the dashboard's dial Box. The overlay
+ * only matters while looking at the speedo, and the dashboard has natural
+ * gutters either side of the dial where a thin lane fits without competing
+ * with anything.
  *
  * Mount this inside the same [androidx.compose.foundation.layout.BoxWithConstraints]
  * that holds the [SpeedGauge] + corner glyph clusters. The two mounts use
- * [androidx.compose.ui.BiasAlignment] with vertical bias 0.3 so they sit
+ * [androidx.compose.ui.BiasAlignment] with vertical bias 0.45 so they sit
  * a bit BELOW the dial centre, vertically aligned with the Map (bottom-
  * start) and Studio (bottom-end) corner glyphs that they sit above.
  *
@@ -50,13 +54,7 @@ import org.koin.compose.viewmodel.koinViewModel
  * in metres painted big inside each square (bigger for shorter numbers
  * so the closest threat reads strongest), and a battery tick centered
  * across the top. Tapping the lane opens the radar settings.
- */
-private const val LANE_RANGE_M = 140  // matches Garmin Varia's advertised reach
-private const val LANE_WIDTH_DP = 38
-private const val LANE_HEIGHT_DP = 168
-private const val SQUARE_SIZE_DP = 28
-
-/**
+ *
  * The dashboard mounts this twice ,  once with horizontal bias -1f and
  * once with +1f (i.e. start / end edges of the parent box). Each opts in
  * to render when its side matches the user's preference, or when "BOTH"

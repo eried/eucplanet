@@ -159,8 +159,7 @@ data class BleProfile(
  * KingSong, Gotway, Veteran, ...) has one implementation; the repository talks
  * only to this interface so the same UI can drive any wheel.
  *
- * Phase 1 ships with InMotionV2Adapter (V14 only). Later phases add V1 (V10F),
- * KingSong (S18), Veteran (Lynx) etc. Methods that don't apply to a given family
+ * Methods that don't apply to a given family
  * return null; the repository checks and skips silently. The UI consults
  * [capabilities] to gray out unsupported actions.
  *
@@ -248,9 +247,9 @@ interface WheelAdapter {
     fun setMaxSpeed(tiltbackKmh: Float, alarmKmh: Float): ByteArray?
 
     /**
-     * Optional second packet to send right after [setMaxSpeed], used by the P6
-     * to commit the new tiltback to flash via `60 3e [val 00 00]`. Return null
-     * for wheels that persist the change in a single write.
+     * Optional second packet sent right after [setMaxSpeed]. Veteran sends its
+     * tiltback frame here, Ninebot Z enables limited mode. Return null
+     * for wheels that set the speed in a single write.
      */
     fun setMaxSpeedCommit(tiltbackKmh: Float): ByteArray? = null
 
@@ -321,10 +320,9 @@ interface WheelAdapter {
      * true for wheels where the firmware silently drops control commands
      * (light, horn, max-speed) until the connect-time handshake completes.
      *
-     * Confirmed cases:
-     *  - InMotion P6: requires auth at connect, otherwise the dashboard
-     *    Light / Auto Headlight toggles look successful at the L2CAP layer
-     *    but the wheel never obeys.
+     * Confirmed case: InMotion V6, which needs the handshake repeated to
+     * keep its session. The P6 is deliberately not enabled, see
+     * [InMotionV2Adapter.requiresConnectAuth].
      *
      * Default false (no extra writes); the lock path runs auth on demand
      * via [requestAuthKey] / [verifyAuth] regardless of this flag.
@@ -425,15 +423,15 @@ interface WheelAdapter {
 }
 
 /**
- * Output of [WheelAdapter.decode]. The repository switches on this to update its
+ * Output of [WheelAdapter.onRawNotification]. The repository switches on this to update its
  * state flows (telemetry / settings / identity / auth state).
  */
 sealed class DecodeResult {
     data class Telemetry(val data: WheelData) : DecodeResult()
     data class Settings(val data: WheelSettings) : DecodeResult()
     /**
-     * Wheel-reported identity. [model] is the brand-specific identifier (currently
-     * [InMotionV2Model], later includes V1 / KingSong / Veteran), null if the wheel
+     * Wheel-reported identity. [model] is the family's model enum
+     * ([InMotionV2Model], [VeteranModel], ...), null if the wheel
      * reports an ID we don't recognize. Adapters keep [name] populated regardless
      * for display.
      */
@@ -451,13 +449,6 @@ sealed class DecodeResult {
         override fun hashCode(): Int = encryptedKey.contentHashCode()
     }
     data class AuthConfirm(val success: Boolean) : DecodeResult()
-    /** Out-of-band sensor block from the P6's `0x84` detailed-data response.
-     *  Carries MOS / motor / driver-board temperatures in °C. */
-    data class P6Temperatures(
-        val mosC: Float?,
-        val motorC: Float?,
-        val driverBoardC: Float?
-    ) : DecodeResult()
     /** One sub-frame of smart-BMS data. Cells arrive in rolling pages
      *  (pages 1+2+3 for single-pack, 5+6+7 for the second pack), so the
      *  caller merges successive slices into a full per-cell view. Veteran
@@ -535,15 +526,15 @@ data class WheelCapabilities(
          * InMotion V1 family (V5 / V8 / V10 / L6 / Glide 3 / R-series).
          * Horn and headlight are universal. Volume + DRL are firmware-
          * dependent (V8F / V8S / V10 family / Glide 3 only); the adapter
-         * narrows them per detected model. No remote lock command; lock
-         * state is observable in work mode but not commandable. Alarm
+         * narrows them per detected model. Lock is the remote-control
+         * sub-command 0x03 / 0x04. Alarm
          * speed is not user-configurable on V1; alarms are firmware
          * tilt-back triggers reported via the async alert frame.
          */
         val INMOTION_V1 = WheelCapabilities(
             hasHorn = true,
             hasLight = true,
-            // Was false on the belief that V1 had no remote lock. A V8S capture
+            // A V8S capture
             // of the InMotion app shows it sending remote-control sub-commands
             // 0x03 / 0x04 and the wheel acking them. needsAuthForLock stays
             // false: V1's password handshake already ran at connect, and the
@@ -561,7 +552,7 @@ data class WheelCapabilities(
             reportsChargeCurrent = false,
         )
 
-        /** KingSong KS-* wheels: no software lock, no volume control. */
+        /** KingSong KS-* wheels: lock with a six-digit unlock code, no volume control. */
         val KINGSONG = WheelCapabilities(
             hasHorn = true,
             hasLight = true,
@@ -578,8 +569,8 @@ data class WheelCapabilities(
 
         /**
          * Begode/Gotway: no software lock (dismount only), no native
-         * volume control. Light is a 3-state (off/dim/full); the adapter
-         * collapses dim to off for the on/off toggle. No speed limits from
+         * volume control. Light is 3-state (off / on / strobe); the on/off
+         * toggle never selects strobe. No speed limits from
          * the app yet: the W/Y/HL/b sequence exists (BegodeCommands) but is
          * not sent outside Service Mode, so the rider sets them on the wheel
          * and the app does not offer controls that would do nothing.

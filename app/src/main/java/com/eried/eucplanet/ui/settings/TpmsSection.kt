@@ -162,6 +162,12 @@ fun TpmsSection(viewModel: TpmsViewModel = koinViewModel()) {
     }
 }
 
+/** The sensor's own air temperature, in the rider's unit. */
+@Composable
+private fun formatTemp(c: Float, unit: String): String =
+    "%.0f%s".format(com.eried.eucplanet.util.Units.temperature(c, unit),
+        com.eried.eucplanet.util.Units.tempUnit(unit))
+
 /**
  * The sensor id the vendor app shows for this cap.
  *
@@ -174,12 +180,6 @@ fun TpmsSection(viewModel: TpmsViewModel = koinViewModel()) {
  * Same characters the rider already sees in the app the cap was sold with, so
  * a sensor added in both places is recognisable in both.
  */
-/** The sensor's own air temperature, in the rider's unit. */
-@Composable
-private fun formatTemp(c: Float, unit: String): String =
-    "%.0f%s".format(com.eried.eucplanet.util.Units.temperature(c, unit),
-        com.eried.eucplanet.util.Units.tempUnit(unit))
-
 private fun shortAddress(address: String?): String =
     address?.split(":")?.take(3)?.joinToString("")?.uppercase().orEmpty()
 

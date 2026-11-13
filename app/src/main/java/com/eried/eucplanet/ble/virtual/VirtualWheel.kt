@@ -46,7 +46,7 @@ interface VirtualWheel {
     fun onWrite(data: ByteArray): List<ByteArray>
 
     /**
-     * Called periodically (default 250 ms) while connected. Use sparingly;
+     * Called every 100 ms while connected. Use sparingly;
      * most wheels respond only when polled, so most simulators leave this
      * empty and let [onWrite] drive responses.
      */

@@ -11,11 +11,9 @@ import java.io.File
  *
  * A derived trip must never reach the eucstats leaderboard: it is a view the
  * rider constructed, not a ride as recorded. Upload eligibility is a database
- * query that needs a non-null `tripUuid`, so leaving that null is enough day to
- * day. It is not enough after a database rebuild: TripRepository adopts any
- * orphan CSV it finds and hands it a fresh UUID, which would quietly make these
- * uploadable. The file name is the only thing that survives that, so it carries
- * the marker.
+ * query that needs a non-null `tripUuid`, and neither a derived trip nor an
+ * adopted orphan CSV gets one. The file name still carries the marker so a
+ * derived file stays recognisable after a database rebuild.
  *
  * Backups need no special handling in the other direction. Dropbox and local
  * sync walk the trips directory for `*.csv`, so a derived file is included
@@ -248,17 +246,6 @@ object TripDerive {
     }
 
     /**
-     * Concatenate [sources] into [dest], oldest first, keeping one header.
-     *
-     * Each source's header is read and discarded rather than assumed identical:
-     * trips recorded across app versions can carry different column sets. The
-     * FIRST file's header wins, so a later file with extra columns loses them
-     * rather than producing rows that do not match the header. Callers should
-     * therefore order sources deliberately.
-     *
-     * @return rows written, excluding the header.
-     */
-    /**
      * Make a freshly derived file (a split piece, a join) describe itself.
      *
      * A piece cut from the second half of a ride carried no wheel at all:
@@ -279,13 +266,24 @@ object TripDerive {
             if (!tmp.exists() || tmp.length() == 0L) { runCatching { tmp.delete() }; return false }
             return file.delete() && tmp.renameTo(file)
         }
-        if (rewriteTripName(file, tmp, "") < 0) return false
+        rewriteTripName(file, tmp, "")
         if (!swapIn()) return false
         if (identity.isEmpty()) return true
         rewriteWheelIdentity(file, tmp, identity)
         return swapIn()
     }
 
+    /**
+     * Concatenate [sources] into [dest], oldest first, keeping one header.
+     *
+     * Each source's header is read and discarded rather than assumed identical:
+     * trips recorded across app versions can carry different column sets. The
+     * FIRST file's header wins, so a later file with extra columns loses them
+     * rather than producing rows that do not match the header. Callers should
+     * therefore order sources deliberately.
+     *
+     * @return rows written, excluding the header.
+     */
     fun writeJoined(sources: List<File>, dest: File): Int {
         val present = sources.filter { it.exists() }
         if (present.isEmpty()) return 0

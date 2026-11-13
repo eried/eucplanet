@@ -37,9 +37,8 @@ internal fun rememberSecondTick(): Long {
 /**
  * Speed-number color matched to the phone dashboard's SpeedGauge logic:
  * when the gauge color band is visible we tint by the same orange/red thresholds
- * the user configured; when the band is hidden we stay on the safe-tier green.
- * Project palette (GaugeAccentRed / Orange / Green), not Material 400 swatches,
- * so the watch and phone read as the same hue.
+ * the user configured; when the band is hidden we stay on the safe-tier color.
+ * Colors come from the watch theme, so the watch and phone read as the same hue.
  */
 internal fun speedBandColor(
     speedKmh: Float,

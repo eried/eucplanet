@@ -661,7 +661,8 @@ class VoiceService(
     }
 
     /**
-     * Answer one report out loud, for a rider who asked for it by name.
+     * What a report would say right now, or null when it has nothing to say,
+     * for a rider who asked for it by name.
      *
      * Separate from [announceTrigger] in one way that matters: it ignores the
      * per-report enable flags. Those say what a periodic announcement or a
@@ -669,18 +670,11 @@ class VoiceService(
      * rider just asked for. Someone who says "PWM" wants PWM, whether or not
      * they wanted it read out every two minutes.
      *
-     * Returns false when there is nothing to say, so the caller can fall back
-     * to explaining why rather than going silent.
-     */
-    /**
-     * What a report would say right now, or null when it has nothing to say.
-     *
-     * Split out of [answerReport] because a spoken answer needs the sentence,
-     * not just the fact that one was spoken: the rider sees it in the
-     * transcript, and the controller has to be able to tell "the wheel has no
-     * reading for this" from "the report said it" before it decides what to
-     * speak. Returning a Boolean made those two indistinguishable, and every
-     * report-backed question answered "no data yet" with the value on screen.
+     * Returns the sentence rather than speaking it because a spoken answer
+     * needs the sentence, not just the fact that one was spoken: the rider
+     * sees it in the transcript, and the controller has to be able to tell
+     * "the wheel has no reading for this" from "the report said it" before it
+     * decides what to speak.
      */
     fun reportText(
         report: String,
@@ -715,21 +709,6 @@ class VoiceService(
         val parts = buildReportParts(data, settings, isRecording, periodic = false)
         if (parts.isEmpty()) return null
         return parts.joinToString(", ")
-    }
-
-    fun answerReport(
-        report: String,
-        data: WheelData,
-        settings: AppSettings,
-        isRecording: Boolean = false,
-    ): Boolean {
-        val text = reportText(report, data, settings, isRecording) ?: return false
-        speakInternal(
-            text, isTrigger = true,
-            rate = settings.voiceSpeechRate, localeTag = settings.voiceLocale,
-            voiceName = settings.voiceName,
-        )
-        return true
     }
 
     /**
@@ -808,7 +787,7 @@ class VoiceService(
      * "Estimated battery, 43%" for a report the metric catalog already knows.
      *
      * Name, value and units all come from the catalog, so the sentence needs
-     * no format string of its own in twenty-three languages and cannot drift
+     * no format string of its own in every language and cannot drift
      * from the tile. Null when the wheel has sent nothing usable: a row is
      * skipped rather than announcing a confident zero, the same rule the
      * hand-written load reports follow.

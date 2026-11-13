@@ -172,9 +172,9 @@ private fun MainScreenContent(
         val speedFontSp = (sw * if (prioritizePwm) 0.16f else 0.245f).coerceIn(40f, 92f).sp
         val maxSpeed = if (state.maxSpeedKmh > 0f) state.maxSpeedKmh else 70f
         val loadBarWidth = (sw * if (prioritizePwm) 0.55f else 0.30f).coerceIn(82f, 240f).dp
-        // In Prioritize PWM mode the bar becomes the dominant glance, go thicker
-        // than the previous 0.030f (10-14 dp) and ride the new 5-22 dp band so it
-        // reads as the focal indicator even on smaller round faces.
+        // In Prioritize PWM mode the bar becomes the dominant glance: thick,
+        // within a 5-22 dp band, so it reads as the focal indicator even on
+        // smaller round faces.
         val loadBarHeight = (sw * if (prioritizePwm) 0.060f else 0.018f).coerceIn(5f, 22f).dp
         val centerOffsetY = -(sw * 0.06f).coerceIn(18f, 28f).dp
         val watchPercent = watchBatteryPercent
@@ -229,7 +229,7 @@ private fun MainScreenContent(
         // so the speed glyph stays visually centred; the row is symmetric
         // around the speed even when the unit is shown.
         val unitSp = (sw * 0.030f).coerceIn(11f, 14f).sp
-        // Prioritize PWM blows up the number; was 0.075f / 28sp cap, now 0.11f / 40sp cap
+        // Prioritize PWM blows up the number (0.11f, 40sp cap)
         // so on a round 454-px Wear face the PWM glyph reads as the dial's headline.
         val pwmNumberSp = (sw * if (prioritizePwm) 0.110f else 0.038f).coerceIn(12f, 40f).sp
         val showBar = state.pwmDisplay == "BAR" || state.pwmDisplay == "BOTH"
@@ -377,7 +377,7 @@ private fun MainScreenContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy((sw * 0.018f).coerceIn(5f, 9f).dp)
         ) {
-            // phoneAlive is computed at the top of MainScreen so the whole
+            // phoneAlive is computed at the top of MainScreenContent so the whole
             // dashboard shares one freshness check. Wheel battery and phone
             // battery both go stale when phone is silent for >3 s.
             BatteryRow(
@@ -592,8 +592,8 @@ private fun ConfigurableActionButton(
         ?: iconForAction(holdAction)
         ?: return
 
-    // Stateful tinting for actions whose UI usually reflects on/off: light,
-    // lock, recording. Other actions render with the neutral palette.
+    // Stateful tinting: the light button shows on/off. Other actions
+    // render with the neutral palette.
     val colors = LocalWatchColors.current
     val isLightOn = clickAction == "LIGHT_TOGGLE" && state.lightOn
     val disabledBg = colors.surface
@@ -658,13 +658,6 @@ private fun ConfigurableActionButton(
     }
 }
 /**
- * Dispatches a button-bound action to the phone via `/euc/control`. Horn and
- * light keep their dedicated control strings (back-compat with prior watch
- * builds and the phone's PhoneWearListenerService quick path). Everything else
- * uses the `action:<FlicAction>` prefix that the phone routes through
- * FlicManager.dispatchActionByName.
- */
-/**
  * Input-event report for the phone's Service Mode Wearables tab. No-op
  * unless the phone flagged diag recording in the state frames, so a normal
  * ride sends nothing extra over the Data Layer.
@@ -681,6 +674,13 @@ private fun sendDebugEvent(context: Context, msg: String) {
     )
 }
 
+/**
+ * Dispatches a button-bound action to the phone via `/euc/control`. Horn and
+ * light keep their dedicated control strings (back-compat with prior watch
+ * builds and the phone's PhoneWearListenerService quick path). Everything else
+ * uses the `action:<FlicAction>` prefix that the phone routes through
+ * FlicManager.dispatchActionByName.
+ */
 private fun fireAction(
     context: Context,
     state: WatchState,

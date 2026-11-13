@@ -69,8 +69,9 @@ import com.eried.eucplanet.ui.theme.themedSliderColors
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
- * The "Navigator" settings section: voice guidance, the default travel mode,
- * arrival / off-route thresholds and the (advanced) routing endpoints.
+ * The "Navigator" settings section: route solving, arrival / off-route
+ * thresholds, map and routing endpoints, offline areas, avoidances, the
+ * navigator tiles and weather.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -470,10 +471,9 @@ fun NavigatorSettingsContent(
                 Spacer(Modifier.weight(1f))
             }
 
-            // Riding preferences: a triple selector per condition, in the same
-            // full-width segmented style as the window selector above. The
-            // comfort thresholds behind them live in Advanced settings under
-            // Weather score. Rain, snow and wind ship disliked.
+            // Riding preferences: a full-width triple segmented selector per
+            // condition. The comfort thresholds behind them live in Advanced
+            // settings under Weather score. Rain, snow and wind ship disliked.
             // In-section subtitle, same style as the nav section's Charger
             // community block: this is part of WEATHER, not a sibling section.
             Text(
@@ -523,14 +523,15 @@ fun NavigatorSettingsContent(
     }
 }
 
-/** Known public Overpass instances; the default first. Same protocol, so they
- *  are interchangeable for the chargers & places query. */
+/** Servers the offline areas can be downloaded from; the default first. */
 private val OFFLINE_SERVER_PRESETS = listOf(
     "EUC Planet mirror (default)" to com.eried.eucplanet.data.model.OfflineRoutingSettings.MIRROR_URL,
     "EUC Planet mirror, GitHub" to com.eried.eucplanet.data.model.OfflineRoutingSettings.GITHUB_MIRROR_URL,
     "brouter.de" to com.eried.eucplanet.data.model.OfflineRoutingSettings.BROUTER_URL,
 )
 
+/** Known public Overpass instances; the default first. Same protocol, so they
+ *  are interchangeable for the chargers & places query. */
 private val OVERPASS_PRESETS = listOf(
     "OpenStreetMap (default)" to "https://overpass-api.de/api/interpreter",
     "OpenStreetMap France" to "https://overpass.openstreetmap.fr/api/interpreter",
@@ -638,33 +639,3 @@ private fun SwitchRow(
     }
 }
 
-@Composable
-private fun SliderRow(
-    label: String,
-    valueText: String,
-    value: Float,
-    range: ClosedFloatingPointRange<Float>,
-    steps: Int,
-    onChange: (Float) -> Unit
-) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(label, style = MaterialTheme.typography.bodyLarge)
-            Text(
-                valueText,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.primary
-            )
-        }
-        Slider(
-            value = value,
-            onValueChange = onChange,
-            valueRange = range,
-            steps = steps,
-            colors = themedSliderColors(),
-        )
-    }
-}

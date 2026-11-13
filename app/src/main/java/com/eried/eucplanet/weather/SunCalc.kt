@@ -28,11 +28,6 @@ object SunCalc {
         return Math.toDegrees(asin(sin(latR) * sin(dec) + cos(latR) * cos(dec) * cos(ha)))
     }
 
-    /** The golden window: sun between -4 and +8 degrees - sunrise and sunset
-     *  light, hourly samples catch one or two hours at each transition. */
-    fun isGolden(timeMs: Long, lat: Double, lon: Double): Boolean =
-        goldenWeight(timeMs, lat, lon) > 0f
-
     /**
      * How golden the light is, 0..1.
      *

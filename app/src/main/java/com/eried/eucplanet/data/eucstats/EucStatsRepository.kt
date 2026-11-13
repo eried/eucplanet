@@ -35,9 +35,8 @@ data class SyncResult(val total: Int, val uploaded: Int, val cleared: Int = 0) {
  * fields plus the .txt-backed rider id so [EucStatsRepository] stays
  * JVM-testable without a DataStore, Android Context, or SyncManager.
  *
- *  - [get] / [update] read / write the (now slim) AppSettings record
- *    (which carries only `onlineUploadEnabled` on the eucstats side; the
- *    full profile no longer ships in DataStore).
+ *  - [get] / [update] read and write AppSettings, of which only
+ *    `onlineUploadEnabled` belongs to eucstats.
  *  - [riderStoreId] reads the current rider id from whichever backing
  *    store the host wires up. In production this delegates to
  *    `SyncManager.riderStoreId.value` (the `.txt` recovery file is the

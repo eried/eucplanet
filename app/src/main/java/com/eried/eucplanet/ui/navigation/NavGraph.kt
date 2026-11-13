@@ -131,7 +131,6 @@ fun NavGraph(navController: NavHostController) {
             val tab = backStackEntry.arguments?.getInt("tab") ?: 0
             SettingsScreen(
                 onBack = { navController.popSingle() },
-                onNavigateToFlic = { navController.navigateSingle(Screen.Flic.route) },
                 initialTab = tab
             )
         }

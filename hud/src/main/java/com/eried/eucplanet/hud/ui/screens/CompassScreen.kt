@@ -71,8 +71,8 @@ fun CompassScreen(hud: HudState) {
                         fontSize = (sideDp * 0.08f).sp,
                         fontWeight = FontWeight.SemiBold
                     )
-                    // Compass rose. Drawn pointing UP at all times -- the
-                    // text above already names which way we're pointed.
+                    // Compass rose, rotated so the current heading sits
+                    // under the fixed pointer at the top.
                     Canvas(
                         modifier = Modifier
                             .padding(top = (sideDp * 0.04f).dp)

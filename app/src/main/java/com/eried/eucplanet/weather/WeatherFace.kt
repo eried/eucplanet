@@ -18,9 +18,6 @@ enum class WeatherFace(
     val key: String,
     val emoji: String,
     val textRes: Int,
-    /** True when this face is chosen by a condition rather than by the score
-     *  alone. The band faces at the end are the fallback. */
-    val conditional: Boolean = true,
 ) {
     SNOW("SNOW", "🥶", R.string.weather_face_snow),
     RAIN("RAIN", "😬", R.string.weather_face_rain),
@@ -29,9 +26,9 @@ enum class WeatherFace(
     HOT("HOT", "🥵", R.string.weather_face_hot),
     GOLDEN("GOLDEN", "🌇", R.string.weather_face_golden),
     NIGHT("NIGHT", "😴", R.string.weather_face_night),
-    CLEAR("CLEAR", "😄", R.string.weather_face_clear, conditional = false),
-    MEH("MEH", "😐", R.string.weather_face_meh, conditional = false),
-    POOR("POOR", "🙁", R.string.weather_face_meh, conditional = false);
+    CLEAR("CLEAR", "😄", R.string.weather_face_clear),
+    MEH("MEH", "😐", R.string.weather_face_meh),
+    POOR("POOR", "🙁", R.string.weather_face_meh);
 
     companion object {
         fun of(b: RidabilityScore.Breakdown): WeatherFace = when {

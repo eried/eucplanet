@@ -150,11 +150,12 @@ fun RecordingScreen(
     // Block back navigation while importing
     BackHandler(enabled = importing) { /* swallow */ }
 
-    // Keep GPS warm while on the recording screen so the user can see fix status
+    // Ask for GPS while this screen is open so the rider sees fix status.
+    // Nothing to stop on leave, GPS is demand driven.
     DisposableEffect(Unit) {
         viewModel.refreshLocationPermission()
         viewModel.startGpsPreview()
-        onDispose { viewModel.stopGpsPreview() }
+        onDispose { }
     }
 
     // Auto-scroll to first item (most recent trip) when recording state changes
@@ -237,7 +238,6 @@ fun RecordingScreen(
 
     tripForTools?.let { trip ->
         TripToolsDialog(
-            trip = trip,
             onDismiss = { tripForTools = null },
             onRename = { renameToolTrip = trip },
             onChangeWheel = { wheelToolTrip = trip },
@@ -615,7 +615,6 @@ fun RecordingScreen(
                             onShare = { tripToShare = trip },
                             onDelete = { tripToDelete = trip },
                             onRetryOnline = { viewModel.retryOnlineUploads() },
-                            onRecheckOnline = { viewModel.recheckHeldTrip(it) },
                             folderConfigured = folderConfigured,
                             dropboxLinked = dropboxLinked,
                             onRetryBackup = { viewModel.retryBackup(it) },
@@ -652,8 +651,6 @@ private fun TripCard(
     onShare: () -> Unit,
     onDelete: () -> Unit,
     onRetryOnline: () -> Unit = {},
-    /** Re-ask the server for a held trip's verdict (it can change after upload). */
-    onRecheckOnline: (TripRecord) -> Unit = {},
     /** Which backups the rider actually has, so the row only reports on those. */
     folderConfigured: Boolean = false,
     dropboxLinked: Boolean = false,
@@ -734,14 +731,8 @@ private fun TripCard(
                     )
                 }
             }
-            // Status icon slot, same position as the green upload-success tick.
-            // Orange "pending" icon covers two phases: the discard-grace window
-            // (isPending=true) and the brief in-flight period after grace while the
-            // sync worker is uploading (uploadStatus=1). Without this, there is a
-            // visible gap between the orange icon disappearing and the green tick
-            // appearing once the upload completes. Recording trips show neither.
-            // Single combined status. Online is the headline (it supersedes the folder
-            // tick / a lagging folder backup); only the discard-grace window outranks it.
+            // Status slot. No icon while recording, three dots during the discard
+            // grace window, otherwise the single backup and leaderboard cloud.
             when {
                 isRecording -> {}                                                   // no status while recording
                 isPending -> PendingStatusIcon()                                    // discard-grace window
@@ -749,12 +740,9 @@ private fun TripCard(
                     trip, folderConfigured, dropboxLinked,
                     onRetryBackup = { onRetryBackup(trip) },
                     onRetryOnline = onRetryOnline,
-                    onRecheckOnline = { onRecheckOnline(trip) },
                 )
             }
-            // Tools. This slot used to hold a "view" eye, which did exactly what
-            // tapping the row already does, so it was a second door to the same
-            // place. Tools (change wheel, split, combine) has nowhere else to go.
+            // Tools. Rename, change wheel, split, extend.
             IconButton(onClick = onTools, enabled = !isRecording) {
                 Icon(
                     Icons.Default.Build,
@@ -798,20 +786,6 @@ private fun PendingStatusIcon() {
 }
 
 /**
- * One icon for everything that happens to a trip after it is saved: the
- * rider's own backups (folder, Dropbox) and the public leaderboard.
- *
- * One, deliberately. The first version gave backups their own icon next to
- * the leaderboard's, and the row grew a second cloud - a control for every
- * destination instead of an answer to the rider's actual question, which is
- * "is this trip taken care of?". Red if anything failed (tap fixes it),
- * orange if anything is still moving (tap nudges it), green when everything
- * this trip is meant to reach has it. Tapping green says where it stands,
- * backup time and leaderboard verdict together, in one message.
- *
- * Failures outrank progress, and the tap acts on the worst thing showing.
- */
-/**
  * Whether a backup anywhere actually holds this trip.
  *
  * Status 2 is uploaded and 4 is a trip that came FROM Dropbox, which a backup
@@ -824,6 +798,18 @@ private fun hasBackupCopy(trip: TripRecord): Boolean =
         trip.dropboxStatus == 2 ||
         trip.uploadedAt != null || trip.dropboxUploadedAt != null
 
+/**
+ * One icon for the trip's backups (folder, Dropbox) and the leaderboard.
+ *
+ * One, deliberately: a cloud per destination is a control for each instead of
+ * an answer to "is this trip taken care of?". Red: a backup failed, tap
+ * retries. Orange: a backup is in flight. Green: a backup holds the ride,
+ * lighter when the leaderboard accepted it, darker when it did not. Grey: not
+ * backed up yet, tap sends it. Tapping green shows backup time and leaderboard
+ * verdict in one message.
+ *
+ * Failures outrank progress, and the tap acts on the worst thing showing.
+ */
 @Composable
 private fun TripStatusIcon(
     trip: TripRecord,
@@ -831,7 +817,6 @@ private fun TripStatusIcon(
     dropboxLinked: Boolean,
     onRetryBackup: () -> Unit,
     onRetryOnline: () -> Unit,
-    onRecheckOnline: () -> Unit,
 ) {
     val fmt = remember { java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT, Locale.getDefault()) }
 
@@ -868,22 +853,14 @@ private fun TripStatusIcon(
     // failing or in flight, which put a green cloud on trips whose own tap
     // message said "Not backed up yet". A trip in that state gets a muted
     // cloud instead, and tapping it starts the backup.
-    // The leaderboard's two FINAL bad endings warrant a color of their own:
-    // a failed upload (the tap retries it) and a rejection. Yellow, not red -
-    // the ride itself is safe in a backup, something just wants attention.
-    // Interim pipeline states still color nothing.
-    // A leaderboard that has not taken the ride is no longer a warning. It was
-    // painting orange on rides sitting safely in a backup, which is the exact
-    // complaint this file already records about letting the leaderboard tint
-    // the icon. Orange means a backup problem again. The unaccepted states
-    // keep their own SHAPE, a plain cloud rather than a ticked one, so the
-    // difference survives for anyone who cannot separate the two greens.
-    val onlineProblem = trip.eucstatsStatus == 3 || rejected
+    // The leaderboard never picks a warning colour. Orange and red mean a
+    // backup problem. An unaccepted ride keeps its own SHAPE, a plain cloud
+    // rather than a ticked one, so the difference survives for anyone who
+    // cannot separate the two greens.
     val icon = when {
         backupFailed -> Icons.Default.CloudOff
         backupWaiting -> Icons.Default.CloudQueue
         backupHeld && onlineDone -> Icons.Default.CloudDone
-        backupHeld -> Icons.Default.Cloud
         else -> Icons.Default.Cloud
     }
     val tint = when {
@@ -908,8 +885,6 @@ private fun TripStatusIcon(
     // Final leaderboard states only. "Uploading" and "held for automated
     // check" are the pipeline's business, not the rider's: a hold months old
     // reads as a problem when it is just a verdict nobody re-asked for.
-    // Tapping a held trip still re-asks silently, so stale holds clear
-    // themselves without ever being announced.
     when {
         rejected -> parts += stringResource(R.string.online_status_rejected)
         trip.eucstatsStatus == 3 -> parts += stringResource(R.string.online_status_failed)

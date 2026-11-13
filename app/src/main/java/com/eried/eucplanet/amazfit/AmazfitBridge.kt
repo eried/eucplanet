@@ -36,7 +36,7 @@ import kotlinx.coroutines.runBlocking
  *
  * Inject-and-forget: `EucPlanetApp.onCreate()` calls [start] once and the
  * bridge lives for the whole process. With no watch polling it costs a
- * listening loopback socket and a once-a-second bookkeeping tick.
+ * listening loopback socket and a bookkeeping tick every five seconds.
  */
 class AmazfitBridge(
     private val context: Context,
@@ -71,7 +71,6 @@ class AmazfitBridge(
      *  wheel is connected again, so a watch that polls during tear-down sees
      *  the dial zero out instead of the last live frame. */
     @Volatile private var farewell = false
-    private var server: AmazfitLocalServer? = null
 
     /** Name of the watch currently polling, or empty when none has polled in
      *  the last [PRESENCE_WINDOW_MS]. Feeds the Settings "Devices" card. */
@@ -99,7 +98,6 @@ class AmazfitBridge(
             while (true) {
                 val s = AmazfitLocalServer(AMAZFIT_PORT, ::handle) { msg -> Log.w(TAG, msg) }
                 if (s.start()) {
-                    server = s
                     Log.i(TAG, "listening on 127.0.0.1:${s.boundPort}")
                     return@launch
                 }

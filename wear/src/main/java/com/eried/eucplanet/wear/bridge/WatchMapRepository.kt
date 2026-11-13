@@ -230,8 +230,6 @@ object WatchMapRepository {
         if (!isValidTileKey(key) || deliveryGeneration < 0L) return
         scope.launch {
             if (sourceNodeId != phoneNodeId || key in bitmapCache) return@launch
-            val expectedPath = tilePath(key)
-            if (!expectedPath.startsWith(WatchMapProtocol.TILE_PREFIX)) return@launch
             val offered = pendingTiles.offer(
                 sourceNodeId,
                 key,
@@ -691,10 +689,6 @@ object WatchMapRepository {
                 if (pendingRoute == pending) pendingRoute = null
                 if (routeLoadInFlight == pending) routeLoadInFlight = null
                 requestPresenceNow()
-                return@launch
-            }
-            if (!isCurrentVisibleRoute(pending)) {
-                if (routeLoadInFlight == pending) routeLoadInFlight = null
                 return@launch
             }
             val route = withContext(Dispatchers.Default) {

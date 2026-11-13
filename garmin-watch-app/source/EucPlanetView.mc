@@ -5,18 +5,18 @@ using Toybox.System;
 using Toybox.Timer;
 using Toybox.Math;
 
-//! Main dial. Port of the Wear OS dashboard screen in
-//! `wear/.../WatchApp.kt`: speed gauge centered, three battery rings (wheel
-//! / phone / watch) along the rim, PWM tile, horn / light pair on the lower
-//! half, nav overlay floating over the gauge when the phone popup is active.
+//! Main dial. Port of the Wear OS dial (wear MainScreen.kt): speed gauge
+//! centered, PWM bar, battery row (wheel / phone / watch), two touch
+//! buttons on the lower half, nav overlay floating over the gauge when the
+//! phone popup is active.
 //!
 //! Renders on the main UI thread inside `onUpdate(dc)`. State changes come
 //! in from the PhoneBridge listener which calls `WatchState.update` and
 //! then triggers `WatchUi.requestUpdate()` via our registered callback.
 class EucPlanetView extends WatchUi.View {
 
-    //! Drives a periodic redraw at ~5 Hz even when no phone message arrives,
-    //! so the "stale-frame" detector kicks in: if `now - lastUpdateMs > 3 s`
+    //! Redraws once a second even when no phone message arrives, so the
+    //! "stale-frame" detector kicks in: if `now - lastUpdateMs > 10 s`
     //! the dial shows the disconnected placeholder.
     private var _refreshTimer as Timer.Timer? = null;
 
@@ -25,7 +25,7 @@ class EucPlanetView extends WatchUi.View {
     private var _demoTimer as Timer.Timer? = null;
 
     //! Cached bitmap resources. Loaded once in onLayout to avoid hammering
-    //! the resource pipeline on every onUpdate (5 Hz redraw + onTick).
+    //! the resource pipeline on every onUpdate (phone frames + onTick).
     //! Drawn in drawHornLight / drawBatteryRow.
     private var _iconHorn as WatchUi.BitmapResource? = null;
     private var _iconLight as WatchUi.BitmapResource? = null;
@@ -230,7 +230,7 @@ class EucPlanetView extends WatchUi.View {
 
         // Order matters: PWM under speed, battery row under PWM, horn/light
         // at the bottom. All in the inner safe area so they don't clip the
-        // surrounding arc. Mirrors wear/.../WatchApp.kt layout 1:1.
+        // surrounding arc. Mirrors the wear MainScreen.kt layout.
         // On Instinct (semi-octagon) PWM moves into the top-right sub-circle
         // window instead of a centre badge.
         if (_semiOctagon) {
@@ -485,20 +485,17 @@ class EucPlanetView extends WatchUi.View {
     }
 
     //! Horn + light buttons drawn as filled circles near the bottom of the
-    //! safe area at y=82%, with 24x24 megaphone/flashlight icons centred
+    //! safe area, with 24x24 megaphone/flashlight icons centred
     //! inside each circle. Tap targets handled in the Delegate via `onTap`
     //! over the same fractional regions; keep both in sync.
     //!
-    //! Button radius is 10% of width - the previous 7% was ~3 mm on a Fenix,
+    //! Button radius is 10% of width - 7% is ~3 mm on a Fenix,
     //! unusable with riding gloves. Centred at 84% height so the circle
     //! stays on the round glass on small MIP faces (Fenix 8 Solar 240x240)
     //! while clearing the battery row above.
     private function drawHornLight(dc as Graphics.Dc, s as WatchSnapshot, enabled as Lang.Boolean) as Void {
         var w = dc.getWidth();
         var h = dc.getHeight();
-        // 84% height + 10% radius (was 86% + 7%): a 7% circle is ~3 mm on a
-        // Fenix - unhittable with gloves - and at 86% the lower arc started
-        // clipping off the round glass on small faces.
         var btnY = (h * 84) / 100;
         var btnR = (w * 10) / 100;
         var leftX = (w * 36) / 100;

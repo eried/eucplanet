@@ -36,18 +36,17 @@ import com.eried.eucplanet.hud.ui.parseHexColor
  *
  * Lives alongside the dedicated [MapScreen] and [NavScreen] so riders
  * who prefer the full-screen turn arrow can keep them in their carousel
- * via the phone Personalize list. This screen ships enabled by default;
- * the standalone ones default to opt-in.
+ * via the phone Personalize list.
  */
 @Composable
-fun MapNavScreen(hud: HudState, zoom: Float, peer: String?, cache: HudTileCache) {
+fun MapNavScreen(hud: HudState, zoom: Float, cache: HudTileCache) {
     Box(Modifier.fillMaxSize()) {
         // Base layer is the same MapScreen renderer riders already know, // shares the tile cache, accent colour, contrast/brightness
         // settings, GPS-fix gating. No duplication.
-        MapScreen(hud = hud, zoom = zoom, peer = peer, cache = cache)
+        MapScreen(hud = hud, zoom = zoom, cache = cache)
 
         // Overlay only renders when an active route is set; otherwise the
-        // map shows clean. Two states: arrived shows a centred banner
+        // map shows clean. Two states: arrived shows a top-centre banner
         // (the map stays useful as "you ended up here"), otherwise the
         // top-centre turn badge mirrors the Garmin Edge layout.
         if (hud.navActive) {
@@ -64,7 +63,7 @@ fun MapNavScreen(hud: HudState, zoom: Float, peer: String?, cache: HudTileCache)
  * Top-centre badge, small turn arrow + distance + next-turn text.
  * Sized so a long street name like "Karl Johans gate" fits without
  * pushing the badge off the map. Same chrome family as the other HUD
- * overlays (8.dp rounded, semi-opaque black fill).
+ * overlays (10.dp rounded, semi-opaque black fill).
  */
 @Composable
 private fun BoxScope.NavTurnBadge(hud: HudState) {
@@ -102,8 +101,8 @@ private fun BoxScope.NavTurnBadge(hud: HudState) {
 }
 
 /**
- * "Arrived" pill, replaces the turn badge once the route ends. Centred
- * because there's no next-turn to point at, and kept compact so the
+ * "Arrived" pill, replaces the turn badge once the route ends. Top-centre
+ * like the turn badge, and kept compact so the
  * underlying map (where the rider physically arrived) stays the focus.
  */
 @Composable

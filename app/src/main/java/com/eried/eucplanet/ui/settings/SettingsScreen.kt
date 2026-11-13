@@ -335,7 +335,6 @@ private val languageOptions =
 @Composable
 fun SettingsScreen(
     onBack: () -> Unit,
-    onNavigateToFlic: () -> Unit = {},
     initialTab: Int = 0,
     viewModel: SettingsViewModel = koinViewModel()
 ) {
@@ -348,10 +347,8 @@ fun SettingsScreen(
     // deliberately: reading it here is what made every letter recompose the
     // screen and its fourteen search corpora.
     var settledQuery by rememberSaveable { mutableStateOf("") }
-    // One snackbar host for every transient confirmation in Settings, cloud
-    // backup success / failure, cheat-console toasts. Replaces the older
-    // Android Toast popups so the styling matches Overlay Studio / Navigator
-    // (Material3 Snackbar, no app-icon decoration, swipe to dismiss).
+    // One snackbar host for every transient confirmation in Settings: cloud
+    // backup success / failure, cheat-console results.
     val snackbar = remember { androidx.compose.material3.SnackbarHostState() }
     val snackbarScope = rememberCoroutineScope()
     var cheatSheet by remember { mutableStateOf<com.eried.eucplanet.cheats.CheatState.Result.ShowSheet?>(null) }
@@ -875,9 +872,6 @@ fun SettingsScreen(
 
             // Scrolling belongs to the anchor scroller, which keeps every
             // anchor's CURRENT position in a map and picks the best by rank.
-            // What stood here was one heading reporting its position once and
-            // never again, scrolled at six times over until the number stopped
-            // moving. Same job, worse.
             androidx.compose.runtime.CompositionLocalProvider(
                 LocalSettingsSearchQuery provides query,
                 com.eried.eucplanet.ui.common.LocalSettingsSearchScroller provides searchScroller,
@@ -886,7 +880,7 @@ fun SettingsScreen(
                 @Composable
                 fun SectionCard(sec: SectionDef, indent: Boolean = false) {
                     // Everything stays on the page while searching. Only the
-                    // first match opens; the rest report how many labels they
+                    // best match opens; the rest report how many labels they
                     // hit and stay shut.
                     val explicitlyExpanded = expandedSections.contains(sec.key)
                     val openedByQuery = searching && sec.key == searchScrollKey
@@ -984,7 +978,7 @@ private fun initialTabSectionKey(initialTab: Int): String? = when (initialTab) {
     9 -> "general"
     10 -> "location"
     // The weather block lives inside Navigation, so the section is the same
-    // as tab 8; scrollToWeather below is what separates the two.
+    // as tab 8; scrollToWeather in SettingsScreen is what separates the two.
     11 -> "navigator"
     // Speed splits live inside Voice; scrollToSplits picks the block.
     12 -> "voice"
@@ -1481,10 +1475,7 @@ private fun GeneralTab(
                             }
                         }
                     }
-                    // No caption under this one. The switch says what it does,
-                    // and the portrait-only limit is enforced by the picker
-                    // simply not offering landscape layouts, so explaining it
-                    // here was words for something the rider cannot hit.
+                    // No caption under this one. The switch says what it does.
                     SwitchSetting(
                         stringResource(R.string.phone_hud_only_away),
                         settings.phoneHudOnlyWhenAway,
@@ -1493,8 +1484,8 @@ private fun GeneralTab(
             }
         }
 
-        // One collapsable rather than a header plus an inner "Customize": that
-        // extra level only earned its keep while this was a top-level section.
+        // The widget surface. The how-to-add hint sits directly inside, the
+        // pickers are folded under an inner "Customize".
         AdvancedCollapsable(
             title = stringResource(R.string.widget_section),
             stateKey = "surface-widget",
@@ -1644,15 +1635,16 @@ private fun GeneralTab(
 
 // --- Advanced Tab ---
 //
-// Its own section at the very bottom of Settings. Power-user timing controls,
+// Its own section, last by default. Settings visibility, screen geometry, and
+// the power-user timing controls. The timings are
 // grouped, each with a half-width stepper and a one-line note on what it
 // affects and the danger of extreme values. Every value is clamped in
 // SettingsRepository.sanitized(), so the steppers can never feed an unsafe
 // number into a delay() or a divide.
 
 /** One Advanced row: compact stepper on the left, description filling the right.
- *  Shows a "restore default" chip under the stepper when the value differs from
- *  the spec's default. Range, step, unit, label, format all come from [spec]. */
+ *  The default is always shown as a restore chip under the stepper, greyed once
+ *  the value matches it. Range, step, unit, label, format all come from [spec]. */
 @Composable
 private fun AdvRow(spec: AdvancedSpec, advanced: AdvancedSettings, onChange: (Int) -> Unit) {
     val value = spec.get(advanced)
@@ -1732,73 +1724,6 @@ internal fun NumberFieldWithDefault(
             text = "${format(default)}$unit",
             enabled = enabled && value != default,
         ) { onValueChange(default) }
-    }
-}
-
-/**
- * A numeric setting, in the shape the Advanced section established.
- *
- * The label lives inside the field rather than as a separate Text beside it,
- * and the default sits under it as a restore chip that is always visible and
- * goes grey once the value matches it. Rules 4 and 9 ask for both, and the
- * Advanced rows were the only place in Settings honouring them: everywhere
- * else a rider who had nudged a number had no way back to the default and no
- * way to know what it had been.
- *
- * [default] is meant to be read from `AppSettings()` at the call site rather
- * than typed in, so the chip cannot drift from the real default.
- *
- * [description] is optional: with one the row reads control-then-explanation
- * like an Advanced row, without one the control keeps the same width so a
- * column of these still lines up.
- */
-@Composable
-internal fun NumberSettingRow(
-    label: String,
-    value: Int,
-    default: Int,
-    range: IntRange,
-    onChange: (Int) -> Unit,
-    modifier: Modifier = Modifier,
-    step: Int = 1,
-    suffix: String = "",
-    description: String? = null,
-    enabled: Boolean = true,
-    format: (Int) -> String = { it.toString() },
-    parse: (String) -> Int? = { it.toIntOrNull() },
-    allowSign: Boolean = false,
-) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Column(modifier = Modifier.weight(1.4f)) {
-            NumberUpDown(
-                value = value,
-                onValueChange = onChange,
-                range = range,
-                modifier = Modifier.fillMaxWidth(),
-                step = step,
-                suffix = suffix,
-                label = label,
-                enabled = enabled,
-                format = format,
-                parse = parse,
-                allowSign = allowSign,
-                numberAlign = TextAlign.End,
-            )
-            val unit = if (suffix.isEmpty()) "" else " $suffix"
-            RestoreChip(
-                text = "${format(default)}$unit",
-                enabled = enabled && value != default,
-            ) { onChange(default) }
-        }
-        Spacer(Modifier.width(10.dp))
-        if (description != null) {
-            HintText(description, modifier = Modifier.weight(1f), small = true)
-        } else {
-            Spacer(Modifier.weight(1f))
-        }
     }
 }
 
@@ -2276,10 +2201,8 @@ private fun AdvancedTab(
 // Editor mirrors the live dashboard's look: the active slots render as a mini
 // version of the real StatCard / action-button grids, the rest of the catalog
 // shows up as draggable pills below. Long-press a tile or pill to drag, drop
-// on another tile to swap. Tap a tile to open the per-slot editor sheet (just
-// a reset-to-default button in this pass; corner-stat configuration lands
-// next). The configured order persists; wiring the live DashboardScreen to
-// read from it is the next phase.
+// on another tile to swap. Tap a tile to open the per-slot editor sheet. The
+// live DashboardScreen reads the same persisted order.
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -2290,14 +2213,9 @@ private fun DashboardLayoutTab(
     val metricOrderRaw = viewModel.dashboardMetricOrder(settings)
     val actionOrderRaw = viewModel.dashboardActionOrder(settings)
 
-    // Column count is no longer user-configurable: it mirrors the live
-    // dashboard's form-factor rules so the editor always shows the rider's
-    // actual layout. Phone keeps the classic 2×3 metrics + 3×2 actions;
-    // tablets/foldables (≥600dp width) bump to 3×2 metrics + 4×... but we
-    // keep the active count at 6 so the rider picks the same number of
-    // tiles regardless of device. The dashboardMetricsColumns /
-    // dashboardActionsColumns AppSettings fields are kept for forward
-    // compatibility but unused here.
+    // The active count is always 6 so the rider picks the same number of
+    // tiles regardless of device. Action columns are fixed at 3; the
+    // dashboardActionsColumns AppSettings field is not read here.
     val isWideScreen = LocalConfiguration.current.screenWidthDp >= 600
     // Tablets always render the Wide (3-column) metrics layout, overriding the
     // rider's per-account preference. On phones the View combo picks 2 (Default)
@@ -2317,8 +2235,7 @@ private fun DashboardLayoutTab(
     // explains the gesture instead of opening the edit sheet, which would
     // be misleading (pool-position settings are not what they're editing).
     // Throttled to one toast per 5 taps so it doesn't spam the rider while
-    // they explore, the same counter governs +STACK / +TEXT / +group
-    // template taps too.
+    // they explore. Metric and action pills share the counter.
     val poolTapMessage = stringResource(R.string.dashboard_pool_tap_toast)
     var poolTapCount by remember { mutableStateOf(0) }
     val poolSnackbar = com.eried.eucplanet.ui.common.LocalSnackbar.current
@@ -2350,10 +2267,8 @@ private fun DashboardLayoutTab(
     // drag: changing it mid-gesture caused the dragged tile to be relaid out
     // under the rider's finger, which shifted the pointerInput's local frame
     // and produced spurious drag deltas (the drag would "lurch" or get cut
-    // off). The make-space feel is now communicated via a slot highlight in
+    // off). The make-space feel is communicated via a slot highlight in
     // the destination tile + the animateBounds slide on drop.
-    val metricOrder = metricOrderRaw
-    val actionOrder = actionOrderRaw
 
     Box(
         modifier = Modifier
@@ -2391,7 +2306,7 @@ private fun DashboardLayoutTab(
         HintText(stringResource(R.string.dashboard_grid_hint), small = true)
 
         MetricMiniGrid(
-            order = metricOrder,
+            order = metricOrderRaw,
             activeCount = metricActiveCount,
             columns = metricColumnsEffective,
             valueOf = { key -> metricPlaceholderValue(key, settings) },
@@ -2444,7 +2359,7 @@ private fun DashboardLayoutTab(
         HintText(stringResource(R.string.dashboard_grid_hint), small = true)
 
         ActionMiniGrid(
-            order = actionOrder,
+            order = actionOrderRaw,
             activeCount = actionActiveCount,
             columns = actionColumnsEffective,
             groupOf = { id -> viewModel.getActionGroup(settings, id) },
@@ -2559,8 +2474,8 @@ private fun DashboardLayoutTab(
 
 // Visual-only renderers used by DashboardDragPreviewOverlay. They mirror the
 // MetricTile / ActionTile content but skip the drag, drop and click wiring so
-// they can be rendered inside the floating Popup without re-entering the drag
-// state machine.
+// they can be rendered inside the floating preview without re-entering the
+// drag state machine.
 
 @Composable
 private fun MetricDragPreview(
@@ -2746,10 +2661,10 @@ private sealed interface DashboardEditTarget {
 // detection (LazyVerticalGrid swallows the drag-and-drop modifiers).
 
 // Custom bounds transform applied to every grid tile so column-count changes
-// (2 ↔ 3 ↔ 4) animate visibly. The default BoundsTransform settles too
+// (2 ↔ 3) animate visibly. The default BoundsTransform settles too
 // quickly for small motion deltas, tiles that move only a few dp appear to
 // snap. This spring is slower (Spring.StiffnessLow) and slightly underdamped
-// (0.7) so motion reads as a smooth glide for both big and small repositions.
+// (0.75) so motion reads as a smooth glide for both big and small repositions.
 @OptIn(androidx.compose.animation.ExperimentalSharedTransitionApi::class)
 private val dashboardTileBoundsTransform = androidx.compose.animation.BoundsTransform { _, _ ->
     androidx.compose.animation.core.spring(
@@ -2852,11 +2767,11 @@ private fun MetricMiniGrid(
 }
 
 /**
- * Visual placeholder for an EMPTY_SLOT_KEY slot. Renders a dashed-outline
+ * Visual placeholder for an EMPTY_SLOT_KEY slot. Renders an outlined
  * box with a centred "no" glyph (a circle with a diagonal slash) so the
  * rider clearly reads "this slot is intentionally empty". Registers as a
- * drop target so dragging a tile into it fills the slot; no click handler
- *, tapping an empty slot does nothing (and never routes to a phantom
+ * drop target so dragging a tile into it fills the slot. No click handler,
+ * tapping an empty slot does nothing (and never routes to a phantom
  * metric history).
  */
 @Composable
@@ -2993,7 +2908,7 @@ fun CompositeMetricBody(
     // and gets the divider treatment, just over the real cell count.
     val populated = cells.mapIndexedNotNull { i, key ->
         val k = key.trim()
-        // COMPOSITE_CELL_EMPTY ("(none)") collapses the slot -- drop it.
+        // COMPOSITE_CELL_EMPTY ("(blank)") collapses the slot -- drop it.
         // COMPOSITE_CELL_BLANK ("(empty)") reserves the slot -- keep it
         // so the layout count stays put; CompositeCell renders an empty Box.
         if (k.isEmpty() || k == COMPOSITE_CELL_EMPTY) null
@@ -3066,10 +2981,7 @@ private fun CompositeCell(
     valueOf: (String, DashboardStat) -> String,
     modifier: Modifier = Modifier
 ) {
-    val isNone = key.isEmpty() || key == COMPOSITE_CELL_EMPTY
     val isBlank = key == COMPOSITE_CELL_BLANK
-    val isEmpty = isNone || isBlank
-    val accent = if (!isEmpty) metricAccentColor(key) else MaterialTheme.colorScheme.onSurfaceVariant
     if (isBlank) {
         // "(empty)" placeholder: reserves the slot but draws nothing,
         // so the surrounding composite layout stays the size the rider
@@ -3077,25 +2989,7 @@ private fun CompositeCell(
         Box(modifier = modifier)
         return
     }
-    if (isNone) {
-        // "(none)": the slot ITSELF is meant to read as "deliberately
-        // blank, prefer to collapse". The CompositeMetricBody filter
-        // drops these from the layout entirely; the dash here is for
-        // any code path that still renders the cell (the editor list
-        // before the filter, for instance).
-        Box(
-            modifier = modifier,
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                "–",
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                maxLines = 1
-            )
-        }
-        return
-    }
+    val accent = metricAccentColor(key)
     val label = metricChipLabel(key, short = true).uppercase()
     val value = valueOf(key, stat)
     // Stat indicator on top, only shown when the rider picked a non-
@@ -3152,26 +3046,9 @@ private fun CompositeCellRow(
     valueOf: (String, DashboardStat) -> String,
     modifier: Modifier = Modifier
 ) {
-    val isNone = key.isEmpty() || key == COMPOSITE_CELL_EMPTY
     val isBlank = key == COMPOSITE_CELL_BLANK
     if (isBlank) {
         Box(modifier = modifier)
-        return
-    }
-    if (isNone) {
-        Box(
-            modifier = modifier.padding(horizontal = 8.dp),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            Text(
-                stringResource(R.string.dashboard_composite_empty_label),
-                fontSize = 10.sp,
-                fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
         return
     }
     val accent = metricAccentColor(key)
@@ -3307,12 +3184,6 @@ private fun MetricTile(
  * custom-tile instances are NOT shown here, they live only in the grid;
  * the catalog is the rider's source-of-truth list of static metrics.
  *
- * Drop behaviour (only fires when the drag started on a big grid tile, * pool→pool drags are intentional no-ops):
- *   - Composite tile → delete its definition
- *   - Custom tile   → delete its definition
- *   - Static metric → demote (slot becomes empty custom tile; the static
- *     metric stays in the catalog so the rider can re-drag it)
- *
  * @param catalogKeys static metric keys present in the catalog
  * @see SettingsViewModel.knownDashboardMetrics for the catalog source
  */
@@ -3370,9 +3241,8 @@ private fun MetricPool(
             // available source. Dragging it onto a grid slot spawns a new
             // composite instance.
             MetricCompositeTemplatePill(controller = controller)
-            // Explicit custom-tile creation (text / link / QR). Drag-to-pool
-            // demote was removed for consistency, so this template is now the
-            // only way to add one, sits next to the + Stack composite source.
+            // Custom-tile template (text / link / QR), the only way to add
+            // one. Sits next to the + Stack composite source.
             CustomTileTemplatePill(controller = controller)
             sorted.forEach { key ->
                 MetricPoolPill(
@@ -3529,12 +3399,8 @@ private fun CustomTileTemplatePill(
 }
 
 /**
- * Custom tile renderer for both grid slots and drag preview. Shows the
- * rider's chosen icon and text. When the text is blank but a URL is set
- * (OPEN_URL / SHOW_QR action), falls back to the URL's domain so the tile
- * stays informative even before the rider types a label. A small action
- * badge in the bottom-right marks the tap behaviour (link / QR) so a
- * passenger can read the tile type at a glance.
+ * Custom tile in a grid slot: [CustomTileBody] plus the drag source, drop
+ * target and tap wiring.
  */
 @OptIn(androidx.compose.animation.ExperimentalSharedTransitionApi::class)
 @Composable
@@ -3613,12 +3479,9 @@ fun CustomTileBody(tile: CustomTile) {
     // For OPEN_URL and SHOW_QR tiles, replace the rider's chosen group
     // icon with the action's own glyph (link / qr) so the tile itself
     // tells you what tapping it will do. NONE-action tiles keep the
-    // Truly-empty tiles (no text, no url, no action) fall back to the
-    // current default-icon constant so the dashboard reads "blank slot,
+    // rider's icon. Truly-empty tiles (no text, no url, no action) show
+    // CUSTOM_TILE_DEFAULT_ICON so the dashboard reads "blank slot,
     // configure me" with the same glyph the rider sees on fresh tiles.
-    // Previously this was hardcoded to "EMPTY" (outlined checkbox);
-    // tracking CUSTOM_TILE_DEFAULT_ICON keeps the unconfigured visual
-    // aligned with whatever default the codebase has chosen.
     val isTrulyEmpty = tile.text.isBlank() && tile.url.isBlank() &&
         tile.action == CustomTileAction.NONE
     val mainIcon = when {
@@ -3710,9 +3573,9 @@ private fun MetricPoolPill(
             )
     ) {
         // Sparkline background mirrors the grid tiles' style. Three states:
-        // active (full accent), dimmed (gray ghost, disabled but available
-        // to re-enable on tap), or absent (metric doesn't support stats, // counters / heading). No corner icon: the wave itself is the
-        // indicator.
+        // active (full accent), dimmed (gray ghost, stats off), or absent
+        // (metric doesn't support stats: counters, heading). No corner icon:
+        // the wave itself is the indicator.
         if (supportsStats) {
             val waveColor = if (statsEnabled) accent
                 else MaterialTheme.colorScheme.onSurfaceVariant
@@ -3996,10 +3859,8 @@ internal fun groupIconFor(key: String): ImageVector = when (key) {
     "WARNING" -> Icons.Filled.Warning
     "NOTIFICATIONS" -> Icons.Filled.Notifications
     "LINK" -> Icons.Filled.Link
-    // Outlined square placeholder for freshly-spawned / never-configured
-    // custom tiles, so the dashboard doesn't pretend an unconfigured tile
-    // is a link/qr. The rider can still pick this from the icon grid as
-    // an explicit "blank slot" visual.
+    // Legacy key: the old default icon for custom tiles. Not offered in
+    // the picker, kept so an old saved value still resolves.
     "EMPTY" -> Icons.Filled.CheckBoxOutlineBlank
     else -> Icons.Filled.Folder
 }
@@ -4166,11 +4027,10 @@ private fun CustomBleTile(
 }
 
 /**
- * Action pool = catalog. Renders the group template followed by every key
- * in [catalogKeys] sorted alphabetically by display label. Action groups
- * are dynamic instances and only live in the grid, pool drops only handle
- * group deletion. Pool→pool drags of static actions land as no-ops because
- * a static action can't be "removed" from the catalog.
+ * Action pool = catalog. Renders the group and custom BLE templates followed
+ * by every key in [catalogKeys] sorted alphabetically by display label.
+ * Groups and custom BLE commands are dynamic instances and only live in the
+ * grid. The pool is not a drop target.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -4292,7 +4152,8 @@ private fun ActionGroupTemplatePill(
 /**
  * Pool template for a custom BLE command. Mirrors [ActionGroupTemplatePill]:
  * a dashed "+ BLE" pill the rider drags onto a grid slot to spawn a new
- * `B:<uuid>` command (routed to createCustomBleAt) and open its editor.
+ * `B:<uuid>` command (routed to createCustomBleAt). Tapping the new tile
+ * opens its editor.
  */
 @Composable
 private fun CustomBleTemplatePill(
@@ -4487,10 +4348,9 @@ private fun DashboardSlotSheet(
 
 /**
  * Edit sheet for a composite-metric instance. Lets the rider pick the layout
- * (2-row, 2-col, 3-col) and which sub-metrics fill each cell. Deliberately
- * stats-free; the rider deletes the instance by dragging the tile off the
- * grid OR by hitting "Default metric", which restores the slot to its
- * shipped occupant and removes the composite definition.
+ * (2-row, 2-col, 3-col), which sub-metric fills each cell and which stat it
+ * shows. "Restore slot" puts the shipped occupant back and removes the
+ * composite definition.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -4705,9 +4565,9 @@ private fun CompositeCellDropdown(
         modifier = modifier
     ) {
         // Closed field shows the rendered glyph for the placeholders so it
-        // matches how the cell will look on the dashboard ("-" for (none),
+        // matches how the cell will look on the dashboard ("-" for (blank),
         // blank space for (empty)). Open menu items show the text labels
-        // "(none)" and "(empty)" so the rider can tell the picks apart.
+        // "(blank)" and "(empty)" so the rider can tell the picks apart.
         val closedFieldValue = when (currentKey) {
             COMPOSITE_CELL_EMPTY -> "–"
             COMPOSITE_CELL_BLANK -> " "
@@ -4881,8 +4741,7 @@ private fun CompositeCellStatDropdown(
 ) {
     var expanded by remember { mutableStateOf(false) }
     val options = remember {
-        // Same option list the History screen used to expose. NONE is
-        // omitted because "show nothing in this cell" already has its
+        // NONE is omitted because "show nothing in this cell" already has its
         // own mechanism (the EMPTY metric key on the row above).
         listOf(
             DashboardStat.CURRENT,
@@ -4950,11 +4809,10 @@ private fun compositeCellStatLabel(stat: DashboardStat): String = when (stat) {
 
 /**
  * Edit sheet for an action-group instance. Lets the rider rename the group,
- * pick its tile icon from a curated 10-icon set, and configure up to four
- * sub-actions in chosen order. Duplicate sub-actions are allowed (the rider
- * may want the same action twice in a popover, e.g. two RECORD_TOGGLE
- * entries). No reset / delete buttons, deletion happens by dragging the
- * tile back to the pool.
+ * pick its tile icon from the curated [GROUP_ICON_CHOICES] set, and configure
+ * up to four sub-actions in chosen order. Duplicate sub-actions are allowed
+ * (the rider may want the same action twice in a popover, e.g. two
+ * RECORD_TOGGLE entries). "Restore slot" deletes the group.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -5246,7 +5104,7 @@ private fun GroupIconButton(
             modifier = Modifier.width(264.dp),
             containerColor = MaterialTheme.appColors.menuBackground
         ) {
-            // 6-wide grid inside a fixed-width popup keeps icons square
+            // 5-wide grid inside a fixed-width popup keeps icons square
             // and visible without scrolling for the first ~30 icons.
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -5793,10 +5651,8 @@ private fun statShortLabel(stat: DashboardStat): String = when (stat) {
 }
 
 /**
- * One-or-two-line description of what a metric means. Rendered as a subtle
- * info row above the side-readings dropdowns, only for metrics whose meaning
- * isn't obvious from the chip label alone (the rest get null from
- * [metricDescription]).
+ * Subtle info row: an info icon and italic text on a faint card. Used for
+ * metric descriptions in the slot sheet and for the warnings in Advanced.
  */
 @Composable
 private fun MetricInfoBox(text: String) {
@@ -5833,7 +5689,7 @@ private fun SlotStatsEditor(
 ) {
     // Picker option lists per corner.
     //   Sides (LEFT / RIGHT): placeholders first (EMPTY → "(empty)" reserves
-    //     the slot, NONE → "(none)" collapses the layout), divider rendered
+    //     the slot, NONE → "(blank)" collapses the layout), divider rendered
     //     by the dropdown, then real stats.
     //   CENTER: never a placeholder -- the centre always shows the metric's
     //     primary value. Stats are CURRENT plus the aggregates.
@@ -6130,11 +5986,6 @@ private fun statSelectedLabel(stat: DashboardStat): String = when (stat) {
     DashboardStat.EMPTY -> " "
 }
 
-/** True when the stat is a deliberate "reserve this slot" placeholder. The
- *  tile renderer uses this to keep the 3-zone layout intact instead of
- *  collapsing into 2 equal halves when only one real side reading is set. */
-internal fun isReservedSlot(stat: DashboardStat): Boolean = stat == DashboardStat.EMPTY
-
 @Composable
 private fun SlotSheetActionPreview(key: String) {
     val icon = dashboardActionIcon(key)
@@ -6191,8 +6042,8 @@ private fun SlotSheetActionPreview(key: String) {
 
 // ---- Catalog look-up helpers (shared with the live dashboard) ----------
 //
-// All of these are `internal` so the eventual `com.eried.eucplanet.ui.dashboard`
-// renderer can call them directly, keeps a single source of truth for chip
+// All of these are `internal` so the live `com.eried.eucplanet.ui.dashboard`
+// renderer calls them directly, keeps a single source of truth for chip
 // labels, accent palette, action icons, etc. between the editor preview and
 // the live dashboard. Adding a new metric / action means updating one of
 // these tables, not two.
@@ -6253,13 +6104,6 @@ internal fun actionChipLabel(key: String): String {
 
 /**
  * True when min/max/avg/percentile stats are meaningful for this metric.
- * Monotonic counters (`TRIP`, `ODOMETER`, accumulating trip-time/energy) and
- * circular values (`GPS_HEADING`) return false, for those the pool pill
- * shows no sparkline background at all, since "stats off" isn't a state the
- * rider can toggle out of.
- */
-/**
- * True when min/max/avg/percentile stats are meaningful for this metric.
  * Monotonic counters and circular values (GPS_HEADING) return false.
  * Reads from [com.eried.eucplanet.data.model.MetricCatalog].
  */
@@ -6280,59 +6124,6 @@ internal fun metricAccentColor(key: String): androidx.compose.ui.graphics.Color 
  */
 internal fun dashboardActionIcon(key: String): ImageVector? =
     com.eried.eucplanet.data.model.ActionCatalog.byKey(key)?.icon
-
-// Drag decoration shared by every draggable tile + pool pill in the dashboard
-// editor: a translucent rounded card the size of the source with an accent-
-// colored border, and the metric/action's own label + value (or icon + label
-// for actions) rendered on top so the rider can clearly see what's in their
-// hand mid-drag.
-private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawDashboardTileDecoration(
-    fill: androidx.compose.ui.graphics.Color,
-    accent: androidx.compose.ui.graphics.Color,
-    labelText: String,
-    valueText: String,
-    labelStyle: TextStyle,
-    valueStyle: TextStyle,
-    measurer: androidx.compose.ui.text.TextMeasurer
-) {
-    val cr = CornerRadius(10.dp.toPx())
-    drawRoundRect(color = fill.copy(alpha = 0.92f), cornerRadius = cr)
-    drawRoundRect(
-        color = accent,
-        cornerRadius = cr,
-        style = Stroke(width = 3.dp.toPx())
-    )
-
-    val labelResult = measurer.measure(labelText, labelStyle)
-    val gap = 2.dp.toPx()
-    if (valueText.isNotEmpty()) {
-        val valueResult = measurer.measure(valueText, valueStyle)
-        val totalH = labelResult.size.height + gap + valueResult.size.height
-        val startY = (size.height - totalH) / 2f
-        drawText(
-            labelResult,
-            topLeft = androidx.compose.ui.geometry.Offset(
-                x = (size.width - labelResult.size.width) / 2f,
-                y = startY
-            )
-        )
-        drawText(
-            valueResult,
-            topLeft = androidx.compose.ui.geometry.Offset(
-                x = (size.width - valueResult.size.width) / 2f,
-                y = startY + labelResult.size.height + gap
-            )
-        )
-    } else {
-        drawText(
-            labelResult,
-            topLeft = androidx.compose.ui.geometry.Offset(
-                x = (size.width - labelResult.size.width) / 2f,
-                y = (size.height - labelResult.size.height) / 2f
-            )
-        )
-    }
-}
 
 // Stylized "histogram" wave drawn behind the tile when the rider has the
 // trend background toggled on. Rendered as 30 horizontal step segments at
@@ -6477,8 +6268,8 @@ private fun DisplayTab(
     viewModel: SettingsViewModel
 ) {
     // Theme combo: built-in themes (Light, Dark, Pure Black) + saved customs
-    // (visible once a backup folder is set). Replaces the legacy theme-mode +
-    // accent pickers, the accent is now the active theme's `primary` token.
+    // (visible once a backup folder is set). The accent is the active theme's
+    // `primary` token.
     val themeChoices = viewModel.themeChoices.collectAsState().value
     val themeDirty = viewModel.themeDirty.collectAsState().value
     LaunchedEffect(settings.activeThemeName, settings.syncFolderUri, themeDirty) {
@@ -6529,9 +6320,8 @@ private fun DisplayTab(
         ) { viewModel.updateShowGaugeColorBand(it) }
 
         if (settings.showGaugeColorBand) {
-            // Safe band reads as the universal "ok" colour on the real dial
-            // (phone + watch), so the settings preview matches that: always
-            // green, never tinted by the user's accent.
+            // The safe band uses the theme's gaugeFill, the same colour the
+            // real dial (phone + watch) draws it in.
             GaugeThresholdSlider(
                 orangePct = settings.gaugeOrangeThresholdPct,
                 redPct = settings.gaugeRedThresholdPct,
@@ -6704,8 +6494,6 @@ private fun SpeedTab(
         HintText(stringResource(R.string.speed_calibration_caption), small = true)
         val calPct = settings.speedCalibrationOffsetPct
         // Half width, left side, to match the other compact numeric pills.
-        // Whole-percent steps (the pill is integer-only); the stored value
-        // still scales the reported speed exactly as before.
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -7162,9 +6950,6 @@ private fun VoiceTab(
                 )
             }
 
-            // Speech rate is stored as a Float multiplier (0.5..2.5x); the
-            // integer-only pill shows it as a percent (50..250%) and writes
-            // back the divided-by-100 float, preserving the 0.1x granularity.
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -7258,9 +7043,7 @@ private fun VoiceTab(
             onCheckedChange = { viewModel.updateAnnounceWelcome(it) },
             onTest = { viewModel.testSpeak(sWelcome) })
 
-        // Voice commands. Its own heading rather than its own section: the
-        // whole area is a toggle, a segmented row, a number and a viewer, which
-        // beside a dozen announcement rows would be a section that looks empty.
+        // Voice commands. Its own heading rather than its own section.
         SectionHeader(stringResource(R.string.voice_commands_title))
         // No enable switch. Nothing here runs until the rider presses a button,
         // so a toggle only added a second thing to find and a way for that
@@ -7271,9 +7054,8 @@ private fun VoiceTab(
         // is not a control. It reads better as a link on the sentence that
         // already explains the feature.
         var vocabularyOpen by remember { mutableStateOf(false) }
-        // No spacers between these. The section column already puts 8dp
-        // between its children, and a Spacer is another child, so the 6dp I
-        // added made it 22 and the two paragraphs read as unrelated.
+        // No spacers between these, the tab column already spaces its
+        // children.
         //
         // The link lives in the first paragraph, next to the sentence that
         // sends a rider looking for a button: what they can say is the next
@@ -7452,9 +7234,6 @@ private fun VoiceTab(
             )
         }
         run {
-            // No spacer: SegmentedChoice already pads itself top and bottom,
-            // and adding eight more put this row seventeen pixels down while
-            // every other row in Settings sits at nine.
             Spacer(Modifier.height(8.dp))
         }
 
@@ -7463,9 +7242,8 @@ private fun VoiceTab(
         // the tab.
         SectionHeader(stringResource(R.string.section_report_status))
         // The toggle enables only the periodic loop, so the when/interval
-        // controls hide with it. The Customize matrix below stays visible
-        // regardless, since its Trigger column configures the manual/Flic
-        // triggered report too.
+        // controls hide with it. The report lists below stay visible, since
+        // the Trigger list also drives the manual / Flic report.
         SwitchSetting(stringResource(R.string.voice_enabled), settings.voiceEnabled) {
             viewModel.updateVoiceEnabled(it)
         }
@@ -7498,9 +7276,6 @@ private fun VoiceTab(
             }
         }
 
-        // Customize stays visible even when periodic reports are off: its
-        // Periodic/Trigger matrix also configures the manual / Flic triggered
-        // report, which works independently of the periodic loop.
         AdvancedCollapsable(
             title = stringResource(R.string.report_contents),
             stateKey = "voice-report-contents"
@@ -7750,8 +7525,7 @@ private fun FlicTab(
         SectionHeader(stringResource(R.string.section_flic_buttons))
 
         // Top-bar visibility switch. Some riders never use Flic and find the
-        // small indicator visually noisy. Default true preserves the previous
-        // always-on rendering.
+        // small indicator visually noisy. On by default.
         SwitchSetting(
             label = stringResource(R.string.flic_show_on_dashboard),
             checked = settings.flicShowOnDashboard,
@@ -7814,17 +7588,12 @@ private fun FlicTab(
             )
         }
 
-        // Scan section, only shown when there's an empty slot to fill.
-        // Layout matches Volume Keys: hint sits outside the card as small italic
-        // body text, action button sits inside the card and stretches full width
-        // for an obvious tap target.
+        // Scan section, only shown when there's an empty slot to fill. Hint,
+        // spinner and button sit directly in the section column, no card.
         val allSlotsFull = settings.flic1Address != null && settings.flic2Address != null &&
                 settings.flic3Address != null && settings.flic4Address != null
         if (!allSlotsFull) {
             HintText(stringResource(R.string.flic_scan_hint), small = true)
-            // No outer card here either, its 16 dp inner padding pushed
-            // the button right of the hint above. Spinner + button now sit
-            // directly in the section column so they share the column edge.
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (scanning) {
                     CircularProgressIndicator(modifier = Modifier.padding(vertical = 4.dp))
@@ -7963,22 +7732,20 @@ private fun WatchTab(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // "Device" section: a tinted panel of compact pills, one per paired
-        // watch / Edge. Sits above General so the rider sees "what surfaces
-        // will receive this" before the actual toggles. Each row holds up
-        // to 3 pills; more devices wrap to additional rows.
+        // "Device" section: one full-width card per paired watch / Edge.
+        // Sits above General so the rider sees "what surfaces will receive
+        // this" before the actual toggles.
         SectionHeader(stringResource(R.string.section_watch_device))
         DeviceRegion(pairedSurfaces)
 
         // General: the two settings every rider touches first (auto-launch
-        // and auto-close). Keep-display-on used to live here but moved
-        // under Display since it's part of the visual on/off behaviour.
+        // and auto-close).
         SectionHeader(stringResource(R.string.section_watch_general))
 
-        // Auto-start now works on Garmin too: the bridge calls Connect IQ's
+        // Auto-start: on Garmin the bridge calls Connect IQ's
         // openApplication() to launch the watch app (a one-time "Always"
         // consent on the watch, then automatic). Shown whenever any watch is
-        // paired, and with no Garmin-unsupported badge anymore.
+        // paired. Amazfit cannot be launched from the phone, hence its badge.
         if (hasWearOs || hasGarminPaired || hasAmazfitPaired) {
             SwitchSettingWithDesc(
                 label = stringResource(R.string.watch_auto_start),
@@ -7999,7 +7766,7 @@ private fun WatchTab(
         // Display controls screen wake behavior and what the watch shows.
         // Navigation-only screen hold is Wear OS only. Garmin watches
         // manage screen timeout in system settings. Visual tweaks such as
-        // battery icons, PWM, units, and rotation live in Customization below.
+        // battery icons, PWM, units, and rotation live in Advanced below.
         SectionHeader(stringResource(R.string.section_watch_display))
 
         if (hasWearOs || hasAmazfitPaired) {
@@ -8062,10 +7829,10 @@ private fun WatchTab(
             title = stringResource(R.string.section_watch_advanced),
             stateKey = "watch-advanced"
         ) {
-            // Update rate is Wear-OS-only: the Connect IQ Mobile SDK
+            // Update rate does not apply to Garmin: the Connect IQ Mobile SDK
             // enforces its own rate cap on the Garmin transport regardless
             // of what we set here, so the choice would be misleading on a
-            // Garmin-only setup. Surfaced only when a Wear OS device is paired.
+            // Garmin-only setup. Shown when a Wear OS or Amazfit watch is paired.
             if (hasWearOs || hasAmazfitPaired) {
                 val gb = garminBadge
                 val gbTrailing: (@Composable RowScope.() -> Unit)? =
@@ -8173,13 +7940,11 @@ private fun WatchTab(
                 }
             }
             SliderSetting(
-                label = "",
                 // Fixed -90 / 90 captions under the slider ends; the live angle is
                 // intentionally not shown, the thumb position is the feedback.
                 value = settings.watchDialRotationDeg.toFloat(),
                 range = -90f..90f,
-                unit = "°",
-                steps = 35,                         // 36 segments → -90,-85,…,+90
+                steps = 35,                        // 36 segments → -90,-85,…,+90
                 minLabel = "-90",
                 maxLabel = "90",
                 onValueChange = { viewModel.updateWatchDialRotationDeg(it.toInt()) }
@@ -8461,7 +8226,7 @@ private fun SyncProgressWithCancel(
             }
         }
         // Static half-width Cancel on the right, matching the other action
-        // buttons. weight(1f) fixes its width so it no longer resizes between
+        // buttons. weight(1f) fixes its width so it does not resize between
         // "Cancel" and "Stopping...".
         androidx.compose.material3.OutlinedButton(
             onClick = onCancel,
@@ -8506,13 +8271,12 @@ private fun CloudTab(
         if (uri != null) viewModel.updateSyncFolder(uri)
     }
 
-    // Drain one-shot events to Toasts
+    // Drain one-shot events to the snackbar
     val sFolderFailed = stringResource(R.string.cloud_backup_failed)
     val sBackupOk = stringResource(R.string.cloud_backup_success)
     val sBackupFail = stringResource(R.string.cloud_backup_failed)
     val sRestoreOk = stringResource(R.string.cloud_restore_success)
     val sRestoreFail = stringResource(R.string.cloud_restore_failed)
-    val sEnqueued = stringResource(R.string.cloud_retry_enqueued)
     val sSyncNoFolder = stringResource(R.string.sync_no_folder)
     LaunchedEffect(cloudEvent) {
         val event = cloudEvent ?: return@LaunchedEffect
@@ -8528,7 +8292,6 @@ private fun CloudTab(
             }
             CloudEvent.RestoreSuccess -> sRestoreOk
             CloudEvent.RestoreFailed -> sRestoreFail
-            CloudEvent.UploadEnqueued -> sEnqueued
             CloudEvent.SyncNoFolder -> sSyncNoFolder
             is CloudEvent.SyncFinished -> context.getString(R.string.sync_finished, event.count)
             is CloudEvent.SyncRateLimited ->
@@ -9052,7 +8815,7 @@ private fun CloudTab(
             HintText(stringResource(R.string.cloud_trips_caption))
             var showResetLocalDialog by remember { mutableStateOf(false) }
             val hasLocalTrips by viewModel.hasLocalTrips.collectAsState()
-            // No "N trips are not in your backup folder" line here any more:
+            // No "N trips are not in your backup folder" line here:
             // the folder worker fills gaps on every pass by itself, and the
             // one state it cannot fix alone - same name, different content on
             // the two sides - surfaces as the dashboard warning with Fix.
@@ -9157,8 +8920,8 @@ private fun CloudTab(
         // warns the rider they'll rejoin as that existing rider rather than
         // re-enabling silently.
         if (rejoinConfirm) {
-            // No locally-cached name anymore. Fall back to credit-card-style
-            // last 6 chars of the store_id ("····034c"), the same identifier
+            // No locally-cached name. Fall back to credit-card-style
+            // last 6 chars of the store_id ("····034c1f"), the same identifier
             // shape the restore dialog uses for an unknown rider.
             val rejoinName = riderStoreId?.let { riderIdShort(it) } ?: ""
             AlertDialog(
@@ -9674,8 +9437,8 @@ internal fun SpeedNumberSetting(
     modifier: Modifier = Modifier,
     onValueChangeKmh: (Float) -> Unit
 ) {
-    // Convert km/h <-> the rider's display unit, mirroring the old slider so
-    // the stored value stays in km/h with identical clamping. NumberUpDown is
+    // Convert km/h <-> the rider's display unit. The stored value stays in
+    // km/h and is clamped to the km/h range. NumberUpDown is
     // integer-only, so steps are whole display units (1 km/h or 1 mph).
     val displayStart = Units.speed(rangeKmh.start, speedUnit).roundToInt()
     val displayEndRaw = Units.speed(rangeKmh.endInclusive, speedUnit).roundToInt()
@@ -9709,38 +9472,20 @@ internal fun SpeedNumberSetting(
 
 @Composable
 private fun SliderSetting(
-    label: String,
     value: Float,
     range: ClosedFloatingPointRange<Float>,
-    unit: String,
     steps: Int? = null,
-    format: String = "%.0f",
-    valueText: String? = null,
-    enabled: Boolean = true,
     minLabel: String? = null,
     maxLabel: String? = null,
     onValueChange: (Float) -> Unit
 ) {
-    // Endpoint-label mode (minLabel/maxLabel) replaces the label + value header
-    // with fixed captions above the slider's two ends; no live readout.
+    // Fixed captions (minLabel/maxLabel) above the slider's two ends; no live
+    // readout.
     val endpointMode = minLabel != null || maxLabel != null
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            if (!endpointMode) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(highlightMatches(label, LocalSettingsSearchQuery.current), modifier = Modifier.settingsSearchLabel(label), style = MaterialTheme.typography.bodyLarge)
-                    Text(
-                        valueText ?: "${format.format(value)} $unit",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
-            }
             if (endpointMode) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -9769,7 +9514,6 @@ private fun SliderSetting(
                 onValueChange = onValueChange,
                 valueRange = safeRange,
                 steps = computedSteps,
-                enabled = enabled,
                 colors = themedSliderColors()
             )
         }
@@ -10155,7 +9899,7 @@ private fun EngineSoundSection(
             com.eried.eucplanet.audio.EngineProfile.byKey(settings.engineType)
         }
 
-        // Engine volume is now a 4-point speed curve, no fixed slider. Drag a finger on
+        // Engine volume is a 4-point speed curve. Drag a finger on
         // the graph to probe the volume at any speed (same UX as the voice auto-volume
         // curve in Automations).
         Text(
@@ -10430,7 +10174,7 @@ private fun EngineTypePicker(
             onExpandedChange = { expanded = !expanded },
             modifier = Modifier.fillMaxWidth()
         ) {
-            // Source icon: Album (vinyl) = sampled / analog. Equalizer (bars) = synth / digital.
+            // Source icon: vital-signs wave = sampled, equalizer bars = synth.
             // Sits on the LEFT of the engine name so two presets that share a name
             // (e.g. "Tractor" Synth vs "Tractor" Sampled) are visually distinct at a glance.
             val isSampled = currentProfile?.grainAsset != null
@@ -10671,7 +10415,7 @@ private fun VoiceVariantSelector(
         val parts = listOfNotNull(quality(c), if (c.networkRequired) onlineWord else null)
         return if (parts.isEmpty()) base else "$base, ${parts.joinToString(", ")}"
     }
-    // "Default" (plays the welcome sample) then each concrete voice, as
+    // "Default" (speaks the default-voice sample) then each concrete voice, as
     // (name, label, spoken-sample).
     val items = buildList {
         add(Triple("", defaultLabel, defaultSample))
@@ -11096,9 +10840,8 @@ private fun EngineSpeedVolumeCurveEditor(
  * Wrap the gating toggle PLUS its conditional content with this. When
  * [expanded] flips from false to true the wrapper's bounds grow and the
  * BringIntoViewRequester fires, so the parent scroll moves to put the
- * wrapper (toggle + new content) into the viewport. Because the wrapper
- * has real bounds, not the 0-height sentinel the earlier version used , 
- * the system actually has something to scroll to. When the block is taller
+ * wrapper (toggle + new content) into the viewport. The wrapper has real
+ * bounds, so the system has something to scroll to. When the block is taller
  * than the viewport the BringIntoView responder aligns the TOP edge with
  * the viewport top, so the rider keeps eyes on the row they just toggled.
  *
@@ -11126,12 +10869,6 @@ internal fun BringIntoViewSection(
         content = content
     )
 }
-
-/** Backwards-compat shim. New callers should wrap with [BringIntoViewSection];
- *  this no-op stub keeps existing inline sentinels compiling until they're
- *  refactored. */
-@Composable
-internal fun BringIntoViewOnFirstShow() { /* no-op */ }
 
 // --- Long-press backup / restore helpers --------------------------------
 
@@ -11258,7 +10995,6 @@ internal fun RestorePickerDialog(
             val list = entries
             when {
                 list == null -> CircularProgressIndicator(modifier = Modifier.size(24.dp))
-                list.isEmpty() -> Text(stringResource(R.string.cloud_restore_picker_empty))
                 else -> ExposedDropdownMenuBox(
                     expanded = dropdownOpen,
                     onExpandedChange = { dropdownOpen = !dropdownOpen }
@@ -11316,26 +11052,11 @@ internal fun RestorePickerDialog(
 }
 
 /**
- * "Device" region: a tinted panel containing one detailed card per
- * paired surface. Each card shows the device name + kind, an Active/Idle
- * status chip, and the surface's effective update rate (Wear OS = the
- * bridge's publish interval, Garmin = the SDK-rate-capped delivery rate
- * from [GarminBridge.deliveryRateHz]). Cards lay out 2 per row on a
- * standard phone width; single device gets a full-width card; an empty
- * state shows the hint-only pill.
- *
- * Garmin limitations text renders below the panel when any Garmin card
- * is present, it's surface-level info, not per-device.
- */
-/**
- * "Device" region: a tinted panel containing one compact card per paired
- * surface, stacked vertically (1 per row, full-width). Each card shows
+ * "Device" region: one compact card per paired surface, stacked
+ * vertically (1 per row, full-width). Each card shows
  * the device name + kind subtitle on the left, and live/idle + update
  * rate badges on the right. Sits above General so the rider sees "what
  * receives this" before they touch any toggles.
- *
- * Garmin limitations text renders below the panel when any Garmin card
- * is present.
  */
 @Composable
 private fun DeviceRegion(
@@ -11354,14 +11075,6 @@ private fun DeviceRegion(
     }
 }
 
-/**
- * Card wrapper for the Touch / Hardware sub-sections of the Watch Buttons
- * region. Same compact collapsible-card pattern (surfaceVariant card +
- * titleSmall + chevron) so the sub-cards read as siblings of the Garmin
- * limits card and the Customization card elsewhere in the tab. When
- * expanded, leads with a MetricInfoBox carrying [info] above the
- * [content] (the actual pickers).
- */
 /**
  * Generic "Advanced" collapsable card. Same compact collapsible-card pattern
  * as [WatchButtonsCollapsable] but without a leading info box, used by
@@ -11441,6 +11154,13 @@ private fun AdvancedCollapsable(
     }
 }
 
+/**
+ * Card wrapper for the Touch / Hardware sub-sections of the Watch Buttons
+ * region. Same compact collapsible-card pattern (surfaceVariant card +
+ * titleSmall + chevron) as [AdvancedCollapsable]. When
+ * expanded, leads with a MetricInfoBox carrying [info] above the
+ * [content] (the actual pickers).
+ */
 @Composable
 private fun WatchButtonsCollapsable(
     title: String,
@@ -11517,8 +11237,7 @@ private fun WatchButtonsCollapsable(
 /**
  * One device card, 1-per-row full-width. Left column: kind icon + device
  * name (title) + kind label (subtitle). Right column: compact status and
- * update-rate badges. Active cards tint with primaryContainer so the
- * rider can spot at a glance which wrist is currently receiving frames.
+ * update-rate badges.
  */
 @Composable
 private fun DeviceCard(
@@ -11594,7 +11313,7 @@ private fun StatusBadge(active: Boolean) {
 
 /** Compact update-rate indicator: heart-monitor icon + Hz value. The
  *  pulse-on-monitor glyph reads as "live vital signs", semantically
- *  matches an end-to-end heartbeat better than the earlier signal-bars,
+ *  matches an end-to-end heartbeat,
  *  and is clearly a status indicator rather than a tappable button. */
 @Composable
 private fun RateBadge(hz: Double) {
@@ -11677,8 +11396,7 @@ private fun HudInstallHint(pairedHudVersion: String?, hudEverConnected: Boolean)
     val raw = stringResource(R.string.hud_install_hint)
         .replace("<b>", "").replace("</b>", "")
     val linkColor = MaterialTheme.colorScheme.primary
-    // Mirror the welcome tutorial's link handling (OutroLinkBullet): locate the
-    // URL run by text, not via HtmlCompat bold-span detection, which wasn't
+    // Locate the URL run by text, not via HtmlCompat bold-span detection, which wasn't
     // reliably tagging the run, so no clickable link was ever added, and attach
     // a LinkAnnotation.Url. The https:// prefix is required or ACTION_VIEW has no
     // scheme to launch.
@@ -11730,13 +11448,6 @@ private fun HudInstallHint(pairedHudVersion: String?, hudEverConnected: Boolean)
 }
 
 /**
- * The HUD's own app, looked after from the phone. Shows while a HUD that can
- * take it is linked: which version it runs, a button to send the one this
- * phone app carries (it asks first when the HUD already runs that build), and one to remove
- * it, behind a confirm. Nothing is sent without the tap, and the HUD still
- * asks its rider before it installs or removes anything.
- */
-/**
  * The HUD app on the HUD and the one this phone carries, as two rows. The
  * names sit in one column and the versions in the next, so the versions
  * start at the same place and are compared at a glance.
@@ -11766,6 +11477,13 @@ private fun HudAppVersions(installed: String, available: String?, color: Color, 
     }
 }
 
+/**
+ * The HUD's own app, looked after from the phone. Shows while a HUD that can
+ * take it is linked: which version it runs, a button to send the one this
+ * phone app carries (it asks first when the HUD already runs that build), and one to remove
+ * it, behind a confirm. Nothing is sent without the tap, and the HUD still
+ * asks its rider before it installs or removes anything.
+ */
 @Composable
 private fun HudAppCard(viewModel: SettingsViewModel) {
     val hudVersion by viewModel.hudVersion.collectAsState()
@@ -11811,7 +11529,7 @@ private fun HudAppCard(viewModel: SettingsViewModel) {
     val sending = state is com.eried.eucplanet.service.hud.HudAppSender.State.Sending
     // After a send or a remove request the next step is on the HUD. Both
     // buttons rest a few seconds so a second tap cannot stack a second
-    // question there, and a toast says where to look.
+    // question there, and a snackbar says where to look.
     var resting by remember { mutableStateOf(false) }
     var confirmRemove by remember { mutableStateOf(false) }
     val snackbar = com.eried.eucplanet.ui.common.LocalSnackbar.current
@@ -12016,8 +11734,8 @@ private fun HudHotspotHint(linked: Boolean) {
 }
 
 /**
- * Two-stage hotspot detection. Returns true or false only when a stage
- * actually answered, and null when neither could tell.
+ * Two-stage hotspot detection. Returns true when a stage proves the hotspot
+ * is on, and null when neither could tell. It never returns false.
  *
  * The null matters. This used to return false when nothing answered, so the
  * card stated "Phone hotspot is off" to riders whose hotspot was plainly on,
@@ -12052,7 +11770,7 @@ private fun detectHotspotEnabled(ctx: android.content.Context): Boolean? {
     // Finding one proves the hotspot is up. NOT finding one proves nothing:
     // the list is a guess at OEM naming, and an OEM we have not met names it
     // something else. So a hit returns true and a miss returns null, never
-    // false. Only stage 1 can report a trustworthy "off".
+    // false.
     val sawSoftAp = runCatching {
         val ifs = java.net.NetworkInterface.getNetworkInterfaces()?.toList().orEmpty()
         ifs.any { iface ->
@@ -12069,23 +11787,9 @@ private fun detectHotspotEnabled(ctx: android.content.Context): Boolean? {
 // --- HUD section (lives inside the Integration tab) ---
 
 /**
- * HUD companion settings, surfaced as a section at the bottom of the
- * Integration tab next to Flic 2 buttons and Volume keys.
- *
- * Intentionally minimal in v0.1, one master switch plus the port and a
- * mirror-navigation toggle. Anything else is wired to the same shared
- * settings the phone already exposes (units, accent, gauge thresholds), so
- * a single source of truth governs phone + watch + HUD.
- *
- * The phone-side server is gated on [com.eried.eucplanet.data.model.AppSettings.hudServerEnabled]
- * and on the [com.eried.eucplanet.service.WheelService] being alive; it
- * binds a listening socket only while the rider has the app actively open.
- */
-/**
  * Android Auto's stat boxes and buttons, picked like the home screen widget's
  * slots but saved apart: the car and the home screen are different jobs.
- * Three buttons, and all three are the rider's. Navigate used to lead the
- * strip and took a slot; it went when this stopped being a navigation app.
+ * Three buttons, and all three are the rider's.
  */
 @Composable
 private fun AndroidAutoSection(
@@ -12140,6 +11844,12 @@ private fun AndroidAutoSection(
     }
 }
 
+/**
+ * HUD companion settings, a section of the Integration tab: install hint,
+ * HUD app card, discovery mode, address and port, the link switch, then the
+ * screens, map and joystick cards. Units, accent and gauge thresholds come
+ * from the same shared settings the phone and watch use.
+ */
 @Composable
 private fun HudIntegrationSection(
     settings: com.eried.eucplanet.data.model.AppSettings,
@@ -12324,11 +12034,8 @@ private fun HudIntegrationSection(
 
         // Discovery activity (which channel found the HUD, probes, dial
         // attempts, transient reconnects after a WiFi switch, etc.) is
-        // piped to the Service Mode log as NOTE entries. Riders don't see
-        // any of it unless they explicitly open the diagnostics dialog.
-        // The connection-source StateFlow on HudServer stays around because
-        // the watchdog and tests still consult it; only the rider-facing
-        // surface is gone.
+        // piped to the Service Mode log as NOTE entries. The rider only
+        // sees the resulting address and source in the HUD app card.
 
         // Three top-level collapsibles under the Integration card.
         // HUD screens first because the reorder list inside is the
@@ -12547,9 +12254,9 @@ private fun HudScreenList(
     }
 }
 
-/** Disable the Checkbox visually when it's the last enabled screen AND
- *  already checked -- prevents the rider from tapping the only screen
- *  they have off, while letting them tick disabled screens back on. */
+/** Disables the Switch when it is the last enabled screen, so the rider
+ *  cannot turn off the only screen left. Disabled screens can always be
+ *  turned back on. */
 private fun wantCheckedCanFlip(currentlyChecked: Boolean, canUncheck: Boolean): Boolean {
     if (!currentlyChecked) return true
     return canUncheck
@@ -12582,11 +12289,8 @@ private fun hudScreenDisplayName(ctx: android.content.Context, id: String): Stri
  * swaps URL templates + clears its bitmap LRU so the change is visible
  * within a few seconds.
  *
- * Five Carto raster styles cover the readability range riders care about:
- * Voyager (default, neutral parchment), Dark + Dark-no-labels (night riding
- * / OLED-style cockpits), Light (high contrast on bright prisms), and
- * Positron (low-key low-saturation). All five are free with CDN attribution
- * (handled in the HUD's MapScreen footer).
+ * Offers the raw style codes: osm, cyclosm, topo, hot, satellite, light,
+ * dark. Blank falls back to light.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -54,11 +54,11 @@ data class RouteAvoidances(
 }
 
 /**
- * The Navigator's only network code. Talks to free, key-less OpenStreetMap
- * services, Nominatim for address search / reverse lookup, and the FOSSGIS
- * OSRM service (routing.openstreetmap.de, the very router that powers
- * openstreetmap.org's own directions) for turn-by-turn routing, over plain
- * [HttpURLConnection] (no Retrofit/OkHttp dependency added).
+ * Geocoding and routing for the Navigator. Talks to free, key-less
+ * OpenStreetMap services: Nominatim for address search / reverse lookup, and
+ * the FOSSGIS OSRM and Valhalla services for turn-by-turn routing, over plain
+ * [HttpURLConnection] (no Retrofit/OkHttp dependency added). Legs covered by
+ * downloaded tiles can also route on the phone.
  *
  * It is only ever called while the rider is actively building a route or while
  * the engine re-routes mid-navigation; nothing here runs in the background and
@@ -162,8 +162,8 @@ class RoutingService(
         }
 
         /**
-         * Resolves the configured router URL. A blank value, or a stale URL
-         * left over from the retired Valhalla backend, falls back to
+         * Resolves the configured router URL. A blank value, or a Valhalla
+         * URL saved in the OSRM field by an older version, falls back to
          * [DEFAULT_ROUTER] so existing installs migrate transparently.
          */
         fun effectiveRouterUrl(stored: String): String =
@@ -471,7 +471,7 @@ class RoutingService(
         null
     }
 
-    /** Valhalla or OSRM, as before offline routing. */
+    /** The online routers: Valhalla first when [prefersValhalla], then OSRM. */
     private suspend fun routeOnline(
         name: String,
         waypoints: List<Waypoint>,

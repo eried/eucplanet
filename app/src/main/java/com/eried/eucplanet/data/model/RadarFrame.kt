@@ -14,11 +14,4 @@ data class RadarFrame(
     /** Device battery percentage if the radar publishes it, null otherwise. */
     val batteryPercent: Int? = null,
     val timestamp: Long = System.currentTimeMillis()
-) {
-    /** Closest threat in this frame, or null when the lane is clear. */
-    val closest: RadarThreat? get() = threats.minByOrNull { it.distanceM }
-
-    /** Highest severity present in this frame, falling back to NONE. */
-    val maxLevel: ThreatLevel
-        get() = threats.maxByOrNull { it.threatLevel.ordinal }?.threatLevel ?: ThreatLevel.NONE
-}
+)
