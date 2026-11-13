@@ -75,6 +75,8 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
@@ -839,7 +841,10 @@ private fun BatteryFillGraphic(
         }
     }
 
-    Canvas(modifier) {
+    // Drawn in its own layer: the ticks over the liquid use a Difference blend,
+    // and blended straight onto the window it made the whole iPhone screen
+    // flicker while the liquid animates (Metal reads the window back).
+    Canvas(modifier.graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }) {
         val percent = percentProvider()
         // Subscribe to clock + the two sensor channels so:
         //  - while the simulation is active the per-frame clock tick invalidates
