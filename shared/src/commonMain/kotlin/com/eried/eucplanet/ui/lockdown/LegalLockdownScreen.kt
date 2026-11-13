@@ -22,7 +22,6 @@ import androidx.compose.material.icons.filled.BluetoothConnected
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.FlashlightOn
 import androidx.compose.material.icons.filled.Speed
-import androidx.compose.material.icons.filled.TwoWheeler
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -49,6 +48,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.eried.eucplanet.ble.ConnectionState
+import com.eried.eucplanet.ui.common.WheelIcon
 import com.eried.eucplanet.ui.dashboard.ConnectionDot
 import com.eried.eucplanet.ui.dashboard.SpeedGauge
 import com.eried.eucplanet.ui.theme.appColors
@@ -248,7 +248,7 @@ fun LegalLockdownScreen(
                     modifier = Modifier.weight(1f)
                 )
                 LockdownButton(
-                    icon = Icons.Default.TwoWheeler,
+                    icon = WheelIcon,
                     label = stringResource(Res.string.lockdown_action_vehicle),
                     enabled = true,
                     onClick = { showVehicle = true },
