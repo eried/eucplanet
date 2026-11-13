@@ -129,9 +129,9 @@ internal object IosRecordingHost : RecordingHost {
     // The picker holds its delegate weakly: the one open is kept alive here.
     private var pickerDelegate: PickerDelegate? = null
 
-    // iOS has no system back button; the screen's own back arrow is the way out.
+    // The left-edge swipe, as Android's back: swallowed while a trip imports.
     @Composable
-    override fun BackHandler(enabled: Boolean, onBack: () -> Unit) = Unit
+    override fun BackHandler(enabled: Boolean, onBack: () -> Unit) = IosBackHandler(enabled, onBack)
 
     @Composable
     override fun rememberLocationPermissionRequest(onResult: () -> Unit): () -> Unit {

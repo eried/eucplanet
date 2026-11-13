@@ -63,6 +63,7 @@ Seams that need both sides on every change:
 | Ride session | `service/RideSession.kt` (`RideWheel`, `RideRecorder`, `RideVoice`) | `WheelService` (builds it, adds the notification, widget, engine sound, HUD, accel splits) | `iosMain/.../app/IosRideSession.kt` (adds nothing; the Live Activity follows the link itself) |
 | Theme editor | `ui/theme/ThemeEditorWidget.kt`, `ThemeTargetTool.kt`, `ThemeEditorSurface` (window size and one pixel) | `app/.../ui/theme/AndroidThemeEditorSurface.kt` (the view, PixelCopy); MainActivity mounts the widget | `iosMain/.../app/IosThemeEditor.kt` (a recorded root layer), `app/StatusBarHost.kt` (status bar style from the theme) |
 | Rider actions on the phone | `flic/ActionExecutor.kt` (`MediaControls`, `PhoneControls`, `VoiceListening`) | `app/.../flic/AndroidMediaControls.kt`, `AndroidPhoneControls.kt` (volume, torch), `di/ServiceModule.kt` | `iosMain/.../app/IosDashboardPorts.kt` (`NoMedia`, `IosPhoneControls`: the torch) |
+| Back | Compose `BackHandler`s through each `*Host.BackHandler` | `androidx.activity` back (MainActivity, NavGraph) | the left-edge swipe: `iosMain/.../app/IosBack.kt` (`IosBackHandler`, `IosBackSwipeBridge` for dialogs), one handler per screen in `MainViewController.kt` |
 | Object graph | `di/SharedKoin.kt` (Koin) | `app/.../di/SharedModule.kt` hands the Koin singletons to Hilt; `AppModule` builds the moved repositories | `MainViewController.kt` reads Koin; `app/IosAppGraph.kt` builds the rest |
 
 The table grows as packages move; keep it current.
@@ -231,12 +232,16 @@ For every change:
    dead switch.
 5. **New UI strings** go in `app/src/main/res/values*/strings.xml` for every
    locale; shared code names them as `Res.string.x`.
-6. **Run both apps.** The gate plus the Xcode build, then look at the
+6. **Give every window a way out.** The iPhone has no back button: a new
+   dialog needs Cancel or Close, or the shared X (`ui/common/CloseIconButton.kt`);
+   a new iOS screen in `MainViewController.kt` registers `IosBackHandler`
+   with its back arrow's target.
+7. **Run both apps.** The gate plus the Xcode build, then look at the
    changed screens on the Android emulator and the iOS simulator (a virtual
    wheel: `SIMCTL_CHILD_EUC_CONNECT=VIRTUAL:<id>`).
-7. **Update `docs/IOS_PARITY.md`** in the same commit, and the seam table
+8. **Update `docs/IOS_PARITY.md`** in the same commit, and the seam table
    above when a new port appears.
-8. **Merging next-experimental into feature/ios**: after the merge, grep the
+9. **Merging next-experimental into feature/ios**: after the merge, grep the
    incoming `:app` changes to `WheelService`, `service/`, `data/repository`
    and `voice/` for rules that now live in shared code (`RideSession`,
    `AutomationManager`); port the change there rather than restoring the

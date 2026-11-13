@@ -58,7 +58,7 @@ Status values:
 | Notifications | iOS actual done | The charge alerts post through UNUserNotificationCenter (`app/IosChargeAlerts.kt`) and show over the open app too; a tap opens the charging monitor. That is every notification Android posts that has an iPhone counterpart: Android posts only the ongoing ride notification (the Live Activity here), the charge alerts, and the car-screen alarm card for Android Auto (no CarPlay). It posts nothing for a lost wheel, a saved trip, a failed backup or an alarm in the background (alarms beep and speak). The notices background code posts (`AppNotifier`, now shared) show in a root snackbar over every screen but the locked one, as MainActivity shows them; neither phone turns one into a system notification, so one posted while the app is in the background is shown, unseen, behind it. `AppNotifierTest` covers what reaches the host. |
 | Backups (Dropbox), share, import | iOS actual done (partial) | Trips, settings.json (settings and alarm rules) and saved themes both ways with Dropbox, through the same shared passes Android runs (`data/sync/DropboxTripSync.kt`): the same /trips folder and file names, the same rules (size and content hash against the last-synced fingerprint, one question for every real conflict, the background pass never overwriting another phone's edit, a pull only when asked, archives followed from another phone), and the same pending count and progress bar in Settings -> Backups. Sync now is Android's Sync all. The quiet pass (Android's DropboxSyncWorker) runs in the app: 10 s after launch, on every return to the front, when a trip finishes, every pendingUploadIntervalMin while open, and on Android's retry curve (15 s doubling to 5 min, 30 min after a refusal). Linking asks for the library, as on Android. Android's worker waits for any connection (no Wi-Fi only setting exists); iOS just tries, and a pass with no network fails and backs off on the same curve. Not yet on iOS: sync while the app is closed (needs BGTaskScheduler), the overlays folder, the backup folder. Tested against an in-memory Dropbox (`FakeDropbox`, on the JVM and the iOS simulator); linking and syncing not yet tried with a real account on iOS. |
 | eucstats leaderboards | iOS actual done (partial) | The client, repository, request hash, meta envelope and the upload sweep are shared (`data/eucstats/`, `data/sync/EucStatsSweep.kt`), and so are the join, profile and card screens (`ui/settings/eucstats/`). iOS (`app/IosEucStats.kt`) registers and uploads as `platform: "apple"`, keeps the rider id in Documents/eucstats_riderid.txt (Android keeps it in the backup folder, so a reinstall without an iCloud backup loses it), picks the picture through the photo library's own square crop, and sweeps when a trip finishes, at launch and when the app comes to the front, retrying on Android's backoff while it stays open. Not yet: background uploads, and App Attest: iOS sends `{"type":"app_attest","token":""}`, which the server takes only in stub mode, so real App Attest needs the server to verify it first. `EUCSTATS_API_BASE_URL` in the launch environment (or the Info.plist key `EucStatsApiBaseUrl`) points a dev build at a local server. Checked on the simulator against a local eucstats: join with a photo, card, profile, trips uploaded and validated. |
-| Crews | iOS actual done (partial) | The crew pass is shared: `PairLink`, `PairApi` (on the HTTP facade) and `CrewsPairScreen` behind `CrewsPairHost`; Android's `CrewsPairActivity` is now a thin host. On iOS (`app/IosCrews.kt`) the pass opens over whatever is showing, from Settings (Crew pass) and from an `eucplanet://pair` link (`CFBundleURLTypes`, `AppDelegate.application(_:open:options:)`), and a rider with no profile is taken to the leaderboard settings. A host counts as production when it matches the API base the build uses (`EucStatsServer`). Checked on the simulator against a local eucstats: paired by typing the code and by `xcrun simctl openurl`. Scanning not yet tried on a phone. |
+| Crews | iOS actual done (partial) | The crew pass is shared: `PairLink`, `PairApi` (on the HTTP facade) and `CrewsPairScreen` behind `CrewsPairHost`; Android's `CrewsPairActivity` is now a thin host. On iOS (`app/IosCrews.kt`) the pass opens over whatever is showing, from Settings (Crew pass) and from an `eucplanet://pair` link (`CFBundleURLTypes`, `AppDelegate.application(_:open:options:)`), and a rider with no profile is taken to the leaderboard settings. A host counts as production when it matches the API base the build uses (`EucStatsServer`). Checked on the simulator against a local eucstats: paired by typing the code and by `xcrun simctl openurl`. Scanning not yet tried on a phone. The pass has the shared X (`ui/common/CloseIconButton.kt`, through `ShareDialogCard(onClose=)`) at the end of its title in every step, scanner, Enter manually, waiting and sending, on both phones; it calls `IosCrews.close()` on the iPhone. The left-edge swipe closes it too. |
 | Weather | shared | Forecast fetch, scoring and the dashboard flyout. On iOS the forecast follows the phone's CoreLocation fix and the chip names the place (CLGeocoder, off the main thread). Home-screen weather widgets are Android only for now. |
 | Navigation | not yet | |
 | TPMS, radar (Varia), RaceBox | not yet | Archive tag has iOS parsers to lift. |
@@ -99,6 +99,43 @@ output channel, spoken commands, and the Android-only rows (back action, keep
 alive, picture-in-picture, show over lock screen, rotation lock). The weather
 works on iOS, but its settings sit in the Navigation and weather section, so
 they wait with it.
+
+## Back and closing
+
+The iPhone has no system back, so every window has a way out the rider can
+see: a Cancel or Close in its button row, or, for a window without one (the
+crew pass card), the shared X `ui/common/CloseIconButton.kt` at the end of its
+header. Android uses the same X, there is no per-platform gate. Bottom sheets
+keep their drag handle (swipe down or tap the scrim), the iOS sheet idiom.
+
+A swipe in from the left edge is back. Compose Multiplatform 1.11 turns it
+into a back event on its own (the start edge is always back; nothing to set in
+`ComposeUIViewController`) and gives it to the newest enabled handler, the
+common `BackHandler` from `ui-backhandler`, wrapped once as
+`app/IosBack.kt` (`IosBackHandler`). MainViewController registers one on every
+screen but the dashboard, with the same target as the screen's back arrow
+(scan, settings, Flic, trips, trip detail, the EUC viewer, trip meter, metric
+detail, the charging monitor, and the scan screen under Legal Mode); the crew
+pass registers last, so the swipe closes it before the screen under it. The
+hosts that had a no-op `BackHandler` now pass it through: a trip import
+swallows the swipe (`IosRecordingHost`), and so does the locked screen
+(`IosLockdown.Host`), as Android's back is swallowed there.
+
+Dialogs, sheets and popups: Compose's own dialog handler takes only an
+instant back, so on its own it swallowed the swipe and the dialog stayed
+open. `IosBackSwipeBridge` (mounted once at the root) sits in front of every
+handler at overlay priority, takes the swipe and, when it completes, replays
+it as an instant back to the next handler in line: the open dialog's dismiss,
+else the screen's `IosBackHandler`. A swipe let go of early is cancelled. The
+bridge is always on, so the left edge also listens on the dashboard, where a
+swipe does nothing. Android is untouched: all of this is in iosMain.
+
+Checked on the simulator (iPhone 17, iOS 26.5, virtual Master): the swipe goes
+back from Settings, the trip list, trip details and the battery monitor; it
+closes Needs attention over the dashboard and the Delete trip question over
+the trip list without leaving the list or deleting; it closes the crew pass
+over Settings. The pass's X closes it from the scanner and from Enter
+manually.
 
 ## iOS-specific gaps
 

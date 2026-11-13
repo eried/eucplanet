@@ -82,12 +82,12 @@ internal object IosLockdown {
         lockdown = controller,
     )
 
-    /** The locked screen's iOS side. The app has no back gesture to swallow. */
+    /** The locked screen's iOS side. The left-edge swipe is swallowed, as Android's back is. */
     object Host : LegalLockdownHost {
         override val versionName: String =
             NSBundle.mainBundle.infoDictionary?.get("CFBundleShortVersionString") as? String ?: "?"
 
         @Composable
-        override fun BackHandler(onBack: () -> Unit) = Unit
+        override fun BackHandler(onBack: () -> Unit) = IosBackHandler(onBack = onBack)
     }
 }

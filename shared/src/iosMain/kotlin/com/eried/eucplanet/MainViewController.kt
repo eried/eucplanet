@@ -43,6 +43,8 @@ import com.eried.eucplanet.app.IosDropboxSync
 import com.eried.eucplanet.app.IosEucStats
 import com.eried.eucplanet.app.IosCrews
 import com.eried.eucplanet.app.IosCrewsHost
+import com.eried.eucplanet.app.IosBackHandler
+import com.eried.eucplanet.app.IosBackSwipeBridge
 import com.eried.eucplanet.crews.CrewsPairScreen
 import androidx.compose.runtime.key
 import com.eried.eucplanet.ui.scan.ScanScreen
@@ -145,7 +147,12 @@ fun MainViewController(): UIViewController {
             EucPlanetTheme(colors = colors) {
               // The floating theme editor over every screen, as MainActivity mounts it.
               IosThemeEditor.Root {
+                // The left-edge swipe as back for dialogs too (see IosBack.kt).
+                IosBackSwipeBridge()
                 // A small screen stack until the shared navigation graph lands.
+                // Every screen but the dashboard registers IosBackHandler with
+                // the same target as its back arrow, so the left-edge swipe goes
+                // back as Android's system back does.
                 // SIMCTL_CHILD_EUC_SCREEN=scan opens on the scan screen (also settings, flic, trips, trip, trip:<id>, viewer:<id>, tripmeter, metric:<key>, charging, charging:details).
                 // "metric:VOLTAGE" opens a metric's detail, with the dashboard's route argument.
                 var screen by remember { mutableStateOf(startScreen?.substringBefore(':') ?: "dashboard") }
@@ -192,6 +199,7 @@ fun MainViewController(): UIViewController {
                             )[ScanViewModel::class]
                         }
                         DisposableEffect(store) { onDispose { store.clear() } }
+                        IosBackHandler { lockScreen = "lockdown" }
                         ScanScreen(
                             onDeviceSelected = { lockScreen = "lockdown" },
                             onBack = { lockScreen = "lockdown" },
@@ -219,6 +227,7 @@ fun MainViewController(): UIViewController {
                             )[ScanViewModel::class]
                         }
                         DisposableEffect(store) { onDispose { store.clear() } }
+                        IosBackHandler { screen = "dashboard" }
                         ScanScreen(
                             onDeviceSelected = { screen = "dashboard" },
                             onBack = { screen = "dashboard" },
@@ -228,6 +237,7 @@ fun MainViewController(): UIViewController {
                     }
                     "settings" -> {
                         val settingsVm = rememberViewModel { IosAppGraph.settingsViewModel() }
+                        IosBackHandler { screen = settingsBack }
                         SettingsScreen(
                             onBack = { screen = settingsBack },
                             onNavigateToFlic = { screen = "flic" },
@@ -240,6 +250,9 @@ fun MainViewController(): UIViewController {
                     // model, as NavGraph hands Recording's to TripDetail on Android.
                     "trips", "trip" -> {
                         val recordingVm = rememberViewModel { IosAppGraph.recordingViewModel() }
+                        // Before the screen, so the screen's own handler (a trip
+                        // import swallows back) is the newer one and wins.
+                        IosBackHandler { screen = if (screen == "trips") "dashboard" else "trips" }
                         if (screen == "trips") {
                             RecordingScreen(
                                 onBack = { screen = "dashboard" },
@@ -280,6 +293,7 @@ fun MainViewController(): UIViewController {
                     // View online: the EUC Viewer with the trip loaded (SIMCTL_CHILD_EUC_SCREEN=viewer:<id>).
                     "viewer" -> {
                         val viewerVm = rememberViewModel { IosAppGraph.eucViewerViewModel() }
+                        IosBackHandler { screen = viewerBack }
                         key(viewerArg) {
                             EucViewerScreen(
                                 tripId = viewerArg.toLongOrNull() ?: -1L,
@@ -293,6 +307,7 @@ fun MainViewController(): UIViewController {
                         val tripMeterVm = rememberViewModel {
                             TripMeterDetailViewModel(IosTripMeter.meter, IosAppGraph.settings)
                         }
+                        IosBackHandler { screen = "dashboard" }
                         TripMeterDetailScreen(onBack = { screen = "dashboard" }, viewModel = tripMeterVm)
                     }
                     "metric" -> {
@@ -300,6 +315,7 @@ fun MainViewController(): UIViewController {
                             MetricDetailViewModel(IosAppGraph.wheel, IosAppGraph.settings)
                         }
                         val route = remember(metricArg) { MetricDetailRoute.parse(metricArg) }
+                        IosBackHandler { screen = metricBack }
                         key(metricArg) {
                             MetricDetailScreen(
                                 metricKeys = route.keys,
@@ -311,6 +327,7 @@ fun MainViewController(): UIViewController {
                     }
                     "charging" -> {
                         val chargingVm = rememberViewModel { IosAppGraph.chargingViewModel() }
+                        IosBackHandler { screen = "dashboard" }
                         key(chargingDetails) {
                             ChargingMonitorScreen(
                                 onBack = { screen = "dashboard" },
@@ -332,6 +349,7 @@ fun MainViewController(): UIViewController {
                     }
                     "flic" -> {
                         val flicVm = rememberViewModel { FlicViewModel(IosAppGraph.settings, IosFlic) }
+                        IosBackHandler { screen = "settings" }
                         FlicScreen(
                             onBack = { screen = "settings" },
                             viewModel = flicVm,
@@ -391,6 +409,10 @@ fun MainViewController(): UIViewController {
                 val pass by IosCrews.request.collectAsState()
                 pass?.let { p ->
                     key(p.id) {
+                        // Last composed, so the edge swipe closes the pass before
+                        // it reaches the screen under it, as Android's back
+                        // finishes the pass activity.
+                        IosBackHandler { IosCrews.close() }
                         CrewsPairScreen(
                             deps = IosCrews.deps,
                             initialLink = p.link,
