@@ -56,12 +56,17 @@ internal object IosSettingsHost : SettingsHost {
     // muted with a "not yet" tap (platform/PlatformFeatures.ios.kt).
     override val hiddenSections = setOf("watch")
 
+    // Pause and Play/Pause work through the audio session (IosMedia); no app
+    // can start another app's music or skip its tracks.
+    override val drivesMusicPlayer = false
+
     // What the iPhone has no counterpart for: no back on the dashboard, no
     // keep-alive service, no picture-in-picture, home widget or showing over
     // the lock screen, rotation is the system's; and spoken commands are not
     // on iOS yet. The notification's quick actions are the Live Activity's
-    // buttons here. iOS lets no app set the media volume or play and pause
-    // another app's music, so those two automations and the volume actions are left out. Nor does it
+    // buttons here. iOS lets no app set the media volume or fully drive
+    // another app's player, so the volume and music automations and the
+    // volume actions are left out. Nor does it
     // have Android's separate media, notification and alarm streams for the
     // voice to pick from.
     override val hiddenRows = setOf(

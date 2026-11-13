@@ -2218,14 +2218,16 @@ private fun DashboardLayoutTab(
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            // Listen and the volume actions are left out where they could
-            // only do nothing (iOS).
-            val hiddenRows = LocalSettingsHost.current.hiddenRows
+            // Listen, the volume actions and the music player's are left
+            // out where they could only do nothing (iOS).
+            val settingsHost = LocalSettingsHost.current
+            val hiddenRows = settingsHost.hiddenRows
             val voiceCommands = SettingsRow.VOICE_COMMANDS !in hiddenRows
             val phoneVolume = SettingsRow.PHONE_VOLUME !in hiddenRows
             ActionPool(
                 catalogKeys = com.eried.eucplanet.data.model.ActionCatalog.pickableKeys(
                     viewModel.knownDashboardActions, voiceCommands, phoneVolume,
+                    settingsHost.drivesMusicPlayer,
                 ),
                 onTap = { _ -> showPoolTapToast() },
                 controller = dragController
@@ -4400,12 +4402,14 @@ private fun ActionGroupSheet(
             // for groups with fewer than four actions. Packing two per
             // row keeps the sheet from getting tall, and the labels on
             // each field communicate which slot they map to.
-            val hiddenRows = LocalSettingsHost.current.hiddenRows
+            val settingsHost = LocalSettingsHost.current
+            val hiddenRows = settingsHost.hiddenRows
             val voiceCommands = SettingsRow.VOICE_COMMANDS !in hiddenRows
             val phoneVolume = SettingsRow.PHONE_VOLUME !in hiddenRows
-            val actionOptions = remember(viewModel, voiceCommands, phoneVolume) {
+            val musicPlayer = settingsHost.drivesMusicPlayer
+            val actionOptions = remember(viewModel, voiceCommands, phoneVolume, musicPlayer) {
                 listOf("") + com.eried.eucplanet.data.model.ActionCatalog.pickableKeys(
-                    viewModel.knownDashboardActions, voiceCommands, phoneVolume,
+                    viewModel.knownDashboardActions, voiceCommands, phoneVolume, musicPlayer,
                 )
             }
             for (rowIdx in 0 until 2) {

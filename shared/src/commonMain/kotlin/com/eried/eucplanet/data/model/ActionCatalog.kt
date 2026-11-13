@@ -422,16 +422,31 @@ object ActionCatalog {
     val phoneVolumeKeys = setOf("PHONE_VOLUME_UP", "PHONE_VOLUME_DOWN", "PHONE_MUTE_TOGGLE")
 
     /**
+     * Music actions that start another app's player or skip its tracks. Pause
+     * and Play/Pause are not here: every phone can pause the music and let it
+     * resume.
+     */
+    val musicPlayerKeys = setOf("MUSIC_START", "MEDIA_NEXT", "MEDIA_PREVIOUS")
+
+    /**
      * [keys] as a phone offers them in its pickers: without spoken commands
      * ([voiceCommands] false, as on iOS) Listen is left out, and without a
      * way to set the media volume ([phoneVolume] false, as on iOS) Volume up,
-     * Volume down and Mute are, since they could only do nothing. The saved
+     * Volume down and Mute are, and without a way to drive another app's
+     * player ([musicPlayer] false, as on iOS) Start music, Next and Previous
+     * are, since they could only do nothing. The saved
      * order keeps them, so a layout or binding synced from a phone that has
      * them is not changed; there they stay and do nothing.
      */
-    fun pickableKeys(keys: List<String>, voiceCommands: Boolean, phoneVolume: Boolean = true): List<String> =
+    fun pickableKeys(
+        keys: List<String>,
+        voiceCommands: Boolean,
+        phoneVolume: Boolean = true,
+        musicPlayer: Boolean = true,
+    ): List<String> =
         keys.filterNot {
-            (!voiceCommands && it in voiceCommandKeys) || (!phoneVolume && it in phoneVolumeKeys)
+            (!voiceCommands && it in voiceCommandKeys) || (!phoneVolume && it in phoneVolumeKeys) ||
+                (!musicPlayer && it in musicPlayerKeys)
         }
 
     /**

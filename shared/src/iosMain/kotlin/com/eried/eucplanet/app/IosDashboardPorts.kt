@@ -67,18 +67,6 @@ internal object NoVoiceCommands : DashboardVoiceCommands {
 }
 
 /**
- * iOS has no media keys an app can send to another app's player, so the
- * music actions do nothing yet.
- */
-internal object NoMedia : MediaControls {
-    override fun startMusic() { Log.i("Actions", "music control not on iOS") }
-    override fun playPauseOrStart() = startMusic()
-    override fun pause() = startMusic()
-    override fun next() = startMusic()
-    override fun previous() = startMusic()
-}
-
-/**
  * The PHONE_* actions on iOS. An app cannot change the iPhone's volume or
  * mute it, so those three only log; the flashlight works through the
  * camera's torch.

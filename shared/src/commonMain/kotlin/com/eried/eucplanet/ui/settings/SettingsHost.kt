@@ -32,6 +32,12 @@ interface SettingsHost {
     /** The volume keys can be bound to actions. */
     val supportsVolumeKeys: Boolean
 
+    /**
+     * The music actions can start another app's music and skip its tracks
+     * (Start music, Next, Previous). iOS can only pause it and let it resume.
+     */
+    val drivesMusicPlayer: Boolean get() = true
+
     /** A backup folder can be picked (Android's document tree); without one, Dropbox is the backup. */
     val supportsBackupFolder: Boolean
 

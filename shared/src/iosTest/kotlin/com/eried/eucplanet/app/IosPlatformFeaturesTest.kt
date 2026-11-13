@@ -31,5 +31,7 @@ class IosPlatformFeaturesTest {
         assertFalse(IosSettingsHost.supportsVolumeKeys)
         // iOS lets no app set the volume, so the volume actions are not offered.
         assertTrue(com.eried.eucplanet.ui.settings.SettingsRow.PHONE_VOLUME in IosSettingsHost.hiddenRows)
+        // It can pause another app's music but not start it or skip tracks.
+        assertFalse(IosSettingsHost.drivesMusicPlayer)
     }
 }

@@ -96,4 +96,17 @@ class SettingsSearchHiddenRowsTest {
         // A volume tile synced from Android still draws as itself (it does nothing there).
         assertEquals("PHONE_MUTE_TOGGLE", ActionCatalog.tileKeyOn("PHONE_MUTE_TOGGLE", voiceCommands = false))
     }
+
+    @Test fun musicPlayerActionsAreOnlyOfferedWhereThePlayerCanBeDriven() {
+        val all = ActionCatalog.all.map { it.key }
+        val player = setOf("MUSIC_START", "MEDIA_NEXT", "MEDIA_PREVIOUS")
+        assertEquals(player, ActionCatalog.musicPlayerKeys)
+        assertTrue(all.containsAll(player))
+        assertTrue(ActionCatalog.pickableKeys(all, voiceCommands = true).containsAll(player))
+        val iphone = ActionCatalog.pickableKeys(all, voiceCommands = true, musicPlayer = false)
+        assertTrue(iphone.none { it in player })
+        // Pausing works on every phone, so Pause and Play/Pause stay.
+        assertTrue(iphone.containsAll(listOf("MEDIA_PAUSE", "MEDIA_PLAY_PAUSE")))
+        assertEquals(all.size - player.size, iphone.size)
+    }
 }
