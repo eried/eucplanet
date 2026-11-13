@@ -35,7 +35,7 @@ val WheelIcon: ImageVector by lazy {
         // Hub, pedals and seat.
         listOf(
             "M8.1 14.9a3.9 3.9 0 0 1 7.8 0z",
-            "M8 14.5h8a1 1 0 0 1 0 2h-8a1 1 0 0 1 0-2z",
+            "M6.5 14.5h11a1 1 0 0 1 0 2h-11a1 1 0 0 1 0-2z",
             "M8 7.4q4-2.4 8 0v.4a.6 .6 0 0 1-.6 .6h-6.8a.6 .6 0 0 1-.6-.6z",
         ).forEach { addPath(pathData = addPathNodes(it), fill = SolidColor(Color.Black)) }
     }.build()
