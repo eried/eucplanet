@@ -43,7 +43,6 @@ import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.DirectionsBike
 import androidx.compose.material.icons.filled.DragIndicator
 import androidx.compose.material.icons.filled.FolderOff
 import androidx.compose.material.icons.filled.FormatColorFill
@@ -139,6 +138,7 @@ import com.eried.eucplanet.ui.theme.themedSliderColors
 import com.eried.eucplanet.ui.theme.themedTonalButtonColors
 import com.eried.eucplanet.ui.theme.themedFilterChipColors
 import com.eried.eucplanet.ui.common.appMenuItemColors
+import com.eried.eucplanet.ui.common.WheelIcon
 
 /** Which secondary sheet / dialog the studio is currently showing. */
 sealed interface StudioSheet {
@@ -243,7 +243,7 @@ private fun OverlayElementType.label(): String = stringResource(labelRes)
 
 private val OverlayElementType.icon
     get() = when (this) {
-        OverlayElementType.WHEEL_NAME -> Icons.Default.DirectionsBike
+        OverlayElementType.WHEEL_NAME -> WheelIcon
         OverlayElementType.APP_BADGE -> Icons.Default.Badge
         OverlayElementType.TEXT -> Icons.Default.TextFields
         OverlayElementType.DATA_VALUE -> Icons.Default.Numbers
