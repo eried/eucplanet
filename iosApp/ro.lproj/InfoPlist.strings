@@ -1,0 +1,5 @@
+/* The permission prompts. Info.plist holds the English. */
+"NSCameraUsageDescription" = "EUC Planet citește codul QR al accesului crew afișat pe eucstats.";
+"NSBluetoothAlwaysUsageDescription" = "EUC Planet se conectează la monociclul tău prin Bluetooth ca să arate datele cursei în timp real.";
+"NSLocationWhenInUseUsageDescription" = "EUC Planet folosește locația ta pentru viteza GPS, înregistrarea curselor și luminile automate.";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "EUC Planet continuă să înregistreze cursa cu ecranul stins.";

@@ -1,0 +1,5 @@
+/* The permission prompts. Info.plist holds the English. */
+"NSCameraUsageDescription" = "Az EUC Planet beolvassa az eucstats-on megjelenő crew-belépő QR-kódját.";
+"NSBluetoothAlwaysUsageDescription" = "Az EUC Planet Bluetooth-on csatlakozik az egykerekűdhöz, hogy élő menetadatokat mutasson.";
+"NSLocationWhenInUseUsageDescription" = "Az EUC Planet a helyzetedet GPS-sebességhez, menetrögzítéshez és automatikus világításhoz használja.";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "Az EUC Planet kikapcsolt képernyőnél is rögzíti a menetet.";

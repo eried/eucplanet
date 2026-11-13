@@ -1,0 +1,5 @@
+/* The permission prompts. Info.plist holds the English. */
+"NSCameraUsageDescription" = "EUC Planet は eucstats に表示されるクルーパスの QR コードを読み取ります。";
+"NSBluetoothAlwaysUsageDescription" = "EUC Planet は Bluetooth でホイールに接続し、走行データをリアルタイムで表示します。";
+"NSLocationWhenInUseUsageDescription" = "EUC Planet は位置情報を GPS 速度、トリップ記録、ライトの自動点灯に使用します。";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "EUC Planet は画面がオフの間もトリップを記録し続けます。";

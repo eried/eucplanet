@@ -1,0 +1,5 @@
+/* The permission prompts. Info.plist holds the English. */
+"NSCameraUsageDescription" = "EUC Planet leser QR-koden til crew-passet som vises på eucstats.";
+"NSBluetoothAlwaysUsageDescription" = "EUC Planet kobler til hjulet ditt via Bluetooth for å vise turdata i sanntid.";
+"NSLocationWhenInUseUsageDescription" = "EUC Planet bruker posisjonen din til GPS-fart, turopptak og automatisk lys.";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "EUC Planet fortsetter å ta opp turen mens skjermen er av.";

@@ -1,0 +1,5 @@
+/* The permission prompts. Info.plist holds the English. */
+"NSCameraUsageDescription" = "EUC Planet lee el código QR del pase de cuadrilla que muestra eucstats.";
+"NSBluetoothAlwaysUsageDescription" = "EUC Planet se conecta a tu rueda por Bluetooth para mostrar los datos del recorrido en directo.";
+"NSLocationWhenInUseUsageDescription" = "EUC Planet usa tu ubicación para la velocidad GPS, la grabación de viajes y las luces automáticas.";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "EUC Planet sigue grabando tu viaje con la pantalla apagada.";

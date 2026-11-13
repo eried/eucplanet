@@ -1,0 +1,5 @@
+/* The permission prompts. Info.plist holds the English. */
+"NSCameraUsageDescription" = "EUC Planet 會讀取 eucstats 上顯示的車隊通行證 QR 碼。";
+"NSBluetoothAlwaysUsageDescription" = "EUC Planet 透過藍牙連線到你的獨輪車，顯示即時騎乘資料。";
+"NSLocationWhenInUseUsageDescription" = "EUC Planet 使用你的位置來取得 GPS 速度、記錄行程和自動開燈。";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "螢幕關閉時，EUC Planet 會繼續記錄你的行程。";

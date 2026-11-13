@@ -1,0 +1,5 @@
+/* The permission prompts. Info.plist holds the English. */
+"NSCameraUsageDescription" = "EUC Planet odczytuje kod QR przepustki ekipy wyświetlany w eucstats.";
+"NSBluetoothAlwaysUsageDescription" = "EUC Planet łączy się z kołem przez Bluetooth, aby pokazywać dane z jazdy na żywo.";
+"NSLocationWhenInUseUsageDescription" = "EUC Planet używa Twojej lokalizacji do prędkości GPS, nagrywania przejazdów i automatycznych świateł.";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "EUC Planet nagrywa przejazd także przy wyłączonym ekranie.";

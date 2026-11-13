@@ -1,0 +1,5 @@
+/* The permission prompts. Info.plist holds the English. */
+"NSCameraUsageDescription" = "EUC Planet đọc mã QR thẻ đội hiển thị trên eucstats.";
+"NSBluetoothAlwaysUsageDescription" = "EUC Planet kết nối với xe của bạn qua Bluetooth để hiển thị dữ liệu chuyến đi trực tiếp.";
+"NSLocationWhenInUseUsageDescription" = "EUC Planet dùng vị trí của bạn cho tốc độ GPS, ghi chuyến đi và đèn tự động.";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "EUC Planet tiếp tục ghi chuyến đi khi màn hình tắt.";

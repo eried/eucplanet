@@ -139,8 +139,9 @@ manually.
 
 ## iOS-specific gaps
 
-- Info.plist permission texts are English only; they need `InfoPlist.strings`
-  for the 23 locales.
+- Info.plist permission texts are translated: `iosApp/<locale>.lproj/InfoPlist.strings`
+  for every language in `CFBundleLocalizations`, with Info.plist holding the
+  English. `IosPermissionTextsTest` fails when a prompt or a language is missing.
 
 ## Parity pass (2026-11-08)
 

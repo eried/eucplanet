@@ -1,0 +1,5 @@
+/* The permission prompts. Info.plist holds the English. */
+"NSCameraUsageDescription" = "EUC Planet čte QR kód průkazu crew zobrazený na eucstats.";
+"NSBluetoothAlwaysUsageDescription" = "EUC Planet se připojuje k vašemu monokolu přes Bluetooth a zobrazuje živá data z jízdy.";
+"NSLocationWhenInUseUsageDescription" = "EUC Planet používá vaši polohu pro rychlost z GPS, nahrávání jízd a automatická světla.";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "EUC Planet nahrává jízdu i při vypnuté obrazovce.";
