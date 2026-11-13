@@ -1972,6 +1972,12 @@ fun RouteBuilderScreen(
                             TextButton(onClick = { viewModel.stopRemindingBeforeRide(); go() }, shape = RoundedCornerShape(12.dp)) {
                                 Text(stringResource(R.string.offline_ride_never))
                             }
+                            // Every other choice starts the ride; this one leaves
+                            // the route as it is. Last in the stack, as the sync
+                            // conflict dialog puts its Cancel.
+                            TextButton(onClick = { offlineAsk = null }, shape = RoundedCornerShape(12.dp)) {
+                                Text(stringResource(R.string.action_cancel))
+                            }
                         }
                     },
                 )
