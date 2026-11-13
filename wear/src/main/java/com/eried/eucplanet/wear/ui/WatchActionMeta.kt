@@ -3,8 +3,13 @@ package com.eried.eucplanet.wear.ui
 import android.content.Context
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.VolumeDown
+import androidx.compose.material.icons.automirrored.filled.VolumeMute
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.FiberManualRecord
+import androidx.compose.material.icons.filled.FlashlightOff
+import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.FlashlightOn
 import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.Lock
@@ -50,7 +55,12 @@ private val WATCH_ACTION_TABLE: Map<String, WatchActionEntry> = mapOf(
     "MEDIA_PLAY_PAUSE" to WatchActionEntry(Icons.Filled.PlayArrow, R.string.watch_action_media_play),
     "MEDIA_PAUSE" to WatchActionEntry(Icons.Filled.Pause, R.string.watch_action_media_pause),
     "MEDIA_NEXT" to WatchActionEntry(Icons.Filled.SkipNext, R.string.watch_action_media_next),
-    "MEDIA_PREVIOUS" to WatchActionEntry(Icons.Filled.SkipPrevious, R.string.watch_action_media_prev)
+    "MEDIA_PREVIOUS" to WatchActionEntry(Icons.Filled.SkipPrevious, R.string.watch_action_media_prev),
+    "PHONE_VOLUME_UP" to WatchActionEntry(Icons.AutoMirrored.Filled.VolumeUp, R.string.watch_action_phone_volume_up),
+    "PHONE_VOLUME_DOWN" to WatchActionEntry(Icons.AutoMirrored.Filled.VolumeDown, R.string.watch_action_phone_volume_down),
+    "PHONE_MUTE_TOGGLE" to WatchActionEntry(Icons.AutoMirrored.Filled.VolumeMute, R.string.watch_action_phone_mute),
+    "PHONE_TORCH_TOGGLE" to WatchActionEntry(Icons.Filled.FlashlightOff, R.string.watch_action_phone_torch),
+    "ENGINE_SOUND_TOGGLE" to WatchActionEntry(Icons.Filled.GraphicEq, R.string.watch_action_engine_sound)
 )
 
 internal fun iconForAction(action: String): ImageVector? =

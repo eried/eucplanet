@@ -269,7 +269,57 @@ class SyncManager(
      * them creating one file does not fail: the document provider renames the
      * loser, leaving "trip (1) (1).csv" beside the backup. Seen happening.
      */
-    private suspend fun runSync() = withUploadPass { runSyncPass() }
+    private suspend fun runSync() = withUploadPass {
+        try {
+            runSyncPass()
+        } finally {
+            // The rider just picked a side, or skipped, or cancelled: the
+            // warning must say what the folder holds now, not what the worker
+            // saw on its last pass. Counted even after a cancel, which is why
+            // it cannot itself be cancelled.
+            withContext(kotlinx.coroutines.NonCancellable) {
+                val settings = settingsRepository.get()
+                if (settings.syncFolderUri != null) refreshFolderConflictCount(settings)
+            }
+        }
+    }
+
+    /**
+     * Count the trips whose phone and folder copies differ and store it for
+     * the Backup conflicts warning. The one place that number is written:
+     * the folder worker calls it on every pass with the listing it already
+     * has, and a manual sync calls it when it ends. A folder that cannot be
+     * listed leaves the number alone.
+     */
+    suspend fun refreshFolderConflictCount(
+        settings: AppSettings,
+        folderSizes: Map<String, Long>? = null,
+    ) = withContext(Dispatchers.IO) {
+        val folderSizes = folderSizes ?: listFolderTripSizes(settings) ?: return@withContext
+        val tripsDir = getTripsDir()
+        val localSizes = HashMap<String, Long>()
+        for (trip in tripDao.observeAll().first()) {
+            if (trip.endTime == null) continue
+            val file = File(tripsDir, trip.fileName)
+            if (file.exists()) localSizes[trip.fileName] = file.length()
+        }
+        val conflicts = countFolderConflicts(localSizes, folderSizes)
+        if (settings.folderConflictCount != conflicts) {
+            settingsRepository.update { it.copy(folderConflictCount = conflicts) }
+        }
+    }
+
+    /**
+     * Count again, but only while the warning is up. For a change on the
+     * phone that can only settle a conflict, never make one: a trip deleted,
+     * or the library cleared. Costs nothing when there is no warning.
+     */
+    suspend fun recountFolderConflictsIfWarned() {
+        val settings = settingsRepository.get()
+        if (settings.folderConflictCount > 0 && settings.syncFolderUri != null) {
+            refreshFolderConflictCount(settings)
+        }
+    }
 
     private suspend fun runSyncPass() {
         val settings = settingsRepository.get()
@@ -423,6 +473,8 @@ class SyncManager(
             context.contentResolver.takePersistableUriPermission(uri, flags)
             val current = settingsRepository.get()
             settingsRepository.update(current.copy(syncFolderUri = uri.toString()))
+            // The count belonged to the folder before this one.
+            refreshFolderConflictCount(settingsRepository.get())
             true
         } catch (e: SecurityException) {
             Log.e(TAG, "Could not take persistable permission for $uri", e)
@@ -446,6 +498,7 @@ class SyncManager(
             syncFolderUri = null,
             lastSettingsBackupAt = null,
             onlineUploadEnabled = false,  // online upload requires a folder
+            folderConflictCount = 0,      // no folder, nothing to differ from
         ))
         // Both destinations just lost their prerequisites: folder is gone, and
         // the rider id file went with it. Drop any pending retries so we don't
@@ -1231,7 +1284,14 @@ class SyncManager(
             ?.findFile(TRIPS_SUBFOLDER)?.takeIf { it.isDirectory }
             ?: return true
         return try {
-            val doc = tripsDir.findFile(fileName)?.takeIf { it.isFile } ?: return true
+            // Shared storage ignores case and the folder may spell the name
+            // its own way ("Inmotion_V14" for the app's "inmotion_v14").
+            // findFile matches exactly, so such a copy read as "nothing to
+            // move", stayed in the folder, and the next sync brought the
+            // deleted trip back.
+            val doc = (tripsDir.findFile(fileName)
+                ?: tripsDir.listFiles().firstOrNull { it.name.equals(fileName, ignoreCase = true) })
+                ?.takeIf { it.isFile } ?: return true
             val archive = tripsDir.findFile("archive")?.takeIf { it.isDirectory }
                 ?: tripsDir.createDirectory("archive") ?: return false
             // An archive never destroys: a name already in there is an earlier

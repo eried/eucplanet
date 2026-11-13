@@ -1,5 +1,6 @@
 package com.eried.eucplanet.hud
 
+import android.content.Intent
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -13,6 +14,7 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
+import com.eried.eucplanet.hud.update.HudAppUpdate
 import com.eried.eucplanet.hud.net.HudServer
 import com.eried.eucplanet.hud.net.HudTileCache
 import com.eried.eucplanet.hud.ui.HudApp
@@ -174,6 +176,19 @@ class HudActivity : ComponentActivity() {
                 .collect { tileCache.applyStyle(it) }
         }
 
+        // The phone sent a HUD app: straight to Android's own prompt. The
+        // rider asked for it on the phone and Android asks here, a question
+        // of ours in between was one OK too many.
+        lifecycleScope.launch {
+            HudAppUpdate.arrived.collect { p -> if (p != null) HudAppUpdate.install(this@HudActivity) }
+        }
+
+        // The phone asked for this app to be removed: Android's own prompt
+        // asks the rider, nothing goes without their answer on the HUD.
+        lifecycleScope.launch {
+            HudAppUpdate.removeAsked.collect { asked -> if (asked) HudAppUpdate.remove(this@HudActivity) }
+        }
+
         setContent {
             HudApp(
                 state = server.state,
@@ -195,7 +210,19 @@ class HudActivity : ComponentActivity() {
         super.onDestroy()
     }
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        if (intent.action == HudAppUpdate.ACTION_INSTALL_STATUS) {
+            HudAppUpdate.onInstallStatus(this, intent)
+        }
+    }
+
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        // The line about an update that did not install takes the next key.
+        if (HudAppUpdate.problem.value != null) {
+            if (event.action == KeyEvent.ACTION_UP) HudAppUpdate.dismissProblem()
+            return true
+        }
         when (event.action) {
             KeyEvent.ACTION_DOWN -> controller.noteKey(event.keyCode, down = true, atMs = event.eventTime)
             KeyEvent.ACTION_UP -> controller.noteKey(event.keyCode, down = false, atMs = event.eventTime)

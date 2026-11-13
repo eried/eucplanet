@@ -40,6 +40,11 @@
     <string name="watch_action_media_prev">Önceki parça</string>
     <string name="watch_action_music_start">Müziği başlat</string>
     <string name="watch_action_media_pause">Müziği duraklat</string>
+    <string name="watch_action_phone_volume_up">Sesi aç</string>
+    <string name="watch_action_phone_volume_down">Sesi kıs</string>
+    <string name="watch_action_phone_mute">Sessiz / sesli</string>
+    <string name="watch_action_phone_torch">Telefon feneri</string>
+    <string name="watch_action_engine_sound">Motor sesi</string>
     <string name="watch_action_long_press_hint">%1$s için uzun basın</string>
     <string name="watch_map_phone_disconnected">Telefon yok</string>
     <string name="watch_map_gps_permission">GPS\'e izin ver</string>

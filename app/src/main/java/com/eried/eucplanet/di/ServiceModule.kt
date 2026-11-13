@@ -2,7 +2,6 @@ package com.eried.eucplanet.di
 
 import com.eried.eucplanet.audio.EngineSoundEngine
 import com.eried.eucplanet.audio.HornPlayer
-import com.eried.eucplanet.audio.SfxSidecar
 import com.eried.eucplanet.cheats.CheatState
 import com.eried.eucplanet.data.repository.AppNotices
 import com.eried.eucplanet.data.repository.CheatFlags
@@ -82,6 +81,7 @@ val serviceModule = module {
     singleOf(::FlicManager)
     singleOf(::AndroidFlicPairing) bind com.eried.eucplanet.flic.FlicPairing::class
     single { com.eried.eucplanet.flic.AndroidMediaControls(androidContext()) } bind com.eried.eucplanet.flic.MediaControls::class
+    single { com.eried.eucplanet.flic.AndroidPhoneControls(androidContext()) } bind com.eried.eucplanet.flic.PhoneControls::class
     single<com.eried.eucplanet.flic.VoiceListening> {
         val commands: com.eried.eucplanet.voice.VoiceCommandController = get()
         object : com.eried.eucplanet.flic.VoiceListening {
@@ -94,7 +94,6 @@ val serviceModule = module {
     singleOf(::CheatState) { bind<CheatFlags>() }
     singleOf(::EngineSoundEngine)
     singleOf(::HornPlayer) { bind<PhoneHorn>() }
-    singleOf(::SfxSidecar)
     single {
         val context = androidContext()
         ThemeController(get(), get()) {

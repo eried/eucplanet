@@ -383,6 +383,8 @@
     <string name="voice_mic_grant">Zezwól na mikrofon</string>
     <string name="warnings_perm_mic_title">Brak dostępu do mikrofonu</string>
     <string name="warnings_perm_mic_body">Polecenia głosowe nie zadziałają, dopóki aplikacja nie dostanie dostępu do mikrofonu.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth niedozwolony</string>
+    <string name="warnings_perm_bluetooth_body">Aplikacja nie może znaleźć koła ani się z nim połączyć. Dotknij, aby zezwolić.</string>
     <string name="voice_answer_unknown">Nie rozumiem. Powiedz %1$s, aby uzyskać pomoc.</string>
     <string name="voice_help_terms">co mogę powiedzieć,pomoc,o co mogę zapytać</string>
     <string name="voice_stat_max_terms">maksimum,maks,najwyższy</string>
@@ -461,6 +463,10 @@
     <string name="action_chip_media_prev">Poprzedni utwór</string>
     <string name="action_chip_music_start">Włącz muzykę</string>
     <string name="action_chip_media_pause">Wstrzymaj muzykę</string>
+    <string name="action_chip_phone_volume_up">Głośniej</string>
+    <string name="action_chip_phone_volume_down">Ciszej</string>
+    <string name="action_chip_phone_mute">Wycisz</string>
+    <string name="action_chip_phone_torch">Latarka telefonu</string>
     <string name="action_chip_open_navigation">Pokaż mapę</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
     <string name="action_chip_open_about">O aplikacji</string>
@@ -533,6 +539,19 @@
     -->
     <string name="hud_install_hint">Potrzebujesz aplikacji HUD? Pobierz ją z <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">Aplikacja HUD</string>
+    <string name="hud_app_installed">Zainstalowana:</string>
+    <string name="hud_app_available">Dostępna:</string>
+    <string name="hud_app_connected">Połączono:</string>
+    <string name="hud_app_send">Wyślij do HUD</string>
+    <string name="hud_app_remove">Odinstaluj</string>
+    <string name="hud_app_sending">Wysyłanie, %1$d%%</string>
+    <string name="hud_app_sent">Dokończ na HUD.</string>
+    <string name="hud_app_resend_title">Już aktualna</string>
+    <string name="hud_app_resend_body">HUD ma już tę wersję. Wysłać mimo to?</string>
+    <string name="hud_app_remove_title">Odinstalować aplikację HUD?</string>
+    <string name="hud_app_remove_body">HUD poprosi o odinstalowanie. Ponowna instalacja wymaga kabla.</string>
+    <string name="hud_app_failed">Nie można połączyć się z HUD. Spróbuj ponownie.</string>
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">Ogólne</string>
     <string name="section_watch_display">Ekran</string>
@@ -858,7 +877,7 @@
     <string name="engine_preset_steam_loco">Lokomotywa parowa</string>
     <string name="engine_preset_tron_whine">Świst z Trona</string>
     <string name="engine_preset_pod_racer">Pod racer</string>
-    <string name="engine_preset_lightsaber">Miecz świetlny</string>
+    <string name="engine_preset_lightsaber">Cyfrowe buczenie</string>
     <string name="engine_preset_jet_turbine">Turbina odrzutowa</string>
     <string name="engine_preset_ufo_hover">UFO w zawisie</string>
     <string name="engine_preset_f1_electric">Elektryczny świst F1</string>
@@ -866,7 +885,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V-twin Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">Ciężarówka diesel</string>
-    <string name="engine_preset_sampled_motorcycle">Motocykl</string>
+    <string name="engine_preset_sampled_motorcycle">Mały motocykl crossowy</string>
     <string name="engine_preset_sampled_city_car">Auto miejskie</string>
     <string name="engine_preset_sampled_helicopter">Helikopter</string>
     <string name="engine_preset_sampled_tractor">Traktor</string>
@@ -946,8 +965,13 @@
     <string name="gps_show_on_dashboard">Pokaż prędkość na pulpicie</string>
     <string name="gps_show_on_dashboard_desc">Dodaje na prędkościomierzu kolorową kropkę z odczytem GPS.</string>
     <string name="section_volume_keys">Klawisze głośności</string>
-    <string name="volume_keys_caption">Używaj przycisków głośności telefonu jako skrótów (tylko gdy aplikacja jest widoczna)</string>
+    <string name="volume_keys_caption">Przyciski głośności jako skróty, gdy aplikacja jest na ekranie.</string>
     <string name="volume_keys_enable">Włącz akcje klawiszy głośności</string>
+    <string name="volume_keys_screen_off">Także przy wyłączonym ekranie</string>
+    <string name="volume_keys_screen_off_caption">Działa przy zablokowanym telefonie i z inną aplikacją na wierzchu. Przyciski nie zmieniają już głośności telefonu.</string>
+    <string name="volume_keys_screen_off_warn">Android wysyła naciśnięcia przycisków głośności tylko do aplikacji na ekranie. Aby odbierać je przy wyłączonym ekranie, EUC Planet zgłasza się jako aktywny odtwarzacz multimediów telefonu, a Android wysyła mu przyciski zamiast zmieniać głośność.\n\nGdy ta opcja jest włączona, przyciski nie zmieniają głośności telefonu.</string>
+    <string name="volume_keys_screen_off_confirm">Włącz</string>
+    <string name="volume_keys_screen_off_title">Przejąć przyciski głośności?</string>
     <string name="volume_up">Głośność w górę</string>
     <string name="volume_down">Głośność w dół</string>
 
@@ -2714,7 +2738,7 @@
     <string name="lockdown_warning_no_wheel">Brak połączonego koła, więc stan trybu legalnego jest nieznany. Aplikacja zablokuje się przy następnym włączeniu trybu legalnego.</string>
     <string name="lockdown_continue">Dalej</string>
     <string name="trip_tools_wheel_none">Ten przejazd nie ma jeszcze zapisanego koła.</string>
-    <string name="backup_conflict_warning">Niektóre kopie zapasowe przejazdów wymagają ręcznej synchronizacji, bo się różnią. Naciśnij Synchronizuj wszystko i wybierz, która wersja ma zostać.</string>
+    <string name="backup_conflict_warning">Niektóre przejazdy na tym telefonie różnią się od kopii w folderze kopii zapasowej. Dotknij %1$s, potem w sekcji %2$s naciśnij \"%3$s\" i wybierz, którą kopię zachować.</string>
     <string name="backup_conflict_title">Konflikty kopii zapasowych</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Jedziemy?</string>

@@ -319,8 +319,13 @@
     <string name="gps_show_on_dashboard">在仪表盘显示速度</string>
     <string name="gps_show_on_dashboard_desc">在速度表上叠加一个彩色圆点显示 GPS 读数。</string>
     <string name="section_volume_keys">音量键</string>
-    <string name="volume_keys_caption">将手机音量键用作快捷键（仅在应用显示时）。</string>
+    <string name="volume_keys_caption">应用显示在屏幕上时，用手机音量键作为快捷键。</string>
     <string name="volume_keys_enable">启用音量键操作</string>
+    <string name="volume_keys_screen_off">熄屏时也生效</string>
+    <string name="volume_keys_screen_off_caption">手机锁屏或其他应用在前台时也有效。音量键不再改变手机音量。</string>
+    <string name="volume_keys_screen_off_warn">Android 只把音量键按压发给屏幕上的应用。为了在熄屏时也能收到，EUC Planet 会注册为手机当前的媒体播放器，Android 就把音量键发给它，而不是调节音量。\n\n开启期间，音量键不再改变手机音量。</string>
+    <string name="volume_keys_screen_off_confirm">开启</string>
+    <string name="volume_keys_screen_off_title">接管音量键？</string>
     <string name="volume_up">音量+</string>
     <string name="volume_down">音量-</string>
 
@@ -729,9 +734,9 @@
     <string name="engine_preset_ufo_hover">UFO悬停</string>
     <string name="engine_preset_f1_electric">F1 电动</string>
     <string name="engine_preset_hover_bike">悬浮摩托</string>
-    <string name="engine_preset_lightsaber">光剑</string>
+    <string name="engine_preset_lightsaber">数字嗡鸣</string>
     <string name="engine_preset_sampled_diesel_iveco">柴油卡车</string>
-    <string name="engine_preset_sampled_motorcycle">摩托车</string>
+    <string name="engine_preset_sampled_motorcycle">小型越野摩托</string>
     <string name="engine_preset_sampled_city_car">城市轿车</string>
     <string name="engine_preset_sampled_helicopter">直升机</string>
     <string name="engine_preset_sampled_tractor">拖拉机</string>
@@ -1347,6 +1352,10 @@
     <string name="action_chip_media_prev">上一曲</string>
     <string name="action_chip_music_start">开始音乐</string>
     <string name="action_chip_media_pause">暂停音乐</string>
+    <string name="action_chip_phone_volume_up">调高音量</string>
+    <string name="action_chip_phone_volume_down">调低音量</string>
+    <string name="action_chip_phone_mute">静音</string>
+    <string name="action_chip_phone_torch">手机手电筒</string>
     <string name="action_chip_mute_alarms">静音报警</string>
     <string name="action_chip_open_about">关于</string>
     <string name="action_chip_open_navigation">显示地图</string>
@@ -1412,6 +1421,8 @@
     <string name="voice_mic_grant">允许麦克风</string>
     <string name="warnings_perm_mic_title">未允许麦克风</string>
     <string name="warnings_perm_mic_body">在应用获得麦克风权限之前，语音指令无法聆听。</string>
+    <string name="warnings_perm_bluetooth_title">未允许蓝牙</string>
+    <string name="warnings_perm_bluetooth_body">应用无法找到或连接你的独轮车。点按以允许。</string>
     <string name="voice_answer_unknown">没听清。请说“%1$s”获取帮助。</string>
     <string name="voice_help_terms">我能说什么,帮助,我能问什么</string>
     <string name="voice_stat_max_terms">最大,最高</string>
@@ -1796,6 +1807,19 @@
     <string name="hud_map_brightness_label">亮度</string>
     <string name="hud_install_hint">需要 HUD 应用？请前往 <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">HUD 应用</string>
+    <string name="hud_app_installed">已安装：</string>
+    <string name="hud_app_available">可用：</string>
+    <string name="hud_app_connected">已连接：</string>
+    <string name="hud_app_send">发送到 HUD</string>
+    <string name="hud_app_remove">卸载</string>
+    <string name="hud_app_sending">正在发送 %1$d%%</string>
+    <string name="hud_app_sent">请在 HUD 上继续。</string>
+    <string name="hud_app_resend_title">已是最新</string>
+    <string name="hud_app_resend_body">HUD 已是此版本。仍要发送吗？</string>
+    <string name="hud_app_remove_title">卸载 HUD 应用？</string>
+    <string name="hud_app_remove_body">HUD 会询问是否卸载。重新安装需要数据线。</string>
+    <string name="hud_app_failed">无法连接 HUD。请重试。</string>
     <string name="nav_setting_full_path">始终计算完整路线</string>
     <string name="nav_setting_full_path_desc">关闭时仅计算到下一个途经点的路线，其余以虚线预览显示。</string>
     <string name="studio_cfg_clock_24h">24 小时制</string>
@@ -2580,7 +2604,7 @@
     <string name="lockdown_warning_no_wheel">未连接独轮车，因此合规模式的状态未知。下次开启合规模式时应用才会锁定。</string>
     <string name="lockdown_continue">继续</string>
     <string name="trip_tools_wheel_none">此行程尚未记录独轮车。</string>
-    <string name="backup_conflict_warning">部分行程备份需要手动同步：两侧副本不一致。点按“同步”并选择以哪一侧为准。</string>
+    <string name="backup_conflict_warning">此手机上的部分行程与备份文件夹中的副本不同。点按%1$s，然后在%2$s下点按“%3$s”，选择保留哪一份。</string>
     <string name="backup_conflict_title">备份冲突</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">骑吗？</string>

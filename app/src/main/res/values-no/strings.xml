@@ -316,8 +316,13 @@
     <string name="gps_show_on_dashboard">Vis fart på dashbordet</string>
     <string name="gps_show_on_dashboard_desc">Legger en farget prikk på fartsmåleren med GPS-verdien.</string>
     <string name="section_volume_keys">Volumtaster</string>
-    <string name="volume_keys_caption">Volumtaster som snarveier (kun når appen er synlig)</string>
+    <string name="volume_keys_caption">Volumknappene som snarveier mens appen er på skjermen.</string>
     <string name="volume_keys_enable">Slå på volumtast-handlinger</string>
+    <string name="volume_keys_screen_off">Også med skjermen av</string>
+    <string name="volume_keys_screen_off_caption">Virker med låst telefon eller en annen app foran. Knappene endrer ikke lenger telefonvolumet.</string>
+    <string name="volume_keys_screen_off_warn">Android sender bare volumtrykk til appen på skjermen. For å få dem med skjermen av melder EUC Planet seg som telefonens aktive mediespiller, så Android sender volumknappene dit i stedet for å endre volumet.\n\nMens dette er på, endrer ikke knappene telefonvolumet.</string>
+    <string name="volume_keys_screen_off_confirm">Slå på</string>
+    <string name="volume_keys_screen_off_title">La appen ta over volumknappene?</string>
     <string name="volume_up">Volum opp</string>
     <string name="volume_down">Volum ned</string>
 
@@ -746,9 +751,9 @@
     <string name="engine_preset_ufo_hover">UFO i sveving</string>
     <string name="engine_preset_f1_electric">F1 elektrisk</string>
     <string name="engine_preset_hover_bike">Svevesykkel</string>
-    <string name="engine_preset_lightsaber">Lyssverd</string>
+    <string name="engine_preset_lightsaber">Digital summing</string>
     <string name="engine_preset_sampled_diesel_iveco">Diesellastebil</string>
-    <string name="engine_preset_sampled_motorcycle">Motorsykkel</string>
+    <string name="engine_preset_sampled_motorcycle">Liten crosser</string>
     <string name="engine_preset_sampled_city_car">Bybil</string>
     <string name="engine_preset_sampled_helicopter">Helikopter</string>
     <string name="engine_preset_sampled_tractor">Traktor</string>
@@ -1364,6 +1369,10 @@
     <string name="action_chip_media_prev">Forrige spor</string>
     <string name="action_chip_music_start">Start musikk</string>
     <string name="action_chip_media_pause">Pause musikk</string>
+    <string name="action_chip_phone_volume_up">Volum opp</string>
+    <string name="action_chip_phone_volume_down">Volum ned</string>
+    <string name="action_chip_phone_mute">Lyd av</string>
+    <string name="action_chip_phone_torch">Telefonens lommelykt</string>
     <string name="action_chip_mute_alarms">Demp alarmer</string>
     <string name="action_chip_open_about">Om</string>
     <string name="action_chip_open_navigation">Vis kart</string>
@@ -1429,6 +1438,8 @@
     <string name="voice_mic_grant">Tillat mikrofon</string>
     <string name="warnings_perm_mic_title">Mikrofon ikke tillatt</string>
     <string name="warnings_perm_mic_body">Talekommandoer kan ikke lytte før appen får bruke mikrofonen.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth er ikke tillatt</string>
+    <string name="warnings_perm_bluetooth_body">Appen kan ikke finne eller koble til hjulet ditt. Trykk for å tillate.</string>
     <string name="voice_answer_unknown">Det fikk jeg ikke med meg. Si %1$s for hjelp.</string>
     <string name="voice_help_terms">hva kan jeg si,hjelp,hva kan jeg spørre om</string>
     <string name="voice_stat_max_terms">maksimum,maks,høyeste</string>
@@ -1813,6 +1824,19 @@
     <string name="hud_map_brightness_label">Lysstyrke</string>
     <string name="hud_install_hint">Trenger du HUD-appen? Hent den fra <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">HUD-app</string>
+    <string name="hud_app_installed">Installert:</string>
+    <string name="hud_app_available">Tilgjengelig:</string>
+    <string name="hud_app_connected">Tilkoblet:</string>
+    <string name="hud_app_send">Send til HUD</string>
+    <string name="hud_app_remove">Avinstaller</string>
+    <string name="hud_app_sending">Sender, %1$d%%</string>
+    <string name="hud_app_sent">Fortsett på HUD.</string>
+    <string name="hud_app_resend_title">Allerede oppdatert</string>
+    <string name="hud_app_resend_body">HUD-en har allerede denne versjonen. Sende likevel?</string>
+    <string name="hud_app_remove_title">Avinstallere HUD-appen?</string>
+    <string name="hud_app_remove_body">HUD-en ber om å avinstallere den. Du trenger kabel for å installere den igjen.</string>
+    <string name="hud_app_failed">Fikk ikke kontakt med HUD. Prøv igjen.</string>
     <string name="nav_setting_full_path">Beregn alltid hele ruten</string>
     <string name="nav_setting_full_path_desc">Av beregner bare neste stopp og viser resten som stiplet forhåndsvisning.</string>
     <string name="studio_cfg_clock_24h">24-timers format</string>
@@ -2601,7 +2625,7 @@
     <string name="lockdown_warning_no_wheel">Ingen hjul er tilkoblet, så tilstanden til lovlig modus er ukjent. Appen låses neste gang lovlig modus slås på.</string>
     <string name="lockdown_continue">Fortsett</string>
     <string name="trip_tools_wheel_none">Ingen hjul er registrert for denne turen ennå.</string>
-    <string name="backup_conflict_warning">Noen tursikkerhetskopier trenger manuell synkronisering: kopiene er ulike. Trykk Synkroniser og velg hvilken side som gjelder.</string>
+    <string name="backup_conflict_warning">Noen turer på denne telefonen er ulike kopiene i sikkerhetskopimappen. Trykk %1$s, trykk så \"%3$s\" under %2$s og velg hvilken kopi som skal beholdes.</string>
     <string name="backup_conflict_title">Sikkerhetskopikonflikter</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Kjøre?</string>

@@ -567,21 +567,23 @@ fun StudioSidePanel(
                         Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
                         content = content
                     )
-                    // The fade toggle floats in the top-right corner; the sheet
-                    // headers are left-aligned, so it never collides with them.
-                    if (onToggleDim != null) {
-                        IconButton(
-                            onClick = onToggleDim,
-                            modifier = Modifier.align(Alignment.TopEnd)
-                        ) {
-                            Icon(
-                                Icons.Default.Opacity,
-                                contentDescription =
-                                    stringResource(R.string.studio_replay_cd_fade),
-                                tint = if (dimmed) MaterialTheme.appColors.primary
-                                else MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                    // The fade toggle and the X float in the top-right corner;
+                    // SheetHeader keeps its title clear of them. The X is the
+                    // visible way out: a scrim tap is not something a rider
+                    // can see, and an iPhone has no system back.
+                    Row(modifier = Modifier.align(Alignment.TopEnd)) {
+                        if (onToggleDim != null) {
+                            IconButton(onClick = onToggleDim) {
+                                Icon(
+                                    Icons.Default.Opacity,
+                                    contentDescription =
+                                        stringResource(R.string.studio_replay_cd_fade),
+                                    tint = if (dimmed) MaterialTheme.appColors.primary
+                                    else MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                         }
+                        com.eried.eucplanet.ui.common.CloseIconButton(onClick = onDismiss)
                     }
                 }
             }
@@ -2729,7 +2731,9 @@ private fun ToggleRow(label: String, checked: Boolean, onChange: (Boolean) -> Un
 @Composable
 private fun SheetHeader(title: String, hudBadge: Boolean = false) {
     Row(
-        modifier = Modifier.padding(bottom = 12.dp),
+        // End padding keeps a long title clear of the fade toggle and the X
+        // that StudioSidePanel floats in its top-right corner.
+        modifier = Modifier.padding(end = 88.dp, bottom = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(

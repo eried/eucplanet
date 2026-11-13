@@ -59,6 +59,8 @@ class ActionCatalogKeysTest {
             "OPEN_NAVIGATION", "OPEN_STUDIO", "OPEN_ABOUT", "OPEN_SERVICE",
             "OPEN_TRIPS", "MUTE_ALARMS", "RESET_TRIP", "TOGGLE_UNITS",
             "MUSIC_START", "MEDIA_PAUSE",
+            "PHONE_VOLUME_UP", "PHONE_VOLUME_DOWN", "PHONE_MUTE_TOGGLE",
+            "PHONE_TORCH_TOGGLE", "ENGINE_SOUND_TOGGLE",
         ).forEach {
             assertNotNull("stored key $it no longer resolves", ActionCatalog.byKey(it))
         }

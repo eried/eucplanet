@@ -126,7 +126,7 @@ object IosAppGraph {
     val actions: ActionExecutor by lazy {
         ActionExecutor(
             settings, wheel, IosTrips, voice, automation, notices, IosLockdown.controller,
-            NoVoiceListening, NoMedia, IosPhoneDevice,
+            NoVoiceListening, NoMedia, IosPhoneControls,
         )
     }
 

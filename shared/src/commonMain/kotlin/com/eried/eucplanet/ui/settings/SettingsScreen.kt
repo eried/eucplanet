@@ -438,6 +438,10 @@ private fun SettingsScreenContent(
     // tab 12 opens Voice at its Speed splits block, for the splits tile's
     // long-press menu: the block sits below every voice setting.
     val scrollToSplits = initialTab == 12
+    // tab 13 opens Backups at its Trips backup block, for the Backup conflicts
+    // warning: the Sync button it asks for sits below the folder, Dropbox and
+    // settings backup blocks, off screen from the section top.
+    val scrollToTripsBackup = initialTab == 13
     val targetSectionKey = remember(initialTab) { initialTabSectionKey(initialTab) }
     // expandedSections is rememberSaveable above and only seeds on first ever
     // composition; on subsequent visits the user's saved expansion state can hide
@@ -696,7 +700,11 @@ private fun SettingsScreenContent(
             EngineSoundSection(settings, viewModel, engineParked)
         },
         SectionDef("cloud", titleCloud, Icons.Default.Archive, corpora.getValue("cloud")) {
-            CloudTab(settings, viewModel, snackbar, snackbarScope)
+            CloudTab(
+                settings, viewModel, snackbar, snackbarScope,
+                scrollToTripsBackup = scrollToTripsBackup,
+                onTripsBackupTop = { y -> targetSectionTop = y },
+            )
         },
         SectionDef("alarms", titleAlarms, Icons.Default.NotificationsActive, corpora.getValue("alarms")) {
             AlarmSettingsContent(viewModel = LocalSettingsHost.current.alarmViewModel())
@@ -890,7 +898,7 @@ private fun SettingsScreenContent(
                     val isExpanded = explicitlyExpanded || openedByQuery
                     var sectionModifier = if (
                         sec.key == targetSectionKey && !scrollToBattery && !scrollToWeather &&
-                            !scrollToSplits
+                            !scrollToSplits && !scrollToTripsBackup
                     ) {
                         Modifier.onGloballyPositioned {
                             targetSectionTop = it.positionInWindow().y
@@ -987,6 +995,8 @@ private fun initialTabSectionKey(initialTab: Int): String? = when (initialTab) {
     11 -> "navigator"
     // Speed splits live inside Voice; scrollToSplits picks the block.
     12 -> "voice"
+    // Trips backup lives inside Backups; scrollToTripsBackup picks the block.
+    13 -> "cloud"
     else -> null
 }
 
@@ -2022,8 +2032,10 @@ private fun AdvancedTab(
         // Timing knobs, under their own big title.
         AdvSectionTitle(stringResource(Res.string.adv_timings_title))
         MetricInfoBox(stringResource(Res.string.adv_rates_warning))
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-            // Disabled (greyed) when nothing is off default; otherwise confirm first.
+        // On the left like every other reset in the app (trip layout, metric history,
+        // dashboard slots, the editor dialogs). Greyed when nothing is off default;
+        // otherwise confirm first.
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) {
             TextButton(onClick = { showResetConfirm = true }, enabled = changed.isNotEmpty(), shape = RoundedCornerShape(12.dp)) {
                 Icon(Icons.Default.Restore, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
@@ -7226,6 +7238,33 @@ private fun FlicTab(settingsViewModel: SettingsViewModel) {
                     }
                 }
             }
+            // Screen off: the keys are claimed through a media session, which
+            // takes them from the phone volume. Turning it on asks first, since
+            // the rider loses the volume buttons until they turn it off again.
+            var askScreenOff by remember { mutableStateOf(false) }
+            SwitchSetting(stringResource(Res.string.volume_keys_screen_off), settings.volumeKeysScreenOff) { on ->
+                if (on) askScreenOff = true else settingsViewModel.updateVolumeKeysScreenOff(false)
+            }
+            HintText(stringResource(Res.string.volume_keys_screen_off_caption), small = true)
+            if (askScreenOff) {
+                AlertDialog(
+                    onDismissRequest = { askScreenOff = false },
+                    shape = RoundedCornerShape(12.dp),
+                    title = { Text(stringResource(Res.string.volume_keys_screen_off_title)) },
+                    text = { Text(stringResource(Res.string.volume_keys_screen_off_warn)) },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            settingsViewModel.updateVolumeKeysScreenOff(true)
+                            askScreenOff = false
+                        }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(Res.string.volume_keys_screen_off_confirm)) }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { askScreenOff = false }, shape = RoundedCornerShape(12.dp)) {
+                            Text(stringResource(Res.string.action_cancel))
+                        }
+                    }
+                )
+            }
         }
         }   // end volumeKeysEnabled BringIntoViewSection
         }
@@ -7732,7 +7771,9 @@ private fun CloudTab(
     settings: com.eried.eucplanet.data.model.AppSettings,
     viewModel: SettingsViewModel,
     snackbar: androidx.compose.material3.SnackbarHostState,
-    snackbarScope: kotlinx.coroutines.CoroutineScope
+    snackbarScope: kotlinx.coroutines.CoroutineScope,
+    scrollToTripsBackup: Boolean = false,
+    onTripsBackupTop: (Float) -> Unit = {},
 ) {
     val host = LocalSettingsHost.current
     val cloudEvent by viewModel.cloudEvent.collectAsState()
@@ -8104,7 +8145,13 @@ private fun CloudTab(
                 small = true
             )
 
-            SectionHeader(stringResource(Res.string.section_cloud_trips))
+            Box(
+                modifier = if (scrollToTripsBackup) {
+                    Modifier.onGloballyPositioned { onTripsBackupTop(it.positionInWindow().y) }
+                } else Modifier,
+            ) {
+                SectionHeader(stringResource(Res.string.section_cloud_trips))
+            }
             HintText(stringResource(Res.string.cloud_trips_caption))
             var showResetLocalDialog by remember { mutableStateOf(false) }
             val hasLocalTrips by viewModel.hasLocalTrips.collectAsState()
@@ -8964,6 +9011,7 @@ private fun ThemeDropdown(
             value = displayName(current),
             onValueChange = {},
             readOnly = true,
+            singleLine = true,
             label = { Text(highlightMatches(label, LocalSettingsSearchQuery.current), modifier = Modifier.settingsSearchLabel(label)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
@@ -9020,6 +9068,7 @@ private fun SimpleDropdown(
             value = currentLabel,
             onValueChange = {},
             readOnly = true,
+            singleLine = true,
             label = { Text(highlightMatches(label, LocalSettingsSearchQuery.current), modifier = Modifier.settingsSearchLabel(label)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
@@ -9290,8 +9339,112 @@ private fun EngineSoundSection(
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+
+        // The way back (rule 9), the way the app does it everywhere else: a text
+        // button on the left with the Restore icon, greyed while every value is on
+        // its default (trip layout, metric history, dashboard slots). The label and
+        // the confirmation are the Advanced section's, which lists each value it will
+        // change. The on/off switch is not an engine value: the rider asked to reset
+        // the engine, not to turn it off.
+        val engineDefaults = remember { com.eried.eucplanet.data.model.EngineSoundSettings() }
+        val engineChanges = engineSoundChanges(settings.engineSound, engineDefaults)
+        var showEngineReset by remember { mutableStateOf(false) }
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) {
+            TextButton(onClick = { showEngineReset = true }, enabled = engineChanges.isNotEmpty(), shape = RoundedCornerShape(12.dp)) {
+                Icon(Icons.Default.Restore, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                com.eried.eucplanet.ui.common.SearchableText(stringResource(Res.string.adv_reset_all))
+            }
+        }
+        if (showEngineReset && engineChanges.isNotEmpty()) {
+            AlertDialog(
+                onDismissRequest = { showEngineReset = false },
+                shape = RoundedCornerShape(12.dp),
+                title = { Text(stringResource(Res.string.adv_reset_all)) },
+                text = {
+                    Column(
+                        modifier = Modifier
+                            .heightIn(max = com.eried.eucplanet.ui.common.dialogContentMaxHeight(360))
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        Text(stringResource(Res.string.adv_reset_confirm_msg))
+                        Spacer(Modifier.height(8.dp))
+                        engineChanges.forEach { (label, from, to) ->
+                            com.eried.eucplanet.ui.common.BulletPoint(
+                                text = "$label:  $from  \u2192  $to",
+                                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
+                                modifier = Modifier.padding(vertical = 1.dp),
+                            )
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        viewModel.resetEngineSoundDefaults()
+                        showEngineReset = false
+                    }, shape = RoundedCornerShape(12.dp)) { com.eried.eucplanet.ui.common.SearchableText(stringResource(Res.string.adv_reset_all)) }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showEngineReset = false }, shape = RoundedCornerShape(12.dp)) {
+                        Text(stringResource(Res.string.action_cancel))
+                    }
+                },
+            )
+        }
     }
     }
+}
+
+/**
+ * Every Motor sound value that is off its default, as (label, current, default) in
+ * the rider's own words, for the Reset all button and its confirmation. Compared on
+ * the stored values, not the labels, so two engines that share a name still count
+ * as a change; the volume curve is compared point by point so "0:1.00" and "0:1"
+ * are the same curve.
+ */
+@Composable
+private fun engineSoundChanges(
+    current: com.eried.eucplanet.data.model.EngineSoundSettings,
+    defaults: com.eried.eucplanet.data.model.EngineSoundSettings,
+): List<Triple<String, String, String>> {
+    val text = com.eried.eucplanet.platform.rememberStringReader()
+    fun s(id: org.jetbrains.compose.resources.StringResource) = text(id)
+    fun engineName(key: String): String {
+        val res = Res.allStringResources["engine_preset_" + key.lowercase()]
+        return if (res != null) text(res)
+            else com.eried.eucplanet.audio.EngineProfile.PROFILES.firstOrNull { it.key == key }?.displayName ?: key
+    }
+    fun curve(points: List<Pair<Float, Float>>): String =
+        points.joinToString(", ") { (_, m) -> "${kotlin.math.round(m * 100f).toInt()}%" }
+    fun choice(labels: Map<String, org.jetbrains.compose.resources.StringResource>) =
+        { key: String -> labels[key]?.let { s(it) } ?: key }
+    fun onOff(v: Boolean) = s(if (v) Res.string.state_on else Res.string.state_off)
+
+    val rows = mutableListOf<Triple<String, String, String>>()
+    fun <T> row(label: org.jetbrains.compose.resources.StringResource, a: T, b: T, show: (T) -> String) {
+        if (a != b) rows += Triple(s(label), show(a), show(b))
+    }
+    row(Res.string.engine_type_label, current.type, defaults.type, ::engineName)
+    row(
+        Res.string.engine_volume,
+        com.eried.eucplanet.service.parseVolumeCurve(current.volumeAutoCurve),
+        com.eried.eucplanet.service.parseVolumeCurve(defaults.volumeAutoCurve),
+        ::curve,
+    )
+    row(Res.string.engine_muffler_label, current.muffler, defaults.muffler, choice(mapOf(
+        "OPEN" to Res.string.engine_muffler_open, "HALF" to Res.string.engine_muffler_half, "MUFFLED" to Res.string.engine_muffler_muffled)))
+    row(Res.string.engine_gearbox_label, current.gearbox, defaults.gearbox, choice(mapOf(
+        "OFF" to Res.string.engine_gearbox_off, "FOUR" to Res.string.engine_gearbox_four, "SIX" to Res.string.engine_gearbox_six)))
+    row(Res.string.engine_idle_label, current.idleBehavior, defaults.idleBehavior, choice(mapOf(
+        "ALWAYS" to Res.string.engine_idle_always, "FADE" to Res.string.engine_idle_fade, "MOVING" to Res.string.engine_idle_moving)))
+    row(Res.string.engine_decel_label, current.decelChar, defaults.decelChar, choice(mapOf(
+        "SMOOTH" to Res.string.engine_decel_smooth, "STANDARD" to Res.string.engine_decel_standard, "BACKFIRE" to Res.string.engine_decel_backfire)))
+    row(Res.string.engine_brake_label, current.brake, defaults.brake, choice(mapOf(
+        "OFF" to Res.string.engine_brake_off, "LIGHT" to Res.string.engine_brake_light, "STRONG" to Res.string.engine_brake_strong)))
+    row(Res.string.engine_duck_label, current.duckOnVoice, defaults.duckOnVoice, choice(mapOf(
+        "DUCK" to Res.string.engine_duck_duck, "PAUSE" to Res.string.engine_duck_pause, "MIX" to Res.string.engine_duck_mix)))
+    row(Res.string.engine_headphones_only, current.headphonesOnly, defaults.headphonesOnly, ::onOff)
+    return rows
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -9321,7 +9474,7 @@ private fun EngineTypePicker(
     var expanded by remember { mutableStateOf(false) }
 
     val currentProfile = profiles.firstOrNull { it.key == currentKey }
-    val sourceLabel = if (currentProfile?.sampleAssetBase != null)
+    val sourceLabel = if (currentProfile?.grainAsset != null)
         stringResource(Res.string.engine_source_sampled)
     else
         stringResource(Res.string.engine_source_synth)
@@ -9347,11 +9500,12 @@ private fun EngineTypePicker(
             // Source icon: Album (vinyl) = sampled / analog. Equalizer (bars) = synth / digital.
             // Sits on the LEFT of the engine name so two presets that share a name
             // (e.g. "Tractor" Synth vs "Tractor" Sampled) are visually distinct at a glance.
-            val isSampled = currentProfile?.sampleAssetBase != null
+            val isSampled = currentProfile?.grainAsset != null
             OutlinedTextField(
                 value = displayFor(currentKey),
                 onValueChange = {},
                 readOnly = true,
+                singleLine = true,
                 leadingIcon = {
                     if (isSampled) {
                         Icon(
@@ -9389,7 +9543,7 @@ private fun EngineTypePicker(
                 containerColor = MaterialTheme.appColors.menuBackground
             ) {
                 profiles.forEach { p ->
-                    val itemIsSampled = p.sampleAssetBase != null
+                    val itemIsSampled = p.grainAsset != null
                     DropdownMenuItem(
                         leadingIcon = {
                             if (itemIsSampled) {
@@ -9465,6 +9619,7 @@ private fun VoiceCommandLanguagePicker(
             value = displayText,
             onValueChange = {},
             readOnly = true,
+            singleLine = true,
             label = { Text(stringResource(Res.string.voice_recognition_language)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
@@ -9514,6 +9669,7 @@ private fun VoiceSelector(
             value = displayText,
             onValueChange = {},
             readOnly = true,
+            singleLine = true,
             label = { Text(stringResource(Res.string.voice_selector_label)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
@@ -9598,6 +9754,7 @@ private fun VoiceVariantSelector(
             value = displayText,
             onValueChange = {},
             readOnly = true,
+            singleLine = true,
             label = { Text(stringResource(Res.string.voice_variant_label)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
@@ -9781,6 +9938,7 @@ fun ActionDropdown(
             value = currentLabel,
             onValueChange = {},
             readOnly = true,
+            singleLine = true,
             label = { Text(highlightMatches(label, LocalSettingsSearchQuery.current), modifier = Modifier.settingsSearchLabel(label)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier

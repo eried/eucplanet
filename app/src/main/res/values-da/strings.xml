@@ -383,6 +383,8 @@
     <string name="voice_mic_grant">Tillad mikrofon</string>
     <string name="warnings_perm_mic_title">Mikrofon ikke tilladt</string>
     <string name="warnings_perm_mic_body">Stemmekommandoer kan ikke lytte, før appen må bruge mikrofonen.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth er ikke tilladt</string>
+    <string name="warnings_perm_bluetooth_body">Appen kan ikke finde eller forbinde til dit hjul. Tryk for at tillade.</string>
     <string name="voice_answer_unknown">Det forstod jeg ikke. Sig %1$s for at få hjælp.</string>
     <string name="voice_help_terms">hvad kan jeg sige,hjælp,hvad kan jeg spørge om</string>
     <string name="voice_stat_max_terms">maksimum,maks,højeste</string>
@@ -461,6 +463,10 @@
     <string name="action_chip_media_prev">Forrige nummer</string>
     <string name="action_chip_music_start">Start musik</string>
     <string name="action_chip_media_pause">Sæt musik på pause</string>
+    <string name="action_chip_phone_volume_up">Lydstyrke op</string>
+    <string name="action_chip_phone_volume_down">Lydstyrke ned</string>
+    <string name="action_chip_phone_mute">Lyd fra</string>
+    <string name="action_chip_phone_torch">Telefonens lommelygte</string>
     <string name="action_chip_open_navigation">Vis kort</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
     <string name="action_chip_open_about">Om</string>
@@ -533,6 +539,19 @@
     -->
     <string name="hud_install_hint">Mangler du HUD-appen? Hent den på <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">HUD-app</string>
+    <string name="hud_app_installed">Installeret:</string>
+    <string name="hud_app_available">Tilgængelig:</string>
+    <string name="hud_app_connected">Forbundet:</string>
+    <string name="hud_app_send">Send til HUD</string>
+    <string name="hud_app_remove">Afinstaller</string>
+    <string name="hud_app_sending">Sender, %1$d%%</string>
+    <string name="hud_app_sent">Fortsæt på HUD.</string>
+    <string name="hud_app_resend_title">Allerede opdateret</string>
+    <string name="hud_app_resend_body">HUD\'en har allerede denne version. Send alligevel?</string>
+    <string name="hud_app_remove_title">Afinstaller HUD-appen?</string>
+    <string name="hud_app_remove_body">HUD\'en beder om at afinstallere den. Det kræver et kabel at installere den igen.</string>
+    <string name="hud_app_failed">Kunne ikke nå HUD. Prøv igen.</string>
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">Generelt</string>
     <string name="section_watch_display">Skærm</string>
@@ -858,7 +877,7 @@
     <string name="engine_preset_steam_loco">Damplokomotiv</string>
     <string name="engine_preset_tron_whine">Tron-hyl</string>
     <string name="engine_preset_pod_racer">Pod racer</string>
-    <string name="engine_preset_lightsaber">Lyssværd</string>
+    <string name="engine_preset_lightsaber">Digital brummen</string>
     <string name="engine_preset_jet_turbine">Jet-turbine</string>
     <string name="engine_preset_ufo_hover">UFO svævende</string>
     <string name="engine_preset_f1_electric">F1 elektrisk hyl</string>
@@ -866,7 +885,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V-twin Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">Diesellastbil</string>
-    <string name="engine_preset_sampled_motorcycle">Motorcykel</string>
+    <string name="engine_preset_sampled_motorcycle">Lille crosser</string>
     <string name="engine_preset_sampled_city_car">Bybil</string>
     <string name="engine_preset_sampled_helicopter">Helikopter</string>
     <string name="engine_preset_sampled_tractor">Traktor</string>
@@ -946,8 +965,13 @@
     <string name="gps_show_on_dashboard">Vis fart på dashboardet</string>
     <string name="gps_show_on_dashboard_desc">Tilføjer en farvet prik på speedometeret med GPS-værdien.</string>
     <string name="section_volume_keys">Lydstyrketaster</string>
-    <string name="volume_keys_caption">Brug telefonens lydstyrketaster som genveje (kun når appen er synlig)</string>
+    <string name="volume_keys_caption">Lydstyrkeknapperne som genveje, mens appen er på skærmen.</string>
     <string name="volume_keys_enable">Aktivér handlinger på lydstyrketaster</string>
+    <string name="volume_keys_screen_off">Også med skærmen slukket</string>
+    <string name="volume_keys_screen_off_caption">Virker med låst telefon eller en anden app forrest. Knapperne ændrer ikke længere telefonens lydstyrke.</string>
+    <string name="volume_keys_screen_off_warn">Android sender kun lydstyrketryk til appen på skærmen. For at få dem med slukket skærm melder EUC Planet sig som telefonens aktive medieafspiller, så Android sender lydstyrkeknapperne til den i stedet for at ændre lydstyrken.\n\nSå længe dette er slået til, ændrer knapperne ikke telefonens lydstyrke.</string>
+    <string name="volume_keys_screen_off_confirm">Slå til</string>
+    <string name="volume_keys_screen_off_title">Overtag lydstyrkeknapperne?</string>
     <string name="volume_up">Lyd op</string>
     <string name="volume_down">Lyd ned</string>
 
@@ -2729,7 +2753,7 @@
     <string name="lockdown_warning_no_wheel">Intet hjul er forbundet, så det er ukendt, om Legal-tilstand er slået til. Appen låser, næste gang Legal-tilstand slås til.</string>
     <string name="lockdown_continue">Fortsæt</string>
     <string name="trip_tools_wheel_none">Der er endnu ikke registreret et hjul for denne tur.</string>
-    <string name="backup_conflict_warning">Nogle backupper af ture skal synkroniseres manuelt: kopierne er forskellige. Tryk på Synkronisér, og vælg, hvilken side der gælder.</string>
+    <string name="backup_conflict_warning">Nogle ture på denne telefon er forskellige fra kopierne i backupmappen. Tryk på %1$s, tryk derefter på \"%3$s\" under %2$s, og vælg, hvilken kopi der skal beholdes.</string>
     <string name="backup_conflict_title">Backupkonflikter</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Ud at køre?</string>

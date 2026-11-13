@@ -40,6 +40,11 @@
     <string name="watch_action_media_prev">Попередній трек</string>
     <string name="watch_action_music_start">Увімкнути музику</string>
     <string name="watch_action_media_pause">Пауза музики</string>
+    <string name="watch_action_phone_volume_up">Гучніше</string>
+    <string name="watch_action_phone_volume_down">Тихіше</string>
+    <string name="watch_action_phone_mute">Без звуку / зі звуком</string>
+    <string name="watch_action_phone_torch">Ліхтарик телефона</string>
+    <string name="watch_action_engine_sound">Звук двигуна</string>
     <string name="watch_action_long_press_hint">Утримуйте для: %1$s</string>
     <string name="watch_map_phone_disconnected">Немає телефону</string>
     <string name="watch_map_gps_permission">Дозволити GPS</string>

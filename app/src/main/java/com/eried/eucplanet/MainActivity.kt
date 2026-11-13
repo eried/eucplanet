@@ -100,6 +100,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /** The microphone prompt, shown when a rider presses Listen without the permission. */
+    private val micPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted -> voiceCommands.micPermissionResult(granted) }
+
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) {
@@ -302,8 +307,17 @@ class MainActivity : AppCompatActivity() {
         com.eried.eucplanet.util.PipHost.inPip.value = isInPictureInPictureMode
     }
 
+    override fun onPause() {
+        // Nobody can show a permission prompt from behind another app.
+        voiceCommands.micPrompter = null
+        super.onPause()
+    }
+
     override fun onResume() {
         super.onResume()
+        voiceCommands.micPrompter = {
+            runOnUiThread { micPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO) }
+        }
         ensureWatchMapService(_settings.value)
         wearBridge.pingWatchToWake()
         garminBridge.pingWatchToWake()

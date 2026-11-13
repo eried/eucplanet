@@ -4,12 +4,10 @@ import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.CustomBleCommand
 import com.eried.eucplanet.data.repository.AppNotices
 import com.eried.eucplanet.data.repository.LegalLockdownGate
-import com.eried.eucplanet.data.repository.PhoneDevice
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.platform.Log
 import com.eried.eucplanet.platform.System
-import com.eried.eucplanet.resources.*
 import com.eried.eucplanet.ui.dashboard.ActionDispatcher
 import com.eried.eucplanet.ui.dashboard.DashboardAutomation
 import com.eried.eucplanet.ui.dashboard.DashboardTrips
@@ -34,6 +32,17 @@ interface MediaControls {
     fun previous()
 }
 
+/**
+ * The phone's own media volume and flashlight, for the PHONE_* actions. Not
+ * the wheel's: the wheel's light is LIGHT_TOGGLE.
+ */
+interface PhoneControls {
+    /** One step of the media volume up (+1) or down (-1), with the system slider. */
+    fun stepVolume(direction: Int)
+    fun toggleMute()
+    fun toggleTorch()
+}
+
 /** The spoken-command listener, for VOICE_LISTEN. */
 interface VoiceListening {
     fun hasMicPermission(): Boolean
@@ -56,7 +65,7 @@ class ActionExecutor(
     private val legalLockdown: LegalLockdownGate,
     private val voiceCommands: VoiceListening,
     private val media: MediaControls,
-    private val phone: PhoneDevice,
+    private val phoneControls: PhoneControls,
 ) : ActionDispatcher {
     private companion object {
         const val TAG = "FlicManager"
@@ -146,14 +155,11 @@ class ActionExecutor(
             "SAFETY_OFF" -> wheelRepository.disableSafetySpeed()
             "VOICE_LISTEN" -> {
                 // Legal Mode already refused above, for every surface at once.
-                // What is left is the microphone: without it there is nothing
-                // to listen with, and a rider pressing a button deserves to be
-                // told that rather than to hear silence.
-                if (!voiceCommands.hasMicPermission()) {
-                    appNotifier.post(phone.text(Res.string.voice_answer_no_mic_permission))
-                } else {
-                    voiceCommands.listen()
-                }
+                // A missing microphone permission is the listener's to
+                // answer, the same way for a button as for the dashboard tile:
+                // the system prompt while the app is on screen, otherwise the
+                // spoken sentence and a Needs attention entry.
+                voiceCommands.listen()
             }
             "VOICE_ANNOUNCE" -> {
                 voiceService.announceTrigger(
@@ -184,6 +190,13 @@ class ActionExecutor(
             "MEDIA_PAUSE" -> media.pause()
             "MEDIA_NEXT" -> media.next()
             "MEDIA_PREVIOUS" -> media.previous()
+            "PHONE_VOLUME_UP" -> phoneControls.stepVolume(+1)
+            "PHONE_VOLUME_DOWN" -> phoneControls.stepVolume(-1)
+            "PHONE_MUTE_TOGGLE" -> phoneControls.toggleMute()
+            "PHONE_TORCH_TOGGLE" -> phoneControls.toggleTorch()
+            "ENGINE_SOUND_TOGGLE" -> settingsRepository.update { s ->
+                s.copy(engineSound = s.engineSound.copy(enabled = !s.engineSound.enabled))
+            }
             else -> Log.w(TAG, "Unknown / unsupported action key for physical surface: $key")
         }
     }

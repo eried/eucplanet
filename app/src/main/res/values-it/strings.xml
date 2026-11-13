@@ -402,8 +402,13 @@
     <string name="gps_show_on_dashboard">Mostra velocità sulla dashboard</string>
     <string name="gps_show_on_dashboard_desc">Aggiunge un puntino colorato sul tachimetro con la lettura GPS.</string>
     <string name="section_volume_keys">Tasti volume</string>
-    <string name="volume_keys_caption">Tasti volume come scorciatoie (solo con l\'app visibile)</string>
+    <string name="volume_keys_caption">Tasti volume come scorciatoie finché l\'app è sullo schermo.</string>
     <string name="volume_keys_enable">Attiva azioni dei tasti volume</string>
+    <string name="volume_keys_screen_off">Anche a schermo spento</string>
+    <string name="volume_keys_screen_off_caption">Funziona a telefono bloccato o con un\'altra app in primo piano. I tasti non cambiano più il volume del telefono.</string>
+    <string name="volume_keys_screen_off_warn">Android invia le pressioni del volume solo all\'app sullo schermo. Per riceverle a schermo spento, EUC Planet si registra come lettore multimediale attivo del telefono, e Android gli invia i tasti volume invece di cambiare il volume.\n\nFinché è attivo, i tasti non cambiano più il volume del telefono.</string>
+    <string name="volume_keys_screen_off_confirm">Attiva</string>
+    <string name="volume_keys_screen_off_title">Prendere il controllo dei tasti volume?</string>
     <string name="volume_up">Volume su</string>
     <string name="volume_down">Volume giù</string>
 
@@ -765,9 +770,9 @@
     <string name="engine_preset_ufo_hover">UFO in stazionamento</string>
     <string name="engine_preset_f1_electric">F1 elettrica</string>
     <string name="engine_preset_hover_bike">Moto volante</string>
-    <string name="engine_preset_lightsaber">Spada laser</string>
+    <string name="engine_preset_lightsaber">Ronzio digitale</string>
     <string name="engine_preset_sampled_diesel_iveco">Camion diesel</string>
-    <string name="engine_preset_sampled_motorcycle">Motocicletta</string>
+    <string name="engine_preset_sampled_motorcycle">Piccola moto da cross</string>
     <string name="engine_preset_sampled_city_car">Citycar</string>
     <string name="engine_preset_sampled_helicopter">Elicottero</string>
     <string name="engine_preset_sampled_tractor">Trattore</string>
@@ -1383,6 +1388,10 @@
     <string name="action_chip_media_prev">Brano prec.</string>
     <string name="action_chip_music_start">Avvia musica</string>
     <string name="action_chip_media_pause">Pausa musica</string>
+    <string name="action_chip_phone_volume_up">Volume su</string>
+    <string name="action_chip_phone_volume_down">Volume giù</string>
+    <string name="action_chip_phone_mute">Muto</string>
+    <string name="action_chip_phone_torch">Torcia del telefono</string>
     <string name="action_chip_mute_alarms">Silenzia allarmi</string>
     <string name="action_chip_open_about">Informazioni</string>
     <string name="action_chip_open_navigation">Mostra mappa</string>
@@ -1448,6 +1457,8 @@
     <string name="voice_mic_grant">Consenti microfono</string>
     <string name="warnings_perm_mic_title">Microfono non consentito</string>
     <string name="warnings_perm_mic_body">I comandi vocali non possono ascoltare finché l\'app non può usare il microfono.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth non consentito</string>
+    <string name="warnings_perm_bluetooth_body">L\'app non può trovare la tua ruota né collegarsi. Tocca per consentire.</string>
     <string name="voice_answer_unknown">Non ho capito. Di\' %1$s per avere aiuto.</string>
     <string name="voice_help_terms">cosa posso dire,aiuto,cosa posso chiedere</string>
     <string name="voice_stat_max_terms">massimo,max</string>
@@ -1832,6 +1843,19 @@
     <string name="hud_map_brightness_label">Luminosità</string>
     <string name="hud_install_hint">Ti serve l\'app HUD? Scaricala da <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">App HUD</string>
+    <string name="hud_app_installed">Installata:</string>
+    <string name="hud_app_available">Disponibile:</string>
+    <string name="hud_app_connected">Connesso:</string>
+    <string name="hud_app_send">Invia al HUD</string>
+    <string name="hud_app_remove">Disinstalla</string>
+    <string name="hud_app_sending">Invio, %1$d%%</string>
+    <string name="hud_app_sent">Continua sul HUD.</string>
+    <string name="hud_app_resend_title">Già aggiornata</string>
+    <string name="hud_app_resend_body">Il HUD ha già questa versione. Inviarla comunque?</string>
+    <string name="hud_app_remove_title">Disinstallare l\'app HUD?</string>
+    <string name="hud_app_remove_body">Il HUD chiederà di disinstallarla. Per reinstallarla serve un cavo.</string>
+    <string name="hud_app_failed">HUD non raggiungibile. Riprova.</string>
     <string name="nav_setting_full_path">Calcola sempre l\'intero percorso</string>
     <string name="nav_setting_full_path_desc">Disattivato calcola solo la prossima tappa e mostra il resto come anteprima tratteggiata.</string>
     <string name="studio_cfg_clock_24h">Formato 24 ore</string>
@@ -2618,7 +2642,7 @@
     <string name="lockdown_warning_no_wheel">Nessuna ruota collegata, quindi lo stato della modalità legale è sconosciuto. L’app si bloccherà alla prossima attivazione della modalità legale.</string>
     <string name="lockdown_continue">Continua</string>
     <string name="trip_tools_wheel_none">Nessuna ruota registrata per questo viaggio.</string>
-    <string name="backup_conflict_warning">Alcuni backup di viaggi richiedono una sincronizzazione manuale: le copie differiscono. Premi Sincronizza e scegli quale vale.</string>
+    <string name="backup_conflict_warning">Alcuni viaggi su questo telefono differiscono dalle copie nella cartella di backup. Tocca %1$s, poi in %2$s premi \"%3$s\" e scegli quale copia tenere.</string>
     <string name="backup_conflict_title">Conflitti di backup</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Si gira?</string>

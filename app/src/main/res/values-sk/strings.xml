@@ -372,6 +372,8 @@
     <string name="voice_mic_grant">Povoliť mikrofón</string>
     <string name="warnings_perm_mic_title">Mikrofón nie je povolený</string>
     <string name="warnings_perm_mic_body">Hlasové príkazy nemôžu počúvať, kým aplikácia nemá povolený mikrofón.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth nie je povolený</string>
+    <string name="warnings_perm_bluetooth_body">Aplikácia nemôže nájsť vaše koleso ani sa k nemu pripojiť. Klepnutím povolíte.</string>
     <string name="voice_answer_unknown">Nerozumel som. Pre pomoc povedzte %1$s.</string>
     <string name="voice_help_terms">čo môžem povedať,pomoc,čo môžem robiť</string>
     <string name="voice_stat_max_terms">max,maximum,najvyššia</string>
@@ -450,6 +452,10 @@
     <string name="action_chip_media_prev">Predch. skladba</string>
     <string name="action_chip_music_start">Spustiť hudbu</string>
     <string name="action_chip_media_pause">Pozastaviť hudbu</string>
+    <string name="action_chip_phone_volume_up">Zvýšiť hlasitosť</string>
+    <string name="action_chip_phone_volume_down">Znížiť hlasitosť</string>
+    <string name="action_chip_phone_mute">Stlmiť</string>
+    <string name="action_chip_phone_torch">Baterka telefónu</string>
     <string name="action_chip_open_navigation">Zobraziť mapu</string>
     <string name="action_chip_open_studio">Štúdio prekrytia</string>
     <string name="action_chip_open_about">O aplikácii</string>
@@ -522,6 +528,19 @@
 
     <string name="hud_install_hint">Potrebujete aplikáciu HUD? Získate ju na <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">Aplikácia HUD</string>
+    <string name="hud_app_installed">Nainštalované:</string>
+    <string name="hud_app_available">K dispozícii:</string>
+    <string name="hud_app_connected">Pripojené:</string>
+    <string name="hud_app_send">Odoslať do HUD</string>
+    <string name="hud_app_remove">Odinštalovať</string>
+    <string name="hud_app_sending">Odosiela sa, %1$d%%</string>
+    <string name="hud_app_sent">Pokračujte na HUD.</string>
+    <string name="hud_app_resend_title">Už aktuálna</string>
+    <string name="hud_app_resend_body">HUD už túto verziu má. Napriek tomu odoslať?</string>
+    <string name="hud_app_remove_title">Odinštalovať aplikáciu HUD?</string>
+    <string name="hud_app_remove_body">HUD požiada o odinštalovanie. Na novú inštaláciu je potrebný kábel.</string>
+    <string name="hud_app_failed">HUD nie je dostupný. Skúste to znova.</string>
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">Všeobecné</string>
     <string name="section_watch_display">Displej</string>
@@ -1119,7 +1138,7 @@
     <string name="engine_preset_steam_loco">Parná lokomotíva</string>
     <string name="engine_preset_tron_whine">Kvílenie Tron</string>
     <string name="engine_preset_pod_racer">Pod racer</string>
-    <string name="engine_preset_lightsaber">Svetelný meč</string>
+    <string name="engine_preset_lightsaber">Digitálny hukot</string>
     <string name="engine_preset_jet_turbine">Prúdová turbína</string>
     <string name="engine_preset_ufo_hover">Vznášajúce sa UFO</string>
     <string name="engine_preset_f1_electric">Elektrické kvílenie F1</string>
@@ -1127,7 +1146,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V-dvojvalec Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">Dieselový kamión</string>
-    <string name="engine_preset_sampled_motorcycle">Motorka</string>
+    <string name="engine_preset_sampled_motorcycle">Malá krosová motorka</string>
     <string name="engine_preset_sampled_city_car">Mestské auto</string>
     <string name="engine_preset_sampled_helicopter">Helikoptéra</string>
     <string name="engine_preset_sampled_tractor">Traktor</string>
@@ -1208,8 +1227,13 @@
     <string name="gps_show_on_dashboard">Zobraziť rýchlosť na paneli</string>
     <string name="gps_show_on_dashboard_desc">Pridá na rýchlomer farebnú bodku s hodnotou GPS.</string>
     <string name="section_volume_keys">Tlačidlá hlasitosti</string>
-    <string name="volume_keys_caption">Použite tlačidlá hlasitosti telefónu ako skratky (len keď je aplikácia viditeľná).</string>
+    <string name="volume_keys_caption">Tlačidlá hlasitosti ako skratky, kým je aplikácia na obrazovke.</string>
     <string name="volume_keys_enable">Zapnúť akcie tlačidiel hlasitosti</string>
+    <string name="volume_keys_screen_off">Aj pri vypnutej obrazovke</string>
+    <string name="volume_keys_screen_off_caption">Funguje so zamknutým telefónom alebo s inou aplikáciou v popredí. Tlačidlá už nemenia hlasitosť telefónu.</string>
+    <string name="volume_keys_screen_off_warn">Android posiela stlačenia hlasitosti len aplikácii na obrazovke. Aby ich EUC Planet dostal aj pri vypnutej obrazovke, zaregistruje sa ako aktívny prehrávač médií v telefóne, a Android mu tlačidlá hlasitosti posiela namiesto zmeny hlasitosti.\n\nKým je to zapnuté, tlačidlá nemenia hlasitosť telefónu.</string>
+    <string name="volume_keys_screen_off_confirm">Zapnúť</string>
+    <string name="volume_keys_screen_off_title">Prevziať tlačidlá hlasitosti?</string>
     <string name="volume_up">Zvýšiť hlasitosť</string>
     <string name="volume_down">Znížiť hlasitosť</string>
 
@@ -2712,7 +2736,7 @@
     <string name="lockdown_warning_no_wheel">Nie je pripojené žiadne koleso, takže stav legálneho režimu nie je známy. Aplikácia sa uzamkne pri ďalšom zapnutí legálneho režimu.</string>
     <string name="lockdown_continue">Pokračovať</string>
     <string name="trip_tools_wheel_none">Pre túto jazdu zatiaľ nie je zaznamenané žiadne koleso.</string>
-    <string name="backup_conflict_warning">Niektoré zálohy jázd potrebujú ručnú synchronizáciu: kópie sa líšia. Stlačte Synchronizovať a vyberte, ktorá strana vyhrá.</string>
+    <string name="backup_conflict_warning">Niektoré jazdy v tomto telefóne sa líšia od kópií v priečinku zálohy. Klepnite na %1$s, potom v časti %2$s stlačte \"%3$s\" a vyberte, ktorú kópiu ponechať.</string>
     <string name="backup_conflict_title">Konflikty záloh</string>
     <string name="widget_act_1_short">Akcia 1</string>
     <string name="widget_act_2_short">Akcia 2</string>

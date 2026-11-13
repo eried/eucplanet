@@ -193,6 +193,8 @@ class WheelService : LifecycleService() {
     val tripMeterRepository: com.eried.eucplanet.data.repository.TripMeterRepository = get()
     val automationManager: AutomationManager = get()
     val engineSoundEngine: EngineSoundEngine = get()
+    /** The volume buttons with the screen off, see [com.eried.eucplanet.flic.VolumeKeySession]. */
+    private var volumeKeySession: com.eried.eucplanet.flic.VolumeKeySession? = null
     val wearBridge: com.eried.eucplanet.wear.WearBridge = get()
     val wearMapBridge: com.eried.eucplanet.wear.WearMapBridge = get()
     val garminBridge: com.eried.eucplanet.garmin.GarminBridge = get()
@@ -414,6 +416,18 @@ class WheelService : LifecycleService() {
                     wheelRepository.connectionState.value == ConnectionState.CONNECTED,
                     s
                 )
+                // The screen-off volume keys live only while both switches are
+                // on and the service runs, so the phone gets its buttons back
+                // the moment the rider turns the option off or stops the app.
+                val wantVolumeKeys = s.volumeKeysEnabled && s.volumeKeysScreenOff
+                if (wantVolumeKeys && volumeKeySession == null) {
+                    volumeKeySession = com.eried.eucplanet.flic.VolumeKeySession(
+                        this@WheelService, settingsRepository, get()
+                    ).also { it.start() }
+                } else if (!wantVolumeKeys && volumeKeySession != null) {
+                    volumeKeySession?.stop()
+                    volumeKeySession = null
+                }
                 // HUD server lives only while the toggle is on AND the service
                 // is running. Watching the settings flow rather than checking
                 // once at onCreate so the rider can toggle it mid-session.
@@ -739,6 +753,8 @@ class WheelService : LifecycleService() {
     override fun onDestroy() {
         isRunning = false
         runCatching { unregisterReceiver(screenReceiver) }
+        runCatching { volumeKeySession?.stop() }
+        volumeKeySession = null
         locationForegroundReady = false
         // Any destroy path (not just Stop All) tears the notification down and
         // stops further re-posts, so an ordinary stopSelf() can't leave it behind

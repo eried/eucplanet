@@ -3,11 +3,16 @@ package com.eried.eucplanet.data.model
 import org.jetbrains.compose.resources.StringResource
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.automirrored.filled.VolumeDown
+import androidx.compose.material.icons.automirrored.filled.VolumeMute
 import androidx.compose.material.icons.automirrored.filled.VolumeOff
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.BatteryChargingFull
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.FiberManualRecord
+import androidx.compose.material.icons.filled.FlashlightOff
+import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.FlashlightOn
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LibraryMusic
@@ -279,6 +284,43 @@ object ActionCatalog {
             key = "MEDIA_PREVIOUS",
             labelRes = Res.string.action_chip_media_prev,
             icon = Icons.Filled.SkipPrevious,
+            isEyesFreeSafe = true
+        ),
+        // The phone's own media volume. With the volume keys claimed for the
+        // screen-off bindings the buttons no longer change it by themselves,
+        // so a rider binds these to keep a button doing what it did.
+        ActionSpec(
+            key = "PHONE_VOLUME_UP",
+            labelRes = Res.string.action_chip_phone_volume_up,
+            icon = Icons.AutoMirrored.Filled.VolumeUp,
+            isEyesFreeSafe = true
+        ),
+        ActionSpec(
+            key = "PHONE_VOLUME_DOWN",
+            labelRes = Res.string.action_chip_phone_volume_down,
+            icon = Icons.AutoMirrored.Filled.VolumeDown,
+            isEyesFreeSafe = true
+        ),
+        ActionSpec(
+            key = "PHONE_MUTE_TOGGLE",
+            labelRes = Res.string.action_chip_phone_mute,
+            icon = Icons.AutoMirrored.Filled.VolumeMute,
+            isEyesFreeSafe = true
+        ),
+        // The phone's own torch, for a rider whose phone is the light they
+        // read a sign or find a lock with. Not the wheel's headlight.
+        ActionSpec(
+            key = "PHONE_TORCH_TOGGLE",
+            labelRes = Res.string.action_chip_phone_torch,
+            icon = Icons.Filled.FlashlightOff,
+            isEyesFreeSafe = true
+        ),
+        // The motor sound switch itself, so the engine can be silenced from
+        // a button when the ride reaches people who did not ask for a V8.
+        ActionSpec(
+            key = "ENGINE_SOUND_TOGGLE",
+            labelRes = Res.string.engine_sound_enabled,
+            icon = Icons.Filled.GraphicEq,
             isEyesFreeSafe = true
         ),
 

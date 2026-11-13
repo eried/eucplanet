@@ -363,6 +363,7 @@ fun RestorePickerDialog(
                         value = selected?.let { entryLabel(it) } ?: defaultLabel,
                         onValueChange = {},
                         readOnly = true,
+                        singleLine = true,
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropdownOpen) },
                         modifier = Modifier
                             .fillMaxWidth()

@@ -553,8 +553,13 @@ fun DashboardScreen(
                                         stringResource(w.titleRes),
                                         style = MaterialTheme.typography.titleSmall
                                     )
+                                    val bodyArgs = w.bodyArgs.map { arg ->
+                                        if (arg is com.eried.eucplanet.data.repository.WarningTextRes) {
+                                            stringResource(arg.res)
+                                        } else arg
+                                    }
                                     Text(
-                                        stringResource(w.bodyRes),
+                                        stringResource(w.bodyRes, *bodyArgs.toTypedArray()),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.appColors.textSecondary
                                     )
@@ -3363,7 +3368,7 @@ fun DashboardScreen(
                                                 Spacer(Modifier.height(6.dp))
                                                 val resources = listOf(
                                                     "WheelLog community, wheel protocols" to "Wheellog/wheellog.android, GPLv3. Public reverse-engineering of the EUC BLE protocols, used as the reference for the KingSong, Begode, Veteran, Ninebot and InMotion adapters. The implementation here is original; no WheelLog code is reused.",
-                                                    "BigSoundBank, engine samples" to "Joseph SARDIN. CC0 / public domain. All sampled engines in the Motor sound generator (V8 Cobra, V-twin Ducati, diesel truck, motorcycle, city car, helicopter, tractor, lawn mower, steam locomotive, Aston Martin, big diesel, car cruise, broken exhaust, quad ATV).",
+                                                    "BigSoundBank, engine recordings" to "Joseph SARDIN. CC0 / public domain. The recorded engines in the Motor sound generator (V8 Cobra, V-twin Ducati, Inline-4 city car, diesel truck, small dirt bike, steam locomotive, broken exhaust, and the hidden quad, tractor, lawn mower and big diesel). The V12 is an Aston Martin Vanquish from the Internet Archive, public domain.",
                                                     "Jetpack Compose, Material 3" to "Google. Apache 2.0. UI toolkit and design system.",
                                                     "Room, WorkManager, Navigation" to "Google. Apache 2.0. Persistence, background jobs, navigation graph.",
                                                     "Koin" to "Kotzilla. Apache 2.0. Dependency injection.",

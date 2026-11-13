@@ -40,6 +40,11 @@
     <string name="watch_action_media_prev">上一首</string>
     <string name="watch_action_music_start">開始音樂</string>
     <string name="watch_action_media_pause">暫停音樂</string>
+    <string name="watch_action_phone_volume_up">調高音量</string>
+    <string name="watch_action_phone_volume_down">調低音量</string>
+    <string name="watch_action_phone_mute">靜音 / 取消靜音</string>
+    <string name="watch_action_phone_torch">手機手電筒</string>
+    <string name="watch_action_engine_sound">引擎音效</string>
     <string name="watch_action_long_press_hint">長按以執行 %1$s</string>
     <string name="watch_map_phone_disconnected">沒有手機</string>
     <string name="watch_map_gps_permission">允許 GPS</string>

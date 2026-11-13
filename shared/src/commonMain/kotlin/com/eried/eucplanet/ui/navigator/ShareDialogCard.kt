@@ -53,6 +53,11 @@ fun ShareDialogCard(
      *  surface. The tab row is part of the card's chrome rather than a second
      *  strip stacked on it, so the two read as one block with one bottom edge. */
     header: (@Composable () -> Unit)? = null,
+    /** Puts an X at the end of the title row. For a card whose body has no
+     *  Cancel or Close of its own in every state, like the crew pass scanner:
+     *  without it the only way out was the system back, which an iPhone does
+     *  not have. */
+    onClose: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Card(
@@ -89,7 +94,14 @@ fun ShareDialogCard(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                        // The X brings its own 48dp touch target, so the row
+                        // gives back the vertical padding it would double.
+                        .padding(
+                            start = 16.dp,
+                            end = if (onClose != null) 4.dp else 16.dp,
+                            top = if (onClose != null) 0.dp else 12.dp,
+                            bottom = if (onClose != null) 0.dp else 12.dp,
+                        ),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Icon(
@@ -103,7 +115,11 @@ fun ShareDialogCard(
                         title,
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.appColors.textPrimary,
+                        modifier = Modifier.weight(1f),
                     )
+                    if (onClose != null) {
+                        com.eried.eucplanet.ui.common.CloseIconButton(onClick = onClose)
+                    }
                 }
                 header?.invoke()
             }

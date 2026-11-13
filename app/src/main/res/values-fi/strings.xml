@@ -346,6 +346,8 @@
     <string name="voice_mic_grant">Salli mikrofoni</string>
     <string name="warnings_perm_mic_title">Mikrofonia ei sallittu</string>
     <string name="warnings_perm_mic_body">Äänikomennot eivät voi kuunnella ennen kuin sovellus saa käyttää mikrofonia.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetoothia ei ole sallittu</string>
+    <string name="warnings_perm_bluetooth_body">Sovellus ei voi löytää pyörääsi eikä yhdistää siihen. Salli napauttamalla.</string>
     <string name="voice_answer_unknown">En saanut selvää. Sano %1$s saadaksesi apua.</string>
     <string name="voice_help_terms">mitä voin sanoa,apua,mitä voin kysyä</string>
     <string name="voice_stat_max_terms">maksimi,max,suurin</string>
@@ -424,6 +426,10 @@
     <string name="action_chip_media_prev">Edellinen kappale</string>
     <string name="action_chip_music_start">Aloita musiikki</string>
     <string name="action_chip_media_pause">Keskeytä musiikki</string>
+    <string name="action_chip_phone_volume_up">Ääni kovemmalle</string>
+    <string name="action_chip_phone_volume_down">Ääni hiljemmalle</string>
+    <string name="action_chip_phone_mute">Mykistä</string>
+    <string name="action_chip_phone_torch">Puhelimen taskulamppu</string>
     <string name="action_chip_open_navigation">Näytä kartta</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
     <string name="action_chip_open_about">Tietoja</string>
@@ -482,6 +488,19 @@
     <string name="hud_map_brightness_label">Kirkkaus</string>
     <string name="hud_install_hint">Tarvitsetko HUD-sovelluksen? Hae se osoitteesta <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">HUD-sovellus</string>
+    <string name="hud_app_installed">Asennettu:</string>
+    <string name="hud_app_available">Saatavilla:</string>
+    <string name="hud_app_connected">Yhdistetty:</string>
+    <string name="hud_app_send">Lähetä HUD:iin</string>
+    <string name="hud_app_remove">Poista asennus</string>
+    <string name="hud_app_sending">Lähetetään, %1$d%%</string>
+    <string name="hud_app_sent">Jatka HUD:ssa.</string>
+    <string name="hud_app_resend_title">Jo ajan tasalla</string>
+    <string name="hud_app_resend_body">HUD:ssa on jo tämä versio. Lähetetäänkö silti?</string>
+    <string name="hud_app_remove_title">Poistetaanko HUD-sovelluksen asennus?</string>
+    <string name="hud_app_remove_body">HUD pyytää poistamaan sen. Uudelleenasennus vaatii kaapelin.</string>
+    <string name="hud_app_failed">HUD:iin ei saatu yhteyttä. Yritä uudelleen.</string>
     <string name="section_watch_general">Yleiset</string>
     <string name="section_watch_display">Näyttö</string>
     <string name="section_watch_advanced">Lisäasetukset</string>
@@ -1063,7 +1082,7 @@
     <string name="engine_preset_steam_loco">Höyryveturi</string>
     <string name="engine_preset_tron_whine">Tron-vinkuna</string>
     <string name="engine_preset_pod_racer">Pod-kilpuri</string>
-    <string name="engine_preset_lightsaber">Valomiekka</string>
+    <string name="engine_preset_lightsaber">Digitaalinen hurina</string>
     <string name="engine_preset_jet_turbine">Suihkuturbiini</string>
     <string name="engine_preset_ufo_hover">UFO-leijunta</string>
     <string name="engine_preset_f1_electric">F1:n sähkövinkuna</string>
@@ -1071,7 +1090,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V-kaksoismoottori Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">Dieselrekka</string>
-    <string name="engine_preset_sampled_motorcycle">Moottoripyörä</string>
+    <string name="engine_preset_sampled_motorcycle">Pieni crossipyörä</string>
     <string name="engine_preset_sampled_city_car">Kaupunkiauto</string>
     <string name="engine_preset_sampled_helicopter">Helikopteri</string>
     <string name="engine_preset_sampled_tractor">Traktori</string>
@@ -1147,8 +1166,13 @@
     <string name="gps_show_on_dashboard">Näytä nopeus mittaristossa</string>
     <string name="gps_show_on_dashboard_desc">Lisää nopeusmittariin värillisen pisteen GPS-lukemalla.</string>
     <string name="section_volume_keys">Äänenvoimakkuusnäppäimet</string>
-    <string name="volume_keys_caption">Käytä puhelimen äänenvoimakkuuspainikkeita pikanäppäiminä (vain kun sovellus on näkyvissä)</string>
+    <string name="volume_keys_caption">Äänenvoimakkuuspainikkeet pikatoimintoina, kun sovellus on näytöllä.</string>
     <string name="volume_keys_enable">Ota äänenvoimakkuusnäppäinten toiminnot käyttöön</string>
+    <string name="volume_keys_screen_off">Myös näytön ollessa pois päältä</string>
+    <string name="volume_keys_screen_off_caption">Toimii puhelin lukittuna tai toisen sovelluksen ollessa edessä. Painikkeet eivät enää muuta puhelimen äänenvoimakkuutta.</string>
+    <string name="volume_keys_screen_off_warn">Android lähettää äänenvoimakkuuspainallukset vain näytöllä olevalle sovellukselle. Saadakseen ne näyttö sammutettuna EUC Planet ilmoittautuu puhelimen aktiiviseksi mediasoittimeksi, jolloin Android lähettää painikkeet sille eikä muuta äänenvoimakkuutta.\n\nKun tämä on päällä, painikkeet eivät muuta puhelimen äänenvoimakkuutta.</string>
+    <string name="volume_keys_screen_off_confirm">Ota käyttöön</string>
+    <string name="volume_keys_screen_off_title">Otetaanko äänenvoimakkuuspainikkeet käyttöön?</string>
     <string name="volume_up">Äänenvoimakkuus ylös</string>
     <string name="volume_down">Äänenvoimakkuus alas</string>
     <string name="section_radar">Taaksepäin katsova tutka</string>
@@ -2517,7 +2541,7 @@
     <string name="lockdown_warning_no_wheel">Yksipyöräistä ei ole yhdistetty, joten laillisen tilan tila on tuntematon. Sovellus lukittuu, kun laillinen tila seuraavan kerran otetaan käyttöön.</string>
     <string name="lockdown_continue">Jatka</string>
     <string name="trip_tools_wheel_none">Tälle matkalle ei ole vielä kirjattu yksipyöräistä.</string>
-    <string name="backup_conflict_warning">Jotkin matkan varmuuskopiot vaativat manuaalisen synkronoinnin: kopiot eroavat. Paina Synkronoi ja valitse kumpi pätee.</string>
+    <string name="backup_conflict_warning">Jotkin tämän puhelimen matkat eroavat varmuuskopiokansion kopioista. Napauta %1$s, paina sitten kohdassa %2$s \"%3$s\" ja valitse säilytettävä kopio.</string>
     <string name="backup_conflict_title">Varmuuskopioristiriidat</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Ajellaan?</string>

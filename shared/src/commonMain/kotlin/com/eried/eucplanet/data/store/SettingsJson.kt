@@ -328,6 +328,7 @@ object SettingsJson {
         put("volumeUpHold", s.volumeUpHold)
         put("volumeDownClick", s.volumeDownClick)
         put("volumeDownHold", s.volumeDownHold)
+        put("volumeKeysScreenOff", s.volumeKeysScreenOff)
         put("language", s.language)
         put("themeMode", s.themeMode)
         put("accentColor", s.accentColor)
@@ -797,6 +798,7 @@ object SettingsJson {
         volumeUpHold = j.optString("volumeUpHold", base.volumeUpHold),
         volumeDownClick = j.optString("volumeDownClick", base.volumeDownClick),
         volumeDownHold = j.optString("volumeDownHold", base.volumeDownHold),
+        volumeKeysScreenOff = j.optBoolean("volumeKeysScreenOff", base.volumeKeysScreenOff),
         language = j.optString("language", base.language),
         themeMode = j.optString("themeMode", base.themeMode),
         accentColor = j.optString("accentColor", base.accentColor),

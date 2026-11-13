@@ -383,6 +383,8 @@
     <string name="voice_mic_grant">Permitir microfone</string>
     <string name="warnings_perm_mic_title">Microfone não permitido</string>
     <string name="warnings_perm_mic_body">Os comandos de voz não podem ouvir até o app ter permissão para usar o microfone.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth não permitido</string>
+    <string name="warnings_perm_bluetooth_body">O app não consegue encontrar nem conectar ao seu monociclo. Toque para permitir.</string>
     <string name="voice_answer_unknown">Não entendi. Diga %1$s para ajuda.</string>
     <string name="voice_help_terms">o que posso dizer,ajuda,o que posso pedir</string>
     <string name="voice_stat_max_terms">máximo,max</string>
@@ -461,6 +463,10 @@
     <string name="action_chip_media_prev">Anterior</string>
     <string name="action_chip_music_start">Iniciar música</string>
     <string name="action_chip_media_pause">Pausar música</string>
+    <string name="action_chip_phone_volume_up">Aumentar volume</string>
+    <string name="action_chip_phone_volume_down">Diminuir volume</string>
+    <string name="action_chip_phone_mute">Silenciar</string>
+    <string name="action_chip_phone_torch">Lanterna do celular</string>
     <string name="action_chip_open_navigation">Mostrar mapa</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
     <string name="action_chip_open_about">Sobre</string>
@@ -533,6 +539,19 @@
     -->
     <string name="hud_install_hint">Precisa do app HUD? Baixe em <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">App do HUD</string>
+    <string name="hud_app_installed">Instalada:</string>
+    <string name="hud_app_available">Disponível:</string>
+    <string name="hud_app_connected">Conectado:</string>
+    <string name="hud_app_send">Enviar ao HUD</string>
+    <string name="hud_app_remove">Desinstalar</string>
+    <string name="hud_app_sending">Enviando, %1$d%%</string>
+    <string name="hud_app_sent">Confira o HUD para continuar.</string>
+    <string name="hud_app_resend_title">Já está atualizado</string>
+    <string name="hud_app_resend_body">O HUD já tem esta versão. Enviar mesmo assim?</string>
+    <string name="hud_app_remove_title">Desinstalar o app do HUD?</string>
+    <string name="hud_app_remove_body">O HUD vai pedir para desinstalar. Para instalar de novo é preciso um cabo.</string>
+    <string name="hud_app_failed">Não foi possível acessar o HUD. Tente de novo.</string>
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">Geral</string>
     <string name="section_watch_display">Tela</string>
@@ -858,7 +877,7 @@
     <string name="engine_preset_steam_loco">Locomotiva a vapor</string>
     <string name="engine_preset_tron_whine">Zumbido Tron</string>
     <string name="engine_preset_pod_racer">Pod racer</string>
-    <string name="engine_preset_lightsaber">Sabre de luz</string>
+    <string name="engine_preset_lightsaber">Zumbido digital</string>
     <string name="engine_preset_jet_turbine">Turbina a jato</string>
     <string name="engine_preset_ufo_hover">OVNI flutuando</string>
     <string name="engine_preset_f1_electric">F1 elétrico</string>
@@ -866,7 +885,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V-twin Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">Caminhão diesel</string>
-    <string name="engine_preset_sampled_motorcycle">Motocicleta</string>
+    <string name="engine_preset_sampled_motorcycle">Moto de trilha pequena</string>
     <string name="engine_preset_sampled_city_car">Carro urbano</string>
     <string name="engine_preset_sampled_helicopter">Helicóptero</string>
     <string name="engine_preset_sampled_tractor">Trator</string>
@@ -946,8 +965,13 @@
     <string name="gps_show_on_dashboard">Mostrar velocidade no painel</string>
     <string name="gps_show_on_dashboard_desc">Adiciona um ponto colorido no velocímetro com a leitura do GPS.</string>
     <string name="section_volume_keys">Teclas de volume</string>
-    <string name="volume_keys_caption">Use os botões de volume como atalhos (só quando o app está visível)</string>
+    <string name="volume_keys_caption">Usar os botões de volume como atalhos enquanto o app está na tela.</string>
     <string name="volume_keys_enable">Ativar ações das teclas de volume</string>
+    <string name="volume_keys_screen_off">Também com a tela desligada</string>
+    <string name="volume_keys_screen_off_caption">Funciona com o celular bloqueado ou com outro app na frente. Os botões não mudam mais o volume do celular.</string>
+    <string name="volume_keys_screen_off_warn">O Android só envia os toques de volume para o app que está na tela. Para recebê-los com a tela desligada, o EUC Planet se registra como o reprodutor de mídia ativo do celular, e o Android envia os botões de volume para ele em vez de mudar o volume.\n\nEnquanto isso estiver ativo, os botões não mudam o volume do celular.</string>
+    <string name="volume_keys_screen_off_confirm">Ligar</string>
+    <string name="volume_keys_screen_off_title">Assumir os botões de volume?</string>
     <string name="volume_up">Volume para cima</string>
     <string name="volume_down">Volume para baixo</string>
 
@@ -2716,7 +2740,7 @@
     <string name="lockdown_warning_no_wheel">Nenhuma roda conectada, então o estado do Modo Legal é desconhecido. O app vai travar na próxima vez que o Modo Legal for ligado.</string>
     <string name="lockdown_continue">Continuar</string>
     <string name="trip_tools_wheel_none">Esta viagem ainda não tem roda registrada.</string>
-    <string name="backup_conflict_warning">Alguns backups de viagens precisam de sincronização manual: as cópias diferem. Toque em Sincronizar e escolha qual vale.</string>
+    <string name="backup_conflict_warning">Algumas viagens neste celular diferem das cópias na pasta de backup. Toque em %1$s, depois em %2$s toque em \"%3$s\" e escolha qual cópia manter.</string>
     <string name="backup_conflict_title">Conflitos de backup</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Rodar?</string>

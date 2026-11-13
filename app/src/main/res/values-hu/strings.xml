@@ -346,6 +346,8 @@
     <string name="voice_mic_grant">Mikrofon engedélyezése</string>
     <string name="warnings_perm_mic_title">A mikrofon nincs engedélyezve</string>
     <string name="warnings_perm_mic_body">A hangparancsok nem tudnak figyelni, amíg az alkalmazás nem használhatja a mikrofont.</string>
+    <string name="warnings_perm_bluetooth_title">A Bluetooth nincs engedélyezve</string>
+    <string name="warnings_perm_bluetooth_body">Az app nem találja a kereket, és nem tud csatlakozni hozzá. Koppintson az engedélyezéshez.</string>
     <string name="voice_answer_unknown">Nem értettem. Mondd: %1$s segítségért.</string>
     <string name="voice_help_terms">mit mondhatok,segítség,mit kérdezhetek</string>
     <string name="voice_stat_max_terms">maximum,max,legmagasabb</string>
@@ -424,6 +426,10 @@
     <string name="action_chip_media_prev">Előző szám</string>
     <string name="action_chip_music_start">Zene indítása</string>
     <string name="action_chip_media_pause">Zene szüneteltetése</string>
+    <string name="action_chip_phone_volume_up">Hangerő fel</string>
+    <string name="action_chip_phone_volume_down">Hangerő le</string>
+    <string name="action_chip_phone_mute">Némítás</string>
+    <string name="action_chip_phone_torch">Telefon zseblámpája</string>
     <string name="action_chip_open_navigation">Térkép mutatása</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
     <string name="action_chip_open_about">Névjegy</string>
@@ -482,6 +488,19 @@
     <string name="hud_map_brightness_label">Fényerő</string>
     <string name="hud_install_hint">Kell a HUD alkalmazás? Szerezd be itt: <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">HUD-alkalmazás</string>
+    <string name="hud_app_installed">Telepítve:</string>
+    <string name="hud_app_available">Elérhető:</string>
+    <string name="hud_app_connected">Csatlakozva:</string>
+    <string name="hud_app_send">Küldés a HUD-ra</string>
+    <string name="hud_app_remove">Eltávolítás</string>
+    <string name="hud_app_sending">Küldés, %1$d%%</string>
+    <string name="hud_app_sent">Folytasd a HUD-on.</string>
+    <string name="hud_app_resend_title">Már naprakész</string>
+    <string name="hud_app_resend_body">A HUD-on már ez a verzió fut. Mégis elküldöd?</string>
+    <string name="hud_app_remove_title">Eltávolítod a HUD-alkalmazást?</string>
+    <string name="hud_app_remove_body">A HUD rákérdez az eltávolításra. Az újratelepítéshez kábel kell.</string>
+    <string name="hud_app_failed">A HUD nem érhető el. Próbáld újra.</string>
     <string name="section_watch_general">Általános</string>
     <string name="section_watch_display">Megjelenítés</string>
     <string name="section_watch_advanced">Speciális</string>
@@ -1063,7 +1082,7 @@
     <string name="engine_preset_steam_loco">Gőzmozdony</string>
     <string name="engine_preset_tron_whine">Tron-sivítás</string>
     <string name="engine_preset_pod_racer">Podversenyző</string>
-    <string name="engine_preset_lightsaber">Fénykard</string>
+    <string name="engine_preset_lightsaber">Digitális zümmögés</string>
     <string name="engine_preset_jet_turbine">Sugárhajtómű</string>
     <string name="engine_preset_ufo_hover">Lebegő UFO</string>
     <string name="engine_preset_f1_electric">F1 elektromos sivítás</string>
@@ -1071,7 +1090,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V-kettes Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">Dízel kamion</string>
-    <string name="engine_preset_sampled_motorcycle">Motorkerékpár</string>
+    <string name="engine_preset_sampled_motorcycle">Kis krosszmotor</string>
     <string name="engine_preset_sampled_city_car">Városi autó</string>
     <string name="engine_preset_sampled_helicopter">Helikopter</string>
     <string name="engine_preset_sampled_tractor">Traktor</string>
@@ -1147,8 +1166,13 @@
     <string name="gps_show_on_dashboard">Sebesség mutatása a műszerfalon</string>
     <string name="gps_show_on_dashboard_desc">Színes pontot ad a sebességmérőhöz a GPS-értékkel.</string>
     <string name="section_volume_keys">Hangerőgombok</string>
-    <string name="volume_keys_caption">Használd a telefon hangerőgombjait parancsikonként (csak amikor az alkalmazás látható)</string>
+    <string name="volume_keys_caption">Hangerőgombok gyorsbillentyűként, amíg az app a képernyőn van.</string>
     <string name="volume_keys_enable">Hangerőgomb-műveletek bekapcsolása</string>
+    <string name="volume_keys_screen_off">Kikapcsolt képernyőnél is</string>
+    <string name="volume_keys_screen_off_caption">Zárolt telefonnal és más alkalmazás mögött is működik. A gombok többé nem állítják a telefon hangerejét.</string>
+    <string name="volume_keys_screen_off_warn">Az Android a hangerőgombok lenyomását csak a képernyőn lévő alkalmazásnak küldi el. Hogy kikapcsolt képernyőnél is megkapja, az EUC Planet a telefon aktív médialejátszójaként jelentkezik be, így az Android neki küldi a hangerőgombokat a hangerő állítása helyett.\n\nAmíg ez be van kapcsolva, a gombok nem állítják a telefon hangerejét.</string>
+    <string name="volume_keys_screen_off_confirm">Bekapcsolás</string>
+    <string name="volume_keys_screen_off_title">Átvegye a hangerőgombokat?</string>
     <string name="volume_up">Hangerő fel</string>
     <string name="volume_down">Hangerő le</string>
     <string name="section_radar">Hátratekintő radar</string>
@@ -2517,7 +2541,7 @@
     <string name="lockdown_warning_no_wheel">Nincs csatlakoztatott egykerekű, így a legális mód állapota ismeretlen. Az alkalmazás akkor zárol, amikor legközelebb bekapcsolják a legális módot.</string>
     <string name="lockdown_continue">Tovább</string>
     <string name="trip_tools_wheel_none">Ehhez a menethez még nincs egykerekű rögzítve.</string>
-    <string name="backup_conflict_warning">Néhány menet mentése kézi szinkronizálást igényel: a másolatok eltérnek. Nyomd meg a Szinkronizálást, és válaszd ki, melyik változat maradjon.</string>
+    <string name="backup_conflict_warning">A telefon néhány útja eltér a mentési mappában lévő példánytól. Koppints ide: %1$s, majd a(z) %2$s részben nyomd meg: \"%3$s\", és válaszd ki, melyik példány maradjon.</string>
     <string name="backup_conflict_title">Mentési ütközések</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Megyünk?</string>

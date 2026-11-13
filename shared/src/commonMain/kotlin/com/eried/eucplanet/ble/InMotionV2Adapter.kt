@@ -740,6 +740,10 @@ class InMotionV2Adapter : WheelAdapter {
             val temps = t.temperatures.filterIndexed { i, _ -> i != 2 && i != 4 }
             t.copy(temperatures = temps, maxTemperature = temps.maxOrNull() ?: 0f)
         }
+        // A V6 that answers the plain realtime poll (firmware 2.2.4, seen in a
+        // tester's Service Mode log) still sends its own body layout. Read as a
+        // V14 its duty landed in the speed slot and the battery read 0 %.
+        InMotionV2Model.V6 -> InMotionV2Parser.parseV6Telemetry(data)
         else -> InMotionV2Parser.parseTelemetry(data)
     }
 

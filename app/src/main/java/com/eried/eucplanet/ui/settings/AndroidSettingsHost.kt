@@ -135,10 +135,28 @@ private class AndroidSettingsHost(
             lifecycle.lifecycle.addObserver(obs)
             onDispose { lifecycle.lifecycle.removeObserver(obs) }
         }
+        var micAskedAt by remember { mutableStateOf(0L) }
         val launcher = rememberLauncherForActivityResult(
             ActivityResultContracts.RequestPermission()
-        ) { ok -> micGranted = ok }
-        return PermissionGate(micGranted) { launcher.launch(android.Manifest.permission.RECORD_AUDIO) }
+        ) { ok ->
+            micGranted = ok
+            // After two refusals Android stops showing the prompt and answers
+            // no at once, which left this button doing nothing. An answer that
+            // fast was not the rider's, so take them to the app's settings
+            // page, the only place the permission can still be given.
+            if (!ok && android.os.SystemClock.elapsedRealtime() - micAskedAt < 500L) {
+                runCatching {
+                    context.startActivity(
+                        android.content.Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                            .setData(android.net.Uri.fromParts("package", context.packageName, null))
+                    )
+                }
+            }
+        }
+        return PermissionGate(micGranted) {
+            micAskedAt = android.os.SystemClock.elapsedRealtime()
+            launcher.launch(android.Manifest.permission.RECORD_AUDIO)
+        }
     }
 
     @Composable

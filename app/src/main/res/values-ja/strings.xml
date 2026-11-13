@@ -383,6 +383,8 @@
     <string name="voice_mic_grant">マイクを許可</string>
     <string name="warnings_perm_mic_title">マイクが許可されていません</string>
     <string name="warnings_perm_mic_body">アプリがマイクを使えるようになるまで、音声コマンドは待ち受けできません。</string>
+    <string name="warnings_perm_bluetooth_title">Bluetoothが許可されていません</string>
+    <string name="warnings_perm_bluetooth_body">アプリがホイールを検出・接続できません。タップして許可してください。</string>
     <string name="voice_answer_unknown">聞き取れませんでした。ヘルプは「%1$s」と言ってください。</string>
     <string name="voice_help_terms">何と言えばいい,ヘルプ,何を聞ける</string>
     <string name="voice_stat_max_terms">最大,マックス</string>
@@ -461,6 +463,10 @@
     <string name="action_chip_media_prev">前のトラック</string>
     <string name="action_chip_music_start">音楽を再生</string>
     <string name="action_chip_media_pause">音楽を一時停止</string>
+    <string name="action_chip_phone_volume_up">音量を上げる</string>
+    <string name="action_chip_phone_volume_down">音量を下げる</string>
+    <string name="action_chip_phone_mute">ミュート</string>
+    <string name="action_chip_phone_torch">スマホのライト</string>
     <string name="action_chip_open_navigation">マップを表示</string>
     <string name="action_chip_open_studio">オーバーレイスタジオ</string>
     <string name="action_chip_open_about">アプリについて</string>
@@ -533,6 +539,19 @@
     -->
     <string name="hud_install_hint">HUD アプリが必要ですか？<b>eucplanet.ried.no/hud</b> から入手してください</string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">HUDアプリ</string>
+    <string name="hud_app_installed">インストール済み:</string>
+    <string name="hud_app_available">利用可能:</string>
+    <string name="hud_app_connected">接続先:</string>
+    <string name="hud_app_send">HUDに送信</string>
+    <string name="hud_app_remove">アンインストール</string>
+    <string name="hud_app_sending">送信中 %1$d%%</string>
+    <string name="hud_app_sent">HUDで続けてください。</string>
+    <string name="hud_app_resend_title">すでに最新です</string>
+    <string name="hud_app_resend_body">HUDにはすでにこのバージョンが入っています。それでも送信しますか？</string>
+    <string name="hud_app_remove_title">HUDアプリをアンインストールしますか？</string>
+    <string name="hud_app_remove_body">HUDがアンインストールの確認を表示します。再インストールにはケーブルが必要です。</string>
+    <string name="hud_app_failed">HUDに接続できません。もう一度お試しください。</string>
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">一般</string>
     <string name="section_watch_display">表示</string>
@@ -854,7 +873,7 @@
     <string name="engine_preset_steam_loco">蒸気機関車</string>
     <string name="engine_preset_tron_whine">トロンの唸り</string>
     <string name="engine_preset_pod_racer">ポッドレーサー</string>
-    <string name="engine_preset_lightsaber">ライトセーバー</string>
+    <string name="engine_preset_lightsaber">デジタルハム</string>
     <string name="engine_preset_jet_turbine">ジェットタービン</string>
     <string name="engine_preset_ufo_hover">UFO ホバー</string>
     <string name="engine_preset_f1_electric">F1 電気の唸り</string>
@@ -862,7 +881,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V-twin Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">ディーゼルトラック</string>
-    <string name="engine_preset_sampled_motorcycle">モーターサイクル</string>
+    <string name="engine_preset_sampled_motorcycle">小型ダートバイク</string>
     <string name="engine_preset_sampled_city_car">シティカー</string>
     <string name="engine_preset_sampled_helicopter">ヘリコプター</string>
     <string name="engine_preset_sampled_tractor">トラクター</string>
@@ -942,8 +961,13 @@
     <string name="gps_show_on_dashboard">速度をダッシュボードに表示</string>
     <string name="gps_show_on_dashboard_desc">速度ダイヤルに GPS 読み取り値の色付きドットを追加します。</string>
     <string name="section_volume_keys">音量キー</string>
-    <string name="volume_keys_caption">スマホの音量ボタンをショートカットとして使用（アプリ表示中のみ）</string>
+    <string name="volume_keys_caption">アプリが画面に表示されている間、音量ボタンをショートカットとして使う。</string>
     <string name="volume_keys_enable">音量キーアクションを有効にする</string>
+    <string name="volume_keys_screen_off">画面が消えているときも</string>
+    <string name="volume_keys_screen_off_caption">端末のロック中や他のアプリが前面にあるときも動作します。ボタンで端末の音量は変わらなくなります。</string>
+    <string name="volume_keys_screen_off_warn">Androidは音量ボタンの操作を画面上のアプリにしか送りません。画面オフでも受け取れるよう、EUC Planetは端末のアクティブなメディアプレーヤーとして登録され、Androidは音量を変える代わりにボタンをアプリへ送ります。\n\nオンの間、ボタンで端末の音量は変わりません。</string>
+    <string name="volume_keys_screen_off_confirm">オンにする</string>
+    <string name="volume_keys_screen_off_title">音量ボタンを引き継ぎますか？</string>
     <string name="volume_up">音量アップ</string>
     <string name="volume_down">音量ダウン</string>
 
@@ -2715,7 +2739,7 @@
     <string name="lockdown_warning_no_wheel">ホイールが接続されていないため、リーガルモードの状態は不明です。次にリーガルモードがオンになったときにアプリがロックされます。</string>
     <string name="lockdown_continue">次へ</string>
     <string name="trip_tools_wheel_none">このトリップにはまだホイールが記録されていません。</string>
-    <string name="backup_conflict_warning">一部のトリップのバックアップは内容が異なるため、手動で同期する必要があります。「同期」を押して、どちらを残すか選んでください。</string>
+    <string name="backup_conflict_warning">このスマホの一部の走行が、バックアップフォルダのコピーと異なります。%1$s をタップし、%2$s の「%3$s」を押して、残すコピーを選んでください。</string>
     <string name="backup_conflict_title">バックアップの競合</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">走る？</string>

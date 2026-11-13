@@ -2077,6 +2077,7 @@ fun DropdownSelect(
                 value = selected,
                 onValueChange = {},
                 readOnly = true,
+                singleLine = true,
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
                 modifier = Modifier
                     .fillMaxWidth()

@@ -361,6 +361,8 @@
     <string name="voice_mic_grant">Να επιτρέπεται το μικρόφωνο</string>
     <string name="warnings_perm_mic_title">Το μικρόφωνο δεν επιτρέπεται</string>
     <string name="warnings_perm_mic_body">Οι φωνητικές εντολές δεν μπορούν να ακούσουν μέχρι να επιτραπεί στην εφαρμογή η χρήση του μικροφώνου.</string>
+    <string name="warnings_perm_bluetooth_title">Το Bluetooth δεν επιτρέπεται</string>
+    <string name="warnings_perm_bluetooth_body">Η εφαρμογή δεν μπορεί να βρει τον τροχό σας ούτε να συνδεθεί. Πατήστε για να το επιτρέψετε.</string>
     <string name="voice_answer_unknown">Δεν το κατάλαβα. Πείτε %1$s για βοήθεια.</string>
     <string name="voice_help_terms">τι μπορώ να πω,βοήθεια,τι μπορώ να κάνω</string>
     <string name="voice_stat_max_terms">μέγιστη,μέγιστο,μάξιμουμ,υψηλότερη</string>
@@ -439,6 +441,10 @@
     <string name="action_chip_media_prev">Προηγ. κομμάτι</string>
     <string name="action_chip_music_start">Έναρξη μουσικής</string>
     <string name="action_chip_media_pause">Παύση μουσικής</string>
+    <string name="action_chip_phone_volume_up">Αύξηση έντασης</string>
+    <string name="action_chip_phone_volume_down">Μείωση έντασης</string>
+    <string name="action_chip_phone_mute">Σίγαση</string>
+    <string name="action_chip_phone_torch">Φακός τηλεφώνου</string>
     <string name="action_chip_open_navigation">Χάρτης</string>
     <string name="action_chip_open_studio">Studio επικάλυψης</string>
     <string name="action_chip_open_about">Πληροφορίες</string>
@@ -507,6 +513,19 @@
 
     <string name="hud_install_hint">Χρειάζεστε την εφαρμογή HUD; Κατεβάστε τη από <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">Εφαρμογή HUD</string>
+    <string name="hud_app_installed">Εγκατεστημένη:</string>
+    <string name="hud_app_available">Διαθέσιμη:</string>
+    <string name="hud_app_connected">Συνδέθηκε:</string>
+    <string name="hud_app_send">Αποστολή στο HUD</string>
+    <string name="hud_app_remove">Απεγκατάσταση</string>
+    <string name="hud_app_sending">Αποστολή, %1$d%%</string>
+    <string name="hud_app_sent">Συνεχίστε στο HUD.</string>
+    <string name="hud_app_resend_title">Ήδη ενημερωμένο</string>
+    <string name="hud_app_resend_body">Το HUD έχει ήδη αυτή την έκδοση. Αποστολή ούτως ή άλλως;</string>
+    <string name="hud_app_remove_title">Απεγκατάσταση της εφαρμογής HUD;</string>
+    <string name="hud_app_remove_body">Το HUD θα ζητήσει απεγκατάσταση. Για νέα εγκατάσταση χρειάζεται καλώδιο.</string>
+    <string name="hud_app_failed">Το HUD δεν απαντά. Δοκιμάστε ξανά.</string>
     <string name="section_watch_general">Γενικά</string>
     <string name="section_watch_display">Οθόνη</string>
     <string name="section_watch_advanced">Για προχωρημένους</string>
@@ -1095,7 +1114,7 @@
     <string name="engine_preset_steam_loco">Ατμομηχανή</string>
     <string name="engine_preset_tron_whine">Σφύριγμα Tron</string>
     <string name="engine_preset_pod_racer">Pod racer</string>
-    <string name="engine_preset_lightsaber">Φωτόσπαθο</string>
+    <string name="engine_preset_lightsaber">Ψηφιακός βόμβος</string>
     <string name="engine_preset_jet_turbine">Τουρμπίνα τζετ</string>
     <string name="engine_preset_ufo_hover">Αιώρηση UFO</string>
     <string name="engine_preset_f1_electric">Ηλεκτρική F1</string>
@@ -1103,7 +1122,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V-twin Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">Φορτηγό ντίζελ</string>
-    <string name="engine_preset_sampled_motorcycle">Μοτοσικλέτα</string>
+    <string name="engine_preset_sampled_motorcycle">Μικρή μοτοσικλέτα κρος</string>
     <string name="engine_preset_sampled_city_car">Αυτοκίνητο πόλης</string>
     <string name="engine_preset_sampled_helicopter">Ελικόπτερο</string>
     <string name="engine_preset_sampled_tractor">Τρακτέρ</string>
@@ -1182,8 +1201,13 @@
     <string name="gps_show_on_dashboard">Ταχύτητα στον πίνακα οργάνων</string>
     <string name="gps_show_on_dashboard_desc">Προσθέτει μια χρωματιστή κουκκίδα στο καντράν ταχύτητας με την ένδειξη του GPS.</string>
     <string name="section_volume_keys">Πλήκτρα έντασης</string>
-    <string name="volume_keys_caption">Χρήση των πλήκτρων έντασης του τηλεφώνου ως συντομεύσεων (μόνο όταν η εφαρμογή είναι ορατή).</string>
+    <string name="volume_keys_caption">Τα κουμπιά έντασης ως συντομεύσεις όσο η εφαρμογή είναι στην οθόνη.</string>
     <string name="volume_keys_enable">Ενέργειες πλήκτρων έντασης</string>
+    <string name="volume_keys_screen_off">Και με σβηστή οθόνη</string>
+    <string name="volume_keys_screen_off_caption">Λειτουργεί με κλειδωμένο τηλέφωνο ή με άλλη εφαρμογή μπροστά. Τα κουμπιά δεν αλλάζουν πια την ένταση του τηλεφώνου.</string>
+    <string name="volume_keys_screen_off_warn">Το Android στέλνει τα πατήματα έντασης μόνο στην εφαρμογή που είναι στην οθόνη. Για να τα λαμβάνει με σβηστή οθόνη, το EUC Planet δηλώνεται ως το ενεργό πρόγραμμα αναπαραγωγής του τηλεφώνου, και το Android του στέλνει τα κουμπιά έντασης αντί να αλλάζει την ένταση.\n\nΌσο είναι ενεργό, τα κουμπιά δεν αλλάζουν την ένταση του τηλεφώνου.</string>
+    <string name="volume_keys_screen_off_confirm">Ενεργοποίηση</string>
+    <string name="volume_keys_screen_off_title">Ανάληψη των κουμπιών έντασης;</string>
     <string name="volume_up">Αύξηση έντασης</string>
     <string name="volume_down">Μείωση έντασης</string>
 
@@ -2630,7 +2654,7 @@
     <string name="lockdown_warning_no_wheel">Δεν υπάρχει συνδεδεμένο μονότροχο, οπότε η κατάσταση της Νόμιμης λειτουργίας είναι άγνωστη. Η εφαρμογή κλειδώνει την επόμενη φορά που θα ενεργοποιηθεί η Νόμιμη λειτουργία.</string>
     <string name="lockdown_continue">Συνέχεια</string>
     <string name="trip_tools_wheel_none">Δεν έχει καταγραφεί ακόμα μονότροχο σε αυτή τη διαδρομή.</string>
-    <string name="backup_conflict_warning">Ορισμένα αντίγραφα ασφαλείας διαδρομών χρειάζονται χειροκίνητο συγχρονισμό: τα αντίγραφα διαφέρουν. Πατήστε Συγχρονισμός και επιλέξτε ποια πλευρά υπερισχύει.</string>
+    <string name="backup_conflict_warning">Ορισμένες διαδρομές σε αυτό το τηλέφωνο διαφέρουν από τα αντίγραφα στον φάκελο αντιγράφων. Πατήστε %1$s, μετά στο %2$s πατήστε \"%3$s\" και επιλέξτε ποιο αντίγραφο θα κρατήσετε.</string>
     <string name="backup_conflict_title">Διενέξεις αντιγράφων ασφαλείας</string>
     <string name="widget_act_1_short">Ενέργεια 1</string>
     <string name="widget_act_2_short">Ενέργεια 2</string>

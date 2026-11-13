@@ -383,6 +383,8 @@
     <string name="voice_mic_grant">Microfoon toestaan</string>
     <string name="warnings_perm_mic_title">Microfoon niet toegestaan</string>
     <string name="warnings_perm_mic_body">Spraakopdrachten kunnen niet luisteren zolang de app de microfoon niet mag gebruiken.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth niet toegestaan</string>
+    <string name="warnings_perm_bluetooth_body">De app kan je wheel niet vinden of ermee verbinden. Tik om toe te staan.</string>
     <string name="voice_answer_unknown">Ik heb dat niet verstaan. Zeg %1$s voor hulp.</string>
     <string name="voice_help_terms">wat kan ik zeggen,help,wat kan ik vragen</string>
     <string name="voice_stat_max_terms">maximum,max,hoogste</string>
@@ -461,6 +463,10 @@
     <string name="action_chip_media_prev">Vorig nummer</string>
     <string name="action_chip_music_start">Muziek starten</string>
     <string name="action_chip_media_pause">Muziek pauzeren</string>
+    <string name="action_chip_phone_volume_up">Volume omhoog</string>
+    <string name="action_chip_phone_volume_down">Volume omlaag</string>
+    <string name="action_chip_phone_mute">Dempen</string>
+    <string name="action_chip_phone_torch">Zaklamp van telefoon</string>
     <string name="action_chip_open_navigation">Kaart tonen</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
     <string name="action_chip_open_about">Info</string>
@@ -533,6 +539,19 @@
     -->
     <string name="hud_install_hint">HUD-app nodig? Haal hem op via <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">HUD-app</string>
+    <string name="hud_app_installed">Geïnstalleerd:</string>
+    <string name="hud_app_available">Beschikbaar:</string>
+    <string name="hud_app_connected">Verbonden:</string>
+    <string name="hud_app_send">Naar HUD sturen</string>
+    <string name="hud_app_remove">Verwijderen</string>
+    <string name="hud_app_sending">Verzenden, %1$d%%</string>
+    <string name="hud_app_sent">Ga verder op de HUD.</string>
+    <string name="hud_app_resend_title">Al up-to-date</string>
+    <string name="hud_app_resend_body">De HUD heeft deze versie al. Toch sturen?</string>
+    <string name="hud_app_remove_title">HUD-app verwijderen?</string>
+    <string name="hud_app_remove_body">De HUD vraagt om de app te verwijderen. Opnieuw installeren kan alleen met een kabel.</string>
+    <string name="hud_app_failed">HUD niet bereikbaar. Probeer opnieuw.</string>
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">Algemeen</string>
     <string name="section_watch_display">Weergave</string>
@@ -858,7 +877,7 @@
     <string name="engine_preset_steam_loco">Stoomlocomotief</string>
     <string name="engine_preset_tron_whine">Tron-gehuil</string>
     <string name="engine_preset_pod_racer">Pod racer</string>
-    <string name="engine_preset_lightsaber">Lichtzwaard</string>
+    <string name="engine_preset_lightsaber">Digitale brom</string>
     <string name="engine_preset_jet_turbine">Straalturbine</string>
     <string name="engine_preset_ufo_hover">UFO zweefgeluid</string>
     <string name="engine_preset_f1_electric">F1 elektrisch</string>
@@ -866,7 +885,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V-twin Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">Dieseltruck</string>
-    <string name="engine_preset_sampled_motorcycle">Motorfiets</string>
+    <string name="engine_preset_sampled_motorcycle">Kleine crossmotor</string>
     <string name="engine_preset_sampled_city_car">Stadsauto</string>
     <string name="engine_preset_sampled_helicopter">Helikopter</string>
     <string name="engine_preset_sampled_tractor">Tractor</string>
@@ -946,8 +965,13 @@
     <string name="gps_show_on_dashboard">Snelheid op dashboard tonen</string>
     <string name="gps_show_on_dashboard_desc">Zet een gekleurde stip op de snelheidsmeter met de GPS-waarde.</string>
     <string name="section_volume_keys">Volumeknoppen</string>
-    <string name="volume_keys_caption">Volumeknoppen als snelkoppelingen (alleen als de app zichtbaar is)</string>
+    <string name="volume_keys_caption">Volumeknoppen als snelkoppelingen zolang de app op het scherm staat.</string>
     <string name="volume_keys_enable">Volumeknopacties inschakelen</string>
+    <string name="volume_keys_screen_off">Ook met het scherm uit</string>
+    <string name="volume_keys_screen_off_caption">Werkt met vergrendelde telefoon of een andere app op de voorgrond. De knoppen veranderen het telefoonvolume niet meer.</string>
+    <string name="volume_keys_screen_off_warn">Android stuurt volumeknoppen alleen naar de app op het scherm. Om ze ook met het scherm uit te krijgen, meldt EUC Planet zich aan als de actieve mediaspeler van de telefoon, zodat Android de volumeknoppen daarheen stuurt in plaats van het volume te wijzigen.\n\nZolang dit aanstaat, veranderen de knoppen het telefoonvolume niet.</string>
+    <string name="volume_keys_screen_off_confirm">Aanzetten</string>
+    <string name="volume_keys_screen_off_title">Volumeknoppen overnemen?</string>
     <string name="volume_up">Volume omhoog</string>
     <string name="volume_down">Volume omlaag</string>
 
@@ -2716,7 +2740,7 @@
     <string name="lockdown_warning_no_wheel">Geen wiel verbonden, de staat van de legale modus is dus onbekend. De app vergrendelt de volgende keer dat de legale modus wordt aangezet.</string>
     <string name="lockdown_continue">Doorgaan</string>
     <string name="trip_tools_wheel_none">Voor deze rit is nog geen wiel vastgelegd.</string>
-    <string name="backup_conflict_warning">Sommige ritback-ups hebben een handmatige synchronisatie nodig: de kopieën verschillen. Druk op Synchroniseren en kies welke kant telt.</string>
+    <string name="backup_conflict_warning">Sommige ritten op deze telefoon verschillen van de kopieën in je back-upmap. Tik op %1$s, tik dan onder %2$s op \"%3$s\" en kies welke kopie blijft.</string>
     <string name="backup_conflict_title">Back-upconflicten</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Rijden?</string>

@@ -40,6 +40,11 @@
     <string name="watch_action_media_prev">Forrige nummer</string>
     <string name="watch_action_music_start">Start musik</string>
     <string name="watch_action_media_pause">Sæt musik på pause</string>
+    <string name="watch_action_phone_volume_up">Lydstyrke op</string>
+    <string name="watch_action_phone_volume_down">Lydstyrke ned</string>
+    <string name="watch_action_phone_mute">Lyd fra / til</string>
+    <string name="watch_action_phone_torch">Telefonens lommelygte</string>
+    <string name="watch_action_engine_sound">Motorlyd</string>
     <string name="watch_action_long_press_hint">Hold nede for %1$s</string>
     <string name="watch_map_phone_disconnected">Ingen telefon</string>
     <string name="watch_map_gps_permission">Tillad GPS</string>

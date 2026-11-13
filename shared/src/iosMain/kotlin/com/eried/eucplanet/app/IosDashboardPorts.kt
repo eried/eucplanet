@@ -11,6 +11,14 @@ import com.eried.eucplanet.data.sync.RestorableRider
 import com.eried.eucplanet.platform.Log
 import com.eried.eucplanet.platform.System
 import com.eried.eucplanet.flic.MediaControls
+import com.eried.eucplanet.flic.PhoneControls
+import platform.AVFoundation.AVCaptureDevice
+import platform.AVFoundation.AVCaptureTorchModeOff
+import platform.AVFoundation.AVCaptureTorchModeOn
+import platform.AVFoundation.AVMediaTypeVideo
+import platform.AVFoundation.hasTorch
+import platform.AVFoundation.setTorchMode
+import platform.AVFoundation.torchMode
 import com.eried.eucplanet.flic.VoiceListening
 import com.eried.eucplanet.ui.dashboard.ActiveRoute
 import com.eried.eucplanet.ui.dashboard.DashboardPlatform
@@ -68,6 +76,26 @@ internal object NoMedia : MediaControls {
     override fun pause() = startMusic()
     override fun next() = startMusic()
     override fun previous() = startMusic()
+}
+
+/**
+ * The PHONE_* actions on iOS. An app cannot change the iPhone's volume or
+ * mute it, so those three only log; the flashlight works through the
+ * camera's torch.
+ */
+internal object IosPhoneControls : PhoneControls {
+    override fun stepVolume(direction: Int) { Log.i("Actions", "phone volume not on iOS") }
+    override fun toggleMute() { Log.i("Actions", "phone mute not on iOS") }
+    @OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
+    override fun toggleTorch() {
+        val device = AVCaptureDevice.defaultDeviceWithMediaType(AVMediaTypeVideo) ?: return
+        if (!device.hasTorch) return
+        if (!device.lockForConfiguration(null)) return
+        device.setTorchMode(
+            if (device.torchMode == AVCaptureTorchModeOn) AVCaptureTorchModeOff else AVCaptureTorchModeOn
+        )
+        device.unlockForConfiguration()
+    }
 }
 
 /** Spoken commands are not on iOS yet. */

@@ -10,10 +10,19 @@ import org.jetbrains.compose.resources.StringResource
  * the Fix button, typically opens the system Settings App-Details page, but
  * future warning sources (failed trip import, …) can pass any handler.
  */
+/** A string resource used as an argument of a warning's text. */
+data class WarningTextRes(val res: StringResource)
+
 data class AppWarning(
     val id: String,
     val titleRes: StringResource,
     val bodyRes: StringResource,
+    /**
+     * What fills the placeholders in [bodyRes], in order: a plain value, or a
+     * [WarningTextRes] for a piece that is itself a string of the app, such
+     * as the label of the button the text tells the rider to press.
+     */
+    val bodyArgs: List<Any> = emptyList(),
     val fix: () -> Unit = {},
     /**
      * Settings tab to open instead of running [fix], for the warnings whose

@@ -36,6 +36,11 @@
     <string name="watch_action_media_prev">Bài trước</string>
     <string name="watch_action_music_start">Phát nhạc</string>
     <string name="watch_action_media_pause">Tạm dừng nhạc</string>
+    <string name="watch_action_phone_volume_up">Tăng âm lượng</string>
+    <string name="watch_action_phone_volume_down">Giảm âm lượng</string>
+    <string name="watch_action_phone_mute">Tắt / bật tiếng</string>
+    <string name="watch_action_phone_torch">Đèn pin điện thoại</string>
+    <string name="watch_action_engine_sound">Tiếng động cơ</string>
     <string name="watch_action_long_press_hint">Nhấn giữ: %1$s</string>
     <string name="watch_map_phone_disconnected">Không có điện thoại</string>
     <string name="watch_map_gps_permission">Cho phép GPS</string>

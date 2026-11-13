@@ -383,6 +383,8 @@
     <string name="voice_mic_grant">Дозволити мікрофон</string>
     <string name="warnings_perm_mic_title">Мікрофон заборонено</string>
     <string name="warnings_perm_mic_body">Голосові команди не можуть слухати, доки застосунку не дозволено мікрофон.</string>
+    <string name="warnings_perm_bluetooth_title">Bluetooth не дозволено</string>
+    <string name="warnings_perm_bluetooth_body">Застосунок не може знайти колесо та підключитися до нього. Натисніть, щоб дозволити.</string>
     <string name="voice_answer_unknown">Не зрозуміло. Скажіть %1$s, щоб отримати підказку.</string>
     <string name="voice_help_terms">що можна сказати,допомога,що можна запитати</string>
     <string name="voice_stat_max_terms">максимум,макс,найбільший</string>
@@ -461,6 +463,10 @@
     <string name="action_chip_media_prev">Попередній трек</string>
     <string name="action_chip_music_start">Увімкнути музику</string>
     <string name="action_chip_media_pause">Пауза музики</string>
+    <string name="action_chip_phone_volume_up">Гучніше</string>
+    <string name="action_chip_phone_volume_down">Тихіше</string>
+    <string name="action_chip_phone_mute">Без звуку</string>
+    <string name="action_chip_phone_torch">Ліхтарик телефона</string>
     <string name="action_chip_open_navigation">Показати карту</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
     <string name="action_chip_open_about">Про застосунок</string>
@@ -533,6 +539,19 @@
     -->
     <string name="hud_install_hint">Потрібен застосунок HUD? Завантажте його з eucplanet.ried.no/hud</string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_app_title">Застосунок HUD</string>
+    <string name="hud_app_installed">Встановлено:</string>
+    <string name="hud_app_available">Доступно:</string>
+    <string name="hud_app_connected">Підключено:</string>
+    <string name="hud_app_send">Надіслати на HUD</string>
+    <string name="hud_app_remove">Видалити</string>
+    <string name="hud_app_sending">Надсилання, %1$d%%</string>
+    <string name="hud_app_sent">Продовжте на HUD.</string>
+    <string name="hud_app_resend_title">Уже оновлено</string>
+    <string name="hud_app_resend_body">На HUD уже ця версія. Усе одно надіслати?</string>
+    <string name="hud_app_remove_title">Видалити застосунок HUD?</string>
+    <string name="hud_app_remove_body">HUD попросить видалити застосунок. Для повторного встановлення потрібен кабель.</string>
+    <string name="hud_app_failed">HUD недоступний. Спробуйте ще раз.</string>
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">Загальні</string>
     <string name="section_watch_display">Екран</string>
@@ -858,7 +877,7 @@
     <string name="engine_preset_steam_loco">Паровоз</string>
     <string name="engine_preset_tron_whine">Свист Tron</string>
     <string name="engine_preset_pod_racer">Pod racer</string>
-    <string name="engine_preset_lightsaber">Світловий меч</string>
+    <string name="engine_preset_lightsaber">Цифровий гул</string>
     <string name="engine_preset_jet_turbine">Реактивна турбіна</string>
     <string name="engine_preset_ufo_hover">НЛО у зависі</string>
     <string name="engine_preset_f1_electric">F1 електричний</string>
@@ -866,7 +885,7 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V-twin Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">Дизельна вантажівка</string>
-    <string name="engine_preset_sampled_motorcycle">Мотоцикл</string>
+    <string name="engine_preset_sampled_motorcycle">Малий кросовий мотоцикл</string>
     <string name="engine_preset_sampled_city_car">Міське авто</string>
     <string name="engine_preset_sampled_helicopter">Гелікоптер</string>
     <string name="engine_preset_sampled_tractor">Трактор</string>
@@ -946,8 +965,13 @@
     <string name="gps_show_on_dashboard">Показувати швидкість на панелі</string>
     <string name="gps_show_on_dashboard_desc">Додає кольорову точку на спідометрі з показанням GPS.</string>
     <string name="section_volume_keys">Кнопки гучності</string>
-    <string name="volume_keys_caption">Кнопки гучності як швидкі дії (лише коли застосунок відкритий)</string>
+    <string name="volume_keys_caption">Кнопки гучності як ярлики, поки застосунок на екрані.</string>
     <string name="volume_keys_enable">Увімкнути дії на кнопках гучності</string>
+    <string name="volume_keys_screen_off">І з вимкненим екраном</string>
+    <string name="volume_keys_screen_off_caption">Працює на заблокованому телефоні та коли відкрито інший застосунок. Кнопки більше не змінюють гучність телефона.</string>
+    <string name="volume_keys_screen_off_warn">Android передає натискання кнопок гучності лише застосунку на екрані. Щоб отримувати їх із вимкненим екраном, EUC Planet реєструється як активний медіаплеєр телефона, і Android надсилає кнопки йому, а не змінює гучність.\n\nПоки це ввімкнено, кнопки не змінюють гучність телефона.</string>
+    <string name="volume_keys_screen_off_confirm">Увімкнути</string>
+    <string name="volume_keys_screen_off_title">Перебрати кнопки гучності?</string>
     <string name="volume_up">Гучніше</string>
     <string name="volume_down">Тихіше</string>
 
@@ -2711,7 +2735,7 @@
     <string name="lockdown_warning_no_wheel">Колесо не підключено, тому стан легального режиму невідомий. Застосунок заблокується наступного разу, коли легальний режим буде увімкнено.</string>
     <string name="lockdown_continue">Далі</string>
     <string name="trip_tools_wheel_none">Для цієї поїздки колесо ще не записано.</string>
-    <string name="backup_conflict_warning">Деякі резервні копії поїздок потребують ручної синхронізації: копії різняться. Торкніться «Синхр. усе» й виберіть, яка сторона правильна.</string>
+    <string name="backup_conflict_warning">Деякі поїздки на цьому телефоні відрізняються від копій у теці резервної копії. Натисніть %1$s, потім у розділі %2$s натисніть \"%3$s\" і виберіть, яку копію залишити.</string>
     <string name="backup_conflict_title">Конфлікти резервних копій</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Їдемо?</string>

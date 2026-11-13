@@ -2152,14 +2152,15 @@ class WheelRepository(
             is DecodeResult.Telemetry -> {
                 val previous = _wheelData.value
                 // Families whose realtime frames can't recover the headlight state
-                // (P6 has no live byte). For these the optimistic lightOn is
+                // (P6 and V6 have no live byte). For these the optimistic lightOn is
                 // authoritative, so a realtime frame must not clobber it back to
                 // its false default - that was the V8S "Light switch only turns
                 // on, never off" bug. InMotion V1 is one of them only until its
                 // adapter has the wheel's own report from slow-info (lightReported);
                 // from then on the frame carries the real state.
-                val realtimeLacksLight = _modelName.value?.contains("P6") == true ||
-                    (wheelAdapter.familyId == "inmotion_v1" && result.data.lightReported == null)
+                val realtimeLacksLight = realtimeLacksLight(
+                    _modelName.value, wheelAdapter.familyId, result.data.lightReported
+                )
                 // V14 etc. don't carry total distance in realtime frames, so
                 // preserve whatever was set via the separate TotalDistance
                 // decode. The P6 ships the lifetime odometer inline at offset
@@ -2620,3 +2621,16 @@ object LockdownReapply {
     fun shouldReapply(engaged: Boolean, wheelReportsLegalOn: Boolean): Boolean =
         engaged && !wheelReportsLegalOn
 }
+
+/**
+ * Whether a wheel's realtime frames say nothing about the headlight, so the
+ * state the rider last asked for is the one to keep. The InMotion P6 and V6
+ * have no live byte for it; their parsers always read off. Without this a
+ * frame puts the switch back to off moments after a tap, and the next tap
+ * sends "on" again: the light could be turned on and never off. An InMotion
+ * V1 counts only until its slow-info frame has reported the light.
+ */
+internal fun realtimeLacksLight(modelName: String?, familyId: String, lightReported: Boolean?): Boolean =
+    modelName?.contains("P6") == true ||
+        modelName?.contains("V6") == true ||
+        (familyId == "inmotion_v1" && lightReported == null)

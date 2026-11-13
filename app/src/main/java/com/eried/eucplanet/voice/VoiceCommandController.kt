@@ -100,6 +100,8 @@ class VoiceCommandController(
          * that reports the end early, short enough that it reads as done.
          */
         const val ANSWER_LINGER_MS = 600L
+        /** A refusal nobody hears (voice off, phone muted) still has to be readable. */
+        const val REFUSAL_MIN_MS = 2000L
 
         /**
          * After the reply is said and the app has let go of the audio, how
@@ -224,6 +226,7 @@ class VoiceCommandController(
      *   [showingListeningCue]): two cues for one press is noise.
      */
     fun listen(listener: VoiceListener? = null, notify: Boolean = true) {
+        if (listener == null && askForMicrophone()) return
         // A press while it is listening means stop. It used to mean start
         // again, which looked the same from the outside for the first moment
         // and then was not: the rider got a fresh window they had not asked
@@ -248,6 +251,36 @@ class VoiceCommandController(
             Log.i(TAG, "restarted by ask")
             com.eried.eucplanet.diagnostics.DiagnosticsLogger.note("Voice: restarted by ask")
         }
+        if (askForMicrophone()) return
+        open(null, notify = true)
+    }
+
+    /**
+     * Shows Android's microphone prompt. Set by the activity while it is on
+     * screen and cleared when it leaves, because only a visible activity can
+     * ask. Null means nobody can ask right now (screen off, another app in
+     * front), and the refusal is spoken instead.
+     */
+    @Volatile
+    var micPrompter: (() -> Unit)? = null
+
+    /** True when the permission is missing and the prompt was put in front of the rider. */
+    private fun askForMicrophone(): Boolean {
+        if (hasMicPermission()) return false
+        val prompt = micPrompter ?: return false
+        Log.i(TAG, "no microphone permission, asking for it")
+        prompt()
+        return true
+    }
+
+    /**
+     * The rider answered the prompt [micPrompter] showed. Granted: listen, it
+     * is what they pressed the button for. Refused, or Android no longer
+     * shows the prompt: [open] says so aloud and files the Needs attention
+     * entry, which leads to the app's settings page.
+     */
+    fun micPermissionResult(granted: Boolean) {
+        if (granted) appHealth.microphoneGranted()
         open(null, notify = true)
     }
 
@@ -293,7 +326,16 @@ class VoiceCommandController(
                 com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
                     "Voice: refused, no microphone permission"
                 )
-                delay(ANSWER_LINGER_MS)
+                // On screen like every other answer: for as long as it is being
+                // said, then the usual short tail. It used to skip the wait and
+                // was gone 600 ms in, mid-sentence. With the voice off there is
+                // no speech to wait for, so it never shows for less than
+                // [REFUSAL_MIN_MS], the time it takes to read it.
+                val shownAt = android.os.SystemClock.elapsedRealtime()
+                withTimeoutOrNull(SPEECH_START_WAIT_MS) { voiceService.isSpeaking.first { it } }
+                withTimeoutOrNull(SPEECH_END_WAIT_MS) { voiceService.isSpeaking.first { !it } }
+                val shown = android.os.SystemClock.elapsedRealtime() - shownAt
+                delay(maxOf(ANSWER_LINGER_MS, REFUSAL_MIN_MS - shown))
                 _state.value = UiState.Idle
                 return@launch
             }
