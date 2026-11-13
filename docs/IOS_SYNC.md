@@ -162,6 +162,9 @@ opening it in Xcode and pressing Run is enough. From a terminal:
 sh iosApp/run-simulator.sh     # build, install and launch on a simulator
 SIMCTL_CHILD_EUC_CONNECT=VIRTUAL:MASTER xcrun simctl launch booted com.eried.eucplanet.ios
                                # relaunch connected to a virtual wheel
+SIMCTL_CHILD_EUC_DIALOG=service xcrun simctl launch booted com.eried.eucplanet.ios
+                               # relaunch with a dashboard dialog open
+                               # (service, about), for screenshots
 sh iosApp/deploy-device.sh     # build, sign and install on a cabled iPhone
 ```
 

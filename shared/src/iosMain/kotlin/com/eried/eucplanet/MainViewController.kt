@@ -85,6 +85,10 @@ fun MainViewController(): UIViewController {
     // For scripted runs on the simulator, which cannot tap:
     // SIMCTL_CHILD_EUC_CONNECT=VIRTUAL:<id> xcrun simctl launch ...
     (NSProcessInfo.processInfo.environment["EUC_CONNECT"] as? String)?.let { wheel.connect(it) }
+    // SIMCTL_CHILD_EUC_DIALOG=service (or about) opens that dashboard dialog.
+    (NSProcessInfo.processInfo.environment["EUC_DIALOG"] as? String)?.let {
+        com.eried.eucplanet.ui.dashboard.DashboardDialogBus.open(it)
+    }
     MainScope().launch {
         IosAppGraph.seed()
         // A recording the app was killed in, finalized or dropped, as on Android.
