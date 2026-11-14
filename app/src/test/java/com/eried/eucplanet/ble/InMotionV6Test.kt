@@ -231,4 +231,82 @@ class InMotionV6Test {
         assertEquals(1.25f, d.tripDistance, 0.001f)
         assertEquals(36f, d.maxTemperature, 0.001f)
     }
+
+    // --- Tilt-back, from a second rider's btsnoop of the official app
+    // (V6-70040773, 2026-11-14): tilt-back set to 20, 25, 15 and 20 km/h,
+    // each write followed by a settings read. Frames verbatim.
+
+    private fun bytes(h: String) = h.split(" ").map { it.toInt(16).toByte() }.toByteArray()
+
+    /**
+     * The settings reply while tilt-back was 15 km/h. The capture's frame is
+     * `aa aa 56 11 2e [body] 94`: the official app's framing, with a sequence
+     * byte. The wheel answers this app's requests in the plain extended
+     * framing, so the same body goes back in that one here.
+     */
+    private val settingsAt15: ByteArray = run {
+        val body = bytes(
+            "21 02 a0 20 00 00 00 00 00 00 00 00 dc 05 bc 02 d0 07 00 00 58 02 00 " +
+                "64 64 14 00 0a 28 64 64 28 d0 07 32 32 dc 05 00 00 00 00 85 21 00 00"
+        )
+        val payload = byteArrayOf(InMotionV2Protocol.Flags.EXTENDED, body.size.toByte()) + body
+        val ck = payload.fold(0) { acc, x -> acc xor (x.toInt() and 0xFF) }
+        byteArrayOf(0xAA.toByte(), 0xAA.toByte()) + payload + ck.toByte()
+    }
+
+    @Test
+    fun v6SettingsReply_readsTiltback_andNoAlarm() {
+        val adapter = InMotionV2Adapter()
+        adapter.notifyConnectingTo("V6-70040773")
+        val ws = adapter.onRawNotification(settingsAt15)
+            .filterIsInstance<DecodeResult.Settings>().single().data
+        assertEquals(15f, ws.maxSpeedKmh, 0.001f)
+        // d[10..11] read 7.00 at every tilt-back; the V6 has no alarm speed,
+        // so it mirrors tilt-back instead of reaching the alarm slider.
+        assertEquals(15f, ws.alarmSpeedKmh, 0.001f)
+    }
+
+    @Test
+    fun v6SettingsPage_followsEachTiltbackTheOfficialAppSet() {
+        val pages = mapOf(
+            20f to "20 00 00 00 00 00 00 00 00 d0 07 bc 02 d0 07 00 00 58 02 00 64 64 14 00 0a 28",
+            25f to "20 00 00 00 00 00 00 00 00 c4 09 bc 02 d0 07 00 00 58 02 00 64 64 14 00 0a 28",
+            15f to "20 00 00 00 00 00 00 00 00 dc 05 bc 02 d0 07 00 00 58 02 00 64 64 14 00 0a 28",
+        )
+        for ((kmh, page) in pages) {
+            assertEquals(kmh, InMotionV2Parser.parseV6Settings(bytes(page))!!.maxSpeedKmh, 0.001f)
+        }
+    }
+
+    @Test
+    fun v6TiltbackWrite_carriesTheOfficialAppsCommand() {
+        // Official: aa aa 56 13 06 | 02 21 60 21 d0 07 | f6 (flags, seq, len, body, xor).
+        val adapter = InMotionV2Adapter()
+        adapter.notifyConnectingTo("V6-70040773")
+        val ours = hex(adapter.setMaxSpeed(20f, 20f))
+        assertTrue(ours, ours.contains("02216021d007"))
+    }
+
+    @Test
+    fun v6SlowPoll_alternatesSettingsAndOdometer() {
+        val adapter = InMotionV2Adapter()
+        adapter.notifyConnectingTo("V6-70040773")
+        val polls = (1..4).map { hex(adapter.pollSettings()) }
+        assertEquals(hex(InMotionV2Commands.getP6Settings()), polls[0])
+        assertEquals(hex(InMotionV2Commands.getV6TotalStats()), polls[1])
+        assertEquals(polls[0], polls[2])
+        assertEquals(polls[1], polls[3])
+    }
+
+    @Test
+    fun v6Capabilities_dropOnlyTheAlarm() {
+        val v6 = InMotionV2Adapter().apply { notifyConnectingTo("V6-70040773") }.capabilities
+        assertFalse(v6.hasAlarmSpeed)
+        assertFalse(v6.reportsAlarmSpeed)
+        assertTrue(v6.hasMaxSpeed)
+        assertEquals(25, InMotionV2Model.V6.maxSpeedKmh)
+        // Every other InMotion V2 wheel keeps its alarm.
+        val v14 = InMotionV2Adapter().apply { notifyConnectingTo("V14-ABCD") }.capabilities
+        assertEquals(WheelCapabilities.INMOTION_V2, v14)
+    }
 }
