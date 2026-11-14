@@ -23,6 +23,7 @@ import com.eried.eucplanet.data.repository.TripMeterFixes
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelProfiles
 import com.eried.eucplanet.data.repository.WheelRepository
+import com.eried.eucplanet.data.store.AndroidMarkerFile
 import com.eried.eucplanet.data.store.NavMarkerStore
 import com.eried.eucplanet.data.store.OverlayPresetStore
 import com.eried.eucplanet.data.store.ThemeStore
@@ -76,6 +77,7 @@ val dataModule = module {
     }
     single<TripMeterFixes> { AndroidTripMeterFixes(inject()) }
     single { TripMeterStore(androidContext().tripMeterDataStore) }
+    single<NavMarkerStore.MarkerFile> { AndroidMarkerFile(androidContext()) }
     singleOf(::NavMarkerStore)
     singleOf(::OverlayPresetStore)
     singleOf(::ThemeStore) { bind<com.eried.eucplanet.ui.theme.ThemeFiles>() }

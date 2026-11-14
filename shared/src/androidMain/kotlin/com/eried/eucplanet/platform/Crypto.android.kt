@@ -7,3 +7,5 @@ actual fun md5(data: ByteArray): ByteArray = java.security.MessageDigest.getInst
 private val secureRandom by lazy { java.security.SecureRandom() }
 
 actual fun secureRandomInt(bound: Int): Int = secureRandom.nextInt(bound)
+
+actual fun secureRandomBytes(n: Int): ByteArray = ByteArray(n).also { secureRandom.nextBytes(it) }

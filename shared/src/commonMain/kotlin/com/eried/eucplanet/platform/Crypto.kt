@@ -8,3 +8,6 @@ expect fun md5(data: ByteArray): ByteArray
 
 /** A uniform int in `0 until bound` from the platform's secure generator (`SecureRandom.nextInt`). */
 expect fun secureRandomInt(bound: Int): Int
+
+/** [n] bytes from the platform's secure generator (`SecureRandom.nextBytes`). */
+expect fun secureRandomBytes(n: Int): ByteArray

@@ -1,16 +1,16 @@
 package com.eried.eucplanet.data.repository
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
-import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
+import kotlin.test.Test
 
 class IncomingShareParseTest {
 
     @Test
     fun geoQueryNameInBracketsLabelsTheStop() {
         val p = IncomingShareRepository.parse("geo:0,0?q=59.9139,10.7522(Oslo)")!!
-        assertEquals(59.9139, p.lat!!, 1e-9)
-        assertEquals(10.7522, p.lng!!, 1e-9)
+        assertEquals(59.9139, p.lat!!, absoluteTolerance = 1e-9)
+        assertEquals(10.7522, p.lng!!, absoluteTolerance = 1e-9)
         assertEquals("Oslo", p.label)
     }
 

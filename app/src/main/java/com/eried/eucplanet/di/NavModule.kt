@@ -20,6 +20,7 @@ import com.eried.eucplanet.nav.offline.map.OfflineMapRenderer
 import com.eried.eucplanet.share.PendingShareJoin
 import com.eried.eucplanet.share.ShareSession
 import org.koin.android.ext.koin.androidContext
+import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -39,6 +40,6 @@ val navModule = module {
     singleOf(::PoiService)
     singleOf(::OcmService)
     singleOf(::CurrentRouteStore)
-    singleOf(::ShareSession)
+    singleOf(::ShareSession) { bind<com.eried.eucplanet.share.LiveShare>() }
     singleOf(::PendingShareJoin)
 }

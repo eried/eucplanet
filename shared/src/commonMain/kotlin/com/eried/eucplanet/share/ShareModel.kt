@@ -1,7 +1,9 @@
 package com.eried.eucplanet.share
 
 import com.eried.eucplanet.data.model.WheelData
-import org.json.JSONObject
+import com.eried.eucplanet.platform.JSONObject
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 
 enum class IdentityMode { ANON, SESSION, PROFILE }
 
@@ -78,7 +80,7 @@ data class SharePayload(
 object PeerPalette {
     val COLORS = listOf("#E53935", "#1E88E5", "#43A047", "#FB8C00", "#8E24AA", "#00ACC1",
         "#F4511E", "#3949AB", "#7CB342", "#D81B60", "#00897B", "#FDD835")
-    fun colorFor(joinIndex: Int): String = COLORS[Math.floorMod(joinIndex, COLORS.size)]
+    fun colorFor(joinIndex: Int): String = COLORS[joinIndex.mod(COLORS.size)]
 }
 
 enum class Freshness { FRESH, STALE, LOST }
@@ -156,7 +158,7 @@ class Trail(
     val maxAgeMs: Long,
 ) {
     private val pts = ArrayDeque<Triple<Double, Double, Long>>()
-    private val lock = Any()
+    private val lock = SynchronizedObject()
     fun add(lat: Double, lng: Double, t: Long) {
         synchronized(lock) { pts.addLast(Triple(lat, lng, t)) }
     }

@@ -1,8 +1,12 @@
 package com.eried.eucplanet.share
 
 import com.eried.eucplanet.data.model.WheelData
-import org.junit.Assert.*
-import org.junit.Test
+import kotlin.test.assertContentEquals
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
+import kotlin.test.Test
 
 class ShareModelTest {
     /** A phone sharing its location with no wheel paired reads 0 km/h, 0 %
@@ -15,10 +19,7 @@ class ShareModelTest {
     }
     @Test fun connectedWheel_publishesItsReadings() {
         val wheel = WheelData(speed = 24.5f, batteryPercent = 71, maxTemperature = 33f)
-        assertEquals(
-            ShareStats(24.5f, 71, 33f),
-            shareStatsOf(shareStats = true, wheelConnected = true, wheel = wheel)
-        )
+        assertEquals(ShareStats(24.5f, 71, 33f), shareStatsOf(shareStats = true, wheelConnected = true, wheel = wheel))
     }
     @Test fun statsToggleOffPublishesNothing() {
         val wheel = WheelData(speed = 24.5f, batteryPercent = 71, maxTemperature = 33f)
@@ -53,15 +54,15 @@ class ShareModelTest {
         assertNull(SharePayload.fromJson(frame("NaN", "10.75")))
         // The same frame with real coordinates still parses, so the guard is
         // rejecting the value and not the shape.
-        assertEquals(59.91, SharePayload.fromJson(frame("59.91", "10.75"))!!.lat, 0.0)
+        assertEquals(59.91, SharePayload.fromJson(frame("59.91", "10.75"))!!.lat, absoluteTolerance = 0.0)
     }
     /** The relay closes a room at capacity with 1013, and the group dialog
      *  decides "this group is full" by comparing against the typed error the
      *  session raises for exactly that code. Both halves are a contract with
      *  the relay, so they are pinned here rather than left to be reworded. */
     @Test fun roomFullCloseCodeAndErrorArePinned() {
-        assertEquals(1013, ShareSession.CLOSE_ROOM_FULL)
-        assertEquals("room_full", ShareSession.ERR_ROOM_FULL)
+        assertEquals(1013, LiveShare.CLOSE_ROOM_FULL)
+        assertEquals("room_full", LiveShare.ERR_ROOM_FULL)
     }
     @Test fun paletteIsFixedAndWraps() {
         assertEquals(12, PeerPalette.COLORS.size)
@@ -80,7 +81,7 @@ class ShareModelTest {
         tr.add(3.0, 3.0, t = 600_000L)
         val pts = tr.points(now = 600_000L)
         assertEquals(2, pts.size)
-        assertEquals(3.0, pts.last().lat, 0.0); assertEquals(1.0f, pts.last().alpha, 0.001f)
+        assertEquals(3.0, pts.last().lat, absoluteTolerance = 0.0); assertEquals(1.0f, pts.last().alpha, absoluteTolerance = 0.001f)
         assertTrue(pts.first().alpha < pts.last().alpha && pts.first().alpha >= 0.15f)
     }
     /** The map draws one polyline per band and reads the band number straight
@@ -104,7 +105,7 @@ class ShareModelTest {
         var previous = 0
         for (ageS in 0..400) {
             val band = TrailBands.of(ageS * 1000L, fiveMin)
-            assertTrue("band went backwards at $ageS s", band >= previous)
+            assertTrue(band >= previous, "band went backwards at $ageS s")
             assertTrue(band in 0 until TrailBands.COUNT)
             previous = band
         }
@@ -114,20 +115,17 @@ class ShareModelTest {
      *  fractions of it. A fixed table gave a one-minute trail a single flat
      *  band and a thirty-minute one 26 minutes of the faintest. */
     @Test fun trailBandsScaleWithTheTrailLength() {
-        assertArrayEquals(longArrayOf(60_000L, 120_000L, 210_000L), TrailBands.edgesMs(5 * 60_000L))
+        assertContentEquals(longArrayOf(60_000L, 120_000L, 210_000L), TrailBands.edgesMs(5 * 60_000L))
         // One minute: the same four steps, a fifth of a minute each to start.
         val oneMin = 60_000L
-        assertArrayEquals(longArrayOf(12_000L, 24_000L, 42_000L), TrailBands.edgesMs(oneMin))
+        assertContentEquals(longArrayOf(12_000L, 24_000L, 42_000L), TrailBands.edgesMs(oneMin))
         assertEquals(0, TrailBands.of(11_999L, oneMin))
         assertEquals(1, TrailBands.of(12_000L, oneMin))
         assertEquals(2, TrailBands.of(24_000L, oneMin))
         assertEquals(3, TrailBands.of(42_000L, oneMin))
         // Thirty minutes: the faintest band starts at 21 minutes, not at 3.5.
         val thirtyMin = 30 * 60_000L
-        assertArrayEquals(
-            longArrayOf(6 * 60_000L, 12 * 60_000L, 21 * 60_000L),
-            TrailBands.edgesMs(thirtyMin)
-        )
+        assertContentEquals(longArrayOf(6 * 60_000L, 12 * 60_000L, 21 * 60_000L), TrailBands.edgesMs(thirtyMin))
         assertEquals(0, TrailBands.of(5 * 60_000L, thirtyMin))
         assertEquals(1, TrailBands.of(6 * 60_000L, thirtyMin))
         assertEquals(2, TrailBands.of(12 * 60_000L, thirtyMin))
@@ -138,8 +136,8 @@ class ShareModelTest {
             val maxAge = minutes * 60_000L
             val edges = TrailBands.edgesMs(maxAge)
             assertEquals(TrailBands.COUNT - 1, edges.size)
-            assertTrue("edges not ascending at $minutes min", edges[0] < edges[1] && edges[1] < edges[2])
-            assertTrue("last edge past the trail at $minutes min", edges[2] < maxAge)
+            assertTrue(edges[0] < edges[1] && edges[1] < edges[2], "edges not ascending at $minutes min")
+            assertTrue(edges[2] < maxAge, "last edge past the trail at $minutes min")
             assertEquals(0, TrailBands.of(0L, maxAge))
             assertEquals(TrailBands.COUNT - 1, TrailBands.of(maxAge, maxAge))
         }

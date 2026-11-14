@@ -1,5 +1,6 @@
 package com.eried.eucplanet.data.repository
 
+import com.eried.eucplanet.platform.FormUrl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -73,7 +74,7 @@ class IncomingShareRepository {
                 val q = Regex("""[?&]q=([^&]+)""", RegexOption.IGNORE_CASE)
                     .find(afterScheme)?.groupValues?.get(1)
                 if (q != null) {
-                    val decoded = java.net.URLDecoder.decode(q, "UTF-8")
+                    val decoded = FormUrl.decode(q)
                     val coords = parseCoords(decoded)
                     if (coords != null) {
                         // geo:0,0?q=lat,lng(Name): the name in brackets labels the stop.
@@ -107,7 +108,7 @@ class IncomingShareRepository {
                     // with spaces, then trim.
                     val nameMatch = Regex("""/place/([^/?#]+)""").find(text)
                     val label = nameMatch?.groupValues?.get(1)?.let { raw ->
-                        java.net.URLDecoder.decode(raw.replace('+', ' '), "UTF-8")
+                        FormUrl.decode(raw.replace('+', ' '))
                     }
                     return Pending(lat = lat, lng = lng, label = label)
                 }
@@ -134,8 +135,8 @@ class IncomingShareRepository {
             //     geocoder query.
             val nameOnly = Regex("""/place/([^/?#]+)""").find(text)
             if (nameOnly != null) {
-                val decoded = java.net.URLDecoder.decode(
-                    nameOnly.groupValues[1].replace('+', ' '), "UTF-8"
+                val decoded = FormUrl.decode(
+                    nameOnly.groupValues[1].replace('+', ' ')
                 )
                 if (decoded.isNotBlank()) return Pending(query = decoded)
             }

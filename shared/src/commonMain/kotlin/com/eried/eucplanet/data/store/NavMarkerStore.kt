@@ -1,15 +1,13 @@
 package com.eried.eucplanet.data.store
 
-import android.content.Context
-import android.util.Base64
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import java.io.File
+import kotlin.io.encoding.Base64
 
 /**
- * Persists the rider's custom navigation-marker photo as a single PNG file in
- * [Context.getNoBackupFilesDir], NOT in the settings JSON.
+ * Persists the rider's custom navigation-marker photo as a single PNG file
+ * ([file]; Android keeps it in noBackupFilesDir), NOT in the settings JSON.
  *
  * Why a file and why no-backup:
  *  - It's a fat base64 image that would bloat every settings read/write and the
@@ -24,18 +22,15 @@ import java.io.File
  * the photo in the Navigator updates the Studio overlay live and vice-versa.
  */
 class NavMarkerStore(
-    private val context: Context,
+    private val file: MarkerFile,
 ) {
-    private val file: File get() = File(context.noBackupFilesDir, MARKER_FILE)
 
     private val _photoDataUrl = MutableStateFlow(loadDataUrl())
     /** Base64 data URL of the custom marker, or null when none is set. */
     val photoDataUrl: StateFlow<String?> = _photoDataUrl.asStateFlow()
 
     private fun loadDataUrl(): String? = runCatching {
-        val f = file
-        if (!f.exists()) null
-        else DATA_URL_PREFIX + Base64.encodeToString(f.readBytes(), Base64.NO_WRAP)
+        file.read()?.let { DATA_URL_PREFIX + Base64.Default.encode(it) }
     }.getOrNull()
 
     /**
@@ -52,14 +47,28 @@ class NavMarkerStore(
         val comma = dataUrl.indexOf(',')
         if (comma <= 0) return
         runCatching {
-            val bytes = Base64.decode(dataUrl.substring(comma + 1), Base64.DEFAULT)
-            file.writeBytes(bytes)
+            val bytes = MIME.decode(dataUrl.substring(comma + 1))
+            file.write(bytes)
             _photoDataUrl.value = dataUrl
         }
     }
 
+    /**
+     * The one file the photo lives in, as raw PNG bytes. [read] is null when
+     * there is none; [write] and [delete] may throw, which [set] swallows.
+     */
+    interface MarkerFile {
+        fun read(): ByteArray?
+        fun write(bytes: ByteArray)
+        fun delete()
+    }
+
     companion object {
-        private const val MARKER_FILE = "nav_user_marker.png"
+        /** The file's name, in Android's noBackupFilesDir. */
+        const val MARKER_FILE = "nav_user_marker.png"
         private const val DATA_URL_PREFIX = "data:image/png;base64,"
+
+        /** Reads what `android.util.Base64.decode(s, DEFAULT)` reads: line breaks skipped, padding optional. */
+        private val MIME = Base64.Mime.withPadding(Base64.PaddingOption.PRESENT_OPTIONAL)
     }
 }

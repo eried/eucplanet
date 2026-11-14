@@ -31,42 +31,6 @@ import okhttp3.WebSocketListener
 import org.json.JSONObject
 import java.util.concurrent.ConcurrentHashMap
 
-data class Identity(val mode: IdentityMode, val name: String, val color: String, val icon: String?,
-                    val avatarUrl: String?, val flag: String?, val shareStats: Boolean)
-
-data class PeerState(val last: SharePayload, val lastSeenMs: Long, val trail: Trail,
-                     val freshness: Freshness, val left: Boolean)
-
-sealed class ShareState {
-    object Idle : ShareState()
-    /**
-     * [nowMs] is the clock the whole group view is rendered against, refreshed
-     * by every [ShareSession.ageTick]. It is part of the state on purpose:
-     * re-classifying freshness alone produces an equal object once a peer has
-     * settled into STALE, the CAS write is then a no-op and nothing emits, so
-     * "15 s ago" used to sit frozen for the whole 105 s until LOST. With the
-     * tick's clock in the state every tick is a real change, and readers show
-     * an age computed from it rather than from a fresh currentTimeMillis()
-     * sampled at composition time (which the recomposition never reached).
-     */
-    data class Joined(val link: ShareLink, val me: Identity, val peers: Map<String, PeerState>,
-                      val connected: Boolean, val error: String?,
-                      val nowMs: Long = System.currentTimeMillis()) : ShareState()
-}
-
-/**
- * The riders who are in the group right now: everyone in [ShareState.Joined.peers]
- * except those who announced they left and those whose last fix aged out to
- * [Freshness.LOST]. Self is never in the map (peers are keyed by the remote
- * sender id), so this is always "the others".
- *
- * One definition on purpose. The navigator's Share badge, the group dialog's
- * status line and its "no one else here yet" line all read this, so they cannot
- * show 2, 2 and "nobody" for the same room.
- */
-val ShareState.Joined.activePeers: List<PeerState>
-    get() = peers.values.filter { !it.left && it.freshness != Freshness.LOST }
-
 class ShareSession(
     private val context: Context,
     private val settingsRepository: SettingsRepository,
@@ -74,23 +38,19 @@ class ShareSession(
     private val wheelRepository: WheelRepository,
     private val syncManager: SyncManager,
     private val eucStatsApi: EucStatsApiContract,
-) {
+) : LiveShare {
 
     /** Ordinal of the group dialog's last tab, kept for the process lifetime
      *  only (a UI convenience the navigator reads back on reopen). */
-    @Volatile var groupTabOrdinal: Int = 0
+    @Volatile override var groupTabOrdinal: Int = 0
 
     companion object {
         const val PUBLISH_INTERVAL_MS = 3_000L
         const val PUBLISH_MOVE_M = 10.0
-        /** The relay closes with 1013 when a room already holds its maximum
-         *  number of riders. Carried as a typed marker in [ShareState.Joined.error]
-         *  so the UI can say "this group is full" without matching on words
-         *  that a relay could reword or localize. */
-        const val ERR_ROOM_FULL = "room_full"
-        /** WebSocket close code the relay uses for "try again later": here it
-         *  only ever means the room is at capacity. */
-        const val CLOSE_ROOM_FULL = 1013
+        /** See [LiveShare.ERR_ROOM_FULL]. */
+        const val ERR_ROOM_FULL = LiveShare.ERR_ROOM_FULL
+        /** See [LiveShare.CLOSE_ROOM_FULL]. */
+        const val CLOSE_ROOM_FULL = LiveShare.CLOSE_ROOM_FULL
     }
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     init {
@@ -103,7 +63,7 @@ class ShareSession(
     }
     private val client = OkHttpClient()
     private val _state = MutableStateFlow<ShareState>(ShareState.Idle)
-    val state: StateFlow<ShareState> = _state.asStateFlow()
+    override val state: StateFlow<ShareState> = _state.asStateFlow()
 
     /**
      * True while the rider is in a group, as a plain boolean the rest of the
@@ -133,7 +93,7 @@ class ShareSession(
      * that reason: a screen-level reader would subscribe for the whole life of
      * the navigator and invalidate it at telemetry rate.
      */
-    val myStats: StateFlow<ShareStats?> = combine(
+    override val myStats: StateFlow<ShareStats?> = combine(
         _state, wheelRepository.connectionState, wheelRepository.wheelData
     ) { st, connection, wheel ->
         val me = (st as? ShareState.Joined)?.me ?: return@combine null
@@ -199,7 +159,7 @@ class ShareSession(
      * own marker on their own map, drawn by nativeSetUserPhoto; friends see
      * the palette dot (or the profile avatar, which is a real https URL).
      */
-    suspend fun identityFor(mode: IdentityMode, sessionName: String, shareStats: Boolean): Identity {
+    override suspend fun identityFor(mode: IdentityMode, sessionName: String, shareStats: Boolean): Identity {
         // The local rider is never a peer and must not consume an index from
         // the arrival-order sequence peers are colored from (see PeerPalette).
         // It always takes the last palette entry, yellow, so peer index 0
@@ -218,14 +178,14 @@ class ShareSession(
     }
 
     /** Create a new room and join it as the first rider. */
-    suspend fun start(identity: Identity): ShareLink {
+    override suspend fun start(identity: Identity): ShareLink {
         val link = ShareLinks.newLink()
         join(link, identity)
         return link
     }
 
     /** Join [link] as [identity]. */
-    suspend fun join(link: ShareLink, identity: Identity) {
+    override suspend fun join(link: ShareLink, identity: Identity) {
         closeSocket()
         closing = false
         key = ShareCrypto.deriveKey(link.key)
@@ -374,7 +334,7 @@ class ShareSession(
      * second a real emission, which is what keeps "15 s ago" counting up
      * instead of freezing until the peer goes LOST.
      */
-    fun ageTick() { val now = System.currentTimeMillis()
+    override fun ageTick() { val now = System.currentTimeMillis()
         // A rider who said they left stays greyed only while their trail
         // is still fading; after that there is nothing left to show, and an
         // anonymous rider who rejoins under a new id would otherwise pile up
@@ -441,7 +401,7 @@ class ShareSession(
      * full link, so a rider who wants back in is handed the QR or the link by
      * someone still in the ride. There is no creator role to come back to.
      */
-    fun leave() {
+    override fun leave() {
         closeSocket()
     }
 

@@ -2,6 +2,8 @@ package com.eried.eucplanet.platform
 
 import android.content.Context
 import androidx.compose.runtime.Composable
+import org.jetbrains.compose.resources.PluralStringResource
+import org.jetbrains.compose.resources.StringArrayResource
 import org.jetbrains.compose.resources.StringResource
 
 /**
@@ -12,9 +14,20 @@ import org.jetbrains.compose.resources.StringResource
 object AndroidStrings {
     @Volatile
     private var lookup: (String) -> Int = { 0 }
+    @Volatile
+    private var pluralLookup: (String) -> Int = { 0 }
+    @Volatile
+    private var arrayLookup: (String) -> Int = { 0 }
 
-    fun install(idOf: (String) -> Int) {
+    /** [pluralIdOf] and [arrayIdOf] give the R.plurals and R.array ids the same way. */
+    fun install(
+        idOf: (String) -> Int,
+        pluralIdOf: (String) -> Int = { 0 },
+        arrayIdOf: (String) -> Int = { 0 },
+    ) {
         lookup = idOf
+        pluralLookup = pluralIdOf
+        arrayLookup = arrayIdOf
     }
 
     fun id(res: StringResource): Int {
@@ -22,7 +35,27 @@ object AndroidStrings {
         check(id != 0) { "No R.string.${res.key}: is AndroidStrings installed?" }
         return id
     }
+
+    fun id(res: PluralStringResource): Int {
+        val id = pluralLookup(res.key)
+        check(id != 0) { "No R.plurals.${res.key}: is AndroidStrings installed?" }
+        return id
+    }
+
+    fun id(res: StringArrayResource): Int {
+        val id = arrayLookup(res.key)
+        check(id != 0) { "No R.array.${res.key}: is AndroidStrings installed?" }
+        return id
+    }
 }
+
+@Composable
+actual fun pluralStringResource(res: PluralStringResource, quantity: Int, vararg formatArgs: Any): String =
+    androidx.compose.ui.res.pluralStringResource(AndroidStrings.id(res), quantity, *formatArgs)
+
+@Composable
+actual fun stringArrayResource(res: StringArrayResource): List<String> =
+    androidx.compose.ui.res.stringArrayResource(AndroidStrings.id(res)).toList()
 
 @Composable
 actual fun stringResource(res: StringResource): String =

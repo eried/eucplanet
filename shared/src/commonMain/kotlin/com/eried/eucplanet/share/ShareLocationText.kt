@@ -1,6 +1,7 @@
 package com.eried.eucplanet.share
 
-import java.util.Locale
+import com.eried.eucplanet.platform.Locale
+import com.eried.eucplanet.platform.format
 
 /**
  * The two texts the share menu writes for a one-off position: the plain

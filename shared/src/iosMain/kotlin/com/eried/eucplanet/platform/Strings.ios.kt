@@ -29,3 +29,17 @@ actual fun rememberStringFormatter(): (StringResource, List<Any>) -> String =
             if (args.isEmpty()) raw else raw.format(*args.toTypedArray())
         }
     }
+
+@Composable
+actual fun pluralStringResource(
+    res: org.jetbrains.compose.resources.PluralStringResource,
+    quantity: Int,
+    vararg formatArgs: Any,
+): String {
+    val raw = org.jetbrains.compose.resources.pluralStringResource(res, quantity)
+    return if (formatArgs.isEmpty()) raw else raw.format(*formatArgs)
+}
+
+@Composable
+actual fun stringArrayResource(res: org.jetbrains.compose.resources.StringArrayResource): List<String> =
+    org.jetbrains.compose.resources.stringArrayResource(res)

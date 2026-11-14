@@ -46,3 +46,10 @@ actual fun secureRandomInt(bound: Int): Int {
         if (v < limit) return v % bound
     }
 }
+
+@OptIn(ExperimentalForeignApi::class)
+actual fun secureRandomBytes(n: Int): ByteArray {
+    val bytes = ByteArray(n)
+    if (n > 0) bytes.usePinned { SecRandomCopyBytes(kSecRandomDefault, n.toULong(), it.addressOf(0)) }
+    return bytes
+}

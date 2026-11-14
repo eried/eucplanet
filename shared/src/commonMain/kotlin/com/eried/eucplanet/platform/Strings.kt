@@ -1,6 +1,8 @@
 package com.eried.eucplanet.platform
 
 import androidx.compose.runtime.Composable
+import org.jetbrains.compose.resources.PluralStringResource
+import org.jetbrains.compose.resources.StringArrayResource
 import org.jetbrains.compose.resources.StringResource
 
 /**
@@ -39,3 +41,15 @@ expect fun rememberStringReader(): (StringResource) -> String
 /** [rememberStringReader] with format arguments, as Android's getString(id, args). */
 @Composable
 expect fun rememberStringFormatter(): (StringResource, List<Any>) -> String
+
+/**
+ * A shared plural (`Res.plurals.<key>`) for [quantity], formatted with
+ * [formatArgs], as `pluralStringResource(R.plurals.<key>, quantity, args)`.
+ * Android reads its own resources; iOS formats the Compose copy with [JavaFormat].
+ */
+@Composable
+expect fun pluralStringResource(res: PluralStringResource, quantity: Int, vararg formatArgs: Any): String
+
+/** A shared string array (`Res.array.<key>`), as `stringArrayResource(R.array.<key>)`. */
+@Composable
+expect fun stringArrayResource(res: StringArrayResource): List<String>
