@@ -77,6 +77,10 @@ interface SettingsHost {
         onWeatherTop: (Float) -> Unit,
     )
 
+    /** The Navigation section's "Offline areas" row and the screen it opens. */
+    @Composable
+    fun OfflineAreas()
+
     @Composable
     fun ExternalGpsSettings()
 

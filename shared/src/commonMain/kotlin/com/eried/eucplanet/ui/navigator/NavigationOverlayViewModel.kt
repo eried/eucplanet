@@ -8,8 +8,8 @@ import com.eried.eucplanet.data.model.NavState
 import com.eried.eucplanet.data.model.TravelMode
 import com.eried.eucplanet.data.model.Waypoint
 import com.eried.eucplanet.data.repository.SettingsRepository
-import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.nav.NavigationEngine
+import com.eried.eucplanet.nav.NavigationHost
 import com.eried.eucplanet.nav.RouteAvoidances
 import com.eried.eucplanet.nav.RoutingService
 import kotlinx.coroutines.flow.SharingStarted
@@ -30,7 +30,7 @@ import kotlinx.coroutines.launch
 class NavigationOverlayViewModel(
     private val navigationEngine: NavigationEngine,
     private val settingsRepository: SettingsRepository,
-    private val tripRepository: TripRepository,
+    private val host: NavigationHost,
     private val routingService: RoutingService,
     private val currentRouteStore: com.eried.eucplanet.nav.CurrentRouteStore
 ) : ViewModel() {
@@ -38,7 +38,7 @@ class NavigationOverlayViewModel(
     init {
         // Idempotent nudge so a "my location" fix is ready if the rider starts
         // the current route straight from the dashboard.
-        tripRepository.startLocationUpdates()
+        host.startLocationUpdates()
     }
 
     val navState: StateFlow<NavState> = navigationEngine.navState
@@ -78,7 +78,7 @@ class NavigationOverlayViewModel(
         val mode = if (saved.travelMode == TravelMode.STRAIGHT) NavMode.TREASURE_HUNT
         else NavMode.TURN_BY_TURN
         viewModelScope.launch {
-            val loc = tripRepository.currentLocation.value
+            val loc = host.currentFix()
             if (loc == null) {
                 navigationEngine.start(saved, mode)
                 return@launch

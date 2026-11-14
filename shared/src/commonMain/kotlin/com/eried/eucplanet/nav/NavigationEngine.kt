@@ -1,10 +1,5 @@
 package com.eried.eucplanet.nav
 
-import android.content.Context
-import android.content.Intent
-import android.location.Location
-import android.util.Log
-import com.eried.eucplanet.R
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.ArrowDir
 import com.eried.eucplanet.data.model.GeoPoint
@@ -17,26 +12,28 @@ import com.eried.eucplanet.data.model.TravelMode
 import com.eried.eucplanet.data.model.TurnType
 import com.eried.eucplanet.data.model.Waypoint
 import com.eried.eucplanet.data.model.toArrow
+import com.eried.eucplanet.data.repository.PhoneLocation
 import com.eried.eucplanet.data.repository.SettingsRepository
-import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
-import com.eried.eucplanet.service.VoiceService
+import com.eried.eucplanet.platform.Log
+import com.eried.eucplanet.platform.System
+import com.eried.eucplanet.platform.format
+import com.eried.eucplanet.resources.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.util.UUID
-import java.util.concurrent.Executors
 import kotlin.math.abs
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 /**
  * The live-guidance brain. Holds the active [NavRoute], consumes the 1 Hz GPS
- * fixes published by [TripRepository.currentLocation] and turns them into a
+ * fixes the phone publishes ([NavigationHost.fixes]) and turns them into a
  * [NavState] the popup (phone + watch) renders, plus spoken cues.
  *
  * Heading is derived from the rider's *moving* trace, the displacement over
@@ -51,12 +48,12 @@ import kotlin.math.abs
  *    and distance to the next goal, with warmer/colder proximity cues.
  */
 class NavigationEngine(
-    private val context: Context,
-    private val tripRepository: TripRepository,
+    private val host: NavigationHost,
+    private val strings: NavStrings,
     private val wheelRepository: WheelRepository,
     private val settingsRepository: SettingsRepository,
     private val routingService: RoutingService,
-    private val voiceService: VoiceService,
+    private val voiceService: NavVoice,
     private val currentRouteStore: CurrentRouteStore,
     private val legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController
 ) {
@@ -108,12 +105,10 @@ class NavigationEngine(
     }
 
     // Every mutation of the engine's runtime state happens inside a coroutine
-    // launched on [scope]; pinning that scope to a single thread serialises the
-    // GPS-fix handler, re-routing and the start/stop paths so none of them race.
-    private val engineDispatcher = Executors.newSingleThreadExecutor { r ->
-        Thread(r, "nav-engine").apply { isDaemon = true }
-    }.asCoroutineDispatcher()
-    private val scope = CoroutineScope(SupervisorJob() + engineDispatcher)
+    // launched on [scope]; pinning that scope to a single thread (the host's
+    // dispatcher) serialises the GPS-fix handler, re-routing and the
+    // start/stop paths so none of them race.
+    private val scope = CoroutineScope(SupervisorJob() + host.dispatcher)
 
     private val _navState = MutableStateFlow(NavState())
     val navState: StateFlow<NavState> = _navState.asStateFlow()
@@ -176,29 +171,29 @@ class NavigationEngine(
     }
 
     // Advanced nav thresholds (distances m / speed km/h), mirrored from settings.
-    @Volatile private var movingKmh: Double = MOVING_KMH
-    @Volatile private var prepareDistM: Double = PREPARE_DIST_M
-    @Volatile private var executeDistM: Double = EXECUTE_DIST_M
-    @Volatile private var proxBandM: Double = PROX_BAND_M
-    @Volatile private var minInterStopMoveM: Double = MIN_INTER_STOP_MOVE_M
+    @kotlin.concurrent.Volatile private var movingKmh: Double = MOVING_KMH
+    @kotlin.concurrent.Volatile private var prepareDistM: Double = PREPARE_DIST_M
+    @kotlin.concurrent.Volatile private var executeDistM: Double = EXECUTE_DIST_M
+    @kotlin.concurrent.Volatile private var proxBandM: Double = PROX_BAND_M
+    @kotlin.concurrent.Volatile private var minInterStopMoveM: Double = MIN_INTER_STOP_MOVE_M
 
     // Advanced nav timing, mirrored from settings so the per-fix evaluation reads
     // cached values without re-collecting the flow. Defaults are the constants.
-    @Volatile private var offRouteGraceMs: Long = OFF_ROUTE_GRACE_MS
-    @Volatile private var offRouteVoiceAfterMs: Long = OFF_ROUTE_VOICE_AFTER_MS
-    @Volatile private var offRouteVoiceCooldownMs: Long = OFF_ROUTE_VOICE_COOLDOWN_MS
-    @Volatile private var rerouteAfterMs: Long = REROUTE_AFTER_MS
-    @Volatile private var arrivalDismissMs: Long = ARRIVAL_DISMISS_MS
-    @Volatile private var huntVoiceIntervalMs: Long = HUNT_VOICE_INTERVAL_MS
-    @Volatile private var headingWindowMs: Long = HEADING_WINDOW_MS
-    @Volatile private var fixBufferMs: Long = FIX_BUFFER_MS
-    @Volatile private var intermediateFlashMs: Long = INTERMEDIATE_FLASH_MS
+    @kotlin.concurrent.Volatile private var offRouteGraceMs: Long = OFF_ROUTE_GRACE_MS
+    @kotlin.concurrent.Volatile private var offRouteVoiceAfterMs: Long = OFF_ROUTE_VOICE_AFTER_MS
+    @kotlin.concurrent.Volatile private var offRouteVoiceCooldownMs: Long = OFF_ROUTE_VOICE_COOLDOWN_MS
+    @kotlin.concurrent.Volatile private var rerouteAfterMs: Long = REROUTE_AFTER_MS
+    @kotlin.concurrent.Volatile private var arrivalDismissMs: Long = ARRIVAL_DISMISS_MS
+    @kotlin.concurrent.Volatile private var huntVoiceIntervalMs: Long = HUNT_VOICE_INTERVAL_MS
+    @kotlin.concurrent.Volatile private var headingWindowMs: Long = HEADING_WINDOW_MS
+    @kotlin.concurrent.Volatile private var fixBufferMs: Long = FIX_BUFFER_MS
+    @kotlin.concurrent.Volatile private var intermediateFlashMs: Long = INTERMEDIATE_FLASH_MS
 
-    @Volatile private var initJob: Job? = null
-    @Volatile private var collectJob: Job? = null
-    @Volatile private var rerouteJob: Job? = null
-    @Volatile private var arrivalJob: Job? = null
-    @Volatile private var activeRoute: NavRoute? = null
+    @kotlin.concurrent.Volatile private var initJob: Job? = null
+    @kotlin.concurrent.Volatile private var collectJob: Job? = null
+    @kotlin.concurrent.Volatile private var rerouteJob: Job? = null
+    @kotlin.concurrent.Volatile private var arrivalJob: Job? = null
+    @kotlin.concurrent.Volatile private var activeRoute: NavRoute? = null
     private var navMode: NavMode = NavMode.TURN_BY_TURN
 
     // Mirrored from settings: the first four update live, router URLs and
@@ -245,9 +240,9 @@ class NavigationEngine(
     // (reset in start(), not per leg); closing speed is per goal.
     private val movingAverage = MovingAverage()
     private val closingSpeed = ClosingSpeed()
-    @Volatile private var cruiseKmh: Double = 25.0
-    @Volatile private var normalTiltbackKmh: Double = 0.0
-    @Volatile private var safetyTiltbackKmh: Double = 0.0
+    @kotlin.concurrent.Volatile private var cruiseKmh: Double = 25.0
+    @kotlin.concurrent.Volatile private var normalTiltbackKmh: Double = 0.0
+    @kotlin.concurrent.Volatile private var safetyTiltbackKmh: Double = 0.0
 
     // --- treasure-hunt state ---
     private var currentGoal = 0
@@ -294,16 +289,11 @@ class NavigationEngine(
         // still in the foreground. Deferring this into the coroutine below risks
         // ForegroundServiceStartNotAllowedException on Android 12+ if the
         // builder screen closes before the coroutine gets scheduled.
-        tripRepository.startLocationUpdates()
-        runCatching {
-            context.startForegroundService(
-                Intent(context, com.eried.eucplanet.service.WheelService::class.java)
-                    .setAction(com.eried.eucplanet.service.WheelService.ACTION_START_NAVIGATION)
-            )
-        }
+        host.startLocationUpdates()
+        runCatching { host.startNavigationService() }
         stop()
         // Guidance is starting: hold GPS at 1 Hz even with no wheel connected.
-        tripRepository.setNavigating(true)
+        host.setNavigating(true)
         initJob = scope.launch {
             val s = settingsRepository.get()
             imperial = com.eried.eucplanet.util.Units.effectiveDistanceUnit(s) == "mi"
@@ -329,21 +319,21 @@ class NavigationEngine(
 
             _navState.value = NavState(
                 active = true,
-                sessionId = UUID.randomUUID().toString(),
+                sessionId = newSessionId(),
                 mode = mode,
                 waiting = true,
-                primaryText = context.getString(R.string.nav_start_riding),
+                primaryText = strings.text(Res.string.nav_start_riding),
                 goalIndex = 1,
                 goalCount = (route.waypoints.size - 1).coerceAtLeast(1),
                 nextStop = route.waypoints.getOrNull(1)?.point()
             )
 
             if (voiceEnabled) {
-                voiceService.announceEvent(context.getString(R.string.voice_nav_start_riding))
+                voiceService.announceEvent(strings.text(Res.string.voice_nav_start_riding))
             }
 
             collectJob = scope.launch {
-                tripRepository.currentLocation.collect { loc -> if (loc != null) onFix(loc) }
+                host.fixes.collect { loc -> if (loc != null) onFix(loc) }
             }
             Log.i(TAG, "Navigation started, mode=$mode, ${route.waypoints.size} stops")
         }
@@ -375,11 +365,10 @@ class NavigationEngine(
             // current position so the popup pops with the real distance
             // already filled in, not an empty placeholder that updates one
             // second later when the next GPS fix arrives.
-            val loc = tripRepository.currentLocation.value
+            val loc = host.currentFix()
             val goal = newRoute.waypoints.getOrNull(1)?.point()
             val distanceText = if (loc != null && goal != null) {
-                NavFormat.distance(
-                    context,
+                NavFormat.distance(strings.lookup(),
                     GeoMath.distanceM(GeoPoint(loc.latitude, loc.longitude), goal),
                     imperial
                 )
@@ -395,7 +384,7 @@ class NavigationEngine(
                 arrived = false,
                 offRoute = false,
                 arrow = ArrowDir.STRAIGHT,
-                primaryText = context.getString(R.string.nav_start_riding),
+                primaryText = strings.text(Res.string.nav_start_riding),
                 distanceText = distanceText,
                 nextStreet = "",
                 proximity = null,
@@ -425,7 +414,7 @@ class NavigationEngine(
         scope.launch { _navState.value = _navState.value.copy(active = false) }
         // Guidance ended: drop the navigation GPS hold (tier falls back to idle
         // unless recording / connected still need it).
-        tripRepository.setNavigating(false)
+        host.setNavigating(false)
         Log.i(TAG, "Navigation stopped")
     }
 
@@ -492,7 +481,7 @@ class NavigationEngine(
 
     // --- per-fix processing ------------------------------------------------------
 
-    private fun onFix(loc: Location) {
+    private fun onFix(loc: PhoneLocation) {
         val route = activeRoute ?: return
         // After arrival has fired, navState holds either the final 'Arrived'
         // frame (waiting on stop()) or the intermediate 'Goal N reached'
@@ -585,7 +574,7 @@ class NavigationEngine(
                 GeoMath.distanceM(point, goal.point())
             } else Double.NaN
             val distanceText = if (!distToGoal.isNaN()) {
-                NavFormat.distance(context, distToGoal, imperial)
+                NavFormat.distance(strings.lookup(), distToGoal, imperial)
             } else ""
             // Mirror currentGoal into navState so the builder drops a stop
             // already advanced past.
@@ -593,7 +582,7 @@ class NavigationEngine(
             _navState.value = _navState.value.copy(
                 waiting = true,
                 arrow = ArrowDir.STRAIGHT,
-                primaryText = context.getString(R.string.nav_start_riding),
+                primaryText = strings.text(Res.string.nav_start_riding),
                 distanceText = distanceText,
                 cueDistanceM = distToGoal,
                 remainingM = distToGoal,
@@ -608,10 +597,10 @@ class NavigationEngine(
             if (voiceEnabled && !preMoveCueSpoken && !distToGoal.isNaN()) {
                 preMoveCueSpoken = true
                 voiceService.announceEvent(
-                    context.getString(
-                        R.string.voice_nav_hunt_distance,
+                    strings.text(
+                        Res.string.voice_nav_hunt_distance,
                         goalLabel(currentGoal),
-                        NavFormat.spokenDistance(context, distToGoal, imperial)
+                        NavFormat.spokenDistance(strings.lookup(), distToGoal, imperial)
                     )
                 )
             }
@@ -719,8 +708,8 @@ class NavigationEngine(
             Log.i(TAG, "INTERMEDIATE-STOP reached=$reached of ${route.waypoints.size - 1} place=$name")
             if (voiceEnabled) {
                 voiceService.announceEvent(
-                    if (name != null) context.getString(R.string.voice_nav_place_reached, name)
-                    else context.getString(R.string.voice_nav_goal_reached)
+                    if (name != null) strings.text(Res.string.voice_nav_place_reached, name)
+                    else strings.text(Res.string.voice_nav_goal_reached)
                 )
             }
         }
@@ -731,8 +720,8 @@ class NavigationEngine(
             mode = NavMode.TURN_BY_TURN,
             arrow = next?.type?.toArrow() ?: ArrowDir.STRAIGHT,
             primaryText = next?.let { turnText(it.type) }
-                ?: context.getString(R.string.nav_continue),
-            distanceText = NavFormat.distance(context, distToTurn, imperial),
+                ?: strings.text(Res.string.nav_continue),
+            distanceText = NavFormat.distance(strings.lookup(), distToTurn, imperial),
             cueDistanceM = distToTurn,
             remainingM = distToEnd,
             nextStopRemainingM = waypointAlongM.getOrNull(reached + 1)
@@ -758,9 +747,9 @@ class NavigationEngine(
         if (distToTurn <= prepareDistM && preparedManeuver != index) {
             preparedManeuver = index
             voiceService.announceEvent(
-                context.getString(
-                    R.string.voice_nav_prepare,
-                    NavFormat.spokenDistance(context, distToTurn, imperial),
+                strings.text(
+                    Res.string.voice_nav_prepare,
+                    NavFormat.spokenDistance(strings.lookup(), distToTurn, imperial),
                     turnText(maneuver.type)
                 )
             )
@@ -768,7 +757,7 @@ class NavigationEngine(
         if (distToTurn <= executeDistM && executedManeuver != index) {
             executedManeuver = index
             voiceService.announceEvent(
-                context.getString(R.string.voice_nav_now, turnText(maneuver.type))
+                strings.text(Res.string.voice_nav_now, turnText(maneuver.type))
             )
         }
     }
@@ -805,7 +794,7 @@ class NavigationEngine(
             now - lastOffRouteVoiceMs > offRouteVoiceCooldownMs
         ) {
             lastOffRouteVoiceMs = now
-            voiceService.announceEvent(context.getString(R.string.nav_off_route))
+            voiceService.announceEvent(strings.text(Res.string.nav_off_route))
         }
         if (offFor > rerouteAfterMs && !rerouteInFlight && rerouteGate.mayTry(now) &&
             route.travelMode != TravelMode.STRAIGHT
@@ -819,7 +808,7 @@ class NavigationEngine(
     private fun reroute(route: NavRoute, from: GeoPoint) {
         rerouteInFlight = true
         if (voiceEnabled && rerouteGate.speak()) {
-            voiceService.announceEvent(context.getString(R.string.nav_recalculating))
+            voiceService.announceEvent(strings.text(Res.string.nav_recalculating))
         }
         // The direction the rider is going now, so the new route carries on
         // ahead instead of turning them back onto the road they left.
@@ -897,8 +886,8 @@ class NavigationEngine(
             mode = NavMode.TURN_BY_TURN,
             arrow = GeoMath.arrowFor(rel),
             relativeBearingDeg = rel.toFloat(),
-            primaryText = context.getString(R.string.nav_continue),
-            distanceText = NavFormat.distance(context, dist, imperial),
+            primaryText = strings.text(Res.string.nav_continue),
+            distanceText = NavFormat.distance(strings.lookup(), dist, imperial),
             cueDistanceM = dist,
             remainingM = dist,
             nextStopRemainingM = dist,
@@ -947,7 +936,7 @@ class NavigationEngine(
                 return
             }
             if (voiceEnabled) {
-                voiceService.announceEvent(context.getString(R.string.voice_nav_goal_reached))
+                voiceService.announceEvent(strings.text(Res.string.voice_nav_goal_reached))
             }
             target = goals[currentGoal]
             dist = GeoMath.distanceM(point, target.point())
@@ -974,7 +963,7 @@ class NavigationEngine(
             // appears in the top bar of the popup, not here, so we don't
             // double it up and force a 2-line wrap.
             primaryText = directionText(rel),
-            distanceText = NavFormat.distance(context, dist, imperial),
+            distanceText = NavFormat.distance(strings.lookup(), dist, imperial),
             cueDistanceM = dist,
             remainingM = dist,
             nextStopRemainingM = dist,
@@ -1048,15 +1037,15 @@ class NavigationEngine(
         proximity: Proximity,
         coldStreak: Int
     ) {
-        val base = context.getString(
-            R.string.voice_nav_hunt,
+        val base = strings.text(
+            Res.string.voice_nav_hunt,
             goalLabel(waypointIndex),
-            NavFormat.spokenDistance(context, dist, imperial),
+            NavFormat.spokenDistance(strings.lookup(), dist, imperial),
             directionText(rel)
         )
         val proxPhrase = when (proximity) {
-            Proximity.HOT -> context.getString(R.string.voice_prox_hot)
-            Proximity.WARM -> context.getString(R.string.voice_prox_warmer)
+            Proximity.HOT -> strings.text(Res.string.voice_prox_hot)
+            Proximity.WARM -> strings.text(Res.string.voice_prox_warmer)
             Proximity.COLD -> {
                 // Escalating cold ladder: each step in an unbroken cold streak
                 // names the drift in slightly stronger language; once the
@@ -1070,14 +1059,14 @@ class NavigationEngine(
                 //     6 → "getting colder"
                 //   7+ → "Are we there yet?" (sticks)
                 when (coldStreak) {
-                    3 -> context.getString(R.string.voice_prox_even_colder)
-                    5 -> context.getString(R.string.voice_prox_freezing)
-                    in 7..Int.MAX_VALUE -> context.getString(R.string.voice_prox_lost)
-                    else -> context.getString(R.string.voice_prox_colder)
+                    3 -> strings.text(Res.string.voice_prox_even_colder)
+                    5 -> strings.text(Res.string.voice_prox_freezing)
+                    in 7..Int.MAX_VALUE -> strings.text(Res.string.voice_prox_lost)
+                    else -> strings.text(Res.string.voice_prox_colder)
                 }
             }
         }
-        voiceService.announceEvent(context.getString(R.string.voice_nav_hunt_prox, base, proxPhrase))
+        voiceService.announceEvent(strings.text(Res.string.voice_nav_hunt_prox, base, proxPhrase))
     }
 
     // --- arrival -----------------------------------------------------------------
@@ -1124,8 +1113,8 @@ class NavigationEngine(
                     // surfaces over every screen, including the map.
                     minimized = false,
                     arrow = ArrowDir.STRAIGHT,
-                    primaryText = context.getString(
-                        R.string.nav_arrived_goal,
+                    primaryText = strings.text(
+                        Res.string.nav_arrived_goal,
                         info.justArrivedIndex
                     ),
                     distanceText = "",
@@ -1138,7 +1127,7 @@ class NavigationEngine(
                 )
                 if (voiceEnabled) {
                     voiceService.announceEvent(
-                        context.getString(R.string.voice_nav_goal_reached)
+                        strings.text(Res.string.voice_nav_goal_reached)
                     )
                 }
                 delay(intermediateFlashMs)
@@ -1161,7 +1150,7 @@ class NavigationEngine(
                 // reasoning on the intermediate emit above.
                 minimized = false,
                 arrow = ArrowDir.STRAIGHT,
-                primaryText = context.getString(R.string.nav_arrived),
+                primaryText = strings.text(Res.string.nav_arrived),
                 distanceText = "",
                 nextStreet = "",
                 proximity = null,
@@ -1169,7 +1158,7 @@ class NavigationEngine(
                 popupTick = _navState.value.popupTick + 1
             )
             if (voiceEnabled) {
-                voiceService.announceEvent(context.getString(R.string.voice_nav_arrived))
+                voiceService.announceEvent(strings.text(Res.string.voice_nav_arrived))
             }
             arrivalJob = scope.launch {
                 delay(arrivalDismissMs)
@@ -1248,7 +1237,7 @@ class NavigationEngine(
             val ahead = route.waypoints.drop(idx.coerceAtLeast(0)).filter { !it.passed }
             return TrackRoute.leg(route.name, route.track, listOf(from.copy(passed = false)) + ahead)
         }
-        val loc = tripRepository.currentLocation.value ?: return null
+        val loc = host.currentFix() ?: return null
         val mode = route.travelMode
         val legWps = listOf(Waypoint(loc.latitude, loc.longitude), nextStop)
         val newLeg = if (mode == TravelMode.STRAIGHT) {
@@ -1267,27 +1256,30 @@ class NavigationEngine(
 
     // --- text helpers ------------------------------------------------------------
 
-    private fun turnText(type: TurnType): String = context.getString(
+    @OptIn(ExperimentalUuidApi::class)
+    private fun newSessionId(): String = Uuid.random().toString()
+
+    private fun turnText(type: TurnType): String = strings.text(
         when (type) {
-            TurnType.LEFT -> R.string.nav_turn_left
-            TurnType.RIGHT -> R.string.nav_turn_right
-            TurnType.SLIGHT_LEFT -> R.string.nav_turn_slight_left
-            TurnType.SLIGHT_RIGHT -> R.string.nav_turn_slight_right
-            TurnType.SHARP_LEFT -> R.string.nav_turn_sharp_left
-            TurnType.SHARP_RIGHT -> R.string.nav_turn_sharp_right
-            TurnType.UTURN -> R.string.nav_uturn
-            TurnType.DEPART -> R.string.nav_depart
-            TurnType.ARRIVE -> R.string.nav_arrived
-            TurnType.CONTINUE, TurnType.ROUNDABOUT -> R.string.nav_continue
+            TurnType.LEFT -> Res.string.nav_turn_left
+            TurnType.RIGHT -> Res.string.nav_turn_right
+            TurnType.SLIGHT_LEFT -> Res.string.nav_turn_slight_left
+            TurnType.SLIGHT_RIGHT -> Res.string.nav_turn_slight_right
+            TurnType.SHARP_LEFT -> Res.string.nav_turn_sharp_left
+            TurnType.SHARP_RIGHT -> Res.string.nav_turn_sharp_right
+            TurnType.UTURN -> Res.string.nav_uturn
+            TurnType.DEPART -> Res.string.nav_depart
+            TurnType.ARRIVE -> Res.string.nav_arrived
+            TurnType.CONTINUE, TurnType.ROUNDABOUT -> Res.string.nav_continue
         }
     )
 
     /** "Next stop" for an intermediate waypoint, "Destination" for the last. */
     private fun goalLabel(waypointIndex: Int): String {
         val last = (activeRoute?.waypoints?.size ?: 0) - 1
-        return context.getString(
-            if (waypointIndex >= last) R.string.nav_label_destination
-            else R.string.nav_label_next_stop
+        return strings.text(
+            if (waypointIndex >= last) Res.string.nav_label_destination
+            else Res.string.nav_label_next_stop
         )
     }
 
@@ -1303,19 +1295,19 @@ class NavigationEngine(
      */
     private fun directionText(relBearing: Double): String {
         val a = abs(relBearing)
-        return context.getString(
+        return strings.text(
             when {
-                a <= 25 -> R.string.nav_dir_ahead
-                a >= 155 -> R.string.nav_dir_behind
+                a <= 25 -> Res.string.nav_dir_ahead
+                a >= 155 -> Res.string.nav_dir_behind
                 relBearing > 0 -> when {
-                    a <= 65 -> R.string.nav_dir_slight_right
-                    a <= 110 -> R.string.nav_dir_right
-                    else -> R.string.nav_dir_behind_right
+                    a <= 65 -> Res.string.nav_dir_slight_right
+                    a <= 110 -> Res.string.nav_dir_right
+                    else -> Res.string.nav_dir_behind_right
                 }
                 else -> when {
-                    a <= 65 -> R.string.nav_dir_slight_left
-                    a <= 110 -> R.string.nav_dir_left
-                    else -> R.string.nav_dir_behind_left
+                    a <= 65 -> Res.string.nav_dir_slight_left
+                    a <= 110 -> Res.string.nav_dir_left
+                    else -> Res.string.nav_dir_behind_left
                 }
             }
         )

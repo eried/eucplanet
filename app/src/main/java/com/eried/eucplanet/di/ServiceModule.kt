@@ -25,6 +25,7 @@ import com.eried.eucplanet.voice.VoiceCommandController
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
+import org.koin.dsl.binds
 import org.koin.dsl.module
 import org.koin.android.ext.koin.androidContext
 
@@ -72,7 +73,7 @@ val serviceModule = module {
             metricsResetLazy = inject(),
             tonePlayer = get(),
         )
-    } bind EventAnnouncer::class
+    } binds arrayOf(EventAnnouncer::class, com.eried.eucplanet.nav.NavVoice::class)
     single {
         VoiceCommandController(
             get(), get(), get(), get(), get(), get(), get(), get(), get(),

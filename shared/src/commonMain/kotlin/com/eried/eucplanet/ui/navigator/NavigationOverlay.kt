@@ -50,19 +50,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.res.stringResource
+import com.eried.eucplanet.platform.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.eried.eucplanet.R
+import com.eried.eucplanet.resources.*
 import com.eried.eucplanet.data.model.NavMode
 import com.eried.eucplanet.data.model.NavState
 import com.eried.eucplanet.data.model.Proximity
 import com.eried.eucplanet.data.model.arrowAngleDeg
 import com.eried.eucplanet.ui.theme.appColors
 import kotlinx.coroutines.delay
-import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * The floating navigation popup. Rendered above the nav graph in
@@ -83,7 +82,7 @@ fun NavigationOverlay(
     // navigator map). Setting `cueVisible` independent of phone visibility
     // means the watch keeps its setting honoured.
     suppressOnPhone: Boolean = false,
-    viewModel: NavigationOverlayViewModel = koinViewModel()
+    viewModel: NavigationOverlayViewModel,
 ) {
     val state by viewModel.navState.collectAsState()
     val popupTimeoutMs by viewModel.popupTimeoutMs.collectAsState()
@@ -162,17 +161,17 @@ fun NavigationOverlay(
     if (showEndConfirm) {
         AlertDialog(
             onDismissRequest = { showEndConfirm = false },
-            title = { Text(stringResource(R.string.nav_end_title)) },
-            text = { Text(stringResource(R.string.nav_end_body)) },
+            title = { Text(stringResource(Res.string.nav_end_title)) },
+            text = { Text(stringResource(Res.string.nav_end_body)) },
             confirmButton = {
                 TextButton(onClick = {
                     showEndConfirm = false
                     viewModel.endNavigation()
-                }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.nav_end_confirm), color = MaterialTheme.appColors.statusDanger) }
+                }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(Res.string.nav_end_confirm), color = MaterialTheme.appColors.statusDanger) }
             },
             dismissButton = {
                 TextButton(onClick = { showEndConfirm = false }, shape = RoundedCornerShape(12.dp)) {
-                    Text(stringResource(R.string.action_cancel))
+                    Text(stringResource(Res.string.action_cancel))
                 }
             }
         )
@@ -237,9 +236,9 @@ private fun CenterPopup(
                         // "Last stop" only when the current goal really is the
                         // final one, otherwise show how many remain to visit.
                         state.goalIndex >= state.goalCount ->
-                            stringResource(R.string.nav_last_stop)
+                            stringResource(Res.string.nav_last_stop)
                         else -> stringResource(
-                            R.string.nav_stops_left,
+                            Res.string.nav_stops_left,
                             state.goalCount - state.goalIndex + 1
                         )
                     },
@@ -260,7 +259,7 @@ private fun CenterPopup(
                     modifier = Modifier.size(36.dp)
                 ) {
                     Icon(
-                        Icons.Default.Map, stringResource(R.string.nav_map_style),
+                        Icons.Default.Map, stringResource(Res.string.nav_map_style),
                         tint = if (mapButtonDisabled) ink.copy(alpha = 0.35f) else ink,
                         modifier = Modifier.size(22.dp)
                     )
@@ -279,7 +278,7 @@ private fun CenterPopup(
                 if (!finalArrival) {
                     IconButton(onClick = onMinimize, modifier = Modifier.size(36.dp)) {
                         Icon(
-                            Icons.Default.Remove, stringResource(R.string.nav_minimize),
+                            Icons.Default.Remove, stringResource(Res.string.nav_minimize),
                             tint = ink, modifier = Modifier.size(22.dp)
                         )
                     }
@@ -289,7 +288,7 @@ private fun CenterPopup(
                     modifier = Modifier.size(36.dp)
                 ) {
                     Icon(
-                        Icons.Default.Close, stringResource(R.string.nav_close),
+                        Icons.Default.Close, stringResource(Res.string.nav_close),
                         tint = MaterialTheme.appColors.statusDanger,
                         modifier = Modifier.size(22.dp)
                     )
@@ -351,13 +350,13 @@ private fun CenterPopup(
 
 @Composable
 private fun subline(state: NavState): String? = when {
-    state.offRoute -> stringResource(R.string.nav_off_route)
+    state.offRoute -> stringResource(Res.string.nav_off_route)
     state.mode == NavMode.TREASURE_HUNT && state.proximity != null -> stringResource(
         // NavState lives in :shared, so the null check above no longer smart-casts.
         when (state.proximity!!) {
-            Proximity.HOT -> R.string.nav_prox_hot
-            Proximity.WARM -> R.string.nav_prox_warm
-            Proximity.COLD -> R.string.nav_prox_cold
+            Proximity.HOT -> Res.string.nav_prox_hot
+            Proximity.WARM -> Res.string.nav_prox_warm
+            Proximity.COLD -> Res.string.nav_prox_cold
         }
     )
     else -> null

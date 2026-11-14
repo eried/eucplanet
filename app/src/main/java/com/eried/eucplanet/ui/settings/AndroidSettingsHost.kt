@@ -176,6 +176,11 @@ private class AndroidSettingsHost(
     }
 
     @Composable
+    override fun OfflineAreas() {
+        OfflineAreasRow()
+    }
+
+    @Composable
     override fun ExternalGpsSettings() {
         ExternalGpsSection()
     }

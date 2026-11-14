@@ -48,9 +48,8 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.platform.LocalContext
 import com.eried.eucplanet.ui.theme.appColors
-import androidx.compose.ui.res.stringResource
+import com.eried.eucplanet.platform.stringResource
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -58,7 +57,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import com.eried.eucplanet.R
+import com.eried.eucplanet.resources.*
 import com.eried.eucplanet.data.model.TravelMode
 import com.eried.eucplanet.ui.common.HintText
 import kotlin.math.roundToInt
@@ -66,7 +65,6 @@ import com.eried.eucplanet.ui.theme.FieldNotchLabel
 import com.eried.eucplanet.ui.theme.themedFieldColors
 import com.eried.eucplanet.ui.theme.themedSwitchColors
 import com.eried.eucplanet.ui.theme.themedSliderColors
-import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * The "Navigator" settings section: route solving, arrival / off-route
@@ -76,7 +74,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavigatorSettingsContent(
-    viewModel: SettingsViewModel = koinViewModel(),
+    viewModel: SettingsViewModel,
     // Set when the rider came from the weather icon's settings shortcut: the
     // weather block sits at the bottom of a long section, so the shortcut
     // reports where it is and the screen scrolls there instead of dropping
@@ -109,7 +107,7 @@ fun NavigatorSettingsContent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                stringResource(R.string.nav_setting_full_path),
+                stringResource(Res.string.nav_setting_full_path),
                 style = MaterialTheme.typography.bodyLarge
             )
             Switch(
@@ -118,7 +116,7 @@ fun NavigatorSettingsContent(
                 colors = themedSwitchColors(),
             )
         }
-        HintText(stringResource(R.string.nav_setting_full_path_desc), small = true)
+        HintText(stringResource(Res.string.nav_setting_full_path_desc), small = true)
 
         // --- Arrival radius + off-route tolerance (half-and-half on one row) ---
         Row(
@@ -131,7 +129,7 @@ fun NavigatorSettingsContent(
                 onValueChange = { viewModel.updateNavArrivalRadius(it) },
                 range = 5..100,
                 step = 5,
-                label = stringResource(R.string.nav_setting_arrival_radius),
+                label = stringResource(Res.string.nav_setting_arrival_radius),
                 modifier = Modifier.weight(1f),
                 format = { distLabel(it) },
                 parse = { distParse(it) },
@@ -142,7 +140,7 @@ fun NavigatorSettingsContent(
                 onValueChange = { viewModel.updateNavOffRouteTolerance(it) },
                 range = 15..150,
                 step = 5,
-                label = stringResource(R.string.nav_setting_offroute),
+                label = stringResource(Res.string.nav_setting_offroute),
                 modifier = Modifier.weight(1f),
                 format = { distLabel(it) },
                 parse = { distParse(it) },
@@ -150,8 +148,8 @@ fun NavigatorSettingsContent(
         }
         // Both field hints combined on one line.
         HintText(
-            stringResource(R.string.nav_setting_arrival_radius_desc) + "  •  " +
-                stringResource(R.string.nav_setting_offroute_desc),
+            stringResource(Res.string.nav_setting_arrival_radius_desc) + "  •  " +
+                stringResource(Res.string.nav_setting_offroute_desc),
             small = true
         )
 
@@ -160,7 +158,7 @@ fun NavigatorSettingsContent(
         // gated and always apply. ---
         val endpointsEnabled = settings.navAdvancedMap
         SwitchRow(
-            label = stringResource(R.string.nav_setting_advanced_map),
+            label = stringResource(Res.string.nav_setting_advanced_map),
             checked = settings.navAdvancedMap,
             onChange = { viewModel.updateNavAdvancedMap(it) }
         )
@@ -169,9 +167,9 @@ fun NavigatorSettingsContent(
         // and community fields only matter when the overlays are on, so hide
         // them all when advanced map is off.
         if (endpointsEnabled) {
-            HintText(stringResource(R.string.nav_setting_advanced_map_desc), small = true)
+            HintText(stringResource(Res.string.nav_setting_advanced_map_desc), small = true)
             EndpointField(
-                label = stringResource(R.string.nav_setting_overpass_url),
+                label = stringResource(Res.string.nav_setting_overpass_url),
                 value = settings.navOverpassUrl,
                 enabled = true,
                 onCommit = { viewModel.updateNavOverpassUrl(it) },
@@ -181,12 +179,12 @@ fun NavigatorSettingsContent(
             // Charger community (Open Charge Map): title, then the description
             // with the openchargemap.org link inline, then the key field.
             Text(
-                stringResource(R.string.nav_setting_ocm_subtitle),
+                stringResource(Res.string.nav_setting_ocm_subtitle),
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.primary
             )
-            val hint = stringResource(R.string.nav_setting_ocm_key_hint)
-            val urlText = stringResource(R.string.nav_setting_ocm_key_link)
+            val hint = stringResource(Res.string.nav_setting_ocm_key_hint)
+            val urlText = stringResource(Res.string.nav_setting_ocm_key_link)
             val annotated = buildAnnotatedString {
                 withStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant)) {
                     append("$hint ")
@@ -202,7 +200,7 @@ fun NavigatorSettingsContent(
             }
             Text(annotated, style = MaterialTheme.typography.bodySmall)
             EndpointField(
-                label = stringResource(R.string.nav_setting_ocm_key),
+                label = stringResource(Res.string.nav_setting_ocm_key),
                 value = settings.navOcmApiKey,
                 enabled = true,
                 onCommit = { viewModel.updateNavOcmApiKey(it) },
@@ -215,25 +213,25 @@ fun NavigatorSettingsContent(
         // focus loss AND on disposal (so a value typed then navigated-away-from
         // isn't lost). ---
         Text(
-            stringResource(R.string.nav_setting_endpoints),
+            stringResource(Res.string.nav_setting_endpoints),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.primary
         )
-        HintText(stringResource(R.string.nav_setting_endpoints_hint), small = true)
+        HintText(stringResource(Res.string.nav_setting_endpoints_hint), small = true)
         EndpointField(
-            label = stringResource(R.string.nav_setting_geocoder_url),
+            label = stringResource(Res.string.nav_setting_geocoder_url),
             value = settings.navGeocoderUrl,
             enabled = true,
             onCommit = { viewModel.updateNavGeocoderUrl(it) },
         )
         EndpointField(
-            label = stringResource(R.string.nav_setting_router_url),
+            label = stringResource(Res.string.nav_setting_router_url),
             value = settings.navRouterUrl,
             enabled = true,
             onCommit = { viewModel.updateNavRouterUrl(it) },
         )
         EndpointField(
-            label = stringResource(R.string.nav_setting_valhalla_url),
+            label = stringResource(Res.string.nav_setting_valhalla_url),
             value = settings.navValhallaUrl,
             enabled = true,
             onCommit = { viewModel.updateNavValhallaUrl(it) },
@@ -244,7 +242,7 @@ fun NavigatorSettingsContent(
         // them (with what is downloaded so far). Nothing changes until one
         // is there. ---
         SwitchRow(
-            label = stringResource(R.string.offline_prefer),
+            label = stringResource(Res.string.offline_prefer),
             checked = settings.offlineRouting.mode == com.eried.eucplanet.data.model.OfflineRoutingMode.PREFER,
             onChange = {
                 viewModel.updateOfflineRoutingMode(
@@ -254,45 +252,16 @@ fun NavigatorSettingsContent(
             },
         )
         EndpointField(
-            label = stringResource(R.string.offline_server_url),
+            label = stringResource(Res.string.offline_server_url),
             value = settings.offlineRouting.serverUrl,
             enabled = true,
             onCommit = { viewModel.updateOfflineServerUrl(it) },
             presets = OFFLINE_SERVER_PRESETS,
         )
-        var offlineAreasOpen by rememberSaveable { mutableStateOf(false) }
-        val offlineStore = org.koin.compose.koinInject<com.eried.eucplanet.nav.offline.OfflineTileStore>()
-        val ctx = androidx.compose.ui.platform.LocalContext.current
-        // Counted again each time the areas screen closes.
-        val offlineUsed by androidx.compose.runtime.produceState(0L, offlineAreasOpen) {
-            if (!offlineAreasOpen) {
-                value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { offlineStore.usedBytes() }
-            }
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { offlineAreasOpen = true }
-                .padding(vertical = 10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            val title = stringResource(R.string.offline_data_open)
-            Text(
-                if (offlineUsed > 0) "$title (${android.text.format.Formatter.formatShortFileSize(ctx, offlineUsed)})" else title,
-                color = MaterialTheme.appColors.textPrimary,
-                modifier = Modifier.weight(1f),
-            )
-            Icon(
-                Icons.Default.ChevronRight,
-                contentDescription = null,
-                tint = MaterialTheme.appColors.textSecondary,
-            )
-        }
-        if (offlineAreasOpen) {
-            com.eried.eucplanet.ui.settings.offline.OfflineDataDialog(onDismiss = { offlineAreasOpen = false })
-        }
+        // The downloads and the area picker are the phone's own.
+        LocalSettingsHost.current.OfflineAreas()
         SwitchRow(
-            label = stringResource(R.string.offline_remind_before_ride),
+            label = stringResource(Res.string.offline_remind_before_ride),
             checked = settings.offlineRouting.remindBeforeRide,
             onChange = { viewModel.updateOfflineRemindBeforeRide(it) },
         )
@@ -307,7 +276,7 @@ fun NavigatorSettingsContent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                stringResource(R.string.nav_setting_avoid),
+                stringResource(Res.string.nav_setting_avoid),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -318,24 +287,24 @@ fun NavigatorSettingsContent(
             )
         }
         if (avoidExpanded) {
-            HintText(stringResource(R.string.nav_setting_avoid_hint), small = true)
+            HintText(stringResource(Res.string.nav_setting_avoid_hint), small = true)
             SwitchRow(
-                label = stringResource(R.string.nav_setting_avoid_highways),
+                label = stringResource(Res.string.nav_setting_avoid_highways),
                 checked = settings.navAvoidHighways,
                 onChange = { viewModel.updateNavAvoidHighways(it) }
             )
             SwitchRow(
-                label = stringResource(R.string.nav_setting_avoid_tolls),
+                label = stringResource(Res.string.nav_setting_avoid_tolls),
                 checked = settings.navAvoidTolls,
                 onChange = { viewModel.updateNavAvoidTolls(it) }
             )
             SwitchRow(
-                label = stringResource(R.string.nav_setting_avoid_ferries),
+                label = stringResource(Res.string.nav_setting_avoid_ferries),
                 checked = settings.navAvoidFerries,
                 onChange = { viewModel.updateNavAvoidFerries(it) }
             )
             SwitchRow(
-                label = stringResource(R.string.nav_setting_avoid_unpaved),
+                label = stringResource(Res.string.nav_setting_avoid_unpaved),
                 checked = settings.navAvoidUnpaved,
                 onChange = { viewModel.updateNavAvoidUnpaved(it) }
             )
@@ -350,14 +319,14 @@ fun NavigatorSettingsContent(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            SectionHeader(stringResource(R.string.nav_view_tiles))
-            HintText(stringResource(R.string.nav_view_tiles_desc), small = true)
+            SectionHeader(stringResource(Res.string.nav_view_tiles))
+            HintText(stringResource(Res.string.nav_view_tiles_desc), small = true)
             tileKeys.indices.chunked(2).forEach { pair ->
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     pair.forEach { i ->
                         val key = tileKeys[i]
                         WidgetSlotDropdown(
-                            label = stringResource(R.string.widget_metric_slot, i + 1),
+                            label = stringResource(Res.string.widget_metric_slot, i + 1),
                             currentLabel = if (key == com.eried.eucplanet.data.model.NavigatorViewSettings.NONE) ""
                                 else metricChipLabel(key),
                             options = tileOptions,

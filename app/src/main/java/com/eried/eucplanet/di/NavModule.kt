@@ -2,10 +2,12 @@ package com.eried.eucplanet.di
 
 import com.eried.eucplanet.nav.AndroidNavHttp
 import com.eried.eucplanet.nav.AndroidNavStrings
+import com.eried.eucplanet.nav.AndroidNavigationHost
 import com.eried.eucplanet.nav.AndroidOfflineNav
 import com.eried.eucplanet.nav.CurrentRouteStore
 import com.eried.eucplanet.nav.NavHttp
 import com.eried.eucplanet.nav.NavStrings
+import com.eried.eucplanet.nav.NavigationHost
 import com.eried.eucplanet.nav.OfflineNav
 import com.eried.eucplanet.nav.NavigationEngine
 import com.eried.eucplanet.nav.OcmService
@@ -25,6 +27,7 @@ import org.koin.dsl.module
 /** Routing, navigation and live route sharing. */
 val navModule = module {
     singleOf(::NavigationEngine)
+    single { AndroidNavigationHost(androidContext(), get()) } bind NavigationHost::class
     singleOf(::RoutingService)
     singleOf(::AndroidNavHttp) bind NavHttp::class
     single { AndroidNavStrings(androidContext()) } bind NavStrings::class

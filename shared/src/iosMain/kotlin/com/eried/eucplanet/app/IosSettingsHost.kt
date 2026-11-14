@@ -128,6 +128,10 @@ internal object IosSettingsHost : SettingsHost {
         }
     }
 
+    // The navigator is muted here, so it never asks for its offline areas.
+    @Composable
+    override fun OfflineAreas() = Unit
+
     @Composable
     override fun ExternalGpsSettings() = Unit
 

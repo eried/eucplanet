@@ -37,7 +37,7 @@ class VoiceService(
     // Lazy for the same reason: it reaches WheelRepository.
     private val metricsResetLazy: Lazy<com.eried.eucplanet.data.repository.MetricsReset>,
     private val tonePlayer: TonePlayer,
-) : EventAnnouncer {
+) : com.eried.eucplanet.nav.NavVoice {
     companion object {
         private const val TAG = "VoiceService"
     }
@@ -497,7 +497,7 @@ class VoiceService(
      * Current spoken navigation cue, kept up to date by [NavigationEngine] as
      * it pushes navState changes. See [VoiceReports.currentNavCue].
      */
-    var currentNavCue: String?
+    override var currentNavCue: String?
         get() = reports.currentNavCue
         set(value) { reports.currentNavCue = value }
 

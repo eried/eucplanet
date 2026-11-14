@@ -826,7 +826,8 @@ class MainActivity : AppCompatActivity() {
                                     }
                                 }
                             },
-                            suppressOnPhone = onMapScreen
+                            suppressOnPhone = onMapScreen,
+                            viewModel = org.koin.compose.viewmodel.koinViewModel(),
                         )
                         // Service-mode debug overlay, opens on volume key
                         // when DiagnosticsLogger is enabled. Sits at the

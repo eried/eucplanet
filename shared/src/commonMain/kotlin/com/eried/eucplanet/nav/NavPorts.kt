@@ -103,3 +103,34 @@ fun interface NavStrings {
 /** [NavStrings] as the `(res, args)` lookup [NavFormat] takes. */
 fun NavStrings.lookup(): (org.jetbrains.compose.resources.StringResource, List<Any>) -> String =
     { res, args -> text(res, *args.toTypedArray()) }
+
+/**
+ * What the navigation engine needs from the phone: its GPS fixes, a way to
+ * keep running for the ride, and one thread to run on. Android has
+ * TripRepository's fixes, WheelService and a daemon thread behind it
+ * (AndroidNavigationHost).
+ */
+interface NavigationHost {
+    /** Runs every engine step, one at a time. */
+    val dispatcher: kotlinx.coroutines.CoroutineDispatcher
+
+    /** Every fix the phone publishes, null while it has none. */
+    val fixes: kotlinx.coroutines.flow.Flow<com.eried.eucplanet.data.repository.PhoneLocation?>
+
+    /** The latest fix, or null. */
+    fun currentFix(): com.eried.eucplanet.data.repository.PhoneLocation?
+
+    /** Asks for fixes now (idempotent). */
+    fun startLocationUpdates()
+
+    /** Keeps the app running while guidance is on; may throw when the phone refuses. */
+    fun startNavigationService()
+
+    /** Holds GPS at the riding rate while guidance is on, even with no wheel. */
+    fun setNavigating(on: Boolean)
+}
+
+/** The spoken cues, and the cue the status report reads for its "Navigation" row. */
+interface NavVoice : com.eried.eucplanet.data.repository.EventAnnouncer {
+    var currentNavCue: String?
+}
