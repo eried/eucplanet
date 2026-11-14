@@ -2,6 +2,8 @@ package com.eried.eucplanet.app
 
 import com.eried.eucplanet.util.AppLanguages
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -14,11 +16,20 @@ import platform.UIKit.UIApplication
  * language the app actually runs in.
  */
 internal object IosDisplayPrefs {
+    /** Screens holding the display awake on top of the setting (the navigator while guiding). */
+    private val holds = MutableStateFlow(0)
+
+    /** A screen asks to keep the display on ([on]) or lets go; the setting still wins. */
+    fun holdScreenOn(on: Boolean) {
+        holds.value = (holds.value + if (on) 1 else -1).coerceAtLeast(0)
+    }
+
     fun start() {
         val scope = MainScope()
         scope.launch {
-            IosAppGraph.settings.settings
-                .map { it.phoneKeepScreenOn }
+            combine(IosAppGraph.settings.settings.map { it.phoneKeepScreenOn }, holds) { setting, held ->
+                setting || held > 0
+            }
                 .distinctUntilChanged()
                 .collect { UIApplication.sharedApplication.idleTimerDisabled = it }
         }

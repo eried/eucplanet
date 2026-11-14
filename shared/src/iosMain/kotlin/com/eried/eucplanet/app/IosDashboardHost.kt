@@ -8,8 +8,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.eried.eucplanet.data.model.NavRoute
-import com.eried.eucplanet.data.model.NavState
 import com.eried.eucplanet.resources.Res
 import com.eried.eucplanet.resources.ic_launcher_foreground
 import com.eried.eucplanet.ui.dashboard.DashboardHost
@@ -17,9 +15,6 @@ import com.eried.eucplanet.ui.dashboard.DashboardNavigation
 import com.eried.eucplanet.ui.dashboard.DashboardRadarMiniForSide
 import com.eried.eucplanet.ui.dashboard.ExperimentalBannerFlag
 import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import platform.Foundation.NSBundle
 import platform.Foundation.NSURL
@@ -70,7 +65,7 @@ internal class IosDashboardHost : DashboardHost {
     override fun rememberFolderPicker(onPicked: (String) -> Unit): () -> Unit = remember { {} }
 
     @Composable
-    override fun rememberNavigation(): DashboardNavigation = NoNavigation
+    override fun rememberNavigation(): DashboardNavigation = rememberIosDashboardNavigation()
 
     @Composable
     override fun ExperimentalBanner(state: ExperimentalBannerFlag, detectedWheelName: String?, detectedFirmware: String?) = Unit
@@ -127,13 +122,4 @@ internal class IosDashboardHost : DashboardHost {
     override fun DataSourcesSheet(speedUnit: String, onDismiss: () -> Unit) {
         LaunchedEffect(Unit) { onDismiss() }
     }
-}
-
-/** The navigator is not on iOS yet: never active, no saved route. */
-private object NoNavigation : DashboardNavigation {
-    override val navState: StateFlow<NavState> = MutableStateFlow(NavState()).asStateFlow()
-    override val currentRoute: StateFlow<NavRoute?> = MutableStateFlow<NavRoute?>(null).asStateFlow()
-    override fun requestPopup() = Unit
-    override fun endNavigation() = Unit
-    override fun startCurrentRoute() = Unit
 }

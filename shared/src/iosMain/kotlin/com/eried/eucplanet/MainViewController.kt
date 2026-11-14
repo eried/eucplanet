@@ -158,6 +158,33 @@ fun MainViewController(): UIViewController {
             IosTrips.stopRecording()
         }
     }
+    // SIMCTL_CHILD_EUC_ROUTE="59.9139,10.7522;59.9075,10.7602" plans those
+    // stops (lat,lon pairs) as the route builder's draft, as if the rider had
+    // tapped them, for scripted runs (with EUC_SCREEN=route).
+    (NSProcessInfo.processInfo.environment["EUC_ROUTE"] as? String)?.let { spec ->
+        val stops = spec.split(';').mapNotNull { pair ->
+            val parts = pair.split(',')
+            val lat = parts.getOrNull(0)?.trim()?.toDoubleOrNull()
+            val lon = parts.getOrNull(1)?.trim()?.toDoubleOrNull()
+            if (lat != null && lon != null) com.eried.eucplanet.data.model.Waypoint(lat, lon) else null
+        }
+        if (stops.isNotEmpty()) {
+            // SIMCTL_CHILD_EUC_ROUTE_MODE=CYCLING (a TravelMode) instead of the rider's default.
+            val mode = NSProcessInfo.processInfo.environment["EUC_ROUTE_MODE"] as? String
+                ?: kotlinx.coroutines.runBlocking { IosAppGraph.settings.get().navDefaultTravelMode }
+            IosAppGraph.currentRoute.set(
+                com.eried.eucplanet.data.model.NavRoute(
+                    "Route", stops, com.eried.eucplanet.data.model.TravelMode.fromName(mode),
+                    emptyList(), emptyList(), 0.0,
+                )
+            )
+        }
+    }
+    // SIMCTL_CHILD_EUC_NAV=1 (with EUC_SCREEN=route) starts turn-by-turn on the
+    // planned stops once there is a fix, as the Start button does; =dashboard
+    // then goes back to the dashboard, for the turn card over it.
+    val navHook = NSProcessInfo.processInfo.environment["EUC_NAV"] as? String
+    val autoNav = navHook == "1" || navHook == "dashboard"
     RideActivity.follow(link, wheel.wheelData)
     // SIMCTL_CHILD_EUC_TAB=1 opens the old probe screen on its backup tab,
     // the wheel protocol probe kept for diagnostics.
@@ -187,7 +214,7 @@ fun MainViewController(): UIViewController {
                 // Every screen but the dashboard registers IosBackHandler with
                 // the same target as its back arrow, so the left-edge swipe goes
                 // back as Android's system back does.
-                // SIMCTL_CHILD_EUC_SCREEN=scan opens on the scan screen (also settings, flic, trips, trip, trip:<id>, viewer:<id>, tripmeter, metric:<key>, charging, charging:details).
+                // SIMCTL_CHILD_EUC_SCREEN=scan opens on the scan screen (also settings, flic, trips, trip, trip:<id>, viewer:<id>, tripmeter, metric:<key>, charging, charging:details, route).
                 // "metric:VOLTAGE" opens a metric's detail, with the dashboard's route argument.
                 var screen by remember { mutableStateOf(startScreen?.substringBefore(':') ?: "dashboard") }
                 var metricArg by remember { mutableStateOf(startScreen?.substringAfter(':', "BATTERY") ?: "BATTERY") }
@@ -198,8 +225,17 @@ fun MainViewController(): UIViewController {
                 var viewerBack by remember { mutableStateOf("trips") }
                 // Where the metric detail goes back to: the dashboard, or the charging monitor's history.
                 var metricBack by remember { mutableStateOf("dashboard") }
-                // Settings goes back to where it was opened from (the dashboard or the charging monitor).
+                // Settings goes back to where it was opened from (the dashboard, the charging monitor or the route builder).
                 var settingsBack by remember { mutableStateOf("dashboard") }
+                // The route builder's view model lives while the builder or the
+                // Navigation settings it opens show, as its back stack entry does
+                // on Android, and goes when the rider leaves it for the dashboard.
+                val routeStore = remember { ViewModelStore() }
+                DisposableEffect(routeStore) { onDispose { routeStore.clear() } }
+                val leaveRoute = {
+                    routeStore.clear()
+                    screen = "dashboard"
+                }
                 // "charging:details" opens the monitor with its details flyout up, as the battery icon's hold does.
                 var chargingDetails by remember { mutableStateOf(startScreen == "charging:details") }
                 // A charge alert's tap opens the monitor, as MainActivity does with ChargingMonitorLaunch.
@@ -380,6 +416,41 @@ fun MainViewController(): UIViewController {
                             )
                         }
                     }
+                    "route" -> {
+                        val routeVm = remember(routeStore) {
+                            ViewModelProvider.create(
+                                routeStore,
+                                viewModelFactory { initializer { IosAppGraph.routeBuilderViewModel() } },
+                            )[com.eried.eucplanet.ui.navigator.RouteBuilderViewModel::class]
+                        }
+                        // The screen registers its own back (host.BackHandler), which wins.
+                        IosBackHandler { leaveRoute() }
+                        if (autoNav) LaunchedEffect(routeVm) {
+                            // Once the stops are back and the phone has a fix.
+                            while (routeVm.waypoints.value.isEmpty() || routeVm.currentLocation.value == null) {
+                                kotlinx.coroutines.delay(500)
+                            }
+                            kotlinx.coroutines.delay(1_500)
+                            if (!routeVm.navRunning.value) {
+                                Log.i("RouteBuilder", "EUC_NAV: starting turn-by-turn")
+                                routeVm.startNavigation(com.eried.eucplanet.data.model.NavMode.TURN_BY_TURN, force = true) {}
+                            }
+                            if (navHook == "dashboard") {
+                                kotlinx.coroutines.delay(5_000)
+                                leaveRoute()
+                            }
+                        }
+                        com.eried.eucplanet.ui.navigator.RouteBuilderScreen(
+                            onExit = { leaveRoute() },
+                            onOpenNavSettings = {
+                                leaderboardTab = SETTINGS_TAB_NAVIGATION
+                                settingsBack = "route"
+                                screen = "settings"
+                            },
+                            viewModel = routeVm,
+                            host = com.eried.eucplanet.app.IosRouteBuilderHost,
+                        )
+                    }
                     "flic" -> {
                         val flicVm = rememberViewModel { FlicViewModel(IosAppGraph.settings, IosFlic) }
                         IosBackHandler { screen = "settings" }
@@ -421,11 +492,20 @@ fun MainViewController(): UIViewController {
                                 metricBack = "dashboard"
                                 screen = "metric"
                             },
+                            onNavigateToNavigator = { screen = "route" },
                             viewModel = viewModel,
                             host = host,
                         )
                     }
                 }
+                // The turn cue popup over every screen, as MainActivity mounts it;
+                // the route builder shows the cue on its own map instead.
+                val overlayVm = rememberViewModel { IosAppGraph.navigationOverlayViewModel() }
+                com.eried.eucplanet.ui.navigator.NavigationOverlay(
+                    onOpenMap = { screen = "route" },
+                    suppressOnPhone = screen == "route",
+                    viewModel = overlayVm,
+                )
                 // Notices from code with no screen (AppNotifier), as MainActivity's
                 // root snackbar host shows them over every screen but the locked one.
                 val rootSnackbar = remember { SnackbarHostState() }
@@ -466,6 +546,9 @@ fun MainViewController(): UIViewController {
 
 /** SettingsScreen's "Backups & leaderboards" section, LeaderboardSetupLaunch.SETTINGS_TAB_CLOUD on Android. */
 private const val SETTINGS_TAB_CLOUD = 4
+
+/** The section the route builder's settings item opens, Screen.Settings.createRoute(8) on Android. */
+private const val SETTINGS_TAB_NAVIGATION = 8
 
 /** The section the charging monitor's Settings item opens, Screen.Settings.createRoute(9) on Android. */
 private const val SETTINGS_TAB_CHARGING = 9

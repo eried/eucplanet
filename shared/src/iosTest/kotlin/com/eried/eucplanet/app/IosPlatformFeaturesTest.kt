@@ -15,8 +15,15 @@ import kotlin.test.assertTrue
 class IosPlatformFeaturesTest {
 
     @Test fun comingFeaturesAreMissingForNow() {
-        assertEquals(PlatformFeature.entries.toSet(), missingPlatformFeatures)
-        for (f in PlatformFeature.entries) assertFalse(f.available, f.name)
+        assertEquals(PlatformFeature.entries.toSet() - PlatformFeature.NAVIGATION, missingPlatformFeatures)
+        for (f in missingPlatformFeatures) assertFalse(f.available, f.name)
+    }
+
+    @Test fun navigationIsOnTheIphone() {
+        // The route builder and the engine run on iOS (IosRouteBuilderHost,
+        // IosNavigationHost), so the map button, its tile and settings open.
+        assertTrue(PlatformFeature.NAVIGATION.available)
+        assertFalse(PlatformFeature.NAVIGATION in missingPlatformFeatures)
     }
 
     @Test fun aMutedSectionIsNotAlsoHidden() {

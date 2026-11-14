@@ -285,11 +285,89 @@ object IosAppGraph {
         weatherRepository = weather,
         dropboxRepository = dropbox,
         appNotifier = notices,
-        navigationEngine = NoRoute,
+        navigationEngine = activeRoute,
         voiceCommands = NoVoiceCommands,
         phone = IosPhoneDevice,
         platform = IosDashboardPlatform(wheel, IosTripMeter.meter),
     )
+
+    // --- Navigation, as Android's navModule builds it. iOS routes online only
+    // (OfflineNav.None: BRouter and the tile downloads are Android code). ---
+
+    val navHttp: com.eried.eucplanet.nav.NavHttp by lazy { com.eried.eucplanet.nav.PlatformNavHttp() }
+
+    val routing: com.eried.eucplanet.nav.RoutingService by lazy {
+        com.eried.eucplanet.nav.RoutingService(
+            IosNavStrings, notices, settings, com.eried.eucplanet.nav.OfflineNav.None, navHttp,
+        )
+    }
+
+    val poi: com.eried.eucplanet.nav.PoiService by lazy { com.eried.eucplanet.nav.PoiService(navHttp) }
+
+    val chargers: com.eried.eucplanet.nav.OcmService by lazy { com.eried.eucplanet.nav.OcmService(navHttp) }
+
+    val currentRoute: com.eried.eucplanet.nav.CurrentRouteStore by lazy { com.eried.eucplanet.nav.CurrentRouteStore() }
+
+    val navigation: com.eried.eucplanet.nav.NavigationEngine by lazy {
+        com.eried.eucplanet.nav.NavigationEngine(
+            host = IosNavigationHost,
+            strings = IosNavStrings,
+            wheelRepository = wheel,
+            settingsRepository = settings,
+            routingService = routing,
+            voiceService = voice,
+            currentRouteStore = currentRoute,
+            legalLockdown = IosLockdown.controller,
+        )
+    }
+
+    private val activeRoute: IosActiveRoute by lazy { IosActiveRoute(navigation) }
+
+    /** A place or route handed to the app from outside, for the route builder to open. */
+    val incomingShares: com.eried.eucplanet.data.repository.IncomingShareRepository by lazy {
+        com.eried.eucplanet.data.repository.IncomingShareRepository()
+    }
+
+    val pendingShareJoin: com.eried.eucplanet.share.PendingShareJoin by lazy {
+        com.eried.eucplanet.share.PendingShareJoin()
+    }
+
+    val navMarkers: com.eried.eucplanet.data.store.NavMarkerStore by lazy {
+        com.eried.eucplanet.data.store.NavMarkerStore(IosMarkerFile)
+    }
+
+    val liveShare: com.eried.eucplanet.share.LiveShare by lazy { IosShareSession(settings, wheel) }
+
+    internal val routeBuilderPorts: IosRouteBuilderPorts by lazy { IosRouteBuilderPorts() }
+
+    /** The route builder's view model, as Koin's viewModelOf builds it on Android. */
+    fun routeBuilderViewModel(): com.eried.eucplanet.ui.navigator.RouteBuilderViewModel =
+        com.eried.eucplanet.ui.navigator.RouteBuilderViewModel(
+            routingService = routing,
+            poiService = poi,
+            ocmService = chargers,
+            settingsRepository = settings,
+            ports = routeBuilderPorts,
+            navigationEngine = navigation,
+            incomingShareRepository = incomingShares,
+            currentRouteStore = currentRoute,
+            navMarkerStore = navMarkers,
+            shareSession = liveShare,
+            pendingShareJoin = pendingShareJoin,
+            wheelRepository = wheel,
+            tripMeterRepository = IosTripMeter.meter,
+            strings = IosNavStrings,
+        )
+
+    /** The dashboard's cue overlay's view model. */
+    fun navigationOverlayViewModel(): com.eried.eucplanet.ui.navigator.NavigationOverlayViewModel =
+        com.eried.eucplanet.ui.navigator.NavigationOverlayViewModel(
+            navigationEngine = navigation,
+            settingsRepository = settings,
+            host = IosNavigationHost,
+            routingService = routing,
+            currentRouteStore = currentRoute,
+        )
 
     /** The charging monitor's view model, as Koin's viewModelOf builds it on Android. */
     fun chargingViewModel(): ChargingMonitorViewModel = ChargingMonitorViewModel(

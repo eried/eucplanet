@@ -29,11 +29,21 @@ import com.eried.eucplanet.util.QrEncoder
 @Composable
 fun QrCodeCanvas(content: String, sizeDp: Int, ecc: QrEncoder.Ecc = QrEncoder.Ecc.Q) {
     val density = LocalDensity.current
-    val encodePx = remember(sizeDp, density) { with(density) { sizeDp.dp.roundToPx() } }.coerceIn(64, 1024)
+    val encodePx = remember(sizeDp, density) { with(density) { sizeDp.dp.roundToPx() } }
+    QrCodeCanvas(content = content, sizePx = encodePx, modifier = Modifier.size(sizeDp.dp), ecc = ecc)
+}
+
+/**
+ * The code filling the space [modifier] gives it, as Android's
+ * `QrCodeImage(content, sizePx, modifier)`: [sizePx] is the resolution
+ * ZXing would encode at (capped at 1024), not the layout size.
+ */
+@Composable
+fun QrCodeCanvas(content: String, sizePx: Int, modifier: Modifier, ecc: QrEncoder.Ecc = QrEncoder.Ecc.Q) {
+    val encodePx = sizePx.coerceIn(64, 1024)
     val matrix = remember(content, ecc) { runCatching { QrEncoder.encode(content, ecc) }.getOrNull() }
     Box(
-        modifier = Modifier
-            .size(sizeDp.dp)
+        modifier = modifier
             .clip(RoundedCornerShape(8.dp))
             .background(Color.White)
             .padding(8.dp),

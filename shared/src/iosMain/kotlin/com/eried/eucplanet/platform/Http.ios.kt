@@ -101,7 +101,7 @@ actual class HttpClient actual constructor(
 }
 
 @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
-private fun ByteArray.toNSData(): NSData =
+internal fun ByteArray.toNSData(): NSData =
     if (isEmpty()) NSData() else usePinned { NSData.create(bytes = it.addressOf(0), length = size.toULong()) }
 
 @OptIn(ExperimentalForeignApi::class)

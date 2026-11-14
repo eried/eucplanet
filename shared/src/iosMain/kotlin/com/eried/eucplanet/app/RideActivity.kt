@@ -32,9 +32,10 @@ interface RideActivityBridge {
 
 /**
  * The iOS counterpart of Android's ongoing ride notification: up while a
- * wheel is connected, with the wheel's name over the same line Android shows
- * ([RideNotificationText]), refreshed at most once a second and only when the
- * text changes, as the notification is. Its buttons are the rider's quick
+ * wheel is connected or guidance runs, with the wheel's name over the same
+ * line Android shows ([RideNotificationText], or the next move while
+ * navigating), refreshed at most once a second and only when the text
+ * changes, as the notification is. Its buttons are the rider's quick
  * actions ([RideQuickActions], as WheelService's), pressed through
  * RideActionIntent (iOS 17) into [press].
  */
@@ -65,13 +66,26 @@ object RideActivity {
             ) { locked, recording, lockedDown, picks ->
                 ButtonState(locked, recording, lockedDown, picks.first, picks.second)
             }
-            combine(link.connectionState, link.connectedDeviceName, data, buttons) { s, n, d, b ->
-                Quad(s, n, d, b)
-            }.collect { (state, name, d, b) -> show(state, name, d, b) }
+            // The next move takes over the text while guiding, as on Android.
+            val nav = IosAppGraph.navigation.navState
+                .map { if (it.active) NavLine(it.primaryText, it.distanceText) else null }
+                .distinctUntilChanged()
+            combine(link.connectionState, link.connectedDeviceName, data, buttons, nav) { s, n, d, b, g ->
+                Ride(s, n, d, b, g)
+            }.collect { r -> show(r.state, r.name, r.data, r.buttons, r.nav) }
         }
     }
 
-    private data class Quad(val state: ConnectionState, val name: String?, val data: WheelData, val buttons: ButtonState)
+    /** The guidance line: the next move and how far it is. */
+    private data class NavLine(val primary: String, val distance: String)
+
+    private data class Ride(
+        val state: ConnectionState,
+        val name: String?,
+        val data: WheelData,
+        val buttons: ButtonState,
+        val nav: NavLine?,
+    )
 
     /**
      * A button pressed on the Live Activity. Lock, light, horn and record
@@ -89,7 +103,7 @@ object RideActivity {
                 // and the wheel let go (an iOS app does not end itself).
                 NotificationActionType.STOP_ALL ->
                     IosDashboardPlatform(IosAppGraph.wheel, IosTripMeter.meter).stopAllAndExit()
-                NotificationActionType.STOP_NAV -> Unit // no navigator on iOS yet
+                NotificationActionType.STOP_NAV -> IosAppGraph.navigation.stop()
                 else -> RideQuickActions.executorKey(type, IosTrips.recording.value)?.let { k ->
                     IosAppGraph.actions.executeAction(k, IosAppGraph.settings.currentOrLoad())
                 }
@@ -97,9 +111,9 @@ object RideActivity {
         }
     }
 
-    private suspend fun show(state: ConnectionState, name: String?, data: WheelData, buttons: ButtonState) {
+    private suspend fun show(state: ConnectionState, name: String?, data: WheelData, buttons: ButtonState, nav: NavLine?) {
         val b = bridge ?: return
-        if (state == ConnectionState.DISCONNECTED) {
+        if (state == ConnectionState.DISCONNECTED && nav == null) {
             if (shown) b.end()
             shown = false
             lastText = null
@@ -107,7 +121,10 @@ object RideActivity {
         }
         val settings = IosAppGraph.settings.current.value
         val title = name ?: settings.lastDeviceName ?: getString(Res.string.app_name)
-        val text = if (data.speed > 0) {
+        val text = if (nav != null) {
+            listOf(nav.primary, nav.distance).filter { it.isNotBlank() }.joinToString("  \u00b7  ")
+                .ifBlank { getString(Res.string.nav_title) }
+        } else if (data.speed > 0) {
             val unit = Units.effectiveSpeedUnit(settings)
             RideNotificationText.telemetry(
                 Units.speed(data.speed, unit), getString(Units.speedUnitRes(unit)), data.batteryPercent, data.voltage,
@@ -117,7 +134,7 @@ object RideActivity {
             enabled = buttons.enabled,
             csv = buttons.csv,
             lockedDown = buttons.lockedDown,
-            navActive = false, // no navigator on iOS yet
+            navActive = nav != null,
             locked = buttons.locked,
             lightOn = data.lightOn,
             recording = buttons.recording,

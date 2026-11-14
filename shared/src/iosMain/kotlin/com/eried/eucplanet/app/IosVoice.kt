@@ -51,7 +51,7 @@ import platform.darwin.NSObject
 internal class IosVoice(
     private val settings: SettingsRepository,
     private val wheel: () -> WheelRepository,
-) : DashboardVoice, RideVoice {
+) : DashboardVoice, RideVoice, com.eried.eucplanet.nav.NavVoice {
     private val speech = AVSpeechSynthesizer()
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var welcomed = false
@@ -195,11 +195,20 @@ internal class IosVoice(
         }
     }
 
+    /**
+     * The live turn the status report reads for its "Navigation" row, kept up
+     * to date by the navigation engine, as on Android's VoiceService.
+     */
+    override var currentNavCue: String?
+        get() = reports.currentNavCue
+        set(value) { reports.currentNavCue = value }
+
     override fun announceEvent(text: String) {
         // Legal Mode Lockdown silences app chatter, including anything that
         // would say "legal mode" or "recording". Alarms speak through
         // [speakAlarm] instead, so the rider's own alarms still fire.
         if (IosLockdown.controller.isEngaged()) return
+        Log.i("Voice", "event: \"$text\"")
         scope.launch { speak(text, settings.currentOrLoad()) }
     }
 

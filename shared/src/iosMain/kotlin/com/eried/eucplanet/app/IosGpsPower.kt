@@ -27,8 +27,9 @@ import platform.UIKit.UIApplicationWillEnterForegroundNotification
  * - OFF (background, no wheel, not recording): updates stopped.
  *
  * Android's HIGH also honours the Advanced phone GPS interval; CoreLocation has
- * no interval, so HIGH delivers every fix. No navigator, live location share,
- * watch map or HUD map on iOS yet, so those inputs are always off here.
+ * no interval, so HIGH delivers every fix. Guidance and a live location share
+ * hold HIGH, in the background too ([setNavigating], [setSharing]); no watch
+ * map or HUD map on iOS yet, so those inputs are always off here.
  */
 internal object IosGpsPower {
     private const val TAG = "GpsPower"
@@ -41,6 +42,18 @@ internal object IosGpsPower {
     private var current: GpsTier? = null
     private var idleOffDelaySec = 30
     private val visible = MutableStateFlow(true)
+    private val navigating = MutableStateFlow(false)
+    private val sharing = MutableStateFlow(false)
+
+    /** Guidance is on (Android's TripRepository.setNavigating). */
+    fun setNavigating(on: Boolean) {
+        navigating.value = on
+    }
+
+    /** The rider is in a live location group. */
+    fun setSharing(on: Boolean) {
+        sharing.value = on
+    }
 
     /** Starts the stream on demand, as Android's startLocationUpdates. */
     fun request() {
@@ -70,6 +83,8 @@ internal object IosGpsPower {
         }
         scope.launch { visible.collect { recompute() } }
         scope.launch { IosTrips.recording.collect { recompute() } }
+        scope.launch { navigating.collect { recompute() } }
+        scope.launch { sharing.collect { recompute() } }
         scope.launch { IosAppGraph.wheel.connectionState.collect { recompute() } }
         scope.launch {
             IosAppGraph.settings.settings.collect {
@@ -81,9 +96,10 @@ internal object IosGpsPower {
 
     private fun tier(appVisible: Boolean) = GpsPowerPolicy.tierFor(
         recording = IosTrips.recording.value,
-        navigating = false,
+        navigating = navigating.value,
         connected = IosAppGraph.wheel.connectionState.value == ConnectionState.CONNECTED,
         appVisible = appVisible,
+        sharing = sharing.value,
     )
 
     private fun recompute() {

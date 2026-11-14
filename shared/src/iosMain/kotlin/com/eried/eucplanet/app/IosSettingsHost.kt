@@ -1,7 +1,5 @@
 package com.eried.eucplanet.app
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -12,14 +10,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import androidx.compose.ui.unit.dp
 import com.eried.eucplanet.data.model.AppSettings
-import com.eried.eucplanet.platform.PlatformFeature
 import com.eried.eucplanet.platform.stringResource
 import com.eried.eucplanet.resources.Res
 import com.eried.eucplanet.resources.section_radar
 import com.eried.eucplanet.resources.section_tpms
-import com.eried.eucplanet.ui.common.NotYetSettingsRow
 import com.eried.eucplanet.ui.settings.AlarmViewModel
 import com.eried.eucplanet.ui.settings.FlicViewModel
 import com.eried.eucplanet.ui.settings.PermissionGate
@@ -29,7 +24,6 @@ import com.eried.eucplanet.ui.settings.TpmsSection
 import com.eried.eucplanet.ui.settings.SettingsHost
 import com.eried.eucplanet.ui.settings.SettingsRow
 import com.eried.eucplanet.ui.settings.SettingsViewModel
-import com.eried.eucplanet.ui.settings.WeatherSettingsContent
 import com.eried.eucplanet.ui.settings.eucstats.AvatarPicker
 import com.eried.eucplanet.ui.settings.eucstats.PickedAvatar
 import platform.UIKit.UIActivityViewController
@@ -61,9 +55,9 @@ internal object IosSettingsHost : SettingsHost {
     // iOS gives apps no access to the volume buttons.
     override val supportsVolumeKeys = false
 
-    // The watches have no iPhone side planned yet. The navigator and the
-    // external sensors are coming: their sections show muted with a "not
-    // yet" tap (platform/PlatformFeatures.ios.kt).
+    // The watches have no iPhone side planned yet. The external sensors are
+    // coming: their section shows muted with a "not yet" tap
+    // (platform/PlatformFeatures.ios.kt).
     override val hiddenSections = setOf("watch")
 
     // Pause and Play/Pause work through the audio session (IosMedia); no app
@@ -120,15 +114,14 @@ internal object IosSettingsHost : SettingsHost {
         scrollToWeather: Boolean,
         onWeatherTop: (Float) -> Unit,
     ) {
-        // The navigator is not on iPhone yet; the weather is, so its block
-        // shows under a muted navigation row, as on Android under the routing.
-        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            NotYetSettingsRow(PlatformFeature.NAVIGATION)
-            WeatherSettingsContent(settings, viewModel, scrollToWeather, onWeatherTop)
-        }
+        com.eried.eucplanet.ui.settings.NavigatorSettingsContent(
+            viewModel = viewModel,
+            scrollToWeather = scrollToWeather,
+            onWeatherTop = onWeatherTop,
+        )
     }
 
-    // The navigator is muted here, so it never asks for its offline areas.
+    // The iPhone routes online only: there are no offline areas to download.
     @Composable
     override fun OfflineAreas() = Unit
 

@@ -1,7 +1,6 @@
 package com.eried.eucplanet.app
 
 import com.eried.eucplanet.data.model.AppSettings
-import com.eried.eucplanet.data.model.Waypoint
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.repository.PhoneLocation
 import com.eried.eucplanet.data.repository.TripMeterRepository
@@ -20,7 +19,6 @@ import platform.AVFoundation.hasTorch
 import platform.AVFoundation.setTorchMode
 import platform.AVFoundation.torchMode
 import com.eried.eucplanet.flic.VoiceListening
-import com.eried.eucplanet.ui.dashboard.ActiveRoute
 import com.eried.eucplanet.ui.dashboard.DashboardPlatform
 import com.eried.eucplanet.ui.dashboard.DashboardSync
 import com.eried.eucplanet.ui.dashboard.DashboardTrips
@@ -120,11 +118,6 @@ internal class IosMetricsResetter(
         val cleared = withContext(Dispatchers.IO) { wheel.resetTripMeter() }
         return MetricsResetResult(wheelTripCleared = cleared)
     }
-}
-
-internal object NoRoute : ActiveRoute {
-    override val activeWaypoints: StateFlow<List<Waypoint>?> =
-        MutableStateFlow<List<Waypoint>?>(null).asStateFlow()
 }
 
 /** Same flag and key as Android's SharedPreferences, in NSUserDefaults. */

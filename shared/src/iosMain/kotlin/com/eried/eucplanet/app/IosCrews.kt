@@ -120,12 +120,11 @@ object IosCrews {
 /** The pass's platform side on the iPhone. */
 internal object IosCrewsHost : CrewsPairHost {
 
-    // ShareLinks.BASE: the live-location link, which is Android only for now.
+    // ShareLinks.BASE: the live-location link.
     override fun isShareLink(text: String) = text.trim().startsWith("https://eucplanet.ried.no/share")
 
     override fun openLeaderboardSettings() = IosCrews.requestLeaderboardSettings()
 
-    @OptIn(ExperimentalForeignApi::class)
     @Composable
     override fun QrScanner(
         parse: (String) -> PairLink?,
@@ -133,91 +132,106 @@ internal object IosCrewsHost : CrewsPairHost {
         invalidText: String,
         modifier: Modifier,
         misfit: (String) -> String?,
-    ) {
-        val sdk = IosCrews.camera
-        val available = remember { sdk?.cameraAvailable() == true }
-        var auth by remember { mutableStateOf(sdk?.authorization() ?: 1) }
-        val latestFound by rememberUpdatedState(onFound)
-        val latestParse by rememberUpdatedState(parse)
-        val latestMisfit by rememberUpdatedState(misfit)
-        var handled by remember { mutableStateOf(false) }
-        var lastInvalidMs by remember { mutableStateOf(0L) }
-        var invalidNote by remember { mutableStateOf<String?>(null) }
-        LaunchedEffect(lastInvalidMs) {
-            if (lastInvalidMs == 0L) return@LaunchedEffect
-            delay(2_500)
-            invalidNote = null
-        }
+    ) = IosQrScanner(parse, onFound, invalidText, modifier, misfit)
+}
 
-        Column(modifier) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1f)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.appColors.surfaceVariant)
-                    .align(Alignment.CenterHorizontally),
-                contentAlignment = Alignment.Center,
-            ) {
-                when {
-                    sdk == null || !available -> CameraIcon()
-                    auth == 2 -> UIKitView(
-                        factory = {
-                            sdk.makeScannerView { text ->
-                                if (handled) return@makeScannerView
-                                val link = latestParse(text)
-                                if (link != null) {
-                                    handled = true
-                                    latestFound(link)
-                                } else {
-                                    invalidNote = latestMisfit(text) ?: invalidText
-                                    lastInvalidMs = System.currentTimeMillis()
-                                }
-                            }
-                        },
-                        modifier = Modifier.fillMaxSize(),
-                        onRelease = { sdk.stopScannerView(it) },
-                    )
-                    else -> Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.padding(24.dp),
-                    ) {
-                        CameraIcon()
-                        Spacer(Modifier.height(14.dp))
-                        OutlinedButton(
-                            onClick = {
-                                if (auth == 0) sdk.requestAccess { ok -> auth = if (ok) 2 else 1 }
-                                else NSURL.URLWithString(UIApplicationOpenSettingsURLString)?.let {
-                                    UIApplication.sharedApplication.openURL(it, emptyMap<Any?, Any>(), null)
-                                }
-                            },
-                            shape = RoundedCornerShape(12.dp),
-                            border = BorderStroke(1.dp, MaterialTheme.appColors.outline),
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = MaterialTheme.appColors.textButton,
-                            ),
-                        ) { Text(stringResource(Res.string.share_camera_allow), maxLines = 1) }
-                    }
-                }
-            }
-            invalidNote?.let {
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    it,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.appColors.statusDanger,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
-        }
+/**
+ * The live back-camera square that reads a code [parse] accepts, over the
+ * Swift camera bridge: the crew pass and the route builder's share windows
+ * both scan through it, as Android's both use their CameraX scanner.
+ */
+@OptIn(ExperimentalForeignApi::class)
+@Composable
+internal fun <T : Any> IosQrScanner(
+    parse: (String) -> T?,
+    onFound: (T) -> Unit,
+    invalidText: String,
+    modifier: Modifier,
+    misfit: (String) -> String?,
+) {
+    val sdk = IosCrews.camera
+    val available = remember { sdk?.cameraAvailable() == true }
+    var auth by remember { mutableStateOf(sdk?.authorization() ?: 1) }
+    val latestFound by rememberUpdatedState(onFound)
+    val latestParse by rememberUpdatedState(parse)
+    val latestMisfit by rememberUpdatedState(misfit)
+    var handled by remember { mutableStateOf(false) }
+    var lastInvalidMs by remember { mutableStateOf(0L) }
+    var invalidNote by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(lastInvalidMs) {
+        if (lastInvalidMs == 0L) return@LaunchedEffect
+        delay(2_500)
+        invalidNote = null
     }
 
-    @Composable
-    private fun CameraIcon() = Icon(
-        Icons.Default.PhotoCamera,
-        contentDescription = stringResource(Res.string.share_camera_needed),
-        tint = MaterialTheme.appColors.textSecondary,
-        modifier = Modifier.size(40.dp),
-    )
+    Column(modifier) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(1f)
+                .clip(RoundedCornerShape(12.dp))
+                .background(MaterialTheme.appColors.surfaceVariant)
+                .align(Alignment.CenterHorizontally),
+            contentAlignment = Alignment.Center,
+        ) {
+            when {
+                sdk == null || !available -> CameraIcon()
+                auth == 2 -> UIKitView(
+                    factory = {
+                        sdk.makeScannerView { text ->
+                            if (handled) return@makeScannerView
+                            val link = latestParse(text)
+                            if (link != null) {
+                                handled = true
+                                latestFound(link)
+                            } else {
+                                invalidNote = latestMisfit(text) ?: invalidText
+                                lastInvalidMs = System.currentTimeMillis()
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxSize(),
+                    onRelease = { sdk.stopScannerView(it) },
+                )
+                else -> Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(24.dp),
+                ) {
+                    CameraIcon()
+                    Spacer(Modifier.height(14.dp))
+                    OutlinedButton(
+                        onClick = {
+                            if (auth == 0) sdk.requestAccess { ok -> auth = if (ok) 2 else 1 }
+                            else NSURL.URLWithString(UIApplicationOpenSettingsURLString)?.let {
+                                UIApplication.sharedApplication.openURL(it, emptyMap<Any?, Any>(), null)
+                            }
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        border = BorderStroke(1.dp, MaterialTheme.appColors.outline),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.appColors.textButton,
+                        ),
+                    ) { Text(stringResource(Res.string.share_camera_allow), maxLines = 1) }
+                }
+            }
+        }
+        invalidNote?.let {
+            Spacer(Modifier.height(8.dp))
+            Text(
+                it,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.appColors.statusDanger,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+    }
 }
+
+@Composable
+private fun CameraIcon() = Icon(
+    Icons.Default.PhotoCamera,
+    contentDescription = stringResource(Res.string.share_camera_needed),
+    tint = MaterialTheme.appColors.textSecondary,
+    modifier = Modifier.size(40.dp),
+)
