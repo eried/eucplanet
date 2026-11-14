@@ -72,7 +72,8 @@ internal object IosSettingsHost : SettingsHost {
     // another app's player, so the volume and music automations and the
     // volume actions are left out. Nor does it
     // have Android's separate media, notification and alarm streams for the
-    // voice to pick from.
+    // voice to pick from. It routes online only, so the offline routing
+    // block (prefer offline, its server, the areas, the reminder) goes too.
     override val hiddenRows = setOf(
         SettingsRow.BACK_ACTION,
         SettingsRow.KEEP_ALIVE,
@@ -85,6 +86,7 @@ internal object IosSettingsHost : SettingsHost {
         SettingsRow.MEDIA_CONTROL,
         SettingsRow.PHONE_VOLUME,
         SettingsRow.VOICE_OUTPUT_CHANNEL,
+        SettingsRow.OFFLINE_ROUTING,
     )
 
     @Composable

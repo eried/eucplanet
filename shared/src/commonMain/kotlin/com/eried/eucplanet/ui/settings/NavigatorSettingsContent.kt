@@ -240,7 +240,8 @@ fun NavigatorSettingsContent(
         // --- Offline: whether downloaded areas go first or stay the
         // backup (default), where they come from, and the screen to get
         // them (with what is downloaded so far). Nothing changes until one
-        // is there. ---
+        // is there. A phone that routes online only leaves the block out. ---
+        if (SettingsRow.OFFLINE_ROUTING !in LocalSettingsHost.current.hiddenRows) {
         SwitchRow(
             label = stringResource(Res.string.offline_prefer),
             checked = settings.offlineRouting.mode == com.eried.eucplanet.data.model.OfflineRoutingMode.PREFER,
@@ -265,6 +266,7 @@ fun NavigatorSettingsContent(
             checked = settings.offlineRouting.remindBeforeRide,
             onChange = { viewModel.updateOfflineRemindBeforeRide(it) },
         )
+        }
 
         // --- Avoidances (collapsible; all off by default) ---
         var avoidExpanded by rememberSaveable { mutableStateOf(false) }

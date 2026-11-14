@@ -157,6 +157,9 @@ enum class SettingsRow {
     /** Which system stream the voice speaks on (media, notification or alarm). */
     VOICE_OUTPUT_CHANNEL,
 
+    /** Offline routing: preferring the downloaded areas, their server, the areas and the reminder before a ride. */
+    OFFLINE_ROUTING,
+
     /** Binding actions to the volume keys. Follows [SettingsHost.supportsVolumeKeys]; not listed in hiddenRows. */
     VOLUME_KEYS,
 

@@ -54,7 +54,9 @@ internal class IosRouteBuilderPorts : RouteBuilderPorts {
 
     override fun hasTile(name: String): Boolean = false
 
-    override fun servedTiles(): Set<String>? = null
+    // None to download either: an empty set (not null, "not known yet") keeps
+    // the "Download offline maps?" question before a ride from coming up.
+    override fun servedTiles(): Set<String>? = emptySet()
 
     /** [file] is a file URL the Files picker handed over (a copy in the app's tmp). */
     override fun readGpx(file: String): GpxData? {
