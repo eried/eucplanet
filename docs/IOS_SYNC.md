@@ -163,6 +163,10 @@ opening it in Xcode and pressing Run is enough. From a terminal:
 
 ```sh
 sh iosApp/run-simulator.sh     # build, install and launch on a simulator
+                               # (leaderboards go to a local eucstats at
+                               # http://127.0.0.1:8000/api/v1; launches by
+                               # hand need SIMCTL_CHILD_EUCSTATS_API_BASE_URL
+                               # to do the same)
 SIMCTL_CHILD_EUC_CONNECT=VIRTUAL:MASTER xcrun simctl launch booted com.eried.eucplanet.ios
                                # relaunch connected to a virtual wheel
 SIMCTL_CHILD_EUC_DIALOG=service xcrun simctl launch booted com.eried.eucplanet.ios
