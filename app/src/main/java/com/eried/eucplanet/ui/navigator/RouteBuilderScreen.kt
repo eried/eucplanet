@@ -1289,7 +1289,7 @@ fun RouteBuilderScreen(
                         }
                         loadDataWithBaseURL(
                             "file:///android_asset/",
-                            routeBuilderHtmlFor(viewModel.mapType.value),
+                            routeBuilderHtmlFor(viewModel.mapType.value, com.eried.eucplanet.nav.offline.map.OfflineMapWeb.JS),
                             "text/html", "UTF-8", null
                         )
                         webView = this

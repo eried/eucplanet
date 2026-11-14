@@ -20,7 +20,7 @@ class MapProvidersTest {
         val sources = listOf(
             "../hud-protocol/src/main/java/com/eried/eucplanet/hud/protocol/MapLayers.kt",
             "../hud/src/main/java/com/eried/eucplanet/hud/net/HudTileCache.kt",
-            "src/main/java/com/eried/eucplanet/ui/navigator/MapHtml.kt",
+            "../shared/src/commonMain/kotlin/com/eried/eucplanet/ui/navigator/MapHtml.kt",
             "src/main/java/com/eried/eucplanet/map/MapTileCache.kt",
             "../shared/src/commonMain/kotlin/com/eried/eucplanet/ui/recording/TripMapHtml.kt",
         )
@@ -119,7 +119,7 @@ class MapProvidersTest {
 
     @Test fun `both leaflet surfaces draw the reference layer`() {
         val tripHtml = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/ui/recording/TripMapHtml.kt").readText()
-        val navHtml = File("src/main/java/com/eried/eucplanet/ui/navigator/MapHtml.kt").readText()
+        val navHtml = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/ui/navigator/MapHtml.kt").readText()
         val table = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/map/MapLayersJs.kt").readText()
         assertTrue(tripHtml.contains("if (layer.ref)"))
         assertTrue(navHtml.contains("if (layer.ref)"))

@@ -6,7 +6,7 @@ package com.eried.eucplanet.ui.navigator
  * this, the page painted dark navy regardless of the saved style and the
  * rider got a "dark flash" before the LIGHT / SATELLITE tiles replaced it.
  */
-internal fun mapTypeInitialBg(mapType: String): String = when (mapType) {
+fun mapTypeInitialBg(mapType: String): String = when (mapType) {
     "LIGHT" -> "#dedede"      // CARTO Positron's pre-tile gray
     "SATELLITE", "SATELLITE_LABELS" -> "#1a1a1a"  // dominant near-black of Esri World Imagery oceans
     else -> "#0b0f19"          // CARTO Dark Matter / fallback
@@ -14,19 +14,22 @@ internal fun mapTypeInitialBg(mapType: String): String = when (mapType) {
 
 /** Substitute the saved map style and matching bg colour into the HTML
  *  template so the very first paint already targets the rider's choice
- *  instead of seeding a dark tile layer and tearing it down. */
-internal fun routeBuilderHtmlFor(mapType: String): String =
+ *  instead of seeding a dark tile layer and tearing it down. [offlineMapJs]
+ *  defines `eucOfflineMap` (Android's OfflineMapWeb.JS, which follows the
+ *  rider's "prefer offline"; a phone without the offline map passes
+ *  TripMapHtml.NO_OFFLINE_MAP_JS). */
+fun routeBuilderHtmlFor(mapType: String, offlineMapJs: String): String =
     ROUTE_BUILDER_HTML
         .replace("__INITIAL_MAP_TYPE__", mapType)
         .replace("__INITIAL_BG__", mapTypeInitialBg(mapType))
         .replace("__LAYERS_JSON__", mapLayersJson())
-        .replace("__OFFLINE_JS__", com.eried.eucplanet.nav.offline.map.OfflineMapWeb.JS)
+        .replace("__OFFLINE_JS__", offlineMapJs)
 
 /**
  * The shared layer registry as JSON for the Leaflet side: the same table the
  * trip viewer's page reads (com.eried.eucplanet.map.MapLayersJs).
  */
-internal fun mapLayersJson(): String = com.eried.eucplanet.map.MapLayersJs.table()
+fun mapLayersJson(): String = com.eried.eucplanet.map.MapLayersJs.table()
 
 /**
  * The self-contained HTML document for the Route Builder's Leaflet map.
@@ -56,7 +59,7 @@ internal fun mapLayersJson(): String = com.eried.eucplanet.map.MapLayersJs.table
 // raw string literal hits the JVM's 65535-byte UTF-8 limit on constant
 // pool entries. Splitting + concatenating at runtime sidesteps that --
 // the limit is on individual constant entries, not on String values.
-internal val ROUTE_BUILDER_HTML: String = ROUTE_BUILDER_HTML_1 + ROUTE_BUILDER_HTML_2
+val ROUTE_BUILDER_HTML: String = ROUTE_BUILDER_HTML_1 + ROUTE_BUILDER_HTML_2
 
 private const val ROUTE_BUILDER_HTML_1: String = """
 <!DOCTYPE html><html><head>
