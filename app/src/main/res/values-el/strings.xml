@@ -1547,14 +1547,7 @@
     <string name="auto_waiting_gps">Αναμονή για θέση GPS…</string>
     <string name="auto_volume_title">Έλεγχος έντασης</string>
     <string name="auto_volume_when">Αύξηση έντασης όταν</string>
-    <string name="media_rate_when">Αλλαγή ταχύτητας αναπαραγωγής όταν</string>
-    <string name="media_rate_permission_desc">Το Android τη ζητά ξεχωριστά. Χωρίς αυτή η ταχύτητα αναπαραγωγής δεν μπορεί να αλλάξει.</string>
-    <string name="media_rate_note">Οι εφαρμογές αναπαραγωγής αποφασίζουν αν δέχονται ταχύτητα από έξω. Οι εφαρμογές podcast συνήθως ναι, κάποιες εφαρμογές μουσικής όχι.</string>
     <string name="media_control_title">Έλεγχος αναπαραγωγής πολυμέσων</string>
-    <string name="media_rate_title">Έλεγχος ταχύτητας πολυμέσων</string>
-    <string name="media_rate_grant">Παραχώρηση</string>
-    <string name="warnings_media_access_title">Η πρόσβαση στις ειδοποιήσεις είναι ανενεργή</string>
-    <string name="warnings_media_access_body">Χωρίς αυτήν, η ταχύτητα αναπαραγωγής δεν μπορεί να ακολουθεί την ταχύτητά σας. Πατήστε για να την επιτρέψετε.</string>
     <string name="media_control_pause">Παύση όταν επιβραδύνω</string>
     <string name="media_control_pause_below">Παύση στα ή κάτω από</string>
     <string name="media_control_resume">Συνέχιση όταν επιταχύνω</string>

@@ -1160,14 +1160,7 @@
     <string name="auto_waiting_gps">Oczekiwanie na lokalizację GPS…</string>
     <string name="auto_volume_title">Sterowanie głośnością</string>
     <string name="auto_volume_when">Zwiększaj głośność, gdy</string>
-    <string name="media_rate_when">Zmieniaj prędkość odtwarzania, gdy</string>
-    <string name="media_rate_permission_desc">Android prosi o to uprawnienie osobno. Bez niego nie można zmienić prędkości odtwarzania.</string>
-    <string name="media_rate_note">To odtwarzacz decyduje, czy przyjmie prędkość z zewnątrz. Aplikacje podcastowe zwykle tak, część muzycznych nie.</string>
     <string name="media_control_title">Sterowanie odtwarzaniem</string>
-    <string name="media_rate_title">Sterowanie prędkością odtwarzania</string>
-    <string name="media_rate_grant">Zezwól</string>
-    <string name="warnings_media_access_title">Dostęp do powiadomień jest wyłączony</string>
-    <string name="warnings_media_access_body">Bez niego prędkość odtwarzania nie będzie się dopasowywać do Twojej prędkości. Dotknij, aby zezwolić.</string>
     <string name="media_control_pause">Wstrzymaj, gdy zwalniam</string>
     <string name="media_control_pause_below">Wstrzymaj przy lub poniżej</string>
     <string name="media_control_resume">Wznów, gdy przyspieszam</string>

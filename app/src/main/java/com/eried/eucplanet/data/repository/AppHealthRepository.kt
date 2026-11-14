@@ -98,7 +98,6 @@ class AppHealthRepository(
      */
     @Volatile
     private var pipNoticePending = false
-    private var mediaAccessNoticePending = false
 
     /** The Phone HUD's equivalent of [pipNoticePending]. */
     @Volatile
@@ -148,7 +147,6 @@ class AppHealthRepository(
     fun refreshPermissionWarnings(
         pipRequested: Boolean = false,
         phoneHudRequested: Boolean = false,
-        mediaRateRequested: Boolean = false,
     ) {
         // POST_NOTIFICATIONS only exists on Android 13+. Below TIRAMISU the
         // notification post is implicit, so the warning never applies.
@@ -254,37 +252,6 @@ class AppHealthRepository(
                 )
             )
         }
-
-        // Playback rate's notification-access warning, PARKED with the
-        // feature. The app no longer declares a NotificationListenerService,
-        // so it cannot appear in that system list at all and this warning
-        // would send a rider to a screen where nothing of ours is listed.
-        // Any warning a previous version left behind is cleared instead.
-        dismiss(PERM_MEDIA_ACCESS_ID)
-        /*
-        // Playback rate needs notification access, and the same shape as PIP
-        // and the overlay: granted outside the app, invisible from inside it,
-        // and the feature simply does nothing. Latched on the request so
-        // turning the switch on is what raises it, not merely having the
-        // feature configured.
-        if (notificationAccessAllowed()) {
-            mediaAccessNoticePending = false
-            dismiss(PERM_MEDIA_ACCESS_ID)
-        } else {
-            if (mediaRateRequested) mediaAccessNoticePending = true
-            if (mediaAccessNoticePending) {
-                upsert(
-                    AppWarning(
-                        id = PERM_MEDIA_ACCESS_ID,
-                        titleRes = R.string.warnings_media_access_title,
-                        bodyRes = R.string.warnings_media_access_body,
-                        fix = { openNotificationAccessSettings() }
-                    )
-                )
-            }
-        }
-
-        */
 
         // Android keeps its own per-app picture-in-picture switch, and turning
         // it off there is invisible from in here: the window simply never
@@ -435,17 +402,6 @@ class AppHealthRepository(
         return mode == AppOpsManager.MODE_ALLOWED
     }
 
-    /** Whether the rider has granted notification access, which is what
-     *  MediaSessionManager.getActiveSessions() checks. */
-    fun notificationAccessAllowed(): Boolean {
-        val enabled = runCatching {
-            android.provider.Settings.Secure.getString(
-                context.contentResolver, "enabled_notification_listeners"
-            )
-        }.getOrNull().orEmpty()
-        return enabled.split(":").any { it.startsWith(context.packageName + "/") }
-    }
-
     /** Android's own location screen, where the master switch lives. */
     private fun openLocationSettings() {
         runCatching {
@@ -454,15 +410,6 @@ class AppHealthRepository(
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             )
         }.onFailure { openAppSettings() }
-    }
-
-    /** The system's notification-access list, where that grant lives. */
-    fun openNotificationAccessSettings() {
-        val direct = Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS").apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
-        if (runCatching { context.startActivity(direct) }.isSuccess) return
-        openAppSettings()
     }
 
     /**
@@ -500,7 +447,6 @@ class AppHealthRepository(
         private const val PERM_NOTIFICATIONS_ID = "perm.notifications"
         private const val PERM_LOCATION_ID = "perm.location"
         private const val LOCATION_SERVICES_ID = "location.services-off"
-        private const val PERM_MEDIA_ACCESS_ID = "perm.media-access"
         private const val PERM_PIP_ID = "perm.pip"
         private const val PERM_OVERLAY_ID = "perm.overlay"
         private const val PERM_MIC_ID = "perm.microphone"

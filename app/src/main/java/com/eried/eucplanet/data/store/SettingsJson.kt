@@ -167,8 +167,6 @@ object SettingsJson {
             put("resumeEnabled", s.mediaControl.resumeEnabled)
             put("resumeAboveKmh", s.mediaControl.resumeAboveKmh)
             put("requireExternalOutput", s.mediaControl.requireExternalOutput)
-            put("rateApplyWhen", s.mediaControl.rateApplyWhen)
-            put("rateCurve", s.mediaControl.rateCurve)
         })
         put("share", JSONObject().apply {
             put("trailMinutes", s.share.trailMinutes); put("shareStatsDefault", s.share.shareStatsDefault)
@@ -605,8 +603,6 @@ object SettingsJson {
                 requireExternalOutput = m.optBoolean(
                     "requireExternalOutput", base.mediaControl.requireExternalOutput
                 ),
-                rateApplyWhen = m.optString("rateApplyWhen", base.mediaControl.rateApplyWhen),
-                rateCurve = m.optString("rateCurve", base.mediaControl.rateCurve),
             )
         } ?: base.mediaControl,
         share = j.optJSONObject("share")?.let { m -> base.share.copy(

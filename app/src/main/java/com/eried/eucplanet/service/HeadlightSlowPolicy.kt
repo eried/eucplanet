@@ -16,7 +16,7 @@ package com.eried.eucplanet.service
  * switch the beam back on.
  *
  * Kept free of Android so it can be unit-tested, like [MediaControlPolicy]
- * and [PlaybackRatePolicy] beside it.
+ * beside it.
  */
 object HeadlightSlowPolicy {
 

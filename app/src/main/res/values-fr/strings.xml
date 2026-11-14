@@ -1160,14 +1160,7 @@
     <string name="auto_waiting_gps">En attente de la position GPS…</string>
     <string name="auto_volume_title">Contrôle du volume</string>
     <string name="auto_volume_when">Monter le volume quand</string>
-    <string name="media_rate_when">Modifier la vitesse quand</string>
-    <string name="media_rate_permission_desc">Android le demande séparément. Sans cela, la vitesse de lecture ne peut pas être modifiée.</string>
-    <string name="media_rate_note">C\'est le lecteur qui décide s\'il accepte une vitesse venue de l\'extérieur. Les applications de podcast le font en général, certaines applications de musique non.</string>
     <string name="media_control_title">Contrôle de la lecture</string>
-    <string name="media_rate_title">Contrôle de la vitesse</string>
-    <string name="media_rate_grant">Autoriser</string>
-    <string name="warnings_media_access_title">Accès aux notifications désactivé</string>
-    <string name="warnings_media_access_body">Sans cet accès, la vitesse de lecture ne peut pas suivre votre allure. Appuyez pour autoriser.</string>
     <string name="media_control_pause">Pause quand je ralentis</string>
     <string name="media_control_pause_below">Pause à cette vitesse ou en dessous</string>
     <string name="media_control_resume">Reprise quand j\'accélère</string>

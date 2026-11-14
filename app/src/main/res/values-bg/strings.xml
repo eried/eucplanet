@@ -1589,14 +1589,7 @@
     <string name="auto_waiting_gps">Изчакване на GPS местоположение…</string>
     <string name="auto_volume_title">Управление на звука</string>
     <string name="auto_volume_when">Усилвай звука, когато</string>
-    <string name="media_rate_when">Променяй скоростта на възпроизвеждане, когато</string>
-    <string name="media_rate_permission_desc">Android иска това разрешение отделно. Без него скоростта на възпроизвеждане не може да се променя.</string>
-    <string name="media_rate_note">Плейърите решават дали да приемат скорост отвън. Приложенията за подкасти обикновено приемат, някои музикални приложения не.</string>
     <string name="media_control_title">Управление на възпроизвеждането</string>
-    <string name="media_rate_title">Управление на скоростта на медията</string>
-    <string name="media_rate_grant">Разреши</string>
-    <string name="warnings_media_access_title">Достъпът до известията е изключен</string>
-    <string name="warnings_media_access_body">Без него скоростта на възпроизвеждане не може да следва скоростта ви. Докоснете, за да разрешите.</string>
     <string name="media_control_pause">Пауза при забавяне</string>
     <string name="media_control_pause_below">Пауза при или под</string>
     <string name="media_control_resume">Продължи при ускоряване</string>

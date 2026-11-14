@@ -1590,14 +1590,7 @@
     <string name="auto_waiting_gps">Čaká sa na polohu GPS…</string>
     <string name="auto_volume_title">Ovládanie hlasitosti</string>
     <string name="auto_volume_when">Zvýšiť hlasitosť, keď</string>
-    <string name="media_rate_when">Zmeniť rýchlosť prehrávania, keď</string>
-    <string name="media_rate_permission_desc">Android o to žiada samostatne. Bez toho sa rýchlosť prehrávania nedá zmeniť.</string>
-    <string name="media_rate_note">Prehrávače rozhodujú, či prijmú rýchlosť zvonka. Podcastové aplikácie zvyčajne áno, niektoré hudobné nie.</string>
     <string name="media_control_title">Ovládanie prehrávania médií</string>
-    <string name="media_rate_title">Ovládanie rýchlosti médií</string>
-    <string name="media_rate_grant">Povoliť</string>
-    <string name="warnings_media_access_title">Prístup k upozorneniam je vypnutý</string>
-    <string name="warnings_media_access_body">Bez neho sa rýchlosť prehrávania nemôže riadiť vašou rýchlosťou. Klepnutím povoľte.</string>
     <string name="media_control_pause">Pozastaviť pri spomalení</string>
     <string name="media_control_pause_below">Pozastaviť pri alebo pod</string>
     <string name="media_control_resume">Obnoviť pri zrýchlení</string>

@@ -1156,14 +1156,7 @@
     <string name="auto_waiting_gps">Warte auf GPS-Position…</string>
     <string name="auto_volume_title">Lautstärkeregelung</string>
     <string name="auto_volume_when">Lautstärke anheben, wenn</string>
-    <string name="media_rate_when">Wiedergabetempo ändern, wenn</string>
-    <string name="media_rate_permission_desc">Android fragt das getrennt ab. Ohne das lässt sich das Wiedergabetempo nicht ändern.</string>
-    <string name="media_rate_note">Der Player entscheidet, ob er ein Tempo von außen annimmt. Podcast-Apps tun das meist, manche Musik-Apps nicht.</string>
     <string name="media_control_title">Wiedergabesteuerung</string>
-    <string name="media_rate_title">Wiedergabegeschwindigkeit</string>
-    <string name="media_rate_grant">Erlauben</string>
-    <string name="warnings_media_access_title">Benachrichtigungszugriff ist aus</string>
-    <string name="warnings_media_access_body">Ohne ihn kann das Wiedergabetempo der Geschwindigkeit nicht folgen. Zum Erlauben tippen.</string>
     <string name="media_control_pause">Pausieren beim Langsamerwerden</string>
     <string name="media_control_pause_below">Pausieren bei oder unter</string>
     <string name="media_control_resume">Fortsetzen beim Schnellerwerden</string>

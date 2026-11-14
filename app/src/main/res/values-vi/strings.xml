@@ -1504,14 +1504,7 @@
     <string name="auto_waiting_gps">Đang chờ vị trí GPS…</string>
     <string name="auto_volume_title">Điều khiển âm lượng</string>
     <string name="auto_volume_when">Tăng âm lượng khi</string>
-    <string name="media_rate_when">Đổi tốc độ phát khi</string>
-    <string name="media_rate_permission_desc">Android yêu cầu quyền này riêng. Thiếu quyền thì không thể đổi tốc độ phát.</string>
-    <string name="media_rate_note">Trình phát tự quyết định có nhận tốc độ từ bên ngoài hay không. Ứng dụng podcast thường nhận; một số ứng dụng nhạc thì không.</string>
     <string name="media_control_title">Điều khiển phát nhạc</string>
-    <string name="media_rate_title">Điều khiển tốc độ phát</string>
-    <string name="media_rate_grant">Cấp quyền</string>
-    <string name="warnings_media_access_title">Quyền truy cập thông báo đang tắt</string>
-    <string name="warnings_media_access_body">Thiếu quyền này, tốc độ phát không thể theo tốc độ của bạn. Chạm để cho phép.</string>
     <string name="media_control_pause">Tạm dừng khi giảm tốc</string>
     <string name="media_control_pause_below">Tạm dừng khi bằng hoặc dưới</string>
     <string name="media_control_resume">Phát tiếp khi tăng tốc</string>

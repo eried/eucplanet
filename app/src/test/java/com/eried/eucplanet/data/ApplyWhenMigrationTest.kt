@@ -18,11 +18,10 @@ class ApplyWhenMigrationTest {
 
     private fun load(json: String) = SettingsJson.fromJson(JSONObject(json), AppSettings())
 
-    @Test fun `both automations ship off`() {
-        // Never is the off state: one control, and neither feature starts
+    @Test fun `auto-volume ships off`() {
+        // Never is the off state: one control, and the feature never starts
         // touching the rider's audio until they choose a condition.
         assertEquals(ApplyWhenIds.NEVER, AppSettings().autoVolumeApplyWhen)
-        assertEquals(ApplyWhenIds.NEVER, AppSettings().mediaControl.rateApplyWhen)
     }
 
     @Test fun `the old switch keeps its meaning`() {
@@ -47,18 +46,12 @@ class ApplyWhenMigrationTest {
         assertEquals(ApplyWhenIds.RIDING, load(json).autoVolumeApplyWhen)
     }
 
-    @Test fun `the gate survives a round trip, for both automations`() {
+    @Test fun `the gate survives a round trip`() {
         val saved = AppSettings(
             autoVolumeApplyWhen = ApplyWhenIds.CONNECTED,
-            mediaControl = AppSettings().mediaControl.copy(
-                rateApplyWhen = ApplyWhenIds.CONNECTED,
-                rateCurve = "0:1.0,25:1.20",
-            ),
         )
         val back = load(SettingsJson.toJson(saved).toString())
         assertEquals(ApplyWhenIds.CONNECTED, back.autoVolumeApplyWhen)
-        assertEquals(ApplyWhenIds.CONNECTED, back.mediaControl.rateApplyWhen)
-        assertEquals("0:1.0,25:1.20", back.mediaControl.rateCurve)
     }
 
     @Test fun `the lights group migrates off its three flat keys`() {
@@ -101,6 +94,5 @@ class ApplyWhenMigrationTest {
         // migration: an update must not start altering anyone's playback.
         val migrated = load(JSONObject().put("autoVolumeEnabled", true).toString())
         assertEquals(ApplyWhenIds.CONNECTED, migrated.autoVolumeApplyWhen)
-        assertEquals(ApplyWhenIds.NEVER, migrated.mediaControl.rateApplyWhen)
     }
 }

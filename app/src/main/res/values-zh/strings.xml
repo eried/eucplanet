@@ -477,14 +477,7 @@
     <string name="auto_waiting_gps">等待 GPS 定位\u2026</string>
     <string name="auto_volume_title">音量控制</string>
     <string name="auto_volume_when">提高音量的时机</string>
-    <string name="media_rate_when">调整播放速度的时机</string>
-    <string name="media_rate_permission_desc">Android 会单独请求该权限。没有它就无法更改播放速度。</string>
-    <string name="media_rate_note">是否接受外部指定的速度由播放器决定。播客应用通常支持，部分音乐应用不支持。</string>
     <string name="media_control_title">播放控制</string>
-    <string name="media_rate_title">播放速度控制</string>
-    <string name="media_rate_grant">授予</string>
-    <string name="warnings_media_access_title">通知访问已关闭</string>
-    <string name="warnings_media_access_body">没有此权限，播放速度无法随骑行速度变化。点按即可允许。</string>
     <string name="media_control_pause">减速时暂停</string>
     <string name="media_control_pause_below">在此速度或以下暂停</string>
     <string name="media_control_resume">加速时恢复</string>

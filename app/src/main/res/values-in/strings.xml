@@ -1504,14 +1504,7 @@
     <string name="auto_waiting_gps">Menunggu lokasi GPS…</string>
     <string name="auto_volume_title">Kontrol volume</string>
     <string name="auto_volume_when">Naikkan volume saat</string>
-    <string name="media_rate_when">Ubah kecepatan putar saat</string>
-    <string name="media_rate_permission_desc">Android meminta izin ini secara terpisah. Tanpanya kecepatan putar tidak dapat diubah.</string>
-    <string name="media_rate_note">Pemutar menentukan apakah menerima kecepatan dari luar. Aplikasi podcast biasanya mau; beberapa aplikasi musik tidak.</string>
     <string name="media_control_title">Kontrol pemutaran media</string>
-    <string name="media_rate_title">Kontrol kecepatan media</string>
-    <string name="media_rate_grant">Izinkan</string>
-    <string name="warnings_media_access_title">Akses notifikasi nonaktif</string>
-    <string name="warnings_media_access_body">Kecepatan putar tidak bisa mengikuti kecepatan Anda tanpanya. Ketuk untuk mengizinkan.</string>
     <string name="media_control_pause">Jeda saat saya melambat</string>
     <string name="media_control_pause_below">Jeda pada atau di bawah</string>
     <string name="media_control_resume">Lanjutkan saat saya mempercepat</string>

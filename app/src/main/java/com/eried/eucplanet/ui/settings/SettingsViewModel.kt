@@ -723,26 +723,6 @@ class SettingsViewModel(
             .also { automationManager.restoreBaselineVolume() }
     fun updateAutoVolumeCurve(curve: String) = update { copy(autoVolumeCurve = curve) }
 
-    fun updateMediaRateApplyWhenPicked(v: String) = update {
-        copy(mediaControl = mediaControl.copy(rateApplyWhen = v))
-    }.also {
-        // Raise (or clear) the dashboard warning now rather than at the next
-        // activity resume: moving between settings screens is not a resume,
-        // so a rider who switches this on and never leaves the app would see
-        // no sign that the grant it needs is missing.
-        appHealthRepository.refreshPermissionWarnings(
-            mediaRateRequested = v != ApplyWhenIds.NEVER
-        )
-    }
-    fun updateMediaRateCurve(curve: String) = update {
-        copy(mediaControl = mediaControl.copy(rateCurve = curve))
-    }
-
-
-    /** Notification access, which the rate feature needs and nothing else does. */
-    fun notificationAccessAllowed(): Boolean = appHealthRepository.notificationAccessAllowed()
-    fun openNotificationAccessSettings() = appHealthRepository.openNotificationAccessSettings()
-
     // Media control (speed-driven music/podcast pause & resume)
     fun updateMediaPauseEnabled(v: Boolean) = update { copy(mediaControl = mediaControl.copy(pauseEnabled = v)) }
         .also { if (!v) automationManager.resetMediaControl() }

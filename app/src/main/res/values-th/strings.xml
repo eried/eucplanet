@@ -1504,14 +1504,7 @@
     <string name="auto_waiting_gps">กำลังรอตำแหน่ง GPS…</string>
     <string name="auto_volume_title">ควบคุมระดับเสียง</string>
     <string name="auto_volume_when">เพิ่มเสียงเมื่อ</string>
-    <string name="media_rate_when">ปรับความเร็วการเล่นเมื่อ</string>
-    <string name="media_rate_permission_desc">Android จะขอสิทธิ์นี้แยกต่างหาก หากไม่มีสิทธิ์จะเปลี่ยนความเร็วการเล่นไม่ได้</string>
-    <string name="media_rate_note">เครื่องเล่นจะเป็นผู้ตัดสินว่าจะรับความเร็วจากภายนอกหรือไม่ แอปพอดแคสต์มักรับ แต่แอปเพลงบางแอปไม่รับ</string>
     <string name="media_control_title">ควบคุมการเล่นสื่อ</string>
-    <string name="media_rate_title">ควบคุมความเร็วสื่อ</string>
-    <string name="media_rate_grant">ให้สิทธิ์</string>
-    <string name="warnings_media_access_title">การเข้าถึงการแจ้งเตือนปิดอยู่</string>
-    <string name="warnings_media_access_body">หากไม่มีสิทธิ์นี้ ความเร็วการเล่นจะปรับตามความเร็วของคุณไม่ได้ แตะเพื่ออนุญาต</string>
     <string name="media_control_pause">หยุดเมื่อฉันชะลอ</string>
     <string name="media_control_pause_below">หยุดที่หรือต่ำกว่า</string>
     <string name="media_control_resume">เล่นต่อเมื่อฉันเร่ง</string>

@@ -1160,14 +1160,7 @@
     <string name="auto_waiting_gps">Wachten op GPS-locatie…</string>
     <string name="auto_volume_title">Volumeregeling</string>
     <string name="auto_volume_when">Volume verhogen wanneer</string>
-    <string name="media_rate_when">Afspeelsnelheid aanpassen wanneer</string>
-    <string name="media_rate_permission_desc">Android vraagt hier apart om. Zonder dit kan de afspeelsnelheid niet worden gewijzigd.</string>
-    <string name="media_rate_note">De speler bepaalt zelf of hij een snelheid van buitenaf aanneemt. Podcast-apps meestal wel, sommige muziek-apps niet.</string>
     <string name="media_control_title">Afspeelbediening</string>
-    <string name="media_rate_title">Afspeelsnelheid</string>
-    <string name="media_rate_grant">Toestaan</string>
-    <string name="warnings_media_access_title">Meldingstoegang staat uit</string>
-    <string name="warnings_media_access_body">Zonder dit kan de afspeelsnelheid je snelheid niet volgen. Tik om toe te staan.</string>
     <string name="media_control_pause">Pauzeren als ik vaart minder</string>
     <string name="media_control_pause_below">Pauzeren op of onder</string>
     <string name="media_control_resume">Hervatten als ik sneller ga</string>

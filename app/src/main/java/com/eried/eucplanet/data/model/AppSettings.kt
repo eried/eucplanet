@@ -1136,13 +1136,6 @@ data class MediaControlSettings(
     // (headphones / Bluetooth / wired / USB), never the phone speaker. Pausing is
     // never gated on the route. Only meaningful with resume on. On by default.
     val requireExternalOutput: Boolean = true,
-    // --- Media speed control ---
-    // Playback rate follows speed, on the same "speed:value" curve shape
-    // auto-volume uses, so the same editor drives it. Needs notification
-    // access (see MediaAccessService) and a player that accepts a rate.
-    /** NEVER is off; the other two are on, with the condition they name. */
-    val rateApplyWhen: String = ApplyWhenIds.NEVER,
-    val rateCurve: String = "0:1.0,25:1.15,50:1.30,75:1.45",
 )
 
 /** Live location share. Feature-local, nested so AppSettings.copy() stays under the dex 255-arg limit. */
