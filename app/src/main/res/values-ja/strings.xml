@@ -981,7 +981,7 @@
     <string name="voice_speed_fmt">速度 %1$s</string>
     <string name="voice_battery_fmt">バッテリー %1$d パーセント</string>
     <string name="voice_temp_fmt">温度 %1$s 度</string>
-    <string name="voice_load_fmt">負荷 %1$s パーセント</string>
+    <string name="voice_load_fmt">PWM %1$s パーセント</string>
     <string name="voice_current_fmt">電流 %1$s アンペア</string>
     <string name="voice_power_fmt">電力 %1$s ワット</string>
     <string name="voice_trip_fmt">トリップ %1$s キロメートル</string>
@@ -1015,7 +1015,7 @@
     <string name="alarm_metric_battery_temp">バッテリー温度</string>
     <string name="alarm_metric_controller_temp">コントローラー温度</string>
     <string name="alarm_metric_motor_temp">モーター温度</string>
-    <string name="alarm_metric_pwm">負荷（PWM）</string>
+    <string name="alarm_metric_pwm">PWM</string>
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">電圧</string>
     <string name="alarm_metric_current">電流</string>
@@ -1079,7 +1079,7 @@
     <string name="metric_temperature">温度</string>
     <string name="metric_voltage">電圧</string>
     <string name="metric_current">電流</string>
-    <string name="metric_load">負荷</string>
+    <string name="metric_load">PWM</string>
     <string name="metric_speed">速度</string>
 
     <!-- Recording screen -->

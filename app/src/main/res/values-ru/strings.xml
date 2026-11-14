@@ -985,7 +985,7 @@
     <string name="voice_speed_fmt">скорость %1$s</string>
     <string name="voice_battery_fmt">заряд %1$d%%</string>
     <string name="voice_temp_fmt">температура %1$s градусов</string>
-    <string name="voice_load_fmt">нагрузка %1$s%%</string>
+    <string name="voice_load_fmt">PWM %1$s%%</string>
     <string name="voice_current_fmt">ток %1$s ампер</string>
     <string name="voice_power_fmt">мощность %1$s ватт</string>
     <string name="voice_trip_fmt">пройдено %1$s километров</string>
@@ -1018,7 +1018,7 @@
     <string name="alarm_metric_battery_temp">Температура батареи</string>
     <string name="alarm_metric_controller_temp">Температура контроллера</string>
     <string name="alarm_metric_motor_temp">Температура мотора</string>
-    <string name="alarm_metric_pwm">Нагрузка (PWM)</string>
+    <string name="alarm_metric_pwm">PWM</string>
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Напряжение</string>
     <string name="alarm_metric_current">Ток</string>
@@ -1082,7 +1082,7 @@
     <string name="metric_temperature">Температура</string>
     <string name="metric_voltage">Напряжение</string>
     <string name="metric_current">Ток</string>
-    <string name="metric_load">Нагрузка</string>
+    <string name="metric_load">PWM</string>
     <string name="metric_speed">Скорость</string>
 
     <!-- Recording screen -->

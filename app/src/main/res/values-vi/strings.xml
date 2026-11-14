@@ -1189,7 +1189,7 @@
     <string name="voice_speed_fmt">Tốc độ %1$s</string>
     <string name="voice_battery_fmt">pin %1$d phần trăm</string>
     <string name="voice_temp_fmt">nhiệt độ %1$s độ</string>
-    <string name="voice_load_fmt">tải %1$s phần trăm</string>
+    <string name="voice_load_fmt">PWM %1$s phần trăm</string>
     <string name="voice_current_fmt">dòng điện %1$s ampe</string>
     <string name="voice_power_fmt">công suất %1$s oát</string>
     <string name="voice_trip_fmt">quãng đường %1$s ki lô mét</string>
@@ -1221,7 +1221,7 @@
     <string name="alarm_metric_battery_temp">Nhiệt độ pin</string>
     <string name="alarm_metric_controller_temp">Nhiệt độ bo điều khiển</string>
     <string name="alarm_metric_motor_temp">Nhiệt độ động cơ</string>
-    <string name="alarm_metric_pwm">Tải (PWM)</string>
+    <string name="alarm_metric_pwm">PWM</string>
     <string name="alarm_metric_voltage">Điện áp</string>
     <string name="alarm_metric_current">Dòng điện</string>
     <string name="alarm_metric_torque">Mô-men xoắn</string>
@@ -1273,7 +1273,7 @@
     <string name="metric_temperature">Nhiệt độ</string>
     <string name="metric_voltage">Điện áp</string>
     <string name="metric_current">Dòng điện</string>
-    <string name="metric_load">Tải</string>
+    <string name="metric_load">PWM</string>
     <string name="metric_speed">Tốc độ</string>
     <string name="trip_meter_detail_title">Đồng hồ chuyến</string>
     <string name="trip_meter_tab_speed">Tốc độ</string>

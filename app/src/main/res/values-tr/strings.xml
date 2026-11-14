@@ -981,7 +981,7 @@
     <string name="voice_speed_fmt">Hız %1$s</string>
     <string name="voice_battery_fmt">batarya yüzde %1$d</string>
     <string name="voice_temp_fmt">sıcaklık %1$s derece</string>
-    <string name="voice_load_fmt">yük yüzde %1$s</string>
+    <string name="voice_load_fmt">PWM yüzde %1$s</string>
     <string name="voice_current_fmt">akım %1$s amper</string>
     <string name="voice_power_fmt">güç %1$s vat</string>
     <string name="voice_trip_fmt">mesafe %1$s kilometre</string>
@@ -1015,7 +1015,7 @@
     <string name="alarm_metric_battery_temp">Batarya sıcaklığı</string>
     <string name="alarm_metric_controller_temp">Kontrolör sıcaklığı</string>
     <string name="alarm_metric_motor_temp">Motor sıcaklığı</string>
-    <string name="alarm_metric_pwm">Yük (PWM)</string>
+    <string name="alarm_metric_pwm">PWM</string>
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Gerilim</string>
     <string name="alarm_metric_current">Akım</string>
@@ -1079,7 +1079,7 @@
     <string name="metric_temperature">Sıcaklık</string>
     <string name="metric_voltage">Gerilim</string>
     <string name="metric_current">Akım</string>
-    <string name="metric_load">Yük</string>
+    <string name="metric_load">PWM</string>
     <string name="metric_speed">Hız</string>
 
     <!-- Recording screen -->

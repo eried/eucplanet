@@ -1183,7 +1183,7 @@
     <string name="voice_speed_fmt">Sebesség %1$s</string>
     <string name="voice_battery_fmt">akkumulátor %1$d százalék</string>
     <string name="voice_temp_fmt">hőmérséklet %1$s fok</string>
-    <string name="voice_load_fmt">terhelés %1$s százalék</string>
+    <string name="voice_load_fmt">PWM %1$s százalék</string>
     <string name="voice_current_fmt">áram %1$s amper</string>
     <string name="voice_power_fmt">teljesítmény %1$s watt</string>
     <string name="voice_trip_fmt">menet %1$s kilométer</string>
@@ -1215,7 +1215,7 @@
     <string name="alarm_metric_battery_temp">Akku hőm.</string>
     <string name="alarm_metric_controller_temp">Vezérlő hőm.</string>
     <string name="alarm_metric_motor_temp">Motor hőm.</string>
-    <string name="alarm_metric_pwm">Terhelés (PWM)</string>
+    <string name="alarm_metric_pwm">PWM</string>
     <string name="alarm_metric_voltage">Feszültség</string>
     <string name="alarm_metric_current">Áram</string>
     <string name="alarm_metric_torque">Nyomaték</string>
@@ -1267,7 +1267,7 @@
     <string name="metric_temperature">Hőmérséklet</string>
     <string name="metric_voltage">Feszültség</string>
     <string name="metric_current">Áram</string>
-    <string name="metric_load">Terhelés</string>
+    <string name="metric_load">PWM</string>
     <string name="metric_speed">Sebesség</string>
     <string name="trip_meter_detail_title">Menetszámláló</string>
     <string name="trip_meter_tab_speed">Sebesség</string>

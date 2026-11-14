@@ -981,7 +981,7 @@
     <string name="voice_speed_fmt">속도 %1$s</string>
     <string name="voice_battery_fmt">배터리 %1$d 퍼센트</string>
     <string name="voice_temp_fmt">온도 %1$s 도</string>
-    <string name="voice_load_fmt">부하 %1$s 퍼센트</string>
+    <string name="voice_load_fmt">PWM %1$s 퍼센트</string>
     <string name="voice_current_fmt">전류 %1$s 암페어</string>
     <string name="voice_power_fmt">출력 %1$s 와트</string>
     <string name="voice_trip_fmt">트립 %1$s 킬로미터</string>
@@ -1015,7 +1015,7 @@
     <string name="alarm_metric_battery_temp">배터리 온도</string>
     <string name="alarm_metric_controller_temp">컨트롤러 온도</string>
     <string name="alarm_metric_motor_temp">모터 온도</string>
-    <string name="alarm_metric_pwm">부하 (PWM)</string>
+    <string name="alarm_metric_pwm">PWM</string>
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">전압</string>
     <string name="alarm_metric_current">전류</string>
@@ -1079,7 +1079,7 @@
     <string name="metric_temperature">온도</string>
     <string name="metric_voltage">전압</string>
     <string name="metric_current">전류</string>
-    <string name="metric_load">부하</string>
+    <string name="metric_load">PWM</string>
     <string name="metric_speed">속도</string>
 
     <!-- Recording screen -->

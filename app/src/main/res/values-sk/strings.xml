@@ -1247,7 +1247,7 @@
     <string name="voice_speed_fmt">Rýchlosť %1$s</string>
     <string name="voice_battery_fmt">batéria %1$d percent</string>
     <string name="voice_temp_fmt">teplota %1$s stupňov</string>
-    <string name="voice_load_fmt">záťaž %1$s percent</string>
+    <string name="voice_load_fmt">PWM %1$s percent</string>
     <string name="voice_current_fmt">prúd %1$s ampérov</string>
     <string name="voice_power_fmt">výkon %1$s wattov</string>
     <string name="voice_trip_fmt">jazda %1$s kilometrov</string>
@@ -1280,7 +1280,7 @@
     <string name="alarm_metric_battery_temp">Teplota batérie</string>
     <string name="alarm_metric_controller_temp">Teplota riadiacej jednotky</string>
     <string name="alarm_metric_motor_temp">Teplota motora</string>
-    <string name="alarm_metric_pwm">Záťaž (PWM)</string>
+    <string name="alarm_metric_pwm">PWM</string>
     <string name="alarm_metric_voltage">Napätie</string>
     <string name="alarm_metric_current">Prúd</string>
     <string name="alarm_metric_torque">Krútiaci moment</string>
@@ -1349,7 +1349,7 @@
     <string name="metric_temperature">Teplota</string>
     <string name="metric_voltage">Napätie</string>
     <string name="metric_current">Prúd</string>
-    <string name="metric_load">Záťaž</string>
+    <string name="metric_load">PWM</string>
     <string name="metric_speed">Rýchlosť</string>
 
     <!-- Trip meter detail -->

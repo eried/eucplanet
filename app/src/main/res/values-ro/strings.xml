@@ -1183,7 +1183,7 @@
     <string name="voice_speed_fmt">Viteza %1$s</string>
     <string name="voice_battery_fmt">baterie %1$d la sută</string>
     <string name="voice_temp_fmt">temperatură %1$s grade</string>
-    <string name="voice_load_fmt">sarcină %1$s la sută</string>
+    <string name="voice_load_fmt">PWM %1$s la sută</string>
     <string name="voice_current_fmt">curent %1$s amperi</string>
     <string name="voice_power_fmt">putere %1$s wați</string>
     <string name="voice_trip_fmt">cursă %1$s kilometri</string>
@@ -1215,7 +1215,7 @@
     <string name="alarm_metric_battery_temp">Temp. baterie</string>
     <string name="alarm_metric_controller_temp">Temp. controler</string>
     <string name="alarm_metric_motor_temp">Temp. motor</string>
-    <string name="alarm_metric_pwm">Sarcină (PWM)</string>
+    <string name="alarm_metric_pwm">PWM</string>
     <string name="alarm_metric_voltage">Tensiune</string>
     <string name="alarm_metric_current">Curent</string>
     <string name="alarm_metric_torque">Cuplu</string>
@@ -1267,7 +1267,7 @@
     <string name="metric_temperature">Temperatură</string>
     <string name="metric_voltage">Tensiune</string>
     <string name="metric_current">Curent</string>
-    <string name="metric_load">Sarcină</string>
+    <string name="metric_load">PWM</string>
     <string name="metric_speed">Viteză</string>
     <string name="trip_meter_detail_title">Contor de cursă</string>
     <string name="trip_meter_tab_speed">Viteză</string>

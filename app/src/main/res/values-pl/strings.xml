@@ -985,7 +985,7 @@
     <string name="voice_speed_fmt">prędkość %1$s</string>
     <string name="voice_battery_fmt">bateria %1$d procent</string>
     <string name="voice_temp_fmt">temperatura %1$s stopni</string>
-    <string name="voice_load_fmt">obciążenie %1$s procent</string>
+    <string name="voice_load_fmt">PWM %1$s procent</string>
     <string name="voice_current_fmt">prąd %1$s amperów</string>
     <string name="voice_power_fmt">moc %1$s watów</string>
     <string name="voice_trip_fmt">dystans %1$s kilometrów</string>
@@ -1018,7 +1018,7 @@
     <string name="alarm_metric_battery_temp">Temp. baterii</string>
     <string name="alarm_metric_controller_temp">Temp. sterownika</string>
     <string name="alarm_metric_motor_temp">Temp. silnika</string>
-    <string name="alarm_metric_pwm">Obciążenie (PWM)</string>
+    <string name="alarm_metric_pwm">PWM</string>
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Napięcie</string>
     <string name="alarm_metric_current">Prąd</string>
@@ -1082,7 +1082,7 @@
     <string name="metric_temperature">Temperatura</string>
     <string name="metric_voltage">Napięcie</string>
     <string name="metric_current">Prąd</string>
-    <string name="metric_load">Obciążenie</string>
+    <string name="metric_load">PWM</string>
     <string name="metric_speed">Prędkość</string>
 
     <!-- Recording screen -->

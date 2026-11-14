@@ -1247,7 +1247,7 @@
     <string name="voice_speed_fmt">Скорост %1$s</string>
     <string name="voice_battery_fmt">батерия %1$d процента</string>
     <string name="voice_temp_fmt">температура %1$s градуса</string>
-    <string name="voice_load_fmt">натоварване %1$s процента</string>
+    <string name="voice_load_fmt">PWM %1$s процента</string>
     <string name="voice_current_fmt">ток %1$s ампера</string>
     <string name="voice_power_fmt">мощност %1$s вата</string>
     <string name="voice_trip_fmt">пътуване %1$s километра</string>
@@ -1280,7 +1280,7 @@
     <string name="alarm_metric_battery_temp">Темп. на батерията</string>
     <string name="alarm_metric_controller_temp">Темп. на контролера</string>
     <string name="alarm_metric_motor_temp">Темп. на мотора</string>
-    <string name="alarm_metric_pwm">Натоварване (PWM)</string>
+    <string name="alarm_metric_pwm">PWM</string>
     <string name="alarm_metric_voltage">Напрежение</string>
     <string name="alarm_metric_current">Ток</string>
     <string name="alarm_metric_torque">Въртящ момент</string>
@@ -1349,7 +1349,7 @@
     <string name="metric_temperature">Температура</string>
     <string name="metric_voltage">Напрежение</string>
     <string name="metric_current">Ток</string>
-    <string name="metric_load">Натоварване</string>
+    <string name="metric_load">PWM</string>
     <string name="metric_speed">Скорост</string>
 
     <!-- Trip meter detail -->

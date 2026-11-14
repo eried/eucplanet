@@ -1183,7 +1183,7 @@
     <string name="voice_speed_fmt">Rychlost %1$s</string>
     <string name="voice_battery_fmt">baterie %1$d procent</string>
     <string name="voice_temp_fmt">teplota %1$s stupňů</string>
-    <string name="voice_load_fmt">zatížení %1$s procent</string>
+    <string name="voice_load_fmt">PWM %1$s procent</string>
     <string name="voice_current_fmt">proud %1$s ampér</string>
     <string name="voice_power_fmt">výkon %1$s wattů</string>
     <string name="voice_trip_fmt">jízda %1$s kilometrů</string>
@@ -1215,7 +1215,7 @@
     <string name="alarm_metric_battery_temp">Teplota baterie</string>
     <string name="alarm_metric_controller_temp">Teplota řídicí jednotky</string>
     <string name="alarm_metric_motor_temp">Teplota motoru</string>
-    <string name="alarm_metric_pwm">Zatížení (PWM)</string>
+    <string name="alarm_metric_pwm">PWM</string>
     <string name="alarm_metric_voltage">Napětí</string>
     <string name="alarm_metric_current">Proud</string>
     <string name="alarm_metric_torque">Točivý moment</string>
@@ -1267,7 +1267,7 @@
     <string name="metric_temperature">Teplota</string>
     <string name="metric_voltage">Napětí</string>
     <string name="metric_current">Proud</string>
-    <string name="metric_load">Zatížení</string>
+    <string name="metric_load">PWM</string>
     <string name="metric_speed">Rychlost</string>
     <string name="trip_meter_detail_title">Počítadlo jízdy</string>
     <string name="trip_meter_tab_speed">Rychlost</string>

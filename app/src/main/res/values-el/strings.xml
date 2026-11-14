@@ -1220,7 +1220,7 @@
     <string name="voice_speed_fmt">Ταχύτητα %1$s</string>
     <string name="voice_battery_fmt">μπαταρία %1$d τοις εκατό</string>
     <string name="voice_temp_fmt">θερμοκρασία %1$s βαθμοί</string>
-    <string name="voice_load_fmt">φορτίο %1$s τοις εκατό</string>
+    <string name="voice_load_fmt">PWM %1$s τοις εκατό</string>
     <string name="voice_current_fmt">ρεύμα %1$s αμπέρ</string>
     <string name="voice_power_fmt">ισχύς %1$s βατ</string>
     <string name="voice_trip_fmt">διαδρομή %1$s χιλιόμετρα</string>
@@ -1252,7 +1252,7 @@
     <string name="alarm_metric_battery_temp">Θερμ. μπαταρίας</string>
     <string name="alarm_metric_controller_temp">Θερμ. ελεγκτή</string>
     <string name="alarm_metric_motor_temp">Θερμ. κινητήρα</string>
-    <string name="alarm_metric_pwm">Φορτίο (PWM)</string>
+    <string name="alarm_metric_pwm">PWM</string>
     <string name="alarm_metric_voltage">Τάση</string>
     <string name="alarm_metric_current">Ρεύμα</string>
     <string name="alarm_metric_torque">Ροπή</string>
@@ -1312,7 +1312,7 @@
     <string name="metric_temperature">Θερμοκρασία</string>
     <string name="metric_voltage">Τάση</string>
     <string name="metric_current">Ρεύμα</string>
-    <string name="metric_load">Φορτίο</string>
+    <string name="metric_load">PWM</string>
     <string name="metric_speed">Ταχύτητα</string>
 
     <string name="trip_meter_detail_title">Μετρητής διαδρομής</string>

@@ -1189,7 +1189,7 @@
     <string name="voice_speed_fmt">ความเร็ว %1$s</string>
     <string name="voice_battery_fmt">แบตเตอรี่ %1$d เปอร์เซ็นต์</string>
     <string name="voice_temp_fmt">อุณหภูมิ %1$s องศา</string>
-    <string name="voice_load_fmt">โหลด %1$s เปอร์เซ็นต์</string>
+    <string name="voice_load_fmt">PWM %1$s เปอร์เซ็นต์</string>
     <string name="voice_current_fmt">กระแส %1$s แอมป์</string>
     <string name="voice_power_fmt">กำลัง %1$s วัตต์</string>
     <string name="voice_trip_fmt">ทริป %1$s กิโลเมตร</string>
@@ -1221,7 +1221,7 @@
     <string name="alarm_metric_battery_temp">อุณหภูมิแบต</string>
     <string name="alarm_metric_controller_temp">อุณหภูมิคอนโทรลเลอร์</string>
     <string name="alarm_metric_motor_temp">อุณหภูมิมอเตอร์</string>
-    <string name="alarm_metric_pwm">โหลด (PWM)</string>
+    <string name="alarm_metric_pwm">PWM</string>
     <string name="alarm_metric_voltage">แรงดัน</string>
     <string name="alarm_metric_current">กระแส</string>
     <string name="alarm_metric_torque">แรงบิด</string>
@@ -1273,7 +1273,7 @@
     <string name="metric_temperature">อุณหภูมิ</string>
     <string name="metric_voltage">แรงดัน</string>
     <string name="metric_current">กระแส</string>
-    <string name="metric_load">โหลด</string>
+    <string name="metric_load">PWM</string>
     <string name="metric_speed">ความเร็ว</string>
     <string name="trip_meter_detail_title">มาตรวัดทริป</string>
     <string name="trip_meter_tab_speed">ความเร็ว</string>

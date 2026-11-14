@@ -1183,7 +1183,7 @@
     <string name="voice_speed_fmt">Nopeus %1$s</string>
     <string name="voice_battery_fmt">akku %1$d prosenttia</string>
     <string name="voice_temp_fmt">lämpötila %1$s astetta</string>
-    <string name="voice_load_fmt">kuormitus %1$s prosenttia</string>
+    <string name="voice_load_fmt">PWM %1$s prosenttia</string>
     <string name="voice_current_fmt">virta %1$s ampeeria</string>
     <string name="voice_power_fmt">teho %1$s wattia</string>
     <string name="voice_trip_fmt">matka %1$s kilometriä</string>
@@ -1215,7 +1215,7 @@
     <string name="alarm_metric_battery_temp">Akun lämpö</string>
     <string name="alarm_metric_controller_temp">Ohjaimen lämpö</string>
     <string name="alarm_metric_motor_temp">Moottorin lämpö</string>
-    <string name="alarm_metric_pwm">Kuormitus (PWM)</string>
+    <string name="alarm_metric_pwm">PWM</string>
     <string name="alarm_metric_voltage">Jännite</string>
     <string name="alarm_metric_current">Virta</string>
     <string name="alarm_metric_torque">Vääntö</string>
@@ -1267,7 +1267,7 @@
     <string name="metric_temperature">Lämpötila</string>
     <string name="metric_voltage">Jännite</string>
     <string name="metric_current">Virta</string>
-    <string name="metric_load">Kuormitus</string>
+    <string name="metric_load">PWM</string>
     <string name="metric_speed">Nopeus</string>
     <string name="trip_meter_detail_title">Matkamittari</string>
     <string name="trip_meter_tab_speed">Nopeus</string>

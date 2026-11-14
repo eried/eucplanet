@@ -1286,7 +1286,7 @@
     <string name="voice_speed_fmt">Speed %1$s</string>
     <string name="voice_battery_fmt">battery %1$d percent</string>
     <string name="voice_temp_fmt">temperature %1$s degrees</string>
-    <string name="voice_load_fmt">load %1$s percent</string>
+    <string name="voice_load_fmt">PWM %1$s percent</string>
     <string name="voice_current_fmt">current %1$s amps</string>
     <string name="voice_power_fmt">power %1$s watts</string>
     <string name="voice_trip_fmt">trip %1$s kilometers</string>
@@ -1319,7 +1319,7 @@
     <string name="alarm_metric_battery_temp">Battery temp</string>
     <string name="alarm_metric_controller_temp">Controller temp</string>
     <string name="alarm_metric_motor_temp">Motor temp</string>
-    <string name="alarm_metric_pwm">Load (PWM)</string>
+    <string name="alarm_metric_pwm">PWM</string>
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Voltage</string>
     <string name="alarm_metric_current">Current</string>
@@ -1392,7 +1392,7 @@
     <string name="metric_temperature">Temperature</string>
     <string name="metric_voltage">Voltage</string>
     <string name="metric_current">Current</string>
-    <string name="metric_load">Load</string>
+    <string name="metric_load">PWM</string>
     <string name="metric_speed">Speed</string>
 
     <!-- Trip meter detail -->

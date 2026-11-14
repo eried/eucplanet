@@ -1189,7 +1189,7 @@
     <string name="voice_speed_fmt">Kecepatan %1$s</string>
     <string name="voice_battery_fmt">baterai %1$d persen</string>
     <string name="voice_temp_fmt">suhu %1$s derajat</string>
-    <string name="voice_load_fmt">beban %1$s persen</string>
+    <string name="voice_load_fmt">PWM %1$s persen</string>
     <string name="voice_current_fmt">arus %1$s ampere</string>
     <string name="voice_power_fmt">daya %1$s watt</string>
     <string name="voice_trip_fmt">trip %1$s kilometer</string>
@@ -1221,7 +1221,7 @@
     <string name="alarm_metric_battery_temp">Suhu baterai</string>
     <string name="alarm_metric_controller_temp">Suhu kontroler</string>
     <string name="alarm_metric_motor_temp">Suhu motor</string>
-    <string name="alarm_metric_pwm">Beban (PWM)</string>
+    <string name="alarm_metric_pwm">PWM</string>
     <string name="alarm_metric_voltage">Tegangan</string>
     <string name="alarm_metric_current">Arus</string>
     <string name="alarm_metric_torque">Torsi</string>
@@ -1273,7 +1273,7 @@
     <string name="metric_temperature">Suhu</string>
     <string name="metric_voltage">Tegangan</string>
     <string name="metric_current">Arus</string>
-    <string name="metric_load">Beban</string>
+    <string name="metric_load">PWM</string>
     <string name="metric_speed">Kecepatan</string>
     <string name="trip_meter_detail_title">Trip meter</string>
     <string name="trip_meter_tab_speed">Kecepatan</string>
