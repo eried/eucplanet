@@ -104,6 +104,9 @@ object IosAppGraph {
      */
     internal val themeFiles: IosThemeFiles by lazy { IosThemeFiles(documents) }
 
+    /** The rider's own horn sound, kept in Documents/horn. */
+    internal val horn: IosHorn by lazy { IosHorn("$documents/horn") }
+
     val theme: ThemeController by lazy {
         ThemeController(settings, themeFiles) {
             UIScreen.mainScreen.traitCollection.userInterfaceStyle == UIUserInterfaceStyle.UIUserInterfaceStyleDark
@@ -168,7 +171,7 @@ object IosAppGraph {
             accelSplitRepository = NoAccelSplits,
             tripRepositoryLazy = lazyOf(NoRecording),
             appNotifier = notices,
-            hornPlayer = NoPhoneHorn,
+            hornPlayer = horn,
             phone = IosPhoneDevice,
         )
     }
@@ -282,7 +285,7 @@ object IosAppGraph {
         eucStatsRepository = IosOnlineLeaderboard,
         dropboxRepository = dropbox,
         platform = IosSettingsPlatform,
-        hornPlayer = NoHornSound,
+        hornPlayer = horn,
     )
 
     /** The trip list's view model, as Koin's viewModelOf builds it on Android. */

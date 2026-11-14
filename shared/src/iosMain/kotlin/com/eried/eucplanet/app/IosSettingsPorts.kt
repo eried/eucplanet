@@ -1,6 +1,5 @@
 package com.eried.eucplanet.app
 
-import com.eried.eucplanet.audio.HornImportResult
 import com.eried.eucplanet.data.eucstats.RegisterResult
 import com.eried.eucplanet.data.eucstats.RiderCard
 import com.eried.eucplanet.data.eucstats.RiderProfile
@@ -17,7 +16,6 @@ import com.eried.eucplanet.service.VoiceChoice
 import com.eried.eucplanet.service.VoiceOption
 import com.eried.eucplanet.ui.dashboard.DashboardSync
 import com.eried.eucplanet.ui.settings.EngineSoundPreview
-import com.eried.eucplanet.ui.settings.HornSound
 import com.eried.eucplanet.ui.settings.HudSettingsLink
 import com.eried.eucplanet.ui.settings.OnlineLeaderboard
 import com.eried.eucplanet.ui.settings.PromptTones
@@ -194,13 +192,6 @@ internal object NoEngineSound : EngineSoundPreview {
     override fun previewProfile(
         key: String, durationMs: Long, volume: Float?, muffler: String?, gearbox: String?, scenario: String,
     ) = Unit
-}
-
-/** The custom horn clip is not on iOS yet. */
-internal object NoHornSound : HornSound {
-    override val isReady = false
-    override fun import(uri: String) = HornImportResult.UNREADABLE
-    override fun play() = false
 }
 
 /** The split timer is not on iOS yet. */

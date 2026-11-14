@@ -7,7 +7,6 @@ import com.eried.eucplanet.data.repository.AccelSplitReset
 import com.eried.eucplanet.data.repository.ExternalGpsFeed
 import com.eried.eucplanet.data.repository.GpsFix
 import com.eried.eucplanet.data.repository.PhoneDevice
-import com.eried.eucplanet.data.repository.PhoneHorn
 import com.eried.eucplanet.data.repository.PhoneImu
 import com.eried.eucplanet.data.repository.PhoneImuSample
 import com.eried.eucplanet.data.repository.RideRecording
@@ -67,13 +66,6 @@ internal object NoRecording : RideRecording {
     override fun currentFix(): GpsFix? = null
 }
 
-
-/** No horn sound on iOS yet, so a horn tap uses the wheel or the fallback. */
-internal object NoPhoneHorn : PhoneHorn {
-    override val isReady: Boolean = false
-    override fun play(): Boolean = false
-    override fun externalOutputActive(): Boolean = false
-}
 
 internal object IosPhoneDevice : PhoneDevice {
     override fun batteryPercent(): Int {

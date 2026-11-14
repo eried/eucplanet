@@ -23,16 +23,11 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.cinterop.ObjCSignatureOverride
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
-import platform.AVFAudio.AVAudioSession
-import platform.AVFAudio.AVAudioSessionPortBuiltInReceiver
-import platform.AVFAudio.AVAudioSessionPortBuiltInSpeaker
-import platform.AVFAudio.AVAudioSessionPortDescription
 import platform.AVFAudio.AVSpeechSynthesisVoice
 import platform.AVFAudio.AVSpeechSynthesizer
 import platform.AVFAudio.AVSpeechSynthesizerDelegateProtocol
 import platform.AVFAudio.AVSpeechUtterance
 import platform.AVFAudio.AVSpeechUtteranceDefaultSpeechRate
-import platform.AVFAudio.currentRoute
 import platform.Foundation.NSDate
 import platform.Foundation.NSDateFormatter
 import platform.Foundation.NSDateFormatterNoStyle
@@ -212,11 +207,7 @@ internal class IosVoice(
         announce(data, settings, periodic = true)
 
     /** Headphones, Bluetooth or CarPlay audio, not the phone's own speaker. */
-    override fun externalOutputActive(): Boolean =
-        AVAudioSession.sharedInstance().currentRoute.outputs.any {
-            val type = (it as AVAudioSessionPortDescription).portType
-            type != AVAudioSessionPortBuiltInSpeaker && type != AVAudioSessionPortBuiltInReceiver
-        }
+    override fun externalOutputActive(): Boolean = IosAudioSession.externalOutputActive()
 
     private fun announce(data: WheelData, s: AppSettings, periodic: Boolean) {
         // Lockdown silences the periodic and on-demand reports, as on Android.

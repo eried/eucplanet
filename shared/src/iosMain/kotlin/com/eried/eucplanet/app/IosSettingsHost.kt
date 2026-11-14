@@ -91,7 +91,11 @@ internal object IosSettingsHost : SettingsHost {
     override fun rememberFolderPicker(onPicked: (String) -> Unit): () -> Unit = {}
 
     @Composable
-    override fun rememberAudioPicker(onPicked: (uri: String, displayName: String) -> Unit): () -> Unit = {}
+    override fun rememberAudioPicker(onPicked: (uri: String, displayName: String) -> Unit): () -> Unit {
+        val callback = rememberUpdatedState(onPicked)
+        // The Files picker hands over a copy in the app, which IosHorn checks and keeps.
+        return remember { { IosHorn.pick { path, name -> callback.value(path, name) } } }
+    }
 
     // Spoken commands are not on iOS yet, so there is nothing to ask for.
     @Composable

@@ -13,7 +13,11 @@ import platform.AVFAudio.AVAudioSessionCategoryOptionDuckOthers
 import platform.AVFAudio.AVAudioSessionCategoryOptionMixWithOthers
 import platform.AVFAudio.AVAudioSessionCategoryOptions
 import platform.AVFAudio.AVAudioSessionCategoryPlayback
+import platform.AVFAudio.AVAudioSessionPortBuiltInReceiver
+import platform.AVFAudio.AVAudioSessionPortBuiltInSpeaker
+import platform.AVFAudio.AVAudioSessionPortDescription
 import platform.AVFAudio.AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation
+import platform.AVFAudio.currentRoute
 import platform.AVFAudio.setActive
 import platform.Foundation.NSError
 import platform.Foundation.NSLock
@@ -77,6 +81,13 @@ internal object IosAudioSession {
             apply()
         }
     }
+
+    /** Headphones, Bluetooth or CarPlay audio, not the phone's own speaker. */
+    fun externalOutputActive(): Boolean =
+        AVAudioSession.sharedInstance().currentRoute.outputs.any {
+            val type = (it as AVAudioSessionPortDescription).portType
+            type != AVAudioSessionPortBuiltInSpeaker && type != AVAudioSessionPortBuiltInReceiver
+        }
 
     /**
      * Activates the session again with what the holders want, as after an
