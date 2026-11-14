@@ -65,8 +65,17 @@ interface SettingsHost {
     @Composable
     fun flicViewModel(): FlicViewModel
 
+    /**
+     * The Navigation and weather section. A phone without the navigator still
+     * draws the shared weather block ([WeatherSettingsContent]).
+     */
     @Composable
-    fun NavigatorSettings(scrollToWeather: Boolean, onWeatherTop: (Float) -> Unit)
+    fun NavigatorSettings(
+        settings: AppSettings,
+        viewModel: SettingsViewModel,
+        scrollToWeather: Boolean,
+        onWeatherTop: (Float) -> Unit,
+    )
 
     @Composable
     fun ExternalGpsSettings()

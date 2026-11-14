@@ -1,5 +1,7 @@
 package com.eried.eucplanet.app
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -10,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.compose.ui.unit.dp
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.platform.PlatformFeature
 import com.eried.eucplanet.ui.common.NotYetSettingsRow
@@ -19,6 +22,7 @@ import com.eried.eucplanet.ui.settings.PermissionGate
 import com.eried.eucplanet.ui.settings.SettingsHost
 import com.eried.eucplanet.ui.settings.SettingsRow
 import com.eried.eucplanet.ui.settings.SettingsViewModel
+import com.eried.eucplanet.ui.settings.WeatherSettingsContent
 import com.eried.eucplanet.ui.settings.eucstats.AvatarPicker
 import com.eried.eucplanet.ui.settings.eucstats.PickedAvatar
 import platform.UIKit.UIActivityViewController
@@ -100,7 +104,19 @@ internal object IosSettingsHost : SettingsHost {
     override fun flicViewModel(): FlicViewModel = rememberViewModel { FlicViewModel(IosAppGraph.settings, IosFlic) }
 
     @Composable
-    override fun NavigatorSettings(scrollToWeather: Boolean, onWeatherTop: (Float) -> Unit) = Unit
+    override fun NavigatorSettings(
+        settings: AppSettings,
+        viewModel: SettingsViewModel,
+        scrollToWeather: Boolean,
+        onWeatherTop: (Float) -> Unit,
+    ) {
+        // The navigator is not on iPhone yet; the weather is, so its block
+        // shows under a muted navigation row, as on Android under the routing.
+        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            NotYetSettingsRow(PlatformFeature.NAVIGATION)
+            WeatherSettingsContent(settings, viewModel, scrollToWeather, onWeatherTop)
+        }
+    }
 
     @Composable
     override fun ExternalGpsSettings() = Unit

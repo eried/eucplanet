@@ -710,6 +710,8 @@ private fun SettingsScreenContent(
         },
         SectionDef("navigator", titleNavigator, Icons.Default.Navigation, corpora.getValue("navigator")) {
             LocalSettingsHost.current.NavigatorSettings(
+                settings = settings,
+                viewModel = viewModel,
                 scrollToWeather = scrollToWeather,
                 onWeatherTop = { y -> targetSectionTop = y },
             )

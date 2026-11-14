@@ -365,8 +365,12 @@ class WeatherModuleTest {
     // --- Surfaces -----------------------------------------------------------
 
     @Test fun `the source picker is a combo and the flyout wears the nav popup style`() {
+        // The weather block is shared (the iPhone shows it too); the navigator
+        // section draws it.
         val nav = File("src/main/java/com/eried/eucplanet/ui/settings/NavigatorSettingsContent.kt").readText()
-        assertTrue(nav.contains("ExposedDropdownMenuBox"))
+        assertTrue(nav.contains("WeatherSettingsContent("))
+        val weather = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/ui/settings/WeatherSettingsContent.kt").readText()
+        assertTrue(weather.contains("ExposedDropdownMenuBox"))
         val flyout = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/ui/dashboard/WeatherFlyout.kt").readText()
         // Nav-popup family: inverse panel, rounded, shadowed.
         assertTrue(flyout.contains("navPopupPanel"))

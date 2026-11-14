@@ -24,7 +24,9 @@ enum class PlatformFeature(
     val settingsSection: String? = null,
     val actionKey: String? = null,
 ) {
-    NAVIGATION(Res.string.nav_setting_params, settingsSection = "navigator", actionKey = "OPEN_NAVIGATION"),
+    // No settingsSection: the Navigation and weather section opens on every
+    // phone, since the weather in it works without the navigator.
+    NAVIGATION(Res.string.nav_setting_params, actionKey = "OPEN_NAVIGATION"),
     GPS_SENSORS(Res.string.section_external_gps, settingsSection = "location"),
     RADAR(Res.string.section_radar),
     TPMS(Res.string.section_tpms),
