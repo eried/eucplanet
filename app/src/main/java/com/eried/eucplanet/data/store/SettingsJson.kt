@@ -395,7 +395,6 @@ object SettingsJson {
         put("navAdvancedMap", s.navAdvancedMap)
         put("navShowChargers", s.navShowChargers)
         put("navPlaceCategories", s.navPlaceCategories)
-        put("navPlacesHintShown", s.navPlacesHintShown)
         put("navAvoidHighways", s.navAvoidHighways)
         put("navAvoidTolls", s.navAvoidTolls)
         put("navAvoidFerries", s.navAvoidFerries)
@@ -875,7 +874,6 @@ object SettingsJson {
         navAdvancedMap = j.optBoolean("navAdvancedMap", base.navAdvancedMap),
         navShowChargers = j.optBoolean("navShowChargers", base.navShowChargers),
         navPlaceCategories = j.optString("navPlaceCategories", base.navPlaceCategories),
-        navPlacesHintShown = j.optBoolean("navPlacesHintShown", base.navPlacesHintShown),
         navAvoidHighways = j.optBoolean("navAvoidHighways", base.navAvoidHighways),
         navAvoidTolls = j.optBoolean("navAvoidTolls", base.navAvoidTolls),
         navAvoidFerries = j.optBoolean("navAvoidFerries", base.navAvoidFerries),

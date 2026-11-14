@@ -2329,7 +2329,6 @@
     <string name="nav_show_places">Εμφάνιση σημείων (καταστήματα, φαγητό, αξιοθέατα)</string>
     <string name="nav_pois_failed">Δεν ήταν δυνατή η φόρτωση σημείων. Ελέγξτε τη σύνδεσή σας</string>
     <string name="nav_pois_none">Δεν βρέθηκε τίποτα κοντά σε αυτό το δρομολόγιο</string>
-    <string name="nav_pois_places_hint">Συμβουλή: επιλέξτε ποια σημεία εμφανίζονται στη λίστα παρακάτω.</string>
     <string name="nav_poi_charger">Σταθμός φόρτισης</string>
     <string name="nav_poi_store">Καταστήματα</string>
     <string name="nav_poi_food">Φαγητό &amp; ποτό</string>

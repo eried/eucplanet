@@ -2127,7 +2127,6 @@
     <string name="nav_poi_website">Сайт</string>
     <string name="nav_pois_failed">Не удалось загрузить места. Проверьте соединение</string>
     <string name="nav_pois_none">Рядом с этим маршрутом ничего не найдено</string>
-    <string name="nav_pois_places_hint">Совет: выберите в списке ниже, какие места показывать.</string>
     <string name="nav_setting_advanced_map">Расширенные функции карты</string>
     <string name="nav_setting_advanced_map_desc">Показывать зарядки и места по маршруту.</string>
     <string name="nav_setting_avoid">Избегать при прокладке маршрута</string>

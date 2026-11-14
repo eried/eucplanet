@@ -2081,7 +2081,6 @@
     <string name="nav_poi_website">Site</string>
     <string name="nav_pois_failed">Não foi possível carregar os locais. Verifique sua conexão</string>
     <string name="nav_pois_none">Nada encontrado perto desta rota</string>
-    <string name="nav_pois_places_hint">Dica: escolha quais locais mostrar na lista abaixo.</string>
     <string name="nav_setting_advanced_map">Recursos avançados do mapa</string>
     <string name="nav_setting_advanced_map_desc">Mostra carregadores e locais ao longo da rota.</string>
     <string name="nav_setting_avoid">Evitar ao traçar rota</string>

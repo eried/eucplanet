@@ -2124,7 +2124,6 @@
     <string name="nav_poi_website">Sitio web</string>
     <string name="nav_pois_failed">No se pudieron cargar los lugares. Comprueba tu conexión</string>
     <string name="nav_pois_none">No se encontró nada cerca de esta ruta</string>
-    <string name="nav_pois_places_hint">Consejo: elige qué lugares mostrar en la lista de abajo.</string>
     <string name="nav_setting_advanced_map">Funciones avanzadas del mapa</string>
     <string name="nav_setting_advanced_map_desc">Muestra cargadores y lugares a lo largo de la ruta.</string>
     <string name="nav_setting_avoid">Evitar al calcular la ruta</string>

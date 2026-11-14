@@ -2123,7 +2123,6 @@
     <string name="nav_poi_website">網站</string>
     <string name="nav_pois_failed">無法載入地點，請檢查你的網路連線</string>
     <string name="nav_pois_none">這條路線附近沒有找到任何地點</string>
-    <string name="nav_pois_places_hint">提示：在下方清單中選擇要顯示的地點。</string>
     <string name="nav_setting_advanced_map">進階地圖功能</string>
     <string name="nav_setting_advanced_map_desc">沿著路線顯示充電站與地點。</string>
     <string name="nav_setting_avoid">路線規劃時避開</string>

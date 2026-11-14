@@ -2329,7 +2329,6 @@
     <string name="nav_show_places">Mostrar locais (lojas, comida, atrações)</string>
     <string name="nav_pois_failed">Não foi possível carregar locais. Verifique a ligação</string>
     <string name="nav_pois_none">Nada encontrado perto desta rota</string>
-    <string name="nav_pois_places_hint">Dica: escolha que locais mostrar na lista abaixo.</string>
     <string name="nav_poi_charger">Posto de carregamento</string>
     <string name="nav_poi_store">Lojas</string>
     <string name="nav_poi_food">Comida e bebida</string>

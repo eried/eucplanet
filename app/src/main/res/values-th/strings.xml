@@ -2250,7 +2250,6 @@
     <string name="nav_show_places">แสดงสถานที่ (ร้านค้า อาหาร จุดท่องเที่ยว)</string>
     <string name="nav_pois_failed">โหลดสถานที่ไม่ได้ ตรวจสอบการเชื่อมต่อ</string>
     <string name="nav_pois_none">ไม่พบอะไรใกล้เส้นทางนี้</string>
-    <string name="nav_pois_places_hint">เคล็ดลับ: เลือกสถานที่ที่จะแสดงได้จากรายการด้านล่าง</string>
     <string name="nav_poi_charger">สถานีชาร์จ</string>
     <string name="nav_poi_store">ร้านค้า</string>
     <string name="nav_poi_food">อาหารและเครื่องดื่ม</string>

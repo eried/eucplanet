@@ -2406,7 +2406,6 @@
     <string name="nav_show_places">Покажи места (магазини, храна, забележителности)</string>
     <string name="nav_pois_failed">Местата не можаха да се заредят. Проверете връзката си</string>
     <string name="nav_pois_none">Нищо не е намерено близо до маршрута</string>
-    <string name="nav_pois_places_hint">Съвет: изберете кои места да се показват от списъка по-долу.</string>
     <string name="nav_poi_charger">Зарядна станция</string>
     <string name="nav_poi_store">Магазини</string>
     <string name="nav_poi_food">Храна и напитки</string>

@@ -481,12 +481,10 @@ data class AppSettings(
     val navShowChargers: Boolean = false,
     /**
      * Enabled "places" categories as a CSV of PoiKind names (STORE, FOOD, REST,
-     * SIGHTS). Empty = the places layer is off. The places FAB toggles the whole
-     * group; long-press picks individual categories.
+     * SIGHTS). Empty = the places layer is off. The layers menu toggles the
+     * whole group or one category.
      */
     val navPlaceCategories: String = "",
-    /** True once the "hold for place categories" hint toast has been shown. */
-    val navPlacesHintShown: Boolean = false,
     // Route avoidances. All default false -> avoid nothing, identical to the
     // historic behaviour. When any is true the route is solved by the key-less
     // FOSSGIS Valhalla backend (the default OSRM service can't honour

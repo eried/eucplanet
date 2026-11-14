@@ -2131,7 +2131,6 @@
     <string name="nav_poi_website">Site web</string>
     <string name="nav_pois_failed">Impossible de charger les lieux. Vérifiez votre connexion</string>
     <string name="nav_pois_none">Rien trouvé près de cet itinéraire</string>
-    <string name="nav_pois_places_hint">Astuce : choisissez les lieux à afficher dans la liste ci-dessous.</string>
     <string name="nav_setting_advanced_map">Fonctions avancées de la carte</string>
     <string name="nav_setting_advanced_map_desc">Affiche les bornes de recharge et les lieux le long de l\'itinéraire.</string>
     <string name="nav_setting_avoid">Éviter lors du calcul d\'itinéraire</string>

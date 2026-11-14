@@ -2127,7 +2127,6 @@
     <string name="nav_poi_website">Webbplats</string>
     <string name="nav_pois_failed">Kunde inte ladda platser. Kontrollera din anslutning</string>
     <string name="nav_pois_none">Inget hittades nära den här rutten</string>
-    <string name="nav_pois_places_hint">Tips: välj vilka platser som visas i listan nedan.</string>
     <string name="nav_setting_advanced_map">Avancerade kartfunktioner</string>
     <string name="nav_setting_advanced_map_desc">Visa laddstationer och platser längs rutten.</string>
     <string name="nav_setting_avoid">Undvik vid ruttplanering</string>

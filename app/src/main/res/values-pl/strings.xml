@@ -2123,7 +2123,6 @@
     <string name="nav_poi_website">Strona</string>
     <string name="nav_pois_failed">Nie udało się wczytać miejsc. Sprawdź połączenie</string>
     <string name="nav_pois_none">Nic nie znaleziono w pobliżu tej trasy</string>
-    <string name="nav_pois_places_hint">Wskazówka: na liście poniżej wybierz, które miejsca pokazać.</string>
     <string name="nav_setting_advanced_map">Zaawansowane funkcje mapy</string>
     <string name="nav_setting_advanced_map_desc">Pokaż stacje ładowania i miejsca wzdłuż trasy.</string>
     <string name="nav_setting_avoid">Unikaj przy wyznaczaniu trasy</string>
