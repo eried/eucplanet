@@ -19,6 +19,7 @@ only when you can cut the ride short.
 - iPhone app: Pause and Play/Pause pause your music and let it resume (Next, Previous and Start music are not offered, iOS does not allow them). Weather settings open under Navigation and weather. Permission prompts are in your language. Voice and alarms keep sounding with the screen locked. The horn can play your own sound (Settings, Wheel parameters, Horn).
 - iPhone app: the Varia rear-view radar and TPMS tyre caps (Settings, Integration), with the radar lane on the dashboard and tyre pressure in tiles and alarms. Tyre caps are only heard while the app is open, iOS does not let it listen in the background. The wheel's own tyre pressure now shows too.
 - iPhone app: the motor sound, every engine from the Android app with the same settings and previews. It lowers your music while it plays and keeps playing with the iPhone locked.
+- iPhone app: navigation. Plan a route on the map, ride it with spoken turn cues (also with the iPhone locked), the navigator view, the turn card on every screen and Stop navigation on the lock screen. Share routes by link or QR, load and save GPX tracks, your marker photo, and live groups with Android riders. Routes need signal, offline areas are Android only for now.
 - iPhone app: the Needs attention warnings (location, Bluetooth, notifications, backups), and a recording cut short by closing the app is saved or dropped at the next start, as on Android.
 - Inside: the dashboard, settings, alarms, trips, trip details, trip tools, Legal Mode, the notification buttons, the reconnect timing, leaderboards, Dropbox sync, the wheel link, the theme editor, the automations, what runs on connect and every wheel update, the radar and TPMS settings, the engine sound and the navigation (routing, turn cues, the route builder, route sharing, the navigator view and the Navigation settings) moved to a library shared with the iPhone. Nothing should change on screen.
 - iPhone app: a swipe in from the left edge is back, on every screen and in every dialog, and the crew pass has the X in every step.
@@ -93,6 +94,9 @@ only when you can cut the ride short.
 - Varia radar: pair it in Settings, Integration. Does the radar lane show cars, and does it reconnect by itself after you switch the radar off and on, also with the iPhone locked?
 - TPMS caps: Scan for sensors, pair yours. Does the pressure match the Android app? Is anything that is not your cap found?
 - Motor sound (Settings, search "engine", switch it on): ride from a stop to 30 km/h. Does it rev with the wheel like the Android app, lower your music, and keep playing with the iPhone locked? Do the previews play?
+- Navigation (dashboard map button): plan a route you know, start it and ride with the iPhone locked. Do the turn cues come at the right corners, and does it reroute when you miss one? Same route as the Android app?
+- Live group: start a group on an Android phone and join it from the iPhone (and the other way). Do both see each other move?
+- Share a route as QR from Android and scan it on the iPhone. Load a GPX track from Files.
 - Swipe in from the left edge on Settings, a trip, the battery monitor and in any dialog: does it go back or close it?
 
 **Android, after the move to the shared library**
