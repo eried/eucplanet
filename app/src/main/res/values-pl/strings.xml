@@ -153,7 +153,7 @@
     <string name="dashboard_composite_layout_col3">3 kolumny</string>
     <string name="dashboard_composite_cell_label">Komórka %1$d</string>
     <!-- "(blank)" is the collapsing placeholder: cell renders "-", layout collapses. -->
-    <string name="dashboard_composite_empty_label">(wolne)</string>
+    <string name="dashboard_composite_empty_label">(brak)</string>
     <!-- "(empty)" is the reserving placeholder: cell renders blank, layout intact. -->
     <string name="dashboard_composite_blank_label">(pusta)</string>
     <string name="dashboard_stat_empty">(pusta)</string>
@@ -194,7 +194,7 @@
     <!-- Open-menu label for DashboardStat.NONE; closed-field shows a literal
          "-" glyph from statSelectedLabel so the rider sees the visual at a
          glance regardless of locale. -->
-    <string name="dashboard_stat_none">(wolne)</string>
+    <string name="dashboard_stat_none">(brak)</string>
     <string name="dashboard_stat_current">Teraz</string>
     <string name="dashboard_stat_min">Min.</string>
     <string name="dashboard_stat_max">Maks. / Szczyt</string>
@@ -490,7 +490,7 @@
     <string name="hud_hotspot_unknown_hint">Upewnij się, że HUD i telefon są w tej samej sieci Wi-Fi. Jeśli używasz hotspotu telefonu, najpierw go włącz.</string>
     <string name="hud_hotspot_on_hint">Hotspot telefonu działa. Połącz HUD z siecią Wi-Fi tego telefonu, aby włączyć łącze.</string>
     <string name="hud_overlay_subsection">Własna nakładka</string>
-    <string name="hud_overlay_subsection_desc">Zaimportuj preset z Overlay Studio na ekran Własna nakładka w HUD, bez tła. Preset jest kopiowany, więc późniejsze zmiany w studiu nie trafią do HUD, dopóki nie zaimportujesz go ponownie.</string>
+    <string name="hud_overlay_subsection_desc">Zaimportuj preset z Overlay Studio na ekrany Własna nakładka w HUD, bez tła. Preset jest kopiowany, więc późniejsze zmiany w studiu nie trafią do HUD, dopóki nie zaimportujesz go ponownie.</string>
     <string name="hud_overlay_select_preset">Importuj preset</string>
     <string name="hud_overlay_current_preset">Aktualny: %1$s</string>
     <string name="hud_custom_overlay_none">Wyczyść</string>
@@ -817,7 +817,7 @@
 
     <!-- Engine sound generator -->
     <string name="section_engine_sound">Dźwięk silnika</string>
-    <string name="engine_sound_enabled">Dźwięk silnika</string>
+    <string name="engine_sound_enabled">Odtwarzaj dźwięki silnika</string>
     <string name="engine_sound_enabled_hint">Obroty silnika zmieniają się na żywo wraz z prędkością i obciążeniem koła.</string>
     <string name="engine_type_label">Silnik</string>
     <string name="engine_source_sampled">Nagrania</string>
@@ -974,7 +974,12 @@
     <string name="radar_unpair">Zapomnij urządzenie</string>
     <string name="radar_battery_fmt">Bateria %1$d%%</string>
     <string name="radar_clear">Pas wolny</string>
-    <string name="radar_threats_count">Śledzone pojazdy (%1$d):</string>
+    <plurals name="radar_threats_count">
+        <item quantity="one">Śledzony %1$d pojazd:</item>
+        <item quantity="few">Śledzone %1$d pojazdy:</item>
+        <item quantity="many">Śledzonych %1$d pojazdów:</item>
+        <item quantity="other">Śledzonych %1$d pojazdu:</item>
+    </plurals>
     <string name="radar_show_overlay">Pokaż nakładkę zagrożeń</string>
     <string name="radar_show_overlay_desc">Wąski pas radaru na krawędziach pulpitu. Jedna kolorowa kropka na każdy wykryty pojazd. Widoczny tylko na pulpicie.</string>
     <string name="radar_overlay_left">Lewa krawędź</string>
@@ -1331,8 +1336,8 @@
     <string name="online_status_pending">Przesyłanie do rankingu…</string>
     <string name="online_status_failed">Przesyłanie nie powiodło się, dotknij, aby ponowić</string>
     <string name="online_status_rejected">Nie zaakceptowano do rankingu</string>
-    <string name="online_upload_join_caption">Dołącz, aby wysyłać statystyki i przejazdy do publicznego rankingu na.</string>
-    <string name="online_upload_linked_caption">Twoje statystyki i przejazdy pojawiają się w publicznym rankingu na.</string>
+    <string name="online_upload_join_caption">Dołącz, aby wysyłać statystyki i przejazdy do publicznego rankingu na %1$s.</string>
+    <string name="online_upload_linked_caption">Twoje statystyki i przejazdy pojawiają się w publicznym rankingu na %1$s.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Odłącz</string>
@@ -1352,7 +1357,7 @@
     <string name="online_profile_save_rate_limited">Zbyt wiele prób, spróbuj ponownie później.</string>
     <string name="online_profile_save_failed">Nie udało się zapisać (HTTP %1$d). Spróbuj ponownie.</string>
     <string name="online_restore_title">Znaleziono zapisany profil</string>
-    <string name="online_restore_body_new">Znaleziono zapisany profil: %1$s. Jeśli przejdziesz dalej, wrócisz do publicznego rankingu jako ten zawodnik; jego nazwa, flaga, awatar i statystyki jazdy są publiczne. Nowy profil nie zostanie utworzony.</string>
+    <string name="online_restore_body_new">Znaleziono zapisany profil: %1$s. Jeśli przejdziesz dalej, wrócisz do publicznego rankingu jako ten zawodnik; jego nazwa, flaga, awatar i statystyki przejazdów są publiczne. Nowy profil nie zostanie utworzony.</string>
     <string name="online_restore_body_switch">Znaleziono inny zapisany profil: %1$s. Jeśli przejdziesz dalej, ten telefon przełączy się na tego zawodnika; najpierw powstanie kopia Twojego obecnego profilu.</string>
     <string name="online_restore_confirm">Kontynuuj jako %1$s</string>
     <string name="online_rejoin_title">Reaktywuj profil</string>
@@ -1757,7 +1762,7 @@
     <!-- Navigation overlay -->
     <string name="nav_start_riding">Zacznij jazdę</string>
     <string name="nav_arrived">Jesteś na miejscu</string>
-    <string name="nav_arrived_goal">Osiągnięto cel %1$d</string>
+    <string name="nav_arrived_goal">Osiągnięto przystanek %1$d</string>
     <string name="nav_end_title">Zakończyć nawigację?</string>
     <!-- ==== Live location share (navigator) ==== -->
     <string name="share_button">Opcje udostępniania</string>
@@ -1963,7 +1968,6 @@
     <!-- ==== Trip share / actions ==== -->
     <string name="trip_action_share_file">Udostępnij plik</string>
     <string name="trip_action_share_file_desc">Wyślij plik CSV przejazdu do innej aplikacji.</string>
-    <string name="trip_action_view_online">Zobacz online</string>
     <string name="trip_action_replay">Odtwórz w Studio</string>
     <string name="trip_action_replay_desc">Przewijaj przejazd z nakładkami danych na żywo.</string>
     <!-- ==== Dashboard quick menus ==== -->
@@ -2245,8 +2249,8 @@
     <string name="adv_nav_hunt_voice_interval_desc">Określa, jak często głos informuje o wyszukiwaniu GPS. Uwaga: zbyt mała wartość powoduje częste powtórzenia.</string>
     <string name="adv_nav_inter_stop">Próg ruchu między przystankami</string>
     <string name="adv_nav_inter_stop_desc">Określa, jak daleko musisz przejechać za jednym przystankiem, zanim następny może zostać uznany za osiągnięty. Uwaga: zbyt mała wartość może pominąć przystanek.</string>
-    <string name="adv_nav_intermediate_flash">Czas mignięcia przystanku</string>
-    <string name="adv_nav_intermediate_flash_desc">Określa, jak długo widać mignięcie po osiągnięciu przystanku.</string>
+    <string name="adv_nav_intermediate_flash">Czas komunikatu o przystanku</string>
+    <string name="adv_nav_intermediate_flash_desc">Określa, jak długo widać komunikat o osiągnięciu przystanku.</string>
     <string name="adv_nav_max_start">Maks. odległość startu</string>
     <string name="adv_nav_max_start_desc">Jak daleko może być pierwszy przystanek, by dało się rozpocząć nawigację. Powyżej tej odległości linia od Twojej pozycji jest ukryta, a start zablokowany. Planowanie nadal działa.</string>
     <string name="adv_nav_moving">Prędkość ruchu</string>
@@ -2382,7 +2386,7 @@
     <string name="compact_mode_always">Zawsze</string>
     <string name="compact_mode_auto">Małe ekrany</string>
     <string name="compact_mode_never">Nigdy</string>
-    <string name="setting_cover_cutout">Omijaj przednie kamery</string>
+    <string name="setting_cover_cutout">Omijaj kamery ekranu zewnętrznego</string>
     <string name="cover_cutout_off">Wył.</string>
     <string name="cover_cutout_left">Lewy dolny</string>
     <string name="cover_cutout_right">Prawy dolny</string>
@@ -2402,7 +2406,7 @@
     <string name="adv_compact_max_screen">Limit kompaktowego ekranu</string>
     <string name="adv_compact_max_screen_desc">Ekrany, których oba boki są mniejsze niż ta wartość, przełączają się na kompaktowy pulpit, gdy opcja Kompaktowy pulpit jest ustawiona na Małe ekrany.</string>
     <string name="adv_cover_cutout_inset">Rozmiar wycięcia kamery</string>
-    <string name="adv_cover_cutout_inset_desc">Wolne miejsce na obiektywy przednich kamer, gdy opcja Omijaj przednie kamery jest włączona. Przy zbyt małej wartości obiektywy zasłaniają przyciski.</string>
+    <string name="adv_cover_cutout_inset_desc">Wolne miejsce na obiektywy ekranu zewnętrznego, gdy opcja Omijaj kamery ekranu zewnętrznego jest włączona. Przy zbyt małej wartości obiektywy zasłaniają przyciski.</string>
     <string name="adv_nav_sidebar_min">Min. szerokość dla panelu bocznego</string>
     <string name="adv_nav_sidebar_min_desc">Ekrany węższe niż ta wartość zachowują dolny panel przystanków nawet w poziomie. Zbyt mała wartość zasłania mapę na małych ekranach.</string>
     <string name="adv_inmotion_v1_pin">PIN InMotion V5/V8/V10</string>
@@ -2624,7 +2628,12 @@
     <string name="recording_delete_archive">Zarchiwizuj kopie zapasowe</string>
     <string name="recording_delete_archive_desc">Przenosi je do folderu archiwum.</string>
     <string name="trip_tools_extend_all_inside">Sąsiednie przejazdy są już częścią tego przejazdu.</string>
-    <string name="trip_tools_extend_skipped">Pomija przejazdy, które już są w tym (%1$d).</string>
+    <plurals name="trip_tools_extend_skipped">
+        <item quantity="one">Pomija %1$d przejazd, który już jest w tym.</item>
+        <item quantity="few">Pomija %1$d przejazdy, które już są w tym.</item>
+        <item quantity="many">Pomija %1$d przejazdów, które już są w tym.</item>
+        <item quantity="other">Pomija %1$d przejazdu, który już jest w tym.</item>
+    </plurals>
     <string name="recording_clear_all_body_archive">Usuwa przejazdy z tego telefonu. Kopie zapasowe trafią do folderu archiwum.</string>
     <string name="recording_delete_trip_body_archive">Usunąć ten przejazd z telefonu? Kopia zapasowa trafi do folderu archiwum.</string>
     <string name="backup_status_pending">Tworzenie kopii…</string>
@@ -2665,9 +2674,9 @@
     <string name="lockdown_limit_10">Nie można otworzyć ustawień.</string>
     <string name="lockdown_limit_11">Nie można otworzyć historii przejazdów, monitora baterii, studia ani szczegółów metryk.</string>
     <string name="lockdown_limit_12">Dotknięcie metryki nic nie robi.</string>
-    <string name="lockdown_limit_13">Komunikaty głosowe, raporty cykliczne i międzyczasy przyspieszenia są wyciszone. Alarmy nadal działają.</string>
+    <string name="lockdown_limit_13">Komunikaty głosowe, raporty cykliczne i międzyczasy prędkości są wyciszone. Alarmy nadal działają.</string>
     <string name="lockdown_limit_14">Koła nie można zablokować ani odblokować, a automatyczna blokada zbliżeniowa nie działa.</string>
-    <string name="lockdown_limit_15">Automatyczne światła i automatyczna głośność nadal działają. Sterowanie multimediami się zatrzymuje.</string>
+    <string name="lockdown_limit_15">Automatyczne światła i automatyczna głośność nadal działają. Sterowanie odtwarzaniem się zatrzymuje.</string>
     <string name="lockdown_limit_16">Powiadomienie traci przyciski.</string>
     <string name="lockdown_limit_17">Numer wersji nie otwiera już ekranu O aplikacji.</string>
     <string name="lockdown_limit_18">Ten tryb nie jest zapisywany w kopiach zapasowych ustawień.</string>

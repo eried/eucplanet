@@ -49,7 +49,7 @@ class HeldTripRecheckTest {
     @Test
     fun `approved trip stops being held`() = runBlocking {
         tripDao.insert(held(1L, "uuid-1"))
-        api.tripStatusResult = TripStatus("validated", "accepted", emptyList())
+        api.tripStatusResult = TripStatus("validated")
 
         assertEquals("validated", repo.refreshTripVerdict(tripDao.trips[0]))
         assertEquals("validated", tripDao.trips[0].eucstatsValidation)
@@ -59,7 +59,7 @@ class HeldTripRecheckTest {
     @Test
     fun `a trip still under review is left alone`() = runBlocking {
         tripDao.insert(held(1L, "uuid-1"))
-        api.tripStatusResult = TripStatus("flagged", "under_review", listOf("teleport"))
+        api.tripStatusResult = TripStatus("flagged")
 
         assertEquals("flagged", repo.refreshTripVerdict(tripDao.trips[0]))
         assertEquals("flagged", tripDao.trips[0].eucstatsValidation)
@@ -69,7 +69,7 @@ class HeldTripRecheckTest {
     @Test
     fun `a rejected verdict is recorded, not silently treated as accepted`() = runBlocking {
         tripDao.insert(held(1L, "uuid-1"))
-        api.tripStatusResult = TripStatus("rejected", "rejected", listOf("mock_location"))
+        api.tripStatusResult = TripStatus("rejected")
 
         assertEquals("rejected", repo.refreshTripVerdict(tripDao.trips[0]))
         assertEquals("rejected", tripDao.trips[0].eucstatsValidation)
@@ -90,7 +90,7 @@ class HeldTripRecheckTest {
         tripDao.insert(held(2L, "uuid-held-2").copy(eucstatsValidation = "validated"))  // already shared
         tripDao.insert(held(3L, "uuid-pending").copy(eucstatsStatus = 1, eucstatsValidation = null))
         tripDao.insert(held(4L, "uuid-imported").copy(tripUuid = null))                 // imported
-        api.tripStatusResult = TripStatus("validated", "accepted", emptyList())
+        api.tripStatusResult = TripStatus("validated")
 
         assertEquals(1, repo.refreshHeldTrips())
         assertEquals(listOf("uuid-held"), api.tripStatusCalls)
@@ -100,7 +100,7 @@ class HeldTripRecheckTest {
     fun `sweep counts only the trips whose verdict actually moved`() = runBlocking {
         tripDao.insert(held(1L, "uuid-1"))
         tripDao.insert(held(2L, "uuid-2"))
-        api.tripStatusResult = TripStatus("flagged", "under_review", listOf("teleport"))
+        api.tripStatusResult = TripStatus("flagged")
 
         assertEquals(0, repo.refreshHeldTrips())
         assertEquals(2, api.tripStatusCalls.size)
@@ -112,7 +112,7 @@ class HeldTripRecheckTest {
         // every sweep, forever. Anything past the cap is still reachable by tapping it, or
         // by the rider-initiated "Sync all".
         repeat(30) { i -> tripDao.insert(held(i.toLong() + 1, "uuid-$i").copy(startTime = i.toLong())) }
-        api.tripStatusResult = TripStatus("flagged", "under_review", listOf("teleport"))
+        api.tripStatusResult = TripStatus("flagged")
 
         repo.refreshHeldTrips()
         assertEquals(BACKGROUND_HELD_LIMIT, api.tripStatusCalls.size)
@@ -123,7 +123,7 @@ class HeldTripRecheckTest {
     @Test
     fun `an explicit sync re-checks every held trip`() = runBlocking {
         repeat(30) { i -> tripDao.insert(held(i.toLong() + 1, "uuid-$i").copy(startTime = i.toLong())) }
-        api.tripStatusResult = TripStatus("flagged", "under_review", listOf("teleport"))
+        api.tripStatusResult = TripStatus("flagged")
 
         repo.refreshHeldTrips(ALL_HELD_TRIPS)
         assertEquals(30, api.tripStatusCalls.size)
@@ -132,7 +132,7 @@ class HeldTripRecheckTest {
     @Test
     fun `sync all reports cleared verdicts rather than nothing to sync`() = runBlocking {
         tripDao.insert(held(1L, "uuid-1"))          // held, nothing pending to upload
-        api.tripStatusResult = TripStatus("validated", "accepted", emptyList())
+        api.tripStatusResult = TripStatus("validated")
 
         val result = repo.syncPendingNow { _, _ -> }
         assertEquals(0, result.total)               // no uploads were due

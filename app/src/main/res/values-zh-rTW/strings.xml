@@ -153,9 +153,9 @@
     <string name="dashboard_composite_layout_col3">3 欄</string>
     <string name="dashboard_composite_cell_label">格 %1$d</string>
     <!-- "(blank)" is the collapsing placeholder: cell renders "-", layout collapses. -->
-    <string name="dashboard_composite_empty_label">（空白）</string>
+    <string name="dashboard_composite_empty_label">（無）</string>
     <!-- "(empty)" is the reserving placeholder: cell renders blank, layout intact. -->
-    <string name="dashboard_composite_blank_label">（留空）</string>
+    <string name="dashboard_composite_blank_label">（空白）</string>
     <string name="dashboard_stat_empty">（空白）</string>
     <string name="dashboard_group_default_name">我的操作</string>
     <string name="dashboard_group_empty_toast">沒有可顯示的操作</string>
@@ -194,7 +194,7 @@
     <!-- Open-menu label for DashboardStat.NONE; closed-field shows a literal
          "-" glyph from statSelectedLabel so the rider sees the visual at a
          glance regardless of locale. -->
-    <string name="dashboard_stat_none">（空白）</string>
+    <string name="dashboard_stat_none">（無）</string>
     <string name="dashboard_stat_current">目前</string>
     <string name="dashboard_stat_min">最小</string>
     <string name="dashboard_stat_max">最大 / 峰值</string>
@@ -490,7 +490,7 @@
     <string name="hud_hotspot_unknown_hint">請確認 HUD 和手機連上同一個 Wi-Fi 網路。若使用手機熱點，請先開啟熱點。</string>
     <string name="hud_hotspot_on_hint">手機熱點已開啟。請將 HUD 連上這支手機的 Wi-Fi 以啟用連結。</string>
     <string name="hud_overlay_subsection">自訂疊加層</string>
-    <string name="hud_overlay_subsection_desc">將疊加層工作室的預設集匯入 HUD 的自訂畫面（不含背景）。預設集會複製到這裡，因此之後在工作室中的編輯不會影響 HUD，除非你再次匯入。</string>
+    <string name="hud_overlay_subsection_desc">將疊加層工作室的預設集匯入 HUD 的自訂疊加層畫面（不含背景）。預設集會複製到這裡，因此之後在工作室中的編輯不會影響 HUD，除非你再次匯入。</string>
     <string name="hud_overlay_select_preset">匯入預設集</string>
     <string name="hud_overlay_current_preset">目前：%1$s</string>
     <string name="hud_custom_overlay_none">清除</string>
@@ -813,7 +813,7 @@
 
     <!-- Engine sound generator -->
     <string name="section_engine_sound">引擎音效</string>
-    <string name="engine_sound_enabled">引擎音效</string>
+    <string name="engine_sound_enabled">播放引擎音效</string>
     <string name="engine_sound_enabled_hint">依獨輪車速度和馬達負載即時模擬引擎轉速。</string>
     <string name="engine_type_label">引擎</string>
     <string name="engine_source_sampled">取樣</string>
@@ -970,7 +970,9 @@
     <string name="radar_unpair">移除裝置</string>
     <string name="radar_battery_fmt">電池 %1$d%%</string>
     <string name="radar_clear">後方車道暢通</string>
-    <string name="radar_threats_count">正在追蹤 %1$d 輛車：</string>
+    <plurals name="radar_threats_count">
+        <item quantity="other">正在追蹤 %1$d 輛車：</item>
+    </plurals>
     <string name="radar_show_overlay">顯示後方車輛警示</string>
     <string name="radar_show_overlay_desc">在儀表板兩側邊緣顯示細長的雷達車道，每輛偵測到的車輛顯示一個彩色圓點。僅在儀表板上顯示。</string>
     <string name="radar_overlay_left">左側</string>
@@ -1330,13 +1332,13 @@
     <string name="online_status_pending">正在上傳至排行榜…</string>
     <string name="online_status_failed">線上上傳失敗，輕觸即可重試</string>
     <string name="online_status_rejected">未被排行榜接受</string>
-    <string name="online_upload_join_caption">加入後即可將你的統計和行程傳送到以下公開排行榜。</string>
-    <string name="online_upload_linked_caption">你的統計和行程會顯示在以下公開排行榜。</string>
+    <string name="online_upload_join_caption">加入後即可將你的統計和行程傳送到公開排行榜 %1$s。</string>
+    <string name="online_upload_linked_caption">你的統計和行程會顯示在公開排行榜 %1$s。</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">取消連結</string>
     <string name="online_unlink_title">要取消與排行榜的連結嗎？</string>
-    <string name="online_unlink_body">這支手機將停止上傳騎乘記錄。你的騎士 ID 會保留，之後可以用同一位騎士身分重新加入。你的統計資料仍會留在 EUC Stats 上，如要移除，請使用「刪除帳號」。</string>
+    <string name="online_unlink_body">這支手機將停止上傳行程。你的騎士 ID 會保留，之後可以用同一位騎士身分重新加入。你的統計資料仍會留在 EUC Stats 上，如要移除，請使用「刪除帳號」。</string>
     <string name="online_unlink_confirm">取消連結</string>
 
     <!-- Online profile (edit/GDPR) -->
@@ -1351,7 +1353,7 @@
     <string name="online_profile_save_rate_limited">請求過於頻繁，請稍後再試。</string>
     <string name="online_profile_save_failed">儲存失敗（HTTP %1$d）。請重試。</string>
     <string name="online_restore_title">找到已儲存的個人資料</string>
-    <string name="online_restore_body_new">在這裡找到已儲存的個人資料：%1$s。繼續將以該騎士身分重新加入公開排行榜，其名稱、國旗、大頭貼和騎乘統計都會公開。這不會建立新的個人資料。</string>
+    <string name="online_restore_body_new">在這裡找到已儲存的個人資料：%1$s。繼續將以該騎士身分重新加入公開排行榜，其名稱、國旗、大頭貼和行程統計都會公開。這不會建立新的個人資料。</string>
     <string name="online_restore_body_switch">找到另一個已儲存的個人資料：%1$s。繼續會將這支手機切換為該騎士，並先備份你目前的個人資料。</string>
     <string name="online_restore_confirm">以 %1$s 身分繼續</string>
     <string name="online_rejoin_title">重新啟用個人資料</string>
@@ -1741,7 +1743,7 @@
     <!-- Navigation overlay -->
     <string name="nav_start_riding">開始騎乘</string>
     <string name="nav_arrived">你已抵達</string>
-    <string name="nav_arrived_goal">已抵達目標 %1$d</string>
+    <string name="nav_arrived_goal">已抵達停靠點 %1$d</string>
     <string name="nav_end_title">要結束導航嗎？</string>
     <!-- ==== Live location share (navigator) ==== -->
     <string name="share_button">分享選項</string>
@@ -1947,9 +1949,8 @@
     <!-- ==== Trip share / actions ==== -->
     <string name="trip_action_share_file">分享檔案</string>
     <string name="trip_action_share_file_desc">將行程 CSV 傳送至其他應用程式。</string>
-    <string name="trip_action_view_online">線上查看</string>
     <string name="trip_action_replay">在工作室重播</string>
-    <string name="trip_action_replay_desc">搭配即時資料疊加層逐段回顧騎乘。</string>
+    <string name="trip_action_replay_desc">搭配即時資料疊加層逐段回顧行程。</string>
     <!-- ==== Dashboard quick menus ==== -->
     <string name="dash_view_video_gallery">查看影片相簿</string>
     <string name="dash_view_photo_gallery">查看照片相簿</string>
@@ -2246,8 +2247,8 @@
     <string name="adv_nav_hunt_voice_interval_desc">決定語音多久播報一次正在搜尋 GPS。注意：太低會一直重複。</string>
     <string name="adv_nav_inter_stop">多點移動門檻</string>
     <string name="adv_nav_inter_stop_desc">決定你必須離開一個停靠點多遠，下一個停靠點才能算抵達。注意：太低可能會跳過停靠點。</string>
-    <string name="adv_nav_intermediate_flash">路徑點閃示時間</string>
-    <string name="adv_nav_intermediate_flash_desc">決定抵達路徑點時的閃示顯示多久。</string>
+    <string name="adv_nav_intermediate_flash">停靠點抵達提示時間</string>
+    <string name="adv_nav_intermediate_flash_desc">決定抵達停靠點的訊息顯示多久。</string>
     <string name="adv_nav_max_start">最大出發距離</string>
     <string name="adv_nav_max_start_desc">第一站最遠可以有多遠才能開始導航。超過此距離，從你目前位置延伸的線會被隱藏，且無法開始導航。規劃路線仍可正常使用。</string>
     <string name="adv_nav_moving">移動速度</string>
@@ -2383,7 +2384,7 @@
     <string name="compact_mode_always">一律</string>
     <string name="compact_mode_auto">小螢幕</string>
     <string name="compact_mode_never">永不</string>
-    <string name="setting_cover_cutout">避開外螢幕鏡頭</string>
+    <string name="setting_cover_cutout">避開封面螢幕鏡頭</string>
     <string name="cover_cutout_off">關閉</string>
     <string name="cover_cutout_left">左下</string>
     <string name="cover_cutout_right">右下</string>
@@ -2403,7 +2404,7 @@
     <string name="adv_compact_max_screen">精簡螢幕上限</string>
     <string name="adv_compact_max_screen_desc">當精簡儀表板設為「小螢幕」時，兩邊都小於此值的螢幕會切換為精簡儀表板。</string>
     <string name="adv_cover_cutout_inset">鏡頭開孔尺寸</string>
-    <string name="adv_cover_cutout_inset_desc">開啟「避開外螢幕鏡頭」時，為外螢幕鏡頭保留的空間。太小會讓鏡頭擋住按鈕。</string>
+    <string name="adv_cover_cutout_inset_desc">開啟「避開封面螢幕鏡頭」時，為封面螢幕鏡頭保留的空間。太小會讓鏡頭擋住按鈕。</string>
     <string name="adv_nav_sidebar_min">側欄最小螢幕</string>
     <string name="adv_nav_sidebar_min_desc">比此更窄的螢幕即使橫向也保留底部停靠點面板。太低會在小螢幕上遮住地圖。</string>
     <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
@@ -2480,10 +2481,10 @@
     <string name="trip_section_failed">無法儲存區間</string>
     <string name="trip_tools_title">行程工具</string>
     <string name="trip_tools_change_wheel">更換獨輪車</string>
-    <string name="trip_tools_change_wheel_desc">更正這趟騎乘使用的獨輪車。會更新行程及其檔案。</string>
+    <string name="trip_tools_change_wheel_desc">更正這趟行程使用的獨輪車。會更新行程及其檔案。</string>
     <string name="trip_tools_wheel_other">其他獨輪車</string>
     <string name="trip_tools_split">拆分行程</string>
-    <string name="trip_tools_split_desc">找出更換獨輪車、長時間停留和記錄中斷之處，並在那裡切分。</string>
+    <string name="trip_tools_split_desc">找出更換獨輪車、長時間停留和記錄中斷之處，並在那裡切分行程。</string>
     <string name="trip_tools_split_none">沒有可拆分之處。未發現更換獨輪車、長時間停留或記錄中斷。</string>
     <string name="trip_split_reason_wheel">換成另一台獨輪車</string>
     <string name="trip_split_reason_gap">記錄中斷</string>
@@ -2578,7 +2579,7 @@
     <string name="trip_customize_tiles">方塊</string>
     <string name="trip_customize_graphs">圖表</string>
     <string name="recording_details_section">其他詳細資料</string>
-    <string name="recording_details_none">這趟騎乘沒有記錄獨輪車。</string>
+    <string name="recording_details_none">這趟行程沒有記錄獨輪車。</string>
     <string name="cloud_reset_local">清除本機行程</string>
     <string name="cloud_reset_local_title">要清除本機行程嗎？</string>
     <string name="cloud_reset_local_body">移除儲存在這支手機上的所有行程。你的備份資料夾不受影響，已同步的行程可從那裡還原。</string>
@@ -2602,10 +2603,10 @@
     <string name="studio_video_edge_loop">循環</string>
     <string name="studio_video_edge_black">黑色</string>
     <string name="wheel_no_data_reset">獨輪車仍未傳來資料。請試著將它關機再開機。</string>
-    <string name="trip_map_ride_start">騎乘開始：%1$s</string>
+    <string name="trip_map_ride_start">行程開始：%1$s</string>
     <string name="trip_map_reconnected">已重新連線：%1$s</string>
     <string name="trip_map_new_wheel">新獨輪車：%1$s</string>
-    <string name="trip_map_ride_end">騎乘結束</string>
+    <string name="trip_map_ride_end">行程結束</string>
     <string name="adv_smoothing_window">平滑區間</string>
     <string name="adv_smoothing_window_desc">「平均」行程圖表和平滑語音播報所平均的取樣數。行程大約每秒記錄一次，因此可視為秒數。注意：數值過高會掩蓋短暫的尖峰。</string>
     <string name="hud_discovery_auto">自動</string>
@@ -2616,14 +2617,16 @@
     <string name="metric_chip_battery_range">電量：開始 → 結束</string>
     <string name="recording_summary_battery_range">開始→結束（-%1$d%%）</string>
     <string name="trip_tools_rename">重新命名行程</string>
-    <string name="trip_tools_rename_desc">為這趟騎乘命名。名稱儲存在檔案中，因此匯出和同步時都會一併保留。</string>
+    <string name="trip_tools_rename_desc">為這趟行程命名。名稱儲存在檔案中，因此匯出和同步時都會一併保留。</string>
     <string name="trip_tools_rename_hint">留空則使用日期。</string>
     <string name="trip_tools_archived">已封存：%1$d</string>
     <string name="trip_tools_archive_failed">有些行程無法封存，仍然留在這裡</string>
     <string name="recording_delete_archive">封存備份副本</string>
     <string name="recording_delete_archive_desc">把它們移到封存資料夾。</string>
     <string name="trip_tools_extend_all_inside">前後的行程已經包含在這次行程裡了。</string>
-    <string name="trip_tools_extend_skipped">略過已包含在此行程中的 %1$d 個行程。</string>
+    <plurals name="trip_tools_extend_skipped">
+        <item quantity="other">略過已包含在此行程中的 %1$d 個行程。</item>
+    </plurals>
     <string name="recording_clear_all_body_archive">這會從這支手機刪除行程。備份副本會移到封存資料夾。</string>
     <string name="recording_delete_trip_body_archive">要從這支手機刪除這個行程嗎？備份副本會移到封存資料夾。</string>
     <string name="backup_status_pending">正在備份…</string>
@@ -2664,9 +2667,9 @@
     <string name="lockdown_limit_10">無法開啟設定。</string>
     <string name="lockdown_limit_11">無法開啟行程記錄、電池監控、工作室和指標詳細資料。</string>
     <string name="lockdown_limit_12">輕觸指標不會有任何反應。</string>
-    <string name="lockdown_limit_13">語音播報、定期播報和加速分段計時會靜音。你的警報仍會運作。</string>
+    <string name="lockdown_limit_13">語音播報、定期播報和速度分段計時會靜音。你的警報仍會運作。</string>
     <string name="lockdown_limit_14">無法鎖定或解鎖獨輪車，距離自動鎖定也不會執行。</string>
-    <string name="lockdown_limit_15">自動燈光和自動音量會繼續運作。媒體控制會停止。</string>
+    <string name="lockdown_limit_15">自動燈光和自動音量會繼續運作。播放控制會停止。</string>
     <string name="lockdown_limit_16">通知會失去按鈕。</string>
     <string name="lockdown_limit_17">輕觸版本號不會再開啟「關於」。</string>
     <string name="lockdown_limit_18">此模式不會包含在設定備份中。</string>
@@ -2769,13 +2772,13 @@
     <string name="crews_type_instead">手動輸入</string>
     <string name="crews_code_label">通行碼</string>
     <string name="crews_foreign_title">這個代碼不是來自 eucstats</string>
-    <string name="crews_foreign_body">它指向 %1$s，而那不是你的騎乘資料存放的地方。同意的話，等於把你的帳號交給該網站的經營者。\n\n自己架設伺服器？請先在設定中開啟開發者模式。</string>
+    <string name="crews_foreign_body">它指向 %1$s，而那不是你的行程上傳的地方。同意的話，等於把你的帳號交給該網站的經營者。\n\n自己架設伺服器？請先在設定中開啟開發者模式。</string>
     <string name="crews_scan_switch">改用掃描</string>
     <string name="crews_close">關閉</string>
     <string name="crews_opensettings">開啟設定</string>
     <string name="crews_dev_title">開發者模式</string>
     <string name="crews_dev_body">正在與 %1$s 通訊，而不是平常的伺服器。</string>
-    <string name="crews_grant">讓那個瀏覽器代表你的車隊身分。\n\n它可以建立車隊、加入車隊、退出車隊及管理成員。它無法上傳騎乘、更改你的名稱或刪除任何東西，這些都只能在這支手機上進行。</string>
+    <string name="crews_grant">讓那個瀏覽器代表你的車隊身分。\n\n它可以建立車隊、加入車隊、退出車隊及管理成員。它無法上傳行程、更改你的名稱或刪除任何東西，這些都只能在這支手機上進行。</string>
     <string name="crews_noprofile_title">先加入排行榜</string>
     <string name="crews_noprofile_body">車隊依附在你的排行榜個人資料上，而這支手機還沒有建立。請在%1$s中加入，然後再掃描一次。</string>
     <string name="crews_issue">核發通行證</string>

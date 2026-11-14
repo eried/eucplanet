@@ -1627,16 +1627,11 @@ class WheelRepository(
         } catch (_: Throwable) {}
         try {
             val vib = context.getSystemService(Context.VIBRATOR_SERVICE) as? android.os.Vibrator
-            if (vib != null && android.os.Build.VERSION.SDK_INT >= 26) {
-                vib.vibrate(
-                    android.os.VibrationEffect.createOneShot(
-                        300L, android.os.VibrationEffect.DEFAULT_AMPLITUDE
-                    )
+            vib?.vibrate(
+                android.os.VibrationEffect.createOneShot(
+                    300L, android.os.VibrationEffect.DEFAULT_AMPLITUDE
                 )
-            } else {
-                @Suppress("DEPRECATION")
-                vib?.vibrate(300L)
-            }
+            )
         } catch (_: Throwable) {}
     }
 

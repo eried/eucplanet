@@ -153,7 +153,7 @@
     <string name="dashboard_composite_layout_col3">3 kolumner</string>
     <string name="dashboard_composite_cell_label">Cell %1$d</string>
     <!-- "(blank)" is the collapsing placeholder: cell renders "-", layout collapses. -->
-    <string name="dashboard_composite_empty_label">(ledig)</string>
+    <string name="dashboard_composite_empty_label">(ingen)</string>
     <!-- "(empty)" is the reserving placeholder: cell renders blank, layout intact. -->
     <string name="dashboard_composite_blank_label">(tom)</string>
     <string name="dashboard_stat_empty">(tom)</string>
@@ -194,7 +194,7 @@
     <!-- Open-menu label for DashboardStat.NONE; closed-field shows a literal
          "-" glyph from statSelectedLabel so the rider sees the visual at a
          glance regardless of locale. -->
-    <string name="dashboard_stat_none">(ledig)</string>
+    <string name="dashboard_stat_none">(ingen)</string>
     <string name="dashboard_stat_current">Nu</string>
     <string name="dashboard_stat_min">Min</string>
     <string name="dashboard_stat_max">Max / Topp</string>
@@ -490,7 +490,7 @@
     <string name="hud_hotspot_unknown_hint">Se till att HUD:en och telefonen är på samma wifi-nätverk. Om du använder telefonens hotspot, slå på den först.</string>
     <string name="hud_hotspot_on_hint">Telefonens hotspot sänder. Anslut HUD:en till telefonens wifi för att aktivera länken.</string>
     <string name="hud_overlay_subsection">Eget överlägg</string>
-    <string name="hud_overlay_subsection_desc">Importera en förinställning från Overlay Studio till HUD:ens skärm Eget överlägg, utan bakgrund. Förinställningen kopieras hit, så senare ändringar i studion påverkar inte HUD:en förrän du importerar igen.</string>
+    <string name="hud_overlay_subsection_desc">Importera en förinställning från Overlay Studio till HUD:ens skärmar Eget överlägg, utan bakgrund. Förinställningen kopieras hit, så senare ändringar i studion påverkar inte HUD:en förrän du importerar igen.</string>
     <string name="hud_overlay_select_preset">Importera förinställning</string>
     <string name="hud_overlay_current_preset">Aktuell: %1$s</string>
     <string name="hud_custom_overlay_none">Rensa</string>
@@ -813,7 +813,7 @@
 
     <!-- Engine sound generator -->
     <string name="section_engine_sound">Motorljud</string>
-    <string name="engine_sound_enabled">Motorljud</string>
+    <string name="engine_sound_enabled">Spela upp motorljud</string>
     <string name="engine_sound_enabled_hint">Driver motorvarvtal live från hjulets fart och motorbelastning.</string>
     <string name="engine_type_label">Motor</string>
     <string name="engine_source_sampled">Inspelat</string>
@@ -895,7 +895,7 @@
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Flic 2-knappar</string>
     <string name="flic_show_on_dashboard">Snabbikon på instrumentpanelen</string>
-    <string name="flic_scan_hint">Håll Flic 2-knappen intryckt i 6 sekunder för parkopplingsläge och starta sedan sökningen.</string>
+    <string name="flic_scan_hint">Håll Flic 2-knappen intryckt i 6 sekunder för parkopplingsläge och tryck sedan på Starta sökning.</string>
     <string name="flic_stop_scan">Stoppa sökning</string>
     <string name="flic_start_scan">Starta sökning</string>
     <string name="flic_forget">Glöm</string>
@@ -970,7 +970,10 @@
     <string name="radar_unpair">Glöm enhet</string>
     <string name="radar_battery_fmt">Batteri %1$d %%</string>
     <string name="radar_clear">Vägen är fri</string>
-    <string name="radar_threats_count">Spårar %1$d fordon:</string>
+    <plurals name="radar_threats_count">
+        <item quantity="one">Spårar %1$d fordon:</item>
+        <item quantity="other">Spårar %1$d fordon:</item>
+    </plurals>
     <string name="radar_show_overlay">Visa hotöverlägg</string>
     <string name="radar_show_overlay_desc">Tunn radarlist i instrumentpanelens kanter. En färgad punkt per upptäckt fordon. Visas bara på instrumentpanelen.</string>
     <string name="radar_overlay_left">Vänster kant</string>
@@ -1097,7 +1100,7 @@
     <string name="recording_delete_trip_title">Radera tur</string>
     <string name="recording_delete_trip_body">Radera den här turen och dess datafil?</string>
     <string name="recording_clear_all_menu">Rensa alla</string>
-    <string name="recording_empty">Inga data att visa. Importera eller spela in en tur</string>
+    <string name="recording_empty">Inga data att visa. Importera eller spela in en ny tur</string>
     <string name="recording_will_auto_stop">Inspelningen stoppas automatiskt efter %1$d s utan rörelse</string>
     <string name="recording_stat_trips">Turer</string>
     <string name="recording_stat_distance">Distans</string>
@@ -1329,8 +1332,8 @@
     <string name="online_status_pending">Laddar upp till topplistan…</string>
     <string name="online_status_failed">Uppladdning misslyckades, tryck för att försöka igen</string>
     <string name="online_status_rejected">Inte godkänd för topplistan</string>
-    <string name="online_upload_join_caption">Gå med för att skicka din statistik och dina turer till den offentliga topplistan på.</string>
-    <string name="online_upload_linked_caption">Din statistik och dina turer visas på den offentliga topplistan på.</string>
+    <string name="online_upload_join_caption">Gå med för att skicka din statistik och dina turer till den offentliga topplistan på %1$s.</string>
+    <string name="online_upload_linked_caption">Din statistik och dina turer visas på den offentliga topplistan på %1$s.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Koppla från</string>
@@ -1350,7 +1353,7 @@
     <string name="online_profile_save_rate_limited">För många förfrågningar, försök igen senare.</string>
     <string name="online_profile_save_failed">Sparandet misslyckades (HTTP %1$d). Försök igen.</string>
     <string name="online_restore_title">En sparad profil hittades</string>
-    <string name="online_restore_body_new">Vi hittade en sparad profil här: %1$s. Om du fortsätter går du med i den offentliga topplistan igen som den åkaren. Namn, flagga, profilfoto och åkstatistik är offentliga. Ingen ny profil skapas.</string>
+    <string name="online_restore_body_new">Vi hittade en sparad profil här: %1$s. Om du fortsätter går du med i den offentliga topplistan igen som den åkaren. Namn, flagga, profilfoto och turstatistik är offentliga. Ingen ny profil skapas.</string>
     <string name="online_restore_body_switch">Vi hittade en annan sparad profil: %1$s. Om du fortsätter byter den här telefonen till den åkaren. Din nuvarande profil säkerhetskopieras först.</string>
     <string name="online_restore_confirm">Fortsätt som %1$s</string>
     <string name="online_rejoin_title">Återaktivera profil</string>
@@ -1740,7 +1743,7 @@
     <!-- Navigation overlay -->
     <string name="nav_start_riding">Börja åka</string>
     <string name="nav_arrived">Du är framme</string>
-    <string name="nav_arrived_goal">Mål %1$d nått</string>
+    <string name="nav_arrived_goal">Stopp %1$d nått</string>
     <string name="nav_end_title">Avsluta navigering?</string>
     <!-- ==== Live location share (navigator) ==== -->
     <string name="share_button">Delningsalternativ</string>
@@ -1946,7 +1949,6 @@
     <!-- ==== Trip share / actions ==== -->
     <string name="trip_action_share_file">Dela fil</string>
     <string name="trip_action_share_file_desc">Skicka turens CSV till en annan app.</string>
-    <string name="trip_action_view_online">Visa online</string>
     <string name="trip_action_replay">Spela upp i Studio</string>
     <string name="trip_action_replay_desc">Bläddra genom turen med livedata som överlägg.</string>
     <!-- ==== Dashboard quick menus ==== -->
@@ -2247,8 +2249,8 @@
     <string name="adv_nav_hunt_voice_interval_desc">Styr hur ofta rösten säger att den söker efter GPS. Varning: för lågt gör att det upprepas ofta.</string>
     <string name="adv_nav_inter_stop">Rörelsespärr för flera stopp</string>
     <string name="adv_nav_inter_stop_desc">Styr hur långt du måste ha passerat ett stopp innan nästa kan räknas som nått. Varning: för lågt kan hoppa över ett stopp.</string>
-    <string name="adv_nav_intermediate_flash">Blinktid för vägpunkt</string>
-    <string name="adv_nav_intermediate_flash_desc">Styr hur länge blinkningen visas när en vägpunkt nås.</string>
+    <string name="adv_nav_intermediate_flash">Visningstid för nått stopp</string>
+    <string name="adv_nav_intermediate_flash_desc">Styr hur länge meddelandet visas när ett stopp nås.</string>
     <string name="adv_nav_max_start">Max startavstånd</string>
     <string name="adv_nav_max_start_desc">Hur långt bort det första stoppet får vara för att starta navigeringen. Bortom detta döljs linjen från din plats och start blockeras. Planering fungerar fortfarande.</string>
     <string name="adv_nav_moving">Rörelsehastighet</string>
@@ -2384,7 +2386,7 @@
     <string name="compact_mode_always">Alltid</string>
     <string name="compact_mode_auto">Små skärmar</string>
     <string name="compact_mode_never">Aldrig</string>
-    <string name="setting_cover_cutout">Undvik frontkameror</string>
+    <string name="setting_cover_cutout">Undvik frontskärmens kameror</string>
     <string name="cover_cutout_off">Av</string>
     <string name="cover_cutout_left">Nedre vänster</string>
     <string name="cover_cutout_right">Nedre höger</string>
@@ -2404,7 +2406,7 @@
     <string name="adv_compact_max_screen">Gräns för kompakt skärm</string>
     <string name="adv_compact_max_screen_desc">Skärmar med båda sidorna under detta växlar till den kompakta instrumentpanelen när Kompakt instrumentpanel är inställd på Små skärmar.</string>
     <string name="adv_cover_cutout_inset">Storlek på kameraurtag</string>
-    <string name="adv_cover_cutout_inset_desc">Utrymme som hålls fritt för frontlinserna när Undvik frontkameror är på. Är det för litet döljer linserna knappar.</string>
+    <string name="adv_cover_cutout_inset_desc">Utrymme som hålls fritt för frontskärmens linser när Undvik frontskärmens kameror är på. Är det för litet döljer linserna knappar.</string>
     <string name="adv_nav_sidebar_min">Minsta skärm för sidopanel</string>
     <string name="adv_nav_sidebar_min_desc">Smalare skärmar behåller den nedre stopp-panelen även i liggande läge. För lågt döljer kartan på små skärmar.</string>
     <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
@@ -2624,7 +2626,10 @@
     <string name="recording_delete_archive">Arkivera säkerhetskopiorna</string>
     <string name="recording_delete_archive_desc">Flyttar dem till en arkivmapp.</string>
     <string name="trip_tools_extend_all_inside">Turerna omkring är redan en del av den här.</string>
-    <string name="trip_tools_extend_skipped">Hoppar över turer som redan ingår i den här: %1$d.</string>
+    <plurals name="trip_tools_extend_skipped">
+        <item quantity="one">Hoppar över %1$d tur som redan ingår i den här.</item>
+        <item quantity="other">Hoppar över %1$d turer som redan ingår i den här.</item>
+    </plurals>
     <string name="recording_clear_all_body_archive">Det här raderar turerna från telefonen. Säkerhetskopiorna flyttas till en arkivmapp.</string>
     <string name="recording_delete_trip_body_archive">Radera den här turen från telefonen? Säkerhetskopian flyttas till en arkivmapp.</string>
     <string name="backup_status_pending">Säkerhetskopierar…</string>
@@ -2667,7 +2672,7 @@
     <string name="lockdown_limit_12">Att trycka på ett mätvärde gör ingenting.</string>
     <string name="lockdown_limit_13">Röstmeddelanden, regelbundna rapporter och mellantider är tysta. Dina larm fungerar fortfarande.</string>
     <string name="lockdown_limit_14">Hjulet går inte att låsa eller låsa upp, och det automatiska närhetslåset körs inte.</string>
-    <string name="lockdown_limit_15">Autoljus och autovolym fortsätter att fungera. Mediastyrningen stoppas.</string>
+    <string name="lockdown_limit_15">Autoljus och autovolym fortsätter att fungera. Uppspelningskontrollen stoppas.</string>
     <string name="lockdown_limit_16">Aviseringen förlorar sina knappar.</string>
     <string name="lockdown_limit_17">Versionsnumret öppnar inte längre Om.</string>
     <string name="lockdown_limit_18">Det här läget ingår inte i säkerhetskopiorna av inställningarna.</string>

@@ -147,7 +147,7 @@
     <string name="dashboard_composite_layout_col2">2 colunas</string>
     <string name="dashboard_composite_layout_col3">3 colunas</string>
     <string name="dashboard_composite_cell_label">Célula %1$d</string>
-    <string name="dashboard_composite_empty_label">(em branco)</string>
+    <string name="dashboard_composite_empty_label">(nenhum)</string>
     <string name="dashboard_composite_blank_label">(vazio)</string>
     <string name="dashboard_stat_empty">(vazio)</string>
     <string name="dashboard_group_default_name">As minhas ações</string>
@@ -184,7 +184,7 @@
     <string name="dashboard_corner_right">Direita</string>
     <string name="dashboard_slot_sparkline">Fundo com tendência ao vivo</string>
     <string name="dashboard_slot_sparkline_chip">Estat.</string>
-    <string name="dashboard_stat_none">(em branco)</string>
+    <string name="dashboard_stat_none">(nenhum)</string>
     <string name="dashboard_stat_current">Agora</string>
     <string name="dashboard_stat_min">Mín.</string>
     <string name="dashboard_stat_max">Máx. / Pico</string>
@@ -472,7 +472,7 @@
     <string name="hud_hotspot_unknown_hint">Confirme que o HUD e o telemóvel estão na mesma rede Wi-Fi. Se usar a zona Wi-Fi do telemóvel, ative-a primeiro.</string>
     <string name="hud_hotspot_on_hint">A zona Wi-Fi do telemóvel está ativa. Ligue o HUD ao Wi-Fi deste telemóvel para ativar a ligação.</string>
     <string name="hud_overlay_subsection">Overlay personalizado</string>
-    <string name="hud_overlay_subsection_desc">Importe uma predefinição do Overlay Studio para o ecrã Personalizado do HUD, sem fundos. A predefinição é copiada para aqui, por isso edições posteriores no estúdio não alteram o HUD até importar de novo.</string>
+    <string name="hud_overlay_subsection_desc">Importe uma predefinição do Overlay Studio para os ecrãs Overlay personalizado do HUD, sem fundos. A predefinição é copiada para aqui, por isso edições posteriores no estúdio não alteram o HUD até importar de novo.</string>
     <string name="hud_overlay_select_preset">Importar predefinição</string>
     <string name="hud_overlay_current_preset">Atual: %1$s</string>
     <string name="hud_custom_overlay_none">Limpar</string>
@@ -591,8 +591,8 @@
     <string name="adv_nav_heading_window_desc">Afeta quantos segundos de movimento definem a sua direção. Perigo: demasiado baixo torna a direção instável.</string>
     <string name="adv_nav_fix_buffer">Janela do histórico GPS</string>
     <string name="adv_nav_fix_buffer_desc">Afeta quantos segundos de posições GPS são guardados para a direção e o ajuste à rota. Perigo: demasiado baixo pode perder a direção.</string>
-    <string name="adv_nav_intermediate_flash">Duração do aviso de ponto</string>
-    <string name="adv_nav_intermediate_flash_desc">Afeta quanto tempo aparece o aviso de ponto de passagem alcançado.</string>
+    <string name="adv_nav_intermediate_flash">Tempo de paragem alcançada</string>
+    <string name="adv_nav_intermediate_flash_desc">Afeta quanto tempo aparece a mensagem de paragem alcançada.</string>
     <string name="adv_nav_popup_timeout">Tempo do cartão de viragem</string>
     <string name="adv_nav_popup_timeout_desc">Afeta quanto tempo o cartão grande de viragem fica antes de encolher para o canto.</string>
     <string name="adv_group_alarm">Alarmes preditivos</string>
@@ -689,7 +689,7 @@
     <string name="adv_compact_max_screen">Limite de ecrã compacto</string>
     <string name="adv_compact_max_screen_desc">Ecrãs com ambos os lados abaixo disto mudam para o painel compacto quando Painel compacto está em Ecrãs pequenos.</string>
     <string name="adv_cover_cutout_inset">Tamanho do recorte da câmara</string>
-    <string name="adv_cover_cutout_inset_desc">Espaço livre para as lentes do ecrã exterior quando Evitar câmaras exteriores está ativo. Pequeno demais e as lentes tapam botões.</string>
+    <string name="adv_cover_cutout_inset_desc">Espaço livre para as lentes do ecrã exterior quando Evitar câmaras do ecrã exterior está ativo. Pequeno demais e as lentes tapam botões.</string>
     <string name="adv_simple_speedo_scale">Tamanho do velocímetro simples</string>
     <string name="adv_simple_speedo_scale_desc">Tamanho do número da velocidade em relação à área do mostrador. Grande demais pode cortar a unidade.</string>
     <string name="adv_nav_sidebar_width">Largura do painel de paragens</string>
@@ -859,7 +859,7 @@
     <string name="compact_mode_auto">Ecrãs pequenos</string>
     <string name="compact_mode_always">Sempre</string>
     <string name="compact_mode_never">Nunca</string>
-    <string name="setting_cover_cutout">Evitar câmaras exteriores</string>
+    <string name="setting_cover_cutout">Evitar câmaras do ecrã exterior</string>
     <string name="cover_cutout_off">Desligado</string>
     <string name="cover_cutout_left">Inferior esquerdo</string>
     <string name="cover_cutout_right">Inferior direito</string>
@@ -1056,7 +1056,7 @@
     <string name="voice_output_channel_alarm">Alarme</string>
 
     <string name="section_engine_sound">Som de motor</string>
-    <string name="engine_sound_enabled">Som de motor</string>
+    <string name="engine_sound_enabled">Reproduzir sons de motor</string>
     <string name="engine_sound_enabled_hint">Controla as RPM do motor ao vivo a partir da velocidade da roda e da carga do motor.</string>
     <string name="engine_type_label">Motor</string>
     <string name="engine_source_sampled">Gravado</string>
@@ -1210,7 +1210,11 @@
     <string name="radar_unpair">Esquecer dispositivo</string>
     <string name="radar_battery_fmt">Bateria %1$d%%</string>
     <string name="radar_clear">Faixa livre</string>
-    <string name="radar_threats_count">A seguir %1$d veículo(s):</string>
+    <plurals name="radar_threats_count">
+        <item quantity="one">A seguir %1$d veículo:</item>
+        <item quantity="many">A seguir %1$d veículos:</item>
+        <item quantity="other">A seguir %1$d veículos:</item>
+    </plurals>
     <string name="radar_show_overlay">Mostrar overlay de ameaças</string>
     <string name="radar_show_overlay_desc">Faixa fina de radar nas margens do painel. Um ponto colorido por cada veículo detetado. Só visível no painel.</string>
     <string name="radar_overlay_left">Margem esquerda</string>
@@ -1348,7 +1352,7 @@
     <string name="recording_delete_trip_body_archive">Eliminar este percurso deste telemóvel? A cópia de segurança passa para uma pasta de arquivo.</string>
     <string name="recording_delete_trip_body">Eliminar este percurso e o ficheiro de dados?</string>
     <string name="recording_clear_all_menu">Limpar tudo</string>
-    <string name="recording_empty">Sem dados para mostrar. Importe ou grave um novo</string>
+    <string name="recording_empty">Sem dados para mostrar. Importe ou grave um novo percurso</string>
     <string name="recording_will_auto_stop">A gravação para automaticamente após %1$ds de inatividade</string>
     <string name="recording_stat_trips">Percursos</string>
     <string name="recording_stat_distance">Distância</string>
@@ -1360,7 +1364,7 @@
     <string name="recording_no_data">Sem dados gravados neste percurso</string>
     <string name="recording_route">Rota</string>
     <string name="recording_details_section">Detalhes extra</string>
-    <string name="recording_details_none">Nenhuma roda registada nesta volta.</string>
+    <string name="recording_details_none">Nenhuma roda registada neste percurso.</string>
     <string name="recording_summary_distance">Distância</string>
     <string name="recording_summary_duration">Duração</string>
     <string name="recording_summary_points">Linhas</string>
@@ -1474,14 +1478,14 @@
     <string name="trip_section_failed">Não foi possível guardar a secção</string>
     <string name="trip_tools_title">Ferramentas do percurso</string>
     <string name="trip_tools_rename">Mudar o nome do percurso</string>
-    <string name="trip_tools_rename_desc">Dê um nome a esta volta. Fica guardado no ficheiro, por isso acompanha as exportações e a sincronização.</string>
+    <string name="trip_tools_rename_desc">Dê um nome a este percurso. Fica guardado no ficheiro, por isso acompanha as exportações e a sincronização.</string>
     <string name="trip_tools_rename_hint">Deixe em branco para usar a data.</string>
     <string name="trip_tools_change_wheel">Mudar roda</string>
-    <string name="trip_tools_change_wheel_desc">Corrija em que roda foi feita esta volta. Atualiza o percurso e o ficheiro.</string>
+    <string name="trip_tools_change_wheel_desc">Corrija em que roda foi feito este percurso. Atualiza o percurso e o ficheiro.</string>
     <string name="trip_tools_wheel_other">Outra roda</string>
     <string name="trip_tools_wheel_current">Atual</string>
     <string name="trip_tools_extend">Alargar percurso</string>
-    <string name="trip_tools_extend_desc">Junta as voltas antes ou depois desta num novo percurso mais longo.</string>
+    <string name="trip_tools_extend_desc">Junta os percursos antes ou depois deste num novo percurso mais longo.</string>
     <string name="trip_tools_extend_hint">Recue e avance o quanto quiser. Tudo o que estiver entre os dois entra também.</string>
     <string name="trip_tools_extend_from">Começar em</string>
     <string name="trip_tools_extend_to">Terminar em</string>
@@ -1492,11 +1496,15 @@
     <string name="trip_tools_archive_failed">Alguns percursos não foram arquivados e continuam aqui</string>
     <string name="trip_tools_extend_pick_one">Escolha um percurso anterior ou posterior para alargar.</string>
     <string name="trip_tools_extend_all_inside">Os percursos à volta deste já fazem parte dele.</string>
-    <string name="trip_tools_extend_skipped">Ignora %1$d percurso(s) já incluídos neste.</string>
+    <plurals name="trip_tools_extend_skipped">
+        <item quantity="one">Ignora %1$d percurso já incluído neste.</item>
+        <item quantity="many">Ignora %1$d percursos já incluídos neste.</item>
+        <item quantity="other">Ignora %1$d percursos já incluídos neste.</item>
+    </plurals>
     <string name="trip_tools_combine_summary">Junta %1$d percursos num novo percurso.</string>
     <string name="trip_tools_wheel_changed">Roda definida como %1$s</string>
     <string name="trip_tools_split">Dividir percurso</string>
-    <string name="trip_tools_split_desc">Encontra mudanças de roda, pausas longas e falhas na gravação, e corta a volta aí.</string>
+    <string name="trip_tools_split_desc">Encontra mudanças de roda, pausas longas e falhas na gravação, e corta o percurso aí.</string>
     <string name="trip_tools_split_none">Nada para dividir. Não foram encontradas mudanças de roda, pausas longas nem falhas na gravação.</string>
     <string name="trip_split_lasted">durou %1$s</string>
     <string name="trip_tools_split_pick">Escolha pelo menos um ponto de corte.</string>
@@ -1683,10 +1691,10 @@
     <string name="toast_external_speed_change">Velocidade atualizada a partir da roda: tiltback %1$d km/h, alarme %2$d km/h</string>
     <string name="wheel_no_data_reset">Continua sem dados da roda. Experimente desligá-la e ligá-la.</string>
 
-    <string name="trip_map_ride_start">Início da volta: %1$s</string>
+    <string name="trip_map_ride_start">Início do percurso: %1$s</string>
     <string name="trip_map_reconnected">Religada: %1$s</string>
     <string name="trip_map_new_wheel">Nova roda: %1$s</string>
-    <string name="trip_map_ride_end">Fim da volta</string>
+    <string name="trip_map_ride_end">Fim do percurso</string>
 
     <string name="online_upload_consent_title">Entre na classificação EUC Stats</string>
     <string name="online_upload_consent_intro">Antes de entrar, leia o que se torna público:</string>
@@ -1729,13 +1737,13 @@
     <string name="online_status_pending">A enviar para a classificação…</string>
     <string name="online_status_failed">O envio online falhou, toque para tentar de novo</string>
     <string name="online_status_rejected">Não aceite na classificação</string>
-    <string name="online_upload_join_caption">Entre para enviar as suas estatísticas e percursos para a classificação pública em.</string>
-    <string name="online_upload_linked_caption">As suas estatísticas e percursos aparecem na classificação pública em.</string>
+    <string name="online_upload_join_caption">Entre para enviar as suas estatísticas e percursos para a classificação pública em %1$s.</string>
+    <string name="online_upload_linked_caption">As suas estatísticas e percursos aparecem na classificação pública em %1$s.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Desassociar</string>
     <string name="online_unlink_title">Desassociar da classificação?</string>
-    <string name="online_unlink_body">Este telemóvel deixa de enviar voltas. O seu ID de piloto fica guardado para poder voltar como o mesmo piloto. As estatísticas ficam no EUC Stats; use Eliminar conta para as remover.</string>
+    <string name="online_unlink_body">Este telemóvel deixa de enviar percursos. O seu ID de piloto fica guardado para poder voltar como o mesmo piloto. As estatísticas ficam no EUC Stats; use Eliminar conta para as remover.</string>
     <string name="online_unlink_confirm">Desassociar</string>
 
     <string name="online_profile_manage">Gerir perfil</string>
@@ -1749,7 +1757,7 @@
     <string name="online_profile_save_rate_limited">Demasiados pedidos, tente mais tarde.</string>
     <string name="online_profile_save_failed">Falha ao guardar (HTTP %1$d). Tente de novo.</string>
     <string name="online_restore_title">Foi encontrado um perfil guardado</string>
-    <string name="online_restore_body_new">Encontrámos aqui um perfil guardado: %1$s. Continuar volta a entrar na classificação pública como esse piloto, e o nome, a bandeira, o avatar e as estatísticas das voltas são públicos. Não cria um novo perfil.</string>
+    <string name="online_restore_body_new">Encontrámos aqui um perfil guardado: %1$s. Continuar volta a entrar na classificação pública como esse piloto, e o nome, a bandeira, o avatar e as estatísticas dos percursos são públicos. Não cria um novo perfil.</string>
     <string name="online_restore_body_switch">Encontrámos outro perfil guardado: %1$s. Continuar muda este telemóvel para esse piloto; primeiro é feita uma cópia do seu perfil atual.</string>
     <string name="online_restore_confirm">Continuar como %1$s</string>
     <string name="online_rejoin_title">Reativar perfil</string>
@@ -2119,7 +2127,7 @@
     <string name="trip_action_share_dropbox">Partilhar pelo Dropbox</string>
     <string name="trip_action_share_dropbox_desc">Envia para a sua pasta do Dropbox e partilha a ligação pública.</string>
     <string name="trip_action_inspect_online">Analisar online</string>
-    <string name="trip_action_inspect_online_desc">Partilha uma ligação eucviewer.ried.no para ver esta volta online.</string>
+    <string name="trip_action_inspect_online_desc">Partilha uma ligação eucviewer.ried.no para ver este percurso online.</string>
     <string name="trip_action_dropbox_disabled">Associe o Dropbox nas definições para ativar isto</string>
     <string name="nav_start_short">Iniciar navegação</string>
     <string name="nav_start_btn">Iniciar</string>
@@ -2171,7 +2179,7 @@
 
     <string name="nav_start_riding">Comece a andar</string>
     <string name="nav_arrived">Chegou</string>
-    <string name="nav_arrived_goal">Objetivo %1$d alcançado</string>
+    <string name="nav_arrived_goal">Paragem %1$d alcançada</string>
     <string name="nav_end_title">Terminar a navegação?</string>
     <string name="nav_end_body">Parar as indicações para a rota ativa?</string>
     <string name="nav_end_confirm">Terminar</string>
@@ -2421,9 +2429,8 @@
     <string name="watch_show_navigation_desc">Mostra a seta de viragem e a distância no relógio durante a navegação.</string>
     <string name="trip_action_share_file">Partilhar ficheiro</string>
     <string name="trip_action_share_file_desc">Envia o CSV do percurso para outra app.</string>
-    <string name="trip_action_view_online">Ver online</string>
     <string name="trip_action_replay">Repetir no Studio</string>
-    <string name="trip_action_replay_desc">Percorre a volta com overlays de dados ao vivo.</string>
+    <string name="trip_action_replay_desc">Reveja o percurso com overlays de dados ao vivo.</string>
     <string name="dash_view_video_gallery">Ver galeria de vídeos</string>
     <string name="dash_view_photo_gallery">Ver galeria de fotos</string>
     <string name="dash_no_gallery_app">Nenhuma app de galeria encontrada</string>
@@ -2474,7 +2481,7 @@
     <string name="warnings_hud_blocked_title">O HUD do telemóvel não consegue desenhar</string>
     <string name="warnings_hud_blocked_body">A autorização para desenhar sobre outras apps foi retirada, por isso o overlay não aparece por cima de mapas ou música.</string>
     <string name="warnings_no_backup_title">Os percursos não têm cópia</string>
-    <string name="warnings_no_backup_body">Só existem neste telemóvel. Escolha uma pasta de cópias para que um telemóvel perdido ou apagado não leve as suas voltas consigo.</string>
+    <string name="warnings_no_backup_body">Só existem neste telemóvel. Escolha uma pasta de cópias para que um telemóvel perdido ou apagado não leve os seus percursos consigo.</string>
     <string name="warnings_pip_blocked_title">A imagem na imagem está bloqueada</string>
     <string name="warnings_pip_blocked_body">O Android está configurado para a recusar no EUC Planet, por isso a janela flutuante não aparece quando sai da app.</string>
     <string name="online_rejoin_confirm">Voltar a entrar</string>
@@ -2584,7 +2591,7 @@
     <string name="lockdown_limit_12">Tocar numa métrica não faz nada.</string>
     <string name="lockdown_limit_13">Os anúncios de voz, os relatórios periódicos e os tempos por velocidade ficam em silêncio. Os seus alarmes continuam a funcionar.</string>
     <string name="lockdown_limit_14">A roda não pode ser bloqueada nem desbloqueada, e o bloqueio automático por proximidade não funciona.</string>
-    <string name="lockdown_limit_15">As luzes e o volume automáticos continuam a funcionar. O controlo multimédia para.</string>
+    <string name="lockdown_limit_15">As luzes e o volume automáticos continuam a funcionar. O controlo da reprodução para.</string>
     <string name="lockdown_limit_16">A notificação perde os botões.</string>
     <string name="lockdown_limit_17">O número da versão não abre Acerca de.</string>
     <string name="lockdown_limit_18">Este modo não é incluído nas cópias das definições.</string>
@@ -2651,13 +2658,13 @@
     <string name="crews_type_instead">Introduzir manualmente</string>
     <string name="crews_code_label">Código do passe</string>
     <string name="crews_foreign_title">Este código não é do eucstats</string>
-    <string name="crews_foreign_body">Aponta para %1$s, que não é para onde vão as suas voltas. Aceitar entregaria a sua conta a quem gere esse servidor.\n\nTem o seu próprio servidor? Ative primeiro o modo de programador nas Definições.</string>
+    <string name="crews_foreign_body">Aponta para %1$s, que não é para onde vão os seus percursos. Aceitar entregaria a sua conta a quem gere esse servidor.\n\nTem o seu próprio servidor? Ative primeiro o modo de programador nas Definições.</string>
     <string name="crews_scan_switch">Ler código</string>
     <string name="crews_close">Fechar</string>
     <string name="crews_opensettings">Abrir definições</string>
     <string name="crews_dev_title">Modo de programador</string>
     <string name="crews_dev_body">A comunicar com %1$s em vez do servidor habitual.</string>
-    <string name="crews_grant">Deixe esse navegador representá-lo.\n\nPode criar uma equipa, entrar numa, sair de uma e gerir membros. Não pode enviar voltas, mudar o seu nome nem eliminar nada, isso fica tudo neste telemóvel.</string>
+    <string name="crews_grant">Deixe esse navegador representá-lo.\n\nPode criar uma equipa, entrar numa, sair de uma e gerir membros. Não pode enviar percursos, mudar o seu nome nem eliminar nada, isso fica tudo neste telemóvel.</string>
     <string name="crews_noprofile_title">Entre primeiro na classificação</string>
     <string name="crews_noprofile_body">As equipas dependem do seu perfil de classificação, e este telemóvel ainda não tem um. Entre em %1$s e leia de novo.</string>
     <string name="crews_issue">Emitir o passe</string>

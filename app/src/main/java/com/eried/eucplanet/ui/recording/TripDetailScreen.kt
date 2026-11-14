@@ -2,7 +2,6 @@ package com.eried.eucplanet.ui.recording
 
 import androidx.compose.foundation.layout.imePadding
 import android.annotation.SuppressLint
-import android.os.Build
 import android.view.MotionEvent
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -155,7 +154,6 @@ import org.koin.compose.viewmodel.koinViewModel
 fun TripDetailScreen(
     trip: TripRecord,
     onBack: () -> Unit,
-    onViewOnline: ((Long) -> Unit)? = null,
     onReplayTrip: ((Long) -> Unit)? = null,
     viewModel: RecordingViewModel = koinViewModel()
 ) {
@@ -438,7 +436,6 @@ fun TripDetailScreen(
         val dropboxLinked by viewModel.dropboxLinked.collectAsState()
         TripActionDialog(
             onShareFile = { viewModel.shareTrip(trip) },
-            onViewOnline = { onViewOnline?.invoke(trip.id) },
             onReplay = { onReplayTrip?.invoke(trip.id) },
             onDismiss = { showShareDialog = false },
             dropboxLinked = dropboxLinked,
@@ -2322,11 +2319,9 @@ private fun RouteMapView(
                     w.setDimAmount(0f)
                     // Draw into the display cutout too, otherwise in landscape the
                     // notch side stays letterboxed and the content behind shows.
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                        w.attributes = w.attributes.apply {
-                            layoutInDisplayCutoutMode =
-                                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
-                        }
+                    w.attributes = w.attributes.apply {
+                        layoutInDisplayCutoutMode =
+                            WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
                     }
                     WindowCompat.setDecorFitsSystemWindows(w, false)
                     WindowInsetsControllerCompat(w, w.decorView).apply {

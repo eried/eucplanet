@@ -153,7 +153,7 @@
     <string name="dashboard_composite_layout_col3">3 kolonner</string>
     <string name="dashboard_composite_cell_label">Celle %1$d</string>
     <!-- "(blank)" is the collapsing placeholder: cell renders "-", layout collapses. -->
-    <string name="dashboard_composite_empty_label">(blank)</string>
+    <string name="dashboard_composite_empty_label">(ingen)</string>
     <!-- "(empty)" is the reserving placeholder: cell renders blank, layout intact. -->
     <string name="dashboard_composite_blank_label">(tom)</string>
     <string name="dashboard_stat_empty">(tom)</string>
@@ -194,7 +194,7 @@
     <!-- Open-menu label for DashboardStat.NONE; closed-field shows a literal
          "-" glyph from statSelectedLabel so the rider sees the visual at a
          glance regardless of locale. -->
-    <string name="dashboard_stat_none">(blank)</string>
+    <string name="dashboard_stat_none">(ingen)</string>
     <string name="dashboard_stat_current">Nu</string>
     <string name="dashboard_stat_min">Min</string>
     <string name="dashboard_stat_max">Maks / Spids</string>
@@ -300,7 +300,7 @@
     <string name="metric_chip_descent_tile">Ned</string>
     <string name="metric_chip_gps_speed_tile">GPS-fart</string>
     <string name="metric_chip_gps_altitude_tile">Alt</string>
-    <string name="metric_chip_gps_heading_tile">Kurs</string>
+    <string name="metric_chip_gps_heading_tile">Retning</string>
     <string name="metric_chip_trip_time_tile">Tid</string>
     <string name="metric_chip_g_force_tile">G</string>
     <string name="metric_chip_forward_g_tile">Frem g</string>
@@ -490,7 +490,7 @@
     <string name="hud_hotspot_unknown_hint">Sørg for, at HUD\'en og telefonen er på samme Wi-Fi-netværk. Hvis du bruger telefonens hotspot, skal du tænde det først.</string>
     <string name="hud_hotspot_on_hint">Telefonens hotspot sender. Forbind HUD\'en til denne telefons Wi-Fi for at aktivere forbindelsen.</string>
     <string name="hud_overlay_subsection">Eget overlay</string>
-    <string name="hud_overlay_subsection_desc">Importér en Overlay Studio-skabelon til HUD\'ens Custom-skærm uden baggrunde. Skabelonen kopieres hertil, så senere ændringer i studiet ændrer ikke HUD\'en, før du importerer igen.</string>
+    <string name="hud_overlay_subsection_desc">Importér en Overlay Studio-skabelon til HUD\'ens skærme Eget overlay uden baggrunde. Skabelonen kopieres hertil, så senere ændringer i studiet ændrer ikke HUD\'en, før du importerer igen.</string>
     <string name="hud_overlay_select_preset">Importér skabelon</string>
     <string name="hud_overlay_current_preset">Nuværende: %1$s</string>
     <string name="hud_custom_overlay_none">Ryd</string>
@@ -817,7 +817,7 @@
 
     <!-- Engine sound generator -->
     <string name="section_engine_sound">Motorlyd</string>
-    <string name="engine_sound_enabled">Motorlyd</string>
+    <string name="engine_sound_enabled">Afspil motorlyd</string>
     <string name="engine_sound_enabled_hint">Styrer motorens omdrejningstal live ud fra hjulets fart og motorbelastning.</string>
     <string name="engine_type_label">Motor</string>
     <string name="engine_source_sampled">Samplet</string>
@@ -974,7 +974,10 @@
     <string name="radar_unpair">Glem enhed</string>
     <string name="radar_battery_fmt">Batteri %1$d%%</string>
     <string name="radar_clear">Vejen er fri</string>
-    <string name="radar_threats_count">Sporede køretøjer (%1$d):</string>
+    <plurals name="radar_threats_count">
+        <item quantity="one">Sporer %1$d køretøj:</item>
+        <item quantity="other">Sporer %1$d køretøjer:</item>
+    </plurals>
     <string name="radar_show_overlay">Vis radar-overlay</string>
     <string name="radar_show_overlay_desc">Tynd radarbjælke i dashboardets kanter. En farvet prik pr. registreret køretøj. Vises kun på dashboardet.</string>
     <string name="radar_overlay_left">Venstre kant</string>
@@ -1333,8 +1336,8 @@
     <string name="online_status_pending">Uploader til ranglisten…</string>
     <string name="online_status_failed">Online-upload mislykkedes, tryk for at prøve igen</string>
     <string name="online_status_rejected">Ikke godkendt til ranglisten</string>
-    <string name="online_upload_join_caption">Tilmeld dig for at sende dine statistikker og ture til den offentlige rangliste på.</string>
-    <string name="online_upload_linked_caption">Dine statistikker og ture vises på den offentlige rangliste på.</string>
+    <string name="online_upload_join_caption">Tilmeld dig for at sende dine statistikker og ture til den offentlige rangliste på %1$s.</string>
+    <string name="online_upload_linked_caption">Dine statistikker og ture vises på den offentlige rangliste på %1$s.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Frakobl</string>
@@ -1354,7 +1357,7 @@
     <string name="online_profile_save_rate_limited">For mange forsøg, prøv igen senere.</string>
     <string name="online_profile_save_failed">Kunne ikke gemme (HTTP %1$d). Prøv igen.</string>
     <string name="online_restore_title">Der blev fundet en gemt profil</string>
-    <string name="online_restore_body_new">Vi fandt en gemt profil her: %1$s. Hvis du fortsætter, genindtræder du på den offentlige rangliste som den rytter, med navn, flag, profilbillede og kørestatistikker synlige. Der oprettes ikke en ny profil.</string>
+    <string name="online_restore_body_new">Vi fandt en gemt profil her: %1$s. Hvis du fortsætter, genindtræder du på den offentlige rangliste som den rytter, med navn, flag, profilbillede og turstatistikker synlige. Der oprettes ikke en ny profil.</string>
     <string name="online_restore_body_switch">Vi fandt en anden gemt profil: %1$s. Hvis du fortsætter, skifter denne telefon til den rytter. Din nuværende profil får backup først.</string>
     <string name="online_restore_confirm">Fortsæt som %1$s</string>
     <string name="online_rejoin_title">Genaktiver profil</string>
@@ -1753,7 +1756,7 @@
     <!-- Navigation overlay -->
     <string name="nav_start_riding">Begynd at køre</string>
     <string name="nav_arrived">Du er fremme</string>
-    <string name="nav_arrived_goal">Mål %1$d nået</string>
+    <string name="nav_arrived_goal">Stop %1$d nået</string>
     <string name="nav_end_title">Afslut navigation?</string>
     <!-- ==== Live location share (navigator) ==== -->
     <string name="share_button">Delingsmuligheder</string>
@@ -1959,7 +1962,6 @@
     <!-- ==== Trip share / actions ==== -->
     <string name="trip_action_share_file">Del fil</string>
     <string name="trip_action_share_file_desc">Send turens CSV til en anden app.</string>
-    <string name="trip_action_view_online">Vis online</string>
     <string name="trip_action_replay">Afspil i Studio</string>
     <string name="trip_action_replay_desc">Spol gennem turen med dataoverlays.</string>
     <!-- ==== Dashboard quick menus ==== -->
@@ -2262,8 +2264,8 @@
     <string name="adv_nav_hunt_voice_interval_desc">Bestemmer, hvor ofte stemmen siger, at den søger efter GPS. Pas på: for lav gentager det tit.</string>
     <string name="adv_nav_inter_stop">Bevægelse mellem stop</string>
     <string name="adv_nav_inter_stop_desc">Bestemmer, hvor langt du skal bevæge dig forbi ét stop, før det næste kan tælle som nået. Pas på: for lav kan springe et stop over.</string>
-    <string name="adv_nav_intermediate_flash">Blinktid for rutepunkt</string>
-    <string name="adv_nav_intermediate_flash_desc">Bestemmer, hvor længe blinket for et nået rutepunkt vises.</string>
+    <string name="adv_nav_intermediate_flash">Visningstid for nået stop</string>
+    <string name="adv_nav_intermediate_flash_desc">Bestemmer, hvor længe beskeden om et nået stop vises.</string>
     <string name="adv_nav_max_start">Maks. startafstand</string>
     <string name="adv_nav_max_start_desc">Hvor langt væk det første stop højst må være for at starte navigationen. Ud over dette skjules linjen fra din position, og start blokeres. Planlægning virker stadig.</string>
     <string name="adv_nav_moving">Bevægelsesfart</string>
@@ -2399,7 +2401,7 @@
     <string name="compact_mode_always">Altid</string>
     <string name="compact_mode_auto">Små skærme</string>
     <string name="compact_mode_never">Aldrig</string>
-    <string name="setting_cover_cutout">Undgå frontkameraer</string>
+    <string name="setting_cover_cutout">Undgå coverskærmens kameraer</string>
     <string name="cover_cutout_off">Fra</string>
     <string name="cover_cutout_left">Nederst til venstre</string>
     <string name="cover_cutout_right">Nederst til højre</string>
@@ -2419,7 +2421,7 @@
     <string name="adv_compact_max_screen">Grænse for kompakt skærm</string>
     <string name="adv_compact_max_screen_desc">Skærme med begge sider under dette skifter til det kompakte dashboard, når Kompakt dashboard er sat til Små skærme.</string>
     <string name="adv_cover_cutout_inset">Størrelse på kameraudskæring</string>
-    <string name="adv_cover_cutout_inset_desc">Plads, der holdes fri til linserne på forsiden, når Undgå frontkameraer er slået til. For lille, og linserne dækker knapper.</string>
+    <string name="adv_cover_cutout_inset_desc">Plads, der holdes fri til coverskærmens linser, når Undgå coverskærmens kameraer er slået til. For lille, og linserne dækker knapper.</string>
     <string name="adv_nav_sidebar_min">Mindste skærm til sidepanel</string>
     <string name="adv_nav_sidebar_min_desc">Smallere skærme beholder det nederste stoppanel selv i liggende retning. For lavt skjuler kortet på små skærme.</string>
     <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
@@ -2639,7 +2641,10 @@
     <string name="recording_delete_archive">Arkivér kopierne i backuppen</string>
     <string name="recording_delete_archive_desc">Flytter dem til en arkivmappe.</string>
     <string name="trip_tools_extend_all_inside">Turene omkring denne er allerede en del af den.</string>
-    <string name="trip_tools_extend_skipped">Ture, der allerede er med i denne, springes over: %1$d</string>
+    <plurals name="trip_tools_extend_skipped">
+        <item quantity="one">Springer %1$d tur over, der allerede er med i denne.</item>
+        <item quantity="other">Springer %1$d ture over, der allerede er med i denne.</item>
+    </plurals>
     <string name="recording_clear_all_body_archive">Dette sletter turene fra denne telefon. Kopierne i backuppen flyttes til en arkivmappe.</string>
     <string name="recording_delete_trip_body_archive">Slet denne tur fra telefonen? Kopien i backuppen flyttes til en arkivmappe.</string>
     <string name="backup_status_pending">Tager backup…</string>
@@ -2682,7 +2687,7 @@
     <string name="lockdown_limit_12">Der sker ikke noget, når du trykker på en måling.</string>
     <string name="lockdown_limit_13">Oplæsninger, løbende rapporter og mellemtider er tavse. Dine alarmer virker stadig.</string>
     <string name="lockdown_limit_14">Hjulet kan ikke låses eller låses op, og den automatiske nærhedslås kører ikke.</string>
-    <string name="lockdown_limit_15">Autolys og autolydstyrke virker fortsat. Mediestyringen stopper.</string>
+    <string name="lockdown_limit_15">Autolys og autolydstyrke virker fortsat. Afspilningsstyringen stopper.</string>
     <string name="lockdown_limit_16">Notifikationen mister sine knapper.</string>
     <string name="lockdown_limit_17">Versionsnummeret åbner ikke længere Om.</string>
     <string name="lockdown_limit_18">Denne tilstand kommer ikke med i backup af indstillingerne.</string>

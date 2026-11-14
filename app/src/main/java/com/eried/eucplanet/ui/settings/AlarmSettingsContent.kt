@@ -234,7 +234,7 @@ fun AlarmSettingsContent(
     ) {
         // The priority hint only makes sense once there are alarms to prioritise.
         if (groups.isNotEmpty()) {
-            HintText(stringResource(R.string.alarm_help), small = true)
+            HintText(stringResource(R.string.alarm_help))
             Spacer(Modifier.height(12.dp))
         }
 
@@ -1056,7 +1056,7 @@ private fun AlarmRuleEditorDialog(
                         shape = RoundedCornerShape(12.dp),
                         colors = themedFieldColors(),
                     )
-                    HintText(stringResource(R.string.alarm_voice_template_help), small = true)
+                    HintText(stringResource(R.string.alarm_voice_template_help))
                 }
 
                 Spacer(Modifier.height(8.dp))
@@ -1215,8 +1215,7 @@ private fun AlarmRuleEditorDialog(
                                 stringResource(R.string.alarm_repeat_help_once_instant, triggeredPhrase, safePhrase)
                             else ->
                                 stringResource(R.string.alarm_repeat_help_once, triggeredPhrase, safePhrase, cooldownSeconds)
-                        },
-                        small = true
+                        }
                     )
 
                     Spacer(Modifier.height(8.dp))
@@ -1255,8 +1254,7 @@ private fun AlarmRuleEditorDialog(
                         if (leadTimeMs <= 0)
                             stringResource(R.string.alarm_predict_help_now, triggeredPhrase)
                         else
-                            stringResource(R.string.alarm_predict_help_lead, leadSeconds(leadTimeMs), triggeredPhrase),
-                        small = true
+                            stringResource(R.string.alarm_predict_help_lead, leadSeconds(leadTimeMs), triggeredPhrase)
                     )
 
                     Spacer(Modifier.height(8.dp))

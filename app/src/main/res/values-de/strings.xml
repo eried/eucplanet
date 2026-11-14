@@ -153,7 +153,7 @@
     <string name="dashboard_composite_layout_col3">3 Spalten</string>
     <string name="dashboard_composite_cell_label">Zelle %1$d</string>
     <!-- "(blank)" is the collapsing placeholder: cell renders "-", layout collapses. -->
-    <string name="dashboard_composite_empty_label">(frei)</string>
+    <string name="dashboard_composite_empty_label">(nichts)</string>
     <!-- "(empty)" is the reserving placeholder: cell renders blank, layout intact. -->
     <string name="dashboard_composite_blank_label">(leer)</string>
     <string name="dashboard_stat_empty">(leer)</string>
@@ -194,7 +194,7 @@
     <!-- Open-menu label for DashboardStat.NONE; closed-field shows a literal
          "-" glyph from statSelectedLabel so the rider sees the visual at a
          glance regardless of locale. -->
-    <string name="dashboard_stat_none">(frei)</string>
+    <string name="dashboard_stat_none">(nichts)</string>
     <string name="dashboard_stat_current">Jetzt</string>
     <string name="dashboard_stat_min">Min.</string>
     <string name="dashboard_stat_max">Max. / Spitze</string>
@@ -490,7 +490,7 @@
     <string name="hud_hotspot_unknown_hint">Stell sicher, dass HUD und Handy im selben WLAN sind. Wenn du den Handy-Hotspot nutzt, schalte ihn zuerst ein.</string>
     <string name="hud_hotspot_on_hint">Handy-Hotspot sendet. Verbinde das HUD mit diesem WLAN, um die Verbindung herzustellen.</string>
     <string name="hud_overlay_subsection">Eigenes Overlay</string>
-    <string name="hud_overlay_subsection_desc">Importiere ein Overlay-Studio-Preset auf den Bildschirm Eigenes Overlay des HUD, ohne Hintergrund. Das Preset wird hierher kopiert, spätere Änderungen im Studio wirken erst nach erneutem Import.</string>
+    <string name="hud_overlay_subsection_desc">Importiere ein Overlay-Studio-Preset auf die Bildschirme Eigenes Overlay des HUD, ohne Hintergrund. Das Preset wird hierher kopiert, spätere Änderungen im Studio wirken erst nach erneutem Import.</string>
     <string name="hud_overlay_select_preset">Preset importieren</string>
     <string name="hud_overlay_current_preset">Aktuell: %1$s</string>
     <string name="hud_custom_overlay_none">Leeren</string>
@@ -813,7 +813,7 @@
 
     <!-- Engine sound generator -->
     <string name="section_engine_sound">Motorklang</string>
-    <string name="engine_sound_enabled">Motorklang</string>
+    <string name="engine_sound_enabled">Motorklang abspielen</string>
     <string name="engine_sound_enabled_hint">Steuert Motor-Drehzahl live aus Wheel-Geschwindigkeit und Motorlast.</string>
     <string name="engine_type_label">Motor</string>
     <string name="engine_source_sampled">Sample</string>
@@ -970,7 +970,10 @@
     <string name="radar_unpair">Gerät vergessen</string>
     <string name="radar_battery_fmt">Akku %1$d %%</string>
     <string name="radar_clear">Spur ist frei</string>
-    <string name="radar_threats_count">Erfasste Fahrzeuge (%1$d):</string>
+    <plurals name="radar_threats_count">
+        <item quantity="one">%1$d Fahrzeug erfasst:</item>
+        <item quantity="other">%1$d Fahrzeuge erfasst:</item>
+    </plurals>
     <string name="radar_show_overlay">Gefahren-Overlay anzeigen</string>
     <string name="radar_show_overlay_desc">Schmaler Radar-Streifen am Dashboard-Rand. Ein farbiger Punkt pro erkanntem Fahrzeug. Nur auf dem Dashboard sichtbar.</string>
     <string name="radar_overlay_left">Linker Rand</string>
@@ -1330,8 +1333,8 @@
     <string name="online_status_pending">Wird hochgeladen…</string>
     <string name="online_status_failed">Upload fehlgeschlagen, zum Wiederholen tippen</string>
     <string name="online_status_rejected">Nicht für die Bestenliste akzeptiert</string>
-    <string name="online_upload_join_caption">Tritt bei und teile deine Statistiken und Fahrten in der öffentlichen Bestenliste auf.</string>
-    <string name="online_upload_linked_caption">Deine Statistiken und Fahrten erscheinen in der öffentlichen Bestenliste auf.</string>
+    <string name="online_upload_join_caption">Tritt bei und teile deine Statistiken und Fahrten in der öffentlichen Bestenliste auf %1$s.</string>
+    <string name="online_upload_linked_caption">Deine Statistiken und Fahrten erscheinen in der öffentlichen Bestenliste auf %1$s.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Verknüpfung aufheben</string>
@@ -1774,7 +1777,7 @@
     <!-- Navigation overlay -->
     <string name="nav_start_riding">Losfahren</string>
     <string name="nav_arrived">Du bist angekommen</string>
-    <string name="nav_arrived_goal">Ziel %1$d erreicht</string>
+    <string name="nav_arrived_goal">Stopp %1$d erreicht</string>
     <string name="nav_end_title">Navigation beenden?</string>
     <!-- ==== Live location share (navigator) ==== -->
     <string name="share_button">Teilen-Optionen</string>
@@ -1981,7 +1984,6 @@
     <!-- ==== Trip share / actions ==== -->
     <string name="trip_action_share_file">Datei teilen</string>
     <string name="trip_action_share_file_desc">Fahrt-CSV an eine andere App senden.</string>
-    <string name="trip_action_view_online">Online ansehen</string>
     <string name="trip_action_replay">Im Studio abspielen</string>
     <string name="trip_action_replay_desc">Fahrt mit Live-Daten-Overlays durchspulen.</string>
 
@@ -2267,8 +2269,8 @@
     <string name="adv_nav_hunt_voice_interval_desc">Bestimmt, wie oft die Stimme sagt, dass sie nach GPS sucht. Achtung: zu niedrig wiederholt es oft.</string>
     <string name="adv_nav_inter_stop">Zwischenstopp-Schwelle</string>
     <string name="adv_nav_inter_stop_desc">Bestimmt, wie weit du dich von einem Stopp entfernen musst, bevor der nächste als erreicht zählt. Achtung: zu niedrig kann einen Stopp überspringen.</string>
-    <string name="adv_nav_intermediate_flash">Wegpunkt-Aufblitzdauer</string>
-    <string name="adv_nav_intermediate_flash_desc">Bestimmt, wie lange das Aufblitzen bei erreichtem Wegpunkt angezeigt wird.</string>
+    <string name="adv_nav_intermediate_flash">Anzeigedauer Stopp erreicht</string>
+    <string name="adv_nav_intermediate_flash_desc">Bestimmt, wie lange die Meldung zum erreichten Stopp angezeigt wird.</string>
     <string name="adv_nav_max_start">Max. Startdistanz</string>
     <string name="adv_nav_max_start_desc">Wie weit der erste Stopp höchstens entfernt sein darf, um die Navigation zu starten. Darüber hinaus wird die Linie von deiner Position ausgeblendet und der Start blockiert. Die Planung funktioniert weiterhin.</string>
     <string name="adv_nav_moving">Bewegungsgeschwindigkeit</string>
@@ -2404,7 +2406,7 @@
     <string name="compact_mode_always">Immer</string>
     <string name="compact_mode_auto">Kleine Bildschirme</string>
     <string name="compact_mode_never">Nie</string>
-    <string name="setting_cover_cutout">Frontkameras aussparen</string>
+    <string name="setting_cover_cutout">Frontdisplay-Kameras aussparen</string>
     <string name="cover_cutout_off">Aus</string>
     <string name="cover_cutout_left">Unten links</string>
     <string name="cover_cutout_right">Unten rechts</string>
@@ -2424,7 +2426,7 @@
     <string name="adv_compact_max_screen">Grenze für kompakten Bildschirm</string>
     <string name="adv_compact_max_screen_desc">Bildschirme, deren beide Seiten darunter liegen, wechseln zum kompakten Dashboard, wenn Kompaktes Dashboard auf Kleine Bildschirme steht.</string>
     <string name="adv_cover_cutout_inset">Größe der Kameraaussparung</string>
-    <string name="adv_cover_cutout_inset_desc">Freigehaltener Platz für die Frontlinsen, wenn Frontkameras aussparen aktiv ist. Zu klein, und die Linsen verdecken Tasten.</string>
+    <string name="adv_cover_cutout_inset_desc">Freigehaltener Platz für die Linsen im Frontdisplay, wenn Frontdisplay-Kameras aussparen aktiv ist. Zu klein, und die Linsen verdecken Tasten.</string>
     <string name="adv_nav_sidebar_min">Mindestbildschirm für Seitenleiste</string>
     <string name="adv_nav_sidebar_min_desc">Schmalere Bildschirme behalten die untere Stoppliste auch im Querformat. Zu niedrig begräbt die Karte auf kleinen Bildschirmen.</string>
     <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
@@ -2644,7 +2646,10 @@
     <string name="recording_delete_archive">Backup-Kopien archivieren</string>
     <string name="recording_delete_archive_desc">Verschiebt sie in einen Archivordner.</string>
     <string name="trip_tools_extend_all_inside">Die Fahrten ringsum sind schon Teil dieser Fahrt.</string>
-    <string name="trip_tools_extend_skipped">Überspringt bereits enthaltene Fahrten: %1$d.</string>
+    <plurals name="trip_tools_extend_skipped">
+        <item quantity="one">Überspringt %1$d Fahrt, die bereits enthalten ist.</item>
+        <item quantity="other">Überspringt %1$d Fahrten, die bereits enthalten sind.</item>
+    </plurals>
     <string name="recording_clear_all_body_archive">Das löscht die Fahrten von diesem Handy. Die Backup-Kopien wandern in einen Archivordner.</string>
     <string name="recording_delete_trip_body_archive">Diese Fahrt vom Handy löschen? Die Backup-Kopie wandert in einen Archivordner.</string>
     <string name="backup_status_pending">Backup läuft…</string>
@@ -2687,7 +2692,7 @@
     <string name="lockdown_limit_12">Ein Tippen auf einen Wert bewirkt nichts.</string>
     <string name="lockdown_limit_13">Sprachansagen, regelmäßige Berichte und Tempo-Zwischenzeiten sind stumm. Deine Alarme funktionieren weiter.</string>
     <string name="lockdown_limit_14">Das Wheel lässt sich nicht sperren oder entsperren, und die Näherungssperre läuft nicht.</string>
-    <string name="lockdown_limit_15">Auto-Licht und Auto-Lautstärke laufen weiter. Die Mediensteuerung stoppt.</string>
+    <string name="lockdown_limit_15">Auto-Licht und Auto-Lautstärke laufen weiter. Die Wiedergabesteuerung stoppt.</string>
     <string name="lockdown_limit_16">Die Benachrichtigung verliert ihre Tasten.</string>
     <string name="lockdown_limit_17">Die Versionsnummer öffnet nicht mehr Über die App.</string>
     <string name="lockdown_limit_18">Dieser Modus ist nicht Teil der Einstellungs-Backups.</string>

@@ -153,10 +153,10 @@
     <string name="dashboard_composite_layout_col3">3열</string>
     <string name="dashboard_composite_cell_label">셀 %1$d</string>
     <!-- "(blank)" is the collapsing placeholder: cell renders "-", layout collapses. -->
-    <string name="dashboard_composite_empty_label">(빈칸)</string>
+    <string name="dashboard_composite_empty_label">(없음)</string>
     <!-- "(empty)" is the reserving placeholder: cell renders blank, layout intact. -->
-    <string name="dashboard_composite_blank_label">(비어 있음)</string>
-    <string name="dashboard_stat_empty">(비어 있음)</string>
+    <string name="dashboard_composite_blank_label">(빈칸)</string>
+    <string name="dashboard_stat_empty">(빈칸)</string>
     <string name="dashboard_group_default_name">내 동작</string>
     <string name="dashboard_group_empty_toast">표시할 동작이 없습니다</string>
     <string name="dashboard_group_name_label">그룹 이름</string>
@@ -194,7 +194,7 @@
     <!-- Open-menu label for DashboardStat.NONE; closed-field shows a literal
          "-" glyph from statSelectedLabel so the rider sees the visual at a
          glance regardless of locale. -->
-    <string name="dashboard_stat_none">(빈칸)</string>
+    <string name="dashboard_stat_none">(없음)</string>
     <string name="dashboard_stat_current">현재</string>
     <string name="dashboard_stat_min">최솟값</string>
     <string name="dashboard_stat_max">최댓값 / 피크</string>
@@ -490,7 +490,7 @@
     <string name="hud_hotspot_unknown_hint">HUD와 휴대전화가 같은 Wi-Fi 네트워크에 있는지 확인하세요. 휴대전화 핫스팟을 사용한다면 먼저 켜세요.</string>
     <string name="hud_hotspot_on_hint">휴대전화 핫스팟이 켜져 있습니다. HUD를 이 휴대전화의 Wi-Fi에 연결하면 링크가 활성화됩니다.</string>
     <string name="hud_overlay_subsection">커스텀 오버레이</string>
-    <string name="hud_overlay_subsection_desc">오버레이 스튜디오 프리셋을 배경 없이 HUD 커스텀 화면에 가져옵니다. 프리셋은 여기에 복사되므로 스튜디오에서 편집해도 다시 가져오기 전까지 HUD에 반영되지 않습니다.</string>
+    <string name="hud_overlay_subsection_desc">오버레이 스튜디오 프리셋을 배경 없이 HUD 커스텀 오버레이 화면에 가져옵니다. 프리셋은 여기에 복사되므로 스튜디오에서 편집해도 다시 가져오기 전까지 HUD에 반영되지 않습니다.</string>
     <string name="hud_overlay_select_preset">프리셋 가져오기</string>
     <string name="hud_overlay_current_preset">현재: %1$s</string>
     <string name="hud_custom_overlay_none">지우기</string>
@@ -813,7 +813,7 @@
 
     <!-- Engine sound generator -->
     <string name="section_engine_sound">모터 사운드</string>
-    <string name="engine_sound_enabled">엔진 사운드</string>
+    <string name="engine_sound_enabled">엔진 사운드 재생</string>
     <string name="engine_sound_enabled_hint">휠 속도와 모터 부하에 맞춰 엔진 RPM을 실시간으로 바꿉니다.</string>
     <string name="engine_type_label">엔진</string>
     <string name="engine_source_sampled">샘플링</string>
@@ -895,7 +895,7 @@
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Flic 2 버튼</string>
     <string name="flic_show_on_dashboard">대시보드에 빠른 접근 아이콘 표시</string>
-    <string name="flic_scan_hint">Flic 2 버튼을 6초 동안 눌러 페어링 모드로 전환한 후 스캔을 탭하세요.</string>
+    <string name="flic_scan_hint">Flic 2 버튼을 6초 동안 눌러 페어링 모드로 전환한 후 스캔 시작을 탭하세요.</string>
     <string name="flic_stop_scan">스캔 중지</string>
     <string name="flic_start_scan">스캔 시작</string>
     <string name="flic_forget">삭제</string>
@@ -970,7 +970,9 @@
     <string name="radar_unpair">기기 삭제</string>
     <string name="radar_battery_fmt">배터리 %1$d%%</string>
     <string name="radar_clear">후방에 차량 없음</string>
-    <string name="radar_threats_count">차량 %1$d대 감지 중:</string>
+    <plurals name="radar_threats_count">
+        <item quantity="other">차량 %1$d대 감지 중:</item>
+    </plurals>
     <string name="radar_show_overlay">위협 오버레이 표시</string>
     <string name="radar_show_overlay_desc">대시보드 양쪽 여백에 얇은 레이더 차선을 표시합니다. 감지된 차량마다 색상 점이 하나씩 나타납니다. 대시보드에서만 보입니다.</string>
     <string name="radar_overlay_left">왼쪽 가장자리</string>
@@ -1098,7 +1100,7 @@
     <string name="recording_delete_trip_title">주행 기록 삭제</string>
     <string name="recording_delete_trip_body">이 주행 기록과 데이터 파일을 삭제하시겠습니까?</string>
     <string name="recording_clear_all_menu">전체 삭제</string>
-    <string name="recording_empty">표시할 데이터가 없습니다. 가져오거나 새로 기록하세요</string>
+    <string name="recording_empty">표시할 데이터가 없습니다. 가져오거나 새 주행을 기록하세요</string>
     <string name="recording_will_auto_stop">%1$d초 동안 멈춰 있으면 기록이 자동으로 끝납니다</string>
     <string name="recording_stat_trips">주행 수</string>
     <string name="recording_stat_distance">거리</string>
@@ -1330,13 +1332,13 @@
     <string name="online_status_pending">리더보드에 업로드 중…</string>
     <string name="online_status_failed">업로드하지 못했습니다. 탭하여 다시 시도하세요</string>
     <string name="online_status_rejected">리더보드에 등록되지 않음</string>
-    <string name="online_upload_join_caption">참여하면 통계와 주행 기록을 다음 공개 리더보드로 보냅니다.</string>
-    <string name="online_upload_linked_caption">통계와 주행 기록이 다음 공개 리더보드에 표시됩니다.</string>
+    <string name="online_upload_join_caption">참여하면 통계와 주행 기록을 공개 리더보드(%1$s)로 보냅니다.</string>
+    <string name="online_upload_linked_caption">통계와 주행 기록이 공개 리더보드(%1$s)에 표시됩니다.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">연결 해제</string>
     <string name="online_unlink_title">리더보드 연결을 해제하시겠습니까?</string>
-    <string name="online_unlink_body">이 휴대전화는 더 이상 주행을 업로드하지 않습니다. 라이더 ID는 저장되어 있어 같은 라이더로 다시 참여할 수 있습니다. 통계는 EUC Stats에 남아 있으며, 삭제하려면 계정 삭제를 사용하세요.</string>
+    <string name="online_unlink_body">이 휴대전화는 더 이상 주행 기록을 업로드하지 않습니다. 라이더 ID는 저장되어 있어 같은 라이더로 다시 참여할 수 있습니다. 통계는 EUC Stats에 남아 있으며, 삭제하려면 계정 삭제를 사용하세요.</string>
     <string name="online_unlink_confirm">연결 해제</string>
 
     <!-- Online profile (edit/GDPR) -->
@@ -1947,9 +1949,8 @@
     <!-- ==== Trip share / actions ==== -->
     <string name="trip_action_share_file">파일 공유</string>
     <string name="trip_action_share_file_desc">주행 기록 CSV를 다른 앱으로 보냅니다.</string>
-    <string name="trip_action_view_online">온라인에서 보기</string>
     <string name="trip_action_replay">스튜디오에서 리플레이</string>
-    <string name="trip_action_replay_desc">실시간 데이터 오버레이와 함께 주행을 돌려 봅니다.</string>
+    <string name="trip_action_replay_desc">실시간 데이터 오버레이와 함께 주행 기록을 돌려 봅니다.</string>
     <!-- ==== Dashboard quick menus ==== -->
     <string name="dash_view_video_gallery">동영상 갤러리 보기</string>
     <string name="dash_view_photo_gallery">사진 갤러리 보기</string>
@@ -2085,7 +2086,7 @@
     <string name="trip_action_share_dropbox">Dropbox로 공유</string>
     <string name="trip_action_share_dropbox_desc">Dropbox 폴더에 업로드하고 공개 링크를 공유합니다.</string>
     <string name="trip_action_inspect_online">온라인으로 분석</string>
-    <string name="trip_action_inspect_online_desc">이 주행을 온라인으로 보는 eucviewer.ried.no 링크를 공유합니다.</string>
+    <string name="trip_action_inspect_online_desc">이 주행 기록을 온라인으로 보는 eucviewer.ried.no 링크를 공유합니다.</string>
     <string name="trip_action_dropbox_disabled">설정에서 Dropbox를 연결하면 사용할 수 있습니다</string>
 
     <!-- Map: chargers (OCM) and places (OSM) along the route -->
@@ -2244,8 +2245,8 @@
     <string name="adv_nav_hunt_voice_interval_desc">음성이 GPS를 검색 중이라고 알리는 빈도를 결정합니다. 주의: 너무 낮으면 자주 반복됩니다.</string>
     <string name="adv_nav_inter_stop">경유지 간 이동 기준</string>
     <string name="adv_nav_inter_stop_desc">다음 경유지가 도착으로 인정되기 전 한 경유지를 얼마나 지나야 하는지 결정합니다. 주의: 너무 낮으면 경유지를 건너뛸 수 있습니다.</string>
-    <string name="adv_nav_intermediate_flash">경유지 플래시 시간</string>
-    <string name="adv_nav_intermediate_flash_desc">경유지 도착 플래시가 표시되는 시간을 결정합니다.</string>
+    <string name="adv_nav_intermediate_flash">경유지 도착 표시 시간</string>
+    <string name="adv_nav_intermediate_flash_desc">경유지 도착 메시지가 표시되는 시간을 결정합니다.</string>
     <string name="adv_nav_max_start">최대 시작 거리</string>
     <string name="adv_nav_max_start_desc">내비게이션을 시작할 수 있는 첫 번째 경유지까지의 최대 거리입니다. 이를 넘으면 내 위치에서 이어지는 선이 숨겨지고 시작이 차단됩니다. 경로 계획은 계속 가능합니다.</string>
     <string name="adv_nav_moving">이동 속도</string>
@@ -2381,7 +2382,7 @@
     <string name="compact_mode_always">항상</string>
     <string name="compact_mode_auto">작은 화면</string>
     <string name="compact_mode_never">안 함</string>
-    <string name="setting_cover_cutout">커버 카메라 피하기</string>
+    <string name="setting_cover_cutout">커버 화면 카메라 피하기</string>
     <string name="cover_cutout_off">끄기</string>
     <string name="cover_cutout_left">왼쪽 아래</string>
     <string name="cover_cutout_right">오른쪽 아래</string>
@@ -2401,7 +2402,7 @@
     <string name="adv_compact_max_screen">간결 화면 기준</string>
     <string name="adv_compact_max_screen_desc">간결한 대시보드가 ‘작은 화면’으로 설정된 경우, 양쪽 변이 모두 이보다 작은 화면은 간결한 대시보드로 전환됩니다.</string>
     <string name="adv_cover_cutout_inset">카메라 컷아웃 크기</string>
-    <string name="adv_cover_cutout_inset_desc">커버 카메라 피하기가 켜져 있을 때 커버 렌즈 자리로 비워 두는 공간입니다. 너무 작으면 렌즈가 버튼을 가립니다.</string>
+    <string name="adv_cover_cutout_inset_desc">커버 화면 카메라 피하기가 켜져 있을 때 커버 화면 렌즈 자리로 비워 두는 공간입니다. 너무 작으면 렌즈가 버튼을 가립니다.</string>
     <string name="adv_nav_sidebar_min">사이드바 최소 화면</string>
     <string name="adv_nav_sidebar_min_desc">이보다 좁은 화면은 가로 모드에서도 하단 경유지 패널을 유지합니다. 너무 낮으면 작은 화면에서 지도가 가려집니다.</string>
     <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
@@ -2480,10 +2481,10 @@
     <string name="trip_section_failed">구간을 저장하지 못했습니다</string>
     <string name="trip_tools_title">주행 도구</string>
     <string name="trip_tools_change_wheel">휠 변경</string>
-    <string name="trip_tools_change_wheel_desc">이 주행에 사용한 휠을 바로잡습니다. 주행 기록과 파일이 함께 갱신됩니다.</string>
+    <string name="trip_tools_change_wheel_desc">이 주행 기록에 사용한 휠을 바로잡습니다. 주행 기록과 파일이 함께 갱신됩니다.</string>
     <string name="trip_tools_wheel_other">다른 휠</string>
     <string name="trip_tools_split">주행 나누기</string>
-    <string name="trip_tools_split_desc">휠 교체, 긴 정지, 기록 공백을 찾아 그 지점에서 자릅니다.</string>
+    <string name="trip_tools_split_desc">휠 교체, 긴 정지, 기록 공백을 찾아 그 지점에서 주행 기록을 자릅니다.</string>
     <string name="trip_tools_split_none">나눌 곳이 없습니다. 휠 교체, 긴 정지, 기록 공백을 찾지 못했습니다.</string>
     <string name="trip_split_reason_wheel">다른 휠로 바뀌었습니다</string>
     <string name="trip_split_reason_gap">기록 공백</string>
@@ -2537,7 +2538,7 @@
     <string name="widget_action_voice">음성</string>
     <string name="widget_button_unset">설정에서 버튼을 고르세요</string>
     <string name="trip_tools_extend">주행 확장</string>
-    <string name="trip_tools_extend_desc">이 주행의 앞뒤 주행을 흡수해 더 긴 새 주행을 만듭니다.</string>
+    <string name="trip_tools_extend_desc">이 주행 기록의 앞뒤 주행 기록을 흡수해 더 긴 새 주행 기록을 만듭니다.</string>
     <string name="trip_tools_extend_hint">앞뒤로 원하는 만큼 넓힐 수 있습니다. 사이의 모든 것이 포함됩니다.</string>
     <string name="trip_tools_extend_from">시작</string>
     <string name="trip_tools_extend_to">끝</string>
@@ -2578,7 +2579,7 @@
     <string name="trip_customize_tiles">타일</string>
     <string name="trip_customize_graphs">그래프</string>
     <string name="recording_details_section">추가 정보</string>
-    <string name="recording_details_none">이 주행에 대해 보고된 휠이 없습니다.</string>
+    <string name="recording_details_none">이 주행 기록에 보고된 휠이 없습니다.</string>
     <string name="cloud_reset_local">로컬 주행 기록 삭제</string>
     <string name="cloud_reset_local_title">로컬 주행 기록을 삭제하시겠습니까?</string>
     <string name="cloud_reset_local_body">이 휴대전화에 저장된 모든 주행 기록을 삭제합니다. 백업 폴더는 그대로이므로 동기화된 주행 기록은 거기서 복원할 수 있습니다.</string>
@@ -2616,14 +2617,16 @@
     <string name="metric_chip_battery_range">배터리 시작 → 끝</string>
     <string name="recording_summary_battery_range">시작→끝 (-%1$d%%)</string>
     <string name="trip_tools_rename">주행 이름 변경</string>
-    <string name="trip_tools_rename_desc">이 주행에 이름을 붙입니다. 파일에 저장되므로 내보내기와 동기화에도 따라갑니다.</string>
+    <string name="trip_tools_rename_desc">이 주행 기록에 이름을 붙입니다. 파일에 저장되므로 내보내기와 동기화에도 따라갑니다.</string>
     <string name="trip_tools_rename_hint">비워 두면 날짜를 사용합니다.</string>
     <string name="trip_tools_archived">%1$d개를 보관했습니다</string>
     <string name="trip_tools_archive_failed">일부 주행을 보관하지 못해 여기에 남아 있습니다</string>
     <string name="recording_delete_archive">백업 사본 보관</string>
     <string name="recording_delete_archive_desc">보관 폴더로 옮깁니다.</string>
     <string name="trip_tools_extend_all_inside">앞뒤 주행은 이미 이 주행에 들어 있습니다.</string>
-    <string name="trip_tools_extend_skipped">이미 이 주행에 포함된 %1$d개를 건너뜁니다.</string>
+    <plurals name="trip_tools_extend_skipped">
+        <item quantity="other">이미 이 주행 기록에 포함된 주행 기록 %1$d개를 건너뜁니다.</item>
+    </plurals>
     <string name="recording_clear_all_body_archive">이 휴대전화에서 주행 기록을 삭제합니다. 백업 사본은 보관 폴더로 옮겨집니다.</string>
     <string name="recording_delete_trip_body_archive">이 휴대전화에서 이 주행 기록을 삭제하시겠습니까? 백업 사본은 보관 폴더로 옮겨집니다.</string>
     <string name="backup_status_pending">백업 중…</string>
@@ -2666,7 +2669,7 @@
     <string name="lockdown_limit_12">지표를 탭해도 아무 일도 일어나지 않습니다.</string>
     <string name="lockdown_limit_13">음성 안내, 주기적 안내, 속도 구간 안내는 무음이 됩니다. 알람은 계속 작동합니다.</string>
     <string name="lockdown_limit_14">휠을 잠그거나 해제할 수 없고 근접 자동 잠금도 작동하지 않습니다.</string>
-    <string name="lockdown_limit_15">자동 라이트와 자동 볼륨은 계속 작동합니다. 미디어 제어는 중지됩니다.</string>
+    <string name="lockdown_limit_15">자동 라이트와 자동 볼륨은 계속 작동합니다. 미디어 재생 제어는 중지됩니다.</string>
     <string name="lockdown_limit_16">알림에서 버튼이 사라집니다.</string>
     <string name="lockdown_limit_17">버전 번호를 눌러도 정보 화면이 열리지 않습니다.</string>
     <string name="lockdown_limit_18">이 모드는 설정 백업에 포함되지 않습니다.</string>
@@ -2775,7 +2778,7 @@
     <string name="crews_opensettings">설정 열기</string>
     <string name="crews_dev_title">개발자 모드</string>
     <string name="crews_dev_body">평소 서버 대신 %1$s와(과) 통신 중입니다.</string>
-    <string name="crews_grant">이 브라우저가 내 이름으로 활동하도록 허용합니다.\n\n크루를 만들고, 가입하고, 탈퇴하고, 멤버를 관리할 수 있습니다. 주행을 올리거나, 이름을 바꾸거나, 무언가를 삭제할 수는 없으며, 이런 작업은 이 휴대전화에서만 할 수 있습니다.</string>
+    <string name="crews_grant">이 브라우저가 내 이름으로 활동하도록 허용합니다.\n\n크루를 만들고, 가입하고, 탈퇴하고, 멤버를 관리할 수 있습니다. 주행 기록을 올리거나, 이름을 바꾸거나, 무언가를 삭제할 수는 없으며, 이런 작업은 이 휴대전화에서만 할 수 있습니다.</string>
     <string name="crews_noprofile_title">먼저 리더보드에 참여하세요</string>
     <string name="crews_noprofile_body">크루는 리더보드 프로필에 연결되는데, 이 휴대전화에는 아직 프로필이 없습니다. %1$s에서 참여한 다음 다시 스캔하세요.</string>
     <string name="crews_issue">패스 발급</string>

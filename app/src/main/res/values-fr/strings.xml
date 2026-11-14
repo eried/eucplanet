@@ -153,7 +153,7 @@
     <string name="dashboard_composite_layout_col3">3 colonnes</string>
     <string name="dashboard_composite_cell_label">Cellule %1$d</string>
     <!-- "(blank)" is the collapsing placeholder: cell renders "-", layout collapses. -->
-    <string name="dashboard_composite_empty_label">(libre)</string>
+    <string name="dashboard_composite_empty_label">(aucun)</string>
     <!-- "(empty)" is the reserving placeholder: cell renders blank, layout intact. -->
     <string name="dashboard_composite_blank_label">(vide)</string>
     <string name="dashboard_stat_empty">(vide)</string>
@@ -194,7 +194,7 @@
     <!-- Open-menu label for DashboardStat.NONE; closed-field shows a literal
          "-" glyph from statSelectedLabel so the rider sees the visual at a
          glance regardless of locale. -->
-    <string name="dashboard_stat_none">(libre)</string>
+    <string name="dashboard_stat_none">(aucun)</string>
     <string name="dashboard_stat_current">Act.</string>
     <string name="dashboard_stat_min">Min</string>
     <string name="dashboard_stat_max">Max / Pic</string>
@@ -490,7 +490,7 @@
     <string name="hud_hotspot_unknown_hint">Vérifiez que le HUD et le téléphone sont sur le même réseau Wi-Fi. Si vous utilisez le partage de connexion du téléphone, activez-le d\'abord.</string>
     <string name="hud_hotspot_on_hint">Le partage de connexion est actif. Connectez le HUD au Wi-Fi de ce téléphone pour activer la liaison.</string>
     <string name="hud_overlay_subsection">Overlay personnalisé</string>
-    <string name="hud_overlay_subsection_desc">Importez un préréglage Overlay Studio sur l\'écran Overlay perso du HUD, sans arrière-plan. Le préréglage est copié ici : vos modifications ultérieures dans le studio ne changeront le HUD qu\'après un nouvel import.</string>
+    <string name="hud_overlay_subsection_desc">Importez un préréglage Overlay Studio sur les écrans Overlay perso du HUD, sans arrière-plan. Le préréglage est copié ici : vos modifications ultérieures dans le studio ne changeront le HUD qu\'après un nouvel import.</string>
     <string name="hud_overlay_select_preset">Importer un préréglage</string>
     <string name="hud_overlay_current_preset">Actuel : %1$s</string>
     <string name="hud_custom_overlay_none">Effacer</string>
@@ -817,7 +817,7 @@
 
     <!-- Engine sound generator -->
     <string name="section_engine_sound">Son du moteur</string>
-    <string name="engine_sound_enabled">Son du moteur</string>
+    <string name="engine_sound_enabled">Jouer les sons du moteur</string>
     <string name="engine_sound_enabled_hint">Fait varier le régime en direct selon la vitesse de la roue et la charge du moteur.</string>
     <string name="engine_type_label">Moteur</string>
     <string name="engine_source_sampled">Échantillons</string>
@@ -974,7 +974,11 @@
     <string name="radar_unpair">Oublier l\'appareil</string>
     <string name="radar_battery_fmt">Batterie %1$d %%</string>
     <string name="radar_clear">Voie dégagée</string>
-    <string name="radar_threats_count">%1$d véhicule(s) suivi(s) :</string>
+    <plurals name="radar_threats_count">
+        <item quantity="one">%1$d véhicule suivi :</item>
+        <item quantity="many">%1$d véhicules suivis :</item>
+        <item quantity="other">%1$d véhicules suivis :</item>
+    </plurals>
     <string name="radar_show_overlay">Afficher la bande radar</string>
     <string name="radar_show_overlay_desc">Fine bande radar sur les bords du tableau de bord. Un point coloré par véhicule détecté. Visible uniquement sur le tableau de bord.</string>
     <string name="radar_overlay_left">Bord gauche</string>
@@ -1333,8 +1337,8 @@
     <string name="online_status_pending">Envoi au classement…</string>
     <string name="online_status_failed">Échec de l\'envoi, appuyez pour réessayer</string>
     <string name="online_status_rejected">Non accepté pour le classement</string>
-    <string name="online_upload_join_caption">Rejoignez-le pour envoyer vos stats et vos trajets au classement public sur.</string>
-    <string name="online_upload_linked_caption">Vos stats et vos trajets apparaissent dans le classement public sur.</string>
+    <string name="online_upload_join_caption">Rejoignez-le pour envoyer vos stats et vos trajets au classement public sur %1$s.</string>
+    <string name="online_upload_linked_caption">Vos stats et vos trajets apparaissent dans le classement public sur %1$s.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Dissocier</string>
@@ -1803,7 +1807,7 @@
     <!-- Navigation overlay -->
     <string name="nav_start_riding">Commencer à rouler</string>
     <string name="nav_arrived">Vous êtes à destination</string>
-    <string name="nav_arrived_goal">Objectif %1$d atteint</string>
+    <string name="nav_arrived_goal">Arrêt %1$d atteint</string>
     <string name="nav_end_title">Terminer la navigation ?</string>
     <!-- ==== Live location share (navigator) ==== -->
     <string name="share_button">Options de partage</string>
@@ -2009,7 +2013,6 @@
     <!-- ==== Trip share / actions ==== -->
     <string name="trip_action_share_file">Partager le fichier</string>
     <string name="trip_action_share_file_desc">Envoie le CSV du trajet à une autre application.</string>
-    <string name="trip_action_view_online">Voir en ligne</string>
     <string name="trip_action_replay">Rejouer dans Studio</string>
     <string name="trip_action_replay_desc">Parcourt le trajet avec les overlays de données en direct.</string>
     <!-- ==== Dashboard quick menus ==== -->
@@ -2251,8 +2254,8 @@
     <string name="adv_nav_hunt_voice_interval_desc">Détermine la fréquence à laquelle la voix annonce qu\'elle cherche le GPS. Attention : trop bas le répète souvent.</string>
     <string name="adv_nav_inter_stop">Seuil de déplacement multi-arrêts</string>
     <string name="adv_nav_inter_stop_desc">Détermine la distance à parcourir au-delà d\'un arrêt avant que le suivant soit compté comme atteint. Attention : trop bas peut sauter un arrêt.</string>
-    <string name="adv_nav_intermediate_flash">Durée du flash d\'arrêt atteint</string>
-    <string name="adv_nav_intermediate_flash_desc">Détermine combien de temps le flash d\'arrêt atteint s\'affiche.</string>
+    <string name="adv_nav_intermediate_flash">Durée du message d\'arrêt atteint</string>
+    <string name="adv_nav_intermediate_flash_desc">Détermine combien de temps le message d\'arrêt atteint s\'affiche.</string>
     <string name="adv_nav_max_start">Distance de départ max</string>
     <string name="adv_nav_max_start_desc">Distance maximale du premier arrêt pour pouvoir lancer la navigation. Au-delà, la ligne depuis votre position est masquée et le départ est bloqué. La planification fonctionne toujours.</string>
     <string name="adv_nav_moving">Vitesse de mouvement</string>
@@ -2388,7 +2391,7 @@
     <string name="compact_mode_always">Toujours</string>
     <string name="compact_mode_auto">Petits écrans</string>
     <string name="compact_mode_never">Jamais</string>
-    <string name="setting_cover_cutout">Éviter les caméras frontales</string>
+    <string name="setting_cover_cutout">Éviter les caméras de l\'écran externe</string>
     <string name="cover_cutout_off">Désactivé</string>
     <string name="cover_cutout_left">En bas à gauche</string>
     <string name="cover_cutout_right">En bas à droite</string>
@@ -2408,7 +2411,7 @@
     <string name="adv_compact_max_screen">Limite d\'écran compact</string>
     <string name="adv_compact_max_screen_desc">Les écrans dont les deux côtés sont en dessous passent au tableau de bord compact lorsque Tableau de bord compact est réglé sur Petits écrans.</string>
     <string name="adv_cover_cutout_inset">Taille de la découpe caméra</string>
-    <string name="adv_cover_cutout_inset_desc">Espace réservé aux objectifs frontaux quand Éviter les caméras frontales est activé. Trop petit, les objectifs masquent des boutons.</string>
+    <string name="adv_cover_cutout_inset_desc">Espace réservé aux objectifs de l\'écran externe quand Éviter les caméras de l\'écran externe est activé. Trop petit, les objectifs masquent des boutons.</string>
     <string name="adv_nav_sidebar_min">Écran minimum pour la barre latérale</string>
     <string name="adv_nav_sidebar_min_desc">Les écrans plus étroits gardent le panneau d\'arrêts en bas, même en paysage. Trop bas, la carte est écrasée sur les petits écrans.</string>
     <string name="adv_inmotion_v1_pin">PIN InMotion V5/V8/V10</string>
@@ -2628,7 +2631,11 @@
     <string name="recording_delete_archive">Archiver les copies de sauvegarde</string>
     <string name="recording_delete_archive_desc">Les déplace vers un dossier d\'archive.</string>
     <string name="trip_tools_extend_all_inside">Les trajets autour de celui-ci en font déjà partie.</string>
-    <string name="trip_tools_extend_skipped">Trajets ignorés car déjà inclus : %1$d.</string>
+    <plurals name="trip_tools_extend_skipped">
+        <item quantity="one">Ignore %1$d trajet déjà inclus dans celui-ci.</item>
+        <item quantity="many">Ignore %1$d trajets déjà inclus dans celui-ci.</item>
+        <item quantity="other">Ignore %1$d trajets déjà inclus dans celui-ci.</item>
+    </plurals>
     <string name="recording_clear_all_body_archive">Les trajets seront supprimés de ce téléphone. Les copies de sauvegarde sont déplacées dans un dossier d\'archive.</string>
     <string name="recording_delete_trip_body_archive">Supprimer ce trajet du téléphone ? La copie de sauvegarde est déplacée dans un dossier d\'archive.</string>
     <string name="backup_status_pending">Sauvegarde en cours…</string>
@@ -2669,9 +2676,9 @@
     <string name="lockdown_limit_10">Les paramètres ne peuvent pas être ouverts.</string>
     <string name="lockdown_limit_11">L\'historique des trajets, le moniteur de batterie, le studio et le détail des mesures ne peuvent pas être ouverts.</string>
     <string name="lockdown_limit_12">Appuyer sur une mesure ne fait rien.</string>
-    <string name="lockdown_limit_13">Les annonces vocales, les rapports périodiques et les chronos d\'accélération sont muets. Vos alarmes fonctionnent toujours.</string>
+    <string name="lockdown_limit_13">Les annonces vocales, les rapports périodiques et les chronos de vitesse sont muets. Vos alarmes fonctionnent toujours.</string>
     <string name="lockdown_limit_14">La roue ne peut être ni verrouillée ni déverrouillée, et le verrouillage automatique de proximité ne fonctionne pas.</string>
-    <string name="lockdown_limit_15">Le phare automatique et le volume automatique continuent de fonctionner. Le contrôle des médias s\'arrête.</string>
+    <string name="lockdown_limit_15">Le phare automatique et le volume automatique continuent de fonctionner. Le contrôle de la lecture s\'arrête.</string>
     <string name="lockdown_limit_16">La notification perd ses boutons.</string>
     <string name="lockdown_limit_17">Le numéro de version n\'ouvre plus À propos.</string>
     <string name="lockdown_limit_18">Ce mode n\'est pas inclus dans les sauvegardes des paramètres.</string>

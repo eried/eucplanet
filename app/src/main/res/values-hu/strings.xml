@@ -270,7 +270,7 @@
     <string name="metric_chip_descent_tile">Le</string>
     <string name="metric_chip_gps_speed_tile">GPS seb</string>
     <string name="metric_chip_gps_altitude_tile">Mag</string>
-    <string name="metric_chip_gps_heading_tile">Irányszög</string>
+    <string name="metric_chip_gps_heading_tile">Irány</string>
     <string name="metric_chip_trip_time_tile">Idő</string>
     <string name="metric_chip_g_force_tile">G</string>
     <string name="metric_chip_forward_g_tile">Hossz g</string>
@@ -451,7 +451,7 @@
     <string name="hud_hotspot_unknown_hint">Győződj meg róla, hogy a HUD és a telefon ugyanazon a Wi-Fi-hálózaton van. Ha a telefon hotspotját használod, előbb kapcsold be.</string>
     <string name="hud_hotspot_on_hint">A telefon hotspotja sugároz. Csatlakoztasd a HUD-ot ennek a telefonnak a Wi-Fi-jéhez a kapcsolat létrehozásához.</string>
     <string name="hud_overlay_subsection">Egyéni átfedés</string>
-    <string name="hud_overlay_subsection_desc">Overlay Studio-előbeállítás importálása a HUD Egyéni képernyőjére, háttér nélkül. Az előbeállítás ide másolódik, így a stúdióban végzett későbbi módosítások nem változtatják meg a HUD-ot, amíg újra nem importálod.</string>
+    <string name="hud_overlay_subsection_desc">Overlay Studio-előbeállítás importálása a HUD Egyéni átfedés képernyőire, háttér nélkül. Az előbeállítás ide másolódik, így a stúdióban végzett későbbi módosítások nem változtatják meg a HUD-ot, amíg újra nem importálod.</string>
     <string name="hud_overlay_select_preset">Előbeállítás importálása</string>
     <string name="hud_overlay_current_preset">Jelenlegi: %1$s</string>
     <string name="hud_custom_overlay_none">Törlés</string>
@@ -566,8 +566,8 @@
     <string name="adv_nav_heading_window_desc">Ennyi másodpercnyi mozgásból számolja a haladási irányodat. Vigyázat: a túl alacsony érték ugrálóvá teszi az irányt.</string>
     <string name="adv_nav_fix_buffer">GPS-előzmény ablaka</string>
     <string name="adv_nav_fix_buffer_desc">Meghatározza, hány másodpercnyi GPS-pozíció marad meg az irányhoz és az útvonalra illesztéshez. Vigyázat: a túl alacsony érték elvesztheti az irányt.</string>
-    <string name="adv_nav_intermediate_flash">Útpont-villanás ideje</string>
-    <string name="adv_nav_intermediate_flash_desc">Meghatározza, mennyi ideig látszik az útpont elérését jelző villanás.</string>
+    <string name="adv_nav_intermediate_flash">Megállóelérés kijelzési ideje</string>
+    <string name="adv_nav_intermediate_flash_desc">Meghatározza, mennyi ideig látszik a megálló elérését jelző üzenet.</string>
     <string name="adv_nav_popup_timeout">Kanyarkártya időkorlátja</string>
     <string name="adv_nav_popup_timeout_desc">Meghatározza, mennyi ideig marad a nagy kanyarkártya, mielőtt a sarokba zsugorodik.</string>
     <string name="adv_group_alarm">Előrejelző riasztások</string>
@@ -664,7 +664,7 @@
     <string name="adv_compact_max_screen">Kompakt képernyő határa</string>
     <string name="adv_compact_max_screen_desc">Az ennél kisebb mindkét oldalú képernyők a kompakt műszerfalra váltanak, ha a Kompakt műszerfal Kis képernyőkre van állítva.</string>
     <string name="adv_cover_cutout_inset">Kamerakivágás mérete</string>
-    <string name="adv_cover_cutout_inset_desc">A tok lencséinek szabadon hagyott hely, ha a Tok kameráinak elkerülése be van kapcsolva. Ha túl kicsi, a lencsék eltakarják a gombokat.</string>
+    <string name="adv_cover_cutout_inset_desc">A külső képernyő lencséinek szabadon hagyott hely, ha a Külső képernyő kameráinak elkerülése be van kapcsolva. Ha túl kicsi, a lencsék eltakarják a gombokat.</string>
     <string name="adv_simple_speedo_scale">Egyszerű sebességmérő mérete</string>
     <string name="adv_simple_speedo_scale_desc">A sima sebességszám mérete a mérőterülethez képest. A túl nagy levághatja a mértékegység feliratát.</string>
     <string name="adv_nav_sidebar_width">Megállópanel szélessége</string>
@@ -830,7 +830,7 @@
     <string name="compact_mode_auto">Kis képernyők</string>
     <string name="compact_mode_always">Mindig</string>
     <string name="compact_mode_never">Soha</string>
-    <string name="setting_cover_cutout">Tok kameráinak elkerülése</string>
+    <string name="setting_cover_cutout">Külső képernyő kameráinak elkerülése</string>
     <string name="cover_cutout_off">Ki</string>
     <string name="cover_cutout_left">Bal alsó</string>
     <string name="cover_cutout_right">Jobb alsó</string>
@@ -1024,7 +1024,7 @@
     <string name="voice_output_channel_notification">Értesítés</string>
     <string name="voice_output_channel_alarm">Ébresztő</string>
     <string name="section_engine_sound">Motorhang</string>
-    <string name="engine_sound_enabled">Motorhang</string>
+    <string name="engine_sound_enabled">Motorhangok lejátszása</string>
     <string name="engine_sound_enabled_hint">A motor fordulatszámát élőben az egykerekű sebességéből és terheléséből vezérli.</string>
     <string name="engine_type_label">Motor</string>
     <string name="engine_source_sampled">Felvett</string>
@@ -1174,7 +1174,10 @@
     <string name="radar_unpair">Eszköz elfelejtése</string>
     <string name="radar_battery_fmt">Akkumulátor %1$d%%</string>
     <string name="radar_clear">A sáv szabad</string>
-    <string name="radar_threats_count">%1$d jármű követése:</string>
+    <plurals name="radar_threats_count">
+        <item quantity="one">%1$d jármű követése:</item>
+        <item quantity="other">%1$d jármű követése:</item>
+    </plurals>
     <string name="radar_show_overlay">Veszélyátfedés mutatása</string>
     <string name="radar_show_overlay_desc">Vékony radarsáv a műszerfal szélein. Egy színes pont minden észlelt járműhöz. Csak a műszerfalon látható.</string>
     <string name="radar_overlay_left">Bal szél</string>
@@ -1640,8 +1643,8 @@
     <string name="online_status_pending">Feltöltés a ranglistára…</string>
     <string name="online_status_failed">Az online feltöltés nem sikerült, koppints az újrapróbáláshoz</string>
     <string name="online_status_rejected">Nem került fel a ranglistára</string>
-    <string name="online_upload_join_caption">Csatlakozz, hogy elküldd a statisztikáidat és meneteidet a nyilvános ranglistára itt:</string>
-    <string name="online_upload_linked_caption">A statisztikáid és meneteid megjelennek a nyilvános ranglistán itt:</string>
+    <string name="online_upload_join_caption">Csatlakozz, hogy elküldd a statisztikáidat és meneteidet a nyilvános ranglistára itt: %1$s.</string>
+    <string name="online_upload_linked_caption">A statisztikáid és meneteid megjelennek a nyilvános ranglistán itt: %1$s.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Leválasztás</string>
@@ -2057,7 +2060,7 @@
     <string name="nav_default_route_name">Saját útvonalam</string>
     <string name="nav_start_riding">Indulj el</string>
     <string name="nav_arrived">Megérkeztél</string>
-    <string name="nav_arrived_goal">Elérted a(z) %1$d. célt</string>
+    <string name="nav_arrived_goal">Elérted a(z) %1$d. megállót</string>
     <string name="nav_end_title">Befejezed a navigációt?</string>
     <!-- ==== Live location share (navigator) ==== -->
     <string name="share_button">Megosztási lehetőségek</string>
@@ -2305,7 +2308,6 @@
     <string name="watch_show_navigation_desc">Tükrözi a kanyarnyilat és a távolságot az órán navigálás közben.</string>
     <string name="trip_action_share_file">Fájl megosztása</string>
     <string name="trip_action_share_file_desc">Küldd el a menet CSV-jét egy másik alkalmazásnak.</string>
-    <string name="trip_action_view_online">Online megtekintés</string>
     <string name="trip_action_replay">Visszajátszás a Studióban</string>
     <string name="trip_action_replay_desc">Pörgesd végig a menetet élő adatátfedésekkel.</string>
     <string name="dash_view_video_gallery">Videógaléria megtekintése</string>
@@ -2428,7 +2430,10 @@
     <string name="recording_delete_archive">Mentett másolatok archiválása</string>
     <string name="recording_delete_archive_desc">Áthelyezi őket egy archív mappába.</string>
     <string name="trip_tools_extend_all_inside">A körülötte lévő menetek már ennek a részei.</string>
-    <string name="trip_tools_extend_skipped">Kihagyva: %1$d menet, amely már ebben benne van.</string>
+    <plurals name="trip_tools_extend_skipped">
+        <item quantity="one">Kihagyva: %1$d menet, amely már ebben benne van.</item>
+        <item quantity="other">Kihagyva: %1$d menet, amely már ebben benne van.</item>
+    </plurals>
     <string name="recording_clear_all_body_archive">Ez törli a meneteket erről a telefonról. A mentett másolatok egy archív mappába kerülnek.</string>
     <string name="recording_delete_trip_body_archive">Törlöd ezt a menetet erről a telefonról? A mentett másolat egy archív mappába kerül.</string>
     <string name="backup_status_pending">Mentés…</string>
@@ -2471,7 +2476,7 @@
     <string name="lockdown_limit_12">Egy mérőszámra koppintás nem csinál semmit.</string>
     <string name="lockdown_limit_13">A hangbemondások, a rendszeres jelentések és a sebességrészidők elnémulnak. A riasztásaid továbbra is működnek.</string>
     <string name="lockdown_limit_14">Az egykerekű nem zárolható és nem oldható fel, és a közelségi automatikus zárolás sem fut.</string>
-    <string name="lockdown_limit_15">Az automatikus világítás és az automatikus hangerő továbbra is működik. A médiavezérlés leáll.</string>
+    <string name="lockdown_limit_15">Az automatikus világítás és az automatikus hangerő továbbra is működik. A lejátszásvezérlés leáll.</string>
     <string name="lockdown_limit_16">Az értesítés elveszíti a gombjait.</string>
     <string name="lockdown_limit_17">A verziószám többé nem nyitja meg a Névjegyet.</string>
     <string name="lockdown_limit_18">Ez a mód nem kerül bele a beállítások biztonsági mentésébe.</string>

@@ -179,7 +179,7 @@ fun AutomationsContent(
                     )
                 }
             } else {
-                HintText(stringResource(R.string.auto_waiting_gps), small = true)
+                HintText(stringResource(R.string.auto_waiting_gps))
             }
 
             // Independent of the schedule above: it decides whether a light is
@@ -420,7 +420,7 @@ fun AutomationsContent(
                 modifier = Modifier.fillMaxWidth(0.5f),
             )
 
-            HintText(stringResource(R.string.proximity_lock_hint), small = true)
+            HintText(stringResource(R.string.proximity_lock_hint))
 
             // Unlock is only offered once Lock is on - it only reverses this
             // lock. Never is one of the three answers rather than a separate

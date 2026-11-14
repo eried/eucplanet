@@ -57,6 +57,14 @@ ride, this is the branch.
 - Voice: pressing Listen without the microphone permission now asks for it, from any button or tile. With the screen off it says so and adds a Needs attention entry. Needs attention also says when Bluetooth is not allowed.
 - Actions: Volume up, Volume down, Mute / unmute, Phone flashlight and Engine sound on/off can be bound to a Flic, the volume keys, the watch or a dashboard tile.
 - Backup conflicts: the warning goes as soon as you settle them with Sync all, says where that button is, and Fix opens Trips backup. It also goes when you unlink the folder or delete the trips.
+- Alarms: a fired alarm speaks the same number as the preview, in your units: 3.0 bar says "3.0", 1.5 g says "1.5", a GPS speed rule speaks mph, a motor or battery temperature rule speaks °F. The help lines and the restore chips in the editor show the real values.
+- Fixes: a friend's label opens on tap on the map, the widget's Phone battery slot shows the phone battery, the charging screen uses your target percent, factory reset keeps TPMS pairings, Veteran Sherman S is 100 V.
+- HUD: the Custom overlay draws energy, consumption, range, altitude and torque (they showed speed). Map + Nav is in the default screens, and reordering screens reaches the HUD without toggling one.
+- Garmin and Amazfit: the demo wheel no longer shows on a normal start, and "mil" is 10 km.
+- Studio: a video pane with no clip exports the "No media" placeholder the preview shows, and a pane set to Black exports black past the clip.
+- Languages, second pass: one reviewer per language went through all 29 for consistency, about 2,000 texts. One word per thing, texts that name a button use that button's label, wrong meanings fixed (the Norwegian spoken trip in miles said "mil").
+- Wording: the metric is PWM everywhere (it was "Load" in the alarm list, the detail screen and the voice report). Labels are sentence case ("Stop all", "Trip details"). "Avoid cover screen cameras" for flip phones, "Reached stop 2" in navigation, "(none)" and "(empty)" for the side values of a tile, and the leaderboard address sits inside its sentence.
+- Removed: Media speed control (it never worked reliably), the one-time places hint, and the unused in-app eucviewer screen. Inspect online is unchanged.
 
 ## Please test
 
@@ -115,8 +123,20 @@ ride, this is the branch.
 **Trip compare**
 - Open a trip, tap Compare, pick a ride over the same road: does Auto line them up? Try Stacked and Overlay, Show differences, and scrub the charts.
 
+**Alarms**
+- Make a tyre pressure or G-force alarm with a voice line that uses {value} or {threshold}, play the preview, then let it fire: same number, in your units? With mph or °F set, do a GPS speed alarm and a motor temperature alarm speak mph and °F?
+- The voice report now says "PWM" instead of "load": does your voice say it clearly in your language?
+
+**Studio**
+- Replay a trip with a video pane, remove or move the clip file, export: does the export show "No media" like the preview, not a see-through hole?
+
+**HUD and watch**
+- HUD Custom overlay with energy, consumption, range, altitude or torque elements: right numbers? Reorder the HUD screens on the phone without switching any off: does the HUD follow?
+- Garmin and Amazfit: start the watch app with the phone app closed: no "Demo V14"? If you use mil, is the distance right?
+
 **Native speakers, any language**
-- Use the app in your language for a ride: anything that sounds stiff, wrong for riders, or does not fit its button? Say the screen and the better words.
+- Use the app in your language for a ride: anything that sounds stiff, wrong for riders, or does not fit its button? Say the screen and the better words. Many words changed in this build (speed, metric, overlay, scan, lock), so a second look is welcome.
+- Flip phone owners: Settings, Display & appearance, "Avoid cover screen cameras": is that what your phone calls the outer screen in your language?
 
 **Any wheel**
 - Had a Backup conflicts warning that would not go away? Tap Fix, then Sync all, pick a side: is it gone at once?

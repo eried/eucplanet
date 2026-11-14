@@ -6,7 +6,6 @@ import android.media.AudioFocusRequest
 import android.media.AudioFormat
 import android.media.AudioManager
 import android.media.AudioTrack
-import android.os.Build
 import android.util.Log
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.diagnostics.DiagnosticsLogger
@@ -285,19 +284,17 @@ class EngineSoundEngine(private val context: Context) {
 
     private fun requestAudioFocus() {
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val attrs = AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_MEDIA)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                    .build()
-                val req = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
-                    .setAudioAttributes(attrs)
-                    .setWillPauseWhenDucked(false)
-                    .setOnAudioFocusChangeListener { /* mix with whatever the system says */ }
-                    .build()
-                focusRequest = req
-                audioManager.requestAudioFocus(req)
-            }
+            val attrs = AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_MEDIA)
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .build()
+            val req = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
+                .setAudioAttributes(attrs)
+                .setWillPauseWhenDucked(false)
+                .setOnAudioFocusChangeListener { /* mix with whatever the system says */ }
+                .build()
+            focusRequest = req
+            audioManager.requestAudioFocus(req)
         } catch (e: Throwable) {
             Log.w(TAG, "requestAudioFocus failed", e)
         }
@@ -305,10 +302,8 @@ class EngineSoundEngine(private val context: Context) {
 
     private fun abandonAudioFocus() {
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                focusRequest?.let { audioManager.abandonAudioFocusRequest(it) }
-                focusRequest = null
-            }
+            focusRequest?.let { audioManager.abandonAudioFocusRequest(it) }
+            focusRequest = null
         } catch (_: Throwable) {}
     }
 

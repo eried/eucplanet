@@ -155,9 +155,9 @@
     <string name="dashboard_composite_layout_col2">2 stĺpce</string>
     <string name="dashboard_composite_layout_col3">3 stĺpce</string>
     <string name="dashboard_composite_cell_label">Bunka %1$d</string>
-    <string name="dashboard_composite_empty_label">(prázdne)</string>
-    <string name="dashboard_composite_blank_label">(voľné)</string>
-    <string name="dashboard_stat_empty">(voľné)</string>
+    <string name="dashboard_composite_empty_label">(žiadne)</string>
+    <string name="dashboard_composite_blank_label">(prázdne)</string>
+    <string name="dashboard_stat_empty">(prázdne)</string>
     <string name="dashboard_group_default_name">Moje akcie</string>
     <string name="dashboard_group_empty_toast">Žiadne akcie na zobrazenie</string>
     <string name="dashboard_group_name_label">Názov skupiny</string>
@@ -192,7 +192,7 @@
     <string name="dashboard_corner_right">Vpravo</string>
     <string name="dashboard_slot_sparkline">Pozadie s živým trendom</string>
     <string name="dashboard_slot_sparkline_chip">Štatistiky</string>
-    <string name="dashboard_stat_none">(prázdne)</string>
+    <string name="dashboard_stat_none">(žiadne)</string>
     <string name="dashboard_stat_current">Teraz</string>
     <string name="dashboard_stat_min">Min</string>
     <string name="dashboard_stat_max">Max / špička</string>
@@ -484,7 +484,7 @@
     <string name="hud_hotspot_unknown_hint">Uistite sa, že HUD a telefón sú v rovnakej sieti Wi-Fi. Ak používate hotspot telefónu, najprv ho zapnite.</string>
     <string name="hud_hotspot_on_hint">Hotspot telefónu vysiela. Pripojte HUD k Wi-Fi tohto telefónu a spojenie sa zapne.</string>
     <string name="hud_overlay_subsection">Vlastné prekrytie</string>
-    <string name="hud_overlay_subsection_desc">Importuje predvoľbu zo Štúdia prekrytia na vlastnú obrazovku HUD, bez pozadí. Predvoľba sa sem skopíruje, takže neskoršie úpravy v štúdiu HUD nezmenia, kým ju znova neimportujete.</string>
+    <string name="hud_overlay_subsection_desc">Importuje predvoľbu zo Štúdia prekrytia na obrazovky Vlastné prekrytie v HUD, bez pozadí. Predvoľba sa sem skopíruje, takže neskoršie úpravy v štúdiu HUD nezmenia, kým ju znova neimportujete.</string>
     <string name="hud_overlay_select_preset">Importovať predvoľbu</string>
     <string name="hud_overlay_current_preset">Aktuálna: %1$s</string>
     <string name="hud_custom_overlay_none">Vymazať</string>
@@ -607,8 +607,8 @@
     <string name="adv_nav_heading_window_desc">Ovplyvňuje, koľko sekúnd pohybu určuje smer jazdy. Riziko: príliš nízka hodnota spôsobí skákanie smeru.</string>
     <string name="adv_nav_fix_buffer">Okno histórie GPS</string>
     <string name="adv_nav_fix_buffer_desc">Ovplyvňuje, koľko sekúnd polôh GPS sa uchováva pre smer a prichytenie k trase. Riziko: príliš nízka hodnota môže stratiť smer.</string>
-    <string name="adv_nav_intermediate_flash">Čas bliknutia zastávky</string>
-    <string name="adv_nav_intermediate_flash_desc">Ovplyvňuje, ako dlho sa zobrazuje bliknutie po dosiahnutí zastávky.</string>
+    <string name="adv_nav_intermediate_flash">Čas hlásenia o zastávke</string>
+    <string name="adv_nav_intermediate_flash_desc">Ovplyvňuje, ako dlho sa zobrazuje hlásenie o dosiahnutí zastávky.</string>
     <string name="adv_nav_popup_timeout">Časový limit karty odbočenia</string>
     <string name="adv_nav_popup_timeout_desc">Ovplyvňuje, ako dlho zostane veľká karta odbočenia, kým sa zmenší do rohu.</string>
     <string name="adv_group_alarm">Prediktívne alarmy</string>
@@ -705,7 +705,7 @@
     <string name="adv_compact_max_screen">Limit kompaktnej obrazovky</string>
     <string name="adv_compact_max_screen_desc">Obrazovky s oboma stranami pod touto hodnotou prepnú na kompaktný panel, keď je Kompaktný panel nastavený na Malé obrazovky.</string>
     <string name="adv_cover_cutout_inset">Veľkosť výrezu kamier</string>
-    <string name="adv_cover_cutout_inset_desc">Priestor ponechaný voľný pre šošovky na kryte, keď je zapnuté Vyhnúť sa kamerám na kryte. Ak je príliš malý, šošovky zakryjú tlačidlá.</string>
+    <string name="adv_cover_cutout_inset_desc">Priestor ponechaný voľný pre šošovky vonkajšieho displeja, keď je zapnuté Vyhnúť sa kamerám vonkajšieho displeja. Ak je príliš malý, šošovky zakryjú tlačidlá.</string>
     <string name="adv_simple_speedo_scale">Veľkosť jednoduchého rýchlomera</string>
     <string name="adv_simple_speedo_scale_desc">Veľkosť samotného čísla rýchlosti voči oblasti budíka. Príliš veľké môže orezať jednotku.</string>
     <string name="adv_nav_sidebar_width">Šírka panela zastávok</string>
@@ -878,7 +878,7 @@
     <string name="compact_mode_auto">Malé obrazovky</string>
     <string name="compact_mode_always">Vždy</string>
     <string name="compact_mode_never">Nikdy</string>
-    <string name="setting_cover_cutout">Vyhnúť sa kamerám na kryte</string>
+    <string name="setting_cover_cutout">Vyhnúť sa kamerám vonkajšieho displeja</string>
     <string name="cover_cutout_off">Vyp.</string>
     <string name="cover_cutout_left">Vľavo dole</string>
     <string name="cover_cutout_right">Vpravo dole</string>
@@ -1078,7 +1078,7 @@
 
     <!-- Engine sound generator -->
     <string name="section_engine_sound">Zvuk motora</string>
-    <string name="engine_sound_enabled">Zvuk motora</string>
+    <string name="engine_sound_enabled">Prehrávať zvuky motora</string>
     <string name="engine_sound_enabled_hint">Otáčky motora sa riadia naživo podľa rýchlosti kolesa a záťaže motora.</string>
     <string name="engine_type_label">Motor</string>
     <string name="engine_source_sampled">Nahrávka</string>
@@ -1236,7 +1236,12 @@
     <string name="radar_unpair">Zabudnúť zariadenie</string>
     <string name="radar_battery_fmt">Batéria %1$d%%</string>
     <string name="radar_clear">Pruh je voľný</string>
-    <string name="radar_threats_count">Sledované vozidlá (%1$d):</string>
+    <plurals name="radar_threats_count">
+        <item quantity="one">Sleduje sa %1$d vozidlo:</item>
+        <item quantity="few">Sledujú sa %1$d vozidlá:</item>
+        <item quantity="many">Sleduje sa %1$d vozidla:</item>
+        <item quantity="other">Sleduje sa %1$d vozidiel:</item>
+    </plurals>
     <string name="radar_show_overlay">Zobraziť prekrytie hrozieb</string>
     <string name="radar_show_overlay_desc">Tenký pruh radaru na okrajoch panela. Jedna farebná bodka na každé zistené vozidlo. Viditeľné len na paneli.</string>
     <string name="radar_overlay_left">Ľavý okraj</string>
@@ -1533,7 +1538,12 @@
     <string name="trip_tools_archive_failed">Niektoré jazdy sa nepodarilo archivovať a sú stále tu</string>
     <string name="trip_tools_extend_pick_one">Vyberte skoršiu alebo neskoršiu jazdu, do ktorej sa má rozšíriť.</string>
     <string name="trip_tools_extend_all_inside">Jazdy okolo tejto sú už jej súčasťou.</string>
-    <string name="trip_tools_extend_skipped">Preskočí jazdy, ktoré sú už v tejto: %1$d.</string>
+    <plurals name="trip_tools_extend_skipped">
+        <item quantity="one">Preskočí %1$d jazdu, ktorá je už v tejto.</item>
+        <item quantity="few">Preskočí %1$d jazdy, ktoré sú už v tejto.</item>
+        <item quantity="many">Preskočí %1$d jazdy, ktorá je už v tejto.</item>
+        <item quantity="other">Preskočí %1$d jázd, ktoré sú už v tejto.</item>
+    </plurals>
     <string name="trip_tools_combine_summary">Spojí jazdy (%1$d) do jednej novej jazdy.</string>
     <string name="trip_tools_wheel_changed">Koleso nastavené na %1$s</string>
     <string name="trip_tools_split">Rozdeliť jazdu</string>
@@ -1776,8 +1786,8 @@
     <string name="online_status_pending">Nahráva sa do rebríčka…</string>
     <string name="online_status_failed">Nahrávanie online zlyhalo, klepnutím skúste znova</string>
     <string name="online_status_rejected">Neprijaté do rebríčka</string>
-    <string name="online_upload_join_caption">Pridajte sa a posielajte svoje štatistiky a jazdy do verejného rebríčka na.</string>
-    <string name="online_upload_linked_caption">Vaše štatistiky a jazdy sa zobrazujú vo verejnom rebríčku na.</string>
+    <string name="online_upload_join_caption">Pridajte sa a posielajte svoje štatistiky a jazdy do verejného rebríčka na %1$s.</string>
+    <string name="online_upload_linked_caption">Vaše štatistiky a jazdy sa zobrazujú vo verejnom rebríčku na %1$s.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Odpojiť</string>
@@ -2243,7 +2253,7 @@
     <!-- Navigation overlay -->
     <string name="nav_start_riding">Vyrazte</string>
     <string name="nav_arrived">Ste v cieli</string>
-    <string name="nav_arrived_goal">Dosiahnutý cieľ %1$d</string>
+    <string name="nav_arrived_goal">Dosiahnutá zastávka %1$d</string>
     <string name="nav_end_title">Ukončiť navigáciu?</string>
     <string name="nav_end_body">Zastaviť navádzanie po aktívnej trase?</string>
     <string name="nav_end_confirm">Ukončiť</string>
@@ -2499,7 +2509,6 @@
     <!-- ==== Trip share / actions ==== -->
     <string name="trip_action_share_file">Zdieľať súbor</string>
     <string name="trip_action_share_file_desc">Odošle CSV jazdy do inej aplikácie.</string>
-    <string name="trip_action_view_online">Zobraziť online</string>
     <string name="trip_action_replay">Prehrať v Štúdiu</string>
     <string name="trip_action_replay_desc">Prechádzajte jazdu so živým prekrytím dát.</string>
     <!-- ==== Dashboard quick menus ==== -->
@@ -2665,7 +2674,7 @@
     <string name="lockdown_limit_12">Klepnutie na metriku nič nerobí.</string>
     <string name="lockdown_limit_13">Hlasové hlásenia, pravidelné hlásenia a rýchlostné úseky sú stlmené. Vaše alarmy stále fungujú.</string>
     <string name="lockdown_limit_14">Koleso sa nedá zamknúť ani odomknúť a automatické zamykanie podľa blízkosti nebeží.</string>
-    <string name="lockdown_limit_15">Automatické svetlá a automatická hlasitosť fungujú ďalej. Ovládanie médií sa zastaví.</string>
+    <string name="lockdown_limit_15">Automatické svetlá a automatická hlasitosť fungujú ďalej. Ovládanie prehrávania médií sa zastaví.</string>
     <string name="lockdown_limit_16">Upozornenie stratí tlačidlá.</string>
     <string name="lockdown_limit_17">Číslo verzie neotvorí O aplikácii.</string>
     <string name="lockdown_limit_18">Tento režim nie je súčasťou záloh nastavení.</string>

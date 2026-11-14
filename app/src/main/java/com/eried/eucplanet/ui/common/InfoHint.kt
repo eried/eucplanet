@@ -60,9 +60,6 @@ fun InfoHint(
 fun HintText(
     text: String,
     modifier: Modifier = Modifier,
-    // Kept for source-compat, previously toggled between bodyMedium and bodySmall.
-    // Per the global hint rule we always render bodySmall now, so this flag is a no-op.
-    @Suppress("UNUSED_PARAMETER") small: Boolean = false,
     textAlign: TextAlign? = null
 ) {
     Text(

@@ -71,7 +71,7 @@
     <!-- Experimental banner -->
     <string name="experimental_banner">Ön destekli teker. Sorun bildirmek için dokunun.</string>
     <string name="experimental_dialog_title">EUC Planet\'i geliştirmeye yardım edin</string>
-    <string name="experimental_dialog_body">Bu teker için destek ön aşamadadır, yazar yalnızca InMotion V14 / V12 / P6 ailesini doğruladı. KingSong, Veteran, Begode, Ninebot ve eski InMotion modelleri Önizleme olarak sunuluyor ve sürücülerin test etmesi gerekiyor. Dikkatli kullanın.\n\nBu şeride dokunarak sorun bildirebilirsiniz, böylece yazar çalışmayanları düzeltebilir.</string>
+    <string name="experimental_dialog_body">Bu teker için destek ön aşamadadır, yazar yalnızca InMotion V14 / V12 / P6 ailesini doğruladı. KingSong, Veteran, Begode, Ninebot ve eski InMotion modelleri Önizleme olarak sunuluyor ve kullanıcıların test etmesi gerekiyor. Dikkatli kullanın.\n\nBu şeride dokunarak sorun bildirebilirsiniz, böylece yazar çalışmayanları düzeltebilir.</string>
     <string name="experimental_dialog_report">Sorun bildir</string>
 
     <!-- Scan: virtual wheel section (debug builds only) -->
@@ -153,7 +153,7 @@
     <string name="dashboard_composite_layout_col3">3 sütun</string>
     <string name="dashboard_composite_cell_label">Hücre %1$d</string>
     <!-- "(blank)" is the collapsing placeholder: cell renders "-", layout collapses. -->
-    <string name="dashboard_composite_empty_label">(boşluk)</string>
+    <string name="dashboard_composite_empty_label">(yok)</string>
     <!-- "(empty)" is the reserving placeholder: cell renders blank, layout intact. -->
     <string name="dashboard_composite_blank_label">(boş)</string>
     <string name="dashboard_stat_empty">(boş)</string>
@@ -194,7 +194,7 @@
     <!-- Open-menu label for DashboardStat.NONE; closed-field shows a literal
          "-" glyph from statSelectedLabel so the rider sees the visual at a
          glance regardless of locale. -->
-    <string name="dashboard_stat_none">(boşluk)</string>
+    <string name="dashboard_stat_none">(yok)</string>
     <string name="dashboard_stat_current">Şu an</string>
     <string name="dashboard_stat_min">Min</string>
     <string name="dashboard_stat_max">Maks / Tepe</string>
@@ -490,7 +490,7 @@
     <string name="hud_hotspot_unknown_hint">HUD ile telefonun aynı Wi-Fi ağında olduğundan emin olun. Telefon hotspot\'unu kullanıyorsanız önce açın.</string>
     <string name="hud_hotspot_on_hint">Telefon hotspot\'u yayın yapıyor. Bağlantıyı etkinleştirmek için HUD\'ı bu telefonun Wi-Fi\'sine bağlayın.</string>
     <string name="hud_overlay_subsection">Özel kaplama</string>
-    <string name="hud_overlay_subsection_desc">Overlay Studio önayarını HUD\'ın Özel ekranına arka plan olmadan aktarır. Önayar buraya kopyalanır; stüdyodaki sonraki düzenlemeler tekrar içe aktarılmadan HUD\'ı etkilemez.</string>
+    <string name="hud_overlay_subsection_desc">Overlay Studio önayarını HUD\'ın Özel kaplama ekranlarına arka plan olmadan aktarır. Önayar buraya kopyalanır; stüdyodaki sonraki düzenlemeler tekrar içe aktarılmadan HUD\'ı etkilemez.</string>
     <string name="hud_overlay_select_preset">Önayarı içe aktar</string>
     <string name="hud_overlay_current_preset">Mevcut: %1$s</string>
     <string name="hud_custom_overlay_none">Temizle</string>
@@ -813,7 +813,7 @@
 
     <!-- Engine sound generator -->
     <string name="section_engine_sound">Motor sesi</string>
-    <string name="engine_sound_enabled">Motor sesi</string>
+    <string name="engine_sound_enabled">Motor seslerini çal</string>
     <string name="engine_sound_enabled_hint">Motor RPM\'ini teker hızı ve yüküne göre canlı olarak hesaplar.</string>
     <string name="engine_type_label">Motor</string>
     <string name="engine_source_sampled">Örneklenmiş</string>
@@ -895,7 +895,7 @@
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Flic 2 düğmeleri</string>
     <string name="flic_show_on_dashboard">Gösterge panelinde hızlı erişim simgesi</string>
-    <string name="flic_scan_hint">Eşleştirme moduna almak için Flic 2 düğmesini 6 saniye basılı tutun, ardından Tara\'ya dokunun.</string>
+    <string name="flic_scan_hint">Eşleştirme moduna almak için Flic 2 düğmesini 6 saniye basılı tutun, ardından Taramayı başlat\'a dokunun.</string>
     <string name="flic_stop_scan">Taramayı durdur</string>
     <string name="flic_start_scan">Taramayı başlat</string>
     <string name="flic_forget">Unut</string>
@@ -970,7 +970,10 @@
     <string name="radar_unpair">Cihazı unut</string>
     <string name="radar_battery_fmt">Pil %1$d%%</string>
     <string name="radar_clear">Şerit temiz</string>
-    <string name="radar_threats_count">%1$d araç izleniyor:</string>
+    <plurals name="radar_threats_count">
+        <item quantity="one">%1$d araç izleniyor:</item>
+        <item quantity="other">%1$d araç izleniyor:</item>
+    </plurals>
     <string name="radar_show_overlay">Tehdit kaplamasını göster</string>
     <string name="radar_show_overlay_desc">Gösterge paneli kenarlarında ince radar şeridi. Algılanan her araç için renkli bir nokta. Yalnızca gösterge panelinde görünür.</string>
     <string name="radar_overlay_left">Sol kenar</string>
@@ -1098,7 +1101,7 @@
     <string name="recording_delete_trip_title">Sürüşü sil</string>
     <string name="recording_delete_trip_body">Bu sürüş ve veri dosyası silinsin mi?</string>
     <string name="recording_clear_all_menu">Tümünü sil</string>
-    <string name="recording_empty">Gösterilecek veri yok. İçe aktarın veya yeni kayıt yapın</string>
+    <string name="recording_empty">Gösterilecek veri yok. İçe aktarın veya yeni bir sürüş kaydedin</string>
     <string name="recording_will_auto_stop">Kayıt %1$d sn boşta kalınca otomatik duracak</string>
     <string name="recording_stat_trips">Sürüşler</string>
     <string name="recording_stat_distance">Mesafe</string>
@@ -1272,7 +1275,7 @@
 
     <!-- About / crash logs -->
     <string name="about_thanks">Katkılar</string>
-    <string name="about_thanks_body">Çok yavaş gelişen, eski görünen, yeni özelliklere katı kurallar koyan, topluluklarını müşteri gibi gören ve EUC sürücülerinin birbirine yardım ettiğinde en iyi hâllerinde olduğunu unutan EUC uygulamalarından bıktım. Bu uygulama tam tersini yapmaya çalışıyor.</string>
+    <string name="about_thanks_body">Çok yavaş gelişen, eski görünen, yeni özelliklere katı kurallar koyan, topluluklarını müşteri gibi gören ve EUC kullanıcılarının birbirine yardım ettiğinde en iyi hâllerinde olduğunu unutan EUC uygulamalarından bıktım. Bu uygulama tam tersini yapmaya çalışıyor.</string>
     <string name="about_license">Lisans</string>
     <string name="service_mode_title">Servis Modu</string>
     <string name="service_mode_caution">UYARI: Servis Modunun yanlış kullanımı teker işlevinin kaybına, ciddi yaralanmaya veya ölüme yol açabilir</string>
@@ -1320,7 +1323,7 @@
     <string name="online_upload_sync_done">Eşitlenen sürüş: %1$d</string>
     <string name="online_upload_sync_checking">Yüklenecek sürüşler kontrol ediliyor…</string>
     <string name="online_upload_sync_progress">Yükleniyor: %1$d / %2$d</string>
-    <string name="online_rider_id_conflict">Bu klasörde farklı bir sürücünün kurtarma kimliği zaten kayıtlı; korundu, üzerine yazılmadı.</string>
+    <string name="online_rider_id_conflict">Bu klasörde farklı bir kullanıcının kurtarma kimliği zaten kayıtlı; korundu, üzerine yazılmadı.</string>
     <string name="online_upload_mileage_rank">Mesafe sırası: #%d</string>
     <string name="online_upload_top_speed">en yüksek %1$s %2$s</string>
     <string name="online_upload_trips">%d sürüş</string>
@@ -1330,13 +1333,13 @@
     <string name="online_status_pending">Lider tablosuna yükleniyor…</string>
     <string name="online_status_failed">Çevrimiçi yükleme başarısız, yeniden denemek için dokunun</string>
     <string name="online_status_rejected">Lider tablosuna kabul edilmedi</string>
-    <string name="online_upload_join_caption">İstatistiklerinizi ve sürüşlerinizi şu adresteki herkese açık lider tablosuna göndermek için katılın.</string>
-    <string name="online_upload_linked_caption">İstatistikleriniz ve sürüşleriniz şu adresteki herkese açık lider tablosunda görünüyor.</string>
+    <string name="online_upload_join_caption">İstatistiklerinizi ve sürüşlerinizi %1$s adresindeki herkese açık lider tablosuna göndermek için katılın.</string>
+    <string name="online_upload_linked_caption">İstatistikleriniz ve sürüşleriniz %1$s adresindeki herkese açık lider tablosunda görünüyor.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Bağlantıyı kes</string>
     <string name="online_unlink_title">Lider tablosu bağlantısı kesilsin mi?</string>
-    <string name="online_unlink_body">Bu telefon sürüş yüklemeyi durdurur. Sürücü kimliğiniz kayıtlı kalır, böylece aynı sürücü olarak yeniden katılabilirsiniz. İstatistikleriniz EUC Stats\'ta kalır; silmek için Hesabı sil seçeneğini kullanın.</string>
+    <string name="online_unlink_body">Bu telefon sürüş yüklemeyi durdurur. Kullanıcı kimliğiniz kayıtlı kalır, böylece aynı kullanıcı olarak yeniden katılabilirsiniz. İstatistikleriniz EUC Stats\'ta kalır; silmek için Hesabı sil seçeneğini kullanın.</string>
     <string name="online_unlink_confirm">Bağlantıyı kes</string>
 
     <!-- Online profile (edit/GDPR) -->
@@ -1351,11 +1354,11 @@
     <string name="online_profile_save_rate_limited">İstek sınırına ulaşıldı, daha sonra tekrar deneyin.</string>
     <string name="online_profile_save_failed">Kaydetme başarısız (HTTP %1$d). Tekrar deneyin.</string>
     <string name="online_restore_title">Kaydedilmiş bir profil bulundu</string>
-    <string name="online_restore_body_new">Burada kayıtlı bir profil bulduk: %1$s. Devam ederseniz o sürücü olarak herkese açık lider tablosuna yeniden katılırsınız; adı, bayrağı, avatarı ve sürüş istatistikleri herkese açıktır. Yeni profil oluşturulmaz.</string>
-    <string name="online_restore_body_switch">Farklı bir kayıtlı profil bulduk: %1$s. Devam ederseniz bu telefon o sürücüye geçer; mevcut profiliniz önce yedeklenir.</string>
+    <string name="online_restore_body_new">Burada kayıtlı bir profil bulduk: %1$s. Devam ederseniz o kullanıcı olarak herkese açık lider tablosuna yeniden katılırsınız; adı, bayrağı, avatarı ve sürüş istatistikleri herkese açıktır. Yeni profil oluşturulmaz.</string>
+    <string name="online_restore_body_switch">Farklı bir kayıtlı profil bulduk: %1$s. Devam ederseniz bu telefon o kullanıcıya geçer; mevcut profiliniz önce yedeklenir.</string>
     <string name="online_restore_confirm">%1$s olarak devam et</string>
     <string name="online_rejoin_title">Profili yeniden etkinleştir</string>
-    <string name="online_rejoin_body">Yedek klasörü, lider tablosu için kullanılmış bir profil içeriyor.\n\nSürücü kimliği: %1$s</string>
+    <string name="online_rejoin_body">Yedek klasörü, lider tablosu için kullanılmış bir profil içeriyor.\n\nKullanıcı kimliği: %1$s</string>
 
     <!-- ==== Overlay Studio ==== -->
     <string name="studio_open">Overlay Studio\'yu aç</string>
@@ -1741,7 +1744,7 @@
     <!-- Navigation overlay -->
     <string name="nav_start_riding">Sürüşe başlayın</string>
     <string name="nav_arrived">Hedefinize ulaştınız</string>
-    <string name="nav_arrived_goal">%1$d. hedefe ulaşıldı</string>
+    <string name="nav_arrived_goal">%1$d. durağa ulaşıldı</string>
     <string name="nav_end_title">Navigasyon bitirilsin mi?</string>
     <!-- ==== Live location share (navigator) ==== -->
     <string name="share_button">Paylaşım seçenekleri</string>
@@ -1947,7 +1950,6 @@
     <!-- ==== Trip share / actions ==== -->
     <string name="trip_action_share_file">Dosyayı paylaş</string>
     <string name="trip_action_share_file_desc">Sürüş CSV dosyasını başka bir uygulamaya gönderin.</string>
-    <string name="trip_action_view_online">Çevrimiçi görüntüle</string>
     <string name="trip_action_replay">Stüdyoda yeniden oynat</string>
     <string name="trip_action_replay_desc">Canlı veri kaplamalarıyla sürüşü gözden geçirin.</string>
     <!-- ==== Dashboard quick menus ==== -->
@@ -2244,8 +2246,8 @@
     <string name="adv_nav_hunt_voice_interval_desc">Sesin GPS aradığını ne sıklıkta söylediğini belirler. Dikkat: çok düşük olursa sık tekrarlar.</string>
     <string name="adv_nav_inter_stop">Çoklu durak hareket eşiği</string>
     <string name="adv_nav_inter_stop_desc">Bir sonraki durağın varılmış sayılabilmesi için bir durağı ne kadar geçmeniz gerektiğini belirler. Dikkat: çok düşük olursa bir durağı atlayabilir.</string>
-    <string name="adv_nav_intermediate_flash">Ara nokta parlama süresi</string>
-    <string name="adv_nav_intermediate_flash_desc">Ara noktaya ulaşıldı parlamasının ne kadar göründüğünü belirler.</string>
+    <string name="adv_nav_intermediate_flash">Durağa ulaşıldı mesajı süresi</string>
+    <string name="adv_nav_intermediate_flash_desc">Durağa ulaşıldı mesajının ne kadar göründüğünü belirler.</string>
     <string name="adv_nav_max_start">Maks. başlangıç mesafesi</string>
     <string name="adv_nav_max_start_desc">Navigasyonu başlatmak için ilk durağın en fazla ne kadar uzakta olabileceği. Bu mesafenin ötesinde konumunuzdan çizilen çizgi gizlenir ve başlatma engellenir. Rota planlama yine de çalışır.</string>
     <string name="adv_nav_moving">Hareket hızı</string>
@@ -2289,7 +2291,7 @@
     <string name="adv_radar_static">Durağan eşik</string>
     <string name="adv_radar_static_desc">Bir aracın hareket halinde sayılması için gereken en az yaklaşma hızını belirler. Dikkat: çok yüksek olursa yavaş yaklaşanları yok sayar.</string>
     <string name="adv_radar_warning">Bunlar radarın tehditleri nasıl etiketlediğini değiştirir. Yanlış değerler gerçek bir aracı gizleyebilir veya zararsız birini işaretleyebilir.</string>
-    <string name="adv_rates_warning">Bu kontroller uygulama genelinde zamanlamayı değiştirir. Düşük değerler daha taze veri ve daha hızlı tepki sağlar ama daha fazla pil, CPU veya veri kullanır. Varsayılanlar çoğu sürücüye uygundur. Yalnızca etkisini anlıyorsanız değiştirin.</string>
+    <string name="adv_rates_warning">Bu kontroller uygulama genelinde zamanlamayı değiştirir. Düşük değerler daha taze veri ve daha hızlı tepki sağlar ama daha fazla pil, CPU veya veri kullanır. Varsayılanlar çoğu kullanıcıya uygundur. Yalnızca etkisini anlıyorsanız değiştirin.</string>
     <string name="adv_reset_all">Tümünü varsayılana sıfırla</string>
     <string name="adv_reset_confirm_msg">Bu ayarlar varsayılanlarına dönecek:</string>
     <string name="adv_restore_default">Varsayılanı geri yükle</string>
@@ -2339,7 +2341,7 @@
     <string name="tab_more">Diğer</string>
     <string name="welcome_tut_dev_join">Lider tablolarına katıl</string>
     <string name="welcome_tut_dev_joined">Lider tablolarına katılındı</string>
-    <string name="welcome_tut_dev_joined_norider">Bu klasörde henüz sürücü yok. Oluşturmak için %2$s içinde %1$s seçeneğine dokunun.</string>
+    <string name="welcome_tut_dev_joined_norider">Bu klasörde henüz kullanıcı yok. Oluşturmak için %2$s içinde %1$s seçeneğine dokunun.</string>
     <string name="welcome_tut_dev_restore">Ayarları geri yükle</string>
     <string name="welcome_tut_dev_set_folder">Yedek klasörü ayarla</string>
     <string name="welcome_tut_dev_sync_trips">Sürüşleri eşitle</string>
@@ -2381,7 +2383,7 @@
     <string name="compact_mode_always">Her zaman</string>
     <string name="compact_mode_auto">Küçük ekranlar</string>
     <string name="compact_mode_never">Asla</string>
-    <string name="setting_cover_cutout">Kapak kameralarından kaçın</string>
+    <string name="setting_cover_cutout">Kapak ekranı kameralarından kaçın</string>
     <string name="cover_cutout_off">Kapalı</string>
     <string name="cover_cutout_left">Sol alt</string>
     <string name="cover_cutout_right">Sağ alt</string>
@@ -2401,7 +2403,7 @@
     <string name="adv_compact_max_screen">Kompakt ekran sınırı</string>
     <string name="adv_compact_max_screen_desc">Her iki kenarı da bunun altında olan ekranlar, Kompakt gösterge paneli Küçük ekranlar olarak ayarlandığında kompakt panele geçer.</string>
     <string name="adv_cover_cutout_inset">Kamera çentiği boyutu</string>
-    <string name="adv_cover_cutout_inset_desc">Kapak kameralarından kaçın açıkken kapak lensleri için boş bırakılan alan. Çok küçük olursa lensler düğmeleri örter.</string>
+    <string name="adv_cover_cutout_inset_desc">Kapak ekranı kameralarından kaçın açıkken kapak ekranı lensleri için boş bırakılan alan. Çok küçük olursa lensler düğmeleri örter.</string>
     <string name="adv_nav_sidebar_min">Kenar çubuğu için en küçük ekran</string>
     <string name="adv_nav_sidebar_min_desc">Bundan dar ekranlar, yatayda bile alttaki durak panelini tutar. Çok düşük, küçük ekranlarda haritayı gizler.</string>
     <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
@@ -2621,7 +2623,10 @@
     <string name="recording_delete_archive">Yedekteki kopyaları arşivle</string>
     <string name="recording_delete_archive_desc">Onları bir arşiv klasörüne taşır.</string>
     <string name="trip_tools_extend_all_inside">Çevresindeki sürüşler zaten bunun parçası.</string>
-    <string name="trip_tools_extend_skipped">Zaten bunun içinde olan %1$d sürüşü atlar.</string>
+    <plurals name="trip_tools_extend_skipped">
+        <item quantity="one">Zaten bunun içinde olan %1$d sürüşü atlar.</item>
+        <item quantity="other">Zaten bunun içinde olan %1$d sürüşü atlar.</item>
+    </plurals>
     <string name="recording_clear_all_body_archive">Bu, sürüşleri bu telefondan siler. Yedekteki kopyalar bir arşiv klasörüne taşınır.</string>
     <string name="recording_delete_trip_body_archive">Bu sürüş telefondan silinsin mi? Yedekteki kopya bir arşiv klasörüne taşınır.</string>
     <string name="backup_status_pending">Yedekleniyor…</string>

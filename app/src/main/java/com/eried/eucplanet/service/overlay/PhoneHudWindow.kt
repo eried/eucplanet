@@ -2,7 +2,6 @@ package com.eried.eucplanet.service.overlay
 
 import android.content.Context
 import android.graphics.PixelFormat
-import android.os.Build
 import android.provider.Settings
 import android.util.Log
 import android.view.Gravity
@@ -203,13 +202,7 @@ class PhoneHudWindow(
         fun usableElements(elements: List<OverlayElement>): List<OverlayElement> =
             elements.filterNot { it.type in UNSUPPORTED }
 
-        private fun overlayType(): Int =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-            } else {
-                @Suppress("DEPRECATION")
-                WindowManager.LayoutParams.TYPE_PHONE
-            }
+        private fun overlayType(): Int = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
     }
 }
 

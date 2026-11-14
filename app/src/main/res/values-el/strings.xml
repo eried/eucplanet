@@ -147,7 +147,7 @@
     <string name="dashboard_composite_layout_col2">2 στήλες</string>
     <string name="dashboard_composite_layout_col3">3 στήλες</string>
     <string name="dashboard_composite_cell_label">Κελί %1$d</string>
-    <string name="dashboard_composite_empty_label">(κενό)</string>
+    <string name="dashboard_composite_empty_label">(κανένα)</string>
     <string name="dashboard_composite_blank_label">(άδειο)</string>
     <string name="dashboard_stat_empty">(άδειο)</string>
     <string name="dashboard_group_default_name">Οι ενέργειές μου</string>
@@ -184,7 +184,7 @@
     <string name="dashboard_corner_right">Δεξιά</string>
     <string name="dashboard_slot_sparkline">Φόντο ζωντανού γραφήματος</string>
     <string name="dashboard_slot_sparkline_chip">Στατιστικά</string>
-    <string name="dashboard_stat_none">(κενό)</string>
+    <string name="dashboard_stat_none">(κανένα)</string>
     <string name="dashboard_stat_current">Τώρα</string>
     <string name="dashboard_stat_min">Ελάχ.</string>
     <string name="dashboard_stat_max">Μέγ. / Κορυφή</string>
@@ -283,7 +283,7 @@
     <string name="metric_chip_descent_tile">Κάθοδος</string>
     <string name="metric_chip_gps_speed_tile">Ταχ. GPS</string>
     <string name="metric_chip_gps_altitude_tile">Υψόμ.</string>
-    <string name="metric_chip_gps_heading_tile">Πορεία</string>
+    <string name="metric_chip_gps_heading_tile">Κατεύθυνση</string>
     <string name="metric_chip_trip_time_tile">Χρόνος</string>
     <string name="metric_chip_g_force_tile">G</string>
     <string name="metric_chip_forward_g_tile">Εμπρ. g</string>
@@ -472,7 +472,7 @@
     <string name="hud_hotspot_unknown_hint">Βεβαιωθείτε ότι το HUD και το τηλέφωνο είναι στο ίδιο δίκτυο WiFi. Αν χρησιμοποιείτε το σημείο πρόσβασης του τηλεφώνου, ενεργοποιήστε το πρώτα.</string>
     <string name="hud_hotspot_on_hint">Το σημείο πρόσβασης του τηλεφώνου εκπέμπει. Συνδέστε το HUD στο WiFi αυτού του τηλεφώνου για να ενεργοποιηθεί η σύνδεση.</string>
     <string name="hud_overlay_subsection">Προσαρμοσμένη επικάλυψη</string>
-    <string name="hud_overlay_subsection_desc">Εισαγάγετε μια προρύθμιση του Overlay Studio στην Προσαρμοσμένη οθόνη του HUD, χωρίς φόντα. Η προρύθμιση αντιγράφεται εδώ, οπότε μεταγενέστερες αλλαγές στο studio δεν αλλάζουν το HUD μέχρι να την εισαγάγετε ξανά.</string>
+    <string name="hud_overlay_subsection_desc">Εισαγάγετε μια προρύθμιση του Overlay Studio στις οθόνες Προσαρμοσμένη επικάλυψη του HUD, χωρίς φόντα. Η προρύθμιση αντιγράφεται εδώ, οπότε μεταγενέστερες αλλαγές στο studio δεν αλλάζουν το HUD μέχρι να την εισαγάγετε ξανά.</string>
     <string name="hud_overlay_select_preset">Εισαγωγή προρύθμισης</string>
     <string name="hud_overlay_current_preset">Τρέχουσα: %1$s</string>
     <string name="hud_custom_overlay_none">Εκκαθάριση</string>
@@ -591,8 +591,8 @@
     <string name="adv_nav_heading_window_desc">Επηρεάζει πόσα δευτερόλεπτα κίνησης καθορίζουν την κατεύθυνσή σας. Κίνδυνος: πολύ χαμηλή τιμή κάνει την κατεύθυνση ασταθή.</string>
     <string name="adv_nav_fix_buffer">Παράθυρο ιστορικού GPS</string>
     <string name="adv_nav_fix_buffer_desc">Επηρεάζει πόσα δευτερόλεπτα σημάτων GPS κρατούνται για την κατεύθυνση και την προσκόλληση στον δρόμο. Κίνδυνος: πολύ χαμηλή τιμή μπορεί να χάσει την κατεύθυνση.</string>
-    <string name="adv_nav_intermediate_flash">Χρόνος ένδειξης σημείου διαδρομής</string>
-    <string name="adv_nav_intermediate_flash_desc">Επηρεάζει πόση ώρα εμφανίζεται η ένδειξη άφιξης σε ενδιάμεσο σημείο.</string>
+    <string name="adv_nav_intermediate_flash">Χρόνος μηνύματος άφιξης σε στάση</string>
+    <string name="adv_nav_intermediate_flash_desc">Επηρεάζει πόση ώρα εμφανίζεται το μήνυμα άφιξης σε στάση.</string>
     <string name="adv_nav_popup_timeout">Χρόνος αναδυόμενης στροφής</string>
     <string name="adv_nav_popup_timeout_desc">Επηρεάζει πόση ώρα μένει η μεγάλη κάρτα στροφής πριν μικρύνει στη γωνία.</string>
     <string name="adv_group_alarm">Προγνωστικοί συναγερμοί</string>
@@ -1056,7 +1056,7 @@
     <string name="voice_output_channel_alarm">Συναγερμός</string>
 
     <string name="section_engine_sound">Ήχος κινητήρα</string>
-    <string name="engine_sound_enabled">Ήχος μηχανής</string>
+    <string name="engine_sound_enabled">Αναπαραγωγή ήχων κινητήρα</string>
     <string name="engine_sound_enabled_hint">Οι στροφές της μηχανής ακολουθούν ζωντανά την ταχύτητα του μονότροχου και το φορτίο του κινητήρα.</string>
     <string name="engine_type_label">Μηχανή</string>
     <string name="engine_source_sampled">Ηχογράφηση</string>
@@ -1136,7 +1136,7 @@
 
     <string name="section_flic_buttons">Κουμπιά Flic 2</string>
     <string name="flic_show_on_dashboard">Εικονίδιο γρήγορης πρόσβασης στον πίνακα οργάνων</string>
-    <string name="flic_scan_hint">Κρατήστε πατημένο το κουμπί Flic 2 για 6 δευτερόλεπτα για λειτουργία σύζευξης και πατήστε Σάρωση.</string>
+    <string name="flic_scan_hint">Κρατήστε πατημένο το κουμπί Flic 2 για 6 δευτερόλεπτα για λειτουργία σύζευξης και πατήστε Έναρξη σάρωσης.</string>
     <string name="flic_stop_scan">Διακοπή σάρωσης</string>
     <string name="flic_start_scan">Έναρξη σάρωσης</string>
     <string name="flic_forget">Διαγραφή</string>
@@ -1210,7 +1210,10 @@
     <string name="radar_unpair">Διαγραφή συσκευής</string>
     <string name="radar_battery_fmt">Μπαταρία %1$d%%</string>
     <string name="radar_clear">Η λωρίδα είναι ελεύθερη</string>
-    <string name="radar_threats_count">Παρακολούθηση %1$d οχημάτων:</string>
+    <plurals name="radar_threats_count">
+        <item quantity="one">Παρακολούθηση %1$d οχήματος:</item>
+        <item quantity="other">Παρακολούθηση %1$d οχημάτων:</item>
+    </plurals>
     <string name="radar_show_overlay">Εμφάνιση επικάλυψης κινδύνων</string>
     <string name="radar_show_overlay_desc">Λεπτή λωρίδα ραντάρ στα περιθώρια του πίνακα οργάνων. Μία χρωματιστή κουκκίδα για κάθε όχημα που εντοπίζεται. Εμφανίζεται μόνο στον πίνακα οργάνων.</string>
     <string name="radar_overlay_left">Αριστερή άκρη</string>
@@ -1360,7 +1363,7 @@
     <string name="recording_no_data">Δεν καταγράφηκαν δεδομένα σε αυτή τη διαδρομή</string>
     <string name="recording_route">Δρομολόγιο</string>
     <string name="recording_details_section">Επιπλέον λεπτομέρειες</string>
-    <string name="recording_details_none">Κανένα μονότροχο δεν αναφέρθηκε για αυτή τη βόλτα.</string>
+    <string name="recording_details_none">Κανένα μονότροχο δεν αναφέρθηκε για αυτή τη διαδρομή.</string>
     <string name="recording_summary_distance">Απόσταση</string>
     <string name="recording_summary_duration">Διάρκεια</string>
     <string name="recording_summary_points">Γραμμές</string>
@@ -1474,14 +1477,14 @@
     <string name="trip_section_failed">Δεν ήταν δυνατή η αποθήκευση του τμήματος</string>
     <string name="trip_tools_title">Εργαλεία διαδρομής</string>
     <string name="trip_tools_rename">Μετονομασία διαδρομής</string>
-    <string name="trip_tools_rename_desc">Δώστε όνομα σε αυτή τη βόλτα. Αποθηκεύεται στο αρχείο της, οπότε ακολουθεί τις εξαγωγές και τον συγχρονισμό.</string>
+    <string name="trip_tools_rename_desc">Δώστε όνομα σε αυτή τη διαδρομή. Αποθηκεύεται στο αρχείο της, οπότε ακολουθεί τις εξαγωγές και τον συγχρονισμό.</string>
     <string name="trip_tools_rename_hint">Αφήστε το κενό για να χρησιμοποιηθεί η ημερομηνία.</string>
     <string name="trip_tools_change_wheel">Αλλαγή μονότροχου</string>
-    <string name="trip_tools_change_wheel_desc">Διορθώστε σε ποιο μονότροχο έγινε αυτή η βόλτα. Ενημερώνει τη διαδρομή και το αρχείο της.</string>
+    <string name="trip_tools_change_wheel_desc">Διορθώστε σε ποιο μονότροχο έγινε αυτή η διαδρομή. Ενημερώνει τη διαδρομή και το αρχείο της.</string>
     <string name="trip_tools_wheel_other">Άλλο μονότροχο</string>
     <string name="trip_tools_wheel_current">Τρέχον</string>
     <string name="trip_tools_extend">Επέκταση διαδρομής</string>
-    <string name="trip_tools_extend_desc">Ενσωματώστε τις βόλτες πριν ή μετά από αυτή σε μια νέα, μεγαλύτερη διαδρομή.</string>
+    <string name="trip_tools_extend_desc">Ενσωματώστε τις διαδρομές πριν ή μετά από αυτή σε μια νέα, μεγαλύτερη διαδρομή.</string>
     <string name="trip_tools_extend_hint">Πηγαίνετε πίσω και μπροστά όσο θέλετε. Ό,τι βρίσκεται ενδιάμεσα συμπεριλαμβάνεται.</string>
     <string name="trip_tools_extend_from">Έναρξη από</string>
     <string name="trip_tools_extend_to">Λήξη στο</string>
@@ -1492,11 +1495,14 @@
     <string name="trip_tools_archive_failed">Ορισμένες διαδρομές δεν αρχειοθετήθηκαν και βρίσκονται ακόμα εδώ</string>
     <string name="trip_tools_extend_pick_one">Επιλέξτε μια προηγούμενη ή επόμενη διαδρομή για επέκταση.</string>
     <string name="trip_tools_extend_all_inside">Οι διαδρομές γύρω από αυτή είναι ήδη μέρος της.</string>
-    <string name="trip_tools_extend_skipped">Παραλείπει %1$d διαδρομή(-ές) που περιέχονται ήδη σε αυτή.</string>
+    <plurals name="trip_tools_extend_skipped">
+        <item quantity="one">Παραλείπει %1$d διαδρομή που περιέχεται ήδη σε αυτή.</item>
+        <item quantity="other">Παραλείπει %1$d διαδρομές που περιέχονται ήδη σε αυτή.</item>
+    </plurals>
     <string name="trip_tools_combine_summary">Συνδυάζει %1$d διαδρομές σε μία νέα διαδρομή.</string>
     <string name="trip_tools_wheel_changed">Ορίστηκε μονότροχο: %1$s</string>
     <string name="trip_tools_split">Διαχωρισμός διαδρομής</string>
-    <string name="trip_tools_split_desc">Εντοπίζει αλλαγές μονότροχου, μεγάλες παύσεις και κενά εγγραφής και κόβει τη βόλτα εκεί.</string>
+    <string name="trip_tools_split_desc">Εντοπίζει αλλαγές μονότροχου, μεγάλες παύσεις και κενά εγγραφής και κόβει τη διαδρομή εκεί.</string>
     <string name="trip_tools_split_none">Τίποτα για διαχωρισμό. Δεν βρέθηκαν αλλαγές μονότροχου, μεγάλες παύσεις ή κενά εγγραφής.</string>
     <string name="trip_split_lasted">διήρκεσε %1$s</string>
     <string name="trip_tools_split_pick">Επιλέξτε τουλάχιστον ένα σημείο κοπής.</string>
@@ -1683,10 +1689,10 @@
     <string name="toast_external_speed_change">Η ταχύτητα ενημερώθηκε από το μονότροχο: tilt-back %1$d km/h, συναγερμός %2$d km/h</string>
     <string name="wheel_no_data_reset">Ακόμα κανένα δεδομένο από το μονότροχο. Δοκιμάστε να το απενεργοποιήσετε και να το ενεργοποιήσετε ξανά.</string>
 
-    <string name="trip_map_ride_start">Έναρξη βόλτας: %1$s</string>
+    <string name="trip_map_ride_start">Έναρξη διαδρομής: %1$s</string>
     <string name="trip_map_reconnected">Επανασύνδεση: %1$s</string>
     <string name="trip_map_new_wheel">Νέο μονότροχο: %1$s</string>
-    <string name="trip_map_ride_end">Τέλος βόλτας</string>
+    <string name="trip_map_ride_end">Τέλος διαδρομής</string>
 
     <string name="online_upload_consent_title">Συμμετοχή στην κατάταξη EUC Stats</string>
     <string name="online_upload_consent_intro">Πριν συμμετάσχετε, διαβάστε τι γίνεται δημόσιο:</string>
@@ -1729,13 +1735,13 @@
     <string name="online_status_pending">Μεταφόρτωση στην κατάταξη…</string>
     <string name="online_status_failed">Η διαδικτυακή μεταφόρτωση απέτυχε, πατήστε για επανάληψη</string>
     <string name="online_status_rejected">Δεν έγινε δεκτό στην κατάταξη</string>
-    <string name="online_upload_join_caption">Εγγραφείτε για να στέλνετε τα στατιστικά και τις διαδρομές σας στη δημόσια κατάταξη στο.</string>
-    <string name="online_upload_linked_caption">Τα στατιστικά και οι διαδρομές σας εμφανίζονται στη δημόσια κατάταξη στο.</string>
+    <string name="online_upload_join_caption">Εγγραφείτε για να στέλνετε τα στατιστικά και τις διαδρομές σας στη δημόσια κατάταξη στο %1$s.</string>
+    <string name="online_upload_linked_caption">Τα στατιστικά και οι διαδρομές σας εμφανίζονται στη δημόσια κατάταξη στο %1$s.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Αποσύνδεση</string>
     <string name="online_unlink_title">Αποσύνδεση από την κατάταξη;</string>
-    <string name="online_unlink_body">Αυτό το τηλέφωνο σταματά να ανεβάζει βόλτες. Το αναγνωριστικό αναβάτη παραμένει αποθηκευμένο, ώστε να επιστρέψετε ως ο ίδιος αναβάτης. Τα στατιστικά σας μένουν στο EUC Stats. Για να τα αφαιρέσετε, χρησιμοποιήστε τη Διαγραφή λογαριασμού.</string>
+    <string name="online_unlink_body">Αυτό το τηλέφωνο σταματά να ανεβάζει διαδρομές. Το αναγνωριστικό αναβάτη παραμένει αποθηκευμένο, ώστε να επιστρέψετε ως ο ίδιος αναβάτης. Τα στατιστικά σας μένουν στο EUC Stats. Για να τα αφαιρέσετε, χρησιμοποιήστε τη Διαγραφή λογαριασμού.</string>
     <string name="online_unlink_confirm">Αποσύνδεση</string>
 
     <string name="online_profile_manage">Διαχείριση προφίλ</string>
@@ -1749,7 +1755,7 @@
     <string name="online_profile_save_rate_limited">Πάρα πολλά αιτήματα, δοκιμάστε ξανά αργότερα.</string>
     <string name="online_profile_save_failed">Η αποθήκευση απέτυχε (HTTP %1$d). Δοκιμάστε ξανά.</string>
     <string name="online_restore_title">Βρέθηκε αποθηκευμένο προφίλ</string>
-    <string name="online_restore_body_new">Βρήκαμε ένα αποθηκευμένο προφίλ εδώ: %1$s. Αν συνεχίσετε, επιστρέφετε στη δημόσια κατάταξη ως αυτός ο αναβάτης. Το όνομα, η σημαία, το avatar και τα στατιστικά βόλτας είναι δημόσια. Δεν δημιουργείται νέο προφίλ.</string>
+    <string name="online_restore_body_new">Βρήκαμε ένα αποθηκευμένο προφίλ εδώ: %1$s. Αν συνεχίσετε, επιστρέφετε στη δημόσια κατάταξη ως αυτός ο αναβάτης. Το όνομα, η σημαία, το avatar και τα στατιστικά διαδρομών είναι δημόσια. Δεν δημιουργείται νέο προφίλ.</string>
     <string name="online_restore_body_switch">Βρήκαμε ένα διαφορετικό αποθηκευμένο προφίλ: %1$s. Αν συνεχίσετε, αυτό το τηλέφωνο αλλάζει σε εκείνον τον αναβάτη. Πρώτα δημιουργείται αντίγραφο ασφαλείας του τρέχοντος προφίλ σας.</string>
     <string name="online_restore_confirm">Συνέχεια ως %1$s</string>
     <string name="online_rejoin_title">Επανενεργοποίηση προφίλ</string>
@@ -2119,7 +2125,7 @@
     <string name="trip_action_share_dropbox">Κοινοποίηση μέσω Dropbox</string>
     <string name="trip_action_share_dropbox_desc">Μεταφόρτωση στον φάκελο Dropbox σας και κοινοποίηση του δημόσιου συνδέσμου.</string>
     <string name="trip_action_inspect_online">Προβολή online</string>
-    <string name="trip_action_inspect_online_desc">Κοινοποιήστε έναν σύνδεσμο eucviewer.ried.no για να δείτε αυτή τη βόλτα online.</string>
+    <string name="trip_action_inspect_online_desc">Κοινοποιήστε έναν σύνδεσμο eucviewer.ried.no για να δείτε αυτή τη διαδρομή online.</string>
     <string name="trip_action_dropbox_disabled">Συνδέστε το Dropbox στις ρυθμίσεις για να ενεργοποιηθεί</string>
     <string name="nav_start_short">Έναρξη πλοήγησης</string>
     <string name="nav_start_btn">Έναρξη</string>
@@ -2171,7 +2177,7 @@
 
     <string name="nav_start_riding">Ξεκινήστε</string>
     <string name="nav_arrived">Φτάσατε</string>
-    <string name="nav_arrived_goal">Φτάσατε στον στόχο %1$d</string>
+    <string name="nav_arrived_goal">Φτάσατε στη στάση %1$d</string>
     <string name="nav_end_title">Τερματισμός πλοήγησης;</string>
     <string name="nav_end_body">Διακοπή καθοδήγησης για το ενεργό δρομολόγιο;</string>
     <string name="nav_end_confirm">Τερματισμός</string>
@@ -2421,9 +2427,8 @@
     <string name="watch_show_navigation_desc">Εμφάνιση του βέλους στροφής και της απόστασης στο ρολόι κατά την πλοήγηση.</string>
     <string name="trip_action_share_file">Κοινοποίηση αρχείου</string>
     <string name="trip_action_share_file_desc">Αποστολή του CSV της διαδρομής σε άλλη εφαρμογή.</string>
-    <string name="trip_action_view_online">Προβολή online</string>
     <string name="trip_action_replay">Αναπαραγωγή στο Studio</string>
-    <string name="trip_action_replay_desc">Περιηγηθείτε στη βόλτα με ζωντανά δεδομένα σε επικάλυψη.</string>
+    <string name="trip_action_replay_desc">Περιηγηθείτε στη διαδρομή με ζωντανά δεδομένα σε επικάλυψη.</string>
     <string name="dash_view_video_gallery">Συλλογή βίντεο</string>
     <string name="dash_view_photo_gallery">Συλλογή φωτογραφιών</string>
     <string name="dash_no_gallery_app">Δεν βρέθηκε εφαρμογή συλλογής</string>
@@ -2474,7 +2479,7 @@
     <string name="warnings_hud_blocked_title">Το HUD τηλεφώνου δεν μπορεί να εμφανιστεί</string>
     <string name="warnings_hud_blocked_body">Η άδεια εμφάνισης πάνω από άλλες εφαρμογές ανακλήθηκε, οπότε η επικάλυψη δεν θα εμφανίζεται πάνω από χάρτες ή μουσική.</string>
     <string name="warnings_no_backup_title">Δεν υπάρχει αντίγραφο ασφαλείας των διαδρομών</string>
-    <string name="warnings_no_backup_body">Υπάρχουν μόνο σε αυτό το τηλέφωνο. Επιλέξτε φάκελο αντιγράφων, ώστε ένα χαμένο ή διαγραμμένο τηλέφωνο να μην πάρει μαζί του τις βόλτες σας.</string>
+    <string name="warnings_no_backup_body">Υπάρχουν μόνο σε αυτό το τηλέφωνο. Επιλέξτε φάκελο αντιγράφων, ώστε ένα χαμένο ή διαγραμμένο τηλέφωνο να μην πάρει μαζί του τις διαδρομές σας.</string>
     <string name="warnings_pip_blocked_title">Η λειτουργία εικόνας σε εικόνα έχει αποκλειστεί</string>
     <string name="warnings_pip_blocked_body">Το Android είναι ρυθμισμένο να την απορρίπτει για το EUC Planet, οπότε το αιωρούμενο παράθυρο δεν θα εμφανίζεται όταν βγαίνετε από την εφαρμογή.</string>
     <string name="online_rejoin_confirm">Επανασύνδεση</string>
@@ -2582,9 +2587,9 @@
     <string name="lockdown_limit_10">Οι Ρυθμίσεις δεν ανοίγουν.</string>
     <string name="lockdown_limit_11">Το ιστορικό διαδρομών, η παρακολούθηση μπαταρίας, το studio και οι λεπτομέρειες μετρήσεων δεν ανοίγουν.</string>
     <string name="lockdown_limit_12">Το πάτημα μιας μέτρησης δεν κάνει τίποτα.</string>
-    <string name="lockdown_limit_13">Οι φωνητικές ανακοινώσεις, οι περιοδικές αναφορές και οι χρόνοι επιτάχυνσης σιγούν. Οι συναγερμοί σας λειτουργούν κανονικά.</string>
+    <string name="lockdown_limit_13">Οι φωνητικές ανακοινώσεις, οι περιοδικές αναφορές και οι χρόνοι ταχύτητας σιγούν. Οι συναγερμοί σας λειτουργούν κανονικά.</string>
     <string name="lockdown_limit_14">Το μονότροχο δεν μπορεί να κλειδωθεί ή να ξεκλειδωθεί και το αυτόματο κλείδωμα εγγύτητας δεν λειτουργεί.</string>
-    <string name="lockdown_limit_15">Τα αυτόματα φώτα και η αυτόματη ένταση συνεχίζουν να λειτουργούν. Ο έλεγχος πολυμέσων σταματά.</string>
+    <string name="lockdown_limit_15">Τα αυτόματα φώτα και η αυτόματη ένταση συνεχίζουν να λειτουργούν. Ο έλεγχος αναπαραγωγής πολυμέσων σταματά.</string>
     <string name="lockdown_limit_16">Η ειδοποίηση χάνει τα κουμπιά της.</string>
     <string name="lockdown_limit_17">Ο αριθμός έκδοσης δεν ανοίγει τις Πληροφορίες.</string>
     <string name="lockdown_limit_18">Αυτή η λειτουργία δεν περιλαμβάνεται στα αντίγραφα ασφαλείας ρυθμίσεων.</string>
@@ -2651,13 +2656,13 @@
     <string name="crews_type_instead">Χειροκίνητη εισαγωγή</string>
     <string name="crews_code_label">Κωδικός πάσου</string>
     <string name="crews_foreign_title">Αυτός ο κωδικός δεν είναι από το eucstats</string>
-    <string name="crews_foreign_body">Οδηγεί στο %1$s, όπου δεν πηγαίνουν οι βόλτες σας. Αν πείτε ναι, θα παραδώσετε τον λογαριασμό σας σε όποιον το διαχειρίζεται.\n\nΈχετε δικό σας διακομιστή; Ενεργοποιήστε πρώτα τη λειτουργία προγραμματιστή στις Ρυθμίσεις.</string>
+    <string name="crews_foreign_body">Οδηγεί στο %1$s, όπου δεν πηγαίνουν οι διαδρομές σας. Αν πείτε ναι, θα παραδώσετε τον λογαριασμό σας σε όποιον το διαχειρίζεται.\n\nΈχετε δικό σας διακομιστή; Ενεργοποιήστε πρώτα τη λειτουργία προγραμματιστή στις Ρυθμίσεις.</string>
     <string name="crews_scan_switch">Σάρωση</string>
     <string name="crews_close">Κλείσιμο</string>
     <string name="crews_opensettings">Άνοιγμα ρυθμίσεων</string>
     <string name="crews_dev_title">Λειτουργία προγραμματιστή</string>
     <string name="crews_dev_body">Σύνδεση με %1$s αντί του συνηθισμένου διακομιστή.</string>
-    <string name="crews_grant">Επιτρέψτε σε αυτό το πρόγραμμα περιήγησης να ενεργεί για λογαριασμό σας.\n\nΜπορεί να δημιουργήσει ομάδα, να συμμετάσχει, να αποχωρήσει και να διαχειριστεί μέλη. Δεν μπορεί να ανεβάσει βόλτες, να σας μετονομάσει ή να διαγράψει οτιδήποτε, αυτά μένουν σε αυτό το τηλέφωνο.</string>
+    <string name="crews_grant">Επιτρέψτε σε αυτό το πρόγραμμα περιήγησης να ενεργεί για λογαριασμό σας.\n\nΜπορεί να δημιουργήσει ομάδα, να συμμετάσχει, να αποχωρήσει και να διαχειριστεί μέλη. Δεν μπορεί να ανεβάσει διαδρομές, να σας μετονομάσει ή να διαγράψει οτιδήποτε, αυτά μένουν σε αυτό το τηλέφωνο.</string>
     <string name="crews_noprofile_title">Συμμετάσχετε πρώτα στην κατάταξη</string>
     <string name="crews_noprofile_body">Οι ομάδες συνδέονται με το προφίλ σας στην κατάταξη και αυτό το τηλέφωνο δεν έχει δημιουργήσει προφίλ. Συμμετάσχετε στο %1$s και σαρώστε ξανά.</string>
     <string name="crews_issue">Έκδοση πάσου</string>

@@ -137,7 +137,7 @@
     <string name="dashboard_composite_layout_col2">2 sloupce</string>
     <string name="dashboard_composite_layout_col3">3 sloupce</string>
     <string name="dashboard_composite_cell_label">Buňka %1$d</string>
-    <string name="dashboard_composite_empty_label">(prázdné)</string>
+    <string name="dashboard_composite_empty_label">(žádné)</string>
     <string name="dashboard_composite_blank_label">(prázdné)</string>
     <string name="dashboard_stat_empty">(prázdné)</string>
     <string name="dashboard_group_default_name">Moje akce</string>
@@ -174,7 +174,7 @@
     <string name="dashboard_corner_right">Vpravo</string>
     <string name="dashboard_slot_sparkline">Pozadí s živým trendem</string>
     <string name="dashboard_slot_sparkline_chip">Statistiky</string>
-    <string name="dashboard_stat_none">(prázdné)</string>
+    <string name="dashboard_stat_none">(žádné)</string>
     <string name="dashboard_stat_current">Teď</string>
     <string name="dashboard_stat_min">Min</string>
     <string name="dashboard_stat_max">Max / Špička</string>
@@ -270,7 +270,7 @@
     <string name="metric_chip_descent_tile">Dolů</string>
     <string name="metric_chip_gps_speed_tile">GPS r</string>
     <string name="metric_chip_gps_altitude_tile">Výška</string>
-    <string name="metric_chip_gps_heading_tile">Azimut</string>
+    <string name="metric_chip_gps_heading_tile">Směr</string>
     <string name="metric_chip_trip_time_tile">Čas</string>
     <string name="metric_chip_g_force_tile">G</string>
     <string name="metric_chip_forward_g_tile">Podél g</string>
@@ -451,7 +451,7 @@
     <string name="hud_hotspot_unknown_hint">Ujistěte se, že HUD i telefon jsou na stejné síti WiFi. Pokud používáte hotspot telefonu, nejprve jej zapněte.</string>
     <string name="hud_hotspot_on_hint">Hotspot telefonu vysílá. Připojte HUD k WiFi tohoto telefonu a spojení se naváže.</string>
     <string name="hud_overlay_subsection">Vlastní překryv</string>
-    <string name="hud_overlay_subsection_desc">Naimportuje předvolbu z Overlay Studia na obrazovku Vlastní v HUD, bez pozadí. Předvolba se sem zkopíruje, takže pozdější úpravy ve studiu HUD nezmění, dokud ji neimportujete znovu.</string>
+    <string name="hud_overlay_subsection_desc">Naimportuje předvolbu z Overlay Studia na obrazovky Vlastní překryv v HUD, bez pozadí. Předvolba se sem zkopíruje, takže pozdější úpravy ve studiu HUD nezmění, dokud ji neimportujete znovu.</string>
     <string name="hud_overlay_select_preset">Importovat předvolbu</string>
     <string name="hud_overlay_current_preset">Aktuální: %1$s</string>
     <string name="hud_custom_overlay_none">Vymazat</string>
@@ -566,8 +566,8 @@
     <string name="adv_nav_heading_window_desc">Určuje, kolik sekund pohybu určuje směr jízdy. Pozor: příliš nízká hodnota způsobí trhaný směr.</string>
     <string name="adv_nav_fix_buffer">Okno historie GPS</string>
     <string name="adv_nav_fix_buffer_desc">Určuje, kolik sekund poloh GPS se uchovává pro určení směru a přichycení k trase. Pozor: příliš nízká hodnota může ztratit směr.</string>
-    <string name="adv_nav_intermediate_flash">Doba bliknutí u bodu</string>
-    <string name="adv_nav_intermediate_flash_desc">Určuje, jak dlouho se zobrazí bliknutí o dosažení bodu trasy.</string>
+    <string name="adv_nav_intermediate_flash">Doba hlášení o zastávce</string>
+    <string name="adv_nav_intermediate_flash_desc">Určuje, jak dlouho se zobrazí hlášení o dosažení zastávky.</string>
     <string name="adv_nav_popup_timeout">Časový limit karty odbočení</string>
     <string name="adv_nav_popup_timeout_desc">Určuje, jak dlouho zůstane velká karta odbočení, než se zmenší do rohu.</string>
     <string name="adv_group_alarm">Prediktivní alarmy</string>
@@ -664,7 +664,7 @@
     <string name="adv_compact_max_screen">Limit kompaktní obrazovky</string>
     <string name="adv_compact_max_screen_desc">Obrazovky s oběma stranami pod touto hodnotou přepnou na kompaktní palubní desku, když je Kompaktní palubní deska nastavena na Malé obrazovky.</string>
     <string name="adv_cover_cutout_inset">Velikost výřezu kamery</string>
-    <string name="adv_cover_cutout_inset_desc">Prostor ponechaný volný pro objektivy krytu, když je zapnuto Vyhnout se kamerám krytu. Příliš malý a objektivy zakryjí tlačítka.</string>
+    <string name="adv_cover_cutout_inset_desc">Prostor ponechaný volný pro objektivy vnějšího displeje, když je zapnuto Vyhnout se kamerám vnějšího displeje. Příliš malý a objektivy zakryjí tlačítka.</string>
     <string name="adv_simple_speedo_scale">Velikost jednoduchého rychloměru</string>
     <string name="adv_simple_speedo_scale_desc">Velikost prostého čísla rychlosti vůči ploše ciferníku. Příliš velká může oříznout popisek jednotky.</string>
     <string name="adv_nav_sidebar_width">Šířka panelu zastávek</string>
@@ -830,7 +830,7 @@
     <string name="compact_mode_auto">Malé obrazovky</string>
     <string name="compact_mode_always">Vždy</string>
     <string name="compact_mode_never">Nikdy</string>
-    <string name="setting_cover_cutout">Vyhnout se kamerám krytu</string>
+    <string name="setting_cover_cutout">Vyhnout se kamerám vnějšího displeje</string>
     <string name="cover_cutout_off">Vypnuto</string>
     <string name="cover_cutout_left">Vlevo dole</string>
     <string name="cover_cutout_right">Vpravo dole</string>
@@ -1024,7 +1024,7 @@
     <string name="voice_output_channel_notification">Oznámení</string>
     <string name="voice_output_channel_alarm">Budík</string>
     <string name="section_engine_sound">Zvuk motoru</string>
-    <string name="engine_sound_enabled">Zvuk motoru</string>
+    <string name="engine_sound_enabled">Přehrávat zvuky motoru</string>
     <string name="engine_sound_enabled_hint">Řídí otáčky motoru živě podle rychlosti monokola a zatížení.</string>
     <string name="engine_type_label">Motor</string>
     <string name="engine_source_sampled">Nahraný</string>
@@ -1102,7 +1102,7 @@
     <string name="report_navigation">Navigace</string>
     <string name="section_flic_buttons">Tlačítka Flic 2</string>
     <string name="flic_show_on_dashboard">Ikona rychlého přístupu na palubní desce</string>
-    <string name="flic_scan_hint">Podržte tlačítko Flic 2 na 6 sekund pro režim párování, pak klepněte na Hledat.</string>
+    <string name="flic_scan_hint">Podržte tlačítko Flic 2 na 6 sekund pro režim párování, pak klepněte na Spustit hledání.</string>
     <string name="flic_stop_scan">Zastavit hledání</string>
     <string name="flic_start_scan">Spustit hledání</string>
     <string name="flic_forget">Zapomenout</string>
@@ -1174,7 +1174,12 @@
     <string name="radar_unpair">Zapomenout zařízení</string>
     <string name="radar_battery_fmt">Baterie %1$d %%</string>
     <string name="radar_clear">Jízdní pruh je volný</string>
-    <string name="radar_threats_count">Sledovaná vozidla (%1$d):</string>
+    <plurals name="radar_threats_count">
+        <item quantity="one">Sleduje se %1$d vozidlo:</item>
+        <item quantity="few">Sledují se %1$d vozidla:</item>
+        <item quantity="many">Sleduje se %1$d vozidla:</item>
+        <item quantity="other">Sleduje se %1$d vozidel:</item>
+    </plurals>
     <string name="radar_show_overlay">Zobrazit překryv hrozeb</string>
     <string name="radar_show_overlay_desc">Tenký radarový pruh v okrajích palubní desky. Jedna barevná tečka na každé zjištěné vozidlo. Viditelné jen na palubní desce.</string>
     <string name="radar_overlay_left">Levý okraj</string>
@@ -1299,7 +1304,7 @@
     <string name="recording_delete_trip_title">Smazat jízdu</string>
     <string name="recording_delete_trip_body">Smazat tuto jízdu a její datový soubor?</string>
     <string name="recording_clear_all_menu">Vymazat vše</string>
-    <string name="recording_empty">Žádná data k zobrazení. Importujte nebo nahrajte novou</string>
+    <string name="recording_empty">Žádná data k zobrazení. Importujte nebo nahrajte novou jízdu</string>
     <string name="recording_will_auto_stop">Nahrávání se automaticky zastaví po %1$ds nečinnosti</string>
     <string name="recording_stat_trips">Jízdy</string>
     <string name="recording_stat_distance">Vzdálenost</string>
@@ -1640,8 +1645,8 @@
     <string name="online_status_pending">Nahrávám do žebříčku…</string>
     <string name="online_status_failed">Online nahrání selhalo, klepnutím to zkusíte znovu</string>
     <string name="online_status_rejected">Nepřijato do žebříčku</string>
-    <string name="online_upload_join_caption">Připojte se a posílejte své statistiky a jízdy do veřejného žebříčku na.</string>
-    <string name="online_upload_linked_caption">Vaše statistiky a jízdy se objevují ve veřejném žebříčku na.</string>
+    <string name="online_upload_join_caption">Připojte se a posílejte své statistiky a jízdy do veřejného žebříčku na %1$s.</string>
+    <string name="online_upload_linked_caption">Vaše statistiky a jízdy se objevují ve veřejném žebříčku na %1$s.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Odpojit</string>
@@ -2057,7 +2062,7 @@
     <string name="nav_default_route_name">Moje trasa</string>
     <string name="nav_start_riding">Vyrazte</string>
     <string name="nav_arrived">Dorazili jste</string>
-    <string name="nav_arrived_goal">Dosažen cíl %1$d</string>
+    <string name="nav_arrived_goal">Dosažena zastávka %1$d</string>
     <string name="nav_end_title">Ukončit navigaci?</string>
     <!-- ==== Live location share (navigator) ==== -->
     <string name="share_button">Možnosti sdílení</string>
@@ -2305,7 +2310,6 @@
     <string name="watch_show_navigation_desc">Zrcadlí šipku odbočení a vzdálenost na hodinkách během navigace.</string>
     <string name="trip_action_share_file">Sdílet soubor</string>
     <string name="trip_action_share_file_desc">Odešle CSV jízdy do jiné aplikace.</string>
-    <string name="trip_action_view_online">Zobrazit online</string>
     <string name="trip_action_replay">Přehrát ve Studiu</string>
     <string name="trip_action_replay_desc">Projděte jízdu s živými datovými překryvy.</string>
     <string name="dash_view_video_gallery">Zobrazit galerii videí</string>
@@ -2428,7 +2432,12 @@
     <string name="recording_delete_archive">Archivovat kopie v záloze</string>
     <string name="recording_delete_archive_desc">Přesune je do složky archive.</string>
     <string name="trip_tools_extend_all_inside">Jízdy kolem této už jsou její součástí.</string>
-    <string name="trip_tools_extend_skipped">Přeskočené jízdy, které už jsou uvnitř této: %1$d.</string>
+    <plurals name="trip_tools_extend_skipped">
+        <item quantity="one">Přeskočí %1$d jízdu, která už je uvnitř této.</item>
+        <item quantity="few">Přeskočí %1$d jízdy, které už jsou uvnitř této.</item>
+        <item quantity="many">Přeskočí %1$d jízdy, která už je uvnitř této.</item>
+        <item quantity="other">Přeskočí %1$d jízd, které už jsou uvnitř této.</item>
+    </plurals>
     <string name="recording_clear_all_body_archive">Smaže jízdy z tohoto telefonu. Kopie v záloze se přesunou do složky archive.</string>
     <string name="recording_delete_trip_body_archive">Smazat tuto jízdu z telefonu? Kopie v záloze se přesune do složky archive.</string>
     <string name="backup_status_pending">Zálohuji…</string>
@@ -2471,7 +2480,7 @@
     <string name="lockdown_limit_12">Klepnutí na metriku nic neudělá.</string>
     <string name="lockdown_limit_13">Hlasová hlášení, pravidelná hlášení a rychlostní mezičasy mlčí. Vaše alarmy dál fungují.</string>
     <string name="lockdown_limit_14">Monokolo nelze zamknout ani odemknout a automatický zámek podle blízkosti neběží.</string>
-    <string name="lockdown_limit_15">Automatická světla a automatická hlasitost dál fungují. Ovládání médií se zastaví.</string>
+    <string name="lockdown_limit_15">Automatická světla a automatická hlasitost dál fungují. Ovládání přehrávání se zastaví.</string>
     <string name="lockdown_limit_16">Oznámení přijde o svá tlačítka.</string>
     <string name="lockdown_limit_17">Číslo verze už neotevře obrazovku O aplikaci.</string>
     <string name="lockdown_limit_18">Tento režim není součástí záloh nastavení.</string>

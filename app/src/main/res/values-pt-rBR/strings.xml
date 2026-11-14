@@ -153,7 +153,7 @@
     <string name="dashboard_composite_layout_col3">3 colunas</string>
     <string name="dashboard_composite_cell_label">Célula %1$d</string>
     <!-- "(blank)" is the collapsing placeholder: cell renders "-", layout collapses. -->
-    <string name="dashboard_composite_empty_label">(em branco)</string>
+    <string name="dashboard_composite_empty_label">(nenhuma)</string>
     <!-- "(empty)" is the reserving placeholder: cell renders blank, layout intact. -->
     <string name="dashboard_composite_blank_label">(vazia)</string>
     <string name="dashboard_stat_empty">(vazia)</string>
@@ -194,7 +194,7 @@
     <!-- Open-menu label for DashboardStat.NONE; closed-field shows a literal
          "-" glyph from statSelectedLabel so the rider sees the visual at a
          glance regardless of locale. -->
-    <string name="dashboard_stat_none">(em branco)</string>
+    <string name="dashboard_stat_none">(nenhuma)</string>
     <string name="dashboard_stat_current">Agora</string>
     <string name="dashboard_stat_min">Mín</string>
     <string name="dashboard_stat_max">Máx / Pico</string>
@@ -490,7 +490,7 @@
     <string name="hud_hotspot_unknown_hint">Verifique se o HUD e o celular estão na mesma rede Wi-Fi. Se usar o hotspot do celular, ligue-o primeiro.</string>
     <string name="hud_hotspot_on_hint">O hotspot do celular está ativo. Conecte o HUD ao Wi-Fi deste celular para ativar o link.</string>
     <string name="hud_overlay_subsection">Overlay personalizado</string>
-    <string name="hud_overlay_subsection_desc">Importe um preset do Overlay Studio para a tela Overlay personalizado do HUD, sem fundos. O preset é copiado aqui, então edições posteriores no Studio só atualizam o HUD quando você importar novamente.</string>
+    <string name="hud_overlay_subsection_desc">Importe um preset do Overlay Studio para as telas Overlay personalizado do HUD, sem fundos. O preset é copiado aqui, então edições posteriores no Studio só atualizam o HUD quando você importar novamente.</string>
     <string name="hud_overlay_select_preset">Importar preset</string>
     <string name="hud_overlay_current_preset">Atual: %1$s</string>
     <string name="hud_custom_overlay_none">Limpar</string>
@@ -817,7 +817,7 @@
 
     <!-- Engine sound generator -->
     <string name="section_engine_sound">Som do motor</string>
-    <string name="engine_sound_enabled">Som do motor</string>
+    <string name="engine_sound_enabled">Reproduzir sons do motor</string>
     <string name="engine_sound_enabled_hint">Controla as RPM ao vivo pela velocidade e carga do motor.</string>
     <string name="engine_type_label">Motor</string>
     <string name="engine_source_sampled">Gravado</string>
@@ -974,7 +974,11 @@
     <string name="radar_unpair">Esquecer dispositivo</string>
     <string name="radar_battery_fmt">Bateria %1$d%%</string>
     <string name="radar_clear">Via livre</string>
-    <string name="radar_threats_count">Rastreando %1$d veículo(s):</string>
+    <plurals name="radar_threats_count">
+        <item quantity="one">Rastreando %1$d veículo:</item>
+        <item quantity="many">Rastreando %1$d veículos:</item>
+        <item quantity="other">Rastreando %1$d veículos:</item>
+    </plurals>
     <string name="radar_show_overlay">Mostrar overlay de ameaças</string>
     <string name="radar_show_overlay_desc">Barra de radar fina nas bordas do painel. Um ponto colorido por veículo detectado. Visível apenas no painel.</string>
     <string name="radar_overlay_left">Borda esquerda</string>
@@ -1333,8 +1337,8 @@
     <string name="online_status_pending">Enviando ao ranking…</string>
     <string name="online_status_failed">Falha no envio. Toque para tentar novamente</string>
     <string name="online_status_rejected">Não aceito para o ranking</string>
-    <string name="online_upload_join_caption">Entre para enviar suas estatísticas e viagens ao ranking público em.</string>
-    <string name="online_upload_linked_caption">Suas estatísticas e viagens aparecem no ranking público em.</string>
+    <string name="online_upload_join_caption">Entre para enviar suas estatísticas e viagens ao ranking público em %1$s.</string>
+    <string name="online_upload_linked_caption">Suas estatísticas e viagens aparecem no ranking público em %1$s.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Desvincular</string>
@@ -1744,7 +1748,7 @@
     <!-- Navigation overlay -->
     <string name="nav_start_riding">Comece a andar</string>
     <string name="nav_arrived">Você chegou</string>
-    <string name="nav_arrived_goal">Destino %1$d alcançado</string>
+    <string name="nav_arrived_goal">Parada %1$d alcançada</string>
     <string name="nav_end_title">Encerrar navegação?</string>
     <!-- ==== Live location share (navigator) ==== -->
     <string name="share_button">Opções de compartilhamento</string>
@@ -1950,7 +1954,6 @@
     <!-- ==== Trip share / actions ==== -->
     <string name="trip_action_share_file">Compartilhar arquivo</string>
     <string name="trip_action_share_file_desc">Envie o CSV da viagem para outro app.</string>
-    <string name="trip_action_view_online">Ver online</string>
     <string name="trip_action_replay">Reproduzir no Studio</string>
     <string name="trip_action_replay_desc">Reveja a viagem com os dados ao vivo sobrepostos.</string>
     <!-- ==== Dashboard quick menus ==== -->
@@ -2247,8 +2250,8 @@
     <string name="adv_nav_hunt_voice_interval_desc">Define com que frequência a voz diz que está buscando GPS. Atenção: baixo demais repete com frequência.</string>
     <string name="adv_nav_inter_stop">Barreira de movimento entre paradas</string>
     <string name="adv_nav_inter_stop_desc">Define o quanto você deve avançar além de uma parada antes que a próxima possa contar como chegada. Atenção: baixo demais pode pular uma parada.</string>
-    <string name="adv_nav_intermediate_flash">Tempo de destaque do ponto</string>
-    <string name="adv_nav_intermediate_flash_desc">Define por quanto tempo o destaque de ponto alcançado aparece.</string>
+    <string name="adv_nav_intermediate_flash">Tempo de parada alcançada</string>
+    <string name="adv_nav_intermediate_flash_desc">Define por quanto tempo a mensagem de parada alcançada aparece.</string>
     <string name="adv_nav_max_start">Distância máx. de início</string>
     <string name="adv_nav_max_start_desc">A que distância a primeira parada pode estar para iniciar a navegação. Além disso, a linha a partir da sua posição fica oculta e o início é bloqueado. O planejamento continua funcionando.</string>
     <string name="adv_nav_moving">Velocidade de movimento</string>
@@ -2384,7 +2387,7 @@
     <string name="compact_mode_always">Sempre</string>
     <string name="compact_mode_auto">Telas pequenas</string>
     <string name="compact_mode_never">Nunca</string>
-    <string name="setting_cover_cutout">Evitar câmeras frontais</string>
+    <string name="setting_cover_cutout">Evitar câmeras da tela externa</string>
     <string name="cover_cutout_off">Desligado</string>
     <string name="cover_cutout_left">Inferior esquerdo</string>
     <string name="cover_cutout_right">Inferior direito</string>
@@ -2404,7 +2407,7 @@
     <string name="adv_compact_max_screen">Limite de tela compacta</string>
     <string name="adv_compact_max_screen_desc">Telas com ambos os lados abaixo disso mudam para o painel compacto quando Painel compacto está em Telas pequenas.</string>
     <string name="adv_cover_cutout_inset">Tamanho do recorte da câmera</string>
-    <string name="adv_cover_cutout_inset_desc">Espaço reservado para as lentes frontais quando Evitar câmeras frontais está ativado. Muito pequeno e as lentes cobrem botões.</string>
+    <string name="adv_cover_cutout_inset_desc">Espaço reservado para as lentes da tela externa quando Evitar câmeras da tela externa está ativado. Muito pequeno e as lentes cobrem botões.</string>
     <string name="adv_nav_sidebar_min">Tela mínima para barra lateral</string>
     <string name="adv_nav_sidebar_min_desc">Telas mais estreitas que isso mantêm o painel de paradas embaixo mesmo na horizontal. Muito baixo esconde o mapa em telas pequenas.</string>
     <string name="adv_inmotion_v1_pin">PIN InMotion V5/V8/V10</string>
@@ -2486,7 +2489,7 @@
     <string name="trip_tools_change_wheel_desc">Corrige em qual roda foi esta viagem. Atualiza a viagem e o arquivo.</string>
     <string name="trip_tools_wheel_other">Outra roda</string>
     <string name="trip_tools_split">Dividir viagem</string>
-    <string name="trip_tools_split_desc">Encontra trocas de roda, pausas longas e falhas na gravação, e corta ali.</string>
+    <string name="trip_tools_split_desc">Encontra trocas de roda, pausas longas e falhas na gravação, e corta a viagem ali.</string>
     <string name="trip_tools_split_none">Nada para dividir. Nenhuma troca de roda, pausa longa ou falha encontrada.</string>
     <string name="trip_split_reason_wheel">Outra roda assumiu</string>
     <string name="trip_split_reason_gap">Falha na gravação</string>
@@ -2626,7 +2629,11 @@
     <string name="recording_delete_archive">Arquivar as cópias de backup</string>
     <string name="recording_delete_archive_desc">Move as cópias para uma pasta de arquivo.</string>
     <string name="trip_tools_extend_all_inside">As viagens ao redor já fazem parte desta.</string>
-    <string name="trip_tools_extend_skipped">Viagens ignoradas por já estarem dentro desta: %1$d.</string>
+    <plurals name="trip_tools_extend_skipped">
+        <item quantity="one">Ignora %1$d viagem que já está dentro desta.</item>
+        <item quantity="many">Ignora %1$d viagens que já estão dentro desta.</item>
+        <item quantity="other">Ignora %1$d viagens que já estão dentro desta.</item>
+    </plurals>
     <string name="recording_clear_all_body_archive">Isso exclui as viagens deste celular. As cópias de backup vão para uma pasta de arquivo.</string>
     <string name="recording_delete_trip_body_archive">Excluir esta viagem do celular? A cópia de backup vai para uma pasta de arquivo.</string>
     <string name="backup_status_pending">Fazendo backup…</string>
@@ -2667,9 +2674,9 @@
     <string name="lockdown_limit_10">As configurações não podem ser abertas.</string>
     <string name="lockdown_limit_11">Histórico de viagens, monitor da bateria, Studio e detalhes das métricas não podem ser abertos.</string>
     <string name="lockdown_limit_12">Tocar em uma métrica não faz nada.</string>
-    <string name="lockdown_limit_13">Avisos de voz, relatórios periódicos e parciais de aceleração ficam mudos. Seus alarmes continuam funcionando.</string>
+    <string name="lockdown_limit_13">Avisos de voz, relatórios periódicos e parciais de velocidade ficam mudos. Seus alarmes continuam funcionando.</string>
     <string name="lockdown_limit_14">A roda não pode ser travada nem destravada, e o travamento automático por proximidade não funciona.</string>
-    <string name="lockdown_limit_15">Luz automática e volume automático continuam funcionando. O controle de mídia para.</string>
+    <string name="lockdown_limit_15">Luz automática e volume automático continuam funcionando. O controle de reprodução para.</string>
     <string name="lockdown_limit_16">A notificação perde seus botões.</string>
     <string name="lockdown_limit_17">O número da versão não abre mais Sobre.</string>
     <string name="lockdown_limit_18">Este modo não entra nos backups das configurações.</string>

@@ -99,7 +99,6 @@ fun RecordingScreen(
     onBack: () -> Unit,
     onViewTrip: ((TripRecord) -> Unit)? = null,
     onOpenBackupSettings: (() -> Unit)? = null,
-    onViewOnline: ((Long) -> Unit)? = null,
     onReplayTrip: ((Long) -> Unit)? = null,
     viewModel: RecordingViewModel = koinViewModel()
 ) {
@@ -227,7 +226,6 @@ fun RecordingScreen(
         val dropboxLinked by viewModel.dropboxLinked.collectAsState()
         TripActionDialog(
             onShareFile = { viewModel.shareTrip(trip) },
-            onViewOnline = { onViewOnline?.invoke(trip.id) },
             onReplay = { onReplayTrip?.invoke(trip.id) },
             onDismiss = { tripToShare = null },
             dropboxLinked = dropboxLinked,

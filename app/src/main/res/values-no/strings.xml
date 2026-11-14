@@ -373,7 +373,7 @@
     <string name="recording_delete_trip_title">Slett tur</string>
     <string name="recording_delete_trip_body">Slette denne turen og datafilen?</string>
     <string name="recording_clear_all_menu">Slett alt</string>
-    <string name="recording_empty">Ingen data å vise. Importer eller ta opp en ny</string>
+    <string name="recording_empty">Ingen data å vise. Importer eller ta opp en ny tur</string>
     <string name="recording_will_auto_stop">Opptak stopper automatisk etter %1$ds uten bevegelse</string>
     <string name="recording_stat_trips">Turer</string>
     <string name="recording_stat_distance">Distanse</string>
@@ -681,7 +681,7 @@
 
     <!-- Engine sound generator -->
     <string name="section_engine_sound">Motorlyd</string>
-    <string name="engine_sound_enabled">Motorlyd</string>
+    <string name="engine_sound_enabled">Spill av motorlyd</string>
     <string name="engine_sound_enabled_hint">Styrer motorturtallet direkte etter hjulets fart og motorbelastning.</string>
     <string name="engine_type_label">Motor</string>
     <string name="engine_source_sampled">Samplet</string>
@@ -776,7 +776,7 @@
     <string name="sources_other_metrics">Andre målinger</string>
     <!-- ==== Navigator / Studio / Voice (new) ==== -->
     <string name="nav_arrived">Du er framme</string>
-    <string name="nav_arrived_goal">Nådde mål %1$d</string>
+    <string name="nav_arrived_goal">Stopp %1$d nådd</string>
     <string name="nav_clear_confirm">Starte en ny rute?</string>
     <string name="nav_clear_confirm_body">De nåværende stoppene fjernes.</string>
     <string name="nav_clear_home">Glem Hjem</string>
@@ -1240,7 +1240,6 @@
     <string name="dash_no_gallery_app">Fant ingen galleriapp</string>
     <string name="trip_action_share_file">Del fil</string>
     <string name="trip_action_share_file_desc">Send turens CSV til en annen app.</string>
-    <string name="trip_action_view_online">Vis på nett</string>
     <string name="trip_action_replay">Spill av i Studio</string>
     <string name="trip_action_replay_desc">Bla gjennom turen med dataoverlegg.</string>
     <string name="studio_element_g_force">G-kraft</string>
@@ -1472,7 +1471,7 @@
     <string name="dashboard_close">Lukk</string>
     <string name="dashboard_composite_blank_label">(tom)</string>
     <string name="dashboard_composite_cell_label">Celle %1$d</string>
-    <string name="dashboard_composite_empty_label">(ledig)</string>
+    <string name="dashboard_composite_empty_label">(ingen)</string>
     <string name="dashboard_composite_layout_col2">2 kolonner</string>
     <string name="dashboard_composite_layout_col3">3 kolonner</string>
     <string name="dashboard_composite_layout_row2">2 rader</string>
@@ -1519,7 +1518,7 @@
     <string name="dashboard_stat_median">Median (P50)</string>
     <string name="dashboard_stat_median_short">P50</string>
     <string name="dashboard_stat_min">Min</string>
-    <string name="dashboard_stat_none">(ledig)</string>
+    <string name="dashboard_stat_none">(ingen)</string>
     <string name="dashboard_stat_p75">75. persentil</string>
     <string name="dashboard_stat_p75_short">P75</string>
     <string name="dashboard_stat_p95">95. persentil</string>
@@ -1694,7 +1693,7 @@
     <string name="metric_chip_descent_tile">Ned</string>
     <string name="metric_chip_gps_speed_tile">GPS-fart</string>
     <string name="metric_chip_gps_altitude_tile">Høyde</string>
-    <string name="metric_chip_gps_heading_tile">Kurs</string>
+    <string name="metric_chip_gps_heading_tile">Retning</string>
     <string name="metric_chip_trip_time_tile">Tid</string>
     <string name="metric_chip_g_force_tile">G</string>
     <string name="metric_chip_forward_g_tile">Fram-g</string>
@@ -1734,7 +1733,10 @@
     <string name="radar_unpair">Glem enhet</string>
     <string name="radar_battery_fmt">Batteri %1$d %%</string>
     <string name="radar_clear">Feltet er fritt</string>
-    <string name="radar_threats_count">Sporer %1$d kjøretøy:</string>
+    <plurals name="radar_threats_count">
+        <item quantity="one">Sporer %1$d kjøretøy:</item>
+        <item quantity="other">Sporer %1$d kjøretøy:</item>
+    </plurals>
     <string name="radar_show_overlay">Vis trusseloverlegg</string>
     <string name="radar_show_overlay_desc">Tynn radarstripe i dashbordkantene. Ett farget punkt per oppdaget kjøretøy. Vises kun på dashbordet.</string>
     <string name="radar_overlay_left">Venstre kant</string>
@@ -1762,7 +1764,7 @@
 
     <!-- HUD Overlay / Personalize / Map / Versions (added) -->
     <string name="hud_overlay_subsection">Eget overlegg</string>
-    <string name="hud_overlay_subsection_desc">Importer en forhåndsinnstilling fra Overlay Studio til HUD-ens egendefinerte skjerm, uten bakgrunn. Den kopieres hit, så senere endringer i studioet endrer ikke HUD-en før du importerer på nytt.</string>
+    <string name="hud_overlay_subsection_desc">Importer en forhåndsinnstilling fra Overlay Studio til HUD-ens skjermer Eget overlegg, uten bakgrunn. Den kopieres hit, så senere endringer i studioet endrer ikke HUD-en før du importerer på nytt.</string>
     <string name="hud_overlay_select_preset">Importer forhåndsinnstilling</string>
     <string name="hud_overlay_current_preset">Nåværende: %1$s</string>
     <string name="hud_search_corpus">HUD heads-up display følgeapp server stream telemetri hotspot motoeye svingpil</string>
@@ -1842,7 +1844,7 @@
     <string name="online_status_pending">Laster opp til ledertavlen…</string>
     <string name="online_status_failed">Opplasting mislyktes, trykk for å prøve igjen</string>
     <string name="online_status_rejected">Ikke godkjent for ledertavlen</string>
-    <string name="online_upload_join_caption">Bli med for å sende statistikken og turene dine til den offentlige ledertavlen på.</string>
+    <string name="online_upload_join_caption">Bli med for å sende statistikken og turene dine til den offentlige ledertavlen på %1$s.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Koble fra</string>
@@ -1863,11 +1865,11 @@
     <string name="online_profile_save_failed">Lagring mislyktes (HTTP %1$d). Prøv igjen.</string>
 
     <string name="online_restore_title">Fant en lagret profil</string>
-    <string name="online_restore_body_new">Vi fant en lagret profil her: %1$s. Fortsetter du, blir du med på den offentlige ledertavlen igjen som denne kjøreren. Navn, flagg, profilbilde og kjørestatistikk er offentlige. Det opprettes ingen ny profil.</string>
+    <string name="online_restore_body_new">Vi fant en lagret profil her: %1$s. Fortsetter du, blir du med på den offentlige ledertavlen igjen som denne kjøreren. Navn, flagg, profilbilde og turstatistikk er offentlige. Det opprettes ingen ny profil.</string>
     <string name="online_restore_body_switch">Vi fant en annen lagret profil: %1$s. Fortsetter du, bytter denne telefonen til den kjøreren. Den nåværende profilen din sikkerhetskopieres først.</string>
     <string name="online_restore_confirm">Fortsett som %1$s</string>
     <string name="online_upload_card_missing">Denne telefonens ledertavleprofil finnes ikke lenger på serveren, så nye opplastinger blir avvist. Hvis dette er uventet, kontakt administratoren for ledertavlen.</string>
-    <string name="online_upload_linked_caption">Statistikken og turene dine vises på den offentlige ledertavlen på.</string>
+    <string name="online_upload_linked_caption">Statistikken og turene dine vises på den offentlige ledertavlen på %1$s.</string>
     <string name="online_rejoin_title">Reaktiver profil</string>
     <string name="online_rejoin_body">Sikkerhetskopimappen inneholder en profil som ble brukt for ledertavlen.\n\nKjører-ID: %1$s</string>
     <string name="warnings_battery_opt_title">Batterioptimalisering er på</string>
@@ -2132,8 +2134,8 @@
     <string name="adv_nav_hunt_voice_interval_desc">Bestemmer hvor ofte stemmen sier at den søker etter GPS. Obs: for lavt gjentar det ofte.</string>
     <string name="adv_nav_inter_stop">Bevegelsesgrense for flere stopp</string>
     <string name="adv_nav_inter_stop_desc">Bestemmer hvor langt du må bevege deg forbi ett stopp før det neste kan telle som ankommet. Obs: for lavt kan hoppe over et stopp.</string>
-    <string name="adv_nav_intermediate_flash">Blinketid for veipunkt</string>
-    <string name="adv_nav_intermediate_flash_desc">Bestemmer hvor lenge blinket for nådd veipunkt vises.</string>
+    <string name="adv_nav_intermediate_flash">Visningstid for nådd stopp</string>
+    <string name="adv_nav_intermediate_flash_desc">Bestemmer hvor lenge meldingen om nådd stopp vises.</string>
     <string name="adv_nav_max_start">Maks. startavstand</string>
     <string name="adv_nav_max_start_desc">Hvor langt unna det første stoppet kan være for å starte navigasjonen. Utover dette skjules linjen fra posisjonen din, og start blokkeres. Planlegging fungerer fortsatt.</string>
     <string name="adv_nav_moving">Bevegelsesfart</string>
@@ -2269,7 +2271,7 @@
     <string name="compact_mode_always">Alltid</string>
     <string name="compact_mode_auto">Små skjermer</string>
     <string name="compact_mode_never">Aldri</string>
-    <string name="setting_cover_cutout">Unngå frontkameraer</string>
+    <string name="setting_cover_cutout">Unngå frontskjermkameraer</string>
     <string name="cover_cutout_off">Av</string>
     <string name="cover_cutout_left">Nederst til venstre</string>
     <string name="cover_cutout_right">Nederst til høyre</string>
@@ -2289,7 +2291,7 @@
     <string name="adv_compact_max_screen">Grense for kompakt skjerm</string>
     <string name="adv_compact_max_screen_desc">Skjermer med begge sider under dette bytter til det kompakte dashbordet når Kompakt dashbord er satt til Små skjermer.</string>
     <string name="adv_cover_cutout_inset">Størrelse på kamerautsnitt</string>
-    <string name="adv_cover_cutout_inset_desc">Plass som holdes fri for frontlinsene når Unngå frontkameraer er på. For lite, og linsene skjuler knapper.</string>
+    <string name="adv_cover_cutout_inset_desc">Plass som holdes fri for linsene i frontskjermen når Unngå frontskjermkameraer er på. For lite, og linsene skjuler knapper.</string>
     <string name="adv_nav_sidebar_min">Minste skjerm for sidepanel</string>
     <string name="adv_nav_sidebar_min_desc">Smalere skjermer beholder det nederste stopp-panelet selv i liggende retning. For lavt skjuler kartet på små skjermer.</string>
     <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
@@ -2511,7 +2513,10 @@
     <string name="recording_delete_archive">Arkiver kopiene i sikkerhetskopien</string>
     <string name="recording_delete_archive_desc">Flytter dem til en arkivmappe.</string>
     <string name="trip_tools_extend_all_inside">Turene rundt denne er allerede en del av den.</string>
-    <string name="trip_tools_extend_skipped">Hopper over turer som allerede er inni denne: %1$d.</string>
+    <plurals name="trip_tools_extend_skipped">
+        <item quantity="one">Hopper over %1$d tur som allerede er inni denne.</item>
+        <item quantity="other">Hopper over %1$d turer som allerede er inni denne.</item>
+    </plurals>
     <string name="recording_clear_all_body_archive">Dette sletter turene fra denne telefonen. Kopiene i sikkerhetskopien flyttes til en arkivmappe.</string>
     <string name="recording_delete_trip_body_archive">Slette denne turen fra telefonen? Kopien i sikkerhetskopien flyttes til en arkivmappe.</string>
     <string name="backup_status_pending">Sikkerhetskopierer…</string>

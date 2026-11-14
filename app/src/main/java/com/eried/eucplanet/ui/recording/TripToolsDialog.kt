@@ -605,7 +605,9 @@ fun CombineTripsDialog(
                     if (skipped > 0) {
                         Spacer(Modifier.height(4.dp))
                         Text(
-                            stringResource(R.string.trip_tools_extend_skipped, skipped),
+                            androidx.compose.ui.res.pluralStringResource(
+                                R.plurals.trip_tools_extend_skipped, skipped, skipped
+                            ),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.appColors.textSecondary,
                         )

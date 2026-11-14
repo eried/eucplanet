@@ -270,7 +270,7 @@
     <string name="metric_chip_descent_tile">Jos</string>
     <string name="metric_chip_gps_speed_tile">Vit GPS</string>
     <string name="metric_chip_gps_altitude_tile">Alt</string>
-    <string name="metric_chip_gps_heading_tile">Azimut</string>
+    <string name="metric_chip_gps_heading_tile">Direcție</string>
     <string name="metric_chip_trip_time_tile">Timp</string>
     <string name="metric_chip_g_force_tile">G</string>
     <string name="metric_chip_forward_g_tile">G long</string>
@@ -451,7 +451,7 @@
     <string name="hud_hotspot_unknown_hint">Asigură-te că HUD-ul și telefonul sunt în aceeași rețea WiFi. Dacă folosești hotspotul telefonului, pornește-l mai întâi.</string>
     <string name="hud_hotspot_on_hint">Hotspotul telefonului emite. Conectează HUD-ul la WiFi-ul acestui telefon pentru a activa legătura.</string>
     <string name="hud_overlay_subsection">Suprapunere personalizată</string>
-    <string name="hud_overlay_subsection_desc">Importă o presetare din Overlay Studio pe ecranul Personalizat al HUD-ului, fără fundaluri. Presetarea se copiază aici, așa că modificările ulterioare din studio nu schimbă HUD-ul până nu o imporți din nou.</string>
+    <string name="hud_overlay_subsection_desc">Importă o presetare din Overlay Studio pe ecranele Suprapunere personalizată ale HUD-ului, fără fundaluri. Presetarea se copiază aici, așa că modificările ulterioare din studio nu schimbă HUD-ul până nu o imporți din nou.</string>
     <string name="hud_overlay_select_preset">Importă presetarea</string>
     <string name="hud_overlay_current_preset">Curentă: %1$s</string>
     <string name="hud_custom_overlay_none">Șterge</string>
@@ -566,8 +566,8 @@
     <string name="adv_nav_heading_window_desc">Stabilește din câte secunde de mișcare se calculează direcția ta de deplasare. Atenție: o valoare prea mică face direcția instabilă.</string>
     <string name="adv_nav_fix_buffer">Fereastra istoricului GPS</string>
     <string name="adv_nav_fix_buffer_desc">Stabilește câte secunde de poziții GPS sunt păstrate pentru direcție și alinierea la traseu. Atenție: o valoare prea mică poate pierde direcția.</string>
-    <string name="adv_nav_intermediate_flash">Durata clipirii la punct</string>
-    <string name="adv_nav_intermediate_flash_desc">Stabilește cât timp se afișează clipirea la atingerea unui punct de pe traseu.</string>
+    <string name="adv_nav_intermediate_flash">Durata mesajului de oprire atinsă</string>
+    <string name="adv_nav_intermediate_flash_desc">Stabilește cât timp se afișează mesajul de oprire atinsă.</string>
     <string name="adv_nav_popup_timeout">Expirarea cardului de viraj</string>
     <string name="adv_nav_popup_timeout_desc">Stabilește cât timp rămâne cardul mare de viraj înainte să se micșoreze în colț.</string>
     <string name="adv_group_alarm">Alarme predictive</string>
@@ -664,7 +664,7 @@
     <string name="adv_compact_max_screen">Limita ecranului compact</string>
     <string name="adv_compact_max_screen_desc">Ecranele cu ambele laturi sub această valoare trec la tabloul de bord compact când Tablou de bord compact este setat pe Ecrane mici.</string>
     <string name="adv_cover_cutout_inset">Dimensiunea decupajului camerei</string>
-    <string name="adv_cover_cutout_inset_desc">Spațiul lăsat liber pentru lentilele husei când Evită camerele husei este activat. Prea mic și lentilele acoperă butoanele.</string>
+    <string name="adv_cover_cutout_inset_desc">Spațiul lăsat liber pentru lentilele ecranului exterior când Evită camerele ecranului exterior este activat. Prea mic și lentilele acoperă butoanele.</string>
     <string name="adv_simple_speedo_scale">Dimensiunea vitezometrului simplu</string>
     <string name="adv_simple_speedo_scale_desc">Dimensiunea numărului simplu al vitezei față de zona cadranului. Prea mare poate tăia eticheta unității.</string>
     <string name="adv_nav_sidebar_width">Lățimea panoului de opriri</string>
@@ -830,7 +830,7 @@
     <string name="compact_mode_auto">Ecrane mici</string>
     <string name="compact_mode_always">Întotdeauna</string>
     <string name="compact_mode_never">Niciodată</string>
-    <string name="setting_cover_cutout">Evită camerele husei</string>
+    <string name="setting_cover_cutout">Evită camerele ecranului exterior</string>
     <string name="cover_cutout_off">Oprit</string>
     <string name="cover_cutout_left">Stânga jos</string>
     <string name="cover_cutout_right">Dreapta jos</string>
@@ -1024,7 +1024,7 @@
     <string name="voice_output_channel_notification">Notificare</string>
     <string name="voice_output_channel_alarm">Alarmă</string>
     <string name="section_engine_sound">Sunet de motor</string>
-    <string name="engine_sound_enabled">Sunet de motor</string>
+    <string name="engine_sound_enabled">Redă sunete de motor</string>
     <string name="engine_sound_enabled_hint">Comandă turația motorului în timp real după viteza și sarcina monociclului.</string>
     <string name="engine_type_label">Motor</string>
     <string name="engine_source_sampled">Înregistrat</string>
@@ -1174,7 +1174,11 @@
     <string name="radar_unpair">Uită dispozitivul</string>
     <string name="radar_battery_fmt">Baterie %1$d%%</string>
     <string name="radar_clear">Banda este liberă</string>
-    <string name="radar_threats_count">Vehicule urmărite (%1$d):</string>
+    <plurals name="radar_threats_count">
+        <item quantity="one">%1$d vehicul urmărit:</item>
+        <item quantity="few">%1$d vehicule urmărite:</item>
+        <item quantity="other">%1$d de vehicule urmărite:</item>
+    </plurals>
     <string name="radar_show_overlay">Arată suprapunerea de amenințări</string>
     <string name="radar_show_overlay_desc">Bandă radar subțire pe marginile tabloului de bord. Un punct colorat pentru fiecare vehicul detectat. Vizibilă doar în tabloul de bord.</string>
     <string name="radar_overlay_left">Marginea stângă</string>
@@ -1640,8 +1644,8 @@
     <string name="online_status_pending">Se încarcă în clasament…</string>
     <string name="online_status_failed">Încărcarea online a eșuat, atinge pentru a reîncerca</string>
     <string name="online_status_rejected">Neacceptat pentru clasament</string>
-    <string name="online_upload_join_caption">Alătură-te ca să îți trimiți statisticile și cursele în clasamentul public de la.</string>
-    <string name="online_upload_linked_caption">Statisticile și cursele tale apar în clasamentul public de la.</string>
+    <string name="online_upload_join_caption">Alătură-te ca să îți trimiți statisticile și cursele în clasamentul public de pe %1$s.</string>
+    <string name="online_upload_linked_caption">Statisticile și cursele tale apar în clasamentul public de pe %1$s.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Deconectează</string>
@@ -1659,7 +1663,7 @@
     <string name="online_profile_save_rate_limited">Limită de cereri atinsă, încearcă mai târziu.</string>
     <string name="online_profile_save_failed">Salvarea a eșuat (HTTP %1$d). Încearcă din nou.</string>
     <string name="online_restore_title">S-a găsit un profil salvat</string>
-    <string name="online_restore_body_new">Am găsit aici un profil salvat: %1$s. Dacă continui, te alături din nou clasamentului public cu acest profil, iar numele, steagul, avatarul și statisticile lui de mers sunt publice. Nu se creează un profil nou.</string>
+    <string name="online_restore_body_new">Am găsit aici un profil salvat: %1$s. Dacă continui, te alături din nou clasamentului public cu acest profil, iar numele, steagul, avatarul și statisticile curselor lui sunt publice. Nu se creează un profil nou.</string>
     <string name="online_restore_body_switch">Am găsit un alt profil salvat: %1$s. Dacă continui, acest telefon trece pe acel profil; profilul tău actual este salvat mai întâi.</string>
     <string name="online_restore_confirm">Continuă ca %1$s</string>
     <string name="online_rejoin_title">Reactivează profilul</string>
@@ -2057,7 +2061,7 @@
     <string name="nav_default_route_name">Traseul meu</string>
     <string name="nav_start_riding">Pornește la drum</string>
     <string name="nav_arrived">Ai ajuns</string>
-    <string name="nav_arrived_goal">Ai atins ținta %1$d</string>
+    <string name="nav_arrived_goal">Ai atins oprirea %1$d</string>
     <string name="nav_end_title">Închei navigarea?</string>
     <!-- ==== Live location share (navigator) ==== -->
     <string name="share_button">Opțiuni de partajare</string>
@@ -2305,7 +2309,6 @@
     <string name="watch_show_navigation_desc">Oglindește săgeata de viraj și distanța pe ceas în timpul navigării.</string>
     <string name="trip_action_share_file">Partajează fișierul</string>
     <string name="trip_action_share_file_desc">Trimite fișierul CSV al cursei către altă aplicație.</string>
-    <string name="trip_action_view_online">Vezi online</string>
     <string name="trip_action_replay">Reia în Studio</string>
     <string name="trip_action_replay_desc">Parcurge cursa cu suprapuneri de date în timp real.</string>
     <string name="dash_view_video_gallery">Vezi galeria video</string>
@@ -2428,7 +2431,11 @@
     <string name="recording_delete_archive">Arhivează copiile de rezervă</string>
     <string name="recording_delete_archive_desc">Le mută într-un dosar de arhivă.</string>
     <string name="trip_tools_extend_all_inside">Cursele din jur fac deja parte din aceasta.</string>
-    <string name="trip_tools_extend_skipped">Curse sărite, deja incluse în aceasta: %1$d.</string>
+    <plurals name="trip_tools_extend_skipped">
+        <item quantity="one">Omite %1$d cursă deja inclusă în aceasta.</item>
+        <item quantity="few">Omite %1$d curse deja incluse în aceasta.</item>
+        <item quantity="other">Omite %1$d de curse deja incluse în aceasta.</item>
+    </plurals>
     <string name="recording_clear_all_body_archive">Cursele vor fi șterse de pe acest telefon. Copiile de rezervă se mută într-un dosar de arhivă.</string>
     <string name="recording_delete_trip_body_archive">Ștergi cursa de pe acest telefon? Copia de rezervă se mută într-un dosar de arhivă.</string>
     <string name="backup_status_pending">Se creează copia de rezervă…</string>
@@ -2471,7 +2478,7 @@
     <string name="lockdown_limit_12">Atingerea unui indicator nu face nimic.</string>
     <string name="lockdown_limit_13">Anunțurile vocale, rapoartele periodice și intervalele de viteză sunt mute. Alarmele tale funcționează în continuare.</string>
     <string name="lockdown_limit_14">Monociclul nu poate fi blocat sau deblocat, iar blocarea automată prin proximitate nu funcționează.</string>
-    <string name="lockdown_limit_15">Luminile automate și volumul automat funcționează în continuare. Controlul media se oprește.</string>
+    <string name="lockdown_limit_15">Luminile automate și volumul automat funcționează în continuare. Controlul redării se oprește.</string>
     <string name="lockdown_limit_16">Notificarea își pierde butoanele.</string>
     <string name="lockdown_limit_17">Numărul versiunii nu mai deschide ecranul Despre.</string>
     <string name="lockdown_limit_18">Acest mod nu este inclus în copiile de rezervă ale setărilor.</string>

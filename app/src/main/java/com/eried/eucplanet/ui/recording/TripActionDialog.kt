@@ -36,7 +36,6 @@ import com.eried.eucplanet.R
 @Composable
 fun TripActionDialog(
     onShareFile: () -> Unit,
-    onViewOnline: () -> Unit,
     onReplay: () -> Unit,
     onDismiss: () -> Unit,
     dropboxLinked: Boolean = false,

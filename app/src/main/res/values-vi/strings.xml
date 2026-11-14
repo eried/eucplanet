@@ -137,9 +137,9 @@
     <string name="dashboard_composite_layout_col2">2 cột</string>
     <string name="dashboard_composite_layout_col3">3 cột</string>
     <string name="dashboard_composite_cell_label">Ô %1$d</string>
-    <string name="dashboard_composite_empty_label">(trống)</string>
-    <string name="dashboard_composite_blank_label">(rỗng)</string>
-    <string name="dashboard_stat_empty">(rỗng)</string>
+    <string name="dashboard_composite_empty_label">(không có)</string>
+    <string name="dashboard_composite_blank_label">(trống)</string>
+    <string name="dashboard_stat_empty">(trống)</string>
     <string name="dashboard_group_default_name">Thao tác của tôi</string>
     <string name="dashboard_group_empty_toast">Không có thao tác để hiển thị</string>
     <string name="dashboard_group_name_label">Tên nhóm</string>
@@ -174,7 +174,7 @@
     <string name="dashboard_corner_right">Phải</string>
     <string name="dashboard_slot_sparkline">Nền xu hướng trực tiếp</string>
     <string name="dashboard_slot_sparkline_chip">Thống kê</string>
-    <string name="dashboard_stat_none">(trống)</string>
+    <string name="dashboard_stat_none">(không có)</string>
     <string name="dashboard_stat_current">Hiện tại</string>
     <string name="dashboard_stat_min">Thấp nhất</string>
     <string name="dashboard_stat_max">Cao nhất / Đỉnh</string>
@@ -457,7 +457,7 @@
     <string name="hud_hotspot_unknown_hint">Đảm bảo HUD và điện thoại dùng cùng mạng WiFi. Nếu dùng điểm phát sóng của điện thoại, hãy bật nó trước.</string>
     <string name="hud_hotspot_on_hint">Điểm phát sóng của điện thoại đang bật. Kết nối HUD với WiFi của điện thoại này để bật liên kết.</string>
     <string name="hud_overlay_subsection">Lớp phủ tùy chỉnh</string>
-    <string name="hud_overlay_subsection_desc">Nhập một mẫu Overlay Studio vào màn hình Tùy chỉnh của HUD, không kèm nền. Mẫu được sao chép sang đây, nên các chỉnh sửa sau trong studio sẽ không thay đổi HUD cho đến khi bạn nhập lại.</string>
+    <string name="hud_overlay_subsection_desc">Nhập một mẫu Overlay Studio vào các màn hình Lớp phủ tùy chỉnh của HUD, không kèm nền. Mẫu được sao chép sang đây, nên các chỉnh sửa sau trong studio sẽ không thay đổi HUD cho đến khi bạn nhập lại.</string>
     <string name="hud_overlay_select_preset">Nhập mẫu</string>
     <string name="hud_overlay_current_preset">Hiện tại: %1$s</string>
     <string name="hud_custom_overlay_none">Xóa</string>
@@ -572,8 +572,8 @@
     <string name="adv_nav_heading_window_desc">Ảnh hưởng đến số giây chuyển động dùng để xác định hướng đi. Nguy cơ: quá thấp làm hướng bị giật.</string>
     <string name="adv_nav_fix_buffer">Lịch sử GPS</string>
     <string name="adv_nav_fix_buffer_desc">Ảnh hưởng đến số giây dữ liệu GPS được giữ để xác định hướng và bám đường. Nguy cơ: quá thấp có thể mất hướng.</string>
-    <string name="adv_nav_intermediate_flash">Thời gian nháy điểm dừng</string>
-    <string name="adv_nav_intermediate_flash_desc">Ảnh hưởng đến thời gian hiển thị hiệu ứng nháy khi tới điểm dừng.</string>
+    <string name="adv_nav_intermediate_flash">Thời gian báo đến điểm dừng</string>
+    <string name="adv_nav_intermediate_flash_desc">Ảnh hưởng đến thời gian hiển thị thông báo đã đến điểm dừng.</string>
     <string name="adv_nav_popup_timeout">Thời gian thẻ rẽ</string>
     <string name="adv_nav_popup_timeout_desc">Ảnh hưởng đến thời gian thẻ rẽ lớn hiển thị trước khi thu nhỏ vào góc.</string>
     <string name="adv_group_alarm">Cảnh báo dự đoán</string>
@@ -1030,7 +1030,7 @@
     <string name="voice_output_channel_notification">Thông báo</string>
     <string name="voice_output_channel_alarm">Báo thức</string>
     <string name="section_engine_sound">Âm thanh động cơ</string>
-    <string name="engine_sound_enabled">Tiếng động cơ</string>
+    <string name="engine_sound_enabled">Phát âm thanh động cơ</string>
     <string name="engine_sound_enabled_hint">Vòng tua động cơ thay đổi trực tiếp theo tốc độ xe và tải động cơ.</string>
     <string name="engine_type_label">Động cơ</string>
     <string name="engine_source_sampled">Thu âm thật</string>
@@ -1108,7 +1108,7 @@
     <string name="report_navigation">Dẫn đường</string>
     <string name="section_flic_buttons">Nút Flic 2</string>
     <string name="flic_show_on_dashboard">Biểu tượng truy cập nhanh trên bảng điều khiển</string>
-    <string name="flic_scan_hint">Giữ nút Flic 2 trong 6 giây để vào chế độ ghép nối, rồi chạm Quét.</string>
+    <string name="flic_scan_hint">Giữ nút Flic 2 trong 6 giây để vào chế độ ghép nối, rồi chạm Bắt đầu quét.</string>
     <string name="flic_stop_scan">Dừng quét</string>
     <string name="flic_start_scan">Bắt đầu quét</string>
     <string name="flic_forget">Quên</string>
@@ -1180,7 +1180,9 @@
     <string name="radar_unpair">Quên thiết bị</string>
     <string name="radar_battery_fmt">Pin %1$d%%</string>
     <string name="radar_clear">Làn đường trống</string>
-    <string name="radar_threats_count">Đang theo dõi %1$d phương tiện:</string>
+    <plurals name="radar_threats_count">
+        <item quantity="other">Đang theo dõi %1$d phương tiện:</item>
+    </plurals>
     <string name="radar_show_overlay">Hiện lớp phủ mối nguy</string>
     <string name="radar_show_overlay_desc">Làn radar mảnh ở lề bảng điều khiển. Mỗi phương tiện phát hiện được là một chấm màu. Chỉ hiển thị trên bảng điều khiển.</string>
     <string name="radar_overlay_left">Cạnh trái</string>
@@ -1450,7 +1452,9 @@
     <string name="trip_tools_archive_failed">Một số chuyến không thể lưu trữ và vẫn còn ở đây</string>
     <string name="trip_tools_extend_pick_one">Chọn một chuyến trước hoặc sau để mở rộng đến.</string>
     <string name="trip_tools_extend_all_inside">Các chuyến xung quanh đã nằm trong chuyến này.</string>
-    <string name="trip_tools_extend_skipped">Bỏ qua %1$d chuyến đã nằm trong chuyến này.</string>
+    <plurals name="trip_tools_extend_skipped">
+        <item quantity="other">Bỏ qua %1$d chuyến đã nằm trong chuyến này.</item>
+    </plurals>
     <string name="trip_tools_combine_summary">Gộp %1$d chuyến thành một chuyến mới.</string>
     <string name="trip_tools_wheel_changed">Đã đặt xe thành %1$s</string>
     <string name="trip_tools_split">Tách chuyến đi</string>
@@ -1635,10 +1639,10 @@
     <string name="service_mode_enter">Vào</string>
     <string name="toast_external_speed_change">Đã cập nhật tốc độ từ xe: tiltback %1$d km/h, cảnh báo %2$d km/h</string>
     <string name="wheel_no_data_reset">Vẫn chưa có dữ liệu từ xe. Hãy thử tắt rồi bật lại xe.</string>
-    <string name="trip_map_ride_start">Bắt đầu chạy: %1$s</string>
+    <string name="trip_map_ride_start">Bắt đầu chuyến: %1$s</string>
     <string name="trip_map_reconnected">Đã kết nối lại: %1$s</string>
     <string name="trip_map_new_wheel">Xe mới: %1$s</string>
-    <string name="trip_map_ride_end">Kết thúc</string>
+    <string name="trip_map_ride_end">Kết thúc chuyến</string>
     <string name="online_upload_consent_title">Tham gia bảng xếp hạng EUC Stats</string>
     <string name="online_upload_consent_intro">Trước khi tham gia, hãy đọc những gì sẽ được công khai:</string>
     <string name="online_upload_consent_bullet_name">Tên hiển thị của bạn</string>
@@ -1678,8 +1682,8 @@
     <string name="online_status_pending">Đang tải lên bảng xếp hạng…</string>
     <string name="online_status_failed">Tải lên thất bại, chạm để thử lại</string>
     <string name="online_status_rejected">Không được chấp nhận vào bảng xếp hạng</string>
-    <string name="online_upload_join_caption">Tham gia để gửi thống kê và chuyến đi lên bảng xếp hạng công khai tại.</string>
-    <string name="online_upload_linked_caption">Thống kê và chuyến đi của bạn xuất hiện trên bảng xếp hạng công khai tại.</string>
+    <string name="online_upload_join_caption">Tham gia để gửi thống kê và chuyến đi lên bảng xếp hạng công khai tại %1$s.</string>
+    <string name="online_upload_linked_caption">Thống kê và chuyến đi của bạn xuất hiện trên bảng xếp hạng công khai tại %1$s.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Hủy liên kết</string>
@@ -2342,7 +2346,6 @@
     <string name="watch_show_navigation_desc">Hiện mũi tên rẽ và khoảng cách trên đồng hồ khi đang dẫn đường.</string>
     <string name="trip_action_share_file">Chia sẻ tệp</string>
     <string name="trip_action_share_file_desc">Gửi tệp CSV của chuyến đi sang ứng dụng khác.</string>
-    <string name="trip_action_view_online">Xem trực tuyến</string>
     <string name="trip_action_replay">Phát lại trong Studio</string>
     <string name="trip_action_replay_desc">Tua lại chuyến đi với lớp phủ dữ liệu trực tiếp.</string>
     <string name="dash_view_video_gallery">Xem thư viện video</string>
@@ -2501,7 +2504,7 @@
     <string name="lockdown_limit_10">Không thể mở Cài đặt.</string>
     <string name="lockdown_limit_11">Không thể mở lịch sử chuyến đi, theo dõi pin, studio và chi tiết chỉ số.</string>
     <string name="lockdown_limit_12">Chạm vào chỉ số không có tác dụng.</string>
-    <string name="lockdown_limit_13">Thông báo giọng nói, báo cáo định kỳ và mốc tăng tốc bị tắt tiếng. Cảnh báo của bạn vẫn hoạt động.</string>
+    <string name="lockdown_limit_13">Thông báo giọng nói, báo cáo định kỳ và mốc tốc độ bị tắt tiếng. Cảnh báo của bạn vẫn hoạt động.</string>
     <string name="lockdown_limit_14">Không thể khóa hay mở khóa xe, và tự khóa theo khoảng cách sẽ không chạy.</string>
     <string name="lockdown_limit_15">Đèn tự động và âm lượng tự động vẫn hoạt động. Điều khiển phát nhạc dừng lại.</string>
     <string name="lockdown_limit_16">Thông báo mất các nút.</string>

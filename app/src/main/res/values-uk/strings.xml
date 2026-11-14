@@ -153,7 +153,7 @@
     <string name="dashboard_composite_layout_col3">3 колонки</string>
     <string name="dashboard_composite_cell_label">Клітинка %1$d</string>
     <!-- "(blank)" is the collapsing placeholder: cell renders "-", layout collapses. -->
-    <string name="dashboard_composite_empty_label">(вільно)</string>
+    <string name="dashboard_composite_empty_label">(немає)</string>
     <!-- "(empty)" is the reserving placeholder: cell renders blank, layout intact. -->
     <string name="dashboard_composite_blank_label">(порожня)</string>
     <string name="dashboard_stat_empty">(порожня)</string>
@@ -194,7 +194,7 @@
     <!-- Open-menu label for DashboardStat.NONE; closed-field shows a literal
          "-" glyph from statSelectedLabel so the rider sees the visual at a
          glance regardless of locale. -->
-    <string name="dashboard_stat_none">(вільно)</string>
+    <string name="dashboard_stat_none">(немає)</string>
     <string name="dashboard_stat_current">Зараз</string>
     <string name="dashboard_stat_min">Мін</string>
     <string name="dashboard_stat_max">Макс / Пік</string>
@@ -490,7 +490,7 @@
     <string name="hud_hotspot_unknown_hint">Переконайтеся, що HUD і телефон підключені до однієї мережі Wi-Fi. Якщо використовуєте точку доступу телефона, спершу увімкніть її.</string>
     <string name="hud_hotspot_on_hint">Точка доступу телефона працює. Підключіть HUD до Wi-Fi цього телефона, щоб увімкнути з\'єднання.</string>
     <string name="hud_overlay_subsection">Власний оверлей</string>
-    <string name="hud_overlay_subsection_desc">Імпортуйте пресет Overlay Studio на екран HUD «Власний оверлей» без фону. Пресет копіюється сюди, тому подальші зміни в студії не змінять HUD, доки ви не імпортуєте його знову.</string>
+    <string name="hud_overlay_subsection_desc">Імпортуйте пресет Overlay Studio на екрани HUD «Власний оверлей» без фону. Пресет копіюється сюди, тому подальші зміни в студії не змінять HUD, доки ви не імпортуєте його знову.</string>
     <string name="hud_overlay_select_preset">Імпортувати пресет</string>
     <string name="hud_overlay_current_preset">Поточний: %1$s</string>
     <string name="hud_custom_overlay_none">Очистити</string>
@@ -817,7 +817,7 @@
 
     <!-- Engine sound generator -->
     <string name="section_engine_sound">Звук двигуна</string>
-    <string name="engine_sound_enabled">Звук двигуна</string>
+    <string name="engine_sound_enabled">Відтворювати звуки двигуна</string>
     <string name="engine_sound_enabled_hint">Керує обертами в реальному часі за швидкістю та навантаженням.</string>
     <string name="engine_type_label">Двигун</string>
     <string name="engine_source_sampled">Семпл</string>
@@ -974,7 +974,12 @@
     <string name="radar_unpair">Забути пристрій</string>
     <string name="radar_battery_fmt">Батарея %1$d%%</string>
     <string name="radar_clear">Смуга вільна</string>
-    <string name="radar_threats_count">Відстежуються авто (%1$d):</string>
+    <plurals name="radar_threats_count">
+        <item quantity="one">Відстежується %1$d авто:</item>
+        <item quantity="few">Відстежуються %1$d авто:</item>
+        <item quantity="many">Відстежується %1$d авто:</item>
+        <item quantity="other">Відстежується %1$d авто:</item>
+    </plurals>
     <string name="radar_show_overlay">Показати оверлей загроз</string>
     <string name="radar_show_overlay_desc">Тонка смуга радара по краях панелі. Одна кольорова крапка на кожне авто. Видно лише на панелі.</string>
     <string name="radar_overlay_left">Лівий край</string>
@@ -1333,8 +1338,8 @@
     <string name="online_status_pending">Вивантаження до таблиці лідерів…</string>
     <string name="online_status_failed">Не вдалося вивантажити, торкніться, щоб повторити</string>
     <string name="online_status_rejected">Не прийнято до таблиці лідерів</string>
-    <string name="online_upload_join_caption">Приєднайтеся, щоб надсилати статистику та поїздки до публічної таблиці лідерів на.</string>
-    <string name="online_upload_linked_caption">Ваша статистика і поїздки відображаються в публічній таблиці лідерів на.</string>
+    <string name="online_upload_join_caption">Приєднайтеся, щоб надсилати статистику та поїздки до публічної таблиці лідерів на %1$s.</string>
+    <string name="online_upload_linked_caption">Ваша статистика і поїздки відображаються в публічній таблиці лідерів на %1$s.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Від\'єднати</string>
@@ -1776,7 +1781,7 @@
     <!-- Navigation overlay -->
     <string name="nav_start_riding">Поїхали</string>
     <string name="nav_arrived">Ви на місці</string>
-    <string name="nav_arrived_goal">Ціль %1$d досягнуто</string>
+    <string name="nav_arrived_goal">Зупинку %1$d досягнуто</string>
     <string name="nav_end_title">Завершити навігацію?</string>
     <!-- ==== Live location share (navigator) ==== -->
     <string name="share_button">Опції «Поділитися»</string>
@@ -1982,7 +1987,6 @@
     <!-- ==== Trip share / actions ==== -->
     <string name="trip_action_share_file">Поділитися файлом</string>
     <string name="trip_action_share_file_desc">Надіслати CSV поїздки в інший застосунок.</string>
-    <string name="trip_action_view_online">Переглянути онлайн</string>
     <string name="trip_action_replay">Відтворити у Studio</string>
     <string name="trip_action_replay_desc">Перегляньте поїздку з оверлеями даних наживо.</string>
     <!-- ==== Dashboard quick menus ==== -->
@@ -2244,8 +2248,8 @@
     <string name="adv_nav_hunt_voice_interval_desc">Визначає, як часто голос повідомляє про пошук GPS. Увага: якщо замало, повідомлення повторюється часто.</string>
     <string name="adv_nav_inter_stop">Поріг руху між зупинками</string>
     <string name="adv_nav_inter_stop_desc">Визначає, як далеко треба від\'їхати від однієї зупинки, перш ніж наступна зарахується як досягнута. Увага: якщо замало, зупинку можна пропустити.</string>
-    <string name="adv_nav_intermediate_flash">Час спалаху точки</string>
-    <string name="adv_nav_intermediate_flash_desc">Визначає, як довго показується спалах досягнення проміжної точки.</string>
+    <string name="adv_nav_intermediate_flash">Час повідомлення про зупинку</string>
+    <string name="adv_nav_intermediate_flash_desc">Визначає, як довго показується повідомлення про досягнення зупинки.</string>
     <string name="adv_nav_max_start">Макс. відстань для старту</string>
     <string name="adv_nav_max_start_desc">Найбільша відстань до першої зупинки, з якої можна почати навігацію. Якщо далі, лінія від вашого місцезнаходження приховується, а старт блокується. Планувати маршрут можна й далі.</string>
     <string name="adv_nav_moving">Швидкість руху</string>
@@ -2381,7 +2385,7 @@
     <string name="compact_mode_always">Завжди</string>
     <string name="compact_mode_auto">Малі екрани</string>
     <string name="compact_mode_never">Ніколи</string>
-    <string name="setting_cover_cutout">Уникати камер на кришці</string>
+    <string name="setting_cover_cutout">Уникати камер зовнішнього екрана</string>
     <string name="cover_cutout_off">Вимк</string>
     <string name="cover_cutout_left">Внизу ліворуч</string>
     <string name="cover_cutout_right">Внизу праворуч</string>
@@ -2401,7 +2405,7 @@
     <string name="adv_compact_max_screen">Межа компактного екрана</string>
     <string name="adv_compact_max_screen_desc">Екрани, обидві сторони яких менші за це значення, перемикаються на компактну панель, коли для «Компактна панель» вибрано «Малі екрани».</string>
     <string name="adv_cover_cutout_inset">Розмір вирізу камери</string>
-    <string name="adv_cover_cutout_inset_desc">Місце, що лишається вільним для об\'єктивів на кришці, коли ввімкнено «Уникати камер на кришці». Якщо замало, об\'єктиви закривають кнопки.</string>
+    <string name="adv_cover_cutout_inset_desc">Місце, що лишається вільним для об\'єктивів зовнішнього екрана, коли ввімкнено «Уникати камер зовнішнього екрана». Якщо замало, об\'єктиви закривають кнопки.</string>
     <string name="adv_nav_sidebar_min">Мінімальний екран для бічної панелі</string>
     <string name="adv_nav_sidebar_min_desc">На вужчих екранах панель зупинок лишається внизу навіть в альбомній орієнтації. Якщо замало, на малих екранах панель закриває карту.</string>
     <string name="adv_inmotion_v1_pin">PIN InMotion V5/V8/V10</string>
@@ -2621,7 +2625,12 @@
     <string name="recording_delete_archive">Архівувати резервні копії</string>
     <string name="recording_delete_archive_desc">Переносить їх до папки архіву.</string>
     <string name="trip_tools_extend_all_inside">Поїздки навколо вже є частиною цієї.</string>
-    <string name="trip_tools_extend_skipped">Пропускає поїздки, які вже входять до цієї: %1$d.</string>
+    <plurals name="trip_tools_extend_skipped">
+        <item quantity="one">Пропускає %1$d поїздку, яка вже входить до цієї.</item>
+        <item quantity="few">Пропускає %1$d поїздки, які вже входять до цієї.</item>
+        <item quantity="many">Пропускає %1$d поїздок, які вже входять до цієї.</item>
+        <item quantity="other">Пропускає %1$d поїздки, яка вже входить до цієї.</item>
+    </plurals>
     <string name="recording_clear_all_body_archive">Це видалить поїздки з цього телефона. Резервні копії перейдуть до папки архіву.</string>
     <string name="recording_delete_trip_body_archive">Видалити цю поїздку з телефона? Резервна копія перейде до папки архіву.</string>
     <string name="backup_status_pending">Створення копії…</string>
@@ -2662,9 +2671,9 @@
     <string name="lockdown_limit_10">Налаштування відкрити не можна.</string>
     <string name="lockdown_limit_11">Історія поїздок, монітор батареї, студія та деталі показників недоступні.</string>
     <string name="lockdown_limit_12">Дотик до показника нічого не робить.</string>
-    <string name="lockdown_limit_13">Голосові оголошення, періодичні звіти та відрізки розгону вимкнено. Ваші тривоги й далі працюють.</string>
+    <string name="lockdown_limit_13">Голосові оголошення, періодичні звіти та відрізки швидкості вимкнено. Ваші тривоги й далі працюють.</string>
     <string name="lockdown_limit_14">Колесо не можна заблокувати чи розблокувати, автоблокування за відстанню не працює.</string>
-    <string name="lockdown_limit_15">Автосвітло та автогучність працюють далі. Керування медіа зупиняється.</string>
+    <string name="lockdown_limit_15">Автосвітло та автогучність працюють далі. Керування відтворенням зупиняється.</string>
     <string name="lockdown_limit_16">У сповіщення зникають кнопки.</string>
     <string name="lockdown_limit_17">Номер версії більше не відкриває екран «Про застосунок».</string>
     <string name="lockdown_limit_18">Цей режим не входить до резервних копій налаштувань.</string>

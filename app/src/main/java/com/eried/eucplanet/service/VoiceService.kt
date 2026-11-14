@@ -4,7 +4,6 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
-import android.os.Build
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.speech.tts.Voice
@@ -145,9 +144,7 @@ class VoiceService(
                 tts?.setOnUtteranceProgressListener(utteranceListener)
                 // Route TTS output through the same attributes we use to request focus,
                 // so ducking/pausing other audio is consistent with where TTS actually plays.
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    try { tts?.setAudioAttributes(ttsAudioAttributes) } catch (_: Exception) {}
-                }
+                try { tts?.setAudioAttributes(ttsAudioAttributes) } catch (_: Exception) {}
                 Log.i(TAG, "TTS initialized")
                 // onInit runs on the main thread, and the voice lists are a few
                 // hundred voices over binder (Google TTS has 442), so they load
@@ -218,18 +215,12 @@ class VoiceService(
             else -> return
         }
 
-        val result = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val req = AudioFocusRequest.Builder(focusGain)
-                .setAudioAttributes(ttsAudioAttributes)
-                .setOnAudioFocusChangeListener { }
-                .build()
-            val r = audioManager.requestAudioFocus(req)
-            if (r == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) activeFocusRequest = req
-            r
-        } else {
-            @Suppress("DEPRECATION")
-            audioManager.requestAudioFocus(null, AudioManager.STREAM_MUSIC, focusGain)
-        }
+        val req = AudioFocusRequest.Builder(focusGain)
+            .setAudioAttributes(ttsAudioAttributes)
+            .setOnAudioFocusChangeListener { }
+            .build()
+        val result = audioManager.requestAudioFocus(req)
+        if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) activeFocusRequest = req
         focusHeld = result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
     }
 
@@ -237,12 +228,7 @@ class VoiceService(
     private fun abandonAudioFocus() {
         if (!focusHeld) return
         val req = activeFocusRequest
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && req != null) {
-            audioManager.abandonAudioFocusRequest(req)
-        } else {
-            @Suppress("DEPRECATION")
-            audioManager.abandonAudioFocus(null)
-        }
+        if (req != null) audioManager.abandonAudioFocusRequest(req)
         activeFocusRequest = null
         focusHeld = false
     }
@@ -309,9 +295,7 @@ class VoiceService(
 
     private fun applyOutputChannel() {
         ttsAudioAttributes = buildTtsAudioAttributes(currentOutputChannel)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            try { tts?.setAudioAttributes(ttsAudioAttributes) } catch (_: Exception) {}
-        }
+        try { tts?.setAudioAttributes(ttsAudioAttributes) } catch (_: Exception) {}
         // Drop any focus held under the old attributes; next speak will re-request with new ones.
         abandonAudioFocus()
     }

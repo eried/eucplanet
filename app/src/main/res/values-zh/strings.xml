@@ -280,7 +280,7 @@
 
     <string name="section_flic_buttons">Flic 2 按钮</string>
     <string name="flic_show_on_dashboard">仪表盘快捷图标</string>
-    <string name="flic_scan_hint">长按 Flic 2 按钮 6 秒进入配对模式，然后点按扫描。</string>
+    <string name="flic_scan_hint">长按 Flic 2 按钮 6 秒进入配对模式，然后点按“开始扫描”。</string>
     <string name="flic_stop_scan">停止扫描</string>
     <string name="flic_start_scan">开始扫描</string>
     <string name="external_gps_pair_button">开始扫描</string>
@@ -664,7 +664,7 @@
 
     <!-- Engine sound generator -->
     <string name="section_engine_sound">引擎声</string>
-    <string name="engine_sound_enabled">引擎声</string>
+    <string name="engine_sound_enabled">播放引擎声</string>
     <string name="engine_sound_enabled_hint">根据独轮车的速度和电机负载实时驱动引擎转速。</string>
     <string name="engine_type_label">引擎</string>
     <string name="engine_source_sampled">采样</string>
@@ -759,7 +759,7 @@
     <string name="sources_other_metrics">其他指标</string>
     <!-- ==== Navigator / Studio / Voice (new) ==== -->
     <string name="nav_arrived">已到达</string>
-    <string name="nav_arrived_goal">已到达目标点 %1$d</string>
+    <string name="nav_arrived_goal">已到达途经点 %1$d</string>
     <string name="nav_clear_confirm">开始新路线？</string>
     <string name="nav_clear_confirm_body">当前的途经点将被清除。</string>
     <string name="nav_clear_home">清除家</string>
@@ -1223,7 +1223,6 @@
     <string name="dash_no_gallery_app">未找到图库应用</string>
     <string name="trip_action_share_file">分享文件</string>
     <string name="trip_action_share_file_desc">将行程 CSV 发送到其他应用。</string>
-    <string name="trip_action_view_online">在线查看</string>
     <string name="trip_action_replay">在工作室中回放</string>
     <string name="trip_action_replay_desc">通过实时数据叠加层回放行程。</string>
     <string name="studio_element_g_force">G 力</string>
@@ -1455,7 +1454,7 @@
     <string name="dashboard_close">关闭</string>
     <string name="dashboard_composite_blank_label">（空）</string>
     <string name="dashboard_composite_cell_label">单元 %1$d</string>
-    <string name="dashboard_composite_empty_label">（空白）</string>
+    <string name="dashboard_composite_empty_label">（无）</string>
     <string name="dashboard_composite_layout_col2">2 列</string>
     <string name="dashboard_composite_layout_col3">3 列</string>
     <string name="dashboard_composite_layout_row2">2 行</string>
@@ -1502,7 +1501,7 @@
     <string name="dashboard_stat_median">中位数 (P50)</string>
     <string name="dashboard_stat_median_short">P50</string>
     <string name="dashboard_stat_min">最小</string>
-    <string name="dashboard_stat_none">（空白）</string>
+    <string name="dashboard_stat_none">（无）</string>
     <string name="dashboard_stat_p75">第 75 百分位</string>
     <string name="dashboard_stat_p75_short">P75</string>
     <string name="dashboard_stat_p95">第 95 百分位</string>
@@ -1677,7 +1676,7 @@
     <string name="metric_chip_descent_tile">下降</string>
     <string name="metric_chip_gps_speed_tile">GPS 速度</string>
     <string name="metric_chip_gps_altitude_tile">海拔</string>
-    <string name="metric_chip_gps_heading_tile">方位</string>
+    <string name="metric_chip_gps_heading_tile">航向</string>
     <string name="metric_chip_trip_time_tile">时间</string>
     <string name="metric_chip_g_force_tile">G</string>
     <string name="metric_chip_forward_g_tile">前向 g</string>
@@ -1717,7 +1716,9 @@
     <string name="radar_unpair">忘记设备</string>
     <string name="radar_battery_fmt">电量 %1$d%%</string>
     <string name="radar_clear">车道畅通</string>
-    <string name="radar_threats_count">正在追踪 %1$d 辆车：</string>
+    <plurals name="radar_threats_count">
+        <item quantity="other">正在追踪 %1$d 辆车：</item>
+    </plurals>
     <string name="radar_show_overlay">显示威胁叠加层</string>
     <string name="radar_show_overlay_desc">仪表盘两侧的细雷达条。每辆检测到的车辆显示为一个彩色圆点。仅在仪表盘上显示。</string>
     <string name="radar_overlay_left">左侧</string>
@@ -1745,7 +1746,7 @@
 
     <!-- HUD Overlay / Personalize / Map / Versions (added) -->
     <string name="hud_overlay_subsection">自定义叠加</string>
-    <string name="hud_overlay_subsection_desc">将叠加工作室预设导入 HUD 的“自定义”屏幕，不带背景。预设会复制到这里，因此之后在工作室中的修改不会影响 HUD，除非你再次导入。</string>
+    <string name="hud_overlay_subsection_desc">将叠加工作室预设导入 HUD 的“自定义叠加”屏幕，不带背景。预设会复制到这里，因此之后在工作室中的修改不会影响 HUD，除非你再次导入。</string>
     <string name="hud_overlay_select_preset">导入预设</string>
     <string name="hud_overlay_current_preset">当前：%1$s</string>
     <string name="hud_search_corpus">HUD 抬头显示 伴侣 服务器 流 遥测 热点 motoeye 转向箭头</string>
@@ -1825,12 +1826,12 @@
     <string name="online_status_pending">正在上传到排行榜…</string>
     <string name="online_status_failed">上传失败，点按重试</string>
     <string name="online_status_rejected">未被排行榜接受</string>
-    <string name="online_upload_join_caption">加入后，你的统计数据和行程会发送到公开排行榜。</string>
+    <string name="online_upload_join_caption">加入后，你的统计数据和行程会发送到公开排行榜 %1$s。</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">取消关联</string>
     <string name="online_unlink_title">取消与排行榜的关联？</string>
-    <string name="online_unlink_body">此手机将停止上传骑行记录。你的骑手 ID 会保留，之后可用同一骑手身份重新加入。你的数据仍保留在 EUC Stats 上，如需删除请使用“删除账号”。</string>
+    <string name="online_unlink_body">此手机将停止上传行程。你的骑手 ID 会保留，之后可用同一骑手身份重新加入。你的数据仍保留在 EUC Stats 上，如需删除请使用“删除账号”。</string>
     <string name="online_unlink_confirm">取消关联</string>
 
     <!-- 在线资料（编辑/GDPR） -->
@@ -1846,11 +1847,11 @@
     <string name="online_profile_save_failed">保存失败（HTTP %1$d），请重试。</string>
 
     <string name="online_restore_title">找到已保存的资料</string>
-    <string name="online_restore_body_new">在这里找到一份已保存的资料：%1$s。继续后将以该骑手身份重新加入公开排行榜，其名称、旗帜、头像和骑行数据均会公开。不会创建新资料。</string>
+    <string name="online_restore_body_new">在这里找到一份已保存的资料：%1$s。继续后将以该骑手身份重新加入公开排行榜，其名称、旗帜、头像和行程统计均会公开。不会创建新资料。</string>
     <string name="online_restore_body_switch">找到另一份已保存的资料：%1$s。继续后本机将切换为该骑手；当前资料会先备份。</string>
     <string name="online_restore_confirm">以 %1$s 身份继续</string>
     <string name="online_upload_card_missing">此手机的排行榜资料已不在服务器上，新的上传将被拒绝。如果这不符合预期，请联系排行榜管理员。</string>
-    <string name="online_upload_linked_caption">你的统计数据和行程会显示在公开排行榜上。</string>
+    <string name="online_upload_linked_caption">你的统计数据和行程会显示在公开排行榜 %1$s 上。</string>
     <string name="online_rejoin_title">重新激活资料</string>
     <string name="online_rejoin_body">备份文件夹中有一份曾用于排行榜的资料。\n\n骑手 ID：%1$s</string>
     <string name="warnings_battery_opt_title">电池优化已开启</string>
@@ -2113,8 +2114,8 @@
     <string name="adv_nav_hunt_voice_interval_desc">决定语音播报正在搜索 GPS 的频率。注意：过低会频繁重复。</string>
     <string name="adv_nav_inter_stop">多途经点移动门限</string>
     <string name="adv_nav_inter_stop_desc">决定你须骑过一个途经点多远后，下一个途经点才能算作到达。注意：过低可能跳过某个途经点。</string>
-    <string name="adv_nav_intermediate_flash">途经点闪烁时长</string>
-    <string name="adv_nav_intermediate_flash_desc">决定到达途经点的闪烁显示多久。</string>
+    <string name="adv_nav_intermediate_flash">途经点到达提示时长</string>
+    <string name="adv_nav_intermediate_flash_desc">决定到达途经点的提示显示多久。</string>
     <string name="adv_nav_max_start">最大出发距离</string>
     <string name="adv_nav_max_start_desc">第一个途经点最远可以相距多远才能开始导航。超过此距离后，你当前位置到第一个途经点的连线会被隐藏，且无法开始导航。路线规划仍可照常使用。</string>
     <string name="adv_nav_moving">移动速度</string>
@@ -2350,7 +2351,7 @@
     <string name="trip_tools_change_wheel_desc">更正这次行程所用的独轮车。会同时更新行程及其文件。</string>
     <string name="trip_tools_wheel_other">其他独轮车</string>
     <string name="trip_tools_split">拆分行程</string>
-    <string name="trip_tools_split_desc">查找更换独轮车、长时间停留和记录中断的位置，并在那里切分。</string>
+    <string name="trip_tools_split_desc">查找更换独轮车、长时间停留和记录中断的位置，并在那里切分行程。</string>
     <string name="trip_tools_split_none">没有可拆分的地方。未发现更换独轮车、长时间停留或记录中断。</string>
     <string name="trip_split_reason_wheel">换成了另一台独轮车</string>
     <string name="trip_split_reason_gap">记录中断</string>
@@ -2445,7 +2446,7 @@
     <string name="trip_customize_tiles">磁贴</string>
     <string name="trip_customize_graphs">图表</string>
     <string name="recording_details_section">额外详情</string>
-    <string name="recording_details_none">本次骑行未记录独轮车。</string>
+    <string name="recording_details_none">本次行程未记录独轮车。</string>
     <string name="cloud_reset_local">清除本地行程</string>
     <string name="cloud_reset_local_title">清除本地行程？</string>
     <string name="cloud_reset_local_body">移除保存在本机上的所有行程。你的备份文件夹不受影响，已同步的行程可从那里恢复。</string>
@@ -2469,10 +2470,10 @@
     <string name="studio_video_edge_loop">循环</string>
     <string name="studio_video_edge_black">黑色</string>
     <string name="wheel_no_data_reset">仍然没有来自独轮车的数据。请尝试将其关闭再打开。</string>
-    <string name="trip_map_ride_start">骑行开始：%1$s</string>
+    <string name="trip_map_ride_start">行程开始：%1$s</string>
     <string name="trip_map_reconnected">已重新连接：%1$s</string>
     <string name="trip_map_new_wheel">新独轮车：%1$s</string>
-    <string name="trip_map_ride_end">骑行结束</string>
+    <string name="trip_map_ride_end">行程结束</string>
     <string name="adv_smoothing_window">平滑窗口</string>
     <string name="adv_smoothing_window_desc">“平均”行程图表和平滑语音播报所平均的样本数。行程大约每秒记录一次，因此该值约等于秒数。注意：数值过高会掩盖短暂的尖峰。</string>
     <string name="hud_discovery_auto">自动</string>
@@ -2483,14 +2484,16 @@
     <string name="metric_chip_battery_range">电量（开始 → 结束）</string>
     <string name="recording_summary_battery_range">开始→结束 (-%1$d%%)</string>
     <string name="trip_tools_rename">重命名行程</string>
-    <string name="trip_tools_rename_desc">给这次骑行起个名字。保存在它的文件里，所以会随导出和同步一起走。</string>
+    <string name="trip_tools_rename_desc">给这次行程起个名字。保存在它的文件里，所以会随导出和同步一起走。</string>
     <string name="trip_tools_rename_hint">留空则使用日期。</string>
     <string name="trip_tools_archived">已归档 %1$d 条</string>
     <string name="trip_tools_archive_failed">有些行程无法归档，仍然留在这里</string>
     <string name="recording_delete_archive">归档备份里的副本</string>
     <string name="recording_delete_archive_desc">把它们移到归档文件夹。</string>
     <string name="trip_tools_extend_all_inside">前后的行程已经包含在这次行程里了。</string>
-    <string name="trip_tools_extend_skipped">跳过已经在这次行程里的 %1$d 条行程。</string>
+    <plurals name="trip_tools_extend_skipped">
+        <item quantity="other">跳过已经在这次行程里的 %1$d 条行程。</item>
+    </plurals>
     <string name="recording_clear_all_body_archive">这会从这台手机删除行程。备份里的副本会移到归档文件夹。</string>
     <string name="recording_delete_trip_body_archive">从这台手机删除这次行程？备份里的副本会移到归档文件夹。</string>
     <string name="backup_status_pending">正在备份…</string>
@@ -2533,7 +2536,7 @@
     <string name="lockdown_limit_12">点按指标不会有任何反应。</string>
     <string name="lockdown_limit_13">语音播报、定时播报和速度分段都会静音。你的报警仍然有效。</string>
     <string name="lockdown_limit_14">无法锁定或解锁独轮车，距离自动锁定也不会运行。</string>
-    <string name="lockdown_limit_15">自动大灯和自动音量继续工作。媒体控制停止。</string>
+    <string name="lockdown_limit_15">自动大灯和自动音量继续工作。播放控制停止。</string>
     <string name="lockdown_limit_16">通知栏按钮消失。</string>
     <string name="lockdown_limit_17">点按版本号不再打开“关于”页面。</string>
     <string name="lockdown_limit_18">此模式不会包含在设置备份中。</string>
@@ -2636,13 +2639,13 @@
     <string name="crews_type_instead">手动输入</string>
     <string name="crews_code_label">通行码</string>
     <string name="crews_foreign_title">这个码不是 eucstats 的</string>
-    <string name="crews_foreign_body">它指向 %1$s，你的骑行并不去那儿。点同意等于把账号交给开这个站的人。\n\n自己架了服务器？先去设置里打开开发者模式。</string>
+    <string name="crews_foreign_body">它指向 %1$s，你的行程并不传到那儿。点同意等于把账号交给开这个站的人。\n\n自己架了服务器？先去设置里打开开发者模式。</string>
     <string name="crews_scan_switch">改为扫码</string>
     <string name="crews_close">关闭</string>
     <string name="crews_opensettings">打开设置</string>
     <string name="crews_dev_title">开发者模式</string>
     <string name="crews_dev_body">正在跟 %1$s 通信，不是平时那台服务器。</string>
-    <string name="crews_grant">让那个浏览器代表你。\n\n它可以创建战队、加入战队、退出战队和管理成员。它不能上传骑行、改你的名字或删除任何内容，这些都只能在这台手机上进行。</string>
+    <string name="crews_grant">让那个浏览器代表你。\n\n它可以创建战队、加入战队、退出战队和管理成员。它不能上传行程、改你的名字或删除任何内容，这些都只能在这台手机上进行。</string>
     <string name="crews_noprofile_title">先加入排行榜</string>
     <string name="crews_noprofile_body">战队挂在你的排行榜资料上，而这台手机还没建。去%1$s里加入，然后重新扫。</string>
     <string name="crews_issue">发通行证</string>

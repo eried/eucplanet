@@ -137,8 +137,8 @@
     <string name="dashboard_composite_layout_col2">2 คอลัมน์</string>
     <string name="dashboard_composite_layout_col3">3 คอลัมน์</string>
     <string name="dashboard_composite_cell_label">ช่อง %1$d</string>
-    <string name="dashboard_composite_empty_label">(ว่าง)</string>
-    <string name="dashboard_composite_blank_label">(ไม่มีข้อมูล)</string>
+    <string name="dashboard_composite_empty_label">(ไม่มี)</string>
+    <string name="dashboard_composite_blank_label">(ว่าง)</string>
     <string name="dashboard_stat_empty">(ว่าง)</string>
     <string name="dashboard_group_default_name">คำสั่งของฉัน</string>
     <string name="dashboard_group_empty_toast">ไม่มีคำสั่งให้แสดง</string>
@@ -174,7 +174,7 @@
     <string name="dashboard_corner_right">ขวา</string>
     <string name="dashboard_slot_sparkline">พื้นหลังกราฟแนวโน้มสด</string>
     <string name="dashboard_slot_sparkline_chip">สถิติ</string>
-    <string name="dashboard_stat_none">(ว่าง)</string>
+    <string name="dashboard_stat_none">(ไม่มี)</string>
     <string name="dashboard_stat_current">ปัจจุบัน</string>
     <string name="dashboard_stat_min">ต่ำสุด</string>
     <string name="dashboard_stat_max">สูงสุด / พีค</string>
@@ -457,7 +457,7 @@
     <string name="hud_hotspot_unknown_hint">ตรวจสอบว่า HUD และโทรศัพท์อยู่ในเครือข่าย Wi-Fi เดียวกัน หากใช้ฮอตสปอตของโทรศัพท์ ให้เปิดฮอตสปอตก่อน</string>
     <string name="hud_hotspot_on_hint">ฮอตสปอตของโทรศัพท์กำลังเปิดอยู่ เชื่อมต่อ HUD กับ Wi-Fi ของโทรศัพท์นี้เพื่อเปิดใช้ลิงก์</string>
     <string name="hud_overlay_subsection">โอเวอร์เลย์กำหนดเอง</string>
-    <string name="hud_overlay_subsection_desc">นำเข้าพรีเซ็ตจากสตูดิโอโอเวอร์เลย์ไปยังหน้าจอกำหนดเองของ HUD โดยไม่มีพื้นหลัง พรีเซ็ตจะถูกคัดลอกมาไว้ที่นี่ การแก้ไขในสตูดิโอภายหลังจะไม่เปลี่ยน HUD จนกว่าคุณจะนำเข้าอีกครั้ง</string>
+    <string name="hud_overlay_subsection_desc">นำเข้าพรีเซ็ตจากสตูดิโอโอเวอร์เลย์ไปยังหน้าจอโอเวอร์เลย์ของ HUD โดยไม่มีพื้นหลัง พรีเซ็ตจะถูกคัดลอกมาไว้ที่นี่ การแก้ไขในสตูดิโอภายหลังจะไม่เปลี่ยน HUD จนกว่าคุณจะนำเข้าอีกครั้ง</string>
     <string name="hud_overlay_select_preset">นำเข้าพรีเซ็ต</string>
     <string name="hud_overlay_current_preset">ปัจจุบัน: %1$s</string>
     <string name="hud_custom_overlay_none">ล้าง</string>
@@ -572,8 +572,8 @@
     <string name="adv_nav_heading_window_desc">มีผลต่อจำนวนวินาทีของการเคลื่อนที่ที่ใช้กำหนดทิศทางการเดินทาง ข้อควรระวัง: ต่ำเกินไปทำให้ทิศทางกระโดดไปมา</string>
     <string name="adv_nav_fix_buffer">ช่วงประวัติ GPS</string>
     <string name="adv_nav_fix_buffer_desc">มีผลต่อจำนวนวินาทีของตำแหน่ง GPS ที่เก็บไว้ใช้หาทิศทางและจับเข้าเส้นทาง ข้อควรระวัง: ต่ำเกินไปอาจทำให้ทิศทางหาย</string>
-    <string name="adv_nav_intermediate_flash">เวลากะพริบจุดแวะ</string>
-    <string name="adv_nav_intermediate_flash_desc">มีผลต่อระยะเวลาที่แสดงการกะพริบเมื่อถึงจุดแวะ</string>
+    <string name="adv_nav_intermediate_flash">เวลาแสดงข้อความถึงจุดแวะ</string>
+    <string name="adv_nav_intermediate_flash_desc">มีผลต่อระยะเวลาที่แสดงข้อความเมื่อถึงจุดแวะ</string>
     <string name="adv_nav_popup_timeout">เวลาแสดงป๊อปอัปเลี้ยว</string>
     <string name="adv_nav_popup_timeout_desc">มีผลต่อระยะเวลาที่การ์ดเลี้ยวขนาดใหญ่แสดงอยู่ก่อนย่อเป็นป้ายที่มุมจอ</string>
     <string name="adv_group_alarm">สัญญาณเตือนแบบคาดการณ์</string>
@@ -1030,7 +1030,7 @@
     <string name="voice_output_channel_notification">การแจ้งเตือน</string>
     <string name="voice_output_channel_alarm">นาฬิกาปลุก</string>
     <string name="section_engine_sound">เสียงมอเตอร์</string>
-    <string name="engine_sound_enabled">เสียงเครื่องยนต์</string>
+    <string name="engine_sound_enabled">เล่นเสียงเครื่องยนต์</string>
     <string name="engine_sound_enabled_hint">ปรับรอบเครื่องยนต์สดตามความเร็วล้อและโหลดมอเตอร์</string>
     <string name="engine_type_label">เครื่องยนต์</string>
     <string name="engine_source_sampled">เสียงจริง</string>
@@ -1180,7 +1180,9 @@
     <string name="radar_unpair">ลืมอุปกรณ์</string>
     <string name="radar_battery_fmt">แบตเตอรี่ %1$d%%</string>
     <string name="radar_clear">ช่องทางโล่ง</string>
-    <string name="radar_threats_count">กำลังติดตามรถ %1$d คัน:</string>
+    <plurals name="radar_threats_count">
+        <item quantity="other">กำลังติดตามรถ %1$d คัน:</item>
+    </plurals>
     <string name="radar_show_overlay">แสดงโอเวอร์เลย์อันตราย</string>
     <string name="radar_show_overlay_desc">แถบเรดาร์บางๆ ที่ขอบแดชบอร์ด จุดสีหนึ่งจุดต่อรถหนึ่งคันที่ตรวจพบ แสดงเฉพาะบนแดชบอร์ด</string>
     <string name="radar_overlay_left">ขอบซ้าย</string>
@@ -1318,7 +1320,7 @@
     <string name="recording_no_data">ไม่มีข้อมูลที่บันทึกในทริปนี้</string>
     <string name="recording_route">เส้นทาง</string>
     <string name="recording_details_section">รายละเอียดเพิ่มเติม</string>
-    <string name="recording_details_none">ไม่มีข้อมูลล้อสำหรับการขี่ครั้งนี้</string>
+    <string name="recording_details_none">ไม่มีข้อมูลล้อสำหรับทริปนี้</string>
     <string name="recording_summary_distance">ระยะทาง</string>
     <string name="recording_summary_duration">ระยะเวลา</string>
     <string name="recording_summary_points">แถว</string>
@@ -1432,14 +1434,14 @@
     <string name="trip_section_failed">บันทึกช่วงนี้ไม่ได้</string>
     <string name="trip_tools_title">เครื่องมือทริป</string>
     <string name="trip_tools_rename">เปลี่ยนชื่อทริป</string>
-    <string name="trip_tools_rename_desc">ตั้งชื่อให้การขี่ครั้งนี้ ชื่อจะเก็บไว้ในไฟล์ จึงติดไปกับการส่งออกและการซิงค์</string>
+    <string name="trip_tools_rename_desc">ตั้งชื่อให้ทริปนี้ ชื่อจะเก็บไว้ในไฟล์ จึงติดไปกับการส่งออกและการซิงค์</string>
     <string name="trip_tools_rename_hint">เว้นว่างไว้เพื่อใช้วันที่</string>
     <string name="trip_tools_change_wheel">เปลี่ยนล้อ</string>
-    <string name="trip_tools_change_wheel_desc">แก้ไขว่าการขี่ครั้งนี้ใช้ล้อคันไหน อัปเดตทั้งทริปและไฟล์</string>
+    <string name="trip_tools_change_wheel_desc">แก้ไขว่าทริปนี้ใช้ล้อคันไหน อัปเดตทั้งทริปและไฟล์</string>
     <string name="trip_tools_wheel_other">ล้ออื่น</string>
     <string name="trip_tools_wheel_current">ปัจจุบัน</string>
     <string name="trip_tools_extend">ขยายทริป</string>
-    <string name="trip_tools_extend_desc">รวมการขี่ก่อนหน้าหรือหลังจากครั้งนี้เป็นทริปใหม่ที่ยาวขึ้น</string>
+    <string name="trip_tools_extend_desc">รวมทริปก่อนหน้าหรือหลังจากทริปนี้เป็นทริปใหม่ที่ยาวขึ้น</string>
     <string name="trip_tools_extend_hint">ย้อนหลังและไปข้างหน้าได้ไกลเท่าที่ต้องการ ทุกอย่างที่อยู่ระหว่างนั้นจะรวมเข้ามาด้วย</string>
     <string name="trip_tools_extend_from">เริ่มจาก</string>
     <string name="trip_tools_extend_to">สิ้นสุดที่</string>
@@ -1450,11 +1452,13 @@
     <string name="trip_tools_archive_failed">บางทริปเก็บถาวรไม่ได้และยังอยู่ที่นี่</string>
     <string name="trip_tools_extend_pick_one">เลือกทริปก่อนหน้าหรือหลังจากนี้เพื่อขยายเข้าไป</string>
     <string name="trip_tools_extend_all_inside">ทริปรอบๆ ทริปนี้เป็นส่วนหนึ่งของทริปนี้อยู่แล้ว</string>
-    <string name="trip_tools_extend_skipped">ข้าม %1$d ทริปที่อยู่ในทริปนี้แล้ว</string>
+    <plurals name="trip_tools_extend_skipped">
+        <item quantity="other">ข้าม %1$d ทริปที่อยู่ในทริปนี้แล้ว</item>
+    </plurals>
     <string name="trip_tools_combine_summary">รวม %1$d ทริปเป็นทริปใหม่หนึ่งทริป</string>
     <string name="trip_tools_wheel_changed">ตั้งล้อเป็น %1$s แล้ว</string>
     <string name="trip_tools_split">แยกทริป</string>
-    <string name="trip_tools_split_desc">ค้นหาการเปลี่ยนล้อ การหยุดนาน และช่วงที่ขาดการบันทึก แล้วตัดการขี่ตรงนั้น</string>
+    <string name="trip_tools_split_desc">ค้นหาการเปลี่ยนล้อ การหยุดนาน และช่วงที่ขาดการบันทึก แล้วตัดทริปตรงนั้น</string>
     <string name="trip_tools_split_none">ไม่มีอะไรให้แยก ไม่พบการเปลี่ยนล้อ การหยุดนาน หรือช่วงที่ขาดการบันทึก</string>
     <string name="trip_split_lasted">นาน %1$s</string>
     <string name="trip_tools_split_pick">เลือกจุดตัดอย่างน้อยหนึ่งจุด</string>
@@ -1635,10 +1639,10 @@
     <string name="service_mode_enter">เข้าสู่โหมด</string>
     <string name="toast_external_speed_change">อัปเดตความเร็วจากล้อแล้ว: tiltback %1$d กม./ชม. เตือน %2$d กม./ชม.</string>
     <string name="wheel_no_data_reset">ยังไม่มีข้อมูลจากล้อ ลองปิดแล้วเปิดล้อใหม่</string>
-    <string name="trip_map_ride_start">เริ่มขี่: %1$s</string>
+    <string name="trip_map_ride_start">เริ่มทริป: %1$s</string>
     <string name="trip_map_reconnected">เชื่อมต่อใหม่: %1$s</string>
     <string name="trip_map_new_wheel">ล้อใหม่: %1$s</string>
-    <string name="trip_map_ride_end">จบการขี่</string>
+    <string name="trip_map_ride_end">จบทริป</string>
     <string name="online_upload_consent_title">เข้าร่วมกระดานผู้นำ EUC Stats</string>
     <string name="online_upload_consent_intro">ก่อนเข้าร่วม โปรดอ่านว่าข้อมูลใดจะเป็นสาธารณะ:</string>
     <string name="online_upload_consent_bullet_name">ชื่อที่แสดงของคุณ</string>
@@ -1678,13 +1682,13 @@
     <string name="online_status_pending">กำลังอัปโหลดไปยังกระดานผู้นำ…</string>
     <string name="online_status_failed">อัปโหลดออนไลน์ไม่สำเร็จ แตะเพื่อลองใหม่</string>
     <string name="online_status_rejected">ไม่ได้รับการยอมรับในกระดานผู้นำ</string>
-    <string name="online_upload_join_caption">เข้าร่วมเพื่อส่งสถิติและทริปของคุณไปยังกระดานผู้นำสาธารณะที่</string>
-    <string name="online_upload_linked_caption">สถิติและทริปของคุณแสดงบนกระดานผู้นำสาธารณะที่</string>
+    <string name="online_upload_join_caption">เข้าร่วมเพื่อส่งสถิติและทริปของคุณไปยังกระดานผู้นำสาธารณะที่ %1$s</string>
+    <string name="online_upload_linked_caption">สถิติและทริปของคุณแสดงบนกระดานผู้นำสาธารณะที่ %1$s</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">ยกเลิกการลิงก์</string>
     <string name="online_unlink_title">ยกเลิกการลิงก์กับกระดานผู้นำใช่ไหม?</string>
-    <string name="online_unlink_body">โทรศัพท์นี้จะหยุดอัปโหลดการขี่ รหัสผู้ขี่ยังบันทึกไว้เพื่อให้คุณกลับมาเข้าร่วมในฐานะผู้ขี่คนเดิมได้ สถิติของคุณยังอยู่บน EUC Stats ใช้ลบบัญชีหากต้องการลบออก</string>
+    <string name="online_unlink_body">โทรศัพท์นี้จะหยุดอัปโหลดทริป รหัสผู้ขี่ยังบันทึกไว้เพื่อให้คุณกลับมาเข้าร่วมในฐานะผู้ขี่คนเดิมได้ สถิติของคุณยังอยู่บน EUC Stats ใช้ลบบัญชีหากต้องการลบออก</string>
     <string name="online_unlink_confirm">ยกเลิกการลิงก์</string>
     <string name="online_profile_manage">จัดการโปรไฟล์</string>
     <string name="online_profile_title">โปรไฟล์ของฉัน</string>
@@ -1697,7 +1701,7 @@
     <string name="online_profile_save_rate_limited">ส่งคำขอถี่เกินไป ลองใหม่ภายหลัง</string>
     <string name="online_profile_save_failed">บันทึกไม่สำเร็จ (HTTP %1$d) ลองอีกครั้ง</string>
     <string name="online_restore_title">พบโปรไฟล์ที่บันทึกไว้</string>
-    <string name="online_restore_body_new">เราพบโปรไฟล์ที่บันทึกไว้ที่นี่: %1$s การดำเนินการต่อจะกลับเข้าร่วมกระดานผู้นำสาธารณะในฐานะผู้ขี่คนนั้น ชื่อ ธง รูปโปรไฟล์ และสถิติการขี่จะเป็นสาธารณะ จะไม่สร้างโปรไฟล์ใหม่</string>
+    <string name="online_restore_body_new">เราพบโปรไฟล์ที่บันทึกไว้ที่นี่: %1$s การดำเนินการต่อจะกลับเข้าร่วมกระดานผู้นำสาธารณะในฐานะผู้ขี่คนนั้น ชื่อ ธง รูปโปรไฟล์ และสถิติทริปจะเป็นสาธารณะ จะไม่สร้างโปรไฟล์ใหม่</string>
     <string name="online_restore_body_switch">เราพบโปรไฟล์อื่นที่บันทึกไว้: %1$s การดำเนินการต่อจะสลับโทรศัพท์นี้ไปเป็นผู้ขี่คนนั้น โดยจะสำรองโปรไฟล์ปัจจุบันไว้ก่อน</string>
     <string name="online_restore_confirm">ดำเนินการต่อในชื่อ %1$s</string>
     <string name="online_rejoin_title">เปิดใช้โปรไฟล์อีกครั้ง</string>
@@ -2044,7 +2048,7 @@
     <string name="trip_action_share_dropbox">แชร์ผ่าน Dropbox</string>
     <string name="trip_action_share_dropbox_desc">อัปโหลดไปยังโฟลเดอร์ Dropbox ของคุณแล้วแชร์ลิงก์สาธารณะ</string>
     <string name="trip_action_inspect_online">ดูออนไลน์</string>
-    <string name="trip_action_inspect_online_desc">แชร์ลิงก์ eucviewer.ried.no เพื่อดูการขี่ครั้งนี้ออนไลน์</string>
+    <string name="trip_action_inspect_online_desc">แชร์ลิงก์ eucviewer.ried.no เพื่อดูทริปนี้ออนไลน์</string>
     <string name="trip_action_dropbox_disabled">ลิงก์ Dropbox ในการตั้งค่าเพื่อเปิดใช้</string>
     <string name="nav_start_short">เริ่มนำทาง</string>
     <string name="nav_start_btn">เริ่ม</string>
@@ -2095,7 +2099,7 @@
     <string name="nav_default_route_name">เส้นทางของฉัน</string>
     <string name="nav_start_riding">เริ่มขี่</string>
     <string name="nav_arrived">คุณมาถึงแล้ว</string>
-    <string name="nav_arrived_goal">ถึงเป้าหมายที่ %1$d แล้ว</string>
+    <string name="nav_arrived_goal">ถึงจุดแวะที่ %1$d แล้ว</string>
     <string name="nav_end_title">สิ้นสุดการนำทางไหม?</string>
     <string name="nav_end_body">หยุดการนำทางของเส้นทางปัจจุบันใช่ไหม?</string>
     <string name="nav_end_confirm">สิ้นสุด</string>
@@ -2342,9 +2346,8 @@
     <string name="watch_show_navigation_desc">แสดงลูกศรเลี้ยวและระยะทางบนนาฬิกาขณะนำทาง</string>
     <string name="trip_action_share_file">แชร์ไฟล์</string>
     <string name="trip_action_share_file_desc">ส่งไฟล์ CSV ของทริปไปยังแอปอื่น</string>
-    <string name="trip_action_view_online">ดูออนไลน์</string>
     <string name="trip_action_replay">รีเพลย์ในสตูดิโอ</string>
-    <string name="trip_action_replay_desc">เลื่อนดูการขี่พร้อมโอเวอร์เลย์ข้อมูลสด</string>
+    <string name="trip_action_replay_desc">เลื่อนดูทริปพร้อมโอเวอร์เลย์ข้อมูลสด</string>
     <string name="dash_view_video_gallery">ดูแกลเลอรีวิดีโอ</string>
     <string name="dash_view_photo_gallery">ดูแกลเลอรีรูปภาพ</string>
     <string name="dash_no_gallery_app">ไม่พบแอปแกลเลอรี</string>
@@ -2395,7 +2398,7 @@
     <string name="warnings_hud_blocked_title">HUD บนโทรศัพท์แสดงผลไม่ได้</string>
     <string name="warnings_hud_blocked_body">สิทธิ์แสดงทับแอปอื่นถูกเพิกถอน โอเวอร์เลย์จึงจะไม่แสดงทับแผนที่หรือเพลง</string>
     <string name="warnings_no_backup_title">ทริปยังไม่ได้สำรอง</string>
-    <string name="warnings_no_backup_body">ทริปมีอยู่แค่ในโทรศัพท์นี้ เลือกโฟลเดอร์สำรองข้อมูลเพื่อไม่ให้การขี่ของคุณหายไปพร้อมโทรศัพท์ที่หายหรือถูกล้างข้อมูล</string>
+    <string name="warnings_no_backup_body">ทริปมีอยู่แค่ในโทรศัพท์นี้ เลือกโฟลเดอร์สำรองข้อมูลเพื่อไม่ให้ทริปของคุณหายไปพร้อมโทรศัพท์ที่หายหรือถูกล้างข้อมูล</string>
     <string name="warnings_pip_blocked_title">ภาพซ้อนภาพถูกบล็อก</string>
     <string name="warnings_pip_blocked_body">Android ตั้งค่าไม่ให้ EUC Planet ใช้ฟีเจอร์นี้ หน้าต่างลอยจึงจะไม่แสดงเมื่อคุณออกจากแอป</string>
     <string name="online_rejoin_confirm">เข้าร่วมอีกครั้ง</string>
@@ -2503,7 +2506,7 @@
     <string name="lockdown_limit_12">การแตะค่าจะไม่มีผลใดๆ</string>
     <string name="lockdown_limit_13">การประกาศด้วยเสียง รายงานตามรอบเวลา และเวลาช่วงความเร็วจะเงียบ แต่สัญญาณเตือนยังทำงาน</string>
     <string name="lockdown_limit_14">ล็อกหรือปลดล็อกล้อไม่ได้ และล็อกอัตโนมัติตามระยะใกล้จะไม่ทำงาน</string>
-    <string name="lockdown_limit_15">ไฟอัตโนมัติและระดับเสียงอัตโนมัติยังทำงาน ส่วนการควบคุมสื่อจะหยุด</string>
+    <string name="lockdown_limit_15">ไฟอัตโนมัติและระดับเสียงอัตโนมัติยังทำงาน ส่วนควบคุมการเล่นสื่อจะหยุด</string>
     <string name="lockdown_limit_16">การแจ้งเตือนจะไม่มีปุ่ม</string>
     <string name="lockdown_limit_17">หมายเลขเวอร์ชันจะไม่เปิดหน้าเกี่ยวกับ</string>
     <string name="lockdown_limit_18">โหมดนี้ไม่รวมอยู่ในการสำรองการตั้งค่า</string>
@@ -2568,13 +2571,13 @@
     <string name="crews_type_instead">ป้อนเอง</string>
     <string name="crews_code_label">รหัสบัตรผ่าน</string>
     <string name="crews_foreign_title">โค้ดนี้ไม่ได้มาจาก eucstats</string>
-    <string name="crews_foreign_body">โค้ดนี้ชี้ไปที่ %1$s ซึ่งไม่ใช่ที่ที่การขี่ของคุณถูกส่งไป หากตอบตกลง บัญชีของคุณจะตกไปอยู่กับผู้ที่ดูแลเซิร์ฟเวอร์นั้น\n\nใช้เซิร์ฟเวอร์ของคุณเองใช่ไหม? เปิดโหมดนักพัฒนาในการตั้งค่าก่อน</string>
+    <string name="crews_foreign_body">โค้ดนี้ชี้ไปที่ %1$s ซึ่งไม่ใช่ที่ที่ทริปของคุณถูกส่งไป หากตอบตกลง บัญชีของคุณจะตกไปอยู่กับผู้ที่ดูแลเซิร์ฟเวอร์นั้น\n\nใช้เซิร์ฟเวอร์ของคุณเองใช่ไหม? เปิดโหมดนักพัฒนาในการตั้งค่าก่อน</string>
     <string name="crews_scan_switch">สแกนแทน</string>
     <string name="crews_close">ปิด</string>
     <string name="crews_opensettings">เปิดการตั้งค่า</string>
     <string name="crews_dev_title">โหมดนักพัฒนา</string>
     <string name="crews_dev_body">กำลังติดต่อกับ %1$s แทนเซิร์ฟเวอร์ปกติ</string>
-    <string name="crews_grant">ให้เบราว์เซอร์นั้นทำหน้าที่แทนคุณ\n\nเบราว์เซอร์สามารถสร้างครูว์ เข้าร่วม ออกจากครูว์ และจัดการสมาชิกได้ แต่ส่งการขี่ เปลี่ยนชื่อคุณ หรือลบสิ่งใดไม่ได้ ทั้งหมดนั้นยังอยู่บนโทรศัพท์นี้</string>
+    <string name="crews_grant">ให้เบราว์เซอร์นั้นทำหน้าที่แทนคุณ\n\nเบราว์เซอร์สามารถสร้างครูว์ เข้าร่วม ออกจากครูว์ และจัดการสมาชิกได้ แต่ส่งทริป เปลี่ยนชื่อคุณ หรือลบสิ่งใดไม่ได้ ทั้งหมดนั้นยังอยู่บนโทรศัพท์นี้</string>
     <string name="crews_noprofile_title">เข้าร่วมกระดานผู้นำก่อน</string>
     <string name="crews_noprofile_body">ครูว์ผูกกับโปรไฟล์กระดานผู้นำของคุณ และโทรศัพท์นี้ยังไม่ได้ตั้งค่า เข้าร่วมได้ใต้ %1$s แล้วสแกนอีกครั้ง</string>
     <string name="crews_issue">ออกบัตรผ่าน</string>

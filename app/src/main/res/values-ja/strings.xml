@@ -153,7 +153,7 @@
     <string name="dashboard_composite_layout_col3">3 列</string>
     <string name="dashboard_composite_cell_label">セル %1$d</string>
     <!-- "(blank)" is the collapsing placeholder: cell renders "-", layout collapses. -->
-    <string name="dashboard_composite_empty_label">（空白）</string>
+    <string name="dashboard_composite_empty_label">（なし）</string>
     <!-- "(empty)" is the reserving placeholder: cell renders blank, layout intact. -->
     <string name="dashboard_composite_blank_label">（空）</string>
     <string name="dashboard_stat_empty">（空）</string>
@@ -194,7 +194,7 @@
     <!-- Open-menu label for DashboardStat.NONE; closed-field shows a literal
          "-" glyph from statSelectedLabel so the rider sees the visual at a
          glance regardless of locale. -->
-    <string name="dashboard_stat_none">（空白）</string>
+    <string name="dashboard_stat_none">（なし）</string>
     <string name="dashboard_stat_current">現在</string>
     <string name="dashboard_stat_min">最小</string>
     <string name="dashboard_stat_max">最大 / ピーク</string>
@@ -490,7 +490,7 @@
     <string name="hud_hotspot_unknown_hint">HUD とスマホが同じ Wi-Fi ネットワークに接続されているか確認してください。スマホのホットスポットを使う場合は、先にオンにしてください。</string>
     <string name="hud_hotspot_on_hint">スマホのホットスポットが起動中です。HUD をこのスマホの Wi-Fi に接続してリンクを有効にしてください。</string>
     <string name="hud_overlay_subsection">カスタムオーバーレイ</string>
-    <string name="hud_overlay_subsection_desc">オーバーレイスタジオのプリセットを背景なしで HUD のカスタム画面にインポートします。プリセットはここにコピーされるため、スタジオで後から編集しても再インポートするまで HUD には反映されません。</string>
+    <string name="hud_overlay_subsection_desc">オーバーレイスタジオのプリセットを背景なしで HUD のカスタムオーバーレイ画面にインポートします。プリセットはここにコピーされるため、スタジオで後から編集しても再インポートするまで HUD には反映されません。</string>
     <string name="hud_overlay_select_preset">プリセットをインポート</string>
     <string name="hud_overlay_current_preset">現在: %1$s</string>
     <string name="hud_custom_overlay_none">クリア</string>
@@ -813,7 +813,7 @@
 
     <!-- Engine sound generator -->
     <string name="section_engine_sound">エンジン音</string>
-    <string name="engine_sound_enabled">エンジン音</string>
+    <string name="engine_sound_enabled">エンジン音を再生</string>
     <string name="engine_sound_enabled_hint">ホイール速度とモーター負荷からエンジン回転数をリアルタイムで再現します。</string>
     <string name="engine_type_label">エンジン</string>
     <string name="engine_source_sampled">サンプリング</string>
@@ -895,7 +895,7 @@
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Flic 2 ボタン</string>
     <string name="flic_show_on_dashboard">ダッシュボードにクイックアクセスアイコン</string>
-    <string name="flic_scan_hint">Flic 2 ボタンを 6 秒間長押ししてペアリングモードにし、スキャンをタップしてください。</string>
+    <string name="flic_scan_hint">Flic 2 ボタンを 6 秒間長押ししてペアリングモードにし、「スキャン開始」をタップしてください。</string>
     <string name="flic_stop_scan">スキャン停止</string>
     <string name="flic_start_scan">スキャン開始</string>
     <string name="flic_forget">登録解除</string>
@@ -970,7 +970,9 @@
     <string name="radar_unpair">デバイスの登録を解除</string>
     <string name="radar_battery_fmt">バッテリー %1$d%%</string>
     <string name="radar_clear">後方クリア</string>
-    <string name="radar_threats_count">%1$d 台の車両を追跡中:</string>
+    <plurals name="radar_threats_count">
+        <item quantity="other">%1$d 台の車両を追跡中:</item>
+    </plurals>
     <string name="radar_show_overlay">レーダーオーバーレイを表示</string>
     <string name="radar_show_overlay_desc">ダッシュボードの端に細いレーダーレーンを表示し、検出した車両ごとに色付きのドットを表示します。ダッシュボードでのみ表示されます。</string>
     <string name="radar_overlay_left">左端</string>
@@ -1330,8 +1332,8 @@
     <string name="online_status_pending">リーダーボードにアップロード中…</string>
     <string name="online_status_failed">アップロードに失敗しました。タップして再試行</string>
     <string name="online_status_rejected">リーダーボードに登録されませんでした</string>
-    <string name="online_upload_join_caption">参加すると、統計とトリップを次の公開リーダーボードに送信します:</string>
-    <string name="online_upload_linked_caption">統計とトリップは次の公開リーダーボードに表示されています:</string>
+    <string name="online_upload_join_caption">参加すると、統計とトリップを公開リーダーボード（%1$s）に送信します。</string>
+    <string name="online_upload_linked_caption">統計とトリップは公開リーダーボード（%1$s）に表示されます。</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">リンク解除</string>
@@ -1351,7 +1353,7 @@
     <string name="online_profile_save_rate_limited">レート制限中です。しばらくしてから再試行してください。</string>
     <string name="online_profile_save_failed">保存できませんでした（HTTP %1$d）。もう一度お試しください。</string>
     <string name="online_restore_title">保存済みプロフィールが見つかりました</string>
-    <string name="online_restore_body_new">保存済みのプロフィールが見つかりました: %1$s。続行すると、そのライダーとして公開リーダーボードに再参加し、名前、国旗、アバター、走行統計が公開されます。新しいプロフィールは作成されません。</string>
+    <string name="online_restore_body_new">保存済みのプロフィールが見つかりました: %1$s。続行すると、そのライダーとして公開リーダーボードに再参加し、名前、国旗、アバター、トリップ統計が公開されます。新しいプロフィールは作成されません。</string>
     <string name="online_restore_body_switch">別の保存済みプロフィールが見つかりました: %1$s。続けるとこのスマホをそのライダーに切り替えます。現在のプロフィールは先にバックアップされます。</string>
     <string name="online_restore_confirm">%1$s として続ける</string>
     <string name="online_rejoin_title">プロフィールを再有効化</string>
@@ -1741,7 +1743,7 @@
     <!-- Navigation overlay -->
     <string name="nav_start_riding">出発してください</string>
     <string name="nav_arrived">到着しました</string>
-    <string name="nav_arrived_goal">目標地点 %1$d に到着しました</string>
+    <string name="nav_arrived_goal">経由地 %1$d に到着しました</string>
     <string name="nav_end_title">ナビを終了しますか？</string>
     <!-- ==== Live location share (navigator) ==== -->
     <string name="share_button">共有オプション</string>
@@ -1947,7 +1949,6 @@
     <!-- ==== Trip share / actions ==== -->
     <string name="trip_action_share_file">ファイルを共有</string>
     <string name="trip_action_share_file_desc">トリップ CSV を別のアプリに送信します。</string>
-    <string name="trip_action_view_online">オンラインで表示</string>
     <string name="trip_action_replay">スタジオでリプレイ</string>
     <string name="trip_action_replay_desc">ライブデータのオーバーレイを重ねて、トリップを再生します。</string>
     <!-- ==== Dashboard quick menus ==== -->
@@ -2246,8 +2247,8 @@
     <string name="adv_nav_hunt_voice_interval_desc">GPS を検索中であることを音声で知らせる間隔を設定します。注意: 短すぎると頻繁に繰り返します。</string>
     <string name="adv_nav_inter_stop">経由地間の移動ゲート</string>
     <string name="adv_nav_inter_stop_desc">次の経由地への到着を判定する前に、直前の経由地からどれだけ離れる必要があるかを設定します。注意: 短すぎると経由地を飛ばすことがあります。</string>
-    <string name="adv_nav_intermediate_flash">経由地フラッシュ時間</string>
-    <string name="adv_nav_intermediate_flash_desc">経由地に到着したときのフラッシュ表示の時間を設定します。</string>
+    <string name="adv_nav_intermediate_flash">経由地到着の表示時間</string>
+    <string name="adv_nav_intermediate_flash_desc">経由地到着メッセージの表示時間を設定します。</string>
     <string name="adv_nav_max_start">最大開始距離</string>
     <string name="adv_nav_max_start_desc">ナビを開始できる最初の経由地までの最大距離です。これを超えると、現在地からの線が非表示になり、開始がブロックされます。ルート作成はそのまま行えます。</string>
     <string name="adv_nav_moving">移動速度</string>
@@ -2383,7 +2384,7 @@
     <string name="compact_mode_always">常に</string>
     <string name="compact_mode_auto">小さい画面</string>
     <string name="compact_mode_never">しない</string>
-    <string name="setting_cover_cutout">フロントカメラを避ける</string>
+    <string name="setting_cover_cutout">カバー画面のカメラを避ける</string>
     <string name="cover_cutout_off">オフ</string>
     <string name="cover_cutout_left">左下</string>
     <string name="cover_cutout_right">右下</string>
@@ -2403,7 +2404,7 @@
     <string name="adv_compact_max_screen">コンパクト画面の上限</string>
     <string name="adv_compact_max_screen_desc">両辺がこの値未満の画面は、コンパクトダッシュボードが「小さい画面」のときにコンパクト表示に切り替わります。</string>
     <string name="adv_cover_cutout_inset">カメラの切り欠きサイズ</string>
-    <string name="adv_cover_cutout_inset_desc">「フロントカメラを避ける」がオンのとき、レンズ用に空けておく領域です。小さすぎるとレンズがボタンに重なります。</string>
+    <string name="adv_cover_cutout_inset_desc">「カバー画面のカメラを避ける」がオンのとき、カバー画面のレンズ用に空けておく領域です。小さすぎるとレンズがボタンに重なります。</string>
     <string name="adv_nav_sidebar_min">サイドバー表示の最小画面</string>
     <string name="adv_nav_sidebar_min_desc">これより幅の狭い画面では、横向きでも経由地パネルを下部に表示します。小さすぎると、小さな画面でマップが隠れてしまいます。</string>
     <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
@@ -2604,10 +2605,10 @@
     <string name="studio_video_edge_loop">ループ</string>
     <string name="studio_video_edge_black">黒</string>
     <string name="wheel_no_data_reset">まだホイールからのデータがありません。電源を入れ直してください。</string>
-    <string name="trip_map_ride_start">走行開始: %1$s</string>
+    <string name="trip_map_ride_start">トリップ開始: %1$s</string>
     <string name="trip_map_reconnected">再接続: %1$s</string>
     <string name="trip_map_new_wheel">新しいホイール: %1$s</string>
-    <string name="trip_map_ride_end">走行終了</string>
+    <string name="trip_map_ride_end">トリップ終了</string>
     <string name="adv_smoothing_window">平滑化ウィンドウ</string>
     <string name="adv_smoothing_window_desc">「平均」のトリップグラフと平滑化した音声報告で平均するサンプル数です。トリップは約 1 秒ごとに記録されるため、秒数とみなせます。注意: 値が大きいと短いスパイクが見えなくなります。</string>
     <string name="hud_discovery_auto">自動</string>
@@ -2625,7 +2626,9 @@
     <string name="recording_delete_archive">バックアップのコピーをアーカイブ</string>
     <string name="recording_delete_archive_desc">アーカイブフォルダに移動します。</string>
     <string name="trip_tools_extend_all_inside">前後のトリップは、すでにこのトリップに含まれています。</string>
-    <string name="trip_tools_extend_skipped">すでにこのトリップに含まれている %1$d 件をスキップします。</string>
+    <plurals name="trip_tools_extend_skipped">
+        <item quantity="other">すでにこのトリップに含まれている %1$d 件のトリップをスキップします。</item>
+    </plurals>
     <string name="recording_clear_all_body_archive">このスマホからトリップを削除します。バックアップのコピーはアーカイブフォルダに移動します。</string>
     <string name="recording_delete_trip_body_archive">このトリップをスマホから削除しますか？バックアップのコピーはアーカイブフォルダに移動します。</string>
     <string name="backup_status_pending">バックアップ中…</string>
@@ -2668,7 +2671,7 @@
     <string name="lockdown_limit_12">メトリクスをタップしても何も起きません。</string>
     <string name="lockdown_limit_13">音声アナウンス、定期報告、速度スプリットは無音になります。アラームは引き続き動作します。</string>
     <string name="lockdown_limit_14">ホイールのロックと解除はできず、近接による自動ロックも動作しません。</string>
-    <string name="lockdown_limit_15">自動ライトと自動音量は引き続き動作します。メディア操作は停止します。</string>
+    <string name="lockdown_limit_15">自動ライトと自動音量は引き続き動作します。再生コントロールは停止します。</string>
     <string name="lockdown_limit_16">通知からボタンがなくなります。</string>
     <string name="lockdown_limit_17">バージョン番号をタップしても「アプリについて」は開きません。</string>
     <string name="lockdown_limit_18">このモードは設定のバックアップに含まれません。</string>

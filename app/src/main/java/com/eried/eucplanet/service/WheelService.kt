@@ -753,12 +753,7 @@ class WheelService : LifecycleService() {
                 // Gate notify() BEFORE removing the notification, so a telemetry /
                 // nav emission racing this teardown can't re-post it afterwards.
                 shuttingDown = true
-                @Suppress("DEPRECATION")
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    stopForeground(STOP_FOREGROUND_REMOVE)
-                } else {
-                    stopForeground(true)
-                }
+                stopForeground(STOP_FOREGROUND_REMOVE)
                 // Belt-and-braces: explicitly cancel by id in case an update
                 // slipped in just before shuttingDown latched.
                 getSystemService(NotificationManager::class.java)

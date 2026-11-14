@@ -451,7 +451,7 @@
     <string name="hud_hotspot_unknown_hint">Varmista, että HUD ja puhelin ovat samassa Wi-Fi-verkossa. Jos käytät puhelimen yhteyspistettä, kytke se ensin päälle.</string>
     <string name="hud_hotspot_on_hint">Puhelimen yhteyspiste lähettää. Yhdistä HUD tämän puhelimen Wi-Fiin, niin yhteys muodostuu.</string>
     <string name="hud_overlay_subsection">Mukautettu päällyste</string>
-    <string name="hud_overlay_subsection_desc">Tuo Overlay Studion esiasetus HUDin Mukautettu-näytölle ilman taustoja. Esiasetus kopioidaan tänne, joten myöhemmät muutokset studiossa eivät muuta HUDia ennen kuin tuot sen uudelleen.</string>
+    <string name="hud_overlay_subsection_desc">Tuo Overlay Studion esiasetus HUDin Mukautettu päällyste -näytöille ilman taustoja. Esiasetus kopioidaan tänne, joten myöhemmät muutokset studiossa eivät muuta HUDia ennen kuin tuot sen uudelleen.</string>
     <string name="hud_overlay_select_preset">Tuo esiasetus</string>
     <string name="hud_overlay_current_preset">Nykyinen: %1$s</string>
     <string name="hud_custom_overlay_none">Tyhjennä</string>
@@ -566,8 +566,8 @@
     <string name="adv_nav_heading_window_desc">Määrittää, kuinka monen sekunnin liike määrittää kulkusuuntasi. Varoitus: liian pieni tekee suunnasta hyppelevän.</string>
     <string name="adv_nav_fix_buffer">GPS-historian ikkuna</string>
     <string name="adv_nav_fix_buffer_desc">Määrittää, kuinka monen sekunnin GPS-paikannukset säilytetään suuntaa ja reittiin kiinnittämistä varten. Varoitus: liian pieni voi kadottaa suunnan.</string>
-    <string name="adv_nav_intermediate_flash">Reittipisteen välähdyksen kesto</string>
-    <string name="adv_nav_intermediate_flash_desc">Määrittää, kuinka kauan reittipisteen saavuttamisen välähdys näkyy.</string>
+    <string name="adv_nav_intermediate_flash">Pysähdysviestin kesto</string>
+    <string name="adv_nav_intermediate_flash_desc">Määrittää, kuinka kauan pysähdyksen saavuttamisen viesti näkyy.</string>
     <string name="adv_nav_popup_timeout">Käännöskortin aikakatkaisu</string>
     <string name="adv_nav_popup_timeout_desc">Määrittää, kuinka kauan iso käännöskortti pysyy ennen kuin se kutistuu kulmaan.</string>
     <string name="adv_group_alarm">Ennakoivat hälytykset</string>
@@ -664,7 +664,7 @@
     <string name="adv_compact_max_screen">Kompaktin näytön raja</string>
     <string name="adv_compact_max_screen_desc">Näytöt, joiden molemmat sivut alittavat tämän, vaihtavat kompaktiin mittaristoon, kun Kompakti mittaristo on asetettu Pienille näytöille.</string>
     <string name="adv_cover_cutout_inset">Kameran aukon koko</string>
-    <string name="adv_cover_cutout_inset_desc">Kuoren linsseille vapaaksi jätettävä tila, kun Vältä kuoren kameroita on käytössä. Liian pieni ja linssit peittävät painikkeet.</string>
+    <string name="adv_cover_cutout_inset_desc">Kansinäytön linsseille vapaaksi jätettävä tila, kun Vältä kansinäytön kameroita on käytössä. Liian pieni ja linssit peittävät painikkeet.</string>
     <string name="adv_simple_speedo_scale">Yksinkertaisen mittarin koko</string>
     <string name="adv_simple_speedo_scale_desc">Pelkän nopeusluvun koko suhteessa mittarialueeseen. Liian suuri voi leikata yksikkötekstin.</string>
     <string name="adv_nav_sidebar_width">Pysähdyspaneelin leveys</string>
@@ -830,7 +830,7 @@
     <string name="compact_mode_auto">Pienet näytöt</string>
     <string name="compact_mode_always">Aina</string>
     <string name="compact_mode_never">Ei koskaan</string>
-    <string name="setting_cover_cutout">Vältä kuoren kameroita</string>
+    <string name="setting_cover_cutout">Vältä kansinäytön kameroita</string>
     <string name="cover_cutout_off">Pois</string>
     <string name="cover_cutout_left">Alavasen</string>
     <string name="cover_cutout_right">Alaoikea</string>
@@ -1024,7 +1024,7 @@
     <string name="voice_output_channel_notification">Ilmoitus</string>
     <string name="voice_output_channel_alarm">Herätys</string>
     <string name="section_engine_sound">Moottorin ääni</string>
-    <string name="engine_sound_enabled">Moottorin ääni</string>
+    <string name="engine_sound_enabled">Toista moottorin ääntä</string>
     <string name="engine_sound_enabled_hint">Ohjaa moottorin kierroksia reaaliajassa yksipyöräisen nopeuden ja kuormituksen mukaan.</string>
     <string name="engine_type_label">Moottori</string>
     <string name="engine_source_sampled">Nauhoitettu</string>
@@ -1174,7 +1174,10 @@
     <string name="radar_unpair">Unohda laite</string>
     <string name="radar_battery_fmt">Akku %1$d %%</string>
     <string name="radar_clear">Kaista on vapaa</string>
-    <string name="radar_threats_count">Seurattavat ajoneuvot (%1$d):</string>
+    <plurals name="radar_threats_count">
+        <item quantity="one">Seurannassa %1$d ajoneuvo:</item>
+        <item quantity="other">Seurannassa %1$d ajoneuvoa:</item>
+    </plurals>
     <string name="radar_show_overlay">Näytä uhkapäällyste</string>
     <string name="radar_show_overlay_desc">Ohut tutkakaista mittariston reunoilla. Yksi värillinen piste kutakin havaittua ajoneuvoa kohti. Näkyy vain mittaristossa.</string>
     <string name="radar_overlay_left">Vasen reuna</string>
@@ -1299,7 +1302,7 @@
     <string name="recording_delete_trip_title">Poista matka</string>
     <string name="recording_delete_trip_body">Poistetaanko tämä matka ja sen datatiedosto?</string>
     <string name="recording_clear_all_menu">Tyhjennä kaikki</string>
-    <string name="recording_empty">Ei näytettävää dataa. Tuo tai tallenna uusi</string>
+    <string name="recording_empty">Ei näytettävää dataa. Tuo tai tallenna uusi matka</string>
     <string name="recording_will_auto_stop">Tallennus pysähtyy automaattisesti %1$d s joutokäynnin jälkeen</string>
     <string name="recording_stat_trips">Matkat</string>
     <string name="recording_stat_distance">Matka</string>
@@ -1403,11 +1406,11 @@
     <string name="trip_section_failed">Osuutta ei voitu tallentaa</string>
     <string name="trip_tools_title">Matkatyökalut</string>
     <string name="trip_tools_change_wheel">Vaihda yksipyöräinen</string>
-    <string name="trip_tools_change_wheel_desc">Korjaa, millä yksipyöräisellä tämä ajo tehtiin. Päivittää matkan ja sen tiedoston.</string>
+    <string name="trip_tools_change_wheel_desc">Korjaa, millä yksipyöräisellä tämä matka ajettiin. Päivittää matkan ja sen tiedoston.</string>
     <string name="trip_tools_wheel_other">Toinen yksipyöräinen</string>
     <string name="trip_tools_wheel_current">Nykyinen</string>
     <string name="trip_tools_extend">Laajenna matkaa</string>
-    <string name="trip_tools_extend_desc">Sulauttaa tätä edeltävät tai seuraavat ajot uudeksi, pidemmäksi matkaksi.</string>
+    <string name="trip_tools_extend_desc">Sulauttaa tätä edeltävät tai seuraavat matkat uudeksi, pidemmäksi matkaksi.</string>
     <string name="trip_tools_extend_hint">Ulotu taakse ja eteen niin pitkälle kuin haluat. Kaikki väliin jäävä tulee mukaan.</string>
     <string name="trip_tools_extend_from">Alkaen</string>
     <string name="trip_tools_extend_to">Päättyen</string>
@@ -1416,7 +1419,7 @@
     <string name="trip_tools_combine_summary">Yhdistää %1$d matkaa yhdeksi uudeksi matkaksi.</string>
     <string name="trip_tools_wheel_changed">Yksipyöräiseksi asetettu %1$s</string>
     <string name="trip_tools_split">Jaa matka</string>
-    <string name="trip_tools_split_desc">Etsii yksipyöräisen vaihdot, pitkät tauot ja tallennuskatkot ja katkaisee ajon niistä.</string>
+    <string name="trip_tools_split_desc">Etsii yksipyöräisen vaihdot, pitkät tauot ja tallennuskatkot ja katkaisee matkan niistä.</string>
     <string name="trip_tools_split_none">Ei jaettavaa. Yksipyöräisen vaihtoja, pitkiä taukoja tai tallennuskatkoja ei löytynyt.</string>
     <string name="trip_split_lasted">kesti %1$s</string>
     <string name="trip_tools_split_pick">Valitse ainakin yksi katkaisukohta.</string>
@@ -1597,10 +1600,10 @@
     <string name="service_mode_enter">Siirry</string>
     <string name="toast_external_speed_change">Nopeus päivitetty yksipyöräisestä: %1$d km/h tiltback, %2$d km/h hälytys</string>
     <string name="wheel_no_data_reset">Yhä ei dataa yksipyöräiseltä. Kokeile sammuttaa ja käynnistää se.</string>
-    <string name="trip_map_ride_start">Ajon alku: %1$s</string>
+    <string name="trip_map_ride_start">Matkan alku: %1$s</string>
     <string name="trip_map_reconnected">Yhdistetty uudelleen: %1$s</string>
     <string name="trip_map_new_wheel">Uusi yksipyöräinen: %1$s</string>
-    <string name="trip_map_ride_end">Ajon loppu</string>
+    <string name="trip_map_ride_end">Matkan loppu</string>
     <string name="online_upload_consent_title">Liity EUC Stats -tulostauluun</string>
     <string name="online_upload_consent_intro">Lue ennen liittymistä, mistä tulee julkista:</string>
     <string name="online_upload_consent_bullet_name">Näyttönimesi</string>
@@ -1640,13 +1643,13 @@
     <string name="online_status_pending">Lähetetään tulostauluun…</string>
     <string name="online_status_failed">Verkkolähetys epäonnistui, yritä uudelleen napauttamalla</string>
     <string name="online_status_rejected">Ei hyväksytty tulostauluun</string>
-    <string name="online_upload_join_caption">Liity lähettääksesi tilastosi ja matkasi julkiseen tulostauluun osoitteessa.</string>
-    <string name="online_upload_linked_caption">Tilastosi ja matkasi näkyvät julkisessa tulostaulussa osoitteessa.</string>
+    <string name="online_upload_join_caption">Liity lähettääksesi tilastosi ja matkasi julkiseen tulostauluun osoitteessa %1$s.</string>
+    <string name="online_upload_linked_caption">Tilastosi ja matkasi näkyvät julkisessa tulostaulussa osoitteessa %1$s.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Poista linkitys</string>
     <string name="online_unlink_title">Poistetaanko linkitys tulostauluun?</string>
-    <string name="online_unlink_body">Tämä puhelin lakkaa lähettämästä ajoja. Ajajatunnuksesi säilyy tallennettuna, joten voit liittyä uudelleen samana ajajana. Tilastosi säilyvät EUC Statsissa; poista ne kohdasta Poista tili.</string>
+    <string name="online_unlink_body">Tämä puhelin lakkaa lähettämästä matkoja. Ajajatunnuksesi säilyy tallennettuna, joten voit liittyä uudelleen samana ajajana. Tilastosi säilyvät EUC Statsissa; poista ne kohdasta Poista tili.</string>
     <string name="online_unlink_confirm">Poista linkitys</string>
     <string name="online_profile_manage">Hallitse profiilia</string>
     <string name="online_profile_title">Oma profiili</string>
@@ -1659,7 +1662,7 @@
     <string name="online_profile_save_rate_limited">Liian monta pyyntöä, yritä myöhemmin uudelleen.</string>
     <string name="online_profile_save_failed">Tallennus epäonnistui (HTTP %1$d). Yritä uudelleen.</string>
     <string name="online_restore_title">Tallennettu profiili löytyi</string>
-    <string name="online_restore_body_new">Löysimme täältä tallennetun profiilin: %1$s. Jatkaminen liittää sinut uudelleen julkiseen tulostauluun tuona ajajana, jonka nimi, lippu, profiilikuva ja ajotilastot ovat julkisia. Se ei luo uutta profiilia.</string>
+    <string name="online_restore_body_new">Löysimme täältä tallennetun profiilin: %1$s. Jatkaminen liittää sinut uudelleen julkiseen tulostauluun tuona ajajana, jonka nimi, lippu, profiilikuva ja matkatilastot ovat julkisia. Se ei luo uutta profiilia.</string>
     <string name="online_restore_body_switch">Löysimme toisen tallennetun profiilin: %1$s. Jatkaminen vaihtaa tämän puhelimen tuolle ajajalle; nykyinen profiilisi varmuuskopioidaan ensin.</string>
     <string name="online_restore_confirm">Jatka ajajana %1$s</string>
     <string name="online_rejoin_title">Aktivoi profiili uudelleen</string>
@@ -2006,7 +2009,7 @@
     <string name="trip_action_share_dropbox">Jaa Dropboxin kautta</string>
     <string name="trip_action_share_dropbox_desc">Lähetä Dropbox-kansioosi ja jaa julkinen linkki.</string>
     <string name="trip_action_inspect_online">Tarkastele verkossa</string>
-    <string name="trip_action_inspect_online_desc">Jaa eucviewer.ried.no-linkki tämän ajon katseluun verkossa.</string>
+    <string name="trip_action_inspect_online_desc">Jaa eucviewer.ried.no-linkki tämän matkan katseluun verkossa.</string>
     <string name="trip_action_dropbox_disabled">Linkitä Dropbox asetuksissa ottaaksesi tämän käyttöön</string>
     <string name="nav_start_short">Aloita navigointi</string>
     <string name="nav_start_btn">Aloita</string>
@@ -2305,9 +2308,8 @@
     <string name="watch_show_navigation_desc">Peilaa käännösnuolen ja etäisyyden kelloon navigoinnin aikana.</string>
     <string name="trip_action_share_file">Jaa tiedosto</string>
     <string name="trip_action_share_file_desc">Lähetä matkan CSV toiseen sovellukseen.</string>
-    <string name="trip_action_view_online">Näytä verkossa</string>
     <string name="trip_action_replay">Toista Studiossa</string>
-    <string name="trip_action_replay_desc">Selaa ajoa reaaliaikaisilla datapäällysteillä.</string>
+    <string name="trip_action_replay_desc">Selaa matkaa reaaliaikaisilla datapäällysteillä.</string>
     <string name="dash_view_video_gallery">Näytä videogalleria</string>
     <string name="dash_view_photo_gallery">Näytä kuvagalleria</string>
     <string name="dash_no_gallery_app">Galleriasovellusta ei löytynyt</string>
@@ -2358,7 +2360,7 @@
     <string name="warnings_hud_blocked_title">Puhelimen HUD ei voi piirtää</string>
     <string name="warnings_hud_blocked_body">Lupa piirtää muiden sovellusten päälle poistettiin, joten päällyste ei näy karttojen tai musiikin päällä.</string>
     <string name="warnings_no_backup_title">Matkoja ei varmuuskopioida</string>
-    <string name="warnings_no_backup_body">Ne ovat vain tässä puhelimessa. Valitse varmuuskopiokansio, jotta kadonnut tai tyhjennetty puhelin ei vie ajojasi mukanaan.</string>
+    <string name="warnings_no_backup_body">Ne ovat vain tässä puhelimessa. Valitse varmuuskopiokansio, jotta kadonnut tai tyhjennetty puhelin ei vie matkojasi mukanaan.</string>
     <string name="warnings_pip_blocked_title">Kuva kuvassa on estetty</string>
     <string name="warnings_pip_blocked_body">Android on asetettu estämään se EUC Planetilta, joten kelluva ikkuna ei ilmesty kun poistut sovelluksesta.</string>
     <string name="online_rejoin_confirm">Liity uudelleen</string>
@@ -2428,7 +2430,10 @@
     <string name="recording_delete_archive">Arkistoi varmuuskopiot</string>
     <string name="recording_delete_archive_desc">Siirtää ne arkistokansioon.</string>
     <string name="trip_tools_extend_all_inside">Tämän ympärillä olevat matkat ovat jo osa sitä.</string>
-    <string name="trip_tools_extend_skipped">Ohitetut matkat, jotka ovat jo tämän sisällä: %1$d.</string>
+    <plurals name="trip_tools_extend_skipped">
+        <item quantity="one">Ohittaa %1$d matkan, joka on jo tämän sisällä.</item>
+        <item quantity="other">Ohittaa %1$d matkaa, jotka ovat jo tämän sisällä.</item>
+    </plurals>
     <string name="recording_clear_all_body_archive">Tämä poistaa matkat tästä puhelimesta. Varmuuskopiot siirtyvät arkistokansioon.</string>
     <string name="recording_delete_trip_body_archive">Poistetaanko tämä matka puhelimesta? Varmuuskopio siirtyy arkistokansioon.</string>
     <string name="backup_status_pending">Varmuuskopioidaan…</string>
@@ -2471,7 +2476,7 @@
     <string name="lockdown_limit_12">Mittarin napauttaminen ei tee mitään.</string>
     <string name="lockdown_limit_13">Kuulutukset, säännölliset raportit ja nopeusväliajat ovat hiljaa. Hälytyksesi toimivat edelleen.</string>
     <string name="lockdown_limit_14">Yksipyöräistä ei voi lukita eikä avata, eikä läheisyyslukitus toimi.</string>
-    <string name="lockdown_limit_15">Automaattivalot ja automaattinen äänenvoimakkuus toimivat edelleen. Median ohjaus pysähtyy.</string>
+    <string name="lockdown_limit_15">Automaattivalot ja automaattinen äänenvoimakkuus toimivat edelleen. Toiston ohjaus pysähtyy.</string>
     <string name="lockdown_limit_16">Ilmoitus menettää painikkeensa.</string>
     <string name="lockdown_limit_17">Versionumero ei enää avaa Tietoja-näkymää.</string>
     <string name="lockdown_limit_18">Tämä tila ei sisälly asetusten varmuuskopioihin.</string>
@@ -2574,13 +2579,13 @@
     <string name="crews_type_instead">Syötä käsin</string>
     <string name="crews_code_label">Passin koodi</string>
     <string name="crews_foreign_title">Tuo koodi ei ole eucstatsista</string>
-    <string name="crews_foreign_body">Se osoittaa osoitteeseen %1$s, eivätkä ajosi mene sinne. Jos sanot kyllä, annat tilisi sen pyörittäjälle.\n\nPyöritätkö omaa palvelinta? Laita ensin kehittäjätila päälle Asetuksista.</string>
+    <string name="crews_foreign_body">Se osoittaa osoitteeseen %1$s, eivätkä matkasi mene sinne. Jos sanot kyllä, annat tilisi sen pyörittäjälle.\n\nPyöritätkö omaa palvelinta? Laita ensin kehittäjätila päälle Asetuksista.</string>
     <string name="crews_scan_switch">Skannaa sen sijaan</string>
     <string name="crews_close">Sulje</string>
     <string name="crews_opensettings">Avaa asetukset</string>
     <string name="crews_dev_title">Kehittäjätila</string>
     <string name="crews_dev_body">Puhuu osoitteeseen %1$s tavallisen palvelimen sijaan.</string>
-    <string name="crews_grant">Anna selaimen ajaa sinun väreissäsi.\n\nSe voi perustaa crewin, liittyä yhteen, lähteä yhdestä ja hoitaa jäseniä. Se ei voi lähettää ajoja, vaihtaa nimeäsi tai poistaa mitään, ne pysyvät puhelimessa.</string>
+    <string name="crews_grant">Anna selaimen ajaa sinun väreissäsi.\n\nSe voi perustaa crewin, liittyä yhteen, lähteä yhdestä ja hoitaa jäseniä. Se ei voi lähettää matkoja, vaihtaa nimeäsi tai poistaa mitään, ne pysyvät puhelimessa.</string>
     <string name="crews_noprofile_title">Liity ensin tulostauluun</string>
     <string name="crews_noprofile_body">Crewit kuuluvat tulostauluprofiiliisi, eikä tällä puhelimella ole sellaista. Liity kohdassa %1$s ja skannaa uudestaan.</string>
     <string name="crews_issue">Myönnä passi</string>

@@ -700,7 +700,7 @@
 
     <!-- Engine sound generator -->
     <string name="section_engine_sound">Suono del motore</string>
-    <string name="engine_sound_enabled">Suono del motore</string>
+    <string name="engine_sound_enabled">Riproduci suoni del motore</string>
     <string name="engine_sound_enabled_hint">Genera i giri motore in tempo reale da velocità e carico.</string>
     <string name="engine_type_label">Motore</string>
     <string name="engine_source_sampled">Campione</string>
@@ -1259,7 +1259,6 @@
     <string name="dash_no_gallery_app">Nessuna app galleria trovata</string>
     <string name="trip_action_share_file">Condividi file</string>
     <string name="trip_action_share_file_desc">Invia il CSV del viaggio a un\'altra app.</string>
-    <string name="trip_action_view_online">Vedi online</string>
     <string name="trip_action_replay">Riproduci nello Studio</string>
     <string name="trip_action_replay_desc">Scorri il viaggio con gli overlay dei dati dal vivo.</string>
     <string name="studio_element_g_force">Forza G</string>
@@ -1491,7 +1490,7 @@
     <string name="dashboard_close">Chiudi</string>
     <string name="dashboard_composite_blank_label">(vuota)</string>
     <string name="dashboard_composite_cell_label">Cella %1$d</string>
-    <string name="dashboard_composite_empty_label">(libera)</string>
+    <string name="dashboard_composite_empty_label">(nessuna)</string>
     <string name="dashboard_composite_layout_col2">2 colonne</string>
     <string name="dashboard_composite_layout_col3">3 colonne</string>
     <string name="dashboard_composite_layout_row2">2 righe</string>
@@ -1538,7 +1537,7 @@
     <string name="dashboard_stat_median">Mediana (P50)</string>
     <string name="dashboard_stat_median_short">P50</string>
     <string name="dashboard_stat_min">Min</string>
-    <string name="dashboard_stat_none">(libera)</string>
+    <string name="dashboard_stat_none">(nessuna)</string>
     <string name="dashboard_stat_p75">75° percentile</string>
     <string name="dashboard_stat_p75_short">P75</string>
     <string name="dashboard_stat_p95">95° percentile</string>
@@ -1713,7 +1712,7 @@
     <string name="metric_chip_descent_tile">Discesa</string>
     <string name="metric_chip_gps_speed_tile">Vel GPS</string>
     <string name="metric_chip_gps_altitude_tile">Alt</string>
-    <string name="metric_chip_gps_heading_tile">Rotta</string>
+    <string name="metric_chip_gps_heading_tile">Direzione</string>
     <string name="metric_chip_trip_time_tile">Tempo</string>
     <string name="metric_chip_g_force_tile">G</string>
     <string name="metric_chip_forward_g_tile">G av</string>
@@ -1753,7 +1752,11 @@
     <string name="radar_unpair">Dimentica dispositivo</string>
     <string name="radar_battery_fmt">Batteria %1$d%%</string>
     <string name="radar_clear">Corsia libera</string>
-    <string name="radar_threats_count">Veicoli tracciati (%1$d):</string>
+    <plurals name="radar_threats_count">
+        <item quantity="one">%1$d veicolo tracciato:</item>
+        <item quantity="many">%1$d veicoli tracciati:</item>
+        <item quantity="other">%1$d veicoli tracciati:</item>
+    </plurals>
     <string name="radar_show_overlay">Mostra overlay minacce</string>
     <string name="radar_show_overlay_desc">Sottile barra radar sui bordi della dashboard. Un punto colorato per ogni veicolo rilevato. Visibile solo sulla dashboard.</string>
     <string name="radar_overlay_left">Bordo sinistro</string>
@@ -1781,7 +1784,7 @@
 
     <!-- HUD Overlay / Personalize / Map / Versions (added) -->
     <string name="hud_overlay_subsection">Overlay personalizzato</string>
-    <string name="hud_overlay_subsection_desc">Importa un preset di Overlay Studio sulla schermata Custom dell\'HUD, senza sfondi. Il preset viene copiato qui, quindi le modifiche successive nello studio non cambieranno l\'HUD finché non reimporti.</string>
+    <string name="hud_overlay_subsection_desc">Importa un preset di Overlay Studio sulle schermate Overlay personalizzato dell\'HUD, senza sfondi. Il preset viene copiato qui, quindi le modifiche successive nello studio non cambieranno l\'HUD finché non reimporti.</string>
     <string name="hud_overlay_select_preset">Importa preset</string>
     <string name="hud_overlay_current_preset">Attuale: %1$s</string>
     <string name="hud_search_corpus">HUD heads-up display compagno server stream telemetria hotspot motoeye freccia di svolta</string>
@@ -1861,7 +1864,7 @@
     <string name="online_status_pending">Caricamento in classifica…</string>
     <string name="online_status_failed">Caricamento non riuscito, tocca per riprovare</string>
     <string name="online_status_rejected">Non accettato per la classifica</string>
-    <string name="online_upload_join_caption">Iscriviti per inviare statistiche e viaggi alla classifica pubblica su.</string>
+    <string name="online_upload_join_caption">Iscriviti per inviare statistiche e viaggi alla classifica pubblica su %1$s.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Scollega</string>
@@ -1886,7 +1889,7 @@
     <string name="online_restore_body_switch">Questa cartella appartiene a %1$s. Il ripristino passa questo telefono a quel rider. Il tuo profilo attuale viene salvato come backup prima, così puoi tornare indietro.</string>
     <string name="online_restore_confirm">Continua come %1$s</string>
     <string name="online_upload_card_missing">Il profilo di classifica di questo telefono non esiste più sul server, quindi i nuovi caricamenti verranno rifiutati. Se non te lo aspettavi, contatta l\'amministratore della classifica.</string>
-    <string name="online_upload_linked_caption">Le tue statistiche e i tuoi viaggi appaiono nella classifica pubblica su.</string>
+    <string name="online_upload_linked_caption">Le tue statistiche e i tuoi viaggi appaiono nella classifica pubblica su %1$s.</string>
     <string name="online_rejoin_title">Riattiva profilo</string>
     <string name="online_rejoin_body">La cartella di backup contiene un profilo che era usato per la classifica.\n\nID rider: %1$s</string>
     <string name="warnings_battery_opt_title">L\'ottimizzazione della batteria è attiva</string>
@@ -2151,8 +2154,8 @@
     <string name="adv_nav_hunt_voice_interval_desc">Ogni quanto la voce dice che sta cercando il GPS. Attenzione: se troppo basso, lo ripete spesso.</string>
     <string name="adv_nav_inter_stop">Soglia di spostamento tra tappe</string>
     <string name="adv_nav_inter_stop_desc">Quanto devi allontanarti da una tappa prima che la successiva possa contare come raggiunta. Attenzione: se troppo bassa, può saltare una tappa.</string>
-    <string name="adv_nav_intermediate_flash">Durata lampeggio tappa</string>
-    <string name="adv_nav_intermediate_flash_desc">Per quanto resta visibile il lampeggio di tappa raggiunta.</string>
+    <string name="adv_nav_intermediate_flash">Durata tappa raggiunta</string>
+    <string name="adv_nav_intermediate_flash_desc">Per quanto resta visibile il messaggio di tappa raggiunta.</string>
     <string name="adv_nav_max_start">Distanza max di avvio</string>
     <string name="adv_nav_max_start_desc">Quanto può essere lontana la prima tappa per avviare la navigazione. Oltre questo limite, la linea dalla tua posizione viene nascosta e l\'avvio è bloccato. La pianificazione continua a funzionare.</string>
     <string name="adv_nav_moving">Velocità di movimento</string>
@@ -2288,7 +2291,7 @@
     <string name="compact_mode_always">Sempre</string>
     <string name="compact_mode_auto">Schermi piccoli</string>
     <string name="compact_mode_never">Mai</string>
-    <string name="setting_cover_cutout">Evita fotocamere frontali</string>
+    <string name="setting_cover_cutout">Evita fotocamere schermo esterno</string>
     <string name="cover_cutout_off">No</string>
     <string name="cover_cutout_left">In basso a sinistra</string>
     <string name="cover_cutout_right">In basso a destra</string>
@@ -2308,7 +2311,7 @@
     <string name="adv_compact_max_screen">Limite schermo compatto</string>
     <string name="adv_compact_max_screen_desc">Gli schermi con entrambi i lati sotto questo valore passano alla dashboard compatta quando Dashboard compatta è impostata su Schermi piccoli.</string>
     <string name="adv_cover_cutout_inset">Dimensione ritaglio fotocamera</string>
-    <string name="adv_cover_cutout_inset_desc">Spazio lasciato libero per gli obiettivi frontali quando Evita fotocamere frontali è attivo. Troppo piccolo e gli obiettivi coprono i pulsanti.</string>
+    <string name="adv_cover_cutout_inset_desc">Spazio lasciato libero per gli obiettivi dello schermo esterno quando Evita fotocamere schermo esterno è attivo. Troppo piccolo e gli obiettivi coprono i pulsanti.</string>
     <string name="adv_nav_sidebar_min">Schermo minimo per barra laterale</string>
     <string name="adv_nav_sidebar_min_desc">Gli schermi più stretti tengono il pannello tappe in basso anche in orizzontale. Se troppo basso, la mappa resta coperta sugli schermi piccoli.</string>
     <string name="adv_inmotion_v1_pin">PIN InMotion V5/V8/V10</string>
@@ -2388,7 +2391,7 @@
     <string name="trip_tools_change_wheel_desc">Corregge su quale ruota era il viaggio. Aggiorna viaggio e file.</string>
     <string name="trip_tools_wheel_other">Un\'altra ruota</string>
     <string name="trip_tools_split">Dividi viaggio</string>
-    <string name="trip_tools_split_desc">Trova cambi di ruota, lunghe pause e buchi di registrazione, e divide il giro in quei punti.</string>
+    <string name="trip_tools_split_desc">Trova cambi di ruota, lunghe pause e buchi di registrazione, e divide il viaggio in quei punti.</string>
     <string name="trip_tools_split_none">Niente da dividere. Nessun cambio ruota, lunga pausa o buco trovato.</string>
     <string name="trip_split_reason_wheel">Subentrata un\'altra ruota</string>
     <string name="trip_split_reason_gap">Buco nella registrazione</string>
@@ -2507,10 +2510,10 @@
     <string name="studio_video_edge_loop">Ciclo</string>
     <string name="studio_video_edge_black">Nero</string>
     <string name="wheel_no_data_reset">Ancora nessun dato dalla ruota. Prova a spegnerla e riaccenderla.</string>
-    <string name="trip_map_ride_start">Inizio del giro: %1$s</string>
+    <string name="trip_map_ride_start">Inizio del viaggio: %1$s</string>
     <string name="trip_map_reconnected">Riconnesso: %1$s</string>
     <string name="trip_map_new_wheel">Nuova ruota: %1$s</string>
-    <string name="trip_map_ride_end">Fine del giro</string>
+    <string name="trip_map_ride_end">Fine del viaggio</string>
     <string name="adv_smoothing_window">Finestra di livellamento</string>
     <string name="adv_smoothing_window_desc">Campioni mediati dai grafici «media» dei viaggi e dagli annunci vocali livellati. I viaggi registrano circa una riga al secondo, quindi il valore equivale a secondi. Attenzione: valori alti nascondono i picchi brevi.</string>
     <string name="hud_discovery_auto">Auto</string>
@@ -2528,7 +2531,11 @@
     <string name="recording_delete_archive">Archivia le copie di backup</string>
     <string name="recording_delete_archive_desc">Le sposta in una cartella di archivio.</string>
     <string name="trip_tools_extend_all_inside">I viaggi vicini fanno già parte di questo.</string>
-    <string name="trip_tools_extend_skipped">Viaggi saltati perché già inclusi: %1$d</string>
+    <plurals name="trip_tools_extend_skipped">
+        <item quantity="one">Salta %1$d viaggio già incluso in questo.</item>
+        <item quantity="many">Salta %1$d viaggi già inclusi in questo.</item>
+        <item quantity="other">Salta %1$d viaggi già inclusi in questo.</item>
+    </plurals>
     <string name="recording_clear_all_body_archive">Elimina i viaggi da questo telefono. Le copie di backup passano in una cartella di archivio.</string>
     <string name="recording_delete_trip_body_archive">Eliminare questo viaggio dal telefono? La copia di backup passa in una cartella di archivio.</string>
     <string name="backup_status_pending">Backup in corso…</string>
@@ -2571,7 +2578,7 @@
     <string name="lockdown_limit_12">Toccare un valore non fa nulla.</string>
     <string name="lockdown_limit_13">Annunci vocali, rapporti periodici e tempi di velocità sono muti. I tuoi allarmi funzionano ancora.</string>
     <string name="lockdown_limit_14">La ruota non si può bloccare né sbloccare, e il blocco automatico di prossimità non funziona.</string>
-    <string name="lockdown_limit_15">Luci automatiche e volume automatico continuano a funzionare. Il controllo multimediale si ferma.</string>
+    <string name="lockdown_limit_15">Luci automatiche e volume automatico continuano a funzionare. Il controllo riproduzione si ferma.</string>
     <string name="lockdown_limit_16">La notifica perde i suoi pulsanti.</string>
     <string name="lockdown_limit_17">Il numero di versione non apre più Informazioni.</string>
     <string name="lockdown_limit_18">Questa modalità non è inclusa nei backup delle impostazioni.</string>
@@ -2674,13 +2681,13 @@
     <string name="crews_type_instead">Inserisci a mano</string>
     <string name="crews_code_label">Codice del pass</string>
     <string name="crews_foreign_title">Quel codice non viene da eucstats</string>
-    <string name="crews_foreign_body">Punta a %1$s, che non è dove finiscono i tuoi giri. Confermando daresti il tuo account a chi gestisce quel server.\n\nHai un server tuo? Attiva prima la modalità sviluppatore nelle Impostazioni.</string>
+    <string name="crews_foreign_body">Punta a %1$s, che non è dove finiscono i tuoi viaggi. Confermando daresti il tuo account a chi gestisce quel server.\n\nHai un server tuo? Attiva prima la modalità sviluppatore nelle Impostazioni.</string>
     <string name="crews_scan_switch">Scansiona invece</string>
     <string name="crews_close">Chiudi</string>
     <string name="crews_opensettings">Apri impostazioni</string>
     <string name="crews_dev_title">Modalità sviluppatore</string>
     <string name="crews_dev_body">Collegato a %1$s invece che al server solito.</string>
-    <string name="crews_grant">Autorizza quel browser ad agire per te.\n\nPuò creare una squadra, entrarci, uscirne e gestire i membri. Non può caricare giri, rinominarti o eliminare nulla: questo resta sul telefono.</string>
+    <string name="crews_grant">Autorizza quel browser ad agire per te.\n\nPuò creare una squadra, entrarci, uscirne e gestire i membri. Non può caricare viaggi, rinominarti o eliminare nulla: questo resta sul telefono.</string>
     <string name="crews_noprofile_title">Prima entra in classifica</string>
     <string name="crews_noprofile_body">Le squadre sono legate al tuo profilo di classifica, e questo telefono non ne ha ancora uno. Iscriviti in %1$s, poi scansiona di nuovo.</string>
     <string name="crews_issue">Rilascia il pass</string>

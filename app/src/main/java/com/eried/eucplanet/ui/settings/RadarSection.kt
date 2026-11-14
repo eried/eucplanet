@@ -64,7 +64,7 @@ fun RadarSection(
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         if (pairedAddress == null) {
-            HintText(stringResource(R.string.radar_caption), small = true)
+            HintText(stringResource(R.string.radar_caption))
             UnpairedRadarCard(
                 scanning = scanning,
                 results = scanResults,
@@ -137,7 +137,7 @@ private fun RadarOverlaySettings(viewModel: RadarViewModel) {
             colors = themedSwitchColors(),
         )
     }
-    HintText(stringResource(R.string.radar_show_overlay_desc), small = true)
+    HintText(stringResource(R.string.radar_show_overlay_desc))
 
     if (s.radarShowOverlay) {
         val sideOptions = listOf(
@@ -269,7 +269,9 @@ private fun PairedRadarCard(
                     // so the card stays a constant size while threat count
                     // bounces around in demo / busy-road mode.
                     Text(
-                        stringResource(R.string.radar_threats_count, frame.threats.size),
+                        androidx.compose.ui.res.pluralStringResource(
+                            R.plurals.radar_threats_count, frame.threats.size, frame.threats.size
+                        ),
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.SemiBold
                     )
