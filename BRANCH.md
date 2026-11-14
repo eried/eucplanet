@@ -13,13 +13,14 @@ only when you can cut the ride short.
 - iPhone app: Legal Mode, the quick-action buttons on the lock screen (iOS 17), and messages like "Battery data exported" show at the bottom of the screen.
 - iPhone app: Service Mode log and crash log to send, trips name the wheel, GPS saves power like Android, and the wheel link writes like Android's (fixes for InMotion V1 drops and repeated commands).
 - iPhone app: automatic lights at sunset, Lock when I walk away, auto-record on connect, and the wheel connected and lights announcements, from the same code as Android.
-- iPhone app: real wheels now connect (iOS held the wheel but the app kept searching), and the scan lists a wheel the iPhone already holds. The welcome tour plays its clip, About shows the logo, and the voice says E U C. What the iPhone lacks yet (navigation, GPS sensors, camera, motor sound, widget) shows greyed with "Not on iPhone yet", and Enable Bluetooth asks iOS to turn it on. The battery monitor no longer flickers on the iPhone, and a found wheel reconnects within seconds.
+- iPhone app: real wheels now connect (iOS held the wheel but the app kept searching), and the scan lists a wheel the iPhone already holds. The welcome tour plays its clip, About shows the logo, and the voice says E U C. What the iPhone lacks yet (navigation, GPS sensors, camera, widget) shows greyed with "Not on iPhone yet", and Enable Bluetooth asks iOS to turn it on. The battery monitor no longer flickers on the iPhone, and a found wheel reconnects within seconds.
 - iPhone app: the theme editor and colour identifier, the top bar follows light and dark themes, custom tiles show their QR code, and the picked voice speaks every report.
 - iPhone app: music no longer stays quieter after an alarm beep, and While speaking (lower, pause or leave other audio) works as on Android.
 - iPhone app: Pause and Play/Pause pause your music and let it resume (Next, Previous and Start music are not offered, iOS does not allow them). Weather settings open under Navigation and weather. Permission prompts are in your language. Voice and alarms keep sounding with the screen locked. The horn can play your own sound (Settings, Wheel parameters, Horn).
 - iPhone app: the Varia rear-view radar and TPMS tyre caps (Settings, Integration), with the radar lane on the dashboard and tyre pressure in tiles and alarms. Tyre caps are only heard while the app is open, iOS does not let it listen in the background. The wheel's own tyre pressure now shows too.
+- iPhone app: the motor sound, every engine from the Android app with the same settings and previews. It lowers your music while it plays and keeps playing with the iPhone locked.
 - iPhone app: the Needs attention warnings (location, Bluetooth, notifications, backups), and a recording cut short by closing the app is saved or dropped at the next start, as on Android.
-- Inside: the dashboard, settings, alarms, trips, trip details, trip tools, Legal Mode, the notification buttons, the reconnect timing, leaderboards, Dropbox sync, the wheel link, the theme editor, the automations, what runs on connect and every wheel update, and the radar and TPMS settings moved to a library shared with the iPhone. Nothing should change on screen.
+- Inside: the dashboard, settings, alarms, trips, trip details, trip tools, Legal Mode, the notification buttons, the reconnect timing, leaderboards, Dropbox sync, the wheel link, the theme editor, the automations, what runs on connect and every wheel update, the radar and TPMS settings and the engine sound moved to a library shared with the iPhone. Nothing should change on screen.
 - iPhone app: a swipe in from the left edge is back, on every screen and in every dialog, and the crew pass has the X in every step.
 - iPhone app: Volume up, Volume down and Mute are no longer offered (iOS cannot set the volume), and the tour's last page names only Flic buttons.
 - Settings, Dashboard layout no longer closes the app.
@@ -91,6 +92,7 @@ only when you can cut the ride short.
 - Music: bind Pause or Play/Pause to a Flic button or a tile and play Spotify or Music. Does it pause, and does it come back on the next press? Which apps do not resume?
 - Varia radar: pair it in Settings, Integration. Does the radar lane show cars, and does it reconnect by itself after you switch the radar off and on, also with the iPhone locked?
 - TPMS caps: Scan for sensors, pair yours. Does the pressure match the Android app? Is anything that is not your cap found?
+- Motor sound (Settings, search "engine", switch it on): ride from a stop to 30 km/h. Does it rev with the wheel like the Android app, lower your music, and keep playing with the iPhone locked? Do the previews play?
 - Swipe in from the left edge on Settings, a trip, the battery monitor and in any dialog: does it go back or close it?
 
 **Android, after the move to the shared library**
@@ -98,6 +100,7 @@ only when you can cut the ride short.
 - Turn the wheel off and on, and Bluetooth off and on: does it reconnect as before? Trip tools (rename, split, extend) work as before?
 - Auto lights, volume by speed, music pause, walk-away lock, auto-record, charge alerts and the connect and lights announcements: same as the last build?
 - Varia radar and TPMS caps: still paired after updating, and do the radar lane and tyre pressures show as before? Pair a new one from Settings, Integration.
+- Engine sound: does every engine sound as in the last build, previews too?
 - Dashboard, Settings, alarm editor, Scan, the trip list, trip details, trip meter, metric details, battery monitor and leaderboards: anything that looks or acts differently from the last build is a bug.
 
 **Closing windows**
