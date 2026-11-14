@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.delay
+import kotlin.concurrent.Volatile
 
 /**
  * Drives the dashboard radar lane (DashboardRadarMiniForSide). The overlay is on screen when:

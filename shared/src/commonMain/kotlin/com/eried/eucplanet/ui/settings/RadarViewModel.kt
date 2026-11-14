@@ -1,16 +1,10 @@
 package com.eried.eucplanet.ui.settings
 
-import android.bluetooth.BluetoothAdapter
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eried.eucplanet.ble.ConnectionState
+import com.eried.eucplanet.ble.radar.RadarScan
 import com.eried.eucplanet.ble.radar.RadarScanResult
-import com.eried.eucplanet.ble.radar.RadarScanner
 import com.eried.eucplanet.data.model.RadarFrame
 import com.eried.eucplanet.data.model.RadarVendor
 import com.eried.eucplanet.data.repository.RadarRepository
@@ -35,9 +29,8 @@ import kotlinx.coroutines.launch
  */
 class RadarViewModel(
     private val repository: RadarRepository,
-    private val scanner: RadarScanner,
+    private val scanner: RadarScan,
     private val settingsRepository: SettingsRepository,
-    private val context: Context
 ) : ViewModel() {
 
     val connectionState: StateFlow<ConnectionState> = repository.connectionState
@@ -79,33 +72,19 @@ class RadarViewModel(
      */
     private var interruptedByBtOff = false
 
-    private val bluetoothStateReceiver = object : BroadcastReceiver() {
-        override fun onReceive(ctx: Context?, intent: Intent?) {
-            if (intent?.action != BluetoothAdapter.ACTION_STATE_CHANGED) return
-            when (intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)) {
-                BluetoothAdapter.STATE_TURNING_OFF,
-                BluetoothAdapter.STATE_OFF -> {
-                    // Only a scan that was actually running counts as
-                    // interrupted. Sitting on screen when the radio went away
-                    // is not a request to scan, and treating it as one meant
-                    // that turning Bluetooth on for some OTHER section started
-                    // this one too.
-                    interruptedByBtOff = _scanning.value
-                    if (_scanning.value) stopScan()
-                    _bluetoothOff.value = true
-                }
-                BluetoothAdapter.STATE_ON -> resumeScanAfterBtOn()
-            }
+    private val stopWatchingBluetooth: () -> Unit = scanner.watchBluetooth { on ->
+        if (!on) {
+            // Only a scan that was actually running counts as
+            // interrupted. Sitting on screen when the radio went away
+            // is not a request to scan, and treating it as one meant
+            // that turning Bluetooth on for some OTHER section started
+            // this one too.
+            interruptedByBtOff = _scanning.value
+            if (_scanning.value) stopScan()
+            _bluetoothOff.value = true
+        } else {
+            resumeScanAfterBtOn()
         }
-    }
-
-    init {
-        ContextCompat.registerReceiver(
-            context,
-            bluetoothStateReceiver,
-            IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED),
-            ContextCompat.RECEIVER_NOT_EXPORTED
-        )
     }
 
     /** Resume a scan that Bluetooth-off interrupted, a beat after it returns
@@ -196,7 +175,7 @@ class RadarViewModel(
 
     override fun onCleared() {
         resumeJob?.cancel()
-        runCatching { context.unregisterReceiver(bluetoothStateReceiver) }
+        runCatching { stopWatchingBluetooth() }
         stopScan()
         super.onCleared()
     }

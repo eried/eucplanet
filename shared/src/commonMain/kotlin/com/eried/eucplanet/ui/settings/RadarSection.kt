@@ -29,10 +29,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.eried.eucplanet.R
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.ble.radar.RadarScanResult
 import com.eried.eucplanet.data.model.RadarFrame
@@ -41,7 +39,8 @@ import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedSegmentedColors
 import com.eried.eucplanet.ui.theme.themedSwitchColors
-import org.koin.compose.viewmodel.koinViewModel
+import com.eried.eucplanet.platform.stringResource
+import com.eried.eucplanet.resources.*
 
 /**
  * Sub-section of the Integration settings tab for pairing a rear-view radar
@@ -51,7 +50,8 @@ import org.koin.compose.viewmodel.koinViewModel
  */
 @Composable
 fun RadarSection(
-    viewModel: RadarViewModel = koinViewModel()
+    viewModel: RadarViewModel,
+    settingsViewModel: SettingsViewModel,
 ) {
     val pairedAddress by viewModel.pairedAddress.collectAsState()
     val pairedName by viewModel.pairedName.collectAsState()
@@ -64,7 +64,7 @@ fun RadarSection(
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         if (pairedAddress == null) {
-            HintText(stringResource(R.string.radar_caption), small = true)
+            HintText(stringResource(Res.string.radar_caption), small = true)
             UnpairedRadarCard(
                 scanning = scanning,
                 results = scanResults,
@@ -89,7 +89,7 @@ fun RadarSection(
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.radar_disconnect))
+                        com.eried.eucplanet.ui.common.SearchableText(stringResource(Res.string.radar_disconnect))
                     }
                 } else {
                     Button(
@@ -97,7 +97,7 @@ fun RadarSection(
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.radar_reconnect))
+                        com.eried.eucplanet.ui.common.SearchableText(stringResource(Res.string.radar_reconnect))
                     }
                 }
                 Button(
@@ -106,18 +106,17 @@ fun RadarSection(
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.appColors.statusDanger),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.radar_unpair))
+                    com.eried.eucplanet.ui.common.SearchableText(stringResource(Res.string.radar_unpair))
                 }
             }
 
-            RadarOverlaySettings(viewModel)
+            RadarOverlaySettings(viewModel, settingsViewModel)
         }
     }
 }
 
 @Composable
-private fun RadarOverlaySettings(viewModel: RadarViewModel) {
-    val settingsViewModel: SettingsViewModel = koinViewModel()
+private fun RadarOverlaySettings(viewModel: RadarViewModel, settingsViewModel: SettingsViewModel) {
     val settings by settingsViewModel.settings.collectAsState()
     val s = settings ?: return
 
@@ -128,7 +127,7 @@ private fun RadarOverlaySettings(viewModel: RadarViewModel) {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
-            stringResource(R.string.radar_show_overlay),
+            stringResource(Res.string.radar_show_overlay),
             style = MaterialTheme.typography.bodyLarge
         )
         Switch(
@@ -137,13 +136,13 @@ private fun RadarOverlaySettings(viewModel: RadarViewModel) {
             colors = themedSwitchColors(),
         )
     }
-    HintText(stringResource(R.string.radar_show_overlay_desc), small = true)
+    HintText(stringResource(Res.string.radar_show_overlay_desc), small = true)
 
     if (s.radarShowOverlay) {
         val sideOptions = listOf(
-            "LEFT" to stringResource(R.string.radar_overlay_left),
-            "BOTH" to stringResource(R.string.radar_overlay_both),
-            "RIGHT" to stringResource(R.string.radar_overlay_right)
+            "LEFT" to stringResource(Res.string.radar_overlay_left),
+            "BOTH" to stringResource(Res.string.radar_overlay_both),
+            "RIGHT" to stringResource(Res.string.radar_overlay_right)
         )
         SingleChoiceSegmentedButtonRow(
             modifier = Modifier
@@ -194,7 +193,7 @@ private fun UnpairedRadarCard(
                         )
                     }
                     Button(onClick = { onPick(result) }, shape = RoundedCornerShape(12.dp)) {
-                        com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.radar_pair_action))
+                        com.eried.eucplanet.ui.common.SearchableText(stringResource(Res.string.radar_pair_action))
                     }
                 }
             }
@@ -202,13 +201,13 @@ private fun UnpairedRadarCard(
         if (scanning) {
             CircularProgressIndicator(modifier = Modifier.padding(vertical = 4.dp))
             LeftAlignedScanButton(
-                label = stringResource(R.string.radar_stop_scan),
+                label = stringResource(Res.string.radar_stop_scan),
                 onClick = onStopScan,
                 containerColor = MaterialTheme.appColors.statusDanger
             )
         } else {
             LeftAlignedScanButton(
-                label = stringResource(R.string.radar_pair_button),
+                label = stringResource(Res.string.radar_pair_button),
                 onClick = onStartScan
             )
         }
@@ -222,10 +221,10 @@ private fun PairedRadarCard(
     frame: RadarFrame?
 ) {
     val stateLabel = when (connectionState) {
-        ConnectionState.CONNECTED -> stringResource(R.string.radar_state_connected)
+        ConnectionState.CONNECTED -> stringResource(Res.string.radar_state_connected)
         ConnectionState.CONNECTING, ConnectionState.INITIALIZING, ConnectionState.SCANNING ->
-            stringResource(R.string.radar_state_connecting)
-        ConnectionState.DISCONNECTED -> stringResource(R.string.radar_state_disconnected)
+            stringResource(Res.string.radar_state_connecting)
+        ConnectionState.DISCONNECTED -> stringResource(Res.string.radar_state_disconnected)
     }
     val stateColor = when (connectionState) {
         ConnectionState.CONNECTED -> MaterialTheme.appColors.statusGood
@@ -251,7 +250,7 @@ private fun PairedRadarCard(
                 append(stateLabel)
                 if (connectionState == ConnectionState.CONNECTED && battery != null) {
                     append("  ·  ")
-                    append(stringResource(R.string.radar_battery_fmt, battery))
+                    append(stringResource(Res.string.radar_battery_fmt, battery))
                 }
             }
             Text(combined, style = MaterialTheme.typography.bodyMedium, color = stateColor)
@@ -259,7 +258,7 @@ private fun PairedRadarCard(
             if (connectionState == ConnectionState.CONNECTED && frame != null) {
                 if (frame.threats.isEmpty()) {
                     Text(
-                        stringResource(R.string.radar_clear),
+                        stringResource(Res.string.radar_clear),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.appColors.statusGood
                     )
@@ -269,7 +268,7 @@ private fun PairedRadarCard(
                     // so the card stays a constant size while threat count
                     // bounces around in demo / busy-road mode.
                     Text(
-                        stringResource(R.string.radar_threats_count, frame.threats.size),
+                        stringResource(Res.string.radar_threats_count, frame.threats.size),
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.SemiBold
                     )

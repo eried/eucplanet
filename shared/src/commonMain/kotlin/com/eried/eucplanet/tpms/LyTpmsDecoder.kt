@@ -1,5 +1,7 @@
 package com.eried.eucplanet.tpms
 
+import com.eried.eucplanet.platform.format
+
 /**
  * The valve-cap sensor sold with the LY TPMS app (`com.zl.dev.tire.lytpms`).
  *

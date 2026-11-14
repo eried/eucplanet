@@ -1,8 +1,8 @@
 package com.eried.eucplanet.tpms
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
-import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
+import kotlin.test.Test
 
 /** The monitor asks the radio for every paired cap; a search hears everything. */
 class TpmsMonitorFilterTest {

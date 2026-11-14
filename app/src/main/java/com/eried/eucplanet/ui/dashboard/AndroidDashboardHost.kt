@@ -18,6 +18,7 @@ import com.eried.eucplanet.data.repository.startLinkFlow
 import com.eried.eucplanet.ui.navigator.NavigationOverlayViewModel
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
+import com.eried.eucplanet.ui.radar.RadarOverlayViewModel
 
 /** The Android [DashboardHost], over the Activity the dashboard sits in. */
 @Composable
@@ -132,7 +133,12 @@ private class AndroidDashboardHost(
 
     @Composable
     override fun RadarMini(targetSide: String, modifier: Modifier, onOpenSettings: () -> Unit) =
-        DashboardRadarMiniForSide(targetSide = targetSide, modifier = modifier, onOpenSettings = onOpenSettings)
+        DashboardRadarMiniForSide(
+            targetSide = targetSide,
+            modifier = modifier,
+            onOpenSettings = onOpenSettings,
+            viewModel = koinViewModel<RadarOverlayViewModel>(),
+        )
 
     @Composable
     override fun VoiceVocabularyDialog(onDismiss: () -> Unit, languageTag: String) =

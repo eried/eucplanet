@@ -183,13 +183,13 @@ private class AndroidSettingsHost(
     @Composable
     override fun RadarSettings() {
         SectionHeader(stringResource(Res.string.section_radar))
-        RadarSection()
+        RadarSection(viewModel = koinViewModel(), settingsViewModel = koinViewModel())
     }
 
     @Composable
     override fun TpmsSettings() {
         SectionHeader(stringResource(Res.string.section_tpms))
-        TpmsSection()
+        TpmsSection(viewModel = koinViewModel())
     }
 
     @Composable

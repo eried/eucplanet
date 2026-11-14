@@ -27,18 +27,18 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.eried.eucplanet.R
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.tpms.LyTpmsDecoder
 import com.eried.eucplanet.ui.common.InfoHint
 import com.eried.eucplanet.ui.common.rememberScanStarter
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.Units
-import org.koin.compose.viewmodel.koinViewModel
+import com.eried.eucplanet.platform.format
+import com.eried.eucplanet.platform.stringResource
+import com.eried.eucplanet.resources.*
 
 /**
  * TPMS sensors, shown inside the Integration section. The wheel-relayed sensor
@@ -48,7 +48,7 @@ import org.koin.compose.viewmodel.koinViewModel
  * paired cap outranks the wheel's relay through TpmsRepository.
  */
 @Composable
-fun TpmsSection(viewModel: TpmsViewModel = koinViewModel()) {
+fun TpmsSection(viewModel: TpmsViewModel) {
     val wheelKpa by viewModel.tirePressureKpa.collectAsState()
     val unit by viewModel.pressureUnit.collectAsState()
     val sensors by viewModel.sensors.collectAsState()
@@ -80,8 +80,8 @@ fun TpmsSection(viewModel: TpmsViewModel = koinViewModel()) {
                 // packet: the same characters the rider already sees in the
                 // app the cap came with, rather than a slice of a MAC.
                 title = stringResource(
-                    R.string.tpms_paired_sensor_fmt,
-                    stringResource(R.string.tpms_family_ly),
+                    Res.string.tpms_paired_sensor_fmt,
+                    stringResource(Res.string.tpms_family_ly),
                     shortAddress(sensor.address),
                 ),
                 // What the sensor is telling us. A cap that has not spoken
@@ -94,7 +94,7 @@ fun TpmsSection(viewModel: TpmsViewModel = koinViewModel()) {
                 // a rider stands there with a pump. The other three states are
                 // the cap waking up and mean nothing to anyone.
                 subtitle = if (sensor.kpa == null) {
-                    stringResource(R.string.tpms_waiting)
+                    stringResource(Res.string.tpms_waiting)
                 } else {
                     // Everything the cap says, on the one line it has: battery,
                     // air temperature, and what it thinks is happening. The
@@ -104,8 +104,8 @@ fun TpmsSection(viewModel: TpmsViewModel = koinViewModel()) {
                         sensor.volts?.let { "%.2f V".format(it) },
                         sensor.tempC?.let { formatTemp(it, tempUnit) },
                         when (sensor.state) {
-                            LyTpmsDecoder.State.LEAKAGE -> stringResource(R.string.tpms_state_leaking)
-                            LyTpmsDecoder.State.INFLATION -> stringResource(R.string.tpms_state_inflating)
+                            LyTpmsDecoder.State.LEAKAGE -> stringResource(Res.string.tpms_state_leaking)
+                            LyTpmsDecoder.State.INFLATION -> stringResource(Res.string.tpms_state_inflating)
                             // The other three are the cap waking up and say
                             // nothing about the tyre, so they say nothing here.
                             else -> null
@@ -121,13 +121,13 @@ fun TpmsSection(viewModel: TpmsViewModel = koinViewModel()) {
         // The wheel's own, only when the wheel actually reports one.
         if (wheelHasSensor) {
             TpmsSensorRow(
-                title = stringResource(R.string.tpms_wheel_sensor),
+                title = stringResource(Res.string.tpms_wheel_sensor),
                 // "Replaced" when it has been: a cap that is paired but
                 // has not spoken yet has replaced nothing, and the wheel is
                 // still the sensor answering for the tyre.
                 subtitle = stringResource(
-                    if (hasPaired && !wheelIsActive) R.string.tpms_wheel_sensor_replaced
-                    else R.string.tpms_wheel_sensor_desc
+                    if (hasPaired && !wheelIsActive) Res.string.tpms_wheel_sensor_replaced
+                    else Res.string.tpms_wheel_sensor_desc
                 ),
                 reading = formatPressure(wheelKpa, unit),
                 active = wheelIsActive,
@@ -138,7 +138,7 @@ fun TpmsSection(viewModel: TpmsViewModel = koinViewModel()) {
         // set up, with the button that fixes it directly under. The caption
         // that used to sit here described the screen instead of being it.
         if (!hasPaired && !wheelHasSensor) {
-            InfoHint(stringResource(R.string.tpms_none_yet))
+            InfoHint(stringResource(Res.string.tpms_none_yet))
         }
 
         // Character for character what the radar and external GPS sections
@@ -148,13 +148,13 @@ fun TpmsSection(viewModel: TpmsViewModel = koinViewModel()) {
         if (scanning) {
             CircularProgressIndicator(modifier = Modifier.padding(vertical = 4.dp))
             LeftAlignedScanButton(
-                label = stringResource(R.string.tpms_scan_stop),
+                label = stringResource(Res.string.tpms_scan_stop),
                 onClick = { viewModel.toggleScan() },
                 containerColor = MaterialTheme.appColors.statusDanger,
             )
         } else {
             LeftAlignedScanButton(
-                label = stringResource(R.string.tpms_scan),
+                label = stringResource(Res.string.tpms_scan),
                 onClick = { startScan { viewModel.toggleScan() } },
             )
         }
@@ -260,7 +260,7 @@ private fun TpmsSensorRow(
                 // that has stopped moving looks exactly like one that has not.
                 if (!active) {
                     Text(
-                        stringResource(R.string.status_idle),
+                        stringResource(Res.string.status_idle),
                         style = MaterialTheme.typography.labelSmall,
                         color = LocalContentColor.current.copy(alpha = 0.8f),
                     )
@@ -281,7 +281,7 @@ private fun TpmsSensorRow(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Delete,
-                            contentDescription = stringResource(R.string.tpms_forget),
+                            contentDescription = stringResource(Res.string.tpms_forget),
                             tint = MaterialTheme.appColors.statusDanger,
                             modifier = Modifier.size(18.dp),
                         )

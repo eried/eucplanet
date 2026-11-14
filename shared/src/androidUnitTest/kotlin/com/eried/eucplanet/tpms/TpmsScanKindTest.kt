@@ -24,7 +24,7 @@ import java.io.File
 class TpmsScanKindTest {
 
     private val source: String by lazy {
-        val f = File("src/main/java/com/eried/eucplanet/tpms/TpmsScanner.kt")
+        val f = File("src/commonMain/kotlin/com/eried/eucplanet/tpms/TpmsScanner.kt")
         assertTrue("TpmsScanner.kt not found at ${f.absolutePath}", f.exists())
         f.readText()
     }

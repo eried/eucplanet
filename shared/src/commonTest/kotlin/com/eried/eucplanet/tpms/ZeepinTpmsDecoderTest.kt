@@ -1,8 +1,8 @@
 package com.eried.eucplanet.tpms
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
-import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
+import kotlin.test.Test
 
 /**
  * The published packet, decoded four ways at once.
@@ -23,16 +23,16 @@ class ZeepinTpmsDecoderTest {
 
     @Test fun `the published packet reads as a real tyre`() {
         // 0x00041CC8 is 269512 thousandths, so 269.512 kPa.
-        assertEquals(269.512f, ZeepinTpmsDecoder.pressureKpa(0x0001, published)!!, 0.001f)
-        assertEquals(28.27f, ZeepinTpmsDecoder.temperatureC(0x0001, published)!!, 0.001f)
+        assertEquals(269.512f, ZeepinTpmsDecoder.pressureKpa(0x0001, published)!!, absoluteTolerance = 0.001f)
+        assertEquals(28.27f, ZeepinTpmsDecoder.temperatureC(0x0001, published)!!, absoluteTolerance = 0.001f)
         assertEquals(75, ZeepinTpmsDecoder.batteryPercent(0x0001, published))
         // 0x83 is the fourth sensor.
         assertEquals(4, ZeepinTpmsDecoder.wheelNumber(0x0001, published))
     }
 
-    @Test fun `269 kPa is 39 psi, which is a tyre a person would pump`() {
+    @Test fun `269 kPa is 39 psi - which is a tyre a person would pump`() {
         val kpa = ZeepinTpmsDecoder.pressureKpa(0x0001, published)!!
-        assertEquals(39.1f, kpa * 0.145038f, 0.2f)
+        assertEquals(39.1f, kpa * 0.145038f, absoluteTolerance = 0.2f)
     }
 
     @Test fun `another company id is another device`() {

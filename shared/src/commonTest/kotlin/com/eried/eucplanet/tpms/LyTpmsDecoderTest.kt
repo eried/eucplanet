@@ -1,9 +1,10 @@
 package com.eried.eucplanet.tpms
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import com.eried.eucplanet.platform.format
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
+import kotlin.test.Test
 
 /**
  * The decode, checked against the vendor's own arithmetic and the rider's
@@ -34,24 +35,24 @@ class LyTpmsDecoderTest {
         assertEquals(0f, kpa(flat))
     }
 
-    @Test fun `the raw count is scaled, which is what made 3_6 bar read as 1_15`() {
+    @Test fun `the raw count is scaled - which is what made 3_6 bar read as 1_15`() {
         // Byte 1 is a count, not kPa. At 115 counts the rider's gauge read
         // 3.6 bar: 115 x 3.144 is 361.6 kPa, and unscaled it showed 1.15.
         val at36bar = "B37352010AA20004281111111B615B"
-        assertEquals(361.6f, kpa(at36bar)!!, 0.1f)
-        assertEquals(3.6f, kpa(at36bar)!! / 100f, 0.02f)
+        assertEquals(361.6f, kpa(at36bar)!!, absoluteTolerance = 0.1f)
+        assertEquals(3.6f, kpa(at36bar)!! / 100f, absoluteTolerance = 0.02f)
     }
 
-    @Test fun `the pressure high byte is 6, not 3`() {
+    @Test fun `the pressure high byte is 6 - not 3`() {
         // Byte 6 was zero in every capture ever taken, so a wrong guess and
         // the right answer agreed on everything below 803 kPa. Byte 3 moves
         // here and must not touch the pressure; byte 6 does.
         val lowOnly = "B30A52010AA20004281111111B615B"   // 10 counts
         val byte3Set = "B30A52070AA20004281111111B615B"   // byte 3 moved
         val byte6Set = "B30A52010AA20104281111111B615B"   // byte 6 moved
-        assertEquals(10 * 3.144f, kpa(lowOnly)!!, 0.1f)
-        assertEquals("byte 3 must not touch the pressure", kpa(lowOnly), kpa(byte3Set))
-        assertEquals((10 + 256) * 3.144f, kpa(byte6Set)!!, 0.1f)
+        assertEquals(10 * 3.144f, kpa(lowOnly)!!, absoluteTolerance = 0.1f)
+        assertEquals(kpa(lowOnly), kpa(byte3Set), "byte 3 must not touch the pressure")
+        assertEquals((10 + 256) * 3.144f, kpa(byte6Set)!!, absoluteTolerance = 0.1f)
     }
 
     @Test fun `temperature is Celsius with a 55 degree offset`() {
@@ -67,16 +68,16 @@ class LyTpmsDecoderTest {
     @Test fun `battery is hundredths of a volt above 1_22`() {
         // 0xB3 is 179: 179 x 0.01 + 1.22 = 3.01 V, a healthy CR2032, and the
         // rider's app read about 85 percent at that moment.
-        assertEquals(3.01f, volts(flat)!!, 0.001f)
+        assertEquals(3.01f, volts(flat)!!, absoluteTolerance = 0.001f)
     }
 
-    @Test fun `the sensor id is its own three bytes, printed backwards`() {
+    @Test fun `the sensor id is its own three bytes - printed backwards`() {
         // The same characters the rider sees in the app they bought it with.
         assertEquals("5B611B", LyTpmsDecoder.sensorId(LyTpmsDecoder.COMPANY_ID, bytes(flat), address))
     }
 
     @Test fun `the cap reports BLE 4_0`() {
-        assertEquals(4.0f, LyTpmsDecoder.bleVersion(LyTpmsDecoder.COMPANY_ID, bytes(flat), address)!!, 0.01f)
+        assertEquals(4.0f, LyTpmsDecoder.bleVersion(LyTpmsDecoder.COMPANY_ID, bytes(flat), address)!!, absoluteTolerance = 0.01f)
     }
 
     @Test fun `one deflation still falls the whole way down`() {
@@ -90,7 +91,7 @@ class LyTpmsDecoderTest {
         )
         val values = deflating.map { kpa(it)!! }
         for (i in 1 until values.size) {
-            assertTrue("pressure rose while the tyre emptied: $values", values[i] < values[i - 1])
+            assertTrue(values[i] < values[i - 1], "pressure rose while the tyre emptied: $values")
         }
     }
 

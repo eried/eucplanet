@@ -1,23 +1,26 @@
 package com.eried.eucplanet.data.repository
 
-import android.util.Log
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.ble.radar.DecodedThreat
 import com.eried.eucplanet.ble.radar.RadarAdapter
-import com.eried.eucplanet.ble.radar.RadarConnectionManager
+import com.eried.eucplanet.ble.radar.RadarLink
 import com.eried.eucplanet.data.model.RadarFrame
 import com.eried.eucplanet.data.model.RadarThreat
 import com.eried.eucplanet.data.model.RadarVendor
 import com.eried.eucplanet.data.model.ThreatLevel
+import com.eried.eucplanet.platform.Log
+import com.eried.eucplanet.platform.System
 import com.eried.eucplanet.service.AlarmEngine
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.util.UUID
+import kotlin.concurrent.Volatile
+import kotlin.uuid.Uuid
 
 /**
  * Owns the rear-view radar BLE connection and exposes the current frame.
@@ -34,7 +37,7 @@ import java.util.UUID
  */
 class RadarRepository(
     private val settingsRepository: SettingsRepository,
-    private val connectionManager: RadarConnectionManager,
+    private val connectionManager: RadarLink,
     private val adapters: Set<RadarAdapter>,
     private val alarmEngine: AlarmEngine
 ) {
@@ -42,8 +45,8 @@ class RadarRepository(
         private const val TAG = "RadarRepo"
 
         /** Standard battery_level characteristic UUID, used to tag battery frames. */
-        private val BATTERY_LEVEL_UUID: UUID =
-            UUID.fromString("00002a19-0000-1000-8000-00805f9b34fb")
+        private val BATTERY_LEVEL_UUID: Uuid =
+            Uuid.parse("00002a19-0000-1000-8000-00805f9b34fb")
 
         /** Distance at which a closing threat is classified FAST_APPROACH. */
         private const val FAST_APPROACH_DISTANCE_M = 50

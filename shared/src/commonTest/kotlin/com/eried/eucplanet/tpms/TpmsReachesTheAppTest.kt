@@ -2,11 +2,11 @@ package com.eried.eucplanet.tpms
 
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.service.AlarmLogic
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
+import kotlin.test.Test
 
 /**
  * A paired cap's reading has to leave the settings screen.
@@ -32,7 +32,7 @@ class TpmsReachesTheAppTest {
 
         val reading = tpms.current.value
         assertNotNull(reading)
-        assertEquals(360f, reading!!.kpa, 0.01f)
+        assertEquals(360f, reading!!.kpa, absoluteTolerance = 0.01f)
         assertEquals(TpmsSource.PAIRED, reading.source)
     }
 
@@ -45,14 +45,14 @@ class TpmsReachesTheAppTest {
         tpms.submitWheel(200f, now)
         tpms.submitPaired(360f, "AA:BB:CC:DD:EE:FF", now)
 
-        assertEquals(360f, tpms.current.value!!.kpa, 0.01f)
-        assertEquals(200f, tpms.wheelSensor.value!!.kpa, 0.01f)
+        assertEquals(360f, tpms.current.value!!.kpa, absoluteTolerance = 0.01f)
+        assertEquals(200f, tpms.wheelSensor.value!!.kpa, absoluteTolerance = 0.01f)
     }
 
     @Test fun `a wheel that never had a sensor never grows a row`() {
         val tpms = TpmsRepository()
         tpms.submitPaired(360f, "AA:BB:CC:DD:EE:FF", now)
-        assertNull("no wheel reading means no wheel row", tpms.wheelSensor.value)
+        assertNull(tpms.wheelSensor.value, "no wheel reading means no wheel row")
     }
 
     @Test fun `the wheel's row ages out when the wheel stops reporting`() {
@@ -60,7 +60,7 @@ class TpmsReachesTheAppTest {
         tpms.submitWheel(200f, now)
         assertNotNull(tpms.wheelSensor.value)
         tpms.refresh(now + TpmsPolicy.STALE_AFTER_MS + 1)
-        assertNull("a stale reading must stop being drawn", tpms.wheelSensor.value)
+        assertNull(tpms.wheelSensor.value, "a stale reading must stop being drawn")
     }
 
     @Test fun `the alarm sees a flat tyre from a cap and nothing from a bare wheel`() {
@@ -78,12 +78,12 @@ class TpmsReachesTheAppTest {
         val cap = "AA:BB:CC:DD:EE:FF"
         tpms.submitWheel(200f, now)
         tpms.submitPaired(360f, cap, now)
-        assertEquals(360f, tpms.current.value!!.kpa, 0.01f)
+        assertEquals(360f, tpms.current.value!!.kpa, absoluteTolerance = 0.01f)
 
         tpms.forget(cap, now)
         val after = tpms.current.value
-        assertNotNull("the wheel still has a sensor", after)
-        assertEquals(200f, after!!.kpa, 0.01f)
+        assertNotNull(after, "the wheel still has a sensor")
+        assertEquals(200f, after!!.kpa, absoluteTolerance = 0.01f)
         assertEquals(TpmsSource.WHEEL, after.source)
         assertTrue(tpms.wheelIsActive.value)
     }

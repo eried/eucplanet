@@ -1,9 +1,10 @@
 package com.eried.eucplanet.tpms
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import com.eried.eucplanet.platform.System
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
+import kotlin.test.Test
 
 /**
  * The bookkeeping that decides whether anything is listening.
@@ -35,7 +36,7 @@ class TpmsLifecycleTest {
         repo.submitPaired(240f, capA, t0)
         assertEquals(240f, repo.pressureKpa.value)
         repo.forget(capA)
-        assertEquals("a deleted cap kept publishing", 0f, repo.pressureKpa.value)
+        assertEquals(0f, repo.pressureKpa.value, "a deleted cap kept publishing")
         assertNull(repo.current.value)
     }
 
@@ -57,7 +58,7 @@ class TpmsLifecycleTest {
         repo.adopt(capB)
         store.loadCallback?.invoke(listOf(capA))
         val held = repo.sensors.value.map { it.address }
-        assertTrue("stored cap $capA was dropped: $held", capA in held)
+        assertTrue(capA in held, "stored cap $capA was dropped: $held")
         assertTrue(capB in held)
     }
 

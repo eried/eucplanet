@@ -1,13 +1,17 @@
 package com.eried.eucplanet.ble.radar
 
 import android.annotation.SuppressLint
+import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
+import android.content.BroadcastReceiver
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import androidx.core.content.ContextCompat
 import com.eried.eucplanet.ble.BleDevice
-import com.eried.eucplanet.data.model.RadarVendor
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -25,23 +29,20 @@ import kotlinx.coroutines.flow.callbackFlow
  * No service-UUID filter is set on the scan: Varia's advertising frame
  * doesn't always include the 128-bit RDR UUID (it's truncated for power),
  * so a name-prefix match is the safer net.
+ *
+ * The Android side of the shared [RadarScan].
  */
-data class RadarScanResult(
-    val device: BleDevice,
-    val vendor: RadarVendor
-)
-
 class RadarScanner(
     private val context: Context,
     private val adapters: Set<RadarAdapter>
-) {
+) : RadarScan {
     private val bluetoothManager =
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     private val bluetoothAdapter = bluetoothManager.adapter
     private var scanCallback: ScanCallback? = null
 
     @SuppressLint("MissingPermission")
-    fun scan(): Flow<RadarScanResult> = callbackFlow {
+    override fun scan(): Flow<RadarScanResult> = callbackFlow {
         val scanner = bluetoothAdapter?.bluetoothLeScanner
             ?: throw IllegalStateException("Bluetooth not available")
 
@@ -81,12 +82,34 @@ class RadarScanner(
     /** True only when the adapter exists and Bluetooth is turned on. Callers
      *  check this before [scan] so a tap with Bluetooth off surfaces a prompt
      *  instead of crashing on the null leScanner thrown inside the flow. */
-    fun isBluetoothEnabled(): Boolean = bluetoothAdapter?.isEnabled == true
+    override fun isBluetoothEnabled(): Boolean = bluetoothAdapter?.isEnabled == true
 
     @SuppressLint("MissingPermission")
-    fun stop() {
+    override fun stop() {
         val scanner = bluetoothAdapter?.bluetoothLeScanner ?: return
         scanCallback?.let { scanner.stopScan(it) }
         scanCallback = null
+    }
+
+    // Detects Bluetooth toggling while the radar pairing scan is open, for
+    // RadarViewModel's "Bluetooth is off" hint and its resume.
+    override fun watchBluetooth(listener: (Boolean) -> Unit): () -> Unit {
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(ctx: Context?, intent: Intent?) {
+                if (intent?.action != BluetoothAdapter.ACTION_STATE_CHANGED) return
+                when (intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)) {
+                    BluetoothAdapter.STATE_TURNING_OFF,
+                    BluetoothAdapter.STATE_OFF -> listener(false)
+                    BluetoothAdapter.STATE_ON -> listener(true)
+                }
+            }
+        }
+        ContextCompat.registerReceiver(
+            context,
+            receiver,
+            IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED),
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
+        return { context.unregisterReceiver(receiver) }
     }
 }

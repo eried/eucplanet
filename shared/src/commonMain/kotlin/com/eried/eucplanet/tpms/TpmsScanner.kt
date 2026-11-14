@@ -1,14 +1,9 @@
 package com.eried.eucplanet.tpms
 
-import android.annotation.SuppressLint
-import android.bluetooth.BluetoothManager
-import android.bluetooth.le.ScanCallback
-import android.bluetooth.le.ScanFilter
-import android.bluetooth.le.ScanResult
-import android.bluetooth.le.ScanSettings
-import android.content.Context
-import android.util.Log
 import com.eried.eucplanet.diagnostics.DiagnosticsLogger
+import com.eried.eucplanet.platform.Log
+import com.eried.eucplanet.platform.System
+import com.eried.eucplanet.platform.format
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -18,6 +13,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlin.concurrent.Volatile
 
 /**
  * Listens for tire-pressure sensors that broadcast rather than connect.
@@ -33,9 +29,11 @@ import kotlinx.coroutines.flow.asStateFlow
  * pressure you have measured with a gauge and find the ones that match. Every
  * payload is logged with its manufacturer and service data intact, so a
  * capture at a known pressure is enough to identify the field.
+ *
+ * The radio itself is behind [TpmsRadio] (Android: AndroidTpmsRadio in :app).
  */
 class TpmsScanner(
-    private val context: Context,
+    private val radio: TpmsRadio,
     private val tpms: TpmsRepository,
 ) {
 
@@ -78,7 +76,7 @@ class TpmsScanner(
     val scanning: StateFlow<Boolean> = _scanning.asStateFlow()
 
     /** Written from the BLE callback thread as well as the main one. */
-    @Volatile private var callback: ScanCallback? = null
+    @Volatile private var callback: TpmsRadio.Listener? = null
 
     /** True while the open scan is a background monitor rather than a search. */
     @Volatile private var monitoring = false
@@ -95,23 +93,14 @@ class TpmsScanner(
      * watching for it. The radar, external GPS and wheel scans all listen for
      * this; the tyre monitor was the one that did not.
      */
-    private val bluetoothStateReceiver = object : android.content.BroadcastReceiver() {
-        override fun onReceive(ctx: Context?, intent: android.content.Intent?) {
-            if (intent?.action != android.bluetooth.BluetoothAdapter.ACTION_STATE_CHANGED) return
-            when (intent.getIntExtra(
-                android.bluetooth.BluetoothAdapter.EXTRA_STATE,
-                android.bluetooth.BluetoothAdapter.ERROR,
-            )) {
-                android.bluetooth.BluetoothAdapter.STATE_TURNING_OFF,
-                android.bluetooth.BluetoothAdapter.STATE_OFF -> {
-                    // The scan is already dead; drop our side of it so the
-                    // flags do not claim to be watching.
-                    stop()
-                    monitoring = false
-                }
-                android.bluetooth.BluetoothAdapter.STATE_ON ->
-                    scope.launch { delay(1_000); startMonitoring() }
-            }
+    private fun onBluetoothChanged(on: Boolean) {
+        if (!on) {
+            // The scan is already dead; drop our side of it so the
+            // flags do not claim to be watching.
+            stop()
+            monitoring = false
+        } else {
+            scope.launch { delay(1_000); startMonitoring() }
         }
     }
 
@@ -127,12 +116,7 @@ class TpmsScanner(
                 if (address != null) startMonitoring() else stopMonitoring()
             }
         }
-        androidx.core.content.ContextCompat.registerReceiver(
-            context,
-            bluetoothStateReceiver,
-            android.content.IntentFilter(android.bluetooth.BluetoothAdapter.ACTION_STATE_CHANGED),
-            androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED,
-        )
+        radio.watchBluetooth(::onBluetoothChanged)
 
         // Age the readings. Nothing else ever called refresh(), so a cap that
         // went silent kept its number and its green dot for good: staleness
@@ -154,7 +138,6 @@ class TpmsScanner(
      * here, so this uses the balanced scan mode and never times out: it is how the
      * pressure keeps moving once the sensor belongs to the rider.
      */
-    @SuppressLint("MissingPermission")
     fun startMonitoring() {
         if (callback != null || tpms.pairedAddress.value == null) return
         openScan(lowPower = true, asMonitor = true)
@@ -168,7 +151,6 @@ class TpmsScanner(
      * cap, the Stop button, and the first adoption racing the pairing
      * collector all did it, and all of them permanently.
      */
-    @SuppressLint("MissingPermission")
     fun resumeMonitoring() {
         stop()
         monitoring = false
@@ -183,21 +165,18 @@ class TpmsScanner(
      * while the settings screen happened to be open and froze the moment the
      * rider walked away from it - which is every moment that matters.
      */
-    @SuppressLint("MissingPermission")
     fun endSearch() {
         if (monitoring) return
         resumeMonitoring()
     }
 
     /** Give the radio back when nothing is paired any more. */
-    @SuppressLint("MissingPermission")
     fun stopMonitoring() {
         if (!monitoring) return
         monitoring = false
         stop()
     }
 
-    @SuppressLint("MissingPermission")
     fun start() {
         monitoring = false
         // A monitor already holds the radio; take it over for the search.
@@ -218,25 +197,19 @@ class TpmsScanner(
      *
      * Returns true when a scan is now open.
      */
-    @SuppressLint("MissingPermission")
     private fun openScan(lowPower: Boolean, asMonitor: Boolean): Boolean {
         if (callback != null) return false
         // The button asks the rider to turn Bluetooth on before it ever gets
         // here, so reaching this with the adapter off means they declined.
         // Nothing to report: they know what they just chose.
-        val adapter = (context.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager)?.adapter
-        val scanner = adapter?.takeIf { it.isEnabled }?.bluetoothLeScanner
-        if (scanner == null) {
+        if (!radio.isOn()) {
             _scanning.value = false
             return false
         }
-        val cb = object : ScanCallback() {
-            override fun onScanResult(callbackType: Int, result: ScanResult) = record(result)
-            override fun onBatchScanResults(results: MutableList<ScanResult>) {
-                results.forEach { record(it) }
-            }
+        val cb = object : TpmsRadio.Listener {
+            override fun onAdvert(advert: TpmsAdvert) = record(advert)
 
-            override fun onScanFailed(errorCode: Int) {
+            override fun onFailed(errorCode: Int) {
                 // Drop the callback as well. Leaving it set made openScan bail
                 // on its own guard forever after, so one refused scan - the OS
                 // rejects registrations that come too fast - killed every
@@ -248,32 +221,15 @@ class TpmsScanner(
             }
         }
         callback = cb
-        val settings = ScanSettings.Builder()
-            .setScanMode(
-                // Low latency while hunting, because these broadcast in short
-                // bursts and a slower mode misses most of them.
-                //
-                // Balanced once the sensor is known, not low power. Low power
-                // listens about a tenth of the time, and a cap that speaks for
-                // a few seconds when the pressure moves and then says nothing
-                // for an hour is exactly the signal that slips through a duty
-                // cycle like that. The vendor's own app runs low latency the
-                // whole time; balanced is the middle that still catches a
-                // burst without holding the radio open all day.
-                if (lowPower) ScanSettings.SCAN_MODE_BALANCED
-                else ScanSettings.SCAN_MODE_LOW_LATENCY
-            )
-            .build()
         // Hunting has no filter: the sensor is unknown, which is the point.
         // Watching a paired sensor asks the radio for that address alone, so
         // the phone is not woken for every advert around it all day. Every
-        // paired cap, one per wheel, not just the first. An address the
-        // builder refuses drops the filter, so the scan hears everything
-        // rather than nothing.
-        val filters = monitorFilterAddresses(asMonitor, tpms.sensors.value)?.let { addresses ->
-            runCatching { addresses.map { ScanFilter.Builder().setDeviceAddress(it).build() } }.getOrNull()
-        }
-        runCatching { scanner.startScan(filters, settings, cb) }
+        // paired cap, one per wheel, not just the first. The radio drops the
+        // filter when it refuses an address, so the scan hears everything
+        // rather than nothing. [lowPower] picks the radio's scan mode (see
+        // TpmsRadio.startScan).
+        val addresses = monitorFilterAddresses(asMonitor, tpms.sensors.value)
+        runCatching { radio.startScan(cb, lowPower, addresses) }
             .onSuccess {
                 // Only a search shows as "scanning" and only a search gives
                 // up; a monitor is invisible and runs on.
@@ -311,39 +267,29 @@ class TpmsScanner(
         }
     }
 
-    @SuppressLint("MissingPermission")
     fun stop() {
         window?.cancel()
         window = null
         val cb = callback ?: return
         callback = null
         _scanning.value = false
-        runCatching {
-            (context.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager)
-                ?.adapter?.bluetoothLeScanner?.stopScan(cb)
-        }
+        runCatching { radio.stopScan(cb) }
     }
 
-    @SuppressLint("MissingPermission")
-    private fun record(result: ScanResult) {
-        val rec = result.scanRecord
+    private fun record(result: TpmsAdvert) {
         val manu = HashMap<Int, String>()
         var decoded: Float? = null
         var isKnownSensor = false
-        rec?.manufacturerSpecificData?.let { sparse ->
-            for (i in 0 until sparse.size()) {
-                val id = sparse.keyAt(i)
-                val raw = sparse.valueAt(i) ?: continue
-                manu[id] = raw.toHex()
-                if (TpmsSignature.isSensor(id, raw, result.device.address)) isKnownSensor = true
-                if (decoded == null) {
-                    decoded = ZeepinTpmsDecoder.pressureKpa(id, raw)
-                        ?: LyTpmsDecoder.pressureKpa(id, raw, result.device.address)
-                }
+        for ((id, raw) in result.manufacturer) {
+            manu[id] = raw.toHex()
+            if (TpmsSignature.isSensor(id, raw, result.address)) isKnownSensor = true
+            if (decoded == null) {
+                decoded = ZeepinTpmsDecoder.pressureKpa(id, raw)
+                    ?: LyTpmsDecoder.pressureKpa(id, raw, result.address)
             }
         }
         val svc = HashMap<String, String>()
-        rec?.serviceData?.forEach { (uuid, bytes) -> svc[uuid.uuid.toString()] = bytes.toHex() }
+        result.serviceData.forEach { (uuid, bytes) -> svc[uuid] = bytes.toHex() }
         // Advertised service UUIDs, which carry no payload of their own but
         // are how some sensor families announce themselves. The best known
         // cheap TPMS advertises service 0x27A5 with an empty payload and the
@@ -351,11 +297,11 @@ class TpmsScanner(
         // advertisement with no manufacturer and no service DATA was thrown
         // away before anything looked at it. A hunt for an undecoded sensor
         // cannot afford a filter that hides whole shapes of packet.
-        val uuids = rec?.serviceUuids?.map { it.uuid.toString() }.orEmpty()
-        val name = rec?.deviceName ?: runCatching { result.device.name }.getOrNull()
+        val uuids = result.serviceUuids
+        val name = result.name
         if (manu.isEmpty() && svc.isEmpty() && uuids.isEmpty() && name.isNullOrBlank()) return
 
-        val address = result.device.address
+        val address = result.address
         val now = System.currentTimeMillis()
         val previous = _seen.value.firstOrNull { it.address == address }
         val seen = Seen(
@@ -415,23 +361,13 @@ class TpmsScanner(
             // The same packet carries the air temperature, so it costs nothing
             // to keep and answers "did the tyre lose air or just cool down".
             if (tpms.sensors.value.any { it.address == address }) {
-                rec?.manufacturerSpecificData?.let { sparse ->
-                    for (i in 0 until sparse.size()) {
-                        val t = LyTpmsDecoder.temperatureC(
-                            sparse.keyAt(i), sparse.valueAt(i) ?: continue, address
-                        )
-                        if (t != null) {
-                            tpms.submitPairedTemp(address, t)
-                            tpms.submitPairedVolts(
-                                address,
-                                LyTpmsDecoder.batteryVolts(sparse.keyAt(i), sparse.valueAt(i), address)
-                            )
-                            tpms.submitPairedState(
-                                address,
-                                LyTpmsDecoder.state(sparse.keyAt(i), sparse.valueAt(i), address)
-                            )
-                            break
-                        }
+                for ((id, raw) in result.manufacturer) {
+                    val t = LyTpmsDecoder.temperatureC(id, raw, address)
+                    if (t != null) {
+                        tpms.submitPairedTemp(address, t)
+                        tpms.submitPairedVolts(address, LyTpmsDecoder.batteryVolts(id, raw, address))
+                        tpms.submitPairedState(address, LyTpmsDecoder.state(id, raw, address))
+                        break
                     }
                 }
             }

@@ -1,12 +1,12 @@
 package com.eried.eucplanet.ble.radar
 
 import com.eried.eucplanet.data.model.RadarVendor
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
-import org.junit.Before
-import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 
 /**
  * Unit tests for [VariaAdapter.decode]. These run on the JVM, no Android
@@ -19,7 +19,7 @@ class VariaAdapterTest {
 
     private lateinit var adapter: VariaAdapter
 
-    @Before
+    @BeforeTest
     fun setUp() {
         adapter = VariaAdapter()
     }

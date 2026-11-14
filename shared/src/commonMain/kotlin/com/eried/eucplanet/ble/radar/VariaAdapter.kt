@@ -1,7 +1,7 @@
 package com.eried.eucplanet.ble.radar
 
 import com.eried.eucplanet.data.model.RadarVendor
-import java.util.UUID
+import kotlin.uuid.Uuid
 
 /**
  * Garmin Varia (RTL515, RTL516, RVR315, RCT715, eRTL615, RearVue 820,
@@ -50,7 +50,7 @@ class VariaAdapter : RadarAdapter {
     override val vendor = RadarVendor.VARIA
 
     /** Garmin Varia rear-view radar (RDR) primary service. */
-    override val serviceUuid: UUID = UUID.fromString("6a4e3200-667b-11e3-949a-0800200c9a66")
+    override val serviceUuid: Uuid = Uuid.parse("6a4e3200-667b-11e3-949a-0800200c9a66")
 
     /**
      * Threat-measurement characteristic (notify-only). Pycycling, harbour-tacho
@@ -58,8 +58,8 @@ class VariaAdapter : RadarAdapter {
      * Garmin spec at developer.garmin.com/radar-data-ble is NDA so we stick to
      * what is empirically known to work.
      */
-    override val notifyCharacteristicUuid: UUID =
-        UUID.fromString("6a4e3203-667b-11e3-949a-0800200c9a66")
+    override val notifyCharacteristicUuid: Uuid =
+        Uuid.parse("6a4e3203-667b-11e3-949a-0800200c9a66")
 
     /** All known Varia advertised-name prefixes. Case-insensitive. */
     private val namePrefixes = listOf("RTL", "RVR", "RCT", "eRTL", "Varia")

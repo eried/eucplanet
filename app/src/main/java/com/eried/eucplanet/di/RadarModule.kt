@@ -2,11 +2,14 @@ package com.eried.eucplanet.di
 
 import com.eried.eucplanet.ble.radar.RadarAdapter
 import com.eried.eucplanet.ble.radar.RadarConnectionManager
+import com.eried.eucplanet.ble.radar.RadarLink
+import com.eried.eucplanet.ble.radar.RadarScan
 import com.eried.eucplanet.ble.radar.RadarScanner
 import com.eried.eucplanet.ble.radar.VariaAdapter
 import com.eried.eucplanet.data.repository.RadarRepository
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.singleOf
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
 /**
@@ -23,8 +26,10 @@ val radarModule = module {
     // A fresh set per injection, as the multibinding was; its members are the
     // singletons above.
     factory<Set<RadarAdapter>>(DiQualifiers.RadarAdapters) { linkedSetOf(get<VariaAdapter>()) }
-    singleOf(::RadarConnectionManager)
-    single { RadarScanner(androidContext(), get(DiQualifiers.RadarAdapters)) }
+    // The shared repository and view model reach the Android BLE classes
+    // through RadarLink and RadarScan.
+    singleOf(::RadarConnectionManager) bind RadarLink::class
+    single { RadarScanner(androidContext(), get(DiQualifiers.RadarAdapters)) } bind RadarScan::class
     single {
         RadarRepository(
             settingsRepository = get(),

@@ -2,6 +2,7 @@ package com.eried.eucplanet.ble.radar
 
 import com.eried.eucplanet.data.model.RadarThreat
 import com.eried.eucplanet.data.model.RadarVendor
+import kotlin.uuid.Uuid
 
 /**
  * Per-vendor adapter for a rear-view BLE radar. Mirrors
@@ -29,13 +30,13 @@ interface RadarAdapter {
      * (notify) characteristic should be subscribed to. Vendor-specific:
      * Varia uses `6A4E3200-…`.
      */
-    val serviceUuid: java.util.UUID
+    val serviceUuid: Uuid
 
     /**
      * Notification characteristic that carries the threat-report frames.
      * Subscribed to after the service is discovered.
      */
-    val notifyCharacteristicUuid: java.util.UUID
+    val notifyCharacteristicUuid: Uuid
 
     /**
      * Decode one BLE notification into the current list of threats. The

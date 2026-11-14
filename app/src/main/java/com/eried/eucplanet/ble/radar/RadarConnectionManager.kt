@@ -20,6 +20,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.util.UUID
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.toJavaUuid
+import kotlin.uuid.toKotlinUuid
 
 /**
  * GATT instance dedicated to a rear-view radar (Garmin Varia today).
@@ -34,10 +37,13 @@ import java.util.UUID
  * subscribe to the adapter's notify characteristic, optionally subscribe
  * to the standard battery service, and forward decoded frames to the
  * repository as raw byte arrays paired with their characteristic UUID.
+ *
+ * The Android side of the shared [RadarLink].
  */
+@OptIn(ExperimentalUuidApi::class)
 class RadarConnectionManager(
     private val context: Context
-) {
+) : RadarLink {
     companion object {
         private const val TAG = "RadarConn"
 
@@ -65,20 +71,10 @@ class RadarConnectionManager(
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
 
     private val _connectionState = MutableStateFlow(ConnectionState.DISCONNECTED)
-    val connectionState: StateFlow<ConnectionState> = _connectionState.asStateFlow()
+    override val connectionState: StateFlow<ConnectionState> = _connectionState.asStateFlow()
 
-    /** Decoded notification frames, paired with the source characteristic UUID. */
-    data class RawNotification(val uuid: UUID, val bytes: ByteArray) {
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (other !is RawNotification) return false
-            return uuid == other.uuid && bytes.contentEquals(other.bytes)
-        }
-        override fun hashCode(): Int = 31 * uuid.hashCode() + bytes.contentHashCode()
-    }
-
-    private val _notifications = MutableSharedFlow<RawNotification>(extraBufferCapacity = 16)
-    val notifications: SharedFlow<RawNotification> = _notifications.asSharedFlow()
+    private val _notifications = MutableSharedFlow<RadarNotification>(extraBufferCapacity = 16)
+    override val notifications: SharedFlow<RadarNotification> = _notifications.asSharedFlow()
 
     @Volatile private var gatt: BluetoothGatt? = null
     @Volatile private var activeAdapter: RadarAdapter? = null
@@ -103,7 +99,7 @@ class RadarConnectionManager(
     private val pendingCccdWrites = ArrayDeque<BluetoothGattCharacteristic>()
 
     @SuppressLint("MissingPermission")
-    fun connect(address: String, adapter: RadarAdapter) {
+    override fun connect(address: String, adapter: RadarAdapter) {
         activeAdapter = adapter
         currentAddress = address
         reconnector.arm(address)
@@ -136,7 +132,7 @@ class RadarConnectionManager(
 
     /** Deliberate, user-initiated disconnect: stop auto-reconnect too. */
     @SuppressLint("MissingPermission")
-    fun disconnect() {
+    override fun disconnect() {
         reconnector.cancel()
         currentAddress = null
         activeAdapter = null
@@ -205,8 +201,8 @@ class RadarConnectionManager(
             }
             pendingCccdWrites.clear()
 
-            val radarService = g.getService(adapter.serviceUuid)
-            val notifyChar = radarService?.getCharacteristic(adapter.notifyCharacteristicUuid)
+            val radarService = g.getService(adapter.serviceUuid.toJavaUuid())
+            val notifyChar = radarService?.getCharacteristic(adapter.notifyCharacteristicUuid.toJavaUuid())
             if (notifyChar == null) {
                 Log.e(TAG, "Radar notify characteristic ${adapter.notifyCharacteristicUuid} not found")
                 disconnect()
@@ -313,6 +309,6 @@ class RadarConnectionManager(
 
     private fun handleNotification(uuid: UUID, value: ByteArray) {
         if (value.isEmpty()) return
-        _notifications.tryEmit(RawNotification(uuid, value))
+        _notifications.tryEmit(RadarNotification(uuid.toKotlinUuid(), value))
     }
 }

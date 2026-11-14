@@ -101,7 +101,8 @@ class KoinGraphTest {
             .mapNotNull { it.simpleName }
             .toSet()
 
-        val sources = listOf("src/main/java", "src/debug/java")
+        // The shared module's view models too: Android's Koin builds them.
+        val sources = listOf("src/main/java", "src/debug/java", "../shared/src/commonMain/kotlin")
             .flatMap { File(it).walkTopDown().filter { f -> f.extension == "kt" }.toList() }
             .filter { it.parentFile?.name != "di" }
             .associateWith { stripComments(it.readText()) }

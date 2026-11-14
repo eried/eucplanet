@@ -1,9 +1,9 @@
 package com.eried.eucplanet.tpms
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
+import kotlin.test.Test
 
 /**
  * The rules a second pressure source creates.
@@ -19,7 +19,7 @@ class TpmsPolicyTest {
     private fun wheel(kpa: Float, at: Long = t0) = TpmsReading(kpa, TpmsSource.WHEEL, at)
     private fun paired(kpa: Float, at: Long = t0) = TpmsReading(kpa, TpmsSource.PAIRED, at)
 
-    @Test fun `a paired sensor replaces the wheel's, which is what the settings row promises`() {
+    @Test fun `a paired sensor replaces the wheel's - which is what the settings row promises`() {
         val picked = TpmsPolicy.pick(paired(240f), wheel(200f), t0)
         assertEquals(TpmsSource.PAIRED, picked?.source)
         assertEquals(240f, picked?.kpa)
@@ -39,7 +39,7 @@ class TpmsPolicyTest {
         assertNull(TpmsPolicy.pick(old, wheel(200f, now), now))
     }
 
-    @Test fun `unpairing does fall back, because the rider asked for it`() {
+    @Test fun `unpairing does fall back - because the rider asked for it`() {
         val now = t0 + TpmsPolicy.STALE_AFTER_MS
         val picked = TpmsPolicy.pick(null, wheel(200f, now), now)
         assertEquals(TpmsSource.WHEEL, picked?.source)
@@ -67,7 +67,7 @@ class TpmsPolicyTest {
         assertEquals(200f, TpmsPolicy.readingOf(200f, TpmsSource.WHEEL, t0)?.kpa)
     }
 
-    @Test fun `zero from a paired cap is a flat tyre, and must be shown`() {
+    @Test fun `zero from a paired cap is a flat tyre - and must be shown`() {
         // The cap is screwed to a valve and reports what it measures. The
         // rider's own sensor read exactly 0 kPa against a gauge at 0 bar,
         // which is how its format was decoded. Throwing that away made a flat
@@ -162,7 +162,7 @@ class TpmsPolicyTest {
         assertEquals(listOf("5B:61:1B:22:22:22"), repo.sensors.value.map { it.address })
     }
 
-    @Test fun `a paired cap that has not spoken yet has no reading, and that is not a fault`() {
+    @Test fun `a paired cap that has not spoken yet has no reading - and that is not a fault`() {
         // These transmit when the pressure moves and stay quiet on a settled
         // tyre, so a freshly started app legitimately has a sensor and no
         // number. The row says it is waiting rather than blaming the decoder.

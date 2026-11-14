@@ -30,7 +30,6 @@ import com.eried.eucplanet.data.model.RadarFrame
 import com.eried.eucplanet.data.model.ThreatLevel
 import com.eried.eucplanet.ui.radar.RadarOverlayViewModel
 import com.eried.eucplanet.ui.theme.appColors
-import org.koin.compose.viewmodel.koinViewModel
 
 private const val LANE_RANGE_M = 140  // matches Garmin Varia's advertised reach
 private const val LANE_WIDTH_DP = 38
@@ -67,7 +66,7 @@ fun DashboardRadarMiniForSide(
     targetSide: String,
     modifier: Modifier = Modifier,
     onOpenSettings: () -> Unit = {},
-    viewModel: RadarOverlayViewModel = koinViewModel()
+    viewModel: RadarOverlayViewModel
 ) {
     val show by viewModel.shouldShow.collectAsState()
     val side by viewModel.side.collectAsState()

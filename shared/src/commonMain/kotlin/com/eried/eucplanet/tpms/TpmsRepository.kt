@@ -1,9 +1,13 @@
 package com.eried.eucplanet.tpms
 
 import com.eried.eucplanet.data.repository.TyrePressureFeed
+import com.eried.eucplanet.platform.System
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlin.concurrent.Volatile
 
 /**
  * The one place that knows the tyre's pressure, whoever measured it.
@@ -28,6 +32,9 @@ class TpmsRepository(
     /** For tests, which want the rules without a settings store behind them. */
     constructor() : this(TpmsPairingStore.None)
 
+    /** Guards adopt, forget and mutate, as @Synchronized on this did. */
+    private val lock = SynchronizedObject()
+
     // Written from the BLE callback thread, read from wherever recompute
     // happens to run.
     @Volatile private var wheelReading: TpmsReading? = null
@@ -41,8 +48,7 @@ class TpmsRepository(
      */
     val pairedAddress: StateFlow<String?> = _pairedAddress.asStateFlow()
 
-    @Synchronized
-    fun adopt(address: String) {
+    fun adopt(address: String): Unit = synchronized(lock) {
         if (_sensors.value.any { it.address == address }) return
         _sensors.value = _sensors.value + SensorState(address)
         _pairedAddress.value = _sensors.value.firstOrNull()?.address
@@ -50,8 +56,7 @@ class TpmsRepository(
     }
 
     /** Forget one cap, leaving the rider's other wheels alone. */
-    @Synchronized
-    fun forget(address: String, nowMs: Long = System.currentTimeMillis()) {
+    fun forget(address: String, nowMs: Long = System.currentTimeMillis()): Unit = synchronized(lock) {
         _sensors.value = _sensors.value.filterNot { it.address == address }
         // Clear the last addressless reading too, or recompute's fallback
         // resurrects the cap that was just deleted and keeps publishing its
@@ -118,8 +123,7 @@ class TpmsRepository(
         }
     }
 
-    @Synchronized
-    private fun mutate(address: String, block: (SensorState) -> SensorState) {
+    private fun mutate(address: String, block: (SensorState) -> SensorState): Unit = synchronized(lock) {
         val list = _sensors.value
         val i = list.indexOfFirst { it.address == address }
         _sensors.value =

@@ -1,8 +1,8 @@
 package com.eried.eucplanet.tpms
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
-import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
+import kotlin.test.Test
 
 /**
  * Which sensor speaks for the tyre when more than one can.
@@ -19,7 +19,7 @@ class TpmsActiveSensorTest {
     private fun cap(addr: String, at: Long) = TpmsPolicy.Candidate(addr, TpmsSource.PAIRED, at)
     private fun wheel(at: Long) = TpmsPolicy.Candidate(null, TpmsSource.WHEEL, at)
 
-    @Test fun `with only the wheel, the wheel is active`() {
+    @Test fun `with only the wheel - the wheel is active`() {
         val a = TpmsPolicy.pickActive(listOf(wheel(t0)), t0, null)
         assertEquals(TpmsSource.WHEEL, a?.source)
     }
@@ -38,7 +38,7 @@ class TpmsActiveSensorTest {
         assertEquals("A", a?.address)
     }
 
-    @Test fun `a cap that is merely quiet keeps its tyre, for a long time`() {
+    @Test fun `a cap that is merely quiet keeps its tyre - for a long time`() {
         // These caps transmit when the pressure MOVES and say nothing on a
         // settled tyre, so a healthy one is silent for hours. Handing over on
         // ten minutes of quiet would show the wheel's own sensor under the
@@ -76,7 +76,7 @@ class TpmsActiveSensorTest {
         assertEquals("B", a?.address)
     }
 
-    @Test fun `the freshest challenger wins, not just any of them`() {
+    @Test fun `the freshest challenger wins - not just any of them`() {
         val now = t0 + TpmsPolicy.ACTIVE_HOLD_MS + 5_000
         val a = TpmsPolicy.pickActive(
             listOf(cap("A", t0), cap("B", now - 30_000), cap("C", now - 1_000)), now, "A"
