@@ -2322,7 +2322,7 @@
     <string name="alarm_summary_adaptive_pitch_vol">тон і гучність</string>
     <string name="alarm_summary_adaptive_vol">гучність</string>
     <string name="reorg_drag_cd">Перетягніть, щоб змінити порядок</string>
-    <string name="reorg_hint">Упорядкуйте екран налаштувань і приховайте розділи, якими рідко користуєтеся. Приховані розділи переміщуються до «Більше».</string>
+    <string name="reorg_hint">Упорядкуйте екран налаштувань і приховайте розділи, якими рідко користуєтеся. Приховані розділи переміщуються до розділу «Більше».</string>
     <string name="studio_cd_close">Закрити студію</string>
     <string name="studio_cd_gallery">Відкрити галерею</string>
     <string name="studio_cd_mic">Мікрофон</string>

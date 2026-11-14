@@ -2320,7 +2320,7 @@
     <string name="alarm_summary_adaptive_pitch_vol">perde ve ses</string>
     <string name="alarm_summary_adaptive_vol">ses</string>
     <string name="reorg_drag_cd">Sıralamak için sürükle</string>
-    <string name="reorg_hint">Ayarlar ekranını yeniden düzenleyin ve az kullandığınız bölümleri gizleyin. Gizlenen bölümler Diğer\'e taşınır.</string>
+    <string name="reorg_hint">Ayarlar ekranını yeniden düzenleyin ve az kullandığınız bölümleri gizleyin. Gizlenen bölümler “Diğer” bölümüne taşınır.</string>
     <string name="studio_cd_close">Stüdyoyu kapat</string>
     <string name="studio_cd_gallery">Galeriyi aç</string>
     <string name="studio_cd_mic">Mikrofon</string>

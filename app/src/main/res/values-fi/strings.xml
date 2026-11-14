@@ -519,7 +519,7 @@
     <string name="tab_more">Lisää</string>
     <string name="settings_visibility">Asetusten näkyvyys</string>
     <string name="adv_timings_title">Ajoitukset ja muuttujat</string>
-    <string name="reorg_hint">Järjestä asetusnäyttö ja piilota osiot, joita käytät harvoin. Piilotetut osiot siirtyvät kohtaan Lisää.</string>
+    <string name="reorg_hint">Järjestä asetusnäyttö ja piilota osiot, joita käytät harvoin. Piilotetut osiot siirtyvät osioon ”Lisää”.</string>
     <string name="reorg_drag_cd">Muuta järjestystä vetämällä</string>
     <string name="adv_rates_warning">Nämä säätimet muuttavat ajoitusta koko sovelluksessa. Pienemmät arvot antavat tuoreempaa dataa ja nopeammat reaktiot, mutta kuluttavat enemmän akkua, suoritinta tai dataa. Oletukset sopivat useimmille ajajille. Muuta niitä vain jos ymmärrät vaikutuksen.</string>
     <string name="adv_pushonly_note">Jotkin laitteet lähettävät omalla kiinteällä tahdillaan ja jättävät nämä asetukset huomiotta: itse lähettävät yksipyöräiset (Begode, Gotway, Veteran, KingSong), ulkoinen GPS (RaceBox, Dragy), tutka ja Flic-painikkeet.</string>

@@ -525,7 +525,7 @@
     <string name="tab_more">Thêm</string>
     <string name="settings_visibility">Hiển thị cài đặt</string>
     <string name="adv_timings_title">Thời gian và biến số</string>
-    <string name="reorg_hint">Sắp xếp lại màn hình cài đặt và ẩn các mục ít dùng. Mục bị ẩn sẽ chuyển vào Thêm.</string>
+    <string name="reorg_hint">Sắp xếp lại màn hình cài đặt và ẩn các mục ít dùng. Mục bị ẩn sẽ chuyển vào mục “Thêm”.</string>
     <string name="reorg_drag_cd">Kéo để sắp xếp</string>
     <string name="adv_rates_warning">Các tùy chọn này thay đổi thời gian trong toàn ứng dụng. Giá trị thấp cho dữ liệu mới hơn và phản ứng nhanh hơn nhưng tốn pin, CPU hoặc dữ liệu hơn. Mặc định phù hợp với hầu hết người chạy xe. Chỉ thay đổi nếu bạn hiểu tác động.</string>
     <string name="adv_pushonly_note">Một số thiết bị gửi dữ liệu theo tần suất cố định riêng và bỏ qua các cài đặt này: xe chỉ đẩy dữ liệu (Begode, Gotway, Veteran, KingSong), GPS ngoài (RaceBox, Dragy), radar và nút Flic.</string>

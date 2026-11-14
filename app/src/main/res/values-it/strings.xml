@@ -2228,7 +2228,7 @@
     <string name="alarm_summary_adaptive_pitch_vol">tono e vol</string>
     <string name="alarm_summary_adaptive_vol">vol</string>
     <string name="reorg_drag_cd">Trascina per riordinare</string>
-    <string name="reorg_hint">Riorganizza la schermata delle impostazioni e nascondi le sezioni che usi poco. Le sezioni nascoste vanno in Altro.</string>
+    <string name="reorg_hint">Riorganizza la schermata delle impostazioni e nascondi le sezioni che usi poco. Le sezioni nascoste vanno nella sezione «Altro».</string>
     <string name="studio_cd_close">Chiudi studio</string>
     <string name="studio_cd_gallery">Apri galleria</string>
     <string name="studio_cd_mic">Microfono</string>

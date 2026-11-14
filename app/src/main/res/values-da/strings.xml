@@ -2338,7 +2338,7 @@
     <string name="alarm_summary_adaptive_pitch_vol">tone og lydstyrke</string>
     <string name="alarm_summary_adaptive_vol">lydstyrke</string>
     <string name="reorg_drag_cd">Træk for at ændre rækkefølge</string>
-    <string name="reorg_hint">Organisér indstillingsskærmen, og skjul afsnit, du sjældent bruger. Skjulte afsnit flyttes til Mere.</string>
+    <string name="reorg_hint">Organisér indstillingsskærmen, og skjul afsnit, du sjældent bruger. Skjulte afsnit flyttes til afsnittet »Mere«.</string>
     <string name="studio_cd_close">Luk studie</string>
     <string name="studio_cd_gallery">Åbn galleri</string>
     <string name="studio_cd_mic">Mikrofon</string>

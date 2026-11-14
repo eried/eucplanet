@@ -2324,7 +2324,7 @@
     <string name="alarm_summary_adaptive_pitch_vol">tom e vol</string>
     <string name="alarm_summary_adaptive_vol">vol</string>
     <string name="reorg_drag_cd">Arraste para reordenar</string>
-    <string name="reorg_hint">Reorganize a tela de configurações e oculte seções que você pouco usa. As seções ocultas vão para Mais.</string>
+    <string name="reorg_hint">Reorganize a tela de configurações e oculte seções que você pouco usa. As seções ocultas vão para a seção “Mais”.</string>
     <string name="studio_cd_close">Fechar o Studio</string>
     <string name="studio_cd_gallery">Abrir galeria</string>
     <string name="studio_cd_mic">Microfone</string>

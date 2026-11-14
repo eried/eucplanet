@@ -519,7 +519,7 @@
     <string name="tab_more">Mai multe</string>
     <string name="settings_visibility">Vizibilitatea setărilor</string>
     <string name="adv_timings_title">Temporizări și variabile</string>
-    <string name="reorg_hint">Reorganizează ecranul de setări și ascunde secțiunile pe care le folosești rar. Secțiunile ascunse trec la Mai multe.</string>
+    <string name="reorg_hint">Reorganizează ecranul de setări și ascunde secțiunile pe care le folosești rar. Secțiunile ascunse trec în secțiunea „Mai multe”.</string>
     <string name="reorg_drag_cd">Trage pentru a reordona</string>
     <string name="adv_rates_warning">Aceste controale schimbă temporizările din toată aplicația. Valorile mai mici oferă date mai proaspete și reacții mai rapide, dar consumă mai multă baterie, procesor sau trafic. Valorile implicite sunt potrivite pentru majoritatea monocicliștilor. Schimbă-le doar dacă înțelegi efectul.</string>
     <string name="adv_pushonly_note">Unele dispozitive transmit în ritmul lor fix și ignoră aceste setări: monociclurile care transmit singure (Begode, Gotway, Veteran, KingSong), GPS extern (RaceBox, Dragy), radarul și butoanele Flic.</string>

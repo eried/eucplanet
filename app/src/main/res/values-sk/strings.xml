@@ -560,7 +560,7 @@
     <string name="tab_more">Viac</string>
     <string name="settings_visibility">Viditeľnosť nastavení</string>
     <string name="adv_timings_title">Časovanie a premenné</string>
-    <string name="reorg_hint">Usporiadajte obrazovku nastavení a skryte sekcie, ktoré používate zriedka. Skryté sekcie sa presunú do Viac.</string>
+    <string name="reorg_hint">Usporiadajte obrazovku nastavení a skryte sekcie, ktoré používate zriedka. Skryté sekcie sa presunú do sekcie „Viac“.</string>
     <string name="reorg_drag_cd">Presunutím zmeníte poradie</string>
     <string name="adv_rates_warning">Tieto ovládacie prvky menia časovanie v celej aplikácii. Nižšie hodnoty prinášajú čerstvejšie dáta a rýchlejšie reakcie, ale spotrebujú viac batérie, procesora alebo dát. Predvolené hodnoty vyhovujú väčšine jazdcov. Meňte ich, len ak rozumiete dôsledkom.</string>
     <string name="adv_pushonly_note">Niektoré zariadenia posielajú dáta vlastnou pevnou frekvenciou a tieto nastavenia ignorujú: kolesá, ktoré len posielajú (Begode, Gotway, Veteran, KingSong), externá GPS (RaceBox, Dragy), radar a tlačidlá Flic.</string>

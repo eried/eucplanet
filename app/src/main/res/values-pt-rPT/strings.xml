@@ -544,7 +544,7 @@
     <string name="tab_more">Mais</string>
     <string name="settings_visibility">Visibilidade das definições</string>
     <string name="adv_timings_title">Tempos e variáveis</string>
-    <string name="reorg_hint">Reorganize o ecrã de definições e oculte secções que usa pouco. As secções ocultas passam para Mais.</string>
+    <string name="reorg_hint">Reorganize o ecrã de definições e oculte secções que usa pouco. As secções ocultas passam para a secção «Mais».</string>
     <string name="reorg_drag_cd">Arraste para reordenar</string>
     <string name="adv_rates_warning">Estes controlos alteram tempos em toda a app. Valores mais baixos dão dados mais recentes e reações mais rápidas, mas gastam mais bateria, CPU ou dados. As predefinições servem a maioria dos pilotos. Altere-os apenas se perceber o efeito.</string>
     <string name="adv_pushonly_note">Alguns dispositivos enviam dados ao seu próprio ritmo fixo e ignoram estas definições: rodas só de envio (Begode, Gotway, Veteran, KingSong), GPS externo (RaceBox, Dragy), radar e botões Flic.</string>

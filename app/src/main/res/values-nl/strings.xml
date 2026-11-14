@@ -2323,7 +2323,7 @@
     <string name="alarm_summary_adaptive_pitch_vol">toonhoogte en vol</string>
     <string name="alarm_summary_adaptive_vol">vol</string>
     <string name="reorg_drag_cd">Sleep om te ordenen</string>
-    <string name="reorg_hint">Herschik het instellingenscherm en verberg secties die je weinig gebruikt. Verborgen secties gaan naar Meer.</string>
+    <string name="reorg_hint">Herschik het instellingenscherm en verberg secties die je weinig gebruikt. Verborgen secties gaan naar de sectie ‘Meer’.</string>
     <string name="studio_cd_close">Studio sluiten</string>
     <string name="studio_cd_gallery">Galerij openen</string>
     <string name="studio_cd_mic">Microfoon</string>

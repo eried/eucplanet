@@ -519,7 +519,7 @@
     <string name="tab_more">Více</string>
     <string name="settings_visibility">Viditelnost nastavení</string>
     <string name="adv_timings_title">Časování a proměnné</string>
-    <string name="reorg_hint">Uspořádejte obrazovku nastavení a skryjte sekce, které málo používáte. Skryté sekce se přesunou do Více.</string>
+    <string name="reorg_hint">Uspořádejte obrazovku nastavení a skryjte sekce, které málo používáte. Skryté sekce se přesunou do sekce „Více“.</string>
     <string name="reorg_drag_cd">Přetažením změníte pořadí</string>
     <string name="adv_rates_warning">Tyto ovládací prvky mění časování v celé aplikaci. Nižší hodnoty poskytují čerstvější data a rychlejší reakce, ale spotřebují více baterie, výkonu nebo dat. Výchozí hodnoty vyhovují většině jezdců. Měňte je jen tehdy, když rozumíte jejich dopadu.</string>
     <string name="adv_pushonly_note">Některá zařízení posílají data vlastní pevnou rychlostí a tato nastavení ignorují: monokola posílající data sama (Begode, Gotway, Veteran, KingSong), externí GPS (RaceBox, Dragy), radar a tlačítka Flic.</string>

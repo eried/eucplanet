@@ -519,7 +519,7 @@
     <string name="tab_more">Továbbiak</string>
     <string name="settings_visibility">Beállítások láthatósága</string>
     <string name="adv_timings_title">Időzítések és változók</string>
-    <string name="reorg_hint">Rendezd át a beállítások képernyőt, és rejtsd el a ritkán használt részeket. A rejtett részek a Továbbiak alá kerülnek.</string>
+    <string name="reorg_hint">Rendezd át a beállítások képernyőt, és rejtsd el a ritkán használt részeket. A rejtett részek a „Továbbiak” rész alá kerülnek.</string>
     <string name="reorg_drag_cd">Húzd az átrendezéshez</string>
     <string name="adv_rates_warning">Ezek a vezérlők az egész alkalmazás időzítését módosítják. Az alacsonyabb értékek frissebb adatot és gyorsabb reakciót adnak, de több akkumulátort, processzort vagy adatot használnak. Az alapértékek a legtöbb egykerekűsnek megfelelnek. Csak akkor változtasd meg őket, ha érted a hatásukat.</string>
     <string name="adv_pushonly_note">Néhány eszköz saját, rögzített ütemben küld adatot, és figyelmen kívül hagyja ezeket a beállításokat: maguktól küldő egykerekűek (Begode, Gotway, Veteran, KingSong), külső GPS (RaceBox, Dragy), radar és Flic gombok.</string>

@@ -2321,7 +2321,7 @@
     <string name="alarm_summary_adaptive_pitch_vol">音高與音量</string>
     <string name="alarm_summary_adaptive_vol">音量</string>
     <string name="reorg_drag_cd">拖曳以重新排序</string>
-    <string name="reorg_hint">重新整理設定畫面，並隱藏不常用的區段。隱藏的區段會移到「更多」。</string>
+    <string name="reorg_hint">重新整理設定畫面，並隱藏不常用的區段。隱藏的區段會移到「更多」區段。</string>
     <string name="studio_cd_close">關閉工作室</string>
     <string name="studio_cd_gallery">開啟相簿</string>
     <string name="studio_cd_mic">麥克風</string>

@@ -2328,7 +2328,7 @@
     <string name="alarm_summary_adaptive_pitch_vol">hauteur et vol</string>
     <string name="alarm_summary_adaptive_vol">vol</string>
     <string name="reorg_drag_cd">Faire glisser pour réorganiser</string>
-    <string name="reorg_hint">Réorganisez l\'écran des paramètres et masquez les sections rarement utilisées. Les sections masquées passent dans Plus.</string>
+    <string name="reorg_hint">Réorganisez l\'écran des paramètres et masquez les sections rarement utilisées. Les sections masquées passent dans la section « Plus ».</string>
     <string name="studio_cd_close">Fermer le studio</string>
     <string name="studio_cd_gallery">Ouvrir la galerie</string>
     <string name="studio_cd_mic">Micro</string>

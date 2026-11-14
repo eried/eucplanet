@@ -2208,7 +2208,7 @@
     <string name="alarm_summary_adaptive_pitch_vol">tonehøyde og vol</string>
     <string name="alarm_summary_adaptive_vol">vol</string>
     <string name="reorg_drag_cd">Dra for å endre rekkefølge</string>
-    <string name="reorg_hint">Organiser innstillingsskjermen og skjul seksjoner du sjelden bruker. Skjulte seksjoner flyttes til Mer.</string>
+    <string name="reorg_hint">Organiser innstillingsskjermen og skjul seksjoner du sjelden bruker. Skjulte seksjoner flyttes til seksjonen «Mer».</string>
     <string name="studio_cd_close">Lukk studio</string>
     <string name="studio_cd_gallery">Åpne galleri</string>
     <string name="studio_cd_mic">Mikrofon</string>

@@ -525,7 +525,7 @@
     <string name="tab_more">Lainnya</string>
     <string name="settings_visibility">Visibilitas setelan</string>
     <string name="adv_timings_title">Waktu dan variabel</string>
-    <string name="reorg_hint">Atur ulang layar setelan dan sembunyikan bagian yang jarang Anda pakai. Bagian tersembunyi pindah ke Lainnya.</string>
+    <string name="reorg_hint">Atur ulang layar setelan dan sembunyikan bagian yang jarang Anda pakai. Bagian tersembunyi pindah ke bagian “Lainnya”.</string>
     <string name="reorg_drag_cd">Tarik untuk mengurutkan</string>
     <string name="adv_rates_warning">Kontrol ini mengubah pengaturan waktu di seluruh aplikasi. Nilai lebih rendah memberi data lebih segar dan reaksi lebih cepat, tetapi lebih boros baterai, CPU, atau data. Default cocok untuk sebagian besar pengendara. Ubah hanya jika Anda memahami efeknya.</string>
     <string name="adv_pushonly_note">Beberapa perangkat mengirim data dengan laju tetapnya sendiri dan mengabaikan setelan ini: EUC push-only (Begode, Gotway, Veteran, KingSong), GPS eksternal (RaceBox, Dragy), radar, dan tombol Flic.</string>

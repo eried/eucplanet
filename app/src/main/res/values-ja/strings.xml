@@ -2321,7 +2321,7 @@
     <string name="alarm_summary_adaptive_pitch_vol">ピッチと音量</string>
     <string name="alarm_summary_adaptive_vol">音量</string>
     <string name="reorg_drag_cd">ドラッグして並べ替え</string>
-    <string name="reorg_hint">設定画面を並べ替えて、あまり使わないセクションを非表示にできます。非表示にしたセクションは「その他」に移動します。</string>
+    <string name="reorg_hint">設定画面を並べ替えて、あまり使わないセクションを非表示にできます。非表示にしたセクションは「その他」セクションに移動します。</string>
     <string name="studio_cd_close">スタジオを閉じる</string>
     <string name="studio_cd_gallery">ギャラリーを開く</string>
     <string name="studio_cd_mic">マイク</string>
