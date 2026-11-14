@@ -792,7 +792,7 @@
     <string name="welcome_tut_outro_buttons">Pek çok düğmenin ek eylemi var, uzun basmayı deneyin</string>
     <string name="welcome_tut_outro_alarms">Ayarlar → %1$s kısmındaki güçlü alarm düzenleyicisini keşfedin</string>
     <string name="welcome_tut_outro_integrations">Entegrasyonları keşfedin: kask HUD\'ları, Wear OS saatler, Flic düğmeleri, Garmin Connect IQ ve arka radar</string>
-    <string name="welcome_tut_outro_integrations_iphone">Entegrasyonları keşfedin: Flic düğmeleri. Kask HUD\'ları, saatler ve arka radar henüz iPhone\'da yok</string>
+    <string name="welcome_tut_outro_integrations_iphone">Entegrasyonları keşfedin: Flic düğmeleri ve arka radar. Kask HUD\'ları ve saatler henüz iPhone\'da yok</string>
     <string name="welcome_tut_share">Sürüşlerinizi Ayarlar → %1$s altında yedekleyin. Onları %2$s bölümünde görebilir veya yedekleri eucviewer.ried.no adresinde inceleyebilirsiniz.\n\nAynı bölümden eucstats.ried.no adresindeki herkese açık lider tablolarına katılabilirsiniz</string>
     <string name="welcome_tut_outro_end">Tek tekerle sürerken gözünüz yolda olsun, bu uygulamada değil!</string>
     <string name="welcome_tut_speed">Anlık hızınız. Ayarlar → %1$s kısmından birimleri değiştirin</string>

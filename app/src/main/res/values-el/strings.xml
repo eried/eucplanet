@@ -1027,7 +1027,7 @@
     <string name="welcome_tut_outro_buttons">Πολλά κουμπιά έχουν επιπλέον ενέργειες, δοκιμάστε να τα πατήσετε παρατεταμένα</string>
     <string name="welcome_tut_outro_alarms">Εξερευνήστε τον ισχυρό επεξεργαστή προσαρμοσμένων συναγερμών στις Ρυθμίσεις → %1$s</string>
     <string name="welcome_tut_outro_integrations">Εξερευνήστε τις ενσωματώσεις: HUD κράνους, ρολόγια WearOS, κουμπιά Flic, Garmin Connect IQ και το ραντάρ οπισθοπορείας</string>
-    <string name="welcome_tut_outro_integrations_iphone">Εξερευνήστε τις ενσωματώσεις: κουμπιά Flic. Τα HUD κράνους, τα ρολόγια και το ραντάρ οπισθοπορείας δεν υπάρχουν ακόμα στο iPhone</string>
+    <string name="welcome_tut_outro_integrations_iphone">Εξερευνήστε τις ενσωματώσεις: κουμπιά Flic και το ραντάρ οπισθοπορείας. Τα HUD κράνους και τα ρολόγια δεν υπάρχουν ακόμα στο iPhone</string>
     <string name="welcome_tut_outro_end">Κρατήστε τα μάτια στον δρόμο και μακριά από την εφαρμογή όσο οδηγείτε!</string>
     <string name="welcome_tut_share">Δημιουργήστε αντίγραφα των διαδρομών σας στις Ρυθμίσεις → %1$s. Δείτε τες στο %2$s ή αναλύστε τα αντίγραφα στο eucviewer.ried.no.\n\nΣτην ίδια ενότητα μπορείτε να μπείτε στις δημόσιες κατατάξεις στο eucstats.ried.no</string>
     <string name="welcome_tut_speed">Η ζωντανή ταχύτητά σας. Αλλάξτε μονάδες στις Ρυθμίσεις → %1$s</string>

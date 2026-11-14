@@ -14,6 +14,7 @@ import com.eried.eucplanet.resources.Res
 import com.eried.eucplanet.resources.ic_launcher_foreground
 import com.eried.eucplanet.ui.dashboard.DashboardHost
 import com.eried.eucplanet.ui.dashboard.DashboardNavigation
+import com.eried.eucplanet.ui.dashboard.DashboardRadarMiniForSide
 import com.eried.eucplanet.ui.dashboard.ExperimentalBannerFlag
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,8 +26,8 @@ import platform.Foundation.NSURL
 import platform.UIKit.UIApplication
 
 /**
- * The iOS [DashboardHost]. The panels that are still Android code (radar,
- * data sources, voice vocabulary) are not on iOS yet: each
+ * The iOS [DashboardHost]. The panels that are still Android code (data
+ * sources, voice vocabulary) are not on iOS yet: each
  * closes itself or keeps its space, and docs/IOS_PARITY.md lists them.
  */
 internal class IosDashboardHost : DashboardHost {
@@ -40,6 +41,8 @@ internal class IosDashboardHost : DashboardHost {
     override val isDevBuild: Boolean = false
     // Spoken commands are not on iOS yet (IosDashboardPorts' NoVoiceCommands).
     override val supportsVoiceCommands: Boolean = false
+    // Neither has an iPhone side (SettingsHost.hiddenSections, docs/IOS_PARITY.md).
+    override val supportsWatchesAndHud: Boolean = false
 
     // The LICENSE file is not in the iOS bundle yet.
     override fun licenseText(): String = ""
@@ -73,7 +76,13 @@ internal class IosDashboardHost : DashboardHost {
     override fun ExperimentalBanner(state: ExperimentalBannerFlag, detectedWheelName: String?, detectedFirmware: String?) = Unit
 
     @Composable
-    override fun RadarMini(targetSide: String, modifier: Modifier, onOpenSettings: () -> Unit) = Unit
+    override fun RadarMini(targetSide: String, modifier: Modifier, onOpenSettings: () -> Unit) =
+        DashboardRadarMiniForSide(
+            targetSide = targetSide,
+            modifier = modifier,
+            onOpenSettings = onOpenSettings,
+            viewModel = rememberViewModel { IosAppGraph.radarOverlayViewModel() },
+        )
 
     @Composable
     override fun VoiceVocabularyDialog(onDismiss: () -> Unit, languageTag: String) {

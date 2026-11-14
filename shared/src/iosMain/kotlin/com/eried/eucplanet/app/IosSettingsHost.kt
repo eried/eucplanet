@@ -15,10 +15,17 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.compose.ui.unit.dp
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.platform.PlatformFeature
+import com.eried.eucplanet.platform.stringResource
+import com.eried.eucplanet.resources.Res
+import com.eried.eucplanet.resources.section_radar
+import com.eried.eucplanet.resources.section_tpms
 import com.eried.eucplanet.ui.common.NotYetSettingsRow
 import com.eried.eucplanet.ui.settings.AlarmViewModel
 import com.eried.eucplanet.ui.settings.FlicViewModel
 import com.eried.eucplanet.ui.settings.PermissionGate
+import com.eried.eucplanet.ui.settings.RadarSection
+import com.eried.eucplanet.ui.settings.SectionHeader
+import com.eried.eucplanet.ui.settings.TpmsSection
 import com.eried.eucplanet.ui.settings.SettingsHost
 import com.eried.eucplanet.ui.settings.SettingsRow
 import com.eried.eucplanet.ui.settings.SettingsViewModel
@@ -32,8 +39,7 @@ import platform.UIKit.UIApplication
 /**
  * The iOS [SettingsHost]. The sections iOS has no counterpart for (the HUD,
  * the car screen, the phone HUD window, the watches, the folder backups) draw
- * nothing; the radar and tyre sensors, coming later, draw a muted "not yet"
- * row. See docs/IOS_PARITY.md for the split.
+ * nothing. See docs/IOS_PARITY.md for the split.
  */
 internal object IosSettingsHost : SettingsHost {
 
@@ -125,12 +131,22 @@ internal object IosSettingsHost : SettingsHost {
     @Composable
     override fun ExternalGpsSettings() = Unit
 
-    // Coming to the iPhone: named, muted, and a tap says not yet.
+    // The shared sections, as AndroidSettingsHost draws them, over the
+    // CoreBluetooth radar link and tyre radio (IosAppGraph).
     @Composable
-    override fun RadarSettings() = NotYetSettingsRow(PlatformFeature.RADAR)
+    override fun RadarSettings() {
+        SectionHeader(stringResource(Res.string.section_radar))
+        RadarSection(
+            viewModel = rememberViewModel { IosAppGraph.radarViewModel() },
+            settingsViewModel = rememberViewModel { IosAppGraph.settingsViewModel() },
+        )
+    }
 
     @Composable
-    override fun TpmsSettings() = NotYetSettingsRow(PlatformFeature.TPMS)
+    override fun TpmsSettings() {
+        SectionHeader(stringResource(Res.string.section_tpms))
+        TpmsSection(viewModel = rememberViewModel { IosAppGraph.tpmsViewModel() })
+    }
 
     @Composable
     override fun HudAndCarSettings(settings: AppSettings, viewModel: SettingsViewModel) = Unit

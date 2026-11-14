@@ -996,7 +996,7 @@
     <string name="welcome_tut_outro_buttons">Multe butoane au acțiuni suplimentare, încearcă să le apeși lung</string>
     <string name="welcome_tut_outro_alarms">Explorează editorul puternic de alarme personalizate în Setări → %1$s</string>
     <string name="welcome_tut_outro_integrations">Explorează integrările: HUD-uri de cască, ceasuri WearOS, butoane Flic, Garmin Connect IQ și radarul pentru spate</string>
-    <string name="welcome_tut_outro_integrations_iphone">Explorează integrările: butoane Flic. HUD-urile de cască, ceasurile și radarul pentru spate încă nu sunt pe iPhone</string>
+    <string name="welcome_tut_outro_integrations_iphone">Explorează integrările: butoane Flic și radarul pentru spate. HUD-urile de cască și ceasurile încă nu sunt pe iPhone</string>
     <string name="welcome_tut_outro_end">Ține ochii pe drum și departe de această aplicație cât mergi pe monociclu!</string>
     <string name="welcome_tut_share">Salvează-ți cursele în Setări → %1$s. Vezi-le în %2$s sau analizează copiile de rezervă pe eucviewer.ried.no.\n\nÎn aceeași secțiune te poți alătura clasamentelor publice pe eucstats.ried.no</string>
     <string name="welcome_tut_speed">Viteza ta în timp real. Schimbă unitățile în Setări → %1$s</string>

@@ -996,7 +996,7 @@
     <string name="welcome_tut_outro_buttons">Sok gombnak vannak további műveletei, próbáld hosszan nyomni őket</string>
     <string name="welcome_tut_outro_alarms">Fedezd fel a nagy tudású egyéni riasztásszerkesztőt itt: Beállítások → %1$s</string>
     <string name="welcome_tut_outro_integrations">Fedezd fel az integrációkat: sisak-HUD-ok, WearOS órák, Flic gombok, Garmin Connect IQ és a hátratekintő radar</string>
-    <string name="welcome_tut_outro_integrations_iphone">Fedezd fel az integrációkat: Flic gombok. A sisak-HUD-ok, az órák és a hátratekintő radar iPhone-on még nem érhetők el</string>
+    <string name="welcome_tut_outro_integrations_iphone">Fedezd fel az integrációkat: Flic gombok és a hátratekintő radar. A sisak-HUD-ok és az órák iPhone-on még nem érhetők el</string>
     <string name="welcome_tut_outro_end">Egykerekűzés közben az úton tartsd a szemed, ne ezen az alkalmazáson!</string>
     <string name="welcome_tut_share">Mentsd a meneteidet itt: Beállítások → %1$s. Nézd meg őket itt: %2$s, vagy elemezd a mentéseket az eucviewer.ried.no oldalon.\n\nUgyanebben a részben csatlakozhatsz a nyilvános ranglistákhoz az eucstats.ried.no oldalon</string>
     <string name="welcome_tut_speed">Az élő sebességed. A mértékegységet itt módosíthatod: Beállítások → %1$s</string>

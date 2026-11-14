@@ -33,5 +33,15 @@ class IosPlatformFeaturesTest {
         assertTrue(com.eried.eucplanet.ui.settings.SettingsRow.PHONE_VOLUME in IosSettingsHost.hiddenRows)
         // It can pause another app's music but not start it or skip tracks.
         assertFalse(IosSettingsHost.drivesMusicPlayer)
+        // So the tour's last page names Flic and the radar, not the HUDs or watches.
+        assertFalse(IosDashboardHost().supportsWatchesAndHud)
+    }
+
+    @Test fun radarAndTpmsAreOnTheIphone() {
+        // Their sections draw the shared RadarSection and TpmsSection now, so
+        // neither is listed as coming (SettingsSearchHiddenRowsTest checks the search).
+        val names = missingPlatformFeatures.map { it.name }
+        assertFalse("RADAR" in names)
+        assertFalse("TPMS" in names)
     }
 }

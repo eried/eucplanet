@@ -796,7 +796,7 @@
     <string name="welcome_tut_outro_buttons">Wiele przycisków ma dodatkowe akcje, spróbuj je przytrzymać</string>
     <string name="welcome_tut_outro_alarms">Poznaj rozbudowany edytor alarmów w Ustawienia → %1$s</string>
     <string name="welcome_tut_outro_integrations">Poznaj integracje: HUD-y do kasku, zegarki Wear OS, przyciski Flic, Garmin Connect IQ i radar tylny</string>
-    <string name="welcome_tut_outro_integrations_iphone">Poznaj integracje: przyciski Flic. HUD-y do kasku, zegarki i radar tylny są jeszcze niedostępne na iPhonie</string>
+    <string name="welcome_tut_outro_integrations_iphone">Poznaj integracje: przyciski Flic i radar tylny. HUD-y do kasku i zegarki są jeszcze niedostępne na iPhonie</string>
     <string name="welcome_tut_share">Twórz kopie zapasowe przejazdów w Ustawienia → %1$s. Przejrzyj je w %2$s lub przeanalizuj kopie na eucviewer.ried.no.\n\nW tej samej sekcji możesz dołączyć do publicznych rankingów na eucstats.ried.no</string>
     <string name="welcome_tut_outro_end">Podczas jazdy patrz na drogę, nie na tę aplikację!</string>
     <string name="welcome_tut_speed">Twoja bieżąca prędkość. Zmień jednostki w Ustawienia → %1$s</string>

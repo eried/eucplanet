@@ -4,6 +4,18 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import com.eried.eucplanet.ble.CompositeWheelAdapter
 import com.eried.eucplanet.cheats.CheatState
 import com.eried.eucplanet.ble.IosWheelLink
+import com.eried.eucplanet.ble.radar.IosRadarLink
+import com.eried.eucplanet.ble.radar.IosRadarScan
+import com.eried.eucplanet.ble.radar.RadarAdapter
+import com.eried.eucplanet.ble.radar.VariaAdapter
+import com.eried.eucplanet.data.repository.RadarRepository
+import com.eried.eucplanet.tpms.IosTpmsRadio
+import com.eried.eucplanet.tpms.SettingsTpmsPairingStore
+import com.eried.eucplanet.tpms.TpmsRepository
+import com.eried.eucplanet.tpms.TpmsScanner
+import com.eried.eucplanet.ui.radar.RadarOverlayViewModel
+import com.eried.eucplanet.ui.settings.RadarViewModel
+import com.eried.eucplanet.ui.settings.TpmsViewModel
 import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.data.repository.DropboxLinkScratch
 import com.eried.eucplanet.data.repository.DropboxRepository
@@ -116,6 +128,31 @@ object IosAppGraph {
     val link: IosWheelLink by lazy { IosWheelLink(adapter) }
 
     /**
+     * The rear-view radar, as Android's radarModule builds it: one adapter
+     * set, a link and a pairing scan of their own over CoreBluetooth, and the
+     * shared repository, which reconnects a paired radar once it exists.
+     */
+    private val radarAdapters: Set<RadarAdapter> by lazy { linkedSetOf(VariaAdapter()) }
+    val radarLink: IosRadarLink by lazy { IosRadarLink() }
+    val radarScan: IosRadarScan by lazy { IosRadarScan(radarAdapters) }
+    val radar: RadarRepository by lazy {
+        RadarRepository(
+            settingsRepository = settings,
+            connectionManager = radarLink,
+            adapters = radarAdapters,
+            alarmEngine = alarmEngine,
+        )
+    }
+
+    /**
+     * The tyre caps, as Android's tpmsModule builds them: paired caps kept in
+     * settings, the shared repository and scanner, and the CoreBluetooth radio
+     * (IosTpmsRadio, which reads each cap's MAC from its payload).
+     */
+    val tpms: TpmsRepository by lazy { TpmsRepository(SettingsTpmsPairingStore(settings)) }
+    val tpmsScanner: TpmsScanner by lazy { TpmsScanner(IosTpmsRadio(), tpms) }
+
+    /**
      * Notices from code with no screen of its own (the wheel, Dropbox, the
      * trip tools), shown by the root snackbar host in MainViewController, as
      * MainActivity shows AppNotifier's on Android.
@@ -167,7 +204,7 @@ object IosAppGraph {
             phoneSensorRepository = NoPhoneImu,
             externalGpsRepository = NoExternalGps,
             legalLockdown = IosLockdown.controller,
-            tpmsRepository = NoTyrePressure,
+            tpmsRepository = tpms,
             accelSplitRepository = NoAccelSplits,
             tripRepositoryLazy = lazyOf(NoRecording),
             appNotifier = notices,
@@ -287,6 +324,15 @@ object IosAppGraph {
         platform = IosSettingsPlatform,
         hornPlayer = horn,
     )
+
+    /** The radar section's view model, as Koin's viewModelOf builds it on Android. */
+    fun radarViewModel(): RadarViewModel = RadarViewModel(radar, radarScan, settings)
+
+    /** The dashboard radar lane's view model. */
+    fun radarOverlayViewModel(): RadarOverlayViewModel = RadarOverlayViewModel(settings, radar)
+
+    /** The TPMS section's view model. */
+    fun tpmsViewModel(): TpmsViewModel = TpmsViewModel(settings, tpmsScanner, tpms)
 
     /** The trip list's view model, as Koin's viewModelOf builds it on Android. */
     fun eucViewerViewModel(): EucViewerViewModel = EucViewerViewModel(IosTrips)

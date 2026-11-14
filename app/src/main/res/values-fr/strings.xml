@@ -796,7 +796,7 @@
     <string name="welcome_tut_outro_buttons">Beaucoup de boutons ont des actions supplémentaires : essayez un appui long</string>
     <string name="welcome_tut_outro_alarms">Découvrez le puissant éditeur d\'alarmes personnalisées dans Paramètres → %1$s</string>
     <string name="welcome_tut_outro_integrations">Découvrez les intégrations : HUD de casque, montres Wear OS, boutons Flic, Garmin Connect IQ et radar arrière</string>
-    <string name="welcome_tut_outro_integrations_iphone">Découvrez les intégrations : boutons Flic. Les HUD de casque, les montres et le radar arrière ne sont pas encore sur iPhone</string>
+    <string name="welcome_tut_outro_integrations_iphone">Découvrez les intégrations : boutons Flic et radar arrière. Les HUD de casque et les montres ne sont pas encore sur iPhone</string>
     <string name="welcome_tut_share">Sauvegardez vos trajets dans Paramètres → %1$s. Consultez-les dans %2$s ou analysez les sauvegardes sur eucviewer.ried.no.\n\nDans la même section, vous pouvez rejoindre les classements publics sur eucstats.ried.no</string>
     <string name="welcome_tut_outro_end">Gardez les yeux sur la route, pas sur cette application, quand vous roulez !</string>
     <string name="welcome_tut_speed">Votre vitesse en direct. Changez les unités dans Paramètres → %1$s</string>

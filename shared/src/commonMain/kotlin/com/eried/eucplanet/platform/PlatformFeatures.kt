@@ -28,8 +28,6 @@ enum class PlatformFeature(
     // phone, since the weather in it works without the navigator.
     NAVIGATION(Res.string.nav_setting_params, actionKey = "OPEN_NAVIGATION"),
     GPS_SENSORS(Res.string.section_external_gps, settingsSection = "location"),
-    RADAR(Res.string.section_radar),
-    TPMS(Res.string.section_tpms),
     CAMERA_STUDIO(Res.string.action_chip_open_studio, actionKey = "OPEN_STUDIO"),
     MOTOR_SOUND(Res.string.section_engine_sound, settingsSection = "motor"),
     HOME_WIDGETS(Res.string.widget_section);

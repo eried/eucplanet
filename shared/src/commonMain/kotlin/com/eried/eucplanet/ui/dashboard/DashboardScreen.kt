@@ -3542,6 +3542,7 @@ fun DashboardScreen(
                 // Reflect the real voice state so the switch can't show "off"
                 // while announcements are actually on.
                 voiceCurrentlyOn = wizardVoiceOn,
+                watchesAndHud = host.supportsWatchesAndHud,
                 isDev = host.isDevBuild,
                 onSetBackupFolder = { wizardPickFolder() },
                 dropboxLinked = wizardDropboxLinked,

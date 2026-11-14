@@ -1048,7 +1048,7 @@
     <string name="welcome_tut_outro_buttons">Много бутони имат допълнителни действия, опитайте да ги задържите</string>
     <string name="welcome_tut_outro_alarms">Разгледайте мощния редактор на персонални аларми в Настройки → %1$s</string>
     <string name="welcome_tut_outro_integrations">Разгледайте интеграциите: HUD за каска, часовници с WearOS, бутони Flic, Garmin Connect IQ и радар за задно виждане</string>
-    <string name="welcome_tut_outro_integrations_iphone">Разгледайте интеграциите: бутони Flic. HUD за каска, часовници и радар за задно виждане още не са за iPhone</string>
+    <string name="welcome_tut_outro_integrations_iphone">Разгледайте интеграциите: бутони Flic и радар за задно виждане. HUD за каска и часовници още не са за iPhone</string>
     <string name="welcome_tut_outro_end">Гледайте пътя, а не това приложение, докато карате моноколелото!</string>
     <string name="welcome_tut_share">Архивирайте пътуванията си в Настройки → %1$s. Разгледайте ги в %2$s или анализирайте архивите на eucviewer.ried.no.\n\nВ същия раздел можете да се включите в публичните класации на eucstats.ried.no</string>
     <string name="welcome_tut_speed">Скоростта ви на живо. Сменете мерните единици в Настройки → %1$s</string>

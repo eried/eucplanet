@@ -796,7 +796,7 @@
     <string name="welcome_tut_outro_buttons">У многих кнопок есть дополнительные действия, попробуйте удерживать их</string>
     <string name="welcome_tut_outro_alarms">Попробуйте мощный редактор сигналов: Настройки → %1$s</string>
     <string name="welcome_tut_outro_integrations">Изучите интеграции: HUD для шлема, часы Wear OS, кнопки Flic, Garmin Connect IQ и радар заднего вида</string>
-    <string name="welcome_tut_outro_integrations_iphone">Изучите интеграции: кнопки Flic. HUD для шлема, часов и радара заднего вида пока нет на iPhone</string>
+    <string name="welcome_tut_outro_integrations_iphone">Изучите интеграции: кнопки Flic и радар заднего вида. HUD для шлема и часов пока нет на iPhone</string>
     <string name="welcome_tut_share">Делайте резервные копии поездок в Настройках → %1$s. Смотрите их в %2$s или анализируйте копии на eucviewer.ried.no.\n\nВ том же разделе можно присоединиться к публичным таблицам лидеров на eucstats.ried.no</string>
     <string name="welcome_tut_outro_end">Следите за дорогой, а не за приложением, пока едете на моноколесе!</string>
     <string name="welcome_tut_speed">Ваша текущая скорость. Единицы меняются в разделе Настройки → %1$s</string>

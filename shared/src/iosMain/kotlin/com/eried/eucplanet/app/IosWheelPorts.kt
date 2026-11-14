@@ -11,9 +11,7 @@ import com.eried.eucplanet.data.repository.PhoneImu
 import com.eried.eucplanet.data.repository.PhoneImuSample
 import com.eried.eucplanet.data.repository.RideRecording
 import com.eried.eucplanet.data.repository.RouteKeepAlive
-import com.eried.eucplanet.data.repository.TyrePressureFeed
 import com.eried.eucplanet.platform.format
-import com.eried.eucplanet.tpms.TpmsReading
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,7 +23,7 @@ import platform.AudioToolbox.kSystemSoundID_Vibrate
 import platform.UIKit.UIDevice
 
 // The iOS side of WheelRepositoryPorts. Each feature that is not on iOS yet
-// (alarms, voice, trips, TPMS caps, external GPS, the phone IMU) answers as
+// (alarms, voice, trips, external GPS, the phone IMU) answers as
 // the Android app does with that feature switched off, and is replaced when
 // the feature lands; docs/IOS_PARITY.md tracks which.
 
@@ -48,12 +46,6 @@ internal object NoExternalGps : ExternalGpsFeed {
         MutableStateFlow(ConnectionState.DISCONNECTED).asStateFlow()
     override val currentSample: StateFlow<ExternalGpsSample?> =
         MutableStateFlow<ExternalGpsSample?>(null).asStateFlow()
-}
-
-/** TPMS caps are not on iOS yet; no paired sensor reading. */
-internal object NoTyrePressure : TyrePressureFeed {
-    override val current: StateFlow<TpmsReading?> = MutableStateFlow<TpmsReading?>(null).asStateFlow()
-    override fun submitWheel(kpa: Float, nowMs: Long) = Unit
 }
 
 internal object NoAccelSplits : AccelSplitReset {

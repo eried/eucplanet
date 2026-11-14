@@ -64,6 +64,10 @@ class SettingsSearchHiddenRowsTest {
         assertTrue(found("cloud", "crews_pass_action", iphone))
         // The notification's quick actions are the Live Activity's buttons there.
         assertTrue(found("general", "notif_actions_enable", iphone))
+        // The radar and the tyre caps run on the iPhone, so the search lands on them.
+        assertTrue(found("integration", "section_radar", iphone))
+        assertTrue(found("integration", "radar_pair_action", iphone))
+        assertTrue(found("integration", "section_tpms", iphone))
     }
 
     @Test fun aHeadingStaysWhileAnyOfItsRowsShows() {

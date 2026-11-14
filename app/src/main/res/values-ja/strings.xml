@@ -792,7 +792,7 @@
     <string name="welcome_tut_outro_buttons">多くのボタンには追加アクションがあります。長押しを試してみてください</string>
     <string name="welcome_tut_outro_alarms">設定 → %1$s で強力なカスタムアラームエディターを試してください</string>
     <string name="welcome_tut_outro_integrations">連携機能もお試しください: ヘルメット HUD、Wear OS ウォッチ、Flic ボタン、Garmin Connect IQ、後方レーダー</string>
-    <string name="welcome_tut_outro_integrations_iphone">連携機能もお試しください: Flic ボタン。ヘルメット HUD、ウォッチ、後方レーダーは iPhone ではまだ使えません</string>
+    <string name="welcome_tut_outro_integrations_iphone">連携機能もお試しください: Flic ボタンと後方レーダー。ヘルメット HUD とウォッチは iPhone ではまだ使えません</string>
     <string name="welcome_tut_share">設定 → %1$s でトリップをバックアップしましょう。%2$s で確認したり、eucviewer.ried.no でバックアップを分析したりできます。\n\n同じセクションから eucstats.ried.no の公開リーダーボードに参加できます</string>
     <string name="welcome_tut_outro_end">走行中はアプリを見ずに、前方に集中してください！</string>
     <string name="welcome_tut_speed">ライブ速度。設定 → %1$s で単位を変更できます</string>

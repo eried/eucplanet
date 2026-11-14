@@ -106,6 +106,11 @@ fun MainViewController(): UIViewController {
     IosEucStats.start()
     // The charge alerts, as WheelService posts them on Android.
     IosChargeAlerts.start()
+    // The radar and the tyre caps, as WheelService injects them on Android:
+    // the repository reconnects a paired radar once it exists, and the
+    // scanner listens for paired caps, following the pairing from then on.
+    IosAppGraph.radar
+    IosAppGraph.tpmsScanner.startMonitoring()
     // SIMCTL_CHILD_EUC_VOICE_EVERY=15 makes the periodic report speak every
     // 15 s whatever the speed and output, to hear it with the app in the
     // background on the simulator. It is saved, like any settings change.

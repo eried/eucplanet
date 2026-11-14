@@ -996,7 +996,7 @@
     <string name="welcome_tut_outro_buttons">Mnoho tlačítek má další akce, zkuste je dlouze stisknout</string>
     <string name="welcome_tut_outro_alarms">Prozkoumejte mocný editor vlastních alarmů v Nastavení → %1$s</string>
     <string name="welcome_tut_outro_integrations">Prozkoumejte integrace: HUD do přilby, hodinky WearOS, tlačítka Flic, Garmin Connect IQ a radar do zpětného zrcátka</string>
-    <string name="welcome_tut_outro_integrations_iphone">Prozkoumejte integrace: tlačítka Flic. HUD do přilby, hodinky a radar do zpětného zrcátka na iPhonu zatím nejsou</string>
+    <string name="welcome_tut_outro_integrations_iphone">Prozkoumejte integrace: tlačítka Flic a radar do zpětného zrcátka. HUD do přilby a hodinky na iPhonu zatím nejsou</string>
     <string name="welcome_tut_outro_end">Při jízdě na monokole sledujte cestu, ne tuto aplikaci!</string>
     <string name="welcome_tut_share">Zálohujte si jízdy v Nastavení → %1$s. Prohlédněte si je v %2$s nebo zálohy analyzujte na eucviewer.ried.no.\n\nVe stejné sekci se můžete připojit k veřejným žebříčkům na eucstats.ried.no</string>
     <string name="welcome_tut_speed">Vaše aktuální rychlost. Jednotky změníte v Nastavení → %1$s</string>
