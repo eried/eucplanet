@@ -116,8 +116,7 @@
     <string name="lock_blocked_in_motion_toast">Ak chcete koleso zamknúť, spomaľte</string>
     <string name="action_recorder">Záznamník</string>
     <string name="action_recorder_trips">Záznamník\n(jazdy: %1$d)</string>
-    <string name="action_recorder_trips_one">Záznamník
-(%1$d jazda)</string>
+    <string name="action_recorder_trips_one">Záznamník\n(%1$d jazda)</string>
 
     <!-- Settings tabs -->
     <string name="search_settings">Hľadať v nastaveniach</string>
@@ -182,8 +181,8 @@
     <string name="dashboard_rolling_window_30m">30 min</string>
     <string name="dashboard_rolling_window_1h">1 hodina</string>
     <string name="dashboard_restore_slot">Obnoviť pozíciu</string>
-    <string name="metric_detail_reset">Obnoviť</string>
-    <string name="metric_detail_reset_all">Obnoviť všetko</string>
+    <string name="metric_detail_reset">Vynulovať</string>
+    <string name="metric_detail_reset_all">Vynulovať všetko</string>
     <string name="metric_detail_reset_all_confirm_title">Vymazať celú históriu?</string>
     <string name="metric_detail_reset_all_confirm_body">Vymaže priebežnú históriu všetkých metrík. Nastavenia a záznamy jázd zostanú nezmenené.</string>
     <string name="metric_detail_show_label">Hodnota</string>
@@ -278,7 +277,7 @@
     <string name="metric_chip_motor_power_tile">Mot W</string>
     <string name="metric_chip_battery_temp_tile">Bat T</string>
     <string name="metric_chip_motor_temp_tile">Mot T</string>
-    <string name="metric_chip_controller_temp_tile">Ried T</string>
+    <string name="metric_chip_controller_temp_tile">Riad T</string>
     <string name="metric_chip_dyn_speed_limit_tile">Limit rýchl.</string>
     <string name="metric_chip_dyn_current_limit_tile">Limit A</string>
     <string name="metric_chip_auto_off_tile">Auto vyp.</string>
@@ -339,7 +338,7 @@
     <string name="voice_unknown_cue">Keď nerozumie</string>
     <string name="voice_unknown_message">Správa</string>
     <string name="voice_recognition_language">Jazyk príkazov</string>
-    <string name="voice_recognition_desc">Jazyk, v ktorom hovoríte príkazy. Riadi sa hlasom, pokiaľ nevyberiete iný.</string>
+    <string name="voice_recognition_desc">Jazyk, v ktorom hovoríte príkazy. Riadi sa hlasom, ak nevyberiete iný.</string>
     <string name="voice_recognition_follow">Ako hlas</string>
     <string name="voice_headset_button">Hlasové tlačidlo slúchadiel</string>
     <string name="voice_headset_chooser_hint">Android sa spýta, ktorá aplikácia má reagovať.</string>
@@ -412,7 +411,7 @@
     <string name="voice_sp_weather_terms">počasie,dobrý deň na jazdu,je dobrý deň</string>
     <string name="voice_sp_daylight_terms">denné svetlo,západ slnka,kedy bude tma</string>
     <string name="voice_sp_connected_terms">pripojené,je koleso pripojené</string>
-    <string name="voice_sp_uptime_terms">ako dlho pripojené,pripojené od,doba pripojenia</string>
+    <string name="voice_sp_uptime_terms">ako dlho pripojené,pripojené od,čas pripojenia</string>
     <string name="voice_sp_nav_terms">navigácia,čo je ďalej,zopakuj</string>
     <string name="voice_sp_last_trip_terms">posledná jazda,predchádzajúca jazda</string>
     <string name="voice_sp_report_terms">hlásenie,stav,hlasové hlásenie</string>
@@ -494,10 +493,10 @@
     <!-- HUD button long-press actions -->
     <string name="hud_joystick_title">Akcie tlačidiel</string>
     <string name="hud_joystick_desc">Dvojitým klepnutím na tlačidlo HUD spustíte akciu. Jedno klepnutie stále prepína obrazovky.</string>
-    <string name="hud_joystick_up">Hore (dvojklep)</string>
-    <string name="hud_joystick_down">Dole (dvojklep)</string>
-    <string name="hud_joystick_left">Vľavo (dvojklep)</string>
-    <string name="hud_joystick_right">Vpravo (dvojklep)</string>
+    <string name="hud_joystick_up">Hore (dvojklik)</string>
+    <string name="hud_joystick_down">Dole (dvojklik)</string>
+    <string name="hud_joystick_left">Vľavo (dvojklik)</string>
+    <string name="hud_joystick_right">Vpravo (dvojklik)</string>
 
     <!-- HUD Personalize collapsible card -->
     <string name="hud_screens_title">Obrazovky HUD</string>
@@ -564,7 +563,7 @@
     <string name="reorg_hint">Usporiadajte obrazovku nastavení a skryte sekcie, ktoré používate zriedka. Skryté sekcie sa presunú do Viac.</string>
     <string name="reorg_drag_cd">Presunutím zmeníte poradie</string>
     <string name="adv_rates_warning">Tieto ovládacie prvky menia časovanie v celej aplikácii. Nižšie hodnoty prinášajú čerstvejšie dáta a rýchlejšie reakcie, ale spotrebujú viac batérie, procesora alebo dát. Predvolené hodnoty vyhovujú väčšine jazdcov. Meňte ich, len ak rozumiete dôsledkom.</string>
-    <string name="adv_pushonly_note">Niektoré zariadenia posielajú dáta vlastnou pevnou frekvenciou a tieto nastavenia ignorujú: kolesá, ktoré len posielajú (Begode, Gotway, Veteran, KingSong), externé GPS (RaceBox, Dragy), radar a tlačidlá Flic.</string>
+    <string name="adv_pushonly_note">Niektoré zariadenia posielajú dáta vlastnou pevnou frekvenciou a tieto nastavenia ignorujú: kolesá, ktoré len posielajú (Begode, Gotway, Veteran, KingSong), externá GPS (RaceBox, Dragy), radar a tlačidlá Flic.</string>
     <string name="adv_group_rates">Frekvencie dát a hlásení</string>
     <string name="adv_wheel_poll_rate">Frekvencia dopytovania kolesa</string>
     <string name="adv_wheel_poll_rate_desc">Ovplyvňuje, aké čerstvé sú živé dáta a ako rýchlo reagujú alarmy. Nižšia hodnota žiada dáta od kolesa častejšie. Riziko: veľmi nízke hodnoty môžu zahltiť spojenie Bluetooth a na niektorých kolesách zastaviť dáta.</string>
@@ -583,7 +582,7 @@
     <string name="adv_phone_gps_idle_interval">Interval GPS telefónu v nečinnosti</string>
     <string name="adv_phone_gps_idle_interval_desc">Frekvencia udržiavania GPS, keď sa nenahráva ani nenaviguje, aby boli Navigátor a nové pripojenie kolesa pripravené. Vyššia hodnota šetrí batériu.</string>
     <string name="adv_gps_idle_off_delay">Vypnúť GPS po nečinnosti</string>
-    <string name="adv_gps_idle_off_delay_desc">Keď je aplikácia na pozadí bez pripojeného kolesa a nič sa nenahráva, GPS sa vypne kvôli úspore batérie. 0 ho vypne hneď, vyššia hodnota najprv tak dlho udržiava úsporný fix, aby rýchle prepnutie aplikácie GPS nestratilo.</string>
+    <string name="adv_gps_idle_off_delay_desc">Keď je aplikácia na pozadí bez pripojeného kolesa a nič sa nenahráva, GPS sa vypne kvôli úspore batérie. 0 ju vypne hneď, vyššia hodnota najprv tak dlho udržiava úsporné určovanie polohy, aby rýchle prepnutie aplikácie GPS nestratilo.</string>
     <string name="adv_gps_fix_max_age">Max. vek polohy GPS</string>
     <string name="adv_gps_fix_max_age_desc">Poloha staršia ako táto hodnota sa počíta ako žiadna, takže nahrávanie spustené pred pripravením GPS nezačne neaktuálnym bodom.</string>
     <string name="adv_hud_report_interval">Frekvencia hlásení HUD</string>
@@ -669,7 +668,7 @@
     <string name="adv_nav_execute_dist">Vzdialenosť vykonania odbočenia</string>
     <string name="adv_nav_execute_dist_desc">Ovplyvňuje, ako blízko pri odbočení zaznie pokyn na vykonanie. Riziko: príliš nízka hodnota upozorní príliš neskoro.</string>
     <string name="adv_nav_prox_band">Pásmo hľadania pokladu</string>
-    <string name="adv_nav_prox_band_desc">Ovplyvňuje zmenu vzdialenosti potrebnú na ohlásenie „prihoriva“ alebo „pristudeno“ v režime hľadania.</string>
+    <string name="adv_nav_prox_band_desc">Ovplyvňuje zmenu vzdialenosti potrebnú na ohlásenie „prihorieva“ alebo „pristudeno“ v režime hľadania.</string>
     <string name="adv_nav_inter_stop">Prah posunu medzi zastávkami</string>
     <string name="adv_nav_inter_stop_desc">Ovplyvňuje, ako ďaleko za jednou zastávkou musíte prejsť, kým sa ďalšia môže počítať ako dosiahnutá. Riziko: príliš nízka hodnota môže zastávku preskočiť.</string>
     <string name="adv_nav_max_start">Max. vzdialenosť štartu</string>
@@ -714,9 +713,9 @@
     <string name="adv_nav_sidebar_min">Minimum obrazovky pre bočný panel</string>
     <string name="adv_nav_sidebar_min_desc">Obrazovky užšie ako táto hodnota ponechajú spodný panel zastávok aj na šírku. Príliš nízka hodnota zakryje mapu na malých obrazovkách.</string>
     <string name="adv_inmotion_v1_pin">PIN InMotion V5/V8/V10</string>
-    <string name="adv_inmotion_v1_pin_desc">Prístupový PIN pre kolesá InMotion V5/V8/V10, posiela sa pri pripojení, aby koleso začalo posielať dáta. Ponechajte 000000, pokiaľ ste si v aplikácii InMotion nenastavili vlastný PIN.</string>
+    <string name="adv_inmotion_v1_pin_desc">Prístupový PIN pre kolesá InMotion V5/V8/V10, posiela sa pri pripojení, aby koleso začalo posielať dáta. Ponechajte 000000, ak ste si v aplikácii InMotion nenastavili vlastný PIN.</string>
     <string name="adv_kingsong_unlock_code">Odomykací kód KingSong</string>
-    <string name="adv_kingsong_unlock_code_desc">Šesť číslic posielaných s príkazom na odomknutie. Testované kolesá prijmú akékoľvek číslice, preto ponechajte 123456, pokiaľ ho vaše koleso neodmieta.</string>
+    <string name="adv_kingsong_unlock_code_desc">Šesť číslic posielaných s príkazom na odomknutie. Testované kolesá prijmú akékoľvek číslice, preto ponechajte 123456, ak ho vaše koleso neodmieta.</string>
     <string name="adv_kingsong_password">Heslo aplikácie KingSong</string>
     <string name="adv_kingsong_password_desc">4-miestne heslo nastavené v aplikácii KingSong, posiela sa pri pripojení a pred zamknutím a odomknutím. Ak ste ho nikdy nenastavili, ponechajte 0000.</string>
     <string name="adv_charging_warning">Tieto hodnoty ladia odhad času do nabitia. Nesprávne hodnoty dajú zavádzajúci odhad, ale samotné nabíjanie nikdy neovplyvnia.</string>
@@ -775,9 +774,9 @@
     <string name="watch_hardware_button_1">Tlačidlo 1</string>
     <string name="watch_hardware_button_2">Tlačidlo 2</string>
     <string name="watch_hardware_button_3">Tlačidlo 3</string>
-    <string name="watch_hardware_button_1_subtitle">Garmin: Start · Galaxy Watch Ultra: oranžové tlačidlo Action · Amazfit: Select.</string>
-    <string name="watch_hardware_button_2_subtitle">Garmin: Up · Galaxy Watch Ultra: dolné bočné tlačidlo · Amazfit: Up.</string>
-    <string name="watch_hardware_button_3_subtitle">Garmin: Down · Amazfit: Down · nie je na hodinkách Wear OS.</string>
+    <string name="watch_hardware_button_1_subtitle">Garmin: Start · Galaxy Watch Ultra: oranžové tlačidlo Action · Amazfit: Select</string>
+    <string name="watch_hardware_button_2_subtitle">Garmin: Up · Galaxy Watch Ultra: dolné bočné tlačidlo · Amazfit: Up</string>
+    <string name="watch_hardware_button_3_subtitle">Garmin: Down · Amazfit: Down · nie je na hodinkách Wear OS</string>
 
     <string name="watch_screen_button_1">Tlačidlo 1</string>
     <string name="watch_screen_button_2">Tlačidlo 2</string>
@@ -893,8 +892,8 @@
     <string name="side_left">Vľavo</string>
     <string name="side_right">Vpravo</string>
     <string name="geo_other_hint">Monitor batérie, história metrík, vyhľadávanie a Flic. Štúdio prekrytia nie je ovplyvnené: jeho rozloženie je pevné, ale funguje v akejkoľvek orientácii.</string>
-    <string name="geo_settings_hint">Obrazovka nastavení. Predvolene vypnuté, takže Nastavenia zostanú na výšku, pokiaľ to nezapnete.</string>
-    <string name="geo_trip_hint">Podrobnosti sa predvolene otáčajú kvôli mape a grafom na šírku. Zoznam jázd zostane na výšku, pokiaľ to nezapnete.</string>
+    <string name="geo_settings_hint">Obrazovka nastavení. Predvolene vypnuté, takže Nastavenia zostanú na výšku, ak to nezapnete.</string>
+    <string name="geo_trip_hint">Podrobnosti sa predvolene otáčajú kvôli mape a grafom na šírku. Zoznam jázd zostane na výšku, ak to nezapnete.</string>
     <string name="back_button_action_ask">Spýtať sa</string>
     <string name="back_button_action_background">Na pozadí</string>
     <string name="back_button_action_stop">Zastaviť všetko</string>
@@ -962,7 +961,7 @@
     <string name="battery_capacity_label">Kapacita</string>
     <string name="battery_capacity_desc">Voliteľné. Nastaví odhad dojazdu od začiatku, pre dlaždicu Dojazd a HUD.</string>
     <string name="battery_percent_cells_from_wheel">Prevzaté z kolesa: %1$d v sérii.</string>
-    <string name="battery_percent_cells_manual">Prevádza napätie batérie na percentá na paneli, v hlase a v alarmoch</string>
+    <string name="battery_percent_cells_manual">Prepočítava napätie batérie na percentá na paneli, v hlase a v alarmoch</string>
     <string name="speed_calibration_label">Posun rýchlosti</string>
     <string name="speed_calibration_caption">Upravuje rýchlosť hlásenú kolesom, ovplyvňuje alarmy, hlas a záznam jazdy.</string>
     <string name="section_legal_mode_speed">Rýchlosť legálneho režimu</string>
@@ -1166,7 +1165,7 @@
     <string name="flic_start_scan">Vyhľadať</string>
     <string name="flic_forget">Zabudnúť</string>
     <string name="flic_forget_title">Zabudnúť toto tlačidlo?</string>
-    <string name="flic_forget_body">Tlačidlo %1$s sa zruší zo spárovania a jeho akcie sa vymažú. Kedykoľvek ho môžete spárovať znova.</string>
+    <string name="flic_forget_body">Párovanie tlačidla %1$s sa zruší a jeho akcie sa vymažú. Kedykoľvek ho môžete spárovať znova.</string>
     <string name="flic_rename">Premenovať</string>
     <string name="flic_click">Klik</string>
     <string name="flic_double_click">Dvojklik</string>
@@ -1177,8 +1176,8 @@
     <string name="section_tpms">Senzory TPMS</string>
     <string name="tpms_wheel_sensor">Tlak v pneumatike kolesa</string>
     <string name="tpms_wheel_sensor_desc">Sprostredkované z naviazaného senzora.</string>
-    <string name="tpms_scan">Hľadať senzory</string>
-    <string name="tpms_scan_stop">Zastaviť hľadanie</string>
+    <string name="tpms_scan">Vyhľadať senzory</string>
+    <string name="tpms_scan_stop">Zastaviť vyhľadávanie</string>
     <string name="tpms_none_yet">Nezistil sa ani ručne nepridal žiadny senzor tlaku v pneumatike.</string>
     <string name="tpms_wheel_sensor_replaced">Nahradené vaším spárovaným senzorom</string>
     <string name="external_gps_device_title">Externá GPS</string>
@@ -1237,7 +1236,7 @@
     <string name="radar_unpair">Zabudnúť zariadenie</string>
     <string name="radar_battery_fmt">Batéria %1$d%%</string>
     <string name="radar_clear">Pruh je voľný</string>
-    <string name="radar_threats_count">Sledované vozidlá: %1$d</string>
+    <string name="radar_threats_count">Sledované vozidlá (%1$d):</string>
     <string name="radar_show_overlay">Zobraziť prekrytie hrozieb</string>
     <string name="radar_show_overlay_desc">Tenký pruh radaru na okrajoch panela. Jedna farebná bodka na každé zistené vozidlo. Viditeľné len na paneli.</string>
     <string name="radar_overlay_left">Ľavý okraj</string>
@@ -1488,8 +1487,8 @@
     <string name="widget_weather_question">Jazda?</string>
     <string name="widget_weather_score_desc">Počasie na jazdu práve teraz.</string>
     <string name="widget_weather_compact_desc">Aké dobré je počasie na jazdu teraz a v nasledujúcich hodinách. Zväčšením zobrazíte hodiny, teplotu a vietor.</string>
-    <string name="widget_weather_graph_desc">Aké dobré je počasie na jazdu v okne predpovede.</string>
-    <string name="widget_weather_refresh_desc">Obnoviť predpoveď.</string>
+    <string name="widget_weather_graph_desc">Aké dobré je počasie na jazdu v okne predpovede</string>
+    <string name="widget_weather_refresh_desc">Obnoviť predpoveď</string>
     <string name="widget_weather_never">Zatiaľ žiadna predpoveď. Raz otvorte aplikáciu alebo klepnite na obnoviť.</string>
     <string name="widget_weather_never_short">Nikdy</string>
     <string name="widget_weather_refreshing">Obnovuje sa…</string>
@@ -1497,11 +1496,11 @@
     <string name="widget_weather_min_fmt">pred %1$d min</string>
     <string name="widget_weather_hour_fmt">pred %1$d h</string>
     <string name="widget_weather_window_fmt">ďalších %1$d h</string>
-    <string name="widget_act_1_desc">Akciu nastavíte v aplikácii.</string>
-    <string name="widget_act_2_desc">Akciu nastavíte v aplikácii.</string>
-    <string name="widget_act_3_desc">Akciu nastavíte v aplikácii.</string>
-    <string name="widget_act_12_desc">Akcie nastavíte v aplikácii.</string>
-    <string name="widget_act_23_desc">Akcie nastavíte v aplikácii.</string>
+    <string name="widget_act_1_desc">Akciu nastavíte v aplikácii</string>
+    <string name="widget_act_2_desc">Akciu nastavíte v aplikácii</string>
+    <string name="widget_act_3_desc">Akciu nastavíte v aplikácii</string>
+    <string name="widget_act_12_desc">Akcie nastavíte v aplikácii</string>
+    <string name="widget_act_23_desc">Akcie nastavíte v aplikácii</string>
     <string name="widget_button_unset">Nastavte tlačidlo v Nastaveniach</string>
     <string name="widget_speed">Rýchlosť</string>
     <string name="widget_distance">Jazda</string>
@@ -1542,7 +1541,7 @@
     <string name="trip_tools_split_none">Nie je čo rozdeliť. Nenašli sa žiadne zmeny kolesa, dlhé prestávky ani medzery v zázname.</string>
     <string name="trip_split_lasted">trvalo %1$s</string>
     <string name="trip_tools_split_pick">Vyberte aspoň jedno miesto na rozdelenie.</string>
-    <string name="trip_tools_split_hint">Vyberte, kde rozdeliť. Vznikne %1$d jázd a originál zostane.</string>
+    <string name="trip_tools_split_hint">Vyberte, kde rozdeliť. Počet nových jázd: %1$d, originál zostane.</string>
     <string name="trip_tools_split_done">Rozdelené na jazdy: %1$d</string>
     <string name="trip_tools_split_failed">Túto jazdu sa nepodarilo rozdeliť</string>
     <string name="trip_split_reason_wheel">Prevzalo iné koleso</string>
@@ -1614,8 +1613,8 @@
     <string name="auto_midnight_sun_body">Slnko na tejto zemepisnej šírke dnes nezapadne, svetlá zostanú VYPNUTÉ.</string>
     <string name="auto_polar_night_title">Polárna noc</string>
     <string name="auto_polar_night_body">Slnko na tejto zemepisnej šírke dnes nevyjde, svetlá zostanú ZAPNUTÉ.</string>
-    <string name="auto_lights_suspended">Pozastavené pre túto reláciu, svetlo ste nastavili ručne. Opravte to v Vyžaduje pozornosť alebo znova pripojte koleso.</string>
-    <string name="auto_lock_suspended">Pozastavené pre túto reláciu, zamkli alebo odomkli ste ručne. Opravte to v Vyžaduje pozornosť alebo znova pripojte koleso.</string>
+    <string name="auto_lights_suspended">Pozastavené pre túto reláciu, svetlo ste nastavili ručne. Opravte to v časti Vyžaduje pozornosť alebo znova pripojte koleso.</string>
+    <string name="auto_lock_suspended">Pozastavené pre túto reláciu, zamkli alebo odomkli ste ručne. Opravte to v časti Vyžaduje pozornosť alebo znova pripojte koleso.</string>
 
     <!-- Alarms tab -->
     <string name="alarm_help">Priorita spustenia vychádza z poradia skupín metrík nižšie.</string>
@@ -1687,7 +1686,7 @@
     <string name="alarm_section_voice">Hlas</string>
     <string name="alarm_enable_voice">Zapnúť hlas</string>
     <string name="alarm_voice_template">Šablóna textu</string>
-    <string name="alarm_voice_template_help">Premenné: {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}.</string>
+    <string name="alarm_voice_template_help">Premenné: {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}</string>
     <string name="alarm_voice_default">Pozor! {metric} je {value}</string>
     <string name="alarm_section_vibrate">Vibrácia</string>
     <string name="alarm_enable_vibrate">Zapnúť vibráciu</string>
@@ -1717,7 +1716,7 @@
 
     <!-- About / crash logs -->
     <string name="about_thanks">Poďakovanie</string>
-    <string name="about_thanks_body">Omrzeli ma aplikácie pre EUC, ktoré sa vyvíjajú príliš pomaly, vyzerajú zastaralo, majú drakonické pravidlá pre nové funkcie, berú svoje komunity ako zákazníkov a zabúdajú, že jazdci na EUC sú najlepší, keď si navzájom pomáhajú. Táto sa snaží byť opakom.</string>
+    <string name="about_thanks_body">Omrzeli ma aplikácie pre EUC, ktoré sa vyvíjajú príliš pomaly, vyzerajú zastarane, majú drakonické pravidlá pre nové funkcie, berú svoje komunity ako zákazníkov a zabúdajú, že jazdci na EUC sú najlepší, keď si navzájom pomáhajú. Táto sa snaží byť opakom.</string>
     <string name="about_license">Licencia</string>
     <string name="service_mode_title">Servisný režim</string>
     <string name="service_mode_caution">POZOR: Nesprávne použitie servisného režimu môže viesť k strate funkčnosti kolesa, vážnemu zraneniu alebo smrti</string>
@@ -1743,7 +1742,7 @@
     <string name="online_upload_consent_bullet_stats">Vaše celkové štatistiky jázd, napríklad vzdialenosť a rýchlosť</string>
     <string name="online_upload_consent_bullet_location">Polohy sa kvôli súkromiu zoskupujú do širokých oblastí mapy</string>
     <string name="online_upload_consent_no_raw_gps">Surové stopy GPS sa nikdy nezverejňujú.</string>
-    <string name="online_upload_consent_agree">Súhlasím a pokračovať</string>
+    <string name="online_upload_consent_agree">Súhlasiť a pokračovať</string>
 
     <!-- Step 2: Profile -->
     <string name="online_upload_profile_title">Vytvorte si profil</string>
@@ -1768,7 +1767,7 @@
     <string name="online_upload_sync_checking">Hľadajú sa jazdy na nahranie…</string>
     <string name="online_upload_sync_progress">Nahráva sa %1$d z %2$d</string>
     <string name="online_rider_id_conflict">V tomto priečinku je už uložené obnovovacie ID iného jazdca, ponechali sme ho a neprepísali.</string>
-    <string name="online_upload_mileage_rank">#%d v nájazde</string>
+    <string name="online_upload_mileage_rank">#%d v kilometroch</string>
     <string name="online_upload_top_speed">max. %1$s %2$s</string>
     <string name="online_upload_trips">Jazdy: %d</string>
     <string name="online_upload_total_km">%1$s %2$s</string>
@@ -1913,16 +1912,16 @@
     <string name="studio_hint_wheel_name">Názov pripojeného kolesa</string>
     <string name="studio_hint_app_badge">Názov a ikona EUC Planet</string>
     <string name="studio_hint_text">Vlastný text, ktorý si napíšete</string>
-    <string name="studio_hint_data_value">Živá hodnota, napríklad rýchlosť alebo batéria.</string>
-    <string name="studio_hint_data_graph">Priebežný graf hodnoty.</string>
-    <string name="studio_hint_data_dial">Kruhový budík pre hodnotu.</string>
-    <string name="studio_hint_data_bar">Lineárny pruh pre hodnotu.</string>
-    <string name="studio_hint_floating_camera">Malá kamera obraz v obraze.</string>
-    <string name="studio_hint_image">Vlastný obrázok vložený do predvoľby.</string>
-    <string name="studio_hint_clock">Hodiny, analógové hodinky alebo stopky.</string>
-    <string name="studio_hint_g_force">Kruh so stopou preťaženia G.</string>
-    <string name="studio_hint_map">Živá minimapa s vašou stopou.</string>
-    <string name="studio_hint_radar">Zadný radar: blížiace sa vozidlá.</string>
+    <string name="studio_hint_data_value">Živá hodnota, napríklad rýchlosť alebo batéria</string>
+    <string name="studio_hint_data_graph">Priebežný graf hodnoty</string>
+    <string name="studio_hint_data_dial">Kruhový budík pre hodnotu</string>
+    <string name="studio_hint_data_bar">Lineárny pruh pre hodnotu</string>
+    <string name="studio_hint_floating_camera">Malá kamera obraz v obraze</string>
+    <string name="studio_hint_image">Vlastný obrázok vložený do predvoľby</string>
+    <string name="studio_hint_clock">Hodiny, analógové hodinky alebo stopky</string>
+    <string name="studio_hint_g_force">Kruh so stopou preťaženia G</string>
+    <string name="studio_hint_map">Živá minimapa s vašou stopou</string>
+    <string name="studio_hint_radar">Zadný radar: blížiace sa vozidlá</string>
 
     <!-- Studio: layout picker -->
     <string name="studio_layout_title">Panely kamery</string>
@@ -2025,8 +2024,8 @@
     <string name="studio_cfg_map_style">Štýl mapy</string>
     <string name="studio_cfg_map_zoom">Priblíženie</string>
     <string name="studio_cfg_map_attribution">Zobraziť autorstvo mapy</string>
-    <string name="studio_cfg_map_attribution_off">Licencia mapy vyžaduje toto uvedenie autorstva na všetkom, čo zdieľate. Vypnutie je na vašom rozhodnutí.</string>
-    <string name="studio_cfg_map_style_community">Dlaždice prevádzkované dobrovoľníkmi. Dlhý export ich naraz stiahne tisíce, o čo tieto servery žiadajú aplikácie, aby to nerobili.</string>
+    <string name="studio_cfg_map_attribution_off">Licencia mapy vyžaduje toto uvedenie autorstva na všetkom, čo zdieľate. Vypnutie je na vás.</string>
+    <string name="studio_cfg_map_style_community">Dlaždice prevádzkované dobrovoľníkmi. Dlhý export ich naraz stiahne tisíce a tieto servery žiadajú aplikácie, aby to nerobili.</string>
     <string name="studio_cfg_map_rotate">Otáčať s pohybom</string>
     <string name="studio_cfg_map_trace">Stopa</string>
     <string name="studio_cfg_map_trace_none">Žiadna</string>
@@ -2080,7 +2079,7 @@
     <string name="studio_pane_choose_image">Klepnutím na kľúč vyberte obrázok</string>
     <string name="studio_video_no_media">Žiadne médiá</string>
     <string name="studio_cd_resize_section">Zmeniť veľkosť sekcie</string>
-    <string name="studio_cd_divider_options">Možnosti oddeľovača</string>
+    <string name="studio_cd_divider_options">Možnosti deliacich čiar</string>
     <string name="studio_cd_close">Zavrieť štúdio</string>
     <string name="studio_cd_gallery">Otvoriť galériu</string>
     <string name="studio_cd_photo">Odfotiť</string>
@@ -2098,7 +2097,7 @@
     <string name="studio_flyout_live">Naživo</string>
     <string name="studio_replay_choose_trip">Vyberte jazdu</string>
     <string name="studio_replay_speed_title">Rýchlosť prehrávania</string>
-    <string name="studio_replay_cd_fade">Stlmiť panel</string>
+    <string name="studio_replay_cd_fade">Spriehľadniť panel</string>
     <string name="studio_replay_cd_move">Presunúť panel</string>
     <string name="studio_replay_cd_back">Späť</string>
     <string name="studio_replay_cd_close">Zavrieť prehrávanie</string>
@@ -2291,7 +2290,7 @@
     <string name="voice_nav_goal_reached">Zastávka dosiahnutá</string>
     <string name="voice_nav_hunt">%1$s je %2$s %3$s</string>
     <string name="voice_nav_hunt_prox">%1$s, %2$s</string>
-    <string name="voice_nav_hunt_distance">%1$s je vzdialená %2$s</string>
+    <string name="voice_nav_hunt_distance">%1$s je vo vzdialenosti %2$s</string>
     <string name="voice_prox_warmer">prihorieva</string>
     <string name="voice_prox_colder">pristudeno</string>
     <string name="voice_prox_even_colder">ešte chladnejšie</string>
@@ -2311,7 +2310,7 @@
     <string name="nav_setting_offroute_desc">Ako ďaleko od trasy, kým sa spustí upozornenie mimo trasy.</string>
     <string name="nav_setting_params">Navigácia a počasie</string>
     <string name="weather_section">Počasie</string>
-    <string name="weather_icon_desc">Predpoveď počasia.</string>
+    <string name="weather_icon_desc">Predpoveď počasia</string>
     <string name="weather_now">Teraz</string>
     <string name="weather_fetching">Načítava sa predpoveď…</string>
     <string name="weather_refresh">Obnoviť predpoveď</string>
@@ -2345,7 +2344,7 @@
     <string name="weather_lvl_bad_2">Vonku je zle.</string>
     <string name="weather_lvl_notworst_1">Nie najhoršie.</string>
     <string name="weather_lvl_notworst_2">Neisté, ale dá sa.</string>
-    <string name="weather_lvl_meh_1">Nič moc - dá sa jazdiť.</string>
+    <string name="weather_lvl_meh_1">Ujde to - dá sa jazdiť.</string>
     <string name="weather_lvl_meh_2">Nič zvláštne.</string>
     <string name="weather_lvl_ok_1">Slušné - oplatí sa vyraziť.</string>
     <string name="weather_lvl_ok_2">Vôbec nie zlé.</string>
@@ -2444,7 +2443,7 @@
     <string name="nav_setting_router_url">URL trás (OSRM)</string>
     <string name="nav_setting_valhalla_url">URL trás (Valhalla)</string>
     <string name="nav_setting_overpass_url">URL nabíjačiek a miest (Overpass)</string>
-    <string name="nav_setting_ocm_subtitle">Komunita nabíjačiek (Open Charge Map).</string>
+    <string name="nav_setting_ocm_subtitle">Komunita nabíjačiek (Open Charge Map)</string>
     <string name="nav_setting_ocm_key">Kľúč API Open Charge Map</string>
     <string name="nav_setting_ocm_key_hint">Pridá recenzie, fotky a podrobnosti konektorov do panela nabíjačky. Bezplatný kľúč získate na</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>
@@ -2534,7 +2533,7 @@
     <string name="studio_overwrite_body">Predvoľba s názvom „%1$s“ už existuje.</string>
     <string name="studio_overwrite_confirm">Prepísať</string>
     <string name="studio_save_keep_both">Ponechať obe</string>
-    <string name="warnings_indicator_desc">Upozornenia aplikácie.</string>
+    <string name="warnings_indicator_desc">Upozornenia aplikácie</string>
     <string name="warnings_dialog_title">Vyžaduje pozornosť</string>
     <string name="warnings_fix_button">Opraviť</string>
     <string name="warnings_autolights_title">Automatické svetlá pozastavené</string>
@@ -2646,7 +2645,7 @@
     <string name="lockdown_setting_desc">Uzamkne aplikáciu na jednoduchú obrazovku.</string>
     <string name="lockdown_set_code">Nastavte kód výrobcu</string>
     <string name="lockdown_confirm_code">Zopakujte kód</string>
-    <string name="lockdown_code_hint">4 až 8 číslic.</string>
+    <string name="lockdown_code_hint">4 až 8 číslic</string>
     <string name="lockdown_code_mismatch">Kódy sa nezhodujú</string>
     <string name="lockdown_code_invalid">Kód musí mať 4 až 8 číslic</string>
     <string name="lockdown_arm">Zapnúť</string>
@@ -2678,7 +2677,7 @@
     <string name="lockdown_warning_no_wheel">Nie je pripojené žiadne koleso, takže stav legálneho režimu nie je známy. Aplikácia sa uzamkne pri ďalšom zapnutí legálneho režimu.</string>
     <string name="lockdown_continue">Pokračovať</string>
     <string name="trip_tools_wheel_none">Pre túto jazdu zatiaľ nie je zaznamenané žiadne koleso.</string>
-    <string name="backup_conflict_warning">Niektoré jazdy v tomto telefóne sa líšia od kópií v priečinku zálohy. Klepnite na %1$s, potom v časti %2$s stlačte \"%3$s\" a vyberte, ktorú kópiu ponechať.</string>
+    <string name="backup_conflict_warning">Niektoré jazdy v tomto telefóne sa líšia od kópií v priečinku záloh. Klepnite na %1$s, potom v časti %2$s stlačte \"%3$s\" a vyberte, ktorú kópiu ponechať.</string>
     <string name="backup_conflict_title">Konflikty záloh</string>
     <string name="widget_act_1_short">Akcia 1</string>
     <string name="widget_act_2_short">Akcia 2</string>
@@ -2820,17 +2819,17 @@
     <string name="nav_solve_end_anywhere_desc">Skončí na zastávke, pri ktorej je trasa najkratšia.</string>
     <string name="nav_solve_end_loop_desc">Vráti sa tam, kde začína.</string>
     <string name="nav_solve_end_keep_last_desc">Aktuálna posledná zastávka zostane posledná.</string>
-    <string name="nav_track_locked">Táto stopa sa jazdí tak, ako je nakreslená. Ak ju chcete zmeniť, použite Previesť na zastávky v ponuke.</string>
-    <string name="nav_track_loaded_locked">Sleduje sa zaznamenaná stopa. Na úpravu ju preveďte na zastávky.</string>
+    <string name="nav_track_locked">Táto stopa sa jazdí tak, ako je nakreslená. Ak ju chcete zmeniť, použite Zmeniť na zastávky v ponuke.</string>
+    <string name="nav_track_loaded_locked">Sleduje sa zaznamenaná stopa. Na úpravu ju zmeňte na zastávky.</string>
     <string name="nav_menu_reverse">Otočiť trasu</string>
     <string name="nav_route_reversed">Trasa otočená, pripravená na cestu späť.</string>
-    <string name="nav_track_unlocked">Prevedené na zastávky. Teraz sa dajú upravovať.</string>
-    <string name="nav_menu_unlock_track">Previesť na zastávky</string>
-    <string name="nav_unlock_title">Previesť na zastávky</string>
+    <string name="nav_track_unlocked">Zmenené na zastávky. Teraz sa dajú upravovať.</string>
+    <string name="nav_menu_unlock_track">Zmeniť na zastávky</string>
+    <string name="nav_unlock_title">Zmeniť na zastávky</string>
     <string name="nav_unlock_warning">Presná stopa sa nahradí zastávkami spojenými priamymi čiarami. Ak si ju chcete ponechať, najprv uložte GPX.</string>
     <string name="nav_unlock_stops">Zastávky</string>
     <string name="nav_unlock_off">Odchýlka od stopy až %1$s</string>
-    <string name="nav_unlock_confirm">Previesť</string>
+    <string name="nav_unlock_confirm">Zmeniť</string>
     <string name="voice_nav_place_reached">%1$s dosiahnuté</string>
     <string name="offline_data_open">Offline oblasti</string>
     <string name="offline_server_url">Server offline dát</string>

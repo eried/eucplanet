@@ -86,8 +86,8 @@
     <string name="connection_disconnected">Не підключено</string>
     <string name="connection">З\'єднання</string>
     <string name="settings">Налаштування</string>
-    <string name="disconnect">Відключитись</string>
-    <string name="disconnect_from">Відключитись від %1$s?</string>
+    <string name="disconnect">Відключитися</string>
+    <string name="disconnect_from">Відключитися від %1$s?</string>
     <string name="wheel_generic">колесо</string>
     <string name="exit_title">Вийти з EUC Planet</string>
     <string name="exit_body">Залишити фонову службу працювати чи зупинити все?</string>
@@ -112,8 +112,7 @@
     <string name="lock_blocked_in_motion_toast">Знизьте швидкість, щоб заблокувати колесо</string>
     <string name="action_recorder">Запис</string>
     <string name="action_recorder_trips">Запис\n(поїздки: %1$d)</string>
-    <string name="action_recorder_trips_one">Запис
-(%1$d поїздка)</string>
+    <string name="action_recorder_trips_one">Запис\n(%1$d поїздка)</string>
 
     <!-- Settings tabs -->
     <string name="search_settings">Пошук налаштувань</string>
@@ -128,16 +127,16 @@
     <string name="tab_cloud">Копії та таблиці лідерів</string>
 
     <!-- Dashboard layout (customizable home screen) -->
-    <string name="tab_dashboard">Розкладка панелі</string>
-    <string name="dashboard_section_metrics">Метрики</string>
+    <string name="tab_dashboard">Макет панелі</string>
+    <string name="dashboard_section_metrics">Показники</string>
     <string name="dashboard_section_actions">Кнопки дій</string>
     <string name="dashboard_grid_hint">Утримуйте, щоб перетягнути, торкніться, щоб змінити.</string>
-    <string name="dashboard_pool_metrics">Доступні метрики</string>
+    <string name="dashboard_pool_metrics">Доступні показники</string>
     <string name="dashboard_pool_actions">Доступні дії</string>
     <string name="dashboard_pool_tap_toast">Утримуйте й перетягніть у слот вище, щоб використати</string>
     <string name="dashboard_stats_length">Довжина статистики</string>
     <string name="dashboard_view">Вигляд</string>
-    <string name="dashboard_view_default">За замовч.</string>
+    <string name="dashboard_view_default">Типовий</string>
     <string name="dashboard_view_wide">Широкий</string>
     <!-- Shown only in the expanded layout dropdown so riders know Wide is the tablet/3-column layout; the collapsed field stays just "Wide" so it fits. -->
     <string name="dashboard_view_wide_menu">Широкий (для планшетів)</string>
@@ -149,7 +148,7 @@
     <string name="dashboard_custom_ble_family">Фільтр сімейства коліс</string>
     <string name="dashboard_custom_ble_frames">Кадри (hex)</string>
     <string name="dashboard_custom_ble_frames_error">Недійсний hex, використовуйте пари байтів, напр. 4c 6b 41 70</string>
-    <string name="dashboard_composite_layout_row2">2 ряди</string>
+    <string name="dashboard_composite_layout_row2">2 рядки</string>
     <string name="dashboard_composite_layout_col2">2 колонки</string>
     <string name="dashboard_composite_layout_col3">3 колонки</string>
     <string name="dashboard_composite_cell_label">Клітинка %1$d</string>
@@ -184,7 +183,7 @@
     <string name="metric_detail_reset">Скинути</string>
     <string name="metric_detail_reset_all">Скинути все</string>
     <string name="metric_detail_reset_all_confirm_title">Скинути всю історію?</string>
-    <string name="metric_detail_reset_all_confirm_body">Очищає буфер ковзної історії для кожної метрики. Налаштування та поїздки не зачіпаються.</string>
+    <string name="metric_detail_reset_all_confirm_body">Очищає буфер ковзної історії для кожного показника. Налаштування та поїздки не зачіпаються.</string>
     <string name="metric_detail_show_label">Значення</string>
     <string name="dashboard_close">Закрити</string>
     <string name="dashboard_corner_left">Ліворуч</string>
@@ -214,7 +213,7 @@
     <string name="dashboard_stat_p99_short">P99</string>
 
     <!-- Metric labels for the dashboard layout chips -->
-    <string name="metric_chip_battery">Батарея</string>
+    <string name="metric_chip_battery">Заряд</string>
     <string name="metric_chip_temperature">Температура</string>
     <string name="metric_chip_voltage">Напруга</string>
     <string name="metric_chip_current">Струм</string>
@@ -224,17 +223,17 @@
     <string name="metric_chip_odometer">Одометр</string>
     <string name="metric_chip_motor_power">Потуж. мотора</string>
     <string name="metric_chip_battery_power">Потуж. батареї</string>
-    <string name="metric_chip_battery_envelope">Батарея (оц)</string>
+    <string name="metric_chip_battery_envelope">Заряд (оц)</string>
     <string name="metric_desc_battery_envelope">Заряд батареї без впливу навантаження. Стабільніший за вихідне значення, яке падає під час розгону.</string>
     <string name="metric_chip_battery_1">Блок 1</string>
     <string name="metric_chip_battery_2">Блок 2</string>
     <string name="metric_chip_pitch">Нахил</string>
     <string name="metric_chip_roll">Крен</string>
     <string name="metric_chip_g_force">Перевантаження</string>
-    <string name="metric_chip_lateral_g">Боковий g</string>
+    <string name="metric_chip_lateral_g">Бічний g</string>
     <string name="metric_chip_forward_g">g вперед</string>
-    <string name="metric_chip_torque">Крутний мом.</string>
-    <string name="metric_chip_phase_current">Фаза A</string>
+    <string name="metric_chip_torque">Момент</string>
+    <string name="metric_chip_phase_current">Фаза А</string>
     <string name="metric_spoken_phase_current">Фазний струм</string>
     <string name="metric_spoken_battery_envelope">Розрахунковий заряд</string>
     <string name="metric_spoken_bt_rssi">Сигнал Bluetooth</string>
@@ -257,7 +256,7 @@
     <string name="metric_chip_wh_consumed">Енергія</string>
     <string name="metric_chip_range_estimate">Запас ходу</string>
     <string name="metric_chip_wh_per_km">Витрата</string>
-    <string name="metric_chip_phone_battery">Батарея телефону</string>
+    <string name="metric_chip_phone_battery">Батарея телефона</string>
     <string name="metric_chip_gps_altitude">Висота</string>
     <string name="metric_chip_gps_speed">Шв. GPS</string>
     <string name="metric_chip_gps_heading">Курс</string>
@@ -269,7 +268,7 @@
     <string name="metric_chip_motor_rpm">об/хв</string>
     <string name="metric_chip_regen_wh">Реген.</string>
     <string name="metric_chip_bt_rssi">Сигнал BT</string>
-    <string name="metric_chip_lat_long">Lat, Long</string>
+    <string name="metric_chip_lat_long">Шир., довг.</string>
     <string name="metric_chip_wheel_max_speed">Макс. колеса</string>
     <string name="metric_chip_wheel_alarm_speed">Тривога колеса</string>
     <string name="metric_chip_pc_mode">Режим їзди</string>
@@ -288,7 +287,7 @@
     <string name="metric_chip_motor_temp_tile">T мот</string>
     <string name="metric_chip_controller_temp_tile">T контр</string>
     <string name="metric_chip_dyn_speed_limit_tile">Ліміт шв</string>
-    <string name="metric_chip_dyn_current_limit_tile">Ліміт A</string>
+    <string name="metric_chip_dyn_current_limit_tile">Ліміт А</string>
     <string name="metric_chip_auto_off_tile">Автовимк.</string>
     <string name="metric_chip_phone_battery_tile">Тел</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
@@ -330,22 +329,22 @@
     <string name="action_chip_voice">Голос</string>
     <string name="action_chip_voice_listen">Слухати</string>
     <string name="menu_voice_ask">Слухати голосову команду</string>
-    <string name="menu_voice_speak_report">Відтворити голосове повідомлення</string>
+    <string name="menu_voice_speak_report">Відтворити голосове оголошення</string>
     <string name="voice_split_term">Останній відрізок</string>
     <string name="menu_switch_to_voice_command">Перемкнути на голосову команду</string>
-    <string name="menu_switch_to_voice_report">Перемкнути на голосове повідомлення</string>
+    <string name="menu_switch_to_voice_report">Перемкнути на голосове оголошення</string>
     <string name="voice_commands_title">Голосові команди</string>
     <string name="voice_commands_enable_desc">Керуйте застосунком голосом. Утримуйте кнопку «Голос» на панелі й виберіть «Слухати голосову команду».</string>
-    <string name="voice_commands_bind_desc">Призначте прослуховування на Flic, клавіші гучності, годинник або HUD.</string>
+    <string name="voice_commands_bind_desc">Призначте прослуховування на Flic, кнопки гучності, годинник або HUD.</string>
     <string name="voice_prompt_cue">Сигнал під час слухання</string>
     <string name="voice_music_listening">Музика під час слухання</string>
     <string name="voice_music_pause">Пауза</string>
     <string name="voice_music_duck">Тихіше</string>
     <string name="voice_music_keep">Грати далі</string>
-    <string name="voice_music_listening_desc">Розпізнавання працює на телефоні, коли можливо, без облікового запису. Слова звіряються з командами застосунку.</string>
+    <string name="voice_music_listening_desc">Розпізнавання працює на телефоні, коли можливо, без акаунта. Слова звіряються з командами застосунку.</string>
     <string name="voice_cue_beep">Звук</string>
     <string name="voice_cue_spoken">Голос</string>
-    <string name="voice_cue_off">Ні</string>
+    <string name="voice_cue_off">Вимк</string>
     <string name="voice_cue_listening">Слухаю</string>
     <string name="voice_unknown_cue">Коли не зрозуміло</string>
     <string name="voice_unknown_message">Повідомлення</string>
@@ -378,13 +377,13 @@
     <string name="warnings_perm_mic_title">Мікрофон заборонено</string>
     <string name="warnings_perm_mic_body">Голосові команди не можуть слухати, доки застосунку не дозволено мікрофон.</string>
     <string name="warnings_perm_bluetooth_title">Bluetooth не дозволено</string>
-    <string name="warnings_perm_bluetooth_body">Застосунок не може знайти колесо та підключитися до нього. Натисніть, щоб дозволити.</string>
+    <string name="warnings_perm_bluetooth_body">Застосунок не може знайти колесо та підключитися до нього. Торкніться, щоб дозволити.</string>
     <string name="voice_answer_unknown">Не зрозуміло. Скажіть %1$s, щоб отримати підказку.</string>
     <string name="voice_help_terms">що можна сказати,допомога,що можна запитати</string>
     <string name="voice_stat_max_terms">максимум,макс,найбільший</string>
     <string name="voice_stat_min_terms">мінімум,мін,найменший</string>
     <string name="voice_stat_avg_terms">середнє,середній</string>
-    <string name="voice_stat_peak_terms">пік,стійкий</string>
+    <string name="voice_stat_peak_terms">пік,сталий</string>
     <string name="voice_stat_answer">%1$s %2$s, %3$s</string>
     <string name="voice_answer_examples">Ось список того, що можна сказати.</string>
     <string name="voice_special_connected">Підключено до %1$s.</string>
@@ -480,7 +479,7 @@
     <string name="watch_paired_kind_amazfit">Amazfit (Zepp OS)</string>
     <string name="watch_paired_active">Наживо</string>
     <string name="watch_paired_idle">Неактивний</string>
-    <string name="watch_paired_rate_hz">%1$.1f Hz</string>
+    <string name="watch_paired_rate_hz">%1$.1f Гц</string>
     <!-- HUD companion settings -->
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Увімкнути канал даних</string>
@@ -491,7 +490,7 @@
     <string name="hud_hotspot_unknown_hint">Переконайтеся, що HUD і телефон підключені до однієї мережі Wi-Fi. Якщо використовуєте точку доступу телефона, спершу увімкніть її.</string>
     <string name="hud_hotspot_on_hint">Точка доступу телефона працює. Підключіть HUD до Wi-Fi цього телефона, щоб увімкнути з\'єднання.</string>
     <string name="hud_overlay_subsection">Власний оверлей</string>
-    <string name="hud_overlay_subsection_desc">Імпортуйте пресет Overlay Studio на екран Custom HUD без фону. Пресет копіюється сюди, тому подальші зміни в студії не змінять HUD, доки ви не імпортуєте його знову.</string>
+    <string name="hud_overlay_subsection_desc">Імпортуйте пресет Overlay Studio на екран HUD «Власний оверлей» без фону. Пресет копіюється сюди, тому подальші зміни в студії не змінять HUD, доки ви не імпортуєте його знову.</string>
     <string name="hud_overlay_select_preset">Імпортувати пресет</string>
     <string name="hud_overlay_current_preset">Поточний: %1$s</string>
     <string name="hud_custom_overlay_none">Очистити</string>
@@ -531,7 +530,7 @@
                           is frozen until updated.
         Each variant names which side the rider must update on.
     -->
-    <string name="hud_install_hint">Потрібен застосунок HUD? Завантажте його з eucplanet.ried.no/hud</string>
+    <string name="hud_install_hint">Потрібен застосунок HUD? Завантажте його з <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
     <string name="hud_app_title">Застосунок HUD</string>
     <string name="hud_app_installed">Встановлено:</string>
@@ -554,12 +553,12 @@
     <string name="watch_keep_on">Не вимикати екран</string>
     <string name="watch_keep_on_desc">Тримати годинник активним, поки застосунок відкритий.</string>
     <string name="watch_update_rate">Частота оновлення</string>
-    <string name="watch_update_rate_desc">Рідші оновлення заощаджують заряд годинника. Це окремо від частоти опитування колеса в розділі «Додатково».</string>
+    <string name="watch_update_rate_desc">Рідші оновлення заощаджують заряд годинника. Це окремо від частоти опитування колеса в розділі «Розширені».</string>
     <string name="watch_map_enabled">Карта на годиннику</string>
     <string name="watch_map_enabled_desc">Показує місцезнаходження та маршрут із телефона. Для роботи у фоні залишається сповіщення.</string>
     <string name="watch_map_orientation">Орієнтація карти</string>
     <string name="watch_map_north_up">Північ угорі</string>
-    <string name="watch_map_heading_up">Напрямок руху вгору</string>
+    <string name="watch_map_heading_up">Курс угорі</string>
     <string name="watch_keep_on_navigation">Не вимикати під час навігації</string>
     <string name="watch_keep_on_navigation_desc">Тримає екран годинника ввімкненим під час навігації. Витрачає більше заряду.</string>
     <string name="watch_map_telemetry">Телеметрія карти</string>
@@ -611,7 +610,7 @@
     <string name="cloud_caption">Ваша папка резервних копій для поїздок, налаштувань, тем та оверлеїв.</string>
     <string name="cloud_choose_folder">Вибрати папку</string>
     <string name="cloud_change_folder">Змінити папку</string>
-    <string name="cloud_remove_folder">Відв\'язати</string>
+    <string name="cloud_remove_folder">Від\'єднати</string>
     <string name="cloud_folder_label">Папка: %1$s</string>
     <string name="section_cloud_settings">Резервна копія налаштувань</string>
     <string name="cloud_backup_now">Створити копію</string>
@@ -630,7 +629,7 @@
     <string name="cloud_retry_now">Синхр. усе</string>
     <string name="sync_progress">Синхронізація %1$d з %2$d</string>
     <string name="sync_no_folder">Спочатку виберіть папку для копій</string>
-    <string name="sync_rate_limited">Dropbox обмежує цей обліковий запис. Синхронізовано поїздок: %1$d з %2$d, решту буде повторено.</string>
+    <string name="sync_rate_limited">Dropbox обмежує цей акаунт. Синхронізовано поїздок: %1$d з %2$d, решту буде повторено.</string>
     <string name="sync_finished">Синхронізовано поїздок: %1$d</string>
     <string name="sync_conflict_title">Конфлікт синхронізації</string>
     <string name="sync_conflict_body">Змінено з обох боків: %1$d</string>
@@ -696,7 +695,7 @@
     <string name="units_distance">Відстань</string>
     <string name="units_speed_kmh">км/год</string>
     <string name="units_speed_mph">mph</string>
-    <string name="units_speed_ms">m/s</string>
+    <string name="units_speed_ms">м/с</string>
     <string name="units_speed_kn">Вузли</string>
     <string name="units_distance_km">Кілометри</string>
     <string name="units_distance_mi">Милі</string>
@@ -756,7 +755,7 @@
     <string name="speed_legal_tiltback">Tiltback (лег.)</string>
     <string name="speed_legal_alarm">Тривога (лег.)</string>
     <string name="unit_kmh">км/год</string>
-    <string name="unit_ms">m/s</string>
+    <string name="unit_ms">м/с</string>
     <string name="unit_kn">kn</string>
     <string name="unit_mph">mph</string>
 
@@ -787,7 +786,7 @@
     <string name="welcome_tut_step">%1$d / %2$d</string>
     <string name="welcome_tut_skip_title">Пропустити вступний тур?</string>
     <string name="welcome_tut_skip_body">Більше він не показуватиметься.</string>
-    <string name="welcome_tut_skip_yes">Все одно пропустити</string>
+    <string name="welcome_tut_skip_yes">Усе одно пропустити</string>
     <string name="welcome_tut_welcome">Ласкаво просимо до EUC Planet, простого застосунку з відкритим кодом для моноколіс</string>
     <string name="welcome_tut_bt">Тут можна підключити й відключити ваше колесо</string>
     <string name="welcome_tut_version">Багатьом колесам для повної підтримки бракує лише тестувальників, і це зазвичай легко виправити. Торкніться версії, щоб відкрити «Про застосунок» і допомогти</string>
@@ -800,7 +799,7 @@
     <string name="welcome_tut_speed">Ваша швидкість наживо. Одиниці можна змінити: Налаштування → %1$s</string>
     <string name="welcome_tut_metrics">Заряд, температура, напруга та інше наживо. Порядок можна змінити: Налаштування → %1$s</string>
     <string name="welcome_tut_actions">Швидкі дії. Їх можна налаштувати там само, у розділі %1$s</string>
-    <string name="welcome_tut_map">Відкрийте навігатор, щоб планувати маршрути, отримувати покрокові підказки або ділитися своїм місцем у реальному часі в груповій поїздці</string>
+    <string name="welcome_tut_map">Відкрийте навігатор, щоб планувати маршрути, отримувати покрокові підказки або ділитися своїм місцем наживо в груповій поїздці</string>
     <string name="welcome_tut_gps">Торкніться, щоб побачити дані наживо. Можна навіть відкалібрувати швидкість колеса за GPS. Калібрування можна перевірити пізніше: Налаштування → %1$s</string>
     <string name="welcome_tut_camera">Записуйте відео з телеметрією наживо. Створюйте власні стильні оверлеї та робіть відео з даними минулих поїздок</string>
     <string name="welcome_tut_pd">Показує Стоянку або Рух. Торкніться, щоб задати %1$s</string>
@@ -941,7 +940,7 @@
     <string name="external_gps_autodetect_forward">Натисніть «Далі» й ідіть уперед кілька секунд</string>
     <string name="external_gps_autodetect_forward_capture">Зчитування руху вперед…</string>
     <string name="external_gps_autodetect_lateral">Натисніть «Далі» й ідіть ліворуч, не змінюючи орієнтації пристрою</string>
-    <string name="external_gps_autodetect_lateral_capture">Зчитування бокового руху…</string>
+    <string name="external_gps_autodetect_lateral_capture">Зчитування бічного руху…</string>
     <string name="external_gps_autodetect_vertical">Натисніть «Далі» й повільно опустіть пристрій до землі</string>
     <string name="external_gps_autodetect_vertical_capture">Зчитування вертикального руху…</string>
     <string name="external_gps_autodetect_done">Осі визначено та застосовано</string>
@@ -979,7 +978,7 @@
     <string name="radar_show_overlay">Показати оверлей загроз</string>
     <string name="radar_show_overlay_desc">Тонка смуга радара по краях панелі. Одна кольорова крапка на кожне авто. Видно лише на панелі.</string>
     <string name="radar_overlay_left">Лівий край</string>
-    <string name="radar_overlay_both">Обидва боки</string>
+    <string name="radar_overlay_both">Обидва краї</string>
     <string name="radar_overlay_right">Правий край</string>
 
     <!-- Voice (spoken) templates -->
@@ -989,9 +988,9 @@
     <string name="voice_load_fmt">навантаження %1$s відсотків</string>
     <string name="voice_current_fmt">струм %1$s ампер</string>
     <string name="voice_power_fmt">потужність %1$s ват</string>
-    <string name="voice_trip_fmt">пройдено %1$s кілометрів</string>
-    <string name="voice_trip_miles_fmt">пройдено %1$s миль</string>
-    <string name="voice_trip_meters_fmt">пройдено %1$s метрів</string>
+    <string name="voice_trip_fmt">проїхано %1$s кілометрів</string>
+    <string name="voice_trip_miles_fmt">проїхано %1$s миль</string>
+    <string name="voice_trip_meters_fmt">проїхано %1$s метрів</string>
     <string name="voice_time_fmt">час %1$s</string>
     <string name="voice_recording_on">йде запис</string>
     <string name="voice_recording_off">запис не ведеться</string>
@@ -1133,7 +1132,7 @@
     <string name="recording_summary_max_current">Макс. струм</string>
     <string name="recording_summary_max_power">Макс. потужність</string>
     <string name="recording_summary_max_torque">Макс. момент</string>
-    <string name="recording_summary_max_phase_current">Макс. фаз. A</string>
+    <string name="recording_summary_max_phase_current">Макс. фаз. А</string>
     <string name="recording_chart_speed">Швидкість (%1$s)</string>
     <string name="recording_chart_battery" formatted="false">Заряд (%)</string>
     <string name="recording_chart_battery_envelope" formatted="false">Заряд, оцінка (%)</string>
@@ -1142,10 +1141,10 @@
     <string name="recording_chart_current">Струм (А)</string>
     <string name="recording_chart_pwm" formatted="false">PWM (%)</string>
     <string name="recording_chart_torque">Момент (Н·м)</string>
-    <string name="recording_chart_phase_current">Фазний струм (A)</string>
+    <string name="recording_chart_phase_current">Фазний струм (А)</string>
     <string name="recording_chart_battery_smooth" formatted="false">Заряд, середнє (%)</string>
     <string name="recording_chart_speed_smooth">Швидкість, середнє (%1$s)</string>
-    <string name="recording_chart_current_smooth">Струм, середнє (A)</string>
+    <string name="recording_chart_current_smooth">Струм, середнє (А)</string>
     <string name="recording_chart_pwm_smooth" formatted="false">PWM, середнє (%)</string>
     <string name="recording_chart_power">Потужність (Вт)</string>
     <string name="recording_chart_altitude">Висота (м)</string>
@@ -1153,7 +1152,7 @@
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Керування фарою</string>
     <string name="auto_lights_when">Вмикати за сонцем, коли</string>
-    <string name="auto_lights_off_slow">Гасити фару при уповільненні</string>
+    <string name="auto_lights_off_slow">Гасити фару при сповільненні</string>
     <string name="auto_lights_off_below">Гасити нижче</string>
     <string name="auto_lights_on_before_sunset">Увімкнути за</string>
     <string name="auto_lights_off_after_sunrise">Вимкнути через</string>
@@ -1189,7 +1188,7 @@
     <string name="auto_lock_suspended">Призупинено на цю сесію, ви заблокували чи розблокували колесо вручну. Виправте це в розділі «Потрібна увага» або перепідключіть колесо.</string>
 
     <!-- Alarms tab -->
-    <string name="alarm_help">Пріоритет спрацювання визначається порядком груп метрик нижче.</string>
+    <string name="alarm_help">Пріоритет спрацювання визначається порядком груп показників нижче.</string>
     <string name="alarm_empty">Правил тривог поки немає</string>
     <string name="alarm_add">Нова тривога</string>
     <string name="alarm_summary_predict_fmt">прогноз на %1$s с наперед</string>
@@ -1198,7 +1197,7 @@
     <string name="alarm_delete_title">Видалити цю тривогу?</string>
     <string name="alarm_delete_body">Цю дію не можна скасувати.</string>
     <string name="alarm_delete_action">Видалити тривогу</string>
-    <string name="alarm_metric_label">Метрика</string>
+    <string name="alarm_metric_label">Показник</string>
     <string name="alarm_comparator_label">Умова</string>
     <string name="alarm_threshold_label">Поріг</string>
     <string name="alarm_label_frequency">Частота</string>
@@ -1212,7 +1211,7 @@
     <!-- Live data sources bottom sheet (opened by tapping the GPS indicator
          on the dashboard). The "External" label is intentionally generic
          (not RaceBox-specific) so future Draggy / VBox / etc. fit cleanly. -->
-    <string name="sources_title">Джерела даних у реальному часі</string>
+    <string name="sources_title">Джерела даних наживо</string>
     <string name="sources_phone">Телефон</string>
     <string name="sources_wheel">Колесо</string>
     <string name="sources_external">Зовнішнє</string>
@@ -1224,7 +1223,7 @@
     <string name="sources_position">Координати</string>
     <string name="sources_gforce">Перевантаження</string>
     <string name="sources_g_horizontal">|G| (горизонтально)</string>
-    <string name="sources_lateral_x">Бокове (X)</string>
+    <string name="sources_lateral_x">Бічне (X)</string>
     <string name="sources_vertical_y">Вертикальне (Y)</string>
     <string name="sources_forward_z">Вперед (Z)</string>
     <string name="sources_distance_between_fixes">Відстань між точками</string>
@@ -1263,7 +1262,7 @@
     <string name="alarm_repeat_multi">Повторно</string>
     <string name="alarm_wheel_only_label">Діє лише для наразі підключеного колеса</string>
     <string name="alarm_summary_wheel_fmt">Діє для: %1$s</string>
-    <string name="alarm_predict_label">Передбачуване спрацювання</string>
+    <string name="alarm_predict_label">Прогнозне спрацювання</string>
     <string name="alarm_predict_realtime">Зараз</string>
     <string name="alarm_state_atleast">%1$s становить %2$s або більше</string>
     <string name="alarm_state_below">%1$s нижче %2$s</string>
@@ -1272,7 +1271,7 @@
     <string name="alarm_repeat_help_once_instant">Одне сповіщення, коли %1$s. Знову активується, щойно %2$s.</string>
     <string name="alarm_repeat_help_many_instant">Повторює сповіщення при кожному показнику, поки %1$s.</string>
     <string name="alarm_predict_help_now">Сповіщає, щойно %1$s.</string>
-    <string name="alarm_predict_help_lead">Сповіщає приблизно за %1$s с до того, як %2$s, за останньою тенденцією.</string>
+    <string name="alarm_predict_help_lead">Сповіщає приблизно за %1$s с до того, як %2$s, за останнім трендом.</string>
 
     <!-- About / crash logs -->
     <string name="about_thanks">Подяки</string>
@@ -1297,7 +1296,7 @@
     <string name="online_upload_consent_bullet_stats">Загальна статистика поїздок: відстань, швидкість тощо</string>
     <string name="online_upload_consent_bullet_location">Місцезнаходження групуються в широкі зони на карті для захисту приватності</string>
     <string name="online_upload_consent_no_raw_gps">GPS-треки ніколи не публікуються.</string>
-    <string name="online_upload_consent_agree">Погодитись і продовжити</string>
+    <string name="online_upload_consent_agree">Погодитися і продовжити</string>
 
     <!-- Step 2: Profile -->
     <string name="online_upload_profile_title">Створіть профіль</string>
@@ -1307,7 +1306,7 @@
     <string name="online_upload_country_search">Пошук країни</string>
     <string name="online_upload_profile_avatar_hint">Торкніться, щоб додати фото.</string>
     <!-- Registration outcome -->
-    <string name="online_upload_register_action">Зареєструватись</string>
+    <string name="online_upload_register_action">Зареєструватися</string>
     <string name="online_upload_register_error">Не вдалося зареєструватися. Перевірте з\'єднання та спробуйте знову.</string>
     <!-- %1$s = the server's raw reason (e.g. display_name_taken), %2$d = HTTP status code -->
     <string name="online_upload_register_server_error">Не вдалося зареєструватися. Відповідь сервера: %1$s (%2$d)</string>
@@ -1329,7 +1328,7 @@
     <string name="online_upload_top_speed">макс. %1$s %2$s</string>
     <string name="online_upload_trips">поїздки: %d</string>
     <string name="online_upload_total_km">%1$s %2$s</string>
-    <string name="online_upload_join">Приєднатись до таблиці лідерів</string>
+    <string name="online_upload_join">Приєднатися до таблиці лідерів</string>
     <string name="online_status_shared">Опубліковано в таблиці лідерів</string>
     <string name="online_status_pending">Вивантаження до таблиці лідерів…</string>
     <string name="online_status_failed">Не вдалося вивантажити, торкніться, щоб повторити</string>
@@ -1363,12 +1362,12 @@
     <string name="warnings_battery_opt_title">Оптимізацію батареї увімкнено</string>
     <string name="warnings_battery_opt_body">Android може зупинити EUC Planet у фоні та обірвати запис посеред поїздки. Дозвольте роботу без обмежень.</string>
     <string name="warnings_hud_blocked_title">HUD на телефоні заблоковано</string>
-    <string name="warnings_hud_blocked_body">Дозвіл малювати поверх інших застосунків відкликано, тому накладання не з\'явиться поверх карт чи музики.</string>
+    <string name="warnings_hud_blocked_body">Дозвіл малювати поверх інших застосунків відкликано, тому оверлей не з\'явиться поверх карт чи музики.</string>
     <string name="warnings_no_backup_title">Резервних копій поїздок немає</string>
     <string name="warnings_no_backup_body">Вони існують лише на цьому телефоні. Виберіть папку для резервних копій, щоб загублений або очищений телефон не забрав ваші поїздки з собою.</string>
     <string name="warnings_pip_blocked_title">Картинку в картинці заблоковано</string>
     <string name="warnings_pip_blocked_body">Android блокує цю функцію для EUC Planet, тому плаваюче вікно не з\'явиться, коли ви вийдете із застосунку.</string>
-    <string name="online_rejoin_confirm">Приєднатись знову</string>
+    <string name="online_rejoin_confirm">Приєднатися знову</string>
 
     <!-- Battery / Charging screen -->
     <string name="charging_monitor">Монітор батареї</string>
@@ -1413,8 +1412,8 @@
     <string name="studio_rendering_cancel">Скасувати</string>
     <string name="studio_dlg_cancel_render_title">Скасувати рендеринг?</string>
     <string name="studio_dlg_cancel_render_body">Кліп повтору не буде збережено.</string>
-    <string name="studio_dlg_cancel_render_confirm">Скасувати рендер</string>
-    <string name="studio_dlg_cancel_render_dismiss">Продовжити рендер</string>
+    <string name="studio_dlg_cancel_render_confirm">Скасувати рендеринг</string>
+    <string name="studio_dlg_cancel_render_dismiss">Продовжити рендеринг</string>
     <string name="studio_replay_clip_saved">Кліп повтору збережено</string>
     <string name="studio_replay_render_cancelled">Рендеринг скасовано</string>
     <string name="studio_replay_export_failed">Не вдалося експортувати повтор</string>
@@ -1577,7 +1576,7 @@
     <string name="studio_cfg_clock_stopwatch">Секундомір</string>
     <string name="studio_cfg_clock_show_date">Показувати рядок дати</string>
     <string name="studio_cfg_clock_24h">24-годинний формат</string>
-    <string name="studio_cfg_metric_label">Метрика</string>
+    <string name="studio_cfg_metric_label">Показник</string>
     <string name="studio_cfg_max_label">Максимум</string>
     <string name="studio_cfg_show_label">Показувати підпис</string>
     <string name="studio_cfg_badge_stacked">Стовпчиком (значок зверху)</string>
@@ -1675,7 +1674,7 @@
     <string name="trip_meter_tab_battery">Заряд</string>
     <string name="trip_meter_tab_time">Час</string>
     <string name="trip_meter_active">Активно</string>
-    <string name="trip_meter_avg">Сер.</string>
+    <string name="trip_meter_avg">Сер</string>
     <string name="trip_meter_reset">Скинути лічильник поїздки</string>
     <string name="trip_meter_reset_msg">Обнуляє поточну відстань і видаляє всі відрізки. Цю дію не можна скасувати.</string>
     <string name="trip_meter_empty">Відстані ще немає. Лічильник працює, поки підключено колесо.</string>
@@ -1708,7 +1707,7 @@
     <string name="nav_menu_load">Завантажити маршрут</string>
     <string name="nav_menu_clear">Новий маршрут</string>
     <string name="nav_finished_title">Маршрут завершено</string>
-    <string name="nav_finished_body">Почати новий маршрут? Пройдені точки буде видалено. Щоб зберегти цей маршрут, спершу збережіть його через меню.</string>
+    <string name="nav_finished_body">Почати новий маршрут? Пройдені зупинки буде очищено. Щоб зберегти цей маршрут, спершу збережіть його через меню.</string>
     <string name="nav_clear_home">Забути дім</string>
     <string name="nav_clear_work">Забути роботу</string>
     <string name="nav_menu_exit">Назад на панель</string>
@@ -1729,7 +1728,7 @@
     <string name="nav_menu_load_short">Завантажити</string>
     <string name="nav_start_short">Почати навігацію</string>
     <string name="nav_stop_short">Зупинити навігацію</string>
-    <string name="nav_stops_left">Залишилось зупинок: %1$d</string>
+    <string name="nav_stops_left">Залишилося зупинок: %1$d</string>
     <string name="nav_last_stop">Остання зупинка</string>
     <string name="nav_need_destination">Спершу додайте пункт призначення</string>
     <string name="nav_map_style">Стиль карти</string>
@@ -1745,7 +1744,7 @@
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Супутник</string>
     <string name="nav_layer_satellite_labels">Гібрид</string>
-    <string name="nav_layer_osm">Standard (OSM)</string>
+    <string name="nav_layer_osm">Стандартна (OSM)</string>
     <string name="nav_layer_cyclosm">CyclOSM</string>
     <string name="nav_layer_topo">OpenTopoMap</string>
     <string name="nav_layer_humanitarian">Humanitarian</string>
@@ -1764,7 +1763,7 @@
     <string name="nav_no_location">Очікування сигналу GPS…</string>
     <string name="nav_too_far_to_start">Задалеко від першої зупинки. Утримуйте кнопку старту, щоб почати все одно.</string>
     <string name="nav_empty_hint">Торкніться карти, скористайтеся пошуком або завантажте файл GPX.</string>
-    <string name="nav_route_failed">Сервіс маршрутів недоступний, використовуються прямі лінії</string>
+    <string name="nav_route_failed">Сервіс маршрутизації недоступний,використовуються прямі лінії</string>
     <string name="nav_cant_add_while_running">Не можна додати зупинку під час навігації</string>
     <string name="nav_search_no_results">Немає результатів за цією адресою</string>
     <string name="nav_save_failed">Не вдалося зберегти маршрут</string>
@@ -1781,7 +1780,7 @@
     <string name="nav_end_title">Завершити навігацію?</string>
     <!-- ==== Live location share (navigator) ==== -->
     <string name="share_button">Опції «Поділитися»</string>
-    <string name="share_button_long">Поділитися розташуванням</string>
+    <string name="share_button_long">Поділитися геопозицією</string>
     <string name="share_leave_first">Спершу вийдіть із поточної групи</string>
     <string name="share_join_title">Приєднатися до групи</string>
     <string name="share_identity_anon">Анонімно</string>
@@ -1858,8 +1857,8 @@
     <string name="nav_prox_cold">Холодніше</string>
 
     <!-- Distance formats -->
-    <string name="nav_dist_m">%1$d m</string>
-    <string name="nav_dist_km">%1$s km</string>
+    <string name="nav_dist_m">%1$d м</string>
+    <string name="nav_dist_km">%1$s км</string>
     <string name="nav_dist_ft">%1$d ft</string>
     <string name="nav_dist_mi">%1$s mi</string>
 
@@ -1974,7 +1973,7 @@
     <string name="nav_setting_full_path">Завжди прокладати весь маршрут</string>
     <string name="nav_setting_full_path_desc">Якщо вимкнено, прокладається лише шлях до наступної зупинки, а решта показується пунктиром.</string>
     <string name="nav_setting_endpoints">Сервіси маршрутизації</string>
-    <string name="nav_setting_endpoints_hint">За замовчуванням безкоштовний публічний OpenStreetMap, змініть, щоб використовувати власний сервер. Valhalla будує велосипедні маршрути й враховує уникнення, OSRM піші та автомобільні.</string>
+    <string name="nav_setting_endpoints_hint">Типово безкоштовний публічний OpenStreetMap, змініть, щоб використовувати власний сервер. Valhalla будує велосипедні маршрути й враховує уникнення, OSRM піші та автомобільні.</string>
     <string name="nav_setting_geocoder_url">URL пошуку адрес</string>
     <string name="nav_setting_router_url">URL маршрутизації (OSRM)</string>
     <string name="nav_setting_valhalla_url">URL маршрутизації (Valhalla)</string>
@@ -1985,7 +1984,7 @@
     <string name="trip_action_share_file_desc">Надіслати CSV поїздки в інший застосунок.</string>
     <string name="trip_action_view_online">Переглянути онлайн</string>
     <string name="trip_action_replay">Відтворити у Studio</string>
-    <string name="trip_action_replay_desc">Перегляньте поїздку з накладанням даних наживо.</string>
+    <string name="trip_action_replay_desc">Перегляньте поїздку з оверлеями даних наживо.</string>
     <!-- ==== Dashboard quick menus ==== -->
     <string name="dash_view_video_gallery">Переглянути галерею відео</string>
     <string name="dash_view_photo_gallery">Переглянути галерею фото</string>
@@ -2058,8 +2057,8 @@
     <string name="studio_cfg_radar_distance_labels">Мітки відстані</string>
     <string name="studio_radar_none">Немає радара</string>
     <string name="studio_radar_clear">Чисто</string>
-    <string name="studio_radar_closing_fmt">+%1$d km/h</string>
-    <string name="studio_radar_mirror_closing_fmt">m · +%1$d km/h</string>
+    <string name="studio_radar_closing_fmt">+%1$d км/год</string>
+    <string name="studio_radar_mirror_closing_fmt">м · +%1$d км/год</string>
     <string name="studio_cfg_radar_lane">Смуга</string>
     <string name="studio_cfg_radar_minimal">Мінімальний</string>
     <string name="studio_cfg_radar_mirror">Дзеркало</string>
@@ -2125,21 +2124,21 @@
     <string name="nav_pois_failed">Не вдалося завантажити місця. Перевірте з\'єднання</string>
     <string name="nav_pois_none">Поблизу цього маршруту нічого не знайдено</string>
     <string name="nav_setting_advanced_map">Розширені функції карти</string>
-    <string name="nav_setting_advanced_map_desc">Показувати зарядки та місця вздовж маршруту.</string>
+    <string name="nav_setting_advanced_map_desc">Показувати зарядні станції та місця вздовж маршруту.</string>
     <string name="nav_setting_avoid">Уникати під час маршрутизації</string>
     <string name="nav_setting_avoid_ferries">Уникати поромів</string>
     <string name="nav_setting_avoid_highways">Уникати автомагістралей</string>
-    <string name="nav_setting_avoid_hint">Уникання використовують інший сервіс маршрутизації та діють там, де режим пересування їх підтримує.</string>
+    <string name="nav_setting_avoid_hint">Уникнення використовують інший сервіс маршрутизації та діють там, де режим пересування їх підтримує.</string>
     <string name="nav_setting_avoid_tolls">Уникати платних доріг</string>
     <string name="nav_setting_avoid_unpaved">Уникати ґрунтових доріг</string>
-    <string name="nav_avoid_router_failed">Маршрут не враховує уникнень: сервіс маршрутів для них не відповів.</string>
+    <string name="nav_avoid_router_failed">Маршрут не враховує уникнень: сервіс маршрутизації для них не відповів.</string>
     <string name="nav_setting_ocm_key">Ключ API Open Charge Map</string>
-    <string name="nav_setting_ocm_key_hint">Додає відгуки, фото та деталі конекторів у картку зарядки. Безкоштовний ключ можна отримати на</string>
+    <string name="nav_setting_ocm_key_hint">Додає відгуки, фото та деталі конекторів у картку зарядної станції. Безкоштовний ключ можна отримати на</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>
-    <string name="nav_setting_ocm_subtitle">Спільнота зарядок (Open Charge Map)</string>
-    <string name="nav_setting_overpass_url">URL зарядок і місць (Overpass)</string>
-    <string name="nav_show_chargers">Показувати зарядки</string>
-    <string name="nav_show_places">Показувати місця (магазини, їжа, пам\'ятки)</string>
+    <string name="nav_setting_ocm_subtitle">Спільнота зарядних станцій (Open Charge Map)</string>
+    <string name="nav_setting_overpass_url">URL зарядних станцій і місць (Overpass)</string>
+    <string name="nav_show_chargers">Показувати зарядні станції</string>
+    <string name="nav_show_places">Показувати місця (крамниці, їжа, визначні місця)</string>
     <string name="dropbox_link_ok">Dropbox під\'єднано</string>
     <string name="dropbox_link_failed">Не вдалося під\'єднати Dropbox. Перевірте з\'єднання та спробуйте ще раз</string>
     <string name="adv_alarm_buffer_max">Історія тренду</string>
@@ -2268,7 +2267,7 @@
     <string name="adv_nav_reroute_after">Перепрокладання через</string>
     <string name="adv_nav_reroute_after_desc">Визначає, як довго ви маєте бути поза маршрутом, перш ніж буде запитано новий маршрут. Увага: якщо замало, маршрут перепрокладається через невеликі об\'їзди й витрачає дані.</string>
     <string name="adv_nav_warning">Ці параметри визначають, коли реагує навігація. Неправильні значення можуть змусити голосові підказки чи перепрокладання спрацьовувати зарано або запізно.</string>
-    <string name="adv_phone_gps_interval">Інтервал оновлення GPS телефону</string>
+    <string name="adv_phone_gps_interval">Інтервал оновлення GPS телефона</string>
     <string name="adv_phone_gps_interval_desc">Визначає плавність GPS-треку та швидкість реакції навігації. Менше значення оновлює частіше. Увага: малі значення швидше розряджають батарею.</string>
     <string name="adv_phone_gps_idle_interval">Інтервал GPS у спокої</string>
     <string name="adv_phone_gps_idle_interval_desc">Частота GPS, коли немає запису чи навігації, щоб Навігатор і нове підключення колеса були готові. Більше значення заощаджує батарею.</string>
@@ -2303,7 +2302,7 @@
     <string name="adv_trip_finalize_grace_desc">Визначає, скільки часу після зупинки минає, перш ніж поїздку буде завершено й синхронізовано. Увага: якщо замало, поїздку з короткою паузою може бути розірвано.</string>
     <string name="adv_wheel_poll_rate">Частота опитування колеса</string>
     <string name="adv_wheel_poll_rate_desc">Визначає свіжість даних наживо та швидкість реакції тривог. Менше значення частіше запитує дані в колеса. Увага: дуже малі значення можуть перевантажити зв\'язок Bluetooth і зупинити передачу даних на деяких колесах.</string>
-    <string name="alarm_beep_advanced">Розширені</string>
+    <string name="alarm_beep_advanced">Додатково</string>
     <string name="alarm_beep_gap_label">Тривалість паузи</string>
     <string name="alarm_beep_timeline_fmt">%1$d× · пауза %2$d мс</string>
     <string name="alarm_beep_studio">Адаптивний сигнал</string>
@@ -2313,7 +2312,7 @@
     <string name="alarm_studio_play">Відтворити</string>
     <string name="alarm_studio_reset">Скинути</string>
     <string name="alarm_studio_stop">Стоп</string>
-    <string name="alarm_studio_test_input">Тестовий ввід %1$s: %2$s %3$s</string>
+    <string name="alarm_studio_test_input">Тестовий вхід %1$s: %2$s %3$s</string>
     <string name="alarm_studio_volume_factor">Коефіцієнт гучності</string>
     <string name="alarm_summary_adaptive_pitch">тон</string>
     <string name="alarm_summary_adaptive_pitch_vol">тон і гучність</string>
@@ -2349,7 +2348,7 @@
     <string name="voice_variant_label">Варіант голосу</string>
     <string name="voice_variant_fmt">Голос %1$d</string>
     <string name="voice_variant_online">онлайн</string>
-    <string name="voice_variant_default">За замовчуванням</string>
+    <string name="voice_variant_default">Типовий</string>
     <!-- Screen geometry, rotation, sync, charging, voice (locale parity) -->
     <string name="sync_cancel">Скасувати</string>
     <string name="sync_stopping">Зупинка…</string>
@@ -2358,7 +2357,7 @@
     <string name="charging_stat_charged_est">Заряджено (оцінка)</string>
     <string name="voice_quality_high">висока якість</string>
     <string name="voice_quality_low">базова</string>
-    <string name="voice_sample_default">Це голос за замовчуванням для цієї мови</string>
+    <string name="voice_sample_default">Це типовий голос для цієї мови</string>
     <string name="voice_sample_fmt">Це голос %1$d</string>
     <string name="action_reorganize">Упорядкувати</string>
     <string name="action_reset">Скинути</string>
@@ -2369,9 +2368,9 @@
     <string name="geo_section_trip">Поїздка</string>
     <string name="geo_section_other">Інші екрани</string>
     <string name="geo_section_settings">Налаштування</string>
-    <string name="geo_other_hint">Монітор батареї, історія метрик, сканування та Flic. Overlay Studio не зачіпається: його макет фіксований, але він добре працює в будь-якій орієнтації.</string>
+    <string name="geo_other_hint">Монітор батареї, історія показників, сканування та Flic. Overlay Studio не зачіпається: його макет фіксований, але він добре працює в будь-якій орієнтації.</string>
     <string name="geo_settings_hint">Екран налаштувань. Типово вимкнено, тому Налаштування залишаються у книжковій орієнтації, доки ви це не увімкнете.</string>
-    <string name="geo_trip_hint">Екран деталей за замовчуванням обертається для карти та графіків у альбомній орієнтації. Список поїздок залишається у книжковій орієнтації, доки ви це не увімкнете.</string>
+    <string name="geo_trip_hint">Екран деталей типово обертається для карти та графіків у альбомній орієнтації. Список поїздок залишається у книжковій орієнтації, доки ви це не увімкнете.</string>
     <string name="setting_allow_rotation">Дозволити обертання</string>
     <string name="setting_rotate_trip_detail">Обертати деталі поїздки</string>
     <string name="setting_rotate_trip_list">Обертати список поїздок</string>
@@ -2382,7 +2381,7 @@
     <string name="compact_mode_always">Завжди</string>
     <string name="compact_mode_auto">Малі екрани</string>
     <string name="compact_mode_never">Ніколи</string>
-    <string name="setting_cover_cutout">Уникати фронтальних камер</string>
+    <string name="setting_cover_cutout">Уникати камер на кришці</string>
     <string name="cover_cutout_off">Вимк</string>
     <string name="cover_cutout_left">Внизу ліворуч</string>
     <string name="cover_cutout_right">Внизу праворуч</string>
@@ -2390,23 +2389,23 @@
     <string name="setting_simple_speedo_desc">Лише велике число швидкості, без кільця шкали в альбомній орієнтації.</string>
     <string name="setting_mirror_landscape">Кнопки ліворуч</string>
     <string name="setting_nav_stops_side">Сторона панелі зупинок</string>
-    <string name="side_default">За замовчуванням</string>
+    <string name="side_default">Типово</string>
     <string name="side_left">Ліворуч</string>
     <string name="side_right">Праворуч</string>
     <string name="adv_group_geometry">Змінні геометрії екрана</string>
     <string name="adv_group_map_cache">Кеш карти</string>
     <string name="adv_map_encoded_cache">Кеш кодованих тайлів</string>
-    <string name="adv_map_encoded_cache_desc">PNG-тайли, що зберігаються для годинника. Вищі значення використовують більше пам’яті телефона.</string>
+    <string name="adv_map_encoded_cache_desc">PNG-тайли, що зберігаються для годинника. Вищі значення використовують більше пам\'яті телефона.</string>
     <string name="adv_map_http_cache">Кеш завантажених тайлів</string>
     <string name="adv_map_http_cache_desc">Завантажені тайли карти, що зберігаються на телефоні. Вищі значення використовують більше місця.</string>
     <string name="adv_compact_max_screen">Межа компактного екрана</string>
     <string name="adv_compact_max_screen_desc">Екрани, обидві сторони яких менші за це значення, перемикаються на компактну панель, коли для «Компактна панель» вибрано «Малі екрани».</string>
     <string name="adv_cover_cutout_inset">Розмір вирізу камери</string>
-    <string name="adv_cover_cutout_inset_desc">Місце, що лишається вільним для об\'єктивів на кришці, коли ввімкнено «Уникати фронтальних камер». Якщо замало, об\'єктиви закривають кнопки.</string>
+    <string name="adv_cover_cutout_inset_desc">Місце, що лишається вільним для об\'єктивів на кришці, коли ввімкнено «Уникати камер на кришці». Якщо замало, об\'єктиви закривають кнопки.</string>
     <string name="adv_nav_sidebar_min">Мінімальний екран для бічної панелі</string>
     <string name="adv_nav_sidebar_min_desc">На вужчих екранах панель зупинок лишається внизу навіть в альбомній орієнтації. Якщо замало, на малих екранах панель закриває карту.</string>
     <string name="adv_inmotion_v1_pin">PIN InMotion V5/V8/V10</string>
-    <string name="adv_inmotion_v1_pin_desc">PIN доступу для моноколіс InMotion V5/V8/V10, надсилається під час підключення, щоб колесо почало передавати дані. Залиште 000000, якщо ви не задали власний PIN у застосунку InMotion.</string>
+    <string name="adv_inmotion_v1_pin_desc">PIN доступу для коліс InMotion V5/V8/V10, надсилається під час підключення, щоб колесо почало передавати дані. Залиште 000000, якщо ви не задали власний PIN у застосунку InMotion.</string>
     <string name="adv_kingsong_unlock_code">Код розблок. KingSong</string>
     <string name="adv_kingsong_unlock_code_desc">Шість цифр, що надсилаються з командою розблокування. Перевірені колеса приймають будь-які цифри, тож залиште 123456, якщо ваше їх не відхиляє.</string>
     <string name="adv_kingsong_password">Пароль KingSong</string>
@@ -2471,7 +2470,7 @@
     <string name="widget_horn">Сигнал</string>
     <string name="widget_voice_on">Голос увімк.</string>
     <string name="widget_voice_off">Голос вимк.</string>
-    <string name="widget_connected">З\'єднано</string>
+    <string name="widget_connected">Підключено</string>
     <string name="widget_disconnected">Немає колеса</string>
     <string name="widget_placeholder_value">--</string>
     <string name="widget_description">Показники та швидкі дії</string>
@@ -2499,11 +2498,11 @@
     <string name="trip_tools_combine_failed">Не вдалося об\'єднати ці поїздки</string>
     <string name="trip_tools_wheel_current">Поточне</string>
     <string name="trip_tools_combine_summary">Об\'єднує поїздки (%1$d) в одну нову.</string>
-    <string name="phone_hud_desc">Показує розкладку Overlay Studio поверх інших застосунків, щоб ви бачили дані колеса, коли користуєтеся картами чи музикою.</string>
-    <string name="phone_hud_permission_desc">Android запитує це окремо. Без дозволу накладку показати не можна.</string>
+    <string name="phone_hud_desc">Показує макет Overlay Studio поверх інших застосунків, щоб ви бачили дані колеса, коли користуєтеся картами чи музикою.</string>
+    <string name="phone_hud_permission_desc">Android запитує це окремо. Без дозволу оверлей показати не можна.</string>
     <string name="phone_hud_grant">Дозволити</string>
     <string name="phone_hud_section">HUD на телефоні</string>
-    <string name="phone_hud_enable">Показувати накладку</string>
+    <string name="phone_hud_enable">Показувати оверлей</string>
     <string name="phone_hud_only_away">Лише поза EUC Planet</string>
     <string name="section_surfaces">Екрани наживо</string>
     <string name="surface_notification">Сповіщення</string>
@@ -2584,7 +2583,7 @@
     <string name="dropbox_syncing">Синхронізація поїздок…</string>
     <string name="dropbox_folder_desc">Поїздки та налаштування зберігаються у вашому Dropbox, у %1$s. Цю папку бачить лише цей застосунок.</string>
     <string name="keep_app_alive">Тримати застосунок активним</string>
-    <string name="keep_app_alive_desc">Показує постійне сповіщення, щоб застосунок залишався активним у фоні. Синхронізація поїздок і голос працюють навіть без під’єднаного колеса. Споживає трохи більше заряду.</string>
+    <string name="keep_app_alive_desc">Показує постійне сповіщення, щоб застосунок залишався активним у фоні. Синхронізація поїздок і голос працюють навіть без підключеного колеса. Споживає трохи більше заряду.</string>
     <string name="sync_up_to_date">Уже актуально</string>
     <string name="studio_source_transparent">Прозорий</string>
     <string name="studio_source_video">Відео</string>
@@ -2651,7 +2650,7 @@
     <string name="lockdown_arm">Увімкнути</string>
     <string name="lockdown_trip_saved">Поїздку збережено. Запис зупинено.</string>
     <string name="lockdown_warning_intro">Застосунок перейде на простий заблокований екран. Поки це увімкнено:</string>
-    <string name="lockdown_limit_1">Ліміти швидкості легального режиму примусово увімкнені, і їх не можна вимкнути ні з екрана, ні кнопкою Flic, ні клавішами гучності, ні з годинника, ні з HUD.</string>
+    <string name="lockdown_limit_1">Ліміти швидкості легального режиму примусово увімкнені, і їх не можна вимкнути ні з екрана, ні кнопкою Flic, ні кнопками гучності, ні з годинника, ні з HUD.</string>
     <string name="lockdown_limit_2">Швидкості tiltback і тривоги легального режиму змінити не можна.</string>
     <string name="lockdown_limit_3">Запис поїздок зупиняється, автозапис не починає нові поїздки.</string>
     <string name="lockdown_limit_4">Навігація зупиняється, маршрути запустити не можна.</string>
@@ -2677,7 +2676,7 @@
     <string name="lockdown_warning_no_wheel">Колесо не підключено, тому стан легального режиму невідомий. Застосунок заблокується наступного разу, коли легальний режим буде увімкнено.</string>
     <string name="lockdown_continue">Далі</string>
     <string name="trip_tools_wheel_none">Для цієї поїздки колесо ще не записано.</string>
-    <string name="backup_conflict_warning">Деякі поїздки на цьому телефоні відрізняються від копій у теці резервної копії. Натисніть %1$s, потім у розділі %2$s натисніть \"%3$s\" і виберіть, яку копію залишити.</string>
+    <string name="backup_conflict_warning">Деякі поїздки на цьому телефоні відрізняються від копій у папці резервних копій. Торкніться %1$s, потім у розділі %2$s натисніть «%3$s» і виберіть, яку копію залишити.</string>
     <string name="backup_conflict_title">Конфлікти резервних копій</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Їдемо?</string>
@@ -2693,20 +2692,20 @@
     <string name="widget_weather_hour_fmt">%1$d год тому</string>
     <string name="widget_weather_window_fmt">найближчі %1$d год</string>
     <!-- Charge alerts -->
-    <string name="charging_notify_80" formatted="false">Повідомити на 80 %</string>
-    <string name="charging_notify_full" formatted="false">Повідомити на 100 %</string>
+    <string name="charging_notify_80" formatted="false">Повідомити на 80%</string>
+    <string name="charging_notify_full" formatted="false">Повідомити на 100%</string>
     <string name="charging_notify_at">Повідомити на</string>
-    <string name="charging_notify_custom">Повідомити на %1$d %%</string>
+    <string name="charging_notify_custom">Повідомити на %1$d%%</string>
     <string name="charging_notify_at_ask">Повідомити на…</string>
-    <string name="charging_notify_custom_range" formatted="false">Має бути від 5 до 95 %, не 80 %</string>
+    <string name="charging_notify_custom_range" formatted="false">Має бути від 5 до 95%, не 80%</string>
     <string name="charge_alert_channel_name">Сповіщення про заряджання</string>
     <string name="charge_alert_channel_description" formatted="false">Коли батарея досягає вибраного рівня або заряд завершено.</string>
-    <string name="charge_alert_80_title" formatted="false">Батарея на 80 %</string>
+    <string name="charge_alert_80_title" formatted="false">Батарея на 80%</string>
     <string name="charge_alert_80_text">Вистачить на більшість поїздок, і зазвичай це бережніше для батареї.</string>
     <string name="charge_alert_full_title">Заряджання завершено</string>
-    <string name="charge_alert_full_text">Заряд повний, відключіть зарядку, коли зможете. Деякі колеса зараз балансують комірки.</string>
-    <string name="charge_alert_custom_title">Батарея на %1$d %%</string>
-    <string name="charge_alert_custom_text">Досягнуто вибраного рівня. Відключіть зарядку, коли зможете.</string>
+    <string name="charge_alert_full_text">Заряд повний, відключіть зарядний пристрій, коли зможете. Деякі колеса зараз балансують комірки.</string>
+    <string name="charge_alert_custom_title">Батарея на %1$d%%</string>
+    <string name="charge_alert_custom_text">Досягнуто вибраного рівня. Відключіть зарядний пристрій, коли зможете.</string>
     <!-- Widget names for the picker -->
     <string name="widget_euc_label">Панель колеса</string>
     <string name="widget_act_1_label">Кнопка колеса 1</string>
@@ -2727,7 +2726,7 @@
     <string name="status_idle">Неактивний</string>
     <string name="tpms_state_leaking">Спускає</string>
     <string name="tpms_state_inflating">Накачується</string>
-    <string name="alarm_metric_battery_envelope">Батарея (оц)</string>
+    <string name="alarm_metric_battery_envelope">Заряд (оц)</string>
     <string name="alarm_metric_battery_envelope_long">Заряд, оцінка без навантаження</string>
 
     <string name="headlight_state_off">Світло: вимк.</string>
@@ -2799,7 +2798,7 @@
     <string name="share_menu_scan">Сканувати QR</string>
     <string name="share_menu_scan_desc">Приєднатися до групової поїздки або відкрити маршрут.</string>
     <string name="share_menu_route">Поділитися маршрутом</string>
-    <string name="share_menu_route_desc">QR-кодом або посиланням. Без облікового запису.</string>
+    <string name="share_menu_route_desc">QR-кодом або посиланням. Без акаунта.</string>
     <string name="share_menu_route_none">Спершу додайте зупинку.</string>
     <string name="scan_code_unknown">Це не код групової поїздки чи маршруту.</string>
     <string name="route_qr_hint">Скануйте в EUC Planet або камерою телефона.</string>

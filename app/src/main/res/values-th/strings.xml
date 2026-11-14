@@ -96,7 +96,7 @@
     <string name="action_light">ไฟ</string>
     <string name="action_voice">เสียง</string>
     <string name="action_legal_mode">โหมดถูกกฎหมาย</string>
-    <string name="action_legal_on">เปิดโหมดกฎหมาย</string>
+    <string name="action_legal_on">กฎหมาย เปิด</string>
     <string name="action_lock_wheel">ล็อกล้อ</string>
     <string name="action_locked">ล็อกแล้ว</string>
     <string name="lock_blocked_in_motion_toast">ลดความเร็วก่อนล็อกล้อ</string>
@@ -277,7 +277,7 @@
     <string name="metric_chip_forward_g_tile">g หน้า</string>
     <string name="metric_chip_lateral_g_tile">g ข้าง</string>
     <string name="metric_chip_bt_rssi_tile">BT</string>
-    <string name="metric_desc_headroom">ระยะเผื่อความเร็วที่เหลือก่อนล้อจะเริ่มเงยหน้า (tilt-back) ตัวเลขมาก = ระยะปลอดภัยมาก</string>
+    <string name="metric_desc_headroom">ระยะเผื่อความเร็วที่เหลือก่อน tiltback จะทำงาน ตัวเลขมาก = ระยะปลอดภัยมาก</string>
     <string name="metric_desc_trip_max_speed">ความเร็วสูงสุดในทริปปัจจุบัน (รีเซ็ตเมื่อเริ่มทริปใหม่)</string>
     <string name="metric_desc_avg_trip_speed">ระยะทางทริปหารด้วยเวลาที่ขี่จนถึงตอนนี้</string>
     <string name="metric_desc_wh_consumed">วัตต์-ชั่วโมงทั้งหมดที่ดึงจากแบตเตอรี่ในทริปนี้</string>
@@ -333,7 +333,7 @@
     <string name="voice_state_on">เปิด</string>
     <string name="voice_state_off">ปิด</string>
     <string name="voice_mode_lock">ล็อกอยู่</string>
-    <string name="voice_mode_drive">ขับขี่</string>
+    <string name="voice_mode_drive">ขี่</string>
     <string name="voice_mode_shutdown">ปิด</string>
     <string name="voice_mode_idle">ว่าง</string>
     <string name="voice_answer_setup">ต้องตั้งค่า %1$s ก่อน</string>
@@ -423,7 +423,7 @@
     <string name="action_chip_media_pause">หยุดเพลง</string>
     <string name="action_chip_phone_volume_up">เพิ่มเสียง</string>
     <string name="action_chip_phone_volume_down">ลดเสียง</string>
-    <string name="action_chip_phone_mute">ปิด</string>
+    <string name="action_chip_phone_mute">ปิดเสียง</string>
     <string name="action_chip_phone_torch">ไฟฉายโทรศัพท์</string>
     <string name="action_chip_open_navigation">แสดงแผนที่</string>
     <string name="action_chip_open_studio">สตูดิโอโอเวอร์เลย์</string>
@@ -478,7 +478,7 @@
     <string name="hud_screen_name_map">แผนที่</string>
     <string name="hud_screen_name_nav">ตัวนำทาง</string>
     <string name="hud_screen_name_map_nav">แผนที่ + นำทาง</string>
-    <string name="hud_screen_name_power">วัตต์และระยะทาง</string>
+    <string name="hud_screen_name_power">วัตต์และระยะทางที่เหลือ</string>
     <string name="hud_screen_name_trip_stats">สถิติทริป</string>
     <string name="hud_screen_name_compass">เข็มทิศ</string>
     <string name="hud_screen_name_safety">ความปลอดภัย</string>
@@ -497,8 +497,8 @@
     <string name="hud_app_sending">กำลังส่ง %1$d%%</string>
     <string name="hud_app_sent">ดำเนินการต่อบน HUD</string>
     <string name="hud_app_resend_title">เป็นเวอร์ชันล่าสุดแล้ว</string>
-    <string name="hud_app_resend_body">HUD มีเวอร์ชันนี้อยู่แล้ว ส่งต่อไปหรือไม่</string>
-    <string name="hud_app_remove_title">ถอนการติดตั้งแอป HUD หรือไม่</string>
+    <string name="hud_app_resend_body">HUD มีเวอร์ชันนี้อยู่แล้ว ส่งอีกครั้งไหม?</string>
+    <string name="hud_app_remove_title">ถอนการติดตั้งแอป HUD ใช่ไหม?</string>
     <string name="hud_app_remove_body">HUD จะถามเพื่อถอนการติดตั้ง การติดตั้งใหม่ต้องใช้สายเคเบิล</string>
     <string name="hud_app_failed">ติดต่อ HUD ไม่ได้ ลองอีกครั้ง</string>
     <string name="section_watch_general">ทั่วไป</string>
@@ -511,9 +511,9 @@
     <string name="watch_update_rate_desc">อัปเดตช้าลงช่วยประหยัดแบตนาฬิกา ค่านี้แยกจากอัตราการอ่านค่าจากล้อในส่วนขั้นสูง</string>
     <string name="watch_map_enabled">แผนที่บนนาฬิกา</string>
     <string name="watch_map_enabled_desc">แสดงตำแหน่งและเส้นทางจากโทรศัพท์ จะมีการแจ้งเตือนค้างไว้เพื่อทำงานในเบื้องหลัง</string>
-    <string name="watch_map_orientation">การหมุนแผนที่</string>
+    <string name="watch_map_orientation">การวางแนวแผนที่</string>
     <string name="watch_map_north_up">ทิศเหนืออยู่บน</string>
-    <string name="watch_map_heading_up">ทิศทางที่ไปอยู่บน</string>
+    <string name="watch_map_heading_up">ทิศที่ไปอยู่บน</string>
     <string name="watch_keep_on_navigation">เปิดจอค้างขณะนำทาง</string>
     <string name="watch_keep_on_navigation_desc">เปิดหน้าจอนาฬิกาค้างไว้ขณะนำทาง ใช้แบตเตอรี่มากขึ้น</string>
     <string name="watch_map_telemetry">ข้อมูลบนแผนที่</string>
@@ -527,7 +527,7 @@
     <string name="adv_timings_title">เวลาและตัวแปร</string>
     <string name="reorg_hint">จัดเรียงหน้าการตั้งค่าใหม่และซ่อนส่วนที่ไม่ค่อยได้ใช้ ส่วนที่ซ่อนจะย้ายไปที่เพิ่มเติม</string>
     <string name="reorg_drag_cd">ลากเพื่อจัดลำดับ</string>
-    <string name="adv_rates_warning">ตัวควบคุมเหล่านี้เปลี่ยนจังหวะเวลาทั่วทั้งแอป ค่าที่ต่ำลงให้ข้อมูลสดกว่าและตอบสนองเร็วกว่า แต่ใช้แบตเตอรี่ CPU หรือเน็ตมากขึ้น ค่าเริ่มต้นเหมาะกับผู้ขี่ส่วนใหญ่ เปลี่ยนเฉพาะเมื่อคุณเข้าใจผลที่เกิดขึ้น</string>
+    <string name="adv_rates_warning">ตัวควบคุมเหล่านี้เปลี่ยนจังหวะเวลาทั่วทั้งแอป ค่าที่ต่ำลงให้ข้อมูลสดกว่าและตอบสนองเร็วกว่า แต่ใช้แบตเตอรี่ CPU หรืออินเทอร์เน็ตมากขึ้น ค่าเริ่มต้นเหมาะกับผู้ขี่ส่วนใหญ่ เปลี่ยนเฉพาะเมื่อคุณเข้าใจผลที่เกิดขึ้น</string>
     <string name="adv_pushonly_note">อุปกรณ์บางตัวส่งข้อมูลด้วยอัตราคงที่ของตัวเองและไม่สนใจการตั้งค่าเหล่านี้ ได้แก่ ล้อแบบส่งข้อมูลเอง (Begode, Gotway, Veteran, KingSong), GPS ภายนอก (RaceBox, Dragy), เรดาร์ และปุ่ม Flic</string>
     <string name="adv_group_rates">อัตราข้อมูลและการรายงาน</string>
     <string name="adv_wheel_poll_rate">อัตราอ่านค่าจากล้อ</string>
@@ -559,7 +559,7 @@
     <string name="adv_nav_offroute_grace">เวลาผ่อนผันเมื่อออกนอกเส้นทาง</string>
     <string name="adv_nav_offroute_grace_desc">มีผลต่อระยะเวลาที่คุณต้องอยู่นอกเส้นทางก่อนจะนับว่าออกนอกเส้นทาง ค่าต่ำตอบสนองเร็วขึ้น ข้อควรระวัง: ต่ำเกินไปจะเตือนผิดพลาดจากสัญญาณ GPS รบกวน</string>
     <string name="adv_nav_reroute_after">คำนวณเส้นทางใหม่หลังจาก</string>
-    <string name="adv_nav_reroute_after_desc">มีผลต่อระยะเวลาที่อยู่นอกเส้นทางก่อนขอเส้นทางใหม่ ข้อควรระวัง: ต่ำเกินไปจะคำนวณใหม่แม้ทางอ้อมเล็กน้อยและใช้เน็ต</string>
+    <string name="adv_nav_reroute_after_desc">มีผลต่อระยะเวลาที่อยู่นอกเส้นทางก่อนขอเส้นทางใหม่ ข้อควรระวัง: ต่ำเกินไปจะคำนวณใหม่แม้ทางอ้อมเล็กน้อยและใช้อินเทอร์เน็ต</string>
     <string name="adv_nav_offroute_voice_after">เตือนด้วยเสียงหลังออกนอกเส้นทาง</string>
     <string name="adv_nav_offroute_voice_after_desc">มีผลต่อระยะเวลาที่อยู่นอกเส้นทางก่อนเสียงจะเตือนคุณ ข้อควรระวัง: ต่ำเกินไปจะเตือนจุกจิกจากสัญญาณ GPS รบกวน</string>
     <string name="adv_nav_offroute_voice_cooldown">ช่วงพักเสียงเตือนนอกเส้นทาง</string>
@@ -668,7 +668,7 @@
     <string name="adv_voice_listen_window_desc">ระยะเวลาที่ไมโครโฟนเปิดค้างไว้หลังสัญญาณ เมื่อยังไม่ได้ยินอะไร</string>
     <string name="adv_lock_max_speed_desc">มีผลต่อความเร็วที่สูงกว่านี้จะไม่ยอมให้ล็อกล้อ ข้อควรระวัง: สูงเกินไปจะทำให้ล็อกได้ขณะล้อยังเคลื่อนที่</string>
     <string name="adv_compact_max_screen">ขนาดจอสำหรับโหมดกะทัดรัด</string>
-    <string name="adv_compact_max_screen_desc">หน้าจอที่ทั้งสองด้านเล็กกว่านี้จะสลับเป็นแดชบอร์ดแบบกะทัดรัด เมื่อตั้งแดชบอร์ดกะทัดรัดเป็นจอขนาดเล็ก</string>
+    <string name="adv_compact_max_screen_desc">หน้าจอที่ทั้งสองด้านเล็กกว่านี้จะสลับเป็นแดชบอร์ดแบบกะทัดรัด เมื่อตั้งแดชบอร์ดแบบกะทัดรัดเป็นจอขนาดเล็ก</string>
     <string name="adv_cover_cutout_inset">ขนาดช่องกล้อง</string>
     <string name="adv_cover_cutout_inset_desc">พื้นที่ที่เว้นไว้สำหรับเลนส์กล้องหน้าจอด้านนอกเมื่อเปิดหลบกล้องหน้าจอด้านนอก เล็กเกินไปเลนส์จะบังปุ่ม</string>
     <string name="adv_simple_speedo_scale">ขนาดมาตรความเร็วแบบเรียบง่าย</string>
@@ -849,7 +849,7 @@
     <string name="side_default">ค่าเริ่มต้น</string>
     <string name="side_left">ซ้าย</string>
     <string name="side_right">ขวา</string>
-    <string name="geo_other_hint">ตัวตรวจแบตเตอรี่ ประวัติค่า การสแกน และ Flic ไม่มีผลกับสตูดิโอโอเวอร์เลย์ เพราะเลย์เอาต์ตายตัว แต่ถือในแนวใดก็ใช้งานได้ดี</string>
+    <string name="geo_other_hint">หน้าตรวจแบตเตอรี่ ประวัติค่า การสแกน และ Flic ไม่มีผลกับสตูดิโอโอเวอร์เลย์ เพราะเลย์เอาต์ตายตัว แต่ถือในแนวใดก็ใช้งานได้ดี</string>
     <string name="geo_settings_hint">หน้าการตั้งค่า ปิดไว้เป็นค่าเริ่มต้น การตั้งค่าจึงอยู่ในแนวตั้งเว้นแต่คุณจะเปิดใช้</string>
     <string name="geo_trip_hint">หน้ารายละเอียดจะหมุนเป็นค่าเริ่มต้นเพื่อแสดงแผนที่และกราฟแนวนอน รายการทริปจะอยู่ในแนวตั้งเว้นแต่คุณจะเปิดใช้</string>
     <string name="back_button_action_ask">ถาม</string>
@@ -915,7 +915,7 @@
     <string name="battery_percent_cell_range_desc">แรงดันต่อเซลล์เมื่อหมดและเมื่อเต็ม</string>
     <string name="battery_percent_series_cells">จำนวนเซลล์อนุกรม</string>
     <string name="battery_capacity_label">ความจุ</string>
-    <string name="battery_capacity_desc">ไม่บังคับ ใช้ประมาณระยะทางตั้งแต่เริ่ม สำหรับไทล์ระยะทางและ HUD</string>
+    <string name="battery_capacity_desc">ไม่บังคับ ใช้ประมาณระยะทางที่เหลือตั้งแต่เริ่ม สำหรับไทล์ระยะทางที่เหลือและ HUD</string>
     <string name="battery_percent_cells_from_wheel">อ่านจากล้อ: อนุกรม %1$d เซลล์</string>
     <string name="battery_percent_cells_manual">แปลงแรงดันแพ็กเป็นเปอร์เซ็นต์บนแดชบอร์ด ในเสียงพูด และสัญญาณเตือน</string>
     <string name="speed_calibration_label">ชดเชยความเร็ว</string>
@@ -1108,7 +1108,7 @@
     <string name="report_navigation">การนำทาง</string>
     <string name="section_flic_buttons">ปุ่ม Flic 2</string>
     <string name="flic_show_on_dashboard">ไอคอนเข้าถึงด่วนบนแดชบอร์ด</string>
-    <string name="flic_scan_hint">กดปุ่ม Flic 2 ค้างไว้ 6 วินาทีเพื่อเข้าโหมดจับคู่ แล้วแตะสแกน</string>
+    <string name="flic_scan_hint">กดปุ่ม Flic 2 ค้างไว้ 6 วินาทีเพื่อเข้าโหมดจับคู่ แล้วแตะเริ่มสแกน</string>
     <string name="flic_stop_scan">หยุดสแกน</string>
     <string name="flic_start_scan">เริ่มสแกน</string>
     <string name="flic_forget">ลืม</string>
@@ -1158,13 +1158,13 @@
     <string name="gps_show_on_dashboard">แสดงความเร็วบนแดชบอร์ด</string>
     <string name="gps_show_on_dashboard_desc">เพิ่มจุดสีบนหน้าปัดความเร็วที่แสดงค่าจาก GPS</string>
     <string name="section_volume_keys">ปุ่มปรับเสียง</string>
-    <string name="volume_keys_caption">ใช้ปุ่มระดับเสียงเป็นทางลัดขณะที่แอปอยู่บนหน้าจอ</string>
+    <string name="volume_keys_caption">ใช้ปุ่มปรับเสียงเป็นทางลัดขณะที่แอปอยู่บนหน้าจอ</string>
     <string name="volume_keys_enable">เปิดใช้คำสั่งปุ่มปรับเสียง</string>
     <string name="volume_keys_screen_off">แม้ตอนปิดหน้าจอ</string>
     <string name="volume_keys_screen_off_caption">ใช้ได้ตอนล็อกโทรศัพท์หรือมีแอปอื่นอยู่ด้านหน้า ปุ่มจะไม่ปรับระดับเสียงของโทรศัพท์อีก</string>
-    <string name="volume_keys_screen_off_warn">Android ส่งการกดปุ่มระดับเสียงให้เฉพาะแอปที่อยู่บนหน้าจอ เพื่อให้รับได้ตอนปิดหน้าจอ EUC Planet จะลงทะเบียนเป็นเครื่องเล่นสื่อที่ใช้งานอยู่ของโทรศัพท์ Android จึงส่งปุ่มระดับเสียงมาที่แอปแทนการปรับเสียง\n\nขณะที่เปิดอยู่ ปุ่มจะไม่ปรับระดับเสียงของโทรศัพท์</string>
+    <string name="volume_keys_screen_off_warn">Android ส่งการกดปุ่มปรับเสียงให้เฉพาะแอปที่อยู่บนหน้าจอ เพื่อให้รับได้ตอนปิดหน้าจอ EUC Planet จะลงทะเบียนเป็นเครื่องเล่นสื่อที่ใช้งานอยู่ของโทรศัพท์ Android จึงส่งปุ่มปรับเสียงมาที่แอปแทนการปรับเสียง\n\nขณะที่เปิดอยู่ ปุ่มจะไม่ปรับระดับเสียงของโทรศัพท์</string>
     <string name="volume_keys_screen_off_confirm">เปิด</string>
-    <string name="volume_keys_screen_off_title">ให้แอปควบคุมปุ่มระดับเสียงไหม</string>
+    <string name="volume_keys_screen_off_title">ให้แอปควบคุมปุ่มปรับเสียงใช่ไหม?</string>
     <string name="volume_up">เพิ่มเสียง</string>
     <string name="volume_down">ลดเสียง</string>
     <string name="section_radar">เรดาร์มองหลัง</string>
@@ -1243,9 +1243,9 @@
     <string name="flic_action_none">ไม่มี</string>
     <string name="alarm_preview_fmt">ตัวอย่าง %1$s</string>
     <string name="alarm_summary_beep_fmt">บี๊บ %1$dHz×%2$d</string>
-    <string name="alarm_summary_adaptive_pitch_vol">ระดับเสียงและความดัง</string>
-    <string name="alarm_summary_adaptive_pitch">ระดับเสียง</string>
-    <string name="alarm_summary_adaptive_vol">ความดัง</string>
+    <string name="alarm_summary_adaptive_pitch_vol">โทนเสียงและระดับเสียง</string>
+    <string name="alarm_summary_adaptive_pitch">โทนเสียง</string>
+    <string name="alarm_summary_adaptive_vol">ระดับเสียง</string>
     <string name="alarm_summary_voice">เสียงพูด</string>
     <string name="alarm_summary_vibrate">สั่น</string>
     <string name="share_trip_chooser">แชร์ทริป</string>
@@ -1549,8 +1549,8 @@
     <string name="alarm_beep_volume_label">ระดับเสียงพื้นฐาน</string>
     <string name="alarm_beep_studio">เสียงบี๊บปรับตามค่า</string>
     <string name="alarm_studio_test_input">ค่าทดสอบ %1$s: %2$s %3$s</string>
-    <string name="alarm_studio_pitch_factor">ตัวคูณระดับเสียง</string>
-    <string name="alarm_studio_volume_factor">ตัวคูณความดัง</string>
+    <string name="alarm_studio_pitch_factor">ตัวคูณโทนเสียง</string>
+    <string name="alarm_studio_volume_factor">ตัวคูณระดับเสียง</string>
     <string name="alarm_studio_reset">รีเซ็ต</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
     <string name="alarm_studio_play">เล่น</string>
@@ -1582,7 +1582,7 @@
     <string name="sources_fresh_seconds_fmt">%1$d วิที่แล้ว</string>
     <string name="sources_fresh_minutes_fmt">%1$d นาทีที่แล้ว</string>
     <string name="sources_delta_avg_fmt">เฉลี่ย %1$+.1f%2$s</string>
-    <string name="sources_fresh_hours_fmt">%1$d ชม.ที่แล้ว</string>
+    <string name="sources_fresh_hours_fmt">%1$d ชม. ที่แล้ว</string>
     <string name="sources_sats_fmt">%1$d ดาวเทียม</string>
     <string name="sources_other_metrics">ค่าอื่นๆ</string>
     <string name="sources_collecting">กำลังรวบรวม…</string>
@@ -1694,7 +1694,7 @@
     <string name="online_profile_delete_confirm_title">ลบบัญชีใช่ไหม?</string>
     <string name="online_profile_delete_confirm_body">การดำเนินการนี้จะลบโปรไฟล์ สถิติ และข้อมูลที่อัปโหลดบน EUC Stats อย่างถาวร ย้อนกลับไม่ได้</string>
     <string name="online_profile_delete_confirm_action">ลบถาวร</string>
-    <string name="online_profile_save_rate_limited">ถูกจำกัดอัตรา ลองใหม่ภายหลัง</string>
+    <string name="online_profile_save_rate_limited">ส่งคำขอถี่เกินไป ลองใหม่ภายหลัง</string>
     <string name="online_profile_save_failed">บันทึกไม่สำเร็จ (HTTP %1$d) ลองอีกครั้ง</string>
     <string name="online_restore_title">พบโปรไฟล์ที่บันทึกไว้</string>
     <string name="online_restore_body_new">เราพบโปรไฟล์ที่บันทึกไว้ที่นี่: %1$s การดำเนินการต่อจะกลับเข้าร่วมกระดานผู้นำสาธารณะในฐานะผู้ขี่คนนั้น ชื่อ ธง รูปโปรไฟล์ และสถิติการขี่จะเป็นสาธารณะ จะไม่สร้างโปรไฟล์ใหม่</string>
@@ -2010,7 +2010,7 @@
     <string name="nav_waypoints">จุดแวะ</string>
     <string name="nav_role_destination">ปลายทาง</string>
     <string name="nav_max_stops">ปลายทางหนึ่งแห่งและจุดแวะได้สูงสุด 49 จุด</string>
-    <string name="nav_pin_center">ไว้กลางแผนที่</string>
+    <string name="nav_pin_center">แสดงกลางแผนที่</string>
     <string name="nav_save_home">บันทึกเป็นบ้าน</string>
     <string name="nav_customize_marker">ปรับแต่งหมุดของฉัน</string>
     <string name="nav_customize_marker_short">ปรับแต่ง</string>
@@ -2229,7 +2229,7 @@
     <string name="weather_face_clear">ปลอดโปร่ง - ออกไปขี่ได้</string>
     <string name="weather_face_meh">พอขี่ได้ แต่ไม่ดีที่สุด - ระวังตัว</string>
     <string name="weather_face_rain">ถนนเปียก - เอียงน้อยๆ เบรกเร็วขึ้น</string>
-    <string name="weather_face_snow">หิมะหรือลูกเห็บ - ล้อไม่เกาะถนน เข็นเดินดีกว่า</string>
+    <string name="weather_face_snow">หิมะหรือฝนปนหิมะ -ล้อไม่เกาะถนน เข็นเดินดีกว่า</string>
     <string name="weather_face_wind">ลมกระโชก - ผ่อนตัว เตรียมรับแรงผลัก</string>
     <string name="weather_face_night">มืด - เปิดไฟ ลดความเร็วสูงสุดลง</string>
     <string name="weather_face_cold">หนาว - ยางเกาะน้อยลง แบตตก ใส่เสื้อหลายชั้น</string>
@@ -2242,7 +2242,7 @@
     <string name="nav_setting_avoid">หลีกเลี่ยงเมื่อหาเส้นทาง</string>
     <string name="nav_setting_avoid_hint">การหลีกเลี่ยงใช้บริการหาเส้นทางอื่น และมีผลเมื่อโหมดเดินทางรองรับ</string>
     <string name="nav_setting_avoid_highways">หลีกเลี่ยงทางหลวง</string>
-    <string name="nav_setting_avoid_tolls">หลีกเลี่ยงทางด่วน</string>
+    <string name="nav_setting_avoid_tolls">หลีกเลี่ยงทางเก็บค่าผ่านทาง</string>
     <string name="nav_setting_avoid_ferries">หลีกเลี่ยงเรือข้ามฟาก</string>
     <string name="nav_setting_avoid_unpaved">หลีกเลี่ยงถนนลูกรัง</string>
     <string name="nav_avoid_router_failed">เส้นทางไม่ได้หลีกเลี่ยงตามที่ตั้งไว้ เพราะบริการหาเส้นทางไม่ตอบสนอง</string>
@@ -2499,7 +2499,7 @@
     <string name="lockdown_limit_8">แดชบอร์ดจะถูกแทนที่ด้วยหน้าจอตายตัว: มาตรความเร็ว ค่าหกค่า และปุ่มสี่ปุ่ม</string>
     <string name="lockdown_limit_9">หน้าจอจะไม่หมุน</string>
     <string name="lockdown_limit_10">เปิดการตั้งค่าไม่ได้</string>
-    <string name="lockdown_limit_11">เปิดประวัติทริป ตัวตรวจแบตเตอรี่ สตูดิโอ และรายละเอียดค่าไม่ได้</string>
+    <string name="lockdown_limit_11">เปิดประวัติทริป หน้าตรวจแบตเตอรี่ สตูดิโอ และรายละเอียดค่าไม่ได้</string>
     <string name="lockdown_limit_12">การแตะค่าจะไม่มีผลใดๆ</string>
     <string name="lockdown_limit_13">การประกาศด้วยเสียง รายงานตามรอบเวลา และเวลาช่วงความเร็วจะเงียบ แต่สัญญาณเตือนยังทำงาน</string>
     <string name="lockdown_limit_14">ล็อกหรือปลดล็อกล้อไม่ได้ และล็อกอัตโนมัติตามระยะใกล้จะไม่ทำงาน</string>
@@ -2515,7 +2515,7 @@
     <string name="lockdown_warning_no_wheel">ไม่ได้เชื่อมต่อล้อ จึงไม่ทราบสถานะโหมดถูกกฎหมาย แอปจะล็อกในครั้งถัดไปที่เปิดโหมดถูกกฎหมาย</string>
     <string name="lockdown_continue">ดำเนินการต่อ</string>
     <string name="trip_tools_wheel_none">ทริปนี้ยังไม่มีข้อมูลล้อ</string>
-    <string name="backup_conflict_warning">ทริปบางรายการในโทรศัพท์เครื่องนี้ต่างจากสำเนาในโฟลเดอร์สำรอง แตะ %1$s จากนั้นใน %2$s กด \"%3$s\" แล้วเลือกสำเนาที่จะเก็บไว้</string>
+    <string name="backup_conflict_warning">ทริปบางรายการในโทรศัพท์นี้ต่างจากสำเนาในโฟลเดอร์สำรองข้อมูล แตะ %1$s จากนั้นใน %2$s กด \"%3$s\" แล้วเลือกสำเนาที่จะเก็บไว้</string>
     <string name="backup_conflict_title">ข้อมูลสำรองขัดแย้งกัน</string>
     <string name="widget_act_1_short">คำสั่ง 1</string>
     <string name="widget_act_2_short">คำสั่ง 2</string>
@@ -2687,11 +2687,11 @@
     <string name="offline_data_delete_q">ลบพื้นที่นี้ไหม? จะได้พื้นที่ว่างคืน %1$s</string>
     <string name="offline_data_stop_q">หยุดการดาวน์โหลดนี้ไหม?</string>
     <string name="offline_data_stop">หยุด</string>
-    <string name="offline_data_mobile_warn">ขนาด %1$s ผ่านเน็ตมือถือ ดาวน์โหลดเลยไหม?</string>
+    <string name="offline_data_mobile_warn">ขนาด %1$s ผ่านอินเทอร์เน็ตมือถือ ดาวน์โหลดเลยไหม?</string>
     <string name="offline_data_route_q">ดาวน์โหลดพื้นที่ตามเส้นทางของคุณ (%1$s) ไหม?</string>
     <string name="offline_data_no_route">วางแผนเส้นทางก่อน</string>
     <string name="offline_data_route_all_here">ดาวน์โหลดทุกพื้นที่ตามเส้นทางของคุณแล้ว</string>
-    <string name="offline_ride_title">ดาวน์โหลดแผนที่ออฟไลน์ไหม</string>
+    <string name="offline_ride_title">ดาวน์โหลดแผนที่ออฟไลน์ไหม?</string>
     <string name="offline_ride_body">บางส่วนของเส้นทางนี้อยู่นอกแผนที่ออฟไลน์ของคุณ เราดาวน์โหลดให้ได้เลยตอนนี้ เพื่อให้แผนที่และการคำนวณเส้นทางใหม่ใช้งานได้แม้ไม่มีสัญญาณ</string>
     <string name="offline_ride_download">ดาวน์โหลดแผนที่</string>
     <string name="offline_ride_start">เริ่มเลย</string>

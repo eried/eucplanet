@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">EUC Planet</string>
-    <string name="notification_channel_name">Teker Bağlantısı</string>
+    <string name="notification_channel_name">Teker bağlantısı</string>
     <string name="notification_channel_description">Teker bağlantı durumunu ve telemetriyi gösterir.</string>
 
     <!-- Notification quick actions -->
@@ -10,7 +10,7 @@
     <string name="notif_actions_pick_desc">En fazla %1$d eylem seçin. Aynı eylem tekrarlanabilir.</string>
     <string name="notif_action_slot">Eylem %1$d</string>
     <string name="notif_action_stop_all">Tümünü durdur</string>
-    <string name="notif_action_lock">Kilitle / Kilit aç</string>
+    <string name="notif_action_lock">Kilitle / Kilidi aç</string>
     <string name="notif_action_light">Işık açık / kapalı</string>
     <string name="notif_action_record">Kaydet / Durdur</string>
     <string name="notif_action_horn">Korna</string>
@@ -18,7 +18,7 @@
     <string name="notif_action_stop_nav">Navigasyonu durdur</string>
     <string name="notif_btn_stop_all">Tümünü durdur</string>
     <string name="notif_btn_lock">Kilitle</string>
-    <string name="notif_btn_unlock">Kilit aç</string>
+    <string name="notif_btn_unlock">Kilidi aç</string>
     <string name="notif_btn_light_on">Işık aç</string>
     <string name="notif_btn_light_off">Işık kapat</string>
     <string name="notif_btn_record">Kaydet</string>
@@ -41,7 +41,7 @@
     <string name="action_save">Kaydet</string>
     <string name="action_apply">Uygula</string>
     <string name="action_delete">Sil</string>
-    <string name="action_test">Test Et</string>
+    <string name="action_test">Test et</string>
     <string name="action_reorder">Sıralamak için sürükle</string>
     <string name="show_gauge_color_band">Hız göstergesi renk bandı</string>
     <string name="stat_watts">WATT</string>
@@ -71,7 +71,7 @@
     <!-- Experimental banner -->
     <string name="experimental_banner">Ön destekli teker. Sorun bildirmek için dokunun.</string>
     <string name="experimental_dialog_title">EUC Planet\'i geliştirmeye yardım edin</string>
-    <string name="experimental_dialog_body">Bu teker için destek ön aşamadadır, yazar yalnızca InMotion V14 / V12 / P6 ailesini doğruladı. KingSong, Veteran, Begode, Ninebot ve eski InMotion modelleri Önizleme olarak sunuluyor ve kullanıcıların test etmesi gerekiyor. Dikkatli kullanın.\n\nBu şeride dokunarak sorun bildirebilirsiniz, böylece yazar çalışmayanları düzeltebilir.</string>
+    <string name="experimental_dialog_body">Bu teker için destek ön aşamadadır, yazar yalnızca InMotion V14 / V12 / P6 ailesini doğruladı. KingSong, Veteran, Begode, Ninebot ve eski InMotion modelleri Önizleme olarak sunuluyor ve sürücülerin test etmesi gerekiyor. Dikkatli kullanın.\n\nBu şeride dokunarak sorun bildirebilirsiniz, böylece yazar çalışmayanları düzeltebilir.</string>
     <string name="experimental_dialog_report">Sorun bildir</string>
 
     <!-- Scan: virtual wheel section (debug builds only) -->
@@ -105,15 +105,14 @@
     <string name="action_horn">Korna</string>
     <string name="action_light">Işık</string>
     <string name="action_voice">Ses</string>
-    <string name="action_legal_mode">Yasal Mod</string>
+    <string name="action_legal_mode">Yasal mod</string>
     <string name="action_legal_on">Yasal AÇIK</string>
-    <string name="action_lock_wheel">Tekeri Kilitle</string>
+    <string name="action_lock_wheel">Tekeri kilitle</string>
     <string name="action_locked">Kilitli</string>
     <string name="lock_blocked_in_motion_toast">Tekeri kilitlemek için yavaşlayın</string>
     <string name="action_recorder">Kaydedici</string>
     <string name="action_recorder_trips">Kaydedici\n(%1$d sürüş)</string>
-    <string name="action_recorder_trips_one">Kaydedici
-(%1$d sürüş)</string>
+    <string name="action_recorder_trips_one">Kaydedici\n(%1$d sürüş)</string>
 
     <!-- Settings tabs -->
     <string name="search_settings">Ayarlarda ara</string>
@@ -261,7 +260,7 @@
     <string name="metric_chip_gps_altitude">Yükseklik</string>
     <string name="metric_chip_gps_speed">GPS hızı</string>
     <string name="metric_chip_gps_heading">Yön</string>
-    <string name="metric_chip_gps_accuracy">GPS hassasiyeti</string>
+    <string name="metric_chip_gps_accuracy">GPS doğruluğu</string>
     <string name="metric_chip_external_gps_battery">Harici GPS pili</string>
     <string name="metric_chip_slope">Eğim</string>
     <string name="metric_chip_ascent">Tırmanış</string>
@@ -352,7 +351,7 @@
     <string name="voice_recognition_language">Komut dili</string>
     <string name="voice_recognition_desc">Konuştuğunuz dil. Seçmezseniz sesi izler.</string>
     <string name="voice_recognition_follow">Sesle aynı</string>
-    <string name="voice_headset_button">Kulaklık ses tuşu</string>
+    <string name="voice_headset_button">Kulaklık sesli komut tuşu</string>
     <string name="voice_headset_chooser_hint">Android hangi uygulamanın yanıt vereceğini sorar.</string>
     <string name="voice_headset_announce">Duyur</string>
     <string name="voice_act_announce_on_terms">ses açık,anonslar açık,sesi aç,anonsları aç</string>
@@ -462,7 +461,7 @@
     <string name="action_chip_phone_mute">Sessiz</string>
     <string name="action_chip_phone_torch">Telefon feneri</string>
     <string name="action_chip_open_navigation">Haritayı göster</string>
-    <string name="action_chip_open_studio">Kaplama stüdyosu</string>
+    <string name="action_chip_open_studio">Overlay Studio</string>
     <string name="action_chip_open_about">Hakkında</string>
     <string name="action_chip_open_service">Servis modu</string>
     <string name="action_chip_open_trips">Sürüşler</string>
@@ -488,8 +487,8 @@
     <string name="hud_ip_incomplete">Tam bir adres girin, örneğin 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">Cihaz IP (otomatik)</string>
     <string name="hud_server_port">Port</string>
-    <string name="hud_hotspot_unknown_hint">HUD ile telefonun aynı WiFi ağında olduğundan emin olun. Telefon hotspot\'unu kullanıyorsanız önce açın.</string>
-    <string name="hud_hotspot_on_hint">Telefon hotspot\'u yayın yapıyor. Bağlantıyı etkinleştirmek için HUD\'ı bu telefonun WiFi\'sine bağlayın.</string>
+    <string name="hud_hotspot_unknown_hint">HUD ile telefonun aynı Wi-Fi ağında olduğundan emin olun. Telefon hotspot\'unu kullanıyorsanız önce açın.</string>
+    <string name="hud_hotspot_on_hint">Telefon hotspot\'u yayın yapıyor. Bağlantıyı etkinleştirmek için HUD\'ı bu telefonun Wi-Fi\'sine bağlayın.</string>
     <string name="hud_overlay_subsection">Özel kaplama</string>
     <string name="hud_overlay_subsection_desc">Overlay Studio önayarını HUD\'ın Özel ekranına arka plan olmadan aktarır. Önayar buraya kopyalanır; stüdyodaki sonraki düzenlemeler tekrar içe aktarılmadan HUD\'ı etkilemez.</string>
     <string name="hud_overlay_select_preset">Önayarı içe aktar</string>
@@ -535,7 +534,7 @@
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
     <string name="hud_app_title">HUD uygulaması</string>
     <string name="hud_app_installed">Yüklü:</string>
-    <string name="hud_app_available">Mevcut:</string>
+    <string name="hud_app_available">Kullanılabilir:</string>
     <string name="hud_app_connected">Bağlı:</string>
     <string name="hud_app_send">HUD\'a gönder</string>
     <string name="hud_app_remove">Kaldır</string>
@@ -544,7 +543,7 @@
     <string name="hud_app_resend_title">Zaten güncel</string>
     <string name="hud_app_resend_body">HUD\'da zaten bu sürüm var. Yine de gönderilsin mi?</string>
     <string name="hud_app_remove_title">HUD uygulaması kaldırılsın mı?</string>
-    <string name="hud_app_remove_body">HUD kaldırmak için onay isteyecek. Yeniden kurmak için kablo gerekir.</string>
+    <string name="hud_app_remove_body">HUD kaldırmak için onay isteyecek. Yeniden yüklemek için kablo gerekir.</string>
     <string name="hud_app_failed">HUD\'a ulaşılamadı. Tekrar deneyin.</string>
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">Genel</string>
@@ -563,7 +562,7 @@
     <string name="watch_keep_on_navigation">Navigasyon sırasında açık tut</string>
     <string name="watch_keep_on_navigation_desc">Navigasyon sırasında saat ekranını açık tutar. Daha fazla pil kullanır.</string>
     <string name="watch_map_telemetry">Harita telemetrisi</string>
-    <string name="watch_map_telemetry_desc">PWM, hız ve voltajı üst kenar boyunca gösterir.</string>
+    <string name="watch_map_telemetry_desc">PWM, hız ve gerilimi üst kenar boyunca gösterir.</string>
     <string name="watch_update_conservative">Tutumlu</string>
     <string name="watch_update_normal">Normal</string>
     <string name="watch_update_fast">Hızlı</string>
@@ -579,9 +578,9 @@
     <string name="watch_pwm_numbers">Metin</string>
     <string name="watch_pwm_both">İkisi de</string>
     <string name="watch_show_speed_unit">Hız birimi etiketi</string>
-    <string name="watch_show_speed_unit_desc">Büyük hız rakamının yanında birim etiketini göster.</string>
+    <string name="watch_show_speed_unit_desc">Büyük hız rakamının yanında birim etiketini gösterir.</string>
     <string name="watch_prioritize_pwm">PWM\'ye öncelik ver</string>
-    <string name="watch_prioritize_pwm_desc">PWM çubuğunu ve rakamını hızdan büyük göster.</string>
+    <string name="watch_prioritize_pwm_desc">PWM çubuğunu ve rakamını hızdan büyük gösterir.</string>
     <string name="watch_dial_rotation">Kadran döndürme</string>
 
     <!-- Watch hardware buttons -->
@@ -646,8 +645,8 @@
     <string name="cloud_restore_confirm_body_p1">Mevcut ayarlarınız yedekteki ayarlarla değiştirilecek.</string>
     <string name="cloud_restore_confirm_body_p2">Flic hareketleri geri yüklenir; ancak düğmeler ve teker bu telefonda yeniden eşleştirilmelidir. Bluetooth bağları Android\'de saklanır, uygulamada değil.</string>
     <string name="sync_checking">Yedek klasörü kontrol ediliyor…</string>
-    <string name="action_restore">Geri Yükle</string>
-    <string name="action_overwrite">Üzerine Yaz</string>
+    <string name="action_restore">Geri yükle</string>
+    <string name="action_overwrite">Üzerine yaz</string>
     <string name="cloud_backup_long_press_hint">Daha fazla seçenek için uzun basın.</string>
     <string name="cloud_backup_name_label">Yedek adı</string>
     <string name="cloud_backup_overwrite_title">“%1$s” üzerine yazılsın mı?</string>
@@ -721,8 +720,8 @@
     <string name="theme_editor_replace_body">“%1$s” adlı bir tema zaten var. Kaydederseniz üzerine yazılır.</string>
     <string name="theme_editor_discard_title">Kaydedilmemiş taslak silinsin mi?</string>
     <string name="theme_editor_discard_body">Bu temanın zaten kaydedilmemiş bir sürümü var. Yeniden düzenlerseniz o değişiklikler kaybolur.</string>
-    <string name="theme_editor_no_folder_title">Yedekleme klasörü yok</string>
-    <string name="theme_editor_no_folder_body">Temaları kaydetmek için %1$s → %2$s altından bir yedekleme klasörü seçin.</string>
+    <string name="theme_editor_no_folder_title">Yedek klasörü yok</string>
+    <string name="theme_editor_no_folder_body">Temaları kaydetmek için %1$s → %2$s altından bir yedek klasörü seçin.</string>
     <string name="theme_identify">Tanımla</string>
     <string name="theme_identify_results_title">Renk tanımlama sonuçları</string>
     <string name="tts_switch_title">%1$s sesine geçilsin mi?</string>
@@ -735,26 +734,26 @@
     <string name="section_speed_calibration">Hız kalibrasyonu</string>
     <string name="section_battery_percent">Batarya kalibrasyonu</string>
     <string name="battery_override_label">Tekerin yüzdesini geçersiz kıl</string>
-    <string name="battery_override_hint">Paket voltajından tahmin edilir.</string>
+    <string name="battery_override_hint">Paket geriliminden tahmin edilir.</string>
     <string name="battery_percent_custom_floor">Doğrusal ölçek</string>
     <string name="battery_percent_min_cell" formatted="false">Boş kabul edilen</string>
     <string name="battery_percent_max_cell" formatted="false">Dolu kabul edilen</string>
-    <string name="battery_percent_cell_range_desc">Boş ve dolu için hücre başına voltaj.</string>
+    <string name="battery_percent_cell_range_desc">Boş ve dolu için hücre başına gerilim.</string>
     <string name="battery_percent_series_cells">Seri hücre</string>
     <string name="battery_capacity_label">Kapasite</string>
     <string name="battery_capacity_desc">İsteğe bağlı. Menzil kutucuğu ve HUD için menzil tahminini baştan ayarlar.</string>
     <string name="battery_percent_cells_from_wheel">Tekerden alındı: %1$d seri.</string>
-    <string name="battery_percent_cells_manual">Paket voltajını gösterge panelinde, sesli anonslarda ve alarmlarda görünen yüzdeye çevirir.</string>
+    <string name="battery_percent_cells_manual">Paket gerilimini gösterge panelinde, sesli anonslarda ve alarmlarda görünen yüzdeye çevirir.</string>
     <string name="speed_calibration_label">Hız düzeltmesi</string>
     <string name="speed_calibration_caption">Tekerin bildirdiği hızı düzeltir; alarmları, sesli anonsları ve sürüş kaydını etkiler.</string>
     <string name="section_legal_mode_speed">Yasal mod hızı</string>
-    <string name="legal_mode_caption">Yasal Mod açıkken kullanılır; normal geri eğimden düşük olmalıdır.</string>
+    <string name="legal_mode_caption">Yasal mod açıkken kullanılır; normal geri eğimden düşük olmalıdır.</string>
     <string name="speed_limits_disconnected">Kalibrasyonu ve sınırları düzenlemek için tekerinizi bağlayın</string>
     <string name="speed_limits_unsupported">Bu tekerin hız sınırları teker üzerinden ayarlanır</string>
-    <string name="speed_tiltback">Geri Eğim Hızı</string>
-    <string name="speed_alarm">Alarm Hızı</string>
-    <string name="speed_legal_tiltback">Yasal Geri Eğim</string>
-    <string name="speed_legal_alarm">Yasal Alarm</string>
+    <string name="speed_tiltback">Geri eğim hızı</string>
+    <string name="speed_alarm">Alarm hızı</string>
+    <string name="speed_legal_tiltback">Yasal geri eğim</string>
+    <string name="speed_legal_alarm">Yasal alarm</string>
     <string name="unit_kmh">km/h</string>
     <string name="unit_ms">m/s</string>
     <string name="unit_kn">kn</string>
@@ -881,7 +880,7 @@
 
     <string name="col_periodic">Periyodik</string>
     <string name="col_trigger">Tetikleyici</string>
-    <string name="voice_trigger_reset_after">Tetiklenen rapordan sonra ölçümleri sıfırla</string>
+    <string name="voice_trigger_reset_after">Tetiklenen rapordan sonra metrikleri sıfırla</string>
     <string name="report_speed">Hız</string>
     <string name="report_battery">Batarya</string>
     <string name="report_temp">Sıcaklık</string>
@@ -904,8 +903,8 @@
     <string name="flic_forget_body">%1$s eşleştirmesi kaldırılacak ve eylemleri temizlenecek. İstediğiniz zaman yeniden eşleştirebilirsiniz.</string>
     <string name="flic_rename">Yeniden adlandır</string>
     <string name="flic_click">Tıklama</string>
-    <string name="flic_double_click">Çift Tıklama</string>
-    <string name="flic_hold">Basılı Tut</string>
+    <string name="flic_double_click">Çift tıklama</string>
+    <string name="flic_hold">Basılı tut</string>
     <string name="section_external_gps">GPS ve sensörler</string>
     <!-- TPMS sensors -->
     <string name="section_tpms">TPMS sensörleri</string>
@@ -947,15 +946,15 @@
     <string name="gps_show_on_dashboard">Gösterge panelinde hız göster</string>
     <string name="gps_show_on_dashboard_desc">Hız kadranına GPS okumasıyla renkli bir nokta ekler.</string>
     <string name="section_volume_keys">Ses tuşları</string>
-    <string name="volume_keys_caption">Uygulama ekrandayken ses tuşlarını kısayol olarak kullan.</string>
+    <string name="volume_keys_caption">Uygulama ekrandayken ses tuşlarını kısayol olarak kullanır.</string>
     <string name="volume_keys_enable">Ses tuşu eylemlerini etkinleştir</string>
     <string name="volume_keys_screen_off">Ekran kapalıyken de</string>
     <string name="volume_keys_screen_off_caption">Telefon kilitliyken veya başka bir uygulama öndeyken de çalışır. Tuşlar artık telefonun sesini değiştirmez.</string>
     <string name="volume_keys_screen_off_warn">Android ses tuşu basışlarını yalnızca ekrandaki uygulamaya gönderir. Ekran kapalıyken de alabilmek için EUC Planet telefonun etkin medya oynatıcısı olarak kaydolur ve Android sesi değiştirmek yerine ses tuşlarını ona gönderir.\n\nBu açıkken tuşlar telefonun sesini değiştirmez.</string>
     <string name="volume_keys_screen_off_confirm">Aç</string>
     <string name="volume_keys_screen_off_title">Ses tuşları devralınsın mı?</string>
-    <string name="volume_up">Sesi Artır</string>
-    <string name="volume_down">Sesi Azalt</string>
+    <string name="volume_up">Sesi artır</string>
+    <string name="volume_down">Sesi azalt</string>
 
     <!-- Rear-view radar (Garmin Varia today) -->
     <string name="section_radar">Arka görüş radarı</string>
@@ -1011,8 +1010,8 @@
     <string name="alarm_metric_temperature">Sıcaklık</string>
     <string name="alarm_metric_tire_pressure">Lastik basıncı</string>
     <string name="alarm_metric_bt_rssi">Bluetooth sinyali</string>
-    <string name="alarm_metric_lateral_g">Yanal G</string>
-    <string name="alarm_metric_g_force">G kuvveti</string>
+    <string name="alarm_metric_lateral_g">Yanal g</string>
+    <string name="alarm_metric_g_force">G-kuvveti</string>
     <string name="alarm_metric_battery_temp">Batarya sıcaklığı</string>
     <string name="alarm_metric_controller_temp">Kontrolör sıcaklığı</string>
     <string name="alarm_metric_motor_temp">Motor sıcaklığı</string>
@@ -1066,7 +1065,7 @@
     <!-- Scan screen -->
     <string name="scan_title">Tekere bağlan</string>
     <string name="scan_scanning">Aranıyor…</string>
-    <string name="scan_start">Taramayı Başlat</string>
+    <string name="scan_start">Taramayı başlat</string>
     <string name="scan_show_all_title">Tüm cihazları göster</string>
     <string name="scan_show_all_subtitle">Tekeriniz görünmüyorsa açın.</string>
 
@@ -1084,8 +1083,8 @@
     <string name="metric_speed">Hız</string>
 
     <!-- Recording screen -->
-    <string name="action_delete_all">Tümünü Sil</string>
-    <string name="action_import">İçe Aktar</string>
+    <string name="action_delete_all">Tümünü sil</string>
+    <string name="action_import">İçe aktar</string>
     <string name="action_trip_backup_options">Sürüş yedekleme seçenekleri</string>
     <string name="action_export_all">Tümünü dışa aktar</string>
     <string name="action_share">Paylaş</string>
@@ -1114,21 +1113,21 @@
     <string name="recording_summary_distance">Mesafe</string>
     <string name="recording_summary_duration">Süre</string>
     <string name="recording_summary_points">Satır</string>
-    <string name="recording_summary_top_speed">En Yüksek Hız</string>
-    <string name="recording_summary_avg_speed">Ort. Hız</string>
-    <string name="recording_summary_max_temp">Maks. Sıcaklık</string>
+    <string name="recording_summary_top_speed">En yüksek hız</string>
+    <string name="recording_summary_avg_speed">Ort. hız</string>
+    <string name="recording_summary_max_temp">Maks. sıcaklık</string>
     <string name="recording_summary_energy">Enerji</string>
     <string name="recording_summary_consumption">Tüketim</string>
     <string name="recording_summary_battery">Batarya (-%1$d%%)</string>
     <string name="recording_summary_voltage">Gerilim</string>
-    <string name="recording_summary_avg_moving">Ort. Seyir</string>
+    <string name="recording_summary_avg_moving">Ort. seyir</string>
     <string name="trip_chart_legend_gps">GPS</string>
     <string name="trip_chart_legend_ext">Harici</string>
     <string name="recording_summary_battery_fmt">%1$d→%2$d%%</string>
     <string name="recording_summary_voltage_fmt">%1$.0f→%2$.0f V</string>
     <string name="recording_summary_max_pwm">Maks. PWM</string>
-    <string name="recording_summary_max_current">Maks. Akım</string>
-    <string name="recording_summary_max_power">Maks. Güç</string>
+    <string name="recording_summary_max_current">Maks. akım</string>
+    <string name="recording_summary_max_power">Maks. güç</string>
     <string name="recording_summary_max_torque">Maks. tork</string>
     <string name="recording_summary_max_phase_current">Maks. faz A</string>
     <string name="recording_chart_speed">Hız (%1$s)</string>
@@ -1150,7 +1149,7 @@
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Far denetimi</string>
     <string name="auto_lights_when">Gün batımı ve doğumunu izle</string>
-    <string name="auto_lights_off_slow">Yavaşlarken farı kapat</string>
+    <string name="auto_lights_off_slow">Yavaşlarken ışığı kapat</string>
     <string name="auto_lights_off_below">Şu hızın altında kapat</string>
     <string name="auto_lights_on_before_sunset">Gün batımından önce AÇ</string>
     <string name="auto_lights_off_after_sunrise">Gün doğumundan sonra KAPAT</string>
@@ -1166,7 +1165,7 @@
     <string name="proximity_lock_title">Teker kilidi</string>
     <string name="proximity_lock_enable">Uzaklaşınca kilitle</string>
     <string name="proximity_lock_below">Sinyal altında</string>
-    <string name="proximity_unlock_when">Otomatik kilit aç</string>
+    <string name="proximity_unlock_when">Kilidi otomatik aç</string>
     <string name="proximity_unlock_when_never">Asla</string>
     <string name="proximity_unlock_when_return">Geri döndüğümde</string>
     <string name="proximity_unlock_when_near">Yakındayken</string>
@@ -1177,10 +1176,10 @@
     <string name="menu_auto_lock_on">Otomatik kilidi etkinleştir</string>
     <string name="menu_auto_lock_off">Otomatik kilidi devre dışı bırak</string>
     <string name="action_retry">Yeniden dene</string>
-    <string name="auto_sunrise_sunset">Gün Doğumu ve Batımı</string>
-    <string name="auto_midnight_sun_title">Gece Yarısı Güneşi</string>
+    <string name="auto_sunrise_sunset">Gün doğumu ve batımı</string>
+    <string name="auto_midnight_sun_title">Gece yarısı güneşi</string>
     <string name="auto_midnight_sun_body">Güneş bugün bu enlemde batmıyor, ışıklar KAPALI kalacak.</string>
-    <string name="auto_polar_night_title">Kutup Gecesi</string>
+    <string name="auto_polar_night_title">Kutup gecesi</string>
     <string name="auto_polar_night_body">Güneş bugün bu enlemde doğmuyor, ışıklar AÇIK kalacak.</string>
     <string name="auto_lights_suspended">Bu oturum için duraklatıldı, ışığı elle ayarladınız. Dikkat gerekiyor bölümünden düzeltin veya tekeri yeniden bağlayın.</string>
     <string name="auto_lock_suspended">Bu oturum için duraklatıldı, elle kilitlediniz veya kilidi açtınız. Dikkat gerekiyor bölümünden düzeltin veya tekeri yeniden bağlayın.</string>
@@ -1190,8 +1189,8 @@
     <string name="alarm_empty">Henüz alarm kuralı yok</string>
     <string name="alarm_add">Yeni alarm</string>
     <string name="alarm_summary_predict_fmt">%1$s sn önceden tahmin eder</string>
-    <string name="alarm_new">Yeni Alarm</string>
-    <string name="alarm_edit">Alarmı Düzenle</string>
+    <string name="alarm_new">Yeni alarm</string>
+    <string name="alarm_edit">Alarmı düzenle</string>
     <string name="alarm_delete_title">Bu alarm silinsin mi?</string>
     <string name="alarm_delete_body">Bu işlem geri alınamaz.</string>
     <string name="alarm_delete_action">Alarmı sil</string>
@@ -1201,7 +1200,7 @@
     <string name="alarm_label_frequency">Frekans</string>
     <string name="alarm_label_duration">Süre</string>
     <string name="alarm_label_repeats">Tekrarlar</string>
-    <string name="alarm_repeat_toggle">Yinele</string>
+    <string name="alarm_repeat_toggle">Tekrarla</string>
     <string name="alarm_label_vibrate_on">Titreşecek cihaz</string>
     <string name="alarm_threshold_decrease">Eşiği azalt</string>
     <string name="alarm_threshold_increase">Eşiği artır</string>
@@ -1227,7 +1226,7 @@
     <string name="sources_distance_between_fixes">Konumlar arası mesafe</string>
     <string name="sources_last_update">Son güncelleme</string>
     <string name="sources_fresh_just_now">az önce</string>
-    <string name="sources_fresh_seconds_fmt">%1$ds önce</string>
+    <string name="sources_fresh_seconds_fmt">%1$d sn önce</string>
     <string name="sources_fresh_minutes_fmt">%1$d dk önce</string>
     <string name="sources_delta_avg_fmt">ort %1$+.1f%2$s</string>
     <string name="sources_fresh_hours_fmt">%1$d sa önce</string>
@@ -1273,7 +1272,7 @@
 
     <!-- About / crash logs -->
     <string name="about_thanks">Katkılar</string>
-    <string name="about_thanks_body">Çok yavaş gelişen, eski görünen, yeni özelliklere katı kurallar koyan, topluluklarını müşteri gibi gören ve EUC kullanıcılarının birbirine yardım ettiğinde en iyi hâllerinde olduğunu unutan EUC uygulamalarından bıktım. Bu uygulama tam tersini yapmaya çalışıyor.</string>
+    <string name="about_thanks_body">Çok yavaş gelişen, eski görünen, yeni özelliklere katı kurallar koyan, topluluklarını müşteri gibi gören ve EUC sürücülerinin birbirine yardım ettiğinde en iyi hâllerinde olduğunu unutan EUC uygulamalarından bıktım. Bu uygulama tam tersini yapmaya çalışıyor.</string>
     <string name="about_license">Lisans</string>
     <string name="service_mode_title">Servis Modu</string>
     <string name="service_mode_caution">UYARI: Servis Modunun yanlış kullanımı teker işlevinin kaybına, ciddi yaralanmaya veya ölüme yol açabilir</string>
@@ -1304,7 +1303,7 @@
     <string name="online_upload_country_search">Ülkelerde ara</string>
     <string name="online_upload_profile_avatar_hint">Fotoğraf eklemek için dokunun.</string>
     <!-- Registration outcome -->
-    <string name="online_upload_register_action">Kayıt Ol</string>
+    <string name="online_upload_register_action">Kayıt ol</string>
     <string name="online_upload_register_error">Kayıt başarısız. Bağlantınızı kontrol edip tekrar deneyin.</string>
     <!-- %1$s = the server's raw reason (e.g. display_name_taken), %2$d = HTTP status code -->
     <string name="online_upload_register_server_error">Kayıt başarısız. Sunucu yanıtı: %1$s (%2$d)</string>
@@ -1321,7 +1320,7 @@
     <string name="online_upload_sync_done">Eşitlenen sürüş: %1$d</string>
     <string name="online_upload_sync_checking">Yüklenecek sürüşler kontrol ediliyor…</string>
     <string name="online_upload_sync_progress">Yükleniyor: %1$d / %2$d</string>
-    <string name="online_rider_id_conflict">Bu klasörde farklı bir kullanıcının kurtarma kimliği zaten kayıtlı; korundu, üzerine yazılmadı.</string>
+    <string name="online_rider_id_conflict">Bu klasörde farklı bir sürücünün kurtarma kimliği zaten kayıtlı; korundu, üzerine yazılmadı.</string>
     <string name="online_upload_mileage_rank">Mesafe sırası: #%d</string>
     <string name="online_upload_top_speed">en yüksek %1$s %2$s</string>
     <string name="online_upload_trips">%d sürüş</string>
@@ -1337,7 +1336,7 @@
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Bağlantıyı kes</string>
     <string name="online_unlink_title">Lider tablosu bağlantısı kesilsin mi?</string>
-    <string name="online_unlink_body">Bu telefon sürüş yüklemeyi durdurur. Kullanıcı kimliğiniz kayıtlı kalır, böylece aynı kullanıcı olarak yeniden katılabilirsiniz. İstatistikleriniz EUC Stats\'ta kalır; silmek için Hesabı sil seçeneğini kullanın.</string>
+    <string name="online_unlink_body">Bu telefon sürüş yüklemeyi durdurur. Sürücü kimliğiniz kayıtlı kalır, böylece aynı sürücü olarak yeniden katılabilirsiniz. İstatistikleriniz EUC Stats\'ta kalır; silmek için Hesabı sil seçeneğini kullanın.</string>
     <string name="online_unlink_confirm">Bağlantıyı kes</string>
 
     <!-- Online profile (edit/GDPR) -->
@@ -1352,11 +1351,11 @@
     <string name="online_profile_save_rate_limited">İstek sınırına ulaşıldı, daha sonra tekrar deneyin.</string>
     <string name="online_profile_save_failed">Kaydetme başarısız (HTTP %1$d). Tekrar deneyin.</string>
     <string name="online_restore_title">Kaydedilmiş bir profil bulundu</string>
-    <string name="online_restore_body_new">Burada kayıtlı bir profil bulduk: %1$s. Devam ederseniz o kullanıcı olarak herkese açık lider tablosuna yeniden katılırsınız; adı, bayrağı, avatarı ve sürüş istatistikleri herkese açıktır. Yeni profil oluşturulmaz.</string>
-    <string name="online_restore_body_switch">Farklı bir kayıtlı profil bulduk: %1$s. Devam ederseniz bu telefon o kullanıcıya geçer; mevcut profiliniz önce yedeklenir.</string>
+    <string name="online_restore_body_new">Burada kayıtlı bir profil bulduk: %1$s. Devam ederseniz o sürücü olarak herkese açık lider tablosuna yeniden katılırsınız; adı, bayrağı, avatarı ve sürüş istatistikleri herkese açıktır. Yeni profil oluşturulmaz.</string>
+    <string name="online_restore_body_switch">Farklı bir kayıtlı profil bulduk: %1$s. Devam ederseniz bu telefon o sürücüye geçer; mevcut profiliniz önce yedeklenir.</string>
     <string name="online_restore_confirm">%1$s olarak devam et</string>
     <string name="online_rejoin_title">Profili yeniden etkinleştir</string>
-    <string name="online_rejoin_body">Yedek klasörü, lider tablosu için kullanılmış bir profil içeriyor.\n\nKullanıcı kimliği: %1$s</string>
+    <string name="online_rejoin_body">Yedek klasörü, lider tablosu için kullanılmış bir profil içeriyor.\n\nSürücü kimliği: %1$s</string>
 
     <!-- ==== Overlay Studio ==== -->
     <string name="studio_open">Overlay Studio\'yu aç</string>
@@ -1450,7 +1449,7 @@
     <string name="studio_element_floating_camera">Kayan kamera</string>
     <string name="studio_element_image">Görüntü / küçük resim</string>
     <string name="studio_element_clock">Saat</string>
-    <string name="studio_element_g_force">G-Kuvveti</string>
+    <string name="studio_element_g_force">G-kuvveti</string>
     <string name="studio_element_map">Harita</string>
 
     <!-- Studio: element type hints (shown in add-element list) -->
@@ -1629,7 +1628,7 @@
     <string name="studio_metric_odometer">Kilometre sayacı</string>
     <string name="studio_metric_pitch">Yunuslama</string>
     <string name="studio_metric_roll">Yalpa</string>
-    <string name="studio_metric_g_force">G-Kuvveti</string>
+    <string name="studio_metric_g_force">G-kuvveti</string>
     <string name="studio_metric_external_gps_battery">Harici GPS pili</string>
     <string name="studio_metric_external_gps_speed">Harici GPS hızı</string>
     <string name="studio_metric_gps_speed">GPS hızı</string>
@@ -1703,7 +1702,7 @@
     <string name="nav_view_straight_line">düz çizgi</string>
     <string name="nav_view_heading_up">Yön yukarıda, kuzey yukarı için dokunun</string>
     <string name="nav_view_north_up">Kuzey yukarıda, yön yukarı için dokunun</string>
-    <string name="nav_view_tiles">Navigasyon kutucukları</string>
+    <string name="nav_view_tiles">Navigatör kutucukları</string>
     <string name="nav_view_tiles_desc">Navigasyon sırasında hızın yanındaki 4 sayı.</string>
     <string name="nav_view_speed">Hız</string>
     <string name="nav_layer_dark">Esri Dark</string>
@@ -1766,7 +1765,7 @@
     <string name="share_link_invalid">Bu paylaşım bağlantısının süresi dolmuş veya geçersiz.</string>
     <string name="share_room_full">Bu grup dolu.</string>
     <string name="share_switch_group">Mevcut gruptan ayrılıp bu gruba katılmak istiyor musunuz?</string>
-    <string name="share_cannot_reach">Paylaşım hizmetine ulaşılamıyor</string>
+    <string name="share_cannot_reach">Paylaşım servisine ulaşılamıyor</string>
     <string name="share_profile_missing">Henüz lider tablosu profili yok. %1$s altında oluşturun.</string>
     <string name="share_profile_loading">Profil yükleniyor…</string>
     <string name="share_camera_needed">QR kodu taramak için kamera izni gerekiyor.</string>
@@ -1905,7 +1904,7 @@
     <string name="weather_adv_snow_in">%1$s içinde kar bekleniyor.</string>
     <string name="weather_adv_rain_now">Yağmur yağıyor, erken frenle ve az yatır.</string>
     <string name="weather_adv_rain_in">%1$s içinde yağmur bekleniyor.</string>
-    <string name="weather_adv_gusts">Sert esintiler olabilir, köprülerde ve açık yollarda dikkatli olun.</string>
+    <string name="weather_adv_gusts">Sert esintiler olabilir, köprülerde ve açık yollarda dikkatli ol.</string>
     <string name="weather_adv_freeze">Donma noktasına yakın, kaygan yerlere dikkat.</string>
     <string name="weather_adv_clear">Her şey temiz, sür gitsin.</string>
     <string name="weather_adv_heat">Sıcak dönem, yokuşlarda kontrolör sıcaklığına dikkat.</string>
@@ -1935,7 +1934,7 @@
     <string name="weather_face_night">Karanlık - ışıkları aç, yavaşla.</string>
     <string name="weather_face_cold">Soğuk - tutuş azalır, batarya düşer, kat kat giyin.</string>
     <string name="weather_face_hot">Sıcak - uzun yokuşlarda kontrolör sıcaklığına dikkat.</string>
-    <string name="weather_face_golden">Altın saat - en güzel ışık, birazdan ışıkları açın.</string>
+    <string name="weather_face_golden">Altın saat - en güzel ışık, birazdan ışıkları aç.</string>
     <string name="nav_setting_full_path">Her zaman tam yolu çöz</string>
     <string name="nav_setting_full_path_desc">Kapalıyken yalnızca sonraki durağı çözer, geri kalanı kesik çizgili önizleme olarak gösterilir.</string>
     <string name="nav_setting_endpoints">Yönlendirme servisleri</string>
@@ -1980,7 +1979,7 @@
     <string name="studio_snap_to_grid">Izgaraya hizala</string>
     <string name="studio_overwrite_title">Önayar üzerine yazılsın mı?</string>
     <string name="studio_overwrite_body">“%1$s” adında bir önayar zaten var.</string>
-    <string name="studio_overwrite_confirm">Üzerine Yaz</string>
+    <string name="studio_overwrite_confirm">Üzerine yaz</string>
     <string name="warnings_indicator_desc">Uygulama uyarıları</string>
     <string name="warnings_dialog_title">Dikkat gerekiyor</string>
     <string name="warnings_fix_button">Düzelt</string>
@@ -1998,15 +1997,15 @@
     <string name="warnings_location_services_title">Konum sistemde kapalı</string>
     <string name="warnings_battery_opt_title">Pil optimizasyonu açık</string>
     <string name="warnings_battery_opt_body">Android, EUC Planet\'i arka planda durdurup sürüşün ortasında kaydı kesebilir. Kısıtlamasız çalışmasına izin verin.</string>
-    <string name="warnings_hud_blocked_title">Telefon HUD\'u çizemiyor</string>
-    <string name="warnings_hud_blocked_body">Diğer uygulamaların üzerine çizme izni geri alındı, bu yüzden yer paylaşımı harita veya müziğin üstünde görünmeyecek.</string>
+    <string name="warnings_hud_blocked_title">Telefon HUD çizilemiyor</string>
+    <string name="warnings_hud_blocked_body">Diğer uygulamaların üzerine çizme izni geri alındı, bu yüzden kaplama harita veya müziğin üstünde görünmeyecek.</string>
     <string name="warnings_no_backup_title">Sürüşler yedeklenmiyor</string>
     <string name="warnings_no_backup_body">Yalnızca bu telefonda duruyorlar. Telefon kaybolur veya sıfırlanırsa sürüşleriniz de gitmesin diye bir yedek klasörü seçin.</string>
     <string name="warnings_pip_blocked_title">Pencere içinde pencere engellendi</string>
     <string name="warnings_pip_blocked_body">Android, EUC Planet için bunu reddedecek şekilde ayarlı, bu yüzden uygulamadan çıktığınızda yüzen pencere görünmeyecek.</string>
     <string name="online_rejoin_confirm">Yeniden katıl</string>
-    <string name="hud_joystick_title">Tuş eylemleri</string>
-    <string name="hud_joystick_desc">Bir eylem çalıştırmak için HUD tuşuna çift dokunun. Tek dokunuş yine ekran değiştirir.</string>
+    <string name="hud_joystick_title">Düğme eylemleri</string>
+    <string name="hud_joystick_desc">Bir eylem çalıştırmak için HUD düğmesine çift dokunun. Tek dokunuş yine ekran değiştirir.</string>
     <string name="hud_joystick_up">Yukarı (çift dokunma)</string>
     <string name="hud_joystick_down">Aşağı (çift dokunma)</string>
     <string name="hud_joystick_left">Sol (çift dokunma)</string>
@@ -2024,7 +2023,7 @@
     <string name="charging_cells_max">Maks</string>
     <string name="charging_cells_min">Min</string>
     <string name="charging_cells_pack_n">Paket %1$d</string>
-    <string name="charging_cells_waiting">Hücre voltaj verileri bekleniyor…</string>
+    <string name="charging_cells_waiting">Hücre gerilimi verileri bekleniyor…</string>
     <string name="charging_tab_cells">Hücreler</string>
     <string name="scan_bluetooth_off_body">Teker aramak için Bluetooth\'u açın.</string>
     <string name="scan_bluetooth_off_title">Bluetooth kapalı</string>
@@ -2126,13 +2125,13 @@
     <string name="nav_pois_none">Bu rotanın yakınında bir şey bulunamadı</string>
     <string name="nav_setting_advanced_map">Gelişmiş harita özellikleri</string>
     <string name="nav_setting_advanced_map_desc">Rota boyunca şarj istasyonlarını ve yerleri gösterir.</string>
-    <string name="nav_setting_avoid">Rotalamada kaçınılacaklar</string>
+    <string name="nav_setting_avoid">Yönlendirmede kaçınılacaklar</string>
     <string name="nav_setting_avoid_ferries">Feribotlardan kaçın</string>
     <string name="nav_setting_avoid_highways">Otoyollardan kaçın</string>
-    <string name="nav_setting_avoid_hint">Kaçınmalar farklı bir rotalama servisi kullanır ve yalnızca seyahat modunun desteklediği yerlerde geçerlidir.</string>
+    <string name="nav_setting_avoid_hint">Kaçınmalar farklı bir yönlendirme servisi kullanır ve yalnızca seyahat modunun desteklediği yerlerde geçerlidir.</string>
     <string name="nav_setting_avoid_tolls">Paralı yollardan kaçın</string>
     <string name="nav_setting_avoid_unpaved">Asfaltsız yollardan kaçın</string>
-    <string name="nav_avoid_router_failed">Rota kaçınmalarınızı yok sayıyor: kaçınma için kullanılan rota servisi yanıt vermedi.</string>
+    <string name="nav_avoid_router_failed">Rota kaçınmalarınızı yok sayıyor: kaçınma için kullanılan yönlendirme servisi yanıt vermedi.</string>
     <string name="nav_setting_ocm_key">Open Charge Map API anahtarı</string>
     <string name="nav_setting_ocm_key_hint">Şarj istasyonu kartına yorumlar, fotoğraflar ve konnektör ayrıntıları ekler. Ücretsiz bir anahtar için şuraya kaydolun:</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>
@@ -2226,9 +2225,9 @@
     <string name="adv_hud_mdns_resolve">mDNS çözümleme süresi</string>
     <string name="adv_hud_mdns_resolve_desc">Bulunan bir HUD\'ın adres ayrıntılarının ne kadar sürede çözümleneceğini belirler. Dikkat: çok düşük olursa yavaş çözümlenen bir HUD\'ı bırakır.</string>
     <string name="adv_hud_idle_search">Boştayken arama</string>
-    <string name="adv_hud_idle_search_desc">Teker bağlı değilken ve uygulama kapalıyken HUD\'un ne sıklıkla arandığını belirler. Dikkat: çok düşük değer pili tüketir.</string>
+    <string name="adv_hud_idle_search_desc">Teker bağlı değilken ve uygulama kapalıyken HUD\'ın ne sıklıkla arandığını belirler. Dikkat: çok düşük değer pili tüketir.</string>
     <string name="adv_hud_sweep_interval">Ağ taraması</string>
-    <string name="adv_hud_sweep_interval_desc">HUD\'u bulmak için ağdaki her adresin ne sıklıkla denendiğini belirler. Dikkat: çok düşük değer telefonu meşgul eder ve pili tüketir.</string>
+    <string name="adv_hud_sweep_interval_desc">HUD\'ı bulmak için ağdaki her adresin ne sıklıkla denendiğini belirler. Dikkat: çok düşük değer telefonu meşgul eder ve pili tüketir.</string>
     <string name="adv_hud_mdns_timeout">Keşif zaman aşımı</string>
     <string name="adv_hud_mdns_timeout_desc">HUD\'ın otomatik keşfe yanıt vermesi için ne kadar beklenileceğini belirler. Dikkat: çok düşük olursa yanıt vermeden vazgeçer.</string>
     <string name="adv_hud_report_interval">HUD güncelleme hızı</string>
@@ -2267,7 +2266,7 @@
     <string name="adv_nav_prox_band_desc">Av modunda daha sıcak veya daha soğuk bildirilmeden önce gereken mesafe değişimini belirler.</string>
     <string name="adv_nav_reroute_after">Yeniden rota süresi</string>
     <string name="adv_nav_reroute_after_desc">Yeni bir rota istenmeden önce ne kadar süre rota dışında kaldığınızı belirler. Dikkat: çok düşük olursa küçük sapmalarda yeniden rota oluşturur ve veri kullanır.</string>
-    <string name="adv_nav_warning">Bunlar navigasyonun ne zaman tepki vereceğini değiştirir. Yanlış değerler sesli uyarıların veya yeniden rotalamanın çok erken veya çok geç çalışmasına yol açabilir.</string>
+    <string name="adv_nav_warning">Bunlar navigasyonun ne zaman tepki vereceğini değiştirir. Yanlış değerler sesli uyarıların veya yeniden rota oluşturmanın çok erken veya çok geç çalışmasına yol açabilir.</string>
     <string name="adv_phone_gps_interval">Telefon GPS güncelleme aralığı</string>
     <string name="adv_phone_gps_interval_desc">GPS izinin ne kadar pürüzsüz olduğunu ve navigasyonun ne kadar hızlı tepki verdiğini belirler. Düşük değer daha sık günceller. Dikkat: düşük değerler pili daha hızlı tüketir.</string>
     <string name="adv_phone_gps_idle_interval">Boşta GPS aralığı</string>
@@ -2290,7 +2289,7 @@
     <string name="adv_radar_static">Durağan eşik</string>
     <string name="adv_radar_static_desc">Bir aracın hareket halinde sayılması için gereken en az yaklaşma hızını belirler. Dikkat: çok yüksek olursa yavaş yaklaşanları yok sayar.</string>
     <string name="adv_radar_warning">Bunlar radarın tehditleri nasıl etiketlediğini değiştirir. Yanlış değerler gerçek bir aracı gizleyebilir veya zararsız birini işaretleyebilir.</string>
-    <string name="adv_rates_warning">Bu kontroller uygulama genelinde zamanlamayı değiştirir. Düşük değerler daha taze veri ve daha hızlı tepki sağlar ama daha fazla pil, CPU veya veri kullanır. Varsayılanlar çoğu kullanıcıya uygundur. Yalnızca etkisini anlıyorsanız değiştirin.</string>
+    <string name="adv_rates_warning">Bu kontroller uygulama genelinde zamanlamayı değiştirir. Düşük değerler daha taze veri ve daha hızlı tepki sağlar ama daha fazla pil, CPU veya veri kullanır. Varsayılanlar çoğu sürücüye uygundur. Yalnızca etkisini anlıyorsanız değiştirin.</string>
     <string name="adv_reset_all">Tümünü varsayılana sıfırla</string>
     <string name="adv_reset_confirm_msg">Bu ayarlar varsayılanlarına dönecek:</string>
     <string name="adv_restore_default">Varsayılanı geri yükle</string>
@@ -2329,7 +2328,7 @@
     <string name="studio_cd_tools">Kamera araçları</string>
     <string name="studio_export_status">Dosya dışa aktarılıyor…</string>
     <string name="studio_export_stay">Mevcut ekranda kal</string>
-    <string name="studio_export_title">Dosya Dışa Aktarma</string>
+    <string name="studio_export_title">Dosya dışa aktarma</string>
     <string name="studio_replay_trim">(tüm sürüş)</string>
     <string name="studio_replay_trim_duration">Süre</string>
     <string name="studio_replay_trim_end">Bitiş</string>
@@ -2340,7 +2339,7 @@
     <string name="tab_more">Diğer</string>
     <string name="welcome_tut_dev_join">Lider tablolarına katıl</string>
     <string name="welcome_tut_dev_joined">Lider tablolarına katılındı</string>
-    <string name="welcome_tut_dev_joined_norider">Bu klasörde henüz kullanıcı yok. Oluşturmak için %2$s içinde %1$s seçeneğine dokunun.</string>
+    <string name="welcome_tut_dev_joined_norider">Bu klasörde henüz sürücü yok. Oluşturmak için %2$s içinde %1$s seçeneğine dokunun.</string>
     <string name="welcome_tut_dev_restore">Ayarları geri yükle</string>
     <string name="welcome_tut_dev_set_folder">Yedek klasörü ayarla</string>
     <string name="welcome_tut_dev_sync_trips">Sürüşleri eşitle</string>
@@ -2500,10 +2499,10 @@
     <string name="trip_tools_wheel_current">Mevcut</string>
     <string name="trip_tools_combine_summary">%1$d sürüşü tek bir yeni sürüşte birleştirir.</string>
     <string name="phone_hud_desc">Overlay Studio düzenini diğer uygulamaların üstünde gösterir, böylece harita veya müzik kullanırken tekerinizi görebilirsiniz.</string>
-    <string name="phone_hud_permission_desc">Android bunu ayrıca ister. İzin olmadan yer paylaşımı gösterilemez.</string>
+    <string name="phone_hud_permission_desc">Android bunu ayrıca ister. İzin olmadan kaplama gösterilemez.</string>
     <string name="phone_hud_grant">İzin ver</string>
     <string name="phone_hud_section">Telefon HUD</string>
-    <string name="phone_hud_enable">Yer paylaşımını göster</string>
+    <string name="phone_hud_enable">Kaplamayı göster</string>
     <string name="phone_hud_only_away">Yalnızca EUC Planet dışında</string>
     <string name="section_surfaces">Canlı görünümler</string>
     <string name="surface_notification">Bildirim</string>
@@ -2560,7 +2559,7 @@
     <string name="trip_compare_this_trip">Bu sürüş</string>
     <string name="trip_compare_no_match">Eşleşen sürüş yok</string>
     <string name="trip_compare_change">Değiştir</string>
-    <string name="trip_compare_metric">Ölçü</string>
+    <string name="trip_compare_metric">Metrik</string>
     <string name="trip_compare_offset">Kaydırma</string>
     <string name="trip_compare_auto">Otomatik</string>
     <string name="trip_compare_view">Görünüm</string>
@@ -2568,7 +2567,7 @@
     <string name="trip_compare_overlay">Bindirilmiş</string>
     <string name="trip_compare_deltas">Farkları göster (Δ)</string>
     <string name="trip_compare_no_overlap">Bu kaydırmada kesişme yok</string>
-    <string name="trip_compare_no_shared">Ortak ölçü yok</string>
+    <string name="trip_compare_no_shared">Ortak metrik yok</string>
     <string name="trip_compare_banner">vs %1$s</string>
     <string name="trip_compare_banner_sub">Kaydırma %1$s · %2$s ortak</string>
     <string name="trip_compare_stop">Karşılaştırmayı bitir</string>
@@ -2609,9 +2608,9 @@
     <string name="adv_smoothing_window_desc">“ortalama” sürüş grafikleri ve yumuşatılmış sesli raporlar tarafından ortalaması alınan örnek sayısı. Sürüşler saniyede yaklaşık bir kez kaydedilir, bu yüzden bu değer saniye olarak okunur. Dikkat: yüksek değerler kısa sıçramaları gizler.</string>
     <string name="hud_discovery_auto">Oto</string>
     <string name="hud_discovery_both">İkisi de</string>
-    <string name="hud_discovery_desc">Oto, HUD\'u kendi bulur. Sabit yalnızca aşağıdaki adresi kullanır.</string>
+    <string name="hud_discovery_desc">Oto, HUD\'ı kendi bulur. Sabit yalnızca aşağıdaki adresi kullanır.</string>
     <string name="hud_discovery_fixed">Sabit</string>
-    <string name="hud_discovery_mode">Arama modu</string>
+    <string name="hud_discovery_mode">Keşif modu</string>
     <string name="metric_chip_battery_range">Batarya başlangıç → bitiş</string>
     <string name="recording_summary_battery_range">Başlangıç→bitiş (-%1$d%%)</string>
     <string name="trip_tools_rename">Sürüşü yeniden adlandır</string>
@@ -2655,7 +2654,7 @@
     <string name="lockdown_limit_2">Yasal geri eğim ve alarm hızları değiştirilemez.</string>
     <string name="lockdown_limit_3">Sürüş kaydı durur, otomatik kayıt yeni sürüş başlatmaz.</string>
     <string name="lockdown_limit_4">Navigasyon durur ve rotalar başlatılamaz.</string>
-    <string name="lockdown_limit_5">Yüzen yer paylaşımı gizlenir.</string>
+    <string name="lockdown_limit_5">Yüzen kaplama gizlenir.</string>
     <string name="lockdown_limit_6">Ana ekran widget\'ları güncellenmeyi bırakır.</string>
     <string name="lockdown_limit_7">Servis modu ve tanılama kaydı durur.</string>
     <string name="lockdown_limit_8">Gösterge paneli sabit bir ekranla değişir: hız göstergesi, altı metrik, dört düğme.</string>
@@ -2665,7 +2664,7 @@
     <string name="lockdown_limit_12">Bir metriğe dokunmak hiçbir şey yapmaz.</string>
     <string name="lockdown_limit_13">Sesli anonslar, periyodik raporlar ve hız dilimleri susar. Alarmlarınız çalışmaya devam eder.</string>
     <string name="lockdown_limit_14">Teker kilitlenemez veya kilidi açılamaz, yakınlık otomatik kilidi çalışmaz.</string>
-    <string name="lockdown_limit_15">Otomatik ışık ve otomatik ses çalışmaya devam eder. Medya kontrolü durur.</string>
+    <string name="lockdown_limit_15">Otomatik ışık ve otomatik ses çalışmaya devam eder. Oynatma denetimi durur.</string>
     <string name="lockdown_limit_16">Bildirim düğmelerini kaybeder.</string>
     <string name="lockdown_limit_17">Sürüm numarası artık Hakkında ekranını açmaz.</string>
     <string name="lockdown_limit_18">Bu mod ayar yedeklerine dahil edilmez.</string>
@@ -2719,22 +2718,22 @@
     <string name="widget_act_1_short">Eylem 1</string>
     <string name="widget_act_2_short">Eylem 2</string>
     <string name="widget_act_3_short">Eylem 3</string>
-    <string name="action_chip_reset_metrics">Ölçümleri sıfırla</string>
-    <string name="action_reset_metrics_done">Ölçümler sıfırlandı</string>
-    <string name="action_reset_metrics_wheel_done">Ölçümler sıfırlandı, tekerin mesafe sayacı temizlendi</string>
+    <string name="action_chip_reset_metrics">Metrikleri sıfırla</string>
+    <string name="action_reset_metrics_done">Metrikler sıfırlandı</string>
+    <string name="action_reset_metrics_wheel_done">Metrikler sıfırlandı, tekerin mesafe sayacı temizlendi</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
     <string name="tpms_waiting">Veri bekleniyor</string>
     <string name="status_idle">Boşta</string>
     <string name="tpms_state_leaking">Hava kaçırıyor</string>
     <string name="tpms_state_inflating">Şişiriliyor</string>
-    <string name="alarm_metric_battery_envelope">Batarya (tah)</string>
+    <string name="alarm_metric_battery_envelope">Batarya (tah.)</string>
     <string name="alarm_metric_battery_envelope_long">Batarya zarfı (yüksüz tahmin)</string>
 
-    <string name="headlight_state_off">Far: kapalı</string>
-    <string name="headlight_state_low">Far: düşük</string>
-    <string name="headlight_state_medium">Far: orta</string>
-    <string name="headlight_state_high">Far: yüksek</string>
-    <string name="headlight_state_unknown">Far: ?</string>
+    <string name="headlight_state_off">Işık:kapalı</string>
+    <string name="headlight_state_low">Işık:düşük</string>
+    <string name="headlight_state_medium">Işık:orta</string>
+    <string name="headlight_state_high">Işık:yüksek</string>
+    <string name="headlight_state_unknown">Işık:?</string>
     <string name="adv_headlight_readback_age">Işık durumu geçerliliği</string>
     <string name="adv_headlight_readback_age_desc">Bildirilen ışık seviyesinin güncel kaldığı süre. Çok uzun bir süre eski bir seviyeyi gösterebilir.</string>
     <string name="horn_headphones_only">Yalnızca kulaklık veya Bluetooth\'ta</string>
@@ -2789,10 +2788,10 @@
     <string name="crews_done">Bitti</string>
     <string name="crews_expired">Bu kodun süresi doldu. Tarayıcıdan yeni bir kod alın.</string>
     <string name="voice_pill_search">Ara</string>
-    <string name="voice_volume">Ses düzeyi</string>
+    <string name="voice_volume">Ses seviyesi</string>
     <string name="beep_volume_by_speed">Hıza göre bip sesi</string>
     <string name="beep_volume_stopped">Dururken</string>
-    <string name="beep_volume_riding">Sürüşte</string>
+    <string name="beep_volume_riding">Sürerken</string>
     <string name="dropbox_checking">Dropbox kontrol ediliyor…</string>
     <string name="sync_first_settings">Dropbox\'ta başka bir telefondan gelen ayarlar var. Onlar mı kullanılsın, yoksa bu telefonunkiler mi korunsun?</string>
     <string name="recording_delete_trip_body_keeps_backup">Bu sürüş bu telefondan silinsin mi? Yedekte bir kopyası kalır, Tümünü eşitle ile geri gelir.</string>

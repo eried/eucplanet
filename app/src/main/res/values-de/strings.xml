@@ -112,8 +112,7 @@
     <string name="lock_blocked_in_motion_toast">Langsamer fahren, um das Wheel zu sperren</string>
     <string name="action_recorder">Aufnahme</string>
     <string name="action_recorder_trips">Aufnahme\n(%1$d Fahrten)</string>
-    <string name="action_recorder_trips_one">Aufnahme
-(%1$d Fahrt)</string>
+    <string name="action_recorder_trips_one">Aufnahme\n(%1$d Fahrt)</string>
 
     <!-- Settings tabs -->
     <string name="search_settings">Einstellungen suchen</string>
@@ -129,10 +128,10 @@
 
     <!-- Dashboard layout (customizable home screen) -->
     <string name="tab_dashboard">Dashboard-Layout</string>
-    <string name="dashboard_section_metrics">Werte</string>
+    <string name="dashboard_section_metrics">Messwerte</string>
     <string name="dashboard_section_actions">Aktionstasten</string>
     <string name="dashboard_grid_hint">Lang drücken zum Ziehen, tippen zum Bearbeiten.</string>
-    <string name="dashboard_pool_metrics">Verfügbare Werte</string>
+    <string name="dashboard_pool_metrics">Verfügbare Messwerte</string>
     <string name="dashboard_pool_actions">Verfügbare Aktionen</string>
     <string name="dashboard_pool_tap_toast">Lang drücken und auf einen Platz oben ziehen, um es zu nutzen</string>
     <string name="dashboard_stats_length">Statistiklänge</string>
@@ -184,7 +183,7 @@
     <string name="metric_detail_reset">Zurücksetzen</string>
     <string name="metric_detail_reset_all">Alle zurücksetzen</string>
     <string name="metric_detail_reset_all_confirm_title">Gesamten Verlauf zurücksetzen?</string>
-    <string name="metric_detail_reset_all_confirm_body">Leert den gleitenden Verlaufspuffer aller Werte. Einstellungen und Fahrten bleiben unberührt.</string>
+    <string name="metric_detail_reset_all_confirm_body">Leert den gleitenden Verlaufspuffer aller Messwerte. Einstellungen und Fahrten bleiben unberührt.</string>
     <string name="metric_detail_show_label">Wert</string>
     <string name="dashboard_close">Schließen</string>
     <string name="dashboard_corner_left">Links</string>
@@ -231,8 +230,8 @@
     <string name="metric_chip_pitch">Neigung</string>
     <string name="metric_chip_roll">Querneigung</string>
     <string name="metric_chip_g_force">G-Kraft</string>
-    <string name="metric_chip_lateral_g">Seitliches g</string>
-    <string name="metric_chip_forward_g">Vorwärts-g</string>
+    <string name="metric_chip_lateral_g">Quer-g</string>
+    <string name="metric_chip_forward_g">Längs-g</string>
     <string name="metric_chip_torque">Drehmoment</string>
     <string name="metric_chip_phase_current">Phase A</string>
     <string name="metric_spoken_phase_current">Phasenstrom</string>
@@ -313,7 +312,7 @@
          period so they read like complete sentences. -->
     <string name="metric_desc_headroom">Verbleibender Geschwindigkeitsspielraum bis zum Tiltback. Hoher Wert = mehr Sicherheitsreserve.</string>
     <string name="metric_desc_trip_max_speed">Höchstgeschwindigkeit der aktuellen Fahrt (wird bei neuer Fahrt zurückgesetzt).</string>
-    <string name="metric_desc_avg_trip_speed">Fahrtdistanz geteilt durch die bisherige Fahrzeit.</string>
+    <string name="metric_desc_avg_trip_speed">Fahrtstrecke geteilt durch die bisherige Fahrtzeit.</string>
     <string name="metric_desc_wh_consumed">Insgesamt aus dem Akku entnommene Wattstunden dieser Fahrt.</string>
     <string name="metric_desc_range_estimate">Verbleibende Reichweite beim aktuellen Verbrauch.</string>
     <string name="metric_desc_wh_per_km">Energie pro Kilometer, niedriger ist effizienter.</string>
@@ -332,10 +331,10 @@
     <string name="menu_voice_ask">Auf einen Sprachbefehl hören</string>
     <string name="menu_voice_speak_report">Sprachansage abspielen</string>
     <string name="voice_split_term">Letzte Zwischenzeit</string>
-    <string name="menu_switch_to_voice_command">Auf Sprachbefehl umschalten</string>
+    <string name="menu_switch_to_voice_command">Zu Sprachbefehl wechseln</string>
     <string name="menu_switch_to_voice_report">Zu Sprachansage wechseln</string>
     <string name="voice_commands_title">Sprachbefehle</string>
-    <string name="voice_commands_enable_desc">Nutze deine Stimme in der App. Halte die Sprachtaste im Dashboard gedrückt und wähle Auf einen Sprachbefehl hören.</string>
+    <string name="voice_commands_enable_desc">Nutze deine Stimme in der App. Halte die Taste Stimme im Dashboard gedrückt und wähle Auf einen Sprachbefehl hören.</string>
     <string name="voice_commands_bind_desc">Lege Zuhören auf einen Flic, die Lautstärketasten, deine Uhr oder das HUD.</string>
     <string name="voice_prompt_cue">Signal beim Zuhören</string>
     <string name="voice_music_listening">Musik beim Zuhören</string>
@@ -393,9 +392,9 @@
     <string name="voice_special_weather">%1$s. %2$s.</string>
     <string name="voice_special_weather_full">%1$s, Bewertung %2$s. %3$s Grad, Wind %4$s, Luftfeuchtigkeit %5$s Prozent</string>
     <string name="voice_weather_checking">Ich prüfe das Wetter.</string>
-    <string name="voice_sp_air_temp_terms">Außentemperatur,Lufttemperatur,wie kalt ist es</string>
-    <string name="voice_sp_wind_terms">Wind,Windgeschwindigkeit,wie windig</string>
-    <string name="voice_sp_humidity_terms">Luftfeuchtigkeit,wie feucht</string>
+    <string name="voice_sp_air_temp_terms">außentemperatur,lufttemperatur,wie kalt ist es</string>
+    <string name="voice_sp_wind_terms">wind,windgeschwindigkeit,wie windig</string>
+    <string name="voice_sp_humidity_terms">luftfeuchtigkeit,wie feucht</string>
     <string name="voice_sp_air_temp_answer">%1$s Grad draußen.</string>
     <string name="voice_sp_wind_answer">Wind %1$s.</string>
     <string name="voice_sp_wind_gust_answer">Wind %1$s, Böen %2$s.</string>
@@ -491,7 +490,7 @@
     <string name="hud_hotspot_unknown_hint">Stell sicher, dass HUD und Handy im selben WLAN sind. Wenn du den Handy-Hotspot nutzt, schalte ihn zuerst ein.</string>
     <string name="hud_hotspot_on_hint">Handy-Hotspot sendet. Verbinde das HUD mit diesem WLAN, um die Verbindung herzustellen.</string>
     <string name="hud_overlay_subsection">Eigenes Overlay</string>
-    <string name="hud_overlay_subsection_desc">Importiere ein Overlay-Studio-Preset auf den Custom-Bildschirm des HUD, ohne Hintergrund. Das Preset wird hierher kopiert, spätere Änderungen im Studio wirken erst nach erneutem Import.</string>
+    <string name="hud_overlay_subsection_desc">Importiere ein Overlay-Studio-Preset auf den Bildschirm Eigenes Overlay des HUD, ohne Hintergrund. Das Preset wird hierher kopiert, spätere Änderungen im Studio wirken erst nach erneutem Import.</string>
     <string name="hud_overlay_select_preset">Preset importieren</string>
     <string name="hud_overlay_current_preset">Aktuell: %1$s</string>
     <string name="hud_custom_overlay_none">Leeren</string>
@@ -539,7 +538,7 @@
     <string name="hud_app_connected">Verbunden:</string>
     <string name="hud_app_send">An HUD senden</string>
     <string name="hud_app_remove">Deinstallieren</string>
-    <string name="hud_app_sending">Wird gesendet, %1$d%%</string>
+    <string name="hud_app_sending">Wird gesendet, %1$d %%</string>
     <string name="hud_app_sent">Am HUD fortfahren.</string>
     <string name="hud_app_resend_title">Bereits aktuell</string>
     <string name="hud_app_resend_body">Das HUD hat diese Version bereits. Trotzdem senden?</string>
@@ -567,7 +566,7 @@
     <string name="watch_update_conservative">Sparsam</string>
     <string name="watch_update_normal">Normal</string>
     <string name="watch_update_fast">Schnell</string>
-    <string name="watch_auto_start">Auf Uhr automatisch starten</string>
+    <string name="watch_auto_start">Auto-Start auf der Uhr</string>
     <string name="watch_auto_start_desc">Öffnet die Uhr-App zusammen mit der Handy-App.</string>
     <string name="watch_close_on_exit">Auto-Stopp auf der Uhr</string>
     <string name="watch_close_on_exit_desc">Uhr-App bei „Alles stoppen“ ebenfalls beenden.</string>
@@ -608,7 +607,7 @@
     <string name="watch_haptic_on_action_desc">Kurze Vibration bei jedem Druck, sofern unterstützt.</string>
 
     <!-- Settings: Backup -->
-    <string name="cloud_caption">Dein Backup-Ordner für Fahrten, Einstellungen, Themes und Overlays.</string>
+    <string name="cloud_caption">Dein Backup-Ordner für Fahrten, Einstellungen, Designs und Overlays.</string>
     <string name="cloud_choose_folder">Ordner wählen</string>
     <string name="cloud_change_folder">Ordner ändern</string>
     <string name="cloud_remove_folder">Verknüpfung aufheben</string>
@@ -731,7 +730,7 @@
     <string name="tts_switch_no">Beibehalten</string>
 
     <!-- Settings: Speed -->
-    <string name="section_speed_limits">Geschwindigkeitsgrenzen</string>
+    <string name="section_speed_limits">Tempolimits</string>
     <string name="section_speed_calibration">Geschwindigkeitskalibrierung</string>
     <string name="section_battery_percent">Akkukalibrierung</string>
     <string name="battery_override_label">Prozentwert des Wheels überschreiben</string>
@@ -744,13 +743,13 @@
     <string name="battery_capacity_label">Kapazität</string>
     <string name="battery_capacity_desc">Optional. Legt die Reichweitenschätzung von Anfang an fest, für die Kachel Reichweite und das HUD.</string>
     <string name="battery_percent_cells_from_wheel">Vom Wheel übernommen: %1$d in Reihe.</string>
-    <string name="battery_percent_cells_manual">Macht aus der Akkuspannung den Prozentwert auf dem Dashboard, in Sprache und Alarmen</string>
+    <string name="battery_percent_cells_manual">Macht aus der Akkuspannung den Prozentwert auf dem Dashboard, in Ansagen und Alarmen</string>
     <string name="speed_calibration_label">Geschwindigkeitsversatz</string>
-    <string name="speed_calibration_caption">Passt die gemeldete Wheel-Geschwindigkeit an; betrifft Alarme, Sprache und Fahrtprotokoll.</string>
+    <string name="speed_calibration_caption">Passt die gemeldete Wheel-Geschwindigkeit an; betrifft Alarme, Ansagen und Fahrtprotokoll.</string>
     <string name="section_legal_mode_speed">Legal-Modus, Geschwindigkeit</string>
     <string name="legal_mode_caption">Aktiv im Legal-Modus; muss unter dem normalen Tiltback liegen.</string>
-    <string name="speed_limits_disconnected">Wheel verbinden, um Kalibrierung und Grenzen zu bearbeiten</string>
-    <string name="speed_limits_unsupported">Die Grenzen dieses Wheels stellst du am Wheel selbst ein</string>
+    <string name="speed_limits_disconnected">Wheel verbinden, um Kalibrierung und Limits zu bearbeiten</string>
+    <string name="speed_limits_unsupported">Die Tempolimits dieses Wheels stellst du am Wheel selbst ein</string>
     <string name="speed_tiltback">Tiltback-Geschwindigkeit</string>
     <string name="speed_alarm">Alarm-Geschwindigkeit</string>
     <string name="speed_legal_tiltback">Legal-Tiltback</string>
@@ -790,7 +789,7 @@
     <string name="welcome_tut_outro_title">Das war die Tour!</string>
     <string name="welcome_tut_outro_buttons">Viele Tasten haben Zusatzfunktionen, einfach lang drücken</string>
     <string name="welcome_tut_outro_alarms">Entdecke den leistungsstarken Alarm-Editor unter Einstellungen → %1$s</string>
-    <string name="welcome_tut_outro_integrations">Entdecke die Integrationen: Helm-HUDs, WearOS-Uhren, Flic-Tasten, Garmin Connect IQ und das Heckradar</string>
+    <string name="welcome_tut_outro_integrations">Entdecke die Integrationen: Helm-HUDs, Wear OS-Uhren, Flic-Tasten, Garmin Connect IQ und das Heckradar</string>
     <string name="welcome_tut_share">Sichere deine Fahrten in Einstellungen → %1$s. Sieh sie in %2$s an oder analysiere die Backups auf eucviewer.ried.no.\n\nIm selben Abschnitt kannst du den öffentlichen Bestenlisten auf eucstats.ried.no beitreten</string>
     <string name="welcome_tut_outro_end">Augen auf die Straße, nicht auf die App, wenn du fährst!</string>
     <string name="welcome_tut_speed">Deine aktuelle Geschwindigkeit. Einheiten ändern unter Einstellungen → %1$s</string>
@@ -894,7 +893,7 @@
     <string name="report_navigation">Navigation</string>
 
     <!-- Settings: Integration -->
-    <string name="section_flic_buttons">Flic 2-Tasten</string>
+    <string name="section_flic_buttons">Flic-2-Tasten</string>
     <string name="flic_show_on_dashboard">Schnellzugriff-Symbol im Dashboard</string>
     <string name="flic_scan_hint">Flic-2-Taste 6 Sekunden halten für den Kopplungsmodus, dann auf Scan starten tippen.</string>
     <string name="flic_stop_scan">Scan stoppen</string>
@@ -912,7 +911,7 @@
     <string name="tpms_wheel_sensor">Reifendruck des Wheels</string>
     <string name="tpms_wheel_sensor_desc">Vom gekoppelten Sensor weitergeleitet.</string>
     <string name="tpms_scan">Nach Sensoren suchen</string>
-    <string name="tpms_scan_stop">Suche stoppen</string>
+    <string name="tpms_scan_stop">Scan stoppen</string>
     <string name="tpms_none_yet">Kein Reifendrucksensor erkannt oder manuell hinzugefügt.</string>
     <string name="tpms_wheel_sensor_replaced">Durch deinen gekoppelten Sensor ersetzt</string>
     <string name="external_gps_device_title">Externes GPS</string>
@@ -927,7 +926,7 @@
     <string name="external_gps_disconnect">Trennen</string>
     <string name="external_gps_unpair">Gerät vergessen</string>
     <string name="external_gps_axes_title">Achsenausrichtung</string>
-    <string name="external_gps_axes_desc">Weise jeder Ausgangsachse eine Rohachse der Box zu.</string>
+    <string name="external_gps_axes_desc">Weise jeder Ausgabeachse eine Rohachse des Geräts zu.</string>
     <string name="external_gps_map_x">Ausgabe X</string>
     <string name="external_gps_map_y">Ausgabe Y</string>
     <string name="external_gps_map_z">Ausgabe Z</string>
@@ -950,8 +949,8 @@
     <string name="volume_keys_caption">Lautstärketasten als Kurzbefehle nutzen, solange die App auf dem Bildschirm ist.</string>
     <string name="volume_keys_enable">Lautstärketasten-Aktionen aktivieren</string>
     <string name="volume_keys_screen_off">Auch bei ausgeschaltetem Bildschirm</string>
-    <string name="volume_keys_screen_off_caption">Funktioniert bei gesperrtem Telefon oder mit einer anderen App im Vordergrund. Die Tasten ändern die Telefonlautstärke nicht mehr.</string>
-    <string name="volume_keys_screen_off_warn">Android schickt Lautstärketasten nur an die App auf dem Bildschirm. Um sie auch bei ausgeschaltetem Bildschirm zu bekommen, meldet sich EUC Planet als aktiver Mediaplayer des Telefons an, und Android schickt die Tasten dorthin, statt die Lautstärke zu ändern.\n\nSolange das an ist, ändern die Tasten die Telefonlautstärke nicht mehr.</string>
+    <string name="volume_keys_screen_off_caption">Funktioniert bei gesperrtem Handy oder mit einer anderen App im Vordergrund. Die Tasten ändern die Handylautstärke nicht mehr.</string>
+    <string name="volume_keys_screen_off_warn">Android schickt Lautstärketasten nur an die App auf dem Bildschirm. Um sie auch bei ausgeschaltetem Bildschirm zu bekommen, meldet sich EUC Planet als aktiver Mediaplayer des Handys an, und Android schickt die Tasten dorthin, statt die Lautstärke zu ändern.\n\nSolange das an ist, ändern die Tasten die Handylautstärke nicht mehr.</string>
     <string name="volume_keys_screen_off_confirm">Einschalten</string>
     <string name="volume_keys_screen_off_title">Lautstärketasten übernehmen?</string>
     <string name="volume_up">Lautstärke +</string>
@@ -969,7 +968,7 @@
     <string name="radar_reconnect">Erneut verbinden</string>
     <string name="radar_disconnect">Trennen</string>
     <string name="radar_unpair">Gerät vergessen</string>
-    <string name="radar_battery_fmt">Akku %1$d%%</string>
+    <string name="radar_battery_fmt">Akku %1$d %%</string>
     <string name="radar_clear">Spur ist frei</string>
     <string name="radar_threats_count">Erfasste Fahrzeuge (%1$d):</string>
     <string name="radar_show_overlay">Gefahren-Overlay anzeigen</string>
@@ -1065,7 +1064,7 @@
     <!-- Scan screen -->
     <string name="scan_title">Mit Wheel verbinden</string>
     <string name="scan_scanning">Suche…</string>
-    <string name="scan_start">Suche starten</string>
+    <string name="scan_start">Scan starten</string>
     <string name="scan_show_all_title">Alle Geräte anzeigen</string>
     <string name="scan_show_all_subtitle">Aktivieren, falls dein Wheel nicht erscheint.</string>
 
@@ -1099,7 +1098,7 @@
     <string name="recording_delete_trip_body">Diese Fahrt und ihre Datendatei löschen?</string>
     <string name="recording_clear_all_menu">Alle löschen</string>
     <string name="recording_empty">Keine Daten. Importieren oder neue Fahrt aufnehmen</string>
-    <string name="recording_will_auto_stop">Aufnahme stoppt automatisch nach %1$ds Stillstand</string>
+    <string name="recording_will_auto_stop">Aufnahme stoppt automatisch nach %1$d s Stillstand</string>
     <string name="recording_stat_trips">Fahrten</string>
     <string name="recording_stat_distance">Distanz</string>
     <string name="recording_stat_time">Zeit</string>
@@ -1147,7 +1146,7 @@
     <string name="recording_chart_altitude">Höhe (m)</string>
 
     <!-- Automations / Auto tab -->
-    <string name="auto_lights_title">Scheinwerfersteuerung</string>
+    <string name="auto_lights_title">Lichtsteuerung</string>
     <string name="auto_lights_when">Sonnenauf- und -untergang folgen, wenn</string>
     <string name="auto_lights_off_slow">Licht beim Langsamerwerden ausschalten</string>
     <string name="auto_lights_off_below">Aus unter</string>
@@ -1185,7 +1184,7 @@
     <string name="auto_lock_suspended">Für diese Sitzung pausiert, du hast von Hand gesperrt oder entsperrt. Behebe es über Aktion erforderlich oder verbinde das Wheel neu.</string>
 
     <!-- Alarms tab -->
-    <string name="alarm_help">Die Auslösepriorität folgt der Reihenfolge der Messgrößengruppen unten.</string>
+    <string name="alarm_help">Die Auslösepriorität folgt der Reihenfolge der Messwertgruppen unten.</string>
     <string name="alarm_empty">Noch keine Alarmregeln</string>
     <string name="alarm_add">Neuer Alarm</string>
     <string name="alarm_summary_predict_fmt">Prognose %1$s s im Voraus</string>
@@ -1194,7 +1193,7 @@
     <string name="alarm_delete_title">Diesen Alarm löschen?</string>
     <string name="alarm_delete_body">Das lässt sich nicht rückgängig machen.</string>
     <string name="alarm_delete_action">Alarm löschen</string>
-    <string name="alarm_metric_label">Messgröße</string>
+    <string name="alarm_metric_label">Messwert</string>
     <string name="alarm_comparator_label">Bedingung</string>
     <string name="alarm_threshold_label">Schwelle</string>
     <string name="alarm_label_frequency">Frequenz</string>
@@ -1224,10 +1223,10 @@
     <string name="sources_distance_between_fixes">Abstand zwischen Messungen</string>
     <string name="sources_last_update">Letzte Aktualisierung</string>
     <string name="sources_fresh_just_now">gerade eben</string>
-    <string name="sources_fresh_seconds_fmt">vor %1$ds</string>
-    <string name="sources_fresh_minutes_fmt">vor %1$dm</string>
+    <string name="sources_fresh_seconds_fmt">vor %1$d s</string>
+    <string name="sources_fresh_minutes_fmt">vor %1$d min</string>
     <string name="sources_delta_avg_fmt">Ø %1$+.1f%2$s</string>
-    <string name="sources_fresh_hours_fmt">vor %1$dh</string>
+    <string name="sources_fresh_hours_fmt">vor %1$d h</string>
     <string name="sources_sats_fmt">%1$d Sat</string>
     <string name="sources_other_metrics">Weitere Messwerte</string>
     <string name="sources_collecting">Erfassung…</string>
@@ -1329,9 +1328,9 @@
     <string name="online_upload_join">Bestenliste beitreten</string>
     <string name="online_status_shared">In der Bestenliste</string>
     <string name="online_status_pending">Wird hochgeladen…</string>
-    <string name="online_status_failed">Upload fehlgeschlagen, tippen zum Wiederholen</string>
+    <string name="online_status_failed">Upload fehlgeschlagen, zum Wiederholen tippen</string>
     <string name="online_status_rejected">Nicht für die Bestenliste akzeptiert</string>
-    <string name="online_upload_join_caption">Tritt bei, um deine Statistiken und Fahrten in der öffentlichen Bestenliste zu teilen auf.</string>
+    <string name="online_upload_join_caption">Tritt bei und teile deine Statistiken und Fahrten in der öffentlichen Bestenliste auf.</string>
     <string name="online_upload_linked_caption">Deine Statistiken und Fahrten erscheinen in der öffentlichen Bestenliste auf.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
@@ -1358,7 +1357,7 @@
     <string name="online_rejoin_title">Profil reaktivieren</string>
     <string name="online_rejoin_body">Der Backup-Ordner enthält ein Profil, das für die Bestenliste verwendet wurde.\n\nFahrer-ID: %1$s</string>
     <string name="warnings_battery_opt_title">Akku-Optimierung ist aktiv</string>
-    <string name="warnings_battery_opt_body">Android kann EUC Planet im Hintergrund beenden und eine Aufzeichnung mitten in der Fahrt abbrechen. Erlaube uneingeschränkte Ausführung.</string>
+    <string name="warnings_battery_opt_body">Android kann EUC Planet im Hintergrund beenden und eine Aufnahme mitten in der Fahrt abbrechen. Erlaube uneingeschränkte Ausführung.</string>
     <string name="warnings_hud_blocked_title">Handy-HUD kann nicht zeichnen</string>
     <string name="warnings_hud_blocked_body">Die Berechtigung, über anderen Apps zu zeichnen, wurde entzogen, daher erscheint das Overlay nicht über Karten oder Musik.</string>
     <string name="warnings_no_backup_title">Fahrten werden nicht gesichert</string>
@@ -1470,7 +1469,7 @@
     <string name="studio_hint_data_graph">Ein laufendes Diagramm eines Werts</string>
     <string name="studio_hint_data_dial">Ein Rundinstrument für einen Wert</string>
     <string name="studio_hint_data_bar">Eine Balkenanzeige für einen Wert</string>
-    <string name="studio_hint_floating_camera">Eine kleine Bild-in-Bild-Kamera</string>
+    <string name="studio_hint_floating_camera">Eine kleine Bild-im-Bild-Kamera</string>
     <string name="studio_hint_image">Dein eigenes Bild, im Preset eingebettet</string>
     <string name="studio_hint_clock">Digitaluhr, Analoguhr oder Stoppuhr</string>
     <string name="studio_hint_g_force">Ein G-Kraft-Kreis mit Spur</string>
@@ -1555,14 +1554,14 @@
     <string name="studio_cfg_clock_stopwatch">Stoppuhr</string>
     <string name="studio_cfg_clock_show_date">Datumszeile anzeigen</string>
     <string name="studio_cfg_clock_24h">24-Stunden-Format</string>
-    <string name="studio_cfg_metric_label">Messgröße</string>
+    <string name="studio_cfg_metric_label">Messwert</string>
     <string name="studio_cfg_max_label">Maximum</string>
     <string name="studio_cfg_show_label">Beschriftung anzeigen</string>
     <string name="studio_cfg_badge_stacked">Gestapelt (Symbol oben)</string>
     <string name="studio_cfg_badge_show_name">App-Namen anzeigen</string>
     <string name="studio_cfg_badge_show_version">Versionsnummer anzeigen</string>
     <string name="studio_cfg_time_window_label">Zeitfenster</string>
-    <string name="studio_cfg_time_window_fmt">%1$ds</string>
+    <string name="studio_cfg_time_window_fmt">%1$d s</string>
     <string name="studio_cfg_trail_label">Spurlänge</string>
     <string name="studio_cfg_map_style">Kartenstil</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
@@ -1726,7 +1725,7 @@
     <string name="nav_load_confirm">Aktuelle Route durch geladene GPX ersetzen?</string>
     <string name="nav_menu_load_short">Laden</string>
     <string name="nav_start_short">Navigation starten</string>
-    <string name="nav_stop_short">Navigation stoppen</string>
+    <string name="nav_stop_short">Navigation beenden</string>
     <string name="nav_stops_left">Verbleibende Stopps: %1$d</string>
     <string name="nav_last_stop">Letzter Stopp</string>
     <string name="nav_need_destination">Zuerst ein Ziel hinzufügen</string>
@@ -1824,7 +1823,7 @@
     <string name="share_title_live">Live-Standort teilen</string>
     <string name="share_static_subject">Mein Standort</string>
     <string name="share_you">Du</string>
-    <string name="nav_end_body">Die Führung für die aktive Route stoppen?</string>
+    <string name="nav_end_body">Die Führung für die aktive Route beenden?</string>
     <string name="nav_end_confirm">Beenden</string>
     <string name="nav_minimize">Minimieren</string>
     <string name="nav_expand">Ausklappen</string>
@@ -1997,9 +1996,9 @@
     <string name="warnings_indicator_desc">App-Warnungen</string>
     <string name="warnings_dialog_title">Aktion erforderlich</string>
     <string name="warnings_fix_button">Beheben</string>
-    <string name="warnings_autolights_title">Autolicht pausiert</string>
+    <string name="warnings_autolights_title">Auto-Licht pausiert</string>
     <string name="warnings_autolights_body">Du hast das Licht von Hand geschaltet, der Zeitplan hält sich diese Sitzung zurück. Beheben gibt ihm die Kontrolle zurück.</string>
-    <string name="warnings_autolock_title">Autosperre pausiert</string>
+    <string name="warnings_autolock_title">Auto-Sperre pausiert</string>
     <string name="warnings_autolock_body">Du hast von Hand gesperrt oder entsperrt, die Näherungssperre hält sich diese Sitzung zurück. Beheben gibt ihr die Kontrolle zurück.</string>
     <string name="warnings_perm_notifications_title">Benachrichtigungen aus</string>
     <string name="warnings_perm_notifications_body">Der Fahrstatus erscheint nicht in der Statusleiste und Sprachhinweise tauchen nicht in der Benachrichtigungsleiste auf.</string>
@@ -2029,8 +2028,8 @@
     <string name="charging_monitor">Akku-Monitor</string>
     <string name="charging_back">Zurück</string>
     <string name="charging_charging">Lädt</string>
-    <string name="charging_eta_to_target">%1$s bis %2$d%%</string>
-    <string name="charging_eta_to_full">%1$s bis 100%%</string>
+    <string name="charging_eta_to_target">%1$s bis %2$d %%</string>
+    <string name="charging_eta_to_full">%1$s bis 100 %%</string>
     <string name="charging_eta_at">um %1$s</string>
     <string name="charging_details">Details</string>
     <string name="charging_tab_charge">Laden</string>
@@ -2063,7 +2062,7 @@
     <string name="nav_share_dialog_append">Als nächsten Stopp</string>
     <string name="nav_share_dialog_new">Neue Route</string>
     <string name="auto_record_mode_connected">Verbunden</string>
-    <string name="auto_record_mode_label">Fahrtaufzeichnung automatisch starten</string>
+    <string name="auto_record_mode_label">Fahrtaufnahme automatisch starten</string>
     <string name="auto_record_mode_never">Nie</string>
     <string name="auto_record_mode_riding">Beim Fahren</string>
     <string name="charging_cells_count">Zellen</string>
@@ -2084,7 +2083,7 @@
     <string name="studio_cfg_radar_lane">Spur</string>
     <string name="studio_cfg_radar_minimal">Minimal</string>
     <string name="studio_cfg_radar_mirror">Spiegel</string>
-    <string name="studio_cfg_radar_mirror_hint">Das Radar sieht nach hinten, aber nicht welche Seite - beide Marker leuchten je nach Bedrohung.</string>
+    <string name="studio_cfg_radar_mirror_hint">Das Radar sieht nach hinten, aber nicht welche Seite - beide Marker leuchten je nach Gefahr.</string>
     <string name="studio_cfg_radar_mode">Radaransicht</string>
     <string name="studio_cfg_radar_range">Reichweite</string>
     <string name="studio_cfg_radar_range_fmt">%1$d m</string>
@@ -2175,7 +2174,7 @@
     <string name="adv_alarm_warm_route_desc">Bestimmt, wie lange der Lautsprecher nach einem Piepton oder einer Ansage bereit bleibt. Achtung: zu kurz, und der erste Piepton nach einer stillen Phase kann knacken oder abgeschnitten werden; zu lang hält das Audio wach und leert den Akku.</string>
     <string name="adv_alarm_slope_window">Trendfenster</string>
     <string name="adv_alarm_slope_window_desc">Bestimmt, wie viele aktuelle Messwerte in den vorhergesagten Trend einfließen. Achtung: zu kurz reagiert auf Rauschen, zu lang reagiert langsam.</string>
-    <string name="adv_alarm_warning">Diese ändern, wie Geschwindigkeits- und Leistungsalarme einen Schwellwert vorhersagen, bevor du ihn erreichst. Falsche Werte können Alarme zu spät oder gar nicht auslösen. Mit Vorsicht ändern.</string>
+    <string name="adv_alarm_warning">Diese ändern, wie Geschwindigkeits- und Leistungsalarme eine Schwelle vorhersagen, bevor du sie erreichst. Falsche Werte können Alarme zu spät oder gar nicht auslösen. Mit Vorsicht ändern.</string>
     <string name="adv_autolight_no_gps_retry">Wiederholung ohne GPS</string>
     <string name="adv_autolight_no_gps_retry_desc">Bestimmt, wie oft das Auto-Licht es erneut versucht, während auf ein GPS-Signal gewartet wird.</string>
     <string name="adv_autolight_toggle_grace">Toleranz für manuelle Änderung</string>
@@ -2287,7 +2286,7 @@
     <string name="adv_nav_prepare_dist">Abbiege-Vorbereitungsdistanz</string>
     <string name="adv_nav_prepare_dist_desc">Bestimmt, wie weit vor einer Abzweigung der Vorbereitungshinweis angesagt wird.</string>
     <string name="adv_nav_prox_band">Schatzsuche-Band</string>
-    <string name="adv_nav_prox_band_desc">Bestimmt, welche Distanzänderung nötig ist, bevor im Suchmodus wärmer oder kälter angesagt wird.</string>
+    <string name="adv_nav_prox_band_desc">Bestimmt, welche Distanzänderung nötig ist, bevor im Schatzsuche-Modus wärmer oder kälter angesagt wird.</string>
     <string name="adv_nav_reroute_after">Neuberechnung nach</string>
     <string name="adv_nav_reroute_after_desc">Bestimmt, wie lange du abseits der Route bleibst, bevor eine neue Route angefordert wird. Achtung: zu niedrig berechnet bei kleinen Umwegen neu und verbraucht Daten.</string>
     <string name="adv_nav_warning">Diese ändern, wann die Navigation reagiert. Falsche Werte können Sprachhinweise oder Neuberechnungen zu früh oder zu spät auslösen.</string>
@@ -2301,18 +2300,18 @@
     <string name="adv_gps_fix_max_age_desc">Eine ältere Position gilt als keine Position, damit eine vor GPS-Bereitschaft gestartete Aufnahme nicht mit einem veralteten Punkt beginnt.</string>
     <string name="adv_pushonly_note">Manche Geräte senden mit ihrer eigenen festen Rate und ignorieren diese Einstellungen: Push-only-Wheels (Begode, Gotway, Veteran, KingSong), externes GPS (RaceBox, Dragy), Radar und Flic-Tasten.</string>
     <string name="adv_radar_clear_decay">Radar-Spur-Nachlauf</string>
-    <string name="adv_radar_clear_decay_desc">Bestimmt, wie lange der Spurbalken bleibt, nachdem die Straße frei ist. Achtung: zu niedrig lässt ihn blinken, wenn Autos kommen und gehen.</string>
+    <string name="adv_radar_clear_decay_desc">Bestimmt, wie lange der Spurbalken bleibt, nachdem die Straße frei ist. Achtung: zu niedrig lässt ihn blinken, wenn Fahrzeuge kommen und gehen.</string>
     <string name="adv_radar_fallback">Ersatz-Annäherungsrate</string>
     <string name="adv_radar_fallback_desc">Bestimmt die Annäherungsrate, ab der ein Fahrzeug als sich nähernd markiert wird, wenn die vom Radar gemessene Geschwindigkeit unzuverlässig wirkt.</string>
     <string name="adv_radar_fast_dist">Schnellannäherungs-Distanz</string>
-    <string name="adv_radar_fast_dist_desc">Bestimmt die Distanz, unter der ein sich näherndes Auto als schnell annähernd markiert wird. Achtung: zu niedrig markiert nahe Autos spät.</string>
+    <string name="adv_radar_fast_dist_desc">Bestimmt die Distanz, unter der ein sich näherndes Fahrzeug als schnell annähernd markiert wird. Achtung: zu niedrig markiert nahe Fahrzeuge spät.</string>
     <string name="adv_radar_fast_speed">Schnellannäherungs-Geschwindigkeit</string>
-    <string name="adv_radar_fast_speed_desc">Bestimmt die Annäherungsgeschwindigkeit, ab der ein Auto unabhängig von der Distanz als schnell annähernd gilt.</string>
+    <string name="adv_radar_fast_speed_desc">Bestimmt die Annäherungsgeschwindigkeit, ab der ein Fahrzeug unabhängig von der Distanz als schnell annähernd gilt.</string>
     <string name="adv_radar_min_frame">Min. Frame-Abstand</string>
     <string name="adv_radar_min_frame_desc">Bestimmt die kleinste Zeit zwischen Frames für die Berechnung der Annäherungsrate. Achtung: zu niedrig kann auf Jitter überreagieren.</string>
     <string name="adv_radar_static">Stillstand-Schwelle</string>
-    <string name="adv_radar_static_desc">Bestimmt die minimale Annäherungsgeschwindigkeit, ab der ein Auto als bewegt zählt. Achtung: zu hoch ignoriert langsam nähernde Fahrzeuge.</string>
-    <string name="adv_radar_warning">Diese ändern, wie das Radar Gefahren einstuft. Falsche Werte können ein echtes Auto verbergen oder ein harmloses melden.</string>
+    <string name="adv_radar_static_desc">Bestimmt die minimale Annäherungsgeschwindigkeit, ab der ein Fahrzeug als bewegt zählt. Achtung: zu hoch ignoriert sich langsam nähernde Fahrzeuge.</string>
+    <string name="adv_radar_warning">Diese ändern, wie das Radar Gefahren einstuft. Falsche Werte können ein echtes Fahrzeug verbergen oder ein harmloses melden.</string>
     <string name="adv_rates_warning">Diese Regler ändern das Timing in der gesamten App. Niedrigere Werte liefern frischere Daten und schnellere Reaktionen, brauchen aber mehr Akku, CPU oder Daten. Die Standardwerte passen für die meisten Fahrer. Ändere sie nur, wenn du die Wirkung verstehst.</string>
     <string name="adv_reset_all">Alles auf Standard zurücksetzen</string>
     <string name="adv_reset_confirm_msg">Diese Einstellungen werden auf ihre Standardwerte zurückgesetzt:</string>
@@ -2429,7 +2428,7 @@
     <string name="adv_nav_sidebar_min">Mindestbildschirm für Seitenleiste</string>
     <string name="adv_nav_sidebar_min_desc">Schmalere Bildschirme behalten die untere Stoppliste auch im Querformat. Zu niedrig begräbt die Karte auf kleinen Bildschirmen.</string>
     <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
-    <string name="adv_inmotion_v1_pin_desc">Zugriffs-PIN für InMotion V5/V8/V10 Wheels, wird beim Verbinden gesendet, damit das Wheel Daten sendet. Lass 000000 stehen, außer du hast in der InMotion App eine eigene PIN gesetzt.</string>
+    <string name="adv_inmotion_v1_pin_desc">Zugriffs-PIN für InMotion-V5/V8/V10-Wheels, wird beim Verbinden gesendet, damit das Wheel Daten sendet. Lass 000000 stehen, außer du hast in der InMotion-App eine eigene PIN gesetzt.</string>
     <string name="adv_kingsong_unlock_code">KingSong-Entsperrcode</string>
     <string name="adv_kingsong_unlock_code_desc">Sechs Ziffern, die mit dem Entsperrbefehl gesendet werden. Getestete Wheels nehmen beliebige Ziffern an, also lass 123456 stehen, außer deins lehnt es ab.</string>
     <string name="adv_kingsong_password">KingSong-App-Passwort</string>
@@ -2515,7 +2514,7 @@
     <string name="trip_tools_wheel_changed">Wheel auf %1$s gesetzt</string>
         <string name="trip_split_lasted">dauerte %1$s</string>
     <string name="trip_tools_split_pick">Wähle mindestens eine Trennstelle.</string>
-<string name="trip_tools_split_hint">Wähle die Schnittstellen. Ergibt %1$d Fahrten, das Original bleibt erhalten.</string>
+<string name="trip_tools_split_hint">Wähle die Trennstellen. Ergibt %1$d Fahrten, das Original bleibt erhalten.</string>
     <string name="trip_tools_split_done">In %1$d Fahrten aufgeteilt</string>
     <string name="trip_tools_split_failed">Diese Fahrt konnte nicht aufgeteilt werden</string>
     <string name="trip_tools_combine_done">Fahrten zu einer neuen zusammengefügt</string>
@@ -2700,7 +2699,7 @@
     <string name="lockdown_warning_no_wheel">Kein Wheel verbunden, der Zustand des Legal-Modus ist also unbekannt. Die App sperrt beim nächsten Einschalten des Legal-Modus.</string>
     <string name="lockdown_continue">Weiter</string>
     <string name="trip_tools_wheel_none">Für diese Fahrt ist noch kein Wheel hinterlegt.</string>
-    <string name="backup_conflict_warning">Einige Fahrten auf diesem Handy unterscheiden sich von den Kopien im Sicherungsordner. Auf %1$s tippen, dann unter %2$s auf \"%3$s\" tippen und wählen, welche Kopie bleibt.</string>
+    <string name="backup_conflict_warning">Einige Fahrten auf diesem Handy unterscheiden sich von den Kopien im Backup-Ordner. Auf %1$s tippen, dann unter %2$s auf \"%3$s\" tippen und wählen, welche Kopie bleibt.</string>
     <string name="backup_conflict_title">Backup-Konflikte</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Fahren?</string>
@@ -2786,8 +2785,8 @@
     <string name="crews_pass_search_hint">Der Crew-Pass erscheint, sobald du den Online-Bestenlisten beitrittst.</string>
     <string name="crews_scan_hint">Öffne eucstats im Browser, tippe auf Crews und richte die Kamera auf den angezeigten Code.</string>
     <string name="crews_scan_invalid">Das ist kein Crew-Pass-Code.</string>
-    <string name="crews_scan_is_share">Das ist ein Live-Standort-Code. Scann ihn über Teilen auf der Karte.</string>
-    <string name="share_scan_is_crewpass">Das ist ein Crew-Pass. Scann ihn in den Einstellungen unter Crews.</string>
+    <string name="crews_scan_is_share">Das ist ein Live-Standort-Code. Scanne ihn über Teilen auf der Karte.</string>
+    <string name="share_scan_is_crewpass">Das ist ein Crew-Pass. Scanne ihn in den Einstellungen unter Crews.</string>
     <string name="crews_type_instead">Manuell eingeben</string>
     <string name="crews_code_label">Pass-Code</string>
     <string name="crews_foreign_title">Dieser Code kommt nicht von eucstats</string>
@@ -2840,7 +2839,7 @@
     <string name="section_android_auto">Android Auto</string>
     <string name="android_auto_hint">Werte und Wheel-Tasten auf einem Android-Auto-Bildschirm. Verbindet sich selbst, ohne WLAN-Einrichtung.</string>
     <string name="car_waiting">Warte auf das Wheel</string>
-    <string name="car_last_battery">Letzter Akku %1$d%%</string>
+    <string name="car_last_battery">Letzter Akku %1$d %%</string>
     <string name="car_navigate">Navigieren</string>
     <string name="car_places_title">Navigieren zu</string>
     <string name="car_place_home">Zuhause</string>
@@ -2869,7 +2868,7 @@
     <string name="nav_solve_origin_too_far">Du bist zu weit von den Stopps entfernt, um hier zu starten.</string>
     <string name="nav_solve_run">Optimieren</string>
     <string name="nav_solve_working">Suche die kürzeste Reihenfolge…</string>
-    <string name="nav_solve_result">Von %1$s auf %2$s, %3$d%% kürzer.</string>
+    <string name="nav_solve_result">Von %1$s auf %2$s, %3$d %% kürzer.</string>
     <string name="nav_solve_no_better">Das ist schon die kürzeste Reihenfolge.</string>
     <string name="nav_solve_straight_fallback">Keine Straßendistanzen verfügbar, daher wurde Luftlinie verwendet.</string>
     <string name="nav_stop_number">Stopp %1$d</string>

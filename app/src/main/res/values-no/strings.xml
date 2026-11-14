@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">EUC Planet</string>
-    <string name="notification_channel_name">Hjul-tilkobling</string>
+    <string name="notification_channel_name">Hjultilkobling</string>
     <string name="notification_channel_description">Viser tilkoblingsstatus og telemetri for hjulet.</string>
 
     <!-- Notification quick actions -->
@@ -85,8 +85,7 @@
     <string name="lock_blocked_in_motion_toast">Senk farten for å låse hjulet</string>
     <string name="action_recorder">Opptaker</string>
     <string name="action_recorder_trips">Opptak\n(%1$d turer)</string>
-    <string name="action_recorder_trips_one">Opptak
-(%1$d tur)</string>
+    <string name="action_recorder_trips_one">Opptak\n(%1$d tur)</string>
 
     <string name="search_settings">Søk i innstillinger</string>
     <string name="tab_general">Generelt</string>
@@ -146,7 +145,7 @@
     <string name="cloud_not_uploaded">Ikke sikkerhetskopiert ennå</string>
     <string name="cloud_restore_confirm_title">Gjenopprett innstillinger</string>
     <string name="cloud_restore_confirm_body_p1">De nåværende innstillingene dine blir erstattet av innstillingene i sikkerhetskopien.</string>
-    <string name="cloud_restore_confirm_body_p2">Flic-bevegelser gjenopprettes, men knappene og hjulet må pares på nytt på denne telefonen. Bluetooth-parringen ligger i Android, ikke i appen.</string>
+    <string name="cloud_restore_confirm_body_p2">Flic-bevegelser gjenopprettes, men knappene og hjulet må pares på nytt på denne telefonen. Bluetooth-paringen ligger i Android, ikke i appen.</string>
     <string name="sync_checking">Sjekker sikkerhetskopimappen…</string>
     <string name="action_restore">Gjenopprett</string>
     <string name="action_overwrite">Overskriv</string>
@@ -243,8 +242,8 @@
 
     <string name="section_announcements">Kunngjøringer</string>
     <string name="section_speech">Tale</string>
-    <string name="section_report_status">Periodisk og utløst stemme</string>
-    <string name="voice_enabled">Slå på periodiske rapporter</string>
+    <string name="section_report_status">Jevnlig og utløst stemme</string>
+    <string name="voice_enabled">Slå på jevnlige rapporter</string>
     <string name="voice_announce_when_label">Les opp</string>
     <string name="voice_announce_always">Alltid</string>
     <string name="voice_announce_connected">Tilkoblet</string>
@@ -261,7 +260,7 @@
     <string name="voice_speech_speed">Talehastighet</string>
     <string name="unit_x">x</string>
     <string name="voice_audio_focus_label">Under tale</string>
-    <string name="voice_audio_focus_duck">Demp andre</string>
+    <string name="voice_audio_focus_duck">Senk andre</string>
     <string name="voice_audio_focus_pause">Pause andre</string>
     <string name="voice_audio_focus_off">Ikke gjør noe</string>
     <string name="col_periodic">Jevnlig</string>
@@ -278,18 +277,18 @@
 
     <string name="section_flic_buttons">Flic 2-knapper</string>
     <string name="flic_show_on_dashboard">Hurtigtilgang i dashbord</string>
-    <string name="flic_scan_hint">Hold Flic 2-knappen inne i 6 sekunder for å gå i paringsmodus, og trykk deretter Start skann.</string>
-    <string name="flic_stop_scan">Stopp skann</string>
-    <string name="flic_start_scan">Start skann</string>
-    <string name="external_gps_pair_button">Start skann</string>
+    <string name="flic_scan_hint">Hold Flic 2-knappen inne i 6 sekunder for å gå i paringsmodus, og trykk deretter Start søk.</string>
+    <string name="flic_stop_scan">Stopp søk</string>
+    <string name="flic_start_scan">Start søk</string>
+    <string name="external_gps_pair_button">Start søk</string>
     <string name="external_gps_pair_action">Par</string>
-    <string name="external_gps_stop_scan">Stopp skann</string>
+    <string name="external_gps_stop_scan">Stopp søk</string>
     <string name="flic_forget">Glem</string>
     <string name="flic_rename">Endre navn</string>
     <string name="flic_click">Klikk</string>
     <string name="flic_double_click">Dobbeltklikk</string>
     <string name="flic_hold">Hold</string>
-    <string name="external_gps_axes_title">Akse-orientering</string>
+    <string name="external_gps_axes_title">Akseorientering</string>
     <string name="external_gps_axes_desc">Koble hver utgangsakse til en rå akse på enheten.</string>
     <string name="external_gps_map_x">Utgang X</string>
     <string name="external_gps_map_y">Utgang Y</string>
@@ -297,14 +296,14 @@
     <string name="external_gps_autodetect">Autoregistrer</string>
     <string name="external_gps_autodetect_title">Autoregistrer akser</string>
     <string name="external_gps_autodetect_prep">Gjør deg klar til å bevege enheten</string>
-    <string name="external_gps_autodetect_forward">Trykk Neste og gå fremover i noen sekunder</string>
+    <string name="external_gps_autodetect_forward">Trykk Neste og gå framover i noen sekunder</string>
     <string name="external_gps_autodetect_lateral">Trykk Neste og gå mot venstre uten å snu enheten</string>
     <string name="external_gps_autodetect_vertical">Trykk Neste og senk enheten sakte ned mot bakken</string>
     <string name="external_gps_autodetect_done">Akser registrert og brukt</string>
     <string name="external_gps_autodetect_abort">Avbryt</string>
     <string name="gps_prioritize_external">Prioriter ekstern GPS</string>
     <string name="gps_show_on_dashboard">Vis fart på dashbordet</string>
-    <string name="gps_show_on_dashboard_desc">Legger en farget prikk på fartsmåleren med GPS-verdien.</string>
+    <string name="gps_show_on_dashboard_desc">Legger en farget prikk på speedometeret med GPS-verdien.</string>
     <string name="section_volume_keys">Volumtaster</string>
     <string name="volume_keys_caption">Volumknappene som snarveier mens appen er på skjermen.</string>
     <string name="volume_keys_enable">Slå på volumtast-handlinger</string>
@@ -323,7 +322,7 @@
     <string name="voice_current_fmt">strøm %1$s ampere</string>
     <string name="voice_power_fmt">effekt %1$s watt</string>
     <string name="voice_trip_fmt">tur %1$s kilometer</string>
-    <string name="voice_trip_miles_fmt">tur %1$s mil</string>
+    <string name="voice_trip_miles_fmt">tur %1$s engelske mil</string>
     <string name="voice_trip_meters_fmt">tur %1$s meter</string>
     <string name="voice_recording_on">tar opp</string>
     <string name="voice_recording_off">tar ikke opp</string>
@@ -355,7 +354,7 @@
     <string name="metric_temperature">Temperatur</string>
     <string name="metric_voltage">Spenning</string>
     <string name="metric_current">Strøm</string>
-    <string name="metric_load">Belastning</string>
+    <string name="metric_load">Last</string>
     <string name="metric_speed">Fart</string>
 
     <!-- Recording screen -->
@@ -423,9 +422,9 @@
     <string name="recording_chart_altitude">Høyde (m)</string>
 
     <!-- Automations / Auto tab -->
-    <string name="auto_lights_title">Lyktestyring</string>
+    <string name="auto_lights_title">Lysstyring</string>
     <string name="auto_lights_when">Følg sola når</string>
-    <string name="auto_lights_off_slow">Slå av lykta når du senker farten</string>
+    <string name="auto_lights_off_slow">Slå av lyset når du senker farten</string>
     <string name="auto_lights_off_below">Av under</string>
     <string name="auto_lights_on_before_sunset">Lys PÅ før</string>
     <string name="auto_lights_off_after_sunrise">Lys AV etter</string>
@@ -464,10 +463,10 @@
     <string name="alarm_help">Utløsningsprioriteten følger rekkefølgen på målegruppene nedenfor.</string>
     <string name="alarm_empty">Ingen alarmregler ennå</string>
     <string name="alarm_add">Ny alarm</string>
-    <string name="alarm_summary_predict_fmt">forutser %1$s s frem</string>
+    <string name="alarm_summary_predict_fmt">forutser %1$s s fram</string>
     <string name="alarm_new">Ny alarm</string>
     <string name="alarm_edit">Rediger alarm</string>
-    <string name="alarm_metric_label">Målepunkt</string>
+    <string name="alarm_metric_label">Måling</string>
     <string name="alarm_comparator_label">Betingelse</string>
     <string name="alarm_threshold_label">Terskel</string>
     <string name="alarm_label_frequency">Frekvens</string>
@@ -615,7 +614,7 @@
     <string name="flic_button">Flic-knapp</string>
     <string name="flic_forget_body">Paringen med %1$s fjernes, og handlingene tømmes. Du kan pare den igjen når som helst.</string>
     <string name="flic_forget_title">Glemme denne knappen?</string>
-    <string name="menu_auto_lights">Innstillinger for automatisk lys</string>
+    <string name="menu_auto_lights">Innstillinger for autolys</string>
     <string name="menu_start_recording">Start opptak</string>
     <string name="menu_stop_recording">Stopp opptak</string>
     <string name="menu_view_current_trip">Vis nåværende tur</string>
@@ -632,7 +631,7 @@
     <string name="section_watch_advanced">Avansert</string>
     <string name="section_voice_advanced">Avansert</string>
     <string name="section_watch_general">Generelt</string>
-    <string name="show_gauge_color_band">Fargebånd på fartsmåler</string>
+    <string name="show_gauge_color_band">Fargebånd på speedometer</string>
     <string name="stat_watts">WATT</string>
     <string name="tab_watch">Klokke</string>
     <string name="toast_external_speed_change">Fart oppdatert fra hjulet: %1$d km/t tiltback, %2$d km/t alarm</string>
@@ -642,9 +641,9 @@
     <string name="voice_output_channel_notification">Varsel</string>
     <string name="voice_time_fmt">klokken %1$s</string>
     <string name="watch_auto_start">Start automatisk på klokken</string>
-    <string name="watch_auto_start_desc">Åpne klokke-appen sammen med telefon-appen.</string>
+    <string name="watch_auto_start_desc">Åpne klokkeappen sammen med telefonappen.</string>
     <string name="watch_close_on_exit">Stopp automatisk på klokken</string>
-    <string name="watch_close_on_exit_desc">Stopp klokke-appen ved Stopp alt.</string>
+    <string name="watch_close_on_exit_desc">Stopp klokkeappen ved Stopp alt.</string>
     <string name="watch_button_click_label">Klikk</string>
     <string name="watch_button_hold_label">Hold</string>
     <string name="watch_keep_on">Hold skjermen på</string>
@@ -738,13 +737,13 @@
     <string name="engine_preset_sampled_broken_exhaust">Ødelagt eksos</string>
     <string name="engine_preset_sampled_quad_atv">Firehjuling</string>
 
-    <string name="external_gps_autodetect_forward_capture">Leser gangebevegelse…</string>
+    <string name="external_gps_autodetect_forward_capture">Leser gangbevegelse…</string>
     <string name="external_gps_autodetect_lateral_capture">Leser sidebevegelse…</string>
     <string name="external_gps_autodetect_next">Neste</string>
     <string name="external_gps_autodetect_vertical_capture">Leser loddrett bevegelse…</string>
     <string name="external_gps_disconnect">Koble fra</string>
     <string name="external_gps_paired_with">Paret med %1$s</string>
-    <string name="external_gps_reconnect">Koble til igjen</string>
+    <string name="external_gps_reconnect">Koble til på nytt</string>
     <string name="external_gps_state_connected">Tilkoblet</string>
     <string name="external_gps_state_connecting">Kobler til…</string>
     <string name="external_gps_state_disconnected">Frakoblet</string>
@@ -755,7 +754,7 @@
     <string name="tpms_wheel_sensor">Hjulets dekktrykk</string>
     <string name="tpms_wheel_sensor_desc">Videresendt fra en tilknyttet sensor.</string>
     <string name="tpms_scan">Søk etter sensorer</string>
-    <string name="tpms_scan_stop">Stopp skanning</string>
+    <string name="tpms_scan_stop">Stopp søk</string>
     <string name="tpms_none_yet">Ingen dekktrykksensor funnet eller lagt til manuelt.</string>
     <string name="tpms_wheel_sensor_replaced">Erstattet av den parede sensoren din</string>
     <string name="external_gps_device_title">Ekstern GPS</string>
@@ -1124,7 +1123,7 @@
     <string name="studio_dlg_new_body">Dette fjerner alle overlegg og tilbakestiller skjermen til ett enkelt kameravindu. Lagrede forhåndsinnstillinger blir ikke berørt.</string>
     <string name="studio_dlg_new_confirm">Ny</string>
     <string name="studio_dlg_new_title">Ny forhåndsinnstilling?</string>
-    <string name="studio_element_app_badge">App-merke</string>
+    <string name="studio_element_app_badge">Appmerke</string>
     <string name="studio_element_clock">Klokke</string>
     <string name="studio_element_data_bar">Lineær stolpe</string>
     <string name="studio_element_data_dial">Urskivemåler</string>
@@ -1177,7 +1176,7 @@
     <string name="trip_meter_tab_battery">Batteri</string>
     <string name="trip_meter_tab_time">Tid</string>
     <string name="trip_meter_active">Aktiv</string>
-    <string name="trip_meter_avg">Gj.sn.</string>
+    <string name="trip_meter_avg">Snitt</string>
     <string name="trip_meter_reset">Nullstill turteller</string>
     <string name="trip_meter_reset_msg">Dette nullstiller den løpende distansen og fjerner alle mellomtider. Dette kan ikke angres.</string>
     <string name="trip_meter_empty">Ingen distanse ennå. Telleren går mens et hjul er tilkoblet.</string>
@@ -1238,7 +1237,7 @@
     <string name="studio_viewport_title">Kilde for seksjon %1$d</string>
     <string name="dash_view_video_gallery">Vis videogalleri</string>
     <string name="dash_view_photo_gallery">Vis fotogalleri</string>
-    <string name="dash_no_gallery_app">Fant ingen galleri-app</string>
+    <string name="dash_no_gallery_app">Fant ingen galleriapp</string>
     <string name="trip_action_share_file">Del fil</string>
     <string name="trip_action_share_file_desc">Send turens CSV til en annen app.</string>
     <string name="trip_action_view_online">Vis på nett</string>
@@ -1513,7 +1512,7 @@
     <string name="dashboard_section_metrics">Målinger</string>
     <string name="dashboard_slot_sparkline">Direkte trend i bakgrunnen</string>
     <string name="dashboard_slot_sparkline_chip">Stat.</string>
-    <string name="dashboard_stat_avg">Gj.sn</string>
+    <string name="dashboard_stat_avg">Snitt</string>
     <string name="dashboard_stat_current">Nå</string>
     <string name="dashboard_stat_empty">(tom)</string>
     <string name="dashboard_stat_max">Maks / Topp</string>
@@ -1544,7 +1543,7 @@
     <string name="engine_preset_v8_muscle">V8 muscle</string>
     <string name="engine_preset_v_twin">V-twin</string>
     <string name="metric_chip_ascent">Stigning</string>
-    <string name="metric_chip_avg_trip_speed">Gj.sn. fart</string>
+    <string name="metric_chip_avg_trip_speed">Snittfart</string>
     <string name="metric_chip_battery">Batteri</string>
     <string name="metric_chip_battery_envelope">Batteri (ansl.)</string>
     <string name="metric_desc_battery_envelope">Batteriprosent uten belastningen. Jevnere enn den rå verdien, som faller når du akselererer.</string>
@@ -1563,7 +1562,7 @@
     <string name="metric_chip_dyn_current_limit">Dynamisk strømgrense</string>
     <string name="metric_chip_auto_off">Automatisk avslåing</string>
     <string name="metric_chip_dyn_speed_limit">Dynamisk fartsgrense</string>
-    <string name="metric_chip_forward_g">Frem-g</string>
+    <string name="metric_chip_forward_g">Fram-g</string>
     <string name="metric_chip_g_force">G-kraft</string>
     <string name="metric_chip_gps_accuracy">GPS-presisjon</string>
     <string name="metric_chip_external_gps_battery">Ekstern GPS-batteri</string>
@@ -1645,8 +1644,8 @@
     <string name="service_mode_recording">Når den er aktiv, logger appen hver BLE-byte som sendes til og mottas fra hjulet, i tillegg til testkommandoer du sender. Loggen ligger i minnet til appen lukkes.</string>
     <string name="service_mode_title">Servicemodus</string>
     <string name="studio_cfg_map_use_custom_marker">Foretrekk tilpasset markør</string>
-    <string name="studio_cfg_map_use_custom_marker_hint">Sett bildet i Navigator → Tilpass min markør.</string>
-    <string name="tab_dashboard">Dashbord-oppsett</string>
+    <string name="studio_cfg_map_use_custom_marker_hint">Sett bildet i Navigator → Tilpass markøren min.</string>
+    <string name="tab_dashboard">Dashbordoppsett</string>
     <string name="welcome_tut_skip">Hopp over</string>
     <string name="welcome_tut_next">Neste</string>
     <string name="welcome_tut_prev">Tilbake</string>
@@ -1665,7 +1664,7 @@
     <string name="welcome_tut_actions">Hurtigkontroller. Tilpass dem på samme sted, under %1$s</string>
     <string name="welcome_tut_map">Åpne navigatoren for å planlegge ruter, få sving-for-sving-veiledning eller dele posisjonen din direkte på en gruppetur</string>
     <string name="welcome_tut_gps">Trykk her for sanntidsdata. Du kan til og med kalibrere hjulets fart mot GPS-farten. Sjekk kalibreringen senere under Innstillinger → %1$s</string>
-    <string name="welcome_tut_camera">Ta opp video med et telemetri-overlegg i sanntid. Lag egne stilige overlegg og eksporter dem for å lage dine egne videoer med data fra tidligere turer</string>
+    <string name="welcome_tut_camera">Ta opp video med et telemetrioverlegg i sanntid. Lag egne stilige overlegg og eksporter dem for å lage dine egne videoer med data fra tidligere turer</string>
     <string name="welcome_tut_pd">Viser Park eller Kjør. Trykk for å stille inn %1$s</string>
     <string name="welcome_tut_outro_alarms">Utforsk den kraftige editoren for egendefinerte alarmer under Innstillinger → %1$s</string>
     <string name="welcome_tut_outro_integrations">Utforsk integrasjonene: hjelm-HUD-er, Wear OS-klokker, Flic-knapper, Garmin Connect IQ og bakradaren</string>
@@ -1698,11 +1697,11 @@
     <string name="metric_chip_gps_heading_tile">Kurs</string>
     <string name="metric_chip_trip_time_tile">Tid</string>
     <string name="metric_chip_g_force_tile">G</string>
-    <string name="metric_chip_forward_g_tile">Frem-g</string>
+    <string name="metric_chip_forward_g_tile">Fram-g</string>
     <string name="metric_chip_lateral_g_tile">Side-g</string>
     <string name="metric_chip_bt_rssi_tile">BT</string>
     <string name="section_watch_device">Enheter</string>
-    <string name="watch_paired_none">Ingen klokker sammenkoblet</string>
+    <string name="watch_paired_none">Ingen klokker paret</string>
     <string name="watch_paired_none_desc">Installer EUC Planet-følgeappen på en Wear OS-, Garmin- eller Amazfit-klokke for å begynne å motta urskiven her.</string>
     <string name="watch_paired_kind_wear">Wear OS</string>
     <string name="watch_paired_kind_garmin">Garmin Connect IQ</string>
@@ -1723,10 +1722,10 @@
     <string name="watch_hardware_button_3_subtitle">Garmin: Ned · Amazfit: Ned · finnes ikke på Wear OS-klokker</string>
     <!-- Bakovervendt radar (Garmin Varia i dag) -->
     <string name="section_radar">Bakradar</string>
-    <string name="radar_caption">Hold Varia-knappen inne i 2 sekunder til den blinker lilla, og start deretter skanning.</string>
-    <string name="radar_pair_button">Start skanning</string>
+    <string name="radar_caption">Hold Varia-knappen inne i 2 sekunder til den blinker lilla, og start deretter et søk.</string>
+    <string name="radar_pair_button">Start søk</string>
     <string name="radar_pair_action">Par</string>
-    <string name="radar_stop_scan">Stopp skanning</string>
+    <string name="radar_stop_scan">Stopp søk</string>
     <string name="radar_state_connected">Tilkoblet</string>
     <string name="radar_state_connecting">Kobler til…</string>
     <string name="radar_state_disconnected">Frakoblet</string>
@@ -1744,7 +1743,7 @@
     <string name="alarm_metric_radar_distance">Bilavstand</string>
     <string name="alarm_metric_radar_approach">Bil nærmer seg</string>
 
-    <string name="warnings_indicator_desc">App-advarsler</string>
+    <string name="warnings_indicator_desc">Appadvarsler</string>
     <string name="warnings_dialog_title">Krever oppmerksomhet</string>
     <string name="warnings_fix_button">Fiks</string>
     <string name="warnings_autolights_title">Autolys på pause</string>
@@ -1766,7 +1765,7 @@
     <string name="hud_overlay_subsection_desc">Importer en forhåndsinnstilling fra Overlay Studio til HUD-ens egendefinerte skjerm, uten bakgrunn. Den kopieres hit, så senere endringer i studioet endrer ikke HUD-en før du importerer på nytt.</string>
     <string name="hud_overlay_select_preset">Importer forhåndsinnstilling</string>
     <string name="hud_overlay_current_preset">Nåværende: %1$s</string>
-    <string name="hud_search_corpus">HUD heads-up display kompanjong server stream telemetri hotspot motoeye svingpil</string>
+    <string name="hud_search_corpus">HUD heads-up display følgeapp server stream telemetri hotspot motoeye svingpil</string>
     <string name="hud_screens_title">HUD-skjermer</string>
     <string name="hud_map_options_title">Kartvalg</string>
     <string name="hud_screen_name_dashboard">Dashbord</string>
@@ -2042,11 +2041,11 @@
     <string name="adv_alarm_slope_window_desc">Bestemmer hvor mange nylige målinger som gir den forutsagte trenden. Obs: for kort reagerer på støy, for langt reagerer tregt.</string>
     <string name="adv_alarm_warning">Disse endrer hvordan farts- og effektalarmer forutser en terskel før du når den. Feil verdier kan få alarmer til å utløses sent eller ikke i det hele tatt. Endre med forsiktighet.</string>
     <string name="adv_autolight_no_gps_retry">Nytt forsøk uten GPS</string>
-    <string name="adv_autolight_no_gps_retry_desc">Bestemmer hvor ofte auto-lys prøver på nytt mens det venter på GPS-posisjon.</string>
+    <string name="adv_autolight_no_gps_retry_desc">Bestemmer hvor ofte autolys prøver på nytt mens det venter på GPS-posisjon.</string>
     <string name="adv_autolight_toggle_grace">Frist for manuell endring</string>
     <string name="adv_autolight_toggle_grace_desc">Bestemmer tidsvinduet etter en automatisk lysendring der en ny lysendring regnes som automatisk, ikke manuell. Obs: for lavt kan tolke appens egen endring som en manuell overstyring.</string>
-    <string name="adv_automation_light_check">Sjekkintervall for auto-lys</string>
-    <string name="adv_automation_light_check_desc">Bestemmer hvor ofte automatisk lys sjekker soloppgang og solnedgang. Obs: for lavt gir litt mer arbeid.</string>
+    <string name="adv_automation_light_check">Sjekkintervall for autolys</string>
+    <string name="adv_automation_light_check_desc">Bestemmer hvor ofte autolys sjekker soloppgang og solnedgang. Obs: for lavt gir litt mer arbeid.</string>
     <string name="adv_charging_cv_taper">Sluttavtrapping</string>
     <string name="adv_charging_cv_taper_desc">Bestemmer hvor pessimistisk ETA for det siste segmentet til fullt er. Høyere gir mer margin.</string>
     <string name="adv_charging_median">Utjevningsmålinger</string>
@@ -2077,7 +2076,7 @@
     <string name="adv_graph_sample_interval">Målingsintervall for graf</string>
     <string name="adv_graph_sample_interval_desc">Gjelder bare detaljnivået i dashbordgrafene. Påvirker ikke alarmer eller turfiler. Obs: svært lave verdier bruker mer minne.</string>
     <string name="adv_group_alarm">Forutseende alarmer</string>
-    <string name="adv_group_autolights">Auto-lys</string>
+    <string name="adv_group_autolights">Autolys</string>
     <string name="adv_group_charging">Lade-ETA</string>
     <string name="adv_group_hud">HUD-kobling</string>
     <string name="adv_group_nav">Navigasjonstider</string>
@@ -2104,7 +2103,7 @@
     <string name="adv_hud_discovery_total">Total oppdagelsestid</string>
     <string name="adv_hud_discovery_total_desc">Bestemmer den totale tiden ett oppdagelsesforsøk kjører før det gir opp. Obs: for lavt avbryter på et tregt nettverk.</string>
     <string name="adv_hud_udp_probe">Beacon-lyttetid</string>
-    <string name="adv_hud_udp_probe_desc">Bestemmer hvor lenge det lyttes etter HUD-ens beacon før andre metoder tar over. Obs: for lavt hopper over et HUD med treg beacon.</string>
+    <string name="adv_hud_udp_probe_desc">Bestemmer hvor lenge det lyttes etter HUD-ens beacon før andre metoder tar over. Obs: for lavt hopper over en HUD med treg beacon.</string>
     <string name="adv_hud_udp_freshness">Beacon-ferskhet</string>
     <string name="adv_hud_udp_freshness_desc">Bestemmer hvor ny en beacon må være for å stole på den. Obs: for lavt ignorerer en gyldig, men litt gammel beacon.</string>
     <string name="adv_hud_udp_poll">Beacon-sjekkfrekvens</string>
@@ -2112,7 +2111,7 @@
     <string name="adv_hud_manual_grace">Frist for manuell IP</string>
     <string name="adv_hud_manual_grace_desc">Bestemmer hvor lang tid autooppdagelse får før den manuelle IP-en brukes. Obs: for lavt bruker den manuelle IP-en før oppdagelsen kan vinne.</string>
     <string name="adv_hud_mdns_resolve">mDNS-oppslagstid</string>
-    <string name="adv_hud_mdns_resolve_desc">Bestemmer hvor lenge adressedetaljene til et funnet HUD slås opp. Obs: for lavt dropper et HUD som er tregt å slå opp.</string>
+    <string name="adv_hud_mdns_resolve_desc">Bestemmer hvor lenge adressedetaljene til en funnet HUD slås opp. Obs: for lavt dropper en HUD som er treg å slå opp.</string>
     <string name="adv_hud_idle_search">Søk i hvile</string>
     <string name="adv_hud_idle_search_desc">Bestemmer hvor ofte HUD-en letes etter uten tilkoblet hjul og med appen lukket. Obs: for lavt tapper batteriet.</string>
     <string name="adv_hud_sweep_interval">Nettverksskanning</string>
@@ -2158,9 +2157,9 @@
     <string name="adv_nav_warning">Disse endrer når navigasjonen reagerer. Feil verdier kan få stemmevarsler eller omberegning til å utløses for tidlig eller for sent.</string>
     <string name="adv_phone_gps_interval">GPS-oppdateringsintervall for telefon</string>
     <string name="adv_phone_gps_interval_desc">Bestemmer hvor jevnt GPS-sporet er og hvor raskt navigasjonen reagerer. Lavere oppdaterer oftere. Obs: lave verdier tapper batteriet raskere.</string>
-    <string name="adv_phone_gps_idle_interval">GPS-intervall i tomgang</string>
+    <string name="adv_phone_gps_idle_interval">GPS-intervall i hvile</string>
     <string name="adv_phone_gps_idle_interval_desc">GPS-frekvens når du ikke tar opp eller navigerer, så Navigatoren og en ny hjultilkobling er klare. Høyere sparer batteri.</string>
-    <string name="adv_gps_idle_off_delay">GPS av i tomgang</string>
+    <string name="adv_gps_idle_off_delay">GPS av i hvile</string>
     <string name="adv_gps_idle_off_delay_desc">Når appen er i bakgrunnen uten tilkoblet hjul og uten opptak, slås GPS av for å spare batteri. 0 slår den av med en gang. Høyere holder en strømsparende posisjon varm så lenge først, slik at et raskt appbytte ikke kutter GPS.</string>
     <string name="adv_gps_fix_max_age">Maks. alder på GPS-posisjon</string>
     <string name="adv_gps_fix_max_age_desc">En posisjon eldre enn dette teller som ingen posisjon, slik at et opptak startet før GPS er klar, ikke begynner med et utdatert punkt.</string>
@@ -2185,7 +2184,7 @@
     <string name="adv_timings_title">Tider og variabler</string>
     <string name="adv_trip_record_interval">Turopptaksintervall</string>
     <string name="adv_trip_record_interval_desc">Bestemmer hvor ofte en rad lagres til turfilen under opptak. Lavere gir mer detalj. Obs: svært lave verdier lager store filer.</string>
-    <string name="adv_pending_upload_interval">Nytt forsøk på tur-opplasting</string>
+    <string name="adv_pending_upload_interval">Nytt forsøk på turopplasting</string>
     <string name="adv_pending_upload_interval_desc">Bestemmer hvor ofte appen prøver på nytt å laste opp turer som er igjen som ventende, f.eks. etter lukking under en synkronisering. 15 min er Android-minimumet. Obs: for lang tid forsinker en fastlåst opplasting.</string>
     <string name="adv_trip_finalize_grace">Frist for å fullføre tur</string>
     <string name="adv_trip_finalize_grace_desc">Bestemmer hvor lenge etter at du stopper før en tur fullføres og synkroniseres. Obs: for lavt kan kutte en tur som bare tok en kort pause.</string>
@@ -2257,7 +2256,7 @@
     <string name="geo_section_trip">Tur</string>
     <string name="geo_section_other">Andre skjermer</string>
     <string name="geo_section_settings">Innstillinger</string>
-    <string name="geo_other_hint">Batteriovervåker, målehistorikk, skanning og Flic. Overlay Studio påvirkes ikke: oppsettet er fast, men det fungerer fint i alle retninger.</string>
+    <string name="geo_other_hint">Batteriovervåker, målehistorikk, søk og Flic. Overlay Studio påvirkes ikke: oppsettet er fast, men det fungerer fint i alle retninger.</string>
     <string name="geo_settings_hint">Innstillingsskjermen. Av som standard, så Innstillinger forblir stående med mindre du slår det på.</string>
     <string name="geo_trip_hint">Detaljvisningen roterer som standard for kartet og grafene i liggende retning. Turlisten forblir stående med mindre du slår det på.</string>
     <string name="setting_allow_rotation">Tillat rotasjon</string>
@@ -2301,7 +2300,7 @@
     <string name="adv_kingsong_password_desc">Det 4-sifrede passordet satt i KingSong-appen, sendt ved tilkobling og før låsing og opplåsing. La 0000 stå hvis du aldri har satt et.</string>
     <string name="adv_nav_sidebar_width">Bredde på stopp-panel</string>
     <string name="adv_nav_sidebar_width_desc">Bredden på det liggende stopp-sidepanelet. For bredt gir lite kart.</string>
-    <string name="adv_simple_speedo_scale">Størrelse på enkelt speedometer</string>
+    <string name="adv_simple_speedo_scale">Størrelse på forenklet speedometer</string>
     <string name="adv_simple_speedo_scale_desc">Størrelsen på fartstallet i forhold til måleområdet. For stort kan beskjære enhetsetiketten.</string>
     <string name="charging_reset_data">Nullstill data</string>
     <string name="charging_export">Eksporter</string>
@@ -2427,7 +2426,7 @@
     <string name="widget_button_unset">Velg en knapp i Innstillinger</string>
     <string name="trip_tools_extend">Forleng tur</string>
     <string name="trip_tools_extend_desc">Tar opp turene før eller etter denne i en ny, lengre tur.</string>
-    <string name="trip_tools_extend_hint">Strekk deg så langt tilbake og frem du vil. Alt imellom blir med.</string>
+    <string name="trip_tools_extend_hint">Strekk deg så langt tilbake og fram du vil. Alt imellom blir med.</string>
     <string name="trip_tools_extend_from">Start fra</string>
     <string name="trip_tools_extend_to">Slutt ved</string>
     <string name="trip_tools_extend_none">Denne turen</string>
@@ -2553,9 +2552,9 @@
     <string name="lockdown_limit_10">Innstillingene kan ikke åpnes.</string>
     <string name="lockdown_limit_11">Turhistorikk, batteriovervåkeren, studioet og måledetaljer kan ikke åpnes.</string>
     <string name="lockdown_limit_12">Å trykke på en verdi gjør ingenting.</string>
-    <string name="lockdown_limit_13">Stemmekunngjøringer, periodiske rapporter og fartsmellomtider er stille. Alarmene dine virker fortsatt.</string>
+    <string name="lockdown_limit_13">Stemmekunngjøringer, jevnlige rapporter og fartsmellomtider er stille. Alarmene dine virker fortsatt.</string>
     <string name="lockdown_limit_14">Hjulet kan ikke låses eller låses opp, og nærhetslåsen kjører ikke.</string>
-    <string name="lockdown_limit_15">Autolys og autovolum fortsetter å virke. Mediestyringen stopper.</string>
+    <string name="lockdown_limit_15">Autolys og autovolum fortsetter å virke. Avspillingskontrollen stopper.</string>
     <string name="lockdown_limit_16">Varselet mister knappene sine.</string>
     <string name="lockdown_limit_17">Versjonsnummeret åpner ikke lenger Om.</string>
     <string name="lockdown_limit_18">Denne modusen er ikke med i sikkerhetskopiene av innstillingene.</string>
@@ -2598,7 +2597,7 @@
     <string name="charge_alert_custom_title">Batteri på %1$d %%</string>
     <string name="charge_alert_custom_text">Nådd nivået du valgte. Koble fra når du kan.</string>
     <!-- Widget names for the picker -->
-    <string name="widget_euc_label">Hjul-dashbord</string>
+    <string name="widget_euc_label">Hjuldashbord</string>
     <string name="widget_act_1_label">Hjulknapp 1</string>
     <string name="widget_act_2_label">Hjulknapp 2</string>
     <string name="widget_act_3_label">Hjulknapp 3</string>

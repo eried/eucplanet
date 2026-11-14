@@ -259,7 +259,7 @@
     <string name="metric_chip_lat_long">Lat., Long.</string>
     <string name="metric_chip_wheel_max_speed">Máx. da roda</string>
     <string name="metric_chip_wheel_alarm_speed">Alarme da roda</string>
-    <string name="metric_chip_pc_mode">Modo de condução</string>
+    <string name="metric_chip_pc_mode">Modo de andamento</string>
     <string name="metric_chip_light_on">Luz</string>
     <string name="metric_spoken_light_on">estado da luz</string>
 
@@ -290,7 +290,7 @@
     <string name="metric_chip_lateral_g_tile">g lat.</string>
     <string name="metric_chip_bt_rssi_tile">BT</string>
 
-    <string name="metric_desc_headroom">Margem de velocidade restante antes de o tilt-back atuar. Número alto = mais margem de segurança.</string>
+    <string name="metric_desc_headroom">Margem de velocidade restante antes de o tiltback atuar. Número alto = mais margem de segurança.</string>
     <string name="metric_desc_trip_max_speed">Velocidade máxima no percurso atual (repõe num novo percurso).</string>
     <string name="metric_desc_avg_trip_speed">Distância do percurso a dividir pelo tempo em andamento até agora.</string>
     <string name="metric_desc_wh_consumed">Total de watts-hora tirados da bateria neste percurso.</string>
@@ -440,7 +440,7 @@
     <string name="action_chip_phone_mute">Silenciar</string>
     <string name="action_chip_phone_torch">Lanterna do telemóvel</string>
     <string name="action_chip_open_navigation">Ver mapa</string>
-    <string name="action_chip_open_studio">Estúdio de overlay</string>
+    <string name="action_chip_open_studio">Overlay Studio</string>
     <string name="action_chip_open_about">Acerca de</string>
     <string name="action_chip_open_service">Modo de serviço</string>
     <string name="action_chip_open_trips">Percursos</string>
@@ -757,9 +757,9 @@
     <string name="watch_hardware_button_1">Botão 1</string>
     <string name="watch_hardware_button_2">Botão 2</string>
     <string name="watch_hardware_button_3">Botão 3</string>
-    <string name="watch_hardware_button_1_subtitle">Garmin: Start · Galaxy Watch Ultra: botão Ação laranja · Amazfit: Selecionar.</string>
-    <string name="watch_hardware_button_2_subtitle">Garmin: Up · Galaxy Watch Ultra: botão lateral inferior · Amazfit: Cima.</string>
-    <string name="watch_hardware_button_3_subtitle">Garmin: Down · Amazfit: Baixo · não existe nos relógios Wear OS.</string>
+    <string name="watch_hardware_button_1_subtitle">Garmin: Start · Galaxy Watch Ultra: botão Ação laranja · Amazfit: Selecionar</string>
+    <string name="watch_hardware_button_2_subtitle">Garmin: Up · Galaxy Watch Ultra: botão lateral inferior · Amazfit: Cima</string>
+    <string name="watch_hardware_button_3_subtitle">Garmin: Down · Amazfit: Baixo · não existe nos relógios Wear OS</string>
 
     <string name="watch_screen_button_1">Botão 1</string>
     <string name="watch_screen_button_2">Botão 2</string>
@@ -1011,7 +1011,7 @@
     <string name="welcome_tut_skip_yes">Saltar mesmo assim</string>
     <string name="welcome_tut_welcome">Bem-vindo ao EUC Planet, uma app de código aberto e sem rodeios para monociclos elétricos</string>
     <string name="welcome_tut_voice_title">Ativar alertas de voz</string>
-    <string name="welcome_tut_voice_desc">Pode ativar ou desativar cada mensagem de voz mais tarde em Definições -> Voz e anúncios.</string>
+    <string name="welcome_tut_voice_desc">Pode ativar ou desativar cada mensagem de voz mais tarde em Definições →Voz e anúncios.</string>
     <string name="welcome_tut_dev_title">Ferramentas de programador</string>
     <string name="welcome_tut_dev_set_folder">Definir pasta de cópias</string>
     <string name="welcome_tut_dev_restore">Restaurar definições</string>
@@ -1024,17 +1024,17 @@
     <string name="welcome_tut_version">Muitas rodas só precisam de quem as teste para terem suporte completo, normalmente uma correção fácil. Toque na versão para abrir Acerca de e ajudar</string>
     <string name="welcome_tut_outro_title">A visita acabou!</string>
     <string name="welcome_tut_outro_buttons">Muitos botões têm ações extra, experimente premi-los continuamente</string>
-    <string name="welcome_tut_outro_alarms">Explore o poderoso editor de alarmes personalizados em Definições -> %1$s</string>
+    <string name="welcome_tut_outro_alarms">Explore o poderoso editor de alarmes personalizados em Definições →%1$s</string>
     <string name="welcome_tut_outro_integrations">Explore as integrações: HUD de capacete, relógios Wear OS, botões Flic, Garmin Connect IQ e o radar traseiro</string>
     <string name="welcome_tut_outro_end">Mantenha os olhos na estrada e longe desta app enquanto anda de monociclo!</string>
-    <string name="welcome_tut_share">Faça cópia dos seus percursos em Definições -> %1$s. Veja-os em %2$s ou analise as cópias em eucviewer.ried.no.\n\nNa mesma secção pode entrar nas classificações públicas em eucstats.ried.no</string>
-    <string name="welcome_tut_speed">A sua velocidade ao vivo. Mude as unidades em Definições -> %1$s</string>
-    <string name="welcome_tut_metrics">Bateria, temperatura, tensão e mais, ao vivo. Reorganize-os em Definições -> %1$s</string>
+    <string name="welcome_tut_share">Faça cópia dos seus percursos em Definições →%1$s. Veja-os em %2$s ou analise as cópias em eucviewer.ried.no.\n\nNa mesma secção pode entrar nas classificações públicas em eucstats.ried.no</string>
+    <string name="welcome_tut_speed">A sua velocidade ao vivo. Mude as unidades em Definições →%1$s</string>
+    <string name="welcome_tut_metrics">Bateria, temperatura, tensão e mais, ao vivo. Reorganize-os em Definições →%1$s</string>
     <string name="welcome_tut_actions">Controlos rápidos. Ajuste-os no mesmo sítio, em %1$s</string>
     <string name="welcome_tut_map">Abra o navegador para planear rotas, ter indicações passo a passo ou partilhar a sua localização ao vivo numa volta em grupo</string>
-    <string name="welcome_tut_gps">Toque para ver aqui dados ao vivo, pode até calibrar a velocidade da roda com base na velocidade GPS. Veja a calibração mais tarde em Definições -> %1$s</string>
+    <string name="welcome_tut_gps">Toque para ver aqui dados ao vivo, pode até calibrar a velocidade da roda com base na velocidade GPS. Veja a calibração mais tarde em Definições →%1$s</string>
     <string name="welcome_tut_camera">Grave vídeo com overlay de telemetria ao vivo. Crie overlays personalizados e exporte-os para fazer os seus vídeos com dados de percursos anteriores</string>
-    <string name="welcome_tut_pd">Mostra Estacionado ou Andamento. Toque para definir o seu %1$s</string>
+    <string name="welcome_tut_pd">Mostra Estacionado ou Andamento. Toque para definir os %1$s</string>
     <string name="voice_selector_label">Idioma</string>
     <string name="voice_variant_label">Voz</string>
     <string name="voice_variant_fmt">Voz %1$d</string>
@@ -1136,7 +1136,7 @@
 
     <string name="section_flic_buttons">Botões Flic 2</string>
     <string name="flic_show_on_dashboard">Ícone de acesso rápido no painel</string>
-    <string name="flic_scan_hint">Mantenha o botão Flic 2 premido 6 segundos para o modo de emparelhamento e depois toque em Pesquisar.</string>
+    <string name="flic_scan_hint">Mantenha o botão Flic 2 premido 6 segundos para o modo de emparelhamento e depois toque em Iniciar pesquisa.</string>
     <string name="flic_stop_scan">Parar pesquisa</string>
     <string name="flic_start_scan">Iniciar pesquisa</string>
     <string name="flic_forget">Esquecer</string>
@@ -1187,12 +1187,12 @@
     <string name="gps_show_on_dashboard">Mostrar velocidade no painel</string>
     <string name="gps_show_on_dashboard_desc">Adiciona um ponto colorido no velocímetro com a leitura do GPS.</string>
     <string name="section_volume_keys">Teclas de volume</string>
-    <string name="volume_keys_caption">Usar os botões de volume como atalhos enquanto a app está no ecrã.</string>
+    <string name="volume_keys_caption">Usa os botões de volume como atalhos enquanto a app está no ecrã.</string>
     <string name="volume_keys_enable">Ativar ações das teclas de volume</string>
     <string name="volume_keys_screen_off">Também com o ecrã desligado</string>
     <string name="volume_keys_screen_off_caption">Funciona com o telemóvel bloqueado ou com outra app à frente. Os botões deixam de alterar o volume do telemóvel.</string>
     <string name="volume_keys_screen_off_warn">O Android só envia os toques de volume para a app que está no ecrã. Para os receber com o ecrã desligado, o EUC Planet regista-se como o leitor multimédia ativo do telemóvel, e o Android envia-lhe os botões de volume em vez de alterar o volume.\n\nEnquanto isto estiver ativo, os botões não alteram o volume do telemóvel.</string>
-    <string name="volume_keys_screen_off_confirm">Ligar</string>
+    <string name="volume_keys_screen_off_confirm">Ativar</string>
     <string name="volume_keys_screen_off_title">Assumir os botões de volume?</string>
     <string name="volume_up">Aumentar volume</string>
     <string name="volume_down">Diminuir volume</string>
@@ -1226,7 +1226,7 @@
     <string name="voice_trip_fmt">percurso %1$s quilómetros</string>
     <string name="voice_trip_miles_fmt">percurso %1$s milhas</string>
     <string name="voice_trip_meters_fmt">percurso %1$s metros</string>
-    <string name="voice_time_fmt">tempo %1$s</string>
+    <string name="voice_time_fmt">hora %1$s</string>
     <string name="voice_recording_on">a gravar</string>
     <string name="voice_recording_off">sem gravar</string>
     <string name="voice_wheel_locked">Roda bloqueada</string>
@@ -1321,7 +1321,7 @@
     <string name="trip_meter_tab_time">Tempo</string>
     <string name="trip_meter_active">Ativo</string>
     <string name="trip_meter_avg">Média</string>
-    <string name="trip_meter_reset">Repor conta-quilómetros</string>
+    <string name="trip_meter_reset">Repor conta-quilómetros parcial</string>
     <string name="trip_meter_reset_msg">Põe a zero a distância e limpa todos os parciais. Esta ação não pode ser anulada.</string>
     <string name="trip_meter_empty">Ainda sem distância. O contador conta enquanto uma roda está ligada.</string>
     <string name="trip_meter_partial">Agora</string>
@@ -1353,7 +1353,7 @@
     <string name="recording_stat_trips">Percursos</string>
     <string name="recording_stat_distance">Distância</string>
     <string name="recording_stat_time">Tempo</string>
-    <string name="recording_gps_locked">GPS fixo</string>
+    <string name="recording_gps_locked">GPS pronto</string>
     <string name="recording_gps_waiting">A aguardar GPS…</string>
 
     <string name="recording_detail_title">Detalhes do percurso</string>
@@ -1447,7 +1447,7 @@
     <string name="widget_weather_score_desc">O tempo para andar, agora mesmo.</string>
     <string name="widget_weather_compact_desc">Quão bom está o tempo para andar, agora e nas próximas horas. Redimensione para ver horas, temperatura e vento.</string>
     <string name="widget_weather_graph_desc">Quão bom está o tempo para andar, ao longo do período da previsão.</string>
-    <string name="widget_weather_refresh_desc">Atualizar a previsão.</string>
+    <string name="widget_weather_refresh_desc">Atualizar a previsão</string>
     <string name="widget_weather_never">Ainda sem previsão. Abra a app uma vez ou toque em atualizar.</string>
     <string name="widget_weather_never_short">Nunca</string>
     <string name="widget_weather_refreshing">A atualizar…</string>
@@ -1588,8 +1588,8 @@
     <string name="alarm_threshold_label">Limite</string>
     <string name="alarm_label_frequency">Frequência</string>
     <string name="alarm_beep_advanced">Avançado</string>
-    <string name="alarm_beep_gap_label">Duração da pausa</string>
-    <string name="alarm_beep_timeline_fmt">%1$d× · pausa %2$d ms</string>
+    <string name="alarm_beep_gap_label">Duração do intervalo</string>
+    <string name="alarm_beep_timeline_fmt">%1$d× · intervalo %2$d ms</string>
     <string name="alarm_beep_volume_label">Volume base</string>
     <string name="alarm_beep_studio">Bipe adaptativo</string>
     <string name="alarm_studio_test_input">Entrada de teste %1$s: %2$s %3$s</string>
@@ -1664,7 +1664,7 @@
     <string name="alarm_repeat_help_once_instant">Um alerta quando %1$s. Rearma logo que %2$s.</string>
     <string name="alarm_repeat_help_many_instant">Alerta de novo a cada leitura enquanto %1$s.</string>
     <string name="alarm_constant_title">Tom contínuo?</string>
-    <string name="alarm_constant_body">Uma pausa de 0 ms toca como um tom contínuo. Para soar continuamente, defina também:</string>
+    <string name="alarm_constant_body">Um intervalo de 0 ms toca como um tom contínuo. Para soar continuamente, defina também:</string>
     <string name="alarm_constant_never">Não perguntar de novo</string>
     <string name="alarm_predict_help_now">Alerta no momento em que %1$s.</string>
     <string name="alarm_predict_help_lead">Alerta cerca de %1$s s antes de %2$s, pela tendência recente.</string>
@@ -1719,7 +1719,7 @@
     <string name="online_upload_sync_done">%1$d percursos sincronizados</string>
     <string name="online_upload_sync_checking">A procurar percursos para enviar…</string>
     <string name="online_upload_sync_progress">A enviar %1$d de %2$d</string>
-    <string name="online_rider_id_conflict">Já existe nesta pasta o id de recuperação de outro piloto, foi mantido e não substituído.</string>
+    <string name="online_rider_id_conflict">Já existe nesta pasta o ID de recuperação de outro piloto, foi mantido e não substituído.</string>
     <string name="online_upload_mileage_rank">#%d em distância</string>
     <string name="online_upload_top_speed">máx. %1$s %2$s</string>
     <string name="online_upload_trips">%d percursos</string>
@@ -1968,7 +1968,7 @@
     <string name="studio_cfg_map_trace_progress">Progresso</string>
     <string name="studio_cfg_map_trace_full">Percurso completo</string>
     <string name="studio_cfg_map_use_custom_marker">Preferir marcador personalizado</string>
-    <string name="studio_cfg_map_use_custom_marker_hint">Defina a sua foto em Navegador -> Personalizar o meu marcador.</string>
+    <string name="studio_cfg_map_use_custom_marker_hint">Defina a sua foto em Navegador → Personalizar o meu marcador.</string>
     <string name="studio_cfg_radar_mode">Vista do radar</string>
     <string name="studio_cfg_radar_lane">Faixa</string>
     <string name="studio_cfg_radar_mirror">Espelho</string>
@@ -2119,7 +2119,7 @@
     <string name="trip_action_share_dropbox">Partilhar pelo Dropbox</string>
     <string name="trip_action_share_dropbox_desc">Envia para a sua pasta do Dropbox e partilha a ligação pública.</string>
     <string name="trip_action_inspect_online">Analisar online</string>
-    <string name="trip_action_inspect_online_desc">Partilhe uma ligação eucviewer.ried.no para ver esta volta online.</string>
+    <string name="trip_action_inspect_online_desc">Partilha uma ligação eucviewer.ried.no para ver esta volta online.</string>
     <string name="trip_action_dropbox_disabled">Associe o Dropbox nas definições para ativar isto</string>
     <string name="nav_start_short">Iniciar navegação</string>
     <string name="nav_start_btn">Iniciar</string>
@@ -2234,7 +2234,7 @@
     <string name="nav_setting_offroute_desc">Quanto pode afastar-se da rota antes de soar o alerta de fora da rota.</string>
     <string name="nav_setting_params">Navegação e meteorologia</string>
     <string name="weather_section">Meteorologia</string>
-    <string name="weather_icon_desc">Previsão meteorológica.</string>
+    <string name="weather_icon_desc">Previsão meteorológica</string>
     <string name="weather_now">Agora</string>
     <string name="weather_fetching">A obter a previsão…</string>
     <string name="weather_refresh">Atualizar previsão</string>
@@ -2262,7 +2262,7 @@
     <string name="weather_title_3">Bora dar uma volta?</string>
     <string name="weather_title_4">Vale a pena equipar-se?</string>
     <string name="weather_title_5">Pronto para o monociclo?</string>
-    <string name="weather_lvl_awful_1">Horrível - fica em casa.</string>
+    <string name="weather_lvl_awful_1">Horrível - fique em casa.</string>
     <string name="weather_lvl_awful_2">Nem pensar.</string>
     <string name="weather_lvl_bad_1">Duro - pense duas vezes.</string>
     <string name="weather_lvl_bad_2">Está mau lá fora.</string>
@@ -2274,7 +2274,7 @@
     <string name="weather_lvl_ok_2">Nada mau.</string>
     <string name="weather_lvl_good_1">Bom - vamos a isso.</string>
     <string name="weather_lvl_good_2">Bom tempo para andar.</string>
-    <string name="weather_lvl_prime_1">Perfeito - larga tudo.</string>
+    <string name="weather_lvl_prime_1">Perfeito - largue tudo.</string>
     <string name="weather_lvl_prime_2">Tempo ideal para andar!</string>
     <string name="weather_expand">Detalhes</string>
     <string name="weather_chart_temp">Temp., humidade e precip.</string>
@@ -2388,7 +2388,7 @@
     <string name="share_lost">perdido</string>
     <string name="share_age_seconds">há %1$d s</string>
     <string name="share_age_minutes">há %1$d min</string>
-    <string name="share_relay_caption">Retransmissor: %1$s.</string>
+    <string name="share_relay_caption">Retransmissor: %1$s</string>
     <string name="share_link_invalid">Esta ligação de partilha expirou ou é inválida.</string>
     <string name="share_room_full">Este grupo está cheio.</string>
     <string name="share_switch_group">Sair do grupo atual e entrar neste?</string>
@@ -2423,7 +2423,7 @@
     <string name="trip_action_share_file_desc">Envia o CSV do percurso para outra app.</string>
     <string name="trip_action_view_online">Ver online</string>
     <string name="trip_action_replay">Repetir no Studio</string>
-    <string name="trip_action_replay_desc">Percorra a volta com overlays de dados ao vivo.</string>
+    <string name="trip_action_replay_desc">Percorre a volta com overlays de dados ao vivo.</string>
     <string name="dash_view_video_gallery">Ver galeria de vídeos</string>
     <string name="dash_view_photo_gallery">Ver galeria de fotos</string>
     <string name="dash_no_gallery_app">Nenhuma app de galeria encontrada</string>
@@ -2454,7 +2454,7 @@
     <string name="studio_overwrite_body">Já existe uma predefinição chamada «%1$s».</string>
     <string name="studio_overwrite_confirm">Substituir</string>
     <string name="studio_save_keep_both">Manter ambas</string>
-    <string name="warnings_indicator_desc">Avisos da app.</string>
+    <string name="warnings_indicator_desc">Avisos da app</string>
     <string name="warnings_dialog_title">Requer atenção</string>
     <string name="warnings_fix_button">Resolver</string>
     <string name="warnings_autolights_title">Luzes automáticas em pausa</string>
@@ -2502,9 +2502,9 @@
     <string name="charge_alert_80_title" formatted="false">Bateria a 80%</string>
     <string name="charge_alert_80_text">Carga suficiente para a maioria das voltas e normalmente melhor para a bateria.</string>
     <string name="charge_alert_full_title">Carga completa</string>
-    <string name="charge_alert_full_text">Totalmente carregada, desligue quando puder. Algumas rodas equilibram agora as células.</string>
+    <string name="charge_alert_full_text">Totalmente carregada, desligue o carregador quando puder. Algumas rodas equilibram agora as células.</string>
     <string name="charge_alert_custom_title">Bateria a %1$d%%</string>
-    <string name="charge_alert_custom_text">Atingiu o nível que definiu. Desligue quando puder.</string>
+    <string name="charge_alert_custom_text">Atingiu o nível que definiu. Desligue o carregador quando puder.</string>
     <string name="charging_options">Opções</string>
     <string name="charging_tab_power">Potência</string>
     <string name="charging_tab_cells">Células</string>
@@ -2564,13 +2564,13 @@
     <string name="lockdown_setting_desc">Bloqueia a app num ecrã simples.</string>
     <string name="lockdown_set_code">Definir o código do fabricante</string>
     <string name="lockdown_confirm_code">Repita o código</string>
-    <string name="lockdown_code_hint">4 a 8 dígitos.</string>
+    <string name="lockdown_code_hint">4 a 8 dígitos</string>
     <string name="lockdown_code_mismatch">Os dois códigos não coincidem</string>
     <string name="lockdown_code_invalid">O código tem de ter 4 a 8 dígitos</string>
     <string name="lockdown_arm">Ativar</string>
     <string name="lockdown_trip_saved">Percurso guardado. Gravação parada.</string>
     <string name="lockdown_warning_intro">Isto muda a app para um ecrã simples e bloqueado. Enquanto estiver ativo:</string>
-    <string name="lockdown_limit_1">Os limites de velocidade do modo legal ficam forçados e não podem ser desligados, nem no ecrã, num botão Flic, nas teclas de volume, no relógio ou no HUD.</string>
+    <string name="lockdown_limit_1">Os limites de velocidade do Modo legal ficam forçados e não podem ser desligados, nem no ecrã, num botão Flic, nas teclas de volume, no relógio ou no HUD.</string>
     <string name="lockdown_limit_2">As velocidades legais de tiltback e de alarme não podem ser alteradas.</string>
     <string name="lockdown_limit_3">A gravação de percursos para e a gravação automática não inicia novos percursos.</string>
     <string name="lockdown_limit_4">A navegação para e não é possível iniciar rotas.</string>
@@ -2582,7 +2582,7 @@
     <string name="lockdown_limit_10">As definições não podem ser abertas.</string>
     <string name="lockdown_limit_11">O histórico de percursos, o monitor de bateria, o estúdio e os detalhes das métricas não podem ser abertos.</string>
     <string name="lockdown_limit_12">Tocar numa métrica não faz nada.</string>
-    <string name="lockdown_limit_13">Os anúncios de voz, os relatórios periódicos e os tempos de aceleração ficam em silêncio. Os seus alarmes continuam a funcionar.</string>
+    <string name="lockdown_limit_13">Os anúncios de voz, os relatórios periódicos e os tempos por velocidade ficam em silêncio. Os seus alarmes continuam a funcionar.</string>
     <string name="lockdown_limit_14">A roda não pode ser bloqueada nem desbloqueada, e o bloqueio automático por proximidade não funciona.</string>
     <string name="lockdown_limit_15">As luzes e o volume automáticos continuam a funcionar. O controlo multimédia para.</string>
     <string name="lockdown_limit_16">A notificação perde os botões.</string>
@@ -2596,7 +2596,7 @@
     <string name="lockdown_warning_no_wheel">Nenhuma roda ligada, por isso o estado do Modo legal é desconhecido. A app bloqueia da próxima vez que o Modo legal for ligado.</string>
     <string name="lockdown_continue">Continuar</string>
     <string name="trip_tools_wheel_none">Ainda não há roda registada neste percurso.</string>
-    <string name="backup_conflict_warning">Algumas viagens neste telemóvel diferem das cópias na pasta de cópia de segurança. Toque em %1$s, depois em %2$s toque em \"%3$s\" e escolha que cópia manter.</string>
+    <string name="backup_conflict_warning">Alguns percursos neste telemóvel diferem das cópias na pasta de cópias. Toque em %1$s, depois em %2$s prima «%3$s» e escolha que cópia manter.</string>
     <string name="backup_conflict_title">Conflitos nas cópias</string>
     <string name="widget_act_1_short">Ação 1</string>
     <string name="widget_act_2_short">Ação 2</string>
@@ -2647,7 +2647,7 @@
     <string name="crews_scan_hint">Abra o eucstats num navegador, toque em Crews e aponte isto para o código que aparece.</string>
     <string name="crews_scan_invalid">Isso não é um código de passe de equipa.</string>
     <string name="crews_scan_is_share">Isso é um código de localização ao vivo. Leia-o em Partilhar no mapa.</string>
-    <string name="share_scan_is_crewpass">Isso é um passe de equipa. Leia-o nas Definições, em Equipas.</string>
+    <string name="share_scan_is_crewpass">Isso é um passe de equipa. Leia-o nas Definições, em Passe de equipa.</string>
     <string name="crews_type_instead">Introduzir manualmente</string>
     <string name="crews_code_label">Código do passe</string>
     <string name="crews_foreign_title">Este código não é do eucstats</string>
@@ -2777,9 +2777,9 @@
     <string name="offline_data_no_route">Planeie primeiro uma rota.</string>
     <string name="offline_data_route_all_here">Todas as áreas da sua rota estão transferidas.</string>
     <string name="offline_ride_title">Transferir mapas offline?</string>
-    <string name="offline_ride_body">Parte deste percurso está fora dos seus mapas offline. Podemos transferi-los agora para que o mapa e o recálculo do percurso funcionem sem rede.</string>
+    <string name="offline_ride_body">Parte desta rota está fora dos seus mapas offline. Podemos transferi-los agora para que o mapa e o recálculo da rota funcionem sem rede.</string>
     <string name="offline_ride_download">Transferir mapas</string>
     <string name="offline_ride_start">Iniciar mesmo assim</string>
-    <string name="offline_ride_never">Não perguntar novamente</string>
-    <string name="offline_remind_before_ride">Verificar mapas offline antes de um percurso</string>
+    <string name="offline_ride_never">Não perguntar de novo</string>
+    <string name="offline_remind_before_ride">Verificar mapas offline antes de uma volta</string>
 </resources>

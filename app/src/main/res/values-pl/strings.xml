@@ -22,7 +22,7 @@
     <string name="notif_btn_light_on">Światło wł.</string>
     <string name="notif_btn_light_off">Światło wył.</string>
     <string name="notif_btn_record">Nagrywaj</string>
-    <string name="notif_btn_stop_record">Zatrzymaj</string>
+    <string name="notif_btn_stop_record">Stop nagr.</string>
     <string name="notif_btn_horn">Klakson</string>
     <string name="notif_btn_disconnect">Rozłącz</string>
     <string name="notif_btn_stop_nav">Stop nawig.</string>
@@ -112,8 +112,7 @@
     <string name="lock_blocked_in_motion_toast">Zwolnij, aby zablokować koło</string>
     <string name="action_recorder">Rejestrator</string>
     <string name="action_recorder_trips">Rejestrator\n(przejazdy: %1$d)</string>
-    <string name="action_recorder_trips_one">Rejestrator
-(%1$d przejazd)</string>
+    <string name="action_recorder_trips_one">Rejestrator\n(%1$d przejazd)</string>
 
     <!-- Settings tabs -->
     <string name="search_settings">Szukaj w ustawieniach</string>
@@ -238,7 +237,7 @@
     <string name="metric_spoken_phase_current">Prąd fazowy</string>
     <string name="metric_spoken_battery_envelope">Szacowana bateria</string>
     <string name="metric_spoken_bt_rssi">Sygnał Bluetooth</string>
-    <string name="metric_spoken_avg_trip_speed">Prędkość średnia</string>
+    <string name="metric_spoken_avg_trip_speed">Średnia prędkość</string>
     <string name="metric_spoken_lat_long">Pozycja</string>
     <string name="metric_chip_dyn_speed_limit">Dynamiczny limit prędkości</string>
     <string name="metric_chip_dyn_current_limit">Dynamiczny limit prądu</string>
@@ -259,7 +258,7 @@
     <string name="metric_chip_wh_per_km">Zużycie</string>
     <string name="metric_chip_phone_battery">Bateria telefonu</string>
     <string name="metric_chip_gps_altitude">Wysokość</string>
-    <string name="metric_chip_gps_speed">Pręd. GPS</string>
+    <string name="metric_chip_gps_speed">Prędkość GPS</string>
     <string name="metric_chip_gps_heading">Kurs</string>
     <string name="metric_chip_gps_accuracy">Dokładność GPS</string>
     <string name="metric_chip_external_gps_battery">Bateria zewnętrznego GPS</string>
@@ -281,7 +280,7 @@
          metric_chip_<key> string so the rider still sees the full name
          when picking metrics. Only define here for metrics whose full
          name doesn't fit cleanly on a tile face. -->
-    <string name="metric_chip_temperature_tile">Temp</string>
+    <string name="metric_chip_temperature_tile">Temp.</string>
     <string name="metric_chip_battery_power_tile">Bat. W</string>
     <string name="metric_chip_motor_power_tile">Sil. W</string>
     <string name="metric_chip_battery_temp_tile">Bat. T</string>
@@ -292,7 +291,7 @@
     <string name="metric_chip_auto_off_tile">Auto-wył.</string>
     <string name="metric_chip_phone_battery_tile">Tel.</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
-    <string name="metric_chip_external_gps_battery_tile">GPS bat</string>
+    <string name="metric_chip_external_gps_battery_tile">Bat. GPS</string>
     <string name="metric_chip_odometer_tile">Przeb.</string>
     <string name="metric_chip_trip_max_speed_tile">Maks.</string>
     <string name="metric_chip_avg_trip_speed_tile">Śr. pręd.</string>
@@ -421,7 +420,7 @@
     <string name="voice_duration_h_m">%1$s godz. %2$s min</string>
     <string name="voice_duration_m">%1$s min</string>
     <string name="voice_sp_weather_terms">pogoda,dobry dzień na jazdę,czy to dobry dzień</string>
-    <string name="voice_sp_daylight_terms">światło,zachód słońca,ile do zmroku</string>
+    <string name="voice_sp_daylight_terms">światło dzienne,zachód słońca,ile do zmroku</string>
     <string name="voice_sp_connected_terms">połączone,czy koło jest połączone</string>
     <string name="voice_sp_uptime_terms">jak długo połączone,połączone od</string>
     <string name="voice_sp_nav_terms">nawigacja,co dalej,powtórz</string>
@@ -491,7 +490,7 @@
     <string name="hud_hotspot_unknown_hint">Upewnij się, że HUD i telefon są w tej samej sieci Wi-Fi. Jeśli używasz hotspotu telefonu, najpierw go włącz.</string>
     <string name="hud_hotspot_on_hint">Hotspot telefonu działa. Połącz HUD z siecią Wi-Fi tego telefonu, aby włączyć łącze.</string>
     <string name="hud_overlay_subsection">Własna nakładka</string>
-    <string name="hud_overlay_subsection_desc">Zaimportuj preset z Overlay Studio na ekran Custom w HUD, bez tła. Preset jest kopiowany, więc późniejsze zmiany w studiu nie trafią do HUD, dopóki nie zaimportujesz go ponownie.</string>
+    <string name="hud_overlay_subsection_desc">Zaimportuj preset z Overlay Studio na ekran Własna nakładka w HUD, bez tła. Preset jest kopiowany, więc późniejsze zmiany w studiu nie trafią do HUD, dopóki nie zaimportujesz go ponownie.</string>
     <string name="hud_overlay_select_preset">Importuj preset</string>
     <string name="hud_overlay_current_preset">Aktualny: %1$s</string>
     <string name="hud_custom_overlay_none">Wyczyść</string>
@@ -507,7 +506,7 @@
     <string name="hud_screen_name_custom_cam">Własna nakładka + kamera</string>
     <string name="hud_screen_name_map">Mapa</string>
     <string name="hud_screen_name_nav">Nawigator</string>
-    <string name="hud_screen_name_map_nav">Mapa + Nawigacja</string>
+    <string name="hud_screen_name_map_nav">Mapa + Nawigator</string>
     <string name="hud_screen_name_power">Waty i zasięg</string>
     <string name="hud_screen_name_trip_stats">Statystyki przejazdu</string>
     <string name="hud_screen_name_compass">Kompas</string>
@@ -800,7 +799,7 @@
     <string name="welcome_tut_speed">Twoja bieżąca prędkość. Zmień jednostki w Ustawienia → %1$s</string>
     <string name="welcome_tut_metrics">Bateria, temperatura, napięcie i więcej na żywo. Zmień układ w Ustawienia → %1$s</string>
     <string name="welcome_tut_actions">Szybkie sterowanie. Dostosuj je w tym samym miejscu, w sekcji %1$s</string>
-    <string name="welcome_tut_map">Otwórz nawigator, aby planować trasy, korzystać z nawigacji zakręt po zakręcie lub udostępniać lokalizację na żywo podczas jazdy grupowej</string>
+    <string name="welcome_tut_map">Otwórz nawigator, aby planować trasy, korzystać z nawigacji zakręt po zakręcie lub udostępniać lokalizację na żywo podczas wspólnej jazdy</string>
     <string name="welcome_tut_gps">Dotknij, aby zobaczyć tu dane na żywo. Możesz nawet skalibrować prędkość koła według GPS. Kalibrację sprawdzisz później w Ustawienia → %1$s</string>
     <string name="welcome_tut_camera">Nagrywaj wideo z nakładką telemetrii na żywo. Twórz własne efektowne nakładki i eksportuj filmy z danymi z wcześniejszych przejazdów</string>
     <string name="welcome_tut_pd">Pokazuje Postój lub Jazda. Dotknij, aby ustawić swój %1$s</string>
@@ -840,7 +839,7 @@
     <string name="engine_decel_smooth">Płynne</string>
     <string name="engine_decel_standard">Standard</string>
     <string name="engine_decel_backfire">Strzały z wydechu</string>
-    <string name="engine_brake_label">Hamulec silnikiem</string>
+    <string name="engine_brake_label">Hamowanie silnikiem</string>
     <string name="engine_brake_off">Wył.</string>
     <string name="engine_brake_light">Lekki</string>
     <string name="engine_brake_strong">Mocny</string>
@@ -900,7 +899,7 @@
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Przyciski Flic 2</string>
     <string name="flic_show_on_dashboard">Ikona szybkiego dostępu na pulpicie</string>
-    <string name="flic_scan_hint">Przytrzymaj przycisk Flic 2 przez 6 sekund, aby wejść w tryb parowania, a potem dotknij Skanuj.</string>
+    <string name="flic_scan_hint">Przytrzymaj przycisk Flic 2 przez 6 sekund, aby wejść w tryb parowania, a potem dotknij Rozpocznij skanowanie.</string>
     <string name="flic_stop_scan">Zatrzymaj skanowanie</string>
     <string name="flic_start_scan">Rozpocznij skanowanie</string>
     <string name="flic_forget">Zapomnij</string>
@@ -975,7 +974,7 @@
     <string name="radar_unpair">Zapomnij urządzenie</string>
     <string name="radar_battery_fmt">Bateria %1$d%%</string>
     <string name="radar_clear">Pas wolny</string>
-    <string name="radar_threats_count">Śledzonych pojazdów: %1$d</string>
+    <string name="radar_threats_count">Śledzone pojazdy (%1$d):</string>
     <string name="radar_show_overlay">Pokaż nakładkę zagrożeń</string>
     <string name="radar_show_overlay_desc">Wąski pas radaru na krawędziach pulpitu. Jedna kolorowa kropka na każdy wykryty pojazd. Widoczny tylko na pulpicie.</string>
     <string name="radar_overlay_left">Lewa krawędź</string>
@@ -1014,8 +1013,8 @@
     <string name="alarm_metric_temperature">Temperatura</string>
     <string name="alarm_metric_tire_pressure">Ciśnienie w oponie</string>
     <string name="alarm_metric_bt_rssi">Sygnał Bluetooth</string>
-    <string name="alarm_metric_lateral_g">Przeciążenie boczne</string>
-    <string name="alarm_metric_g_force">Przeciążenie</string>
+    <string name="alarm_metric_lateral_g">Boczne g</string>
+    <string name="alarm_metric_g_force">Siła g</string>
     <string name="alarm_metric_battery_temp">Temp. baterii</string>
     <string name="alarm_metric_controller_temp">Temp. sterownika</string>
     <string name="alarm_metric_motor_temp">Temp. silnika</string>
@@ -1033,8 +1032,8 @@
     <string name="alarm_metric_gps_altitude">Wysokość</string>
     <string name="alarm_metric_external_gps_speed">Prędkość zewnętrznego GPS</string>
     <string name="alarm_metric_external_gps_battery">Bateria zewnętrznego GPS</string>
-    <string name="alarm_metric_external_gps_speed_short">Pręd. zew. GPS</string>
-    <string name="alarm_metric_external_gps_battery_short">Bat. zew. GPS</string>
+    <string name="alarm_metric_external_gps_speed_short">Pręd. zewn. GPS</string>
+    <string name="alarm_metric_external_gps_battery_short">Bat. zewn. GPS</string>
     <string name="alarm_metric_radar_distance">Odległość pojazdu</string>
     <string name="alarm_metric_radar_approach">Zbliżanie pojazdu</string>
 
@@ -2047,7 +2046,7 @@
     <string name="charging_cells_count">Ogniwa</string>
     <string name="charging_cells_delta">Δ</string>
     <string name="charging_cells_max">Maks.</string>
-    <string name="charging_cells_min">Min</string>
+    <string name="charging_cells_min">Min.</string>
     <string name="charging_cells_pack_n">Pakiet %1$d</string>
     <string name="charging_cells_waiting">Oczekiwanie na dane napięć ogniw…</string>
     <string name="charging_tab_cells">Ogniwa</string>
@@ -2247,7 +2246,7 @@
     <string name="adv_nav_inter_stop">Próg ruchu między przystankami</string>
     <string name="adv_nav_inter_stop_desc">Określa, jak daleko musisz przejechać za jednym przystankiem, zanim następny może zostać uznany za osiągnięty. Uwaga: zbyt mała wartość może pominąć przystanek.</string>
     <string name="adv_nav_intermediate_flash">Czas mignięcia przystanku</string>
-    <string name="adv_nav_intermediate_flash_desc">Określa, jak długo widać mignięcie po osiągnięciu punktu trasy.</string>
+    <string name="adv_nav_intermediate_flash_desc">Określa, jak długo widać mignięcie po osiągnięciu przystanku.</string>
     <string name="adv_nav_max_start">Maks. odległość startu</string>
     <string name="adv_nav_max_start_desc">Jak daleko może być pierwszy przystanek, by dało się rozpocząć nawigację. Powyżej tej odległości linia od Twojej pozycji jest ukryta, a start zablokowany. Planowanie nadal działa.</string>
     <string name="adv_nav_moving">Prędkość ruchu</string>
@@ -2274,7 +2273,7 @@
     <string name="adv_phone_gps_idle_interval">Interwał GPS w spoczynku</string>
     <string name="adv_phone_gps_idle_interval_desc">Częstotliwość GPS w gotowości, gdy nie nagrywasz ani nie nawigujesz, aby Nawigator i nowe połączenie z kołem były od razu gotowe. Wyższa wartość oszczędza baterię.</string>
     <string name="adv_gps_idle_off_delay">Wyłączanie GPS w spoczynku</string>
-    <string name="adv_gps_idle_off_delay_desc">Gdy aplikacja działa w tle bez podłączonego koła i bez nagrywania, GPS się wyłącza, aby oszczędzać baterię. 0 wyłącza go od razu; wyższa wartość najpierw utrzymuje przez ten czas pozycję o niskim poborze mocy, aby szybkie przełączenie aplikacji nie przerywało GPS.</string>
+    <string name="adv_gps_idle_off_delay_desc">Gdy aplikacja działa w tle bez połączonego koła i bez nagrywania, GPS się wyłącza, aby oszczędzać baterię. 0 wyłącza go od razu; wyższa wartość najpierw utrzymuje przez ten czas pozycję o niskim poborze mocy, aby szybkie przełączenie aplikacji nie przerywało GPS.</string>
     <string name="adv_gps_fix_max_age">Maks. wiek pozycji GPS</string>
     <string name="adv_gps_fix_max_age_desc">Pozycja starsza niż ta wartość liczy się jako brak pozycji, aby nagranie rozpoczęte przed gotowością GPS nie zaczynało się od nieaktualnego punktu.</string>
     <string name="adv_pushonly_note">Niektóre urządzenia przesyłają dane z własną, stałą częstotliwością i ignorują te ustawienia: koła, które same wysyłają dane (Begode, Gotway, Veteran, KingSong), zewnętrzny GPS (RaceBox, Dragy), radar i przyciski Flic.</string>
@@ -2587,7 +2586,7 @@
     <string name="dropbox_syncing">Synchronizowanie przejazdów…</string>
     <string name="dropbox_folder_desc">Przejazdy i ustawienia są zapisywane w Twoim Dropboksie, w %1$s. Tylko ta aplikacja widzi ten folder.</string>
     <string name="keep_app_alive">Utrzymuj aplikację aktywną</string>
-    <string name="keep_app_alive_desc">Wyświetla stałe powiadomienie, dzięki czemu aplikacja pozostaje aktywna w tle. Synchronizacja przejazdów i głos działają nawet bez podłączonego koła. Zużywa nieco więcej baterii.</string>
+    <string name="keep_app_alive_desc">Wyświetla stałe powiadomienie, dzięki czemu aplikacja pozostaje aktywna w tle. Synchronizacja przejazdów i głos działają nawet bez połączonego koła. Zużywa nieco więcej baterii.</string>
     <string name="sync_up_to_date">Wszystko aktualne</string>
     <string name="studio_source_transparent">Przezroczyste</string>
     <string name="studio_source_video">Wideo</string>
@@ -2696,19 +2695,19 @@
     <string name="widget_weather_hour_fmt">%1$d godz. temu</string>
     <string name="widget_weather_window_fmt">najbliższe %1$d godz.</string>
     <!-- Charge alerts -->
-    <string name="charging_notify_80" formatted="false">Powiadom przy 80 %</string>
-    <string name="charging_notify_full" formatted="false">Powiadom przy 100 %</string>
+    <string name="charging_notify_80" formatted="false">Powiadom przy 80%</string>
+    <string name="charging_notify_full" formatted="false">Powiadom przy 100%</string>
     <string name="charging_notify_at">Powiadom przy</string>
-    <string name="charging_notify_custom">Powiadom przy %1$d %%</string>
+    <string name="charging_notify_custom">Powiadom przy %1$d%%</string>
     <string name="charging_notify_at_ask">Powiadom przy…</string>
-    <string name="charging_notify_custom_range" formatted="false">Musi być od 5 do 95 %, nie 80 %</string>
+    <string name="charging_notify_custom_range" formatted="false">Musi być od 5 do 95%, nie 80%</string>
     <string name="charge_alert_channel_name">Alerty ładowania</string>
     <string name="charge_alert_channel_description" formatted="false">Gdy bateria osiągnie wybrany poziom albo skończy się ładować.</string>
-    <string name="charge_alert_80_title" formatted="false">Bateria naładowana w 80 %</string>
+    <string name="charge_alert_80_title" formatted="false">Bateria naładowana w 80%</string>
     <string name="charge_alert_80_text">Wystarczy na większość jazd i zwykle lepiej służy baterii.</string>
     <string name="charge_alert_full_title">Ładowanie zakończone</string>
     <string name="charge_alert_full_text">Pełne naładowanie, odłącz ładowarkę, gdy to możliwe. Niektóre koła balansują teraz ogniwa.</string>
-    <string name="charge_alert_custom_title">Bateria naładowana w %1$d %%</string>
+    <string name="charge_alert_custom_title">Bateria naładowana w %1$d%%</string>
     <string name="charge_alert_custom_text">Osiągnięto ustawiony poziom. Odłącz ładowarkę, gdy to możliwe.</string>
     <!-- Widget names for the picker -->
     <string name="widget_euc_label">Pulpit koła</string>
@@ -2722,9 +2721,9 @@
     <string name="widget_act_1_short">Akcja 1</string>
     <string name="widget_act_2_short">Akcja 2</string>
     <string name="widget_act_3_short">Akcja 3</string>
-    <string name="action_chip_reset_metrics">Zeruj liczniki</string>
-    <string name="action_reset_metrics_done">Liczniki wyzerowane</string>
-    <string name="action_reset_metrics_wheel_done">Liczniki wyzerowane, licznik przejazdu koła wyczyszczony</string>
+    <string name="action_chip_reset_metrics">Zeruj metryki</string>
+    <string name="action_reset_metrics_done">Metryki wyzerowane</string>
+    <string name="action_reset_metrics_wheel_done">Metryki wyzerowane, licznik przejazdu koła wyczyszczony</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
     <string name="tpms_waiting">Oczekiwanie na dane</string>
     <string name="status_idle">Nieaktywny</string>
@@ -2759,7 +2758,7 @@
     <string name="voice_pills_empty">Nic nie zostanie powiedziane. Dotknij Dodaj.</string>
     <string name="voice_stat_now">Teraz</string>
     <string name="voice_stat_max">Maks.</string>
-    <string name="voice_stat_min">Min</string>
+    <string name="voice_stat_min">Min.</string>
     <string name="voice_stat_avg">Śr.</string>
     <string name="voice_stat_peak">Szczyt</string>
     <string name="crews_pass_action">Przepustka ekipy</string>

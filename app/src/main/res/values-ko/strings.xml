@@ -9,23 +9,23 @@
     <string name="notif_actions_enable_desc">진행 중인 알림에 빠른 동작 버튼을 추가합니다.</string>
     <string name="notif_actions_pick_desc">동작을 최대 %1$d개까지 선택하세요. 같은 동작을 여러 번 넣을 수 있습니다.</string>
     <string name="notif_action_slot">동작 %1$d</string>
-    <string name="notif_action_stop_all">모두 정지</string>
+    <string name="notif_action_stop_all">모두 종료</string>
     <string name="notif_action_lock">잠금 / 잠금 해제</string>
     <string name="notif_action_light">라이트 켜기 / 끄기</string>
-    <string name="notif_action_record">기록 / 정지</string>
+    <string name="notif_action_record">기록 / 중지</string>
     <string name="notif_action_horn">경적</string>
     <string name="notif_action_disconnect">연결 해제</string>
-    <string name="notif_action_stop_nav">내비 정지</string>
-    <string name="notif_btn_stop_all">모두 정지</string>
+    <string name="notif_action_stop_nav">내비 중지</string>
+    <string name="notif_btn_stop_all">모두 종료</string>
     <string name="notif_btn_lock">잠금</string>
     <string name="notif_btn_unlock">잠금 해제</string>
     <string name="notif_btn_light_on">라이트 켜기</string>
     <string name="notif_btn_light_off">라이트 끄기</string>
     <string name="notif_btn_record">기록</string>
-    <string name="notif_btn_stop_record">정지</string>
+    <string name="notif_btn_stop_record">중지</string>
     <string name="notif_btn_horn">경적</string>
     <string name="notif_btn_disconnect">연결 해제</string>
-    <string name="notif_btn_stop_nav">내비 정지</string>
+    <string name="notif_btn_stop_nav">내비 중지</string>
 
     <!-- Common -->
     <string name="action_back">뒤로</string>
@@ -44,7 +44,7 @@
     <string name="action_test">테스트</string>
     <string name="action_reorder">드래그하여 순서 변경</string>
     <string name="show_gauge_color_band">속도 게이지 색상 띠</string>
-    <string name="stat_watts">WATTS</string>
+    <string name="stat_watts">와트</string>
     <string name="flic_button">Flic 버튼</string>
     <string name="menu_auto_lights">자동 라이트 설정</string>
     <string name="menu_voice_periodic_on">주기적 음성 안내 켜기</string>
@@ -71,7 +71,7 @@
     <!-- Experimental banner -->
     <string name="experimental_banner">정식 지원 전 휠입니다. 탭하여 문제를 보고하세요.</string>
     <string name="experimental_dialog_title">EUC Planet 개선에 도움을 주세요</string>
-    <string name="experimental_dialog_body">이 휠은 아직 초기 지원 단계입니다. InMotion V14 / V12 / P6 계열만 작성자가 직접 검증했으며, KingSong, Veteran, Begode, Ninebot, 구형 InMotion 모델은 프리뷰로 제공되어 라이더 테스트가 필요합니다. 주의해서 사용하세요.\n\n이 배너를 탭하면 문제가 보고되어 작성자가 수정할 수 있습니다.</string>
+    <string name="experimental_dialog_body">이 휠은 아직 초기 지원 단계입니다. InMotion V14 / V12 / P6 계열만 개발자가 직접 검증했으며, KingSong, Veteran, Begode, Ninebot, 구형 InMotion 모델은 프리뷰로 제공되어 라이더 테스트가 필요합니다. 주의해서 사용하세요.\n\n이 배너를 탭하면 문제가 보고되어 개발자가 수정할 수 있습니다.</string>
     <string name="experimental_dialog_report">문제 보고</string>
 
     <!-- Scan: virtual wheel section (debug builds only) -->
@@ -87,20 +87,20 @@
     <string name="connection">연결</string>
     <string name="settings">설정</string>
     <string name="disconnect">연결 해제</string>
-    <string name="disconnect_from">%1$s 연결을 끊으시겠습니까?</string>
+    <string name="disconnect_from">%1$s 연결을 해제하시겠습니까?</string>
     <string name="wheel_generic">휠</string>
     <string name="exit_title">EUC Planet 종료</string>
-    <string name="exit_body">백그라운드 서비스를 유지하거나 모두 종료하시겠습니까?</string>
+    <string name="exit_body">백그라운드 서비스를 계속 실행하시겠습니까, 아니면 모두 종료하시겠습니까?</string>
     <string name="exit_stop_all">모두 종료</string>
     <string name="exit_background">백그라운드</string>
 
-    <string name="stat_battery">BATTERY</string>
-    <string name="stat_temp">TEMP</string>
-    <string name="stat_voltage">VOLTAGE</string>
-    <string name="stat_amps">AMPS</string>
+    <string name="stat_battery">배터리</string>
+    <string name="stat_temp">온도</string>
+    <string name="stat_voltage">전압</string>
+    <string name="stat_amps">전류</string>
     <string name="stat_load">PWM</string>
-    <string name="stat_trip">TRIP</string>
-    <string name="stat_odo">ODO </string>
+    <string name="stat_trip">트립</string>
+    <string name="stat_odo">총거리 </string>
 
     <string name="action_horn">경적</string>
     <string name="action_light">라이트</string>
@@ -112,8 +112,7 @@
     <string name="lock_blocked_in_motion_toast">속도를 줄인 후 잠금하세요</string>
     <string name="action_recorder">레코더</string>
     <string name="action_recorder_trips">레코더\n(기록 %1$d개)</string>
-    <string name="action_recorder_trips_one">레코더
-(기록 %1$d개)</string>
+    <string name="action_recorder_trips_one">레코더\n(기록 %1$d개)</string>
 
     <!-- Settings tabs -->
     <string name="search_settings">설정 검색</string>
@@ -154,7 +153,7 @@
     <string name="dashboard_composite_layout_col3">3열</string>
     <string name="dashboard_composite_cell_label">셀 %1$d</string>
     <!-- "(blank)" is the collapsing placeholder: cell renders "-", layout collapses. -->
-    <string name="dashboard_composite_empty_label">(빈 칸)</string>
+    <string name="dashboard_composite_empty_label">(빈칸)</string>
     <!-- "(empty)" is the reserving placeholder: cell renders blank, layout intact. -->
     <string name="dashboard_composite_blank_label">(비어 있음)</string>
     <string name="dashboard_stat_empty">(비어 있음)</string>
@@ -183,8 +182,8 @@
     <string name="dashboard_restore_slot">슬롯 복원</string>
     <string name="metric_detail_reset">초기화</string>
     <string name="metric_detail_reset_all">모두 초기화</string>
-    <string name="metric_detail_reset_all_confirm_title">기록을 모두 초기화하시겠습니까?</string>
-    <string name="metric_detail_reset_all_confirm_body">모든 지표의 롤링 기록 버퍼를 지웁니다. 설정과 주행 기록은 그대로 유지됩니다.</string>
+    <string name="metric_detail_reset_all_confirm_title">이력을 모두 초기화하시겠습니까?</string>
+    <string name="metric_detail_reset_all_confirm_body">모든 지표의 롤링 이력 버퍼를 지웁니다. 설정과 주행 기록은 그대로 유지됩니다.</string>
     <string name="metric_detail_show_label">값</string>
     <string name="dashboard_close">닫기</string>
     <string name="dashboard_corner_left">왼쪽</string>
@@ -195,7 +194,7 @@
     <!-- Open-menu label for DashboardStat.NONE; closed-field shows a literal
          "-" glyph from statSelectedLabel so the rider sees the visual at a
          glance regardless of locale. -->
-    <string name="dashboard_stat_none">(빈 칸)</string>
+    <string name="dashboard_stat_none">(빈칸)</string>
     <string name="dashboard_stat_current">현재</string>
     <string name="dashboard_stat_min">최솟값</string>
     <string name="dashboard_stat_max">최댓값 / 피크</string>
@@ -336,7 +335,7 @@
     <string name="menu_switch_to_voice_report">음성 안내로 전환</string>
     <string name="voice_commands_title">음성 명령</string>
     <string name="voice_commands_enable_desc">음성으로 앱을 조작합니다. 대시보드의 음성 버튼을 길게 누르고 음성 명령 듣기를 선택하세요.</string>
-    <string name="voice_commands_bind_desc">듣기를 Flic, 볼륨 키, 워치 또는 HUD에 지정할 수 있습니다.</string>
+    <string name="voice_commands_bind_desc">듣기를 Flic, 볼륨 버튼, 워치 또는 HUD에 지정할 수 있습니다.</string>
     <string name="voice_prompt_cue">듣기 시작 신호</string>
     <string name="voice_music_listening">듣는 동안 음악</string>
     <string name="voice_music_pause">일시정지</string>
@@ -457,8 +456,8 @@
     <string name="action_chip_media_prev">이전 트랙</string>
     <string name="action_chip_music_start">음악 시작</string>
     <string name="action_chip_media_pause">음악 일시정지</string>
-    <string name="action_chip_phone_volume_up">볼륨 높이기</string>
-    <string name="action_chip_phone_volume_down">볼륨 낮추기</string>
+    <string name="action_chip_phone_volume_up">볼륨 올리기</string>
+    <string name="action_chip_phone_volume_down">볼륨 내리기</string>
     <string name="action_chip_phone_mute">음소거</string>
     <string name="action_chip_phone_torch">휴대전화 손전등</string>
     <string name="action_chip_open_navigation">지도 보기</string>
@@ -491,7 +490,7 @@
     <string name="hud_hotspot_unknown_hint">HUD와 휴대전화가 같은 Wi-Fi 네트워크에 있는지 확인하세요. 휴대전화 핫스팟을 사용한다면 먼저 켜세요.</string>
     <string name="hud_hotspot_on_hint">휴대전화 핫스팟이 켜져 있습니다. HUD를 이 휴대전화의 Wi-Fi에 연결하면 링크가 활성화됩니다.</string>
     <string name="hud_overlay_subsection">커스텀 오버레이</string>
-    <string name="hud_overlay_subsection_desc">Overlay Studio 프리셋을 배경 없이 HUD 커스텀 화면에 가져옵니다. 프리셋은 여기에 복사되므로 스튜디오에서 편집해도 다시 가져오기 전까지 HUD에 반영되지 않습니다.</string>
+    <string name="hud_overlay_subsection_desc">오버레이 스튜디오 프리셋을 배경 없이 HUD 커스텀 화면에 가져옵니다. 프리셋은 여기에 복사되므로 스튜디오에서 편집해도 다시 가져오기 전까지 HUD에 반영되지 않습니다.</string>
     <string name="hud_overlay_select_preset">프리셋 가져오기</string>
     <string name="hud_overlay_current_preset">현재: %1$s</string>
     <string name="hud_custom_overlay_none">지우기</string>
@@ -542,9 +541,9 @@
     <string name="hud_app_sending">보내는 중, %1$d%%</string>
     <string name="hud_app_sent">HUD에서 계속하세요.</string>
     <string name="hud_app_resend_title">이미 최신 버전입니다</string>
-    <string name="hud_app_resend_body">HUD에 이미 이 버전이 있습니다. 그래도 보낼까요?</string>
-    <string name="hud_app_remove_title">HUD 앱을 제거할까요?</string>
-    <string name="hud_app_remove_body">HUD에서 삭제 여부를 묻습니다. 다시 설치하려면 케이블이 필요합니다.</string>
+    <string name="hud_app_resend_body">HUD에 이미 이 버전이 있습니다. 그래도 보내시겠습니까?</string>
+    <string name="hud_app_remove_title">HUD 앱을 제거하시겠습니까?</string>
+    <string name="hud_app_remove_body">HUD에서 제거 여부를 묻습니다. 다시 설치하려면 케이블이 필요합니다.</string>
     <string name="hud_app_failed">HUD에 연결할 수 없습니다. 다시 시도하세요.</string>
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">일반</string>
@@ -596,8 +595,8 @@
     <string name="watch_hardware_button_2">버튼 2</string>
     <string name="watch_hardware_button_3">버튼 3</string>
     <string name="watch_hardware_button_1_subtitle">Garmin: Start · Galaxy Watch Ultra: 주황색 Action 버튼 · Amazfit: Select</string>
-    <string name="watch_hardware_button_2_subtitle">Garmin: Up · Galaxy Watch Ultra: 하단 측면 버튼 · Amazfit: 위</string>
-    <string name="watch_hardware_button_3_subtitle">Garmin: Down · Amazfit: 아래 · Wear OS 워치에는 없음</string>
+    <string name="watch_hardware_button_2_subtitle">Garmin: Up · Galaxy Watch Ultra: 하단 측면 버튼 · Amazfit: Up</string>
+    <string name="watch_hardware_button_3_subtitle">Garmin: Down · Amazfit: Down · Wear OS 워치에는 없음</string>
 
     <!-- Watch on-screen buttons (shown on the dial), separate from the
          hardware stem buttons because most Galaxy Wear OS watches do not
@@ -626,7 +625,7 @@
     <string name="cloud_restore_success">설정을 복원했습니다</string>
     <string name="cloud_restore_failed">폴더에서 백업을 찾을 수 없습니다</string>
     <string name="section_cloud_trips">주행 기록 백업</string>
-    <string name="cloud_trips_caption">주행 기록은 이 휴대전화에 저장되며 백업 폴더로 자동 동기화됩니다. 지우기를 하면 앱 안의 주행 기록만 삭제되고 백업 폴더의 기록은 남습니다.</string>
+    <string name="cloud_trips_caption">주행 기록은 이 휴대전화에 저장되며 백업 폴더로 자동 동기화됩니다. 로컬 주행 기록을 삭제하면 앱 안의 주행 기록만 삭제되고 백업 폴더의 기록은 남습니다.</string>
     <string name="cloud_retry_now">전체 동기화</string>
     <string name="sync_progress">동기화 중 %1$d / %2$d</string>
     <string name="sync_no_folder">먼저 백업 폴더를 선택하세요</string>
@@ -683,7 +682,7 @@
     <string name="units_label">단위</string>
     <string name="units_metric">미터법</string>
     <string name="units_imperial">야드파운드법</string>
-    <string name="units_custom">사용자 지정</string>
+    <string name="units_custom">커스텀</string>
     <string name="units_temperature">온도</string>
     <string name="units_speed">속도</string>
     <string name="tpms_forget">삭제</string>
@@ -714,7 +713,7 @@
     <string name="theme_unsaved_fmt">%1$s (저장 안 됨)</string>
     <string name="theme_editor_save_as">새 테마로 저장</string>
     <string name="theme_editor_pick_color">화면에서 색상 선택</string>
-    <string name="theme_editor_replay_blink">깜박임 다시 보기</string>
+    <string name="theme_editor_replay_blink">깜빡임 다시 보기</string>
     <string name="theme_editor_save_title">테마 저장</string>
     <string name="theme_editor_name_label">이름</string>
     <string name="theme_editor_replace_title">테마를 바꾸시겠습니까?</string>
@@ -911,8 +910,8 @@
     <string name="section_tpms">TPMS 센서</string>
     <string name="tpms_wheel_sensor">휠 타이어 공기압</string>
     <string name="tpms_wheel_sensor_desc">연결된 센서에서 전달받은 값입니다.</string>
-    <string name="tpms_scan">센서 검색</string>
-    <string name="tpms_scan_stop">검색 중지</string>
+    <string name="tpms_scan">센서 스캔</string>
+    <string name="tpms_scan_stop">스캔 중지</string>
     <string name="tpms_none_yet">감지되거나 수동으로 추가된 타이어 공기압 센서가 없습니다.</string>
     <string name="tpms_wheel_sensor_replaced">페어링된 센서로 대체됨</string>
     <string name="external_gps_device_title">외부 GPS</string>
@@ -947,13 +946,13 @@
     <string name="gps_show_on_dashboard">대시보드에 속도 표시</string>
     <string name="gps_show_on_dashboard_desc">속도 다이얼에 GPS 값을 나타내는 색상 점을 추가합니다.</string>
     <string name="section_volume_keys">볼륨 버튼</string>
-    <string name="volume_keys_caption">앱이 화면에 보이는 동안 볼륨 버튼을 바로가기로 사용.</string>
-    <string name="volume_keys_enable">볼륨 버튼 단축키 활성화</string>
+    <string name="volume_keys_caption">앱이 화면에 보이는 동안 볼륨 버튼을 바로가기로 사용합니다.</string>
+    <string name="volume_keys_enable">볼륨 버튼 동작 활성화</string>
     <string name="volume_keys_screen_off">화면이 꺼져 있을 때도</string>
     <string name="volume_keys_screen_off_caption">휴대전화가 잠겨 있거나 다른 앱이 앞에 있어도 작동합니다. 버튼으로 휴대전화 볼륨이 더 이상 바뀌지 않습니다.</string>
     <string name="volume_keys_screen_off_warn">Android는 볼륨 버튼 입력을 화면에 있는 앱에만 보냅니다. 화면이 꺼져 있을 때도 받기 위해 EUC Planet이 휴대전화의 활성 미디어 플레이어로 등록되고, Android는 볼륨을 바꾸는 대신 버튼을 앱으로 보냅니다.\n\n켜져 있는 동안 버튼으로 휴대전화 볼륨이 바뀌지 않습니다.</string>
     <string name="volume_keys_screen_off_confirm">켜기</string>
-    <string name="volume_keys_screen_off_title">볼륨 버튼을 앱이 가져갈까요?</string>
+    <string name="volume_keys_screen_off_title">볼륨 버튼을 앱에 넘기시겠습니까?</string>
     <string name="volume_up">볼륨 올리기</string>
     <string name="volume_down">볼륨 내리기</string>
 
@@ -1148,9 +1147,9 @@
     <string name="recording_chart_altitude">고도 (m)</string>
 
     <!-- Automations / Auto tab -->
-    <string name="auto_lights_title">전조등 제어</string>
+    <string name="auto_lights_title">라이트 제어</string>
     <string name="auto_lights_when">일몰·일출에 맞출 조건</string>
-    <string name="auto_lights_off_slow">감속하면 전조등 끄기</string>
+    <string name="auto_lights_off_slow">감속하면 라이트 끄기</string>
     <string name="auto_lights_off_below">이 속도 미만에서 끄기</string>
     <string name="auto_lights_on_before_sunset">일몰 전 켜기</string>
     <string name="auto_lights_off_after_sunrise">일출 후 끄기</string>
@@ -1242,7 +1241,7 @@
     <string name="sources_cancel">취소</string>
 
     <string name="alarm_section_beep">비프음</string>
-    <string name="alarm_enable_beep">비프음 사용</string>
+    <string name="alarm_enable_beep">비프음 활성화</string>
     <string name="alarm_section_voice">음성</string>
     <string name="alarm_enable_voice">음성 활성화</string>
     <string name="alarm_voice_template">텍스트 템플릿</string>
@@ -1359,7 +1358,7 @@
     <string name="online_rejoin_body">백업 폴더에 리더보드에서 사용되던 프로필이 있습니다.\n\n라이더 ID: %1$s</string>
 
     <!-- ==== Overlay Studio ==== -->
-    <string name="studio_open">Overlay Studio 열기</string>
+    <string name="studio_open">오버레이 스튜디오 열기</string>
     <string name="studio_not_connected">연결 안 됨</string>
     <string name="studio_stop">중지</string>
     <string name="studio_grant">접근 허용</string>
@@ -1729,7 +1728,7 @@
     <string name="nav_no_location">GPS 신호 대기 중…</string>
     <string name="nav_too_far_to_start">첫 번째 경유지에서 너무 멉니다. 시작을 길게 눌러 강제로 시작하세요.</string>
     <string name="nav_empty_hint">지도를 탭하거나 검색하거나 GPX 파일을 불러오세요.</string>
-    <string name="nav_route_failed">경로 서비스를 사용할 수 없어 직선으로 표시합니다</string>
+    <string name="nav_route_failed">경로 탐색 서비스를 사용할 수 없어 직선으로 표시합니다</string>
     <string name="nav_cant_add_while_running">내비게이션 중에는 경유지를 추가할 수 없습니다</string>
     <string name="nav_search_no_results">해당 주소의 결과가 없습니다</string>
     <string name="nav_save_failed">경로를 저장할 수 없습니다</string>
@@ -1750,7 +1749,7 @@
     <string name="share_leave_first">먼저 현재 그룹에서 나가세요</string>
     <string name="share_join_title">그룹 참여</string>
     <string name="share_identity_anon">익명</string>
-    <string name="share_identity_session">맞춤</string>
+    <string name="share_identity_session">커스텀</string>
     <string name="share_identity_profile">프로필</string>
     <string name="share_name_label">이름</string>
     <string name="share_start">공유 시작</string>
@@ -1778,7 +1777,7 @@
     <string name="share_open">열기</string>
     <string name="share_copy">복사</string>
     <string name="share_menu_live">실시간 위치 공유</string>
-    <string name="share_menu_live_desc">그룹 라이드를 시작합니다.</string>
+    <string name="share_menu_live_desc">그룹 라이딩을 시작합니다.</string>
     <string name="share_menu_static">현재 위치 보내기</string>
     <string name="share_menu_static_desc">Google 지도 링크를 보냅니다.</string>
     <string name="share_menu_copy">좌표 복사</string>
@@ -1787,7 +1786,7 @@
     <string name="share_stats_label">속도와 배터리 표시</string>
     <string name="share_tab_qr">QR 코드</string>
     <string name="share_tab_connected">연결됨 (%1$d)</string>
-    <string name="share_title_group">그룹 라이드</string>
+    <string name="share_title_group">그룹 라이딩</string>
     <string name="share_title_live">실시간 위치 공유</string>
     <string name="share_static_subject">내 위치</string>
     <string name="share_you">나</string>
@@ -1859,7 +1858,7 @@
     <string name="weather_icon_desc">일기 예보</string>
     <string name="weather_now">지금</string>
     <string name="weather_fetching">예보 가져오는 중…</string>
-    <string name="weather_refresh">예보 새로고침</string>
+    <string name="weather_refresh">예보 새로 고침</string>
     <string name="weather_error">예보를 가져오지 못했습니다: %1$s</string>
     <string name="weather_window_8h">향후 8시간</string>
     <string name="weather_win_hours_fmt">%1$d시간</string>
@@ -1949,7 +1948,7 @@
     <string name="trip_action_share_file">파일 공유</string>
     <string name="trip_action_share_file_desc">주행 기록 CSV를 다른 앱으로 보냅니다.</string>
     <string name="trip_action_view_online">온라인에서 보기</string>
-    <string name="trip_action_replay">Studio에서 리플레이</string>
+    <string name="trip_action_replay">스튜디오에서 리플레이</string>
     <string name="trip_action_replay_desc">실시간 데이터 오버레이와 함께 주행을 돌려 봅니다.</string>
     <!-- ==== Dashboard quick menus ==== -->
     <string name="dash_view_video_gallery">동영상 갤러리 보기</string>
@@ -2002,8 +2001,8 @@
     <string name="warnings_hud_blocked_body">다른 앱 위에 그리기 권한이 취소되어 지도나 음악 위에 오버레이가 나타나지 않습니다.</string>
     <string name="warnings_no_backup_title">주행 기록이 백업되지 않았습니다</string>
     <string name="warnings_no_backup_body">이 휴대전화에만 있습니다. 백업 폴더를 선택하면 휴대전화를 잃어버리거나 초기화해도 주행 기록이 사라지지 않습니다.</string>
-    <string name="warnings_pip_blocked_title">PIP 모드가 차단되었습니다</string>
-    <string name="warnings_pip_blocked_body">Android에서 EUC Planet의 PIP 모드를 거부하도록 설정되어 있어, 앱을 나가도 플로팅 창이 나타나지 않습니다.</string>
+    <string name="warnings_pip_blocked_title">화면 속 화면이 차단되었습니다</string>
+    <string name="warnings_pip_blocked_body">Android에서 EUC Planet의 화면 속 화면을 거부하도록 설정되어 있어, 앱을 나가도 플로팅 창이 나타나지 않습니다.</string>
     <string name="online_rejoin_confirm">다시 참여</string>
     <string name="hud_joystick_title">버튼 동작</string>
     <string name="hud_joystick_desc">HUD 버튼을 두 번 탭하면 동작을 실행합니다. 한 번 탭하면 계속 화면을 전환합니다.</string>
@@ -2015,7 +2014,7 @@
     <string name="nav_share_dialog_body">경로에 이미 경유지가 있습니다. 다음 경유지로 추가하거나 새로 시작하세요.</string>
     <string name="nav_share_dialog_append">다음에 추가</string>
     <string name="nav_share_dialog_new">새 경로</string>
-    <string name="auto_record_mode_connected">연결됨</string>
+    <string name="auto_record_mode_connected">연결 시</string>
     <string name="auto_record_mode_label">주행 기록 자동 시작</string>
     <string name="auto_record_mode_never">안 함</string>
     <string name="auto_record_mode_riding">주행 중</string>
@@ -2036,7 +2035,7 @@
     <string name="studio_radar_mirror_closing_fmt">m · +%1$d km/h</string>
     <string name="studio_cfg_radar_lane">차선</string>
     <string name="studio_cfg_radar_minimal">최소</string>
-    <string name="studio_cfg_radar_mirror">거울</string>
+    <string name="studio_cfg_radar_mirror">미러</string>
     <string name="studio_cfg_radar_mirror_hint">레이더는 뒤쪽을 감지하지만 좌우는 알 수 없어, 위협에 따라 양쪽 마커가 모두 점등됩니다.</string>
     <string name="studio_cfg_radar_mode">레이더 보기</string>
     <string name="studio_cfg_radar_range">범위</string>
@@ -2046,7 +2045,7 @@
     <string name="studio_save_keep_both">둘 다 유지</string>
     <string name="welcome_tut_voice_desc">개별 음성 메시지는 나중에 설정 → 음성 및 안내에서 켜거나 끌 수 있습니다.</string>
     <string name="welcome_tut_voice_title">음성 안내 켜기</string>
-    <string name="battery_history">배터리 기록</string>
+    <string name="battery_history">배터리 이력</string>
     <string name="charging_back">뒤로</string>
     <string name="charging_charging">충전 중</string>
     <string name="charging_chart_empty">데이터 수집 중</string>
@@ -2132,7 +2131,7 @@
     <string name="nav_setting_avoid_hint">회피 옵션은 다른 경로 탐색 서비스를 사용하며, 이동 수단이 지원하는 경우에만 적용됩니다.</string>
     <string name="nav_setting_avoid_tolls">유료 도로 회피</string>
     <string name="nav_setting_avoid_unpaved">비포장 도로 회피</string>
-    <string name="nav_avoid_router_failed">회피 설정 없이 경로를 만들었습니다: 회피용 경로 서비스가 응답하지 않았습니다.</string>
+    <string name="nav_avoid_router_failed">회피 설정 없이 경로를 만들었습니다: 회피용 경로 탐색 서비스가 응답하지 않았습니다.</string>
     <string name="nav_setting_ocm_key">Open Charge Map API 키</string>
     <string name="nav_setting_ocm_key_hint">충전소 정보 창에 리뷰, 사진, 커넥터 정보를 추가합니다. 무료 키는 다음에서 발급받으세요:</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>
@@ -2312,7 +2311,7 @@
     <string name="alarm_studio_pitch_factor">음높이 계수</string>
     <string name="alarm_studio_play">재생</string>
     <string name="alarm_studio_reset">초기화</string>
-    <string name="alarm_studio_stop">정지</string>
+    <string name="alarm_studio_stop">중지</string>
     <string name="alarm_studio_test_input">테스트 입력 %1$s: %2$s %3$s</string>
     <string name="alarm_studio_volume_factor">볼륨 계수</string>
     <string name="alarm_summary_adaptive_pitch">음높이</string>
@@ -2349,7 +2348,7 @@
     <string name="voice_variant_label">음성</string>
     <string name="voice_variant_fmt">음성 %1$d</string>
     <string name="voice_variant_online">온라인</string>
-    <string name="voice_variant_default">기본값</string>
+    <string name="voice_variant_default">기본</string>
     <!-- Screen geometry, rotation, sync, charging, voice (locale parity) -->
     <string name="sync_cancel">취소</string>
     <string name="sync_stopping">중지 중…</string>
@@ -2390,7 +2389,7 @@
     <string name="setting_simple_speedo_desc">가로 모드에서 큰 속도 숫자만 표시하고 눈금 링은 없습니다.</string>
     <string name="setting_mirror_landscape">버튼을 왼쪽에</string>
     <string name="setting_nav_stops_side">경유지 패널 위치</string>
-    <string name="side_default">기본값</string>
+    <string name="side_default">기본</string>
     <string name="side_left">왼쪽</string>
     <string name="side_right">오른쪽</string>
     <string name="adv_group_geometry">화면 구성 변수</string>
@@ -2466,7 +2465,7 @@
     <string name="accel_split_faster_best">, 최고보다 %1$s 빠름</string>
     <string name="accel_split_slower_best">, 최고보다 %1$s 느림</string>
     <string name="accel_split_best_yet">, 신기록</string>
-    <string name="report_contents">음성 보고 맞춤 설정</string>
+    <string name="report_contents">음성 안내 맞춤 설정</string>
     <string name="widget_speed">속도</string>
     <string name="widget_distance">트립</string>
     <string name="widget_battery">잔량</string>
@@ -2501,7 +2500,7 @@
     <string name="trip_tools_combine_failed">해당 주행을 합치지 못했습니다</string>
     <string name="trip_tools_wheel_current">현재</string>
     <string name="trip_tools_combine_summary">주행 %1$d개를 새 주행 하나로 합칩니다.</string>
-    <string name="phone_hud_desc">Overlay Studio 레이아웃을 다른 앱 위에 그립니다. 지도나 음악을 쓰면서 휠을 볼 수 있습니다.</string>
+    <string name="phone_hud_desc">오버레이 스튜디오 레이아웃을 다른 앱 위에 그립니다. 지도나 음악을 쓰면서 휠을 볼 수 있습니다.</string>
     <string name="phone_hud_permission_desc">Android가 별도로 요청합니다. 허용하지 않으면 오버레이를 표시할 수 없습니다.</string>
     <string name="phone_hud_grant">허용</string>
     <string name="phone_hud_section">휴대전화 HUD</string>
@@ -2608,7 +2607,7 @@
     <string name="trip_map_new_wheel">새 휠: %1$s</string>
     <string name="trip_map_ride_end">주행 종료</string>
     <string name="adv_smoothing_window">평활화 구간</string>
-    <string name="adv_smoothing_window_desc">“평균” 주행 기록 그래프와 평활화된 음성 보고에서 평균하는 샘플 수입니다. 주행 기록은 약 1초마다 저장되므로 이 값은 초 단위로 보면 됩니다. 주의: 값이 높으면 짧은 스파이크가 가려집니다.</string>
+    <string name="adv_smoothing_window_desc">“평균” 주행 기록 그래프와 평활화된 음성 안내에서 평균하는 샘플 수입니다. 주행 기록은 약 1초마다 저장되므로 이 값은 초 단위로 보면 됩니다. 주의: 값이 높으면 짧은 스파이크가 가려집니다.</string>
     <string name="hud_discovery_auto">자동</string>
     <string name="hud_discovery_both">둘 다</string>
     <string name="hud_discovery_desc">자동은 HUD를 스스로 찾습니다. 고정은 아래 주소만 사용합니다.</string>
@@ -2653,7 +2652,7 @@
     <string name="lockdown_arm">켜기</string>
     <string name="lockdown_trip_saved">주행 기록을 저장하고 기록을 중지했습니다.</string>
     <string name="lockdown_warning_intro">앱이 단순한 잠금 화면으로 전환됩니다. 켜져 있는 동안에는 다음과 같습니다.</string>
-    <string name="lockdown_limit_1">리걸 모드 속도 제한이 강제로 적용되며 화면, Flic 버튼, 볼륨 키, 워치, HUD 어디에서도 끌 수 없습니다.</string>
+    <string name="lockdown_limit_1">리걸 모드 속도 제한이 강제로 적용되며 화면, Flic 버튼, 볼륨 버튼, 워치, HUD 어디에서도 끌 수 없습니다.</string>
     <string name="lockdown_limit_2">리걸 틸트백과 리걸 알람 속도는 변경할 수 없습니다.</string>
     <string name="lockdown_limit_3">주행 기록이 중지되고 자동 기록도 새 주행을 시작하지 않습니다.</string>
     <string name="lockdown_limit_4">내비게이션이 중지되고 경로를 시작할 수 없습니다.</string>
@@ -2665,7 +2664,7 @@
     <string name="lockdown_limit_10">설정을 열 수 없습니다.</string>
     <string name="lockdown_limit_11">주행 기록, 배터리 모니터, 스튜디오, 지표 상세를 열 수 없습니다.</string>
     <string name="lockdown_limit_12">지표를 탭해도 아무 일도 일어나지 않습니다.</string>
-    <string name="lockdown_limit_13">음성 안내, 주기적 보고, 가속 구간 측정은 무음이 됩니다. 알람은 계속 작동합니다.</string>
+    <string name="lockdown_limit_13">음성 안내, 주기적 안내, 속도 구간 안내는 무음이 됩니다. 알람은 계속 작동합니다.</string>
     <string name="lockdown_limit_14">휠을 잠그거나 해제할 수 없고 근접 자동 잠금도 작동하지 않습니다.</string>
     <string name="lockdown_limit_15">자동 라이트와 자동 볼륨은 계속 작동합니다. 미디어 제어는 중지됩니다.</string>
     <string name="lockdown_limit_16">알림에서 버튼이 사라집니다.</string>
@@ -2679,7 +2678,7 @@
     <string name="lockdown_warning_no_wheel">연결된 휠이 없어 리걸 모드 상태를 알 수 없습니다. 다음에 리걸 모드를 켤 때 앱이 잠깁니다.</string>
     <string name="lockdown_continue">계속</string>
     <string name="trip_tools_wheel_none">이 주행에는 아직 휠이 기록되지 않았습니다.</string>
-    <string name="backup_conflict_warning">이 휴대폰의 일부 주행이 백업 폴더의 사본과 다릅니다. %1$s을(를) 누른 다음 %2$s에서 \"%3$s\"을(를) 누르고 남길 사본을 선택하세요.</string>
+    <string name="backup_conflict_warning">이 휴대전화의 일부 주행 기록이 백업 폴더의 사본과 다릅니다. %1$s을(를) 누른 다음 %2$s에서 “%3$s”을(를) 누르고 남길 사본을 선택하세요.</string>
     <string name="backup_conflict_title">백업 충돌</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">탈까요?</string>
@@ -2799,11 +2798,11 @@
     <string name="sync_first_settings">Dropbox에 다른 휴대전화의 설정이 이미 있습니다. 그 설정을 사용하시겠습니까, 아니면 이 휴대전화의 설정을 유지하시겠습니까?</string>
     <string name="recording_delete_trip_body_keeps_backup">이 휴대전화에서 이 주행 기록을 삭제하시겠습니까? 백업에 사본이 남아 있어 전체 동기화를 하면 다시 가져옵니다.</string>
     <string name="share_menu_scan">QR 스캔</string>
-    <string name="share_menu_scan_desc">그룹 라이드에 참여하거나 경로를 엽니다.</string>
+    <string name="share_menu_scan_desc">그룹 라이딩에 참여하거나 경로를 엽니다.</string>
     <string name="share_menu_route">경로 공유</string>
     <string name="share_menu_route_desc">QR 코드나 링크로 공유합니다. 계정이 필요 없습니다.</string>
     <string name="share_menu_route_none">먼저 경유지를 추가하세요.</string>
-    <string name="scan_code_unknown">그룹 라이드 또는 경로 코드가 아닙니다.</string>
+    <string name="scan_code_unknown">그룹 라이딩 또는 경로 코드가 아닙니다.</string>
     <string name="route_qr_hint">EUC Planet이나 휴대전화 카메라로 스캔하세요.</string>
     <string name="route_qr_too_long">QR 코드로 만들기에는 경로가 너무 깁니다. GPX로 저장하세요.</string>
     <string name="route_open_title">공유 경로 열기</string>
@@ -2893,7 +2892,7 @@
     <string name="offline_data_route_q">경로상의 지역(%1$s)을 다운로드하시겠습니까?</string>
     <string name="offline_data_no_route">먼저 경로를 만드세요.</string>
     <string name="offline_data_route_all_here">경로의 모든 지역이 다운로드되었습니다.</string>
-    <string name="offline_ride_title">오프라인 지도를 다운로드할까요?</string>
+    <string name="offline_ride_title">오프라인 지도를 다운로드하시겠습니까?</string>
     <string name="offline_ride_body">이 경로의 일부가 오프라인 지도 범위 밖에 있습니다. 지금 다운로드하면 신호가 없어도 지도와 경로 재탐색이 작동합니다.</string>
     <string name="offline_ride_download">지도 다운로드</string>
     <string name="offline_ride_start">그래도 시작</string>

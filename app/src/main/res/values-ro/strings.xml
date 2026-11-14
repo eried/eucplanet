@@ -102,7 +102,7 @@
     <string name="lock_blocked_in_motion_toast">Încetinește pentru a bloca monociclul</string>
     <string name="action_recorder">Înregistrator</string>
     <string name="action_recorder_trips">Înregistrator\n(curse: %1$d)</string>
-    <string name="action_recorder_trips_one">Înregistrator (%1$d cursă)</string>
+    <string name="action_recorder_trips_one">Înregistrator\n(%1$d cursă)</string>
     <string name="search_settings">Caută în setări</string>
     <string name="tab_general">General</string>
     <string name="tab_speed">Parametrii monociclului</string>
@@ -137,7 +137,7 @@
     <string name="dashboard_composite_layout_col2">2 coloane</string>
     <string name="dashboard_composite_layout_col3">3 coloane</string>
     <string name="dashboard_composite_cell_label">Celula %1$d</string>
-    <string name="dashboard_composite_empty_label">(gol)</string>
+    <string name="dashboard_composite_empty_label">(nimic)</string>
     <string name="dashboard_composite_blank_label">(gol)</string>
     <string name="dashboard_stat_empty">(gol)</string>
     <string name="dashboard_group_default_name">Acțiunile mele</string>
@@ -174,7 +174,7 @@
     <string name="dashboard_corner_right">Dreapta</string>
     <string name="dashboard_slot_sparkline">Fundal cu tendință în timp real</string>
     <string name="dashboard_slot_sparkline_chip">Statistici</string>
-    <string name="dashboard_stat_none">(gol)</string>
+    <string name="dashboard_stat_none">(nimic)</string>
     <string name="dashboard_stat_current">Acum</string>
     <string name="dashboard_stat_min">Min</string>
     <string name="dashboard_stat_max">Max / Vârf</string>
@@ -298,8 +298,8 @@
     <string name="menu_switch_to_voice_command">Comută la comanda vocală</string>
     <string name="menu_switch_to_voice_report">Comută la anunț vocal</string>
     <string name="voice_commands_title">Comenzi vocale</string>
-    <string name="voice_commands_enable_desc">Folosește-ți vocea în aplicație. Ține apăsat butonul Voce de pe panou și alege Ascultă o comandă vocală.</string>
-    <string name="voice_commands_bind_desc">Atribuie ascultarea unui Flic, tastelor de volum, ceasului tău sau HUD-ului.</string>
+    <string name="voice_commands_enable_desc">Folosește-ți vocea în aplicație. Ține apăsat butonul Voce de pe tabloul de bord și alege Ascultă o comandă vocală.</string>
+    <string name="voice_commands_bind_desc">Atribuie ascultarea unui Flic, butoanelor de volum, ceasului tău sau HUD-ului.</string>
     <string name="voice_prompt_cue">Semnal la ascultare</string>
     <string name="voice_music_listening">Muzică în timpul ascultării</string>
     <string name="voice_music_pause">Pauză</string>
@@ -341,7 +341,7 @@
     <string name="warnings_perm_mic_title">Microfon nepermis</string>
     <string name="warnings_perm_mic_body">Comenzile vocale nu pot asculta până când aplicația nu are acces la microfon.</string>
     <string name="warnings_perm_bluetooth_title">Bluetooth nepermis</string>
-    <string name="warnings_perm_bluetooth_body">Aplicația nu poate găsi roata și nu se poate conecta la ea. Atinge pentru a permite.</string>
+    <string name="warnings_perm_bluetooth_body">Aplicația nu poate găsi monociclul și nu se poate conecta la el. Atinge pentru a permite.</string>
     <string name="voice_answer_unknown">Nu am înțeles. Spune %1$s pentru ajutor.</string>
     <string name="voice_help_terms">ce pot spune,ajutor,ce pot cere</string>
     <string name="voice_stat_max_terms">maxim,max,cel mai mare</string>
@@ -387,7 +387,7 @@
     <string name="voice_sp_daylight_terms">lumină,apus,cât mai e până se întunecă</string>
     <string name="voice_sp_connected_terms">conectat,monociclul este conectat,roata este conectată</string>
     <string name="voice_sp_uptime_terms">de cât timp conectat,conectat de</string>
-    <string name="voice_sp_nav_terms">navigație,ce urmează,repetă</string>
+    <string name="voice_sp_nav_terms">navigare,navigație,ce urmează,repetă</string>
     <string name="voice_sp_last_trip_terms">ultima cursă,cursa anterioară</string>
     <string name="voice_sp_report_terms">raport,stare,raport vocal</string>
     <string name="voice_action_confirm">%1$s? Spune da pentru confirmare.</string>
@@ -581,7 +581,7 @@
     <string name="adv_alarm_min_span">Interval minim</string>
     <string name="adv_alarm_min_span_desc">Stabilește timpul minim pe care trebuie să îl acopere eșantioanele înainte de folosirea tendinței.</string>
     <string name="adv_alarm_warm_route">Timp difuzor pregătit</string>
-    <string name="adv_alarm_warm_route_desc">Determină cât timp rămâne difuzorul pregătit după un bip sau un mesaj vocal. Atenție: prea scurt și primul bip după o pauză liniștită poate pocni sau fi tăiat; prea lung ține sunetul activ și consumă bateria.</string>
+    <string name="adv_alarm_warm_route_desc">Stabilește cât timp rămâne difuzorul pregătit după un bip sau un mesaj vocal. Atenție: prea scurt și primul bip după o pauză liniștită poate pocni sau fi tăiat; prea lung ține sunetul activ și consumă bateria.</string>
     <string name="adv_group_radar_auto">Radar și automatizare</string>
     <string name="adv_radar_clear_decay">Estomparea benzii radar</string>
     <string name="adv_radar_clear_decay_desc">Stabilește cât timp rămâne bara benzii după ce drumul se eliberează. Atenție: o valoare prea mică o face să clipească pe măsură ce mașinile vin și pleacă.</string>
@@ -620,7 +620,7 @@
     <string name="adv_group_nav_behaviour">Comportamentul navigării</string>
     <string name="adv_nav_moving">Viteza de deplasare</string>
     <string name="adv_nav_moving_desc">Stabilește viteza peste care ești considerat în mișcare pentru direcție și ghidare. Atenție: o valoare prea mare ignoră mersul lent.</string>
-    <string name="adv_nav_cruise">Viteza de croazieră a navigației</string>
+    <string name="adv_nav_cruise">Viteza de croazieră a navigării</string>
     <string name="adv_nav_cruise_desc">Stabilește ora estimată de sosire în timpul navigării, până când preia ritmul tău real de mers. Atenție: o valoare prea mare arată o oră de sosire pe care nu o vei respecta.</string>
     <string name="adv_nav_prepare_dist">Distanța de pregătire a virajului</string>
     <string name="adv_nav_prepare_dist_desc">Stabilește cu cât înainte de viraj se anunță indicația de pregătire.</string>
@@ -909,7 +909,7 @@
     <string name="battery_percent_cell_range_desc">Tensiunea pe celulă pentru gol și plin.</string>
     <string name="battery_percent_series_cells">Celule în serie</string>
     <string name="battery_capacity_label">Capacitate</string>
-    <string name="battery_capacity_desc">Opțional. Setează estimarea autonomiei de la început, pentru indicatorul Autonomie și HUD.</string>
+    <string name="battery_capacity_desc">Opțional. Setează estimarea autonomiei de la început, pentru caseta Autonomie și HUD.</string>
     <string name="battery_percent_cells_from_wheel">Preluat de la monociclu: %1$d în serie.</string>
     <string name="battery_percent_cells_manual">Transformă tensiunea pachetului în procentul de pe tabloul de bord, în voce și alarme.</string>
     <string name="speed_calibration_label">Abaterea vitezei</string>
@@ -1000,7 +1000,7 @@
     <string name="welcome_tut_speed">Viteza ta în timp real. Schimbă unitățile în Setări → %1$s</string>
     <string name="welcome_tut_metrics">Baterie, temperatură, tensiune și altele în timp real. Rearanjează-le în Setări → %1$s</string>
     <string name="welcome_tut_actions">Comenzi rapide. Ajustează-le în același loc, la %1$s</string>
-    <string name="welcome_tut_map">Deschide navigatorul pentru a planifica trasee, a primi indicații pas cu pas sau a partaja locația live într-o tură de grup</string>
+    <string name="welcome_tut_map">Deschide navigatorul pentru a planifica trasee, a primi indicații pas cu pas sau a partaja locația live într-o tură în grup</string>
     <string name="welcome_tut_gps">Atinge pentru vizualizarea datelor în timp real, îți poți chiar calibra viteza monociclului după viteza GPS. Verifică apoi calibrarea în Setări → %1$s</string>
     <string name="welcome_tut_camera">Înregistrează video cu o suprapunere de telemetrie în timp real. Creează suprapuneri personalizate spectaculoase și exportă-le ca să îți faci propriile clipuri cu date din curse anterioare</string>
     <string name="welcome_tut_pd">Arată Park sau Drive. Atinge pentru a seta %1$s</string>
@@ -1089,7 +1089,7 @@
     <string name="engine_preset_sampled_quad_atv">Quad ATV</string>
     <string name="col_periodic">Periodic</string>
     <string name="col_trigger">Declanșator</string>
-    <string name="voice_trigger_reset_after">Resetează valorile după raportul declanșat</string>
+    <string name="voice_trigger_reset_after">Resetează indicatorii după raportul declanșat</string>
     <string name="report_speed">Viteză</string>
     <string name="report_battery">Baterie</string>
     <string name="report_temp">Temp</string>
@@ -1102,7 +1102,7 @@
     <string name="report_navigation">Navigare</string>
     <string name="section_flic_buttons">Butoane Flic 2</string>
     <string name="flic_show_on_dashboard">Pictogramă de acces rapid în tabloul de bord</string>
-    <string name="flic_scan_hint">Ține apăsat butonul Flic 2 timp de 6 secunde pentru modul de asociere, apoi atinge Scanează.</string>
+    <string name="flic_scan_hint">Ține apăsat butonul Flic 2 timp de 6 secunde pentru modul de asociere, apoi atinge Începe scanarea.</string>
     <string name="flic_stop_scan">Oprește scanarea</string>
     <string name="flic_start_scan">Începe scanarea</string>
     <string name="flic_forget">Uită</string>
@@ -1174,7 +1174,7 @@
     <string name="radar_unpair">Uită dispozitivul</string>
     <string name="radar_battery_fmt">Baterie %1$d%%</string>
     <string name="radar_clear">Banda este liberă</string>
-    <string name="radar_threats_count">Vehicule urmărite: %1$d</string>
+    <string name="radar_threats_count">Vehicule urmărite (%1$d):</string>
     <string name="radar_show_overlay">Arată suprapunerea de amenințări</string>
     <string name="radar_show_overlay_desc">Bandă radar subțire pe marginile tabloului de bord. Un punct colorat pentru fiecare vehicul detectat. Vizibilă doar în tabloul de bord.</string>
     <string name="radar_overlay_left">Marginea stângă</string>
@@ -1211,7 +1211,7 @@
     <string name="alarm_metric_tire_pressure">Presiunea în anvelopă</string>
     <string name="alarm_metric_bt_rssi">Semnal Bluetooth</string>
     <string name="alarm_metric_lateral_g">G lateral</string>
-    <string name="alarm_metric_g_force">Forță G</string>
+    <string name="alarm_metric_g_force">Forța G</string>
     <string name="alarm_metric_battery_temp">Temp. baterie</string>
     <string name="alarm_metric_controller_temp">Temp. controler</string>
     <string name="alarm_metric_motor_temp">Temp. motor</string>
@@ -1299,7 +1299,7 @@
     <string name="recording_delete_trip_title">Șterge cursa</string>
     <string name="recording_delete_trip_body">Ștergi această cursă și fișierul ei de date?</string>
     <string name="recording_clear_all_menu">Șterge tot</string>
-    <string name="recording_empty">Nu există date de afișat. Importă sau înregistrează una nouă</string>
+    <string name="recording_empty">Nu există date de afișat. Importă sau înregistrează o cursă nouă</string>
     <string name="recording_will_auto_stop">Înregistrarea se va opri automat după %1$ds de inactivitate</string>
     <string name="recording_stat_trips">Curse</string>
     <string name="recording_stat_distance">Distanță</string>
@@ -1441,15 +1441,15 @@
     <string name="trip_compare_this_trip">Această cursă</string>
     <string name="trip_compare_no_match">Nicio cursă nu se potrivește</string>
     <string name="trip_compare_change">Schimbă</string>
-    <string name="trip_compare_metric">Mărime</string>
+    <string name="trip_compare_metric">Indicator</string>
     <string name="trip_compare_offset">Decalaj</string>
     <string name="trip_compare_auto">Auto</string>
     <string name="trip_compare_view">Vizualizare</string>
-    <string name="trip_compare_stacked">Suprapusă vertical</string>
+    <string name="trip_compare_stacked">Una sub alta</string>
     <string name="trip_compare_overlay">Suprapusă</string>
     <string name="trip_compare_deltas">Arată diferențele (Δ)</string>
     <string name="trip_compare_no_overlap">Nicio suprapunere la acest decalaj</string>
-    <string name="trip_compare_no_shared">Nicio mărime comună</string>
+    <string name="trip_compare_no_shared">Niciun indicator comun</string>
     <string name="trip_compare_banner">vs %1$s</string>
     <string name="trip_compare_banner_sub">Decalaj %1$s · %2$s comun</string>
     <string name="trip_compare_stop">Oprește compararea</string>
@@ -1646,7 +1646,7 @@
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Deconectează</string>
     <string name="online_unlink_title">Te deconectezi de la clasament?</string>
-    <string name="online_unlink_body">Acest telefon nu mai încarcă ture. ID-ul tău de monociclist rămâne salvat, ca să te poți alătura din nou cu același profil. Statisticile tale rămân pe EUC Stats; folosește Șterge contul pentru a le elimina.</string>
+    <string name="online_unlink_body">Acest telefon nu mai încarcă curse. ID-ul tău de monociclist rămâne salvat, ca să te poți alătura din nou cu același profil. Statisticile tale rămân pe EUC Stats; folosește Șterge contul pentru a le elimina.</string>
     <string name="online_unlink_confirm">Deconectează</string>
     <string name="online_profile_manage">Gestionează profilul</string>
     <string name="online_profile_title">Profilul meu</string>
@@ -2020,8 +2020,8 @@
     <string name="nav_view_straight_line">în linie dreaptă</string>
     <string name="nav_view_heading_up">Direcția în sus, atinge pentru nord în sus</string>
     <string name="nav_view_north_up">Nord în sus, atinge pentru direcția în sus</string>
-    <string name="nav_view_tiles">Casete de navigație</string>
-    <string name="nav_view_tiles_desc">Cele 4 numere de lângă viteză în timpul navigației.</string>
+    <string name="nav_view_tiles">Casetele navigatorului</string>
+    <string name="nav_view_tiles_desc">Cele 4 numere de lângă viteză în timpul navigării.</string>
     <string name="nav_view_speed">Viteză</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
@@ -2162,12 +2162,12 @@
     <string name="nav_setting_arrival_radius_desc">Cât de aproape înseamnă atingerea unei opriri.</string>
     <string name="nav_setting_offroute">Toleranța de ieșire de pe traseu</string>
     <string name="nav_setting_offroute_desc">Cât de departe de traseu până se declanșează alerta de ieșire.</string>
-    <string name="nav_setting_params">Navigație și vreme</string>
+    <string name="nav_setting_params">Navigare și vreme</string>
     <string name="weather_section">Vreme</string>
     <string name="weather_icon_desc">Prognoza meteo</string>
     <string name="weather_now">Acum</string>
     <string name="weather_fetching">Se preia prognoza…</string>
-    <string name="weather_refresh">Reîmprospătează prognoza</string>
+    <string name="weather_refresh">Actualizează prognoza</string>
     <string name="weather_error">Prognoza a eșuat: %1$s</string>
     <string name="weather_window_8h">Următoarele 8 ore</string>
     <string name="weather_win_hours_fmt">%1$d h</string>
@@ -2179,7 +2179,7 @@
     <string name="weather_window_1w">Următoarele 7 zile</string>
     <string name="weather_settings_entry">Setări vreme</string>
     <string name="weather_enable">Pictogramă de acces rapid în tabloul de bord</string>
-    <string name="weather_enable_desc">Adaugă o pictogramă meteo deasupra butonului hărții: atinge-o pentru prognoza de rulare.</string>
+    <string name="weather_enable_desc">Adaugă o pictogramă meteo deasupra butonului hărții: atinge-o pentru prognoza de mers.</string>
     <string name="weather_window_label">Fereastra prognozei</string>
     <string name="weather_source_label">Sursa prognozei</string>
     <string name="weather_cold">Prea frig sub</string>
@@ -2236,7 +2236,7 @@
     <string name="weather_cond_night">Noapte</string>
     <string name="weather_cond_golden">Ora de aur</string>
     <string name="weather_face_clear">Senin - dă-i.</string>
-    <string name="weather_face_meh">Se poate rula, dar fii atent.</string>
+    <string name="weather_face_meh">Se poate merge, dar fii atent.</string>
     <string name="weather_face_rain">Asfalt ud - înclină ușor, frânează devreme.</string>
     <string name="weather_face_snow">Zăpadă sau lapoviță - fără aderență, mai bine pe jos.</string>
     <string name="weather_face_wind">Rafale - stai relaxat, așteaptă împingeri.</string>
@@ -2254,7 +2254,7 @@
     <string name="nav_setting_avoid_tolls">Evită drumurile cu taxă</string>
     <string name="nav_setting_avoid_ferries">Evită feriboturile</string>
     <string name="nav_setting_avoid_unpaved">Evită drumurile nepavate</string>
-    <string name="nav_avoid_router_failed">Traseul ignoră evitările: serviciul lor de rutare nu a răspuns.</string>
+    <string name="nav_avoid_router_failed">Traseul ignoră evitările: serviciul lor de trasee nu a răspuns.</string>
     <string name="nav_show_chargers">Arată stațiile de încărcare</string>
     <string name="nav_show_places">Arată locuri (magazine, mâncare, obiective)</string>
     <string name="nav_pois_failed">Locurile nu au putut fi încărcate. Verifică-ți conexiunea</string>
@@ -2442,7 +2442,7 @@
     <string name="lockdown_vehicle_model">Model</string>
     <string name="lockdown_vehicle_max_speed">Limita maximă de viteză</string>
     <string name="lockdown_vehicle_alarm">Alarmă</string>
-    <string name="lockdown_vehicle_odometer">Kilometraj</string>
+    <string name="lockdown_vehicle_odometer">Odometru</string>
     <string name="lockdown_speed_limit_title">Limite</string>
     <string name="lockdown_unlock_prompt">Codul producătorului</string>
     <string name="lockdown_unlock">Deblochează</string>
@@ -2457,7 +2457,7 @@
     <string name="lockdown_arm">Activează</string>
     <string name="lockdown_trip_saved">Cursă salvată. Înregistrarea s-a oprit.</string>
     <string name="lockdown_warning_intro">Aplicația trece pe un ecran simplu și blocat. Cât timp este activ:</string>
-    <string name="lockdown_limit_1">Limitele de viteză ale modului legal sunt impuse și nu pot fi dezactivate, nici de pe ecran, nici cu un buton Flic, tastele de volum, ceasul sau HUD-ul.</string>
+    <string name="lockdown_limit_1">Limitele de viteză ale modului legal sunt impuse și nu pot fi dezactivate, nici de pe ecran, nici cu un buton Flic, butoanele de volum, ceasul sau HUD-ul.</string>
     <string name="lockdown_limit_2">Tiltback-ul legal și alarma legală nu pot fi modificate.</string>
     <string name="lockdown_limit_3">Înregistrarea curselor se oprește, iar înregistrarea automată nu pornește curse noi.</string>
     <string name="lockdown_limit_4">Navigarea se oprește și traseele nu pot fi pornite.</string>
@@ -2483,7 +2483,7 @@
     <string name="lockdown_warning_no_wheel">Niciun monociclu conectat, deci starea modului legal este necunoscută. Aplicația se va bloca data viitoare când modul legal este pornit.</string>
     <string name="lockdown_continue">Continuă</string>
     <string name="trip_tools_wheel_none">Această cursă nu are încă un monociclu înregistrat.</string>
-    <string name="backup_conflict_warning">Unele trasee de pe acest telefon diferă de copiile din folderul de backup. Atinge %1$s, apoi la %2$s apasă \"%3$s\" și alege ce copie păstrezi.</string>
+    <string name="backup_conflict_warning">Unele curse de pe acest telefon diferă de copiile din dosarul de rezervă. Atinge %1$s, apoi la %2$s apasă „%3$s” și alege ce copie păstrezi.</string>
     <string name="backup_conflict_title">Conflicte între copiile de rezervă</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Mergem?</string>
@@ -2525,9 +2525,9 @@
     <string name="widget_act_1_short">Acțiune 1</string>
     <string name="widget_act_2_short">Acțiune 2</string>
     <string name="widget_act_3_short">Acțiune 3</string>
-    <string name="action_chip_reset_metrics">Resetează valorile</string>
-    <string name="action_reset_metrics_done">Valori resetate</string>
-    <string name="action_reset_metrics_wheel_done">Valori resetate, contorul de cursă al monociclului a fost șters</string>
+    <string name="action_chip_reset_metrics">Resetează indicatorii</string>
+    <string name="action_reset_metrics_done">Indicatori resetați</string>
+    <string name="action_reset_metrics_wheel_done">Indicatori resetați, contorul de cursă al monociclului a fost șters</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
     <string name="tpms_waiting">Se așteaptă date</string>
     <string name="status_idle">Inactiv</string>
@@ -2574,13 +2574,13 @@
     <string name="crews_type_instead">Introdu manual</string>
     <string name="crews_code_label">Cod de acces</string>
     <string name="crews_foreign_title">Codul nu este de la eucstats</string>
-    <string name="crews_foreign_body">Trimite către %1$s, unde nu ajung turele tale. Dacă accepți, îi predai contul celui care administrează acel server.\n\nAi propriul server? Pornește mai întâi modul dezvoltator din Setări.</string>
+    <string name="crews_foreign_body">Trimite către %1$s, unde nu ajung cursele tale. Dacă accepți, îi predai contul celui care administrează acel server.\n\nAi propriul server? Pornește mai întâi modul dezvoltator din Setări.</string>
     <string name="crews_scan_switch">Mai bine scanează</string>
     <string name="crews_close">Închide</string>
     <string name="crews_opensettings">Deschide setările</string>
     <string name="crews_dev_title">Mod dezvoltator</string>
     <string name="crews_dev_body">Comunică cu %1$s în loc de serverul obișnuit.</string>
-    <string name="crews_grant">Permite acestui browser să te reprezinte.\n\nPoate crea un crew, intra într-unul, ieși dintr-unul și gestiona membrii. Nu poate trimite ture, nu te poate redenumi și nu poate șterge nimic, acestea rămân pe telefon.</string>
+    <string name="crews_grant">Permite acestui browser să te reprezinte.\n\nPoate crea un crew, intra într-unul, ieși dintr-unul și gestiona membrii. Nu poate trimite curse, nu te poate redenumi și nu poate șterge nimic, acestea rămân pe telefon.</string>
     <string name="crews_noprofile_title">Intră întâi în clasament</string>
     <string name="crews_noprofile_body">Crews sunt legate de profilul tău din clasament, iar acest telefon nu are încă unul. Alătură-te din %1$s, apoi scanează din nou.</string>
     <string name="crews_issue">Emite accesul</string>
@@ -2637,7 +2637,7 @@
     <string name="car_alarm_channel_description">Afișează o alarmă declanșată pe ecranul Android Auto, peste hartă.</string>
     <string name="car_alarm_notifications">Alarme pe ecranul mașinii</string>
     <string name="car_alarm_notifications_hint">O alarmă declanșată apare peste hartă, așa că te găsește în timpul navigării. Bipul și vibrația rămân la fel.</string>
-    <string name="car_no_metrics">Nicio valoare selectată</string>
+    <string name="car_no_metrics">Niciun indicator selectat</string>
     <string name="nav_solve_menu">Optimizează ordinea opririlor</string>
     <string name="nav_solve_effort">Efort</string>
     <string name="nav_solve_quick">Rapid</string>

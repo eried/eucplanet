@@ -75,7 +75,7 @@
     <!-- Experimental banner -->
     <string name="experimental_banner">Предварително поддържано моноколело. Докоснете, за да съобщите за проблем.</string>
     <string name="experimental_dialog_title">Помогнете да подобрим EUC Planet</string>
-    <string name="experimental_dialog_body">Поддръжката на това моноколело е предварителна, авторът е проверил само семейството InMotion V14 / V12 / P6. KingSong, Veteran, Begode, Ninebot и по-старите модели InMotion са в режим Preview и се нуждаят от тестване от ездачи. Използвайте внимателно.\n\nДокосването на този банер ще изпрати сигнал за проблем, за да може авторът да поправи това, което не работи.</string>
+    <string name="experimental_dialog_body">Поддръжката на това моноколело е предварителна, авторът е проверил само семейството InMotion V14 / V12 / P6. KingSong, Veteran, Begode, Ninebot и по-старите модели InMotion са с предварителна поддръжка и се нуждаят от тестване от ездачи. Използвайте внимателно.\n\nДокосването на този банер ще изпрати сигнал за проблем, за да може авторът да поправи това, което не работи.</string>
     <string name="experimental_dialog_report">Съобщи за проблем</string>
 
     <!-- Scan: virtual wheel section (Service Mode only) -->
@@ -149,7 +149,7 @@
     <string name="dashboard_custom_ble_default_name">Персонален BLE</string>
     <string name="dashboard_custom_ble_label">Надпис на бутона</string>
     <string name="dashboard_custom_ble_family">Филтър по модел моноколело</string>
-    <string name="dashboard_custom_ble_frames">Рамки (hex)</string>
+    <string name="dashboard_custom_ble_frames">Кадри (hex)</string>
     <string name="dashboard_custom_ble_frames_error">Невалиден hex, използвайте двойки байтове като 4c 6b 41 70</string>
     <string name="dashboard_composite_layout_row2">2 реда</string>
     <string name="dashboard_composite_layout_col2">2 колони</string>
@@ -295,11 +295,11 @@
     <string name="metric_chip_gps_heading_tile">Посока</string>
     <string name="metric_chip_trip_time_tile">Време</string>
     <string name="metric_chip_g_force_tile">G</string>
-    <string name="metric_chip_forward_g_tile">Напр. g</string>
+    <string name="metric_chip_forward_g_tile">Надл. g</string>
     <string name="metric_chip_lateral_g_tile">Стр. g</string>
     <string name="metric_chip_bt_rssi_tile">BT</string>
 
-    <string name="metric_desc_headroom">Оставащ резерв от скорост преди да се задейства tilt-back. По-голямо число = по-голям запас на сигурност.</string>
+    <string name="metric_desc_headroom">Оставащ резерв от скорост преди да се задейства tiltback. По-голямо число = по-голям запас на сигурност.</string>
     <string name="metric_desc_trip_max_speed">Максимална скорост по време на текущото пътуване (нулира се при ново пътуване).</string>
     <string name="metric_desc_avg_trip_speed">Изминатото разстояние, разделено на времето в каране досега.</string>
     <string name="metric_desc_wh_consumed">Общо ватчасове, взети от батерията за това пътуване.</string>
@@ -366,7 +366,7 @@
     <string name="warnings_perm_mic_title">Микрофонът не е разрешен</string>
     <string name="warnings_perm_mic_body">Гласовите команди не могат да слушат, докато приложението няма разрешение за микрофона.</string>
     <string name="warnings_perm_bluetooth_title">Bluetooth не е разрешен</string>
-    <string name="warnings_perm_bluetooth_body">Приложението не може да намери колелото ви или да се свърже с него. Докоснете, за да разрешите.</string>
+    <string name="warnings_perm_bluetooth_body">Приложението не може да намери моноколелото ви или да се свърже с него. Докоснете, за да разрешите.</string>
     <string name="voice_answer_unknown">Не разбрах. Кажете %1$s за помощ.</string>
     <string name="voice_help_terms">какво мога да кажа,помощ,какво мога да правя</string>
     <string name="voice_stat_max_terms">макс,максимум,максимална,най-висока</string>
@@ -391,7 +391,7 @@
     <string name="voice_weather_great">Отлично време за каране</string>
     <string name="voice_weather_good">Добро време за каране</string>
     <string name="voice_weather_ok">Може да се кара</string>
-    <string name="voice_weather_poor">Слабо време за каране</string>
+    <string name="voice_weather_poor">Посредствено време за каране</string>
     <string name="voice_weather_bad">Лошо време за каране</string>
     <string name="voice_weather_snow">Сняг</string>
     <string name="voice_weather_rain">Дъжд</string>
@@ -440,14 +440,14 @@
     <string name="action_chip_safety_off">Законов ИЗКЛ.</string>
     <string name="action_chip_record_start">Старт запис</string>
     <string name="action_chip_record_stop">Стоп запис</string>
-    <string name="action_chip_media_play">Пускане / пауза</string>
+    <string name="action_chip_media_play">Пусни / пауза</string>
     <string name="action_chip_media_next">Следваща песен</string>
     <string name="action_chip_media_prev">Предишна песен</string>
     <string name="action_chip_music_start">Пусни музика</string>
     <string name="action_chip_media_pause">Спри музиката</string>
-    <string name="action_chip_phone_volume_up">Усилване на звука</string>
-    <string name="action_chip_phone_volume_down">Намаляване на звука</string>
-    <string name="action_chip_phone_mute">Заглушаване</string>
+    <string name="action_chip_phone_volume_up">Усили звука</string>
+    <string name="action_chip_phone_volume_down">Намали звука</string>
+    <string name="action_chip_phone_mute">Заглуши звука</string>
     <string name="action_chip_phone_torch">Фенерче на телефона</string>
     <string name="action_chip_open_navigation">Покажи картата</string>
     <string name="action_chip_open_studio">Студио за наслагване</string>
@@ -609,8 +609,8 @@
     <string name="adv_nav_fix_buffer_desc">Влияе на това колко секунди GPS позиции се пазят за посока и прилепване към пътя. Опасност: твърде ниско може да загуби посоката.</string>
     <string name="adv_nav_intermediate_flash">Време на сигнала за точка</string>
     <string name="adv_nav_intermediate_flash_desc">Влияе на това колко дълго се показва сигналът за достигната междинна точка.</string>
-    <string name="adv_nav_popup_timeout">Време на картата за завой</string>
-    <string name="adv_nav_popup_timeout_desc">Влияе на това колко дълго голямата карта за завой остава, преди да се свие в ъгъла.</string>
+    <string name="adv_nav_popup_timeout">Време на панела за завой</string>
+    <string name="adv_nav_popup_timeout_desc">Влияе на това колко дълго големият панел за завой остава, преди да се свие в ъгъла.</string>
     <string name="adv_group_alarm">Предсказващи аларми</string>
     <string name="adv_alarm_warning">Тези настройки променят как алармите за скорост и мощност предвиждат праг, преди да го достигнете. Грешни стойности могат да накарат алармите да се задействат късно или изобщо да не се задействат. Променяйте внимателно.</string>
     <string name="adv_alarm_slope_window">Прозорец на тенденцията</string>
@@ -1018,7 +1018,7 @@
     <string name="announce_wheel_lock">Заключване / отключване</string>
     <string name="announce_lights">Светлини вкл. / изкл.</string>
     <string name="announce_recording">Запис на пътуване</string>
-    <string name="announce_connection">Моноколелото е свързано / изключено</string>
+    <string name="announce_connection">Моноколелото е свързано / без връзка</string>
     <string name="announce_gps">GPS сигналът е загубен / възстановен</string>
     <string name="announce_legal_mode">Законов режим вкл. / изкл.</string>
     <string name="announce_welcome">Приветствие при стартиране</string>
@@ -1041,7 +1041,7 @@
     <string name="welcome_tut_dev_syncing">Синхронизиране на пътуванията</string>
     <string name="welcome_tut_dev_joined">Включен в класациите</string>
     <string name="welcome_tut_dev_joined_norider">В тази папка още няма ездач. Докоснете %1$s в %2$s, за да създадете.</string>
-    <string name="welcome_tut_bt">Свързвайте и изключвайте моноколелото си оттук</string>
+    <string name="welcome_tut_bt">Свързвайте моноколелото си и прекъсвайте връзката оттук</string>
     <string name="welcome_tut_version">Много моноколела се нуждаят само от тестери, за да бъдат напълно поддържани, обикновено с лесна поправка. Докоснете версията, за да отворите Относно и да помогнете</string>
     <string name="welcome_tut_outro_title">Това е обиколката!</string>
     <string name="welcome_tut_outro_buttons">Много бутони имат допълнителни действия, опитайте да ги задържите</string>
@@ -1165,7 +1165,7 @@
     <string name="flic_start_scan">Сканирай</string>
     <string name="flic_forget">Забрави</string>
     <string name="flic_forget_title">Забравяне на този бутон?</string>
-    <string name="flic_forget_body">%1$s ще бъде разсдвоен и действията му ще бъдат изчистени. Можете да го сдвоите отново по всяко време.</string>
+    <string name="flic_forget_body">Сдвояването с %1$s ще бъде премахнато и действията му ще бъдат изчистени. Можете да го сдвоите отново по всяко време.</string>
     <string name="flic_rename">Преименувай</string>
     <string name="flic_click">Натискане</string>
     <string name="flic_double_click">Двойно натискане</string>
@@ -1263,7 +1263,7 @@
     <string name="voice_recording_started">Записът започна</string>
     <string name="voice_recording_finished">Записът приключи</string>
     <string name="voice_wheel_connected">Моноколелото е свързано</string>
-    <string name="voice_wheel_disconnected">Моноколелото е изключено</string>
+    <string name="voice_wheel_disconnected">Връзката с моноколелото е прекъсната</string>
     <string name="voice_gps_acquired">GPS сигналът е намерен</string>
     <string name="voice_gps_lost">GPS сигналът е загубен</string>
     <string name="voice_legal_on">Законовият режим е включен</string>
@@ -1381,10 +1381,10 @@
     <string name="action_stop">Стоп</string>
     <string name="recording_title">Записване на пътувания</string>
     <string name="recording_clear_all_title">Изчистване на всички пътувания</string>
-    <string name="recording_clear_all_body_archive">Това изтрива пътуванията от този телефон. Архивните копия се преместват в папка за архив.</string>
+    <string name="recording_clear_all_body_archive">Това изтрива пътуванията от този телефон. Резервните копия се преместват в архивна папка.</string>
     <string name="recording_clear_all_body">Това ще изтрие окончателно всички записани пътувания и файловете им с данни. Не може да бъде отменено.</string>
     <string name="recording_delete_trip_title">Изтриване на пътуването</string>
-    <string name="recording_delete_trip_body_archive">Да се изтрие ли това пътуване от телефона? Архивното копие се премества в папка за архив.</string>
+    <string name="recording_delete_trip_body_archive">Да се изтрие ли това пътуване от телефона? Резервното копие се премества в архивна папка.</string>
     <string name="recording_delete_trip_body">Да се изтрие ли това пътуване и файлът му с данни?</string>
     <string name="recording_clear_all_menu">Изчисти всички</string>
     <string name="recording_empty">Няма данни за показване. Импортирайте или запишете ново</string>
@@ -1525,12 +1525,12 @@
     <string name="trip_tools_extend_desc">Включва каранията преди или след това в ново, по-дълго пътуване.</string>
     <string name="trip_tools_extend_hint">Посегнете назад и напред колкото искате. Всичко между тях се включва.</string>
     <string name="trip_tools_extend_from">Начало от</string>
-    <string name="trip_tools_extend_to">Край на</string>
+    <string name="trip_tools_extend_to">Край до</string>
     <string name="trip_tools_extend_none">Това пътуване</string>
     <string name="recording_delete_archive">Архивирай резервните копия</string>
-    <string name="recording_delete_archive_desc">Премества ги в папка за архив.</string>
-    <string name="trip_tools_archived">Архивирани: %1$d</string>
-    <string name="trip_tools_archive_failed">Някои пътувания не можаха да се архивират и са още тук</string>
+    <string name="recording_delete_archive_desc">Премества ги в архивна папка.</string>
+    <string name="trip_tools_archived">Преместени в архива: %1$d</string>
+    <string name="trip_tools_archive_failed">Някои пътувания не можаха да се преместят в архива и са още тук</string>
     <string name="trip_tools_extend_pick_one">Изберете по-ранно или по-късно пътуване, до което да удължите.</string>
     <string name="trip_tools_extend_all_inside">Пътуванията около това вече са част от него.</string>
     <string name="trip_tools_extend_skipped">Пропуска %1$d пътувания, които вече са в това.</string>
@@ -1694,7 +1694,7 @@
     <string name="alarm_vibrate_target_watch">Часовник</string>
     <string name="alarm_vibrate_target_both">Всички</string>
     <string name="alarm_section_advanced">Разширени</string>
-    <string name="alarm_cooldown_label">Пауза</string>
+    <string name="alarm_cooldown_label">Изчакване</string>
     <string name="alarm_repeat_label">Задействане</string>
     <string name="alarm_repeat_single">Веднъж</string>
     <string name="alarm_repeat_multi">Многократно</string>
@@ -1702,7 +1702,7 @@
     <string name="alarm_summary_wheel_fmt">Важи за: %1$s</string>
     <string name="alarm_state_atleast">%1$s е %2$s или повече</string>
     <string name="alarm_state_below">%1$s е под %2$s</string>
-    <string name="alarm_repeat_help_once">Един сигнал, когато %1$s. Активира се отново, когато %2$s, след паузата от %3$d с.</string>
+    <string name="alarm_repeat_help_once">Един сигнал, когато %1$s. Активира се отново, когато %2$s, след изчакването от %3$d с.</string>
     <string name="alarm_repeat_help_many">Сигнализира отново на всеки %1$d с, докато %2$s.</string>
     <string name="alarm_repeat_help_once_instant">Един сигнал, когато %1$s. Активира се отново веднага щом %2$s.</string>
     <string name="alarm_repeat_help_many_instant">Сигнализира при всяко показание, докато %1$s.</string>
@@ -1742,7 +1742,7 @@
     <string name="online_upload_consent_bullet_stats">Общата ви статистика от каране, като разстояние и скорост</string>
     <string name="online_upload_consent_bullet_location">Местоположенията се групират в широки зони на картата за поверителност</string>
     <string name="online_upload_consent_no_raw_gps">Суровите GPS трасета никога не се публикуват.</string>
-    <string name="online_upload_consent_agree">Съгласен съм и продължи</string>
+    <string name="online_upload_consent_agree">Приемам и продължавам</string>
 
     <!-- Step 2: Profile -->
     <string name="online_upload_profile_title">Създайте профила си</string>
@@ -1751,7 +1751,7 @@
     <string name="online_upload_profile_country_select">Изберете държавата си</string>
     <string name="online_upload_country_search">Търсене на държави</string>
     <string name="online_upload_profile_avatar_hint">Докоснете, за да добавите снимка.</string>
-    <string name="online_upload_register_action">Регистрирай</string>
+    <string name="online_upload_register_action">Регистрирай се</string>
     <string name="online_upload_register_error">Регистрацията не успя. Проверете връзката си и опитайте отново.</string>
     <string name="online_upload_register_server_error">Регистрацията не успя. Сървърът отговори: %1$s (%2$d)</string>
 
@@ -2339,9 +2339,9 @@
     <string name="weather_title_3">Да тръгваме ли да караме?</string>
     <string name="weather_title_4">Струва ли си да се екипирам?</string>
     <string name="weather_title_5">Готови за каране?</string>
-    <string name="weather_lvl_awful_1">Ужасно - остави го вкъщи.</string>
+    <string name="weather_lvl_awful_1">Ужасно - оставете го вкъщи.</string>
     <string name="weather_lvl_awful_2">В никакъв случай.</string>
-    <string name="weather_lvl_bad_1">Тежко - помисли два пъти.</string>
+    <string name="weather_lvl_bad_1">Тежко - помислете два пъти.</string>
     <string name="weather_lvl_bad_2">Навън е лошо.</string>
     <string name="weather_lvl_notworst_1">Не е най-лошото.</string>
     <string name="weather_lvl_notworst_2">Рисковано, но може.</string>
@@ -2349,9 +2349,9 @@
     <string name="weather_lvl_meh_2">Нищо особено.</string>
     <string name="weather_lvl_ok_1">Прилично - струва си една обиколка.</string>
     <string name="weather_lvl_ok_2">Никак не е зле.</string>
-    <string name="weather_lvl_good_1">Добре - карай.</string>
+    <string name="weather_lvl_good_1">Добре - карайте.</string>
     <string name="weather_lvl_good_2">Хубаво е за каране.</string>
-    <string name="weather_lvl_prime_1">Перфектно - зарежи всичко.</string>
+    <string name="weather_lvl_prime_1">Перфектно - зарежете всичко.</string>
     <string name="weather_lvl_prime_2">Идеално време за каране!</string>
     <string name="weather_expand">Детайли</string>
     <string name="weather_chart_temp">Темп., влажност и валежи</string>
@@ -2446,7 +2446,7 @@
     <string name="nav_setting_overpass_url">URL за зарядни и места (Overpass)</string>
     <string name="nav_setting_ocm_subtitle">Общност за зарядни (Open Charge Map)</string>
     <string name="nav_setting_ocm_key">API ключ за Open Charge Map</string>
-    <string name="nav_setting_ocm_key_hint">Добавя отзиви, снимки и детайли за конекторите в картата на зарядната станция. Регистрирайте се за безплатен ключ на</string>
+    <string name="nav_setting_ocm_key_hint">Добавя отзиви, снимки и детайли за конекторите в панела на зарядната станция. Регистрирайте се за безплатен ключ на</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>
     <!-- ==== Live location share (navigator) ==== -->
     <string name="share_button">Опции за споделяне</string>
@@ -2538,9 +2538,9 @@
     <string name="warnings_dialog_title">Изисква внимание</string>
     <string name="warnings_fix_button">Поправи</string>
     <string name="warnings_autolights_title">Автосветлините са на пауза</string>
-    <string name="warnings_autolights_body">Задали сте светлината ръчно, затова графикът не се намесва за тази сесия. Поправи го връща.</string>
+    <string name="warnings_autolights_body">Задали сте светлината ръчно, затова графикът не се намесва за тази сесия. Бутонът Поправи го връща.</string>
     <string name="warnings_autolock_title">Автозаключването е на пауза</string>
-    <string name="warnings_autolock_body">Заключили или отключили сте ръчно, затова заключването по близост не се намесва за тази сесия. Поправи го връща.</string>
+    <string name="warnings_autolock_body">Заключили или отключили сте ръчно, затова заключването по близост не се намесва за тази сесия. Бутонът Поправи го връща.</string>
     <string name="warnings_perm_notifications_title">Известията са изключени</string>
     <string name="warnings_perm_notifications_body">Няма да виждате състоянието на карането в лентата на състоянието и няма да получавате гласови сигнали от панела с известия.</string>
     <string name="warnings_perm_location_title">Местоположението е изключено</string>
@@ -2678,7 +2678,7 @@
     <string name="lockdown_warning_no_wheel">Няма свързано моноколело, така че състоянието на Законовия режим е неизвестно. Приложението се заключва следващия път, когато Законовият режим бъде включен.</string>
     <string name="lockdown_continue">Продължи</string>
     <string name="trip_tools_wheel_none">Още няма записано моноколело за това пътуване.</string>
-    <string name="backup_conflict_warning">Някои пътувания на този телефон се различават от копията в папката за архив. Докоснете %1$s, после в %2$s натиснете \"%3$s\" и изберете кое копие да остане.</string>
+    <string name="backup_conflict_warning">Някои пътувания на този телефон се различават от копията в папката за архиви. Докоснете %1$s, после в %2$s натиснете „%3$s“ и изберете кое копие да остане.</string>
     <string name="backup_conflict_title">Конфликти в архивите</string>
     <string name="widget_act_1_short">Действие 1</string>
     <string name="widget_act_2_short">Действие 2</string>
@@ -2861,6 +2861,6 @@
     <string name="offline_ride_body">Част от този маршрут е извън офлайн картите ви. Можем да ги изтеглим сега, за да работят картата и преизчисляването на маршрута и без сигнал.</string>
     <string name="offline_ride_download">Изтегли карти</string>
     <string name="offline_ride_start">Започни въпреки това</string>
-    <string name="offline_ride_never">Не питай повече</string>
+    <string name="offline_ride_never">Не питай отново</string>
     <string name="offline_remind_before_ride">Проверка на офлайн картите преди каране</string>
 </resources>

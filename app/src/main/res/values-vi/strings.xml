@@ -67,7 +67,7 @@
     <string name="recording_location_permission_body">Ghi chuyến đi lưu các điểm GPS để bạn xem lộ trình trên bản đồ. Hãy cấp quyền vị trí để tiếp tục.</string>
     <string name="experimental_banner">Xe được hỗ trợ sơ bộ. Chạm để báo lỗi.</string>
     <string name="experimental_dialog_title">Giúp cải thiện EUC Planet</string>
-    <string name="experimental_dialog_body">Hỗ trợ cho xe này mới ở mức sơ bộ, tác giả chỉ kiểm chứng dòng InMotion V14 / V12 / P6. KingSong, Veteran, Begode, Ninebot và các mẫu InMotion cũ hơn ở dạng Xem trước và cần người dùng thử nghiệm. Hãy sử dụng thận trọng.\n\nChạm vào biểu ngữ này sẽ gửi báo cáo lỗi để tác giả sửa những gì chưa hoạt động.</string>
+    <string name="experimental_dialog_body">Hỗ trợ cho xe này mới ở mức sơ bộ, tác giả chỉ kiểm chứng dòng InMotion V14 / V12 / P6. KingSong, Veteran, Begode, Ninebot và các mẫu InMotion cũ hơn ở dạng Xem trước và cần người chạy xe thử nghiệm. Hãy sử dụng thận trọng.\n\nChạm vào biểu ngữ này sẽ gửi báo cáo lỗi để tác giả sửa những gì chưa hoạt động.</string>
     <string name="experimental_dialog_report">Báo cáo lỗi</string>
     <string name="scan_simulate_title">Xe ảo</string>
     <string name="scan_simulate_subtitle">Bỏ qua BLE, dùng phản hồi dựng sẵn. Chỉ trong Chế độ dịch vụ.</string>
@@ -277,7 +277,7 @@
     <string name="metric_chip_forward_g_tile">G dọc</string>
     <string name="metric_chip_lateral_g_tile">G ngang</string>
     <string name="metric_chip_bt_rssi_tile">BT</string>
-    <string name="metric_desc_headroom">Biên tốc độ còn lại trước khi xe bắt đầu ngả ngược (tilt-back). Số càng lớn, biên an toàn càng rộng.</string>
+    <string name="metric_desc_headroom">Biên tốc độ còn lại trước khi tiltback kích hoạt. Số càng lớn, biên an toàn càng rộng.</string>
     <string name="metric_desc_trip_max_speed">Tốc độ cao nhất trong chuyến hiện tại (đặt lại khi bắt đầu chuyến mới).</string>
     <string name="metric_desc_avg_trip_speed">Quãng đường chuyến chia cho thời gian chạy đến hiện tại.</string>
     <string name="metric_desc_wh_consumed">Tổng watt-giờ lấy từ pin trong chuyến này.</string>
@@ -312,7 +312,7 @@
     <string name="voice_cue_off">Tắt</string>
     <string name="voice_cue_listening">Đang nghe</string>
     <string name="voice_unknown_cue">Khi không hiểu</string>
-    <string name="voice_unknown_message">Tin nhắn</string>
+    <string name="voice_unknown_message">Câu nói</string>
     <string name="voice_recognition_language">Ngôn ngữ lệnh</string>
     <string name="voice_recognition_desc">Ngôn ngữ bạn dùng để ra lệnh. Theo ngôn ngữ giọng đọc trừ khi bạn chọn khác.</string>
     <string name="voice_recognition_follow">Giống giọng đọc</string>
@@ -342,7 +342,7 @@
     <string name="warnings_perm_mic_title">Chưa cho phép micrô</string>
     <string name="warnings_perm_mic_body">Lệnh giọng nói không thể nghe cho đến khi ứng dụng được phép dùng micrô.</string>
     <string name="warnings_perm_bluetooth_title">Chưa cho phép Bluetooth</string>
-    <string name="warnings_perm_bluetooth_body">Ứng dụng không thể tìm hoặc kết nối với bánh xe của bạn. Chạm để cho phép.</string>
+    <string name="warnings_perm_bluetooth_body">Ứng dụng không thể tìm hoặc kết nối với xe của bạn. Chạm để cho phép.</string>
     <string name="voice_answer_unknown">Tôi chưa nghe rõ. Hãy nói %1$s để được trợ giúp.</string>
     <string name="voice_help_terms">tôi có thể nói gì,trợ giúp,giúp tôi,tôi làm được gì</string>
     <string name="voice_stat_max_terms">tối đa,cao nhất,lớn nhất</string>
@@ -423,10 +423,10 @@
     <string name="action_chip_media_pause">Tạm dừng nhạc</string>
     <string name="action_chip_phone_volume_up">Tăng âm lượng</string>
     <string name="action_chip_phone_volume_down">Giảm âm lượng</string>
-    <string name="action_chip_phone_mute">Tắt</string>
+    <string name="action_chip_phone_mute">Tắt tiếng</string>
     <string name="action_chip_phone_torch">Đèn pin điện thoại</string>
     <string name="action_chip_open_navigation">Hiện bản đồ</string>
-    <string name="action_chip_open_studio">Studio lớp phủ</string>
+    <string name="action_chip_open_studio">Overlay Studio</string>
     <string name="action_chip_open_about">Giới thiệu</string>
     <string name="action_chip_open_service">Chế độ dịch vụ</string>
     <string name="action_chip_open_trips">Chuyến đi</string>
@@ -496,7 +496,7 @@
     <string name="hud_app_remove">Gỡ cài đặt</string>
     <string name="hud_app_sending">Đang gửi, %1$d%%</string>
     <string name="hud_app_sent">Tiếp tục trên HUD.</string>
-    <string name="hud_app_resend_title">Đã cập nhật</string>
+    <string name="hud_app_resend_title">Đã là bản mới nhất</string>
     <string name="hud_app_resend_body">HUD đã có phiên bản này. Vẫn gửi?</string>
     <string name="hud_app_remove_title">Gỡ cài đặt ứng dụng HUD?</string>
     <string name="hud_app_remove_body">HUD sẽ hỏi để gỡ cài đặt. Cài lại cần có cáp.</string>
@@ -527,7 +527,7 @@
     <string name="adv_timings_title">Thời gian và biến số</string>
     <string name="reorg_hint">Sắp xếp lại màn hình cài đặt và ẩn các mục ít dùng. Mục bị ẩn sẽ chuyển vào Thêm.</string>
     <string name="reorg_drag_cd">Kéo để sắp xếp</string>
-    <string name="adv_rates_warning">Các tùy chọn này thay đổi thời gian trong toàn ứng dụng. Giá trị thấp cho dữ liệu mới hơn và phản ứng nhanh hơn nhưng tốn pin, CPU hoặc dữ liệu hơn. Mặc định phù hợp với hầu hết người dùng. Chỉ thay đổi nếu bạn hiểu tác động.</string>
+    <string name="adv_rates_warning">Các tùy chọn này thay đổi thời gian trong toàn ứng dụng. Giá trị thấp cho dữ liệu mới hơn và phản ứng nhanh hơn nhưng tốn pin, CPU hoặc dữ liệu hơn. Mặc định phù hợp với hầu hết người chạy xe. Chỉ thay đổi nếu bạn hiểu tác động.</string>
     <string name="adv_pushonly_note">Một số thiết bị gửi dữ liệu theo tần suất cố định riêng và bỏ qua các cài đặt này: xe chỉ đẩy dữ liệu (Begode, Gotway, Veteran, KingSong), GPS ngoài (RaceBox, Dragy), radar và nút Flic.</string>
     <string name="adv_group_rates">Tần suất dữ liệu và báo cáo</string>
     <string name="adv_wheel_poll_rate">Tần suất đọc xe</string>
@@ -701,11 +701,11 @@
     <string name="adv_charging_median">Số mẫu làm mượt</string>
     <string name="adv_charging_median_desc">Ảnh hưởng đến số mẫu được lọc trung vị để loại bỏ các đỉnh điện áp. Dùng số lẻ.</string>
     <string name="adv_cell_low_warn">Cảnh báo cell thấp</string>
-    <string name="adv_cell_low_warn_desc">Mức một cell có thể thấp hơn trung vị của pin trước khi chuyển sang màu vàng.</string>
+    <string name="adv_cell_low_warn_desc">Mức một cell có thể thấp hơn trung vị của khối pin trước khi chuyển sang màu vàng.</string>
     <string name="adv_cell_low_danger">Nguy hiểm cell thấp</string>
-    <string name="adv_cell_low_danger_desc">Mức một cell có thể thấp hơn trung vị của pin trước khi chuyển sang màu đỏ.</string>
+    <string name="adv_cell_low_danger_desc">Mức một cell có thể thấp hơn trung vị của khối pin trước khi chuyển sang màu đỏ.</string>
     <string name="adv_cell_high">Cell cao</string>
-    <string name="adv_cell_high_desc">Mức một cell có thể cao hơn trung vị của pin trước khi chuyển sang màu xanh dương.</string>
+    <string name="adv_cell_high_desc">Mức một cell có thể cao hơn trung vị của khối pin trước khi chuyển sang màu xanh dương.</string>
     <string name="adv_pack_balance_tol">Dung sai cân bằng khối pin</string>
     <string name="adv_pack_balance_tol_desc">Mức một khối pin có thể lệch khỏi trung vị trước khi rời khỏi màu xanh lá cân bằng, cho chế độ xem khối pin chỉ theo phần trăm.</string>
     <string name="watch_update_conservative">Tiết kiệm</string>
@@ -737,9 +737,9 @@
     <string name="watch_hardware_button_1">Nút 1</string>
     <string name="watch_hardware_button_2">Nút 2</string>
     <string name="watch_hardware_button_3">Nút 3</string>
-    <string name="watch_hardware_button_1_subtitle">Garmin: Start · Galaxy Watch Ultra: nút Action màu cam · Amazfit: Select.</string>
-    <string name="watch_hardware_button_2_subtitle">Garmin: Up · Galaxy Watch Ultra: nút cạnh dưới · Amazfit: Up.</string>
-    <string name="watch_hardware_button_3_subtitle">Garmin: Down · Amazfit: Down · không có trên đồng hồ Wear OS.</string>
+    <string name="watch_hardware_button_1_subtitle">Garmin: Start · Galaxy Watch Ultra: nút Action màu cam · Amazfit: Select</string>
+    <string name="watch_hardware_button_2_subtitle">Garmin: Up · Galaxy Watch Ultra: nút cạnh dưới · Amazfit: Up</string>
+    <string name="watch_hardware_button_3_subtitle">Garmin: Down · Amazfit: Down · không có trên đồng hồ Wear OS</string>
     <string name="watch_screen_button_1">Nút 1</string>
     <string name="watch_screen_button_2">Nút 2</string>
     <string name="watch_haptic_on_action">Rung khi thao tác</string>
@@ -1006,7 +1006,7 @@
     <string name="welcome_tut_speed">Tốc độ trực tiếp của bạn. Đổi đơn vị trong Cài đặt → %1$s</string>
     <string name="welcome_tut_metrics">Pin, nhiệt độ, điện áp trực tiếp và hơn thế. Sắp xếp lại trong Cài đặt → %1$s</string>
     <string name="welcome_tut_actions">Điều khiển nhanh. Tinh chỉnh ở cùng chỗ, trong mục %1$s</string>
-    <string name="welcome_tut_map">Mở trình dẫn đường để lập lộ trình, nhận chỉ dẫn từng chỗ rẽ, hoặc chia sẻ vị trí trực tiếp khi đi nhóm</string>
+    <string name="welcome_tut_map">Mở Dẫn đường để lập lộ trình, nhận chỉ dẫn từng chỗ rẽ, hoặc chia sẻ vị trí trực tiếp khi đi nhóm</string>
     <string name="welcome_tut_gps">Chạm để xem dữ liệu trực tiếp tại đây, bạn còn có thể hiệu chỉnh tốc độ xe theo tốc độ GPS. Xem lại hiệu chỉnh sau trong Cài đặt → %1$s</string>
     <string name="welcome_tut_camera">Quay video với lớp phủ dữ liệu trực tiếp. Tạo lớp phủ đẹp mắt tùy chỉnh và xuất ra để làm video riêng với dữ liệu từ các chuyến đi trước</string>
     <string name="welcome_tut_pd">Hiển thị Đỗ hoặc Chạy. Chạm để đặt %1$s</string>
@@ -1308,7 +1308,7 @@
     <string name="recording_delete_trip_body">Xóa chuyến đi này và tệp dữ liệu của nó?</string>
     <string name="recording_clear_all_menu">Xóa tất cả</string>
     <string name="recording_empty">Không có dữ liệu. Hãy nhập hoặc ghi chuyến mới</string>
-    <string name="recording_will_auto_stop">Sẽ tự dừng ghi sau %1$ds đứng yên</string>
+    <string name="recording_will_auto_stop">Sẽ tự dừng ghi sau %1$d giây đứng yên</string>
     <string name="recording_stat_trips">Chuyến đi</string>
     <string name="recording_stat_distance">Quãng đường</string>
     <string name="recording_stat_time">Thời gian</string>
@@ -1362,7 +1362,7 @@
     <string name="widget_act_3_label">Nút xe 3</string>
     <string name="widget_act_12_label">Nút xe 1 và 2</string>
     <string name="widget_act_23_label">Nút xe 2 và 3</string>
-    <string name="widget_weather_score_label">Đi xe được không?</string>
+    <string name="widget_weather_score_label">Chạy xe được không?</string>
     <string name="widget_weather_compact_label">Thời tiết chạy xe</string>
     <string name="section_surfaces">Chế độ xem trực tiếp</string>
     <string name="surface_notification">Thông báo</string>
@@ -1401,7 +1401,7 @@
     <string name="widget_action_voice">Giọng nói</string>
     <string name="widget_standalone_desc">Thao tác cho các tiện ích chỉ có nút, tách biệt với hàng bên trên.</string>
     <string name="widget_standalone_slot">Nút riêng %1$d</string>
-    <string name="widget_weather_question">Đi xe?</string>
+    <string name="widget_weather_question">Chạy xe?</string>
     <string name="widget_weather_score_desc">Thời tiết để chạy xe, ngay lúc này.</string>
     <string name="widget_weather_compact_desc">Thời tiết thuận lợi cho chạy xe đến mức nào, bây giờ và trong vài giờ tới. Đổi kích thước để xem giờ, nhiệt độ và gió.</string>
     <string name="widget_weather_graph_desc">Thời tiết thuận lợi cho chạy xe đến mức nào, trong khoảng dự báo.</string>
@@ -1495,7 +1495,7 @@
     <string name="trip_compare_loading">Đang tải chuyến đi…</string>
     <string name="trip_customize_tiles">Ô</string>
     <string name="trip_customize_graphs">Biểu đồ</string>
-    <string name="auto_lights_title">Điều khiển đèn pha</string>
+    <string name="auto_lights_title">Điều khiển đèn</string>
     <string name="auto_lights_when">Theo giờ mặt trời lặn và mọc khi</string>
     <string name="auto_lights_off_slow">Tắt đèn khi giảm tốc</string>
     <string name="auto_lights_off_below">Tắt dưới</string>
@@ -1579,7 +1579,7 @@
     <string name="sources_distance_between_fixes">Khoảng cách giữa các lần định vị</string>
     <string name="sources_last_update">Cập nhật lần cuối</string>
     <string name="sources_fresh_just_now">vừa xong</string>
-    <string name="sources_fresh_seconds_fmt">%1$ds trước</string>
+    <string name="sources_fresh_seconds_fmt">%1$d giây trước</string>
     <string name="sources_fresh_minutes_fmt">%1$d phút trước</string>
     <string name="sources_delta_avg_fmt">TB %1$+.1f%2$s</string>
     <string name="sources_fresh_hours_fmt">%1$d giờ trước</string>
@@ -1706,7 +1706,7 @@
     <string name="studio_not_connected">Chưa kết nối</string>
     <string name="studio_stop">Dừng</string>
     <string name="studio_grant">Cấp quyền truy cập</string>
-    <string name="studio_camera_permission">Cần quyền truy cập camera cho các khung xem</string>
+    <string name="studio_camera_permission">Các khung camera cần quyền truy cập camera</string>
     <string name="studio_photo_saved">Đã lưu ảnh vào thư viện</string>
     <string name="studio_photo_failed">Không thể lưu ảnh</string>
     <string name="studio_recording_saved">Đã lưu bản ghi vào thư viện</string>
@@ -2095,7 +2095,7 @@
     <string name="nav_default_route_name">Lộ trình của tôi</string>
     <string name="nav_start_riding">Bắt đầu chạy</string>
     <string name="nav_arrived">Bạn đã đến nơi</string>
-    <string name="nav_arrived_goal">Đã đến điểm %1$d</string>
+    <string name="nav_arrived_goal">Đã đến điểm dừng %1$d</string>
     <string name="nav_end_title">Kết thúc dẫn đường?</string>
     <string name="nav_end_body">Dừng chỉ dẫn cho lộ trình đang chạy?</string>
     <string name="nav_end_confirm">Kết thúc</string>
@@ -2178,7 +2178,7 @@
     <string name="weather_breezy">Gió nhẹ khi trên</string>
     <string name="weather_windy">Quá gió khi trên</string>
     <string name="weather_source_credit">Dự báo lấy từ nguồn bạn chọn, chỉ tải khi tính năng này bật. Khoảng ngắn hơn có thể chi tiết hơn, nếu nguồn hỗ trợ.</string>
-    <string name="weather_title_1">Trời này đi xe được không?</string>
+    <string name="weather_title_1">Trời này chạy xe được không?</string>
     <string name="weather_title_2">Đến giờ chạy EUC chưa?</string>
     <string name="weather_title_3">Đi chạy xe thôi?</string>
     <string name="weather_title_4">Có đáng mặc đồ bảo hộ?</string>
@@ -2317,8 +2317,8 @@
     <string name="share_profile_missing">Chưa có hồ sơ bảng xếp hạng. Thiết lập trong %1$s.</string>
     <string name="share_profile_loading">Đang tải hồ sơ…</string>
     <string name="share_camera_needed">Cần quyền truy cập camera để quét mã QR.</string>
-    <string name="share_invite_text">Đi xe cùng tôi trên EUC Planet: %1$s</string>
-    <string name="share_invite_subject">Đi xe cùng tôi</string>
+    <string name="share_invite_text">Chạy xe cùng tôi trên EUC Planet: %1$s</string>
+    <string name="share_invite_subject">Chạy xe cùng tôi</string>
     <string name="share_copied">Đã sao chép</string>
     <string name="share_camera_allow">Cho phép camera</string>
     <string name="share_alone">Chưa có ai khác ở đây.</string>
@@ -2515,7 +2515,7 @@
     <string name="lockdown_warning_no_wheel">Chưa kết nối xe, nên chưa rõ trạng thái Chế độ hợp luật. Ứng dụng sẽ khóa lần tới khi Chế độ hợp luật được bật.</string>
     <string name="lockdown_continue">Tiếp tục</string>
     <string name="trip_tools_wheel_none">Chuyến đi này chưa ghi nhận xe nào.</string>
-    <string name="backup_conflict_warning">Một số chuyến đi trên điện thoại này khác với bản sao trong thư mục sao lưu. Nhấn %1$s, rồi trong %2$s nhấn \"%3$s\" và chọn bản sao cần giữ.</string>
+    <string name="backup_conflict_warning">Một số chuyến đi trên điện thoại này khác với bản sao trong thư mục sao lưu. Nhấn %1$s, rồi trong %2$s nhấn “%3$s” và chọn bản sao cần giữ.</string>
     <string name="backup_conflict_title">Xung đột sao lưu</string>
     <string name="widget_act_1_short">Thao tác 1</string>
     <string name="widget_act_2_short">Thao tác 2</string>
@@ -2551,7 +2551,7 @@
     <string name="horn_sound_too_big">Tệp đó lớn hơn 2 MB</string>
     <string name="horn_sound_unreadable">Không thể phát tệp đó</string>
     <string name="voice_pill_add">Thêm</string>
-    <string name="voice_pill_message">Tin nhắn</string>
+    <string name="voice_pill_message">Câu nói</string>
     <string name="voice_pill_message_hint">Được đọc đúng như bạn viết.</string>
     <string name="voice_pills_empty">Chưa có gì để đọc. Chạm Thêm.</string>
     <string name="voice_stat_now">Hiện tại</string>
@@ -2564,7 +2564,7 @@
     <string name="crews_scan_hint">Mở eucstats trên trình duyệt, nhấn Crews, rồi hướng camera vào mã hiển thị.</string>
     <string name="crews_scan_invalid">Đó không phải mã thẻ đội.</string>
     <string name="crews_scan_is_share">Đó là mã vị trí trực tiếp. Hãy quét từ mục Chia sẻ trên bản đồ.</string>
-    <string name="share_scan_is_crewpass">Đó là thẻ đội. Hãy quét trong Cài đặt, mục Đội nhóm.</string>
+    <string name="share_scan_is_crewpass">Đó là thẻ đội. Hãy quét trong Cài đặt, mục Thẻ đội.</string>
     <string name="crews_type_instead">Nhập thủ công</string>
     <string name="crews_code_label">Mã thẻ</string>
     <string name="crews_foreign_title">Mã này không phải từ eucstats</string>
@@ -2576,7 +2576,7 @@
     <string name="crews_dev_body">Đang kết nối với %1$s thay vì máy chủ thông thường.</string>
     <string name="crews_grant">Cho phép trình duyệt đó đại diện cho bạn.\n\nTrình duyệt có thể tạo đội, tham gia, rời đội và quản lý thành viên. Nó không thể gửi chuyến đi, đổi tên bạn hay xóa bất cứ thứ gì, những việc đó chỉ làm trên điện thoại này.</string>
     <string name="crews_noprofile_title">Hãy tham gia bảng xếp hạng trước</string>
-    <string name="crews_noprofile_body">Đội nhóm gắn với hồ sơ bảng xếp hạng, và điện thoại này chưa thiết lập hồ sơ. Tham gia trong %1$s, rồi quét lại.</string>
+    <string name="crews_noprofile_body">Đội gắn với hồ sơ bảng xếp hạng, và điện thoại này chưa thiết lập hồ sơ. Tham gia trong %1$s, rồi quét lại.</string>
     <string name="crews_issue">Cấp thẻ</string>
     <string name="crews_notme">Không phải tôi</string>
     <string name="crews_ratelimited">Quá nhiều lần thử. Hãy đợi một phút rồi thử lại.</string>

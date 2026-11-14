@@ -102,7 +102,7 @@
     <string name="lock_blocked_in_motion_toast">Lassíts az egykerekű zárolásához</string>
     <string name="action_recorder">Rögzítő</string>
     <string name="action_recorder_trips">Rögzítő\n(%1$d menet)</string>
-    <string name="action_recorder_trips_one">Rögzítő (%1$d menet)</string>
+    <string name="action_recorder_trips_one">Rögzítő\n(%1$d menet)</string>
     <string name="search_settings">Keresés a beállításokban</string>
     <string name="tab_general">Általános</string>
     <string name="tab_speed">Egykerekű paraméterei</string>
@@ -137,7 +137,7 @@
     <string name="dashboard_composite_layout_col2">2 oszlop</string>
     <string name="dashboard_composite_layout_col3">3 oszlop</string>
     <string name="dashboard_composite_cell_label">%1$d. cella</string>
-    <string name="dashboard_composite_empty_label">(üres)</string>
+    <string name="dashboard_composite_empty_label">(nincs)</string>
     <string name="dashboard_composite_blank_label">(üres)</string>
     <string name="dashboard_stat_empty">(üres)</string>
     <string name="dashboard_group_default_name">Saját műveletek</string>
@@ -174,7 +174,7 @@
     <string name="dashboard_corner_right">Jobb</string>
     <string name="dashboard_slot_sparkline">Élő trend háttér</string>
     <string name="dashboard_slot_sparkline_chip">Statisztika</string>
-    <string name="dashboard_stat_none">(üres)</string>
+    <string name="dashboard_stat_none">(nincs)</string>
     <string name="dashboard_stat_current">Most</string>
     <string name="dashboard_stat_min">Min</string>
     <string name="dashboard_stat_max">Max / Csúcs</string>
@@ -213,7 +213,7 @@
     <string name="metric_chip_phase_current">Fázisáram</string>
     <string name="metric_spoken_phase_current">Fázisáram</string>
     <string name="metric_spoken_battery_envelope">Becsült akkumulátor</string>
-    <string name="metric_spoken_bt_rssi">Bluetooth jel</string>
+    <string name="metric_spoken_bt_rssi">Bluetooth-jel</string>
     <string name="metric_spoken_avg_trip_speed">Átlagsebesség</string>
     <string name="metric_spoken_lat_long">Pozíció</string>
     <string name="metric_chip_dyn_speed_limit">Dinamikus sebességkorlát</string>
@@ -243,13 +243,13 @@
     <string name="metric_chip_descent">Süllyedés</string>
     <string name="metric_chip_motor_rpm">Fordulat</string>
     <string name="metric_chip_regen_wh">Visszatáplálás</string>
-    <string name="metric_chip_bt_rssi">BT jel</string>
+    <string name="metric_chip_bt_rssi">BT-jel</string>
     <string name="metric_chip_lat_long">Szél., hossz.</string>
     <string name="metric_chip_wheel_max_speed">Egykerekű maximuma</string>
     <string name="metric_chip_wheel_alarm_speed">Egykerekű riasztása</string>
     <string name="metric_chip_pc_mode">Menetmód</string>
     <string name="metric_chip_light_on">Világítás</string>
-    <string name="metric_spoken_light_on">lámpa állapota</string>
+    <string name="metric_spoken_light_on">világítás állapota</string>
     <string name="metric_chip_temperature_tile">Hőm</string>
     <string name="metric_chip_battery_power_tile">Akku W</string>
     <string name="metric_chip_motor_power_tile">Mot W</string>
@@ -291,7 +291,7 @@
     <string name="action_chip_horn">Duda</string>
     <string name="action_chip_light">Világítás</string>
     <string name="action_chip_voice">Hang</string>
-    <string name="action_chip_voice_listen">Hallgatás</string>
+    <string name="action_chip_voice_listen">Figyelés</string>
     <string name="menu_voice_ask">Hangparancs figyelése</string>
     <string name="menu_voice_speak_report">Hangbemondás lejátszása</string>
     <string name="voice_split_term">Utolsó részidő</string>
@@ -301,7 +301,7 @@
     <string name="voice_commands_enable_desc">Használd a hangodat az alkalmazásban. Tartsd nyomva a Hang gombot a műszerfalon, és válaszd a Hangparancs figyelése lehetőséget.</string>
     <string name="voice_commands_bind_desc">Rendeld a figyelést egy Flichez, a hangerőgombokhoz, az órádhoz vagy a HUD-hoz.</string>
     <string name="voice_prompt_cue">Jelzés figyeléskor</string>
-    <string name="voice_music_listening">Zene hallgatás közben</string>
+    <string name="voice_music_listening">Zene figyelés közben</string>
     <string name="voice_music_pause">Szünet</string>
     <string name="voice_music_duck">Halkítás</string>
     <string name="voice_music_keep">Szóljon</string>
@@ -309,7 +309,7 @@
     <string name="voice_cue_beep">Sípszó</string>
     <string name="voice_cue_spoken">Hang</string>
     <string name="voice_cue_off">Nincs</string>
-    <string name="voice_cue_listening">Hallgatlak</string>
+    <string name="voice_cue_listening">Figyelek</string>
     <string name="voice_unknown_cue">Ha nem érti</string>
     <string name="voice_unknown_message">Üzenet</string>
     <string name="voice_recognition_language">Parancsok nyelve</string>
@@ -325,13 +325,13 @@
     <string name="voice_vocab_group_wheel">Egykerekű</string>
     <string name="voice_vocab_group_actions">Műveletek</string>
     <string name="voice_vocab_group_around">Körülötted</string>
-    <string name="voice_listening">Hallgatom</string>
+    <string name="voice_listening">Figyelek</string>
     <string name="voice_answer_off">%1$s ki van kapcsolva. A beállításokban bekapcsolhatod.</string>
     <string name="voice_answer_unsupported">Az egykerekűd nem küld ilyen adatot: %1$s.</string>
     <string name="voice_answer_nodata">Még nincs adat: %1$s.</string>
     <string name="voice_state_on">be</string>
     <string name="voice_state_off">ki</string>
-    <string name="voice_mode_lock">zárva</string>
+    <string name="voice_mode_lock">zárolva</string>
     <string name="voice_mode_drive">menet</string>
     <string name="voice_mode_shutdown">ki</string>
     <string name="voice_mode_idle">üresjárat</string>
@@ -341,7 +341,7 @@
     <string name="warnings_perm_mic_title">A mikrofon nincs engedélyezve</string>
     <string name="warnings_perm_mic_body">A hangparancsok nem tudnak figyelni, amíg az alkalmazás nem használhatja a mikrofont.</string>
     <string name="warnings_perm_bluetooth_title">A Bluetooth nincs engedélyezve</string>
-    <string name="warnings_perm_bluetooth_body">Az app nem találja a kereket, és nem tud csatlakozni hozzá. Koppintson az engedélyezéshez.</string>
+    <string name="warnings_perm_bluetooth_body">Az alkalmazás nem találja az egykerekűdet, és nem tud csatlakozni hozzá. Koppints az engedélyezéshez.</string>
     <string name="voice_answer_unknown">Nem értettem. Mondd: %1$s segítségért.</string>
     <string name="voice_help_terms">mit mondhatok,segítség,mit kérdezhetek</string>
     <string name="voice_stat_max_terms">maximum,max,legmagasabb</string>
@@ -375,14 +375,14 @@
     <string name="voice_weather_hot">Meleg</string>
     <string name="voice_weather_night">Sötét</string>
     <string name="voice_special_dark">Már sötét van.</string>
-    <string name="voice_special_daylight">Még %1$s világos.</string>
+    <string name="voice_special_daylight">Még %1$s van sötétedésig.</string>
     <string name="voice_special_daylight_all_day">Egész nap világos.</string>
     <string name="voice_special_nav">%1$s, %2$s.</string>
     <string name="voice_special_nav_none">Nincs útvonal.</string>
     <string name="voice_special_last_trip">Utolsó menet: %1$s, %2$s.</string>
     <string name="voice_special_no_trips">Még nincs menet.</string>
-    <string name="voice_duration_h_m">%1$s ó %2$s p</string>
-    <string name="voice_duration_m">%1$s p</string>
+    <string name="voice_duration_h_m">%1$s óra %2$s perc</string>
+    <string name="voice_duration_m">%1$s perc</string>
     <string name="voice_sp_weather_terms">időjárás,milyen az idő,jó nap egy menetre</string>
     <string name="voice_sp_daylight_terms">világos,naplemente,mennyi van sötétedésig</string>
     <string name="voice_sp_connected_terms">csatlakozva,csatlakozik az egykerekű,csatlakozik a kerék</string>
@@ -448,8 +448,8 @@
     <string name="hud_ip_incomplete">Add meg a teljes címet, például 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">Eszköz IP-címe (automatikus)</string>
     <string name="hud_server_port">Port</string>
-    <string name="hud_hotspot_unknown_hint">Győződj meg róla, hogy a HUD és a telefon ugyanazon a WiFi-hálózaton van. Ha a telefon hotspotját használod, előbb kapcsold be.</string>
-    <string name="hud_hotspot_on_hint">A telefon hotspotja sugároz. Csatlakoztasd a HUD-ot ennek a telefonnak a WiFi-jéhez a kapcsolat létrehozásához.</string>
+    <string name="hud_hotspot_unknown_hint">Győződj meg róla, hogy a HUD és a telefon ugyanazon a Wi-Fi-hálózaton van. Ha a telefon hotspotját használod, előbb kapcsold be.</string>
+    <string name="hud_hotspot_on_hint">A telefon hotspotja sugároz. Csatlakoztasd a HUD-ot ennek a telefonnak a Wi-Fi-jéhez a kapcsolat létrehozásához.</string>
     <string name="hud_overlay_subsection">Egyéni átfedés</string>
     <string name="hud_overlay_subsection_desc">Overlay Studio-előbeállítás importálása a HUD Egyéni képernyőjére, háttér nélkül. Az előbeállítás ide másolódik, így a stúdióban végzett későbbi módosítások nem változtatják meg a HUD-ot, amíg újra nem importálod.</string>
     <string name="hud_overlay_select_preset">Előbeállítás importálása</string>
@@ -480,7 +480,7 @@
     <string name="hud_map_style_label">Térkép stílusa</string>
     <string name="hud_map_contrast_label">Kontraszt</string>
     <string name="hud_map_brightness_label">Fényerő</string>
-    <string name="hud_install_hint">Kell a HUD alkalmazás? Szerezd be itt: <b>eucplanet.ried.no/hud</b></string>
+    <string name="hud_install_hint">Kell a HUD-alkalmazás? Szerezd be itt: <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
     <string name="hud_app_title">HUD-alkalmazás</string>
     <string name="hud_app_installed">Telepítve:</string>
@@ -673,10 +673,10 @@
     <string name="adv_nav_sidebar_min_desc">Az ennél keskenyebb képernyők fekvő tájolásban is megtartják az alsó megállópanelt. A túl alacsony érték kis képernyőkön elrejti a térképet.</string>
     <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
     <string name="adv_inmotion_v1_pin_desc">Hozzáférési PIN az InMotion V5/V8/V10 egykerekűekhez, csatlakozáskor küldi el, hogy az egykerekű adatot kezdjen küldeni. Hagyd 000000 értéken, hacsak nem állítottál be saját PIN-t az InMotion alkalmazásban.</string>
-    <string name="adv_kingsong_unlock_code">KingSong nyitókód</string>
-    <string name="adv_kingsong_unlock_code_desc">Hat számjegy, amelyet a nyitóparanccsal küld el. A tesztelt egykerekűek bármilyen számjegyet elfogadnak, ezért hagyd 123456 értéken, hacsak a tiéd el nem utasítja.</string>
+    <string name="adv_kingsong_unlock_code">KingSong feloldókód</string>
+    <string name="adv_kingsong_unlock_code_desc">Hat számjegy, amelyet a feloldási paranccsal küld el. A tesztelt egykerekűek bármilyen számjegyet elfogadnak, ezért hagyd 123456 értéken, hacsak a tiéd el nem utasítja.</string>
     <string name="adv_kingsong_password">KingSong alkalmazásjelszó</string>
-    <string name="adv_kingsong_password_desc">A KingSong alkalmazásban beállított 4 számjegyű jelszó, csatlakozáskor, valamint zárás és nyitás előtt küldi el. Hagyd 0000 értéken, ha sosem állítottál be.</string>
+    <string name="adv_kingsong_password_desc">A KingSong alkalmazásban beállított 4 számjegyű jelszó, csatlakozáskor, valamint zárolás és feloldás előtt küldi el. Hagyd 0000 értéken, ha sosem állítottál be.</string>
     <string name="adv_charging_warning">Ezek a teljes töltésig hátralévő idő becslését hangolják. A rossz értékek félrevezető becslést adnak, de sosem befolyásolják magát a töltést.</string>
     <string name="adv_charging_target_pct">Céltöltöttség</string>
     <string name="adv_charging_target_pct_desc">Meghatározza azt a töltöttségi szintet, ahol a becslés a lassabb záró szakaszra vált.</string>
@@ -796,7 +796,7 @@
     <string name="cloud_restore_picker_factory">(gyári)</string>
     <string name="cloud_factory_confirm_title">Visszaállítod a gyári beállításokat?</string>
     <string name="cloud_factory_confirm_body_p1">Minden alkalmazásbeállítást visszaállít az alapértékére.</string>
-    <string name="cloud_factory_confirm_body_p2">A párosított eszközeid és a mentett biztonsági mentések megmaradnak. Ezt nem lehet visszavonni.</string>
+    <string name="cloud_factory_confirm_body_p2">A párosított eszközeid és a mentéseid megmaradnak. Ezt nem lehet visszavonni.</string>
     <string name="cloud_factory_confirm_action">Visszaállítás</string>
     <string name="section_recording">Rögzítés</string>
     <string name="section_connection">Kapcsolat</string>
@@ -843,7 +843,7 @@
     <string name="side_default">Alapértelmezett</string>
     <string name="side_left">Bal</string>
     <string name="side_right">Jobb</string>
-    <string name="geo_other_hint">Akkumulátorfigyelő, mérőszám-előzmények, keresés és Flic. Az Overlay Studiót nem érinti: elrendezése rögzített, de bármilyen tájolásban jól működik.</string>
+    <string name="geo_other_hint">Akkufigyelő, mérőszám-előzmények, keresés és Flic. Az Overlay Studiót nem érinti: elrendezése rögzített, de bármilyen tájolásban jól működik.</string>
     <string name="geo_settings_hint">A beállítások képernyő. Alapból ki van kapcsolva, így a Beállítások álló tájolásban marad, amíg be nem kapcsolod.</string>
     <string name="geo_trip_hint">A részletes nézet alapból forog a fekvő térkép és grafikonok miatt. A menetlista álló tájolásban marad, amíg be nem kapcsolod.</string>
     <string name="back_button_action_ask">Kérdezzen</string>
@@ -933,7 +933,7 @@
     <string name="voice_enabled">Rendszeres jelentések bekapcsolása</string>
     <string name="voice_announce_when_label">Bemondás</string>
     <string name="voice_announce_always">Mindig</string>
-    <string name="voice_announce_connected">Csatlakozáskor</string>
+    <string name="voice_announce_connected">Csatlakozva</string>
     <string name="voice_announce_riding">Menet közben</string>
     <string name="voice_interval">Időköz</string>
     <string name="section_accel_splits">Sebességrészidők</string>
@@ -953,10 +953,10 @@
     <string name="action_splits_both">Részidők: mindkettő</string>
     <string name="accel_splits_session">Ez a menet</string>
     <string name="accel_splits_session_empty">Még nincs részidő. Haladj át egy lépcsőn a rögzítéshez.</string>
-    <string name="accel_splits_session_row">%1$d–%2$d</string>
+    <string name="accel_splits_session_row">%1$d - %2$d</string>
     <string name="accel_splits_session_best">legjobb %1$s s</string>
     <string name="accel_splits_session_last">utolsó %1$s s</string>
-    <string name="accel_splits_reset">Visszaállítás</string>
+    <string name="accel_splits_reset">Nullázás</string>
     <string name="accel_split_time_fmt">%1$d és %2$d között, %3$s másodperc</string>
     <string name="accel_split_faster_prev">, %1$s másodperccel gyorsabb az előzőnél</string>
     <string name="accel_split_slower_prev">, %1$s másodperccel lassabb az előzőnél</string>
@@ -1000,7 +1000,7 @@
     <string name="welcome_tut_speed">Az élő sebességed. A mértékegységet itt módosíthatod: Beállítások → %1$s</string>
     <string name="welcome_tut_metrics">Élő akkumulátor, hőmérséklet, feszültség és további adatok. Itt rendezheted át őket: Beállítások → %1$s</string>
     <string name="welcome_tut_actions">Gyorsvezérlők. Ugyanitt hangolhatod őket, itt: %1$s</string>
-    <string name="welcome_tut_map">Nyisd meg a navigátort útvonalak tervezéséhez, kanyarról kanyarra navigáláshoz vagy élő helyzeted megosztásához egy csoportos túrán</string>
+    <string name="welcome_tut_map">Nyisd meg a navigációt útvonalak tervezéséhez, kanyarról kanyarra navigáláshoz vagy élő helyzeted megosztásához egy csoportos túrán</string>
     <string name="welcome_tut_gps">Koppints az élő adatnézethez, akár a GPS-sebesség alapján is kalibrálhatod az egykerekűd sebességét. A kalibrálást később itt találod: Beállítások → %1$s</string>
     <string name="welcome_tut_camera">Rögzíts videót élő telemetria-átfedéssel. Készíts saját látványos átfedéseket, és exportáld őket, hogy korábbi menetek adataival készíthess videókat</string>
     <string name="welcome_tut_pd">Park vagy Drive állapotot mutat. Koppints rá a beállításhoz: %1$s</string>
@@ -1089,7 +1089,7 @@
     <string name="engine_preset_sampled_quad_atv">Quad ATV</string>
     <string name="col_periodic">Rendszeres</string>
     <string name="col_trigger">Eseményre</string>
-    <string name="voice_trigger_reset_after">Mérések nullázása az indított jelentés után</string>
+    <string name="voice_trigger_reset_after">Mérőszámok nullázása az eseményjelentés után</string>
     <string name="report_speed">Sebesség</string>
     <string name="report_battery">Akkumulátor</string>
     <string name="report_temp">Hőmérséklet</string>
@@ -1102,7 +1102,7 @@
     <string name="report_navigation">Navigáció</string>
     <string name="section_flic_buttons">Flic 2 gombok</string>
     <string name="flic_show_on_dashboard">Gyorselérési ikon a műszerfalon</string>
-    <string name="flic_scan_hint">Tartsd nyomva a Flic 2 gombot 6 másodpercig a párosítási módhoz, majd koppints a Keresésre.</string>
+    <string name="flic_scan_hint">Tartsd nyomva a Flic 2 gombot 6 másodpercig a párosítási módhoz, majd koppints a Keresés indítása gombra.</string>
     <string name="flic_stop_scan">Keresés leállítása</string>
     <string name="flic_start_scan">Keresés indítása</string>
     <string name="flic_forget">Elfelejtés</string>
@@ -1152,7 +1152,7 @@
     <string name="gps_show_on_dashboard">Sebesség mutatása a műszerfalon</string>
     <string name="gps_show_on_dashboard_desc">Színes pontot ad a sebességmérőhöz a GPS-értékkel.</string>
     <string name="section_volume_keys">Hangerőgombok</string>
-    <string name="volume_keys_caption">Hangerőgombok gyorsbillentyűként, amíg az app a képernyőn van.</string>
+    <string name="volume_keys_caption">Hangerőgombok gyorsbillentyűként, amíg az alkalmazás a képernyőn van.</string>
     <string name="volume_keys_enable">Hangerőgomb-műveletek bekapcsolása</string>
     <string name="volume_keys_screen_off">Kikapcsolt képernyőnél is</string>
     <string name="volume_keys_screen_off_caption">Zárolt telefonnal és más alkalmazás mögött is működik. A gombok többé nem állítják a telefon hangerejét.</string>
@@ -1209,7 +1209,7 @@
     <string name="alarm_metric_battery">Akkumulátor</string>
     <string name="alarm_metric_temperature">Hőmérséklet</string>
     <string name="alarm_metric_tire_pressure">Guminyomás</string>
-    <string name="alarm_metric_bt_rssi">Bluetooth jel</string>
+    <string name="alarm_metric_bt_rssi">Bluetooth-jel</string>
     <string name="alarm_metric_lateral_g">Oldalirányú G</string>
     <string name="alarm_metric_g_force">G-erő</string>
     <string name="alarm_metric_battery_temp">Akku hőm.</string>
@@ -1220,7 +1220,7 @@
     <string name="alarm_metric_current">Áram</string>
     <string name="alarm_metric_torque">Nyomaték</string>
     <string name="alarm_metric_phase_current">Fázisáram</string>
-    <string name="alarm_metric_phase_current_voice">fázisamper</string>
+    <string name="alarm_metric_phase_current_voice">fázisáram</string>
     <string name="alarm_metric_wh_consumed">Energia</string>
     <string name="alarm_metric_wh_per_km">Fogyasztás</string>
     <string name="alarm_metric_range">Hatótáv</string>
@@ -1459,10 +1459,10 @@
     <string name="trip_customize_graphs">Grafikonok</string>
     <string name="auto_lights_title">Fényszóró-vezérlés</string>
     <string name="auto_lights_when">Napnyugta és napkelte követése, ha</string>
-    <string name="auto_lights_off_slow">Fény lekapcsolása lassításkor</string>
+    <string name="auto_lights_off_slow">Világítás lekapcsolása lassításkor</string>
     <string name="auto_lights_off_below">Ki ez alatt</string>
-    <string name="auto_lights_on_before_sunset">Fény BE előtte</string>
-    <string name="auto_lights_off_after_sunrise">Fény KI utána</string>
+    <string name="auto_lights_on_before_sunset">Világítás BE előtte</string>
+    <string name="auto_lights_off_after_sunrise">Világítás KI utána</string>
     <string name="auto_waiting_gps">Várakozás GPS-helyre…</string>
     <string name="auto_volume_title">Hangerő-szabályzás</string>
     <string name="auto_volume_when">Hangerő emelése, ha</string>
@@ -1490,7 +1490,7 @@
     <string name="auto_midnight_sun_body">A nap ma nem nyugszik le ezen a szélességi fokon, a világítás KIKAPCSOLVA marad.</string>
     <string name="auto_polar_night_title">Sarki éjszaka</string>
     <string name="auto_polar_night_body">A nap ma nem kel fel ezen a szélességi fokon, a világítás BEKAPCSOLVA marad.</string>
-    <string name="auto_lights_suspended">Erre a munkamenetre szünetel, mert kézzel állítottad a lámpát. A Figyelmet igényel panelen javíthatod, vagy csatlakoztasd újra az egykerekűt.</string>
+    <string name="auto_lights_suspended">Erre a munkamenetre szünetel, mert kézzel állítottad a világítást. A Figyelmet igényel panelen javíthatod, vagy csatlakoztasd újra az egykerekűt.</string>
     <string name="auto_lock_suspended">Erre a munkamenetre szünetel, mert kézzel zároltad vagy oldottad fel. A Figyelmet igényel panelen javíthatod, vagy csatlakoztasd újra az egykerekűt.</string>
     <string name="alarm_help">A kiváltási sorrend az alábbi mérőszámcsoportok sorrendjén alapul.</string>
     <string name="alarm_empty">Még nincsenek riasztási szabályok</string>
@@ -1527,7 +1527,7 @@
     <string name="sources_phone">Telefon</string>
     <string name="sources_wheel">Egykerekű</string>
     <string name="sources_external">Külső</string>
-    <string name="sources_compare">Összehasonlítás</string>
+    <string name="sources_compare">Összevetés</string>
     <string name="sources_same_source">Ugyanaz a forrás van kiválasztva</string>
     <string name="sources_speed">Sebesség</string>
     <string name="sources_heading">Irány</string>
@@ -1952,7 +1952,7 @@
     <string name="nav_open">Navigáció megnyitása</string>
     <string name="nav_title">Útvonaltervező</string>
     <string name="nav_search_hint">Keresés</string>
-    <string name="nav_search_offline">A kereséshez térerő kell. Koppints a térképre, vagy válaszd az Otthon vagy a Munka pontot.</string>
+    <string name="nav_search_offline">A kereséshez térerő kell. Koppints a térképre, vagy válaszd az Otthont vagy a Munkahelyet.</string>
     <string name="nav_searching">Keresés…</string>
     <string name="nav_locating">Helyzeted keresése…</string>
     <string name="nav_no_results">Nincs találat</string>
@@ -2000,13 +2000,13 @@
     <string name="dropbox_folder_desc">A menetek és beállítások a Dropboxodba mentődnek, ide: %1$s. Azt a mappát csak ez az alkalmazás látja.</string>
     <string name="dropbox_share_failed">A Dropbox-megosztás nem sikerült</string>
     <string name="dropbox_email_unverified">Erősítsd meg a Dropbox e-mail-címedet, majd próbáld újra a megosztást</string>
-    <string name="dropbox_preparing">Hivatkozás előkészítése…</string>
+    <string name="dropbox_preparing">Link előkészítése…</string>
     <string name="dropbox_link_ok">Dropbox összekapcsolva</string>
     <string name="dropbox_link_failed">A Dropboxot nem sikerült összekapcsolni. Ellenőrizd a kapcsolatot, és próbáld újra</string>
     <string name="trip_action_share_dropbox">Megosztás Dropboxon</string>
-    <string name="trip_action_share_dropbox_desc">Feltöltés a Dropbox-mappádba és a nyilvános hivatkozás megosztása.</string>
+    <string name="trip_action_share_dropbox_desc">Feltöltés a Dropbox-mappádba és a nyilvános link megosztása.</string>
     <string name="trip_action_inspect_online">Online megtekintés</string>
-    <string name="trip_action_inspect_online_desc">Ossz meg egy eucviewer.ried.no hivatkozást a menet online megtekintéséhez.</string>
+    <string name="trip_action_inspect_online_desc">Ossz meg egy eucviewer.ried.no linket a menet online megtekintéséhez.</string>
     <string name="trip_action_dropbox_disabled">Ehhez kapcsold össze a Dropboxot a beállításokban</string>
     <string name="nav_start_short">Navigáció indítása</string>
     <string name="nav_start_btn">Indítás</string>
@@ -2243,7 +2243,7 @@
     <string name="weather_face_night">Sötét - kapcsold fel a lámpát, lassíts.</string>
     <string name="weather_face_cold">Hideg - kevesebb tapadás, gyenge akku, öltözz fel.</string>
     <string name="weather_face_hot">Hőség - figyeld a vezérlőt emelkedőn.</string>
-    <string name="weather_face_golden">Aranyóra, gyönyörű fény, mindjárt lámpa.</string>
+    <string name="weather_face_golden">Aranyóra - gyönyörű fény, mindjárt lámpa.</string>
     <string name="nav_setting_advanced_map">Speciális térképfunkciók</string>
     <string name="nav_setting_advanced_map_desc">Töltők és helyek megjelenítése az útvonal mentén.</string>
     <string name="nav_setting_full_path">Mindig a teljes útvonal tervezése</string>
@@ -2306,7 +2306,7 @@
     <string name="trip_action_share_file">Fájl megosztása</string>
     <string name="trip_action_share_file_desc">Küldd el a menet CSV-jét egy másik alkalmazásnak.</string>
     <string name="trip_action_view_online">Online megtekintés</string>
-    <string name="trip_action_replay">Visszajátszás a Stúdióban</string>
+    <string name="trip_action_replay">Visszajátszás a Studióban</string>
     <string name="trip_action_replay_desc">Pörgesd végig a menetet élő adatátfedésekkel.</string>
     <string name="dash_view_video_gallery">Videógaléria megtekintése</string>
     <string name="dash_view_photo_gallery">Fényképgaléria megtekintése</string>
@@ -2341,10 +2341,10 @@
     <string name="warnings_indicator_desc">Alkalmazásfigyelmeztetések</string>
     <string name="warnings_dialog_title">Figyelmet igényel</string>
     <string name="warnings_fix_button">Javítás</string>
-    <string name="warnings_autolights_title">Auto lámpa szünetel</string>
-    <string name="warnings_autolights_body">Kézzel állítottad a lámpát, ezért az ütemezés ebben a munkamenetben nem avatkozik be. A Javítás visszakapcsolja.</string>
-    <string name="warnings_autolock_title">Auto zár szünetel</string>
-    <string name="warnings_autolock_body">Kézzel zároltad vagy oldottad fel, ezért a közelségi zár ebben a munkamenetben nem avatkozik be. A Javítás visszakapcsolja.</string>
+    <string name="warnings_autolights_title">Automatikus világítás szünetel</string>
+    <string name="warnings_autolights_body">Kézzel állítottad a világítást, ezért az ütemezés ebben a munkamenetben nem avatkozik be. A Javítás visszakapcsolja.</string>
+    <string name="warnings_autolock_title">Automatikus zárolás szünetel</string>
+    <string name="warnings_autolock_body">Kézzel zároltad vagy oldottad fel, ezért a közelségi zárolás ebben a munkamenetben nem avatkozik be. A Javítás visszakapcsolja.</string>
     <string name="warnings_perm_notifications_title">Az értesítések ki vannak kapcsolva</string>
     <string name="warnings_perm_notifications_body">Nem látod a menet állapotát az állapotsávon, és nem kapsz hangriasztásokat az értesítési felületen.</string>
     <string name="warnings_perm_location_title">A helymeghatározás ki van kapcsolva</string>
@@ -2362,13 +2362,13 @@
     <string name="warnings_pip_blocked_title">A kép a képben le van tiltva</string>
     <string name="warnings_pip_blocked_body">Az Android úgy van beállítva, hogy megtagadja az EUC Planettől, így a lebegő ablak nem jelenik meg, amikor elhagyod az alkalmazást.</string>
     <string name="online_rejoin_confirm">Újracsatlakozás</string>
-    <string name="charging_monitor">Akkumulátorfigyelő</string>
+    <string name="charging_monitor">Akkufigyelő</string>
     <string name="battery_history">Akkumulátor előzményei</string>
     <string name="setting_charging_auto_open">Automatikus megnyitás töltéskor</string>
     <string name="charging_back">Vissza</string>
     <string name="charging_charging">Töltés</string>
     <string name="charging_eta_to_target">%2$d%%-ig: %1$s</string>
-    <string name="charging_eta_to_full">%1$s a 100%%-ig</string>
+    <string name="charging_eta_to_full">100%%-ig: %1$s</string>
     <string name="charging_eta_at">ekkor: %1$s</string>
     <string name="charging_details">Részletek</string>
     <string name="charging_tab_charge">Töltés</string>
@@ -2464,11 +2464,11 @@
     <string name="lockdown_limit_5">A lebegő átfedés rejtve marad.</string>
     <string name="lockdown_limit_6">A kezdőképernyő widgetjei nem frissülnek tovább.</string>
     <string name="lockdown_limit_7">A szervizmód és a diagnosztikai rögzítés leáll.</string>
-    <string name="lockdown_limit_8">A műszerfalat rögzített képernyő váltja fel: sebességmérő, hat érték, négy gomb.</string>
+    <string name="lockdown_limit_8">A műszerfalat rögzített képernyő váltja fel: sebességmérő, hat mérőszám, négy gomb.</string>
     <string name="lockdown_limit_9">A képernyő nem forog.</string>
     <string name="lockdown_limit_10">A beállítások nem nyithatók meg.</string>
-    <string name="lockdown_limit_11">A menetelőzmények, az akkumulátorfigyelő, a stúdió és a mérőszámok részletei nem nyithatók meg.</string>
-    <string name="lockdown_limit_12">Egy értékre koppintás nem csinál semmit.</string>
+    <string name="lockdown_limit_11">A menetelőzmények, az akkufigyelő, a stúdió és a mérőszámok részletei nem nyithatók meg.</string>
+    <string name="lockdown_limit_12">Egy mérőszámra koppintás nem csinál semmit.</string>
     <string name="lockdown_limit_13">A hangbemondások, a rendszeres jelentések és a sebességrészidők elnémulnak. A riasztásaid továbbra is működnek.</string>
     <string name="lockdown_limit_14">Az egykerekű nem zárolható és nem oldható fel, és a közelségi automatikus zárolás sem fut.</string>
     <string name="lockdown_limit_15">Az automatikus világítás és az automatikus hangerő továbbra is működik. A médiavezérlés leáll.</string>
@@ -2483,7 +2483,7 @@
     <string name="lockdown_warning_no_wheel">Nincs csatlakoztatott egykerekű, így a legális mód állapota ismeretlen. Az alkalmazás akkor zárol, amikor legközelebb bekapcsolják a legális módot.</string>
     <string name="lockdown_continue">Tovább</string>
     <string name="trip_tools_wheel_none">Ehhez a menethez még nincs egykerekű rögzítve.</string>
-    <string name="backup_conflict_warning">A telefon néhány útja eltér a mentési mappában lévő példánytól. Koppints ide: %1$s, majd a(z) %2$s részben nyomd meg: \"%3$s\", és válaszd ki, melyik példány maradjon.</string>
+    <string name="backup_conflict_warning">A telefon néhány menete eltér a mentési mappában lévő példánytól. Koppints ide: %1$s, majd a(z) %2$s részben nyomd meg: \"%3$s\", és válaszd ki, melyik példány maradjon.</string>
     <string name="backup_conflict_title">Mentési ütközések</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Megyünk?</string>
@@ -2503,7 +2503,7 @@
     <string name="charging_notify_full" formatted="false">Szólj 100%-nál</string>
     <string name="charging_notify_at">Értesítési szint</string>
     <string name="charging_notify_custom">Szólj %1$d%%-nál</string>
-    <string name="charging_notify_at_ask">Értesíts ennél…</string>
+    <string name="charging_notify_at_ask">Szólj ennél…</string>
     <string name="charging_notify_custom_range" formatted="false">5 és 95% között legyen, de ne 80%</string>
     <string name="charge_alert_channel_name">Töltési értesítések</string>
     <string name="charge_alert_channel_description" formatted="false">Amikor az akku eléri a választott szintet, vagy befejezte a töltést.</string>
@@ -2525,9 +2525,9 @@
     <string name="widget_act_1_short">1. művelet</string>
     <string name="widget_act_2_short">2. művelet</string>
     <string name="widget_act_3_short">3. művelet</string>
-    <string name="action_chip_reset_metrics">Mérések nullázása</string>
-    <string name="action_reset_metrics_done">Mérések nullázva</string>
-    <string name="action_reset_metrics_wheel_done">Mérések nullázva, az egykerekű menetszámlálója törölve</string>
+    <string name="action_chip_reset_metrics">Mérőszámok nullázása</string>
+    <string name="action_reset_metrics_done">Mérőszámok nullázva</string>
+    <string name="action_reset_metrics_wheel_done">Mérőszámok nullázva, az egykerekű menetszámlálója törölve</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
     <string name="tpms_waiting">Várakozás adatra</string>
     <string name="status_idle">Tétlen</string>
@@ -2536,12 +2536,12 @@
     <string name="alarm_metric_battery_envelope">Akku (becs)</string>
     <string name="alarm_metric_battery_envelope_long">Akkumulátor burkológörbe (terhelés nélküli becslés)</string>
 
-    <string name="headlight_state_off">Fény: ki</string>
-    <string name="headlight_state_low">Fény: alacsony</string>
-    <string name="headlight_state_medium">Fény: közepes</string>
-    <string name="headlight_state_high">Fény: magas</string>
-    <string name="headlight_state_unknown">Fény: ?</string>
-    <string name="adv_headlight_readback_age">Lámpaállapot érvényessége</string>
+    <string name="headlight_state_off">Világítás:ki</string>
+    <string name="headlight_state_low">Világítás:alacsony</string>
+    <string name="headlight_state_medium">Világítás:közepes</string>
+    <string name="headlight_state_high">Világítás:magas</string>
+    <string name="headlight_state_unknown">Világítás:?</string>
+    <string name="adv_headlight_readback_age">Világításállapot érvényessége</string>
     <string name="adv_headlight_readback_age_desc">Meddig számít aktuálisnak a jelzett fényerőszint. Túl hosszú idő esetén elavult szint jelenhet meg.</string>
     <string name="horn_headphones_only">Csak fejhallgatón vagy Bluetoothon</string>
     <string name="horn_section">Duda</string>
@@ -2627,7 +2627,7 @@
     <string name="car_navigate">Navigáció</string>
     <string name="car_places_title">Navigáció ide</string>
     <string name="car_place_home">Otthon</string>
-    <string name="car_place_work">Munka</string>
+    <string name="car_place_work">Munkahely</string>
     <string name="car_planned_route">Tervezett útvonal (%1$d)</string>
     <string name="car_no_places">Előbb mentsd az Otthont vagy a Munkahelyet, vagy tervezz útvonalat a telefonon.</string>
     <string name="car_waiting_wheel">Várakozás az egykerekűre</string>
@@ -2635,8 +2635,8 @@
     <string name="car_alarm_channel_name">Riasztások az autó kijelzőjén</string>
     <string name="car_alarm_channel_description">Megjeleníti az aktív riasztást az Android Auto kijelzőjén, a térkép felett.</string>
     <string name="car_alarm_notifications">Riasztások az autó kijelzőjén</string>
-    <string name="car_alarm_notifications_hint">Az aktív riasztás a térkép felett jelenik meg, így navigálás közben is elér. A hangjelzés és a rezgés változatlan.</string>
-    <string name="car_no_metrics">Nincs kiválasztott érték</string>
+    <string name="car_alarm_notifications_hint">Az aktív riasztás a térkép felett jelenik meg, így navigálás közben is elér. A sípolás és a rezgés változatlan.</string>
+    <string name="car_no_metrics">Nincs kiválasztott mérőszám</string>
     <string name="nav_solve_menu">Megállók sorrendjének optimalizálása</string>
     <string name="nav_solve_effort">Módszer</string>
     <string name="nav_solve_quick">Gyors</string>
@@ -2648,7 +2648,7 @@
     <string name="nav_solve_end_loop">Kör</string>
     <string name="nav_solve_end_keep_last">Fix vég</string>
     <string name="nav_solve_link_origin">Indulás a helyzetemből</string>
-    <string name="nav_solve_origin_no_fix">Még nincs GPS-jel.</string>
+    <string name="nav_solve_origin_no_fix">Még nincs GPS-pozíció.</string>
     <string name="nav_solve_origin_too_far">Túl messze vagy a megállóktól ahhoz, hogy innen indulj.</string>
     <string name="nav_solve_run">Számítás</string>
     <string name="nav_solve_working">A legrövidebb sorrend keresése…</string>
@@ -2675,10 +2675,10 @@
     <string name="offline_server_url">Offline adatszerver</string>
     <string name="offline_data_title">Offline területek</string>
     <string name="offline_data_space">Foglalt %1$s, szabad %2$s</string>
-    <string name="offline_data_tap_hint">Koppints egy négyzetre a térkép és az útvonaladat letöltéséhez vagy törléséhez.</string>
+    <string name="offline_data_tap_hint">Koppints egy négyzetre a térkép és az útvonaltervezési adatok letöltéséhez vagy törléséhez.</string>
     <string name="offline_data_list_error">A szerver nem érhető el. A letöltött területek továbbra is működnek.</string>
     <string name="offline_data_along_route">Útvonalam</string>
-    <string name="offline_prefer">Offline térkép és útvonal előnyben</string>
+    <string name="offline_prefer">Offline térkép és útvonaltervezés előnyben</string>
     <string name="offline_data_select">Kijelölés</string>
     <string name="offline_data_around_me">Körülöttem</string>
     <string name="offline_data_around_me_wide">Körülöttem, tágabban</string>
@@ -2702,6 +2702,6 @@
     <string name="offline_ride_body">Az útvonal egy része kívül esik az offline térképeiden. Most letölthetjük őket, így a térkép és az újratervezés térerő nélkül is működik.</string>
     <string name="offline_ride_download">Térképek letöltése</string>
     <string name="offline_ride_start">Indítás mégis</string>
-    <string name="offline_ride_never">Ne kérdezze újra</string>
-    <string name="offline_remind_before_ride">Offline térképek ellenőrzése út előtt</string>
+    <string name="offline_ride_never">Ne kérdezd újra</string>
+    <string name="offline_remind_before_ride">Offline térképek ellenőrzése menet előtt</string>
 </resources>

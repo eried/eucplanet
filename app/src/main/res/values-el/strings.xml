@@ -75,7 +75,7 @@
     <string name="experimental_dialog_report">Αναφορά προβλήματος</string>
 
     <string name="scan_simulate_title">Εικονικά μονότροχα</string>
-    <string name="scan_simulate_subtitle">Παράκαμψη BLE, χρήση έτοιμων αποκρίσεων. Μόνο σε Λειτουργία συντήρησης.</string>
+    <string name="scan_simulate_subtitle">Παράκαμψη BLE, χρήση έτοιμων αποκρίσεων. Μόνο σε Λειτουργία σέρβις.</string>
 
     <string name="connection_connected">Συνδέθηκε</string>
     <string name="connection_connecting">Αναζήτηση…</string>
@@ -182,7 +182,7 @@
     <string name="dashboard_corner_left">Αριστερά</string>
     <string name="dashboard_corner_center">Κέντρο</string>
     <string name="dashboard_corner_right">Δεξιά</string>
-    <string name="dashboard_slot_sparkline">Φόντο ζωντανής τάσης</string>
+    <string name="dashboard_slot_sparkline">Φόντο ζωντανού γραφήματος</string>
     <string name="dashboard_slot_sparkline_chip">Στατιστικά</string>
     <string name="dashboard_stat_none">(κενό)</string>
     <string name="dashboard_stat_current">Τώρα</string>
@@ -356,7 +356,7 @@
     <string name="warnings_perm_mic_title">Το μικρόφωνο δεν επιτρέπεται</string>
     <string name="warnings_perm_mic_body">Οι φωνητικές εντολές δεν μπορούν να ακούσουν μέχρι να επιτραπεί στην εφαρμογή η χρήση του μικροφώνου.</string>
     <string name="warnings_perm_bluetooth_title">Το Bluetooth δεν επιτρέπεται</string>
-    <string name="warnings_perm_bluetooth_body">Η εφαρμογή δεν μπορεί να βρει τον τροχό σας ούτε να συνδεθεί. Πατήστε για να το επιτρέψετε.</string>
+    <string name="warnings_perm_bluetooth_body">Η εφαρμογή δεν μπορεί να βρει το μονότροχό σας ούτε να συνδεθεί. Πατήστε για να το επιτρέψετε.</string>
     <string name="voice_answer_unknown">Δεν το κατάλαβα. Πείτε %1$s για βοήθεια.</string>
     <string name="voice_help_terms">τι μπορώ να πω,βοήθεια,τι μπορώ να κάνω</string>
     <string name="voice_stat_max_terms">μέγιστη,μέγιστο,μάξιμουμ,υψηλότερη</string>
@@ -429,7 +429,7 @@
     <string name="action_chip_safety_on">Νόμιμη ΕΝΕΡΓΗ</string>
     <string name="action_chip_safety_off">Νόμιμη ΑΝΕΝΕΡΓΗ</string>
     <string name="action_chip_record_start">Έναρξη εγγραφής</string>
-    <string name="action_chip_record_stop">Τέλος εγγραφής</string>
+    <string name="action_chip_record_stop">Διακοπή εγγραφής</string>
     <string name="action_chip_media_play">Αναπαραγωγή / παύση</string>
     <string name="action_chip_media_next">Επόμενο κομμάτι</string>
     <string name="action_chip_media_prev">Προηγ. κομμάτι</string>
@@ -440,7 +440,7 @@
     <string name="action_chip_phone_mute">Σίγαση</string>
     <string name="action_chip_phone_torch">Φακός τηλεφώνου</string>
     <string name="action_chip_open_navigation">Χάρτης</string>
-    <string name="action_chip_open_studio">Studio επικάλυψης</string>
+    <string name="action_chip_open_studio">Overlay Studio</string>
     <string name="action_chip_open_about">Πληροφορίες</string>
     <string name="action_chip_open_service">Λειτουργία σέρβις</string>
     <string name="action_chip_open_trips">Διαδρομές</string>
@@ -472,8 +472,8 @@
     <string name="hud_hotspot_unknown_hint">Βεβαιωθείτε ότι το HUD και το τηλέφωνο είναι στο ίδιο δίκτυο WiFi. Αν χρησιμοποιείτε το σημείο πρόσβασης του τηλεφώνου, ενεργοποιήστε το πρώτα.</string>
     <string name="hud_hotspot_on_hint">Το σημείο πρόσβασης του τηλεφώνου εκπέμπει. Συνδέστε το HUD στο WiFi αυτού του τηλεφώνου για να ενεργοποιηθεί η σύνδεση.</string>
     <string name="hud_overlay_subsection">Προσαρμοσμένη επικάλυψη</string>
-    <string name="hud_overlay_subsection_desc">Εισαγάγετε μια προεπιλογή του Overlay Studio στην Προσαρμοσμένη οθόνη του HUD, χωρίς φόντα. Η προεπιλογή αντιγράφεται εδώ, οπότε μεταγενέστερες αλλαγές στο studio δεν αλλάζουν το HUD μέχρι να την εισαγάγετε ξανά.</string>
-    <string name="hud_overlay_select_preset">Εισαγωγή προεπιλογής</string>
+    <string name="hud_overlay_subsection_desc">Εισαγάγετε μια προρύθμιση του Overlay Studio στην Προσαρμοσμένη οθόνη του HUD, χωρίς φόντα. Η προρύθμιση αντιγράφεται εδώ, οπότε μεταγενέστερες αλλαγές στο studio δεν αλλάζουν το HUD μέχρι να την εισαγάγετε ξανά.</string>
+    <string name="hud_overlay_select_preset">Εισαγωγή προρύθμισης</string>
     <string name="hud_overlay_current_preset">Τρέχουσα: %1$s</string>
     <string name="hud_custom_overlay_none">Εκκαθάριση</string>
     <string name="hud_search_corpus">HUD heads-up display οθόνη κράνους συνοδευτική εφαρμογή διακομιστής ροή τηλεμετρία σημείο πρόσβασης hotspot motoeye βέλος στροφής</string>
@@ -689,7 +689,7 @@
     <string name="adv_compact_max_screen">Όριο συμπαγούς οθόνης</string>
     <string name="adv_compact_max_screen_desc">Οθόνες με τις δύο πλευρές κάτω από αυτό περνούν στον συμπαγή πίνακα οργάνων όταν ο Συμπαγής πίνακας οργάνων είναι ρυθμισμένος σε Μικρές οθόνες.</string>
     <string name="adv_cover_cutout_inset">Μέγεθος εγκοπής κάμερας</string>
-    <string name="adv_cover_cutout_inset_desc">Χώρος που μένει ελεύθερος για τους φακούς της εξωτερικής οθόνης όταν είναι ενεργό το Αποφυγή καμερών εξωτερικής οθόνης. Αν είναι πολύ μικρός, οι φακοί κρύβουν κουμπιά.</string>
+    <string name="adv_cover_cutout_inset_desc">Χώρος που μένει ελεύθερος για τους φακούς της εξωτερικής οθόνης όταν είναι ενεργή η Αποφυγή καμερών εξωτ. οθόνης. Αν είναι πολύ μικρός, οι φακοί κρύβουν κουμπιά.</string>
     <string name="adv_simple_speedo_scale">Μέγεθος απλού ταχύμετρου</string>
     <string name="adv_simple_speedo_scale_desc">Μέγεθος του απλού αριθμού ταχύτητας σε σχέση με την περιοχή του οργάνου. Αν είναι πολύ μεγάλο, μπορεί να κοπεί η ετικέτα μονάδας.</string>
     <string name="adv_nav_sidebar_width">Πλάτος πλαισίου στάσεων</string>
@@ -766,7 +766,7 @@
     <string name="watch_haptic_on_action">Δόνηση σε ενέργεια</string>
     <string name="watch_haptic_on_action_desc">Σύντομη δόνηση του ρολογιού σε κάθε πάτημα, όπου υποστηρίζεται.</string>
 
-    <string name="cloud_caption">Ο φάκελος αντιγράφων ασφαλείας για διαδρομές, ρυθμίσεις, θέματα και επικαλύψεις.</string>
+    <string name="cloud_caption">Ο φάκελος αντιγράφων για διαδρομές, ρυθμίσεις, θέματα και επικαλύψεις.</string>
     <string name="cloud_choose_folder">Επιλογή φακέλου</string>
     <string name="cloud_change_folder">Αλλαγή φακέλου</string>
     <string name="cloud_remove_folder">Αποσύνδεση</string>
@@ -847,7 +847,7 @@
     <string name="back_button_action_desc">Τι συμβαίνει όταν σύρετε ή πατάτε «Πίσω» από τον πίνακα οργάνων.</string>
     <string name="section_screen_geometry">Γεωμετρία οθόνης</string>
     <string name="geo_section_dashboard">Πίνακας οργάνων</string>
-    <string name="geo_section_navigator">Πλοήγηση</string>
+    <string name="geo_section_navigator">Πλοηγός</string>
     <string name="geo_section_trip">Διαδρομή</string>
     <string name="geo_section_other">Άλλες οθόνες</string>
     <string name="geo_section_settings">Ρυθμίσεις</string>
@@ -859,7 +859,7 @@
     <string name="compact_mode_auto">Μικρές οθόνες</string>
     <string name="compact_mode_always">Πάντα</string>
     <string name="compact_mode_never">Ποτέ</string>
-    <string name="setting_cover_cutout">Αποφυγή κάμερων καλύμματος</string>
+    <string name="setting_cover_cutout">Αποφυγή καμερών εξωτ. οθόνης</string>
     <string name="cover_cutout_off">Ανενεργό</string>
     <string name="cover_cutout_left">Κάτω αριστερά</string>
     <string name="cover_cutout_right">Κάτω δεξιά</string>
@@ -868,7 +868,7 @@
     <string name="setting_mirror_landscape">Κουμπιά αριστερά</string>
     <string name="setting_block_upside_down">Χωρίς ανάποδη περιστροφή</string>
     <string name="setting_ignore_system_rotate_lock">Παράβλεψη κλειδώματος περιστροφής</string>
-    <string name="setting_nav_stops_side">Πλευρά πίνακα στάσεων</string>
+    <string name="setting_nav_stops_side">Πλευρά πλαισίου στάσεων</string>
     <string name="side_default">Προεπιλογή</string>
     <string name="side_left">Αριστερά</string>
     <string name="side_right">Δεξιά</string>
@@ -1011,7 +1011,7 @@
     <string name="welcome_tut_skip_yes">Παράλειψη</string>
     <string name="welcome_tut_welcome">Καλώς ήρθατε στο EUC Planet, μια απλή εφαρμογή ανοιχτού κώδικα για ηλεκτρικά μονότροχα</string>
     <string name="welcome_tut_voice_title">Ενεργοποίηση φωνητικών ειδοποιήσεων</string>
-    <string name="welcome_tut_voice_desc">Μπορείτε να ενεργοποιήσετε ή να απενεργοποιήσετε μεμονωμένα φωνητικά μηνύματα αργότερα στις Ρυθμίσεις → Φωνή και ανακοινώσεις.</string>
+    <string name="welcome_tut_voice_desc">Μπορείτε να ενεργοποιήσετε ή να απενεργοποιήσετε μεμονωμένα φωνητικά μηνύματα αργότερα στις Ρυθμίσεις → Φωνή &amp; ανακοινώσεις.</string>
     <string name="welcome_tut_dev_title">Εργαλεία προγραμματιστή</string>
     <string name="welcome_tut_dev_set_folder">Ορισμός φακέλου αντιγράφων</string>
     <string name="welcome_tut_dev_restore">Επαναφορά ρυθμίσεων</string>
@@ -1025,7 +1025,7 @@
     <string name="welcome_tut_outro_title">Αυτή ήταν η περιήγηση!</string>
     <string name="welcome_tut_outro_buttons">Πολλά κουμπιά έχουν επιπλέον ενέργειες, δοκιμάστε να τα πατήσετε παρατεταμένα</string>
     <string name="welcome_tut_outro_alarms">Εξερευνήστε τον ισχυρό επεξεργαστή προσαρμοσμένων συναγερμών στις Ρυθμίσεις → %1$s</string>
-    <string name="welcome_tut_outro_integrations">Εξερευνήστε τις ενσωματώσεις: HUD κράνους, ρολόγια WearOS, κουμπιά Flic, Garmin Connect IQ και το ραντάρ οπισθοπορείας</string>
+    <string name="welcome_tut_outro_integrations">Εξερευνήστε τις ενσωματώσεις: HUD κράνους, ρολόγια WearOS, κουμπιά Flic, Garmin Connect IQ και το ραντάρ πίσω όψης</string>
     <string name="welcome_tut_outro_end">Κρατήστε τα μάτια στον δρόμο και μακριά από την εφαρμογή όσο οδηγείτε!</string>
     <string name="welcome_tut_share">Δημιουργήστε αντίγραφα των διαδρομών σας στις Ρυθμίσεις → %1$s. Δείτε τες στο %2$s ή αναλύστε τα αντίγραφα στο eucviewer.ried.no.\n\nΣτην ίδια ενότητα μπορείτε να μπείτε στις δημόσιες κατατάξεις στο eucstats.ried.no</string>
     <string name="welcome_tut_speed">Η ζωντανή ταχύτητά σας. Αλλάξτε μονάδες στις Ρυθμίσεις → %1$s</string>
@@ -1315,13 +1315,13 @@
     <string name="metric_load">Φορτίο</string>
     <string name="metric_speed">Ταχύτητα</string>
 
-    <string name="trip_meter_detail_title">Χιλιομετρητής διαδρομής</string>
+    <string name="trip_meter_detail_title">Μετρητής διαδρομής</string>
     <string name="trip_meter_tab_speed">Ταχύτητα</string>
     <string name="trip_meter_tab_battery">Μπαταρία</string>
     <string name="trip_meter_tab_time">Χρόνος</string>
     <string name="trip_meter_active">Ενεργός</string>
     <string name="trip_meter_avg">Μέσος</string>
-    <string name="trip_meter_reset">Μηδενισμός χιλιομετρητή</string>
+    <string name="trip_meter_reset">Μηδενισμός μετρητή</string>
     <string name="trip_meter_reset_msg">Μηδενίζει την τρέχουσα απόσταση και διαγράφει όλα τα τμήματα. Δεν είναι δυνατή η αναίρεση.</string>
     <string name="trip_meter_empty">Δεν υπάρχει ακόμη απόσταση. Ο μετρητής μετρά όσο είναι συνδεδεμένο ένα μονότροχο.</string>
     <string name="trip_meter_partial">Τώρα</string>
@@ -1621,7 +1621,7 @@
     <string name="sources_lateral_x">Πλευρική (X)</string>
     <string name="sources_vertical_y">Κατακόρυφη (Y)</string>
     <string name="sources_forward_z">Εμπρός (Z)</string>
-    <string name="sources_distance_between_fixes">Απόσταση μεταξύ στίγματων</string>
+    <string name="sources_distance_between_fixes">Απόσταση μεταξύ στιγμάτων</string>
     <string name="sources_last_update">Τελευταία ενημέρωση</string>
     <string name="sources_fresh_just_now">μόλις τώρα</string>
     <string name="sources_fresh_seconds_fmt">πριν από %1$d δ</string>
@@ -1753,7 +1753,7 @@
     <string name="online_restore_body_switch">Βρήκαμε ένα διαφορετικό αποθηκευμένο προφίλ: %1$s. Αν συνεχίσετε, αυτό το τηλέφωνο αλλάζει σε εκείνον τον αναβάτη. Πρώτα δημιουργείται αντίγραφο ασφαλείας του τρέχοντος προφίλ σας.</string>
     <string name="online_restore_confirm">Συνέχεια ως %1$s</string>
     <string name="online_rejoin_title">Επανενεργοποίηση προφίλ</string>
-    <string name="online_rejoin_body">Ο φάκελος αντιγράφων ασφαλείας περιέχει ένα προφίλ που χρησιμοποιήθηκε για την κατάταξη.\n\nΑναγνωριστικό αναβάτη: %1$s</string>
+    <string name="online_rejoin_body">Ο φάκελος αντιγράφων περιέχει ένα προφίλ που χρησιμοποιήθηκε για την κατάταξη.\n\nΑναγνωριστικό αναβάτη: %1$s</string>
 
     <string name="studio_open">Άνοιγμα Overlay Studio</string>
     <string name="studio_not_connected">Δεν υπάρχει σύνδεση</string>
@@ -1767,7 +1767,7 @@
     <string name="studio_image_failed">Δεν ήταν δυνατή η φόρτωση της εικόνας</string>
     <string name="studio_preset_saved">Η προρύθμιση αποθηκεύτηκε</string>
     <string name="studio_preset_failed">Δεν ήταν δυνατή η αποθήκευση της προρύθμισης</string>
-    <string name="studio_no_folder">Ορίστε πρώτα φάκελο αντιγράφων ασφαλείας για να αποθηκεύετε προρυθμίσεις</string>
+    <string name="studio_no_folder">Ορίστε πρώτα φάκελο αντιγράφων για να αποθηκεύετε προρυθμίσεις</string>
     <string name="studio_your_presets_empty">Δεν υπάρχουν ακόμα αποθηκευμένες προρυθμίσεις. Αποθηκεύστε την τρέχουσα διάταξη για να προσθέσετε μία.</string>
 
     <string name="studio_rendering_cancel">Ακύρωση</string>
@@ -1814,7 +1814,7 @@
     <string name="studio_flyout_add">Προσθήκη</string>
 
     <string name="studio_dlg_new_title">Νέα προρύθμιση;</string>
-    <string name="studio_dlg_new_body">Αφαιρεί όλα τα επικαλύμματα και επαναφέρει την οθόνη σε ένα μόνο παράθυρο κάμερας. Οι αποθηκευμένες προρυθμίσεις δεν επηρεάζονται.</string>
+    <string name="studio_dlg_new_body">Αφαιρεί όλες τις επικαλύψεις και επαναφέρει την οθόνη σε ένα μόνο παράθυρο κάμερας. Οι αποθηκευμένες προρυθμίσεις δεν επηρεάζονται.</string>
     <string name="studio_dlg_new_confirm">Νέα</string>
     <string name="studio_dlg_load_title">Φόρτωση προρύθμισης;</string>
     <string name="studio_dlg_load_body">Η φόρτωση της «%1$s» αντικαθιστά την τρέχουσα προρύθμιση. Αποθηκεύστε πρώτα την τρέχουσα αν θέλετε να την κρατήσετε.</string>
@@ -1822,10 +1822,10 @@
     <string name="studio_dlg_load_confirm">Φόρτωση</string>
 
     <string name="studio_save_preset_title">Αποθήκευση προρύθμισης</string>
-    <string name="studio_save_preset_body">Οι προρυθμίσεις αποθηκεύονται ως ξεχωριστά αρχεία .json στον φάκελο αντιγράφων ασφαλείας, στο overlays/.</string>
+    <string name="studio_save_preset_body">Οι προρυθμίσεις αποθηκεύονται ως ξεχωριστά αρχεία .json στον φάκελο αντιγράφων, στο overlays/.</string>
     <string name="studio_save_preset_name_label">Όνομα προρύθμισης</string>
     <string name="studio_save_btn">Αποθήκευση</string>
-    <string name="studio_no_folder_body">Ορίστε φάκελο αντιγράφων ασφαλείας για να φορτώνετε και να αποθηκεύετε προρυθμίσεις.</string>
+    <string name="studio_no_folder_body">Ορίστε φάκελο αντιγράφων για να φορτώνετε και να αποθηκεύετε προρυθμίσεις.</string>
 
     <string name="studio_load_preset_title">Φόρτωση προρύθμισης</string>
     <string name="studio_section_portrait">Κατακόρυφα</string>
@@ -1948,7 +1948,7 @@
     <string name="studio_cfg_clock_stopwatch">Χρονόμετρο</string>
     <string name="studio_cfg_clock_show_date">Εμφάνιση γραμμής ημερομηνίας</string>
     <string name="studio_cfg_clock_24h">Μορφή 24 ωρών</string>
-    <string name="studio_cfg_metric_label">Μέγεθος</string>
+    <string name="studio_cfg_metric_label">Μέτρηση</string>
     <string name="studio_cfg_max_label">Μέγιστο</string>
     <string name="studio_cfg_show_label">Εμφάνιση ετικέτας</string>
     <string name="studio_cfg_badge_stacked">Στοιβαγμένο (εικονίδιο πάνω)</string>
@@ -1968,7 +1968,7 @@
     <string name="studio_cfg_map_trace_progress">Πρόοδος</string>
     <string name="studio_cfg_map_trace_full">Ολόκληρη διαδρομή</string>
     <string name="studio_cfg_map_use_custom_marker">Προτίμηση προσαρμοσμένου δείκτη</string>
-    <string name="studio_cfg_map_use_custom_marker_hint">Ορίστε τη φωτογραφία σας στο Πλοηγός -> Προσαρμογή του δείκτη μου.</string>
+    <string name="studio_cfg_map_use_custom_marker_hint">Ορίστε τη φωτογραφία σας στο Πλοηγός → Προσαρμογή του δείκτη μου.</string>
     <string name="studio_cfg_radar_mode">Προβολή ραντάρ</string>
     <string name="studio_cfg_radar_lane">Λωρίδα</string>
     <string name="studio_cfg_radar_mirror">Καθρέφτης</string>
@@ -2051,7 +2051,7 @@
     <string name="studio_metric_wh_consumed">Ενέργεια</string>
     <string name="studio_metric_wh_per_km">Κατανάλωση</string>
     <string name="studio_metric_range">Αυτονομία</string>
-    <string name="studio_metric_odometer">Χιλιομετρητής</string>
+    <string name="studio_metric_odometer">Οδόμετρο</string>
     <string name="studio_metric_pitch">Κλίση εμπρός-πίσω</string>
     <string name="studio_metric_roll">Πλάγια κλίση</string>
     <string name="studio_metric_g_force">Δύναμη G</string>
@@ -2253,7 +2253,7 @@
     <string name="weather_window_label">Χρονικό εύρος πρόγνωσης</string>
     <string name="weather_source_label">Πηγή πρόγνωσης</string>
     <string name="weather_cold">Πολύ κρύο κάτω από</string>
-    <string name="weather_hot">Πολύ ζέστη πάνω από</string>
+    <string name="weather_hot">Πολλή ζέστη πάνω από</string>
     <string name="weather_breezy">Αεράκι πάνω από</string>
     <string name="weather_windy">Πολύς αέρας πάνω από</string>
     <string name="weather_source_credit">Η πρόγνωση προέρχεται από την πηγή που επιλέγετε και λαμβάνεται μόνο όσο αυτό είναι ενεργό. Ένα μικρότερο εύρος μπορεί να έχει πιο λεπτομερή βήματα, όπου η πηγή τα προσφέρει.</string>
@@ -2316,7 +2316,7 @@
     <string name="weather_face_golden">Χρυσή ώρα - το καλύτερο φως, ανάψτε σύντομα τα φώτα.</string>
     <string name="nav_setting_advanced_map">Προηγμένες λειτουργίες χάρτη</string>
     <string name="nav_setting_advanced_map_desc">Εμφάνιση φορτιστών και σημείων κατά μήκος του δρομολογίου.</string>
-    <string name="nav_setting_full_path">Πάντα υπολογισμός όλης της διαδρομής</string>
+    <string name="nav_setting_full_path">Πάντα υπολογισμός όλου του δρομολογίου</string>
     <string name="nav_setting_full_path_desc">Όταν είναι ανενεργό, υπολογίζεται μόνο η επόμενη στάση και οι υπόλοιπες εμφανίζονται ως διακεκομμένη προεπισκόπηση.</string>
     <string name="nav_setting_avoid">Αποφυγή στη δρομολόγηση</string>
     <string name="nav_setting_avoid_hint">Οι αποφυγές χρησιμοποιούν άλλη υπηρεσία δρομολόγησης και ισχύουν όπου τις υποστηρίζει ο τρόπος μετακίνησης.</string>
@@ -2450,8 +2450,8 @@
     <string name="studio_cfg_dial_semi">Μισό</string>
     <string name="studio_cfg_dial_color_band">Χρωματική ζώνη</string>
     <string name="studio_snap_to_grid">Κούμπωμα στο πλέγμα</string>
-    <string name="studio_overwrite_title">Αντικατάσταση προκαθορισμένου;</string>
-    <string name="studio_overwrite_body">Υπάρχει ήδη προκαθορισμένο με όνομα «%1$s».</string>
+    <string name="studio_overwrite_title">Αντικατάσταση προρύθμισης;</string>
+    <string name="studio_overwrite_body">Υπάρχει ήδη προρύθμιση με όνομα «%1$s».</string>
     <string name="studio_overwrite_confirm">Αντικατάσταση</string>
     <string name="studio_save_keep_both">Διατήρηση και των δύο</string>
     <string name="warnings_indicator_desc">Προειδοποιήσεις εφαρμογής</string>
@@ -2474,7 +2474,7 @@
     <string name="warnings_hud_blocked_title">Το HUD τηλεφώνου δεν μπορεί να εμφανιστεί</string>
     <string name="warnings_hud_blocked_body">Η άδεια εμφάνισης πάνω από άλλες εφαρμογές ανακλήθηκε, οπότε η επικάλυψη δεν θα εμφανίζεται πάνω από χάρτες ή μουσική.</string>
     <string name="warnings_no_backup_title">Δεν υπάρχει αντίγραφο ασφαλείας των διαδρομών</string>
-    <string name="warnings_no_backup_body">Υπάρχουν μόνο σε αυτό το τηλέφωνο. Επιλέξτε φάκελο αντιγράφων ασφαλείας, ώστε ένα χαμένο ή διαγραμμένο τηλέφωνο να μην πάρει μαζί του τις βόλτες σας.</string>
+    <string name="warnings_no_backup_body">Υπάρχουν μόνο σε αυτό το τηλέφωνο. Επιλέξτε φάκελο αντιγράφων, ώστε ένα χαμένο ή διαγραμμένο τηλέφωνο να μην πάρει μαζί του τις βόλτες σας.</string>
     <string name="warnings_pip_blocked_title">Η λειτουργία εικόνας σε εικόνα έχει αποκλειστεί</string>
     <string name="warnings_pip_blocked_body">Το Android είναι ρυθμισμένο να την απορρίπτει για το EUC Planet, οπότε το αιωρούμενο παράθυρο δεν θα εμφανίζεται όταν βγαίνετε από την εφαρμογή.</string>
     <string name="online_rejoin_confirm">Επανασύνδεση</string>
@@ -2555,7 +2555,7 @@
     <string name="lockdown_vehicle_model">Μοντέλο</string>
     <string name="lockdown_vehicle_max_speed">Μέγιστο όριο ταχύτητας</string>
     <string name="lockdown_vehicle_alarm">Συναγερμός</string>
-    <string name="lockdown_vehicle_odometer">Χιλιομετρητής</string>
+    <string name="lockdown_vehicle_odometer">Οδόμετρο</string>
     <string name="lockdown_speed_limit_title">Όρια</string>
     <string name="lockdown_unlock_prompt">Κωδικός κατασκευαστή</string>
     <string name="lockdown_unlock">Ξεκλείδωμα</string>
@@ -2776,9 +2776,9 @@
     <string name="offline_data_no_route">Σχεδιάστε πρώτα ένα δρομολόγιο.</string>
     <string name="offline_data_route_all_here">Όλες οι περιοχές στο δρομολόγιό σας έχουν ληφθεί.</string>
     <string name="offline_ride_title">Λήψη χαρτών εκτός σύνδεσης;</string>
-    <string name="offline_ride_body">Μέρος αυτής της διαδρομής είναι εκτός των χαρτών σου εκτός σύνδεσης. Μπορούμε να τους κατεβάσουμε τώρα, ώστε ο χάρτης και ο επανυπολογισμός να λειτουργούν και χωρίς σήμα.</string>
+    <string name="offline_ride_body">Μέρος αυτού του δρομολογίου είναι εκτός των χαρτών σας εκτός σύνδεσης. Μπορούμε να τους κατεβάσουμε τώρα, ώστε ο χάρτης και ο επανυπολογισμός να λειτουργούν και χωρίς σήμα.</string>
     <string name="offline_ride_download">Λήψη χαρτών</string>
     <string name="offline_ride_start">Έναρξη ούτως ή άλλως</string>
     <string name="offline_ride_never">Να μην ξαναρωτηθώ</string>
-    <string name="offline_remind_before_ride">Έλεγχος χαρτών εκτός σύνδεσης πριν από διαδρομή</string>
+    <string name="offline_remind_before_ride">Έλεγχος χαρτών εκτός σύνδεσης πριν από βόλτα</string>
 </resources>
