@@ -1,17 +1,5 @@
 package com.eried.eucplanet.ui.navigator
 
-import android.Manifest
-import android.annotation.SuppressLint
-import android.content.pm.PackageManager
-import android.os.Handler
-import android.os.Looper
-import android.view.ViewGroup
-import android.webkit.JavascriptInterface
-import android.webkit.WebView
-import android.webkit.WebViewClient
-import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.animation.core.animateFloatAsState
@@ -85,7 +73,6 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.rememberModalBottomSheetState
-import coil.compose.AsyncImage
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -126,14 +113,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
+import com.eried.eucplanet.platform.rememberStringFormatter
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.res.stringArrayResource
-import androidx.compose.ui.res.pluralStringResource
-import androidx.compose.ui.res.stringResource
+import com.eried.eucplanet.platform.stringArrayResource
+import com.eried.eucplanet.platform.pluralStringResource
+import com.eried.eucplanet.platform.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
@@ -142,8 +127,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
-import com.eried.eucplanet.R
+import com.eried.eucplanet.resources.*
 import com.eried.eucplanet.data.model.NavMode
 import com.eried.eucplanet.data.model.TravelMode
 import com.eried.eucplanet.share.Freshness
@@ -168,8 +152,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.json.JSONArray
-import org.json.JSONObject
+import com.eried.eucplanet.platform.JSONArray
+import com.eried.eucplanet.platform.JSONNull
+import com.eried.eucplanet.platform.JSONObject
+import com.eried.eucplanet.platform.Locale
+import com.eried.eucplanet.platform.System
+import com.eried.eucplanet.platform.format
+import com.eried.eucplanet.platform.jsonQuote
+import com.eried.eucplanet.ui.common.screenGeometry
+import androidx.compose.runtime.CompositionLocalProvider
 import com.eried.eucplanet.nav.isFixedTrack
 import sh.calvin.reorderable.ReorderableColumn
 import com.eried.eucplanet.ui.settings.eucstats.flagEmoji
@@ -178,9 +169,6 @@ import com.eried.eucplanet.ui.theme.themedSegmentedColors
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.common.DestructiveMenuItem
 import com.eried.eucplanet.ui.common.appMenuItemColors
-import org.koin.compose.viewmodel.koinViewModel
-import com.eried.eucplanet.nav.distance
-import com.eried.eucplanet.platform.getString
 
 /**
  * The Route Builder: a full-bleed Leaflet map (WebView) with a top search bar,
@@ -207,15 +195,28 @@ private const val COURSE_MAX_AGE_MS = 15_000L
 // not left staring at a panel that will never resolve.
 private const val LOCATING_GRACE_MS = 4_000L
 
-@SuppressLint("SetJavaScriptEnabled")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RouteBuilderScreen(
     onExit: () -> Unit,
     onOpenNavSettings: () -> Unit,
-    viewModel: RouteBuilderViewModel = koinViewModel()
+    viewModel: RouteBuilderViewModel,
+    host: RouteBuilderHost,
 ) {
-    val context = LocalContext.current
+    // The share windows and the charger sheet reach the host through this.
+    CompositionLocalProvider(LocalRouteBuilderHost provides host) {
+        RouteBuilderContent(onExit, onOpenNavSettings, viewModel, host)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun RouteBuilderContent(
+    onExit: () -> Unit,
+    onOpenNavSettings: () -> Unit,
+    viewModel: RouteBuilderViewModel,
+    host: RouteBuilderHost,
+) {
+    val navText = rememberStringFormatter()
     val scope = rememberCoroutineScope()
     val snackbarHost = remember { SnackbarHostState() }
 
@@ -253,11 +254,7 @@ fun RouteBuilderScreen(
     // Keep the screen on while navigating with the map in front. This only
     // sets the view flag, which the window's own keep-on flag (the
     // dashboard setting) is OR-ed with, so that setting still wins.
-    val hostView = LocalView.current
-    DisposableEffect(navRunning) {
-        hostView.keepScreenOn = navRunning
-        onDispose { hostView.keepScreenOn = false }
-    }
+    host.KeepScreenOn(navRunning)
     val advancedMap by viewModel.advancedMap.collectAsState()
     val showChargers by viewModel.showChargers.collectAsState()
     val placeCats by viewModel.placeCats.collectAsState()
@@ -270,9 +267,6 @@ fun RouteBuilderScreen(
     val placeLoading by viewModel.placeLoading.collectAsState()
     // Persisted custom marker photo (base64 data URL or null).
     val markerPhoto by viewModel.userMarkerPhoto.collectAsState()
-    // When a freshly-picked image is decoded, it lands here and the crop
-    // dialog opens. Cleared on cancel or after the crop result is saved.
-    var pendingMarkerSource by remember { mutableStateOf<android.graphics.Bitmap?>(null) }
     val routeClean by viewModel.routeClean.collectAsState()
     var selfMenuOpen by remember { mutableStateOf(false) }
     // Screen-space offset where the self menu should anchor. Pushed in from
@@ -287,7 +281,7 @@ fun RouteBuilderScreen(
     // Held only after the rider has actually chosen a file (asking BEFORE
     // the picker would be confusing, they may cancel out, and the prompt
     // would be for nothing). Null when no pending choice.
-    var pendingGpxUri by remember { mutableStateOf<android.net.Uri?>(null) }
+    var pendingGpxUri by remember { mutableStateOf<String?>(null) }
     var markerMenuIndex by remember { mutableStateOf(-1) }
     // Screen position of the tapped marker, so its menu opens at the pin.
     var markerMenuOffset by remember { mutableStateOf(DpOffset.Zero) }
@@ -358,7 +352,7 @@ fun RouteBuilderScreen(
     // one the incoming link points at.
     var shareSwitchConfirmed by remember { mutableStateOf(false) }
     var panelExpanded by rememberSaveable { mutableStateOf(true) }
-    var webView by remember { mutableStateOf<WebView?>(null) }
+    var webView by remember { mutableStateOf<RouteMapPage?>(null) }
     var showLayerSheet by remember { mutableStateOf(false) }
     // The downloaded map is showing (no signal, or Prefer offline over a
     // downloaded square): styles and overlays cannot load, so their
@@ -410,12 +404,12 @@ fun RouteBuilderScreen(
         locationGateDone = true
     }
 
-    BackHandler { onExit() }
+    host.BackHandler { onExit() }
 
     // Surface ViewModel messages as snackbars.
     LaunchedEffect(Unit) {
         viewModel.messages.collect { resId ->
-            snackbarHost.showSnackbar(context.getString(resId))
+            snackbarHost.showSnackbar(navText(resId, emptyList()))
         }
     }
 
@@ -426,25 +420,7 @@ fun RouteBuilderScreen(
 
     // The builder is useless without a fix, ask for location up front so the
     // "my location" button and live guidance work. Harmless if already granted.
-    val locationPermission = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { /* the location flow re-checks on its own; nothing to do here */ }
-    LaunchedEffect(Unit) {
-        val granted = ContextCompat.checkSelfPermission(
-            context, Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED ||
-            ContextCompat.checkSelfPermission(
-                context, Manifest.permission.ACCESS_COARSE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        if (!granted) {
-            locationPermission.launch(
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                )
-            )
-        }
-    }
+    host.RequestLocationPermission()
 
     // Push map redraws into the WebView once the page is ready.
     //
@@ -520,20 +496,10 @@ fun RouteBuilderScreen(
         wv.evaluateJavascript("nativeSetUserPhoto($arg);", null)
     }
 
-    // The crop dialog only mounts once a freshly-picked image has been
-    // decoded into a Bitmap. On Apply, the resulting 64×64 circular crop is
-    // encoded to base64 and persisted; the saved value flows back through
-    // [markerPhoto] above to update the map.
-    pendingMarkerSource?.let { src ->
-        UserMarkerCropDialog(
-            source = src,
-            onCancel = { pendingMarkerSource = null },
-            onApply = { cropped ->
-                viewModel.setUserMarkerPhoto(cropped.toBase64DataUrl())
-                pendingMarkerSource = null
-            }
-        )
-    }
+    // The photo picker and its crop step, drawn by the host. The 64x64
+    // circular crop comes back as a base64 data URL and is persisted; the
+    // saved value flows back through [markerPhoto] above to update the map.
+    val pickMarkerPhoto = host.rememberMarkerPhotoPicker { dataUrl -> viewModel.setUserMarkerPhoto(dataUrl) }
 
     // Keep the "you are here" pin live. Switches between two visuals based
     // on speed: a teardrop pointing in the direction of travel when the
@@ -607,7 +573,7 @@ fun RouteBuilderScreen(
         val wv = webView ?: return@LaunchedEffect
         if (!pageReady) return@LaunchedEffect
         wv.evaluateJavascript(
-            "nativeSetPeerLabels(${jsString(context.getString(R.string.share_lost))});", null
+            "nativeSetPeerLabels(${jsString(navText(Res.string.share_lost, emptyList()))});", null
         )
     }
 
@@ -626,7 +592,7 @@ fun RouteBuilderScreen(
         // it reads in the rider's own units and word for word the same as the
         // group list's row for the same friend.
         val statsText: (ShareStats) -> String = { s ->
-            shareStatsLine(context, s, shareSpeedUnit, shareTempUnit)
+            shareStatsLine(navText, s, shareSpeedUnit, shareTempUnit)
         }
         val json = when {
             joined == null -> "[]"
@@ -638,7 +604,7 @@ fun RouteBuilderScreen(
                 }
             else -> sharePeersJson(joined.peers, now, statsText)
         }
-        wv.evaluateJavascript("nativeSetPeers(${JSONObject.quote(json)});", null)
+        wv.evaluateJavascript("nativeSetPeers(${jsonQuote(json)});", null)
     }
 
     // Freshness is measured against the clock, so the markers and the group
@@ -759,49 +725,18 @@ fun RouteBuilderScreen(
         wv.evaluateJavascript("nativeSetFullPath(${if (solveFullPath) "true" else "false"});", null)
     }
 
-    val saveLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.CreateDocument("application/gpx+xml")
-    ) { uri -> uri?.let { viewModel.saveGpx(it.toString()) } }
+    val saveGpx = host.rememberGpxSaver { file -> viewModel.saveGpx(file) }
 
-    val loadLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.OpenDocument()
-    ) { uri ->
-        if (uri == null) return@rememberLauncherForActivityResult
+    val openGpx = host.rememberGpxOpener { file ->
         // If the current route is an unsaved multi-stop one, confirm before
-        // overwriting it, we already have the file, just hold the URI and
-        // pop the dialog now. Otherwise load straight away.
+        // overwriting it, we already have the file, just hold it and pop the
+        // dialog now. Otherwise load straight away.
         val needConfirm = viewModel.waypoints.value.size > 1 &&
             !viewModel.routeClean.value
         if (needConfirm) {
-            pendingGpxUri = uri
+            pendingGpxUri = file
         } else {
-            viewModel.loadGpx(uri.toString())
-        }
-    }
-
-    // Photo picker for the custom rider-marker. The picked image is decoded
-    // immediately so the crop dialog can show it; the dialog then renders a
-    // 64×64 circular crop and the result is base64-encoded into settings.
-    //
-    // The decode is downsampled to a sane preview size -- a 12 megapixel
-    // gallery photo is multi-megabyte of pixel data and dragging it inside
-    // the crop dialog re-uploads that texture to the GPU every frame,
-    // hanging the UI thread. ~1024 px on the long edge is plenty for the
-    // 64 px output anyway.
-    val markerPhotoPicker = rememberLauncherForActivityResult(
-        ActivityResultContracts.PickVisualMedia()
-    ) { uri ->
-        if (uri == null) return@rememberLauncherForActivityResult
-        scope.launch {
-            val bmp = runCatching {
-                // Shared downsampled decode -- see [decodeDownsampledBitmap].
-                // Full-res phone photos (50+ MP, the crash log once showed a
-                // 191 MB bitmap) OOM or exceed RecordingCanvas's 100 MB
-                // per-bitmap limit and take the activity down; the helper
-                // brings the long edge to ~1024 px before we ever draw it.
-                decodeDownsampledBitmap(context, uri)
-            }.getOrNull()
-            if (bmp != null) pendingMarkerSource = bmp
+            viewModel.loadGpx(file)
         }
     }
 
@@ -833,9 +768,9 @@ fun RouteBuilderScreen(
     // even when rotated.
     val stopsSide by viewModel.navStopsSide.collectAsState()
     val advancedVars by viewModel.advanced.collectAsState()
-    val landscape = LocalConfiguration.current.orientation ==
-        android.content.res.Configuration.ORIENTATION_LANDSCAPE &&
-        LocalConfiguration.current.screenWidthDp >= advancedVars.navSidebarMinScreenDp &&
+    val geometry = screenGeometry()
+    val landscape = geometry.landscape &&
+        geometry.widthDp >= advancedVars.navSidebarMinScreenDp &&
         stopsSide != "DEFAULT"
 
     Scaffold(
@@ -862,7 +797,7 @@ fun RouteBuilderScreen(
                     IconButton(onClick = onExit) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.nav_menu_exit)
+                            contentDescription = stringResource(Res.string.nav_menu_exit)
                         )
                     }
                 },
@@ -888,7 +823,7 @@ fun RouteBuilderScreen(
                             // Single line: on narrow cover screens the hint
                             // otherwise wraps and clips inside the pill.
                             Text(
-                                stringResource(R.string.nav_search_hint),
+                                stringResource(Res.string.nav_search_hint),
                                 maxLines = 1,
                                 overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                             )
@@ -976,7 +911,7 @@ fun RouteBuilderScreen(
                                         else shareMenuOpen = true
                                     },
                                     onLongClickLabel = stringResource(
-                                        R.string.share_button_long
+                                        Res.string.share_button_long
                                     ),
                                     // ...and holding it mid-ride is how the
                                     // rider still reaches a Maps pin or the
@@ -996,7 +931,7 @@ fun RouteBuilderScreen(
                         ) {
                             Icon(
                                 Icons.Default.Share,
-                                stringResource(R.string.share_button),
+                                stringResource(Res.string.share_button),
                                 tint = if (joinedShare != null) {
                                     MaterialTheme.appColors.statusGood
                                 } else {
@@ -1007,26 +942,17 @@ fun RouteBuilderScreen(
                     }
                     Box {
                         IconButton(onClick = { menuOpen = true }) {
-                            Icon(Icons.Default.MoreVert, stringResource(R.string.nav_menu))
+                            Icon(Icons.Default.MoreVert, stringResource(Res.string.nav_menu))
                         }
                         BuilderMenu(
                             expanded = menuOpen,
                             onDismiss = { menuOpen = false },
-                            onSave = { saveLauncher.launch(viewModel.suggestedFileName()) },
+                            onSave = { saveGpx(viewModel.suggestedFileName()) },
                             onLoad = {
-                                // No "*/*", that wildcard showed every file.
-                                // Android has no registered MIME for ".gpx", so
-                                // such files resolve to octet-stream; that entry
-                                // has to stay or real GPX files would be hidden.
                                 // If the rider's current route is unsaved and
                                 // multi-stop, we'll prompt AFTER they pick a
                                 // file (so cancelling the picker is silent).
-                                loadLauncher.launch(
-                                    arrayOf(
-                                        "application/gpx+xml", "application/xml",
-                                        "text/xml", "application/octet-stream"
-                                    )
-                                )
+                                openGpx()
                             },
                             onClear = {
                                 // Skip the 'Start a new route?' confirmation when:
@@ -1047,13 +973,7 @@ fun RouteBuilderScreen(
                             onClearHome = viewModel::clearHome,
                             onClearWork = viewModel::clearWork,
                             onNavSettings = onOpenNavSettings,
-                            onCustomizeMarker = {
-                                markerPhotoPicker.launch(
-                                    androidx.activity.result.PickVisualMediaRequest(
-                                        ActivityResultContracts.PickVisualMedia.ImageOnly
-                                    )
-                                )
-                            },
+                            onCustomizeMarker = { pickMarkerPhoto() },
                             onResetMarker = { viewModel.setUserMarkerPhoto(null) },
                             hasCustomMarker = markerPhoto != null,
                             navRunning = navRunning,
@@ -1180,131 +1100,75 @@ fun RouteBuilderScreen(
                 .onSizeChanged { sz -> mapBoxHeightPx = sz.height }
         ) {
             // --- Map ---
-            androidx.compose.ui.viewinterop.AndroidView(
-                modifier = Modifier.fillMaxSize(),
-                factory = { ctx ->
-                    WebView(ctx).apply {
-                        layoutParams = ViewGroup.LayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT
-                        )
-                        settings.javaScriptEnabled = true
-                        settings.domStorageEnabled = true
-                        // The bundled leaflet.js / leaflet.css load from
-                        // file:///android_asset/, without file access enabled
-                        // they silently fail on API 30+ and the map is blank.
-                        settings.allowFileAccess = true
-                        // Match the WebView bg to the rider's chosen map style
-                        // so the first frame painted before tiles arrive isn't
-                        // a dark navy that clashes with a LIGHT / SATELLITE
-                        // tile choice. mapType is collected at the top of this
-                        // composable; we read its snapshot value here for the
-                        // initial paint. Later style changes go through
-                        // nativeSetMapType.
-                        setBackgroundColor(
-                            android.graphics.Color.parseColor(
-                                mapTypeInitialBg(viewModel.mapType.value)
-                            )
-                        )
-                        addJavascriptInterface(
-                            NavJsBridge(
-                                mapClick = { lat, lng ->
-                                    if (!viewModel.navRunning.value) {
-                                        viewModel.addWaypoint(lat, lng)
-                                    }
-                                },
-                                routeLineClick = { lat, lng ->
-                                    if (!viewModel.navRunning.value) {
-                                        viewModel.insertWaypointOnRoute(lat, lng)
-                                    }
-                                },
-                                markerDragged = { i, lat, lng ->
-                                    if (!viewModel.navRunning.value) {
-                                        viewModel.moveWaypoint(i, lat, lng)
-                                    }
-                                },
-                                markerDragStart = { viewModel.setUserDragging(true) },
-                                markerDragEnd = { viewModel.setUserDragging(false) },
-                                selfTap = { x, y ->
-                                    selfMenuOffset = DpOffset(x.dp, y.dp)
-                                    selfMenuOpen = true
-                                },
-                                mapViewChanged = { lat, lng, zoom ->
-                                    viewModel.setSavedView(lat, lng, zoom)
-                                },
-                                mapBoundsChanged = { s, w, n, e ->
-                                    viewModel.onMapViewportChanged(s, w, n, e)
-                                },
-                                tilesLoaded = {
-                                    if (!tilesLoaded) tilesLoaded = true
-                                },
-                                markerTapped = { idx, x, y ->
-                                    // While navigation is running the only sensible
-                                    // action on a stop is to recenter the map onto
-                                    // it, Save as Home / Work would mid-trip change
-                                    // the saved place which the rider isn't asking
-                                    // for. Skip the menu entirely and pan straight
-                                    // to the pin.
-                                    if (viewModel.navRunning.value) {
-                                        waypoints.getOrNull(idx)?.let { wp ->
-                                            webView?.evaluateJavascript(
-                                                "nativeCenterOn(${wp.lat},${wp.lng},$recenterOffsetPx);", null
-                                            )
-                                        }
-                                    } else {
-                                        markerMenuIndex = idx
-                                        markerMenuOffset = DpOffset(x.dp, y.dp)
-                                    }
-                                },
-                                poiTapped = { id -> viewModel.onPoiTapped(id) },
-                                bearingChanged = { deg -> viewModel.setMapBearing(deg) },
-                                offlineMap = { on ->
-                                    offlineMapShown = on
-                                    if (on) showLayerSheet = false
+            // --- Map ---
+            host.MapView(
+                // Loaded once: later style changes go through nativeSetMapType.
+                html = remember { routeBuilderHtmlFor(viewModel.mapType.value, host.offlineMapJs) },
+                // Matches the rider's chosen map style so the first frame
+                // painted before tiles arrive isn't a dark navy that clashes
+                // with a LIGHT / SATELLITE tile choice.
+                backgroundArgb = remember { parseColorString(mapTypeInitialBg(viewModel.mapType.value)) },
+                bridge = remember {
+                    RouteMapBridge(
+                        mapClick = { lat, lng ->
+                            if (!viewModel.navRunning.value) {
+                                viewModel.addWaypoint(lat, lng)
+                            }
+                        },
+                        routeLineClick = { lat, lng ->
+                            if (!viewModel.navRunning.value) {
+                                viewModel.insertWaypointOnRoute(lat, lng)
+                            }
+                        },
+                        markerDragged = { i, lat, lng ->
+                            if (!viewModel.navRunning.value) {
+                                viewModel.moveWaypoint(i, lat, lng)
+                            }
+                        },
+                        markerDragStart = { viewModel.setUserDragging(true) },
+                        markerDragEnd = { viewModel.setUserDragging(false) },
+                        selfTap = { x, y ->
+                            selfMenuOffset = DpOffset(x.dp, y.dp)
+                            selfMenuOpen = true
+                        },
+                        mapViewChanged = { lat, lng, zoom ->
+                            viewModel.setSavedView(lat, lng, zoom)
+                        },
+                        mapBoundsChanged = { s, w, n, e ->
+                            viewModel.onMapViewportChanged(s, w, n, e)
+                        },
+                        tilesLoaded = {
+                            if (!tilesLoaded) tilesLoaded = true
+                        },
+                        markerTapped = { idx, x, y ->
+                            // While navigation is running the only sensible
+                            // action on a stop is to recenter the map onto
+                            // it, Save as Home / Work would mid-trip change
+                            // the saved place which the rider isn't asking
+                            // for. Skip the menu entirely and pan straight
+                            // to the pin.
+                            if (viewModel.navRunning.value) {
+                                waypoints.getOrNull(idx)?.let { wp ->
+                                    webView?.evaluateJavascript(
+                                        "nativeCenterOn(${wp.lat},${wp.lng},$recenterOffsetPx);", null
+                                    )
                                 }
-                            ),
-                            "AndroidNav"
-                        )
-                        val offlineMap = com.eried.eucplanet.nav.offline.map.OfflineMapWeb.renderer()
-                        webViewClient = object : WebViewClient() {
-                            override fun onPageFinished(view: WebView?, url: String?) {
-                                pageReady = true
+                            } else {
+                                markerMenuIndex = idx
+                                markerMenuOffset = DpOffset(x.dp, y.dp)
                             }
-
-                            override fun shouldInterceptRequest(
-                                view: WebView?,
-                                request: android.webkit.WebResourceRequest?,
-                            ) = com.eried.eucplanet.nav.offline.map.OfflineMapWeb.intercept(offlineMap, request)
+                        },
+                        poiTapped = { id -> viewModel.onPoiTapped(id) },
+                        bearingChanged = { deg -> viewModel.setMapBearing(deg) },
+                        offlineMap = { on ->
+                            offlineMapShown = on
+                            if (on) showLayerSheet = false
                         }
-                        webChromeClient = object : android.webkit.WebChromeClient() {
-                            override fun onConsoleMessage(
-                                consoleMessage: android.webkit.ConsoleMessage
-                            ): Boolean {
-                                android.util.Log.i(
-                                    "RouteBuilderJS",
-                                    "${consoleMessage.messageLevel()} " +
-                                        "${consoleMessage.sourceId()}:${consoleMessage.lineNumber()} " +
-                                        consoleMessage.message()
-                                )
-                                return true
-                            }
-                        }
-                        loadDataWithBaseURL(
-                            "file:///android_asset/",
-                            routeBuilderHtmlFor(viewModel.mapType.value, com.eried.eucplanet.nav.offline.map.OfflineMapWeb.JS),
-                            "text/html", "UTF-8", null
-                        )
-                        webView = this
-                    }
+                    )
                 },
-                onRelease = { wv ->
-                    // The WebView outlives the composition unless explicitly
-                    // torn down; its JS bridge captures the ViewModel, so
-                    // skipping this leaks the screen on every exit.
-                    wv.removeJavascriptInterface("AndroidNav")
-                    wv.loadUrl("about:blank")
-                    wv.destroy()
-                }
+                onPage = { webView = it },
+                onPageFinished = { pageReady = true },
+                modifier = Modifier.fillMaxSize(),
             )
 
             // Locating cover, sits IMMEDIATELY above the WebView in z-order
@@ -1334,7 +1198,7 @@ fun RouteBuilderScreen(
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = androidx.compose.ui.graphics.Color(
-                        android.graphics.Color.parseColor(
+                        parseColorString(
                             mapTypeInitialBg(mapType)
                         )
                     )
@@ -1344,7 +1208,7 @@ fun RouteBuilderScreen(
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 CircularProgressIndicator()
                                 Spacer(Modifier.height(16.dp))
-                                Text(stringResource(R.string.nav_locating))
+                                Text(stringResource(Res.string.nav_locating))
                             }
                         }
                     }
@@ -1476,7 +1340,7 @@ fun RouteBuilderScreen(
                             ) {
                                 CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
                                 Spacer(Modifier.width(10.dp))
-                                Text(stringResource(R.string.nav_searching))
+                                Text(stringResource(Res.string.nav_searching))
                             }
                         }
                         searchResults.forEachIndexed { i, result ->
@@ -1530,7 +1394,7 @@ fun RouteBuilderScreen(
                         active = advancedMap && (showChargers || showPlaces),
                         loading = chargerLoading || placeLoading,
                         icon = Icons.Default.Layers,
-                        contentDescription = stringResource(R.string.nav_map_style),
+                        contentDescription = stringResource(Res.string.nav_map_style),
                         onClick = { showLayerSheet = true },
                         enabled = !offlineMapShown,
                         modifier = Modifier.padding(end = 16.dp, bottom = 12.dp)
@@ -1541,7 +1405,7 @@ fun RouteBuilderScreen(
                         containerColor = MaterialTheme.appColors.menuBackground
                     ) {
                         Text(
-                            stringResource(R.string.nav_map_style),
+                            stringResource(Res.string.nav_map_style),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 4.dp)
@@ -1569,7 +1433,7 @@ fun RouteBuilderScreen(
                         if (advancedMap) {
                             HorizontalDivider()
                             Text(
-                                stringResource(R.string.nav_overlays),
+                                stringResource(Res.string.nav_overlays),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 4.dp)
@@ -1582,7 +1446,7 @@ fun RouteBuilderScreen(
                                         contentDescription = null
                                     )
                                 },
-                                text = { Text(stringResource(R.string.nav_show_chargers)) },
+                                text = { Text(stringResource(Res.string.nav_show_chargers)) },
                                 onClick = { viewModel.toggleChargers() }
                             )
                             DropdownMenuItem(
@@ -1593,7 +1457,7 @@ fun RouteBuilderScreen(
                                         contentDescription = null
                                     )
                                 },
-                                text = { Text(stringResource(R.string.nav_show_places)) },
+                                text = { Text(stringResource(Res.string.nav_show_places)) },
                                 onClick = { viewModel.togglePlaces() }
                             )
                             PoiKind.PLACES.forEach { kind ->
@@ -1633,8 +1497,8 @@ fun RouteBuilderScreen(
                             .size(56.dp)
                             .combinedClickable(
                                 role = Role.Button,
-                                onClickLabel = stringResource(R.string.nav_my_location),
-                                onLongClickLabel = stringResource(R.string.nav_fit_all),
+                                onClickLabel = stringResource(Res.string.nav_my_location),
+                                onLongClickLabel = stringResource(Res.string.nav_fit_all),
                                 onClick = {
                                     val l = viewModel.recenterOnUser()
                                     if (l != null) {
@@ -1648,7 +1512,7 @@ fun RouteBuilderScreen(
                                     } else {
                                         scope.launch {
                                             snackbarHost.showSnackbar(
-                                                context.getString(R.string.nav_no_location)
+                                                navText(Res.string.nav_no_location, emptyList())
                                             )
                                         }
                                     }
@@ -1666,14 +1530,14 @@ fun RouteBuilderScreen(
                                         recenterHaptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                         val json = JSONArray(pts.map { JSONArray(listOf(it.first, it.second)) }).toString()
                                         webView?.evaluateJavascript(
-                                            "nativeFitPoints(${JSONObject.quote(json)},$recenterOffsetPx);", null
+                                            "nativeFitPoints(${jsonQuote(json)},$recenterOffsetPx);", null
                                         )
                                     }
                                 },
                             ),
                         contentAlignment = Alignment.Center,
                     ) {
-                        Icon(Icons.Default.MyLocation, stringResource(R.string.nav_my_location))
+                        Icon(Icons.Default.MyLocation, stringResource(Res.string.nav_my_location))
                     }
                 }
             }
@@ -1794,16 +1658,7 @@ fun RouteBuilderScreen(
                     ocm = selectedPoiOcm,
                     ocmLoading = ocmLoading,
                     onAddStop = { viewModel.addPoiAsStop(poi) },
-                    onOpenUrl = { url ->
-                        runCatching {
-                            context.startActivity(
-                                android.content.Intent(
-                                    android.content.Intent.ACTION_VIEW,
-                                    android.net.Uri.parse(url)
-                                ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
-                            )
-                        }
-                    },
+                    onOpenUrl = { url -> host.openUrl(url) },
                     onDismiss = { viewModel.dismissPoiDetails() }
                 )
             }
@@ -1821,13 +1676,13 @@ fun RouteBuilderScreen(
                 ) {
                     if (homePlace == null) {
                         DropdownMenuItem(
-                            text = { Text(stringResource(R.string.nav_save_home)) },
+                            text = { Text(stringResource(Res.string.nav_save_home)) },
                             onClick = { selfMenuOpen = false; viewModel.saveSelfAsHome() }
                         )
                     }
                     if (workPlace == null) {
                         DropdownMenuItem(
-                            text = { Text(stringResource(R.string.nav_save_work)) },
+                            text = { Text(stringResource(Res.string.nav_save_work)) },
                             onClick = { selfMenuOpen = false; viewModel.saveSelfAsWork() }
                         )
                     }
@@ -1837,7 +1692,7 @@ fun RouteBuilderScreen(
                     // and pin drags are gated in the JS layer).
                     if (waypoints.isNotEmpty() && !navRunning) {
                         DropdownMenuItem(
-                            text = { Text(stringResource(R.string.nav_self_add_stop)) },
+                            text = { Text(stringResource(Res.string.nav_self_add_stop)) },
                             onClick = {
                                 selfMenuOpen = false
                                 userLocation?.let {
@@ -1857,19 +1712,15 @@ fun RouteBuilderScreen(
                     val hasOtherItems = homePlace == null || workPlace == null || hasAddStop
                     if (hasOtherItems) HorizontalDivider(color = MaterialTheme.appColors.divider)
                     DropdownMenuItem(
-                        text = { Text(stringResource(R.string.nav_customize_marker_short)) },
+                        text = { Text(stringResource(Res.string.nav_customize_marker_short)) },
                         onClick = {
                             selfMenuOpen = false
-                            markerPhotoPicker.launch(
-                                androidx.activity.result.PickVisualMediaRequest(
-                                    ActivityResultContracts.PickVisualMedia.ImageOnly
-                                )
-                            )
+                            pickMarkerPhoto()
                         }
                     )
                     if (markerPhoto != null) {
                         DestructiveMenuItem(
-                            text = stringResource(R.string.nav_remove_marker_photo_short),
+                            text = stringResource(Res.string.nav_remove_marker_photo_short),
                             onClick = {
                                 selfMenuOpen = false
                                 viewModel.setUserMarkerPhoto(null)
@@ -1893,7 +1744,7 @@ fun RouteBuilderScreen(
                 ) {
                     if (homePlace == null) {
                         DropdownMenuItem(
-                            text = { Text(stringResource(R.string.nav_save_home)) },
+                            text = { Text(stringResource(Res.string.nav_save_home)) },
                             onClick = {
                                 val i = markerMenuIndex; markerMenuIndex = -1
                                 if (i >= 0) viewModel.saveWaypointAsHome(i)
@@ -1902,7 +1753,7 @@ fun RouteBuilderScreen(
                     }
                     if (workPlace == null) {
                         DropdownMenuItem(
-                            text = { Text(stringResource(R.string.nav_save_work)) },
+                            text = { Text(stringResource(Res.string.nav_save_work)) },
                             onClick = {
                                 val i = markerMenuIndex; markerMenuIndex = -1
                                 if (i >= 0) viewModel.saveWaypointAsWork(i)
@@ -1918,7 +1769,7 @@ fun RouteBuilderScreen(
                         HorizontalDivider(color = MaterialTheme.appColors.divider)
                     }
                     DestructiveMenuItem(
-                        text = stringResource(R.string.nav_remove_stop),
+                        text = stringResource(Res.string.nav_remove_stop),
                         enabled = canRemoveMarker,
                         onClick = {
                             val i = markerMenuIndex; markerMenuIndex = -1
@@ -1935,24 +1786,24 @@ fun RouteBuilderScreen(
                 }
                 androidx.compose.material3.AlertDialog(
                     onDismissRequest = { offlineAsk = null },
-                    title = { Text(stringResource(R.string.offline_ride_title)) },
-                    text = { Text(stringResource(R.string.offline_ride_body)) },
+                    title = { Text(stringResource(Res.string.offline_ride_title)) },
+                    text = { Text(stringResource(Res.string.offline_ride_body)) },
                     confirmButton = {
                         Column(horizontalAlignment = Alignment.End) {
                             TextButton(onClick = { offlineAsk = null; offlineDownload = ask }, shape = RoundedCornerShape(12.dp)) {
-                                Text(stringResource(R.string.offline_ride_download))
+                                Text(stringResource(Res.string.offline_ride_download))
                             }
                             TextButton(onClick = { go() }, shape = RoundedCornerShape(12.dp)) {
-                                Text(stringResource(R.string.offline_ride_start))
+                                Text(stringResource(Res.string.offline_ride_start))
                             }
                             TextButton(onClick = { viewModel.stopRemindingBeforeRide(); go() }, shape = RoundedCornerShape(12.dp)) {
-                                Text(stringResource(R.string.offline_ride_never))
+                                Text(stringResource(Res.string.offline_ride_never))
                             }
                             // Every other choice starts the ride; this one leaves
                             // the route as it is. Last in the stack, as the sync
                             // conflict dialog puts its Cancel.
                             TextButton(onClick = { offlineAsk = null }, shape = RoundedCornerShape(12.dp)) {
-                                Text(stringResource(R.string.action_cancel))
+                                Text(stringResource(Res.string.action_cancel))
                             }
                         }
                     },
@@ -1961,7 +1812,7 @@ fun RouteBuilderScreen(
             // Downloads go on in the background: closing the areas starts
             // the ride the rider asked for.
             offlineDownload?.let { ask ->
-                com.eried.eucplanet.ui.settings.offline.OfflineDataDialog(
+                host.OfflineDataDialog(
                     routeSquares = ask.squares,
                     onDismiss = {
                         offlineDownload = null
@@ -1974,16 +1825,16 @@ fun RouteBuilderScreen(
             if (clearConfirmOpen) {
                 androidx.compose.material3.AlertDialog(
                     onDismissRequest = { clearConfirmOpen = false },
-                    title = { Text(stringResource(R.string.nav_clear_confirm)) },
-                    text = { Text(stringResource(R.string.nav_clear_confirm_body)) },
+                    title = { Text(stringResource(Res.string.nav_clear_confirm)) },
+                    text = { Text(stringResource(Res.string.nav_clear_confirm_body)) },
                     confirmButton = {
                         TextButton(onClick = {
                             clearConfirmOpen = false; viewModel.clear()
-                        }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.nav_menu_clear)) }
+                        }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(Res.string.nav_menu_clear)) }
                     },
                     dismissButton = {
                         TextButton(onClick = { clearConfirmOpen = false }, shape = RoundedCornerShape(12.dp)) {
-                            Text(stringResource(R.string.action_cancel))
+                            Text(stringResource(Res.string.action_cancel))
                         }
                     }
                 )
@@ -2010,16 +1861,16 @@ fun RouteBuilderScreen(
             if (finishedPrompt) {
                 androidx.compose.material3.AlertDialog(
                     onDismissRequest = { viewModel.finishedCancel() },
-                    title = { Text(stringResource(R.string.nav_finished_title)) },
-                    text = { Text(stringResource(R.string.nav_finished_body)) },
+                    title = { Text(stringResource(Res.string.nav_finished_title)) },
+                    text = { Text(stringResource(Res.string.nav_finished_body)) },
                     confirmButton = {
                         TextButton(onClick = { viewModel.finishedStartNewRoute() }, shape = RoundedCornerShape(12.dp)) {
-                            Text(stringResource(R.string.nav_menu_clear))
+                            Text(stringResource(Res.string.nav_menu_clear))
                         }
                     },
                     dismissButton = {
                         TextButton(onClick = { viewModel.finishedCancel() }, shape = RoundedCornerShape(12.dp)) {
-                            Text(stringResource(R.string.action_cancel))
+                            Text(stringResource(Res.string.action_cancel))
                         }
                     }
                 )
@@ -2033,16 +1884,16 @@ fun RouteBuilderScreen(
             if (pendingShare != null) {
                 androidx.compose.material3.AlertDialog(
                     onDismissRequest = { viewModel.dismissPendingShare() },
-                    title = { Text(stringResource(R.string.nav_share_dialog_title)) },
-                    text = { Text(stringResource(R.string.nav_share_dialog_body)) },
+                    title = { Text(stringResource(Res.string.nav_share_dialog_title)) },
+                    text = { Text(stringResource(Res.string.nav_share_dialog_body)) },
                     confirmButton = {
                         TextButton(onClick = { viewModel.acceptPendingShareAppend() }, shape = RoundedCornerShape(12.dp)) {
-                            Text(stringResource(R.string.nav_share_dialog_append))
+                            Text(stringResource(Res.string.nav_share_dialog_append))
                         }
                     },
                     dismissButton = {
                         TextButton(onClick = { viewModel.acceptPendingShareAsNewRoute() }, shape = RoundedCornerShape(12.dp)) {
-                            Text(stringResource(R.string.nav_share_dialog_new))
+                            Text(stringResource(Res.string.nav_share_dialog_new))
                         }
                     }
                 )
@@ -2053,16 +1904,16 @@ fun RouteBuilderScreen(
             if (pendingRoute != null) {
                 androidx.compose.material3.AlertDialog(
                     onDismissRequest = { viewModel.dismissPendingRoute() },
-                    title = { Text(stringResource(R.string.route_open_title)) },
-                    text = { Text(stringResource(R.string.route_open_confirm)) },
+                    title = { Text(stringResource(Res.string.route_open_title)) },
+                    text = { Text(stringResource(Res.string.route_open_confirm)) },
                     confirmButton = {
                         TextButton(onClick = { viewModel.confirmPendingRoute() }, shape = RoundedCornerShape(12.dp)) {
-                            Text(stringResource(R.string.nav_menu_load_short))
+                            Text(stringResource(Res.string.nav_menu_load_short))
                         }
                     },
                     dismissButton = {
                         TextButton(onClick = { viewModel.dismissPendingRoute() }, shape = RoundedCornerShape(12.dp)) {
-                            Text(stringResource(R.string.action_cancel))
+                            Text(stringResource(Res.string.action_cancel))
                         }
                     }
                 )
@@ -2076,17 +1927,17 @@ fun RouteBuilderScreen(
             if (pendingUri != null) {
                 androidx.compose.material3.AlertDialog(
                     onDismissRequest = { pendingGpxUri = null },
-                    title = { Text(stringResource(R.string.nav_menu_load)) },
-                    text = { Text(stringResource(R.string.nav_load_confirm)) },
+                    title = { Text(stringResource(Res.string.nav_menu_load)) },
+                    text = { Text(stringResource(Res.string.nav_load_confirm)) },
                     confirmButton = {
                         TextButton(onClick = {
                             pendingGpxUri = null
                             viewModel.loadGpx(pendingUri.toString())
-                        }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.nav_menu_load_short)) }
+                        }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(Res.string.nav_menu_load_short)) }
                     },
                     dismissButton = {
                         TextButton(onClick = { pendingGpxUri = null }, shape = RoundedCornerShape(12.dp)) {
-                            Text(stringResource(R.string.action_cancel))
+                            Text(stringResource(Res.string.action_cancel))
                         }
                     }
                 )
@@ -2109,26 +1960,26 @@ fun RouteBuilderScreen(
                 joinLink != null && joinedGroup != null && !shareSwitchConfirmed -> {
                     androidx.compose.material3.AlertDialog(
                         onDismissRequest = { viewModel.dismissJoin() },
-                        title = { Text(stringResource(R.string.share_join_title)) },
-                        text = { Text(stringResource(R.string.share_switch_group)) },
+                        title = { Text(stringResource(Res.string.share_join_title)) },
+                        text = { Text(stringResource(Res.string.share_switch_group)) },
                         confirmButton = {
                             TextButton(
                                 onClick = { shareSwitchConfirmed = true },
                                 shape = RoundedCornerShape(12.dp)
-                            ) { Text(stringResource(R.string.share_join_title)) }
+                            ) { Text(stringResource(Res.string.share_join_title)) }
                         },
                         dismissButton = {
                             TextButton(
                                 onClick = { viewModel.dismissJoin() },
                                 shape = RoundedCornerShape(12.dp)
-                            ) { Text(stringResource(R.string.action_cancel)) }
+                            ) { Text(stringResource(Res.string.action_cancel)) }
                         }
                     )
                 }
 
                 joinLink != null -> shareIdentity?.let { def ->
                     ShareIdentityDialog(
-                        titleRes = R.string.share_join_title,
+                        titleRes = Res.string.share_join_title,
                         default = def,
                         hasProfile = shareHasProfile,
                         resolveIdentity = { m, n, s -> viewModel.identityFor(m, n, s) },
@@ -2151,7 +2002,7 @@ fun RouteBuilderScreen(
                             shareSwitchConfirmed = false
                             viewModel.dismissJoin()
                         },
-                        confirmLabelRes = R.string.share_join
+                        confirmLabelRes = Res.string.share_join
                     )
                 }
 
@@ -2163,7 +2014,7 @@ fun RouteBuilderScreen(
                         // The scanner is open during a group ride too (for
                         // routes); a second group is still a leave away.
                         if (joinedGroup != null) {
-                            scope.launch { snackbarHost.showSnackbar(context.getString(R.string.share_leave_first)) }
+                            scope.launch { snackbarHost.showSnackbar(navText(Res.string.share_leave_first, emptyList())) }
                         } else scannedLink = link
                     },
                     onRoute = { r ->
@@ -2182,7 +2033,7 @@ fun RouteBuilderScreen(
                     val title = when {
                         !trackOnly && waypoints.size == 1 && names.size == 1 -> names[0]
                         trackOnly || names.size < 2 -> r?.name?.takeIf { it.isNotBlank() }
-                            ?: stringResource(R.string.share_menu_route)
+                            ?: stringResource(Res.string.share_menu_route)
                         else -> names.joinToString(" → ")
                     }
                     // Each leg, as the builder's list measures it.
@@ -2193,13 +2044,13 @@ fun RouteBuilderScreen(
                     RouteQrDialog(
                         link = routeQrLink!!,
                         stopNames = if (trackOnly) emptyList() else waypoints.map { w ->
-                            w.name.trim().ifEmpty { String.format(java.util.Locale.US, "%.5f, %.5f", w.lat, w.lng) }
+                            w.name.trim().ifEmpty { String.format(Locale.US, "%.5f, %.5f", w.lat, w.lng) }
                         },
-                        legs = legsM.map { com.eried.eucplanet.nav.NavFormat.distance(context, it, imperial) },
+                        legs = legsM.map { com.eried.eucplanet.nav.NavFormat.distance(navText, it, imperial) },
                         cardTitle = title,
                         // A single stop has no length of its own: the friend rides from wherever they are.
-                        distance = if (!trackOnly && waypoints.size < 2) pluralStringResource(R.plurals.route_stop_count, 1, 1)
-                            else com.eried.eucplanet.nav.NavFormat.distance(context, meters, imperial),
+                        distance = if (!trackOnly && waypoints.size < 2) pluralStringResource(Res.plurals.route_stop_count, 1, 1)
+                            else com.eried.eucplanet.nav.NavFormat.distance(navText, meters, imperial),
                         onNotify = { msg -> scope.launch { snackbarHost.showSnackbar(msg) } },
                         onDismiss = { routeQrLink = null },
                     )
@@ -2212,7 +2063,7 @@ fun RouteBuilderScreen(
                 scannedLink != null && joinedGroup == null -> shareIdentity?.let { def ->
                     val link = scannedLink
                     ShareIdentityDialog(
-                        titleRes = R.string.share_join_title,
+                        titleRes = Res.string.share_join_title,
                         default = def,
                         hasProfile = shareHasProfile,
                         resolveIdentity = { m, n, s -> viewModel.identityFor(m, n, s) },
@@ -2228,13 +2079,13 @@ fun RouteBuilderScreen(
                             if (link != null) viewModel.joinShare(link, identity)
                         },
                         onDismiss = { scannedLink = null },
-                        confirmLabelRes = R.string.share_join
+                        confirmLabelRes = Res.string.share_join
                     )
                 }
 
                 shareStartOpen && joinedGroup == null -> shareIdentity?.let { def ->
                     ShareIdentityDialog(
-                        titleRes = R.string.share_title_live,
+                        titleRes = Res.string.share_title_live,
                         default = def,
                         hasProfile = shareHasProfile,
                         resolveIdentity = { m, n, s -> viewModel.identityFor(m, n, s) },
@@ -2321,7 +2172,7 @@ fun RouteBuilderScreen(
                     onShareRoute = {
                         routeQrLink = viewModel.shareRouteLink()
                         if (routeQrLink == null) scope.launch {
-                            snackbarHost.showSnackbar(context.getString(R.string.route_qr_too_long))
+                            snackbarHost.showSnackbar(navText(Res.string.route_qr_too_long, emptyList()))
                         }
                     },
                     onStartGroup = { shareStartOpen = true },
@@ -2366,7 +2217,7 @@ private fun BuilderMenu(
         // closed ones on the stops. Only a locked track has it at all.
         if (trackLocked) {
             DropdownMenuItem(
-                text = { Text(stringResource(R.string.nav_menu_unlock_track)) },
+                text = { Text(stringResource(Res.string.nav_menu_unlock_track)) },
                 trailingIcon = {
                     Icon(
                         Icons.Default.LockOpen,
@@ -2388,13 +2239,13 @@ private fun BuilderMenu(
         // the running route, which is destructive. Load leads: opening a
         // route is the more common start than saving one.
         DropdownMenuItem(
-            text = { Text(stringResource(R.string.nav_menu_load)) },
+            text = { Text(stringResource(Res.string.nav_menu_load)) },
             enabled = !navRunning,
             colors = greyed,
             onClick = { onDismiss(); onLoad() }
         )
         DropdownMenuItem(
-            text = { Text(stringResource(R.string.nav_menu_save)) },
+            text = { Text(stringResource(Res.string.nav_menu_save)) },
             enabled = hasStops,
             colors = greyed,
             onClick = { onDismiss(); onSave() }
@@ -2402,7 +2253,7 @@ private fun BuilderMenu(
         // Starting over is not a delete: the 'Start a new route?' dialog
         // guards any edits worth keeping, so the row stays plain.
         DropdownMenuItem(
-            text = { Text(stringResource(R.string.nav_menu_clear)) },
+            text = { Text(stringResource(Res.string.nav_menu_clear)) },
             enabled = hasStops && !navRunning,
             colors = greyed,
             onClick = { onDismiss(); onClear() }
@@ -2414,13 +2265,13 @@ private fun BuilderMenu(
         // A locked track reverses too, it stays the same line.
         HorizontalDivider(color = MaterialTheme.appColors.divider)
         DropdownMenuItem(
-            text = { Text(stringResource(R.string.nav_solve_menu)) },
+            text = { Text(stringResource(Res.string.nav_solve_menu)) },
             enabled = canSolve && !navRunning && !trackLocked,
             colors = greyed,
             onClick = { onDismiss(); onSolve() }
         )
         DropdownMenuItem(
-            text = { Text(stringResource(R.string.nav_menu_reverse)) },
+            text = { Text(stringResource(Res.string.nav_menu_reverse)) },
             enabled = canReverse && !navRunning,
             colors = greyed,
             onClick = { onDismiss(); onReverse() }
@@ -2430,18 +2281,18 @@ private fun BuilderMenu(
         // route / settings items.
         HorizontalDivider(color = MaterialTheme.appColors.divider)
         DropdownMenuItem(
-            text = { Text(stringResource(R.string.nav_customize_marker)) },
+            text = { Text(stringResource(Res.string.nav_customize_marker)) },
             onClick = { onDismiss(); onCustomizeMarker() }
         )
         if (hasCustomMarker) {
             DestructiveMenuItem(
-                text = stringResource(R.string.nav_remove_marker_photo),
+                text = stringResource(Res.string.nav_remove_marker_photo),
                 onClick = { onDismiss(); onResetMarker() }
             )
         }
         HorizontalDivider(color = MaterialTheme.appColors.divider)
         DropdownMenuItem(
-            text = { Text(stringResource(R.string.nav_setting_params)) },
+            text = { Text(stringResource(Res.string.nav_setting_params)) },
             onClick = { onDismiss(); onNavSettings() }
         )
         // Forget Home / Work sit last, they are rare, destructive actions.
@@ -2450,13 +2301,13 @@ private fun BuilderMenu(
         }
         if (hasHome) {
             DestructiveMenuItem(
-                text = stringResource(R.string.nav_clear_home),
+                text = stringResource(Res.string.nav_clear_home),
                 onClick = { onDismiss(); onClearHome() }
             )
         }
         if (hasWork) {
             DestructiveMenuItem(
-                text = stringResource(R.string.nav_clear_work),
+                text = stringResource(Res.string.nav_clear_work),
                 onClick = { onDismiss(); onClearWork() }
             )
         }
@@ -2475,9 +2326,9 @@ private fun waypointLabel(
     name: String
 ): String {
     val role = if (index == total - 1)
-        stringResource(R.string.nav_role_destination)
-    else stringArrayResource(R.array.nav_stop_ordinals)
-        .getOrElse(index) { stringResource(R.string.nav_stop_number, index + 1) }
+        stringResource(Res.string.nav_role_destination)
+    else stringArrayResource(Res.array.nav_stop_ordinals)
+        .getOrElse(index) { stringResource(Res.string.nav_stop_number, index + 1) }
     return if (name.isBlank()) role else "$role ($name)"
 }
 
@@ -2564,7 +2415,7 @@ private fun StopsHeader(
     modifier: Modifier = Modifier,
 ) {
     val allPassed = waypoints.isNotEmpty() && waypoints.all { it.passed }
-    val context = LocalContext.current
+    val navText = rememberStringFormatter()
     val buttonVisible = buttonAlways || !listShown
     Box(modifier) {
         // Header: title + count/distance + COMPACT start/stop + collapse chevron.
@@ -2585,18 +2436,18 @@ private fun StopsHeader(
             with(density) { textMeasurer.measure(text, style, maxLines = 1).size.width.toDp() }
         val fullLabel = stringResource(
             when {
-                allPassed -> R.string.nav_menu_clear
-                navRunning -> R.string.nav_stop_short
-                else -> R.string.nav_start_short
+                allPassed -> Res.string.nav_menu_clear
+                navRunning -> Res.string.nav_stop_short
+                else -> Res.string.nav_start_short
             }
         )
         val distanceShown = !routing && !allPassed && routeDistanceM != null && routeDistanceM > 0
         val fullWidth = widthOf(
-            stringResource(R.string.nav_waypoints),
+            stringResource(Res.string.nav_waypoints),
             MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
         ) + 8.dp + widthOf("(${waypoints.size})", MaterialTheme.typography.bodyMedium) +
             (if (distanceShown) 12.dp + widthOf(
-                NavFormat.distance(context, routeDistanceM!!, imperial),
+                NavFormat.distance(navText, routeDistanceM!!, imperial),
                 MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
             ) else 0.dp) +
             maxOf(150.dp, widthOf(fullLabel, MaterialTheme.typography.labelLarge) + 24.dp) +
@@ -2609,7 +2460,7 @@ private fun StopsHeader(
             // are never pushed off the edge.
             Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
             Text(
-                stringResource(R.string.nav_waypoints),
+                stringResource(Res.string.nav_waypoints),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
@@ -2631,7 +2482,7 @@ private fun StopsHeader(
                 // Hidden when the trip is over (allPassed). This is the
                 // whole-tour distance (every remaining stop summed), not
                 // just the next leg, so it's shown as a plain total.
-                val distText = NavFormat.distance(context, routeDistanceM, imperial)
+                val distText = NavFormat.distance(navText, routeDistanceM, imperial)
                 Text(
                     distText,
                     style = MaterialTheme.typography.bodyMedium,
@@ -2680,9 +2531,9 @@ private fun StopsHeader(
             ) {
                 val label = stringResource(
                     when {
-                        allPassed -> R.string.nav_menu_clear
-                        navRunning -> if (roomyHeader) R.string.nav_stop_short else R.string.action_stop
-                        else -> if (roomyHeader) R.string.nav_start_short else R.string.nav_start_btn
+                        allPassed -> Res.string.nav_menu_clear
+                        navRunning -> if (roomyHeader) Res.string.nav_stop_short else Res.string.action_stop
+                        else -> if (roomyHeader) Res.string.nav_start_short else Res.string.nav_start_btn
                     }
                 )
                 HoldableButton(
@@ -2715,7 +2566,7 @@ private fun StopsHeader(
                     if (listShown == foldsUp) Icons.Default.KeyboardArrowUp
                     else Icons.Default.KeyboardArrowDown,
                     contentDescription = stringResource(
-                        if (listShown) R.string.nav_minimize else R.string.nav_expand
+                        if (listShown) Res.string.nav_minimize else Res.string.nav_expand
                     )
                 )
             }
@@ -2771,7 +2622,7 @@ private fun BottomPanel(
     val allPassed = waypoints.isNotEmpty() && waypoints.all { it.passed }
     // The stop guidance is heading to: the first one not yet reached.
     val nextStopIndex = waypoints.indexOfFirst { !it.passed }
-    val context = LocalContext.current
+    val navText = rememberStringFormatter()
     val haptic = LocalHapticFeedback.current
     Surface(
         modifier = modifier.fillMaxWidth(),
@@ -2829,22 +2680,22 @@ private fun BottomPanel(
                     Triple(
                         TravelMode.STRAIGHT,
                         Icons.Default.Timeline,
-                        R.string.nav_mode_straight
+                        Res.string.nav_mode_straight
                     ),
                     Triple(
                         TravelMode.CYCLING,
                         Icons.Default.DirectionsBike,
-                        R.string.nav_mode_cycling
+                        Res.string.nav_mode_cycling
                     ),
                     Triple(
                         TravelMode.WALKING,
                         Icons.Default.DirectionsWalk,
-                        R.string.nav_mode_walking
+                        Res.string.nav_mode_walking
                     ),
                     Triple(
                         TravelMode.DRIVING,
                         Icons.Default.DirectionsCar,
-                        R.string.nav_mode_driving
+                        Res.string.nav_mode_driving
                     )
                 )
                 // Travel mode (icons) + a Start button, combined into one row.
@@ -2975,12 +2826,12 @@ private fun BottomPanel(
                     Text(
                         stringResource(
                             when {
-                                allPassed -> R.string.nav_menu_clear
-                                navRunning -> R.string.nav_stop_short
+                                allPassed -> Res.string.nav_menu_clear
+                                navRunning -> Res.string.nav_stop_short
                                 // Full label by default; short "Start" only when the
                                 // row is too tight for it (see START_NAV_MIN_WIDTH).
-                                else -> if (roomy) R.string.nav_start_short
-                                        else R.string.nav_start_btn
+                                else -> if (roomy) Res.string.nav_start_short
+                                        else Res.string.nav_start_btn
                             }
                         )
                     )
@@ -3015,7 +2866,7 @@ private fun BottomPanel(
                             .heightIn(min = minHDp, max = 234.dp)
                     ) {
                         Text(
-                            stringResource(R.string.nav_empty_hint),
+                            stringResource(Res.string.nav_empty_hint),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(vertical = 6.dp)
@@ -3062,7 +2913,7 @@ private fun BottomPanel(
                                         if (!trackLocked) {
                                             Icon(
                                                 Icons.Default.DragHandle,
-                                                contentDescription = stringResource(R.string.nav_drag_stop),
+                                                contentDescription = stringResource(Res.string.nav_drag_stop),
                                                 modifier = Modifier
                                                     .then(handleModifier)
                                                     .size(22.dp),
@@ -3146,14 +2997,14 @@ private fun BottomPanel(
                                                 Spacer(Modifier.width(8.dp))
                                                 Column(horizontalAlignment = Alignment.End) {
                                                     Text(
-                                                        NavFormat.distance(context, legM, imperial),
+                                                        NavFormat.distance(navText, legM, imperial),
                                                         style = MaterialTheme.typography.bodySmall,
                                                         color = MaterialTheme.appColors.textPrimary,
                                                         maxLines = 1
                                                     )
                                                     leg?.soFarM?.let { soFar ->
                                                         Text(
-                                                            NavFormat.distance(context, soFar, imperial),
+                                                            NavFormat.distance(navText, soFar, imperial),
                                                             style = MaterialTheme.typography.labelSmall,
                                                             color = MaterialTheme.appColors.textSecondary,
                                                             maxLines = 1
@@ -3175,7 +3026,7 @@ private fun BottomPanel(
                                             Icon(
                                                 Icons.Default.Delete,
                                                 contentDescription =
-                                                    stringResource(R.string.nav_remove_stop),
+                                                    stringResource(Res.string.nav_remove_stop),
                                                 tint = if (canDelete)
                                                     MaterialTheme.appColors.statusDanger
                                                 else MaterialTheme.appColors.textDisabled,
@@ -3189,7 +3040,7 @@ private fun BottomPanel(
                                         containerColor = MaterialTheme.appColors.menuBackground
                                     ) {
                                         DropdownMenuItem(
-                                            text = { Text(stringResource(R.string.nav_pin_center)) },
+                                            text = { Text(stringResource(Res.string.nav_pin_center)) },
                                             onClick = { rowMenu = false; onCenterPin(index) }
                                         )
                                         // Save as Home / Work only when both:
@@ -3202,19 +3053,19 @@ private fun BottomPanel(
                                         if (canSaveHome || canSaveWork) HorizontalDivider(color = MaterialTheme.appColors.divider)
                                         if (canSaveHome) {
                                             DropdownMenuItem(
-                                                text = { Text(stringResource(R.string.nav_save_home)) },
+                                                text = { Text(stringResource(Res.string.nav_save_home)) },
                                                 onClick = { rowMenu = false; onSaveHome(index) }
                                             )
                                         }
                                         if (canSaveWork) {
                                             DropdownMenuItem(
-                                                text = { Text(stringResource(R.string.nav_save_work)) },
+                                                text = { Text(stringResource(Res.string.nav_save_work)) },
                                                 onClick = { rowMenu = false; onSaveWork(index) }
                                             )
                                         }
                                         HorizontalDivider(color = MaterialTheme.appColors.divider)
                                         DestructiveMenuItem(
-                                            text = stringResource(R.string.nav_remove_stop),
+                                            text = stringResource(Res.string.nav_remove_stop),
                                             enabled = !navRunning && !allPassed && !trackLocked,
                                             onClick = { rowMenu = false; onRemove(index) }
                                         )
@@ -3303,11 +3154,11 @@ private fun PoiDetailsSheet(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             val kindLabel = when (poi.kind) {
-                PoiKind.CHARGER -> stringResource(R.string.nav_poi_charger)
-                PoiKind.STORE -> stringResource(R.string.nav_poi_store)
-                PoiKind.FOOD -> stringResource(R.string.nav_poi_food)
-                PoiKind.REST -> stringResource(R.string.nav_poi_rest)
-                PoiKind.SIGHTS -> stringResource(R.string.nav_poi_sights)
+                PoiKind.CHARGER -> stringResource(Res.string.nav_poi_charger)
+                PoiKind.STORE -> stringResource(Res.string.nav_poi_store)
+                PoiKind.FOOD -> stringResource(Res.string.nav_poi_food)
+                PoiKind.REST -> stringResource(Res.string.nav_poi_rest)
+                PoiKind.SIGHTS -> stringResource(Res.string.nav_poi_sights)
             }
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(
@@ -3335,25 +3186,25 @@ private fun PoiDetailsSheet(
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     val infoLabel = when (poi.kind) {
-                        PoiKind.CHARGER -> stringResource(R.string.nav_poi_sockets)
-                        PoiKind.FOOD -> stringResource(R.string.nav_poi_cuisine)
-                        else -> stringResource(R.string.nav_poi_type)
+                        PoiKind.CHARGER -> stringResource(Res.string.nav_poi_sockets)
+                        PoiKind.FOOD -> stringResource(Res.string.nav_poi_cuisine)
+                        else -> stringResource(Res.string.nav_poi_type)
                     }
                     PoiInfoLine(infoLabel, poi.info)
-                    PoiInfoLine(stringResource(R.string.nav_poi_network), poi.network)
-                    PoiInfoLine(stringResource(R.string.nav_poi_operator), poi.operator)
-                    PoiInfoLine(stringResource(R.string.nav_poi_capacity), poi.capacity)
-                    PoiInfoLine(stringResource(R.string.nav_poi_hours), poi.openingHours)
-                    PoiInfoLine(stringResource(R.string.nav_poi_access), poi.access)
-                    PoiInfoLine(stringResource(R.string.nav_poi_fee), poi.fee)
-                    PoiInfoLine(stringResource(R.string.nav_poi_phone), poi.phone)
+                    PoiInfoLine(stringResource(Res.string.nav_poi_network), poi.network)
+                    PoiInfoLine(stringResource(Res.string.nav_poi_operator), poi.operator)
+                    PoiInfoLine(stringResource(Res.string.nav_poi_capacity), poi.capacity)
+                    PoiInfoLine(stringResource(Res.string.nav_poi_hours), poi.openingHours)
+                    PoiInfoLine(stringResource(Res.string.nav_poi_access), poi.access)
+                    PoiInfoLine(stringResource(Res.string.nav_poi_fee), poi.fee)
+                    PoiInfoLine(stringResource(Res.string.nav_poi_phone), poi.phone)
                     PoiInfoLine(
-                        stringResource(R.string.nav_poi_distance),
+                        stringResource(Res.string.nav_poi_distance),
                         formatDistanceShort(poi.distanceFromRouteM, imperial)
                     )
                     // Tiny attribution tucked into the card, bottom-right.
                     Text(
-                        stringResource(R.string.nav_poi_source),
+                        stringResource(Res.string.nav_poi_source),
                         style = MaterialTheme.typography.labelSmall,
                         fontSize = 9.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
@@ -3378,7 +3229,7 @@ private fun PoiDetailsSheet(
                         )
                         Spacer(Modifier.width(8.dp))
                         Text(
-                            stringResource(R.string.nav_ocm_loading),
+                            stringResource(Res.string.nav_ocm_loading),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -3406,7 +3257,7 @@ private fun PoiDetailsSheet(
                 ) {
                     Icon(Icons.Default.Add, contentDescription = null)
                     Spacer(Modifier.width(6.dp))
-                    Text(stringResource(R.string.nav_poi_add_stop), maxLines = 1)
+                    Text(stringResource(Res.string.nav_poi_add_stop), maxLines = 1)
                 }
                 OutlinedButton(
                     onClick = { onOpenUrl(onlineUrl) },
@@ -3417,8 +3268,8 @@ private fun PoiDetailsSheet(
                     Spacer(Modifier.width(6.dp))
                     Text(
                         stringResource(
-                            if (hasWebsite) R.string.nav_poi_website
-                            else R.string.nav_poi_osm
+                            if (hasWebsite) Res.string.nav_poi_website
+                            else Res.string.nav_poi_osm
                         ),
                         maxLines = 1
                     )
@@ -3454,14 +3305,14 @@ private fun OcmCommunityCard(ocm: OcmCharger, onOpenUrl: (String) -> Unit) {
                     modifier = Modifier.clickable { onOpenUrl(ocm.ocmUrl) }
                 ) {
                     Text(
-                        stringResource(R.string.nav_ocm_title),
+                        stringResource(Res.string.nav_ocm_title),
                         style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.primary
                     )
                     Spacer(Modifier.width(4.dp))
                     Icon(
                         Icons.Default.OpenInNew,
-                        contentDescription = stringResource(R.string.nav_ocm_open),
+                        contentDescription = stringResource(Res.string.nav_ocm_open),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(16.dp)
                     )
@@ -3474,18 +3325,18 @@ private fun OcmCommunityCard(ocm: OcmCharger, onOpenUrl: (String) -> Unit) {
                     )
                 }
             }
-            PoiInfoLine(stringResource(R.string.nav_ocm_connectors), ocm.connectors)
+            PoiInfoLine(stringResource(Res.string.nav_ocm_connectors), ocm.connectors)
             ocm.numberOfPoints?.let {
-                PoiInfoLine(stringResource(R.string.nav_ocm_points), it.toString())
+                PoiInfoLine(stringResource(Res.string.nav_ocm_points), it.toString())
             }
-            PoiInfoLine(stringResource(R.string.nav_ocm_usage), ocm.usageType)
-            PoiInfoLine(stringResource(R.string.nav_ocm_cost), ocm.usageCost)
-            PoiInfoLine(stringResource(R.string.nav_poi_operator), ocm.operator)
-            PoiInfoLine(stringResource(R.string.nav_ocm_status), ocm.status)
-            PoiInfoLine(stringResource(R.string.nav_ocm_address), ocm.address)
-            PoiInfoLine(stringResource(R.string.nav_poi_phone), ocm.phone)
-            PoiInfoLine(stringResource(R.string.nav_ocm_access), ocm.accessComments)
-            PoiInfoLine(stringResource(R.string.nav_ocm_verified), ocm.lastVerified)
+            PoiInfoLine(stringResource(Res.string.nav_ocm_usage), ocm.usageType)
+            PoiInfoLine(stringResource(Res.string.nav_ocm_cost), ocm.usageCost)
+            PoiInfoLine(stringResource(Res.string.nav_poi_operator), ocm.operator)
+            PoiInfoLine(stringResource(Res.string.nav_ocm_status), ocm.status)
+            PoiInfoLine(stringResource(Res.string.nav_ocm_address), ocm.address)
+            PoiInfoLine(stringResource(Res.string.nav_poi_phone), ocm.phone)
+            PoiInfoLine(stringResource(Res.string.nav_ocm_access), ocm.accessComments)
+            PoiInfoLine(stringResource(Res.string.nav_ocm_verified), ocm.lastVerified)
             // Inline photo strip (Coil). Size the box to the native
             // ItemThumbnailURL resolution (~250-300 px) so the thumbnail
             // renders crisp without upscaling. OCM ships only two sizes
@@ -3499,10 +3350,8 @@ private fun OcmCommunityCard(ocm: OcmCharger, onOpenUrl: (String) -> Unit) {
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     ocm.photos.take(8).forEach { photo ->
-                        AsyncImage(
-                            model = photo.thumbnailUrl,
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop,
+                        LocalRouteBuilderHost.current.RemoteImage(
+                            url = photo.thumbnailUrl,
                             modifier = Modifier
                                 .size(80.dp)
                                 .clip(RoundedCornerShape(8.dp))
@@ -3554,7 +3403,7 @@ private fun OcmCommunityCard(ocm: OcmCharger, onOpenUrl: (String) -> Unit) {
                 }
             }
             Text(
-                stringResource(R.string.nav_ocm_attrib),
+                stringResource(Res.string.nav_ocm_attrib),
                 style = MaterialTheme.typography.labelSmall,
                 fontSize = 9.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
@@ -3575,7 +3424,7 @@ private fun BoxScope.NavCompassButton(
     viewModel: RouteBuilderViewModel,
     navRunning: Boolean,
     northUp: Boolean,
-    webView: WebView?,
+    webView: RouteMapPage?,
     topPad: Dp,
     endInset: Dp,
 ) {
@@ -3597,9 +3446,9 @@ private fun BoxScope.NavCompassButton(
         icon = Icons.Default.Explore,
         contentDescription = stringResource(
             when {
-                !navRunning -> R.string.nav_reset_north
-                northUp -> R.string.nav_view_north_up
-                else -> R.string.nav_view_heading_up
+                !navRunning -> Res.string.nav_reset_north
+                northUp -> Res.string.nav_view_north_up
+                else -> Res.string.nav_view_heading_up
             }
         ),
         onClick = {
@@ -3677,12 +3526,12 @@ private fun OverlayFab(
 }
 
 /** String resource for a place category label, for the Layers menu. */
-private fun placeCategoryLabel(kind: PoiKind): Int = when (kind) {
-    PoiKind.STORE -> R.string.nav_poi_store
-    PoiKind.FOOD -> R.string.nav_poi_food
-    PoiKind.REST -> R.string.nav_poi_rest
-    PoiKind.SIGHTS -> R.string.nav_poi_sights
-    PoiKind.CHARGER -> R.string.nav_poi_charger
+private fun placeCategoryLabel(kind: PoiKind): org.jetbrains.compose.resources.StringResource = when (kind) {
+    PoiKind.STORE -> Res.string.nav_poi_store
+    PoiKind.FOOD -> Res.string.nav_poi_food
+    PoiKind.REST -> Res.string.nav_poi_rest
+    PoiKind.SIGHTS -> Res.string.nav_poi_sights
+    PoiKind.CHARGER -> Res.string.nav_poi_charger
 }
 
 /** One "Label  value" row inside the details card; hidden when value is blank. */
@@ -3716,95 +3565,6 @@ private fun formatDistanceShort(meters: Double, imperial: Boolean): String =
     } else {
         if (meters < 1000) "${meters.roundToInt()} m" else String.format("%.1f km", meters / 1000.0)
     }
-
-/**
- * JavaScript → native bridge for the Leaflet map. `@JavascriptInterface` methods
- * are invoked on the WebView's private JS thread, so every callback is hopped
- * onto the main thread before it touches the [RouteBuilderViewModel], two quick
- * callbacks racing a non-atomic waypoint update could otherwise drop a pin.
- */
-private class NavJsBridge(
-    private val mapClick: (Double, Double) -> Unit,
-    private val routeLineClick: (Double, Double) -> Unit,
-    private val markerDragged: (Int, Double, Double) -> Unit,
-    private val markerDragStart: () -> Unit,
-    private val markerDragEnd: () -> Unit,
-    private val selfTap: (Int, Int) -> Unit,
-    private val markerTapped: (Int, Int, Int) -> Unit,
-    private val mapViewChanged: (Double, Double, Float) -> Unit,
-    private val mapBoundsChanged: (Double, Double, Double, Double) -> Unit,
-    private val tilesLoaded: () -> Unit,
-    private val poiTapped: (Long) -> Unit,
-    private val bearingChanged: (Float) -> Unit,
-    private val offlineMap: (Boolean) -> Unit,
-) {
-    private val main = Handler(Looper.getMainLooper())
-
-    @JavascriptInterface
-    fun onOfflineMap(on: Boolean) {
-        main.post { offlineMap(on) }
-    }
-
-    @JavascriptInterface
-    fun onBearingChanged(deg: Double) {
-        // Drives the reset-to-north button's visibility and needle angle.
-        main.post { bearingChanged(deg.toFloat()) }
-    }
-
-    @JavascriptInterface
-    fun onMapClick(lat: Double, lng: Double) {
-        main.post { mapClick(lat, lng) }
-    }
-
-    @JavascriptInterface
-    fun onRouteLineClick(lat: Double, lng: Double) {
-        main.post { routeLineClick(lat, lng) }
-    }
-
-    @JavascriptInterface
-    fun onMarkerDragged(index: Int, lat: Double, lng: Double) {
-        main.post {
-            markerDragEnd()
-            markerDragged(index, lat, lng)
-        }
-    }
-
-    @JavascriptInterface
-    fun onMarkerDragStart() {
-        main.post { markerDragStart() }
-    }
-
-    @JavascriptInterface
-    fun onSelfTap(x: Int, y: Int) {
-        main.post { selfTap(x, y) }
-    }
-
-    @JavascriptInterface
-    fun onMarkerTapped(index: Int, x: Int, y: Int) {
-        main.post { markerTapped(index, x, y) }
-    }
-
-    @JavascriptInterface
-    fun onMapViewChanged(lat: Double, lng: Double, zoom: Float) {
-        main.post { mapViewChanged(lat, lng, zoom) }
-    }
-
-    @JavascriptInterface
-    fun onMapBounds(south: Double, west: Double, north: Double, east: Double) {
-        main.post { mapBoundsChanged(south, west, north, east) }
-    }
-
-    @JavascriptInterface
-    fun onTilesLoaded() {
-        main.post { tilesLoaded() }
-    }
-
-    @JavascriptInterface
-    fun onPoiTapped(id: String) {
-        val parsed = id.toLongOrNull() ?: return
-        main.post { poiTapped(parsed) }
-    }
-}
 
 /**
  * The friend list the map draws: one entry per peer with their palette
@@ -3857,20 +3617,20 @@ private fun sharePeersJson(
                 put("color", p.last.color)
                 put("lat", p.last.lat)
                 put("lng", p.last.lng)
-                put("heading", p.last.heading?.toDouble() ?: JSONObject.NULL)
+                put("heading", p.last.heading?.toDouble() ?: JSONNull)
                 // A rider who left is drawn like one whose signal we lost.
                 put("freshness", if (p.left) Freshness.LOST.name else p.freshness.name)
                 put("ageS", (now - p.lastSeenMs) / 1000L)
-                put("avatarUrl", p.last.avatarUrl ?: JSONObject.NULL)
-                put("flag", p.last.flag ?: JSONObject.NULL)
+                put("avatarUrl", p.last.avatarUrl ?: JSONNull)
+                put("flag", p.last.flag ?: JSONNull)
                 // The same flag the group list draws, resolved here so the
                 // page has nothing to decide: the emoji when the code is a
                 // real one, the code itself otherwise.
                 put(
                     "flagText",
-                    p.last.flag?.let { flagEmoji(it).ifEmpty { it } } ?: JSONObject.NULL
+                    p.last.flag?.let { flagEmoji(it).ifEmpty { it } } ?: JSONNull
                 )
-                put("statsText", p.last.stats?.let(statsText) ?: JSONObject.NULL)
+                put("statsText", p.last.stats?.let(statsText) ?: JSONNull)
                 put("trail", trail)
             }
         )

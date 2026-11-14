@@ -1,6 +1,7 @@
 package com.eried.eucplanet.ui.navigator
 
-import android.text.format.DateFormat
+import com.eried.eucplanet.platform.format
+import com.eried.eucplanet.platform.rememberShortTimeFormatter
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
@@ -39,8 +40,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
+import com.eried.eucplanet.platform.rememberStringFormatter
+import com.eried.eucplanet.platform.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -48,7 +49,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.eried.eucplanet.R
+import com.eried.eucplanet.resources.*
 import com.eried.eucplanet.data.model.NavState
 import com.eried.eucplanet.data.model.NavigatorViewSettings
 import com.eried.eucplanet.data.model.Waypoint
@@ -60,9 +61,7 @@ import com.eried.eucplanet.ui.settings.KNOWN_DASHBOARD_METRICS
 import com.eried.eucplanet.ui.settings.metricChipLabel
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.Units
-import java.util.Date
 import kotlin.math.absoluteValue
-import com.eried.eucplanet.nav.distance
 
 /** Translucency of the navigator cards over the map, matching the map's other overlays. */
 private const val HUD_ALPHA = 0.90f
@@ -269,14 +268,15 @@ fun NavTopStrip(
 ) {
     val state by viewModel.navState.collectAsState()
     val imperial by viewModel.imperialUnits.collectAsState()
-    val context = LocalContext.current
+    val navText = rememberStringFormatter()
+    val shortTime = rememberShortTimeFormatter()
     val colors = MaterialTheme.appColors
     // The engine keeps the last distance left and arrival on "arrived" and
     // "waiting" frames, so those frames show only the engine's own lines.
     val showProgress = state.active && !state.arrived && !state.waiting
     val street = when {
         state.offRoute || state.arrived || state.waiting -> ""
-        state.straightLine -> stringResource(R.string.nav_view_straight_line)
+        state.straightLine -> stringResource(Res.string.nav_view_straight_line)
         else -> state.nextStreet
     }
     val first = listOf(state.primaryText, street).filter { it.isNotBlank() }.joinToString(" · ")
@@ -287,11 +287,11 @@ fun NavTopStrip(
         else name
     }
     val toStop = if (showProgress && state.goalCount > 1 && !state.nextStopRemainingM.isNaN())
-        NavFormat.distance(context, state.nextStopRemainingM, imperial) else null
+        NavFormat.distance(navText, state.nextStopRemainingM, imperial) else null
     val clock = if (showProgress && state.etaEpochMs > 0L)
-        DateFormat.getTimeFormat(context).format(Date(state.etaEpochMs)) else null
+        shortTime(state.etaEpochMs) else null
     val left = if (showProgress && !state.remainingM.isNaN())
-        NavFormat.distance(context, state.remainingM, imperial) else null
+        NavFormat.distance(navText, state.remainingM, imperial) else null
     val second = listOfNotNull(stopName.ifBlank { null }, toStop, clock, left).joinToString(" · ")
     Column(modifier, verticalArrangement = Arrangement.Center) {
         if (first.isNotEmpty()) {
@@ -320,7 +320,7 @@ fun NavTopStrip(
 @Composable
 fun NavSpeedBubble(kmh: Float, speedUnit: String, modifier: Modifier = Modifier) {
     val colors = MaterialTheme.appColors
-    val description = stringResource(R.string.nav_view_speed)
+    val description = stringResource(Res.string.nav_view_speed)
     Surface(
         modifier = modifier
             .size(NAV_FAB_SIZE)

@@ -1,15 +1,5 @@
 package com.eried.eucplanet.ui.navigator
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.net.Uri
-import android.os.Build
-import androidx.browser.customtabs.CustomTabColorSchemeParams
-import androidx.browser.customtabs.CustomTabsClient
-import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -82,11 +72,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalConfiguration
+import com.eried.eucplanet.platform.rememberStringFormatter
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.pluralStringResource
+import com.eried.eucplanet.platform.stringResource
+import com.eried.eucplanet.platform.pluralStringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -94,7 +83,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.eried.eucplanet.R
+import com.eried.eucplanet.resources.*
 import com.eried.eucplanet.data.eucstats.RiderCard
 import com.eried.eucplanet.share.Freshness
 import com.eried.eucplanet.share.Identity
@@ -103,13 +92,11 @@ import com.eried.eucplanet.share.PeerState
 import com.eried.eucplanet.share.ShareLink
 import com.eried.eucplanet.share.ShareLinks
 import com.eried.eucplanet.share.ShareLocationText
-import com.eried.eucplanet.share.ShareSession
+import com.eried.eucplanet.share.LiveShare
 import com.eried.eucplanet.share.ShareState
 import com.eried.eucplanet.share.ShareStats
 import com.eried.eucplanet.share.activePeers
 import com.eried.eucplanet.ui.common.ToolRow
-import com.eried.eucplanet.ui.dashboard.QR_MAX_PX
-import com.eried.eucplanet.ui.dashboard.QrCodeImage
 import com.eried.eucplanet.ui.settings.SegmentedChoice
 import com.eried.eucplanet.ui.settings.SwitchSettingWithDesc
 import com.eried.eucplanet.ui.settings.eucstats.LeaderboardProfileCard
@@ -120,10 +107,12 @@ import com.eried.eucplanet.ui.settings.eucstats.flagEmoji
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedFieldColors
 import com.eried.eucplanet.util.Units
-import com.eried.eucplanet.util.speedUnit
+import com.eried.eucplanet.platform.Locale
+import com.eried.eucplanet.platform.format
+import com.eried.eucplanet.ui.common.screenGeometry
+import org.jetbrains.compose.resources.StringResource
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.util.Locale
 
 /**
  * Everything behind the navigator's Share button.
@@ -177,29 +166,10 @@ import java.util.Locale
  * there stays generous rather than shrinking the QR on a small phone.
  */
 @Composable
-internal fun shareBlockMaxWidth(): Dp {
-    val config = LocalConfiguration.current
-    val factor = if (config.screenWidthDp > config.screenHeightDp) 0.4f else 0.55f
-    return minOf(360.dp, (config.screenHeightDp * factor).dp)
-}
-
-/**
- * Put something on the clipboard and say so exactly once.
- *
- * Android 13 and up pops its own clipboard confirmation for every write, so a
- * snackbar on top of it says "Copied" twice for one tap. Below that there is
- * no system feedback at all and the snackbar is the only sign anything
- * happened, so it is posted there and only there.
- */
-private fun copyToClipboard(
-    context: Context,
-    text: String,
-    copied: String,
-    onNotify: (String) -> Unit,
-) {
-    val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
-    cm?.setPrimaryClip(ClipData.newPlainText("EUC Planet", text))
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) onNotify(copied)
+fun shareBlockMaxWidth(): Dp {
+    val config = screenGeometry()
+    val factor = if (config.widthDp > config.heightDp) 0.4f else 0.55f
+    return minOf(360.dp, (config.heightDp * factor).dp)
 }
 
 /** An avatar URL is another rider's string off the relay, so it is checked
@@ -220,7 +190,7 @@ private fun safeAvatar(url: String?): String? = url?.takeIf { u ->
 private fun peerColorOf(hex: String): Color {
     val fallback = MaterialTheme.appColors.textSecondary
     return remember(hex, fallback) {
-        runCatching { Color(android.graphics.Color.parseColor(hex)) }.getOrDefault(fallback)
+        runCatching { Color(parseColorString(hex)) }.getOrDefault(fallback)
     }
 }
 
@@ -232,8 +202,8 @@ private fun peerColorOf(hex: String): Color {
  * the page as finished text rather than re-derived in JS, so a peer's line
  * cannot read "23 km/h" in the dialog and "14 mph" on the map behind it.
  */
-internal fun shareStatsLine(
-    context: Context,
+fun shareStatsLine(
+    text: (StringResource, List<Any>) -> String,
     stats: ShareStats,
     speedUnit: String,
     tempUnit: String,
@@ -241,7 +211,7 @@ internal fun shareStatsLine(
     Locale.getDefault(),
     "%.0f %s · %d%% · %.0f%s",
     Units.speed(stats.speedKmh, speedUnit),
-    Units.speedUnit(context, speedUnit),
+    text(Units.speedUnitRes(speedUnit), emptyList()),
     stats.batteryPct,
     Units.temperature(stats.tempC, tempUnit),
     Units.tempUnit(tempUnit),
@@ -251,134 +221,6 @@ internal fun shareStatsLine(
  *  while the dialog is composing, because the tab is launched from a click
  *  handler where MaterialTheme is out of scope. */
 private data class BrowserTabColors(val toolbar: Int, val navigationBar: Int)
-
-/**
- * The generic "open a web page" probe used both to find the phone's browser
- * and to verify a candidate really is one.
- *
- * Needs the VIEW + BROWSABLE + scheme https entry in the manifest's
- * `<queries>` block: without it, both [PackageManager.resolveActivity] and
- * [PackageManager.queryIntentActivities] go blind to every browser package
- * on API 30+, and [resolveBrowserPackage] always returns null.
- */
-private fun browserProbe(): Intent =
-    Intent(Intent.ACTION_VIEW, Uri.parse("https://example.com/"))
-        .addCategory(Intent.CATEGORY_BROWSABLE)
-
-/**
- * The package that owns http/https VIEW links on this phone, or null if none
- * can be told apart from this app itself.
- *
- * [PackageManager.resolveActivity] answers the way a launcher would ("who
- * opens this by default"), but its answer is not trusted on its own: some
- * builds report a resolver or chooser activity instead of a real browser
- * package, and in principle any app that merely claims the https scheme
- * (without being a browser) could be the default. So the candidate is
- * accepted only if it also turns up in [PackageManager.queryIntentActivities]
- * for the very same probe, meaning it genuinely registered as a handler for
- * a generic web page rather than a name that happened to come back from a
- * resolver. When there is no default, or the default fails that check, the
- * first entry of queryIntentActivities that is not this app is used instead.
- * A device where neither path survives returns null, and the caller falls
- * back to a Custom Tab.
- */
-private fun resolveBrowserPackage(context: Context): String? {
-    val pm = context.packageManager
-    val probe = browserProbe()
-    val ownPackage = context.packageName
-    val candidates = runCatching {
-        pm.queryIntentActivities(probe, PackageManager.MATCH_DEFAULT_ONLY)
-    }.getOrDefault(emptyList())
-
-    val default = runCatching {
-        pm.resolveActivity(probe, PackageManager.MATCH_DEFAULT_ONLY)?.activityInfo?.packageName
-    }.getOrNull()
-    if (default != null && default != ownPackage &&
-        candidates.any { it.activityInfo?.packageName == default }
-    ) {
-        return default
-    }
-
-    return candidates.firstOrNull { it.activityInfo?.packageName != ownPackage }
-        ?.activityInfo?.packageName
-}
-
-/**
- * Hands [uri] to the phone's real browser as an explicit ACTION_VIEW, so it
- * opens in the browser's own task rather than inside this app's. See
- * [resolveBrowserPackage] for how the browser is named.
- *
- * Never throws: returns false, without launching anything, when no browser
- * package can be told apart, or when the explicit launch itself fails (the
- * expected case is an ActivityNotFoundException, the package answers the
- * browser question but not this exact URL). Either way the caller is free to
- * fall back to a Custom Tab.
- */
-private fun openInBrowser(context: Context, uri: Uri): Boolean {
-    val browserPackage = resolveBrowserPackage(context) ?: return false
-    val view = Intent(Intent.ACTION_VIEW, uri)
-        .setPackage(browserPackage)
-        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    return runCatching { context.startActivity(view) }.isSuccess
-}
-
-/**
- * Hands the share link to the phone's real browser, so Open shows the web
- * viewer as an ordinary tab the rider leaves the app for and comes back from.
- *
- * A plain ACTION_VIEW never leaves the app: the same URL is claimed as a
- * verified App Link (see the /share intent filter in the manifest), so Android
- * routes it back into MainActivity, which parses it, sees the room the rider is
- * already in, and dismisses. Nothing appears to happen.
- *
- * So the browser is named explicitly: [openInBrowser] resolves who owns
- * "open a web page" on this phone (see [resolveBrowserPackage]) and addresses
- * that package directly with the real link. An explicit intent is not App
- * Link traffic, and it lands in the browser's own task, which is what makes
- * it a real Chrome tab: the task switcher lists Chrome, and coming back lands
- * on the map where the rider left it. A Custom Tab renders the page inside
- * this app's own task instead, which is exactly what the rider asked not to
- * happen.
- *
- * Addressing the browser with ACTION_MAIN instead (makeMainSelectorActivity)
- * does raise Chrome, but Chrome answers a MAIN launch with its own home page
- * and drops the data URI, so the rider lands on a blank tab. Verified on the
- * emulator, which is why the link travels as a VIEW.
- *
- * A device where no browser package can be told apart falls back to a Custom
- * Tab, then to a browsable view inside a chooser, so Open still does
- * something rather than silently handing the link back to this app.
- */
-private fun openShareLink(context: Context, url: String, colors: BrowserTabColors) {
-    val uri = Uri.parse(url)
-    if (openInBrowser(context, uri)) return
-    val browser = runCatching { CustomTabsClient.getPackageName(context, null) }.getOrNull()
-    if (browser != null) {
-        val opened = runCatching {
-            CustomTabsIntent.Builder()
-                .setShowTitle(true)
-                .setDefaultColorSchemeParams(
-                    CustomTabColorSchemeParams.Builder()
-                        .setToolbarColor(colors.toolbar)
-                        .setNavigationBarColor(colors.navigationBar)
-                        .build()
-                )
-                .build()
-                .apply { intent.setPackage(browser) }
-                .launchUrl(context, uri)
-        }.isSuccess
-        if (opened) return
-    }
-    runCatching {
-        val view = Intent(Intent.ACTION_VIEW, uri)
-            .addCategory(Intent.CATEGORY_BROWSABLE)
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        context.startActivity(
-            Intent.createChooser(view, context.getString(R.string.share_open))
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        )
-    }
-}
 
 /**
  * A scanned share link.
@@ -441,12 +283,13 @@ fun ShareMenuDialog(
     onStartGroup: () -> Unit,
     onNotify: (String) -> Unit,
 ) {
-    val context = LocalContext.current
+    val host = LocalRouteBuilderHost.current
+    val navText = rememberStringFormatter()
     val hasFix = fixLat != null && fixLng != null
     val coords = if (hasFix) ShareLocationText.coordinates(fixLat!!, fixLng!!) else null
-    val waiting = stringResource(R.string.share_waiting_gps)
-    val leaveFirst = stringResource(R.string.share_leave_first)
-    val copied = stringResource(R.string.share_copied)
+    val waiting = stringResource(Res.string.share_waiting_gps)
+    val leaveFirst = stringResource(Res.string.share_leave_first)
+    val copied = stringResource(Res.string.share_copied)
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -458,56 +301,49 @@ fun ShareMenuDialog(
                 // a group code says "leave first" once it is scanned.
                 ToolRow(
                     Icons.Default.QrCodeScanner,
-                    stringResource(R.string.share_menu_scan),
-                    stringResource(R.string.share_menu_scan_desc),
+                    stringResource(Res.string.share_menu_scan),
+                    stringResource(Res.string.share_menu_scan_desc),
                 ) { onDismiss(); onScan() }
                 ToolRow(
                     Icons.Default.QrCode,
-                    stringResource(R.string.share_menu_route),
-                    stringResource(if (canShareRoute) R.string.share_menu_route_desc else R.string.share_menu_route_none),
+                    stringResource(Res.string.share_menu_route),
+                    stringResource(if (canShareRoute) Res.string.share_menu_route_desc else Res.string.share_menu_route_none),
                     enabled = canShareRoute,
                 ) { onDismiss(); onShareRoute() }
                 ToolRow(
                     Icons.Default.Share,
-                    stringResource(R.string.share_menu_live),
-                    if (inGroup) leaveFirst else stringResource(R.string.share_menu_live_desc),
+                    stringResource(Res.string.share_menu_live),
+                    if (inGroup) leaveFirst else stringResource(Res.string.share_menu_live_desc),
                     enabled = !inGroup,
                 ) { onDismiss(); onStartGroup() }
                 ToolRow(
                     Icons.Default.Place,
-                    stringResource(R.string.share_menu_static),
-                    if (hasFix) stringResource(R.string.share_menu_static_desc) else waiting,
+                    stringResource(Res.string.share_menu_static),
+                    if (hasFix) stringResource(Res.string.share_menu_static_desc) else waiting,
                     enabled = hasFix,
                 ) {
                     onDismiss()
                     val link = ShareLocationText.mapsLink(fixLat!!, fixLng!!)
-                    val subject = context.getString(R.string.share_static_subject)
-                    val send = Intent(Intent.ACTION_SEND).apply {
-                        type = "text/plain"
-                        putExtra(Intent.EXTRA_TEXT, link)
-                        putExtra(Intent.EXTRA_SUBJECT, subject)
-                    }
-                    runCatching {
-                        context.startActivity(Intent.createChooser(send, subject))
-                    }
+                    val subject = navText(Res.string.share_static_subject, emptyList())
+                    host.shareText(link, subject)
                 }
                 ToolRow(
                     Icons.Default.ContentCopy,
-                    stringResource(R.string.share_menu_copy),
+                    stringResource(Res.string.share_menu_copy),
                     // The live coordinates ARE the subtitle: the rider sees
                     // exactly what lands on the clipboard before they tap.
                     coords ?: waiting,
                     enabled = hasFix,
                 ) {
                     onDismiss()
-                    copyToClipboard(context, coords.orEmpty(), copied, onNotify)
+                    host.copyText(coords.orEmpty()) { onNotify(copied) }
                 }
             }
         },
         confirmButton = {},
         dismissButton = {
             TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
-                Text(stringResource(R.string.action_cancel))
+                Text(stringResource(Res.string.action_cancel))
             }
         }
     )
@@ -541,13 +377,13 @@ fun ShareScannerDialog(
         )
     ) {
         ShareDialogCard(
-            title = stringResource(R.string.share_menu_scan),
+            title = stringResource(Res.string.share_menu_scan),
             // The camera square is as tall as the dialog is wide, so in
             // landscape the body has to be able to scroll to reach Cancel.
             scrollable = true,
         ) {
-            val crewPass = stringResource(R.string.share_scan_is_crewpass)
-            QrScannerArea(
+            val crewPass = stringResource(Res.string.share_scan_is_crewpass)
+            LocalRouteBuilderHost.current.QrScanner(
                 parse = { parseScannedCode(it) },
                 onFound = { code ->
                     when (code) {
@@ -555,7 +391,7 @@ fun ShareScannerDialog(
                         is ScannedCode.Route -> onRoute(code.route)
                     }
                 },
-                invalidText = stringResource(R.string.scan_code_unknown),
+                invalidText = stringResource(Res.string.scan_code_unknown),
                 modifier = Modifier.fillMaxWidth(),
                 misfit = { if (com.eried.eucplanet.crews.PairLink.parse(it) != null) crewPass else null },
             )
@@ -571,7 +407,7 @@ fun ShareScannerDialog(
                     colors = ButtonDefaults.textButtonColors(
                         contentColor = MaterialTheme.appColors.textButton
                     )
-                ) { Text(stringResource(R.string.action_cancel)) }
+                ) { Text(stringResource(Res.string.action_cancel)) }
             }
         }
     }
@@ -596,10 +432,11 @@ fun RouteQrDialog(
     onNotify: (String) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    val context = LocalContext.current
-    val copiedMsg = stringResource(R.string.share_copied)
-    val subject = stringResource(R.string.route_share_subject)
-    val cardFooter = stringResource(R.string.route_qr_hint)
+    val host = LocalRouteBuilderHost.current
+    val navText = rememberStringFormatter()
+    val copiedMsg = stringResource(Res.string.share_copied)
+    val subject = stringResource(Res.string.route_share_subject)
+    val cardFooter = stringResource(Res.string.route_qr_hint)
     val appColors = MaterialTheme.appColors
     val tabColors = remember(appColors) {
         BrowserTabColors(
@@ -613,32 +450,25 @@ fun RouteQrDialog(
         legs = legs,
         distance = distance,
         onShare = {
-            val send = Intent(Intent.ACTION_SEND).apply {
-                type = "text/plain"
-                putExtra(Intent.EXTRA_TEXT, context.getString(R.string.route_share_text, link))
-                putExtra(Intent.EXTRA_SUBJECT, subject)
-            }
-            runCatching { context.startActivity(Intent.createChooser(send, subject)) }
+            host.shareText(navText(Res.string.route_share_text, listOf(link)), subject)
         },
         // The code as a picture, for a chat where it is scanned off a screen,
         // or for paper. It carries the route's description, so it still says
         // which route it is away from the app.
         onShareImage = {
-            runCatching {
-                RouteQrCard.share(context, link, context.getString(R.string.route_share_text, link),
-                    cardTitle, distance, cardFooter, subject)
-            }
+            host.shareRouteQrImage(link, navText(Res.string.route_share_text, listOf(link)),
+                cardTitle, distance, cardFooter, subject)
         },
-        onCopy = { copyToClipboard(context, link, copiedMsg, onNotify) },
+        onCopy = { host.copyText(link) { onNotify(copiedMsg) } },
         // The route page in the phone's browser, as a friend without the app sees it.
-        onOpen = { openShareLink(context, link, tabColors) },
+        onOpen = { host.openShareLink(link, tabColors.toolbar, tabColors.navigationBar) },
         onDismiss = onDismiss,
     )
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
-        ShareDialogCard(title = stringResource(R.string.share_menu_route), scrollable = true) {
+        ShareDialogCard(title = stringResource(Res.string.share_menu_route), scrollable = true) {
             RouteQrContent(ui)
         }
     }
@@ -663,7 +493,7 @@ private sealed class ProfilePreview {
  */
 @Composable
 fun ShareIdentityDialog(
-    titleRes: Int,
+    titleRes: StringResource,
     default: Identity,
     hasProfile: Boolean,
     resolveIdentity: suspend (IdentityMode, String, Boolean) -> Identity,
@@ -675,7 +505,7 @@ fun ShareIdentityDialog(
     // Starting a new group and joining an existing one share this dialog, so
     // the confirm label is passed in rather than hardcoded, and defaults to
     // the "start a group" label since that is the more common entry point.
-    confirmLabelRes: Int = R.string.share_start,
+    confirmLabelRes: StringResource = Res.string.share_start,
 ) {
     val scope = rememberCoroutineScope()
     var mode by remember(default) {
@@ -740,7 +570,7 @@ fun ShareIdentityDialog(
                     colors = ButtonDefaults.textButtonColors(
                         contentColor = MaterialTheme.appColors.textButton
                     )
-                ) { Text(stringResource(R.string.action_cancel)) }
+                ) { Text(stringResource(Res.string.action_cancel)) }
                 Spacer(Modifier.width(8.dp))
                 Button(
                     enabled = canConfirm,
@@ -809,11 +639,11 @@ private fun ShareIdentityForm(
     val slidePx = with(LocalDensity.current) { IDENTITY_SLIDE.roundToPx() }
     Column(Modifier.fillMaxWidth()) {
         SegmentedChoice(
-            label = stringResource(R.string.share_identity_label),
+            label = stringResource(Res.string.share_identity_label),
             options = listOf(
-                IdentityMode.ANON.name to stringResource(R.string.share_identity_anon),
-                IdentityMode.SESSION.name to stringResource(R.string.share_identity_session),
-                IdentityMode.PROFILE.name to stringResource(R.string.share_identity_profile),
+                IdentityMode.ANON.name to stringResource(Res.string.share_identity_anon),
+                IdentityMode.SESSION.name to stringResource(Res.string.share_identity_session),
+                IdentityMode.PROFILE.name to stringResource(Res.string.share_identity_profile),
             ),
             current = mode.name,
             // The row carries one enabled flag for all three segments, so
@@ -849,7 +679,7 @@ private fun ShareIdentityForm(
                     OutlinedTextField(
                         value = name,
                         onValueChange = onNameChange,
-                        label = { Text(stringResource(R.string.share_name_label)) },
+                        label = { Text(stringResource(Res.string.share_name_label)) },
                         singleLine = true,
                         colors = themedFieldColors(),
                         shape = RoundedCornerShape(12.dp),
@@ -868,7 +698,7 @@ private fun ShareIdentityForm(
         // and a line under it repeating the three field names was one more
         // thing to read in a dialog that asks three questions.
         SwitchSettingWithDesc(
-            label = stringResource(R.string.share_stats_label),
+            label = stringResource(Res.string.share_stats_label),
             description = "",
             checked = shareStats,
             onCheckedChange = onShareStatsChange,
@@ -918,14 +748,14 @@ private fun ProfilePreviewCard(profile: ProfilePreview) {
                 )
                 Spacer(Modifier.width(10.dp))
                 Text(
-                    stringResource(R.string.share_profile_loading),
+                    stringResource(Res.string.share_profile_loading),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.appColors.textSecondary
                 )
             }
 
             is ProfilePreview.Missing -> Text(
-                stringResource(R.string.share_profile_missing, stringResource(R.string.tab_cloud)),
+                stringResource(Res.string.share_profile_missing, stringResource(Res.string.tab_cloud)),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.appColors.textSecondary,
                 textAlign = TextAlign.Center,
@@ -1001,7 +831,8 @@ fun ShareGroupDialog(
     onLeave: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    val context = LocalContext.current
+    val host = LocalRouteBuilderHost.current
+    val navText = rememberStringFormatter()
     val url = remember(state.link) { ShareLinks.format(state.link) }
     // Entries, not values: the row key must be the relay sender id the map is
     // keyed by (unique by construction), not the id inside the decrypted body.
@@ -1028,7 +859,7 @@ fun ShareGroupDialog(
         )
     ) {
         ShareDialogCard(
-            title = stringResource(R.string.share_title_group),
+            title = stringResource(Res.string.share_title_group),
             scrollable = true,
             // A tab switch is a new body, so it starts at the top rather than
             // wherever the other tab was left.
@@ -1041,7 +872,7 @@ fun ShareGroupDialog(
                 )
             }
         ) {
-            val copiedMsg = stringResource(R.string.share_copied)
+            val copiedMsg = stringResource(Res.string.share_copied)
             val appColors = MaterialTheme.appColors
             val tabColors = remember(appColors) {
                 BrowserTabColors(
@@ -1054,7 +885,7 @@ fun ShareGroupDialog(
                     // The relay reports a full room by closing with 1013, which
                     // the session turns into one typed marker; every other error
                     // means the service is simply out of reach.
-                    val roomFull = state.error == ShareSession.ERR_ROOM_FULL
+                    val roomFull = state.error == LiveShare.ERR_ROOM_FULL
                     val statusColor = when {
                         roomFull || state.error != null -> MaterialTheme.appColors.statusDanger
                         state.connected -> MaterialTheme.appColors.statusGood
@@ -1079,11 +910,11 @@ fun ShareGroupDialog(
                         Column(Modifier.weight(1f)) {
                             Text(
                                 text = when {
-                                    roomFull -> stringResource(R.string.share_room_full)
-                                    state.connected -> stringResource(R.string.share_connected)
+                                    roomFull -> stringResource(Res.string.share_room_full)
+                                    state.connected -> stringResource(Res.string.share_connected)
                                     state.error != null ->
-                                        stringResource(R.string.share_cannot_reach)
-                                    else -> stringResource(R.string.share_reconnecting)
+                                        stringResource(Res.string.share_cannot_reach)
+                                    else -> stringResource(Res.string.share_reconnecting)
                                 },
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = statusColor,
@@ -1099,7 +930,7 @@ fun ShareGroupDialog(
                             if (relayHost.isNotEmpty()) {
                                 Text(
                                     text = stringResource(
-                                        R.string.share_relay_caption, relayHost
+                                        Res.string.share_relay_caption, relayHost
                                     ),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.appColors.textSecondary,
@@ -1113,40 +944,25 @@ fun ShareGroupDialog(
                         // is 60 characters of base64 nobody reads.
                         ShareLinkAction(
                             icon = Icons.Default.Share,
-                            description = stringResource(R.string.action_share),
+                            description = stringResource(Res.string.action_share),
                             onClick = {
-                                val send = Intent(Intent.ACTION_SEND).apply {
-                                    type = "text/plain"
-                                    putExtra(
-                                        Intent.EXTRA_TEXT,
-                                        context.getString(R.string.share_invite_text, url)
-                                    )
-                                    putExtra(
-                                        Intent.EXTRA_SUBJECT,
-                                        context.getString(R.string.share_invite_subject)
-                                    )
-                                }
-                                runCatching {
-                                    context.startActivity(
-                                        Intent.createChooser(
-                                            send,
-                                            context.getString(R.string.share_invite_subject)
-                                        )
-                                    )
-                                }
+                                host.shareText(
+                                    navText(Res.string.share_invite_text, listOf(url)),
+                                    navText(Res.string.share_invite_subject, emptyList()),
+                                )
                             }
                         )
                         ShareLinkAction(
                             icon = Icons.Default.ContentCopy,
-                            description = stringResource(R.string.share_copy),
-                            onClick = { copyToClipboard(context, url, copiedMsg, onNotify) }
+                            description = stringResource(Res.string.share_copy),
+                            onClick = { host.copyText(url) { onNotify(copiedMsg) } }
                         )
                         ShareLinkAction(
                             icon = Icons.Default.OpenInBrowser,
-                            description = stringResource(R.string.share_open),
+                            description = stringResource(Res.string.share_open),
                             // The web viewer in the phone's own browser, so the
                             // rider sees the group the way their friends will.
-                            onClick = { openShareLink(context, url, tabColors) }
+                            onClick = { host.openShareLink(url, tabColors.toolbar, tabColors.navigationBar) }
                         )
                     }
                     Spacer(Modifier.height(14.dp))
@@ -1161,18 +977,19 @@ fun ShareGroupDialog(
                             .align(Alignment.CenterHorizontally)
                     ) {
                         // Encode once, at the row's own pixel width but never
-                        // above QR_MAX_PX: the bitmap is remembered per (link,
+                        // above the host's qrMaxPx: the bitmap is remembered per (link,
                         // size) and the Image scales it to fill the row, so a
                         // landscape phone or a tablet cannot pull a
                         // multi-megabyte allocation through here.
                         val density = LocalDensity.current
                         val qrPx = remember(maxWidth, density) {
-                            with(density) { maxWidth.roundToPx() }.coerceAtMost(QR_MAX_PX)
+                            with(density) { maxWidth.roundToPx() }.coerceAtMost(host.qrMaxPx)
                         }
-                        QrCodeImage(
+                        host.QrCode(
                             content = url,
                             sizePx = qrPx,
-                            modifier = Modifier.fillMaxWidth().aspectRatio(1f)
+                            modifier = Modifier.fillMaxWidth().aspectRatio(1f),
+                            mediumEcc = false,
                         )
                     }
                 }
@@ -1203,7 +1020,7 @@ fun ShareGroupDialog(
                             trailing = {
                                 Spacer(Modifier.width(8.dp))
                                 Text(
-                                    stringResource(R.string.share_you),
+                                    stringResource(Res.string.share_you),
                                     style = MaterialTheme.typography.labelMedium,
                                     color = MaterialTheme.appColors.textSecondary,
                                     maxLines = 1
@@ -1222,7 +1039,7 @@ fun ShareGroupDialog(
                     if (activeCount == 0) {
                         Spacer(Modifier.height(10.dp))
                         Text(
-                            stringResource(R.string.share_alone),
+                            stringResource(Res.string.share_alone),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.appColors.textSecondary,
                             modifier = Modifier.padding(horizontal = ROW_INSET)
@@ -1292,7 +1109,7 @@ fun ShareGroupDialog(
                     colors = ButtonDefaults.textButtonColors(
                         contentColor = MaterialTheme.appColors.textButton
                     )
-                ) { Text(stringResource(R.string.action_close)) }
+                ) { Text(stringResource(Res.string.action_close)) }
                 Spacer(Modifier.width(8.dp))
                 Button(
                     onClick = onLeave,
@@ -1303,7 +1120,7 @@ fun ShareGroupDialog(
                     )
                 ) {
                     Text(
-                        stringResource(R.string.share_leave),
+                        stringResource(Res.string.share_leave),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -1361,9 +1178,9 @@ private fun ShareGroupTabRow(
                     // unbounded = true lets the Text report its own width.
                     Text(
                         when (entry) {
-                            GroupTab.QR -> stringResource(R.string.share_tab_qr)
+                            GroupTab.QR -> stringResource(Res.string.share_tab_qr)
                             GroupTab.CONNECTED ->
-                                stringResource(R.string.share_tab_connected, connectedCount)
+                                stringResource(Res.string.share_tab_connected, connectedCount)
                         },
                         maxLines = 1,
                         softWrap = false,
@@ -1434,7 +1251,7 @@ private fun RiderRow(
     modifier: Modifier = Modifier,
     trailing: @Composable RowScope.() -> Unit = {},
 ) {
-    val context = LocalContext.current
+    val navText = rememberStringFormatter()
     val dot = peerColorOf(color)
     Row(
         modifier = modifier
@@ -1491,7 +1308,7 @@ private fun RiderRow(
             }
             stats?.let { s ->
                 Text(
-                    shareStatsLine(context, s, speedUnit, tempUnit),
+                    shareStatsLine(navText, s, speedUnit, tempUnit),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.appColors.textSecondary,
                     maxLines = 1,
@@ -1524,11 +1341,11 @@ private fun PeerRow(
     // for no reason and read like a ping. It appears only once the fix has
     // actually started to age, which is the one time it means something.
     val ageText = when {
-        peer.left -> stringResource(R.string.share_left)
-        peer.freshness == Freshness.LOST -> stringResource(R.string.share_lost)
+        peer.left -> stringResource(Res.string.share_left)
+        peer.freshness == Freshness.LOST -> stringResource(Res.string.share_lost)
         peer.freshness == Freshness.FRESH -> ""
-        ageMs < 60_000L -> stringResource(R.string.share_age_seconds, (ageMs / 1000L).toInt())
-        else -> stringResource(R.string.share_age_minutes, (ageMs / 60_000L).toInt())
+        ageMs < 60_000L -> stringResource(Res.string.share_age_seconds, (ageMs / 1000L).toInt())
+        else -> stringResource(Res.string.share_age_minutes, (ageMs / 60_000L).toInt())
     }
     // Green while the fix is current, amber once it starts aging, muted
     // once the rider is gone: the same three states the map's markers use.

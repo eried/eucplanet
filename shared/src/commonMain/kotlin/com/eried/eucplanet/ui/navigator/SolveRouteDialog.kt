@@ -23,11 +23,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
+import com.eried.eucplanet.platform.rememberStringFormatter
+import com.eried.eucplanet.platform.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
-import com.eried.eucplanet.R
+import com.eried.eucplanet.resources.*
 import com.eried.eucplanet.data.model.TravelMode
 import com.eried.eucplanet.nav.NavFormat
 import com.eried.eucplanet.nav.RouteSolver
@@ -37,7 +37,6 @@ import com.eried.eucplanet.ui.settings.SegmentedChoice
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedSwitchColors
 import kotlin.math.roundToInt
-import com.eried.eucplanet.nav.distance
 
 /**
  * Optimize stop order: puts the stops in the shortest riding order. The
@@ -47,7 +46,7 @@ import com.eried.eucplanet.nav.distance
  */
 @Composable
 fun SolveRouteDialog(viewModel: RouteBuilderViewModel, imperial: Boolean, onClose: () -> Unit) {
-    val context = LocalContext.current
+    val navText = rememberStringFormatter()
     val state by viewModel.solve.collectAsState()
     val travelMode by viewModel.travelMode.collectAsState()
     val originBlock = remember { viewModel.solveOriginBlock() }
@@ -68,7 +67,7 @@ fun SolveRouteDialog(viewModel: RouteBuilderViewModel, imperial: Boolean, onClos
         containerColor = c.dialog,
         titleContentColor = c.textPrimary,
         textContentColor = c.textPrimary,
-        title = { Text(stringResource(R.string.nav_solve_menu)) },
+        title = { Text(stringResource(Res.string.nav_solve_menu)) },
         text = {
             when (val s = state) {
                 SolveState.Idle -> Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -76,42 +75,42 @@ fun SolveRouteDialog(viewModel: RouteBuilderViewModel, imperial: Boolean, onClos
                     // would solve the same table as Quick.
                     if (travelMode != TravelMode.STRAIGHT) {
                         ChoiceRow(
-                            label = stringResource(R.string.nav_solve_effort),
+                            label = stringResource(Res.string.nav_solve_effort),
                             options = listOf(
-                                SolveEffort.QUICK to stringResource(R.string.nav_solve_quick),
-                                SolveEffort.BEST to stringResource(R.string.nav_solve_best),
+                                SolveEffort.QUICK to stringResource(Res.string.nav_solve_quick),
+                                SolveEffort.BEST to stringResource(Res.string.nav_solve_best),
                             ),
                             selected = effort,
                             onSelect = { effort = it },
                         )
                         Text(
-                            stringResource(if (effort == SolveEffort.BEST) R.string.nav_solve_best_desc else R.string.nav_solve_quick_desc),
+                            stringResource(if (effort == SolveEffort.BEST) Res.string.nav_solve_best_desc else Res.string.nav_solve_quick_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = c.textSecondary,
                         )
                     }
                     ChoiceRow(
-                        label = stringResource(R.string.nav_solve_ends),
+                        label = stringResource(Res.string.nav_solve_ends),
                         options = listOf(
-                            RouteSolver.End.ANYWHERE to stringResource(R.string.nav_solve_end_anywhere),
-                            RouteSolver.End.LOOP to stringResource(R.string.nav_solve_end_loop),
-                            RouteSolver.End.KEEP_LAST to stringResource(R.string.nav_solve_end_keep_last),
+                            RouteSolver.End.ANYWHERE to stringResource(Res.string.nav_solve_end_anywhere),
+                            RouteSolver.End.LOOP to stringResource(Res.string.nav_solve_end_loop),
+                            RouteSolver.End.KEEP_LAST to stringResource(Res.string.nav_solve_end_keep_last),
                         ),
                         selected = end,
                         onSelect = { end = it },
                     )
                     Text(
                         stringResource(when (end) {
-                            RouteSolver.End.ANYWHERE -> R.string.nav_solve_end_anywhere_desc
-                            RouteSolver.End.LOOP -> R.string.nav_solve_end_loop_desc
-                            RouteSolver.End.KEEP_LAST -> R.string.nav_solve_end_keep_last_desc
+                            RouteSolver.End.ANYWHERE -> Res.string.nav_solve_end_anywhere_desc
+                            RouteSolver.End.LOOP -> Res.string.nav_solve_end_loop_desc
+                            RouteSolver.End.KEEP_LAST -> Res.string.nav_solve_end_keep_last_desc
                         }),
                         style = MaterialTheme.typography.bodySmall,
                         color = c.textSecondary,
                     )
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
-                            Text(stringResource(R.string.nav_solve_link_origin), style = MaterialTheme.typography.bodyMedium)
+                            Text(stringResource(Res.string.nav_solve_link_origin), style = MaterialTheme.typography.bodyMedium)
                             if (originBlock != null) {
                                 Text(originBlock, style = MaterialTheme.typography.bodySmall, color = c.textSecondary)
                             }
@@ -126,7 +125,7 @@ fun SolveRouteDialog(viewModel: RouteBuilderViewModel, imperial: Boolean, onClos
                     }
                 }
                 SolveState.Working -> Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text(stringResource(R.string.nav_solve_working), style = MaterialTheme.typography.bodyMedium)
+                    Text(stringResource(Res.string.nav_solve_working), style = MaterialTheme.typography.bodyMedium)
                     LinearProgressIndicator(
                         modifier = Modifier.fillMaxWidth(),
                         color = c.primary,
@@ -138,19 +137,19 @@ fun SolveRouteDialog(viewModel: RouteBuilderViewModel, imperial: Boolean, onClos
                         val pct = ((1.0 - s.afterM / s.beforeM) * 100).roundToInt()
                         Text(
                             stringResource(
-                                R.string.nav_solve_result,
-                                NavFormat.distance(context, s.beforeM, imperial),
-                                NavFormat.distance(context, s.afterM, imperial),
+                                Res.string.nav_solve_result,
+                                NavFormat.distance(navText, s.beforeM, imperial),
+                                NavFormat.distance(navText, s.afterM, imperial),
                                 pct,
                             ),
                             style = MaterialTheme.typography.bodyMedium,
                         )
                     } else {
-                        Text(stringResource(R.string.nav_solve_no_better), style = MaterialTheme.typography.bodyMedium)
+                        Text(stringResource(Res.string.nav_solve_no_better), style = MaterialTheme.typography.bodyMedium)
                     }
                     if (s.straight) {
                         Text(
-                            stringResource(R.string.nav_solve_straight_fallback),
+                            stringResource(Res.string.nav_solve_straight_fallback),
                             style = MaterialTheme.typography.bodySmall,
                             color = c.textSecondary,
                         )
@@ -164,18 +163,18 @@ fun SolveRouteDialog(viewModel: RouteBuilderViewModel, imperial: Boolean, onClos
                     onClick = { viewModel.solveRoute(effort, end, (linkOrigin || originRequired) && originBlock == null) },
                     shape = RoundedCornerShape(12.dp),
                     colors = buttonColors,
-                ) { Text(stringResource(R.string.nav_solve_run)) }
+                ) { Text(stringResource(Res.string.nav_solve_run)) }
                 SolveState.Working -> {}
                 is SolveState.Done -> if (improves(s)) TextButton(
                     onClick = { viewModel.applySolved(); onClose() },
                     shape = RoundedCornerShape(12.dp),
                     colors = buttonColors,
-                ) { Text(stringResource(R.string.action_apply)) }
+                ) { Text(stringResource(Res.string.action_apply)) }
             }
         },
         dismissButton = {
             TextButton(onClick = close, shape = RoundedCornerShape(12.dp), colors = buttonColors) {
-                Text(stringResource(if (state is SolveState.Done && !improves(state as SolveState.Done)) R.string.action_close else R.string.action_cancel))
+                Text(stringResource(if (state is SolveState.Done && !improves(state as SolveState.Done)) Res.string.action_close else Res.string.action_cancel))
             }
         },
     )

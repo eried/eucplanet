@@ -5,10 +5,10 @@ import com.eried.eucplanet.data.model.Waypoint
 import com.eried.eucplanet.nav.RouteLinks
 import com.eried.eucplanet.nav.SharedRoute
 import com.eried.eucplanet.share.ShareLinks
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
+import kotlin.test.Test
 
 /** The one scanner tells a route from a group ride, and refuses anything else. */
 class ScannedCodeTest {
@@ -21,7 +21,7 @@ class ScannedCodeTest {
         assertEquals(2, (code as ScannedCode.Route).route.stops.size)
     }
 
-    @Test fun `a group ride code joins, full link or bare fragment`() {
+    @Test fun `a group ride code joins - full link or bare fragment`() {
         val link = ShareLinks.format(ShareLinks.newLink())
         assertTrue(parseScannedCode(link) is ScannedCode.Join)
         assertTrue(parseScannedCode(link.substringAfter('#')) is ScannedCode.Join)

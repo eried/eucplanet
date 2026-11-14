@@ -178,7 +178,9 @@ fun NavGraph(navController: NavHostController) {
                 onExit = { navController.popSingle() },
                 onOpenNavSettings = {
                     navController.navigateSingle(Screen.Settings.createRoute(8))
-                }
+                },
+                viewModel = koinViewModel(),
+                host = com.eried.eucplanet.ui.navigator.rememberAndroidRouteBuilderHost(),
             )
         }
         composable(Screen.Recording.route) {

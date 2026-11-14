@@ -14,15 +14,14 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
+import com.eried.eucplanet.platform.rememberStringFormatter
+import com.eried.eucplanet.platform.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
-import com.eried.eucplanet.R
+import com.eried.eucplanet.resources.*
 import com.eried.eucplanet.nav.NavFormat
 import com.eried.eucplanet.ui.settings.NumberFieldWithDefault
 import com.eried.eucplanet.ui.theme.appColors
-import com.eried.eucplanet.nav.distance
 
 /**
  * Convert to stops, a dialog like Optimize stop order: the rider picks how
@@ -38,7 +37,7 @@ fun UnlockTrackDialog(
     onUnlock: () -> Unit,
 ) {
     val c = MaterialTheme.appColors
-    val context = LocalContext.current
+    val navText = rememberStringFormatter()
     // The rider counts stops, the ends and named places included.
     val fixed = state.line.size - state.added
     val buttons = ButtonDefaults.textButtonColors(contentColor = c.textButton)
@@ -48,11 +47,11 @@ fun UnlockTrackDialog(
         containerColor = c.dialog,
         titleContentColor = c.textPrimary,
         textContentColor = c.textPrimary,
-        title = { Text(stringResource(R.string.nav_unlock_title)) },
+        title = { Text(stringResource(Res.string.nav_unlock_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(
-                    stringResource(R.string.nav_unlock_warning),
+                    stringResource(Res.string.nav_unlock_warning),
                     style = MaterialTheme.typography.bodySmall,
                     color = c.textSecondary,
                 )
@@ -64,12 +63,12 @@ fun UnlockTrackDialog(
                         onValueChange = { onCount(it - fixed) },
                         range = fixed..(fixed + state.maxAdded),
                         default = fixed + state.recommendedAdded,
-                        label = stringResource(R.string.nav_unlock_stops),
+                        label = stringResource(Res.string.nav_unlock_stops),
                         modifier = Modifier.weight(1.4f),
                     )
                     Spacer(Modifier.width(10.dp))
                     Text(
-                        stringResource(R.string.nav_unlock_off, NavFormat.distance(context, state.maxOffM, imperial)),
+                        stringResource(Res.string.nav_unlock_off, NavFormat.distance(navText, state.maxOffM, imperial)),
                         style = MaterialTheme.typography.bodySmall,
                         color = c.textSecondary,
                         modifier = Modifier.weight(1f),
@@ -79,12 +78,12 @@ fun UnlockTrackDialog(
         },
         confirmButton = {
             TextButton(onClick = onUnlock, shape = RoundedCornerShape(12.dp), colors = buttons) {
-                Text(stringResource(R.string.nav_unlock_confirm))
+                Text(stringResource(Res.string.nav_unlock_confirm))
             }
         },
         dismissButton = {
             TextButton(onClick = onCancel, shape = RoundedCornerShape(12.dp), colors = buttons) {
-                Text(stringResource(R.string.action_cancel))
+                Text(stringResource(Res.string.action_cancel))
             }
         },
     )

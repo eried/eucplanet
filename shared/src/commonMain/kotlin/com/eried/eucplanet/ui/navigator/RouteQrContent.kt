@@ -39,16 +39,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.pluralStringResource
-import androidx.compose.ui.res.stringResource
+import com.eried.eucplanet.platform.pluralStringResource
+import com.eried.eucplanet.platform.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.eried.eucplanet.R
-import com.eried.eucplanet.ui.dashboard.QR_MAX_PX
-import com.eried.eucplanet.ui.dashboard.QrCodeImage
+import com.eried.eucplanet.resources.*
 import com.eried.eucplanet.ui.theme.appColors
-import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 
 /** Everything a route window layout shows and does; the layouts only arrange it. */
 internal class RouteQrUi(
@@ -67,9 +64,9 @@ internal class RouteQrUi(
 @Composable
 private fun summary(ui: RouteQrUi): String = when {
     ui.stopNames.size >= 2 ->
-        pluralStringResource(R.plurals.route_stop_count, ui.stopNames.size, ui.stopNames.size) + " · " + ui.distance
+        pluralStringResource(Res.plurals.route_stop_count, ui.stopNames.size, ui.stopNames.size) + " · " + ui.distance
     // One stop is a place to ride to: how far depends on where the friend starts.
-    ui.stopNames.size == 1 -> pluralStringResource(R.plurals.route_stop_count, 1, 1)
+    ui.stopNames.size == 1 -> pluralStringResource(Res.plurals.route_stop_count, 1, 1)
     else -> ui.distance
 }
 
@@ -77,9 +74,10 @@ private fun summary(ui: RouteQrUi): String = when {
 private fun RouteQrCode(link: String, modifier: Modifier = Modifier) {
     BoxWithConstraints(modifier.widthIn(max = shareBlockMaxWidth()).fillMaxWidth()) {
         val density = LocalDensity.current
-        val qrPx = remember(maxWidth, density) { with(density) { maxWidth.roundToPx() }.coerceAtMost(QR_MAX_PX) }
-        QrCodeImage(content = link, sizePx = qrPx, modifier = Modifier.fillMaxWidth().aspectRatio(1f),
-            ecc = ErrorCorrectionLevel.M)
+        val host = LocalRouteBuilderHost.current
+        val qrPx = remember(maxWidth, density) { with(density) { maxWidth.roundToPx() }.coerceAtMost(host.qrMaxPx) }
+        host.QrCode(content = link, sizePx = qrPx, modifier = Modifier.fillMaxWidth().aspectRatio(1f),
+            mediumEcc = true)
     }
 }
 
@@ -88,7 +86,7 @@ private fun CloseRow(onDismiss: () -> Unit) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
         TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.appColors.textButton)
-        ) { Text(stringResource(R.string.action_close)) }
+        ) { Text(stringResource(Res.string.action_close)) }
     }
 }
 
@@ -137,10 +135,10 @@ private fun LabeledAction(icon: ImageVector, label: String, modifier: Modifier, 
 @Composable
 private fun ActionRow(ui: RouteQrUi) {
     Row(Modifier.fillMaxWidth()) {
-        LabeledAction(Icons.Default.Share, stringResource(R.string.action_share), Modifier.weight(1f), ui.onShare)
-        LabeledAction(Icons.Default.QrCode, stringResource(R.string.route_qr_share_image), Modifier.weight(1f), ui.onShareImage)
-        LabeledAction(Icons.Default.ContentCopy, stringResource(R.string.share_copy), Modifier.weight(1f), ui.onCopy)
-        LabeledAction(Icons.Default.OpenInBrowser, stringResource(R.string.share_open), Modifier.weight(1f), ui.onOpen)
+        LabeledAction(Icons.Default.Share, stringResource(Res.string.action_share), Modifier.weight(1f), ui.onShare)
+        LabeledAction(Icons.Default.QrCode, stringResource(Res.string.route_qr_share_image), Modifier.weight(1f), ui.onShareImage)
+        LabeledAction(Icons.Default.ContentCopy, stringResource(Res.string.share_copy), Modifier.weight(1f), ui.onCopy)
+        LabeledAction(Icons.Default.OpenInBrowser, stringResource(Res.string.share_open), Modifier.weight(1f), ui.onOpen)
     }
 }
 

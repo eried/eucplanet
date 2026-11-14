@@ -2541,7 +2541,7 @@ data class MetricUnits(
 )
 
 /** How many stops at the head of [list] the rider has already reached. */
-fun passedPrefix(list: List<Waypoint>): Int =
+internal fun passedPrefix(list: List<Waypoint>): Int =
     list.indexOfFirst { !it.passed }.let { if (it < 0) list.size else it }
 
 /**
