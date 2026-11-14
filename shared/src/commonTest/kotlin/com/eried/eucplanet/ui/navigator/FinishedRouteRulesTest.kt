@@ -1,11 +1,11 @@
 package com.eried.eucplanet.ui.navigator
 
 import com.eried.eucplanet.data.model.Waypoint
-import com.eried.eucplanet.hud.protocol.MapLayers
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import com.eried.eucplanet.map.MapLayers
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
+import kotlin.test.Test
 
 /**
  * Reached stops are history: a rider who added a stop after arriving got a
@@ -39,7 +39,7 @@ class FinishedRouteRulesTest {
         assertNull(reorderKeepingPassed(list, 5, 0))
     }
 
-    @Test fun `satellite plus labels draws imagery, road names and place names`() {
+    @Test fun `satellite plus labels draws imagery - road names and place names`() {
         val hybrid = MapLayers.byId(MapLayers.SATELLITE_LABELS)
         assertEquals(MapLayers.SATELLITE_LABELS, hybrid.id)
         assertEquals(MapLayers.byId(MapLayers.SATELLITE).urlTemplate, hybrid.urlTemplate)

@@ -180,6 +180,7 @@ import com.eried.eucplanet.ui.common.DestructiveMenuItem
 import com.eried.eucplanet.ui.common.appMenuItemColors
 import org.koin.compose.viewmodel.koinViewModel
 import com.eried.eucplanet.nav.distance
+import com.eried.eucplanet.platform.getString
 
 /**
  * The Route Builder: a full-bleed Leaflet map (WebView) with a top search bar,
@@ -548,7 +549,7 @@ fun RouteBuilderScreen(
     // Course over ground from the fixes themselves: some providers send no
     // bearing, or a stuck one, and then heading-up never turned the map. The
     // anchor moves on once the rider is COURSE_MIN_M away from it.
-    val courseAnchor = remember { arrayOfNulls<android.location.Location>(1) }
+    val courseAnchor = remember { arrayOfNulls<com.eried.eucplanet.data.repository.PhoneLocation>(1) }
     var trackCourse by remember { mutableStateOf<Float?>(null) }
     // Speed over that same step, for a provider that sends no speed.
     val courseSpeedMs = remember { floatArrayOf(0f) }
@@ -562,10 +563,11 @@ fun RouteBuilderScreen(
             courseAnchor[0] = loc
             trackCourse = null
             courseSpeedMs[0] = 0f
-        } else if (anchor.distanceTo(loc) >= COURSE_MIN_M) {
-            trackCourse = (anchor.bearingTo(loc) + 360f) % 360f
+        } else if (com.eried.eucplanet.platform.distanceAndBearing(anchor.latitude, anchor.longitude, loc.latitude, loc.longitude)[0] >= COURSE_MIN_M) {
+            val step = com.eried.eucplanet.platform.distanceAndBearing(anchor.latitude, anchor.longitude, loc.latitude, loc.longitude)
+            trackCourse = (step[1] + 360f) % 360f
             val dtS = (loc.time - anchor.time) / 1000f
-            courseSpeedMs[0] = if (dtS > 0f) anchor.distanceTo(loc) / dtS else 0f
+            courseSpeedMs[0] = if (dtS > 0f) step[0] / dtS else 0f
             courseAnchor[0] = loc
         }
         // A connected wheel decides moving, as the navigation engine does:
@@ -759,7 +761,7 @@ fun RouteBuilderScreen(
 
     val saveLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/gpx+xml")
-    ) { uri -> uri?.let { viewModel.saveGpx(it) } }
+    ) { uri -> uri?.let { viewModel.saveGpx(it.toString()) } }
 
     val loadLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocument()
@@ -773,7 +775,7 @@ fun RouteBuilderScreen(
         if (needConfirm) {
             pendingGpxUri = uri
         } else {
-            viewModel.loadGpx(uri)
+            viewModel.loadGpx(uri.toString())
         }
     }
 
@@ -1555,7 +1557,7 @@ fun RouteBuilderScreen(
                                         }
                                     )
                                 },
-                                text = { Text(stringResource(layer.labelRes)) },
+                                text = { Text(com.eried.eucplanet.platform.stringResource(layer.labelRes)) },
                                 onClick = {
                                     viewModel.setMapTypePublic(layer.id)
                                     showLayerSheet = false
@@ -2079,7 +2081,7 @@ fun RouteBuilderScreen(
                     confirmButton = {
                         TextButton(onClick = {
                             pendingGpxUri = null
-                            viewModel.loadGpx(pendingUri)
+                            viewModel.loadGpx(pendingUri.toString())
                         }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.nav_menu_load_short)) }
                     },
                     dismissButton = {

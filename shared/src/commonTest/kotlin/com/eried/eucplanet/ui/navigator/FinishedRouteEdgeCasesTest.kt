@@ -1,9 +1,9 @@
 package com.eried.eucplanet.ui.navigator
 
 import com.eried.eucplanet.data.model.Waypoint
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
-import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
+import kotlin.test.Test
 
 /** Edge cases for keeping reached stops at the front. */
 class FinishedRouteEdgeCasesTest {

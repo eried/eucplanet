@@ -2,9 +2,9 @@ package com.eried.eucplanet.ui.navigator
 
 import com.eried.eucplanet.data.model.GeoPoint
 import com.eried.eucplanet.data.model.Waypoint
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
-import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
+import kotlin.test.Test
 
 /**
  * In Full path the engine never raises arrived for a stop in the middle of
@@ -20,7 +20,7 @@ class MarkPassedUpToTest {
 
     private fun flags(list: List<Waypoint>?) = list?.map { it.passed }
 
-    @Test fun `next stop is the first one, nothing is marked`() {
+    @Test fun `next stop is the first one - nothing is marked`() {
         val list = listOf(wp(0), wp(1), wp(2))
         assertNull(markPassedUpTo(list, at(0)))
     }

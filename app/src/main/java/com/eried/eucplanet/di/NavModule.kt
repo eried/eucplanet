@@ -42,4 +42,7 @@ val navModule = module {
     singleOf(::CurrentRouteStore)
     singleOf(::ShareSession) { bind<com.eried.eucplanet.share.LiveShare>() }
     singleOf(::PendingShareJoin)
+    single<com.eried.eucplanet.ui.navigator.RouteBuilderPorts> {
+        com.eried.eucplanet.ui.navigator.AndroidRouteBuilderPorts(androidContext(), get(), get())
+    }
 }

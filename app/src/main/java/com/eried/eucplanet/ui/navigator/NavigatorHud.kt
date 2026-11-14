@@ -64,14 +64,6 @@ import java.util.Date
 import kotlin.math.absoluteValue
 import com.eried.eucplanet.nav.distance
 
-/** The rider's display units for the navigator tiles, from the Units effective* helpers. */
-data class MetricUnits(
-    val speed: String,
-    val distance: String,
-    val temp: String,
-    val pressure: String,
-)
-
 /** Translucency of the navigator cards over the map, matching the map's other overlays. */
 private const val HUD_ALPHA = 0.90f
 

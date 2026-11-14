@@ -962,11 +962,6 @@ private fun Identity.asLeaderboardCard(): RiderCard = RiderCard(
     country = flag?.takeIf { it.length == 2 }?.let { countryName(it) },
 )
 
-/** The two halves of the group view. The QR is what the rider opens the dialog
- *  for while friends are still arriving; the rider list is what they open it
- *  for once the ride is under way. */
-enum class GroupTab { QR, CONNECTED }
-
 /**
  * The group view once the rider is in a ride: the code to hand out on one tab,
  * who is in on the other.

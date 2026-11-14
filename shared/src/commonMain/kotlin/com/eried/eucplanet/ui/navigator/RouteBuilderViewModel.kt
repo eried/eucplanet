@@ -1,14 +1,7 @@
 package com.eried.eucplanet.ui.navigator
 
-import android.content.Context
-import android.location.Location
-import android.net.Uri
-import android.provider.DocumentsContract
-import android.provider.OpenableColumns
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.GeoPoint
 import com.eried.eucplanet.data.model.NavMode
 import com.eried.eucplanet.data.model.NavRoute
@@ -20,10 +13,11 @@ import com.eried.eucplanet.data.model.ShareSettings
 import com.eried.eucplanet.data.model.TravelMode
 import com.eried.eucplanet.data.model.Waypoint
 import com.eried.eucplanet.data.repository.SettingsRepository
-import com.eried.eucplanet.data.repository.TripRepository
+import com.eried.eucplanet.data.repository.PhoneLocation
 import com.eried.eucplanet.nav.BBox
 import com.eried.eucplanet.nav.GeoMath
 import com.eried.eucplanet.nav.GeoResult
+import com.eried.eucplanet.nav.NavStrings
 import com.eried.eucplanet.nav.NavigationEngine
 import com.eried.eucplanet.nav.NavStartGuard
 import com.eried.eucplanet.nav.OcmCharger
@@ -42,10 +36,9 @@ import com.eried.eucplanet.share.Identity
 import com.eried.eucplanet.share.IdentityMode
 import com.eried.eucplanet.share.PendingShareJoin
 import com.eried.eucplanet.share.ShareLink
-import com.eried.eucplanet.share.ShareSession
+import com.eried.eucplanet.share.LiveShare
 import com.eried.eucplanet.share.ShareState
 import com.eried.eucplanet.share.ShareStats
-import com.eried.eucplanet.util.GpxIO
 import com.eried.eucplanet.util.Units
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -62,8 +55,13 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.json.JSONArray
-import org.json.JSONObject
+import com.eried.eucplanet.platform.JSONArray
+import com.eried.eucplanet.platform.JSONObject
+import com.eried.eucplanet.platform.Log
+import com.eried.eucplanet.platform.Math
+import com.eried.eucplanet.resources.*
+import kotlinx.coroutines.IO
+import org.jetbrains.compose.resources.StringResource
 
 /**
  * Backing state for the Route Builder screen: the ordered waypoint list, the
@@ -79,18 +77,17 @@ class RouteBuilderViewModel(
     private val poiService: PoiService,
     private val ocmService: OcmService,
     private val settingsRepository: SettingsRepository,
-    private val tripRepository: TripRepository,
+    private val ports: RouteBuilderPorts,
     private val navigationEngine: NavigationEngine,
     private val incomingShareRepository:
         com.eried.eucplanet.data.repository.IncomingShareRepository,
     private val currentRouteStore: com.eried.eucplanet.nav.CurrentRouteStore,
     private val navMarkerStore: com.eried.eucplanet.data.store.NavMarkerStore,
-    private val shareSession: ShareSession,
+    private val shareSession: LiveShare,
     private val pendingShareJoin: PendingShareJoin,
     private val wheelRepository: com.eried.eucplanet.data.repository.WheelRepository,
     private val tripMeterRepository: com.eried.eucplanet.data.repository.TripMeterRepository,
-    private val offlineTiles: com.eried.eucplanet.nav.offline.OfflineTiles,
-    private val context: Context
+    private val strings: NavStrings,
 ) : ViewModel() {
 
     /** The group dialog's last tab. Lives as long as the app process, not on
@@ -119,14 +116,14 @@ class RouteBuilderViewModel(
         // provider names also say what you get, where "Light" and "Dark" did
         // not.
         val MAP_LAYERS = listOf(
-            MapLayer("OSM", com.eried.eucplanet.R.string.nav_layer_osm),
-            MapLayer("CYCLOSM", com.eried.eucplanet.R.string.nav_layer_cyclosm),
-            MapLayer("TOPO", com.eried.eucplanet.R.string.nav_layer_topo),
-            MapLayer("HUMANITARIAN", com.eried.eucplanet.R.string.nav_layer_humanitarian),
-            MapLayer("LIGHT", com.eried.eucplanet.R.string.nav_layer_light),
-            MapLayer("DARK", com.eried.eucplanet.R.string.nav_layer_dark),
-            MapLayer("SATELLITE", com.eried.eucplanet.R.string.nav_layer_satellite),
-            MapLayer("SATELLITE_LABELS", com.eried.eucplanet.R.string.nav_layer_satellite_labels),
+            MapLayer("OSM", Res.string.nav_layer_osm),
+            MapLayer("CYCLOSM", Res.string.nav_layer_cyclosm),
+            MapLayer("TOPO", Res.string.nav_layer_topo),
+            MapLayer("HUMANITARIAN", Res.string.nav_layer_humanitarian),
+            MapLayer("LIGHT", Res.string.nav_layer_light),
+            MapLayer("DARK", Res.string.nav_layer_dark),
+            MapLayer("SATELLITE", Res.string.nav_layer_satellite),
+            MapLayer("SATELLITE_LABELS", Res.string.nav_layer_satellite_labels),
         )
 
         /** Unlock track opens with the fewest stops that keep this close. */
@@ -332,9 +329,9 @@ class RouteBuilderViewModel(
     private val _mapRender = MutableStateFlow(MapRender(0, false))
     val mapRender: StateFlow<MapRender> = _mapRender.asStateFlow()
 
-    /** One-shot user messages (string resource ids) shown as snackbars. */
-    private val _messages = MutableSharedFlow<Int>(extraBufferCapacity = 6)
-    val messages: SharedFlow<Int> = _messages.asSharedFlow()
+    /** One-shot user messages (shared strings) shown as snackbars. */
+    private val _messages = MutableSharedFlow<StringResource>(extraBufferCapacity = 6)
+    val messages: SharedFlow<StringResource> = _messages.asSharedFlow()
 
     /** One-shot pre-formatted toast strings (a distance etc. that the
      *  resource-id [_messages] channel cannot carry). Screen shows them as
@@ -342,11 +339,11 @@ class RouteBuilderViewModel(
     private val _toasts = MutableSharedFlow<String>(extraBufferCapacity = 2)
     val toasts: SharedFlow<String> = _toasts.asSharedFlow()
 
-    val currentLocation: StateFlow<Location?> = tripRepository.currentLocation
+    val currentLocation: StateFlow<PhoneLocation?> = ports.currentLocation
 
     /** Any-age position, for framing the map when there is no live fix. See
-     *  [com.eried.eucplanet.data.repository.TripRepository.lastKnownLocation]. */
-    val lastKnownLocation: StateFlow<Location?> = tripRepository.lastKnownLocation
+     *  [RouteBuilderPorts.lastKnownLocation]. */
+    val lastKnownLocation: StateFlow<PhoneLocation?> = ports.lastKnownLocation
 
     val imperialUnits: StateFlow<Boolean> = settingsRepository.settings
         .map { com.eried.eucplanet.util.Units.effectiveDistanceUnit(it) == "mi" }
@@ -361,13 +358,13 @@ class RouteBuilderViewModel(
         .map { Units.effectiveTempUnit(it) }
         .stateIn(viewModelScope, SharingStarted.Eagerly, "C")
 
-    /** The relay host the group view names in its header. `Uri.host` drops the
+    /** The relay host the group view names in its header. [uriHost] drops the
      *  scheme, any port, and any path, so a self-hosted `wss://relay.example.com/ws`
      *  still renders as just the server a rider would recognise. Falls back to
-     *  the raw value on the rare relay URL `Uri` cannot parse a host from. */
+     *  the raw value on the rare relay URL it cannot read a host from. */
     val relayHost: StateFlow<String> = settingsRepository.settings
-        .map { Uri.parse(it.share.relayUrl).host ?: it.share.relayUrl }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, Uri.parse(ShareSettings.DEFAULT_RELAY_URL).host.orEmpty())
+        .map { uriHost(it.share.relayUrl) ?: it.share.relayUrl }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, uriHost(ShareSettings.DEFAULT_RELAY_URL).orEmpty())
 
     /** Landscape sidebar side for the stops panel: "DEFAULT", "LEFT" or "RIGHT". */
     val navStopsSide: StateFlow<String> = settingsRepository.settings
@@ -391,7 +388,7 @@ class RouteBuilderViewModel(
     /** Route avoidances; all-off (the default) keeps routing on OSRM. */
     private var avoidances = RouteAvoidances.NONE
     private var overpassUrl = PoiService.DEFAULT_OVERPASS
-    private var routeName = context.getString(R.string.nav_default_route_name)
+    private var routeName = strings.text(Res.string.nav_default_route_name)
 
     // Declared above init{}: the init coroutine can resume synchronously (an
     // already-cached settings read) and touch these before properties declared
@@ -493,7 +490,7 @@ class RouteBuilderViewModel(
         // The route builder needs a live fix for the "my location" button.
         // WheelService owns the GPS lifecycle in general; this is an idempotent
         // nudge so location works even when no wheel is connected.
-        tripRepository.startLocationUpdates()
+        ports.startLocationUpdates()
 
         // Consume any "Share to EUC Planet" hand-off pending from MainActivity.
         // Runs on every Pending update so multiple shares in a session are all
@@ -702,7 +699,7 @@ class RouteBuilderViewModel(
         // Position 0 is always the rider, so a fresh fix shifts the route's
         // origin, recompute the preview once they have moved far enough.
         viewModelScope.launch {
-            tripRepository.currentLocation.collect { loc ->
+            currentLocation.collect { loc ->
                 if (loc == null || _waypoints.value.isEmpty()) return@collect
                 val last = lastRouteOrigin
                 val moved = last == null || GeoMath.distanceM(
@@ -753,7 +750,7 @@ class RouteBuilderViewModel(
         // With a POI layer on but no route, search around the rider's position;
         // refresh as they move (refreshPois dedupes by a coarse grid).
         viewModelScope.launch {
-            tripRepository.currentLocation.collect {
+            currentLocation.collect {
                 if (_waypoints.value.isEmpty() && enabledCategories().isNotEmpty()) refreshPois()
             }
         }
@@ -796,7 +793,7 @@ class RouteBuilderViewModel(
         req: com.eried.eucplanet.data.repository.IncomingShareRepository.Pending
     ) {
         if (navigationEngine.isActive) {
-            _messages.tryEmit(R.string.nav_cant_add_while_running)
+            _messages.tryEmit(Res.string.nav_cant_add_while_running)
             return
         }
         req.route?.let { openSharedRoute(it); return }
@@ -871,7 +868,7 @@ class RouteBuilderViewModel(
         if (q.startsWith("http", ignoreCase = true)) {
             viewModelScope.launch {
                 val resolved = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                    resolveShortlink(q)
+                    ports.resolveShortLink(q)
                 }
                 val reparsed: com.eried.eucplanet.data.repository.IncomingShareRepository.Pending? =
                     resolved?.let {
@@ -886,7 +883,7 @@ class RouteBuilderViewModel(
                     // Surface the raw URL so the rider sees what we got;
                     // they can edit it into a real address by hand.
                     _fillSearchText.tryEmit(q)
-                    _messages.tryEmit(R.string.nav_search_no_results)
+                    _messages.tryEmit(Res.string.nav_search_no_results)
                 }
             }
             return
@@ -895,49 +892,6 @@ class RouteBuilderViewModel(
         // what was shared, then run the search so the results list opens.
         _fillSearchText.tryEmit(q)
         search(q)
-    }
-
-    /**
-     * Follow HTTP redirects (up to 5 hops) to expand a shortened map URL
-     * into its full `google.com/maps/...@lat,lng,zoom...` form. Returns
-     * the final URL, or null on any IO error.
-     *
-     * `maps.app.goo.gl` typically chains 2-3 redirects: shortlink ->
-     * `www.google.com/maps?...` -> `consent.google.com/?continue=...` ->
-     * actual maps page with `@lat,lng`. We follow them all manually
-     * (instanceFollowRedirects is too eager for cross-host hops on
-     * Android).
-     */
-    private fun resolveShortlink(url: String): String? {
-        return try {
-            var current = url
-            repeat(5) {
-                val conn = (java.net.URL(current).openConnection() as java.net.HttpURLConnection).apply {
-                    instanceFollowRedirects = false
-                    requestMethod = "GET"
-                    connectTimeout = 4000
-                    readTimeout = 4000
-                    setRequestProperty("User-Agent", "Mozilla/5.0 (Android) EucPlanet")
-                }
-                try {
-                    val code = conn.responseCode
-                    if (code !in 300..399) {
-                        // Reached a 2xx (or error). Return the URL we tried.
-                        return current
-                    }
-                    val loc = conn.getHeaderField("Location")
-                    if (loc.isNullOrBlank()) return current
-                    current = if (loc.startsWith("http", ignoreCase = true)) loc
-                              else java.net.URL(java.net.URL(current), loc).toString()
-                } finally {
-                    conn.disconnect()
-                }
-            }
-            current
-        } catch (e: Exception) {
-            android.util.Log.w("EucShare", "shortlink resolve failed: $e")
-            null
-        }
     }
 
     /**
@@ -995,7 +949,7 @@ class RouteBuilderViewModel(
      */
     private fun lockedRefuses(): Boolean {
         if (_track.value.size < 2) return false
-        _messages.tryEmit(R.string.nav_track_locked)
+        _messages.tryEmit(Res.string.nav_track_locked)
         bumpRender(fit = false)
         return true
     }
@@ -1009,7 +963,7 @@ class RouteBuilderViewModel(
     private fun addWaypointNow(lat: Double, lng: Double, name: String, fit: Boolean) {
         if (lockedRefuses()) return
         if (_waypoints.value.size >= MAX_WAYPOINTS) {
-            _messages.tryEmit(R.string.nav_max_stops)
+            _messages.tryEmit(Res.string.nav_max_stops)
             return
         }
         // The new stop connects to the last non-passed stop, or to the rider
@@ -1044,7 +998,7 @@ class RouteBuilderViewModel(
         if (holdIfFinished { insertWaypointOnRoute(lat, lng, name) }) return
         val dests = _waypoints.value
         if (dests.size >= MAX_WAYPOINTS) {
-            _messages.tryEmit(R.string.nav_max_stops)
+            _messages.tryEmit(Res.string.nav_max_stops)
             return
         }
         if (dests.isEmpty()) {
@@ -1159,12 +1113,12 @@ class RouteBuilderViewModel(
      * draws no line from the rider and blocks Start).
      */
     fun solveOriginBlock(): String? {
-        val loc = currentLocation.value ?: return context.getString(R.string.nav_solve_origin_no_fix)
+        val loc = currentLocation.value ?: return strings.text(Res.string.nav_solve_origin_no_fix)
         val me = GeoPoint(loc.latitude, loc.longitude)
         val maxKm = advanced.value.navMaxStartDistanceKm
         val stops = _waypoints.value.drop(passedPrefix(_waypoints.value))
         if (stops.any { NavStartGuard.originWithinStart(me, it.point(), maxKm) }) return null
-        return context.getString(R.string.nav_solve_origin_too_far)
+        return strings.text(Res.string.nav_solve_origin_too_far)
     }
 
     fun solveRoute(effort: SolveEffort, end: RouteSolver.End, linkOrigin: Boolean) {
@@ -1226,7 +1180,7 @@ class RouteBuilderViewModel(
             cacheDraft()
             scheduleRecompute(fit = true)
         }
-        _messages.tryEmit(R.string.nav_route_reversed)
+        _messages.tryEmit(Res.string.nav_route_reversed)
     }
 
     fun cancelSolve() {
@@ -1294,7 +1248,7 @@ class RouteBuilderViewModel(
     }
 
 
-    fun recenterOnUser(): Location? = currentLocation.value
+    fun recenterOnUser(): PhoneLocation? = currentLocation.value
 
     // --- Map style ---------------------------------------------------------------
 
@@ -1336,7 +1290,7 @@ class RouteBuilderViewModel(
      * why offroad trails were hard to make out on it. CYCLOSM and TOPO are the
      * two that draw tracks, paths and surfaces with real contrast.
      */
-    data class MapLayer(val id: String, val labelRes: Int)
+    data class MapLayer(val id: String, val labelRes: StringResource)
 
     // --- Address search ----------------------------------------------------------
 
@@ -1352,7 +1306,7 @@ class RouteBuilderViewModel(
             // No signal: say so rather than "no results" for every word.
             if (!routingService.isOnline()) {
                 _searchResults.value = emptyList()
-                _messages.tryEmit(R.string.nav_search_offline)
+                _messages.tryEmit(Res.string.nav_search_offline)
                 return@launch
             }
             _searching.value = true
@@ -1378,7 +1332,7 @@ class RouteBuilderViewModel(
             }
             _searchResults.value = results
             _searching.value = false
-            if (results.isEmpty()) _messages.tryEmit(R.string.nav_no_results)
+            if (results.isEmpty()) _messages.tryEmit(Res.string.nav_no_results)
         }
     }
 
@@ -1525,7 +1479,7 @@ class RouteBuilderViewModel(
         routeJob = viewModelScope.launch {
             delay(300)
             val computed = routingService.route(routeName, navWps, mode, routerUrl, avoidances, valhalla = valhallaUrl) ?: run {
-                _messages.tryEmit(R.string.nav_route_failed)
+                _messages.tryEmit(Res.string.nav_route_failed)
                 RoutingService.straightLineRoute(routeName, navWps)
             }
             // The rider stays out of the listed waypoints; only destinations
@@ -1586,12 +1540,13 @@ class RouteBuilderViewModel(
 
     // --- GPX import / export -----------------------------------------------------
 
-    fun loadGpx(uri: Uri) {
+    /** Opens the GPX file the rider picked; [file] is the picker's handle. */
+    fun loadGpx(file: String) {
         viewModelScope.launch {
             try {
-                val gpx = context.contentResolver.openInputStream(uri)?.use { GpxIO.parse(it) }
+                val gpx = ports.readGpx(file)
                 if (gpx == null) {
-                    _messages.tryEmit(R.string.nav_load_failed)
+                    _messages.tryEmit(Res.string.nav_load_failed)
                     return@launch
                 }
                 when (val c = gpx.contents()) {
@@ -1605,17 +1560,17 @@ class RouteBuilderViewModel(
                     }
                     is com.eried.eucplanet.util.GpxData.Contents.Track -> {
                         applyTrack(gpx.name, c.track, c.places)
-                        _messages.tryEmit(R.string.nav_track_loaded_locked)
+                        _messages.tryEmit(Res.string.nav_track_loaded_locked)
                     }
                     com.eried.eucplanet.util.GpxData.Contents.Nothing -> {
-                        _messages.tryEmit(R.string.nav_load_failed)
+                        _messages.tryEmit(Res.string.nav_load_failed)
                         return@launch
                     }
                 }
                 _routeClean.value = true
             } catch (e: Exception) {
                 Log.w("RouteBuilder", "loadGpx failed", e)
-                _messages.tryEmit(R.string.nav_load_failed)
+                _messages.tryEmit(Res.string.nav_load_failed)
             }
         }
     }
@@ -1725,7 +1680,7 @@ class RouteBuilderViewModel(
         }
         cacheDraft()
         scheduleRecompute(fit = false)
-        _messages.tryEmit(R.string.nav_track_unlocked)
+        _messages.tryEmit(Res.string.nav_track_unlocked)
     }
 
     /**
@@ -1735,7 +1690,7 @@ class RouteBuilderViewModel(
      */
     fun openSharedRoute(route: com.eried.eucplanet.nav.SharedRoute) {
         if (navigationEngine.isActive) {
-            _messages.tryEmit(R.string.nav_cant_add_while_running)
+            _messages.tryEmit(Res.string.nav_cant_add_while_running)
             return
         }
         if (_waypoints.value.isNotEmpty() && !_routeClean.value) _pendingRoute.value = route
@@ -1755,7 +1710,7 @@ class RouteBuilderViewModel(
     fun dismissPendingRoute() { _pendingRoute.value = null }
 
     private fun applySharedRoute(route: com.eried.eucplanet.nav.SharedRoute) {
-        val name = route.name ?: context.getString(R.string.nav_default_route_name)
+        val name = route.name ?: strings.text(Res.string.nav_default_route_name)
         if (route.stops.isNotEmpty()) {
             routeName = name
             _track.value = emptyList()
@@ -1769,7 +1724,7 @@ class RouteBuilderViewModel(
         }
         _routeClean.value = true
         _messages.tryEmit(
-            if (route.stops.isEmpty()) R.string.nav_track_loaded_locked else R.string.route_opened
+            if (route.stops.isEmpty()) Res.string.nav_track_loaded_locked else Res.string.route_opened
         )
     }
 
@@ -1798,7 +1753,8 @@ class RouteBuilderViewModel(
     fun suggestedFileName(): String =
         RouteFileName.suggest(_waypoints.value.map { it.name }) + ".gpx"
 
-    fun saveGpx(uri: Uri) {
+    /** Saves the route to the file the rider created; [file] is the picker's handle. */
+    fun saveGpx(file: String) {
         viewModelScope.launch {
             try {
                 // Save a stops-only route so the <trk> never starts at the
@@ -1818,32 +1774,19 @@ class RouteBuilderViewModel(
                         routingService.route(routeName, stops, saveMode, routerUrl, avoidances, valhalla = valhallaUrl)
                             ?: RoutingService.straightLineRoute(routeName, stops)
                 }
-                // Keep the .gpx extension even if the rider cleared it in the
-                // system save dialog; otherwise the file is hard to spot and
-                // won't filter back into the open dialog later.
-                val target = ensureGpxExtension(uri)
-                context.contentResolver.openOutputStream(target)?.use { GpxIO.write(route, it) }
+                // The port keeps the .gpx extension even if the rider cleared
+                // it in the system save dialog.
+                ports.writeGpx(file, route)
                 _routeClean.value = true
                 // Confirm the save: a long file-picker round-trip without any
                 // visible feedback feels like nothing happened. Failure is
                 // already surfaced below; this is the success counterpart.
-                _messages.tryEmit(R.string.nav_route_saved)
+                _messages.tryEmit(Res.string.nav_route_saved)
             } catch (e: Exception) {
                 Log.w("RouteBuilder", "saveGpx failed", e)
-                _messages.tryEmit(R.string.nav_save_failed)
+                _messages.tryEmit(Res.string.nav_save_failed)
             }
         }
-    }
-
-    /** Renames the just-created document to append ".gpx" when it is missing. */
-    private fun ensureGpxExtension(uri: Uri): Uri {
-        val name = context.contentResolver.query(
-            uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null
-        )?.use { c -> if (c.moveToFirst()) c.getString(0) else null } ?: return uri
-        if (name.endsWith(".gpx", ignoreCase = true)) return uri
-        return runCatching {
-            DocumentsContract.renameDocument(context.contentResolver, uri, "$name.gpx")
-        }.getOrNull() ?: uri
     }
 
     // --- Map data ----------------------------------------------------------------
@@ -1963,8 +1906,7 @@ class RouteBuilderViewModel(
      *  like the dashboard's; -1 when unavailable. Runs only while collected. */
     val phoneBatteryPercent: StateFlow<Int> = kotlinx.coroutines.flow.flow {
         while (true) {
-            val bm = context.getSystemService(Context.BATTERY_SERVICE) as? android.os.BatteryManager
-            emit(bm?.getIntProperty(android.os.BatteryManager.BATTERY_PROPERTY_CAPACITY) ?: -1)
+            emit(ports.phoneBatteryPercent())
             delay(30_000L)
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), -1)
@@ -2026,7 +1968,7 @@ class RouteBuilderViewModel(
         // First time the rider enables places, point them at the long-press menu.
         if (turningOn && !placesHintShown) {
             placesHintShown = true
-            _messages.tryEmit(R.string.nav_pois_places_hint)
+            _messages.tryEmit(Res.string.nav_pois_places_hint)
             viewModelScope.launch {
                 settingsRepository.update(settingsRepository.get().copy(navPlacesHintShown = true))
             }
@@ -2163,7 +2105,7 @@ class RouteBuilderViewModel(
             }
             _chargerLoading.value = false
             if (result != null) { _chargerPois.value = result; publishPois() }
-            if (userInitiated && result == null) _messages.tryEmit(R.string.nav_pois_failed)
+            if (userInitiated && result == null) _messages.tryEmit(Res.string.nav_pois_failed)
         }
     }
 
@@ -2194,8 +2136,8 @@ class RouteBuilderViewModel(
             _placeLoading.value = false
             if (result != null) { _placePois.value = result; publishPois() }
             if (userInitiated) {
-                if (result == null) _messages.tryEmit(R.string.nav_pois_failed)
-                else if (result.isEmpty()) _messages.tryEmit(R.string.nav_pois_none)
+                if (result == null) _messages.tryEmit(Res.string.nav_pois_failed)
+                else if (result.isEmpty()) _messages.tryEmit(Res.string.nav_pois_none)
             }
         }
     }
@@ -2232,7 +2174,7 @@ class RouteBuilderViewModel(
         if (holdIfFinished { addPoiAsStop(poi) }) return
         val dests = _waypoints.value
         if (dests.size >= MAX_WAYPOINTS) {
-            _messages.tryEmit(R.string.nav_max_stops)
+            _messages.tryEmit(Res.string.nav_max_stops)
             return
         }
         val name = poi.name.ifBlank { poi.brand }
@@ -2301,8 +2243,7 @@ class RouteBuilderViewModel(
 
     /** Squares being downloaded now: they count as there, so a rider who
      *  just started the download is not asked again. */
-    private val downloadingTiles: StateFlow<Set<String>> = offlineTiles.progress
-        .map { it.keys }
+    private val downloadingTiles: StateFlow<Set<String>> = ports.downloadingTiles
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptySet())
 
     /**
@@ -2331,8 +2272,8 @@ class RouteBuilderViewModel(
         return withContext(Dispatchers.IO) {
             com.eried.eucplanet.nav.offline.OfflineRideCheck.missing(
                 listOf(me) + line,
-                has = { offlineTiles.store.has(it) || it in busy },
-                served = offlineTiles.served(),
+                has = { ports.hasTile(it) || it in busy },
+                served = ports.servedTiles(),
             )
         }
     }
@@ -2359,12 +2300,12 @@ class RouteBuilderViewModel(
         if (startJob?.isActive == true) return
         val dests = _waypoints.value
         if (dests.isEmpty()) {
-            _messages.tryEmit(R.string.nav_need_destination)
+            _messages.tryEmit(Res.string.nav_need_destination)
             return
         }
         val loc = currentLocation.value
         if (loc == null) {
-            _messages.tryEmit(R.string.nav_no_location)
+            _messages.tryEmit(Res.string.nav_no_location)
             return
         }
         // Block starting when the first stop is too far to ride to now, unless
@@ -2374,7 +2315,7 @@ class RouteBuilderViewModel(
             val originPt = GeoPoint(loc.latitude, loc.longitude)
             val firstStop = (dests.firstOrNull { !it.passed } ?: dests.first()).point()
             if (!NavStartGuard.originWithinStart(originPt, firstStop, advanced.value.navMaxStartDistanceKm)) {
-                _toasts.tryEmit(context.getString(R.string.nav_too_far_to_start))
+                _toasts.tryEmit(strings.text(Res.string.nav_too_far_to_start))
                 return
             }
         }
@@ -2531,7 +2472,7 @@ class RouteBuilderViewModel(
     suspend fun profileIdentity(): Identity? = resolveProfile()
 
     /**
-     * Mirrors [ShareSession.resolveDefaultIdentity] but routes the PROFILE case
+     * Mirrors ShareSession.resolveDefaultIdentity but routes the PROFILE case
      * through [resolveProfile], so re-opening the dialog does not re-fetch a
      * profile this screen already has.
      */
@@ -2545,7 +2486,7 @@ class RouteBuilderViewModel(
     suspend fun identityFor(mode: IdentityMode, name: String, stats: Boolean): Identity {
         if (mode == IdentityMode.PROFILE) {
             resolveProfile()?.let { return it.copy(shareStats = stats) }
-            // Nothing linked: the same fallback ShareSession would have made,
+            // Nothing linked: the same fallback the share session would have made,
             // without going back to disk for an answer we already have.
             return identityFor(IdentityMode.SESSION, name, stats)
         }
@@ -2561,14 +2502,14 @@ class RouteBuilderViewModel(
      */
     fun startShare(identity: Identity) = viewModelScope.launch {
         runCatching { shareSession.start(identity) }
-            .onFailure { _messages.tryEmit(R.string.share_cannot_reach) }
+            .onFailure { _messages.tryEmit(Res.string.share_cannot_reach) }
     }
 
     fun joinShare(link: ShareLink, identity: Identity) = viewModelScope.launch {
         runCatching {
             shareSession.join(link, identity)
             pendingShareJoin.clear()
-        }.onFailure { _messages.tryEmit(R.string.share_cannot_reach) }
+        }.onFailure { _messages.tryEmit(Res.string.share_cannot_reach) }
     }
 
     fun leaveShare() = shareSession.leave()
@@ -2586,8 +2527,21 @@ class RouteBuilderViewModel(
     }
 }
 
+/** The two halves of the group view. The QR is what the rider opens the dialog
+ *  for while friends are still arriving; the rider list is what they open it
+ *  for once the ride is under way. */
+enum class GroupTab { QR, CONNECTED }
+
+/** The rider's display units for the navigator tiles, from the Units effective* helpers. */
+data class MetricUnits(
+    val speed: String,
+    val distance: String,
+    val temp: String,
+    val pressure: String,
+)
+
 /** How many stops at the head of [list] the rider has already reached. */
-internal fun passedPrefix(list: List<Waypoint>): Int =
+fun passedPrefix(list: List<Waypoint>): Int =
     list.indexOfFirst { !it.passed }.let { if (it < 0) list.size else it }
 
 /**
@@ -2623,4 +2577,40 @@ internal fun markPassedUpTo(
     val end = if (inclusive) k + 1 else k
     if ((0 until end).none { !list[it].passed }) return null
     return list.mapIndexed { i, w -> if (i < end && !w.passed) w.copy(passed = true) else w }
+}
+
+/**
+ * The host of [url], as `android.net.Uri.parse(url).host` reads it: the part
+ * after `scheme://` up to the path, without user info or port. Null when
+ * there is no `//` authority.
+ */
+internal fun uriHost(url: String): String? {
+    val ssi = url.indexOf(':')
+    if (!(url.length > ssi + 2 && url[ssi + 1] == '/' && url[ssi + 2] == '/')) return null
+    val start = ssi + 3
+    var end = start
+    while (end < url.length && url[end] !in "/\\?#") end++
+    val authority = url.substring(start, end)
+    val at = authority.lastIndexOf('@')
+    val colon = authority.lastIndexOf(':')
+    val bracket = authority.lastIndexOf(']')
+    val portAt = if (colon > at && colon > bracket) colon else authority.length
+    return percentDecode(authority.substring(at + 1, portAt))
+}
+
+/** `Uri.decode`: %XX escapes as UTF-8, a broken escape kept as written. */
+private fun percentDecode(s: String): String {
+    if ('%' !in s) return s
+    val out = ArrayList<Byte>(s.length)
+    var i = 0
+    while (i < s.length) {
+        val c = s[i]
+        val v = if (c == '%' && i + 2 < s.length) s.substring(i + 1, i + 3).takeIf { h -> h.all { it in '0'..'9' || it in 'a'..'f' || it in 'A'..'F' } }?.toInt(16) else null
+        if (v != null) {
+            out.add(v.toByte()); i += 3
+        } else {
+            c.toString().encodeToByteArray().forEach { out.add(it) }; i++
+        }
+    }
+    return out.toByteArray().decodeToString()
 }

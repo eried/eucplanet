@@ -15,7 +15,7 @@ import java.io.File
 class RouteBuilderInitOrderTest {
 
     @Test fun `every flow addWaypoint writes is declared above init`() {
-        val src = File("src/main/java/com/eried/eucplanet/ui/navigator/RouteBuilderViewModel.kt").readText()
+        val src = File("src/commonMain/kotlin/com/eried/eucplanet/ui/navigator/RouteBuilderViewModel.kt").readText()
         val init = src.indexOf("\n    init {")
         assertTrue("no init block found", init > 0)
         for (flow in listOf("_waypoints", "_lastAddedPresetKind", "_route", "_messages")) {
@@ -28,7 +28,7 @@ class RouteBuilderInitOrderTest {
     /** A share into a fresh view model must see the planned stops, or it skips
      *  the "Add shared destination?" question and replaces the route. */
     @Test fun `shares wait for the route to be restored`() {
-        val src = File("src/main/java/com/eried/eucplanet/ui/navigator/RouteBuilderViewModel.kt").readText()
+        val src = File("src/commonMain/kotlin/com/eried/eucplanet/ui/navigator/RouteBuilderViewModel.kt").readText()
         val wait = src.indexOf("restoreReady.await()")
         val collect = src.indexOf("incomingShareRepository.pending.collect")
         assertTrue("shares are not gated on the restore", wait in 1 until collect)
