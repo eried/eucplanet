@@ -115,29 +115,17 @@ compose.resources {
     )
 }
 
-// The iPhone's trip map inlines the same Leaflet the phone app ships in its
-// assets, so it draws without the CDN. iOS resources only: the APK already
-// carries these files.
-val iosLeaflet = tasks.register<Sync>("generateIosLeaflet") {
-    from(rootProject.file("app/src/main/assets")) { include("leaflet.js", "leaflet.css") }
-    into(layout.buildDirectory.dir("generated/iosLeaflet/files"))
-}
-compose.resources {
-    customDirectory(
-        sourceSetName = "iosMain",
-        directoryProvider = iosLeaflet.map { layout.buildDirectory.dir("generated/iosLeaflet").get() },
-    )
-}
-
 // The welcome tour's clip and the launcher artwork for About, from the phone
-// app's assets and drawables, and the recorded engines' grain banks from its
-// res/raw for the motor sound (IosEngineAudio reads files/grain_*.bin). iOS
-// resources only: the APK already carries them, so each stays one copy.
-// The banks share this directory: a third customDirectory on iosMain left
-// the drawable accessors ungenerated.
+// app's assets and drawables, the recorded engines' grain banks from its
+// res/raw for the motor sound (IosEngineAudio reads files/grain_*.bin), and
+// the Leaflet (with the route builder's rotation plugin) the trip map and the
+// route builder inline, so they draw without the CDN. iOS resources only: the
+// APK already carries them, so each stays one copy. All share this one
+// directory: iosMain takes a single customDirectory, a second one silently
+// replaced the first (the Leaflet was missing from the app that way).
 val iosAppArt = tasks.register<Sync>("generateIosAppArt") {
     from(rootProject.file("app/src/main/assets")) {
-        include("welcome_clip.webp")
+        include("welcome_clip.webp", "leaflet.js", "leaflet.css", "leaflet-rotate.js")
         into("files")
     }
     from(rootProject.file("app/src/main/res/raw")) {
