@@ -18,7 +18,7 @@ only when you can cut the ride short.
 - iPhone app: music no longer stays quieter after an alarm beep, and While speaking (lower, pause or leave other audio) works as on Android.
 - iPhone app: Pause and Play/Pause pause your music and let it resume (Next, Previous and Start music are not offered, iOS does not allow them). Weather settings open under Navigation and weather. Permission prompts are in your language. Voice and alarms keep sounding with the screen locked. The horn can play your own sound (Settings, Wheel parameters, Horn).
 - iPhone app: the Needs attention warnings (location, Bluetooth, notifications, backups), and a recording cut short by closing the app is saved or dropped at the next start, as on Android.
-- Inside: the dashboard, settings, alarms, trips, trip details, trip tools, Legal Mode, the notification buttons, the reconnect timing, leaderboards, Dropbox sync, the wheel link, the theme editor, the automations and what runs on connect and every wheel update moved to a library shared with the iPhone. Nothing should change on screen.
+- Inside: the dashboard, settings, alarms, trips, trip details, trip tools, Legal Mode, the notification buttons, the reconnect timing, leaderboards, Dropbox sync, the wheel link, the theme editor, the automations, what runs on connect and every wheel update, and the radar and TPMS settings moved to a library shared with the iPhone. Nothing should change on screen.
 - iPhone app: a swipe in from the left edge is back, on every screen and in every dialog, and the crew pass has the X in every step.
 - iPhone app: Volume up, Volume down and Mute are no longer offered (iOS cannot set the volume), and the tour's last page names only Flic buttons.
 - Settings, Dashboard layout no longer closes the app.
@@ -94,6 +94,7 @@ only when you can cut the ride short.
 - Legal Mode and the ride notification buttons: same as the last build?
 - Turn the wheel off and on, and Bluetooth off and on: does it reconnect as before? Trip tools (rename, split, extend) work as before?
 - Auto lights, volume by speed, music pause, walk-away lock, auto-record, charge alerts and the connect and lights announcements: same as the last build?
+- Varia radar and TPMS caps: still paired after updating, and do the radar lane and tyre pressures show as before? Pair a new one from Settings, Integration.
 - Dashboard, Settings, alarm editor, Scan, the trip list, trip details, trip meter, metric details, battery monitor and leaderboards: anything that looks or acts differently from the last build is a bug.
 
 **Closing windows**
