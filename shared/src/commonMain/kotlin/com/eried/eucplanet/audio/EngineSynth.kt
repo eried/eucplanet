@@ -28,8 +28,8 @@ import kotlin.math.sin
  *  - SYNTH: a [SynthVoice] (bandlimited saw or square, hum partials, a
  *    turbine of shaped noise and whine, an electric motor) riding on RPM.
  *
- * [grainLoader] opens a bank by its asset name (Android resources on the
- * phone, a folder in tests). Banks are kept once loaded.
+ * [grainLoader] opens a bank by its asset name (Android resources or the
+ * iPhone's bundle, a folder in tests). Banks are kept once loaded.
  */
 class EngineSynth(
     private val sampleRate: Int = 44100,

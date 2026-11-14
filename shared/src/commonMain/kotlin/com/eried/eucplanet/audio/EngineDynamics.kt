@@ -4,11 +4,12 @@ import com.eried.eucplanet.service.parseVolumeCurve
 import com.eried.eucplanet.service.pchipInterpolate
 import kotlin.math.abs
 import kotlin.math.sqrt
+import kotlin.random.Random
 
 /**
  * The virtual engine's motion: turns the wheel's (speed, pwm) ticks into the
  * smoothed [EngineParams] that [EngineSynth] renders. Pure
- * Kotlin with no Android in it, so the same model runs on the phone inside
+ * Kotlin with no platform in it, so the same model runs on both phones inside
  * [EngineSoundEngine] and offline in the ride renderer that writes WAVs for
  * listening tests.
  *
@@ -52,7 +53,7 @@ class EngineDynamics {
     private var voiceDuckGain: Float = 1f
     private val revDetector = RevDetector()
     /** Random source for decel pops; the renderer seeds it so WAVs are repeatable. */
-    var random: () -> Double = Math::random
+    var random: () -> Double = { Random.nextDouble() }
 
     fun applyCurve(raw: String) { volumeAutoCurve = parseVolumeCurve(raw) }
 

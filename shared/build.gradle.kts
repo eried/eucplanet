@@ -166,6 +166,23 @@ val sharedMapLayers = tasks.register<Sync>("generateSharedMapLayers") {
 }
 kotlin.sourceSets.getByName("commonMain").kotlin.srcDir(sharedMapLayers)
 
+// The engine tests read the grain banks where the phone app ships them
+// (app/src/main/res/raw), on the JVM and on the iOS simulator alike, so the
+// banks stay one copy. The folder's absolute path is written into a test
+// source here; nothing is committed.
+val testGrainDir = tasks.register("generateTestGrainDir") {
+    val dir = rootProject.file("app/src/main/res/raw").absolutePath.replace('\\', '/')
+    val out = layout.buildDirectory.dir("generated/testGrainDir")
+    inputs.property("dir", dir)
+    outputs.dir(out)
+    doLast {
+        val file = out.get().asFile.resolve("com/eried/eucplanet/audio/TestGrainDir.kt")
+        file.parentFile.mkdirs()
+        file.writeText("package com.eried.eucplanet.audio\n\ninternal const val TEST_GRAIN_DIR = \"$dir\"\n")
+    }
+}
+kotlin.sourceSets.getByName("commonTest").kotlin.srcDir(testGrainDir)
+
 android {
     namespace = "com.eried.eucplanet.shared"
     compileSdk = 36

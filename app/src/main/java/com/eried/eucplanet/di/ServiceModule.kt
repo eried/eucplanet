@@ -1,5 +1,6 @@
 package com.eried.eucplanet.di
 
+import com.eried.eucplanet.audio.EngineAudioTrack
 import com.eried.eucplanet.audio.EngineSoundEngine
 import com.eried.eucplanet.audio.HornPlayer
 import com.eried.eucplanet.cheats.CheatState
@@ -92,7 +93,8 @@ val serviceModule = module {
     singleOf(::ActionExecutor) bind com.eried.eucplanet.ui.dashboard.ActionDispatcher::class
     singleOf(::AppNotifier) { bind<AppNotices>() }
     singleOf(::CheatState) { bind<CheatFlags>() }
-    singleOf(::EngineSoundEngine)
+    single<com.eried.eucplanet.audio.EngineAudioOutput> { EngineAudioTrack(androidContext()) }
+    single { EngineSoundEngine(get(), EngineAudioTrack.rawBank(androidContext())) }
     singleOf(::HornPlayer) { bind<PhoneHorn>() }
     single {
         val context = androidContext()

@@ -12,7 +12,7 @@ import java.nio.ByteOrder
  * listening and for the spectrum analysis in tools/engine-sounds. Runs only
  * when EUC_ENGINE_RENDER_DIR names the output folder:
  *
- *   EUC_ENGINE_RENDER_DIR=... ./gradlew :app:testDebugUnitTest --tests "*EngineRideRenderTest"
+ *   EUC_ENGINE_RENDER_DIR=... ./gradlew :shared:testDebugUnitTest --tests "*EngineRideRenderTest"
  *
  * The same model and synth the phone runs; the ticks come at 10 Hz and the
  * synth renders 1024-frame buffers from the latest snapshot, like the

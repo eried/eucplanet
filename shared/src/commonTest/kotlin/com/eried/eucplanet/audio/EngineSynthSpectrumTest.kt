@@ -1,7 +1,8 @@
 package com.eried.eucplanet.audio
 
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import kotlin.test.assertTrue
+import com.eried.eucplanet.platform.format
+import kotlin.test.Test
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
@@ -91,7 +92,7 @@ class EngineSynthSpectrumTest {
     private fun check(all: (MutableList<String>) -> Unit) {
         val misses = mutableListOf<String>()
         all(misses)
-        assertTrue(misses.joinToString("\n", prefix = "\n"), misses.isEmpty())
+        assertTrue(misses.isEmpty(), misses.joinToString("\n", prefix = "\n"))
     }
 
     /**
@@ -255,7 +256,7 @@ class EngineSynthSpectrumTest {
      * synthesiser's bar. Their rate following the wheel is pinned in [GrainBankTest].
      */
     @Test
-    fun `flat out, a piston engine is a roar and not a whine`() = check { misses ->
+    fun `flat out - a piston engine is a roar and not a whine`() = check { misses ->
         val report = mutableListOf<String>()
         for (p in procedural.filter { !it.recorded && (it.kind == EngineProfile.Kind.ICE || it.voice == SynthVoice.TURBINE) }) {
             val s = lineShare(power(render(p, 0.9f, 1f)), 3, 150.0, 4000.0)
@@ -272,7 +273,7 @@ class EngineSynthSpectrumTest {
         val braking = render(p, 0.4f, 0.05f, brake = 1f)
         val plainTop = share(power(plain), 1500.0, 6000.0)
         val brakeTop = share(power(braking), 1500.0, 6000.0)
-        assertTrue("overrun adds nothing above 1.5 kHz ($plainTop vs $brakeTop)", brakeTop > plainTop * 1.5)
+        assertTrue(brakeTop > plainTop * 1.5, "overrun adds nothing above 1.5 kHz ($plainTop vs $brakeTop)")
     }
 
     /**

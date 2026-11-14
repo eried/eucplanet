@@ -1,7 +1,7 @@
 package com.eried.eucplanet.audio
 
-import org.junit.Assert.assertEquals
-import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.Test
 
 /** Cylinders fire at their angles of the cycle, uneven ones included. */
 class FiringScheduleTest {

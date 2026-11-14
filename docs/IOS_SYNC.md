@@ -66,6 +66,7 @@ Seams that need both sides on every change:
 | Back | Compose `BackHandler`s through each `*Host.BackHandler` | `androidx.activity` back (MainActivity, NavGraph) | the left-edge swipe: `iosMain/.../app/IosBack.kt` (`IosBackHandler`, `IosBackSwipeBridge` for dialogs), one handler per screen in `MainViewController.kt` |
 | Rear radar | `ble/radar/RadarPorts.kt` (`RadarLink`, `RadarScan`), `data/repository/RadarRepository.kt`, `ui/settings/RadarViewModel.kt` | `app/.../ble/radar/RadarConnectionManager.kt` (GATT, auto-reconnect), `RadarScanner.kt` (scan, Bluetooth state), `di/RadarModule.kt` | not yet (the muted radar row) |
 | TPMS | `tpms/TpmsRadio.kt` (`TpmsRadio`, `TpmsAdvert`), `tpms/TpmsScanner.kt`, `TpmsRepository.kt`, `TpmsPairingStore.kt` | `app/.../tpms/AndroidTpmsRadio.kt` (BLE scan, filters, Bluetooth state), `di/TpmsModule.kt` | not yet (the muted TPMS row) |
+| Engine sound | `audio/EngineSoundEngine.kt` (settings, previews, start / stop), `EngineAudioOutput.kt` (`EngineAudioOutput`, `EngineProducer`), `EngineSynth.kt`, `EngineDynamics.kt`, `GrainBank.kt` | `app/.../audio/EngineAudioTrack.kt` (AudioTrack, producer thread, audio focus, the banks in `res/raw`), `di/ServiceModule.kt`, `WheelService` feeds it | not yet (the muted Motor sound section) |
 | Object graph | `di/SharedKoin.kt` (Koin) | `app/.../di/SharedModule.kt` hands the Koin singletons to Hilt; `AppModule` builds the moved repositories | `MainViewController.kt` reads Koin; `app/IosAppGraph.kt` builds the rest |
 
 The table grows as packages move; keep it current.

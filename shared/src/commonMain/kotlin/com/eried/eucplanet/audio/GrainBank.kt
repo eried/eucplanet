@@ -1,12 +1,5 @@
 package com.eried.eucplanet.audio
 
-import java.io.DataInputStream
-import java.io.EOFException
-import java.io.IOException
-import java.io.InputStream
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
-
 /**
  * A recorded engine, cut into grains by tools/engine-sounds/grains.py.
  *
@@ -39,53 +32,84 @@ class GrainBank(
 
     val lowestHz: Float get() = bands.first().hz
 
+    /** A bank file that does not read: not a bank, a version this player does not know, or cut short. */
+    class FormatException(message: String) : Exception(message)
+
+    /** Little-endian reads over the file's bytes; any read past the end is a [FormatException]. */
+    private class Reader(private val b: ByteArray) {
+        var pos = 0
+            private set
+        val remaining: Int get() = b.size - pos
+
+        private fun need(n: Int) { if (remaining < n) throw FormatException("truncated grain bank") }
+        fun byte(): Int { need(1); return b[pos++].toInt() }
+        fun short(): Short {
+            need(2)
+            val v = (b[pos].toInt() and 0xFF) or ((b[pos + 1].toInt() and 0xFF) shl 8)
+            pos += 2
+            return v.toShort()
+        }
+        fun int(): Int {
+            need(4)
+            val v = (b[pos].toInt() and 0xFF) or ((b[pos + 1].toInt() and 0xFF) shl 8) or
+                ((b[pos + 2].toInt() and 0xFF) shl 16) or ((b[pos + 3].toInt() and 0xFF) shl 24)
+            pos += 4
+            return v
+        }
+        fun intBigEndian(): Int {
+            need(4)
+            val v = ((b[pos].toInt() and 0xFF) shl 24) or ((b[pos + 1].toInt() and 0xFF) shl 16) or
+                ((b[pos + 2].toInt() and 0xFF) shl 8) or (b[pos + 3].toInt() and 0xFF)
+            pos += 4
+            return v
+        }
+        fun float(): Float = Float.fromBits(int())
+    }
+
     companion object {
         private const val MAGIC = 0x45554347   // "EUCG"
 
         /**
          * Reads a bank written by grains.py and resamples it to [outRate].
-         * Throws [IOException] on a malformed file.
+         * Throws [FormatException] on a malformed file.
          */
-        @Throws(IOException::class)
-        fun read(input: InputStream, outRate: Int): GrainBank {
-            val bytes = input.use { it.readBytes() }
-            val buf = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
-            if (bytes.size < 16 || buf.order(ByteOrder.BIG_ENDIAN).int != MAGIC) throw IOException("not a grain bank")
-            buf.order(ByteOrder.LITTLE_ENDIAN)
-            val version = buf.short.toInt()
-            if (version != 1) throw IOException("grain bank version $version")
-            val rate = buf.short.toInt() and 0xFFFF
-            val patternPerRev = buf.float
-            val bandCount = buf.short.toInt() and 0xFFFF
-            val shotCount = buf.short.toInt() and 0xFFFF
+        fun read(bytes: ByteArray, outRate: Int): GrainBank {
+            val buf = Reader(bytes)
+            if (bytes.size < 16 || buf.intBigEndian() != MAGIC) throw FormatException("not a grain bank")
+            val version = buf.short().toInt()
+            if (version != 1) throw FormatException("grain bank version $version")
+            val rate = buf.short().toInt() and 0xFFFF
+            val patternPerRev = buf.float()
+            val bandCount = buf.short().toInt() and 0xFFFF
+            val shotCount = buf.short().toInt() and 0xFFFF
             val ratio = rate.toDouble() / outRate
             fun pcm(count: Int): FloatArray {
-                if (count < 0 || buf.remaining() < count * 2) throw EOFException("truncated grain bank")
-                val src = FloatArray(count) { buf.short / 32768f }
+                if (count < 0 || buf.remaining < count * 2) throw FormatException("truncated grain bank")
+                val src = FloatArray(count) { buf.short() / 32768f }
                 return resample(src, ratio)
             }
             val bands = ArrayList<Band>(bandCount)
             repeat(bandCount) {
-                val hz = buf.float
-                val runCount = buf.short.toInt() and 0xFFFF
+                val hz = buf.float()
+                val runCount = buf.short().toInt() and 0xFFFF
                 val runs = ArrayList<Array<FloatArray>>(runCount)
                 repeat(runCount) {
-                    val grainCount = buf.short.toInt() and 0xFFFF
-                    runs += Array(grainCount) { pcm(buf.short.toInt() and 0xFFFF) }
+                    val grainCount = buf.short().toInt() and 0xFFFF
+                    runs += Array(grainCount) { pcm(buf.short().toInt() and 0xFFFF) }
                 }
                 bands += Band(hz, runs)
             }
             var startup = FloatArray(0)
             val pops = ArrayList<FloatArray>()
             repeat(shotCount) {
-                val kind = buf.get().toInt()
-                val samples = pcm(buf.int)
+                val kind = buf.byte()
+                val samples = pcm(buf.int())
                 when (kind) {
                     0 -> startup = samples
                     2 -> pops += samples
                 }
             }
-            if (bands.isEmpty()) throw IOException("grain bank has no bands")
+            if (bands.isEmpty()) throw FormatException("grain bank has no bands")
             return GrainBank(patternPerRev, bands.sortedBy { it.hz }, startup, pops)
         }
 
@@ -105,10 +129,10 @@ class GrainBank(
             return out
         }
 
-        /** Convenience for callers that have a stream factory, for example Android resources or a test folder. */
-        fun load(outRate: Int, open: () -> InputStream?): GrainBank? {
-            val s = open() ?: return null
-            return try { read(DataInputStream(s), outRate) } catch (_: IOException) { null }
+        /** The bank in [open]'s bytes (Android resources, the iPhone's bundle, a test folder), or null when missing or broken. */
+        fun load(outRate: Int, open: () -> ByteArray?): GrainBank? {
+            val bytes = open() ?: return null
+            return try { read(bytes, outRate) } catch (_: FormatException) { null }
         }
     }
 }
