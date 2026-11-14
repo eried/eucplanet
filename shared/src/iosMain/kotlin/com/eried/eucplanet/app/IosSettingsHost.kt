@@ -61,9 +61,9 @@ internal object IosSettingsHost : SettingsHost {
     // iOS gives apps no access to the volume buttons.
     override val supportsVolumeKeys = false
 
-    // The watches have no iPhone side planned yet. The navigator, the
-    // external sensors and the engine sound are coming: their sections show
-    // muted with a "not yet" tap (platform/PlatformFeatures.ios.kt).
+    // The watches have no iPhone side planned yet. The navigator and the
+    // external sensors are coming: their sections show muted with a "not
+    // yet" tap (platform/PlatformFeatures.ios.kt).
     override val hiddenSections = setOf("watch")
 
     // Pause and Play/Pause work through the audio session (IosMedia); no app

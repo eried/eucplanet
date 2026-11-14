@@ -170,6 +170,12 @@ object IosAppGraph {
         )
     }
 
+    /**
+     * The motor sound, the shared engine Android's WheelService drives, on an
+     * AVAudioEngine output (IosEngineAudio). IosRideSession feeds it.
+     */
+    val engineSound: com.eried.eucplanet.audio.EngineSoundEngine by lazy { IosEngineAudio.newEngine() }
+
     /** Spoken announcements, the shared reports through AVSpeechSynthesizer. */
     internal val voice: IosVoice by lazy { IosVoice(settings) { wheel } }
 
@@ -315,7 +321,7 @@ object IosAppGraph {
         syncManager = IosSettingsSync,
         automationManager = automation,
         watches = NoWatches,
-        engineSoundEngine = NoEngineSound,
+        engineSoundEngine = IosEngineSoundPreview(engineSound),
         cheatState = cheats,
         hud = NoHud,
         themeController = theme,

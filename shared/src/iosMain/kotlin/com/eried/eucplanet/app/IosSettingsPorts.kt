@@ -16,6 +16,7 @@ import com.eried.eucplanet.service.VoiceChoice
 import com.eried.eucplanet.service.VoiceOption
 import com.eried.eucplanet.ui.dashboard.DashboardSync
 import com.eried.eucplanet.ui.settings.EngineSoundPreview
+import com.eried.eucplanet.audio.EngineSoundEngine
 import com.eried.eucplanet.ui.settings.HudSettingsLink
 import com.eried.eucplanet.ui.settings.OnlineLeaderboard
 import com.eried.eucplanet.ui.settings.PromptTones
@@ -187,11 +188,11 @@ internal object NoWatches : WatchLinks {
     override fun pingWatchesToWake() = Unit
 }
 
-/** The engine sound is not on iOS yet. */
-internal object NoEngineSound : EngineSoundPreview {
+/** The Motor sound previews, played by the same engine the ride drives (Android's AndroidEngineSoundPreview). */
+internal class IosEngineSoundPreview(private val engine: EngineSoundEngine) : EngineSoundPreview {
     override fun previewProfile(
         key: String, durationMs: Long, volume: Float?, muffler: String?, gearbox: String?, scenario: String,
-    ) = Unit
+    ) = engine.previewProfile(key, durationMs, volume, muffler, gearbox, scenario)
 }
 
 /** The split timer is not on iOS yet. */

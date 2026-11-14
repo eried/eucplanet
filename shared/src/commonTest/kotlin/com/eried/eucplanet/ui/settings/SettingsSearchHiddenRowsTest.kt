@@ -68,6 +68,8 @@ class SettingsSearchHiddenRowsTest {
         assertTrue(found("integration", "section_radar", iphone))
         assertTrue(found("integration", "radar_pair_action", iphone))
         assertTrue(found("integration", "section_tpms", iphone))
+        // So does the motor sound.
+        assertTrue(found("motor", "engine_headphones_only", iphone))
     }
 
     @Test fun aHeadingStaysWhileAnyOfItsRowsShows() {

@@ -130,10 +130,18 @@ compose.resources {
 }
 
 // The welcome tour's clip and the launcher artwork for About, from the phone
-// app's assets and drawables. iOS resources only: the APK already carries them.
+// app's assets and drawables, and the recorded engines' grain banks from its
+// res/raw for the motor sound (IosEngineAudio reads files/grain_*.bin). iOS
+// resources only: the APK already carries them, so each stays one copy.
+// The banks share this directory: a third customDirectory on iosMain left
+// the drawable accessors ungenerated.
 val iosAppArt = tasks.register<Sync>("generateIosAppArt") {
     from(rootProject.file("app/src/main/assets")) {
         include("welcome_clip.webp")
+        into("files")
+    }
+    from(rootProject.file("app/src/main/res/raw")) {
+        include("grain_*.bin")
         into("files")
     }
     from(rootProject.file("app/src/main/res/drawable")) {

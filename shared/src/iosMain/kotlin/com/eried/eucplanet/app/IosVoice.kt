@@ -20,6 +20,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.cinterop.ObjCSignatureOverride
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
@@ -60,6 +63,13 @@ internal class IosVoice(
     private var held: IosAudioSession.Others? = null
     private var releaseJob: Job? = null
     private var watchdog: Job? = null
+
+    /**
+     * True while a line is being spoken, as Android's VoiceService.isSpeaking:
+     * the engine sound ducks under it (engineDuckOnVoice).
+     */
+    private val _isSpeaking = MutableStateFlow(false)
+    val isSpeaking: StateFlow<Boolean> = _isSpeaking.asStateFlow()
 
     /** Tells the hold when a line ends. Kept here: the synthesizer's delegate is weak. */
     private inner class SpeechEnd : NSObject(), AVSpeechSynthesizerDelegateProtocol {
@@ -140,6 +150,7 @@ internal class IosVoice(
                 held = want
             }
             pending++
+            _isSpeaking.value = true
             speech.speakUtterance(utterance)
             watch()
         }
@@ -147,6 +158,7 @@ internal class IosVoice(
 
     private fun lineEnded() {
         pending = (pending - 1).coerceAtLeast(0)
+        if (pending == 0) _isSpeaking.value = false
         if (pending == 0) scheduleRelease()
     }
 
@@ -176,6 +188,7 @@ internal class IosVoice(
                 if (pending > 0 && !speech.speaking) {
                     Log.w("Voice", "speech ended without a callback; releasing the session")
                     pending = 0
+                    _isSpeaking.value = false
                     scheduleRelease()
                 }
             }

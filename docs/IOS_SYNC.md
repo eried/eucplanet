@@ -60,13 +60,13 @@ Seams that need both sides on every change:
 | Trip wheel identity | `data/repository/WheelIdentity.kt` (`WheelIdentity`, `TripWheelLog`) | `TripRepository` | `iosMain/.../app/IosTrips.kt` |
 | GPS power tiers | `data/model/GpsPowerPolicy.kt` (`GpsPowerPolicy`, `GpsIdleOff`) | `TripRepository` (fused priority and interval) | `iosMain/.../app/IosGpsPower.kt` (CoreLocation accuracy and distance filter), `iosApp/LocationBridge.swift` |
 | Automations | `service/AutomationManager.kt` (`AutomationWheel`, `MediaAutomation`), `ui/settings/AutomationsContent.kt` | `di/ServiceModule.kt` builds it; `service/AndroidMediaAutomation.kt` (AudioManager volume, media keys) | `iosMain/.../app/IosAppGraph.automation` (no media half) |
-| Ride session | `service/RideSession.kt` (`RideWheel`, `RideRecorder`, `RideVoice`) | `WheelService` (builds it, adds the notification, widget, engine sound, HUD, accel splits) | `iosMain/.../app/IosRideSession.kt` (adds nothing; the Live Activity follows the link itself) |
+| Ride session | `service/RideSession.kt` (`RideWheel`, `RideRecorder`, `RideVoice`) | `WheelService` (builds it, adds the notification, widget, engine sound, HUD, accel splits) | `iosMain/.../app/IosRideSession.kt` (adds the engine sound; the Live Activity follows the link itself) |
 | Theme editor | `ui/theme/ThemeEditorWidget.kt`, `ThemeTargetTool.kt`, `ThemeEditorSurface` (window size and one pixel) | `app/.../ui/theme/AndroidThemeEditorSurface.kt` (the view, PixelCopy); MainActivity mounts the widget | `iosMain/.../app/IosThemeEditor.kt` (a recorded root layer), `app/StatusBarHost.kt` (status bar style from the theme) |
 | Rider actions on the phone | `flic/ActionExecutor.kt` (`MediaControls`, `PhoneControls`, `VoiceListening`) | `app/.../flic/AndroidMediaControls.kt`, `AndroidPhoneControls.kt` (volume, torch), `di/ServiceModule.kt` | `iosMain/.../app/IosDashboardPorts.kt` (`NoMedia`, `IosPhoneControls`: the torch) |
 | Back | Compose `BackHandler`s through each `*Host.BackHandler` | `androidx.activity` back (MainActivity, NavGraph) | the left-edge swipe: `iosMain/.../app/IosBack.kt` (`IosBackHandler`, `IosBackSwipeBridge` for dialogs), one handler per screen in `MainViewController.kt` |
 | Rear radar | `ble/radar/RadarPorts.kt` (`RadarLink`, `RadarScan`), `data/repository/RadarRepository.kt`, `ui/settings/RadarViewModel.kt` | `app/.../ble/radar/RadarConnectionManager.kt` (GATT, auto-reconnect), `RadarScanner.kt` (scan, Bluetooth state), `di/RadarModule.kt` | not yet (the muted radar row) |
 | TPMS | `tpms/TpmsRadio.kt` (`TpmsRadio`, `TpmsAdvert`), `tpms/TpmsScanner.kt`, `TpmsRepository.kt`, `TpmsPairingStore.kt` | `app/.../tpms/AndroidTpmsRadio.kt` (BLE scan, filters, Bluetooth state), `di/TpmsModule.kt` | not yet (the muted TPMS row) |
-| Engine sound | `audio/EngineSoundEngine.kt` (settings, previews, start / stop), `EngineAudioOutput.kt` (`EngineAudioOutput`, `EngineProducer`), `EngineSynth.kt`, `EngineDynamics.kt`, `GrainBank.kt` | `app/.../audio/EngineAudioTrack.kt` (AudioTrack, producer thread, audio focus, the banks in `res/raw`), `di/ServiceModule.kt`, `WheelService` feeds it | not yet (the muted Motor sound section) |
+| Engine sound | `audio/EngineSoundEngine.kt` (settings, previews, start / stop), `EngineAudioOutput.kt` (`EngineAudioOutput`, `EngineProducer`), `EngineSynth.kt`, `EngineDynamics.kt`, `GrainBank.kt` | `app/.../audio/EngineAudioTrack.kt` (AudioTrack, producer thread, audio focus, the banks in `res/raw`), `di/ServiceModule.kt`, `WheelService` feeds it | `iosMain/.../app/IosEngineAudio.kt` (AVAudioEngine player node, producer coroutine, the session held with DUCK, the banks from `res/raw` via `generateIosGrainBanks`), `IosAppGraph.engineSound`, `IosRideSession` feeds it |
 | Object graph | `di/SharedKoin.kt` (Koin) | `app/.../di/SharedModule.kt` hands the Koin singletons to Hilt; `AppModule` builds the moved repositories | `MainViewController.kt` reads Koin; `app/IosAppGraph.kt` builds the rest |
 
 The table grows as packages move; keep it current.
@@ -172,6 +172,11 @@ SIMCTL_CHILD_EUC_VOICE_EVERY=15 xcrun simctl launch booted com.eried.eucplanet.i
                                # the periodic report every 15 s, any speed
                                # and output, to hear it in the background
                                # (saved like any settings change)
+SIMCTL_CHILD_EUC_CONNECT=VIRTUAL:V14 SIMCTL_CHILD_EUC_ENGINE=V8_MUSCLE xcrun simctl launch booted com.eried.eucplanet.ios
+                               # the motor sound on with that engine (an
+                               # EngineProfile key), following the virtual
+                               # wheel (saved like any settings change); the
+                               # log says "scheduled N buffers, last rms"
 sh iosApp/deploy-device.sh     # build, sign and install on a cabled iPhone
 ```
 

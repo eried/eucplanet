@@ -44,4 +44,11 @@ class IosPlatformFeaturesTest {
         assertFalse("RADAR" in names)
         assertFalse("TPMS" in names)
     }
+
+    @Test fun motorSoundIsOnTheIphone() {
+        // The shared engine plays through IosEngineAudio, so its section opens.
+        assertFalse("MOTOR_SOUND" in missingPlatformFeatures.map { it.name })
+        assertFalse("motor" in IosSettingsHost.hiddenSections)
+        assertTrue(com.eried.eucplanet.platform.PlatformFeature.forSection("motor") == null)
+    }
 }

@@ -9,6 +9,5 @@ actual val missingPlatformFeatures: Set<PlatformFeature> = setOf(
     PlatformFeature.NAVIGATION,
     PlatformFeature.GPS_SENSORS,
     PlatformFeature.CAMERA_STUDIO,
-    PlatformFeature.MOTOR_SOUND,
     PlatformFeature.HOME_WIDGETS,
 )

@@ -126,6 +126,16 @@ fun MainViewController(): UIViewController {
             }
         }
     }
+    // SIMCTL_CHILD_EUC_ENGINE=V8_MUSCLE turns the motor sound on with that
+    // engine (an EngineProfile key), to hear it follow a virtual wheel on the
+    // simulator. Saved, like any settings change.
+    (NSProcessInfo.processInfo.environment["EUC_ENGINE"] as? String)?.let { key ->
+        kotlinx.coroutines.runBlocking {
+            IosAppGraph.settings.update {
+                it.copy(engineSound = it.engineSound.copy(enabled = true, type = key))
+            }
+        }
+    }
     // What runs around a ride (automations, announcements, auto-record,
     // charge alerts, periodic reports): the shared RideSession, as WheelService runs it.
     IosRideSession.start()
