@@ -13,6 +13,7 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import kotlin.math.max
 import kotlin.math.min
+import com.eried.eucplanet.nav.offline.map.open
 
 /**
  * Draws map pictures from the downloaded squares, for every map in the app:
@@ -115,7 +116,7 @@ class OfflineMapRenderer(private val dir: File) {
         val have = squares[name]
         if (have != null && have.stamp == stamp) return have.pm
         have?.pm?.let { runCatching { it.close() } }
-        val pm = if (stamp == 0L) null else runCatching { PmTiles(f) }.onFailure { Log.w(TAG, "$name: $it") }.getOrNull()
+        val pm = if (stamp == 0L) null else runCatching { PmTiles.open(f) }.onFailure { Log.w(TAG, "$name: $it") }.getOrNull()
         squares[name] = Open(stamp, pm)
         pm
     }

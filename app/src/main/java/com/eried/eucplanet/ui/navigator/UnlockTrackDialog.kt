@@ -22,6 +22,7 @@ import com.eried.eucplanet.R
 import com.eried.eucplanet.nav.NavFormat
 import com.eried.eucplanet.ui.settings.NumberFieldWithDefault
 import com.eried.eucplanet.ui.theme.appColors
+import com.eried.eucplanet.nav.distance
 
 /**
  * Convert to stops, a dialog like Optimize stop order: the rider picks how

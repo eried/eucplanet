@@ -37,6 +37,7 @@ import com.eried.eucplanet.ui.settings.SegmentedChoice
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedSwitchColors
 import kotlin.math.roundToInt
+import com.eried.eucplanet.nav.distance
 
 /**
  * Optimize stop order: puts the stops in the shortest riding order. The

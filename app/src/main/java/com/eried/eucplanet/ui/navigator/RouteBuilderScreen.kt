@@ -179,6 +179,7 @@ import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.common.DestructiveMenuItem
 import com.eried.eucplanet.ui.common.appMenuItemColors
 import org.koin.compose.viewmodel.koinViewModel
+import com.eried.eucplanet.nav.distance
 
 /**
  * The Route Builder: a full-bleed Leaflet map (WebView) with a top search bar,
@@ -3519,10 +3520,11 @@ private fun OcmCommunityCard(ocm: OcmCharger, onOpenUrl: (String) -> Unit) {
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.primary
                         )
-                        if (c.rating != null) {
+                        val rating = c.rating
+                        if (rating != null) {
                             Spacer(Modifier.width(6.dp))
                             Text(
-                                "★".repeat(c.rating.coerceIn(1, 5)),
+                                "★".repeat(rating.coerceIn(1, 5)),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.primary
                             )

@@ -30,11 +30,7 @@ object BrouterMapping {
     }
 
     /** The profile for a travel mode; null for modes never routed offline. */
-    fun profileFor(mode: TravelMode): String? = when (mode) {
-        TravelMode.CYCLING -> "wheel"
-        TravelMode.WALKING -> "hiking-mountain"
-        TravelMode.DRIVING, TravelMode.STRAIGHT -> null
-    }
+    fun profileFor(mode: TravelMode): String? = RouterPlan.profileFor(mode)
 
     /** The rider's avoids as profile switches. Tolls have no tag in the
      *  routing data; motorways are never used by the wheel profile. */

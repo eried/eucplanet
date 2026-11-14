@@ -62,6 +62,7 @@ import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.Units
 import java.util.Date
 import kotlin.math.absoluteValue
+import com.eried.eucplanet.nav.distance
 
 /** The rider's display units for the navigator tiles, from the Units effective* helpers. */
 data class MetricUnits(

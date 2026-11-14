@@ -24,3 +24,31 @@ actual fun inflateRaw(bytes: ByteArray): ByteArray {
         inflater.end()
     }
 }
+
+actual fun gunzip(bytes: ByteArray): ByteArray =
+    java.util.zip.GZIPInputStream(java.io.ByteArrayInputStream(bytes)).use { it.readBytes() }
+
+actual fun deflateRaw(bytes: ByteArray): ByteArray {
+    val d = java.util.zip.Deflater(java.util.zip.Deflater.BEST_COMPRESSION, true)
+    d.setInput(bytes); d.finish()
+    val out = java.io.ByteArrayOutputStream()
+    val buf = ByteArray(1024)
+    while (!d.finished()) out.write(buf, 0, d.deflate(buf))
+    d.end()
+    return out.toByteArray()
+}
+
+actual fun inflateRawCapped(bytes: ByteArray, maxBytes: Int): ByteArray {
+    val inf = java.util.zip.Inflater(true)
+    inf.setInput(bytes)
+    val out = java.io.ByteArrayOutputStream()
+    val buf = ByteArray(1024)
+    while (!inf.finished()) {
+        val n = inf.inflate(buf)
+        if (n == 0 && (inf.needsInput() || inf.needsDictionary())) break
+        out.write(buf, 0, n)
+        if (out.size() > maxBytes) break
+    }
+    inf.end()
+    return out.toByteArray()
+}

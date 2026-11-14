@@ -9,3 +9,21 @@ expect fun gzip(bytes: ByteArray): ByteArray
  * on damaged data.
  */
 expect fun inflateRaw(bytes: ByteArray): ByteArray
+
+/** A gzip file unpacked, as `GZIPInputStream(...).readBytes()` reads it. Throws on damaged data. */
+expect fun gunzip(bytes: ByteArray): ByteArray
+
+/**
+ * [bytes] as raw DEFLATE (no zlib header) at the best compression:
+ * `Deflater(BEST_COMPRESSION, true)` on Android, zlib's own deflate at level
+ * 9 on iOS. [inflateRawCapped] reads it back.
+ */
+expect fun deflateRaw(bytes: ByteArray): ByteArray
+
+/**
+ * Raw DEFLATE unpacked, stopping once more than [maxBytes] came out (a link
+ * from a stranger must not unpack into a bomb) and returning what came out
+ * so far when the data ends early, as an `Inflater(true)` loop that breaks
+ * on `needsInput` does.
+ */
+expect fun inflateRawCapped(bytes: ByteArray, maxBytes: Int): ByteArray
