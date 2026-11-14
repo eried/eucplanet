@@ -16,7 +16,7 @@ only when you can cut the ride short.
 - iPhone app: real wheels now connect (iOS held the wheel but the app kept searching), and the scan lists a wheel the iPhone already holds. The welcome tour plays its clip, About shows the logo, and the voice says E U C. What the iPhone lacks yet (navigation, GPS sensors, radar, TPMS, camera, motor sound, widget) shows greyed with "Not on iPhone yet", and Enable Bluetooth asks iOS to turn it on. The battery monitor no longer flickers on the iPhone, and a found wheel reconnects within seconds.
 - iPhone app: the theme editor and colour identifier, the top bar follows light and dark themes, custom tiles show their QR code, and the picked voice speaks every report.
 - iPhone app: music no longer stays quieter after an alarm beep, and While speaking (lower, pause or leave other audio) works as on Android.
-- iPhone app: Pause and Play/Pause pause your music and let it resume (Next, Previous and Start music are not offered, iOS does not allow them). Weather settings open under Navigation and weather. Permission prompts are in your language.
+- iPhone app: Pause and Play/Pause pause your music and let it resume (Next, Previous and Start music are not offered, iOS does not allow them). Weather settings open under Navigation and weather. Permission prompts are in your language. Voice and alarms keep sounding with the screen locked.
 - iPhone app: the Needs attention warnings (location, Bluetooth, notifications, backups), and a recording cut short by closing the app is saved or dropped at the next start, as on Android.
 - Inside: the dashboard, settings, alarms, trips, trip details, trip tools, Legal Mode, the notification buttons, the reconnect timing, leaderboards, Dropbox sync, the wheel link, the theme editor, the automations and what runs on connect and every wheel update moved to a library shared with the iPhone. Nothing should change on screen.
 - iPhone app: a swipe in from the left edge is back, on every screen and in every dialog, and the crew pass has the X in every step.
@@ -85,6 +85,7 @@ only when you can cut the ride short.
 - Turn the wheel off mid-ride and on again: does the iPhone reconnect by itself? Rename and split a trip: does Android see it after a sync?
 - Display: turn on the theme widget, change a colour, and use the picker to identify one. Voice: pick a voice, does every report use it? Play music with alarms and reports on: is it lowered or paused only while the app speaks?
 - Automations (Settings): set lights to follow sunset, and turn on Lock when I walk away. Does the light switch and the wheel lock as on Android?
+- Ride with the iPhone locked in your pocket: do the voice reports and alarm beeps still sound, and does the trip keep recording?
 - Music: bind Pause or Play/Pause to a Flic button or a tile and play Spotify or Music. Does it pause, and does it come back on the next press? Which apps do not resume?
 - Swipe in from the left edge on Settings, a trip, the battery monitor and in any dialog: does it go back or close it?
 

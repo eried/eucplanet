@@ -165,6 +165,10 @@ SIMCTL_CHILD_EUC_CONNECT=VIRTUAL:MASTER xcrun simctl launch booted com.eried.euc
 SIMCTL_CHILD_EUC_DIALOG=service xcrun simctl launch booted com.eried.eucplanet.ios
                                # relaunch with a dashboard dialog open
                                # (service, about), for screenshots
+SIMCTL_CHILD_EUC_VOICE_EVERY=15 xcrun simctl launch booted com.eried.eucplanet.ios
+                               # the periodic report every 15 s, any speed
+                               # and output, to hear it in the background
+                               # (saved like any settings change)
 sh iosApp/deploy-device.sh     # build, sign and install on a cabled iPhone
 ```
 

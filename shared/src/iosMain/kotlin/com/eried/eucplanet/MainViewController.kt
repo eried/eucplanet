@@ -106,6 +106,21 @@ fun MainViewController(): UIViewController {
     IosEucStats.start()
     // The charge alerts, as WheelService posts them on Android.
     IosChargeAlerts.start()
+    // SIMCTL_CHILD_EUC_VOICE_EVERY=15 makes the periodic report speak every
+    // 15 s whatever the speed and output, to hear it with the app in the
+    // background on the simulator. It is saved, like any settings change.
+    (NSProcessInfo.processInfo.environment["EUC_VOICE_EVERY"] as? String)?.toIntOrNull()?.let { secs ->
+        kotlinx.coroutines.runBlocking {
+            IosAppGraph.settings.update {
+                it.copy(
+                    voiceEnabled = true,
+                    voiceAnnounceWhen = "ALWAYS",
+                    voiceAnnounceRequireExternal = false,
+                    voiceIntervalSeconds = secs,
+                )
+            }
+        }
+    }
     // What runs around a ride (automations, announcements, auto-record,
     // charge alerts, periodic reports): the shared RideSession, as WheelService runs it.
     IosRideSession.start()
