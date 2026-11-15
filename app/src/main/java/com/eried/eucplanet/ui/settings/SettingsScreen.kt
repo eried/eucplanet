@@ -9443,6 +9443,8 @@ internal fun SpeedNumberSetting(
             label = label,
             enabled = enabled,
             modifier = Modifier.fillMaxWidth(),
+            // Speeds go to the wheel: apply the finished number, not each digit.
+            commitOnBlur = true,
         )
         RestoreChip(
             text = "$displayDefault $unitLabel",
