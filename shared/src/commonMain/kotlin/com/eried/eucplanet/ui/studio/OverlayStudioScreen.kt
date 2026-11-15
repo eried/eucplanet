@@ -821,14 +821,17 @@ private fun OverlayStudioContent(
                         try {
                             // GIF (1-bit alpha) vs APNG (full RGBA alpha).
                             val sink = stream
+                            // One pixel buffer for the whole clip, as the
+                            // encoders kept before they took pixels.
+                            val framePx = IntArray(ew * eh)
                             val gif = if (videoFormat == ReplayVideoFormat.GIF)
                                 StudioGifEncoder(sink, ew, eh, perFrameDelayMs) else null
                             val apng = if (videoFormat == ReplayVideoFormat.APNG)
                                 StudioApngEncoder(sink, ew, eh, perFrameDelayMs, frameCount) else null
                             withContext(Dispatchers.IO) {
-                                host.framePixels(first, ew, eh)?.let { px ->
-                                    gif?.addFrame(px)
-                                    apng?.addFrame(px)
+                                if (host.framePixels(first, ew, eh, framePx)) {
+                                    gif?.addFrame(framePx)
+                                    apng?.addFrame(framePx)
                                 }
                             }
                             renderProgress = 1f / frameCount
@@ -839,9 +842,9 @@ private fun OverlayStudioContent(
                                 }
                                 val frame = captureReplayFrame(i) ?: break
                                 withContext(Dispatchers.IO) {
-                                    host.framePixels(frame, ew, eh)?.let { px ->
-                                        gif?.addFrame(px)
-                                        apng?.addFrame(px)
+                                    if (host.framePixels(frame, ew, eh, framePx)) {
+                                        gif?.addFrame(framePx)
+                                        apng?.addFrame(framePx)
                                     }
                                 }
                                 renderProgress = (i + 1f) / frameCount

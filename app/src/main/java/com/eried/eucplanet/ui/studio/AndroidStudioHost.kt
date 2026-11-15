@@ -269,8 +269,8 @@ private class AndroidStudioHost(context: Context) : AndroidStudioRender(context)
 
     override fun timestampedName(): String = StudioCapture.timestampedName()
 
-    override fun framePixels(frame: ImageBitmap, width: Int, height: Int): IntArray? =
-        StudioFramePixels.of(frame.asAndroidBitmap(), width, height)
+    override fun framePixels(frame: ImageBitmap, width: Int, height: Int, into: IntArray): Boolean =
+        StudioFramePixels.of(frame.asAndroidBitmap(), width, height, into)
 
     // Small software copy of a frame for the File Export preview.
     override fun thumbnail(frame: ImageBitmap): ImageBitmap? = runCatching {

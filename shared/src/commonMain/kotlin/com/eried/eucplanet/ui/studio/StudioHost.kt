@@ -160,8 +160,12 @@ interface StudioHost : StudioRender {
     /** "EUC_20261115_010708": the name a saved clip or photo starts with. */
     fun timestampedName(): String
 
-    /** [frame] scaled to [width] x [height] as ARGB pixels, for the GIF / APNG encoders. */
-    fun framePixels(frame: ImageBitmap, width: Int, height: Int): IntArray?
+    /**
+     * [frame] scaled to [width] x [height], read as ARGB pixels into [into]
+     * (one buffer for the whole clip), for the GIF / APNG encoders. False when
+     * the frame could not be read.
+     */
+    fun framePixels(frame: ImageBitmap, width: Int, height: Int, into: IntArray): Boolean
 
     /** A small copy of [frame] for the export screen's preview. */
     fun thumbnail(frame: ImageBitmap): ImageBitmap?
