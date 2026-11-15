@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PhoneAndroid
@@ -166,16 +167,21 @@ private fun MainScreenContent(
             state.showPhoneBattery,
             state.showWatchBattery
         ).count { it }
-        val batteryScale = when (batteryCount) {
-            1 -> 2.0f
-            2 -> 1.45f
-            else -> 1.1f
+        // Speed, PWM and battery sizes were tuned on a 192 dp watch in a
+        // layout editor; k scales them to the actual screen.
+        val k = (sw / 192f).coerceIn(0.85f, 1.2f)
+        // (number sp, icon dp, nudge dp) per battery count.
+        val (batterySp, batteryIcon, batteryNudge) = when (batteryCount) {
+            1 -> Triple(36f, 37f, 3.5f)
+            2 -> Triple(23f, 22.5f, 1.5f)
+            else -> Triple(15.4f, 16.5f, 0f)
         }
-        val batteryFontSp = ((sw * 0.034f).coerceIn(14f, 17f) * batteryScale).sp
-        val batteryIconDp = ((sw * 0.038f).coerceIn(15f, 18f) * batteryScale).dp
-        // Fixed slot sized for the single, biggest battery, so two or three
-        // smaller ones sit centred in the same place instead of dropping.
-        val batterySlotDp = ((sw * 0.038f).coerceIn(15f, 18f) * 2.0f * 1.25f).dp
+        val batteryFontSp = (batterySp * k).sp
+        val batteryIconDp = (batteryIcon * k).dp
+        val batteryNudgeDp = (batteryNudge * k).dp
+        // Fixed slot, so a row of any size sits centred in the same place
+        // instead of dropping toward the buttons.
+        val batterySlotDp = (37.5f * k).dp
         val batterySpacingDp = (sw * 0.018f).coerceIn(5f, 9f).dp
         val buttonDp = (sw * 0.127f).coerceIn(40f, 56f).dp
         val buttonIconDp = (sw * 0.060f).coerceIn(20f, 26f).dp
@@ -183,14 +189,13 @@ private fun MainScreenContent(
         // by ~35% and PWM (bar + number) grows by ~60% so cutout-margin becomes
         // the dominant glance signal.
         val prioritizePwm = state.prioritizePwm
-        val speedFontSp = (sw * if (prioritizePwm) 0.16f else 0.245f).coerceIn(40f, 92f).sp
+        val speedFontSp = ((if (prioritizePwm) 43f else 53f) * k).sp
         val maxSpeed = if (state.maxSpeedKmh > 0f) state.maxSpeedKmh else 70f
-        val loadBarWidth = (sw * if (prioritizePwm) 0.55f else 0.30f).coerceIn(82f, 240f).dp
-        // In Prioritize PWM mode the bar becomes the dominant glance: thick,
-        // within a 5-22 dp band, so it reads as the focal indicator even on
-        // smaller round faces.
-        val loadBarHeight = (sw * if (prioritizePwm) 0.060f else 0.018f).coerceIn(5f, 22f).dp
-        val centerOffsetY = -(sw * 0.13f).coerceIn(40f, 56f).dp
+        // Bar + number shows the bar at 66% of this width (barWidthShrink).
+        val loadBarWidth = ((if (prioritizePwm) 74.5f else 105.5f) / 0.66f * k).dp
+        // In Prioritize PWM mode the bar becomes the dominant glance.
+        val loadBarHeight = ((if (prioritizePwm) 9.5f else 6f) * k).dp
+        val centerOffsetY = -(36f * k).dp
         val watchPercent = watchBatteryPercent
 
 
@@ -245,7 +250,7 @@ private fun MainScreenContent(
         val unitSp = (sw * 0.030f).coerceIn(11f, 14f).sp
         // Prioritize PWM blows up the number (0.11f, 40sp cap)
         // so on a round 454-px Wear face the PWM glyph reads as the dial's headline.
-        val pwmNumberSp = (sw * if (prioritizePwm) 0.110f else 0.038f).coerceIn(12f, 40f).sp
+        val pwmNumberSp = ((if (prioritizePwm) 25.5f else 12f) * k).sp
         val showBar = state.pwmDisplay == "BAR" || state.pwmDisplay == "BOTH"
         val showPwmNumber = state.pwmDisplay == "NUMBERS" || state.pwmDisplay == "BOTH"
         // In "BOTH" mode the bar shares a row with the percent number, so we shrink the
@@ -395,24 +400,27 @@ private fun MainScreenContent(
             // dashboard shares one freshness check. Wheel battery and phone
             // battery both go stale when phone is silent for >3 s.
             Box(
-                modifier = Modifier.height(batterySlotDp),
+                modifier = Modifier.height(batterySlotDp).offset(y = batteryNudgeDp),
                 contentAlignment = Alignment.Center
             ) {
-                BatteryRow(
-                    wheelPercent = state.batteryPercent.takeIf {
-                        state.showWheelBattery && state.connected && phoneAlive
-                    },
-                    phonePercent = if (state.showPhoneBattery && phoneAlive)
-                        state.phoneBatteryPercent else null,
-                    watchPercent = watchPercent.takeIf { state.showWatchBattery },
-                    showWheelChip = state.showWheelBattery,
-                    showPhoneChip = state.showPhoneBattery,
-                    accent = accent,
-                    useAccentTint = state.accentKey != "default",
-                    fontSize = batteryFontSp,
-                    iconSize = batteryIconDp,
-                    spacing = batterySpacingDp
-                )
+                // One big battery is taller than the slot; let it overflow evenly.
+                Box(Modifier.wrapContentHeight(unbounded = true)) {
+                    BatteryRow(
+                        wheelPercent = state.batteryPercent.takeIf {
+                            state.showWheelBattery && state.connected && phoneAlive
+                        },
+                        phonePercent = if (state.showPhoneBattery && phoneAlive)
+                            state.phoneBatteryPercent else null,
+                        watchPercent = watchPercent.takeIf { state.showWatchBattery },
+                        showWheelChip = state.showWheelBattery,
+                        showPhoneChip = state.showPhoneBattery,
+                        accent = accent,
+                        useAccentTint = state.accentKey != "default",
+                        fontSize = batteryFontSp,
+                        iconSize = batteryIconDp,
+                        spacing = batterySpacingDp
+                    )
+                }
             }
             ActionRow(
                 state = state,
