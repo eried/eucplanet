@@ -22,6 +22,7 @@ only when you can cut the ride short.
 - iPhone app: navigation. Plan a route on the map, ride it with spoken turn cues (also with the iPhone locked), the navigator view, the turn card on every screen and Stop navigation on the lock screen. Share routes by link or QR, load and save GPX tracks, your marker photo, and live groups with Android riders. Routes need signal, offline areas are Android only for now.
 - iPhone app: the Overlay Studio, live with the camera and replaying a trip, with your presets. Photos, takes and GIF, APNG and MP4 clips save to Photos. View shows the saved photo or clip inside the app.
 - iPhone app: GPS sensors. Pair a RaceBox or Dragy (Settings, GPS and sensors), the GPS icon's Data sources sheet and Calibrate wheel speed, and "GPS lost / acquired" is spoken. A virtual RaceBox shows in the pairing list with Service Mode on, on both phones.
+- Offline routing: BRouter is now one Kotlin copy for Android and the iPhone, checked route for route against the original. Offline routes with an avoid switch on (highways, ferries...) no longer fail.
 - iPhone app: the Needs attention warnings (location, Bluetooth, notifications, backups), and a recording cut short by closing the app is saved or dropped at the next start, as on Android.
 - Inside: the dashboard, settings, alarms, trips, trip details, trip tools, Legal Mode, the notification buttons, the reconnect timing, leaderboards, Dropbox sync, the wheel link, the theme editor, the automations, what runs on connect and every wheel update, the radar and TPMS settings, the engine sound and the navigation (routing, turn cues, the route builder, route sharing, the navigator view and the Navigation settings) and the Overlay studio moved to a library shared with the iPhone. Nothing should change on screen.
 - iPhone app: a swipe in from the left edge is back, on every screen and in every dialog, and the crew pass has the X in every step.
@@ -93,6 +94,7 @@ only when you can cut the ride short.
 - Automations (Settings): set lights to follow sunset, and turn on Lock when I walk away. Does the light switch and the wheel lock as on Android?
 - Overlay Studio (camera button on the dashboard): do the back, wide and front cameras show? Record a take with sound, export a trip replay as MP4 and GIF: do they land in Photos and match Android?
 - RaceBox or Dragy on the iPhone: pair it, ride with the screen locked, power it off and on. Does it reconnect, and does Calibrate wheel speed propose about the same % as on Android?
+- Android, offline area downloaded, network off: plan and ride a route with and without the avoid switches. Same routes as before, and do the avoids now route?
 - Horn: pick your own short sound in Settings, Wheel parameters, Horn, set it to Sound or Both, and press the horn. Does it sound at once, with music lowered?
 - Ride with the iPhone locked in your pocket: do the voice reports and alarm beeps still sound, and does the trip keep recording?
 - Music: bind Pause or Play/Pause to a Flic button or a tile and play Spotify or Music. Does it pause, and does it come back on the next press? Which apps do not resume?
