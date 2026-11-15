@@ -284,6 +284,10 @@ class InMotionV2Adapter : WheelAdapter {
         // The X1's settings page is the P6's, so its speeds go the P6 way:
         // tiltback alone here, the alarm in its own packet below.
         if (useP6Protocol || isX1) return InMotionV2Commands.setP6MaxSpeed(tiltbackKmh)
+        if (useV6Protocol) {
+            return InMotionV2Protocol.escapeChecksum(
+                InMotionV2LegacyCommands.setMaxSpeedShort(tiltbackKmh))
+        }
         val m = detectedModel
         return if (m == null || m.maxSpeedHasAlarms) {
             InMotionV2Commands.setMaxSpeedV14(tiltbackKmh, alarmKmh)

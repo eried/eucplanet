@@ -288,6 +288,18 @@ class InMotionV6Test {
     }
 
     @Test
+    fun v6TiltbackWrite_escapesAChecksumThatIsTheEscapeByte() {
+        // 20 km/h is the one V6 speed whose XOR lands on 0xA5. Sent bare, the
+        // wheel took it as an escape and dropped the write (tester: 19 and 21
+        // set, 20 never did).
+        val adapter = InMotionV2Adapter()
+        adapter.notifyConnectingTo("V6-70040773")
+        assertEquals("aaaa160602216021d007a5a5", hex(adapter.setMaxSpeed(20f, 20f)))
+        // Any other checksum goes out as before.
+        assertEquals("aaaa1606022160216c0719", hex(adapter.setMaxSpeed(19f, 19f)))
+    }
+
+    @Test
     fun v6SlowPoll_alternatesSettingsAndOdometer() {
         val adapter = InMotionV2Adapter()
         adapter.notifyConnectingTo("V6-70040773")
