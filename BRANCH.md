@@ -6,7 +6,7 @@ only when you can cut the ride short.
 
 ## Worked on
 
-- Merged the latest next-experimental (HUD app from the phone, recorded engines, volume keys with the screen off, a way out of every window, the wheel icon, and the code and string clean-up) into the iPhone branch.
+- Merged the latest next-experimental (HUD app from the phone, recorded engines, volume keys with the screen off, a way out of every window, the wheel icon, the code and string clean-up, your wording, PWM everywhere and media speed control removed) into the iPhone branch.
 - iPhone app (TestFlight): connects to the wheel, with the same dashboard, alarms, voice reports, settings, themes, Flic buttons, Dropbox sync, trip recording and trip list as Android.
 - iPhone app: leaderboards and crew pass, trip details with the map, trip meter, metric details and the charging monitor with charge alerts.
 - iPhone app: trip tools (rename, change wheel, split, extend), and the wheel reconnects by itself after a drop, as on Android.
@@ -20,7 +20,7 @@ only when you can cut the ride short.
 - iPhone app: the Varia rear-view radar and TPMS tyre caps (Settings, Integration), with the radar lane on the dashboard and tyre pressure in tiles and alarms. Tyre caps are only heard while the app is open, iOS does not let it listen in the background. The wheel's own tyre pressure now shows too.
 - iPhone app: the motor sound, every engine from the Android app with the same settings and previews. It lowers your music while it plays and keeps playing with the iPhone locked.
 - iPhone app: navigation. Plan a route on the map, ride it with spoken turn cues (also with the iPhone locked), the navigator view, the turn card on every screen and Stop navigation on the lock screen. Share routes by link or QR, load and save GPX tracks, your marker photo, and live groups with Android riders. Routes need signal, offline areas are Android only for now.
-- iPhone app: the Overlay Studio, live with the camera and replaying a trip, with your presets. Photos, takes and GIF, APNG and MP4 clips save to Photos.
+- iPhone app: the Overlay Studio, live with the camera and replaying a trip, with your presets. Photos, takes and GIF, APNG and MP4 clips save to Photos. View shows the saved photo or clip inside the app.
 - iPhone app: the Needs attention warnings (location, Bluetooth, notifications, backups), and a recording cut short by closing the app is saved or dropped at the next start, as on Android.
 - Inside: the dashboard, settings, alarms, trips, trip details, trip tools, Legal Mode, the notification buttons, the reconnect timing, leaderboards, Dropbox sync, the wheel link, the theme editor, the automations, what runs on connect and every wheel update, the radar and TPMS settings, the engine sound and the navigation (routing, turn cues, the route builder, route sharing, the navigator view and the Navigation settings) and the Overlay studio moved to a library shared with the iPhone. Nothing should change on screen.
 - iPhone app: a swipe in from the left edge is back, on every screen and in every dialog, and the crew pass has the X in every step.
@@ -29,6 +29,7 @@ only when you can cut the ride short.
 - Settings search no longer finds rows a phone does not show.
 - Every window has a visible way out: an X on the crew pass (scanner and Enter manually), the studio side panels and the HUD preset picker, and Cancel on the ride-without-offline-maps question.
 - A wheel icon (shell, tyre, pedals and a cushioned seat) replaces the bicycle on the studio Wheel name element, the motorcycle on the Legal Mode Wheel button and the scooter on the watch's wheel battery.
+- Studio: the App badge shrinks its name to fit instead of cutting it to "EUC".
 - 0.24.0 beta: everything below from next-experimental, on the Play beta track. New since 0.23.0: the engine sounds, volume keys with the screen off, and five new actions.
 - Release builds are obfuscated (Play asks for it by Feb 2027). Branch APKs are debug builds and do not change.
 - Navigator view: turn card, speed, arrival time and your own tiles on the map while navigating. Pick the tiles in Settings.
