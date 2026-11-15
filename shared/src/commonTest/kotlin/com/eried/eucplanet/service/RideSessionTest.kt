@@ -108,6 +108,20 @@ class RideSessionTest {
         assertEquals(1, trips.starts, "auto-record starts on connect when not gated on motion")
     }
 
+    @Test fun gpsSignalIsSpokenOnlyWithTheAnnouncementOn() {
+        val events = kotlinx.coroutines.flow.MutableSharedFlow<com.eried.eucplanet.data.model.GpsSignalEvent>(extraBufferCapacity = 4)
+        session.followGpsSignal(events)
+        use(AppSettings(announceGps = false))
+        events.tryEmit(com.eried.eucplanet.data.model.GpsSignalEvent.LOST)
+        use(AppSettings(announceGps = true))
+        events.tryEmit(com.eried.eucplanet.data.model.GpsSignalEvent.LOST)
+        events.tryEmit(com.eried.eucplanet.data.model.GpsSignalEvent.ACQUIRED)
+        runBlocking {
+            kotlinx.coroutines.withTimeout(2_000) { while (voice.said.size < 2) kotlinx.coroutines.delay(10) }
+        }
+        assertEquals(listOf("voice_gps_lost", "voice_gps_acquired"), voice.said)
+    }
+
     @Test fun theFirstStateIsNotAChange() {
         use(AppSettings(announceConnection = true))
         wheel.connectionState.value = ConnectionState.CONNECTED

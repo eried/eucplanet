@@ -537,19 +537,10 @@ class WheelService : LifecycleService() {
         )
 
         // GPS voice: speak only GENUINE satellite acquired/lost events. The
-        // TripRepository signal state machine emits these and never the app's own
-        // power management, so opening the app, connecting a wheel, and the idle
-        // power-down all stay silent.
-        lifecycleScope.launch {
-            tripRepository.gpsSignalEvents.collect { event ->
-                if (!settingsRepository.get().announceGps) return@collect
-                val res = when (event) {
-                    com.eried.eucplanet.data.model.GpsSignalEvent.ACQUIRED -> R.string.voice_gps_acquired
-                    com.eried.eucplanet.data.model.GpsSignalEvent.LOST -> R.string.voice_gps_lost
-                }
-                voiceService.announceEvent(getString(res))
-            }
-        }
+        // shared signal state machine (GpsSignalWatch, fed by TripRepository)
+        // emits these and never the app's own power management, so opening the
+        // app, connecting a wheel, and the idle power-down all stay silent.
+        rideSession.followGpsSignal(tripRepository.gpsSignalEvents)
 
         // Start GPS tracking for trip recording (only if permission granted)
         if (locationForegroundReady) {

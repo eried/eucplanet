@@ -3,6 +3,7 @@ package com.eried.eucplanet.service
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.ChargeStatus
+import com.eried.eucplanet.data.model.GpsSignalEvent
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.repository.EventAnnouncer
 import com.eried.eucplanet.data.repository.PhoneDevice
@@ -15,6 +16,7 @@ import kotlin.concurrent.Volatile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -159,6 +161,21 @@ class RideSession(
                 }
             }
             lastConnectionState = state
+        }
+    }
+
+    /**
+     * Speaks the genuine GPS signal changes ([com.eried.eucplanet.data.model.GpsSignalWatch]),
+     * when the rider has the GPS announcement on.
+     */
+    fun followGpsSignal(events: Flow<GpsSignalEvent>): Job = scope.launch {
+        events.collect { event ->
+            if (!settings.get().announceGps) return@collect
+            val res = when (event) {
+                GpsSignalEvent.ACQUIRED -> Res.string.voice_gps_acquired
+                GpsSignalEvent.LOST -> Res.string.voice_gps_lost
+            }
+            voice.announceEvent(phone.text(res))
         }
     }
 

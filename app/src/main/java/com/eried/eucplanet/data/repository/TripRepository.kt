@@ -181,17 +181,12 @@ class TripRepository(
     // satellite loss rather than OEM doze throttling our background location. It
     // never voices the app's own power management (idle power-down, or re-engage
     // on app open / wheel connect). Announces only a GENUINE satellite loss/regain.
-    @Volatile private var gpsTracking = false        // true while recording or navigating
-    @Volatile private var gpsHasFix = false          // FIXED (true) vs ACQUIRING (false) while tracking
-    @Volatile private var acquiringFromLoss = false  // this ACQUIRING followed a genuine loss, not a power-on
-    @Volatile private var lastFixMs = 0L
-    private var lossJob: kotlinx.coroutines.Job? = null
-    private val GPS_LOST_MS = 10_000L                 // no fresh fix for this long while tracking = signal lost
-    private val _gpsSignalEvents =
-        kotlinx.coroutines.flow.MutableSharedFlow<GpsSignalEvent>(extraBufferCapacity = 4)
+    // The shared state machine (GpsSignalWatch), fed every fix and told when
+    // tracking starts and stops.
+    private val gpsSignal = com.eried.eucplanet.data.model.GpsSignalWatch(scope)
     /** Genuine GPS acquired/lost events; power management is never emitted here.
-     *  WheelService speaks these directly. */
-    val gpsSignalEvents: kotlinx.coroutines.flow.SharedFlow<GpsSignalEvent> = _gpsSignalEvents
+     *  WheelService speaks these through the shared RideSession. */
+    val gpsSignalEvents: kotlinx.coroutines.flow.SharedFlow<GpsSignalEvent> = gpsSignal.events
 
     // Ultra battery saving: freshness gates so a cold GPS-off -> record start
     // never logs the stale last-known position (a fake jump at the track start).
@@ -296,52 +291,14 @@ class TripRepository(
 
     // --- GPS signal state machine: voice for genuine satellite loss/regain only ---
 
-    private fun onGpsFix() {
-        lastFixMs = System.currentTimeMillis()
-        if (gpsTracking && !gpsHasFix) {
-            gpsHasFix = true
-            // Announce "acquired" only if this fix ends a genuine loss - not the
-            // first fix after powering GPS on (that transition is silent).
-            if (acquiringFromLoss) {
-                acquiringFromLoss = false
-                _gpsSignalEvents.tryEmit(GpsSignalEvent.ACQUIRED)
-            }
-        }
-        armLossWatchdog()
-    }
-
-    /** (Re)arm the no-fix watchdog. Fires only while tracking: if no fresh fix
-     *  arrives within GPS_LOST_MS the signal counts as genuinely lost. */
-    private fun armLossWatchdog() {
-        lossJob?.cancel(); lossJob = null
-        if (!gpsTracking) return
-        lossJob = scope.launch {
-            delay(GPS_LOST_MS)
-            if (gpsTracking && gpsHasFix) {
-                gpsHasFix = false
-                acquiringFromLoss = true
-                _gpsSignalEvents.tryEmit(GpsSignalEvent.LOST)
-            }
-        }
-    }
+    private fun onGpsFix() = gpsSignal.onFix()
 
     /** Enter tracking (a recording or navigation just started). Silent: a recent fix stays FIXED,
      *  otherwise we wait for the first fix, which is a power-on and not voiced. */
-    private fun startGpsTracking() {
-        if (gpsTracking) return
-        gpsTracking = true
-        acquiringFromLoss = false
-        gpsHasFix = System.currentTimeMillis() - lastFixMs < GPS_LOST_MS && _currentLocation.value != null
-        if (gpsHasFix) armLossWatchdog()
-    }
+    private fun startGpsTracking() = gpsSignal.startTracking(havePosition = _currentLocation.value != null)
 
     /** Leave tracking (no recording or navigation, or GPS off). Silent. */
-    private fun stopGpsTracking() {
-        gpsTracking = false
-        gpsHasFix = false
-        acquiringFromLoss = false
-        lossJob?.cancel(); lossJob = null
-    }
+    private fun stopGpsTracking() = gpsSignal.stopTracking()
 
     /**
      * Ensure the demand-driven GPS stream is running. Callers no longer force a
