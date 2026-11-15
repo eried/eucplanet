@@ -1,12 +1,13 @@
 package com.eried.eucplanet.ui.studio
 
-import android.content.Context
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
-import com.eried.eucplanet.R
+import com.eried.eucplanet.platform.stringResource
+import com.eried.eucplanet.resources.*
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.util.Units
-import com.eried.eucplanet.util.speedUnit
+import com.eried.eucplanet.platform.Locale
+import com.eried.eucplanet.platform.format
+import org.jetbrains.compose.resources.StringResource
 import kotlin.math.absoluteValue
 
 /** Whether a metric needs unit conversion, and against which unit setting. */
@@ -112,16 +113,19 @@ enum class StudioMetric(
         }
     }
 
-    /** The unit label shown beside the value (already locale-aware). */
+    /**
+     * The unit label shown beside the value (already locale-aware). [strings]
+     * reads a string resource, as `rememberStringReader()` hands one out.
+     */
     fun unitText(
-        context: Context,
+        strings: (StringResource) -> String,
         speedUnit: String,
         distUnit: String,
         tempUnit: String,
         pressureUnit: String = "",
     ): String =
         when (kind) {
-            StudioMetricKind.SPEED -> Units.speedUnit(context, speedUnit)
+            StudioMetricKind.SPEED -> strings(Units.speedUnitRes(speedUnit))
             StudioMetricKind.DISTANCE -> Units.distanceUnit(distUnit)
             StudioMetricKind.ALTITUDE -> if (distUnit == "mi") "ft" else "m"
             StudioMetricKind.TEMPERATURE -> Units.tempUnit(tempUnit)
@@ -141,7 +145,7 @@ enum class StudioMetric(
         if (this == GPS) {
             // A lat/lng pair rendered as text; 5 dp is ~1 m. Both 0 means no fix.
             return if (data.latitude == 0.0 && data.longitude == 0.0) "--"
-            else String.format(java.util.Locale.US, "%.5f, %.5f", data.latitude, data.longitude)
+            else String.format(Locale.US, "%.5f, %.5f", data.latitude, data.longitude)
         }
         val v = displayValue(data, speedUnit, distUnit, tempUnit, pressureUnit)
         // A pressure needs as many decimals as its unit does: 1 for psi, 2 for
@@ -152,7 +156,7 @@ enum class StudioMetric(
                 Units.pressureDecimals(pressureUnitFor(distUnit, pressureUnit))
             else decimals
         return if (dp == 0) v.toInt().toString()
-        else String.format(java.util.Locale.US, "%.${dp}f", v)
+        else String.format(Locale.US, "%.${dp}f", v)
     }
 
     companion object {
@@ -163,31 +167,31 @@ enum class StudioMetric(
 /** Returns the localised display name for the metric, for use in Composable contexts only. */
 @Composable
 fun StudioMetric.displayName(): String = when (this) {
-    StudioMetric.SPEED -> stringResource(R.string.studio_metric_speed)
-    StudioMetric.BATTERY -> stringResource(R.string.studio_metric_battery)
+    StudioMetric.SPEED -> stringResource(Res.string.studio_metric_speed)
+    StudioMetric.BATTERY -> stringResource(Res.string.studio_metric_battery)
     // The dashboard tile's name, not a second one. A rider who put this on
     // their dashboard is looking for the same words in the overlay picker.
-    StudioMetric.BATTERY_ENVELOPE -> stringResource(R.string.metric_chip_battery_envelope)
-    StudioMetric.TEMPERATURE -> stringResource(R.string.studio_metric_temperature)
-    StudioMetric.VOLTAGE -> stringResource(R.string.studio_metric_voltage)
-    StudioMetric.CURRENT -> stringResource(R.string.studio_metric_current)
-    StudioMetric.PHASE_CURRENT -> stringResource(R.string.studio_metric_phase_current)
-    StudioMetric.TORQUE -> stringResource(R.string.studio_metric_torque)
-    StudioMetric.POWER -> stringResource(R.string.studio_metric_power)
-    StudioMetric.PWM -> stringResource(R.string.studio_metric_pwm)
-    StudioMetric.TRIP -> stringResource(R.string.studio_metric_trip_distance)
-    StudioMetric.TRIP_METER -> stringResource(R.string.studio_metric_trip_meter)
-    StudioMetric.ODOMETER -> stringResource(R.string.studio_metric_odometer)
-    StudioMetric.WH_CONSUMED -> stringResource(R.string.studio_metric_wh_consumed)
-    StudioMetric.WH_PER_KM -> stringResource(R.string.studio_metric_wh_per_km)
-    StudioMetric.RANGE_ESTIMATE -> stringResource(R.string.studio_metric_range)
-    StudioMetric.PITCH -> stringResource(R.string.studio_metric_pitch)
-    StudioMetric.ROLL -> stringResource(R.string.studio_metric_roll)
-    StudioMetric.G_FORCE -> stringResource(R.string.studio_metric_g_force)
-    StudioMetric.EXTERNAL_GPS_BATTERY -> stringResource(R.string.studio_metric_external_gps_battery)
-    StudioMetric.EXTERNAL_GPS_SPEED -> stringResource(R.string.studio_metric_external_gps_speed)
-    StudioMetric.TIRE_PRESSURE -> stringResource(R.string.studio_metric_tire_pressure)
-    StudioMetric.GPS_SPEED -> stringResource(R.string.studio_metric_gps_speed)
-    StudioMetric.GPS_ALTITUDE -> stringResource(R.string.studio_metric_gps_altitude)
-    StudioMetric.GPS -> stringResource(R.string.studio_metric_gps)
+    StudioMetric.BATTERY_ENVELOPE -> stringResource(Res.string.metric_chip_battery_envelope)
+    StudioMetric.TEMPERATURE -> stringResource(Res.string.studio_metric_temperature)
+    StudioMetric.VOLTAGE -> stringResource(Res.string.studio_metric_voltage)
+    StudioMetric.CURRENT -> stringResource(Res.string.studio_metric_current)
+    StudioMetric.PHASE_CURRENT -> stringResource(Res.string.studio_metric_phase_current)
+    StudioMetric.TORQUE -> stringResource(Res.string.studio_metric_torque)
+    StudioMetric.POWER -> stringResource(Res.string.studio_metric_power)
+    StudioMetric.PWM -> stringResource(Res.string.studio_metric_pwm)
+    StudioMetric.TRIP -> stringResource(Res.string.studio_metric_trip_distance)
+    StudioMetric.TRIP_METER -> stringResource(Res.string.studio_metric_trip_meter)
+    StudioMetric.ODOMETER -> stringResource(Res.string.studio_metric_odometer)
+    StudioMetric.WH_CONSUMED -> stringResource(Res.string.studio_metric_wh_consumed)
+    StudioMetric.WH_PER_KM -> stringResource(Res.string.studio_metric_wh_per_km)
+    StudioMetric.RANGE_ESTIMATE -> stringResource(Res.string.studio_metric_range)
+    StudioMetric.PITCH -> stringResource(Res.string.studio_metric_pitch)
+    StudioMetric.ROLL -> stringResource(Res.string.studio_metric_roll)
+    StudioMetric.G_FORCE -> stringResource(Res.string.studio_metric_g_force)
+    StudioMetric.EXTERNAL_GPS_BATTERY -> stringResource(Res.string.studio_metric_external_gps_battery)
+    StudioMetric.EXTERNAL_GPS_SPEED -> stringResource(Res.string.studio_metric_external_gps_speed)
+    StudioMetric.TIRE_PRESSURE -> stringResource(Res.string.studio_metric_tire_pressure)
+    StudioMetric.GPS_SPEED -> stringResource(Res.string.studio_metric_gps_speed)
+    StudioMetric.GPS_ALTITUDE -> stringResource(Res.string.studio_metric_gps_altitude)
+    StudioMetric.GPS -> stringResource(Res.string.studio_metric_gps)
 }

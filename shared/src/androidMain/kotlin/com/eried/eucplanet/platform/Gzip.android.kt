@@ -52,3 +52,17 @@ actual fun inflateRawCapped(bytes: ByteArray, maxBytes: Int): ByteArray {
     inf.end()
     return out.toByteArray()
 }
+
+actual fun deflateZlibFast(bytes: ByteArray): ByteArray {
+    val deflater = java.util.zip.Deflater(java.util.zip.Deflater.BEST_SPEED)
+    deflater.setInput(bytes)
+    deflater.finish()
+    val buf = ByteArray(64 * 1024)
+    val out = java.io.ByteArrayOutputStream()
+    while (!deflater.finished()) {
+        val n = deflater.deflate(buf)
+        if (n > 0) out.write(buf, 0, n)
+    }
+    deflater.end()
+    return out.toByteArray()
+}

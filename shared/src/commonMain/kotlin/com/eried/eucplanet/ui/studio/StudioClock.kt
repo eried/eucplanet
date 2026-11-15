@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import com.eried.eucplanet.platform.Math
 import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin

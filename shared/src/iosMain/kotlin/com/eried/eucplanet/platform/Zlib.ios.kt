@@ -27,10 +27,15 @@ import platform.zlib.z_stream
 // zlib itself, which is what java.util.zip wraps on Android, so the bytes
 // match. Apple's NSData compression has no level and no gzip reader.
 
+actual fun deflateRaw(bytes: ByteArray): ByteArray = zDeflate(bytes, level = 9, windowBits = -15)
+
+actual fun deflateZlibFast(bytes: ByteArray): ByteArray = zDeflate(bytes, level = 1, windowBits = 15)
+
+/** Deflates at [level] with [windowBits] (-15 raw, 15 with the zlib header). */
 @OptIn(ExperimentalForeignApi::class)
-actual fun deflateRaw(bytes: ByteArray): ByteArray = memScoped {
+private fun zDeflate(bytes: ByteArray, level: Int, windowBits: Int): ByteArray = memScoped {
     val strm = alloc<z_stream>()
-    check(deflateInit2_(strm.ptr, 9, Z_DEFLATED, -15, 8, Z_DEFAULT_STRATEGY, ZLIB_VERSION, sizeOf<z_stream>().toInt()) == Z_OK) {
+    check(deflateInit2_(strm.ptr, level, Z_DEFLATED, windowBits, 8, Z_DEFAULT_STRATEGY, ZLIB_VERSION, sizeOf<z_stream>().toInt()) == Z_OK) {
         "deflateInit failed"
     }
     val out = ByteArrayOutputStream(1024)

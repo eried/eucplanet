@@ -1,7 +1,8 @@
 package com.eried.eucplanet.ui.studio.recording
 
-import android.graphics.Bitmap
-import java.io.OutputStream
+import com.eried.eucplanet.platform.availableProcessors
+import com.eried.eucplanet.platform.runInParallel
+
 
 /**
  * Minimal streaming animated-GIF encoder for the Overlay Studio replay clip.
@@ -15,7 +16,7 @@ import java.io.OutputStream
  * Call [addFrame] in order, then [finish].
  */
 class StudioGifEncoder(
-    private val out: OutputStream,
+    private val out: StudioByteSink,
     private val width: Int,
     private val height: Int,
     private val delayMs: Int
@@ -30,24 +31,12 @@ class StudioGifEncoder(
 
     // --- Frames ------------------------------------------------------------
 
-    /** Quantise [bitmap] and append it as one GIF frame. */
-    fun addFrame(bitmap: Bitmap) {
+    /** Quantise [pixels] (ARGB, width x height) and append it as one GIF frame. */
+    fun addFrame(pixels: IntArray) {
         beginIfNeeded()
-        // GraphicsLayer.toImageBitmap() hands back a HARDWARE bitmap; getPixels()
-        // only works on a software bitmap, so copy when needed.
-        val software = if (bitmap.config == Bitmap.Config.HARDWARE) {
-            bitmap.copy(Bitmap.Config.ARGB_8888, false) ?: return
-        } else {
-            bitmap
-        }
-        val src = if (software.width == width && software.height == height) {
-            software
-        } else {
-            Bitmap.createScaledBitmap(software, width, height, true)
-        }
-        src.getPixels(argb, 0, width, 0, 0, width, height)
-        if (src !== software) src.recycle()
-        if (software !== bitmap) software.recycle()
+        // The platform scales the captured frame to width x height and reads
+        // its ARGB pixels (StudioFrameSource.pixelsOf on Android).
+        pixels.copyInto(argb, 0, 0, width * height)
 
         // Distinct opaque colours with pixel counts -> median-cut palette.
         val counts = HashMap<Int, Int>()
@@ -65,10 +54,10 @@ class StudioGifEncoder(
         // the time. Each band keeps its own colour cache, writes a disjoint
         // slice of `indices`, and nearestIndex() is pure; so no shared state.
         val tIndex = transIndex.toByte()
-        val cores = Runtime.getRuntime().availableProcessors().coerceIn(2, 8)
+        val cores = availableProcessors().coerceIn(2, 8)
         val band = (argb.size + cores - 1) / cores
-        (0 until cores).map { c ->
-            Thread {
+        runInParallel((0 until cores).map { c ->
+            {
                 val cache = HashMap<Int, Int>()
                 val start = c * band
                 val end = minOf(start + band, argb.size)
@@ -82,8 +71,8 @@ class StudioGifEncoder(
                             ?: nearestIndex(rgb, palette).also { cache[rgb] = it }).toByte()
                     }
                 }
-            }.apply { start() }
-        }.forEach { it.join() }
+            }
+        })
 
         // Colour table size must be a power of two covering every index used.
         var bits = 1
@@ -126,7 +115,7 @@ class StudioGifEncoder(
     private fun beginIfNeeded() {
         if (started) return
         started = true
-        out.write("GIF89a".toByteArray(Charsets.US_ASCII))
+        out.write("GIF89a".encodeToByteArray())
         // Logical screen descriptor: no global colour table (each frame has one).
         writeShort(width)
         writeShort(height)
@@ -135,7 +124,7 @@ class StudioGifEncoder(
         out.write(0)    // pixel aspect ratio
         // NETSCAPE2.0 application extension: loop forever.
         out.write(0x21); out.write(0xFF); out.write(11)
-        out.write("NETSCAPE2.0".toByteArray(Charsets.US_ASCII))
+        out.write("NETSCAPE2.0".encodeToByteArray())
         out.write(3); out.write(1); writeShort(0); out.write(0)
     }
 

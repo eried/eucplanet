@@ -126,6 +126,8 @@ import com.eried.eucplanet.ui.studio.recording.StudioOffscreenSession
 // StudioProResEncoder import removed with the disabled MOV (ProRes/.mov) export.
 import com.eried.eucplanet.ui.studio.recording.OverlayFrameSpec
 import com.eried.eucplanet.ui.studio.recording.StudioVideoEncoder
+import com.eried.eucplanet.ui.studio.recording.StudioFramePixels
+import com.eried.eucplanet.ui.studio.recording.asStudioByteSink
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.async
@@ -909,13 +911,16 @@ fun OverlayStudioScreen(
                         var imgOk = false
                         try {
                             // GIF (1-bit alpha) vs APNG (full RGBA alpha).
+                            val sink = stream.asStudioByteSink()
                             val gif = if (videoFormat == ReplayVideoFormat.GIF)
-                                StudioGifEncoder(stream, ew, eh, perFrameDelayMs) else null
+                                StudioGifEncoder(sink, ew, eh, perFrameDelayMs) else null
                             val apng = if (videoFormat == ReplayVideoFormat.APNG)
-                                StudioApngEncoder(stream, ew, eh, perFrameDelayMs, frameCount) else null
+                                StudioApngEncoder(sink, ew, eh, perFrameDelayMs, frameCount) else null
                             withContext(Dispatchers.IO) {
-                                gif?.addFrame(first)
-                                apng?.addFrame(first)
+                                StudioFramePixels.of(first, ew, eh)?.let { px ->
+                                    gif?.addFrame(px)
+                                    apng?.addFrame(px)
+                                }
                             }
                             renderProgress = 1f / frameCount
                             for (i in 1 until frameCount) {
@@ -925,8 +930,10 @@ fun OverlayStudioScreen(
                                 }
                                 val frame = captureReplayFrame(i) ?: break
                                 withContext(Dispatchers.IO) {
-                                    gif?.addFrame(frame)
-                                    apng?.addFrame(frame)
+                                    StudioFramePixels.of(frame, ew, eh)?.let { px ->
+                                        gif?.addFrame(px)
+                                        apng?.addFrame(px)
+                                    }
                                 }
                                 renderProgress = (i + 1f) / frameCount
                             }

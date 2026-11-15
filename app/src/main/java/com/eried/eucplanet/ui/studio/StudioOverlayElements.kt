@@ -1192,10 +1192,11 @@ private fun formatStopwatch(ms: Long): String {
 @Composable
 private fun FreeTextElement(element: OverlayElement, data: StudioElementData) {
     val context = LocalContext.current
+    val strings = com.eried.eucplanet.platform.rememberStringReader()
     val rendered = remember(
         element.text, data.wheelData, data.wheelName,
         data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
-    ) { renderTextTemplate(element.text, data, context) }
+    ) { renderTextTemplate(element.text, data, strings) }
     BoxWithConstraints(
         Modifier
             .fillMaxWidth()
@@ -1221,7 +1222,7 @@ private fun FreeTextElement(element: OverlayElement, data: StudioElementData) {
 private fun renderTextTemplate(
     template: String,
     data: StudioElementData,
-    context: android.content.Context
+    strings: (org.jetbrains.compose.resources.StringResource) -> String
 ): String {
     var s = template
     StudioMetric.entries.forEach { m ->
@@ -1231,7 +1232,7 @@ private fun renderTextTemplate(
                 data.wheelData, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
             )
             val unit = m.unitText(
-                context, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
+                strings, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
             )
             s = s.replace(
                 token,
@@ -1266,6 +1267,7 @@ private fun WheelNameElement(element: OverlayElement, data: StudioElementData) {
 @Composable
 private fun AppBadgeElement(element: OverlayElement) {
     val context = LocalContext.current
+    val strings = com.eried.eucplanet.platform.rememberStringReader()
     // The launcher icon is an adaptive-icon drawable, which painterResource
     // cannot load; rasterise it to a bitmap once instead.
     val icon = remember {
@@ -1337,6 +1339,7 @@ private fun AppBadgeElement(element: OverlayElement) {
 @Composable
 private fun DataValueElement(element: OverlayElement, data: StudioElementData) {
     val context = LocalContext.current
+    val strings = com.eried.eucplanet.platform.rememberStringReader()
     val metric = StudioMetric.fromKey(element.metric)
     BoxWithConstraints(
         Modifier
@@ -1363,7 +1366,7 @@ private fun DataValueElement(element: OverlayElement, data: StudioElementData) {
             }
             Row(verticalAlignment = Alignment.Bottom) {
                 val unit = metric.unitText(
-                    context, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
+                    strings, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
                 )
                 val valueText = metric.formatted(
                     data.wheelData, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
@@ -1475,6 +1478,7 @@ private fun DataGraphElement(element: OverlayElement, data: StudioElementData) {
 @Composable
 private fun DataDialElement(element: OverlayElement, data: StudioElementData) {
     val context = LocalContext.current
+    val strings = com.eried.eucplanet.platform.rememberStringReader()
     val metric = StudioMetric.fromKey(element.metric)
     val value = metric.displayValue(
         data.wheelData, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
@@ -1751,7 +1755,7 @@ private fun DataDialElement(element: OverlayElement, data: StudioElementData) {
                 maxLines = 1
             )
             val unit = metric.unitText(
-                context, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
+                strings, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
             ).ifEmpty { metric.displayName() }
             androidx.compose.material3.Text(
                 text = unit,
@@ -1766,6 +1770,7 @@ private fun DataDialElement(element: OverlayElement, data: StudioElementData) {
 @Composable
 private fun DataBarElement(element: OverlayElement, data: StudioElementData) {
     val context = LocalContext.current
+    val strings = com.eried.eucplanet.platform.rememberStringReader()
     val metric = StudioMetric.fromKey(element.metric)
     val value = metric.displayValue(
         data.wheelData, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
@@ -1793,7 +1798,7 @@ private fun DataBarElement(element: OverlayElement, data: StudioElementData) {
                 }
                 if (element.barShowValue) {
                     val unit = metric.unitText(
-                        context, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
+                        strings, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
                     )
                     androidx.compose.material3.Text(
                         text = metric.formatted(
@@ -1947,6 +1952,7 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
     )
     val tilePx = MAP_TILE_SIZE shl (wantedZoom - zoom)
     val context = LocalContext.current
+    val strings = com.eried.eucplanet.platform.rememberStringReader()
 
     // GPS drops constantly on a real ride: a tunnel, a built-up street, a
     // momentary loss. The live sample then carries 0,0 and the map used to fall

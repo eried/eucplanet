@@ -1,8 +1,8 @@
 package com.eried.eucplanet.ui.studio
 
 import com.eried.eucplanet.data.model.WheelData
-import org.junit.Assert.assertEquals
-import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.Test
 
 /**
  * Altitude is the one Studio metric held in metres rather than a wheel unit,
@@ -27,7 +27,7 @@ class StudioMetricAltitudeTest {
     }
 
     @Test
-    fun `below sea level survives, it is a reading and not an error`() {
+    fun `below sea level survives - it is a reading and not an error`() {
         // The Dead Sea shore is about -430 m. A -1 sentinel would have made
         // this indistinguishable from "no fix", which is why the field is NaN
         // when absent rather than negative.
@@ -45,9 +45,11 @@ class StudioMetricAltitudeTest {
     @Test
     fun `the unit label follows the distance unit`() {
         assertEquals(StudioMetricKind.ALTITUDE, metric.kind)
-        // unitText needs a Context for speed/temp units, so the altitude branch
-        // is asserted through displayValue instead: feet is 3.28084x metres.
-        assertEquals(100f, metric.displayValue(dataAt(100f), "kmh", "km", "C"), 0.01f)
-        assertEquals(328.084f, metric.displayValue(dataAt(100f), "mph", "mi", "F"), 0.01f)
+        // The altitude label needs no string resource, so the reader is never asked.
+        assertEquals("m", metric.unitText({ error("no resource for altitude") }, "kmh", "km", "C"))
+        assertEquals("ft", metric.unitText({ error("no resource for altitude") }, "mph", "mi", "F"))
+        // And the value follows it: feet is 3.28084x metres.
+        assertEquals(100f, metric.displayValue(dataAt(100f), "kmh", "km", "C"), absoluteTolerance = 0.01f)
+        assertEquals(328.084f, metric.displayValue(dataAt(100f), "mph", "mi", "F"), absoluteTolerance = 0.01f)
     }
 }

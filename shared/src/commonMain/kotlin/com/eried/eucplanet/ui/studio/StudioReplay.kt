@@ -2,8 +2,7 @@ package com.eried.eucplanet.ui.studio
 
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.util.TripCsv
-import java.text.SimpleDateFormat
-import java.util.Locale
+import com.eried.eucplanet.platform.LocalDateParserUs
 
 /** A studio session is either live cameras (record now) or a trip replay. */
 enum class StudioMode { LIVE, REPLAY }
@@ -50,10 +49,10 @@ fun parseTripCsv(text: String): ReplayTrip {
         "dd.MM.yyyy HH:mm:ss.SSS", "dd.MM.yyyy HH:mm:ss",
         "yyyy-MM-dd HH:mm:ss.SSS", "yyyy-MM-dd HH:mm:ss",
         "yyyy-MM-dd'T'HH:mm:ss.SSS", "yyyy-MM-dd'T'HH:mm:ss"
-    ).map { SimpleDateFormat(it, Locale.US) }
+    ).map { LocalDateParserUs(it, lenient = true) }
     val lines = text.lineSequence().iterator()
     if (!lines.hasNext()) return ReplayTrip(emptyList())
-    val header = lines.next().split(',').map { it.trim().lowercase(Locale.US) }
+    val header = lines.next().split(',').map { it.trim().lowercase() }
     fun idx(vararg names: String): Int =
         names.firstNotNullOfOrNull { header.indexOf(it).takeIf { i -> i >= 0 } } ?: -1
     val iDate = TripCsv.Columns.date(header)
@@ -84,7 +83,7 @@ fun parseTripCsv(text: String): ReplayTrip {
         fun dbl(i: Int) = if (i in c.indices) c[i].trim().toDoubleOrNull() ?: 0.0 else 0.0
         val rawDate = c.getOrNull(iDate)?.trim()?.takeIf { it.isNotEmpty() } ?: return@forEach
         val ms = fmts.firstNotNullOfOrNull {
-            runCatching { it.parse(subMs.replace(rawDate, "$1"))?.time }.getOrNull()
+            runCatching { it.parse(subMs.replace(rawDate, "$1")) }.getOrNull()
         } ?: return@forEach
         if (firstMs < 0L) firstMs = ms
         val voltage = num(iVoltage)

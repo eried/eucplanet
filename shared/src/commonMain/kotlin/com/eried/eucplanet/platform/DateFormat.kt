@@ -15,10 +15,12 @@ expect fun formatLocalDate(pattern: String, epochMs: Long): String
 expect fun formatLocalDateUs(pattern: String, epochMs: Long): String
 
 /**
- * A strict `SimpleDateFormat(pattern, Locale.US)` parser in local time, for
- * reading timestamps other programs wrote. Not thread-safe: one per caller.
+ * A `SimpleDateFormat(pattern, Locale.US)` parser in local time, for reading
+ * timestamps other programs wrote: strict unless [lenient] (SimpleDateFormat's
+ * own default, which rolls a 61st second into the next minute). Not
+ * thread-safe: one per caller.
  */
-expect class LocalDateParserUs(pattern: String) {
+expect class LocalDateParserUs(pattern: String, lenient: Boolean = false) {
     /** Epoch-millis, or null when [text] does not match the pattern. */
     fun parse(text: String): Long?
 }

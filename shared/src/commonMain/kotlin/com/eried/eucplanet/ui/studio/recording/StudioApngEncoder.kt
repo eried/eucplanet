@@ -1,9 +1,7 @@
 package com.eried.eucplanet.ui.studio.recording
 
-import android.graphics.Bitmap
-import java.io.OutputStream
-import java.util.zip.CRC32
-import java.util.zip.Deflater
+import com.eried.eucplanet.platform.crc32
+import com.eried.eucplanet.platform.deflateZlibFast
 
 /**
  * Minimal streaming animated-PNG (APNG) encoder for the Overlay Studio replay
@@ -27,7 +25,7 @@ import java.util.zip.Deflater
  * Call [addFrame] in order, then [finish].
  */
 class StudioApngEncoder(
-    private val out: OutputStream,
+    private val out: StudioByteSink,
     private val width: Int,
     private val height: Int,
     private val delayMs: Int,
@@ -36,29 +34,16 @@ class StudioApngEncoder(
     private var started = false
     /** Running APNG sequence number, shared by fcTL and fdAT chunks. */
     private var sequence = 0
-    private val crc = CRC32()
     private val argb = IntArray(width * height)
 
     // --- Frames ------------------------------------------------------------
 
-    /** Append [bitmap] as one APNG frame (color-typed 6: RGBA, 8 bit). */
-    fun addFrame(bitmap: Bitmap) {
+    /** Append [pixels] (ARGB, width x height) as one APNG frame (color-typed 6: RGBA, 8 bit). */
+    fun addFrame(pixels: IntArray) {
         beginIfNeeded()
-        // GraphicsLayer.toImageBitmap() hands back a HARDWARE bitmap; getPixels()
-        // only works on a software bitmap, so copy when needed.
-        val software = if (bitmap.config == Bitmap.Config.HARDWARE) {
-            bitmap.copy(Bitmap.Config.ARGB_8888, false) ?: return
-        } else {
-            bitmap
-        }
-        val src = if (software.width == width && software.height == height) {
-            software
-        } else {
-            Bitmap.createScaledBitmap(software, width, height, true)
-        }
-        src.getPixels(argb, 0, width, 0, 0, width, height)
-        if (src !== software) src.recycle()
-        if (software !== bitmap) software.recycle()
+        // The platform scales the captured frame to width x height and reads
+        // its ARGB pixels (StudioFrameSource.pixelsOf on Android).
+        pixels.copyInto(argb, 0, 0, width * height)
 
         // fcTL: frame control. Must precede every frame's pixel data.
         writeFcTl()
@@ -86,7 +71,7 @@ class StudioApngEncoder(
             // Later frames go in fdAT: a 4-byte sequence number, then pixels.
             val fdat = ByteArray(4 + compressed.size)
             writeUInt32(fdat, 0, sequence++)
-            System.arraycopy(compressed, 0, fdat, 4, compressed.size)
+            compressed.copyInto(fdat, 4)
             writeChunk("fdAT", fdat)
         }
         framesWritten++
@@ -148,29 +133,7 @@ class StudioApngEncoder(
 
     // --- Deflate -----------------------------------------------------------
 
-    private fun deflate(raw: ByteArray): ByteArray {
-        val deflater = Deflater(Deflater.BEST_SPEED)
-        deflater.setInput(raw)
-        deflater.finish()
-        val buf = ByteArray(64 * 1024)
-        val sink = ArrayList<ByteArray>()
-        var total = 0
-        while (!deflater.finished()) {
-            val n = deflater.deflate(buf)
-            if (n > 0) {
-                sink.add(buf.copyOf(n))
-                total += n
-            }
-        }
-        deflater.end()
-        val result = ByteArray(total)
-        var off = 0
-        for (chunk in sink) {
-            System.arraycopy(chunk, 0, result, off, chunk.size)
-            off += chunk.size
-        }
-        return result
-    }
+    private fun deflate(raw: ByteArray): ByteArray = deflateZlibFast(raw)
 
     // --- Chunk output ------------------------------------------------------
 
@@ -179,14 +142,11 @@ class StudioApngEncoder(
         val len = ByteArray(4)
         writeUInt32(len, 0, data.size)
         out.write(len)
-        val typeBytes = type.toByteArray(Charsets.US_ASCII)
+        val typeBytes = type.encodeToByteArray()
         out.write(typeBytes)
         out.write(data)
-        crc.reset()
-        crc.update(typeBytes)
-        crc.update(data)
         val crcBytes = ByteArray(4)
-        writeUInt32(crcBytes, 0, crc.value.toInt())
+        writeUInt32(crcBytes, 0, crc32(typeBytes + data).toInt())
         out.write(crcBytes)
     }
 

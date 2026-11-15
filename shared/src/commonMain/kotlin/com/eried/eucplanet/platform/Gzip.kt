@@ -21,6 +21,13 @@ expect fun gunzip(bytes: ByteArray): ByteArray
 expect fun deflateRaw(bytes: ByteArray): ByteArray
 
 /**
+ * [bytes] as a zlib stream (the header PNG's IDAT wants) at the fastest
+ * level: `Deflater(BEST_SPEED)` on Android, zlib's own deflate at level 1 on
+ * iOS.
+ */
+expect fun deflateZlibFast(bytes: ByteArray): ByteArray
+
+/**
  * Raw DEFLATE unpacked, stopping once more than [maxBytes] came out (a link
  * from a stranger must not unpack into a bomb) and returning what came out
  * so far when the data ends early, as an `Inflater(true)` loop that breaks

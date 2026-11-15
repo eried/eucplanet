@@ -23,11 +23,11 @@ actual fun formatLocalDateUs(pattern: String, epochMs: Long): String {
     return f.stringFromDate(NSDate.dateWithTimeIntervalSince1970(epochMs / 1000.0))
 }
 
-actual class LocalDateParserUs actual constructor(pattern: String) {
+actual class LocalDateParserUs actual constructor(pattern: String, lenient: Boolean) {
     private val fmt = NSDateFormatter().apply {
         locale = NSLocale(localeIdentifier = "en_US_POSIX")
         dateFormat = pattern
-        lenient = false
+        this.lenient = lenient
     }
 
     actual fun parse(text: String): Long? =
