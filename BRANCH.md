@@ -9,8 +9,9 @@ ride, this is the branch.
 
 ## Worked on
 
+- InMotion V6: 20 km/h tilt-back, normal and Legal mode, now reaches the wheel. It was the one value the wheel dropped.
 - InMotion V6: the tilt-back speed is read back from the wheel, so it shows what the InMotion app set. The limit is 25 km/h like the InMotion app, and the alarm speed no longer gets a wrong 7 km/h from the wheel.
-- Watch: switch off one or two batteries and the ones left get bigger (one battery is 1.65x). The wheel icon sits level with its number.
+- Watch: the speed sits higher and the batteries are bigger (13 sp with three, 1.25x with two, 1.5x with one). The wheel icon sits level with its number.
 - Every window has a visible way out: an X on the crew pass (scanner and Enter manually), the studio side panels and the HUD preset picker, and Cancel on the ride-without-offline-maps question.
 - A wheel icon (shell, tyre, pedals and a cushioned seat) replaces the bicycle on the studio Wheel name element, the motorcycle on the Legal Mode Wheel button and the scooter on the watch's wheel battery.
 - 0.24.0 beta: everything below from next-experimental, on the Play beta track. New since 0.23.0: the engine sounds, volume keys with the screen off, and five new actions.
@@ -71,8 +72,8 @@ ride, this is the branch.
 ## Please test
 
 **InMotion V6** (Klaus)
-- Set tilt-back in the InMotion app, then connect EUC Planet: does it show the same speed? Change it in EUC Planet: does the wheel follow, up to 25 km/h?
-- Watch: in the phone app's watch settings, keep only the wheel battery. Is the number readable now without glasses?
+- Set tilt-back to 20 km/h in EUC Planet, normal and in Legal mode: does the wheel beep like for 19 and 21?
+- Watch: are the batteries readable now without glasses? Install both the phone and the watch APK.
 
 **Closing windows**
 - Crew pass, studio panels, HUD preset picker: does the X close them? Anywhere else you can only leave with the back gesture?
