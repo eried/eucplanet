@@ -167,12 +167,12 @@ private fun MainScreenContent(
             state.showWatchBattery
         ).count { it }
         val batteryScale = when (batteryCount) {
-            1 -> 1.5f
-            2 -> 1.25f
-            else -> 1f
+            1 -> 2.0f
+            2 -> 1.6f
+            else -> 1.25f
         }
-        val batteryFontSp = ((sw * 0.034f).coerceIn(13f, 16f) * batteryScale).sp
-        val batteryIconDp = ((sw * 0.038f).coerceIn(14f, 17f) * batteryScale).dp
+        val batteryFontSp = ((sw * 0.034f).coerceIn(14f, 17f) * batteryScale).sp
+        val batteryIconDp = ((sw * 0.038f).coerceIn(15f, 18f) * batteryScale).dp
         val batterySpacingDp = (sw * 0.018f).coerceIn(5f, 9f).dp
         val buttonDp = (sw * 0.127f).coerceIn(40f, 56f).dp
         val buttonIconDp = (sw * 0.060f).coerceIn(20f, 26f).dp
@@ -187,7 +187,7 @@ private fun MainScreenContent(
         // within a 5-22 dp band, so it reads as the focal indicator even on
         // smaller round faces.
         val loadBarHeight = (sw * if (prioritizePwm) 0.060f else 0.018f).coerceIn(5f, 22f).dp
-        val centerOffsetY = -(sw * 0.09f).coerceIn(26f, 40f).dp
+        val centerOffsetY = -(sw * 0.13f).coerceIn(40f, 56f).dp
         val watchPercent = watchBatteryPercent
 
 
