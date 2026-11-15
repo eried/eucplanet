@@ -7,6 +7,5 @@ package com.eried.eucplanet.platform
  */
 actual val missingPlatformFeatures: Set<PlatformFeature> = setOf(
     PlatformFeature.GPS_SENSORS,
-    PlatformFeature.CAMERA_STUDIO,
     PlatformFeature.HOME_WIDGETS,
 )

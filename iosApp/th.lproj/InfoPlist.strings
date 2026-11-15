@@ -1,5 +1,7 @@
 /* The permission prompts. Info.plist holds the English. */
-"NSCameraUsageDescription" = "EUC Planet อ่านคิวอาร์โค้ดบัตรผ่านครูว์ที่แสดงบน eucstats";
+"NSCameraUsageDescription" = "EUC Planet ใช้กล้องสำหรับสตูดิโอโอเวอร์เลย์และเพื่ออ่านคิวอาร์โค้ดบัตรผ่านครูว์ที่แสดงบน eucstats";
 "NSBluetoothAlwaysUsageDescription" = "EUC Planet เชื่อมต่อกับล้อของคุณผ่านบลูทูธเพื่อแสดงข้อมูลการขับขี่แบบสด";
 "NSLocationWhenInUseUsageDescription" = "EUC Planet ใช้ตำแหน่งของคุณสำหรับความเร็ว GPS การบันทึกทริป และไฟอัตโนมัติ";
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "EUC Planet บันทึกทริปต่อแม้หน้าจอปิดอยู่";
+"NSMicrophoneUsageDescription" = "EUC Planet บันทึกเสียงลงในวิดีโอของสตูดิโอโอเวอร์เลย์ขณะที่ไมโครโฟนเปิดอยู่";
+"NSPhotoLibraryAddUsageDescription" = "EUC Planet บันทึกรูปภาพ คลิป และวิดีโอของสตูดิโอโอเวอร์เลย์ลงในคลังรูปภาพของคุณ";

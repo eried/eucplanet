@@ -1,5 +1,7 @@
 /* The permission prompts. Info.plist holds the English. */
-"NSCameraUsageDescription" = "EUC Planet liest den QR-Code des Crew-Passes, den eucstats anzeigt.";
+"NSCameraUsageDescription" = "EUC Planet nutzt die Kamera für das Overlay Studio und um den QR-Code des Crew-Passes zu lesen, den eucstats anzeigt.";
 "NSBluetoothAlwaysUsageDescription" = "EUC Planet verbindet sich per Bluetooth mit deinem Wheel, um Live-Fahrdaten anzuzeigen.";
 "NSLocationWhenInUseUsageDescription" = "EUC Planet nutzt deinen Standort für GPS-Geschwindigkeit, Fahrtaufnahme und automatisches Licht.";
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "EUC Planet zeichnet deine Fahrt auch bei ausgeschaltetem Bildschirm weiter auf.";
+"NSMicrophoneUsageDescription" = "EUC Planet nimmt Ton zu den Videos des Overlay Studios auf, solange das Mikrofon an ist.";
+"NSPhotoLibraryAddUsageDescription" = "EUC Planet speichert Fotos, Clips und Videos des Overlay Studios in deiner Fotomediathek.";

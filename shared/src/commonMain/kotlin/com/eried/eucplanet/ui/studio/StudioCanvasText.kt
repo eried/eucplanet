@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 
 // Text the overlay elements stamp straight onto their canvas, where a Text
 // composable cannot go. Android draws with the platform Paint as it always
-// has; iOS will draw with Skia (phase 2) and leaves it out for now.
+// has; iOS draws the same text with Skia.
 
 /** A radar target's distance, bold white, centred on ([x], [y]). */
 expect fun DrawScope.drawRadarDistanceLabel(text: String, x: Float, y: Float, textSize: Float)

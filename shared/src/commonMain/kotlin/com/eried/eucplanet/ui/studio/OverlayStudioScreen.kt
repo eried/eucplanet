@@ -128,12 +128,20 @@ fun OverlayStudioScreen(
     replayTripId: Long? = null,
     viewModel: OverlayStudioViewModel,
     host: StudioHost,
+    scriptedCapture: StudioScriptedCapture? = null,
 ) {
     // The viewports, sheets and elements reach the host through these.
     CompositionLocalProvider(LocalStudioHost provides host, LocalStudioRender provides host) {
-        OverlayStudioContent(onBack, onOpenBackupSettings, replayTripId, viewModel, host)
+        OverlayStudioContent(onBack, onOpenBackupSettings, replayTripId, viewModel, host, scriptedCapture)
     }
 }
+
+/**
+ * A capture the studio starts by itself a moment after it opens, for scripted
+ * runs (the iPhone's EUC_STUDIO_CAPTURE launch hook): a photo, the replay
+ * clip in the chosen format once the trip is loaded, or a five second take.
+ */
+enum class StudioScriptedCapture { PHOTO, CLIP, TAKE }
 
 @Composable
 private fun OverlayStudioContent(
@@ -142,6 +150,7 @@ private fun OverlayStudioContent(
     replayTripId: Long?,
     viewModel: OverlayStudioViewModel,
     host: StudioHost,
+    scriptedCapture: StudioScriptedCapture?,
 ) {
     val strings = rememberStringReader()
     // The Studio owns its window while it is up: fixed portrait, camera-app
@@ -359,6 +368,14 @@ private fun OverlayStudioContent(
     val permissions = host.rememberPermissions()
     val hasCameraPermission = permissions.camera
     val hasAudioPermission = permissions.audio
+
+    // Starts a live take: the record button, and a scripted run.
+    fun startTake() {
+        encoder = host.newVideoSink(withAudio = micEnabled && hasAudioPermission)
+        recordingStartMs = System.currentTimeMillis()
+        stopwatchNowMs = recordingStartMs
+        recording = true
+    }
 
     val chromeVisible = !recording && !capturing && !rendering
     val editable = !recording && !capturing && !rendering
@@ -904,6 +921,23 @@ private fun OverlayStudioContent(
         }
     }
 
+    LaunchedEffect(scriptedCapture) {
+        val what = scriptedCapture ?: return@LaunchedEffect
+        delay(SCRIPTED_SETTLE_MS)
+        when (what) {
+            StudioScriptedCapture.PHOTO -> capturing = true
+            StudioScriptedCapture.CLIP -> {
+                while (replayTrip == null) delay(200)
+                rendering = true
+            }
+            StudioScriptedCapture.TAKE -> {
+                startTake()
+                delay(SCRIPTED_TAKE_MS)
+                recording = false
+            }
+        }
+    }
+
     // Leaving the studio stops a take; the capture loop's finally finalises the file.
     DisposableEffect(Unit) {
         onDispose { recording = false }
@@ -1110,12 +1144,7 @@ private fun OverlayStudioContent(
                             // video format (GIF / APNG / MP4).
                             if (!rendering && replayTrip != null) rendering = true
                         } else if (encoder == null) {
-                            encoder = host.newVideoSink(
-                                withAudio = micEnabled && hasAudioPermission
-                            )
-                            recordingStartMs = System.currentTimeMillis()
-                            stopwatchNowMs = recordingStartMs
-                            recording = true
+                            startTake()
                         }
                     }
                     StudioRoundButton(
@@ -1623,6 +1652,10 @@ private fun OverlayStudioContent(
 // solid 60+ fps. pts are wall-clock, so a slower device still plays back at
 // real speed (just with fewer frames).
 private const val FRAME_INTERVAL_NS = 1_000_000_000L / 62L
+
+/** How long a scripted capture waits for the studio to settle, and how long its take runs. */
+private const val SCRIPTED_SETTLE_MS = 3_000L
+private const val SCRIPTED_TAKE_MS = 5_000L
 
 /**
  * Default element for [type], dropped near the top-left of the layout. New

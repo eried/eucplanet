@@ -28,8 +28,17 @@ internal class StatusBarHost : UIViewController(nibName = null, bundle = null) {
             setNeedsStatusBarAppearanceUpdate()
         }
 
+    /** No status bar, while the Overlay Studio runs full screen. */
+    var hidden: Boolean = false
+        set(value) {
+            if (field == value) return
+            field = value
+            setNeedsStatusBarAppearanceUpdate()
+        }
+
     override fun viewDidLoad() {
         super.viewDidLoad()
+        StatusBarHosts.current = this
         addChildViewController(child)
         child.view.setFrame(view.bounds)
         child.view.autoresizingMask = UIViewAutoresizingFlexibleWidth or UIViewAutoresizingFlexibleHeight
@@ -39,4 +48,11 @@ internal class StatusBarHost : UIViewController(nibName = null, bundle = null) {
 
     override fun preferredStatusBarStyle(): UIStatusBarStyle =
         if (lightContent) UIStatusBarStyleLightContent else UIStatusBarStyleDarkContent
+
+    override fun prefersStatusBarHidden(): Boolean = hidden
+}
+
+/** The window's root once it shows, for screens that change the status bar. */
+internal object StatusBarHosts {
+    var current: StatusBarHost? = null
 }

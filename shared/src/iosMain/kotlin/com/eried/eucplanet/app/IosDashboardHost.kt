@@ -47,8 +47,12 @@ internal class IosDashboardHost : DashboardHost {
         UIApplication.sharedApplication.openURL(target, emptyMap<Any?, Any>(), null)
     }
 
-    // The ride camera is Android only, so there is no gallery of its own to open.
-    override fun openGallery(video: Boolean): Boolean = false
+    // The studio saves to the photo library; iOS opens the Photos app, not one album of it.
+    override fun openGallery(video: Boolean): Boolean {
+        val target = NSURL.URLWithString("photos-redirect://") ?: return false
+        UIApplication.sharedApplication.openURL(target, emptyMap<Any?, Any>(), null)
+        return true
+    }
 
     // iOS apps do not quit themselves; stopEverything already dropped the wheel.
     override fun exitApp() = Unit

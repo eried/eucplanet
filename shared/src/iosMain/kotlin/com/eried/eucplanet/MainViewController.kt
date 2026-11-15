@@ -190,6 +190,12 @@ fun MainViewController(): UIViewController {
     // the wheel protocol probe kept for diagnostics.
     val tab = (NSProcessInfo.processInfo.environment["EUC_TAB"] as? String)?.toIntOrNull()
     val startScreen = NSProcessInfo.processInfo.environment["EUC_SCREEN"] as? String
+    // SIMCTL_CHILD_EUC_STUDIO_CAPTURE=photo|clip|take (with EUC_SCREEN=studio)
+    // takes a photo, exports the replay clip or records a five second take
+    // by itself once the studio settles, for scripted runs.
+    val studioCapture = (NSProcessInfo.processInfo.environment["EUC_STUDIO_CAPTURE"] as? String)?.let { name ->
+        com.eried.eucplanet.ui.studio.StudioScriptedCapture.entries.firstOrNull { it.name.equals(name, ignoreCase = true) }
+    }
     // SIMCTL_CHILD_EUC_SETTINGS_TAB=4 opens Settings on a section, as the
     // dashboard's shortcuts do (initialTabSectionKey).
     val settingsTab = (NSProcessInfo.processInfo.environment["EUC_SETTINGS_TAB"] as? String)?.toIntOrNull() ?: 0
@@ -214,12 +220,18 @@ fun MainViewController(): UIViewController {
                 // Every screen but the dashboard registers IosBackHandler with
                 // the same target as its back arrow, so the left-edge swipe goes
                 // back as Android's system back does.
-                // SIMCTL_CHILD_EUC_SCREEN=scan opens on the scan screen (also settings, flic, trips, trip, trip:<id>, viewer:<id>, tripmeter, metric:<key>, charging, charging:details, route).
+                // SIMCTL_CHILD_EUC_SCREEN=scan opens on the scan screen (also settings, flic, trips, trip, trip:<id>, viewer:<id>, tripmeter, metric:<key>, charging, charging:details, route, studio, studio:<trip id>).
                 // "metric:VOLTAGE" opens a metric's detail, with the dashboard's route argument.
                 var screen by remember { mutableStateOf(startScreen?.substringBefore(':') ?: "dashboard") }
                 var metricArg by remember { mutableStateOf(startScreen?.substringAfter(':', "BATTERY") ?: "BATTERY") }
                 // The trip the viewer shows ("trip:12"); blank opens the newest.
                 var tripArg by remember { mutableStateOf(if (startScreen?.startsWith("trip:") == true) startScreen.substringAfter(':') else "") }
+                // The trip the Overlay Studio replays ("studio:12"), or none for live.
+                var studioTrip by remember {
+                    mutableStateOf(if (startScreen?.startsWith("studio:") == true) startScreen.substringAfter(':').toLongOrNull() else null)
+                }
+                // Where the studio's close goes back to.
+                var studioBack by remember { mutableStateOf("dashboard") }
                 // The trip View online shows ("viewer:12"), and where its back arrow goes.
                 var viewerArg by remember { mutableStateOf(if (startScreen?.startsWith("viewer:") == true) startScreen.substringAfter(':') else "") }
                 var viewerBack by remember { mutableStateOf("trips") }
@@ -335,6 +347,11 @@ fun MainViewController(): UIViewController {
                                     viewerBack = "trips"
                                     screen = "viewer"
                                 },
+                                onReplayTrip = { id ->
+                                    studioTrip = id
+                                    studioBack = "trips"
+                                    screen = "studio"
+                                },
                                 viewModel = recordingVm,
                                 host = IosRecordingHost,
                             )
@@ -352,6 +369,12 @@ fun MainViewController(): UIViewController {
                                         tripArg = trip.id.toString()
                                         viewerBack = "trip"
                                         screen = "viewer"
+                                    },
+                                    onReplayTrip = { id ->
+                                        tripArg = trip.id.toString()
+                                        studioTrip = id
+                                        studioBack = "trip"
+                                        screen = "studio"
                                     },
                                     viewModel = recordingVm,
                                     host = IosTripDetailHost,
@@ -451,6 +474,32 @@ fun MainViewController(): UIViewController {
                             host = com.eried.eucplanet.app.IosRouteBuilderHost,
                         )
                     }
+                    // The Overlay Studio, live or replaying a trip (SIMCTL_CHILD_EUC_SCREEN=studio, studio:<trip id>).
+                    "studio" -> {
+                        val studioVm = rememberViewModel { IosAppGraph.overlayStudioViewModel() }
+                        val studioHost = remember { com.eried.eucplanet.app.IosStudioHost() }
+                        val leaveStudio = {
+                            screen = studioBack
+                            studioBack = "dashboard"
+                        }
+                        // The screen registers its own back (host.BackHandler) while it records, which wins.
+                        IosBackHandler { leaveStudio() }
+                        LaunchedEffect(studioVm) { applyStudioHooks(studioVm) }
+                        key(studioTrip) {
+                            com.eried.eucplanet.ui.studio.OverlayStudioScreen(
+                                onBack = { leaveStudio() },
+                                onOpenBackupSettings = {
+                                    leaderboardTab = SETTINGS_TAB_CLOUD
+                                    settingsBack = "studio"
+                                    screen = "settings"
+                                },
+                                replayTripId = studioTrip,
+                                viewModel = studioVm,
+                                host = studioHost,
+                                scriptedCapture = studioCapture,
+                            )
+                        }
+                    }
                     "flic" -> {
                         val flicVm = rememberViewModel { FlicViewModel(IosAppGraph.settings, IosFlic) }
                         IosBackHandler { screen = "settings" }
@@ -493,6 +542,11 @@ fun MainViewController(): UIViewController {
                                 screen = "metric"
                             },
                             onNavigateToNavigator = { screen = "route" },
+                            onNavigateToStudio = {
+                                studioTrip = null
+                                studioBack = "dashboard"
+                                screen = "studio"
+                            },
                             viewModel = viewModel,
                             host = host,
                         )
@@ -552,3 +606,27 @@ private const val SETTINGS_TAB_NAVIGATION = 8
 
 /** The section the charging monitor's Settings item opens, Screen.Settings.createRoute(9) on Android. */
 private const val SETTINGS_TAB_CHARGING = 9
+
+/**
+ * The studio's launch hooks, for scripted runs: SIMCTL_CHILD_EUC_STUDIO_PRESET
+ * loads a starter ("Race") or, failing that, a saved preset of that name;
+ * EUC_STUDIO_FORMAT picks the clip format (GIF, APNG, MP4) and
+ * EUC_STUDIO_PHOTO the photo format (PNG, JPG, WEBP), saved like the rider's
+ * pick; EUC_STUDIO_SCALE the export size in percent (25 to 100).
+ */
+private fun applyStudioHooks(vm: com.eried.eucplanet.ui.studio.OverlayStudioViewModel) {
+    val env = NSProcessInfo.processInfo.environment
+    (env["EUC_STUDIO_PRESET"] as? String)?.let { name ->
+        vm.loadBundledPreset(name) { ok ->
+            if (!ok) vm.loadPreset(name) { found -> Log.i("OverlayStudio", "EUC_STUDIO_PRESET $name: saved=$found") }
+            else Log.i("OverlayStudio", "EUC_STUDIO_PRESET $name: starter")
+        }
+    }
+    (env["EUC_STUDIO_FORMAT"] as? String)?.let {
+        vm.setReplayVideoFormat(com.eried.eucplanet.ui.studio.ReplayVideoFormat.fromKey(it.uppercase()))
+    }
+    (env["EUC_STUDIO_PHOTO"] as? String)?.let {
+        vm.setReplayPhotoFormat(com.eried.eucplanet.ui.studio.ReplayPhotoFormat.fromKey(it.uppercase()))
+    }
+    (env["EUC_STUDIO_SCALE"] as? String)?.toIntOrNull()?.let { vm.setReplayScale(it.coerceIn(25, 100)) }
+}

@@ -103,7 +103,11 @@
         </dict>
     </array>
     <key>NSCameraUsageDescription</key>
-    <string>EUC Planet reads the crew pass QR code shown on eucstats.</string>
+    <string>EUC Planet uses the camera for the Overlay Studio and to read the crew pass QR code shown on eucstats.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>EUC Planet records sound with the Overlay Studio's videos while the microphone is on.</string>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>EUC Planet saves the Overlay Studio's photos, clips and videos to your photo library.</string>
     <key>NSBluetoothAlwaysUsageDescription</key>
     <string>EUC Planet connects to your wheel over Bluetooth to show live ride data.</string>
     <key>NSLocationWhenInUseUsageDescription</key>

@@ -3,49 +3,221 @@ package com.eried.eucplanet.app
 import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.data.repository.PhoneImuSample
 import com.eried.eucplanet.data.repository.PhoneLocation
+import com.eried.eucplanet.data.store.OverlayPresetJson
 import com.eried.eucplanet.data.store.OverlayPresets
+import com.eried.eucplanet.data.sync.JsonFolder
 import com.eried.eucplanet.hud.protocol.OverlayPreset
+import com.eried.eucplanet.platform.JSONObject
+import com.eried.eucplanet.platform.Log
+import com.eried.eucplanet.platform.toByteArray
+import com.eried.eucplanet.platform.toNSData
+import com.eried.eucplanet.resources.Res
 import com.eried.eucplanet.ui.studio.StudioImu
 import com.eried.eucplanet.ui.studio.StudioTrips
+import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.useContents
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.withContext
+import platform.CoreMotion.CMMotionManager
+import platform.Foundation.NSData
+import platform.Foundation.NSFileManager
+import platform.Foundation.NSOperationQueue
+import platform.Foundation.NSString
+import platform.Foundation.NSUTF8StringEncoding
+import platform.Foundation.dataWithContentsOfFile
+import platform.Foundation.stringWithContentsOfFile
+import platform.Foundation.writeToFile
 
-// The Overlay Studio's ports on the iPhone, not wired yet: the studio row stays
-// muted ("Not on iPhone yet") until phase 2 brings the AVFoundation camera,
-// the AVAssetWriter export and the AVPlayer replay. These only keep the shared
-// view model constructible; nothing registers them.
+// The Overlay Studio's ports on the iPhone: the layouts on disk, the trips to
+// replay and the phone's accelerometer, the three things the shared
+// OverlayStudioViewModel asks of the phone (StudioPorts.kt, OverlayPresets).
 
-/** Layouts kept in memory: no backup folder and no bundled starters yet. */
-internal class IosOverlayPresets : OverlayPresets {
-    private var draft = OverlayPreset()
-    override suspend fun loadDraft(): OverlayPreset = draft
-    override suspend fun saveDraft(preset: OverlayPreset) { draft = preset }
-    override suspend fun presetFolderAvailable(): Boolean = false
-    override suspend fun listPresets(): List<String> = emptyList()
-    override suspend fun savePreset(name: String, preset: OverlayPreset): Boolean = false
-    override suspend fun loadPreset(name: String): OverlayPreset? = null
-    override suspend fun listBundledPresets(): List<String> = emptyList()
-    override suspend fun loadBundledPreset(name: String): OverlayPreset? = null
-    override suspend fun deletePreset(name: String): Boolean = false
+/**
+ * The studio's layouts, as Android's OverlayPresetStore keeps them: the
+ * working draft in the app's own files (Documents/overlay_studio_draft.json),
+ * the rider's named presets one `<name>.json` each in Documents/overlays (the
+ * iPhone's stand-in for the backup folder's overlays/, mirrored with Dropbox's
+ * /overlays like Documents/themes), and the starters the app ships, the phone
+ * app's assets/overlay_presets copied in by generateIosAppArt.
+ */
+@OptIn(ExperimentalForeignApi::class)
+internal class IosOverlayPresets(documents: String) : OverlayPresets, JsonFolder {
+    private val draftPath = "$documents/$DRAFT_FILE"
+    private val dir = "$documents/overlays"
+    private val fm = NSFileManager.defaultManager
+
+    private fun readText(path: String): String? =
+        NSString.stringWithContentsOfFile(path, NSUTF8StringEncoding, null)
+
+    private fun writeText(path: String, text: String): Boolean =
+        text.encodeToByteArray().toNSData().writeToFile(path, true)
+
+    private fun folderReady(): Boolean =
+        fm.fileExistsAtPath(dir) || fm.createDirectoryAtPath(dir, true, null, null)
+
+    override suspend fun loadDraft(): OverlayPreset = withContext(Dispatchers.IO) {
+        val text = readText(draftPath) ?: return@withContext bundledDefault() ?: OverlayPreset()
+        runCatching { OverlayPresetJson.fromJson(JSONObject(text)) }.getOrElse {
+            Log.w(TAG, "Draft unreadable, starting fresh", it)
+            bundledDefault() ?: OverlayPreset()
+        }
+    }
+
+    /** The first-launch layout, as Android reads assets/overlay_default.json. */
+    private suspend fun bundledDefault(): OverlayPreset? = runCatching {
+        OverlayPresetJson.fromJson(JSONObject(Res.readBytes("files/$DEFAULT_ASSET").decodeToString()))
+    }.getOrElse {
+        Log.w(TAG, "Bundled default preset unreadable", it)
+        null
+    }
+
+    override suspend fun saveDraft(preset: OverlayPreset) = withContext(Dispatchers.IO) {
+        if (!writeText(draftPath, OverlayPresetJson.toJson(preset).toString())) {
+            Log.w(TAG, "Could not save draft")
+        }
+    }
+
+    // The folder is the app's own, so it is always there.
+    override suspend fun presetFolderAvailable(): Boolean = withContext(Dispatchers.IO) { folderReady() }
+
+    override suspend fun listPresets(): List<String> = withContext(Dispatchers.IO) {
+        jsonNames().map { it.dropLast(SUFFIX.length) }.sortedBy { it.lowercase() }
+    }
+
+    private fun jsonNames(): List<String> {
+        if (!folderReady()) return emptyList()
+        return (fm.contentsOfDirectoryAtPath(dir, null) ?: emptyList<Any>())
+            .mapNotNull { it as? String }
+            .filter { it.endsWith(SUFFIX, ignoreCase = true) }
+    }
+
+    override suspend fun savePreset(name: String, preset: OverlayPreset): Boolean = withContext(Dispatchers.IO) {
+        val safe = sanitize(name) ?: return@withContext false
+        if (!folderReady()) return@withContext false
+        val json = OverlayPresetJson.toJson(preset.copy(name = safe)).toString(2)
+        writeText("$dir/$safe$SUFFIX", json).also { if (!it) Log.e(TAG, "Saving preset '$name' failed") }
+    }
+
+    override suspend fun loadPreset(name: String): OverlayPreset? = withContext(Dispatchers.IO) {
+        val text = readText("$dir/$name$SUFFIX") ?: return@withContext null
+        runCatching { OverlayPresetJson.fromJson(JSONObject(text)) }.getOrElse {
+            Log.e(TAG, "Loading preset '$name' failed", it)
+            null
+        }
+    }
+
+    override suspend fun listBundledPresets(): List<String> = runCatching {
+        Res.readBytes("files/$BUNDLED_DIR/$BUNDLED_INDEX").decodeToString()
+            .lines().map { it.trim() }.filter { it.isNotEmpty() }
+            .sortedBy { it.lowercase() }
+    }.getOrElse {
+        Log.w(TAG, "Could not list bundled presets", it)
+        emptyList()
+    }
+
+    override suspend fun loadBundledPreset(name: String): OverlayPreset? = runCatching {
+        OverlayPresetJson.fromJson(JSONObject(Res.readBytes("files/$BUNDLED_DIR/$name$SUFFIX").decodeToString()))
+    }.getOrElse {
+        Log.e(TAG, "Loading bundled preset '$name' failed", it)
+        null
+    }
+
+    override suspend fun deletePreset(name: String): Boolean = withContext(Dispatchers.IO) {
+        fm.removeItemAtPath("$dir/$name$SUFFIX", null)
+    }
+
+    // --- Dropbox's /overlays, as Android's SyncManager syncs the backup folder's overlays/.
+
+    override suspend fun jsonFiles(): Map<String, ByteArray>? = withContext(Dispatchers.IO) {
+        if (!folderReady()) return@withContext null
+        jsonNames().mapNotNull { name ->
+            NSData.dataWithContentsOfFile("$dir/$name")?.let { name to it.toByteArray() }
+        }.toMap()
+    }
+
+    override suspend fun write(name: String, bytes: ByteArray): Boolean = withContext(Dispatchers.IO) {
+        folderReady() && bytes.toNSData().writeToFile("$dir/$name", true)
+    }
+
+    /** Android's SyncManager.sanitizeBackupName, so a name saves to the same file on both phones. */
+    private fun sanitize(raw: String): String? = raw.trim()
+        .replace(Regex("[^A-Za-z0-9_\\- ]"), "")
+        .replace(Regex("\\s+"), " ")
+        .trim()
+        .take(32)
+        .takeIf { it.isNotEmpty() }
+
+    private companion object {
+        const val TAG = "OverlayPresets"
+        const val DRAFT_FILE = "overlay_studio_draft.json"
+        const val SUFFIX = ".json"
+        const val BUNDLED_DIR = "overlay_presets"
+        /** The starters' names, one per line, written by generateIosAppArt (Compose resources cannot list a folder). */
+        const val BUNDLED_INDEX = "index.txt"
+        const val DEFAULT_ASSET = "overlay_default.json"
+    }
 }
 
-/** No fix and no trips to replay yet. */
-internal object NoStudioTrips : StudioTrips {
-    override val currentFix: StateFlow<PhoneLocation?> = MutableStateFlow<PhoneLocation?>(null).asStateFlow()
-    override val allTrips: Flow<List<TripRecord>> = flowOf(emptyList())
-    override val currentTripId: StateFlow<Long?> = MutableStateFlow<Long?>(null).asStateFlow()
-    override fun startLocationUpdates() = Unit
-    override suspend fun tripById(id: Long): TripRecord? = null
-    override fun tripCsv(record: TripRecord): String? = null
+/** The trip store and the phone's location, as AndroidStudioTrips reads TripRepository. */
+internal object IosStudioTrips : StudioTrips {
+    override val currentFix: StateFlow<PhoneLocation?> get() = IosLocation.fix
+    override val allTrips: Flow<List<TripRecord>> get() = IosTrips.allTrips
+    override val currentTripId: StateFlow<Long?> get() = IosTrips.currentTripId
+    override fun startLocationUpdates() = IosTrips.startLocationUpdates()
+    override suspend fun tripById(id: Long): TripRecord? = IosTrips.getTripById(id)
+
+    @OptIn(ExperimentalForeignApi::class)
+    override fun tripCsv(record: TripRecord): String? =
+        NSString.stringWithContentsOfFile("${IosTrips.tripsDir}/${record.fileName}", NSUTF8StringEncoding, null)
 }
 
-/** The accelerometer is not read on iOS yet. */
-internal object NoStudioImu : StudioImu {
-    override val imu: StateFlow<PhoneImuSample?> = MutableStateFlow<PhoneImuSample?>(null).asStateFlow()
-    override fun start() = Unit
-    override fun stop() = Unit
-    override fun refresh() = Unit
+/**
+ * The phone's linear acceleration for the G-force element, as Android's
+ * PhoneSensorRepository reads TYPE_LINEAR_ACCELERATION at SENSOR_DELAY_GAME:
+ * CoreMotion's user acceleration (gravity removed, in g) at 50 Hz. Core Motion
+ * reports with the opposite sign to Android's sensors, so each axis is
+ * flipped; the axes are the same (x right, y up, z out of the screen).
+ * Counted like Android's: the last stop lets the sensor go.
+ */
+@OptIn(ExperimentalForeignApi::class)
+internal object IosStudioImu : StudioImu {
+    private val manager by lazy { CMMotionManager() }
+    private val _imu = MutableStateFlow<PhoneImuSample?>(null)
+    override val imu: StateFlow<PhoneImuSample?> = _imu.asStateFlow()
+    private var users = 0
+
+    override fun start() {
+        users++
+        if (users == 1) register()
+    }
+
+    override fun stop() {
+        if (users == 0) return
+        users--
+        if (users == 0) {
+            manager.stopDeviceMotionUpdates()
+            _imu.value = null
+        }
+    }
+
+    // CoreMotion keeps delivering after the app comes back; a re-register is
+    // only needed when it was stopped.
+    override fun refresh() {
+        if (users > 0 && !manager.deviceMotionActive) register()
+    }
+
+    private fun register() {
+        if (!manager.deviceMotionAvailable) return
+        manager.deviceMotionUpdateInterval = 0.02
+        manager.startDeviceMotionUpdatesToQueue(NSOperationQueue.mainQueue) { motion, _ ->
+            motion?.userAcceleration?.useContents {
+                _imu.value = PhoneImuSample(xG = (-x).toFloat(), yG = (-y).toFloat(), zG = (-z).toFloat())
+            }
+        }
+    }
 }

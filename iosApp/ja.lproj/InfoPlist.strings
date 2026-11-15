@@ -1,5 +1,7 @@
 /* The permission prompts. Info.plist holds the English. */
-"NSCameraUsageDescription" = "EUC Planet は eucstats に表示されるクルーパスの QR コードを読み取ります。";
+"NSCameraUsageDescription" = "EUC Planet はオーバーレイスタジオと、eucstats に表示されるクルーパスの QR コードの読み取りにカメラを使用します。";
 "NSBluetoothAlwaysUsageDescription" = "EUC Planet は Bluetooth でホイールに接続し、走行データをリアルタイムで表示します。";
 "NSLocationWhenInUseUsageDescription" = "EUC Planet は位置情報を GPS 速度、トリップ記録、ライトの自動点灯に使用します。";
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "EUC Planet は画面がオフの間もトリップを記録し続けます。";
+"NSMicrophoneUsageDescription" = "EUC Planet はマイクがオンの間、オーバーレイスタジオの動画に音声を録音します。";
+"NSPhotoLibraryAddUsageDescription" = "EUC Planet はオーバーレイスタジオの写真、クリップ、動画を写真ライブラリに保存します。";

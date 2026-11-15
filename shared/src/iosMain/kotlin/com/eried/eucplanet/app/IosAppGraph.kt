@@ -116,6 +116,9 @@ object IosAppGraph {
      */
     internal val themeFiles: IosThemeFiles by lazy { IosThemeFiles(documents) }
 
+    /** The Overlay Studio's draft and presets (Documents/overlays), and its starters. */
+    internal val overlayPresets: IosOverlayPresets by lazy { IosOverlayPresets(documents) }
+
     /** The rider's own horn sound, kept in Documents/horn. */
     internal val horn: IosHorn by lazy { IosHorn("$documents/horn") }
 
@@ -417,6 +420,20 @@ object IosAppGraph {
 
     /** The TPMS section's view model. */
     fun tpmsViewModel(): TpmsViewModel = TpmsViewModel(settings, tpmsScanner, tpms)
+
+    /** The Overlay Studio's view model, as Koin's viewModelOf builds it on Android. */
+    fun overlayStudioViewModel(): com.eried.eucplanet.ui.studio.OverlayStudioViewModel =
+        com.eried.eucplanet.ui.studio.OverlayStudioViewModel(
+            wheelRepository = wheel,
+            settingsRepository = settings,
+            presetStore = overlayPresets,
+            tripRepository = IosStudioTrips,
+            tripMeterRepository = IosTripMeter.meter,
+            phoneSensorRepository = IosStudioImu,
+            externalGpsRepository = NoExternalGps,
+            radarRepository = radar,
+            navMarkerStore = navMarkers,
+        )
 
     /** The trip list's view model, as Koin's viewModelOf builds it on Android. */
     fun eucViewerViewModel(): EucViewerViewModel = EucViewerViewModel(IosTrips)

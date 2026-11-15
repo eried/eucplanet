@@ -15,7 +15,10 @@ import kotlin.test.assertTrue
 class IosPlatformFeaturesTest {
 
     @Test fun comingFeaturesAreMissingForNow() {
-        assertEquals(PlatformFeature.entries.toSet() - PlatformFeature.NAVIGATION, missingPlatformFeatures)
+        assertEquals(
+            PlatformFeature.entries.toSet() - PlatformFeature.NAVIGATION - PlatformFeature.CAMERA_STUDIO,
+            missingPlatformFeatures,
+        )
         for (f in missingPlatformFeatures) assertFalse(f.available, f.name)
     }
 
@@ -24,6 +27,12 @@ class IosPlatformFeaturesTest {
         // IosNavigationHost), so the map button, its tile and settings open.
         assertTrue(PlatformFeature.NAVIGATION.available)
         assertFalse(PlatformFeature.NAVIGATION in missingPlatformFeatures)
+    }
+
+    @Test fun theStudioIsOnTheIphone() {
+        // The Overlay Studio runs on IosStudioHost, so the camera button, its
+        // tile, the trips' Replay row and the tour's camera step open.
+        assertTrue(PlatformFeature.CAMERA_STUDIO.available)
     }
 
     @Test fun aMutedSectionIsNotAlsoHidden() {

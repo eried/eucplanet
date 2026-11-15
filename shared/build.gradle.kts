@@ -125,10 +125,32 @@ compose.resources {
 // APK already carries them, so each stays one copy. All share this one
 // directory: iosMain takes a single customDirectory, a second one silently
 // replaced the first (the Leaflet was missing from the app that way).
+// The Overlay Studio's starter presets come along with an index of their
+// names (IosOverlayPresets reads it: Compose resources cannot list a folder).
+val overlayPresetIndex = tasks.register("generateOverlayPresetIndex") {
+    val presets = rootProject.file("app/src/main/assets/overlay_presets")
+    val out = layout.buildDirectory.file("generated/overlayPresetIndex/index.txt")
+    inputs.dir(presets)
+    outputs.file(out)
+    doLast {
+        val names = presets.listFiles().orEmpty()
+            .filter { it.isFile && it.name.endsWith(".json", ignoreCase = true) }
+            .map { it.name.dropLast(".json".length) }
+            .sortedBy { it.lowercase() }
+        out.get().asFile.apply { parentFile.mkdirs() }.writeText(names.joinToString("\n", postfix = "\n"))
+    }
+}
 val iosAppArt = tasks.register<Sync>("generateIosAppArt") {
     from(rootProject.file("app/src/main/assets")) {
-        include("welcome_clip.webp", "leaflet.js", "leaflet.css", "leaflet-rotate.js")
+        include("welcome_clip.webp", "leaflet.js", "leaflet.css", "leaflet-rotate.js", "overlay_default.json")
         into("files")
+    }
+    from(rootProject.file("app/src/main/assets/overlay_presets")) {
+        include("*.json")
+        into("files/overlay_presets")
+    }
+    from(overlayPresetIndex) {
+        into("files/overlay_presets")
     }
     from(rootProject.file("app/src/main/res/raw")) {
         include("grain_*.bin")

@@ -93,7 +93,7 @@ interface StudioOffscreen {
  * The phone side of the Overlay Studio screen, in the style of
  * RouteBuilderHost: the cameras, the media pickers, the encoders and the
  * gallery, the window it runs in. Android keeps all of it in
- * AndroidStudioHost; the iPhone does not show the studio yet.
+ * AndroidStudioHost, the iPhone in IosStudioHost.
  */
 interface StudioHost : StudioRender {
     /**
