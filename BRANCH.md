@@ -31,6 +31,8 @@ ride, this is the branch.
 - HUD camera: the MotoEye camera button frees the camera, so its rear view and recorder work from any screen. The picture comes back by itself a few seconds after you stop recording or close the rear view. UP or DOWN also brings it back.
 - HUD camera: opening a camera screen while the MotoEye records no longer takes its camera and freezes the clip. It says the camera is in use and comes back once the recording stops.
 - HUD: the branch HUD APK is now a release build and starts two to three times faster.
+- HUD: new screen Custom overlay + map, your preset drawn over the live map. UP and DOWN zoom. Switch it on in Settings, HUD, screens.
+- HUD: the yellow update notice shows for 20 seconds after connecting, then goes away. The red one, when phone and HUD are too far apart to talk, stays.
 - Voice alarms: a PWM alarm says "PWM" again in Italian, Norwegian and Chinese, it was left out.
 - InMotion V8S and other V1 wheels: commands go out in small pieces like EUC World does, so the link should stop dropping.
 - InMotion V8S: the light button and auto-lights follow the wheel's real light state, and Charging shows (also V8F, V10).
@@ -112,6 +114,8 @@ ride, this is the branch.
 - Install the phone and the HUD APK from this build. Open the HUD Map screen, leave the phone app, no wheel connected: does the map stay? And with the wheel connected, on any map style and zoom?
 - Camera screen: turn the front camera, switch to the rear one and back. Does each keep its own turn, also after restarting the HUD?
 - MotoEye, without pressing UP or DOWN: 1) Camera screen, hold to start recording, then hold again to stop. Does the picture come back about 5 s after the stop? 2) Short press for the rear view and close it, does it come back? 3) Dashboard, start recording, go to the Camera screen (it should say "in use"), back, stop: does that file play to the end? If the picture stays off, send a photo of the small grey line.
+- Custom overlay + map: is your preset readable over the map, and do the zoom and speed boxes in the corners get in its way?
+- If your phone and HUD builds differ: does the yellow update notice leave after about 20 seconds, and come back only when the HUD reconnects?
 
 **InMotion V8S (or any V1 wheel)**
 - Ride as usual: how many disconnects, compared with EUC World? A Service Mode log covering any drop helps most.

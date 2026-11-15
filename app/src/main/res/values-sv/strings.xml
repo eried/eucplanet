@@ -504,6 +504,7 @@
     <string name="hud_screen_name_telemetry">Telemetri</string>
     <string name="hud_screen_name_custom">Eget överlägg + svart</string>
     <string name="hud_screen_name_custom_cam">Eget överlägg + kamera</string>
+    <string name="hud_screen_name_custom_map">Eget överlägg + karta</string>
     <string name="hud_screen_name_map">Karta</string>
     <string name="hud_screen_name_nav">Navigator</string>
     <string name="hud_screen_name_map_nav">Karta + Nav</string>

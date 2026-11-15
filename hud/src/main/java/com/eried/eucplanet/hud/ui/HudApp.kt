@@ -193,6 +193,14 @@ fun HudApp(
                                 onCameraTaken = { controller.handOffCamera() },
                                 onOtherAppCamera = controller::onOtherAppCamera
                             )
+                        HudUiController.Screen.CustomMap ->
+                            // The rider's preset over the map, as CustomCam
+                            // puts it over the camera. The overlay paints no
+                            // background of its own, so the map shows through.
+                            Box(Modifier.fillMaxSize()) {
+                                MapScreen(hud = hud, zoom = controller.mapZoom, cache = tileCache)
+                                CustomOverlayScreen(hud = hud, withCamera = false)
+                            }
                         HudUiController.Screen.MapNav ->
                             MapNavScreen(hud = hud, zoom = controller.mapZoom, cache = tileCache)
                         HudUiController.Screen.Map ->
@@ -245,12 +253,13 @@ fun HudApp(
                     // already has the bordered chrome treatment).
                     //
                     // Skipped on:
-                    //   * Custom / CustomCam -- the rider's canvas
+                    //   * Custom / CustomCam / CustomMap -- the rider's canvas
                     //   * BigClock -- showing the clock twice is silly
                     //   * Whenever disconnect chrome is up at TopEnd --
                     //     the disconnect signal wins that corner.
                     val showClock = controller.current != HudUiController.Screen.Custom &&
                         controller.current != HudUiController.Screen.CustomCam &&
+                        controller.current != HudUiController.Screen.CustomMap &&
                         controller.current != HudUiController.Screen.BigClock &&
                         !disconnectChromeShowing
                     if (showClock) {
@@ -280,12 +289,16 @@ fun HudApp(
                 }
 
                 // Protocol-version surface: a small "update available"
-                // pill for minor mismatches, a full-screen blocking
-                // overlay for major. Drawn AFTER the disconnect block
+                // pill for minor mismatches, shown for a short while
+                // after each connect, and a lasting red one for major.
+                // Drawn AFTER the disconnect block
                 // so the major banner wins even if the link is also
                 // down (a rider who sees both should see "update HUD"
                 // first because that's the actionable problem).
-                VersionMismatchSurface(compat = compat)
+                VersionMismatchSurface(
+                    compat = compat,
+                    connected = st == HudServer.Status.CONNECTED
+                )
 
                 // The line shown when an app sent by the phone did not
                 // install. Over everything; any key closes it.
@@ -308,7 +321,10 @@ fun HudApp(
  * mismatches; copy always names WHICH side needs the update so the
  * rider doesn't need to interpret an abstract "update available."
  *
- *   minor → yellow stroke, [Icons.Outlined.Info] icon, dashboard live
+ *   minor → yellow stroke, [Icons.Outlined.Info] icon, dashboard live.
+ *           Up for [VERSION_HINT_SHOW_MS] after each connect, then gone
+ *           until the next one: a tester riding a phone build one step
+ *           off the HUD's had it sitting on the map for the whole ride.
  *   major → red stroke,    [Icons.Filled.PhonelinkOff] icon, HUD-side
  *                          server is dropping wire frames so the
  *                          dashboard visibly freezes on the last good
@@ -318,13 +334,22 @@ fun HudApp(
  */
 @Composable
 private fun BoxScope.VersionMismatchSurface(
-    compat: com.eried.eucplanet.hud.protocol.VersionCompat
+    compat: com.eried.eucplanet.hud.protocol.VersionCompat,
+    connected: Boolean
 ) {
     val ctx = LocalContext.current
     val url = ctx.getString(R.string.hud_version_update_url)
     val isMajor = compat.isBlocking
     val isMinor = compat.isHint
-    if (!isMajor && !isMinor) return
+    var hintUp by remember { mutableStateOf(false) }
+    androidx.compose.runtime.LaunchedEffect(compat, connected) {
+        hintUp = connected && isMinor
+        if (hintUp) {
+            kotlinx.coroutines.delay(VERSION_HINT_SHOW_MS)
+            hintUp = false
+        }
+    }
+    if (!isMajor && !(isMinor && hintUp)) return
 
     // Pick the title from BOTH the side-direction (BEHIND vs AHEAD) and
     // the severity (minor vs major). All four variants name which side
@@ -466,6 +491,8 @@ private fun ScreenChangeToast(
                 R.string.hud_screen_custom to R.string.hud_screen_custom_desc
             HudUiController.Screen.CustomCam ->
                 R.string.hud_screen_custom_cam to R.string.hud_screen_custom_cam_desc
+            HudUiController.Screen.CustomMap ->
+                R.string.hud_screen_custom_map to R.string.hud_screen_custom_map_desc
             HudUiController.Screen.MapNav ->
                 R.string.hud_screen_map_nav to R.string.hud_screen_map_nav_desc
             HudUiController.Screen.Map ->
@@ -659,6 +686,9 @@ private const val JOYSTICK_GUIDE_DURATION_MS: Long = 3_000L
  *  connection; later drops use DISCONNECT_RECONNECT_GRACE_MS. Resets
  *  only on process restart. */
 private const val DISCONNECT_BOOT_GRACE_MS: Long = 15_000L
+
+/** How long the yellow "update available" pill stays up after a connect. */
+private const val VERSION_HINT_SHOW_MS: Long = 20_000L
 /** Grace before the disconnect chrome appears AFTER we've been connected
  *  at least once. The phone-side dial loop backs off 1s -> 2s -> 4s ->
  *  5s on a transient WS drop, so 10s comfortably covers a normal

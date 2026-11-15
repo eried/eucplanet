@@ -475,6 +475,7 @@
     <string name="hud_screen_name_telemetry">ข้อมูลล้อ</string>
     <string name="hud_screen_name_custom">โอเวอร์เลย์ + พื้นดำ</string>
     <string name="hud_screen_name_custom_cam">โอเวอร์เลย์ + กล้อง</string>
+    <string name="hud_screen_name_custom_map">โอเวอร์เลย์ + แผนที่</string>
     <string name="hud_screen_name_map">แผนที่</string>
     <string name="hud_screen_name_nav">ตัวนำทาง</string>
     <string name="hud_screen_name_map_nav">แผนที่ + นำทาง</string>

@@ -177,7 +177,7 @@ data class HudState(
     val customOverlayJson: String = "",
 
     /** Ordered list of HUD screens the rider has enabled, by stable id
-     *  ("Dashboard", "Camera", "Telemetry", "Custom", "CustomCam",
+     *  ("Dashboard", "Camera", "Telemetry", "Custom", "CustomCam", "CustomMap",
      *  "Map", "Nav", ...). Empty = no list yet, the HUD keeps its
      *  waiting splash. Non-empty = use EXACTLY this list in this order; any
      *  screen not in the list is hidden from the carousel.

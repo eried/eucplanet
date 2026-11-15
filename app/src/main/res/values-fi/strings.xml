@@ -469,6 +469,7 @@
     <string name="hud_screen_name_telemetry">Telemetria</string>
     <string name="hud_screen_name_custom">Mukautettu päällyste + musta</string>
     <string name="hud_screen_name_custom_cam">Mukautettu päällyste + kamera</string>
+    <string name="hud_screen_name_custom_map">Mukautettu päällyste + kartta</string>
     <string name="hud_screen_name_map">Kartta</string>
     <string name="hud_screen_name_nav">Navigointi</string>
     <string name="hud_screen_name_map_nav">Kartta + navigointi</string>

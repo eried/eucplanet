@@ -11,6 +11,8 @@
     <string name="hud_screen_custom_desc">Your preset on a transparent background</string>
     <string name="hud_screen_custom_cam">Custom + camera</string>
     <string name="hud_screen_custom_cam_desc">Your preset over the rear camera</string>
+    <string name="hud_screen_custom_map">Custom + map</string>
+    <string name="hud_screen_custom_map_desc">Your preset over the map</string>
     <string name="hud_screen_map">Map</string>
     <string name="hud_screen_map_desc">Your position with direction of travel</string>
     <string name="hud_screen_nav">Navigator</string>

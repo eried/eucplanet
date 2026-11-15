@@ -12253,6 +12253,7 @@ private fun hudScreenDisplayName(ctx: android.content.Context, id: String): Stri
     "Telemetry" -> ctx.getString(R.string.hud_screen_name_telemetry)
     "Custom" -> ctx.getString(R.string.hud_screen_name_custom)
     "CustomCam" -> ctx.getString(R.string.hud_screen_name_custom_cam)
+    "CustomMap" -> ctx.getString(R.string.hud_screen_name_custom_map)
     "MapNav" -> ctx.getString(R.string.hud_screen_name_map_nav)
     "Map" -> ctx.getString(R.string.hud_screen_name_map)
     "Nav" -> ctx.getString(R.string.hud_screen_name_nav)

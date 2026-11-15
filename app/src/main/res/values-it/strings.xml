@@ -1795,6 +1795,7 @@
     <string name="hud_screen_name_telemetry">Telemetria</string>
     <string name="hud_screen_name_custom">Overlay personalizzato + nero</string>
     <string name="hud_screen_name_custom_cam">Overlay personalizzato + telecamera</string>
+    <string name="hud_screen_name_custom_map">Overlay personalizzato + mappa</string>
     <string name="hud_screen_name_map">Mappa</string>
     <string name="hud_screen_name_nav">Navigatore</string>
     <string name="hud_screen_name_power">Watt e autonomia</string>
