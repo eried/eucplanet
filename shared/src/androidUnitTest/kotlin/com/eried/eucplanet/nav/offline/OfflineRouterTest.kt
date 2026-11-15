@@ -67,7 +67,7 @@ class OfflineRouterTest {
         router.route("r", wps, TravelMode.CYCLING, RouteAvoidances(ferries = true), heading = 95.0)
         val r = seen!!
         assertEquals("wheel", r.profile)
-        assertEquals(mapOf("allow_ferries" to "false"), r.params)
+        assertEquals(mapOf("allow_ferries" to "0"), r.params)
         assertEquals(95, r.headingDeg)
         assertEquals(wps.map { GeoPoint(it.lat, it.lng) }, r.points)
     }
