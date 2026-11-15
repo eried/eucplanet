@@ -10,7 +10,7 @@ import com.eried.eucplanet.util.GpxData
 import com.eried.eucplanet.util.GpxText
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import platform.Foundation.NSData
 import platform.Foundation.NSHTTPURLResponse
 import platform.Foundation.NSMutableURLRequest
@@ -36,7 +36,7 @@ import platform.darwin.dispatch_time
 
 /**
  * The route builder on the iPhone: CoreLocation's fixes ([IosLocation]), the
- * UIDevice battery, no routing squares (online routing only), the Files
+ * UIDevice battery, the downloaded routing squares (IosAppGraph.offlineTiles), the Files
  * picker's GPX through the shared [GpxText] reader, and an NSURLSession that
  * walks a short link's redirects. Android's is AndroidRouteBuilderPorts.
  */
@@ -49,14 +49,12 @@ internal class IosRouteBuilderPorts : RouteBuilderPorts {
 
     override fun phoneBatteryPercent(): Int = IosPhoneDevice.batteryPercent()
 
-    // No offline areas on the iPhone: nothing downloads, nothing is on the phone.
-    override val downloadingTiles: Flow<Set<String>> = flowOf(emptySet())
+    // The offline areas, as Android's: the queue, the store and the server's list.
+    override val downloadingTiles: Flow<Set<String>> = IosAppGraph.offlineTiles.progress.map { it.keys }
 
-    override fun hasTile(name: String): Boolean = false
+    override fun hasTile(name: String): Boolean = IosAppGraph.offlineStore.has(name)
 
-    // None to download either: an empty set (not null, "not known yet") keeps
-    // the "Download offline maps?" question before a ride from coming up.
-    override fun servedTiles(): Set<String>? = emptySet()
+    override fun servedTiles(): Set<String>? = IosAppGraph.offlineTiles.served()
 
     /** [file] is a file URL the Files picker handed over (a copy in the app's tmp). */
     override fun readGpx(file: String): GpxData? {

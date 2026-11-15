@@ -328,14 +328,42 @@ object IosAppGraph {
         platform = IosDashboardPlatform(wheel, IosTripMeter.meter),
     )
 
-    // --- Navigation, as Android's navModule builds it. iOS routes online only
-    // (OfflineNav.None: BRouter and the tile downloads are Android code). ---
+    // --- Navigation, as Android's navModule builds it, with the offline
+    // areas: BRouter on the downloaded tiles, their downloads and the map. ---
+
+    /** The downloads' User-Agent, as Android's "EUCPlanet/<version>". */
+    private val offlineUserAgent: String by lazy {
+        "EUCPlanet/" + (platform.Foundation.NSBundle.mainBundle.infoDictionary?.get("CFBundleShortVersionString") as? String ?: "?")
+    }
+
+    val offlineStore: com.eried.eucplanet.nav.offline.OfflineTileStore get() = IosOfflineStorage.store
+
+    internal val offlineJobs: IosTileJobs by lazy { IosTileJobs(offlineStore, offlineUserAgent) }
+
+    val offlineTiles: com.eried.eucplanet.nav.offline.OfflineTiles by lazy {
+        com.eried.eucplanet.nav.offline.OfflineTiles(offlineStore, settings, navHttp, offlineJobs, offlineUserAgent)
+            .also { offlineJobs.tiles = it }
+    }
+
+    val offlineRouter: com.eried.eucplanet.nav.offline.OfflineRouter by lazy {
+        com.eried.eucplanet.nav.offline.OfflineRouter(
+            engine = bigStack(com.eried.eucplanet.nav.offline.OfflineRouter.brouterEngine(offlineStore.dir, IosBrouterProfiles(offlineStore))),
+        )
+    }
+
+    val offlineNav: com.eried.eucplanet.nav.OfflineNav by lazy {
+        IosOfflineNav(offlineRouter, offlineStore, IosOfflineMap.drawer)
+    }
+
+    /** The offline areas screen's view model, as Koin builds it on Android. */
+    fun offlineDataViewModel(): com.eried.eucplanet.ui.settings.offline.OfflineDataViewModel =
+        com.eried.eucplanet.ui.settings.offline.OfflineDataViewModel(offlineTiles, settings, currentRoute, IosOfflineDataPorts)
 
     val navHttp: com.eried.eucplanet.nav.NavHttp by lazy { com.eried.eucplanet.nav.PlatformNavHttp() }
 
     val routing: com.eried.eucplanet.nav.RoutingService by lazy {
         com.eried.eucplanet.nav.RoutingService(
-            IosNavStrings, notices, settings, com.eried.eucplanet.nav.OfflineNav.None, navHttp,
+            IosNavStrings, notices, settings, offlineNav, navHttp,
         )
     }
 

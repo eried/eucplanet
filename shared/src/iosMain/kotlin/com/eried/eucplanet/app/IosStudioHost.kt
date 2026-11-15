@@ -93,7 +93,7 @@ internal open class IosStudioRender : StudioRender {
 
     override fun mapTile(url: String): ImageBitmap? = IosMapTiles.get(url)
 
-    override suspend fun loadMapTile(url: String, zoom: Int, x: Int, y: Int): Boolean = IosMapTiles.load(url)
+    override suspend fun loadMapTile(url: String, zoom: Int, x: Int, y: Int): Boolean = IosMapTiles.load(url, zoom, x, y)
 
     private companion object {
         const val ICON_PX = 192
@@ -107,10 +107,13 @@ internal open class IosStudioRender : StudioRender {
  * The map tiles the studio's map element draws, as Android's MapTileCache:
  * the last 64 decoded in memory, each fetched once however many maps ask,
  * the HTTP cache under it (NSURLSession's). A gray base tile gets its
- * reference labels drawn over it. There is no offline map on the iPhone.
+ * reference labels drawn over it. A tile the provider cannot give, with no
+ * signal say, is drawn from the downloaded offline map when one covers it
+ * (first, with "Prefer offline" on), and kept like the online one.
  */
 internal object IosMapTiles {
     private const val DECODED_TILE_COUNT = 64
+    private const val OFFLINE_PIXELS = 256
     private const val USER_AGENT = "EUCPlanet-Maps/1.0 (github.com/eried/eucplanet)"
 
     private val lock = SynchronizedObject()
@@ -124,12 +127,16 @@ internal object IosMapTiles {
         decoded.remove(url)?.also { decoded[url] = it }
     }
 
-    suspend fun load(url: String): Boolean {
+    suspend fun load(url: String, zoom: Int = -1, x: Int = 0, y: Int = 0): Boolean {
         get(url)?.let { return true }
         val job = synchronized(lock) {
             inFlight.getOrPut(url) {
                 scope.async {
-                    fetch(url)?.also { tile ->
+                    val prefer = IosAppGraph.settings.current.value.offlineRouting.mode ==
+                        com.eried.eucplanet.data.model.OfflineRoutingMode.PREFER
+                    fun offline() = if (zoom < 0) null else IosOfflineMap.bitmap(zoom, x, y, OFFLINE_PIXELS)
+                    val first = if (prefer) offline() else null
+                    (first ?: fetch(url) ?: if (!prefer) offline() else null)?.also { tile ->
                         synchronized(lock) {
                             decoded[url] = tile
                             while (decoded.size > DECODED_TILE_COUNT) decoded.remove(decoded.keys.first())

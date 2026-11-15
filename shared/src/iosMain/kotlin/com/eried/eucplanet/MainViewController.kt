@@ -115,6 +115,10 @@ fun MainViewController(): UIViewController {
     // runs. EUC_SERVICE, EUC_EXTGPS and EUC_SOURCES drive it for scripted runs.
     IosAppGraph.externalGps
     IosLaunchHooks.start()
+    // The offline downloads left from the last run carry on (WorkManager
+    // keeps them on Android), and the weekly Wi-Fi update check.
+    IosAppGraph.offlineTiles
+    IosAppGraph.offlineJobs.start()
     // SIMCTL_CHILD_EUC_VOICE_EVERY=15 makes the periodic report speak every
     // 15 s whatever the speed and output, to hear it with the app in the
     // background on the simulator. It is saved, like any settings change.

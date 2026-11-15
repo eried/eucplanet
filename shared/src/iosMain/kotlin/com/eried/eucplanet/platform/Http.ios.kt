@@ -30,6 +30,7 @@ actual class HttpClient actual constructor(
 ) {
 
     actual fun execute(request: HttpRequest): HttpResponse {
+        if (IosHttpSwitch.offline) throw IllegalStateException("offline (EUC_NO_NETWORK)")
         val url = NSURL.URLWithString(request.url) ?: throw IllegalArgumentException("Bad URL ${request.url}")
         // NSURLSession has one per-request timeout, covering the wait for data;
         // 60 s is its own default.
@@ -109,4 +110,9 @@ internal fun NSData.toByteArray(): ByteArray {
     val n = length.toInt()
     if (n == 0) return ByteArray(0)
     return ByteArray(n).apply { usePinned { memcpy(it.addressOf(0), bytes, length) } }
+}
+
+/** Every request fails while [offline] (the EUC_NO_NETWORK launch hook, IosNetwork.forceOffline). */
+internal object IosHttpSwitch {
+    @kotlin.concurrent.Volatile var offline = false
 }

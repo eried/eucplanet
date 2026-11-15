@@ -28,7 +28,6 @@ import com.eried.eucplanet.ui.dashboard.QrCodeCanvas
 import com.eried.eucplanet.ui.navigator.RouteBuilderHost
 import com.eried.eucplanet.ui.navigator.RouteMapBridge
 import com.eried.eucplanet.ui.navigator.RouteMapPage
-import com.eried.eucplanet.ui.recording.TripMapHtml
 import com.eried.eucplanet.util.QrEncoder
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.Dispatchers
@@ -48,7 +47,6 @@ import platform.WebKit.WKUserContentController
 import platform.WebKit.WKUserScript
 import platform.WebKit.WKUserScriptInjectionTime
 import platform.WebKit.WKWebView
-import platform.WebKit.WKWebViewConfiguration
 import platform.darwin.NSObject
 
 /**
@@ -56,13 +54,15 @@ import platform.darwin.NSObject
  * Android's is AndroidRouteBuilderHost; this one draws the same shared map
  * page in a WKWebView with Leaflet inlined, as the trip map does
  * ([IosTripDetailHost]), and answers the page's `AndroidNav` calls through a
- * script message handler. There are no offline areas on iOS: the page gets
- * TripMapHtml.NO_OFFLINE_MAP_JS and the offline dialog is never opened.
+ * script message handler. The downloaded map draws under the online one
+ * through the `eucoffline:` scheme (IosOfflineMap), as Android's WebView
+ * intercept does.
  */
 internal object IosRouteBuilderHost : RouteBuilderHost {
     private const val TAG = "RouteBuilder"
 
-    override val offlineMapJs: String = TripMapHtml.NO_OFFLINE_MAP_JS
+    // Read when each page is built, as on Android: it carries "Prefer offline".
+    override val offlineMapJs: String get() = IosOfflineMap.js
 
     // Android's QR_MAX_PX: past it a QR carries nothing more.
     override val qrMaxPx: Int = 1024
@@ -114,8 +114,7 @@ internal object IosRouteBuilderHost : RouteBuilderHost {
                 )
                 content.addScriptMessageHandler(handler, name = "AndroidNav")
                 content.addScriptMessageHandler(handler, name = "EucLog")
-                val config = WKWebViewConfiguration()
-                config.userContentController = content
+                val config = IosOfflineMap.configuration(content)
                 val web = WKWebView(frame = CGRectMake(0.0, 0.0, 0.0, 0.0), configuration = config)
                 web.navigationDelegate = delegate
                 // Leaflet pans, zooms and rotates the map itself; the page must not scroll.
@@ -203,10 +202,16 @@ internal object IosRouteBuilderHost : RouteBuilderHost {
         if (b == null) Box(modifier) else Image(b, contentDescription = null, contentScale = ContentScale.Crop, modifier = modifier)
     }
 
-    // No offline areas on the iPhone; the route builder never offers them.
+    /** The shared offline areas screen, opened on the squares the ride needs. */
     @Composable
     override fun OfflineDataDialog(routeSquares: List<String>, onDismiss: () -> Unit) {
-        LaunchedEffect(Unit) { onDismiss() }
+        com.eried.eucplanet.ui.settings.offline.OfflineDataDialog(
+            onDismiss = onDismiss,
+            viewModel = rememberViewModel { IosAppGraph.offlineDataViewModel() },
+            host = IosOfflineDataHost,
+            offlineMapJs = IosOfflineMap.js,
+            routeSquares = routeSquares,
+        )
     }
 
     /** The shared encoder, module for module what Android's ZXing draws. */

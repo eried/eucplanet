@@ -23,14 +23,26 @@ import platform.Foundation.NSProcessInfo
  * - SIMCTL_CHILD_EUC_SOURCES=WHEEL:RACEBOX opens the dashboard's Data
  *   sources sheet on that tab or comparison; a third part calibrate=20 asks
  *   the calibration question 20 s later, apply=20 also presses Apply.
+ * - SIMCTL_CHILD_EUC_OFFLINE=areas (with EUC_SCREEN=settings and
+ *   EUC_SETTINGS_TAB=8) opens the Offline areas screen.
+ * - SIMCTL_CHILD_EUC_NO_NETWORK=1 makes the app act as if it had no
+ *   connection (IosNetwork.forceOffline): the simulator shares the Mac's
+ *   network, so this is how the offline map and routing are seen there.
  */
 internal object IosLaunchHooks {
     private fun env(name: String): String? = NSProcessInfo.processInfo.environment[name] as? String
 
     val sources: DataSourcesScript? by lazy { env("EUC_SOURCES")?.let { DataSourcesScript.parse(it) } }
 
+    private var offlineAreas = false
+
+    /** True once, when EUC_OFFLINE=areas asked for the Offline areas screen. */
+    fun takeOfflineAreas(): Boolean = offlineAreas.also { offlineAreas = false }
+
     fun start() {
         if (env("EUC_SERVICE") == "1") DiagnosticsLogger.enable()
+        if (env("EUC_NO_NETWORK") == "1") IosNetwork.forceOffline()
+        offlineAreas = env("EUC_OFFLINE")?.lowercase() == "areas"
         when (env("EUC_EXTGPS")?.lowercase()) {
             "virtual" -> MainScope().launch {
                 val gps = IosAppGraph.externalGps

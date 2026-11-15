@@ -21,21 +21,21 @@ import platform.UIKit.UIColor
 import platform.WebKit.WKNavigation
 import platform.WebKit.WKNavigationDelegateProtocol
 import platform.WebKit.WKWebView
-import platform.WebKit.WKWebViewConfiguration
 import platform.darwin.NSObject
 
 /**
  * The iPhone's side of the trip viewer: the route map in a WKWebView, loading
  * the same page as Android's WebView with the bundled Leaflet inlined, so the
- * map draws without the CDN (the tiles still need the network). There is no
- * downloaded map on iOS yet, so the page gets TripMapHtml.NO_OFFLINE_MAP_JS.
+ * map draws without the CDN. Where the online tiles fail, the downloaded
+ * map draws under them through the `eucoffline:` scheme (IosOfflineMap).
  */
 internal object IosTripDetailHost : TripDetailHost {
     private const val TAG = "TripMap"
 
     override val isDebugBuild: Boolean = false
 
-    override val offlineMapJs: String = TripMapHtml.NO_OFFLINE_MAP_JS
+    // Read when each page is built, as on Android: it carries "Prefer offline".
+    override val offlineMapJs: String get() = IosOfflineMap.js
 
     /** leaflet.css and leaflet.js from app/src/main/assets, copied into the iOS resources at build time. */
     @OptIn(ExperimentalResourceApi::class)
@@ -65,7 +65,7 @@ internal object IosTripDetailHost : TripDetailHost {
         val delegate = remember { MapNavigationDelegate { loaded.value() } }
         UIKitView(
             factory = {
-                val web = WKWebView(frame = CGRectMake(0.0, 0.0, 0.0, 0.0), configuration = WKWebViewConfiguration())
+                val web = WKWebView(frame = CGRectMake(0.0, 0.0, 0.0, 0.0), configuration = IosOfflineMap.configuration())
                 web.navigationDelegate = delegate
                 // Leaflet pans and zooms the map itself; the page must not scroll or bounce.
                 web.scrollView.scrollEnabled = false

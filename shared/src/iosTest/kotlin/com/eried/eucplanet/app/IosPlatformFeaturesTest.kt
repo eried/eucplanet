@@ -30,6 +30,13 @@ class IosPlatformFeaturesTest {
         assertFalse(PlatformFeature.NAVIGATION in missingPlatformFeatures)
     }
 
+    @Test fun offlineAreasAreOnTheIphone() {
+        // BRouter, the downloads and the offline map run on iOS (IosOffline,
+        // IosTileJobs, IosOfflineMap), so the Navigation section shows the
+        // offline routing block and the areas screen.
+        assertFalse(com.eried.eucplanet.ui.settings.SettingsRow.OFFLINE_ROUTING in IosSettingsHost.hiddenRows)
+    }
+
     @Test fun theStudioIsOnTheIphone() {
         // The Overlay Studio runs on IosStudioHost, so the camera button, its
         // tile, the trips' Replay row and the tour's camera step open.

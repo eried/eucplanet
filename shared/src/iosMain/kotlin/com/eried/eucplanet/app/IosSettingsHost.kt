@@ -72,8 +72,7 @@ internal object IosSettingsHost : SettingsHost {
     // another app's player, so the volume and music automations and the
     // volume actions are left out. Nor does it
     // have Android's separate media, notification and alarm streams for the
-    // voice to pick from. It routes online only, so the offline routing
-    // block (prefer offline, its server, the areas, the reminder) goes too.
+    // voice to pick from.
     override val hiddenRows = setOf(
         SettingsRow.BACK_ACTION,
         SettingsRow.KEEP_ALIVE,
@@ -86,7 +85,6 @@ internal object IosSettingsHost : SettingsHost {
         SettingsRow.MEDIA_CONTROL,
         SettingsRow.PHONE_VOLUME,
         SettingsRow.VOICE_OUTPUT_CHANNEL,
-        SettingsRow.OFFLINE_ROUTING,
     )
 
     @Composable
@@ -123,9 +121,23 @@ internal object IosSettingsHost : SettingsHost {
         )
     }
 
-    // The iPhone routes online only: there are no offline areas to download.
+    // The shared row and screen, over the iPhone's downloads and web view.
     @Composable
-    override fun OfflineAreas() = Unit
+    override fun OfflineAreas() {
+        com.eried.eucplanet.ui.settings.OfflineAreasRow(
+            store = IosAppGraph.offlineStore,
+            host = IosOfflineDataHost,
+            openAtStart = remember { IosLaunchHooks.takeOfflineAreas() },
+            dialog = { dismiss ->
+                com.eried.eucplanet.ui.settings.offline.OfflineDataDialog(
+                    onDismiss = dismiss,
+                    viewModel = rememberViewModel { IosAppGraph.offlineDataViewModel() },
+                    host = IosOfflineDataHost,
+                    offlineMapJs = IosOfflineMap.js,
+                )
+            },
+        )
+    }
 
     // The shared section, as AndroidSettingsHost draws it, over the
     // CoreBluetooth GPS link (IosAppGraph).

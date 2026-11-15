@@ -121,7 +121,8 @@ compose.resources {
 
 // The welcome tour's clip and the launcher artwork for About, from the phone
 // app's assets and drawables, the recorded engines' grain banks from its
-// res/raw for the motor sound (IosEngineAudio reads files/grain_*.bin), and
+// res/raw for the motor sound (IosEngineAudio reads files/grain_*.bin), the
+// offline router's profiles from its assets/brouter, and
 // the Leaflet (with the route builder's rotation plugin) the trip map and the
 // route builder inline, so they draw without the CDN. iOS resources only: the
 // APK already carries them, so each stays one copy. All share this one
@@ -157,6 +158,11 @@ val iosAppArt = tasks.register<Sync>("generateIosAppArt") {
     from(rootProject.file("app/src/main/res/raw")) {
         include("grain_*.bin")
         into("files")
+    }
+    // BRouter's profiles and fallback tag table (IosBrouterProfiles).
+    from(rootProject.file("app/src/main/assets/brouter")) {
+        include("wheel.brf", "hiking-mountain.brf", "lookups.dat")
+        into("files/brouter")
     }
     from(rootProject.file("app/src/main/res/drawable")) {
         include("ic_launcher_foreground.xml")

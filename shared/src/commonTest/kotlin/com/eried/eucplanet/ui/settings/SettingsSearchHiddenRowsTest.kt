@@ -70,6 +70,16 @@ class SettingsSearchHiddenRowsTest {
         assertTrue(found("integration", "section_tpms", iphone))
         // So does the motor sound.
         assertTrue(found("motor", "engine_headphones_only", iphone))
+        // And the offline areas, their server and the reminder before a ride.
+        assertTrue(found("navigator", "offline_data_open", iphone))
+        assertTrue(found("navigator", "offline_server_url", iphone))
+        assertTrue(found("navigator", "offline_remind_before_ride", iphone))
+    }
+
+    @Test fun theOfflineRowsCarryTheirGate() {
+        // A phone without offline routing would leave them out of the search too.
+        assertEquals(listOf(setOf(SettingsRow.OFFLINE_ROUTING)), entry("navigator", "offline_data_open").gates)
+        assertFalse(found("navigator", "offline_prefer", setOf(SettingsRow.OFFLINE_ROUTING)))
     }
 
     @Test fun aHeadingStaysWhileAnyOfItsRowsShows() {
