@@ -130,10 +130,11 @@ class VirtualRaceBox(
         writeI32(p, 60, 500_000)                         // heading accuracy
         p[64] = 90; p[65] = 0                            // PDOP 0.90
         p[67] = BATTERY_PCT.toByte()                     // on battery, 87%
-        // Raw G-force in milli-g: the box lies flat, so gravity is on Z.
+        // Raw G-force in milli-g, the box standing upright as the default
+        // axis map reads it: X lateral, Y up (gravity), Z forward.
         writeI16(p, 68, (lateralG * 1000).roundToInt())
-        writeI16(p, 70, (forwardG * 1000).roundToInt())
-        writeI16(p, 72, 1000)
+        writeI16(p, 70, 1000)
+        writeI16(p, 72, (forwardG * 1000).roundToInt())
         return ubxFrame(classId = 0xFF, msgId = 0x01, payload = p)
     }
 
