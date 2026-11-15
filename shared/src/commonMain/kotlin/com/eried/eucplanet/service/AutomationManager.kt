@@ -246,10 +246,6 @@ class AutomationManager(
         evaluateBeepVolume(settings)
         val mc = settings.mediaControl
         if (!lockedDown && (mc.pauseEnabled || mc.resumeEnabled)) media.evaluateMediaControl(settings)
-        // Media speed control is parked: it needs notification access the app
-        // no longer asks for, and most players ignored the rate anyway. Its
-        // evaluation is left intact in AndroidMediaAutomation for whoever
-        // revives it.
         // lockEnabled is the whole feature's switch; unlockEnabled is a
         // sub-option of it, and the settings screen only draws the unlock
         // switch while this one is on. Gating on either used to keep the

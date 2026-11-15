@@ -164,6 +164,7 @@ class StudioOffscreenSession private constructor(
                                     editable = false,
                                     replayMode = true,
                                     prebuiltVideoFrame = { spec.videoFrames[it] },
+                                    prebuiltVideoFill = { spec.videoFills[it] },
                                     onDividerChange = {},
                                     onConfigViewport = {},
                                     onConfigDivider = {},

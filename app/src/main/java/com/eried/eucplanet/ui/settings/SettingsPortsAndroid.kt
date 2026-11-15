@@ -118,8 +118,8 @@ class AndroidWatchLinks(
 
 class AndroidEngineSoundPreview(private val engine: EngineSoundEngine) : EngineSoundPreview {
     override fun previewProfile(
-        key: String, durationMs: Long, volume: Float?, muffler: String?, gearbox: String?, scenario: String,
-    ) = engine.previewProfile(key, durationMs, volume, muffler, gearbox, scenario)
+        key: String, durationMs: Long, muffler: String?, gearbox: String?, scenario: String,
+    ) = engine.previewProfile(key, durationMs, muffler, gearbox, scenario)
 }
 
 class AndroidHornSound(private val horn: HornPlayer) : HornSound {
@@ -189,11 +189,6 @@ class AndroidSettingsPlatform(
 ) : SettingsPlatform {
     override fun pipAllowed() = health.pipAllowed()
     override fun openPipSettings() = health.openPipSettings()
-    override fun notificationAccessAllowed() = health.notificationAccessAllowed()
-    override fun openNotificationAccessSettings() = health.openNotificationAccessSettings()
-    override fun refreshPermissionWarnings(
-        pipRequested: Boolean, phoneHudRequested: Boolean, mediaRateRequested: Boolean,
-    ) = health.refreshPermissionWarnings(pipRequested, phoneHudRequested, mediaRateRequested)
 
     override fun applyAppLanguage(tag: String) = com.eried.eucplanet.util.LocaleHelper.apply(tag)
 

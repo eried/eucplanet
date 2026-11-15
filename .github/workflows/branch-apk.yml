@@ -316,6 +316,7 @@ jobs:
               -o "$OUT" \
               -y /tmp/ciq/dev_key.der \
               -d "$d" \
+              -r \
               -w || { echo "::warning::$d PRG failed (profile missing from bundle?)"; continue; }
           done
           (cd /tmp/prgs && zip -q "/tmp/out/garmin-${{ needs.meta.outputs.suffix }}-prgs.zip" *.prg)

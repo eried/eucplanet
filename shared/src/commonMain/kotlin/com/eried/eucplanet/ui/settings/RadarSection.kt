@@ -40,6 +40,7 @@ import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedSegmentedColors
 import com.eried.eucplanet.ui.theme.themedSwitchColors
 import com.eried.eucplanet.platform.stringResource
+import com.eried.eucplanet.platform.pluralStringResource
 import com.eried.eucplanet.resources.*
 
 /**
@@ -64,7 +65,7 @@ fun RadarSection(
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         if (pairedAddress == null) {
-            HintText(stringResource(Res.string.radar_caption), small = true)
+            HintText(stringResource(Res.string.radar_caption))
             UnpairedRadarCard(
                 scanning = scanning,
                 results = scanResults,
@@ -136,7 +137,7 @@ private fun RadarOverlaySettings(viewModel: RadarViewModel, settingsViewModel: S
             colors = themedSwitchColors(),
         )
     }
-    HintText(stringResource(Res.string.radar_show_overlay_desc), small = true)
+    HintText(stringResource(Res.string.radar_show_overlay_desc))
 
     if (s.radarShowOverlay) {
         val sideOptions = listOf(
@@ -268,7 +269,9 @@ private fun PairedRadarCard(
                     // so the card stays a constant size while threat count
                     // bounces around in demo / busy-road mode.
                     Text(
-                        stringResource(Res.string.radar_threats_count, frame.threats.size),
+                        pluralStringResource(
+                            Res.plurals.radar_threats_count, frame.threats.size, frame.threats.size
+                        ),
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.SemiBold
                     )

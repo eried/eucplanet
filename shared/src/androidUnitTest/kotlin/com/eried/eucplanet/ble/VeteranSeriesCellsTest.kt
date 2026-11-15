@@ -14,6 +14,7 @@ class VeteranSeriesCellsTest {
     @Test fun `series cell count matches the pack voltage`() {
         assertEquals(24, VeteranModel.SHERMAN.seriesCells)      // 100 V
         assertEquals(24, VeteranModel.ABRAMS.seriesCells)       // 100 V
+        assertEquals(24, VeteranModel.SHERMAN_S.seriesCells)    // 100 V, mVer 3 uses the 24S curve
         assertEquals(30, VeteranModel.NOSFET_AERO.seriesCells)  // 126 V
         assertEquals(30, VeteranModel.NOSFET_XENO.seriesCells)  // 126 V
         assertEquals(32, VeteranModel.PATTON.seriesCells)       // 134 V

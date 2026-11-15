@@ -34,15 +34,13 @@ data class RiderProfile(
  */
 data class TripStatus(
     val validationStatus: String?,   // "validated" | "flagged" | "rejected"
-    val verdict: String?,            // "accepted" | "under_review" | "rejected"
-    val reasons: List<String>,
 )
 
 sealed interface UploadResult {
     data class Ok(val validationStatus: String?, val duplicate: Boolean) : UploadResult
     data class PermanentFailure(val code: Int, val body: String) : UploadResult  // 400/403/413/422
     data class AuthFailure(val code: Int) : UploadResult                          // 401 (re-mint)
-    data class Retry(val code: Int, val retryAfterSec: Long?) : UploadResult      // 429/5xx/network
+    data class Retry(val code: Int) : UploadResult                                // 429/5xx/network
 }
 
 /**

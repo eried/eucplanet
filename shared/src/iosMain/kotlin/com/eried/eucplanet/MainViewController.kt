@@ -20,10 +20,8 @@ import com.eried.eucplanet.app.IosDashboardHost
 import com.eried.eucplanet.app.IosScanHost
 import com.eried.eucplanet.app.IosSettingsHost
 import com.eried.eucplanet.app.IosRecordingHost
-import com.eried.eucplanet.ui.recording.EucViewerScreen
 import com.eried.eucplanet.ui.recording.RecordingScreen
 import com.eried.eucplanet.ui.recording.TripDetailScreen
-import com.eried.eucplanet.app.IosEucViewerHost
 import com.eried.eucplanet.app.IosTripDetailHost
 import com.eried.eucplanet.app.rememberViewModel
 import com.eried.eucplanet.app.IosCrashLog
@@ -224,7 +222,7 @@ fun MainViewController(): UIViewController {
                 // Every screen but the dashboard registers IosBackHandler with
                 // the same target as its back arrow, so the left-edge swipe goes
                 // back as Android's system back does.
-                // SIMCTL_CHILD_EUC_SCREEN=scan opens on the scan screen (also settings, flic, trips, trip, trip:<id>, viewer:<id>, tripmeter, metric:<key>, charging, charging:details, route, studio, studio:<trip id>).
+                // SIMCTL_CHILD_EUC_SCREEN=scan opens on the scan screen (also settings, flic, trips, trip, trip:<id>, tripmeter, metric:<key>, charging, charging:details, route, studio, studio:<trip id>).
                 // "metric:VOLTAGE" opens a metric's detail, with the dashboard's route argument.
                 var screen by remember { mutableStateOf(startScreen?.substringBefore(':') ?: "dashboard") }
                 var metricArg by remember { mutableStateOf(startScreen?.substringAfter(':', "BATTERY") ?: "BATTERY") }
@@ -236,9 +234,6 @@ fun MainViewController(): UIViewController {
                 }
                 // Where the studio's close goes back to.
                 var studioBack by remember { mutableStateOf("dashboard") }
-                // The trip View online shows ("viewer:12"), and where its back arrow goes.
-                var viewerArg by remember { mutableStateOf(if (startScreen?.startsWith("viewer:") == true) startScreen.substringAfter(':') else "") }
-                var viewerBack by remember { mutableStateOf("trips") }
                 // Where the metric detail goes back to: the dashboard, or the charging monitor's history.
                 var metricBack by remember { mutableStateOf("dashboard") }
                 // Settings goes back to where it was opened from (the dashboard, the charging monitor or the route builder).
@@ -346,11 +341,6 @@ fun MainViewController(): UIViewController {
                                     screen = "trip"
                                 },
                                 onOpenBackupSettings = { screen = "settings" },
-                                onViewOnline = { id ->
-                                    viewerArg = id.toString()
-                                    viewerBack = "trips"
-                                    screen = "viewer"
-                                },
                                 onReplayTrip = { id ->
                                     studioTrip = id
                                     studioBack = "trips"
@@ -368,12 +358,6 @@ fun MainViewController(): UIViewController {
                                 TripDetailScreen(
                                     trip = trip,
                                     onBack = { screen = "trips" },
-                                    onViewOnline = { id ->
-                                        viewerArg = id.toString()
-                                        tripArg = trip.id.toString()
-                                        viewerBack = "trip"
-                                        screen = "viewer"
-                                    },
                                     onReplayTrip = { id ->
                                         tripArg = trip.id.toString()
                                         studioTrip = id
@@ -384,19 +368,6 @@ fun MainViewController(): UIViewController {
                                     host = IosTripDetailHost,
                                 )
                             }
-                        }
-                    }
-                    // View online: the EUC Viewer with the trip loaded (SIMCTL_CHILD_EUC_SCREEN=viewer:<id>).
-                    "viewer" -> {
-                        val viewerVm = rememberViewModel { IosAppGraph.eucViewerViewModel() }
-                        IosBackHandler { screen = viewerBack }
-                        key(viewerArg) {
-                            EucViewerScreen(
-                                tripId = viewerArg.toLongOrNull() ?: -1L,
-                                onBack = { screen = viewerBack },
-                                viewModel = viewerVm,
-                                host = IosEucViewerHost,
-                            )
                         }
                     }
                     "tripmeter" -> {

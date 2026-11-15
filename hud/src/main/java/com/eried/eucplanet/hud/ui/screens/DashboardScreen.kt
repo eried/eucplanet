@@ -20,7 +20,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -30,8 +29,6 @@ import com.eried.eucplanet.hud.R
 import com.eried.eucplanet.hud.protocol.HudState
 import com.eried.eucplanet.hud.ui.HudUnits
 import com.eried.eucplanet.hud.ui.parseHexColor
-import kotlin.math.cos
-import kotlin.math.sin
 import kotlin.math.min
 
 /**
@@ -294,19 +291,6 @@ private fun SpeedDial(
             topLeft = topLeft,
             size = arcSize
         )
-
-        // Needle: a short radial line at the end of the sweep so the position
-        // is unambiguous even when the dial sweep is dim against the band.
-        rotate(degrees = startAngle + sweep, pivot = center) {
-            val r = diameter / 2f - 2.dp.toPx()
-            drawLine(
-                color = Color.White,
-                start = Offset(center.x + r * cos(0.0).toFloat() - 0.dp.toPx(),
-                               center.y + r * sin(0.0).toFloat()),
-                end = Offset(center.x + r, center.y),
-                strokeWidth = (stroke * 0.3f).coerceAtLeast(2.dp.toPx())
-            )
-        }
     }
 }
 

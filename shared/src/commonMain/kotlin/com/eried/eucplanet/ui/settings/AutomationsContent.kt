@@ -177,7 +177,7 @@ fun AutomationsContent(viewModel: SettingsViewModel) {
                     )
                 }
             } else {
-                HintText(stringResource(Res.string.auto_waiting_gps), small = true)
+                HintText(stringResource(Res.string.auto_waiting_gps))
             }
 
             // Independent of the schedule above: it decides whether a light is
@@ -351,102 +351,6 @@ fun AutomationsContent(viewModel: SettingsViewModel) {
         Spacer(Modifier.height(8.dp))
         }   // end media control gate
 
-        // --- Media speed control Section: PARKED ---
-        //
-        // Commented out rather than deleted, and the code behind it left
-        // intact, because it is worth another attempt one day.
-        //
-        // It never worked reliably. Setting another app's playback rate needs
-        // MediaController.TransportControls.setPlaybackSpeed, which needs
-        // notification access, and even with that granted most players ignore
-        // it: YouTube Music's session never implemented onSetPlaybackSpeed
-        // (ExoPlayer #8229) and its own speed dial is UI-side only. So the
-        // rider granted an alarming permission and got nothing for it.
-        //
-        // To bring it back: uncomment this section, the MediaAccessService
-        // entry in AndroidManifest.xml, the warning in AppHealthRepository,
-        // and the call in AutomationManager.evaluate. The settings, the curve,
-        // the policy and their tests were all left in place, so anything a
-        // rider had configured is still there.
-        /*
-        // --- Media speed control Section ---
-        // One switch and, once it is on, the same spline editor auto-volume
-        // uses: the curve is the identical "speed:value" shape, so a rider who
-        // has shaped one already knows this one.
-        BringIntoViewSection(expanded = settings.mediaControl.rateApplyWhen != ApplyWhenIds.NEVER) {
-        Text(stringResource(Res.string.media_rate_title), style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.primary)
-
-        ApplyWhenSelector(
-            label = stringResource(Res.string.media_rate_when),
-            current = settings.mediaControl.rateApplyWhen,
-            onPick = { viewModel.updateMediaRateApplyWhenPicked(it) },
-        )
-        if (settings.mediaControl.rateApplyWhen != ApplyWhenIds.NEVER) {
-            // Asked in place, the way the rest of this screen asks: the button
-            // only appears while the grant is missing, and it disappears on
-            // its own once given (the health check re-runs on resume, which is
-            // also what clears the dashboard warning).
-            // Re-read on every resume, like the PIP and overlay asks above:
-            // the rider grants this in system settings, and returning is the
-            // only moment we can notice. Without it the ask stayed on screen
-            // after being granted.
-            var accessAllowed by remember { mutableStateOf(viewModel.notificationAccessAllowed()) }
-            val rateLifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
-            androidx.compose.runtime.DisposableEffect(rateLifecycleOwner) {
-                val obs = androidx.lifecycle.LifecycleEventObserver { _, event ->
-                    if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
-                        accessAllowed = viewModel.notificationAccessAllowed()
-                    }
-                }
-                rateLifecycleOwner.lifecycle.addObserver(obs)
-                onDispose { rateLifecycleOwner.lifecycle.removeObserver(obs) }
-            }
-            if (!accessAllowed) {
-                HintText(stringResource(Res.string.media_rate_permission_desc), small = true)
-                com.eried.eucplanet.ui.common.FixButton(
-                    text = stringResource(Res.string.media_rate_grant),
-                    onClick = { viewModel.openNotificationAccessSettings() },
-                )
-            }
-            var ratePoints by remember(settings.mediaControl.rateCurve) {
-                mutableStateOf(parseVolumeCurve(settings.mediaControl.rateCurve))
-            }
-            // Four points on the same speeds as the volume curve, so the two
-            // editors line up; 0 km/h is pinned at normal speed.
-            val rateNormalized = remember(ratePoints) {
-                val p = ratePoints.toMutableList()
-                listOf(
-                    0f to 1f,
-                    25f to (p.getOrNull(1)?.second ?: 1.15f),
-                    50f to (p.getOrNull(2)?.second ?: 1.30f),
-                    75f to (p.getOrNull(3)?.second ?: 1.45f),
-                )
-            }
-            SplineCurveEditor(
-                points = rateNormalized,
-                speedUnit = Units.effectiveSpeedUnit(settings),
-                onPointsChanged = { ratePoints = it },
-                onPointsCommitted = { viewModel.updateMediaRateCurve(encodeVolumeCurve(it)) },
-                minMultiplier = PlaybackRatePolicy.MIN_RATE,
-                maxMultiplier = PlaybackRatePolicy.MAX_RATE,
-                tickStep = 0.5f,
-                // A rate curve may fall as well as rise, and it lands on the
-                // same grid the policy sends.
-                monotonic = false,
-                valueStep = PlaybackRatePolicy.STEP,
-            )
-            // Not every player accepts a rate from outside itself, and there
-            // is nothing the app can do about the ones that do not.
-            com.eried.eucplanet.ui.common.InfoHint(
-                text = stringResource(Res.string.media_rate_note),
-            )
-        }
-        }   // end Media speed control BringIntoViewSection
-        */
-
-        Spacer(Modifier.height(8.dp))
-
         // --- Wheel lock (Bluetooth proximity) Section ---
         BringIntoViewSection(expanded = settings.proximityLock.lockEnabled) {
         Text(stringResource(Res.string.proximity_lock_title), style = MaterialTheme.typography.headlineMedium,
@@ -522,7 +426,7 @@ fun AutomationsContent(viewModel: SettingsViewModel) {
                 modifier = Modifier.fillMaxWidth(0.5f),
             )
 
-            HintText(stringResource(Res.string.proximity_lock_hint), small = true)
+            HintText(stringResource(Res.string.proximity_lock_hint))
 
             // Unlock is only offered once Lock is on - it only reverses this
             // lock. Never is one of the three answers rather than a separate

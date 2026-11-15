@@ -191,8 +191,8 @@ internal object NoWatches : WatchLinks {
 /** The Motor sound previews, played by the same engine the ride drives (Android's AndroidEngineSoundPreview). */
 internal class IosEngineSoundPreview(private val engine: EngineSoundEngine) : EngineSoundPreview {
     override fun previewProfile(
-        key: String, durationMs: Long, volume: Float?, muffler: String?, gearbox: String?, scenario: String,
-    ) = engine.previewProfile(key, durationMs, volume, muffler, gearbox, scenario)
+        key: String, durationMs: Long, muffler: String?, gearbox: String?, scenario: String,
+    ) = engine.previewProfile(key, durationMs, muffler, gearbox, scenario)
 }
 
 /** The split timer is not on iOS yet. */
@@ -213,9 +213,6 @@ internal object NoHud : HudSettingsLink {
 internal object IosSettingsPlatform : SettingsPlatform {
     override fun pipAllowed() = false
     override fun openPipSettings() = Unit
-    override fun notificationAccessAllowed() = false
-    override fun openNotificationAccessSettings() = Unit
-    override fun refreshPermissionWarnings(pipRequested: Boolean, phoneHudRequested: Boolean, mediaRateRequested: Boolean) = Unit
 
     // The app's own language, as the iPhone's per-app language setting stores
     // it. iOS applies it the next time the app starts.

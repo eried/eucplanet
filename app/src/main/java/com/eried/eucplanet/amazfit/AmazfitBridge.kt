@@ -83,7 +83,7 @@ class AmazfitBridge(
     val deliveryRateHz: StateFlow<Double> = _deliveryRateHz
 
     /** Epoch millis of the last `/state` poll. The Settings card reads this
-     *  through the same 3 s window it uses for Garmin's Live badge. */
+     *  through PairedSurface.AMAZFIT_LIVE_WINDOW_MS for the Live badge. */
     private val _lastSuccessAtMs = MutableStateFlow(0L)
     val lastSuccessAtMs: StateFlow<Long> = _lastSuccessAtMs
 

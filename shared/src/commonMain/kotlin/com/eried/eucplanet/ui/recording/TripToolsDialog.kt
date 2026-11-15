@@ -39,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.eried.eucplanet.platform.stringResource
+import com.eried.eucplanet.platform.pluralStringResource
 import androidx.compose.ui.unit.dp
 import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.platform.formatLocalDate
@@ -602,7 +603,9 @@ fun CombineTripsDialog(
                     if (skipped > 0) {
                         Spacer(Modifier.height(4.dp))
                         Text(
-                            stringResource(Res.string.trip_tools_extend_skipped, skipped),
+                            pluralStringResource(
+                                Res.plurals.trip_tools_extend_skipped, skipped, skipped
+                            ),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.appColors.textSecondary,
                         )

@@ -81,7 +81,7 @@ fun ExternalGpsSection(
             checked = settings?.gpsShowOnDashboard == true,
             onCheckedChange = { settingsViewModel.updateGpsShowOnDashboard(it) }
         )
-        HintText(stringResource(R.string.gps_show_on_dashboard_desc), small = true)
+        HintText(stringResource(R.string.gps_show_on_dashboard_desc))
 
         Spacer(Modifier.height(8.dp))
         Text(
@@ -91,7 +91,7 @@ fun ExternalGpsSection(
         )
 
         if (pairedAddress == null) {
-            HintText(stringResource(R.string.external_gps_caption), small = true)
+            HintText(stringResource(R.string.external_gps_caption))
             UnpairedExternalGpsCard(
                 scanning = scanning,
                 results = scanResults,
@@ -146,7 +146,7 @@ fun ExternalGpsSection(
                 stringResource(R.string.external_gps_axes_title),
                 style = MaterialTheme.typography.titleSmall
             )
-            HintText(stringResource(R.string.external_gps_axes_desc), small = true)
+            HintText(stringResource(R.string.external_gps_axes_desc))
 
             val axisOptions = listOf(
                 "X" to "X",
@@ -202,7 +202,7 @@ fun ExternalGpsSection(
             checked = settings?.gpsPrioritizeExternal == true,
             onCheckedChange = { settingsViewModel.updateGpsPrioritizeExternal(it) }
         )
-        HintText(stringResource(R.string.gps_prioritize_external_desc), small = true)
+        HintText(stringResource(R.string.gps_prioritize_external_desc))
         }   // end BringIntoViewSection
     }
 

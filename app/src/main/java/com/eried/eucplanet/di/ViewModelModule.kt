@@ -33,7 +33,6 @@ import com.eried.eucplanet.ui.lockdown.LegalLockdownViewModel
 import com.eried.eucplanet.ui.navigator.NavigationOverlayViewModel
 import com.eried.eucplanet.ui.navigator.RouteBuilderViewModel
 import com.eried.eucplanet.ui.radar.RadarOverlayViewModel
-import com.eried.eucplanet.ui.recording.EucViewerViewModel
 import com.eried.eucplanet.ui.recording.AndroidRecordingOnline
 import com.eried.eucplanet.ui.recording.AndroidRecordingPlatform
 import com.eried.eucplanet.ui.recording.AndroidRecordingTrips
@@ -133,7 +132,6 @@ val viewModelModule = module {
     viewModelOf(::NavigationOverlayViewModel)
     viewModelOf(::RouteBuilderViewModel)
     viewModelOf(::RadarOverlayViewModel)
-    viewModelOf(::EucViewerViewModel)
     viewModelOf(::RecordingViewModel)
     viewModelOf(::ScanViewModel)
     viewModelOf(::AlarmViewModel)

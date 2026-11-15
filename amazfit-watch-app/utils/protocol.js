@@ -180,7 +180,8 @@ export function convertDistanceFromKm(km, unit) {
     case 'ft':
       return km * 3280.84
     case 'mil':
-      return km * 0.539957
+      // Scandinavian mil: 1 mil = 10 km.
+      return km / 10
     default:
       return km
   }
@@ -195,7 +196,7 @@ export function distanceUnitLabel(unit) {
     case 'ft':
       return 'ft'
     case 'mil':
-      return 'nmi'
+      return 'mil'
     default:
       return 'km'
   }

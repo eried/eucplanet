@@ -27,8 +27,9 @@ import kotlin.concurrent.Volatile
  * This is also how the reading gets decoded in the first place. A sensor's
  * packet format is not published, so the way in is to watch the bytes at a
  * pressure you have measured with a gauge and find the ones that match. Every
- * payload is logged with its manufacturer and service data intact, so a
- * capture at a known pressure is enough to identify the field.
+ * candidate payload goes to the diagnostics capture with its manufacturer and
+ * service data intact, so a capture at a known pressure is enough to identify
+ * the field.
  *
  * The radio itself is behind [TpmsRadio] (Android: AndroidTpmsRadio in :app).
  */
@@ -327,8 +328,7 @@ class TpmsScanner(
             .sortedBy { it.firstSeenMs }
             .take(MAX_SEEN)
 
-        // The decode trail. Service mode keeps it in the diagnostics capture;
-        // the log line is there for a wired session.
+        // The decode trail. Service mode keeps it in the diagnostics capture.
         val line = "TPMS adv ${seen.address} ${seen.name ?: "(no name)"} rssi=${seen.rssi} " +
             "manu=${manu.entries.joinToString(",") { "0x%04X:%s".format(it.key, it.value) }} " +
             "svc=${svc.entries.joinToString(",") { "${it.key}:${it.value}" }} " +
@@ -382,9 +382,6 @@ class TpmsScanner(
             // a scan that keeps collecting whatever is in the room.
             if (!alreadyKnown) resumeMonitoring()
         }
-        // Every advertisement, at INFO: decoding a new sensor family means
-        // diffing every payload in range across a pressure the rider changed.
-        Log.i(TAG, line)
     }
 
     private fun ByteArray.toHex(): String = joinToString("") { "%02X".format(it) }

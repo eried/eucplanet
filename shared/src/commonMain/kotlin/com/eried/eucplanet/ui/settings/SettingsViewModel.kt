@@ -230,16 +230,19 @@ class SettingsViewModel(
             val amazfitHz = args[6] as Double
             val lastAmazfitMs = args[7] as Long
             val wearHz = settings?.let { wearRateHzFor(it.watchUpdateRate) } ?: 5.0
-            // "Active" = the bridge has delivered a frame in the last 3 s.
-            // Reading the timestamp (not the rolling rate) avoids the
-            // 0/1/0/1 sampling artifact that happens when the wire is
-            // running at exactly 1 Hz and our rate poller is also 1 Hz.
-            val garminActive = lastGarminMs > 0L &&
-                (System.currentTimeMillis() - lastGarminMs) < 3_000L
+            // "Active" = the watch acked within its live window. Reading
+            // the timestamp (not the rolling rate) avoids the 0/1/0/1
+            // sampling artifact that happens when the wire is running at
+            // exactly 1 Hz and our rate poller is also 1 Hz.
+            val nowMs = System.currentTimeMillis()
+            val garminActive = PairedSurface.isLive(
+                lastGarminMs, nowMs, PairedSurface.GARMIN_LIVE_WINDOW_MS
+            )
             val wearActive = wear.isNotEmpty()
-            // Amazfit polls the phone; a poll in the last 3 s means Live.
-            val amazfitActive = lastAmazfitMs > 0L &&
-                (System.currentTimeMillis() - lastAmazfitMs) < 3_000L
+            // Amazfit polls the phone; a recent poll means Live.
+            val amazfitActive = PairedSurface.isLive(
+                lastAmazfitMs, nowMs, PairedSurface.AMAZFIT_LIVE_WINDOW_MS
+            )
             buildList {
                 wear.forEach { name ->
                     add(PairedSurface(PairedSurface.Kind.WEAR_OS, name, wearActive, wearHz))
@@ -548,7 +551,6 @@ class SettingsViewModel(
             val s = settingsRepository.get()
             engineSoundEngine.previewProfile(
                 key = key,
-                volume = s.engineVolume,
                 muffler = s.engineMuffler,
                 gearbox = s.engineGearbox
             )
@@ -569,7 +571,6 @@ class SettingsViewModel(
             val s = settingsRepository.get()
             engineSoundEngine.previewProfile(
                 key = s.engineType,
-                volume = s.engineVolume,
                 muffler = s.engineMuffler,
                 gearbox = s.engineGearbox,
                 scenario = scenario
@@ -675,26 +676,6 @@ class SettingsViewModel(
             // it again, so hand the rider's baseline back on every change.
             .also { automationManager.restoreBaselineVolume() }
     fun updateAutoVolumeCurve(curve: String) = update { copy(autoVolumeCurve = curve) }
-
-    fun updateMediaRateApplyWhenPicked(v: String) = update {
-        copy(mediaControl = mediaControl.copy(rateApplyWhen = v))
-    }.also {
-        // Raise (or clear) the dashboard warning now rather than at the next
-        // activity resume: moving between settings screens is not a resume,
-        // so a rider who switches this on and never leaves the app would see
-        // no sign that the grant it needs is missing.
-        platform.refreshPermissionWarnings(
-            mediaRateRequested = v != ApplyWhenIds.NEVER
-        )
-    }
-    fun updateMediaRateCurve(curve: String) = update {
-        copy(mediaControl = mediaControl.copy(rateCurve = curve))
-    }
-
-
-    /** Notification access, which the rate feature needs and nothing else does. */
-    fun notificationAccessAllowed(): Boolean = platform.notificationAccessAllowed()
-    fun openNotificationAccessSettings() = platform.openNotificationAccessSettings()
 
     // Media control (speed-driven music/podcast pause & resume)
     fun updateMediaPauseEnabled(v: Boolean) = update { copy(mediaControl = mediaControl.copy(pauseEnabled = v)) }
@@ -1021,11 +1002,8 @@ class SettingsViewModel(
      *  default carousel order. ALL screens ship enabled so a new rider
      *  scrolls through the full carousel and decides what to keep. The
      *  rider can still trim them from Personalize -> HUD screens. */
-    val defaultEnabledHudScreens: List<String> = listOf(
-        "Dashboard", "Camera", "Telemetry",
-        "Custom", "CustomCam", "MapNav", "Map", "Nav",
-        "Power", "TripStats", "Compass", "Safety", "BigClock"
-    )
+    val defaultEnabledHudScreens: List<String> =
+        com.eried.eucplanet.hud.protocol.HudScreens.DEFAULT
 
     /** Stable identifiers for every HUD screen the app knows about,
      *  mirroring the HudUiController.Screen enum on the HUD side. Order

@@ -86,7 +86,7 @@ fun WeatherSettingsContent(
                     colors = themedSwitchColors(),
                 )
             }
-            HintText(stringResource(Res.string.weather_enable_desc), small = true)
+            HintText(stringResource(Res.string.weather_enable_desc))
             if (settings.weather.enabled) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -106,7 +106,7 @@ fun WeatherSettingsContent(
                 // The source line sits ABOVE its selector, so the block reads as
                 // one thought: here is where the numbers come from, here is the
                 // picker, here is how far ahead to look.
-                HintText(stringResource(Res.string.weather_source_credit), small = true)
+                HintText(stringResource(Res.string.weather_source_credit))
                 val sources = com.eried.eucplanet.weather.WeatherSource.entries
                 var sourceExpanded by remember { mutableStateOf(false) }
                 androidx.compose.material3.ExposedDropdownMenuBox(
@@ -170,7 +170,7 @@ fun WeatherSettingsContent(
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.appColors.primary,
                 )
-                HintText(stringResource(Res.string.weather_pref_desc), small = true)
+                HintText(stringResource(Res.string.weather_pref_desc))
                 val prefOptions = listOf(
                     "DISLIKE" to stringResource(Res.string.weather_pref_dislike),
                     "NEUTRAL" to stringResource(Res.string.weather_pref_neutral),

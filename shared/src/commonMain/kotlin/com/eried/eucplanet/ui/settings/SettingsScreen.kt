@@ -1173,8 +1173,8 @@ private fun GeneralTab(
             AutoRecordModeSelector(current = recordMode) { viewModel.updateAutoRecordMode(it) }
             // Reuse the existing captions, shown for the mode they describe.
             when (recordMode) {
-                "CONNECTED" -> HintText(stringResource(Res.string.auto_record_caption), small = true)
-                "RIDING" -> HintText(stringResource(Res.string.auto_record_start_in_motion_caption), small = true)
+                "CONNECTED" -> HintText(stringResource(Res.string.auto_record_caption))
+                "RIDING" -> HintText(stringResource(Res.string.auto_record_start_in_motion_caption))
             }
             if (recordMode == "RIDING") {
                 val idleSec = settings.autoRecordStopIdleSeconds
@@ -1251,7 +1251,7 @@ private fun GeneralTab(
                 current = settings.backButtonAction,
                 onChange = { viewModel.updateBackButtonAction(it) },
             )
-            HintText(stringResource(Res.string.back_button_action_desc), small = true)
+            HintText(stringResource(Res.string.back_button_action_desc))
         }
 
         if (SettingsRow.KEEP_ALIVE !in hiddenRows) {
@@ -1259,7 +1259,7 @@ private fun GeneralTab(
                 stringResource(Res.string.keep_app_alive),
                 settings.keepAppAlive,
             ) { viewModel.updateKeepAppAlive(it) }
-            HintText(stringResource(Res.string.keep_app_alive_desc), small = true)
+            HintText(stringResource(Res.string.keep_app_alive_desc))
         }
 
         // Everywhere the app shows telemetry OUTSIDE the dashboard, under one
@@ -1287,7 +1287,7 @@ private fun GeneralTab(
                     stringResource(Res.string.notif_actions_enable),
                     settings.notificationActionsEnabled,
                 ) { viewModel.updateNotificationActionsEnabled(it) }
-                HintText(stringResource(Res.string.notif_actions_enable_desc), small = true)
+                HintText(stringResource(Res.string.notif_actions_enable_desc))
 
                 // Only offer the picker while the feature is on; the toggle above
                 // stays visible so it can be turned back on.
@@ -1297,7 +1297,6 @@ private fun GeneralTab(
                     }
                     HintText(
                         stringResource(Res.string.notif_actions_pick_desc, NotificationActionType.SLOTS),
-                        small = true,
                     )
                     // Half-width combos like the Flic pickers: two per row, the
                     // third half-width below.
@@ -1341,7 +1340,7 @@ private fun GeneralTab(
                 title = stringResource(Res.string.pip_section),
                 stateKey = "surface-pip",
             ) {
-                HintText(stringResource(Res.string.pip_desc), small = true)
+                HintText(stringResource(Res.string.pip_desc))
                 SegmentedChoice(
                     // Not pip_section: the collapsable above already carries that
                     // name, and repeating it on the control reads as a stutter.
@@ -1371,7 +1370,7 @@ private fun GeneralTab(
                     onDispose { pipLifecycleOwner.lifecycle.removeObserver(obs) }
                 }
                 if (!pipAllowed && settings.pipMode != "OFF") {
-                    HintText(stringResource(Res.string.warnings_pip_blocked_body), small = true)
+                    HintText(stringResource(Res.string.warnings_pip_blocked_body))
                     com.eried.eucplanet.ui.common.FixButton(
                         onClick = { viewModel.openPipSettings() }
                     )
@@ -1401,7 +1400,7 @@ private fun GeneralTab(
                 // here configures a widget, which is no use to a rider who has not
                 // added one yet, and collapsed the section would otherwise be a
                 // header with nothing under it.
-                HintText(stringResource(Res.string.widget_how_to_add), small = true)
+                HintText(stringResource(Res.string.widget_how_to_add))
                 AdvancedCollapsable(
                     title = stringResource(Res.string.widget_customize),
                     stateKey = "widget-customize",
@@ -1411,7 +1410,6 @@ private fun GeneralTab(
                         Res.string.widget_pick_desc,
                         WidgetMetricType.SLOTS, WidgetActionType.SLOTS,
                     ),
-                    small = true,
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -1481,7 +1479,7 @@ private fun GeneralTab(
                 val standaloneSlots = remember(settings.widget.standaloneActions) {
                     WidgetActionType.slots(settings.widget.standaloneActions)
                 }
-                HintText(stringResource(Res.string.widget_standalone_desc), small = true)
+                HintText(stringResource(Res.string.widget_standalone_desc))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -1574,7 +1572,7 @@ private fun AdvRow(spec: AdvancedSpec, advanced: AdvancedSettings, onChange: (In
             RestoreChip(text = "${spec.format(default)}$unit", enabled = value != default) { onChange(default) }
         }
         Spacer(Modifier.width(10.dp))
-        HintText(stringResource(spec.desc), modifier = Modifier.weight(1f), small = true)
+        HintText(stringResource(spec.desc), modifier = Modifier.weight(1f))
     }
 }
 
@@ -1762,7 +1760,7 @@ private fun AdvancedTab(
         if (reorgHandles.isNotEmpty()) {
             var showVisibilityDialog by remember { mutableStateOf(false) }
             AdvSectionTitle(stringResource(Res.string.settings_visibility))
-            HintText(stringResource(Res.string.reorg_hint), small = true)
+            HintText(stringResource(Res.string.reorg_hint))
             Spacer(Modifier.height(4.dp))
             LeftAlignedScanButton(
                 label = stringResource(Res.string.action_reorganize),
@@ -1865,7 +1863,7 @@ private fun AdvancedTab(
                 settings.landscapeSpeedoStyle == "NUMBER",
                 badge = landscapeBadge
             ) { viewModel.updateLandscapeSpeedoStyle(if (it) "NUMBER" else "DIAL") }
-            HintText(stringResource(Res.string.setting_simple_speedo_desc), small = true)
+            HintText(stringResource(Res.string.setting_simple_speedo_desc))
             geoChoiceRow(
                 Res.string.setting_compact_dashboard, null,
                 listOf(
@@ -1922,7 +1920,7 @@ private fun AdvancedTab(
                 stringResource(Res.string.setting_allow_rotation),
                 settings.rotateSettings
             ) { viewModel.updateRotateSettings(it) }
-            HintText(stringResource(Res.string.geo_settings_hint), small = true)
+            HintText(stringResource(Res.string.geo_settings_hint))
         }
 
         AdvancedCollapsable(
@@ -1945,7 +1943,7 @@ private fun AdvancedTab(
                 ),
                 settings.tripMapSide
             ) { viewModel.updateTripMapSide(it) }
-            HintText(stringResource(Res.string.geo_trip_hint), small = true)
+            HintText(stringResource(Res.string.geo_trip_hint))
         }
 
         AdvancedCollapsable(
@@ -1956,7 +1954,7 @@ private fun AdvancedTab(
                 stringResource(Res.string.setting_allow_rotation),
                 settings.rotateOtherScreens
             ) { viewModel.updateRotateOtherScreens(it) }
-            HintText(stringResource(Res.string.geo_other_hint), small = true)
+            HintText(stringResource(Res.string.geo_other_hint))
         }
 
         // Timing knobs, under their own big title.
@@ -1981,7 +1979,7 @@ private fun AdvancedTab(
                 specs.forEach { spec ->
                     AdvRow(spec, settings.advanced) { viewModel.updateAdvanced(spec, it) }
                 }
-                group.noteRes?.let { HintText(stringResource(it), small = true) }
+                group.noteRes?.let { HintText(stringResource(it)) }
             }
         }
     }
@@ -2133,7 +2131,7 @@ private fun DashboardLayoutTab(
                 onSelect = { viewModel.updateDashboardRollingWindowSeconds(it) }
             )
         }
-        HintText(stringResource(Res.string.dashboard_grid_hint), small = true)
+        HintText(stringResource(Res.string.dashboard_grid_hint))
 
         MetricMiniGrid(
             order = metricOrderRaw,
@@ -2186,7 +2184,7 @@ private fun DashboardLayoutTab(
 
         // --- Action buttons ----------------------------------------------
         SectionHeader(stringResource(Res.string.dashboard_section_actions))
-        HintText(stringResource(Res.string.dashboard_grid_hint), small = true)
+        HintText(stringResource(Res.string.dashboard_grid_hint))
 
         ActionMiniGrid(
             order = actionOrderRaw,
@@ -3824,7 +3822,6 @@ private fun DashboardSlotSheet(
                     )
                     metricDescription(target.key)?.let { MetricInfoBox(it) }
                     SlotStatsEditor(
-                        key = target.key,
                         stats = stats,
                         onCornerChange = { corner, stat ->
                             viewModel.updateDashboardMetricSlotStat(target.key, corner, stat)
@@ -5177,7 +5174,6 @@ private fun MetricInfoBox(text: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SlotStatsEditor(
-    key: String,
     stats: MetricSlotStats,
     onCornerChange: (SlotCorner, DashboardStat) -> Unit
 ) {
@@ -5205,21 +5201,9 @@ private fun SlotStatsEditor(
             DashboardStat.P75, DashboardStat.P95, DashboardStat.P99
         )
     }
-    // Self-documenting metrics (e.g. Forward G is speed-derived) explain themselves
-    // right here in the editor, the descriptionRes shows as an italic subtitle.
-    val descRes = remember(key) {
-        com.eried.eucplanet.data.model.MetricCatalog.all.firstOrNull { it.key == key }?.descriptionRes
-    }
+    // The metric's description is not repeated here: the slot sheet shows it
+    // once, in the info box right above this editor.
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        descRes?.let {
-            Text(
-                stringResource(it),
-                style = MaterialTheme.typography.bodySmall.copy(
-                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
-                ),
-                color = MaterialTheme.appColors.textSecondary,
-            )
-        }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             CornerStatDropdown(
                 modifier = Modifier.weight(1f),
@@ -5949,7 +5933,7 @@ private fun SpeedTab(
         // wheel is connected because the value is keyed by the wheel's BLE
         // name and only loaded once we know which wheel we're talking to.
         SectionHeader(stringResource(Res.string.section_speed_calibration))
-        HintText(stringResource(Res.string.speed_calibration_caption), small = true)
+        HintText(stringResource(Res.string.speed_calibration_caption))
         val calPct = settings.speedCalibrationOffsetPct
         // Half width, left side, to match the other compact numeric pills.
         Row(
@@ -6040,12 +6024,10 @@ private fun SpeedTab(
                 }
                 HintText(
                     stringResource(Res.string.battery_percent_cells_manual),
-                    small = true,
                 )
             } else {
                 HintText(
                     stringResource(Res.string.battery_percent_cells_from_wheel, detectedSeriesCells!!),
-                    small = true,
                 )
             }
         }
@@ -6100,7 +6082,6 @@ private fun SpeedTab(
             }
             HintText(
                 stringResource(Res.string.battery_capacity_desc),
-                small = true,
             )
             if (batteryOverride) {
                 // Swap the built-in lithium curve for a straight line between a
@@ -6165,7 +6146,6 @@ private fun SpeedTab(
                     }
                     HintText(
                         stringResource(Res.string.battery_percent_cell_range_desc),
-                        small = true,
                     )
                 }
             }
@@ -6282,7 +6262,7 @@ private fun HornSection(
         onChange = { viewModel.updateHornMode(it) }
     )
     if (horn.mode != com.eried.eucplanet.data.model.HornSettings.MODE_WHEEL) {
-        HintText(stringResource(Res.string.horn_mode_hint), small = true)
+        HintText(stringResource(Res.string.horn_mode_hint))
         // Same shape as the backup folder row: the chosen sound as a labelled
         // line with the small preview control beside it, and one browse
         // button under it. Nothing chosen shows only the browse button.
@@ -6777,7 +6757,7 @@ private fun VoiceTab(
                 }
             }
 
-            HintText(stringResource(Res.string.accel_splits_desc), small = true)
+            HintText(stringResource(Res.string.accel_splits_desc))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -6852,7 +6832,7 @@ private fun SplitSessionBlock(
         modifier = Modifier.padding(top = 8.dp),
     )
     if (session.isEmpty) {
-        HintText(stringResource(Res.string.accel_splits_session_empty), small = true)
+        HintText(stringResource(Res.string.accel_splits_session_empty))
         return
     }
     @Composable
@@ -7008,7 +6988,7 @@ private fun FlicTab(settingsViewModel: SettingsViewModel) {
         val allSlotsFull = settings.flic1Address != null && settings.flic2Address != null &&
                 settings.flic3Address != null && settings.flic4Address != null
         if (!allSlotsFull) {
-            HintText(stringResource(Res.string.flic_scan_hint), small = true)
+            HintText(stringResource(Res.string.flic_scan_hint))
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (scanning) {
                     CircularProgressIndicator(modifier = Modifier.padding(vertical = 4.dp))
@@ -7028,7 +7008,7 @@ private fun FlicTab(settingsViewModel: SettingsViewModel) {
 
         if (host.supportsVolumeKeys) {
         SectionHeader(stringResource(Res.string.section_volume_keys))
-        HintText(stringResource(Res.string.volume_keys_caption), small = true)
+        HintText(stringResource(Res.string.volume_keys_caption))
         BringIntoViewSection(expanded = settings.volumeKeysEnabled) {
         SwitchSetting(stringResource(Res.string.volume_keys_enable), settings.volumeKeysEnabled) {
             settingsViewModel.updateVolumeKeysEnabled(it)
@@ -7071,7 +7051,7 @@ private fun FlicTab(settingsViewModel: SettingsViewModel) {
             SwitchSetting(stringResource(Res.string.volume_keys_screen_off), settings.volumeKeysScreenOff) { on ->
                 if (on) askScreenOff = true else settingsViewModel.updateVolumeKeysScreenOff(false)
             }
-            HintText(stringResource(Res.string.volume_keys_screen_off_caption), small = true)
+            HintText(stringResource(Res.string.volume_keys_screen_off_caption))
             if (askScreenOff) {
                 AlertDialog(
                     onDismissRequest = { askScreenOff = false },
@@ -7962,7 +7942,6 @@ private fun CloudTab(
             }
             HintText(
                 stringResource(Res.string.cloud_backup_long_press_hint),
-                small = true
             )
 
             Box(
@@ -8189,15 +8168,17 @@ private fun CloudTab(
                 val caption = stringResource(Res.string.online_upload_join_caption)
                 val siteLabel = stringResource(Res.string.online_upload_site_label)
                 val linkColor = MaterialTheme.appColors.primary
+                // The sentence carries a %1$s where the address goes, so each
+                // language places the link where it reads naturally.
                 val captionText = androidx.compose.ui.text.buildAnnotatedString {
-                    append(caption)
-                    append(" ")
+                    append(caption.substringBefore("%1\$s"))
                     withStyle(
                         androidx.compose.ui.text.SpanStyle(
                             color = linkColor,
                             textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline,
                         )
                     ) { append(siteLabel) }
+                    append(caption.substringAfter("%1\$s", ""))
                 }
                 Text(
                     captionText,
@@ -8231,14 +8212,14 @@ private fun CloudTab(
             val linkedLabel = stringResource(Res.string.online_upload_site_label)
             val linkColor = MaterialTheme.appColors.primary
             val linkedText = androidx.compose.ui.text.buildAnnotatedString {
-                append(linkedCaption)
-                append(" ")
+                append(linkedCaption.substringBefore("%1\$s"))
                 withStyle(
                     androidx.compose.ui.text.SpanStyle(
                         color = linkColor,
                         textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline,
                     )
                 ) { append(linkedLabel) }
+                append(linkedCaption.substringAfter("%1\$s", ""))
             }
             // Link to the public site, shown ABOVE the box at full width
             // (not inset by the box padding).

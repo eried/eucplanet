@@ -171,8 +171,6 @@ class WheelService : LifecycleService() {
     @Volatile
     private var widgetStandaloneCached: String =
         com.eried.eucplanet.data.model.WidgetActionType.DEFAULT_KEYS
-    @Volatile
-    private var phoneBatteryCached: Int = 0
     // Last paired wheel's name, mirrored from settings so the notification can
     // show it (Tesla-style) without suspending - used when no wheel is actively
     // connected (e.g. while "Connecting" or after a drop).
@@ -733,12 +731,7 @@ class WheelService : LifecycleService() {
                 // Gate notify() BEFORE removing the notification, so a telemetry /
                 // nav emission racing this teardown can't re-post it afterwards.
                 shuttingDown = true
-                @Suppress("DEPRECATION")
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    stopForeground(STOP_FOREGROUND_REMOVE)
-                } else {
-                    stopForeground(true)
-                }
+                stopForeground(STOP_FOREGROUND_REMOVE)
                 // Belt-and-braces: explicitly cancel by id in case an update
                 // slipped in just before shuttingDown latched.
                 getSystemService(NotificationManager::class.java)
@@ -1270,6 +1263,13 @@ class WheelService : LifecycleService() {
         val captions = ArrayList<String>(metricKeys.size)
         fun unitFor(type: com.eried.eucplanet.data.model.WidgetMetricType): String =
             com.eried.eucplanet.widget.WidgetMetricFormat.unit(this, type, speedUnit, distUnit, tempUnit)
+        // The phone's own charge, read once per repaint (at most 1 Hz) and only
+        // when a slot shows it. An in-memory system read, no sticky broadcast.
+        val phoneBattery by lazy(LazyThreadSafetyMode.NONE) {
+            (getSystemService(Context.BATTERY_SERVICE) as? android.os.BatteryManager)
+                ?.getIntProperty(android.os.BatteryManager.BATTERY_PROPERTY_CAPACITY)
+                ?.coerceIn(0, 100) ?: 0
+        }
 
         metricKeys.forEach { key ->
             val type = com.eried.eucplanet.data.model.WidgetMetricType.byKey(key)
@@ -1286,7 +1286,7 @@ class WheelService : LifecycleService() {
                 return@forEach
             }
             val v = com.eried.eucplanet.widget.WidgetMetricFormat.value(
-                type, data, speedUnit, distUnit, tempUnit, phoneBatteryCached
+                type, data, speedUnit, distUnit, tempUnit, phoneBattery
             )
             values.add(v)
             captions.add(getString(type.pickerLabel) + if (unit.isBlank()) "" else " ($unit)")

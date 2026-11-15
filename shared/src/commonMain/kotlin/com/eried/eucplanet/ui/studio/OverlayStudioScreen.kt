@@ -721,9 +721,9 @@ private fun OverlayStudioContent(
                         // export frame's cursor (`pos`) here, on the producing
                         // side: the offscreen session's frame clock only ever
                         // draws an already-decoded bitmap, it never calls into
-                        // the retriever itself. Missing/out-of-range/no-clip
-                        // all resolve to null, which the viewport layer draws
-                        // as nothing (transparent).
+                        // the retriever itself. Out-of-range and no-clip both
+                        // resolve to a null frame; what the pane then shows is
+                        // decided by videoFills below.
                         val videoFrames: Map<Int, ImageBitmap?> =
                             preset.viewports.mapIndexedNotNull { idx, vp ->
                                 val face = vp.replay
@@ -736,10 +736,32 @@ private fun OverlayStudioContent(
                                 )
                                 idx to (if (timeUs == null) null else videoHub.frameAt(uri, timeUs))
                             }.toMap()
+                        // What each VIDEO pane shows on this frame, by the same
+                        // decision the on-screen replay takes: the No-media
+                        // placeholder with no usable clip, black past the clip
+                        // with the Black edge. Read after the frames above, so
+                        // a clip whose decode just failed counts as unusable.
+                        val videoFills: Map<Int, ReplayVideoFill> =
+                            preset.viewports.mapIndexedNotNull { idx, vp ->
+                                val face = vp.replay
+                                if (face?.source != ReplaySourceType.VIDEO) {
+                                    return@mapIndexedNotNull null
+                                }
+                                val uri = face.videoUri
+                                val usable = uri != null && !videoHub.isInvalid(uri)
+                                idx to replayVideoFill(
+                                    hasUsableClip = usable,
+                                    cursorMs = pos,
+                                    offsetMs = face.videoOffsetMs,
+                                    videoDurationMs = if (uri != null && usable) videoHub.durationMs(uri) else 0L,
+                                    edge = face.videoEdge,
+                                )
+                            }.toMap()
                         OverlayFrameSpec(
                             elements = frameElements,
                             preset = preset,
                             videoFrames = videoFrames,
+                            videoFills = videoFills,
                             data = StudioElementData(
                                 wheelData = trip.dataAt(pos),
                                 wheelName = displayWheelName,

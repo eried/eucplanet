@@ -102,7 +102,7 @@
     <string name="lock_blocked_in_motion_toast">Pelankan laju untuk mengunci EUC</string>
     <string name="action_recorder">Perekam</string>
     <string name="action_recorder_trips">Perekam\n(%1$d perjalanan)</string>
-    <string name="action_recorder_trips_one">Perekam (%1$d perjalanan)</string>
+    <string name="action_recorder_trips_one">Perekam\n(%1$d perjalanan)</string>
     <string name="search_settings">Cari setelan</string>
     <string name="tab_general">Umum</string>
     <string name="tab_speed">Parameter EUC</string>
@@ -137,7 +137,7 @@
     <string name="dashboard_composite_layout_col2">2 kolom</string>
     <string name="dashboard_composite_layout_col3">3 kolom</string>
     <string name="dashboard_composite_cell_label">Sel %1$d</string>
-    <string name="dashboard_composite_empty_label">(kosong)</string>
+    <string name="dashboard_composite_empty_label">(tidak ada)</string>
     <string name="dashboard_composite_blank_label">(kosong)</string>
     <string name="dashboard_stat_empty">(kosong)</string>
     <string name="dashboard_group_default_name">Tindakan saya</string>
@@ -174,7 +174,7 @@
     <string name="dashboard_corner_right">Kanan</string>
     <string name="dashboard_slot_sparkline">Latar tren langsung</string>
     <string name="dashboard_slot_sparkline_chip">Statistik</string>
-    <string name="dashboard_stat_none">(kosong)</string>
+    <string name="dashboard_stat_none">(tidak ada)</string>
     <string name="dashboard_stat_current">Kini</string>
     <string name="dashboard_stat_min">Min</string>
     <string name="dashboard_stat_max">Maks / Puncak</string>
@@ -270,14 +270,14 @@
     <string name="metric_chip_ascent_tile">Naik</string>
     <string name="metric_chip_descent_tile">Turun</string>
     <string name="metric_chip_gps_speed_tile">Kec GPS</string>
-    <string name="metric_chip_gps_altitude_tile">Ketinggian</string>
+    <string name="metric_chip_gps_altitude_tile">Tinggi</string>
     <string name="metric_chip_gps_heading_tile">Arah</string>
     <string name="metric_chip_trip_time_tile">Waktu</string>
     <string name="metric_chip_g_force_tile">G</string>
     <string name="metric_chip_forward_g_tile">G maju</string>
     <string name="metric_chip_lateral_g_tile">G samping</string>
     <string name="metric_chip_bt_rssi_tile">BT</string>
-    <string name="metric_desc_headroom">Sisa margin kecepatan sebelum tilt-back aktif. Angka besar = penyangga keamanan lebih besar.</string>
+    <string name="metric_desc_headroom">Sisa margin kecepatan sebelum tiltback aktif. Angka besar = penyangga keamanan lebih besar.</string>
     <string name="metric_desc_trip_max_speed">Kecepatan puncak selama perjalanan saat ini (direset pada perjalanan baru).</string>
     <string name="metric_desc_avg_trip_speed">Jarak perjalanan dibagi waktu berkendara sejauh ini.</string>
     <string name="metric_desc_wh_consumed">Total watt-jam yang diambil dari baterai pada perjalanan ini.</string>
@@ -342,7 +342,7 @@
     <string name="warnings_perm_mic_title">Mikrofon tidak diizinkan</string>
     <string name="warnings_perm_mic_body">Perintah suara tidak bisa mendengarkan sampai aplikasi diizinkan menggunakan mikrofon.</string>
     <string name="warnings_perm_bluetooth_title">Bluetooth tidak diizinkan</string>
-    <string name="warnings_perm_bluetooth_body">Aplikasi tidak dapat menemukan atau terhubung ke roda Anda. Ketuk untuk mengizinkan.</string>
+    <string name="warnings_perm_bluetooth_body">Aplikasi tidak dapat menemukan atau terhubung ke EUC Anda. Ketuk untuk mengizinkan.</string>
     <string name="voice_answer_unknown">Saya tidak menangkapnya. Ucapkan %1$s untuk bantuan.</string>
     <string name="voice_help_terms">apa yang bisa saya ucapkan,bantuan,tolong,apa yang bisa saya lakukan</string>
     <string name="voice_stat_max_terms">maks,maksimum,tertinggi</string>
@@ -436,7 +436,7 @@
     <string name="action_chip_toggle_units">Ganti satuan</string>
     <string name="section_watch_device">Perangkat</string>
     <string name="watch_paired_none">Tidak ada jam tangan yang dipasangkan</string>
-    <string name="watch_paired_none_desc">Pasang aplikasi pendamping EUC Planet di jam tangan Wear OS, Garmin, atau Amazfit untuk mulai menerima tampilan di sini.</string>
+    <string name="watch_paired_none_desc">Instal aplikasi pendamping EUC Planet di jam tangan Wear OS, Garmin, atau Amazfit untuk mulai menerima tampilan di sini.</string>
     <string name="watch_paired_kind_wear">Wear OS</string>
     <string name="watch_paired_kind_garmin">Garmin Connect IQ</string>
     <string name="watch_paired_kind_amazfit">Amazfit (Zepp OS)</string>
@@ -457,7 +457,7 @@
     <string name="hud_hotspot_unknown_hint">Pastikan HUD dan ponsel berada di jaringan WiFi yang sama. Jika memakai hotspot ponsel, nyalakan dulu.</string>
     <string name="hud_hotspot_on_hint">Hotspot ponsel sedang menyiarkan. Hubungkan HUD ke WiFi ponsel ini untuk mengaktifkan tautan.</string>
     <string name="hud_overlay_subsection">Overlay kustom</string>
-    <string name="hud_overlay_subsection_desc">Impor preset Overlay Studio ke layar Kustom HUD, tanpa latar belakang. Preset disalin ke sini, jadi perubahan di studio tidak akan mengubah HUD sampai Anda mengimpor lagi.</string>
+    <string name="hud_overlay_subsection_desc">Impor preset Overlay Studio ke layar Overlay kustom HUD, tanpa latar belakang. Preset disalin ke sini, jadi perubahan di studio tidak akan mengubah HUD sampai Anda mengimpor lagi.</string>
     <string name="hud_overlay_select_preset">Impor preset</string>
     <string name="hud_overlay_current_preset">Saat ini: %1$s</string>
     <string name="hud_custom_overlay_none">Hapus</string>
@@ -489,7 +489,7 @@
     <string name="hud_install_hint">Perlu aplikasi HUD? Dapatkan di <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
     <string name="hud_app_title">Aplikasi HUD</string>
-    <string name="hud_app_installed">Terpasang:</string>
+    <string name="hud_app_installed">Terinstal:</string>
     <string name="hud_app_available">Tersedia:</string>
     <string name="hud_app_connected">Terhubung:</string>
     <string name="hud_app_send">Kirim ke HUD</string>
@@ -499,7 +499,7 @@
     <string name="hud_app_resend_title">Sudah terbaru</string>
     <string name="hud_app_resend_body">HUD sudah memakai versi ini. Tetap kirim?</string>
     <string name="hud_app_remove_title">Uninstal aplikasi HUD?</string>
-    <string name="hud_app_remove_body">HUD akan meminta untuk mencopotnya. Memasangnya lagi perlu kabel.</string>
+    <string name="hud_app_remove_body">HUD akan meminta konfirmasi uninstal. Menginstalnya lagi perlu kabel.</string>
     <string name="hud_app_failed">HUD tidak terjangkau. Coba lagi.</string>
     <string name="section_watch_general">Umum</string>
     <string name="section_watch_display">Tampilan</string>
@@ -525,7 +525,7 @@
     <string name="tab_more">Lainnya</string>
     <string name="settings_visibility">Visibilitas setelan</string>
     <string name="adv_timings_title">Waktu dan variabel</string>
-    <string name="reorg_hint">Atur ulang layar setelan dan sembunyikan bagian yang jarang Anda pakai. Bagian tersembunyi pindah ke Lainnya.</string>
+    <string name="reorg_hint">Atur ulang layar setelan dan sembunyikan bagian yang jarang Anda pakai. Bagian tersembunyi pindah ke bagian “Lainnya”.</string>
     <string name="reorg_drag_cd">Tarik untuk mengurutkan</string>
     <string name="adv_rates_warning">Kontrol ini mengubah pengaturan waktu di seluruh aplikasi. Nilai lebih rendah memberi data lebih segar dan reaksi lebih cepat, tetapi lebih boros baterai, CPU, atau data. Default cocok untuk sebagian besar pengendara. Ubah hanya jika Anda memahami efeknya.</string>
     <string name="adv_pushonly_note">Beberapa perangkat mengirim data dengan laju tetapnya sendiri dan mengabaikan setelan ini: EUC push-only (Begode, Gotway, Veteran, KingSong), GPS eksternal (RaceBox, Dragy), radar, dan tombol Flic.</string>
@@ -572,12 +572,12 @@
     <string name="adv_nav_heading_window_desc">Memengaruhi berapa detik pergerakan yang menentukan arah perjalanan Anda. Bahaya: terlalu rendah membuat arah melompat-lompat.</string>
     <string name="adv_nav_fix_buffer">Jendela riwayat GPS</string>
     <string name="adv_nav_fix_buffer_desc">Memengaruhi berapa detik posisi GPS disimpan untuk arah dan penempelan ke rute. Bahaya: terlalu rendah bisa kehilangan arah.</string>
-    <string name="adv_nav_intermediate_flash">Durasi kilat titik jalan</string>
-    <string name="adv_nav_intermediate_flash_desc">Memengaruhi berapa lama kilatan titik jalan tercapai ditampilkan.</string>
+    <string name="adv_nav_intermediate_flash">Durasi perhentian tercapai</string>
+    <string name="adv_nav_intermediate_flash_desc">Memengaruhi berapa lama pesan perhentian tercapai ditampilkan.</string>
     <string name="adv_nav_popup_timeout">Batas waktu popup belokan</string>
     <string name="adv_nav_popup_timeout_desc">Memengaruhi berapa lama kartu belokan besar tampil sebelum mengecil ke pil di sudut.</string>
     <string name="adv_group_alarm">Alarm prediktif</string>
-    <string name="adv_alarm_warning">Ini mengubah cara alarm kecepatan dan daya memprediksi ambang batas sebelum Anda mencapainya. Nilai yang salah bisa membuat alarm terlambat atau tidak berbunyi sama sekali. Ubah dengan hati-hati.</string>
+    <string name="adv_alarm_warning">Ini mengubah cara alarm kecepatan dan daya memprediksi ambang sebelum Anda mencapainya. Nilai yang salah bisa membuat alarm terlambat atau tidak berbunyi sama sekali. Ubah dengan hati-hati.</string>
     <string name="adv_alarm_slope_window">Jendela tren</string>
     <string name="adv_alarm_slope_window_desc">Memengaruhi berapa banyak sampel terbaru yang menentukan tren prediksi. Bahaya: terlalu pendek bereaksi pada gangguan, terlalu panjang bereaksi lambat.</string>
     <string name="adv_alarm_buffer_max">Riwayat tren</string>
@@ -670,7 +670,7 @@
     <string name="adv_compact_max_screen">Batas layar ringkas</string>
     <string name="adv_compact_max_screen_desc">Layar dengan kedua sisi di bawah nilai ini beralih ke dasbor ringkas saat Dasbor ringkas diatur ke Layar kecil.</string>
     <string name="adv_cover_cutout_inset">Ukuran potongan kamera</string>
-    <string name="adv_cover_cutout_inset_desc">Ruang yang dikosongkan untuk lensa layar depan saat Hindari kamera layar depan aktif. Terlalu kecil, lensa menutupi tombol.</string>
+    <string name="adv_cover_cutout_inset_desc">Ruang yang dikosongkan untuk lensa layar cover saat Hindari kamera layar cover aktif. Terlalu kecil, lensa menutupi tombol.</string>
     <string name="adv_simple_speedo_scale">Ukuran speedo sederhana</string>
     <string name="adv_simple_speedo_scale_desc">Ukuran angka kecepatan polos relatif terhadap area pengukur. Terlalu besar bisa memotong label satuan.</string>
     <string name="adv_nav_sidebar_width">Lebar panel perhentian</string>
@@ -685,13 +685,13 @@
     <string name="adv_kingsong_password_desc">Kata sandi 4 digit yang diatur di aplikasi KingSong, dikirim saat terhubung serta sebelum mengunci dan membuka kunci. Biarkan 0000 jika Anda tidak pernah mengaturnya.</string>
     <string name="adv_charging_warning">Ini menyetel perkiraan waktu sampai penuh. Nilai yang salah memberi perkiraan menyesatkan tetapi tidak pernah memengaruhi pengisian itu sendiri.</string>
     <string name="adv_charging_target_pct">Persen target</string>
-    <string name="adv_charging_target_pct_desc">Memengaruhi level daya saat perkiraan beralih ke fase akhir yang lebih lambat.</string>
+    <string name="adv_charging_target_pct_desc">Memengaruhi level baterai saat perkiraan beralih ke fase akhir yang lebih lambat.</string>
     <string name="adv_charging_target_taper">Taper target</string>
     <string name="adv_charging_target_taper_desc">Memengaruhi seberapa pesimistis perkiraan waktu ke level target. Lebih tinggi menambah margin.</string>
     <string name="adv_charging_cv_taper">Taper akhir</string>
     <string name="adv_charging_cv_taper_desc">Memengaruhi seberapa pesimistis perkiraan waktu untuk segmen akhir sampai penuh. Lebih tinggi menambah margin.</string>
     <string name="adv_charging_warmup_gain">Kenaikan pemanasan</string>
-    <string name="adv_charging_warmup_gain_desc">Memengaruhi berapa banyak daya yang harus bertambah sebelum perkiraan pertama tampil.</string>
+    <string name="adv_charging_warmup_gain_desc">Memengaruhi berapa persen baterai yang harus bertambah sebelum perkiraan pertama tampil.</string>
     <string name="adv_charging_warmup_dur">Waktu pemanasan</string>
     <string name="adv_charging_warmup_dur_desc">Memengaruhi berapa lama pengisian harus berjalan sebelum perkiraan pertama tampil. Bahaya: terlalu rendah memberi perkiraan awal yang melompat-lompat.</string>
     <string name="adv_charging_window">Jendela laju</string>
@@ -837,7 +837,7 @@
     <string name="compact_mode_auto">Layar kecil</string>
     <string name="compact_mode_always">Selalu</string>
     <string name="compact_mode_never">Tidak pernah</string>
-    <string name="setting_cover_cutout">Hindari kamera layar depan</string>
+    <string name="setting_cover_cutout">Hindari kamera layar cover</string>
     <string name="cover_cutout_off">Nonaktif</string>
     <string name="cover_cutout_left">Kiri bawah</string>
     <string name="cover_cutout_right">Kanan bawah</string>
@@ -872,7 +872,7 @@
     <string name="units_distance">Jarak</string>
     <string name="units_speed_kmh">km/j</string>
     <string name="units_speed_mph">mph</string>
-    <string name="units_speed_ms">m/d</string>
+    <string name="units_speed_ms">m/dtk</string>
     <string name="units_speed_kn">Knot</string>
     <string name="units_distance_km">Kilometer</string>
     <string name="units_distance_mi">Mil</string>
@@ -930,7 +930,7 @@
     <string name="speed_legal_tiltback">Tiltback Legal</string>
     <string name="speed_legal_alarm">Alarm Legal</string>
     <string name="unit_kmh">km/j</string>
-    <string name="unit_ms">m/d</string>
+    <string name="unit_ms">m/dtk</string>
     <string name="unit_kn">kn</string>
     <string name="unit_mph">mph</string>
     <string name="section_announcements">Pengumuman</string>
@@ -987,7 +987,7 @@
     <string name="welcome_tut_skip_yes">Tetap lewati</string>
     <string name="welcome_tut_welcome">Selamat datang di EUC Planet, aplikasi open source yang lugas untuk unicycle listrik</string>
     <string name="welcome_tut_voice_title">Aktifkan peringatan suara</string>
-    <string name="welcome_tut_voice_desc">Anda bisa mengaktifkan atau menonaktifkan pesan suara satu per satu nanti di Setelan → Suara dan pengumuman.</string>
+    <string name="welcome_tut_voice_desc">Anda bisa mengaktifkan atau menonaktifkan pesan suara satu per satu nanti di Setelan → Suara &amp; pengumuman.</string>
     <string name="welcome_tut_dev_title">Alat developer</string>
     <string name="welcome_tut_dev_set_folder">Atur folder cadangan</string>
     <string name="welcome_tut_dev_restore">Pulihkan setelan</string>
@@ -1031,8 +1031,8 @@
     <string name="voice_output_channel_media">Media</string>
     <string name="voice_output_channel_notification">Notifikasi</string>
     <string name="voice_output_channel_alarm">Alarm</string>
-    <string name="section_engine_sound">Suara motor</string>
-    <string name="engine_sound_enabled">Suara mesin</string>
+    <string name="section_engine_sound">Suara mesin</string>
+    <string name="engine_sound_enabled">Putar suara mesin</string>
     <string name="engine_sound_enabled_hint">Menggerakkan RPM mesin secara langsung dari kecepatan EUC dan beban motor.</string>
     <string name="engine_type_label">Mesin</string>
     <string name="engine_source_sampled">Sampel</string>
@@ -1110,7 +1110,7 @@
     <string name="report_navigation">Navigasi</string>
     <string name="section_flic_buttons">Tombol Flic 2</string>
     <string name="flic_show_on_dashboard">Ikon akses cepat di dasbor</string>
-    <string name="flic_scan_hint">Tahan tombol Flic 2 selama 6 detik untuk mode pemasangan, lalu ketuk Pindai.</string>
+    <string name="flic_scan_hint">Tahan tombol Flic 2 selama 6 detik untuk mode pemasangan, lalu ketuk Mulai pindai.</string>
     <string name="flic_stop_scan">Stop pindai</string>
     <string name="flic_start_scan">Mulai pindai</string>
     <string name="flic_forget">Lupakan</string>
@@ -1182,7 +1182,9 @@
     <string name="radar_unpair">Lupakan perangkat</string>
     <string name="radar_battery_fmt">Baterai %1$d%%</string>
     <string name="radar_clear">Lajur kosong</string>
-    <string name="radar_threats_count">Melacak %1$d kendaraan:</string>
+    <plurals name="radar_threats_count">
+        <item quantity="other">Melacak %1$d kendaraan:</item>
+    </plurals>
     <string name="radar_show_overlay">Tampilkan overlay ancaman</string>
     <string name="radar_show_overlay_desc">Lajur radar tipis di tepi dasbor. Satu titik berwarna per kendaraan terdeteksi. Hanya terlihat di dasbor.</string>
     <string name="radar_overlay_left">Tepi kiri</string>
@@ -1191,7 +1193,7 @@
     <string name="voice_speed_fmt">Kecepatan %1$s</string>
     <string name="voice_battery_fmt">baterai %1$d persen</string>
     <string name="voice_temp_fmt">suhu %1$s derajat</string>
-    <string name="voice_load_fmt">beban %1$s persen</string>
+    <string name="voice_load_fmt">PWM %1$s persen</string>
     <string name="voice_current_fmt">arus %1$s ampere</string>
     <string name="voice_power_fmt">daya %1$s watt</string>
     <string name="voice_trip_fmt">trip %1$s kilometer</string>
@@ -1223,7 +1225,7 @@
     <string name="alarm_metric_battery_temp">Suhu baterai</string>
     <string name="alarm_metric_controller_temp">Suhu kontroler</string>
     <string name="alarm_metric_motor_temp">Suhu motor</string>
-    <string name="alarm_metric_pwm">Beban (PWM)</string>
+    <string name="alarm_metric_pwm">PWM</string>
     <string name="alarm_metric_voltage">Tegangan</string>
     <string name="alarm_metric_current">Arus</string>
     <string name="alarm_metric_torque">Torsi</string>
@@ -1277,7 +1279,7 @@
     <string name="metric_temperature">Suhu</string>
     <string name="metric_voltage">Tegangan</string>
     <string name="metric_current">Arus</string>
-    <string name="metric_load">Beban</string>
+    <string name="metric_load">PWM</string>
     <string name="metric_speed">Kecepatan</string>
     <string name="trip_meter_detail_title">Trip meter</string>
     <string name="trip_meter_tab_speed">Kecepatan</string>
@@ -1311,7 +1313,7 @@
     <string name="recording_delete_trip_body_archive">Hapus perjalanan ini dari ponsel ini? Salinan cadangannya dipindahkan ke folder arsip.</string>
     <string name="recording_delete_trip_body">Hapus perjalanan ini beserta file datanya?</string>
     <string name="recording_clear_all_menu">Hapus semua</string>
-    <string name="recording_empty">Tidak ada data. Impor atau Rekam yang baru</string>
+    <string name="recording_empty">Tidak ada data. Impor atau rekam perjalanan baru</string>
     <string name="recording_will_auto_stop">Perekaman akan berhenti otomatis setelah diam %1$d dtk</string>
     <string name="recording_stat_trips">Perjalanan</string>
     <string name="recording_stat_distance">Jarak</string>
@@ -1390,7 +1392,7 @@
     <string name="widget_metric_speed">Kecepatan</string>
     <string name="widget_metric_trip">Jarak perjalanan</string>
     <string name="widget_metric_odo">Jarak total</string>
-    <string name="widget_metric_battery">Daya baterai</string>
+    <string name="widget_metric_battery">Baterai</string>
     <string name="widget_metric_voltage">Tegangan</string>
     <string name="widget_metric_temp">Suhu</string>
     <string name="widget_metric_pwm">PWM</string>
@@ -1425,7 +1427,7 @@
     <string name="widget_button_unset">Atur tombol di Setelan</string>
     <string name="widget_speed">Kecepatan</string>
     <string name="widget_distance">Trip</string>
-    <string name="widget_battery">Daya</string>
+    <string name="widget_battery">Baterai</string>
     <string name="widget_horn">Klakson</string>
     <string name="widget_voice_on">Suara nyala</string>
     <string name="widget_voice_off">Suara mati</string>
@@ -1454,7 +1456,9 @@
     <string name="trip_tools_archive_failed">Beberapa perjalanan tidak dapat diarsipkan dan masih ada di sini</string>
     <string name="trip_tools_extend_pick_one">Pilih perjalanan sebelumnya atau sesudahnya untuk digabungkan.</string>
     <string name="trip_tools_extend_all_inside">Perjalanan di sekitar yang ini sudah menjadi bagiannya.</string>
-    <string name="trip_tools_extend_skipped">Melewati %1$d perjalanan yang sudah ada di dalam yang ini.</string>
+    <plurals name="trip_tools_extend_skipped">
+        <item quantity="other">Melewati %1$d perjalanan yang sudah ada di dalam yang ini.</item>
+    </plurals>
     <string name="trip_tools_combine_summary">Menggabungkan %1$d perjalanan menjadi satu perjalanan baru.</string>
     <string name="trip_tools_wheel_changed">EUC diatur ke %1$s</string>
     <string name="trip_tools_split">Pisahkan perjalanan</string>
@@ -1508,14 +1512,7 @@
     <string name="auto_waiting_gps">Menunggu lokasi GPS…</string>
     <string name="auto_volume_title">Kontrol volume</string>
     <string name="auto_volume_when">Naikkan volume saat</string>
-    <string name="media_rate_when">Ubah kecepatan putar saat</string>
-    <string name="media_rate_permission_desc">Android meminta izin ini secara terpisah. Tanpanya kecepatan putar tidak dapat diubah.</string>
-    <string name="media_rate_note">Pemutar menentukan apakah menerima kecepatan dari luar. Aplikasi podcast biasanya mau; beberapa aplikasi musik tidak.</string>
     <string name="media_control_title">Kontrol pemutaran media</string>
-    <string name="media_rate_title">Kontrol kecepatan media</string>
-    <string name="media_rate_grant">Izinkan</string>
-    <string name="warnings_media_access_title">Akses notifikasi nonaktif</string>
-    <string name="warnings_media_access_body">Kecepatan putar tidak bisa mengikuti kecepatan Anda tanpanya. Ketuk untuk mengizinkan.</string>
     <string name="media_control_pause">Jeda saat saya melambat</string>
     <string name="media_control_pause_below">Jeda pada atau di bawah</string>
     <string name="media_control_resume">Lanjutkan saat saya mempercepat</string>
@@ -1624,7 +1621,7 @@
     <string name="alarm_summary_wheel_fmt">Berlaku untuk: %1$s</string>
     <string name="alarm_state_atleast">%1$s %2$s atau lebih</string>
     <string name="alarm_state_below">%1$s di bawah %2$s</string>
-    <string name="alarm_repeat_help_once">Satu peringatan saat %1$s. Aktif lagi saat %2$s, setelah jeda %3$d dtk.</string>
+    <string name="alarm_repeat_help_once">Satu peringatan saat %1$s. Aktif lagi saat %2$s, setelah jeda ulang %3$d dtk.</string>
     <string name="alarm_repeat_help_many">Memperingatkan lagi setiap %1$d dtk selama %2$s.</string>
     <string name="alarm_repeat_help_once_instant">Satu peringatan saat %1$s. Aktif lagi segera setelah %2$s.</string>
     <string name="alarm_repeat_help_many_instant">Memperingatkan lagi pada setiap pembacaan selama %1$s.</string>
@@ -1647,7 +1644,7 @@
     <string name="service_mode_enter">Masuk</string>
     <string name="toast_external_speed_change">Kecepatan diperbarui dari EUC: tiltback %1$d km/j, alarm %2$d km/j</string>
     <string name="wheel_no_data_reset">Masih tidak ada data dari EUC. Coba matikan lalu nyalakan.</string>
-    <string name="trip_map_ride_start">Mulai berkendara: %1$s</string>
+    <string name="trip_map_ride_start">Awal perjalanan: %1$s</string>
     <string name="trip_map_reconnected">Terhubung ulang: %1$s</string>
     <string name="trip_map_new_wheel">EUC baru: %1$s</string>
     <string name="trip_map_ride_end">Akhir perjalanan</string>
@@ -1690,8 +1687,8 @@
     <string name="online_status_pending">Mengunggah ke papan peringkat…</string>
     <string name="online_status_failed">Unggahan online gagal, ketuk untuk mencoba lagi</string>
     <string name="online_status_rejected">Tidak diterima untuk papan peringkat</string>
-    <string name="online_upload_join_caption">Bergabunglah untuk mengirim statistik dan perjalanan Anda ke papan peringkat publik di.</string>
-    <string name="online_upload_linked_caption">Statistik dan perjalanan Anda muncul di papan peringkat publik di.</string>
+    <string name="online_upload_join_caption">Bergabunglah untuk mengirim statistik dan perjalanan Anda ke papan peringkat publik di %1$s.</string>
+    <string name="online_upload_linked_caption">Statistik dan perjalanan Anda muncul di papan peringkat publik di %1$s.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Lepas tautan</string>
@@ -2107,7 +2104,7 @@
     <string name="nav_default_route_name">Rute saya</string>
     <string name="nav_start_riding">Mulai berkendara</string>
     <string name="nav_arrived">Anda telah tiba</string>
-    <string name="nav_arrived_goal">Mencapai tujuan %1$d</string>
+    <string name="nav_arrived_goal">Perhentian %1$d tercapai</string>
     <string name="nav_end_title">Akhiri navigasi?</string>
     <string name="nav_end_body">Hentikan panduan untuk rute aktif?</string>
     <string name="nav_end_confirm">Akhiri</string>
@@ -2153,7 +2150,7 @@
     <string name="voice_prox_warmer">makin dekat</string>
     <string name="voice_prox_colder">makin jauh</string>
     <string name="voice_prox_even_colder">makin jauh lagi</string>
-    <string name="voice_prox_freezing">dingin membeku</string>
+    <string name="voice_prox_freezing">sangat jauh</string>
     <string name="voice_prox_lost">Sudah sampai belum?</string>
     <string name="voice_prox_hot">Anda sudah sangat dekat</string>
     <string name="voice_dist_m">%1$d meter</string>
@@ -2253,8 +2250,8 @@
     <string name="nav_setting_full_path_desc">Jika nonaktif, hanya menghitung perhentian berikutnya dan menampilkan sisanya sebagai pratinjau putus-putus.</string>
     <string name="nav_setting_avoid">Hindari saat merutekan</string>
     <string name="nav_setting_avoid_hint">Penghindaran memakai layanan rute lain dan berlaku jika mode perjalanan mendukungnya.</string>
-    <string name="nav_setting_avoid_highways">Hindari jalan tol bebas hambatan</string>
-    <string name="nav_setting_avoid_tolls">Hindari jalan berbayar</string>
+    <string name="nav_setting_avoid_highways">Hindari jalan bebas hambatan</string>
+    <string name="nav_setting_avoid_tolls">Hindari jalan tol</string>
     <string name="nav_setting_avoid_ferries">Hindari feri</string>
     <string name="nav_setting_avoid_unpaved">Hindari jalan tanpa aspal</string>
     <string name="nav_avoid_router_failed">Rute mengabaikan penghindaran Anda: layanan rutenya tidak menjawab.</string>
@@ -2262,7 +2259,6 @@
     <string name="nav_show_places">Tampilkan tempat (toko, makanan, wisata)</string>
     <string name="nav_pois_failed">Tidak dapat memuat tempat. Periksa koneksi Anda</string>
     <string name="nav_pois_none">Tidak ada yang ditemukan di dekat rute ini</string>
-    <string name="nav_pois_places_hint">Tips: tahan tombol ini untuk memilih tempat yang ditampilkan.</string>
     <string name="nav_poi_charger">Stasiun pengisian</string>
     <string name="nav_poi_store">Toko</string>
     <string name="nav_poi_food">Makanan &amp; minuman</string>
@@ -2355,7 +2351,6 @@
     <string name="watch_show_navigation_desc">Cerminkan panah belok dan jarak di jam tangan saat bernavigasi.</string>
     <string name="trip_action_share_file">Bagikan file</string>
     <string name="trip_action_share_file_desc">Kirim CSV perjalanan ke aplikasi lain.</string>
-    <string name="trip_action_view_online">Lihat online</string>
     <string name="trip_action_replay">Replay di Studio</string>
     <string name="trip_action_replay_desc">Telusuri perjalanan dengan overlay data langsung.</string>
     <string name="dash_view_video_gallery">Lihat galeri video</string>
@@ -2428,7 +2423,7 @@
     <string name="charging_eta_to_full">%1$s sampai 100%%</string>
     <string name="charging_eta_at">pukul %1$s</string>
     <string name="charging_details">Detail</string>
-    <string name="charging_tab_charge">Daya</string>
+    <string name="charging_tab_charge">Pengisian</string>
     <string name="charging_tab_packs">Paket</string>
     <string name="charging_estimate_to_full" formatted="false">Selalu perkirakan sampai 100%</string>
     <string name="charging_notify_80" formatted="false">Beri tahu saya di 80%</string>
@@ -2490,7 +2485,7 @@
     <string name="lockdown_action_vehicle">EUC</string>
     <string name="lockdown_no_wheel">Tidak ada EUC terhubung. Gunakan ikon Bluetooth untuk menghubungkan.</string>
     <string name="lockdown_vehicle_name">Nama Bluetooth</string>
-    <string name="lockdown_vehicle_brand">Pembuat</string>
+    <string name="lockdown_vehicle_brand">Pabrikan</string>
     <string name="lockdown_vehicle_model">Model</string>
     <string name="lockdown_vehicle_max_speed">Batas kecepatan maks</string>
     <string name="lockdown_vehicle_alarm">Alarm</string>
@@ -2521,21 +2516,21 @@
     <string name="lockdown_limit_10">Setelan tidak dapat dibuka.</string>
     <string name="lockdown_limit_11">Riwayat perjalanan, monitor baterai, studio, dan detail metrik tidak dapat dibuka.</string>
     <string name="lockdown_limit_12">Mengetuk metrik tidak melakukan apa pun.</string>
-    <string name="lockdown_limit_13">Pengumuman suara, laporan berkala, dan split akselerasi dibisukan. Alarm Anda tetap berfungsi.</string>
+    <string name="lockdown_limit_13">Pengumuman suara, laporan berkala, dan split kecepatan dibisukan. Alarm Anda tetap berfungsi.</string>
     <string name="lockdown_limit_14">EUC tidak dapat dikunci atau dibuka kuncinya, dan kunci otomatis jarak tidak akan berjalan.</string>
-    <string name="lockdown_limit_15">Lampu otomatis dan volume otomatis tetap berfungsi. Kontrol media berhenti.</string>
+    <string name="lockdown_limit_15">Lampu otomatis dan volume otomatis tetap berfungsi. Kontrol pemutaran media berhenti.</string>
     <string name="lockdown_limit_16">Notifikasi kehilangan tombolnya.</string>
     <string name="lockdown_limit_17">Nomor versi tidak akan membuka Tentang.</string>
     <string name="lockdown_limit_18">Mode ini tidak termasuk dalam cadangan setelan.</string>
     <string name="lockdown_warning_settings_safe">Setelan Anda tidak diubah. Semuanya kembali persis seperti sekarang saat Anda membuka kunci.</string>
-    <string name="lockdown_warning_recovery">Satu-satunya jalan keluar adalah kode pabrikan, dari tombol Batas kecepatan. Jika kode itu hilang, satu-satunya cara memulihkan aplikasi adalah menghapus dan memasangnya ulang.</string>
+    <string name="lockdown_warning_recovery">Satu-satunya jalan keluar adalah kode pabrikan, dari tombol Batas kecepatan. Jika kode itu hilang, satu-satunya cara memulihkan aplikasi adalah uninstal lalu instal ulang.</string>
     <string name="lockdown_tiltback_alarm">Alarm tiltback</string>
     <string name="lockdown_warning_waits">Mode Legal nonaktif, jadi belum ada yang berubah. Aplikasi terkunci saat Anda mengaktifkan Mode Legal berikutnya.</string>
     <string name="lockdown_warning_now">Mode Legal aktif, jadi ini langsung berlaku dan aplikasi segera terkunci.</string>
     <string name="lockdown_warning_no_wheel">Tidak ada EUC terhubung, jadi status Mode Legal tidak diketahui. Aplikasi terkunci saat Mode Legal diaktifkan berikutnya.</string>
     <string name="lockdown_continue">Lanjutkan</string>
     <string name="trip_tools_wheel_none">Belum ada EUC yang tercatat pada perjalanan ini.</string>
-    <string name="backup_conflict_warning">Beberapa perjalanan di ponsel ini berbeda dari salinan di folder cadangan. Ketuk %1$s, lalu di %2$s tekan \"%3$s\" dan pilih salinan yang disimpan.</string>
+    <string name="backup_conflict_warning">Beberapa perjalanan di ponsel ini berbeda dari salinan di folder cadangan. Ketuk %1$s, lalu di %2$s tekan “%3$s” dan pilih salinan yang disimpan.</string>
     <string name="backup_conflict_title">Konflik cadangan</string>
     <string name="widget_act_1_short">Tindakan 1</string>
     <string name="widget_act_2_short">Tindakan 2</string>

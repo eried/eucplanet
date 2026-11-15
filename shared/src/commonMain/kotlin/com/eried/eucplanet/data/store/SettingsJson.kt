@@ -168,8 +168,6 @@ object SettingsJson {
             put("resumeEnabled", s.mediaControl.resumeEnabled)
             put("resumeAboveKmh", s.mediaControl.resumeAboveKmh)
             put("requireExternalOutput", s.mediaControl.requireExternalOutput)
-            put("rateApplyWhen", s.mediaControl.rateApplyWhen)
-            put("rateCurve", s.mediaControl.rateCurve)
         })
         put("share", JSONObject().apply {
             put("trailMinutes", s.share.trailMinutes); put("shareStatsDefault", s.share.shareStatsDefault)
@@ -398,7 +396,6 @@ object SettingsJson {
         put("navAdvancedMap", s.navAdvancedMap)
         put("navShowChargers", s.navShowChargers)
         put("navPlaceCategories", s.navPlaceCategories)
-        put("navPlacesHintShown", s.navPlacesHintShown)
         put("navAvoidHighways", s.navAvoidHighways)
         put("navAvoidTolls", s.navAvoidTolls)
         put("navAvoidFerries", s.navAvoidFerries)
@@ -606,8 +603,6 @@ object SettingsJson {
                 requireExternalOutput = m.optBoolean(
                     "requireExternalOutput", base.mediaControl.requireExternalOutput
                 ),
-                rateApplyWhen = m.optString("rateApplyWhen", base.mediaControl.rateApplyWhen),
-                rateCurve = m.optString("rateCurve", base.mediaControl.rateCurve),
             )
         } ?: base.mediaControl,
         share = j.optJSONObject("share")?.let { m -> base.share.copy(
@@ -880,7 +875,6 @@ object SettingsJson {
         navAdvancedMap = j.optBoolean("navAdvancedMap", base.navAdvancedMap),
         navShowChargers = j.optBoolean("navShowChargers", base.navShowChargers),
         navPlaceCategories = j.optString("navPlaceCategories", base.navPlaceCategories),
-        navPlacesHintShown = j.optBoolean("navPlacesHintShown", base.navPlacesHintShown),
         navAvoidHighways = j.optBoolean("navAvoidHighways", base.navAvoidHighways),
         navAvoidTolls = j.optBoolean("navAvoidTolls", base.navAvoidTolls),
         navAvoidFerries = j.optBoolean("navAvoidFerries", base.navAvoidFerries),
@@ -1030,6 +1024,30 @@ object SettingsJson {
             folderConflictCount = current.folderConflictCount,
           )
         }
+
+    /**
+     * Factory defaults merged onto [current]: every preference reverts, while
+     * the rider's pairings, sync folder, backup history, live Dropbox link and
+     * share identity stay. Most bindings survive because a null leaves no key
+     * in the factory JSON, so [fromJson] falls back to [current]. The ones the
+     * JSON does carry (blank tokens, an empty sensor list) are copied back
+     * here. Pure; SyncManager does the IO.
+     */
+    fun factoryReset(current: AppSettings): AppSettings {
+        val parsed = fromJson(toJson(stripDeviceBindings(AppSettings())), current)
+        return parsed.copy(
+            dropboxAccessToken = current.dropboxAccessToken,
+            dropboxRefreshToken = current.dropboxRefreshToken,
+            dropboxAccessTokenExpiresAt = current.dropboxAccessTokenExpiresAt,
+            dropboxAccountLabel = current.dropboxAccountLabel,
+            dropboxLastSyncAt = current.dropboxLastSyncAt,
+            share = parsed.share.copy(deviceSecret = current.share.deviceSecret),
+            tpms = parsed.tpms.copy(
+                pairedAddress = current.tpms.pairedAddress,
+                pairedAddresses = current.tpms.pairedAddresses,
+            ),
+        )
+    }
 
     /** `optString` returns `""` for null and absent keys, which we cannot
      *  distinguish from a legitimate empty-string value. This helper keeps

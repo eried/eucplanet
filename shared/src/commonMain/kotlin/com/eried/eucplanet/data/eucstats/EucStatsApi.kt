@@ -166,12 +166,8 @@ class EucStatsApi(
             client.execute(req).let { resp ->
                 if (!resp.isSuccessful) return@let null
                 val o = JSONObject(resp.text())
-                val arr = o.optJSONArray("reasons")
                 TripStatus(
                     validationStatus = o.optString("validation_status").ifEmpty { null },
-                    verdict = o.optString("verdict").ifEmpty { null },
-                    reasons = (0 until (arr?.length() ?: 0))
-                        .mapNotNull { arr?.optString(it)?.ifEmpty { null } },
                 )
             }
         } catch (e: Exception) {
@@ -205,13 +201,13 @@ class EucStatsApi(
                     400, 403, 413, 422 -> UploadResult.PermanentFailure(resp.code, text)
                     // Rate limited -- temporary, keep the trip queued and retry
                     // with backoff (no Retry-After header today, so own backoff).
-                    429 -> UploadResult.Retry(429, resp.header("Retry-After")?.toLongOrNull())
+                    429 -> UploadResult.Retry(429)
                     // 5xx / unexpected -> transient, retry (the trip is never dropped).
-                    else -> UploadResult.Retry(resp.code, null)
+                    else -> UploadResult.Retry(resp.code)
                 }
             }
         } catch (e: Exception) {
-            UploadResult.Retry(0, null) // network error
+            UploadResult.Retry(0) // network error
         }
     }
 }

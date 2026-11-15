@@ -124,8 +124,9 @@ class OverlayStudioViewModel(
         /** Hard cap on overlay elements in one layout. */
         const val MAX_ELEMENTS = 32
         /** Max samples kept in the live G-Force trail buffer. The overlay
-         *  takes up to 20 s at the IMU's 50 Hz plus a 15 % exit-fade tail. */
-        private const val LIVE_TRAIL_MAX = 1100
+         *  takes up to 20 s at the IMU's 50 Hz plus a 15 % exit-fade tail,
+         *  which is 1150 samples (see [gForceTrailSamples]). */
+        internal const val LIVE_TRAIL_MAX = 1150
     }
 
     private val initialSettings = runBlocking(Dispatchers.IO) { settingsRepository.get() }

@@ -116,7 +116,7 @@ fun NavigatorSettingsContent(
                 colors = themedSwitchColors(),
             )
         }
-        HintText(stringResource(Res.string.nav_setting_full_path_desc), small = true)
+        HintText(stringResource(Res.string.nav_setting_full_path_desc))
 
         // --- Arrival radius + off-route tolerance (half-and-half on one row) ---
         Row(
@@ -149,8 +149,7 @@ fun NavigatorSettingsContent(
         // Both field hints combined on one line.
         HintText(
             stringResource(Res.string.nav_setting_arrival_radius_desc) + "  •  " +
-                stringResource(Res.string.nav_setting_offroute_desc),
-            small = true
+                stringResource(Res.string.nav_setting_offroute_desc)
         )
 
         // --- Advanced map features (on-map charger / places overlays + their
@@ -167,7 +166,7 @@ fun NavigatorSettingsContent(
         // and community fields only matter when the overlays are on, so hide
         // them all when advanced map is off.
         if (endpointsEnabled) {
-            HintText(stringResource(Res.string.nav_setting_advanced_map_desc), small = true)
+            HintText(stringResource(Res.string.nav_setting_advanced_map_desc))
             EndpointField(
                 label = stringResource(Res.string.nav_setting_overpass_url),
                 value = settings.navOverpassUrl,
@@ -217,7 +216,7 @@ fun NavigatorSettingsContent(
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.primary
         )
-        HintText(stringResource(Res.string.nav_setting_endpoints_hint), small = true)
+        HintText(stringResource(Res.string.nav_setting_endpoints_hint))
         EndpointField(
             label = stringResource(Res.string.nav_setting_geocoder_url),
             value = settings.navGeocoderUrl,
@@ -289,7 +288,7 @@ fun NavigatorSettingsContent(
             )
         }
         if (avoidExpanded) {
-            HintText(stringResource(Res.string.nav_setting_avoid_hint), small = true)
+            HintText(stringResource(Res.string.nav_setting_avoid_hint))
             SwitchRow(
                 label = stringResource(Res.string.nav_setting_avoid_highways),
                 checked = settings.navAvoidHighways,
@@ -322,7 +321,7 @@ fun NavigatorSettingsContent(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             SectionHeader(stringResource(Res.string.nav_view_tiles))
-            HintText(stringResource(Res.string.nav_view_tiles_desc), small = true)
+            HintText(stringResource(Res.string.nav_view_tiles_desc))
             tileKeys.indices.chunked(2).forEach { pair ->
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     pair.forEach { i ->

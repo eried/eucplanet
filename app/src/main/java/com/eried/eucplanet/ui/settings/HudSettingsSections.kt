@@ -515,7 +515,7 @@ internal fun AndroidAutoSection(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         SectionHeader(stringResource(Res.string.section_android_auto))
-        HintText(stringResource(Res.string.android_auto_hint), small = true)
+        HintText(stringResource(Res.string.android_auto_hint))
         metricSlots.indices.chunked(2).forEach { pair ->
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 pair.forEach { i ->
@@ -549,7 +549,7 @@ internal fun AndroidAutoSection(
             stringResource(Res.string.car_alarm_notifications),
             settings.androidAuto.alarmNotifications,
         ) { viewModel.updateAndroidAutoAlarmNotifications(it) }
-        HintText(stringResource(Res.string.car_alarm_notifications_hint), small = true)
+        HintText(stringResource(Res.string.car_alarm_notifications_hint))
     }
 }
 
@@ -613,7 +613,7 @@ internal fun HudIntegrationSection(
             onChange = { viewModel.updateHudDiscoveryMode(it) },
             enabled = !settings.hudServerEnabled,
         )
-        HintText(stringResource(Res.string.hud_discovery_desc), small = true)
+        HintText(stringResource(Res.string.hud_discovery_desc))
 
         // IP + port live side by side as one logical input: the rider
         // reads the IP off the HUD's screen, port is almost always the
@@ -765,7 +765,7 @@ private fun HudJoystickCard(
         stateKey = "hud_joystick"
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            HintText(stringResource(Res.string.hud_joystick_desc), small = true)
+            HintText(stringResource(Res.string.hud_joystick_desc))
             // Up | Down on one row, Left | Right on the next (half each).
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 ActionDropdown(stringResource(Res.string.hud_joystick_up), settings.hudActionUp, onValueChange = { viewModel.updateHudActionUp(it) }, modifier = Modifier.weight(1f))
@@ -1189,12 +1189,12 @@ internal fun PhoneHudSection(
             onDispose { lifecycleOwner.lifecycle.removeObserver(obs) }
         }
 
-        HintText(stringResource(Res.string.phone_hud_desc), small = true)
+        HintText(stringResource(Res.string.phone_hud_desc))
 
         if (!canDraw) {
             // The switch stays off and un-flippable until the permission is
             // there, rather than turning on and quietly doing nothing.
-            HintText(stringResource(Res.string.phone_hud_permission_desc), small = true)
+            HintText(stringResource(Res.string.phone_hud_permission_desc))
             com.eried.eucplanet.ui.common.FixButton(
                 text = stringResource(Res.string.phone_hud_grant),
                 onClick = {

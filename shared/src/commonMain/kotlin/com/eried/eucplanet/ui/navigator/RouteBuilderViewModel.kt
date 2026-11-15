@@ -217,7 +217,6 @@ class RouteBuilderViewModel(
     private var ocmApiKey = ""
     private var ocmJob: Job? = null
     /** True once the "hold for categories" hint toast has been shown. */
-    private var placesHintShown = false
 
     /** True while each layer's fetch is in flight (drives the Layers button's spinner). */
     private val _chargerLoading = MutableStateFlow(false)
@@ -528,9 +527,10 @@ class RouteBuilderViewModel(
             _advancedMap.value = s.navAdvancedMap
             _showChargers.value = s.navShowChargers
             _placeCats.value = parsePlaceCats(s.navPlaceCategories)
-            placesHintShown = s.navPlacesHintShown
             _travelMode.value = TravelMode.fromName(s.navDefaultTravelMode)
-            _mapType.value = s.navMapType.ifBlank { "LIGHT" }
+            // Blank resolves to OSM, the settings default and what
+            // MapLayers.byId gives the watch and car maps for the same value.
+            _mapType.value = s.navMapType.ifBlank { com.eried.eucplanet.map.MapLayers.OSM }
             defaultRadiusM = s.navArrivalRadiusM
             _solveFullPath.value = s.navSolveFullPath
             _home.value = placeFromJson(s.navHomeJson)
@@ -1965,14 +1965,6 @@ class RouteBuilderViewModel(
         val turningOn = _placeCats.value.isEmpty()
         _placeCats.value = if (turningOn) PoiKind.PLACES else emptySet()
         persistLayers()
-        // First time the rider enables places, point them at the long-press menu.
-        if (turningOn && !placesHintShown) {
-            placesHintShown = true
-            _messages.tryEmit(Res.string.nav_pois_places_hint)
-            viewModelScope.launch {
-                settingsRepository.update(settingsRepository.get().copy(navPlacesHintShown = true))
-            }
-        }
         refreshPlaces(userInitiated = true)
     }
 

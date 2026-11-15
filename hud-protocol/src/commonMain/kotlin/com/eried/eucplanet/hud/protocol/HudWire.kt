@@ -341,8 +341,13 @@ data class HudState(
          * 21: the HUD takes its own app from the phone and a request to
          *    remove it (see [HudAppPush]), and reports its version code in
          *    [HudCommand.Pair]. The phone offers neither to an older HUD.
+         * 22: no new field. The HUD now draws the TORQUE, WH_CONSUMED,
+         *    WH_PER_KM, RANGE_ESTIMATE and GPS_ALTITUDE custom-overlay metric
+         *    keys from fields the phone already sent. A HUD older than this
+         *    renders such an element as SPEED, so the minor bump is what
+         *    surfaces the "update your HUD" hint.
          */
-        const val PROTOCOL_MINOR: Int = 21
+        const val PROTOCOL_MINOR: Int = 22
 
         /** Legacy alias. New code should read [PROTOCOL_MAJOR] / [PROTOCOL_MINOR]. */
         @Deprecated(

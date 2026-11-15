@@ -138,7 +138,6 @@ import sh.calvin.reorderable.ReorderableColumn
 fun TripDetailScreen(
     trip: TripRecord,
     onBack: () -> Unit,
-    onViewOnline: ((Long) -> Unit)? = null,
     onReplayTrip: ((Long) -> Unit)? = null,
     viewModel: RecordingViewModel,
     host: TripDetailHost,
@@ -422,7 +421,6 @@ fun TripDetailScreen(
         val dropboxLinked by viewModel.dropboxLinked.collectAsState()
         TripActionDialog(
             onShareFile = { viewModel.shareTrip(trip) },
-            onViewOnline = { onViewOnline?.invoke(trip.id) },
             // Null where the overlay studio is not available: the row is left out.
             onReplay = onReplayTrip?.let { replay -> { replay(trip.id) } },
             onDismiss = { showShareDialog = false },

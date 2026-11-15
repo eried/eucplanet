@@ -39,7 +39,6 @@ import com.eried.eucplanet.resources.*
 @Composable
 fun TripActionDialog(
     onShareFile: () -> Unit,
-    onViewOnline: () -> Unit,
     /** Null where the overlay studio is not available: the row is left out. */
     onReplay: (() -> Unit)?,
     onDismiss: () -> Unit,

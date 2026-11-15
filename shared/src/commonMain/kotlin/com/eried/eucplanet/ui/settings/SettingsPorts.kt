@@ -110,7 +110,6 @@ interface EngineSoundPreview {
     fun previewProfile(
         key: String,
         durationMs: Long = 2500L,
-        volume: Float? = null,
         muffler: String? = null,
         gearbox: String? = null,
         scenario: String = "DEFAULT",
@@ -178,13 +177,6 @@ interface HudSettingsLink {
 interface SettingsPlatform {
     fun pipAllowed(): Boolean
     fun openPipSettings()
-    fun notificationAccessAllowed(): Boolean
-    fun openNotificationAccessSettings()
-    fun refreshPermissionWarnings(
-        pipRequested: Boolean = false,
-        phoneHudRequested: Boolean = false,
-        mediaRateRequested: Boolean = false,
-    )
     /** Switches the app's own language to [tag]; blank is the default language. */
     fun applyAppLanguage(tag: String)
     /** Asks a running wheel service to drop its keep-alive. */

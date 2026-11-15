@@ -1,7 +1,6 @@
 package com.eried.eucplanet.ui.recording
 
 import android.annotation.SuppressLint
-import android.os.Build
 import android.view.MotionEvent
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -112,11 +111,9 @@ private object AndroidTripDetailHost : TripDetailHost {
                 w.setDimAmount(0f)
                 // Draw into the display cutout too, otherwise in landscape the
                 // notch side stays letterboxed and the content behind shows.
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    w.attributes = w.attributes.apply {
-                        layoutInDisplayCutoutMode =
-                            WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
-                    }
+                w.attributes = w.attributes.apply {
+                    layoutInDisplayCutoutMode =
+                        WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
                 }
                 WindowCompat.setDecorFitsSystemWindows(w, false)
                 WindowInsetsControllerCompat(w, w.decorView).apply {
