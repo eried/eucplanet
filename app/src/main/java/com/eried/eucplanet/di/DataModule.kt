@@ -79,7 +79,8 @@ val dataModule = module {
     single { TripMeterStore(androidContext().tripMeterDataStore) }
     single<NavMarkerStore.MarkerFile> { AndroidMarkerFile(androidContext()) }
     singleOf(::NavMarkerStore)
-    singleOf(::OverlayPresetStore)
+    singleOf(::OverlayPresetStore) { bind<com.eried.eucplanet.data.store.OverlayPresets>() }
+    single<com.eried.eucplanet.ui.studio.StudioTrips> { com.eried.eucplanet.ui.studio.AndroidStudioTrips(get()) }
     singleOf(::ThemeStore) { bind<com.eried.eucplanet.ui.theme.ThemeFiles>() }
     singleOf(::AccelSplitRepository) { bind<AccelSplitReset>() }
     singleOf(::AppHealthRepository)
@@ -89,7 +90,10 @@ val dataModule = module {
     single { DropboxRepository(get(), get()) }
     singleOf(::IncomingShareRepository)
     singleOf(::MetricsReset)
-    singleOf(::PhoneSensorRepository) { bind<PhoneImu>() }
+    singleOf(::PhoneSensorRepository) {
+        bind<PhoneImu>()
+        bind<com.eried.eucplanet.ui.studio.StudioImu>()
+    }
     singleOf(::SyncManager)
     singleOf(::WeatherRepository)
 }

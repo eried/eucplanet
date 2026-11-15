@@ -28,7 +28,7 @@ import kotlinx.coroutines.launch
  */
 class PhoneSensorRepository(
     private val context: Context
-) : PhoneImu {
+) : com.eried.eucplanet.ui.studio.StudioImu {
     private val sensorManager: SensorManager? =
         context.getSystemService(Context.SENSOR_SERVICE) as? SensorManager
     private val linearAccel: Sensor? =
@@ -182,7 +182,7 @@ class PhoneSensorRepository(
      * this on a foreground return to re-arm it.
      */
     @Synchronized
-    fun refresh() {
+    override fun refresh() {
         if (refCount <= 0) return
         Log.i(TAG, "refresh refCount=$refCount registered=$registered")
         unregister()

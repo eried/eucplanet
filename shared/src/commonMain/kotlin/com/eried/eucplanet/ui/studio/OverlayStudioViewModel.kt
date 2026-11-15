@@ -10,16 +10,16 @@ import com.eried.eucplanet.hud.protocol.ViewportConfig
 import com.eried.eucplanet.hud.protocol.ViewportLayout
 import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.data.model.WheelData
-import com.eried.eucplanet.data.repository.ExternalGpsRepository
-import com.eried.eucplanet.data.repository.PhoneSensorRepository
+import com.eried.eucplanet.data.repository.ExternalGpsFeed
 import com.eried.eucplanet.data.repository.RadarRepository
 import com.eried.eucplanet.data.repository.SettingsRepository
-import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
-import com.eried.eucplanet.data.store.OverlayPresetStore
+import com.eried.eucplanet.data.store.OverlayPresets
+import com.eried.eucplanet.platform.System
 import kotlinx.coroutines.withContext
 import com.eried.eucplanet.util.Units
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -108,11 +108,11 @@ data class StudioRadarState(
 class OverlayStudioViewModel(
     private val wheelRepository: WheelRepository,
     private val settingsRepository: SettingsRepository,
-    private val presetStore: OverlayPresetStore,
-    private val tripRepository: TripRepository,
+    private val presetStore: OverlayPresets,
+    private val tripRepository: StudioTrips,
     private val tripMeterRepository: com.eried.eucplanet.data.repository.TripMeterRepository,
-    private val phoneSensorRepository: PhoneSensorRepository,
-    private val externalGpsRepository: ExternalGpsRepository,
+    private val phoneSensorRepository: StudioImu,
+    private val externalGpsRepository: ExternalGpsFeed,
     private val radarRepository: RadarRepository,
     private val navMarkerStore: com.eried.eucplanet.data.store.NavMarkerStore
 ) : ViewModel() {
@@ -152,7 +152,7 @@ class OverlayStudioViewModel(
     // available. In replay the lat/lon come from the trip CSV instead.
     val wheelData: StateFlow<WheelData> = combine(
         wheelRepository.wheelData,
-        tripRepository.currentLocation,
+        tripRepository.currentFix,
         externalGpsRepository.currentSample
     ) { data, loc, ext ->
         val extFresh = ext != null && System.currentTimeMillis() - ext.timestamp < 5_000L
@@ -336,14 +336,13 @@ class OverlayStudioViewModel(
 
     /** Looks up a single trip by id, used when the studio opens from Share. */
     suspend fun tripById(id: Long): TripRecord? =
-        withContext(Dispatchers.IO) { tripRepository.getTripById(id) }
+        withContext(Dispatchers.IO) { tripRepository.tripById(id) }
 
     /** Reads a trip's CSV off the main thread and parses it into a timeline. */
     suspend fun loadReplayTrip(record: TripRecord): ReplayTrip? =
         withContext(Dispatchers.IO) {
             runCatching {
-                val file = tripRepository.getTripFile(record)
-                if (file.exists()) parseTripCsv(file.readText()) else null
+                tripRepository.tripCsv(record)?.let { parseTripCsv(it) }
             }.getOrNull()
         }
 
