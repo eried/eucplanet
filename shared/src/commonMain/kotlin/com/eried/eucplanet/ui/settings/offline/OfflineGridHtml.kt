@@ -1,19 +1,20 @@
 package com.eried.eucplanet.ui.settings.offline
 
-import com.eried.eucplanet.hud.protocol.MapLayers
+import com.eried.eucplanet.map.MapLayers
 import com.eried.eucplanet.nav.offline.RoutingTiles
-import org.json.JSONArray
-import org.json.JSONObject
+import com.eried.eucplanet.platform.JSONArray
+import com.eried.eucplanet.platform.JSONObject
 
 /**
  * The Leaflet page behind the offline areas map: the rider's map style with
  * the 5 degree squares drawn over it. Kotlin sends the squares with
  * `setTiles(json)` and their colours with `setColors(json)`; a tap calls
- * `AndroidOffline.onTile(name)`.
+ * `AndroidOffline.onTile(name)`. [page]'s offlineMapJs defines
+ * `eucOfflineMap`, the downloaded map under the online one (OfflineMapJs).
  */
-internal object OfflineGridHtml {
+object OfflineGridHtml {
 
-    fun page(mapType: String, bg: String, lat: Double, lng: Double, zoom: Int): String {
+    fun page(mapType: String, bg: String, lat: Double, lng: Double, zoom: Int, offlineMapJs: String): String {
         val layer = MapLayers.ALL.firstOrNull { it.id == mapType } ?: MapLayers.ALL.first()
         val attr = layer.attribution.replace("\\", "\\\\").replace("'", "\\'")
         return TEMPLATE
@@ -25,7 +26,7 @@ internal object OfflineGridHtml {
             .replace("__MAXN__", layer.maxNativeZoom.toString())
             .replace("__SUBS__", layer.subdomains.ifEmpty { "abc" })
             .replace("__ATTR__", attr)
-            .replace("__OFFLINE_JS__", com.eried.eucplanet.nav.offline.map.OfflineMapWeb.JS)
+            .replace("__OFFLINE_JS__", offlineMapJs)
     }
 
     /** The squares as the page wants them: name, state, bounds, label. */

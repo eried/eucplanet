@@ -148,7 +148,12 @@ val viewModelModule = module {
     viewModelOf(::ExternalGpsViewModel)
     viewModelOf(::FlicViewModel)
     viewModelOf(::RadarViewModel)
-    viewModelOf(::OfflineDataViewModel)
+    viewModel {
+        OfflineDataViewModel(
+            get(), get(), get(),
+            com.eried.eucplanet.ui.settings.offline.AndroidOfflineDataPorts(androidContext(), get()),
+        )
+    }
     viewModelOf(::SettingsViewModel)
     viewModelOf(::TpmsViewModel)
     viewModelOf(::OverlayStudioViewModel)

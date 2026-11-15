@@ -1,16 +1,14 @@
 package com.eried.eucplanet.ui.settings.offline
 
-import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
-import android.os.StatFs
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eried.eucplanet.data.model.GeoPoint
 import com.eried.eucplanet.data.repository.SettingsRepository
+import com.eried.eucplanet.map.MapLayers
 import com.eried.eucplanet.nav.CurrentRouteStore
 import com.eried.eucplanet.nav.offline.OfflineTiles
 import com.eried.eucplanet.nav.offline.RemoteTile
+import com.eried.eucplanet.nav.offline.RouterPlan
 import com.eried.eucplanet.nav.offline.RoutingTiles
 import com.eried.eucplanet.nav.offline.TileIndex
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,13 +19,26 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
+/**
+ * What the offline areas screen asks of the phone: where the rider was last
+ * and whether it is on Wi-Fi. Android has TripRepository and
+ * ConnectivityManager behind it (AndroidOfflineDataPorts), the iPhone
+ * IosLocation and NWPathMonitor.
+ */
+interface OfflineDataPorts {
+    /** The last position at any age, or null when the phone has none. */
+    fun lastKnownLocation(): GeoPoint?
+
+    /** True on a network that is not metered (Wi-Fi). */
+    fun onWifi(): Boolean
+}
+
 /** The offline routing areas screen: what is on the phone, on the server, and downloading. */
 class OfflineDataViewModel(
-    private val context: Context,
     private val tiles: OfflineTiles,
     private val settings: SettingsRepository,
     private val currentRoute: CurrentRouteStore,
-    private val trips: com.eried.eucplanet.data.repository.TripRepository,
+    private val ports: OfflineDataPorts,
 ) : ViewModel() {
 
     private val remote = MutableStateFlow<List<RemoteTile>?>(null)
@@ -46,7 +57,7 @@ class OfflineDataViewModel(
             OfflineDataState(
                 tiles = OfflineDataState.tiles(downloaded, r, progress, outdated),
                 usedBytes = downloaded.values.sum(),
-                freeBytes = runCatching { StatFs(tiles.store.dir.path).availableBytes }.getOrDefault(0L),
+                freeBytes = tiles.store.freeBytes(),
                 listError = done && r == null,
                 loading = !done,
             )
@@ -95,14 +106,14 @@ class OfflineDataViewModel(
         val route = currentRoute.get() ?: return null
         val pts = route.geometry.ifEmpty { route.waypoints.map { GeoPoint(it.lat, it.lng) } }
         if (pts.size < 2) return null
-        return missing(pts.zipWithNext().flatMap { (a, b) -> com.eried.eucplanet.nav.offline.RouterPlan.legTiles(a, b) }.toSet())
+        return missing(pts.zipWithNext().flatMap { (a, b) -> RouterPlan.legTiles(a, b) }.toSet())
     }
 
     /** The squares within about [km] of the rider not downloaded yet, or
      *  null when where the rider is is not known. */
     fun nearTilesMissing(km: Double): List<String>? {
-        val here = trips.lastKnownLocation.value ?: return null
-        return missing(RoutingTiles.tilesAround(GeoPoint(here.latitude, here.longitude), km))
+        val here = ports.lastKnownLocation() ?: return null
+        return missing(RoutingTiles.tilesAround(here, km))
     }
 
     /** Which of [names] still need a download, now the server list is known. */
@@ -118,7 +129,7 @@ class OfflineDataViewModel(
         return names.filter { name ->
             if (byName == null) return@filter !tiles.store.has(name)
             val t = byName[name] ?: return@filter false
-            TileIndex.fetchBytes(tiles.store.finalFile(name).path, tiles.store.mapFile(name).path, t) > 0
+            TileIndex.fetchBytes(tiles.store.finalFile(name), tiles.store.mapFile(name), t) > 0
         }
     }
 
@@ -127,7 +138,7 @@ class OfflineDataViewModel(
         val byName = remote.value?.associateBy { it.name }
             ?: return names.sumOf { state.value.tiles[it]?.bytes ?: 0L }
         return names.sumOf { n ->
-            byName[n]?.let { TileIndex.fetchBytes(tiles.store.finalFile(n).path, tiles.store.mapFile(n).path, it) } ?: 0L
+            byName[n]?.let { TileIndex.fetchBytes(tiles.store.finalFile(n), tiles.store.mapFile(n), it) } ?: 0L
         }
     }
 
@@ -138,14 +149,10 @@ class OfflineDataViewModel(
      *  null (the whole of Europe). */
     fun startPoint(): GeoPoint? =
         currentRoute.get()?.waypoints?.firstOrNull()?.let { GeoPoint(it.lat, it.lng) }
-            ?: trips.lastKnownLocation.value?.let { GeoPoint(it.latitude, it.longitude) }
+            ?: ports.lastKnownLocation()
 
-    fun onWifi(): Boolean {
-        val cm = context.getSystemService(ConnectivityManager::class.java) ?: return false
-        val caps = cm.getNetworkCapabilities(cm.activeNetwork) ?: return false
-        return caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
-    }
+    fun onWifi(): Boolean = ports.onWifi()
 
     suspend fun mapType(): String = settings.currentOrLoad().navMapType
-        .ifBlank { com.eried.eucplanet.hud.protocol.MapLayers.OSM }
+        .ifBlank { MapLayers.OSM }
 }

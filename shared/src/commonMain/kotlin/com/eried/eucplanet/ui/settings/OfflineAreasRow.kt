@@ -12,28 +12,40 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.eried.eucplanet.R
+import com.eried.eucplanet.nav.offline.OfflineTileStore
+import com.eried.eucplanet.platform.stringResource
+import com.eried.eucplanet.resources.Res
+import com.eried.eucplanet.resources.offline_data_open
+import com.eried.eucplanet.ui.settings.offline.OfflineDataHost
 import com.eried.eucplanet.ui.theme.appColors
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.withContext
 
 /**
  * The Navigation section's "Offline areas" row with the space the downloads
- * use, and the areas screen it opens.
+ * use, and the areas screen it opens ([dialog], which each phone builds
+ * with its view model and [host]). [openAtStart] opens it straight away
+ * (a launch hook for scripted runs).
  */
 @Composable
-fun OfflineAreasRow() {
-    var offlineAreasOpen by rememberSaveable { mutableStateOf(false) }
-    val offlineStore = org.koin.compose.koinInject<com.eried.eucplanet.nav.offline.OfflineTileStore>()
-    val ctx = androidx.compose.ui.platform.LocalContext.current
+fun OfflineAreasRow(
+    store: OfflineTileStore,
+    host: OfflineDataHost,
+    openAtStart: Boolean = false,
+    dialog: @Composable (onDismiss: () -> Unit) -> Unit,
+) {
+    var offlineAreasOpen by rememberSaveable { mutableStateOf(openAtStart) }
     // Counted again each time the areas screen closes.
-    val offlineUsed by androidx.compose.runtime.produceState(0L, offlineAreasOpen) {
+    val offlineUsed by produceState(0L, offlineAreasOpen) {
         if (!offlineAreasOpen) {
-            value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { offlineStore.usedBytes() }
+            value = withContext(Dispatchers.IO) { store.usedBytes() }
         }
     }
     Row(
@@ -43,9 +55,9 @@ fun OfflineAreasRow() {
             .padding(vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        val title = stringResource(R.string.offline_data_open)
+        val title = stringResource(Res.string.offline_data_open)
         Text(
-            if (offlineUsed > 0) "$title (${android.text.format.Formatter.formatShortFileSize(ctx, offlineUsed)})" else title,
+            if (offlineUsed > 0) "$title (${host.formatSize(offlineUsed)})" else title,
             color = MaterialTheme.appColors.textPrimary,
             modifier = Modifier.weight(1f),
         )
@@ -56,6 +68,6 @@ fun OfflineAreasRow() {
         )
     }
     if (offlineAreasOpen) {
-        com.eried.eucplanet.ui.settings.offline.OfflineDataDialog(onDismiss = { offlineAreasOpen = false })
+        dialog { offlineAreasOpen = false }
     }
 }

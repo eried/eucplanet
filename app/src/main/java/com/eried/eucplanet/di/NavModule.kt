@@ -17,6 +17,8 @@ import com.eried.eucplanet.nav.offline.AndroidBrouterProfiles
 import com.eried.eucplanet.nav.offline.OfflineRouter
 import com.eried.eucplanet.nav.offline.OfflineTileStore
 import com.eried.eucplanet.nav.offline.OfflineTiles
+import com.eried.eucplanet.nav.offline.WorkManagerTileJobs
+import com.eried.eucplanet.nav.offline.JvmOfflineFiles
 import com.eried.eucplanet.nav.offline.map.OfflineMapRenderer
 import com.eried.eucplanet.share.PendingShareJoin
 import com.eried.eucplanet.share.ShareSession
@@ -34,12 +36,14 @@ val navModule = module {
     singleOf(::AndroidNavHttp) bind NavHttp::class
     single { AndroidNavStrings(androidContext()) } bind NavStrings::class
     single { AndroidOfflineNav(androidContext(), get(), get(), get()) } bind OfflineNav::class
-    single { OfflineTileStore.default(androidContext()) }
+    single { offlineTileStore(androidContext()) }
     single {
         val store = get<OfflineTileStore>()
-        OfflineRouter(engine = OfflineRouter.brouterEngine(store.dir.path, AndroidBrouterProfiles(androidContext(), store)))
+        OfflineRouter(engine = OfflineRouter.brouterEngine(store.dir, AndroidBrouterProfiles(androidContext(), store)))
     }
-    singleOf(::OfflineTiles)
+    single {
+        OfflineTiles(get(), get(), get(), WorkManagerTileJobs(androidContext()), "EUCPlanet/${com.eried.eucplanet.BuildConfig.VERSION_NAME}")
+    }
     single { OfflineMapRenderer(get<OfflineTileStore>().dir) }
     singleOf(::PoiService)
     singleOf(::OcmService)
@@ -49,4 +53,12 @@ val navModule = module {
     single<com.eried.eucplanet.ui.navigator.RouteBuilderPorts> {
         com.eried.eucplanet.ui.navigator.AndroidRouteBuilderPorts(androidContext(), get(), get())
     }
+}
+
+/** App storage, not backed up and removed with the app; internal when
+ *  there is no external storage. */
+private fun offlineTileStore(ctx: android.content.Context): OfflineTileStore {
+    val base = ctx.getExternalFilesDir(null) ?: ctx.filesDir
+    val dir = java.io.File(base, "offline/routing").apply { mkdirs() }
+    return OfflineTileStore(dir.path, JvmOfflineFiles())
 }

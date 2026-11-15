@@ -22,7 +22,7 @@ class NavMapTypeFallbackTest {
     @Test fun `no screen swaps a blank map type for a layer of its own`() {
         val sources = listOf(
             "../shared/src/commonMain/kotlin/com/eried/eucplanet/ui/navigator/RouteBuilderViewModel.kt",
-            "src/main/java/com/eried/eucplanet/ui/settings/offline/OfflineDataViewModel.kt",
+            "../shared/src/commonMain/kotlin/com/eried/eucplanet/ui/settings/offline/OfflineDataViewModel.kt",
         )
         // The fallback, wherever the line is broken: navMapType ... ifBlank { X }
         val fallback = Regex("""navMapType\s*\.ifBlank\s*\{\s*([^}]+?)\s*\}""")

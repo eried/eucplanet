@@ -29,7 +29,7 @@ class AndroidBrouterProfiles(
             }
             profilesCopied = true
         }
-        val downloaded = store.lookupsFile()
+        val downloaded = File(store.lookupsFile())
         val used = File(profiles, "lookups.dat")
         if (downloaded.isFile && downloaded.lastModified() != used.lastModified()) {
             downloaded.copyTo(used, overwrite = true)

@@ -6,13 +6,18 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import java.io.File
 
 /** Only finished tiles count; a half download must never reach BRouter. */
 class OfflineTileStoreTest {
 
     @get:Rule val tmp = TemporaryFolder()
 
-    private fun store() = OfflineTileStore(tmp.newFolder("routing"))
+    private fun store() = OfflineTileStore(tmp.newFolder("routing").path, JvmOfflineFiles())
+
+    private fun String.writeBytes(b: ByteArray) = File(this).writeBytes(b)
+    private fun String.createNewFile() = File(this).createNewFile()
+    private fun String.exists() = File(this).exists()
 
     @Test fun aFinishedTile_counts() {
         val s = store()

@@ -33,7 +33,9 @@ class KoinGraphTest {
      * the generic types Koin keys by their erased class (the automations take
      * their clock and sun as lambdas), which the modules
      * provide by name (the adapter sets, the eucstats lambdas and strings) or
-     * as a Lazy through inject(). The offline tile store's folder and the
+     * as a Lazy through inject(). The offline tile store's folder and file
+     * calls, the tile downloads' WorkManager jobs, the offline areas view
+     * model's phone ports, the
      * offline router's timeout and engine, the crews pairing HTTP client, and
      * the flows the shared external GPS repository and data sources view
      * model read (the app's foreground, the phone's fix), are built in their
@@ -55,6 +57,10 @@ class KoinGraphTest {
                 java.io.File::class,
                 Long::class,
                 com.eried.eucplanet.platform.HttpClient::class,
+                com.eried.eucplanet.nav.offline.OfflineFiles::class,
+                com.eried.eucplanet.nav.offline.TileJobs::class,
+                com.eried.eucplanet.nav.offline.OfflineRouter.Engine::class,
+                com.eried.eucplanet.ui.settings.offline.OfflineDataPorts::class,
                 kotlinx.coroutines.flow.StateFlow::class,
             ),
         )

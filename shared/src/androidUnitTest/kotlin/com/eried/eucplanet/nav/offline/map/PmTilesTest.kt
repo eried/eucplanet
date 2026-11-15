@@ -51,16 +51,16 @@ class PmTilesTest {
     @Test fun aWholeMapSquare_passesTheCheck_aCutOneDoesNot() {
         val f = System.getenv("BROUTER_TILES")?.let { File(it, "E15_N65.pmtiles") }
         assumeTrue(f != null && f.isFile)
-        assertNull(com.eried.eucplanet.nav.offline.MapCheck.problem(f!!))
+        assertNull(com.eried.eucplanet.nav.offline.MapCheck.problem(f!!.path))
         val cut = File.createTempFile("cut", ".pmtiles").apply { deleteOnExit() }
         f.inputStream().use { i -> cut.outputStream().use { o ->
             val buf = ByteArray(1 shl 20)
             var left = f.length() / 2
             while (left > 0) { val n = i.read(buf, 0, minOf(buf.size.toLong(), left).toInt()); o.write(buf, 0, n); left -= n }
         } }
-        assertNotNull(com.eried.eucplanet.nav.offline.MapCheck.problem(cut))
+        assertNotNull(com.eried.eucplanet.nav.offline.MapCheck.problem(cut.path))
         val junk = File.createTempFile("junk", ".pmtiles").apply { deleteOnExit(); writeBytes(ByteArray(500) { 7 }) }
-        assertNotNull(com.eried.eucplanet.nav.offline.MapCheck.problem(junk))
+        assertNotNull(com.eried.eucplanet.nav.offline.MapCheck.problem(junk.path))
     }
 
     @Test fun aTappedSpot_isNamedStreetAndNumber_fromTheMap() {

@@ -177,7 +177,7 @@ private class AndroidSettingsHost(
 
     @Composable
     override fun OfflineAreas() {
-        OfflineAreasRow()
+        com.eried.eucplanet.ui.settings.offline.AndroidOfflineAreasRow()
     }
 
     @Composable

@@ -257,9 +257,9 @@ private class AndroidRouteBuilderHost(private val context: Context) : RouteBuild
 
     @Composable
     override fun OfflineDataDialog(routeSquares: List<String>, onDismiss: () -> Unit) {
-        com.eried.eucplanet.ui.settings.offline.OfflineDataDialog(
-            routeSquares = routeSquares,
+        com.eried.eucplanet.ui.settings.offline.AndroidOfflineDataDialog(
             onDismiss = onDismiss,
+            routeSquares = routeSquares,
         )
     }
 

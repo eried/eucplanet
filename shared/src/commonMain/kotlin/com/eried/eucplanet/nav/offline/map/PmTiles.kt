@@ -177,3 +177,12 @@ class PmTiles(private val raf: RandomReadFile) : AutoCloseable {
         }
     }
 }
+
+/** The square at [path], read through BRouter's file calls (java.io on Android, POSIX on iOS). */
+fun PmTiles.Companion.openPath(path: String): PmTiles = PmTiles(BFilesReadFile(btools.util.BFiles.openRandom(path)))
+
+private class BFilesReadFile(private val file: btools.util.RandomReadFile) : RandomReadFile {
+    override fun length(): Long = file.length()
+    override fun readFully(at: Long, out: ByteArray) = file.readFully(at, out)
+    override fun close() = file.close()
+}

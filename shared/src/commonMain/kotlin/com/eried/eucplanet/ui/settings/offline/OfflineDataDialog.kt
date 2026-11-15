@@ -1,11 +1,5 @@
 package com.eried.eucplanet.ui.settings.offline
 
-import android.annotation.SuppressLint
-import android.text.format.Formatter
-import android.view.ViewGroup
-import android.webkit.JavascriptInterface
-import android.webkit.WebView
-import android.webkit.WebViewClient
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,13 +7,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.MyLocation
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Route
 import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.filled.ZoomOutMap
@@ -44,17 +38,74 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.eried.eucplanet.R
+import com.eried.eucplanet.platform.JSONObject
+import com.eried.eucplanet.platform.format
+import com.eried.eucplanet.platform.stringResource
+import com.eried.eucplanet.resources.Res
+import com.eried.eucplanet.resources.action_cancel
+import com.eried.eucplanet.resources.action_delete
+import com.eried.eucplanet.resources.action_retry
+import com.eried.eucplanet.resources.offline_data_along_route
+import com.eried.eucplanet.resources.offline_data_around_me
+import com.eried.eucplanet.resources.offline_data_around_me_wide
+import com.eried.eucplanet.resources.offline_data_credit
+import com.eried.eucplanet.resources.offline_data_delete_q
+import com.eried.eucplanet.resources.offline_data_download
+import com.eried.eucplanet.resources.offline_data_download_q
+import com.eried.eucplanet.resources.offline_data_list_error
+import com.eried.eucplanet.resources.offline_data_mobile_warn
+import com.eried.eucplanet.resources.offline_data_near_all_here
+import com.eried.eucplanet.resources.offline_data_near_q
+import com.eried.eucplanet.resources.offline_data_no_location
+import com.eried.eucplanet.resources.offline_data_no_route
+import com.eried.eucplanet.resources.offline_data_route_all_here
+import com.eried.eucplanet.resources.offline_data_route_q
+import com.eried.eucplanet.resources.offline_data_select
+import com.eried.eucplanet.resources.offline_data_space
+import com.eried.eucplanet.resources.offline_data_stop
+import com.eried.eucplanet.resources.offline_data_stop_q
+import com.eried.eucplanet.resources.offline_data_tap_hint
+import com.eried.eucplanet.resources.offline_data_title
+import com.eried.eucplanet.resources.offline_data_update
+import com.eried.eucplanet.resources.offline_data_update_all
+import com.eried.eucplanet.resources.offline_data_wifi_updates
 import com.eried.eucplanet.ui.common.appMenuItemColors
 import com.eried.eucplanet.ui.theme.appColors
-import org.json.JSONObject
-import org.koin.androidx.compose.koinViewModel
+
+/**
+ * What the offline areas screen asks of its platform: the phone's way of
+ * writing a file size, and the web view the squares map draws in. Android's
+ * is AndroidOfflineDataHost (Formatter, WebView), the iPhone's
+ * IosOfflineDataHost (NSByteCountFormatter, WKWebView).
+ */
+interface OfflineDataHost {
+    /** [bytes] as the phone writes a short file size ("1.2 GB"). */
+    fun formatSize(bytes: Long): String
+
+    /**
+     * The squares map: [html] (OfflineGridHtml.page) in a web view on
+     * [backgroundArgb], its `AndroidOffline.onTile(name)` calls to [onTile].
+     * [onPage] gets a way to run script on the page; [onPageFinished] says
+     * when it has loaded.
+     */
+    @Composable
+    fun GridMap(
+        html: String,
+        backgroundArgb: Int,
+        onTile: (String) -> Unit,
+        onPage: (OfflineGridPage) -> Unit,
+        onPageFinished: () -> Unit,
+        modifier: Modifier,
+    )
+}
+
+/** Runs script on the squares map's page. */
+fun interface OfflineGridPage {
+    fun run(script: String)
+}
 
 /** A choice waiting for the rider: download, update, stop or delete [row]. */
 private data class Pending(val row: TileRow, val mobileWarn: Boolean = false)
@@ -66,32 +117,32 @@ private data class Pending(val row: TileRow, val mobileWarn: Boolean = false)
  * [routeSquares] (from Start, before a ride) asks about those squares as
  * soon as the server list is in, so the sizes are right.
  */
-@SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun OfflineDataDialog(
     onDismiss: () -> Unit,
+    viewModel: OfflineDataViewModel,
+    host: OfflineDataHost,
+    offlineMapJs: String,
     routeSquares: List<String>? = null,
-    viewModel: OfflineDataViewModel = koinViewModel(),
 ) {
-    val ctx = LocalContext.current
     val colors = MaterialTheme.appColors
     val state by viewModel.state.collectAsState()
     val wifiAuto by viewModel.wifiAutoUpdate.collectAsState()
     val mapType by produceState<String?>(null) { value = viewModel.mapType() }
     val hasRoute = remember { viewModel.hasRoute() }
     var pageReady by remember { mutableStateOf(false) }
-    var webView by remember { mutableStateOf<WebView?>(null) }
+    var page by remember { mutableStateOf<OfflineGridPage?>(null) }
     var pending by remember { mutableStateOf<Pending?>(null) }
     var bulk by remember { mutableStateOf<Bulk?>(null) }
     var selectOpen by remember { mutableStateOf(false) }
     // A snackbar would sit behind this full-screen dialog: notes show inline.
     var notice by remember { mutableStateOf<String?>(null) }
-    val noRoute = stringResource(R.string.offline_data_no_route)
-    val allHere = stringResource(R.string.offline_data_route_all_here)
-    val nearAllHere = stringResource(R.string.offline_data_near_all_here)
-    val noLocation = stringResource(R.string.offline_data_no_location)
+    val noRoute = stringResource(Res.string.offline_data_no_route)
+    val allHere = stringResource(Res.string.offline_data_route_all_here)
+    val nearAllHere = stringResource(Res.string.offline_data_near_all_here)
+    val noLocation = stringResource(Res.string.offline_data_no_location)
 
-    fun size(b: Long) = Formatter.formatShortFileSize(ctx, b)
+    fun size(b: Long) = host.formatSize(b)
 
     var routeAsked by remember { mutableStateOf(false) }
     LaunchedEffect(state.loading) {
@@ -121,9 +172,9 @@ fun OfflineDataDialog(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(Modifier.weight(1f)) {
-                    Text(stringResource(R.string.offline_data_title), style = MaterialTheme.typography.titleLarge, color = colors.textPrimary)
+                    Text(stringResource(Res.string.offline_data_title), style = MaterialTheme.typography.titleLarge, color = colors.textPrimary)
                     Text(
-                        stringResource(R.string.offline_data_space, size(state.usedBytes), size(state.freeBytes)),
+                        stringResource(Res.string.offline_data_space, size(state.usedBytes), size(state.freeBytes)),
                         style = MaterialTheme.typography.bodySmall, color = colors.textSecondary,
                     )
                 }
@@ -132,62 +183,37 @@ fun OfflineDataDialog(
             if (state.listError) {
                 Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        stringResource(R.string.offline_data_list_error),
+                        stringResource(Res.string.offline_data_list_error),
                         style = MaterialTheme.typography.bodySmall, color = colors.statusWarn, modifier = Modifier.weight(1f),
                     )
                     TextButton(onClick = viewModel::refresh) {
-                        Text(stringResource(R.string.action_retry), color = colors.textButton)
+                        Text(stringResource(Res.string.action_retry), color = colors.textButton)
                     }
                 }
             }
             Text(
-                stringResource(R.string.offline_data_tap_hint),
+                stringResource(Res.string.offline_data_tap_hint),
                 style = MaterialTheme.typography.bodySmall, color = colors.hint,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
             )
             Box(Modifier.weight(1f).fillMaxWidth()) {
                 val type = mapType
                 if (type != null) {
-                    AndroidView(
+                    val html = remember(type) {
+                        val start = viewModel.startPoint()
+                        OfflineGridHtml.page(
+                            type, hex(colors.appBackground),
+                            start?.lat ?: 54.0, start?.lng ?: 12.0, if (start != null) 6 else 3,
+                            offlineMapJs,
+                        )
+                    }
+                    host.GridMap(
+                        html = html,
+                        backgroundArgb = colors.appBackground.toArgb(),
+                        onTile = { name -> viewModel.state.value.tiles[name]?.let(::ask) },
+                        onPage = { page = it },
+                        onPageFinished = { pageReady = true },
                         modifier = Modifier.fillMaxSize(),
-                        factory = { c ->
-                            WebView(c).apply {
-                                layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-                                settings.javaScriptEnabled = true
-                                settings.allowFileAccess = true
-                                setBackgroundColor(colors.appBackground.toArgb())
-                                addJavascriptInterface(object {
-                                    @JavascriptInterface
-                                    fun onTile(name: String) {
-                                        post { viewModel.state.value.tiles[name]?.let(::ask) }
-                                    }
-                                }, "AndroidOffline")
-                                val offlineMap = com.eried.eucplanet.nav.offline.map.OfflineMapWeb.renderer()
-                                webViewClient = object : WebViewClient() {
-                                    override fun onPageFinished(view: WebView?, url: String?) { pageReady = true }
-
-                                    override fun shouldInterceptRequest(
-                                        view: WebView?,
-                                        request: android.webkit.WebResourceRequest?,
-                                    ) = com.eried.eucplanet.nav.offline.map.OfflineMapWeb.intercept(offlineMap, request)
-                                }
-                                val start = viewModel.startPoint()
-                                loadDataWithBaseURL(
-                                    "file:///android_asset/",
-                                    OfflineGridHtml.page(
-                                        type, hex(colors.appBackground),
-                                        start?.lat ?: 54.0, start?.lng ?: 12.0, if (start != null) 6 else 3,
-                                    ),
-                                    "text/html", "UTF-8", null,
-                                )
-                                webView = this
-                            }
-                        },
-                        onRelease = { wv ->
-                            wv.removeJavascriptInterface("AndroidOffline")
-                            wv.loadUrl("about:blank")
-                            wv.destroy()
-                        },
                     )
                 }
                 // Small chips on the map instead of a row of wide buttons.
@@ -199,7 +225,7 @@ fun OfflineDataDialog(
                     verticalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
                     Box {
-                        MapChip(Icons.Default.SelectAll, stringResource(R.string.offline_data_select)) { selectOpen = true }
+                        MapChip(Icons.Default.SelectAll, stringResource(Res.string.offline_data_select)) { selectOpen = true }
                         DropdownMenu(
                             expanded = selectOpen,
                             onDismissRequest = { selectOpen = false },
@@ -216,19 +242,19 @@ fun OfflineDataDialog(
                                 }
                             }
                             DropdownMenuItem(
-                                text = { Text(stringResource(R.string.offline_data_around_me)) },
+                                text = { Text(stringResource(Res.string.offline_data_around_me)) },
                                 leadingIcon = { Icon(Icons.Default.MyLocation, contentDescription = null) },
                                 colors = itemColors,
                                 onClick = { near(NEAR_KM) },
                             )
                             DropdownMenuItem(
-                                text = { Text(stringResource(R.string.offline_data_around_me_wide)) },
+                                text = { Text(stringResource(Res.string.offline_data_around_me_wide)) },
                                 leadingIcon = { Icon(Icons.Default.ZoomOutMap, contentDescription = null) },
                                 colors = itemColors,
                                 onClick = { near(WIDE_KM) },
                             )
                             DropdownMenuItem(
-                                text = { Text(stringResource(R.string.offline_data_along_route)) },
+                                text = { Text(stringResource(Res.string.offline_data_along_route)) },
                                 leadingIcon = { Icon(Icons.Default.Route, contentDescription = null) },
                                 enabled = hasRoute,
                                 colors = itemColors,
@@ -245,15 +271,15 @@ fun OfflineDataDialog(
                         }
                     }
                     if (state.outdatedCount > 0) {
-                        MapChip(Icons.Default.Refresh, stringResource(R.string.offline_data_update_all, state.outdatedCount), viewModel::updateAll)
+                        MapChip(Icons.Default.Refresh, stringResource(Res.string.offline_data_update_all, state.outdatedCount), viewModel::updateAll)
                     }
                 }
             }
             // Squares drawn again whenever their state changes.
             LaunchedEffect(pageReady, state.tiles) {
-                val wv = webView ?: return@LaunchedEffect
+                val wv = page ?: return@LaunchedEffect
                 if (!pageReady) return@LaunchedEffect
-                wv.evaluateJavascript("setColors(${squareColors(colors.statusGood, colors.statusWarn, colors.primary, colors.outline)})", null)
+                wv.run("setColors(${squareColors(colors.statusGood, colors.statusWarn, colors.primary, colors.outline)})")
                 val json = OfflineGridHtml.tilesJson(state.tiles.values) { r ->
                     when (r.status) {
                         TileStatus.DOWNLOADING -> "${(r.progress * 100).toInt()}%"
@@ -261,7 +287,7 @@ fun OfflineDataDialog(
                         TileStatus.AVAILABLE -> null
                     }
                 }
-                wv.evaluateJavascript("setTiles($json)", null)
+                wv.run("setTiles($json)")
             }
             notice?.let { n ->
                 LaunchedEffect(n) {
@@ -275,7 +301,7 @@ fun OfflineDataDialog(
             }
             Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    stringResource(R.string.offline_data_wifi_updates),
+                    stringResource(Res.string.offline_data_wifi_updates),
                     color = colors.textPrimary, modifier = Modifier.weight(1f),
                 )
                 Switch(
@@ -285,7 +311,7 @@ fun OfflineDataDialog(
                 )
             }
             Text(
-                stringResource(R.string.offline_data_credit),
+                stringResource(Res.string.offline_data_credit),
                 style = MaterialTheme.typography.labelSmall, color = colors.textSecondary,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
             )
@@ -296,13 +322,13 @@ fun OfflineDataDialog(
         val row = p.row
         val (question, confirm) = when (row.status) {
             TileStatus.AVAILABLE -> if (p.mobileWarn) {
-                stringResource(R.string.offline_data_mobile_warn, size(row.bytes))
+                stringResource(Res.string.offline_data_mobile_warn, size(row.bytes))
             } else {
-                stringResource(R.string.offline_data_download_q, size(row.bytes))
-            } to stringResource(R.string.offline_data_download)
-            TileStatus.DOWNLOADING -> stringResource(R.string.offline_data_stop_q) to stringResource(R.string.offline_data_stop)
+                stringResource(Res.string.offline_data_download_q, size(row.bytes))
+            } to stringResource(Res.string.offline_data_download)
+            TileStatus.DOWNLOADING -> stringResource(Res.string.offline_data_stop_q) to stringResource(Res.string.offline_data_stop)
             TileStatus.DOWNLOADED, TileStatus.UPDATE ->
-                stringResource(R.string.offline_data_delete_q, size(row.bytes)) to stringResource(R.string.action_delete)
+                stringResource(Res.string.offline_data_delete_q, size(row.bytes)) to stringResource(Res.string.action_delete)
         }
         AlertDialog(
             onDismissRequest = { pending = null },
@@ -323,11 +349,11 @@ fun OfflineDataDialog(
             dismissButton = {
                 if (row.status == TileStatus.UPDATE) {
                     TextButton(onClick = { viewModel.download(listOf(row.name)); pending = null }) {
-                        Text(stringResource(R.string.offline_data_update), color = colors.textButton)
+                        Text(stringResource(Res.string.offline_data_update), color = colors.textButton)
                     }
                 } else {
                     TextButton(onClick = { pending = null }) {
-                        Text(stringResource(R.string.action_cancel), color = colors.textButton)
+                        Text(stringResource(Res.string.action_cancel), color = colors.textButton)
                     }
                 }
             },
@@ -338,9 +364,9 @@ fun OfflineDataDialog(
         val names = b.names
         val bytes = remember(names) { viewModel.fetchBytes(names) }
         val text = if (OfflineDataState.warnSize(bytes, viewModel.onWifi())) {
-            stringResource(R.string.offline_data_mobile_warn, size(bytes))
+            stringResource(Res.string.offline_data_mobile_warn, size(bytes))
         } else {
-            stringResource(if (b.route) R.string.offline_data_route_q else R.string.offline_data_near_q, size(bytes))
+            stringResource(if (b.route) Res.string.offline_data_route_q else Res.string.offline_data_near_q, size(bytes))
         }
         AlertDialog(
             onDismissRequest = { bulk = null },
@@ -348,12 +374,12 @@ fun OfflineDataDialog(
             text = { Text(text, color = colors.textPrimary) },
             confirmButton = {
                 TextButton(onClick = { viewModel.download(names); bulk = null }) {
-                    Text(stringResource(R.string.offline_data_download), color = colors.textButton)
+                    Text(stringResource(Res.string.offline_data_download), color = colors.textButton)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { bulk = null }) {
-                    Text(stringResource(R.string.action_cancel), color = colors.textButton)
+                    Text(stringResource(Res.string.action_cancel), color = colors.textButton)
                 }
             },
         )
@@ -385,7 +411,7 @@ private fun MapChip(icon: androidx.compose.ui.graphics.vector.ImageVector, label
     }
 }
 
-private fun hex(c: Color): String = String.format("#%06X", 0xFFFFFF and c.toArgb())
+private fun hex(c: Color): String = "#%06X".format(0xFFFFFF and c.toArgb())
 
 /** Square colours per state, from the theme. */
 private fun squareColors(good: Color, warn: Color, active: Color, idle: Color): String = JSONObject().apply {
