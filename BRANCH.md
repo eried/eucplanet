@@ -20,6 +20,7 @@ only when you can cut the ride short.
 - iPhone app: the Varia rear-view radar and TPMS tyre caps (Settings, Integration), with the radar lane on the dashboard and tyre pressure in tiles and alarms. Tyre caps are only heard while the app is open, iOS does not let it listen in the background. The wheel's own tyre pressure now shows too.
 - iPhone app: the motor sound, every engine from the Android app with the same settings and previews. It lowers your music while it plays and keeps playing with the iPhone locked.
 - iPhone app: navigation. Plan a route on the map, ride it with spoken turn cues (also with the iPhone locked), the navigator view, the turn card on every screen and Stop navigation on the lock screen. Share routes by link or QR, load and save GPX tracks, your marker photo, and live groups with Android riders. Routes need signal, offline areas are Android only for now.
+- iPhone app: the Overlay Studio, live with the camera and replaying a trip, with your presets. Photos, takes and GIF, APNG and MP4 clips save to Photos.
 - iPhone app: the Needs attention warnings (location, Bluetooth, notifications, backups), and a recording cut short by closing the app is saved or dropped at the next start, as on Android.
 - Inside: the dashboard, settings, alarms, trips, trip details, trip tools, Legal Mode, the notification buttons, the reconnect timing, leaderboards, Dropbox sync, the wheel link, the theme editor, the automations, what runs on connect and every wheel update, the radar and TPMS settings, the engine sound and the navigation (routing, turn cues, the route builder, route sharing, the navigator view and the Navigation settings) and the Overlay studio moved to a library shared with the iPhone. Nothing should change on screen.
 - iPhone app: a swipe in from the left edge is back, on every screen and in every dialog, and the crew pass has the X in every step.
@@ -88,6 +89,7 @@ only when you can cut the ride short.
 - Turn the wheel off mid-ride and on again: does the iPhone reconnect by itself? Rename and split a trip: does Android see it after a sync?
 - Display: turn on the theme widget, change a colour, and use the picker to identify one. Voice: pick a voice, does every report use it? Play music with alarms and reports on: is it lowered or paused only while the app speaks?
 - Automations (Settings): set lights to follow sunset, and turn on Lock when I walk away. Does the light switch and the wheel lock as on Android?
+- Overlay Studio (camera button on the dashboard): do the back, wide and front cameras show? Record a take with sound, export a trip replay as MP4 and GIF: do they land in Photos and match Android?
 - Horn: pick your own short sound in Settings, Wheel parameters, Horn, set it to Sound or Both, and press the horn. Does it sound at once, with music lowered?
 - Ride with the iPhone locked in your pocket: do the voice reports and alarm beeps still sound, and does the trip keep recording?
 - Music: bind Pause or Play/Pause to a Flic button or a tile and play Spotify or Music. Does it pause, and does it come back on the next press? Which apps do not resume?
