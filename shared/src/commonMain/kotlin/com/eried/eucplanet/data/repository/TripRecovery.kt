@@ -74,3 +74,48 @@ suspend fun recoverKilledRecordings(
         if (finalized != null) keep(finalized, rows) else drop(trip)
     }
 }
+
+/**
+ * The iPhone's Bluetooth relaunch: iOS ends an app in the background to free
+ * memory, then starts it again, with no screen, when the wheel next talks.
+ * When that happens mid-ride, the trip the app was killed in carries on in
+ * the same file and row instead of being finalized and a new one started.
+ * Android's process is not ended that way (its foreground service is kept),
+ * and a rider who reopens the app later still gets the sweep above.
+ */
+object KilledTripResume {
+    /** The longest the app may have been gone for its trip to carry on. */
+    const val MAX_GAP_MS = 10 * 60_000L
+
+    /** The shortest window, so a short idle stop does not rule out every relaunch. */
+    const val MIN_GAP_MS = 60_000L
+
+    /**
+     * How long the app may have been gone: the auto-record idle stop when it
+     * is on (a ride that would have closed by itself is not carried on),
+     * kept within [MIN_GAP_MS] and [MAX_GAP_MS], else [MAX_GAP_MS].
+     */
+    fun maxGapMs(settings: com.eried.eucplanet.data.model.AppSettings): Long =
+        if (settings.autoRecord && settings.autoRecordStartInMotion && settings.autoRecordStopIdleSeconds > 0) {
+            (settings.autoRecordStopIdleSeconds * 1000L).coerceIn(MIN_GAP_MS, MAX_GAP_MS)
+        } else {
+            MAX_GAP_MS
+        }
+
+    /**
+     * The trip to carry on: the newest of [unfinished] (rows with no end
+     * time), when its file's last row, [lastRowMs], is at most [maxGapMs]
+     * before [nowMs]. Only the newest is a candidate: an older open row is a
+     * ride from before, left for the sweep. Null when none qualifies.
+     */
+    fun pick(
+        unfinished: List<TripRecord>,
+        lastRowMs: (TripRecord) -> Long?,
+        nowMs: Long,
+        maxGapMs: Long,
+    ): TripRecord? {
+        val newest = unfinished.maxByOrNull { it.startTime } ?: return null
+        val last = lastRowMs(newest) ?: return null
+        return newest.takeIf { nowMs - last in 0..maxGapMs }
+    }
+}

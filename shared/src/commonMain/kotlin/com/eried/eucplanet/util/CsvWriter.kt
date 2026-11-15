@@ -11,6 +11,13 @@ import com.eried.eucplanet.platform.formatLocalDateUs
 interface TextSink {
     /** Creates or truncates the file. Throws when it cannot. */
     fun open()
+
+    /**
+     * Opens the existing file to add lines after its last one. Only a sink
+     * that can carry on a file has it (the iPhone's, for a trip resumed after
+     * a Bluetooth relaunch); the others refuse rather than truncate.
+     */
+    fun openAppend(): Unit = throw UnsupportedOperationException("this sink cannot append")
     fun writeLine(line: String)
     fun flush()
     fun close()
@@ -43,6 +50,17 @@ class CsvWriter(private val sink: TextSink) {
         sink.open()
         writer = sink
         sink.writeLine("Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Current,PWM,G-Force,G-Force X,G-Force Y,Torque,Phase current,Extra")
+    }
+
+    /**
+     * Carries on a file that already holds its header and [rowsSoFar] data
+     * rows, as the trip killed in the background did: no second header, and
+     * the row count goes on from there.
+     */
+    fun resume(rowsSoFar: Int) {
+        sink.openAppend()
+        writer = sink
+        rowCount = rowsSoFar.coerceAtLeast(0)
     }
 
     fun writeRow(data: WheelData, location: PhoneLocation?, externalGpsSpeedKmh: Float? = null, wheelConnected: Boolean = true, extra: String? = null) {

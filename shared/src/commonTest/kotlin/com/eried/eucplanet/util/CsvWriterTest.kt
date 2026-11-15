@@ -46,6 +46,32 @@ class CsvWriterTest {
         assertEquals(1, w.rows)
     }
 
+    @Test fun aResumedFileGetsNoSecondHeader() {
+        val sink = object : TextSink {
+            val lines = mutableListOf<String>()
+            var appended = false
+            override fun open() = error("a resumed trip must not truncate its file")
+            override fun openAppend() { appended = true }
+            override fun writeLine(line: String) { lines += line }
+            override fun flush() = Unit
+            override fun close() = Unit
+        }
+        val w = CsvWriter(sink)
+        w.resume(rowsSoFar = 41)
+        w.writeRow(WheelData(timestamp = System.currentTimeMillis()), null)
+        assertTrue(sink.appended)
+        assertEquals(1, sink.lines.size)
+        assertTrue(!sink.lines[0].startsWith("Date,"), sink.lines[0])
+        assertEquals(42, w.rows)
+    }
+
+    @Test fun aSinkThatCannotAppendRefusesRatherThanTruncates() {
+        val sink = Lines()
+        val failed = runCatching { CsvWriter(sink).resume(3) }.isFailure
+        assertTrue(failed)
+        assertTrue(sink.lines.isEmpty())
+    }
+
     @Test fun withoutAWheelTheSpeedIsTheGps() {
         val sink = Lines()
         val w = CsvWriter(sink)
