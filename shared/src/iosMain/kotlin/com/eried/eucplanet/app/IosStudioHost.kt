@@ -238,7 +238,7 @@ internal class IosStudioHost : IosStudioRender(), StudioHost {
 
     @Composable
     override fun rememberCameraHub(requestedKeys: List<String>, enabled: Boolean): StudioCameraHub =
-        remember { StudioCameraHub().apply { ready = true } }
+        rememberIosCameraHub(requestedKeys, enabled)
 
     @Composable
     override fun rememberVideoHub(uris: Set<String>, enabled: Boolean): StudioVideoHub =
