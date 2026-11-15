@@ -27,7 +27,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -48,61 +47,6 @@ import kotlin.coroutines.cancellation.CancellationException
 import kotlin.coroutines.resume
 import kotlin.math.abs
 import kotlinx.coroutines.suspendCancellableCoroutine
-
-/**
- * A camera the device exposes. [deviceId] is the *logical* camera that gets
- * opened; [physicalId] (when set) pins a specific physical lens behind it via
- * [OutputConfiguration.setPhysicalCameraId]; that is how the ultrawide /
- * telephoto are reached, since only logical cameras appear in the id list.
- */
-data class StudioCameraInfo(
-    val key: String,
-    val label: String,
-    val front: Boolean,
-    val deviceId: String,
-    val physicalId: String? = null
-)
-
-/**
- * Multi-camera feed hub for the Overlay Studio.
- *
- * Built directly on Camera2 (no CameraX) so the Studio can stream *two* cameras
- * at once: a front + a back logical camera as a concurrent-camera pair, or two
- * physical lenses of one logical camera as two physically-pinned streams of a
- * single capture session. Each requested feed gets its own [ImageReader]
- * (YUV_420_888, ~1280x720) and is exposed as a Compose [ImageBitmap], so several
- * viewports / floating windows can each show a *different* camera at once.
- *
- * Where the hardware genuinely cannot co-stream a requested pair, only the first
- * camera goes live and the UI shows a placeholder for the rest.
- */
-class StudioCameraHub {
-    /** Every camera detected on the device. */
-    var cameras by mutableStateOf<List<StudioCameraInfo>>(emptyList())
-        internal set
-
-    /** How many cameras can stream at once on this device (1 or 2). */
-    var maxConcurrent by mutableStateOf(1)
-        internal set
-
-    /** True once camera enumeration has finished. */
-    var ready by mutableStateOf(false)
-        internal set
-
-    /** Latest frame per logical camera key. */
-    val frames = mutableStateMapOf<String, ImageBitmap?>()
-
-    /** Logical keys currently streaming. */
-    var liveKeys by mutableStateOf<Set<String>>(emptySet())
-        internal set
-
-    /** The live Camera2 binding, kept so teardown can close it directly. */
-    internal var binding: CameraBinding? = null
-
-    fun frame(key: String): ImageBitmap? = frames[key]
-    fun isLive(key: String): Boolean = key in liveKeys
-    fun info(key: String): StudioCameraInfo? = cameras.firstOrNull { it.key == key }
-}
 
 /**
  * Binds the cameras named in [requestedKeys] (in priority order) while
@@ -285,7 +229,7 @@ internal class CameraBinding(
     private val hub: StudioCameraHub,
     private val rowPool: ExecutorService,
     private val displayRotation: Int
-) {
+) : AutoCloseable {
     @Volatile
     private var closed = false
     private val devices = mutableListOf<DeviceSession>()
@@ -356,7 +300,7 @@ internal class CameraBinding(
         return live
     }
 
-    fun close() {
+    override fun close() {
         closed = true
         devices.forEach { it.close() }
         devices.clear()

@@ -159,7 +159,9 @@ fun NavGraph(navController: NavHostController) {
                 onOpenBackupSettings = {
                     navController.navigateSingle(Screen.Settings.createRoute(4))
                 },
-                replayTripId = if (tid >= 0L) tid else null
+                replayTripId = if (tid >= 0L) tid else null,
+                viewModel = org.koin.compose.viewmodel.koinViewModel(),
+                host = com.eried.eucplanet.ui.studio.rememberAndroidStudioHost(),
             )
         }
         composable(

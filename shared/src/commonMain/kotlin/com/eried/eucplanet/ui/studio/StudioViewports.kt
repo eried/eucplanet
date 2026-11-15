@@ -1,5 +1,6 @@
 package com.eried.eucplanet.ui.studio
 
+import com.eried.eucplanet.platform.Math
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -41,7 +42,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -49,12 +49,12 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.stringResource
+import com.eried.eucplanet.platform.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.eried.eucplanet.R
+import com.eried.eucplanet.resources.*
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.hud.protocol.OverlayPreset
 import com.eried.eucplanet.hud.protocol.ReplaySourceType
@@ -134,7 +134,7 @@ fun paneRects(
  * per-pane source button and the divider handles. In live mode each pane
  * shows its camera/solid/gradient/image source; in [replayMode] it shows the
  * pane's replay face instead (transparent/solid/gradient/image/video; video
- * plays through [ReplayVideoPlayer] at [replayCursorMs], [videoHub] only
+ * plays through [StudioHost.ReplayVideoPlayer] at [replayCursorMs], [videoHub] only
  * supplies the clip length).
  */
 @Composable
@@ -154,7 +154,7 @@ fun StudioViewportLayer(
      * The export loop resolves every pane's frame on the producing side (for
      * that export frame's cursor position) so the offscreen frame clock never
      * calls into the retriever. Null (the live/on-screen default) plays the
-     * clip through [ReplayVideoPlayer].
+     * clip through [StudioHost.ReplayVideoPlayer].
      */
     prebuiltVideoFrame: ((Int) -> ImageBitmap?)? = null,
     onDividerChange: (List<Float>) -> Unit,
@@ -289,7 +289,7 @@ private fun ReplayFacePane(
  *   frame-accurate offline decode) for this export frame's cursor, so it is drawn
  *   as-is. null = nothing (out of range / no clip). This path never touches a
  *   player and keeps export deterministic.
- * - Interactive preview (on-screen): a real [ReplayVideoPlayer] (ExoPlayer into a
+ * - Interactive preview (on-screen): the host's [StudioHost.ReplayVideoPlayer] (ExoPlayer into a
  *   TextureView) that plays with the replay clock and seeks while scrubbing. The
  *   retriever is only consulted for [StudioVideoHub.durationMs] to compute the
  *   clip window; the edge behavior (freeze/loop/black) is resolved here.
@@ -323,7 +323,7 @@ private fun ReplayVideoPane(
     val uri = face.videoUri
     if (uri == null || videoHub == null || videoHub.isInvalid(uri)) {
         Box(Modifier.fillMaxSize().background(MaterialTheme.appColors.surface), Alignment.Center) {
-            PaneMessage(Icons.Default.VideocamOff, stringResource(R.string.studio_video_no_media))
+            PaneMessage(Icons.Default.VideocamOff, stringResource(Res.string.studio_video_no_media))
         }
         return
     }
@@ -341,7 +341,7 @@ private fun ReplayVideoPane(
         else -> into.coerceIn(0L, duration)
     }
     Box(Modifier.fillMaxSize()) {
-        ReplayVideoPlayer(
+        LocalStudioHost.current.ReplayVideoPlayer(
             uri = uri,
             videoTimeMs = targetMs,
             // LOOP keeps playing past the clip length (repeating); FREEZE/BLACK
@@ -542,7 +542,7 @@ private fun CameraPane(
                         rotationZ = config.cameraOrientation.toFloat()
                     }
             )
-            !hasPermission -> PaneMessage(Icons.Default.VideocamOff, stringResource(R.string.studio_pane_camera_access_needed))
+            !hasPermission -> PaneMessage(Icons.Default.VideocamOff, stringResource(Res.string.studio_pane_camera_access_needed))
             hub.isLive(cameraKey) -> Icon(
                 Icons.Default.PhotoCamera,
                 contentDescription = null,
@@ -551,9 +551,9 @@ private fun CameraPane(
             )
             hub.info(cameraKey) != null -> PaneMessage(
                 Icons.Default.VideocamOff,
-                stringResource(R.string.studio_pane_camera_conflict, hub.info(cameraKey)?.label ?: stringResource(R.string.studio_viewport_camera_label))
+                stringResource(Res.string.studio_pane_camera_conflict, hub.info(cameraKey)?.label ?: stringResource(Res.string.studio_viewport_camera_label))
             )
-            else -> PaneMessage(Icons.Default.VideocamOff, stringResource(R.string.studio_pane_camera_unavailable))
+            else -> PaneMessage(Icons.Default.VideocamOff, stringResource(Res.string.studio_pane_camera_unavailable))
         }
     }
 }
@@ -607,7 +607,7 @@ private fun ViewportGradientPane(config: ViewportConfig) {
 private fun ViewportImagePane(imageData: String?, config: ViewportConfig) {
     Box(Modifier.fillMaxSize().background(MaterialTheme.appColors.surface), Alignment.Center) {
         val bitmap = remember(imageData) {
-            imageData?.let { StudioImages.decode(it)?.asImageBitmap() }
+            imageData?.let { StudioImages.decode(it) }
         }
         val grade = remember(
             config.colorFilter, config.brightness, config.contrast, config.saturation
@@ -629,7 +629,7 @@ private fun ViewportImagePane(imageData: String?, config: ViewportConfig) {
                     }
             )
         } else {
-            PaneMessage(Icons.Default.Image, stringResource(R.string.studio_pane_choose_image))
+            PaneMessage(Icons.Default.Image, stringResource(Res.string.studio_pane_choose_image))
         }
     }
 }
@@ -844,7 +844,7 @@ private fun DividerControls(
                 },
             contentAlignment = Alignment.Center
         ) {
-            Icon(resizeIcon, contentDescription = stringResource(R.string.studio_cd_resize_section), tint = MaterialTheme.appColors.textPrimary,
+            Icon(resizeIcon, contentDescription = stringResource(Res.string.studio_cd_resize_section), tint = MaterialTheme.appColors.textPrimary,
                 modifier = Modifier.size(20.dp))
         }
         Box(
@@ -853,7 +853,7 @@ private fun DividerControls(
                 .pointerInput(Unit) { detectTapGestures(onTap = { onConfig() }) },
             contentAlignment = Alignment.Center
         ) {
-            Icon(Icons.Default.Build, contentDescription = stringResource(R.string.studio_cd_divider_options), tint = MaterialTheme.appColors.primary,
+            Icon(Icons.Default.Build, contentDescription = stringResource(Res.string.studio_cd_divider_options), tint = MaterialTheme.appColors.primary,
                 modifier = Modifier.size(17.dp)
                     .rotate(-LocalStudioRotation.current.toFloat()))
         }

@@ -40,4 +40,5 @@ fun OutputStream.asStudioByteSink(): StudioByteSink = object : StudioByteSink {
     override fun write(b: ByteArray) = this@asStudioByteSink.write(b)
     override fun write(b: ByteArray, off: Int, len: Int) = this@asStudioByteSink.write(b, off, len)
     override fun flush() = this@asStudioByteSink.flush()
+    override fun close() = this@asStudioByteSink.close()
 }

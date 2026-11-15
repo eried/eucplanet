@@ -19,10 +19,9 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
-import com.eried.eucplanet.hud.protocol.OverlayElement
-import com.eried.eucplanet.hud.protocol.OverlayPreset
+import com.eried.eucplanet.ui.studio.LocalStudioRender
 import com.eried.eucplanet.ui.studio.LocalStudioRotation
-import com.eried.eucplanet.ui.studio.StudioElementData
+import com.eried.eucplanet.ui.studio.StudioRender
 import com.eried.eucplanet.ui.studio.StudioElementLayer
 import com.eried.eucplanet.ui.studio.StudioViewportLayer
 import com.eried.eucplanet.ui.studio.camera.StudioCameraHub
@@ -37,24 +36,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import kotlin.coroutines.coroutineContext
-
-/**
- * The elements + telemetry for one replay frame, plus what the viewport
- * (pane) layer needs to draw underneath: the layout/dividers/pane configs
- * (via [preset]) and, for any pane whose replay face is VIDEO, the frame
- * already decoded for this export frame's cursor position. [videoFrames] is
- * keyed by pane index; a missing key or a `null` value both read as "draw
- * nothing for this pane's video face" (out of the clip's covered span, no
- * clip bound, or not a video face) -- resolved on the producing side so the
- * offscreen frame clock never calls into a [com.eried.eucplanet.ui.studio.camera.StudioVideoHub]
- * retriever itself.
- */
-data class OverlayFrameSpec(
-    val elements: List<OverlayElement>,
-    val data: StudioElementData,
-    val preset: OverlayPreset,
-    val videoFrames: Map<Int, ImageBitmap?> = emptyMap(),
-)
 
 /**
  * Renders the replay overlay off the display's vsync clock.
@@ -138,6 +119,7 @@ class StudioOffscreenSession private constructor(
             heightPx: Int,
             rotation: Int,
             themeColors: AppThemeColors,
+            render: StudioRender,
             produce: (Int) -> OverlayFrameSpec,
         ): StudioOffscreenSession? = withContext(Dispatchers.Main.immediate) {
             val container = activity.findViewById<ViewGroup>(android.R.id.content)
@@ -166,7 +148,10 @@ class StudioOffscreenSession private constructor(
                 setParentCompositionContext(recomposer)
                 setContent {
                     EucPlanetTheme(colors = themeColors) {
-                        CompositionLocalProvider(LocalStudioRotation provides rotation) {
+                        CompositionLocalProvider(
+                            LocalStudioRotation provides rotation,
+                            LocalStudioRender provides render,
+                        ) {
                             val spec = state.value
                             BoxWithConstraints(Modifier.fillMaxSize()) {
                                 // Replay faces (video/image/solid/gradient/

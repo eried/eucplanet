@@ -1,8 +1,7 @@
 package com.eried.eucplanet.ui.studio
 
-import android.content.Intent
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import org.jetbrains.compose.resources.StringResource
+import com.eried.eucplanet.platform.format
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -107,16 +106,15 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.res.stringResource
+import com.eried.eucplanet.platform.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
-import com.eried.eucplanet.R
+import com.eried.eucplanet.resources.*
 import com.eried.eucplanet.ui.settings.NumberUpDown
 import com.eried.eucplanet.ui.settings.RestoreChip
 import com.eried.eucplanet.ui.theme.appColors
@@ -209,33 +207,33 @@ private fun studioLandscape(): Boolean =
 @Composable
 fun ViewportLayout.displayName(): String =
     when (orientedForDisplay(studioLandscape())) {
-        ViewportLayout.SINGLE -> stringResource(R.string.studio_layout_full_screen)
-        ViewportLayout.ROWS_2 -> stringResource(R.string.studio_layout_2_rows)
-        ViewportLayout.COLUMNS_2 -> stringResource(R.string.studio_layout_2_columns)
-        ViewportLayout.ROWS_3 -> stringResource(R.string.studio_layout_3_rows)
-        ViewportLayout.COLUMNS_3 -> stringResource(R.string.studio_layout_3_columns)
-        ViewportLayout.GRID_4 -> stringResource(R.string.studio_layout_grid_4)
+        ViewportLayout.SINGLE -> stringResource(Res.string.studio_layout_full_screen)
+        ViewportLayout.ROWS_2 -> stringResource(Res.string.studio_layout_2_rows)
+        ViewportLayout.COLUMNS_2 -> stringResource(Res.string.studio_layout_2_columns)
+        ViewportLayout.ROWS_3 -> stringResource(Res.string.studio_layout_3_rows)
+        ViewportLayout.COLUMNS_3 -> stringResource(Res.string.studio_layout_3_columns)
+        ViewportLayout.GRID_4 -> stringResource(Res.string.studio_layout_grid_4)
     }
 
 /** Element types the HUD can't render (it shows telemetry, not camera / images). */
 private val OverlayElementType.notOnHud: Boolean
     get() = this == OverlayElementType.FLOATING_CAMERA || this == OverlayElementType.IMAGE
 
-private val OverlayElementType.labelRes: Int
+private val OverlayElementType.labelRes: StringResource
     get() = when (this) {
-        OverlayElementType.WHEEL_NAME -> R.string.studio_element_wheel_name
-        OverlayElementType.APP_BADGE -> R.string.studio_element_app_badge
-        OverlayElementType.TEXT -> R.string.studio_element_text
-        OverlayElementType.DATA_VALUE -> R.string.studio_element_data_value
-        OverlayElementType.DATA_GRAPH -> R.string.studio_element_data_graph
-        OverlayElementType.DATA_DIAL -> R.string.studio_element_data_dial
-        OverlayElementType.DATA_BAR -> R.string.studio_element_data_bar
-        OverlayElementType.FLOATING_CAMERA -> R.string.studio_element_floating_camera
-        OverlayElementType.IMAGE -> R.string.studio_element_image
-        OverlayElementType.CLOCK -> R.string.studio_element_clock
-        OverlayElementType.G_FORCE -> R.string.studio_element_g_force
-        OverlayElementType.MAP -> R.string.studio_element_map
-        OverlayElementType.RADAR -> R.string.studio_element_radar
+        OverlayElementType.WHEEL_NAME -> Res.string.studio_element_wheel_name
+        OverlayElementType.APP_BADGE -> Res.string.studio_element_app_badge
+        OverlayElementType.TEXT -> Res.string.studio_element_text
+        OverlayElementType.DATA_VALUE -> Res.string.studio_element_data_value
+        OverlayElementType.DATA_GRAPH -> Res.string.studio_element_data_graph
+        OverlayElementType.DATA_DIAL -> Res.string.studio_element_data_dial
+        OverlayElementType.DATA_BAR -> Res.string.studio_element_data_bar
+        OverlayElementType.FLOATING_CAMERA -> Res.string.studio_element_floating_camera
+        OverlayElementType.IMAGE -> Res.string.studio_element_image
+        OverlayElementType.CLOCK -> Res.string.studio_element_clock
+        OverlayElementType.G_FORCE -> Res.string.studio_element_g_force
+        OverlayElementType.MAP -> Res.string.studio_element_map
+        OverlayElementType.RADAR -> Res.string.studio_element_radar
     }
 
 @Composable
@@ -295,48 +293,48 @@ fun StudioToolsFlyout(
         androidx.compose.foundation.layout.Box(Modifier.rotateLayout(deviceRotation)) {
         Row(modifier = Modifier.padding(horizontal = 4.dp)) {
             Column(Modifier.width(154.dp)) {
-                FlyoutSection(stringResource(R.string.studio_flyout_section_preset))
+                FlyoutSection(stringResource(Res.string.studio_flyout_section_preset))
                 // The layout (pane count/shape) is shared between live and
                 // replay, so it stays changeable in both: each pane keeps an
                 // independent live face and replay face, edited by the
                 // per-pane wrench for whichever mode is active.
                 FlyoutItem(
-                    Icons.Default.Dashboard, stringResource(R.string.studio_flyout_panes),
+                    Icons.Default.Dashboard, stringResource(Res.string.studio_flyout_panes),
                     hudBadge = LocalStudioHudEnabled.current
                 ) {
                     onDismiss(); onChangeLayout()
                 }
-                FlyoutItem(Icons.Default.NoteAdd, stringResource(R.string.studio_flyout_new)) { onDismiss(); onNew() }
-                FlyoutItem(Icons.Default.Image, stringResource(R.string.studio_flyout_load)) { onDismiss(); onLoadPreset() }
-                FlyoutItem(Icons.Default.Save, stringResource(R.string.studio_flyout_save), enabled = hasElements) {
+                FlyoutItem(Icons.Default.NoteAdd, stringResource(Res.string.studio_flyout_new)) { onDismiss(); onNew() }
+                FlyoutItem(Icons.Default.Image, stringResource(Res.string.studio_flyout_load)) { onDismiss(); onLoadPreset() }
+                FlyoutItem(Icons.Default.Save, stringResource(Res.string.studio_flyout_save), enabled = hasElements) {
                     onDismiss(); onSavePreset()
                 }
             }
             Spacer(Modifier.width(4.dp))
             Column(Modifier.width(154.dp)) {
-                FlyoutSection(stringResource(R.string.studio_flyout_section_mode))
+                FlyoutSection(stringResource(Res.string.studio_flyout_section_mode))
                 // Toggles the studio mode: reads "Replay" while live, and
                 // "Live" while replaying: the same button returns to the
                 // camera and closes the replay panel.
                 if (modeIsReplay) {
-                    FlyoutItem(Icons.Default.Videocam, stringResource(R.string.studio_flyout_live)) {
+                    FlyoutItem(Icons.Default.Videocam, stringResource(Res.string.studio_flyout_live)) {
                         onDismiss(); onReplayMode()
                     }
                 } else {
-                    FlyoutItem(Icons.Default.History, stringResource(R.string.studio_replay_title)) {
+                    FlyoutItem(Icons.Default.History, stringResource(Res.string.studio_replay_title)) {
                         onDismiss(); onReplayMode()
                     }
                 }
                 HorizontalDivider(Modifier.padding(vertical = 4.dp), color = MaterialTheme.appColors.divider)
-                FlyoutSection(stringResource(R.string.studio_flyout_section_elements))
+                FlyoutSection(stringResource(Res.string.studio_flyout_section_elements))
                 // Manage elements stays enabled even with no elements --
                 // the sheet now also hosts the Add button, so it's a valid
                 // entry point for building a layout from scratch.
-                FlyoutItem(Icons.Default.Layers, stringResource(R.string.studio_flyout_manage)) {
+                FlyoutItem(Icons.Default.Layers, stringResource(Res.string.studio_flyout_manage)) {
                     onDismiss(); onManageElements()
                 }
                 FlyoutItem(
-                    Icons.Default.Widgets, stringResource(R.string.studio_flyout_add),
+                    Icons.Default.Widgets, stringResource(Res.string.studio_flyout_add),
                     enabled = canAddElement
                 ) { onDismiss(); onAddElement() }
             }
@@ -368,19 +366,19 @@ fun StudioConfirmDialog(
     val action: String
     when (confirm) {
         StudioConfirm.ClearLayout -> {
-            title = stringResource(R.string.studio_dlg_new_title)
-            body = stringResource(R.string.studio_dlg_new_body)
-            action = stringResource(R.string.studio_dlg_new_confirm)
+            title = stringResource(Res.string.studio_dlg_new_title)
+            body = stringResource(Res.string.studio_dlg_new_body)
+            action = stringResource(Res.string.studio_dlg_new_confirm)
         }
         is StudioConfirm.LoadUserPreset -> {
-            title = stringResource(R.string.studio_dlg_load_title)
-            body = stringResource(R.string.studio_dlg_load_body, confirm.name)
-            action = stringResource(R.string.studio_dlg_load_confirm)
+            title = stringResource(Res.string.studio_dlg_load_title)
+            body = stringResource(Res.string.studio_dlg_load_body, confirm.name)
+            action = stringResource(Res.string.studio_dlg_load_confirm)
         }
         is StudioConfirm.LoadBundledPreset -> {
-            title = stringResource(R.string.studio_dlg_load_builtin_title)
-            body = stringResource(R.string.studio_dlg_load_body, confirm.name)
-            action = stringResource(R.string.studio_dlg_load_confirm)
+            title = stringResource(Res.string.studio_dlg_load_builtin_title)
+            body = stringResource(Res.string.studio_dlg_load_body, confirm.name)
+            action = stringResource(Res.string.studio_dlg_load_confirm)
         }
     }
     AlertDialog(
@@ -389,7 +387,7 @@ fun StudioConfirmDialog(
         title = { Text(title) },
         text = { Text(body) },
         confirmButton = { TextButton(onClick = onConfirm, shape = RoundedCornerShape(12.dp)) { Text(action) } },
-        dismissButton = { TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) } }
+        dismissButton = { TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) { Text(stringResource(Res.string.action_cancel)) } }
     )
 }
 
@@ -578,7 +576,7 @@ fun StudioSidePanel(
                                 Icon(
                                     Icons.Default.Opacity,
                                     contentDescription =
-                                        stringResource(R.string.studio_replay_cd_fade),
+                                        stringResource(Res.string.studio_replay_cd_fade),
                                     tint = if (dimmed) MaterialTheme.appColors.primary
                                     else MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -602,8 +600,8 @@ fun StudioSidePanel(
  * in every language; only the labels are translated. So the menu positions stay
  * constant and familiar regardless of locale.
  */
-private val ADD_ELEMENT_GROUPS: List<Pair<Int, List<OverlayElementType>>> = listOf(
-    R.string.studio_group_data to listOf(
+private val ADD_ELEMENT_GROUPS: List<Pair<StringResource, List<OverlayElementType>>> = listOf(
+    Res.string.studio_group_data to listOf(
         OverlayElementType.DATA_GRAPH,   // Data graph
         OverlayElementType.DATA_VALUE,   // Data value
         OverlayElementType.DATA_DIAL,    // Dial gauge
@@ -612,13 +610,13 @@ private val ADD_ELEMENT_GROUPS: List<Pair<Int, List<OverlayElementType>>> = list
         OverlayElementType.MAP,          // Map
         OverlayElementType.RADAR         // Rear-view radar
     ),
-    R.string.studio_group_text to listOf(
+    Res.string.studio_group_text to listOf(
         OverlayElementType.APP_BADGE,    // App badge
         OverlayElementType.CLOCK,        // Clock
         OverlayElementType.TEXT,         // Free text
         OverlayElementType.WHEEL_NAME    // Wheel name
     ),
-    R.string.studio_group_media to listOf(
+    Res.string.studio_group_media to listOf(
         OverlayElementType.FLOATING_CAMERA,  // Floating camera
         OverlayElementType.IMAGE             // Image / clipart
     )
@@ -638,7 +636,7 @@ fun AddElementSheet(
                 .padding(bottom = 8.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            SheetHeader(stringResource(R.string.studio_add_element_title))
+            SheetHeader(stringResource(Res.string.studio_add_element_title))
             ADD_ELEMENT_GROUPS.forEach { (titleRes, types) ->
                 SectionLabel(stringResource(titleRes))
                 types.forEach { type ->
@@ -679,19 +677,19 @@ fun AddElementSheet(
 
 @Composable
 private fun elementHint(type: OverlayElementType): String = when (type) {
-    OverlayElementType.WHEEL_NAME -> stringResource(R.string.studio_hint_wheel_name)
-    OverlayElementType.APP_BADGE -> stringResource(R.string.studio_hint_app_badge)
-    OverlayElementType.TEXT -> stringResource(R.string.studio_hint_text)
-    OverlayElementType.DATA_VALUE -> stringResource(R.string.studio_hint_data_value)
-    OverlayElementType.DATA_GRAPH -> stringResource(R.string.studio_hint_data_graph)
-    OverlayElementType.DATA_DIAL -> stringResource(R.string.studio_hint_data_dial)
-    OverlayElementType.DATA_BAR -> stringResource(R.string.studio_hint_data_bar)
-    OverlayElementType.FLOATING_CAMERA -> stringResource(R.string.studio_hint_floating_camera)
-    OverlayElementType.IMAGE -> stringResource(R.string.studio_hint_image)
-    OverlayElementType.CLOCK -> stringResource(R.string.studio_hint_clock)
-    OverlayElementType.G_FORCE -> stringResource(R.string.studio_hint_g_force)
-    OverlayElementType.MAP -> stringResource(R.string.studio_hint_map)
-    OverlayElementType.RADAR -> stringResource(R.string.studio_hint_radar)
+    OverlayElementType.WHEEL_NAME -> stringResource(Res.string.studio_hint_wheel_name)
+    OverlayElementType.APP_BADGE -> stringResource(Res.string.studio_hint_app_badge)
+    OverlayElementType.TEXT -> stringResource(Res.string.studio_hint_text)
+    OverlayElementType.DATA_VALUE -> stringResource(Res.string.studio_hint_data_value)
+    OverlayElementType.DATA_GRAPH -> stringResource(Res.string.studio_hint_data_graph)
+    OverlayElementType.DATA_DIAL -> stringResource(Res.string.studio_hint_data_dial)
+    OverlayElementType.DATA_BAR -> stringResource(Res.string.studio_hint_data_bar)
+    OverlayElementType.FLOATING_CAMERA -> stringResource(Res.string.studio_hint_floating_camera)
+    OverlayElementType.IMAGE -> stringResource(Res.string.studio_hint_image)
+    OverlayElementType.CLOCK -> stringResource(Res.string.studio_hint_clock)
+    OverlayElementType.G_FORCE -> stringResource(Res.string.studio_hint_g_force)
+    OverlayElementType.MAP -> stringResource(Res.string.studio_hint_map)
+    OverlayElementType.RADAR -> stringResource(Res.string.studio_hint_radar)
 }
 
 // --------------------------------------------------------------------------
@@ -712,7 +710,7 @@ fun LayoutPickerSheet(
                 .padding(bottom = 10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            SheetHeader(stringResource(R.string.studio_layout_title), hudBadge = LocalStudioHudEnabled.current)
+            SheetHeader(stringResource(Res.string.studio_layout_title), hudBadge = LocalStudioHudEnabled.current)
             Spacer(Modifier.height(4.dp))
             ViewportLayout.entries.chunked(3).forEach { row ->
                 Row(
@@ -797,14 +795,14 @@ fun SavePresetDialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(dismissOnClickOutside = false),
         modifier = Modifier.rotateLayout(LocalStudioRotation.current),
-        title = { Text(stringResource(R.string.studio_save_preset_title)) },
+        title = { Text(stringResource(Res.string.studio_save_preset_title)) },
         text = {
             Column {
                 if (!folderAvailable) {
                     FolderWarning(onOpenFolderSettings)
                 } else {
                     Text(
-                        stringResource(R.string.studio_save_preset_body),
+                        stringResource(Res.string.studio_save_preset_body),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -812,7 +810,7 @@ fun SavePresetDialog(
                     OutlinedTextField(
                         value = name,
                         onValueChange = { name = it },
-                        label = { Text(stringResource(R.string.studio_save_preset_name_label)) },
+                        label = { Text(stringResource(Res.string.studio_save_preset_name_label)) },
                         singleLine = true,
                         shape = RoundedCornerShape(12.dp),
                         colors = themedFieldColors(),
@@ -825,9 +823,9 @@ fun SavePresetDialog(
                 enabled = folderAvailable && name.isNotBlank(),
                 onClick = { onSave(name.trim()) },
                 shape = RoundedCornerShape(12.dp)
-            ) { Text(stringResource(R.string.studio_save_btn)) }
+            ) { Text(stringResource(Res.string.studio_save_btn)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) } }
+        dismissButton = { TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) { Text(stringResource(Res.string.action_cancel)) } }
     )
 }
 
@@ -852,10 +850,10 @@ fun LoadPresetSheet(
                 .padding(bottom = 10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            SheetHeader(stringResource(R.string.studio_load_preset_title))
+            SheetHeader(stringResource(Res.string.studio_load_preset_title))
 
             if (bundledPresets.isNotEmpty()) {
-                SectionLabel(stringResource(R.string.studio_section_portrait))
+                SectionLabel(stringResource(Res.string.studio_section_portrait))
                 bundledPresets.forEach { name ->
                     PresetRow(
                         name = name,
@@ -866,7 +864,7 @@ fun LoadPresetSheet(
                 }
             }
             if (bundledLandscapePresets.isNotEmpty()) {
-                SectionLabel(stringResource(R.string.studio_section_landscape))
+                SectionLabel(stringResource(Res.string.studio_section_landscape))
                 bundledLandscapePresets.forEach { name ->
                     PresetRow(
                         name = name,
@@ -882,12 +880,12 @@ fun LoadPresetSheet(
             // when empty (no folder set, or folder set but no files) we
             // surface the right next-step (folder picker / hint) right where
             // the saved presets would otherwise appear.
-            SectionLabel(stringResource(R.string.studio_section_your_presets))
+            SectionLabel(stringResource(Res.string.studio_section_your_presets))
             if (!folderAvailable) {
                 FolderWarning(onOpenFolderSettings)
             } else if (presets.isEmpty()) {
                 Text(
-                    stringResource(R.string.studio_your_presets_empty),
+                    stringResource(Res.string.studio_your_presets_empty),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(vertical = 6.dp, horizontal = 4.dp)
@@ -908,15 +906,15 @@ fun LoadPresetSheet(
         AlertDialog(
             onDismissRequest = { confirmDelete = null },
             modifier = Modifier.rotateLayout(LocalStudioRotation.current),
-            title = { Text(stringResource(R.string.studio_dlg_delete_preset_title)) },
-            text = { Text(stringResource(R.string.studio_dlg_delete_preset_body, name)) },
+            title = { Text(stringResource(Res.string.studio_dlg_delete_preset_title)) },
+            text = { Text(stringResource(Res.string.studio_dlg_delete_preset_body, name)) },
             confirmButton = {
                 TextButton(onClick = { onDelete(name); confirmDelete = null }, shape = RoundedCornerShape(12.dp)) {
-                    Text(stringResource(R.string.action_delete))
+                    Text(stringResource(Res.string.action_delete))
                 }
             },
             dismissButton = {
-                TextButton(onClick = { confirmDelete = null }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) }
+                TextButton(onClick = { confirmDelete = null }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(Res.string.action_cancel)) }
             }
         )
     }
@@ -984,7 +982,7 @@ private fun PresetRow(
         if (onDelete != null) {
             Icon(
                 Icons.Default.Delete,
-                contentDescription = stringResource(R.string.studio_cd_delete_preset),
+                contentDescription = stringResource(Res.string.studio_cd_delete_preset),
                 tint = MaterialTheme.appColors.statusDanger,
                 modifier = Modifier
                     .clip(CircleShape)
@@ -1001,12 +999,12 @@ private fun FolderWarning(onOpenFolderSettings: () -> Unit) {
     // failure. The Settings-shortcut button below carries the action.
     Column {
         Text(
-            stringResource(R.string.studio_no_folder_body),
+            stringResource(Res.string.studio_no_folder_body),
             style = MaterialTheme.typography.bodySmall
         )
         Spacer(Modifier.height(10.dp))
         OutlinedButton(onClick = onOpenFolderSettings, shape = RoundedCornerShape(12.dp)) {
-            Text(stringResource(R.string.tab_cloud))
+            Text(stringResource(Res.string.tab_cloud))
         }
     }
 }
@@ -1045,7 +1043,7 @@ fun ViewportConfigSheet(
                 .padding(bottom = 10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            SheetHeader(stringResource(R.string.studio_viewport_title, index + 1), hudBadge = LocalStudioHudEnabled.current)
+            SheetHeader(stringResource(Res.string.studio_viewport_title, index + 1), hudBadge = LocalStudioHudEnabled.current)
             // Unified source picker: the same five chips in both modes, each enabled
             // only where it applies. Camera is live-only; Transparent and Video are
             // replay-only; Fill and Image work in both. The non-applicable chips stay
@@ -1065,21 +1063,21 @@ fun ViewportConfigSheet(
                     selected = !replayMode && config.source == ViewportSourceType.CAMERA,
                     enabled = !replayMode,
                     onClick = { onChange(config.copy(source = ViewportSourceType.CAMERA)) },
-                    label = { Icon(Icons.Default.PhotoCamera, contentDescription = stringResource(R.string.studio_viewport_camera)) },
+                    label = { Icon(Icons.Default.PhotoCamera, contentDescription = stringResource(Res.string.studio_viewport_camera)) },
                     colors = themedFilterChipColors(),
                 )
                 FilterChip(
                     selected = replayMode && face.source == ReplaySourceType.TRANSPARENT,
                     enabled = replayMode,
                     onClick = { onFaceChange(face.copy(source = ReplaySourceType.TRANSPARENT)) },
-                    label = { TransparencyGlyph(stringResource(R.string.studio_source_transparent)) },
+                    label = { TransparencyGlyph(stringResource(Res.string.studio_source_transparent)) },
                     colors = themedFilterChipColors(),
                 )
                 FilterChip(
                     selected = replayMode && face.source == ReplaySourceType.VIDEO,
                     enabled = replayMode,
                     onClick = { onFaceChange(face.copy(source = ReplaySourceType.VIDEO)) },
-                    label = { Icon(Icons.Default.Videocam, contentDescription = stringResource(R.string.studio_source_video)) },
+                    label = { Icon(Icons.Default.Videocam, contentDescription = stringResource(Res.string.studio_source_video)) },
                     colors = themedFilterChipColors(),
                 )
                 FilterChip(
@@ -1093,7 +1091,7 @@ fun ViewportConfigSheet(
                                 onChange(config.copy(source = ViewportSourceType.SOLID))
                         }
                     },
-                    label = { Icon(Icons.Default.FormatColorFill, contentDescription = stringResource(R.string.studio_viewport_fill)) },
+                    label = { Icon(Icons.Default.FormatColorFill, contentDescription = stringResource(Res.string.studio_viewport_fill)) },
                     colors = themedFilterChipColors(),
                 )
                 FilterChip(
@@ -1102,7 +1100,7 @@ fun ViewportConfigSheet(
                         if (replayMode) onFaceChange(face.copy(source = ReplaySourceType.IMAGE))
                         else onChange(config.copy(source = ViewportSourceType.IMAGE))
                     },
-                    label = { Icon(Icons.Default.Image, contentDescription = stringResource(R.string.studio_viewport_image)) },
+                    label = { Icon(Icons.Default.Image, contentDescription = stringResource(Res.string.studio_viewport_image)) },
                     colors = themedFilterChipColors(),
                 )
             }
@@ -1130,28 +1128,28 @@ fun ViewportConfigSheet(
                         // fit, zoom) are tucked into a collapsible "Geometry" section
                         // so the sheet stays short; its open / closed state is
                         // hoisted to the studio screen so it sticks for the session.
-                        Text(stringResource(R.string.studio_viewport_camera_label), fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(Res.string.studio_viewport_camera_label), fontWeight = FontWeight.SemiBold)
                         CameraPicker(cameras, config.cameraKey, inUseKeys) {
                             onChange(config.copy(cameraKey = it))
                         }
                         Spacer(Modifier.height(8.dp))
                         CollapsibleSectionHeader(
-                            title = stringResource(R.string.studio_cfg_geometry),
+                            title = stringResource(Res.string.studio_cfg_geometry),
                             expanded = geometryExpanded,
                             onToggle = { onGeometryExpandedChange(!geometryExpanded) }
                         )
                         if (geometryExpanded) {
-                            ToggleRow(stringResource(R.string.studio_cfg_mirror), config.cameraMirror) {
+                            ToggleRow(stringResource(Res.string.studio_cfg_mirror), config.cameraMirror) {
                                 onChange(config.copy(cameraMirror = it))
                             }
                             Spacer(Modifier.height(4.dp))
-                            Text(stringResource(R.string.studio_cfg_orientation), fontWeight = FontWeight.SemiBold)
+                            Text(stringResource(Res.string.studio_cfg_orientation), fontWeight = FontWeight.SemiBold)
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 listOf(0, 90, 180, 270).forEach { deg ->
                                     FilterChip(
                                         selected = config.cameraOrientation == deg,
                                         onClick = { onChange(config.copy(cameraOrientation = deg)) },
-                                        label = { Text(stringResource(R.string.studio_bg_direction_fmt, deg)) },
+                                        label = { Text(stringResource(Res.string.studio_bg_direction_fmt, deg)) },
                                         colors = themedFilterChipColors(),
                                     )
                                 }
@@ -1165,7 +1163,7 @@ fun ViewportConfigSheet(
                         // stays short; its open / closed state is hoisted for the
                         // session.
                         CollapsibleSectionHeader(
-                            title = stringResource(R.string.studio_cfg_style),
+                            title = stringResource(Res.string.studio_cfg_style),
                             expanded = cameraStyleExpanded,
                             onToggle = { onCameraStyleExpandedChange(!cameraStyleExpanded) }
                         )
@@ -1187,7 +1185,7 @@ fun ViewportConfigSheet(
                         // Style; so the sheet stays short and the two sources read
                         // the same. The open / closed state is shared with camera.
                         CollapsibleSectionHeader(
-                            title = stringResource(R.string.studio_cfg_geometry),
+                            title = stringResource(Res.string.studio_cfg_geometry),
                             expanded = geometryExpanded,
                             onToggle = { onGeometryExpandedChange(!geometryExpanded) }
                         )
@@ -1196,7 +1194,7 @@ fun ViewportConfigSheet(
                             ZoomSlider(config, onChange)
                         }
                         CollapsibleSectionHeader(
-                            title = stringResource(R.string.studio_cfg_style),
+                            title = stringResource(Res.string.studio_cfg_style),
                             expanded = cameraStyleExpanded,
                             onToggle = { onCameraStyleExpandedChange(!cameraStyleExpanded) }
                         )
@@ -1223,13 +1221,13 @@ private fun ImagePickRow(hasImage: Boolean, onPick: () -> Unit, onClear: () -> U
         OutlinedButton(onClick = onPick, shape = RoundedCornerShape(12.dp)) {
             Icon(Icons.Default.AddPhotoAlternate, null)
             Spacer(Modifier.width(8.dp))
-            Text(if (!hasImage) stringResource(R.string.studio_viewport_choose_image) else stringResource(R.string.studio_viewport_replace_image))
+            Text(if (!hasImage) stringResource(Res.string.studio_viewport_choose_image) else stringResource(Res.string.studio_viewport_replace_image))
         }
         if (hasImage) {
             OutlinedButton(
                 onClick = onClear,
                 shape = RoundedCornerShape(12.dp)
-            ) { Text(stringResource(R.string.studio_viewport_clear_image)) }
+            ) { Text(stringResource(Res.string.studio_viewport_clear_image)) }
         }
     }
 }
@@ -1295,8 +1293,8 @@ private fun ReplayBackgroundEditor(face: ViewportReplayFace, onChange: (Viewport
 private const val MAX_VIDEO_OFFSET_MS = 86_400_000
 
 /**
- * The replay VIDEO face: pick / replace a clip (SAF [ActivityResultContracts.OpenDocument],
- * persisted read permission), the fit selector, and the offset controls that
+ * The replay VIDEO face: pick / replace a clip ([StudioHost.rememberVideoPicker];
+ * on Android a SAF document with a persisted read grant), the fit selector, and the offset controls that
  * lock the clip's first frame to a point on the replay timeline. Shows the
  * inline "No media" hint once [videoHub] reports the uri invalid (moved file,
  * lost permission, undecodable) rather than a stale or silently blank pane.
@@ -1309,35 +1307,25 @@ private fun ReplayVideoEditor(
     replayCursorMs: Long,
     onChange: (ViewportReplayFace) -> Unit
 ) {
-    val context = LocalContext.current
-    val videoPicker = rememberLauncherForActivityResult(
-        ActivityResultContracts.OpenDocument()
-    ) { uri ->
-        if (uri == null) return@rememberLauncherForActivityResult
-        try {
-            context.contentResolver.takePersistableUriPermission(
-                uri, Intent.FLAG_GRANT_READ_URI_PERMISSION
-            )
-        } catch (_: SecurityException) {
-            // The uri is kept regardless; StudioVideoHub will fail to open it
-            // without the grant and the pane falls back to "No media", the
-            // same honest state as any other unreadable clip.
-        }
+    // The picker keeps a persisted read grant where the platform has one; a
+    // clip that later cannot be opened falls back to "No media", the same
+    // honest state as any other unreadable clip.
+    val videoPicker = LocalStudioHost.current.rememberVideoPicker { uri ->
         // Anchor the clip to where the cursor is now, so it appears immediately
         // instead of being pinned to trip-time 0 (invisible when you picked it
         // mid-replay). "Set to current frame" re-anchors it later.
-        onChange(face.copy(videoUri = uri.toString(), videoOffsetMs = replayCursorMs.coerceAtLeast(0L)))
+        onChange(face.copy(videoUri = uri, videoOffsetMs = replayCursorMs.coerceAtLeast(0L)))
     }
 
     OutlinedButton(
-        onClick = { videoPicker.launch(arrayOf("video/*")) },
+        onClick = { videoPicker() },
         shape = RoundedCornerShape(12.dp)
     ) {
         Icon(Icons.Default.Videocam, null)
         Spacer(Modifier.width(8.dp))
         Text(
-            if (face.videoUri == null) stringResource(R.string.studio_video_pick)
-            else stringResource(R.string.studio_video_replace)
+            if (face.videoUri == null) stringResource(Res.string.studio_video_pick)
+            else stringResource(Res.string.studio_video_replace)
         )
     }
 
@@ -1352,7 +1340,7 @@ private fun ReplayVideoEditor(
             )
             Spacer(Modifier.width(6.dp))
             Text(
-                stringResource(R.string.studio_video_no_media),
+                stringResource(Res.string.studio_video_no_media),
                 color = MaterialTheme.appColors.statusWarn,
                 style = MaterialTheme.typography.bodySmall
             )
@@ -1360,11 +1348,11 @@ private fun ReplayVideoEditor(
     }
 
     Spacer(Modifier.height(12.dp))
-    Text(stringResource(R.string.studio_video_fit), fontWeight = FontWeight.SemiBold)
-    val fitStretch = stringResource(R.string.studio_video_fit_stretch)
-    val fitCrop = stringResource(R.string.studio_cfg_fit_crop)
-    val fitContain = stringResource(R.string.studio_cfg_fit_contain)
-    val fitCenter = stringResource(R.string.studio_cfg_fit_center)
+    Text(stringResource(Res.string.studio_video_fit), fontWeight = FontWeight.SemiBold)
+    val fitStretch = stringResource(Res.string.studio_video_fit_stretch)
+    val fitCrop = stringResource(Res.string.studio_cfg_fit_crop)
+    val fitContain = stringResource(Res.string.studio_cfg_fit_contain)
+    val fitCenter = stringResource(Res.string.studio_cfg_fit_center)
     // Wraps: translated labels can outgrow the sheet.
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         listOf(
@@ -1388,7 +1376,7 @@ private fun ReplayVideoEditor(
         range = 0..MAX_VIDEO_OFFSET_MS,
         step = 100,
         suffix = " ms",
-        label = stringResource(R.string.studio_video_offset),
+        label = stringResource(Res.string.studio_video_offset),
         // Half width (like an Advanced-settings field), not the whole row.
         modifier = Modifier.fillMaxWidth(0.5f)
     )
@@ -1417,7 +1405,7 @@ private fun ReplayVideoEditor(
             )
             Spacer(Modifier.width(4.dp))
             Text(
-                stringResource(R.string.studio_video_set_offset),
+                stringResource(Res.string.studio_video_set_offset),
                 fontSize = 12.sp,
                 color = MaterialTheme.appColors.primary
             )
@@ -1425,10 +1413,10 @@ private fun ReplayVideoEditor(
     }
 
     Spacer(Modifier.height(12.dp))
-    Text(stringResource(R.string.studio_video_edge), fontWeight = FontWeight.SemiBold)
-    val edgeFreeze = stringResource(R.string.studio_video_edge_freeze)
-    val edgeLoop = stringResource(R.string.studio_video_edge_loop)
-    val edgeBlack = stringResource(R.string.studio_video_edge_black)
+    Text(stringResource(Res.string.studio_video_edge), fontWeight = FontWeight.SemiBold)
+    val edgeFreeze = stringResource(Res.string.studio_video_edge_freeze)
+    val edgeLoop = stringResource(Res.string.studio_video_edge_loop)
+    val edgeBlack = stringResource(Res.string.studio_video_edge_black)
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         listOf("FREEZE" to edgeFreeze, "LOOP" to edgeLoop, "BLACK" to edgeBlack).forEach { (key, lbl) ->
             FilterChip(
@@ -1449,7 +1437,7 @@ private fun ReplayVideoEditor(
 @Composable
 private fun ZoomSlider(config: ViewportConfig, onChange: (ViewportConfig) -> Unit) {
     LabeledSlider(
-        stringResource(R.string.studio_cfg_zoom),
+        stringResource(Res.string.studio_cfg_zoom),
         "%.1fx".format(config.zoom),
         config.zoom, 1f, 3f
     ) { onChange(config.copy(zoom = it)) }
@@ -1464,17 +1452,17 @@ private fun ZoomSlider(config: ViewportConfig, onChange: (ViewportConfig) -> Uni
 @Composable
 private fun ColorGradeEditor(config: ViewportConfig, onChange: (ViewportConfig) -> Unit) {
     Spacer(Modifier.height(8.dp))
-    Text(stringResource(R.string.studio_cfg_filter), fontWeight = FontWeight.SemiBold)
+    Text(stringResource(Res.string.studio_cfg_filter), fontWeight = FontWeight.SemiBold)
     val filters = listOf(
-        "NONE" to stringResource(R.string.studio_cfg_filter_none),
-        "BW" to stringResource(R.string.studio_cfg_filter_bw),
-        "SEPIA" to stringResource(R.string.studio_cfg_filter_sepia),
-        "WARM" to stringResource(R.string.studio_cfg_filter_warm),
-        "COOL" to stringResource(R.string.studio_cfg_filter_cool),
-        "VIVID" to stringResource(R.string.studio_cfg_filter_vivid),
-        "NOIR" to stringResource(R.string.studio_cfg_filter_noir),
-        "VINTAGE" to stringResource(R.string.studio_cfg_filter_vintage),
-        "MATTE" to stringResource(R.string.studio_cfg_filter_matte)
+        "NONE" to stringResource(Res.string.studio_cfg_filter_none),
+        "BW" to stringResource(Res.string.studio_cfg_filter_bw),
+        "SEPIA" to stringResource(Res.string.studio_cfg_filter_sepia),
+        "WARM" to stringResource(Res.string.studio_cfg_filter_warm),
+        "COOL" to stringResource(Res.string.studio_cfg_filter_cool),
+        "VIVID" to stringResource(Res.string.studio_cfg_filter_vivid),
+        "NOIR" to stringResource(Res.string.studio_cfg_filter_noir),
+        "VINTAGE" to stringResource(Res.string.studio_cfg_filter_vintage),
+        "MATTE" to stringResource(Res.string.studio_cfg_filter_matte)
     )
     // A single side-scrolling row, like the camera picker; the sheet stays
     // short and the filters never wrap onto a second line.
@@ -1493,17 +1481,17 @@ private fun ColorGradeEditor(config: ViewportConfig, onChange: (ViewportConfig) 
         }
     }
     LabeledSlider(
-        stringResource(R.string.studio_cfg_brightness),
+        stringResource(Res.string.studio_cfg_brightness),
         (config.brightness * 100).roundToInt().toString(),
         config.brightness, -1f, 1f
     ) { onChange(config.copy(brightness = it)) }
     LabeledSlider(
-        stringResource(R.string.studio_cfg_contrast),
+        stringResource(Res.string.studio_cfg_contrast),
         "%.2f".format(config.contrast),
         config.contrast, 0f, 2f
     ) { onChange(config.copy(contrast = it)) }
     LabeledSlider(
-        stringResource(R.string.studio_cfg_saturation),
+        stringResource(Res.string.studio_cfg_saturation),
         "%.2f".format(config.saturation),
         config.saturation, 0f, 2f
     ) { onChange(config.copy(saturation = it)) }
@@ -1516,10 +1504,10 @@ private fun ColorGradeEditor(config: ViewportConfig, onChange: (ViewportConfig) 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 private fun FitModePicker(config: ViewportConfig, onChange: (ViewportConfig) -> Unit) {
-    Text(stringResource(R.string.studio_cfg_fit), fontWeight = FontWeight.SemiBold)
-    val fitCrop = stringResource(R.string.studio_cfg_fit_crop)
-    val fitContain = stringResource(R.string.studio_cfg_fit_contain)
-    val fitCenter = stringResource(R.string.studio_cfg_fit_center)
+    Text(stringResource(Res.string.studio_cfg_fit), fontWeight = FontWeight.SemiBold)
+    val fitCrop = stringResource(Res.string.studio_cfg_fit_crop)
+    val fitContain = stringResource(Res.string.studio_cfg_fit_contain)
+    val fitCenter = stringResource(Res.string.studio_cfg_fit_center)
     // Wraps: translated labels can outgrow the sheet.
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         listOf(
@@ -1549,7 +1537,7 @@ private fun CameraPicker(
 ) {
     if (cameras.isEmpty()) {
         Text(
-            stringResource(R.string.studio_camera_none),
+            stringResource(Res.string.studio_camera_none),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -1576,7 +1564,7 @@ private fun CameraPicker(
     }
     if (atLimit) {
         Text(
-            stringResource(R.string.studio_camera_limit),
+            stringResource(Res.string.studio_camera_limit),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -1601,12 +1589,12 @@ fun DividerConfigSheet(
                 .padding(bottom = 10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            SheetHeader(stringResource(R.string.studio_divider_title), hudBadge = LocalStudioHudEnabled.current)
-            Text(stringResource(R.string.studio_divider_colour_label), fontWeight = FontWeight.SemiBold)
+            SheetHeader(stringResource(Res.string.studio_divider_title), hudBadge = LocalStudioHudEnabled.current)
+            Text(stringResource(Res.string.studio_divider_colour_label), fontWeight = FontWeight.SemiBold)
             ColorSwatchRow(color) { onChange(it, thickness) }
             LabeledSlider(
-                stringResource(R.string.studio_divider_thickness_label),
-                stringResource(R.string.studio_divider_thickness_fmt, thickness.toInt()),
+                stringResource(Res.string.studio_divider_thickness_label),
+                stringResource(Res.string.studio_divider_thickness_fmt, thickness.toInt()),
                 thickness, 1f, 16f
             ) { onChange(color, kotlin.math.round(it)) }
         }
@@ -1647,25 +1635,25 @@ private fun BackgroundEditor(config: ViewportConfig, onChange: (ViewportConfig) 
                     )
                 )
             },
-            label = { Text(stringResource(R.string.studio_bg_solid)) },
+            label = { Text(stringResource(Res.string.studio_bg_solid)) },
             colors = themedFilterChipColors(),
         )
         FilterChip(
             selected = !isSolid && !config.gradientRadial,
             onClick = { onChange(toGradient(config, radial = false)) },
-            label = { Text(stringResource(R.string.studio_bg_linear)) },
+            label = { Text(stringResource(Res.string.studio_bg_linear)) },
             colors = themedFilterChipColors(),
         )
         FilterChip(
             selected = !isSolid && config.gradientRadial,
             onClick = { onChange(toGradient(config, radial = true)) },
-            label = { Text(stringResource(R.string.studio_bg_radial)) },
+            label = { Text(stringResource(Res.string.studio_bg_radial)) },
             colors = themedFilterChipColors(),
         )
     }
     Spacer(Modifier.height(12.dp))
     if (isSolid) {
-        Text(stringResource(R.string.studio_bg_colour_label), fontWeight = FontWeight.SemiBold)
+        Text(stringResource(Res.string.studio_bg_colour_label), fontWeight = FontWeight.SemiBold)
         // A pane background is the bottom layer; a transparent fill is
         // meaningless, so the swatch row is opaque-only here.
         ColorSwatchRow(config.solidColor, allowTransparent = false) {
@@ -1680,15 +1668,15 @@ private fun BackgroundEditor(config: ViewportConfig, onChange: (ViewportConfig) 
 private fun GradientEditor(config: ViewportConfig, onChange: (ViewportConfig) -> Unit) {
     if (!config.gradientRadial) {
         LabeledSlider(
-            stringResource(R.string.studio_bg_direction_label),
-            stringResource(R.string.studio_bg_direction_fmt, config.gradientAngle.toInt()),
+            stringResource(Res.string.studio_bg_direction_label),
+            stringResource(Res.string.studio_bg_direction_fmt, config.gradientAngle.toInt()),
             config.gradientAngle, 0f, 360f
         ) { onChange(config.copy(gradientAngle = it)) }
     }
     Spacer(Modifier.height(10.dp))
     GradientPreview(config)
     Spacer(Modifier.height(10.dp))
-    Text(stringResource(R.string.studio_bg_colour_stops), fontWeight = FontWeight.SemiBold)
+    Text(stringResource(Res.string.studio_bg_colour_stops), fontWeight = FontWeight.SemiBold)
     config.gradientColors.indices.forEach { i ->
         GradientStopRow(
             color = config.gradientColors[i],
@@ -1740,7 +1728,7 @@ private fun GradientEditor(config: ViewportConfig, onChange: (ViewportConfig) ->
     ) {
         Icon(Icons.Default.Add, contentDescription = null)
         Spacer(Modifier.width(8.dp))
-        Text(stringResource(R.string.studio_bg_add_stop))
+        Text(stringResource(Res.string.studio_bg_add_stop))
     }
 }
 
@@ -1774,7 +1762,7 @@ private fun GradientStopRow(
             if (canRemove) {
                 Icon(
                     Icons.Default.Delete,
-                    contentDescription = stringResource(R.string.studio_cd_remove_stop),
+                    contentDescription = stringResource(Res.string.studio_cd_remove_stop),
                     tint = MaterialTheme.appColors.statusDanger,
                     modifier = Modifier
                         .clip(CircleShape)
@@ -1836,7 +1824,7 @@ fun ElementConfigSheet(
                 element.type == OverlayElementType.DATA_GRAPH || isGauge
             if (hasMetric) {
                 Text(
-                    stringResource(R.string.studio_cfg_metric_label),
+                    stringResource(Res.string.studio_cfg_metric_label),
                     fontWeight = FontWeight.SemiBold
                 )
                 MetricPicker(
@@ -1859,7 +1847,7 @@ fun ElementConfigSheet(
                 OutlinedTextField(
                     value = element.text,
                     onValueChange = { onChange(element.copy(text = it)) },
-                    label = { Text(stringResource(R.string.studio_cfg_text_label)) },
+                    label = { Text(stringResource(Res.string.studio_cfg_text_label)) },
                     minLines = 2,
                     // Preview the chosen alignment right in the field.
                     textStyle = LocalTextStyle.current.copy(
@@ -1875,7 +1863,7 @@ fun ElementConfigSheet(
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    stringResource(R.string.studio_cfg_text_variables),
+                    stringResource(Res.string.studio_cfg_text_variables),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -1887,10 +1875,10 @@ fun ElementConfigSheet(
             if (element.type == OverlayElementType.TEXT ||
                 element.type == OverlayElementType.DATA_VALUE
             ) {
-                Text(stringResource(R.string.studio_cfg_alignment), fontWeight = FontWeight.SemiBold)
-                val alignLeft = stringResource(R.string.studio_cfg_align_left)
-                val alignCentre = stringResource(R.string.studio_cfg_align_centre)
-                val alignRight = stringResource(R.string.studio_cfg_align_right)
+                Text(stringResource(Res.string.studio_cfg_alignment), fontWeight = FontWeight.SemiBold)
+                val alignLeft = stringResource(Res.string.studio_cfg_align_left)
+                val alignCentre = stringResource(Res.string.studio_cfg_align_centre)
+                val alignRight = stringResource(Res.string.studio_cfg_align_right)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf(
                         "START" to alignLeft, "CENTER" to alignCentre, "END" to alignRight
@@ -1907,11 +1895,11 @@ fun ElementConfigSheet(
             }
 
             if (element.type == OverlayElementType.CLOCK) {
-                Text(stringResource(R.string.studio_cfg_clock_style), fontWeight = FontWeight.SemiBold)
-                val clockDigital = stringResource(R.string.studio_cfg_clock_digital)
-                val clockAnalog = stringResource(R.string.studio_cfg_clock_analog)
-                val clockText = stringResource(R.string.studio_cfg_clock_text)
-                val clockStopwatch = stringResource(R.string.studio_cfg_clock_stopwatch)
+                Text(stringResource(Res.string.studio_cfg_clock_style), fontWeight = FontWeight.SemiBold)
+                val clockDigital = stringResource(Res.string.studio_cfg_clock_digital)
+                val clockAnalog = stringResource(Res.string.studio_cfg_clock_analog)
+                val clockText = stringResource(Res.string.studio_cfg_clock_text)
+                val clockStopwatch = stringResource(Res.string.studio_cfg_clock_stopwatch)
                 listOf(
                     "DIGITAL" to clockDigital, "ANALOG" to clockAnalog,
                     "TEXT" to clockText, "STOPWATCH" to clockStopwatch
@@ -1936,7 +1924,7 @@ fun ElementConfigSheet(
                             colors = themedSwitchColors(),
                         )
                         Spacer(Modifier.width(8.dp))
-                        Text(stringResource(R.string.studio_cfg_clock_show_date))
+                        Text(stringResource(Res.string.studio_cfg_clock_show_date))
                     }
                 }
                 // 24h / 12h toggle for the DIGITAL and TEXT clock
@@ -1954,7 +1942,7 @@ fun ElementConfigSheet(
                             colors = themedSwitchColors(),
                         )
                         Spacer(Modifier.width(8.dp))
-                        Text(stringResource(R.string.studio_cfg_clock_24h))
+                        Text(stringResource(Res.string.studio_cfg_clock_24h))
                     }
                 }
                 Spacer(Modifier.height(8.dp))
@@ -1963,7 +1951,7 @@ fun ElementConfigSheet(
             if (isGauge) {
                 val metricMax = StudioMetric.fromKey(element.metric).defaultMax
                 LabeledSlider(
-                    stringResource(R.string.studio_cfg_max_label),
+                    stringResource(Res.string.studio_cfg_max_label),
                     element.gaugeMax.toInt().toString(),
                     element.gaugeMax,
                     metricMax * 0.2f, metricMax * 2.5f
@@ -1983,13 +1971,13 @@ fun ElementConfigSheet(
                     // Show-label toggle so the rider settles identity (metric +
                     // unit placement) before binary visibility toggles.
                     Text(
-                        stringResource(R.string.studio_cfg_unit_position),
+                        stringResource(Res.string.studio_cfg_unit_position),
                         fontWeight = FontWeight.SemiBold
                     )
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         listOf(
-                            "RIGHT" to stringResource(R.string.studio_cfg_unit_right),
-                            "LEFT" to stringResource(R.string.studio_cfg_unit_left)
+                            "RIGHT" to stringResource(Res.string.studio_cfg_unit_right),
+                            "LEFT" to stringResource(Res.string.studio_cfg_unit_left)
                         ).forEach { (key, lbl) ->
                             FilterChip(
                                 selected = element.unitPosition == key,
@@ -2000,25 +1988,25 @@ fun ElementConfigSheet(
                         }
                     }
                 }
-                ToggleRow(stringResource(R.string.studio_cfg_show_label), element.showLabel) {
+                ToggleRow(stringResource(Res.string.studio_cfg_show_label), element.showLabel) {
                     onChange(element.copy(showLabel = it))
                 }
                 if (element.type == OverlayElementType.DATA_BAR) {
                     ToggleRow(
-                        stringResource(R.string.studio_cfg_show_value), element.barShowValue
+                        stringResource(Res.string.studio_cfg_show_value), element.barShowValue
                     ) { onChange(element.copy(barShowValue = it)) }
                 }
             }
             if (element.type == OverlayElementType.DATA_DIAL) {
                 // Full ring vs upper-half "speedometer" arc.
                 Text(
-                    stringResource(R.string.studio_cfg_dial_style),
+                    stringResource(Res.string.studio_cfg_dial_style),
                     fontWeight = FontWeight.SemiBold
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf(
-                        "FULL" to stringResource(R.string.studio_cfg_dial_full),
-                        "SEMICIRCLE" to stringResource(R.string.studio_cfg_dial_semi)
+                        "FULL" to stringResource(Res.string.studio_cfg_dial_full),
+                        "SEMICIRCLE" to stringResource(Res.string.studio_cfg_dial_semi)
                     ).forEach { (key, lbl) ->
                         FilterChip(
                             selected = element.dialStyle == key,
@@ -2029,7 +2017,7 @@ fun ElementConfigSheet(
                     }
                 }
                 ToggleRow(
-                    stringResource(R.string.studio_cfg_dial_color_band),
+                    stringResource(Res.string.studio_cfg_dial_color_band),
                     element.dialShowColorBand
                 ) { onChange(element.copy(dialShowColorBand = it)) }
                 if (element.dialShowColorBand) {
@@ -2050,21 +2038,21 @@ fun ElementConfigSheet(
             }
 
             if (element.type == OverlayElementType.APP_BADGE) {
-                ToggleRow(stringResource(R.string.studio_cfg_badge_stacked), element.badgeStacked) {
+                ToggleRow(stringResource(Res.string.studio_cfg_badge_stacked), element.badgeStacked) {
                     onChange(element.copy(badgeStacked = it))
                 }
-                ToggleRow(stringResource(R.string.studio_cfg_badge_show_name), element.showLabel) {
+                ToggleRow(stringResource(Res.string.studio_cfg_badge_show_name), element.showLabel) {
                     onChange(element.copy(showLabel = it))
                 }
-                ToggleRow(stringResource(R.string.studio_cfg_badge_show_version), element.badgeShowVersion) {
+                ToggleRow(stringResource(Res.string.studio_cfg_badge_show_version), element.badgeShowVersion) {
                     onChange(element.copy(badgeShowVersion = it))
                 }
             }
 
             if (element.type == OverlayElementType.DATA_GRAPH) {
                 LabeledSlider(
-                    stringResource(R.string.studio_cfg_time_window_label),
-                    stringResource(R.string.studio_cfg_time_window_fmt, element.graphWindowSec),
+                    stringResource(Res.string.studio_cfg_time_window_label),
+                    stringResource(Res.string.studio_cfg_time_window_fmt, element.graphWindowSec),
                     element.graphWindowSec.toFloat(), 10f, 300f
                 ) { onChange(element.copy(graphWindowSec = it.toInt())) }
             }
@@ -2074,8 +2062,8 @@ fun ElementConfigSheet(
                 // windows are expensive, and beyond ~20 s the rider's actual
                 // motion path stops being useful anyway.
                 LabeledSlider(
-                    stringResource(R.string.studio_cfg_trail_label),
-                    stringResource(R.string.studio_cfg_time_window_fmt, element.graphWindowSec),
+                    stringResource(Res.string.studio_cfg_trail_label),
+                    stringResource(Res.string.studio_cfg_time_window_fmt, element.graphWindowSec),
                     element.graphWindowSec.coerceIn(2, 20).toFloat(), 2f, 20f, steps = 17
                 ) { onChange(element.copy(graphWindowSec = it.toInt())) }
                 // Outer-ring g value. A smaller scale magnifies small
@@ -2084,25 +2072,25 @@ fun ElementConfigSheet(
                 // intermediate snap points); this also kills the slider-drag
                 // recomposition storm because onChange only fires once per snap.
                 LabeledSlider(
-                    stringResource(R.string.studio_cfg_g_scale),
+                    stringResource(Res.string.studio_cfg_g_scale),
                     "%.2f g".format(element.gForceScale),
                     element.gForceScale.coerceIn(0.5f, 4f), 0.5f, 4f, steps = 13
                 ) { onChange(element.copy(gForceScale = it)) }
             }
 
             if (element.type == OverlayElementType.MAP) {
-                Text(stringResource(R.string.studio_cfg_map_style), fontWeight = FontWeight.SemiBold)
+                Text(stringResource(Res.string.studio_cfg_map_style), fontWeight = FontWeight.SemiBold)
                 // Same seven as the navigator, trip details and eucviewer, in
                 // the same order. STREET is this screen's long-standing id for
                 // plain OSM, kept so existing presets keep their style.
                 val layers = listOf(
-                    "STREET" to stringResource(R.string.nav_layer_osm),
-                    "CYCLOSM" to stringResource(R.string.nav_layer_cyclosm),
-                    "TOPO" to stringResource(R.string.nav_layer_topo),
-                    "HUMANITARIAN" to stringResource(R.string.nav_layer_humanitarian),
-                    "LIGHT" to stringResource(R.string.nav_layer_light),
-                    "DARK" to stringResource(R.string.nav_layer_dark),
-                    "SATELLITE" to stringResource(R.string.nav_layer_satellite),
+                    "STREET" to stringResource(Res.string.nav_layer_osm),
+                    "CYCLOSM" to stringResource(Res.string.nav_layer_cyclosm),
+                    "TOPO" to stringResource(Res.string.nav_layer_topo),
+                    "HUMANITARIAN" to stringResource(Res.string.nav_layer_humanitarian),
+                    "LIGHT" to stringResource(Res.string.nav_layer_light),
+                    "DARK" to stringResource(Res.string.nav_layer_dark),
+                    "SATELLITE" to stringResource(Res.string.nav_layer_satellite),
                 )
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     layers.forEach { (key, lbl) ->
@@ -2120,38 +2108,38 @@ fun ElementConfigSheet(
                 // rate-limited mid-render.
                 if (element.mapStyle in setOf("CYCLOSM", "TOPO", "HUMANITARIAN")) {
                     Text(
-                        stringResource(R.string.studio_cfg_map_style_community),
+                        stringResource(Res.string.studio_cfg_map_style_community),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.appColors.statusWarn,
                     )
                 }
                 ToggleRow(
-                    stringResource(R.string.studio_cfg_map_attribution),
+                    stringResource(Res.string.studio_cfg_map_attribution),
                     element.mapAttribution
                 ) { onChange(element.copy(mapAttribution = it)) }
                 if (!element.mapAttribution) {
                     Text(
-                        stringResource(R.string.studio_cfg_map_attribution_off),
+                        stringResource(Res.string.studio_cfg_map_attribution_off),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.appColors.statusWarn,
                     )
                 }
                 LabeledSlider(
-                    stringResource(R.string.studio_cfg_map_zoom),
+                    stringResource(Res.string.studio_cfg_map_zoom),
                     element.mapZoom.toString(),
                     element.mapZoom.toFloat(), 10f, 19f, steps = 8
                 ) { onChange(element.copy(mapZoom = it.roundToInt())) }
                 ToggleRow(
-                    stringResource(R.string.studio_cfg_map_rotate),
+                    stringResource(Res.string.studio_cfg_map_rotate),
                     element.mapRotateWithHeading
                 ) { onChange(element.copy(mapRotateWithHeading = it)) }
                 Text(
-                    stringResource(R.string.studio_cfg_map_trace),
+                    stringResource(Res.string.studio_cfg_map_trace),
                     fontWeight = FontWeight.SemiBold
                 )
-                val traceNone = stringResource(R.string.studio_cfg_map_trace_none)
-                val traceProgress = stringResource(R.string.studio_cfg_map_trace_progress)
-                val traceFull = stringResource(R.string.studio_cfg_map_trace_full)
+                val traceNone = stringResource(Res.string.studio_cfg_map_trace_none)
+                val traceProgress = stringResource(Res.string.studio_cfg_map_trace_progress)
+                val traceFull = stringResource(Res.string.studio_cfg_map_trace_full)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf(
                         MapTraceMode.NONE to traceNone,
@@ -2171,12 +2159,12 @@ fun ElementConfigSheet(
                 // hint instead of a dead toggle so it's obvious where to go.
                 if (hasCustomRiderMarker) {
                     ToggleRow(
-                        stringResource(R.string.studio_cfg_map_use_custom_marker),
+                        stringResource(Res.string.studio_cfg_map_use_custom_marker),
                         element.mapUseCustomMarker
                     ) { onChange(element.copy(mapUseCustomMarker = it)) }
                 } else {
                     Text(
-                        stringResource(R.string.studio_cfg_map_use_custom_marker_hint),
+                        stringResource(Res.string.studio_cfg_map_use_custom_marker_hint),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
@@ -2186,16 +2174,16 @@ fun ElementConfigSheet(
                 // dot share it). The fill is a fixed neutral; it only shows
                 // for a moment while the tiles load.
                 Text(
-                    stringResource(R.string.studio_cfg_border_colour),
+                    stringResource(Res.string.studio_cfg_border_colour),
                     fontWeight = FontWeight.SemiBold
                 )
                 ColorSwatchRow(element.foreground, allowTransparent = false) {
                     onChange(element.copy(foreground = it))
                 }
                 LabeledSlider(
-                    stringResource(R.string.studio_cfg_border_width),
+                    stringResource(Res.string.studio_cfg_border_width),
                     stringResource(
-                        R.string.studio_divider_thickness_fmt,
+                        Res.string.studio_divider_thickness_fmt,
                         element.mapBorderWidth.toInt()
                     ),
                     element.mapBorderWidth, 0f, 8f
@@ -2204,10 +2192,10 @@ fun ElementConfigSheet(
             }
 
             if (element.type == OverlayElementType.RADAR) {
-                Text(stringResource(R.string.studio_cfg_radar_mode), fontWeight = FontWeight.SemiBold)
-                val radarLane = stringResource(R.string.studio_cfg_radar_lane)
-                val radarMirror = stringResource(R.string.studio_cfg_radar_mirror)
-                val radarMinimal = stringResource(R.string.studio_cfg_radar_minimal)
+                Text(stringResource(Res.string.studio_cfg_radar_mode), fontWeight = FontWeight.SemiBold)
+                val radarLane = stringResource(Res.string.studio_cfg_radar_lane)
+                val radarMirror = stringResource(Res.string.studio_cfg_radar_mirror)
+                val radarMinimal = stringResource(Res.string.studio_cfg_radar_minimal)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf(
                         "LANE" to radarLane, "MIRROR" to radarMirror,
@@ -2226,24 +2214,24 @@ fun ElementConfigSheet(
                 // rider isn't surprised it can't point at a specific lane.
                 if (element.radarMode == "MIRROR") {
                     Text(
-                        stringResource(R.string.studio_cfg_radar_mirror_hint),
+                        stringResource(Res.string.studio_cfg_radar_mirror_hint),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
                     )
                 }
                 LabeledSlider(
-                    stringResource(R.string.studio_cfg_radar_range),
-                    stringResource(R.string.studio_cfg_radar_range_fmt, element.radarRangeM.roundToInt()),
+                    stringResource(Res.string.studio_cfg_radar_range),
+                    stringResource(Res.string.studio_cfg_radar_range_fmt, element.radarRangeM.roundToInt()),
                     element.radarRangeM, 40f, 200f, steps = 7
                 ) { onChange(element.copy(radarRangeM = it)) }
                 if (element.radarMode == "LANE") {
                     ToggleRow(
-                        stringResource(R.string.studio_cfg_radar_distance_labels),
+                        stringResource(Res.string.studio_cfg_radar_distance_labels),
                         element.radarShowDistanceLabels
                     ) { onChange(element.copy(radarShowDistanceLabels = it)) }
                     ToggleRow(
-                        stringResource(R.string.studio_cfg_show_label),
+                        stringResource(Res.string.studio_cfg_show_label),
                         element.showLabel
                     ) { onChange(element.copy(showLabel = it)) }
                 }
@@ -2251,7 +2239,7 @@ fun ElementConfigSheet(
             }
 
             if (element.type == OverlayElementType.FLOATING_CAMERA) {
-                Text(stringResource(R.string.studio_cfg_camera_label), fontWeight = FontWeight.SemiBold)
+                Text(stringResource(Res.string.studio_cfg_camera_label), fontWeight = FontWeight.SemiBold)
                 CameraPicker(cameras, element.cameraKey, inUseKeys) {
                     onChange(element.copy(cameraKey = it))
                 }
@@ -2262,20 +2250,20 @@ fun ElementConfigSheet(
                 OutlinedButton(onClick = onReplaceImage, shape = RoundedCornerShape(12.dp)) {
                     Icon(Icons.Default.AddPhotoAlternate, null)
                     Spacer(Modifier.width(8.dp))
-                    Text(stringResource(R.string.studio_cfg_replace_image))
+                    Text(stringResource(Res.string.studio_cfg_replace_image))
                 }
                 Spacer(Modifier.height(8.dp))
-                ToggleRow(stringResource(R.string.studio_cfg_chroma_key), element.chromaKeyEnabled) {
+                ToggleRow(stringResource(Res.string.studio_cfg_chroma_key), element.chromaKeyEnabled) {
                     onChange(element.copy(chromaKeyEnabled = it))
                 }
                 if (element.chromaKeyEnabled) {
-                    Text(stringResource(R.string.studio_cfg_mask_colour), fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(Res.string.studio_cfg_mask_colour), fontWeight = FontWeight.SemiBold)
                     ColorSwatchRow(element.chromaKeyColor, ChromaPalette) {
                         onChange(element.copy(chromaKeyColor = it))
                     }
                     LabeledSlider(
-                        stringResource(R.string.studio_cfg_threshold_label),
-                        stringResource(R.string.studio_cfg_threshold_fmt, (element.chromaKeyTolerance * 100).toInt()),
+                        stringResource(Res.string.studio_cfg_threshold_label),
+                        stringResource(Res.string.studio_cfg_threshold_fmt, (element.chromaKeyTolerance * 100).toInt()),
                         element.chromaKeyTolerance, 0.02f, 0.6f
                     ) { onChange(element.copy(chromaKeyTolerance = it)) }
                 }
@@ -2283,7 +2271,7 @@ fun ElementConfigSheet(
 
             Spacer(Modifier.height(10.dp))
             OutlinedButton(onClick = { onChange(element.copy(x = 0.12f, y = 0.14f)) }, shape = RoundedCornerShape(12.dp)) {
-                Text(stringResource(R.string.studio_cfg_reset_position))
+                Text(stringResource(Res.string.studio_cfg_reset_position))
             }
 
             // The generic styling controls (colours, opacity, rotation, drop
@@ -2292,7 +2280,7 @@ fun ElementConfigSheet(
             // it sticks for the session as the rider hops between elements.
             Spacer(Modifier.height(8.dp))
             CollapsibleSectionHeader(
-                title = stringResource(R.string.studio_cfg_style),
+                title = stringResource(Res.string.studio_cfg_style),
                 expanded = styleExpanded,
                 onToggle = { onStyleExpandedChange(!styleExpanded) }
             )
@@ -2303,11 +2291,11 @@ fun ElementConfigSheet(
                     element.type != OverlayElementType.IMAGE &&
                     element.type != OverlayElementType.MAP
                 ) {
-                    Text(stringResource(R.string.studio_cfg_text_colour), fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(Res.string.studio_cfg_text_colour), fontWeight = FontWeight.SemiBold)
                     ColorSwatchRow(element.foreground, allowTransparent = false) {
                         onChange(element.copy(foreground = it))
                     }
-                    Text(stringResource(R.string.studio_cfg_background), fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(Res.string.studio_cfg_background), fontWeight = FontWeight.SemiBold)
                     ColorSwatchRow(element.background) {
                         onChange(element.copy(background = it))
                     }
@@ -2315,8 +2303,8 @@ fun ElementConfigSheet(
 
                 // Opacity + rotation apply to every element.
                 LabeledSlider(
-                    stringResource(R.string.studio_cfg_opacity_label),
-                    stringResource(R.string.studio_cfg_opacity_fmt, (element.opacity * 100).toInt()),
+                    stringResource(Res.string.studio_cfg_opacity_label),
+                    stringResource(Res.string.studio_cfg_opacity_fmt, (element.opacity * 100).toInt()),
                     element.opacity, 0.1f, 1f, steps = 17
                 ) { onChange(element.copy(opacity = it)) }
                 // The rotate handle's accent: ties this slider visually to the
@@ -2333,13 +2321,13 @@ fun ElementConfigSheet(
                     )
                     Spacer(Modifier.width(6.dp))
                     Text(
-                        stringResource(R.string.studio_cfg_rotation_label),
+                        stringResource(Res.string.studio_cfg_rotation_label),
                         Modifier.weight(1f),
                         fontWeight = FontWeight.SemiBold
                     )
                     Text(
                         stringResource(
-                            R.string.studio_cfg_rotation_fmt, element.rotationDeg.toInt()
+                            Res.string.studio_cfg_rotation_fmt, element.rotationDeg.toInt()
                         ),
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -2354,32 +2342,32 @@ fun ElementConfigSheet(
                     colors = themedSliderColors(),
                 )
                 // Drop shadow applies to every element type.
-                ToggleRow(stringResource(R.string.studio_cfg_shadow), element.shadow) {
+                ToggleRow(stringResource(Res.string.studio_cfg_shadow), element.shadow) {
                     onChange(element.copy(shadow = it))
                 }
                 // Shadow sub-controls, only meaningful when the shadow is on.
                 if (element.shadow) {
                     Text(
-                        stringResource(R.string.studio_cfg_shadow_colour),
+                        stringResource(Res.string.studio_cfg_shadow_colour),
                         fontWeight = FontWeight.SemiBold
                     )
                     ColorSwatchRow(element.shadowColor, allowTransparent = false) {
                         onChange(element.copy(shadowColor = it))
                     }
                     LabeledSlider(
-                        stringResource(R.string.studio_cfg_shadow_strength),
+                        stringResource(Res.string.studio_cfg_shadow_strength),
                         "${(element.shadowStrength * 100).toInt()}%",
                         element.shadowStrength, 0f, 1f
                     ) { onChange(element.copy(shadowStrength = it)) }
                     LabeledSlider(
-                        stringResource(R.string.studio_cfg_shadow_offset),
+                        stringResource(Res.string.studio_cfg_shadow_offset),
                         element.shadowDistance.roundToInt().toString(),
                         element.shadowDistance, 0f, 16f
                     ) { onChange(element.copy(shadowDistance = it)) }
                     LabeledSlider(
-                        stringResource(R.string.studio_cfg_shadow_angle),
+                        stringResource(Res.string.studio_cfg_shadow_angle),
                         stringResource(
-                            R.string.studio_bg_direction_fmt,
+                            Res.string.studio_bg_direction_fmt,
                             element.shadowAngle.roundToInt()
                         ),
                         element.shadowAngle, 0f, 360f
@@ -2475,7 +2463,7 @@ private fun ColorSwatch(
         if (transparent) {
             Icon(
                 Icons.Default.FormatColorReset,
-                contentDescription = stringResource(R.string.studio_cd_invisible),
+                contentDescription = stringResource(Res.string.studio_cd_invisible),
                 tint = MaterialTheme.appColors.textSecondary,
                 modifier = Modifier.size(20.dp)
             )
@@ -2511,7 +2499,7 @@ internal fun CustomColorSwatch(current: Long, isActive: Boolean, onClick: () -> 
     ) {
         Icon(
             Icons.Default.Colorize,
-            contentDescription = stringResource(R.string.studio_cd_custom_colour),
+            contentDescription = stringResource(Res.string.studio_cd_custom_colour),
             tint = Color.White,
             modifier = Modifier.size(18.dp)
         )
@@ -2526,7 +2514,7 @@ internal fun ColorPickerDialog(
     onDismiss: () -> Unit
 ) {
     val startHsv = remember(initial) {
-        FloatArray(3).also { android.graphics.Color.colorToHSV(initial.toInt(), it) }
+        colorToHsv(initial.toInt())
     }
     var hue by remember { mutableStateOf(startHsv[0]) }
     var sat by remember { mutableStateOf(startHsv[1]) }
@@ -2539,7 +2527,7 @@ internal fun ColorPickerDialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(dismissOnClickOutside = false),
         modifier = Modifier.rotateLayout(LocalStudioRotation.current),
-        title = { Text(stringResource(R.string.studio_colour_picker_title)) },
+        title = { Text(stringResource(Res.string.studio_colour_picker_title)) },
         text = {
             Column {
                 Box(
@@ -2558,18 +2546,18 @@ internal fun ColorPickerDialog(
                 HueBar(hue = hue) { hue = it }
                 if (allowAlpha) {
                     LabeledSlider(
-                        stringResource(R.string.studio_colour_opacity_label),
-                        stringResource(R.string.studio_colour_opacity_fmt, (alpha * 100).toInt()),
+                        stringResource(Res.string.studio_colour_opacity_label),
+                        stringResource(Res.string.studio_colour_opacity_fmt, (alpha * 100).toInt()),
                         alpha, 0f, 1f, 19
                     ) { alpha = it }
                 }
             }
         },
         confirmButton = {
-            TextButton(onClick = { onPick(color.toArgbLong()) }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.studio_colour_select)) }
+            TextButton(onClick = { onPick(color.toArgbLong()) }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(Res.string.studio_colour_select)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) }
+            TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) { Text(stringResource(Res.string.action_cancel)) }
         }
     )
 }
@@ -2774,7 +2762,7 @@ fun ManageElementsSheet(
                 .padding(bottom = 10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            SheetHeader(stringResource(R.string.studio_manage_title))
+            SheetHeader(stringResource(Res.string.studio_manage_title))
             // Compact action buttons under the title. Both mirror the
             // matching entries in the tools flyout (same icon, same label
             // string) so the actions read as identical regardless of where
@@ -2792,7 +2780,7 @@ fun ManageElementsSheet(
                 ) {
                     Icon(Icons.Default.Widgets, contentDescription = null)
                     Spacer(Modifier.width(8.dp))
-                    Text(stringResource(R.string.studio_flyout_add))
+                    Text(stringResource(Res.string.studio_flyout_add))
                 }
                 FilledTonalButton(
                     onClick = onChangePanes,
@@ -2801,7 +2789,7 @@ fun ManageElementsSheet(
                 ) {
                     Icon(Icons.Default.Dashboard, contentDescription = null)
                     Spacer(Modifier.width(8.dp))
-                    Text(stringResource(R.string.studio_flyout_panes))
+                    Text(stringResource(Res.string.studio_flyout_panes))
                 }
                 if (LocalStudioHudEnabled.current) {
                     com.eried.eucplanet.ui.theme.PlatformUnsupportedTextBadge(
@@ -2849,7 +2837,7 @@ private fun SnapToGridRow(snapToGrid: Boolean, onSnapToGrid: (Boolean) -> Unit) 
             colors = themedSwitchColors(),
         )
         Spacer(Modifier.width(12.dp))
-        Text(stringResource(R.string.studio_snap_to_grid))
+        Text(stringResource(Res.string.studio_snap_to_grid))
     }
 }
 
@@ -2888,7 +2876,7 @@ private fun ManageElementRow(
     ) {
         Icon(
             Icons.Default.DragIndicator,
-            contentDescription = stringResource(R.string.studio_cd_drag_reorder),
+            contentDescription = stringResource(Res.string.studio_cd_drag_reorder),
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = dragHandle
         )
@@ -2919,7 +2907,7 @@ private fun ManageElementRow(
         }
         Icon(
             Icons.Default.Delete,
-            contentDescription = stringResource(R.string.studio_cd_delete_element),
+            contentDescription = stringResource(Res.string.studio_cd_delete_element),
             tint = MaterialTheme.appColors.statusDanger,
             modifier = Modifier
                 .clip(CircleShape)

@@ -83,7 +83,7 @@ class MapProvidersTest {
         val renderers = listOf(
             "../hud/src/main/java/com/eried/eucplanet/hud/ui/screens/MapScreen.kt",
             "../hud/src/main/java/com/eried/eucplanet/hud/overlay/OverlayElements.kt",
-            "src/main/java/com/eried/eucplanet/ui/studio/StudioOverlayElements.kt",
+            "../shared/src/commonMain/kotlin/com/eried/eucplanet/ui/studio/StudioOverlayElements.kt",
         )
         val offenders = renderers.filter { !File(it).readText().contains("maxNativeZoom") }
         assertTrue("fetch past the provider's depth: $offenders", offenders.isEmpty())

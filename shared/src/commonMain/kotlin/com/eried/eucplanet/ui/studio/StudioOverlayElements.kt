@@ -64,11 +64,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
@@ -78,11 +76,9 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.stringResource
+import com.eried.eucplanet.platform.stringResource
 import androidx.compose.ui.unit.IntOffset
-import androidx.core.graphics.drawable.toBitmap
 import kotlin.math.cos
 import kotlin.math.roundToInt
 import kotlin.math.sin
@@ -91,9 +87,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.eried.eucplanet.R
+import com.eried.eucplanet.resources.*
 import com.eried.eucplanet.hud.protocol.WebMercator
-import com.eried.eucplanet.map.MapTileCache
+import com.eried.eucplanet.map.MapLayers
+import com.eried.eucplanet.platform.Math
+import com.eried.eucplanet.platform.System
+import com.eried.eucplanet.platform.format
+import com.eried.eucplanet.platform.formatLocalDate
+import com.eried.eucplanet.platform.localTimeParts
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.hud.protocol.OverlayElement
 import com.eried.eucplanet.hud.protocol.OverlayElementType
@@ -488,7 +489,7 @@ private fun StudioElementBox(
                     ) {
                         Icon(
                             Icons.Default.OpenInFull,
-                            contentDescription = stringResource(R.string.studio_cd_resize),
+                            contentDescription = stringResource(Res.string.studio_cd_resize),
                             tint = MaterialTheme.appColors.textPrimary,
                             modifier = Modifier.size(16.dp).rotate(90f)
                         )
@@ -575,7 +576,7 @@ private fun StudioElementBox(
                 ) {
                     Icon(
                         Icons.Default.Sync,
-                        contentDescription = stringResource(R.string.studio_cd_rotate),
+                        contentDescription = stringResource(Res.string.studio_cd_rotate),
                         tint = MaterialTheme.appColors.textPrimary,
                         modifier = Modifier.size(16.dp)
                     )
@@ -681,7 +682,7 @@ private fun RadarLane(element: OverlayElement, data: StudioElementData) {
             if (element.showLabel) {
                 Row(verticalAlignment = Alignment.Bottom) {
                     Text(
-                        text = stringResource(R.string.studio_element_radar).uppercase(),
+                        text = stringResource(Res.string.studio_element_radar).uppercase(),
                         color = fg,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = (w * 0.09f).coerceIn(9f, 22f).sp,
@@ -703,7 +704,7 @@ private fun RadarLane(element: OverlayElement, data: StudioElementData) {
                 if (!data.radarConnected) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(
-                            text = stringResource(R.string.studio_radar_none),
+                            text = stringResource(Res.string.studio_radar_none),
                             color = fg,
                             fontSize = (w * 0.10f).coerceIn(10f, 22f).sp
                         )
@@ -757,23 +758,14 @@ private fun RadarLane(element: OverlayElement, data: StudioElementData) {
                         drawCircle(c.copy(alpha = 0.25f), radius = r * 1.6f, center = Offset(cx, y))
                         drawCircle(c, radius = r, center = Offset(cx, y))
                         if (element.radarShowDistanceLabels) {
-                            val paint = android.graphics.Paint().apply {
-                                color = android.graphics.Color.WHITE
-                                textSize = r * 1.0f
-                                isAntiAlias = true
-                                textAlign = android.graphics.Paint.Align.CENTER
-                                isFakeBoldText = true
-                            }
-                            drawContext.canvas.nativeCanvas.drawText(
-                                t.distanceM.toString(), cx, y + paint.textSize * 0.35f, paint
-                            )
+                            drawRadarDistanceLabel(t.distanceM.toString(), cx, y, r * 1.0f)
                         }
                     }
                 }
                 if (targets.isEmpty()) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(
-                            text = stringResource(R.string.studio_radar_clear).uppercase(),
+                            text = stringResource(Res.string.studio_radar_clear).uppercase(),
                             color = green,
                             fontWeight = FontWeight.Bold,
                             fontSize = (w * 0.11f).coerceIn(11f, 26f).sp
@@ -810,13 +802,13 @@ private fun RadarMirror(element: OverlayElement, data: StudioElementData) {
             Column(Modifier.weight(1.5f), horizontalAlignment = Alignment.CenterHorizontally) {
                 when {
                     !data.radarConnected -> Text(
-                        text = stringResource(R.string.studio_radar_none),
+                        text = stringResource(Res.string.studio_radar_none),
                         color = fg,
                         fontSize = (w * 0.07f).coerceIn(10f, 22f).sp,
                         maxLines = 1
                     )
                     closest == null -> Text(
-                        text = stringResource(R.string.studio_radar_clear).uppercase(),
+                        text = stringResource(Res.string.studio_radar_clear).uppercase(),
                         color = green,
                         fontWeight = FontWeight.Bold,
                         fontSize = (w * 0.10f).coerceIn(12f, 30f).sp,
@@ -834,7 +826,7 @@ private fun RadarMirror(element: OverlayElement, data: StudioElementData) {
                             maxLines = 1
                         )
                         Text(
-                            text = stringResource(R.string.studio_radar_mirror_closing_fmt, targets.maxOf { it.approachSpeedKmh }),
+                            text = stringResource(Res.string.studio_radar_mirror_closing_fmt, targets.maxOf { it.approachSpeedKmh }),
                             color = markColor,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = (w * 0.055f).coerceIn(9f, 20f).sp,
@@ -886,12 +878,12 @@ private fun RadarMinimal(element: OverlayElement, data: StudioElementData) {
     val line1: String
     val line2: String?
     when {
-        !data.radarConnected -> { dotColor = fg.copy(alpha = 0.4f); line1 = stringResource(R.string.studio_radar_none); line2 = null }
-        closest == null -> { dotColor = green; line1 = stringResource(R.string.studio_radar_clear); line2 = null }
+        !data.radarConnected -> { dotColor = fg.copy(alpha = 0.4f); line1 = stringResource(Res.string.studio_radar_none); line2 = null }
+        closest == null -> { dotColor = green; line1 = stringResource(Res.string.studio_radar_clear); line2 = null }
         else -> {
             dotColor = levelColor(maxLevel)
-            line1 = stringResource(R.string.studio_cfg_radar_range_fmt, closest.distanceM)
-            line2 = stringResource(R.string.studio_radar_closing_fmt, targets.maxOf { it.approachSpeedKmh })
+            line1 = stringResource(Res.string.studio_cfg_radar_range_fmt, closest.distanceM)
+            line2 = stringResource(Res.string.studio_radar_closing_fmt, targets.maxOf { it.approachSpeedKmh })
         }
     }
     BoxWithConstraints(
@@ -1128,12 +1120,11 @@ private fun ClockElement(element: OverlayElement, data: StudioElementData) {
     ) {
         when (element.clockStyle) {
             "ANALOG" -> {
-                val cal = java.util.Calendar.getInstance()
-                    .apply { timeInMillis = data.clockTimeMs }
+                val t = localTimeParts(data.clockTimeMs)
                 AnalogClock(
-                    hour = cal.get(java.util.Calendar.HOUR_OF_DAY),
-                    minute = cal.get(java.util.Calendar.MINUTE),
-                    second = cal.get(java.util.Calendar.SECOND),
+                    hour = t.hour,
+                    minute = t.minute,
+                    second = t.second,
                     color = fg
                 )
             }
@@ -1174,9 +1165,7 @@ private fun ClockElement(element: OverlayElement, data: StudioElementData) {
     }
 }
 
-private fun formatClockTime(ms: Long, pattern: String): String =
-    java.text.SimpleDateFormat(pattern, java.util.Locale.getDefault())
-        .format(java.util.Date(ms))
+private fun formatClockTime(ms: Long, pattern: String): String = formatLocalDate(pattern, ms)
 
 private fun formatStopwatch(ms: Long): String {
     val clamped = ms.coerceAtLeast(0L)
@@ -1191,7 +1180,6 @@ private fun formatStopwatch(ms: Long): String {
 
 @Composable
 private fun FreeTextElement(element: OverlayElement, data: StudioElementData) {
-    val context = LocalContext.current
     val strings = com.eried.eucplanet.platform.rememberStringReader()
     val rendered = remember(
         element.text, data.wheelData, data.wheelName,
@@ -1252,7 +1240,7 @@ private fun WheelNameElement(element: OverlayElement, data: StudioElementData) {
             .padding(horizontal = 12.dp, vertical = 6.dp)
     ) {
         val name = data.wheelName.ifBlank {
-            stringResource(R.string.studio_not_connected)
+            stringResource(Res.string.studio_not_connected)
         }
         androidx.compose.material3.Text(
             text = name,
@@ -1266,17 +1254,9 @@ private fun WheelNameElement(element: OverlayElement, data: StudioElementData) {
 
 @Composable
 private fun AppBadgeElement(element: OverlayElement) {
-    val context = LocalContext.current
-    val strings = com.eried.eucplanet.platform.rememberStringReader()
     // The launcher icon is an adaptive-icon drawable, which painterResource
-    // cannot load; rasterise it to a bitmap once instead.
-    val icon = remember {
-        runCatching {
-            context.packageManager.getApplicationIcon(context.packageName)
-                .toBitmap(192, 192)
-                .asImageBitmap()
-        }.getOrNull()
-    }
+    // cannot load; the platform rasterises it to a bitmap once instead.
+    val icon = LocalStudioRender.current.appIcon()
     BoxWithConstraints(
         Modifier
             .background(Color(element.background), RoundedCornerShape(10.dp))
@@ -1296,7 +1276,7 @@ private fun AppBadgeElement(element: OverlayElement) {
             ) {
                 if (element.showLabel) {
                     androidx.compose.material3.Text(
-                        text = stringResource(R.string.app_name),
+                        text = stringResource(Res.string.app_name),
                         color = Color(element.foreground),
                         fontWeight = FontWeight.Bold,
                         fontSize = nameSize,
@@ -1305,7 +1285,7 @@ private fun AppBadgeElement(element: OverlayElement) {
                 }
                 if (element.badgeShowVersion) {
                     androidx.compose.material3.Text(
-                        text = "v${com.eried.eucplanet.BuildConfig.VERSION_NAME}",
+                        text = "v${LocalStudioRender.current.versionName}",
                         color = Color(element.foreground),
                         fontSize = versionSize,
                         maxLines = 1
@@ -1338,7 +1318,6 @@ private fun AppBadgeElement(element: OverlayElement) {
 
 @Composable
 private fun DataValueElement(element: OverlayElement, data: StudioElementData) {
-    val context = LocalContext.current
     val strings = com.eried.eucplanet.platform.rememberStringReader()
     val metric = StudioMetric.fromKey(element.metric)
     BoxWithConstraints(
@@ -1477,7 +1456,6 @@ private fun DataGraphElement(element: OverlayElement, data: StudioElementData) {
 
 @Composable
 private fun DataDialElement(element: OverlayElement, data: StudioElementData) {
-    val context = LocalContext.current
     val strings = com.eried.eucplanet.platform.rememberStringReader()
     val metric = StudioMetric.fromKey(element.metric)
     val value = metric.displayValue(
@@ -1769,7 +1747,6 @@ private fun DataDialElement(element: OverlayElement, data: StudioElementData) {
 
 @Composable
 private fun DataBarElement(element: OverlayElement, data: StudioElementData) {
-    val context = LocalContext.current
     val strings = com.eried.eucplanet.platform.rememberStringReader()
     val metric = StudioMetric.fromKey(element.metric)
     val value = metric.displayValue(
@@ -1870,12 +1847,11 @@ private fun ImageElement(element: OverlayElement) {
     ) {
         val data = element.imageData ?: return@remember null
         val decoded = StudioImages.decode(data) ?: return@remember null
-        val processed = if (element.chromaKeyEnabled) {
+        if (element.chromaKeyEnabled) {
             StudioImages.applyChromaKey(
                 decoded, Color(element.chromaKeyColor), element.chromaKeyTolerance
             )
         } else decoded
-        processed.asImageBitmap()
     }
     if (bitmap != null) {
         Image(
@@ -1938,7 +1914,7 @@ private fun decimateTrace(pts: List<WheelData>, cap: Int): List<WheelData> {
 
 /** Tile URL for a style + z/x/y, from the registry every map screen shares. */
 private fun mapTileUrl(style: String, z: Int, x: Int, y: Int): String =
-    com.eried.eucplanet.hud.protocol.MapLayers.tileUrl(style, z, x, y)
+    MapLayers.tileUrl(style, z, x, y)
 
 
 @Composable
@@ -1948,11 +1924,10 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
     // 16 and answers deeper requests with a "Map data not yet available"
     // tile); past that depth the last real tiles are drawn scaled up.
     val zoom = wantedZoom.coerceAtMost(
-        com.eried.eucplanet.hud.protocol.MapLayers.byId(element.mapStyle).maxNativeZoom
+        MapLayers.byId(element.mapStyle).maxNativeZoom
     )
     val tilePx = MAP_TILE_SIZE shl (wantedZoom - zoom)
-    val context = LocalContext.current
-    val strings = com.eried.eucplanet.platform.rememberStringReader()
+    val render = LocalStudioRender.current
 
     // GPS drops constantly on a real ride: a tunnel, a built-up street, a
     // momentary loss. The live sample then carries 0,0 and the map used to fall
@@ -2045,11 +2020,11 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
         LaunchedEffect(tileKeys) {
             kotlinx.coroutines.coroutineScope {
                 tileKeys.forEach { (tx, ty, url) ->
-                    if (MapTileCache.get(url) == null) {
+                    if (render.mapTile(url) == null) {
                         // With no signal, the downloaded map draws the tile.
                         val wx = ((tx % (maxTile + 1)) + (maxTile + 1)) % (maxTile + 1)
                         launch {
-                            if (MapTileCache.load(context, url, MapTileCache.TileXyz(zoom, wx, ty))) tilesReady++
+                            if (render.loadMapTile(url, zoom, wx, ty)) tilesReady++
                         }
                     }
                 }
@@ -2066,15 +2041,7 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
         ) {
             if (!element.mapUseCustomMarker) return@remember null
             val url = data.riderMarkerPhotoDataUrl ?: return@remember null
-            val comma = url.indexOf(',')
-            if (comma <= 0) return@remember null
-            runCatching {
-                val bytes = android.util.Base64.decode(
-                    url.substring(comma + 1), android.util.Base64.DEFAULT
-                )
-                android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                    ?.asImageBitmap()
-            }.getOrNull()
+            StudioImages.decodeDataUrl(url)
         }
 
         androidx.compose.foundation.Canvas(Modifier.fillMaxSize()) {
@@ -2121,7 +2088,7 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
             rotate(degrees = rotation, pivot = Offset(cx, cy)) {
                 // Tiles: top-left of each tile is its (tileX - centerTx) offset.
                 tileKeys.forEach { (tx, ty, url) ->
-                    val bmp = MapTileCache.get(url) ?: return@forEach
+                    val bmp = render.mapTile(url) ?: return@forEach
                     val left = cx + ((tx - centerTx) * tilePx).toFloat()
                     val top = cy + ((ty - centerTy) * tilePx).toFloat()
                     drawImage(
@@ -2229,33 +2196,8 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
             // travels with no interface attached, so this is the only place the
             // provider can be credited, and the map licences require it.
             if (element.mapAttribution) {
-                val layer = com.eried.eucplanet.hud.protocol.MapLayers.byId(element.mapStyle)
-                val textSize = (size.minDimension * 0.055f).coerceIn(9f, 22f)
-                val pad = textSize * 0.35f
-                val paint = android.graphics.Paint().apply {
-                    isAntiAlias = true
-                    this.textSize = textSize
-                    color = android.graphics.Color.WHITE
-                    // A shadow rather than a plate: it stays legible over
-                    // satellite and over pale topo without boxing off the map.
-                    setShadowLayer(textSize * 0.35f, 0f, 0f, android.graphics.Color.BLACK)
-                }
-                // A clipped credit credits nobody, and a map element is often a
-                // thumbnail. Use the full string when it fits, the short one
-                // when it does not, and shrink the type only as a last resort.
-                val room = size.width - pad * 2
-                var text = layer.attribution
-                if (paint.measureText(text) > room) text = layer.attributionShort
-                while (paint.measureText(text) > room && paint.textSize > 7f) {
-                    paint.textSize = paint.textSize - 0.5f
-                }
-                val width = paint.measureText(text)
-                drawContext.canvas.nativeCanvas.drawText(
-                    text,
-                    (size.width - width - pad).coerceAtLeast(pad),
-                    size.height - pad,
-                    paint
-                )
+                val layer = MapLayers.byId(element.mapStyle)
+                drawMapCredit(layer.attribution, layer.attributionShort)
             }
         }
     }

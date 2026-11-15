@@ -10,4 +10,5 @@ interface StudioByteSink {
     fun write(b: ByteArray) = write(b, 0, b.size)
     fun write(b: ByteArray, off: Int, len: Int)
     fun flush()
+    fun close() = Unit
 }

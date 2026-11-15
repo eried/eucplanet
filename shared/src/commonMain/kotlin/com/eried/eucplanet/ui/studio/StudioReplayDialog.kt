@@ -1,5 +1,8 @@
 package com.eried.eucplanet.ui.studio
 
+import org.jetbrains.compose.resources.StringResource
+import com.eried.eucplanet.platform.format
+import com.eried.eucplanet.platform.formatLocalDate
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -69,24 +72,20 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.res.stringResource
+import com.eried.eucplanet.platform.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.eried.eucplanet.R
+import com.eried.eucplanet.resources.*
 import com.eried.eucplanet.ui.common.TrimTimeDialog
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.data.model.TripRecord
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import kotlin.math.abs
 
-private val tripDateFmt = SimpleDateFormat("d MMM yyyy, HH:mm", Locale.getDefault())
 private val replaySpeeds = listOf(0.25f, 0.5f, 1f, 2f, 4f, 8f, 16f, 32f, 64f)
 
 private fun tripLabel(t: TripRecord, distanceUnit: String): String {
     val dist = com.eried.eucplanet.util.Units.distance(t.distanceKm.toFloat(), distanceUnit)
-    return "${tripDateFmt.format(Date(t.startTime))}  ·  ${"%.1f".format(dist)} $distanceUnit"
+    return "${formatLocalDate("d MMM yyyy, HH:mm", t.startTime)}  ·  ${"%.1f".format(dist)} $distanceUnit"
 }
 
 private fun speedLabel(s: Float): String =
@@ -189,7 +188,7 @@ fun StudioReplayDialog(
             ) {
                 Icon(
                     Icons.Default.DragHandle,
-                    contentDescription = stringResource(R.string.studio_replay_cd_move),
+                    contentDescription = stringResource(Res.string.studio_replay_cd_move),
                     tint = MaterialTheme.appColors.textSecondary,
                     modifier = Modifier.size(18.dp)
                 )
@@ -203,10 +202,10 @@ fun StudioReplayDialog(
                 Spacer(Modifier.width(8.dp))
                 Text(
                     when (picker) {
-                        1 -> stringResource(R.string.studio_replay_choose_trip)
-                        2 -> stringResource(R.string.studio_replay_speed_title)
-                        3 -> stringResource(R.string.studio_export_format)
-                        else -> stringResource(R.string.studio_replay_title)
+                        1 -> stringResource(Res.string.studio_replay_choose_trip)
+                        2 -> stringResource(Res.string.studio_replay_speed_title)
+                        3 -> stringResource(Res.string.studio_export_format)
+                        else -> stringResource(Res.string.studio_replay_title)
                     },
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
@@ -218,7 +217,7 @@ fun StudioReplayDialog(
                     IconButton(onClick = onToggleDim, modifier = Modifier.size(36.dp)) {
                         Icon(
                             Icons.Default.Opacity,
-                            contentDescription = stringResource(R.string.studio_replay_cd_fade),
+                            contentDescription = stringResource(Res.string.studio_replay_cd_fade),
                             tint = if (dimmed) MaterialTheme.appColors.primary else MaterialTheme.appColors.textPrimary
                         )
                     }
@@ -226,7 +225,7 @@ fun StudioReplayDialog(
                 IconButton(onClick = { if (picker != 0) picker = 0 else onClose() }, modifier = Modifier.size(36.dp)) {
                     Icon(
                         Icons.Default.Close,
-                        contentDescription = if (picker != 0) stringResource(R.string.studio_replay_cd_back) else stringResource(R.string.studio_replay_cd_close)
+                        contentDescription = if (picker != 0) stringResource(Res.string.studio_replay_cd_back) else stringResource(Res.string.studio_replay_cd_close)
                     )
                 }
             }
@@ -238,7 +237,7 @@ fun StudioReplayDialog(
             ) {
                 if (trips.isEmpty()) {
                     Text(
-                        stringResource(R.string.studio_replay_no_trips),
+                        stringResource(Res.string.studio_replay_no_trips),
                         color = MaterialTheme.appColors.textSecondary,
                         modifier = Modifier.padding(12.dp)
                     )
@@ -296,7 +295,7 @@ fun StudioReplayDialog(
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(
-                        selectedTrip?.let { tripLabel(it, distanceUnit) } ?: stringResource(R.string.studio_replay_choose_trip),
+                        selectedTrip?.let { tripLabel(it, distanceUnit) } ?: stringResource(Res.string.studio_replay_choose_trip),
                         modifier = Modifier.weight(1f),
                         maxLines = 1
                     )
@@ -308,7 +307,7 @@ fun StudioReplayDialog(
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(speedLabel(speed))
-                    Icon(Icons.Default.ArrowDropDown, contentDescription = stringResource(R.string.studio_replay_cd_speed))
+                    Icon(Icons.Default.ArrowDropDown, contentDescription = stringResource(Res.string.studio_replay_cd_speed))
                 }
             }
 
@@ -318,7 +317,7 @@ fun StudioReplayDialog(
                 IconButton(onClick = onPlayPause, enabled = active) {
                     Icon(
                         if (playing) Icons.Default.Pause else Icons.Default.PlayArrow,
-                        contentDescription = if (playing) stringResource(R.string.studio_replay_cd_pause) else stringResource(R.string.studio_replay_cd_play)
+                        contentDescription = if (playing) stringResource(Res.string.studio_replay_cd_pause) else stringResource(Res.string.studio_replay_cd_play)
                     )
                 }
                 Spacer(Modifier.width(10.dp))
@@ -360,7 +359,7 @@ fun StudioReplayDialog(
                         if (trimmed)
                             "( ${formatReplayClock(rangeStartMs)}  -  " +
                                 "${formatReplayClock(rangeEndMs)} )"
-                        else stringResource(R.string.studio_replay_trim),
+                        else stringResource(Res.string.studio_replay_trim),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.appColors.primary,
                         modifier = Modifier
@@ -387,7 +386,7 @@ fun StudioReplayDialog(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    stringResource(R.string.studio_export_format),
+                    stringResource(Res.string.studio_export_format),
                     modifier = Modifier.weight(1f),
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -421,14 +420,14 @@ fun StudioReplayDialog(
 
 
 /** Chroma-key fill presets: label resource paired with the ARGB colour. */
-private val chromaPresets: List<Pair<Int, Long>> = listOf(
-    R.string.studio_chroma_magenta to 0xFFFF00FFL,
-    R.string.studio_chroma_green to 0xFF00B140L,
-    R.string.studio_chroma_bright_green to 0xFF00FF00L,
-    R.string.studio_chroma_cyan to 0xFF00FFFFL,
-    R.string.studio_chroma_blue to 0xFF0047BBL,
-    R.string.studio_chroma_black to 0xFF000000L,
-    R.string.studio_chroma_white to 0xFFFFFFFFL
+private val chromaPresets: List<Pair<StringResource, Long>> = listOf(
+    Res.string.studio_chroma_magenta to 0xFFFF00FFL,
+    Res.string.studio_chroma_green to 0xFF00B140L,
+    Res.string.studio_chroma_bright_green to 0xFF00FF00L,
+    Res.string.studio_chroma_cyan to 0xFF00FFFFL,
+    Res.string.studio_chroma_blue to 0xFF0047BBL,
+    Res.string.studio_chroma_black to 0xFF000000L,
+    Res.string.studio_chroma_white to 0xFFFFFFFFL
 )
 
 /**
@@ -449,10 +448,10 @@ private fun ExportFormatChooser(
     // In portrait (panel upright, rotation 0/180) there's far more vertical room
     // than in landscape, so let the chooser grow instead of cramming everything
     // into a 360dp scroller. Landscape keeps the compact cap.
-    val cfg = androidx.compose.ui.platform.LocalConfiguration.current
+    val cfg = com.eried.eucplanet.ui.common.screenGeometry()
     val portrait = LocalStudioRotation.current.let { it == 0 || it == 180 }
     val maxChooserHeight =
-        if (portrait) (cfg.screenHeightDp * 0.58f).dp.coerceAtMost(620.dp) else 360.dp
+        if (portrait) (cfg.heightDp * 0.58f).dp.coerceAtMost(620.dp) else 360.dp
     Column(
         Modifier
             .fillMaxWidth()
@@ -461,7 +460,7 @@ private fun ExportFormatChooser(
     ) {
         // Photo.
         Text(
-            stringResource(R.string.studio_export_photo),
+            stringResource(Res.string.studio_export_photo),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.appColors.textSecondary,
             modifier = Modifier.padding(top = 4.dp, bottom = 6.dp)
@@ -487,7 +486,7 @@ private fun ExportFormatChooser(
         // Video.
         Spacer(Modifier.height(12.dp))
         Text(
-            stringResource(R.string.studio_export_video),
+            stringResource(Res.string.studio_export_video),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.appColors.textSecondary,
             modifier = Modifier.padding(bottom = 6.dp)
@@ -526,7 +525,7 @@ private fun ExportFormatChooser(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                stringResource(R.string.studio_export_options),
+                stringResource(Res.string.studio_export_options),
                 modifier = Modifier.weight(1f),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.appColors.textSecondary
@@ -542,7 +541,7 @@ private fun ExportFormatChooser(
             // MP4), but the rider already knows that -- keep the controls fully
             // enabled rather than greying them out.
             Text(
-                stringResource(R.string.studio_export_scale),
+                stringResource(Res.string.studio_export_scale),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.appColors.textSecondary,
                 modifier = Modifier.padding(bottom = 6.dp)
@@ -559,7 +558,7 @@ private fun ExportFormatChooser(
             }
             Spacer(Modifier.height(12.dp))
             Text(
-                stringResource(R.string.studio_export_chroma),
+                stringResource(Res.string.studio_export_chroma),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.appColors.textSecondary,
                 modifier = Modifier.padding(bottom = 6.dp)
@@ -629,7 +628,7 @@ private fun ExportFormatChooser(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    stringResource(R.string.studio_export_force_opaque),
+                    stringResource(Res.string.studio_export_force_opaque),
                     modifier = Modifier.weight(1f),
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -643,7 +642,7 @@ private fun ExportFormatChooser(
                 )
             }
             Text(
-                stringResource(R.string.studio_export_force_opaque_hint),
+                stringResource(Res.string.studio_export_force_opaque_hint),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 4.dp, vertical = 2.dp),

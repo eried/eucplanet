@@ -7,6 +7,9 @@ import android.net.Uri
 import android.util.Base64
 import android.util.Log
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
@@ -17,7 +20,7 @@ import java.io.ByteArrayOutputStream
  * An optional colour key turns a chosen colour transparent, handy for
  * clipart on a flat background.
  */
-object StudioImages {
+actual object StudioImages {
 
     private const val TAG = "StudioImages"
 
@@ -47,8 +50,22 @@ object StudioImages {
             }
         }
 
+    actual fun decode(data: String): ImageBitmap? = decodeBitmap(data)?.asImageBitmap()
+
+    actual fun applyChromaKey(src: ImageBitmap, key: Color, tolerance: Float): ImageBitmap =
+        applyChromaKey(src.asAndroidBitmap(), key, tolerance).asImageBitmap()
+
+    actual fun decodeDataUrl(url: String): ImageBitmap? {
+        val comma = url.indexOf(',')
+        if (comma <= 0) return null
+        return runCatching {
+            val bytes = Base64.decode(url.substring(comma + 1), Base64.DEFAULT)
+            BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.asImageBitmap()
+        }.getOrNull()
+    }
+
     /** Decode a base64 image string back into a mutable ARGB bitmap. */
-    fun decode(data: String): Bitmap? = runCatching {
+    fun decodeBitmap(data: String): Bitmap? = runCatching {
         val bytes = Base64.decode(data, Base64.NO_WRAP)
         val raw = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
             ?: return@runCatching null

@@ -27,17 +27,17 @@ import androidx.compose.ui.platform.LocalContext
  * so export can pull exact frames offline. The last decoded export frame per uri
  * is cached so re-rendering the same position skips a re-decode.
  */
-class StudioVideoHub(private val context: Context) {
+class AndroidStudioVideoHub(private val context: Context) : StudioVideoHub {
     private val retrievers = mutableMapOf<String, MediaMetadataRetriever>()
     private val durations = mutableMapOf<String, Long>()
     private val invalid = mutableSetOf<String>()
     private val lastFrame = mutableMapOf<String, Pair<Long, ImageBitmap>>()
 
     /** True once [uri] has failed to open or decode; it will not be retried until re-bound. */
-    fun isInvalid(uri: String): Boolean = uri in invalid
+    override fun isInvalid(uri: String): Boolean = uri in invalid
 
     /** Clip length in milliseconds, or 0L if [uri] is not open or invalid. */
-    fun durationMs(uri: String): Long = durations[uri] ?: 0L
+    override fun durationMs(uri: String): Long = durations[uri] ?: 0L
 
     /**
      * The frame-accurate ([MediaMetadataRetriever.OPTION_CLOSEST]) still at
@@ -46,7 +46,7 @@ class StudioVideoHub(private val context: Context) {
      * acceptable there); the last frame per uri is cached at ~15fps granularity so
      * re-rendering the same export position skips a re-decode.
      */
-    fun frameAt(uri: String, timeUs: Long): ImageBitmap? {
+    override fun frameAt(uri: String, timeUs: Long): ImageBitmap? {
         if (isInvalid(uri)) return null
         val retriever = retrievers[uri] ?: return null
 
@@ -131,7 +131,7 @@ class StudioVideoHub(private val context: Context) {
 @Composable
 fun rememberStudioVideoHub(uris: Set<String>, enabled: Boolean): StudioVideoHub {
     val context = LocalContext.current
-    val hub = remember { StudioVideoHub(context) }
+    val hub = remember { AndroidStudioVideoHub(context) }
 
     LaunchedEffect(uris, enabled) {
         if (enabled) hub.bind(uris) else hub.release()

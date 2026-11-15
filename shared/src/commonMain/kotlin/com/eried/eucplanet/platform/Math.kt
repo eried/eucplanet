@@ -1,5 +1,6 @@
 package com.eried.eucplanet.platform
 
+import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
 /**
@@ -19,6 +20,9 @@ object Math {
 
     /** `Math.round(double)`: ties up, NaN is 0, the ends clamp to Long's range. */
     fun round(value: Double): Long = if (value.isNaN()) 0L else value.roundToLong()
+
+    /** `Math.round(float)`: ties up, NaN is 0, the ends clamp to Int's range. */
+    fun round(value: Float): Int = if (value.isNaN()) 0 else value.roundToInt()
 
     fun hypot(x: Double, y: Double): Double = kotlin.math.hypot(x, y)
     fun abs(value: Double): Double = kotlin.math.abs(value)

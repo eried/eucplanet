@@ -36,6 +36,7 @@ import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.eried.eucplanet.hud.protocol.OverlayElement
 import com.eried.eucplanet.hud.protocol.OverlayElementType
+import androidx.compose.runtime.CompositionLocalProvider
 import com.eried.eucplanet.ui.studio.StudioElementData
 import com.eried.eucplanet.ui.studio.StudioElementLayer
 import com.eried.eucplanet.ui.theme.EucPlanetTheme
@@ -267,6 +268,11 @@ private fun Content(
                     .size(contentWidth, contentHeight)
                     .graphicsLayer { rotationZ = degrees },
             ) {
+                // The elements read the tile cache and the app icon through this.
+                CompositionLocalProvider(
+                    com.eried.eucplanet.ui.studio.LocalStudioRender provides
+                        com.eried.eucplanet.ui.studio.rememberAndroidStudioRender()
+                ) {
                 StudioElementLayer(
                     elements = els,
                     data = d,
@@ -280,6 +286,7 @@ private fun Content(
                     onDelete = {},
                     onChange = {},
                 )
+                }
             }
         }
     }
