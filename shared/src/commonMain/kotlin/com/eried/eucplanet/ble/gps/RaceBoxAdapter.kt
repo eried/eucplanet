@@ -2,6 +2,7 @@ package com.eried.eucplanet.ble.gps
 
 import com.eried.eucplanet.data.model.ExternalGpsSample
 import com.eried.eucplanet.data.model.ExternalGpsSource
+import kotlin.concurrent.Volatile
 
 /**
  * RaceBox Mini / Mini S / Pro adapter.
@@ -305,15 +306,14 @@ class RaceBoxAdapter : ExternalGpsAdapter {
      *  20-23 tAccNs      (u32 LE) time accuracy estimate, fractional ns
      */
     private fun buildMgaIniTimeUtc(timeUtcMillis: Long): ByteArray {
-        val cal = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC"))
-        cal.timeInMillis = timeUtcMillis
-        val year = cal.get(java.util.Calendar.YEAR)
-        val month = cal.get(java.util.Calendar.MONTH) + 1
-        val day = cal.get(java.util.Calendar.DAY_OF_MONTH)
-        val hour = cal.get(java.util.Calendar.HOUR_OF_DAY)
-        val minute = cal.get(java.util.Calendar.MINUTE)
-        val second = cal.get(java.util.Calendar.SECOND)
-        val ns = (cal.get(java.util.Calendar.MILLISECOND) * 1_000_000)
+        val t = UtcTime.of(timeUtcMillis)
+        val year = t.year
+        val month = t.month
+        val day = t.day
+        val hour = t.hour
+        val minute = t.minute
+        val second = t.second
+        val ns = t.millisecond * 1_000_000
         val payload = ByteArray(24)
         payload[0] = 0x10
         payload[1] = 0x00
@@ -332,7 +332,7 @@ class RaceBoxAdapter : ExternalGpsAdapter {
         // give the receiver headroom); tAccNs left at 0.
         writeI32LE(payload, 16, 10)
         writeI32LE(payload, 20, 0)
-        return wrapUbx(classId = 0x13, msgId = 0x40, payload = payload)
+        return ubxFrame(classId = 0x13, msgId = 0x40, payload = payload)
     }
 
     /**
@@ -360,28 +360,7 @@ class RaceBoxAdapter : ExternalGpsAdapter {
         writeI32LE(payload, 8, (lonDeg * 1e7).toInt())
         writeI32LE(payload, 12, altCm)
         writeI32LE(payload, 16, posAccCm.toInt())
-        return wrapUbx(classId = 0x13, msgId = 0x40, payload = payload)
-    }
-
-    /** Wrap a payload in a complete UBX frame: B5 62, class, id, lenLE, payload, ckA, ckB. */
-    private fun wrapUbx(classId: Int, msgId: Int, payload: ByteArray): ByteArray {
-        val frame = ByteArray(6 + payload.size + 2)
-        frame[0] = 0xB5.toByte()
-        frame[1] = 0x62
-        frame[2] = classId.toByte()
-        frame[3] = msgId.toByte()
-        frame[4] = (payload.size and 0xFF).toByte()
-        frame[5] = ((payload.size ushr 8) and 0xFF).toByte()
-        System.arraycopy(payload, 0, frame, 6, payload.size)
-        var ckA = 0
-        var ckB = 0
-        for (i in 2 until frame.size - 2) {
-            ckA = (ckA + (frame[i].toInt() and 0xFF)) and 0xFF
-            ckB = (ckB + ckA) and 0xFF
-        }
-        frame[frame.size - 2] = ckA.toByte()
-        frame[frame.size - 1] = ckB.toByte()
-        return frame
+        return ubxFrame(classId = 0x13, msgId = 0x40, payload = payload)
     }
 
     private fun writeU16LE(b: ByteArray, off: Int, v: Int) {
@@ -394,5 +373,61 @@ class RaceBoxAdapter : ExternalGpsAdapter {
         b[off + 1] = ((v ushr 8) and 0xFF).toByte()
         b[off + 2] = ((v ushr 16) and 0xFF).toByte()
         b[off + 3] = ((v ushr 24) and 0xFF).toByte()
+    }
+}
+
+/** Wrap a payload in a complete UBX frame: B5 62, class, id, lenLE, payload, ckA, ckB. */
+internal fun ubxFrame(classId: Int, msgId: Int, payload: ByteArray): ByteArray {
+    val frame = ByteArray(6 + payload.size + 2)
+    frame[0] = 0xB5.toByte()
+    frame[1] = 0x62
+    frame[2] = classId.toByte()
+    frame[3] = msgId.toByte()
+    frame[4] = (payload.size and 0xFF).toByte()
+    frame[5] = ((payload.size ushr 8) and 0xFF).toByte()
+    payload.copyInto(frame, 6)
+    var ckA = 0
+    var ckB = 0
+    for (i in 2 until frame.size - 2) {
+        ckA = (ckA + (frame[i].toInt() and 0xFF)) and 0xFF
+        ckB = (ckB + ckA) and 0xFF
+    }
+    frame[frame.size - 2] = ckA.toByte()
+    frame[frame.size - 1] = ckB.toByte()
+    return frame
+}
+
+/**
+ * A UTC wall-clock reading split into its calendar fields, as
+ * java.util.Calendar in the UTC zone gives them (month 1..12). Proleptic
+ * Gregorian, from days since the epoch (Howard Hinnant's civil_from_days).
+ */
+internal data class UtcTime(
+    val year: Int, val month: Int, val day: Int,
+    val hour: Int, val minute: Int, val second: Int, val millisecond: Int,
+) {
+    companion object {
+        private const val DAY_MS = 86_400_000L
+
+        fun of(epochMs: Long): UtcTime {
+            val days = epochMs.floorDiv(DAY_MS)
+            val msOfDay = epochMs.mod(DAY_MS).toInt()
+            val z = days + 719_468
+            val era = z.floorDiv(146_097L)
+            val doe = z - era * 146_097
+            val yoe = (doe - doe / 1_460 + doe / 36_524 - doe / 146_096) / 365
+            val doy = doe - (365 * yoe + yoe / 4 - yoe / 100)
+            val mp = (5 * doy + 2) / 153
+            val d = (doy - (153 * mp + 2) / 5 + 1).toInt()
+            val m = (if (mp < 10) mp + 3 else mp - 9).toInt()
+            val y = (yoe + era * 400 + if (m <= 2) 1 else 0).toInt()
+            return UtcTime(
+                year = y, month = m, day = d,
+                hour = msOfDay / 3_600_000,
+                minute = msOfDay / 60_000 % 60,
+                second = msOfDay / 1_000 % 60,
+                millisecond = msOfDay % 1_000,
+            )
+        }
     }
 }

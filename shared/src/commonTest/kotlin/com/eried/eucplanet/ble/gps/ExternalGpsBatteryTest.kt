@@ -1,9 +1,9 @@
 package com.eried.eucplanet.ble.gps
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
-import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+import kotlin.test.Test
 
 /**
  * Locks in external-GPS battery decoding for both boxes:
@@ -23,7 +23,7 @@ class ExternalGpsBatteryTest {
         frame[2] = cls.toByte(); frame[3] = id.toByte()
         frame[4] = (payload.size and 0xFF).toByte()
         frame[5] = ((payload.size shr 8) and 0xFF).toByte()
-        System.arraycopy(payload, 0, frame, 6, payload.size)
+        payload.copyInto(frame, 6)
         var a = 0; var b = 0
         for (i in 2 until frame.size - 2) {
             a = (a + (frame[i].toInt() and 0xFF)) and 0xFF
@@ -52,18 +52,18 @@ class ExternalGpsBatteryTest {
         assertEquals(false, sample.charging)
     }
 
-    @Test fun `dragy has no battery until FD04 is polled, then folds it in`() {
+    @Test fun `dragy has no battery until FD04 is polled and then folds it in`() {
         val a = DragyAdapter()
         val nav = ByteArray(92).also { it[20] = 3; it[23] = 9 }  // 3D fix, 9 sats
 
         val before = a.decode(ubx(0x01, 0x07, nav))
         assertNotNull(before)
-        assertNull("no battery before the first FD04 read", before!!.batteryPercent)
+        assertNull(before!!.batteryPercent, "no battery before the first FD04 read")
 
         a.onPollResult(byteArrayOf(0x00, 0x55))   // device-status: byte[1] = 0x55 = 85%
         val after = a.decode(ubx(0x01, 0x07, nav))
         assertEquals(85, after!!.batteryPercent)
-        assertNull("Dragy status byte is percent-only", after.charging)
+        assertNull(after.charging, "Dragy status byte is percent-only")
     }
 
     @Test fun `dragy ignores a too-short FD04 read`() {

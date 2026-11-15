@@ -349,6 +349,8 @@ fun DashboardScreen(
         when (dialogRequest) {
             "about" -> { showAboutDialog = true; DashboardDialogBus.consume() }
             "service" -> { showDiagnosticsDialog = true; DashboardDialogBus.consume() }
+            // The Data sources sheet, for scripted runs (the iPhone's EUC_SOURCES).
+            "sources" -> { showSourcesSheet = true; DashboardDialogBus.consume() }
             // The panel is dashboard state rather than a dialog, but it
             // arrives the same way: fired from a surface that had to navigate
             // here first.

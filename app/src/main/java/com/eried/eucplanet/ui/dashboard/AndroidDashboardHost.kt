@@ -170,5 +170,9 @@ private class AndroidDashboardHost(
 
     @Composable
     override fun DataSourcesSheet(speedUnit: String, onDismiss: () -> Unit) =
-        com.eried.eucplanet.ui.dashboard.sources.DataSourcesSheet(speedUnit = speedUnit, onDismiss = onDismiss)
+        com.eried.eucplanet.ui.dashboard.sources.DataSourcesSheet(
+            speedUnit = speedUnit,
+            onDismiss = onDismiss,
+            viewModel = koinViewModel(),
+        )
 }

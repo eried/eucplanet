@@ -786,13 +786,11 @@ class TripRepository(
                 // when the rider prioritises external GPS and the sample is
                 // recent (a staler reading would freeze the column); otherwise
                 // the writer falls back to the phone's GPS speed.
-                val extSample = externalGpsRepository.currentSample.value
-                val extSpeed = extSample
-                    ?.takeIf {
-                        settingsRepository.currentOrLoad().gpsPrioritizeExternal &&
-                            System.currentTimeMillis() - it.timestamp < recordIntervalMs * 3
-                    }
-                    ?.speedKmh
+                val extSpeed = externalSpeedForTrip(
+                    externalGpsRepository.currentSample.value,
+                    settingsRepository.currentOrLoad().gpsPrioritizeExternal,
+                    recordIntervalMs,
+                )
                 val wheelConnected = wheelRepository.connectionState.value ==
                     com.eried.eucplanet.ble.ConnectionState.CONNECTED
                 // Keep the wheel's identity current while it is still talking to us; the

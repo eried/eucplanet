@@ -3,7 +3,9 @@ package com.eried.eucplanet.ble.gps
 import com.eried.eucplanet.data.model.ExternalGpsSample
 import com.eried.eucplanet.data.model.ExternalGpsSource
 import com.eried.eucplanet.diagnostics.DiagnosticsLogger
-import java.util.UUID
+import com.eried.eucplanet.platform.format
+import kotlin.concurrent.Volatile
+import kotlin.uuid.Uuid
 
 /**
  * Dragy / Dragy Lite GPS performance-meter adapter.
@@ -47,7 +49,7 @@ class DragyAdapter : ExternalGpsAdapter {
      * device-status characteristic FD04 for it (DragyBleManager.readBattery).
      * So we have the connection manager poll FD04; [onPollResult] decodes it.
      */
-    override fun pollCharacteristic(): UUID? = CHARACTER_DEVICE_STATUS
+    override fun pollCharacteristic(): Uuid? = CHARACTER_DEVICE_STATUS
 
     /** Battery drifts slowly; 30 s is plenty and keeps the radio quiet. */
     override fun pollIntervalMs(): Long = 30_000L
@@ -259,7 +261,7 @@ class DragyAdapter : ExternalGpsAdapter {
 
     /** Hex string -> bytes (for the verbatim UBX command from the Dragy app). */
     private fun hex(s: String): ByteArray = ByteArray(s.length / 2) {
-        ((Character.digit(s[it * 2], 16) shl 4) or Character.digit(s[it * 2 + 1], 16)).toByte()
+        ((s[it * 2].digitToInt(16) shl 4) or s[it * 2 + 1].digitToInt(16)).toByte()
     }
 
     private companion object {
@@ -272,7 +274,7 @@ class DragyAdapter : ExternalGpsAdapter {
         const val SEND_10HZ = "B562068A0A000003000001002130640053CB"
         // FD04 device-status characteristic (DragyUUID.CHARACTER_DEVICE_STATUS);
         // the official app READs it for battery. Same 16-bit base as FD00-FD05.
-        val CHARACTER_DEVICE_STATUS: UUID =
-            UUID.fromString("0000fd04-0000-1000-8000-00805f9b34fb")
+        val CHARACTER_DEVICE_STATUS: Uuid =
+            Uuid.parse("0000fd04-0000-1000-8000-00805f9b34fb")
     }
 }

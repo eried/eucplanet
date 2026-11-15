@@ -182,7 +182,7 @@ private class AndroidSettingsHost(
 
     @Composable
     override fun ExternalGpsSettings() {
-        ExternalGpsSection()
+        ExternalGpsSection(viewModel = koinViewModel(), settingsViewModel = koinViewModel())
     }
 
     @Composable

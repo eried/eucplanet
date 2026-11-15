@@ -58,13 +58,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.remap
 import com.eried.eucplanet.util.Units
-import com.eried.eucplanet.util.speedUnit
-import org.koin.compose.viewmodel.koinViewModel
+import com.eried.eucplanet.platform.System
+import com.eried.eucplanet.platform.format
+import com.eried.eucplanet.platform.stringResource
+import com.eried.eucplanet.resources.*
 
 /**
  * Bottom sheet opened by tapping the GPS indicator in the dashboard top-right.
@@ -80,7 +81,9 @@ import org.koin.compose.viewmodel.koinViewModel
 fun DataSourcesSheet(
     speedUnit: String,
     onDismiss: () -> Unit,
-    viewModel: DataSourcesViewModel = koinViewModel()
+    viewModel: DataSourcesViewModel,
+    /** Opens a tab, a comparison or the calibration question by itself (the iPhone's launch hooks). */
+    scripted: DataSourcesScript? = null,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -110,6 +113,18 @@ fun DataSourcesSheet(
         val selectedSource by viewModel.selectedSource.collectAsState()
         val compareWith by viewModel.compareWith.collectAsState()
         val inCompareMode = compareWith != null
+        // A scripted run (the iPhone's EUC_SOURCES hook) picks its tabs once.
+        LaunchedEffect(scripted) {
+            val script = scripted ?: return@LaunchedEffect
+            viewModel.setSelectedSource(script.source)
+            val b = script.compareWith
+            if (b != null) {
+                if (viewModel.compareWith.value == null) viewModel.toggleCompare()
+                viewModel.setCompareWith(b)
+            } else if (viewModel.compareWith.value != null) {
+                viewModel.toggleCompare()
+            }
+        }
 
         Column(
             modifier = Modifier
@@ -118,7 +133,7 @@ fun DataSourcesSheet(
                 .padding(bottom = 24.dp)
         ) {
             Text(
-                stringResource(com.eried.eucplanet.R.string.sources_title),
+                stringResource(Res.string.sources_title),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -170,7 +185,8 @@ fun DataSourcesSheet(
                         snapshots = snapshots,
                         a = selectedSource,
                         b = b,
-                        speedUnit = speedUnit
+                        speedUnit = speedUnit,
+                        scripted = scripted,
                     )
                 }
             }
@@ -270,7 +286,7 @@ private fun CompareBPicker(
 @Composable
 private fun SameSourcePlaceholder() {
     Text(
-        stringResource(com.eried.eucplanet.R.string.sources_same_source),
+        stringResource(Res.string.sources_same_source),
         fontSize = 13.sp,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.fillMaxWidth()
@@ -365,7 +381,7 @@ private fun CompareTabChip(
             )
             Spacer(Modifier.width(4.dp))
             Text(
-                text = stringResource(com.eried.eucplanet.R.string.sources_compare),
+                text = stringResource(Res.string.sources_compare),
                 fontSize = 12.sp,
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                 color = if (isSelected) accent else accent.copy(alpha = 0.7f)
@@ -388,8 +404,7 @@ private fun SourceTab(
     speedUnit: String,
     speedSeries: DataSourcesViewModel.TimedSeries = DataSourcesViewModel.TimedSeries(),
 ) {
-    val context = androidx.compose.ui.platform.LocalContext.current
-    val speedUnitLabel = Units.speedUnit(context, speedUnit)
+    val speedUnitLabel = stringResource(Units.speedUnitRes(speedUnit))
     // The source's baked palette hue, remapped onto the active theme's
     // metric tokens so the per-source colour follows the theme.
     val sourceColor = MaterialTheme.appColors.remap(source.color)
@@ -408,7 +423,7 @@ private fun SourceTab(
     }
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         ValueRow(
-            label = stringResource(com.eried.eucplanet.R.string.sources_speed),
+            label = stringResource(Res.string.sources_speed),
             value = snapshot.speedKmh?.let { "%.1f %s".format(Units.speed(it, speedUnit), speedUnitLabel) },
             color = sourceColor
         )
@@ -429,12 +444,12 @@ private fun SourceTab(
         }
         if (source.hasPosition) {
             ValueRow(
-                label = stringResource(com.eried.eucplanet.R.string.sources_heading),
+                label = stringResource(Res.string.sources_heading),
                 value = snapshot.headingDeg?.let { "%.0f°".format(it) },
                 color = sourceColor
             )
             ValueRow(
-                label = stringResource(com.eried.eucplanet.R.string.sources_vertical_speed),
+                label = stringResource(Res.string.sources_vertical_speed),
                 value = snapshot.verticalSpeedMps?.let { formatVerticalSpeed(it, imperial) },
                 color = sourceColor
             )
@@ -442,9 +457,9 @@ private fun SourceTab(
             // so the metadata sits inline rather than wrapping to a second
             // line below the coords.
             val positionLabel = run {
-                val base = stringResource(com.eried.eucplanet.R.string.sources_position)
+                val base = stringResource(Res.string.sources_position)
                 val sats = snapshot.numSatellites?.let {
-                    context.getString(com.eried.eucplanet.R.string.sources_sats_fmt, it)
+                    stringResource(Res.string.sources_sats_fmt, it)
                 }
                 val acc = snapshot.accuracyMeters?.let { formatAccuracy(it, imperial) }
                 val suffix = listOfNotNull(sats, acc).joinToString(" · ")
@@ -465,7 +480,7 @@ private fun SourceTab(
         if (source.hasImu) {
             Spacer(Modifier.height(4.dp))
             Text(
-                stringResource(com.eried.eucplanet.R.string.sources_gforce),
+                stringResource(Res.string.sources_gforce),
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -480,15 +495,15 @@ private fun SourceTab(
                     .wrapContentSize(Alignment.Center)
             )
             ValueRow(
-                label = stringResource(com.eried.eucplanet.R.string.sources_lateral_x),
+                label = stringResource(Res.string.sources_lateral_x),
                 value = formatG(snapshot.accelXG), color = sourceColor
             )
             ValueRow(
-                label = stringResource(com.eried.eucplanet.R.string.sources_vertical_y),
+                label = stringResource(Res.string.sources_vertical_y),
                 value = formatG(snapshot.accelYG), color = sourceColor
             )
             ValueRow(
-                label = stringResource(com.eried.eucplanet.R.string.sources_forward_z),
+                label = stringResource(Res.string.sources_forward_z),
                 value = formatG(snapshot.accelZG), color = sourceColor
             )
         }
@@ -528,23 +543,23 @@ private fun FreshnessRow(lastUpdateMs: Long?, nowMs: Long) {
     val label = if (lastUpdateMs == null) "--" else {
         val elapsed = (nowMs - lastUpdateMs).coerceAtLeast(0L)
         when {
-            elapsed < 1500L -> stringResource(com.eried.eucplanet.R.string.sources_fresh_just_now)
+            elapsed < 1500L -> stringResource(Res.string.sources_fresh_just_now)
             elapsed < 60_000L -> stringResource(
-                com.eried.eucplanet.R.string.sources_fresh_seconds_fmt,
+                Res.string.sources_fresh_seconds_fmt,
                 (elapsed / 1000).toInt()
             )
             elapsed < 3_600_000L -> stringResource(
-                com.eried.eucplanet.R.string.sources_fresh_minutes_fmt,
+                Res.string.sources_fresh_minutes_fmt,
                 (elapsed / 60_000).toInt()
             )
             else -> stringResource(
-                com.eried.eucplanet.R.string.sources_fresh_hours_fmt,
+                Res.string.sources_fresh_hours_fmt,
                 (elapsed / 3_600_000).toInt()
             )
         }
     }
     ValueRow(
-        label = stringResource(com.eried.eucplanet.R.string.sources_last_update),
+        label = stringResource(Res.string.sources_last_update),
         value = label,
         color = MaterialTheme.colorScheme.onSurfaceVariant
     )
@@ -726,10 +741,10 @@ private fun CompareTab(
     snapshots: Map<DataSource, SourceSnapshot>,
     a: DataSource,
     b: DataSource,
-    speedUnit: String
+    speedUnit: String,
+    scripted: DataSourcesScript? = null,
 ) {
-    val context = androidx.compose.ui.platform.LocalContext.current
-    val speedUnitLabel = Units.speedUnit(context, speedUnit)
+    val speedUnitLabel = stringResource(Units.speedUnitRes(speedUnit))
     // Inter-fix distance uses its own metric-vs-imperial helper.
     val imperial = speedUnit == "mph"
     val snapA = snapshots[a] ?: SourceSnapshot()
@@ -794,13 +809,27 @@ private fun CompareTab(
             if (avgW != null && avgR != null) viewModel.computeCalibrationPct(avgW, avgR) else null
         } else null
         var showApplyDialog by remember { mutableStateOf(false) }
+        // A scripted run asks the calibration question once the averages
+        // have had time to fill, and may answer it too.
+        val latestProposal = androidx.compose.runtime.rememberUpdatedState(proposedCalPct)
+        LaunchedEffect(scripted) {
+            val script = scripted ?: return@LaunchedEffect
+            val askAfter = script.calibrateAfterMs ?: return@LaunchedEffect
+            kotlinx.coroutines.delay(askAfter)
+            showApplyDialog = true
+            if (script.confirmCalibration) {
+                kotlinx.coroutines.delay(2_000)
+                latestProposal.value?.let { viewModel.applyCalibrationPct(it) }
+                showApplyDialog = false
+            }
+        }
 
         // Button is always rendered (so the header layout doesn't shift
         // when the user switches A/B), but only enabled when the wheel is
         // one of the two sources, the wheel is connected, and we have
         // enough samples on both sides to compute a meaningful offset.
         ComparisonChart(
-            title = stringResource(com.eried.eucplanet.R.string.sources_speed),
+            title = stringResource(Res.string.sources_speed),
             seriesA = speedSeriesA,
             seriesB = speedSeriesB,
             colorA = aColor,
@@ -811,10 +840,10 @@ private fun CompareTab(
             deltaAvg = speedDeltaAvg,
             chartHeight = 200.dp,
             showAverageLine = true,
-            applyActionLabel = stringResource(com.eried.eucplanet.R.string.sources_apply_calibration),
+            applyActionLabel = stringResource(Res.string.sources_apply_calibration),
             applyActionEnabled = wheelInComparison && wheelConnected && proposedCalPct != null,
             onApplyAction = { showApplyDialog = true },
-            resetActionLabel = stringResource(com.eried.eucplanet.R.string.sources_reset_avg),
+            resetActionLabel = stringResource(Res.string.sources_reset_avg),
             onResetAction = { viewModel.resetRollingAverages() }
         )
         if (showApplyDialog && proposedCalPct != null) {
@@ -822,12 +851,12 @@ private fun CompareTab(
                 onDismissRequest = { showApplyDialog = false },
                 shape = RoundedCornerShape(12.dp),
                 title = {
-                    Text(stringResource(com.eried.eucplanet.R.string.sources_apply_calibration_title))
+                    Text(stringResource(Res.string.sources_apply_calibration_title))
                 },
                 text = {
                     Text(
                         stringResource(
-                            com.eried.eucplanet.R.string.sources_apply_calibration_body_fmt,
+                            Res.string.sources_apply_calibration_body_fmt,
                             proposedCalPct
                         )
                     )
@@ -837,14 +866,14 @@ private fun CompareTab(
                         viewModel.applyCalibrationPct(proposedCalPct)
                         showApplyDialog = false
                     }, shape = RoundedCornerShape(12.dp)) {
-                        Text(stringResource(com.eried.eucplanet.R.string.sources_apply))
+                        Text(stringResource(Res.string.sources_apply))
                     }
                 },
                 dismissButton = {
                     androidx.compose.material3.TextButton(onClick = {
                         showApplyDialog = false
                     }, shape = RoundedCornerShape(12.dp)) {
-                        Text(stringResource(com.eried.eucplanet.R.string.sources_cancel))
+                        Text(stringResource(Res.string.sources_cancel))
                     }
                 }
             )
@@ -853,14 +882,14 @@ private fun CompareTab(
         // Everything else collapses to a compact table. Each row is the two
         // current values + the signed delta; no per-metric graph.
         Text(
-            stringResource(com.eried.eucplanet.R.string.sources_other_metrics),
+            stringResource(Res.string.sources_other_metrics),
             fontSize = 13.sp,
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         if (snapA.headingDeg != null || snapB.headingDeg != null) {
             CompareTableRow(
-                label = stringResource(com.eried.eucplanet.R.string.sources_heading),
+                label = stringResource(Res.string.sources_heading),
                 valueA = snapA.headingDeg?.let { "%.0f°".format(it) },
                 valueB = snapB.headingDeg?.let { "%.0f°".format(it) },
                 delta = if (snapA.headingDeg != null && snapB.headingDeg != null)
@@ -871,7 +900,7 @@ private fun CompareTab(
         }
         if (snapA.verticalSpeedMps != null || snapB.verticalSpeedMps != null) {
             CompareTableRow(
-                label = stringResource(com.eried.eucplanet.R.string.sources_vertical_speed),
+                label = stringResource(Res.string.sources_vertical_speed),
                 valueA = snapA.verticalSpeedMps?.let { "%+.2f m/s".format(it) },
                 valueB = snapB.verticalSpeedMps?.let { "%+.2f m/s".format(it) },
                 delta = if (snapA.verticalSpeedMps != null && snapB.verticalSpeedMps != null)
@@ -884,7 +913,7 @@ private fun CompareTab(
         val gB = snapB.horizGMagnitude
         if (gA != null || gB != null) {
             CompareTableRow(
-                label = stringResource(com.eried.eucplanet.R.string.sources_g_horizontal),
+                label = stringResource(Res.string.sources_g_horizontal),
                 valueA = gA?.let { "%.2f g".format(it) },
                 valueB = gB?.let { "%.2f g".format(it) },
                 delta = if (gA != null && gB != null) "%+.2f g".format(gB - gA) else null,
@@ -902,13 +931,13 @@ private fun CompareTab(
                 haversineMeters(lat1, lon1, lat2, lon2)
             else null
             Text(
-                stringResource(com.eried.eucplanet.R.string.sources_position),
+                stringResource(Res.string.sources_position),
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             ValueRow(
-                label = stringResource(com.eried.eucplanet.R.string.sources_distance_between_fixes),
+                label = stringResource(Res.string.sources_distance_between_fixes),
                 value = distance?.let { formatDistance(it, imperial) },
                 color = MaterialTheme.colorScheme.onSurface
             )
@@ -983,7 +1012,7 @@ private fun ComparisonChart(
                 )
                 if (deltaAvg != null) {
                     Text(
-                        text = stringResource(com.eried.eucplanet.R.string.sources_delta_avg_fmt, deltaAvg, deltaSuffix),
+                        text = stringResource(Res.string.sources_delta_avg_fmt, deltaAvg, deltaSuffix),
                         fontSize = 10.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -1155,7 +1184,7 @@ private fun LineChart(
     val axisLabel = MaterialTheme.colorScheme.onSurfaceVariant
     val onSurface = MaterialTheme.colorScheme.onSurface
     val surface = MaterialTheme.colorScheme.surface
-    val collectingLabel = stringResource(com.eried.eucplanet.R.string.sources_collecting)
+    val collectingLabel = stringResource(Res.string.sources_collecting)
     // Scrub X in pixels (relative to the Canvas's draw area), null when no
     // finger is down. Updated by the pointer modifier attached to the
     // Canvas; consumed in the drawScope to render a vertical scrub line +
@@ -1403,7 +1432,7 @@ private fun MiniMap(
     val lats = listOf(a.first, b.first)
     val lons = listOf(a.second, b.second)
     val midLat = (lats.min() + lats.max()) / 2.0
-    val cosLat = kotlin.math.cos(Math.toRadians(midLat))
+    val cosLat = kotlin.math.cos(toRadians(midLat))
 
     val padFactor = 1.2
     val latSpanDeg = ((lats.max() - lats.min()).coerceAtLeast(1e-6) * padFactor)
@@ -1643,11 +1672,46 @@ private const val GFORCE_SLOPE_WINDOW_MS = 500L
 
 private fun haversineMeters(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
     val r = 6_371_000.0
-    val dLat = Math.toRadians(lat2 - lat1)
-    val dLon = Math.toRadians(lon2 - lon1)
+    val dLat = toRadians(lat2 - lat1)
+    val dLon = toRadians(lon2 - lon1)
     val a = kotlin.math.sin(dLat / 2).let { it * it } +
-        kotlin.math.cos(Math.toRadians(lat1)) * kotlin.math.cos(Math.toRadians(lat2)) *
+        kotlin.math.cos(toRadians(lat1)) * kotlin.math.cos(toRadians(lat2)) *
         kotlin.math.sin(dLon / 2).let { it * it }
     val c = 2 * kotlin.math.atan2(kotlin.math.sqrt(a), kotlin.math.sqrt(1 - a))
     return r * c
 }
+
+/**
+ * What a scripted run opens the sheet on: the iPhone simulator cannot be
+ * tapped, so its EUC_SOURCES launch hook picks the tab, the comparison and
+ * whether to ask (and answer) the calibration question.
+ */
+data class DataSourcesScript(
+    val source: DataSource,
+    val compareWith: DataSource? = null,
+    /** Ask "apply calibration?" this long after the comparison opens. */
+    val calibrateAfterMs: Long? = null,
+    /** Then press Apply, two seconds later. */
+    val confirmCalibration: Boolean = false,
+) {
+    companion object {
+        /** "WHEEL", "WHEEL:RACEBOX", "WHEEL:RACEBOX:calibrate=20" or "...:apply=20" (seconds). */
+        fun parse(spec: String): DataSourcesScript? {
+            val parts = spec.split(':')
+            fun src(i: Int) = parts.getOrNull(i)?.let { n -> DataSource.entries.firstOrNull { it.name.equals(n, ignoreCase = true) } }
+            val a = src(0) ?: return null
+            val b = src(1)
+            val action = parts.getOrNull(2)
+            val secs = action?.substringAfter('=', "")?.toLongOrNull()
+            return DataSourcesScript(
+                source = a,
+                compareWith = b,
+                calibrateAfterMs = secs?.times(1000),
+                confirmCalibration = action?.startsWith("apply") == true,
+            )
+        }
+    }
+}
+
+/** Degrees to radians, as java.lang.Math.toRadians computes it (degrees times PI / 180). */
+private fun toRadians(deg: Double): Double = deg * (kotlin.math.PI / 180.0)

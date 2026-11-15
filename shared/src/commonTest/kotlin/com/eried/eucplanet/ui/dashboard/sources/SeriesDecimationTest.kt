@@ -1,9 +1,9 @@
 package com.eried.eucplanet.ui.dashboard.sources
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertSame
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertSame
+import kotlin.test.assertTrue
+import kotlin.test.Test
 
 /**
  * Locks in the Compare-tab series decimation that fixed the ride-time ANR.
@@ -26,14 +26,14 @@ class SeriesDecimationTest {
             pts = DataSourcesViewModel.appendDecimated(pts, i * 20L, i.toFloat(), windowMs, intervalMs)
         }
         // 20 s at one-per-100 ms is ~201 kept, nowhere near the raw 1000.
-        assertTrue("expected ~200 kept, got ${pts.size}", pts.size in 195..205)
+        assertTrue(pts.size in 195..205, "expected ~200 kept, got ${pts.size}")
     }
 
     @Test fun `skip path returns the exact same list instance`() {
         val first = DataSourcesViewModel.appendDecimated(emptyList(), 0L, 1f, windowMs, intervalMs)
         // 50 ms later is inside the 100 ms interval, so nothing changes.
         val skipped = DataSourcesViewModel.appendDecimated(first, 50L, 2f, windowMs, intervalMs)
-        assertSame("too-soon append must return the same instance (no StateFlow emit)", first, skipped)
+        assertSame(first, skipped, "too-soon append must return the same instance (no StateFlow emit)")
         assertEquals(1, skipped.size)
     }
 
@@ -44,8 +44,8 @@ class SeriesDecimationTest {
         for (i in 0 until 100) {
             pts = DataSourcesViewModel.appendDecimated(pts, i * 1000L, i.toFloat(), 10_000L, intervalMs)
         }
-        assertTrue("window should bound the buffer, got ${pts.size}", pts.size <= 11)
-        assertEquals("newest sample must be present", 99f, pts.last().second, 0f)
+        assertTrue(pts.size <= 11, "window should bound the buffer, got ${pts.size}")
+        assertEquals(99f, pts.last().second, 0f, "newest sample must be present")
     }
 
     @Test fun `a sample after a gap is kept`() {

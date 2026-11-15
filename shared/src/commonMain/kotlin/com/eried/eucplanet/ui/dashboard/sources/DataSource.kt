@@ -1,7 +1,8 @@
 package com.eried.eucplanet.ui.dashboard.sources
 
 import androidx.compose.ui.graphics.Color
-import com.eried.eucplanet.R
+import org.jetbrains.compose.resources.StringResource
+import com.eried.eucplanet.resources.*
 import com.eried.eucplanet.ui.theme.AccentBlue
 import com.eried.eucplanet.ui.theme.AccentGreen
 import com.eried.eucplanet.ui.theme.AccentPurple
@@ -13,14 +14,14 @@ import com.eried.eucplanet.ui.theme.AccentPurple
  * wheel, purple = RaceBox" that carries through to the overlay dot on the
  * speed dial and the lines on the trip-detail chart.
  */
-enum class DataSource(val labelRes: Int, val color: Color) {
-    PHONE(R.string.sources_phone, AccentBlue),
-    WHEEL(R.string.sources_wheel, AccentGreen),
+enum class DataSource(val labelRes: StringResource, val color: Color) {
+    PHONE(Res.string.sources_phone, AccentBlue),
+    WHEEL(Res.string.sources_wheel, AccentGreen),
     // Label string is "External" (not "RaceBox") so the dialog stays
     // accurate when the user has a Draggy / VBox / other GPS box paired
     // instead of a literal RaceBox. The enum name stays RACEBOX for
     // backward compat with the pairing column.
-    RACEBOX(R.string.sources_external, AccentPurple);
+    RACEBOX(Res.string.sources_external, AccentPurple);
 
     /**
      * Capability flags so each tab can render the right rows without
@@ -86,7 +87,7 @@ data class SourceSnapshot(
     val accelYG: Float? = null,
     val accelZG: Float? = null,
     /** Heading of motion in degrees [0..360), or null. Phone source fills
-     *  this in from [android.location.Location.getBearing] when speed > 0. */
+     *  this in from the phone fix's bearing when speed > 0. */
     val headingDeg: Float? = null,
     /** Vertical speed in m/s (+up), or null. */
     val verticalSpeedMps: Float? = null,

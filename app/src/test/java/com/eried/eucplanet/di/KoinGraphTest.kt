@@ -34,8 +34,10 @@ class KoinGraphTest {
      * their clock and sun as lambdas), which the modules
      * provide by name (the adapter sets, the eucstats lambdas and strings) or
      * as a Lazy through inject(). The offline tile store's folder and the
-     * offline router's timeout and engine, and the crews pairing HTTP client,
-     * are built in their definitions.
+     * offline router's timeout and engine, the crews pairing HTTP client, and
+     * the flows the shared external GPS repository and data sources view
+     * model read (the app's foreground, the phone's fix), are built in their
+     * definitions.
      */
     @OptIn(KoinExperimentalAPI::class)
     @Test fun `every definition can be built`() {
@@ -53,6 +55,7 @@ class KoinGraphTest {
                 java.io.File::class,
                 Long::class,
                 com.eried.eucplanet.platform.HttpClient::class,
+                kotlinx.coroutines.flow.StateFlow::class,
             ),
         )
     }

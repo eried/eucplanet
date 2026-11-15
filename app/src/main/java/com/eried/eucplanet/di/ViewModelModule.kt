@@ -81,6 +81,7 @@ import com.eried.eucplanet.ui.studio.OverlayStudioViewModel
 import com.eried.eucplanet.ui.theme.ThemeEditorViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.singleOf
+import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -127,7 +128,16 @@ val viewModelModule = module {
     viewModelOf(::DashboardViewModel)
     viewModelOf(::MetricDetailViewModel)
     viewModelOf(::TripMeterDetailViewModel)
-    viewModelOf(::DataSourcesViewModel)
+    // The shared view model reads the phone's fix through the dashboard's mirror of it.
+    viewModel {
+        DataSourcesViewModel(
+            phoneSensors = get(),
+            phoneFix = get<DashboardTrips>().currentFix,
+            wheelRepository = get(),
+            externalGpsRepository = get<com.eried.eucplanet.data.repository.ExternalGpsRepository>(),
+            settingsRepository = get(),
+        )
+    }
     viewModelOf(::LegalLockdownViewModel)
     viewModelOf(::NavigationOverlayViewModel)
     viewModelOf(::RouteBuilderViewModel)

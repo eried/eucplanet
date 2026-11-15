@@ -4,11 +4,15 @@ import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eried.eucplanet.ble.ConnectionState
-import com.eried.eucplanet.data.repository.ExternalGpsRepository
-import com.eried.eucplanet.data.repository.PhoneSensorRepository
+import com.eried.eucplanet.data.model.ExternalGpsSample
+import com.eried.eucplanet.data.model.WheelData
+import com.eried.eucplanet.data.repository.ExternalGpsFeed
+import com.eried.eucplanet.data.repository.PhoneImu
+import com.eried.eucplanet.data.repository.PhoneImuSample
+import com.eried.eucplanet.data.repository.PhoneLocation
 import com.eried.eucplanet.data.repository.SettingsRepository
-import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
+import com.eried.eucplanet.platform.System
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -29,10 +33,11 @@ import kotlinx.coroutines.launch
  * loop and RaceBox GATT connection) so they need no explicit start/stop here.
  */
 class DataSourcesViewModel(
-    private val phoneSensors: PhoneSensorRepository,
-    private val tripRepository: TripRepository,
+    private val phoneSensors: PhoneImu,
+    /** The phone's latest GPS fix (TripRepository's on Android, CoreLocation's on the iPhone). */
+    private val phoneFix: StateFlow<PhoneLocation?>,
     private val wheelRepository: WheelRepository,
-    private val externalGpsRepository: ExternalGpsRepository,
+    private val externalGpsRepository: ExternalGpsFeed,
     private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
@@ -147,17 +152,17 @@ class DataSourcesViewModel(
      */
     val snapshots: StateFlow<Map<DataSource, SourceSnapshot>> = combine(
         phoneSensors.imu,
-        tripRepository.currentLocation,
+        phoneFix,
         wheelRepository.wheelData,
         wheelRepository.connectionState,
         externalGpsRepository.currentSample,
         externalGpsRepository.connectionState
     ) { values ->
-        val imu = values[0] as com.eried.eucplanet.data.repository.PhoneImuSample?
-        val loc = values[1] as android.location.Location?
-        val wheel = values[2] as com.eried.eucplanet.data.model.WheelData
+        val imu = values[0] as PhoneImuSample?
+        val loc = values[1] as PhoneLocation?
+        val wheel = values[2] as WheelData
         val wheelState = values[3] as ConnectionState
-        val ext = values[4] as com.eried.eucplanet.data.model.ExternalGpsSample?
+        val ext = values[4] as ExternalGpsSample?
         val extState = values[5] as ConnectionState
 
         val phoneSpeedKmh: Float? = loc?.takeIf { it.hasSpeed() }?.let { it.speed * 3.6f }

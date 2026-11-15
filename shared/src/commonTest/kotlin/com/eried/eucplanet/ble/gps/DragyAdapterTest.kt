@@ -1,12 +1,12 @@
 package com.eried.eucplanet.ble.gps
 
 import com.eried.eucplanet.data.model.ExternalGpsSource
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
+import kotlin.test.Test
 
 /**
  * Verifies the Dragy adapter's u-blox UBX decode against synthetic frames.
@@ -30,7 +30,7 @@ class DragyAdapterTest {
         frame[2] = cls.toByte(); frame[3] = id.toByte()
         frame[4] = (payload.size and 0xFF).toByte()
         frame[5] = ((payload.size shr 8) and 0xFF).toByte()
-        System.arraycopy(payload, 0, frame, 6, payload.size)
+        payload.copyInto(frame, 6)
         var a = 0; var b = 0
         for (i in 2 until frame.size - 2) {
             a = (a + (frame[i].toInt() and 0xFF)) and 0xFF
@@ -41,7 +41,7 @@ class DragyAdapterTest {
     }
 
     private fun set(payload: ByteArray, off: Int, bytes: ByteArray) =
-        System.arraycopy(bytes, 0, payload, off, bytes.size)
+        bytes.copyInto(payload, off)
 
     @Test fun `uses Dragy custom GATT profile FD00 FD02 FD01`() {
         val p = DragyAdapter().gattProfile()
@@ -58,7 +58,7 @@ class DragyAdapterTest {
         assertEquals(0x62.toByte(), cmds[0][1])
     }
 
-    @Test fun `matches Dragy and DRG names, not others`() {
+    @Test fun `matches Dragy and DRG names and no others`() {
         val a = DragyAdapter()
         assertTrue(a.matches("Dragy"))
         assertTrue(a.matches("DRAGY 12345"))
@@ -93,7 +93,7 @@ class DragyAdapterTest {
 
         // SAT first so the fix-proxy passes (8 sats).
         val sat = ByteArray(8); sat[5] = 8
-        assertNull("SAT alone is not a fix update", a.decode(ubx(0x01, 0x35, sat)))
+        assertNull(a.decode(ubx(0x01, 0x35, sat)), "SAT alone is not a fix update")
 
         // POSLLH: lon@4, lat@8, hMSL@16, hAcc@20.
         val pos = ByteArray(28)
@@ -102,7 +102,7 @@ class DragyAdapterTest {
         set(pos, 16, i32(50_000))    // 50 m
         set(pos, 20, i32(2_000))     // 2 m
         val afterPos = a.decode(ubx(0x01, 0x02, pos))
-        assertNotNull("POSLLH with a good position + sats should emit", afterPos)
+        assertNotNull(afterPos, "POSLLH with a good position + sats should emit")
         assertEquals(60.0, afterPos!!.latitude, 1e-4)
 
         // VELNED: gSpeed@20 in cm/s. 1000 cm/s = 10 m/s = 36 km/h.
@@ -127,7 +127,7 @@ class DragyAdapterTest {
         set(payload, 60, i32(5_000))   // 5 m/s -> 18 km/h
         val frame = ubx(0x01, 0x07, payload)
         val a = DragyAdapter()
-        assertNull("partial frame yields nothing yet", a.decode(frame.copyOfRange(0, 40)))
+        assertNull(a.decode(frame.copyOfRange(0, 40)), "partial frame yields nothing yet")
         val sample = a.decode(frame.copyOfRange(40, frame.size))
         assertNotNull(sample)
         assertEquals(18f, sample!!.speedKmh, 0.1f)

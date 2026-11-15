@@ -2,7 +2,7 @@ package com.eried.eucplanet.ble.gps
 
 import com.eried.eucplanet.data.model.ExternalGpsSample
 import com.eried.eucplanet.data.model.ExternalGpsSource
-import java.util.UUID
+import kotlin.uuid.Uuid
 
 /**
  * GATT service + characteristic UUIDs an external-GPS box binds to. Most boxes
@@ -11,21 +11,21 @@ import java.util.UUID
  * connection manager reads this from the active adapter on service discovery.
  */
 data class ExternalGpsGattProfile(
-    val serviceUuid: UUID,
+    val serviceUuid: Uuid,
     /** Characteristic the device streams telemetry on (notify). */
-    val notifyUuid: UUID,
+    val notifyUuid: Uuid,
     /** Characteristic the adapter writes commands / init to. */
-    val writeUuid: UUID
+    val writeUuid: Uuid
 ) {
     companion object {
-        private fun uuid16(short: String): UUID =
-            UUID.fromString("0000$short-0000-1000-8000-00805f9b34fb")
+        internal fun uuid16(short: String): Uuid =
+            Uuid.parse("0000$short-0000-1000-8000-00805f9b34fb")
 
         /** Nordic UART: service 6e40…0001, notify (TX) …0003, write (RX) …0002. */
         val NORDIC_UART = ExternalGpsGattProfile(
-            serviceUuid = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e"),
-            notifyUuid = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e"),
-            writeUuid = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e")
+            serviceUuid = Uuid.parse("6e400001-b5a3-f393-e0a9-e50e24dcca9e"),
+            notifyUuid = Uuid.parse("6e400003-b5a3-f393-e0a9-e50e24dcca9e"),
+            writeUuid = Uuid.parse("6e400002-b5a3-f393-e0a9-e50e24dcca9e")
         )
 
         /** Dragy: eWheel-style custom profile. Service FD00, notify FD02
@@ -50,7 +50,7 @@ data class ExternalGpsGattProfile(
  * the scanner / connection manager iterate them without knowing the concrete
  * types. Ships [RaceBoxAdapter] + [DragyAdapter]; future VBox / Garmin
  * Catalyst adapters slot in by adding an entry to the set in
- * [com.eried.eucplanet.di.externalGpsModule].
+ * Android's externalGpsModule and in IosAppGraph.
  */
 interface ExternalGpsAdapter {
     val source: ExternalGpsSource
@@ -103,7 +103,7 @@ interface ExternalGpsAdapter {
      * [onPollResult]; RaceBox leaves this null because its battery byte rides
      * inside the streamed frame.
      */
-    fun pollCharacteristic(): UUID? = null
+    fun pollCharacteristic(): Uuid? = null
 
     /** How often to re-read [pollCharacteristic]. Ignored when it is null. */
     fun pollIntervalMs(): Long = 30_000L
@@ -116,3 +116,4 @@ interface ExternalGpsAdapter {
      */
     fun onPollResult(value: ByteArray) {}
 }
+

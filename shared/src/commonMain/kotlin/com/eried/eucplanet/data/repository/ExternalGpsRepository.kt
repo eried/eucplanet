@@ -1,18 +1,23 @@
 package com.eried.eucplanet.data.repository
 
-import android.util.Log
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.ble.gps.ExternalGpsAdapter
-import com.eried.eucplanet.ble.gps.ExternalGpsConnectionManager
+import com.eried.eucplanet.ble.gps.ExternalGpsLink
+import com.eried.eucplanet.ble.gps.ExternalGpsLinkRouter
 import com.eried.eucplanet.data.model.ExternalGpsSample
 import com.eried.eucplanet.data.model.ExternalGpsSource
+import com.eried.eucplanet.platform.Log
+import com.eried.eucplanet.platform.System
+import com.eried.eucplanet.service.AlarmEngine
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlin.concurrent.Volatile
 
 /**
  * Owns the external-GPS BLE connection and exposes the current sample.
@@ -23,21 +28,47 @@ import kotlinx.coroutines.launch
  *
  * Pairing persists in three AppSettings columns (address / name / source enum)
  * so [connectPaired] can re-open the paired device on app start without prompting.
+ *
+ * Shared by both phones: the GATT side is the platform's [ExternalGpsLink]
+ * (Android's ExternalGpsConnectionManager, the iPhone's IosExternalGpsLink),
+ * routed through [ExternalGpsLinkRouter] so the virtual RaceBox (Service
+ * Mode) runs the same path with no box in the room.
  */
 class ExternalGpsRepository(
     private val settingsRepository: SettingsRepository,
-    private val connectionManager: ExternalGpsConnectionManager,
+    link: ExternalGpsLink,
     private val adapters: Set<ExternalGpsAdapter>,
-    // Lazy to break the dependency cycle: TripRepository injects us.
-    private val tripRepositoryProvider: Lazy<TripRepository>,
+    // The phone's latest fix, for the RaceBox's position assist. A lambda,
+    // since the trip recorder injects this repository.
+    private val phoneFix: () -> PhoneLocation?,
     // Lazy so a future AlarmEngine dependency on us can't form a DI cycle.
-    private val alarmEngineProvider: Lazy<com.eried.eucplanet.service.AlarmEngine>
+    private val alarmEngineProvider: Lazy<AlarmEngine>,
+    /** The app is in front (Android's AppForeground). */
+    private val foreground: StateFlow<Boolean>,
+    /** A ride is running in the background (Android's WheelService). */
+    private val rideRunning: () -> Boolean,
+    /** The connected wheel's uncalibrated speed, which the virtual box rides at. */
+    wheelSpeedKmh: () -> Float? = { null },
 ) : ExternalGpsFeed {
     companion object {
         private const val TAG = "ExtGpsRepo"
+
+        /**
+         * The connected wheel's speed without the rider's calibration, or
+         * null with no wheel: what the virtual RaceBox rides at, so the
+         * Compare tab's calibration finds the same offset however often it
+         * is applied.
+         */
+        fun rawWheelSpeedKmh(wheel: WheelRepository, settings: SettingsRepository): Float? {
+            if (wheel.connectionState.value != ConnectionState.CONNECTED) return null
+            val mul = 1f + settings.current.value.speedCalibrationOffsetPct / 100f
+            return if (mul > 0f) wheel.wheelData.value.speed / mul else null
+        }
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    private val connectionManager: ExternalGpsLink = ExternalGpsLinkRouter(link, wheelSpeedKmh)
 
     override val connectionState: StateFlow<ConnectionState> = connectionManager.connectionState
 
@@ -150,7 +181,7 @@ class ExternalGpsRepository(
         // its own nudge. Background-only wakes never set foreground, so they
         // stay disconnected.
         scope.launch {
-            com.eried.eucplanet.util.AppForeground.isForeground.collect { fg ->
+            foreground.collect { fg ->
                 if (fg && !explicitlyDisconnected &&
                     connectionState.value == ConnectionState.DISCONNECTED &&
                     settingsRepository.get().externalGpsAddress != null
@@ -248,7 +279,7 @@ class ExternalGpsRepository(
      * POS_LLH when no location is available yet.
      */
     private fun buildInitWrites(adapter: ExternalGpsAdapter): List<ByteArray> {
-        val loc = tripRepositoryProvider.value.currentLocation.value
+        val loc = phoneFix()
         val lat = loc?.latitude
         val lon = loc?.longitude
         val acc = loc?.accuracy
@@ -263,9 +294,7 @@ class ExternalGpsRepository(
     /** True while the rider is actively using the app: a foreground UI, or a
      *  running ride/service. Background-only process wakes are neither, so the
      *  external GPS is not auto-connected on them. */
-    private fun appActive(): Boolean =
-        com.eried.eucplanet.util.AppForeground.isForeground.value ||
-            com.eried.eucplanet.service.WheelService.isRunning
+    private fun appActive(): Boolean = foreground.value || rideRunning()
 
     fun disconnect() {
         // User-initiated disconnect: veto the auto-reconnect loop so the
@@ -356,3 +385,18 @@ class ExternalGpsRepository(
         return Triple(rawX, rawY, rawZ)
     }
 }
+
+/**
+ * The trip CSV's merged GPS-speed column takes the external box's speed only
+ * when the rider prioritises external GPS and the sample is recent (a staler
+ * reading would freeze the column); null lets the writer fall back to the
+ * phone's GPS speed. The same rule on both phones' recorders.
+ */
+fun externalSpeedForTrip(
+    sample: ExternalGpsSample?,
+    prioritizeExternal: Boolean,
+    recordIntervalMs: Long,
+    nowMs: Long = System.currentTimeMillis(),
+): Float? = sample
+    ?.takeIf { prioritizeExternal && nowMs - it.timestamp < recordIntervalMs * 3 }
+    ?.speedKmh

@@ -23,6 +23,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.util.UUID
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.toJavaUuid
 
 /**
  * GATT instance dedicated to an external BLE GPS box. Independent of
@@ -34,10 +36,13 @@ import java.util.UUID
  * characteristic, write whatever post-connect init the adapter wants on the
  * RX characteristic (for RaceBox: MGA-INI-TIME + MGA-INI-POS to skip
  * cold-start GNSS search), and forward each TX notification to the adapter.
+ *
+ * The Android side of the shared [ExternalGpsLink].
  */
+@OptIn(ExperimentalUuidApi::class)
 class ExternalGpsConnectionManager(
     private val context: Context
-) {
+) : ExternalGpsLink {
     companion object {
         private const val TAG = "ExtGpsConn"
         private val CCCD_UUID: UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
@@ -52,16 +57,16 @@ class ExternalGpsConnectionManager(
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
 
     private val _connectionState = MutableStateFlow(ConnectionState.DISCONNECTED)
-    val connectionState: StateFlow<ConnectionState> = _connectionState.asStateFlow()
+    override val connectionState: StateFlow<ConnectionState> = _connectionState.asStateFlow()
 
     private val _samples = MutableSharedFlow<ExternalGpsSample>(extraBufferCapacity = 16)
-    val samples: SharedFlow<ExternalGpsSample> = _samples.asSharedFlow()
+    override val samples: SharedFlow<ExternalGpsSample> = _samples.asSharedFlow()
 
     @Volatile private var gatt: BluetoothGatt? = null
     @Volatile private var activeAdapter: ExternalGpsAdapter? = null
     /** GATT profile of the active adapter (Nordic UART for RaceBox, custom
      *  FD00/FD02/FD01 for Dragy). Set on connect, read in the callbacks. */
-    @Volatile private var profile: ExternalGpsGattProfile = ExternalGpsGattProfile.NORDIC_UART
+    @Volatile private var profile: JavaGattProfile = JavaGattProfile.of(ExternalGpsGattProfile.NORDIC_UART)
     @Volatile private var currentAddress: String? = null
     @Volatile private var currentInitWrites: List<ByteArray> = emptyList()
 
@@ -102,10 +107,10 @@ class ExternalGpsConnectionManager(
     }
 
     @SuppressLint("MissingPermission")
-    fun connect(address: String, adapter: ExternalGpsAdapter, initWrites: List<ByteArray>) {
+    override fun connect(address: String, adapter: ExternalGpsAdapter, initWrites: List<ByteArray>) {
         activeAdapter = adapter
-        profile = adapter.gattProfile()
-        pollUuid = adapter.pollCharacteristic()
+        profile = JavaGattProfile.of(adapter.gattProfile())
+        pollUuid = adapter.pollCharacteristic()?.toJavaUuid()
         pollIntervalMs = adapter.pollIntervalMs()
         currentAddress = address
         currentInitWrites = initWrites
@@ -141,7 +146,7 @@ class ExternalGpsConnectionManager(
 
     /** Deliberate, user-initiated disconnect: stop auto-reconnect too. */
     @SuppressLint("MissingPermission")
-    fun disconnect() {
+    override fun disconnect() {
         reconnector.cancel()
         currentAddress = null
         currentInitWrites = emptyList()
@@ -435,5 +440,14 @@ class ExternalGpsConnectionManager(
                 log.note("    char ${ch.uuid} [$flags]")
             }
         }
+    }
+}
+
+/** The adapter's GATT profile in java.util.UUID, as BluetoothGatt takes it. */
+@OptIn(ExperimentalUuidApi::class)
+private data class JavaGattProfile(val serviceUuid: UUID, val notifyUuid: UUID, val writeUuid: UUID) {
+    companion object {
+        fun of(p: ExternalGpsGattProfile) =
+            JavaGattProfile(p.serviceUuid.toJavaUuid(), p.notifyUuid.toJavaUuid(), p.writeUuid.toJavaUuid())
     }
 }

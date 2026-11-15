@@ -37,16 +37,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.eried.eucplanet.R
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedFieldColors
 import com.eried.eucplanet.ui.theme.themedSwitchColors
-import org.koin.compose.viewmodel.koinViewModel
+import com.eried.eucplanet.ble.gps.VirtualExternalGps
+import com.eried.eucplanet.diagnostics.DiagnosticsLogger
+import com.eried.eucplanet.platform.format
+import com.eried.eucplanet.platform.stringResource
+import com.eried.eucplanet.resources.*
 
 /**
  * Section in the Integration tab for pairing/unpairing an external BLE GPS box.
@@ -58,13 +60,16 @@ import org.koin.compose.viewmodel.koinViewModel
  */
 @Composable
 fun ExternalGpsSection(
-    viewModel: ExternalGpsViewModel = koinViewModel(),
-    settingsViewModel: SettingsViewModel = koinViewModel()
+    viewModel: ExternalGpsViewModel,
+    settingsViewModel: SettingsViewModel,
 ) {
     val pairedAddress by viewModel.pairedAddress.collectAsState()
     val pairedName by viewModel.pairedName.collectAsState()
     val scanning by viewModel.scanning.collectAsState()
     val scanResults by viewModel.scanResults.collectAsState()
+    // The virtual RaceBox, listed with Service Mode on as the virtual wheels
+    // are, so the section can be tried with no box in the room.
+    val serviceMode by DiagnosticsLogger.enabled.collectAsState()
     val connectionState by viewModel.connectionState.collectAsState()
     val sample by viewModel.currentSample.collectAsState()
     val settings by settingsViewModel.settings.collectAsState()
@@ -77,24 +82,24 @@ fun ExternalGpsSection(
         // Show speed on the dashboard, a general display option, kept first
         // because it has nothing to do with the external box below it.
         ToggleRow(
-            label = stringResource(R.string.gps_show_on_dashboard),
+            label = stringResource(Res.string.gps_show_on_dashboard),
             checked = settings?.gpsShowOnDashboard == true,
             onCheckedChange = { settingsViewModel.updateGpsShowOnDashboard(it) }
         )
-        HintText(stringResource(R.string.gps_show_on_dashboard_desc))
+        HintText(stringResource(Res.string.gps_show_on_dashboard_desc))
 
         Spacer(Modifier.height(8.dp))
         Text(
-            stringResource(R.string.external_gps_device_title),
+            stringResource(Res.string.external_gps_device_title),
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.SemiBold
         )
 
         if (pairedAddress == null) {
-            HintText(stringResource(R.string.external_gps_caption))
+            HintText(stringResource(Res.string.external_gps_caption))
             UnpairedExternalGpsCard(
                 scanning = scanning,
-                results = scanResults,
+                results = if (serviceMode) listOf(VirtualExternalGps.scanResult) + scanResults else scanResults,
                 onStartScan = { startScan { viewModel.startScan() } },
                 onStopScan = { viewModel.stopScan() },
                 onPick = { viewModel.pair(it) }
@@ -119,7 +124,7 @@ fun ExternalGpsSection(
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.external_gps_disconnect))
+                        com.eried.eucplanet.ui.common.SearchableText(stringResource(Res.string.external_gps_disconnect))
                     }
                 } else {
                     Button(
@@ -127,7 +132,7 @@ fun ExternalGpsSection(
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.external_gps_reconnect))
+                        com.eried.eucplanet.ui.common.SearchableText(stringResource(Res.string.external_gps_reconnect))
                     }
                 }
                 Button(
@@ -136,17 +141,17 @@ fun ExternalGpsSection(
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.appColors.statusDanger),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.external_gps_unpair))
+                    com.eried.eucplanet.ui.common.SearchableText(stringResource(Res.string.external_gps_unpair))
                 }
             }
 
             // --- Axis remap ---
             Spacer(Modifier.height(4.dp))
             Text(
-                stringResource(R.string.external_gps_axes_title),
+                stringResource(Res.string.external_gps_axes_title),
                 style = MaterialTheme.typography.titleSmall
             )
-            HintText(stringResource(R.string.external_gps_axes_desc))
+            HintText(stringResource(Res.string.external_gps_axes_desc))
 
             val axisOptions = listOf(
                 "X" to "X",
@@ -162,7 +167,7 @@ fun ExternalGpsSection(
             ) {
                 Box(modifier = Modifier.weight(1f)) {
                     InlineAxisDropdown(
-                        label = stringResource(R.string.external_gps_map_x),
+                        label = stringResource(Res.string.external_gps_map_x),
                         current = settings?.raceboxMapX ?: "X",
                         options = axisOptions,
                         onSelect = { settingsViewModel.updateRaceboxMapX(it) }
@@ -170,7 +175,7 @@ fun ExternalGpsSection(
                 }
                 Box(modifier = Modifier.weight(1f)) {
                     InlineAxisDropdown(
-                        label = stringResource(R.string.external_gps_map_y),
+                        label = stringResource(Res.string.external_gps_map_y),
                         current = settings?.raceboxMapY ?: "Y",
                         options = axisOptions,
                         onSelect = { settingsViewModel.updateRaceboxMapY(it) }
@@ -178,7 +183,7 @@ fun ExternalGpsSection(
                 }
                 Box(modifier = Modifier.weight(1f)) {
                     InlineAxisDropdown(
-                        label = stringResource(R.string.external_gps_map_z),
+                        label = stringResource(Res.string.external_gps_map_z),
                         current = settings?.raceboxMapZ ?: "Z",
                         options = axisOptions,
                         onSelect = { settingsViewModel.updateRaceboxMapZ(it) }
@@ -187,7 +192,7 @@ fun ExternalGpsSection(
             }
 
             LeftAlignedScanButton(
-                label = stringResource(R.string.external_gps_autodetect),
+                label = stringResource(Res.string.external_gps_autodetect),
                 onClick = {
                     viewModel.startAutoDetect { mapX, mapY, mapZ ->
                         settingsViewModel.setRaceboxAxisMap(mapX, mapY, mapZ)
@@ -198,11 +203,11 @@ fun ExternalGpsSection(
 
         Spacer(Modifier.height(4.dp))
         ToggleRow(
-            label = stringResource(R.string.gps_prioritize_external),
+            label = stringResource(Res.string.gps_prioritize_external),
             checked = settings?.gpsPrioritizeExternal == true,
             onCheckedChange = { settingsViewModel.updateGpsPrioritizeExternal(it) }
         )
-        HintText(stringResource(R.string.gps_prioritize_external_desc))
+        HintText(stringResource(Res.string.gps_prioritize_external_desc))
         }   // end BringIntoViewSection
     }
 
@@ -297,56 +302,56 @@ private fun AutoDetectDialog(
     val isDone: Boolean
     when (phase) {
         is ExternalGpsViewModel.AutoDetectPhase.Prep -> {
-            instruction = stringResource(R.string.external_gps_autodetect_prep)
+            instruction = stringResource(Res.string.external_gps_autodetect_prep)
             showSpinner = false
             showNext = true
             showCancel = true
             isDone = false
         }
         is ExternalGpsViewModel.AutoDetectPhase.ForwardInstruct -> {
-            instruction = stringResource(R.string.external_gps_autodetect_forward)
+            instruction = stringResource(Res.string.external_gps_autodetect_forward)
             showSpinner = false
             showNext = true
             showCancel = true
             isDone = false
         }
         is ExternalGpsViewModel.AutoDetectPhase.ForwardCapture -> {
-            instruction = stringResource(R.string.external_gps_autodetect_forward_capture)
+            instruction = stringResource(Res.string.external_gps_autodetect_forward_capture)
             showSpinner = true
             showNext = false
             showCancel = true
             isDone = false
         }
         is ExternalGpsViewModel.AutoDetectPhase.LateralInstruct -> {
-            instruction = stringResource(R.string.external_gps_autodetect_lateral)
+            instruction = stringResource(Res.string.external_gps_autodetect_lateral)
             showSpinner = false
             showNext = true
             showCancel = true
             isDone = false
         }
         is ExternalGpsViewModel.AutoDetectPhase.LateralCapture -> {
-            instruction = stringResource(R.string.external_gps_autodetect_lateral_capture)
+            instruction = stringResource(Res.string.external_gps_autodetect_lateral_capture)
             showSpinner = true
             showNext = false
             showCancel = true
             isDone = false
         }
         is ExternalGpsViewModel.AutoDetectPhase.VerticalInstruct -> {
-            instruction = stringResource(R.string.external_gps_autodetect_vertical)
+            instruction = stringResource(Res.string.external_gps_autodetect_vertical)
             showSpinner = false
             showNext = true
             showCancel = true
             isDone = false
         }
         is ExternalGpsViewModel.AutoDetectPhase.VerticalCapture -> {
-            instruction = stringResource(R.string.external_gps_autodetect_vertical_capture)
+            instruction = stringResource(Res.string.external_gps_autodetect_vertical_capture)
             showSpinner = true
             showNext = false
             showCancel = false  // results land at the end of this phase
             isDone = false
         }
         is ExternalGpsViewModel.AutoDetectPhase.Done -> {
-            instruction = stringResource(R.string.external_gps_autodetect_done)
+            instruction = stringResource(Res.string.external_gps_autodetect_done)
             showSpinner = false
             showNext = false
             showCancel = false
@@ -365,7 +370,7 @@ private fun AutoDetectDialog(
             if (isDone) onDismiss() else if (showCancel) onCancel()
         },
         shape = RoundedCornerShape(12.dp),
-        title = { Text(stringResource(R.string.external_gps_autodetect_title)) },
+        title = { Text(stringResource(Res.string.external_gps_autodetect_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(instruction, style = MaterialTheme.typography.bodyLarge)
@@ -382,10 +387,10 @@ private fun AutoDetectDialog(
         confirmButton = {
             when {
                 isDone -> TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
-                    Text(stringResource(R.string.action_done))
+                    Text(stringResource(Res.string.action_done))
                 }
                 showNext -> TextButton(onClick = onNext, shape = RoundedCornerShape(12.dp)) {
-                    Text(stringResource(R.string.external_gps_autodetect_next))
+                    Text(stringResource(Res.string.external_gps_autodetect_next))
                 }
                 else -> {}
             }
@@ -395,7 +400,7 @@ private fun AutoDetectDialog(
         dismissButton = {
             if (showCancel) {
                 TextButton(onClick = onCancel, shape = RoundedCornerShape(12.dp)) {
-                    Text(stringResource(R.string.external_gps_autodetect_abort), color = MaterialTheme.appColors.statusDanger)
+                    Text(stringResource(Res.string.external_gps_autodetect_abort), color = MaterialTheme.appColors.statusDanger)
                 }
             }
         }
@@ -427,13 +432,14 @@ private fun UnpairedExternalGpsCard(
                     Column(modifier = Modifier.weight(1f)) {
                         Text(result.device.name, style = MaterialTheme.typography.bodyLarge)
                         Text(
-                            "${result.source.displayName}  ·  ${result.device.rssi} dBm",
+                            if (VirtualExternalGps.isVirtual(result.device.address)) result.device.address
+                            else "${result.source.displayName}  ·  ${result.device.rssi} dBm",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                     Button(onClick = { onPick(result) }, shape = RoundedCornerShape(12.dp)) {
-                        com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.external_gps_pair_action))
+                        com.eried.eucplanet.ui.common.SearchableText(stringResource(Res.string.external_gps_pair_action))
                     }
                 }
             }
@@ -441,13 +447,13 @@ private fun UnpairedExternalGpsCard(
         if (scanning) {
             CircularProgressIndicator(modifier = Modifier.padding(vertical = 4.dp))
             LeftAlignedScanButton(
-                label = stringResource(R.string.external_gps_stop_scan),
+                label = stringResource(Res.string.external_gps_stop_scan),
                 onClick = onStopScan,
                 containerColor = MaterialTheme.appColors.statusDanger
             )
         } else {
             LeftAlignedScanButton(
-                label = stringResource(R.string.external_gps_pair_button),
+                label = stringResource(Res.string.external_gps_pair_button),
                 onClick = onStartScan
             )
         }
@@ -461,10 +467,10 @@ private fun PairedExternalGpsCard(
     liveSpeedKmh: Float?
 ) {
     val stateLabel = when (connectionState) {
-        ConnectionState.CONNECTED -> stringResource(R.string.external_gps_state_connected)
+        ConnectionState.CONNECTED -> stringResource(Res.string.external_gps_state_connected)
         ConnectionState.CONNECTING, ConnectionState.INITIALIZING, ConnectionState.SCANNING ->
-            stringResource(R.string.external_gps_state_connecting)
-        ConnectionState.DISCONNECTED -> stringResource(R.string.external_gps_state_disconnected)
+            stringResource(Res.string.external_gps_state_connecting)
+        ConnectionState.DISCONNECTED -> stringResource(Res.string.external_gps_state_disconnected)
     }
     val stateColor = when (connectionState) {
         ConnectionState.CONNECTED -> MaterialTheme.appColors.statusGood
@@ -482,7 +488,7 @@ private fun PairedExternalGpsCard(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                stringResource(R.string.external_gps_paired_with, deviceName),
+                stringResource(Res.string.external_gps_paired_with, deviceName),
                 style = MaterialTheme.typography.titleMedium
             )
             // Combine the connection-state label and the live speed onto a
