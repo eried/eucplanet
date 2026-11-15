@@ -1275,20 +1275,21 @@ private fun AppBadgeElement(element: OverlayElement) {
                     if (center) Alignment.CenterHorizontally else Alignment.Start
             ) {
                 if (element.showLabel) {
-                    androidx.compose.material3.Text(
+                    BadgeLine(
                         text = stringResource(Res.string.app_name),
                         color = Color(element.foreground),
                         fontWeight = FontWeight.Bold,
                         fontSize = nameSize,
-                        maxLines = 1
+                        minFontSize = BADGE_NAME_MIN_SP
                     )
                 }
                 if (element.badgeShowVersion) {
-                    androidx.compose.material3.Text(
+                    BadgeLine(
                         text = "v${LocalStudioRender.current.versionName}",
                         color = Color(element.foreground),
+                        fontWeight = null,
                         fontSize = versionSize,
-                        maxLines = 1
+                        minFontSize = BADGE_VERSION_MIN_SP
                     )
                 }
             }
@@ -1314,6 +1315,41 @@ private fun AppBadgeElement(element: OverlayElement) {
             }
         }
     }
+}
+
+private val BADGE_NAME_MIN_SP = 8.sp
+private val BADGE_VERSION_MIN_SP = 6.sp
+
+/**
+ * One line of the App badge: shrinks from [fontSize] to fit the width instead
+ * of wrapping, so a wider system font (iOS) keeps "EUC Planet" whole. Styled
+ * as material3 Text would draw it, so a line that already fits looks the same.
+ */
+@Composable
+private fun BadgeLine(
+    text: String,
+    color: Color,
+    fontWeight: FontWeight?,
+    fontSize: androidx.compose.ui.unit.TextUnit,
+    minFontSize: androidx.compose.ui.unit.TextUnit,
+) {
+    androidx.compose.foundation.text.BasicText(
+        text = text,
+        style = androidx.compose.material3.LocalTextStyle.current.merge(
+            androidx.compose.ui.text.TextStyle(
+                color = color,
+                fontWeight = fontWeight,
+                fontSize = fontSize
+            )
+        ),
+        maxLines = 1,
+        softWrap = false,
+        autoSize = androidx.compose.foundation.text.TextAutoSize.StepBased(
+            minFontSize = if (minFontSize.value < fontSize.value) minFontSize else fontSize,
+            maxFontSize = fontSize,
+            stepSize = 0.5.sp
+        )
+    )
 }
 
 @Composable
