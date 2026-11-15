@@ -6,6 +6,5 @@ package com.eried.eucplanet.platform
  * tap; drop an entry the day its iOS side lands.
  */
 actual val missingPlatformFeatures: Set<PlatformFeature> = setOf(
-    PlatformFeature.GPS_SENSORS,
     PlatformFeature.HOME_WIDGETS,
 )

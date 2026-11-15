@@ -3,6 +3,7 @@ package com.eried.eucplanet
 import androidx.compose.ui.window.ComposeUIViewController
 import com.eried.eucplanet.app.IosAppGraph
 import com.eried.eucplanet.app.IosDebugSnaps
+import com.eried.eucplanet.app.IosLaunchHooks
 import com.eried.eucplanet.app.IosDisplayPrefs
 import com.eried.eucplanet.app.IosThemeEditor
 import com.eried.eucplanet.app.StatusBarHost
@@ -109,6 +110,11 @@ fun MainViewController(): UIViewController {
     // scanner listens for paired caps, following the pairing from then on.
     IosAppGraph.radar
     IosAppGraph.tpmsScanner.startMonitoring()
+    // The external GPS box, as WheelService injects it on Android: the
+    // repository reconnects a paired box while the app is in front or a ride
+    // runs. EUC_SERVICE, EUC_EXTGPS and EUC_SOURCES drive it for scripted runs.
+    IosAppGraph.externalGps
+    IosLaunchHooks.start()
     // SIMCTL_CHILD_EUC_VOICE_EVERY=15 makes the periodic report speak every
     // 15 s whatever the speed and output, to hear it with the app in the
     // background on the simulator. It is saved, like any settings change.

@@ -58,6 +58,8 @@ internal object IosRideSession {
             onConnected = { settings -> engine.setConnected(true, settings) },
             onDisconnected = { settings -> engine.setConnected(false, settings) },
         )
+        // "GPS acquired / lost", as WheelService speaks TripRepository's.
+        s.followGpsSignal(IosGpsPower.signal.events)
         s.startAutoRecordIdleLoop()
         s.startVoiceLoop()
     }

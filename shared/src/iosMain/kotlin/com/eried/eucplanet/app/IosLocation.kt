@@ -117,6 +117,7 @@ object IosLocation {
         if (_fix.value == null) Log.i("Location", "first fix, accuracy ${fix.accuracy} m")
         _fix.value = fix
         _lastKnown.value = fix
+        IosGpsPower.signal.onFix()
     }
 }
 

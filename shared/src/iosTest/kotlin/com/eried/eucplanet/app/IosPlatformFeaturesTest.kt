@@ -16,7 +16,8 @@ class IosPlatformFeaturesTest {
 
     @Test fun comingFeaturesAreMissingForNow() {
         assertEquals(
-            PlatformFeature.entries.toSet() - PlatformFeature.NAVIGATION - PlatformFeature.CAMERA_STUDIO,
+            PlatformFeature.entries.toSet() - PlatformFeature.NAVIGATION - PlatformFeature.CAMERA_STUDIO -
+                PlatformFeature.GPS_SENSORS,
             missingPlatformFeatures,
         )
         for (f in missingPlatformFeatures) assertFalse(f.available, f.name)
@@ -33,6 +34,16 @@ class IosPlatformFeaturesTest {
         // The Overlay Studio runs on IosStudioHost, so the camera button, its
         // tile, the trips' Replay row and the tour's camera step open.
         assertTrue(PlatformFeature.CAMERA_STUDIO.available)
+    }
+
+    @Test fun gpsSensorsAreOnTheIphone() {
+        // The external GPS box, the data sources sheet and the GPS and sensors
+        // section run on the iPhone (IosExternalGpsLink, IosExternalGpsScan),
+        // so the GPS icon's tap, its menu item, the section and the tour's GPS
+        // step open, and the section is not hidden either.
+        assertTrue(PlatformFeature.GPS_SENSORS.available)
+        assertFalse(PlatformFeature.GPS_SENSORS in missingPlatformFeatures)
+        assertFalse("location" in IosSettingsHost.hiddenSections)
     }
 
     @Test fun aMutedSectionIsNotAlsoHidden() {

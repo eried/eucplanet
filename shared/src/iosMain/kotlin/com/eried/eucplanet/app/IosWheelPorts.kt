@@ -1,10 +1,7 @@
 package com.eried.eucplanet.app
 
-import com.eried.eucplanet.ble.ConnectionState
-import com.eried.eucplanet.data.model.ExternalGpsSample
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.repository.AccelSplitReset
-import com.eried.eucplanet.data.repository.ExternalGpsFeed
 import com.eried.eucplanet.data.repository.GpsFix
 import com.eried.eucplanet.data.repository.PhoneDevice
 import com.eried.eucplanet.data.repository.PhoneImu
@@ -23,7 +20,7 @@ import platform.AudioToolbox.kSystemSoundID_Vibrate
 import platform.UIKit.UIDevice
 
 // The iOS side of WheelRepositoryPorts. Each feature that is not on iOS yet
-// (alarms, voice, trips, external GPS, the phone IMU) answers as
+// (alarms, voice, trips, the phone IMU) answers as
 // the Android app does with that feature switched off, and is replaced when
 // the feature lands; docs/IOS_PARITY.md tracks which.
 
@@ -38,14 +35,6 @@ internal object NoPhoneImu : PhoneImu {
     override val imu: StateFlow<PhoneImuSample?> = MutableStateFlow<PhoneImuSample?>(null).asStateFlow()
     override fun start() = Unit
     override fun stop() = Unit
-}
-
-/** External GPS boxes are not on iOS yet. */
-internal object NoExternalGps : ExternalGpsFeed {
-    override val connectionState: StateFlow<ConnectionState> =
-        MutableStateFlow(ConnectionState.DISCONNECTED).asStateFlow()
-    override val currentSample: StateFlow<ExternalGpsSample?> =
-        MutableStateFlow<ExternalGpsSample?>(null).asStateFlow()
 }
 
 internal object NoAccelSplits : AccelSplitReset {

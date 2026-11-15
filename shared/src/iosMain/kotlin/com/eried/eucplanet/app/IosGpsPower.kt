@@ -36,6 +36,13 @@ internal object IosGpsPower {
     private val scope = MainScope()
     private val idleOff = GpsIdleOff(scope)
 
+    /**
+     * The "GPS acquired / lost" state machine Android's TripRepository runs,
+     * shared: tracking while a trip records or guidance runs with the GPS on,
+     * fed every fix by [IosLocation]. IosRideSession speaks its events.
+     */
+    val signal = com.eried.eucplanet.data.model.GpsSignalWatch(scope)
+
     /** A consumer asked for positions (Android's gpsStreamRequested). */
     private var requested = false
     private var started = false
@@ -66,6 +73,7 @@ internal object IosGpsPower {
     fun release() {
         requested = false
         current = null
+        signal.stopTracking()
         IosLocation.stopUpdates()
         IosLocation.keepInBackground(false)
     }
@@ -109,6 +117,20 @@ internal object IosGpsPower {
         // wants in the background, not the tier in force now.
         IosLocation.keepInBackground(tier(appVisible = false) == GpsTier.HIGH)
         idleOff.decide(tier(visible.value), current, idleOffDelaySec, ::apply)
+        followSignal()
+    }
+
+    /**
+     * As Android: the signal voice runs only while a trip records or guidance
+     * runs, when a stale stream is a genuine loss; GPS off is silent.
+     */
+    private fun followSignal() {
+        val on = current != null && current != GpsTier.OFF
+        if (on && (IosTrips.recording.value || navigating.value)) {
+            signal.startTracking(havePosition = IosLocation.fix.value != null)
+        } else {
+            signal.stopTracking()
+        }
     }
 
     private fun apply(tier: GpsTier) {
@@ -121,6 +143,7 @@ internal object IosGpsPower {
             GpsTier.LOW -> IosLocation.startUpdates(KILOMETER, 250.0)
         }
         Log.i(TAG, "GPS tier=$tier")
+        followSignal()
     }
 
     // CoreLocation's kCLLocationAccuracy* and kCLDistanceFilterNone values.

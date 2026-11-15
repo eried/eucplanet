@@ -122,8 +122,18 @@ internal class IosDashboardHost : DashboardHost {
     @Composable
     override fun appLogoBackground(): Color = Color(0xFF0D0D0D)
 
+    /**
+     * The shared sheet, as Android's host draws it. A scripted run
+     * (SIMCTL_CHILD_EUC_SOURCES=WHEEL:RACEBOX:calibrate=20) opens it on a tab
+     * or a comparison and can ask the calibration question by itself.
+     */
     @Composable
     override fun DataSourcesSheet(speedUnit: String, onDismiss: () -> Unit) {
-        LaunchedEffect(Unit) { onDismiss() }
+        com.eried.eucplanet.ui.dashboard.sources.DataSourcesSheet(
+            speedUnit = speedUnit,
+            onDismiss = onDismiss,
+            viewModel = rememberViewModel { IosAppGraph.dataSourcesViewModel() },
+            scripted = IosLaunchHooks.sources,
+        )
     }
 }

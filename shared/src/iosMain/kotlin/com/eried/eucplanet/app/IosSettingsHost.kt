@@ -127,8 +127,15 @@ internal object IosSettingsHost : SettingsHost {
     @Composable
     override fun OfflineAreas() = Unit
 
+    // The shared section, as AndroidSettingsHost draws it, over the
+    // CoreBluetooth GPS link (IosAppGraph).
     @Composable
-    override fun ExternalGpsSettings() = Unit
+    override fun ExternalGpsSettings() {
+        com.eried.eucplanet.ui.settings.ExternalGpsSection(
+            viewModel = rememberViewModel { IosAppGraph.externalGpsViewModel() },
+            settingsViewModel = rememberViewModel { IosAppGraph.settingsViewModel() },
+        )
+    }
 
     // The shared sections, as AndroidSettingsHost draws them, over the
     // CoreBluetooth radar link and tyre radio (IosAppGraph).

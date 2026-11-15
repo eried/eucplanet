@@ -66,6 +66,8 @@ Seams that need both sides on every change:
 | Back | Compose `BackHandler`s through each `*Host.BackHandler` | `androidx.activity` back (MainActivity, NavGraph) | the left-edge swipe: `iosMain/.../app/IosBack.kt` (`IosBackHandler`, `IosBackSwipeBridge` for dialogs), one handler per screen in `MainViewController.kt` |
 | Rear radar | `ble/radar/RadarPorts.kt` (`RadarLink`, `RadarScan`), `data/repository/RadarRepository.kt`, `ui/settings/RadarViewModel.kt` | `app/.../ble/radar/RadarConnectionManager.kt` (GATT, auto-reconnect), `RadarScanner.kt` (scan, Bluetooth state), `di/RadarModule.kt` | not yet (the muted radar row) |
 | TPMS | `tpms/TpmsRadio.kt` (`TpmsRadio`, `TpmsAdvert`), `tpms/TpmsScanner.kt`, `TpmsRepository.kt`, `TpmsPairingStore.kt` | `app/.../tpms/AndroidTpmsRadio.kt` (BLE scan, filters, Bluetooth state), `di/TpmsModule.kt` | not yet (the muted TPMS row) |
+| External GPS and data sources | `ble/gps/ExternalGpsPorts.kt` (`ExternalGpsLink`, `ExternalGpsScan`), `ble/gps/RaceBoxAdapter.kt`, `DragyAdapter.kt`, `VirtualExternalGps.kt` (the virtual RaceBox and `ExternalGpsLinkRouter`), `data/repository/ExternalGpsRepository.kt`, `ui/settings/ExternalGpsViewModel.kt`, `ExternalGpsSection.kt`, `ui/dashboard/sources/` (`DataSourcesSheet`, `DataSourcesViewModel`, `DataSourcesScript`) | `app/.../ble/gps/ExternalGpsConnectionManager.kt` (GATT, MTU, priority, auto-reconnect), `ExternalGpsScanner.kt` (scan, Bluetooth state), `di/ExternalGpsModule.kt` | `iosMain/.../ble/gps/IosExternalGpsLink.kt`, `IosExternalGpsScan.kt`, `IosAppGraph.externalGps`, `app/IosForeground.kt`, `app/IosLaunchHooks.kt` |
+| GPS signal voice | `data/model/GpsSignalWatch.kt`, `RideSession.followGpsSignal` | `TripRepository` (fixes, tracking), `WheelService` | `iosMain/.../app/IosGpsPower.kt` (tracking), `IosLocation` (fixes), `IosRideSession` |
 | Engine sound | `audio/EngineSoundEngine.kt` (settings, previews, start / stop), `EngineAudioOutput.kt` (`EngineAudioOutput`, `EngineProducer`), `EngineSynth.kt`, `EngineDynamics.kt`, `GrainBank.kt` | `app/.../audio/EngineAudioTrack.kt` (AudioTrack, producer thread, audio focus, the banks in `res/raw`), `di/ServiceModule.kt`, `WheelService` feeds it | `iosMain/.../app/IosEngineAudio.kt` (AVAudioEngine player node, producer coroutine, the session held with DUCK, the banks from `res/raw` via `generateIosGrainBanks`), `IosAppGraph.engineSound`, `IosRideSession` feeds it |
 | Navigation | `nav/NavPorts.kt` (`NavHttp`, `OfflineNav`, `NavStrings`, `NavigationHost`, `NavVoice`), `nav/NavigationEngine.kt`, `nav/RoutingService.kt`, `ui/navigator/NavigationOverlay.kt`, `ui/navigator/MapHtml.kt` (the route builder page), `ui/settings/NavigatorSettingsContent.kt` (`SettingsHost.OfflineAreas`) | `app/.../nav/AndroidNavPorts.kt` (HttpURLConnection, BRouter, tile store, offline map, connectivity), `AndroidNavigationHost.kt` (TripRepository, WheelService, the engine thread), `VoiceService`, `di/NavModule.kt`, `ui/settings/OfflineAreasRow.kt` | `iosMain/.../app/IosNavigation.kt` (`IosNavigationHost` on IosLocation and the navigating tier in `IosGpsPower`, `IosNavStrings`, the dashboard overlay, the marker file), `IosVoice` (`NavVoice`), `IosAppGraph` (`PlatformNavHttp`, `OfflineNav.None`, the engine), `RideActivity` (the nav line, Stop navigation); `IosSettingsHost.OfflineAreas` draws nothing (online routing only) |
 | Route builder and live share | `ui/navigator/RouteBuilderScreen.kt`, `RouteBuilderViewModel.kt`, `ShareDialog.kt`, `NavigatorHud.kt`, `RouteBuilderPorts`, `RouteBuilderHost` (`LocalRouteBuilderHost` for the dialogs), `share/ShareState.kt` (`LiveShare`) | `app/.../ui/navigator/AndroidRouteBuilderPorts.kt` (TripRepository, BatteryManager, tile store, ContentResolver and GpxIO, HttpURLConnection), `AndroidRouteBuilderHost.kt` (WebView and its `AndroidNav` bridge, pickers, marker crop, CameraX scanner, ZXing QR, Custom Tabs, clipboard, share sheet), `share/ShareSession.kt` (OkHttp WebSocket, `ShareCrypto` AES-GCM) | `iosMain/.../app/IosRouteBuilderPorts.kt` (IosLocation, UIDevice battery, no tiles, `util/GpxText.kt`, NSURLSession redirect walk), `IosRouteBuilderHost.kt` (WKWebView and its `AndroidNav` script handler, idle timer, `IosQrScanner`, `QrCodeCanvas`, UIPasteboard, share sheet, Safari), `IosRouteFiles.kt` (Files pickers, the route QR card), `IosAvatarPicker.openMarker`, `IosShareSession.kt` (NSURLSessionWebSocketTask, `share/ShareCipher.kt`); `MainViewController` screen `route` |
@@ -214,8 +216,35 @@ SIMCTL_CHILD_EUC_SCREEN=studio:100 SIMCTL_CHILD_EUC_STUDIO_PRESET=Race xcrun sim
                                # layout|load_preset opens that sheet;
                                # EUC_STUDIO_VIEW=1 opens each saved item in
                                # the in-app viewer, as the View action does
+SIMCTL_CHILD_EUC_SERVICE=1 SIMCTL_CHILD_EUC_SETTINGS_TAB=10 SIMCTL_CHILD_EUC_SCREEN=settings xcrun simctl launch booted com.eried.eucplanet.ios
+                               # Service Mode on and Settings on GPS and
+                               # sensors: the pairing card lists the virtual
+                               # RaceBox
+SIMCTL_CHILD_EUC_CONNECT=VIRTUAL:V6 SIMCTL_CHILD_EUC_EXTGPS=VIRTUAL xcrun simctl launch booted com.eried.eucplanet.ios
+                               # pairs and connects the virtual RaceBox, as
+                               # its Pair button does (saved like any
+                               # pairing; =none forgets it); with a wheel it
+                               # rides at the wheel's speed less 3%
+SIMCTL_CHILD_EUC_SOURCES=WHEEL:RACEBOX:calibrate=20 xcrun simctl launch booted com.eried.eucplanet.ios
+                               # opens the dashboard's Data sources sheet on
+                               # a tab (WHEEL, PHONE, RACEBOX) or a comparison
+                               # (A:B); calibrate=20 asks "apply calibration?"
+                               # 20 s later, apply=20 also presses Apply
+SIMCTL_CHILD_EUC_GPS_SPEED=external xcrun simctl launch booted com.eried.eucplanet.ios
+                               # Show speed on dashboard and Prioritize
+                               # external GPS on (=phone: only the first),
+                               # for the dial's external speed dot
 sh iosApp/deploy-device.sh     # build, sign and install on a cabled iPhone
 ```
+
+A simulator booted from a shell that had `SIMCTL_CHILD_*` variables set
+keeps them in its launchd, and they then win over every later launch's own
+(`xcrun simctl getenv booted EUC_SCREEN` shows them). Boot it again from a
+clean environment (`xcrun simctl shutdown all`, then `env -i HOME=$HOME
+PATH=/usr/bin:/bin xcrun simctl boot <udid>`). With the Mac's screen locked
+the simulator draws no new frames for `simctl io screenshot`; an XCUITest
+runner launching the app (`XCUIApplication(bundleIdentifier:)` with a
+`launchEnvironment`) and `XCUIScreen.main.screenshot()` still work.
 
 The device script uses the free Apple ID signing set up in Xcode
 (Settings > Accounts). Free installs expire after 7 days; run it again.
@@ -257,7 +286,7 @@ with each platform.
 | Dropbox pass triggers (SyncManager / WorkManager, IosDropboxSync) | Left: the pass itself is shared (`DropboxTripSync`); only the scheduling differs (WorkManager against in-process retries). |
 | Leaderboard upload trigger (EucStatsUploadWorker, IosEucStats) | Left: the sweep is shared (`EucStatsSweep`); only the trigger differs. |
 | Keep screen on (MainActivity, IosDisplayPrefs) | Left: a settings flow into a platform flag, no rule to share. |
-| GPS acquired / lost announcements | Android only (TripRepository's signal state machine); not a duplicate. The iPhone shows the switch but has no event source yet (IOS_PARITY). |
+| GPS acquired / lost announcements | Moved to `data/model/GpsSignalWatch.kt` (the state machine TripRepository ran) and `RideSession.followGpsSignal` (WheelService's collector). The iPhone feeds it from `IosLocation` and `IosGpsPower`, so it now speaks them too. |
 
 ## How to keep iOS paired
 

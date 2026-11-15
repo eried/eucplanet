@@ -220,7 +220,13 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips, RideRe
                     lastWheelTripKm = null
                 }
                 wasConnected = connected
-                writer?.writeRow(data, fix, wheelConnected = connected, extra = wheelLog.nextExtra())
+                // The paired box's speed in the merged GPS-speed column, as on Android.
+                val extSpeed = com.eried.eucplanet.data.repository.externalSpeedForTrip(
+                    IosAppGraph.externalGps.currentSample.value,
+                    IosAppGraph.settings.currentOrLoad().gpsPrioritizeExternal,
+                    intervalMs,
+                )
+                writer?.writeRow(data, fix, extSpeed, wheelConnected = connected, extra = wheelLog.nextExtra())
                 if (fix != null) {
                     val prev = lastFix
                     if (prev != null && fix.accuracy <= 25f) {

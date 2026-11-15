@@ -8,7 +8,15 @@ import com.eried.eucplanet.ble.radar.IosRadarLink
 import com.eried.eucplanet.ble.radar.IosRadarScan
 import com.eried.eucplanet.ble.radar.RadarAdapter
 import com.eried.eucplanet.ble.radar.VariaAdapter
+import com.eried.eucplanet.ble.gps.DragyAdapter
+import com.eried.eucplanet.ble.gps.ExternalGpsAdapter
+import com.eried.eucplanet.ble.gps.IosExternalGpsLink
+import com.eried.eucplanet.ble.gps.IosExternalGpsScan
+import com.eried.eucplanet.ble.gps.RaceBoxAdapter
+import com.eried.eucplanet.data.repository.ExternalGpsRepository
 import com.eried.eucplanet.data.repository.RadarRepository
+import com.eried.eucplanet.ui.dashboard.sources.DataSourcesViewModel
+import com.eried.eucplanet.ui.settings.ExternalGpsViewModel
 import com.eried.eucplanet.tpms.IosTpmsRadio
 import com.eried.eucplanet.tpms.SettingsTpmsPairingStore
 import com.eried.eucplanet.tpms.TpmsRepository
@@ -147,6 +155,33 @@ object IosAppGraph {
     }
 
     /**
+     * The external GPS box (RaceBox, Dragy), as Android's externalGpsModule
+     * builds it: both adapters, a link and a pairing scan of their own over
+     * CoreBluetooth, and the shared repository, which reconnects a paired box
+     * while the app is in front or a ride runs. The virtual RaceBox (Service
+     * Mode) runs through the same repository.
+     */
+    private val externalGpsAdapters: Set<ExternalGpsAdapter> by lazy { linkedSetOf(RaceBoxAdapter(), DragyAdapter()) }
+    val externalGpsLink: IosExternalGpsLink by lazy { IosExternalGpsLink() }
+    val externalGpsScan: IosExternalGpsScan by lazy { IosExternalGpsScan(externalGpsAdapters) }
+    val externalGps: ExternalGpsRepository by lazy {
+        ExternalGpsRepository(
+            settingsRepository = settings,
+            link = externalGpsLink,
+            adapters = externalGpsAdapters,
+            phoneFix = { IosLocation.fix.value ?: IosLocation.lastKnown.value },
+            alarmEngineProvider = lazy { alarmEngine },
+            foreground = IosForeground.visible,
+            // Android's WheelService runs while a ride does: a wheel or a trip.
+            rideRunning = {
+                wheel.connectionState.value == com.eried.eucplanet.ble.ConnectionState.CONNECTED ||
+                    IosTrips.recording.value
+            },
+            wheelSpeedKmh = { ExternalGpsRepository.rawWheelSpeedKmh(wheel, settings) },
+        )
+    }
+
+    /**
      * The tyre caps, as Android's tpmsModule builds them: paired caps kept in
      * settings, the shared repository and scanner, and the CoreBluetooth radio
      * (IosTpmsRadio, which reads each cap's MAC from its payload).
@@ -210,7 +245,7 @@ object IosAppGraph {
             },
             cheatState = cheats,
             phoneSensorRepository = NoPhoneImu,
-            externalGpsRepository = NoExternalGps,
+            externalGpsRepository = externalGps,
             legalLockdown = IosLockdown.controller,
             tpmsRepository = tpms,
             accelSplitRepository = NoAccelSplits,
@@ -279,7 +314,7 @@ object IosAppGraph {
         automationManager = automation,
         flicManager = actions,
         syncManager = IosSettingsSync,
-        externalGpsRepository = NoExternalGps,
+        externalGpsRepository = externalGps,
         experimentalBannerState = IosBannerFlag,
         cheatState = cheats,
         appHealthRepository = IosAppHealth,
@@ -417,6 +452,21 @@ object IosAppGraph {
     /** The dashboard radar lane's view model. */
     fun radarOverlayViewModel(): RadarOverlayViewModel = RadarOverlayViewModel(settings, radar)
 
+    /** The GPS and sensors section's view model, as Koin's viewModelOf builds it on Android. */
+    fun externalGpsViewModel(): ExternalGpsViewModel = ExternalGpsViewModel(externalGps, externalGpsScan, settings)
+
+    /**
+     * The dashboard's Data sources sheet: the phone's CoreLocation fix and its
+     * Core Motion acceleration (the studio's), the wheel and the GPS box.
+     */
+    fun dataSourcesViewModel(): DataSourcesViewModel = DataSourcesViewModel(
+        phoneSensors = IosStudioImu,
+        phoneFix = IosLocation.fix,
+        wheelRepository = wheel,
+        externalGpsRepository = externalGps,
+        settingsRepository = settings,
+    )
+
     /** The TPMS section's view model. */
     fun tpmsViewModel(): TpmsViewModel = TpmsViewModel(settings, tpmsScanner, tpms)
 
@@ -429,7 +479,7 @@ object IosAppGraph {
             tripRepository = IosStudioTrips,
             tripMeterRepository = IosTripMeter.meter,
             phoneSensorRepository = IosStudioImu,
-            externalGpsRepository = NoExternalGps,
+            externalGpsRepository = externalGps,
             radarRepository = radar,
             navMarkerStore = navMarkers,
         )
