@@ -25,6 +25,7 @@ only when you can cut the ride short.
 - Offline routing: BRouter is now one Kotlin copy for Android and the iPhone, checked route for route against the original. Offline routes with an avoid switch on (highways, ferries...) no longer fail.
 - iPhone app: offline areas (Settings, Navigation and weather), so routes, recalculation and the map work with no signal, as on Android. Downloads pause while the app is in the background and continue when you open it.
 - Offline routing: a route that takes too long is stopped, so the next try no longer waits behind it.
+- iPhone app: when iOS closes the app in the background to free memory mid-ride, it reopens it when the wheel talks, reconnects and keeps recording the same trip (not after you swipe the app away).
 - iPhone app: the Needs attention warnings (location, Bluetooth, notifications, backups), and a recording cut short by closing the app is saved or dropped at the next start, as on Android.
 - Inside: the dashboard, settings, alarms, trips, trip details, trip tools, Legal Mode, the notification buttons, the reconnect timing, leaderboards, Dropbox sync, the wheel link, the theme editor, the automations, what runs on connect and every wheel update, the radar and TPMS settings, the engine sound and the navigation (routing, turn cues, the route builder, route sharing, the navigator view and the Navigation settings) and the Overlay studio moved to a library shared with the iPhone. Nothing should change on screen.
 - iPhone app: a swipe in from the left edge is back, on every screen and in every dialog, and the crew pass has the X in every step.
@@ -98,6 +99,7 @@ only when you can cut the ride short.
 - RaceBox or Dragy on the iPhone: pair it, ride with the screen locked, power it off and on. Does it reconnect, and does Calibrate wheel speed propose about the same % as on Android?
 - Android, offline area downloaded, network off: plan and ride a route with and without the avoid switches. Same routes as before, and do the avoids now route?
 - iPhone: download your area, turn on flight mode, plan and ride a route. Does it route, recalculate off route and draw the map?
+- iPhone, Location set to Always: ride with a trip recording, then open several heavy apps (camera, games) until EUC Planet is closed by iOS. Does the voice come back and is it still one trip?
 - Horn: pick your own short sound in Settings, Wheel parameters, Horn, set it to Sound or Both, and press the horn. Does it sound at once, with music lowered?
 - Ride with the iPhone locked in your pocket: do the voice reports and alarm beeps still sound, and does the trip keep recording?
 - Music: bind Pause or Play/Pause to a Flic button or a tile and play Spotify or Music. Does it pause, and does it come back on the next press? Which apps do not resume?
