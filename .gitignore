@@ -96,3 +96,6 @@ open-testing-state.md
 
 # Kotlin compiler daemon session scratch
 .kotlin/
+
+# BRouter test segments (fetched by hand, see brouter/README.md)
+/brouter/testdata/

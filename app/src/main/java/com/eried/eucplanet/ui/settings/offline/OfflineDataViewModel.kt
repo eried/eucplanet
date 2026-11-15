@@ -118,7 +118,7 @@ class OfflineDataViewModel(
         return names.filter { name ->
             if (byName == null) return@filter !tiles.store.has(name)
             val t = byName[name] ?: return@filter false
-            TileIndex.fetchBytes(tiles.store.finalFile(name), tiles.store.mapFile(name), t) > 0
+            TileIndex.fetchBytes(tiles.store.finalFile(name).path, tiles.store.mapFile(name).path, t) > 0
         }
     }
 
@@ -127,7 +127,7 @@ class OfflineDataViewModel(
         val byName = remote.value?.associateBy { it.name }
             ?: return names.sumOf { state.value.tiles[it]?.bytes ?: 0L }
         return names.sumOf { n ->
-            byName[n]?.let { TileIndex.fetchBytes(tiles.store.finalFile(n), tiles.store.mapFile(n), it) } ?: 0L
+            byName[n]?.let { TileIndex.fetchBytes(tiles.store.finalFile(n).path, tiles.store.mapFile(n).path, it) } ?: 0L
         }
     }
 

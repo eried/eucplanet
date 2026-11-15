@@ -26,4 +26,7 @@ include(":wear")
 include(":hud")
 include(":hud-protocol")
 include(":brouter")
+// The upstream Java BRouter, test-only: the reference :brouter is checked against.
+include(":brouter-reference")
+project(":brouter-reference").projectDir = file("brouter/reference")
 include(":shared")

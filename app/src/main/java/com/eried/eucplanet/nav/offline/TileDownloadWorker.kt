@@ -52,7 +52,7 @@ class TileDownloadWorker(
                     }
                 }
                 val span = if (mapUrl == null) 1f else routeShare
-                if (!fetch(tileUrl, store.partFile(name), store.finalFile(name), TileCheck::problem, 0f, span)) {
+                if (!fetch(tileUrl, store.partFile(name), store.finalFile(name), { TileCheck.problem(it.path) }, 0f, span)) {
                     return@withContext Result.retry()
                 }
             }

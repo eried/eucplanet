@@ -106,9 +106,9 @@ class OfflineTiles(
             val remote = listing.tiles[name]
             val url = remote?.url ?: listing.source.tileUrl(name)
             // A square whose routing is current only fetches its map.
-            val routeCurrent = store.has(name) && remote != null && !TileIndex.needsUpdate(store.finalFile(name), remote)
+            val routeCurrent = store.has(name) && remote != null && !TileIndex.needsUpdate(store.finalFile(name).path, remote)
             // A current map is not fetched again with new routing.
-            val map = remote?.map?.takeIf { TileIndex.mapWanted(store.mapFile(name), remote) }
+            val map = remote?.map?.takeIf { TileIndex.mapWanted(store.mapFile(name).path, remote) }
             val req = OneTimeWorkRequestBuilder<TileDownloadWorker>()
                 .setInputData(workDataOf(
                     TileDownloadWorker.KEY_NAME to name,
@@ -145,8 +145,8 @@ class OfflineTiles(
     /** Downloaded tiles the server has a newer build of. */
     fun outdated(remote: List<RemoteTile>): List<String> =
         remote.filter {
-            TileIndex.needsUpdate(store.finalFile(it.name), it) ||
-                TileIndex.mapNeedsUpdate(store.finalFile(it.name), store.mapFile(it.name), it)
+            TileIndex.needsUpdate(store.finalFile(it.name).path, it) ||
+                TileIndex.mapNeedsUpdate(store.finalFile(it.name).path, store.mapFile(it.name).path, it)
         }.map { it.name }
 
     /** Weekly check on Wi-Fi that updates downloaded tiles, or not. */

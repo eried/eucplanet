@@ -6,8 +6,11 @@ actual fun formatLocalDate(pattern: String, epochMs: Long): String =
 actual fun formatLocalDateUs(pattern: String, epochMs: Long): String =
     java.text.SimpleDateFormat(pattern, java.util.Locale.US).format(java.util.Date(epochMs))
 
-actual class LocalDateParserUs actual constructor(pattern: String, lenient: Boolean) {
-    private val fmt = java.text.SimpleDateFormat(pattern, java.util.Locale.US).apply { isLenient = lenient }
+actual class LocalDateParserUs actual constructor(pattern: String, lenient: Boolean, timeZoneId: String?) {
+    private val fmt = java.text.SimpleDateFormat(pattern, java.util.Locale.US).apply {
+        isLenient = lenient
+        if (timeZoneId != null) timeZone = java.util.TimeZone.getTimeZone(timeZoneId)
+    }
 
     actual fun parse(text: String): Long? = try { fmt.parse(text)?.time } catch (_: Exception) { null }
 }

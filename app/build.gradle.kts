@@ -383,7 +383,6 @@ dependencies {
 
     // WorkManager (background trip upload)
     implementation(libs.work.runtime)
-    implementation(project(":brouter"))
 
     // Drag-to-reorder for settings lists
     implementation(libs.reorderable)

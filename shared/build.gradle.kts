@@ -63,6 +63,8 @@ kotlin {
             api(libs.datastore.preferences.core)
             // The overlay layout, HUD wire types and Web Mercator the Studio draws with.
             api(project(":hud-protocol"))
+            // BRouter, the offline router, one Kotlin copy for both phones.
+            api(project(":brouter"))
         }
         iosMain.dependencies {
             implementation(libs.sqlite.bundled)

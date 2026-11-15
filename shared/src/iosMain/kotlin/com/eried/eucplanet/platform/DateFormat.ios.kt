@@ -5,6 +5,8 @@ import platform.Foundation.NSDateFormatter
 import platform.Foundation.NSDateFormatterMediumStyle
 import platform.Foundation.NSDateFormatterShortStyle
 import platform.Foundation.NSLocale
+import platform.Foundation.NSTimeZone
+import platform.Foundation.timeZoneWithName
 import platform.Foundation.currentLocale
 import platform.Foundation.dateWithTimeIntervalSince1970
 import platform.Foundation.timeIntervalSince1970
@@ -23,11 +25,12 @@ actual fun formatLocalDateUs(pattern: String, epochMs: Long): String {
     return f.stringFromDate(NSDate.dateWithTimeIntervalSince1970(epochMs / 1000.0))
 }
 
-actual class LocalDateParserUs actual constructor(pattern: String, lenient: Boolean) {
+actual class LocalDateParserUs actual constructor(pattern: String, lenient: Boolean, timeZoneId: String?) {
     private val fmt = NSDateFormatter().apply {
         locale = NSLocale(localeIdentifier = "en_US_POSIX")
         dateFormat = pattern
         this.lenient = lenient
+        if (timeZoneId != null) NSTimeZone.timeZoneWithName(timeZoneId)?.let { timeZone = it }
     }
 
     actual fun parse(text: String): Long? =
