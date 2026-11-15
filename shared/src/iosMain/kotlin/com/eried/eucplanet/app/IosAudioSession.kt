@@ -13,6 +13,9 @@ import platform.AVFAudio.AVAudioSessionCategoryOptionDuckOthers
 import platform.AVFAudio.AVAudioSessionCategoryOptionMixWithOthers
 import platform.AVFAudio.AVAudioSessionCategoryOptions
 import platform.AVFAudio.AVAudioSessionCategoryPlayback
+import platform.AVFAudio.AVAudioSessionCategoryPlayAndRecord
+import platform.AVFAudio.AVAudioSessionCategoryOptionDefaultToSpeaker
+import platform.AVFAudio.AVAudioSessionCategoryOptionAllowBluetoothHFP
 import platform.AVFAudio.AVAudioSessionPortBuiltInReceiver
 import platform.AVFAudio.AVAudioSessionPortBuiltInSpeaker
 import platform.AVFAudio.AVAudioSessionPortDescription
@@ -59,7 +62,32 @@ internal object IosAudioSession {
 
     private val lock = NSLock()
     private val holders = IntArray(Others.entries.size)
-    private var applied: Others? = null
+    private var applied: Pair<Others, Boolean>? = null
+
+    /** Holders recording the microphone (the studio's take): the session plays and records. */
+    private var recorders = 0
+
+    /** The microphone records while held; pair with one [releaseRecording]. */
+    fun acquireRecording() = locked {
+        recorders++
+        apply()
+    }
+
+    fun releaseRecording() = locked {
+        if (recorders == 0) return@locked
+        recorders--
+        if (idle()) deactivate() else apply()
+    }
+
+    private fun idle() = recorders == 0 && holders.all { it == 0 }
+
+    private fun deactivate() {
+        applied = null
+        val ok = call("deactivate") { err ->
+            AVAudioSession.sharedInstance().setActive(false, AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation, err)
+        }
+        if (ok) Log.i(TAG, "released")
+    }
 
     /** Takes a hold that wants [others]; pair every call with one [release] of the same. */
     fun acquire(others: Others) = locked {
@@ -71,15 +99,7 @@ internal object IosAudioSession {
     fun release(others: Others) = locked {
         if (holders[others.ordinal] == 0) return@locked
         holders[others.ordinal]--
-        if (holders.all { it == 0 }) {
-            applied = null
-            val ok = call("deactivate") { err ->
-                AVAudioSession.sharedInstance().setActive(false, AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation, err)
-            }
-            if (ok) Log.i(TAG, "released")
-        } else {
-            apply()
-        }
+        if (idle()) deactivate() else apply()
     }
 
     /** Headphones, Bluetooth or CarPlay audio, not the phone's own speaker. */
@@ -94,25 +114,31 @@ internal object IosAudioSession {
      * interruption (a call) took it away while still held.
      */
     fun reassert() = locked {
-        if (holders.any { it > 0 }) { applied = null; apply() }
+        if (!idle()) { applied = null; apply() }
     }
 
     private fun apply() {
-        val want = Others.entries.last { holders[it.ordinal] > 0 }
-        if (want == applied) return
-        val options: AVAudioSessionCategoryOptions = when (want) {
+        // A recorder alone leaves the others alone.
+        val want = Others.entries.lastOrNull { holders[it.ordinal] > 0 } ?: Others.LEAVE
+        val recording = recorders > 0
+        if (want to recording == applied) return
+        val base: AVAudioSessionCategoryOptions = when (want) {
             Others.LEAVE -> AVAudioSessionCategoryOptionMixWithOthers
             Others.DUCK -> AVAudioSessionCategoryOptionMixWithOthers or AVAudioSessionCategoryOptionDuckOthers
             // No mix option: activating interrupts the others, and letting go
             // with the notify option tells them to resume.
             Others.PAUSE -> 0uL
         }
+        // Recording keeps the sound on the speaker, not the earpiece, and takes a Bluetooth headset's microphone.
+        val options = if (recording) base or AVAudioSessionCategoryOptionDefaultToSpeaker or
+            AVAudioSessionCategoryOptionAllowBluetoothHFP else base
+        val category = if (recording) AVAudioSessionCategoryPlayAndRecord else AVAudioSessionCategoryPlayback
         val session = AVAudioSession.sharedInstance()
-        val ok = call("category") { err -> session.setCategory(AVAudioSessionCategoryPlayback, options, err) } &&
+        val ok = call("category") { err -> session.setCategory(category, options, err) } &&
             call("activate") { err -> session.setActive(true, err) }
         if (ok) {
-            applied = want
-            Log.i(TAG, "active, others: $want")
+            applied = want to recording
+            Log.i(TAG, "active, others: $want, recording: $recording")
         }
     }
 

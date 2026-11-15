@@ -18,7 +18,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import com.eried.eucplanet.platform.HttpClient
 import com.eried.eucplanet.platform.HttpRequest
 import com.eried.eucplanet.platform.Log
-import com.eried.eucplanet.platform.formatLocalDateUs
 import com.eried.eucplanet.resources.Res
 import com.eried.eucplanet.resources.ic_launcher_foreground
 import com.eried.eucplanet.ui.studio.ReplayPhotoFormat
@@ -42,6 +41,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
+import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.skia.Image as SkImage
 import org.jetbrains.skia.Surface
@@ -255,20 +255,15 @@ internal class IosStudioHost : IosStudioRender(), StudioHost {
         modifier: Modifier,
     ) = IosReplayVideoPlayer(uri, videoTimeMs, playing, loop, speed, fit, modifier)
 
-    override fun newVideoSink(withAudio: Boolean): StudioVideoSink = object : StudioVideoSink {
-        override val encodeWidth: Int = 0
-        override val encodeHeight: Int = 0
-        override fun start(width: Int, height: Int, targetDurationUs: Long): Boolean = false
-        override fun submitFrame(draw: (Canvas) -> Unit): Boolean = false
-        override fun submitImage(frame: ImageBitmap, backgroundArgb: Long): Boolean = false
-        override fun finish(): String? = null
-    }
+    override fun newVideoSink(withAudio: Boolean): StudioVideoSink = IosVideoSink(withAudio)
 
-    override suspend fun savePhoto(frame: ImageBitmap, format: ReplayPhotoFormat, chromaArgb: Long): String? = null
+    override suspend fun savePhoto(frame: ImageBitmap, format: ReplayPhotoFormat, chromaArgb: Long): String? =
+        withContext(Dispatchers.IO) { IosPhotoLibrary.savePhoto(frame, format, chromaArgb) }
 
-    override suspend fun newPendingImage(displayName: String, mime: String): StudioPendingFile? = null
+    override suspend fun newPendingImage(displayName: String, mime: String): StudioPendingFile? =
+        IosPendingImage(displayName)
 
-    override fun timestampedName(): String = "EUC_" + formatLocalDateUs("yyyyMMdd_HHmmss", com.eried.eucplanet.platform.System.currentTimeMillis())
+    override fun timestampedName(): String = com.eried.eucplanet.app.timestampedName()
 
     override fun framePixels(frame: ImageBitmap, width: Int, height: Int, into: IntArray): Boolean =
         com.eried.eucplanet.app.framePixels(frame, width, height, into)
