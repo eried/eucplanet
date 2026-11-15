@@ -281,14 +281,22 @@ internal class IosStudioHost : IosStudioRender(), StudioHost {
         produce: (Int) -> OverlayFrameSpec,
     ): StudioOffscreen? = null
 
-    // iOS opens the Photos app, not one item in it.
+    // The gallery button opens the Photos app, as Android opens its gallery.
     override fun openGallery() {
         NSURL.URLWithString("photos-redirect://")?.let {
             UIApplication.sharedApplication.openURL(it, emptyMap<Any?, Any?>(), null)
         }
     }
 
-    override fun openInGallery(uri: String, mime: String) = openGallery()
+    /**
+     * Shows the item just saved, as Android opens its MediaStore uri: iOS has
+     * no URL for one Photos asset, so the app's own copy of it opens in Quick
+     * Look. Once that copy is gone (only the newest are kept), Photos opens.
+     */
+    override fun openInGallery(uri: String, mime: String) {
+        val path = IosSavedMedia.shared.pathFor(uri)
+        if (path == null || !IosMediaViewer.show(path)) openGallery()
+    }
 }
 
 /**

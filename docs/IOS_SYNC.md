@@ -211,7 +211,9 @@ SIMCTL_CHILD_EUC_SCREEN=studio:100 SIMCTL_CHILD_EUC_STUDIO_PRESET=Race xcrun sim
                                # photo, exports the replay clip or records a
                                # five second take by itself;
                                # EUC_STUDIO_SHEET=add_element|manage_elements|
-                               # layout|load_preset opens that sheet
+                               # layout|load_preset opens that sheet;
+                               # EUC_STUDIO_VIEW=1 opens each saved item in
+                               # the in-app viewer, as the View action does
 sh iosApp/deploy-device.sh     # build, sign and install on a cabled iPhone
 ```
 

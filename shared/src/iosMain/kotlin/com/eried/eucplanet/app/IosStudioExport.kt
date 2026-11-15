@@ -423,12 +423,19 @@ internal object IosPhotoLibrary {
         return status == PHAuthorizationStatusAuthorized || status == PHAuthorizationStatusLimited
     }
 
-    /** Saves [path] as a photo or video resource named [name]; its local identifier, or null. */
+    /**
+     * Saves [path] as a photo or video resource named [name]; its local
+     * identifier, or null. The file moves into [IosSavedMedia] for View.
+     */
     fun saveFile(path: String, type: Long, name: String): String? =
         save(name) { req, options -> req.addResourceWithType(type, fileURL = NSURL.fileURLWithPath(path), options = options) }
+            ?.also { IosSavedMedia.shared.keepFile(it, path, name) }
+            ?.also { IosMediaViewer.openIfScripted(it) }
 
     fun saveData(bytes: ByteArray, name: String): String? =
         save(name) { req, options -> req.addResourceWithType(PHAssetResourceTypePhoto, data = bytes.toNSData(), options = options) }
+            ?.also { IosSavedMedia.shared.keepBytes(it, bytes, name) }
+            ?.also { IosMediaViewer.openIfScripted(it) }
 
     private fun save(name: String, add: (PHAssetCreationRequest, PHAssetResourceCreationOptions) -> Unit): String? {
         if (!allowed()) {
