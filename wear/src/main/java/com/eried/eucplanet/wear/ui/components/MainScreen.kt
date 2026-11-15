@@ -159,8 +159,20 @@ private fun MainScreenContent(
         // Min clamps are the size users actually see on every Wear OS device:
         // sw is ~160-225 dp across the device range, so the scale-factor side
         // of these formulas never wins. Mins have to be readable on their own.
-        val batteryFontSp = (sw * 0.034f).coerceIn(11f, 14f).sp
-        val batteryIconDp = (sw * 0.038f).coerceIn(12f, 15f).dp
+        // Fewer batteries shown leaves room in the row, so the ones left grow
+        // (rider feedback: 11 sp is hard to read without glasses).
+        val batteryCount = listOf(
+            state.showWheelBattery,
+            state.showPhoneBattery,
+            state.showWatchBattery
+        ).count { it }
+        val batteryScale = when (batteryCount) {
+            1 -> 1.65f
+            2 -> 1.3f
+            else -> 1f
+        }
+        val batteryFontSp = ((sw * 0.034f).coerceIn(11f, 14f) * batteryScale).sp
+        val batteryIconDp = ((sw * 0.038f).coerceIn(12f, 15f) * batteryScale).dp
         val batterySpacingDp = (sw * 0.018f).coerceIn(5f, 9f).dp
         val buttonDp = (sw * 0.127f).coerceIn(40f, 56f).dp
         val buttonIconDp = (sw * 0.060f).coerceIn(20f, 26f).dp
@@ -507,7 +519,11 @@ private fun BatteryChip(
             imageVector = icon,
             contentDescription = null,
             tint = tint,
-            modifier = Modifier.size(iconSize)
+            // The wheel glyph spans y 5.6-22 of its 24 box (centre 13.8, not 12),
+            // so it reads low next to the digits. Lift it by that 1.8/24.
+            modifier = Modifier
+                .size(iconSize)
+                .offset(y = if (icon === WheelIcon) -iconSize * (1.8f / 24f) else 0.dp)
         )
         Spacer(Modifier.width(2.dp))
         Text(
