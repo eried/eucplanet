@@ -209,7 +209,9 @@ SIMCTL_CHILD_EUC_SCREEN=studio:100 SIMCTL_CHILD_EUC_STUDIO_PRESET=Race xcrun sim
                                # like the rider's pick, and
                                # EUC_STUDIO_CAPTURE=photo|clip|take takes a
                                # photo, exports the replay clip or records a
-                               # five second take by itself
+                               # five second take by itself;
+                               # EUC_STUDIO_SHEET=add_element|manage_elements|
+                               # layout|load_preset opens that sheet
 sh iosApp/deploy-device.sh     # build, sign and install on a cabled iPhone
 ```
 

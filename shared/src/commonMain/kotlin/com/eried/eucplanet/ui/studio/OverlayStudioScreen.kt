@@ -129,10 +129,11 @@ fun OverlayStudioScreen(
     viewModel: OverlayStudioViewModel,
     host: StudioHost,
     scriptedCapture: StudioScriptedCapture? = null,
+    scriptedSheet: StudioScriptedSheet? = null,
 ) {
     // The viewports, sheets and elements reach the host through these.
     CompositionLocalProvider(LocalStudioHost provides host, LocalStudioRender provides host) {
-        OverlayStudioContent(onBack, onOpenBackupSettings, replayTripId, viewModel, host, scriptedCapture)
+        OverlayStudioContent(onBack, onOpenBackupSettings, replayTripId, viewModel, host, scriptedCapture, scriptedSheet)
     }
 }
 
@@ -143,6 +144,9 @@ fun OverlayStudioScreen(
  */
 enum class StudioScriptedCapture { PHOTO, CLIP, TAKE }
 
+/** A sheet the studio opens by itself, for scripted runs (the iPhone's EUC_STUDIO_SHEET launch hook). */
+enum class StudioScriptedSheet { ADD_ELEMENT, MANAGE_ELEMENTS, LAYOUT, LOAD_PRESET }
+
 @Composable
 private fun OverlayStudioContent(
     onBack: () -> Unit,
@@ -151,6 +155,7 @@ private fun OverlayStudioContent(
     viewModel: OverlayStudioViewModel,
     host: StudioHost,
     scriptedCapture: StudioScriptedCapture?,
+    scriptedSheet: StudioScriptedSheet?,
 ) {
     val strings = rememberStringReader()
     // The Studio owns its window while it is up: fixed portrait, camera-app
@@ -182,6 +187,14 @@ private fun OverlayStudioContent(
 
     var sheet by remember { mutableStateOf<StudioSheet>(StudioSheet.None) }
     var confirm by remember { mutableStateOf<StudioConfirm?>(null) }
+    LaunchedEffect(scriptedSheet) {
+        sheet = when (scriptedSheet ?: return@LaunchedEffect) {
+            StudioScriptedSheet.ADD_ELEMENT -> StudioSheet.AddElement
+            StudioScriptedSheet.MANAGE_ELEMENTS -> StudioSheet.ManageElements
+            StudioScriptedSheet.LAYOUT -> StudioSheet.LayoutPicker
+            StudioScriptedSheet.LOAD_PRESET -> StudioSheet.LoadPreset
+        }
+    }
     // The element config sheet's "Style" section open / closed state, hoisted
     // here so it sticks for the studio session across different elements (not
     // persisted to settings).

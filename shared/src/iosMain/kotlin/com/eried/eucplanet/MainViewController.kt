@@ -193,6 +193,10 @@ fun MainViewController(): UIViewController {
     // SIMCTL_CHILD_EUC_STUDIO_CAPTURE=photo|clip|take (with EUC_SCREEN=studio)
     // takes a photo, exports the replay clip or records a five second take
     // by itself once the studio settles, for scripted runs.
+    // SIMCTL_CHILD_EUC_STUDIO_SHEET=add_element|manage_elements|layout|load_preset opens that sheet.
+    val studioSheet = (NSProcessInfo.processInfo.environment["EUC_STUDIO_SHEET"] as? String)?.let { name ->
+        com.eried.eucplanet.ui.studio.StudioScriptedSheet.entries.firstOrNull { it.name.equals(name, ignoreCase = true) }
+    }
     val studioCapture = (NSProcessInfo.processInfo.environment["EUC_STUDIO_CAPTURE"] as? String)?.let { name ->
         com.eried.eucplanet.ui.studio.StudioScriptedCapture.entries.firstOrNull { it.name.equals(name, ignoreCase = true) }
     }
@@ -497,6 +501,7 @@ fun MainViewController(): UIViewController {
                                 viewModel = studioVm,
                                 host = studioHost,
                                 scriptedCapture = studioCapture,
+                                scriptedSheet = studioSheet,
                             )
                         }
                     }
