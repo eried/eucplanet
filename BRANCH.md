@@ -21,7 +21,7 @@ only when you can cut the ride short.
 - iPhone app: the motor sound, every engine from the Android app with the same settings and previews. It lowers your music while it plays and keeps playing with the iPhone locked.
 - iPhone app: navigation. Plan a route on the map, ride it with spoken turn cues (also with the iPhone locked), the navigator view, the turn card on every screen and Stop navigation on the lock screen. Share routes by link or QR, load and save GPX tracks, your marker photo, and live groups with Android riders. Routes need signal, offline areas are Android only for now.
 - iPhone app: the Needs attention warnings (location, Bluetooth, notifications, backups), and a recording cut short by closing the app is saved or dropped at the next start, as on Android.
-- Inside: the dashboard, settings, alarms, trips, trip details, trip tools, Legal Mode, the notification buttons, the reconnect timing, leaderboards, Dropbox sync, the wheel link, the theme editor, the automations, what runs on connect and every wheel update, the radar and TPMS settings, the engine sound and the navigation (routing, turn cues, the route builder, route sharing, the navigator view and the Navigation settings) moved to a library shared with the iPhone. Nothing should change on screen.
+- Inside: the dashboard, settings, alarms, trips, trip details, trip tools, Legal Mode, the notification buttons, the reconnect timing, leaderboards, Dropbox sync, the wheel link, the theme editor, the automations, what runs on connect and every wheel update, the radar and TPMS settings, the engine sound and the navigation (routing, turn cues, the route builder, route sharing, the navigator view and the Navigation settings) and the Overlay studio moved to a library shared with the iPhone. Nothing should change on screen.
 - iPhone app: a swipe in from the left edge is back, on every screen and in every dialog, and the crew pass has the X in every step.
 - iPhone app: Volume up, Volume down and Mute are no longer offered (iOS cannot set the volume), and the tour's last page names only Flic buttons.
 - Settings, Dashboard layout no longer closes the app.
@@ -106,6 +106,8 @@ only when you can cut the ride short.
 - Varia radar and TPMS caps: still paired after updating, and do the radar lane and tyre pressures show as before? Pair a new one from Settings, Integration.
 - Engine sound: does every engine sound as in the last build, previews too?
 - Navigation: plan a route, ride it with turn cues, miss a turn and let it reroute, also with offline areas. Same as the last build?
+- Overlay studio: add and arrange elements, save and load presets, record from the camera, take a photo, replay a trip and export it as MP4, GIF and APNG. Same as the last build?
+- HUD: overlay presets and the map on the HUD, same as the last build?
 - Route builder: search, optimize and reverse a route, share it (link, QR, live group), load a GPX track and convert it to stops, set your marker photo. Same as the last build?
 - Dashboard, Settings, alarm editor, Scan, the trip list, trip details, trip meter, metric details, battery monitor and leaderboards: anything that looks or acts differently from the last build is a bug.
 
