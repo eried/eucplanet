@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import com.eried.eucplanet.ble.BluetoothRestore
 import platform.CoreBluetooth.CBCentralManager
 import platform.CoreBluetooth.CBCentralManagerDelegateProtocol
 import platform.CoreBluetooth.CBCharacteristic
@@ -35,6 +36,7 @@ import platform.CoreBluetooth.CBCharacteristicPropertyWriteWithoutResponse
 import platform.CoreBluetooth.CBCharacteristicWriteWithResponse
 import platform.CoreBluetooth.CBManagerStatePoweredOn
 import platform.CoreBluetooth.CBPeripheral
+import platform.CoreBluetooth.CBPeripheralStateConnected
 import platform.CoreBluetooth.CBPeripheralDelegateProtocol
 import platform.CoreBluetooth.CBService
 import platform.Foundation.NSError
@@ -100,7 +102,12 @@ class IosExternalGpsLink : ExternalGpsLink {
 
     private val centralDelegate = CentralDelegate()
     private val peripheralDelegate = PeripheralDelegate()
-    private val central = CBCentralManager(centralDelegate, null)
+    /**
+     * What iOS handed back on a relaunch, held so CoreBluetooth keeps it; the
+     * repository's own reconnect then finds it by id (BluetoothRestore).
+     */
+    private var restored: List<CBPeripheral> = emptyList()
+    private val central = CBCentralManager(centralDelegate, null, BluetoothRestore.options(BluetoothRestore.EXTERNAL_GPS))
 
     private fun bluetoothOn() = central.state == CBManagerStatePoweredOn
 
@@ -153,7 +160,13 @@ class IosExternalGpsLink : ExternalGpsLink {
     private fun open(p: CBPeripheral) {
         peripheral = p
         p.delegate = peripheralDelegate
-        central.connectPeripheral(p, null)
+        if (p.state == CBPeripheralStateConnected) {
+            // Still linked for this app (restored after a relaunch): set it up.
+            Log.i(TAG, "${p.identifier.UUIDString} is still linked (restored)")
+            centralDelegate.centralManager(central, didConnectPeripheral = p)
+        } else {
+            central.connectPeripheral(p, null)
+        }
     }
 
     private fun knownPeripheral(address: String): CBPeripheral? {
@@ -303,6 +316,13 @@ class IosExternalGpsLink : ExternalGpsLink {
                 Log.i(TAG, "Bluetooth turned off; forcing disconnect")
                 forceDisconnect()
             }
+        }
+
+        /** iOS relaunched the app for this central: keep what it held. */
+        override fun centralManager(central: CBCentralManager, willRestoreState: Map<Any?, *>) {
+            restored = BluetoothRestore.peripherals(willRestoreState)
+            Log.i(TAG, "Restored by iOS: " + restored.map { BluetoothRestore.describe(it) })
+            restored.forEach { it.delegate = peripheralDelegate }
         }
 
         override fun centralManager(

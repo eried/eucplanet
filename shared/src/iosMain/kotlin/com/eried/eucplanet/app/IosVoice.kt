@@ -251,6 +251,11 @@ internal class IosVoice(
     /** A sentence already set up with its own voice and pace (the settings test). */
     fun speakNow(utterance: AVSpeechUtterance) = utter(utterance, focus = null)
 
+    /** No welcome this run: the app was relaunched in the background mid-ride. */
+    fun skipWelcome() {
+        welcomed = true
+    }
+
     override fun welcomeOnce() {
         if (welcomed) return
         welcomed = true

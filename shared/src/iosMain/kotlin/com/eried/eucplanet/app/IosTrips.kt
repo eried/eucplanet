@@ -12,6 +12,10 @@ import com.eried.eucplanet.resources.voice_recording_started
 import com.eried.eucplanet.service.RideRecorder
 import com.eried.eucplanet.data.repository.WheelChoice
 import com.eried.eucplanet.data.repository.recoverKilledRecordings
+import com.eried.eucplanet.data.repository.KilledTripResume
+import com.eried.eucplanet.data.repository.parseTripQuads
+import com.eried.eucplanet.data.repository.tripCsvRowCount
+import com.eried.eucplanet.util.TripCsv
 import com.eried.eucplanet.data.repository.TripTools
 import com.eried.eucplanet.data.repository.TripWheelLog
 import com.eried.eucplanet.ui.dashboard.DashboardTrips
@@ -52,6 +56,8 @@ import platform.Foundation.closeFile
 import platform.Foundation.dataWithBytes
 import platform.Foundation.fileHandleForWritingAtPath
 import platform.Foundation.writeData
+import platform.Foundation.seekToEndOfFile
+import platform.Foundation.truncateFileAtOffset
 
 /**
  * Trip recording on iOS: the same CSV (the shared [CsvWriter]) and the same
@@ -64,7 +70,9 @@ import platform.Foundation.writeData
  * discard grace before a sync exists on Android only with a backup folder,
  * which iOS has none of, so a stopped trip is final at once there as here. A
  * recording the app was killed in is finalized or dropped at the next start
- * ([recoverKilledRecordings], the same sweep). A finished trip goes to Dropbox through
+ * ([recoverKilledRecordings], the same sweep), except on a Bluetooth relaunch
+ * moments after iOS ended the app mid-ride, where it carries on in the same
+ * file and row ([KilledTripResume]). A finished trip goes to Dropbox through
  * [IosDropboxSync]. The trip list reads it as [RecordingTrips]; the trip
  * tools (rename, wheel, split, combine, section) are the shared [TripTools],
  * so they write the files and rows Android's do. See docs/IOS_PARITY.md.
@@ -101,6 +109,8 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips, RideRe
     private var loop: Job? = null
     private var gpsKm = 0.0
     private var wheelKm = 0f
+    // What a trip carried on after a Bluetooth relaunch had covered before.
+    private var priorKm = 0f
     private val wheelLog = TripWheelLog()
 
     /**
@@ -115,12 +125,28 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips, RideRe
      * was killed in is finalized from its CSV, or dropped with its file when
      * nothing usable was written, so no 0 s trip is left in the list.
      */
-    suspend fun recoverKilled() {
+    suspend fun recoverKilled(resumeWithinMs: Long? = null) {
         runCatching {
+            val unfinished = dao.getUnfinished()
+            val texts = HashMap<Long, String?>()
+            fun csv(t: TripRecord): String? = texts.getOrPut(t.id) {
+                NSString.stringWithContentsOfFile("$tripsDir/${t.fileName}", NSUTF8StringEncoding, null)
+            }
+            // A Bluetooth relaunch: the ride iOS cut short carries on, when it was just now.
+            if (resumeWithinMs != null) {
+                val pick = KilledTripResume.pick(
+                    unfinished,
+                    lastRowMs = { t -> csv(t)?.let { TripCsv.metricsFrom(parseTripQuads(it)) }?.takeIf { it.valid }?.endMs },
+                    nowMs = System.currentTimeMillis(),
+                    maxGapMs = resumeWithinMs,
+                )
+                if (pick == null) Log.i(TAG, "Relaunch: no recording to carry on")
+                pick?.let { t -> csv(t)?.let { text -> resume(t, text) } }
+            }
             recoverKilledRecordings(
-                dao.getUnfinished(),
+                unfinished,
                 liveTripId = _currentTripId.value,
-                readCsv = { t -> NSString.stringWithContentsOfFile("$tripsDir/${t.fileName}", NSUTF8StringEncoding, null) },
+                readCsv = { t -> csv(t) },
                 keep = { finalized, rows ->
                     dao.update(finalized)
                     Log.i(TAG, "Finalized killed recording ${finalized.fileName} ($rows rows, ${finalized.distanceKm} km)")
@@ -186,6 +212,48 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips, RideRe
             IosAppGraph.voice.announceEvent(IosPhoneDevice.text(Res.string.voice_recording_started))
         }
 
+        priorKm = 0f
+        startLoop()
+    }
+
+    /**
+     * Carries on [t], the trip iOS ended the app in, after a Bluetooth
+     * relaunch: the same row and file, appended to, with the distance it had
+     * covered kept. A partly written last line is cut off first. False when
+     * a recording already runs (it wins, and the sweep finalizes [t]) or the
+     * file cannot be opened.
+     */
+    private suspend fun resume(t: TripRecord, text: String): Boolean {
+        if (IosLockdown.controller.isEngaged()) return false
+        if (!_recording.compareAndSet(expect = false, update = true)) return false
+        val path = "$tripsDir/${t.fileName}"
+        val whole = text.lastIndexOf('\n').let { if (it < 0) "" else text.substring(0, it + 1) }
+        val sink = FileSink(path, keepBytes = whole.encodeToByteArray().size.toULong())
+        val w = CsvWriter(sink)
+        try {
+            w.resume(tripCsvRowCount(whole))
+        } catch (e: Exception) {
+            Log.e(TAG, "Could not reopen ${t.fileName}; left for the sweep", e)
+            _recording.value = false
+            return false
+        }
+        IosLocation.start()
+        writer = w
+        trip = t
+        _currentTripId.value = t.id
+        priorKm = TripCsv.metricsFrom(parseTripQuads(whole)).distanceKm
+        gpsKm = 0.0
+        _liveGpsKm.value = priorKm
+        wheelKm = 0f
+        wheelLog.reset()
+        captureWheel()
+        Log.i(TAG, "Recording resumed after relaunch: ${t.fileName}, ${w.rows} rows, $priorKm km so far")
+        startLoop()
+        return true
+    }
+
+    /** The row loop, at the rider's interval, until the recording stops. */
+    private fun startLoop() {
         loop = scope.launch {
             val s = IosAppGraph.settings.get()
             val intervalMs = s.tripRecordIntervalMs.toLong()
@@ -233,7 +301,7 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips, RideRe
                         val m = meters(prev, fix)
                         if (m in 0.5..200.0) {
                             gpsKm += m / 1000.0
-                            _liveGpsKm.value = gpsKm.toFloat()
+                            _liveGpsKm.value = priorKm + gpsKm.toFloat()
                         }
                     }
                     lastFix = fix
@@ -254,13 +322,16 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips, RideRe
         trip = null
         _currentTripId.value = null
         // As on Android: the wheel's own per-segment distance, else the GPS's.
-        val distance = if (wheelKm > 0f) wheelKm else gpsKm.toFloat()
+        // A trip carried on after a relaunch adds what it had covered before.
+        val distance = priorKm + if (wheelKm > 0f) wheelKm else gpsKm.toFloat()
+        priorKm = 0f
         // A last look in case the wheel is still connected, then what the ride gathered.
         captureWheel()
         dao.update(
             t.copy(
                 endTime = System.currentTimeMillis(), distanceKm = distance, sampleCount = rows,
-                wheelMetaJson = wheelLog.identity.toJson(),
+                // A resumed trip whose wheel never came back keeps what it had.
+                wheelMetaJson = wheelLog.identity.toJson() ?: t.wheelMetaJson,
             )
         )
         Log.i(TAG, "Recording stopped: ${t.fileName}, $rows rows, $distance km")
@@ -416,13 +487,21 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips, RideRe
 
     /** Lines appended to a file, flushed when the writer asks. */
     @OptIn(ExperimentalForeignApi::class)
-    private class FileSink(private val path: String) : TextSink {
+    private class FileSink(private val path: String, private val keepBytes: ULong? = null) : TextSink {
         private var handle: NSFileHandle? = null
         private val pending = StringBuilder()
 
         override fun open() {
             check(NSFileManager.defaultManager.createFileAtPath(path, null, null)) { "cannot create $path" }
             handle = NSFileHandle.fileHandleForWritingAtPath(path) ?: error("cannot open $path")
+        }
+
+        /** The existing file, cut to its whole lines ([keepBytes]), written on from its end. */
+        override fun openAppend() {
+            val h = NSFileHandle.fileHandleForWritingAtPath(path) ?: error("cannot open $path")
+            keepBytes?.let { h.truncateFileAtOffset(it) }
+            h.seekToEndOfFile()
+            handle = h
         }
 
         override fun writeLine(line: String) {

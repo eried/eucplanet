@@ -2,6 +2,7 @@ package com.eried.eucplanet
 
 import androidx.compose.ui.window.ComposeUIViewController
 import com.eried.eucplanet.app.IosAppGraph
+import com.eried.eucplanet.app.IosAppStart
 import com.eried.eucplanet.app.IosDebugSnaps
 import com.eried.eucplanet.app.IosLaunchHooks
 import com.eried.eucplanet.app.IosDisplayPrefs
@@ -77,123 +78,20 @@ import platform.UIKit.UIViewController
 /** Entry point the Swift host (iosApp/AppDelegate.swift) shows. */
 @Suppress("FunctionName", "unused")
 fun MainViewController(): UIViewController {
-    // Uncaught Kotlin exceptions to Documents/crashes, as Android's CrashHandler.
-    IosCrashLog.install()
+    // The services run already when the app was started without a screen
+    // (a Bluetooth relaunch, AppDelegate.swift); then this only attaches to them.
+    IosAppStart.start(bluetoothRelaunch = false)
     val link = IosAppGraph.link
     val wheel = IosAppGraph.wheel
-    // For scripted runs on the simulator, which cannot tap:
-    // SIMCTL_CHILD_EUC_CONNECT=VIRTUAL:<id> xcrun simctl launch ...
-    (NSProcessInfo.processInfo.environment["EUC_CONNECT"] as? String)?.let { wheel.connect(it) }
     // SIMCTL_CHILD_EUC_DIALOG=service (or about) opens that dashboard dialog.
     (NSProcessInfo.processInfo.environment["EUC_DIALOG"] as? String)?.let {
         com.eried.eucplanet.ui.dashboard.DashboardDialogBus.open(it)
-    }
-    MainScope().launch {
-        IosAppGraph.seed()
-        // A recording the app was killed in, finalized or dropped, as on Android.
-        IosTrips.recoverKilled()
-        // Then the wheel out of any trip file never asked, as Android's start does.
-        IosTrips.backfillWheelMeta()
-    }
-    // The phone's GPS for the dashboard and trips, as WheelService starts it
-    // on Android, and lockdown stopping a recording.
-    IosLocation.start()
-    IosTrips.followWheel()
-    // The trip meter counts while a wheel is connected, dashboard open or not.
-    IosTripMeter.meter
-    // Leaderboard uploads at launch and on every return to the front.
-    IosEucStats.start()
-    // The charge alerts, as WheelService posts them on Android.
-    IosChargeAlerts.start()
-    // The radar and the tyre caps, as WheelService injects them on Android:
-    // the repository reconnects a paired radar once it exists, and the
-    // scanner listens for paired caps, following the pairing from then on.
-    IosAppGraph.radar
-    IosAppGraph.tpmsScanner.startMonitoring()
-    // The external GPS box, as WheelService injects it on Android: the
-    // repository reconnects a paired box while the app is in front or a ride
-    // runs. EUC_SERVICE, EUC_EXTGPS and EUC_SOURCES drive it for scripted runs.
-    IosAppGraph.externalGps
-    IosLaunchHooks.start()
-    // The offline downloads left from the last run carry on (WorkManager
-    // keeps them on Android), and the weekly Wi-Fi update check.
-    IosAppGraph.offlineTiles
-    IosAppGraph.offlineJobs.start()
-    // SIMCTL_CHILD_EUC_VOICE_EVERY=15 makes the periodic report speak every
-    // 15 s whatever the speed and output, to hear it with the app in the
-    // background on the simulator. It is saved, like any settings change.
-    (NSProcessInfo.processInfo.environment["EUC_VOICE_EVERY"] as? String)?.toIntOrNull()?.let { secs ->
-        kotlinx.coroutines.runBlocking {
-            IosAppGraph.settings.update {
-                it.copy(
-                    voiceEnabled = true,
-                    voiceAnnounceWhen = "ALWAYS",
-                    voiceAnnounceRequireExternal = false,
-                    voiceIntervalSeconds = secs,
-                )
-            }
-        }
-    }
-    // SIMCTL_CHILD_EUC_ENGINE=V8_MUSCLE turns the motor sound on with that
-    // engine (an EngineProfile key), to hear it follow a virtual wheel on the
-    // simulator. Saved, like any settings change.
-    (NSProcessInfo.processInfo.environment["EUC_ENGINE"] as? String)?.let { key ->
-        kotlinx.coroutines.runBlocking {
-            IosAppGraph.settings.update {
-                it.copy(engineSound = it.engineSound.copy(enabled = true, type = key))
-            }
-        }
-    }
-    // What runs around a ride (automations, announcements, auto-record,
-    // charge alerts, periodic reports): the shared RideSession, as WheelService runs it.
-    IosRideSession.start()
-    // Dropbox trips at launch, on every return to the front and while open.
-    IosDropboxSync.start()
-    // Keep screen on, and the language picker showing the applied language.
-    IosDisplayPrefs.start()
-    // The dashboard's "Needs attention" list, as MainActivity refreshes it on Android.
-    IosAppHealth.start()
-    // Legal Mode Lockdown: read before the first frame, and service mode
-    // stopped while it runs, as EucPlanetApp does on Android.
-    IosLockdown.start()
-    // EUC_SNAP="15,20,100" saves a burst of window screenshots (field debugging).
-    IosDebugSnaps.start()
-    // SIMCTL_CHILD_EUC_RECORD=20 records a 20 s trip, for scripted runs.
-    (NSProcessInfo.processInfo.environment["EUC_RECORD"] as? String)?.toLongOrNull()?.let { secs ->
-        MainScope().launch {
-            IosTrips.startRecording()
-            kotlinx.coroutines.delay(secs * 1000)
-            IosTrips.stopRecording()
-        }
-    }
-    // SIMCTL_CHILD_EUC_ROUTE="59.9139,10.7522;59.9075,10.7602" plans those
-    // stops (lat,lon pairs) as the route builder's draft, as if the rider had
-    // tapped them, for scripted runs (with EUC_SCREEN=route).
-    (NSProcessInfo.processInfo.environment["EUC_ROUTE"] as? String)?.let { spec ->
-        val stops = spec.split(';').mapNotNull { pair ->
-            val parts = pair.split(',')
-            val lat = parts.getOrNull(0)?.trim()?.toDoubleOrNull()
-            val lon = parts.getOrNull(1)?.trim()?.toDoubleOrNull()
-            if (lat != null && lon != null) com.eried.eucplanet.data.model.Waypoint(lat, lon) else null
-        }
-        if (stops.isNotEmpty()) {
-            // SIMCTL_CHILD_EUC_ROUTE_MODE=CYCLING (a TravelMode) instead of the rider's default.
-            val mode = NSProcessInfo.processInfo.environment["EUC_ROUTE_MODE"] as? String
-                ?: kotlinx.coroutines.runBlocking { IosAppGraph.settings.get().navDefaultTravelMode }
-            IosAppGraph.currentRoute.set(
-                com.eried.eucplanet.data.model.NavRoute(
-                    "Route", stops, com.eried.eucplanet.data.model.TravelMode.fromName(mode),
-                    emptyList(), emptyList(), 0.0,
-                )
-            )
-        }
     }
     // SIMCTL_CHILD_EUC_NAV=1 (with EUC_SCREEN=route) starts turn-by-turn on the
     // planned stops once there is a fix, as the Start button does; =dashboard
     // then goes back to the dashboard, for the turn card over it.
     val navHook = NSProcessInfo.processInfo.environment["EUC_NAV"] as? String
     val autoNav = navHook == "1" || navHook == "dashboard"
-    RideActivity.follow(link, wheel.wheelData)
     // SIMCTL_CHILD_EUC_TAB=1 opens the old probe screen on its backup tab,
     // the wheel protocol probe kept for diagnostics.
     val tab = (NSProcessInfo.processInfo.environment["EUC_TAB"] as? String)?.toIntOrNull()
@@ -211,7 +109,6 @@ fun MainViewController(): UIViewController {
     // SIMCTL_CHILD_EUC_SETTINGS_TAB=4 opens Settings on a section, as the
     // dashboard's shortcuts do (initialTabSectionKey).
     val settingsTab = (NSProcessInfo.processInfo.environment["EUC_SETTINGS_TAB"] as? String)?.toIntOrNull() ?: 0
-    IosThemeEditor.start()
     val statusBar = StatusBarHost()
     val compose = ComposeUIViewController {
         if (tab != null) {

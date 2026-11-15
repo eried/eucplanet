@@ -7,6 +7,8 @@ import com.eried.eucplanet.ble.virtual.VirtualWheelRegistry
 import com.eried.eucplanet.diagnostics.DiagnosticsLogger
 import com.eried.eucplanet.platform.Log
 import com.eried.eucplanet.platform.System
+import com.eried.eucplanet.service.RestoredPeripheral
+import com.eried.eucplanet.service.WheelRestore
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.ObjCSignatureOverride
@@ -75,6 +77,13 @@ data class ScannedWheel(val address: String, val name: String?, val rssi: Int)
  * screen stops it. CoreBluetooth has no low-power scan, so a long hunt keeps
  * its scan. The link's RSSI is read once a second while connected.
  * Android's status-133 retries have no CoreBluetooth counterpart.
+ *
+ * The central is restorable ([BluetoothRestore.WHEEL]): when iOS ends the
+ * app in the background to free memory, it keeps the link (or the connect
+ * left waiting), relaunches the app when the wheel talks, and hands the
+ * wheel back in willRestoreState; once Bluetooth reports on, the link picks
+ * it up as an automatic connect, straight to service discovery when it is
+ * still linked.
  */
 class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
 
@@ -119,9 +128,11 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
     private var wantScan = false
 
     private val peripherals = mutableMapOf<String, CBPeripheral>()
+    /** The wheel iOS handed back on a relaunch, picked up once Bluetooth is on. */
+    private var restoredWheel: RestoredPeripheral? = null
     private val centralDelegate = CentralDelegate()
     private val peripheralDelegate = PeripheralDelegate()
-    private val central = CBCentralManager(centralDelegate, null)
+    private val central = CBCentralManager(centralDelegate, null, BluetoothRestore.options(BluetoothRestore.WHEEL))
     private var rssiJob: Job? = null
     // Services whose characteristics have not been reported yet (1, or 2 for InMotion V1).
     private var servicesAwaitingCharacteristics = 0
@@ -258,7 +269,34 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
         _connectionState.value = ConnectionState.CONNECTING
         peripheral = p
         p.delegate = peripheralDelegate
-        central.connectPeripheral(p, null)
+        if (p.state == CBPeripheralStateConnected) {
+            // Still linked for this app: a wheel iOS restored after a relaunch.
+            // Nothing to connect; set the link up as a fresh connect does.
+            Log.i(TAG, "$address is still linked (restored); setting the link up")
+            centralDelegate.centralManager(central, didConnectPeripheral = p)
+        } else {
+            central.connectPeripheral(p, null)
+        }
+    }
+
+    /**
+     * The wheel iOS restored, picked up as an automatic connect once the
+     * radio is on, unless the app has already asked for another wheel.
+     */
+    private fun pickUpRestored() {
+        val r = restoredWheel ?: return
+        restoredWheel = null
+        val asked = _connectedAddress.value
+        if (virtualWheel != null || (asked != null && asked != r.id) ||
+            _connectionState.value != ConnectionState.DISCONNECTED
+        ) {
+            Log.i(TAG, "Restored wheel ${r.id} not picked up: the app has another link")
+            if (asked != r.id) peripherals[r.id]?.let { cancelLink(it) }
+            return
+        }
+        Log.i(TAG, "Picking up the restored wheel ${r.name ?: "(unnamed)"} (${r.id}), connected=${r.connected}")
+        DiagnosticsLogger.note("Relaunched by iOS: picking the wheel back up (connected=${r.connected})")
+        connect(r.id, r.name, isAuto = true)
     }
 
     /** The rider's disconnect: forget the wheel, so it is not hunted. */
@@ -475,6 +513,7 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
                 listSystemConnectedWheels()
             }
             if (_bluetoothOn.value) {
+                pickUpRestored()
                 hunt.bluetoothOn()
             } else {
                 hunt.bluetoothOff()
@@ -484,6 +523,21 @@ class IosWheelLink(private val adapter: WheelAdapter) : WheelLink {
                     teardown()
                 }
             }
+        }
+
+        /**
+         * iOS relaunched the app for this central and hands back what it
+         * kept: the wheel linked, or the connect the hunt left waiting. Called
+         * before the state update; the pick-up waits for the radio.
+         */
+        override fun centralManager(central: CBCentralManager, willRestoreState: Map<Any?, *>) {
+            val restored = BluetoothRestore.peripherals(willRestoreState)
+            Log.i(TAG, "Restored by iOS: " + restored.map { BluetoothRestore.describe(it) })
+            for (p in restored) {
+                peripherals[p.identifier.UUIDString] = p
+                p.delegate = peripheralDelegate
+            }
+            restoredWheel = WheelRestore.pick(restored.map { BluetoothRestore.describe(it) })
         }
 
         override fun centralManager(

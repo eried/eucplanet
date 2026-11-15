@@ -248,6 +248,14 @@ SIMCTL_CHILD_EUC_GPS_SPEED=external xcrun simctl launch booted com.eried.eucplan
                                # Show speed on dashboard and Prioritize
                                # external GPS on (=phone: only the first),
                                # for the dial's external speed dot
+SIMCTL_CHILD_EUC_HEADLESS=20 SIMCTL_CHILD_EUC_CONNECT=VIRTUAL:V6 xcrun simctl launch booted com.eried.eucplanet.ios
+                               # starts as a Bluetooth relaunch does: the
+                               # services with no screen for 20 s (the log
+                               # says "Starting: BLUETOOTH_RELAUNCH"), a trip
+                               # killed moments ago carried on ("Recording
+                               # resumed after relaunch"), then the screen
+                               # attaches ("Already started"); see Bluetooth
+                               # relaunch below
 sh iosApp/deploy-device.sh     # build, sign and install on a cabled iPhone
 ```
 
@@ -262,6 +270,54 @@ runner launching the app (`XCUIApplication(bundleIdentifier:)` with a
 
 The device script uses the free Apple ID signing set up in Xcode
 (Settings > Accounts). Free installs expire after 7 days; run it again.
+
+### Bluetooth relaunch
+
+iOS may end the app in the background to free memory during a ride. The
+wheel, radar and GPS box centrals are restorable (`ble/BluetoothRestore.kt`),
+so iOS keeps their links and relaunches the app, with no screen, when one of
+them talks; `AppDelegate` then runs `IosAppStart.start` before any window, and
+the window is made only when the rider opens the app. Keep everything a ride
+needs in `IosAppStart`, never in a screen: a background relaunch has none.
+
+On the simulator (no Bluetooth), `EUC_HEADLESS` checks the start without a
+screen: record with a virtual wheel (`EUC_CONNECT=VIRTUAL:V6`, start a trip),
+end the app with `xcrun simctl terminate booted com.eried.eucplanet.ios`, then
+launch it with `EUC_HEADLESS=20` and the same `EUC_CONNECT` within the trip's
+window (the auto-record idle stop, 1 to 10 minutes). The log shows the trip
+carried on, one "Connected", and after 20 s the dashboard with the one
+recording.
+
+On a real iPhone, cabled to the Mac with Xcode, and the location grant set to
+Always (Settings > EUC Planet > Location) so the GPS can restart in the
+background:
+
+1. Install a Debug build (Xcode Run, or `sh iosApp/deploy-device.sh`), connect
+   the wheel and start a trip (or let auto-record start one).
+2. Press the Home button or swipe up to the Home Screen. Do not swipe the app
+   away in the app switcher: iOS never relaunches an app the rider closed
+   there, by design.
+3. End the app the way the system does, not the way the rider does. The
+   sure way: in Xcode, Product > Scheme > Edit Scheme > Run > Environment
+   Variables, add `EUC_KILL_IN_BACKGROUND` = `20`, run the app from Xcode,
+   and 20 s after it goes to the background it ends itself with SIGKILL, as
+   iOS ends an app for memory (the relaunch iOS makes later has no such
+   variable, so it does not end again). Without Xcode: open a few heavy apps
+   (camera, games) until iOS ends it. Xcode's Debug > Simulate Background
+   Fetch is something else and does not test this. In Console.app (the
+   iPhone picked, filtered by `EucPlanet`) the process ends.
+4. Move the wheel (or touch its button) so it sends data. Within a few
+   seconds the app is running again with no screen: in Console.app the log
+   shows `Starting: BLUETOOTH_RELAUNCH`, `Restored by iOS`, `Picking up the
+   restored wheel`, `Connected` and `Recording resumed after relaunch`, and the
+   voice reports and alarms are heard again.
+5. Open the app: the dashboard shows the wheel connected and the same trip
+   still recording (one trip in the list, not two), with no welcome spoken.
+
+A wheel switched off when the app was ended leaves only the waiting connect;
+the relaunch then comes when the wheel is switched back on. Past the trip's
+window (the idle stop, at most 10 minutes) that trip is finalized and
+auto-record starts a new one.
 
 ### TestFlight
 
