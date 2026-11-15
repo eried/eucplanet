@@ -70,6 +70,7 @@ class MainActivity : ComponentActivity() {
                     showPhoneBattery = intent.getBooleanExtra("showPhoneBatt", true),
                     showWatchBattery = intent.getBooleanExtra("showWatchBatt", true),
                     keepScreenOn = intent.getBooleanExtra("keepOn", true),
+                    prioritizePwm = intent.getBooleanExtra("prioritizePwm", false),
                     // --ez diag true: exercise the Service Mode input-event
                     // reporting without a live phone pairing.
                     diagOn = intent.getBooleanExtra("diag", false)

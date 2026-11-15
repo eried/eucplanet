@@ -168,11 +168,14 @@ private fun MainScreenContent(
         ).count { it }
         val batteryScale = when (batteryCount) {
             1 -> 2.0f
-            2 -> 1.6f
-            else -> 1.25f
+            2 -> 1.45f
+            else -> 1.1f
         }
         val batteryFontSp = ((sw * 0.034f).coerceIn(14f, 17f) * batteryScale).sp
         val batteryIconDp = ((sw * 0.038f).coerceIn(15f, 18f) * batteryScale).dp
+        // Fixed slot sized for the single, biggest battery, so two or three
+        // smaller ones sit centred in the same place instead of dropping.
+        val batterySlotDp = ((sw * 0.038f).coerceIn(15f, 18f) * 2.0f * 1.25f).dp
         val batterySpacingDp = (sw * 0.018f).coerceIn(5f, 9f).dp
         val buttonDp = (sw * 0.127f).coerceIn(40f, 56f).dp
         val buttonIconDp = (sw * 0.060f).coerceIn(20f, 26f).dp
@@ -391,21 +394,26 @@ private fun MainScreenContent(
             // phoneAlive is computed at the top of MainScreenContent so the whole
             // dashboard shares one freshness check. Wheel battery and phone
             // battery both go stale when phone is silent for >3 s.
-            BatteryRow(
-                wheelPercent = state.batteryPercent.takeIf {
-                    state.showWheelBattery && state.connected && phoneAlive
-                },
-                phonePercent = if (state.showPhoneBattery && phoneAlive)
-                    state.phoneBatteryPercent else null,
-                watchPercent = watchPercent.takeIf { state.showWatchBattery },
-                showWheelChip = state.showWheelBattery,
-                showPhoneChip = state.showPhoneBattery,
-                accent = accent,
-                useAccentTint = state.accentKey != "default",
-                fontSize = batteryFontSp,
-                iconSize = batteryIconDp,
-                spacing = batterySpacingDp
-            )
+            Box(
+                modifier = Modifier.height(batterySlotDp),
+                contentAlignment = Alignment.Center
+            ) {
+                BatteryRow(
+                    wheelPercent = state.batteryPercent.takeIf {
+                        state.showWheelBattery && state.connected && phoneAlive
+                    },
+                    phonePercent = if (state.showPhoneBattery && phoneAlive)
+                        state.phoneBatteryPercent else null,
+                    watchPercent = watchPercent.takeIf { state.showWatchBattery },
+                    showWheelChip = state.showWheelBattery,
+                    showPhoneChip = state.showPhoneBattery,
+                    accent = accent,
+                    useAccentTint = state.accentKey != "default",
+                    fontSize = batteryFontSp,
+                    iconSize = batteryIconDp,
+                    spacing = batterySpacingDp
+                )
+            }
             ActionRow(
                 state = state,
                 accent = accent,
