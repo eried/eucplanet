@@ -1,11 +1,15 @@
 package com.eried.eucplanet.hud.protocol
 
+import kotlin.math.PI
+import kotlin.math.nextDown
 import kotlin.math.pow
 import kotlin.math.round
 
 /** Shared WGS84 Web Mercator math for raster tile coordinates. */
 object WebMercator {
     private const val MAX_LATITUDE = 85.05112878
+    /** The JDK's Math.toRadians constant, so the tiles do not move by a rounding step. */
+    private const val DEGREES_TO_RADIANS = 0.017453292519943295
 
     private fun worldSize(zoom: Int): Double = 2.0.pow(zoom.coerceIn(0, 30).toDouble())
 
@@ -17,9 +21,9 @@ object WebMercator {
     fun tileY(lat: Double, zoom: Int): Double {
         val n = worldSize(zoom)
         val clampedLat = lat.coerceIn(-MAX_LATITUDE, MAX_LATITUDE)
-        val sine = kotlin.math.sin(Math.toRadians(clampedLat))
-        val y = (0.5 - kotlin.math.ln((1.0 + sine) / (1.0 - sine)) / (4.0 * Math.PI)) * n
-        return y.coerceIn(0.0, Math.nextDown(n))
+        val sine = kotlin.math.sin(clampedLat * DEGREES_TO_RADIANS)
+        val y = (0.5 - kotlin.math.ln((1.0 + sine) / (1.0 - sine)) / (4.0 * PI)) * n
+        return y.coerceIn(0.0, n.nextDown())
     }
 
     /** Positive modulo for an integer tile X coordinate. */

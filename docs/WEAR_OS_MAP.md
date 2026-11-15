@@ -221,8 +221,8 @@ runtime coverage:
 | `wear/src/main/java/com/eried/eucplanet/wear/bridge/WatchMapRepository.kt` | Watch-side presence, session acceptance, route and tile Asset loading, persistence, bitmap cache, and zoom state. |
 | `wear/src/main/java/com/eried/eucplanet/wear/ui/WatchApp.kt` | Optional pager page, map auto-open, visibility lifecycle, and cue haptics. |
 | `wear/src/main/java/com/eried/eucplanet/wear/ui/components/WatchMapScreen.kt` | Raster, route, position, target, telemetry, cue, attribution, and zoom rendering. |
-| `hud-protocol/src/main/java/com/eried/eucplanet/hud/protocol/WearMapProtocol.kt` | Wire models, paths, timing constants, zoom and request limits, and validation. |
-| `hud-protocol/src/main/java/com/eried/eucplanet/hud/protocol/MapLayers.kt` | Canonical layer ids, tile URL templates, native zoom limits, and attribution. |
+| `hud-protocol/src/androidMain/kotlin/com/eried/eucplanet/hud/protocol/WearMapProtocol.kt` | Wire models, paths, timing constants, zoom and request limits, and validation. |
+| `hud-protocol/src/androidMain/kotlin/com/eried/eucplanet/hud/protocol/MapLayers.kt` | Canonical layer ids, tile URL templates, native zoom limits, and attribution. |
 | `app/src/main/java/com/eried/eucplanet/map/MapTileCache.kt` | Shared phone HTTP, encoded, and decoded raster tile cache used by map surfaces. |
 | `app/src/main/java/com/eried/eucplanet/data/model/AppSettings.kt` | `WatchMapSettings` fields and defaults, nested under `AppSettings.watchMap`. |
 | `app/src/main/java/com/eried/eucplanet/ui/settings/SettingsScreen.kt` | Phone Watch settings controls for enablement, orientation, telemetry, and navigation screen wake. |

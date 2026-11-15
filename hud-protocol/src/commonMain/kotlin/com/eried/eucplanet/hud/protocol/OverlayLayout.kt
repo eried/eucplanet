@@ -1,6 +1,6 @@
 package com.eried.eucplanet.hud.protocol
 
-import java.util.UUID
+import kotlin.uuid.Uuid
 
 /**
  * Data model for the Overlay Studio, the video / photo recorder with fully
@@ -173,7 +173,7 @@ val OverlayElement.mapTraceEnabled: Boolean
  * defaults and are simply ignored by that element's renderer.
  */
 data class OverlayElement(
-    val id: String = UUID.randomUUID().toString(),
+    val id: String = Uuid.random().toString(),
     val type: OverlayElementType,
 
     // Placement, top-left corner + width as a fraction of the screen.

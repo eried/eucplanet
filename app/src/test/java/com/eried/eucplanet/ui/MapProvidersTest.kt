@@ -18,7 +18,7 @@ class MapProvidersTest {
 
     @Test fun `no surface depends on carto`() {
         val sources = listOf(
-            "../hud-protocol/src/main/java/com/eried/eucplanet/hud/protocol/MapLayers.kt",
+            "../hud-protocol/src/androidMain/kotlin/com/eried/eucplanet/hud/protocol/MapLayers.kt",
             "../hud/src/main/java/com/eried/eucplanet/hud/net/HudTileCache.kt",
             "../shared/src/commonMain/kotlin/com/eried/eucplanet/ui/navigator/MapHtml.kt",
             "src/main/java/com/eried/eucplanet/map/MapTileCache.kt",
