@@ -64,8 +64,9 @@ data class RouteAvoidances(
  * phone ([OfflineNav]).
  *
  * It is only ever called while the rider is actively building a route or while
- * the engine re-routes mid-navigation; nothing here runs in the background and
- * no telemetry is sent. Endpoints are caller-supplied so they stay configurable.
+ * the engine re-routes mid-navigation; the one thing that runs in the
+ * background is [warmUpOffline], on the phone with no network, and no
+ * telemetry is sent. Endpoints are caller-supplied so they stay configurable.
  */
 class RoutingService(
     private val strings: NavStrings,
@@ -405,6 +406,19 @@ class RoutingService(
             Log.w(TAG, "reverseGeocode failed: ${e.message}")
             offline.addressAt(lat, lng)
         }
+    }
+
+    /**
+     * Gets the on-phone router ready near [near] for [mode] (the rider's
+     * default when null, the wheel profile when that has none) and the
+     * rider's avoids, so their first offline route after a start gets its
+     * whole time for the search. Does nothing without a downloaded square.
+     */
+    suspend fun warmUpOffline(near: GeoPoint? = null, mode: TravelMode? = null) {
+        val s = settingsRepository.currentOrLoad()
+        val m = (mode ?: TravelMode.fromName(s.navDefaultTravelMode))
+            .takeIf { com.eried.eucplanet.nav.offline.RouterPlan.profileFor(it) != null } ?: TravelMode.CYCLING
+        offline.warmUp(near, m, RouteAvoidances.from(s))
     }
 
     /**

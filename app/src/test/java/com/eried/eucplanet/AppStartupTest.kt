@@ -27,6 +27,7 @@ class AppStartupTest {
             "amazfitBridge.start()",
             "hudServer.hashCode()",
             "syncManager.reconcileOnStart()",
+            "OfflineWarmUp.start(",
         )) {
             assertTrue("$call is no longer called from EucPlanetApp.onCreate", onCreate.contains(call))
         }

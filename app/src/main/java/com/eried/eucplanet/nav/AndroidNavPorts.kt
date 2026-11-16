@@ -85,6 +85,10 @@ class AndroidOfflineNav(
 
     override fun addressAt(lat: Double, lng: Double): String? = map.addressAt(lat, lng)
 
+    override suspend fun warmUp(near: com.eried.eucplanet.data.model.GeoPoint?, mode: TravelMode, avoid: RouteAvoidances) {
+        router.warmUp(tileStore, near, mode, avoid)
+    }
+
     override fun isOnline(): Boolean {
         val cm = context.getSystemService(android.net.ConnectivityManager::class.java) ?: return true
         val caps = cm.getNetworkCapabilities(cm.activeNetwork) ?: return false

@@ -288,6 +288,10 @@ internal class IosOfflineNav(
 
     override fun addressAt(lat: Double, lng: Double): String? = map.addressAt(lat, lng)
 
+    override suspend fun warmUp(near: GeoPoint?, mode: TravelMode, avoid: RouteAvoidances) {
+        router.warmUp(store, near, mode, avoid)
+    }
+
     override fun isOnline(): Boolean = IosNetwork.isOnline()
 }
 

@@ -80,6 +80,13 @@ interface OfflineNav {
     /** True when the phone has a working internet connection. */
     fun isOnline(): Boolean
 
+    /**
+     * Gets the on-phone router ready for [mode] and [avoid] near [near]
+     * (OfflineRouter.warmUp), so the first offline route after a start
+     * does not pay for it. Does nothing without a downloaded square.
+     */
+    suspend fun warmUp(near: com.eried.eucplanet.data.model.GeoPoint?, mode: TravelMode, avoid: RouteAvoidances) {}
+
     /** No tiles, no router, no map: every leg routes online. */
     object None : OfflineNav {
         override fun covers(tiles: Set<String>) = false

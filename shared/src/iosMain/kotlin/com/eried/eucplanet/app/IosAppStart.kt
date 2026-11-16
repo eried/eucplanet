@@ -5,6 +5,7 @@ import com.eried.eucplanet.platform.Log
 import com.eried.eucplanet.service.LaunchKind
 import com.eried.eucplanet.service.StartOnce
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import platform.Foundation.NSProcessInfo
 
@@ -86,6 +87,12 @@ object IosAppStart {
         // keeps them on Android), and the weekly Wi-Fi update check.
         IosAppGraph.offlineTiles
         IosAppGraph.offlineJobs.start()
+        // The offline router's first run, a few seconds in, so the first
+        // offline route does not pay for it (OfflineWarmUp on Android too).
+        com.eried.eucplanet.nav.offline.OfflineWarmUp.start(
+            IosAppGraph.routing,
+            IosLocation.lastKnown.map { it?.let { l -> com.eried.eucplanet.data.model.GeoPoint(l.latitude, l.longitude) } },
+        )
         // SIMCTL_CHILD_EUC_VOICE_EVERY=15 makes the periodic report speak every
         // 15 s whatever the speed and output, to hear it with the app in the
         // background on the simulator. It is saved, like any settings change.

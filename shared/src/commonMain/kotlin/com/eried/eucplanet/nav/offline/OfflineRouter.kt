@@ -1,6 +1,7 @@
 package com.eried.eucplanet.nav.offline
 
 import btools.router.OsmNodeNamed
+import btools.router.ProfileCache
 import btools.router.RoutingContext
 import btools.router.RoutingEngine
 import btools.util.joinPath
@@ -16,6 +17,7 @@ import com.eried.eucplanet.platform.runBlockingIo
 import kotlinx.atomicfu.locks.SynchronizedObject
 import kotlinx.atomicfu.locks.synchronized
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Mutex
@@ -31,6 +33,11 @@ import kotlinx.coroutines.withTimeoutOrNull
  * BRouter is the multiplatform copy in :brouter, so both phones route alike.
  * A route that runs out of time or whose caller gives up is stopped, so the
  * next one does not spend its own budget waiting for it.
+ *
+ * The first run after a start is the slow one: BRouter reads its profile and
+ * the tag table, and the phone loads and compiles its code. [warmUp] does
+ * that on a short route before the rider asks, so the first route gets its
+ * whole budget for the search.
  */
 class OfflineRouter(
     private val timeoutMs: Long = TIMEOUT_MS,
@@ -88,6 +95,23 @@ class OfflineRouter(
 
     private val oneAtATime = Mutex()
 
+    /** A warm-up run: [stop] ends it, [done] once it has. */
+    private class WarmUp {
+        val stop = EngineStop()
+        val done = CompletableDeferred<Unit>()
+    }
+
+    private val state = SynchronizedObject()
+
+    /** Routes waiting for the engine or on it; no warm-up starts while there is one. */
+    private var routesWanting = 0
+
+    private var warming: WarmUp? = null
+
+    /** The profile and switches of the last run that finished: BRouter keeps
+     *  that one profile read, so a warm-up for it has nothing left to do. */
+    private var readyFor: Pair<String, Map<String, String>>? = null
+
     suspend fun route(
         name: String,
         waypoints: List<Waypoint>,
@@ -103,40 +127,130 @@ class OfflineRouter(
             headingDeg = heading?.let { ((Math.round(it) % 360 + 360) % 360).toInt() },
             points = waypoints.map { GeoPoint(it.lat, it.lng) },
         )
-        // The budget covers waiting for a route already running: a reroute
-        // queued behind a slow one gives up rather than wait twice as long.
-        val start = System.currentTimeMillis()
-        return withTimeoutOrNull(timeoutMs) {
-            oneAtATime.withLock {
-                val left = (timeoutMs - (System.currentTimeMillis() - start)).coerceAtLeast(1)
-                val stop = EngineStop()
-                try {
-                    // The run is blocking and BRouter stretches its own time
-                    // limit, so a timeout or a cancelled caller stops it here;
-                    // the lock is held until it has ended.
-                    coroutineScope {
-                        val run = async { runBlockingIo { engine.run(req, left, stop) } }
-                        try {
-                            run.await()
-                        } catch (e: CancellationException) {
-                            stop.stop()
-                            throw e
-                        }
-                    }
-                } catch (e: Exception) {
-                    if (e is CancellationException) throw e
-                    Log.w(TAG, "offline route failed: ${e.message}")
-                    null
-                }
-            }
-        }?.takeIf { it.points.size >= 2 }?.let {
-            BrouterMapping.toNavRoute(name, waypoints, mode, it.points, it.hints, it.distanceM)
+        val (warm, budget) = synchronized(state) {
+            routesWanting++
+            // The first run with a profile rates every road type it meets,
+            // which the next ones reuse: when no warm-up got to do that (a
+            // route right at start), it gets twice the time.
+            warming to if (readyFor == (req.profile to req.params)) timeoutMs else timeoutMs * COLD_BUDGET_FACTOR
         }
+        try {
+            if (warm != null) {
+                // The rider's route goes first: the warm-up is stopped. What it
+                // already did (the profile read, the code loaded) this route
+                // does not do again, so waiting for it is not counted.
+                warm.stop.stop()
+                withTimeoutOrNull(timeoutMs) { warm.done.await() }
+            }
+            // The budget covers waiting for a route already running: a reroute
+            // queued behind a slow one gives up rather than wait twice as long.
+            val start = System.currentTimeMillis()
+            return withTimeoutOrNull(budget) {
+                oneAtATime.withLock {
+                    val left = (budget - (System.currentTimeMillis() - start)).coerceAtLeast(1)
+                    try {
+                        runEngine(req, left, EngineStop())
+                    } catch (e: Exception) {
+                        if (e is CancellationException) throw e
+                        Log.w(TAG, "offline route failed: ${e.message}")
+                        null
+                    }
+                }
+            }?.takeIf { it.points.size >= 2 }?.let {
+                BrouterMapping.toNavRoute(name, waypoints, mode, it.points, it.hints, it.distanceM)
+            }
+        } finally {
+            synchronized(state) { routesWanting-- }
+        }
+    }
+
+    /**
+     * Gets the engine ready for [mode] and [avoid] with a short route in a
+     * downloaded square of [store] (at [near] when one has it), so the
+     * rider's first route does not spend its budget on BRouter's profile
+     * read and the phone's first run of its code. Skipped when there is no
+     * square, when a route is running or waiting, or when the engine already
+     * ran with that profile and those switches. A route asked for meanwhile
+     * stops it. True when it ran to the end.
+     */
+    suspend fun warmUp(store: OfflineTileStore, near: GeoPoint?, mode: TravelMode, avoid: RouteAvoidances): Boolean {
+        val profile = BrouterMapping.profileFor(mode) ?: return false
+        val points = runBlockingIo { runCatching { warmUpPoints(store.downloaded(), near) }.getOrNull() } ?: return false
+        val req = Request(profile, BrouterMapping.avoidParams(avoid), null, points)
+        val w = WarmUp()
+        synchronized(state) {
+            if (readyFor == (req.profile to req.params) || routesWanting > 0 || warming != null) return false
+            if (!oneAtATime.tryLock()) return false
+            warming = w
+        }
+        try {
+            val t0 = System.currentTimeMillis()
+            runEngine(req, WARM_UP_MS, w.stop)
+            Log.i(TAG, "warm-up for ${req.profile} ${if (w.stop.isStopped) "stopped" else "done"} after ${System.currentTimeMillis() - t0} ms")
+            return !w.stop.isStopped
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            Log.w(TAG, "warm-up failed: ${e.message}")
+            return false
+        } finally {
+            synchronized(state) { warming = null }
+            oneAtATime.unlock()
+            w.done.complete(Unit)
+        }
+    }
+
+    /**
+     * One engine run, on the caller's lock. The run is blocking and BRouter
+     * stretches its own time limit, so a timeout or a cancelled caller stops
+     * it here; it returns once the run has ended.
+     */
+    private suspend fun runEngine(req: Request, maxMs: Long, stop: EngineStop): EngineResult? = coroutineScope {
+        val run = async { runBlockingIo { engine.run(req, maxMs, stop) } }
+        val result = try {
+            run.await()
+        } catch (e: CancellationException) {
+            stop.stop()
+            throw e
+        }
+        if (!stop.isStopped) synchronized(state) { readyFor = req.profile to req.params }
+        result
     }
 
     companion object {
         private const val TAG = "OfflineRouter"
         const val TIMEOUT_MS = 20_000L
+
+        /** How many times [TIMEOUT_MS] the first run with a profile gets. */
+        const val COLD_BUDGET_FACTOR = 2
+
+        /** BRouter's limit for a warm-up: long enough for a slow phone's
+         *  first run, and a route asked for meanwhile stops it anyway. */
+        const val WARM_UP_MS = 60_000L
+
+        /** How far apart the warm-up's two stops are, in degrees of latitude
+         *  (about 2 km): a route long enough that the phone compiles BRouter's
+         *  search and BRouter keeps the common road types it rated. */
+        private const val WARM_UP_STEP_DEG = 0.02
+
+        /**
+         * The warm-up's two stops: [near] when one of [squares] (name to
+         * bytes) has it, else the middle of the biggest square (the most
+         * roads, not a square of open sea), and a point about 2 km north
+         * (south at the square's top edge), so both are in the same square.
+         * Null without a square.
+         */
+        fun warmUpPoints(squares: Map<String, Long>, near: GeoPoint?): List<GeoPoint>? {
+            val names = squares.filterKeys(RoutingTiles::isTileName).entries
+                .sortedWith(compareByDescending<Map.Entry<String, Long>> { it.value }.thenBy { it.key })
+                .map { it.key }
+            if (names.isEmpty()) return null
+            val at = near?.takeIf { RoutingTiles.nameFor(it.lat, it.lng) in names }
+                ?: RoutingTiles.bounds(names.first()).let { GeoPoint((it[0] + it[2]) / 2, (it[1] + it[3]) / 2) }
+            val square = RoutingTiles.nameFor(at.lat, at.lng)
+            val north = GeoPoint(at.lat + WARM_UP_STEP_DEG, at.lng)
+            val other = if (RoutingTiles.nameFor(north.lat, north.lng) == square) north else GeoPoint(at.lat - WARM_UP_STEP_DEG, at.lng)
+            return listOf(at, other)
+        }
 
         /** The real engine: BRouter over the tiles in [segmentDir], with the
          *  profiles [profiles] gets ready. */
@@ -171,12 +285,23 @@ class OfflineRouter(
                     ilat = lat
                 }
             }
+            val t0 = System.currentTimeMillis()
+            // Reads the profile, or takes it from BRouter's cache when the
+            // last run had the same one with the same switches.
             val engine = RoutingEngine(null, null, segmentDir, wps, rc)
             engine.quite = true
             // BRouter checks this flag while it searches and gives up.
             stop.onStop { engine.terminate() }
-            if (stop.isStopped) return null
+            if (stop.isStopped) {
+                // doRun hands the profile back to BRouter's cache when it ends.
+                // Without that the cache keeps it as in use, and the next
+                // route reads the whole profile again.
+                ProfileCache.releaseProfile(rc)
+                return null
+            }
+            val t1 = System.currentTimeMillis()
             engine.doRun(maxMs)
+            Log.i(TAG, "BRouter ${req.profile}: profile ${t1 - t0} ms, route ${System.currentTimeMillis() - t1} ms")
             if (stop.isStopped) {
                 Log.w(TAG, "BRouter stopped")
                 return null
