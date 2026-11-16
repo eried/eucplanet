@@ -469,6 +469,7 @@
     <string name="hud_screen_name_telemetry">Telemetria</string>
     <string name="hud_screen_name_custom">Egyéni átfedés + fekete</string>
     <string name="hud_screen_name_custom_cam">Egyéni átfedés + kamera</string>
+    <string name="hud_screen_name_custom_map">Egyéni átfedés + térkép</string>
     <string name="hud_screen_name_map">Térkép</string>
     <string name="hud_screen_name_nav">Navigáció</string>
     <string name="hud_screen_name_map_nav">Térkép + navigáció</string>

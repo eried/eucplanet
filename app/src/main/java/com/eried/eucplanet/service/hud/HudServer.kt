@@ -92,10 +92,14 @@ class HudServer(
     private val offlineMap: com.eried.eucplanet.nav.offline.map.OfflineMapRenderer,
 ) {
 
-    /** The offline map for the HUD, served while the link is on. */
+    /** The HUD's map pictures, served while the link is on. For a layer the
+     *  phone answers as its own maps would; with none, the offline map. */
     private val tileServer = HudTileServer(
         com.eried.eucplanet.hud.protocol.HudDiscovery.TILE_PORT,
-        { z, x, y -> offlineMap.png(z, x, y, 256) },
+        { z, x, y, layer ->
+            if (layer == null) offlineMap.png(z, x, y, 256)
+            else com.eried.eucplanet.map.MapTileCache.layerTile(context, layer, z, x, y)
+        },
         { Log.w(TAG, it) },
     )
 
@@ -1360,6 +1364,14 @@ class HudServer(
             navPrimary = d?.navPrimary ?: nav.primaryText,
             navDistance = d?.navDistance ?: nav.distanceText,
             navArrived = d?.navArrived ?: nav.arrived,
+            // For the whole route, not only while the turn popup is up:
+            // the rider wants the arrival time between turns too.
+            navEta = if (d == null && nav.active && !nav.arrived) {
+                com.eried.eucplanet.nav.NavFormat.etaLine(
+                    context, nav.etaEpochMs, nav.remainingM,
+                    imperial = com.eried.eucplanet.util.Units.effectiveDistanceUnit(s) == "mi"
+                )
+            } else "",
             navRoute = if (d == null && nav.active && !nav.arrived && location != null) {
                 routeWindow(location.latitude, location.longitude)
             } else "",

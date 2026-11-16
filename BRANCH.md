@@ -36,6 +36,10 @@ ride, this is the branch.
 - HUD camera: the MotoEye camera button frees the camera, so its rear view and recorder work from any screen. The picture comes back by itself a few seconds after you stop recording or close the rear view. UP or DOWN also brings it back.
 - HUD camera: opening a camera screen while the MotoEye records no longer takes its camera and freezes the clip. It says the camera is in use and comes back once the recording stops.
 - HUD: the branch HUD APK is now a release build and starts two to three times faster.
+- HUD: new screen Custom overlay + map, your preset drawn over the live map, with the turn cue while a route runs and without the zoom and speed boxes. UP and DOWN zoom. Switch it on in Settings, HUD, screens.
+- HUD map: every map picture now comes from the phone, so the HUD shows what the phone would: the online map, tiles the phone already has, or your offline squares, and it follows "Prefer offline map and routing". Needs this phone APK and this HUD APK together.
+- HUD map: arrival time and distance left at the top while a route runs, on Map + Nav and Custom overlay + map. Needs this phone APK and this HUD APK together.
+- HUD: the yellow update notice shows for 20 seconds after connecting, then goes away. The red one, when phone and HUD are too far apart to talk, stays.
 - Voice alarms: a PWM alarm says "PWM" again in Italian, Norwegian and Chinese, it was left out.
 - InMotion V8S and other V1 wheels: commands go out in small pieces like EUC World does, so the link should stop dropping.
 - InMotion V8S: the light button and auto-lights follow the wheel's real light state, and Charging shows (also V8F, V10).
@@ -48,7 +52,7 @@ ride, this is the branch.
 - Routing: a new route after a wrong turn comes in about 8 s instead of 22 s and continues the way you ride, no U-turn. Routes from the car screen or the navigation overlay keep your avoid settings.
 - Routing services: the Valhalla server has its own URL beside OSRM.
 - Offline areas (Settings, Navigation & weather): each 5 by 5 degree square brings a street map and routing, so routes, reroutes and turn cues work with no signal. By default they are the backup when the servers or the signal fail; "Prefer offline map and routing" uses them first. The map's Select chip picks Around me (about 50 km), Around me, wider (about 200 km) or My route, and asks first with the size. Squares come from our mirror on Hugging Face (routing and a map for every square), with GitHub as the backup and brouter.de last (routing only). Squares downloaded before their map existed get it from "Update all".
-- Offline map: sits under the map you picked (navigator, trip details, HUD, watch, Android Auto, video overlay) and shows through where online tiles fail, with "Offline" in bold at the top of the credit line and the map style button greyed; the online map returns by itself when the signal does. With "Prefer offline map and routing" on, downloaded squares show their own map even with signal (not on the HUD yet). With no signal, search says so, and a tapped stop is named from the map.
+- Offline map: sits under the map you picked (navigator, trip details, HUD, watch, Android Auto, video overlay) and shows through where online tiles fail, with "Offline" in bold at the top of the credit line and the map style button greyed; the online map returns by itself when the signal does. With "Prefer offline map and routing" on, downloaded squares show their own map even with signal. With no signal, search says so, and a tapped stop is named from the map.
 - Messages no longer hide under the keyboard, like "Search needs signal" or one that comes while typing in a number field.
 - Languages: 7 new (Portuguese for Portugal, Indonesian, Vietnamese, Thai, Greek, Bulgarian, Slovak), 30 in all. The other 22 were reviewed to read like a native app: one word per term, no word-for-word phrases, leftover English translated.
 - Inside: wiring moved to a library that also runs on iPhone, build tools updated (Kotlin 2.3.21, Koin 4.2.2). Nothing should change on screen.
@@ -123,6 +127,10 @@ ride, this is the branch.
 - Install the phone and the HUD APK from this build. Open the HUD Map screen, leave the phone app, no wheel connected: does the map stay? And with the wheel connected, on any map style and zoom?
 - Camera screen: turn the front camera, switch to the rear one and back. Does each keep its own turn, also after restarting the HUD?
 - MotoEye, without pressing UP or DOWN: 1) Camera screen, hold to start recording, then hold again to stop. Does the picture come back about 5 s after the stop? 2) Short press for the rear view and close it, does it come back? 3) Dashboard, start recording, go to the Camera screen (it should say "in use"), back, stop: does that file play to the end? If the picture stays off, send a photo of the small grey line.
+- Custom overlay + map: is your preset readable over the map? Start a route: do the turn cue and the arrival line at the top sit clear of your preset?
+- Map + Nav with a route: does the arrival time match the phone's navigator, and does it stay between turns?
+- HUD map, any style: does it fill in as fast as before? Then with mobile data off inside a downloaded square, and with "Prefer offline map and routing" on: does the HUD show the offline map?
+- If your phone and HUD builds differ: does the yellow update notice leave after about 20 seconds, and come back only when the HUD reconnects?
 
 **InMotion V8S (or any V1 wheel)**
 - Ride as usual: how many disconnects, compared with EUC World? A Service Mode log covering any drop helps most.

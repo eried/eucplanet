@@ -492,6 +492,7 @@
     <string name="hud_screen_name_telemetry">Τηλεμετρία</string>
     <string name="hud_screen_name_custom">Προσαρμ. επικάλυψη + μαύρο</string>
     <string name="hud_screen_name_custom_cam">Προσαρμ. επικάλυψη + κάμερα</string>
+    <string name="hud_screen_name_custom_map">Προσαρμ. επικάλυψη + χάρτης</string>
     <string name="hud_screen_name_map">Χάρτης</string>
     <string name="hud_screen_name_nav">Πλοηγός</string>
     <string name="hud_screen_name_map_nav">Χάρτης + Πλοήγηση</string>

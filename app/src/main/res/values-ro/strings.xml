@@ -469,6 +469,7 @@
     <string name="hud_screen_name_telemetry">Telemetrie</string>
     <string name="hud_screen_name_custom">Suprapunere personalizată + negru</string>
     <string name="hud_screen_name_custom_cam">Suprapunere personalizată + cameră</string>
+    <string name="hud_screen_name_custom_map">Suprapunere personalizată + hartă</string>
     <string name="hud_screen_name_map">Hartă</string>
     <string name="hud_screen_name_nav">Navigator</string>
     <string name="hud_screen_name_map_nav">Hartă + navigare</string>

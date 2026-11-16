@@ -14,7 +14,7 @@ object HudScreens {
      *  rider who has not chosen yet. */
     val DEFAULT: List<String> = listOf(
         "Dashboard", "Camera", "Telemetry",
-        "Custom", "CustomCam", "MapNav", "Map", "Nav",
+        "Custom", "CustomCam", "CustomMap", "MapNav", "Map", "Nav",
         "Power", "TripStats", "Compass", "Safety", "BigClock"
     )
 

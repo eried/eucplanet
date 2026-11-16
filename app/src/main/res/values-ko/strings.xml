@@ -504,6 +504,7 @@
     <string name="hud_screen_name_telemetry">텔레메트리</string>
     <string name="hud_screen_name_custom">커스텀 오버레이 + 검정</string>
     <string name="hud_screen_name_custom_cam">커스텀 오버레이 + 카메라</string>
+    <string name="hud_screen_name_custom_map">커스텀 오버레이 + 지도</string>
     <string name="hud_screen_name_map">지도</string>
     <string name="hud_screen_name_nav">내비게이터</string>
     <string name="hud_screen_name_map_nav">지도 + 내비</string>
