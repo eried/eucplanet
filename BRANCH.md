@@ -9,6 +9,7 @@ ride, this is the branch.
 
 ## Worked on
 
+- Settings backup: "Last backup" is read from the backup file itself, so it is right after a reinstall. Android's own cloud backup of the app is off, so a reinstall starts clean.
 - Offline routing: the first route after opening the app comes on the road instead of as straight lines, and routes with an avoid switched on now route offline.
 - InMotion V6: counts as rider-tested now, so the "preliminary wheel" banner is gone. Thanks Klaus, you are in the thanks list.
 - InMotion V6: 20 km/h tilt-back, normal and Legal mode, now reaches the wheel. It was the one value the wheel dropped.
@@ -165,6 +166,7 @@ ride, this is the branch.
 - Flip phone owners: Settings, Display & appearance, "Avoid cover screen cameras": is that what your phone calls the outer screen in your language?
 
 **Any wheel**
+- Make a settings backup, uninstall, install again, link the same folder: does "Last backup" show the time you just made it?
 - Had a Backup conflicts warning that would not go away? Tap Fix, then Sync all, pick a side: is it gone at once?
 - Ride with voice alarms on, open the main screens, sync, widgets and the watch: anything that acts differently from the last build is a bug.
 
