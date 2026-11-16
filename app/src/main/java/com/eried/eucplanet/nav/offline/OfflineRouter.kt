@@ -11,7 +11,10 @@ import com.eried.eucplanet.data.model.TravelMode
 import com.eried.eucplanet.data.model.Waypoint
 import com.eried.eucplanet.nav.RouteAvoidances
 import java.io.File
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runInterruptible
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -23,11 +26,48 @@ import kotlinx.coroutines.withTimeoutOrNull
  * after [timeoutMs], and the caller moves on to the next router.
  *
  * [engine] does the routing; the app's one is [brouterEngine], tests pass a fake.
+ * A route that runs out of time or whose caller gives up is stopped, so the
+ * next one does not spend its own budget waiting for it.
  */
 class OfflineRouter(
     private val timeoutMs: Long = TIMEOUT_MS,
-    private val engine: (Request, Long) -> EngineResult?,
+    private val engine: Engine,
 ) {
+    /** One routing run: [maxMs] to find the route, and [stop] to end it early. */
+    fun interface Engine {
+        fun run(req: Request, maxMs: Long, stop: EngineStop): EngineResult?
+    }
+
+    /**
+     * Ends a run from another thread. The engine says how with [onStop];
+     * [stop] calls that, at once if the run has already said it, or as soon
+     * as it does.
+     */
+    class EngineStop {
+        private val lock = Any()
+        private var action: (() -> Unit)? = null
+        private var stopped = false
+
+        val isStopped: Boolean get() = synchronized(lock) { stopped }
+
+        fun onStop(action: () -> Unit) {
+            val now = synchronized(lock) {
+                this.action = action
+                stopped
+            }
+            if (now) action()
+        }
+
+        fun stop() {
+            val run = synchronized(lock) {
+                if (stopped) return
+                stopped = true
+                action
+            }
+            run?.invoke()
+        }
+    }
+
     /** What BRouter is asked: profile name, profile switches, start heading
      *  (whole degrees, null when unknown) and the stops in order. */
     data class Request(
@@ -66,10 +106,22 @@ class OfflineRouter(
         return withTimeoutOrNull(timeoutMs) {
             oneAtATime.withLock {
                 val left = (timeoutMs - (System.currentTimeMillis() - start)).coerceAtLeast(1)
+                val stop = EngineStop()
                 try {
-                    runInterruptible(Dispatchers.IO) { engine(req, left) }
+                    // The run is blocking and BRouter stretches its own time
+                    // limit, so a timeout or a cancelled caller stops it here;
+                    // the lock is held until it has ended.
+                    coroutineScope {
+                        val run = async { runInterruptible(Dispatchers.IO) { engine.run(req, left, stop) } }
+                        try {
+                            run.await()
+                        } catch (e: CancellationException) {
+                            stop.stop()
+                            throw e
+                        }
+                    }
                 } catch (e: Exception) {
-                    if (e is kotlinx.coroutines.CancellationException) throw e
+                    if (e is CancellationException) throw e
                     Log.w(TAG, "offline route failed: ${e.message}")
                     null
                 }
@@ -87,15 +139,22 @@ class OfflineRouter(
         private val ASSETS = listOf("wheel.brf", "hiking-mountain.brf", "lookups.dat")
 
         /** The real engine: BRouter over the tiles in [store]. */
-        fun brouterEngine(context: Context, store: OfflineTileStore): (Request, Long) -> EngineResult? = { req, maxMs ->
+        fun brouterEngine(context: Context, store: OfflineTileStore): Engine = Engine { req, maxMs, stop ->
             val profiles = File(store.dir, "profiles").apply { mkdirs() }
             copyAssets(context, store, profiles)
-            runBrouter(store.dir, profiles, req, maxMs)
+            runBrouter(store.dir, profiles, req, maxMs, stop)
         }
 
         /** One BRouter run: tiles in [segmentDir], `<profile>.brf` and
-         *  `lookups.dat` in [profilesDir]. Null when no route is found. */
-        fun runBrouter(segmentDir: File, profilesDir: File, req: Request, maxMs: Long): EngineResult? {
+         *  `lookups.dat` in [profilesDir]. Null when no route is found or
+         *  [stop] ends it first. */
+        fun runBrouter(
+            segmentDir: File,
+            profilesDir: File,
+            req: Request,
+            maxMs: Long,
+            stop: EngineStop = EngineStop(),
+        ): EngineResult? {
             val rc = RoutingContext().apply {
                 localFunction = File(profilesDir, "${req.profile}.brf").absolutePath
                 keyValues = HashMap(req.params + ("turnInstructionMode" to "9"))
@@ -115,7 +174,14 @@ class OfflineRouter(
             }
             val engine = RoutingEngine(null, null, segmentDir, wps, rc)
             engine.quite = true
+            // BRouter checks this flag while it searches and gives up.
+            stop.onStop { engine.terminate() }
+            if (stop.isStopped) return null
             engine.doRun(maxMs)
+            if (stop.isStopped) {
+                Log.w(TAG, "BRouter stopped")
+                return null
+            }
             val track = engine.foundTrack
             if (track == null) {
                 Log.w(TAG, "BRouter: ${engine.errorMessage}")

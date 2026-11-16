@@ -49,6 +49,7 @@ class KoinGraphTest {
                 Function2::class,
                 java.io.File::class,
                 Long::class,
+                com.eried.eucplanet.nav.offline.OfflineRouter.Engine::class,
             ),
         )
     }
