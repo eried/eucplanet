@@ -34,6 +34,8 @@ open class RoutingEngine(
     const val BROUTER_ENGINEMODE_ROUNDTRIP = 4
   }
 
+  // Volatile in EUC Planet: terminate() reads it from another thread.
+  @Volatile
   private var nodesCache: NodesCache? = null
   private val openSet = SortedHeap<OsmPath>()
   private var finished = false
@@ -1257,7 +1259,9 @@ open class RoutingEngine(
   private fun resetCache(detailed: Boolean) {
     val maxmem = routingContext.memoryclass * 1024L * 1024L // in MB
 
-    nodesCache = NodesCache(segmentDir, routingContext.expctxWay!!, routingContext.forceSecondaryData, maxmem, nodesCache, detailed)
+    val nc = NodesCache(segmentDir, routingContext.expctxWay!!, routingContext.forceSecondaryData, maxmem, nodesCache, detailed)
+    nodesCache = nc
+    if (terminated) nc.terminated = true
     islandNodePairs.clearTempPairs()
   }
 
@@ -1832,6 +1836,8 @@ open class RoutingEngine(
 
   fun terminate() {
     terminated = true
+    // EUC Planet: the segment reading stops too (NodesCache.terminated).
+    nodesCache?.terminated = true
   }
 
   fun isTerminated(): Boolean {

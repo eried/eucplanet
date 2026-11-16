@@ -23,6 +23,10 @@ upstream's (`btools.*`).
 - VoiceHint's command constants are public and it has getters (command,
   index in track, exit number, distance to next, angle), and VoiceHintList
   has getList(), so the app can read turn hints.
+- `RoutingEngine.terminate()` also stops the reading of map segments
+  (`NodesCache.terminated`), not only the search loop, so a stopped run ends
+  while it matches its stops too. Only a stopped run sees it; routes are the
+  same.
 - Profile switches are numbers: a key value like `avoid_unsafe=1`, not `true`
   (upstream behaviour, unchanged).
 

@@ -55,6 +55,11 @@ class NodesCache(segmentDir: String, ctxWay: BExpressionContextWay, forceSeconda
   // Java: !Boolean.getBoolean("disableDirectWeaving"), a JVM property the app never sets
   private var directWeaving = true
 
+  // EUC Planet: RoutingEngine.terminate() sets this, so a stopped run also
+  // ends while it reads segments (matching its stops), not only in its search.
+  @kotlin.concurrent.Volatile
+  @JvmField var terminated = false
+
   fun formatStatus(): String {
     return "collecting=" + garbageCollectionEnabled + " noGhosts=" + ghostCleaningDone + " cacheSum=" + cacheSum + " cacheSumClean=" + cacheSumClean + " ghostSum=" + ghostSum + " ghostWakeup=" + ghostWakeup
   }
@@ -151,6 +156,7 @@ class NodesCache(segmentDir: String, ctxWay: BExpressionContextWay, forceSeconda
   }
 
   fun getSegmentFor(ilon: Int, ilat: Int): MicroCache? {
+    if (terminated) throw IllegalArgumentException("operation killed while reading segments")
     try {
       val lonDegree = ilon / 1000000
       val latDegree = ilat / 1000000
