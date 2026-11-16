@@ -202,6 +202,11 @@ SIMCTL_CHILD_EUC_SCREEN=route SIMCTL_CHILD_EUC_ROUTE="59.9139,10.7387;59.9170,10
                                # xcrun simctl location booted start --speed=6
                                # <lat,lon> <lat,lon> ...; the log shows each
                                # spoken cue as "Voice" / "NavigationEngine"
+SIMCTL_CHILD_EUC_SCREEN_AFTER=20 SIMCTL_CHILD_EUC_SCREEN=route SIMCTL_CHILD_EUC_ROUTE="59.9139,10.7387;59.9170,10.7275" xcrun simctl launch booted com.eried.eucplanet.ios
+                               # starts on the dashboard and opens EUC_SCREEN
+                               # 20 s later, as a rider who plans a while after
+                               # the start (the offline router's warm-up has
+                               # run by then: "warm-up for wheel done")
 SIMCTL_CHILD_EUC_SCREEN=settings SIMCTL_CHILD_EUC_SETTINGS_TAB=8 SIMCTL_CHILD_EUC_OFFLINE=areas xcrun simctl launch booted com.eried.eucplanet.ios
                                # the Offline areas screen; squares copied
                                # into the app's Library/Application Support/

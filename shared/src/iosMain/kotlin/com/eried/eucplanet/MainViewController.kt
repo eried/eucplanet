@@ -96,6 +96,9 @@ fun MainViewController(): UIViewController {
     // the wheel protocol probe kept for diagnostics.
     val tab = (NSProcessInfo.processInfo.environment["EUC_TAB"] as? String)?.toIntOrNull()
     val startScreen = NSProcessInfo.processInfo.environment["EUC_SCREEN"] as? String
+    // SIMCTL_CHILD_EUC_SCREEN_AFTER=20 starts on the dashboard and opens
+    // EUC_SCREEN 20 s later, as a rider who opens it a while after the start.
+    val screenAfterSecs = (NSProcessInfo.processInfo.environment["EUC_SCREEN_AFTER"] as? String)?.toIntOrNull() ?: 0
     // SIMCTL_CHILD_EUC_STUDIO_CAPTURE=photo|clip|take (with EUC_SCREEN=studio)
     // takes a photo, exports the replay clip or records a five second take
     // by itself once the studio settles, for scripted runs.
@@ -131,7 +134,15 @@ fun MainViewController(): UIViewController {
                 // back as Android's system back does.
                 // SIMCTL_CHILD_EUC_SCREEN=scan opens on the scan screen (also settings, flic, trips, trip, trip:<id>, tripmeter, metric:<key>, charging, charging:details, route, studio, studio:<trip id>).
                 // "metric:VOLTAGE" opens a metric's detail, with the dashboard's route argument.
-                var screen by remember { mutableStateOf(startScreen?.substringBefore(':') ?: "dashboard") }
+                var screen by remember {
+                    mutableStateOf(if (screenAfterSecs > 0) "dashboard" else startScreen?.substringBefore(':') ?: "dashboard")
+                }
+                LaunchedEffect(Unit) {
+                    if (screenAfterSecs > 0 && startScreen != null) {
+                        kotlinx.coroutines.delay(screenAfterSecs * 1000L)
+                        screen = startScreen.substringBefore(':')
+                    }
+                }
                 var metricArg by remember { mutableStateOf(startScreen?.substringAfter(':', "BATTERY") ?: "BATTERY") }
                 // The trip the viewer shows ("trip:12"); blank opens the newest.
                 var tripArg by remember { mutableStateOf(if (startScreen?.startsWith("trip:") == true) startScreen.substringAfter(':') else "") }
