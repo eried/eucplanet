@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- See backup_rules.xml for why the lockdown store and offline tiles are excluded. -->
+<!--
+  Android's own cloud backup is off (allowBackup="false" in the manifest): a
+  reinstall brought back a weeks-old snapshot of the settings in place of a
+  clean app. The rider's backup is the settings file in their sync folder.
+
+  These rules still matter for a phone-to-phone transfer, which Android 12 and
+  later may run regardless. Legal Mode Lockdown must not travel to another
+  phone: uninstall and reinstall is the documented recovery when the
+  manufacturer code is lost, so the state cannot survive a move either.
+
+  The downloaded offline squares are left out too: hundreds of MB, downloaded
+  again on demand.
+-->
 <data-extraction-rules>
     <cloud-backup>
         <exclude domain="file" path="datastore/legal_lockdown.preferences_pb" />

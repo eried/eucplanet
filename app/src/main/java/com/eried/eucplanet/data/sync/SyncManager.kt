@@ -689,7 +689,6 @@ class SyncManager(
         }
         settingsRepository.update(s.copy(
             syncFolderUri = null,
-            lastSettingsBackupAt = null,
             onlineUploadEnabled = false,  // online upload requires a folder
             folderConflictCount = 0,      // no folder, nothing to differ from
         ))
@@ -755,7 +754,8 @@ class SyncManager(
         val payload = SettingsJson.toJson(SettingsJson.stripDeviceBindings(current)).apply {
             put("alarms", AlarmBackupJson.alarmsToJson(alarmDao.getAll()))
         }
-        val json = payload.toString(2)
+        // The file says when it was written; the app keeps no copy of that.
+        val json = BackupStamp.stamp(payload.toString(2), System.currentTimeMillis())
         return try {
             existing?.delete()
             val file = folder.createFile("application/json", fileName)
@@ -763,15 +763,6 @@ class SyncManager(
             context.contentResolver.openOutputStream(file.uri)?.use { out ->
                 out.write(json.toByteArray(Charsets.UTF_8))
             } ?: return BackupOutcome.Failed
-            // Every successful backup updates the "last backup" label so the
-            // rider sees "Last backup: <date> AS <name>" right after a named
-            // save. Name is null for the default snapshot.
-            settingsRepository.update(
-                current.copy(
-                    lastSettingsBackupAt = System.currentTimeMillis(),
-                    lastSettingsBackupName = name
-                )
-            )
             BackupOutcome.Saved
         } catch (e: Exception) {
             Log.e(TAG, "Settings backup failed", e)
@@ -959,7 +950,8 @@ class SyncManager(
     /**
      * List every settings backup in the sync folder. The default
      * `eucplanet_settings.json` is always returned first (with [BackupEntry.label]
-     * = null), followed by named snapshots sorted by display label.
+     * = null), followed by named snapshots sorted by display label. Each
+     * carries when it was written, read from the file.
      */
     suspend fun listSettingsBackups(): List<BackupEntry> {
         val current = settingsRepository.get()
@@ -971,7 +963,7 @@ class SyncManager(
             if (!n.endsWith(".json", ignoreCase = true)) return@forEach
             when {
                 n.equals(SETTINGS_BACKUP_NAME, ignoreCase = true) -> {
-                    out += BackupEntry(fileName = n, label = null)
+                    out += BackupEntry(fileName = n, label = null, writtenAt = writtenAt(doc))
                 }
                 n.startsWith(SETTINGS_BACKUP_PREFIX, ignoreCase = true) &&
                     n.length > SETTINGS_BACKUP_PREFIX.length + SETTINGS_BACKUP_SUFFIX.length -> {
@@ -979,12 +971,27 @@ class SyncManager(
                         SETTINGS_BACKUP_PREFIX.length,
                         n.length - SETTINGS_BACKUP_SUFFIX.length
                     )
-                    if (label.isNotEmpty()) named += BackupEntry(fileName = n, label = label)
+                    if (label.isNotEmpty()) {
+                        named += BackupEntry(fileName = n, label = label, writtenAt = writtenAt(doc))
+                    }
                 }
             }
         }
         named.sortBy { it.label?.lowercase() }
         return out + named
+    }
+
+    /** When a backup file was written: its own stamp, or for a file from
+     *  before backups carried one, the time the folder has for it. */
+    private fun writtenAt(doc: DocumentFile): Long? {
+        val stamp = runCatching {
+            context.contentResolver.openInputStream(doc.uri)?.use { input ->
+                val head = ByteArray(BackupStamp.HEAD_BYTES)
+                val n = input.read(head)
+                if (n > 0) BackupStamp.read(String(head, 0, n, Charsets.UTF_8)) else null
+            }
+        }.getOrNull()
+        return stamp ?: runCatching { doc.lastModified() }.getOrNull()?.takeIf { it > 0L }
     }
 
     /**
@@ -2357,7 +2364,13 @@ sealed interface BackupOutcome {
  * One row in the restore picker. [label] = null is the default backup
  * (`eucplanet_settings.json`); non-null is the rider-supplied snapshot name.
  */
-data class BackupEntry(val fileName: String, val label: String?, val isFactory: Boolean = false)
+data class BackupEntry(
+    val fileName: String,
+    val label: String?,
+    val isFactory: Boolean = false,
+    /** When the file was written, epoch ms; null when it cannot be told. */
+    val writtenAt: Long? = null,
+)
 
 /**
  * The rider identity carried by a settings backup, read without applying it.

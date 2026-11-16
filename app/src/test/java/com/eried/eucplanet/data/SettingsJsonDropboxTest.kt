@@ -118,7 +118,7 @@ class SettingsJsonDropboxTest {
                 flic1Address = "F1", flic2Address = "F2", flic3Address = "F3", flic4Address = "F4",
                 externalGpsAddress = "G", externalGpsName = "GN", externalGpsSource = "GS",
                 radarAddress = "R", radarName = "RN", radarVendor = "RV",
-                syncFolderUri = "content://mine", lastSettingsBackupAt = 1L, lastSettingsBackupName = "n",
+                syncFolderUri = "content://mine",
                 dropboxAccessToken = "tok", dropboxRefreshToken = "ref", dropboxAccessTokenExpiresAt = 2L,
                 dropboxAccountLabel = "me", dropboxLastSyncAt = 3L, dropboxSettingsBaseHash = "base",
                 dropboxSyncPending = true, dropboxPullRequested = true, dropboxPendingCount = 4,
@@ -146,6 +146,6 @@ class SettingsJsonDropboxTest {
             }
         }
         assertEquals("the fixture must set every field the strip blanks",
-            29, blanked.size)
+            27, blanked.size)
     }
 }
