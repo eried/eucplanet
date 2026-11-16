@@ -27,6 +27,8 @@ only when you can cut the ride short.
 - Offline routing: a route that takes too long is stopped, so the next try no longer waits behind it.
 - Offline routing: the first route after opening the app no longer runs out of time and draws straight lines. The app prepares the router near you a few seconds after it starts and when the route builder opens, so the first route takes seconds, on both phones.
 - iPhone app: when iOS closes the app in the background to free memory mid-ride, it reopens it when the wheel talks, reconnects and keeps recording the same trip (not after you swipe the app away).
+- iPhone app: drives the HUD (Settings, Integration, Motoeye HUD), on the same Wi-Fi or with the HUD joined to the iPhone's Personal Hotspot: ride data, the HUD screens, map and button actions. Auto finds the HUD, or type the address it shows. The HUD app itself is still sent from an Android phone. Tried in the simulator only so far.
+- iPhone app: the offline map no longer closes the app now and then while it draws street names.
 - iPhone app: the Needs attention warnings (location, Bluetooth, notifications, backups), and a recording cut short by closing the app is saved or dropped at the next start, as on Android.
 - Inside: the dashboard, settings, alarms, trips, trip details, trip tools, Legal Mode, the notification buttons, the reconnect timing, leaderboards, Dropbox sync, the wheel link, the theme editor, the automations, what runs on connect and every wheel update, the radar and TPMS settings, the engine sound and the navigation (routing, turn cues, the route builder, route sharing, the navigator view and the Navigation settings) and the Overlay studio moved to a library shared with the iPhone. Nothing should change on screen.
 - iPhone app: a swipe in from the left edge is back, on every screen and in every dialog, and the crew pass has the X in every step.
@@ -111,6 +113,7 @@ only when you can cut the ride short.
 - Navigation (dashboard map button): plan a route you know, start it and ride with the iPhone locked. Do the turn cues come at the right corners, and does it reroute when you miss one? Same route as the Android app?
 - Live group: start a group on an Android phone and join it from the iPhone (and the other way). Do both see each other move?
 - Share a route as QR from Android and scan it on the iPhone. Load a GPX track from Files.
+- HUD from the iPhone: open the HUD app, put both on one Wi-Fi (or join the HUD to the iPhone's Personal Hotspot), then Settings, Integration, Motoeye HUD, Enable data link, and allow the local network question. Does Auto find it, or only Fixed with the address the HUD shows? Does it stay linked with the iPhone locked, and do the HUD buttons work?
 - Swipe in from the left edge on Settings, a trip, the battery monitor and in any dialog: does it go back or close it?
 
 **Android, after the move to the shared library**
@@ -121,7 +124,7 @@ only when you can cut the ride short.
 - Engine sound: does every engine sound as in the last build, previews too?
 - Navigation: plan a route, ride it with turn cues, miss a turn and let it reroute, also with offline areas. Same as the last build?
 - Overlay studio: add and arrange elements, save and load presets, record from the camera, take a photo, replay a trip and export it as MP4, GIF and APNG. Same as the last build?
-- HUD: overlay presets and the map on the HUD, same as the last build?
+- HUD: does the phone find and link the HUD as before (Auto and Fixed), and are the overlay presets, the button actions and the map on the HUD the same as the last build?
 - Route builder: search, optimize and reverse a route, share it (link, QR, live group), load a GPX track and convert it to stops, set your marker photo. Same as the last build?
 - Dashboard, Settings, alarm editor, Scan, the trip list, trip details, trip meter, metric details, battery monitor and leaderboards: anything that looks or acts differently from the last build is a bug.
 
