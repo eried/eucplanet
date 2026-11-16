@@ -1360,6 +1360,14 @@ class HudServer(
             navPrimary = d?.navPrimary ?: nav.primaryText,
             navDistance = d?.navDistance ?: nav.distanceText,
             navArrived = d?.navArrived ?: nav.arrived,
+            // For the whole route, not only while the turn popup is up:
+            // the rider wants the arrival time between turns too.
+            navEta = if (d == null && nav.active && !nav.arrived) {
+                com.eried.eucplanet.nav.NavFormat.etaLine(
+                    context, nav.etaEpochMs, nav.remainingM,
+                    imperial = com.eried.eucplanet.util.Units.effectiveDistanceUnit(s) == "mi"
+                )
+            } else "",
             navRoute = if (d == null && nav.active && !nav.arrived && location != null) {
                 routeWindow(location.latitude, location.longitude)
             } else "",

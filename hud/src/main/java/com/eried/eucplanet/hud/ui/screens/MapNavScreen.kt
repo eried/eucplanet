@@ -39,11 +39,11 @@ import com.eried.eucplanet.hud.ui.parseHexColor
  * via the phone Personalize list.
  */
 @Composable
-fun MapNavScreen(hud: HudState, zoom: Float, cache: HudTileCache) {
+fun MapNavScreen(hud: HudState, zoom: Float, cache: HudTileCache, chrome: Boolean = true) {
     Box(Modifier.fillMaxSize()) {
         // Base layer is the same MapScreen renderer riders already know, // shares the tile cache, accent colour, contrast/brightness
         // settings, GPS-fix gating. No duplication.
-        MapScreen(hud = hud, zoom = zoom, cache = cache)
+        MapScreen(hud = hud, zoom = zoom, cache = cache, chrome = chrome)
 
         // Overlay only renders when an active route is set; otherwise the
         // map shows clean. Two states: arrived shows a top-centre banner
@@ -55,6 +55,9 @@ fun MapNavScreen(hud: HudState, zoom: Float, cache: HudTileCache) {
             } else {
                 NavTurnBadge(hud = hud)
             }
+        } else if (hud.navEta.isNotBlank()) {
+            // Between turns the badge is away; the arrival line stays.
+            NavEtaPill(hud = hud)
         }
     }
 }
@@ -96,7 +99,41 @@ private fun BoxScope.NavTurnBadge(hud: HudState) {
                 maxLines = 1,
                 modifier = Modifier.widthIn(max = 200.dp)
             )
+            // Arrival time and distance left, when the phone sends them.
+            if (hud.navEta.isNotBlank()) {
+                Text(
+                    text = hud.navEta,
+                    color = accent,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1
+                )
+            }
         }
+    }
+}
+
+/**
+ * Arrival time and distance left alone, top-centre, for the stretch
+ * between two turns when the turn badge is away.
+ */
+@Composable
+private fun BoxScope.NavEtaPill(hud: HudState) {
+    Box(
+        modifier = Modifier
+            .align(Alignment.TopCenter)
+            .padding(top = 12.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(Color(0xE6000000))
+            .padding(horizontal = 12.dp, vertical = 6.dp)
+    ) {
+        Text(
+            text = hud.navEta,
+            color = parseHexColor(hud.accentArgb),
+            fontSize = 14.sp,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 1
+        )
     }
 }
 

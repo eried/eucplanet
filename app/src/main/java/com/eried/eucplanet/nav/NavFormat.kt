@@ -15,6 +15,17 @@ object NavFormat {
     private const val FEET_PER_M = 3.28084
     private const val M_PER_MILE = 1609.34
 
+    /** Arrival time and distance left on one line, "14:32 · 3.2 km", the
+     *  way the navigator bar words them. Either part is left out while it
+     *  is unknown; empty when both are. */
+    fun etaLine(context: Context, etaEpochMs: Long, remainingM: Double, imperial: Boolean): String {
+        val clock = if (etaEpochMs > 0L)
+            android.text.format.DateFormat.getTimeFormat(context).format(java.util.Date(etaEpochMs))
+        else null
+        val left = if (!remainingM.isNaN()) distance(context, remainingM, imperial) else null
+        return listOfNotNull(clock, left).joinToString(" · ")
+    }
+
     /** Compact distance for the popup, e.g. "200 m" / "1.4 km" / "300 ft" / "0.8 mi". */
     fun distance(context: Context, meters: Double, imperial: Boolean): String {
         if (imperial) {

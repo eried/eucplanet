@@ -215,6 +215,12 @@ data class HudState(
     val navDistance: String = "",
     /** True when the rider is at the final destination. */
     val navArrived: Boolean = false,
+    /** Arrival time and distance left, as the phone's navigator words
+     *  them ("14:32 · 3.2 km"); empty while the phone cannot say. Sent
+     *  for the whole route, also while [navActive] is off between turns. The
+     *  phone formats it so the clock and the unit are the rider's own.
+     *  Wired in minor 23. */
+    val navEta: String = "",
     /** The route line around the rider for the HUD map, as an encoded
      *  string (see [RouteWindow]); empty when there is no route. Wired in
      *  minor 20. */
@@ -346,8 +352,11 @@ data class HudState(
          *    keys from fields the phone already sent. A HUD older than this
          *    renders such an element as SPEED, so the minor bump is what
          *    surfaces the "update your HUD" hint.
+         * 23: [HudState.navEta], the arrival time and distance left under
+         *    the turn badge. An older HUD ignores it. The Custom + map
+         *    screen came with it: an older HUD drops that screen id.
          */
-        const val PROTOCOL_MINOR: Int = 22
+        const val PROTOCOL_MINOR: Int = 23
 
         /** Legacy alias. New code should read [PROTOCOL_MAJOR] / [PROTOCOL_MINOR]. */
         @Deprecated(

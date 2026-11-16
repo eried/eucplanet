@@ -197,8 +197,13 @@ fun HudApp(
                             // The rider's preset over the map, as CustomCam
                             // puts it over the camera. The overlay paints no
                             // background of its own, so the map shows through.
+                            // Turn cues come up while a route runs; the zoom
+                            // and speed boxes stay off, the preset has its own.
                             Box(Modifier.fillMaxSize()) {
-                                MapScreen(hud = hud, zoom = controller.mapZoom, cache = tileCache)
+                                MapNavScreen(
+                                    hud = hud, zoom = controller.mapZoom,
+                                    cache = tileCache, chrome = false
+                                )
                                 CustomOverlayScreen(hud = hud, withCamera = false)
                             }
                         HudUiController.Screen.MapNav ->
