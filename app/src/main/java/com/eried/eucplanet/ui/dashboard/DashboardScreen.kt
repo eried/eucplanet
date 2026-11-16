@@ -3265,6 +3265,7 @@ fun DashboardScreen(
                                                     "Amoenus" to "NOSFET compatibility.",
                                                     "Reimus" to "Sherman Max compatibility.",
                                                     "ZiraiMode" to "The Wear OS map: tile streaming from the phone and the watch-side drawing.",
+                                                    "Klaus" to "InMotion V6 testing: tilt-back and the bigger watch layout.",
                                                     "Ilya Shkolnik" to "Advice and help, and maintains DarknessBot.",
                                                     "InMotion" to "For making my awesome V14."
                                                 )

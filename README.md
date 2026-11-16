@@ -298,6 +298,7 @@ Thanks to the people and projects that helped, kept in sync with the app (tap ve
 | [Amoenus](https://github.com/Amoenus) | NOSFET Aeon alarm-speed mapping and headlight level readback, decoded from his own BLE captures and contributed with tests and protocol notes. The first code contributed from outside. |
 | [Reimus](https://github.com/Reimus) | Sherman Max compatibility |
 | [ZiraiMode](https://github.com/ZiraiMode) | The Wear OS map: tile streaming from the phone and the watch-side drawing, tested on a Galaxy Watch 5 Pro with a Lynx S |
+| Klaus | InMotion V6 testing: tilt-back and the bigger watch layout, on a TicWatch 3 Pro and a Fenix 5S |
 | Ilya Shkolnik | Advice and help. Maintains DarknessBot. |
 | [InMotion](https://inmotion-store.com/product/inmotion-v14/) | For making a great V14 |
 | [WheelLog community](https://github.com/Wheellog/wheellog.android) | Open-source (GPLv3) reverse-engineering of the EUC BLE protocols, used as the reference for every wheel adapter (KingSong, Begode, Veteran, Ninebot, InMotion). No WheelLog code is reused. |
