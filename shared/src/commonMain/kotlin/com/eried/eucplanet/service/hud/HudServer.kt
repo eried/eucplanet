@@ -1,23 +1,13 @@
 package com.eried.eucplanet.service.hud
 
-import android.content.Context
-import com.eried.eucplanet.platform.getString
-import android.net.ConnectivityManager
-import android.net.Network
-import android.net.NetworkCapabilities
-import android.net.NetworkRequest
-import android.net.wifi.WifiManager
-import android.util.Log
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.HudDiscoveryMode
 import com.eried.eucplanet.data.model.arrowAngleDeg
 import com.eried.eucplanet.data.repository.ExternalGpsRepository
 import com.eried.eucplanet.data.repository.RadarRepository
 import com.eried.eucplanet.data.repository.SettingsRepository
-import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.hud.protocol.HudCommand
-import com.eried.eucplanet.hud.protocol.HudDebug
 import com.eried.eucplanet.hud.protocol.HudDiscovery
 import com.eried.eucplanet.hud.protocol.HudScreens
 import com.eried.eucplanet.hud.protocol.HudState
@@ -25,7 +15,10 @@ import com.eried.eucplanet.hud.protocol.RadarTargetWire
 import com.eried.eucplanet.hud.protocol.StaleLink
 import com.eried.eucplanet.hud.protocol.WifiInterferenceDetector
 import com.eried.eucplanet.nav.NavigationEngine
-import com.eried.eucplanet.util.AppForeground
+import com.eried.eucplanet.platform.Log
+import com.eried.eucplanet.platform.System
+import com.eried.eucplanet.platform.format
+import kotlin.concurrent.Volatile
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -33,6 +26,7 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.SupervisorJob
@@ -45,18 +39,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
-import okhttp3.WebSocket
-import okhttp3.WebSocketListener
-import java.util.concurrent.TimeUnit
-import javax.jmdns.JmDNS
-import javax.jmdns.ServiceEvent
-import javax.jmdns.ServiceListener
-import java.net.Inet4Address
-import java.net.InetAddress
-import java.net.NetworkInterface
 
 /**
  * Phone-side dialer that streams the current wheel telemetry to an external
@@ -76,29 +58,29 @@ import java.net.NetworkInterface
  * Lifecycle is owned by [com.eried.eucplanet.service.WheelService] -- start()
  * fires when the rider toggles the link on AND service is up, stop() on
  * either flipping off.
+ *
+ * One copy for both phones. What differs under it (the WebSocket client,
+ * the mDNS browse, the beacon listener, the Wi-Fi and the tile listener) is
+ * behind the ports in HudLinkPorts.kt.
  */
 class HudServer(
-    private val context: Context,
     private val wheelRepository: WheelRepository,
     private val settingsRepository: SettingsRepository,
     private val externalGpsRepository: ExternalGpsRepository,
-    private val tripRepository: TripRepository,
     private val tripMeterRepository: com.eried.eucplanet.data.repository.TripMeterRepository,
     private val radarRepository: RadarRepository,
     private val navigationEngine: NavigationEngine,
     private val commandSink: HudCommandSink,
     private val themeController: com.eried.eucplanet.ui.theme.ThemeController,
-    val udpListener: HudUdpListener,
+    private val phone: HudPhone,
+    private val sockets: HudSockets,
+    private val mdns: HudMdns,
+    val udpListener: HudBeacons,
+    private val network: HudNetwork,
     private val subnetProbe: HudSubnetProbe,
-    private val offlineMap: com.eried.eucplanet.nav.offline.map.OfflineMapRenderer,
-) {
-
     /** The offline map for the HUD, served while the link is on. */
-    private val tileServer = HudTileServer(
-        com.eried.eucplanet.hud.protocol.HudDiscovery.TILE_PORT,
-        { z, x, y -> offlineMap.png(z, x, y, 256) },
-        { Log.w(TAG, it) },
-    )
+    private val tileServer: HudTiles,
+) {
 
     companion object {
         private const val TAG = "HudServer"
@@ -123,7 +105,6 @@ class HudServer(
         // hotspot gets a fair chance, but bounded so the rider sees the
         // "no IP / not autodetected" state within a reasonable wait.
         private const val MDNS_RESOLVE_TIMEOUT_MS = 5_000L
-        private const val MULTICAST_LOCK_TAG = "eucplanet-hud-discovery"
         /** Aggressive-retry window after the link is enabled. During this
          *  period the dial loop bottoms out at a 2 s tick so a freshly
          *  reachable HUD is grabbed within a few seconds. After the window
@@ -157,33 +138,6 @@ class HudServer(
 
     private val lifecycleLock = Mutex()
 
-    // No fixed pingInterval here: it is chosen per-connection in
-    // [streamUntilClosed] from the app's foreground/background state (see
-    // PING_FOREGROUND_MS / PING_BACKGROUND_MS). newBuilder() reuses this
-    // client's connection pool + dispatcher, so a per-dial ping override is cheap.
-    private val http: OkHttpClient = OkHttpClient.Builder()
-        .connectTimeout(4, TimeUnit.SECONDS)
-        .readTimeout(0, TimeUnit.MILLISECONDS)
-        .retryOnConnectionFailure(true)
-        .build()
-
-    /** Sends the HUD app this phone carries to the linked HUD, on the
-     *  rider's tap in Settings. */
-    val appSender = HudAppSender(context, http) { currentPeer }
-
-    /** True when the app UI is actually on-screen (process importance
-     *  FOREGROUND), not merely the ride foreground service running
-     *  (FOREGROUND_SERVICE). Once the UI is gone, Samsung / Android 16 throttle
-     *  the app's socket I/O, so the tight 5s ping window is only safe with the UI
-     *  up. Fails open to foreground so a detection miss keeps today's behaviour. */
-    private fun isUiForeground(): Boolean = try {
-        val info = android.app.ActivityManager.RunningAppProcessInfo()
-        android.app.ActivityManager.getMyMemoryState(info)
-        info.importance <= android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
-    } catch (_: Exception) {
-        true
-    }
-
     @Volatile private var loopJob: Job? = null
     @Volatile private var beaconKickJob: Job? = null
     @Volatile private var attentionJob: Job? = null
@@ -191,7 +145,7 @@ class HudServer(
      *  Reset on link start, network change and the rider starting to look. */
     @Volatile private var lastSweepMs = 0L
     @Volatile private var publishJob: Job? = null
-    @Volatile private var ws: WebSocket? = null
+    @Volatile private var ws: HudSocket? = null
     /** "ip:port" of the HUD the live WebSocket is talking to; null when down.
      *  Read by the network-loss probe to test whether the peer is still
      *  reachable after a WiFi transition. */
@@ -215,16 +169,6 @@ class HudServer(
      * thread.
      */
     private val reconnectKick = Channel<Unit>(capacity = Channel.CONFLATED)
-
-    /** Currently-registered ConnectivityManager callback; cleared on doStop. */
-    @Volatile private var netCallback: ConnectivityManager.NetworkCallback? = null
-
-    /** WiFi networks that carry internet, i.e. the rider's own home / other AP
-     *  rather than the HUD's. The callback watches every WiFi network now (see
-     *  [registerNetworkCallback]), so this is what still tells a STA transition
-     *  apart from the HUD's own network coming and going. */
-    private val staNetworks: MutableSet<Network> =
-        java.util.Collections.newSetFromMap(java.util.concurrent.ConcurrentHashMap())
 
     /** Last time a beacon disagreeing with the live peer sent us to check on it.
      *  Beacons land every 2 s; one probe per [BEACON_MISMATCH_PROBE_MS] is
@@ -260,7 +204,7 @@ class HudServer(
                 idleSearchMs = s.hudIdleSearchMs.toLong()
                 sweepIntervalMs = s.hudSweepIntervalMs.toLong()
                 val want = s.hudServerEnabled ||
-                    com.eried.eucplanet.hud.protocol.HudDebug.read("debug.eucplanet.hud.force") == "true"
+                    phone.debug("debug.eucplanet.hud.force") == "true"
                 if (want != on) {
                     if (want) start() else stop()
                     on = want
@@ -281,18 +225,6 @@ class HudServer(
     @Volatile private var mdnsServiceInfoTimeoutMs: Long = 1_000L
     @Volatile private var idleSearchMs: Long = 120_000L
     @Volatile private var sweepIntervalMs: Long = 60_000L
-    @Volatile private var multicastLock: WifiManager.MulticastLock? = null
-    /** High-performance WiFi lock acquired while the HUD link is enabled.
-     *  Without this, the radio enters DTIM power-save once the screen is off
-     *  or the app loses foreground priority, and OkHttp's 15 s ping starts
-     *  landing in a radio-sleep window. Surfaces as "Software caused
-     *  connection abort" / "ping but didn't receive pong" every 30-60 s on
-     *  the rider's HUD discovery log even though the route is fine. The
-     *  multicast lock is for inbound mDNS only; it does NOT pin the radio
-     *  out of power-save. Small power cost (a few mA), eliminates the
-     *  background-throttling drops entirely. */
-    @Volatile private var wifiLock: WifiManager.WifiLock? = null
-
     /**
      * Which discovery channel produced the address that opened the current
      * WebSocket. Surfaced on the HUD settings screen as a "Connected via:"
@@ -333,7 +265,7 @@ class HudServer(
         Log.i(TAG, "Starting HUD link")
         tileServer.start()
         log("Link enabled, starting discovery")
-        if (HudDebug.read("debug.eucplanet.demo") == "true") {
+        if (phone.debug("debug.eucplanet.demo") == "true") {
             Log.i(TAG, "Demo telemetry mode is ON")
             demo.start()
         }
@@ -401,12 +333,12 @@ class HudServer(
             val target = if (ip.isBlank()) "(no IP set)" else "$ip:$port"
             log("Fixed mode, manual only -> $target")
         }
-        registerNetworkCallback()
+        network.watch(networkEvents)
         lastSweepMs = 0L
         // A wheel connecting or the app coming on screen means the rider is now
         // waiting for the HUD: end the idle wait and sweep straight away.
         attentionJob = scope.launch {
-            combine(wheelRepository.connectionState, AppForeground.isForeground) { c, fg ->
+            combine(wheelRepository.connectionState, phone.foreground) { c, fg ->
                 c == ConnectionState.CONNECTED || fg
             }.distinctUntilChanged().drop(1).collect { attending ->
                 if (attending) {
@@ -425,7 +357,7 @@ class HudServer(
         try { demo.stop() } catch (_: Throwable) {}
         try { ws?.close(1000, "stopping") } catch (_: Throwable) {}
         ws = null
-        tripRepository.setHudMapLinked(false)
+        phone.setMapLinked(false)
         currentPeer = null
         publishJob?.cancel(); publishJob = null
         loopJob?.cancel(); loopJob = null
@@ -433,10 +365,9 @@ class HudServer(
         attentionJob?.cancel(); attentionJob = null
         udpListener.stop()
         _connectionSource.value = ConnectionSource.NONE
-        try { multicastLock?.release() } catch (_: Throwable) {}
-        multicastLock = null
-        releaseWifiPerfLock()
-        unregisterNetworkCallback()
+        try { mdns.release() } catch (_: Throwable) {}
+        network.holdRadioAwake(false)
+        network.unwatch()
     }
 
     /**
@@ -457,7 +388,7 @@ class HudServer(
      * own AP it joins a network with no internet, so the one network whose loss
      * can strand this link was the one network this callback could never see,
      * and `probePeerAfterNetworkLoss` never fired for the case it was written
-     * for. [HudUdpListener] already omits the capability for the same reason;
+     * for. Android's beacon listener already omits the capability for the same reason;
      * these two now agree.
      *
      * This still cannot see a hotspot the PHONE is hosting, which the OS never
@@ -467,86 +398,53 @@ class HudServer(
      * The interference detector still wants only the rider's OWN home / other
      * WiFi (a STA transition on a single radio re-tunes the hotspot and blips
      * the HUD). Internet-capable WiFi is that signal, so it is tracked in
-     * [staNetworks] from the capability callback and fed from there, rather
-     * than from the request filter.
+     * the port's own set from the capability callback and fed from there,
+     * rather than from the request filter (AndroidHudNetwork).
      */
-    private fun registerNetworkCallback() {
-        if (netCallback != null) return
-        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
-            ?: return
-        val request = NetworkRequest.Builder()
-            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-            .build()
-        val cb = object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: Network) {
-                Log.i(TAG, "network onAvailable: kicking dial loop")
-                log("Network came up, retrying immediately")
-                lastSweepMs = 0L
-                reconnectKick.trySend(Unit)
-            }
-            override fun onCapabilitiesChanged(network: Network, caps: NetworkCapabilities) {
-                // The phone's own home/other Wi-Fi just (re)joined: on a single
-                // radio this re-tunes the hotspot and tends to drop the HUD a
-                // few seconds later. Feed the detector so a correlated drop is
-                // recognised as channel-follow, not a plain out-of-range loss.
-                // Read here, not in onAvailable, because capabilities are only
-                // known a beat after a network appears.
-                val internet = caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                if (internet) {
-                    if (staNetworks.add(network)) {
-                        wifiInterference.onStaTransition(System.currentTimeMillis())
-                    }
-                } else {
-                    staNetworks.remove(network)
-                }
-            }
-            override fun onLost(network: Network) {
-                val wasSta = staNetworks.remove(network)
-                Log.i(TAG, "network onLost (sta=$wasSta)")
-                if (wasSta) wifiInterference.onStaTransition(System.currentTimeMillis())
-                // If the live WS rode the network that just vanished, it is a
-                // zombie that OkHttp only notices at the ping window - 15 s in
-                // background, the whole "riding away from WiFi with a frozen
-                // HUD" gap. Probe and cut it now instead. Runs for EVERY WiFi
-                // network, including the HUD's own: that is the whole point.
-                probePeerAfterNetworkLoss()
-            }
-            override fun onLosing(network: Network, maxMsToLive: Int) {
-                // DO NOT close the WS here, on either kind of network.
-                //
-                // For the rider's HOME WiFi (STA): the HUD link rides a separate,
-                // no-internet network, so home WiFi going away (rider leaves
-                // range) does NOT affect the HUD route, and closing here was pure
-                // collateral damage - it tore down a perfectly good link the
-                // instant the rider walked out of home range. (Verified against
-                // the 2026-06-29 tester log: the link died via ping-timeout, NOT
-                // this path, but this close was a latent amplifier.)
-                //
-                // For the HUD's own network: "losing" is a warning, not a loss.
-                // onLost is where we probe and cut, so acting a few seconds early
-                // here would just churn a link that may well not go away.
-                if (!staNetworks.contains(network)) return
-                Log.i(TAG, "network onLosing (${maxMsToLive}ms): home WiFi leaving; " +
-                    "leaving HUD link intact")
-                log("Home WiFi dropping in ${maxMsToLive}ms (HUD link unaffected)")
-                wifiInterference.onStaTransition(System.currentTimeMillis())
-            }
+    private val networkEvents = object : HudNetworkEvents {
+        override fun onAvailable() {
+            Log.i(TAG, "network onAvailable: kicking dial loop")
+            log("Network came up, retrying immediately")
+            lastSweepMs = 0L
+            reconnectKick.trySend(Unit)
         }
-        try {
-            cm.registerNetworkCallback(request, cb)
-            netCallback = cb
-        } catch (t: Throwable) {
-            Log.w(TAG, "registerNetworkCallback failed: ${t.message}")
+        override fun onOwnWifiJoined() {
+            // The phone's own home/other Wi-Fi just (re)joined: on a single
+            // radio this re-tunes the hotspot and tends to drop the HUD a
+            // few seconds later. Feed the detector so a correlated drop is
+            // recognised as channel-follow, not a plain out-of-range loss.
+            wifiInterference.onStaTransition(System.currentTimeMillis())
         }
-    }
-
-    private fun unregisterNetworkCallback() {
-        val cb = netCallback ?: return
-        netCallback = null
-        try {
-            val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
-            cm?.unregisterNetworkCallback(cb)
-        } catch (_: Throwable) {}
+        override fun onLost(wasOwnWifi: Boolean) {
+            Log.i(TAG, "network onLost (sta=$wasOwnWifi)")
+            if (wasOwnWifi) wifiInterference.onStaTransition(System.currentTimeMillis())
+            // If the live WS rode the network that just vanished, it is a
+            // zombie that OkHttp only notices at the ping window - 15 s in
+            // background, the whole "riding away from WiFi with a frozen
+            // HUD" gap. Probe and cut it now instead. Runs for EVERY WiFi
+            // network, including the HUD's own: that is the whole point.
+            probePeerAfterNetworkLoss()
+        }
+        override fun onOwnWifiLeaving(msToLive: Int) {
+            // DO NOT close the WS here, on either kind of network.
+            //
+            // For the rider's HOME WiFi (STA): the HUD link rides a separate,
+            // no-internet network, so home WiFi going away (rider leaves
+            // range) does NOT affect the HUD route, and closing here was pure
+            // collateral damage - it tore down a perfectly good link the
+            // instant the rider walked out of home range. (Verified against
+            // the 2026-06-29 tester log: the link died via ping-timeout, NOT
+            // this path, but this close was a latent amplifier.)
+            //
+            // For the HUD's own network: "losing" is a warning, not a loss.
+            // onLost is where we probe and cut, so acting a few seconds early
+            // here would just churn a link that may well not go away. The
+            // port reports this for the rider's own Wi-Fi only.
+            Log.i(TAG, "network onLosing (${msToLive}ms): home WiFi leaving; " +
+                "leaving HUD link intact")
+            log("Home WiFi dropping in ${msToLive}ms (HUD link unaffected)")
+            wifiInterference.onStaTransition(System.currentTimeMillis())
+        }
     }
 
     /** Delay up to [ms], returning early when a network-availability kick
@@ -597,7 +495,7 @@ class HudServer(
      * to CHECK: the peer gets the same TCP probe a network loss triggers, and
      * only an unreachable peer is cut. Probing cannot hurt a live link.
      */
-    private fun checkPeerAgainstBeacon(sighting: HudUdpListener.Sighting) {
+    private fun checkPeerAgainstBeacon(sighting: HudBeaconSighting) {
         val peer = currentPeer ?: return
         if (!StaleLink.beaconContradictsPeer(peer, sighting.ip, sighting.port)) return
         val now = System.currentTimeMillis()
@@ -615,10 +513,7 @@ class HudServer(
             val host = peer.substringBefore(':')
             val port = peer.substringAfter(':', "").toIntOrNull() ?: HudDiscovery.DEFAULT_PORT
             val reachable = runCatching {
-                java.net.Socket().use { s ->
-                    s.connect(java.net.InetSocketAddress(host, port), PEER_PROBE_TIMEOUT_MS)
-                    true
-                }
+                network.tryTcp(host, port, PEER_PROBE_TIMEOUT_MS)
             }.getOrDefault(false)
             if (!reachable && currentPeer == peer) {
                 log("$why, and $peer stopped answering - reconnecting now")
@@ -631,31 +526,11 @@ class HudServer(
         }
     }
 
-    /** Acquire a high-performance WiFi lock so the radio stays out of
-     *  DTIM power-save while the HUD link is enabled. Idempotent and
-     *  best-effort: if the lock can't be acquired we still run, the link
-     *  just risks the background-throttling drops. */
-    private fun acquireWifiPerfLock() {
-        if (wifiLock?.isHeld == true) return
-        try {
-            val wifi = context.getSystemService(Context.WIFI_SERVICE) as? WifiManager
-                ?: return
-            val lock = wifi.createWifiLock(
-                WifiManager.WIFI_MODE_FULL_HIGH_PERF,
-                "eucplanet-hud-link"
-            )
-            lock.setReferenceCounted(false)
-            lock.acquire()
-            wifiLock = lock
-        } catch (t: Throwable) {
-            Log.w(TAG, "wifi perf lock acquire failed: ${t.message}")
-        }
-    }
+    /** Keep the radio out of power-save while the HUD link needs it.
+     *  Idempotent and best-effort, see [HudNetwork.holdRadioAwake]. */
+    private fun acquireWifiPerfLock() = network.holdRadioAwake(true)
 
-    private fun releaseWifiPerfLock() {
-        try { wifiLock?.release() } catch (_: Throwable) {}
-        wifiLock = null
-    }
+    private fun releaseWifiPerfLock() = network.holdRadioAwake(false)
 
     /**
      * Outer loop: discover-or-read the HUD address, open a WebSocket, pump
@@ -693,7 +568,7 @@ class HudServer(
             val riding = wheelRepository.connectionState.value == ConnectionState.CONNECTED
             if (riding) acquireWifiPerfLock()
             val s = runCatching { settingsRepository.currentOrLoad() }.getOrNull()
-            val override = HudDebug.read("debug.eucplanet.hud.peer")?.takeIf { it.isNotBlank() }
+            val override = phone.debug("debug.eucplanet.hud.peer")?.takeIf { it.isNotBlank() }
             val mode = s?.hudDiscoveryMode ?: HudDiscoveryMode.AUTO
             val manualIp = s?.hudIp?.trim().orEmpty()
             val manualPort = s?.hudServerPort?.takeIf { it in 1..65535 }
@@ -728,7 +603,7 @@ class HudServer(
                 // idleSearchMs instead (HudSearchPacing). The beacon listener,
                 // a network change, a wheel connecting or the app opening all
                 // still end it at once.
-                val attending = AppForeground.isForeground.value ||
+                val attending = phone.foreground.value ||
                     wheelRepository.connectionState.value == ConnectionState.CONNECTED
                 delayOrKick(
                     HudSearchPacing.waitMs(
@@ -833,7 +708,7 @@ class HudServer(
         // possibly reach, and it is the first thing to check when all of them
         // come up empty. Logged per search because it changes: a hotspot coming
         // up, home WiFi dropping as the rider leaves.
-        val phoneNets = runCatching { subnetProbe.candidateIpv4Cidrs() }.getOrDefault(emptyList())
+        val phoneNets = runCatching { network.candidateIpv4Cidrs() }.getOrDefault(emptyList())
         log(
             if (phoneNets.isEmpty()) "Phone networks: none (no WiFi, no hotspot)"
             else "Phone networks: $phoneNets"
@@ -968,138 +843,25 @@ class HudServer(
 
     /** Resolve `_eucplanet._tcp.local.` on whatever subnet we have. Returns
      *  `host:port` of the first matching HUD with a compatible protocol
-     *  version, or null if nothing answered within [mdnsTimeoutMs].
-     *
-     *  Each call opens its own JmDNS instance so a network change between
-     *  attempts (rider switching hotspot on, walking out of range) gets a
-     *  fresh socket bound to the current interface. JmDNS doesn't always
-     *  rebind cleanly when the underlying address changes. */
-    private suspend fun resolveViaMdns(): String? {
-        ensureMulticastLock()
-        // Bind JmDNS to the actual LAN interface(s). JmDNS.create() with no
-        // address binds via the default route, which on a WiFi that has no
-        // internet is the CELLULAR network - so the mDNS query leaves the wrong
-        // interface, never reaches the HUD's LAN, and discovery falls back to
-        // the slower subnet probe (the "works outside the shop only" report).
-        // One instance per site-local address covers a WiFi + hotspot phone at
-        // once; if we can't find any, fall back to the library default so we're
-        // never worse than before.
-        val binds: List<InetAddress?> = mdnsBindAddresses().ifEmpty { listOf(null) }
-        val resolved = kotlinx.coroutines.CompletableDeferred<String?>()
-        val instances = mutableListOf<JmDNS>()
-        try {
-            for (bind in binds) {
-                val md = try {
-                    if (bind == null) JmDNS.create() else JmDNS.create(bind)
-                } catch (t: Throwable) {
-                    Log.w(TAG, "mDNS create on ${bind?.hostAddress ?: "default"} failed: ${t.message}")
-                    continue
-                }
-                instances.add(md)
-                md.addServiceListener(HudDiscovery.SERVICE_TYPE, object : ServiceListener {
-                    override fun serviceAdded(event: ServiceEvent) {
-                        md.requestServiceInfo(event.type, event.name, mdnsServiceInfoTimeoutMs)
-                    }
-                    override fun serviceRemoved(event: ServiceEvent) {}
-                    override fun serviceResolved(event: ServiceEvent) {
-                        val info = event.info
-                        val ipv4 = info.inet4Addresses?.firstOrNull()
-                        if (ipv4 != null) {
-                            val versionOk = (info.getPropertyString(HudDiscovery.TXT_VERSION)
-                                ?.toIntOrNull() ?: 1) <= HudState.PROTOCOL_VERSION
-                            if (versionOk) {
-                                resolved.complete("${ipv4.hostAddress}:${info.port}")
-                            }
-                        }
-                    }
-                })
-            }
-            if (instances.isEmpty()) return null
-            return kotlinx.coroutines.withTimeoutOrNull(mdnsTimeoutMs) { resolved.await() }
-        } catch (c: kotlinx.coroutines.CancellationException) {
-            // Another channel won the race. Catching this as a Throwable (as
-            // this did) swallowed the cancellation, so the job carried on and
-            // reported itself as a timeout it never reached.
-            throw c
-        } catch (t: Throwable) {
-            Log.w(TAG, "mDNS resolve failed: ${t.message}")
-            return null
-        } finally {
-            // close() unregisters listeners and frees the multicast socket,
-            // and it BLOCKS for about two seconds sending goodbyes. Closing it
-            // here put those two seconds between knowing the answer and
-            // dialling it, because coroutineScope waits for this child: every
-            // connect paid it, on every network. Hand the close to the server
-            // scope so discovery is free to get on with it.
-            val toClose = instances.toList()
-            if (toClose.isNotEmpty()) {
-                scope.launch(Dispatchers.IO + kotlinx.coroutines.NonCancellable) {
-                    toClose.forEach { md -> runCatching { md.close() } }
-                }
-            }
-        }
-    }
-
-    /**
-     * Site-local IPv4 addresses on real LAN interfaces (WiFi STA and the phone
-     * hotspot/AP), excluding loopback and mobile-data/virtual interfaces. JmDNS
-     * binds to these directly so discovery works on a WiFi with no internet,
-     * where Android makes cellular the default network and a plain
-     * JmDNS.create() would bind the wrong interface. Mirrors the interface
-     * filter in HudSubnetProbe.candidateIpv4Cidrs().
-     */
-    private fun mdnsBindAddresses(): List<InetAddress> {
-        val out = LinkedHashSet<InetAddress>()
-        runCatching {
-            NetworkInterface.getNetworkInterfaces()?.toList()?.forEach { nif ->
-                if (!nif.isUp || nif.isLoopback) return@forEach
-                val name = nif.name.lowercase()
-                if (name.startsWith("rmnet") || name.startsWith("ccmni") ||
-                    name.startsWith("pdp") || name.startsWith("clat") ||
-                    name.startsWith("tun") || name.startsWith("dummy")
-                ) return@forEach
-                nif.inetAddresses.toList().forEach { a ->
-                    if (a is Inet4Address && !a.isLoopbackAddress && a.isSiteLocalAddress) {
-                        out.add(a)
-                    }
-                }
-            }
-        }.onFailure { Log.w(TAG, "mDNS bind-address enumeration failed: ${it.message}") }
-        return out.toList()
-    }
-
-    /** Acquire a multicast lock once; JmDNS needs it to join 224.0.0.251 on
-     *  the WiFi subnet. Idempotent. */
-    private fun ensureMulticastLock() {
-        if (multicastLock != null) return
-        try {
-            val wifi = context.getSystemService(Context.WIFI_SERVICE) as? WifiManager
-            multicastLock = wifi?.createMulticastLock(MULTICAST_LOCK_TAG)?.apply {
-                setReferenceCounted(false)
-                acquire()
-            }
-        } catch (t: Throwable) {
-            Log.w(TAG, "multicast lock acquire failed: ${t.message}")
-        }
-    }
+     *  version, or null if nothing answered within [mdnsTimeoutMs]. */
+    private suspend fun resolveViaMdns(): String? =
+        mdns.resolve(mdnsTimeoutMs, mdnsServiceInfoTimeoutMs)
 
     /** Open one WebSocket and pump frames until it closes. Returns true on
      *  clean close, false on transport error (which gates backoff). */
     private suspend fun streamUntilClosed(peer: String): Boolean {
-        val foreground = isUiForeground()
+        val foreground = phone.uiForeground()
         val pingMs = if (foreground) PING_FOREGROUND_MS else PING_BACKGROUND_MS
         log("Dial ws://$peer/state (ping ${pingMs / 1000}s, ${if (foreground) "foreground" else "background"})")
         val done = kotlinx.coroutines.CompletableDeferred<Boolean>()
-        val req = Request.Builder()
-            .url("ws://$peer${HudDiscovery.PATH_STATE}")
-            .build()
-        val listener = object : WebSocketListener() {
+        val listener = object : HudSocketEvents {
             private var sendJob: Job? = null
             /** True once this socket actually opened, so onFailure can tell an
              *  ESTABLISHED-link drop (a real interruption worth correlating with
              *  Wi-Fi) from a plain "couldn't find/connect to the HUD" dial miss. */
             @Volatile private var wasOpen = false
-            override fun onOpen(webSocket: WebSocket, response: Response) {
+            override fun onOpen(socket: HudSocket) {
+                val webSocket = socket
                 Log.i(TAG, "HUD link open: $peer")
                 log("Connected to $peer ✓")
                 wasOpen = true
@@ -1118,7 +880,7 @@ class HudServer(
                         first = false
                         // The HUD draws its Map screen from this phone's
                         // position, so keep GPS on while it is in the carousel.
-                        if (isActive) tripRepository.setHudMapLinked("Map" in frame.enabledHudScreens)
+                        if (isActive) phone.setMapLinked("Map" in frame.enabledHudScreens)
                         try {
                             if (!webSocket.send(json.encodeToString(frame))) {
                                 // OkHttp returns false when the outbound
@@ -1146,7 +908,7 @@ class HudServer(
                     }
                 }
             }
-            override fun onMessage(webSocket: WebSocket, text: String) {
+            override fun onMessage(text: String) {
                 try {
                     val cmd = json.decodeFromString<HudCommand>(text)
                     commandSink.dispatch(cmd)
@@ -1154,7 +916,7 @@ class HudServer(
                     Log.w(TAG, "bad command: ${t.message}: $text")
                 }
             }
-            override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
+            override fun onClosing(socket: HudSocket, code: Int, reason: String) {
                 Log.i(TAG, "HUD link closing: $code $reason")
                 // The HUD hanging up was the ONE way this link could end without
                 // leaving a single line in the rider's capture, which is exactly
@@ -1163,19 +925,20 @@ class HudServer(
                 // socket (the HUD's heartbeat gives up and closes), so it is the
                 // line most worth having.
                 log("HUD closed the link: $code ${reason.ifBlank { "(no reason given)" }}")
-                webSocket.close(1000, null)
+                socket.close(1000, null)
             }
-            override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
+            override fun onClosed() {
                 sendJob?.cancel()
-                tripRepository.setHudMapLinked(false)
+                phone.setMapLinked(false)
                 ws = null
                 currentPeer = null
                 commandSink.onHudDisconnected()
-                appSender.reset()
+                phone.onLinkDown()
                 done.complete(true)
             }
-            override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-                Log.w(TAG, "HUD link failure: ${t.message} (${response?.code})")
+            override fun onFailure(error: Throwable, httpCode: Int?) {
+                val t = error
+                Log.w(TAG, "HUD link failure: ${t.message} ($httpCode)")
                 log("Not found: ${t.message ?: t::class.simpleName}")
                 // Only an ESTABLISHED link dropping is a candidate channel-follow
                 // event; a failed dial (never opened) is just discovery missing.
@@ -1184,20 +947,16 @@ class HudServer(
                     if (correlated) log("Drop correlated with a phone Wi-Fi change")
                 }
                 sendJob?.cancel()
-                tripRepository.setHudMapLinked(false)
+                phone.setMapLinked(false)
                 ws = null
                 currentPeer = null
                 commandSink.onHudDisconnected()
-                appSender.reset()
+                phone.onLinkDown()
                 done.complete(false)
             }
         }
-        // Per-connection ping tolerance from the foreground/background state above;
-        // newBuilder() shares this client's pool + dispatcher so this is cheap.
-        http.newBuilder()
-            .pingInterval(pingMs, TimeUnit.MILLISECONDS)
-            .build()
-            .newWebSocket(req, listener)
+        // Per-connection ping tolerance from the foreground/background state above.
+        sockets.open("ws://$peer${HudDiscovery.PATH_STATE}", pingMs, listener)
         return done.await()
     }
 
@@ -1250,7 +1009,7 @@ class HudServer(
         val wd = wheelRepository.wheelData.value
         val state = wheelRepository.connectionState.value
         val nav = navigationEngine.navState.value
-        val location = tripRepository.currentLocation.value
+        val location = phone.location()
         val external = externalGpsRepository.currentSample.value
 
         val effTilt = if (wheelRepository.safetySpeedActive.value)
@@ -1287,9 +1046,9 @@ class HudServer(
         //   adb shell am force-stop com.eried.eucplanet
         // Wiped on reboot. Defaults preserve the real PROTOCOL_MAJOR /
         // PROTOCOL_MINOR so production riders never see this.
-        val overrideMajor = HudDebug.read("debug.eucplanet.proto.major")
+        val overrideMajor = phone.debug("debug.eucplanet.proto.major")
             ?.toIntOrNull() ?: HudState.PROTOCOL_MAJOR
-        val overrideMinor = HudDebug.read("debug.eucplanet.proto.minor")
+        val overrideMinor = phone.debug("debug.eucplanet.proto.minor")
             ?.toIntOrNull() ?: HudState.PROTOCOL_MINOR
 
         return HudState(
@@ -1395,7 +1154,7 @@ class HudServer(
     private fun joystickLabel(key: String): String {
         if (key.isBlank() || key == "NONE") return ""
         val spec = com.eried.eucplanet.data.model.ActionCatalog.byKey(key) ?: return ""
-        return context.getString(spec.labelRes)
+        return phone.text(spec.labelRes)
     }
 
     private fun resolveAccentArgb(): String =

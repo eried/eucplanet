@@ -1,13 +1,13 @@
 package com.eried.eucplanet.service.hud
 
-import android.util.Log
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.WheelRepository
-import com.eried.eucplanet.flic.FlicManager
 import com.eried.eucplanet.hud.protocol.HudAppPush
 import com.eried.eucplanet.hud.protocol.HudCommand
 import com.eried.eucplanet.hud.protocol.VersionCompat
 import com.eried.eucplanet.nav.NavigationEngine
+import com.eried.eucplanet.platform.Log
+import com.eried.eucplanet.ui.dashboard.ActionDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -31,13 +31,14 @@ class HudCommandSink(
     private val wheelRepository: WheelRepository,
     private val navigationEngine: NavigationEngine,
     private val settingsRepository: SettingsRepository,
-    private val flicManager: FlicManager
+    /** The dispatch every surface shares (Flic, volume keys, the watch). */
+    private val actions: ActionDispatcher,
 ) {
     companion object { private const val TAG = "HudCommandSink" }
 
     // Reading the rider's joystick bindings is a suspend call (settings live in
     // DataStore), so HudCommand.Action handling hops onto a main-thread
-    // coroutine. Commands arrive on OkHttp's reader thread.
+    // coroutine. Commands arrive on the socket's reader thread.
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     private val _hudVersionCompat = MutableStateFlow(VersionCompat.EXACT)
@@ -131,8 +132,8 @@ class HudCommandSink(
             is HudCommand.Action -> {
                 // The slot ("UP"/"DOWN"/"LEFT"/"RIGHT") maps to a rider-configured
                 // ActionCatalog key stored on the phone, just like Flic / Volume /
-                // Wear. We read the binding and fire it eyes-free through FlicManager,
-                // which already handles "" / "NONE" as no-ops.
+                // Wear. We read the binding and fire it eyes-free through the shared
+                // dispatch, which already handles "" / "NONE" as no-ops.
                 scope.launch {
                     val settings = settingsRepository.get()
                     val key = when (cmd.slot) {
@@ -146,7 +147,7 @@ class HudCommandSink(
                         }
                     }
                     Log.i(TAG, "HUD command: Action slot=${cmd.slot} -> $key")
-                    flicManager.dispatchActionByName(key)
+                    actions.dispatchActionByName(key)
                 }
             }
         }

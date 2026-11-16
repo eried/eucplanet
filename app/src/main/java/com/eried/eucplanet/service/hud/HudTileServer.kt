@@ -17,13 +17,14 @@ import java.util.concurrent.RejectedExecutionException
  * Plain `java.net` like the Amazfit server, one request per connection. It
  * listens on every interface because the HUD reaches the phone over the
  * hotspot, and it serves nothing but map pictures. Runs only while the HUD
- * link is on.
+ * link is on. What a request and a response look like is [HudTileHttp]'s,
+ * shared with the iPhone's listener.
  */
 class HudTileServer(
     private val port: Int,
     private val tile: (z: Int, x: Int, y: Int) -> ByteArray?,
     private val log: (String) -> Unit = {},
-) {
+) : HudTiles {
     private var socket: ServerSocket? = null
     private var workers = Executors.newFixedThreadPool(WORKERS) { r -> Thread(r, "HudTileWorker").apply { isDaemon = true } }
     @Volatile private var running = false
@@ -31,7 +32,7 @@ class HudTileServer(
     val boundPort: Int get() = socket?.localPort ?: -1
 
     @Synchronized
-    fun start(): Boolean {
+    override fun start(): Boolean {
         if (running) return true
         val ss = try {
             ServerSocket().apply {
@@ -52,7 +53,7 @@ class HudTileServer(
     }
 
     @Synchronized
-    fun stop() {
+    override fun stop() {
         running = false
         runCatching { socket?.close() }
         socket = null
@@ -75,14 +76,10 @@ class HudTileServer(
             c.use {
                 it.soTimeout = TIMEOUT_MS
                 val line = BufferedReader(InputStreamReader(it.getInputStream(), Charsets.US_ASCII)).readLine().orEmpty()
-                val body = parse(line)?.let { (z, x, y) -> runCatching { tile(z, x, y) }.getOrNull() }
+                val body = HudTileHttp.parse(line)?.let { (z, x, y) -> runCatching { tile(z, x, y) }.getOrNull() }
                 val out = it.getOutputStream()
-                if (body == null) {
-                    out.write("HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\nConnection: close\r\n\r\n".toByteArray(Charsets.US_ASCII))
-                } else {
-                    out.write("HTTP/1.1 200 OK\r\nContent-Type: image/png\r\nContent-Length: ${body.size}\r\nConnection: close\r\n\r\n".toByteArray(Charsets.US_ASCII))
-                    out.write(body)
-                }
+                out.write(HudTileHttp.head(body?.size).toByteArray(Charsets.US_ASCII))
+                if (body != null) out.write(body)
                 out.flush()
             }
         } catch (e: IOException) {
@@ -94,17 +91,5 @@ class HudTileServer(
         private const val WORKERS = 2
         private const val BACKLOG = 8
         private const val TIMEOUT_MS = 5_000
-
-        private val PATH = Regex("""GET /tiles/(\d{1,2})/(\d{1,7})/(\d{1,7})\.png(\?\S*)? HTTP/1\.[01]""")
-
-        /** z, x and y from a request line, or null for anything else. */
-        fun parse(requestLine: String): Triple<Int, Int, Int>? {
-            val m = PATH.matchEntire(requestLine.trim()) ?: return null
-            val z = m.groupValues[1].toInt()
-            val x = m.groupValues[2].toInt()
-            val y = m.groupValues[3].toInt()
-            val n = 1 shl z.coerceAtMost(30)
-            return if (z <= 22 && x < n && y < n) Triple(z, x, y) else null
-        }
     }
 }

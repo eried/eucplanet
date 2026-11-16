@@ -1,10 +1,11 @@
 package com.eried.eucplanet.service.hud
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
+/** How often the link looks for a HUD. Names carry no comma: iOS test names cannot. */
 class HudSearchPacingTest {
 
     @Test
@@ -19,7 +20,7 @@ class HudSearchPacingTest {
     }
 
     @Test
-    fun `the sweep runs first, then at most once per interval`() {
+    fun `the sweep runs first and then at most once per interval`() {
         assertTrue(HudSearchPacing.sweepDue(nowMs = 1_000L, lastSweepMs = 0L, intervalMs = 60_000L))
         assertFalse(HudSearchPacing.sweepDue(nowMs = 1_000_000L, lastSweepMs = 950_000L, intervalMs = 60_000L))
         assertTrue(HudSearchPacing.sweepDue(nowMs = 1_010_000L, lastSweepMs = 950_000L, intervalMs = 60_000L))

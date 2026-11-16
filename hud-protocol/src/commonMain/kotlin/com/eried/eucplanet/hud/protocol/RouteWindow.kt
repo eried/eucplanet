@@ -119,7 +119,7 @@ object RouteWindow {
     /** How far point [i] lies from the straight line [a]..[b], in metres. */
     private fun offLineM(route: DoubleArray, i: Int, a: Int, b: Int): Double {
         val lat0 = route[2 * a]
-        val k = cos(Math.toRadians(lat0)) * 111_195.0
+        val k = cos(toRadians(lat0)) * 111_195.0
         val bx = (route[2 * b + 1] - route[2 * a + 1]) * k
         val by = (route[2 * b] - lat0) * 111_195.0
         val px = (route[2 * i + 1] - route[2 * a + 1]) * k
@@ -135,8 +135,8 @@ object RouteWindow {
 
     /** Flat-earth distance in metres, plenty for points a few km apart. */
     private fun distM(lat1: Double, lng1: Double, lat2: Double, lng2: Double): Double {
-        val x = Math.toRadians(lng2 - lng1) * cos(Math.toRadians((lat1 + lat2) / 2.0))
-        val y = Math.toRadians(lat2 - lat1)
+        val x = toRadians(lng2 - lng1) * cos(toRadians((lat1 + lat2) / 2.0))
+        val y = toRadians(lat2 - lat1)
         return hypot(x, y) * 6_371_000.0
     }
 
@@ -201,3 +201,6 @@ object RouteWindow {
         return if (out.size >= 4) out.toDoubleArray() else DoubleArray(0)
     }
 }
+
+/** Degrees to radians, as `Math.toRadians` (the JDK's own constant). */
+private fun toRadians(deg: Double): Double = deg * 0.017453292519943295

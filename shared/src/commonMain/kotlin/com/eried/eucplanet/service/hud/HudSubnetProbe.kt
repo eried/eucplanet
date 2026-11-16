@@ -1,20 +1,14 @@
 package com.eried.eucplanet.service.hud
 
-import android.content.Context
-import android.net.ConnectivityManager
-import android.net.LinkAddress
-import android.util.Log
 import com.eried.eucplanet.hud.protocol.HudDiscovery
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
-import java.net.Inet4Address
-import java.net.InetSocketAddress
-import java.net.Socket
 
 /**
  * Slowest discovery channel: probes every host on each local /24 subnet on
@@ -37,7 +31,7 @@ import java.net.Socket
  * it from congesting the radio, so it needs no start delay.
  */
 class HudSubnetProbe(
-    private val appContext: Context,
+    private val network: HudNetwork,
 ) {
 
     suspend fun probe(port: Int = HudDiscovery.DEFAULT_PORT): String? = withContext(Dispatchers.IO) {
@@ -47,7 +41,7 @@ class HudSubnetProbe(
         // old single-subnet probe scanned a carrier subnet and never saw the
         // HUD sitting on the 192.168.x AP interface. Enumerating interfaces
         // catches the AP (and any real WiFi) subnet too.
-        val cidrs = candidateIpv4Cidrs()
+        val cidrs = network.candidateIpv4Cidrs()
         if (cidrs.isEmpty()) {
             // No WiFi and no hotspot: nothing the HUD could be on. Worth saying
             // out loud, because every channel goes quiet and the capture would
@@ -70,61 +64,11 @@ class HudSubnetProbe(
         coroutineScope {
             val results = candidates.map { ip ->
                 async {
-                    gate.withPermit { if (tryTcp(ip, port, timeoutMs = 250)) ip else null }
+                    gate.withPermit { if (network.tryTcp(ip, port, timeoutMs = 250)) ip else null }
                 }
             }.awaitAll()
             results.firstOrNull { it != null }
         }
-    }
-
-    /**
-     * Every local IPv4 /prefix the phone has, as `ip/prefix` strings.
-     *
-     * Two sources, deduped:
-     *  1. The active network's LinkProperties (fast path for a phone that's a
-     *     normal WiFi client).
-     *  2. A full NetworkInterface enumeration, filtered to up, non-loopback,
-     *     non-cellular interfaces with a site-local (private) IPv4. This is the
-     *     ONLY way to see the softAP interface when the phone is the hotspot,
-     *     because that interface is never the `activeNetwork`.
-     *
-     * Cellular / virtual interfaces are skipped by name so we don't waste a
-     * 254-host sweep on a carrier subnet the HUD can't be on.
-     */
-    internal fun candidateIpv4Cidrs(): List<String> {
-        val out = LinkedHashSet<String>()
-
-        runCatching {
-            val cm = appContext.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
-            val active = cm?.activeNetwork
-            val props = active?.let { cm.getLinkProperties(it) }
-            props?.linkAddresses
-                ?.firstOrNull {
-                    val a = it.address
-                    a is Inet4Address && !a.isLoopbackAddress && a.isSiteLocalAddress
-                }
-                ?.let { out.add("${it.address.hostAddress}/${it.prefixLength}") }
-        }
-
-        runCatching {
-            java.net.NetworkInterface.getNetworkInterfaces()?.toList()?.forEach { nif ->
-                if (!nif.isUp || nif.isLoopback) return@forEach
-                val name = nif.name.lowercase()
-                // Mobile-data and virtual interfaces never host the HUD.
-                if (name.startsWith("rmnet") || name.startsWith("ccmni") ||
-                    name.startsWith("pdp") || name.startsWith("clat") ||
-                    name.startsWith("tun") || name.startsWith("dummy")
-                ) return@forEach
-                nif.interfaceAddresses.forEach { ia ->
-                    val a = ia.address
-                    if (a is Inet4Address && !a.isLoopbackAddress && a.isSiteLocalAddress) {
-                        out.add("${a.hostAddress}/${ia.networkPrefixLength}")
-                    }
-                }
-            }
-        }.onFailure { hudLinkNote(TAG, "interface enumeration failed: ${it.message}") }
-
-        return out.toList()
     }
 
     /**
@@ -134,7 +78,7 @@ class HudSubnetProbe(
      * them is both slow and rude to anything else on the LAN. Smaller
      * subnets are swept as the same /24. /31 and /32 return nothing.
      */
-    private fun expandSubnetIpv4(cidr: String): List<String>? {
+    internal fun expandSubnetIpv4(cidr: String): List<String>? {
         val (ipStr, prefixStr) = cidr.split("/").let { it.getOrNull(0) to it.getOrNull(1) }
         if (ipStr == null || prefixStr == null) return null
         val prefix = prefixStr.toIntOrNull() ?: return null
@@ -148,20 +92,6 @@ class HudSubnetProbe(
         return (1..254)
             .filter { it != d }
             .map { "$a.$b.$c.$it" }
-    }
-
-    /**
-     * Plain blocking connect with the socket's own timeout. Not kotlinx's
-     * `withTimeoutOrNull`: Socket.connect does not honour coroutine
-     * cancellation and an interrupted one leaks a file descriptor.
-     */
-    private fun tryTcp(host: String, port: Int, timeoutMs: Int): Boolean {
-        return runCatching {
-            Socket().use { sock ->
-                sock.connect(InetSocketAddress(host, port), timeoutMs)
-                true
-            }
-        }.getOrElse { false }
     }
 
     companion object {

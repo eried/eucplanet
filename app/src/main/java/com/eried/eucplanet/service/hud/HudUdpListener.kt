@@ -46,12 +46,11 @@ import java.net.InetSocketAddress
  */
 class HudUdpListener(
     private val appContext: Context,
-) {
+) : HudBeacons {
     private val port: Int = HudDiscovery.BEACON_UDP_PORT
-    data class Sighting(val ip: String, val port: Int, val receivedAtMs: Long)
 
-    private val _latest = MutableStateFlow<Sighting?>(null)
-    val latest: StateFlow<Sighting?> = _latest.asStateFlow()
+    private val _latest = MutableStateFlow<HudBeaconSighting?>(null)
+    override val latest: StateFlow<HudBeaconSighting?> = _latest.asStateFlow()
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var job: Job? = null
@@ -60,15 +59,15 @@ class HudUdpListener(
 
     /** Diagnostic counters for the discovery trace, so a capture shows
      *  whether broadcasts are arriving at all. */
-    @Volatile var totalReceived: Long = 0L; private set
-    @Volatile var lastReceiveAtMs: Long = 0L; private set
-    @Volatile var lastBindError: String = ""; private set
+    @Volatile override var totalReceived: Long = 0L; private set
+    @Volatile override var lastReceiveAtMs: Long = 0L; private set
+    @Volatile override var lastBindError: String = ""; private set
 
     /** Rate limit for the beacon trace; see the receive loop. */
     private var lastNotedSourceIp: String = ""
     private var lastNotedAtMs: Long = 0L
 
-    fun start() {
+    override fun start() {
         if (job != null) return
         acquireMulticastLock()
         watchNetworkChanges()
@@ -87,7 +86,7 @@ class HudUdpListener(
         }
     }
 
-    fun stop() {
+    override fun stop() {
         job?.cancel()
         job = null
         releaseMulticastLock()
@@ -190,10 +189,11 @@ class HudUdpListener(
                 socket.receive(packet) // blocks
                 val text = String(packet.data, 0, packet.length, Charsets.US_ASCII).trim()
                 val srcIp = packet.address.hostAddress.orEmpty()
-                parse(text, srcIp)?.let {
+                val now = System.currentTimeMillis()
+                // What a beacon says is HudBeacon's, shared with the iPhone.
+                HudBeacon.parse(text, srcIp, now)?.let {
                     _latest.value = it
                     totalReceived++
-                    val now = System.currentTimeMillis()
                     lastReceiveAtMs = now
                     // First beacon from a source, then one a minute. Enough to
                     // prove the channel is alive and to show it going quiet,
@@ -206,28 +206,6 @@ class HudUdpListener(
                 }
             }
         }
-    }
-
-    /**
-     * Beacon text: `EUCPLANET-HUD v1 ip=10.80.67.125 port=28080 [...]`.
-     * The `ip=` field is the canonical "dial this address" hint -- we
-     * still keep the packet's source address as a fallback for broken
-     * HUDs that didn't manage to substitute their own IP into the
-     * payload.
-     */
-    private fun parse(text: String, sourceIp: String): Sighting? {
-        if (!text.startsWith(HudDiscovery.BEACON_PREFIX)) return null
-        val rest = text.removePrefix(HudDiscovery.BEACON_PREFIX).trim()
-        val kv = rest.split(' ').mapNotNull { piece ->
-            val eq = piece.indexOf('=')
-            if (eq <= 0) null else piece.substring(0, eq) to piece.substring(eq + 1)
-        }.toMap()
-        val ip = kv["ip"]?.takeIf { it.isNotBlank() && it != "0.0.0.0" }
-            ?: sourceIp.takeIf { it.isNotBlank() }
-            ?: return null
-        val port = kv["port"]?.toIntOrNull()?.takeIf { it in 1..65535 }
-            ?: HudDiscovery.DEFAULT_PORT
-        return Sighting(ip = ip, port = port, receivedAtMs = System.currentTimeMillis())
     }
 
     companion object {

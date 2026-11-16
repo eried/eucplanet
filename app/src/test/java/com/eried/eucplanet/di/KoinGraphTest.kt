@@ -38,7 +38,8 @@ class KoinGraphTest {
      * model's phone ports, the
      * offline router's timeout and engine, the crews pairing HTTP client, and
      * the flows the shared external GPS repository and data sources view
-     * model read (the app's foreground, the phone's fix), are built in their
+     * model read (the app's foreground, the phone's fix), and the HTTP client
+     * the HUD app sender shares with the HUD link's socket, are built in their
      * definitions.
      */
     @OptIn(KoinExperimentalAPI::class)
@@ -62,6 +63,7 @@ class KoinGraphTest {
                 com.eried.eucplanet.nav.offline.OfflineRouter.Engine::class,
                 com.eried.eucplanet.ui.settings.offline.OfflineDataPorts::class,
                 kotlinx.coroutines.flow.StateFlow::class,
+                okhttp3.OkHttpClient::class,
             ),
         )
     }

@@ -1,10 +1,11 @@
 package com.eried.eucplanet.service.hud
 
 import com.eried.eucplanet.diagnostics.DiagnosticsLogger
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Before
-import org.junit.Test
+import com.eried.eucplanet.platform.System
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 /**
  * The HUD discovery trace has to survive NOT being watched.
@@ -26,7 +27,10 @@ import org.junit.Test
  */
 class HudLinkTraceTest {
 
-    @Before fun reset() {
+    @BeforeTest fun reset() {
+        // Opening service mode once empties the ring of whatever another
+        // test's link left in it (the subnet sweep notes its run too).
+        DiagnosticsLogger.enable()
         DiagnosticsLogger.disable()
         DiagnosticsLogger.clear()
     }
@@ -38,7 +42,7 @@ class HudLinkTraceTest {
     @Test fun a_note_taken_before_service_mode_still_reaches_the_capture() {
         hudLinkNote("test", "beacon RX before anyone was watching")
 
-        assertTrue("nothing is recorded while service mode is off", notes().isEmpty())
+        assertTrue(notes().isEmpty(), "nothing is recorded while service mode is off")
 
         DiagnosticsLogger.enable()
 
@@ -61,8 +65,8 @@ class HudLinkTraceTest {
         assertEquals(DiagnosticsLogger.Kind.NOTE, replayed.kind)
         assertEquals("hud_link: older", replayed.text)
         assertTrue(
-            "replay must carry the original timestamp, not the replay time",
-            replayed.timestampMs <= recordedAtMs
+            replayed.timestampMs <= recordedAtMs,
+            "replay must carry the original timestamp, not the replay time"
         )
         assertEquals(listOf("hud_link: older", "hud_link: newer"), notes())
     }

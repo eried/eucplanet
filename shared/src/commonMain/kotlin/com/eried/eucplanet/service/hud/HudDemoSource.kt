@@ -1,8 +1,10 @@
 package com.eried.eucplanet.service.hud
 
-import android.util.Log
 import com.eried.eucplanet.hud.protocol.HudState
 import com.eried.eucplanet.hud.protocol.RadarTargetWire
+import com.eried.eucplanet.platform.Log
+import com.eried.eucplanet.platform.System
+import kotlin.concurrent.Volatile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

@@ -289,9 +289,9 @@ dependencies {
     implementation(project(":shared"))
     implementation(libs.kotlinx.serialization.json)
 
-    // OkHttp powers the outbound WebSocket [HudServer] uses to dial the HUD
-    // and push telemetry frames. Built-in WebSocket support, no extra module
-    // needed beyond the core artifact.
+    // OkHttp powers the outbound WebSocket the HUD link dials the HUD with
+    // (AndroidHudSockets, behind the shared HudServer). Built-in WebSocket
+    // support, no extra module needed beyond the core artifact.
     implementation(libs.okhttp)
 
     // JmDNS: when the rider leaves the HUD IP blank, the phone falls back

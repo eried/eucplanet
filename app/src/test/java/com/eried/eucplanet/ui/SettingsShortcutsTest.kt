@@ -164,7 +164,7 @@ class SettingsShortcutsTest {
         // Every way of finding it by itself reads Auto, the typed address Fixed.
         assertTrue("how the HUD was found is not told in the Discovery mode words",
             card.contains("Res.string.hud_discovery_auto") && card.contains("Res.string.hud_discovery_fixed"))
-        val server = File("src/main/java/com/eried/eucplanet/service/hud/HudServer.kt").readText()
+        val server = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/service/hud/HudServer.kt").readText()
         assertTrue("the address shown is not the one the link uses",
             server.contains("set(value) { _peer.value = value }"))
     }

@@ -1,7 +1,10 @@
 package com.eried.eucplanet.service.hud
 
-import android.util.Log
 import com.eried.eucplanet.diagnostics.DiagnosticsLogger
+import com.eried.eucplanet.platform.Log
+import com.eried.eucplanet.platform.System
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 
 /**
  * One stream for the whole discovery story.
@@ -17,7 +20,7 @@ import com.eried.eucplanet.diagnostics.DiagnosticsLogger
  * and [HudLinkTrace] keeps the recent past of that timeline whether or not
  * anyone is watching. See [HudLinkTrace] for why that matters.
  */
-internal fun hudLinkNote(tag: String, msg: String) {
+fun hudLinkNote(tag: String, msg: String) {
     Log.i(tag, "[disc] $msg")
     HudLinkTrace.record(msg)
     DiagnosticsLogger.note("hud_link: $msg")
@@ -51,7 +54,7 @@ internal object HudLinkTrace {
 
     private class Line(val seq: Long, val timestampMs: Long, val text: String)
 
-    private val lock = Any()
+    private val lock = SynchronizedObject()
     private val ring = ArrayDeque<Line>(MAX_ENTRIES)
     private var seq = 0L
     /** Highest sequence already handed to [DiagnosticsLogger], live or replayed. */

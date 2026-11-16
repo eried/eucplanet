@@ -199,7 +199,7 @@ private fun HudAppCard(viewModel: SettingsViewModel) {
     val hudVersion by viewModel.hudVersion.collectAsState()
     val hudCode by hudSink.hudVersionCode.collectAsState()
     val takesApp by hudSink.hudTakesApp.collectAsState()
-    val sender = hudServer.appSender
+    val sender: com.eried.eucplanet.service.hud.HudAppSender = org.koin.compose.koinInject()
     val state by sender.state.collectAsState()
     // The section slides this card in and out with the link. While it
     // slides out the HUD is already gone, so the last version it reported

@@ -1,7 +1,9 @@
 // The wire types the phone, the HUD app and the watch share. Multiplatform so
 // the shared module (and with it the iPhone) can read the overlay layout, the
-// HUD state and Web Mercator; the rest (watch map protocol, link watchdogs,
-// route window) stays Android-only in androidMain, as :hud and :wear use it.
+// HUD state and Web Mercator; the rest (watch map protocol, link watchdog,
+// map layers, debug properties) stays Android-only in androidMain,
+// as :hud and :wear use it. The phone link's pure rules (stale link, Wi-Fi
+// interference, held heading, route window, app push) are common, for the iPhone.
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
