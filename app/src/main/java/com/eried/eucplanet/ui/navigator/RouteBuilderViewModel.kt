@@ -531,6 +531,11 @@ class RouteBuilderViewModel(
             _showChargers.value = s.navShowChargers
             _placeCats.value = parsePlaceCats(s.navPlaceCategories)
             _travelMode.value = TravelMode.fromName(s.navDefaultTravelMode)
+            // The offline router's first run while the rider places stops, so
+            // their first offline route does not pay for it. A route stops it.
+            val near = tripRepository.lastKnownLocation.value?.let { GeoPoint(it.latitude, it.longitude) }
+            val mode = _travelMode.value
+            viewModelScope.launch { routingService.warmUpOffline(near, mode) }
             // Blank resolves to OSM, the settings default and what
             // MapLayers.byId gives the watch and car maps for the same value.
             _mapType.value = s.navMapType.ifBlank { com.eried.eucplanet.hud.protocol.MapLayers.OSM }

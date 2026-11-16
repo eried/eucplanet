@@ -4,6 +4,10 @@ import com.eried.eucplanet.data.model.GeoPoint
 import com.eried.eucplanet.data.model.TravelMode
 import com.eried.eucplanet.data.model.Waypoint
 import com.eried.eucplanet.nav.RouteAvoidances
+import btools.router.ProfileCache
+import btools.router.RoutingContext
+import java.io.File
+import java.nio.file.Files
 import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -14,6 +18,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
@@ -78,6 +83,8 @@ class OfflineRouterTest {
     @Test fun waitingForTheEngine_countsAgainstTheTimeout() = runBlocking {
         // A reroute queued behind a slow route must not wait past its budget.
         val router = OfflineRouter(timeoutMs = 300) { _, _, _ -> Thread.sleep(250); okResult() }
+        // Warm first: a cold engine's first run gets a longer budget.
+        assertNotNull(router.route("w", wps, TravelMode.CYCLING, RouteAvoidances.NONE, null))
         val t0 = System.currentTimeMillis()
         val both = listOf(
             async { router.route("a", wps, TravelMode.CYCLING, RouteAvoidances.NONE, null) },
@@ -125,6 +132,122 @@ class OfflineRouterTest {
         job.cancelAndJoin()
         assertEquals(1, stops.get())
         assert(System.currentTimeMillis() - t0 < 2_000)
+    }
+
+    // --- The warm-up before the first route ---
+
+    /** A tile folder holding the square [name] (any bytes will do for the router's fakes). */
+    private fun storeWith(vararg names: String): OfflineTileStore {
+        val dir = Files.createTempDirectory("tiles").toFile().apply { deleteOnExit() }
+        for (n in names) File(dir, "$n.rd5").writeBytes(ByteArray(8))
+        return OfflineTileStore(dir)
+    }
+
+    @Test fun theWarmUp_runsAShortRouteInTheSquare_withTheRidersProfileAndAvoids() = runBlocking {
+        var seen: OfflineRouter.Request? = null
+        var seenMs = 0L
+        val router = OfflineRouter(timeoutMs = 5_000) { req, ms, _ -> seen = req; seenMs = ms; okResult() }
+        assertTrue(router.warmUp(storeWith("E10_N55"), GeoPoint(59.91, 10.75), TravelMode.CYCLING, RouteAvoidances(unpaved = true)))
+        val r = seen!!
+        assertEquals("wheel", r.profile)
+        assertEquals(mapOf("avoid_unpaved" to "1"), r.params)
+        assertEquals(GeoPoint(59.91, 10.75), r.points.first())
+        assertEquals(2, r.points.size)
+        assertEquals(OfflineRouter.WARM_UP_MS, seenMs)
+    }
+
+    @Test fun noSquare_noWarmUp() = runBlocking {
+        var called = false
+        val router = OfflineRouter(timeoutMs = 5_000) { _, _, _ -> called = true; okResult() }
+        assertEquals(false, router.warmUp(storeWith(), null, TravelMode.CYCLING, RouteAvoidances.NONE))
+        assertEquals(false, called)
+    }
+
+    @Test fun afterARouteWithTheSameProfile_theWarmUpHasNothingToDo() = runBlocking {
+        val calls = AtomicInteger()
+        val router = OfflineRouter(timeoutMs = 5_000) { _, _, _ -> calls.incrementAndGet(); okResult() }
+        assertNotNull(router.route("r", wps, TravelMode.CYCLING, RouteAvoidances.NONE, null))
+        val store = storeWith("E10_N55")
+        assertEquals(false, router.warmUp(store, null, TravelMode.CYCLING, RouteAvoidances.NONE))
+        assertEquals(1, calls.get())
+        // Another profile is not ready: BRouter keeps one.
+        assertTrue(router.warmUp(store, null, TravelMode.WALKING, RouteAvoidances.NONE))
+        assertEquals(2, calls.get())
+    }
+
+    @Test fun aRoute_stopsTheWarmUp_andWaitingForItIsNotCounted() = runBlocking {
+        // The warm-up is in BRouter's profile read, which cannot be stopped;
+        // the route waits for it outside its own budget and then routes.
+        val warmStops = AtomicInteger()
+        val router = OfflineRouter(timeoutMs = 300) { _, ms, stop ->
+            if (ms == OfflineRouter.WARM_UP_MS) {
+                stop.onStop { warmStops.incrementAndGet() }
+                Thread.sleep(500)
+                null
+            } else {
+                okResult()
+            }
+        }
+        val warm = async { router.warmUp(storeWith("E10_N55"), null, TravelMode.CYCLING, RouteAvoidances.NONE) }
+        delay(100)
+        assertNotNull(router.route("r", wps, TravelMode.CYCLING, RouteAvoidances.NONE, null))
+        assertEquals(1, warmStops.get())
+        assertEquals(false, warm.await())
+    }
+
+    @Test fun noWarmUp_whileARouteIsRunning() = runBlocking {
+        val warmUps = AtomicInteger()
+        val router = OfflineRouter(timeoutMs = 5_000) { _, ms, _ ->
+            if (ms == OfflineRouter.WARM_UP_MS) warmUps.incrementAndGet() else Thread.sleep(300)
+            okResult()
+        }
+        val route = async { router.route("r", wps, TravelMode.WALKING, RouteAvoidances.NONE, null) }
+        delay(100)
+        assertEquals(false, router.warmUp(storeWith("E10_N55"), null, TravelMode.CYCLING, RouteAvoidances.NONE))
+        assertNotNull(route.await())
+        assertEquals(0, warmUps.get())
+    }
+
+    @Test fun theWarmUpPoints_stayInADownloadedSquare() {
+        // At the rider when a square has them.
+        val near = GeoPoint(59.91, 10.75)
+        val oslo = mapOf("E10_N55" to 65_000_000L)
+        assertEquals(near, OfflineRouter.warmUpPoints(oslo, near)!!.first())
+        // Elsewhere: the middle of the biggest square, not a small one of sea.
+        assertEquals(GeoPoint(57.5, 12.5), OfflineRouter.warmUpPoints(oslo, GeoPoint(48.0, 2.0))!!.first())
+        assertEquals(
+            GeoPoint(57.5, 12.5),
+            OfflineRouter.warmUpPoints(mapOf("E0_N55" to 40_000L, "junk" to 1L) + oslo, null)!!.first(),
+        )
+        // At the top edge the second stop goes south, inside the square.
+        val top = OfflineRouter.warmUpPoints(oslo, GeoPoint(59.999, 10.5))!!
+        assertTrue(top.all { RoutingTiles.nameFor(it.lat, it.lng) == "E10_N55" })
+        assertNull(OfflineRouter.warmUpPoints(emptyMap(), near))
+    }
+
+    @Test fun theFirstRunWithAProfile_getsTwiceTheTime() = runBlocking {
+        // Nothing warmed the engine (a route right at start): its first run
+        // rates every road type and gets twice the budget; the next does not.
+        val router = OfflineRouter(timeoutMs = 300) { _, _, _ -> Thread.sleep(450); okResult() }
+        assertNotNull(router.route("cold", wps, TravelMode.CYCLING, RouteAvoidances.NONE, null))
+        assertNull(router.route("warm", wps, TravelMode.CYCLING, RouteAvoidances.NONE, null))
+    }
+
+    @Test fun aRunStoppedBeforeItsSearch_handsTheProfileBack() {
+        // BRouter's cache kept the profile marked in use after such a run, so
+        // the next route read it again: a first route that timed out in its
+        // profile read made the second one read it too.
+        val profiles = File("src/main/assets/brouter").absoluteFile
+        val req = OfflineRouter.Request("wheel", mapOf("avoid_unsafe" to "1"), null, wps.map { GeoPoint(it.lat, it.lng) })
+        val stop = OfflineRouter.EngineStop().apply { stop() }
+        assertNull(OfflineRouter.runBrouter(profiles, profiles, req, 1_000, stop))
+        val rc = RoutingContext().apply {
+            localFunction = File(profiles, "wheel.brf").absolutePath
+            keyValues = HashMap(req.params + ("turnInstructionMode" to "9"))
+            memoryclass = 64
+        }
+        assertTrue("the profile was read again", ProfileCache.parseProfile(rc))
+        ProfileCache.releaseProfile(rc)
     }
 
     @Test fun aStopBeforeTheEngineListens_stillReachesIt() {
