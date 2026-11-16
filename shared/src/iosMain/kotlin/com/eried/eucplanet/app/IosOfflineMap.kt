@@ -191,12 +191,12 @@ internal class SkiaTileCanvas(size: Int) : TileCanvas {
     private fun hasFont(style: TileText) = (if (style.bold) bold else regular) != null
 
     override fun measureText(text: String, style: TileText): Float =
-        if (hasFont(style)) font(style).measureTextWidth(text) else 0f
+        if (hasFont(style)) width(font(style), text) else 0f
 
     override fun drawText(text: String, x: Float, y: Float, style: TileText) {
         if (!hasFont(style)) return
         val f = font(style)
-        val left = if (style.centered) x - f.measureTextWidth(text) / 2 else x
+        val left = if (style.centered) x - width(f, text) / 2 else x
         c.drawString(text, left, y, f, haloPaint(style))
         c.drawString(text, left, y, f, textPaint(style))
     }
@@ -248,8 +248,17 @@ internal class SkiaTileCanvas(size: Int) : TileCanvas {
         fun systemFace(style: FontStyle): Typeface? =
             listOf("Helvetica Neue", "Helvetica", "Arial", null).firstNotNullOfOrNull { family ->
                 FontMgr.default.matchFamilyStyle(family, style)
-                    ?.takeIf { Font(it, 12f).measureTextWidth("Oslo") > 0f }
+                    ?.takeIf { width(Font(it, 12f), "Oslo") > 0f }
             }
+
+        /**
+         * The text's width as the sum of its glyphs' advances, what
+         * drawTextOnPath lays out by. Font.measureTextWidth is not used: on
+         * iOS it ended the app inside Skia now and then (an abort in
+         * SkTypeface_Mac::onCharsToGlyphs), every few dozen tiles when a HUD
+         * asked for them, and the same tile did not always come out the same.
+         */
+        fun width(f: Font, text: String): Float = f.getWidths(f.getStringGlyphs(text)).sum()
     }
 }
 
