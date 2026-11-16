@@ -142,11 +142,19 @@ class SettingsShortcutsTest {
     }
 
     @Test fun `with a HUD linked its app card slides in and the find-the-HUD setup folds away`() {
-        val screen = File("src/main/java/com/eried/eucplanet/ui/settings/HudSettingsSections.kt").readText()
-        val section = screen.substringAfter("private fun HudIntegrationSection(").substringBefore("Res.string.hud_server_enabled")
+        // The section is shared; the app card is the Android phone's, through SettingsHost.
+        val screen = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/ui/settings/HudSettingsSection.kt").readText()
+        val section = screen.substringAfter("internal fun HudIntegrationSection(", "").substringBefore("Res.string.hud_server_enabled")
+        assertTrue("the section no longer asks the phone for its HUD app card",
+            section.contains("host.HudAppSettings(viewModel, linked = pairedHudVersion != null)"))
+        val android = File("src/main/java/com/eried/eucplanet/ui/settings/HudSettingsSections.kt").readText()
+        val card = android.substringAfter("internal fun HudAppSection(").substringBefore("private fun HudAppCard(")
         assertTrue("the HUD app card pops in instead of sliding",
-            Regex("""AnimatedVisibility\(visible = pairedHudVersion != null && hudTakesApp\) \{\s*HudAppCard\(viewModel\)""")
-                .containsMatchIn(section))
+            Regex("""visible = linked && hudTakesApp,\s*enter = fadeIn\(\) \+ expandVertically\(\),\s*exit = fadeOut\(\) \+ shrinkVertically\(\),\s*\) \{\s*HudAppCard\(viewModel\)""")
+                .containsMatchIn(card))
+        assertTrue("the Android host does not draw the HUD app card",
+            File("src/main/java/com/eried/eucplanet/ui/settings/AndroidSettingsHost.kt").readText()
+                .contains("HudAppSection(viewModel = viewModel, linked = linked)"))
         val setup = section.substringAfter("AnimatedVisibility(visible = pairedHudVersion == null)", "")
         assertTrue("discovery mode and the address stay on screen while a HUD is linked",
             setup.contains("Res.string.hud_discovery_mode") && setup.contains("Res.string.hud_ip_label"))

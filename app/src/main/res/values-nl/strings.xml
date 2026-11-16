@@ -489,6 +489,7 @@
     <string name="hud_server_port">Poort</string>
     <string name="hud_hotspot_unknown_hint">Zorg dat de HUD en de telefoon op hetzelfde wifi-netwerk zitten. Gebruik je de telefoon-hotspot, zet die dan eerst aan.</string>
     <string name="hud_hotspot_on_hint">De hotspot van de telefoon staat aan. Verbind de HUD met de wifi van deze telefoon om de link te activeren.</string>
+    <string name="hud_setup_hint_iphone">Verbind de HUD en de iPhone met hetzelfde wifi-netwerk, of verbind de HUD met de persoonlijke hotspot van deze iPhone. Als iOS het vraagt, sta EUC Planet dan toe apparaten in het lokale netwerk te zoeken.</string>
     <string name="hud_overlay_subsection">Eigen overlay</string>
     <string name="hud_overlay_subsection_desc">Importeer een Overlay Studio-preset op de schermen Eigen overlay van de HUD, zonder achtergrond. De preset wordt hier gekopieerd, dus latere wijzigingen in de studio veranderen de HUD pas als je opnieuw importeert.</string>
     <string name="hud_overlay_select_preset">Preset importeren</string>
@@ -795,7 +796,7 @@
     <string name="welcome_tut_outro_buttons">Veel knoppen hebben extra acties, probeer er lang op te drukken</string>
     <string name="welcome_tut_outro_alarms">Ontdek de krachtige alarmeditor in Instellingen → %1$s</string>
     <string name="welcome_tut_outro_integrations">Verken de integraties: helm-HUD\'s, WearOS-horloges, Flic-knoppen, Garmin Connect IQ en de achteruitkijkradar</string>
-    <string name="welcome_tut_outro_integrations_iphone">Verken de integraties: Flic-knoppen en de achteruitkijkradar. Helm-HUD\'s en horloges zijn nog niet op iPhone</string>
+    <string name="welcome_tut_outro_integrations_iphone">Verken de integraties: helm-HUD\'s, Flic-knoppen en de achteruitkijkradar. Horloges zijn nog niet op iPhone</string>
     <string name="welcome_tut_share">Maak back-ups van je ritten via Instellingen → %1$s. Bekijk ze in %2$s, of analyseer de back-ups op eucviewer.ried.no.\n\nIn hetzelfde gedeelte kun je deelnemen aan de openbare klassementen op eucstats.ried.no</string>
     <string name="welcome_tut_outro_end">Houd je ogen op de weg en niet op deze app tijdens het rijden!</string>
     <string name="welcome_tut_speed">Je actuele snelheid. Wijzig de eenheden in Instellingen → %1$s</string>

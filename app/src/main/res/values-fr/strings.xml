@@ -489,6 +489,7 @@
     <string name="hud_server_port">Port</string>
     <string name="hud_hotspot_unknown_hint">Vérifiez que le HUD et le téléphone sont sur le même réseau Wi-Fi. Si vous utilisez le partage de connexion du téléphone, activez-le d\'abord.</string>
     <string name="hud_hotspot_on_hint">Le partage de connexion est actif. Connectez le HUD au Wi-Fi de ce téléphone pour activer la liaison.</string>
+    <string name="hud_setup_hint_iphone">Connectez le HUD et l\'iPhone au même Wi-Fi, ou connectez le HUD au partage de connexion de cet iPhone. Quand iOS le demande, autorisez EUC Planet à rechercher des appareils sur le réseau local.</string>
     <string name="hud_overlay_subsection">Overlay personnalisé</string>
     <string name="hud_overlay_subsection_desc">Importez un préréglage Overlay Studio sur les écrans Overlay perso du HUD, sans arrière-plan. Le préréglage est copié ici : vos modifications ultérieures dans le studio ne changeront le HUD qu\'après un nouvel import.</string>
     <string name="hud_overlay_select_preset">Importer un préréglage</string>
@@ -795,7 +796,7 @@
     <string name="welcome_tut_outro_buttons">Beaucoup de boutons ont des actions supplémentaires : essayez un appui long</string>
     <string name="welcome_tut_outro_alarms">Découvrez le puissant éditeur d\'alarmes personnalisées dans Paramètres → %1$s</string>
     <string name="welcome_tut_outro_integrations">Découvrez les intégrations : HUD de casque, montres Wear OS, boutons Flic, Garmin Connect IQ et radar arrière</string>
-    <string name="welcome_tut_outro_integrations_iphone">Découvrez les intégrations : boutons Flic et radar arrière. Les HUD de casque et les montres ne sont pas encore sur iPhone</string>
+    <string name="welcome_tut_outro_integrations_iphone">Découvrez les intégrations : HUD de casque, boutons Flic et radar arrière. Les montres ne sont pas encore sur iPhone</string>
     <string name="welcome_tut_share">Sauvegardez vos trajets dans Paramètres → %1$s. Consultez-les dans %2$s ou analysez les sauvegardes sur eucviewer.ried.no.\n\nDans la même section, vous pouvez rejoindre les classements publics sur eucstats.ried.no</string>
     <string name="welcome_tut_outro_end">Gardez les yeux sur la route, pas sur cette application, quand vous roulez !</string>
     <string name="welcome_tut_speed">Votre vitesse en direct. Changez les unités dans Paramètres → %1$s</string>

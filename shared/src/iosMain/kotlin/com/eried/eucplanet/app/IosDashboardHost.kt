@@ -36,8 +36,8 @@ internal class IosDashboardHost : DashboardHost {
     override val isDevBuild: Boolean = false
     // Spoken commands are not on iOS yet (IosDashboardPorts' NoVoiceCommands).
     override val supportsVoiceCommands: Boolean = false
-    // Neither has an iPhone side (SettingsHost.hiddenSections, docs/IOS_PARITY.md).
-    override val supportsWatchesAndHud: Boolean = false
+    // No watch has an iPhone side (SettingsHost.hiddenSections, docs/IOS_PARITY.md).
+    override val supportsWatches: Boolean = false
 
     // The LICENSE file is not in the iOS bundle yet.
     override fun licenseText(): String = ""

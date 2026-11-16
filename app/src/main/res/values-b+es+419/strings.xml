@@ -489,6 +489,7 @@
     <string name="hud_server_port">Puerto</string>
     <string name="hud_hotspot_unknown_hint">Asegúrate de que el HUD y el teléfono estén en la misma red Wi-Fi. Si usas el hotspot del teléfono, actívalo primero.</string>
     <string name="hud_hotspot_on_hint">El hotspot del teléfono está activo. Conecta el HUD al Wi-Fi de este teléfono para habilitar el enlace.</string>
+    <string name="hud_setup_hint_iphone">Conecta el HUD y el iPhone al mismo Wi-Fi, o une el HUD a Compartir Internet de este iPhone. Cuando iOS pregunte, permite que EUC Planet busque dispositivos en la red local.</string>
     <string name="hud_overlay_subsection">Overlay personalizado</string>
     <string name="hud_overlay_subsection_desc">Importa un preset de Overlay Studio en las pantallas Overlay personalizado del HUD, sin fondos. El preset se copia aquí, así que los cambios posteriores en el studio no afectarán al HUD hasta que importes de nuevo.</string>
     <string name="hud_overlay_select_preset">Importar preset</string>
@@ -795,7 +796,7 @@
     <string name="welcome_tut_outro_buttons">Muchos botones tienen acciones extra; prueba mantenerlos presionados</string>
     <string name="welcome_tut_outro_alarms">Explora el potente editor de alarmas personalizadas en Configuración → %1$s</string>
     <string name="welcome_tut_outro_integrations">Explora las integraciones: HUD de casco, relojes Wear OS, botones Flic, Garmin Connect IQ y el radar trasero</string>
-    <string name="welcome_tut_outro_integrations_iphone">Explora las integraciones: botones Flic y el radar trasero. Los HUDs de casco y los relojes aún no están en iPhone</string>
+    <string name="welcome_tut_outro_integrations_iphone">Explora las integraciones: HUD de casco, botones Flic y el radar trasero. Los relojes aún no están en iPhone</string>
     <string name="welcome_tut_share">Respalda tus viajes en Configuración → %1$s. Revísalos en %2$s o analiza los respaldos en eucviewer.ried.no.\n\nEn la misma sección puedes unirte a las clasificaciones públicas en eucstats.ried.no</string>
     <string name="welcome_tut_outro_end">¡Mantén la vista en el camino y no en esta app mientras andas en monociclo!</string>
     <string name="welcome_tut_speed">Tu velocidad en vivo. Cambia las unidades en Configuración → %1$s</string>

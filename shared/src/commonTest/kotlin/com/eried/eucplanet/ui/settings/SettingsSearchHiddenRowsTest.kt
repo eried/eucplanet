@@ -27,6 +27,7 @@ class SettingsSearchHiddenRowsTest {
         SettingsRow.PICTURE_IN_PICTURE, SettingsRow.HOME_WIDGET, SettingsRow.SHOW_OVER_LOCK_SCREEN,
         SettingsRow.ROTATION_LOCK, SettingsRow.VOICE_COMMANDS, SettingsRow.VOLUME_KEYS,
         SettingsRow.BACKUP_FOLDER, SettingsRow.VOICE_OUTPUT_CHANNEL,
+        SettingsRow.HUD_APP_SEND, SettingsRow.CAR_SCREEN, SettingsRow.PHONE_HUD_WINDOW,
     )
 
     @Test fun gatedRowsCarryTheirGate() {
@@ -74,6 +75,32 @@ class SettingsSearchHiddenRowsTest {
         assertTrue(found("navigator", "offline_data_open", iphone))
         assertTrue(found("navigator", "offline_server_url", iphone))
         assertTrue(found("navigator", "offline_remind_before_ride", iphone))
+    }
+
+    @Test fun theHudIsFoundOnTheIphoneLessWhatOnlyAndroidHas() {
+        // The HUD section is shared: finding the HUD, the link switch, its
+        // screens, its map and its joystick.
+        for (key in listOf(
+            "section_hud_companion", "hud_discovery_mode", "hud_ip_label", "hud_server_port",
+            "hud_server_enabled", "hud_screens_title", "hud_map_style_label", "hud_joystick_title",
+        )) {
+            assertTrue(entry("integration", key).gates.isEmpty(), key)
+            assertTrue(found("integration", key, iphone), key)
+        }
+        // Sending the HUD its app is the Android phone's.
+        assertEquals(listOf(setOf(SettingsRow.HUD_APP_SEND)), entry("integration", "hud_app_send").gates)
+        assertFalse(found("integration", "hud_app_send", iphone))
+        assertFalse(found("integration", "hud_app_title", iphone))
+        // The words the card shares with the discovery mode row stay found.
+        assertTrue(found("integration", "hud_discovery_auto", iphone))
+        // The car screen is Android Auto.
+        assertEquals(listOf(setOf(SettingsRow.CAR_SCREEN)), entry("integration", "section_android_auto").gates)
+        assertFalse(found("integration", "section_android_auto", iphone))
+        assertFalse(found("integration", "car_alarm_notifications", iphone))
+        // No iPhone app draws a window over other apps.
+        assertEquals(listOf(setOf(SettingsRow.PHONE_HUD_WINDOW)), entry("general", "phone_hud_enable").gates)
+        assertFalse(found("general", "phone_hud_section", iphone))
+        assertFalse(found("general", "phone_hud_enable", iphone))
     }
 
     @Test fun theOfflineRowsCarryTheirGate() {

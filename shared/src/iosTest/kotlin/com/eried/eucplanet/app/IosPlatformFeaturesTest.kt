@@ -67,8 +67,20 @@ class IosPlatformFeaturesTest {
         assertTrue(com.eried.eucplanet.ui.settings.SettingsRow.PHONE_VOLUME in IosSettingsHost.hiddenRows)
         // It can pause another app's music but not start it or skip tracks.
         assertFalse(IosSettingsHost.drivesMusicPlayer)
-        // So the tour's last page names Flic and the radar, not the HUDs or watches.
-        assertFalse(IosDashboardHost().supportsWatchesAndHud)
+        // So the tour's last page names the HUDs, Flic and the radar, not the watches.
+        assertFalse(IosDashboardHost().supportsWatches)
+        // Android Auto, a window over other apps, and sending the HUD its app.
+        val rows = IosSettingsHost.hiddenRows
+        assertTrue(com.eried.eucplanet.ui.settings.SettingsRow.CAR_SCREEN in rows)
+        assertTrue(com.eried.eucplanet.ui.settings.SettingsRow.PHONE_HUD_WINDOW in rows)
+        assertTrue(com.eried.eucplanet.ui.settings.SettingsRow.HUD_APP_SEND in rows)
+    }
+
+    @Test fun theHudIsOnTheIphone() {
+        // The HUD section is the shared one over the iPhone's own link
+        // (IosHudLink), so its rows read the sink the link feeds.
+        assertTrue(IosSettingsHost.hudAddressExample.startsWith("172.20.10."))
+        assertTrue(com.eried.eucplanet.hud.protocol.HudDiscovery.isValidIpv4(IosSettingsHost.hudAddressExample))
     }
 
     @Test fun radarAndTpmsAreOnTheIphone() {

@@ -456,6 +456,7 @@
     <string name="hud_server_port">Cổng</string>
     <string name="hud_hotspot_unknown_hint">Đảm bảo HUD và điện thoại dùng cùng mạng WiFi. Nếu dùng điểm phát sóng của điện thoại, hãy bật nó trước.</string>
     <string name="hud_hotspot_on_hint">Điểm phát sóng của điện thoại đang bật. Kết nối HUD với WiFi của điện thoại này để bật liên kết.</string>
+    <string name="hud_setup_hint_iphone">Kết nối HUD và iPhone vào cùng một mạng Wi-Fi, hoặc kết nối HUD với Điểm truy cập cá nhân của iPhone này. Khi iOS hỏi, hãy cho phép EUC Planet tìm thiết bị trên mạng cục bộ.</string>
     <string name="hud_overlay_subsection">Lớp phủ tùy chỉnh</string>
     <string name="hud_overlay_subsection_desc">Nhập một mẫu Overlay Studio vào các màn hình Lớp phủ tùy chỉnh của HUD, không kèm nền. Mẫu được sao chép sang đây, nên các chỉnh sửa sau trong studio sẽ không thay đổi HUD cho đến khi bạn nhập lại.</string>
     <string name="hud_overlay_select_preset">Nhập mẫu</string>
@@ -1002,7 +1003,7 @@
     <string name="welcome_tut_outro_buttons">Nhiều nút có thao tác phụ, hãy thử nhấn giữ</string>
     <string name="welcome_tut_outro_alarms">Khám phá trình soạn cảnh báo tùy chỉnh mạnh mẽ trong Cài đặt → %1$s</string>
     <string name="welcome_tut_outro_integrations">Khám phá các tích hợp: HUD gắn mũ bảo hiểm, đồng hồ WearOS, nút Flic, Garmin Connect IQ và radar chiếu hậu</string>
-    <string name="welcome_tut_outro_integrations_iphone">Khám phá các tích hợp: nút Flic và radar chiếu hậu. HUD gắn mũ bảo hiểm và đồng hồ chưa có trên iPhone</string>
+    <string name="welcome_tut_outro_integrations_iphone">Khám phá các tích hợp: HUD gắn mũ bảo hiểm, nút Flic và radar chiếu hậu. Đồng hồ chưa có trên iPhone</string>
     <string name="welcome_tut_outro_end">Hãy nhìn đường, đừng nhìn ứng dụng khi đang chạy xe!</string>
     <string name="welcome_tut_share">Sao lưu chuyến đi trong Cài đặt → %1$s. Xem lại trong %2$s, hoặc phân tích bản sao lưu tại eucviewer.ried.no.\n\nTrong cùng mục, bạn có thể tham gia bảng xếp hạng công khai tại eucstats.ried.no</string>
     <string name="welcome_tut_speed">Tốc độ trực tiếp của bạn. Đổi đơn vị trong Cài đặt → %1$s</string>

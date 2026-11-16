@@ -489,6 +489,7 @@
     <string name="hud_server_port">埠號</string>
     <string name="hud_hotspot_unknown_hint">請確認 HUD 和手機連上同一個 Wi-Fi 網路。若使用手機熱點，請先開啟熱點。</string>
     <string name="hud_hotspot_on_hint">手機熱點已開啟。請將 HUD 連上這支手機的 Wi-Fi 以啟用連結。</string>
+    <string name="hud_setup_hint_iphone">請將 HUD 和 iPhone 連接到同一個 Wi-Fi，或將 HUD 連接到這部 iPhone 的個人熱點。iOS 詢問時，請允許 EUC Planet 尋找區域網路上的裝置。</string>
     <string name="hud_overlay_subsection">自訂疊加層</string>
     <string name="hud_overlay_subsection_desc">將疊加層工作室的預設集匯入 HUD 的自訂疊加層畫面（不含背景）。預設集會複製到這裡，因此之後在工作室中的編輯不會影響 HUD，除非你再次匯入。</string>
     <string name="hud_overlay_select_preset">匯入預設集</string>
@@ -791,7 +792,7 @@
     <string name="welcome_tut_outro_buttons">許多按鈕有額外操作，試試長按</string>
     <string name="welcome_tut_outro_alarms">在設定 → %1$s 中探索強大的自訂警報編輯器</string>
     <string name="welcome_tut_outro_integrations">探索各項整合：安全帽 HUD、Wear OS 手錶、Flic 按鈕、Garmin Connect IQ 和後視雷達</string>
-    <string name="welcome_tut_outro_integrations_iphone">探索各項整合：Flic 按鈕和後視雷達。安全帽 HUD 和手錶 iPhone 版尚未支援</string>
+    <string name="welcome_tut_outro_integrations_iphone">探索各項整合：安全帽 HUD、Flic 按鈕和後視雷達。手錶 iPhone 版尚未支援</string>
     <string name="welcome_tut_share">在設定 → %1$s 中備份你的行程。可以在 %2$s 中查看，或到 eucviewer.ried.no 分析備份。\n\n在同一區段也可以到 eucstats.ried.no 加入公開排行榜</string>
     <string name="welcome_tut_outro_end">騎乘時請專心看路，別盯著這個應用程式！</string>
     <string name="welcome_tut_speed">你的即時速度。可在設定 → %1$s 中變更單位</string>

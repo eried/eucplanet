@@ -26,8 +26,8 @@ interface DashboardHost {
     /** Spoken commands run here; without them the voice menus leave out Listen. */
     val supportsVoiceCommands: Boolean
 
-    /** Helmet HUDs and the watches run here; the tour's integrations line names them only then. */
-    val supportsWatchesAndHud: Boolean get() = true
+    /** The watches run here; the tour's integrations line names them only then. */
+    val supportsWatches: Boolean get() = true
 
     /** The LICENSE file as shipped, hard-wrapped; empty when missing. */
     fun licenseText(): String

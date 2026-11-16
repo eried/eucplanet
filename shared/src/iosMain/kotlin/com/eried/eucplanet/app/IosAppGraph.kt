@@ -498,7 +498,7 @@ object IosAppGraph {
         watches = NoWatches,
         engineSoundEngine = IosEngineSoundPreview(engineSound),
         cheatState = cheats,
-        hud = NoHud,
+        hud = com.eried.eucplanet.ui.settings.SinkHudSettingsLink(hudSink, overlayPresets),
         themeController = theme,
         eucStatsRepository = IosOnlineLeaderboard,
         dropboxRepository = dropbox,

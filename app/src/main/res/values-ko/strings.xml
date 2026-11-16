@@ -489,6 +489,7 @@
     <string name="hud_server_port">포트</string>
     <string name="hud_hotspot_unknown_hint">HUD와 휴대전화가 같은 Wi-Fi 네트워크에 있는지 확인하세요. 휴대전화 핫스팟을 사용한다면 먼저 켜세요.</string>
     <string name="hud_hotspot_on_hint">휴대전화 핫스팟이 켜져 있습니다. HUD를 이 휴대전화의 Wi-Fi에 연결하면 링크가 활성화됩니다.</string>
+    <string name="hud_setup_hint_iphone">HUD와 iPhone을 같은 Wi-Fi에 연결하거나, HUD를 이 iPhone의 개인용 핫스팟에 연결하세요. iOS가 물으면 EUC Planet이 로컬 네트워크의 기기를 찾도록 허용하세요.</string>
     <string name="hud_overlay_subsection">커스텀 오버레이</string>
     <string name="hud_overlay_subsection_desc">오버레이 스튜디오 프리셋을 배경 없이 HUD 커스텀 오버레이 화면에 가져옵니다. 프리셋은 여기에 복사되므로 스튜디오에서 편집해도 다시 가져오기 전까지 HUD에 반영되지 않습니다.</string>
     <string name="hud_overlay_select_preset">프리셋 가져오기</string>
@@ -791,7 +792,7 @@
     <string name="welcome_tut_outro_buttons">많은 버튼에 추가 기능이 있습니다. 길게 눌러 보세요</string>
     <string name="welcome_tut_outro_alarms">설정 → %1$s에서 강력한 알람 편집기를 탐색해 보세요</string>
     <string name="welcome_tut_outro_integrations">헬멧 HUD, Wear OS 워치, Flic 버튼, Garmin Connect IQ, 후방 레이더 등 연동 기능을 살펴보세요</string>
-    <string name="welcome_tut_outro_integrations_iphone">Flic 버튼과 후방 레이더 연동 기능을 살펴보세요. 헬멧 HUD와 워치는 아직 iPhone에서 지원되지 않습니다</string>
+    <string name="welcome_tut_outro_integrations_iphone">헬멧 HUD, Flic 버튼, 후방 레이더 연동 기능을 살펴보세요. 워치는 아직 iPhone에서 지원되지 않습니다</string>
     <string name="welcome_tut_share">설정 → %1$s에서 주행 기록을 백업하세요. %2$s에서 확인하거나 eucviewer.ried.no에서 백업을 분석할 수 있습니다.\n\n같은 섹션에서 eucstats.ried.no의 공개 리더보드에 참여할 수 있습니다</string>
     <string name="welcome_tut_outro_end">주행 중에는 앱을 보지 말고 도로에 집중하세요!</string>
     <string name="welcome_tut_speed">실시간 속도입니다. 설정 → %1$s에서 단위를 바꾸세요</string>

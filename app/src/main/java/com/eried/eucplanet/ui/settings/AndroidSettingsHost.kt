@@ -198,8 +198,30 @@ private class AndroidSettingsHost(
     }
 
     @Composable
-    override fun HudAndCarSettings(settings: AppSettings, viewModel: SettingsViewModel) {
-        HudIntegrationSection(settings = settings, viewModel = viewModel)
+    override fun HudAppSettings(viewModel: SettingsViewModel, linked: Boolean) {
+        HudAppSection(viewModel = viewModel, linked = linked)
+    }
+
+    @Composable
+    override fun HudSetupHint(linked: Boolean) {
+        HudHotspotHint(linked = linked)
+    }
+
+    // 192.168.43.42 looks like a typical Android-hotspot client IP (43.0/24
+    // is the legacy AOSP softAP subnet, .42 is obviously placeholder-ish so
+    // it doesn't get mistaken for an actual fixed address).
+    override val hudAddressExample: String = "192.168.43.42"
+
+    // Android IME flags Compose doesn't expose directly:
+    //  - flagNoPersonalizedLearning: don't store typed IPs
+    //  - flagNoExtractUi: suppress Gboard's candidate strip, which on dark
+    //    theme rendered as the "black bar" below the field testers reported.
+    override val addressImeOptions = androidx.compose.ui.text.input.PlatformImeOptions(
+        "flagNoPersonalizedLearning|flagNoExtractUi"
+    )
+
+    @Composable
+    override fun CarSettings(settings: AppSettings, viewModel: SettingsViewModel) {
         AndroidAutoSection(settings = settings, viewModel = viewModel)
     }
 

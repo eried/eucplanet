@@ -13,10 +13,12 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.platform.stringResource
 import com.eried.eucplanet.resources.Res
+import com.eried.eucplanet.resources.hud_setup_hint_iphone
 import com.eried.eucplanet.resources.section_radar
 import com.eried.eucplanet.resources.section_tpms
 import com.eried.eucplanet.ui.settings.AlarmViewModel
 import com.eried.eucplanet.ui.settings.FlicViewModel
+import com.eried.eucplanet.ui.settings.HudSetupCard
 import com.eried.eucplanet.ui.settings.PermissionGate
 import com.eried.eucplanet.ui.settings.RadarSection
 import com.eried.eucplanet.ui.settings.SectionHeader
@@ -31,9 +33,10 @@ import platform.Foundation.NSURL
 import platform.UIKit.UIApplication
 
 /**
- * The iOS [SettingsHost]. The sections iOS has no counterpart for (the HUD,
- * the car screen, the phone HUD window, the watches, the folder backups) draw
- * nothing. See docs/IOS_PARITY.md for the split.
+ * The iOS [SettingsHost]. The sections iOS has no counterpart for (the car
+ * screen, the phone HUD window, the watches, the folder backups) draw
+ * nothing; the HUD section is the shared one, less sending the HUD its app.
+ * See docs/IOS_PARITY.md for the split.
  */
 internal object IosSettingsHost : SettingsHost {
 
@@ -72,7 +75,9 @@ internal object IosSettingsHost : SettingsHost {
     // another app's player, so the volume and music automations and the
     // volume actions are left out. Nor does it
     // have Android's separate media, notification and alarm streams for the
-    // voice to pick from.
+    // voice to pick from. The HUD is an Android device that takes its app
+    // from an Android phone, the car screen is Android Auto, and no iPhone
+    // app draws a window over other apps.
     override val hiddenRows = setOf(
         SettingsRow.BACK_ACTION,
         SettingsRow.KEEP_ALIVE,
@@ -85,6 +90,9 @@ internal object IosSettingsHost : SettingsHost {
         SettingsRow.MEDIA_CONTROL,
         SettingsRow.PHONE_VOLUME,
         SettingsRow.VOICE_OUTPUT_CHANNEL,
+        SettingsRow.HUD_APP_SEND,
+        SettingsRow.CAR_SCREEN,
+        SettingsRow.PHONE_HUD_WINDOW,
     )
 
     @Composable
@@ -166,8 +174,24 @@ internal object IosSettingsHost : SettingsHost {
         TpmsSection(viewModel = rememberViewModel { IosAppGraph.tpmsViewModel() })
     }
 
+    // The HUD section is shared (HudIntegrationSection). An iPhone cannot
+    // send the HUD its app, so that card is a hidden row.
     @Composable
-    override fun HudAndCarSettings(settings: AppSettings, viewModel: SettingsViewModel) = Unit
+    override fun HudAppSettings(viewModel: SettingsViewModel, linked: Boolean) = Unit
+
+    // No app can read whether Personal Hotspot is on, so one line covers both
+    // ways onto a network, and the permission iOS asks for the first time.
+    @Composable
+    override fun HudSetupHint(linked: Boolean) {
+        if (linked) return
+        HudSetupCard(stringResource(Res.string.hud_setup_hint_iphone))
+    }
+
+    // What Personal Hotspot hands its first device (172.20.10.0/28).
+    override val hudAddressExample: String = "172.20.10.2"
+
+    @Composable
+    override fun CarSettings(settings: AppSettings, viewModel: SettingsViewModel) = Unit
 
     @Composable
     override fun PhoneHudSection(settings: AppSettings, viewModel: SettingsViewModel) = Unit

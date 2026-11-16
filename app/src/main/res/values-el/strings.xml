@@ -471,6 +471,7 @@
     <string name="hud_server_port">Θύρα</string>
     <string name="hud_hotspot_unknown_hint">Βεβαιωθείτε ότι το HUD και το τηλέφωνο είναι στο ίδιο δίκτυο WiFi. Αν χρησιμοποιείτε το σημείο πρόσβασης του τηλεφώνου, ενεργοποιήστε το πρώτα.</string>
     <string name="hud_hotspot_on_hint">Το σημείο πρόσβασης του τηλεφώνου εκπέμπει. Συνδέστε το HUD στο WiFi αυτού του τηλεφώνου για να ενεργοποιηθεί η σύνδεση.</string>
+    <string name="hud_setup_hint_iphone">Συνδέστε το HUD και το iPhone στο ίδιο Wi-Fi ή συνδέστε το HUD στο Προσωπικό hotspot αυτού του iPhone. Όταν ρωτήσει το iOS, επιτρέψτε στο EUC Planet να βρίσκει συσκευές στο τοπικό δίκτυο.</string>
     <string name="hud_overlay_subsection">Προσαρμοσμένη επικάλυψη</string>
     <string name="hud_overlay_subsection_desc">Εισαγάγετε μια προρύθμιση του Overlay Studio στις οθόνες Προσαρμοσμένη επικάλυψη του HUD, χωρίς φόντα. Η προρύθμιση αντιγράφεται εδώ, οπότε μεταγενέστερες αλλαγές στο studio δεν αλλάζουν το HUD μέχρι να την εισαγάγετε ξανά.</string>
     <string name="hud_overlay_select_preset">Εισαγωγή προρύθμισης</string>
@@ -1027,7 +1028,7 @@
     <string name="welcome_tut_outro_buttons">Πολλά κουμπιά έχουν επιπλέον ενέργειες, δοκιμάστε να τα πατήσετε παρατεταμένα</string>
     <string name="welcome_tut_outro_alarms">Εξερευνήστε τον ισχυρό επεξεργαστή προσαρμοσμένων συναγερμών στις Ρυθμίσεις → %1$s</string>
     <string name="welcome_tut_outro_integrations">Εξερευνήστε τις ενσωματώσεις: HUD κράνους, ρολόγια WearOS, κουμπιά Flic, Garmin Connect IQ και το ραντάρ πίσω όψης</string>
-    <string name="welcome_tut_outro_integrations_iphone">Εξερευνήστε τις ενσωματώσεις: κουμπιά Flic και το ραντάρ πίσω όψης. Τα HUD κράνους και τα ρολόγια δεν υπάρχουν ακόμα στο iPhone</string>
+    <string name="welcome_tut_outro_integrations_iphone">Εξερευνήστε τις ενσωματώσεις: HUD κράνους, κουμπιά Flic και το ραντάρ πίσω όψης. Τα ρολόγια δεν υπάρχουν ακόμα στο iPhone</string>
     <string name="welcome_tut_outro_end">Κρατήστε τα μάτια στον δρόμο και μακριά από την εφαρμογή όσο οδηγείτε!</string>
     <string name="welcome_tut_share">Δημιουργήστε αντίγραφα των διαδρομών σας στις Ρυθμίσεις → %1$s. Δείτε τες στο %2$s ή αναλύστε τα αντίγραφα στο eucviewer.ried.no.\n\nΣτην ίδια ενότητα μπορείτε να μπείτε στις δημόσιες κατατάξεις στο eucstats.ried.no</string>
     <string name="welcome_tut_speed">Η ζωντανή ταχύτητά σας. Αλλάξτε μονάδες στις Ρυθμίσεις → %1$s</string>

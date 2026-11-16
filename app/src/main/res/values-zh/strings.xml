@@ -106,6 +106,7 @@
     <string name="hud_server_port">端口</string>
     <string name="hud_hotspot_unknown_hint">请确保 HUD 和手机在同一个 WiFi 网络上。如果使用手机热点，请先开启。</string>
     <string name="hud_hotspot_on_hint">手机热点正在广播。将 HUD 连接到此手机的 WiFi 以启用连接。</string>
+    <string name="hud_setup_hint_iphone">请将 HUD 和 iPhone 连接到同一 Wi-Fi，或将 HUD 连接到这部 iPhone 的个人热点。iOS 询问时，请允许 EUC Planet 查找本地网络上的设备。</string>
     <string name="hud_custom_overlay_none">清除</string>
 
     <string name="cloud_caption">用于存放行程、设置、主题和叠加层的备份文件夹。</string>
@@ -1652,7 +1653,7 @@
     <string name="welcome_tut_pd">显示驻车 (P) 或行驶 (D) 状态。点按即可设置你的%1$s</string>
     <string name="welcome_tut_outro_alarms">在设置 → %1$s 中体验强大的自定义报警编辑器</string>
     <string name="welcome_tut_outro_integrations">探索集成：头盔 HUD、WearOS 手表、Flic 按钮、Garmin Connect IQ 和后视雷达</string>
-    <string name="welcome_tut_outro_integrations_iphone">探索集成：Flic 按钮和后视雷达。头盔 HUD 和手表 iPhone 版暂不支持</string>
+    <string name="welcome_tut_outro_integrations_iphone">探索集成：头盔 HUD、Flic 按钮和后视雷达。手表 iPhone 版暂不支持</string>
     <string name="welcome_tut_share">在设置 → %1$s 中备份你的行程。可以在 %2$s 中查看，也可以在 eucviewer.ried.no 分析备份。\n\n在同一部分还可以加入 eucstats.ried.no 上的公开排行榜</string>
     <string name="welcome_tut_outro_end">骑独轮车时请专注路面，别盯着本应用看！</string>
 

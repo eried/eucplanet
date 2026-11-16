@@ -164,13 +164,49 @@ interface OnlineLeaderboard {
     suspend fun exportData(): String?
 }
 
-/** The HUD companion's state, for the HUD rows; absent on phones without one. */
+/** The HUD companion's state, for the HUD rows ([SinkHudSettingsLink] on both phones). */
 interface HudSettingsLink {
     val hudVersion: StateFlow<String?>
     val hudEverConnected: StateFlow<Boolean>
     suspend fun overlayLists(): SettingsViewModel.HudOverlayLists
     /** The preset's JSON, bundled first and then saved, or null when neither has it. */
     suspend fun overlayJson(name: String): String?
+}
+
+/** The HUD rows read the link's own sink and the rider's overlay presets. */
+class SinkHudSettingsLink(
+    sink: com.eried.eucplanet.service.hud.HudCommandSink,
+    private val presets: com.eried.eucplanet.data.store.OverlayPresets,
+) : HudSettingsLink {
+    override val hudVersion = sink.hudVersion
+    override val hudEverConnected = sink.hudEverConnected
+
+    // The portrait / landscape split uses the same rule as the Studio: more
+    // than half of the elements rotated => landscape.
+    override suspend fun overlayLists(): SettingsViewModel.HudOverlayLists {
+        val hasFolder = presets.presetFolderAvailable()
+        val saved = if (hasFolder) presets.listPresets() else emptyList()
+        val portrait = mutableListOf<String>()
+        val landscape = mutableListOf<String>()
+        presets.listBundledPresets().forEach { name ->
+            val els = presets.loadBundledPreset(name)?.elements
+            if (els != null && els.isNotEmpty() &&
+                els.count { it.rotationDeg != 0f } * 2 > els.size
+            ) {
+                landscape.add(name)
+            } else {
+                portrait.add(name)
+            }
+        }
+        return SettingsViewModel.HudOverlayLists(hasFolder, saved, portrait, landscape)
+    }
+
+    override suspend fun overlayJson(name: String): String? {
+        val preset = presets.loadBundledPreset(name)
+            ?: presets.loadPreset(name)
+            ?: return null
+        return com.eried.eucplanet.data.store.OverlayPresetJson.toJson(preset).toString()
+    }
 }
 
 /** Things only the phone's own platform does for settings. */

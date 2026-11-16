@@ -47,7 +47,6 @@ import com.eried.eucplanet.ui.scan.ScanViewModel
 import com.eried.eucplanet.ui.scan.WheelScanner
 import com.eried.eucplanet.ui.settings.AndroidEngineSoundPreview
 import com.eried.eucplanet.ui.settings.AndroidHornSound
-import com.eried.eucplanet.ui.settings.AndroidHudSettingsLink
 import com.eried.eucplanet.ui.settings.ControllerLockdownSwitch
 import com.eried.eucplanet.ui.settings.AndroidOnlineLeaderboard
 import com.eried.eucplanet.ui.settings.AndroidPromptTones
@@ -60,6 +59,7 @@ import com.eried.eucplanet.ui.settings.AndroidWatchLinks
 import com.eried.eucplanet.ui.settings.EngineSoundPreview
 import com.eried.eucplanet.ui.settings.HornSound
 import com.eried.eucplanet.ui.settings.HudSettingsLink
+import com.eried.eucplanet.ui.settings.SinkHudSettingsLink
 import com.eried.eucplanet.ui.settings.LockdownSwitch
 import com.eried.eucplanet.ui.settings.OnlineLeaderboard
 import com.eried.eucplanet.ui.settings.PromptTones
@@ -115,7 +115,7 @@ val viewModelModule = module {
     singleOf(::AndroidSplitTimes) bind SplitTimes::class
     singleOf(::ControllerLockdownSwitch) bind LockdownSwitch::class
     singleOf(::AndroidOnlineLeaderboard) bind OnlineLeaderboard::class
-    singleOf(::AndroidHudSettingsLink) bind HudSettingsLink::class
+    singleOf(::SinkHudSettingsLink) bind HudSettingsLink::class
     single<SettingsPlatform> { AndroidSettingsPlatform(androidContext(), get()) }
     singleOf(::AndroidRecordingTrips) bind RecordingTrips::class
     singleOf(::AndroidRecordingOnline) bind RecordingOnline::class

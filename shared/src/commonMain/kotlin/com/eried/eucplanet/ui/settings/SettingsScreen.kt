@@ -1379,7 +1379,7 @@ private fun GeneralTab(
         }
 
         // Phone HUD: a window over other apps, where the platform has one.
-        LocalSettingsHost.current.PhoneHudSection(settings, viewModel)
+        if (SettingsRow.PHONE_HUD_WINDOW !in hiddenRows) LocalSettingsHost.current.PhoneHudSection(settings, viewModel)
 
         // The widget surface. The how-to-add hint sits directly inside, the
         // pickers are folded under an inner "Customize".
@@ -7078,7 +7078,8 @@ private fun FlicTab(settingsViewModel: SettingsViewModel) {
         host.RadarSettings()
 
         settingsViewModel.settings.collectAsState().value?.let { s ->
-            host.HudAndCarSettings(settings = s, viewModel = settingsViewModel)
+            HudIntegrationSection(settings = s, viewModel = settingsViewModel)
+            if (SettingsRow.CAR_SCREEN !in host.hiddenRows) host.CarSettings(settings = s, viewModel = settingsViewModel)
         }
 
         host.TpmsSettings()

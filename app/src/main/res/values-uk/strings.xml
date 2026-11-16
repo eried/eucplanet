@@ -489,6 +489,7 @@
     <string name="hud_server_port">Порт</string>
     <string name="hud_hotspot_unknown_hint">Переконайтеся, що HUD і телефон підключені до однієї мережі Wi-Fi. Якщо використовуєте точку доступу телефона, спершу увімкніть її.</string>
     <string name="hud_hotspot_on_hint">Точка доступу телефона працює. Підключіть HUD до Wi-Fi цього телефона, щоб увімкнути з\'єднання.</string>
+    <string name="hud_setup_hint_iphone">Підключіть HUD та iPhone до однієї мережі Wi-Fi або підключіть HUD до особистої точки доступу цього iPhone. Коли iOS запитає, дозвольте EUC Planet шукати пристрої в локальній мережі.</string>
     <string name="hud_overlay_subsection">Власний оверлей</string>
     <string name="hud_overlay_subsection_desc">Імпортуйте пресет Overlay Studio на екрани HUD «Власний оверлей» без фону. Пресет копіюється сюди, тому подальші зміни в студії не змінять HUD, доки ви не імпортуєте його знову.</string>
     <string name="hud_overlay_select_preset">Імпортувати пресет</string>
@@ -795,7 +796,7 @@
     <string name="welcome_tut_outro_buttons">Багато кнопок мають додаткові дії, спробуйте їх утримувати</string>
     <string name="welcome_tut_outro_alarms">Спробуйте потужний редактор власних тривог: Налаштування → %1$s</string>
     <string name="welcome_tut_outro_integrations">Дослідіть інтеграції: HUD-и для шолома, годинники WearOS, кнопки Flic, Garmin Connect IQ і задній радар</string>
-    <string name="welcome_tut_outro_integrations_iphone">Дослідіть інтеграції: кнопки Flic і задній радар. HUD-ів для шолома та годинників поки немає на iPhone</string>
+    <string name="welcome_tut_outro_integrations_iphone">Дослідіть інтеграції: HUD-и для шолома, кнопки Flic і задній радар. Годинників поки немає на iPhone</string>
     <string name="welcome_tut_share">Створюйте резервні копії поїздок: Налаштування → %1$s. Переглядайте їх у %2$s або аналізуйте копії на eucviewer.ried.no.\n\nУ тому самому розділі можна приєднатися до публічних таблиць лідерів на eucstats.ried.no</string>
     <string name="welcome_tut_outro_end">Під час їзди дивіться на дорогу, а не в цей застосунок!</string>
     <string name="welcome_tut_speed">Ваша швидкість наживо. Одиниці можна змінити: Налаштування → %1$s</string>

@@ -450,6 +450,7 @@
     <string name="hud_server_port">Port</string>
     <string name="hud_hotspot_unknown_hint">Győződj meg róla, hogy a HUD és a telefon ugyanazon a Wi-Fi-hálózaton van. Ha a telefon hotspotját használod, előbb kapcsold be.</string>
     <string name="hud_hotspot_on_hint">A telefon hotspotja sugároz. Csatlakoztasd a HUD-ot ennek a telefonnak a Wi-Fi-jéhez a kapcsolat létrehozásához.</string>
+    <string name="hud_setup_hint_iphone">Csatlakoztasd a HUD-ot és az iPhone-t ugyanarra a Wi-Fi-re, vagy a HUD-ot ennek az iPhone-nak a személyes hotspotjára. Amikor az iOS rákérdez, engedélyezd, hogy az EUC Planet eszközöket keressen a helyi hálózaton.</string>
     <string name="hud_overlay_subsection">Egyéni átfedés</string>
     <string name="hud_overlay_subsection_desc">Overlay Studio-előbeállítás importálása a HUD Egyéni átfedés képernyőire, háttér nélkül. Az előbeállítás ide másolódik, így a stúdióban végzett későbbi módosítások nem változtatják meg a HUD-ot, amíg újra nem importálod.</string>
     <string name="hud_overlay_select_preset">Előbeállítás importálása</string>
@@ -996,7 +997,7 @@
     <string name="welcome_tut_outro_buttons">Sok gombnak vannak további műveletei, próbáld hosszan nyomni őket</string>
     <string name="welcome_tut_outro_alarms">Fedezd fel a nagy tudású egyéni riasztásszerkesztőt itt: Beállítások → %1$s</string>
     <string name="welcome_tut_outro_integrations">Fedezd fel az integrációkat: sisak-HUD-ok, WearOS órák, Flic gombok, Garmin Connect IQ és a hátratekintő radar</string>
-    <string name="welcome_tut_outro_integrations_iphone">Fedezd fel az integrációkat: Flic gombok és a hátratekintő radar. A sisak-HUD-ok és az órák iPhone-on még nem érhetők el</string>
+    <string name="welcome_tut_outro_integrations_iphone">Fedezd fel az integrációkat: sisak-HUD-ok, Flic gombok és a hátratekintő radar. Az órák iPhone-on még nem érhetők el</string>
     <string name="welcome_tut_outro_end">Egykerekűzés közben az úton tartsd a szemed, ne ezen az alkalmazáson!</string>
     <string name="welcome_tut_share">Mentsd a meneteidet itt: Beállítások → %1$s. Nézd meg őket itt: %2$s, vagy elemezd a mentéseket az eucviewer.ried.no oldalon.\n\nUgyanebben a részben csatlakozhatsz a nyilvános ranglistákhoz az eucstats.ried.no oldalon</string>
     <string name="welcome_tut_speed">Az élő sebességed. A mértékegységet itt módosíthatod: Beállítások → %1$s</string>

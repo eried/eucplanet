@@ -471,6 +471,7 @@
     <string name="hud_server_port">Porta</string>
     <string name="hud_hotspot_unknown_hint">Confirme que o HUD e o telemóvel estão na mesma rede Wi-Fi. Se usar a zona Wi-Fi do telemóvel, ative-a primeiro.</string>
     <string name="hud_hotspot_on_hint">A zona Wi-Fi do telemóvel está ativa. Ligue o HUD ao Wi-Fi deste telemóvel para ativar a ligação.</string>
+    <string name="hud_setup_hint_iphone">Ligue o HUD e o iPhone à mesma rede Wi-Fi, ou ligue o HUD ao hotspot pessoal deste iPhone. Quando o iOS perguntar, permita que o EUC Planet encontre dispositivos na rede local.</string>
     <string name="hud_overlay_subsection">Overlay personalizado</string>
     <string name="hud_overlay_subsection_desc">Importe uma predefinição do Overlay Studio para os ecrãs Overlay personalizado do HUD, sem fundos. A predefinição é copiada para aqui, por isso edições posteriores no estúdio não alteram o HUD até importar de novo.</string>
     <string name="hud_overlay_select_preset">Importar predefinição</string>
@@ -1027,7 +1028,7 @@
     <string name="welcome_tut_outro_buttons">Muitos botões têm ações extra, experimente premi-los continuamente</string>
     <string name="welcome_tut_outro_alarms">Explore o poderoso editor de alarmes personalizados em Definições →%1$s</string>
     <string name="welcome_tut_outro_integrations">Explore as integrações: HUD de capacete, relógios Wear OS, botões Flic, Garmin Connect IQ e o radar traseiro</string>
-    <string name="welcome_tut_outro_integrations_iphone">Explore as integrações: botões Flic e o radar traseiro. HUD de capacete e relógios ainda não estão disponíveis no iPhone</string>
+    <string name="welcome_tut_outro_integrations_iphone">Explore as integrações: HUD de capacete, botões Flic e o radar traseiro. Os relógios ainda não estão disponíveis no iPhone</string>
     <string name="welcome_tut_outro_end">Mantenha os olhos na estrada e longe desta app enquanto anda de monociclo!</string>
     <string name="welcome_tut_share">Faça cópia dos seus percursos em Definições →%1$s. Veja-os em %2$s ou analise as cópias em eucviewer.ried.no.\n\nNa mesma secção pode entrar nas classificações públicas em eucstats.ried.no</string>
     <string name="welcome_tut_speed">A sua velocidade ao vivo. Mude as unidades em Definições →%1$s</string>

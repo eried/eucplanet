@@ -483,6 +483,7 @@
     <string name="hud_server_port">Порт</string>
     <string name="hud_hotspot_unknown_hint">Уверете се, че HUD и телефонът са в една и съща WiFi мрежа. Ако използвате точката за достъп на телефона, първо я включете.</string>
     <string name="hud_hotspot_on_hint">Точката за достъп на телефона е активна. Свържете HUD към WiFi мрежата на този телефон, за да активирате връзката.</string>
+    <string name="hud_setup_hint_iphone">Свържете HUD и iPhone към една и съща Wi-Fi мрежа или свържете HUD към личната точка за достъп на този iPhone. Когато iOS попита, разрешете на EUC Planet да намира устройства в локалната мрежа.</string>
     <string name="hud_overlay_subsection">Персонално наслагване</string>
     <string name="hud_overlay_subsection_desc">Импортира шаблон от Студиото за наслагване в екраните с наслагване на HUD, без фонове. Шаблонът се копира тук, така че по-късните промени в студиото няма да променят HUD, докато не импортирате отново.</string>
     <string name="hud_overlay_select_preset">Импортирай шаблон</string>
@@ -1048,7 +1049,7 @@
     <string name="welcome_tut_outro_buttons">Много бутони имат допълнителни действия, опитайте да ги задържите</string>
     <string name="welcome_tut_outro_alarms">Разгледайте мощния редактор на персонални аларми в Настройки → %1$s</string>
     <string name="welcome_tut_outro_integrations">Разгледайте интеграциите: HUD за каска, часовници с WearOS, бутони Flic, Garmin Connect IQ и радар за задно виждане</string>
-    <string name="welcome_tut_outro_integrations_iphone">Разгледайте интеграциите: бутони Flic и радар за задно виждане. HUD за каска и часовници още не са за iPhone</string>
+    <string name="welcome_tut_outro_integrations_iphone">Разгледайте интеграциите: HUD за каска, бутони Flic и радар за задно виждане. Часовниците още не са за iPhone</string>
     <string name="welcome_tut_outro_end">Гледайте пътя, а не това приложение, докато карате моноколелото!</string>
     <string name="welcome_tut_share">Архивирайте пътуванията си в Настройки → %1$s. Разгледайте ги в %2$s или анализирайте архивите на eucviewer.ried.no.\n\nВ същия раздел можете да се включите в публичните класации на eucstats.ried.no</string>
     <string name="welcome_tut_speed">Скоростта ви на живо. Сменете мерните единици в Настройки → %1$s</string>

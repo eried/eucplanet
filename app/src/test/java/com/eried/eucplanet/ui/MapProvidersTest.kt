@@ -106,8 +106,8 @@ class MapProvidersTest {
     }
 
     @Test fun `the hud style picker offers real styles, not carto slugs`() {
-        // The HUD rows are Android-only, so they stay in :app.
-        val settings = File("src/main/java/com/eried/eucplanet/ui/settings/HudSettingsSections.kt").readText()
+        // The HUD rows are shared: the iPhone drives the HUD too.
+        val settings = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/ui/settings/HudSettingsSection.kt").readText()
         // Anchor on the picker's own comment: "val options" appears many
         // times in the settings screen.
         val options = settings.substringAfter("Raw internal codes on purpose")

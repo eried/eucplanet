@@ -489,6 +489,7 @@
     <string name="hud_server_port">Порт</string>
     <string name="hud_hotspot_unknown_hint">Убедитесь, что HUD и телефон в одной сети Wi-Fi. Если используете точку доступа телефона, сначала включите её.</string>
     <string name="hud_hotspot_on_hint">Точка доступа телефона включена. Подключите HUD к Wi-Fi этого телефона, чтобы включить связь.</string>
+    <string name="hud_setup_hint_iphone">Подключите HUD и iPhone к одной сети Wi-Fi или подключите HUD к режиму модема этого iPhone. Когда iOS спросит, разрешите EUC Planet искать устройства в локальной сети.</string>
     <string name="hud_overlay_subsection">Свой оверлей</string>
     <string name="hud_overlay_subsection_desc">Импортируйте пресет Overlay Studio на экраны «Свой оверлей» в HUD, без фона. Пресет копируется сюда, поэтому дальнейшие правки в студии не изменят HUD, пока вы не импортируете его снова.</string>
     <string name="hud_overlay_select_preset">Импортировать пресет</string>
@@ -795,7 +796,7 @@
     <string name="welcome_tut_outro_buttons">У многих кнопок есть дополнительные действия, попробуйте удерживать их</string>
     <string name="welcome_tut_outro_alarms">Попробуйте мощный редактор сигналов: Настройки → %1$s</string>
     <string name="welcome_tut_outro_integrations">Изучите интеграции: HUD для шлема, часы Wear OS, кнопки Flic, Garmin Connect IQ и радар заднего вида</string>
-    <string name="welcome_tut_outro_integrations_iphone">Изучите интеграции: кнопки Flic и радар заднего вида. HUD для шлема и часов пока нет на iPhone</string>
+    <string name="welcome_tut_outro_integrations_iphone">Изучите интеграции: HUD для шлема, кнопки Flic и радар заднего вида. Часов пока нет на iPhone</string>
     <string name="welcome_tut_share">Делайте резервные копии поездок в Настройках → %1$s. Смотрите их в %2$s или анализируйте копии на eucviewer.ried.no.\n\nВ том же разделе можно присоединиться к публичным таблицам лидеров на eucstats.ried.no</string>
     <string name="welcome_tut_outro_end">Следите за дорогой, а не за приложением, пока едете на моноколесе!</string>
     <string name="welcome_tut_speed">Ваша текущая скорость. Единицы меняются в разделе Настройки → %1$s</string>

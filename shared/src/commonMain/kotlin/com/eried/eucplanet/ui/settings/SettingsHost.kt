@@ -90,9 +90,29 @@ interface SettingsHost {
     @Composable
     fun TpmsSettings()
 
-    /** The companion HUD and the car screen. */
+    /**
+     * Sending the HUD its own app from this phone, inside the shared HUD
+     * section ([SettingsRow.HUD_APP_SEND]). [linked] while a HUD is paired.
+     */
     @Composable
-    fun HudAndCarSettings(settings: AppSettings, viewModel: SettingsViewModel)
+    fun HudAppSettings(viewModel: SettingsViewModel, linked: Boolean)
+
+    /**
+     * How to put the HUD and this phone on one network, in this phone's own
+     * words. Shown until a HUD links ([linked]).
+     */
+    @Composable
+    fun HudSetupHint(linked: Boolean)
+
+    /** The address a HUD on this phone's hotspot typically gets, as the address field's example. */
+    val hudAddressExample: String
+
+    /** This phone's keyboard flags for typing an address, null for its defaults. */
+    val addressImeOptions: androidx.compose.ui.text.input.PlatformImeOptions? get() = null
+
+    /** The car screen ([SettingsRow.CAR_SCREEN]). */
+    @Composable
+    fun CarSettings(settings: AppSettings, viewModel: SettingsViewModel)
 
     /** A window over other apps that draws an overlay preset. */
     @Composable
@@ -159,6 +179,15 @@ enum class SettingsRow {
 
     /** Offline routing: preferring the downloaded areas, their server, the areas and the reminder before a ride. */
     OFFLINE_ROUTING,
+
+    /** Sending the HUD its own app, and the card that shows its version. */
+    HUD_APP_SEND,
+
+    /** The car screen: its alarm notifications. */
+    CAR_SCREEN,
+
+    /** The phone HUD: a window over other apps that draws an overlay preset. */
+    PHONE_HUD_WINDOW,
 
     /** Binding actions to the volume keys. Follows [SettingsHost.supportsVolumeKeys]; not listed in hiddenRows. */
     VOLUME_KEYS,

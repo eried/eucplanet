@@ -489,6 +489,7 @@
     <string name="hud_server_port">Port</string>
     <string name="hud_hotspot_unknown_hint">Se till att HUD:en och telefonen är på samma wifi-nätverk. Om du använder telefonens hotspot, slå på den först.</string>
     <string name="hud_hotspot_on_hint">Telefonens hotspot sänder. Anslut HUD:en till telefonens wifi för att aktivera länken.</string>
+    <string name="hud_setup_hint_iphone">Anslut HUD:en och iPhonen till samma Wi-Fi, eller anslut HUD:en till den här iPhonens internetdelning. När iOS frågar, låt EUC Planet hitta enheter i det lokala nätverket.</string>
     <string name="hud_overlay_subsection">Eget överlägg</string>
     <string name="hud_overlay_subsection_desc">Importera en förinställning från Overlay Studio till HUD:ens skärmar Eget överlägg, utan bakgrund. Förinställningen kopieras hit, så senare ändringar i studion påverkar inte HUD:en förrän du importerar igen.</string>
     <string name="hud_overlay_select_preset">Importera förinställning</string>
@@ -791,7 +792,7 @@
     <string name="welcome_tut_outro_buttons">Många knappar har extra åtgärder, prova att trycka länge på dem</string>
     <string name="welcome_tut_outro_alarms">Utforska den kraftfulla larmredigeraren under Inställningar → %1$s</string>
     <string name="welcome_tut_outro_integrations">Utforska integrationerna: hjälm-HUD:ar, Wear OS-klockor, Flic-knappar, Garmin Connect IQ och bakåtradarn</string>
-    <string name="welcome_tut_outro_integrations_iphone">Utforska integrationerna: Flic-knappar och bakåtradarn. Hjälm-HUD:ar och klockor finns inte på iPhone än</string>
+    <string name="welcome_tut_outro_integrations_iphone">Utforska integrationerna: hjälm-HUD:ar, Flic-knappar och bakåtradarn. Klockor finns inte på iPhone än</string>
     <string name="welcome_tut_share">Säkerhetskopiera dina turer i Inställningar → %1$s. Se dem i %2$s, eller analysera säkerhetskopiorna på eucviewer.ried.no.\n\nI samma avsnitt kan du gå med i de offentliga topplistorna på eucstats.ried.no</string>
     <string name="welcome_tut_outro_end">Håll blicken på vägen och bort från appen när du åker!</string>
     <string name="welcome_tut_speed">Din aktuella fart. Byt enheter under Inställningar → %1$s</string>

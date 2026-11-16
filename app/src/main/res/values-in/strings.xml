@@ -456,6 +456,7 @@
     <string name="hud_server_port">Port</string>
     <string name="hud_hotspot_unknown_hint">Pastikan HUD dan ponsel berada di jaringan WiFi yang sama. Jika memakai hotspot ponsel, nyalakan dulu.</string>
     <string name="hud_hotspot_on_hint">Hotspot ponsel sedang menyiarkan. Hubungkan HUD ke WiFi ponsel ini untuk mengaktifkan tautan.</string>
+    <string name="hud_setup_hint_iphone">Hubungkan HUD dan iPhone ke Wi-Fi yang sama, atau hubungkan HUD ke Hotspot Pribadi iPhone ini. Saat iOS bertanya, izinkan EUC Planet menemukan perangkat di jaringan lokal.</string>
     <string name="hud_overlay_subsection">Overlay kustom</string>
     <string name="hud_overlay_subsection_desc">Impor preset Overlay Studio ke layar Overlay kustom HUD, tanpa latar belakang. Preset disalin ke sini, jadi perubahan di studio tidak akan mengubah HUD sampai Anda mengimpor lagi.</string>
     <string name="hud_overlay_select_preset">Impor preset</string>
@@ -1002,7 +1003,7 @@
     <string name="welcome_tut_outro_buttons">Banyak tombol punya tindakan tambahan, coba tekan lama</string>
     <string name="welcome_tut_outro_alarms">Jelajahi editor alarm kustom yang canggih di Setelan → %1$s</string>
     <string name="welcome_tut_outro_integrations">Jelajahi integrasinya: HUD helm, jam tangan WearOS, tombol Flic, Garmin Connect IQ, dan radar belakang</string>
-    <string name="welcome_tut_outro_integrations_iphone">Jelajahi integrasinya: tombol Flic dan radar belakang. HUD helm dan jam tangan belum ada di iPhone</string>
+    <string name="welcome_tut_outro_integrations_iphone">Jelajahi integrasinya: HUD helm, tombol Flic, dan radar belakang. Jam tangan belum ada di iPhone</string>
     <string name="welcome_tut_outro_end">Tetap fokus ke jalan dan jauhkan mata dari aplikasi ini saat berkendara!</string>
     <string name="welcome_tut_share">Cadangkan perjalanan Anda di Setelan → %1$s. Lihat di %2$s, atau analisis cadangannya di eucviewer.ried.no.\n\nDi bagian yang sama Anda bisa bergabung ke papan peringkat publik di eucstats.ried.no</string>
     <string name="welcome_tut_speed">Kecepatan langsung Anda. Ubah satuan di Setelan → %1$s</string>

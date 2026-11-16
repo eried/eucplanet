@@ -13,14 +13,11 @@ import com.eried.eucplanet.data.repository.AccelSplitRepository
 import com.eried.eucplanet.data.repository.AppHealthRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.startLinkFlow
-import com.eried.eucplanet.data.store.OverlayPresetJson
-import com.eried.eucplanet.data.store.OverlayPresetStore
 import com.eried.eucplanet.data.sync.SyncManager
 import com.eried.eucplanet.garmin.GarminBridge
 import com.eried.eucplanet.service.TonePlayer
 import com.eried.eucplanet.service.VoiceService
 import com.eried.eucplanet.service.WheelService
-import com.eried.eucplanet.service.hud.HudCommandSink
 import com.eried.eucplanet.ui.dashboard.AndroidDashboardSync
 import com.eried.eucplanet.ui.dashboard.DashboardSync
 import com.eried.eucplanet.ui.dashboard.toPhoneLocation
@@ -146,41 +143,6 @@ class AndroidOnlineLeaderboard(private val stats: EucStatsRepository) : OnlineLe
         stats.editProfile(displayName, flag, avatarPngBase64)
     override suspend fun deleteAccount() = stats.deleteAccount()
     override suspend fun exportData() = stats.exportData()
-}
-
-class AndroidHudSettingsLink(
-    sink: HudCommandSink,
-    private val overlayPresetStore: OverlayPresetStore,
-) : HudSettingsLink {
-    override val hudVersion = sink.hudVersion
-    override val hudEverConnected = sink.hudEverConnected
-
-    // The portrait / landscape split uses the same rule as the Studio: more
-    // than half of the elements rotated => landscape.
-    override suspend fun overlayLists(): SettingsViewModel.HudOverlayLists {
-        val hasFolder = overlayPresetStore.presetFolderAvailable()
-        val saved = if (hasFolder) overlayPresetStore.listPresets() else emptyList()
-        val portrait = mutableListOf<String>()
-        val landscape = mutableListOf<String>()
-        overlayPresetStore.listBundledPresets().forEach { name ->
-            val els = overlayPresetStore.loadBundledPreset(name)?.elements
-            if (els != null && els.isNotEmpty() &&
-                els.count { it.rotationDeg != 0f } * 2 > els.size
-            ) {
-                landscape.add(name)
-            } else {
-                portrait.add(name)
-            }
-        }
-        return SettingsViewModel.HudOverlayLists(hasFolder, saved, portrait, landscape)
-    }
-
-    override suspend fun overlayJson(name: String): String? {
-        val preset = overlayPresetStore.loadBundledPreset(name)
-            ?: overlayPresetStore.loadPreset(name)
-            ?: return null
-        return OverlayPresetJson.toJson(preset).toString()
-    }
 }
 
 class AndroidSettingsPlatform(

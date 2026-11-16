@@ -489,6 +489,7 @@
     <string name="hud_server_port">Port</string>
     <string name="hud_hotspot_unknown_hint">Upewnij się, że HUD i telefon są w tej samej sieci Wi-Fi. Jeśli używasz hotspotu telefonu, najpierw go włącz.</string>
     <string name="hud_hotspot_on_hint">Hotspot telefonu działa. Połącz HUD z siecią Wi-Fi tego telefonu, aby włączyć łącze.</string>
+    <string name="hud_setup_hint_iphone">Połącz HUD i iPhone\'a z tą samą siecią Wi-Fi albo połącz HUD z hotspotem osobistym tego iPhone\'a. Gdy iOS zapyta, pozwól EUC Planet wyszukiwać urządzenia w sieci lokalnej.</string>
     <string name="hud_overlay_subsection">Własna nakładka</string>
     <string name="hud_overlay_subsection_desc">Zaimportuj preset z Overlay Studio na ekrany Własna nakładka w HUD, bez tła. Preset jest kopiowany, więc późniejsze zmiany w studiu nie trafią do HUD, dopóki nie zaimportujesz go ponownie.</string>
     <string name="hud_overlay_select_preset">Importuj preset</string>
@@ -795,7 +796,7 @@
     <string name="welcome_tut_outro_buttons">Wiele przycisków ma dodatkowe akcje, spróbuj je przytrzymać</string>
     <string name="welcome_tut_outro_alarms">Poznaj rozbudowany edytor alarmów w Ustawienia → %1$s</string>
     <string name="welcome_tut_outro_integrations">Poznaj integracje: HUD-y do kasku, zegarki Wear OS, przyciski Flic, Garmin Connect IQ i radar tylny</string>
-    <string name="welcome_tut_outro_integrations_iphone">Poznaj integracje: przyciski Flic i radar tylny. HUD-y do kasku i zegarki są jeszcze niedostępne na iPhonie</string>
+    <string name="welcome_tut_outro_integrations_iphone">Poznaj integracje: HUD-y do kasku, przyciski Flic i radar tylny. Zegarki są jeszcze niedostępne na iPhonie</string>
     <string name="welcome_tut_share">Twórz kopie zapasowe przejazdów w Ustawienia → %1$s. Przejrzyj je w %2$s lub przeanalizuj kopie na eucviewer.ried.no.\n\nW tej samej sekcji możesz dołączyć do publicznych rankingów na eucstats.ried.no</string>
     <string name="welcome_tut_outro_end">Podczas jazdy patrz na drogę, nie na tę aplikację!</string>
     <string name="welcome_tut_speed">Twoja bieżąca prędkość. Zmień jednostki w Ustawienia → %1$s</string>

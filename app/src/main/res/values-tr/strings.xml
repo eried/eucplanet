@@ -489,6 +489,7 @@
     <string name="hud_server_port">Port</string>
     <string name="hud_hotspot_unknown_hint">HUD ile telefonun aynı Wi-Fi ağında olduğundan emin olun. Telefon hotspot\'unu kullanıyorsanız önce açın.</string>
     <string name="hud_hotspot_on_hint">Telefon hotspot\'u yayın yapıyor. Bağlantıyı etkinleştirmek için HUD\'ı bu telefonun Wi-Fi\'sine bağlayın.</string>
+    <string name="hud_setup_hint_iphone">HUD ile iPhone\'u aynı Wi-Fi ağına bağlayın veya HUD\'u bu iPhone\'un Kişisel Erişim Noktasına bağlayın. iOS sorduğunda EUC Planet\'in yerel ağdaki aygıtları bulmasına izin verin.</string>
     <string name="hud_overlay_subsection">Özel kaplama</string>
     <string name="hud_overlay_subsection_desc">Overlay Studio önayarını HUD\'ın Özel kaplama ekranlarına arka plan olmadan aktarır. Önayar buraya kopyalanır; stüdyodaki sonraki düzenlemeler tekrar içe aktarılmadan HUD\'ı etkilemez.</string>
     <string name="hud_overlay_select_preset">Önayarı içe aktar</string>
@@ -791,7 +792,7 @@
     <string name="welcome_tut_outro_buttons">Pek çok düğmenin ek eylemi var, uzun basmayı deneyin</string>
     <string name="welcome_tut_outro_alarms">Ayarlar → %1$s kısmındaki güçlü alarm düzenleyicisini keşfedin</string>
     <string name="welcome_tut_outro_integrations">Entegrasyonları keşfedin: kask HUD\'ları, Wear OS saatler, Flic düğmeleri, Garmin Connect IQ ve arka radar</string>
-    <string name="welcome_tut_outro_integrations_iphone">Entegrasyonları keşfedin: Flic düğmeleri ve arka radar. Kask HUD\'ları ve saatler henüz iPhone\'da yok</string>
+    <string name="welcome_tut_outro_integrations_iphone">Entegrasyonları keşfedin: kask HUD\'ları, Flic düğmeleri ve arka radar. Saatler henüz iPhone\'da yok</string>
     <string name="welcome_tut_share">Sürüşlerinizi Ayarlar → %1$s altında yedekleyin. Onları %2$s bölümünde görebilir veya yedekleri eucviewer.ried.no adresinde inceleyebilirsiniz.\n\nAynı bölümden eucstats.ried.no adresindeki herkese açık lider tablolarına katılabilirsiniz</string>
     <string name="welcome_tut_outro_end">Tek tekerle sürerken gözünüz yolda olsun, bu uygulamada değil!</string>
     <string name="welcome_tut_speed">Anlık hızınız. Ayarlar → %1$s kısmından birimleri değiştirin</string>

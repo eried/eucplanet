@@ -499,6 +499,7 @@
     <string name="hud_server_port">Port</string>
     <string name="hud_hotspot_unknown_hint">Make sure the HUD and the phone are on the same Wi-Fi network. If you use the phone hotspot, turn it on first.</string>
     <string name="hud_hotspot_on_hint">Phone hotspot is broadcasting. Connect the HUD to this phone\'s Wi-Fi to enable the link.</string>
+    <string name="hud_setup_hint_iphone">Put the HUD and the iPhone on the same Wi-Fi, or join the HUD to this iPhone\'s Personal Hotspot. When iOS asks, allow EUC Planet to find devices on the local network.</string>
     <string name="hud_overlay_subsection">Custom overlay</string>
     <string name="hud_overlay_subsection_desc">Import an Overlay Studio preset onto the HUD\'s Custom overlay screens, without backgrounds. The preset is copied here, so later edits in the studio won\'t change the HUD until you import again.</string>
     <string name="hud_overlay_select_preset">Import preset</string>
@@ -1086,7 +1087,7 @@
     <string name="welcome_tut_outro_buttons">Many buttons have extra actions, try long-pressing them</string>
     <string name="welcome_tut_outro_alarms">Explore the powerful custom alarm editor in Settings → %1$s</string>
     <string name="welcome_tut_outro_integrations">Explore the integrations: helmet HUDs, Wear OS watches, Flic buttons, Garmin Connect IQ, and the rear-view radar</string>
-    <string name="welcome_tut_outro_integrations_iphone">Explore the integrations: Flic buttons and the rear-view radar. Helmet HUDs and watches are not on iPhone yet</string>
+    <string name="welcome_tut_outro_integrations_iphone">Explore the integrations: helmet HUDs, Flic buttons and the rear-view radar. Watches are not on iPhone yet</string>
     <string name="welcome_tut_outro_end">Keep the eyes on the road and away from this app while unicycling!</string>
     <string name="welcome_tut_share">Back up your trips in Settings → %1$s. Check them in %2$s, or analyze the backups at eucviewer.ried.no.\n\nIn the same section you can join the public leaderboards at eucstats.ried.no</string>
     <string name="welcome_tut_speed">Your live speed. Change units in Settings → %1$s</string>

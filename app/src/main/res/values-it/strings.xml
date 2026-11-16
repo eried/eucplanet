@@ -134,6 +134,7 @@
     <string name="hud_server_port">Porta</string>
     <string name="hud_hotspot_unknown_hint">Assicurati che l\'HUD e il telefono siano sulla stessa rete Wi-Fi. Se usi l\'hotspot del telefono, attivalo prima.</string>
     <string name="hud_hotspot_on_hint">L\'hotspot del telefono è attivo. Collega l\'HUD al Wi-Fi di questo telefono per abilitare il collegamento.</string>
+    <string name="hud_setup_hint_iphone">Collega l\'HUD e l\'iPhone alla stessa rete Wi-Fi, oppure collega l\'HUD all\'hotspot personale di questo iPhone. Quando iOS lo chiede, consenti a EUC Planet di trovare i dispositivi sulla rete locale.</string>
     <string name="hud_custom_overlay_none">Nessuno</string>
 
     <!-- Wear OS companion settings -->
@@ -1688,7 +1689,7 @@
     <string name="welcome_tut_pd">Mostra Park o Drive. Toccalo per impostare la tua %1$s</string>
     <string name="welcome_tut_outro_alarms">Esplora il potente editor di allarmi personalizzati in Impostazioni → %1$s</string>
     <string name="welcome_tut_outro_integrations">Esplora le integrazioni: HUD da casco, orologi Wear OS, pulsanti Flic, Garmin Connect IQ e il radar posteriore</string>
-    <string name="welcome_tut_outro_integrations_iphone">Esplora le integrazioni: pulsanti Flic e il radar posteriore. HUD da casco e orologi non sono ancora su iPhone</string>
+    <string name="welcome_tut_outro_integrations_iphone">Esplora le integrazioni: HUD da casco, pulsanti Flic e il radar posteriore. Gli orologi non sono ancora su iPhone</string>
     <string name="welcome_tut_share">Salva i tuoi viaggi in Impostazioni → %1$s. Vedili in %2$s, oppure analizza i backup su eucviewer.ried.no.\n\nNella stessa sezione puoi entrare nelle classifiche pubbliche su eucstats.ried.no</string>
     <string name="welcome_tut_outro_end">Quando sei in sella, occhi sulla strada e non su questa app!</string>
 

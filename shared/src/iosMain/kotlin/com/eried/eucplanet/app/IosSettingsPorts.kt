@@ -17,7 +17,6 @@ import com.eried.eucplanet.service.VoiceOption
 import com.eried.eucplanet.ui.dashboard.DashboardSync
 import com.eried.eucplanet.ui.settings.EngineSoundPreview
 import com.eried.eucplanet.audio.EngineSoundEngine
-import com.eried.eucplanet.ui.settings.HudSettingsLink
 import com.eried.eucplanet.ui.settings.OnlineLeaderboard
 import com.eried.eucplanet.ui.settings.PromptTones
 import com.eried.eucplanet.ui.settings.SettingsPlatform
@@ -200,14 +199,6 @@ internal object NoSplitTimes : SplitTimes {
     override val session: StateFlow<AccelSplitTracker.Session> =
         MutableStateFlow(AccelSplitTracker.Session()).asStateFlow()
     override fun reset() = Unit
-}
-
-/** The HUD companion is an Android device; the iPhone does not talk to it. */
-internal object NoHud : HudSettingsLink {
-    override val hudVersion: StateFlow<String?> = MutableStateFlow<String?>(null).asStateFlow()
-    override val hudEverConnected: StateFlow<Boolean> = MutableStateFlow(false).asStateFlow()
-    override suspend fun overlayLists() = SettingsViewModel.HudOverlayLists(false, emptyList(), emptyList(), emptyList())
-    override suspend fun overlayJson(name: String): String? = null
 }
 
 internal object IosSettingsPlatform : SettingsPlatform {

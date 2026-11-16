@@ -483,6 +483,7 @@
     <string name="hud_server_port">Port</string>
     <string name="hud_hotspot_unknown_hint">Uistite sa, že HUD a telefón sú v rovnakej sieti Wi-Fi. Ak používate hotspot telefónu, najprv ho zapnite.</string>
     <string name="hud_hotspot_on_hint">Hotspot telefónu vysiela. Pripojte HUD k Wi-Fi tohto telefónu a spojenie sa zapne.</string>
+    <string name="hud_setup_hint_iphone">Pripojte HUD a iPhone k rovnakej sieti Wi-Fi alebo pripojte HUD k osobnému hotspotu tohto iPhonu. Keď sa iOS opýta, povoľte aplikácii EUC Planet hľadať zariadenia v miestnej sieti.</string>
     <string name="hud_overlay_subsection">Vlastné prekrytie</string>
     <string name="hud_overlay_subsection_desc">Importuje predvoľbu zo Štúdia prekrytia na obrazovky Vlastné prekrytie v HUD, bez pozadí. Predvoľba sa sem skopíruje, takže neskoršie úpravy v štúdiu HUD nezmenia, kým ju znova neimportujete.</string>
     <string name="hud_overlay_select_preset">Importovať predvoľbu</string>
@@ -1048,7 +1049,7 @@
     <string name="welcome_tut_outro_buttons">Mnohé tlačidlá majú ďalšie akcie, skúste ich dlho podržať</string>
     <string name="welcome_tut_outro_alarms">Vyskúšajte výkonný editor vlastných alarmov v Nastavenia → %1$s</string>
     <string name="welcome_tut_outro_integrations">Preskúmajte integrácie: HUD na prilbu, hodinky WearOS, tlačidlá Flic, Garmin Connect IQ a zadný radar</string>
-    <string name="welcome_tut_outro_integrations_iphone">Preskúmajte integrácie: tlačidlá Flic a zadný radar. HUD na prilbu a hodinky na iPhone zatiaľ nie sú</string>
+    <string name="welcome_tut_outro_integrations_iphone">Preskúmajte integrácie: HUD na prilbu, tlačidlá Flic a zadný radar. Hodinky na iPhone zatiaľ nie sú</string>
     <string name="welcome_tut_outro_end">Počas jazdy na monokolese sledujte cestu, nie túto aplikáciu!</string>
     <string name="welcome_tut_share">Zálohujte jazdy v Nastavenia → %1$s. Prezrite si ich v %2$s alebo analyzujte zálohy na eucviewer.ried.no.\n\nV tej istej sekcii sa môžete pridať do verejných rebríčkov na eucstats.ried.no</string>
     <string name="welcome_tut_speed">Vaša aktuálna rýchlosť. Jednotky zmeníte v Nastavenia → %1$s</string>

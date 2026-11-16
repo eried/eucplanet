@@ -489,6 +489,7 @@
     <string name="hud_server_port">ポート</string>
     <string name="hud_hotspot_unknown_hint">HUD とスマホが同じ Wi-Fi ネットワークに接続されているか確認してください。スマホのホットスポットを使う場合は、先にオンにしてください。</string>
     <string name="hud_hotspot_on_hint">スマホのホットスポットが起動中です。HUD をこのスマホの Wi-Fi に接続してリンクを有効にしてください。</string>
+    <string name="hud_setup_hint_iphone">HUD と iPhone を同じ Wi-Fi に接続するか、HUD をこの iPhone のインターネット共有に接続してください。iOS に確認されたら、EUC Planet がローカルネットワーク上のデバイスを検索することを許可してください。</string>
     <string name="hud_overlay_subsection">カスタムオーバーレイ</string>
     <string name="hud_overlay_subsection_desc">オーバーレイスタジオのプリセットを背景なしで HUD のカスタムオーバーレイ画面にインポートします。プリセットはここにコピーされるため、スタジオで後から編集しても再インポートするまで HUD には反映されません。</string>
     <string name="hud_overlay_select_preset">プリセットをインポート</string>
@@ -791,7 +792,7 @@
     <string name="welcome_tut_outro_buttons">多くのボタンには追加アクションがあります。長押しを試してみてください</string>
     <string name="welcome_tut_outro_alarms">設定 → %1$s で強力なカスタムアラームエディターを試してください</string>
     <string name="welcome_tut_outro_integrations">連携機能もお試しください: ヘルメット HUD、Wear OS ウォッチ、Flic ボタン、Garmin Connect IQ、後方レーダー</string>
-    <string name="welcome_tut_outro_integrations_iphone">連携機能もお試しください: Flic ボタンと後方レーダー。ヘルメット HUD とウォッチは iPhone ではまだ使えません</string>
+    <string name="welcome_tut_outro_integrations_iphone">連携機能もお試しください: ヘルメット HUD、Flic ボタン、後方レーダー。ウォッチは iPhone ではまだ使えません</string>
     <string name="welcome_tut_share">設定 → %1$s でトリップをバックアップしましょう。%2$s で確認したり、eucviewer.ried.no でバックアップを分析したりできます。\n\n同じセクションから eucstats.ried.no の公開リーダーボードに参加できます</string>
     <string name="welcome_tut_outro_end">走行中はアプリを見ずに、前方に集中してください！</string>
     <string name="welcome_tut_speed">ライブ速度。設定 → %1$s で単位を変更できます</string>

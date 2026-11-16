@@ -239,9 +239,9 @@ fun WelcomeTutorialOverlay(
     // are really on (e.g. the rider flipped it on earlier), so they "see it
     // disabled but still hear GPS / wheel connected".
     voiceCurrentlyOn: Boolean = false,
-    // False where the HUDs and watches are not (iPhone): the last page then
-    // names only what that phone has.
-    watchesAndHud: Boolean = true,
+    // False where the watches are not (iPhone): the last page then names
+    // only what that phone has.
+    watches: Boolean = true,
     // Dev-only quick tools, surfaced on step 0 of branch builds (BuildConfig.IS_DEV).
     // "Set backup folder" shows first; once a folder is set, Join and Sync appear,
     // and Restore appears only when the folder actually holds a settings backup.
@@ -453,11 +453,11 @@ fun WelcomeTutorialOverlay(
                                 )
                             )
                             Spacer(Modifier.height(8.dp))
-                            // Where the HUDs and watches are not (iPhone), the line
-                            // names Flic and the radar and says the rest is not there.
+                            // Where the watches are not (iPhone), the line names the
+                            // HUDs, Flic and the radar and says the watches are not there.
                             OutroBullet(
                                 stringResource(
-                                    if (watchesAndHud) Res.string.welcome_tut_outro_integrations
+                                    if (watches) Res.string.welcome_tut_outro_integrations
                                     else Res.string.welcome_tut_outro_integrations_iphone
                                 )
                             )

@@ -12,8 +12,9 @@ import org.jetbrains.compose.resources.StringResource
  * Where a feature is missing, its entry points stay on screen in a muted
  * colour and a tap says it is not on this phone yet, so a rider sees what is
  * coming instead of a button that does nothing. What a phone will never have
- * (volume keys, Android Auto, the watches, the HUD) is not listed here; the
- * hosts leave those out entirely (SettingsHost.hiddenSections and hiddenRows).
+ * (volume keys, Android Auto, the watches, the phone HUD window) is not listed
+ * here; the hosts leave those out entirely (SettingsHost.hiddenSections and
+ * hiddenRows).
  *
  * [settingsSection] is the SectionDef key of a whole settings section the
  * feature owns, [actionKey] the ActionCatalog key of a dashboard tile that

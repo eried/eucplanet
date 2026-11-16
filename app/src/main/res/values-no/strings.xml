@@ -106,6 +106,7 @@
     <string name="hud_server_port">Port</string>
     <string name="hud_hotspot_unknown_hint">Sørg for at HUD-en og telefonen er på samme Wi-Fi-nettverk. Bruker du telefonens Wi-Fi-sone, må du slå den på først.</string>
     <string name="hud_hotspot_on_hint">Telefonens Wi-Fi-sone er på. Koble HUD-en til denne telefonens Wi-Fi for å aktivere koblingen.</string>
+    <string name="hud_setup_hint_iphone">Koble HUD-en og iPhonen til samme Wi-Fi, eller koble HUD-en til denne iPhonens delte internett. Når iOS spør, la EUC Planet finne enheter på det lokale nettverket.</string>
     <string name="hud_custom_overlay_none">Ingen</string>
 
     <!-- Settings: Backup -->
@@ -1669,7 +1670,7 @@
     <string name="welcome_tut_pd">Viser Park eller Kjør. Trykk for å stille inn %1$s</string>
     <string name="welcome_tut_outro_alarms">Utforsk den kraftige editoren for egendefinerte alarmer under Innstillinger → %1$s</string>
     <string name="welcome_tut_outro_integrations">Utforsk integrasjonene: hjelm-HUD-er, Wear OS-klokker, Flic-knapper, Garmin Connect IQ og bakradaren</string>
-    <string name="welcome_tut_outro_integrations_iphone">Utforsk integrasjonene: Flic-knapper og bakradaren. Hjelm-HUD-er og klokker er ikke på iPhone ennå</string>
+    <string name="welcome_tut_outro_integrations_iphone">Utforsk integrasjonene: hjelm-HUD-er, Flic-knapper og bakradaren. Klokker er ikke på iPhone ennå</string>
     <string name="welcome_tut_share">Sikkerhetskopier turene dine i Innstillinger → %1$s. Se dem i %2$s, eller analyser sikkerhetskopiene på eucviewer.ried.no.\n\nI samme seksjon kan du bli med på de offentlige ledertavlene på eucstats.ried.no</string>
     <string name="welcome_tut_outro_end">Hold blikket på veien og vekk fra denne appen mens du kjører!</string>
 

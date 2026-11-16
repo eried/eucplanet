@@ -456,6 +456,7 @@
     <string name="hud_server_port">พอร์ต</string>
     <string name="hud_hotspot_unknown_hint">ตรวจสอบว่า HUD และโทรศัพท์อยู่ในเครือข่าย Wi-Fi เดียวกัน หากใช้ฮอตสปอตของโทรศัพท์ ให้เปิดฮอตสปอตก่อน</string>
     <string name="hud_hotspot_on_hint">ฮอตสปอตของโทรศัพท์กำลังเปิดอยู่ เชื่อมต่อ HUD กับ Wi-Fi ของโทรศัพท์นี้เพื่อเปิดใช้ลิงก์</string>
+    <string name="hud_setup_hint_iphone">เชื่อมต่อ HUD และ iPhone กับ Wi-Fi เดียวกัน หรือเชื่อมต่อ HUD กับฮอตสปอตส่วนบุคคลของ iPhone เครื่องนี้ เมื่อ iOS ถาม ให้อนุญาต EUC Planet ค้นหาอุปกรณ์ในเครือข่ายภายใน</string>
     <string name="hud_overlay_subsection">โอเวอร์เลย์กำหนดเอง</string>
     <string name="hud_overlay_subsection_desc">นำเข้าพรีเซ็ตจากสตูดิโอโอเวอร์เลย์ไปยังหน้าจอโอเวอร์เลย์ของ HUD โดยไม่มีพื้นหลัง พรีเซ็ตจะถูกคัดลอกมาไว้ที่นี่ การแก้ไขในสตูดิโอภายหลังจะไม่เปลี่ยน HUD จนกว่าคุณจะนำเข้าอีกครั้ง</string>
     <string name="hud_overlay_select_preset">นำเข้าพรีเซ็ต</string>
@@ -1002,7 +1003,7 @@
     <string name="welcome_tut_outro_buttons">ปุ่มหลายปุ่มมีคำสั่งเพิ่มเติม ลองกดค้างดู</string>
     <string name="welcome_tut_outro_alarms">ลองใช้ตัวแก้ไขสัญญาณเตือนแบบกำหนดเองที่ทรงพลังในการตั้งค่า → %1$s</string>
     <string name="welcome_tut_outro_integrations">ลองใช้การเชื่อมต่อต่างๆ: HUD บนหมวกกันน็อก นาฬิกา WearOS ปุ่ม Flic, Garmin Connect IQ และเรดาร์มองหลัง</string>
-    <string name="welcome_tut_outro_integrations_iphone">ลองใช้การเชื่อมต่อ: ปุ่ม Flic และเรดาร์มองหลัง ส่วน HUD บนหมวกกันน็อกและนาฬิกายังไม่มีบน iPhone</string>
+    <string name="welcome_tut_outro_integrations_iphone">ลองใช้การเชื่อมต่อ: HUD บนหมวกกันน็อก ปุ่ม Flic และเรดาร์มองหลัง ส่วนนาฬิกายังไม่มีบน iPhone</string>
     <string name="welcome_tut_outro_end">ขณะขี่ล้อ ให้สายตาอยู่บนถนน ไม่ใช่บนแอปนี้!</string>
     <string name="welcome_tut_share">สำรองทริปของคุณในการตั้งค่า → %1$s ดูทริปได้ใน %2$s หรือวิเคราะห์ข้อมูลสำรองที่ eucviewer.ried.no\n\nในส่วนเดียวกันคุณเข้าร่วมกระดานผู้นำสาธารณะได้ที่ eucstats.ried.no</string>
     <string name="welcome_tut_speed">ความเร็วสดของคุณ เปลี่ยนหน่วยได้ในการตั้งค่า → %1$s</string>
