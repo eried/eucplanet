@@ -355,8 +355,13 @@ data class HudState(
          * 23: [HudState.navEta], the arrival time and distance left under
          *    the turn badge. An older HUD ignores it. The Custom + map
          *    screen came with it: an older HUD drops that screen id.
+         * 24: no new field. The phone's tile server answers for a layer
+         *    (see [HudTiles]), so the HUD takes every map picture from the
+         *    phone: online, the phone's cache, or its offline map, as the
+         *    rider set it there. Against an older phone the HUD still
+         *    fetches online tiles itself.
          */
-        const val PROTOCOL_MINOR: Int = 23
+        const val PROTOCOL_MINOR: Int = 24
 
         /** Legacy alias. New code should read [PROTOCOL_MAJOR] / [PROTOCOL_MINOR]. */
         @Deprecated(
@@ -510,8 +515,8 @@ object HudDiscovery {
     const val SERVICE_TYPE: String = "_eucplanet._tcp.local."
     /** Default port; overridable per phone if 28080 collides on the LAN. */
     const val DEFAULT_PORT: Int = 28080
-    /** Port the phone serves its offline map on, `GET /tiles/z/x/y.png`. The
-     *  HUD asks it there when its own tile fetch fails, as with no signal. */
+    /** Port the phone serves map pictures on, `GET /tiles/z/x/y.png`. See
+     *  [HudTiles] for what the HUD asks there. */
     const val TILE_PORT: Int = 28081
     /**
      * True when [text] is a complete dotted-quad IPv4 address.

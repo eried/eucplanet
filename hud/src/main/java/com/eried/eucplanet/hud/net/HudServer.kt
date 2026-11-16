@@ -429,6 +429,7 @@ class HudServer(private val context: Context) {
                                     val compat = com.eried.eucplanet.hud.protocol.VersionCompat
                                         .classify(s.protocolMajor, s.protocolMinor)
                                     _versionCompat.value = compat
+                                    HudTileCache.phoneMinor = s.protocolMinor
                                     if (!compat.isBlocking) {
                                         _state.value = s
                                     }

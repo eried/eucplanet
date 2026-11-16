@@ -92,10 +92,14 @@ class HudServer(
     private val offlineMap: com.eried.eucplanet.nav.offline.map.OfflineMapRenderer,
 ) {
 
-    /** The offline map for the HUD, served while the link is on. */
+    /** The HUD's map pictures, served while the link is on. For a layer the
+     *  phone answers as its own maps would; with none, the offline map. */
     private val tileServer = HudTileServer(
         com.eried.eucplanet.hud.protocol.HudDiscovery.TILE_PORT,
-        { z, x, y -> offlineMap.png(z, x, y, 256) },
+        { z, x, y, layer ->
+            if (layer == null) offlineMap.png(z, x, y, 256)
+            else com.eried.eucplanet.map.MapTileCache.layerTile(context, layer, z, x, y)
+        },
         { Log.w(TAG, it) },
     )
 
