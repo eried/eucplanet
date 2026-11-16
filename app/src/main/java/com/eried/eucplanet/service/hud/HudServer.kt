@@ -1119,9 +1119,9 @@ class HudServer(
                     while (true) {
                         val frame = if (first) runCatching { snapshot() }.getOrDefault(latest) else latest
                         first = false
-                        // The HUD draws its Map screen from this phone's
-                        // position, so keep GPS on while it is in the carousel.
-                        if (isActive) tripRepository.setHudMapLinked("Map" in frame.enabledHudScreens)
+                        // The HUD draws its map screens from this phone's
+                        // position, so keep GPS on while one is in the carousel.
+                        if (isActive) tripRepository.setHudMapLinked(HudScreens.hasMap(frame.enabledHudScreens))
                         try {
                             if (!webSocket.send(json.encodeToString(frame))) {
                                 // OkHttp returns false when the outbound
