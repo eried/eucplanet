@@ -5,3 +5,4 @@
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "EUC Planet fortsätter spela in turen medan skärmen är avstängd.";
 "NSMicrophoneUsageDescription" = "EUC Planet spelar in ljud till Overlay Studios videor medan mikrofonen är på.";
 "NSPhotoLibraryAddUsageDescription" = "EUC Planet sparar Overlay Studios bilder, klipp och videor i ditt bildbibliotek.";
+"NSLocalNetworkUsageDescription" = "EUC Planet hittar HUD:en på ditt Wi-Fi och skickar åkdata till den i realtid.";

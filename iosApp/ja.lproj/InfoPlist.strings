@@ -5,3 +5,4 @@
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "EUC Planet は画面がオフの間もトリップを記録し続けます。";
 "NSMicrophoneUsageDescription" = "EUC Planet はマイクがオンの間、オーバーレイスタジオの動画に音声を録音します。";
 "NSPhotoLibraryAddUsageDescription" = "EUC Planet はオーバーレイスタジオの写真、クリップ、動画を写真ライブラリに保存します。";
+"NSLocalNetworkUsageDescription" = "EUC Planet は Wi-Fi 上の HUD を見つけ、走行データをリアルタイムで送ります。";

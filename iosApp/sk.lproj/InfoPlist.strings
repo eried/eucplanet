@@ -5,3 +5,4 @@
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "EUC Planet nahráva jazdu aj pri vypnutej obrazovke.";
 "NSMicrophoneUsageDescription" = "EUC Planet nahráva zvuk k videám zo Štúdia prekrytia, keď je mikrofón zapnutý.";
 "NSPhotoLibraryAddUsageDescription" = "EUC Planet ukladá fotky, klipy a videá zo Štúdia prekrytia do knižnice fotiek.";
+"NSLocalNetworkUsageDescription" = "EUC Planet nájde HUD vo vašej sieti Wi-Fi a posiela mu živé údaje z jazdy.";

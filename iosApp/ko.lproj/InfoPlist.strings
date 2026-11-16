@@ -5,3 +5,4 @@
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "EUC Planet은 화면이 꺼져 있어도 주행을 계속 기록합니다.";
 "NSMicrophoneUsageDescription" = "EUC Planet은 마이크가 켜져 있는 동안 오버레이 스튜디오 동영상에 소리를 녹음합니다.";
 "NSPhotoLibraryAddUsageDescription" = "EUC Planet은 오버레이 스튜디오의 사진, 클립, 동영상을 사진 보관함에 저장합니다.";
+"NSLocalNetworkUsageDescription" = "EUC Planet은 Wi-Fi에서 HUD를 찾아 실시간 주행 데이터를 보냅니다.";

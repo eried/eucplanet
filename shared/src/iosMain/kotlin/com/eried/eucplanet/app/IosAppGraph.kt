@@ -388,6 +388,38 @@ object IosAppGraph {
 
     private val activeRoute: IosActiveRoute by lazy { IosActiveRoute(navigation) }
 
+    /** What a linked HUD asks of the phone (its buttons, its version), through the shared actions. */
+    val hudSink: com.eried.eucplanet.service.hud.HudCommandSink by lazy {
+        com.eried.eucplanet.service.hud.HudCommandSink(wheel, navigation, settings, actions)
+    }
+
+    /**
+     * The link to the HUD app on glasses or a second phone, the same HudServer
+     * Android runs, on the iPhone's ports (IosHudLink.kt). IosHudLink starts
+     * and stops it with its setting.
+     */
+    val hud: com.eried.eucplanet.service.hud.HudServer by lazy {
+        com.eried.eucplanet.service.hud.HudServer(
+            wheelRepository = wheel,
+            settingsRepository = settings,
+            externalGpsRepository = externalGps,
+            tripMeterRepository = IosTripMeter.meter,
+            radarRepository = radar,
+            navigationEngine = navigation,
+            commandSink = hudSink,
+            themeController = theme,
+            phone = IosHudPhone,
+            sockets = IosHudSockets,
+            mdns = IosHudMdns,
+            udpListener = IosHudBeacons,
+            network = IosHudNetwork,
+            subnetProbe = com.eried.eucplanet.service.hud.HudSubnetProbe(IosHudNetwork),
+            tileServer = IosHudTiles(com.eried.eucplanet.hud.protocol.HudDiscovery.TILE_PORT) { z, x, y ->
+                IosOfflineMap.png(z, x, y, 256)
+            },
+        )
+    }
+
     /** A place or route handed to the app from outside, for the route builder to open. */
     val incomingShares: com.eried.eucplanet.data.repository.IncomingShareRepository by lazy {
         com.eried.eucplanet.data.repository.IncomingShareRepository()

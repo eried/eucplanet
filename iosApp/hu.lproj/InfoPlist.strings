@@ -5,3 +5,4 @@
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "Az EUC Planet kikapcsolt képernyőnél is rögzíti a menetet.";
 "NSMicrophoneUsageDescription" = "Az EUC Planet hangot rögzít az Overlay Studio videóihoz, amíg a mikrofon be van kapcsolva.";
 "NSPhotoLibraryAddUsageDescription" = "Az EUC Planet az Overlay Studio fotóit, klipjeit és videóit a fotókönyvtáradba menti.";
+"NSLocalNetworkUsageDescription" = "Az EUC Planet megkeresi a HUD-ot a Wi-Fi-hálózatodon, és élő menetadatokat küld neki.";

@@ -2,7 +2,10 @@ package com.eried.eucplanet.app
 
 import com.eried.eucplanet.ble.gps.VirtualExternalGps
 import com.eried.eucplanet.data.model.ExternalGpsSource
+import com.eried.eucplanet.data.model.HudDiscoveryMode
 import com.eried.eucplanet.diagnostics.DiagnosticsLogger
+import com.eried.eucplanet.hud.protocol.HudDiscovery
+import com.eried.eucplanet.platform.Log
 import com.eried.eucplanet.ui.dashboard.DashboardDialogBus
 import com.eried.eucplanet.ui.dashboard.sources.DataSourcesScript
 import kotlinx.coroutines.MainScope
@@ -28,9 +31,16 @@ import platform.Foundation.NSProcessInfo
  * - SIMCTL_CHILD_EUC_NO_NETWORK=1 makes the app act as if it had no
  *   connection (IosNetwork.forceOffline): the simulator shares the Mac's
  *   network, so this is how the offline map and routing are seen there.
+ * - SIMCTL_CHILD_EUC_HUD=127.0.0.1:28080 turns the HUD link on and dials that
+ *   address (the manual address, saved like any settings change; the port may
+ *   be left out); =auto turns it on and lets it search; =off turns it off;
+ *   =browse changes nothing and dials nothing, it only names in the log the
+ *   HUD Bonjour finds on this network.
+ *   Android's HUD debug properties are hooks too: EUC_HUD_FORCE, EUC_HUD_PEER,
+ *   EUC_DEMO, EUC_PROTO_MAJOR and EUC_PROTO_MINOR (IosHudPhone.debug).
  */
 internal object IosLaunchHooks {
-    private fun env(name: String): String? = NSProcessInfo.processInfo.environment[name] as? String
+    fun env(name: String): String? = NSProcessInfo.processInfo.environment[name] as? String
 
     val sources: DataSourcesScript? by lazy { env("EUC_SOURCES")?.let { DataSourcesScript.parse(it) } }
 
@@ -58,6 +68,33 @@ internal object IosLaunchHooks {
                 }
             }
         }
+        env("EUC_HUD")?.trim()?.let { hud(it) }
         if (sources != null) DashboardDialogBus.open("sources")
+    }
+
+    private fun hud(spec: String) {
+        if (spec.lowercase() == "browse") {
+            MainScope().launch {
+                val found = IosHudMdns.resolve(timeoutMs = 8_000, serviceInfoTimeoutMs = 4_000)
+                Log.i("HudServer", "[disc] Bonjour browse: ${found ?: "no HUD answered"}")
+            }
+            return
+        }
+        kotlinx.coroutines.runBlocking { hudSetting(spec) }
+    }
+
+    private suspend fun hudSetting(spec: String) {
+        IosAppGraph.settings.update {
+            when (spec.lowercase()) {
+                "off" -> it.copy(hudServerEnabled = false)
+                "auto" -> it.copy(hudServerEnabled = true, hudDiscoveryMode = HudDiscoveryMode.AUTO)
+                else -> it.copy(
+                    hudServerEnabled = true,
+                    hudDiscoveryMode = HudDiscoveryMode.FIXED,
+                    hudIp = spec.substringBefore(':'),
+                    hudServerPort = spec.substringAfter(':', "").toIntOrNull() ?: HudDiscovery.DEFAULT_PORT,
+                )
+            }
+        }
     }
 }

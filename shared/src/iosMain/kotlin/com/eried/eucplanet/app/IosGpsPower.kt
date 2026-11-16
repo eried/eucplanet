@@ -28,8 +28,9 @@ import platform.UIKit.UIApplicationWillEnterForegroundNotification
  *
  * Android's HIGH also honours the Advanced phone GPS interval; CoreLocation has
  * no interval, so HIGH delivers every fix. Guidance and a live location share
- * hold HIGH, in the background too ([setNavigating], [setSharing]); no watch
- * map or HUD map on iOS yet, so those inputs are always off here.
+ * hold HIGH, in the background too ([setNavigating], [setSharing]), and so
+ * does a HUD drawing its map from this phone ([setHudMap]). No watch map on
+ * iOS yet, so that input is always off here.
  */
 internal object IosGpsPower {
     private const val TAG = "GpsPower"
@@ -51,6 +52,7 @@ internal object IosGpsPower {
     private val visible = MutableStateFlow(true)
     private val navigating = MutableStateFlow(false)
     private val sharing = MutableStateFlow(false)
+    private val hudMap = MutableStateFlow(false)
 
     /** Guidance is on (Android's TripRepository.setNavigating). */
     fun setNavigating(on: Boolean) {
@@ -60,6 +62,11 @@ internal object IosGpsPower {
     /** The rider is in a live location group. */
     fun setSharing(on: Boolean) {
         sharing.value = on
+    }
+
+    /** A linked HUD has its map screen on (Android's TripRepository.setHudMapLinked). */
+    fun setHudMap(on: Boolean) {
+        hudMap.value = on
     }
 
     /** Starts the stream on demand, as Android's startLocationUpdates. */
@@ -93,6 +100,7 @@ internal object IosGpsPower {
         scope.launch { IosTrips.recording.collect { recompute() } }
         scope.launch { navigating.collect { recompute() } }
         scope.launch { sharing.collect { recompute() } }
+        scope.launch { hudMap.collect { recompute() } }
         scope.launch { IosAppGraph.wheel.connectionState.collect { recompute() } }
         scope.launch {
             IosAppGraph.settings.settings.collect {
@@ -108,6 +116,7 @@ internal object IosGpsPower {
         connected = IosAppGraph.wheel.connectionState.value == ConnectionState.CONNECTED,
         appVisible = appVisible,
         sharing = sharing.value,
+        hudMapLinked = hudMap.value,
     )
 
     private fun recompute() {

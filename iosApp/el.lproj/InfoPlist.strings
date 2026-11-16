@@ -5,3 +5,4 @@
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "Το EUC Planet συνεχίζει να καταγράφει τη διαδρομή σας όταν η οθόνη είναι σβηστή.";
 "NSMicrophoneUsageDescription" = "Το EUC Planet ηχογραφεί ήχο με τα βίντεο του Studio επικάλυψης όσο το μικρόφωνο είναι ανοιχτό.";
 "NSPhotoLibraryAddUsageDescription" = "Το EUC Planet αποθηκεύει τις φωτογραφίες, τα κλιπ και τα βίντεο του Studio επικάλυψης στη βιβλιοθήκη φωτογραφιών σας.";
+"NSLocalNetworkUsageDescription" = "Το EUC Planet βρίσκει το HUD στο Wi-Fi σας και του στέλνει ζωντανά δεδομένα διαδρομής.";

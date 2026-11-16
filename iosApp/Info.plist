@@ -114,5 +114,11 @@
     <string>EUC Planet uses your location for GPS speed, trip recording and automatic lights.</string>
     <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
     <string>EUC Planet keeps recording your trip while the screen is off.</string>
+    <key>NSLocalNetworkUsageDescription</key>
+    <string>EUC Planet finds the HUD on your Wi-Fi and sends it live ride data.</string>
+    <key>NSBonjourServices</key>
+    <array>
+        <string>_eucplanet._tcp</string>
+    </array>
 </dict>
 </plist>

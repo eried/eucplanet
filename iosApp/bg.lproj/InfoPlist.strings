@@ -5,3 +5,4 @@
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "EUC Planet продължава да записва пътуването ви, докато екранът е изключен.";
 "NSMicrophoneUsageDescription" = "EUC Planet записва звук с видеата от Студиото за наслагване, докато микрофонът е включен.";
 "NSPhotoLibraryAddUsageDescription" = "EUC Planet запазва снимките, клиповете и видеата от Студиото за наслагване в библиотеката ви.";
+"NSLocalNetworkUsageDescription" = "EUC Planet намира HUD във вашата Wi-Fi мрежа и му изпраща данните от карането на живо.";

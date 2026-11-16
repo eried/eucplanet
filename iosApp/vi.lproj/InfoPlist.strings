@@ -5,3 +5,4 @@
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "EUC Planet tiếp tục ghi chuyến đi khi màn hình tắt.";
 "NSMicrophoneUsageDescription" = "EUC Planet ghi âm cùng video của Studio lớp phủ khi micrô đang bật.";
 "NSPhotoLibraryAddUsageDescription" = "EUC Planet lưu ảnh, clip và video của Studio lớp phủ vào thư viện ảnh của bạn.";
+"NSLocalNetworkUsageDescription" = "EUC Planet tìm HUD trên Wi-Fi của bạn và gửi dữ liệu chuyến đi trực tiếp đến đó.";

@@ -17,7 +17,7 @@ See `docs/IOS_MIGRATION_PLAN.md` for how the code got here and
 | `shared/src/iosMain` | iOS only | The iOS side of an `expect`, or an interface implementation that uses an Apple framework (CoreBluetooth, CoreLocation, AVFoundation...). |
 | `shared/src/androidUnitTest` | JVM | The JUnit tests that moved with the code. They run in `./gradlew test` like before. |
 | `shared/src/commonTest` | JVM and iOS simulator | Tests that should also run on iOS (`:shared:iosSimulatorArm64Test`, Mac only). |
-| `app/` | Android only | Android-only features (Android Auto, watches, HUD, widgets, Flic), services, `Application`, manifest. |
+| `app/` | Android only | Android-only features (Android Auto, watches, widgets, Flic), services, `Application`, manifest. |
 | `iosApp/` | iOS only | The Xcode project: a small UIKit host that shows the shared Compose UI. |
 
 ## The everyday case: changing a shared feature
@@ -61,6 +61,7 @@ Seams that need both sides on every change:
 | GPS power tiers | `data/model/GpsPowerPolicy.kt` (`GpsPowerPolicy`, `GpsIdleOff`) | `TripRepository` (fused priority and interval) | `iosMain/.../app/IosGpsPower.kt` (CoreLocation accuracy and distance filter), `iosApp/LocationBridge.swift` |
 | Automations | `service/AutomationManager.kt` (`AutomationWheel`, `MediaAutomation`), `ui/settings/AutomationsContent.kt` | `di/ServiceModule.kt` builds it; `service/AndroidMediaAutomation.kt` (AudioManager volume, media keys) | `iosMain/.../app/IosAppGraph.automation` (no media half) |
 | Ride session | `service/RideSession.kt` (`RideWheel`, `RideRecorder`, `RideVoice`) | `WheelService` (builds it, adds the notification, widget, engine sound, HUD, accel splits) | `iosMain/.../app/IosRideSession.kt` (adds the engine sound; the Live Activity follows the link itself) |
+| HUD link (the phone side) | `service/hud/HudServer.kt` (search, dial, stream, reconnect), `HudLinkPorts.kt` (`HudSockets`, `HudMdns`, `HudBeacons`, `HudNetwork`, `HudTiles`, `HudPhone`; `HudBeacon.parse`, `HudTileHttp`), `HudSubnetProbe.kt`, `HudCommandSink.kt`, `HudDemoSource.kt`, `HudLinkLog.kt` | `app/.../service/hud/AndroidHudLink.kt` (OkHttp, JmDNS, ConnectivityManager), `HudUdpListener.kt` (the broadcast beacon), `HudTileServer.kt`, `di/HudModule.kt`; `WheelService` starts it | `iosMain/.../app/IosHudLink.kt` (URLSessionWebSocketTask, NSNetServiceBrowser, BSD sockets for the probe and the tile listener; no beacon, receiving a broadcast needs the multicast entitlement the app does not have); `IosAppStart` starts it; `Info.plist` carries `NSLocalNetworkUsageDescription` and `NSBonjourServices` |
 | Theme editor | `ui/theme/ThemeEditorWidget.kt`, `ThemeTargetTool.kt`, `ThemeEditorSurface` (window size and one pixel) | `app/.../ui/theme/AndroidThemeEditorSurface.kt` (the view, PixelCopy); MainActivity mounts the widget | `iosMain/.../app/IosThemeEditor.kt` (a recorded root layer), `app/StatusBarHost.kt` (status bar style from the theme) |
 | Rider actions on the phone | `flic/ActionExecutor.kt` (`MediaControls`, `PhoneControls`, `VoiceListening`) | `app/.../flic/AndroidMediaControls.kt`, `AndroidPhoneControls.kt` (volume, torch), `di/ServiceModule.kt` | `iosMain/.../app/IosDashboardPorts.kt` (`NoMedia`, `IosPhoneControls`: the torch) |
 | Back | Compose `BackHandler`s through each `*Host.BackHandler` | `androidx.activity` back (MainActivity, NavGraph) | the left-edge swipe: `iosMain/.../app/IosBack.kt` (`IosBackHandler`, `IosBackSwipeBridge` for dialogs), one handler per screen in `MainViewController.kt` |
@@ -253,6 +254,16 @@ SIMCTL_CHILD_EUC_GPS_SPEED=external xcrun simctl launch booted com.eried.eucplan
                                # Show speed on dashboard and Prioritize
                                # external GPS on (=phone: only the first),
                                # for the dial's external speed dot
+SIMCTL_CHILD_EUC_CONNECT=VIRTUAL:V6 SIMCTL_CHILD_EUC_HUD=127.0.0.1:28080 xcrun simctl launch booted com.eried.eucplanet.ios
+                               # turns the HUD link on and dials that address
+                               # (the manual address, saved like any setting;
+                               # the port may be left out); =auto turns it on
+                               # and lets it search, =off turns it off,
+                               # =browse only logs the HUD Bonjour finds. For
+                               # the HUD app on an emulator:
+                               # adb forward tcp:28080 tcp:28080 (the link)
+                               # and adb reverse tcp:28081 tcp:28081 (the
+                               # HUD's map tiles from this phone)
 SIMCTL_CHILD_EUC_HEADLESS=20 SIMCTL_CHILD_EUC_CONNECT=VIRTUAL:V6 xcrun simctl launch booted com.eried.eucplanet.ios
                                # starts as a Bluetooth relaunch does: the
                                # services with no screen for 20 s (the log

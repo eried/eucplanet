@@ -5,3 +5,4 @@
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "EUC Planet zeichnet deine Fahrt auch bei ausgeschaltetem Bildschirm weiter auf.";
 "NSMicrophoneUsageDescription" = "EUC Planet nimmt Ton zu den Videos des Overlay Studios auf, solange das Mikrofon an ist.";
 "NSPhotoLibraryAddUsageDescription" = "EUC Planet speichert Fotos, Clips und Videos des Overlay Studios in deiner Fotomediathek.";
+"NSLocalNetworkUsageDescription" = "EUC Planet findet das HUD in deinem WLAN und sendet ihm Live-Fahrdaten.";

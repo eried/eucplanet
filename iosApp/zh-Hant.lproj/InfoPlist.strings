@@ -5,3 +5,4 @@
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "螢幕關閉時，EUC Planet 會繼續記錄你的行程。";
 "NSMicrophoneUsageDescription" = "麥克風開啟時，EUC Planet 會為疊加層工作室的影片錄製聲音。";
 "NSPhotoLibraryAddUsageDescription" = "EUC Planet 會將疊加層工作室的照片、片段與影片儲存到你的照片圖庫。";
+"NSLocalNetworkUsageDescription" = "EUC Planet 會在你的 Wi-Fi 上尋找 HUD，並傳送即時騎乘資料給它。";

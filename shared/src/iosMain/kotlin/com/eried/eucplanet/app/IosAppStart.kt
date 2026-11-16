@@ -121,6 +121,9 @@ object IosAppStart {
         // What runs around a ride (automations, announcements, auto-record,
         // charge alerts, periodic reports): the shared RideSession, as WheelService runs it.
         IosRideSession.start()
+        // The link to a HUD on the same Wi-Fi, as WheelService starts it on
+        // Android: on while its setting is, in the background too.
+        IosHudLink.start()
         // Dropbox trips at launch, on every return to the front and while open.
         IosDropboxSync.start()
         // Keep screen on, and the language picker showing the applied language.

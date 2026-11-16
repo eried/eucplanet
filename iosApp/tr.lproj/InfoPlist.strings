@@ -5,3 +5,4 @@
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "EUC Planet ekran kapalıyken de sürüşünüzü kaydetmeye devam eder.";
 "NSMicrophoneUsageDescription" = "EUC Planet, mikrofon açıkken Kaplama stüdyosu videolarına ses kaydeder.";
 "NSPhotoLibraryAddUsageDescription" = "EUC Planet, Kaplama stüdyosunun fotoğraflarını, kliplerini ve videolarını fotoğraf arşivinize kaydeder.";
+"NSLocalNetworkUsageDescription" = "EUC Planet, Wi-Fi ağınızdaki HUD'u bulur ve ona canlı sürüş verilerini gönderir.";

@@ -5,3 +5,4 @@
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "EUC Planet continuă să înregistreze cursa cu ecranul stins.";
 "NSMicrophoneUsageDescription" = "EUC Planet înregistrează sunetul videoclipurilor din Overlay Studio cât timp microfonul este pornit.";
 "NSPhotoLibraryAddUsageDescription" = "EUC Planet salvează fotografiile, clipurile și videoclipurile din Overlay Studio în biblioteca foto.";
+"NSLocalNetworkUsageDescription" = "EUC Planet găsește HUD-ul în rețeaua ta Wi-Fi și îi trimite datele cursei în timp real.";

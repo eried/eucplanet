@@ -5,3 +5,4 @@
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "EUC Planet tetap merekam perjalanan Anda saat layar mati.";
 "NSMicrophoneUsageDescription" = "EUC Planet merekam suara bersama video Studio overlay selama mikrofon menyala.";
 "NSPhotoLibraryAddUsageDescription" = "EUC Planet menyimpan foto, klip, dan video Studio overlay ke perpustakaan foto Anda.";
+"NSLocalNetworkUsageDescription" = "EUC Planet mencari HUD di Wi-Fi Anda dan mengirimkan data perjalanan langsung ke sana.";
