@@ -3,6 +3,8 @@ package com.eried.eucplanet.data.repository
 import com.eried.eucplanet.data.model.AccelSplitMode
 import com.eried.eucplanet.data.model.AccelSplitSettings
 import com.eried.eucplanet.service.AccelSplitTracker
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -28,6 +30,9 @@ class AccelSplitRepository : AccelSplitReset {
 
     private val tracker = AccelSplitTracker(increment = 10, minSpeed = 20)
 
+    // Fed from the telemetry collector, paused and reset from the screens.
+    private val lock = SynchronizedObject()
+
     private val _session = MutableStateFlow(AccelSplitTracker.Session())
 
     /** Best and last-run time for every step seen this session, per direction. */
@@ -38,8 +43,7 @@ class AccelSplitRepository : AccelSplitReset {
      * the configured step and floor. Returns the steps completed by this
      * sample, for the voice.
      */
-    @Synchronized
-    fun onSample(cfg: AccelSplitSettings, timeMs: Long, speed: Double): List<AccelSplitTracker.Split> {
+    fun onSample(cfg: AccelSplitSettings, timeMs: Long, speed: Double): List<AccelSplitTracker.Split> = synchronized(lock) {
         val mode = AccelSplitMode.of(cfg)
         tracker.configure(
             cfg.increment,
@@ -52,19 +56,17 @@ class AccelSplitRepository : AccelSplitReset {
         // nothing; a completed run updates the "last" column without waiting
         // for the next split to be spoken.
         _session.value = tracker.snapshot()
-        return out
+        out
     }
 
     /** Stop tracking and drop the run in flight. Session times are kept. */
-    @Synchronized
-    fun pause() {
+    fun pause() = synchronized(lock) {
         tracker.pause()
         _session.value = tracker.snapshot()
     }
 
     /** Forget the session: the rider asked, or a different wheel connected. */
-    @Synchronized
-    override fun reset() {
+    override fun reset() = synchronized(lock) {
         tracker.hardReset()
         _session.value = tracker.snapshot()
     }

@@ -8,13 +8,13 @@ import kotlin.math.abs
 import org.jetbrains.compose.resources.StringResource
 
 /**
- * Builds the spoken sentence for an acceleration split. Shared by [WheelService]
+ * Builds the spoken sentence for an acceleration split. Shared by [RideSession]
  * (live announcements) and the settings preview button so the two never drift.
  * Split times are voiced to hundredths (matching RaceBox, e.g. "1.21 seconds");
  * comparison deltas to tenths ("0.2 seconds faster than previous").
  *
  * [text] reads a string in the rider's language with its format arguments
- * (Context.getString on Android).
+ * (PhoneDevice.text in the ride session).
  */
 object AccelSplitVoice {
 

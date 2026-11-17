@@ -13,6 +13,7 @@ import com.eried.eucplanet.ble.gps.ExternalGpsAdapter
 import com.eried.eucplanet.ble.gps.IosExternalGpsLink
 import com.eried.eucplanet.ble.gps.IosExternalGpsScan
 import com.eried.eucplanet.ble.gps.RaceBoxAdapter
+import com.eried.eucplanet.data.repository.AccelSplitRepository
 import com.eried.eucplanet.data.repository.ExternalGpsRepository
 import com.eried.eucplanet.data.repository.RadarRepository
 import com.eried.eucplanet.ui.dashboard.sources.DataSourcesViewModel
@@ -218,12 +219,15 @@ object IosAppGraph {
 
     /**
      * The alarm engine, the same rules as Android's. Fires through
-     * IosAlarmOutputs (voice and vibration; beeps once the tone player
-     * moves). No phone location on iOS yet, so GPS alarms stay quiet.
+     * IosAlarmOutputs (the shared tones, voice and vibration); the GPS speed
+     * alarms read the phone's fix through IosTrips.
      */
     val alarmEngine: AlarmEngine by lazy {
         AlarmEngine(IosPhoneDevice, database.alarmDao(), IosAlarmOutputs, cheats, settings, link, lazyOf(IosTrips))
     }
+
+    /** The speed splits' session: fed by the ride session, shown and cleared in Settings. */
+    val splits: AccelSplitRepository by lazy { AccelSplitRepository() }
 
     /** The wheel state every screen reads, as on Android. See IosWheelPorts.kt. */
     val wheel: WheelRepository by lazy {
@@ -244,12 +248,12 @@ object IosAppGraph {
                 override suspend fun upsert(profile: WheelProfile) = database.wheelProfileDao().upsert(profile)
             },
             cheatState = cheats,
-            phoneSensorRepository = NoPhoneImu,
+            phoneSensorRepository = IosPhoneImu,
             externalGpsRepository = externalGps,
             legalLockdown = IosLockdown.controller,
             tpmsRepository = tpms,
-            accelSplitRepository = NoAccelSplits,
-            tripRepositoryLazy = lazyOf(NoRecording),
+            accelSplitRepository = splits,
+            tripRepositoryLazy = lazyOf(IosRideRecording),
             appNotifier = notices,
             hornPlayer = horn,
             phone = IosPhoneDevice,
@@ -488,7 +492,7 @@ object IosAppGraph {
     fun settingsViewModel(): SettingsViewModel = SettingsViewModel(
         settingsRepository = settings,
         wheelRepository = wheel,
-        accelSplitRepository = NoSplitTimes,
+        accelSplitRepository = IosSplitTimes(splits),
         legalLockdown = com.eried.eucplanet.ui.settings.ControllerLockdownSwitch(IosLockdown.controller),
         voiceService = IosSettingsVoice(voice),
         tonePlayer = IosPromptTones,
@@ -520,7 +524,7 @@ object IosAppGraph {
      * Core Motion acceleration (the studio's), the wheel and the GPS box.
      */
     fun dataSourcesViewModel(): DataSourcesViewModel = DataSourcesViewModel(
-        phoneSensors = IosStudioImu,
+        phoneSensors = IosPhoneImu,
         phoneFix = IosLocation.fix,
         wheelRepository = wheel,
         externalGpsRepository = externalGps,
@@ -538,7 +542,7 @@ object IosAppGraph {
             presetStore = overlayPresets,
             tripRepository = IosStudioTrips,
             tripMeterRepository = IosTripMeter.meter,
-            phoneSensorRepository = IosStudioImu,
+            phoneSensorRepository = IosPhoneImu,
             externalGpsRepository = externalGps,
             radarRepository = radar,
             navMarkerStore = navMarkers,

@@ -14,6 +14,8 @@ import com.eried.eucplanet.platform.toNSData
 import com.eried.eucplanet.resources.Res
 import com.eried.eucplanet.ui.studio.StudioImu
 import com.eried.eucplanet.ui.studio.StudioTrips
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.useContents
 import kotlinx.coroutines.Dispatchers
@@ -177,27 +179,39 @@ internal object IosStudioTrips : StudioTrips {
 }
 
 /**
- * The phone's linear acceleration for the G-force element, as Android's
- * PhoneSensorRepository reads TYPE_LINEAR_ACCELERATION at SENSOR_DELAY_GAME:
- * CoreMotion's user acceleration (gravity removed, in g) at 50 Hz. Core Motion
- * reports with the opposite sign to Android's sensors, so each axis is
- * flipped; the axes are the same (x right, y up, z out of the screen).
- * Counted like Android's: the last stop lets the sensor go.
+ * The phone's linear acceleration, as Android's PhoneSensorRepository reads
+ * TYPE_LINEAR_ACCELERATION at SENSOR_DELAY_GAME: CoreMotion's user
+ * acceleration (gravity removed, in g) at 50 Hz. Core Motion reports with the
+ * opposite sign to Android's sensors, so each axis is flipped; the axes are
+ * the same (x right, y up, z out of the screen).
+ *
+ * One sensor for everyone, counted like Android's: the wheel state holds it
+ * while a wheel is connected or a trip records (the G-force tiles and the
+ * trip's G columns), the Overlay Studio and the Data sources sheet while
+ * they are open, and the last stop lets the sensor go.
  */
 @OptIn(ExperimentalForeignApi::class)
-internal object IosStudioImu : StudioImu {
+internal object IosPhoneImu : StudioImu {
     private val manager by lazy { CMMotionManager() }
     private val _imu = MutableStateFlow<PhoneImuSample?>(null)
     override val imu: StateFlow<PhoneImuSample?> = _imu.asStateFlow()
+
+    // The screens start and stop on the main thread, the wheel state from
+    // its own.
+    private val lock = SynchronizedObject()
     private var users = 0
 
-    override fun start() {
+    // Its own queue, as Android reads the sensor on its own thread: 50
+    // samples a second must not wait behind the screen.
+    private val queue by lazy { NSOperationQueue().apply { maxConcurrentOperationCount = 1 } }
+
+    override fun start() = synchronized(lock) {
         users++
         if (users == 1) register()
     }
 
-    override fun stop() {
-        if (users == 0) return
+    override fun stop() = synchronized(lock) {
+        if (users == 0) return@synchronized
         users--
         if (users == 0) {
             manager.stopDeviceMotionUpdates()
@@ -207,14 +221,14 @@ internal object IosStudioImu : StudioImu {
 
     // CoreMotion keeps delivering after the app comes back; a re-register is
     // only needed when it was stopped.
-    override fun refresh() {
+    override fun refresh() = synchronized(lock) {
         if (users > 0 && !manager.deviceMotionActive) register()
     }
 
     private fun register() {
         if (!manager.deviceMotionAvailable) return
         manager.deviceMotionUpdateInterval = 0.02
-        manager.startDeviceMotionUpdatesToQueue(NSOperationQueue.mainQueue) { motion, _ ->
+        manager.startDeviceMotionUpdatesToQueue(queue) { motion, _ ->
             motion?.userAcceleration?.useContents {
                 _imu.value = PhoneImuSample(xG = (-x).toFloat(), yG = (-y).toFloat(), zG = (-z).toFloat())
             }

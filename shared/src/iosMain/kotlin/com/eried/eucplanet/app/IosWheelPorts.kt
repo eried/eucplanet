@@ -1,17 +1,13 @@
 package com.eried.eucplanet.app
 
 import com.eried.eucplanet.data.model.WheelData
-import com.eried.eucplanet.data.repository.AccelSplitReset
 import com.eried.eucplanet.data.repository.GpsFix
 import com.eried.eucplanet.data.repository.PhoneDevice
-import com.eried.eucplanet.data.repository.PhoneImu
-import com.eried.eucplanet.data.repository.PhoneImuSample
+import com.eried.eucplanet.data.repository.PhoneLocation
 import com.eried.eucplanet.data.repository.RideRecording
 import com.eried.eucplanet.data.repository.RouteKeepAlive
 import com.eried.eucplanet.platform.format
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
@@ -19,32 +15,34 @@ import platform.AudioToolbox.AudioServicesPlaySystemSound
 import platform.AudioToolbox.kSystemSoundID_Vibrate
 import platform.UIKit.UIDevice
 
-// The iOS side of WheelRepositoryPorts. Each feature that is not on iOS yet
-// (alarms, voice, trips, the phone IMU) answers as
-// the Android app does with that feature switched off, and is replaced when
-// the feature lands; docs/IOS_PARITY.md tracks which.
+// The iOS side of WheelRepositoryPorts: what the shared WheelRepository takes
+// from the rest of the app. docs/IOS_PARITY.md tracks what is still missing.
 
-/** No tone player on iOS yet, so no audio route to hold open. */
+/**
+ * The audio route is not held warm between sounds on iOS. Android plays a
+ * silent track through a ride so the first beep is not clipped by a sleeping
+ * Bluetooth output; IosTonePlayer holds the audio session only while tones
+ * play and a short while after.
+ */
 internal object NoRouteKeepAlive : RouteKeepAlive {
     override fun startRouteKeepAlive(quietMs: Long) = Unit
     override fun stopRouteKeepAlive() = Unit
 }
 
-/** The phone accelerometer is not read on iOS yet. */
-internal object NoPhoneImu : PhoneImu {
-    override val imu: StateFlow<PhoneImuSample?> = MutableStateFlow<PhoneImuSample?>(null).asStateFlow()
-    override fun start() = Unit
-    override fun stop() = Unit
-}
+/**
+ * The trip recorder as WheelRepository reads it: whether a trip records
+ * (the phone's acceleration is held for it) and the phone's fix for the GPS
+ * metric histories, in the units Android's TripRepository gives.
+ */
+internal object IosRideRecording : RideRecording {
+    override val recording: StateFlow<Boolean> get() = IosTrips.recording
+    override fun currentFix(): GpsFix? = IosLocation.fix.value?.let { gpsFix(it) }
 
-internal object NoAccelSplits : AccelSplitReset {
-    override fun reset() = Unit
-}
-
-/** Trip recording is not on iOS yet: never recording, no phone fix. */
-internal object NoRecording : RideRecording {
-    override val recording: StateFlow<Boolean> = MutableStateFlow(false).asStateFlow()
-    override fun currentFix(): GpsFix? = null
+    internal fun gpsFix(loc: PhoneLocation) = GpsFix(
+        speedKmh = if (loc.hasSpeed()) loc.speed * 3.6f else null,
+        altitudeM = if (loc.hasAltitude()) loc.altitude.toFloat() else null,
+        accuracyM = if (loc.hasAccuracy()) loc.accuracy else null,
+    )
 }
 
 

@@ -10,6 +10,7 @@ import com.eried.eucplanet.data.sync.RiderFileResult
 import com.eried.eucplanet.data.sync.SyncChoice
 import com.eried.eucplanet.data.sync.SyncConflictKind
 import com.eried.eucplanet.data.sync.SyncResult
+import com.eried.eucplanet.data.repository.AccelSplitRepository
 import com.eried.eucplanet.service.AccelSplitTracker
 import com.eried.eucplanet.service.ToneSynth
 import com.eried.eucplanet.service.VoiceChoice
@@ -194,11 +195,10 @@ internal class IosEngineSoundPreview(private val engine: EngineSoundEngine) : En
     ) = engine.previewProfile(key, durationMs, muffler, gearbox, scenario)
 }
 
-/** The split timer is not on iOS yet. */
-internal object NoSplitTimes : SplitTimes {
-    override val session: StateFlow<AccelSplitTracker.Session> =
-        MutableStateFlow(AccelSplitTracker.Session()).asStateFlow()
-    override fun reset() = Unit
+/** The speed splits' session, as the settings screen shows and clears it (Android's AndroidSplitTimes). */
+internal class IosSplitTimes(private val splits: AccelSplitRepository) : SplitTimes {
+    override val session: StateFlow<AccelSplitTracker.Session> get() = splits.session
+    override fun reset() = splits.reset()
 }
 
 internal object IosSettingsPlatform : SettingsPlatform {

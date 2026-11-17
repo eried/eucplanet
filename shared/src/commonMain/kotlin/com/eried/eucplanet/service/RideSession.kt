@@ -5,13 +5,16 @@ import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.ChargeStatus
 import com.eried.eucplanet.data.model.GpsSignalEvent
 import com.eried.eucplanet.data.model.WheelData
+import com.eried.eucplanet.data.repository.AccelSplitRepository
 import com.eried.eucplanet.data.repository.EventAnnouncer
 import com.eried.eucplanet.data.repository.PhoneDevice
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.WheelRepository
+import com.eried.eucplanet.diagnostics.DiagnosticsLogger
 import com.eried.eucplanet.platform.Log
 import com.eried.eucplanet.platform.System
 import com.eried.eucplanet.resources.*
+import com.eried.eucplanet.util.Units
 import kotlin.concurrent.Volatile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -56,8 +59,8 @@ interface RideVoice : EventAnnouncer {
 /**
  * What runs around a ride, the same on both phones: what a connect and a
  * disconnect start and stop, what every telemetry frame drives (the
- * automations, the lights announcement, auto-record, the charge alerts), the
- * auto-record idle stop and the periodic voice reports.
+ * automations, the lights announcement, auto-record, the charge alerts, the
+ * speed splits), the auto-record idle stop and the periodic voice reports.
  *
  * Android's WheelService and the iPhone's app graph both build one and feed
  * it; each keeps only what its own platform adds (the notification, the
@@ -73,6 +76,7 @@ class RideSession(
     private val settings: SettingsRepository,
     private val automation: AutomationManager,
     private val trips: RideRecorder,
+    private val splits: AccelSplitRepository,
     private val voice: RideVoice,
     private val phone: PhoneDevice,
     private val scope: CoroutineScope,
@@ -108,6 +112,7 @@ class RideSession(
         checkLightTransition(data.lightOn, settings)
         evaluateAutoRecordOnTelemetry(data, settings)
         checkChargeAlerts(data, settings)
+        handleAccelSplits(data, settings)
     }
 
     /**
@@ -155,6 +160,13 @@ class RideSession(
                         automation.restoreBaselineVolume()
                         automation.resetMediaControl()
                         automation.onProximityLinkLost()
+                        // Drop the run in flight so the gap until the next
+                        // sample cannot be read as one very slow step. The
+                        // session's times are kept: a wheel powered off for
+                        // a coffee is the same wheel, and the rider is still
+                        // racing the same numbers. A different wheel resets
+                        // them in WheelRepository.connect().
+                        splits.pause()
                         onDisconnected(settings)
                     }
                     else -> {}
@@ -188,6 +200,34 @@ class RideSession(
         automation.restoreBaselineVolume()
         automation.resetMediaControl()
         automation.resetProximityLock()
+    }
+
+    // --- Acceleration splits (RaceBox-style) ---
+
+    private fun handleAccelSplits(data: WheelData, settings: AppSettings) {
+        val cfg = settings.accelSplit
+        // Fire on the feature's own toggle only, like the other event
+        // announcements (connection, GPS, lights). Do NOT also gate on
+        // settings.voiceEnabled: that field is the "Report status periodically"
+        // switch, so gating here silenced split announcements for any rider who
+        // turned periodic reports off while wanting acceleration splits on.
+        if (!cfg.enabled) {
+            // Off is a pause, not a reset. The dashboard button cycles through
+            // off mid-ride, and losing the session's bests on every tap would
+            // make it a button nobody presses.
+            splits.pause()
+            return
+        }
+        val unit = Units.effectiveSpeedUnit(settings)
+        val speed = Units.speed(data.speed, unit).toDouble()
+        // announceEvent queues and never drops, so a step crossed while the
+        // previous line is still speaking is voiced right after.
+        for (s in splits.onSample(cfg, data.timestamp, speed)) {
+            val text = AccelSplitVoice.splitText({ r, args -> phone.text(r, *args.toTypedArray()) }, s, cfg)
+            Log.i(TAG, "accel split: $text")
+            DiagnosticsLogger.note("accel_split: $text")
+            voice.announceEvent(text)
+        }
     }
 
     // --- Auto-record motion gating ---

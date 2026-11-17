@@ -122,6 +122,19 @@ object IosAppStart {
                 }
             }
         }
+        // SIMCTL_CHILD_EUC_SPLITS=both turns the speed splits on (accel, brake,
+        // both; off turns them off), from 5 in steps of 5 so a virtual wheel
+        // that tops out at 20 km/h crosses some. Saved, like any settings change.
+        (NSProcessInfo.processInfo.environment["EUC_SPLITS"] as? String)?.let { which ->
+            val mode = com.eried.eucplanet.data.model.AccelSplitMode.entries
+                .firstOrNull { it.name.equals(which, ignoreCase = true) } ?: return@let
+            kotlinx.coroutines.runBlocking {
+                IosAppGraph.settings.update {
+                    val on = mode.applyTo(it.accelSplit)
+                    it.copy(accelSplit = if (mode.enabled) on.copy(minSpeed = 5, increment = 5) else on)
+                }
+            }
+        }
         // What runs around a ride (automations, announcements, auto-record,
         // charge alerts, periodic reports): the shared RideSession, as WheelService runs it.
         IosRideSession.start()

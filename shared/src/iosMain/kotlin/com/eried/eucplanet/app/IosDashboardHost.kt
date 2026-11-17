@@ -21,9 +21,9 @@ import platform.Foundation.NSURL
 import platform.UIKit.UIApplication
 
 /**
- * The iOS [DashboardHost]. The panels that are still Android code (data
- * sources, voice vocabulary) are not on iOS yet: each
- * closes itself or keeps its space, and docs/IOS_PARITY.md lists them.
+ * The iOS [DashboardHost]. The one panel with no iPhone side is the voice
+ * vocabulary, which belongs to the spoken commands: it closes itself.
+ * docs/IOS_PARITY.md lists what is missing.
  */
 internal class IosDashboardHost : DashboardHost {
     private val info = NSBundle.mainBundle.infoDictionary

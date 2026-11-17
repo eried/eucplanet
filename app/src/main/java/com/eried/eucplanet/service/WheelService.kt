@@ -246,6 +246,7 @@ class WheelService : LifecycleService() {
             wheel = wheelRepository.asRideWheel(),
             settings = settingsRepository,
             automation = automationManager,
+            splits = accelSplitRepository,
             trips = object : RideRecorder {
                 override val recording = tripRepository.recording
                 override suspend fun startRecording() = tripRepository.startRecording()
@@ -369,7 +370,6 @@ class WheelService : LifecycleService() {
                 if (settings.engineSoundEnabled) {
                     engineSoundEngine.pushTelemetry(data.speed, data.pwm)
                 }
-                handleAccelSplits(data, settings)
                 logGpsFix(data)
             }
         }
@@ -526,13 +526,6 @@ class WheelService : LifecycleService() {
                     postNotificationIfChanged(buildNotification(null))
                 }
                 engineSoundEngine.setConnected(false, settings)
-                // Drop the run in flight so the gap until the next
-                // sample cannot be read as one very slow step. The
-                // session's times are kept: a wheel powered off for
-                // a coffee is the same wheel, and the rider is still
-                // racing the same numbers. A different wheel resets
-                // them in WheelRepository.connect().
-                accelSplitRepository.pause()
             },
         )
 
@@ -825,34 +818,6 @@ class WheelService : LifecycleService() {
 
     private val audioManager by lazy {
         getSystemService(Context.AUDIO_SERVICE) as AudioManager
-    }
-
-    // --- Acceleration splits (RaceBox-style) ---
-
-    private fun handleAccelSplits(data: WheelData, settings: AppSettings) {
-        val cfg = settings.accelSplit
-        // Fire on the feature's own toggle only, like the other event
-        // announcements (connection, GPS, lights). Do NOT also gate on
-        // settings.voiceEnabled: that field is the "Report status periodically"
-        // switch, so gating here silenced split announcements for any rider who
-        // turned periodic reports off while wanting acceleration splits on.
-        if (!cfg.enabled) {
-            // Off is a pause, not a reset. The dashboard button cycles through
-            // off mid-ride, and losing the session's bests on every tap would
-            // make it a button nobody presses.
-            accelSplitRepository.pause()
-            return
-        }
-        val unit = com.eried.eucplanet.util.Units.effectiveSpeedUnit(settings)
-        val speed = com.eried.eucplanet.util.Units.speed(data.speed, unit).toDouble()
-        // announceEvent queues (QUEUE_ADD) and never drops, so a step crossed
-        // while the previous line is still speaking is voiced right after.
-        for (s in accelSplitRepository.onSample(cfg, data.timestamp, speed)) {
-            val text = AccelSplitVoice.splitText({ r, args -> getString(r, *args.toTypedArray()) }, s, cfg)
-            Log.i(TAG, "accel split: $text")
-            com.eried.eucplanet.diagnostics.DiagnosticsLogger.note("accel_split: $text")
-            voiceService.announceEvent(text)
-        }
     }
 
     // --- Notification ---

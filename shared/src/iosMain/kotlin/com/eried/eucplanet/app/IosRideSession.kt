@@ -25,6 +25,7 @@ internal object IosRideSession {
             settings = IosAppGraph.settings,
             automation = IosAppGraph.automation,
             trips = IosTrips,
+            splits = IosAppGraph.splits,
             voice = IosAppGraph.voice,
             phone = IosPhoneDevice,
             scope = scope,

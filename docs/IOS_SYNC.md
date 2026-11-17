@@ -60,7 +60,7 @@ Seams that need both sides on every change:
 | Trip wheel identity | `data/repository/WheelIdentity.kt` (`WheelIdentity`, `TripWheelLog`) | `TripRepository` | `iosMain/.../app/IosTrips.kt` |
 | GPS power tiers | `data/model/GpsPowerPolicy.kt` (`GpsPowerPolicy`, `GpsIdleOff`) | `TripRepository` (fused priority and interval) | `iosMain/.../app/IosGpsPower.kt` (CoreLocation accuracy and distance filter), `iosApp/LocationBridge.swift` |
 | Automations | `service/AutomationManager.kt` (`AutomationWheel`, `MediaAutomation`), `ui/settings/AutomationsContent.kt` | `di/ServiceModule.kt` builds it; `service/AndroidMediaAutomation.kt` (AudioManager volume, media keys) | `iosMain/.../app/IosAppGraph.automation` (no media half) |
-| Ride session | `service/RideSession.kt` (`RideWheel`, `RideRecorder`, `RideVoice`) | `WheelService` (builds it, adds the notification, widget, engine sound, HUD, accel splits) | `iosMain/.../app/IosRideSession.kt` (adds the engine sound; the Live Activity follows the link itself) |
+| Ride session | `service/RideSession.kt` (`RideWheel`, `RideRecorder`, `RideVoice`) | `WheelService` (builds it, adds the notification, widget, engine sound, HUD) | `iosMain/.../app/IosRideSession.kt` (adds the engine sound; the Live Activity follows the link itself) |
 | HUD link (the phone side) | `service/hud/HudServer.kt` (search, dial, stream, reconnect), `HudLinkPorts.kt` (`HudSockets`, `HudMdns`, `HudBeacons`, `HudNetwork`, `HudTiles`, `HudPhone`; `HudBeacon.parse`, `HudTileHttp`), `HudSubnetProbe.kt`, `HudCommandSink.kt`, `HudDemoSource.kt`, `HudLinkLog.kt` | `app/.../service/hud/AndroidHudLink.kt` (OkHttp, JmDNS, ConnectivityManager), `HudUdpListener.kt` (the broadcast beacon), `HudTileServer.kt`, `di/HudModule.kt`; `WheelService` starts it | `iosMain/.../app/IosHudLink.kt` (URLSessionWebSocketTask, NSNetServiceBrowser, BSD sockets for the probe and the tile listener; no beacon, receiving a broadcast needs the multicast entitlement the app does not have); `IosAppStart` starts it; `Info.plist` carries `NSLocalNetworkUsageDescription` and `NSBonjourServices` |
 | Theme editor | `ui/theme/ThemeEditorWidget.kt`, `ThemeTargetTool.kt`, `ThemeEditorSurface` (window size and one pixel) | `app/.../ui/theme/AndroidThemeEditorSurface.kt` (the view, PixelCopy); MainActivity mounts the widget | `iosMain/.../app/IosThemeEditor.kt` (a recorded root layer), `app/StatusBarHost.kt` (status bar style from the theme) |
 | Rider actions on the phone | `flic/ActionExecutor.kt` (`MediaControls`, `PhoneControls`, `VoiceListening`) | `app/.../flic/AndroidMediaControls.kt`, `AndroidPhoneControls.kt` (volume, torch), `di/ServiceModule.kt` | `iosMain/.../app/IosDashboardPorts.kt` (`NoMedia`, `IosPhoneControls`: the torch) |
@@ -187,6 +187,12 @@ SIMCTL_CHILD_EUC_VOICE_EVERY=15 xcrun simctl launch booted com.eried.eucplanet.i
                                # the periodic report every 15 s, any speed
                                # and output, to hear it in the background
                                # (saved like any settings change)
+SIMCTL_CHILD_EUC_CONNECT=VIRTUAL:V6 SIMCTL_CHILD_EUC_SPLITS=both xcrun simctl launch booted com.eried.eucplanet.ios
+                               # the speed splits on (accel, brake, both; off
+                               # turns them off), from 5 in steps of 5 so the
+                               # virtual wheel crosses some; each is spoken
+                               # and logged as "accel split: ..." (saved like
+                               # any settings change)
 SIMCTL_CHILD_EUC_CONNECT=VIRTUAL:V14 SIMCTL_CHILD_EUC_ENGINE=V8_MUSCLE xcrun simctl launch booted com.eried.eucplanet.ios
                                # the motor sound on with that engine (an
                                # EngineProfile key), following the virtual

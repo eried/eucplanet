@@ -35,6 +35,7 @@ only when you can cut the ride short.
 - iPhone app: home screen widgets. The wheel widget (three readings, and your buttons in the wide size) and the five button widgets, with the slots from Settings, General, Home screen widget. iOS redraws a widget every few minutes, not live, so it shows the time of its numbers. Buttons need iOS 17.
 - iPhone app: the two weather widgets, "Good to ride?" (small) and "Riding weather" (wide and large, with the curve). They follow the forecast hour by hour with the app closed. A tap opens the weather panel.
 - iPhone app: opens a live group or a shared route it is handed as a link (eucplanet://share/... and eucplanet://route/...). The Open in EUC Planet button on the share and route web pages will use it for the iPhone once this build is the public one. Until then a tapped link opens the web page.
+- iPhone app: speed splits are spoken and listed (Settings, Voice, Speed splits and the dashboard button), the G-force tiles and the trip's G columns fill with a wheel connected, and the GPS speed, altitude and accuracy charts fill.
 - Inside: the dashboard, settings, alarms, trips, trip details, trip tools, Legal Mode, the notification buttons, the reconnect timing, leaderboards, Dropbox sync, the wheel link, the theme editor, the automations, what runs on connect and every wheel update, the radar and TPMS settings, the engine sound and the navigation (routing, turn cues, the route builder, route sharing, the navigator view and the Navigation settings) and the Overlay studio moved to a library shared with the iPhone. Nothing should change on screen.
 - iPhone app: a swipe in from the left edge is back, on every screen and in every dialog, and the crew pass has the X in every step.
 - iPhone app: Volume up, Volume down and Mute are no longer offered (iOS cannot set the volume), and the tour's last page names only Flic buttons.
@@ -122,6 +123,7 @@ only when you can cut the ride short.
 - Weather widgets: add "Good to ride?" and "Riding weather". Do they match the weather panel, do they move on through the day without opening the app, and does the refresh arrow fetch a new forecast? How often does the small one show "N h ago" in place of the temperature?
 - Share a route as QR from Android and scan it on the iPhone. Load a GPX track from Files.
 - HUD from the iPhone: open the HUD app, put both on one Wi-Fi (or join the HUD to the iPhone's Personal Hotspot), then Settings, Integration, Motoeye HUD, Enable data link, and allow the local network question. Does Auto find it, or only Fixed with the address the HUD shows? Does it stay linked with the iPhone locked, and do the HUD buttons work?
+- Speed splits: switch them on (Settings, Voice) and accelerate from 20 to 40 km/h. Is each step's time spoken, and listed under This session? With a wheel connected, does a G-force tile move when you accelerate and brake?
 - Swipe in from the left edge on Settings, a trip, the battery monitor and in any dialog: does it go back or close it?
 
 **Android, after the move to the shared library**
@@ -130,6 +132,7 @@ only when you can cut the ride short.
 - Auto lights, volume by speed, music pause, walk-away lock, auto-record, charge alerts and the connect and lights announcements: same as the last build?
 - Varia radar and TPMS caps: still paired after updating, and do the radar lane and tyre pressures show as before? Pair a new one from Settings, Integration.
 - Engine sound: does every engine sound as in the last build, previews too?
+- Speed splits: are the times spoken and listed as in the last build, also after turning the wheel off and on mid-ride?
 - Navigation: plan a route, ride it with turn cues, miss a turn and let it reroute, also with offline areas. Same as the last build?
 - Overlay studio: add and arrange elements, save and load presets, record from the camera, take a photo, replay a trip and export it as MP4, GIF and APNG. Same as the last build?
 - HUD: does the phone find and link the HUD as before (Auto and Fixed), and are the overlay presets, the button actions and the map on the HUD the same as the last build?

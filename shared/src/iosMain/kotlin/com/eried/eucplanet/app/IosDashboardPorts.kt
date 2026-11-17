@@ -90,7 +90,10 @@ internal object NoVoiceListening : VoiceListening {
     override fun listen() = Unit
 }
 
-/** Folder backup and trip sync are not on iOS; Dropbox settings sync is, elsewhere. */
+/**
+ * Backup to a folder on the phone (Android's SyncManager) is not on iOS.
+ * Dropbox carries the settings, the trips and the rest (IosDropboxSync).
+ */
 internal object NoFolderSync : DashboardSync {
     override val syncRunning: StateFlow<Boolean> = MutableStateFlow(false).asStateFlow()
     override val riderStoreId: StateFlow<String?> = MutableStateFlow<String?>(null).asStateFlow()

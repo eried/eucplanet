@@ -9,7 +9,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlin.uuid.Uuid
 
 // What the shared radar code needs from the phone's Bluetooth. Android:
-// RadarConnectionManager and RadarScanner in :app. iOS: not yet.
+// RadarConnectionManager and RadarScanner in :app. iOS: IosRadarLink and
+// IosRadarScan in iosMain.
 
 /**
  * The GATT link to a paired radar. Opens the connection, subscribes to the

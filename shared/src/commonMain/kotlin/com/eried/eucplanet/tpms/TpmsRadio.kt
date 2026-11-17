@@ -24,7 +24,7 @@ class TpmsAdvert(
 
 /**
  * The phone's Bluetooth scan, as the tyre monitor needs it. Android:
- * AndroidTpmsRadio in :app. iOS: not yet.
+ * AndroidTpmsRadio in :app. iOS: IosTpmsRadio in iosMain.
  */
 interface TpmsRadio {
 

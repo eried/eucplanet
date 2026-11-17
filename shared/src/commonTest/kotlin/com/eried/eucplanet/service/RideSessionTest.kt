@@ -1,9 +1,11 @@
 package com.eried.eucplanet.service
 
 import com.eried.eucplanet.ble.ConnectionState
+import com.eried.eucplanet.data.model.AccelSplitSettings
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.ChargeStatus
 import com.eried.eucplanet.data.model.WheelData
+import com.eried.eucplanet.data.repository.AccelSplitRepository
 import com.eried.eucplanet.data.repository.PhoneDevice
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.store.SettingsStore
@@ -75,6 +77,7 @@ class RideSessionTest {
     private val wheel = FakeWheel()
     private val trips = FakeTrips()
     private val voice = FakeVoice()
+    private val splits = AccelSplitRepository()
     private val alerts = mutableListOf<String>()
     private val settings = SettingsRepository(SettingsStore(MemoryDataStore()) { false })
     private val automation = AutomationManager(NoAutomationWheel(), { false }, { null })
@@ -84,6 +87,7 @@ class RideSessionTest {
         settings = settings,
         automation = automation,
         trips = trips,
+        splits = splits,
         voice = voice,
         phone = Phone,
         scope = scope,
@@ -173,5 +177,59 @@ class RideSessionTest {
         wheel.chargeStatus.value = ChargeStatus.Full
         frame(WheelData(batteryPercent = 100), s)
         assertEquals(listOf("charge_alert_80_title", "charge_alert_full_title"), alerts)
+    }
+
+    /** Frames every 250 ms from [t0], speeding up from 15 to 45 km/h, 10 km/h every 2 s. */
+    private fun speedUp(s: AppSettings, t0: Long, from: Float = 15f, to: Float = 45f): Long {
+        var t = t0
+        var v = from
+        while (v <= to) {
+            frame(WheelData(speed = v, timestamp = t), s)
+            t += 250L
+            v += 1.25f
+        }
+        return t
+    }
+
+    private val splitsOn = AppSettings(
+        autoRecord = false,
+        // The periodic report's switch is off: the splits have their own.
+        voiceEnabled = false,
+        accelSplit = AccelSplitSettings(enabled = true, direction = "ACCEL", increment = 10, minSpeed = 20),
+    )
+
+    @Test fun speedSplitsAreSpokenOnTheirOwnSwitch() {
+        speedUp(splitsOn, 0L)
+        assertEquals(2, voice.said.size, "20 to 30 and 30 to 40: ${voice.said}")
+        assertTrue(voice.said[0].startsWith("accel_split_time_fmt 20 30 "), voice.said[0])
+        assertTrue(voice.said[1].startsWith("accel_split_time_fmt 30 40 "), voice.said[1])
+        assertEquals(2, splits.session.value.accel.size)
+    }
+
+    @Test fun splitsSwitchedOffSayNothingAndKeepTheSession() {
+        speedUp(splitsOn, 0L)
+        val kept = splits.session.value
+        voice.said.clear()
+        val off = splitsOn.copy(accelSplit = splitsOn.accelSplit.copy(enabled = false))
+        speedUp(off, 60_000L)
+        assertTrue(voice.said.isEmpty(), "off is quiet: ${voice.said}")
+        assertEquals(kept, splits.session.value, "off is a pause, not a reset")
+    }
+
+    @Test fun aDisconnectDropsTheRunInFlightAndKeepsTheTimes() {
+        use(splitsOn)
+        wheel.connectionState.value = ConnectionState.CONNECTED
+        session.followConnection()
+        speedUp(splitsOn, 0L)
+        voice.said.clear()
+        // Mid-run at 25, then the wheel is off for five minutes.
+        val t = speedUp(splitsOn, 60_000L, from = 15f, to = 25f)
+        val kept = splits.session.value
+        assertFalse(kept.isEmpty)
+        wheel.connectionState.value = ConnectionState.DISCONNECTED
+        wheel.connectionState.value = ConnectionState.CONNECTED
+        frame(WheelData(speed = 35f, timestamp = t + 300_000L), splitsOn)
+        assertTrue(voice.said.isEmpty(), "the gap was read as a step: ${voice.said}")
+        assertEquals(kept, splits.session.value, "the same wheel keeps its times")
     }
 }
