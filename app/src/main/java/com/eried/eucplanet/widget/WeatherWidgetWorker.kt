@@ -71,7 +71,7 @@ class WeatherWidgetWorker(
             WeatherSource.byId(w.source),
             force = force,
             // Same rule as the panel: a short window asks for the finer steps.
-            fine = w.windowHours <= 12,
+            fine = WeatherWidgetContent.fine(w.windowHours),
         )
         val forecast = weatherRepository.forecast.value
         if (forecast == null || forecast.hours.isEmpty()) {

@@ -1479,6 +1479,7 @@
     <string name="trip_tools_combine_failed">Không thể gộp các chuyến đó</string>
     <string name="widget_customize">Tùy chỉnh</string>
     <string name="widget_how_to_add">Nhấn giữ màn hình chính, chạm Tiện ích, rồi chọn EUC Planet.</string>
+    <string name="widget_how_to_add_iphone">Chạm và giữ Màn hình chính, chạm Sửa, rồi Thêm tiện ích, và chọn EUC Planet. iOS cập nhật tiện ích vài phút một lần, không trực tiếp.</string>
     <string name="trip_customize">Tùy chỉnh</string>
     <string name="trip_trim">Cắt khung xem</string>
     <string name="trip_trim_title">Cắt khung xem chuyến đi</string>

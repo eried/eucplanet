@@ -1564,6 +1564,7 @@
     <string name="trip_tools_combine_failed">Тези пътувания не можаха да се обединят</string>
     <string name="widget_customize">Персонализиране</string>
     <string name="widget_how_to_add">Задръжте началния екран, докоснете Джаджи и изберете EUC Planet.</string>
+    <string name="widget_how_to_add_iphone">Задръжте началния екран, докоснете Редактиране, после Добавяне на изпълним модул, и изберете EUC Planet. iOS обновява изпълнимите модули през няколко минути, не на живо.</string>
     <string name="trip_customize">Персонализиране</string>
     <string name="trip_trim">Изрежи изгледа</string>
     <string name="trip_trim_title">Изрязване на изгледа</string>

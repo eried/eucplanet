@@ -169,10 +169,7 @@ abstract class WeatherWidgetBase(private val layout: Int, private val size: Size
             if (layout == R.layout.widget_weather_score) Size.TINY else Size.FORECAST
 
         /** "+4", "0", "-3": signed because the neutral point is the question. */
-        fun signedScore(score: Float): String {
-            val v = score.roundToInt()
-            return if (v > 0) "+$v" else "$v"
-        }
+        fun signedScore(score: Float): String = WeatherWidgetContent.signedScore(score)
 
         private fun buildViews(
             context: Context,
@@ -291,7 +288,7 @@ abstract class WeatherWidgetBase(private val layout: Int, private val size: Size
          *  showing a temperature next to a score from another afternoon. The
          *  worker refreshes hourly, so reaching three hours means something is
          *  actually wrong: no network, or nowhere to ask about. */
-        private const val STALE_MS = 3 * 60 * 60 * 1000L
+        private const val STALE_MS = WeatherWidgetContent.STALE_MS
 
         private fun tinyLineOf(context: Context, s: WeatherSnapshot): String {
             if (!s.hasData) return context.getString(R.string.widget_weather_never_short)

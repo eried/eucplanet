@@ -174,6 +174,9 @@ object IosAppStart {
         IosThemeEditor.start()
         // The ride Live Activity follows the link.
         RideActivity.follow(link, wheel.wheelData)
+        // So do the home screen widgets.
+        IosWidgets.follow(link, wheel.wheelData)
+        IosWeatherWidgets.start()
     }
 
     /**

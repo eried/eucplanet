@@ -1523,6 +1523,7 @@
     <string name="trip_tools_combine_failed">Δεν ήταν δυνατός ο συνδυασμός των διαδρομών</string>
     <string name="widget_customize">Προσαρμογή</string>
     <string name="widget_how_to_add">Πατήστε παρατεταμένα την αρχική οθόνη, πατήστε Γραφικά στοιχεία και επιλέξτε EUC Planet.</string>
+    <string name="widget_how_to_add_iphone">Αγγίξτε παρατεταμένα την οθόνη Αφετηρίας, αγγίξτε Επεξεργασία, μετά Προσθήκη widget, και επιλέξτε EUC Planet. Το iOS ανανεώνει τα widget κάθε λίγα λεπτά, όχι ζωντανά.</string>
     <string name="trip_customize">Προσαρμογή</string>
     <string name="trip_trim">Περικοπή προβολής</string>
     <string name="trip_trim_title">Περικοπή προβολής διαδρομής</string>

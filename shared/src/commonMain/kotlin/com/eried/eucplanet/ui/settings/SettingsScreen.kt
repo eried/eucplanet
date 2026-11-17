@@ -1400,7 +1400,7 @@ private fun GeneralTab(
                 // here configures a widget, which is no use to a rider who has not
                 // added one yet, and collapsed the section would otherwise be a
                 // header with nothing under it.
-                HintText(stringResource(Res.string.widget_how_to_add))
+                HintText(stringResource(LocalSettingsHost.current.widgetHowToAdd))
                 AdvancedCollapsable(
                     title = stringResource(Res.string.widget_customize),
                     stateKey = "widget-customize",
@@ -1512,7 +1512,7 @@ private fun GeneralTab(
                 }
             }
         }
-        // Where the iPhone will have the widget: named, muted, "not yet".
+        // Named, muted and "not yet" on a phone that has no widget.
         NotYetSettingsRow(PlatformFeature.HOME_WIDGETS)
 
         Box(

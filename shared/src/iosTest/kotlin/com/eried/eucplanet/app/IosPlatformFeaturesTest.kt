@@ -17,10 +17,18 @@ class IosPlatformFeaturesTest {
     @Test fun comingFeaturesAreMissingForNow() {
         assertEquals(
             PlatformFeature.entries.toSet() - PlatformFeature.NAVIGATION - PlatformFeature.CAMERA_STUDIO -
-                PlatformFeature.GPS_SENSORS,
+                PlatformFeature.GPS_SENSORS - PlatformFeature.HOME_WIDGETS,
             missingPlatformFeatures,
         )
         for (f in missingPlatformFeatures) assertFalse(f.available, f.name)
+    }
+
+    @Test fun theHomeScreenWidgetIsOnTheIphone() {
+        // WidgetKit draws it from what IosWidgets writes, so its settings
+        // open, with the iPhone's own words for adding one.
+        assertTrue(PlatformFeature.HOME_WIDGETS.available)
+        assertFalse(com.eried.eucplanet.ui.settings.SettingsRow.HOME_WIDGET in IosSettingsHost.hiddenRows)
+        assertEquals("widget_how_to_add_iphone", IosSettingsHost.widgetHowToAdd.key)
     }
 
     @Test fun navigationIsOnTheIphone() {

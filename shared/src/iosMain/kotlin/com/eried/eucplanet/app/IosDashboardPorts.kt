@@ -156,8 +156,8 @@ internal class IosDashboardPlatform(
     override fun hasFineLocationPermission() = IosLocation.authorized.value
     override fun hasLocationPermission() = IosLocation.authorized.value
     override fun locationServicesOn() = IosLocation.authorized.value
-    // Home screen widgets are not on iOS yet.
-    override fun publishWeatherWidgets(forecast: WeatherForecast, settings: AppSettings, place: String?) = Unit
+    override fun publishWeatherWidgets(forecast: WeatherForecast, settings: AppSettings, place: String?) =
+        IosWeatherWidgets.publish(forecast, settings, place)
     // CoreBluetooth asks for permission itself on first use.
     override fun mayAutoConnect() = true
     override fun connect(address: String, name: String?) = wheel.connect(address, name, isAuto = true)

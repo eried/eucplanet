@@ -2567,6 +2567,7 @@
     <string name="widget_standalone_slot">Окрема кнопка %1$d</string>
         <string name="widget_customize">Налаштувати</string>
     <string name="widget_how_to_add">Утримуйте головний екран, торкніться «Віджети», потім виберіть EUC Planet.</string>
+    <string name="widget_how_to_add_iphone">Утримуйте початковий екран, торкніться «Змінити», потім «Додати віджет» і виберіть EUC Planet. iOS оновлює віджети раз на кілька хвилин, не наживо.</string>
 <string name="trip_customize">Налаштувати</string>
     <string name="trip_trim">Обрізати вигляд</string>
     <string name="trip_trim_title">Обрізати вигляд поїздки</string>

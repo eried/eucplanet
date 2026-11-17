@@ -2573,6 +2573,7 @@
     <string name="widget_standalone_slot">Bouton seul %1$d</string>
         <string name="widget_customize">Personnaliser</string>
     <string name="widget_how_to_add">Appuyez de manière prolongée sur l\'écran d\'accueil, appuyez sur Widgets, puis choisissez EUC Planet.</string>
+    <string name="widget_how_to_add_iphone">Touchez l\'écran d\'accueil de manière prolongée, touchez Modifier, puis Ajouter un widget, et choisissez EUC Planet. iOS actualise les widgets toutes les quelques minutes, pas en direct.</string>
 <string name="trip_customize">Personnaliser</string>
     <string name="trip_trim">Rogner la vue</string>
     <string name="trip_trim_title">Rogner la vue du trajet</string>

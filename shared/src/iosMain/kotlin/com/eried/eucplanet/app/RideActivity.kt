@@ -6,6 +6,7 @@ import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.platform.System
 import com.eried.eucplanet.resources.*
 import com.eried.eucplanet.data.model.NotificationActionType
+import com.eried.eucplanet.data.model.WidgetActionType
 import com.eried.eucplanet.service.RideNotificationText
 import com.eried.eucplanet.service.RideQuickActions
 import com.eried.eucplanet.util.Units
@@ -88,12 +89,18 @@ object RideActivity {
     )
 
     /**
-     * A button pressed on the Live Activity. Lock, light, horn and record
-     * run through the shared ActionExecutor, as every other surface's press
-     * does; Disconnect and Stop all act on the app, as WheelService's intents
-     * do. A stale button pressed after lockdown engaged does nothing.
+     * A button pressed on the Live Activity or a home screen widget. Lock,
+     * light, horn and record run through the shared ActionExecutor, as every
+     * other surface's press does; Disconnect and Stop all act on the app, as
+     * WheelService's intents do. A stale button pressed after lockdown
+     * engaged does nothing.
      */
     fun press(key: String) {
+        // The home screen widgets press through here too; their voice button
+        // is the one key the Live Activity does not have.
+        if (key == WidgetActionType.VOICE.key) return IosWidgets.pressVoice()
+        // The weather widgets' refresh button is no quick action either.
+        if (key == IosWeatherWidgets.REFRESH_KEY) return IosWeatherWidgets.pressRefresh()
         val type = NotificationActionType.byKey(key) ?: return
         if (IosLockdown.controller.isEngaged()) return
         scope.launch {

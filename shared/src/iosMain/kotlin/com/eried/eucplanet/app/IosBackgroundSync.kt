@@ -30,12 +30,14 @@ import platform.Foundation.dateWithTimeIntervalSinceNow
 import platform.UIKit.UIApplicationDidEnterBackgroundNotification
 
 /**
- * Dropbox and leaderboard uploads while the app is not open: Android's
- * periodic DropboxSyncWorker and EucStatsUploadWorker. iOS has no
- * WorkManager; the app asks for background time (BGTaskScheduler) each time
- * it leaves the screen, and iOS wakes it when it chooses, never sooner than
- * the pending-upload interval. Each wake runs one quiet Dropbox pass and one
- * leaderboard sweep, then asks for the next.
+ * Dropbox and leaderboard uploads, and the weather widgets' forecast, while
+ * the app is not open: Android's periodic DropboxSyncWorker,
+ * EucStatsUploadWorker and WeatherWidgetWorker. iOS has no WorkManager; the
+ * app asks for background time (BGTaskScheduler) each time it leaves the
+ * screen, and iOS wakes it when it chooses, never sooner than the
+ * pending-upload interval (an hour when only the weather is waiting). Each
+ * wake runs one quiet Dropbox pass, one leaderboard sweep and one forecast
+ * check, then asks for the next.
  *
  * Two requests, the same work: an app refresh (about 30 s, the common one)
  * and a processing task (minutes, needs a connection, usually while the phone
@@ -49,6 +51,7 @@ object IosBackgroundSync {
     private const val TAG = "IosBackgroundSync"
     const val REFRESH_ID = "com.eried.eucplanet.ios.sync.refresh"
     const val PROCESSING_ID = "com.eried.eucplanet.ios.sync.processing"
+    private const val WEATHER_ONLY_MIN = 60
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var started = false
@@ -94,28 +97,34 @@ object IosBackgroundSync {
         task.expirationHandler = { job.cancel() }
     }
 
-    /** One Dropbox pass and one leaderboard sweep, side by side. True when nothing is left waiting. */
+    /** One Dropbox pass, one leaderboard sweep and one forecast check, side by side. True when nothing is left waiting. */
     private suspend fun run(why: String): Boolean = coroutineScope {
         Log.i(TAG, "Background sync ($why)")
         val dropbox = async { IosDropboxSync.passNow() }
         val leaderboard = async { IosEucStats.sweepOnce() }
+        val weather = async { IosWeatherWidgets.refreshIfPlaced() }
         val d = dropbox.await()
         val l = leaderboard.await()
-        Log.i(TAG, "Background sync done: dropbox=${if (d) "done" else "retry"}, leaderboard=${if (l) "done" else "retry"}")
-        d && l
+        val w = weather.await()
+        fun said(done: Boolean) = if (done) "done" else "retry"
+        Log.i(TAG, "Background sync done: dropbox=${said(d)}, leaderboard=${said(l)}, weather=${said(w)}")
+        d && l && w
     }
 
-    /** Asks iOS for both tasks, or for neither when there is nothing to upload to. */
+    /** Asks iOS for both tasks, or for neither when there is nothing to upload to and no weather widget to keep fresh. */
     private suspend fun request() {
         if (!registered) return
         val settings = IosAppGraph.settings.get()
         val scheduler = BGTaskScheduler.sharedScheduler
-        if (settings.dropboxAccessToken.isBlank() && !IosEucStats.uploadsOn(settings)) {
+        val uploads = settings.dropboxAccessToken.isNotBlank() || IosEucStats.uploadsOn(settings)
+        if (!uploads && !IosWeatherWidgets.placed()) {
             scheduler.cancelAllTaskRequests()
             return
         }
         // Android's floor for periodic work is 15 minutes; so is this one.
-        val earliest = NSDate.dateWithTimeIntervalSinceNow(settings.pendingUploadIntervalMin.coerceAtLeast(15) * 60.0)
+        // Its weather worker is hourly, which is what a wake for the forecast alone waits.
+        val minutes = if (uploads) settings.pendingUploadIntervalMin.coerceAtLeast(15) else WEATHER_ONLY_MIN
+        val earliest = NSDate.dateWithTimeIntervalSinceNow(minutes * 60.0)
         submit(BGAppRefreshTaskRequest(REFRESH_ID).apply { earliestBeginDate = earliest })
         submit(
             BGProcessingTaskRequest(PROCESSING_ID).apply {

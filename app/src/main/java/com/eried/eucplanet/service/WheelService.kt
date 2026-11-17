@@ -1249,39 +1249,26 @@ class WheelService : LifecycleService() {
         val distUnit = distanceUnitCached
         val tempUnit = tempUnitCached
 
-        val metricKeys = com.eried.eucplanet.data.model.WidgetMetricType.slots(widgetMetricsCached)
-        val values = ArrayList<String>(metricKeys.size)
-        val captions = ArrayList<String>(metricKeys.size)
-        fun unitFor(type: com.eried.eucplanet.data.model.WidgetMetricType): String =
-            com.eried.eucplanet.widget.WidgetMetricFormat.unit(this, type, speedUnit, distUnit, tempUnit)
-        // The phone's own charge, read once per repaint (at most 1 Hz) and only
-        // when a slot shows it. An in-memory system read, no sticky broadcast.
-        val phoneBattery by lazy(LazyThreadSafetyMode.NONE) {
-            (getSystemService(Context.BATTERY_SERVICE) as? android.os.BatteryManager)
-                ?.getIntProperty(android.os.BatteryManager.BATTERY_PROPERTY_CAPACITY)
-                ?.coerceIn(0, 100) ?: 0
-        }
-
-        metricKeys.forEach { key ->
-            val type = com.eried.eucplanet.data.model.WidgetMetricType.byKey(key)
-            if (type == null) {
-                values.add("--")
-                captions.add("")
-                return@forEach
-            }
-            // The unit rides in the caption so the number itself stays large.
-            val unit = unitFor(type)
-            if (data == null) {
-                values.add("--")
-                captions.add(getString(type.pickerLabel) + if (unit.isBlank()) "" else " ($unit)")
-                return@forEach
-            }
-            val v = com.eried.eucplanet.widget.WidgetMetricFormat.value(
-                type, data, speedUnit, distUnit, tempUnit, phoneBattery
-            )
-            values.add(v)
-            captions.add(getString(type.pickerLabel) + if (unit.isBlank()) "" else " ($unit)")
-        }
+        // One entry per configured slot, the same rules the iPhone's widget
+        // reads. The phone's own charge is an in-memory system read, no sticky
+        // broadcast, asked at most once per repaint (1 Hz) and only when a
+        // slot shows it.
+        val metrics = com.eried.eucplanet.widget.WidgetContent.metrics(
+            csv = widgetMetricsCached,
+            data = data,
+            speedUnit = speedUnit,
+            speedUnitLabel = u.speedUnit(this, speedUnit),
+            distUnit = distUnit,
+            tempUnit = tempUnit,
+            phoneBattery = {
+                (getSystemService(Context.BATTERY_SERVICE) as? android.os.BatteryManager)
+                    ?.getIntProperty(android.os.BatteryManager.BATTERY_PROPERTY_CAPACITY)
+                    ?.coerceIn(0, 100) ?: 0
+            },
+            text = { getString(it) },
+        )
+        val values = metrics.values
+        val captions = metrics.captions
 
         // Labels come from the notification's own set, and read the same live
         // state it does, through the one function every widget surface uses.

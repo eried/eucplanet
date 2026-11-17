@@ -16,6 +16,7 @@ import com.eried.eucplanet.resources.Res
 import com.eried.eucplanet.resources.hud_setup_hint_iphone
 import com.eried.eucplanet.resources.section_radar
 import com.eried.eucplanet.resources.section_tpms
+import com.eried.eucplanet.resources.widget_how_to_add_iphone
 import com.eried.eucplanet.ui.settings.AlarmViewModel
 import com.eried.eucplanet.ui.settings.FlicViewModel
 import com.eried.eucplanet.ui.settings.HudSetupCard
@@ -68,9 +69,9 @@ internal object IosSettingsHost : SettingsHost {
     override val drivesMusicPlayer = false
 
     // What the iPhone has no counterpart for: no back on the dashboard, no
-    // keep-alive service, no picture-in-picture, home widget or showing over
-    // the lock screen, rotation is the system's; and spoken commands are not
-    // on iOS yet. The notification's quick actions are the Live Activity's
+    // keep-alive service, no picture-in-picture or showing over the lock
+    // screen, rotation is the system's; and spoken commands are not on iOS
+    // yet. The home screen widget is WidgetKit's (IosWidgets). The notification's quick actions are the Live Activity's
     // buttons here. iOS lets no app set the media volume or fully drive
     // another app's player, so the volume and music automations and the
     // volume actions are left out. Nor does it
@@ -82,7 +83,6 @@ internal object IosSettingsHost : SettingsHost {
         SettingsRow.BACK_ACTION,
         SettingsRow.KEEP_ALIVE,
         SettingsRow.PICTURE_IN_PICTURE,
-        SettingsRow.HOME_WIDGET,
         SettingsRow.SHOW_OVER_LOCK_SCREEN,
         SettingsRow.ROTATION_LOCK,
         SettingsRow.VOICE_COMMANDS,
@@ -94,6 +94,9 @@ internal object IosSettingsHost : SettingsHost {
         SettingsRow.CAR_SCREEN,
         SettingsRow.PHONE_HUD_WINDOW,
     )
+
+    // Touch and hold, Edit, Add Widget: iOS's own words, and that it is not live.
+    override val widgetHowToAdd get() = Res.string.widget_how_to_add_iphone
 
     @Composable
     override fun rememberFolderPicker(onPicked: (String) -> Unit): () -> Unit = {}

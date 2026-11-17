@@ -278,6 +278,12 @@ SIMCTL_CHILD_EUC_BG_SYNC=20 xcrun simctl launch booted com.eried.eucplanet.ios
                                # task runs (one quiet Dropbox pass and one
                                # leaderboard sweep); the log shows
                                # "Background sync done: ..."
+SIMCTL_CHILD_EUC_WEATHER_WIDGETS=59.91,10.75 xcrun simctl launch booted com.eried.eucplanet.ios
+                               # fetches the forecast for that place and
+                               # writes it for the weather widgets, as their
+                               # refresh button does from where the phone
+                               # is; the log shows
+                               # "EUC_WEATHER_WIDGETS: written"
 SIMCTL_CHILD_EUC_HEADLESS=20 SIMCTL_CHILD_EUC_CONNECT=VIRTUAL:V6 xcrun simctl launch booted com.eried.eucplanet.ios
                                # starts as a Bluetooth relaunch does: the
                                # services with no screen for 20 s (the log
@@ -359,6 +365,9 @@ task (minutes, needs a connection, usually while the phone charges). Each
 runs one quiet Dropbox pass and one leaderboard sweep and asks for the next.
 iOS decides when, never sooner than the pending-upload interval, and not at
 all after the rider swipes the app away or turns Background App Refresh off.
+With a weather widget on a home screen a run also fetches the forecast, and
+the tasks are asked for even with nothing to upload (then hourly at the
+soonest).
 
 The simulator schedules no background tasks (the log says "not scheduled"),
 so `EUC_BG_SYNC=20` runs the same work there. On a real iPhone, cabled to
@@ -373,6 +382,79 @@ e -l objc -- (void)[[BGTaskScheduler sharedScheduler] _simulateLaunchForTaskWith
 then continue: the log shows `Background sync (task ...)` and
 `Background sync done`, and the trip is on Dropbox and the leaderboard
 without the app having been opened.
+
+### Home screen widgets
+
+A widget is drawn by the widget extension, another process, so the app
+writes what the widgets say and the extension only lays it out.
+`IosWidgets` (Kotlin) builds it from the shared `WidgetContent` and the
+rider's slots, writes `widgets.json` into the App Group container
+(`group.com.eried.eucplanet.ios`, in both targets' `.entitlements`) and
+calls `WidgetReloader` (Swift) to have WidgetKit draw again.
+`iosApp/Widgets/WheelWidgets.swift` decodes the file; `IosWidgetsTest` pins
+its field names, so rename a field in both.
+
+iOS rations redraws for an app that is not on screen. A change of shape
+(connection, light, lock, recording, a slot, a unit) is written at once, the
+numbers alone every 5 minutes (`IosWidgets.REFRESH_MS`), and always when the
+app leaves the screen. The timeline holds a second entry 20 minutes after
+the numbers were read that shows the disconnected look, so a widget does not
+keep old numbers when the app is ended mid-ride.
+
+A press is a `RideActionIntent`, the Live Activity's: it runs in the app and
+lands in `RideActivity.press`. That needs iOS 17; on 16 the wheel widget
+shows its readings only and the button widgets are not offered.
+
+The gallery names come from the file, so they are in the app's language
+once the app has run, and in English before that.
+
+The weather widgets have their own file, `weather.json`, written by
+`IosWeatherWidgets` and decoded by `iosApp/Widgets/WeatherWidgets.swift`
+(`IosWeatherWidgetsTest` pins its field names). Android redraws them from an
+hourly worker; iOS grants no such thing, so the file carries every forecast
+step ahead, already scored, with its face, temperature and wind as the
+shared `WeatherWidgetContent` words them. The timeline has one entry per
+step, each from half a step before its time (the panel's "now"), 48 at
+most, and is asked for again when they are used up; when the forecast itself
+runs out the widgets say there is none. So a widget follows the hours with
+the app closed for as long as the forecast reaches, up to 8 days.
+
+A new forecast is written whenever the dashboard has one. With a weather
+widget placed (`WidgetCenter.getCurrentConfigurations`), the app also
+fetches when it leaves the screen, in a background task, and from the
+widget's refresh button, a `RideActionIntent` with the key
+`WEATHER_REFRESH` (iOS 17). It asks about where the phone is or was last,
+else the place of the last file: a widget does not turn the GPS on. The
+small widget shows the forecast's age in place of the temperature from 3
+hours on, the same rule as Android. A tap opens `eucplanet://weather`, which
+`AppDelegate` hands to `IosWeatherWidgets.handleUrl` and opens the weather
+panel.
+
+The App Group is an identifier in the Apple developer account. A signed
+build needs it there; the simulator does not. Without it the container is
+missing: the app logs "No App Group container" and the widgets stay empty.
+
+The simulator cannot be long-pressed, so the widgets are put on its home
+screen by its layout file, with the simulator shut down:
+`~/Library/Developer/CoreSimulator/Devices/<UDID>/data/Library/SpringBoard/IconState.plist`.
+An entry is `elementType = widget`, `bundleIdentifier =
+com.eried.eucplanet.ios.widgets`, `containerBundleIdentifier =
+com.eried.eucplanet.ios`, `widgetIdentifier` = the kind (`EucWheel`,
+`EucAction1`, `EucAction2`, `EucAction3`, `EucAction12`, `EucAction23`,
+`EucWeatherScore`, `EucWeatherForecast`), `gridSize` = `small`, `medium`
+or `large`, and two fresh UUIDs, as the stock widgets
+in that file have. Put them on the first page, with the app's icon on the
+same page: nothing can swipe, a boot opens the first page, and leaving the
+app (`xcrun simctl launch booted com.apple.springboard`) lands on the page
+its icon is on. A widget is a grey placeholder for some seconds after a
+boot. Keep a copy of the file to put back.
+
+The weather widgets get a forecast from `EUC_WEATHER_WIDGETS=<lat>,<lon>`
+(or from the dashboard, with a simulated location). To see an old forecast,
+lower `fetchedAt` in `weather.json` (in
+`.../data/Containers/Shared/AppGroup/<id>/`) and launch the app with the
+location permission revoked, which redraws the widgets without fetching;
+with the file deleted the same launch shows the empty look.
 
 ### TestFlight
 

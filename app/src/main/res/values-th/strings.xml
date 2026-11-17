@@ -1479,6 +1479,7 @@
     <string name="trip_tools_combine_failed">รวมทริปเหล่านั้นไม่ได้</string>
     <string name="widget_customize">ปรับแต่ง</string>
     <string name="widget_how_to_add">กดค้างที่หน้าจอหลัก แตะวิดเจ็ต แล้วเลือก EUC Planet</string>
+    <string name="widget_how_to_add_iphone">แตะค้างที่หน้าจอโฮม แตะแก้ไข แล้วแตะเพิ่มวิดเจ็ต จากนั้นเลือก EUC Planet iOS อัปเดตวิดเจ็ตทุกสองสามนาที ไม่ใช่แบบสด</string>
     <string name="trip_customize">ปรับแต่ง</string>
     <string name="trip_trim">ตัดช่วงที่แสดง</string>
     <string name="trip_trim_title">ตัดช่วงมุมมองทริป</string>

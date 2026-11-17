@@ -186,7 +186,8 @@ class DashboardViewModel(
     /** Whether to ask for 15-minute steps: only worth it on a short window,
      *  where hourly dots leave the curve looking blocky, and only out to
      *  where the providers publish them. */
-    private fun fineDetail(windowHours: Int): Boolean = windowHours <= 12
+    private fun fineDetail(windowHours: Int): Boolean =
+        com.eried.eucplanet.widget.WeatherWidgetContent.fine(windowHours)
 
     /** The forecast waiting for a first location fix; see [refreshWeather]. */
     private var locationWait: kotlinx.coroutines.Job? = null

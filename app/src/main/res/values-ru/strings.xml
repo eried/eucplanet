@@ -2570,6 +2570,7 @@
     <string name="widget_standalone_slot">Отдельная кнопка %1$d</string>
         <string name="widget_customize">Настроить</string>
     <string name="widget_how_to_add">Нажмите и удерживайте главный экран, выберите «Виджеты», затем EUC Planet.</string>
+    <string name="widget_how_to_add_iphone">Нажмите и удерживайте экран «Домой», коснитесь «Изменить», затем «Добавить виджет» и выберите EUC Planet. iOS обновляет виджеты раз в несколько минут, не в реальном времени.</string>
 <string name="trip_customize">Настроить</string>
     <string name="trip_trim">Обрезать вид</string>
     <string name="trip_trim_title">Обрезать вид поездки</string>

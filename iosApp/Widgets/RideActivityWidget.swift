@@ -9,6 +9,14 @@ import WidgetKit
 struct EucPlanetWidgets: WidgetBundle {
     var body: some Widget {
         RideActivityWidget()
+        // The home screen widgets (WheelWidgets.swift).
+        WheelWidget()
+        // The weather widgets (WeatherWidgets.swift).
+        WeatherScoreWidget()
+        WeatherForecastWidget()
+        if #available(iOS 17.0, *) {
+            ActionWidgets().body
+        }
     }
 }
 
@@ -58,7 +66,7 @@ struct RideActionRow: View {
             HStack(spacing: 8) {
                 ForEach(Array(actions.enumerated()), id: \.offset) { _, action in
                     Button(intent: RideActionIntent(key: action.key)) {
-                        Label(action.label, systemImage: symbol(action.key))
+                        Label(action.label, systemImage: rideActionSymbol(action.key))
                             .font(.caption.weight(.semibold))
                             .lineLimit(1)
                             .frame(maxWidth: .infinity)
@@ -72,16 +80,20 @@ struct RideActionRow: View {
         }
     }
 
-    private func symbol(_ key: String) -> String {
-        switch key {
-        case "STOP_ALL": return "xmark.circle"
-        case "LOCK": return "lock"
-        case "LIGHT": return "flashlight.on.fill"
-        case "RECORD": return "record.circle"
-        case "HORN": return "speaker.wave.2.fill"
-        case "DISCONNECT": return "antenna.radiowaves.left.and.right.slash"
-        case "STOP_NAV": return "location.slash"
-        default: return "circle"
-        }
+}
+
+// The symbol for an action key, on the Live Activity and the home screen
+// widgets (NotificationActionType's keys, and the widgets' VOICE).
+func rideActionSymbol(_ key: String) -> String {
+    switch key {
+    case "STOP_ALL": return "xmark.circle"
+    case "LOCK": return "lock"
+    case "LIGHT": return "flashlight.on.fill"
+    case "RECORD": return "record.circle"
+    case "HORN": return "speaker.wave.2.fill"
+    case "VOICE": return "waveform"
+    case "DISCONNECT": return "antenna.radiowaves.left.and.right.slash"
+    case "STOP_NAV": return "location.slash"
+    default: return "circle"
     }
 }

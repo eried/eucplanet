@@ -440,23 +440,10 @@ class EucWidget : AppWidgetProvider(), KoinComponent {
         private const val OFF_ALPHA = 97
 
         /**
-         * Whether tapping this button can do anything right now.
-         *
-         * Horn, light, lock and disconnect all send a command to the wheel, so
-         * with nothing connected there is nobody to send it to.
-         *
-         * VOICE and RECORD are not wheel commands. Voice toggles the periodic
-         * announcements, which is an app setting. Recording writes a trip from
-         * whatever the phone can see, so with no wheel it still produces a
-         * GPS-only ride, and the Recorder screen lets a rider start one exactly
-         * that way. Greying these out would have the widget contradict the app.
+         * Whether tapping this button can do anything right now: the shared
+         * rule ([WidgetContent.enabled]), the iPhone's widget reads it too.
          */
-        fun isEnabled(s: Snapshot, key: String): Boolean = s.connected ||
-            WidgetActionType.byKey(key) in ALWAYS_AVAILABLE
-
-        /** Actions that do not need a wheel on the other end. */
-        private val ALWAYS_AVAILABLE =
-            setOf(WidgetActionType.VOICE, WidgetActionType.RECORD)
+        fun isEnabled(s: Snapshot, key: String): Boolean = WidgetContent.enabled(key, s.connected)
 
         /**
          * Grey out a button that cannot act.
@@ -503,23 +490,8 @@ class EucWidget : AppWidgetProvider(), KoinComponent {
             locked: Boolean = false,
             recording: Boolean = false,
             voiceOn: Boolean = false,
-        ): String = when (WidgetActionType.byKey(key)) {
-            null -> ""
-            WidgetActionType.HORN -> context.getString(R.string.notif_btn_horn)
-            WidgetActionType.LIGHT -> context.getString(
-                if (lightOn) R.string.notif_btn_light_off else R.string.notif_btn_light_on
-            )
-            WidgetActionType.LOCK -> context.getString(
-                if (locked) R.string.notif_btn_unlock else R.string.notif_btn_lock
-            )
-            WidgetActionType.RECORD -> context.getString(
-                if (recording) R.string.notif_btn_stop_record else R.string.notif_btn_record
-            )
-            WidgetActionType.VOICE -> context.getString(
-                if (voiceOn) R.string.widget_voice_off else R.string.widget_voice_on
-            )
-            WidgetActionType.DISCONNECT -> context.getString(R.string.notif_btn_disconnect)
-        }
+        ): String = WidgetContent.buttonLabel(key, lightOn, locked, recording, voiceOn)
+            ?.let { context.getString(it) } ?: ""
 
         private fun openAppIntent(context: Context): PendingIntent =
             PendingIntent.getActivity(

@@ -1440,6 +1440,7 @@
     <string name="trip_tools_combine_failed">Noita matkoja ei voitu yhdistää</string>
     <string name="widget_customize">Mukauta</string>
     <string name="widget_how_to_add">Paina kotinäyttöä pitkään, napauta Widgetit ja valitse EUC Planet.</string>
+    <string name="widget_how_to_add_iphone">Paina Koti-valikkoa pitkään, napauta Muokkaa, sitten Lisää widgetti, ja valitse EUC Planet. iOS päivittää widgetit muutaman minuutin välein, ei reaaliajassa.</string>
     <string name="trip_customize">Mukauta</string>
     <string name="trip_trim">Rajaa näkymä</string>
     <string name="trip_trim_title">Rajaa matkanäkymä</string>

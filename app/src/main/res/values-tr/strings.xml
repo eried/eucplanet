@@ -2565,6 +2565,7 @@
     <string name="widget_standalone_slot">Tek düğme %1$d</string>
         <string name="widget_customize">Özelleştir</string>
     <string name="widget_how_to_add">Ana ekrana uzun basın, Widget\'lar seçeneğine dokunun, sonra EUC Planet\'i seçin.</string>
+    <string name="widget_how_to_add_iphone">Ana Ekrana basılı tutun, Düzenle\'ye, sonra Araç Takımı Ekle\'ye dokunun ve EUC Planet\'i seçin. iOS araç takımlarını birkaç dakikada bir yeniler, canlı değil.</string>
 <string name="trip_customize">Özelleştir</string>
     <string name="trip_trim">Görünümü kırp</string>
     <string name="trip_trim_title">Sürüş görünümünü kırp</string>

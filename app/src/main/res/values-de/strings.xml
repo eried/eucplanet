@@ -2588,6 +2588,7 @@
     <string name="widget_standalone_slot">Einzeltaste %1$d</string>
         <string name="widget_customize">Anpassen</string>
     <string name="widget_how_to_add">Startbildschirm lang drücken, auf Widgets tippen, dann EUC Planet wählen.</string>
+    <string name="widget_how_to_add_iphone">Home-Bildschirm gedrückt halten, auf Bearbeiten und dann Widget hinzufügen tippen, EUC Planet wählen. iOS aktualisiert Widgets alle paar Minuten, nicht live.</string>
 <string name="trip_customize">Anpassen</string>
     <string name="trip_trim">Ansicht eingrenzen</string>
     <string name="trip_trim_title">Fahrtansicht eingrenzen</string>

@@ -7,7 +7,6 @@ import com.eried.eucplanet.util.speedUnit
 import com.eried.eucplanet.weather.WeatherFace
 import com.eried.eucplanet.weather.WeatherForecast
 import com.eried.eucplanet.weather.WeatherScoring
-import kotlin.math.roundToInt
 
 /**
  * Turns a forecast into what the home screen widgets draw.
@@ -45,19 +44,16 @@ object WeatherWidgetPublisher {
         val scored = window.map { it to WeatherScoring.scoreOf(it, settings) }
         val currentHour = WeatherScoring.currentOf(window, nowMs)
         val current = currentHour?.let { WeatherScoring.scoreOf(it, settings) }
-        val tempUnit = Units.effectiveTempUnit(settings)
         val speedUnit = Units.effectiveSpeedUnit(settings)
         return WeatherSnapshot(
             fetchedAtMs = forecast.fetchedAtMs,
             score = current?.score ?: 0f,
             faceKey = current?.let { WeatherFace.of(it).key } ?: "MEH",
             place = place.orEmpty(),
-            tempLabel = currentHour?.let {
-                "${Units.temperature(it.tempC, tempUnit).roundToInt()}${Units.tempUnit(tempUnit)}"
-            }.orEmpty(),
+            // The labels are the iPhone's too (WeatherWidgetContent).
+            tempLabel = currentHour?.let { WeatherWidgetContent.tempLabel(it, settings) }.orEmpty(),
             windLabel = currentHour?.let {
-                "${Units.speed(it.windMs * 3.6f, speedUnit).roundToInt()} " +
-                    Units.speedUnit(context, speedUnit)
+                WeatherWidgetContent.windLabel(it, settings, Units.speedUnit(context, speedUnit))
             }.orEmpty(),
             windowHours = w.windowHours,
             series = scored.map { it.second.score },

@@ -1612,6 +1612,7 @@
     <string name="trip_tools_combine_failed">Could not combine those trips</string>
         <string name="widget_customize">Customize</string>
     <string name="widget_how_to_add">Long press your home screen, tap Widgets, then pick EUC Planet.</string>
+    <string name="widget_how_to_add_iphone">Touch and hold your Home Screen, tap Edit, then Add Widget, and pick EUC Planet. iOS updates widgets every few minutes, not live.</string>
 <string name="trip_customize">Customize</string>
     <string name="trip_trim">Trim the view</string>
     <string name="trip_trim_title">Trim trip view</string>

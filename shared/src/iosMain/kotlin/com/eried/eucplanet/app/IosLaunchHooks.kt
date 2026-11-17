@@ -46,6 +46,9 @@ import platform.Foundation.NSProcessInfo
  * - SIMCTL_CHILD_EUC_BG_SYNC=20 runs, 20 s after launch, what a background
  *   task runs (one quiet Dropbox pass and one leaderboard sweep): the
  *   simulator schedules no background tasks. The log names the outcome.
+ * - SIMCTL_CHILD_EUC_WEATHER_WIDGETS=59.91,10.75 fetches the forecast for
+ *   that place and writes it for the weather widgets, as their refresh
+ *   button does from where the phone is: the simulator has no fix.
  */
 internal object IosLaunchHooks {
     fun env(name: String): String? = NSProcessInfo.processInfo.environment[name] as? String
@@ -87,6 +90,8 @@ internal object IosLaunchHooks {
         }
         env("EUC_HUD")?.trim()?.let { hud(it) }
         env("EUC_BG_SYNC")?.toLongOrNull()?.let { IosBackgroundSync.runForHook(it) }
+        env("EUC_WEATHER_WIDGETS")?.split(",")?.mapNotNull { it.trim().toDoubleOrNull() }
+            ?.takeIf { it.size == 2 }?.let { IosWeatherWidgets.refreshForHook(it[0], it[1]) }
         if (sources != null) DashboardDialogBus.open("sources")
     }
 

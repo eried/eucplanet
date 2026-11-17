@@ -18,7 +18,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         RideActivity.shared.bridge = RideLiveActivity()
-        // The Live Activity's quick-action buttons land here (RideActionIntent).
+        IosWidgets.shared.bridge = WidgetReloader()
+        // The Live Activity's quick-action buttons land here (RideActionIntent),
+        // and the home screen widgets' buttons.
         if #available(iOS 17.0, *) {
             RideActionIntentHandler.run = { key in
                 await MainActor.run { RideActivity.shared.press(key: key) }
@@ -83,6 +85,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         open url: URL,
         options: [UIApplication.OpenURLOptionsKey: Any] = [:]
     ) -> Bool {
-        IosCrews.shared.handleUrl(url: url.absoluteString)
+        // A tap on a weather widget, or a crew pass link.
+        IosWeatherWidgets.shared.handleUrl(url: url.absoluteString)
+            || IosCrews.shared.handleUrl(url: url.absoluteString)
     }
 }

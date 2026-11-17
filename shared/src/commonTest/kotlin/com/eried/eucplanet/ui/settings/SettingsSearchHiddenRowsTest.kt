@@ -24,7 +24,7 @@ class SettingsSearchHiddenRowsTest {
     /** What the iPhone leaves out (IosSettingsHost), with its host switches. */
     private val iphone = setOf(
         SettingsRow.BACK_ACTION, SettingsRow.KEEP_ALIVE,
-        SettingsRow.PICTURE_IN_PICTURE, SettingsRow.HOME_WIDGET, SettingsRow.SHOW_OVER_LOCK_SCREEN,
+        SettingsRow.PICTURE_IN_PICTURE, SettingsRow.SHOW_OVER_LOCK_SCREEN,
         SettingsRow.ROTATION_LOCK, SettingsRow.VOICE_COMMANDS, SettingsRow.VOLUME_KEYS,
         SettingsRow.BACKUP_FOLDER, SettingsRow.VOICE_OUTPUT_CHANNEL,
         SettingsRow.HUD_APP_SEND, SettingsRow.CAR_SCREEN, SettingsRow.PHONE_HUD_WINDOW,

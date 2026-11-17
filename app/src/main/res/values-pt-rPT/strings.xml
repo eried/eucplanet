@@ -1525,6 +1525,7 @@
     <string name="trip_tools_combine_failed">Não foi possível juntar esses percursos</string>
     <string name="widget_customize">Personalizar</string>
     <string name="widget_how_to_add">Prima continuamente o ecrã principal, toque em Widgets e escolha EUC Planet.</string>
+    <string name="widget_how_to_add_iphone">Toque e mantenha o dedo no ecrã principal, toque em Editar, depois em Adicionar widget, e escolha EUC Planet. O iOS atualiza os widgets de poucos em poucos minutos, não em direto.</string>
     <string name="trip_customize">Personalizar</string>
     <string name="trip_trim">Recortar a vista</string>
     <string name="trip_trim_title">Recortar vista do percurso</string>

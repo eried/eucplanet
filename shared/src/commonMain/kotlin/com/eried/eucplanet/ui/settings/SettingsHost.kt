@@ -3,8 +3,11 @@ package com.eried.eucplanet.ui.settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.staticCompositionLocalOf
 import com.eried.eucplanet.data.model.AppSettings
+import com.eried.eucplanet.resources.Res
+import com.eried.eucplanet.resources.widget_how_to_add
 import com.eried.eucplanet.ui.settings.eucstats.AvatarPicker
 import com.eried.eucplanet.ui.settings.eucstats.PickedAvatar
+import org.jetbrains.compose.resources.StringResource
 
 /**
  * What SettingsScreen asks of the platform it runs on: the system screens and
@@ -46,6 +49,10 @@ interface SettingsHost {
 
     /** Rows inside a shown section that this platform cannot act on, so it leaves them out. */
     val hiddenRows: Set<SettingsRow>
+
+    /** How to put a widget on this phone's home screen, in this phone's own words. */
+    val widgetHowToAdd: StringResource
+        get() = Res.string.widget_how_to_add
 
     /** A folder picker; the returned function opens it. */
     @Composable

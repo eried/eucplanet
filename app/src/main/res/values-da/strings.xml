@@ -2583,6 +2583,7 @@
     <string name="widget_standalone_slot">Enkeltknap %1$d</string>
         <string name="widget_customize">Tilpas</string>
     <string name="widget_how_to_add">Hold nede på startskærmen, tryk på Widgets, og vælg EUC Planet.</string>
+    <string name="widget_how_to_add_iphone">Hold nede på hjemmeskærmen, tryk på Rediger, så Tilføj widget, og vælg EUC Planet. iOS opdaterer widgets med få minutters mellemrum, ikke live.</string>
 <string name="trip_customize">Tilpas</string>
     <string name="trip_trim">Beskær visningen</string>
     <string name="trip_trim_title">Beskær turvisning</string>

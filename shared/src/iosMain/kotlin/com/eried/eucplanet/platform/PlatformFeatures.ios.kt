@@ -5,6 +5,4 @@ package com.eried.eucplanet.platform
  * "Coming later or never"). Each shows muted with a "Not on iPhone yet"
  * tap; drop an entry the day its iOS side lands.
  */
-actual val missingPlatformFeatures: Set<PlatformFeature> = setOf(
-    PlatformFeature.HOME_WIDGETS,
-)
+actual val missingPlatformFeatures: Set<PlatformFeature> = emptySet()

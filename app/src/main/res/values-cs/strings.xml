@@ -1442,6 +1442,7 @@
     <string name="trip_tools_combine_failed">Tyto jízdy se nepodařilo spojit</string>
     <string name="widget_customize">Přizpůsobit</string>
     <string name="widget_how_to_add">Dlouze stiskněte plochu, klepněte na Widgety a vyberte EUC Planet.</string>
+    <string name="widget_how_to_add_iphone">Podržte plochu, klepněte na Upravit, pak na Přidat widget a vyberte EUC Planet. iOS obnovuje widgety jednou za pár minut, ne živě.</string>
     <string name="trip_customize">Přizpůsobit</string>
     <string name="trip_trim">Oříznout zobrazení</string>
     <string name="trip_trim_title">Oříznout zobrazení jízdy</string>

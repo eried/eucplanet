@@ -2570,6 +2570,7 @@
     <string name="widget_standalone_slot">Losse knop %1$d</string>
         <string name="widget_customize">Aanpassen</string>
     <string name="widget_how_to_add">Houd je startscherm ingedrukt, tik op Widgets en kies EUC Planet.</string>
+    <string name="widget_how_to_add_iphone">Houd je beginscherm ingedrukt, tik op Wijzig, dan Voeg widget toe, en kies EUC Planet. iOS werkt widgets om de paar minuten bij, niet live.</string>
 <string name="trip_customize">Aanpassen</string>
     <string name="trip_trim">Weergave inkorten</string>
     <string name="trip_trim_title">Ritweergave inkorten</string>
