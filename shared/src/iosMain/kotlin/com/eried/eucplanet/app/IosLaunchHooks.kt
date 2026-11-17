@@ -38,6 +38,11 @@ import platform.Foundation.NSProcessInfo
  *   HUD Bonjour finds on this network.
  *   Android's HUD debug properties are hooks too: EUC_HUD_FORCE, EUC_HUD_PEER,
  *   EUC_DEMO, EUC_PROTO_MAJOR and EUC_PROTO_MINOR (IosHudPhone.debug).
+ * - SIMCTL_CHILD_EUC_SHARE=scan (with EUC_SCREEN=route) opens the route
+ *   builder on its scan window, as Share > Scan does.
+ * - SIMCTL_CHILD_EUC_SCAN_CODE=<text> is what a scanner with no camera reads
+ *   two seconds after it opens (the share scanner and the crew pass), as if
+ *   it had been shown that code.
  */
 internal object IosLaunchHooks {
     fun env(name: String): String? = NSProcessInfo.processInfo.environment[name] as? String
@@ -49,10 +54,19 @@ internal object IosLaunchHooks {
     /** True once, when EUC_OFFLINE=areas asked for the Offline areas screen. */
     fun takeOfflineAreas(): Boolean = offlineAreas.also { offlineAreas = false }
 
+    private var shareScanner = false
+
+    /** True once, when EUC_SHARE=scan asked for the route builder's scan window. */
+    fun takeShareScanner(): Boolean = shareScanner.also { shareScanner = false }
+
+    /** EUC_SCAN_CODE: the code a scanner with no camera reads. */
+    val scanCode: String? by lazy { env("EUC_SCAN_CODE")?.takeIf { it.isNotBlank() } }
+
     fun start() {
         if (env("EUC_SERVICE") == "1") DiagnosticsLogger.enable()
         if (env("EUC_NO_NETWORK") == "1") IosNetwork.forceOffline()
         offlineAreas = env("EUC_OFFLINE")?.lowercase() == "areas"
+        shareScanner = env("EUC_SHARE")?.lowercase() == "scan"
         when (env("EUC_EXTGPS")?.lowercase()) {
             "virtual" -> MainScope().launch {
                 val gps = IosAppGraph.externalGps

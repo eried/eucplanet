@@ -264,6 +264,14 @@ SIMCTL_CHILD_EUC_CONNECT=VIRTUAL:V6 SIMCTL_CHILD_EUC_HUD=127.0.0.1:28080 xcrun s
                                # adb forward tcp:28080 tcp:28080 (the link)
                                # and adb reverse tcp:28081 tcp:28081 (the
                                # HUD's map tiles from this phone)
+SIMCTL_CHILD_EUC_SCREEN=route SIMCTL_CHILD_EUC_SHARE=scan SIMCTL_CHILD_EUC_SCAN_CODE="https://eucplanet.ried.no/share#<room>.<key>" xcrun simctl launch booted com.eried.eucplanet.ios
+                               # opens the route builder on its scan window
+                               # (Share > Scan); the simulator has no camera,
+                               # so two seconds later the scanner reads
+                               # EUC_SCAN_CODE as if shown that code: a share
+                               # link opens the join form, a route link opens
+                               # the route, a crew pass says so. The crew
+                               # pass scanner reads it too
 SIMCTL_CHILD_EUC_HEADLESS=20 SIMCTL_CHILD_EUC_CONNECT=VIRTUAL:V6 xcrun simctl launch booted com.eried.eucplanet.ios
                                # starts as a Bluetooth relaunch does: the
                                # services with no screen for 20 s (the log

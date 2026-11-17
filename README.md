@@ -3,6 +3,7 @@
 [![Latest release](https://img.shields.io/github/v/release/eried/eucplanet)](https://github.com/eried/eucplanet/releases)
 [![License: MIT](https://img.shields.io/github/license/eried/eucplanet)](LICENSE)
 [![Google Play](https://img.shields.io/badge/Google_Play-EUC_Planet-3DDC84?logo=googleplay&logoColor=white)](https://play.google.com/store/apps/details?id=com.eried.eucplanet)
+[![iPhone beta](https://img.shields.io/badge/TestFlight-iPhone_beta-0D96F6?logo=apple&logoColor=white)](https://testflight.apple.com/join/8VrhGCrm)
 [![Garmin Connect IQ](https://img.shields.io/badge/Connect_IQ-EUC_Planet-007CC3?logo=garmin&logoColor=white)](https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71)
 [![Amazfit Zepp OS](https://img.shields.io/badge/Zepp_OS-EUC_Planet-FF6D00?logo=amazfit&logoColor=white)](docs/AMAZFIT_SETUP.md)
 [![Telegram](https://img.shields.io/badge/Telegram-EUCPlanetApp-26A5E4?logo=telegram&logoColor=white)](https://t.me/EUCPlanetApp)
@@ -228,6 +229,10 @@ dials, the helmet HUD, and Service Mode.
 a small symbolic price, treat it as a tip if you'd like to support the project and
 get automatic updates. Or grab the latest APK from [releases](../../releases) for
 free and sideload it. Same app either way.
+
+On an iPhone, the app is in beta: join it on
+[TestFlight](https://testflight.apple.com/join/8VrhGCrm). It is the same app,
+less the watches and a few Android-only extras for now.
 
 On a Garmin watch or Edge, install the EUC Planet data field straight from the
 [Connect IQ Store](https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71).

@@ -104,6 +104,12 @@ interface RouteBuilderHost {
     @Composable
     fun QrCode(content: String, sizePx: Int, modifier: Modifier, mediumEcc: Boolean)
 
+    /**
+     * True once, when the screen should open on its scan window. Only the
+     * iPhone simulator asks, because it cannot be tapped (docs/IOS_SYNC.md).
+     */
+    fun takeOpenScanner(): Boolean = false
+
     /** The live camera square that reads a code [parse] accepts. */
     @Composable
     fun <T : Any> QrScanner(

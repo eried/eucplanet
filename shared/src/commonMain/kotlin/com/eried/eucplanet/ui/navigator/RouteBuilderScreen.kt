@@ -333,7 +333,7 @@ private fun RouteBuilderContent(
     var shareMenuOpen by remember { mutableStateOf(false) }
     // The camera, and the ride it read. The link is held rather than joined on
     // sight: the rider still has to say how they want to appear.
-    var shareScannerOpen by remember { mutableStateOf(false) }
+    var shareScannerOpen by remember { mutableStateOf(host.takeOpenScanner()) }
     // The planned route as a QR code; set by the Share menu's "Share route".
     var routeQrLink by remember { mutableStateOf<String?>(null) }
     val pendingRoute by viewModel.pendingRoute.collectAsState()

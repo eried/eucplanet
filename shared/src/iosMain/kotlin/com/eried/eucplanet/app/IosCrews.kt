@@ -163,6 +163,25 @@ internal fun <T : Any> IosQrScanner(
         delay(2_500)
         invalidNote = null
     }
+    // One read, from the camera or from the simulator's EUC_SCAN_CODE.
+    val onCode: (String) -> Unit = { text ->
+        if (!handled) {
+            val link = latestParse(text)
+            if (link != null) {
+                handled = true
+                latestFound(link)
+            } else {
+                invalidNote = latestMisfit(text) ?: invalidText
+                lastInvalidMs = System.currentTimeMillis()
+            }
+        }
+    }
+    // The simulator has no camera to point: the hook's code is read in its place.
+    if (!available) LaunchedEffect(Unit) {
+        val code = IosLaunchHooks.scanCode ?: return@LaunchedEffect
+        delay(2_000)
+        onCode(code)
+    }
 
     Column(modifier) {
         Box(
@@ -177,19 +196,7 @@ internal fun <T : Any> IosQrScanner(
             when {
                 sdk == null || !available -> CameraIcon()
                 auth == 2 -> UIKitView(
-                    factory = {
-                        sdk.makeScannerView { text ->
-                            if (handled) return@makeScannerView
-                            val link = latestParse(text)
-                            if (link != null) {
-                                handled = true
-                                latestFound(link)
-                            } else {
-                                invalidNote = latestMisfit(text) ?: invalidText
-                                lastInvalidMs = System.currentTimeMillis()
-                            }
-                        }
-                    },
+                    factory = { sdk.makeScannerView(onCode) },
                     modifier = Modifier.fillMaxSize(),
                     onRelease = { sdk.stopScannerView(it) },
                 )

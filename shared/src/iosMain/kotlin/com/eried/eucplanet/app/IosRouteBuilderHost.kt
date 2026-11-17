@@ -219,6 +219,9 @@ internal object IosRouteBuilderHost : RouteBuilderHost {
     override fun QrCode(content: String, sizePx: Int, modifier: Modifier, mediumEcc: Boolean) =
         QrCodeCanvas(content, sizePx, modifier, if (mediumEcc) QrEncoder.Ecc.M else QrEncoder.Ecc.Q)
 
+    // SIMCTL_CHILD_EUC_SHARE=scan (IosLaunchHooks).
+    override fun takeOpenScanner(): Boolean = IosLaunchHooks.takeShareScanner()
+
     @Composable
     override fun <T : Any> QrScanner(
         parse: (String) -> T?,
