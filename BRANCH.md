@@ -9,6 +9,7 @@ ride, this is the branch.
 
 ## Worked on
 
+- InMotion V6: counts as rider-tested now, so the "preliminary wheel" banner is gone. Thanks Klaus, you are in the thanks list.
 - InMotion V6: 20 km/h tilt-back, normal and Legal mode, now reaches the wheel. It was the one value the wheel dropped.
 - Speed limits: a typed speed applies on Done or when you leave the field, not on each digit. Typing 19 used to set 1 on the way and pull Legal mode down to 0.
 - Watch: a dark accent (black, dark blue) keeps the button icons readable. Pick the colour in the phone app's theme.
@@ -81,7 +82,7 @@ ride, this is the branch.
 - Set tilt-back to 20 km/h in EUC Planet, normal and in Legal mode: does the wheel beep like for 19 and 21?
 - Watch: are speed, PWM and batteries readable now without glasses? Try one, two and three batteries and Prioritize PWM. Install both the phone and the watch APK.
 - Type a tilt-back like 19 and press Done: does Legal mode keep its value? If yours shows 0, set it again once.
-- Change the accent to dark blue or black in the phone's theme: does the watch follow, with readable buttons?
+- Change Primary / accent in the phone's theme: does the watch follow? Pick a light colour, a dark one is hard to read on the black watch face.
 
 **Closing windows**
 - Crew pass, studio panels, HUD preset picker: does the X close them? Anywhere else you can only leave with the back gesture?
