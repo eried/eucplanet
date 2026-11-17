@@ -15,7 +15,13 @@ xcrun simctl boot "$DEV" 2>/dev/null || true
 xcrun simctl bootstatus "$DEV" -b >/dev/null
 xcrun simctl install "$DEV" "$DD/Build/Products/Debug-iphonesimulator/EucPlanet.app"
 # Leaderboard uploads go to a local eucstats (uvicorn on port 8000), never the
-# real one: set SIMCTL_CHILD_EUCSTATS_API_BASE_URL to point elsewhere.
+# real one: set SIMCTL_CHILD_EUCSTATS_API_BASE_URL to point elsewhere. The app
+# picks the same server by itself on a simulator (IosEucStats.baseUrl), since
+# iOS may start it before this launch, with no environment.
 export SIMCTL_CHILD_EUCSTATS_API_BASE_URL="${SIMCTL_CHILD_EUCSTATS_API_BASE_URL:-http://127.0.0.1:8000/api/v1}"
+# iOS may have opened the app by itself after the install (a Live Activity
+# left from the last run): a launch then only finds it running and the
+# environment above, and every EUC_* hook, is dropped. End it first.
+xcrun simctl terminate "$DEV" com.eried.eucplanet.ios 2>/dev/null || true
 xcrun simctl launch "$DEV" com.eried.eucplanet.ios
 if [ -n "$2" ]; then sleep 6; xcrun simctl io "$DEV" screenshot "$2"; fi

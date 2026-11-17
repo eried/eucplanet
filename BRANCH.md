@@ -31,6 +31,7 @@ only when you can cut the ride short.
 - iPhone app: the offline map no longer closes the app now and then while it draws street names.
 - iPhone app: the Needs attention warnings (location, Bluetooth, notifications, backups), and a recording cut short by closing the app is saved or dropped at the next start, as on Android.
 - The website and the README link to the iPhone beta on TestFlight, and the public link carries 0.24.0 once Apple's beta review passes it.
+- iPhone app: Dropbox and leaderboard uploads also run while the app is not open, when iOS gives it time (not after you swipe the app away), as Android does in the background.
 - Inside: the dashboard, settings, alarms, trips, trip details, trip tools, Legal Mode, the notification buttons, the reconnect timing, leaderboards, Dropbox sync, the wheel link, the theme editor, the automations, what runs on connect and every wheel update, the radar and TPMS settings, the engine sound and the navigation (routing, turn cues, the route builder, route sharing, the navigator view and the Navigation settings) and the Overlay studio moved to a library shared with the iPhone. Nothing should change on screen.
 - iPhone app: a swipe in from the left edge is back, on every screen and in every dialog, and the crew pass has the X in every step.
 - iPhone app: Volume up, Volume down and Mute are no longer offered (iOS cannot set the volume), and the tour's last page names only Flic buttons.
@@ -113,6 +114,7 @@ only when you can cut the ride short.
 - Motor sound (Settings, search "engine", switch it on): ride from a stop to 30 km/h. Does it rev with the wheel like the Android app, lower your music, and keep playing with the iPhone locked? Do the previews play?
 - Navigation (dashboard map button): plan a route you know, start it and ride with the iPhone locked. Do the turn cues come at the right corners, and does it reroute when you miss one? Same route as the Android app?
 - Live group: start a group on an Android phone and join it from the iPhone by scanning its QR (share icon on the map), and the other way. Do both see each other move? Scan a crew pass there too: it should say to scan it from Settings.
+- Uploads with the app not open: finish a ride with no connection (flight mode, Bluetooth on), go to the Home Screen, turn the connection back on and leave the iPhone alone for a few hours. Is the trip on Dropbox and the leaderboard before you open the app?
 - Share a route as QR from Android and scan it on the iPhone. Load a GPX track from Files.
 - HUD from the iPhone: open the HUD app, put both on one Wi-Fi (or join the HUD to the iPhone's Personal Hotspot), then Settings, Integration, Motoeye HUD, Enable data link, and allow the local network question. Does Auto find it, or only Fixed with the address the HUD shows? Does it stay linked with the iPhone locked, and do the HUD buttons work?
 - Swipe in from the left edge on Settings, a trip, the battery monitor and in any dialog: does it go back or close it?

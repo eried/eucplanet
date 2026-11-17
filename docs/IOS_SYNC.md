@@ -49,7 +49,7 @@ Seams that need both sides on every change:
 | Alarm rules for settings.json | `data/sync/DropboxSettingsSync.AlarmRuleStore` | `SyncManager` (AlarmDao) | `IosAppGraph.alarms` (a JSON file until Room moves) |
 | Dropbox trips | `data/sync/DropboxTripSync.kt` (Sync all, the background pass, the pull, archiving), `TripFiles.kt` (`TripFileStore`), `TripCsvMeta.kt`, `DropboxTripHost`, `DropboxSyncUi` | `SyncManager` (backup folder hooks, WorkManager retries, the conflict dialog's flows), `DropboxSyncWorker`, `AndroidTripFiles.kt` | `iosMain/.../app/IosDropboxSync.kt` (in-app retries, Documents/themes), `IosTripFiles.kt` |
 | Dropbox HTTP | `DropboxRepository(transport)`, `platform.HttpExecutor` | `HttpClient` (OkHttp) | `HttpClient` (NSURLSession); tests run against `commonTest/.../FakeDropbox.kt` |
-| Leaderboard rider id and upload trigger | `data/sync/EucStatsSweep.kt`, `EucStatsSettingsPort` | `SyncManager` (rider id in the backup folder), `EucStatsUploadWorker` (WorkManager) | `iosMain/.../app/IosEucStats.kt` (Documents file; trip finish, launch, foreground) |
+| Leaderboard rider id and upload trigger | `data/sync/EucStatsSweep.kt`, `EucStatsSettingsPort` | `SyncManager` (rider id in the backup folder), `EucStatsUploadWorker` (WorkManager) | `iosMain/.../app/IosEucStats.kt` (Documents file; trip finish, launch, foreground), `IosBackgroundSync.kt` (while not open) |
 | Crew pass camera and links | `crews/CrewsPairScreen.kt` (`CrewsPairHost`) | `app/.../crews/CrewsPairActivity.kt` (CameraX, intent filter) | `iosMain/.../app/IosCrews.kt`, `iosApp/QrScannerBridge.swift`, `AppDelegate` open URL |
 | Leaderboard picture | `SettingsHost.rememberAvatarPicker` | `AndroidSettingsHost` (gallery, UserMarkerCropDialog) | `iosMain/.../app/IosAvatarPicker.kt` (UIImagePickerController) |
 | Trip meter | `data/repository/TripMeterRepository.kt` (`TripMeterFixes`), `data/store/TripMeterStore.kt` (a DataStore) | `AndroidTripMeterFixes` (TripRepository, `Location.distanceBetween`), `TripMeterStoreAndroid.kt` | `iosMain/.../app/IosTripMeter.kt` (IosLocation, haversine, Documents/datastore) |
@@ -173,10 +173,11 @@ opening it in Xcode and pressing Run is enough. From a terminal:
 
 ```sh
 sh iosApp/run-simulator.sh     # build, install and launch on a simulator
-                               # (leaderboards go to a local eucstats at
-                               # http://127.0.0.1:8000/api/v1; launches by
-                               # hand need SIMCTL_CHILD_EUCSTATS_API_BASE_URL
-                               # to do the same)
+                               # (on the simulator leaderboards go to a
+                               # local eucstats at http://127.0.0.1:8000/api/v1,
+                               # never the real one, however the app was
+                               # started; SIMCTL_CHILD_EUCSTATS_API_BASE_URL
+                               # names another)
 SIMCTL_CHILD_EUC_CONNECT=VIRTUAL:MASTER xcrun simctl launch booted com.eried.eucplanet.ios
                                # relaunch connected to a virtual wheel
 SIMCTL_CHILD_EUC_DIALOG=service xcrun simctl launch booted com.eried.eucplanet.ios
@@ -272,6 +273,11 @@ SIMCTL_CHILD_EUC_SCREEN=route SIMCTL_CHILD_EUC_SHARE=scan SIMCTL_CHILD_EUC_SCAN_
                                # link opens the join form, a route link opens
                                # the route, a crew pass says so. The crew
                                # pass scanner reads it too
+SIMCTL_CHILD_EUC_BG_SYNC=20 xcrun simctl launch booted com.eried.eucplanet.ios
+                               # 20 s after launch, runs what a background
+                               # task runs (one quiet Dropbox pass and one
+                               # leaderboard sweep); the log shows
+                               # "Background sync done: ..."
 SIMCTL_CHILD_EUC_HEADLESS=20 SIMCTL_CHILD_EUC_CONNECT=VIRTUAL:V6 xcrun simctl launch booted com.eried.eucplanet.ios
                                # starts as a Bluetooth relaunch does: the
                                # services with no screen for 20 s (the log
@@ -343,6 +349,31 @@ the relaunch then comes when the wheel is switched back on. Past the trip's
 window (the idle stop, at most 10 minutes) that trip is finalized and
 auto-record starts a new one.
 
+### Sync while the app is not open
+
+`IosBackgroundSync` is Android's periodic Dropbox and leaderboard workers.
+It registers two background tasks at launch (their identifiers are in
+`Info.plist`, `BGTaskSchedulerPermittedIdentifiers`) and asks for both each
+time the app leaves the screen: an app refresh (about 30 s) and a processing
+task (minutes, needs a connection, usually while the phone charges). Each
+runs one quiet Dropbox pass and one leaderboard sweep and asks for the next.
+iOS decides when, never sooner than the pending-upload interval, and not at
+all after the rider swipes the app away or turns Background App Refresh off.
+
+The simulator schedules no background tasks (the log says "not scheduled"),
+so `EUC_BG_SYNC=20` runs the same work there. On a real iPhone, cabled to
+the Mac and run from Xcode: record a trip with no connection, send the app
+to the Home Screen, turn the connection back on, pause in the debugger and
+enter
+
+```
+e -l objc -- (void)[[BGTaskScheduler sharedScheduler] _simulateLaunchForTaskWithIdentifier:@"com.eried.eucplanet.ios.sync.refresh"]
+```
+
+then continue: the log shows `Background sync (task ...)` and
+`Background sync done`, and the trip is on Dropbox and the leaderboard
+without the app having been opened.
+
 ### TestFlight
 
 ```sh
@@ -377,8 +408,8 @@ with each platform.
 | Ride notification text and buttons | Already shared (`RideNotificationText`, `RideQuickActions`); left. |
 | Quick-action presses (WheelService intents, RideActivity.press) | Left: iOS goes through the shared `ActionExecutor`, Android's intents call the same repository methods; a few lines each, no rule of their own. |
 | Lockdown stops a recording (TripRepository, IosTrips.followWheel) | Left: three lines each over the shared `LegalLockdownController`; moving it would need the whole trip recorder shared. |
-| Dropbox pass triggers (SyncManager / WorkManager, IosDropboxSync) | Left: the pass itself is shared (`DropboxTripSync`); only the scheduling differs (WorkManager against in-process retries). |
-| Leaderboard upload trigger (EucStatsUploadWorker, IosEucStats) | Left: the sweep is shared (`EucStatsSweep`); only the trigger differs. |
+| Dropbox pass triggers (SyncManager / WorkManager, IosDropboxSync) | Left: the pass itself is shared (`DropboxTripSync`); only the scheduling differs (WorkManager against in-process retries, and `IosBackgroundSync` on BGTaskScheduler while the app is not open). |
+| Leaderboard upload trigger (EucStatsUploadWorker, IosEucStats) | Left: the sweep is shared (`EucStatsSweep`); only the trigger differs (`IosBackgroundSync` while the app is not open). |
 | Keep screen on (MainActivity, IosDisplayPrefs) | Left: a settings flow into a platform flag, no rule to share. |
 | GPS acquired / lost announcements | Moved to `data/model/GpsSignalWatch.kt` (the state machine TripRepository ran) and `RideSession.followGpsSignal` (WheelService's collector). The iPhone feeds it from `IosLocation` and `IosGpsPower`, so it now speaks them too. |
 

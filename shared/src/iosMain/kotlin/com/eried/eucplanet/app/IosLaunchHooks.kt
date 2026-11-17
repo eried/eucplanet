@@ -43,6 +43,9 @@ import platform.Foundation.NSProcessInfo
  * - SIMCTL_CHILD_EUC_SCAN_CODE=<text> is what a scanner with no camera reads
  *   two seconds after it opens (the share scanner and the crew pass), as if
  *   it had been shown that code.
+ * - SIMCTL_CHILD_EUC_BG_SYNC=20 runs, 20 s after launch, what a background
+ *   task runs (one quiet Dropbox pass and one leaderboard sweep): the
+ *   simulator schedules no background tasks. The log names the outcome.
  */
 internal object IosLaunchHooks {
     fun env(name: String): String? = NSProcessInfo.processInfo.environment[name] as? String
@@ -83,6 +86,7 @@ internal object IosLaunchHooks {
             }
         }
         env("EUC_HUD")?.trim()?.let { hud(it) }
+        env("EUC_BG_SYNC")?.toLongOrNull()?.let { IosBackgroundSync.runForHook(it) }
         if (sources != null) DashboardDialogBus.open("sources")
     }
 

@@ -77,6 +77,15 @@
         <string>audio</string>
         <string>bluetooth-central</string>
         <string>location</string>
+        <string>fetch</string>
+        <string>processing</string>
+    </array>
+    <!-- Dropbox and leaderboard uploads while the app is not open
+         (IosBackgroundSync.kt names the same two). -->
+    <key>BGTaskSchedulerPermittedIdentifiers</key>
+    <array>
+        <string>com.eried.eucplanet.ios.sync.refresh</string>
+        <string>com.eried.eucplanet.ios.sync.processing</string>
     </array>
     <!-- The ride Live Activity, Android's ongoing ride notification. -->
     <key>NSSupportsLiveActivities</key>

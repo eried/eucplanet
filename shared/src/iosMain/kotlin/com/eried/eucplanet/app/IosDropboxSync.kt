@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.withLock
 import platform.Foundation.NSNotificationCenter
 import platform.Foundation.NSOperationQueue
 import platform.UIKit.UIApplicationWillEnterForegroundNotification
@@ -43,8 +44,8 @@ import platform.UIKit.UIApplicationWillEnterForegroundNotification
  *   DropboxSyncWorker. Android runs it on WorkManager; the iPhone runs it
  *   in-process: a moment after launch, on every return to the front, when a
  *   trip finishes, every pendingUploadIntervalMin while the app is open, and
- *   on Android's retry curve after a failure. Not while the app is closed
- *   (docs/IOS_PARITY.md).
+ *   on Android's retry curve after a failure. While the app is not open,
+ *   iOS runs [passNow] when it chooses (IosBackgroundSync).
  * - No backup folder on iOS: the folder hooks report nothing to do, and the
  *   JSON folders are Documents/themes and Documents/overlays, mirrored with
  *   Dropbox's /themes and /overlays.
@@ -245,14 +246,17 @@ object IosDropboxSync {
         }
     }
 
-    /** DropboxSyncWorker.doWork: one pass at a time, never beside Sync now. */
-    private suspend fun runPass(attempt: Int) {
+    /**
+     * DropboxSyncWorker.doWork: one pass at a time, never beside Sync now.
+     * False when it did not finish and a retry is queued.
+     */
+    private suspend fun runPass(attempt: Int): Boolean {
         if (_running.value) {
             // WorkManager's retry: come back later, further up the curve.
             schedule(attempt + 1, DropboxTripSync.delayForAttempt(attempt + 1))
-            return
+            return false
         }
-        if (!trips.passLock.tryLock()) return
+        if (!trips.passLock.tryLock()) return false
         pass = currentCoroutineContext().job
         try {
             val outcome = trips.backgroundPass(
@@ -262,15 +266,31 @@ object IosDropboxSync {
             )
             if (outcome == BackgroundOutcome.RETRY) {
                 schedule(attempt + 1, DropboxTripSync.delayForAttempt(attempt + 1))
+                return false
             }
+            return true
         } catch (e: Exception) {
             if (e is kotlinx.coroutines.CancellationException) throw e
             Log.w(TAG, "pass failed: ${e.message}")
             schedule(attempt + 1, DropboxTripSync.delayForAttempt(attempt + 1))
+            return false
         } finally {
             pass = null
             trips.passLock.unlock()
         }
+    }
+
+    /**
+     * One quiet pass, awaited: what a background task runs (IosBackgroundSync).
+     * A pass already running is waited for instead. False when it did not finish.
+     */
+    suspend fun passNow(): Boolean {
+        if (!linked()) return true
+        if (trips.passLock.isLocked) {
+            trips.passLock.withLock { }
+            return true
+        }
+        return runPass(0)
     }
 
     private var started = false

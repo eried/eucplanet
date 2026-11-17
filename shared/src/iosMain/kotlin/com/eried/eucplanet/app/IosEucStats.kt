@@ -11,6 +11,7 @@ import com.eried.eucplanet.data.eucstats.StubAppAttest
 import com.eried.eucplanet.data.eucstats.SyncResult
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.TripRecord
+import com.eried.eucplanet.data.sync.EucStatsSweep
 import com.eried.eucplanet.data.sync.eucStatsUploadsOn
 import com.eried.eucplanet.data.sync.sweepEucStatsUploads
 import com.eried.eucplanet.platform.HttpClient
@@ -19,6 +20,7 @@ import com.eried.eucplanet.ui.recording.RecordingOnline
 import com.eried.eucplanet.ui.settings.OnlineLeaderboard
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -28,6 +30,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import platform.Foundation.NSBundle
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSNotificationCenter
@@ -49,7 +53,8 @@ import platform.UIKit.UIDevice
  *   folder, so it is a file in the app's Documents (backed up with the phone).
  * - The upload trigger: Android has WorkManager; the iPhone sweeps when a trip
  *   finishes, when the app starts and when it comes back to the front, and
- *   retries in-process on Android's backoff curve while it stays open.
+ *   retries in-process on Android's backoff curve while it stays open. While
+ *   it is not open, iOS runs [sweepOnce] when it chooses (IosBackgroundSync).
  * - Attestation: StubAppAttest until App Attest is wired on both ends.
  */
 internal object IosEucStats {
@@ -61,15 +66,30 @@ internal object IosEucStats {
     private const val BACKOFF_MAX_SECONDS = 300L
 
     /**
-     * The API base: production, unless a dev build says otherwise, from the
-     * launch environment (SIMCTL_CHILD_EUCSTATS_API_BASE_URL=...) or the
-     * Info.plist key EucStatsApiBaseUrl.
+     * The API base: production on an iPhone, unless a dev build says
+     * otherwise, from the launch environment
+     * (SIMCTL_CHILD_EUCSTATS_API_BASE_URL=...) or the Info.plist key
+     * EucStatsApiBaseUrl.
+     *
+     * The simulator never defaults to production: iOS starts the app there by
+     * itself too (a Live Activity after an install, a background task), with
+     * no launch environment, and test trips then went to the real server.
+     * There it is a local eucstats unless the environment names another.
      */
     val baseUrl: String by lazy {
-        val env = NSProcessInfo.processInfo.environment["EUCSTATS_API_BASE_URL"] as? String
+        val environment = NSProcessInfo.processInfo.environment
+        val env = environment["EUCSTATS_API_BASE_URL"] as? String
         val plist = NSBundle.mainBundle.objectForInfoDictionaryKey("EucStatsApiBaseUrl") as? String
-        (env ?: plist)?.trim()?.trimEnd('/')?.takeIf { it.startsWith("http") } ?: EucStatsServer.DEFAULT_API_BASE_URL
+        pickBaseUrl(env, plist, simulator = environment["SIMULATOR_UDID"] != null)
     }
+
+    /** The environment, then the plist, when it names a URL; otherwise the local server on the simulator, production on a phone. */
+    internal fun pickBaseUrl(env: String?, plist: String?, simulator: Boolean): String =
+        (env ?: plist)?.trim()?.trimEnd('/')?.takeIf { it.startsWith("http") }
+            ?: if (simulator) SIMULATOR_API_BASE_URL else EucStatsServer.DEFAULT_API_BASE_URL
+
+    /** iosApp/run-simulator.sh and docs/IOS_SYNC.md name the same local server. */
+    internal const val SIMULATOR_API_BASE_URL = "http://127.0.0.1:8000/api/v1"
 
     private val riderPath get() = "${IosAppGraph.documents}/$RIDER_FILE"
 
@@ -124,6 +144,32 @@ internal object IosEucStats {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var sweepJob: Job? = null
 
+    // One sweep at a time: the in-process chain and a background task may meet.
+    private val sweepLock = Mutex()
+
+    private suspend fun sweepLocked(): EucStatsSweep = sweepLock.withLock {
+        sweepEucStatsUploads(
+            settings = IosAppGraph.settings.get(),
+            riderStoreId = { _riderStoreId.value ?: readRiderId() },
+            tripDao = IosAppGraph.database.tripDao(),
+            eucStatsRepository = repository,
+            tag = TAG,
+        )
+    }
+
+    /**
+     * One sweep, awaited, with no retry chain: what a background task runs
+     * (IosBackgroundSync). False when a trip is still waiting.
+     */
+    suspend fun sweepOnce(): Boolean = try {
+        !sweepLocked().retry
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        Log.w(TAG, "Sweep failed", e)
+        false
+    }
+
     /**
      * One sweep and its retry chain, replacing any chain already waiting, as
      * Android's unique work with REPLACE does.
@@ -133,15 +179,8 @@ internal object IosEucStats {
         sweepJob = scope.launch {
             var attempt = 0
             while (true) {
-                val result = runCatching {
-                    sweepEucStatsUploads(
-                        settings = IosAppGraph.settings.get(),
-                        riderStoreId = { _riderStoreId.value ?: readRiderId() },
-                        tripDao = IosAppGraph.database.tripDao(),
-                        eucStatsRepository = repository,
-                        tag = TAG,
-                    )
-                }.onFailure { Log.w(TAG, "Sweep failed", it) }.getOrNull()
+                val result = runCatching { sweepLocked() }
+                    .onFailure { Log.w(TAG, "Sweep failed", it) }.getOrNull()
                 if (result?.retry != true) break
                 attempt++
                 val secs = (BACKOFF_BASE_SECONDS * (1L shl (attempt - 1).coerceAtMost(20)))

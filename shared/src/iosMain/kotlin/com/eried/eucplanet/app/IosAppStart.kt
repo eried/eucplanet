@@ -44,6 +44,10 @@ object IosAppStart {
         }
         // Uncaught Kotlin exceptions to Documents/crashes, as Android's CrashHandler.
         IosCrashLog.install()
+        // Dropbox and leaderboard uploads while the app is not open, when iOS
+        // gives it time. iOS takes the handlers only before the launch finishes,
+        // and a request with no handler ends the app, so this comes first.
+        IosBackgroundSync.start()
         val link = IosAppGraph.link
         val wheel = IosAppGraph.wheel
         // For scripted runs on the simulator, which cannot tap:
