@@ -99,7 +99,9 @@
         <true/>
     </dict>
     <!-- eucplanet://pair?code=...: the crew pass, as Android's CrewsPairActivity
-         intent filter. The link carries a short-lived code, never an identity. -->
+         intent filter. The link carries a short-lived code, never an identity.
+         Also eucplanet://weather (a widget's tap), and eucplanet://share/... and
+         eucplanet://route/..., the site's "Open in EUC Planet" (IosLinks). -->
     <key>CFBundleURLTypes</key>
     <array>
         <dict>

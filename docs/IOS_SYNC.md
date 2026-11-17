@@ -273,6 +273,11 @@ SIMCTL_CHILD_EUC_SCREEN=route SIMCTL_CHILD_EUC_SHARE=scan SIMCTL_CHILD_EUC_SCAN_
                                # link opens the join form, a route link opens
                                # the route, a crew pass says so. The crew
                                # pass scanner reads it too
+xcrun simctl openurl booted "eucplanet://share/<room>.<key>"
+                               # what the site's "Open in EUC Planet" hands
+                               # an iPhone (IosLinks): the app opens on the
+                               # route builder's join form, running or not.
+                               # eucplanet://route/1.<data> opens that route
 SIMCTL_CHILD_EUC_BG_SYNC=20 xcrun simctl launch booted com.eried.eucplanet.ios
                                # 20 s after launch, runs what a background
                                # task runs (one quiet Dropbox pass and one

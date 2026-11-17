@@ -5,6 +5,10 @@ import com.eried.eucplanet.app.IosAppGraph
 import com.eried.eucplanet.app.IosAppStart
 import com.eried.eucplanet.app.IosDebugSnaps
 import com.eried.eucplanet.app.IosLaunchHooks
+import com.eried.eucplanet.app.IosLinks
+import com.eried.eucplanet.resources.Res
+import com.eried.eucplanet.resources.share_link_invalid
+import org.jetbrains.compose.resources.getString
 import com.eried.eucplanet.app.IosDisplayPrefs
 import com.eried.eucplanet.app.IosThemeEditor
 import com.eried.eucplanet.app.StatusBarHost
@@ -183,6 +187,13 @@ fun MainViewController(): UIViewController {
                         leaderboardTab = SETTINGS_TAB_CLOUD
                         screen = "settings"
                     }
+                }
+                // A share or route link opened from outside (IosLinks) goes to the
+                // route builder, which asks the rider about it, as MainActivity does.
+                val linkedPlace by IosAppGraph.incomingShares.pending.collectAsState()
+                val linkedJoin by IosAppGraph.pendingShareJoin.pending.collectAsState()
+                LaunchedEffect(linkedPlace, linkedJoin) {
+                    if (linkedPlace != null || linkedJoin != null) screen = "route"
                 }
                 // Legal Mode Lockdown replaces every screen, as MainActivity swaps
                 // its whole graph: only the locked screen and the scan screen exist.
@@ -461,6 +472,13 @@ fun MainViewController(): UIViewController {
                     IosAppGraph.notices.messages.collect { msg ->
                         Log.i("Notice", msg)
                         rootSnackbar.showSnackbar(msg)
+                    }
+                }
+                // A share link that did not read (IosLinks), said once this host listens.
+                val badShare by IosLinks.badShare.collectAsState()
+                LaunchedEffect(badShare) {
+                    if (IosLinks.consumeBadShare()) {
+                        IosAppGraph.notices.post(getString(Res.string.share_link_invalid))
                     }
                 }
                 SnackbarHost(

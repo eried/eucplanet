@@ -78,15 +78,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window = w
     }
 
-    // eucplanet://pair links (Info.plist CFBundleURLTypes): the crew pass.
+    // eucplanet:// links (Info.plist CFBundleURLTypes): the crew pass, a
+    // weather widget, a live share and a shared route.
     // Also called after a cold launch from a link.
     func application(
         _ app: UIApplication,
         open url: URL,
         options: [UIApplication.OpenURLOptionsKey: Any] = [:]
     ) -> Bool {
-        // A tap on a weather widget, or a crew pass link.
+        // A tap on a weather widget, a crew pass link, or a share or route
+        // link from the site's "Open in EUC Planet".
         IosWeatherWidgets.shared.handleUrl(url: url.absoluteString)
             || IosCrews.shared.handleUrl(url: url.absoluteString)
+            || IosLinks.shared.handleUrl(url: url.absoluteString)
     }
 }
