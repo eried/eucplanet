@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>EUC Planet</title>
-<meta name="description" content="No-nonsense, open-source EUC riding app: live telemetry, smart alarms, turn-by-turn navigation, video recorder with on-screen telemetry overlay, Wear OS dial, helmet HUD, Garmin Edge data field, Varia rear-view radar. Verified on InMotion V14 and P6, rider-tested on KingSong KS-16X and KS-18XL, Begode Mten3, EX30, E20 and Master, LeaperKim Lynx S and Oryx, NOSFET Aeon, InMotion V8S; preview support for Ninebot and more.">
+<meta name="description" content="No-nonsense, open-source EUC riding app for Android and iPhone: live telemetry, smart alarms, turn-by-turn navigation, video recorder with on-screen telemetry overlay, Wear OS dial, helmet HUD, Garmin Edge data field, Varia rear-view radar. Verified on InMotion V14 and P6, rider-tested on KingSong KS-16X and KS-18XL, Begode Mten3, EX30, E20 and Master, LeaperKim Lynx S and Oryx, NOSFET Aeon, InMotion V8S; preview support for Ninebot and more.">
 <meta name="theme-color" content="#0d1117">
 <meta property="og:title" content="EUC Planet">
 <meta property="og:description" content="A no-nonsense, open-source app for electric unicycles.">
@@ -289,6 +289,24 @@
   a.btn.btn-play:hover { background: transparent; transform: translateY(-2px); }
   a.btn.btn-play img { height: 150%; width: auto; display: block; }
 
+  /* The iPhone beta, drawn to sit beside the Play badge at its size. */
+  a.btn.btn-testflight {
+    min-width: 0;
+    width: 156px;
+    padding: 0 12px;
+    gap: 9px;
+    justify-content: flex-start;
+    background: #000;
+    border-color: #a6a6a6;
+    border-radius: 7px;
+    box-shadow: none;
+    text-align: left;
+  }
+  a.btn.btn-testflight:hover { background: #000; transform: translateY(-2px); }
+  a.btn.btn-testflight .tf { display: flex; flex-direction: column; line-height: 1.05; }
+  a.btn.btn-testflight .tf small { font-size: 10px; font-weight: 500; letter-spacing: 0.02em; }
+  a.btn.btn-testflight .tf strong { font-size: 18px; font-weight: 600; letter-spacing: -0.2px; }
+
   .links.secondary-row { margin-top: 18px; }
 
   /* === TOOLBAR (project links) === */
@@ -554,6 +572,18 @@
     background: linear-gradient(135deg, var(--accent-2), var(--accent));
     box-shadow: 0 0 8px rgba(45, 212, 191, 0.55);
   }
+  /* What one phone does not have yet: said quietly, at the heading's far end. */
+  .only {
+    margin-left: auto;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: lowercase;
+    color: var(--muted);
+    opacity: 0.7;
+    white-space: nowrap;
+  }
+  .section-head .only { margin-left: 0; }
   .card p { font-size: 14px; color: #9aa4b2; margin: 0; }
   .card p a, .lead a { color: var(--accent); text-decoration: underline; text-decoration-color: rgba(88, 166, 255, 0.4); }
   .card p a:hover, .lead a:hover { color: #79b8ff; text-decoration-color: currentColor; }
@@ -759,6 +789,10 @@
       <a class="btn btn-play" href="https://play.google.com/store/apps/details?id=com.eried.eucplanet" aria-label="Get it on Google Play">
         <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play">
       </a>
+      <a class="btn btn-testflight" href="https://testflight.apple.com/join/8VrhGCrm" aria-label="Join the iPhone beta on TestFlight">
+        <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>
+        <span class="tf"><small>iPhone beta on</small><strong>TestFlight</strong></span>
+      </a>
     </div>
   </header>
 
@@ -799,10 +833,6 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 1h8l.6 3.4A7 7 0 0 1 19 10v4a7 7 0 0 1-2.4 5.6L16 23H8l-.6-3.4A7 7 0 0 1 5 14v-4a7 7 0 0 1 2.4-5.6L8 1Zm4 6a1 1 0 0 0-1 1v4c0 .27.11.52.29.71l2.5 2.5a1 1 0 0 0 1.42-1.42L13 11.59V8a1 1 0 0 0-1-1Z"/></svg>
         <span>Amazfit</span>
       </a>
-      <a class="chip" href="https://testflight.apple.com/join/8VrhGCrm" aria-label="iPhone beta on TestFlight">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M15.5 1h-8A2.5 2.5 0 0 0 5 3.5v17A2.5 2.5 0 0 0 7.5 23h8a2.5 2.5 0 0 0 2.5-2.5v-17A2.5 2.5 0 0 0 15.5 1zm-4 21c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4.5-4H7V4h9v14z"/></svg>
-        <span>iPhone beta</span>
-      </a>
       <span class="chip-pair">
         <a class="chip" href="hud/" aria-label="MotoEye / Android HUD companion">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12.5a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg>
@@ -840,6 +870,7 @@
     <div class="section-head">
       <span class="accent-dot"></span>
       <h2>On the wrist</h2>
+      <span class="only">Android</span>
       <span class="rule"></span>
     </div>
     <div class="gallery-wear">
@@ -890,7 +921,7 @@
         <p>Spoken reports and thresholds for speed, battery, PWM. In your language.</p>
       </div>
       <div class="card">
-        <h3>Voice commands</h3>
+        <h3>Voice commands <span class="only">Android</span></h3>
         <p>Ask for battery, speed or the weather, or say horn, lights, lock. From the Voice button, a Flic, your watch or a headset button, in your language.</p>
       </div>
       <div class="card">
@@ -926,7 +957,7 @@
         <p>V14 + P6 verified. Rider-tested on <strong>KingSong</strong> KS-16X and KS-18XL, <strong>Begode</strong> Mten3, EX30, E20 and Master, <strong>LeaperKim</strong> Lynx S and Oryx, <strong>NOSFET</strong> Aeon and the <strong>InMotion V8S</strong>; the new <strong>InMotion V6</strong> and <strong>X1</strong> in test, V12 preliminary, with preview adapters for the rest of those families and <strong>Ninebot</strong>. <a href="https://github.com/eried/eucplanet/blob/main/docs/BLE_CAPTURE_GUIDE.md">Help us add yours</a>. Already on the list but acting up? <a href="https://github.com/eried/eucplanet/blob/main/docs/DIAGNOSTICS_GUIDE.md">send a diagnostics recording</a>.</p>
       </div>
       <div class="card">
-        <h3>Wear OS companion</h3>
+        <h3>Wear OS companion <span class="only">Android</span></h3>
         <p>Watch app for Galaxy Watch Ultra and other Wear OS 5+ watches. Phone holds the link, watch shows live speed, batteries, navigation cues, and quick controls (horn / light / voice).</p>
       </div>
       <div class="card">
@@ -934,7 +965,7 @@
         <p>Mirror the dashboard onto a <a href="hud/">MotoEye E6 or any Android-based HUD</a>. Streams live telemetry from the phone over local WiFi. Sideload the small HUD APK on the visor display, point it at your phone, done.</p>
       </div>
       <div class="card">
-        <h3>Garmin watch &amp; Edge</h3>
+        <h3>Garmin watch &amp; Edge <span class="only">Android</span></h3>
         <p>Connect IQ data field showing EUC speed, battery, PWM, current and motor temperature on your Garmin watch or bar-mounted Edge. 135+ devices supported. <a href="https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71">Get it on the Connect IQ Store</a>.</p>
       </div>
       <div class="card">
