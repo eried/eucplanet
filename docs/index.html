@@ -572,18 +572,18 @@
     background: linear-gradient(135deg, var(--accent-2), var(--accent));
     box-shadow: 0 0 8px rgba(45, 212, 191, 0.55);
   }
-  /* What one phone does not have yet: said quietly, at the heading's far end. */
-  .only {
+  /* Which phones have it: faint marks at the heading's far end. */
+  .os {
     margin-left: auto;
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 0.04em;
-    text-transform: lowercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
     color: var(--muted);
-    opacity: 0.7;
-    white-space: nowrap;
+    opacity: 0.38;
+    flex: none;
   }
-  .section-head .only { margin-left: 0; }
+  .os svg { width: 13px; height: 13px; display: block; }
+  .section-head .os { margin-left: 0; }
   .card p { font-size: 14px; color: #9aa4b2; margin: 0; }
   .card p a, .lead a { color: var(--accent); text-decoration: underline; text-decoration-color: rgba(88, 166, 255, 0.4); }
   .card p a:hover, .lead a:hover { color: #79b8ff; text-decoration-color: currentColor; }
@@ -767,6 +767,10 @@
 </script>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="os-apple" viewBox="0 0 24 24"><path fill="currentColor" d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></symbol>
+  <symbol id="os-android" viewBox="0 0 24 24"><path fill="currentColor" d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-.9997s.4483-.9993.9993-.9993c.5511 0 .9993.4483.9993.9993.0001.5511-.4482.9997-.9993.9997m-11.046 0c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9993.4483.9993.9993 0 .5511-.4483.9997-.9993.9997m11.4045-6.02l1.9973-3.4592a.416.416 0 00-.1521-.5676.416.416 0 00-.5676.1521l-2.0223 3.503C15.5902 8.2439 13.8533 7.8508 12 7.8508s-3.5902.3931-5.1367 1.0989L4.841 5.4467a.4161.4161 0 00-.5677-.1521.4157.4157 0 00-.1521.5676l1.9973 3.4592C2.6889 11.1867.3432 14.6589 0 18.761h24c-.3435-4.1021-2.6892-7.5743-6.1185-9.4396"/></symbol>
+</svg>
 
 <!-- Background video layer -->
 <div class="bg-stage" aria-hidden="true">
@@ -870,7 +874,7 @@
     <div class="section-head">
       <span class="accent-dot"></span>
       <h2>On the wrist</h2>
-      <span class="only">Android</span>
+      <span class="os" role="img" aria-label="Android" title="Android"><svg><use href="#os-android"/></svg></span>
       <span class="rule"></span>
     </div>
     <div class="gallery-wear">
@@ -889,87 +893,87 @@
     </div>
     <div class="features">
       <div class="card">
-        <h3>Turn-by-turn navigator</h3>
+        <h3>Turn-by-turn navigator <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
         <p>Multi-stop route builder with live guidance, off-route reroute, and a treasure-hunt mode for unmarked spots. Walk, bike, car, or straight-line. Charging stations (connectors, power, cost, ratings, photos) and points of interest along the way (food, shops, rest stops) sit on the map and refresh as you pan. Full Path mode lets you tap any point along the route to add a detour (sand, gravel, the wrong side of a one-way).</p>
       </div>
       <div class="card">
-        <h3>Overlay Studio</h3>
+        <h3>Overlay Studio <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
         <p>Record video from the phone camera with a tunable on-screen telemetry overlay: speed dial, battery, PWM, GPS map, custom layout. Export plain MP4 or transparent overlay for editing on top of footage from another camera. The same editor also designs your <a href="hud/">MotoEye HUD</a> layout, not just recordings.</p>
       </div>
       <div class="card">
-        <h3>Modern &amp; fast</h3>
+        <h3>Modern &amp; fast <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
         <p>A pure-black AMOLED theme that's gentle on the eyes and easy on battery, with telemetry that updates with almost no lag. The home screen is built to be read in a single glance at speed: big reorderable tiles, composite multi-metric stacks, a clean speed dial, and a fully themeable palette so it looks exactly how you want.</p>
       </div>
       <div class="card">
-        <h3>Fits any screen</h3>
+        <h3>Fits any screen <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
         <p>Adaptive layouts for every device: a portrait glance-view, a landscape three-column dashboard for bar mounts, roomier tablet spacing, and a tiny cover-screen mode for foldables (Galaxy Z Flip outer display and friends). Rotation is per-screen, so the dashboard can stay portrait while the map goes full landscape.</p>
       </div>
       <div class="card">
-        <h3>Tune everything</h3>
+        <h3>Tune everything <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
         <p>An Advanced panel exposes the knobs behind every feature: poll and refresh rates, chart windows, HUD timings, screen geometry, alarm and charging tuning. Each has a sensible default, a safe range, and one-tap restore, so you can go deep without breaking anything.</p>
       </div>
       <div class="card">
-        <h3>Private by default</h3>
+        <h3>Private by default <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
         <p>No in-app call-home, no analytics, no beacons. Rides stay on your device as plain CSV files. Optional Dropbox backup that you control: mirror your own trips, settings, themes and overlays to your private folder, and share a single ride only when you choose to.</p>
       </div>
       <div class="card">
-        <h3>Flic 2 ready</h3>
+        <h3>Flic 2 ready <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
         <p>Physical buttons for horn, lights, lock, voice. Eyes on the road.</p>
       </div>
       <div class="card">
-        <h3>Voice &amp; alarms</h3>
+        <h3>Voice &amp; alarms <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
         <p>Spoken reports and thresholds for speed, battery, PWM. In your language.</p>
       </div>
       <div class="card">
-        <h3>Voice commands <span class="only">Android</span></h3>
+        <h3>Voice commands <span class="os" role="img" aria-label="Android" title="Android"><svg><use href="#os-android"/></svg></span></h3>
         <p>Ask for battery, speed or the weather, or say horn, lights, lock. From the Voice button, a Flic, your watch or a headset button, in your language.</p>
       </div>
       <div class="card">
-        <h3>Ride together</h3>
+        <h3>Ride together <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
         <p>Share a ride with a link or a QR code and see friends live on the map, with trails. End-to-end encrypted, and a web page for watching without the app.</p>
       </div>
       <div class="card">
-        <h3>Tire pressure sensors</h3>
+        <h3>Tire pressure sensors <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
         <p>Bluetooth valve caps on the dashboard, in alarms, trip graphs and the HUD, in psi, bar or kPa. A flat tire reads 0, so the alarm can fire.</p>
       </div>
       <div class="card">
-        <h3>Trip recording &amp; compare</h3>
+        <h3>Trip recording &amp; compare <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
         <p>GPS + telemetry exported as DarknessBot-compatible CSV. Overlay any past ride on the dashboard chart to compare speed, current, temperature side by side.</p>
       </div>
       <div class="card">
-        <h3>Weather</h3>
+        <h3>Weather <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
         <p>A score for how the next hours look for riding, from rain, wind and gusts, cold, heat, night and golden hour, weighted by how much you mind each one. Drag the curve to read any hour, with temperature, wind and humidity underneath. Home screen widgets show it at a glance.</p>
       </div>
       <div class="card">
-        <h3>Charging monitor</h3>
+        <h3>Charging monitor <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
         <p>Live charge curve with a scrubbable prediction line, energy split into used and charged, plus a per-cell BMS view for smart-BMS wheels (Veteran, KingSong&hellip;) showing cell voltages, pack imbalance and temperatures, so a weak cell shows up early.</p>
       </div>
       <div class="card">
-        <h3>Online leaderboard</h3>
+        <h3>Online leaderboard <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
         <p>Opt in to share your rides on the <a href="https://eucstats.ried.no/">EUC Stats leaderboard</a> and see how your distance ranks against riders worldwide and by country. Off by default; you choose the display name and flag, and control what's shared.</p>
       </div>
       <div class="card">
-        <h3>External GPS support</h3>
+        <h3>External GPS support <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
         <p>Pair a RaceBox or similar BLE GPS for centimetre-class speed and altitude without draining the phone radio.</p>
       </div>
       <div class="card">
-        <h3>Multi-wheel</h3>
+        <h3>Multi-wheel <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
         <p>V14 + P6 verified. Rider-tested on <strong>KingSong</strong> KS-16X and KS-18XL, <strong>Begode</strong> Mten3, EX30, E20 and Master, <strong>LeaperKim</strong> Lynx S and Oryx, <strong>NOSFET</strong> Aeon and the <strong>InMotion V8S</strong>; the new <strong>InMotion V6</strong> and <strong>X1</strong> in test, V12 preliminary, with preview adapters for the rest of those families and <strong>Ninebot</strong>. <a href="https://github.com/eried/eucplanet/blob/main/docs/BLE_CAPTURE_GUIDE.md">Help us add yours</a>. Already on the list but acting up? <a href="https://github.com/eried/eucplanet/blob/main/docs/DIAGNOSTICS_GUIDE.md">send a diagnostics recording</a>.</p>
       </div>
       <div class="card">
-        <h3>Wear OS companion <span class="only">Android</span></h3>
+        <h3>Wear OS companion <span class="os" role="img" aria-label="Android" title="Android"><svg><use href="#os-android"/></svg></span></h3>
         <p>Watch app for Galaxy Watch Ultra and other Wear OS 5+ watches. Phone holds the link, watch shows live speed, batteries, navigation cues, and quick controls (horn / light / voice).</p>
       </div>
       <div class="card">
-        <h3>Helmet HUD</h3>
+        <h3>Helmet HUD <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
         <p>Mirror the dashboard onto a <a href="hud/">MotoEye E6 or any Android-based HUD</a>. Streams live telemetry from the phone over local WiFi. Sideload the small HUD APK on the visor display, point it at your phone, done.</p>
       </div>
       <div class="card">
-        <h3>Garmin watch &amp; Edge <span class="only">Android</span></h3>
+        <h3>Garmin watch &amp; Edge <span class="os" role="img" aria-label="Android" title="Android"><svg><use href="#os-android"/></svg></span></h3>
         <p>Connect IQ data field showing EUC speed, battery, PWM, current and motor temperature on your Garmin watch or bar-mounted Edge. 135+ devices supported. <a href="https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71">Get it on the Connect IQ Store</a>.</p>
       </div>
       <div class="card">
-        <h3>Varia rear-view radar</h3>
+        <h3>Varia rear-view radar <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
         <p>Pair a Garmin Varia RTL515 / RCT715 and see approaching vehicles on the dashboard. Wire custom alarms (beep, voice, or vibrate) to rear-vehicle distance and closing speed. Same sensor cyclists use, now on your EUC.</p>
       </div>
     </div>
