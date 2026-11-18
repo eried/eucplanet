@@ -1,6 +1,7 @@
 // Languages for the site's pages: which one to speak, the cogwheel that
-// changes it, and the lookup. The same 30 languages as the EUC Planet app,
-// the trip viewer and eucstats.
+// changes it, and the lookup. The same languages as the EUC Planet app, the
+// trip viewer and eucstats, named the way eucstats names them: English and
+// Spanish each come in two kinds, told apart by region.
 //
 // The English stays in the page. Each translatable piece carries an id:
 //   data-i18n="id"                       the element's text
@@ -8,7 +9,8 @@
 //   data-i18n-attrs data-i18n-attr-alt="id"   that attribute (alt, title, aria-label)
 // One dictionary per language lives in i18n/<code>.js, id to translation, and
 // only the one in use is fetched. A piece the dictionary lacks stays English,
-// so a missing entry is never a blank. i18n/en.json is the source list
+// so a missing entry is never a blank. British English (en-GB) holds only
+// the few pieces spelled differently. i18n/en.json is the source list
 // (tools read it; the pages do not).
 //
 // Resolution order: ?lang= in the address, the cookie shared with the trip
@@ -26,14 +28,15 @@
 
   // Native names, never translated.
   var LANGS = {
-    "en": "English",
+    "en": "English (US)",
+    "en-GB": "English (UK)",
     "bg": "Български",
     "cs": "Čeština",
     "da": "Dansk",
     "de": "Deutsch",
     "el": "Ελληνικά",
-    "es": "Español",
-    "es-419": "Español (LatAm)",
+    "es-419": "Español (LA)",
+    "es": "Español (ES)",
     "fi": "Suomi",
     "fr": "Français",
     "hu": "Magyar",
@@ -63,6 +66,8 @@
   var LATAM = ["419", "MX", "AR", "CO", "CL", "PE", "VE", "EC", "GT", "CU", "BO",
     "DO", "HN", "PY", "SV", "NI", "CR", "PA", "UY", "PR", "US"];
   var PT_PT = ["PT", "AO", "MZ", "CV", "GW", "ST", "TL"];
+  // Where English is the British kind, the list eucstats uses.
+  var EN_GB = ["GB", "UK", "IE", "AU", "NZ", "ZA", "IN"];
 
   // A browser tag ("es-MX", "nb", "zh-TW") to one of ours, or null.
   function mapLang(raw) {
@@ -70,6 +75,7 @@
     var lc = String(raw).toLowerCase();
     var base = lc.split("-")[0];
     var region = (lc.split("-")[1] || "").toUpperCase();
+    if (base === "en") return EN_GB.indexOf(region) >= 0 ? "en-GB" : "en";
     if (base === "pt") return PT_PT.indexOf(region) >= 0 ? "pt-PT" : "pt-BR";
     if (base === "zh") return /(^|-)(tw|hk|mo|hant)(-|$)/.test(lc) ? "zh-Hant" : "zh";
     if (base === "nb" || base === "nn" || base === "no") return "no";

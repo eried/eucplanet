@@ -1,5 +1,5 @@
 window.EUC_I18N_DICT = {
-"tagline": "Una app de código abierto y sin rodeos para monociclos eléctricos.",
+"tagline": "Una app de código abierto y sin estupideces para monociclos eléctricos.",
 "eyebrow.open": "Código abierto",
 "eyebrow.no": "Sin",
 "word.0": "SUSCRIPCIONES",
