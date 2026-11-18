@@ -235,14 +235,8 @@ Build from source:
 adb install app/build/outputs/apk/debug/phone-debug.apk
 ```
 
-Needs Android 10 (API 29) or newer, a supported wheel, and Bluetooth + location
-permissions (Android requires location for BLE scanning). Camera and mic are
-optional and only asked for the first time you open Overlay Studio.
-
-On an iPhone it needs iOS 15 or newer, a supported wheel, and Bluetooth.
-Location is used for GPS speed, trip recording, navigation, weather and the
-automatic lights. Camera and mic are optional and only asked for the first time
-you open Overlay Studio or scan a QR code.
+Needs Android 10 (API 29) or newer, or iOS 15 or newer on an iPhone, and a
+supported wheel.
 
 ---
 
