@@ -9,6 +9,7 @@ ride, this is the branch.
 
 ## Worked on
 
+- Motoeye HUD: only one phone links at a time. A second phone dialing the same HUD made the screen flicker; it now waits until the first has been quiet for 3 s.
 - Leaderboard: a ride that was removed from eucstats is no longer asked about every 15 minutes forever. The app asks once, gets "not there", and stops.
 - Settings backup: "Last backup" is read from the backup file itself, so it is right after a reinstall. Android's own cloud backup of the app is off, so a reinstall starts clean.
 - Offline routing: the first route after opening the app comes on the road instead of as straight lines, and routes with an avoid switched on now route offline.
@@ -126,6 +127,7 @@ ride, this is the branch.
 - Load a GPX track on the phone, then Places, Planned route in the car: does it follow the track?
 
 **HUD (MotoEye)**
+- Motoeye with two phones that both have the HUD link on: is the flicker gone, and does the second phone take over a few seconds after the first one's link is switched off?
 - With this HUD app on the HUD and a later build on the phone: Settings, HUD shows a HUD app card with Send to HUD. Tap it and confirm Android's prompt on the HUD. Does it install, and can you work the prompt with the remote? The first time Android asks you to allow installs from the HUD app: can you get through that, and does the install go on afterwards or do you have to send again?
 - Same card, Uninstall: does the HUD show Android's uninstall prompt?
 - Start a route on the phone and open Map on the HUD: is the route line there, on the right streets, and does it keep up as you ride?
