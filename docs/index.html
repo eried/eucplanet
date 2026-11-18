@@ -572,17 +572,19 @@
     background: linear-gradient(135deg, var(--accent-2), var(--accent));
     box-shadow: 0 0 8px rgba(45, 212, 191, 0.55);
   }
-  /* Which phones have it: faint marks at the heading's far end. */
+  /* Which phones have it: both marks at the heading's far end, in the
+     title's colour for a phone that has it and barely there for one that
+     does not. */
   .os {
     margin-left: auto;
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    color: var(--muted);
-    opacity: 0.38;
+    gap: 6px;
+    color: var(--text);
     flex: none;
   }
-  .os svg { width: 13px; height: 13px; display: block; }
+  .os svg { width: 15px; height: 15px; display: block; }
+  .os svg.off { color: var(--muted); opacity: 0.16; }
   .section-head .os { margin-left: 0; }
   .card p { font-size: 14px; color: #9aa4b2; margin: 0; }
   .card p a, .lead a { color: var(--accent); text-decoration: underline; text-decoration-color: rgba(88, 166, 255, 0.4); }
@@ -874,7 +876,7 @@
     <div class="section-head">
       <span class="accent-dot"></span>
       <h2>On the wrist</h2>
-      <span class="os" role="img" aria-label="Android" title="Android"><svg><use href="#os-android"/></svg></span>
+      <span class="os" role="img" aria-label="Android" title="Android"><svg class="off"><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span>
       <span class="rule"></span>
     </div>
     <div class="gallery-wear">
@@ -925,7 +927,7 @@
         <p>Spoken reports and thresholds for speed, battery, PWM. In your language.</p>
       </div>
       <div class="card">
-        <h3>Voice commands <span class="os" role="img" aria-label="Android" title="Android"><svg><use href="#os-android"/></svg></span></h3>
+        <h3>Voice commands <span class="os" role="img" aria-label="Android" title="Android"><svg class="off"><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
         <p>Ask for battery, speed or the weather, or say horn, lights, lock. From the Voice button, a Flic, your watch or a headset button, in your language.</p>
       </div>
       <div class="card">
@@ -961,7 +963,7 @@
         <p>V14 + P6 verified. Rider-tested on <strong>KingSong</strong> KS-16X and KS-18XL, <strong>Begode</strong> Mten3, EX30, E20 and Master, <strong>LeaperKim</strong> Lynx S and Oryx, <strong>NOSFET</strong> Aeon and the <strong>InMotion V8S</strong>; the new <strong>InMotion V6</strong> and <strong>X1</strong> in test, V12 preliminary, with preview adapters for the rest of those families and <strong>Ninebot</strong>. <a href="https://github.com/eried/eucplanet/blob/main/docs/BLE_CAPTURE_GUIDE.md">Help us add yours</a>. Already on the list but acting up? <a href="https://github.com/eried/eucplanet/blob/main/docs/DIAGNOSTICS_GUIDE.md">send a diagnostics recording</a>.</p>
       </div>
       <div class="card">
-        <h3>Wear OS companion <span class="os" role="img" aria-label="Android" title="Android"><svg><use href="#os-android"/></svg></span></h3>
+        <h3>Wear OS companion <span class="os" role="img" aria-label="Android" title="Android"><svg class="off"><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
         <p>Watch app for Galaxy Watch Ultra and other Wear OS 5+ watches. Phone holds the link, watch shows live speed, batteries, navigation cues, and quick controls (horn / light / voice).</p>
       </div>
       <div class="card">
@@ -969,7 +971,7 @@
         <p>Mirror the dashboard onto a <a href="hud/">MotoEye E6 or any Android-based HUD</a>. Streams live telemetry from the phone over local WiFi. Sideload the small HUD APK on the visor display, point it at your phone, done.</p>
       </div>
       <div class="card">
-        <h3>Garmin watch &amp; Edge <span class="os" role="img" aria-label="Android" title="Android"><svg><use href="#os-android"/></svg></span></h3>
+        <h3>Garmin watch &amp; Edge <span class="os" role="img" aria-label="Android" title="Android"><svg class="off"><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
         <p>Connect IQ data field showing EUC speed, battery, PWM, current and motor temperature on your Garmin watch or bar-mounted Edge. 135+ devices supported. <a href="https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71">Get it on the Connect IQ Store</a>.</p>
       </div>
       <div class="card">
