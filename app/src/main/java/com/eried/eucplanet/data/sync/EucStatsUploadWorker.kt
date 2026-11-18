@@ -65,7 +65,10 @@ class EucStatsUploadWorker(
                 Outcome.UPLOADED -> Log.i(TAG, "Uploaded trip ${trip.tripUuid}")
                 Outcome.FAILED_PERMANENT -> Log.w(TAG, "Permanent failure for trip ${trip.tripUuid}")
                 Outcome.NEEDS_RETRY -> Log.w(TAG, "Will retry trip ${trip.tripUuid}")
+                Outcome.BACK_OFF -> Log.w(TAG, "Rate limited at trip ${trip.tripUuid}; the pass ends")
+                Outcome.RIDER_UNKNOWN -> Log.w(TAG, "The server does not know this rider; the pass ends")
             }
+            if (outcome.endsPass) break
         }
 
         if (workerResultRetry(outcomes)) {
@@ -83,4 +86,4 @@ class EucStatsUploadWorker(
  * Extracted so it can be unit-tested without Koin or Android dependencies.
  */
 internal fun workerResultRetry(outcomes: List<Outcome>): Boolean =
-    outcomes.any { it == Outcome.NEEDS_RETRY }
+    outcomes.any { it == Outcome.NEEDS_RETRY || it == Outcome.BACK_OFF }

@@ -42,4 +42,19 @@ class EucStatsUploadWorkerLogicTest {
             workerResultRetry(listOf(Outcome.UPLOADED, Outcome.FAILED_PERMANENT, Outcome.UPLOADED))
         )
     }
+
+    @Test
+    fun `a rate limit is retried, an unknown rider is not`() {
+        assertTrue(workerResultRetry(listOf(Outcome.UPLOADED, Outcome.BACK_OFF)))
+        assertFalse(workerResultRetry(listOf(Outcome.RIDER_UNKNOWN)))
+    }
+
+    @Test
+    fun `only a rate limit and an unknown rider end the pass`() {
+        assertTrue(Outcome.BACK_OFF.endsPass)
+        assertTrue(Outcome.RIDER_UNKNOWN.endsPass)
+        assertFalse(Outcome.UPLOADED.endsPass)
+        assertFalse(Outcome.FAILED_PERMANENT.endsPass)
+        assertFalse(Outcome.NEEDS_RETRY.endsPass)
+    }
 }
