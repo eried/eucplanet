@@ -125,7 +125,7 @@ eating a quieter one.
 a per-language voice picker, plus event callouts: lock/unlock, lights, GPS fix,
 connection, legal mode, recording.
 
-**Voice commands.** <sub>Android</sub> Ask the app instead of looking at it: "battery", "speed", "how
+**Voice commands.** <sub>Android only</sub> Ask the app instead of looking at it: "battery", "speed", "how
 is the weather", or tell it to sound the horn, switch the lights, lock the wheel or
 start recording. Start listening from the Voice button, a Flic, the volume keys,
 your watch, the HUD or a headset button. It answers in your language, and the
@@ -153,7 +153,7 @@ follow without installing anything.
 GPS, and it can cut the beam when you slow to walking pace so it is not in the face
 of whoever is waiting at the crossing with you, coming back when you ride on.
 Handles midnight sun and polar night (I live in the arctic circle 🧐). Volume
-control <sub>Android</sub> scales phone volume with speed. Wheel lock locks the wheel when you walk
+control <sub>Android only</sub> scales phone volume with speed. Wheel lock locks the wheel when you walk
 away and unlocks it when you come back. Switch the light or lock by hand and that
 automation steps aside until you hand it back. Each one runs never, whenever the wheel is
 connected, or only while you are actually riding. Charging can tell you when the
@@ -165,14 +165,14 @@ over local WiFi. New Map + Nav combined screen in the HUD shows the route
 arrow on top of a moving map (Garmin Edge style). See
 [eucplanet.ried.no/hud](https://eucplanet.ried.no/hud/).
 
-**Garmin Edge / watches.** <sub>Android</sub> A Connect IQ data field shows live EUC speed,
+**Garmin Edge / watches.** <sub>Android only</sub> A Connect IQ data field shows live EUC speed,
 battery, PWM, current and motor temperature on your bar-mounted Edge or
 on your wrist. Supports Edge 530/540/830/840/1030/1040/1050 and most modern
 Garmin watches (135+ devices). Get it on the
 [Connect IQ Store](https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71),
 or build it yourself from [docs/GARMIN_SETUP.md](docs/GARMIN_SETUP.md).
 
-**Amazfit (Zepp OS) watches.** <sub>Android</sub> The same wrist dial on Amazfit watches: speed
+**Amazfit (Zepp OS) watches.** <sub>Android only</sub> The same wrist dial on Amazfit watches: speed
 gauge, PWM, three batteries, horn/light remotes, navigation mirror, physical
 buttons. Tested on the T-Rex 3, built for the Balance too. Setup and sideload
 steps in [docs/AMAZFIT_SETUP.md](docs/AMAZFIT_SETUP.md).
@@ -195,9 +195,9 @@ cap per wheel. Set a low-pressure alarm in psi or bar and the app tells you
 before the tyre does.
 
 **Integrations.** Flic 2 buttons (up to two), physical volume-key shortcuts
-<sub>Android</sub>, external BLE GPS (RaceBox or compatible, for centimetre-class speed and altitude
+<sub>Android only</sub>, external BLE GPS (RaceBox or compatible, for centimetre-class speed and altitude
 without draining the phone radio; auto-falls back to phone GPS), and a Wear OS
-companion <sub>Android</sub> (speed dial, three batteries, horn/light remotes, navigation mirror,
+companion <sub>Android only</sub> (speed dial, three batteries, horn/light remotes, navigation mirror,
 Touch / Physical buttons split; tested on Galaxy Watch Ultra, works on any
 Wear OS 5+ watch). For the developer architecture, see
 [docs/WEAR_OS_MAP.md](docs/WEAR_OS_MAP.md).
@@ -223,7 +223,7 @@ free and sideload it. Same app either way.
 
 On an iPhone, the app is in beta: join it on
 [TestFlight](https://testflight.apple.com/join/8VrhGCrm). It is the same app;
-the few things marked <sub>Android</sub> above are not on the iPhone yet.
+the few things marked <sub>Android only</sub> above are not on the iPhone yet.
 
 On a Garmin watch or Edge, install the EUC Planet data field straight from the
 [Connect IQ Store](https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71).
