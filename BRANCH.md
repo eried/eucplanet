@@ -9,6 +9,7 @@ ride, this is the branch.
 
 ## Worked on
 
+- Leaderboard: when the server limits your uploads or does not know your rider, the app stops sending for now instead of trying every waiting ride. Rides stay waiting and go up on a later try.
 - Shorter hints: 18 setting descriptions lose their extra sentence, in every language. Three said something untrue and are fixed: forgetting a Flic keeps its actions, the radar lane draws squares with the distance, and the weather widget fetches on its own.
 - Languages: English (UK) is new, with British spelling (tyre, colour, kilometres). The list now reads English (US), English (UK), Español (ES) and Español (LA), the same names as the trip viewer and the leaderboard.
 - Android Auto (MotoEye HUD): every firing alarm shows as a card on the HUD. Only the GPS alarms did; wheel and radar alarms never got there. No card on the phone when Android Auto is not connected, and no second chime.
