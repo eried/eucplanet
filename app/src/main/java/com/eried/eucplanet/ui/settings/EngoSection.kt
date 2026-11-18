@@ -58,6 +58,7 @@ internal fun EngoPairing(
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         val address = engo.pairedAddress
         if (address == null) {
+            com.eried.eucplanet.ui.common.HintText(stringResource(R.string.engo_scan_hint))
             found.forEach { glasses ->
                 FoundGlassesCard(glasses) {
                     adapter.stopScan()

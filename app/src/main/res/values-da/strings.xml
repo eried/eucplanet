@@ -2814,6 +2814,7 @@
     <string name="voice_pill_search">Søg</string>
     <string name="voice_volume">Lydstyrke</string>
     <string name="engo_hud_enabled">ENGO-brille-HUD</string>
+    <string name="engo_scan_hint">Tænd brillerne, og tryk på Start scanning.</string>
     <string name="engo_pages_title">Brillernes sider</string>
     <string name="engo_nav_takeover">Vis sving under navigation</string>
     <string name="beep_volume_by_speed">Bip-lydstyrke efter fart</string>

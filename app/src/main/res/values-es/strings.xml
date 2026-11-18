@@ -2798,6 +2798,7 @@
     <string name="voice_pill_search">Buscar</string>
     <string name="voice_volume">Volumen</string>
     <string name="engo_hud_enabled">HUD de gafas ENGO</string>
+    <string name="engo_scan_hint">Enciende las gafas y toca Iniciar búsqueda.</string>
     <string name="engo_pages_title">Páginas de las gafas</string>
     <string name="engo_nav_takeover">Mostrar giros al navegar</string>
     <string name="beep_volume_by_speed">Volumen del pitido según velocidad</string>

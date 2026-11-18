@@ -2805,6 +2805,7 @@
     <string name="voice_pill_search">Rechercher</string>
     <string name="voice_volume">Volume</string>
     <string name="engo_hud_enabled">HUD des lunettes ENGO</string>
+    <string name="engo_scan_hint">Allumez les lunettes, puis touchez Lancer la recherche.</string>
     <string name="engo_pages_title">Pages des lunettes</string>
     <string name="engo_nav_takeover">Afficher les virages en navigation</string>
     <string name="beep_volume_by_speed">Volume du bip selon la vitesse</string>
