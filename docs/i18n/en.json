@@ -115,7 +115,7 @@
  "hud.p.the-phone-browses-the-network-for": "The phone browses the network for <code>_eucplanet._tcp.local.</code>",
  "hud.p.where-the-hud-was-last-session": "Where the HUD was last session.",
  "hud.p.a-sweep-of-the-phone-s": "A sweep of the phone's own network. It takes a few seconds.",
- "hud.p.if-all-four-fail-turn-off": "<strong>If all four fail,</strong> turn off <em>Discover link address automatically</em> and type the IP the HUD shows on its splash screen. Keep both sides on matching versions.",
+ "hud.p.if-all-four-fail-turn-off": "<strong>If all four fail,</strong> set <em>Discovery mode</em> to <em>Fixed</em> and type the IP the HUD shows on its splash screen. Keep both sides on matching versions.",
  "hud.name.udp-beacon": "UDP beacon",
  "hud.name.mdns": "mDNS",
  "hud.name.last-known-address": "Last known address",
