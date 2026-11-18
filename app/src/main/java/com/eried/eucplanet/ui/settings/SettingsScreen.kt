@@ -12053,6 +12053,21 @@ private fun EngoGlassesBlock(
         checked = engo.enabled,
         onCheckedChange = { viewModel.updateEngoHudEnabled(it) }
     )
+    // No list to pick from: the app looks for glasses named ENGO and links
+    // to the first it finds. This line says where that stands.
+    AnimatedVisibility(visible = engo.enabled) {
+        val adapter = org.koin.compose.koinInject<com.eried.eucplanet.service.hud.engo.EngoAdapter>()
+        val state by adapter.state.collectAsState()
+        HintText(
+            when (state) {
+                com.eried.eucplanet.service.hud.engo.EngoAdapter.State.CONNECTED ->
+                    stringResource(R.string.connection_connected)
+                com.eried.eucplanet.service.hud.engo.EngoAdapter.State.CONNECTING ->
+                    stringResource(R.string.external_gps_state_connecting)
+                else -> stringResource(R.string.nav_searching)
+            }
+        )
+    }
     AdvancedCollapsable(
         title = stringResource(R.string.engo_pages_title),
         stateKey = "engo_pages"

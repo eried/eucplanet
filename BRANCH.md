@@ -15,6 +15,7 @@ you can cut the ride short.
 
 **ENGO 2 or ENGO 3**
 - Do the glasses connect and stay connected all ride?
+- Switch the glasses off and on again mid-ride: do they come back by themselves within about 10 s? The line under the switch says Searching, Connecting or Connected.
 - Are the numbers readable and up to date while riding?
 - With a route, does the next turn show, and the ride page return after?
 - Change the two numbers under Glasses pages: do the glasses follow within a second or two?

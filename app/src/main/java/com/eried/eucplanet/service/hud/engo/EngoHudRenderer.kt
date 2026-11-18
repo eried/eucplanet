@@ -36,6 +36,9 @@ class EngoHudRenderer(
         const val TICK_MS = 300L // ~3 Hz; only sends on change
     }
 
+    /** When the glasses were last searched for, on the uptime clock. */
+    @Volatile private var lastSearchAtMs = 0L
+
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     @Volatile private var job: Job? = null
     @Volatile private var last: EngoSnapshot? = null
@@ -43,10 +46,23 @@ class EngoHudRenderer(
     /** Begin driving the glasses. [autoConnect] triggers a BLE scan/connect. */
     fun start(autoConnect: Boolean) {
         if (job != null) return
-        if (autoConnect && adapter.state.value == EngoAdapter.State.DISCONNECTED) adapter.connect()
         last = null
+        lastSearchAtMs = 0L
         job = scope.launch {
             while (isActive) {
+                // Glasses switched off, out of range or Bluetooth off: keep
+                // looking, so they come back on their own.
+                val now = android.os.SystemClock.elapsedRealtime()
+                if (EngoLink.searchDue(
+                        autoConnect,
+                        adapter.state.value == EngoAdapter.State.DISCONNECTED,
+                        if (lastSearchAtMs == 0L) Long.MAX_VALUE else now - lastSearchAtMs,
+                    )
+                ) {
+                    lastSearchAtMs = now
+                    last = null
+                    adapter.connect()
+                }
                 if (adapter.state.value == EngoAdapter.State.CONNECTED) {
                     val snap = buildSnapshot(settingsRepository.get())
                     if (snap != last) {
