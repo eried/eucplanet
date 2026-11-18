@@ -80,7 +80,7 @@ proximity mode for unmarked spots. Charging stations (connectors, power, cost,
 ratings and photos) and other points of interest along the way (food, shops,
 rest stops) sit right on the map and refresh as you pan and zoom. Full Path
 mode lets you tap any point along the route to add a detour (skip sand, gravel,
-the wrong side of a one-way). Each stop shows its leg and the running total.
+the wrong side of a one-way).
 Share a route as a QR code or a link, nothing uploaded: a friend scans it into
 their app, or opens it in a browser to see the stops and download a GPX. Map
 styles include Satellite hybrid, with road and place names over the imagery.
@@ -128,8 +128,7 @@ connection, legal mode, recording.
 **Voice commands.** <sub>Android only</sub> Ask the app instead of looking at it: "battery", "speed", "how
 is the weather", or tell it to sound the horn, switch the lights, lock the wheel or
 start recording. Start listening from the Voice button, a Flic, the volume keys,
-your watch, the HUD or a headset button. It answers in your language, and the
-What can I say list is generated from what it really understands.
+your watch, the HUD or a headset button. It answers in your language.
 
 **Trip recording.** GPS and telemetry to DarknessBot-compatible CSV, auto-record,
 live track preview, and a trip list with quick export and share. Trips are
