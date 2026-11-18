@@ -1300,8 +1300,6 @@ data class EngoHudSettings(
     val metricRight: String = "TEMPERATURE",
     /** Whether the next turn takes the screen while a route is guided. */
     val navTakeover: Boolean = true,
-    /** ENGO 3: draw in colour. ENGO 2 has grey levels only and stays false. */
-    val color: Boolean = false,
 )
 
 /**

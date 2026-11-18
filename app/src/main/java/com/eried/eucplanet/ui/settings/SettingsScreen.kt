@@ -12077,13 +12077,6 @@ private fun EngoGlassesBlock(
             }
         )
     }
-    // ENGO 2 draws grey levels, ENGO 3 colour. The model names need no translation.
-    SegmentedChoice(
-        label = stringResource(R.string.lockdown_vehicle_model),
-        options = listOf("2" to "ENGO 2", "3" to "ENGO 3"),
-        current = if (engo.color) "3" else "2",
-        onChange = { viewModel.updateEngoColor(it == "3") },
-    )
     AdvancedCollapsable(
         title = stringResource(R.string.engo_pages_title),
         stateKey = "engo_pages"

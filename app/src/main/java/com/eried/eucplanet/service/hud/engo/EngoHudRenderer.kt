@@ -67,9 +67,9 @@ class EngoHudRenderer(
                 if (adapter.state.value == EngoAdapter.State.CONNECTED) {
                     val settings = settingsRepository.get()
                     val snap = buildSnapshot(settings)
-                    // The rider says which model it is; the glasses do not
-                    // tell us reliably yet.
-                    val color = settings.engoHud.color || adapter.colorCapable.value
+                    // The glasses say whether their display is colour; a grey
+                    // pair never gets the colour commands it cannot draw.
+                    val color = adapter.colorCapable.value
                     if (snap != last || color != lastColor) {
                         adapter.send(EngoLayout.render(snap, EngoCaps(colorRYG = color)))
                         last = snap

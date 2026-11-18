@@ -14,7 +14,8 @@ you can cut the ride short.
 ## Please test
 
 **ENGO 2 or ENGO 3**
-- Pick your model under Model (ENGO 2 or ENGO 3) before the first test. ENGO 3: is the PWM bar green, then yellow, then red as it climbs?
+- ENGO 3: the app reads from the glasses that the display is colour. Is the PWM bar green, then yellow, then red as it climbs? ENGO 2: everything readable in grey?
+- After a first try, please send a Service Mode log: it has the lines starting "Engo:" that say what the glasses reported.
 - Do the glasses connect and stay connected all ride?
 - Switch the glasses off and on again mid-ride: do they come back by themselves within about 10 s? The line under the switch says Searching, Connecting or Connected.
 - Are the numbers readable and up to date while riding?

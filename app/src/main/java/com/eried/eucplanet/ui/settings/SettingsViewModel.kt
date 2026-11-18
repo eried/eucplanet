@@ -932,7 +932,6 @@ class SettingsViewModel(
     fun updateEngoMetricLeft(key: String) = update { copy(engoHud = engoHud.copy(metricLeft = key)) }
     fun updateEngoMetricRight(key: String) = update { copy(engoHud = engoHud.copy(metricRight = key)) }
     fun updateEngoNavTakeover(v: Boolean) = update { copy(engoHud = engoHud.copy(navTakeover = v)) }
-    fun updateEngoColor(v: Boolean) = update { copy(engoHud = engoHud.copy(color = v)) }
 
     fun updateNotificationActionsEnabled(v: Boolean) =
         update { copy(notificationActionsEnabled = v) }

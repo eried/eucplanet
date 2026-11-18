@@ -409,7 +409,6 @@ object SettingsJson {
             put("metricLeft", s.engoHud.metricLeft)
             put("metricRight", s.engoHud.metricRight)
             put("navTakeover", s.engoHud.navTakeover)
-            put("color", s.engoHud.color)
         })
         put("keepAppAlive", s.keepAppAlive)
         put("notificationActionsEnabled", s.notificationActionsEnabled)
@@ -898,7 +897,6 @@ object SettingsJson {
                 metricLeft = e.optString("metricLeft", base.engoHud.metricLeft),
                 metricRight = e.optString("metricRight", base.engoHud.metricRight),
                 navTakeover = e.optBoolean("navTakeover", base.engoHud.navTakeover),
-                color = e.optBoolean("color", base.engoHud.color),
             )
         } ?: base.engoHud,
         keepAppAlive = j.optBoolean("keepAppAlive", base.keepAppAlive),

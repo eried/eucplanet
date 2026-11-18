@@ -44,6 +44,10 @@ class EngoAdapter(
         private val SERVICE = UUID.fromString(ActiveLookProtocol.SERVICE_UUID)
         private val CHAR_RX = UUID.fromString(ActiveLookProtocol.CHAR_RX_UUID)
         private val CHAR_TX = UUID.fromString(ActiveLookProtocol.CHAR_TX_UUID)
+        // Bluetooth's standard Device Information service; its hardware
+        // version string names the display module (see [EngoLink.isColor]).
+        private val DEVICE_INFO = UUID.fromString("0000180a-0000-1000-8000-00805f9b34fb")
+        private val HARDWARE_REV = UUID.fromString("00002a27-0000-1000-8000-00805f9b34fb")
         private val CHAR_CTRL = UUID.fromString(ActiveLookProtocol.CHAR_CTRL_UUID)
         private val CCCD = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
     }
@@ -53,8 +57,9 @@ class EngoAdapter(
     private val _state = MutableStateFlow(State.DISCONNECTED)
     val state: StateFlow<State> = _state.asStateFlow()
 
-    /** True once the connected model is known to be RG-colour (ENGO 3). Until a
-     *  device confirms it via device-info, stays false (mono path). */
+    /** True once the connected glasses say their display is colour: their
+     *  hardware version string is read right after connecting. False until
+     *  then and for a grey pair, so those only ever get grey commands. */
     private val _colorCapable = MutableStateFlow(false)
     val colorCapable: StateFlow<Boolean> = _colorCapable.asStateFlow()
 
@@ -113,8 +118,10 @@ class EngoAdapter(
     private val scanCallback = object : ScanCallback() {
         @SuppressLint("MissingPermission")
         override fun onScanResult(callbackType: Int, result: ScanResult) {
-            val name = result.device?.name ?: result.scanRecord?.deviceName ?: return
-            if (!name.startsWith(namePrefix, ignoreCase = true)) return
+            val name = result.device?.name ?: result.scanRecord?.deviceName
+            val makers = result.scanRecord?.manufacturerSpecificData
+            val makerIds = if (makers == null) emptyList() else List(makers.size()) { makers.keyAt(it) }
+            if (!EngoLink.isGlasses(name, makerIds, namePrefix)) return
             stopScan()
             _state.value = State.CONNECTING
             DiagnosticsLogger.note("Engo: connecting to $name")
@@ -153,12 +160,39 @@ class EngoAdapter(
                 disconnect(); return
             }
             rx = svc.getCharacteristic(CHAR_RX)
-            // Subscribe to Control (flow control) and TX (responses).
-            svc.getCharacteristic(CHAR_CTRL)?.let { enableNotify(g, it) }
-            svc.getCharacteristic(CHAR_TX)?.let { enableNotify(g, it) }
             if (rx == null) { disconnect(); return }
-            _state.value = State.CONNECTED
-            DiagnosticsLogger.note("Engo: connected")
+            // One Bluetooth request at a time, each waiting for the last one's
+            // answer: what display the glasses have, then Control (flow
+            // control) and TX (responses). Sent together, all but the first
+            // were refused.
+            synchronized(setup) {
+                setup.clear()
+                g.getService(DEVICE_INFO)?.getCharacteristic(HARDWARE_REV)?.let { hw ->
+                    setup += { g.readCharacteristic(hw) }
+                }
+                svc.getCharacteristic(CHAR_CTRL)?.let { c -> setup += { enableNotify(g, c) } }
+                svc.getCharacteristic(CHAR_TX)?.let { c -> setup += { enableNotify(g, c) } }
+            }
+            nextSetup()
+        }
+
+        @Deprecated("Android 12 and older")
+        override fun onCharacteristicRead(
+            g: BluetoothGatt, ch: BluetoothGattCharacteristic, status: Int,
+        ) {
+            if (ch.uuid == HARDWARE_REV && status == BluetoothGatt.GATT_SUCCESS) hardware(legacyValue(ch))
+            nextSetup()
+        }
+
+        override fun onCharacteristicRead(
+            g: BluetoothGatt, ch: BluetoothGattCharacteristic, value: ByteArray, status: Int,
+        ) {
+            if (ch.uuid == HARDWARE_REV && status == BluetoothGatt.GATT_SUCCESS) hardware(value)
+            nextSetup()
+        }
+
+        override fun onDescriptorWrite(g: BluetoothGatt, d: BluetoothGattDescriptor, status: Int) {
+            nextSetup()
         }
 
         override fun onCharacteristicWrite(
@@ -179,6 +213,31 @@ class EngoAdapter(
         }
     }
 
+    /** The setup requests still to send after connecting, in order. */
+    private val setup = ArrayDeque<() -> Boolean>()
+
+    /** Send the next setup request; one the phone refuses is skipped. With
+     *  none left the glasses are ready. */
+    private fun nextSetup() {
+        while (true) {
+            val step = synchronized(setup) { if (setup.isEmpty()) null else setup.poll() }
+            if (step == null) {
+                if (_state.value == State.CONNECTING) {
+                    _state.value = State.CONNECTED
+                    DiagnosticsLogger.note("Engo: connected, colour=${_colorCapable.value}")
+                }
+                return
+            }
+            if (runCatching { step() }.getOrDefault(false)) return
+        }
+    }
+
+    private fun hardware(value: ByteArray?) {
+        val text = value?.toString(Charsets.US_ASCII)?.trim().orEmpty()
+        _colorCapable.value = EngoLink.isColor(text)
+        DiagnosticsLogger.note("Engo: hardware \"$text\"")
+    }
+
     private fun handleNotify(uuid: UUID, value: ByteArray?) {
         if (uuid != CHAR_CTRL || value == null || value.isEmpty()) return
         when (value[0].toInt() and 0xFF) {
@@ -191,17 +250,17 @@ class EngoAdapter(
     private fun legacyValue(ch: BluetoothGattCharacteristic): ByteArray? = ch.value
 
     @SuppressLint("MissingPermission")
-    private fun enableNotify(g: BluetoothGatt, ch: BluetoothGattCharacteristic) {
+    private fun enableNotify(g: BluetoothGatt, ch: BluetoothGattCharacteristic): Boolean {
         g.setCharacteristicNotification(ch, true)
-        ch.getDescriptor(CCCD)?.let { d ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                g.writeDescriptor(d, BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE)
-            } else {
-                @Suppress("DEPRECATION")
-                d.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-                @Suppress("DEPRECATION")
-                g.writeDescriptor(d)
-            }
+        val d = ch.getDescriptor(CCCD) ?: return false
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            g.writeDescriptor(d, BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE) ==
+                android.bluetooth.BluetoothStatusCodes.SUCCESS
+        } else {
+            @Suppress("DEPRECATION")
+            d.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+            @Suppress("DEPRECATION")
+            g.writeDescriptor(d)
         }
     }
 
