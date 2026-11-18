@@ -2048,7 +2048,8 @@ class WheelRepository(
      */
     private suspend fun reconcileSpeedLimits(ws: WheelSettings, appSettings: AppSettings) {
         val wTilt = ws.maxSpeedKmh
-        val wAlarm = ws.alarmSpeedKmh
+        // A wheel without an alarm speed (V6) keeps the stored one.
+        val reportsAlarm = wheelAdapter.capabilities.reportsAlarmSpeed
         // The wheel reports 0 when tiltback is either unsupported by the
         // adapter (some Begode/Veteran families) or explicitly disabled on
         // the wheel itself. Treat both as "don't know", overwriting the
@@ -2075,12 +2076,14 @@ class WheelRepository(
             wTilt < legalTilt -> {
                 // User lowered their legal via another app, adopt as new legal
                 isLegalOn = true
-                appSettings.copy(safetyTiltbackKmh = wTilt, safetyAlarmKmh = wAlarm)
+                appSettings.copy(safetyTiltbackKmh = wTilt,
+                    safetyAlarmKmh = if (reportsAlarm) ws.alarmSpeedKmh else appSettings.safetyAlarmKmh)
             }
             wTilt > normalTilt + tolerance -> {
                 // Wheel above stored normal, user raised normal externally; adopt
                 isLegalOn = false
-                appSettings.copy(tiltbackSpeedKmh = wTilt, alarmSpeedKmh = wAlarm)
+                appSettings.copy(tiltbackSpeedKmh = wTilt,
+                    alarmSpeedKmh = if (reportsAlarm) ws.alarmSpeedKmh else appSettings.alarmSpeedKmh)
             }
             else -> {
                 // wTilt is between legal and normal. Adopt it as the new
@@ -2091,7 +2094,8 @@ class WheelRepository(
                 // sessions), and a one-toast adopt is still recoverable
                 // by dragging the slider.
                 isLegalOn = false
-                appSettings.copy(tiltbackSpeedKmh = wTilt, alarmSpeedKmh = wAlarm)
+                appSettings.copy(tiltbackSpeedKmh = wTilt,
+                    alarmSpeedKmh = if (reportsAlarm) ws.alarmSpeedKmh else appSettings.alarmSpeedKmh)
             }
         }
 
@@ -2109,7 +2113,7 @@ class WheelRepository(
             enableSafetySpeed()
         }
 
-        Log.i(TAG, "Reconciled: wheel=$wTilt/$wAlarm → " +
+        Log.i(TAG, "Reconciled: wheel=$wTilt/${ws.alarmSpeedKmh} → " +
                 "normal=${updated.tiltbackSpeedKmh}/${updated.alarmSpeedKmh} " +
                 "legal=${updated.safetyTiltbackKmh}/${updated.safetyAlarmKmh} legalOn=$isLegalOn")
 
@@ -2500,7 +2504,8 @@ class WheelRepository(
                         // V14 wheels rarely change tiltback externally so the
                         // tradeoff lands in favour of P6 / V12 behaviour.
                         val tiltChanged = kotlin.math.abs(ws.maxSpeedKmh - activeTilt) > 1f
-                        val alarmChanged = kotlin.math.abs(ws.alarmSpeedKmh - activeAlarm) > 1f
+                        val alarmChanged = wheelAdapter.capabilities.reportsAlarmSpeed &&
+                            kotlin.math.abs(ws.alarmSpeedKmh - activeAlarm) > 1f
                         if (tiltChanged || alarmChanged) {
                             val newTilt = if (tiltChanged) ws.maxSpeedKmh else activeTilt
                             val newAlarm = if (alarmChanged) ws.alarmSpeedKmh else activeAlarm

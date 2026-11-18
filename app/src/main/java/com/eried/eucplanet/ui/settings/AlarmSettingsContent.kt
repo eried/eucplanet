@@ -23,6 +23,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -101,9 +102,11 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -1766,6 +1769,11 @@ internal fun NumberUpDown(
     // The surface behind the notched label. Settings sections by default; a
     // field placed straight on a dialog passes the dialog fill.
     notchFill: Color = Color.Unspecified,
+    // Typed digits apply when the field loses focus or Done is pressed, not on
+    // every keystroke. For values that reach the wheel: typing 19 used to apply
+    // 1 on the way, which also pulled anything capped by it down for good.
+    // The steppers still apply at once.
+    commitOnBlur: Boolean = false,
 ) {
     val fieldText = MaterialTheme.appColors.fieldText
     val fieldLabelColor = MaterialTheme.appColors.fieldLabel
@@ -1777,6 +1785,16 @@ internal fun NumberUpDown(
     // rememberUpdatedState so the hold-to-repeat loop below always steps from the
     // freshly committed value, not the value captured when the press started.
     val latestValue by rememberUpdatedState(value)
+    val latestOnValueChange by rememberUpdatedState(onValueChange)
+    val focusManager = LocalFocusManager.current
+    fun commitTyped() {
+        val typed = parse(text)?.coerceIn(range) ?: return
+        if (typed != latestValue) latestOnValueChange(typed)
+    }
+    if (commitOnBlur) {
+        // Leaving the screen with the keyboard up still keeps what was typed.
+        DisposableEffect(Unit) { onDispose { if (focused) commitTyped() } }
+    }
     fun stepBy(delta: Int) {
         val nv = (latestValue + delta).coerceIn(range)
         if (nv != latestValue) { text = format(nv); onValueChange(nv) }
@@ -1813,7 +1831,9 @@ internal fun NumberUpDown(
                                 raw.filter { it.isDigit() || it == '-' || it == '.' }.take(7)
                             else raw.filter { it.isDigit() }.take(6)
                             text = filtered
-                            parse(filtered)?.let { if (it in range) onValueChange(it) }
+                            if (!commitOnBlur) {
+                                parse(filtered)?.let { if (it in range) onValueChange(it) }
+                            }
                         },
                         singleLine = true,
                         enabled = enabled,
@@ -1825,12 +1845,15 @@ internal fun NumberUpDown(
                         ),
                         cursorBrush = SolidColor(fieldText),
                         keyboardOptions = KeyboardOptions(
-                            keyboardType = if (allowSign) KeyboardType.Decimal else KeyboardType.Number
+                            keyboardType = if (allowSign) KeyboardType.Decimal else KeyboardType.Number,
+                            imeAction = if (commitOnBlur) ImeAction.Done else ImeAction.Default,
                         ),
+                        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
                         modifier = Modifier
                             .weight(1f)
                             .onFocusChanged { f ->
                                 if (f.isFocused) text = format(value)
+                                else if (focused && commitOnBlur) commitTyped()
                                 focused = f.isFocused
                             }
                     )

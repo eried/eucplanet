@@ -13,7 +13,8 @@ class InMotionV2Adapter : WheelAdapter {
 
     override val familyId: String = "inmotion_v2"
     override val familyDisplayName: String = "InMotion V14 / V12 / P6 / V6"
-    override val capabilities: WheelCapabilities = WheelCapabilities.INMOTION_V2
+    override val capabilities: WheelCapabilities
+        get() = if (useV6Protocol) WheelCapabilities.INMOTION_V6 else WheelCapabilities.INMOTION_V2
 
     override fun inspectMessageTypes(): List<String> =
         listOf("V14 realtime", "P6 realtime", "P6 detailed", "V6 realtime")
@@ -48,6 +49,9 @@ class InMotionV2Adapter : WheelAdapter {
      * `V6-XXXXXXXX`, and telemetry never flips it.
      */
     @Volatile private var useV6Protocol: Boolean = false
+
+    /** The V6's slow slot alternates its settings page and lifetime stats. */
+    @Volatile private var v6SettingsTurn: Boolean = false
 
     companion object {
         /** `p6` as its own token: not preceded or followed by a letter or digit. */
@@ -201,9 +205,13 @@ class InMotionV2Adapter : WheelAdapter {
      */
     override fun pollSettings(): ByteArray = when {
         useP6Protocol -> InMotionV2Commands.getP6Settings()
-        // V6: no known settings page yet; the slow slot refreshes the
-        // lifetime odometer instead (extended 0x11 -> TotalDistance).
-        useV6Protocol -> InMotionV2Commands.getV6TotalStats()
+        // V6: the P6's settings page (tilt-back), taking turns with the
+        // lifetime odometer (extended 0x11 -> TotalDistance).
+        useV6Protocol -> {
+            v6SettingsTurn = !v6SettingsTurn
+            if (v6SettingsTurn) InMotionV2Commands.getP6Settings()
+            else InMotionV2Commands.getV6TotalStats()
+        }
         else -> InMotionV2Commands.getCurrentSettings()
     }
 
@@ -276,6 +284,10 @@ class InMotionV2Adapter : WheelAdapter {
         // The X1's settings page is the P6's, so its speeds go the P6 way:
         // tiltback alone here, the alarm in its own packet below.
         if (useP6Protocol || isX1) return InMotionV2Commands.setP6MaxSpeed(tiltbackKmh)
+        if (useV6Protocol) {
+            return InMotionV2Protocol.escapeChecksum(
+                InMotionV2LegacyCommands.setMaxSpeedShort(tiltbackKmh))
+        }
         val m = detectedModel
         return if (m == null || m.maxSpeedHasAlarms) {
             InMotionV2Commands.setMaxSpeedV14(tiltbackKmh, alarmKmh)
@@ -403,6 +415,7 @@ class InMotionV2Adapter : WheelAdapter {
         detectedModel = null
         useP6Protocol = false
         useV6Protocol = false
+        v6SettingsTurn = false
     }
 
     /**
@@ -664,7 +677,9 @@ class InMotionV2Adapter : WheelAdapter {
                 // settings page A: `02 a0 [body]`. The body starts with a 0x20
                 // sub-cmd echo; the parser pulls tiltback and alarm speed.
                 if (data.size < 3) return DecodeResult.Unknown
-                val settings = InMotionV2Parser.parseP6Settings(data.copyOfRange(2, data.size))
+                val page = data.copyOfRange(2, data.size)
+                val settings = if (useV6Protocol) InMotionV2Parser.parseV6Settings(page)
+                    else InMotionV2Parser.parseP6Settings(page)
                 settings?.let { DecodeResult.Settings(it) } ?: DecodeResult.Unknown
             }
             0x05 -> {

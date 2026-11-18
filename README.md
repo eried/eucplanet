@@ -25,8 +25,8 @@ riders who have the wheel.
 | Status | Wheels |
 |---|---|
 | **Verified** | InMotion V14 (50GB / 50S), P6 |
-| **Rider-tested** | InMotion V8S · LeaperKim Lynx S, Oryx · NOSFET Aeon · Begode/Gotway Mten3, EX30, E20, Master · KingSong KS-16X, KS-18XL |
-| **In test** | InMotion V6, X1 · Begode/Gotway Master Pro, T3, T4, RS, RS-HT, EX, EX.N, EX2, MSP, MSX, Hero, XWay, Mten4, Mten5, MCM5 · LeaperKim Sherman, Sherman S, Sherman Max, Patton, Lynx, Abrams · NOSFET Apex, Aero, Xeno · KingSong S22, S20, S19, S18, S16, KS-14/16/18, F18P, F22P |
+| **Rider-tested** | InMotion V6, V8S · LeaperKim Lynx S, Oryx · NOSFET Aeon · Begode/Gotway Mten3, EX30, E20, Master · KingSong KS-16X, KS-18XL |
+| **In test** | InMotion X1 · Begode/Gotway Master Pro, T3, T4, RS, RS-HT, EX, EX.N, EX2, MSP, MSX, Hero, XWay, Mten4, Mten5, MCM5 · LeaperKim Sherman, Sherman S, Sherman Max, Patton, Lynx, Abrams · NOSFET Apex, Aero, Xeno · KingSong S22, S20, S19, S18, S16, KS-14/16/18, F18P, F22P |
 | **Waiting to be tested** | InMotion V12 HS / HT / Pro, and the rest of the V1 family: V5, V8, V8F, V10, V10F, V10S, V10T, V10FT, L6, Lively, Glide 3 · Ninebot Z6, Z10, plus legacy One E / E+ / S2 / Mini (read-only) |
 | **Experimental** | InMotion V9, V11, V13 |
 
@@ -298,6 +298,7 @@ Thanks to the people and projects that helped, kept in sync with the app (tap ve
 | [Amoenus](https://github.com/Amoenus) | NOSFET Aeon alarm-speed mapping and headlight level readback, decoded from his own BLE captures and contributed with tests and protocol notes. The first code contributed from outside. |
 | [Reimus](https://github.com/Reimus) | Sherman Max compatibility |
 | [ZiraiMode](https://github.com/ZiraiMode) | The Wear OS map: tile streaming from the phone and the watch-side drawing, tested on a Galaxy Watch 5 Pro with a Lynx S |
+| Klaus | InMotion V6 testing: tilt-back and the bigger watch layout, on a TicWatch 3 Pro and a Fenix 5S |
 | Ilya Shkolnik | Advice and help. Maintains DarknessBot. |
 | [InMotion](https://inmotion-store.com/product/inmotion-v14/) | For making a great V14 |
 | [WheelLog community](https://github.com/Wheellog/wheellog.android) | Open-source (GPLv3) reverse-engineering of the EUC BLE protocols, used as the reference for every wheel adapter (KingSong, Begode, Veteran, Ninebot, InMotion). No WheelLog code is reused. |
