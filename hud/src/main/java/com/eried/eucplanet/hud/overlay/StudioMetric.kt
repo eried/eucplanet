@@ -85,8 +85,8 @@ enum class StudioMetric(
         return when (kind) {
             StudioMetricKind.SPEED -> HudUnits.speed(raw, speedUnit)
             StudioMetricKind.DISTANCE -> HudUnits.distance(raw, distUnit)
-            // Held in metres; feet for riders on miles, as on the phone.
-            StudioMetricKind.ALTITUDE -> if (distUnit == "mi") raw * 3.28084f else raw
+            // Held in metres; feet for riders on miles or feet, as on the phone.
+            StudioMetricKind.ALTITUDE -> com.eried.eucplanet.hud.protocol.AltitudeUnit.value(raw, distUnit)
             StudioMetricKind.TEMPERATURE -> HudUnits.temperature(raw, tempUnit)
             StudioMetricKind.PRESSURE ->
                 HudUnits.pressure(raw, pressureUnitFor(distUnit, pressureUnit))
@@ -110,7 +110,7 @@ enum class StudioMetric(
         when (kind) {
             StudioMetricKind.SPEED -> HudUnits.speedSuffix(speedUnit)
             StudioMetricKind.DISTANCE -> HudUnits.distanceSuffix(distUnit)
-            StudioMetricKind.ALTITUDE -> if (distUnit == "mi") "ft" else "m"
+            StudioMetricKind.ALTITUDE -> com.eried.eucplanet.hud.protocol.AltitudeUnit.suffix(distUnit)
             StudioMetricKind.TEMPERATURE -> HudUnits.temperatureSuffix(tempUnit)
             StudioMetricKind.PRESSURE ->
                 HudUnits.pressureSuffix(pressureUnitFor(distUnit, pressureUnit))

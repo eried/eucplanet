@@ -379,7 +379,7 @@ private fun MetricDetailBody(
             // Floored to match the wheel's own display (pressurePsiFloored).
             com.eried.eucplanet.util.Units.pressurePsiFloored(v)
             else com.eried.eucplanet.util.Units.pressure(v, pressureUnit)
-        isAltitudeMetric -> if (distanceUnit == "mi") v * 3.28084f else v
+        isAltitudeMetric -> com.eried.eucplanet.hud.protocol.AltitudeUnit.value(v, distanceUnit)
         else -> v
     }
 
@@ -396,7 +396,7 @@ private fun MetricDetailBody(
         )
         isDistanceMetric -> com.eried.eucplanet.util.Units.distanceUnit(distanceUnit)
         isPressureMetric -> com.eried.eucplanet.util.Units.pressureUnit(pressureUnit)
-        isAltitudeMetric -> if (distanceUnit == "mi") "ft" else "m"
+        isAltitudeMetric -> com.eried.eucplanet.hud.protocol.AltitudeUnit.suffix(distanceUnit)
         legacyType == null -> ""
         else -> legacyType.unit
     }

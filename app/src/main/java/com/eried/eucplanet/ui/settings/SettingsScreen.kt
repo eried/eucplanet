@@ -6230,11 +6230,11 @@ private fun metricPlaceholderValue(
         else -> "0 Wh/km"
     }
     "PHONE_BATTERY", "EXTERNAL_GPS_BATTERY" -> "0%"
-    "GPS_ALTITUDE" -> if (s.unitDistance == "mi") "0 ft" else "0 m"
+    "GPS_ALTITUDE" -> "0 " + com.eried.eucplanet.hud.protocol.AltitudeUnit.suffix(com.eried.eucplanet.util.Units.effectiveDistanceUnit(s))
     "GPS_HEADING" -> "0°"
-    "GPS_ACCURACY" -> if (s.unitDistance == "mi") "0 ft" else "0 m"
+    "GPS_ACCURACY" -> "0 " + com.eried.eucplanet.hud.protocol.AltitudeUnit.suffix(com.eried.eucplanet.util.Units.effectiveDistanceUnit(s))
     "SLOPE" -> "0 %"
-    "ASCENT", "DESCENT" -> if (s.unitDistance == "mi") "0 ft" else "0 m"
+    "ASCENT", "DESCENT" -> "0 " + com.eried.eucplanet.hud.protocol.AltitudeUnit.suffix(com.eried.eucplanet.util.Units.effectiveDistanceUnit(s))
     "MOTOR_RPM" -> "0 rpm"
     "REGEN_WH" -> "0 Wh"
     "BT_RSSI" -> "0 dBm"

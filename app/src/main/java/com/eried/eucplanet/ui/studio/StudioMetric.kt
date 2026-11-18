@@ -96,8 +96,8 @@ enum class StudioMetric(
         return when (kind) {
             StudioMetricKind.SPEED -> Units.speed(raw, speedUnit)
             StudioMetricKind.DISTANCE -> Units.distance(raw, distUnit)
-            // Held in metres; feet for riders on miles, matching the dashboard tile.
-            StudioMetricKind.ALTITUDE -> if (distUnit == "mi") raw * 3.28084f else raw
+            // Held in metres; feet for riders on miles or feet, matching the dashboard tile.
+            StudioMetricKind.ALTITUDE -> com.eried.eucplanet.hud.protocol.AltitudeUnit.value(raw, distUnit)
             StudioMetricKind.TEMPERATURE -> Units.temperature(raw, tempUnit)
             StudioMetricKind.PRESSURE -> Units.pressure(raw, pressureUnitFor(distUnit, pressureUnit))
             // Held per km. Dividing by the display units in one km inverts the
@@ -122,7 +122,7 @@ enum class StudioMetric(
         when (kind) {
             StudioMetricKind.SPEED -> Units.speedUnit(context, speedUnit)
             StudioMetricKind.DISTANCE -> Units.distanceUnit(distUnit)
-            StudioMetricKind.ALTITUDE -> if (distUnit == "mi") "ft" else "m"
+            StudioMetricKind.ALTITUDE -> com.eried.eucplanet.hud.protocol.AltitudeUnit.suffix(distUnit)
             StudioMetricKind.TEMPERATURE -> Units.tempUnit(tempUnit)
             StudioMetricKind.PRESSURE -> Units.pressureUnit(pressureUnitFor(distUnit, pressureUnit))
             StudioMetricKind.CONSUMPTION -> "Wh/${Units.distanceUnit(distUnit)}"

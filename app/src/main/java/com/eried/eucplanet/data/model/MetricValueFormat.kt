@@ -59,11 +59,11 @@ object MetricValueFormat {
     // Tire pressure stored raw in kPa, printed in the rider's own pressure
     // unit - a setting, not the distance unit it used to be guessed from.
     "TIRE_PRESSURE" -> com.eried.eucplanet.util.Units.formatPressure(raw, pressureUnit)
-    // Altitude / accuracy stored raw in metres; feet for imperial riders.
-    "GPS_ALTITUDE", "GPS_ACCURACY" -> if (distanceUnit == "mi")
-        "%.0fft".format(raw * 3.28084f)
-    else
-        "%.0fm".format(raw)
+    // Altitude / accuracy stored raw in metres; feet for a rider whose
+    // distances are in miles or feet (see AltitudeUnit).
+    "GPS_ALTITUDE", "GPS_ACCURACY" ->
+        "%.0f".format(com.eried.eucplanet.hud.protocol.AltitudeUnit.value(raw, distanceUnit)) +
+            com.eried.eucplanet.hud.protocol.AltitudeUnit.suffix(distanceUnit)
     "BT_RSSI" -> "%.0f dBm".format(raw)
     // Distances stored raw in km. Without this they fell to the bare "%.1f"
     // below: a spoken odometer was a naked number, and an imperial rider was
