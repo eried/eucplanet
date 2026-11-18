@@ -13,11 +13,8 @@ import android.content.Context
 import android.os.Build
 import android.util.Log
 import com.eried.eucplanet.diagnostics.DiagnosticsLogger
-import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.ArrayDeque
 import java.util.UUID
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -37,9 +34,8 @@ import kotlinx.coroutines.flow.asStateFlow
  * points confirmed on a real unit. The frames themselves come from the
  * fully-tested [ActiveLookProtocol] + [EngoLayout].
  */
-@Singleton
-class EngoAdapter @Inject constructor(
-    @ApplicationContext private val context: Context,
+class EngoAdapter(
+    private val context: Context,
 ) {
     companion object {
         private const val TAG = "EngoAdapter"

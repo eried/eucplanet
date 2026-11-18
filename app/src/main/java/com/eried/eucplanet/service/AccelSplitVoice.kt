@@ -27,7 +27,8 @@ object AccelSplitVoice {
         // them apart from acceleration splits by ear, since the numbers alone
         // sound alike (e.g. "braking, 40 to 30" vs "20 to 30").
         if (s.toSpeed < s.fromSpeed) {
-            sb.append(context.getString(R.string.accel_split_decel_prefix))
+            // Android trims the string's trailing space; put it back.
+            sb.append(context.getString(R.string.accel_split_decel_prefix).trimEnd()).append(' ')
         }
         sb.append(
             context.getString(R.string.accel_split_time_fmt, s.fromSpeed, s.toSpeed, fmtSeconds(s.seconds))

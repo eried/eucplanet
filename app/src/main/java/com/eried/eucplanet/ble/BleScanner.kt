@@ -7,12 +7,9 @@ import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import javax.inject.Inject
-import javax.inject.Singleton
 
 data class BleDevice(
     val name: String,
@@ -100,9 +97,8 @@ internal fun isLikelyWheelName(name: String): Boolean {
     return false
 }
 
-@Singleton
-class BleScanner @Inject constructor(
-    @ApplicationContext private val context: Context
+class BleScanner(
+    private val context: Context
 ) {
     private val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     private val bluetoothAdapter = bluetoothManager.adapter
@@ -125,7 +121,7 @@ class BleScanner @Inject constructor(
         val callback = object : ScanCallback() {
             override fun onScanResult(callbackType: Int, result: ScanResult) {
                 val name = result.device.name ?: return
-                if (showAll || isLikelyWheel(name)) {
+                if (showAll || isLikelyWheelName(name)) {
                     trySend(BleDevice(
                         name = name,
                         address = result.device.address,
@@ -151,24 +147,6 @@ class BleScanner @Inject constructor(
             scanCallback = null
         }
     }
-
-    /**
-     * BLE-name allowlist for the default ("known wheels only") scan mode.
-     *
-     * Recognises the InMotion V2 family (V14 `Adventure-…`, P6 `P6-…`, and
-     * the broader `V<digits>…` pattern that covers V11/V12/V13), KingSong
-     * (`KS-…`, `KingSong…`, `S22…` / `S20…` / `S18…`, `F22P` / `F18P`),
-     * Begode/Gotway (`Gotway_…`, `Begode_…`, plus model-specific prefixes
-     * `Master_…`, `RS_…`, `EX_…`, `MSP…`, `MSX…`, `Mten…`, `MCM5…`,
-     * `Hero…`, `T3…`, `T4…`) and Veteran (`Sherman…`, `Patton…`, `Lynx…`,
-     * `Abrams…`).
-     *
-     * Users with an unusual name can flip the "show all" switch on the
-     * scan screen.
-     */
-    // Pure name-based scan filter; the real logic is the top-level
-    // [isLikelyWheelName] so it can be unit-tested without a BluetoothAdapter.
-    private fun isLikelyWheel(name: String): Boolean = isLikelyWheelName(name)
 
     /** True only when the adapter exists and Bluetooth is turned on. The scan
      *  screen checks this so a tap on "Start scan" with Bluetooth off prompts

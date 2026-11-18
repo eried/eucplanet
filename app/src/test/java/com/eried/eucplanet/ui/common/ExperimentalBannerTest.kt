@@ -19,6 +19,8 @@ class ExperimentalBannerTest {
         assertFalse(isPreliminaryWheel("V14 50GB"))
         assertFalse(isPreliminaryWheel("Mten3"))
         assertFalse(isPreliminaryWheel("KS-18L"))
+        assertFalse(isPreliminaryWheel("InMotion V6"))
+        assertTrue(isPreliminaryWheel("InMotion V8F"))
         assertTrue(isPreliminaryWheel("Begode T4"))
         assertTrue(isPreliminaryWheel("KS-S22"))
         assertFalse(isPreliminaryWheel(null))

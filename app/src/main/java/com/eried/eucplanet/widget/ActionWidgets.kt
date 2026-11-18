@@ -9,26 +9,10 @@ import android.widget.RemoteViews
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.WidgetActionType
 import com.eried.eucplanet.data.repository.SettingsRepository
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
-import dagger.hilt.android.EntryPointAccessors
-import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-
-/**
- * Hilt access from a plain BroadcastReceiver.
- *
- * An EntryPoint rather than @AndroidEntryPoint on every provider: these widgets
- * are one base class with several thin subclasses, and annotating each one just
- * to reach a single repository would be noise.
- */
-@EntryPoint
-@InstallIn(SingletonComponent::class)
-interface WidgetEntryPoint {
-    fun settingsRepository(): SettingsRepository
-}
+import org.koin.core.context.GlobalContext
 
 /**
  * Button-only widgets: one or two of the rider's configured actions, filling
@@ -75,9 +59,10 @@ abstract class ActionWidgetBase(
     companion object {
 
         private suspend fun readActionKeys(context: Context): List<String> {
-            val repo = EntryPointAccessors
-                .fromApplication(context, WidgetEntryPoint::class.java)
-                .settingsRepository()
+            // Read from the Koin graph directly: these widgets are one base
+            // class with several thin subclasses, and making each one a
+            // KoinComponent just to reach a single repository would be noise.
+            val repo = GlobalContext.get().get<SettingsRepository>()
             // The standalone list, not the big widget's row: these are
             // configured independently.
             return WidgetActionType.slots(repo.get().widget.standaloneActions)
@@ -94,8 +79,8 @@ abstract class ActionWidgetBase(
             // has pushed once, so this path needs no settings read and can stay
             // synchronous.
             val snap = EucWidget.Snapshot.load(appContext)
-            // buttonKeys still drives routing: the service writes the standalone
-            // keys into the snapshot alongside their labels.
+            // standaloneKeys drives routing: the service writes them into the
+            // snapshot alongside their labels.
             val keys = snap.standaloneKeys
             PROVIDERS.forEach { (cls, slots) ->
                 val ids = manager.getAppWidgetIds(ComponentName(appContext, cls))
@@ -139,7 +124,8 @@ abstract class ActionWidgetBase(
             )
             // Live labels when the service has produced them, so a button reads
             // "Light off" while the light is on rather than the generic action
-            // name. Falls back to the picker label before any telemetry.
+            // name. Falls back to the resting-state button label before any
+            // telemetry.
             val snapshot = EucWidget.Snapshot.load(context)
 
             // The single-cell layout has no second cell to address, so only
@@ -148,7 +134,6 @@ abstract class ActionWidgetBase(
             (0 until cells).forEach { cell ->
                 val slot = slots[cell]
                 val key = keys.getOrNull(slot) ?: WidgetActionType.NONE
-                val type = WidgetActionType.byKey(key)
                 // With no snapshot yet, the same label function with no state:
                 // a resting wheel is what an unconnected one looks like, so the
                 // button still says what tapping it will do rather than the

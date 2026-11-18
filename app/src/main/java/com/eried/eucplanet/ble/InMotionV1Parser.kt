@@ -17,15 +17,14 @@ import kotlin.math.abs
  */
 object InMotionV1Parser {
 
+    /** Work-mode high nibble meaning "charging" on V8F / V8S / V10. */
+    private const val WORK_MODE_CHARGING = 3
+
     /** CAN ID is a u32 LE at offset 0 of every unwrapped frame. */
     fun canIdOf(unwrapped: ByteArray): Int? {
         if (unwrapped.size < 4) return null
         return (ByteUtils.getUint32LE(unwrapped, 0).toInt())
     }
-
-    /** True when this is an extended (variable-length) frame per spec 3.2. */
-    fun isExtended(unwrapped: ByteArray): Boolean =
-        unwrapped.size > 12 && (unwrapped[12].toInt() and 0xFF) == 0xFE
 
     /**
      * Slice the extended payload (everything after the 16-byte CAN prefix).
@@ -85,6 +84,12 @@ object InMotionV1Parser {
         val lockedReported =
             if (payload.size > 61) (payload[61].toInt() and 0x02) != 0 else null
         val batteryPercent = batteryPercentFromVoltage(voltage, model)
+        // Charging, from the work mode's high nibble (3) on the models that
+        // use that encoding; see [InMotionV1Model.reportsChargingWorkMode].
+        // The current cannot say it: a V8S on the charger keeps reporting the
+        // board's own idle draw.
+        val charging = model?.reportsChargingWorkMode == true && payload.size >= 64 &&
+            ((payload[60].toInt() and 0xFF) ushr 4) == WORK_MODE_CHARGING
 
         return WheelData(
             speed = speed,
@@ -102,6 +107,7 @@ object InMotionV1Parser {
             rollAngle = roll,
             pcMode = pcMode,
             lockedReported = lockedReported,
+            charging = charging,
             timestamp = System.currentTimeMillis()
         )
     }
@@ -118,7 +124,10 @@ object InMotionV1Parser {
         val serial = parseSerial(payload)
         val firmware = parseFirmware(payload)
         val maxSpeedKmh = ByteUtils.getUint16LE(payload, 60) / 1000f
-        val lightOn = payload.size > 80 && payload[80].toInt() == 1
+        // Headlight, byte 80 == 1 (WheelLog InMotionAdapter.parseSlowInfoMessage
+        // reads it the same way for every V1 model). Null when the reply is too
+        // short to carry it, so a short reply never reads as "light off".
+        val lightOn = if (payload.size > 80) payload[80].toInt() == 1 else null
 
         val low = if (payload.size > 104) payload[104].toInt() and 0xFF else 0
         val high = if (payload.size > 107) payload[107].toInt() and 0xFF else 0
@@ -156,7 +165,7 @@ object InMotionV1Parser {
 
     /**
      * Mileage at offset 44 varies across firmware revisions; see spec
-     * section 4.2. L6 stores u32 LE in centimetres (multiply by 100 to get
+     * section 4.2. L6 stores u32 LE in units of 100 m (multiply by 100 to get
      * metres); every other current model stores u32 LE in metres directly.
      */
     private fun readTotalDistanceMeters(payload: ByteArray, model: InMotionV1Model?): Float {
@@ -256,6 +265,7 @@ object InMotionV1Parser {
         val firmware: String,
         val settings: WheelSettings,
         val volumePercent: Float,
-        val lightOn: Boolean
+        /** Headlight on, from byte 80; null when the reply is too short. */
+        val lightOn: Boolean?
     )
 }

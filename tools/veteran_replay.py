@@ -15,11 +15,12 @@ import re
 import sys
 import zlib
 from pathlib import Path
+from veteran_decode import valid_short
 
 MAGIC = b"\xdc\x5a\x5c"
 LONG_FRAME_THRESHOLD = 38  # LEN > this => long frame with CRC32 trailer
 
-RX_RE = re.compile(r"^(\d{2}:\d{2}:\d{2}\.\d{3})\s+RX\s+\d+\s+(.*)$")
+RX_RE = re.compile(r"^(\d{2}:\d{2}:\d{2}\.\d{3})\s+(?:RX|RECV)\s+\d+\s+(.*)$")
 
 
 def parse_rx_lines(path):
@@ -39,10 +40,9 @@ def parse_rx_lines(path):
 def reassemble(rx_stream):
     """Yield (timestamp_ms, frame_bytes) for every complete frame.
 
-    Mirrors VeteranParser.feed + tryExtractFrame with no timeout: bytes
-    accumulate until a magic-aligned frame of LEN+4 bytes either passes CRC
-    (long) or is accepted as-is (short). Bad bytes self-heal via the
-    magic-trim loop.
+    Mirrors VeteranParser.feed + tryExtractFrame: keep partial frames, accept
+    only verified long CRC frames or known, validated short layouts, and
+    resynchronize at the next magic after an invalid candidate.
     """
     buf = bytearray()
     for t_ms, chunk in rx_stream:
@@ -58,17 +58,23 @@ def reassemble(rx_stream):
                 if len(buf) < 4:
                     break
                 length = buf[3]
+                if length <= LONG_FRAME_THRESHOLD and length not in (32, 34):
+                    buf.pop(0)
+                    continue
                 total = length + 4
                 if len(buf) < total:
                     break
                 frame = bytes(buf[:total])
-                del buf[:total]
                 if length > LONG_FRAME_THRESHOLD:
                     crc = zlib.crc32(frame[:length]) & 0xFFFFFFFF
                     expected = int.from_bytes(frame[length : length + 4], "big")
-                    if crc != expected:
-                        # Bad frame -- drop and let the next magic re-sync us.
-                        continue
+                    valid = crc == expected
+                else:
+                    valid = valid_short(frame)
+                if not valid:
+                    buf.pop(0)
+                    continue
+                del buf[:total]
                 yield t_ms, frame
 
 
@@ -120,6 +126,8 @@ def main():
 
     rx = list(parse_rx_lines(inp))
     print(f"RX entries: {len(rx)}", file=sys.stderr)
+    if not rx:
+        sys.exit("no RX/RECV entries found; check diagnostic format")
 
     frames = list(reassemble(rx))
     print(f"Reassembled frames: {len(frames)}", file=sys.stderr)

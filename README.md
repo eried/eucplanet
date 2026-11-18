@@ -25,8 +25,8 @@ riders who have the wheel.
 | Status | Wheels |
 |---|---|
 | **Verified** | InMotion V14 (50GB / 50S), P6 |
-| **Rider-tested** | InMotion V8S · LeaperKim Lynx S, Oryx · NOSFET Aeon · Begode/Gotway Mten3, EX30, E20, Master · KingSong KS-16X, KS-18XL |
-| **In test** | InMotion V6, X1 · Begode/Gotway Master Pro, T3, T4, RS, RS-HT, EX, EX.N, EX2, MSP, MSX, Hero, XWay, Mten4, Mten5, MCM5 · LeaperKim Sherman, Sherman S, Sherman Max, Patton, Lynx, Abrams · NOSFET Apex, Aero, Xeno · KingSong S22, S20, S19, S18, S16, KS-14/16/18, F18P, F22P |
+| **Rider-tested** | InMotion V6, V8S · LeaperKim Lynx S, Oryx · NOSFET Aeon · Begode/Gotway Mten3, EX30, E20, Master · KingSong KS-16X, KS-18XL |
+| **In test** | InMotion X1 · Begode/Gotway Master Pro, T3, T4, RS, RS-HT, EX, EX.N, EX2, MSP, MSX, Hero, XWay, Mten4, Mten5, MCM5 · LeaperKim Sherman, Sherman S, Sherman Max, Patton, Lynx, Abrams · NOSFET Apex, Aero, Xeno · KingSong S22, S20, S19, S18, S16, KS-14/16/18, F18P, F22P |
 | **Waiting to be tested** | InMotion V12 HS / HT / Pro, and the rest of the V1 family: V5, V8, V8F, V10, V10F, V10S, V10T, V10FT, L6, Lively, Glide 3 · Ninebot Z6, Z10, plus legacy One E / E+ / S2 / Mini (read-only) |
 | **Experimental** | InMotion V9, V11, V13 |
 
@@ -46,7 +46,7 @@ Already connects but a reading looks wrong? See the [in-app diagnostics guide](d
 
 <img src="docs/screenshots/dashboard.png" width="22%" alt="Dashboard" /> <img src="docs/screenshots/navigator.png" width="22%" alt="Turn-by-turn navigator" /> <img src="docs/screenshots/studio.png" width="22%" alt="Overlay Studio" /> <img src="docs/screenshots/compare.png" width="22%" alt="Compare" />
 
-<img src="docs/screenshots/trips.png" width="22%" alt="Trip list" /> <img src="docs/screenshots/studio-export.png" width="22%" alt="Studio transparent export" /> <img src="docs/screenshots/navigator-sat.png" width="22%" alt="Navigator over satellite" /> <img src="docs/screenshots/settings.png" width="22%" alt="Settings" />
+<img src="docs/screenshots/trips.png" width="22%" alt="Trip list" /> <img src="docs/screenshots/studio-export.png" width="22%" alt="Studio transparent export" /> <img src="docs/screenshots/weather-theme.png" width="22%" alt="Ride forecast and theme editor" /> <img src="docs/screenshots/share-live.png" width="22%" alt="Share your ride live" />
 
 <table>
 <tr>
@@ -83,6 +83,16 @@ Share a route as a QR code or a link, nothing uploaded: a friend scans it into
 their app, or opens it in a browser to see the stops and download a GPX. Map
 styles include Satellite hybrid, with road and place names over the imagery.
 The next-turn arrow can mirror to your watch, HUD, or Garmin Edge.
+
+Bike routes prefer quiet streets, a missed turn gets a new route in seconds,
+the map turns with you while navigating, and GPX tracks are ridden as drawn.
+
+**Offline maps and routing.** Download the areas you ride and the map, routes
+and turn cues keep working with no signal, as a backup or as the first choice.
+The data comes from our own [mirror](https://github.com/eried/eucplanet-maps).
+
+**Android Auto.** Turn-by-turn on the car screen, with your dashboard numbers
+beside the map.
 
 **Overlay Studio.** Record video and stills with a customisable telemetry overlay:
 dials, gauges, rolling graphs, `{speed}`-style text, mini-map, layered cameras. Save
@@ -131,7 +141,7 @@ What can I say list is generated from what it really understands.
 
 **Trip recording.** GPS and telemetry to DarknessBot-compatible CSV, auto-record,
 live track preview, and a trip list with quick export and share. Trips are
-recovered even if the app is closed mid-ride. View them later in
+recovered even if the app is closed mid-ride. Compare puts two trips side by side. View them later in
 the [web Trip Viewer](https://github.com/eried/eucviewer), or opt in to share them on
 the [EUC Stats leaderboard](https://eucstats.ried.no/) and rank your distance against
 riders worldwide, by country.
@@ -206,7 +216,7 @@ screen geometry, alarm and charging tuning, and more. Each has a sensible defaul
 a valid range, and a one-tap restore, so you can tune deeply without breaking
 anything.
 
-**Multi-language support.** Full UI localisation in 22 languages, at parity across
+**Multi-language support.** Full UI localisation in 30 languages, at parity across
 all of them. The exceptions are English-only by design: the Garmin and Amazfit
 dials, the helmet HUD, and Service Mode.
 
@@ -260,8 +270,7 @@ usually enough. If a supported wheel misbehaves instead, the
 Service Mode recording.
 
 PRs welcome. Bugs go to [Issues](../../issues). Live discussion is on
-[Telegram](https://t.me/EUCPlanetApp), and more serious ideas and votes go to
-[ideas.ried.no/euc-planet](https://ideas.ried.no/euc-planet).
+[Telegram](https://t.me/EUCPlanetApp).
 
 ## Support
 
@@ -287,9 +296,11 @@ Thanks to the people and projects that helped, kept in sync with the app (tap ve
 | [jforssblad](https://github.com/jforssblad) | NOSFET Aeon cell-voltage testing |
 | [Dubardo](https://github.com/Dubardo) | Odometer-in-trip bug report |
 | [Amoenus](https://github.com/Amoenus) | NOSFET Aeon alarm-speed mapping and headlight level readback, decoded from his own BLE captures and contributed with tests and protocol notes. The first code contributed from outside. |
+| [Reimus](https://github.com/Reimus) | Sherman Max compatibility |
 | [ZiraiMode](https://github.com/ZiraiMode) | The Wear OS map: tile streaming from the phone and the watch-side drawing, tested on a Galaxy Watch 5 Pro with a Lynx S |
+| Klaus | InMotion V6 testing: tilt-back and the bigger watch layout, on a TicWatch 3 Pro and a Fenix 5S |
 | Ilya Shkolnik | Advice and help. Maintains DarknessBot. |
-| InMotion | For making a great V14 |
+| [InMotion](https://inmotion-store.com/product/inmotion-v14/) | For making a great V14 |
 | [WheelLog community](https://github.com/Wheellog/wheellog.android) | Open-source (GPLv3) reverse-engineering of the EUC BLE protocols, used as the reference for every wheel adapter (KingSong, Begode, Veteran, Ninebot, InMotion). No WheelLog code is reused. |
 | [OpenStreetMap contributors](https://www.openstreetmap.org/copyright) | The map data under every layer in the app (ODbL) |
 | [CyclOSM](https://www.cyclosm.org/) | Cycle and trail style, tiles served by OpenStreetMap France |
@@ -297,6 +308,9 @@ Thanks to the people and projects that helped, kept in sync with the app (tap ve
 | [Humanitarian OSM Team](https://www.hotosm.org/) | HOT style, tiles served by OpenStreetMap France |
 | [Esri](https://www.esri.com/) | World Imagery satellite tiles (Esri, Maxar, Earthstar Geographics), the Light and Dark gray basemaps, and the road and place labels of Satellite hybrid |
 | [Leaflet](https://leafletjs.com/) | The map component every in-app map is drawn with (BSD-2) |
+| [FOSSGIS](https://www.fossgis.de/) | The public Valhalla and OSRM routing servers |
+| [BRouter](https://brouter.de/) | Offline routing (MIT) |
+| [Protomaps](https://protomaps.com/) | The OpenStreetMap build the offline maps come from |
 
 ## License
 

@@ -17,7 +17,6 @@ import com.garmin.android.connectiq.IQApp
 import com.garmin.android.connectiq.IQDevice
 import com.garmin.android.connectiq.exception.InvalidStateException
 import com.garmin.android.connectiq.exception.ServiceUnavailableException
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -27,8 +26,6 @@ import kotlinx.coroutines.runBlocking
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.concurrent.ConcurrentHashMap
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Phone-side companion to the Connect IQ watch app in `garmin-watch-app/`.
@@ -45,9 +42,8 @@ import javax.inject.Singleton
  * lives for the whole process so any Garmin device that comes online mid-ride
  * starts receiving telemetry without further wiring.
  */
-@Singleton
-class GarminBridge @Inject constructor(
-    @ApplicationContext private val context: Context,
+class GarminBridge(
+    private val context: Context,
     private val wheelRepository: WheelRepository,
     private val settingsRepository: SettingsRepository,
     private val cheatState: com.eried.eucplanet.cheats.CheatState,
@@ -64,8 +60,10 @@ class GarminBridge @Inject constructor(
         // can't drain, which backs up delivery into ever-growing latency
         // (issue #14) and can crash the dial. We floor the publish interval here
         // AND apply per-device backpressure in sendToAll, so we never outrun the
-        // channel. (Wear OS keeps 5 Hz; its Data Layer isn't rate-capped.)
+        // channel. (Wear OS publishes faster; its Data Layer isn't rate-capped.)
         private const val PUBLISH_INTERVAL_MS = 1000L
+        /** Loop pace while no Garmin is registered. */
+        private const val NO_DEVICE_TICK_MS = 5_000L
         // A device is "busy" from a sendMessage until its callback lands; if that
         // callback is lost we free it after this timeout so a device never stalls.
         private const val SEND_TIMEOUT_MS = 4000L
@@ -121,8 +119,10 @@ class GarminBridge @Inject constructor(
 
     /** Devices we've bound message + status listeners to. Avoids duplicate
      *  registration when a status callback re-fires for a device we already
-     *  saw. Cleared when [stop] is called. */
+     *  saw. */
     private val registeredDevices = ConcurrentHashMap<Long, IQDevice>()
+    /** Rung when a device registers, so an idle publish loop sends at once. */
+    private val deviceAdded = kotlinx.coroutines.channels.Channel<Unit>(kotlinx.coroutines.channels.Channel.CONFLATED)
 
     /** Per-device send backpressure: a device stays "busy until" this ms
      *  timestamp while a sendMessage is in flight. While busy we SKIP it and let
@@ -158,14 +158,11 @@ class GarminBridge @Inject constructor(
     val pairedDevices: kotlinx.coroutines.flow.StateFlow<List<String>> = _pairedDevices
 
     /**
-     * Rolling delivery-rate counter. Resets every second; the public flow
-     * holds the previous second's tally / paired-device count so the
-     * Settings UI shows ~1 Hz on the CIQ transport (which the SDK rate-
-     * caps near 1 Hz regardless of how often we call sendMessage). The
-     * Live/Idle indicator does NOT read from this, it reads from
-     * [lastSuccessAtMs] below, because a 1 Hz delivery aliased against a
-     * 1-second window would make this flag flip 0/1/0/1 and the UI badge
-     * would blink.
+     * Send-side delivery rate in Hz per device, sampled once a second and
+     * exponentially smoothed (alpha 0.25), so the Settings UI shows ~1 Hz
+     * on the CIQ transport (which the SDK rate-caps near 1 Hz regardless
+     * of how often we call sendMessage). The Live/Idle indicator does NOT
+     * read from this, it reads from [lastSuccessAtMs] below.
      */
     private val deliveredCount = java.util.concurrent.atomic.AtomicInteger(0)
     private val _deliveryRateHz = kotlinx.coroutines.flow.MutableStateFlow(0.0)
@@ -173,9 +170,10 @@ class GarminBridge @Inject constructor(
 
     /**
      * Timestamp of the last ALIVE heartbeat received from the watch (ms
-     * since epoch). Drives the Settings UI's Live/Idle badge with a
-     * generous 10-second tolerance, the watch heartbeats every 5 s, so
-     * 10 s tolerates one missed beat without flapping.
+     * since epoch). Drives the Settings UI's Live/Idle badge through
+     * [com.eried.eucplanet.data.model.PairedSurface.GARMIN_LIVE_WINDOW_MS]:
+     * the watch heartbeats every 1.5 s but skips beats while a transmit is
+     * outstanding, so the window is sized for that gap, not for one beat.
      *
      * Intentionally NOT updated from sendMessage success callbacks: in
      * TETHERED mode (and occasionally in WIRELESS too) the SDK returns
@@ -230,6 +228,12 @@ class GarminBridge @Inject constructor(
             val alpha = 0.25
             while (true) {
                 delay(1_000L)
+                if (registeredDevices.isEmpty()) {
+                    deliveredCount.set(0)
+                    _deliveryRateHz.value = 0.0
+                    delay(NO_DEVICE_TICK_MS - 1_000L)
+                    continue
+                }
                 val count = deliveredCount.getAndSet(0)
                 val devices = registeredDevices.size.coerceAtLeast(1)
                 val instant = count.toDouble() / devices
@@ -239,9 +243,14 @@ class GarminBridge @Inject constructor(
         }
 
         // Publishing loop runs independent of sdkReady so the moment a device
-        // connects it gets fresh state (sendStateToAll is a no-op until then).
+        // connects it gets fresh state (sendToAll is a no-op until then).
         scope.launch {
             while (true) {
+                // Nothing to send to; publish() would return at once anyway.
+                if (registeredDevices.isEmpty()) {
+                    kotlinx.coroutines.withTimeoutOrNull(NO_DEVICE_TICK_MS) { deviceAdded.receive() }
+                    continue
+                }
                 try {
                     val s = settingsRepository.currentOrLoad()
                     val effTilt = if (wheelRepository.safetySpeedActive.value)
@@ -268,7 +277,7 @@ class GarminBridge @Inject constructor(
                 // outbound queue and the dial falls further behind. Slow down
                 // while it is quiet so the queue drains; the first ALIVE back
                 // restores the rider's configured rate immediately. The cap in
-                // sendStateToAll bounds how far ahead we get, this bounds how
+                // sendToAll bounds how far ahead we get, this bounds how
                 // hard we push while the watch is not answering.
                 val baseIntervalMs = settingsRepository.currentOrLoad().garminReportIntervalMs.toLong()
                     .coerceAtLeast(PUBLISH_INTERVAL_MS)
@@ -312,7 +321,8 @@ class GarminBridge @Inject constructor(
                 // half-dead local socket genuinely needs a fresh one. On real
                 // devices (WIRELESS) the watch's ALIVE ack is unreliable by
                 // nature, and shutting down + re-initializing the whole CIQ SDK
-                // every 30 s tears down a perfectly good phone->watch link, // which is itself a cause of the frozen/stale dial. Connect
+                // every 30 s tears down a perfectly good phone->watch link,
+                // which is itself a cause of the frozen/stale dial. Connect
                 // Mobile manages WIRELESS reconnection on its own.
                 if (sinceAck > 30_000L && sdkReady && registeredDevices.isNotEmpty() &&
                     connectType == ConnectIQ.IQConnectType.TETHERED
@@ -374,25 +384,6 @@ class GarminBridge @Inject constructor(
         }
     }
 
-    /** Stop the bridge and release CIQ resources. Currently only called by
-     *  test code; the production bridge runs for the lifetime of the process. */
-    fun stop() {
-        if (!started) return
-        started = false
-        try {
-            for (device in registeredDevices.values) {
-                runCatching { connectIQ.unregisterForDeviceEvents(device) }
-                runCatching { connectIQ.unregisterForApplicationEvents(device, app) }
-            }
-            registeredDevices.clear()
-            sendBusyUntilMs.clear()
-            lastSentSeq.clear()
-            lastAckedSeq.clear()
-            watchSupportsSeq.clear()
-            connectIQ.shutdown(context)
-        } catch (_: Exception) { /* best effort */ }
-    }
-
     /** Walks `knownDevices`, binds status + message listeners. CIQ requires
      *  the device to be registered before either side can exchange events. */
     private fun bindKnownDevices() {
@@ -406,6 +397,7 @@ class GarminBridge @Inject constructor(
 
     private fun bindDevice(device: IQDevice) {
         if (registeredDevices.putIfAbsent(device.deviceIdentifier, device) != null) return
+        deviceAdded.trySend(Unit)
         try {
             connectIQ.registerForDeviceEvents(device) { _, status ->
                 Log.d(TAG, "device ${device.friendlyName} status=$status")

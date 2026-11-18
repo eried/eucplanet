@@ -92,7 +92,7 @@ module Control {
     //! Input-event report (tap coords, key codes, fired binding). Gated on
     //! the phone-pushed Keys.DIAG flag, i.e. Service Mode recording only.
     const DEBUG_PREFIX = "debug:";
-    //! Heartbeat the watch transmits every 5 s while the dial is on-screen.
+    //! Heartbeat the watch transmits every 1.5 s while the app runs.
     //! The phone uses these acks (not sendMessage success callbacks) to
     //! drive its Live indicator + delivery-rate badge, necessary because
     //! TETHERED transport reports SUCCESS on write-to-local-socket even

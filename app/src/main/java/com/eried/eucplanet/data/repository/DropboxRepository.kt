@@ -6,8 +6,6 @@ import android.net.Uri
 import android.util.Log
 import androidx.browser.customtabs.CustomTabsIntent
 import com.eried.eucplanet.data.model.AppSettings
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -18,6 +16,21 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import org.json.JSONObject
+
+/**
+ * What a Dropbox move did, rather than just whether it worked.
+ *
+ * A caller archiving a trip has to be able to undo its own half-finished work,
+ * and [Moved.toPath] is where the file really went - move_v2 renames on a
+ * collision, so it is not always the path that was asked for. [Absent] is a
+ * file that was never on Dropbox, which for archiving is the state we wanted
+ * anyway and not an error.
+ */
+sealed interface MoveOutcome {
+    data class Moved(val toPath: String) : MoveOutcome
+    data object Absent : MoveOutcome
+    data object Failed : MoveOutcome
+}
 
 /**
  * Dropbox API client + OAuth (PKCE) handler.
@@ -38,24 +51,8 @@ import org.json.JSONObject
  *      `code` for an access + refresh token pair.
  *   3. Tokens land in [SettingsRepository]; from then on [linked] is true.
  */
-@Singleton
-/**
- * What a Dropbox move did, rather than just whether it worked.
- *
- * A caller archiving a trip has to be able to undo its own half-finished work,
- * and [Moved.toPath] is where the file really went - move_v2 renames on a
- * collision, so it is not always the path that was asked for. [Absent] is a
- * file that was never on Dropbox, which for archiving is the state we wanted
- * anyway and not an error.
- */
-sealed interface MoveOutcome {
-    data class Moved(val toPath: String) : MoveOutcome
-    data object Absent : MoveOutcome
-    data object Failed : MoveOutcome
-}
-
-class DropboxRepository @Inject constructor(
-    @dagger.hilt.android.qualifiers.ApplicationContext private val context: Context,
+class DropboxRepository(
+    private val context: Context,
     private val settingsRepository: SettingsRepository,
 ) {
 
@@ -486,16 +483,14 @@ class DropboxRepository @Inject constructor(
         }
     }
 
-    /** Metadata for one remote file from a folder listing. [size] is the byte
-     *  count Dropbox holds, the stable signal for "already uploaded" (a trip
-     *  CSV's modified-time can be bumped locally, its content-length cannot). */
     /**
-     * A file as Dropbox describes it. The timestamp is in SECONDS, which the
-     * name now says out loud: it was called serverModified, and comparing it
-     * against a millisecond timestamp is a comparison that is simply never
-     * true. That silently disabled a guard against overwriting remote edits,
-     * and read as working in every test that checked the code rather than ran
-     * it.
+     * A file as Dropbox describes it, from a folder listing. The timestamp is
+     * in SECONDS, which the name says out loud: comparing it against a
+     * millisecond timestamp is a comparison that is simply never true, and
+     * that once silently disabled a guard against overwriting remote edits.
+     * [size] is the byte count Dropbox holds, the stable signal for "already
+     * uploaded" (a trip CSV's modified-time can be bumped locally, its
+     * content-length cannot).
      */
     data class RemoteFile(
         val serverModifiedSec: Long,
@@ -504,10 +499,6 @@ class DropboxRepository @Inject constructor(
         val contentHash: String? = null,
     )
 
-    /** Map of file-name → [RemoteFile] for the given Dropbox folder (App-Folder
-     *  relative). Empty map on "not_found" (folder doesn't exist yet, normal on
-     *  first link). Null on auth / network failure so caller can distinguish
-     *  "no files" from "couldn't check". */
     /** One page of a folder listing: the files on it, and where to continue. */
     internal data class ListPage(
         val files: Map<String, RemoteFile>,
@@ -515,6 +506,10 @@ class DropboxRepository @Inject constructor(
         val hasMore: Boolean,
     )
 
+    /** Map of file-name → [RemoteFile] for the given Dropbox folder (App-Folder
+     *  relative). Empty map on "not_found" (folder doesn't exist yet, normal on
+     *  first link). Null on auth / network failure so caller can distinguish
+     *  "no files" from "couldn't check". */
     suspend fun listFolder(remoteFolder: String): Map<String, RemoteFile>? = withContext(Dispatchers.IO) {
         val token = activeAccessToken() ?: return@withContext null
         var absent = false
@@ -563,11 +558,6 @@ class DropboxRepository @Inject constructor(
         if (absent) emptyMap() else all
     }
 
-    /**
-     * Create (or fetch the existing) public shared link for [remotePath].
-     * The returned `?dl=0` URL renders a Dropbox preview; appending `?dl=1`
-     * downloads the raw file. Returns null on failure.
-     */
     /** Error `.tag` from the most recent share-link attempt (e.g.
      *  "email_not_verified"), or null after a success. Lets the UI explain
      *  *why* a share failed instead of a generic message. */
@@ -579,6 +569,11 @@ class DropboxRepository @Inject constructor(
     private fun errorTag(body: String): String? =
         runCatching { JSONObject(body).optJSONObject("error")?.optString(".tag")?.ifBlank { null } }.getOrNull()
 
+    /**
+     * Create (or fetch the existing) public shared link for [remotePath].
+     * The returned `?dl=0` URL renders a Dropbox preview; appending `?dl=1`
+     * downloads the raw file. Returns null on failure.
+     */
     suspend fun createSharedLink(remotePath: String): String? = withContext(Dispatchers.IO) {
         val token = activeAccessToken() ?: return@withContext null
         val body = JSONObject().apply {
@@ -745,7 +740,8 @@ class DropboxRepository @Inject constructor(
 
     /** Best-effort fetch of the linked account's display name / email so
      *  the Settings row can show "Linked: ride@example.com" rather than
-     *  a generic "Linked". Falls back to "Dropbox" on any error. */
+     *  a generic "Linked". Returns null on any error, and the caller stores
+     *  an empty label. */
     private fun fetchAccountLabel(accessToken: String): String? = try {
         val req = Request.Builder()
             .url("https://api.dropboxapi.com/2/users/get_current_account")

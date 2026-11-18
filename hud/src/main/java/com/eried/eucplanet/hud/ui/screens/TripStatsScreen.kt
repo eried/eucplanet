@@ -29,8 +29,8 @@ import com.eried.eucplanet.hud.ui.HudUnits
 /**
  * Session-level trip stats: four big tiles for DIST / TIME / AVG / MAX.
  *
- * Resets only on HUD reboot (the buffer is held by remember at the
- * activity-scoped composable level). A 5 s WiFi blip won't wipe a
+ * Resets only when the HUD app restarts (the accumulators live in
+ * HudSessionState). A 5 s WiFi blip won't wipe a
  * 60 km tally.
  */
 @Composable
@@ -111,12 +111,9 @@ private fun StatTile(
             .background(Color.Black)
             .padding(12.dp)
     ) {
-        // BoxWithConstraints around the tile interior gives AutoFitText
-        // an accurate horizontal budget. Each tile picks its own font
-        // size based on its OWN width (not the screen height) so the
-        // value text shrinks ONLY when its specific content would
-        // overflow -- DIST + AVG share width but their content lengths
-        // differ.
+        // AutoFitText shrinks a value ONLY when its specific content
+        // would overflow its tile -- DIST + AVG share width but their
+        // content lengths differ.
         Column {
             AutoFitText(
                 text = label,

@@ -2,8 +2,6 @@ package com.eried.eucplanet.amazfit
 
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * The bit of Amazfit bridge state that other parts of the app touch without
@@ -13,12 +11,11 @@ import javax.inject.Singleton
  * Has no dependencies on purpose. [com.eried.eucplanet.wear.WatchVibrator]
  * (which `AlarmEngine` owns) queues vibrate hints here; routing it through the
  * full [AmazfitBridge] would pull `FlicManager` and friends into the alarm
- * graph and risk a Hilt cycle.
+ * graph and risk a dependency cycle.
  *
  * Thread-safe: the HTTP worker threads drain while app threads enqueue.
  */
-@Singleton
-class AmazfitInbox @Inject constructor() {
+class AmazfitInbox {
     private val events = ConcurrentLinkedQueue<Map<String, Any>>()
     private val pollCount = AtomicInteger(0)
 

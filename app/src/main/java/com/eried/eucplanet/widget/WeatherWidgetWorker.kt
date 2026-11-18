@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import androidx.core.content.ContextCompat
-import androidx.hilt.work.HiltWorker
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
@@ -20,8 +19,6 @@ import androidx.work.WorkerParameters
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.weather.WeatherRepository
 import com.eried.eucplanet.weather.WeatherSource
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedInject
 import java.util.concurrent.TimeUnit
 
 /**
@@ -41,10 +38,9 @@ import java.util.concurrent.TimeUnit
  * the rider opens the panel. A widget on a phone that never had location on
  * says it has nothing rather than guessing.
  */
-@HiltWorker
-class WeatherWidgetWorker @AssistedInject constructor(
-    @Assisted context: Context,
-    @Assisted params: WorkerParameters,
+class WeatherWidgetWorker(
+    context: Context,
+    params: WorkerParameters,
     private val settingsRepository: SettingsRepository,
     private val weatherRepository: WeatherRepository,
 ) : CoroutineWorker(context, params) {

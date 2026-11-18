@@ -6,14 +6,11 @@ import android.media.AudioTrack
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.concurrent.thread
 import kotlin.math.cos
 import kotlin.math.sin
 
-@Singleton
-class TonePlayer @Inject constructor() {
+class TonePlayer {
 
     private companion object {
         const val TAG = "TonePlayer"
@@ -83,41 +80,23 @@ class TonePlayer @Inject constructor() {
     // It runs while EITHER wants it, so neither owner pulls the route out from under
     // the other. Separate booleans, not a counter, so lifecycle events that don't pair
     // up perfectly can't leak the track on forever.
+    //
+    // The ride's hold rests after [rideQuietMs] with no sound: a silent track held all
+    // ride long kept the audio path (and a Bluetooth headset link) awake for nothing.
+    // The next sound plays into a cold route and warms it again for the next one.
     @Volatile private var keepAliveRide = false
     @Volatile private var keepAlivePreview = false
+    @Volatile private var rideQuietMs = 120_000L
+    @Volatile private var lastSoundMs = 0L
     private var keepAliveThread: Thread? = null
-    private val keepAliveWanted get() = keepAliveRide || keepAlivePreview
+    private val keepAliveWanted get() = routeKeepAliveWanted(
+        keepAlivePreview, keepAliveRide, System.currentTimeMillis(), lastSoundMs, rideQuietMs
+    )
 
-    /**
-     * Play [count] beeps of [durationMs] at [frequencyHz], separated by [gapMs]
-     * of silence, at [volumePct] of the media volume.
-     *
-     * The whole pattern (tones plus gaps) is rendered into ONE AudioTrack buffer.
-     * Every beep gets a raised-cosine ATTACK and RELEASE of length [transitionMs]
-     * (a smooth eased swell), applied to all beeps, not just the ones touching
-     * silence. [transitionMs] < 0 means auto = half the beep, i.e. a pure swell
-     * with no flat top; a smaller value leaves a flat sustain in the middle; the
-     * ramp always guards against clicks. With gap = 0 the swells butt together
-     * into one continuously undulating tone (smooth up and downs) with no clicks
-     * and no silent gaps, instead of a flat constant tone or a string of separate
-     * beeps. The sine phase runs continuously across contiguous tones.
-     */
-    /**
-     * Several notes in a single buffer.
-     *
-     * One AudioTrack for the whole figure, not one per note. Two playBeep
-     * calls back to back is two starts and two stops, and the amp transient in
-     * the seam between them is louder than the notes at these frequencies.
-     * Each note gets its own short raised-cosine ramp, and the gaps are
-     * silence inside the same buffer, so there is no seam to click.
-     *
-     * @param notes    frequency in hertz to duration in milliseconds, in order
-     * @param gapMs    silence between notes
-     * @param leadPadMs silence before the first note. The listening cue needs
-     *   a long one: the recogniser has just opened the microphone, which moves
-     *   the device into a communication audio mode, and a tone started into
-     *   that switch arrives with the switch audible underneath it.
-     */
+    /** A beep, stream or voice line is starting: the route is wanted again. */
+    @Synchronized
+    fun noteSound() { lastSoundMs = System.currentTimeMillis(); ensureKeepAlive() }
+
     /**
      * Queue one finished buffer and wait for it to actually play out.
      *
@@ -127,6 +106,7 @@ class TonePlayer @Inject constructor() {
      * then is the alarms.
      */
     private fun playSamples(samples: ShortArray, totalN: Int, what: String) {
+        noteSound()
         val minBuf = AudioTrack.getMinBufferSize(
             sampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT
         )
@@ -172,6 +152,22 @@ class TonePlayer @Inject constructor() {
         }
     }
 
+    /**
+     * Several notes in a single buffer.
+     *
+     * One AudioTrack for the whole figure, not one per note. Two playBeep
+     * calls back to back is two starts and two stops, and the amp transient in
+     * the seam between them is louder than the notes at these frequencies.
+     * Each note gets its own short raised-cosine ramp, and the gaps are
+     * silence inside the same buffer, so there is no seam to click.
+     *
+     * @param notes    frequency in hertz to duration in milliseconds, in order
+     * @param gapMs    silence between notes
+     * @param leadPadMs silence before the first note. The listening cue needs
+     *   a long one: the recogniser has just opened the microphone, which moves
+     *   the device into a communication audio mode, and a tone started into
+     *   that switch arrives with the switch audible underneath it.
+     */
     suspend fun playNotes(
         notes: List<Pair<Int, Int>>,
         gapMs: Int = 40,
@@ -262,6 +258,13 @@ class TonePlayer @Inject constructor() {
         playNotes(listOf(420 to 110, 310 to 150), gapMs = 30, leadPadMs = 160, volumePct = 85)
     }
 
+    /**
+     * Play [count] beeps of [durationMs] at [frequencyHz], separated by [gapMs]
+     * of silence, at [volumePct] of the media volume, rendered into one
+     * AudioTrack buffer. Each run gets a raised-cosine attack and release of
+     * [transitionMs] (below 0 means half the beep). With gap 0 the beeps merge
+     * into one run of duration x count that ramps up once and down once.
+     */
     suspend fun playBeep(
         frequencyHz: Int,
         durationMs: Int,
@@ -271,25 +274,6 @@ class TonePlayer @Inject constructor() {
         transitionMs: Int = -1,
         waveform: Int = 0,
         effect: Int = 0,
-        /**
-         * Sweep to this frequency across the run, 0 for a steady tone.
-         *
-         * A rising cue used to be two playBeep calls back to back, which is
-         * two AudioTracks, two starts and two stops: the seam between them
-         * clicked, and at low frequencies the click is the loudest part of the
-         * sound. One buffer that changes pitch has no seam.
-         */
-        glideToHz: Int = 0,
-        /**
-         * Silence written before the tone, milliseconds.
-         *
-         * Thirty is enough for a beep on a settled route. The listening cue is
-         * not on a settled route: the recogniser has just opened the
-         * microphone, which moves the device into a communication audio mode,
-         * and a tone started into that transition arrives with the switch
-         * still audible under it.
-         */
-        leadPadMs: Int = 30,
     ) {
         if (count <= 0 || durationMs <= 0) return
         Log.d(TAG, "playBeep freq=$frequencyHz dur=$durationMs count=$count gap=$gapMs vol=$volumePct")
@@ -308,7 +292,7 @@ class TonePlayer @Inject constructor() {
             // Lead-in silence so the audio route/amp power-up transient (a start-of-
             // playback pop) settles in silence before the tone ramps in; a small tail
             // pad drains cleanly before stop().
-            val leadPadN = sampleRate * leadPadMs.coerceAtLeast(0) / 1000
+            val leadPadN = sampleRate * 30 / 1000
             val tailPadN = sampleRate * 12 / 1000
             val bodyN = leadPadN + runN * runCount + gapN * (runCount - 1).coerceAtLeast(0) + tailPadN
             // MODE_STREAM only begins playing once the written frames reach its start
@@ -335,7 +319,6 @@ class TonePlayer @Inject constructor() {
 
             var w = leadPadN  // write cursor; leading silence pad already skipped
             val inc = frequencyHz.toDouble() / sampleRate
-            val glideEnd = if (glideToHz > 0) glideToHz.toDouble() else frequencyHz.toDouble()
             var phase = 0.0       // carrier phase in cycles; continuous within a run
             var modPhase = 0.0    // FM modulator phase (runs at 2x carrier)
             val fx = Fx()
@@ -348,18 +331,10 @@ class TonePlayer @Inject constructor() {
                         if (i >= runN - edge) (runN - i).toDouble() / edge else 1.0
                     )
                     val env = 0.5 - 0.5 * cos(Math.PI * ramp)
-                    // Steady unless gliding, in which case the frequency walks
-                    // from one end to the other across the run.
-                    val freqNow = if (glideToHz > 0) {
-                        frequencyHz + (glideEnd - frequencyHz) * (i.toDouble() / runN)
-                    } else {
-                        frequencyHz.toDouble()
-                    }
-                    val incNow = if (glideToHz > 0) freqNow / sampleRate else inc
-                    val osc = applyFx(effect, waveSample(waveform, phase, modPhase), freqNow, fx)
+                    val osc = applyFx(effect, waveSample(waveform, phase, modPhase), frequencyHz.toDouble(), fx)
                     samples[w++] = (osc * env * gain * Short.MAX_VALUE).toInt().toShort()
-                    phase += incNow; if (phase >= 1.0) phase -= 1.0
-                    modPhase += 2.0 * incNow; if (modPhase >= 1.0) modPhase -= 1.0
+                    phase += inc; if (phase >= 1.0) phase -= 1.0
+                    modPhase += 2.0 * inc; if (modPhase >= 1.0) modPhase -= 1.0
                 }
                 if (b < runCount - 1 && gapN > 0) {
                     w += gapN   // leave zeros (silence); restart phase + effect state after the gap
@@ -381,7 +356,10 @@ class TonePlayer @Inject constructor() {
      * studio stream, so a failure here never silences an actual alarm.
      */
     @Synchronized
-    fun startRouteKeepAlive() { keepAliveRide = true; ensureKeepAlive() }
+    fun startRouteKeepAlive(quietMs: Long = rideQuietMs) {
+        keepAliveRide = true; rideQuietMs = quietMs; lastSoundMs = System.currentTimeMillis()
+        ensureKeepAlive()
+    }
 
     /** Release the ride's hold. The route stays warm if a preview still wants it. */
     @Synchronized
@@ -428,6 +406,7 @@ class TonePlayer @Inject constructor() {
         val silence = ShortArray(chunk)   // zeros: inaudible, just holds the route open
         try {
             track.play()
+            Log.i(TAG, "route warm")
             while (keepAliveWanted) {
                 track.write(silence, 0, silence.size)   // blocks, pacing the loop
             }
@@ -435,6 +414,7 @@ class TonePlayer @Inject constructor() {
         } finally {
             runCatching { track.stop() }
             runCatching { track.release() }
+            Log.i(TAG, "route rests")
             synchronized(this) {
                 keepAliveThread = null
                 ensureKeepAlive()   // a request that arrived during teardown respawns us
@@ -442,13 +422,14 @@ class TonePlayer @Inject constructor() {
         }
     }
 
-    // --- Continuous streaming tone (Beep Studio live preview) ---
+    // --- Continuous streaming tone (Beep Studio preview and constant-tone alarms) ---
     // A persistent MODE_STREAM track fed by a producer thread, so the studio's
     // adaptive beep plays GAPLESSLY and glides as the rider drags the sliders,
     // instead of re-firing a fresh one-shot track (with its teardown gap) every
     // ~80 ms. Params are read live each buffer; the sine phase accumulates across
-    // buffers so a pitch change is a smooth glide, and the same raised-cosine swell
-    // as playBeep runs on each on-period so gap = 0 is one undulating tone.
+    // buffers so a pitch change is a smooth glide. With a gap, each on-period gets
+    // the same raised-cosine swell as playBeep. With gap 0 it is one steady tone
+    // that fades in once.
     @Volatile private var streamOn = false
     @Volatile private var sFreqHz = 1000
     @Volatile private var sDurMs = 300
@@ -463,6 +444,7 @@ class TonePlayer @Inject constructor() {
     fun startStream(frequencyHz: Int, durationMs: Int, gapMs: Int, volumePct: Int, transitionMs: Int = -1, waveform: Int = 0, effect: Int = 0) {
         updateStream(frequencyHz, durationMs, gapMs, volumePct, transitionMs, waveform, effect)
         if (streamOn) return
+        noteSound()
         streamOn = true
         streamThread = thread(name = "ToneStream", isDaemon = true) { streamLoop() }
     }
@@ -483,6 +465,7 @@ class TonePlayer @Inject constructor() {
         streamOn = false
         streamThread?.join(500)
         streamThread = null
+        noteSound()  // the quiet window starts when a long alarm tone ends
     }
 
     private fun streamLoop() {
@@ -569,3 +552,8 @@ class TonePlayer @Inject constructor() {
         }
     }
 }
+
+/** A preview always holds the route; a ride holds it until [quietMs] pass with no sound. */
+internal fun routeKeepAliveWanted(
+    preview: Boolean, ride: Boolean, nowMs: Long, lastSoundMs: Long, quietMs: Long,
+): Boolean = preview || (ride && nowMs - lastSoundMs < quietMs)

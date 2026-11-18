@@ -6,6 +6,7 @@ import android.content.IntentFilter
 import android.os.BatteryManager
 import android.util.Log
 import com.eried.eucplanet.ble.ConnectionState
+import kotlinx.coroutines.flow.first
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.arrowAngleDeg
 import com.eried.eucplanet.data.repository.SettingsRepository
@@ -14,25 +15,22 @@ import com.google.android.gms.tasks.Tasks
 import com.google.android.gms.wearable.Node
 import com.google.android.gms.wearable.PutDataMapRequest
 import com.google.android.gms.wearable.Wearable
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Phone-side companion to the watch app.
  *
  * Subscribes to [WheelRepository] state and publishes a compact snapshot to the
- * Wearable Data Layer at `/euc/state`, throttled to 5 Hz so the watch face
- * stays smooth without burning Bluetooth bandwidth. The watch reads the same
+ * Wearable Data Layer at `/euc/state`, at the rider's watchUpdateRate tier
+ * (see [publishIntervalMsFor]). The watch reads the same
  * [WatchKeys] this writer uses; keep them in sync if you add a field.
  *
- * Started from [com.eried.eucplanet.EucPlanetApplication] so it lives for the
+ * Started from [com.eried.eucplanet.EucPlanetApp] so it lives for the
  * whole app process. No Activity lifecycle required, since the watch app
  * deserves data even when the user is on the lock screen looking at their
  * Watch Ultra.
@@ -40,9 +38,8 @@ import javax.inject.Singleton
  * Control messages flow the other direction through [PhoneWearListenerService]
  * which routes them back to the repository.
  */
-@Singleton
-class WearBridge @Inject constructor(
-    @ApplicationContext private val context: Context,
+class WearBridge(
+    private val context: Context,
     private val wheelRepository: WheelRepository,
     private val settingsRepository: SettingsRepository,
     private val cheatState: com.eried.eucplanet.cheats.CheatState,
@@ -72,6 +69,8 @@ class WearBridge @Inject constructor(
         private const val IDLE_PUBLISH_INTERVAL_MS = 2_000L
         /** With no watch connected nothing is sent; the node poll finds one. */
         private const val NO_WATCH_INTERVAL_MS = 5_000L
+        /** How often a backgrounded phone with no watch asks for one. */
+        private const val NO_WATCH_POLL_MS = 15_000L
 
         private const val PATH_STATE = "/euc/state"
         private const val K_CONNECTED = "c"
@@ -162,19 +161,6 @@ class WearBridge @Inject constructor(
     val pairedNodes: kotlinx.coroutines.flow.StateFlow<List<String>> = _pairedNodes
 
     /**
-     * Idempotent. Begins streaming snapshots to any paired Wear OS device.
-     * Safe to call from Application.onCreate even if no watch is paired; the
-     * Data Layer just keeps a local cache that future watches sync from.
-     */
-    /**
-     * Sends a one-shot `/euc/wake` Message to every paired Wear OS node so
-     * the watch's [com.eried.eucplanet.wear.bridge.WatchBridgeService] can
-     * launch MainActivity. Gated by the user's `watchAutoStart` setting.
-     * Best-effort: failures are logged at DEBUG and don't propagate. Called
-     * once on bridge startup and again from MainActivity.onResume() so the
-     * watch wakes whenever the user re-opens the phone app.
-     */
-    /**
      * Synchronous best-effort: tells the paired watch's bridge service to
      * close MainActivity. Sent right before WheelService tears its session
      * down, so the watch dial flips to "phone gone" instantly instead of
@@ -201,6 +187,14 @@ class WearBridge @Inject constructor(
         }
     }
 
+    /**
+     * Sends a one-shot `/euc/wake` Message to every paired Wear OS node so
+     * the watch's [com.eried.eucplanet.wear.bridge.WatchBridgeService] can
+     * launch MainActivity. Gated by the user's `watchAutoStart` setting.
+     * Best-effort: failures are logged at DEBUG and don't propagate. Called
+     * from MainActivity.onResume() and the manual Settings action, never
+     * from [start].
+     */
     fun pingWatchToWake() {
         scope.launch {
             try {
@@ -246,6 +240,11 @@ class WearBridge @Inject constructor(
         }
     }
 
+    /**
+     * Idempotent. Begins streaming snapshots to any paired Wear OS device.
+     * Safe to call from Application.onCreate even if no watch is paired; the
+     * Data Layer just keeps a local cache that future watches sync from.
+     */
     fun start() {
         if (started) return
         started = true
@@ -255,7 +254,7 @@ class WearBridge @Inject constructor(
         // NO wake here on purpose. start() runs from EucPlanetApp.onCreate,
         // which fires on EVERY phone process start -- including background wakes
         // the rider never initiated (a watch message starting the
-        // @AndroidEntryPoint PhoneWearListenerService, a WorkManager upload job,
+        // PhoneWearListenerService, a WorkManager upload job,
         // etc.). Pinging here made the paired watch relaunch its MainActivity
         // "for no reason" whenever the phone process woke in the background. The
         // wake now fires only on a genuine app open, from MainActivity.onResume()
@@ -277,7 +276,14 @@ class WearBridge @Inject constructor(
                 } catch (e: Exception) {
                     if (_pairedNodes.value.isNotEmpty()) _pairedNodes.value = emptyList()
                 }
-                delay(5_000L)
+                // A connected watch, a ride or the app open (Settings shows
+                // the list) keeps the 5 s pace. An idle phone with no watch
+                // looks less often, and opening the app cuts that wait short.
+                val foreground = com.eried.eucplanet.util.AppForeground.isForeground
+                val looking = _pairedNodes.value.isNotEmpty() || foreground.value ||
+                    wheelRepository.connectionState.value == ConnectionState.CONNECTED
+                if (looking) delay(5_000L)
+                else kotlinx.coroutines.withTimeoutOrNull(NO_WATCH_POLL_MS) { foreground.first { it } }
             }
         }
 

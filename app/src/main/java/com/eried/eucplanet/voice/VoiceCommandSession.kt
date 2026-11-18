@@ -63,6 +63,6 @@ object VoiceCommandSession {
         // Two names, not five: the rider is moving, and a spoken list is no
         // help at speed.
         is VoiceMatch.Ambiguous -> Answer.NeedsChoice(m.candidates.take(2).map { it.name })
-        VoiceMatch.None -> VoiceAnswer.notUnderstood(vocabulary, onDashboard)
+        VoiceMatch.None -> VoiceAnswer.notUnderstood(vocabulary)
     }
 }

@@ -49,9 +49,11 @@ class BegodeBeeperVolumeTest {
         val slowing = HeadlightSlowPolicy.step(riding, 4.9f, 5f, nowMs = 1000L, enabled = true, holdMs = 0L)
         assertTrue(slowing.forcedOff)
         // And it needs real riding, 2 km/h over, to go loud again.
-        val hover = HeadlightSlowPolicy.step(slowing, 6f, 5f, nowMs = 2000L, enabled = true, holdMs = 0L)
+        val hover = HeadlightSlowPolicy.step(slowing, 6f, 5f, nowMs = 2000L, enabled = true, holdMs = 0L,
+            rearmGapKmh = 2f, rearmHoldMs = 0L)
         assertTrue(hover.forcedOff)
-        val away = HeadlightSlowPolicy.step(hover, 7f, 5f, nowMs = 3000L, enabled = true, holdMs = 0L)
+        val away = HeadlightSlowPolicy.step(hover, 7f, 5f, nowMs = 3000L, enabled = true, holdMs = 0L,
+            rearmGapKmh = 2f, rearmHoldMs = 0L)
         assertFalse(away.forcedOff)
     }
 

@@ -24,7 +24,6 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -40,12 +39,9 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class TripRepository @Inject constructor(
-    @ApplicationContext private val context: Context,
+class TripRepository(
+    private val context: Context,
     private val tripDao: TripDao,
     // Source of the rider's known wheels for the trip-tools wheel picker.
     private val wheelProfileDao: com.eried.eucplanet.data.db.WheelProfileDao,
@@ -56,14 +52,14 @@ class TripRepository @Inject constructor(
     private val externalGpsRepository: ExternalGpsRepository,
     private val legalLockdown: LegalLockdownController,
     /**
-     * Injected as a Provider because [com.eried.eucplanet.share.ShareSession]
-     * takes this repository (it publishes [currentLocation]). A Provider breaks
+     * Injected as a Lazy because [com.eried.eucplanet.share.ShareSession]
+     * takes this repository (it publishes [currentLocation]). A Lazy breaks
      * the construction cycle: the instance is only asked for from a coroutine,
      * once, after both singletons exist. That coroutine runs on [scope], which
      * is Dispatchers.IO, so this never runs inline on the constructing thread;
-     * a Provider alone does not guarantee that, the dispatcher does.
+     * a Lazy alone does not guarantee that, the dispatcher does.
      */
-    private val shareSession: javax.inject.Provider<com.eried.eucplanet.share.ShareSession>
+    private val shareSession: Lazy<com.eried.eucplanet.share.ShareSession>
 ) {
     companion object {
         private const val TAG = "TripRepo"
@@ -122,10 +118,6 @@ class TripRepository @Inject constructor(
     val allTrips: Flow<List<TripRecord>> = tripDao.observeAll()
     val tripCount: Flow<Int> = tripDao.observeCount()
 
-    /** Every trip file this phone holds, for comparing against a backup. */
-    suspend fun allTripFileNames(): List<String> =
-        tripDao.observeAll().first().map { it.fileName }
-
     private var csvWriter: CsvWriter? = null
     private var currentTrip: TripRecord? = null
     private var recordJob: kotlinx.coroutines.Job? = null
@@ -163,6 +155,9 @@ class TripRepository @Inject constructor(
     // GPS stays at 1 Hz even with the app backgrounded and no wheel connected.
     @Volatile private var gpsSharing = false
     @Volatile private var gpsWatchMapVisible = false
+    // A HUD is linked and its carousel has the Map screen, which is drawn from
+    // this phone's position.
+    @Volatile private var gpsHudMapLinked = false
     @Volatile private var currentGpsTier: GpsTier? = null
     // Pending fully-off after the idle grace (gpsIdleOffDelaySec); cancelled the
     // moment any input changes, since recompute re-decides.
@@ -173,7 +168,7 @@ class TripRepository @Inject constructor(
     // satellite loss rather than OEM doze throttling our background location. It
     // never voices the app's own power management (idle power-down, or re-engage
     // on app open / wheel connect). Announces only a GENUINE satellite loss/regain.
-    @Volatile private var gpsTracking = false        // true while tier == HIGH
+    @Volatile private var gpsTracking = false        // true while recording or navigating
     @Volatile private var gpsHasFix = false          // FIXED (true) vs ACQUIRING (false) while tracking
     @Volatile private var acquiringFromLoss = false  // this ACQUIRING followed a genuine loss, not a power-on
     @Volatile private var lastFixMs = 0L
@@ -208,9 +203,9 @@ class TripRepository @Inject constructor(
         scope.launch { wheelRepository.connectionState.collect { recomputeGpsTier() } }
         scope.launch { AppForeground.isForeground.collect { recomputeGpsTier() } }
         // Joining or leaving a group changes the tier the same way navigation
-        // does. Resolved here, off the constructor thread, so the Provider
+        // does. Resolved here, off the constructor thread, so the Lazy
         // above never re-enters this repository's own construction.
-        scope.launch { shareSession.get().sharing.collect { gpsSharing = it; recomputeGpsTier() } }
+        scope.launch { shareSession.value.sharing.collect { gpsSharing = it; recomputeGpsTier() } }
     }
 
     // The just-stopped trip waiting for grace-period finalization, plus the job
@@ -245,7 +240,7 @@ class TripRepository @Inject constructor(
                 syncManager.enqueueTripUpload(appSettings)
             }
             if (appSettings.onlineUploadEnabled && syncManager.riderStoreId.value != null) {
-                syncManager.enqueueEucStatsUpload(appSettings)
+                syncManager.enqueueEucStatsUpload()
             }
             if (appSettings.dropboxAccessToken.isNotBlank()) {
                 syncManager.enqueueDropboxSync()
@@ -317,7 +312,7 @@ class TripRepository @Inject constructor(
         }
     }
 
-    /** Enter tracking (tier just became HIGH). Silent: a recent fix stays FIXED,
+    /** Enter tracking (a recording or navigation just started). Silent: a recent fix stays FIXED,
      *  otherwise we wait for the first fix, which is a power-on and not voiced. */
     private fun startGpsTracking() {
         if (gpsTracking) return
@@ -327,7 +322,7 @@ class TripRepository @Inject constructor(
         if (gpsHasFix) armLossWatchdog()
     }
 
-    /** Leave tracking (tier dropped below HIGH, or GPS off). Silent. */
+    /** Leave tracking (no recording or navigation, or GPS off). Silent. */
     private fun stopGpsTracking() {
         gpsTracking = false
         gpsHasFix = false
@@ -382,6 +377,13 @@ class TripRepository @Inject constructor(
         recomputeGpsTier()
     }
 
+    fun setHudMapLinked(linked: Boolean) {
+        if (gpsHudMapLinked == linked) return
+        gpsHudMapLinked = linked
+        if (linked) startLocationUpdates()
+        recomputeGpsTier()
+    }
+
     /** Pick the GPS tier for the current demand and (re)issue the fused request. */
     private fun recomputeGpsTier() {
         if (!gpsStreamRequested || !hasLocationPermission()) return
@@ -393,6 +395,7 @@ class TripRepository @Inject constructor(
             appVisible = AppForeground.isForeground.value,
             sharing = gpsSharing,
             watchMapVisible = gpsWatchMapVisible,
+            hudMapLinked = gpsHudMapLinked,
         )
         if (tier == GpsTier.OFF) {
             // Already off, or an off-grace already pending: stay put. Do NOT
@@ -531,6 +534,7 @@ class TripRepository @Inject constructor(
         locationUpdatesActive = false
         gpsStreamRequested = false
         gpsWatchMapVisible = false
+        gpsHudMapLinked = false
         currentGpsTier = null
         Log.i(TAG, "Location updates stopped (received $locationFixCount fixes this session)")
     }
@@ -562,7 +566,7 @@ class TripRepository @Inject constructor(
         for (f in csvs) {
             if (f.name in known) continue
             val text = runCatching { f.readText() }.getOrNull() ?: continue
-            val quads = parseQuadsForMetrics(text)
+            val quads = parseTripQuads(text)
             val m = TripCsv.metricsFrom(quads)
             val rows = (text.count { it == '\n' } - 1).coerceAtLeast(0)  // minus header
             tripDao.insert(
@@ -580,7 +584,8 @@ class TripRepository @Inject constructor(
                     // backup, and anything a rider dropped in the folder, and
                     // the upload sweep has no age limit, so a whole back
                     // catalogue went to the leaderboard at once. Live
-                    // recording mints its own at save time (see startTrip).
+                    // recording mints its own when the row is created (see
+                    // startRecording).
                     tripUuid = null,
                     // The file's own name, the way every other road in reads
                     // it. Ten real files adopted on the emulator showed "test
@@ -597,9 +602,6 @@ class TripRepository @Inject constructor(
         }
         if (adopted > 0 && hasFolder && settings != null) syncManager.enqueueTripUpload(settings)
     }
-
-    /** Header-driven extraction of (date, lat, lon, mileage) rows for metrics. */
-    private fun parseQuadsForMetrics(text: String): List<TripCsv.Quad> = parseTripQuads(text)
 
     /**
      * Finalize any trip left with no end time by a previous session that was
@@ -643,7 +645,7 @@ class TripRepository @Inject constructor(
             brand = wheelRepository.connectedBrand.value,
             model = wheelRepository.modelName.value,
             serial = wheelRepository.wheelSerial.value,
-            bleMac = settingsRepository.get().lastDeviceAddress,
+            bleMac = settingsRepository.currentOrLoad().lastDeviceAddress,
             bleName = wheelRepository.connectedDeviceName.value,
             firmware = wheelRepository.firmwareVersion.value,
         )
@@ -819,7 +821,7 @@ class TripRepository @Inject constructor(
                 val extSample = externalGpsRepository.currentSample.value
                 val extSpeed = extSample
                     ?.takeIf {
-                        settingsRepository.get().gpsPrioritizeExternal &&
+                        settingsRepository.currentOrLoad().gpsPrioritizeExternal &&
                             System.currentTimeMillis() - it.timestamp < recordIntervalMs * 3
                     }
                     ?.speedKmh
@@ -1008,7 +1010,7 @@ class TripRepository @Inject constructor(
         // automatic retry path: a trip that failed last ride gets one more
         // shot the next time the rider finishes a ride.
         if (appSettings.onlineUploadEnabled && syncManager.riderStoreId.value != null) {
-            syncManager.enqueueEucStatsUpload(appSettings)
+            syncManager.enqueueEucStatsUpload()
             Log.i(TAG, "Eucstats upload enqueued (incl. retry sweep for prior failures)")
         }
         // Dropbox mirrors the trip too if the rider has it linked. Runs
@@ -1056,6 +1058,8 @@ class TripRepository @Inject constructor(
         tripDao.delete(trip)
         val file = File(getTripsDir(), trip.fileName)
         if (file.exists()) file.delete()
+        // The trip may have been one of the copies that differed.
+        syncManager.recountFolderConflictsIfWarned()
     }
 
     /**
@@ -1169,27 +1173,6 @@ class TripRepository @Inject constructor(
         return out
     }
 
-    /**
-     * Reassign which wheel a trip was ridden on.
-     *
-     * Rewrites BOTH the database row and the CSV's Extra column, so the app,
-     * a shared file and eucviewer agree. The original CSV is kept alongside as
-     * `.bak` until the rewrite succeeds, then replaced atomically-ish, because a
-     * half-written trip file would be unrecoverable.
-     *
-     * This never touches an existing leaderboard entry: the caller warns the
-     * rider when [TripRecord.eucstatsStatus] says the ride is already up there.
-     *
-     * @return true when the row was updated
-     */
-    /**
-     * Every wheel name worth offering in the trip-tools picker.
-     *
-     * Two sources, because neither is complete on its own. Saved profiles cover
-     * wheels this phone has paired with; the trips themselves cover wheels that
-     * only ever arrived as an imported CSV, which is exactly the case where the
-     * rider is most likely to be correcting a wrong label.
-     */
     private suspend fun backfillWheelMetaFromFiles() {
         for (trip in tripDao.tripsWithoutWheelMeta()) {
             val file = getTripFile(trip)
@@ -1233,6 +1216,14 @@ class TripRepository @Inject constructor(
         }.toString()
     }
 
+    /**
+     * Every wheel name worth offering in the trip-tools picker.
+     *
+     * Two sources, because neither is complete on its own. Saved profiles cover
+     * wheels this phone has paired with; the trips themselves cover wheels that
+     * only ever arrived as an imported CSV, which is exactly the case where the
+     * rider is most likely to be correcting a wrong label.
+     */
     suspend fun knownWheels(): List<WheelChoice> {
         val fromProfiles = runCatching { wheelProfileDao.allNames() }.getOrDefault(emptyList())
             .map { WheelChoice(name = it) }
@@ -1251,11 +1242,24 @@ class TripRepository @Inject constructor(
         return byKey.values.sortedBy { it.label.lowercase() }
     }
 
+    /**
+     * Reassign which wheel a trip was ridden on.
+     *
+     * Rewrites BOTH the database row and the CSV's Extra column, so the app,
+     * a shared file and eucviewer agree. The original CSV is kept alongside as
+     * `.bak` until the rewrite succeeds, then replaced atomically-ish, because a
+     * half-written trip file would be unrecoverable.
+     *
+     * This never touches an existing leaderboard entry: the caller warns the
+     * rider when [TripRecord.eucstatsStatus] says the ride is already up there.
+     *
+     * @return true when the row was updated
+     */
     suspend fun changeTripWheel(trip: TripRecord, wheel: WheelChoice): Boolean {
         val file = getTripFile(trip)
         if (file.exists()) {
             val tmp = File(file.parentFile, file.name + ".rewrite")
-            val ok = runCatching { TripDerive.rewriteWheelIdentity(file, tmp, wheel.extraFields()) >= 0 }
+            val ok = runCatching { TripDerive.rewriteWheelIdentity(file, tmp, wheel.extraFields()); true }
                 .getOrElse { e ->
                     Log.e(TAG, "Wheel rewrite failed for ${trip.fileName}", e)
                     runCatching { tmp.delete() }
@@ -1296,7 +1300,7 @@ class TripRepository @Inject constructor(
         val file = getTripFile(trip)
         if (file.exists()) {
             val tmp = File(file.parentFile, file.name + ".rewrite")
-            val ok = runCatching { TripDerive.rewriteTripName(file, tmp, clean) >= 0 }
+            val ok = runCatching { TripDerive.rewriteTripName(file, tmp, clean); true }
                 .getOrElse { e ->
                     Log.e(TAG, "Trip name rewrite failed for ${trip.fileName}", e)
                     runCatching { tmp.delete() }
@@ -1319,12 +1323,6 @@ class TripRepository @Inject constructor(
         return true
     }
 
-    /**
-     * Push a trip whose file was edited in place (rename / change wheel) back to
-     * the backup folder and Dropbox. The folder worker only walks uploadStatus
-     * 1/3, so the row is re-flagged first; Dropbox re-uploads on a size change.
-     * Best-effort and gated on the rider having each destination configured.
-     */
     /** Dropbox backup state for one trip, by file name. */
     suspend fun setDropboxStatusByName(fileName: String, status: Int, at: Long?) =
         tripDao.setDropboxStatusByName(fileName, status, at)
@@ -1333,6 +1331,12 @@ class TripRepository @Inject constructor(
      *  backup in the trip list. */
     suspend fun resyncTrip(tripId: Long) = resyncEditedTrip(tripId)
 
+    /**
+     * Push a trip whose file was edited in place (rename / change wheel) back to
+     * the backup folder and Dropbox. The folder worker only walks uploadStatus
+     * 1/3, so the row is re-flagged first; Dropbox re-uploads on a size change.
+     * Best-effort and gated on the rider having each destination configured.
+     */
     private suspend fun resyncEditedTrip(tripId: Long) {
         val appSettings = settingsRepository.get()
         val hasFolder = appSettings.syncFolderUri != null
@@ -1463,6 +1467,8 @@ class TripRepository @Inject constructor(
             if (f.extension.lowercase() in listOf("csv", "dbb")) f.delete()
         }
         tripDao.deleteAll()
+        // Nothing left on the phone to differ from the folder.
+        syncManager.recountFolderConflictsIfWarned()
     }
 
     fun getTripFile(trip: TripRecord): File = File(getTripsDir(), trip.fileName)

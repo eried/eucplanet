@@ -25,8 +25,6 @@ import com.eried.eucplanet.data.repository.WheelRepository
 import kotlinx.coroutines.flow.first
 import com.google.android.gms.tasks.Tasks
 import com.google.android.gms.wearable.Wearable
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -36,7 +34,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
-import javax.inject.Inject
 
 /**
  * Backs the Wheel Diagnostics dialog. Holds direct refs to the BLE manager
@@ -44,9 +41,8 @@ import javax.inject.Inject
  * command list comes through with no UI plumbing). Logger state is read
  * straight from the [DiagnosticsLogger] singleton.
  */
-@HiltViewModel
-class WheelDiagnosticsViewModel @Inject constructor(
-    @ApplicationContext private val context: Context,
+class WheelDiagnosticsViewModel(
+    private val context: Context,
     private val bleManager: BleConnectionManager,
     private val wheelAdapter: WheelAdapter,
     private val wheelRepository: WheelRepository,
@@ -158,8 +154,6 @@ class WheelDiagnosticsViewModel @Inject constructor(
         }
     }
 
-    fun diagnosticCommands(): List<DiagnosticCommand> = wheelAdapter.getDiagnosticCommands()
-
     /**
      * Service Mode is research-grade: a user with a V14 in front of them
      * still benefits from being able to browse the KingSong or Veteran
@@ -194,19 +188,6 @@ class WheelDiagnosticsViewModel @Inject constructor(
         bleManager.writeCommand(cmd.bytes)
     }
 
-    /**
-     * Frame format the Raw tab wraps the user's bytes in before sending.
-     *
-     *  - LITERAL: bytes go on the wire as typed (Begode / Veteran / V1
-     *    research path; also any protocol where the user wants full control).
-     *  - WRAP_EXTENDED: InMotion V2 extended-routing
-     *    `aa aa 16 LL 02 21 [user...] [xor]`. First user byte is the cmd.
-     *  - WRAP_V14_SHORT: InMotion V14 short-form
-     *    `aa aa 16 LL [flags] [cmd] [data...] [xor]`. First user byte is cmd.
-     *  - WRAP_KINGSONG: KingSong 20-byte
-     *    `aa 55 [00*14] [type] 14 5a 5a` with user bytes filling the 14
-     *    payload slots and the LAST user byte going into [type].
-     */
     /**
      * Frame format the Raw tab wraps the user's bytes in before sending.
      *
@@ -342,16 +323,6 @@ class WheelDiagnosticsViewModel @Inject constructor(
         val hex = "%02x".format(value)
         DiagnosticsLogger.comment("inspect: $messageType[$offset] = 0x$hex ($value)")
     }
-
-    /** Message-type prefixes the Inspect tab can subscribe to. The strings
-     *  must match the prefix the adapter writes via DiagnosticsLogger.note. */
-    /**
-     * Flat list of inspect prefixes across all wheel families. Kept for
-     * back-compat with the existing single-list dropdown until the UI
-     * fully migrates to the per-family picker via [allWheelFamilies].
-     */
-    val inspectMessageTypes: List<String>
-        get() = allWheelFamilies().flatMap { it.inspectPrefixes }
 
     /**
      * Categories the user can opt into when attaching extra context to the

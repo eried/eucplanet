@@ -37,16 +37,13 @@ import com.eried.eucplanet.hud.protocol.HudState
 import com.eried.eucplanet.hud.ui.HudUnits
 import com.eried.eucplanet.hud.ui.parseHexColor
 import kotlin.math.abs
-import kotlin.math.cos
-import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.sin
 import kotlin.math.tan
 import kotlin.math.PI
 
 // Top-level constants so the draw lambdas don't rebuild these lists on
 // every frame -- at 5 Hz the allocation churn was material (see
-// SideEffect comment in TelemetryScreen above).
+// SideEffect comment in TelemetryScreen below).
 private val PITCH_LADDER_TICKS = intArrayOf(-30, -20, -10, 10, 20, 30)
 private val G_RING_FRACTIONS = floatArrayOf(0.33f, 0.66f, 1.0f)
 
@@ -131,8 +128,7 @@ fun TelemetryScreen(hud: HudState) {
                         // values; "%.0f%%".format() was firing a fresh
                         // Formatter + StringBuilder every 200 ms.
                         currentLabel = "${hud.pwm.toInt()}%",
-                        lineColor = pwmColor(hud.pwm, hud.gaugeOrangeThresholdPct, hud.gaugeRedThresholdPct, accent),
-                        accent = accent
+                        lineColor = pwmColor(hud.pwm, hud.gaugeOrangeThresholdPct, hud.gaugeRedThresholdPct, accent)
                     )
                 }
             }
@@ -200,14 +196,14 @@ private fun Panel(
 
 /** Wheel-grade artificial horizon. Sky/ground bands tilt with roll;
  *  horizon line offsets vertically with pitch. Roll degrees written at
- *  the top-left for read-off precision. */
+ *  the bottom-right for read-off precision. */
 @Composable
 private fun ArtificialHorizon(rollDeg: Float, pitchDeg: Float, accent: Color) {
     Box(Modifier.fillMaxSize()) {
         Canvas(Modifier.fillMaxSize()) {
             val cx = size.width / 2f
             val cy = size.height / 2f
-            // Pitch maps to vertical offset; 1° = 1% of canvas height.
+            // Pitch maps to vertical offset: 45° is half the canvas height.
             val pitchOffset = (pitchDeg / 45f) * (size.height / 2f)
 
             rotate(degrees = rollDeg, pivot = Offset(cx, cy)) {
@@ -274,8 +270,7 @@ private fun Sparkline(
     min: Float,
     max: Float,
     currentLabel: String,
-    lineColor: Color,
-    accent: Color
+    lineColor: Color
 ) {
     // Reuse one Path across frames. Allocating a new Path per draw at
     // 5 Hz with two sparklines on screen was the second-biggest GC
@@ -290,9 +285,6 @@ private fun Sparkline(
             val range = (max - min).coerceAtLeast(0.0001f)
             val step = w / (samples.size - 1).coerceAtLeast(1)
             path.reset()
-            // Manual iterator-free traversal via the deque's iterator
-            // protocol: ArrayDeque exposes a fast iterator that doesn't
-            // box the element values, which is what we want here.
             var i = 0
             for (v in samples) {
                 val x = pad + i * step

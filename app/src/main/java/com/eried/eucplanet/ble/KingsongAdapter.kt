@@ -3,8 +3,6 @@ package com.eried.eucplanet.ble
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.diagnostics.DiagnosticCommand
 import com.eried.eucplanet.diagnostics.DiagnosticsLogger
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * KingSong wheel adapter. Recognises KS-* / S22 / S20 / S18 family wheels on
@@ -15,8 +13,7 @@ import javax.inject.Singleton
  * frames are 20-byte fixed-length structures `AA 55 ... type 14 5A 5A`,
  * dispatched by the type byte at offset 16.
  */
-@Singleton
-class KingsongAdapter @Inject constructor() : WheelAdapter {
+class KingsongAdapter : WheelAdapter {
     override val familyId = "kingsong"
     override val familyDisplayName = "KingSong"
     override val capabilities = WheelCapabilities.KINGSONG
@@ -389,9 +386,11 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
                 KingsongCommands.horn(), HORN),
 
             // --- Light: cycle off / on / auto ---
-            DiagnosticCommand("T73_12", "Turn headlight off",
+            // The label suffix is the wire byte at offset 2: 0x13 = off,
+            // 0x12 = on, 0x14 = auto (see KingsongCommands.setLightMode).
+            DiagnosticCommand("T73_13", "Turn headlight off",
                 KingsongCommands.setLightMode(0), LIGHT),
-            DiagnosticCommand("T73_13", "Turn headlight on",
+            DiagnosticCommand("T73_12", "Turn headlight on",
                 KingsongCommands.setLightMode(1), LIGHT),
             DiagnosticCommand("T73_14", "Set headlight to auto mode",
                 KingsongCommands.setLightMode(2), LIGHT),

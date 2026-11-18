@@ -1,5 +1,6 @@
 package com.eried.eucplanet.hud
 
+import android.content.Intent
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -13,9 +14,11 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
+import com.eried.eucplanet.hud.update.HudAppUpdate
 import com.eried.eucplanet.hud.net.HudServer
 import com.eried.eucplanet.hud.net.HudTileCache
 import com.eried.eucplanet.hud.ui.HudApp
+import com.eried.eucplanet.hud.ui.HudKeys
 import com.eried.eucplanet.hud.ui.HudSessionState
 import com.eried.eucplanet.hud.ui.HudUiController
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -28,7 +31,7 @@ import kotlinx.coroutines.launch
  * The HUD is a kiosk-style device: app is always foreground, no system bars,
  * navigation is exclusively via the IR remote (LEFT/RIGHT/UP/DOWN/CENTER/ESC).
  * We intercept key events at the Activity level so even Compose-internal focus
- * handling doesn't swallow them, the four screens are not "focusable" widgets
+ * handling doesn't swallow them, the screens are not "focusable" widgets
  * in the Compose sense, they're a custom carousel driven by [HudUiController].
  */
 class HudActivity : ComponentActivity() {
@@ -56,12 +59,11 @@ class HudActivity : ComponentActivity() {
     private val releasePending = HashMap<Int, Runnable>()
     private val singleTapPending = HashMap<Int, Runnable>()
     private val consumed = java.util.HashSet<Int>()
-    // One shared tile cache for the lifetime of the activity. Both the
-    // Map screen and the Custom overlay's MAP element read from this, so
-    // tiles fetched on either side stay warm when the rider navigates
-    // away and back. Without this lift, each screen used to allocate a
-    // fresh empty HudTileCache on entry -- the rider saw the checker-
-    // board placeholder every time they returned to a map view.
+    // One tile cache for the Map and MapNav screens, kept for the
+    // lifetime of the activity so tiles stay warm when the rider
+    // navigates away and back. A cache per screen entry would show the
+    // placeholder every time they returned to a map view. The Custom
+    // overlay's MAP element keeps its own cache.
     private val tileCache = HudTileCache()
     // Activity-scoped session accumulators (Power sparkline buffer, trip
     // stats, safety-screen sag baseline). Survive screen switches so the
@@ -103,6 +105,30 @@ class HudActivity : ComponentActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         controller = HudUiController()
+        // The rider's camera pick (UP) and turn (DOWN) survive a restart:
+        // a MotoEye that reports its rear camera as the front one needs it
+        // set once, not every ride.
+        val cameraPrefs = getSharedPreferences(CAMERA_PREFS, MODE_PRIVATE)
+        val savedIndex = cameraPrefs.getInt(PREF_CAMERA_INDEX, 0)
+        val rotations = cameraPrefs.all.mapNotNull { (key, value) ->
+            val i = key.removePrefix(PREF_CAMERA_ROTATION_PREFIX).toIntOrNull()
+            if (key.startsWith(PREF_CAMERA_ROTATION_PREFIX) && i != null && value is Int) i to value else null
+        }.toMap().toMutableMap()
+        // The first build kept one turn for every camera; it belongs to the
+        // camera that was showing.
+        if (cameraPrefs.contains(PREF_CAMERA_ROTATION_LEGACY) && savedIndex !in rotations) {
+            rotations[savedIndex] = cameraPrefs.getInt(
+                PREF_CAMERA_ROTATION_LEGACY, HudUiController.DEFAULT_CAMERA_ROTATION
+            )
+        }
+        controller.restoreCamera(savedIndex, rotations)
+        controller.onCameraChanged = { index, rotation ->
+            cameraPrefs.edit()
+                .putInt(PREF_CAMERA_INDEX, index)
+                .putInt(PREF_CAMERA_ROTATION_PREFIX + index, rotation)
+                .remove(PREF_CAMERA_ROTATION_LEGACY)
+                .apply()
+        }
         server = HudServer(applicationContext)
         // OK / Nav buttons enqueue commands back to the phone over the
         // WebSocket. Queued in HudServer so a tap during a momentary
@@ -149,17 +175,28 @@ class HudActivity : ComponentActivity() {
                 .collect { tileCache.applyStyle(it) }
         }
 
+        // The phone sent a HUD app: straight to Android's own prompt. The
+        // rider asked for it on the phone and Android asks here, a question
+        // of ours in between was one OK too many.
+        lifecycleScope.launch {
+            HudAppUpdate.arrived.collect { p -> if (p != null) HudAppUpdate.install(this@HudActivity) }
+        }
+
+        // The phone asked for this app to be removed: Android's own prompt
+        // asks the rider, nothing goes without their answer on the HUD.
+        lifecycleScope.launch {
+            HudAppUpdate.removeAsked.collect { asked -> if (asked) HudAppUpdate.remove(this@HudActivity) }
+        }
+
         setContent {
             HudApp(
                 state = server.state,
                 status = server.status,
-                peer = server.peer,
                 localIp = server.localIp,
                 versionCompat = server.versionCompat,
                 controller = controller,
                 tileCache = tileCache,
-                sessionState = sessionState,
-                onCommand = server::sendCommand
+                sessionState = sessionState
             )
         }
     }
@@ -168,6 +205,26 @@ class HudActivity : ComponentActivity() {
         dpadHandler.removeCallbacksAndMessages(null)
         server.stop()
         super.onDestroy()
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        if (intent.action == HudAppUpdate.ACTION_INSTALL_STATUS) {
+            HudAppUpdate.onInstallStatus(this, intent)
+        }
+    }
+
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        // The line about an update that did not install takes the next key.
+        if (HudAppUpdate.problem.value != null) {
+            if (event.action == KeyEvent.ACTION_UP) HudAppUpdate.dismissProblem()
+            return true
+        }
+        when (event.action) {
+            KeyEvent.ACTION_DOWN -> controller.noteKey(event.keyCode, down = true, atMs = event.eventTime)
+            KeyEvent.ACTION_UP -> controller.noteKey(event.keyCode, down = false, atMs = event.eventTime)
+        }
+        return super.dispatchKeyEvent(event)
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
@@ -221,8 +278,21 @@ class HudActivity : ComponentActivity() {
             KeyEvent.KEYCODE_BUTTON_R1 -> { controller.nextScreen(); true }
             KeyEvent.KEYCODE_DPAD_CENTER,
             KeyEvent.KEYCODE_ENTER -> { controller.centerAction(); true }
-            else -> super.onKeyDown(keyCode, event)
+            else -> {
+                // The MotoEye camera button (rear view, recorder) needs the
+                // camera: free it before the MotoEye asks, and pass the key on.
+                if (HudKeys.handsOffCamera(keyCode)) controller.handOffCamera(byKey = true, reason = "key $keyCode")
+                super.onKeyDown(keyCode, event)
+            }
         }
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        // The MotoEye rear view or recorder came up over the HUD and wants
+        // the camera, even when its button never reached us.
+        if (!hasFocus) controller.handOffCamera(reason = "focus")
+        controller.onHudFocus(hasFocus)
     }
 
     override fun onKeyLongPress(keyCode: Int, event: KeyEvent?): Boolean {
@@ -338,5 +408,9 @@ class HudActivity : ComponentActivity() {
          *  upgrades the gesture to a double-tap. Covers the human "lift" gap
          *  (~100-250 ms) between the two taps. */
         const val DOUBLE_TAP_MS: Long = 280L
+        const val CAMERA_PREFS = "hud_camera"
+        const val PREF_CAMERA_INDEX = "camera_index"
+        const val PREF_CAMERA_ROTATION_PREFIX = "camera_rotation_"
+        const val PREF_CAMERA_ROTATION_LEGACY = "camera_rotation"
     }
 }

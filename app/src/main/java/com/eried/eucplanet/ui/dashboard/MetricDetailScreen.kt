@@ -1,5 +1,6 @@
 package com.eried.eucplanet.ui.dashboard
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -74,7 +75,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.MetricRegistry
 import com.eried.eucplanet.data.model.WheelData
@@ -87,6 +87,7 @@ import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.remap
 import com.eried.eucplanet.util.GraphBounds
 import com.eried.eucplanet.util.GraphScale
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * Legacy enum kept for the 6 buffered metrics whose detail rendering has
@@ -143,7 +144,7 @@ fun MetricDetailScreen(
     metricKeys: List<String>,
     onBack: () -> Unit,
     initialTabIndex: Int = 0,
-    viewModel: MetricDetailViewModel = hiltViewModel()
+    viewModel: MetricDetailViewModel = koinViewModel()
 ) {
     val keys = remember(metricKeys) { metricKeys.filter { it.isNotBlank() } }
     if (keys.isEmpty()) {
@@ -159,8 +160,8 @@ fun MetricDetailScreen(
     val safeIdx = selectedIdx.coerceIn(0, keys.lastIndex)
     val activeKey = keys[safeIdx]
 
-    val fullHistory by viewModel.fullHistory.collectAsState()
-    val wheelData by viewModel.wheelData.collectAsState()
+    val fullHistory by viewModel.fullHistory.collectAsStateWithLifecycle()
+    val wheelData by viewModel.wheelData.collectAsStateWithLifecycle()
     val speedUnit by viewModel.speedUnit.collectAsState()
     val tempUnit by viewModel.tempUnit.collectAsState()
     val distanceUnit by viewModel.distanceUnit.collectAsState()
@@ -244,9 +245,8 @@ fun MetricDetailScreen(
 
                 // Reset footer. Tap = reset active tab's metric history;
                 // long-press = open confirm dialog, then wipe ALL buffers.
-                // The old "Reset all" button is gone, collapsed into a
-                // long-press gesture so the toolbar reads cleaner and the
-                // destructive action is harder to fire accidentally.
+                // A long-press keeps the toolbar clean and makes the
+                // destructive action harder to fire accidentally.
                 ResetWithLongPressConfirm(
                     onResetActive = { viewModel.resetHistory(activeKey) },
                     onRequestResetAll = { showResetAllConfirm = true }
@@ -827,9 +827,8 @@ internal fun MetricGraph(
      */
     showMainLine: Boolean = true,
     /**
-     * Shaded / dotted bands on the left axis, drawn behind the lines on the
-     * shared left-axis bounds. See [GraphBandSpec]. The Packs chart passes one
-     * filled band per pack plus a dotted pack-average envelope.
+     * Shaded bands on the left axis, drawn behind the lines on the shared
+     * left-axis bounds. See [GraphBandSpec].
      */
     bands: List<GraphBandSpec> = emptyList(),
     /**
@@ -1168,10 +1167,10 @@ internal fun MetricGraph(
                 }
             }
 
-            // Prediction line: a dashed straight segment from the last recorded
-            // point to the predicted 100% target. The rider can scrub along it
-            // and read the projected % at any future minute -- a plain linear
-            // extrapolation, drawn under the marker dots so they sit on top.
+            // Prediction path: dashed legs from the last recorded point through
+            // each predicted point. The rider can scrub along it and read the
+            // projected % at any future minute. Drawn under the marker dots so
+            // they sit on top.
             if (predictionPath.isNotEmpty()) {
                 val lastS = samples.last()
                 var prevX = w * (lastS.timestampMs - xMinMs).toFloat() / xSpanMs
@@ -1225,9 +1224,8 @@ internal fun MetricGraph(
                 val tTargetExtended = xMinMs + (frac * xSpanMs.toDouble()).toLong()
                 val inHistory = tTargetExtended <= tN
                 // Value at the cursor time. In the recorded region we interpolate
-                // the samples; past "now" we follow the straight prediction line
-                // to the target (100%); past the target it is null so nothing is
-                // drawn (no more pinning the last recorded % across the future).
+                // the samples; past "now" we follow the prediction legs; past
+                // the last point it is null so nothing is drawn.
                 val value: Float? = when {
                     inHistory -> {
                         val li = samples.indexOfLast { it.timestampMs <= tTargetExtended }.coerceIn(0, samples.size - 1)

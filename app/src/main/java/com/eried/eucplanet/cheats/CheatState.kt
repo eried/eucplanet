@@ -3,8 +3,6 @@ package com.eried.eucplanet.cheats
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Quake-style console cheats activated from the Settings search bar.
@@ -31,8 +29,7 @@ import javax.inject.Singleton
  * can react with normal Compose recomposition. [godmode] is a StateFlow too
  * so the AlarmEngine can gate per-tick cheaply.
  */
-@Singleton
-class CheatState @Inject constructor() {
+class CheatState {
 
     private val _speedDisplayMultiplier = MutableStateFlow(1f)
     /** Multiplier applied to the displayed speed (dashboard + watch face). 1.0 = no cheat. */

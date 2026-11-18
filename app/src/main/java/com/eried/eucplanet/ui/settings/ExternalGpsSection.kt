@@ -40,13 +40,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedFieldColors
 import com.eried.eucplanet.ui.theme.themedSwitchColors
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * Section in the Integration tab for pairing/unpairing an external BLE GPS box.
@@ -58,8 +58,8 @@ import com.eried.eucplanet.ui.theme.themedSwitchColors
  */
 @Composable
 fun ExternalGpsSection(
-    viewModel: ExternalGpsViewModel = hiltViewModel(),
-    settingsViewModel: SettingsViewModel = hiltViewModel()
+    viewModel: ExternalGpsViewModel = koinViewModel(),
+    settingsViewModel: SettingsViewModel = koinViewModel()
 ) {
     val pairedAddress by viewModel.pairedAddress.collectAsState()
     val pairedName by viewModel.pairedName.collectAsState()
@@ -81,7 +81,7 @@ fun ExternalGpsSection(
             checked = settings?.gpsShowOnDashboard == true,
             onCheckedChange = { settingsViewModel.updateGpsShowOnDashboard(it) }
         )
-        HintText(stringResource(R.string.gps_show_on_dashboard_desc), small = true)
+        HintText(stringResource(R.string.gps_show_on_dashboard_desc))
 
         Spacer(Modifier.height(8.dp))
         Text(
@@ -91,7 +91,7 @@ fun ExternalGpsSection(
         )
 
         if (pairedAddress == null) {
-            HintText(stringResource(R.string.external_gps_caption), small = true)
+            HintText(stringResource(R.string.external_gps_caption))
             UnpairedExternalGpsCard(
                 scanning = scanning,
                 results = scanResults,
@@ -146,7 +146,7 @@ fun ExternalGpsSection(
                 stringResource(R.string.external_gps_axes_title),
                 style = MaterialTheme.typography.titleSmall
             )
-            HintText(stringResource(R.string.external_gps_axes_desc), small = true)
+            HintText(stringResource(R.string.external_gps_axes_desc))
 
             val axisOptions = listOf(
                 "X" to "X",
@@ -202,7 +202,7 @@ fun ExternalGpsSection(
             checked = settings?.gpsPrioritizeExternal == true,
             onCheckedChange = { settingsViewModel.updateGpsPrioritizeExternal(it) }
         )
-        HintText(stringResource(R.string.gps_prioritize_external_desc), small = true)
+        HintText(stringResource(R.string.gps_prioritize_external_desc))
         }   // end BringIntoViewSection
     }
 
@@ -251,6 +251,7 @@ private fun InlineAxisDropdown(
             value = currentLabel,
             onValueChange = {},
             readOnly = true,
+            singleLine = true,
             label = { Text(label) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier

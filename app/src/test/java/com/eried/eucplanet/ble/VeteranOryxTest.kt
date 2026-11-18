@@ -87,4 +87,16 @@ class VeteranOryxTest {
         assertEquals(0.9f, d.current, 0.05f)
         assertEquals(41.17f, d.maxTemperature, 0.05f)
     }
+
+    @Test
+    fun `long frame still requires a valid CRC`() {
+        val valid = VeteranAdapter()
+        assertEquals(1, valid.onRawNotification(ORYX_FORWARD)
+            .filterIsInstance<DecodeResult.Telemetry>().size)
+
+        val corrupted = ORYX_FORWARD.copyOf().also { it[18] = (it[18].toInt() xor 1).toByte() }
+        val invalid = VeteranAdapter()
+        assertEquals(0, invalid.onRawNotification(corrupted)
+            .filterIsInstance<DecodeResult.Telemetry>().size)
+    }
 }

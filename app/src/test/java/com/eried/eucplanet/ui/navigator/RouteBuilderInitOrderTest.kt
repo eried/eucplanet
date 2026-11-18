@@ -24,4 +24,13 @@ class RouteBuilderInitOrderTest {
             assertTrue("$flow is declared below init and is null while a cold share is consumed", decl < init)
         }
     }
+
+    /** A share into a fresh view model must see the planned stops, or it skips
+     *  the "Add shared destination?" question and replaces the route. */
+    @Test fun `shares wait for the route to be restored`() {
+        val src = File("src/main/java/com/eried/eucplanet/ui/navigator/RouteBuilderViewModel.kt").readText()
+        val wait = src.indexOf("restoreReady.await()")
+        val collect = src.indexOf("incomingShareRepository.pending.collect")
+        assertTrue("shares are not gated on the restore", wait in 1 until collect)
+    }
 }

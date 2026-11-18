@@ -13,7 +13,6 @@ import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.flic.FlicManager
 import com.eried.eucplanet.nav.NavigationEngine
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -22,8 +21,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Phone-side companion to the Zepp OS watch app in `amazfit-watch-app/`.
@@ -39,11 +36,10 @@ import javax.inject.Singleton
  *
  * Inject-and-forget: `EucPlanetApp.onCreate()` calls [start] once and the
  * bridge lives for the whole process. With no watch polling it costs a
- * listening loopback socket and a once-a-second bookkeeping tick.
+ * listening loopback socket and a bookkeeping tick every five seconds.
  */
-@Singleton
-class AmazfitBridge @Inject constructor(
-    @ApplicationContext private val context: Context,
+class AmazfitBridge(
+    private val context: Context,
     private val wheelRepository: WheelRepository,
     private val settingsRepository: SettingsRepository,
     private val cheatState: com.eried.eucplanet.cheats.CheatState,
@@ -60,6 +56,8 @@ class AmazfitBridge @Inject constructor(
          *  long enough to ride out the Zepp app being backgrounded for a bit,
          *  short enough that a closed watch app drops off the Settings card. */
         private const val PRESENCE_WINDOW_MS = 15_000L
+        /** Bookkeeping pace while no watch polls. */
+        private const val NO_WATCH_TICK_MS = 5_000L
         /** How long the QUIT path waits for the watch to fetch the event before
          *  giving up; the process is usually about to die right after. */
         private const val QUIT_WAIT_MS = 1_500L
@@ -73,7 +71,6 @@ class AmazfitBridge @Inject constructor(
      *  wheel is connected again, so a watch that polls during tear-down sees
      *  the dial zero out instead of the last live frame. */
     @Volatile private var farewell = false
-    private var server: AmazfitLocalServer? = null
 
     /** Name of the watch currently polling, or empty when none has polled in
      *  the last [PRESENCE_WINDOW_MS]. Feeds the Settings "Devices" card. */
@@ -86,7 +83,7 @@ class AmazfitBridge @Inject constructor(
     val deliveryRateHz: StateFlow<Double> = _deliveryRateHz
 
     /** Epoch millis of the last `/state` poll. The Settings card reads this
-     *  through the same 3 s window it uses for Garmin's Live badge. */
+     *  through PairedSurface.AMAZFIT_LIVE_WINDOW_MS for the Live badge. */
     private val _lastSuccessAtMs = MutableStateFlow(0L)
     val lastSuccessAtMs: StateFlow<Long> = _lastSuccessAtMs
 
@@ -101,7 +98,6 @@ class AmazfitBridge @Inject constructor(
             while (true) {
                 val s = AmazfitLocalServer(AMAZFIT_PORT, ::handle) { msg -> Log.w(TAG, msg) }
                 if (s.start()) {
-                    server = s
                     Log.i(TAG, "listening on 127.0.0.1:${s.boundPort}")
                     return@launch
                 }
@@ -113,10 +109,14 @@ class AmazfitBridge @Inject constructor(
         // Presence + rate bookkeeping, once a second.
         scope.launch {
             val alpha = 0.25
+            var lastTickMs = System.currentTimeMillis()
             while (true) {
                 delay(1_000L)
                 val now = System.currentTimeMillis()
-                val instant = inbox.takePollCount().toDouble()
+                // Polls per second over however long this tick really was: the
+                // idle wait below makes some ticks five seconds long.
+                val instant = inbox.takePollCount() * 1000.0 / (now - lastTickMs).coerceAtLeast(1L)
+                lastTickMs = now
                 _deliveryRateHz.value = alpha * instant + (1 - alpha) * _deliveryRateHz.value
                 val names = if (inbox.hasPolledWithin(PRESENCE_WINDOW_MS, now)) {
                     listOf(inbox.watchName.ifBlank { DEFAULT_NAME })
@@ -126,6 +126,11 @@ class AmazfitBridge @Inject constructor(
                 if (names != _pairedDevices.value) _pairedDevices.value = names
                 if (farewell && wheelRepository.connectionState.value == ConnectionState.CONNECTED) {
                     farewell = false
+                }
+                // No watch polling: nothing to count, look again later.
+                if (names.isEmpty() && instant == 0.0) {
+                    _deliveryRateHz.value = 0.0
+                    delay(NO_WATCH_TICK_MS - 1_000L)
                 }
             }
         }

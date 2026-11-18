@@ -21,11 +21,10 @@ package com.eried.eucplanet.tpms
  * Checked against the published packet
  * 83 EA CA 40 61 81 C8 1C 04 00 0B 0B 00 00 4B 00, which reads as 269 kPa,
  * 28.27 C and 75 percent battery. Four independent fields all landing on
- * believable values is the evidence the rider's own sensor never produced.
+ * believable values is the evidence that the layout is right.
  *
- * Not the rider's sensor. Theirs advertises under a squatted id with a payload
- * where nothing moves when the tyre does, and this decoder deliberately does
- * not try to stretch to cover it.
+ * Not the LY family, which advertises under a squatted id and has its own
+ * decoder ([LyTpmsDecoder]).
  */
 object ZeepinTpmsDecoder {
 

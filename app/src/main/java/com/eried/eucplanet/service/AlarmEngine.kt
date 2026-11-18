@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.Log
 import com.eried.eucplanet.data.db.AlarmDao
 import com.eried.eucplanet.data.model.AlarmMetric
-import com.eried.eucplanet.util.MetricSanity
 import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.data.model.ExternalGpsSample
 import com.eried.eucplanet.data.model.RadarFrame
@@ -12,7 +11,6 @@ import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.diagnostics.DiagnosticsLogger
 import com.eried.eucplanet.util.VibratorHelper
 import com.eried.eucplanet.wear.WatchVibrator
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,13 +27,10 @@ import kotlinx.coroutines.sync.withLock
 import java.util.Locale
 import com.eried.eucplanet.R
 import com.eried.eucplanet.car.CarAlarmNotification
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.math.absoluteValue
 
-@Singleton
-class AlarmEngine @Inject constructor(
-    @ApplicationContext private val context: Context,
+class AlarmEngine(
+    private val context: Context,
     private val alarmDao: AlarmDao,
     private val tonePlayer: TonePlayer,
     private val voiceService: VoiceService,
@@ -45,8 +40,8 @@ class AlarmEngine @Inject constructor(
     // Which wheel is live right now, for rules bound to a single wheel.
     private val bleConnectionManager: com.eried.eucplanet.ble.BleConnectionManager,
     // Lazy so the Trip <-> ExternalGps <-> Alarm provider chain can't form a
-    // Hilt cycle. Supplies the phone location stream for the GPS_SPEED metric.
-    private val tripRepositoryProvider: javax.inject.Provider<com.eried.eucplanet.data.repository.TripRepository>
+    // DI cycle. Supplies the phone location stream for the GPS_SPEED metric.
+    private val tripRepositoryProvider: Lazy<com.eried.eucplanet.data.repository.TripRepository>
 ) {
     companion object {
         private const val TAG = "AlarmEngine"
@@ -121,7 +116,7 @@ class AlarmEngine @Inject constructor(
         // not the wheel loop, so they work with no wheel connected. Only fresh
         // fixes with a speed reading tick the evaluator.
         scope.launch {
-            tripRepositoryProvider.get().currentLocation.collect { loc ->
+            tripRepositoryProvider.value.currentLocation.collect { loc ->
                 // Altitude comes off the same fix, so a fix carrying only one
                 // of the two still ticks the evaluator for that one.
                 if (loc != null && (loc.hasSpeed() || loc.hasAltitude())) evaluateGpsSpeed(loc)
@@ -137,8 +132,8 @@ class AlarmEngine @Inject constructor(
      * Per metric, the *most severe* matching rule fires -- not the first one in
      * the list. So two speed alarms at 30 and 35 both work: crossing 35 fires
      * the 35 rule even though the 30 rule is also (still) matched and may be
-     * mid-cooldown. Order in the list no longer changes which alarm you get,
-     * which kills the old "the lower alarm ate the higher one" bug. Each rule
+     * mid-cooldown. Within a metric, order in the list does not change which
+     * alarm you get, so a lower alarm cannot eat a higher one. Each rule
      * keeps its own cooldown / edge state, so escalating through tiers fires
      * each tier once as you reach it.
      */
@@ -152,7 +147,7 @@ class AlarmEngine @Inject constructor(
             // Read inside the launch so we always see the latest store value.
             if (settingsRepository.currentOrLoad().alarmsMuted) { stopConstantTone(); return@withLock }
             // Rules bound to a specific wheel only run while THAT wheel is the
-            // connected one; unbound rules behave exactly as before.
+            // connected one; unbound rules always run.
             val pass = AlarmWheelPass.evaluate(
                 evaluator,
                 currentEnabledRules(),
@@ -173,6 +168,7 @@ class AlarmEngine @Inject constructor(
                 val su = com.eried.eucplanet.util.Units.effectiveSpeedUnit(s)
                 val du = com.eried.eucplanet.util.Units.effectiveDistanceUnit(s)
                 val tu = com.eried.eucplanet.util.Units.effectiveTempUnit(s)
+                val pu = com.eried.eucplanet.util.Units.effectivePressureUnit(s)
                 for (f in fired) {
                     val rule = byId[f.ruleId] ?: continue
                     // A constant-tone alarm sounds via the streaming tone above; skip its
@@ -183,7 +179,7 @@ class AlarmEngine @Inject constructor(
                         "Alarm fired: '${rule.name}' ${rule.metric} ${rule.comparator} ${rule.threshold} value=${f.value}" +
                             (rule.wheelAddress?.let { " wheel=${rule.wheelName ?: it}" } ?: "")
                     )
-                    executeActions(rule, data, f.value, su, du, tu)
+                    executeActions(rule, data, f.value, su, du, tu, pu)
                 }
             }
 
@@ -286,11 +282,12 @@ class AlarmEngine @Inject constructor(
     /**
      * External-GPS-side evaluator. Called from
      * [com.eried.eucplanet.data.repository.ExternalGpsRepository] on each new
-     * sample. Only handles [AlarmMetric.EXTERNAL_GPS_BATTERY]; walks the same
-     * per-rule cooldown state as the wheel path so a low-battery rule fires
-     * once as the box crosses the threshold. A sample whose battery is null
-     * (Dragy before its first FD04 read, or a frame without the field) is a
-     * no-reading SKIP, so the rule state just waits rather than resetting.
+     * sample. Handles [AlarmMetric.EXTERNAL_GPS_BATTERY] and
+     * [AlarmMetric.EXTERNAL_GPS_SPEED]; walks the same per-rule cooldown state
+     * as the wheel path so a low-battery rule fires once as the box crosses
+     * the threshold. A sample whose battery is null (Dragy before its first
+     * FD04 read, or a frame without the field) is a no-reading SKIP, so the
+     * rule state just waits rather than resetting.
      */
     fun evaluateExternalGps(sample: ExternalGpsSample) {
         if (cheatState.godmode.value) return
@@ -400,18 +397,35 @@ class AlarmEngine @Inject constructor(
                 }
             }
             if (rule.voiceEnabled && rule.voiceText.isNotBlank()) {
-                voiceService.speak(expandExternalGpsTemplate(rule.voiceText, rule, triggerValue))
+                val s = settingsRepository.currentOrLoad()
+                voiceService.speak(
+                    expandExternalGpsTemplate(
+                        rule.voiceText, rule, triggerValue,
+                        com.eried.eucplanet.util.Units.effectiveSpeedUnit(s),
+                        com.eried.eucplanet.util.Units.effectiveTempUnit(s),
+                        com.eried.eucplanet.util.Units.effectivePressureUnit(s),
+                    )
+                )
             }
         }
     }
 
-    private fun expandExternalGpsTemplate(template: String, rule: AlarmRule, triggerValue: Float): String {
+    private fun expandExternalGpsTemplate(
+        template: String,
+        rule: AlarmRule,
+        triggerValue: Float,
+        speedUnit: String,
+        tempUnit: String,
+        pressureUnit: String,
+    ): String {
         val metricLabel = try { context.getString(AlarmMetric.valueOf(rule.metric).voiceLabelRes) } catch (_: Exception) { rule.metric }
+        // {value} and {threshold} read in the rider's units, so a GPS speed
+        // alarm set in mph speaks mph. Same text as the editor's voice preview.
         return template
-            .replace("{value}", "%.0f".format(triggerValue))
+            .replace("{value}", spokenAlarmValue(rule.metric, triggerValue, speedUnit, tempUnit, pressureUnit))
             .replace("{battery}", "%.0f".format(triggerValue))
             .replace("{metric}", metricLabel)
-            .replace("{threshold}", "%.0f".format(rule.threshold))
+            .replace("{threshold}", spokenAlarmValue(rule.metric, rule.threshold, speedUnit, tempUnit, pressureUnit))
     }
 
     private fun getRadarMetricValue(metric: String, frame: RadarFrame): Float? {
@@ -481,7 +495,7 @@ class AlarmEngine @Inject constructor(
         }.onFailure { Log.w(TAG, "car alarm notification failed", it) }
     }
 
-    private fun executeActions(rule: AlarmRule, data: WheelData, triggerValue: Float, speedUnit: String, distanceUnit: String, tempUnit: String) {
+    private fun executeActions(rule: AlarmRule, data: WheelData, triggerValue: Float, speedUnit: String, distanceUnit: String, tempUnit: String, pressureUnit: String) {
         // Vibrate fires immediately; beep and voice are sequenced so the beep
         // finishes before the voice speaks.
         if (rule.vibrateEnabled) {
@@ -504,7 +518,7 @@ class AlarmEngine @Inject constructor(
                 }
             }
             if (rule.voiceEnabled && rule.voiceText.isNotBlank()) {
-                val text = expandTemplate(rule.voiceText, rule, data, triggerValue, speedUnit, distanceUnit, tempUnit)
+                val text = expandTemplate(rule.voiceText, rule, data, triggerValue, speedUnit, distanceUnit, tempUnit, pressureUnit)
                 voiceService.speak(text)
             }
         }
@@ -517,15 +531,17 @@ class AlarmEngine @Inject constructor(
         triggerValue: Float,
         speedUnit: String,
         distanceUnit: String,
-        tempUnit: String
+        tempUnit: String,
+        pressureUnit: String
     ): String {
         val metricLabel = try { context.getString(AlarmMetric.valueOf(rule.metric).voiceLabelRes) } catch (_: Exception) { rule.metric }
-        // {value} and {threshold} are converted using the rule's own metric, speed
-        // alarm in mph reads mph, temperature alarm in °F reads °F, everything else
-        // stays in its native unit (battery %, PWM %, voltage V, current A).
-        val metricForThreshold = try { AlarmMetric.valueOf(rule.metric) } catch (_: Exception) { null }
-        val convertedValue = convertForMetric(metricForThreshold, triggerValue, speedUnit, tempUnit)
-        val convertedThreshold = convertForMetric(metricForThreshold, rule.threshold, speedUnit, tempUnit)
+        // {value} and {threshold} are read in the rider's units for the rule's own
+        // metric: a speed alarm in mph reads mph, a temperature alarm in °F reads
+        // °F, a 3 bar tyre alarm reads "3.0" and a 1.5 g one "1.5". Everything else
+        // stays in its native unit (battery %, PWM %, voltage V, current A). The
+        // editor's voice preview calls the same function, so the two cannot differ.
+        val spokenValue = spokenAlarmValue(rule.metric, triggerValue, speedUnit, tempUnit, pressureUnit)
+        val spokenThreshold = spokenAlarmValue(rule.metric, rule.threshold, speedUnit, tempUnit, pressureUnit)
         val speedConverted = com.eried.eucplanet.util.Units.speed(data.speed.absoluteValue, speedUnit)
         val tempConverted = com.eried.eucplanet.util.Units.temperature(data.maxTemperature, tempUnit)
         val tripConverted = com.eried.eucplanet.util.Units.distance(data.tripDistance, distanceUnit)
@@ -540,15 +556,8 @@ class AlarmEngine @Inject constructor(
             .replace("{voltage}", String.format(Locale.US, "%.1f", data.voltage))
             .replace("{current}", String.format(Locale.US, "%.1f", data.current.absoluteValue))
             .replace("{trip}", String.format(Locale.US, "%.1f", tripConverted))
-            .replace("{value}", "%.0f".format(convertedValue))
+            .replace("{value}", spokenValue)
             .replace("{metric}", metricLabel)
-            .replace("{threshold}", "%.0f".format(convertedThreshold))
+            .replace("{threshold}", spokenThreshold)
     }
-
-    private fun convertForMetric(metric: AlarmMetric?, valueInternal: Float, speedUnit: String, tempUnit: String): Float =
-        when (metric) {
-            AlarmMetric.SPEED -> com.eried.eucplanet.util.Units.speed(valueInternal, speedUnit)
-            AlarmMetric.TEMPERATURE -> com.eried.eucplanet.util.Units.temperature(valueInternal, tempUnit)
-            else -> valueInternal
-        }
 }

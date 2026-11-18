@@ -1,7 +1,5 @@
 package com.eried.eucplanet.data.repository
 
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,8 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
  * Singleton scope so the request survives the trip from MainActivity's
  * onNewIntent through Compose Navigation into the RouteBuilderViewModel.
  */
-@Singleton
-class IncomingShareRepository @Inject constructor() {
+class IncomingShareRepository {
 
     /**
      * A place hint extracted from the shared payload. Coordinates are
@@ -78,7 +75,12 @@ class IncomingShareRepository @Inject constructor() {
                 if (q != null) {
                     val decoded = java.net.URLDecoder.decode(q, "UTF-8")
                     val coords = parseCoords(decoded)
-                    if (coords != null) return Pending(lat = coords.first, lng = coords.second)
+                    if (coords != null) {
+                        // geo:0,0?q=lat,lng(Name): the name in brackets labels the stop.
+                        val label = Regex("""\(([^)]*)\)\s*$""").find(decoded)
+                            ?.groupValues?.get(1)?.trim()?.takeIf { it.isNotEmpty() }
+                        return Pending(lat = coords.first, lng = coords.second, label = label)
+                    }
                     return Pending(query = decoded)
                 }
                 val coords = parseCoords(afterScheme.substringBefore('?'))

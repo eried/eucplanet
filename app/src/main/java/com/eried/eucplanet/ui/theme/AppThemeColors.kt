@@ -22,8 +22,9 @@ import org.json.JSONObject
  * theme editor is closed, reading a token costs the same as reading
  * `MaterialTheme.colorScheme.*` and never triggers an extra recomposition.
  *
- * To add a token: add the field here, add a [ThemeTokens] spec entry (so it
- * serializes + shows in the editor), and set it in every built-in.
+ * To add a token: add the field here (default [Color.Unspecified]), a
+ * [fillDerived] fallback, and a [ThemeTokens] spec entry (so it serializes +
+ * shows in the editor).
  */
 @Immutable
 data class AppThemeColors(
@@ -100,6 +101,8 @@ data class AppThemeColors(
     val hint: Color = Color.Unspecified,
     /** Battery envelope trip graph: distinct from the raw battery line. */
     val chartEnvelope: Color = Color.Unspecified,
+    /** Trip Details compare: the other trip (B), apart from every metric hue. */
+    val chartCompare: Color = Color.Unspecified,
     /** Ridability forecast: the good end of the score scale (light blue). */
     val weatherGood: Color = Color.Unspecified,
     /** Ridability forecast: the bad end of the score scale (magenta). */
@@ -150,7 +153,7 @@ data class AppThemeColors(
     val routeDrive: Color = Color.Unspecified,
     val routeStraight: Color = Color.Unspecified,
     val routePreview: Color = Color.Unspecified,
-    // Trip Details: the mid-ride wheel-change marker + trace onward + the
+    // Trip Details: the mid-ride wheel-change square + trace onward + the
     // Extra-details "new wheel" row. Purple, distinct from the amber live /
     // scrub position marker so a wheel change never reads as the cursor.
     val wheelChange: Color = Color.Unspecified,
@@ -176,6 +179,7 @@ fun AppThemeColors.fillDerived(): AppThemeColors = copy(
     link = link.takeOrElse { primary },
     hint = hint.takeOrElse { textSecondary },
     chartEnvelope = chartEnvelope.takeOrElse { Color(0xFF40C4FF) },
+    chartCompare = chartCompare.takeOrElse { Color(0xFFF06292) },
     weatherGood = weatherGood.takeOrElse { Color(0xFF40C4FF) },
     weatherBad = weatherBad.takeOrElse { Color(0xFFE040FB) },
     // Temp and wind follow the theme's own metric hues, so a custom theme
@@ -189,8 +193,8 @@ fun AppThemeColors.fillDerived(): AppThemeColors = copy(
     tileLabel = tileLabel.takeOrElse { textSecondary },
     cornerStatLabel = cornerStatLabel.takeOrElse { textSecondary },
     dashIcon = dashIcon.takeOrElse { statusGood },
-    // Two thirds of the way to black keeps it unmistakably the same hue while
-    // separating clearly from statusGood at icon size.
+    // Darkened to 62 % brightness: clearly the same hue, clearly apart from
+    // statusGood at icon size.
     cloudBackupOnly = cloudBackupOnly.takeOrElse {
         Color(
             red = statusGood.red * 0.62f,
@@ -225,7 +229,7 @@ fun AppThemeColors.fillDerived(): AppThemeColors = copy(
     routeDrive = routeDrive.takeOrElse { Color(0xFFFB8C00) },
     routeStraight = routeStraight.takeOrElse { Color(0xFF42A5F5) },
     routePreview = routePreview.takeOrElse { Color(0xFFFFCA28) },
-    // Matches the map's wheel-change hex (#AB47BC) so the map circle/trace and
+    // Matches the map's wheel-change hex (#AB47BC) so the map square/trace and
     // the Extra-details row read as the same "new wheel" colour.
     wheelChange = wheelChange.takeOrElse { Color(0xFFAB47BC) },
     chargingAccent = chargingAccent.takeOrElse { statusGood },
@@ -279,12 +283,9 @@ fun AppThemeColors.toColorScheme(): ColorScheme {
         outline = outline,
         outlineVariant = outline,
         scrim = scrim,
-        // The surfaceContainer family, which the comment above claimed was
-        // already covered and was not. Material3 paints its own components from
-        // these rather than from `surface`, so every AlertDialog in the app was
-        // coming out in Material's pale lavender no matter what theme the rider
-        // had chosen, and the only ones that looked right were those that had
-        // been overridden by hand at the call site.
+        // The surfaceContainer family. Material3 paints its own components from
+        // these, not from `surface`, so unmapped they come out in Material's
+        // pale lavender whatever the theme.
         //
         // Mapped to the token that matches each component's job, so a dialog
         // takes the dialog colour, a dropdown the menu colour and a bottom
@@ -357,6 +358,7 @@ object ThemeTokens {
         ThemeTokenSpec("metricPosition", "Position", GROUP_METRIC, { it.metricPosition }, { c, v -> c.copy(metricPosition = v) }),
         ThemeTokenSpec("metricAccel", "Acceleration", GROUP_METRIC, { it.metricAccel }, { c, v -> c.copy(metricAccel = v) }),
         ThemeTokenSpec("chartEnvelope", "Battery envelope", GROUP_METRIC, { it.chartEnvelope }, { c, v -> c.copy(chartEnvelope = v) }),
+        ThemeTokenSpec("chartCompare", "Compared trip", GROUP_METRIC, { it.chartCompare }, { c, v -> c.copy(chartCompare = v) }),
         ThemeTokenSpec("weatherGood", "Ridability good", GROUP_METRIC, { it.weatherGood }, { c, v -> c.copy(weatherGood = v) }),
         ThemeTokenSpec("weatherBad", "Ridability bad", GROUP_METRIC, { it.weatherBad }, { c, v -> c.copy(weatherBad = v) }),
         ThemeTokenSpec("weatherTemp", "Weather temperature", GROUP_METRIC, { it.weatherTemp }, { c, v -> c.copy(weatherTemp = v) }),
@@ -485,11 +487,6 @@ object ThemeJson {
         }
         return result
     }
-
-    fun colorsToString(c: AppThemeColors): String = colorsToJson(c).toString()
-
-    fun colorsFromString(s: String, fallback: AppThemeColors): AppThemeColors? =
-        runCatching { colorsFromJson(JSONObject(s), fallback) }.getOrNull()
 }
 
 /**

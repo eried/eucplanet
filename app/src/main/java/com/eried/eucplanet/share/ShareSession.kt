@@ -10,7 +10,6 @@ import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.data.sync.SyncManager
 import com.eried.eucplanet.data.eucstats.EucStatsApiContract
 import com.eried.eucplanet.service.WheelService
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -31,8 +30,6 @@ import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import org.json.JSONObject
 import java.util.concurrent.ConcurrentHashMap
-import javax.inject.Inject
-import javax.inject.Singleton
 
 data class Identity(val mode: IdentityMode, val name: String, val color: String, val icon: String?,
                     val avatarUrl: String?, val flag: String?, val shareStats: Boolean)
@@ -70,9 +67,8 @@ sealed class ShareState {
 val ShareState.Joined.activePeers: List<PeerState>
     get() = peers.values.filter { !it.left && it.freshness != Freshness.LOST }
 
-@Singleton
-class ShareSession @Inject constructor(
-    @ApplicationContext private val context: Context,
+class ShareSession(
+    private val context: Context,
     private val settingsRepository: SettingsRepository,
     private val tripRepository: TripRepository,
     private val wheelRepository: WheelRepository,
@@ -164,7 +160,7 @@ class ShareSession @Inject constructor(
         return ShareCrypto.hmacSha256(ShareCrypto.unb64u(secret), roomId.toByteArray())
     }
 
-    /** "Rider #NNNN" from the room id bytes: the same phone keeps the same
+    /** "Rider #NNNN" from this phone's sender id in the room: the same phone keeps the same
      *  number in the same room across rejoins. */
     private fun anonymousName(idBytes: ByteArray): String {
         val v = ((idBytes[0].toInt() and 0xFF) shl 8) or (idBytes[1].toInt() and 0xFF)
@@ -379,7 +375,7 @@ class ShareSession @Inject constructor(
      * instead of freezing until the peer goes LOST.
      */
     fun ageTick() { val now = System.currentTimeMillis()
-        // A rider who left, or went silent, stays greyed only while their trail
+        // A rider who said they left stays greyed only while their trail
         // is still fading; after that there is nothing left to show, and an
         // anonymous rider who rejoins under a new id would otherwise pile up
         // orphans for the whole ride.

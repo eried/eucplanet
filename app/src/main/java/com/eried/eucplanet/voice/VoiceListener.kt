@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
  * reasons. It lets the whole chain be tested without a microphone, and it lets
  * the listening UI be driven on an emulator, which has no microphone to speak
  * into. The fake is the same fixture idea as the virtual wheels: real enough to
- * exercise the code that matters, and gated behind Service Mode.
+ * exercise the code that matters. The unit tests use it.
  */
 interface VoiceListener {
 

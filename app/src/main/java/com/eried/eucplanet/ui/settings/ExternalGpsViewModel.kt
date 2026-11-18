@@ -15,8 +15,6 @@ import com.eried.eucplanet.data.model.ExternalGpsSample
 import com.eried.eucplanet.data.model.ExternalGpsSource
 import com.eried.eucplanet.data.repository.ExternalGpsRepository
 import com.eried.eucplanet.data.repository.SettingsRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -29,7 +27,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /**
  * Drives the External GPS section of the Integration settings tab.
@@ -39,12 +36,11 @@ import javax.inject.Inject
  * "no device paired → scan card" and "device X paired → status card" without
  * blocking on suspend reads.
  */
-@HiltViewModel
-class ExternalGpsViewModel @Inject constructor(
+class ExternalGpsViewModel(
     private val repository: ExternalGpsRepository,
     private val scanner: ExternalGpsScanner,
     private val settingsRepository: SettingsRepository,
-    @ApplicationContext private val context: Context
+    private val context: Context
 ) : ViewModel() {
 
     val connectionState: StateFlow<ConnectionState> = repository.connectionState
@@ -223,8 +219,8 @@ class ExternalGpsViewModel @Inject constructor(
     private var autoDetectJob: Job? = null
 
     /** Output axis we assign each captured raw axis to. Convention:
-     *   forward (axis X) = lateral push of the wheel direction of travel
-     *   lateral (axis Y) = side-to-side
+     *   lateral (axis X) = side-to-side
+     *   forward (axis Y) = direction of travel
      *   vertical (axis Z) = up/down
      * which mirrors the rider's body frame and the existing crosshair plot. */
     fun startAutoDetect(onApply: (mapX: String, mapY: String, mapZ: String) -> Unit) {
@@ -251,8 +247,7 @@ class ExternalGpsViewModel @Inject constructor(
                 kotlinx.coroutines.delay(1000)
                 val lateral = repository.captureDominantAxis(2000) ?: "X"
 
-                // Vertical: slowly lower the device to the ground. Shorter
-                // window because the motion itself is brief (~2 s).
+                // Vertical: slowly lower the device to the ground.
                 _autoDetect.value = AutoDetectPhase.VerticalInstruct
                 nextSignal.first()
                 _autoDetect.value = AutoDetectPhase.VerticalCapture

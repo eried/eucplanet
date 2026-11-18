@@ -8,12 +8,9 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.eried.eucplanet.data.model.TripMeterSplit
 import com.eried.eucplanet.data.model.TripMeterState
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
 import org.json.JSONArray
 import org.json.JSONObject
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Persists the single [TripMeterState] as one JSON blob in its own DataStore
@@ -24,9 +21,8 @@ import javax.inject.Singleton
  * Lives in app-private storage (`<app>/files/datastore/eucplanet_trip_meter.preferences_pb`)
  * and survives app updates. A missing / unreadable blob restores a fresh meter.
  */
-@Singleton
-class TripMeterStore @Inject constructor(
-    @ApplicationContext private val context: Context,
+class TripMeterStore(
+    private val context: Context,
 ) {
     private val dataStore: DataStore<Preferences> get() = context.tripMeterDataStore
 

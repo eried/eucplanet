@@ -14,12 +14,10 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.math.abs
 
 /**
- * Forecast providers the rider can choose from. Both are keyless: Open-Meteo
+ * Forecast providers the rider can choose from. All are keyless: Open-Meteo
  * needs nothing at all, MET Norway asks only for an identifying User-Agent.
  * Adding a provider is one entry here plus its parser in [WeatherRepository];
  * the settings dropdown and the drift guard read this registry.
@@ -64,8 +62,7 @@ data class WeatherForecast(
  * the dashboard shows: it refetches only when the cache is older than
  * [FRESH_MS], the rider moved a few kilometres, or the source changed.
  */
-@Singleton
-class WeatherRepository @Inject constructor() {
+class WeatherRepository {
 
     private val client = OkHttpClient.Builder()
         .connectTimeout(10, TimeUnit.SECONDS)

@@ -9,7 +9,6 @@ import com.eried.eucplanet.data.repository.PhoneSensorRepository
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -18,7 +17,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /**
  * Aggregates the three live data sources (Phone IMU + GPS, Wheel BLE, optional
@@ -30,8 +28,7 @@ import javax.inject.Inject
  * stops it. The other two sources are already running app-wide (wheel BLE
  * loop and RaceBox GATT connection) so they need no explicit start/stop here.
  */
-@HiltViewModel
-class DataSourcesViewModel @Inject constructor(
+class DataSourcesViewModel(
     private val phoneSensors: PhoneSensorRepository,
     private val tripRepository: TripRepository,
     private val wheelRepository: WheelRepository,
@@ -40,10 +37,6 @@ class DataSourcesViewModel @Inject constructor(
 ) : ViewModel() {
 
     companion object {
-        // Trail length picked so a typical 50 Hz IMU sample stream gives ~1.5 s
-        // of history before old samples fade off the bottom of the alpha curve.
-        // Visually this maps to "a smooth tail behind the dot" rather than a
-        // full path replay.
         // Trail length on the X/Z g-force crosshair. RaceBox streams at ~25 Hz
         // and the phone IMU at ~50 Hz; 120 samples spans ~5 s of RaceBox or
         // ~2.5 s of phone, enough to follow a sustained corner without the
@@ -113,24 +106,6 @@ class DataSourcesViewModel @Inject constructor(
     }
     val speedSeries: Map<DataSource, StateFlow<TimedSeries>> =
         _speedSeries.mapValues { it.value.asStateFlow() }
-
-    private val _gMagnitudeSeries = DataSource.values().associateWith {
-        MutableStateFlow(TimedSeries())
-    }
-    val gMagnitudeSeries: Map<DataSource, StateFlow<TimedSeries>> =
-        _gMagnitudeSeries.mapValues { it.value.asStateFlow() }
-
-    private val _headingSeries = DataSource.values().associateWith {
-        MutableStateFlow(TimedSeries())
-    }
-    val headingSeries: Map<DataSource, StateFlow<TimedSeries>> =
-        _headingSeries.mapValues { it.value.asStateFlow() }
-
-    private val _vertSpeedSeries = DataSource.values().associateWith {
-        MutableStateFlow(TimedSeries())
-    }
-    val vertSpeedSeries: Map<DataSource, StateFlow<TimedSeries>> =
-        _vertSpeedSeries.mapValues { it.value.asStateFlow() }
 
     init {
         // Wire the sensor stream into the trail buffer. New samples land at
@@ -274,9 +249,6 @@ class DataSourcesViewModel @Inject constructor(
                         snap.speedKmh / curMul
                     else snap.speedKmh
                     appendSeries(_speedSeries[src], now, speedForBuffer)
-                    appendSeries(_gMagnitudeSeries[src], now, snap.horizGMagnitude)
-                    appendSeries(_headingSeries[src], now, snap.headingDeg)
-                    appendSeries(_vertSpeedSeries[src], now, snap.verticalSpeedMps)
                 }
             }
         }

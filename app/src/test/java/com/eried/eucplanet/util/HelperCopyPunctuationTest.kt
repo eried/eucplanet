@@ -74,6 +74,9 @@ class HelperCopyPunctuationTest {
         // Japanese and Chinese take a full-width stop; a Latin dot in the
         // middle of their own punctuation is the mistake this catches.
         val cjk = setOf("values-ja", "values-zh", "values-zh-rTW")
+        // Thai has no full stop: a sentence simply ends, and a space parts it
+        // from the next one.
+        val noStop = setOf("values-th")
         val en = File("src/main/res/values/strings.xml").readText()
         val expected = row.findAll(en)
             .filter { needsStop(it.groupValues[1], it.groupValues[2]) || true }
@@ -97,7 +100,7 @@ class HelperCopyPunctuationTest {
         for (dir in File("src/main/res").listFiles().orEmpty()) {
             if (!dir.isDirectory || !dir.name.startsWith("values-")) continue
             val file = File(dir, "strings.xml")
-            if (!file.exists()) continue
+            if (!file.exists() || dir.name in noStop) continue
             val stop = if (dir.name in cjk) "。" else "."
             row.findAll(file.readText()).forEach { m ->
                 val (name, body) = m.groupValues[1] to m.groupValues[2]

@@ -19,8 +19,6 @@ import com.eried.eucplanet.flic.FlicManager
 import com.eried.eucplanet.service.AutomationManager
 import com.eried.eucplanet.service.VoiceService
 import com.eried.eucplanet.service.WheelService
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -35,7 +33,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import javax.inject.Inject
 
 data class MetricHistory(
     val battery: List<Float> = emptyList(),
@@ -43,10 +40,9 @@ data class MetricHistory(
     val voltage: List<Float> = emptyList(),
     val current: List<Float> = emptyList(),
     val load: List<Float> = emptyList(),
-    val speed: List<Float> = emptyList(),
     /**
      * Sparkline / stat window for every non-legacy catalog metric, keyed by
-     * metric key (MOTOR_POWER, GPS_SPEED, MOTOR_TEMP, ...). Mirrors the six
+     * metric key (MOTOR_POWER, GPS_SPEED, MOTOR_TEMP, ...). Mirrors the
      * typed lists above but data-driven off [FullMetricHistory.extras], so the
      * dashboard's corner stats and sparklines work for any supportsStats tile,
      * not just the legacy six. Values are raw (WheelData canonical units); the
@@ -55,8 +51,7 @@ data class MetricHistory(
     val extras: Map<String, List<Float>> = emptyMap()
 )
 
-@HiltViewModel
-class DashboardViewModel @Inject constructor(
+class DashboardViewModel(
     private val wheelRepository: WheelRepository,
     private val settingsRepository: SettingsRepository,
     private val tripRepository: TripRepository,
@@ -78,7 +73,7 @@ class DashboardViewModel @Inject constructor(
     private val appNotifier: com.eried.eucplanet.util.AppNotifier,
     private val navigationEngine: com.eried.eucplanet.nav.NavigationEngine,
     private val voiceCommands: com.eried.eucplanet.voice.VoiceCommandController,
-    @ApplicationContext private val context: Context
+    private val context: Context
 ) : ViewModel() {
 
     /** Live list of user-actionable warnings (e.g. denied notification
@@ -205,9 +200,6 @@ class DashboardViewModel @Inject constructor(
             }
         }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    /** Fetch if stale (or [force]); needs a location fix of any age - the
-     *  forecast cell is kilometres wide, so a stale fix is still the right
-     *  weather. No fix at all leaves the flyout to say so. */
     /** Whether to ask for 15-minute steps: only worth it on a short window,
      *  where hourly dots leave the curve looking blocky, and only out to
      *  where the providers publish them. */
@@ -216,6 +208,9 @@ class DashboardViewModel @Inject constructor(
     /** The forecast waiting for a first location fix; see [refreshWeather]. */
     private var locationWait: kotlinx.coroutines.Job? = null
 
+    /** Fetch if stale (or [force]); needs a location fix of any age - the
+     *  forecast cell is kilometres wide, so a stale fix is still the right
+     *  weather. No fix at all leaves the flyout to say so. */
     fun refreshWeather(force: Boolean = false) {
         // No location, nothing to ask about. Returning quietly left the panel
         // reading "Fetching..." forever with nothing in flight, which is the
@@ -227,17 +222,17 @@ class DashboardViewModel @Inject constructor(
                 // With the permission and the location switch on, a fix is
                 // only a matter of time: say so, and fetch the moment one
                 // lands rather than leaving the panel to be reopened.
-                val canLocate = ContextCompat.checkSelfPermission(
-                    context, Manifest.permission.ACCESS_FINE_LOCATION,
-                ) == android.content.pm.PackageManager.PERMISSION_GRANTED &&
+                val canLocate = WeatherNoFix.canLocate(
+                    ContextCompat.checkSelfPermission(
+                        context, Manifest.permission.ACCESS_FINE_LOCATION,
+                    ) == android.content.pm.PackageManager.PERMISSION_GRANTED,
+                ) {
                     (context.getSystemService(android.content.Context.LOCATION_SERVICE)
                         as? android.location.LocationManager)
                         ?.let { androidx.core.location.LocationManagerCompat.isLocationEnabled(it) } == true
+                }
                 weatherRepository.reportNoLocation(
-                    context.getString(
-                        if (canLocate) R.string.weather_waiting_location
-                        else R.string.weather_error_no_location
-                    )
+                    context.getString(WeatherNoFix.messageRes(canLocate))
                 )
                 if (canLocate && locationWait?.isActive != true) {
                     locationWait = viewModelScope.launch {
@@ -352,8 +347,6 @@ class DashboardViewModel @Inject constructor(
 
     val locked: StateFlow<Boolean> = wheelRepository.locked
     val lockBusy: StateFlow<Boolean> = wheelRepository.lockBusy
-    // Proximity auto-lock automation on? Long-pressing the dashboard lock button
-    // toggles it - a quick shortcut without opening Settings.
     init {
         // Trips whose file differs between phone and backup folder; only the
         // rider can pick a side, in the sync conflict dialog. Set by the
@@ -372,7 +365,16 @@ class DashboardViewModel @Inject constructor(
                                 id = "backup_conflicts",
                                 titleRes = com.eried.eucplanet.R.string.backup_conflict_title,
                                 bodyRes = com.eried.eucplanet.R.string.backup_conflict_warning,
-                                settingsTab = 4,
+                                // Where to go, by the names on screen in this
+                                // language: the Fix button, the Trips backup
+                                // header it lands on, the Sync button there.
+                                // No count: the sync dialog gives it.
+                                bodyArgs = listOf(
+                                    com.eried.eucplanet.R.string.warnings_fix_button,
+                                    com.eried.eucplanet.R.string.section_cloud_trips,
+                                    com.eried.eucplanet.R.string.cloud_retry_now,
+                                ).map { com.eried.eucplanet.data.repository.WarningTextRes(it) },
+                                settingsTab = 13,
                             )
                         )
                     } else {
@@ -431,6 +433,8 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
+    // Proximity auto-lock automation on? Long-pressing the dashboard lock button
+    // toggles it - a quick shortcut without opening Settings.
     val autoLockEnabled: StateFlow<Boolean> = settingsRepository.settings
         .map { it.proximityLock.lockEnabled }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), initialSettings.proximityLock.lockEnabled)
@@ -485,8 +489,8 @@ class DashboardViewModel @Inject constructor(
      *
      * Emits a `Pair<speedKmh, sourceKey>` where sourceKey is "EXTERNAL" or
      * "PHONE" so the dashboard can pick the colour. Null when nothing to show.
-     * The speedometer renders a small accent-coloured marker on the dial and a
-     * numeric readout under the main speed when this is non-null.
+     * The speedometer renders a small accent-coloured marker on the dial when
+     * this is non-null.
      */
     val gpsExtraSpeed: StateFlow<Pair<Float, String>?> = kotlinx.coroutines.flow.combine(
         settingsRepository.settings,
@@ -506,11 +510,6 @@ class DashboardViewModel @Inject constructor(
             else -> null
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
-
-    /** Convenience: just the speed part of [gpsExtraSpeed] for legacy callers. */
-    val externalGpsSpeedKmh: StateFlow<Float?> = gpsExtraSpeed
-        .map { it?.first }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     /** External GPS box battery percent [0..100] for the optional dashboard
      *  tile, freshness-gated to 5 s so a dropped box doesn't leave a stale
@@ -552,10 +551,6 @@ class DashboardViewModel @Inject constructor(
                 PackageManager.PERMISSION_GRANTED ||
                 ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED
-
-    fun refreshLocationPermission() {
-        _locationPermissionGranted.value = hasLocationPermission()
-    }
 
     val tiltbackSpeed: StateFlow<Float> = settingsRepository.settings
         .map { it.tiltbackSpeedKmh }
@@ -965,8 +960,6 @@ class DashboardViewModel @Inject constructor(
         viewModelScope.launch { syncManager.restoreFactoryDefaults() }
     }
 
-    /** Whether a trip sync is running (disables the dev wizard's Sync button while
-     *  it works). */
     /**
      * A sync is happening, whether or not it is the one on screen.
      *
@@ -1031,12 +1024,6 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Send the family-specific "reset onboard trip meter" command to the
-     * wheel. Returns true on Veteran (CLEARMETER); false on every other
-     * family until a documented reset command is added. Callers should
-     * snackbar the result so riders know whether the tap took effect.
-     */
     /** Clears the trip meter and the metric history, and the wheel's own trip
      *  odometer where the family supports it. See [MetricsReset]. */
     suspend fun resetMetrics(): com.eried.eucplanet.data.repository.MetricsReset.Result =
@@ -1053,7 +1040,6 @@ class DashboardViewModel @Inject constructor(
                 voltage = full.voltage.takeLast(SPARKLINE_SIZE).map { it.value },
                 current = full.current.takeLast(SPARKLINE_SIZE).map { it.value },
                 load = full.load.takeLast(SPARKLINE_SIZE).map { it.value },
-                speed = full.speed.takeLast(SPARKLINE_SIZE).map { it.value },
                 // Same window as the legacy six, applied per extras buffer so
                 // every catalog metric's corner stats / sparkline resolve.
                 extras = full.extras.mapValues { (_, list) ->
@@ -1244,4 +1230,15 @@ class DashboardViewModel @Inject constructor(
         voiceService.shutdown()
         super.onCleared()
     }
+}
+
+/** What the weather panel says with no location fix. Pure so it can be tested. */
+internal object WeatherNoFix {
+    /** A fix is only a matter of time. [locationOn] is asked only with the permission. */
+    inline fun canLocate(hasPermission: Boolean, locationOn: () -> Boolean): Boolean =
+        hasPermission && locationOn()
+
+    fun messageRes(canLocate: Boolean): Int =
+        if (canLocate) R.string.weather_waiting_location
+        else R.string.weather_error_no_location
 }

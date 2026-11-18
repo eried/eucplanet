@@ -70,8 +70,8 @@ object InMotionV2Commands {
     // captures) and only responds to extended-routing queries `02 21 [sub]`.
     // Confirmed sub-commands seen on a real P6 (firmware A14219B): 0x06 info
     // bundle (serial + version), 0x07 realtime telemetry, 0x04 detailed data
-    // (carries motor temp), 0x20 settings. We poll info + realtime + detailed
-    // (for motor temp) + settings; ride history (sub 0x10/0x11) has a TLV-style
+    // (carries controller and battery temp), 0x20 settings. We poll info +
+    // realtime + detailed + settings; ride history (sub 0x10/0x11) has a TLV-style
     // layout we haven't reverse-engineered yet, so we don't poll it.
 
     fun getP6Info(): ByteArray =
@@ -82,7 +82,8 @@ object InMotionV2Commands {
 
     /**
      * Read settings page A (`02 21 20 [20]`). Comes back as a 51-byte body
-     * with current tiltback at offset 13-14 (uint16 LE / 100, km/h).
+     * with tiltback at d[8..9] and alarm at d[10..11] after the 0x20 echo
+     * (uint16 LE / 100, km/h).
      */
     fun getP6Settings(): ByteArray =
         InMotionV2Protocol.buildExtendedPacket(0x20, byteArrayOf(0x20))
@@ -90,9 +91,9 @@ object InMotionV2Commands {
     /** P6 detailed-data query (`02 21 04`). Response comes back as
      *  `21 02 84 [body]`. The InMotion app fires this without an arg (earlier
      *  preview tried `02 21 04 32` and the wheel ignored it). The response
-     *  carries the motor temperature at body[64] in Fahrenheit (matched to the
-     *  app's "Motor Temp 216 F" against a labelled ride) - see
-     *  parseP6DetailedData. Must be polled (pollStats) or it never arrives. */
+     *  carries the temperature block (motor body[59], controller body[61],
+     *  battery body[64], signed byte + 80 C), see parseP6DetailedData.
+     *  Must be polled (pollStats) or it never arrives. */
     fun getP6Stats(): ByteArray =
         InMotionV2Protocol.buildExtendedPacket(0x04, byteArrayOf())
 
@@ -183,7 +184,7 @@ object InMotionV2Commands {
      * Set the P6 **Speed Limit Alarm** (the threshold above which the wheel
      * beeps). Goes through `60 3e [v_lo v_hi 00 00]`, the same opcode the
      * InMotion app uses for any commit-to-flash scalar setting. Confirmed
-     * against `docs/P6_CAPTURE_LABELS.md`: 13679 = 136.79 km/h = 85 mph
+     * against a labelled capture: 13679 = 136.79 km/h = 85 mph
      * matched the on-screen 85 mph alarm value during the labelled capture.
      */
     fun setP6AlarmSpeed(alarmKmh: Float): ByteArray {

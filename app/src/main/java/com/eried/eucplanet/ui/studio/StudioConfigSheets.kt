@@ -43,8 +43,7 @@ import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.DirectionsBike
-import androidx.compose.material.icons.filled.DragIndicator
+import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.FolderOff
 import androidx.compose.material.icons.filled.FormatColorFill
 import androidx.compose.material.icons.filled.FormatColorReset
@@ -138,6 +137,8 @@ import com.eried.eucplanet.ui.theme.themedSwitchColors
 import com.eried.eucplanet.ui.theme.themedSliderColors
 import com.eried.eucplanet.ui.theme.themedTonalButtonColors
 import com.eried.eucplanet.ui.theme.themedFilterChipColors
+import com.eried.eucplanet.ui.common.appMenuItemColors
+import com.eried.eucplanet.ui.common.WheelIcon
 
 /** Which secondary sheet / dialog the studio is currently showing. */
 sealed interface StudioSheet {
@@ -242,7 +243,7 @@ private fun OverlayElementType.label(): String = stringResource(labelRes)
 
 private val OverlayElementType.icon
     get() = when (this) {
-        OverlayElementType.WHEEL_NAME -> Icons.Default.DirectionsBike
+        OverlayElementType.WHEEL_NAME -> WheelIcon
         OverlayElementType.APP_BADGE -> Icons.Default.Badge
         OverlayElementType.TEXT -> Icons.Default.TextFields
         OverlayElementType.DATA_VALUE -> Icons.Default.Numbers
@@ -407,6 +408,7 @@ private fun FlyoutItem(
             com.eried.eucplanet.ui.theme.PlatformUnsupportedTextBadge("HUD")
         }) else null,
         enabled = enabled,
+        colors = appMenuItemColors(),
         onClick = onClick
     )
 }
@@ -525,10 +527,11 @@ fun RotatedFullScreen(
 }
 
 /**
- * A right-docked, full-height panel for the studio's editing surfaces (Add
- * element, element properties, viewport, presets) live here instead of bottom
- * sheets. It rotates with [LocalStudioRotation] so it stays upright for a
- * rider holding the phone sideways. Tapping the scrim dismisses it.
+ * A right-docked panel for the studio's editing surfaces (Add element, element
+ * properties, viewport, presets), used instead of bottom sheets. It wraps its
+ * content up to 92 % of the height and rotates with [LocalStudioRotation] so
+ * it stays upright for a rider holding the phone sideways. Tapping the scrim
+ * dismisses it.
  */
 @Composable
 fun StudioSidePanel(
@@ -565,21 +568,23 @@ fun StudioSidePanel(
                         Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
                         content = content
                     )
-                    // The fade toggle floats in the top-right corner; the sheet
-                    // headers are left-aligned, so it never collides with them.
-                    if (onToggleDim != null) {
-                        IconButton(
-                            onClick = onToggleDim,
-                            modifier = Modifier.align(Alignment.TopEnd)
-                        ) {
-                            Icon(
-                                Icons.Default.Opacity,
-                                contentDescription =
-                                    stringResource(R.string.studio_replay_cd_fade),
-                                tint = if (dimmed) MaterialTheme.appColors.primary
-                                else MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                    // The fade toggle and the X float in the top-right corner;
+                    // SheetHeader keeps its title clear of them. The X is the
+                    // visible way out: a scrim tap is not something a rider
+                    // can see, and an iPhone has no system back.
+                    Row(modifier = Modifier.align(Alignment.TopEnd)) {
+                        if (onToggleDim != null) {
+                            IconButton(onClick = onToggleDim) {
+                                Icon(
+                                    Icons.Default.Opacity,
+                                    contentDescription =
+                                        stringResource(R.string.studio_replay_cd_fade),
+                                    tint = if (dimmed) MaterialTheme.appColors.primary
+                                    else MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                         }
+                        com.eried.eucplanet.ui.common.CloseIconButton(onClick = onDismiss)
                     }
                 }
             }
@@ -591,7 +596,6 @@ fun StudioSidePanel(
 // Add element
 // --------------------------------------------------------------------------
 
-@OptIn(ExperimentalMaterial3Api::class)
 /**
  * The Add-element list, in fixed groups. The groups and their order (and the
  * order within each group, English-alphabetical by element name) are the SAME
@@ -981,7 +985,7 @@ private fun PresetRow(
             Icon(
                 Icons.Default.Delete,
                 contentDescription = stringResource(R.string.studio_cd_delete_preset),
-                tint = MaterialTheme.colorScheme.error,
+                tint = MaterialTheme.appColors.statusDanger,
                 modifier = Modifier
                     .clip(CircleShape)
                     .clickable(onClick = onDelete)
@@ -1231,12 +1235,6 @@ private fun ImagePickRow(hasImage: Boolean, onPick: () -> Unit, onClear: () -> U
 }
 
 /**
- * Solid/gradient editor for the replay face: bridges [face]'s fill fields
- * through a throwaway [ViewportConfig] so it reuses [BackgroundEditor] (Solid
- * / Linear / Radial chips, swatches, gradient stops) verbatim instead of a
- * second copy of that editor.
- */
-/**
  * A tiny Photoshop-style transparency checkerboard, used as the Transparent
  * source chip's glyph. Reuses the same grey pair as the editor's replay
  * checkerboard so "transparent" reads consistently. The checker is a fixed
@@ -1263,6 +1261,12 @@ private fun TransparencyGlyph(description: String) {
     }
 }
 
+/**
+ * Solid/gradient editor for the replay face: bridges [face]'s fill fields
+ * through a throwaway [ViewportConfig] so it reuses [BackgroundEditor] (Solid
+ * / Linear / Radial chips, swatches, gradient stops) verbatim instead of a
+ * second copy of that editor.
+ */
 @Composable
 private fun ReplayBackgroundEditor(face: ViewportReplayFace, onChange: (ViewportReplayFace) -> Unit) {
     val bridge = ViewportConfig(
@@ -1287,6 +1291,9 @@ private fun ReplayBackgroundEditor(face: ViewportReplayFace, onChange: (Viewport
     }
 }
 
+/** Upper bound for the replay-video offset field (24h in ms) - well past any ride. */
+private const val MAX_VIDEO_OFFSET_MS = 86_400_000
+
 /**
  * The replay VIDEO face: pick / replace a clip (SAF [ActivityResultContracts.OpenDocument],
  * persisted read permission), the fit selector, and the offset controls that
@@ -1294,9 +1301,6 @@ private fun ReplayBackgroundEditor(face: ViewportReplayFace, onChange: (Viewport
  * inline "No media" hint once [videoHub] reports the uri invalid (moved file,
  * lost permission, undecodable) rather than a stale or silently blank pane.
  */
-/** Upper bound for the replay-video offset field (24h in ms) - well past any ride. */
-private const val MAX_VIDEO_OFFSET_MS = 86_400_000
-
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 private fun ReplayVideoEditor(
@@ -1376,10 +1380,8 @@ private fun ReplayVideoEditor(
     }
 
     Spacer(Modifier.height(12.dp))
-    // Laid out like an Advanced-settings numeric row: the standard NumberUpDown
-    // field (editable + hold-to-repeat 100 ms steppers) in the left column with a
-    // RestoreChip (default 0 ms) beneath it, and the "Set to current frame" action
-    // as a button on the right.
+    // The standard NumberUpDown field (editable + hold-to-repeat 100 ms steppers)
+    // at half width.
     NumberUpDown(
         value = face.videoOffsetMs.coerceIn(0L, MAX_VIDEO_OFFSET_MS.toLong()).toInt(),
         onValueChange = { onChange(face.copy(videoOffsetMs = it.toLong().coerceAtLeast(0L))) },
@@ -1773,7 +1775,7 @@ private fun GradientStopRow(
                 Icon(
                     Icons.Default.Delete,
                     contentDescription = stringResource(R.string.studio_cd_remove_stop),
-                    tint = MaterialTheme.colorScheme.error,
+                    tint = MaterialTheme.appColors.statusDanger,
                     modifier = Modifier
                         .clip(CircleShape)
                         .clickable(onClick = onRemove)
@@ -2086,11 +2088,6 @@ fun ElementConfigSheet(
                     "%.2f g".format(element.gForceScale),
                     element.gForceScale.coerceIn(0.5f, 4f), 0.5f, 4f, steps = 13
                 ) { onChange(element.copy(gForceScale = it)) }
-                // Smoothing slider was removed; the trail and dot now share
-                // their 50 Hz data source and stay visually connected without
-                // any artificial easing, the same way the live-data crosshair
-                // does it. gForceSmoothing remains on the data model for
-                // back-compat with saved presets but has no rendering effect.
             }
 
             if (element.type == OverlayElementType.MAP) {
@@ -2687,10 +2684,8 @@ private fun LabeledSlider(
     // Material3 Slider fires onValueChange on every drag tick even when the
     // (snapped) value hasn't moved, so without this filter a stepped slider
     // can still pump the whole preset graph at 60 Hz during a drag. Track the
-    // last value we forwarded and skip duplicates; for continuous sliders the
-    // value also bounces a few times per pixel; epsilon-compare on those.
+    // last value we forwarded and skip duplicates.
     var lastReported by remember(min, max, steps) { mutableStateOf(value) }
-    val epsilon = if (steps > 0) 0f else (max - min) * 0.001f
     Column(Modifier.padding(top = 8.dp)) {
         Row(Modifier.fillMaxWidth()) {
             Text(label, Modifier.weight(1f), fontWeight = FontWeight.SemiBold)
@@ -2700,7 +2695,7 @@ private fun LabeledSlider(
             value = value.coerceIn(min, max),
             onValueChange = {
                 val v = it.coerceIn(min, max)
-                if (kotlin.math.abs(v - lastReported) > epsilon || v != lastReported) {
+                if (v != lastReported) {
                     lastReported = v
                     onChange(v)
                 }
@@ -2727,7 +2722,9 @@ private fun ToggleRow(label: String, checked: Boolean, onChange: (Boolean) -> Un
 @Composable
 private fun SheetHeader(title: String, hudBadge: Boolean = false) {
     Row(
-        modifier = Modifier.padding(bottom = 12.dp),
+        // End padding keeps a long title clear of the fade toggle and the X
+        // that StudioSidePanel floats in its top-right corner.
+        modifier = Modifier.padding(end = 88.dp, bottom = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -2759,7 +2756,6 @@ private fun OverlayElement.summary(): String = when (type) {
 fun ManageElementsSheet(
     elements: List<OverlayElement>,
     canAddElement: Boolean,
-    canChangePanes: Boolean,
     snapToGrid: Boolean,
     onMove: (Int, Int) -> Unit,
     onSelect: (String) -> Unit,
@@ -2800,7 +2796,6 @@ fun ManageElementsSheet(
                 }
                 FilledTonalButton(
                     onClick = onChangePanes,
-                    enabled = canChangePanes,
                     shape = RoundedCornerShape(12.dp),
                     colors = themedTonalButtonColors(),
                 ) {
@@ -2835,7 +2830,7 @@ fun ManageElementsSheet(
             // Snap-to-grid lives at the bottom so it stays adjacent to the
             // element list (the action it affects) instead of competing
             // with Add / Panes at the top of the sheet. When ON, drag &
-            // resize round to a 5 dp grid; untouched elements stay at
+            // resize round to a 10 dp grid; untouched elements stay at
             // their exact saved coords (re-toggling OFF restores them).
             SnapToGridRow(snapToGrid, onSnapToGrid)
         }
@@ -2892,9 +2887,9 @@ private fun ManageElementRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            Icons.Default.DragIndicator,
+            Icons.Default.DragHandle,
             contentDescription = stringResource(R.string.studio_cd_drag_reorder),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            tint = MaterialTheme.appColors.textSecondary,
             modifier = dragHandle
         )
         Spacer(Modifier.width(8.dp))
@@ -2925,7 +2920,7 @@ private fun ManageElementRow(
         Icon(
             Icons.Default.Delete,
             contentDescription = stringResource(R.string.studio_cd_delete_element),
-            tint = MaterialTheme.colorScheme.error,
+            tint = MaterialTheme.appColors.statusDanger,
             modifier = Modifier
                 .clip(CircleShape)
                 .clickable(onClick = onDelete)

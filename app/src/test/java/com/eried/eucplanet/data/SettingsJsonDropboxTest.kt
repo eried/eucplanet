@@ -105,6 +105,31 @@ class SettingsJsonDropboxTest {
         assertEquals("base", merged.dropboxSettingsBaseHash)
     }
 
+    /** A factory reset reverts preferences and keeps what the rider paired,
+     *  tyre caps included: the factory JSON carries an empty sensor list, which
+     *  reads back as "no sensors" unless the reset copies the pairings over. */
+    @Test
+    fun factoryReset_revertsPreferences_keepsPairingsAndLinks() {
+        val defaults = AppSettings()
+        val current = defaults.copy(
+            share = defaults.share.copy(deviceSecret = "secret"),
+            tpms = defaults.tpms.copy(
+                pairedAddress = "T1", pairedAddresses = listOf("T1", "T2"), pressureUnit = "kpa"),
+            lastDeviceAddress = "AA:BB", syncFolderUri = "content://mine",
+            dropboxAccessToken = "tok",
+            alarmSpeedKmh = defaults.alarmSpeedKmh + 5f,
+        )
+        val reset = SettingsJson.factoryReset(current)
+        assertEquals(defaults.alarmSpeedKmh, reset.alarmSpeedKmh)          // preference reverted
+        assertEquals(defaults.tpms.pressureUnit, reset.tpms.pressureUnit)  // preference reverted
+        assertEquals("T1", reset.tpms.pairedAddress)                       // pairings kept
+        assertEquals(listOf("T1", "T2"), reset.tpms.pairedAddresses)
+        assertEquals("AA:BB", reset.lastDeviceAddress)
+        assertEquals("content://mine", reset.syncFolderUri)
+        assertEquals("tok", reset.dropboxAccessToken)
+        assertEquals("secret", reset.share.deviceSecret)
+    }
+
     /** Drift guard: every field [SettingsJson.stripDeviceBindings] blanks is this
      *  phone's own, so [SettingsJson.applyPortable] must keep it. A field added
      *  to the strip list and forgotten here would be wiped by every Dropbox pull. */

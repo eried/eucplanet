@@ -7,8 +7,6 @@ import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.nav.NavigationEngine
 import com.eried.eucplanet.util.Units
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -28,8 +26,7 @@ import kotlinx.coroutines.launch
  * the same repositories the dashboard uses; the render + encode are pure and
  * already unit-tested, so this class is just the wiring.
  */
-@Singleton
-class EngoHudRenderer @Inject constructor(
+class EngoHudRenderer(
     private val wheelRepository: WheelRepository,
     private val navigationEngine: NavigationEngine,
     private val settingsRepository: SettingsRepository,

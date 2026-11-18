@@ -1,9 +1,6 @@
 package com.eried.eucplanet.ui.common
 
 import android.content.Context
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Persists whether the user has seen the experimental-banner explainer dialog.
@@ -17,9 +14,8 @@ import javax.inject.Singleton
  * dialog leaves it false so the explainer shows again next click, that's
  * the user's stated UX preference.
  */
-@Singleton
-class ExperimentalBannerState @Inject constructor(
-    @ApplicationContext context: Context
+class ExperimentalBannerState(
+    context: Context
 ) {
     private val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
 

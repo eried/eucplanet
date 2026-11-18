@@ -16,15 +16,15 @@ import com.eried.eucplanet.data.model.WidgetMetricType
 import com.eried.eucplanet.data.model.WidgetSettings
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.service.WheelService
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 
 /**
- * Home screen widget: speed, trip distance and charge, plus a horn button and a
- * toggle for the periodic voice announcements.
+ * Home screen widget: three metrics and up to three buttons, all chosen by the
+ * rider.
  *
  * Built with RemoteViews rather than Compose or Glance because a widget is
  * inflated inside the launcher's process, where only the classic view set
@@ -43,10 +43,9 @@ import javax.inject.Inject
  * back to "No wheel" and dashes mid-ride until the next push. SharedPreferences
  * is read synchronously, which a broadcast receiver needs.
  */
-@AndroidEntryPoint
-class EucWidget : AppWidgetProvider() {
+class EucWidget : AppWidgetProvider(), KoinComponent {
 
-    @Inject lateinit var settingsRepository: SettingsRepository
+    val settingsRepository: SettingsRepository = get()
 
     override fun onUpdate(
         context: Context,
@@ -86,7 +85,7 @@ class EucWidget : AppWidgetProvider() {
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-        // Hilt injects inside its generated onReceive, so this must run first.
+        // The base class dispatches onUpdate and the other callbacks; run it first.
         super.onReceive(context, intent)
         if (intent.action != ACTION_TOGGLE_VOICE) return
 
@@ -162,14 +161,6 @@ class EucWidget : AppWidgetProvider() {
             get() = captions.any { it.isNotBlank() } || buttons.any { it.isNotBlank() }
 
         /**
-         * The rider's configured slots as labels, for the window between
-         * placing the widget and the first telemetry push.
-         *
-         * Through [buttonLabel] with no state, so these read exactly as they
-         * will once a wheel connects to something resting: "Light on", not the
-         * picker's "Light on / off".
-         */
-        /**
          * Re-label the VOICE slots from [voiceOn], leaving every other button
          * alone.
          *
@@ -194,6 +185,14 @@ class EucWidget : AppWidgetProvider() {
             )
         }
 
+        /**
+         * The rider's configured slots as labels, for the window between
+         * placing the widget and the first telemetry push.
+         *
+         * Through [buttonLabel] with no state, so these read exactly as they
+         * will once a wheel connects to something resting: "Light on", not the
+         * picker's "Light on / off".
+         */
         fun hydrate(context: Context, settings: WidgetSettings): Snapshot {
             val metricKeys = WidgetMetricType.slots(settings.metrics)
             val actionKeys = WidgetActionType.slots(settings.actions)

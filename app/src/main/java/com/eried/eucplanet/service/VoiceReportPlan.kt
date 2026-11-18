@@ -57,8 +57,7 @@ object VoiceReportPlan {
      * Only values the wheel itself sends. Ride time, average speed and trip
      * maximum are just as worth saying and are not here: they live in the trip
      * recorder rather than in a wheel packet, and reaching for them would put
-     * a repository behind a function that today takes only the packet. Worth
-     * doing, not worth smuggling into this change.
+     * a repository behind a function that today takes only the packet.
      */
     val EXTRA: List<MetricReport> = listOf(
         MetricReport(

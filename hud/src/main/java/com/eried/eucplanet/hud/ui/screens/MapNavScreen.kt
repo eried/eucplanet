@@ -36,18 +36,17 @@ import com.eried.eucplanet.hud.ui.parseHexColor
  *
  * Lives alongside the dedicated [MapScreen] and [NavScreen] so riders
  * who prefer the full-screen turn arrow can keep them in their carousel
- * via the phone Personalize list. This screen ships enabled by default;
- * the standalone ones default to opt-in.
+ * via the phone Personalize list.
  */
 @Composable
-fun MapNavScreen(hud: HudState, zoom: Float, peer: String?, cache: HudTileCache) {
+fun MapNavScreen(hud: HudState, zoom: Float, cache: HudTileCache, chrome: Boolean = true) {
     Box(Modifier.fillMaxSize()) {
         // Base layer is the same MapScreen renderer riders already know, // shares the tile cache, accent colour, contrast/brightness
         // settings, GPS-fix gating. No duplication.
-        MapScreen(hud = hud, zoom = zoom, peer = peer, cache = cache)
+        MapScreen(hud = hud, zoom = zoom, cache = cache, chrome = chrome)
 
         // Overlay only renders when an active route is set; otherwise the
-        // map shows clean. Two states: arrived shows a centred banner
+        // map shows clean. Two states: arrived shows a top-centre banner
         // (the map stays useful as "you ended up here"), otherwise the
         // top-centre turn badge mirrors the Garmin Edge layout.
         if (hud.navActive) {
@@ -56,6 +55,9 @@ fun MapNavScreen(hud: HudState, zoom: Float, peer: String?, cache: HudTileCache)
             } else {
                 NavTurnBadge(hud = hud)
             }
+        } else if (hud.navEta.isNotBlank()) {
+            // Between turns the badge is away; the arrival line stays.
+            NavEtaPill(hud = hud)
         }
     }
 }
@@ -64,7 +66,7 @@ fun MapNavScreen(hud: HudState, zoom: Float, peer: String?, cache: HudTileCache)
  * Top-centre badge, small turn arrow + distance + next-turn text.
  * Sized so a long street name like "Karl Johans gate" fits without
  * pushing the badge off the map. Same chrome family as the other HUD
- * overlays (8.dp rounded, semi-opaque black fill).
+ * overlays (10.dp rounded, semi-opaque black fill).
  */
 @Composable
 private fun BoxScope.NavTurnBadge(hud: HudState) {
@@ -97,13 +99,47 @@ private fun BoxScope.NavTurnBadge(hud: HudState) {
                 maxLines = 1,
                 modifier = Modifier.widthIn(max = 200.dp)
             )
+            // Arrival time and distance left, when the phone sends them.
+            if (hud.navEta.isNotBlank()) {
+                Text(
+                    text = hud.navEta,
+                    color = accent,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1
+                )
+            }
         }
     }
 }
 
 /**
- * "Arrived" pill, replaces the turn badge once the route ends. Centred
- * because there's no next-turn to point at, and kept compact so the
+ * Arrival time and distance left alone, top-centre, for the stretch
+ * between two turns when the turn badge is away.
+ */
+@Composable
+private fun BoxScope.NavEtaPill(hud: HudState) {
+    Box(
+        modifier = Modifier
+            .align(Alignment.TopCenter)
+            .padding(top = 12.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(Color(0xE6000000))
+            .padding(horizontal = 12.dp, vertical = 6.dp)
+    ) {
+        Text(
+            text = hud.navEta,
+            color = parseHexColor(hud.accentArgb),
+            fontSize = 14.sp,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 1
+        )
+    }
+}
+
+/**
+ * "Arrived" pill, replaces the turn badge once the route ends. Top-centre
+ * like the turn badge, and kept compact so the
  * underlying map (where the rider physically arrived) stays the focus.
  */
 @Composable

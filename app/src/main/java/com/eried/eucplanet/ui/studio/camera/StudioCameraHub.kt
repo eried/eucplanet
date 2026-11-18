@@ -99,19 +99,6 @@ class StudioCameraHub {
     /** The live Camera2 binding, kept so teardown can close it directly. */
     internal var binding: CameraBinding? = null
 
-    /**
-     * When true, frame conversion (YUV → ARGB → Bitmap) is skipped; the reader
-     * is still drained so the camera keeps delivering, but each [Feed] just
-     * closes the latest image instead of fanning row work out to the row pool.
-     * Use this while a full-screen config sheet is on top: the cameras keep
-     * their session open (so reopening the view is instant) but the per-frame
-     * CPU + bitmap churn is gone. Two-camera concurrent operation burns ~1.2
-     * cores of conversion otherwise, which is what froze the editor when the
-     * smoothing slider drag layered recompositions on top.
-     */
-    @Volatile
-    var convertPaused: Boolean = false
-
     fun frame(key: String): ImageBitmap? = frames[key]
     fun isLive(key: String): Boolean = key in liveKeys
     fun info(key: String): StudioCameraInfo? = cameras.firstOrNull { it.key == key }
@@ -226,9 +213,9 @@ fun rememberStudioCameraHub(requestedKeys: List<String>, enabled: Boolean): Stud
 // --- Enumeration -----------------------------------------------------------
 
 /**
- * List every logical camera, plus each physical lens behind it. Mirrors what
- * the old CameraX path produced: one entry per logical camera (the auto-
- * switching default), then one per physical sub-camera.
+ * List every logical camera, plus each physical lens behind it: one entry per
+ * logical camera (the auto-switching default), then one per physical
+ * sub-camera.
  */
 private fun enumerateCameras(cm: CameraManager): List<StudioCameraInfo> {
     val out = mutableListOf<StudioCameraInfo>()
@@ -267,7 +254,7 @@ private fun computeMaxConcurrent(cm: CameraManager, cameras: List<StudioCameraIn
     return if (concurrentPairs || multiPhysicalDevice) 2 else 1
 }
 
-/** Display rotation in degrees: the app is portrait-locked, so normally 0. */
+/** Display rotation in degrees. The Studio pins portrait, so normally 0. */
 private fun displayRotationDegrees(context: Context): Int {
     val rotation = runCatching {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -627,13 +614,6 @@ private class Feed(
         // Copy the planes off the Image fast, then release it; conversion is
         // slow and must not stall the reader's limited buffer pool.
         val image = runCatching { reader.acquireLatestImage() }.getOrNull() ?: return
-        // If a config sheet is on top the converted frame is invisible anyway;
-        // drain the reader so the camera stays healthy but skip the YUV→Bitmap
-        // work. This is what unfreezes the editor with two cameras streaming.
-        if (hub.convertPaused) {
-            runCatching { image.close() }
-            return
-        }
         val frame = try {
             YuvFrame.copyFrom(image)
         } catch (t: Throwable) {

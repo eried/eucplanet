@@ -1,16 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">EUC Planet</string>
-    <string name="watch_waiting_phone">Open EUC Planet\non your phone</string>
-    <string name="watch_waiting_wheel">Connect a wheel\nin EUC Planet</string>
     <string name="watch_disconnected">Disconnected</string>
-    <string name="watch_horn">Horn</string>
-    <string name="watch_light">Light</string>
     <string name="watch_speed_unit">km/h</string>
     <string name="watch_speed_unit_mph">mph</string>
     <string name="watch_speed_unit_ms" translatable="false">m/s</string>
     <string name="watch_speed_unit_kn" translatable="false">kn</string>
-    <string name="watch_battery_label">Battery</string>
     <string name="watch_voltage_label">Voltage</string>
     <string name="watch_current_label">Current</string>
     <string name="watch_pwm_label">PWM</string>
@@ -19,10 +14,6 @@
     <string name="watch_temp_label">Temp</string>
     <string name="watch_trip_label">Trip</string>
     <string name="watch_torque_label">Torque</string>
-    <string name="watch_action_failed">Couldn\'t reach phone</string>
-    <string name="watch_gps_label">GPS speed</string>
-    <string name="watch_gps_permission">Tap to allow GPS</string>
-    <string name="watch_gps_waiting">Waiting for fix…</string>
 
     <!-- Labels for hold-action triggers, shown in the watch's transient pill. Short so they fit. -->
     <string name="watch_action_horn">Horn</string>
@@ -40,6 +31,11 @@
     <string name="watch_action_media_prev">Previous track</string>
     <string name="watch_action_music_start">Start music</string>
     <string name="watch_action_media_pause">Pause music</string>
+    <string name="watch_action_phone_volume_up">Volume up</string>
+    <string name="watch_action_phone_volume_down">Volume down</string>
+    <string name="watch_action_phone_mute">Mute / unmute</string>
+    <string name="watch_action_phone_torch">Phone flashlight</string>
+    <string name="watch_action_engine_sound">Engine sound</string>
     <string name="watch_action_long_press_hint">Long press for %1$s</string>
     <string name="watch_map_phone_disconnected">No phone</string>
     <string name="watch_map_gps_permission">Allow GPS</string>

@@ -73,8 +73,8 @@ class FolderMirrorTest {
         // It is not enough to serialise the workers. The app runs a folder sync
         // on launch, which is precisely when a worker mirroring a restored
         // library is running, and both create files in the same folder.
-        assertTrue("runSync no longer holds the pass lock",
-            sync.contains("fun runSync() = withUploadPass { runSyncPass() }"))
+        val body = sync.substringAfter("fun runSync() = withUploadPass {").take(200)
+        assertTrue("runSync no longer holds the pass lock", body.contains("runSyncPass()"))
     }
 
     @Test fun `the worker fills the folder's gaps, not only its queue`() {
@@ -103,10 +103,16 @@ class FolderMirrorTest {
         assertTrue("the worker's listing is not keyed by the lowercased name",
             worker.contains("associateBy { it.lowercase() }"))
         assertTrue("the conflict count looks sizes up by the exact name",
-            worker.contains("sizeByLower[t.fileName.lowercase()]"))
+            com.eried.eucplanet.data.sync.countFolderConflicts(
+                mapOf("inmotion_v14.csv" to 9L), mapOf("Inmotion_V14.csv" to 8L)) == 1)
         assertTrue("uploadCsv looks the name up by its exact spelling",
             sync.contains("knownNames?.get(localFile.name.lowercase())"))
         assertTrue("the unguided lookup still matches by exact case",
             sync.contains("it.name.equals(localFile.name, ignoreCase = true)"))
+        // And the archive: a copy it could not find by exact name stayed in
+        // the folder, so the next sync brought a deleted trip back.
+        val archive = sync.substringAfter("private fun archiveInBackupFolder").take(1200)
+        assertTrue("archiving looks the folder copy up by exact case",
+            archive.contains("it.name.equals(fileName, ignoreCase = true)"))
     }
 }

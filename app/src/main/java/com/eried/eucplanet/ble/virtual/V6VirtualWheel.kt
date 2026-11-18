@@ -40,7 +40,12 @@ class V6VirtualWheel : VirtualWheel {
     }
 
     override fun onWrite(data: ByteArray): List<ByteArray> {
-        val packet = InMotionV2Protocol.parsePacket(data) ?: return emptyList()
+        // Like the real V6, an escaped checksum (A5 A5 / A5 AA) is one byte.
+        val n = data.size
+        val raw = if (n >= 2 && data[n - 2] == InMotionV2Protocol.ESCAPE &&
+            (data[n - 1] == InMotionV2Protocol.ESCAPE || data[n - 1] == InMotionV2Protocol.HEADER)
+        ) data.copyOfRange(0, n - 2) + data[n - 1] else data
+        val packet = InMotionV2Protocol.parsePacket(raw) ?: return emptyList()
         val cmd = packet.command.toInt() and 0x7F
         val d = packet.data
 

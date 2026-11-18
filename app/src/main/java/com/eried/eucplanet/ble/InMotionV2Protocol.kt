@@ -110,11 +110,22 @@ object InMotionV2Protocol {
 
         if (payload.size < 3) return null
         val flags = payload[0]
-        val length = payload[1].toInt() and 0xFF
         val command = payload[2]
         val data = if (payload.size > 3) payload.copyOfRange(3, payload.size) else byteArrayOf()
 
         return ParsedPacket(flags, command, data)
+    }
+
+    /**
+     * Escape the trailing checksum when it is 0xAA or 0xA5. The V6 reads a bare
+     * 0xA5 there as an escape and drops the frame (its 20 km/h tilt-back write
+     * never landed). Only the V6 uses this so far: other wheels have not been
+     * tested with an escaped checksum.
+     */
+    fun escapeChecksum(packet: ByteArray): ByteArray {
+        val last = packet.last()
+        if (last != HEADER && last != ESCAPE) return packet
+        return packet.copyOfRange(0, packet.size - 1) + byteArrayOf(ESCAPE, last)
     }
 
     fun escapePayload(payload: ByteArray): ByteArray {

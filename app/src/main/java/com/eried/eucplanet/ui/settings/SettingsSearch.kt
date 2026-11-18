@@ -46,6 +46,24 @@ internal val SettingsSearchIndex.Kind.weight: Int
     }
 
 /**
+ * How well one section answers [query], for picking the one that opens.
+ *
+ * A title hit outranks everything. Next, a row named exactly what was typed:
+ * "units" is the Units row in Display, not the Toggle units tile Dashboard
+ * also offers, and "distance" is the Distance row, not the four Advanced rows
+ * that merely mention a distance. Then every hit counts by its [weight].
+ */
+internal fun sectionScore(title: String, hits: List<SearchEntry>, query: String, titleWeight: Int): Int {
+    if (query.isEmpty()) return 0
+    val titleHit = if (title.contains(query, ignoreCase = true)) titleWeight else 0
+    val named = if (hits.any { it.kind != SettingsSearchIndex.Kind.DESCRIPTION && it.text.trim().equals(query.trim(), ignoreCase = true) }) EXACT_ROW_WEIGHT else 0
+    return titleHit + named + hits.sumOf { it.kind.weight }
+}
+
+/** Below a title, above any number of passing mentions. */
+private const val EXACT_ROW_WEIGHT = 100
+
+/**
  * Names a section shows that come from a registry at runtime, so the code
  * holds no text for the index to find: the dashboard's metric and action
  * tiles, and every Advanced row.

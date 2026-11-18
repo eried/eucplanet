@@ -12,35 +12,44 @@ import com.eried.eucplanet.data.model.Waypoint
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.nav.NavigationEngine
 import com.eried.eucplanet.service.WheelService
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 
 /**
  * Debug-only receiver that lets a host script (Python + adb shell am broadcast)
- * drive the UI survey harness in DELETE_LATER_SURVEY_UI/. Two actions:
+ * drive the app. Actions:
  *
  *   - SURVEY_APPLY: overwrite the dashboard layout JSON blobs in AppSettings
  *     so the next screenshot shows a freshly randomised configuration.
  *   - SURVEY_CONNECT_VIRTUAL: start WheelService with VIRTUAL:<id> so there
  *     is live telemetry on the dashboard when the screenshots are captured.
+ *   - SURVEY_SOUND: play one beep (kind=beep) or speak one line (kind=voice),
+ *     so the warm-route timing can be checked on a machine with no alarm firing.
+ *   - SURVEY_SET: notif_actions (CSV) and warm_route_ms, the two settings the
+ *     battery checks need to change without walking the settings screens.
+ *   - SURVEY_IMPORT_SQUARE: copy /data/local/tmp/<file> (a .rd5 or .pmtiles
+ *     square, made readable with chmod 644) into the offline folder, which
+ *     adb cannot write as the app.
  *   - SURVEY_START_NAV: put NavigationEngine into an active route without a
  *     geocoder, a network round trip or a single tap. It exists because the
  *     car screen used to die the moment a route went active, and proving that
  *     needs navState.active true on a machine with no GPS and no destination
  *     to search for.
+ *   - SURVEY_CAR_ALARM: post one car-screen alarm card.
  *
- * Only present in debug builds, never merged into the release manifest, * so the production app surface stays unchanged. See the matching debug
- * AndroidManifest at app/src/debug/AndroidManifest.xml.
+ * Only in debug builds, and in a release built with -PaaosTest. See the
+ * matching manifests at app/src/debug and app/src/aaosTest.
  */
-@AndroidEntryPoint
-class SurveyControlReceiver : BroadcastReceiver() {
+class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
 
-    @Inject lateinit var settingsRepository: SettingsRepository
-    @Inject lateinit var navigationEngine: NavigationEngine
+    val settingsRepository: SettingsRepository = get()
+    val navigationEngine: NavigationEngine = get()
+    val tonePlayer: com.eried.eucplanet.service.TonePlayer = get()
+    val voiceService: com.eried.eucplanet.service.VoiceService = get()
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -48,8 +57,34 @@ class SurveyControlReceiver : BroadcastReceiver() {
         when (intent.action) {
             ACTION_SURVEY_APPLY -> applyConfig(intent)
             ACTION_SURVEY_CONNECT_VIRTUAL -> connectVirtual(context, intent)
-            ACTION_SURVEY_START_NAV -> startNav()
+            ACTION_SURVEY_START_NAV -> startNav(intent.getStringExtra(EXTRA_GEOMETRY))
             ACTION_SURVEY_CAR_ALARM -> carAlarm(context)
+            ACTION_SURVEY_SOUND -> sound(intent.getStringExtra(EXTRA_KIND) ?: "beep")
+            ACTION_SURVEY_SET -> set(intent)
+            ACTION_SURVEY_IMPORT_SQUARE -> importSquare(intent.getStringExtra(EXTRA_FILE).orEmpty())
+        }
+    }
+
+    private fun sound(kind: String) {
+        Log.i(TAG, "SURVEY_SOUND $kind")
+        scope.launch {
+            if (kind == "voice") voiceService.speak("Test")
+            else tonePlayer.playBeep(1000, 200, 1, 0, 80, -1, 0, 0)
+            Log.i(TAG, "SURVEY_SOUND $kind done")
+        }
+    }
+
+    private fun set(intent: Intent) {
+        val actions = intent.getStringExtra(EXTRA_NOTIF_ACTIONS)
+        val warm = intent.getIntExtra(EXTRA_WARM_ROUTE_MS, -1)
+        Log.i(TAG, "SURVEY_SET notifActions=$actions warmRouteMs=$warm")
+        scope.launch {
+            settingsRepository.update { s ->
+                var n = s
+                if (actions != null) n = n.copy(notificationActions = actions)
+                if (warm > 0) n = n.copy(advanced = n.advanced.copy(alarmWarmRouteMs = warm))
+                n
+            }
         }
     }
 
@@ -94,10 +129,18 @@ class SurveyControlReceiver : BroadcastReceiver() {
         com.eried.eucplanet.car.CarAlarmNotification.post(context, "PWM", "92 %")
     }
 
-    /** A two-point straight line through Oslo, enough for navState.active. */
-    private fun startNav() {
-        val a = GeoPoint(59.9139, 10.7522)
-        val b = GeoPoint(59.9239, 10.7622)
+    /** A two-point straight line through Oslo, enough for navState.active,
+     *  or the line in [geometry] ("lat,lng;lat,lng;...") when one is given,
+     *  for screens that draw the route itself. */
+    private fun startNav(geometry: String?) {
+        val line = geometry.orEmpty().split(';').mapNotNull { pair ->
+            val c = pair.split(',')
+            val lat = c.getOrNull(0)?.trim()?.toDoubleOrNull()
+            val lng = c.getOrNull(1)?.trim()?.toDoubleOrNull()
+            if (lat != null && lng != null) GeoPoint(lat, lng) else null
+        }.takeIf { it.size >= 2 }
+        val a = line?.first() ?: GeoPoint(59.9139, 10.7522)
+        val b = line?.last() ?: GeoPoint(59.9239, 10.7622)
         val route = NavRoute(
             name = "Survey route",
             waypoints = listOf(
@@ -105,7 +148,7 @@ class SurveyControlReceiver : BroadcastReceiver() {
                 Waypoint(b.lat, b.lng, "End"),
             ),
             travelMode = TravelMode.entries.first(),
-            geometry = listOf(a, b),
+            geometry = line ?: listOf(a, b),
             maneuvers = emptyList(),
             totalDistanceM = 1400.0,
         )
@@ -125,13 +168,32 @@ class SurveyControlReceiver : BroadcastReceiver() {
         context.startForegroundService(svcIntent)
     }
 
+    private fun importSquare(file: String) {
+        if (!Regex("""[EW]\d{1,3}_[NS]\d{1,2}\.(rd5|pmtiles)""").matches(file)) return
+        scope.launch {
+            val store: com.eried.eucplanet.nav.offline.OfflineTileStore = get()
+            val out = java.io.File(store.dir, file)
+            runCatching { java.io.File("/data/local/tmp", file).copyTo(out, overwrite = true) }
+                .onSuccess { Log.i("SurveyControl", "imported $out (${out.length()} bytes)") }
+                .onFailure { Log.w("SurveyControl", "import $file: $it") }
+        }
+    }
+
     companion object {
+        const val ACTION_SURVEY_IMPORT_SQUARE = "com.eried.eucplanet.SURVEY_IMPORT_SQUARE"
+        const val EXTRA_FILE = "file"
         private const val TAG = "SurveyReceiver"
 
         const val ACTION_SURVEY_APPLY = "com.eried.eucplanet.SURVEY_APPLY"
         const val ACTION_SURVEY_CONNECT_VIRTUAL = "com.eried.eucplanet.SURVEY_CONNECT_VIRTUAL"
         const val ACTION_SURVEY_START_NAV = "com.eried.eucplanet.SURVEY_START_NAV"
         const val ACTION_SURVEY_CAR_ALARM = "com.eried.eucplanet.SURVEY_CAR_ALARM"
+        const val ACTION_SURVEY_SOUND = "com.eried.eucplanet.SURVEY_SOUND"
+        const val ACTION_SURVEY_SET = "com.eried.eucplanet.SURVEY_SET"
+        const val EXTRA_KIND = "kind"
+        const val EXTRA_GEOMETRY = "geometry"
+        const val EXTRA_NOTIF_ACTIONS = "notif_actions"
+        const val EXTRA_WARM_ROUTE_MS = "warm_route_ms"
 
         const val EXTRA_METRIC_ORDER = "metric_order"
         const val EXTRA_METRIC_STATS = "metric_stats"

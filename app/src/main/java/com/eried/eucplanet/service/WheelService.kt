@@ -29,14 +29,13 @@ import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.share.ShareSession
 import com.eried.eucplanet.share.ShareState
 import com.eried.eucplanet.diagnostics.DiagnosticsLogger
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import org.koin.android.ext.android.get
 
-@AndroidEntryPoint
 class WheelService : LifecycleService() {
 
     companion object {
@@ -78,6 +77,22 @@ class WheelService : LifecycleService() {
         const val NOTIFICATION_ID = 1
         /** Longest an unchanged ongoing notification goes without a re-post. */
         private const val NOTIFICATION_REFRESH_MS = 30_000L
+
+        /** What a notification reads as: title, text and button labels. */
+        internal fun notificationKey(
+            title: CharSequence?, text: CharSequence?, actionTitles: List<CharSequence?>?,
+        ): String = buildString {
+            append(title).append('|')
+            append(text)
+            actionTitles?.forEach { append('|').append(it) }
+        }
+
+        /** Post when it reads differently, or when the last post is [NOTIFICATION_REFRESH_MS] old. */
+        internal fun shouldPostNotification(
+            key: String, lastKey: String, nowMs: Long, lastPostMs: Long,
+        ): Boolean = !(key == lastKey && nowMs - lastPostMs < NOTIFICATION_REFRESH_MS)
+        private const val WIDGET_PLACED_RECHECK_MS = 30_000L
+        private const val NOTIFICATION_SCREEN_OFF_MS = 10_000L
         const val ACTION_CONNECT = "com.eried.eucplanet.CONNECT"
         const val ACTION_DISCONNECT = "com.eried.eucplanet.DISCONNECT"
         const val ACTION_START_RECORDING = "com.eried.eucplanet.START_RECORDING"
@@ -127,9 +142,9 @@ class WheelService : LifecycleService() {
      * heard, and the dashboard tile, the alarms and the HUD all sat on
      * nothing.
      */
-    @Inject lateinit var tpmsScanner: com.eried.eucplanet.tpms.TpmsScanner
-    @Inject lateinit var wheelRepository: WheelRepository
-    @Inject lateinit var settingsRepository: SettingsRepository
+    val tpmsScanner: com.eried.eucplanet.tpms.TpmsScanner = get()
+    val wheelRepository: WheelRepository = get()
+    val settingsRepository: SettingsRepository = get()
 
     @Volatile
     private var speedUnitCached: String = "kmh"
@@ -154,41 +169,41 @@ class WheelService : LifecycleService() {
     @Volatile
     private var widgetStandaloneCached: String =
         com.eried.eucplanet.data.model.WidgetActionType.DEFAULT_KEYS
-    @Volatile
-    private var phoneBatteryCached: Int = 0
     // Last paired wheel's name, mirrored from settings so the notification can
     // show it (Tesla-style) without suspending - used when no wheel is actively
     // connected (e.g. while "Connecting" or after a drop).
     @Volatile
     private var lastDeviceNameCached: String? = null
-    // Notification quick-action config, mirrored from settings so the
-    // notification builder can read it without suspending.
     // Mirrored so the widget painter can read it without suspending.
     @Volatile
     private var voicePeriodicCached: Boolean = false
+    // Notification quick-action config, mirrored from settings so the
+    // notification builder can read it without suspending.
     @Volatile
     private var notifActionsEnabledCached: Boolean = true
     @Volatile
     private var notifActionsCsvCached: String =
         com.eried.eucplanet.data.model.NotificationActionType.DEFAULT_KEYS
-    @Inject lateinit var voiceService: VoiceService
-    @Inject lateinit var tripRepository: TripRepository
-    @Inject lateinit var tripMeterRepository: com.eried.eucplanet.data.repository.TripMeterRepository
-    @Inject lateinit var automationManager: AutomationManager
-    @Inject lateinit var engineSoundEngine: EngineSoundEngine
-    @Inject lateinit var wearBridge: com.eried.eucplanet.wear.WearBridge
-    @Inject lateinit var wearMapBridge: com.eried.eucplanet.wear.WearMapBridge
-    @Inject lateinit var garminBridge: com.eried.eucplanet.garmin.GarminBridge
-    @Inject lateinit var amazfitBridge: com.eried.eucplanet.amazfit.AmazfitBridge
-    @Inject lateinit var externalGpsRepository:
-        com.eried.eucplanet.data.repository.ExternalGpsRepository
-    @Inject lateinit var navigationEngine: com.eried.eucplanet.nav.NavigationEngine
-    @Inject lateinit var hudServer: com.eried.eucplanet.service.hud.HudServer
-    @Inject lateinit var engoHudRenderer: com.eried.eucplanet.service.hud.engo.EngoHudRenderer
-    @Inject lateinit var radarRepository: com.eried.eucplanet.data.repository.RadarRepository
-    @Inject lateinit var phoneHudWindow: com.eried.eucplanet.service.overlay.PhoneHudWindow
-    @Inject lateinit var legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController
-    @Inject lateinit var shareSession: ShareSession
+    val voiceService: VoiceService = get()
+    val tripRepository: TripRepository = get()
+    val tripMeterRepository: com.eried.eucplanet.data.repository.TripMeterRepository = get()
+    val automationManager: AutomationManager = get()
+    val engineSoundEngine: EngineSoundEngine = get()
+    /** The volume buttons with the screen off, see [com.eried.eucplanet.flic.VolumeKeySession]. */
+    private var volumeKeySession: com.eried.eucplanet.flic.VolumeKeySession? = null
+    val wearBridge: com.eried.eucplanet.wear.WearBridge = get()
+    val wearMapBridge: com.eried.eucplanet.wear.WearMapBridge = get()
+    val garminBridge: com.eried.eucplanet.garmin.GarminBridge = get()
+    val amazfitBridge: com.eried.eucplanet.amazfit.AmazfitBridge = get()
+    val externalGpsRepository:
+        com.eried.eucplanet.data.repository.ExternalGpsRepository = get()
+    val navigationEngine: com.eried.eucplanet.nav.NavigationEngine = get()
+    val hudServer: com.eried.eucplanet.service.hud.HudServer = get()
+    val engoHudRenderer: com.eried.eucplanet.service.hud.engo.EngoHudRenderer = get()
+    val radarRepository: com.eried.eucplanet.data.repository.RadarRepository = get()
+    val phoneHudWindow: com.eried.eucplanet.service.overlay.PhoneHudWindow = get()
+    val legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController = get()
+    val shareSession: ShareSession = get()
 
     // Phone HUD, mirrored so the telemetry loop can read it without suspending.
     @Volatile
@@ -224,7 +239,7 @@ class WheelService : LifecycleService() {
     // RaceBox-style acceleration splits. The session lives in a repository so
     // the settings screen can show and clear it; config is re-read each sample
     // so a settings change or the dashboard button takes effect at once.
-    @Inject lateinit var accelSplitRepository: com.eried.eucplanet.data.repository.AccelSplitRepository
+    val accelSplitRepository: com.eried.eucplanet.data.repository.AccelSplitRepository = get()
     private var lastConnectionState: ConnectionState? = null
     // Written by the telemetry collector (a worker thread) and cleared on
     // disconnect from the main thread.
@@ -289,6 +304,14 @@ class WheelService : LifecycleService() {
         super.onCreate()
         isRunning = true
         createNotificationChannel()
+        screenOn = getSystemService(android.os.PowerManager::class.java)?.isInteractive ?: true
+        ContextCompat.registerReceiver(
+            this, screenReceiver,
+            android.content.IntentFilter().apply {
+                addAction(Intent.ACTION_SCREEN_ON); addAction(Intent.ACTION_SCREEN_OFF)
+            },
+            ContextCompat.RECEIVER_NOT_EXPORTED,
+        )
 
         // Start listening for a paired tyre cap. Touching the injected scanner
         // is what creates it; it then follows the pairing on its own.
@@ -303,7 +326,8 @@ class WheelService : LifecycleService() {
 
         voiceService.initialize()
 
-        // Update notification + check alarms + automations on telemetry updates.
+        // Update the notification, widget, Phone HUD and automations on telemetry
+        // updates. Alarms are evaluated in WheelRepository.
         // Off the main thread: a frame builds a notification, paints the widget
         // and copies the Phone HUD history, none of which needs the UI thread,
         // and at BLE rate it was competing with Compose for it. wheelData is a
@@ -374,6 +398,18 @@ class WheelService : LifecycleService() {
                     wheelRepository.connectionState.value == ConnectionState.CONNECTED,
                     s
                 )
+                // The screen-off volume keys live only while both switches are
+                // on and the service runs, so the phone gets its buttons back
+                // the moment the rider turns the option off or stops the app.
+                val wantVolumeKeys = s.volumeKeysEnabled && s.volumeKeysScreenOff
+                if (wantVolumeKeys && volumeKeySession == null) {
+                    volumeKeySession = com.eried.eucplanet.flic.VolumeKeySession(
+                        this@WheelService, settingsRepository, get()
+                    ).also { it.start() }
+                } else if (!wantVolumeKeys && volumeKeySession != null) {
+                    volumeKeySession?.stop()
+                    volumeKeySession = null
+                }
                 // HUD server lives only while the toggle is on AND the service
                 // is running. Watching the settings flow rather than checking
                 // once at onCreate so the rider can toggle it mid-session.
@@ -725,12 +761,7 @@ class WheelService : LifecycleService() {
                 // Gate notify() BEFORE removing the notification, so a telemetry /
                 // nav emission racing this teardown can't re-post it afterwards.
                 shuttingDown = true
-                @Suppress("DEPRECATION")
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    stopForeground(STOP_FOREGROUND_REMOVE)
-                } else {
-                    stopForeground(true)
-                }
+                stopForeground(STOP_FOREGROUND_REMOVE)
                 // Belt-and-braces: explicitly cancel by id in case an update
                 // slipped in just before shuttingDown latched.
                 getSystemService(NotificationManager::class.java)
@@ -745,6 +776,9 @@ class WheelService : LifecycleService() {
 
     override fun onDestroy() {
         isRunning = false
+        runCatching { unregisterReceiver(screenReceiver) }
+        runCatching { volumeKeySession?.stop() }
+        volumeKeySession = null
         locationForegroundReady = false
         // Any destroy path (not just Stop All) tears the notification down and
         // stops further re-posts, so an ordinary stopSelf() can't leave it behind
@@ -863,8 +897,12 @@ class WheelService : LifecycleService() {
     private fun startAutoRecordIdleLoop() {
         lifecycleScope.launch {
             while (true) {
+                // Only a recording can be auto-stopped. Waiting here instead of
+                // checking once a second keeps an idle phone asleep; it used to
+                // parse every setting on the main thread each second, all night.
+                if (!tripRepository.recording.value) tripRepository.recording.first { it }
                 delay(1000L)
-                val settings = settingsRepository.get()
+                val settings = settingsRepository.currentOrLoad()
                 if (!settings.autoRecord || !settings.autoRecordStartInMotion) continue
                 if (!tripRepository.recording.value) continue
 
@@ -909,13 +947,13 @@ class WheelService : LifecycleService() {
         voiceJob?.cancel()
         voiceJob = lifecycleScope.launch {
             while (true) {
-                delay(settingsRepository.get().voiceIntervalSeconds * 1000L)
+                delay(settingsRepository.currentOrLoad().voiceIntervalSeconds * 1000L)
                 // Re-read settings *after* the wait, not before it. If the rider
                 // turns "Report status periodically" off during the countdown, the
                 // pending report is dropped instead of one last one slipping through.
                 // Only this periodic report is gated here, alarm/trigger/nav voice
                 // lives on separate paths and is unaffected.
-                val settings = settingsRepository.get()
+                val settings = settingsRepository.currentOrLoad()
                 // Gate on the single visible "Enable periodic reports" toggle
                 // (voiceEnabled). The old `&& voicePeriodicEnabled` required a
                 // second flag that no Settings control ever set - it defaulted
@@ -1161,15 +1199,28 @@ class WheelService : LifecycleService() {
         if (action == ACTION_STOP_ALL_AND_KILL) {
             actionIntent.putExtra(EXTRA_CLOSE_WATCH, true)
         }
-        val pi = PendingIntent.getService(
-            this, 200 + type.ordinal,
-            actionIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
+        // The intent for an action never changes, and every getService is a
+        // Binder call: built once each, not on every 1 Hz notification build.
+        val pi = notifIntents.getOrPut(action) {
+            PendingIntent.getService(
+                this, 200 + type.ordinal,
+                actionIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+        }
         return NotificationCompat.Action.Builder(icon, label, pi).build()
     }
 
-    private var lastNotificationUpdate = 0L
+    private val notifIntents = java.util.concurrent.ConcurrentHashMap<String, PendingIntent>()
+
+    @Volatile private var lastNotificationUpdate = 0L
+    @Volatile private var screenOn = true
+    private val screenReceiver = object : android.content.BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            screenOn = intent.action == Intent.ACTION_SCREEN_ON
+            if (screenOn) lastNotificationUpdate = 0L  // fresh numbers on the next frame
+        }
+    }
 
     // --- Home screen widget ---------------------------------------------------
 
@@ -1189,22 +1240,25 @@ class WheelService : LifecycleService() {
      */
     private fun pushWidget(data: WheelData) {
         if (legalLockdown.isEngaged()) return  // lockdown stops the widgets
-        if (!com.eried.eucplanet.widget.EucWidget.isPlaced(this)) return
+        // Throttle first: isPlaced() asks the system once per widget kind, and
+        // asked on every frame it was the service's biggest cost while riding.
         val now = System.currentTimeMillis()
         if (now - lastWidgetUpdate < 1_000L) return
         lastWidgetUpdate = now
-        renderWidget(data)
+        // Even at 1 Hz that was seven Binder calls a second with no widget on
+        // the home screen. Placement is re-checked every 30 s; a widget placed
+        // in between paints itself from the stored snapshot in onUpdate.
+        if (now - widgetPlacedCheckedMs >= WIDGET_PLACED_RECHECK_MS) {
+            widgetPlacedCheckedMs = now
+            widgetPlaced = com.eried.eucplanet.widget.EucWidget.isPlaced(this)
+        }
+        if (!widgetPlaced) return
+        renderWidget(data, placedKnown = true)
     }
 
-    /** Paints the widget in the rider's own units, one entry per configured
-     *  slot. [data] null paints the disconnected state. */
-    /**
-     * Repaint the widget from whatever is true right now.
-     *
-     * For the state changes that are not telemetry: with no wheel connected no
-     * frame is coming, so a caller that changes recording or lock state has to
-     * ask for the repaint itself.
-     */
+    private var widgetPlaced = false
+    private var widgetPlacedCheckedMs = 0L
+
     /**
      * Put the Phone HUD window up or take it down to match the settings.
      *
@@ -1257,14 +1311,6 @@ class WheelService : LifecycleService() {
     }
 
     /**
-     * Feed the Phone HUD, throttled well below the telemetry rate.
-     *
-     * A window-manager view recomposing at BLE frame rate for a whole ride is
-     * real battery for no visible gain, and the HUD renderer has already been
-     * pushed into ANR territory by exactly that. The live G-force trail is left
-     * out for the same reason: it is a 1100-sample buffer at IMU rate.
-     */
-    /**
      * While Service Mode is recording, log the GPS fix as its own observation.
      *
      * The log is worth reading because every line is something that actually
@@ -1293,6 +1339,14 @@ class WheelService : LifecycleService() {
         DiagnosticsLogger.note("gps %s: %.2f km/h%s".format(source, speed, accuracy))
     }
 
+    /**
+     * Feed the Phone HUD, throttled well below the telemetry rate.
+     *
+     * A window-manager view recomposing at BLE frame rate for a whole ride is
+     * real battery for no visible gain, and the HUD renderer has already been
+     * pushed into ANR territory by exactly that. The live G-force trail is left
+     * out for the same reason: it is a 1100-sample buffer at IMU rate.
+     */
     private fun pushPhoneHud(rawData: WheelData) {
         if (legalLockdown.isEngaged()) return  // lockdown stops the overlay updates
         if (!phoneHudWindow.isShowing) return
@@ -1364,6 +1418,13 @@ class WheelService : LifecycleService() {
         )
     }
 
+    /**
+     * Repaint the widget from whatever is true right now.
+     *
+     * For the state changes that are not telemetry: with no wheel connected no
+     * frame is coming, so a caller that changes recording or lock state has to
+     * ask for the repaint itself.
+     */
     private fun renderWidgetFromCurrentState() {
         renderWidget(
             wheelRepository.wheelData.value.takeIf {
@@ -1372,9 +1433,11 @@ class WheelService : LifecycleService() {
         )
     }
 
-    private fun renderWidget(data: WheelData?) {
+    /** Paints the widget in the rider's own units, one entry per configured
+     *  slot. [data] null paints the disconnected state. */
+    private fun renderWidget(data: WheelData?, placedKnown: Boolean = false) {
         if (legalLockdown.isEngaged()) return  // lockdown stops the widgets
-        if (!com.eried.eucplanet.widget.EucWidget.isPlaced(this)) return
+        if (!placedKnown && !com.eried.eucplanet.widget.EucWidget.isPlaced(this)) return
         val connected =
             wheelRepository.connectionState.value == ConnectionState.CONNECTED && data != null
         val u = com.eried.eucplanet.util.Units
@@ -1387,6 +1450,13 @@ class WheelService : LifecycleService() {
         val captions = ArrayList<String>(metricKeys.size)
         fun unitFor(type: com.eried.eucplanet.data.model.WidgetMetricType): String =
             com.eried.eucplanet.widget.WidgetMetricFormat.unit(this, type, speedUnit, distUnit, tempUnit)
+        // The phone's own charge, read once per repaint (at most 1 Hz) and only
+        // when a slot shows it. An in-memory system read, no sticky broadcast.
+        val phoneBattery by lazy(LazyThreadSafetyMode.NONE) {
+            (getSystemService(Context.BATTERY_SERVICE) as? android.os.BatteryManager)
+                ?.getIntProperty(android.os.BatteryManager.BATTERY_PROPERTY_CAPACITY)
+                ?.coerceIn(0, 100) ?: 0
+        }
 
         metricKeys.forEach { key ->
             val type = com.eried.eucplanet.data.model.WidgetMetricType.byKey(key)
@@ -1403,7 +1473,7 @@ class WheelService : LifecycleService() {
                 return@forEach
             }
             val v = com.eried.eucplanet.widget.WidgetMetricFormat.value(
-                type, data, speedUnit, distUnit, tempUnit, phoneBatteryCached
+                type, data, speedUnit, distUnit, tempUnit, phoneBattery
             )
             values.add(v)
             captions.add(getString(type.pickerLabel) + if (unit.isBlank()) "" else " ($unit)")
@@ -1451,9 +1521,11 @@ class WheelService : LifecycleService() {
         // stopForeground(REMOVE) creates a standalone notification that survives
         // the process kill, leaving the notification stuck after Stop All.
         if (shuttingDown) return
-        // Throttle to 1 Hz
+        // 1 Hz while the screen is on. Off, nobody can read it, and each post
+        // wakes the system UI: every 10 s, and at once when the screen comes on.
         val now = System.currentTimeMillis()
-        if (now - lastNotificationUpdate < 1000) return
+        val interval = if (screenOn) 1_000L else NOTIFICATION_SCREEN_OFF_MS
+        if (now - lastNotificationUpdate < interval) return
         lastNotificationUpdate = now
         postNotificationIfChanged(buildNotification(data), now)
     }
@@ -1470,12 +1542,12 @@ class WheelService : LifecycleService() {
      * keeps a notification the system lost or garbled from staying that way.
      */
     private fun postNotificationIfChanged(n: Notification, now: Long = System.currentTimeMillis()) {
-        val shown = buildString {
-            append(n.extras.getCharSequence(Notification.EXTRA_TITLE)).append('|')
-            append(n.extras.getCharSequence(Notification.EXTRA_TEXT))
-            n.actions?.forEach { append('|').append(it.title) }
-        }
-        if (shown == lastNotificationShown && now - lastNotificationPostMs < NOTIFICATION_REFRESH_MS) return
+        val shown = notificationKey(
+            n.extras.getCharSequence(Notification.EXTRA_TITLE),
+            n.extras.getCharSequence(Notification.EXTRA_TEXT),
+            n.actions?.map { it.title },
+        )
+        if (!shouldPostNotification(shown, lastNotificationShown, now, lastNotificationPostMs)) return
         lastNotificationShown = shown
         lastNotificationPostMs = now
         getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, n)

@@ -9,8 +9,6 @@ import java.io.BufferedReader
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /** One Open Charge Map user comment / check-in. */
 data class OcmComment(
@@ -68,11 +66,10 @@ data class OcmPhoto(
 /**
  * Talks to the key-required Open Charge Map API. Same plain [HttpURLConnection]
  * + [Dispatchers.IO] style as [RoutingService] / [PoiService]. Only called when
- * the rider has set a (free) OCM API key and taps a charger in the flyout, so
- * nothing runs in the background.
+ * the rider has set a (free) OCM API key: for the charger layer on the map and
+ * for a tapped charger's details. Nothing runs in the background.
  */
-@Singleton
-class OcmService @Inject constructor() {
+class OcmService {
 
     companion object {
         private const val TAG = "OcmService"

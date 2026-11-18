@@ -7,12 +7,9 @@ import com.eried.eucplanet.data.sync.SyncManager
 import com.eried.eucplanet.ui.theme.AppThemeColors
 import com.eried.eucplanet.ui.theme.BuiltInThemes
 import com.eried.eucplanet.ui.theme.ThemeJson
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Persistence for named custom themes. Mirrors [OverlayPresetStore] exactly:
@@ -28,9 +25,8 @@ import javax.inject.Singleton
  * are held by [com.eried.eucplanet.ui.theme.ThemeController] and re-derived from
  * the name on launch (a built-in from code, or a saved `.json` loaded from here).
  */
-@Singleton
-class ThemeStore @Inject constructor(
-    @ApplicationContext private val context: Context,
+class ThemeStore(
+    private val context: Context,
     private val settingsRepository: SettingsRepository,
     private val syncManager: SyncManager
 ) {
@@ -66,17 +62,22 @@ class ThemeStore @Inject constructor(
     }
 
     /** Write [colors] as `<name>.json`. Trailing `.json` in `name` is tolerated
-     *  so callers can pass either the bare base name or the listSaved form. */
+     *  so callers can pass either the bare base name or the listSaved form.
+     *  An existing file is overwritten in place (same document, "wt" truncates),
+     *  not deleted and recreated: delete then create races the SAF provider,
+     *  which dedupes the new file to `name (1).json`. See
+     *  [OverlayPresetStore.savePreset]. */
     suspend fun saveTheme(name: String, colors: AppThemeColors): Boolean = withContext(Dispatchers.IO) {
         val base = if (name.endsWith(SUFFIX, ignoreCase = true)) name.dropLast(SUFFIX.length) else name
         val safe = syncManager.sanitizeBackupName(base) ?: return@withContext false
         val folder = themesFolder() ?: return@withContext false
         val fileName = "$safe$SUFFIX"
         runCatching {
-            folder.findFile(fileName)?.delete()
-            val file = folder.createFile("application/json", fileName) ?: return@withContext false
+            val target = (folder.findFile(fileName)
+                ?: folder.createFile("application/json", fileName))?.uri
+                ?: return@withContext false
             val json = ThemeJson.colorsToJson(colors).apply { put("name", safe) }.toString(2)
-            context.contentResolver.openOutputStream(file.uri)?.use { out ->
+            context.contentResolver.openOutputStream(target, "wt")?.use { out ->
                 out.write(json.toByteArray(Charsets.UTF_8))
             } ?: return@withContext false
             true
@@ -105,14 +106,6 @@ class ThemeStore @Inject constructor(
             Log.e(TAG, "Loading theme '$name' failed", it)
             null
         }
-    }
-
-    /** Delete the named saved theme file. `name` may be passed with or
-     *  without the `.json` suffix. */
-    suspend fun deleteTheme(name: String): Boolean = withContext(Dispatchers.IO) {
-        val folder = themesFolder() ?: return@withContext false
-        val withSuffix = if (name.endsWith(SUFFIX, ignoreCase = true)) name else "$name$SUFFIX"
-        folder.findFile(withSuffix)?.delete() ?: false
     }
 
     /** The `themes/` subfolder of the backup folder, created on demand. */

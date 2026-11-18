@@ -7,10 +7,9 @@ import com.eried.eucplanet.util.ByteUtils
 
 /**
  * Software fake of an InMotion V14 (50GB). Reports model "V14 50GB", firmware
- * Main 1.2.3 / Driver 4.5.6 / BLE 7.8.9, then on every realtime poll emits a
- * telemetry frame with an oscillating speed (sine 0..30 km/h over ~10 s),
- * static 84 V battery at 80 %, and a lazy battery decay so the dashboard
- * looks alive over time.
+ * Main 1.2.3 / Driver 7.8.9 / BLE 4.5.6. For the first 30 minutes it sits on
+ * a simulated charger (45 % climbing); after that speed is a random walk
+ * around 16 km/h and the battery drains about 1 % a minute.
  *
  * Settings poll returns max speed 50 / alarm 40, lock state matching the
  * `locked` field. Lock and tiltback control writes update internal state
@@ -37,7 +36,6 @@ class V14VirtualWheel : VirtualWheel {
     private var alarmSpeedKmh = 40f
     private var lightOn = false
     private var startTimeMs = System.currentTimeMillis()
-    private var batteryStart = 80f
     // Live battery % (climbs while "charging", decays while riding).
     private var batterySim = 80f
     // Jittered charge: a random 0–0.3 % step every 5 s, with the 4th step of each
@@ -59,7 +57,6 @@ class V14VirtualWheel : VirtualWheel {
         alarmSpeedKmh = 40f
         lightOn = false
         startTimeMs = System.currentTimeMillis()
-        batteryStart = 80f
         batterySim = 80f
         chargeTickMs = 0L
         chargeWindowAdded = 0f
@@ -205,7 +202,6 @@ class V14VirtualWheel : VirtualWheel {
 
     private fun buildTelemetry(): ByteArray {
         val now = System.currentTimeMillis()
-        val elapsed = now - startTimeMs
         // dt since the last frame so the random walk behaves the same whatever
         // rate the app polls realtime at.
         val dtSec = if (lastBuildMs == 0L) 0.2f
@@ -214,8 +210,8 @@ class V14VirtualWheel : VirtualWheel {
 
         // Charging is simulated when the wheel is "locked", the headlight is on,
         // or during a window right after connect (so the Charging Monitor is
-        // demonstrable on the emulator without any control command, the sim
-        // doesn't act on lock/light writes). While charging the wheel is parked
+        // demonstrable on the emulator without any control command).
+        // While charging the wheel is parked
         // (speed 0) and the current sensor reads ~0 A like a real V14, so
         // detection leans on the explicit bit-7 charging flag.
         val charging = locked || lightOn || (now - startTimeMs) < CHARGE_DEMO_MS

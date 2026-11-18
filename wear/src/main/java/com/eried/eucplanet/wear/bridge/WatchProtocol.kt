@@ -200,7 +200,7 @@ data class WatchState(
      *  - [tempUnit]     "C" / "F" / "K"
      * Defaults are metric so a freshly-launched watch (pre-sync) renders
      * something sane; [WatchBridgeService] overwrites them from the phone,
-     * deriving from the legacy K_IMPERIAL boolean for old phone builds.
+     * deriving from the legacy [WatchKeys.IMPERIAL] boolean for old phone builds.
      */
     val speedUnit: String = "kmh",
     val distanceUnit: String = "km",

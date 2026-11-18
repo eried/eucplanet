@@ -9,8 +9,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.security.MessageDigest
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Manufacturer code rules for Legal Mode Lockdown.
@@ -48,8 +46,7 @@ object LegalLockdownCode {
  * The side effects of arming do NOT live here. Putting them here would make this
  * a hub that depends on half the app and cannot be constructed in a test.
  */
-@Singleton
-class LegalLockdownController @Inject constructor(
+class LegalLockdownController(
     private val store: LegalLockdownStore
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -77,8 +74,6 @@ class LegalLockdownController @Inject constructor(
      * StateFlow is seeded from disk at process start, so this never blocks.
      */
     fun isEngaged(): Boolean = _engaged.value
-
-    fun isArmed(): Boolean = _armed.value
 
     /**
      * Called by [WheelRepository] every time legal mode turns on.

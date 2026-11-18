@@ -50,8 +50,8 @@ class AppSettingsArgLimitTest {
     }
 
     @Test fun theRemainingHeadroomIsStatedOutLoud() {
-        // Not a correctness check: a deliberate tripwire. AppSettings sits ONE
-        // slot under the JVM's 255, so anyone adding a field has to look at
+        // Not a correctness check: a deliberate tripwire. AppSettings sits TWO
+        // slots under the JVM's 255, so anyone adding a field has to look at
         // this number and decide consciously rather than discover it in a
         // crash report. 253 was the voice cues nested as one group; 254 is the
         // watch map (PR #25), nested as WatchMapSettings so four fields cost
@@ -61,9 +61,16 @@ class AppSettingsArgLimitTest {
         // sit beside their neighbours; 247 dropboxSettingsBaseHash, the two-way
         // sync baseline; 249 chargingNotifyCustom and its level, beside the
         // other two charge alerts; 250 the Android Auto slots, nested as
-        // AndroidAutoSettings; 251 the ENGO glasses HUD group. Keep nesting:
-        // the next group goes in one slot, not one per field.
-        val expectedSlots = 251
+        // AndroidAutoSettings; 251 the navigator view, nested as
+        // NavigatorViewSettings; 252 navValhallaUrl, beside navRouterUrl; 253
+        // offline routing, nested as OfflineRoutingSettings; 254
+        // volumeKeysScreenOff, a single flag beside the other volume key
+        // fields; 253 is that minus navPlacesHintShown, a one-time hint flag
+        // that went with its hint; 254 the ENGO glasses HUD group, nested as
+        // EngoHudSettings. That leaves ONE slot. Keep nesting: the next group goes in
+        // one slot, not one per field, and the volume key fields are the
+        // first candidates to nest when it is needed.
+        val expectedSlots = 254
         assertEquals(
             "AppSettings slot usage changed. Prefer nesting a group of fields over " +
                 "spending headroom, and update this number deliberately.",

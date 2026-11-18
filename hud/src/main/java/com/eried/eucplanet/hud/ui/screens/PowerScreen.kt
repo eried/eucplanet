@@ -55,7 +55,7 @@ fun PowerScreen(hud: HudState, session: HudSessionState) {
     //   PACK_WH is a stand-in for "energy when the pack is full" --
     //   testers will tweak this once we wire up a per-wheel value.
     //   Then divide by recent avg watts to get hours, multiply by
-    //   recent avg speed to get distance.
+    //   the current speed to get distance.
     val packWh = PACK_WH_DEFAULT
     val remainingWh = (hud.batteryPercent / 100f) * packWh
     val rangeKm: Float? = if (avgW > 10f && !hud.speedKmh.isNaN() && hud.speedKmh > 1f) {
@@ -65,7 +65,6 @@ fun PowerScreen(hud: HudState, session: HudSessionState) {
     Box(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         BoxWithConstraints(Modifier.fillMaxSize()) {
             val h = maxHeight.value
-            val w = maxWidth.value
             Column(Modifier.fillMaxSize()) {
                 // Big watt readout, signed.
                 Row(verticalAlignment = Alignment.Bottom) {

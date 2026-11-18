@@ -3,17 +3,10 @@ package com.eried.eucplanet.ui.settings
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.ui.draw.clip
-import com.eried.eucplanet.ui.theme.appColors
-import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
@@ -93,8 +86,8 @@ class DashboardDragController {
     val hoveredTarget: DropTargetInfo? by derivedStateOf {
         val pos = pointerWindowPos ?: return@derivedStateOf null
         val source = sourceKind ?: return@derivedStateOf null
-        val key = draggingKey ?: return@derivedStateOf null
-        targets.values.firstOrNull { it.accepts(source, key) && it.bounds.contains(pos) }
+        if (draggingKey == null) return@derivedStateOf null
+        targets.values.firstOrNull { it.accepts(source) && it.bounds.contains(pos) }
     }
 
     val isDragging: Boolean
@@ -120,13 +113,13 @@ class DashboardDragController {
     fun movePointer(delta: Offset) {
         val current = pointerWindowPos ?: return
         val source = sourceKind ?: return
-        val key = draggingKey ?: return
+        if (draggingKey == null) return
         val newPos = current + delta
         pointerWindowPos = newPos
 
         // Latch preview size to whatever region the pointer just entered.
         // Drop targets win over hint regions when both contain the pointer.
-        val hit = targets.values.firstOrNull { it.accepts(source, key) && it.bounds.contains(newPos) }
+        val hit = targets.values.firstOrNull { it.accepts(source) && it.bounds.contains(newPos) }
             ?.expectedSizePx
             ?: hintRegions.values.firstOrNull { it.accepts(source) && it.bounds.contains(newPos) }
                 ?.expectedSizePx
@@ -156,10 +149,6 @@ class DashboardDragController {
         targets[info.key] = info
     }
 
-    fun unregisterTarget(key: String) {
-        targets.remove(key)
-    }
-
     fun registerHintRegion(info: HintRegionInfo) {
         hintRegions[info.key] = info
     }
@@ -169,10 +158,7 @@ enum class DragSourceKind { METRIC, ACTION }
 
 enum class DropKind {
     METRIC_GRID_SLOT,
-    ACTION_GRID_SLOT,
-    /** Pool acts as a "drag-off-to-delete" trash for composite/group instances. */
-    METRIC_POOL_TRASH,
-    ACTION_POOL_TRASH
+    ACTION_GRID_SLOT
 }
 
 data class DropTargetInfo(
@@ -183,22 +169,11 @@ data class DropTargetInfo(
     val expectedSizePx: IntSize,
     /** Index within the active grid (0..N-1) for grid-slot targets; -1 otherwise. */
     val slotIndex: Int,
-    val onDrop: (sourceKey: String) -> Unit,
-    /**
-     * Optional per-source-key acceptance check. When set, the target only
-     * highlights and accepts drops for keys that pass this predicate. Used
-     * by the pool trash targets, which exist exclusively to delete
-     * composite/group instances (and shouldn't react to regular pool pills
-     * or template keys being dragged back over them).
-     */
-    val acceptsSourceKey: ((String) -> Boolean)? = null
+    val onDrop: (sourceKey: String) -> Unit
 ) {
-    fun accepts(source: DragSourceKind, sourceKey: String): Boolean {
-        val kindAllows = when (source) {
-            DragSourceKind.METRIC -> kind == DropKind.METRIC_GRID_SLOT || kind == DropKind.METRIC_POOL_TRASH
-            DragSourceKind.ACTION -> kind == DropKind.ACTION_GRID_SLOT || kind == DropKind.ACTION_POOL_TRASH
-        }
-        return kindAllows && (acceptsSourceKey?.invoke(sourceKey) ?: true)
+    fun accepts(source: DragSourceKind): Boolean = when (source) {
+        DragSourceKind.METRIC -> kind == DropKind.METRIC_GRID_SLOT
+        DragSourceKind.ACTION -> kind == DropKind.ACTION_GRID_SLOT
     }
 }
 
@@ -278,16 +253,7 @@ fun Modifier.dashboardDropTarget(
     kind: DropKind,
     slotIndex: Int = -1,
     controller: DashboardDragController,
-    onDrop: (sourceKey: String) -> Unit,
-    acceptsSourceKey: ((String) -> Boolean)? = null,
-    /**
-     * If non-null, the drag preview shrinks/grows to this size while hovering
-     * the target instead of matching the target's own measured size. Pool
-     * trash targets pass `poolPillSizePx` so a composite tile dragged over
-     * them previews at pill size, signalling "release = delete (back to
-     * pool)" rather than "release = land here at full grid size".
-     */
-    overrideExpectedSizePx: IntSize? = null
+    onDrop: (sourceKey: String) -> Unit
 ): Modifier = composed {
     onGloballyPositioned { coords ->
         controller.registerTarget(
@@ -295,10 +261,9 @@ fun Modifier.dashboardDropTarget(
                 key = key,
                 kind = kind,
                 bounds = coords.boundsInWindow(),
-                expectedSizePx = overrideExpectedSizePx ?: coords.size,
+                expectedSizePx = coords.size,
                 slotIndex = slotIndex,
-                onDrop = onDrop,
-                acceptsSourceKey = acceptsSourceKey
+                onDrop = onDrop
             )
         )
     }
@@ -359,17 +324,6 @@ fun DashboardDragPreviewOverlay(
     val source = controller.sourceKind ?: return
     val target = controller.hoveredTarget
 
-    // Only flag as a discard when the tile actually shrinks into the
-    // pool, i.e. the drag started on a big grid tile. A pool pill
-    // dragged up and back down again returns home (no slot is lost, no
-    // definition gets deleted), so the red wash would be misleading.
-    // Compare source size to the target's expected size: shrink == big
-    // origin == will be removed; same size == pool-to-pool == no-op.
-    val isPoolTrash = target?.kind == DropKind.METRIC_POOL_TRASH ||
-        target?.kind == DropKind.ACTION_POOL_TRASH
-    val isDiscardDrop = isPoolTrash &&
-        controller.sourceSizePx.height > (target?.expectedSizePx?.height ?: Int.MAX_VALUE)
-
     val targetSize = controller.previewSizePx.takeIf { it.width > 0 && it.height > 0 }
         ?: controller.sourceSizePx
     val animWidth by animateFloatAsState(
@@ -383,18 +337,9 @@ fun DashboardDragPreviewOverlay(
         label = "drag-h"
     )
     val animAlpha by animateFloatAsState(
-        targetValue = when {
-            isDiscardDrop -> 0.55f
-            target != null -> 1f
-            else -> 0.4f
-        },
+        targetValue = if (target != null) 1f else 0.4f,
         animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
         label = "drag-alpha"
-    )
-    val redOverlayAlpha by animateFloatAsState(
-        targetValue = if (isDiscardDrop) 0.22f else 0f,
-        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
-        label = "drag-red"
     )
 
     val density = LocalDensity.current
@@ -417,18 +362,6 @@ fun DashboardDragPreviewOverlay(
         when (source) {
             DragSourceKind.METRIC -> renderMetric(key, controller.draggingValue)
             DragSourceKind.ACTION -> renderAction(key)
-        }
-        // Translucent red wash sits on top of the rendered tile, clipped
-        // to the same rounded corners so it reads as part of the tile
-        // rather than a stray overlay. Animated alpha keeps the fade
-        // smooth as the rider passes in and out of the trash region.
-        if (redOverlayAlpha > 0f) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(MaterialTheme.appColors.statusDanger.copy(alpha = redOverlayAlpha))
-            )
         }
     }
 }

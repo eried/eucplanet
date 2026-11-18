@@ -398,7 +398,7 @@ class EucStatsRepositoryTest {
 
     @Test fun uploadTrip_retryLeavesStatusUnchangedAndReturnsNeedsRetry() = runBlocking {
         settingsPort.writeRiderId("store-1")
-        api.uploadResult = UploadResult.Retry(503, null)
+        api.uploadResult = UploadResult.Retry(503)
         tripDao.trips.add(SAMPLE_TRIP)
 
         val outcome = repo.uploadTrip(SAMPLE_TRIP)
@@ -418,7 +418,7 @@ class EucStatsRepositoryTest {
     @Test fun uploadTrip_authFailureRemintsTokenOnce() = runBlocking {
         settingsPort.writeRiderId("store-1")
         // First call → AuthFailure, second call (re-mint) → Retry.
-        api.enqueueUploadResult(UploadResult.AuthFailure(401), UploadResult.Retry(503, null))
+        api.enqueueUploadResult(UploadResult.AuthFailure(401), UploadResult.Retry(503))
         tripDao.trips.add(SAMPLE_TRIP)
 
         val outcome = repo.uploadTrip(SAMPLE_TRIP)

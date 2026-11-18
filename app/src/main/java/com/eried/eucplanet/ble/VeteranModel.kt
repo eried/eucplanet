@@ -3,11 +3,9 @@ package com.eried.eucplanet.ble
 import com.eried.eucplanet.util.BatteryPercentEstimator
 
 /**
- * Models in the Veteran BLE protocol family. Veteran's `DC 5A 5C 20`-prefixed
- * frame carries a model byte at offset 6 (versionLow) and a hardware-revision
- * byte at offset 7 (versionHigh); we don't try to map every (lo, hi) pair
- * here, instead we derive the enum from the BLE-advertised device name when
- * possible and fall back to a generic Veteran profile.
+ * Models in the Veteran BLE protocol family. The frame reports a model
+ * version (mVer) at offset 28, see [fromMVer]; the BLE-advertised device
+ * name is the fallback when no frame has arrived yet.
  *
  * Spec: docs/protocols/veteran.md.
  */
@@ -29,8 +27,9 @@ enum class VeteranModel(
     // tag here routed Abrams through the wrong scaler and showed a
     // flat 100 % battery to riders.
     ABRAMS(        "Veteran Abrams",       100, 120),
-    // mVer 3: Sherman S still sits in the <4 / 100 V battery family.
-    SHERMAN_S(     "Veteran Sherman S",    134, 100),
+    // mVer 3: Sherman S still sits in the <4 / 100 V battery family
+    // (24S pack, same curve as Sherman and Abrams).
+    SHERMAN_S(     "Veteran Sherman S",    100, 100),
     // Retained for backward compatibility with existing settings;
     // treated as Sherman at runtime.
     SHERMAN_MAX(   "Veteran Sherman Max",  134, 100),

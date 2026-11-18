@@ -10,7 +10,6 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.hilt)
     alias(libs.plugins.play.publisher)
 }
 
@@ -50,8 +49,8 @@ android {
         applicationId = "com.eried.eucplanet"
         minSdk = 29
         targetSdk = 36
-        versionCode = 281
-        versionName = "0.22.0-beta8"
+        versionCode = 284
+        versionName = "0.24.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -69,6 +68,18 @@ android {
         // the UI hides the tag for "main" / detached HEAD.
         val gitBranch = git("rev-parse", "--abbrev-ref", "HEAD")
         buildConfigField("String", "GIT_BRANCH", "\"$gitBranch\"")
+
+        // The version of the HUD app packed into this phone app (see
+        // bundleHudApk below), read from the HUD module's own build file so
+        // the two cannot drift. The phone compares it with what a linked HUD
+        // reports to decide whether to offer sending it.
+        val hudGradle = rootProject.file("hud/build.gradle.kts").takeIf { it.exists() }?.readText().orEmpty()
+        val hudVersionCode = Regex("versionCode\\s*=\\s*(\\d+)").find(hudGradle)?.groupValues?.get(1) ?: "0"
+        val hudVersionName = Regex("versionName\\s*=\\s*\"([^\"]+)\"").find(hudGradle)?.groupValues?.get(1) ?: ""
+        buildConfigField("int", "HUD_VERSION_CODE", hudVersionCode)
+        buildConfigField("String", "HUD_VERSION_NAME", "\"$hudVersionName\"")
+        // The packed HUD app is built from this same commit.
+        buildConfigField("String", "HUD_BUILD_ID", "\"${git("rev-parse", "--short=9", "HEAD")}\"")
 
         // A "dev" build is any branch build other than main. Same signal the
         // About dialog uses to show the branch tag: a real branch name that is
@@ -163,9 +174,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
 
     buildFeatures {
         compose = true
@@ -351,10 +359,11 @@ dependencies {
     // and per-wheel profiles, which get real migrations.)
     implementation(libs.datastore.preferences)
 
-    // Hilt
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
-    implementation(libs.hilt.navigation.compose)
+    // Koin (dependency injection)
+    implementation(platform(libs.koin.bom))
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
+    implementation(libs.koin.androidx.workmanager)
 
     // Coroutines
     implementation(libs.coroutines.core)
@@ -382,8 +391,7 @@ dependencies {
 
     // WorkManager (background trip upload)
     implementation(libs.work.runtime)
-    implementation(libs.hilt.work)
-    ksp(libs.hilt.work.compiler)
+    implementation(project(":brouter"))
 
     // Drag-to-reorder for settings lists
     implementation(libs.reorderable)
@@ -412,6 +420,10 @@ dependencies {
 
     // Unit tests for pure-Kotlin parsers (VariaAdapter, etc.)
     testImplementation(libs.junit)
+    // KoinGraphTest verifies the whole Koin graph on the JVM.
+    testImplementation(platform(libs.koin.bom))
+    testImplementation(libs.koin.test)
+    testImplementation(libs.koin.test.junit4)
     // org.json is bundled in the Android SDK but not available on the JVM test
     // classpath. Adding the standalone artifact makes SettingsJson JVM tests work
     // without Robolectric.
@@ -490,3 +502,47 @@ tasks.withType<Test>().configureEach {
 apply(from = "settings-search-index.gradle.kts")
 android.sourceSets.getByName("main").java.srcDir(layout.buildDirectory.dir("generated/settingsSearch"))
 tasks.named("preBuild") { dependsOn("generateSettingsSearchIndex") }
+
+// kotlinOptions {} is an error since Kotlin 2.2; same JVM 17 target via compilerOptions.
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    }
+}
+
+// The HUD app rides inside the phone app as an asset, so the phone can send
+// a linked HUD the exact build it was made with: no download, no version to
+// look up, and it works on a hotspot with no internet. It is the release
+// build of the HUD on every phone variant, the same file testers get next to
+// the phone APK (a debug HUD starts several times slower). About 2.5 MB.
+// -PembedHud=false leaves it out; the phone then offers nothing.
+val embedHud = (project.findProperty("embedHud") as? String)?.lowercase() != "false"
+
+abstract class BundleHudApk : DefaultTask() {
+    @get:InputFile
+    @get:PathSensitive(PathSensitivity.NONE)
+    abstract val apk: RegularFileProperty
+
+    @get:OutputDirectory
+    abstract val outDir: DirectoryProperty
+
+    @TaskAction
+    fun bundle() {
+        val dir = outDir.get().asFile
+        dir.deleteRecursively()
+        dir.mkdirs()
+        apk.get().asFile.copyTo(File(dir, "hud.apk"))
+    }
+}
+
+if (embedHud) {
+    val bundleHudApk = tasks.register<BundleHudApk>("bundleHudApk") {
+        dependsOn(":hud:assembleRelease")
+        apk.set(rootProject.layout.projectDirectory.file("hud/build/outputs/apk/release/hud-release.apk"))
+    }
+    androidComponents {
+        onVariants { variant ->
+            variant.sources.assets?.addGeneratedSourceDirectory(bundleHudApk, BundleHudApk::outDir)
+        }
+    }
+}

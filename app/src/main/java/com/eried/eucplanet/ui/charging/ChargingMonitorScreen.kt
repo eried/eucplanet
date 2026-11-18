@@ -99,7 +99,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import com.eried.eucplanet.R
@@ -109,11 +108,13 @@ import com.eried.eucplanet.ui.dashboard.MetricGraph
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.GraphBounds
 import com.eried.eucplanet.util.GraphScale
+import com.eried.eucplanet.ui.common.DestructiveMenuItem
 import java.util.Date
 import kotlin.math.abs
 import kotlin.math.exp
 import kotlin.math.roundToInt
 import kotlin.math.sin
+import org.koin.compose.viewmodel.koinViewModel
 
 // How far the animated % may run ahead of the last reading.
 private const val MAX_LEAD = 1.2f
@@ -128,7 +129,7 @@ fun ChargingMonitorScreen(
     /** Open with the details flyout already up - the dashboard battery
      *  icon's long-press promises the graphs, not the dial. */
     initialDetailsOpen: Boolean = false,
-    viewModel: ChargingMonitorViewModel = hiltViewModel(),
+    viewModel: ChargingMonitorViewModel = koinViewModel(),
 ) {
     val state by viewModel.uiState.collectAsState()
     val ctx = LocalContext.current
@@ -266,8 +267,8 @@ fun ChargingMonitorScreen(
                             },
                         )
                         HorizontalDivider()
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.charging_reset_data)) },
+                        DestructiveMenuItem(
+                            text = stringResource(R.string.charging_reset_data),
                             onClick = {
                                 menuOpen = false
                                 viewModel.resetData()
@@ -296,12 +297,12 @@ fun ChargingMonitorScreen(
                 connected = state.connected,
                 frozen = state.frozen,
                 estimateToFull = state.estimateToFull,
+                targetPercent = state.targetPercent,
                 scrubFrac = scrubFrac,
                 // Deep blue main liquid + a more neon green for the freshly-added band.
                 base = lerp(MaterialTheme.appColors.metricVoltage, Color.Black, 0.28f),
                 added = lerp(MaterialTheme.appColors.metricBattery, Color.Green, 0.4f),
                 outlineColor = MaterialTheme.appColors.textPrimary,
-                bubbleColor = MaterialTheme.appColors.onPrimary,
                 modifier = Modifier.fillMaxSize(),
             )
 
@@ -431,7 +432,7 @@ fun ChargingMonitorScreen(
     }
 }
 
-/** Big percentage with a smooth grow/shrink and a soft pink glow. */
+/** Big percentage with a smooth grow/shrink and a contrast glow. */
 @Composable
 private fun PercentReadout(pctState: State<Float>, decimalsVisible: Boolean, connected: Boolean = true) {
     val mainSp by animateFloatAsState(
@@ -682,11 +683,9 @@ private fun rememberAnimatedPercent(measured: Float, ratePerMin: Float, charging
 private fun fillFraction(pct: Float): Float = (pct / 100f).coerceIn(0f, 1f)
 
 /**
- * The battery: a lightly-rounded tall rectangle (no terminal nub) with a faint
- * rounded-cell texture. While charging the fill rises to the current % with a
- * pink→green vertical gradient (green leading the top like fresh charge; the pink
- * fades toward green as the pack nears 80–100 %). When idle the whole battery is
- * pink and the bubbles just float. Rising bubbles ease in/out with the charge.
+ * The battery as a full-screen liquid fill. Blue up to the level at session
+ * start, green for charge added this session, fading back to blue after
+ * charging stops. The surface sloshes with phone tilt.
  */
 @Composable
 private fun BatteryFillGraphic(
@@ -697,16 +696,17 @@ private fun BatteryFillGraphic(
     /** Disconnected but showing a preserved session: draw the liquid, skip live FX. */
     frozen: Boolean = false,
     estimateToFull: Boolean,
+    /** The rider's charge target, where the dotted line sits. */
+    targetPercent: Float = 80f,
     scrubFrac: Float? = null,
     base: Color,
     added: Color,
     outlineColor: Color,
-    bubbleColor: Color,
     modifier: Modifier = Modifier,
 ) {
     // Green amount: eases in (~4 s) when charging starts and fades out slowly
     // (~60 s) when it stops, a brief pause keeps the green, a long stop merges
-    // back to all blue. Drives the fill colour and the dot rise.
+    // back to all blue. Drives the fill colour.
     val g = animateFloatAsState(
         if (charging) 1f else 0f,
         animationSpec = tween(durationMillis = if (charging) 4000 else 60000, easing = FastOutSlowInEasing),
@@ -724,7 +724,6 @@ private fun BatteryFillGraphic(
     LaunchedEffect(charging, startPercent) {
         if (charging) frozenStart.floatValue = (startPercent / 100f).coerceIn(0f, 1f)
     }
-    val rise = remember { mutableFloatStateOf(0f) }
     val clock = remember { mutableFloatStateOf(0f) }
 
     // --- Fluid surface: the top of the liquid sloshes with the phone's tilt
@@ -747,14 +746,6 @@ private fun BatteryFillGraphic(
     val dlife = remember { FloatArray(maxDrops) }
     val geo = remember { FloatArray(3) }   // [w, h, yTop] published by the Canvas
     val rnd = remember { java.util.Random() }
-    // Faint bubbles drifting up through the liquid.
-    val maxBubbles = 140
-    val bubX = remember { FloatArray(maxBubbles) }
-    val bubY = remember { FloatArray(maxBubbles) { -1f } }
-    val bubR = remember { FloatArray(maxBubbles) }
-    val bubS = remember { FloatArray(maxBubbles) }
-    val bubA = remember { FloatArray(maxBubbles) }
-    val bubF = remember { FloatArray(maxBubbles) }
     DisposableEffect(Unit) {
         val sm = ctx.getSystemService(android.content.Context.SENSOR_SERVICE) as? android.hardware.SensorManager
         val listener = object : android.hardware.SensorEventListener {
@@ -793,7 +784,6 @@ private fun BatteryFillGraphic(
             withFrameNanos { now ->
                 if (prev != 0L) {
                     val dt = ((now - prev) / 1_000_000_000f).coerceIn(0f, 0.05f)
-                    rise.floatValue = (rise.floatValue + g.value * 0.04f * dt) % 1f
                     val tilt = tiltX.floatValue
                     val kick = gyroKick.floatValue
                     gyroKick.floatValue = kick * 0.86f
@@ -852,7 +842,6 @@ private fun BatteryFillGraphic(
                             }
                             if (dpx[k] < -30f || dpx[k] > ww + 30f) dlife[k] = 0f
                         }
-                        // Bubble animation disabled for now (kept for easy re-enable).
                     }
                     // Energy gate: only advance the clock (and therefore keep
                     // forcing Canvas redraws / withFrameNanos wake-ups) while
@@ -892,18 +881,15 @@ private fun BatteryFillGraphic(
         // Whole-screen battery: the fill IS the background, no frame, edge to edge.
         val fillLeft = 0f
         val fillRight = w
-        val fillTop = 0f
         val fillBottom = h
         val fillW = w
         val fillH = h
         fun yFor(frac: Float) = fillBottom - frac.coerceIn(0f, 1f) * fillH
 
         val gv = g.value
-        val idleAmount = 1f - gv
         // Linear, precise fill to the actual battery level.
         val curFrac = fillFraction(percent)
         val yTop = yFor(curFrac)
-        val regionH = (fillBottom - yTop).coerceAtLeast(1f)
         geo[0] = w; geo[1] = h; geo[2] = yTop
         // Session-start level, frozen so it doesn't jump when charging stops; it
         // just fades out with gv. Clamped to the current level.
@@ -985,13 +971,13 @@ private fun BatteryFillGraphic(
                 drawRect(color = col, topLeft = Offset(fillLeft, y - lw / 2f), size = Size(len, lw), blendMode = bm)
                 drawRect(color = col, topLeft = Offset(fillRight - len, y - lw / 2f), size = Size(len, lw), blendMode = bm)
             }
-            // One dotted line: the 80 % target (joins the side ticks) when idle,
+            // One dotted line: the rider's target (joins the side ticks) when idle,
             // but while the rider is scrubbing it becomes the cursor and follows
             // the finger instead - same style, so there's never two lines. Hidden
             // only when estimating straight to 100 % AND not scrubbing.
             val lineFrac = when {
                 scrubFrac != null -> scrubFrac
-                connected && !estimateToFull -> 0.8f
+                connected && !estimateToFull -> fillFraction(targetPercent)
                 else -> null
             }
             if (lineFrac != null) {
@@ -1021,8 +1007,6 @@ private fun BatteryFillGraphic(
                     size = Size(fillW, gDown),
                 )
             }
-
-            // Bubble animation disabled for now.
         }
         // Splash droplets -- only when connected.
         if (connected) {
@@ -1055,11 +1039,6 @@ private fun InfoTabs(state: ChargingUiState) {
     var selected by remember { mutableIntStateOf(0) }
     if (selected >= tabs.size) selected = 0
 
-    // One constant content height for EVERY tab so switching Charge / Packs /
-    // Cells never resizes the sheet. Uses the taller "cells" height (128 cells
-    // need room on V14 4-pack rigs and Veteran-family 42-cell packs; the Packs
-    // chart wants the room too); shorter tabs just have extra space below their
-    // content, and each tab scrolls vertically inside that height.
     val configuration = LocalConfiguration.current
     val screenH = configuration.screenHeightDp.dp
     // Max height for the tab content: the sheet wraps its content (so a short tab
@@ -1112,11 +1091,11 @@ private fun InfoTabs(state: ChargingUiState) {
                         // through both (see predictionPath) -- two legs, because the
                         // two ETAs come from separate estimators with different
                         // timing, so a single line to 100% would miss the 80% dot.
-                        val predictionMarkers = remember(state.predictionHistory) {
+                        val predictionMarkers = remember(state.predictionHistory, state.targetPercent) {
                             val latest = state.predictionHistory.lastOrNull()
                             buildList {
                                 latest?.targetEtaMs?.let {
-                                    add(com.eried.eucplanet.ui.dashboard.PredictionMarker(it, 80f))
+                                    add(com.eried.eucplanet.ui.dashboard.PredictionMarker(it, state.targetPercent))
                                 }
                                 latest?.fullEtaMs?.let {
                                     add(com.eried.eucplanet.ui.dashboard.PredictionMarker(it, 100f))
@@ -1209,8 +1188,8 @@ private fun InfoTabs(state: ChargingUiState) {
                         // Per-pack whole-pack-voltage band chart above the tiles:
                         // one filled band per pack (its cell spread in whole-pack
                         // volts) plus the global pack-to-pack imbalance as a dashed
-                        // right-axis line. Hidden with fewer than 2 packs or 2
-                        // samples (guarded inside PacksChart).
+                        // right-axis line. Shows a collecting-data placeholder
+                        // until two packs each have two samples.
                         PacksChart(
                             packMin = state.packMinHistory,
                             packMax = state.packMaxHistory,

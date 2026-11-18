@@ -8,9 +8,6 @@ import android.net.NetworkRequest
 import android.net.wifi.WifiManager
 import android.util.Log
 import com.eried.eucplanet.hud.protocol.HudDiscovery
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -47,9 +44,8 @@ import java.net.InetSocketAddress
  * re-opening with a 1 s backoff, so an in-flight wifi-state change can't
  * permanently silence the listener.
  */
-@Singleton
-class HudUdpListener @Inject constructor(
-    @ApplicationContext private val appContext: Context,
+class HudUdpListener(
+    private val appContext: Context,
 ) {
     private val port: Int = HudDiscovery.BEACON_UDP_PORT
     data class Sighting(val ip: String, val port: Int, val receivedAtMs: Long)
@@ -62,8 +58,8 @@ class HudUdpListener @Inject constructor(
     private var multicastLock: WifiManager.MulticastLock? = null
     private var networkCallback: ConnectivityManager.NetworkCallback? = null
 
-    /** Diagnostic counters surfaced on the HUD-settings status panel so the
-     *  rider can see whether broadcasts are arriving at all. */
+    /** Diagnostic counters for the discovery trace, so a capture shows
+     *  whether broadcasts are arriving at all. */
     @Volatile var totalReceived: Long = 0L; private set
     @Volatile var lastReceiveAtMs: Long = 0L; private set
     @Volatile var lastBindError: String = ""; private set
@@ -102,8 +98,8 @@ class HudUdpListener @Inject constructor(
     /**
      * Many Android WiFi drivers silently drop inbound *broadcast* (yes,
      * broadcast, not just multicast) unless a `MulticastLock` is held.
-     * The lock is reference-counted and cheap; we acquire it for the
-     * lifetime of the listener and release on stop.
+     * The lock is cheap; we hold it for the lifetime of the listener and
+     * release it on stop.
      */
     private fun acquireMulticastLock() {
         if (multicastLock != null) return
@@ -201,7 +197,7 @@ class HudUdpListener @Inject constructor(
                     lastReceiveAtMs = now
                     // First beacon from a source, then one a minute. Enough to
                     // prove the channel is alive and to show it going quiet,
-                    // without burying the rest of the capture at 1 Hz.
+                    // without burying the rest of the capture with a line every 2 s.
                     if (srcIp != lastNotedSourceIp || now - lastNotedAtMs > BEACON_NOTE_INTERVAL_MS) {
                         lastNotedSourceIp = srcIp
                         lastNotedAtMs = now
@@ -237,7 +233,7 @@ class HudUdpListener @Inject constructor(
     companion object {
         private const val TAG = "HudUdpListener"
         private const val LOCK_TAG = "eucplanet-hud-udp-listener"
-        /** Beacons land about once a second; one trace line a minute is enough
+        /** Beacons land every 2 s; one trace line a minute is enough
          *  to show the channel alive and to show it going quiet. */
         private const val BEACON_NOTE_INTERVAL_MS = 60_000L
     }

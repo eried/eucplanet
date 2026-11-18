@@ -4,8 +4,6 @@ import com.eried.eucplanet.data.model.ExternalGpsSample
 import com.eried.eucplanet.data.model.ExternalGpsSource
 import com.eried.eucplanet.diagnostics.DiagnosticsLogger
 import java.util.UUID
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Dragy / Dragy Lite GPS performance-meter adapter.
@@ -26,8 +24,7 @@ import javax.inject.Singleton
  * = km/h). A tester GATT dump (Z Flip 7, 2026-07-20) confirmed the profile;
  * unhandled UBX / non-UBX bytes are still logged once for safety.
  */
-@Singleton
-class DragyAdapter @Inject constructor() : ExternalGpsAdapter {
+class DragyAdapter : ExternalGpsAdapter {
 
     override val source: ExternalGpsSource = ExternalGpsSource.DRAGY
 

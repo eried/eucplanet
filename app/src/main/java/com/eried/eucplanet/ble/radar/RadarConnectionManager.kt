@@ -13,7 +13,6 @@ import android.os.Build
 import android.util.Log
 import com.eried.eucplanet.ble.BleAutoReconnector
 import com.eried.eucplanet.ble.ConnectionState
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -21,8 +20,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.util.UUID
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * GATT instance dedicated to a rear-view radar (Garmin Varia today).
@@ -38,9 +35,8 @@ import javax.inject.Singleton
  * to the standard battery service, and forward decoded frames to the
  * repository as raw byte arrays paired with their characteristic UUID.
  */
-@Singleton
-class RadarConnectionManager @Inject constructor(
-    @ApplicationContext private val context: Context
+class RadarConnectionManager(
+    private val context: Context
 ) {
     companion object {
         private const val TAG = "RadarConn"

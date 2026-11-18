@@ -8,7 +8,6 @@ import android.net.NetworkRequest
 import android.net.wifi.WifiManager
 import android.util.Log
 import com.eried.eucplanet.ble.ConnectionState
-import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.HudDiscoveryMode
 import com.eried.eucplanet.data.model.arrowAngleDeg
 import com.eried.eucplanet.data.repository.ExternalGpsRepository
@@ -19,20 +18,22 @@ import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.hud.protocol.HudCommand
 import com.eried.eucplanet.hud.protocol.HudDebug
 import com.eried.eucplanet.hud.protocol.HudDiscovery
+import com.eried.eucplanet.hud.protocol.HudScreens
 import com.eried.eucplanet.hud.protocol.HudState
 import com.eried.eucplanet.hud.protocol.RadarTargetWire
 import com.eried.eucplanet.hud.protocol.StaleLink
 import com.eried.eucplanet.hud.protocol.WifiInterferenceDetector
 import com.eried.eucplanet.nav.NavigationEngine
-import com.eried.eucplanet.ui.theme.AccentOptions
-import com.eried.eucplanet.ui.theme.AccentTeal
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.eried.eucplanet.util.AppForeground
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -49,8 +50,6 @@ import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
-import javax.inject.Singleton
 import javax.jmdns.JmDNS
 import javax.jmdns.ServiceEvent
 import javax.jmdns.ServiceListener
@@ -77,9 +76,8 @@ import java.net.NetworkInterface
  * fires when the rider toggles the link on AND service is up, stop() on
  * either flipping off.
  */
-@Singleton
-class HudServer @Inject constructor(
-    @ApplicationContext private val context: Context,
+class HudServer(
+    private val context: Context,
     private val wheelRepository: WheelRepository,
     private val settingsRepository: SettingsRepository,
     private val externalGpsRepository: ExternalGpsRepository,
@@ -91,7 +89,19 @@ class HudServer @Inject constructor(
     private val themeController: com.eried.eucplanet.ui.theme.ThemeController,
     val udpListener: HudUdpListener,
     private val subnetProbe: HudSubnetProbe,
+    private val offlineMap: com.eried.eucplanet.nav.offline.map.OfflineMapRenderer,
 ) {
+
+    /** The HUD's map pictures, served while the link is on. For a layer the
+     *  phone answers as its own maps would; with none, the offline map. */
+    private val tileServer = HudTileServer(
+        com.eried.eucplanet.hud.protocol.HudDiscovery.TILE_PORT,
+        { z, x, y, layer ->
+            if (layer == null) offlineMap.png(z, x, y, 256)
+            else com.eried.eucplanet.map.MapTileCache.layerTile(context, layer, z, x, y)
+        },
+        { Log.w(TAG, it) },
+    )
 
     companion object {
         private const val TAG = "HudServer"
@@ -110,6 +120,8 @@ class HudServer @Inject constructor(
         // background reconnect survive long enough to pair.
         private const val PING_FOREGROUND_MS = 5_000L
         private const val PING_BACKGROUND_MS = 15_000L
+        /** Snapshot pace while no HUD is connected: nothing reads it then. */
+        private const val IDLE_SNAPSHOT_MS = 1_000L
         // mDNS resolve timeout. Generous so a flaky multicast path on the
         // hotspot gets a fair chance, but bounded so the rider sees the
         // "no IP / not autodetected" state within a reasonable wait.
@@ -129,18 +141,6 @@ class HudServer @Inject constructor(
          *  moved HUD long before any heartbeat would while still leaving a
          *  healthy link almost entirely alone. */
         private const val BEACON_MISMATCH_PROBE_MS = 5_000L
-        // Default carousel order shipped with all 12 known screens.
-        // Mirrors SettingsViewModel.defaultEnabledHudScreens so a fresh
-        // install gets a non-empty wire field on the first frame --
-        // lets the HUD distinguish "no frame received yet" (empty)
-        // from "rider's choice" (non-empty). Updated from the original
-        // 7 after preview-3 tester feedback that the opt-in screens
-        // were invisible to most testers.
-        private val DEFAULT_HUD_SCREENS = listOf(
-            "Dashboard", "Camera", "Telemetry",
-            "Custom", "CustomCam", "Map", "Nav",
-            "Power", "TripStats", "Compass", "Safety", "BigClock"
-        )
     }
 
     private val json = Json {
@@ -170,6 +170,10 @@ class HudServer @Inject constructor(
         .retryOnConnectionFailure(true)
         .build()
 
+    /** Sends the HUD app this phone carries to the linked HUD, on the
+     *  rider's tap in Settings. */
+    val appSender = HudAppSender(context, http) { currentPeer }
+
     /** True when the app UI is actually on-screen (process importance
      *  FOREGROUND), not merely the ride foreground service running
      *  (FOREGROUND_SERVICE). Once the UI is gone, Samsung / Android 16 throttle
@@ -185,12 +189,22 @@ class HudServer @Inject constructor(
 
     @Volatile private var loopJob: Job? = null
     @Volatile private var beaconKickJob: Job? = null
+    @Volatile private var attentionJob: Job? = null
+    /** When the last subnet sweep started; 0 makes the next search sweep.
+     *  Reset on link start, network change and the rider starting to look. */
+    @Volatile private var lastSweepMs = 0L
     @Volatile private var publishJob: Job? = null
     @Volatile private var ws: WebSocket? = null
     /** "ip:port" of the HUD the live WebSocket is talking to; null when down.
      *  Read by the network-loss probe to test whether the peer is still
      *  reachable after a WiFi transition. */
-    @Volatile private var currentPeer: String? = null
+    private val _peer = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
+    /** The same address for the settings screen, which shows it on the HUD
+     *  app card beside how it was found. */
+    val peer: kotlinx.coroutines.flow.StateFlow<String?> get() = _peer
+    private var currentPeer: String?
+        get() = _peer.value
+        set(value) { _peer.value = value }
 
     /**
      * Cancels any pending dial-loop backoff the moment something interesting
@@ -246,6 +260,8 @@ class HudServer @Inject constructor(
                 manualHintDelayMs = s.hudManualHintDelayMs.toLong()
                 discoveryTotalTimeoutMs = s.hudDiscoveryTotalTimeoutMs.toLong()
                 mdnsServiceInfoTimeoutMs = s.hudMdnsServiceInfoTimeoutMs.toLong()
+                idleSearchMs = s.hudIdleSearchMs.toLong()
+                sweepIntervalMs = s.hudSweepIntervalMs.toLong()
                 val want = s.hudServerEnabled ||
                     com.eried.eucplanet.hud.protocol.HudDebug.read("debug.eucplanet.hud.force") == "true"
                 if (want != on) {
@@ -266,6 +282,8 @@ class HudServer @Inject constructor(
     @Volatile private var manualHintDelayMs: Long = 1_500L
     @Volatile private var discoveryTotalTimeoutMs: Long = 15_000L
     @Volatile private var mdnsServiceInfoTimeoutMs: Long = 1_000L
+    @Volatile private var idleSearchMs: Long = 120_000L
+    @Volatile private var sweepIntervalMs: Long = 60_000L
     @Volatile private var multicastLock: WifiManager.MulticastLock? = null
     /** High-performance WiFi lock acquired while the HUD link is enabled.
      *  Without this, the radio enters DTIM power-save once the screen is off
@@ -316,6 +334,7 @@ class HudServer @Inject constructor(
     private suspend fun doStart() {
         if (loopJob != null) return
         Log.i(TAG, "Starting HUD link")
+        tileServer.start()
         log("Link enabled, starting discovery")
         if (HudDebug.read("debug.eucplanet.demo") == "true") {
             Log.i(TAG, "Demo telemetry mode is ON")
@@ -347,8 +366,12 @@ class HudServer @Inject constructor(
                     Log.w(TAG, "snapshot failed", t)
                 }
                 // Rider-configured HUD report interval; sanitized() guarantees a
-                // safe floor so this delay can never spin at 0.
-                delay(settingsRepository.currentOrLoad().hudReportIntervalMs.toLong())
+                // safe floor so this delay can never spin at 0. With no HUD
+                // connected nothing reads the snapshot, so it only stays warm.
+                delay(
+                    if (ws == null) IDLE_SNAPSHOT_MS
+                    else settingsRepository.currentOrLoad().hudReportIntervalMs.toLong()
+                )
             }
         }
 
@@ -381,27 +404,41 @@ class HudServer @Inject constructor(
             val target = if (ip.isBlank()) "(no IP set)" else "$ip:$port"
             log("Fixed mode, manual only -> $target")
         }
-        acquireWifiPerfLock()
         registerNetworkCallback()
+        lastSweepMs = 0L
+        // A wheel connecting or the app coming on screen means the rider is now
+        // waiting for the HUD: end the idle wait and sweep straight away.
+        attentionJob = scope.launch {
+            combine(wheelRepository.connectionState, AppForeground.isForeground) { c, fg ->
+                c == ConnectionState.CONNECTED || fg
+            }.distinctUntilChanged().drop(1).collect { attending ->
+                if (attending) {
+                    lastSweepMs = 0L
+                    reconnectKick.trySend(Unit)
+                }
+            }
+        }
         loopJob = scope.launch { dialLoop() }
     }
 
     private suspend fun doStop() {
         Log.i(TAG, "Stopping HUD link")
         log("Link disabled")
+        tileServer.stop()
         try { demo.stop() } catch (_: Throwable) {}
         try { ws?.close(1000, "stopping") } catch (_: Throwable) {}
         ws = null
+        tripRepository.setHudMapLinked(false)
         currentPeer = null
         publishJob?.cancel(); publishJob = null
         loopJob?.cancel(); loopJob = null
         beaconKickJob?.cancel(); beaconKickJob = null
+        attentionJob?.cancel(); attentionJob = null
         udpListener.stop()
         _connectionSource.value = ConnectionSource.NONE
         try { multicastLock?.release() } catch (_: Throwable) {}
         multicastLock = null
-        try { wifiLock?.release() } catch (_: Throwable) {}
-        wifiLock = null
+        releaseWifiPerfLock()
         unregisterNetworkCallback()
     }
 
@@ -447,6 +484,7 @@ class HudServer @Inject constructor(
             override fun onAvailable(network: Network) {
                 Log.i(TAG, "network onAvailable: kicking dial loop")
                 log("Network came up, retrying immediately")
+                lastSweepMs = 0L
                 reconnectKick.trySend(Unit)
             }
             override fun onCapabilitiesChanged(network: Network, caps: NetworkCapabilities) {
@@ -617,22 +655,27 @@ class HudServer @Inject constructor(
         }
     }
 
+    private fun releaseWifiPerfLock() {
+        try { wifiLock?.release() } catch (_: Throwable) {}
+        wifiLock = null
+    }
+
     /**
      * Outer loop: discover-or-read the HUD address, open a WebSocket, pump
      * state until it dies, back off, retry.
      *
-     * In AUTO (default) and BOTH modes we walk a priority chain on each
-     * iteration:
+     * In AUTO (default) and BOTH modes every channel runs at once and the
+     * first answer wins, see [resolvePeer]:
      *
-     *   1. UDP beacon sighting (freshest first; cheap, the most reliable
-     *      channel because it works on hotspots that block multicast)
-     *   2. mDNS browse on `_eucplanet._tcp.local.` (5 s wait)
-     *   3. Manual `hudIp` from settings, BOTH mode only (a last-known hint,
-     *      not the only truth). AUTO skips this so a stale IP the rider cannot
-     *      see (the field is hidden) can never win the race - the bug that had
-     *      a stale entry beat a HUD that had already announced itself.
-     *   4. /24 subnet probe of the phone's own IP (slow, ~3 s, only fires
-     *      when the first channels failed)
+     *   - UDP beacon sighting (cheap, the most reliable channel because it
+     *     works on hotspots that block multicast)
+     *   - mDNS browse on `_eucplanet._tcp.local.`
+     *   - /24 subnet probe of the phone's own networks, rate limited by
+     *     sweepIntervalMs
+     *   - Manual `hudIp` from settings, BOTH mode only and after a short
+     *     grace delay (a last-known hint, not the only truth). AUTO skips
+     *     this so a stale IP the rider cannot see (the field is hidden) can
+     *     never win the race.
      *
      * FIXED mode skips discovery entirely and uses only the manual IP - an
      * escape hatch for the rare environment where every auto channel misleads
@@ -646,12 +689,13 @@ class HudServer @Inject constructor(
         var attempt = 0
         val sprintStartedAtMs = System.currentTimeMillis()
         while (true) {
-            // Re-assert the WiFi lock every tick: it's only acquired once at
-            // enable, but the OS can reclaim it (or it can lapse on a network
-            // hop). Idempotent -- keeps the radio out of power-save for the
-            // whole session, not just the instant the link came up.
-            acquireWifiPerfLock()
-            val s = runCatching { settingsRepository.get() }.getOrNull()
+            // Riding, the radio stays out of power-save the whole time, as it
+            // always did: a HUD lost mid-ride has to be found again by
+            // broadcast and multicast, which a dozing radio drops. Only a phone
+            // with no wheel lets it doze while no HUD answers.
+            val riding = wheelRepository.connectionState.value == ConnectionState.CONNECTED
+            if (riding) acquireWifiPerfLock()
+            val s = runCatching { settingsRepository.currentOrLoad() }.getOrNull()
             val override = HudDebug.read("debug.eucplanet.hud.peer")?.takeIf { it.isNotBlank() }
             val mode = s?.hudDiscoveryMode ?: HudDiscoveryMode.AUTO
             val manualIp = s?.hudIp?.trim().orEmpty()
@@ -670,6 +714,10 @@ class HudServer @Inject constructor(
 
             if (peer == null) {
                 _connectionSource.value = ConnectionSource.NONE
+                // No HUD on this network and no ride: let the Wi-Fi radio
+                // power-save. It used to be held awake all day whenever the
+                // HUD was enabled.
+                if (!riding) releaseWifiPerfLock()
                 // Sprint mode: aggressively retry every 2 s for the first
                 // 30 s after the dial loop kicks off so the rider gets a
                 // fast connection on a healthy network. After the sprint
@@ -678,13 +726,33 @@ class HudServer @Inject constructor(
                 // kick (phone hopped to a different WiFi, came back from
                 // airplane mode) cancels whichever delay is pending so we
                 // retry immediately instead of waiting out the tick.
-                val sinceStart = System.currentTimeMillis() - sprintStartedAtMs
-                delayOrKick(if (sinceStart < discoverySprintMs) 2_000L else 5_000L)
+                //
+                // With nobody waiting (no wheel, app off screen) the wait is
+                // idleSearchMs instead (HudSearchPacing). The beacon listener,
+                // a network change, a wheel connecting or the app opening all
+                // still end it at once.
+                val attending = AppForeground.isForeground.value ||
+                    wheelRepository.connectionState.value == ConnectionState.CONNECTED
+                delayOrKick(
+                    HudSearchPacing.waitMs(
+                        attending,
+                        sinceStartMs = System.currentTimeMillis() - sprintStartedAtMs,
+                        sprintMs = discoverySprintMs,
+                        idleMs = idleSearchMs,
+                    )
+                )
                 continue
             }
             _connectionSource.value = source
+            // Keep the radio out of power-save while a HUD is dialled and
+            // streamed. Re-asserted on every dial: the OS can reclaim it, or it
+            // can lapse on a network hop. Idempotent.
+            acquireWifiPerfLock()
             val ok = streamUntilClosed(peer)
             if (!ok) {
+                // Nothing answered at that address (a fixed IP with the HUD
+                // off): same rule as finding no HUD at all.
+                if (!riding) releaseWifiPerfLock()
                 delayOrKick(backoff(attempt++))
             } else {
                 attempt = 0
@@ -692,12 +760,6 @@ class HudServer @Inject constructor(
         }
     }
 
-    /**
-     * Run the discovery priority chain and return the first usable
-     * `host:port` plus the source it came from. Each step's timing is
-     * tuned so the full chain bottoms out in ~10 s even in the worst case
-     * (no UDP, no mDNS, no manual hint, subnet probe runs).
-     */
     /**
      * Resolve a peer when auto-discovery is OFF. We trust whatever the rider
      * typed, fill in only what's missing with mDNS (no UDP, no subnet probe
@@ -843,7 +905,16 @@ class HudServer @Inject constructor(
             }
         }
 
-        val probeJob = scope.launch {
+        // The sweep tries every address on the network, by far the costliest
+        // channel, so it runs at most once per sweepIntervalMs. A new network
+        // or the rider starting to look resets the clock (lastSweepMs = 0).
+        // Beacon and mDNS still run on every search.
+        val now = System.currentTimeMillis()
+        val probeJob = if (!HudSearchPacing.sweepDue(now, lastSweepMs, sweepIntervalMs)) {
+            log("Subnet probe: skipped, last sweep ${(now - lastSweepMs) / 1000}s ago")
+            null
+        } else scope.launch {
+            lastSweepMs = System.currentTimeMillis()
             // Last resort, and gated: this only runs if the faster mDNS / UDP
             // paths did not already find the HUD (a win cancels this job). It
             // starts immediately - no stagger - because the scan is bounded
@@ -900,7 +971,7 @@ class HudServer @Inject constructor(
 
     /** Resolve `_eucplanet._tcp.local.` on whatever subnet we have. Returns
      *  `host:port` of the first matching HUD with a compatible protocol
-     *  version, or null if nothing answered within [MDNS_RESOLVE_TIMEOUT_MS].
+     *  version, or null if nothing answered within [mdnsTimeoutMs].
      *
      *  Each call opens its own JmDNS instance so a network change between
      *  attempts (rider switching hotspot on, walking out of range) gets a
@@ -1042,8 +1113,15 @@ class HudServer @Inject constructor(
                 // timestamp bump in [snapshot] keeps the HUD's last-frame
                 // freshness signal live.
                 sendJob = scope.launch {
+                    // The buffer only refreshes once a second while no HUD is
+                    // linked, so the first frame is taken fresh.
+                    var first = true
                     while (true) {
-                        val frame = latest
+                        val frame = if (first) runCatching { snapshot() }.getOrDefault(latest) else latest
+                        first = false
+                        // The HUD draws its map screens from this phone's
+                        // position, so keep GPS on while one is in the carousel.
+                        if (isActive) tripRepository.setHudMapLinked(HudScreens.hasMap(frame.enabledHudScreens))
                         try {
                             if (!webSocket.send(json.encodeToString(frame))) {
                                 // OkHttp returns false when the outbound
@@ -1092,9 +1170,11 @@ class HudServer @Inject constructor(
             }
             override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
                 sendJob?.cancel()
+                tripRepository.setHudMapLinked(false)
                 ws = null
                 currentPeer = null
                 commandSink.onHudDisconnected()
+                appSender.reset()
                 done.complete(true)
             }
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
@@ -1107,9 +1187,11 @@ class HudServer @Inject constructor(
                     if (correlated) log("Drop correlated with a phone Wi-Fi change")
                 }
                 sendJob?.cancel()
+                tripRepository.setHudMapLinked(false)
                 ws = null
                 currentPeer = null
                 commandSink.onHudDisconnected()
+                appSender.reset()
                 done.complete(false)
             }
         }
@@ -1125,6 +1207,42 @@ class HudServer @Inject constructor(
     private fun backoff(attempt: Int): Long {
         val expanded = backoffMinMs shl attempt.coerceAtMost(3)
         return expanded.coerceAtMost(backoffMaxMs)
+    }
+
+    /** The map heading, kept through a stop so the HUD map does not swing
+     *  back to north-up at every halt. */
+    private val heldHeading = com.eried.eucplanet.hud.protocol.HeldHeading()
+
+    // The last route piece cut for the HUD map and what it was cut from. The
+    // state goes out several times a second and a fix arrives once, so most
+    // frames reuse the string.
+    private var routeWindowLeg: com.eried.eucplanet.data.model.NavRoute? = null
+    private var routeWindowLat = Double.NaN
+    private var routeWindowLng = Double.NaN
+    private var routeWindowFlat = DoubleArray(0)
+    private var routeWindowEncoded = ""
+
+    /** The route line around ([lat], [lng]) for the HUD map, "" without one. */
+    private fun routeWindow(lat: Double, lng: Double): String {
+        val leg = navigationEngine.activeLeg.value
+        if (leg == null || leg.geometry.size < 2) return ""
+        if (leg !== routeWindowLeg) {
+            routeWindowLeg = leg
+            routeWindowFlat = DoubleArray(leg.geometry.size * 2).also { flat ->
+                leg.geometry.forEachIndexed { i, p ->
+                    flat[2 * i] = p.lat
+                    flat[2 * i + 1] = p.lng
+                }
+            }
+            routeWindowLat = Double.NaN
+        }
+        if (lat != routeWindowLat || lng != routeWindowLng) {
+            routeWindowLat = lat
+            routeWindowLng = lng
+            routeWindowEncoded = com.eried.eucplanet.hud.protocol.RouteWindow
+                .encodeAround(routeWindowFlat, lat, lng)
+        }
+        return routeWindowEncoded
     }
 
     private suspend fun snapshot(): HudState {
@@ -1205,7 +1323,7 @@ class HudServer @Inject constructor(
             unitTemp = com.eried.eucplanet.util.Units.effectiveTempUnit(s),
             unitPressure = com.eried.eucplanet.util.Units.effectivePressureUnit(s),
             batteryEnvelope = wd.batteryEnvelope,
-            accentArgb = resolveAccentArgb(s),
+            accentArgb = resolveAccentArgb(),
             latitude = (location?.latitude ?: 0.0) + (d?.dLat ?: 0.0),
             longitude = (location?.longitude ?: 0.0) + (d?.dLng ?: 0.0),
             gpsSpeedKmh = gpsSpeedPair?.first ?: Float.NaN,
@@ -1216,8 +1334,10 @@ class HudServer @Inject constructor(
             phoneGpsSpeedKmh = if (location?.hasSpeed() == true) location.speed * 3.6f else Float.NaN,
             externalGpsSpeedKmh = if (externalFresh) external!!.speedKmh else Float.NaN,
             gpsHasFix = location != null,
-            gpsHeadingDeg = if (location?.hasBearing() == true) location.bearing
-                else Float.NaN,
+            gpsHeadingDeg = heldHeading.update(
+                bearingDeg = if (location?.hasBearing() == true) location.bearing else null,
+                speedMs = if (location?.hasSpeed() == true) location.speed else null,
+            ),
             gpsAltitudeM = if (location?.hasAltitude() == true) location.altitude.toFloat()
                 else Float.NaN,
             externalGpsBatteryPercent = if (externalFresh) (external!!.batteryPercent ?: -1) else -1,
@@ -1229,32 +1349,13 @@ class HudServer @Inject constructor(
             wheelRollDeg = wd.rollAngle,
             wheelPitchDeg = wd.pitchAngle,
             customOverlayJson = s.hudCustomOverlayJson,
-            enabledHudScreens = run {
-                // Carousel order = the rider's preferred row order,
-                // filtered to keep only the enabled screens. Both
-                // fields are independent in storage so toggling a row
-                // off doesn't move it in the Personalize list.
-                val order = s.hudScreensOrder.split(",")
-                    .map { it.trim() }
-                    .filter { it.isNotEmpty() }
-                val enabled = s.hudScreensEnabled.split(",")
-                    .map { it.trim() }
-                    .filter { it.isNotEmpty() }
-                    .toSet()
-                // ALWAYS ship a non-empty list. The HUD treats an empty
-                // enabledHudScreens as "no wire frame received yet" and
-                // shows a waiting splash; if the rider hasn't customised
-                // we ship the default seven so the HUD has something to
-                // render the moment a real frame arrives.
-                if (order.isEmpty() && enabled.isEmpty()) {
-                    DEFAULT_HUD_SCREENS
-                } else if (order.isEmpty()) {
-                    enabled.toList()
-                } else {
-                    order.filter { it in enabled }
-                        .ifEmpty { DEFAULT_HUD_SCREENS }
-                }
-            },
+            // Carousel order = the rider's preferred row order, filtered
+            // to keep only the enabled screens. Both fields are
+            // independent in storage so toggling a row off doesn't move
+            // it in the Personalize list. Never empty: the HUD treats an
+            // empty list as "no wire frame received yet" and shows a
+            // waiting splash.
+            enabledHudScreens = HudScreens.carousel(s.hudScreensOrder, s.hudScreensEnabled),
             hudMapStyle = s.hudMapStyle,
             hudMapContrastPct = s.hudMapContrastPct,
             hudMapBrightnessPct = s.hudMapBrightnessPct,
@@ -1263,6 +1364,17 @@ class HudServer @Inject constructor(
             navPrimary = d?.navPrimary ?: nav.primaryText,
             navDistance = d?.navDistance ?: nav.distanceText,
             navArrived = d?.navArrived ?: nav.arrived,
+            // For the whole route, not only while the turn popup is up:
+            // the rider wants the arrival time between turns too.
+            navEta = if (d == null && nav.active && !nav.arrived) {
+                com.eried.eucplanet.nav.NavFormat.etaLine(
+                    context, nav.etaEpochMs, nav.remainingM,
+                    imperial = com.eried.eucplanet.util.Units.effectiveDistanceUnit(s) == "mi"
+                )
+            } else "",
+            navRoute = if (d == null && nav.active && !nav.arrived && location != null) {
+                routeWindow(location.latitude, location.longitude)
+            } else "",
             // Human-readable labels for the HUD joystick long-press guide.
             // The HUD has no access to the phone's action config, so resolve
             // each configured slot key to its catalog label here. Reuses the
@@ -1297,6 +1409,6 @@ class HudServer @Inject constructor(
         return context.getString(spec.labelRes)
     }
 
-    private fun resolveAccentArgb(s: AppSettings): String =
+    private fun resolveAccentArgb(): String =
         com.eried.eucplanet.ui.theme.ThemeAccent.primaryArgb(themeController.activeColors.value)
 }

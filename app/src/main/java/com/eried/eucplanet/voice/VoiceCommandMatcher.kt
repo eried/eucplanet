@@ -22,7 +22,8 @@ import com.eried.eucplanet.voice.VoiceVocabulary.SpokenTerm
  * temperatures in the catalog (motor, controller, battery) and two speed
  * limits, so "temperature" on its own is genuinely ambiguous and "motor
  * temperature" must not be answered with the plain temperature. Two rules
- * handle both: the longest name wins, and where several still tie, the rider's
+ * handle both: the name using the most spoken words wins (then the longest),
+ * and where several still tie, the rider's
  * own dashboard decides, because a tile they chose to look at is the one they
  * meant. Neither rule needs a setting.
  *
@@ -62,10 +63,17 @@ object VoiceCommandMatcher {
         }
         if (present.isEmpty()) return VoiceMatch.None
 
-        // Longest first: "motor temperature" beats "temperature", which is the
-        // whole reason a rider can ask for a specific one at all.
-        val longest = present.maxOf { normalise(it.name).length }
-        val best = present.filter { normalise(it.name).length == longest }
+        // The name that uses more of what was said wins: "motor temperature"
+        // beats "temperature". Counting spoken words rather than letters keeps
+        // one long compound from beating two words: Finnish "viime matka"
+        // (last trip) used to land on "Matkamittari" (trip meter), only
+        // because matka starts it and it is the longer name. Name length then
+        // breaks what is left.
+        val used = present.associateWith { usedWords(spoken, normalise(it.name).split(" ")) }
+        val most = used.values.max()
+        val widest = present.filter { used[it] == most }
+        val longest = widest.maxOf { normalise(it.name).length }
+        val best = widest.filter { normalise(it.name).length == longest }
         if (best.size == 1) return VoiceMatch.Hit(best.first())
 
         // Still tied. The rider's own tiles decide.
@@ -86,6 +94,10 @@ object VoiceCommandMatcher {
      */
     private fun covers(spoken: List<String>, nameWords: List<String>): Boolean =
         nameWords.all { word -> spoken.any { matches(it, word) } }
+
+    /** How many of the spoken words a name accounts for. */
+    private fun usedWords(spoken: List<String>, nameWords: List<String>): Int =
+        spoken.count { said -> nameWords.any { matches(said, it) } }
 
     /**
      * One spoken word against one word of a name.

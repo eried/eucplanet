@@ -18,7 +18,7 @@ import kotlin.math.sin
  *
  * Activated by setting `debug.eucplanet.demo=true` before the WheelService
  * starts. Replaces the HudServer snapshot's wheel/nav data with a scripted
- * riding session: speed sweeps 0 → 40 mph and back, battery drips down,
+ * riding session: speed sweeps 0 → 46 mph (75 km/h) and back, battery drips down,
  * PWM oscillates, temperature creeps up, GPS slowly orbits the phone's
  * starting position. Every screen has something visibly moving.
  *
@@ -85,7 +85,7 @@ class HudDemoSource {
         // Voltage proxies battery with a small load sag during accel.
         val voltage = (75.0 + battery * 0.25 - speedKmh * 0.05).toFloat()
 
-        // PWM tracks speed roughly: idle 15-20%, peaks ~75% at top speed.
+        // PWM tracks speed: 15% idle, about 90% at top speed.
         val pwm = (15.0 + speedKmh * 1.0).coerceIn(0.0, 95.0).toFloat()
 
         // Current peaks during acceleration: derivative of speedKmh.

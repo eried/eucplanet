@@ -63,7 +63,7 @@ object InMotionV2LegacyCommands {
      *
      *   payload: [0x50, lowBeam, highBeam]   (each 0 or 1)
      *
-     * V14 family wheels use a different single-byte sub-cmd; this builder
+     * V14 family wheels use the same sub-cmd with a single arg byte; this builder
      * is for the V12 HS/HT/Pro path only.
      */
     fun setLightV12(on: Boolean): ByteArray {

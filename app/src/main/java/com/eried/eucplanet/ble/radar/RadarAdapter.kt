@@ -6,12 +6,12 @@ import com.eried.eucplanet.data.model.RadarVendor
 /**
  * Per-vendor adapter for a rear-view BLE radar. Mirrors
  * [com.eried.eucplanet.ble.gps.ExternalGpsAdapter]: one interface, one
- * implementation per family, registered into a Hilt set so the scanner and
+ * implementation per family, registered into a Koin set so the scanner and
  * connection manager iterate them without knowing the concrete types.
  *
  * Phase 1 ships only [VariaAdapter]. The shape is generic on purpose so
  * Magicshine Seemee / BSafe / aftermarket radars can plug in by adding a
- * [dagger.Binds] entry in [com.eried.eucplanet.di.RadarModule] when their
+ * entry to the set in [com.eried.eucplanet.di.radarModule] when their
  * BLE protocols become public.
  */
 interface RadarAdapter {

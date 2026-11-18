@@ -28,7 +28,7 @@ import com.eried.eucplanet.hud.ui.HudUnits
 /**
  * Three big tiles, colour-graded by their own thresholds:
  *   PWM           green/orange/red against the rider's gauge thresholds
- *   TEMP          green up to ~60 deg, orange to ~70, red 80+
+ *   TEMP          green below 65 deg C, orange from 65, red from 80
  *   VOLTAGE SAG   current vs highest seen this session, expressed as
  *                 ΔV, red if > SAG_RED_V (8 V default, reasonable for
  *                 ~84 V packs).

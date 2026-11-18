@@ -552,7 +552,7 @@ Page(
         this.showDots(false)
         st.page = 0
       }
-      // Self-close fallback for "Auto-stop on watch", same rule as Garmin.
+      // Self-close fallback for "Auto-stop on watch". Garmin waits 60 s.
       if (st.s && st.s.closeOnExit && silent > AUTO_CLOSE_MS) exit()
     },
 
@@ -649,8 +649,7 @@ Page(
     },
 
     // Switch between the dial (page 0) and the details list (page 1). Called on
-    // swipe and, every frame, from applyState so the active page stays shown
-    // while the other stays hidden.
+    // swipe; applyState keeps the active page shown on every frame.
     showPage(p) {
       this.state.page = p
       const onDial = p === 0
@@ -953,7 +952,7 @@ Page(
           text_size: fontSize,
           // Only tag the unit when all three are shown (small values, and the
           // icons alone are ambiguous). One or two read big, so the icon is
-          // enough and a "%" would only echo the PWM badge below.
+          // enough.
           text: String(Math.round(f.pct)) + (n === 3 ? '%' : ''),
           color: batteryColor(f.pct),
         })

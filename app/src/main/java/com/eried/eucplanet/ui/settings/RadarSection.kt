@@ -32,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.ble.radar.RadarScanResult
@@ -42,6 +41,7 @@ import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedSegmentedColors
 import com.eried.eucplanet.ui.theme.themedSwitchColors
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * Sub-section of the Integration settings tab for pairing a rear-view radar
@@ -51,7 +51,7 @@ import com.eried.eucplanet.ui.theme.themedSwitchColors
  */
 @Composable
 fun RadarSection(
-    viewModel: RadarViewModel = hiltViewModel()
+    viewModel: RadarViewModel = koinViewModel()
 ) {
     val pairedAddress by viewModel.pairedAddress.collectAsState()
     val pairedName by viewModel.pairedName.collectAsState()
@@ -64,7 +64,7 @@ fun RadarSection(
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         if (pairedAddress == null) {
-            HintText(stringResource(R.string.radar_caption), small = true)
+            HintText(stringResource(R.string.radar_caption))
             UnpairedRadarCard(
                 scanning = scanning,
                 results = scanResults,
@@ -117,7 +117,7 @@ fun RadarSection(
 
 @Composable
 private fun RadarOverlaySettings(viewModel: RadarViewModel) {
-    val settingsViewModel: SettingsViewModel = hiltViewModel()
+    val settingsViewModel: SettingsViewModel = koinViewModel()
     val settings by settingsViewModel.settings.collectAsState()
     val s = settings ?: return
 
@@ -137,7 +137,7 @@ private fun RadarOverlaySettings(viewModel: RadarViewModel) {
             colors = themedSwitchColors(),
         )
     }
-    HintText(stringResource(R.string.radar_show_overlay_desc), small = true)
+    HintText(stringResource(R.string.radar_show_overlay_desc))
 
     if (s.radarShowOverlay) {
         val sideOptions = listOf(
@@ -264,13 +264,14 @@ private fun PairedRadarCard(
                         color = MaterialTheme.appColors.statusGood
                     )
                 } else {
-                    // Debug-friendly per-target dump so the user can confirm
-                    // the parser works against their actual hardware before
-                    // we commit to the overlay UI. Fixed-height scroll area
+                    // Per-target list so the rider can see what the radar
+                    // reports. Fixed-height scroll area
                     // so the card stays a constant size while threat count
                     // bounces around in demo / busy-road mode.
                     Text(
-                        stringResource(R.string.radar_threats_count, frame.threats.size),
+                        androidx.compose.ui.res.pluralStringResource(
+                            R.plurals.radar_threats_count, frame.threats.size, frame.threats.size
+                        ),
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.SemiBold
                     )

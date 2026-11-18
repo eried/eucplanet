@@ -55,7 +55,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.NavMode
 import com.eried.eucplanet.data.model.NavState
@@ -63,6 +62,7 @@ import com.eried.eucplanet.data.model.Proximity
 import com.eried.eucplanet.data.model.arrowAngleDeg
 import com.eried.eucplanet.ui.theme.appColors
 import kotlinx.coroutines.delay
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * The floating navigation popup. Rendered above the nav graph in
@@ -70,8 +70,8 @@ import kotlinx.coroutines.delay
  * app while guidance is running.
  *
  * Each new cue pops a big arrow card in the centre of the screen on a rounded
- * translucent background; it times out (AppSettings.navPopupTimeoutMs) to a
- * small corner pill. Tapping the pill re-opens it. The X ends navigation after a
+ * translucent background; it times out (AppSettings.navPopupTimeoutMs) and
+ * hides. The dashboard navigator button re-opens it. The X ends navigation after a
  * confirmation. The empty area around the card does not intercept touches.
  */
 @Composable
@@ -83,14 +83,14 @@ fun NavigationOverlay(
     // navigator map). Setting `cueVisible` independent of phone visibility
     // means the watch keeps its setting honoured.
     suppressOnPhone: Boolean = false,
-    viewModel: NavigationOverlayViewModel = hiltViewModel()
+    viewModel: NavigationOverlayViewModel = koinViewModel()
 ) {
     val state by viewModel.navState.collectAsState()
     val popupTimeoutMs by viewModel.popupTimeoutMs.collectAsState()
     var showEndConfirm by remember { mutableStateOf(false) }
 
     // The centred popup is transient: it appears on each new cue, then times
-    // out to the pill. popGen bumps on every new cue (and on a manual re-open)
+    // out and hides. popGen bumps on every new cue (and on a manual re-open)
     // so the show-then-hide cycle restarts each time.
     var popGen by remember { mutableIntStateOf(0) }
     var popupShown by remember { mutableStateOf(false) }
@@ -205,15 +205,16 @@ private fun CenterPopup(
         modifier = Modifier
             .width(340.dp)
             .padding(8.dp)
-            // Absorb taps so they don't fall through to the app underneath. A
-            // no-op clickable does this cleanly, the perpetual event-consume
-            // loop used before was cancelling the popup's own button taps.
+            // Absorbs taps so they don't fall through to the app underneath,
+            // and a tap anywhere on the card opens the map navigator: the map
+            // icon alone was a small target. On the map itself it stays a
+            // no-op. The header buttons take their own taps first.
             .clickable(
                 interactionSource = remember {
                     androidx.compose.foundation.interaction.MutableInteractionSource()
                 },
                 indication = null
-            ) {},
+            ) { if (!onMapScreen) { onMinimize(); onOpenMap() } },
         shape = RoundedCornerShape(12.dp),
         color = panel,
         contentColor = ink,
@@ -346,20 +347,6 @@ private fun CenterPopup(
             }
         }
     }
-}
-
-/** Colour the cue takes: red when off-route, green on arrival, warmth-tinted in Treasure Hunt. */
-@Composable
-private fun cueColor(state: NavState, accent: Color): Color = when {
-    state.offRoute -> MaterialTheme.appColors.statusDanger
-    state.arrived -> MaterialTheme.appColors.statusGood
-    state.mode == NavMode.TREASURE_HUNT -> when (state.proximity) {
-        Proximity.HOT -> MaterialTheme.appColors.statusDanger
-        Proximity.WARM -> MaterialTheme.appColors.statusWarn
-        Proximity.COLD -> MaterialTheme.appColors.metricVoltage
-        null -> accent
-    }
-    else -> accent
 }
 
 @Composable

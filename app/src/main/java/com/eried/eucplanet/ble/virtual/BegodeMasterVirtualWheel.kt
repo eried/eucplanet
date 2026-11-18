@@ -28,10 +28,12 @@ class BegodeMasterVirtualWheel : VirtualWheel {
 
     private var startTimeMs = System.currentTimeMillis()
     private var lastExtrasTickMs = -1_000L
+    private val trip = SimTripMeter()
 
     override fun reset() {
         startTimeMs = System.currentTimeMillis()
         lastExtrasTickMs = -1_000L
+        trip.reset()
     }
 
     override fun onWrite(data: ByteArray): List<ByteArray> {
@@ -64,7 +66,7 @@ class BegodeMasterVirtualWheel : VirtualWheel {
         val rawTempReg = 0x0EFF     // ≈ 47 °C through the MPU6050 formula
 
         val out = ArrayList<ByteArray>(2)
-        out += begodeLiveFrame(elapsedMs, rawCv, rawSpeed, rawCurrent, rawTempReg)
+        out += begodeLiveFrame(trip.advance(elapsedMs, forwardKmh), rawCv, rawSpeed, rawCurrent, rawTempReg)
         // Stock firmware also sends the 0x07 extras frame about once a second
         // with only the motor temperature filled in; true PWM and battery
         // current stay 0. A Master v3 rider saw the PWM tile flash to 0 % on
@@ -86,14 +88,15 @@ class BegodeMasterVirtualWheel : VirtualWheel {
  * Gotway-protocol wheel emits. Shared by the Master simulators so they differ
  * only in the pack they pretend to have, not in how they frame it.
  */
-internal fun begodeLiveFrame(elapsedMs: Long, rawCv: Int, rawSpeed: Int, rawCurrent: Int, rawTempReg: Int): ByteArray {
+internal fun begodeLiveFrame(tripMeters: Int, rawCv: Int, rawSpeed: Int, rawCurrent: Int, rawTempReg: Int): ByteArray {
     val frame = ByteArray(24)
     frame[0] = 0x55
     frame[1] = 0xAA.toByte()
     putUint16BE(frame, 2, rawCv)
     putInt16BE(frame, 4, rawSpeed)
     // 6..7: unused on most firmwares
-    putUint16BE(frame, 8, ((elapsedMs / 1000L) % 1000L).toInt())
+    // 8..9: trip meters, the low word real firmware fills in.
+    putUint16BE(frame, 8, tripMeters and 0xFFFF)
     putInt16BE(frame, 10, rawCurrent)
     putInt16BE(frame, 12, rawTempReg)
     // 14..15: hardware PWM stays zero so derivedPwmPct() drives the load gauge.
@@ -105,6 +108,29 @@ internal fun begodeLiveFrame(elapsedMs: Long, rawCv: Int, rawSpeed: Int, rawCurr
     frame[22] = 0x5A
     frame[23] = 0x5A
     return frame
+}
+
+/**
+ * The distance a simulated wheel has covered, integrated from the speed it
+ * reports, so trip, consumption and range move the way they do on a ride.
+ */
+internal class SimTripMeter {
+    private var meters = 0.0
+    private var lastMs = -1L
+
+    fun reset() {
+        meters = 0.0
+        lastMs = -1L
+    }
+
+    /** Adds the stretch since the last tick at [kmh] and returns whole meters. */
+    fun advance(elapsedMs: Long, kmh: Float): Int {
+        if (lastMs >= 0L && elapsedMs > lastMs) {
+            meters += kotlin.math.abs(kmh) / 3.6 * (elapsedMs - lastMs) / 1000.0
+        }
+        lastMs = elapsedMs
+        return meters.toInt()
+    }
 }
 
 /**

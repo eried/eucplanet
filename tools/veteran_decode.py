@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
 Veteran/LeaperKim decoder, replays a diagnostics .txt file through the same
-reassembler logic the app uses (LEN-based, CRC32 mandatory for LEN > 38) and
-prints what comes out per frame. Used to validate the decoder against real
-captures and pinpoint where bad telemetry would enter.
+reassembler logic the app uses (known short layouts with structural/physical
+checks and CRC32 mandatory for LEN > 38). It prints decoded frames to
+validate the decoder against real captures and pinpoint bad telemetry.
 
 Usage: python veteran_decode.py <diagnostics.txt> [--all-frames]
 """
@@ -14,7 +14,7 @@ import zlib
 MAGIC = b"\xdc\x5a\x5c"
 LONG_FRAME_THRESHOLD = 38
 
-RX_LINE = re.compile(r"^\d\d:\d\d:\d\d\.\d+\s+RX\s+\d+\s+([0-9a-fA-F ]+)$")
+RX_LINE = re.compile(r"^\d\d:\d\d:\d\d\.\d+\s+(?:RX|RECV)\s+\d+\s+([0-9a-fA-F ]+)$")
 
 
 def extract_rx_bytes(path):
@@ -37,13 +37,25 @@ def decode_base(frame):
     t_raw = int.from_bytes(frame[18:20], "big", signed=True)
     return v_raw / 100.0, s_raw / 10.0, c_raw / 10.0, t_raw / 100.0
 
+def valid_short(frame):
+    if frame[3] not in (32, 34) or len(frame) != frame[3] + 4:
+        return False
+    voltage = int.from_bytes(frame[4:6], "big")
+    speed = int.from_bytes(frame[6:8], "big", signed=True)
+    current = int.from_bytes(frame[16:18], "big", signed=True)
+    temp = int.from_bytes(frame[18:20], "big", signed=True)
+    return (frame[22] == 0 and frame[23] & 0xFE == 0
+            and frame[30] in (0, 7) and 5000 <= voltage <= 25000
+            and abs(speed) <= 2000 and abs(current) <= 4000
+            and -4000 <= temp <= 15000)
+
 
 def run(buf, show_all=False):
     i = 0
     n = len(buf)
     accepted = []
     crc_fails = 0
-    short_no_crc = 0
+    short_fails = 0
     skipped_bytes = 0
 
     while i < n:
@@ -60,6 +72,10 @@ def run(buf, show_all=False):
             break
 
         length = buf[i + 3]
+        if length <= LONG_FRAME_THRESHOLD and length not in (32, 34):
+            short_fails += 1
+            i += 1
+            continue
         total = length + 4
         if i + total > n:
             # not enough bytes for this frame, stop (in app we'd wait for more)
@@ -73,15 +89,13 @@ def run(buf, show_all=False):
             got = zlib.crc32(bytes(frame[:length])) & 0xFFFFFFFF
             if got != expected:
                 crc_fails += 1
-                # In our current parser we drop `total` bytes here, but that
-                # is also part of the analysis: how many real frames would we
-                # eat on a false-alignment? Try with -1 (consume just first
-                # byte) to see if that helps. For now match the app behavior.
-                i += total
+                # Drop only the false magic, preserving any embedded real frame.
+                i += 1
                 continue
-        else:
-            short_no_crc += 1
-
+        elif not valid_short(frame):
+            short_fails += 1
+            i += 1
+            continue
         v, s, c, t = decode_base(frame)
         accepted.append({
             "offset": i,
@@ -103,6 +117,7 @@ def run(buf, show_all=False):
     print(f"  short (no CRC)   : {sum(1 for a in accepted if not a['is_long'])}")
     print(f"CRC failures       : {crc_fails}")
     print(f"skipped (no magic) : {skipped_bytes}")
+    print(f"short validation failures: {short_fails}")
 
     if not accepted:
         return
@@ -129,7 +144,7 @@ def run(buf, show_all=False):
            or abs(a["c"]) > 400
            or not (-40.0 <= a["t"] <= 150.0)]
     print()
-    print(f"out-of-bounds frames (would be peaks shipped to eucstats): {len(bad)}")
+    print(f"out-of-bounds accepted frames: {len(bad)}")
     for a in bad[:10]:
         print(f"  off={a['offset']} len={a['len']} long={a['is_long']} v={a['v']:.1f} s={a['s']:.1f} c={a['c']:.1f} t={a['t']:.2f}")
         print(f"    raw: {a['raw_hex']}")
@@ -149,6 +164,8 @@ def main():
         sys.exit(1)
     show_all = "--all-frames" in sys.argv[2:]
     buf = extract_rx_bytes(sys.argv[1])
+    if not buf:
+        sys.exit("no RX/RECV bytes found; check diagnostic format")
     run(buf, show_all=show_all)
 
 

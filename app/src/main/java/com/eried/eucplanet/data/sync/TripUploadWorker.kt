@@ -3,23 +3,19 @@ package com.eried.eucplanet.data.sync
 import kotlinx.coroutines.flow.first
 import android.content.Context
 import android.util.Log
-import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.eried.eucplanet.data.db.TripDao
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedInject
 
 /**
  * Uploads any trip CSVs that haven't been synced yet, newest-first.
  * Enqueued after each recording ends and on manual retry.
  */
-@HiltWorker
-class TripUploadWorker @AssistedInject constructor(
-    @Assisted context: Context,
-    @Assisted params: WorkerParameters,
+class TripUploadWorker(
+    context: Context,
+    params: WorkerParameters,
     private val tripDao: TripDao,
     private val tripRepository: TripRepository,
     private val settingsRepository: SettingsRepository,
@@ -44,7 +40,6 @@ class TripUploadWorker @AssistedInject constructor(
         val folderSizes = syncManager.listFolderTripSizes(settings)
         // Shared storage ignores case, so every lookup here does too.
         val knownNames = folderSizes?.keys?.associateBy { it.lowercase() }
-        val sizeByLower = folderSizes?.mapKeys { it.key.lowercase() }
 
         // The queue, plus everything the folder is missing. This worker used
         // to walk only its queue while the Dropbox worker compares every
@@ -65,19 +60,9 @@ class TripUploadWorker @AssistedInject constructor(
         // sweep must not touch those - overwriting either direction destroys
         // somebody's copy - so they are counted and told to the dashboard,
         // whose warning sends the rider to the sync conflict dialog. Counted
-        // on every pass, so fixing them (or deleting a side) clears the
-        // warning without anyone tapping anything.
-        if (sizeByLower != null) {
-            val conflicts = tripRepository.allTrips.first().count { t ->
-                if (t.endTime == null) return@count false
-                val folderLen = sizeByLower[t.fileName.lowercase()] ?: return@count false
-                val local = tripRepository.getTripFile(t)
-                local.exists() && local.length() != folderLen
-            }
-            if (settings.folderConflictCount != conflicts) {
-                settingsRepository.update { it.copy(folderConflictCount = conflicts) }
-            }
-        }
+        // on every pass, and again when a manual sync ends, so fixing them
+        // (or deleting a side) clears the warning.
+        if (folderSizes != null) syncManager.refreshFolderConflictCount(settings, folderSizes)
 
         if (pending.isEmpty() && reconcile.isEmpty()) return@withUploadPass Result.success()
         if (reconcile.isNotEmpty()) Log.i(TAG, "Reconcile: folder is missing ${reconcile.size} trip(s)")

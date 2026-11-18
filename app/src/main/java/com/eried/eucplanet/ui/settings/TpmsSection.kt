@@ -31,7 +31,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.tpms.LyTpmsDecoder
@@ -39,6 +38,7 @@ import com.eried.eucplanet.ui.common.InfoHint
 import com.eried.eucplanet.ui.common.rememberScanStarter
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.Units
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * TPMS sensors, shown inside the Integration section. The wheel-relayed sensor
@@ -48,7 +48,7 @@ import com.eried.eucplanet.util.Units
  * paired cap outranks the wheel's relay through TpmsRepository.
  */
 @Composable
-fun TpmsSection(viewModel: TpmsViewModel = hiltViewModel()) {
+fun TpmsSection(viewModel: TpmsViewModel = koinViewModel()) {
     val wheelKpa by viewModel.tirePressureKpa.collectAsState()
     val unit by viewModel.pressureUnit.collectAsState()
     val sensors by viewModel.sensors.collectAsState()
@@ -162,6 +162,12 @@ fun TpmsSection(viewModel: TpmsViewModel = hiltViewModel()) {
     }
 }
 
+/** The sensor's own air temperature, in the rider's unit. */
+@Composable
+private fun formatTemp(c: Float, unit: String): String =
+    "%.0f%s".format(com.eried.eucplanet.util.Units.temperature(c, unit),
+        com.eried.eucplanet.util.Units.tempUnit(unit))
+
 /**
  * The sensor id the vendor app shows for this cap.
  *
@@ -174,12 +180,6 @@ fun TpmsSection(viewModel: TpmsViewModel = hiltViewModel()) {
  * Same characters the rider already sees in the app the cap was sold with, so
  * a sensor added in both places is recognisable in both.
  */
-/** The sensor's own air temperature, in the rider's unit. */
-@Composable
-private fun formatTemp(c: Float, unit: String): String =
-    "%.0f%s".format(com.eried.eucplanet.util.Units.temperature(c, unit),
-        com.eried.eucplanet.util.Units.tempUnit(unit))
-
 private fun shortAddress(address: String?): String =
     address?.split(":")?.take(3)?.joinToString("")?.uppercase().orEmpty()
 

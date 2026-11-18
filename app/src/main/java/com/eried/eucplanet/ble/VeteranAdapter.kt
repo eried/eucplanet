@@ -2,8 +2,6 @@ package com.eried.eucplanet.ble
 
 import com.eried.eucplanet.diagnostics.DiagnosticCommand
 import com.eried.eucplanet.diagnostics.DiagnosticsLogger
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Veteran wheel adapter. Recognises Sherman / Sherman S / Sherman Max /
@@ -19,13 +17,11 @@ import javax.inject.Singleton
  *   - Speed is i16 BE in 0.1 km/h; reverse motion produces small negatives.
  *   - Long frames carry per-cell BMS data with a `pnum` slice tag at off 46.
  *
- * Outbound commands are limited compared to KingSong/Begode: 14-byte horn
- * blob, `SetLightON/OFF`, `SETh/m/s` pedal stiffness, `CLEARMETER` trip
- * reset. No software lock, no volume, no max-speed write (the SET* family
- * sets thresholds, not absolute max; see spec section 6 "Notes").
+ * Outbound: horn (LkAp + LdAp pair, or legacy `b`), low and high beam,
+ * `SETh/m/s` pedal stiffness, `CLEARMETER` trip reset, tiltback and alarm
+ * speed, and the 25-byte lock frame. No volume.
  */
-@Singleton
-class VeteranAdapter @Inject constructor() : WheelAdapter {
+class VeteranAdapter : WheelAdapter {
     override val familyId = "veteran"
     // Internal id stays "veteran" so existing stored profiles / custom
     // commands keep working; user-visible label is the actual brand.
@@ -65,17 +61,17 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
     override fun pollRealtime(): ByteArray = ByteArray(0)
     override fun pollSettings(): ByteArray = ByteArray(0)
 
-    override fun horn(): ByteArray = VeteranCommands.horn()
+    override fun horn(): ByteArray =
+        if (commandModel == VeteranModel.SHERMAN || commandModel == VeteranModel.SHERMAN_MAX)
+            VeteranCommands.hornLegacy() else VeteranCommands.horn()
 
     /**
-     * Current Lynx-class firmware only sounds the horn when the `LkAp` frame
-     * from [horn] is followed by this `LdAp` companion. Sending the `LkAp`
-     * half alone leaves the wheel silent (the frame is accepted but
-     * produces no beep). Decoded from a LeaperKim-app btsnoop on a Lynx S
-     * (mVer 9). [com.eried.eucplanet.data.repository.WheelRepository.sendHorn]
-     * writes both, in order.
+     * Lynx-class firmware needs the LdAp companion after the LkAp horn.
+     * Legacy Sherman firmware uses only the single-byte `b` command.
      */
-    override fun hornFollowup(): ByteArray = VeteranCommands.hornCompanion()
+    override fun hornFollowup(): ByteArray? =
+        if (commandModel == VeteranModel.SHERMAN || commandModel == VeteranModel.SHERMAN_MAX)
+            null else VeteranCommands.hornCompanion()
 
     private val headlightState = VeteranHeadlightState()
 
@@ -112,8 +108,7 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
 
     // Veteran writes tilt-back and alarm thresholds as two separate frames
     // (different magic + sub-op per setting), so we leave the combined
-    // setMaxSpeed null and route through setMaxSpeedCommit / setAlarmSpeedCommit
-    // The same flow P6 already uses for its two-packet flash-commit.
+    // setMaxSpeed null and route through setMaxSpeedCommit / setAlarmSpeedCommit.
     override fun setMaxSpeed(tiltbackKmh: Float, alarmKmh: Float): ByteArray? = null
 
     override fun setMaxSpeedCommit(tiltbackKmh: Float): ByteArray =
@@ -177,17 +172,12 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
 
     /**
      * Per-wheel diagnostic commands surfaced in the Wheel Diagnostics dialog.
-     * Veteran's command surface is unusually small (see docs/protocols/veteran.md
-     * section 6): only horn, light, pedals stiffness and trip-reset have
-     * publicly documented wire formats. There is no documented max-speed,
-     * alarm-speed, lock or volume write, so those buttons are deliberately
-     * absent; the spec calls out section 9 "Open questions" for capturing
-     * the official app and decoding them. Adding speculative bytes here
-     * would risk faulting the wheel.
+     * The catalogue covers horn, light, pedals stiffness and trip-reset.
+     * Speed and lock writes are left out of it; they are reachable from the
+     * normal UI.
      *
-     * Both horn variants are exposed so a user with a pre-2020 Sherman can
-     * verify which one their firmware obeys; the runtime [horn] default is
-     * the v3 blob.
+     * Both horn variants remain available for protocol research; the runtime
+     * [horn] chooses the legacy `b` for Sherman-family mVer 0/1.
      */
     override fun getDiagnosticCommands(): List<DiagnosticCommand> {
         val LIGHT = DiagnosticCommand.Category.LIGHT
@@ -202,7 +192,7 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
             DiagnosticCommand("LightOFF", "Turn the headlight off",
                 VeteranCommands.setLight(false), LIGHT),
 
-            // --- Horn: model-conditional. v3 is the default; legacy is a probe. ---
+            // --- Horn: the debug commands deliberately expose both variants. ---
             DiagnosticCommand("HornV3", "Sound the horn on Sherman S and newer",
                 VeteranCommands.horn(), HORN),
             DiagnosticCommand("HornLegacy_b", "Sound the horn on pre-2020 Sherman",
@@ -228,8 +218,7 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
      * lives in the first ~36 bytes of every frame regardless of LEN, so
      * parseTelemetry runs for both short and long frames. Long (smart-BMS)
      * frames additionally carry per-cell data after offset 46; the cell
-     * slice is decoded but currently discarded until the dashboard grows
-     * a BMS panel. Without this, BMS-equipped wheels (Lynx S, Patton with
+     * slice is emitted as DecodeResult.Bms for the Cells tab. Without this, BMS-equipped wheels (Lynx S, Patton with
      * smart BMS, Oryx) connect but the dashboard stays at zero because
      * they only ever emit long frames.
      */
@@ -251,9 +240,8 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
             // the `f.isLong` branch below.
             val isStandardTelemetry =
                 f.bytes.size > 3 && f.bytes[3] != 0x5f.toByte()
-            // Generic BLE names (e.g. NF7445) do not identify the wheel. Select
-            // commands from the model in a reassembled telemetry frame as well:
-            // the light profile (PR #20) and the alarm-speed packet (PR #22).
+            // Generic BLE names (e.g. LK13709) do not identify the wheel.
+            // Select the light and horn commands from the reassembled mVer.
             if (isStandardTelemetry) {
                 VeteranModel.fromMVer(VeteranParser.mVerOf(f.bytes))?.let {
                     controlProfile = VeteranControlProfile.forModel(it)

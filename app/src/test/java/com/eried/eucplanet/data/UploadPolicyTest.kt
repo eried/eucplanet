@@ -143,4 +143,33 @@ class UploadPolicyTest {
             localSize = 4096L, localMs = nowMs,
         ))
     }
+
+    @Test fun `a trip whose time cannot be set is not uploaded forever`() {
+        // A file the app does not own (copied in by a file manager or adb)
+        // refuses the Dropbox timestamp, so it keeps looking newer than its
+        // copy. The same content on Dropbox means there is nothing to send.
+        assertFalse("identical content re-uploads", UploadPolicy.needsUpload(
+            remoteSize = 4096L, remoteModifiedSec = nowSec - 86_400,
+            localSize = 4096L, localModifiedMs = nowMs,
+            remoteHash = "abc", localHash = { "abc" },
+        ))
+    }
+
+    @Test fun `an edit that keeps the length still uploads when hashes differ`() {
+        assertTrue(UploadPolicy.needsUpload(
+            remoteSize = 4096L, remoteModifiedSec = nowSec - 86_400,
+            localSize = 4096L, localModifiedMs = nowMs,
+            remoteHash = "abc", localHash = { "def" },
+        ))
+    }
+
+    @Test fun `the local file is only hashed when the lengths match`() {
+        var hashed = false
+        assertTrue(UploadPolicy.needsUpload(
+            remoteSize = 4096L, remoteModifiedSec = nowSec - 86_400,
+            localSize = 5000L, localModifiedMs = nowMs,
+            remoteHash = "abc", localHash = { hashed = true; "abc" },
+        ))
+        assertFalse("a different length was hashed", hashed)
+    }
 }

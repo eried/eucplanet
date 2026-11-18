@@ -72,6 +72,13 @@ repositories, intent handlers) call `AppNotifier.post(...)`; a single root host 
 - Paired or mutually exclusive choices use half/half segmented rows, not full
   width buttons stacked.
 - Always set explicit on-colors (label, icon, content) that contrast the fill.
+- Menus: plain rows carry no icon. An icon only appears when it means
+  something (a check for on, a padlock, a bin) and it sits on the right, so
+  the text stays aligned. Radio buttons and checkboxes stay on the left, they
+  are the control. Rows that delete or forget something use
+  `DestructiveMenuItem` (red text, bin on the right).
+- An option that cannot run right now is greyed (`enabled = false`), not
+  hidden, and a tap on it does nothing; no toast explains it.
 
 ## 5. Drag-to-reorder uses the standard pattern
 
@@ -173,6 +180,26 @@ Rules and repo-wide docs (`CLAUDE.md`, this file) land on every long-lived branc
 `main`, `next-version`, and `next-experimental`. New features are developed on
 `next-experimental` first.
 
+Features move up, one step at a time: `next-experimental` (new work) to
+`next-version` (the Play beta) to `main` (the release). Skip a step only on
+purpose, as 0.22.0 did after a long beta gap.
+
+Fixes go on the most stable branch that has the bug, then merge down:
+
+| Bug is in | Fix on | Then |
+|---|---|---|
+| the release | `main`, ship a patch (0.22.1) | merge `main` into `next-version`, then into `next-experimental` |
+| the beta only | `next-version` | merge `next-version` into `next-experimental` |
+| new work only | `next-experimental` | nothing, it travels when promoted |
+
+Write a fix once and let merges carry it; do not cherry-pick the same fix onto
+several branches. Exception: when `next-experimental` is about to be promoted, a
+fix for that batch may land there and ride along.
+
+Play rejects a version code it has seen. When a patch on `main` merges into
+`next-version`, bump the beta's `versionCode` above the patch's in the same
+merge, because a push to `next-version` publishes the beta.
+
 ## 16. Merging a PR: account for every deleted line, then run every surface
 
 The watch-map PR (#25) replaced the line `flicManager.initialize()` in
@@ -192,7 +219,7 @@ Before merging anything from outside:
   the screens the PR changed and look at them.
 - The suite guards the wiring: `AppStartupTest` pins the start list in
   `EucPlanetApp.onCreate`, and `LifecycleWiringTest` fails when any
-  `@Singleton` with a `start()` or `initialize()` is called by nobody. A new
+  Koin `single` with a `start()` or `initialize()` is called by nobody. A new
   process-wide subsystem gets its call in `onCreate` and its line in the first
   test. Both tests strip comments first, so commenting a call out is the same
   as deleting it.

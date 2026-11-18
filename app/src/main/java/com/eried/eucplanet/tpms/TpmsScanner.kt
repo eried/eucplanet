@@ -3,12 +3,12 @@ package com.eried.eucplanet.tpms
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.ScanCallback
+import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.util.Log
 import com.eried.eucplanet.diagnostics.DiagnosticsLogger
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -18,8 +18,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Listens for tire-pressure sensors that broadcast rather than connect.
@@ -33,12 +31,12 @@ import javax.inject.Singleton
  * This is also how the reading gets decoded in the first place. A sensor's
  * packet format is not published, so the way in is to watch the bytes at a
  * pressure you have measured with a gauge and find the ones that match. Every
- * payload is logged with its manufacturer and service data intact, so a
- * capture at a known pressure is enough to identify the field.
+ * candidate payload goes to the diagnostics capture with its manufacturer and
+ * service data intact, so a capture at a known pressure is enough to identify
+ * the field.
  */
-@Singleton
-class TpmsScanner @Inject constructor(
-    @ApplicationContext private val context: Context,
+class TpmsScanner(
+    private val context: Context,
     private val tpms: TpmsRepository,
 ) {
 
@@ -154,7 +152,7 @@ class TpmsScanner @Inject constructor(
      *
      * Separate from [start], which is the rider pressing Scan to FIND a
      * sensor and rightly gives up after a while. There is nothing to find
-     * here, so this uses the low power mode and never times out: it is how the
+     * here, so this uses the balanced scan mode and never times out: it is how the
      * pressure keeps moving once the sensor belongs to the rider.
      */
     @SuppressLint("MissingPermission")
@@ -251,9 +249,6 @@ class TpmsScanner @Inject constructor(
             }
         }
         callback = cb
-        // No filter: the sensor is unknown, which is the point. Low latency
-        // because these broadcast in short bursts and a slower mode misses
-        // most of them.
         val settings = ScanSettings.Builder()
             .setScanMode(
                 // Low latency while hunting, because these broadcast in short
@@ -270,7 +265,16 @@ class TpmsScanner @Inject constructor(
                 else ScanSettings.SCAN_MODE_LOW_LATENCY
             )
             .build()
-        runCatching { scanner.startScan(null, settings, cb) }
+        // Hunting has no filter: the sensor is unknown, which is the point.
+        // Watching a paired sensor asks the radio for that address alone, so
+        // the phone is not woken for every advert around it all day. Every
+        // paired cap, one per wheel, not just the first. An address the
+        // builder refuses drops the filter, so the scan hears everything
+        // rather than nothing.
+        val filters = monitorFilterAddresses(asMonitor, tpms.sensors.value)?.let { addresses ->
+            runCatching { addresses.map { ScanFilter.Builder().setDeviceAddress(it).build() } }.getOrNull()
+        }
+        runCatching { scanner.startScan(filters, settings, cb) }
             .onSuccess {
                 // Only a search shows as "scanning" and only a search gives
                 // up; a monitor is invisible and runs on.
@@ -291,10 +295,9 @@ class TpmsScanner @Inject constructor(
      * A scan that ends by itself, quietly.
      *
      * A radio left running after the rider walked away drains a battery to
-     * hear nothing, so the scan stops on its own after a minute. It says
+     * hear nothing, so the scan stops on its own after [SCAN_WINDOW_S]. It says
      * nothing when it does: the button going back to "Scan for sensors" is the
-     * whole report, the same as every other scan in the app. A countdown and a
-     * "nothing found" verdict were mine, and neither exists anywhere else.
+     * whole report, the same as every other scan in the app.
      */
     private fun startWindow() {
         window?.cancel()
@@ -379,14 +382,13 @@ class TpmsScanner @Inject constructor(
             .sortedBy { it.firstSeenMs }
             .take(MAX_SEEN)
 
-        // The decode trail. Service mode keeps it in the diagnostics capture;
-        // the log line is there for a wired session.
+        // The decode trail. Service mode keeps it in the diagnostics capture.
         val line = "TPMS adv ${seen.address} ${seen.name ?: "(no name)"} rssi=${seen.rssi} " +
             "manu=${manu.entries.joinToString(",") { "0x%04X:%s".format(it.key, it.value) }} " +
             "svc=${svc.entries.joinToString(",") { "${it.key}:${it.value}" }} " +
             "uuids=${uuids.joinToString(",")}"
-        // Every packet from a candidate, because that is the decode trail;
-        // one line per new address otherwise, so the log stays readable.
+        // Every packet from a candidate goes to the capture, because that is
+        // the decode trail; nothing else does.
         if (seen.looksLikeSensor) {
             DiagnosticsLogger.note(line)
         }
@@ -394,12 +396,9 @@ class TpmsScanner @Inject constructor(
         // length, and the MAC written backwards in the last six bytes, all
         // three at once.
         //
-        // Not on a decoded pressure, which is what it was gated on before, and
-        // which meant a disabled decoder disabled finding sensors along with
-        // it. Not on the loose "repeats its own MAC" either, which adopted a
-        // stranger's device. A sensor can be positively identified while its
-        // reading is still unreadable, and this family's is: no byte in any
-        // capture tracks the tyre from 78 psi down to 64.
+        // Not on a decoded pressure, so a sensor is still found when its
+        // decoder rejects a reading. Not on the loose "repeats its own MAC"
+        // either, which adopted a stranger's device.
         if (isKnownSensor) {
             val alreadyKnown = tpms.sensors.value.any { it.address == address }
             // Only a rider who pressed Scan may add a sensor.
@@ -411,9 +410,7 @@ class TpmsScanner @Inject constructor(
             // The monitor exists to hear the caps that are already theirs.
             if (!alreadyKnown && monitoring) return
             if (!alreadyKnown) tpms.adopt(address)
-            // The number goes in when there is one. Until this family's format
-            // is worked out there is not, and the row says so rather than
-            // showing something invented.
+            // The number goes in when the packet decodes to one.
             decoded?.let { tpms.submitPaired(it, address, now) }
             // The same packet carries the air temperature, so it costs nothing
             // to keep and answers "did the tyre lose air or just cool down".
@@ -449,11 +446,6 @@ class TpmsScanner @Inject constructor(
             // a scan that keeps collecting whatever is in the room.
             if (!alreadyKnown) resumeMonitoring()
         }
-        // Everything, at INFO, while the format is still unknown. The only
-        // reliable way to find a pressure field is to diff every payload in
-        // range across a pressure the rider actually changed, and a filter
-        // applied before the decode is a filter applied on a guess.
-        Log.i(TAG, line)
     }
 
     private fun ByteArray.toHex(): String = joinToString("") { "%02X".format(it) }
@@ -478,5 +470,11 @@ class TpmsScanner @Inject constructor(
 
         /** How often readings are re-aged. Cheap, and staleness is in minutes. */
         private const val STALENESS_TICK_MS = 15_000L
+
+        /** Addresses a monitor filters on, one per paired cap; null for a search or nothing paired. */
+        internal fun monitorFilterAddresses(
+            asMonitor: Boolean, sensors: List<TpmsRepository.SensorState>,
+        ): List<String>? =
+            if (!asMonitor) null else sensors.map { it.address }.takeIf { it.isNotEmpty() }
     }
 }

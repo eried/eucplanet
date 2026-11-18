@@ -21,6 +21,25 @@ import org.json.JSONObject
  */
 object SettingsJson {
 
+    /** Marks a blob written after the reroute retune; older blobs get [retuneReroute]. */
+    private const val REROUTE_RETUNED_KEY = "navRerouteRetuned"
+
+    /**
+     * Rerouting used to wait 8 s before showing off-route and 22 s before
+     * asking for a new route. Every blob stores every knob, so an install
+     * that never touched them would keep the slow values forever. Move the
+     * old defaults to the current ones once; a value the rider changed stays.
+     */
+    internal fun retuneReroute(
+        a: com.eried.eucplanet.data.model.AdvancedSettings,
+    ): com.eried.eucplanet.data.model.AdvancedSettings {
+        val defaults = com.eried.eucplanet.data.model.AdvancedSettings()
+        return a.copy(
+            navOffRouteGraceMs = if (a.navOffRouteGraceMs == 8000) defaults.navOffRouteGraceMs else a.navOffRouteGraceMs,
+            navRerouteAfterMs = if (a.navRerouteAfterMs == 22000) defaults.navRerouteAfterMs else a.navRerouteAfterMs,
+        )
+    }
+
     /**
      * Returns a copy of [s] with every device-specific binding nulled out so
      * the resulting JSON is safe to share between phones. Used by the backup
@@ -148,8 +167,6 @@ object SettingsJson {
             put("resumeEnabled", s.mediaControl.resumeEnabled)
             put("resumeAboveKmh", s.mediaControl.resumeAboveKmh)
             put("requireExternalOutput", s.mediaControl.requireExternalOutput)
-            put("rateApplyWhen", s.mediaControl.rateApplyWhen)
-            put("rateCurve", s.mediaControl.rateCurve)
         })
         put("share", JSONObject().apply {
             put("trailMinutes", s.share.trailMinutes); put("shareStatsDefault", s.share.shareStatsDefault)
@@ -158,11 +175,6 @@ object SettingsJson {
             put("deviceSecret", s.share.deviceSecret)
         })
         put("tpms", JSONObject().apply {
-            // Never written until now, so a paired sensor was forgotten on
-            // every restart and a rider who picked psi got it back as bar. The
-            // fields existed on the model and the model was simply not on this
-            // list, which is the one way a setting can look wired up and still
-            // go nowhere.
             put("pairedAddress", s.tpms.pairedAddress)
             put("pairedAddresses", org.json.JSONArray(s.tpms.pairedAddresses))
             put("pressureUnit", s.tpms.pressureUnit)
@@ -253,8 +265,9 @@ object SettingsJson {
         put("androidAutoMetrics", s.androidAuto.metrics)
         put("androidAutoActions", s.androidAuto.actions)
         put("androidAutoAlarmNotifications", s.androidAuto.alarmNotifications)
-        // Nested voice extras, written as flat keys so the file stays readable
-        // and a future move back to top level would not break existing saves.
+        put("navigatorViewMetrics", s.navigatorView.metrics)
+        put("navigatorViewNorthUp", s.navigatorView.northUp)
+        // Weather group, written as flat keys.
         put("weatherEnabled", s.weather.enabled)
         put("weatherWindowHours", s.weather.windowHours)
         put("weatherOpenExpanded", s.weather.openExpanded)
@@ -306,6 +319,7 @@ object SettingsJson {
         put("volumeUpHold", s.volumeUpHold)
         put("volumeDownClick", s.volumeDownClick)
         put("volumeDownHold", s.volumeDownHold)
+        put("volumeKeysScreenOff", s.volumeKeysScreenOff)
         put("language", s.language)
         put("themeMode", s.themeMode)
         put("accentColor", s.accentColor)
@@ -337,6 +351,7 @@ object SettingsJson {
         put("watchUpdateRate", s.watchUpdateRate)
         // Advanced knobs, flat keys (kept stable for back-compat), registry-driven.
         com.eried.eucplanet.data.model.ADVANCED_SPECS.forEach { put(it.id, it.get(s.advanced)) }
+        put(REROUTE_RETUNED_KEY, true)
         put("watchCloseOnExit", s.watchCloseOnExit)
         put("watchPrioritizePwm", s.watchPrioritizePwm)
         put("watchDialRotationDeg", s.watchDialRotationDeg)
@@ -366,6 +381,13 @@ object SettingsJson {
         put("navDefaultTravelMode", s.navDefaultTravelMode)
         put("navGeocoderUrl", s.navGeocoderUrl)
         put("navRouterUrl", s.navRouterUrl)
+        put("navValhallaUrl", s.navValhallaUrl)
+        put("offlineRouting", JSONObject().apply {
+            put("mode", s.offlineRouting.mode.name)
+            put("serverUrl", s.offlineRouting.serverUrl)
+            put("wifiAutoUpdate", s.offlineRouting.wifiAutoUpdate)
+            put("remindBeforeRide", s.offlineRouting.remindBeforeRide)
+        })
         put("navOverpassUrl", s.navOverpassUrl)
         put("navOcmApiKey", s.navOcmApiKey)
         put("navMapType", s.navMapType)
@@ -373,7 +395,6 @@ object SettingsJson {
         put("navAdvancedMap", s.navAdvancedMap)
         put("navShowChargers", s.navShowChargers)
         put("navPlaceCategories", s.navPlaceCategories)
-        put("navPlacesHintShown", s.navPlacesHintShown)
         put("navAvoidHighways", s.navAvoidHighways)
         put("navAvoidTolls", s.navAvoidTolls)
         put("navAvoidFerries", s.navAvoidFerries)
@@ -585,8 +606,6 @@ object SettingsJson {
                 requireExternalOutput = m.optBoolean(
                     "requireExternalOutput", base.mediaControl.requireExternalOutput
                 ),
-                rateApplyWhen = m.optString("rateApplyWhen", base.mediaControl.rateApplyWhen),
-                rateCurve = m.optString("rateCurve", base.mediaControl.rateCurve),
             )
         } ?: base.mediaControl,
         share = j.optJSONObject("share")?.let { m -> base.share.copy(
@@ -754,6 +773,10 @@ object SettingsJson {
             actions = j.optString("androidAutoActions", base.androidAuto.actions),
             alarmNotifications = j.optBoolean("androidAutoAlarmNotifications", base.androidAuto.alarmNotifications),
         ),
+        navigatorView = com.eried.eucplanet.data.model.NavigatorViewSettings(
+            metrics = j.optString("navigatorViewMetrics", base.navigatorView.metrics),
+            northUp = j.optBoolean("navigatorViewNorthUp", base.navigatorView.northUp),
+        ),
         compactModeWhen = j.optString("compactModeWhen", base.compactModeWhen),
         coverCameraCutout = j.optString("coverCameraCutout", base.coverCameraCutout),
         compactSpeedoStyle = j.optString("compactSpeedoStyle", base.compactSpeedoStyle),
@@ -767,6 +790,7 @@ object SettingsJson {
         volumeUpHold = j.optString("volumeUpHold", base.volumeUpHold),
         volumeDownClick = j.optString("volumeDownClick", base.volumeDownClick),
         volumeDownHold = j.optString("volumeDownHold", base.volumeDownHold),
+        volumeKeysScreenOff = j.optBoolean("volumeKeysScreenOff", base.volumeKeysScreenOff),
         language = j.optString("language", base.language),
         themeMode = j.optString("themeMode", base.themeMode),
         accentColor = j.optString("accentColor", base.accentColor),
@@ -797,15 +821,15 @@ object SettingsJson {
         watchHapticOnAction = j.optBoolean("watchHapticOnAction", base.watchHapticOnAction),
         watchUpdateRate = when {
             j.has("watchUpdateRate") -> j.optString("watchUpdateRate", base.watchUpdateRate)
-            // Migrate the legacy boolean: ON used the 150 ms fast poll, OFF the
-            // 250 ms default. The new 500 ms "CONSERVATIVE" tier is opt-in only.
+            // Migrate the legacy boolean: ON was the 150 ms fast poll, OFF the
+            // 250 ms default. CONSERVATIVE (750 ms) is opt-in only.
             j.has("fasterRefresh") -> if (j.optBoolean("fasterRefresh", false)) "FAST" else "NORMAL"
             else -> base.watchUpdateRate
         },
         // Advanced knobs, fold each spec's flat key over the defaults (registry-driven).
         advanced = com.eried.eucplanet.data.model.ADVANCED_SPECS.fold(base.advanced) { a, sp ->
             sp.set(a, j.optInt(sp.id, sp.get(a)))
-        },
+        }.let { a -> if (j.has(REROUTE_RETUNED_KEY)) a else retuneReroute(a) },
         watchCloseOnExit = j.optBoolean("watchCloseOnExit", base.watchCloseOnExit),
         watchPrioritizePwm = j.optBoolean("watchPrioritizePwm", base.watchPrioritizePwm),
         watchDialRotationDeg = j.optInt("watchDialRotationDeg", base.watchDialRotationDeg),
@@ -838,6 +862,15 @@ object SettingsJson {
         navDefaultTravelMode = j.optString("navDefaultTravelMode", base.navDefaultTravelMode),
         navGeocoderUrl = j.optString("navGeocoderUrl", base.navGeocoderUrl),
         navRouterUrl = j.optString("navRouterUrl", base.navRouterUrl),
+        navValhallaUrl = j.optString("navValhallaUrl", base.navValhallaUrl),
+        offlineRouting = j.optJSONObject("offlineRouting")?.let { o ->
+            com.eried.eucplanet.data.model.OfflineRoutingSettings(
+                mode = com.eried.eucplanet.data.model.OfflineRoutingMode.fromName(o.optString("mode")),
+                serverUrl = o.optString("serverUrl", base.offlineRouting.serverUrl),
+                wifiAutoUpdate = o.optBoolean("wifiAutoUpdate", base.offlineRouting.wifiAutoUpdate),
+                remindBeforeRide = o.optBoolean("remindBeforeRide", base.offlineRouting.remindBeforeRide),
+            )
+        } ?: base.offlineRouting,
         navOverpassUrl = j.optString("navOverpassUrl", base.navOverpassUrl),
         navOcmApiKey = j.optString("navOcmApiKey", base.navOcmApiKey),
         navMapType = j.optString("navMapType", base.navMapType),
@@ -845,7 +878,6 @@ object SettingsJson {
         navAdvancedMap = j.optBoolean("navAdvancedMap", base.navAdvancedMap),
         navShowChargers = j.optBoolean("navShowChargers", base.navShowChargers),
         navPlaceCategories = j.optString("navPlaceCategories", base.navPlaceCategories),
-        navPlacesHintShown = j.optBoolean("navPlacesHintShown", base.navPlacesHintShown),
         navAvoidHighways = j.optBoolean("navAvoidHighways", base.navAvoidHighways),
         navAvoidTolls = j.optBoolean("navAvoidTolls", base.navAvoidTolls),
         navAvoidFerries = j.optBoolean("navAvoidFerries", base.navAvoidFerries),
@@ -1001,6 +1033,30 @@ object SettingsJson {
             folderConflictCount = current.folderConflictCount,
           )
         }
+
+    /**
+     * Factory defaults merged onto [current]: every preference reverts, while
+     * the rider's pairings, sync folder, backup history, live Dropbox link and
+     * share identity stay. Most bindings survive because a null leaves no key
+     * in the factory JSON, so [fromJson] falls back to [current]. The ones the
+     * JSON does carry (blank tokens, an empty sensor list) are copied back
+     * here. Pure; SyncManager does the IO.
+     */
+    fun factoryReset(current: AppSettings): AppSettings {
+        val parsed = fromJson(toJson(stripDeviceBindings(AppSettings())), current)
+        return parsed.copy(
+            dropboxAccessToken = current.dropboxAccessToken,
+            dropboxRefreshToken = current.dropboxRefreshToken,
+            dropboxAccessTokenExpiresAt = current.dropboxAccessTokenExpiresAt,
+            dropboxAccountLabel = current.dropboxAccountLabel,
+            dropboxLastSyncAt = current.dropboxLastSyncAt,
+            share = parsed.share.copy(deviceSecret = current.share.deviceSecret),
+            tpms = parsed.tpms.copy(
+                pairedAddress = current.tpms.pairedAddress,
+                pairedAddresses = current.tpms.pairedAddresses,
+            ),
+        )
+    }
 
     /** `optString` returns `""` for null and absent keys, which we cannot
      *  distinguish from a legitimate empty-string value. This helper keeps

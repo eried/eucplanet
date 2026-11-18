@@ -10,14 +10,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import javax.inject.Provider
-import javax.inject.Singleton
 
 /**
  * Owns the external-GPS BLE connection and exposes the current sample.
@@ -27,17 +22,16 @@ import javax.inject.Singleton
  *  * [currentSample] is the latest decoded fix from whichever adapter is active.
  *
  * Pairing persists in three AppSettings columns (address / name / source enum)
- * so [autoConnect] can re-open the paired device on app start without prompting.
+ * so [connectPaired] can re-open the paired device on app start without prompting.
  */
-@Singleton
-class ExternalGpsRepository @Inject constructor(
+class ExternalGpsRepository(
     private val settingsRepository: SettingsRepository,
     private val connectionManager: ExternalGpsConnectionManager,
-    private val adapters: Set<@JvmSuppressWildcards ExternalGpsAdapter>,
-    // Lazy provider to break the dependency cycle: TripRepository injects us.
-    private val tripRepositoryProvider: Provider<TripRepository>,
-    // Lazy so a future AlarmEngine dependency on us can't form a Hilt cycle.
-    private val alarmEngineProvider: Provider<com.eried.eucplanet.service.AlarmEngine>
+    private val adapters: Set<ExternalGpsAdapter>,
+    // Lazy to break the dependency cycle: TripRepository injects us.
+    private val tripRepositoryProvider: Lazy<TripRepository>,
+    // Lazy so a future AlarmEngine dependency on us can't form a DI cycle.
+    private val alarmEngineProvider: Lazy<com.eried.eucplanet.service.AlarmEngine>
 ) {
     companion object {
         private const val TAG = "ExtGpsRepo"
@@ -45,17 +39,7 @@ class ExternalGpsRepository @Inject constructor(
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    // Debug-only override so the fake-RaceBox emitter can show as Connected
-    // while it spins synthetic samples (the real GATT layer obviously stays
-    // Disconnected since no BLE handshake happens). REMOVE with the demo.
-    private val _demoConnectionOverride = MutableStateFlow<ConnectionState?>(null)
-
-    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-    val connectionState: StateFlow<ConnectionState> = kotlinx.coroutines.flow.combine(
-        connectionManager.connectionState,
-        _demoConnectionOverride
-    ) { real, demo -> demo ?: real }
-        .stateIn(scope, kotlinx.coroutines.flow.SharingStarted.Eagerly, ConnectionState.DISCONNECTED)
+    val connectionState: StateFlow<ConnectionState> = connectionManager.connectionState
 
     private val _currentSample = MutableStateFlow<ExternalGpsSample?>(null)
     val currentSample: StateFlow<ExternalGpsSample?> = _currentSample.asStateFlow()
@@ -88,7 +72,7 @@ class ExternalGpsRepository @Inject constructor(
                 val sample = raw?.let(::applyAxisRemap)
                 _currentSample.value = sample
                 // Feed the low-battery (and any future external-GPS) alarm rules.
-                if (sample != null) alarmEngineProvider.get().evaluateExternalGps(sample)
+                if (sample != null) alarmEngineProvider.value.evaluateExternalGps(sample)
             }
         }
         scope.launch {
@@ -100,8 +84,7 @@ class ExternalGpsRepository @Inject constructor(
         }
         // One-time cleanup of the old demo state: if a previous build paired
         // the synthetic "DEMO:RACEBOX" device, drop it on startup so the user
-        // doesn't see a permanently-disconnected fake pairing. Also reset the
-        // master toggle that the demo force-enabled.
+        // doesn't see a permanently-disconnected fake pairing.
         scope.launch {
             val current = settingsRepository.get()
             if (current.externalGpsAddress == "DEMO:RACEBOX") {
@@ -136,7 +119,7 @@ class ExternalGpsRepository @Inject constructor(
                         // process every ~15 min) is neither, so the box is never
                         // powered back on behind the rider's back after Stop All.
                         if (!paired || explicitlyDisconnected || !appActive()) return@collect
-                        // Backoff: 2 / 5 / 10 / 30 s, then 30 s forever. Keeps
+                        // Backoff: 1.5 / 5 / 10 s, then 30 s forever. Keeps
                         // the radio quiet when the box is out of range while
                         // still recovering quickly from a single-frame drop.
                         val delayMs = when (failedAttempts) {
@@ -176,51 +159,6 @@ class ExternalGpsRepository @Inject constructor(
                 }
             }
         }
-
-        /*
-        // TEMP DEMO: synthesize a RaceBox session so the UI can be reviewed
-        // without hardware. Auto-pairs a fake device, marks the connection
-        // as Connected, then emits sinusoidal speed + g-force samples at 5 Hz.
-        // Re-enable only when validating UI changes without real hardware.
-        if (com.eried.eucplanet.BuildConfig.DEBUG) {
-            scope.launch {
-                kotlinx.coroutines.delay(200)
-                val current = settingsRepository.get()
-                if (current.externalGpsAddress == null ||
-                    current.externalGpsAddress == "DEMO:RACEBOX") {
-                    settingsRepository.update(
-                        current.copy(
-                            externalGpsAddress = "DEMO:RACEBOX",
-                            externalGpsName = "RaceBox Demo",
-                            externalGpsSource = "RACEBOX",
-                            gpsLogAdditional = true
-                        )
-                    )
-                }
-                _demoConnectionOverride.value = ConnectionState.CONNECTED
-                var t = 0.0
-                while (true) {
-                    val sample = com.eried.eucplanet.data.model.ExternalGpsSample(
-                        source = com.eried.eucplanet.data.model.ExternalGpsSource.RACEBOX,
-                        speedKmh = 30f + 10f * kotlin.math.sin(t).toFloat(),
-                        latitude = 59.91 + 0.001 * kotlin.math.cos(t * 0.1),
-                        longitude = 10.74 + 0.001 * kotlin.math.sin(t * 0.1),
-                        altitudeMeters = 50f,
-                        accuracyMeters = 1.5f,
-                        accelXG = 0.25f * kotlin.math.sin(t * 1.5).toFloat(),
-                        accelYG = 0.20f * kotlin.math.cos(t * 1.3).toFloat(),
-                        accelZG = 0.10f * kotlin.math.sin(t * 0.7).toFloat(),
-                        headingDeg = ((t * 30) % 360).toFloat(),
-                        verticalSpeedMps = 0f,
-                        numSatellites = 12
-                    )
-                    _currentSample.value = applyAxisRemap(sample)
-                    kotlinx.coroutines.delay(200)
-                    t += 0.2
-                }
-            }
-        }
-        */
     }
 
     private fun applyAxisRemap(s: ExternalGpsSample): ExternalGpsSample {
@@ -247,10 +185,7 @@ class ExternalGpsRepository @Inject constructor(
     /** Address of the paired device, or null if no pairing. Mirrors AppSettings. */
     suspend fun pairedAddress(): String? = settingsRepository.get().externalGpsAddress
 
-    /** Display name of the paired device. */
-    suspend fun pairedName(): String? = settingsRepository.get().externalGpsName
-
-    /** Source family of the paired device (RaceBox today; more later). */
+    /** Source family of the paired device. */
     suspend fun pairedSource(): ExternalGpsSource? =
         settingsRepository.get().externalGpsSource?.let {
             runCatching { ExternalGpsSource.valueOf(it) }.getOrNull()
@@ -282,10 +217,9 @@ class ExternalGpsRepository @Inject constructor(
     }
 
     /**
-     * Open the GATT connection to the currently-paired device. Returns silently
-     * if no pairing exists. Picks the matching adapter from the registry by
-     * source-family enum; if the family no longer ships an adapter (e.g. user
-     * upgraded a build that removed Draggy support) the call is a no-op.
+     * Open the GATT connection to the currently-paired device. Picks the
+     * matching adapter from the registry by source-family enum. Returns false
+     * when there is no pairing or no adapter is registered for the saved source.
      */
     suspend fun connectPaired(): Boolean {
         val address = pairedAddress() ?: return false
@@ -314,7 +248,7 @@ class ExternalGpsRepository @Inject constructor(
      * POS_LLH when no location is available yet.
      */
     private fun buildInitWrites(adapter: ExternalGpsAdapter): List<ByteArray> {
-        val loc = tripRepositoryProvider.get().currentLocation.value
+        val loc = tripRepositoryProvider.value.currentLocation.value
         val lat = loc?.latitude
         val lon = loc?.longitude
         val acc = loc?.accuracy
@@ -348,11 +282,9 @@ class ExternalGpsRepository @Inject constructor(
      * to ask the user to move the device along one logical direction (forward,
      * lateral, vertical) before calling.
      *
-     * Algorithm: high-pass each axis by subtracting its session mean, then
-     * pick the one with the largest peak-to-peak swing. Sign is the sign of
-     * the integrated displacement direction (sum of consecutive positive minus
-     * negative samples) so a "push forward then back" motion still resolves
-     * to a forward intent.
+     * Algorithm: pick the axis with the largest peak-to-peak swing. Sign is
+     * the average of the first quarter of the samples minus the last quarter,
+     * so a "push forward then back" motion resolves to a forward intent.
      *
      * Returns one of "X", "-X", "Y", "-Y", "Z", "-Z" or null if no data
      * arrived during the window.

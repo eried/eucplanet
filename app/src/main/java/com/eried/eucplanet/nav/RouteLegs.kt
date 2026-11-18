@@ -46,7 +46,9 @@ object RouteLegs {
  * stops (all of them, or only the next one) is still a route of stops.
  */
 fun com.eried.eucplanet.data.model.NavRoute?.isFixedTrack(stops: List<com.eried.eucplanet.data.model.Waypoint>): Boolean {
-    if (this == null || travelMode != com.eried.eucplanet.data.model.TravelMode.STRAIGHT) return false
+    if (this == null) return false
+    if (isLockedTrack) return true
+    if (travelMode != com.eried.eucplanet.data.model.TravelMode.STRAIGHT) return false
     val points = stops.mapTo(HashSet()) { it.point() }
     return geometry.drop(1).any { it !in points }
 }

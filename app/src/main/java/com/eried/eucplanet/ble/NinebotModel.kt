@@ -69,13 +69,10 @@ enum class NinebotModel(
          * `Segway Z*`, and the bare `ZN<serial>` form all route to the Z
          * protocol; `Ninebot One*`, `Ninebot S2*`, `Ninebot Mini*` route to
          * legacy. Returns null if no obvious match; the adapter then
-         * defaults to the legacy protocol (cheaper to be wrong toward
-         * read-only than to send encrypted writes to a plaintext wheel).
+         * defaults to the Z protocol.
          *
          * Note: the spec calls out that Mini Plus often advertises a
-         * legacy-style name yet speaks Z. Post-connect detection (probing
-         * the Nordic-UART service UUID) is what actually decides which
-         * profile to bind to; this is a pre-connect hint only.
+         * legacy-style name yet speaks Z, so it maps to a Z model here.
          */
         fun fromReportedName(name: String): NinebotModel? {
             val n = name.lowercase()

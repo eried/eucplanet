@@ -1,6 +1,5 @@
 package com.eried.eucplanet.hud.ui.screens
 
-import android.graphics.BitmapFactory
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -22,6 +21,10 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.FilterQuality
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntOffset
@@ -32,6 +35,7 @@ import kotlin.math.roundToInt
 import com.eried.eucplanet.hud.R
 import com.eried.eucplanet.hud.net.HudTileCache
 import com.eried.eucplanet.hud.protocol.HudState
+import com.eried.eucplanet.hud.protocol.RouteWindow
 import com.eried.eucplanet.hud.protocol.WebMercator
 import com.eried.eucplanet.hud.ui.parseHexColor
 import kotlinx.coroutines.Dispatchers
@@ -43,7 +47,7 @@ import kotlin.math.floor
  * Simple Web-Mercator XYZ tile stitcher.
  *
  * No MapLibre, no Leaflet, we draw a 4×3 (or whatever fits) grid of 256-px
- * raster tiles fetched from the phone's [HudTileCache], centred on the
+ * raster tiles from [HudTileCache], centred on the
  * rider's last GPS fix, then stamp a rider marker on top. Pan tracks GPS,
  * UP/DOWN on the remote zoom in/out (driven by [zoom]).
  *
@@ -54,7 +58,7 @@ import kotlin.math.floor
  * map. A 4×3 grid does that.
  */
 @Composable
-fun MapScreen(hud: HudState, zoom: Float, peer: String?, cache: HudTileCache) {
+fun MapScreen(hud: HudState, zoom: Float, cache: HudTileCache, chrome: Boolean = true) {
     val ctx = LocalContext.current
     val accent = parseHexColor(hud.accentArgb)
     // Cache is owned by HudActivity and passed in: previously the cache
@@ -64,10 +68,12 @@ fun MapScreen(hud: HudState, zoom: Float, peer: String?, cache: HudTileCache) {
     // screen navigation.
 
     Box(Modifier.fillMaxSize().background(Color(0xFF101010))) {
+        // No position from the phone yet. This used to say the tiles were
+        // unreachable, which sent riders chasing their internet.
         if (!hud.gpsHasFix) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(
-                    text = ctx.getString(R.string.hud_map_offline),
+                    text = ctx.getString(R.string.hud_map_no_gps),
                     color = Color.White.copy(alpha = 0.6f)
                 )
             }
@@ -115,6 +121,9 @@ fun MapScreen(hud: HudState, zoom: Float, peer: String?, cache: HudTileCache) {
         val tilePx = 256f * zScale
         val cx = WebMercator.tileX(hud.longitude, z)
         val cy = WebMercator.tileY(hud.latitude, z)
+        // The route line the phone sends around the rider. Decoded once per
+        // new string: it only changes when the phone has a new fix.
+        val route = remember(hud.navRoute) { RouteWindow.decode(hud.navRoute) }
 
         // Kick off async fetches for the visible tile window whenever the
         // viewport center or zoom changes. The fetch coroutine bumps `tick`
@@ -204,6 +213,26 @@ fun MapScreen(hud: HudState, zoom: Float, peer: String?, cache: HudTileCache) {
                             )
                         }
                     }
+
+                    // The route, inside the rotation so it turns with the
+                    // map. A dark edge under the accent line keeps it
+                    // readable on a pale street and on a dark one.
+                    if (route.size >= 4) {
+                        val path = Path()
+                        for (i in 0 until route.size / 2) {
+                            val x = centerPx.x + ((WebMercator.tileX(route[2 * i + 1], z) - cx) * tilePx).toFloat()
+                            val y = centerPx.y + ((WebMercator.tileY(route[2 * i], z) - cy) * tilePx).toFloat()
+                            if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
+                        }
+                        drawPath(
+                            path, Color(0xCC000000),
+                            style = Stroke(9.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
+                        )
+                        drawPath(
+                            path, accent,
+                            style = Stroke(5.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
+                        )
+                    }
                 }
 
                 // Rider marker: filled accent dot with a white ring so it
@@ -214,6 +243,10 @@ fun MapScreen(hud: HudState, zoom: Float, peer: String?, cache: HudTileCache) {
                 drawCircle(color = accent, radius = 9.dp.toPx(), center = centerPx)
             }
         )
+
+        // The corner boxes stay off where the rider's own preset is drawn
+        // over the map: the preset says what goes in the corners.
+        if (!chrome) return
 
         // Zoom indicator (bottom-left).
         Box(
@@ -257,9 +290,6 @@ fun MapScreen(hud: HudState, zoom: Float, peer: String?, cache: HudTileCache) {
     }
 }
 
-/** WGS84 (lon, lat) -> fractional XYZ tile coordinates at zoom z. Returns
- *  (tileX, tileY) where the integer parts are the tile indices and the
- *  fractional parts give the pixel offset inside that tile. */
 /**
  * Build a ColorMatrix-based filter from the wire-format contrast +
  * brightness percentages. Returns null when both are at neutral so the

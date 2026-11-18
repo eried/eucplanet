@@ -9,32 +9,35 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.eried.eucplanet.data.db.AlarmDao
 import com.eried.eucplanet.data.db.AppDatabase
 import com.eried.eucplanet.data.db.TripDao
+import com.eried.eucplanet.data.db.WheelProfileDao
 import com.eried.eucplanet.data.store.SettingsJson
 import com.eried.eucplanet.data.store.LegalLockdownStore
 import com.eried.eucplanet.data.store.SettingsStore
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
+import org.koin.android.ext.koin.androidContext
+import org.koin.dsl.module
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import javax.inject.Singleton
 
-@Module
-@InstallIn(SingletonComponent::class)
+/** Settings, the Legal Mode Lockdown store, and the Room database with its DAOs. */
+val appModule = module {
+    single { AppModule.provideSettingsStore(androidContext()) }
+    single { AppModule.provideLegalLockdownStore(androidContext()) }
+    single { AppModule.provideDatabase(androidContext()) }
+    factory { AppModule.provideTripDao(get()) }
+    factory { AppModule.provideAlarmDao(get()) }
+    factory { AppModule.provideWheelProfileDao(get()) }
+}
+
 object AppModule {
 
     private const val DB_NAME = "eucplanet.db"
     private const val TAG = "AppModule"
 
-    @Provides
-    @Singleton
-    fun provideSettingsStore(@ApplicationContext context: Context): SettingsStore {
+    fun provideSettingsStore(context: Context): SettingsStore {
         val store = SettingsStore(context)
         copyLegacyRoomSettingsIfPresent(context, store)
         // After the legacy migration: if DataStore is still empty this is a
@@ -45,14 +48,10 @@ object AppModule {
     }
 
     /** Legal Mode Lockdown state. Its own store, never part of AppSettings. */
-    @Provides
-    @Singleton
-    fun provideLegalLockdownStore(@ApplicationContext context: Context): LegalLockdownStore =
+    fun provideLegalLockdownStore(context: Context): LegalLockdownStore =
         LegalLockdownStore(context)
 
-    @Provides
-    @Singleton
-    fun provideDatabase(@ApplicationContext context: Context): AppDatabase {
+    fun provideDatabase(context: Context): AppDatabase {
         return openOrRecover(context)
     }
 
@@ -330,13 +329,9 @@ object AppModule {
             .addMigrations(*ALL_MIGRATIONS)
             .build()
 
-    @Provides
     fun provideTripDao(db: AppDatabase): TripDao = db.tripDao()
 
-    @Provides
     fun provideAlarmDao(db: AppDatabase): AlarmDao = db.alarmDao()
 
-    @Provides
-    fun provideWheelProfileDao(db: AppDatabase): com.eried.eucplanet.data.db.WheelProfileDao =
-        db.wheelProfileDao()
+    fun provideWheelProfileDao(db: AppDatabase): WheelProfileDao = db.wheelProfileDao()
 }

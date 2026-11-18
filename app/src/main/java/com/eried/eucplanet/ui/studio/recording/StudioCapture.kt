@@ -17,8 +17,9 @@ import java.util.Locale
 /**
  * Saves Overlay Studio output to the gallery under `Pictures/EUC Planet`.
  *
- * Live snapshots go out as JPEG; replay snapshots as PNG so the transparent
- * background survives. [newPendingImage] backs the streaming APNG export.
+ * Live snapshots go out as WebP; replay snapshots use the chosen photo format
+ * (PNG, WebP, or JPEG on the chroma fill). [newPendingImage] backs the
+ * streaming GIF and APNG clip export.
  */
 object StudioCapture {
 
@@ -53,28 +54,6 @@ object StudioCapture {
         return saveBitmap(
             context, bitmap, "EUC_${stamp()}.webp", "image/webp", format, 100
         )
-    }
-
-    /** Save [bitmap] as a single-frame GIF (256-colour palette, 1-bit alpha).
-     *  Lower fidelity than PNG/WebP, but maximally compatible for sharing. */
-    suspend fun saveGif(context: Context, bitmap: Bitmap): Uri? = withContext(Dispatchers.IO) {
-        val pending = newPendingImage(context, "EUC_${stamp()}.gif", "image/gif")
-            ?: return@withContext null
-        val ok = try {
-            pending.openStream()?.use { out ->
-                // addFrame() copies a HARDWARE bitmap to software internally.
-                StudioGifEncoder(out, bitmap.width, bitmap.height, delayMs = 0).apply {
-                    addFrame(bitmap)
-                    finish()
-                }
-                true
-            } ?: false
-        } catch (e: Exception) {
-            Log.e(TAG, "Saving GIF failed", e)
-            false
-        }
-        pending.finalize(ok)
-        if (ok) pending.uri else null
     }
 
     /** A unique base file name (no extension) for an export, e.g. an APNG clip. */

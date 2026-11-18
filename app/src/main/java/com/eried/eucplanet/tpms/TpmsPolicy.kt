@@ -140,6 +140,8 @@ object TpmsPolicy {
      * different tyre's pressure under the same label with nothing to say it
      * changed. Silence is the honest answer, and the settings row says which
      * sensor is quiet.
+     *
+     * Not the production rule, see pickActive.
      */
     fun pick(
         paired: TpmsReading?,
@@ -153,15 +155,6 @@ object TpmsPolicy {
         else -> null
     }
 
-    /**
-     * 0 kPa is "no sensor", not a flat tyre.
-     *
-     * Every family that does not report pressure leaves the field at zero, so
-     * a reading of zero has to be dropped rather than published. The alarm
-     * engine makes the same call for the same reason: a low-pressure rule on a
-     * wheel without TPMS would otherwise fire on the first frame and never
-     * stop.
-     */
     /**
      * A reading, or null when the number means "no sensor" rather than a
      * pressure.

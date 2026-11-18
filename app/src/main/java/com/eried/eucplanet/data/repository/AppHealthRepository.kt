@@ -13,12 +13,12 @@ import android.provider.Settings
 import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
 import com.eried.eucplanet.R
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import javax.inject.Inject
-import javax.inject.Singleton
+
+/** A string resource used as an argument of a warning's text. */
+data class WarningTextRes(val res: Int)
 
 /**
  * A single user-actionable warning surfaced in the dashboard top bar.
@@ -32,6 +32,12 @@ data class AppWarning(
     val id: String,
     val titleRes: Int,
     val bodyRes: Int,
+    /**
+     * What fills the placeholders in [bodyRes], in order: a plain value, or a
+     * [WarningTextRes] for a piece that is itself a string of the app, such
+     * as the label of the button the text tells the rider to press.
+     */
+    val bodyArgs: List<Any> = emptyList(),
     val fix: () -> Unit = {},
     /**
      * Settings tab to open instead of running [fix], for the warnings whose
@@ -43,19 +49,17 @@ data class AppWarning(
 
 /**
  * Aggregates "things the rider should know about" into a single flow that the
- * dashboard top-bar reads. Currently surfaces missing notification permission;
- * structure is deliberately generic so future sources (a failed trip import,
- * a corrupt setting that needs reset, an outdated wheel firmware that we'd
- * like to flag) can call [upsert] / [dismiss] without touching the UI layer.
+ * dashboard top-bar reads: missing permissions, blocked PIP or overlay,
+ * battery optimisation, no backup folder. Other sources can call [upsert] /
+ * [dismiss] without touching the UI layer.
  *
  * Permission checks run in [refreshPermissionWarnings] and are typically
  * invoked from MainActivity.onResume + after permissionLauncher's callback,
  * so the warning auto-clears when the rider grants the permission in Settings
  * and returns to the app.
  */
-@Singleton
-class AppHealthRepository @Inject constructor(
-    @ApplicationContext private val context: Context
+class AppHealthRepository(
+    private val context: Context
 ) {
 
     // Stored as a list (not a map) so the flow exposes exactly what the UI
@@ -94,17 +98,11 @@ class AppHealthRepository @Inject constructor(
      */
     @Volatile
     private var pipNoticePending = false
-    private var mediaAccessNoticePending = false
 
     /** The Phone HUD's equivalent of [pipNoticePending]. */
     @Volatile
     private var hudNoticePending = false
 
-    /**
-     * Re-evaluates every permission the dashboard cares about and upserts or
-     * dismisses the corresponding warning. Idempotent, safe to call from
-     * onResume on every dashboard visit.
-     */
     /**
      * Set when a rider pressed a listen button and the microphone was not
      * ours to open.
@@ -123,12 +121,32 @@ class AppHealthRepository @Inject constructor(
     /** Called when listening is refused for want of the permission. */
     fun noteMicrophoneNeeded() {
         micNoticePending = true
+        // Now, not at the next refresh: the rider was just told the microphone
+        // is missing, and the place that fixes it should already be there.
+        upsert(micWarning())
     }
 
+    /** The prompt was answered with a yes; the entry has nothing left to say. */
+    fun microphoneGranted() {
+        micNoticePending = false
+        dismiss(PERM_MIC_ID)
+    }
+
+    private fun micWarning() = AppWarning(
+        id = PERM_MIC_ID,
+        titleRes = R.string.warnings_perm_mic_title,
+        bodyRes = R.string.warnings_perm_mic_body,
+        fix = { openAppSettings() }
+    )
+
+    /**
+     * Re-evaluates every permission the dashboard cares about and upserts or
+     * dismisses the corresponding warning. Idempotent, safe to call from
+     * onResume on every dashboard visit.
+     */
     fun refreshPermissionWarnings(
         pipRequested: Boolean = false,
         phoneHudRequested: Boolean = false,
-        mediaRateRequested: Boolean = false,
     ) {
         // POST_NOTIFICATIONS only exists on Android 13+. Below TIRAMISU the
         // notification post is implicit, so the warning never applies.
@@ -159,11 +177,25 @@ class AppHealthRepository @Inject constructor(
                 micNoticePending = false
                 dismiss(PERM_MIC_ID)
             } else {
+                upsert(micWarning())
+            }
+        }
+
+        // Nearby devices (Android 12+). Asked at first start, and without it
+        // the app can neither find nor connect to a wheel. A rider who said
+        // no got an app that did nothing and never said why.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val bluetooth = listOf(Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN).all {
+                ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+            }
+            if (bluetooth) {
+                dismiss(PERM_BLUETOOTH_ID)
+            } else {
                 upsert(
                     AppWarning(
-                        id = PERM_MIC_ID,
-                        titleRes = R.string.warnings_perm_mic_title,
-                        bodyRes = R.string.warnings_perm_mic_body,
+                        id = PERM_BLUETOOTH_ID,
+                        titleRes = R.string.warnings_perm_bluetooth_title,
+                        bodyRes = R.string.warnings_perm_bluetooth_body,
                         fix = { openAppSettings() }
                     )
                 )
@@ -220,37 +252,6 @@ class AppHealthRepository @Inject constructor(
                 )
             )
         }
-
-        // Playback rate's notification-access warning, PARKED with the
-        // feature. The app no longer declares a NotificationListenerService,
-        // so it cannot appear in that system list at all and this warning
-        // would send a rider to a screen where nothing of ours is listed.
-        // Any warning a previous version left behind is cleared instead.
-        dismiss(PERM_MEDIA_ACCESS_ID)
-        /*
-        // Playback rate needs notification access, and the same shape as PIP
-        // and the overlay: granted outside the app, invisible from inside it,
-        // and the feature simply does nothing. Latched on the request so
-        // turning the switch on is what raises it, not merely having the
-        // feature configured.
-        if (notificationAccessAllowed()) {
-            mediaAccessNoticePending = false
-            dismiss(PERM_MEDIA_ACCESS_ID)
-        } else {
-            if (mediaRateRequested) mediaAccessNoticePending = true
-            if (mediaAccessNoticePending) {
-                upsert(
-                    AppWarning(
-                        id = PERM_MEDIA_ACCESS_ID,
-                        titleRes = R.string.warnings_media_access_title,
-                        bodyRes = R.string.warnings_media_access_body,
-                        fix = { openNotificationAccessSettings() }
-                    )
-                )
-            }
-        }
-
-        */
 
         // Android keeps its own per-app picture-in-picture switch, and turning
         // it off there is invisible from in here: the window simply never
@@ -401,26 +402,6 @@ class AppHealthRepository @Inject constructor(
         return mode == AppOpsManager.MODE_ALLOWED
     }
 
-    /**
-     * Open the per-app picture-in-picture switch.
-     *
-     * The action is not a public constant - android.provider.Settings has no
-     * PIP entry - so it is named literally and only used if something answers.
-     * App info is the guaranteed fallback: the PIP switch lives inside it on
-     * stock Android, so the rider still lands somewhere they can fix this.
-     */
-    /** Whether the rider has granted notification access, which is what
-     *  MediaSessionManager.getActiveSessions() checks. */
-    fun notificationAccessAllowed(): Boolean {
-        val enabled = runCatching {
-            android.provider.Settings.Secure.getString(
-                context.contentResolver, "enabled_notification_listeners"
-            )
-        }.getOrNull().orEmpty()
-        return enabled.split(":").any { it.startsWith(context.packageName + "/") }
-    }
-
-    /** The system's notification-access list, where that grant lives. */
     /** Android's own location screen, where the master switch lives. */
     private fun openLocationSettings() {
         runCatching {
@@ -431,14 +412,14 @@ class AppHealthRepository @Inject constructor(
         }.onFailure { openAppSettings() }
     }
 
-    fun openNotificationAccessSettings() {
-        val direct = Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS").apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
-        if (runCatching { context.startActivity(direct) }.isSuccess) return
-        openAppSettings()
-    }
-
+    /**
+     * Open the per-app picture-in-picture switch.
+     *
+     * The action is not a public constant - android.provider.Settings has no
+     * PIP entry - so it is named literally and only used if something answers.
+     * App info is the guaranteed fallback: the PIP switch lives inside it on
+     * stock Android, so the rider still lands somewhere they can fix this.
+     */
     fun openPipSettings() {
         val direct = Intent("android.settings.PICTURE_IN_PICTURE_SETTINGS").apply {
             data = Uri.fromParts("package", context.packageName, null)
@@ -466,10 +447,10 @@ class AppHealthRepository @Inject constructor(
         private const val PERM_NOTIFICATIONS_ID = "perm.notifications"
         private const val PERM_LOCATION_ID = "perm.location"
         private const val LOCATION_SERVICES_ID = "location.services-off"
-        private const val PERM_MEDIA_ACCESS_ID = "perm.media-access"
         private const val PERM_PIP_ID = "perm.pip"
         private const val PERM_OVERLAY_ID = "perm.overlay"
         private const val PERM_MIC_ID = "perm.microphone"
+        private const val PERM_BLUETOOTH_ID = "perm.bluetooth"
         private const val BATTERY_OPT_ID = "power.battery-optimised"
         private const val BACKUP_FOLDER_ID = "backup.folder"
 

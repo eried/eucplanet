@@ -474,8 +474,8 @@ private data class ChartSeries(
 )
 
 /**
- * The expanded weather-app view: temp+humidity, precipitation, and
- * wind+gusts as small scrubbable charts sharing one finger-followed cursor
+ * The expanded weather-app view: temperature, humidity and precipitation in
+ * one chart, wind and gusts in a second, sharing one finger-followed cursor
  * (numbers update live, like the trip detail charts), plus a few generated
  * advisory lines for the window.
  */
@@ -624,7 +624,7 @@ private fun DetailChart(
             .fillMaxWidth()
             .height(chartHeight)
             // Finger-follow scrub, plus tap-to-place; the cursor is shared by
-            // all three charts so one drag reads the whole moment.
+            // both charts so one drag reads the whole moment.
             .pointerInput(series) {
                 detectHorizontalDragGestures { change, _ ->
                     onScrub((change.position.x / size.width).coerceIn(0f, 1f))
@@ -849,12 +849,9 @@ private fun ScoreGraph(
             FaceSpot(i, emoji, res)
         }
     }
-    // The visible tooltip (face lingo, or a graph-tap level read),
-    // auto-hiding like a toast. The random phrase behind it is what
-    // WeatherPhrases keeps stable for an hour.
-    // Face tips only. The scrubbed read is derived from the shared moment
-    // below, so dragging ANY chart in the panel updates it - the detail
-    // charts no longer carry a time line of their own.
+    // Face tips only, auto-hiding like a toast. The scrubbed read
+    // (scrubTip) is derived from the shared moment, so dragging any chart
+    // in the panel updates it.
     var tip by remember(hours) { mutableStateOf<GraphTip?>(null) }
     val fmtTip = remember { SimpleDateFormat("EEE HH:mm", Locale.getDefault()) }
     val scrubTip: GraphTip? = scrub?.let { f ->
@@ -880,7 +877,6 @@ private fun ScoreGraph(
     Column {
         val density = LocalDensity.current
         var graphW by remember { mutableStateOf(0) }
-        // The modal presentation buys room: about 25% taller than the first cut.
         val graphH = 80.dp
 
         Box(
@@ -900,9 +896,6 @@ private fun ScoreGraph(
                             val n = hours.size
                             val i = if (n <= 1) 0
                             else ((off.x / size.width) * (n - 1)).roundToInt().coerceIn(0, n - 1)
-                            val score = hours[i].b.score
-                            val key = -(i + 1)
-                            // The read comes from the moment itself now.
                             tip = null
                             onScrub(if (n <= 1) 0f else i / (n - 1f))
                         }
@@ -914,7 +907,6 @@ private fun ScoreGraph(
                             val n = hours.size
                             val i = if (n <= 1) 0
                             else ((change.position.x / size.width) * (n - 1)).roundToInt().coerceIn(0, n - 1)
-                            val score = hours[i].b.score
                             tip = null
                             onScrub(if (n <= 1) 0f else i / (n - 1f))
                         }
