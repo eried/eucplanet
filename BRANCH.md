@@ -9,6 +9,7 @@ ride, this is the branch.
 
 ## Worked on
 
+- Fixes brought up from next-experimental: "Last backup" is read from the backup file, so it is right after a reinstall (and Android's own cloud backup of the app is off); the Backup conflicts warning goes when you settle it; a ride removed from eucstats is no longer asked about forever; the Spanish crews hint says Cuadrillas.
 - 0.24.0 beta: everything below from next-experimental, on the Play beta track. New since 0.23.0: the engine sounds, volume keys with the screen off, and five new actions.
 - Release builds are obfuscated (Play asks for it by Feb 2027). Branch APKs are debug builds and do not change.
 - Navigator view: turn card, speed, arrival time and your own tiles on the map while navigating. Pick the tiles in Settings.
