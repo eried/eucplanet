@@ -373,9 +373,6 @@ data class AppSettings(
 
     // Backup folder (SAF tree URI on local storage; companion sync app handles cloud upload)
     val syncFolderUri: String? = null,
-    val lastSettingsBackupAt: Long? = null,
-    /** Snapshot name of the most-recent backup, null for the unnamed default. */
-    val lastSettingsBackupName: String? = null,
 
     // External BLE GPS pairing (RaceBox or Dragy, one slot).
     // Three values stored: BLE MAC, advertised name (for display), and the source-family
@@ -1303,6 +1300,8 @@ data class EngoHudSettings(
     val metricRight: String = "TEMPERATURE",
     /** Whether the next turn takes the screen while a route is guided. */
     val navTakeover: Boolean = true,
+    /** ENGO 3: draw in colour. ENGO 2 has grey levels only and stays false. */
+    val color: Boolean = false,
 )
 
 /**

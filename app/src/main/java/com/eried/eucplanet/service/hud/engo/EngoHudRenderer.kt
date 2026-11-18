@@ -42,6 +42,7 @@ class EngoHudRenderer(
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     @Volatile private var job: Job? = null
     @Volatile private var last: EngoSnapshot? = null
+    @Volatile private var lastColor = false
 
     /** Begin driving the glasses. [autoConnect] triggers a BLE scan/connect. */
     fun start(autoConnect: Boolean) {
@@ -64,12 +65,15 @@ class EngoHudRenderer(
                     adapter.connect()
                 }
                 if (adapter.state.value == EngoAdapter.State.CONNECTED) {
-                    val snap = buildSnapshot(settingsRepository.get())
-                    if (snap != last) {
-                        adapter.send(
-                            EngoLayout.render(snap, EngoCaps(colorRYG = adapter.colorCapable.value)),
-                        )
+                    val settings = settingsRepository.get()
+                    val snap = buildSnapshot(settings)
+                    // The rider says which model it is; the glasses do not
+                    // tell us reliably yet.
+                    val color = settings.engoHud.color || adapter.colorCapable.value
+                    if (snap != last || color != lastColor) {
+                        adapter.send(EngoLayout.render(snap, EngoCaps(colorRYG = color)))
                         last = snap
+                        lastColor = color
                     }
                 }
                 delay(TICK_MS)
