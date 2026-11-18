@@ -78,7 +78,7 @@ class HudServer(
     val udpListener: HudBeacons,
     private val network: HudNetwork,
     private val subnetProbe: HudSubnetProbe,
-    /** The offline map for the HUD, served while the link is on. */
+    /** The HUD's map pictures, served while the link is on. */
     private val tileServer: HudTiles,
 ) {
 
@@ -878,9 +878,9 @@ class HudServer(
                     while (true) {
                         val frame = if (first) runCatching { snapshot() }.getOrDefault(latest) else latest
                         first = false
-                        // The HUD draws its Map screen from this phone's
-                        // position, so keep GPS on while it is in the carousel.
-                        if (isActive) phone.setMapLinked("Map" in frame.enabledHudScreens)
+                        // The HUD draws its map screens from this phone's
+                        // position, so keep GPS on while one is in the carousel.
+                        if (isActive) phone.setMapLinked(HudScreens.hasMap(frame.enabledHudScreens))
                         try {
                             if (!webSocket.send(json.encodeToString(frame))) {
                                 // OkHttp returns false when the outbound
@@ -1120,6 +1120,14 @@ class HudServer(
             navPrimary = d?.navPrimary ?: nav.primaryText,
             navDistance = d?.navDistance ?: nav.distanceText,
             navArrived = d?.navArrived ?: nav.arrived,
+            // For the whole route, not only while the turn popup is up:
+            // the rider wants the arrival time between turns too.
+            navEta = if (d == null && nav.active && !nav.arrived) {
+                com.eried.eucplanet.nav.NavFormat.etaLine(
+                    phone::text, phone::shortTime, nav.etaEpochMs, nav.remainingM,
+                    imperial = com.eried.eucplanet.util.Units.effectiveDistanceUnit(s) == "mi"
+                )
+            } else "",
             navRoute = if (d == null && nav.active && !nav.arrived && location != null) {
                 routeWindow(location.latitude, location.longitude)
             } else "",

@@ -505,6 +505,7 @@
     <string name="hud_screen_name_telemetry">Telemetri</string>
     <string name="hud_screen_name_custom">Özel kaplama + siyah</string>
     <string name="hud_screen_name_custom_cam">Özel kaplama + kamera</string>
+    <string name="hud_screen_name_custom_map">Özel kaplama + harita</string>
     <string name="hud_screen_name_map">Harita</string>
     <string name="hud_screen_name_nav">Navigatör</string>
     <string name="hud_screen_name_map_nav">Harita + Navigasyon</string>

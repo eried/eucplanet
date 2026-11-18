@@ -256,6 +256,9 @@ class HudServer(private val context: Context) {
      *  the moment we learn it cannot possibly still be good. Cleared by the
      *  handler's own finally, guarded by [connSeq] like the status is. */
     @Volatile private var liveSession: io.ktor.server.websocket.DefaultWebSocketServerSession? = null
+
+    /** When the linked phone last sent a frame, on the uptime clock. */
+    @Volatile private var lastFrameAtMs: Long = 0L
     // Always-on UDP broadcast beacon so the phone can find us on networks
     // where mDNS multicast is blocked (most phone hotspots, every carrier
     // mobile hotspot). Runs in parallel with the mDNS advertise -- whichever
@@ -346,6 +349,15 @@ class HudServer(private val context: Context) {
                 }
                 webSocket(HudDiscovery.PATH_STATE) {
                     val remote = call.request.local.remoteHost
+                    // One phone at a time: a second one dialing in while the
+                    // first is still talking is turned away, or their frames
+                    // take turns on the screen.
+                    val sinceFrame = android.os.SystemClock.elapsedRealtime() - lastFrameAtMs
+                    if (!HudLinkGuard.admits(peerAddress, sinceFrame, numeric(remote))) {
+                        HudDiag.log("pair", "turned away $remote, linked to $peerAddress")
+                        close(CloseReason(CloseReason.Codes.TRY_AGAIN_LATER, "linked to another phone"))
+                        return@webSocket
+                    }
                     // Token for THIS connection. With fast heartbeats a phone
                     // can redial while a previous handler is still unwinding its
                     // timeout; we must not let the stale handler's finally clear
@@ -419,6 +431,10 @@ class HudServer(private val context: Context) {
                         for (frame in incoming) {
                             if (frame is Frame.Text) {
                                 try {
+                                    // A connection that a newer one replaced
+                                    // no longer speaks for the phone.
+                                    if (connSeq.get() != myConn) continue
+                                    lastFrameAtMs = android.os.SystemClock.elapsedRealtime()
                                     val s = json.decodeFromString<HudState>(frame.readText())
                                     // Major MUST be <= ours: a higher
                                     // major may include fields we can't
@@ -429,6 +445,7 @@ class HudServer(private val context: Context) {
                                     val compat = com.eried.eucplanet.hud.protocol.VersionCompat
                                         .classify(s.protocolMajor, s.protocolMinor)
                                     _versionCompat.value = compat
+                                    HudTileCache.phoneMinor = s.protocolMinor
                                     if (!compat.isBlocking) {
                                         _state.value = s
                                     }

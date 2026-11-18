@@ -429,6 +429,12 @@ class AndroidHudPhone(
 
     override fun text(res: StringResource): String = context.getString(res)
 
+    override fun text(res: StringResource, args: List<Any>): String =
+        context.getString(res, *args.toTypedArray())
+
+    override fun shortTime(epochMs: Long): String =
+        android.text.format.DateFormat.getTimeFormat(context).format(java.util.Date(epochMs))
+
     override fun debug(name: String): String? = HudDebug.read(name)
 
     override fun onLinkDown() = appSender.reset()

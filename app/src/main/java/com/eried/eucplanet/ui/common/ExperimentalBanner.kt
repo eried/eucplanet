@@ -182,6 +182,7 @@ private fun urlEncode(s: String): String =
  */
 private val VERIFIED_WHEEL_TOKENS = listOf(
     "V14", "P6",                 // InMotion V2 (author-verified)
+    "V6",                        // InMotion V6 (rider-tested by Klaus)
     "V8S",                       // InMotion V1 (rider-tested; only the V8S, not the
                                  // rest of the V1 family which stays preliminary)
     "Oryx", "Lynx S",            // Veteran (rider-tested)

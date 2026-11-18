@@ -418,8 +418,8 @@ object IosAppGraph {
             udpListener = IosHudBeacons,
             network = IosHudNetwork,
             subnetProbe = com.eried.eucplanet.service.hud.HudSubnetProbe(IosHudNetwork),
-            tileServer = IosHudTiles(com.eried.eucplanet.hud.protocol.HudDiscovery.TILE_PORT) { z, x, y ->
-                IosOfflineMap.png(z, x, y, 256)
+            tileServer = IosHudTiles(com.eried.eucplanet.hud.protocol.HudDiscovery.TILE_PORT) { z, x, y, layer ->
+                if (layer == null) IosOfflineMap.png(z, x, y, 256) else IosHudLayerTile.png(layer, z, x, y)
             },
         )
     }

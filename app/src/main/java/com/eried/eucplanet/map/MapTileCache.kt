@@ -144,6 +144,45 @@ internal object MapTileCache {
         return shared.await()
     }
 
+    /**
+     * One finished tile of a map layer for the HUD, which only draws: the
+     * provider's picture with its label layers already on it, the offline
+     * map where the rider prefers it or the provider cannot answer, an
+     * empty array where the provider has nothing this deep, or null.
+     * Blocking; called from the HUD tile server's own threads.
+     */
+    fun layerTile(context: Context, layerId: String, z: Int, x: Int, y: Int): ByteArray? {
+        val layers = com.eried.eucplanet.hud.protocol.MapLayers
+        val xyz = TileXyz(z, x, y)
+        if (preferOffline) offlinePng(xyz)?.let { return it }
+        val owner = httpOwner(context.applicationContext)
+        val limit = WatchMapProtocol.MAX_TILE_ASSET_BYTES
+        val base = owner.fetch(layers.tileUrl(layerId, z, x, y)) { it.readLimitedBytes(limit) }
+            ?.takeIf { it.isNotEmpty() }
+            ?: return if (preferOffline) null else offlinePng(xyz)
+        if (com.eried.eucplanet.hud.protocol.HudTiles.isNoDataTile(base)) return ByteArray(0)
+        val layer = layers.byId(layerId)
+        val labels = listOf(layer.refUrlTemplate, layer.extraRefUrlTemplate)
+            .filter { it.isNotBlank() }
+            .map { it.replace("{z}", z.toString()).replace("{x}", x.toString()).replace("{y}", y.toString()) }
+        if (labels.isEmpty()) return base
+        val picture = BitmapFactory.decodeByteArray(base, 0, base.size)
+            ?.copy(Bitmap.Config.ARGB_8888, true) ?: return base
+        val canvas = Canvas(picture)
+        // A label layer that fails still leaves the base picture.
+        for (url in labels) {
+            fetchBitmap(context.applicationContext, url)?.let {
+                canvas.drawBitmap(it, 0f, 0f, null)
+                it.recycle()
+            }
+        }
+        return ByteArrayOutputStream().use { out ->
+            picture.compress(Bitmap.CompressFormat.PNG, 100, out)
+            picture.recycle()
+            out.toByteArray().takeIf { it.isNotEmpty() } ?: base
+        }
+    }
+
     private fun isValidEncodedTile(bytes: ByteArray): Boolean {
         if (bytes.isEmpty() || bytes.size > WatchMapProtocol.MAX_TILE_ASSET_BYTES) return false
         val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }

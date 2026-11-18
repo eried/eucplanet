@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>EUC Planet:Privacy Policy</title>
-<meta name="description" content="Privacy policy for the EUC Planet Android app.">
+<title>EUC Planet: Privacy Policy</title>
+<meta name="description" content="Privacy policy for the EUC Planet app on Android and iPhone.">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <style>
   body {
@@ -33,57 +33,83 @@
 <div class="container">
   <header>
     <h1>Privacy Policy</h1>
-    <p class="sub">EUC Planet Android app · Last updated 2026-06-04</p>
+    <p class="sub">EUC Planet for Android and iPhone · Last updated 2026-11-17</p>
   </header>
 
-  <p>EUC Planet is an open-source companion app for electric unicycles. It is published and maintained by Erwin Ried. This page describes what the app accesses on your device and what happens to that data.</p>
+  <p>EUC Planet is an open-source companion app for electric unicycles. It is published and maintained by Erwin Ried. This page describes what the app accesses on your device and what happens to that data. It is the same on Android and on iPhone unless a line says otherwise.</p>
 
   <h2>Short version</h2>
   <ul>
-    <li>The app does not have a server. It runs entirely on your phone.</li>
-    <li>It does not send your data to the developer or to any third party.</li>
+    <li>The app runs on your phone. It needs no account and rides fine with no internet connection.</li>
     <li>It does not contain advertising, analytics, or tracking SDKs.</li>
-    <li>Trip recordings, settings, and telemetry stay on your device unless you explicitly choose to sync them to a cloud folder <em>you</em> own (via Android's Storage Access Framework).</li>
+    <li>Trip recordings, settings, and telemetry stay on your device unless you choose to send them somewhere: a cloud folder <em>you</em> own, the public leaderboard, or a live share with friends. All three are off until you turn them on.</li>
+    <li>Maps, routing, weather and charging stations ask public services for what they show. The app adds no account or device identifier to those requests.</li>
   </ul>
 
   <h2>What the app accesses</h2>
   <ul>
-    <li><strong>Bluetooth</strong>:to scan for and connect to your wheel.</li>
-    <li><strong>Precise location (GPS)</strong>:only while a trip is being recorded or while the Recording screen is open, so the recorded CSV contains coordinates, altitude, and GPS speed. Location is <em>never</em> used for advertising, identification, or sent to any server by the app.</li>
-    <li><strong>Notifications</strong>:to show the ongoing connection notification and deliver alarm alerts.</li>
-    <li><strong>Foreground service</strong>:to keep the BLE connection and GPS tracking alive while the screen is off during a ride.</li>
-    <li><strong>Camera + microphone (opt-in)</strong>:only when you open <em>Overlay Studio</em> and start recording. The Studio is a self-contained video / photo recorder for capturing rides with a live telemetry overlay; the captured files land in your own device storage and the app never streams them anywhere.</li>
-    <li><strong>Storage access (optional)</strong>:if you enable cloud sync, you pick a folder yourself through Android's file picker (Google Drive, OneDrive, Dropbox, local, etc.). The app only reads/writes inside that folder. You can revoke access at any time through Android settings.</li>
+    <li><strong>Bluetooth</strong>: to scan for and connect to your wheel and the accessories you pair (buttons, radar, tire sensors, an external GPS).</li>
+    <li><strong>Precise location (GPS)</strong>: for GPS speed, trip recording, navigation, the weather where you are and the automatic lights. Location is <em>never</em> used for advertising or identification, and it leaves the phone only as listed under <em>What goes over the internet</em>.</li>
+    <li><strong>Notifications</strong>: to show the ongoing connection and deliver alarm alerts.</li>
+    <li><strong>Running in the background</strong>: to keep the wheel connection and GPS tracking alive while the screen is off during a ride.</li>
+    <li><strong>Camera + microphone (opt-in)</strong>: when you open <em>Overlay Studio</em>, a video and photo recorder with a live telemetry overlay, and the camera when you scan a QR code. The captured files land in your own device storage (on iPhone, your photo library) and the app never streams them anywhere. On Android the microphone also hears voice commands, through Android's own speech recognition, only after you start listening.</li>
+    <li><strong>Photo library (iPhone)</strong>: add only, to save what Overlay Studio records. The app cannot read your library.</li>
+    <li><strong>Local network</strong>: to find a helmet HUD on your WiFi and send it live ride data.</li>
+    <li><strong>Cloud folder (optional)</strong>: if you enable sync, the app reads and writes inside one folder you choose: a folder in your own Dropbox, or on Android any folder from the file picker (Google Drive, OneDrive, local, etc.). You can revoke access at any time.</li>
+  </ul>
+
+  <h2>What goes over the internet</h2>
+  <ul>
+    <li><strong>Maps, routes and places</strong>: map tiles, route solving, place search, charging stations and points of interest come from public services built on OpenStreetMap, and from Open Charge Map. A request carries the area or the coordinates it asks about, nothing else. Offline routing, once downloaded, stays on the phone.</li>
+    <li><strong>Weather</strong>: the forecast is asked from Open-Meteo or MET Norway for the place you are in.</li>
+    <li><strong>Cloud sync (opt-in)</strong>: a copy of your trips, settings, themes and overlays goes to the folder you chose. That folder belongs to you; the developer has no access to it.</li>
+    <li><strong>EUC Stats leaderboard (opt-in)</strong>: if you join, the trips you upload and the profile you create go to <a href="https://eucstats.ried.no/">eucstats.ried.no</a>, run by the developer. Your display name, country flag, avatar and overall riding stats become public there. Locations are clustered into wide areas of the map and raw GPS tracks are never published. The app shows this list before you join, and you can unlink at any time.</li>
+    <li><strong>Ride together (opt-in)</strong>: while you share a ride, your position passes through a relay to the people who have your link or QR code. It is end-to-end encrypted: the relay only passes sealed packets along and cannot read them. It stops when you stop sharing.</li>
+    <li><strong>Sharing a route</strong>: the link or QR code holds the stops itself. Nothing is uploaded.</li>
   </ul>
 
   <h2>What is collected or stored</h2>
   <ul>
-    <li><strong>On your device:</strong> your app settings, the Bluetooth MAC address of the last connected wheel (so auto-connect works), and any trip CSV files you record.</li>
-    <li><strong>In your cloud folder (optional, only if you enable sync):</strong> a copy of your app settings and your trip files. This folder belongs to you; the developer has no access to it.</li>
+    <li><strong>On your device:</strong> your app settings, the Bluetooth address of the wheels and accessories you connected (so auto-connect works), and any trip CSV files you record.</li>
+    <li><strong>In your cloud folder (optional, only if you enable sync):</strong> a copy of your app settings, themes, overlays and trip files.</li>
+    <li><strong>On the leaderboard (optional, only if you join):</strong> your profile and the trips you uploaded.</li>
   </ul>
 
   <h2>What is <em>not</em> collected</h2>
   <ul>
-    <li>No account, no login, no email, no phone number.</li>
+    <li>No email, no phone number, no password. The only profile is the leaderboard one, and only if you join.</li>
     <li>No analytics events, crash reports, or usage metrics sent off-device.</li>
     <li>No advertising identifiers.</li>
-    <li>No contact list, call log, SMS, or photo-library access.</li>
-    <li>The camera and microphone are only ever opened from inside <em>Overlay Studio</em> while you have its recording screen open. Footage stays on your device.</li>
+    <li>No contact list, call log or SMS. The app never reads your photos: it only gets a picture you pick yourself, such as a leaderboard avatar.</li>
+    <li>The camera and microphone are only opened by the features above, while you are using them. Footage stays on your device.</li>
   </ul>
 
-  <h2>Permissions explained</h2>
+  <h2>Permissions explained: Android</h2>
   <ul>
-    <li><code>BLUETOOTH_SCAN</code>, <code>BLUETOOTH_CONNECT</code>:required to find and control the wheel. The scan is flagged <code>neverForLocation</code>.</li>
-    <li><code>ACCESS_FINE_LOCATION</code>, <code>ACCESS_COARSE_LOCATION</code>:only used to record your position while a trip is being recorded.</li>
-    <li><code>FOREGROUND_SERVICE</code>, <code>FOREGROUND_SERVICE_CONNECTED_DEVICE</code>, <code>FOREGROUND_SERVICE_LOCATION</code>:to keep the wheel connection and GPS running in the background while you ride.</li>
-    <li><code>CAMERA</code>, <code>RECORD_AUDIO</code>:only used by <em>Overlay Studio</em> while you have its recording screen open. Both prompts appear the first time you tap the Studio's record button and can be revoked at any time in Android Settings.</li>
-    <li><code>POST_NOTIFICATIONS</code>:to show the connection status and alerts.</li>
-    <li><code>VIBRATE</code>:for alarm haptic feedback.</li>
-    <li><code>INTERNET</code>:used only when you explicitly upload trip files to your chosen cloud provider through the Android sync stack, and when the in-app Navigator queries the OSRM routing endpoint to solve a turn-by-turn route. Routing requests contain only the start + stop coordinates you're solving for; no identifiers are attached.</li>
+    <li><code>BLUETOOTH_SCAN</code>, <code>BLUETOOTH_CONNECT</code>: required to find and control the wheel. The scan is flagged <code>neverForLocation</code>.</li>
+    <li><code>ACCESS_FINE_LOCATION</code>, <code>ACCESS_COARSE_LOCATION</code>: GPS speed, trip recording, navigation, weather and the automatic lights.</li>
+    <li><code>FOREGROUND_SERVICE</code>, <code>FOREGROUND_SERVICE_CONNECTED_DEVICE</code>, <code>FOREGROUND_SERVICE_LOCATION</code>, <code>REQUEST_IGNORE_BATTERY_OPTIMIZATIONS</code>: to keep the wheel connection and GPS running in the background while you ride.</li>
+    <li><code>CAMERA</code>, <code>RECORD_AUDIO</code>: <em>Overlay Studio</em>, QR codes and voice commands. Each prompt appears the first time you use the feature and can be revoked at any time in Android Settings.</li>
+    <li><code>POST_NOTIFICATIONS</code>: to show the connection status and alerts.</li>
+    <li><code>SYSTEM_ALERT_WINDOW</code>: optional, to draw your HUD layout on top of other apps. You grant it yourself in system settings.</li>
+    <li><code>VIBRATE</code>: for alarm haptic feedback.</li>
+    <li><code>CHANGE_WIFI_MULTICAST_STATE</code>, <code>ACCESS_WIFI_STATE</code>: to find a helmet HUD on your WiFi.</li>
+    <li><code>INTERNET</code>: for what is listed under <em>What goes over the internet</em>.</li>
   </ul>
+
+  <h2>Permissions explained: iPhone</h2>
+  <ul>
+    <li><strong>Bluetooth</strong>: required to find and control the wheel.</li>
+    <li><strong>Location</strong> (While Using, or Always): GPS speed, trip recording, navigation, weather and the automatic lights. Always lets a trip keep recording while the screen is off.</li>
+    <li><strong>Camera</strong>, <strong>Microphone</strong>: <em>Overlay Studio</em> and QR codes. Each prompt appears the first time you use the feature.</li>
+    <li><strong>Photos</strong> (add only): to save what Overlay Studio records.</li>
+    <li><strong>Local Network</strong>: to find a helmet HUD on your WiFi.</li>
+    <li><strong>Notifications</strong>: for the alerts you turn on, such as a finished charge.</li>
+  </ul>
+  <p>Every one of them can be revoked at any time in the iPhone's Settings.</p>
 
   <h2>Data retention and deletion</h2>
-  <p>All data is local. Uninstalling the app removes everything stored in the app's private data directory. Trip files that you exported or synced to your own cloud folder remain under your control.</p>
+  <p>Uninstalling the app removes everything stored in the app's private data directory. Trip files that you exported or synced to your own cloud folder remain under your control. A leaderboard profile and its uploads stay on eucstats.ried.no after you unlink; to have them removed, ask through the contact below.</p>
 
   <h2>Children</h2>
   <p>The app is not directed at children under 13.</p>
@@ -92,7 +118,7 @@
   <p>The full source code is public at <a href="https://github.com/eried/eucplanet">github.com/eried/eucplanet</a>, so the claims above can be independently verified.</p>
 
   <h2>About this website</h2>
-  <p>This policy covers the Android app. The marketing website at <a href="https://eucplanet.ried.no">eucplanet.ried.no</a> loads Microsoft Clarity so the developer can see which pages and links people actually use. Clarity records page visits, clicks, and anonymised session replays. It does <em>not</em> run inside the app and has no access to your wheel, your rides, or your device data. You can opt out with any standard tracker blocker.</p>
+  <p>This policy covers the app, on Android and on iPhone. The marketing website at <a href="https://eucplanet.ried.no">eucplanet.ried.no</a> loads Microsoft Clarity so the developer can see which pages and links people actually use. Clarity records page visits, clicks, and anonymised session replays. It does <em>not</em> run inside the app and has no access to your wheel, your rides, or your device data. You can opt out with any standard tracker blocker.</p>
 
   <h2>Contact</h2>
   <p>Questions or concerns: open an issue at <a href="https://github.com/eried/eucplanet/issues">github.com/eried/eucplanet/issues</a>.</p>

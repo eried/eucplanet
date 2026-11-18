@@ -118,7 +118,7 @@ interface HudNetwork {
     fun holdRadioAwake(hold: Boolean)
 }
 
-/** The offline map for the HUD, on [HudDiscovery.TILE_PORT] while the link is on. */
+/** The HUD's map pictures, on [HudDiscovery.TILE_PORT] while the link is on. */
 interface HudTiles {
     fun start(): Boolean
 
@@ -144,6 +144,12 @@ interface HudPhone {
 
     /** [res] in the rider's language, outside composition. */
     fun text(res: StringResource): String
+
+    /** [res] with [args] filled in, in the rider's language. */
+    fun text(res: StringResource, args: List<Any>): String
+
+    /** The phone's own short time for [epochMs], "14:05" or "2:05 PM". */
+    fun shortTime(epochMs: Long): String
 
     /** A debug switch by its Android property name, null when unset. */
     fun debug(name: String): String?
@@ -175,7 +181,8 @@ object HudBeacon {
     }
 }
 
-/** The one request the tile listener answers: `GET /tiles/z/x/y.png`. */
+/** The one request the tile listener answers: `GET /tiles/z/x/y.png`, with
+ *  `?layer=<id>` from a HUD that lets the phone pick the picture. */
 object HudTileHttp {
     private val PATH = Regex("""GET /tiles/(\d{1,2})/(\d{1,7})/(\d{1,7})\.png(\?\S*)? HTTP/1\.[01]""")
 
@@ -189,8 +196,15 @@ object HudTileHttp {
         return if (z <= 22 && x < n && y < n) Triple(z, x, y) else null
     }
 
-    /** The response head for a tile of [bodySize] bytes, or the 404 for null. */
+    /** The layer a request names, or null (an older HUD, which wants the
+     *  offline map as is). */
+    fun layerOf(requestLine: String): String? =
+        com.eried.eucplanet.hud.protocol.HudTiles.layerOf(requestLine)
+
+    /** The response head for a tile of [bodySize] bytes: the 404 for null,
+     *  and for an empty one "the provider has nothing this deep". */
     fun head(bodySize: Int?): String =
         if (bodySize == null) "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\nConnection: close\r\n\r\n"
+        else if (bodySize == 0) "HTTP/1.1 ${com.eried.eucplanet.hud.protocol.HudTiles.NO_DATA_STATUS} No Content\r\nConnection: close\r\n\r\n"
         else "HTTP/1.1 200 OK\r\nContent-Type: image/png\r\nContent-Length: $bodySize\r\nConnection: close\r\n\r\n"
 }

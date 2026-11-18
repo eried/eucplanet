@@ -14,7 +14,13 @@ sealed interface BackupOutcome {
  * One row in the restore picker. [label] = null is the default backup
  * (`eucplanet_settings.json`); non-null is the rider-supplied snapshot name.
  */
-data class BackupEntry(val fileName: String, val label: String?, val isFactory: Boolean = false)
+data class BackupEntry(
+    val fileName: String,
+    val label: String?,
+    val isFactory: Boolean = false,
+    /** When the file was written, epoch ms; null when it cannot be told. */
+    val writtenAt: Long? = null,
+)
 
 /**
  * The rider id found in the sync folder's eucstats_riderid.txt. Used to

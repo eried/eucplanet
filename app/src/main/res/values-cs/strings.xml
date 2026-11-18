@@ -470,6 +470,7 @@
     <string name="hud_screen_name_telemetry">Telemetrie</string>
     <string name="hud_screen_name_custom">Vlastní překryv + černá</string>
     <string name="hud_screen_name_custom_cam">Vlastní překryv + kamera</string>
+    <string name="hud_screen_name_custom_map">Vlastní překryv + mapa</string>
     <string name="hud_screen_name_map">Mapa</string>
     <string name="hud_screen_name_nav">Navigace</string>
     <string name="hud_screen_name_map_nav">Mapa + navigace</string>

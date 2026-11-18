@@ -536,6 +536,12 @@ data class WheelCapabilities(
     val lockStateOnRequestOnly: Boolean = false,
     /** The wheel's beeper volume can be set (1..9), see [WheelAdapter.setBeeperVolume]. */
     val hasBeeperVolume: Boolean = false,
+    /**
+     * The alarm speed in the wheel's settings reply is real. False when the
+     * wheel has no alarm speed at all (InMotion V6): the app then keeps its
+     * stored alarm instead of adopting the reply's value as a wheel-side change.
+     */
+    val reportsAlarmSpeed: Boolean = true,
 ) {
     companion object {
         /** V11/V12/V13/V14: full feature set, lock requires password auth. */
@@ -552,6 +558,12 @@ data class WheelCapabilities(
             // they are charging, the current never does.
             reportsChargeCurrent = false,
         )
+
+        /**
+         * InMotion V6: the V2 set, minus an alarm speed. The official app sets
+         * tilt-back only, and the settings page has no alarm in it.
+         */
+        val INMOTION_V6 = INMOTION_V2.copy(hasAlarmSpeed = false, reportsAlarmSpeed = false)
 
         /**
          * InMotion V1 family (V5 / V8 / V10 / L6 / Glide 3 / R-series).

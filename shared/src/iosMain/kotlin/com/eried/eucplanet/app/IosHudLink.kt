@@ -59,6 +59,13 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import org.jetbrains.compose.resources.StringResource
 import platform.Foundation.NSData
+import platform.Foundation.dateWithTimeIntervalSince1970
+import platform.Foundation.currentLocale
+import platform.Foundation.NSLocale
+import platform.Foundation.NSDateFormatterShortStyle
+import platform.Foundation.NSDateFormatterNoStyle
+import platform.Foundation.NSDateFormatter
+import platform.Foundation.NSDate
 import platform.Foundation.NSError
 import platform.Foundation.NSHTTPURLResponse
 import platform.Foundation.NSNetService
@@ -164,6 +171,20 @@ internal object IosHudPhone : HudPhone {
     override fun setMapLinked(linked: Boolean) = IosGpsPower.setHudMap(linked)
 
     override fun text(res: StringResource): String = IosPhoneDevice.text(res)
+
+    override fun text(res: StringResource, args: List<Any>): String =
+        IosPhoneDevice.text(res, *args.toTypedArray())
+
+    override fun shortTime(epochMs: Long): String =
+        shortClock.stringFromDate(NSDate.dateWithTimeIntervalSince1970(epochMs / 1000.0))
+
+    private val shortClock by lazy {
+        NSDateFormatter().apply {
+            locale = NSLocale.currentLocale
+            dateStyle = NSDateFormatterNoStyle
+            timeStyle = NSDateFormatterShortStyle
+        }
+    }
 
     /**
      * Android's debug properties are launch hooks here: `debug.eucplanet.hud.peer`
@@ -512,20 +533,23 @@ private fun sockaddr_in.fill(parts: List<Int>, port: Int) {
 }
 
 /**
- * Hands the HUD map pictures from the iPhone's offline map, as Android's
- * HudTileServer: `GET /tiles/z/x/y.png` on [port], a PNG or a 404, one request
- * per connection, on every interface (the HUD reaches the phone over the
- * hotspot). What a request and an answer look like is the shared [HudTileHttp].
+ * Hands the HUD its map pictures, as Android's HudTileServer:
+ * `GET /tiles/z/x/y.png?layer=<id>` on [port], a picture, a 204 where the
+ * provider has nothing that deep, or a 404. One request per connection, on
+ * every interface (the HUD reaches the phone over the hotspot). What a
+ * request and an answer look like is the shared [HudTileHttp].
  */
 @OptIn(ExperimentalForeignApi::class)
 internal class IosHudTiles(
     private val port: Int,
-    private val tile: (z: Int, x: Int, y: Int) -> ByteArray?,
+    /** The picture for a tile, an empty array for "nothing this deep", or
+     *  null. [layer] is null when the request named none. */
+    private val tile: (z: Int, x: Int, y: Int, layer: String?) -> ByteArray?,
 ) : HudTiles {
     private val lock = SynchronizedObject()
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var listening: Job? = null
-    /** Two tiles drawn at a time, as Android's two workers: a HUD asks for a screenful at once. */
+    /** As many tiles at a time as Android's workers: a HUD asks for a screenful at once. */
     private val drawing = Semaphore(WORKERS)
 
     override fun start(): Boolean = synchronized(lock) {
@@ -592,11 +616,12 @@ internal class IosHudTiles(
                 setsockopt(c, SOL_SOCKET, SO_SNDTIMEO, limit.ptr, sizeOf<timeval>().convert())
             }
             val line = requestLine(c)
+            val layer = HudTileHttp.layerOf(line)
             val body = HudTileHttp.parse(line)?.let { (z, x, y) ->
-                drawing.withPermit { runCatching { tile(z, x, y) }.getOrNull() }
+                drawing.withPermit { runCatching { tile(z, x, y, layer) }.getOrNull() }
             }
             val head = HudTileHttp.head(body?.size).encodeToByteArray()
-            if (sendAll(c, head) && body != null) sendAll(c, body)
+            if (sendAll(c, head) && body != null && body.isNotEmpty()) sendAll(c, body)
         } finally {
             close(c)
         }
@@ -631,8 +656,9 @@ internal class IosHudTiles(
     private companion object {
         // A HUD with no signal asks for every tile on its screen at once.
         const val BACKLOG = 64
-        const val WORKERS = 2
-        const val TIMEOUT_S = 5L
+        // A HUD screen is a dozen tiles and each may wait on the network.
+        const val WORKERS = 6
+        const val TIMEOUT_S = 8L
         const val MAX_REQUEST = 2048
     }
 }

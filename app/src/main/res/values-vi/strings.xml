@@ -476,6 +476,7 @@
     <string name="hud_screen_name_telemetry">Dữ liệu đo</string>
     <string name="hud_screen_name_custom">Lớp phủ tùy chỉnh + đen</string>
     <string name="hud_screen_name_custom_cam">Lớp phủ tùy chỉnh + camera</string>
+    <string name="hud_screen_name_custom_map">Lớp phủ tùy chỉnh + bản đồ</string>
     <string name="hud_screen_name_map">Bản đồ</string>
     <string name="hud_screen_name_nav">Dẫn đường</string>
     <string name="hud_screen_name_map_nav">Bản đồ + Dẫn đường</string>

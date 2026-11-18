@@ -585,6 +585,7 @@ private fun hudScreenDisplayName(id: String): String = when (id) {
     "Telemetry" -> stringResource(Res.string.hud_screen_name_telemetry)
     "Custom" -> stringResource(Res.string.hud_screen_name_custom)
     "CustomCam" -> stringResource(Res.string.hud_screen_name_custom_cam)
+    "CustomMap" -> stringResource(Res.string.hud_screen_name_custom_map)
     "MapNav" -> stringResource(Res.string.hud_screen_name_map_nav)
     "Map" -> stringResource(Res.string.hud_screen_name_map)
     "Nav" -> stringResource(Res.string.hud_screen_name_nav)

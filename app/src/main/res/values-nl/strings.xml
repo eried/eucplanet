@@ -505,6 +505,7 @@
     <string name="hud_screen_name_telemetry">Telemetrie</string>
     <string name="hud_screen_name_custom">Eigen overlay + zwart</string>
     <string name="hud_screen_name_custom_cam">Eigen overlay + camera</string>
+    <string name="hud_screen_name_custom_map">Eigen overlay + kaart</string>
     <string name="hud_screen_name_map">Kaart</string>
     <string name="hud_screen_name_nav">Navigator</string>
     <string name="hud_screen_name_map_nav">Kaart + Nav</string>

@@ -1779,6 +1779,7 @@
     <string name="hud_screen_name_telemetry">Telemetri</string>
     <string name="hud_screen_name_custom">Eget overlegg + svart</string>
     <string name="hud_screen_name_custom_cam">Eget overlegg + kamera</string>
+    <string name="hud_screen_name_custom_map">Eget overlegg + kart</string>
     <string name="hud_screen_name_map">Kart</string>
     <string name="hud_screen_name_nav">Navigator</string>
     <string name="hud_screen_name_power">Watt og rekkevidde</string>

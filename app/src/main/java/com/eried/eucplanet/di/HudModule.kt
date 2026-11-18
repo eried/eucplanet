@@ -20,6 +20,7 @@ import com.eried.eucplanet.service.hud.HudTileServer
 import com.eried.eucplanet.service.hud.HudTiles
 import com.eried.eucplanet.service.hud.HudUdpListener
 import com.eried.eucplanet.service.overlay.PhoneHudWindow
+import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -40,12 +41,17 @@ val hudModule = module {
     singleOf(::AndroidHudMdns) bind HudMdns::class
     singleOf(::AndroidHudNetwork) bind HudNetwork::class
     singleOf(::AndroidHudPhone) bind HudPhone::class
-    // Serves the phone's offline map to the HUD while the link is on.
+    // The HUD's map pictures, served while the link is on. For a layer the
+    // phone answers as its own maps would; with none, the offline map.
     single<HudTiles> {
         val offlineMap = get<OfflineMapRenderer>()
+        val context = androidContext()
         HudTileServer(
             HudDiscovery.TILE_PORT,
-            { z, x, y -> offlineMap.png(z, x, y, 256) },
+            { z, x, y, layer ->
+                if (layer == null) offlineMap.png(z, x, y, 256)
+                else com.eried.eucplanet.map.MapTileCache.layerTile(context, layer, z, x, y)
+            },
             { Log.w("HudServer", it) },
         )
     }

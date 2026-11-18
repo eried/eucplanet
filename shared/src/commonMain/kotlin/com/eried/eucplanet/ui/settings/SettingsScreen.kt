@@ -7844,11 +7844,15 @@ private fun CloudTab(
             SectionHeader(stringResource(Res.string.section_cloud_settings))
             var confirmReplaceBackup by remember { mutableStateOf(false) }
             val backupScope = rememberCoroutineScope()
-            // Only shown when the last backup was the unnamed one; after a named
-            // save we no longer know when the unnamed slot was written, and a
-            // date from the wrong file would be worse than none.
-            val unnamedBackupDate = settings.lastSettingsBackupAt
-                ?.takeIf { settings.lastSettingsBackupName == null }
+            // The backups in the folder, each with the date its file carries.
+            // Read again when the folder changes and after every backup or
+            // restore. Null while the first read is under way.
+            var backups by remember { mutableStateOf<List<com.eried.eucplanet.data.sync.BackupEntry>?>(null) }
+            LaunchedEffect(settings.syncFolderUri, cloudEvent) {
+                backups = runCatching { viewModel.listBackups() }.getOrDefault(emptyList())
+            }
+            // The unnamed slot's own date, for the question before it is replaced.
+            val unnamedBackupDate = backups?.firstOrNull { it.label == null }?.writtenAt
                 ?.let { com.eried.eucplanet.platform.formatLocalDate("dd MMM yyyy HH:mm", it) }
             if (confirmReplaceBackup) {
                 AlertDialog(
@@ -7878,15 +7882,20 @@ private fun CloudTab(
                     },
                 )
             }
-            val lastBackupText = settings.lastSettingsBackupAt?.let { ts ->
-                val date = com.eried.eucplanet.platform.formatLocalDate("dd MMM yyyy HH:mm", ts)
-                val named = settings.lastSettingsBackupName
-                if (named != null) {
-                    stringResource(Res.string.cloud_last_backup_named, date, named)
-                } else {
-                    stringResource(Res.string.cloud_last_backup, date)
+            val newestBackup = backups?.filter { it.writtenAt != null }?.maxByOrNull { it.writtenAt!! }
+            val lastBackupText = when {
+                backups == null -> ""
+                newestBackup == null -> stringResource(Res.string.cloud_last_backup_never)
+                else -> {
+                    val date = com.eried.eucplanet.platform.formatLocalDate("dd MMM yyyy HH:mm", newestBackup.writtenAt!!)
+                    val named = newestBackup.label
+                    if (named != null) {
+                        stringResource(Res.string.cloud_last_backup_named, date, named)
+                    } else {
+                        stringResource(Res.string.cloud_last_backup, date)
+                    }
                 }
-            } ?: stringResource(Res.string.cloud_last_backup_never)
+            }
             // What a settings backup is, before the line saying when the last
             // one happened. The section led with a timestamp and never said
             // what was in the file or where it lands, so a rider could not
@@ -8568,6 +8577,8 @@ fun SpeedNumberSetting(
             label = label,
             enabled = enabled,
             modifier = Modifier.fillMaxWidth(),
+            // Speeds go to the wheel: apply the finished number, not each digit.
+            commitOnBlur = true,
         )
         RestoreChip(
             text = "$displayDefault $unitLabel",

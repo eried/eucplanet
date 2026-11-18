@@ -505,6 +505,7 @@
     <string name="hud_screen_name_telemetry">Télémétrie</string>
     <string name="hud_screen_name_custom">Overlay perso + noir</string>
     <string name="hud_screen_name_custom_cam">Overlay perso + caméra</string>
+    <string name="hud_screen_name_custom_map">Overlay perso + carte</string>
     <string name="hud_screen_name_map">Carte</string>
     <string name="hud_screen_name_nav">Navigateur</string>
     <string name="hud_screen_name_map_nav">Carte + Nav</string>

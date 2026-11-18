@@ -19,7 +19,7 @@ class HudUiController {
     /** Stable identity of the screens. Which ones are enabled, and in
      *  what order, comes from the phone. */
     enum class Screen {
-        Dashboard, Camera, Telemetry, Custom, CustomCam, MapNav,
+        Dashboard, Camera, Telemetry, Custom, CustomCam, CustomMap, MapNav,
         Map, Nav, Power, TripStats, Compass, Safety, BigClock
     }
 
@@ -290,7 +290,8 @@ class HudUiController {
     fun upAction() {
         when (current) {
             Screen.Dashboard -> dashboardGpsView = false
-            Screen.Map, Screen.MapNav -> mapZoom = (mapZoom + 1f).coerceAtMost(MAP_ZOOM_MAX)
+            Screen.Map, Screen.MapNav, Screen.CustomMap ->
+                mapZoom = (mapZoom + 1f).coerceAtMost(MAP_ZOOM_MAX)
             Screen.Camera, Screen.CustomCam -> if (cameraHandedOff) {
                 cameraHandedOff = false
                 cameraTakeBack = true
@@ -305,7 +306,8 @@ class HudUiController {
     fun downAction() {
         when (current) {
             Screen.Dashboard -> dashboardGpsView = true
-            Screen.Map, Screen.MapNav -> mapZoom = (mapZoom - 1f).coerceAtLeast(MAP_ZOOM_MIN)
+            Screen.Map, Screen.MapNav, Screen.CustomMap ->
+                mapZoom = (mapZoom - 1f).coerceAtLeast(MAP_ZOOM_MIN)
             Screen.Camera, Screen.CustomCam -> if (cameraHandedOff) {
                 cameraHandedOff = false
                 cameraTakeBack = true
@@ -342,7 +344,7 @@ class HudUiController {
         val left = if (idx > 0) "Prev screen" else null
         val right = if (idx in 0 until screens.size - 1) "Next screen" else null
         val (up, down) = when (current) {
-            Screen.Map, Screen.MapNav -> "Zoom in" to "Zoom out"
+            Screen.Map, Screen.MapNav, Screen.CustomMap -> "Zoom in" to "Zoom out"
             Screen.Dashboard -> "Speed view" to "GPS view"
             Screen.Camera, Screen.CustomCam ->
                 if (cameraHandedOff) "Show camera" to "Show camera" else "Next camera" to "Rotate"

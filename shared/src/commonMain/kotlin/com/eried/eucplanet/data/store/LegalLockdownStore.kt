@@ -50,10 +50,11 @@ interface LockdownStore {
  * and disarm paths never call SettingsRepository.update() at all, so the promise
  * is structural rather than something we have to keep testing for.
  *
- * Excluded from Android auto-backup and device transfer in `backup_rules.xml`
- * and `data_extraction_rules.xml`, so the lock does not ride a cloud backup onto
- * a new phone and a reinstall is genuinely clean. iOS keeps the file in a
- * folder marked excluded from iCloud and device backups, for the same reason.
+ * Android's cloud backup is off for the whole app, and this store is excluded
+ * from device transfer in `data_extraction_rules.xml`, so the lock does not
+ * ride onto a new phone and a reinstall is genuinely clean. iOS keeps the
+ * file in a folder marked excluded from iCloud and device backups, for the
+ * same reason.
  *
  * The DataStore itself comes from the platform: Android's `legal_lockdown`
  * preferences file (LegalLockdownDataStore.kt), iOS's IosLockdown.

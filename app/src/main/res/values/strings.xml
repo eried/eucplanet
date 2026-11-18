@@ -523,6 +523,7 @@
     <string name="hud_screen_name_telemetry">Telemetry</string>
     <string name="hud_screen_name_custom">Custom overlay + black</string>
     <string name="hud_screen_name_custom_cam">Custom overlay + camera</string>
+    <string name="hud_screen_name_custom_map">Custom overlay + map</string>
     <string name="hud_screen_name_map">Map</string>
     <string name="hud_screen_name_nav">Navigator</string>
     <string name="hud_screen_name_map_nav">Map + Nav</string>

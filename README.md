@@ -12,8 +12,9 @@
 [![Donate](https://img.shields.io/badge/Donate-PayPal-00457C?logo=paypal&logoColor=white)](https://www.paypal.com/donate/?hosted_button_id=AEB2RPZHNRTKG)
 [![Downloads](https://img.shields.io/github/downloads/eried/eucplanet/total)](https://github.com/eried/eucplanet/releases)
 
-Open-source Android app for electric unicycles: live telemetry, turn-by-turn
-navigation, an on-screen overlay for video recording, and many other integrations.
+Open-source app for electric unicycles, on Android and iPhone: live telemetry,
+turn-by-turn navigation, an on-screen overlay for video recording, and many
+other integrations.
 I don't want to pay to just enjoy a wheel I already own. No ads, no in-app
 tracking, no subscriptions, no upselling, no features behind a paywall, no
 telemetry phoned home.
@@ -26,8 +27,8 @@ riders who have the wheel.
 | Status | Wheels |
 |---|---|
 | **Verified** | InMotion V14 (50GB / 50S), P6 |
-| **Rider-tested** | InMotion V8S · LeaperKim Lynx S, Oryx · NOSFET Aeon · Begode/Gotway Mten3, EX30, E20, Master · KingSong KS-16X, KS-18XL |
-| **In test** | InMotion V6, X1 · Begode/Gotway Master Pro, T3, T4, RS, RS-HT, EX, EX.N, EX2, MSP, MSX, Hero, XWay, Mten4, Mten5, MCM5 · LeaperKim Sherman, Sherman S, Sherman Max, Patton, Lynx, Abrams · NOSFET Apex, Aero, Xeno · KingSong S22, S20, S19, S18, S16, KS-14/16/18, F18P, F22P |
+| **Rider-tested** | InMotion V6, V8S · LeaperKim Lynx S, Oryx · NOSFET Aeon · Begode/Gotway Mten3, EX30, E20, Master · KingSong KS-16X, KS-18XL |
+| **In test** | InMotion X1 · Begode/Gotway Master Pro, T3, T4, RS, RS-HT, EX, EX.N, EX2, MSP, MSX, Hero, XWay, Mten4, Mten5, MCM5 · LeaperKim Sherman, Sherman S, Sherman Max, Patton, Lynx, Abrams · NOSFET Apex, Aero, Xeno · KingSong S22, S20, S19, S18, S16, KS-14/16/18, F18P, F22P |
 | **Waiting to be tested** | InMotion V12 HS / HT / Pro, and the rest of the V1 family: V5, V8, V8F, V10, V10F, V10S, V10T, V10FT, L6, Lively, Glide 3 · Ninebot Z6, Z10, plus legacy One E / E+ / S2 / Mini (read-only) |
 | **Experimental** | InMotion V9, V11, V13 |
 
@@ -79,7 +80,7 @@ proximity mode for unmarked spots. Charging stations (connectors, power, cost,
 ratings and photos) and other points of interest along the way (food, shops,
 rest stops) sit right on the map and refresh as you pan and zoom. Full Path
 mode lets you tap any point along the route to add a detour (skip sand, gravel,
-the wrong side of a one-way). Each stop shows its leg and the running total.
+the wrong side of a one-way).
 Share a route as a QR code or a link, nothing uploaded: a friend scans it into
 their app, or opens it in a browser to see the stops and download a GPX. Map
 styles include Satellite hybrid, with road and place names over the imagery.
@@ -134,11 +135,10 @@ eating a quieter one.
 a per-language voice picker, plus event callouts: lock/unlock, lights, GPS fix,
 connection, legal mode, recording.
 
-**Voice commands.** Ask the app instead of looking at it: "battery", "speed", "how
+**Voice commands.** <sub>Android only</sub> Ask the app instead of looking at it: "battery", "speed", "how
 is the weather", or tell it to sound the horn, switch the lights, lock the wheel or
 start recording. Start listening from the Voice button, a Flic, the volume keys,
-your watch, the HUD or a headset button. It answers in your language, and the
-What can I say list is generated from what it really understands.
+your watch, the HUD or a headset button. It answers in your language.
 
 **Trip recording.** GPS and telemetry to DarknessBot-compatible CSV, auto-record,
 live track preview, and a trip list with quick export and share. Trips are
@@ -162,7 +162,7 @@ follow without installing anything.
 GPS, and it can cut the beam when you slow to walking pace so it is not in the face
 of whoever is waiting at the crossing with you, coming back when you ride on.
 Handles midnight sun and polar night (I live in the arctic circle 🧐). Volume
-control scales phone volume with speed. Wheel lock locks the wheel when you walk
+control <sub>Android only</sub> scales phone volume with speed. Wheel lock locks the wheel when you walk
 away and unlocks it when you come back. Switch the light or lock by hand and that
 automation steps aside until you hand it back. Each one runs never, whenever the wheel is
 connected, or only while you are actually riding. Charging can tell you when the
@@ -174,14 +174,14 @@ over local WiFi. New Map + Nav combined screen in the HUD shows the route
 arrow on top of a moving map (Garmin Edge style). See
 [eucplanet.ried.no/hud](https://eucplanet.ried.no/hud/).
 
-**Garmin Edge / watches.** A Connect IQ data field shows live EUC speed,
+**Garmin Edge / watches.** <sub>Android only</sub> A Connect IQ data field shows live EUC speed,
 battery, PWM, current and motor temperature on your bar-mounted Edge or
 on your wrist. Supports Edge 530/540/830/840/1030/1040/1050 and most modern
 Garmin watches (135+ devices). Get it on the
 [Connect IQ Store](https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71),
 or build it yourself from [docs/GARMIN_SETUP.md](docs/GARMIN_SETUP.md).
 
-**Amazfit (Zepp OS) watches.** The same wrist dial on Amazfit watches: speed
+**Amazfit (Zepp OS) watches.** <sub>Android only</sub> The same wrist dial on Amazfit watches: speed
 gauge, PWM, three batteries, horn/light remotes, navigation mirror, physical
 buttons. Tested on the T-Rex 3, built for the Balance too. Setup and sideload
 steps in [docs/AMAZFIT_SETUP.md](docs/AMAZFIT_SETUP.md).
@@ -203,10 +203,10 @@ as LY TPMS, ITPMS and unbranded, whose format is written up in
 cap per wheel. Set a low-pressure alarm in psi or bar and the app tells you
 before the tyre does.
 
-**Integrations.** Flic 2 buttons (up to two), physical volume-key shortcuts,
-external BLE GPS (RaceBox or compatible, for centimetre-class speed and altitude
+**Integrations.** Flic 2 buttons (up to two), physical volume-key shortcuts
+<sub>Android only</sub>, external BLE GPS (RaceBox or compatible, for centimetre-class speed and altitude
 without draining the phone radio; auto-falls back to phone GPS), and a Wear OS
-companion (speed dial, three batteries, horn/light remotes, navigation mirror,
+companion <sub>Android only</sub> (speed dial, three batteries, horn/light remotes, navigation mirror,
 Touch / Physical buttons split; tested on Galaxy Watch Ultra, works on any
 Wear OS 5+ watch). For the developer architecture, see
 [docs/WEAR_OS_MAP.md](docs/WEAR_OS_MAP.md).
@@ -231,8 +231,8 @@ get automatic updates. Or grab the latest APK from [releases](../../releases) fo
 free and sideload it. Same app either way.
 
 On an iPhone, the app is in beta: join it on
-[TestFlight](https://testflight.apple.com/join/8VrhGCrm). It is the same app,
-less the watches and a few Android-only extras for now.
+[TestFlight](https://testflight.apple.com/join/8VrhGCrm). It is the same app;
+the few things marked <sub>Android only</sub> above are not on the iPhone yet.
 
 On a Garmin watch or Edge, install the EUC Planet data field straight from the
 [Connect IQ Store](https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71).
@@ -245,9 +245,8 @@ Build from source:
 adb install app/build/outputs/apk/debug/phone-debug.apk
 ```
 
-Needs Android 10 (API 29) or newer, a supported wheel, and Bluetooth + location
-permissions (Android requires location for BLE scanning). Camera and mic are
-optional and only asked for the first time you open Overlay Studio.
+Needs Android 10 (API 29) or newer, or iOS 15 or newer on an iPhone, and a
+supported wheel.
 
 ---
 
@@ -303,6 +302,7 @@ Thanks to the people and projects that helped, kept in sync with the app (tap ve
 | [Amoenus](https://github.com/Amoenus) | NOSFET Aeon alarm-speed mapping and headlight level readback, decoded from his own BLE captures and contributed with tests and protocol notes. The first code contributed from outside. |
 | [Reimus](https://github.com/Reimus) | Sherman Max compatibility |
 | [ZiraiMode](https://github.com/ZiraiMode) | The Wear OS map: tile streaming from the phone and the watch-side drawing, tested on a Galaxy Watch 5 Pro with a Lynx S |
+| Klaus | InMotion V6 testing: tilt-back and the bigger watch layout, on a TicWatch 3 Pro and a Fenix 5S |
 | Ilya Shkolnik | Advice and help. Maintains DarknessBot. |
 | [InMotion](https://inmotion-store.com/product/inmotion-v14/) | For making a great V14 |
 | [WheelLog community](https://github.com/Wheellog/wheellog.android) | Open-source (GPLv3) reverse-engineering of the EUC BLE protocols, used as the reference for every wheel adapter (KingSong, Begode, Veteran, Ninebot, InMotion). No WheelLog code is reused. |

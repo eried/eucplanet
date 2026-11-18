@@ -1,6 +1,7 @@
 package com.eried.eucplanet.hud.protocol
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -16,6 +17,14 @@ class HudScreensTest {
     @Test fun `a rider who has chosen nothing gets every screen`() {
         assertEquals(HudScreens.DEFAULT, HudScreens.carousel("", ""))
         assertTrue("MapNav" in HudScreens.carousel("", ""))
+    }
+
+    @Test fun `any map screen keeps the phone's GPS on for the HUD`() {
+        assertTrue(HudScreens.hasMap(listOf("Dashboard", "Map")))
+        assertTrue(HudScreens.hasMap(listOf("MapNav")))
+        assertTrue(HudScreens.hasMap(listOf("Dashboard", "CustomMap")))
+        assertFalse(HudScreens.hasMap(listOf("Dashboard", "Custom", "Nav")))
+        assertTrue(HudScreens.DEFAULT.containsAll(HudScreens.MAP_SCREENS))
     }
 
     @Test fun `no screen is listed twice`() {

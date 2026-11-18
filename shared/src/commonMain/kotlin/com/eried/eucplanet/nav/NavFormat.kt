@@ -27,6 +27,21 @@ object NavFormat {
     private const val FEET_PER_M = 3.28084
     private const val M_PER_MILE = 1609.34
 
+    /** Arrival time and distance left on one line, "14:32 · 3.2 km", the
+     *  way the navigator bar words them. Either part is left out while it
+     *  is unknown; empty when both are. [clock] is the phone's short time. */
+    fun etaLine(
+        text: (StringResource, List<Any>) -> String,
+        clock: (Long) -> String,
+        etaEpochMs: Long,
+        remainingM: Double,
+        imperial: Boolean,
+    ): String {
+        val arrival = if (etaEpochMs > 0L) clock(etaEpochMs) else null
+        val left = if (!remainingM.isNaN()) distance(text, remainingM, imperial) else null
+        return listOfNotNull(arrival, left).joinToString(" · ")
+    }
+
     /** Compact distance for the popup, e.g. "200 m" / "1.4 km" / "300 ft" / "0.8 mi". */
     fun distance(text: (StringResource, List<Any>) -> String, meters: Double, imperial: Boolean): String {
         if (imperial) {

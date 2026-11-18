@@ -505,6 +505,7 @@
     <string name="hud_screen_name_telemetry">テレメトリー</string>
     <string name="hud_screen_name_custom">カスタムオーバーレイ + 黒</string>
     <string name="hud_screen_name_custom_cam">カスタムオーバーレイ + カメラ</string>
+    <string name="hud_screen_name_custom_map">カスタムオーバーレイ + マップ</string>
     <string name="hud_screen_name_map">マップ</string>
     <string name="hud_screen_name_nav">ナビゲーター</string>
     <string name="hud_screen_name_map_nav">マップ + ナビ</string>

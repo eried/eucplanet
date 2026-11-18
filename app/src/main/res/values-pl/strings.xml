@@ -505,6 +505,7 @@
     <string name="hud_screen_name_telemetry">Telemetria</string>
     <string name="hud_screen_name_custom">Własna nakładka + czarne tło</string>
     <string name="hud_screen_name_custom_cam">Własna nakładka + kamera</string>
+    <string name="hud_screen_name_custom_map">Własna nakładka + mapa</string>
     <string name="hud_screen_name_map">Mapa</string>
     <string name="hud_screen_name_nav">Nawigator</string>
     <string name="hud_screen_name_map_nav">Mapa + Nawigator</string>

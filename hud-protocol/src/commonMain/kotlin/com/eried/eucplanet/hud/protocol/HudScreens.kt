@@ -14,9 +14,16 @@ object HudScreens {
      *  rider who has not chosen yet. */
     val DEFAULT: List<String> = listOf(
         "Dashboard", "Camera", "Telemetry",
-        "Custom", "CustomCam", "MapNav", "Map", "Nav",
+        "Custom", "CustomCam", "CustomMap", "MapNav", "Map", "Nav",
         "Power", "TripStats", "Compass", "Safety", "BigClock"
     )
+
+    /** The screens that draw the rider on a map, from the phone's position. */
+    val MAP_SCREENS: Set<String> = setOf("Map", "MapNav", "CustomMap")
+
+    /** Whether a carousel holds a map screen, so the phone keeps its GPS on
+     *  for the HUD. */
+    fun hasMap(carousel: List<String>): Boolean = carousel.any { it in MAP_SCREENS }
 
     /**
      * The carousel for the rider's saved row order and enabled set, both

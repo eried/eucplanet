@@ -1761,6 +1761,7 @@
     <string name="hud_screen_name_telemetry">遥测</string>
     <string name="hud_screen_name_custom">自定义叠加 + 黑色</string>
     <string name="hud_screen_name_custom_cam">自定义叠加 + 摄像头</string>
+    <string name="hud_screen_name_custom_map">自定义叠加 + 地图</string>
     <string name="hud_screen_name_map">地图</string>
     <string name="hud_screen_name_nav">导航</string>
     <string name="hud_screen_name_power">功率与续航</string>

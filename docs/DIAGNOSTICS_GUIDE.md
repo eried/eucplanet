@@ -38,7 +38,7 @@ One `.txt` log, shared straight from the app. That's the whole thing.
 4. Read the warning, confirm, and tap **Enter**.
 
 > [!NOTE]
-> When version number now **pulses red**. That means it's already recording.
+> When version number **pulses red**: means it's already recording.
 
 <img width="200" alt="Screenshot_1780217539" src="https://github.com/user-attachments/assets/9d074fa6-5e46-45a9-adce-bc0ae220f237" />
 
@@ -53,8 +53,14 @@ Examples:
 
 ```
 Speed looks too low, feels like 25 but app shows 18
+```
+```
 Battery % jumps from 60 to 45 and back while riding
+```
+```
 No temperature shown anywhere, V11
+```
+```
 Horn button in the app does nothing
 ```
 

@@ -38,6 +38,29 @@ class EucStatsApiTest {
         assertTrue(r is UploadResult.PermanentFailure)
     }
 
+    @Test fun getTripStatus_404_isGone() {
+        server.enqueue(MockResponse().setResponseCode(404).setBody("{\"detail\":\"trip_not_found\"}"))
+        val s = api.getTripStatus("t-gone")
+        assertNotNull(s); assertTrue(s!!.gone); assertNull(s.validationStatus)
+        assertEquals("/api/v1/trips/t-gone", server.takeRequest().path)
+    }
+
+    @Test fun getTripStatus_200_readsTheVerdict() {
+        server.enqueue(MockResponse().setResponseCode(200).setBody("{\"validation_status\":\"validated\"}"))
+        val s = api.getTripStatus("t1")
+        assertEquals("validated", s?.validationStatus); assertFalse(s!!.gone)
+    }
+
+    @Test fun getTripStatus_otherFailures_areUnreadableNotGone() {
+        // Only a 404 is final. These keep the trip held and asked about again.
+        for (code in listOf(429, 500, 502, 503, 401, 403)) {
+            server.enqueue(MockResponse().setResponseCode(code))
+            assertNull("HTTP $code", api.getTripStatus("t1"))
+        }
+        val dead = EucStatsApi(HttpClient()) { "http://127.0.0.1:1/api/v1" }
+        assertNull(dead.getTripStatus("t1"))
+    }
+
     @Test fun uploadTrip_503_isRetryable() = runBlocking {
         server.enqueue(MockResponse().setResponseCode(503))
         assertTrue(api.uploadTrip("{}", ByteArray(1)) is UploadResult.Retry)

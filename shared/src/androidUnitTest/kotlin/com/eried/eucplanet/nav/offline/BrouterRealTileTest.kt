@@ -1,5 +1,8 @@
 package com.eried.eucplanet.nav.offline
 
+import btools.router.OsmNodeNamed
+import btools.router.RoutingContext
+import btools.router.RoutingEngine
 import com.eried.eucplanet.data.model.GeoPoint
 import java.io.File
 import org.junit.Assert.assertTrue
@@ -31,5 +34,33 @@ class BrouterRealTileTest {
         r?.hints?.take(8)?.forEach { println("  hint cmd=${it.cmd} idx=${it.index} exit=${it.exit}") }
         assertTrue(r != null && r.distanceM in 12_000.0..25_000.0)
         assertTrue(r!!.hints.isNotEmpty())
+    }
+    /** A stopped run ends while it reads segments to match its stops, not
+     *  only in its search: on a slow phone the matching alone outlasted the
+     *  time limit, and the next route waited for it. */
+    @Test fun aTerminatedRun_stopsWhileReadingSegments() {
+        val dir = System.getenv("BROUTER_TILES")?.let(::File)
+        assumeTrue(dir != null && File(dir, "E10_N55.rd5").isFile)
+        val profiles = File(dir, "profiles").apply { mkdirs() }
+        File("../app/src/main/assets/brouter/wheel.brf").copyTo(File(profiles, "wheel.brf"), overwrite = true)
+        File(dir, "lookups.dat").copyTo(File(profiles, "lookups.dat"), overwrite = true)
+        val rc = RoutingContext().apply {
+            localFunction = File(profiles, "wheel.brf").absolutePath
+            keyValues = hashMapOf("turnInstructionMode" to "9")
+            memoryclass = 64
+        }
+        val wps = listOf(GeoPoint(59.9139, 10.7387), GeoPoint(59.9170, 10.7275)).mapIndexedTo(ArrayList()) { i, p ->
+            OsmNodeNamed().apply {
+                name = "via$i"
+                val (lon, lat) = BrouterMapping.toBrouter(p)
+                ilon = lon
+                ilat = lat
+            }
+        }
+        val engine = RoutingEngine(null, null, dir!!.path, wps, rc)
+        engine.quite = true
+        engine.terminate()
+        engine.doRun(60_000)
+        assertTrue("error: ${engine.errorMessage}", engine.errorMessage.orEmpty().contains("reading segments"))
     }
 }

@@ -505,6 +505,7 @@
     <string name="hud_screen_name_telemetry">Telemetría</string>
     <string name="hud_screen_name_custom">Overlay personalizado + negro</string>
     <string name="hud_screen_name_custom_cam">Overlay personalizado + cámara</string>
+    <string name="hud_screen_name_custom_map">Overlay personalizado + mapa</string>
     <string name="hud_screen_name_map">Mapa</string>
     <string name="hud_screen_name_nav">Navegador</string>
     <string name="hud_screen_name_map_nav">Mapa + Nav</string>
@@ -2781,7 +2782,7 @@
     <string name="voice_stat_peak">Pico</string>
     <string name="crews_pass_action">Pase de cuadrilla</string>
     <string name="crews_pass_search_hint">El pase de cuadrilla aparece cuando te unes a las clasificaciones online.</string>
-    <string name="crews_scan_hint">Abre eucstats en el navegador, dale a Crews y apunta esto al código que salga.</string>
+    <string name="crews_scan_hint">Abre eucstats en el navegador, dale a Cuadrillas y apunta esto al código que salga.</string>
     <string name="crews_scan_invalid">Ese no es un código de pase de cuadrilla.</string>
     <string name="crews_scan_is_share">Ese es un código de ubicación en directo. Escanéalo desde Compartir en el mapa.</string>
     <string name="share_scan_is_crewpass">Ese es un pase de cuadrilla. Escanéalo desde Ajustes, en Cuadrillas.</string>

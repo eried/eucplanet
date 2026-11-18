@@ -59,10 +59,11 @@ enum class InMotionV2Model(
     V14_50S( 92, "InMotion V14 50S",   maxSpeedHasAlarms = true,  hornOpcode = 0x02, maxSpeedKmh = 120),
     V12S(  111, "InMotion V12S",       maxSpeedHasAlarms = true,  hornOpcode = 0x18, maxSpeedKmh = 120),
     V9(    121, "InMotion V9",         maxSpeedHasAlarms = true,  hornOpcode = 0x18, maxSpeedKmh = 120),
-    // carType reply 02 0e 01 -> series 14, type 1. Small last-mile wheel; the
-    // wheel's own config block carries a 30.00 km/h cap, so the slider stops
-    // there. Speaks the P6-style extended-routing dialect, see the adapter.
-    V6(    141, "InMotion V6",         maxSpeedHasAlarms = false, hornOpcode = 0x18, maxSpeedKmh = 30),
+    // carType reply 02 0e 01 -> series 14, type 1. Small last-mile wheel.
+    // Its config block carries a 30.00 km/h ceiling, but the official app's
+    // tilt-back slider stops at 25 (tester video, 2026-11-14), so ours does
+    // too. Speaks the P6-style extended-routing dialect, see the adapter.
+    V6(    141, "InMotion V6",         maxSpeedHasAlarms = false, hornOpcode = 0x18, maxSpeedKmh = 25),
     // carType series 17, type 1. A 56-cell (~235 V) wheel, 2 battery packs.
     // Speaks the V14 realtime layout but answers settings with the P6's
     // 51-byte page, so speeds are read and written the P6 way (see the

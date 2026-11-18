@@ -21,8 +21,9 @@ interface EucStatsApiContract {
     fun exportRider(storeId: String): String?
     fun uploadTrip(metaJson: String, gzippedCsv: ByteArray): UploadResult
 
-    /** Current verdict for one trip, or null when it couldn't be read (network, or a
-     *  server too old to serve GET /trips/{uuid}). Defaulted so test fakes need not
+    /** Current verdict for one trip, [TripStatus.GONE] when the server answers that it
+     *  has no such trip (404), or null when it couldn't be read (network, timeout, 429,
+     *  5xx). Only null is worth asking again. Defaulted so test fakes need not
      *  implement it. */
     fun getTripStatus(tripUuid: String): TripStatus? = null
 }
@@ -164,6 +165,9 @@ class EucStatsApi(
         val req = get("/trips/$tripUuid")
         return try {
             client.execute(req).let { resp ->
+                // 404 is the server saying the trip is not there: final. Every other
+                // failure (429, 5xx, auth) is "could not read it", and is asked again.
+                if (resp.code == 404) return@let TripStatus.GONE
                 if (!resp.isSuccessful) return@let null
                 val o = JSONObject(resp.text())
                 TripStatus(

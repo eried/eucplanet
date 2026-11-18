@@ -505,6 +505,7 @@
     <string name="hud_screen_name_telemetry">遙測</string>
     <string name="hud_screen_name_custom">自訂疊加層 + 黑底</string>
     <string name="hud_screen_name_custom_cam">自訂疊加層 + 鏡頭</string>
+    <string name="hud_screen_name_custom_map">自訂疊加層 + 地圖</string>
     <string name="hud_screen_name_map">地圖</string>
     <string name="hud_screen_name_nav">導航器</string>
     <string name="hud_screen_name_map_nav">地圖 + 導航</string>

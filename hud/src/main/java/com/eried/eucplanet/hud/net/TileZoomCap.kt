@@ -3,7 +3,7 @@ package com.eried.eucplanet.hud.net
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
-import java.security.MessageDigest
+import com.eried.eucplanet.hud.protocol.HudTiles
 
 /**
  * How deep the map may fetch where the rider actually is. Esri answers a
@@ -16,15 +16,8 @@ import java.security.MessageDigest
 class TileZoomCap {
     companion object {
         const val MIN_ZOOM = 3
-        private const val NO_DATA_SIZE = 2521
-        private const val NO_DATA_MD5 = "f27d9de7f80c13501f470595e327aa6d"
 
-        fun isNoDataTile(bytes: ByteArray): Boolean {
-            if (bytes.size != NO_DATA_SIZE) return false
-            val md5 = MessageDigest.getInstance("MD5").digest(bytes)
-                .joinToString("") { "%02x".format(it) }
-            return md5 == NO_DATA_MD5
-        }
+        fun isNoDataTile(bytes: ByteArray): Boolean = HudTiles.isNoDataTile(bytes)
     }
 
     /** Lowest zoom that returned the no-data tile; Int.MAX_VALUE when none has. */

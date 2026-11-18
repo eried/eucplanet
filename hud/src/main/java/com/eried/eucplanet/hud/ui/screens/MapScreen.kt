@@ -58,7 +58,7 @@ import kotlin.math.floor
  * map. A 4×3 grid does that.
  */
 @Composable
-fun MapScreen(hud: HudState, zoom: Float, cache: HudTileCache) {
+fun MapScreen(hud: HudState, zoom: Float, cache: HudTileCache, chrome: Boolean = true) {
     val ctx = LocalContext.current
     val accent = parseHexColor(hud.accentArgb)
     // Cache is owned by HudActivity and passed in: previously the cache
@@ -243,6 +243,10 @@ fun MapScreen(hud: HudState, zoom: Float, cache: HudTileCache) {
                 drawCircle(color = accent, radius = 9.dp.toPx(), center = centerPx)
             }
         )
+
+        // The corner boxes stay off where the rider's own preset is drawn
+        // over the map: the preset says what goes in the corners.
+        if (!chrome) return
 
         // Zoom indicator (bottom-left).
         Box(

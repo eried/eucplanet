@@ -221,6 +221,9 @@ class AlarmEngine(
             Log.i(TAG, "Constant tone START '${rule.name}' freq=$freq vol=$vol gap=${rule.beepGapMs}")
             outputs.startStream(freq, rule.beepDurationMs, rule.beepGapMs, vol, trans, rule.beepWaveform, rule.beepEffect)
             constantRuleId = rule.id
+            // Once, as the tone starts. It skips executeActions (see evaluate),
+            // so without this a held alarm would never reach the car screen.
+            scope.launch { notifyCar(rule, value) }
         } else {
             outputs.updateStream(freq, rule.beepDurationMs, rule.beepGapMs, vol, trans, rule.beepWaveform, rule.beepEffect)
         }
@@ -452,6 +455,7 @@ class AlarmEngine(
             if (onWatch) outputs.vibrateWatch(rule.vibrateDurationMs)
         }
         scope.launch {
+            notifyCar(rule, triggerValue)
             if (rule.beepEnabled) {
                 val freq = AlarmLogic.modulatedBeepHz(
                     rule.beepFrequency, triggerValue, rule.comparator, rule.threshold, rule.beepModulation, rule.metric)
@@ -485,9 +489,11 @@ class AlarmEngine(
      * The car screen is only in front of the rider while they are looking at
      * it, and while navigating they are looking at Maps. A notification is the
      * one thing the host draws over navigation, so this is the only way an
-     * alarm reaches a rider mid-route. Costs nothing when no car is attached:
-     * the host never shows it and the channel is silent, because the rule's
-     * own beep and vibration have already fired.
+     * alarm reaches a rider mid-route. Every action path calls this, wheel,
+     * radar and GPS alike, and a constant tone as it starts
+     * (AlarmCarWiringTest). Costs nothing when no car is
+     * attached: nothing is posted, and the channel is silent, because the
+     * rule's own beep and vibration have already fired.
      */
     private suspend fun notifyCar(rule: AlarmRule, triggerValue: Float) {
         if (!settingsRepository.currentOrLoad().androidAuto.alarmNotifications) return
@@ -508,6 +514,7 @@ class AlarmEngine(
         }
 
         scope.launch {
+            notifyCar(rule, triggerValue)
             if (rule.beepEnabled) {
                 val freq = AlarmLogic.modulatedBeepHz(
                     rule.beepFrequency, triggerValue, rule.comparator, rule.threshold, rule.beepModulation, rule.metric)

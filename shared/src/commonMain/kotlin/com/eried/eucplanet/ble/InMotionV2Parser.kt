@@ -391,6 +391,15 @@ object InMotionV2Parser {
     }
 
     /**
+     * Parse the V6 settings page. It is the P6's page, with tilt-back at
+     * d[8..9] (four changes in the official app, 15 / 20 / 25 km/h, each read
+     * back there). The V6 has no alarm speed and d[10..11] held 7.00 throughout,
+     * so the alarm mirrors tilt-back instead.
+     */
+    fun parseV6Settings(data: ByteArray): WheelSettings? =
+        parseP6Settings(data)?.let { it.copy(alarmSpeedKmh = it.maxSpeedKmh) }
+
+    /**
      * Parse the P6's detailed-data response (TX `02 21 04`, RX `02 84 [86 bytes]`).
      *
      * The 0x84 body carries the full temperature block, community-documented

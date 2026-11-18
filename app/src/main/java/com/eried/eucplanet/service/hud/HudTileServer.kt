@@ -10,9 +10,11 @@ import java.util.concurrent.Executors
 import java.util.concurrent.RejectedExecutionException
 
 /**
- * Hands the HUD map pictures from the phone's offline map. The HUD fetches
- * its own tiles over Wi-Fi; with no signal it asks the phone it is paired
- * with, `GET /tiles/z/x/y.png` on [port], and gets a PNG or a 404.
+ * Hands the HUD its map pictures. The HUD asks the phone it is paired with
+ * for every tile of the rider's layer, `GET /tiles/z/x/y.png?layer=<id>` on
+ * [port], and gets a picture, a 204 where the provider has nothing that
+ * deep, or a 404. An older HUD names no layer: it fetches online tiles
+ * itself and wants the offline map as is when that fails.
  *
  * Plain `java.net` like the Amazfit server, one request per connection. It
  * listens on every interface because the HUD reaches the phone over the
@@ -22,7 +24,9 @@ import java.util.concurrent.RejectedExecutionException
  */
 class HudTileServer(
     private val port: Int,
-    private val tile: (z: Int, x: Int, y: Int) -> ByteArray?,
+    /** The picture for a tile, an empty array for "nothing this deep", or
+     *  null. [layer] is null when the request named none. */
+    private val tile: (z: Int, x: Int, y: Int, layer: String?) -> ByteArray?,
     private val log: (String) -> Unit = {},
 ) : HudTiles {
     private var socket: ServerSocket? = null
@@ -76,10 +80,11 @@ class HudTileServer(
             c.use {
                 it.soTimeout = TIMEOUT_MS
                 val line = BufferedReader(InputStreamReader(it.getInputStream(), Charsets.US_ASCII)).readLine().orEmpty()
-                val body = HudTileHttp.parse(line)?.let { (z, x, y) -> runCatching { tile(z, x, y) }.getOrNull() }
+                val layer = HudTileHttp.layerOf(line)
+                val body = HudTileHttp.parse(line)?.let { (z, x, y) -> runCatching { tile(z, x, y, layer) }.getOrNull() }
                 val out = it.getOutputStream()
                 out.write(HudTileHttp.head(body?.size).toByteArray(Charsets.US_ASCII))
-                if (body != null) out.write(body)
+                if (body != null && body.isNotEmpty()) out.write(body)
                 out.flush()
             }
         } catch (e: IOException) {
@@ -88,8 +93,9 @@ class HudTileServer(
     }
 
     companion object {
-        private const val WORKERS = 2
-        private const val BACKLOG = 8
-        private const val TIMEOUT_MS = 5_000
+        // A HUD screen is a dozen tiles and each may wait on the network.
+        private const val WORKERS = 6
+        private const val BACKLOG = 32
+        private const val TIMEOUT_MS = 8_000
     }
 }

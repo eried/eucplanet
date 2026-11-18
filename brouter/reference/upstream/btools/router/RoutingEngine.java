@@ -37,7 +37,8 @@ public class RoutingEngine extends Thread {
   public final static int BROUTER_ENGINEMODE_GETINFO = 3;
   public final static int BROUTER_ENGINEMODE_ROUNDTRIP = 4;
 
-  private NodesCache nodesCache;
+  // volatile in EUC Planet: terminate() reads it from another thread.
+  private volatile NodesCache nodesCache;
   private SortedHeap<OsmPath> openSet = new SortedHeap<>();
   private boolean finished = false;
 
@@ -1811,7 +1812,9 @@ public class RoutingEngine extends Thread {
     }
     long maxmem = routingContext.memoryclass * 1024L * 1024L; // in MB
 
-    nodesCache = new NodesCache(segmentDir, routingContext.expctxWay, routingContext.forceSecondaryData, maxmem, nodesCache, detailed);
+    NodesCache nc = new NodesCache(segmentDir, routingContext.expctxWay, routingContext.forceSecondaryData, maxmem, nodesCache, detailed);
+    nodesCache = nc;
+    if (terminated) nc.terminated = true;
     islandNodePairs.clearTempPairs();
   }
 
@@ -2431,6 +2434,9 @@ public class RoutingEngine extends Thread {
 
   public void terminate() {
     terminated = true;
+    // EUC Planet: the segment reading stops too (NodesCache.terminated).
+    NodesCache nc = nodesCache;
+    if (nc != null) nc.terminated = true;
   }
 
   public boolean isTerminated() {

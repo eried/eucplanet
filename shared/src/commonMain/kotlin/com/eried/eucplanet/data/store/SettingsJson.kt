@@ -67,8 +67,6 @@ object SettingsJson {
         // to sensors that are not on that phone's wheel.
         tpms = s.tpms.copy(pairedAddress = null, pairedAddresses = emptyList()),
         syncFolderUri = null,
-        lastSettingsBackupAt = null,
-        lastSettingsBackupName = null,
         // Don't write the live Dropbox link into a backup / portable settings
         // file -- it's device + account state, and an access token shouldn't sit
         // in a shared file. fromJson keeps the device's current values anyway.
@@ -107,8 +105,6 @@ object SettingsJson {
         put("radarShowOverlay", s.radarShowOverlay)
         put("radarOverlaySide", s.radarOverlaySide)
         put("syncFolderUri", s.syncFolderUri)
-        put("lastSettingsBackupAt", s.lastSettingsBackupAt)
-        put("lastSettingsBackupName", s.lastSettingsBackupName)
 
         // eucstats online upload. Only the on/off toggle ships in settings.
         // The store_id lives in `eucstats_riderid.txt`; profile fields
@@ -485,10 +481,6 @@ object SettingsJson {
         radarShowOverlay = j.optBoolean("radarShowOverlay", base.radarShowOverlay),
         radarOverlaySide = j.optString("radarOverlaySide", base.radarOverlaySide),
         syncFolderUri = j.optStringOrNull("syncFolderUri", base.syncFolderUri),
-        lastSettingsBackupAt = if (j.has("lastSettingsBackupAt") && !j.isNull("lastSettingsBackupAt"))
-            j.optLong("lastSettingsBackupAt", base.lastSettingsBackupAt ?: 0L)
-        else base.lastSettingsBackupAt,
-        lastSettingsBackupName = j.optStringOrNull("lastSettingsBackupName", base.lastSettingsBackupName),
         onlineUploadEnabled = j.optBoolean("onlineUploadEnabled", base.onlineUploadEnabled),
         tiltbackSpeedKmh = j.optDouble("tiltbackSpeedKmh", base.tiltbackSpeedKmh.toDouble()).toFloat(),
         alarmSpeedKmh = j.optDouble("alarmSpeedKmh", base.alarmSpeedKmh.toDouble()).toFloat(),
@@ -1009,8 +1001,6 @@ object SettingsJson {
             radarName = current.radarName,
             radarVendor = current.radarVendor,
             syncFolderUri = current.syncFolderUri,
-            lastSettingsBackupAt = current.lastSettingsBackupAt,
-            lastSettingsBackupName = current.lastSettingsBackupName,
             dropboxAccessToken = current.dropboxAccessToken,
             dropboxRefreshToken = current.dropboxRefreshToken,
             dropboxAccessTokenExpiresAt = current.dropboxAccessTokenExpiresAt,

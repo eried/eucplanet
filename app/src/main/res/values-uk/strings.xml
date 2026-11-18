@@ -505,6 +505,7 @@
     <string name="hud_screen_name_telemetry">Телеметрія</string>
     <string name="hud_screen_name_custom">Власний оверлей + чорний</string>
     <string name="hud_screen_name_custom_cam">Власний оверлей + камера</string>
+    <string name="hud_screen_name_custom_map">Власний оверлей + карта</string>
     <string name="hud_screen_name_map">Карта</string>
     <string name="hud_screen_name_nav">Навігатор</string>
     <string name="hud_screen_name_map_nav">Карта + Навігація</string>

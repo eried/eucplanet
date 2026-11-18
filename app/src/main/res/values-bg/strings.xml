@@ -507,6 +507,7 @@
     <string name="hud_screen_name_telemetry">Телеметрия</string>
     <string name="hud_screen_name_custom">Наслагване + черно</string>
     <string name="hud_screen_name_custom_cam">Наслагване + камера</string>
+    <string name="hud_screen_name_custom_map">Наслагване + карта</string>
     <string name="hud_screen_name_map">Карта</string>
     <string name="hud_screen_name_nav">Навигатор</string>
     <string name="hud_screen_name_map_nav">Карта + нав.</string>
