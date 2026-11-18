@@ -841,7 +841,10 @@ private fun TripStatusIcon(
     val settled = trip.eucstatsStatus == 2
     val flagged = settled && trip.eucstatsValidation == "flagged"
     val rejected = settled && trip.eucstatsValidation == "rejected"
-    val onlineDone = settled && !flagged && !rejected
+    // The leaderboard no longer has this ride: not shared, and nothing to say.
+    val gone = settled && trip.eucstatsValidation ==
+        com.eried.eucplanet.data.eucstats.TripStatus.GONE_VALIDATION
+    val onlineDone = settled && !flagged && !rejected && !gone
 
     // Nothing configured, nothing sent, nothing to say.
     if (!folderConfigured && !dropboxLinked && trip.eucstatsStatus == 0 && !backupHeld) return

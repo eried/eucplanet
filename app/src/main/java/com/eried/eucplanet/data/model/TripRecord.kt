@@ -18,7 +18,7 @@ data class TripRecord(
     val tripUuid: String? = null,            // UUIDv4 minted at trip save (live-only)
     val eucstatsStatus: Int = 0,             // 0=n/a 1=pending 2=uploaded 3=failed(terminal)
     val eucstatsUploadedAt: Long? = null,
-    val eucstatsValidation: String? = null,  // "validated" | "flagged"
+    val eucstatsValidation: String? = null,  // "validated" | "flagged" | "rejected" | "gone" (server no longer has it)
     val isMockLocation: Boolean = false,     // any fix during recording was mock
     val sampleCount: Int = 0,                // CSV data rows
     val wheelMetaJson: String? = null,       // {brand,model,serial,ble_mac,ble_name,firmware}

@@ -9,6 +9,7 @@ ride, this is the branch.
 
 ## Worked on
 
+- Leaderboard: a ride that was removed from eucstats is no longer asked about every 15 minutes forever. The app asks once, gets "not there", and stops.
 - Settings backup: "Last backup" is read from the backup file itself, so it is right after a reinstall. Android's own cloud backup of the app is off, so a reinstall starts clean.
 - Offline routing: the first route after opening the app comes on the road instead of as straight lines, and routes with an avoid switched on now route offline.
 - InMotion V6: counts as rider-tested now, so the "preliminary wheel" banner is gone. Thanks Klaus, you are in the thanks list.

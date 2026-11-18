@@ -39,7 +39,22 @@ data class RiderProfile(
  */
 data class TripStatus(
     val validationStatus: String?,   // "validated" | "flagged" | "rejected"
-)
+    /**
+     * The server answered that it has no such trip (404). That is an answer, not a
+     * failure to read one: the trip was removed there, and asking again gets the same
+     * 404 forever. The caller stops asking.
+     */
+    val gone: Boolean = false,
+) {
+    companion object {
+        /** The server no longer has the trip. */
+        val GONE = TripStatus(validationStatus = null, gone = true)
+
+        /** What a trip's stored verdict becomes once the server no longer has it:
+         *  not held any more, and not shared either. */
+        const val GONE_VALIDATION = "gone"
+    }
+}
 
 sealed interface UploadResult {
     data class Ok(val validationStatus: String?, val duplicate: Boolean) : UploadResult
@@ -78,8 +93,9 @@ interface EucStatsApiContract {
     fun exportRider(storeId: String): String?
     fun uploadTrip(metaJson: String, gzippedCsv: ByteArray): UploadResult
 
-    /** Current verdict for one trip, or null when it couldn't be read (network, or a
-     *  server too old to serve GET /trips/{uuid}). Defaulted so test fakes need not
+    /** Current verdict for one trip, [TripStatus.GONE] when the server answers that it
+     *  has no such trip (404), or null when it couldn't be read (network, timeout, 429,
+     *  5xx). Only null is worth asking again. Defaulted so test fakes need not
      *  implement it. */
     fun getTripStatus(tripUuid: String): TripStatus? = null
 }
@@ -219,6 +235,9 @@ class EucStatsApi(
         val req = Request.Builder().url("${baseUrl()}/trips/$tripUuid").get().build()
         return try {
             client.newCall(req).execute().use { resp ->
+                // 404 is the server saying the trip is not there: final. Every other
+                // failure (429, 5xx, auth) is "could not read it", and is asked again.
+                if (resp.code == 404) return@use TripStatus.GONE
                 if (!resp.isSuccessful) return@use null
                 val o = JSONObject(resp.body?.string().orEmpty())
                 TripStatus(
