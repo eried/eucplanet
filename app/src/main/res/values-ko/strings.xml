@@ -247,7 +247,7 @@
     <string name="metric_chip_battery_temp">배터리 온도</string>
     <string name="metric_chip_tire_pressure">타이어 공기압</string>
     <string name="metric_chip_tire_pressure_tile">타이어</string>
-    <string name="metric_desc_tire_pressure">직접 연결한 센서나 휠이 중계하는 센서의 타이어 공기압입니다. 선택한 압력 단위로 표시됩니다.</string>
+    <string name="metric_desc_tire_pressure">직접 연결한 센서나 휠이 중계하는 센서의 타이어 공기압입니다.</string>
     <string name="studio_metric_tire_pressure">타이어 공기압</string>
     <string name="metric_chip_headroom">헤드룸</string>
     <string name="metric_chip_trip_time">트립 시간</string>
@@ -556,7 +556,7 @@
     <string name="watch_update_rate">업데이트 속도</string>
     <string name="watch_update_rate_desc">업데이트를 느리게 하면 워치 배터리가 절약됩니다. 고급 섹션의 휠 폴링 속도와는 별개입니다.</string>
     <string name="watch_map_enabled">워치 지도</string>
-    <string name="watch_map_enabled_desc">휴대전화의 위치와 경로를 표시합니다. 백그라운드 작동을 위해 알림이 계속 표시됩니다.</string>
+    <string name="watch_map_enabled_desc">휴대전화의 위치와 경로를 표시합니다.</string>
     <string name="watch_map_orientation">지도 방향</string>
     <string name="watch_map_north_up">북쪽 위</string>
     <string name="watch_map_heading_up">진행 방향 위</string>
@@ -616,7 +616,7 @@
     <string name="section_cloud_settings">설정 백업</string>
     <string name="cloud_backup_now">백업</string>
     <string name="cloud_restore">복원</string>
-    <string name="cloud_settings_backup_desc">앱에서 설정한 모든 내용을 백업 폴더의 eucplanet_settings.json에 저장합니다. 버튼을 길게 누르면 이름을 붙인 사본도 함께 저장됩니다. 주행 기록은 따로 백업됩니다.</string>
+    <string name="cloud_settings_backup_desc">앱에서 설정한 모든 내용을 백업 폴더의 eucplanet_settings.json에 저장합니다. 버튼을 길게 누르면 이름을 붙인 사본도 함께 저장됩니다.</string>
     <string name="cloud_last_backup">마지막 백업: %1$s</string>
 <string name="cloud_last_backup_named">마지막 백업: %1$s (“%2$s”(으)로 저장)</string>
     <string name="cloud_last_backup_never">아직 백업하지 않았습니다</string>
@@ -901,7 +901,7 @@
     <string name="flic_start_scan">스캔 시작</string>
     <string name="flic_forget">삭제</string>
     <string name="flic_forget_title">이 버튼을 삭제하시겠습니까?</string>
-    <string name="flic_forget_body">%1$s의 페어링이 해제되고 지정된 동작이 지워집니다. 언제든지 다시 페어링할 수 있습니다.</string>
+    <string name="flic_forget_body">%1$s의 페어링이 해제됩니다.</string>
     <string name="flic_rename">이름 변경</string>
     <string name="flic_click">클릭</string>
     <string name="flic_double_click">더블 클릭</string>
@@ -951,7 +951,7 @@
     <string name="volume_keys_enable">볼륨 버튼 동작 활성화</string>
     <string name="volume_keys_screen_off">화면이 꺼져 있을 때도</string>
     <string name="volume_keys_screen_off_caption">휴대전화가 잠겨 있거나 다른 앱이 앞에 있어도 작동합니다. 버튼으로 휴대전화 볼륨이 더 이상 바뀌지 않습니다.</string>
-    <string name="volume_keys_screen_off_warn">Android는 볼륨 버튼 입력을 화면에 있는 앱에만 보냅니다. 화면이 꺼져 있을 때도 받기 위해 EUC Planet이 휴대전화의 활성 미디어 플레이어로 등록되고, Android는 볼륨을 바꾸는 대신 버튼을 앱으로 보냅니다.\n\n켜져 있는 동안 버튼으로 휴대전화 볼륨이 바뀌지 않습니다.</string>
+    <string name="volume_keys_screen_off_warn">Android는 볼륨 버튼 입력을 화면에 있는 앱에만 보냅니다. 화면이 꺼져 있을 때도 받기 위해 EUC Planet이 휴대전화의 활성 미디어 플레이어로 등록되고, Android는 볼륨을 바꾸는 대신 버튼을 앱으로 보냅니다.</string>
     <string name="volume_keys_screen_off_confirm">켜기</string>
     <string name="volume_keys_screen_off_title">볼륨 버튼을 앱에 넘기시겠습니까?</string>
     <string name="volume_up">볼륨 올리기</string>
@@ -975,7 +975,7 @@
         <item quantity="other">차량 %1$d대 감지 중:</item>
     </plurals>
     <string name="radar_show_overlay">위협 오버레이 표시</string>
-    <string name="radar_show_overlay_desc">대시보드 양쪽 여백에 얇은 레이더 차선을 표시합니다. 감지된 차량마다 색상 점이 하나씩 나타납니다. 대시보드에서만 보입니다.</string>
+    <string name="radar_show_overlay_desc">대시보드 양쪽 여백에 얇은 레이더 차선을 표시합니다.</string>
     <string name="radar_overlay_left">왼쪽 가장자리</string>
     <string name="radar_overlay_both">양쪽 가장자리</string>
     <string name="radar_overlay_right">오른쪽 가장자리</string>
@@ -1880,7 +1880,7 @@
     <string name="weather_hot">이보다 높으면 너무 더움</string>
     <string name="weather_breezy">이보다 높으면 바람 있음</string>
     <string name="weather_windy">이보다 높으면 강풍</string>
-    <string name="weather_source_credit">예보는 선택한 제공처에서 가져오며, 이 설정이 켜져 있는 동안에만 받아옵니다. 짧은 구간은 제공처가 지원하면 더 촘촘한 간격으로 표시됩니다.</string>
+    <string name="weather_source_credit">예보는 선택한 제공처에서 가져옵니다. 짧은 구간은 제공처가 지원하면 더 촘촘한 간격으로 표시됩니다.</string>
     <string name="weather_title_1">휠 타기 좋은 날씨일까요?</string>
     <string name="weather_title_2">EUC 탈 시간인가요?</string>
     <string name="weather_title_3">라이딩 나갈 시간인가요?</string>
@@ -2007,7 +2007,7 @@
     <string name="warnings_pip_blocked_body">Android에서 EUC Planet의 화면 속 화면을 거부하도록 설정되어 있어, 앱을 나가도 플로팅 창이 나타나지 않습니다.</string>
     <string name="online_rejoin_confirm">다시 참여</string>
     <string name="hud_joystick_title">버튼 동작</string>
-    <string name="hud_joystick_desc">HUD 버튼을 두 번 탭하면 동작을 실행합니다. 한 번 탭하면 계속 화면을 전환합니다.</string>
+    <string name="hud_joystick_desc">HUD 버튼을 두 번 탭하면 동작을 실행합니다.</string>
     <string name="hud_joystick_up">위 (두 번 탭)</string>
     <string name="hud_joystick_down">아래 (두 번 탭)</string>
     <string name="hud_joystick_left">왼쪽 (두 번 탭)</string>
@@ -2188,7 +2188,7 @@
     <string name="adv_garmin_report_interval">Garmin 보고 속도</string>
     <string name="adv_garmin_report_interval_desc">페어링된 Garmin이 업데이트되는 빈도를 결정합니다. Connect IQ 링크가 실제 속도를 제한하므로 매우 낮은 값은 완전히 적용되지 않을 수 있습니다.</string>
     <string name="adv_graph_sample_interval">그래프 샘플 간격</string>
-    <string name="adv_graph_sample_interval_desc">대시보드 차트의 상세도에만 적용되며 알람이나 주행 기록 파일에는 영향이 없습니다. 주의: 매우 낮은 값은 메모리를 더 사용합니다.</string>
+    <string name="adv_graph_sample_interval_desc">알람이나 주행 기록 파일에는 영향이 없습니다. 주의: 매우 낮은 값은 메모리를 더 사용합니다.</string>
     <string name="adv_group_alarm">예측 알람</string>
     <string name="adv_group_autolights">자동 라이트</string>
     <string name="adv_group_charging">충전 예상 시간</string>
@@ -2291,7 +2291,7 @@
     <string name="adv_radar_static">정지 임계값</string>
     <string name="adv_radar_static_desc">차량이 이동 중으로 간주되기 전 최소 접근 속도를 결정합니다. 주의: 너무 높으면 느리게 접근하는 차량을 무시합니다.</string>
     <string name="adv_radar_warning">레이더가 위협을 표시하는 방식을 바꿉니다. 잘못된 값은 실제 차량을 숨기거나 무해한 차량을 표시할 수 있습니다.</string>
-    <string name="adv_rates_warning">이 설정은 앱 전반의 타이밍을 바꿉니다. 낮은 값은 더 새로운 데이터와 빠른 반응을 주지만 배터리, CPU 또는 데이터를 더 사용합니다. 기본값은 대부분의 라이더에게 적합합니다. 영향을 이해하는 경우에만 변경하세요.</string>
+    <string name="adv_rates_warning">이 설정은 앱 전반의 타이밍을 바꿉니다. 영향을 이해하는 경우에만 변경하세요.</string>
     <string name="adv_reset_all">모두 기본값으로 초기화</string>
     <string name="adv_reset_confirm_msg">다음 설정이 기본값으로 돌아갑니다:</string>
     <string name="adv_restore_default">기본값 복원</string>
@@ -2320,7 +2320,7 @@
     <string name="alarm_summary_adaptive_pitch_vol">음높이 및 볼륨</string>
     <string name="alarm_summary_adaptive_vol">볼륨</string>
     <string name="reorg_drag_cd">드래그하여 순서 변경</string>
-    <string name="reorg_hint">설정 화면을 재구성하고 자주 쓰지 않는 섹션을 숨기세요. 숨긴 섹션은 “더보기” 섹션으로 이동합니다.</string>
+    <string name="reorg_hint">설정 화면을 재구성하고 자주 쓰지 않는 섹션을 숨기세요.</string>
     <string name="studio_cd_close">스튜디오 닫기</string>
     <string name="studio_cd_gallery">갤러리 열기</string>
     <string name="studio_cd_mic">마이크</string>
@@ -2370,9 +2370,9 @@
     <string name="geo_section_trip">주행 기록</string>
     <string name="geo_section_other">기타 화면</string>
     <string name="geo_section_settings">설정</string>
-    <string name="geo_other_hint">배터리 모니터, 지표 이력, 스캔, Flic 화면입니다. 오버레이 스튜디오는 영향을 받지 않습니다. 레이아웃은 고정이지만 어느 방향으로 들어도 잘 작동합니다.</string>
-    <string name="geo_settings_hint">설정 화면입니다. 기본적으로 꺼져 있어 켜지 않으면 설정은 세로로 유지됩니다.</string>
-    <string name="geo_trip_hint">상세 화면은 가로 지도와 차트를 위해 기본적으로 회전합니다. 주행 기록 목록은 켜지 않으면 세로로 유지됩니다.</string>
+    <string name="geo_other_hint">배터리 모니터, 지표 이력, 스캔, Flic 화면입니다.</string>
+    <string name="geo_settings_hint">설정 화면입니다.</string>
+    <string name="geo_trip_hint">상세 화면은 가로 지도와 차트를 위해 기본적으로 회전합니다.</string>
     <string name="setting_allow_rotation">회전 허용</string>
     <string name="setting_rotate_trip_detail">주행 기록 상세 회전</string>
     <string name="setting_rotate_trip_list">주행 기록 목록 회전</string>
@@ -2442,7 +2442,7 @@
     <!-- Speed splits (spoken accel/brake step timing) -->
     <string name="section_accel_splits">속도 구간</string>
     <string name="accel_splits_enabled">시간 안내</string>
-    <string name="accel_splits_desc">가속하거나 감속할 때 각 속도 단계를 통과하는 데 걸린 시간을 읽어 줍니다. 아래 시작 속도부터 설정한 단계 간격으로 측정합니다.</string>
+    <string name="accel_splits_desc">가속하거나 감속할 때 각 속도 단계를 통과하는 데 걸린 시간을 읽어 줍니다.</string>
     <string name="accel_split_decel_prefix">제동, </string>
     <string name="accel_splits_from">시작</string>
     <string name="accel_splits_step">단계</string>
@@ -2587,7 +2587,7 @@
     <string name="dropbox_syncing">주행 기록 동기화 중…</string>
     <string name="dropbox_folder_desc">주행 기록과 설정은 Dropbox의 %1$s에 저장됩니다. 이 폴더는 이 앱만 볼 수 있습니다.</string>
     <string name="keep_app_alive">앱 계속 실행</string>
-    <string name="keep_app_alive_desc">진행 중 알림을 표시해 앱이 백그라운드에서 계속 실행되도록 합니다. 휠이 연결되어 있지 않아도 주행 기록 동기화와 음성이 계속 작동합니다. 배터리를 조금 더 사용합니다.</string>
+    <string name="keep_app_alive_desc">진행 중 알림을 표시해 앱이 백그라운드에서 계속 실행되도록 합니다. 배터리를 조금 더 사용합니다.</string>
     <string name="sync_up_to_date">이미 최신 상태입니다</string>
     <string name="studio_source_transparent">투명</string>
     <string name="studio_source_video">동영상</string>
@@ -2687,7 +2687,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">탈까요?</string>
     <string name="widget_weather_score_desc">지금 주행하기 좋은 날씨인지 보여 줍니다.</string>
-    <string name="widget_weather_compact_desc">지금과 앞으로 몇 시간 동안 주행하기 좋은 날씨인지 보여 줍니다. 크기를 늘리면 시간, 기온, 바람도 표시됩니다.</string>
+    <string name="widget_weather_compact_desc">지금과 앞으로 몇 시간 동안 주행하기 좋은 날씨인지 보여 줍니다.</string>
     <string name="widget_weather_graph_desc">예보 기간 동안 주행하기 좋은 날씨인지 보여 줍니다</string>
     <string name="widget_weather_refresh_desc">예보 새로 고침</string>
     <string name="widget_weather_never">아직 예보가 없습니다. 앱을 한 번 열거나 새로 고침을 누르세요.</string>
@@ -2819,7 +2819,7 @@
         <item quantity="other">경유지 %d곳</item>
     </plurals>
     <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">통계와 휠 버튼을 Android Auto 화면에 표시합니다. 자동으로 연결되며 Wi-Fi 설정이 필요 없습니다.</string>
+    <string name="android_auto_hint">통계와 휠 버튼을 Android Auto 화면에 표시합니다.</string>
     <string name="car_waiting">휠을 기다리는 중</string>
     <string name="car_last_battery">마지막 배터리 %1$d%%</string>
     <string name="car_navigate">내비게이션</string>

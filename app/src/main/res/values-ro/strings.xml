@@ -4,7 +4,7 @@
     <string name="notification_channel_name">Conexiune monociclu</string>
     <string name="notification_channel_description">Arată starea conexiunii cu monociclul și telemetria.</string>
     <string name="keep_app_alive">Menține aplicația pornită</string>
-    <string name="keep_app_alive_desc">Păstrează o notificare permanentă, astfel încât aplicația rămâne activă în fundal. Sincronizarea curselor și vocea funcționează chiar și fără monociclu conectat. Consumă puțin mai multă baterie.</string>
+    <string name="keep_app_alive_desc">Păstrează o notificare permanentă, astfel încât aplicația rămâne activă în fundal. Consumă puțin mai multă baterie.</string>
     <string name="notif_actions_enable">Arată acțiunile din notificare</string>
     <string name="notif_actions_enable_desc">Adaugă butoane de acțiuni rapide la notificarea permanentă.</string>
     <string name="notif_actions_pick_desc">Alege până la %1$d acțiuni. Aceeași acțiune se poate repeta.</string>
@@ -224,7 +224,7 @@
     <string name="metric_chip_battery_temp">Temperatura bateriei</string>
     <string name="metric_chip_tire_pressure">Presiunea în anvelopă</string>
     <string name="metric_chip_tire_pressure_tile">Anvelopă</string>
-    <string name="metric_desc_tire_pressure">Presiunea în anvelopă de la senzorul tău sau de la unul retransmis de monociclu. În unitatea de presiune aleasă.</string>
+    <string name="metric_desc_tire_pressure">Presiunea în anvelopă de la senzorul tău sau de la unul retransmis de monociclu.</string>
     <string name="metric_chip_headroom">Rezervă</string>
     <string name="metric_chip_trip_time">Durata cursei</string>
     <string name="metric_chip_trip_max_speed">Maximul cursei</string>
@@ -457,7 +457,7 @@
     <string name="hud_custom_overlay_none">Șterge</string>
     <string name="hud_search_corpus">HUD afișaj frontal companion server flux telemetrie hotspot motoeye săgeată viraj</string>
     <string name="hud_joystick_title">Acțiunile butoanelor</string>
-    <string name="hud_joystick_desc">Atinge de două ori un buton HUD pentru a rula o acțiune. O singură atingere schimbă în continuare ecranul.</string>
+    <string name="hud_joystick_desc">Atinge de două ori un buton HUD pentru a rula o acțiune.</string>
     <string name="hud_joystick_up">Sus (dublă atingere)</string>
     <string name="hud_joystick_down">Jos (dublă atingere)</string>
     <string name="hud_joystick_left">Stânga (dublă atingere)</string>
@@ -505,7 +505,7 @@
     <string name="watch_update_rate">Frecvența de actualizare</string>
     <string name="watch_update_rate_desc">Actualizările mai rare economisesc bateria ceasului. Este independentă de frecvența de interogare a monociclului din secțiunea Avansat.</string>
     <string name="watch_map_enabled">Harta ceasului</string>
-    <string name="watch_map_enabled_desc">Afișează poziția și traseul de pe telefon. Pentru funcționarea în fundal rămâne o notificare.</string>
+    <string name="watch_map_enabled_desc">Afișează poziția și traseul de pe telefon.</string>
     <string name="watch_map_orientation">Orientarea hărții</string>
     <string name="watch_map_north_up">Nordul sus</string>
     <string name="watch_map_heading_up">Direcția de deplasare sus</string>
@@ -520,15 +520,15 @@
     <string name="tab_more">Mai multe</string>
     <string name="settings_visibility">Vizibilitatea setărilor</string>
     <string name="adv_timings_title">Temporizări și variabile</string>
-    <string name="reorg_hint">Reorganizează ecranul de setări și ascunde secțiunile pe care le folosești rar. Secțiunile ascunse trec în secțiunea „Mai multe”.</string>
+    <string name="reorg_hint">Reorganizează ecranul de setări și ascunde secțiunile pe care le folosești rar.</string>
     <string name="reorg_drag_cd">Trage pentru a reordona</string>
-    <string name="adv_rates_warning">Aceste controale schimbă temporizările din toată aplicația. Valorile mai mici oferă date mai proaspete și reacții mai rapide, dar consumă mai multă baterie, procesor sau trafic. Valorile implicite sunt potrivite pentru majoritatea monocicliștilor. Schimbă-le doar dacă înțelegi efectul.</string>
+    <string name="adv_rates_warning">Aceste controale schimbă temporizările din toată aplicația. Schimbă-le doar dacă înțelegi efectul.</string>
     <string name="adv_pushonly_note">Unele dispozitive transmit în ritmul lor fix și ignoră aceste setări: monociclurile care transmit singure (Begode, Gotway, Veteran, KingSong), GPS extern (RaceBox, Dragy), radarul și butoanele Flic.</string>
     <string name="adv_group_rates">Frecvențe de date și raportare</string>
     <string name="adv_wheel_poll_rate">Frecvența de interogare a monociclului</string>
     <string name="adv_wheel_poll_rate_desc">Stabilește cât de proaspete sunt datele în timp real și cât de repede reacționează alarmele. O valoare mai mică interoghează monociclul mai des. Atenție: valorile foarte mici pot supraîncărca legătura Bluetooth și pot bloca datele la unele monocicluri.</string>
     <string name="adv_graph_sample_interval">Intervalul de eșantionare a graficului</string>
-    <string name="adv_graph_sample_interval_desc">Se aplică doar graficelor din tabloul de bord. Nu afectează alarmele și nici fișierele curselor. Atenție: valorile foarte mici consumă mai multă memorie.</string>
+    <string name="adv_graph_sample_interval_desc">Nu afectează alarmele și nici fișierele curselor. Atenție: valorile foarte mici consumă mai multă memorie.</string>
     <string name="adv_smoothing_window">Fereastra de netezire</string>
     <string name="adv_smoothing_window_desc">Numărul de eșantioane mediate de graficele de cursă de tip „medie” și de rapoartele vocale netezite. Cursele se înregistrează cam o dată pe secundă, deci valoarea se citește ca secunde. Atenție: valorile mari ascund vârfurile scurte.</string>
     <string name="adv_trip_record_interval">Intervalul de înregistrare a cursei</string>
@@ -747,7 +747,7 @@
     <string name="section_cloud_settings">Copie de rezervă a setărilor</string>
     <string name="cloud_backup_now">Salvează</string>
     <string name="cloud_restore">Restaurează</string>
-    <string name="cloud_settings_backup_desc">Tot ce ai configurat în aplicație, salvat în eucplanet_settings.json în dosarul de rezervă. Ține butonul apăsat ca să salvezi alături o copie cu nume. Cursele se salvează separat.</string>
+    <string name="cloud_settings_backup_desc">Tot ce ai configurat în aplicație, salvat în eucplanet_settings.json în dosarul de rezervă. Ține butonul apăsat ca să salvezi alături o copie cu nume.</string>
     <string name="cloud_last_backup">Ultima copie: %1$s</string>
     <string name="cloud_last_backup_named">Ultima copie: %1$s ca „%2$s”</string>
     <string name="cloud_last_backup_never">Încă nu s-a făcut o copie</string>
@@ -844,9 +844,9 @@
     <string name="side_default">Implicit</string>
     <string name="side_left">Stânga</string>
     <string name="side_right">Dreapta</string>
-    <string name="geo_other_hint">Monitorul bateriei, istoricul indicatorilor, scanarea și Flic. Overlay Studio nu este afectat: aranjarea lui este fixă, dar funcționează bine în orice orientare.</string>
-    <string name="geo_settings_hint">Ecranul de setări. Oprit implicit, deci Setările rămân în modul portret dacă nu îl activezi.</string>
-    <string name="geo_trip_hint">Vizualizarea detaliată se rotește implicit pentru harta și graficele în modul peisaj. Lista curselor rămâne în modul portret dacă nu o activezi.</string>
+    <string name="geo_other_hint">Monitorul bateriei, istoricul indicatorilor, scanarea și Flic.</string>
+    <string name="geo_settings_hint">Ecranul de setări.</string>
+    <string name="geo_trip_hint">Vizualizarea detaliată se rotește implicit pentru harta și graficele în modul peisaj.</string>
     <string name="back_button_action_ask">Întreabă</string>
     <string name="back_button_action_background">În fundal</string>
     <string name="back_button_action_stop">Oprește tot</string>
@@ -939,7 +939,7 @@
     <string name="voice_interval">Interval</string>
     <string name="section_accel_splits">Intervale de viteză</string>
     <string name="accel_splits_enabled">Anunță timpii</string>
-    <string name="accel_splits_desc">Rostește timpul necesar pentru a trece fiecare treaptă de viteză, la accelerare sau la frânare. Pornește de la viteza de mai jos, în trepte stabilite de tine.</string>
+    <string name="accel_splits_desc">Rostește timpul necesar pentru a trece fiecare treaptă de viteză, la accelerare sau la frânare.</string>
     <string name="accel_split_decel_prefix">frânare, </string>
     <string name="accel_splits_from">De la</string>
     <string name="accel_splits_step">Treaptă</string>
@@ -1108,7 +1108,7 @@
     <string name="flic_start_scan">Începe scanarea</string>
     <string name="flic_forget">Uită</string>
     <string name="flic_forget_title">Uiți acest buton?</string>
-    <string name="flic_forget_body">%1$s va fi dezasociat, iar acțiunile sale vor fi șterse. Îl poți asocia din nou oricând.</string>
+    <string name="flic_forget_body">%1$s va fi dezasociat.</string>
     <string name="flic_rename">Redenumește</string>
     <string name="flic_click">Apăsare</string>
     <string name="flic_double_click">Dublă apăsare</string>
@@ -1157,7 +1157,7 @@
     <string name="volume_keys_enable">Activează acțiunile butoanelor de volum</string>
     <string name="volume_keys_screen_off">Și cu ecranul stins</string>
     <string name="volume_keys_screen_off_caption">Funcționează cu telefonul blocat sau cu altă aplicație în față. Butoanele nu mai schimbă volumul telefonului.</string>
-    <string name="volume_keys_screen_off_warn">Android trimite apăsările de volum doar aplicației de pe ecran. Ca să le primească și cu ecranul stins, EUC Planet se înregistrează ca playerul media activ al telefonului, iar Android îi trimite butoanele de volum în loc să schimbe volumul.\n\nCât timp este activ, butoanele nu mai schimbă volumul telefonului.</string>
+    <string name="volume_keys_screen_off_warn">Android trimite apăsările de volum doar aplicației de pe ecran. Ca să le primească și cu ecranul stins, EUC Planet se înregistrează ca playerul media activ al telefonului, iar Android îi trimite butoanele de volum în loc să schimbe volumul.</string>
     <string name="volume_keys_screen_off_confirm">Pornește</string>
     <string name="volume_keys_screen_off_title">Preiei butoanele de volum?</string>
     <string name="volume_up">Volum plus</string>
@@ -1181,7 +1181,7 @@
         <item quantity="other">%1$d de vehicule urmărite:</item>
     </plurals>
     <string name="radar_show_overlay">Arată suprapunerea de amenințări</string>
-    <string name="radar_show_overlay_desc">Bandă radar subțire pe marginile tabloului de bord. Un punct colorat pentru fiecare vehicul detectat. Vizibilă doar în tabloul de bord.</string>
+    <string name="radar_show_overlay_desc">Bandă radar subțire pe marginile tabloului de bord.</string>
     <string name="radar_overlay_left">Marginea stângă</string>
     <string name="radar_overlay_both">Ambele margini</string>
     <string name="radar_overlay_right">Marginea dreaptă</string>
@@ -2191,7 +2191,7 @@
     <string name="weather_hot">Prea cald peste</string>
     <string name="weather_breezy">Vânt peste</string>
     <string name="weather_windy">Prea vântos peste</string>
-    <string name="weather_source_credit">Prognoza vine de la sursa aleasă și se descarcă doar cât timp este pornit. O fereastră mai scurtă poate veni în pași mai fini, dacă sursa îi oferă.</string>
+    <string name="weather_source_credit">Prognoza vine de la sursa aleasă. O fereastră mai scurtă poate veni în pași mai fini, dacă sursa îi oferă.</string>
     <string name="weather_title_1">Vreme de monociclu?</string>
     <string name="weather_title_2">E ora de EUC?</string>
     <string name="weather_title_3">E timpul de o tură?</string>
@@ -2496,7 +2496,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">Mergem?</string>
     <string name="widget_weather_score_desc">Vremea de mers, chiar acum.</string>
-    <string name="widget_weather_compact_desc">Cât de bună e vremea pentru mers, acum și în orele următoare. Mărește pentru ore, temperatură și vânt.</string>
+    <string name="widget_weather_compact_desc">Cât de bună e vremea pentru mers, acum și în orele următoare.</string>
     <string name="widget_weather_graph_desc">Cât de bună e vremea pentru mers, pe perioada prognozată</string>
     <string name="widget_weather_refresh_desc">Actualizează prognoza</string>
     <string name="widget_weather_never">Încă nicio prognoză. Deschide aplicația o dată sau atinge actualizarea.</string>
@@ -2630,7 +2630,7 @@
         <item quantity="other">%d de opriri</item>
     </plurals>
     <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Statisticile și butoanele monociclului pe un ecran Android Auto. Se conectează singur, fără configurare Wi-Fi.</string>
+    <string name="android_auto_hint">Statisticile și butoanele monociclului pe un ecran Android Auto.</string>
     <string name="car_waiting">Se așteaptă monociclul</string>
     <string name="car_last_battery">Baterie (ultima): %1$d%%</string>
     <string name="car_navigate">Navighează</string>

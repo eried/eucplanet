@@ -247,7 +247,7 @@
     <string name="metric_chip_battery_temp">バッテリー温度</string>
     <string name="metric_chip_tire_pressure">タイヤ空気圧</string>
     <string name="metric_chip_tire_pressure_tile">タイヤ</string>
-    <string name="metric_desc_tire_pressure">自分のセンサー、またはホイールが中継するセンサーのタイヤ空気圧。選んだ圧力単位で表示します。</string>
+    <string name="metric_desc_tire_pressure">自分のセンサー、またはホイールが中継するセンサーのタイヤ空気圧。</string>
     <string name="studio_metric_tire_pressure">タイヤ空気圧</string>
     <string name="metric_chip_headroom">ヘッドルーム</string>
     <string name="metric_chip_trip_time">トリップ時間</string>
@@ -556,7 +556,7 @@
     <string name="watch_update_rate">更新レート</string>
     <string name="watch_update_rate_desc">更新頻度を下げるとウォッチのバッテリーを節約できます。詳細設定にあるホイールポーリングレートとは別の設定です。</string>
     <string name="watch_map_enabled">ウォッチマップ</string>
-    <string name="watch_map_enabled_desc">スマホの位置とルートを表示します。バックグラウンド動作のため通知が残ります。</string>
+    <string name="watch_map_enabled_desc">スマホの位置とルートを表示します。</string>
     <string name="watch_map_orientation">マップの向き</string>
     <string name="watch_map_north_up">北が上</string>
     <string name="watch_map_heading_up">進行方向が上</string>
@@ -616,7 +616,7 @@
     <string name="section_cloud_settings">設定バックアップ</string>
     <string name="cloud_backup_now">バックアップ</string>
     <string name="cloud_restore">復元</string>
-    <string name="cloud_settings_backup_desc">アプリで設定したすべての内容を、バックアップフォルダの eucplanet_settings.json に保存します。ボタンを長押しすると、名前を付けたコピーも保存できます。トリップは別にバックアップされます。</string>
+    <string name="cloud_settings_backup_desc">アプリで設定したすべての内容を、バックアップフォルダの eucplanet_settings.json に保存します。ボタンを長押しすると、名前を付けたコピーも保存できます。</string>
     <string name="cloud_last_backup">最終バックアップ: %1$s</string>
 <string name="cloud_last_backup_named">最終バックアップ: %1$s（名前:「%2$s」）</string>
     <string name="cloud_last_backup_never">まだバックアップされていません</string>
@@ -901,7 +901,7 @@
     <string name="flic_start_scan">スキャン開始</string>
     <string name="flic_forget">登録解除</string>
     <string name="flic_forget_title">このボタンの登録を解除しますか？</string>
-    <string name="flic_forget_body">%1$s のペアリングが解除され、アクションがクリアされます。いつでも再ペアリングできます。</string>
+    <string name="flic_forget_body">%1$s のペアリングが解除されます。</string>
     <string name="flic_rename">名前を変更</string>
     <string name="flic_click">クリック</string>
     <string name="flic_double_click">ダブルクリック</string>
@@ -951,7 +951,7 @@
     <string name="volume_keys_enable">音量キーアクションを有効にする</string>
     <string name="volume_keys_screen_off">画面が消えているときも</string>
     <string name="volume_keys_screen_off_caption">スマホのロック中や他のアプリが前面にあるときも動作します。ボタンでスマホの音量は変わらなくなります。</string>
-    <string name="volume_keys_screen_off_warn">Android は音量ボタンの操作を画面上のアプリにしか送りません。画面オフでも受け取れるよう、EUC Planet はスマホのアクティブなメディアプレーヤーとして登録され、Android は音量を変える代わりにボタンをアプリへ送ります。\n\nオンの間、ボタンでスマホの音量は変わりません。</string>
+    <string name="volume_keys_screen_off_warn">Android は音量ボタンの操作を画面上のアプリにしか送りません。画面オフでも受け取れるよう、EUC Planet はスマホのアクティブなメディアプレーヤーとして登録され、Android は音量を変える代わりにボタンをアプリへ送ります。</string>
     <string name="volume_keys_screen_off_confirm">オンにする</string>
     <string name="volume_keys_screen_off_title">音量ボタンを引き継ぎますか？</string>
     <string name="volume_up">音量アップ</string>
@@ -975,7 +975,7 @@
         <item quantity="other">%1$d 台の車両を追跡中:</item>
     </plurals>
     <string name="radar_show_overlay">レーダーオーバーレイを表示</string>
-    <string name="radar_show_overlay_desc">ダッシュボードの端に細いレーダーレーンを表示し、検出した車両ごとに色付きのドットを表示します。ダッシュボードでのみ表示されます。</string>
+    <string name="radar_show_overlay_desc">ダッシュボードの端に細いレーダーレーンを表示します。</string>
     <string name="radar_overlay_left">左端</string>
     <string name="radar_overlay_both">両端</string>
     <string name="radar_overlay_right">右端</string>
@@ -1880,7 +1880,7 @@
     <string name="weather_hot">これ超は暑すぎ</string>
     <string name="weather_breezy">これ超は風あり</string>
     <string name="weather_windy">これ超は強風</string>
-    <string name="weather_source_credit">予報は選んだ提供元から、この設定がオンの間だけ取得します。期間が短いほど、提供元が対応していればより細かい間隔で表示されます。</string>
+    <string name="weather_source_credit">予報は選んだ提供元から取得します。期間が短いほど、提供元が対応していればより細かい間隔で表示されます。</string>
     <string name="weather_title_1">ホイール日和？</string>
     <string name="weather_title_2">EUC の時間？</string>
     <string name="weather_title_3">走りに行く？</string>
@@ -2007,7 +2007,7 @@
     <string name="warnings_pip_blocked_body">Android で EUC Planet のピクチャー イン ピクチャーが拒否される設定になっているため、アプリを離れてもフローティングウィンドウは表示されません。</string>
     <string name="online_rejoin_confirm">再参加</string>
     <string name="hud_joystick_title">ボタンアクション</string>
-    <string name="hud_joystick_desc">HUD のボタンをダブルタップするとアクションを実行します。シングルタップは引き続き画面を切り替えます。</string>
+    <string name="hud_joystick_desc">HUD のボタンをダブルタップするとアクションを実行します。</string>
     <string name="hud_joystick_up">上（ダブルタップ）</string>
     <string name="hud_joystick_down">下（ダブルタップ）</string>
     <string name="hud_joystick_left">左（ダブルタップ）</string>
@@ -2190,7 +2190,7 @@
     <string name="adv_garmin_report_interval">Garmin 報告レート</string>
     <string name="adv_garmin_report_interval_desc">ペアリング済みの Garmin を更新する間隔を設定します。実際のレートは Connect IQ の接続で制限されるため、非常に低い値は完全には反映されない場合があります。</string>
     <string name="adv_graph_sample_interval">グラフサンプル間隔</string>
-    <string name="adv_graph_sample_interval_desc">ダッシュボードのグラフの細かさだけを設定します。アラームやトリップファイルには影響しません。注意: 非常に低い値ではメモリ使用量が増えます。</string>
+    <string name="adv_graph_sample_interval_desc">アラームやトリップファイルには影響しません。注意: 非常に低い値ではメモリ使用量が増えます。</string>
     <string name="adv_group_alarm">予測アラーム</string>
     <string name="adv_group_autolights">自動ライト</string>
     <string name="adv_group_charging">充電予想時間</string>
@@ -2293,7 +2293,7 @@
     <string name="adv_radar_static">静止しきい値</string>
     <string name="adv_radar_static_desc">車を移動中とみなす最小の接近速度を設定します。注意: 高すぎると、ゆっくり近づく車を無視します。</string>
     <string name="adv_radar_warning">レーダーが車をどう分類するかを変更します。値が不適切だと、実在する車を見逃したり、危険のない車を警告したりします。</string>
-    <string name="adv_rates_warning">アプリ全体のタイミングを変更します。低い値ほどデータが新しく反応も速くなりますが、バッテリー、CPU、データ通信量を多く消費します。デフォルトはほとんどのライダーに適しています。効果を理解している場合のみ変更してください。</string>
+    <string name="adv_rates_warning">アプリ全体のタイミングを変更します。効果を理解している場合のみ変更してください。</string>
     <string name="adv_reset_all">すべてデフォルトにリセット</string>
     <string name="adv_reset_confirm_msg">以下の設定がデフォルトに戻ります:</string>
     <string name="adv_restore_default">デフォルトに戻す</string>
@@ -2322,7 +2322,7 @@
     <string name="alarm_summary_adaptive_pitch_vol">ピッチと音量</string>
     <string name="alarm_summary_adaptive_vol">音量</string>
     <string name="reorg_drag_cd">ドラッグして並べ替え</string>
-    <string name="reorg_hint">設定画面を並べ替えて、あまり使わないセクションを非表示にできます。非表示にしたセクションは「その他」セクションに移動します。</string>
+    <string name="reorg_hint">設定画面を並べ替えて、あまり使わないセクションを非表示にできます。</string>
     <string name="studio_cd_close">スタジオを閉じる</string>
     <string name="studio_cd_gallery">ギャラリーを開く</string>
     <string name="studio_cd_mic">マイク</string>
@@ -2372,9 +2372,9 @@
     <string name="geo_section_trip">トリップ</string>
     <string name="geo_section_other">その他の画面</string>
     <string name="geo_section_settings">設定</string>
-    <string name="geo_other_hint">バッテリーモニター、メトリクス履歴、スキャン、Flic。オーバーレイスタジオは影響を受けません。レイアウトは固定ですが、どの向きでも問題なく使えます。</string>
-    <string name="geo_settings_hint">設定画面です。デフォルトではオフのため、有効にしない限り設定は縦向きのままです。</string>
-    <string name="geo_trip_hint">詳細ビューは横向きのマップとグラフのためにデフォルトで回転します。トリップ一覧は有効にしない限り縦向きのままです。</string>
+    <string name="geo_other_hint">バッテリーモニター、メトリクス履歴、スキャン、Flic。</string>
+    <string name="geo_settings_hint">設定画面です。</string>
+    <string name="geo_trip_hint">詳細ビューは横向きのマップとグラフのためにデフォルトで回転します。</string>
     <string name="setting_allow_rotation">回転を許可</string>
     <string name="setting_rotate_trip_detail">トリップ詳細を回転</string>
     <string name="setting_rotate_trip_list">トリップ一覧を回転</string>
@@ -2444,7 +2444,7 @@
     <!-- Speed splits (spoken accel/brake step timing) -->
     <string name="section_accel_splits">速度スプリット</string>
     <string name="accel_splits_enabled">タイムをアナウンス</string>
-    <string name="accel_splits_desc">加速・減速しながら各速度ステップを通過するタイムを読み上げます。下の開始速度から、設定したステップ刻みで始まります。</string>
+    <string name="accel_splits_desc">加速・減速しながら各速度ステップを通過するタイムを読み上げます。</string>
     <string name="accel_split_decel_prefix">ブレーキ、 </string>
     <string name="accel_splits_from">開始</string>
     <string name="accel_splits_step">ステップ</string>
@@ -2589,7 +2589,7 @@
     <string name="dropbox_syncing">トリップを同期中…</string>
     <string name="dropbox_folder_desc">トリップと設定は Dropbox の %1$s に保存されます。このフォルダはこのアプリだけが見られます。</string>
     <string name="keep_app_alive">アプリを起動したままにする</string>
-    <string name="keep_app_alive_desc">常時通知を表示して、アプリをバックグラウンドで動作させ続けます。ホイールが接続されていなくても、トリップの同期と音声は動作します。バッテリーを少し多く消費します。</string>
+    <string name="keep_app_alive_desc">常時通知を表示して、アプリをバックグラウンドで動作させ続けます。バッテリーを少し多く消費します。</string>
     <string name="sync_up_to_date">すでに最新です</string>
     <string name="studio_source_transparent">透明</string>
     <string name="studio_source_video">動画</string>
@@ -2689,7 +2689,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">走る？</string>
     <string name="widget_weather_score_desc">今の天気が走行に向いているかを表示します。</string>
-    <string name="widget_weather_compact_desc">今と数時間先の天気が走行に向いているかを表示します。サイズを大きくすると、時刻、気温、風も表示します。</string>
+    <string name="widget_weather_compact_desc">今と数時間先の天気が走行に向いているかを表示します。</string>
     <string name="widget_weather_graph_desc">予報期間中、天気が走行にどれくらい向いているか</string>
     <string name="widget_weather_refresh_desc">予報を更新</string>
     <string name="widget_weather_never">まだ予報がありません。アプリを一度開くか、更新をタップしてください。</string>
@@ -2821,7 +2821,7 @@
         <item quantity="other">経由地 %d 件</item>
     </plurals>
     <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">データとホイールのボタンを Android Auto の画面に表示します。自動で接続するため、Wi-Fi の設定は不要です。</string>
+    <string name="android_auto_hint">データとホイールのボタンを Android Auto の画面に表示します。</string>
     <string name="car_waiting">ホイールを待っています</string>
     <string name="car_last_battery">前回のバッテリー %1$d%%</string>
     <string name="car_navigate">ナビ</string>
