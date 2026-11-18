@@ -15,8 +15,8 @@ object LocaleHelper {
     /**
      * Every shipped language, in picker order: English first, then by tag.
      *
-     * English and Spanish each come in two kinds, named by region the way
-     * the trip viewer and eucstats name them. British English is generated
+     * English, Spanish, Portuguese and Chinese each come in two kinds, named
+     * the way the trip viewer and eucstats name them, so all four show one list. British English is generated
      * from the English strings (tools/i18n/en_gb.py), never written by hand.
      *
      * One list because adding a language used to mean editing four places -
@@ -46,8 +46,8 @@ object LocaleHelper {
         Language("nl", "Nederlands"),
         Language("no", "Norsk"),
         Language("pl", "Polski"),
-        Language("pt-BR", "Português (Brasil)"),
-        Language("pt-PT", "Português (Portugal)"),
+        Language("pt-BR", "Português (BR)"),
+        Language("pt-PT", "Português (PT)"),
         Language("ro", "Română"),
         Language("ru", "Русский"),
         Language("sk", "Slovenčina"),
@@ -56,8 +56,8 @@ object LocaleHelper {
         Language("tr", "Türkçe"),
         Language("uk", "Українська"),
         Language("vi", "Tiếng Việt"),
-        Language("zh", "简体中文"),
-        Language("zh-TW", "繁體中文"),
+        Language("zh", "中文 (简体)"),
+        Language("zh-TW", "中文 (繁體)"),
     )
 
     /**

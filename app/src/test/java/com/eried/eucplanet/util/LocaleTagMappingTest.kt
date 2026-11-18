@@ -23,12 +23,16 @@ class LocaleTagMappingTest {
         assertEquals("en", LocaleHelper.normalizeToSupportedTag("en"))
     }
 
-    @Test fun `the picker names English and Spanish by region`() {
+    @Test fun `the picker names the two-kind languages like the web sites do`() {
         val names = LocaleHelper.SUPPORTED.associate { it.tag to it.nativeName }
         assertEquals("English (US)", names["en"])
         assertEquals("English (UK)", names["en-GB"])
         assertEquals("Español (ES)", names["es"])
         assertEquals("Español (LA)", names["es-419"])
+        assertEquals("Português (BR)", names["pt-BR"])
+        assertEquals("Português (PT)", names["pt-PT"])
+        assertEquals("中文 (简体)", names["zh"])
+        assertEquals("中文 (繁體)", names["zh-TW"])
     }
 
     @Test fun `Indonesian comes back under its legacy code`() {
