@@ -7,12 +7,9 @@ import com.eried.eucplanet.data.sync.SyncManager
 import com.eried.eucplanet.ui.theme.AppThemeColors
 import com.eried.eucplanet.ui.theme.BuiltInThemes
 import com.eried.eucplanet.ui.theme.ThemeJson
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Persistence for named custom themes. Mirrors [OverlayPresetStore] exactly:
@@ -28,9 +25,8 @@ import javax.inject.Singleton
  * are held by [com.eried.eucplanet.ui.theme.ThemeController] and re-derived from
  * the name on launch (a built-in from code, or a saved `.json` loaded from here).
  */
-@Singleton
-class ThemeStore @Inject constructor(
-    @ApplicationContext private val context: Context,
+class ThemeStore(
+    private val context: Context,
     private val settingsRepository: SettingsRepository,
     private val syncManager: SyncManager
 ) {

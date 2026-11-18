@@ -30,8 +30,6 @@ import com.eried.eucplanet.service.VoiceChoice
 import com.eried.eucplanet.service.VoiceOption
 import com.eried.eucplanet.service.VoiceService
 import android.net.Uri
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -44,7 +42,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /**
  * The dashboard metric picker catalog: every metric key a rider can add to the
@@ -104,8 +101,7 @@ internal val KNOWN_DASHBOARD_METRICS = listOf(
  */
 internal val DASHBOARD_METRIC_ALIASES = emptySet<String>()
 
-@HiltViewModel
-class SettingsViewModel @Inject constructor(
+class SettingsViewModel(
     private val settingsRepository: SettingsRepository,
     private val wheelRepository: WheelRepository,
     private val accelSplitRepository: com.eried.eucplanet.data.repository.AccelSplitRepository,
@@ -129,7 +125,7 @@ class SettingsViewModel @Inject constructor(
     private val dropboxRepository: com.eried.eucplanet.data.repository.DropboxRepository,
     private val appHealthRepository:
         com.eried.eucplanet.data.repository.AppHealthRepository,
-    @ApplicationContext private val context: Context,
+    private val context: Context,
     private val hornPlayer: com.eried.eucplanet.audio.HornPlayer,
 ) : ViewModel() {
 
@@ -613,6 +609,10 @@ class SettingsViewModel @Inject constructor(
     fun updateEngineBrake(v: String) = update { copy(engineSound = engineSound.copy(brake = v)) }
     fun updateEngineDuckOnVoice(v: String) = update { copy(engineSound = engineSound.copy(duckOnVoice = v)) }
     fun updateEngineHeadphonesOnly(v: Boolean) = update { copy(engineSound = engineSound.copy(headphonesOnly = v)) }
+    /** Every engine value back to shipped; the on/off switch stays as it was. */
+    fun resetEngineSoundDefaults() = update {
+        copy(engineSound = com.eried.eucplanet.data.model.EngineSoundSettings(enabled = engineSound.enabled))
+    }
 
     fun updateHornMode(v: String) = update { copy(horn = horn.copy(mode = v)) }
     fun updateHornHeadphonesOnly(v: Boolean) = update { copy(horn = horn.copy(headphonesOnly = v)) }
@@ -1058,6 +1058,12 @@ class SettingsViewModel @Inject constructor(
         copy(androidAuto = androidAuto.copy(metrics = slots.joinToString(",")))
     }
 
+    fun updateNavigatorTile(index: Int, key: String) = update {
+        copy(navigatorView = navigatorView.copy(
+            metrics = com.eried.eucplanet.data.model.NavigatorViewSettings.withSlot(
+                navigatorView.metrics, index, key, KNOWN_DASHBOARD_METRICS.toSet())))
+    }
+
     fun updateAndroidAutoActionSlot(index: Int, key: String) = update {
         val slots = com.eried.eucplanet.data.model.AndroidAutoSettings
             .actionSlots(androidAuto.actions).toMutableList()
@@ -1253,6 +1259,14 @@ class SettingsViewModel @Inject constructor(
     fun updateNavDefaultTravelMode(v: String) = update { copy(navDefaultTravelMode = v) }
     fun updateNavGeocoderUrl(v: String) = update { copy(navGeocoderUrl = v) }
     fun updateNavRouterUrl(v: String) = update { copy(navRouterUrl = v) }
+    fun updateNavValhallaUrl(v: String) = update { copy(navValhallaUrl = v) }
+    fun updateOfflineRoutingMode(m: com.eried.eucplanet.data.model.OfflineRoutingMode) =
+        update { copy(offlineRouting = offlineRouting.copy(mode = m)) }
+    fun updateOfflineServerUrl(v: String) = update { copy(offlineRouting = offlineRouting.copy(serverUrl = v)) }
+    fun updateOfflineWifiAutoUpdate(b: Boolean) =
+        update { copy(offlineRouting = offlineRouting.copy(wifiAutoUpdate = b)) }
+    fun updateOfflineRemindBeforeRide(b: Boolean) =
+        update { copy(offlineRouting = offlineRouting.copy(remindBeforeRide = b)) }
     fun updateNavOverpassUrl(v: String) = update { copy(navOverpassUrl = v) }
     fun updateNavOcmApiKey(v: String) = update { copy(navOcmApiKey = v) }
 
@@ -1390,6 +1404,7 @@ class SettingsViewModel @Inject constructor(
     fun updateVolumeUpHold(v: String) = update { copy(volumeUpHold = v) }
     fun updateVolumeDownClick(v: String) = update { copy(volumeDownClick = v) }
     fun updateVolumeDownHold(v: String) = update { copy(volumeDownHold = v) }
+    fun updateVolumeKeysScreenOff(v: Boolean) = update { copy(volumeKeysScreenOff = v) }
 
     // Cloud sync
     private val _cloudEvent = MutableStateFlow<CloudEvent?>(null)

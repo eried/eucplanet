@@ -12,7 +12,6 @@ import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.diagnostics.DiagnosticsLogger
 import com.eried.eucplanet.util.VibratorHelper
 import com.eried.eucplanet.wear.WatchVibrator
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,13 +28,10 @@ import kotlinx.coroutines.sync.withLock
 import java.util.Locale
 import com.eried.eucplanet.R
 import com.eried.eucplanet.car.CarAlarmNotification
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.math.absoluteValue
 
-@Singleton
-class AlarmEngine @Inject constructor(
-    @ApplicationContext private val context: Context,
+class AlarmEngine(
+    private val context: Context,
     private val alarmDao: AlarmDao,
     private val tonePlayer: TonePlayer,
     private val voiceService: VoiceService,
@@ -45,8 +41,8 @@ class AlarmEngine @Inject constructor(
     // Which wheel is live right now, for rules bound to a single wheel.
     private val bleConnectionManager: com.eried.eucplanet.ble.BleConnectionManager,
     // Lazy so the Trip <-> ExternalGps <-> Alarm provider chain can't form a
-    // Hilt cycle. Supplies the phone location stream for the GPS_SPEED metric.
-    private val tripRepositoryProvider: javax.inject.Provider<com.eried.eucplanet.data.repository.TripRepository>
+    // DI cycle. Supplies the phone location stream for the GPS_SPEED metric.
+    private val tripRepositoryProvider: Lazy<com.eried.eucplanet.data.repository.TripRepository>
 ) {
     companion object {
         private const val TAG = "AlarmEngine"
@@ -121,7 +117,7 @@ class AlarmEngine @Inject constructor(
         // not the wheel loop, so they work with no wheel connected. Only fresh
         // fixes with a speed reading tick the evaluator.
         scope.launch {
-            tripRepositoryProvider.get().currentLocation.collect { loc ->
+            tripRepositoryProvider.value.currentLocation.collect { loc ->
                 // Altitude comes off the same fix, so a fix carrying only one
                 // of the two still ticks the evaluator for that one.
                 if (loc != null && (loc.hasSpeed() || loc.hasAltitude())) evaluateGpsSpeed(loc)

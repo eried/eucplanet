@@ -11,7 +11,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -31,6 +30,7 @@ import com.eried.eucplanet.ui.settings.FlicScreen
 import com.eried.eucplanet.ui.studio.OverlayStudioScreen
 import com.eried.eucplanet.ui.settings.SettingsScreen
 import com.eried.eucplanet.util.MultipleEventsCutter
+import org.koin.compose.viewmodel.koinViewModel
 
 sealed class Screen(val route: String) {
     data object Dashboard : Screen("dashboard")
@@ -199,7 +199,7 @@ fun NavGraph(navController: NavHostController) {
                 runCatching { navController.getBackStackEntry(Screen.Recording.route) }.getOrNull()
             }
             val viewModel: RecordingViewModel =
-                if (recordingEntry != null) hiltViewModel(recordingEntry) else hiltViewModel()
+                if (recordingEntry != null) koinViewModel(viewModelStoreOwner = recordingEntry) else koinViewModel()
             val trips by viewModel.trips.collectAsState()
             val trip = tripId?.let { id -> trips.find { it.id == id } }
             var notFound by remember { mutableStateOf(false) }

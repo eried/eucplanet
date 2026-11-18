@@ -57,10 +57,9 @@ import com.eried.eucplanet.ui.navigator.QrScannerArea
 import com.eried.eucplanet.share.ShareLinks
 import com.eried.eucplanet.ui.theme.EucPlanetTheme
 import com.eried.eucplanet.ui.theme.appColors
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
+import org.koin.android.ext.android.get
 
 /**
  * Crews pairing: scan a code from a browser, see what it would grant, approve it.
@@ -74,10 +73,9 @@ import androidx.compose.runtime.rememberCoroutineScope
  * activity to land on and because pairing is a short errand the rider arrives at from outside
  * the app as often as from inside it.
  */
-@AndroidEntryPoint
 class CrewsPairActivity : ComponentActivity() {
 
-    @Inject lateinit var deps: CrewsPairDeps
+    val deps: CrewsPairDeps = get()
 
     /**
      * The link currently being acted on, as state rather than read once.
@@ -118,9 +116,9 @@ class CrewsPairActivity : ComponentActivity() {
 /**
  * What the screen needs, behind one object so the activity stays thin.
  *
- * Built by [com.eried.eucplanet.di.CrewsModule] rather than constructor-injected: two of the
- * three members are lambdas reading live state, and a bare lambda is not something Hilt can
- * resolve on its own.
+ * Built by [com.eried.eucplanet.di.crewsModule] rather than constructor-injected: two of the
+ * three members are lambdas reading live state, and a bare lambda is not something the DI
+ * graph can resolve on its own.
  */
 class CrewsPairDeps(
     val api: PairApi,

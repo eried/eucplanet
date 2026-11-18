@@ -13,20 +13,16 @@ import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.util.SunCalculator
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.util.TimeZone
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 import kotlin.math.sign
 
-@Singleton
-class AutomationManager @Inject constructor(
-    @ApplicationContext private val context: Context,
+class AutomationManager(
+    private val context: Context,
     private val wheelRepository: WheelRepository,
     private val tripRepository: TripRepository,
     private val settingsRepository: SettingsRepository,

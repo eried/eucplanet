@@ -1,7 +1,5 @@
 package com.eried.eucplanet.data.repository
 
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,8 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
  * Singleton scope so the request survives the trip from MainActivity's
  * onNewIntent through Compose Navigation into the RouteBuilderViewModel.
  */
-@Singleton
-class IncomingShareRepository @Inject constructor() {
+class IncomingShareRepository {
 
     /**
      * A place hint extracted from the shared payload. Coordinates are

@@ -19,7 +19,6 @@ import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.data.store.OverlayPresetStore
 import kotlinx.coroutines.withContext
 import com.eried.eucplanet.util.Units
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -34,7 +33,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import javax.inject.Inject
 
 /** One telemetry tick plus the wall-clock time it arrived, for graph elements. */
 data class StudioSample(val timeMs: Long, val data: WheelData)
@@ -110,8 +108,7 @@ data class StudioRadarState(
  * helpers; every change is debounce-persisted to the throwaway draft file so
  * reopening the studio restores exactly what the rider was building.
  */
-@HiltViewModel
-class OverlayStudioViewModel @Inject constructor(
+class OverlayStudioViewModel(
     private val wheelRepository: WheelRepository,
     private val settingsRepository: SettingsRepository,
     private val presetStore: OverlayPresetStore,

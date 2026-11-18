@@ -37,10 +37,34 @@ data class BleProfile(
      * write 0xFFE9 under 0xFFE5), so it sets this. Resolve via
      * [effectiveWriteServiceUuid] rather than reading this directly.
      */
-    val writeServiceUuid: UUID? = null
+    val writeServiceUuid: UUID? = null,
+    /**
+     * Largest write the wheel is handed in one go, or 0 for no limit.
+     *
+     * A frame longer than the 20 bytes a 23-byte MTU carries does not fail on
+     * Android: the stack quietly turns it into a GATT long write, a Prepare
+     * Write per 18 bytes plus an Execute Write, which the wheel's BLE module
+     * has to buffer and commit. InMotion V1 frames are never shorter than 22
+     * bytes and the MTU is never raised on that family, so every poll went out
+     * that way, several times a second, and the link kept dropping where
+     * WheelLog's did not. WheelLog writes each V1 frame as consecutive
+     * 20-byte pieces instead, and so does this when the profile sets a limit.
+     */
+    val writeChunkBytes: Int = 0
 ) {
     /** Service that holds [writeCharacteristic]; falls back to [serviceUuid]. */
     val effectiveWriteServiceUuid: UUID get() = writeServiceUuid ?: serviceUuid
+
+    /**
+     * [data] as the writes that go on the air, in order. One piece, the frame
+     * itself, unless [writeChunkBytes] is set and the frame is longer.
+     */
+    fun writePieces(data: ByteArray): List<ByteArray> {
+        if (writeChunkBytes <= 0 || data.size <= writeChunkBytes) return listOf(data)
+        return (data.indices step writeChunkBytes).map { start ->
+            data.copyOfRange(start, minOf(start + writeChunkBytes, data.size))
+        }
+    }
 
     companion object {
         /**
@@ -112,7 +136,10 @@ data class BleProfile(
             // NOT the 0xFFE0 notify service. Without this the write char lookup
             // returns null on service discovery and the connect is torn down,
             // so no InMotion V1 wheel (V5 / V8 / V10 / V10F / L6) could connect.
-            writeServiceUuid = UUID.fromString("0000ffe5-0000-1000-8000-00805f9b34fb")
+            writeServiceUuid = UUID.fromString("0000ffe5-0000-1000-8000-00805f9b34fb"),
+            // The MTU stays at 23 on this family (see markReadyAndConnected), so
+            // 20 bytes is what one plain write carries.
+            writeChunkBytes = 20
             // Keep WRITE_TYPE_DEFAULT (write-with-response). DO NOT switch to
             // NO_RESPONSE - it is A/B PROVEN to break V8S connect: on the same
             // build where DEFAULT connects first-try, NO_RESPONSE makes the wheel
@@ -527,9 +554,10 @@ data class WheelCapabilities(
             hasVolume = true,
             hasDRL = true,
             needsAuthForLock = false,
-            // No charge flag and no charge current: a V8S on the charger keeps
-            // reporting the board's own idle draw, so only the percentage
-            // climbing says it is charging.
+            // No charge current: a V8S on the charger keeps reporting the
+            // board's own idle draw. V8F / V8S / V10 do state charging in
+            // their work mode (InMotionV1Parser); the other models have only
+            // the percentage climbing.
             reportsChargeCurrent = false,
         )
 

@@ -16,7 +16,6 @@ import android.util.Log
 import com.eried.eucplanet.ble.BleAutoReconnector
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.ExternalGpsSample
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -24,8 +23,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.util.UUID
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * GATT instance dedicated to an external BLE GPS box. Independent of
@@ -38,9 +35,8 @@ import javax.inject.Singleton
  * RX characteristic (for RaceBox: MGA-INI-TIME + MGA-INI-POS to skip
  * cold-start GNSS search), and forward each TX notification to the adapter.
  */
-@Singleton
-class ExternalGpsConnectionManager @Inject constructor(
-    @ApplicationContext private val context: Context
+class ExternalGpsConnectionManager(
+    private val context: Context
 ) {
     companion object {
         private const val TAG = "ExtGpsConn"

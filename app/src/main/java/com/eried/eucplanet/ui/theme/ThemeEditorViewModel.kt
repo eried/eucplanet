@@ -4,18 +4,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.repository.SettingsRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /** Backs the floating theme editor widget. Thin wrapper over [ThemeController]. */
-@HiltViewModel
-class ThemeEditorViewModel @Inject constructor(
+class ThemeEditorViewModel(
     private val settingsRepository: SettingsRepository,
     private val themeController: ThemeController,
 ) : ViewModel() {

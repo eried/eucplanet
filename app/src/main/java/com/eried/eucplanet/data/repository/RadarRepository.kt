@@ -18,8 +18,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.UUID
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Owns the rear-view radar BLE connection and exposes the current frame.
@@ -34,11 +32,10 @@ import javax.inject.Singleton
  * reconnect cadence, same explicit-disconnect veto, same demo-mode hook
  * pattern so the UI can be reviewed without hardware.
  */
-@Singleton
-class RadarRepository @Inject constructor(
+class RadarRepository(
     private val settingsRepository: SettingsRepository,
     private val connectionManager: RadarConnectionManager,
-    private val adapters: Set<@JvmSuppressWildcards RadarAdapter>,
+    private val adapters: Set<RadarAdapter>,
     private val alarmEngine: AlarmEngine
 ) {
     companion object {

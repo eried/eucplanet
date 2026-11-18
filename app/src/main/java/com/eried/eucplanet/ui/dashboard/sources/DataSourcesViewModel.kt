@@ -9,7 +9,6 @@ import com.eried.eucplanet.data.repository.PhoneSensorRepository
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -18,7 +17,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /**
  * Aggregates the three live data sources (Phone IMU + GPS, Wheel BLE, optional
@@ -30,8 +28,7 @@ import javax.inject.Inject
  * stops it. The other two sources are already running app-wide (wheel BLE
  * loop and RaceBox GATT connection) so they need no explicit start/stop here.
  */
-@HiltViewModel
-class DataSourcesViewModel @Inject constructor(
+class DataSourcesViewModel(
     private val phoneSensors: PhoneSensorRepository,
     private val tripRepository: TripRepository,
     private val wheelRepository: WheelRepository,

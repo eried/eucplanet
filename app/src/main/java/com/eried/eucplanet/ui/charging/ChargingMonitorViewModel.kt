@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.ChargeStatus
 import com.eried.eucplanet.util.AppNotifier
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.repository.ChargingSnapshot
@@ -15,13 +14,11 @@ import com.eried.eucplanet.data.repository.MetricSample
 import com.eried.eucplanet.data.repository.PredictionSample
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.WheelRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 import kotlin.math.abs
 
 /** Everything the Battery screen renders. */
@@ -101,9 +98,8 @@ data class ChargingUiState(
  * lives in the singleton repository, so leaving and re-entering this screen keeps
  * the running prediction instead of starting over.
  */
-@HiltViewModel
-class ChargingMonitorViewModel @Inject constructor(
-    @ApplicationContext private val context: Context,
+class ChargingMonitorViewModel(
+    private val context: Context,
     private val wheelRepository: WheelRepository,
     private val settingsRepository: SettingsRepository,
     private val appNotifier: AppNotifier,

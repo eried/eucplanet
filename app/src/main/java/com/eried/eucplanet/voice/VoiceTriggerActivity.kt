@@ -5,9 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.lifecycle.lifecycleScope
 import com.eried.eucplanet.R
 import com.eried.eucplanet.util.AppNotifier
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.get
 
 /**
  * The door a headset button knocks on.
@@ -27,16 +26,15 @@ import kotlinx.coroutines.launch
  * dashboard, so the transcript and the tile the session drives stay visible
  * underneath if the phone is out.
  */
-@AndroidEntryPoint
 class VoiceTriggerActivity : ComponentActivity() {
 
-    @Inject lateinit var voiceCommands: VoiceCommandController
+    val voiceCommands: VoiceCommandController = get()
 
-    @Inject lateinit var appNotifier: AppNotifier
+    val appNotifier: AppNotifier = get()
 
-    @Inject lateinit var settingsRepository: com.eried.eucplanet.data.repository.SettingsRepository
+    val settingsRepository: com.eried.eucplanet.data.repository.SettingsRepository = get()
 
-    @Inject lateinit var actions: com.eried.eucplanet.flic.FlicManager
+    val actions: com.eried.eucplanet.flic.FlicManager = get()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

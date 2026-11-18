@@ -98,8 +98,16 @@ data class NavRoute(
     val travelMode: TravelMode,
     val geometry: List<GeoPoint>,
     val maneuvers: List<Maneuver>,
-    val totalDistanceM: Double
+    val totalDistanceM: Double,
+    /** The locked track from a GPX file, whole, when this route rides one.
+     *  Empty for a route of stops. It outlives [geometry], which is trimmed
+     *  to what is left as the rider goes and cleared in the stored route, so
+     *  the builder and the next leg can always find the line again. */
+    val track: List<GeoPoint> = emptyList()
 ) {
+    /** A locked track: stops and line fixed by the file. */
+    val isLockedTrack: Boolean get() = track.size >= 2
+
     val isEmpty: Boolean get() = waypoints.isEmpty()
 
     fun toJson(): JSONObject = JSONObject().apply {
@@ -213,6 +221,9 @@ data class NavState(
     val primaryText: String = "",
     /** Distance line shown at the bottom, e.g. "200 m". */
     val distanceText: String = "",
+    /** [distanceText] as metres, for hosts that format it themselves (the
+     *  Android Auto turn card); NaN when unknown. */
+    val cueDistanceM: Double = Double.NaN,
     /** Street name of the next maneuver, when known. */
     val nextStreet: String = "",
     val proximity: Proximity? = null,
@@ -226,7 +237,21 @@ data class NavState(
     val popupTick: Int = 0,
     /** True while the phone's centred nav popup is on screen; the watch mirror
      *  follows this so it stays transient like the phone popup. */
-    val cueVisible: Boolean = false
+    val cueVisible: Boolean = false,
+    /** Distance left to the end of what is being navigated, metres; NaN when unknown. */
+    val remainingM: Double = Double.NaN,
+    /** Distance left to the next stop along the route, metres; NaN when unknown. */
+    val nextStopRemainingM: Double = Double.NaN,
+    /**
+     * Where the stop being ridden to sits; on the arrived frame, the stop just
+     * reached. The builder ticks off the stops before it, which Full path never
+     * raises an arrival for. Null when unknown.
+     */
+    val nextStop: GeoPoint? = null,
+    /** True when distances are straight lines to a goal (Treasure hunt, Homing). */
+    val straightLine: Boolean = false,
+    /** Estimated arrival, epoch ms; 0 when there is no estimate to show. */
+    val etaEpochMs: Long = 0L
 )
 
 /**

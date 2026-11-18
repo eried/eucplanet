@@ -1,8 +1,6 @@
 package com.eried.eucplanet.ble
 
 import java.util.UUID
-import javax.inject.Inject
-import javax.inject.Singleton
 
 // Hoisted regex constants. Picking the adapter from a wheel name happens
 // once per connect, but the same patterns get re-evaluated each time a
@@ -85,8 +83,7 @@ internal fun isV1WheelName(n: String): Boolean {
  * verified default). That keeps existing V14 / P6 setups working unchanged
  * when a wheel name doesn't match any other family pattern.
  */
-@Singleton
-class CompositeWheelAdapter @Inject constructor(
+class CompositeWheelAdapter(
     private val inmotion: InMotionV2Adapter,
     private val inmotionV1: InMotionV1Adapter,
     private val kingsong: KingsongAdapter,

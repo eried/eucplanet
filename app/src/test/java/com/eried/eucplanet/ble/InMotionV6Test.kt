@@ -85,6 +85,19 @@ class InMotionV6Test {
     }
 
     @Test
+    fun v6Light_usesTheTwoByteP6Form_notTheV14OneByte() {
+        // Issue #33: the V14 `60 50 01` form left a V6's light untouched.
+        val adapter = InMotionV2Adapter()
+        adapter.notifyConnectingTo("V6-700326F3")
+        assertEquals(hex(InMotionV2Commands.setP6Light(true)), hex(adapter.setLight(true)))
+        assertEquals(hex(InMotionV2Commands.setP6Light(false)), hex(adapter.setLight(false)))
+        // A V14 keeps its own one-byte form.
+        val v14 = InMotionV2Adapter()
+        v14.notifyConnectingTo("Adventure-ABCD")
+        assertEquals(hex(InMotionV2Commands.setLight(true)), hex(v14.setLight(true)))
+    }
+
+    @Test
     fun v6WriteCharacteristic_isNoResponseOnly_soTheWriteTypeSwitches() {
         // The tester's wheel answered nothing at all: its Nordic UART RX
         // characteristic advertises properties 0x04 (write-no-response only,

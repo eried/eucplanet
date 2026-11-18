@@ -12,24 +12,50 @@ import java.util.Locale
 /** Parsed contents of a GPX file relevant to the Navigator. */
 data class GpxData(
     val name: String,
-    /** Route/waypoint pins (`<rtept>` or standalone `<wpt>`). */
-    val waypoints: List<Waypoint>,
-    /** Recorded track geometry (`<trkpt>`), if any. */
+    /** Route points (`<rtept>`): stops in riding order, for a router to join. */
+    val routePoints: List<Waypoint>,
+    /** Standalone `<wpt>` places. Our own older files used them as stops;
+     *  other apps export bookmarks here, often many and far from the ride. */
+    val places: List<Waypoint>,
+    /** Track geometry (`<trkpt>`): the exact line, if any. */
     val track: List<GeoPoint>
-)
+) {
+    /** What the file is to the Navigator. */
+    sealed interface Contents {
+        /** Stops for the router, as our own saves and plain stop lists are. */
+        data class Stops(val stops: List<Waypoint>) : Contents
+        /** A line to ride as drawn, locked, with the file's places. */
+        data class Track(val track: List<GeoPoint>, val places: List<Waypoint>) : Contents
+        data object Nothing : Contents
+    }
+
+    /**
+     * Route points win: a file that names its stops wants them routed (our
+     * own saves carry the solved line too, as a track, and stay editable).
+     * Otherwise a track is the ride, whatever places come with it. Only a
+     * file with neither treats its places as stops.
+     */
+    fun contents(): Contents = when {
+        routePoints.isNotEmpty() -> Contents.Stops(routePoints)
+        track.size >= 2 -> Contents.Track(track, places)
+        places.isNotEmpty() -> Contents.Stops(places)
+        else -> Contents.Nothing
+    }
+}
 
 /**
  * Minimal GPX 1.1 reader/writer for saving and loading Navigator routes.
  * Uses the platform XML pull parser, no third-party dependency.
  *
  * On write we store the user's pins as `<rtept>` and the resolved geometry as
- * a `<trk>`, so re-loading can either re-route from the pins or fall back to
- * the fixed track when only a track is present (e.g. a GPX exported elsewhere).
+ * a `<trk>`, so re-loading re-routes from the pins. A locked track is written
+ * as its `<trk>` with its places as `<wpt>`, so it reopens locked.
  */
 object GpxIO {
 
     fun parse(input: InputStream): GpxData {
-        val waypoints = ArrayList<Waypoint>()
+        val routePoints = ArrayList<Waypoint>()
+        val places = ArrayList<Waypoint>()
         val track = ArrayList<GeoPoint>()
         var docName = ""
 
@@ -74,9 +100,8 @@ object GpxIO {
                 }
                 XmlPullParser.END_TAG -> when (parser.name.lowercase(Locale.US)) {
                     "wpt", "rtept" -> {
-                        waypoints.add(
-                            Waypoint(pendingLat, pendingLng, pendingName, pendingRadius)
-                        )
+                        val w = Waypoint(pendingLat, pendingLng, pendingName, pendingRadius)
+                        if (parser.name.equals("rtept", ignoreCase = true)) routePoints.add(w) else places.add(w)
                         pendingKind = ""
                     }
                     "trkpt" -> {
@@ -87,7 +112,7 @@ object GpxIO {
             }
             event = parser.next()
         }
-        return GpxData(docName.ifBlank { "Route" }, waypoints, track)
+        return GpxData(docName.ifBlank { "Route" }, routePoints, places, track)
     }
 
     /** Serialises a [NavRoute] to a GPX 1.1 document. */
@@ -99,6 +124,21 @@ object GpxIO {
                     "xmlns=\"http://www.topografix.com/GPX/1/1\">\n"
             )
             w.write("  <metadata><name>${esc(route.name)}</name></metadata>\n")
+            if (route.isLockedTrack) {
+                // A locked track stays one: its line, and the places on it as
+                // <wpt>. No <rte>, which would reopen it as editable stops.
+                route.waypoints.drop(1).dropLast(1).forEach { p ->
+                    w.write("  <wpt lat=\"${fmt(p.lat)}\" lon=\"${fmt(p.lng)}\">")
+                    if (p.name.isNotBlank()) w.write("<name>${esc(p.name)}</name>")
+                    w.write("</wpt>\n")
+                }
+                w.write("  <trk>\n    <name>${esc(route.name)}</name>\n    <trkseg>\n")
+                route.track.forEach { p ->
+                    w.write("      <trkpt lat=\"${fmt(p.lat)}\" lon=\"${fmt(p.lng)}\"/>\n")
+                }
+                w.write("    </trkseg>\n  </trk>\n</gpx>\n")
+                return
+            }
             if (route.waypoints.isNotEmpty()) {
                 w.write("  <rte>\n")
                 w.write("    <name>${esc(route.name)}</name>\n")

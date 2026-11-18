@@ -16,8 +16,6 @@ import com.eried.eucplanet.ble.BleDevice
 import com.eried.eucplanet.ble.BleScanner
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.service.WheelService
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,15 +23,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class ScanViewModel @Inject constructor(
+class ScanViewModel(
     private val bleScanner: BleScanner,
     private val settingsRepository: SettingsRepository,
     private val bleConnectionManager: BleConnectionManager,
     private val appNotifier: com.eried.eucplanet.util.AppNotifier,
-    @ApplicationContext private val context: Context
+    private val context: Context
 ) : ViewModel() {
 
     // Set once the rider picks a wheel here, so the dismiss-time reconnect

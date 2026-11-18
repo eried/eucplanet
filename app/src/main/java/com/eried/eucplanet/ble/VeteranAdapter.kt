@@ -2,8 +2,6 @@ package com.eried.eucplanet.ble
 
 import com.eried.eucplanet.diagnostics.DiagnosticCommand
 import com.eried.eucplanet.diagnostics.DiagnosticsLogger
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Veteran wheel adapter. Recognises Sherman / Sherman S / Sherman Max /
@@ -24,8 +22,7 @@ import javax.inject.Singleton
  * reset. No software lock, no volume, no max-speed write (the SET* family
  * sets thresholds, not absolute max; see spec section 6 "Notes").
  */
-@Singleton
-class VeteranAdapter @Inject constructor() : WheelAdapter {
+class VeteranAdapter : WheelAdapter {
     override val familyId = "veteran"
     // Internal id stays "veteran" so existing stored profiles / custom
     // commands keep working; user-visible label is the actual brand.

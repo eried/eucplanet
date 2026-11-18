@@ -4,15 +4,12 @@ import android.content.Context
 import android.util.Log
 import com.google.android.gms.tasks.Tasks
 import com.google.android.gms.wearable.Wearable
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Sends a one-shot vibrate hint to every paired watch via the Wearable
@@ -24,9 +21,8 @@ import javax.inject.Singleton
  * triggers its own [android.os.Vibrator]. The phone never blocks on the
  * round trip, fire-and-forget on a coroutine, exceptions logged.
  */
-@Singleton
-class WatchVibrator @Inject constructor(
-    @ApplicationContext private val context: Context,
+class WatchVibrator(
+    private val context: Context,
     private val amazfitInbox: com.eried.eucplanet.amazfit.AmazfitInbox
 ) {
     companion object {

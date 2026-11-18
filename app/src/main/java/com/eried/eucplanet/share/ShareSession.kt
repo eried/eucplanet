@@ -10,7 +10,6 @@ import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.data.sync.SyncManager
 import com.eried.eucplanet.data.eucstats.EucStatsApiContract
 import com.eried.eucplanet.service.WheelService
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -31,8 +30,6 @@ import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import org.json.JSONObject
 import java.util.concurrent.ConcurrentHashMap
-import javax.inject.Inject
-import javax.inject.Singleton
 
 data class Identity(val mode: IdentityMode, val name: String, val color: String, val icon: String?,
                     val avatarUrl: String?, val flag: String?, val shareStats: Boolean)
@@ -70,9 +67,8 @@ sealed class ShareState {
 val ShareState.Joined.activePeers: List<PeerState>
     get() = peers.values.filter { !it.left && it.freshness != Freshness.LOST }
 
-@Singleton
-class ShareSession @Inject constructor(
-    @ApplicationContext private val context: Context,
+class ShareSession(
+    private val context: Context,
     private val settingsRepository: SettingsRepository,
     private val tripRepository: TripRepository,
     private val wheelRepository: WheelRepository,

@@ -6,8 +6,6 @@ import android.net.Uri
 import android.util.Log
 import androidx.browser.customtabs.CustomTabsIntent
 import com.eried.eucplanet.data.model.AppSettings
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -38,7 +36,6 @@ import org.json.JSONObject
  *      `code` for an access + refresh token pair.
  *   3. Tokens land in [SettingsRepository]; from then on [linked] is true.
  */
-@Singleton
 /**
  * What a Dropbox move did, rather than just whether it worked.
  *
@@ -54,8 +51,8 @@ sealed interface MoveOutcome {
     data object Failed : MoveOutcome
 }
 
-class DropboxRepository @Inject constructor(
-    @dagger.hilt.android.qualifiers.ApplicationContext private val context: Context,
+class DropboxRepository(
+    private val context: Context,
     private val settingsRepository: SettingsRepository,
 ) {
 

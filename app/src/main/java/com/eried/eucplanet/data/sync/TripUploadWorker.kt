@@ -3,23 +3,19 @@ package com.eried.eucplanet.data.sync
 import kotlinx.coroutines.flow.first
 import android.content.Context
 import android.util.Log
-import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.eried.eucplanet.data.db.TripDao
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedInject
 
 /**
  * Uploads any trip CSVs that haven't been synced yet, newest-first.
  * Enqueued after each recording ends and on manual retry.
  */
-@HiltWorker
-class TripUploadWorker @AssistedInject constructor(
-    @Assisted context: Context,
-    @Assisted params: WorkerParameters,
+class TripUploadWorker(
+    context: Context,
+    params: WorkerParameters,
     private val tripDao: TripDao,
     private val tripRepository: TripRepository,
     private val settingsRepository: SettingsRepository,

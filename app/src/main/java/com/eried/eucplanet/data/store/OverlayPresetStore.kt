@@ -5,13 +5,10 @@ import android.util.Log
 import com.eried.eucplanet.hud.protocol.OverlayPreset
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.sync.SyncManager
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.io.File
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Persistence for Overlay Studio configurations.
@@ -26,9 +23,8 @@ import javax.inject.Singleton
  *    is literally writing / reading one of those files, which is why the studio
  *    asks the rider to pick a backup folder before the save/load actions work.
  */
-@Singleton
-class OverlayPresetStore @Inject constructor(
-    @ApplicationContext private val context: Context,
+class OverlayPresetStore(
+    private val context: Context,
     private val settingsRepository: SettingsRepository,
     private val syncManager: SyncManager
 ) {

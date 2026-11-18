@@ -17,7 +17,6 @@ import com.eried.eucplanet.service.AlarmEngine
 import com.eried.eucplanet.service.ChargingEstimate
 import com.eried.eucplanet.service.ChargingEstimator
 import com.eried.eucplanet.service.VoiceService
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -37,8 +36,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.math.absoluteValue
 
 data class MetricSample(val timestampMs: Long, val value: Float)
@@ -223,9 +220,8 @@ internal val STAT_BUFFER_EXTRA_KEYS: List<String> =
         .distinct()
         .filter { it !in LEGACY_STAT_METRIC_KEYS }
 
-@Singleton
-class WheelRepository @Inject constructor(
-    @ApplicationContext private val context: Context,
+class WheelRepository(
+    private val context: Context,
     private val bleManager: BleConnectionManager,
     private val wheelAdapter: WheelAdapter,
     private val settingsRepository: SettingsRepository,
@@ -240,11 +236,11 @@ class WheelRepository @Inject constructor(
     /** So the wheel's own relayed tyre pressure competes with a paired cap. */
     private val tpmsRepository: com.eried.eucplanet.tpms.TpmsRepository,
     private val accelSplitRepository: AccelSplitRepository,
-    // Lazy breaks the Hilt dependency cycle: TripRepository injects this
+    // Lazy breaks the DI dependency cycle: TripRepository injects this
     // repository, so a direct TripRepository here would be circular. Only
     // read on the history tick to sample GPS_SPEED / GPS_ALTITUDE /
     // GPS_ACCURACY from the current location fix.
-    private val tripRepositoryLazy: dagger.Lazy<TripRepository>,
+    private val tripRepositoryLazy: Lazy<TripRepository>,
     private val appNotifier: com.eried.eucplanet.util.AppNotifier,
     private val hornPlayer: com.eried.eucplanet.audio.HornPlayer,
 ) {
@@ -598,7 +594,7 @@ class WheelRepository @Inject constructor(
      */
     private fun sampleSourceHistory(now: Long) {
         runCatching {
-            val loc = tripRepositoryLazy.get().currentLocation.value
+            val loc = tripRepositoryLazy.value.currentLocation.value
             if (loc != null) {
                 if (loc.hasSpeed()) extrasHist["GPS_SPEED"]?.add(MetricSample(now, loc.speed * 3.6f))
                 if (loc.hasAltitude()) extrasHist["GPS_ALTITUDE"]?.add(MetricSample(now, loc.altitude.toFloat()))
@@ -981,7 +977,7 @@ class WheelRepository @Inject constructor(
             var held = false
             combine(
                 bleManager.connectionState,
-                tripRepositoryLazy.get().recording,
+                tripRepositoryLazy.value.recording,
             ) { state, recording ->
                 state == ConnectionState.CONNECTED || recording
             }.distinctUntilChanged().collect { wanted ->
@@ -2176,12 +2172,14 @@ class WheelRepository @Inject constructor(
             is DecodeResult.Telemetry -> {
                 val previous = _wheelData.value
                 // Families whose realtime frames can't recover the headlight state
-                // (P6 has no live byte; InMotion V1 fast-info omits it). For these,
-                // the optimistic + slow-info lightOn is authoritative, so a realtime
-                // frame must not clobber it back to its false default - that was the
-                // V8S "Light switch only turns on, never off" bug.
+                // (P6 has no live byte). For these the optimistic lightOn is
+                // authoritative, so a realtime frame must not clobber it back to
+                // its false default - that was the V8S "Light switch only turns
+                // on, never off" bug. InMotion V1 is one of them only until its
+                // adapter has the wheel's own report from slow-info (lightReported);
+                // from then on the frame carries the real state.
                 val realtimeLacksLight = _modelName.value?.contains("P6") == true ||
-                    wheelAdapter.familyId == "inmotion_v1"
+                    (wheelAdapter.familyId == "inmotion_v1" && result.data.lightReported == null)
                 // V14 etc. don't carry total distance in realtime frames, so
                 // preserve whatever was set via the separate TotalDistance
                 // decode. The P6 ships the lifetime odometer inline at offset

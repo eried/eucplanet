@@ -60,10 +60,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.remap
 import com.eried.eucplanet.util.Units
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * Bottom sheet opened by tapping the GPS indicator in the dashboard top-right.
@@ -79,7 +79,7 @@ import com.eried.eucplanet.util.Units
 fun DataSourcesSheet(
     speedUnit: String,
     onDismiss: () -> Unit,
-    viewModel: DataSourcesViewModel = hiltViewModel()
+    viewModel: DataSourcesViewModel = koinViewModel()
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 

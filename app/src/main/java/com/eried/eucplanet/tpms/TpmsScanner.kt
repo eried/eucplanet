@@ -9,7 +9,6 @@ import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.util.Log
 import com.eried.eucplanet.diagnostics.DiagnosticsLogger
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -19,8 +18,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Listens for tire-pressure sensors that broadcast rather than connect.
@@ -37,9 +34,8 @@ import javax.inject.Singleton
  * payload is logged with its manufacturer and service data intact, so a
  * capture at a known pressure is enough to identify the field.
  */
-@Singleton
-class TpmsScanner @Inject constructor(
-    @ApplicationContext private val context: Context,
+class TpmsScanner(
+    private val context: Context,
     private val tpms: TpmsRepository,
 ) {
 

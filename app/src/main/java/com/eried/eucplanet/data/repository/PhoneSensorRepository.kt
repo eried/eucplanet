@@ -9,7 +9,6 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.os.SystemClock
 import android.util.Log
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -20,8 +19,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * One sample from the phone's IMU. Linear acceleration is gravity-subtracted
@@ -54,9 +51,8 @@ data class PhoneImuSample(
  * unregisters when no longer needed (stop). The repo retains the last sample
  * so consumers can read a snapshot via [latest].
  */
-@Singleton
-class PhoneSensorRepository @Inject constructor(
-    @ApplicationContext private val context: Context
+class PhoneSensorRepository(
+    private val context: Context
 ) {
     private val sensorManager: SensorManager? =
         context.getSystemService(Context.SENSOR_SERVICE) as? SensorManager

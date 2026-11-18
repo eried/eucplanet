@@ -480,6 +480,9 @@ object HudDiscovery {
     const val SERVICE_TYPE: String = "_eucplanet._tcp.local."
     /** Default port; overridable per phone if 28080 collides on the LAN. */
     const val DEFAULT_PORT: Int = 28080
+    /** Port the phone serves its offline map on, `GET /tiles/z/x/y.png`. The
+     *  HUD asks it there when its own tile fetch fails, as with no signal. */
+    const val TILE_PORT: Int = 28081
     /**
      * True when [text] is a complete dotted-quad IPv4 address.
      *

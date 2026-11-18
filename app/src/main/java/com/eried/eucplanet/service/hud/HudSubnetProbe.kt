@@ -5,7 +5,6 @@ import android.net.ConnectivityManager
 import android.net.LinkAddress
 import android.util.Log
 import com.eried.eucplanet.hud.protocol.HudDiscovery
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -16,8 +15,6 @@ import kotlinx.coroutines.withContext
 import java.net.Inet4Address
 import java.net.InetSocketAddress
 import java.net.Socket
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Last-resort discovery: when neither the UDP beacon nor mDNS has produced
@@ -39,9 +36,8 @@ import javax.inject.Singleton
  * starts as soon as those are launched - the [MAX_CONCURRENT] cap is what keeps
  * it from congesting the radio, so it needs no start delay.
  */
-@Singleton
-class HudSubnetProbe @Inject constructor(
-    @ApplicationContext private val appContext: Context,
+class HudSubnetProbe(
+    private val appContext: Context,
 ) {
 
     suspend fun probe(port: Int = HudDiscovery.DEFAULT_PORT): String? = withContext(Dispatchers.IO) {

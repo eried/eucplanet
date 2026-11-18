@@ -8,12 +8,9 @@ import android.bluetooth.le.ScanSettings
 import android.content.Context
 import com.eried.eucplanet.ble.BleDevice
 import com.eried.eucplanet.data.model.RadarVendor
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * BLE scanner dedicated to radar devices. Walks every advertisement and
@@ -34,10 +31,9 @@ data class RadarScanResult(
     val vendor: RadarVendor
 )
 
-@Singleton
-class RadarScanner @Inject constructor(
-    @ApplicationContext private val context: Context,
-    private val adapters: Set<@JvmSuppressWildcards RadarAdapter>
+class RadarScanner(
+    private val context: Context,
+    private val adapters: Set<RadarAdapter>
 ) {
     private val bluetoothManager =
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager

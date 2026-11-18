@@ -16,11 +16,11 @@ import com.eried.eucplanet.data.model.WidgetMetricType
 import com.eried.eucplanet.data.model.WidgetSettings
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.service.WheelService
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 
 /**
  * Home screen widget: speed, trip distance and charge, plus a horn button and a
@@ -43,10 +43,9 @@ import javax.inject.Inject
  * back to "No wheel" and dashes mid-ride until the next push. SharedPreferences
  * is read synchronously, which a broadcast receiver needs.
  */
-@AndroidEntryPoint
-class EucWidget : AppWidgetProvider() {
+class EucWidget : AppWidgetProvider(), KoinComponent {
 
-    @Inject lateinit var settingsRepository: SettingsRepository
+    val settingsRepository: SettingsRepository = get()
 
     override fun onUpdate(
         context: Context,
@@ -86,7 +85,7 @@ class EucWidget : AppWidgetProvider() {
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-        // Hilt injects inside its generated onReceive, so this must run first.
+        // The base class dispatches onUpdate and the other callbacks; run it first.
         super.onReceive(context, intent)
         if (intent.action != ACTION_TOGGLE_VOICE) return
 

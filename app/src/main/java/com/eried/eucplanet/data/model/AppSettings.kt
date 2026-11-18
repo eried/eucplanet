@@ -123,6 +123,7 @@ data class AppSettings(
     val widget: WidgetSettings = WidgetSettings(),
     // Android Auto screen: its own stat and button slots. Nested, see AndroidAutoSettings.
     val androidAuto: AndroidAutoSettings = AndroidAutoSettings(),
+    val navigatorView: NavigatorViewSettings = NavigatorViewSettings(),
 
     // Voice report item order (comma-separated: Speed,Battery,PhoneBattery,Time,Temp,PWM,Distance,Recording)
     val voiceReportOrder: String = "Speed,Battery,PhoneBattery,Time,Temp,PWM,Distance,Recording",
@@ -324,6 +325,8 @@ data class AppSettings(
     val volumeUpHold: String = "VOICE_ANNOUNCE",
     val volumeDownClick: String = "LIGHT_TOGGLE",
     val volumeDownHold: String = "SAFETY_TOGGLE",
+    /** Claim the volume buttons through a media session so they fire with the screen off. */
+    val volumeKeysScreenOff: Boolean = false,
 
     // Appearance
     // language: BCP-47 tag (e.g. "en", "es", "es-419", "no", "pt-BR"). Empty string
@@ -437,6 +440,10 @@ data class AppSettings(
     val navGeocoderUrl: String = "https://nominatim.openstreetmap.org/search",
     /** Routing endpoint, overridable for self-hosting. */
     val navRouterUrl: String = "https://routing.openstreetmap.de",
+    /** Valhalla endpoint for bike routes and any route with avoids, overridable for self-hosting. */
+    val navValhallaUrl: String = "https://valhalla1.openstreetmap.de",
+    /** Routing from downloaded BRouter tiles: when it runs, and where tiles come from. */
+    val offlineRouting: OfflineRoutingSettings = OfflineRoutingSettings(),
     /** Overpass (chargers / stations POI source) endpoint, overridable for self-hosting. */
     val navOverpassUrl: String = "https://overpass-api.de/api/interpreter",
     /**
@@ -1019,6 +1026,7 @@ data class AppSettings(
     val autoLightNoGpsRetryMs: Int get() = advanced.autoLightNoGpsRetryMs
     val autoToggleGraceMs: Int get() = advanced.autoToggleGraceMs
     val navMovingKmh: Int get() = advanced.navMovingKmh
+    val navCruiseKmh: Int get() = advanced.navCruiseKmh
     val navPrepareDistM: Int get() = advanced.navPrepareDistM
     val navExecuteDistM: Int get() = advanced.navExecuteDistM
     val navProxBandM: Int get() = advanced.navProxBandM
@@ -1608,10 +1616,10 @@ data class AdvancedSettings(
     val gpsFixMaxAgeSec: Int = 10,
     val hudReportIntervalMs: Int = 200,
     val garminReportIntervalMs: Int = 200,
-    val navOffRouteGraceMs: Int = 8000,
+    val navOffRouteGraceMs: Int = 4000,
     val navOffRouteVoiceAfterMs: Int = 14000,
     val navOffRouteVoiceCooldownMs: Int = 35000,
-    val navRerouteAfterMs: Int = 22000,
+    val navRerouteAfterMs: Int = 8000,
     val navArrivalDismissMs: Int = 9000,
     val navHuntVoiceIntervalMs: Int = 45000,
     val navHeadingWindowMs: Int = 8000,
@@ -1640,6 +1648,7 @@ data class AdvancedSettings(
     val autoLightNoGpsRetryMs: Int = 2000,
     val autoToggleGraceMs: Int = 4000,
     val navMovingKmh: Int = 4,
+    val navCruiseKmh: Int = 25,
     val navPrepareDistM: Int = 200,
     val navExecuteDistM: Int = 30,
     val navProxBandM: Int = 4,
@@ -1786,5 +1795,42 @@ data class HornSettings(
         const val MODE_SOUND = "SOUND"
         const val MODE_BOTH = "BOTH"
         val MODES = setOf(MODE_WHEEL, MODE_SOUND, MODE_BOTH)
+    }
+}
+
+/** When offline routing runs. A rider with no tiles downloaded sees no change either way. */
+enum class OfflineRoutingMode {
+    /** Online routers first; downloaded tiles only when they fail (no signal). */
+    FALLBACK,
+
+    /** Downloaded tiles first where they cover the leg; online for the rest. */
+    PREFER;
+
+    companion object {
+        fun fromName(name: String?): OfflineRoutingMode =
+            entries.firstOrNull { it.name == name } ?: FALLBACK
+    }
+}
+
+/**
+ * Offline routing. [serverUrl] is where the tiles come from: our mirror's
+ * index.json (eucplanet-maps, on Hugging Face or its GitHub copy), or a
+ * BRouter server's base with its `segments4/<tile>.rd5` and
+ * `profiles2/lookups.dat`. When it cannot be reached, the other mirror and
+ * then [BROUTER_URL] stand in.
+ * [wifiAutoUpdate] lets downloaded tiles update by themselves on Wi-Fi.
+ * [remindBeforeRide]: Start asks first when the route leaves the downloaded
+ * areas.
+ */
+data class OfflineRoutingSettings(
+    val mode: OfflineRoutingMode = OfflineRoutingMode.FALLBACK,
+    val serverUrl: String = MIRROR_URL,
+    val wifiAutoUpdate: Boolean = false,
+    val remindBeforeRide: Boolean = true,
+) {
+    companion object {
+        const val MIRROR_URL = "https://huggingface.co/datasets/eucplanet/eucplanet-maps/resolve/main/routing/index.json"
+        const val GITHUB_MIRROR_URL = "https://raw.githubusercontent.com/eried/eucplanet-maps/main/routing/index.json"
+        const val BROUTER_URL = "https://brouter.de/brouter"
     }
 }

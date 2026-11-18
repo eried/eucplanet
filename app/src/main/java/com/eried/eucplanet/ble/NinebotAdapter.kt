@@ -2,8 +2,6 @@ package com.eried.eucplanet.ble
 
 import android.util.Log
 import com.eried.eucplanet.data.model.WheelSettings
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Ninebot / Segway-Ninebot wheel adapter. Two protocol families live behind
@@ -22,8 +20,7 @@ import javax.inject.Singleton
  *
  * Wire format and command set come from docs/protocols/ninebot.md.
  */
-@Singleton
-class NinebotAdapter @Inject constructor() : WheelAdapter {
+class NinebotAdapter : WheelAdapter {
 
     /**
      * Detected model. Carries the protocol family; the rest of the adapter

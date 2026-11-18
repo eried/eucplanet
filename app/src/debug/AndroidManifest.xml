@@ -22,6 +22,7 @@
                 <action android:name="com.eried.eucplanet.SURVEY_CAR_ALARM" />
                 <action android:name="com.eried.eucplanet.SURVEY_SOUND" />
                 <action android:name="com.eried.eucplanet.SURVEY_SET" />
+                <action android:name="com.eried.eucplanet.SURVEY_IMPORT_SQUARE" />
             </intent-filter>
         </receiver>
 

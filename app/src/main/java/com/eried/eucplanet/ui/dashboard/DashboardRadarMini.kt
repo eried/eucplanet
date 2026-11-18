@@ -26,11 +26,11 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.data.model.RadarFrame
 import com.eried.eucplanet.data.model.ThreatLevel
 import com.eried.eucplanet.ui.radar.RadarOverlayViewModel
 import com.eried.eucplanet.ui.theme.appColors
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * Compact radar lane shown inside the dashboard's dial Box. Replaces the
@@ -69,7 +69,7 @@ fun DashboardRadarMiniForSide(
     targetSide: String,
     modifier: Modifier = Modifier,
     onOpenSettings: () -> Unit = {},
-    viewModel: RadarOverlayViewModel = hiltViewModel()
+    viewModel: RadarOverlayViewModel = koinViewModel()
 ) {
     val show by viewModel.shouldShow.collectAsState()
     val side by viewModel.side.collectAsState()

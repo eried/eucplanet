@@ -13,7 +13,6 @@ import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.flic.FlicManager
 import com.eried.eucplanet.nav.NavigationEngine
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -22,8 +21,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Phone-side companion to the Zepp OS watch app in `amazfit-watch-app/`.
@@ -41,9 +38,8 @@ import javax.inject.Singleton
  * bridge lives for the whole process. With no watch polling it costs a
  * listening loopback socket and a once-a-second bookkeeping tick.
  */
-@Singleton
-class AmazfitBridge @Inject constructor(
-    @ApplicationContext private val context: Context,
+class AmazfitBridge(
+    private val context: Context,
     private val wheelRepository: WheelRepository,
     private val settingsRepository: SettingsRepository,
     private val cheatState: com.eried.eucplanet.cheats.CheatState,

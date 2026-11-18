@@ -1,10 +1,6 @@
-Route sharing, Android Auto, two-way Dropbox and better battery life.
+Real engine sounds, and volume buttons that work with the screen off.
 
-- Map: share a route by link or QR, Satellite hybrid.
-- Android Auto: your stats and wheel buttons on the car screen.
-- Wear OS watch map. Thanks to ZiraiMode.
-- Dropbox syncs settings and trips both ways.
-- Much less battery drain with no wheel or the screen off.
-- Voice: music commands, your own voice report.
-- Crews: fly your crew colours on eucstats.
-- InMotion X1 and V6, KingSong lock and horn, Begode fixes.
+- Motor sound: eight engines are now real recordings (V8, V-twin, V12, diesel and more), and the synthesised ones were rebuilt.
+- Volume buttons can fire their actions with the phone locked. Turn it on under Volume keys.
+- New actions for Flic, watch and tiles: volume up and down, mute, flashlight, engine sound.
+- Listen asks for the microphone when it is missing.

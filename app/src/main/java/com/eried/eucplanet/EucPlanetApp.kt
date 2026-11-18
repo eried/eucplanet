@@ -1,26 +1,27 @@
 package com.eried.eucplanet
 
 import android.app.Application
-import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import com.eried.eucplanet.data.repository.SettingsRepository
+import com.eried.eucplanet.di.appModules
 import com.eried.eucplanet.flic.FlicManager
 import com.eried.eucplanet.garmin.GarminBridge
 import com.eried.eucplanet.map.MapTileCache
 import com.eried.eucplanet.util.CrashHandler
 import com.eried.eucplanet.wear.WearBridge
-import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import org.koin.android.ext.android.get
+import org.koin.android.ext.koin.androidContext
+import org.koin.androidx.workmanager.factory.KoinWorkerFactory
+import org.koin.core.context.startKoin
 
-@HiltAndroidApp
 class EucPlanetApp : Application(), Configuration.Provider {
 
-    @Inject lateinit var flicManager: FlicManager
-    @Inject lateinit var settingsRepository: SettingsRepository
-    @Inject lateinit var wearBridge: WearBridge
-    @Inject lateinit var garminBridge: GarminBridge
-    @Inject lateinit var amazfitBridge: com.eried.eucplanet.amazfit.AmazfitBridge
+    lateinit var flicManager: FlicManager
+    lateinit var settingsRepository: SettingsRepository
+    lateinit var wearBridge: WearBridge
+    lateinit var garminBridge: GarminBridge
+    lateinit var amazfitBridge: com.eried.eucplanet.amazfit.AmazfitBridge
     /**
      * Constructed eagerly at app start so HudServer's `init` block runs
      * and starts watching `settings.hudServerEnabled`. Without this, the
@@ -28,45 +29,48 @@ class EucPlanetApp : Application(), Configuration.Provider {
      * the toggle is only "live" while the rider is sitting on the
      * Settings page, which is exactly the opposite of what you want.
      */
-    @Inject lateinit var hudServer: com.eried.eucplanet.service.hud.HudServer
+    lateinit var hudServer: com.eried.eucplanet.service.hud.HudServer
 
     /**
      * Injected at cold start so its init{} registers the periodic pending-upload
      * safety-net, and so onCreate can reconcile any trip left pending by an app
      * that was closed mid-sync -- the "closed too early" case.
      */
-    @Inject lateinit var syncManager: com.eried.eucplanet.data.sync.SyncManager
+    lateinit var syncManager: com.eried.eucplanet.data.sync.SyncManager
 
     /**
      * Constructed eagerly so its armed flag is read from disk before the first
      * screen composes, and so the app relaunches straight into the locked
      * screen instead of flashing the dashboard first.
      */
-    @Inject lateinit var legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController
+    lateinit var legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController
 
-    /** How WorkManager reaches the Hilt worker factory without a field. */
-    @dagger.hilt.EntryPoint
-    @dagger.hilt.InstallIn(dagger.hilt.components.SingletonComponent::class)
-    interface WorkerFactoryEntryPoint {
-        fun workerFactory(): HiltWorkerFactory
-    }
-
-    // Read from the component, not an @Inject field. Field injection builds
-    // TripRepository, whose start-up sweep can call WorkManager on another
-    // thread before the field is set: "lateinit property workerFactory has
-    // not been initialized", a crash on every launch with a backup folder.
-    // The component exists before any of that runs, so this cannot race.
+    // KoinWorkerFactory looks the worker up in the global Koin context when
+    // WorkManager first asks for it, and Koin starts before anything in
+    // onCreate can touch WorkManager. TripRepository's start-up sweep can call
+    // WorkManager on another thread while the fields below are still being
+    // filled; with Koin already started that cannot race.
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
-            .setWorkerFactory(
-                dagger.hilt.android.EntryPointAccessors
-                    .fromApplication(this, WorkerFactoryEntryPoint::class.java)
-                    .workerFactory()
-            )
+            .setWorkerFactory(KoinWorkerFactory())
             .build()
 
     override fun onCreate() {
         super.onCreate()
+        startKoin {
+            androidContext(this@EucPlanetApp)
+            modules(appModules)
+        }
+        // Built eagerly, in declaration order, before anything below runs, so
+        // every start-up singleton exists at the same point it always did.
+        flicManager = get()
+        settingsRepository = get()
+        wearBridge = get()
+        garminBridge = get()
+        amazfitBridge = get()
+        hudServer = get()
+        syncManager = get()
+        legalLockdown = get()
         CrashHandler.install(this)
         // Track UI foreground so background-only process wakes (a periodic
         // upload worker re-creating the process) don't auto-connect hardware
@@ -97,8 +101,8 @@ class EucPlanetApp : Application(), Configuration.Provider {
         hudServer.hashCode()
         // Catch any trip left pending by a too-early close, and register the
         // periodic upload safety-net. Both touch WorkManager, so they run here
-        // (after Hilt has injected workerFactory) rather than in SyncManager's
-        // init{}, which runs mid-injection and raced the lateinit.
+        // (once Koin is up and the fields above are set) rather than in
+        // SyncManager's init{}, which runs while the graph is still being built.
         // Same for the online (eucstats) uploads and the Dropbox mirror: a trip
         // strands if its retry chain ever ended, and nothing else restarts it.
         // All run a few seconds in so the rider id / link token have loaded, and

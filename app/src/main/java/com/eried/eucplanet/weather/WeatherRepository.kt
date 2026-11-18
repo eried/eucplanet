@@ -14,8 +14,6 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.math.abs
 
 /**
@@ -64,8 +62,7 @@ data class WeatherForecast(
  * the dashboard shows: it refetches only when the cache is older than
  * [FRESH_MS], the rider moved a few kilometres, or the source changed.
  */
-@Singleton
-class WeatherRepository @Inject constructor() {
+class WeatherRepository {
 
     private val client = OkHttpClient.Builder()
         .connectTimeout(10, TimeUnit.SECONDS)

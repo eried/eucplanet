@@ -24,8 +24,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Collects [source] once on [scope] and hands the latest value to every
@@ -54,8 +52,7 @@ internal fun shareSettings(
         }
         .stateIn<AppSettings?>(scope, SharingStarted.Eagerly, null).filterNotNull()
 
-@Singleton
-class SettingsRepository @Inject constructor(
+class SettingsRepository(
     private val store: SettingsStore
 ) {
     // App-scoped so a fire-and-forget write survives a short-lived caller (e.g.

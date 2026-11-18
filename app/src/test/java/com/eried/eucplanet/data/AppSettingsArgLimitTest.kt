@@ -61,9 +61,14 @@ class AppSettingsArgLimitTest {
         // sit beside their neighbours; 247 dropboxSettingsBaseHash, the two-way
         // sync baseline; 249 chargingNotifyCustom and its level, beside the
         // other two charge alerts; 250 the Android Auto slots, nested as
-        // AndroidAutoSettings. Keep nesting: the next group goes in one slot,
-        // not one per field.
-        val expectedSlots = 250
+        // AndroidAutoSettings; 251 the navigator view, nested as
+        // NavigatorViewSettings; 252 navValhallaUrl, beside navRouterUrl; 253
+        // offline routing, nested as OfflineRoutingSettings; 254
+        // volumeKeysScreenOff, a single flag beside the other volume key
+        // fields. That leaves ONE slot. Keep nesting: the next group goes in
+        // one slot, not one per field, and the volume key fields are the
+        // first candidates to nest when it is needed.
+        val expectedSlots = 254
         assertEquals(
             "AppSettings slot usage changed. Prefer nesting a group of fields over " +
                 "spending headroom, and update this number deliberately.",

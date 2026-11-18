@@ -15,8 +15,6 @@ import com.eried.eucplanet.data.model.RadarFrame
 import com.eried.eucplanet.data.model.RadarVendor
 import com.eried.eucplanet.data.repository.RadarRepository
 import com.eried.eucplanet.data.repository.SettingsRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,7 +25,6 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /**
  * Drives the Radar subsection of the Integration settings tab. Mirrors
@@ -36,12 +33,11 @@ import javax.inject.Inject
  * between "not paired → scan card" and "paired → debug card" without
  * blocking on suspend reads.
  */
-@HiltViewModel
-class RadarViewModel @Inject constructor(
+class RadarViewModel(
     private val repository: RadarRepository,
     private val scanner: RadarScanner,
     private val settingsRepository: SettingsRepository,
-    @ApplicationContext private val context: Context
+    private val context: Context
 ) : ViewModel() {
 
     val connectionState: StateFlow<ConnectionState> = repository.connectionState

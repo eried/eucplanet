@@ -3,8 +3,6 @@ package com.eried.eucplanet.tpms
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * The one place that knows the tyre's pressure, whoever measured it.
@@ -22,8 +20,7 @@ import javax.inject.Singleton
  * relayed pressure here on every frame and copies [current] back into
  * WheelData, so every tile, alarm, widget and HUD sees whichever source won.
  */
-@Singleton
-class TpmsRepository @Inject constructor(
+class TpmsRepository(
     private val pairing: TpmsPairingStore,
 ) {
 

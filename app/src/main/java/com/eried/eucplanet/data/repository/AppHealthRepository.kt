@@ -13,12 +13,9 @@ import android.provider.Settings
 import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
 import com.eried.eucplanet.R
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * A single user-actionable warning surfaced in the dashboard top bar.
@@ -53,9 +50,8 @@ data class AppWarning(
  * so the warning auto-clears when the rider grants the permission in Settings
  * and returns to the app.
  */
-@Singleton
-class AppHealthRepository @Inject constructor(
-    @ApplicationContext private val context: Context
+class AppHealthRepository(
+    private val context: Context
 ) {
 
     // Stored as a list (not a map) so the flow exposes exactly what the UI
@@ -123,7 +119,23 @@ class AppHealthRepository @Inject constructor(
     /** Called when listening is refused for want of the permission. */
     fun noteMicrophoneNeeded() {
         micNoticePending = true
+        // Now, not at the next refresh: the rider was just told the microphone
+        // is missing, and the place that fixes it should already be there.
+        upsert(micWarning())
     }
+
+    /** The prompt was answered with a yes; the entry has nothing left to say. */
+    fun microphoneGranted() {
+        micNoticePending = false
+        dismiss(PERM_MIC_ID)
+    }
+
+    private fun micWarning() = AppWarning(
+        id = PERM_MIC_ID,
+        titleRes = R.string.warnings_perm_mic_title,
+        bodyRes = R.string.warnings_perm_mic_body,
+        fix = { openAppSettings() }
+    )
 
     fun refreshPermissionWarnings(
         pipRequested: Boolean = false,
@@ -159,11 +171,25 @@ class AppHealthRepository @Inject constructor(
                 micNoticePending = false
                 dismiss(PERM_MIC_ID)
             } else {
+                upsert(micWarning())
+            }
+        }
+
+        // Nearby devices (Android 12+). Asked at first start, and without it
+        // the app can neither find nor connect to a wheel. A rider who said
+        // no got an app that did nothing and never said why.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val bluetooth = listOf(Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN).all {
+                ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+            }
+            if (bluetooth) {
+                dismiss(PERM_BLUETOOTH_ID)
+            } else {
                 upsert(
                     AppWarning(
-                        id = PERM_MIC_ID,
-                        titleRes = R.string.warnings_perm_mic_title,
-                        bodyRes = R.string.warnings_perm_mic_body,
+                        id = PERM_BLUETOOTH_ID,
+                        titleRes = R.string.warnings_perm_bluetooth_title,
+                        bodyRes = R.string.warnings_perm_bluetooth_body,
                         fix = { openAppSettings() }
                     )
                 )
@@ -470,6 +496,7 @@ class AppHealthRepository @Inject constructor(
         private const val PERM_PIP_ID = "perm.pip"
         private const val PERM_OVERLAY_ID = "perm.overlay"
         private const val PERM_MIC_ID = "perm.microphone"
+        private const val PERM_BLUETOOTH_ID = "perm.bluetooth"
         private const val BATTERY_OPT_ID = "power.battery-optimised"
         private const val BACKUP_FOLDER_ID = "backup.folder"
 

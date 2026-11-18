@@ -8,9 +8,6 @@ import android.net.NetworkRequest
 import android.net.wifi.WifiManager
 import android.util.Log
 import com.eried.eucplanet.hud.protocol.HudDiscovery
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -47,9 +44,8 @@ import java.net.InetSocketAddress
  * re-opening with a 1 s backoff, so an in-flight wifi-state change can't
  * permanently silence the listener.
  */
-@Singleton
-class HudUdpListener @Inject constructor(
-    @ApplicationContext private val appContext: Context,
+class HudUdpListener(
+    private val appContext: Context,
 ) {
     private val port: Int = HudDiscovery.BEACON_UDP_PORT
     data class Sighting(val ip: String, val port: Int, val receivedAtMs: Long)

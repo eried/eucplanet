@@ -7,8 +7,6 @@ import com.eried.eucplanet.flic.FlicManager
 import com.eried.eucplanet.hud.protocol.HudCommand
 import com.eried.eucplanet.hud.protocol.VersionCompat
 import com.eried.eucplanet.nav.NavigationEngine
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -28,8 +26,7 @@ import kotlinx.coroutines.launch
  * Settings UI subscribes to so it can show an "update HUD" hint when the
  * HUD is behind, or "update phone" when WE are.
  */
-@Singleton
-class HudCommandSink @Inject constructor(
+class HudCommandSink(
     private val wheelRepository: WheelRepository,
     private val navigationEngine: NavigationEngine,
     private val settingsRepository: SettingsRepository,

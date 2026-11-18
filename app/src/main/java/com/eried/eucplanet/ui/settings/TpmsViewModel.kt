@@ -6,12 +6,10 @@ import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.util.Units
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import javax.inject.Inject
 
 /**
  * Backs the TPMS sensors settings section. For now it surfaces the wheel-relayed
@@ -19,8 +17,7 @@ import javax.inject.Inject
  * section shows the live value when a sensor is reporting and nothing when it
  * isn't. Direct BLE-sensor pairing lands once that sensor's profile is captured.
  */
-@HiltViewModel
-class TpmsViewModel @Inject constructor(
+class TpmsViewModel(
     wheelRepository: WheelRepository,
     settingsRepository: SettingsRepository,
     private val scanner: com.eried.eucplanet.tpms.TpmsScanner,

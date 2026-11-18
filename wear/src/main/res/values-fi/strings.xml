@@ -37,6 +37,11 @@
     <string name="watch_action_media_prev">Edellinen kappale</string>
     <string name="watch_action_music_start">Aloita musiikki</string>
     <string name="watch_action_media_pause">Keskeytä musiikki</string>
+    <string name="watch_action_phone_volume_up">Ääni kovemmalle</string>
+    <string name="watch_action_phone_volume_down">Ääni hiljemmalle</string>
+    <string name="watch_action_phone_mute">Mykistä / palauta</string>
+    <string name="watch_action_phone_torch">Puhelimen taskulamppu</string>
+    <string name="watch_action_engine_sound">Moottorin ääni</string>
     <string name="watch_action_long_press_hint">Pitkä painallus: %1$s</string>
     <string name="watch_map_phone_disconnected">Ei puhelinta</string>
     <string name="watch_map_gps_permission">Salli GPS</string>

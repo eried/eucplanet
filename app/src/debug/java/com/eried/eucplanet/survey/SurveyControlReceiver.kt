@@ -12,12 +12,12 @@ import com.eried.eucplanet.data.model.Waypoint
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.nav.NavigationEngine
 import com.eried.eucplanet.service.WheelService
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 
 /**
  * Debug-only receiver that lets a host script (Python + adb shell am broadcast)
@@ -31,6 +31,9 @@ import javax.inject.Inject
  *     so the warm-route timing can be checked on a machine with no alarm firing.
  *   - SURVEY_SET: notif_actions (CSV) and warm_route_ms, the two settings the
  *     battery checks need to change without walking the settings screens.
+ *   - SURVEY_IMPORT_SQUARE: copy /data/local/tmp/<file> (a .rd5 or .pmtiles
+ *     square, made readable with chmod 644) into the offline folder, which
+ *     adb cannot write as the app.
  *   - SURVEY_START_NAV: put NavigationEngine into an active route without a
  *     geocoder, a network round trip or a single tap. It exists because the
  *     car screen used to die the moment a route went active, and proving that
@@ -40,13 +43,12 @@ import javax.inject.Inject
  * Only present in debug builds, never merged into the release manifest, * so the production app surface stays unchanged. See the matching debug
  * AndroidManifest at app/src/debug/AndroidManifest.xml.
  */
-@AndroidEntryPoint
-class SurveyControlReceiver : BroadcastReceiver() {
+class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
 
-    @Inject lateinit var settingsRepository: SettingsRepository
-    @Inject lateinit var navigationEngine: NavigationEngine
-    @Inject lateinit var tonePlayer: com.eried.eucplanet.service.TonePlayer
-    @Inject lateinit var voiceService: com.eried.eucplanet.service.VoiceService
+    val settingsRepository: SettingsRepository = get()
+    val navigationEngine: NavigationEngine = get()
+    val tonePlayer: com.eried.eucplanet.service.TonePlayer = get()
+    val voiceService: com.eried.eucplanet.service.VoiceService = get()
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -58,6 +60,7 @@ class SurveyControlReceiver : BroadcastReceiver() {
             ACTION_SURVEY_CAR_ALARM -> carAlarm(context)
             ACTION_SURVEY_SOUND -> sound(intent.getStringExtra(EXTRA_KIND) ?: "beep")
             ACTION_SURVEY_SET -> set(intent)
+            ACTION_SURVEY_IMPORT_SQUARE -> importSquare(intent.getStringExtra(EXTRA_FILE).orEmpty())
         }
     }
 
@@ -156,7 +159,20 @@ class SurveyControlReceiver : BroadcastReceiver() {
         context.startForegroundService(svcIntent)
     }
 
+    private fun importSquare(file: String) {
+        if (!Regex("""[EW]\d{1,3}_[NS]\d{1,2}\.(rd5|pmtiles)""").matches(file)) return
+        scope.launch {
+            val store: com.eried.eucplanet.nav.offline.OfflineTileStore = get()
+            val out = java.io.File(store.dir, file)
+            runCatching { java.io.File("/data/local/tmp", file).copyTo(out, overwrite = true) }
+                .onSuccess { Log.i("SurveyControl", "imported $out (${out.length()} bytes)") }
+                .onFailure { Log.w("SurveyControl", "import $file: $it") }
+        }
+    }
+
     companion object {
+        const val ACTION_SURVEY_IMPORT_SQUARE = "com.eried.eucplanet.SURVEY_IMPORT_SQUARE"
+        const val EXTRA_FILE = "file"
         private const val TAG = "SurveyReceiver"
 
         const val ACTION_SURVEY_APPLY = "com.eried.eucplanet.SURVEY_APPLY"

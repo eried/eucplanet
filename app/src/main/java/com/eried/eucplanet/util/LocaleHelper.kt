@@ -24,14 +24,17 @@ object LocaleHelper {
      */
     val SUPPORTED: List<Language> = listOf(
         Language("en", "English"),
+        Language("bg", "Български"),
         Language("cs", "Čeština"),
         Language("da", "Dansk"),
         Language("de", "Deutsch"),
+        Language("el", "Ελληνικά"),
         Language("es", "Español"),
         Language("es-419", "Español (Latinoamérica)"),
         Language("fi", "Suomi"),
         Language("fr", "Français"),
         Language("hu", "Magyar"),
+        Language("id", "Bahasa Indonesia"),
         Language("it", "Italiano"),
         Language("ja", "日本語"),
         Language("ko", "한국어"),
@@ -39,11 +42,15 @@ object LocaleHelper {
         Language("no", "Norsk"),
         Language("pl", "Polski"),
         Language("pt-BR", "Português (Brasil)"),
+        Language("pt-PT", "Português (Portugal)"),
         Language("ro", "Română"),
         Language("ru", "Русский"),
+        Language("sk", "Slovenčina"),
         Language("sv", "Svenska"),
+        Language("th", "ไทย"),
         Language("tr", "Türkçe"),
         Language("uk", "Українська"),
+        Language("vi", "Tiếng Việt"),
         Language("zh", "简体中文"),
         Language("zh-TW", "繁體中文"),
     )
@@ -81,14 +88,17 @@ object LocaleHelper {
     /**
      * Maps an Android-normalised tag back to a key in our supported list.
      * Android stores Norwegian as "nb" / "nb-NO" after we apply "no";
-     * Latin-American Spanish as "es-419"; Brazilian Portuguese as "pt-BR".
+     * Latin-American Spanish as "es-419"; Portuguese as "pt-BR" or "pt-PT";
+     * Indonesian as the legacy "in".
      * Returns the input unchanged if no normalisation is needed.
      */
     fun normalizeToSupportedTag(tag: String): String {
         val lower = tag.lowercase()
         return when {
             lower.startsWith("nb") || lower.startsWith("nn") -> "no"
+            lower.startsWith("pt-pt") -> "pt-PT"
             lower == "pt" || lower.startsWith("pt-") -> "pt-BR"
+            lower == "in" || lower.startsWith("in-") -> "id"
             lower == "es-419" -> "es-419"
             lower.startsWith("es-") && lower != "es-es" -> "es-419"
             lower.startsWith("es") -> "es"
@@ -108,7 +118,8 @@ object LocaleHelper {
      * unsupported languages fall back to English. Some special cases:
      *  - nb / nn (Norwegian Bokmål / Nynorsk) -> "no"
      *  - es in a Latin American region        -> "es-419"
-     *  - pt anywhere                          -> "pt-BR" (we only ship Brazilian)
+     *  - pt in Portugal or Portuguese Africa   -> "pt-PT", elsewhere "pt-BR"
+     *  - in (Android's legacy Indonesian)     -> "id"
      *  - zh in TW / HK / MO                   -> "zh-TW"
      */
     fun detectSystemLanguage(): String {
@@ -127,7 +138,9 @@ object LocaleHelper {
             primary == "nb" || primary == "nn" || primary == "no" -> "no"
             primary == "es" && region in latAmEs -> "es-419"
             primary == "es" -> "es"
+            primary == "pt" && region in setOf("PT", "AO", "MZ", "CV", "GW", "ST", "TL") -> "pt-PT"
             primary == "pt" -> "pt-BR"
+            primary == "in" || primary == "id" -> "id"
             primary == "zh" && region in setOf("TW", "HK", "MO") -> "zh-TW"
             primary in plainTags -> primary
             else -> "en"

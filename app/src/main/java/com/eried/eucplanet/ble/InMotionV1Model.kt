@@ -54,6 +54,15 @@ enum class InMotionV1Model(
     /** R0 mileage at offset 44 is u64 in metres. */
     val isR0: Boolean get() = modelId == 30
 
+    /**
+     * V8F / V8S / V10 family say they are charging in the work mode: high
+     * nibble 3 of fast-info byte 60. That is the model list and the value
+     * WheelLog decodes ("Charging" in InMotionAdapter.getWorkModeString, used
+     * only for these models in parseFastInfoMessage). Glide 3 and the older
+     * wheels use the legacy work-mode table, which has no charging state.
+     */
+    val reportsChargingWorkMode: Boolean get() = isV10Family || modelId in setOf(86, 87)
+
     /** V8F / V8S / V10 family / Glide 3 expose the dedicated horn opcode `0xB2 ... 0x11`. */
     val hasDedicatedHorn: Boolean get() = isV10Family || modelId in setOf(85, 86, 87)
 

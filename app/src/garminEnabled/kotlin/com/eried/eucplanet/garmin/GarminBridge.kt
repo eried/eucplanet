@@ -17,7 +17,6 @@ import com.garmin.android.connectiq.IQApp
 import com.garmin.android.connectiq.IQDevice
 import com.garmin.android.connectiq.exception.InvalidStateException
 import com.garmin.android.connectiq.exception.ServiceUnavailableException
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -27,8 +26,6 @@ import kotlinx.coroutines.runBlocking
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.concurrent.ConcurrentHashMap
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Phone-side companion to the Connect IQ watch app in `garmin-watch-app/`.
@@ -45,9 +42,8 @@ import javax.inject.Singleton
  * lives for the whole process so any Garmin device that comes online mid-ride
  * starts receiving telemetry without further wiring.
  */
-@Singleton
-class GarminBridge @Inject constructor(
-    @ApplicationContext private val context: Context,
+class GarminBridge(
+    private val context: Context,
     private val wheelRepository: WheelRepository,
     private val settingsRepository: SettingsRepository,
     private val cheatState: com.eried.eucplanet.cheats.CheatState,

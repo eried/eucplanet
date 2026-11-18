@@ -136,4 +136,11 @@ class HeadlightSlowPolicyTest {
         // Without the cutoff there is genuinely nothing to say yet.
         assertNull(HeadlightSlowPolicy.beamOn(darkEnough = null, forcedOff = false))
     }
+
+    @Test fun `while the hold runs the light is not switched on`() {
+        // Slow but not yet cut off: turning it on now would only have it go
+        // off when the hold ends. Turning it off for daylight still stands.
+        assertNull(HeadlightSlowPolicy.beamOn(darkEnough = true, forcedOff = false, slowPending = true))
+        assertEquals(false, HeadlightSlowPolicy.beamOn(darkEnough = false, forcedOff = false, slowPending = true))
+    }
 }

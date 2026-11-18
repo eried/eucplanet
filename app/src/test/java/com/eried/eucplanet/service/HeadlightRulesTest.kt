@@ -74,7 +74,9 @@ class HeadlightRulesTest {
                 0f to t0 + 5_000,
             ),
         )
-        assertEquals(listOf(true, true, true, false, false), out)
+        // While the hold runs the beam is left as it is (on, from the ride),
+        // then the cutoff takes it off.
+        assertEquals(listOf(true, null, null, false, false), out)
     }
 
     @Test fun `the cutoff beats the schedule, which is the whole point`() {
@@ -124,7 +126,29 @@ class HeadlightRulesTest {
             listOf(0f to t0, 0f to t0 + 4_000),
             applyWhen = ApplyWhenIds.CONNECTED, rode = false,
         )
-        assertEquals(listOf(true, false), out)
+        // Standing still it is never switched on just to go off three seconds
+        // later; the cutoff decides first.
+        assertEquals(listOf(null, false), out)
+    }
+
+    @Test fun `reconnecting at walking pace does not flash the light`() {
+        // A rider reported it: walking the wheel at 3 km/h with the cutoff at
+        // 6, every dropped link that came back turned the light on, then off
+        // a few seconds later. A reconnect starts a fresh cutoff state.
+        val out = ride(
+            listOf(3f to t0, 3f to t0 + 1_000, 3f to t0 + 2_000, 3f to t0 + 3_200),
+            applyWhen = ApplyWhenIds.CONNECTED, rode = false,
+        )
+        assertTrue("never asked on", out.none { it == true })
+        assertEquals(false, out.last())
+    }
+
+    @Test fun `reconnecting mid-ride keeps the light on`() {
+        val out = ride(
+            listOf(25f to t0, 25f to t0 + 1_000),
+            applyWhen = ApplyWhenIds.CONNECTED, rode = false,
+        )
+        assertEquals(listOf(true, true), out)
     }
 
     @Test fun `never means the automation keeps its hands off entirely`() {

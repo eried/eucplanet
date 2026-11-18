@@ -26,10 +26,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import java.io.ByteArrayInputStream
 import java.util.concurrent.atomic.AtomicReference
+import org.koin.compose.viewmodel.koinViewModel
 
 /** Path the embedded viewer fetches the trip CSV from, intercepted locally. */
 private const val TRIP_PATH = "/__euc_trip.csv"
@@ -52,7 +52,7 @@ private const val TAG = "EucViewer"
 fun EucViewerScreen(
     tripId: Long,
     onBack: () -> Unit,
-    viewModel: EucViewerViewModel = hiltViewModel()
+    viewModel: EucViewerViewModel = koinViewModel()
 ) {
     // Read by shouldInterceptRequest on a background thread, hence atomic.
     val payloadRef = remember { AtomicReference<Pair<ByteArray, String>?>(null) }
