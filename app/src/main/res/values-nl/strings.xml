@@ -2802,7 +2802,6 @@
     <string name="voice_volume">Volume</string>
     <string name="beep_volume_by_speed">Piepvolume per snelheid</string>
     <string name="engo_hud_enabled">ENGO-bril-HUD</string>
-    <string name="engo_desc">Via Bluetooth, voor ENGO 2 en ENGO 3. De bril heeft eigen pagina\'s; de Motoeye-schermen hieronder gelden niet.</string>
     <string name="engo_pages_title">Pagina\'s van de bril</string>
     <string name="engo_nav_takeover">Afslagen tonen bij navigatie</string>
     <string name="beep_volume_stopped">Stilstaand</string>

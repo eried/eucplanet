@@ -1292,7 +1292,13 @@ data class ProximityLockSettings(
  * 255-arg dex limit guard in AppSettingsArgLimitTest.
  */
 data class EngoHudSettings(
+    /** Whether the link to the paired glasses is kept up. Pairing turns it
+     *  on, Disconnect off, Forget device off. */
     val enabled: Boolean = false,
+    /** The glasses the rider paired by scanning, the only pair linked to.
+     *  Null until then. */
+    val pairedAddress: String? = null,
+    val pairedName: String? = null,
     val autoConnect: Boolean = true,
     /** The number in the ride page's bottom left corner, an EngoMetrics key. */
     val metricLeft: String = "BATTERY",

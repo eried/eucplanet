@@ -2803,7 +2803,6 @@
     <string name="voice_pill_search">Поиск</string>
     <string name="voice_volume">Громкость</string>
     <string name="engo_hud_enabled">HUD очков ENGO</string>
-    <string name="engo_desc">По Bluetooth, для ENGO 2 и ENGO 3. У очков свои страницы; экраны Motoeye ниже к ним не относятся.</string>
     <string name="engo_pages_title">Страницы очков</string>
     <string name="engo_nav_takeover">Показывать повороты при навигации</string>
     <string name="beep_volume_by_speed">Громкость сигнала по скорости</string>

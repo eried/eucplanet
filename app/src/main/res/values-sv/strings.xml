@@ -2799,7 +2799,6 @@
     <string name="voice_pill_search">Sök</string>
     <string name="voice_volume">Volym</string>
     <string name="engo_hud_enabled">ENGO-glasögon-HUD</string>
-    <string name="engo_desc">Via Bluetooth, för ENGO 2 och ENGO 3. Glasögonen har egna sidor; Motoeye-skärmarna nedan gäller inte.</string>
     <string name="engo_pages_title">Glasögonens sidor</string>
     <string name="engo_nav_takeover">Visa svängar vid navigering</string>
     <string name="beep_volume_by_speed">Pipvolym efter fart</string>

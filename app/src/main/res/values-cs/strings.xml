@@ -2607,7 +2607,6 @@
     <string name="voice_pill_search">Hledat</string>
     <string name="voice_volume">Hlasitost</string>
     <string name="engo_hud_enabled">HUD brýlí ENGO</string>
-    <string name="engo_desc">Přes Bluetooth, pro ENGO 2 a ENGO 3. Brýle mají vlastní stránky; obrazovky Motoeye níže se jich netýkají.</string>
     <string name="engo_pages_title">Stránky brýlí</string>
     <string name="engo_nav_takeover">Zobrazovat odbočky při navigaci</string>
     <string name="beep_volume_by_speed">Hlasitost pípání podle rychlosti</string>

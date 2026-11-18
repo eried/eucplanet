@@ -2819,7 +2819,6 @@
     <string name="voice_pill_search">Suchen</string>
     <string name="voice_volume">Lautstärke</string>
     <string name="engo_hud_enabled">ENGO-Brillen-HUD</string>
-    <string name="engo_desc">Über Bluetooth, für ENGO 2 und ENGO 3. Die Brille hat eigene Seiten; die Motoeye-Bildschirme unten gelten nicht für sie.</string>
     <string name="engo_pages_title">Seiten der Brille</string>
     <string name="engo_nav_takeover">Abbiegungen bei Navigation zeigen</string>
     <string name="beep_volume_by_speed">Piepton-Lautstärke nach Tempo</string>

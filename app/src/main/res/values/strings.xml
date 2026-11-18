@@ -489,7 +489,6 @@
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Enable data link</string>
     <string name="engo_hud_enabled">ENGO glasses HUD</string>
-    <string name="engo_desc">Over Bluetooth, for ENGO 2 and ENGO 3. The glasses have their own pages; the Motoeye screens below do not apply.</string>
     <string name="engo_pages_title">Glasses pages</string>
     <string name="engo_nav_takeover">Show turns while navigating</string>
     <string name="hud_ip_label">Device IP</string>

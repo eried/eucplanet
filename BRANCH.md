@@ -6,7 +6,7 @@ you can cut the ride short.
 
 ## Worked on
 
-- Settings, Integration, ENGO glasses HUD: turn on Enable data link; the glasses connect on their own over Bluetooth.
+- Settings, Integration, ENGO glasses HUD: Start scan, tap Pair on your glasses. They are remembered and reconnect on their own; Disconnect and Forget device work like the radar.
 - Shows speed and PWM, plus two numbers you pick under Glasses pages (battery, temperature, voltage, amps or trip).
 - The next turn takes the screen while a route is guided; Show turns while navigating switches that off.
 - Off by default, and it does not touch the Motoeye HUD.
@@ -17,7 +17,8 @@ you can cut the ride short.
 - ENGO 3: the app reads from the glasses that the display is colour. Is the PWM bar green, then yellow, then red as it climbs? ENGO 2: everything readable in grey?
 - After a first try, please send a Service Mode log: it has the lines starting "Engo:" that say what the glasses reported.
 - Do the glasses connect and stay connected all ride?
-- Switch the glasses off and on again mid-ride: do they come back by themselves within about 10 s? The line under the switch says Searching, Connecting or Connected.
+- Do your glasses show up in the scan, and under what name?
+- Switch the glasses off and on again mid-ride, also with the phone screen off: do they come back by themselves? The card says Connecting or Connected.
 - Are the numbers readable and up to date while riding?
 - With a route, does the next turn show, and the ride page return after?
 - Change the two numbers under Glasses pages: do the glasses follow within a second or two?

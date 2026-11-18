@@ -44,8 +44,8 @@ class EngoHudRenderer(
     @Volatile private var last: EngoSnapshot? = null
     @Volatile private var lastColor = false
 
-    /** Begin driving the glasses. [autoConnect] triggers a BLE scan/connect. */
-    fun start(autoConnect: Boolean) {
+    /** Begin driving the glasses at [address], the pair the rider paired. */
+    fun start(address: String) {
         if (job != null) return
         last = null
         lastSearchAtMs = 0L
@@ -55,14 +55,14 @@ class EngoHudRenderer(
                 // looking, so they come back on their own.
                 val now = android.os.SystemClock.elapsedRealtime()
                 if (EngoLink.searchDue(
-                        autoConnect,
+                        true,
                         adapter.state.value == EngoAdapter.State.DISCONNECTED,
                         if (lastSearchAtMs == 0L) Long.MAX_VALUE else now - lastSearchAtMs,
                     )
                 ) {
                     lastSearchAtMs = now
                     last = null
-                    adapter.connect()
+                    adapter.connect(address)
                 }
                 if (adapter.state.value == EngoAdapter.State.CONNECTED) {
                     val settings = settingsRepository.get()

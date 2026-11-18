@@ -20,8 +20,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 /**
- * BLE output client for ENGO 2 / 3 (ActiveLook) glasses. Scans by advertised
- * name prefix, connects, negotiates MTU, then writes ActiveLook command frames
+ * BLE output client for ENGO 2 / 3 (ActiveLook) glasses. A scan lists the
+ * glasses in range for the rider to pair; from then on it connects to that
+ * pair by address, negotiates MTU, then writes ActiveLook command frames
  * to the RX characteristic while honouring the Control-characteristic flow
  * control (pause on 0x02, resume on 0x01).
  *
@@ -52,10 +53,16 @@ class EngoAdapter(
         private val CCCD = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
     }
 
-    enum class State { DISCONNECTED, SCANNING, CONNECTING, CONNECTED }
+    enum class State { DISCONNECTED, CONNECTING, CONNECTED }
 
     private val _state = MutableStateFlow(State.DISCONNECTED)
     val state: StateFlow<State> = _state.asStateFlow()
+
+    /** Whether a pairing scan is running, and the glasses it has found. */
+    private val _scanning = MutableStateFlow(false)
+    val scanning: StateFlow<Boolean> = _scanning.asStateFlow()
+    private val _found = MutableStateFlow<List<EngoFound>>(emptyList())
+    val found: StateFlow<List<EngoFound>> = _found.asStateFlow()
 
     /** True once the connected glasses say their display is colour: their
      *  hardware version string is read right after connecting. False until
@@ -69,7 +76,6 @@ class EngoAdapter(
 
     @Volatile private var gatt: BluetoothGatt? = null
     @Volatile private var rx: BluetoothGattCharacteristic? = null
-    @Volatile private var namePrefix = DEFAULT_NAME_PREFIX
 
     // Write pump: one BLE write may be in flight at a time. Frames queue here and
     // drain on each onCharacteristicWrite, pausing while flow control says so.
@@ -78,20 +84,43 @@ class EngoAdapter(
     @Volatile private var writeInFlight = false
     @Volatile private var flowPaused = false
 
+    /** Look for glasses to pair. Results arrive in [found]. */
     @SuppressLint("MissingPermission")
-    fun connect(prefix: String = DEFAULT_NAME_PREFIX) {
+    fun startScan() {
+        if (_scanning.value) return
+        val adapter = bluetooth ?: run { Log.w(TAG, "no BluetoothAdapter"); return }
+        if (!adapter.isEnabled) { Log.w(TAG, "bluetooth off"); return }
+        _found.value = emptyList()
+        _scanning.value = true
+        DiagnosticsLogger.note("Engo: scanning")
+        runCatching { adapter.bluetoothLeScanner?.startScan(scanCallback) }
+            .onFailure { _scanning.value = false }
+    }
+
+    @SuppressLint("MissingPermission")
+    fun stopScan() {
+        runCatching { bluetooth?.bluetoothLeScanner?.stopScan(scanCallback) }
+        _scanning.value = false
+    }
+
+    /** Link to the paired glasses at [address]. No scan: the phone asks for
+     *  that pair directly, which also works with the screen off. An attempt
+     *  the phone gives up on ends as DISCONNECTED and is made again. */
+    @SuppressLint("MissingPermission")
+    fun connect(address: String) {
         if (_state.value != State.DISCONNECTED) return
         val adapter = bluetooth ?: run { Log.w(TAG, "no BluetoothAdapter"); return }
         if (!adapter.isEnabled) { Log.w(TAG, "bluetooth off"); return }
-        namePrefix = prefix
-        _state.value = State.SCANNING
-        DiagnosticsLogger.note("Engo: scanning for \"$prefix\"*")
-        adapter.bluetoothLeScanner?.startScan(scanCallback)
+        val device = runCatching { adapter.getRemoteDevice(address) }.getOrNull() ?: return
+        _state.value = State.CONNECTING
+        DiagnosticsLogger.note("Engo: connecting to $address")
+        gatt = device.connectGatt(
+            context, /* autoConnect = */ false, callback, android.bluetooth.BluetoothDevice.TRANSPORT_LE,
+        )
     }
 
     @SuppressLint("MissingPermission")
     fun disconnect() {
-        stopScan()
         gatt?.let { runCatching { it.disconnect(); it.close() } }
         gatt = null
         rx = null
@@ -110,27 +139,24 @@ class EngoAdapter(
     }
 
     // --- scanning ---
-    @SuppressLint("MissingPermission")
-    private fun stopScan() {
-        runCatching { bluetooth?.bluetoothLeScanner?.stopScan(scanCallback) }
-    }
-
     private val scanCallback = object : ScanCallback() {
         @SuppressLint("MissingPermission")
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             val name = result.device?.name ?: result.scanRecord?.deviceName
             val makers = result.scanRecord?.manufacturerSpecificData
             val makerIds = if (makers == null) emptyList() else List(makers.size()) { makers.keyAt(it) }
-            if (!EngoLink.isGlasses(name, makerIds, namePrefix)) return
-            stopScan()
-            _state.value = State.CONNECTING
-            DiagnosticsLogger.note("Engo: connecting to $name")
-            gatt = result.device.connectGatt(context, /* autoConnect = */ false, callback)
+            if (!EngoLink.isGlasses(name, makerIds, DEFAULT_NAME_PREFIX)) return
+            val address = result.device?.address ?: return
+            val seen = EngoFound(address, name?.trim()?.ifEmpty { null } ?: address, result.rssi)
+            if (_found.value.none { it.address == address }) {
+                DiagnosticsLogger.note("Engo: found ${seen.name}, makers $makerIds")
+            }
+            _found.value = _found.value.filter { it.address != address } + seen
         }
 
         override fun onScanFailed(errorCode: Int) {
             Log.w(TAG, "scan failed: $errorCode")
-            _state.value = State.DISCONNECTED
+            _scanning.value = false
         }
     }
 

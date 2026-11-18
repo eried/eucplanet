@@ -2605,7 +2605,6 @@
     <string name="voice_pill_search">Caută</string>
     <string name="voice_volume">Volum</string>
     <string name="engo_hud_enabled">HUD ochelari ENGO</string>
-    <string name="engo_desc">Prin Bluetooth, pentru ENGO 2 și ENGO 3. Ochelarii au paginile lor; ecranele Motoeye de mai jos nu se aplică.</string>
     <string name="engo_pages_title">Paginile ochelarilor</string>
     <string name="engo_nav_takeover">Arată virajele în navigare</string>
     <string name="beep_volume_by_speed">Volumul bipului după viteză</string>

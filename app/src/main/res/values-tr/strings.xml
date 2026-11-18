@@ -2796,7 +2796,6 @@
     <string name="voice_pill_search">Ara</string>
     <string name="voice_volume">Ses seviyesi</string>
     <string name="engo_hud_enabled">ENGO gözlük HUD</string>
-    <string name="engo_desc">Bluetooth ile, ENGO 2 ve ENGO 3 için. Gözlüğün kendi sayfaları var; aşağıdaki Motoeye ekranları geçerli değil.</string>
     <string name="engo_pages_title">Gözlük sayfaları</string>
     <string name="engo_nav_takeover">Navigasyonda dönüşleri göster</string>
     <string name="beep_volume_by_speed">Hıza göre bip sesi</string>

@@ -406,6 +406,8 @@ object SettingsJson {
         put("engoHud", JSONObject().apply {
             put("enabled", s.engoHud.enabled)
             put("autoConnect", s.engoHud.autoConnect)
+            put("pairedAddress", s.engoHud.pairedAddress)
+            put("pairedName", s.engoHud.pairedName)
             put("metricLeft", s.engoHud.metricLeft)
             put("metricRight", s.engoHud.metricRight)
             put("navTakeover", s.engoHud.navTakeover)
@@ -894,6 +896,8 @@ object SettingsJson {
             base.engoHud.copy(
                 enabled = e.optBoolean("enabled", base.engoHud.enabled),
                 autoConnect = e.optBoolean("autoConnect", base.engoHud.autoConnect),
+                pairedAddress = e.optStringOrNull("pairedAddress", base.engoHud.pairedAddress),
+                pairedName = e.optStringOrNull("pairedName", base.engoHud.pairedName),
                 metricLeft = e.optString("metricLeft", base.engoHud.metricLeft),
                 metricRight = e.optString("metricRight", base.engoHud.metricRight),
                 navTakeover = e.optBoolean("navTakeover", base.engoHud.navTakeover),

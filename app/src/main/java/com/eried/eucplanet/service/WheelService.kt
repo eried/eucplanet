@@ -359,7 +359,7 @@ class WheelService : LifecycleService() {
         // Apply engine settings + lifecycle on settings changes and connection
         lifecycleScope.launch {
             var hudWasOn = false
-            var engoWasOn = false
+            var engoLinkedTo: String? = null
             var watchMapWasEnabled: Boolean? = null
             settingsRepository.settings.collect { s ->
                 // Notification builder reads the speed unit without suspending;
@@ -425,10 +425,13 @@ class WheelService : LifecycleService() {
                     hudWasOn = effective
                 }
                 // ENGO glasses HUD: independent BLE output, started on its own toggle.
-                if (s.engoHud.enabled != engoWasOn) {
-                    if (s.engoHud.enabled) engoHudRenderer.start(s.engoHud.autoConnect)
-                    else engoHudRenderer.stop()
-                    engoWasOn = s.engoHud.enabled
+                // Linked to the paired glasses while the link is on; a new
+                // pair, Disconnect or Forget device ends the old link first.
+                val engoTarget = s.engoHud.pairedAddress?.takeIf { s.engoHud.enabled }
+                if (engoTarget != engoLinkedTo) {
+                    if (engoLinkedTo != null) engoHudRenderer.stop()
+                    if (engoTarget != null) engoHudRenderer.start(engoTarget)
+                    engoLinkedTo = engoTarget
                 }
                 val previousWatchMapEnabled = watchMapWasEnabled
                 if (s.watchMap.enabled != previousWatchMapEnabled) {

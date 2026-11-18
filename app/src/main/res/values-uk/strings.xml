@@ -2800,7 +2800,6 @@
     <string name="voice_pill_search">Пошук</string>
     <string name="voice_volume">Гучність</string>
     <string name="engo_hud_enabled">HUD окулярів ENGO</string>
-    <string name="engo_desc">Через Bluetooth, для ENGO 2 та ENGO 3. Окуляри мають власні сторінки; екрани Motoeye нижче їх не стосуються.</string>
     <string name="engo_pages_title">Сторінки окулярів</string>
     <string name="engo_nav_takeover">Показувати повороти під час навігації</string>
     <string name="beep_volume_by_speed">Гучність сигналу за швидкістю</string>
