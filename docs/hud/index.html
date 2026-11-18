@@ -48,32 +48,76 @@
     font-family: "SFMono-Regular", Consolas, Menlo, monospace;
     font-size: 13px;
   }
-  /* Troubleshooting is folded away so the page reads as three steps. */
-  details {
-    margin-top: 22px;
-    border: 1px solid #21262d;
-    border-radius: 6px;
-    background: #10151c;
-  }
-  summary {
-    cursor: pointer;
-    padding: 12px 14px;
-    font-size: 15px;
-    font-weight: 600;
-    color: #c9d1d9;
-    list-style: none;
+  /* How the phone finds the HUD: four channels down one line, in the order they are tried. */
+  .lead { color: #8b949e; font-size: 14px; margin: 0 0 14px; }
+  .finder { list-style: none; padding: 0; margin: 0; }
+  .finder li {
+    position: relative;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    gap: 14px;
+    margin: 0;
+    padding-bottom: 16px;
   }
-  summary::-webkit-details-marker { display: none; }
-  summary::after { content: "+"; color: #6e7681; font-weight: 400; font-size: 18px; }
-  details[open] summary::after { content: "\2212"; }
-  details[open] summary { border-bottom: 1px solid #21262d; }
-  li > details { margin: 8px 0 2px; }
-  .details-body { padding: 14px; }
-  .details-body p:first-child { margin-top: 0; }
-  .details-body p:last-child { margin-bottom: 0; }
+  .finder li:last-child { padding-bottom: 0; }
+  /* The line that joins one badge to the next. */
+  .finder li::before {
+    content: "";
+    position: absolute;
+    left: 19px;
+    top: 40px;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(#30363d, #21262d);
+  }
+  .finder li:last-child::before { display: none; }
+  .finder .badge {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #161b22;
+    border: 1px solid #30363d;
+    color: #58a6ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .finder .badge svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .finder li:first-child .badge { color: #3fb950; border-color: #238636; box-shadow: 0 0 0 4px rgba(35, 134, 54, 0.15); }
+  .finder .what { padding-top: 2px; min-width: 0; }
+  .finder .name { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; color: #e6edf3; font-weight: 600; font-size: 15px; }
+  .finder .step { color: #6e7681; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .finder .pill {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    padding: 1px 8px;
+    border-radius: 999px;
+    border: 1px solid #30363d;
+    color: #8b949e;
+  }
+  .finder .pill.best { color: #3fb950; border-color: #238636; }
+  .finder p { margin: 2px 0 0; font-size: 14px; color: #a9b3bd; }
+  .note {
+    margin-top: 16px;
+    padding: 12px 14px;
+    border: 1px solid #30363d;
+    border-left: 3px solid #d29922;
+    border-radius: 6px;
+    background: #161b22;
+    font-size: 14px;
+  }
+  .note strong { color: #e6edf3; }
+  .note p { margin: 0; }
   footer {
     text-align: center;
     color: #6e7681;
@@ -133,22 +177,47 @@
     <li>Turn on the phone's hotspot and connect the HUD to it, or put both on the same WiFi.</li>
     <li>Launch the HUD app.</li>
     <li>On the phone, open <em>Settings → Integrations → Motoeye HUD</em> and turn on <em>Enable data link</em>.
-    <details>
-      <summary>How it finds the HUD</summary>
-      <div class="details-body">
-        <p>The phone tries four channels in order, and the settings screen names the one that worked:</p>
-        <ol>
-          <li><strong>UDP beacon</strong> from the HUD. The most reliable, and the only one that survives a hotspot that blocks multicast.</li>
-          <li><strong>mDNS</strong>, browsing for <code>_eucplanet._tcp.local.</code></li>
-          <li><strong>Last known address</strong>, kept as a hint from the previous session rather than as the only truth.</li>
-          <li><strong>Subnet scan</strong> of the phone's own network, which takes a few seconds and only runs once the first three come up empty.</li>
-        </ol>
-        <p>If all four fail, turn off <em>Discover link address automatically</em> and type the IP the HUD shows on its splash screen. Keep both sides on matching versions.</p>
-      </div>
-    </details>
     </li>
   </ol>
   <p>That is the whole setup. The phone finds the HUD by itself and telemetry starts within a second or two. There is no IP to type.</p>
+</section>
+
+<section>
+  <h2>How it finds the HUD</h2>
+  <p class="lead">Four ways, tried in this order. The settings screen names the one that worked.</p>
+  <ol class="finder">
+    <li>
+      <span class="badge" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="1.6"/><path d="M8.5 8.5a5 5 0 0 0 0 7M15.5 8.5a5 5 0 0 1 0 7M5.6 5.6a9 9 0 0 0 0 12.8M18.4 5.6a9 9 0 0 1 0 12.8"/></svg></span>
+      <div class="what">
+        <div class="name"><span class="step">1</span> UDP beacon <span class="pill best">Most reliable</span></div>
+        <p>The HUD calls out and the phone hears it. The only one that survives a hotspot that blocks multicast.</p>
+      </div>
+    </li>
+    <li>
+      <span class="badge" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.6-4.6"/></svg></span>
+      <div class="what">
+        <div class="name"><span class="step">2</span> mDNS</div>
+        <p>The phone browses the network for <code>_eucplanet._tcp.local.</code></p>
+      </div>
+    </li>
+    <li>
+      <span class="badge" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 4.5v4.6h4.6"/><path d="M12 8v4.2l2.8 1.8"/></svg></span>
+      <div class="what">
+        <div class="name"><span class="step">3</span> Last known address</div>
+        <p>Where the HUD was last session, kept as a hint and not as the only truth.</p>
+      </div>
+    </li>
+    <li>
+      <span class="badge" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5"/><path d="M12 12l6-6"/></svg></span>
+      <div class="what">
+        <div class="name"><span class="step">4</span> Subnet scan <span class="pill">Last resort</span></div>
+        <p>A sweep of the phone's own network. It takes a few seconds and only runs once the first three come up empty.</p>
+      </div>
+    </li>
+  </ol>
+  <div class="note">
+    <p><strong>If all four fail,</strong> turn off <em>Discover link address automatically</em> and type the IP the HUD shows on its splash screen. Keep both sides on matching versions.</p>
+  </div>
 </section>
 
 <footer>
