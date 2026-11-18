@@ -97,6 +97,8 @@ class EucPlanetApp : Application(), Configuration.Provider {
         wearBridge.start()
         garminBridge.start()
         amazfitBridge.start()
+        // Alarms reach the car screen only while a car is attached.
+        com.eried.eucplanet.car.CarAlarmNotification.start(this)
         // Touch hudServer so its init{} runs even on a cold app start.
         // The reference assignment alone is enough; HudServer's settings
         // collector takes over from there.

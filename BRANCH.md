@@ -9,6 +9,7 @@ ride, this is the branch.
 
 ## Worked on
 
+- Android Auto (MotoEye HUD): every firing alarm shows as a card on the HUD. Only the GPS alarms did; wheel and radar alarms never got there. No card on the phone when Android Auto is not connected, and no second chime.
 - Motoeye HUD: only one phone links at a time. A second phone dialing the same HUD made the screen flicker; it now waits until the first has been quiet for 3 s.
 - Leaderboard: a ride that was removed from eucstats is no longer asked about every 15 minutes forever. The app asks once, gets "not there", and stops.
 - Settings backup: "Last backup" is read from the backup file itself, so it is right after a reinstall. Android's own cloud backup of the app is off, so a reinstall starts clean.
@@ -123,6 +124,7 @@ ride, this is the branch.
 - Bind Volume up to a click and the horn to a hold on the same button: do both work with the screen off? Try Phone flashlight and Engine sound from a Flic too.
 
 **Android Auto** (install from the Play internal sharing link, a sideloaded APK never shows in the car)
+- With the MotoEye running Android Auto, trip a wheel alarm (speed or PWM): does a card show over the map, and is the only sound the alarm's own beep?
 - Navigate from the car screen: turn-by-turn shows, and your four numbers beside it?
 - Load a GPX track on the phone, then Places, Planned route in the car: does it follow the track?
 
