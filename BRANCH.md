@@ -9,6 +9,7 @@ ride, this is the branch.
 
 ## Worked on
 
+- Shorter hints: 18 setting descriptions lose their extra sentence, in all 30 languages. Three said something untrue and are fixed: forgetting a Flic keeps its actions, the radar lane draws squares with the distance, and the weather widget fetches on its own.
 - Android Auto (MotoEye HUD): every firing alarm shows as a card on the HUD. Only the GPS alarms did; wheel and radar alarms never got there. No card on the phone when Android Auto is not connected, and no second chime.
 - Units: a fresh install in the UK, the Crown Dependencies or Myanmar starts on miles, Celsius and altitude in metres; US territories start imperial like the US. Riders who already have settings are not changed.
 - Units: Altitude is its own setting now (Settings, Display & appearance, Units, Custom): metres or feet, whatever your distance unit is. Until you pick one you keep what you had, feet with miles and metres with kilometres. Metric sets metres, Imperial sets feet.
@@ -85,6 +86,9 @@ ride, this is the branch.
 - Removed: Media speed control (it never worked reliably), the one-time places hint, and the unused in-app eucviewer screen. Inspect online is unchanged.
 
 ## Please test
+
+**Texts** (anyone, in your language)
+- Settings hints for rotation, radar, speed splits, Android Auto, keep alive, settings backup, weather source and Advanced rates: does each still read as a whole sentence in your language?
 
 **InMotion V6** (Klaus)
 - Set tilt-back to 20 km/h in EUC Planet, normal and in Legal mode: does the wheel beep like for 19 and 21?

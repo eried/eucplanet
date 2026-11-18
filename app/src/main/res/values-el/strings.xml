@@ -5,7 +5,7 @@
     <string name="notification_channel_description">Εμφανίζει την κατάσταση σύνδεσης και τα δεδομένα του μονότροχου.</string>
 
     <string name="keep_app_alive">Διατήρηση εφαρμογής σε λειτουργία</string>
-    <string name="keep_app_alive_desc">Διατηρεί μια μόνιμη ειδοποίηση ώστε η εφαρμογή να μένει ενεργή στο παρασκήνιο. Ο συγχρονισμός διαδρομών και η φωνή λειτουργούν ακόμη και χωρίς συνδεδεμένο μονότροχο. Καταναλώνει λίγο περισσότερη μπαταρία.</string>
+    <string name="keep_app_alive_desc">Διατηρεί μια μόνιμη ειδοποίηση ώστε η εφαρμογή να μένει ενεργή στο παρασκήνιο. Καταναλώνει λίγο περισσότερη μπαταρία.</string>
     <string name="notif_actions_enable">Εμφάνιση ενεργειών ειδοποίησης</string>
     <string name="notif_actions_enable_desc">Προσθέτει κουμπιά γρήγορων ενεργειών στη μόνιμη ειδοποίηση.</string>
     <string name="notif_actions_pick_desc">Επιλέξτε έως %1$d ενέργειες. Η ίδια ενέργεια μπορεί να επαναλαμβάνεται.</string>
@@ -236,7 +236,7 @@
     <string name="metric_chip_battery_temp">Θερμοκρασία μπαταρίας</string>
     <string name="metric_chip_tire_pressure">Πίεση ελαστικού</string>
     <string name="metric_chip_tire_pressure_tile">Ελαστικό</string>
-    <string name="metric_desc_tire_pressure">Πίεση ελαστικού από δικό σας αισθητήρα ή από αισθητήρα που μεταδίδει το μονότροχο. Εμφανίζεται στη μονάδα πίεσης που επιλέξατε.</string>
+    <string name="metric_desc_tire_pressure">Πίεση ελαστικού από δικό σας αισθητήρα ή από αισθητήρα που μεταδίδει το μονότροχο.</string>
     <string name="metric_chip_headroom">Περιθώριο</string>
     <string name="metric_chip_trip_time">Χρόνος διαδρομής</string>
     <string name="metric_chip_trip_max_speed">Μέγιστη διαδρομής</string>
@@ -479,7 +479,7 @@
     <string name="hud_search_corpus">HUD heads-up display οθόνη κράνους συνοδευτική εφαρμογή διακομιστής ροή τηλεμετρία σημείο πρόσβασης hotspot motoeye βέλος στροφής</string>
 
     <string name="hud_joystick_title">Ενέργειες κουμπιών</string>
-    <string name="hud_joystick_desc">Πατήστε δύο φορές ένα κουμπί του HUD για να εκτελεστεί μια ενέργεια. Ένα πάτημα εξακολουθεί να αλλάζει οθόνη.</string>
+    <string name="hud_joystick_desc">Πατήστε δύο φορές ένα κουμπί του HUD για να εκτελεστεί μια ενέργεια.</string>
     <string name="hud_joystick_up">Πάνω (διπλό πάτημα)</string>
     <string name="hud_joystick_down">Κάτω (διπλό πάτημα)</string>
     <string name="hud_joystick_left">Αριστερά (διπλό πάτημα)</string>
@@ -530,7 +530,7 @@
     <string name="watch_update_rate">Ρυθμός ενημέρωσης</string>
     <string name="watch_update_rate_desc">Οι πιο αραιές ενημερώσεις εξοικονομούν μπαταρία στο ρολόι. Είναι ξεχωριστό από τον ρυθμό ανάγνωσης του μονότροχου στην ενότητα Για προχωρημένους.</string>
     <string name="watch_map_enabled">Χάρτης στο ρολόι</string>
-    <string name="watch_map_enabled_desc">Εμφανίζει τη θέση και το δρομολόγιο από το τηλέφωνο. Μια ειδοποίηση παραμένει για τη λειτουργία στο παρασκήνιο.</string>
+    <string name="watch_map_enabled_desc">Εμφανίζει τη θέση και το δρομολόγιο από το τηλέφωνο.</string>
     <string name="watch_map_orientation">Προσανατολισμός χάρτη</string>
     <string name="watch_map_north_up">Βορράς πάνω</string>
     <string name="watch_map_heading_up">Κατεύθυνση πάνω</string>
@@ -545,15 +545,15 @@
     <string name="tab_more">Περισσότερα</string>
     <string name="settings_visibility">Ορατότητα ρυθμίσεων</string>
     <string name="adv_timings_title">Χρονισμοί και μεταβλητές</string>
-    <string name="reorg_hint">Αναδιοργανώστε την οθόνη ρυθμίσεων και κρύψτε ενότητες που χρησιμοποιείτε σπάνια. Οι κρυφές ενότητες μεταφέρονται στην ενότητα «Περισσότερα».</string>
+    <string name="reorg_hint">Αναδιοργανώστε την οθόνη ρυθμίσεων και κρύψτε ενότητες που χρησιμοποιείτε σπάνια.</string>
     <string name="reorg_drag_cd">Σύρετε για αναδιάταξη</string>
-    <string name="adv_rates_warning">Αυτά τα στοιχεία ελέγχου αλλάζουν τους χρονισμούς σε όλη την εφαρμογή. Χαμηλότερες τιμές δίνουν πιο πρόσφατα δεδομένα και ταχύτερες αντιδράσεις, αλλά καταναλώνουν περισσότερη μπαταρία, CPU ή δεδομένα. Οι προεπιλογές ταιριάζουν στους περισσότερους αναβάτες. Αλλάξτε τις μόνο αν κατανοείτε το αποτέλεσμα.</string>
+    <string name="adv_rates_warning">Αυτά τα στοιχεία ελέγχου αλλάζουν τους χρονισμούς σε όλη την εφαρμογή. Αλλάξτε τις μόνο αν κατανοείτε το αποτέλεσμα.</string>
     <string name="adv_pushonly_note">Ορισμένες συσκευές στέλνουν δεδομένα με δικό τους σταθερό ρυθμό και αγνοούν αυτές τις ρυθμίσεις: μονότροχα που στέλνουν μόνα τους (Begode, Gotway, Veteran, KingSong), εξωτερικό GPS (RaceBox, Dragy), ραντάρ και κουμπιά Flic.</string>
     <string name="adv_group_rates">Ρυθμοί δεδομένων και αναφορών</string>
     <string name="adv_wheel_poll_rate">Ρυθμός ανάγνωσης μονότροχου</string>
     <string name="adv_wheel_poll_rate_desc">Επηρεάζει πόσο πρόσφατα είναι τα ζωντανά δεδομένα και πόσο γρήγορα αντιδρούν οι συναγερμοί. Χαμηλότερη τιμή ζητά δεδομένα από το μονότροχο πιο συχνά. Κίνδυνος: πολύ χαμηλές τιμές μπορεί να κατακλύσουν τη σύνδεση Bluetooth και να παγώσουν τα δεδομένα σε ορισμένα μονότροχα.</string>
     <string name="adv_graph_sample_interval">Διάστημα δειγμάτων γραφήματος</string>
-    <string name="adv_graph_sample_interval_desc">Επηρεάζει μόνο τη λεπτομέρεια των γραφημάτων του πίνακα οργάνων. Δεν επηρεάζει τους συναγερμούς ή τα αρχεία διαδρομών. Κίνδυνος: πολύ χαμηλές τιμές χρησιμοποιούν περισσότερη μνήμη.</string>
+    <string name="adv_graph_sample_interval_desc">Δεν επηρεάζει τους συναγερμούς ή τα αρχεία διαδρομών. Κίνδυνος: πολύ χαμηλές τιμές χρησιμοποιούν περισσότερη μνήμη.</string>
     <string name="adv_smoothing_window">Παράθυρο εξομάλυνσης</string>
     <string name="adv_smoothing_window_desc">Δείγματα που υπολογίζονται κατά μέσο όρο στα γραφήματα «μέσος όρος» των διαδρομών και στις εξομαλυμένες φωνητικές αναφορές. Οι διαδρομές καταγράφουν περίπου μία φορά το δευτερόλεπτο, οπότε η τιμή αντιστοιχεί σε δευτερόλεπτα. Κίνδυνος: υψηλές τιμές κρύβουν σύντομες αιχμές.</string>
     <string name="adv_trip_record_interval">Διάστημα εγγραφής διαδρομής</string>
@@ -775,7 +775,7 @@
     <string name="section_cloud_settings">Αντίγραφο ρυθμίσεων</string>
     <string name="cloud_backup_now">Αντίγραφο</string>
     <string name="cloud_restore">Επαναφορά</string>
-    <string name="cloud_settings_backup_desc">Όλα όσα έχετε ρυθμίσει στην εφαρμογή, γραμμένα στο eucplanet_settings.json στον φάκελο αντιγράφων. Κρατήστε πατημένο το κουμπί για να αποθηκεύσετε ένα ονομασμένο αντίγραφο δίπλα του. Οι διαδρομές αντιγράφονται χωριστά.</string>
+    <string name="cloud_settings_backup_desc">Όλα όσα έχετε ρυθμίσει στην εφαρμογή, γραμμένα στο eucplanet_settings.json στον φάκελο αντιγράφων. Κρατήστε πατημένο το κουμπί για να αποθηκεύσετε ένα ονομασμένο αντίγραφο δίπλα του.</string>
     <string name="cloud_last_backup">Τελευταίο αντίγραφο: %1$s</string>
     <string name="cloud_last_backup_named">Τελευταίο αντίγραφο: %1$s ως «%2$s»</string>
     <string name="cloud_last_backup_never">Δεν υπάρχει αντίγραφο ακόμη</string>
@@ -873,9 +873,9 @@
     <string name="side_default">Προεπιλογή</string>
     <string name="side_left">Αριστερά</string>
     <string name="side_right">Δεξιά</string>
-    <string name="geo_other_hint">Παρακολούθηση μπαταρίας, ιστορικό μετρήσεων, αναζήτηση και Flic. Το Overlay Studio δεν επηρεάζεται: η διάταξή του είναι σταθερή, αλλά λειτουργεί κανονικά σε κάθε προσανατολισμό.</string>
-    <string name="geo_settings_hint">Η οθόνη ρυθμίσεων. Ανενεργό από προεπιλογή, οπότε οι Ρυθμίσεις μένουν κατακόρυφες αν δεν το ενεργοποιήσετε.</string>
-    <string name="geo_trip_hint">Η προβολή λεπτομερειών περιστρέφεται από προεπιλογή για τον οριζόντιο χάρτη και τα γραφήματα. Η λίστα διαδρομών μένει κατακόρυφη αν δεν το ενεργοποιήσετε.</string>
+    <string name="geo_other_hint">Παρακολούθηση μπαταρίας, ιστορικό μετρήσεων, αναζήτηση και Flic.</string>
+    <string name="geo_settings_hint">Η οθόνη ρυθμίσεων.</string>
+    <string name="geo_trip_hint">Η προβολή λεπτομερειών περιστρέφεται από προεπιλογή για τον οριζόντιο χάρτη και τα γραφήματα.</string>
     <string name="back_button_action_ask">Ερώτηση</string>
     <string name="back_button_action_background">Παρασκήνιο</string>
     <string name="back_button_action_stop">Διακοπή όλων</string>
@@ -970,7 +970,7 @@
     <string name="voice_interval">Διάστημα</string>
     <string name="section_accel_splits">Χρόνοι ταχύτητας</string>
     <string name="accel_splits_enabled">Ανακοίνωση χρόνων</string>
-    <string name="accel_splits_desc">Εκφωνεί τον χρόνο για κάθε βήμα ταχύτητας, στην επιτάχυνση ή στο φρενάρισμα. Ξεκινά από την παρακάτω ταχύτητα, με βήματα που ορίζετε.</string>
+    <string name="accel_splits_desc">Εκφωνεί τον χρόνο για κάθε βήμα ταχύτητας, στην επιτάχυνση ή στο φρενάρισμα.</string>
     <string name="accel_split_decel_prefix">φρενάρισμα, </string>
     <string name="accel_splits_from">Από</string>
     <string name="accel_splits_step">Βήμα</string>
@@ -1142,7 +1142,7 @@
     <string name="flic_start_scan">Έναρξη σάρωσης</string>
     <string name="flic_forget">Διαγραφή</string>
     <string name="flic_forget_title">Διαγραφή αυτού του κουμπιού;</string>
-    <string name="flic_forget_body">Το %1$s θα αποσυζευχθεί και οι ενέργειές του θα διαγραφούν. Μπορείτε να το συζεύξετε ξανά οποτεδήποτε.</string>
+    <string name="flic_forget_body">Το %1$s θα αποσυζευχθεί.</string>
     <string name="flic_rename">Μετονομασία</string>
     <string name="flic_click">Πάτημα</string>
     <string name="flic_double_click">Διπλό πάτημα</string>
@@ -1192,7 +1192,7 @@
     <string name="volume_keys_enable">Ενέργειες πλήκτρων έντασης</string>
     <string name="volume_keys_screen_off">Και με σβηστή οθόνη</string>
     <string name="volume_keys_screen_off_caption">Λειτουργεί με κλειδωμένο τηλέφωνο ή με άλλη εφαρμογή μπροστά. Τα κουμπιά δεν αλλάζουν πια την ένταση του τηλεφώνου.</string>
-    <string name="volume_keys_screen_off_warn">Το Android στέλνει τα πατήματα έντασης μόνο στην εφαρμογή που είναι στην οθόνη. Για να τα λαμβάνει με σβηστή οθόνη, το EUC Planet δηλώνεται ως το ενεργό πρόγραμμα αναπαραγωγής του τηλεφώνου, και το Android του στέλνει τα κουμπιά έντασης αντί να αλλάζει την ένταση.\n\nΌσο είναι ενεργό, τα κουμπιά δεν αλλάζουν την ένταση του τηλεφώνου.</string>
+    <string name="volume_keys_screen_off_warn">Το Android στέλνει τα πατήματα έντασης μόνο στην εφαρμογή που είναι στην οθόνη. Για να τα λαμβάνει με σβηστή οθόνη, το EUC Planet δηλώνεται ως το ενεργό πρόγραμμα αναπαραγωγής του τηλεφώνου, και το Android του στέλνει τα κουμπιά έντασης αντί να αλλάζει την ένταση.</string>
     <string name="volume_keys_screen_off_confirm">Ενεργοποίηση</string>
     <string name="volume_keys_screen_off_title">Ανάληψη των κουμπιών έντασης;</string>
     <string name="volume_up">Αύξηση έντασης</string>
@@ -1216,7 +1216,7 @@
         <item quantity="other">Παρακολούθηση %1$d οχημάτων:</item>
     </plurals>
     <string name="radar_show_overlay">Εμφάνιση επικάλυψης κινδύνων</string>
-    <string name="radar_show_overlay_desc">Λεπτή λωρίδα ραντάρ στα περιθώρια του πίνακα οργάνων. Μία χρωματιστή κουκκίδα για κάθε όχημα που εντοπίζεται. Εμφανίζεται μόνο στον πίνακα οργάνων.</string>
+    <string name="radar_show_overlay_desc">Λεπτή λωρίδα ραντάρ στα περιθώρια του πίνακα οργάνων.</string>
     <string name="radar_overlay_left">Αριστερή άκρη</string>
     <string name="radar_overlay_both">Και οι δύο άκρες</string>
     <string name="radar_overlay_right">Δεξιά άκρη</string>
@@ -1449,7 +1449,7 @@
     <string name="widget_standalone_slot">Αυτόνομο κουμπί %1$d</string>
     <string name="widget_weather_question">Βόλτα;</string>
     <string name="widget_weather_score_desc">Ο καιρός για βόλτα, αυτή τη στιγμή.</string>
-    <string name="widget_weather_compact_desc">Πόσο καλός είναι ο καιρός για βόλτα, τώρα και τις επόμενες ώρες. Αλλάξτε το μέγεθος για ώρες, θερμοκρασία και άνεμο.</string>
+    <string name="widget_weather_compact_desc">Πόσο καλός είναι ο καιρός για βόλτα, τώρα και τις επόμενες ώρες.</string>
     <string name="widget_weather_graph_desc">Πόσο καλός είναι ο καιρός για βόλτα, σε όλο το διάστημα της πρόγνωσης.</string>
     <string name="widget_weather_refresh_desc">Ανανέωση της πρόγνωσης.</string>
     <string name="widget_weather_never">Δεν υπάρχει πρόγνωση ακόμα. Ανοίξτε την εφαρμογή μία φορά ή πατήστε ανανέωση.</string>
@@ -2263,7 +2263,7 @@
     <string name="weather_hot">Πολλή ζέστη πάνω από</string>
     <string name="weather_breezy">Αεράκι πάνω από</string>
     <string name="weather_windy">Πολύς αέρας πάνω από</string>
-    <string name="weather_source_credit">Η πρόγνωση προέρχεται από την πηγή που επιλέγετε και λαμβάνεται μόνο όσο αυτό είναι ενεργό. Ένα μικρότερο εύρος μπορεί να έχει πιο λεπτομερή βήματα, όπου η πηγή τα προσφέρει.</string>
+    <string name="weather_source_credit">Η πρόγνωση προέρχεται από την πηγή που επιλέγετε. Ένα μικρότερο εύρος μπορεί να έχει πιο λεπτομερή βήματα, όπου η πηγή τα προσφέρει.</string>
     <string name="weather_title_1">Είναι καιρός για μονότροχο;</string>
     <string name="weather_title_2">Ώρα για EUC;</string>
     <string name="weather_title_3">Ώρα για βόλτα;</string>
@@ -2704,7 +2704,7 @@
         <item quantity="other">%d στάσεις</item>
     </plurals>
     <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Τα στατιστικά σας και τα κουμπιά του μονότροχου σε οθόνη Android Auto. Συνδέεται αυτόματα, χωρίς ρύθμιση Wi-Fi.</string>
+    <string name="android_auto_hint">Τα στατιστικά σας και τα κουμπιά του μονότροχου σε οθόνη Android Auto.</string>
     <string name="car_waiting">Αναμονή για το μονότροχο</string>
     <string name="car_last_battery">Τελευταία μπαταρία %1$d%%</string>
     <string name="car_waiting_wheel">Αναμονή για το μονότροχο</string>

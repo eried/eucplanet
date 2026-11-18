@@ -247,7 +247,7 @@
     <string name="metric_chip_battery_temp">Température de la batterie</string>
     <string name="metric_chip_tire_pressure">Pression du pneu</string>
     <string name="metric_chip_tire_pressure_tile">Pneu</string>
-    <string name="metric_desc_tire_pressure">Pression du pneu fournie par votre propre capteur ou relayée par la roue. Affichée dans l\'unité de pression choisie.</string>
+    <string name="metric_desc_tire_pressure">Pression du pneu fournie par votre propre capteur ou relayée par la roue.</string>
     <string name="studio_metric_tire_pressure">Pression du pneu</string>
     <string name="metric_chip_headroom">Marge</string>
     <string name="metric_chip_trip_time">Temps trajet</string>
@@ -556,7 +556,7 @@
     <string name="watch_update_rate">Fréquence de mise à jour</string>
     <string name="watch_update_rate_desc">Des mises à jour plus lentes économisent la batterie de la montre. Ce réglage est distinct de la cadence d\'interrogation de la roue, dans la section Avancé.</string>
     <string name="watch_map_enabled">Carte sur la montre</string>
-    <string name="watch_map_enabled_desc">Affiche la position et l\'itinéraire du téléphone. Une notification reste active pour le fonctionnement en arrière-plan.</string>
+    <string name="watch_map_enabled_desc">Affiche la position et l\'itinéraire du téléphone.</string>
     <string name="watch_map_orientation">Orientation de la carte</string>
     <string name="watch_map_north_up">Nord en haut</string>
     <string name="watch_map_heading_up">Cap en haut</string>
@@ -616,7 +616,7 @@
     <string name="section_cloud_settings">Sauvegarde des paramètres</string>
     <string name="cloud_backup_now">Sauvegarder</string>
     <string name="cloud_restore">Restaurer</string>
-    <string name="cloud_settings_backup_desc">Tout ce que vous avez configuré dans l\'application, enregistré dans eucplanet_settings.json dans votre dossier de sauvegarde. Maintenez le bouton pour enregistrer une copie nommée à côté. Les trajets sont sauvegardés à part.</string>
+    <string name="cloud_settings_backup_desc">Tout ce que vous avez configuré dans l\'application, enregistré dans eucplanet_settings.json dans votre dossier de sauvegarde. Maintenez le bouton pour enregistrer une copie nommée à côté.</string>
     <string name="cloud_last_backup">Dernière sauvegarde : %1$s</string>
 <string name="cloud_last_backup_named">Dernière sauvegarde : %1$s sous « %2$s »</string>
     <string name="cloud_last_backup_never">Aucune sauvegarde</string>
@@ -905,7 +905,7 @@
     <string name="flic_start_scan">Lancer la recherche</string>
     <string name="flic_forget">Oublier</string>
     <string name="flic_forget_title">Oublier ce bouton ?</string>
-    <string name="flic_forget_body">%1$s sera dissocié et ses actions effacées. Vous pourrez l\'associer à nouveau à tout moment.</string>
+    <string name="flic_forget_body">%1$s sera dissocié.</string>
     <string name="flic_rename">Renommer</string>
     <string name="flic_click">Clic</string>
     <string name="flic_double_click">Double clic</string>
@@ -955,7 +955,7 @@
     <string name="volume_keys_enable">Activer les actions des touches de volume</string>
     <string name="volume_keys_screen_off">Aussi écran éteint</string>
     <string name="volume_keys_screen_off_caption">Fonctionne téléphone verrouillé ou avec une autre application au premier plan. Les touches ne changent plus le volume du téléphone.</string>
-    <string name="volume_keys_screen_off_warn">Android n\'envoie les appuis de volume qu\'à l\'application à l\'écran. Pour les recevoir écran éteint, EUC Planet se déclare comme lecteur multimédia actif du téléphone, et Android lui envoie les touches de volume au lieu de changer le volume.\n\nTant que c\'est activé, les touches ne changent plus le volume du téléphone.</string>
+    <string name="volume_keys_screen_off_warn">Android n\'envoie les appuis de volume qu\'à l\'application à l\'écran. Pour les recevoir écran éteint, EUC Planet se déclare comme lecteur multimédia actif du téléphone, et Android lui envoie les touches de volume au lieu de changer le volume.</string>
     <string name="volume_keys_screen_off_confirm">Activer</string>
     <string name="volume_keys_screen_off_title">Prendre le contrôle des touches de volume ?</string>
     <string name="volume_up">Volume haut</string>
@@ -981,7 +981,7 @@
         <item quantity="other">%1$d véhicules suivis :</item>
     </plurals>
     <string name="radar_show_overlay">Afficher la bande radar</string>
-    <string name="radar_show_overlay_desc">Fine bande radar sur les bords du tableau de bord. Un point coloré par véhicule détecté. Visible uniquement sur le tableau de bord.</string>
+    <string name="radar_show_overlay_desc">Fine bande radar sur les bords du tableau de bord.</string>
     <string name="radar_overlay_left">Bord gauche</string>
     <string name="radar_overlay_both">Les deux côtés</string>
     <string name="radar_overlay_right">Bord droit</string>
@@ -1944,7 +1944,7 @@
     <string name="weather_hot">Trop chaud au-dessus de</string>
     <string name="weather_breezy">Brise au-dessus de</string>
     <string name="weather_windy">Trop de vent au-dessus de</string>
-    <string name="weather_source_credit">La prévision vient de la source choisie et n\'est récupérée que si cette option est activée. Une fenêtre plus courte peut avoir un pas plus fin, si la source le propose.</string>
+    <string name="weather_source_credit">La prévision vient de la source choisie. Une fenêtre plus courte peut avoir un pas plus fin, si la source le propose.</string>
     <string name="weather_title_1">Un temps à rouler ?</string>
     <string name="weather_title_2">L\'heure de l\'EUC ?</string>
     <string name="weather_title_3">C\'est l\'heure de rouler ?</string>
@@ -2042,7 +2042,7 @@
     <string name="warnings_location_services_title">La localisation est coupée</string>
 
     <string name="hud_joystick_title">Actions des touches</string>
-    <string name="hud_joystick_desc">Appuyez deux fois sur une touche du HUD pour lancer une action. Un appui simple change toujours d\'écran.</string>
+    <string name="hud_joystick_desc">Appuyez deux fois sur une touche du HUD pour lancer une action.</string>
     <string name="hud_joystick_up">Haut (double appui)</string>
     <string name="hud_joystick_down">Bas (double appui)</string>
     <string name="hud_joystick_left">Gauche (double appui)</string>
@@ -2197,7 +2197,7 @@
     <string name="adv_garmin_report_interval">Cadence de rapport Garmin</string>
     <string name="adv_garmin_report_interval_desc">Détermine la fréquence de mise à jour d\'un Garmin associé. Le lien Connect IQ limite la cadence réelle : des valeurs très basses peuvent ne pas s\'appliquer entièrement.</string>
     <string name="adv_graph_sample_interval">Intervalle d\'échantillonnage du graphique</string>
-    <string name="adv_graph_sample_interval_desc">Détermine uniquement le détail des graphiques du tableau de bord. N\'affecte pas les alarmes ni les fichiers de trajet. Attention : des valeurs très basses utilisent plus de mémoire.</string>
+    <string name="adv_graph_sample_interval_desc">N\'affecte pas les alarmes ni les fichiers de trajet. Attention : des valeurs très basses utilisent plus de mémoire.</string>
     <string name="adv_group_alarm">Alarmes prédictives</string>
     <string name="adv_group_autolights">Phare automatique</string>
     <string name="adv_group_charging">Estimation de charge</string>
@@ -2300,7 +2300,7 @@
     <string name="adv_radar_static">Seuil statique</string>
     <string name="adv_radar_static_desc">Détermine la vitesse d\'approche minimale avant qu\'une voiture soit comptée en mouvement. Attention : trop élevé ignore les approches lentes.</string>
     <string name="adv_radar_warning">Ces réglages modifient la façon dont le radar classe les menaces. De mauvaises valeurs peuvent masquer une vraie voiture ou en signaler une inoffensive.</string>
-    <string name="adv_rates_warning">Ces réglages modifient le minutage dans toute l\'application. Des valeurs plus basses donnent des données plus fraîches et des réactions plus rapides, mais consomment plus de batterie, de CPU ou de données. Les valeurs par défaut conviennent à la plupart des riders. Ne les modifiez que si vous en comprenez l\'effet.</string>
+    <string name="adv_rates_warning">Ces réglages modifient le minutage dans toute l\'application. Ne les modifiez que si vous en comprenez l\'effet.</string>
     <string name="adv_reset_all">Tout rétablir par défaut</string>
     <string name="adv_reset_confirm_msg">Ces paramètres reviendront à leurs valeurs par défaut :</string>
     <string name="adv_restore_default">Rétablir par défaut</string>
@@ -2329,7 +2329,7 @@
     <string name="alarm_summary_adaptive_pitch_vol">hauteur et vol</string>
     <string name="alarm_summary_adaptive_vol">vol</string>
     <string name="reorg_drag_cd">Faire glisser pour réorganiser</string>
-    <string name="reorg_hint">Réorganisez l\'écran des paramètres et masquez les sections rarement utilisées. Les sections masquées passent dans la section « Plus ».</string>
+    <string name="reorg_hint">Réorganisez l\'écran des paramètres et masquez les sections rarement utilisées.</string>
     <string name="studio_cd_close">Fermer le studio</string>
     <string name="studio_cd_gallery">Ouvrir la galerie</string>
     <string name="studio_cd_mic">Micro</string>
@@ -2379,9 +2379,9 @@
     <string name="geo_section_trip">Trajet</string>
     <string name="geo_section_other">Autres écrans</string>
     <string name="geo_section_settings">Paramètres</string>
-    <string name="geo_other_hint">Moniteur de batterie, historique des mesures, recherche et Flic. L\'Overlay Studio n\'est pas concerné : sa mise en page est fixe, mais il fonctionne bien dans n\'importe quelle orientation.</string>
-    <string name="geo_settings_hint">L\'écran des paramètres. Désactivé par défaut : Paramètres reste en portrait sauf si vous l\'activez.</string>
-    <string name="geo_trip_hint">La vue des détails pivote par défaut pour la carte et les graphiques en paysage. La liste des trajets reste en portrait sauf si vous l\'activez.</string>
+    <string name="geo_other_hint">Moniteur de batterie, historique des mesures, recherche et Flic.</string>
+    <string name="geo_settings_hint">L\'écran des paramètres.</string>
+    <string name="geo_trip_hint">La vue des détails pivote par défaut pour la carte et les graphiques en paysage.</string>
     <string name="setting_allow_rotation">Autoriser la rotation</string>
     <string name="setting_rotate_trip_detail">Pivoter les détails du trajet</string>
     <string name="setting_rotate_trip_list">Pivoter la liste des trajets</string>
@@ -2449,7 +2449,7 @@
     <string name="alarm_fx_crush">Bitcrush</string>
     <string name="section_accel_splits">Chronos de vitesse</string>
     <string name="accel_splits_enabled">Annoncer les temps</string>
-    <string name="accel_splits_desc">Annonce le temps pour franchir chaque palier de vitesse, en accélérant ou en freinant. Commence à la vitesse ci-dessous, par paliers que vous définissez.</string>
+    <string name="accel_splits_desc">Annonce le temps pour franchir chaque palier de vitesse, en accélérant ou en freinant.</string>
     <string name="accel_split_decel_prefix">freinage, </string>
     <string name="accel_splits_from">De</string>
     <string name="accel_splits_step">Palier</string>
@@ -2594,7 +2594,7 @@
     <string name="dropbox_syncing">Synchronisation des trajets…</string>
     <string name="dropbox_folder_desc">Les trajets et les paramètres sont enregistrés dans votre Dropbox, sous %1$s. Seule cette application peut voir ce dossier.</string>
     <string name="keep_app_alive">Garder l\'application active</string>
-    <string name="keep_app_alive_desc">Affiche une notification permanente pour que l\'application reste active en arrière-plan. La synchronisation des trajets et la voix continuent de fonctionner même sans roue connectée. Consomme un peu plus de batterie.</string>
+    <string name="keep_app_alive_desc">Affiche une notification permanente pour que l\'application reste active en arrière-plan. Consomme un peu plus de batterie.</string>
     <string name="sync_up_to_date">Déjà à jour</string>
     <string name="studio_source_transparent">Transparent</string>
     <string name="studio_source_video">Vidéo</string>
@@ -2696,7 +2696,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">Rouler ?</string>
     <string name="widget_weather_score_desc">La météo pour rouler, maintenant.</string>
-    <string name="widget_weather_compact_desc">À quel point la météo est bonne pour rouler, maintenant et dans les heures à venir. Agrandissez le widget pour les heures, la température et le vent.</string>
+    <string name="widget_weather_compact_desc">À quel point la météo est bonne pour rouler, maintenant et dans les heures à venir.</string>
     <string name="widget_weather_graph_desc">À quel point la météo est bonne pour rouler, sur la période prévue</string>
     <string name="widget_weather_refresh_desc">Actualiser les prévisions</string>
     <string name="widget_weather_never">Pas encore de prévisions. Ouvrez l\'application une fois ou appuyez sur Actualiser.</string>
@@ -2830,7 +2830,7 @@
         <item quantity="other">%d arrêts</item>
     </plurals>
     <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Vos stats et les boutons de la roue sur un écran Android Auto. Connexion automatique, sans réglage Wi-Fi.</string>
+    <string name="android_auto_hint">Vos stats et les boutons de la roue sur un écran Android Auto.</string>
     <string name="car_waiting">En attente de la roue</string>
     <string name="car_last_battery">Dernière batterie : %1$d %%</string>
     <string name="car_navigate">Naviguer</string>

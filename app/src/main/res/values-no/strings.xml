@@ -117,7 +117,7 @@
     <string name="section_cloud_settings">Sikkerhetskopi av innstillinger</string>
     <string name="cloud_backup_now">Sikkerhetskopier</string>
     <string name="cloud_restore">Gjenopprett</string>
-    <string name="cloud_settings_backup_desc">Alt du har satt opp i appen, lagret i eucplanet_settings.json i sikkerhetskopimappen din. Hold knappen inne for å lagre en navngitt kopi. Turer sikkerhetskopieres separat.</string>
+    <string name="cloud_settings_backup_desc">Alt du har satt opp i appen, lagret i eucplanet_settings.json i sikkerhetskopimappen din. Hold knappen inne for å lagre en navngitt kopi.</string>
     <string name="cloud_last_backup">Siste sikkerhetskopi: %1$s</string>
 <string name="cloud_last_backup_named">Siste sikkerhetskopi: %1$s som «%2$s»</string>
     <string name="cloud_last_backup_never">Ikke sikkerhetskopiert ennå</string>
@@ -309,7 +309,7 @@
     <string name="volume_keys_enable">Slå på volumtast-handlinger</string>
     <string name="volume_keys_screen_off">Også med skjermen av</string>
     <string name="volume_keys_screen_off_caption">Virker med låst telefon eller en annen app foran. Knappene endrer ikke lenger telefonvolumet.</string>
-    <string name="volume_keys_screen_off_warn">Android sender bare volumtrykk til appen på skjermen. For å få dem med skjermen av melder EUC Planet seg som telefonens aktive mediespiller, så Android sender volumknappene dit i stedet for å endre volumet.\n\nMens dette er på, endrer ikke knappene telefonvolumet.</string>
+    <string name="volume_keys_screen_off_warn">Android sender bare volumtrykk til appen på skjermen. For å få dem med skjermen av melder EUC Planet seg som telefonens aktive mediespiller, så Android sender volumknappene dit i stedet for å endre volumet.</string>
     <string name="volume_keys_screen_off_confirm">Slå på</string>
     <string name="volume_keys_screen_off_title">La appen ta over volumknappene?</string>
     <string name="volume_up">Volum opp</string>
@@ -612,7 +612,7 @@
     <string name="experimental_dialog_report">Rapporter et problem</string>
     <string name="experimental_dialog_title">Bidra til å forbedre EUC Planet</string>
     <string name="flic_button">Flic-knapp</string>
-    <string name="flic_forget_body">Paringen med %1$s fjernes, og handlingene tømmes. Du kan pare den igjen når som helst.</string>
+    <string name="flic_forget_body">Paringen med %1$s fjernes.</string>
     <string name="flic_forget_title">Glemme denne knappen?</string>
     <string name="menu_auto_lights">Innstillinger for autolys</string>
     <string name="menu_start_recording">Start opptak</string>
@@ -651,7 +651,7 @@
     <string name="watch_update_rate">Oppdateringsfrekvens</string>
     <string name="watch_update_rate_desc">Sjeldnere oppdateringer sparer batteri på klokken. Dette er uavhengig av avlesningsfrekvensen for hjulet under Avansert.</string>
     <string name="watch_map_enabled">Kart på klokken</string>
-    <string name="watch_map_enabled_desc">Viser posisjon og rute fra telefonen. Et varsel blir stående for drift i bakgrunnen.</string>
+    <string name="watch_map_enabled_desc">Viser posisjon og rute fra telefonen.</string>
     <string name="watch_map_orientation">Kartretning</string>
     <string name="watch_map_north_up">Nord opp</string>
     <string name="watch_map_heading_up">Kjøreretning opp</string>
@@ -939,7 +939,7 @@
     <string name="weather_hot">For varmt over</string>
     <string name="weather_breezy">Vind over</string>
     <string name="weather_windy">For mye vind over</string>
-    <string name="weather_source_credit">Varselet kommer fra den valgte kilden og hentes bare mens dette er på. Et kortere vindu kan komme i finere steg, hvis kilden tilbyr dem.</string>
+    <string name="weather_source_credit">Varselet kommer fra den valgte kilden. Et kortere vindu kan komme i finere steg, hvis kilden tilbyr dem.</string>
     <string name="weather_title_1">Hjulvær?</string>
     <string name="weather_title_2">EUC-tid?</string>
     <string name="weather_title_3">Tid for en tur?</string>
@@ -1552,7 +1552,7 @@
     <string name="metric_chip_battery_temp">Batteritemperatur</string>
     <string name="metric_chip_tire_pressure">Dekktrykk</string>
     <string name="metric_chip_tire_pressure_tile">Dekk</string>
-    <string name="metric_desc_tire_pressure">Dekktrykk fra din egen sensor eller en hjulet videresender. I trykkenheten du valgte.</string>
+    <string name="metric_desc_tire_pressure">Dekktrykk fra din egen sensor eller en hjulet videresender.</string>
     <string name="studio_metric_tire_pressure">Dekktrykk</string>
     <string name="metric_chip_bt_rssi">BT-signal</string>
     <string name="metric_chip_controller_temp">Kontrollertemperatur</string>
@@ -1738,7 +1738,7 @@
         <item quantity="other">Sporer %1$d kjøretøy:</item>
     </plurals>
     <string name="radar_show_overlay">Vis trusseloverlegg</string>
-    <string name="radar_show_overlay_desc">Tynn radarstripe i dashbordkantene. Ett farget punkt per oppdaget kjøretøy. Vises kun på dashbordet.</string>
+    <string name="radar_show_overlay_desc">Tynn radarstripe i dashbordkantene.</string>
     <string name="radar_overlay_left">Venstre kant</string>
     <string name="radar_overlay_both">Begge sider</string>
     <string name="radar_overlay_right">Høyre kant</string>
@@ -1922,7 +1922,7 @@
     <string name="online_upload_sync_progress">Laster opp %1$d av %2$d</string>
     <string name="online_upload_register_server_error">Registrering mislyktes. Serveren svarte: %1$s (%2$d)</string>
     <string name="hud_joystick_title">Knappehandlinger</string>
-    <string name="hud_joystick_desc">Trykk to ganger på en HUD-knapp for å kjøre en handling. Ett enkelt trykk bytter fortsatt skjerm.</string>
+    <string name="hud_joystick_desc">Trykk to ganger på en HUD-knapp for å kjøre en handling.</string>
     <string name="hud_joystick_up">Opp (dobbelttrykk)</string>
     <string name="hud_joystick_down">Ned (dobbelttrykk)</string>
     <string name="hud_joystick_left">Venstre (dobbelttrykk)</string>
@@ -2077,7 +2077,7 @@
     <string name="adv_garmin_report_interval">Garmin-rapportfrekvens</string>
     <string name="adv_garmin_report_interval_desc">Bestemmer hvor ofte en paret Garmin oppdateres. Connect IQ-koblingen begrenser den faktiske frekvensen, så svært lave verdier gjelder kanskje ikke fullt ut.</string>
     <string name="adv_graph_sample_interval">Målingsintervall for graf</string>
-    <string name="adv_graph_sample_interval_desc">Gjelder bare detaljnivået i dashbordgrafene. Påvirker ikke alarmer eller turfiler. Obs: svært lave verdier bruker mer minne.</string>
+    <string name="adv_graph_sample_interval_desc">Påvirker ikke alarmer eller turfiler. Obs: svært lave verdier bruker mer minne.</string>
     <string name="adv_group_alarm">Forutseende alarmer</string>
     <string name="adv_group_autolights">Autolys</string>
     <string name="adv_group_charging">Lade-ETA</string>
@@ -2180,7 +2180,7 @@
     <string name="adv_radar_static">Statisk terskel</string>
     <string name="adv_radar_static_desc">Bestemmer minste tilnærmingsfart før en bil regnes som i bevegelse. Obs: for høyt overser biler som nærmer seg sakte.</string>
     <string name="adv_radar_warning">Disse endrer hvordan radaren merker trusler. Feil verdier kan skjule en ekte bil eller flagge en harmløs.</string>
-    <string name="adv_rates_warning">Disse kontrollene endrer tidsstyringen i hele appen. Lavere verdier gir ferskere data og raskere reaksjoner, men bruker mer batteri, CPU eller data. Standardverdiene passer de fleste kjørere. Endre dem bare hvis du forstår virkningen.</string>
+    <string name="adv_rates_warning">Disse kontrollene endrer tidsstyringen i hele appen. Endre dem bare hvis du forstår virkningen.</string>
     <string name="adv_reset_all">Tilbakestill alt til standard</string>
     <string name="adv_reset_confirm_msg">Disse innstillingene tilbakestilles til standard:</string>
     <string name="adv_restore_default">Gjenopprett standard</string>
@@ -2209,7 +2209,7 @@
     <string name="alarm_summary_adaptive_pitch_vol">tonehøyde og vol</string>
     <string name="alarm_summary_adaptive_vol">vol</string>
     <string name="reorg_drag_cd">Dra for å endre rekkefølge</string>
-    <string name="reorg_hint">Organiser innstillingsskjermen og skjul seksjoner du sjelden bruker. Skjulte seksjoner flyttes til seksjonen «Mer».</string>
+    <string name="reorg_hint">Organiser innstillingsskjermen og skjul seksjoner du sjelden bruker.</string>
     <string name="studio_cd_close">Lukk studio</string>
     <string name="studio_cd_gallery">Åpne galleri</string>
     <string name="studio_cd_mic">Mikrofon</string>
@@ -2259,9 +2259,9 @@
     <string name="geo_section_trip">Tur</string>
     <string name="geo_section_other">Andre skjermer</string>
     <string name="geo_section_settings">Innstillinger</string>
-    <string name="geo_other_hint">Batteriovervåker, målehistorikk, søk og Flic. Overlay Studio påvirkes ikke: oppsettet er fast, men det fungerer fint i alle retninger.</string>
-    <string name="geo_settings_hint">Innstillingsskjermen. Av som standard, så Innstillinger forblir stående med mindre du slår det på.</string>
-    <string name="geo_trip_hint">Detaljvisningen roterer som standard for kartet og grafene i liggende retning. Turlisten forblir stående med mindre du slår det på.</string>
+    <string name="geo_other_hint">Batteriovervåker, målehistorikk, søk og Flic.</string>
+    <string name="geo_settings_hint">Innstillingsskjermen.</string>
+    <string name="geo_trip_hint">Detaljvisningen roterer som standard for kartet og grafene i liggende retning.</string>
     <string name="setting_allow_rotation">Tillat rotasjon</string>
     <string name="setting_rotate_trip_detail">Roter turdetaljer</string>
     <string name="setting_rotate_trip_list">Roter turliste</string>
@@ -2331,7 +2331,7 @@
     <!-- Speed splits (spoken accel/brake step timing) -->
     <string name="section_accel_splits">Fartsmellomtider</string>
     <string name="accel_splits_enabled">Les opp tider</string>
-    <string name="accel_splits_desc">Leser opp tiden det tar å krysse hvert fartstrinn, ved akselerasjon eller nedbremsing. Starter fra farten under, i trinn du angir.</string>
+    <string name="accel_splits_desc">Leser opp tiden det tar å krysse hvert fartstrinn, ved akselerasjon eller nedbremsing.</string>
     <string name="accel_split_decel_prefix">bremser, </string>
     <string name="accel_splits_from">Fra</string>
     <string name="accel_splits_step">Trinn</string>
@@ -2476,7 +2476,7 @@
     <string name="dropbox_syncing">Synkroniserer turer…</string>
     <string name="dropbox_folder_desc">Turer og innstillinger lagres i Dropbox-en din, under %1$s. Bare denne appen kan se den mappen.</string>
     <string name="keep_app_alive">Hold appen i gang</string>
-    <string name="keep_app_alive_desc">Viser et vedvarende varsel så appen holdes aktiv i bakgrunnen. Synkronisering av turer og tale fungerer selv uten et tilkoblet hjul. Bruker litt mer batteri.</string>
+    <string name="keep_app_alive_desc">Viser et vedvarende varsel så appen holdes aktiv i bakgrunnen. Bruker litt mer batteri.</string>
     <string name="sync_up_to_date">Allerede oppdatert</string>
     <string name="studio_source_transparent">Gjennomsiktig</string>
     <string name="studio_source_video">Video</string>
@@ -2577,7 +2577,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">Kjøre?</string>
     <string name="widget_weather_score_desc">Kjøreværet, akkurat nå.</string>
-    <string name="widget_weather_compact_desc">Hvor bra været er å kjøre i, nå og i timene framover. Gjør større for timer, temperatur og vind.</string>
+    <string name="widget_weather_compact_desc">Hvor bra været er å kjøre i, nå og i timene framover.</string>
     <string name="widget_weather_graph_desc">Hvor bra været er å kjøre i, over varselperioden</string>
     <string name="widget_weather_refresh_desc">Oppdater varselet</string>
     <string name="widget_weather_never">Ingen varsel ennå. Åpne appen én gang, eller trykk oppdater.</string>
@@ -2710,7 +2710,7 @@
         <item quantity="other">%d stopp</item>
     </plurals>
     <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Statistikk og hjulknapper på en Android Auto-skjerm. Kobler til av seg selv, uten Wi-Fi-oppsett.</string>
+    <string name="android_auto_hint">Statistikk og hjulknapper på en Android Auto-skjerm.</string>
     <string name="car_waiting">Venter på hjulet</string>
     <string name="car_last_battery">Siste batteri %1$d%%</string>
     <string name="car_navigate">Naviger</string>
