@@ -929,6 +929,9 @@ class SettingsViewModel(
     // HUD companion
     fun updateHudServerEnabled(v: Boolean) = update { copy(hudServerEnabled = v) }
     fun updateEngoHudEnabled(v: Boolean) = update { copy(engoHud = engoHud.copy(enabled = v)) }
+    fun updateEngoMetricLeft(key: String) = update { copy(engoHud = engoHud.copy(metricLeft = key)) }
+    fun updateEngoMetricRight(key: String) = update { copy(engoHud = engoHud.copy(metricRight = key)) }
+    fun updateEngoNavTakeover(v: Boolean) = update { copy(engoHud = engoHud.copy(navTakeover = v)) }
 
     fun updateNotificationActionsEnabled(v: Boolean) =
         update { copy(notificationActionsEnabled = v) }

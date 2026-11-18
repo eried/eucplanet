@@ -2814,6 +2814,9 @@
     <string name="voice_pill_search">Søg</string>
     <string name="voice_volume">Lydstyrke</string>
     <string name="engo_hud_enabled">ENGO-brille-HUD</string>
+    <string name="engo_desc">Via Bluetooth, til ENGO 2 og ENGO 3. Brillerne har deres egne sider; Motoeye-skærmene nedenfor gælder ikke.</string>
+    <string name="engo_pages_title">Brillernes sider</string>
+    <string name="engo_nav_takeover">Vis sving under navigation</string>
     <string name="beep_volume_by_speed">Bip-lydstyrke efter fart</string>
     <string name="beep_volume_stopped">Stillestående</string>
     <string name="beep_volume_riding">Under kørsel</string>

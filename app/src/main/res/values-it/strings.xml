@@ -2705,6 +2705,9 @@
     <string name="voice_pill_search">Cerca</string>
     <string name="voice_volume">Volume</string>
     <string name="engo_hud_enabled">HUD degli occhiali ENGO</string>
+    <string name="engo_desc">Via Bluetooth, per ENGO 2 ed ENGO 3. Gli occhiali hanno pagine proprie; le schermate Motoeye qui sotto non valgono.</string>
+    <string name="engo_pages_title">Pagine degli occhiali</string>
+    <string name="engo_nav_takeover">Mostra le svolte in navigazione</string>
     <string name="beep_volume_by_speed">Volume del bip in base alla velocità</string>
     <string name="beep_volume_stopped">Fermo</string>
     <string name="beep_volume_riding">In marcia</string>

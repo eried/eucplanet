@@ -4,7 +4,7 @@ package com.eried.eucplanet.service.hud.engo
  * Pure layout for the ENGO HUD: turns an [EngoSnapshot] into the batched list of
  * ActiveLook command frames for one screen. No Android, no state - unit-tested.
  *
- * Two screens: a telemetry page (speed + PWM bar + battery + temp) and a nav
+ * Two screens: a telemetry page (speed + PWM bar + the rider's two corners) and a nav
  * takeover (turn arrow + distance + street) chosen by [EngoSnapshot.navActive].
  * The whole screen is wrapped in holdFlush HOLD...FLUSH so it presents at once.
  *
@@ -70,11 +70,15 @@ object EngoLayout {
         out += text(BAR_X0, BAR_Y1 + 8, caps.labelFont, GREY_DIM, RG_WHITE,
             "PWM " + (if (s.connected) "${s.pwmPct}%" else "--"), caps)
 
-        // Secondary row: battery + temp.
-        out += text(PAD, ROW2_Y, caps.labelFont, GREY_BRIGHT, RG_WHITE,
-            "BATT " + (if (s.connected) "${s.batteryPct}%" else "--"), caps)
-        out += text(BAR_X0, ROW2_Y, caps.labelFont, GREY_BRIGHT, RG_WHITE,
-            "TEMP " + (if (s.connected) "${s.temp}${s.tempUnit}" else "--"), caps)
+        // Secondary row: the two corners the rider picked; an empty one draws nothing.
+        if (s.left.tag.isNotBlank()) {
+            out += text(PAD, ROW2_Y, caps.labelFont, GREY_BRIGHT, RG_WHITE,
+                s.left.tag + " " + (if (s.connected) s.left.value else "--"), caps)
+        }
+        if (s.right.tag.isNotBlank()) {
+            out += text(BAR_X0, ROW2_Y, caps.labelFont, GREY_BRIGHT, RG_WHITE,
+                s.right.tag + " " + (if (s.connected) s.right.value else "--"), caps)
+        }
     }
 
     private fun renderNav(s: EngoSnapshot, caps: EngoCaps, out: MutableList<ByteArray>) {

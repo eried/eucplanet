@@ -1297,6 +1297,12 @@ data class ProximityLockSettings(
 data class EngoHudSettings(
     val enabled: Boolean = false,
     val autoConnect: Boolean = true,
+    /** The number in the ride page's bottom left corner, an EngoMetrics key. */
+    val metricLeft: String = "BATTERY",
+    /** The number in the ride page's bottom right corner. */
+    val metricRight: String = "TEMPERATURE",
+    /** Whether the next turn takes the screen while a route is guided. */
+    val navTakeover: Boolean = true,
 )
 
 /**

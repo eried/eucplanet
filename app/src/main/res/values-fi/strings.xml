@@ -2603,6 +2603,9 @@
     <string name="voice_pill_search">Hae</string>
     <string name="voice_volume">Äänenvoimakkuus</string>
     <string name="engo_hud_enabled">ENGO-lasien HUD</string>
+    <string name="engo_desc">Bluetoothilla, ENGO 2:lle ja ENGO 3:lle. Laseilla on omat sivunsa; alla olevat Motoeye-näytöt eivät koske niitä.</string>
+    <string name="engo_pages_title">Lasien sivut</string>
+    <string name="engo_nav_takeover">Näytä käännökset navigoidessa</string>
     <string name="beep_volume_by_speed">Piippauksen voimakkuus nopeuden mukaan</string>
     <string name="beep_volume_stopped">Paikallaan</string>
     <string name="beep_volume_riding">Ajossa</string>

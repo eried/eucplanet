@@ -12,10 +12,9 @@ object EngoDemoSource {
         connected = true,
         speed = 28,
         speedUnit = "km/h",
-        batteryPct = 78,
         pwmPct = 61,
-        temp = 38,
-        tempUnit = "C",
+        left = EngoCell("BATT", "78%"),
+        right = EngoCell("TEMP", "38C"),
     )
 
     /** A representative nav takeover (left turn in 120 m). */
@@ -23,10 +22,9 @@ object EngoDemoSource {
         connected = true,
         speed = 24,
         speedUnit = "km/h",
-        batteryPct = 74,
         pwmPct = 40,
-        temp = 37,
-        tempUnit = "C",
+        left = EngoCell("BATT", "74%"),
+        right = EngoCell("TEMP", "37C"),
         navActive = true,
         navDistanceText = "120 m",
         navManeuver = EngoManeuver.LEFT,

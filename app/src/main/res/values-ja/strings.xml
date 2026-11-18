@@ -2798,6 +2798,9 @@
     <string name="voice_pill_search">検索</string>
     <string name="voice_volume">音量</string>
     <string name="engo_hud_enabled">ENGO グラス HUD</string>
+    <string name="engo_desc">Bluetooth接続、ENGO 2とENGO 3用。グラスには専用のページがあり、下のMotoeyeの画面は適用されません。</string>
+    <string name="engo_pages_title">グラスのページ</string>
+    <string name="engo_nav_takeover">ナビ中に曲がり角を表示</string>
     <string name="beep_volume_by_speed">速度でビープ音量を変える</string>
     <string name="beep_volume_stopped">停止中</string>
     <string name="beep_volume_riding">走行中</string>

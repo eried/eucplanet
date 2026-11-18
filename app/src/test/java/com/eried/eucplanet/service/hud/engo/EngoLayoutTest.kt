@@ -23,9 +23,11 @@ class EngoLayoutTest {
         distText: String = "",
         man: EngoManeuver = EngoManeuver.STRAIGHT,
         street: String = "",
+        left: EngoCell = EngoCell("BATT", "78%"),
+        right: EngoCell = EngoCell("TEMP", "38C"),
     ) = EngoSnapshot(
         connected = connected, speed = speed, speedUnit = "km/h",
-        batteryPct = 78, pwmPct = pwm, temp = 38, tempUnit = "C",
+        pwmPct = pwm, left = left, right = right,
         navActive = navActive, navDistanceText = distText, navManeuver = man, navStreet = street,
     )
 
@@ -53,6 +55,16 @@ class EngoLayoutTest {
         assertTrue("bar fill (rectf) when pwm>0", 0x34 in ops(cmds))
         assertTrue("battery text", containsText(cmds, "BATT 78%"))
         assertTrue("temp text", containsText(cmds, "TEMP 38C"))
+    }
+
+    @Test
+    fun telemetryPage_showsTheCornersTheRiderPicked() {
+        val cmds = EngoLayout.render(
+            snap(left = EngoCell("VOLT", "83.5V"), right = EngoCell.EMPTY), engo2,
+        )
+        assertTrue("picked corner", containsText(cmds, "VOLT 83.5V"))
+        assertFalse("an empty corner draws nothing", containsText(cmds, "TEMP"))
+        assertFalse(containsText(cmds, "BATT"))
     }
 
     @Test

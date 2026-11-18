@@ -2797,6 +2797,9 @@
     <string name="voice_volume">볼륨</string>
     <string name="beep_volume_by_speed">속도별 비프음 볼륨</string>
     <string name="engo_hud_enabled">ENGO 안경 HUD</string>
+    <string name="engo_desc">블루투스 연결, ENGO 2 및 ENGO 3용. 안경에는 자체 페이지가 있으며 아래 Motoeye 화면은 적용되지 않습니다.</string>
+    <string name="engo_pages_title">안경 페이지</string>
+    <string name="engo_nav_takeover">내비게이션 중 회전 표시</string>
     <string name="beep_volume_stopped">정지</string>
     <string name="beep_volume_riding">주행</string>
     <string name="dropbox_checking">Dropbox 확인 중…</string>

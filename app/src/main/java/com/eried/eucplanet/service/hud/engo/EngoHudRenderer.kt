@@ -76,15 +76,27 @@ class EngoHudRenderer(
         val nav = navigationEngine.navState.value
         val speedUnit = Units.effectiveSpeedUnit(settings)
         val tempUnit = Units.effectiveTempUnit(settings)
+        val distUnit = Units.effectiveDistanceUnit(settings)
+        val engo = settings.engoHud
+        fun cell(key: String, fallback: String) = EngoMetrics.cell(
+            EngoMetrics.known(key, fallback),
+            batteryPct = d.batteryPercent,
+            temp = Units.temperature(d.maxTemperature, tempUnit).roundToInt(),
+            tempUnit = tempUnit, // "C" / "F" / "K" are already ASCII
+            voltage = d.voltage,
+            current = d.current,
+            trip = Units.distance(d.tripDistance, distUnit),
+            distanceUnit = Units.distanceUnit(distUnit),
+        )
         return EngoSnapshot(
             connected = wheelConnected,
             speed = Units.speed(d.speed, speedUnit).roundToInt(),
             speedUnit = asciiSpeedUnit(speedUnit),
-            batteryPct = d.batteryPercent,
             pwmPct = d.pwm.roundToInt().coerceIn(0, 100),
-            temp = Units.temperature(d.maxTemperature, tempUnit).roundToInt(),
-            tempUnit = tempUnit, // "C" / "F" / "K" are already ASCII
-            navActive = nav.active,
+            left = cell(engo.metricLeft, EngoMetrics.BATTERY),
+            right = cell(engo.metricRight, EngoMetrics.TEMPERATURE),
+            // With turns switched off the ride page stays through a route.
+            navActive = nav.active && engo.navTakeover,
             navDistanceText = nav.distanceText,
             navManeuver = mapArrow(nav.arrow),
             navStreet = nav.nextStreet,

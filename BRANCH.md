@@ -6,8 +6,9 @@ you can cut the ride short.
 
 ## Worked on
 
-- Settings: turn on ENGO glasses HUD; the glasses connect on their own.
-- Shows speed, battery and the key ride numbers; navigation takes the screen while a route is guided.
+- Settings, Integration, ENGO glasses HUD: turn on Enable data link; the glasses connect on their own over Bluetooth.
+- Shows speed and PWM, plus two numbers you pick under Glasses pages (battery, temperature, voltage, amps or trip).
+- The next turn takes the screen while a route is guided; Show turns while navigating switches that off.
 - Off by default, and it does not touch the Motoeye HUD.
 
 ## Please test
@@ -16,6 +17,7 @@ you can cut the ride short.
 - Do the glasses connect and stay connected all ride?
 - Are the numbers readable and up to date while riding?
 - With a route, does the next turn show, and the ride page return after?
+- Change the two numbers under Glasses pages: do the glasses follow within a second or two?
 
 ## Reporting back
 

@@ -410,6 +410,9 @@ object SettingsJson {
         put("engoHud", JSONObject().apply {
             put("enabled", s.engoHud.enabled)
             put("autoConnect", s.engoHud.autoConnect)
+            put("metricLeft", s.engoHud.metricLeft)
+            put("metricRight", s.engoHud.metricRight)
+            put("navTakeover", s.engoHud.navTakeover)
         })
         put("keepAppAlive", s.keepAppAlive)
         put("notificationActionsEnabled", s.notificationActionsEnabled)
@@ -899,6 +902,9 @@ object SettingsJson {
             base.engoHud.copy(
                 enabled = e.optBoolean("enabled", base.engoHud.enabled),
                 autoConnect = e.optBoolean("autoConnect", base.engoHud.autoConnect),
+                metricLeft = e.optString("metricLeft", base.engoHud.metricLeft),
+                metricRight = e.optString("metricRight", base.engoHud.metricRight),
+                navTakeover = e.optBoolean("navTakeover", base.engoHud.navTakeover),
             )
         } ?: base.engoHud,
         keepAppAlive = j.optBoolean("keepAppAlive", base.keepAppAlive),
