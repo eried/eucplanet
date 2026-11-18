@@ -37,11 +37,12 @@ object BrouterMapping {
     }
 
     /** The rider's avoids as profile switches. Tolls have no tag in the
-     *  routing data; motorways are never used by the wheel profile. */
+     *  routing data; motorways are never used by the wheel profile. BRouter
+     *  reads a switch as a number (1 on, 0 off): "true" failed the profile. */
     fun avoidParams(avoid: RouteAvoidances): Map<String, String> = buildMap {
-        if (avoid.highways) put("avoid_unsafe", "true")
-        if (avoid.ferries) put("allow_ferries", "false")
-        if (avoid.unpaved) put("avoid_unpaved", "true")
+        if (avoid.highways) put("avoid_unsafe", "1")
+        if (avoid.ferries) put("allow_ferries", "0")
+        if (avoid.unpaved) put("avoid_unpaved", "1")
     }
 
     /** BRouter's integer coordinates: microdegrees shifted to be positive. */

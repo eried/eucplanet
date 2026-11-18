@@ -46,7 +46,7 @@ class BrouterMappingTest {
     @Test fun avoids_becomeProfileSwitches() {
         assertEquals(emptyMap<String, String>(), BrouterMapping.avoidParams(RouteAvoidances.NONE))
         assertEquals(
-            mapOf("avoid_unsafe" to "true", "allow_ferries" to "false", "avoid_unpaved" to "true"),
+            mapOf("avoid_unsafe" to "1", "allow_ferries" to "0", "avoid_unpaved" to "1"),
             BrouterMapping.avoidParams(RouteAvoidances(highways = true, ferries = true, unpaved = true)),
         )
     }
