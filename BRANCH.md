@@ -9,6 +9,7 @@ ride, this is the branch.
 
 ## Worked on
 
+- Languages: English (UK) is new, with British spelling (tyre, colour, kilometres). The list now reads English (US), English (UK), Español (ES) and Español (LA), the same names as the trip viewer and the leaderboard.
 - Android Auto (MotoEye HUD): every firing alarm shows as a card on the HUD. Only the GPS alarms did; wheel and radar alarms never got there. No card on the phone when Android Auto is not connected, and no second chime.
 - Units: a fresh install in the UK, the Crown Dependencies or Myanmar starts on miles, Celsius and altitude in metres; US territories start imperial like the US. Riders who already have settings are not changed.
 - Units: Altitude is its own setting now (Settings, Display & appearance, Units, Custom): metres or feet, whatever your distance unit is. Until you pick one you keep what you had, feet with miles and metres with kilometres. Metric sets metres, Imperial sets feet.
@@ -169,6 +170,7 @@ ride, this is the branch.
 - Garmin and Amazfit: start the watch app with the phone app closed: no "Demo V14"? If you use mil, is the distance right?
 
 **Native speakers, any language**
+- UK, Irish, Australian, New Zealand, South African and Indian riders: on a fresh install, does the app start in English (UK)? Anything still spelled the American way?
 - Use the app in your language for a ride: anything that sounds stiff, wrong for riders, or does not fit its button? Say the screen and the better words. Many words changed in this build (speed, metric, overlay, scan, lock), so a second look is welcome.
 - Flip phone owners: Settings, Display & appearance, "Avoid cover screen cameras": is that what your phone calls the outer screen in your language?
 

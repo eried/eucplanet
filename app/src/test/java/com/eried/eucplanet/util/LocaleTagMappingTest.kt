@@ -12,6 +12,25 @@ class LocaleTagMappingTest {
         assertEquals("pt-BR", LocaleHelper.normalizeToSupportedTag("pt"))
     }
 
+    @Test fun `British and American English each get their own`() {
+        assertEquals("en-GB", LocaleHelper.normalizeToSupportedTag("en-GB"))
+        // The regions that spell it the British way.
+        for (region in listOf("IE", "AU", "NZ", "ZA", "IN")) {
+            assertEquals("en-$region", "en-GB", LocaleHelper.normalizeToSupportedTag("en-$region"))
+        }
+        assertEquals("en", LocaleHelper.normalizeToSupportedTag("en-US"))
+        assertEquals("en", LocaleHelper.normalizeToSupportedTag("en-CA"))
+        assertEquals("en", LocaleHelper.normalizeToSupportedTag("en"))
+    }
+
+    @Test fun `the picker names English and Spanish by region`() {
+        val names = LocaleHelper.SUPPORTED.associate { it.tag to it.nativeName }
+        assertEquals("English (US)", names["en"])
+        assertEquals("English (UK)", names["en-GB"])
+        assertEquals("Español (ES)", names["es"])
+        assertEquals("Español (LA)", names["es-419"])
+    }
+
     @Test fun `Indonesian comes back under its legacy code`() {
         // Android reports Indonesian as "in", the code its resources still use.
         assertEquals("id", LocaleHelper.normalizeToSupportedTag("in"))
