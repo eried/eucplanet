@@ -2714,7 +2714,7 @@
     <string name="lockdown_warning_no_wheel">未連線獨輪車，因此無法得知限速模式的狀態。下次開啟限速模式時，應用程式就會鎖定。</string>
     <string name="lockdown_continue">繼續</string>
     <string name="trip_tools_wheel_none">此行程尚未記錄獨輪車。</string>
-    <string name="backup_conflict_warning">此手機上的部分行程與備份資料夾中的副本不同。點按%1$s，然後在%2$s下點按「%3$s」，選擇保留哪一份。</string>
+    <string name="backup_conflict_warning">此手機上的部分行程與備份資料夾中的副本不同。輕觸%1$s，然後在%2$s下輕觸「%3$s」，選擇保留哪一份。</string>
     <string name="backup_conflict_title">備份衝突</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">騎嗎？</string>
@@ -2801,7 +2801,7 @@
     <string name="crews_title">車隊</string>
     <string name="crews_pass_action">車隊通行證</string>
     <string name="crews_pass_search_hint">加入線上排行榜後，就會顯示車隊通行證。</string>
-    <string name="crews_scan_hint">在瀏覽器中開啟 eucstats，點選 Crews，再將鏡頭對準畫面上的條碼。</string>
+    <string name="crews_scan_hint">在瀏覽器中開啟 eucstats，點選 Crews，再將鏡頭對準畫面上的代碼。</string>
     <string name="crews_scan_invalid">這不是車隊通行碼。</string>
     <string name="crews_scan_is_share">這是即時位置代碼，請從地圖上的「分享」掃描。</string>
     <string name="share_scan_is_crewpass">這是車隊通行碼，請從「設定」中的「車隊」掃描。</string>
