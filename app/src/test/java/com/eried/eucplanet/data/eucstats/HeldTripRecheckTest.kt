@@ -140,6 +140,45 @@ class HeldTripRecheckTest {
     }
 
     @Test
+    fun `a trip the server no longer has is asked about once and never again`() = runBlocking {
+        // One phone asked for a deleted trip every 15 minutes for two weeks: a
+        // 404 read as "could not reach the server", so the hold never ended.
+        tripDao.insert(held(1L, "uuid-gone"))
+        api.tripStatusResult = TripStatus.GONE
+
+        assertEquals(0, repo.refreshHeldTrips())       // nothing was accepted
+        assertEquals(TripStatus.GONE_VALIDATION, tripDao.trips[0].eucstatsValidation)
+        assertEquals(2, tripDao.trips[0].eucstatsStatus)   // not queued for upload again
+
+        repo.refreshHeldTrips()
+        repo.refreshHeldTrips(ALL_HELD_TRIPS)
+        assertEquals(listOf("uuid-gone"), api.tripStatusCalls)
+        assertTrue(tripDao.getPendingEucstatsUploads().isEmpty())
+    }
+
+    @Test
+    fun `a server that could not be read is asked again next time`() = runBlocking {
+        // Network error, timeout, 429 or 5xx: all arrive as null and stay held.
+        tripDao.insert(held(1L, "uuid-1"))
+        api.tripStatusResult = null
+
+        repo.refreshHeldTrips()
+        repo.refreshHeldTrips()
+        assertEquals(listOf("uuid-1", "uuid-1"), api.tripStatusCalls)
+        assertEquals("flagged", tripDao.trips[0].eucstatsValidation)
+    }
+
+    @Test
+    fun `a gone trip does not count as a cleared verdict`() = runBlocking {
+        tripDao.insert(held(1L, "uuid-gone"))
+        api.tripStatusResult = TripStatus.GONE
+
+        val result = repo.syncPendingNow { _, _ -> }
+        assertEquals(0, result.cleared)
+        assertEquals(TripStatus.GONE_VALIDATION, repo.refreshTripVerdict(tripDao.trips[0].copy(eucstatsValidation = "flagged")))
+    }
+
+    @Test
     fun `a trip with no uuid is never asked about`() = runBlocking {
         val noUuid = held(1L, "x").copy(tripUuid = null)
         tripDao.insert(noUuid)

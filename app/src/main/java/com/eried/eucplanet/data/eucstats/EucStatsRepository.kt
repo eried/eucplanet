@@ -286,6 +286,10 @@ class EucStatsRepository(
      * status, or null when the server couldn't be reached (so the caller can say "couldn't
      * check" rather than implying the trip is still held).
      *
+     * A trip the server no longer has ([TripStatus.GONE]) is stored as
+     * [TripStatus.GONE_VALIDATION]: it leaves the held set for good, so it is never asked
+     * about again, and it is not sent again either.
+     *
      * A trip held for review is not a failure and not something the rider can act on:
      * re-uploading returns the same verdict from the server's dedupe. Asking is the only
      * way the app can learn it cleared.
@@ -293,6 +297,12 @@ class EucStatsRepository(
     suspend fun refreshTripVerdict(trip: TripRecord): String? = withContext(Dispatchers.IO) {
         val uuid = trip.tripUuid ?: return@withContext null
         val status = api.getTripStatus(uuid) ?: return@withContext null
+        if (status.gone) {
+            if (trip.eucstatsValidation != TripStatus.GONE_VALIDATION) {
+                tripDao.update(trip.copy(eucstatsValidation = TripStatus.GONE_VALIDATION))
+            }
+            return@withContext TripStatus.GONE_VALIDATION
+        }
         val now = status.validationStatus ?: return@withContext null
         if (now != trip.eucstatsValidation) {
             tripDao.update(trip.copy(eucstatsValidation = now))
@@ -302,7 +312,8 @@ class EucStatsRepository(
     }
 
     /**
-     * Re-read held trips, newest first. Returns how many changed verdict.
+     * Re-read held trips, newest first. Returns how many changed verdict. A trip the
+     * server no longer has stops being held but is not counted: nothing was accepted.
      *
      * [limit] keeps a background sweep bounded: a rider whose trips are never reviewed
      * would otherwise re-ask about every one of them, every time. The explicit "Sync all"
@@ -313,7 +324,9 @@ class EucStatsRepository(
             var changed = 0
             for (trip in tripDao.getHeldEucstatsTrips(limit)) {
                 val now = runCatching { refreshTripVerdict(trip) }.getOrNull()
-                if (now != null && now != trip.eucstatsValidation) changed++
+                if (now != null && now != trip.eucstatsValidation &&
+                    now != TripStatus.GONE_VALIDATION
+                ) changed++
             }
             changed
         }
