@@ -6230,11 +6230,11 @@ private fun metricPlaceholderValue(
         else -> "0 Wh/km"
     }
     "PHONE_BATTERY", "EXTERNAL_GPS_BATTERY" -> "0%"
-    "GPS_ALTITUDE" -> "0 " + com.eried.eucplanet.hud.protocol.AltitudeUnit.suffix(com.eried.eucplanet.util.Units.effectiveDistanceUnit(s))
+    "GPS_ALTITUDE" -> "0 " + com.eried.eucplanet.util.Units.effectiveAltitudeUnit(s)
     "GPS_HEADING" -> "0°"
-    "GPS_ACCURACY" -> "0 " + com.eried.eucplanet.hud.protocol.AltitudeUnit.suffix(com.eried.eucplanet.util.Units.effectiveDistanceUnit(s))
+    "GPS_ACCURACY" -> "0 " + com.eried.eucplanet.util.Units.effectiveAltitudeUnit(s)
     "SLOPE" -> "0 %"
-    "ASCENT", "DESCENT" -> "0 " + com.eried.eucplanet.hud.protocol.AltitudeUnit.suffix(com.eried.eucplanet.util.Units.effectiveDistanceUnit(s))
+    "ASCENT", "DESCENT" -> "0 " + com.eried.eucplanet.util.Units.effectiveAltitudeUnit(s)
     "MOTOR_RPM" -> "0 rpm"
     "REGEN_WH" -> "0 Wh"
     "BT_RSSI" -> "0 dBm"
@@ -6428,6 +6428,17 @@ private fun UnitsSetting(
                         "mil" to stringResource(R.string.units_distance_mil)
                     ),
                     onSelect = { viewModel.setUnitDistance(it) }
+                )
+                // Heights have their own unit: a rider on miles may read
+                // altitude in metres, as in the UK.
+                SimpleDropdown(
+                    label = stringResource(R.string.metric_chip_gps_altitude),
+                    currentKey = Units.effectiveAltitudeUnit(settings),
+                    options = listOf(
+                        "m" to stringResource(R.string.units_distance_m),
+                        "ft" to stringResource(R.string.units_distance_ft)
+                    ),
+                    onSelect = { viewModel.setUnitAltitude(it) }
                 )
                 SimpleDropdown(
                     label = stringResource(R.string.units_temperature),

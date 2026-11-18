@@ -156,6 +156,8 @@ class WheelService : LifecycleService() {
     private var tempUnitCached: String = "C"
     @Volatile
     private var pressureUnitCached: String = "bar"
+    @Volatile
+    private var altitudeUnitCached: String = "m"
     // Widget layout, mirrored so the painter can run off a telemetry frame
     // without suspending.
     @Volatile
@@ -366,6 +368,7 @@ class WheelService : LifecycleService() {
                 distanceUnitCached = com.eried.eucplanet.util.Units.effectiveDistanceUnit(s)
                 tempUnitCached = com.eried.eucplanet.util.Units.effectiveTempUnit(s)
                 pressureUnitCached = com.eried.eucplanet.util.Units.effectivePressureUnit(s)
+                altitudeUnitCached = com.eried.eucplanet.util.Units.effectiveAltitudeUnit(s)
                 widgetMetricsCached = s.widget.metrics
                 widgetActionsCached = s.widget.actions
                 widgetStandaloneCached = s.widget.standaloneActions
@@ -1404,6 +1407,7 @@ class WheelService : LifecycleService() {
                 distanceUnit = distanceUnitCached,
                 tempUnit = tempUnitCached,
                 pressureUnit = pressureUnitCached,
+                altitudeUnit = altitudeUnitCached,
                 clockTimeMs = now,
             )
         )

@@ -32,6 +32,8 @@ object MetricValueFormat {
         tempUnitLabel: String,
         distanceUnit: String,
         pressureUnit: String,
+        /** The rider's unit for heights, m or ft; blank follows [distanceUnit]. */
+        altitudeUnit: String = "",
     ): String = when (key) {
 
     "BATTERY", "BATTERY_ENVELOPE" -> "${raw.toInt()}%"
@@ -59,11 +61,11 @@ object MetricValueFormat {
     // Tire pressure stored raw in kPa, printed in the rider's own pressure
     // unit - a setting, not the distance unit it used to be guessed from.
     "TIRE_PRESSURE" -> com.eried.eucplanet.util.Units.formatPressure(raw, pressureUnit)
-    // Altitude / accuracy stored raw in metres; feet for a rider whose
-    // distances are in miles or feet (see AltitudeUnit).
-    "GPS_ALTITUDE", "GPS_ACCURACY" ->
-        "%.0f".format(com.eried.eucplanet.hud.protocol.AltitudeUnit.value(raw, distanceUnit)) +
-            com.eried.eucplanet.hud.protocol.AltitudeUnit.suffix(distanceUnit)
+    // Altitude / accuracy stored raw in metres, printed in the rider's unit
+    // for heights (see AltitudeUnit).
+    "GPS_ALTITUDE", "GPS_ACCURACY" -> com.eried.eucplanet.hud.protocol.AltitudeUnit.resolve(altitudeUnit, distanceUnit).let { unit ->
+        "%.0f".format(com.eried.eucplanet.hud.protocol.AltitudeUnit.value(raw, unit)) + unit
+    }
     "BT_RSSI" -> "%.0f dBm".format(raw)
     // Distances stored raw in km. Without this they fell to the bare "%.1f"
     // below: a spoken odometer was a naked number, and an imperial rider was

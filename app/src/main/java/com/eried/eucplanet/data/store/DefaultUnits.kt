@@ -12,19 +12,21 @@ package com.eried.eucplanet.data.store
  * rider reading the wrong speed.
  *
  * Three outcomes, the same ones the web sites pick:
- *  - miles and Fahrenheit: the United States, its territories and Liberia
- *  - miles and Celsius: the United Kingdom, the Crown Dependencies and Myanmar
- *  - kilometres and Celsius: everywhere else
+ *  - miles, Fahrenheit, heights in feet: the United States, its territories
+ *    and Liberia
+ *  - miles, Celsius, heights in metres: the United Kingdom, the Crown
+ *    Dependencies and Myanmar
+ *  - kilometres, Celsius, heights in metres: everywhere else
  *
  * Only a first run asks. A rider who already has settings is never moved.
  */
 object DefaultUnits {
 
-    data class Units(val speed: String, val distance: String, val temp: String)
+    data class Units(val speed: String, val distance: String, val temp: String, val altitude: String)
 
-    val METRIC = Units("kmh", "km", "C")
-    val MILES_CELSIUS = Units("mph", "mi", "C")
-    val IMPERIAL = Units("mph", "mi", "F")
+    val METRIC = Units("kmh", "km", "C", "m")
+    val MILES_CELSIUS = Units("mph", "mi", "C", "m")
+    val IMPERIAL = Units("mph", "mi", "F", "ft")
 
     /** Miles and Fahrenheit. */
     private val FAHRENHEIT = setOf("US", "PR", "GU", "VI", "AS", "MP", "UM", "LR")

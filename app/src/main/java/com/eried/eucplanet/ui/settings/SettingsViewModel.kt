@@ -840,6 +840,7 @@ class SettingsViewModel(
     fun setUnitPressure(v: String) = update { copy(tpms = tpms.copy(pressureUnit = v)) }
     fun setUnitDistance(v: String) = update { copy(unitDistance = v) }
     fun setUnitTemp(v: String) = update { copy(unitTemp = v) }
+    fun setUnitAltitude(v: String) = update { copy(unitAltitude = v) }
 
     /**
      * Sets every per-unit field at once from the Metric/Imperial preset.
@@ -853,6 +854,7 @@ class SettingsViewModel(
             unitSpeed = if (imperial) "mph" else "kmh",
             unitDistance = if (imperial) "mi" else "km",
             unitTemp = if (imperial) "F" else "C",
+            unitAltitude = if (imperial) "ft" else "m",
             tpms = tpms.copy(pressureUnit = if (imperial) "psi" else "bar"),
         )
     }

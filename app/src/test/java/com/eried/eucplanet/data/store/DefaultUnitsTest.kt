@@ -48,6 +48,14 @@ class DefaultUnitsTest {
         assertEquals(DefaultUnits.METRIC, DefaultUnits.pick("", ""))
     }
 
+    @Test fun `heights start in feet only with full imperial`() {
+        assertEquals("ft", DefaultUnits.pick("US", "US").altitude)
+        // The UK and Myanmar ride in miles and read heights in metres.
+        assertEquals("m", DefaultUnits.pick("GB", "GB").altitude)
+        assertEquals("m", DefaultUnits.pick("MM", "MM").altitude)
+        assertEquals("m", DefaultUnits.pick("NO", "NO").altitude)
+    }
+
     @Test fun `two miles countries that disagree on the weather get Celsius`() {
         assertEquals(DefaultUnits.MILES_CELSIUS, DefaultUnits.pick("US", "GB"))
         assertEquals(DefaultUnits.MILES_CELSIUS, DefaultUnits.pick("GB", "US"))

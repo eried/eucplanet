@@ -10,8 +10,8 @@ ride, this is the branch.
 ## Worked on
 
 - Android Auto (MotoEye HUD): every firing alarm shows as a card on the HUD. Only the GPS alarms did; wheel and radar alarms never got there. No card on the phone when Android Auto is not connected, and no second chime.
-- Units: a fresh install in the UK, the Crown Dependencies or Myanmar starts on miles and Celsius; US territories start imperial like the US. Riders who already have settings are not changed.
-- Units: altitude, GPS accuracy, ascent and descent read feet when your distance unit is miles or feet, metres otherwise. With Custom units and distance in feet they used to read metres.
+- Units: a fresh install in the UK, the Crown Dependencies or Myanmar starts on miles, Celsius and altitude in metres; US territories start imperial like the US. Riders who already have settings are not changed.
+- Units: Altitude is its own setting now (Settings, Display & appearance, Units, Custom): metres or feet, whatever your distance unit is. Until you pick one you keep what you had, feet with miles and metres with kilometres. Metric sets metres, Imperial sets feet.
 - Motoeye HUD: only one phone links at a time. A second phone dialing the same HUD made the screen flicker; it now waits until the first has been quiet for 3 s.
 - Leaderboard: a ride that was removed from eucstats is no longer asked about every 15 minutes forever. The app asks once, gets "not there", and stops.
 - Settings backup: "Last backup" is read from the backup file itself, so it is right after a reinstall. Android's own cloud backup of the app is off, so a reinstall starts clean.
@@ -173,8 +173,9 @@ ride, this is the branch.
 - Flip phone owners: Settings, Display & appearance, "Avoid cover screen cameras": is that what your phone calls the outer screen in your language?
 
 **Any wheel**
-- UK riders, fresh install only (or clear the app's data): does it start on mph, miles and Celsius? Your SIM and your phone's region must both be UK.
-- Settings, Units, Custom, distance in feet: do the GPS altitude tile, its detail graph and a Studio altitude element all say ft? Back on km: all m?
+- UK riders, fresh install only (or clear the app's data): does it start on mph, miles, Celsius and altitude in metres? Your SIM and your phone's region must both be UK.
+- Settings, Units, Custom: set Altitude to feet while distance stays on kilometres. Do the altitude tile, its detail graph, a Studio altitude element and the same element on the HUD all say ft? Set it back to metres: all m?
+- After updating without touching units: is your altitude still in the unit you had before?
 - Make a settings backup, uninstall, install again, link the same folder: does "Last backup" show the time you just made it?
 - Had a Backup conflicts warning that would not go away? Tap Fix, then Sync all, pick a side: is it gone at once?
 - Ride with voice alarms on, open the main screens, sync, widgets and the watch: anything that acts differently from the last build is a bug.

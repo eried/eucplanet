@@ -91,13 +91,14 @@ enum class StudioMetric(
         distUnit: String,
         tempUnit: String,
         pressureUnit: String = "",
+        altitudeUnit: String = "",
     ): Float {
         val raw = extract(data)
         return when (kind) {
             StudioMetricKind.SPEED -> Units.speed(raw, speedUnit)
             StudioMetricKind.DISTANCE -> Units.distance(raw, distUnit)
-            // Held in metres; feet for riders on miles or feet, matching the dashboard tile.
-            StudioMetricKind.ALTITUDE -> com.eried.eucplanet.hud.protocol.AltitudeUnit.value(raw, distUnit)
+            // Held in metres; shown in the rider's unit for heights, matching the dashboard tile.
+            StudioMetricKind.ALTITUDE -> com.eried.eucplanet.hud.protocol.AltitudeUnit.value(raw, com.eried.eucplanet.hud.protocol.AltitudeUnit.resolve(altitudeUnit, distUnit))
             StudioMetricKind.TEMPERATURE -> Units.temperature(raw, tempUnit)
             StudioMetricKind.PRESSURE -> Units.pressure(raw, pressureUnitFor(distUnit, pressureUnit))
             // Held per km. Dividing by the display units in one km inverts the
@@ -118,11 +119,12 @@ enum class StudioMetric(
         distUnit: String,
         tempUnit: String,
         pressureUnit: String = "",
+        altitudeUnit: String = "",
     ): String =
         when (kind) {
             StudioMetricKind.SPEED -> Units.speedUnit(context, speedUnit)
             StudioMetricKind.DISTANCE -> Units.distanceUnit(distUnit)
-            StudioMetricKind.ALTITUDE -> com.eried.eucplanet.hud.protocol.AltitudeUnit.suffix(distUnit)
+            StudioMetricKind.ALTITUDE -> com.eried.eucplanet.hud.protocol.AltitudeUnit.resolve(altitudeUnit, distUnit)
             StudioMetricKind.TEMPERATURE -> Units.tempUnit(tempUnit)
             StudioMetricKind.PRESSURE -> Units.pressureUnit(pressureUnitFor(distUnit, pressureUnit))
             StudioMetricKind.CONSUMPTION -> "Wh/${Units.distanceUnit(distUnit)}"
@@ -136,13 +138,14 @@ enum class StudioMetric(
         distUnit: String,
         tempUnit: String,
         pressureUnit: String = "",
+        altitudeUnit: String = "",
     ): String {
         if (this == GPS) {
             // A lat/lng pair rendered as text; 5 dp is ~1 m. Both 0 means no fix.
             return if (data.latitude == 0.0 && data.longitude == 0.0) "--"
             else String.format(java.util.Locale.US, "%.5f, %.5f", data.latitude, data.longitude)
         }
-        val v = displayValue(data, speedUnit, distUnit, tempUnit, pressureUnit)
+        val v = displayValue(data, speedUnit, distUnit, tempUnit, pressureUnit, altitudeUnit)
         // A pressure needs as many decimals as its unit does: 1 for psi, 2 for
         // bar, 3 for MPa. The metric's own constant cannot be right for all
         // three, so the unit decides.

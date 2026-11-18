@@ -1985,6 +1985,7 @@ class RouteBuilderViewModel(
                 distance = Units.effectiveDistanceUnit(it),
                 temp = Units.effectiveTempUnit(it),
                 pressure = Units.effectivePressureUnit(it),
+                altitude = Units.effectiveAltitudeUnit(it),
             )
         }
         .stateIn(viewModelScope, SharingStarted.Eagerly, MetricUnits("kmh", "km", "C", "bar"))

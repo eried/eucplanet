@@ -182,6 +182,15 @@ object Units {
             if (effectiveDistanceUnit(s) == "mi") "psi" else "bar"
         }
 
+    /**
+     * The rider's unit for heights, "m" or "ft": altitude, GPS accuracy,
+     * ascent and descent. Its own setting. A blank [AppSettings.unitAltitude]
+     * is a rider from before it existed, who keeps what the distance unit
+     * gave them (see [com.eried.eucplanet.hud.protocol.AltitudeUnit]).
+     */
+    fun effectiveAltitudeUnit(s: AppSettings): String =
+        com.eried.eucplanet.hud.protocol.AltitudeUnit.resolve(s.unitAltitude, effectiveDistanceUnit(s))
+
     /** The three top-level measurement-unit modes. CUSTOM is a derived label. */
     enum class UnitSystem { METRIC, IMPERIAL, CUSTOM }
 
@@ -207,17 +216,18 @@ object Units {
         if (s.unitTemp.isBlank()) (if (s.imperialUnits) "F" else "C") else s.unitTemp
 
     /**
-     * Derives the top-level [UnitSystem] label from the three per-unit choices:
+     * Derives the top-level [UnitSystem] label from the per-unit choices:
      * all metric -> METRIC, all imperial -> IMPERIAL, any other mix (including
-     * m/s or meters) -> CUSTOM.
+     * m/s or meters, or miles with heights in metres) -> CUSTOM.
      */
     fun unitSystemOf(s: AppSettings): UnitSystem {
         val speed = effectiveSpeedUnit(s)
         val dist = effectiveDistanceUnit(s)
         val temp = effectiveTempUnit(s)
+        val alt = effectiveAltitudeUnit(s)
         return when {
-            speed == "kmh" && dist == "km" && temp == "C" -> UnitSystem.METRIC
-            speed == "mph" && dist == "mi" && temp == "F" -> UnitSystem.IMPERIAL
+            speed == "kmh" && dist == "km" && temp == "C" && alt == "m" -> UnitSystem.METRIC
+            speed == "mph" && dist == "mi" && temp == "F" && alt == "ft" -> UnitSystem.IMPERIAL
             else -> UnitSystem.CUSTOM
         }
     }

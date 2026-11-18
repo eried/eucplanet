@@ -81,7 +81,7 @@ class SettingsStore(private val context: Context) {
     /**
      * Genuine first-run hook. Runs after the legacy-Room migration: if
      * DataStore is STILL empty here, this is a fresh install (no old Room
-     * row, no prior DataStore blob). Seed the three per-unit fields from
+     * row, no prior DataStore blob). Seed the per-unit fields from
      * where the phone is ([DefaultUnits]): miles and Fahrenheit, miles and
      * Celsius, or metric. Existing users never reach this branch, their blob
      * is already present, so they are never flipped.
@@ -93,7 +93,8 @@ class SettingsStore(private val context: Context) {
                 val seeded = AppSettings(
                     unitSpeed = units.speed,
                     unitDistance = units.distance,
-                    unitTemp = units.temp
+                    unitTemp = units.temp,
+                    unitAltitude = units.altitude
                 )
                 prefs[KEY_JSON] = SettingsJson.toJson(seeded).toString()
             }

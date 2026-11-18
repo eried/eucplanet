@@ -166,6 +166,7 @@ fun MetricDetailScreen(
     val tempUnit by viewModel.tempUnit.collectAsState()
     val distanceUnit by viewModel.distanceUnit.collectAsState()
     val pressureUnit by viewModel.pressureUnit.collectAsState()
+    val altitudeUnit by viewModel.altitudeUnit.collectAsState()
 
     // Long-press Reset → confirmation dialog → wipe ALL history buffers.
     var showResetAllConfirm by remember { mutableStateOf(false) }
@@ -239,6 +240,7 @@ fun MetricDetailScreen(
                     tempUnit = tempUnit,
                     distanceUnit = distanceUnit,
                     pressureUnit = pressureUnit,
+                    altitudeUnit = altitudeUnit,
                 )
 
                 Spacer(Modifier.height(16.dp))
@@ -328,6 +330,7 @@ private fun MetricDetailBody(
     tempUnit: String,
     distanceUnit: String,
     pressureUnit: String,
+    altitudeUnit: String,
 ) {
     val legacyType: MetricType? = runCatching { MetricType.valueOf(key) }.getOrNull()
     val catalogSpec = com.eried.eucplanet.data.model.MetricCatalog.byKey(key)
@@ -379,7 +382,7 @@ private fun MetricDetailBody(
             // Floored to match the wheel's own display (pressurePsiFloored).
             com.eried.eucplanet.util.Units.pressurePsiFloored(v)
             else com.eried.eucplanet.util.Units.pressure(v, pressureUnit)
-        isAltitudeMetric -> com.eried.eucplanet.hud.protocol.AltitudeUnit.value(v, distanceUnit)
+        isAltitudeMetric -> com.eried.eucplanet.hud.protocol.AltitudeUnit.value(v, altitudeUnit)
         else -> v
     }
 
@@ -396,7 +399,7 @@ private fun MetricDetailBody(
         )
         isDistanceMetric -> com.eried.eucplanet.util.Units.distanceUnit(distanceUnit)
         isPressureMetric -> com.eried.eucplanet.util.Units.pressureUnit(pressureUnit)
-        isAltitudeMetric -> com.eried.eucplanet.hud.protocol.AltitudeUnit.suffix(distanceUnit)
+        isAltitudeMetric -> altitudeUnit
         legacyType == null -> ""
         else -> legacyType.unit
     }
