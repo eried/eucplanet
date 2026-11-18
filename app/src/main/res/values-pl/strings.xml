@@ -2803,7 +2803,7 @@
     <string name="voice_pill_search">Szukaj</string>
     <string name="voice_volume">Głośność</string>
     <string name="engo_hud_enabled">HUD okularów ENGO</string>
-    <string name="engo_scan_hint">Włącz okulary, a potem dotknij Rozpocznij skanowanie.</string>
+    <string name="engo_scan_hint">Włącz okulary. Łączą się tylko z jednym urządzeniem naraz, więc najpierw odłącz je od zegarka lub aplikacji ActiveLook.</string>
     <string name="engo_pages_title">Strony okularów</string>
     <string name="engo_nav_takeover">Pokazuj skręty podczas nawigacji</string>
     <string name="beep_volume_by_speed">Głośność sygnału wg prędkości</string>

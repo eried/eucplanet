@@ -65,6 +65,9 @@ object SettingsJson {
         // addresses, and a backup restored on a second phone must not pair it
         // to sensors that are not on that phone's wheel.
         tpms = s.tpms.copy(pairedAddress = null, pairedAddresses = emptyList()),
+        // The paired glasses are this phone's too. Their options (the two
+        // numbers, turns) travel; which pair, and whether it is linked, do not.
+        engoHud = s.engoHud.copy(enabled = false, pairedAddress = null, pairedName = null),
         syncFolderUri = null,
         // Don't write the live Dropbox link into a backup / portable settings
         // file -- it's device + account state, and an access token shouldn't sit
@@ -1006,6 +1009,11 @@ object SettingsJson {
             tpms = parsed.tpms.copy(
                 pairedAddress = current.tpms.pairedAddress,
                 pairedAddresses = current.tpms.pairedAddresses,
+            ),
+            engoHud = parsed.engoHud.copy(
+                enabled = current.engoHud.enabled,
+                pairedAddress = current.engoHud.pairedAddress,
+                pairedName = current.engoHud.pairedName,
             ),
             lastDeviceAddress = current.lastDeviceAddress,
             lastDeviceName = current.lastDeviceName,

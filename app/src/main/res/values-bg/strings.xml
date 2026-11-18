@@ -473,7 +473,7 @@
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Връзка за данни</string>
     <string name="engo_hud_enabled">HUD на очилата ENGO</string>
-    <string name="engo_scan_hint">Включете очилата и докоснете Сканирай.</string>
+    <string name="engo_scan_hint">Включете очилата. Те се свързват само с едно устройство, затова първо ги изключете от часовника или от приложението ActiveLook.</string>
     <string name="engo_pages_title">Страници на очилата</string>
     <string name="engo_nav_takeover">Показване на завоите при навигация</string>
     <string name="hud_ip_label">IP на устройството</string>
