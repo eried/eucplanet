@@ -120,6 +120,8 @@ data class StudioElementData(
     val tempUnit: String,
     /** The rider's pressure unit; blank follows the distance unit. */
     val pressureUnit: String = "",
+    /** The rider's unit for heights, m or ft; blank follows the distance unit. */
+    val altitudeUnit: String = "",
     /** Wall-clock millis a CLOCK element shows: live now, or the replay row. */
     val clockTimeMs: Long = System.currentTimeMillis(),
     /** Elapsed millis for a CLOCK in STOPWATCH style. */
@@ -1204,7 +1206,7 @@ private fun FreeTextElement(element: OverlayElement, data: StudioElementData) {
     val context = LocalContext.current
     val rendered = remember(
         element.text, data.wheelData, data.wheelName,
-        data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
+        data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit, data.altitudeUnit
     ) { renderTextTemplate(element.text, data, context) }
     BoxWithConstraints(
         Modifier
@@ -1238,10 +1240,10 @@ private fun renderTextTemplate(
         val token = "{${m.key.lowercase()}}"
         if (s.contains(token, ignoreCase = true)) {
             val value = m.formatted(
-                data.wheelData, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
+                data.wheelData, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit, data.altitudeUnit
             )
             val unit = m.unitText(
-                context, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
+                context, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit, data.altitudeUnit
             )
             s = s.replace(
                 token,
@@ -1373,10 +1375,10 @@ private fun DataValueElement(element: OverlayElement, data: StudioElementData) {
             }
             Row(verticalAlignment = Alignment.Bottom) {
                 val unit = metric.unitText(
-                    context, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
+                    context, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit, data.altitudeUnit
                 )
                 val valueText = metric.formatted(
-                    data.wheelData, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
+                    data.wheelData, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit, data.altitudeUnit
                 )
                 val unitOnLeft = element.unitPosition == "LEFT"
                 if (unit.isNotEmpty() && unitOnLeft) {
@@ -1428,7 +1430,7 @@ private fun DataGraphElement(element: OverlayElement, data: StudioElementData) {
             .filter { it.timeMs >= now - windowMs }
             .map {
                 it.timeMs to metric.displayValue(
-                    it.data, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
+                    it.data, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit, data.altitudeUnit
                 )
             }
     }
@@ -1487,7 +1489,7 @@ private fun DataDialElement(element: OverlayElement, data: StudioElementData) {
     val context = LocalContext.current
     val metric = StudioMetric.fromKey(element.metric)
     val value = metric.displayValue(
-        data.wheelData, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
+        data.wheelData, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit, data.altitudeUnit
     )
     val fraction = (value / element.gaugeMax.coerceAtLeast(1f)).coerceIn(0f, 1f)
     val fill = Color(element.foreground)
@@ -1753,7 +1755,7 @@ private fun DataDialElement(element: OverlayElement, data: StudioElementData) {
         ) {
             androidx.compose.material3.Text(
                 text = metric.formatted(
-                    data.wheelData, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
+                    data.wheelData, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit, data.altitudeUnit
                 ),
                 color = fill,
                 fontWeight = FontWeight.Bold,
@@ -1761,7 +1763,7 @@ private fun DataDialElement(element: OverlayElement, data: StudioElementData) {
                 maxLines = 1
             )
             val unit = metric.unitText(
-                context, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
+                context, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit, data.altitudeUnit
             ).ifEmpty { metric.displayName() }
             androidx.compose.material3.Text(
                 text = unit,
@@ -1778,7 +1780,7 @@ private fun DataBarElement(element: OverlayElement, data: StudioElementData) {
     val context = LocalContext.current
     val metric = StudioMetric.fromKey(element.metric)
     val value = metric.displayValue(
-        data.wheelData, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
+        data.wheelData, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit, data.altitudeUnit
     )
     val fraction = (value / element.gaugeMax.coerceAtLeast(1f)).coerceIn(0f, 1f)
     val fill = Color(element.foreground)
@@ -1803,11 +1805,11 @@ private fun DataBarElement(element: OverlayElement, data: StudioElementData) {
                 }
                 if (element.barShowValue) {
                     val unit = metric.unitText(
-                        context, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
+                        context, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit, data.altitudeUnit
                     )
                     androidx.compose.material3.Text(
                         text = metric.formatted(
-                            data.wheelData, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
+                            data.wheelData, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit, data.altitudeUnit
                         ) + if (unit.isEmpty()) "" else " $unit",
                         color = fill,
                         fontWeight = FontWeight.Bold,

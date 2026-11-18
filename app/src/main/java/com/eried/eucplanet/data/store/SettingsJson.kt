@@ -242,6 +242,7 @@ object SettingsJson {
         put("unitSpeed", s.unitSpeed)
         put("unitDistance", s.unitDistance)
         put("unitTemp", s.unitTemp)
+        put("unitAltitude", s.unitAltitude)
         put("phoneKeepScreenOn", s.phoneKeepScreenOn)
         put("phoneShowOverLockScreen", s.phoneShowOverLockScreen)
         put("rotateDashboard", s.rotateDashboard)
@@ -747,6 +748,7 @@ object SettingsJson {
         unitSpeed = j.optString("unitSpeed", base.unitSpeed),
         unitDistance = j.optString("unitDistance", base.unitDistance),
         unitTemp = j.optString("unitTemp", base.unitTemp),
+        unitAltitude = j.optString("unitAltitude", base.unitAltitude),
         phoneKeepScreenOn = j.optBoolean("phoneKeepScreenOn", base.phoneKeepScreenOn),
         phoneShowOverLockScreen = j.optBoolean("phoneShowOverLockScreen", base.phoneShowOverLockScreen),
         rotateDashboard = j.optBoolean("rotateDashboard", base.rotateDashboard),

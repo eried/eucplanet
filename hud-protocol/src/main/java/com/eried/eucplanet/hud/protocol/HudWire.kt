@@ -91,6 +91,10 @@ data class HudState(
      *  [unitDistance]: a rider on kilometres can still run psi in the tyre.
      *  Defaulted so an older phone leaves the HUD reading bar as before. */
     val unitPressure: String = "bar",
+    /** m | ft, for heights. Its own setting on the phone (see
+     *  [AltitudeUnit]). Blank from an older phone: the HUD then goes by
+     *  [unitDistance] as it used to. Added at PROTOCOL_MINOR 25. */
+    val unitAltitude: String = "",
 
     /** Accent colour as an `#AARRGGBB` hex string from phone settings. */
     val accentArgb: String = "#FF00C853",
@@ -360,8 +364,10 @@ data class HudState(
          *    phone: online, the phone's cache, or its offline map, as the
          *    rider set it there. Against an older phone the HUD still
          *    fetches online tiles itself.
+         * 25: [HudState.unitAltitude], the rider's own unit for heights.
+         *    An older HUD ignores it and goes by the distance unit.
          */
-        const val PROTOCOL_MINOR: Int = 24
+        const val PROTOCOL_MINOR: Int = 25
 
         /** Legacy alias. New code should read [PROTOCOL_MAJOR] / [PROTOCOL_MINOR]. */
         @Deprecated(

@@ -23,6 +23,8 @@ data class StudioElementData(
     val tempUnit: String,
     /** The rider's pressure unit; blank follows the distance unit. */
     val pressureUnit: String = "",
+    /** The rider's unit for heights, m or ft; blank follows the distance unit. */
+    val altitudeUnit: String = "",
     val clockTimeMs: Long = System.currentTimeMillis(),
     val stopwatchMs: Long = 0L,
     val liveGForceTrail: List<Offset> = emptyList(),
@@ -96,6 +98,7 @@ data class StudioElementData(
                 distanceUnit = hud.unitDistance,
                 tempUnit = hud.unitTemp,
                 pressureUnit = hud.unitPressure,
+                altitudeUnit = hud.unitAltitude,
                 latitude = hud.latitude,
                 longitude = hud.longitude,
                 gpsHeadingDeg = hud.gpsHeadingDeg,

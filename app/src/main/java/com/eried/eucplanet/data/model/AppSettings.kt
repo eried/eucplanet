@@ -232,6 +232,7 @@ data class AppSettings(
     val unitSpeed: String = "",     // "" | "kmh" | "mph" | "ms"   ("" = not migrated)
     val unitDistance: String = "",  // "" | "km"  | "mi"  | "m"
     val unitTemp: String = "",      // "" | "C"   | "F"   | "K"
+    val unitAltitude: String = "",  // "" | "m"   | "ft"          ("" = follows the distance unit)
 
     val phoneKeepScreenOn: Boolean = false,
     /** Show the dashboard over the lock screen so the rider doesn't have to
@@ -1681,16 +1682,16 @@ data class AdvancedSettings(
 )
 
 /**
- * Flip the three unit fields between a clean metric trio and a clean imperial
- * trio in one write. Metric is the reference state, so anything that isn't
+ * Flip the unit fields between a clean metric set and a clean imperial
+ * set in one write. Metric is the reference state, so anything that isn't
  * already a clean imperial trio (incl. custom mixes like knots + Norwegian
  * mile) snaps to metric first. Shared by the TOGGLE_UNITS action so the
  * dashboard tile and the service-mode overlay use one definition.
  */
 fun AppSettings.withUnitsToggled(): AppSettings {
     val isImperial = unitSpeed == "mph" && unitDistance == "mi" && unitTemp == "F"
-    return if (isImperial) copy(unitSpeed = "kmh", unitDistance = "km", unitTemp = "C")
-    else copy(unitSpeed = "mph", unitDistance = "mi", unitTemp = "F")
+    return if (isImperial) copy(unitSpeed = "kmh", unitDistance = "km", unitTemp = "C", unitAltitude = "m")
+    else copy(unitSpeed = "mph", unitDistance = "mi", unitTemp = "F", unitAltitude = "ft")
 }
 
 /**
