@@ -6,6 +6,7 @@ only when you can cut the ride short.
 
 ## Worked on
 
+- iPhone: Settings no longer comes up blank and frozen now and then on Voice or Wheel parameters while a wheel is connected. The ride Live Activity and the screen were waiting on each other for the same text.
 - Merged the latest next-experimental into the iPhone branch again: English (UK) and the renamed language list, heights in metres or feet as their own unit, first-run units by country, the shorter hints, and uploads that stop when the leaderboard refuses them.
 - Merged the latest next-experimental into the iPhone branch: HUD map pictures served by the phone, the arrival line on the HUD, one phone per HUD, the leaderboard no longer asking about removed rides, Last backup read from the file, the V6 fixes, typed speeds, the new watch layout and alarms on the Android Auto screen.
 - Merged the latest next-experimental (HUD app from the phone, recorded engines, volume keys with the screen off, a way out of every window, the wheel icon, the code and string clean-up, your wording, PWM everywhere and media speed control removed) into the iPhone branch.

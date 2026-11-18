@@ -10,7 +10,6 @@ import com.eried.eucplanet.platform.format
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.compose.resources.StringResource
-import org.jetbrains.compose.resources.getString
 import platform.AudioToolbox.AudioServicesPlaySystemSound
 import platform.AudioToolbox.kSystemSoundID_Vibrate
 import platform.UIKit.UIDevice

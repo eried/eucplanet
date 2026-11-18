@@ -8,7 +8,7 @@ import com.eried.eucplanet.app.IosLaunchHooks
 import com.eried.eucplanet.app.IosLinks
 import com.eried.eucplanet.resources.Res
 import com.eried.eucplanet.resources.share_link_invalid
-import org.jetbrains.compose.resources.getString
+import com.eried.eucplanet.app.getString
 import com.eried.eucplanet.app.IosDisplayPrefs
 import com.eried.eucplanet.app.IosThemeEditor
 import com.eried.eucplanet.app.StatusBarHost
