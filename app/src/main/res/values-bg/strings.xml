@@ -6,7 +6,7 @@
 
     <!-- Notification quick actions -->
     <string name="keep_app_alive">Приложението да работи</string>
-    <string name="keep_app_alive_desc">Поддържа постоянно известие, за да остане приложението активно във фонов режим. Синхронизацията на пътувания и гласът работят дори без свързано моноколело. Използва малко повече батерия.</string>
+    <string name="keep_app_alive_desc">Поддържа постоянно известие, за да остане приложението активно във фонов режим. Използва малко повече батерия.</string>
     <string name="notif_actions_enable">Действия в известието</string>
     <string name="notif_actions_enable_desc">Добавя бутони за бързи действия към постоянното известие.</string>
     <string name="notif_actions_pick_desc">Изберете до %1$d действия. Едно действие може да се повтаря.</string>
@@ -245,7 +245,7 @@
     <string name="metric_chip_battery_temp">Температура на батерията</string>
     <string name="metric_chip_tire_pressure">Налягане в гумата</string>
     <string name="metric_chip_tire_pressure_tile">Гума</string>
-    <string name="metric_desc_tire_pressure">Налягане в гумата от ваш сензор или от сензор, предаван през моноколелото. Показва се в избраната мерна единица за налягане.</string>
+    <string name="metric_desc_tire_pressure">Налягане в гумата от ваш сензор или от сензор, предаван през моноколелото.</string>
     <string name="metric_chip_headroom">Резерв</string>
     <string name="metric_chip_trip_time">Време на пътуване</string>
     <string name="metric_chip_trip_max_speed">Макс. за пътуването</string>
@@ -493,7 +493,7 @@
 
     <!-- HUD button long-press actions -->
     <string name="hud_joystick_title">Действия на бутоните</string>
-    <string name="hud_joystick_desc">Докоснете двукратно бутон на HUD, за да изпълните действие. Единичното докосване все още сменя екраните.</string>
+    <string name="hud_joystick_desc">Докоснете двукратно бутон на HUD, за да изпълните действие.</string>
     <string name="hud_joystick_up">Нагоре (двукратно)</string>
     <string name="hud_joystick_down">Надолу (двукратно)</string>
     <string name="hud_joystick_left">Наляво (двукратно)</string>
@@ -546,7 +546,7 @@
     <string name="watch_update_rate">Честота на обновяване</string>
     <string name="watch_update_rate_desc">По-редките обновявания пестят батерията на часовника. Това е отделно от честотата на запитване към моноколелото в раздел Разширени.</string>
     <string name="watch_map_enabled">Карта на часовника</string>
-    <string name="watch_map_enabled_desc">Показва позицията и маршрута от телефона. Остава известие за работа във фонов режим.</string>
+    <string name="watch_map_enabled_desc">Показва позицията и маршрута от телефона.</string>
     <string name="watch_map_orientation">Ориентация на картата</string>
     <string name="watch_map_north_up">Север горе</string>
     <string name="watch_map_heading_up">Посока горе</string>
@@ -562,15 +562,15 @@
     <string name="tab_more">Още</string>
     <string name="settings_visibility">Видимост на настройките</string>
     <string name="adv_timings_title">Времена и променливи</string>
-    <string name="reorg_hint">Пренаредете екрана с настройки и скрийте разделите, които рядко използвате. Скритите раздели се преместват в раздел „Още“.</string>
+    <string name="reorg_hint">Пренаредете екрана с настройки и скрийте разделите, които рядко използвате.</string>
     <string name="reorg_drag_cd">Плъзнете за пренареждане</string>
-    <string name="adv_rates_warning">Тези контроли променят времената в цялото приложение. По-ниските стойности дават по-свежи данни и по-бърза реакция, но използват повече батерия, процесор или трафик. Стойностите по подразбиране са подходящи за повечето ездачи. Променяйте ги само ако разбирате ефекта.</string>
+    <string name="adv_rates_warning">Тези контроли променят времената в цялото приложение. Променяйте ги само ако разбирате ефекта.</string>
     <string name="adv_pushonly_note">Някои устройства предават със собствена фиксирана честота и пренебрегват тези настройки: моноколела, които само изпращат данни (Begode, Gotway, Veteran, KingSong), външен GPS (RaceBox, Dragy), радар и бутони Flic.</string>
     <string name="adv_group_rates">Честоти на данни и отчети</string>
     <string name="adv_wheel_poll_rate">Честота на запитване</string>
     <string name="adv_wheel_poll_rate_desc">Влияе на това колко свежи са данните на живо и колко бързо реагират алармите. По-ниската стойност пита моноколелото по-често. Опасност: много ниски стойности могат да претоварят Bluetooth връзката и да спрат данните при някои моноколела.</string>
     <string name="adv_graph_sample_interval">Интервал на графиките</string>
-    <string name="adv_graph_sample_interval_desc">Влияе само на детайлността на графиките на таблото. Не засяга алармите и файловете на пътуванията. Опасност: много ниски стойности използват повече памет.</string>
+    <string name="adv_graph_sample_interval_desc">Не засяга алармите и файловете на пътуванията. Опасност: много ниски стойности използват повече памет.</string>
     <string name="adv_smoothing_window">Прозорец на изглаждане</string>
     <string name="adv_smoothing_window_desc">Брой проби, осреднявани от графиките „средно“ на пътуванията и от изгладените гласови отчети. Пътуванията записват около веднъж в секунда, така че това са приблизително секунди. Опасност: високите стойности скриват кратки пикове.</string>
     <string name="adv_trip_record_interval">Интервал на запис</string>
@@ -794,7 +794,7 @@
     <string name="section_cloud_settings">Архив на настройките</string>
     <string name="cloud_backup_now">Архивирай</string>
     <string name="cloud_restore">Възстанови</string>
-    <string name="cloud_settings_backup_desc">Всичко, което сте настроили в приложението, записано в eucplanet_settings.json в папката за архиви. Задръжте бутона, за да запазите именувано копие до него. Пътуванията се архивират отделно.</string>
+    <string name="cloud_settings_backup_desc">Всичко, което сте настроили в приложението, записано в eucplanet_settings.json в папката за архиви. Задръжте бутона, за да запазите именувано копие до него.</string>
     <string name="cloud_last_backup">Последен архив: %1$s</string>
     <string name="cloud_last_backup_named">Последен архив: %1$s като „%2$s“</string>
     <string name="cloud_last_backup_never">Още няма архив</string>
@@ -894,9 +894,9 @@
     <string name="side_default">По подразбиране</string>
     <string name="side_left">Ляво</string>
     <string name="side_right">Дясно</string>
-    <string name="geo_other_hint">Монитор на батерията, история на показателите, сканиране и Flic. Студиото за наслагване не се засяга: оформлението му е фиксирано, но работи добре във всяка ориентация.</string>
-    <string name="geo_settings_hint">Екранът с настройки. Изключено по подразбиране, така че Настройки остават вертикални, освен ако не го включите.</string>
-    <string name="geo_trip_hint">Изгледът с детайли се завърта по подразбиране за хоризонталната карта и графиките. Списъкът с пътувания остава вертикален, освен ако не го включите.</string>
+    <string name="geo_other_hint">Монитор на батерията, история на показателите, сканиране и Flic.</string>
+    <string name="geo_settings_hint">Екранът с настройки.</string>
+    <string name="geo_trip_hint">Изгледът с детайли се завърта по подразбиране за хоризонталната карта и графиките.</string>
     <string name="back_button_action_ask">Питай</string>
     <string name="back_button_action_background">Във фонов режим</string>
     <string name="back_button_action_stop">Спри всичко</string>
@@ -993,7 +993,7 @@
     <string name="voice_interval">Интервал</string>
     <string name="section_accel_splits">Отрязъци на скоростта</string>
     <string name="accel_splits_enabled">Съобщавай времената</string>
-    <string name="accel_splits_desc">Казва времето за преминаване на всяка стъпка на скоростта при ускоряване или забавяне. Започва от скоростта по-долу, със зададените от вас стъпки.</string>
+    <string name="accel_splits_desc">Казва времето за преминаване на всяка стъпка на скоростта при ускоряване или забавяне.</string>
     <string name="accel_split_decel_prefix">спиране, </string>
     <string name="accel_splits_from">От</string>
     <string name="accel_splits_step">Стъпка</string>
@@ -1169,7 +1169,7 @@
     <string name="flic_start_scan">Сканирай</string>
     <string name="flic_forget">Забрави</string>
     <string name="flic_forget_title">Забравяне на този бутон?</string>
-    <string name="flic_forget_body">Сдвояването с %1$s ще бъде премахнато и действията му ще бъдат изчистени. Можете да го сдвоите отново по всяко време.</string>
+    <string name="flic_forget_body">Сдвояването с %1$s ще бъде премахнато.</string>
     <string name="flic_rename">Преименувай</string>
     <string name="flic_click">Натискане</string>
     <string name="flic_double_click">Двойно натискане</string>
@@ -1220,7 +1220,7 @@
     <string name="volume_keys_enable">Действия с бутоните за звук</string>
     <string name="volume_keys_screen_off">И при изключен екран</string>
     <string name="volume_keys_screen_off_caption">Работи при заключен телефон или друго приложение отпред. Бутоните вече не променят силата на звука.</string>
-    <string name="volume_keys_screen_off_warn">Android изпраща натисканията на бутоните за звук само на приложението на екрана. За да ги получава при изключен екран, EUC Planet се регистрира като активния медиен плейър на телефона и Android му изпраща бутоните, вместо да променя звука.\n\nДокато това е включено, бутоните не променят силата на звука на телефона.</string>
+    <string name="volume_keys_screen_off_warn">Android изпраща натисканията на бутоните за звук само на приложението на екрана. За да ги получава при изключен екран, EUC Planet се регистрира като активния медиен плейър на телефона и Android му изпраща бутоните, вместо да променя звука.</string>
     <string name="volume_keys_screen_off_confirm">Включи</string>
     <string name="volume_keys_screen_off_title">Да поеме ли бутоните за звук?</string>
     <string name="volume_up">Звук нагоре</string>
@@ -1245,7 +1245,7 @@
         <item quantity="other">Проследяват се %1$d превозни средства:</item>
     </plurals>
     <string name="radar_show_overlay">Наслагване на заплахите</string>
-    <string name="radar_show_overlay_desc">Тънка лента на радара по краищата на таблото. По една цветна точка за всяко открито превозно средство. Видима само на таблото.</string>
+    <string name="radar_show_overlay_desc">Тънка лента на радара по краищата на таблото.</string>
     <string name="radar_overlay_left">Левия край</string>
     <string name="radar_overlay_both">Двата края</string>
     <string name="radar_overlay_right">Десния край</string>
@@ -1495,7 +1495,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">Каране?</string>
     <string name="widget_weather_score_desc">Времето за каране в момента.</string>
-    <string name="widget_weather_compact_desc">Колко е подходящо времето за каране сега и в следващите часове. Увеличете за часове, температура и вятър.</string>
+    <string name="widget_weather_compact_desc">Колко е подходящо времето за каране сега и в следващите часове.</string>
     <string name="widget_weather_graph_desc">Колко е подходящо времето за каране в периода на прогнозата</string>
     <string name="widget_weather_refresh_desc">Обнови прогнозата</string>
     <string name="widget_weather_never">Още няма прогноза. Отворете приложението веднъж или докоснете Обнови.</string>
@@ -2347,7 +2347,7 @@
     <string name="weather_hot">Твърде горещо над</string>
     <string name="weather_breezy">Ветровито над</string>
     <string name="weather_windy">Твърде ветровито над</string>
-    <string name="weather_source_credit">Прогнозата идва от избрания от вас източник и се изтегля само докато това е включено. По-краткият период може да е с по-ситни стъпки, ако източникът ги предлага.</string>
+    <string name="weather_source_credit">Прогнозата идва от избрания от вас източник. По-краткият период може да е с по-ситни стъпки, ако източникът ги предлага.</string>
     <string name="weather_title_1">Време ли е за моноколело?</string>
     <string name="weather_title_2">Време ли е за EUC?</string>
     <string name="weather_title_3">Да тръгваме ли да караме?</string>
@@ -2800,7 +2800,7 @@
         <item quantity="other">%d спирки</item>
     </plurals>
     <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Статистиката и бутоните на моноколелото на екран с Android Auto. Свързва се само, без настройка на Wi-Fi.</string>
+    <string name="android_auto_hint">Статистиката и бутоните на моноколелото на екран с Android Auto.</string>
     <string name="car_waiting">Изчакване на моноколелото</string>
     <string name="car_last_battery">Последна батерия %1$d%%</string>
     <string name="car_waiting_wheel">Изчакване на моноколелото</string>

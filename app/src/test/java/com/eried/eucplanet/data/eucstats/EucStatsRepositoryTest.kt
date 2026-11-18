@@ -391,6 +391,47 @@ class EucStatsRepositoryTest {
         assertEquals(3, updated.eucstatsStatus)
     }
 
+    /** Production, 16 and 17 Nov 2026: a rider the server did not know sent
+     *  every pending trip, each was refused, each was marked failed for good,
+     *  and the refusals used up the rider's hourly limit. */
+    @Test fun uploadTrip_unknownRiderLeavesTheTripPending() = runBlocking {
+        settingsPort.writeRiderId("store-1")
+        api.uploadResult = UploadResult.PermanentFailure(400, "{\"detail\":\"rider_not_registered\"}")
+        tripDao.trips.add(SAMPLE_TRIP)
+
+        val outcome = repo.uploadTrip(SAMPLE_TRIP)
+
+        assertEquals(Outcome.RIDER_UNKNOWN, outcome)
+        assertTrue("the trip must stay pending", tripDao.updates.none { it.eucstatsStatus == 3 })
+    }
+
+    @Test fun uploadTrip_anotherBadRequestIsStillPermanent() = runBlocking {
+        settingsPort.writeRiderId("store-1")
+        api.uploadResult = UploadResult.PermanentFailure(400, "{\"detail\":\"bad_meta\"}")
+        tripDao.trips.add(SAMPLE_TRIP)
+
+        assertEquals(Outcome.FAILED_PERMANENT, repo.uploadTrip(SAMPLE_TRIP))
+    }
+
+    @Test fun uploadTrip_rateLimitBacksOff() = runBlocking {
+        settingsPort.writeRiderId("store-1")
+        api.uploadResult = UploadResult.Retry(429)
+        tripDao.trips.add(SAMPLE_TRIP)
+
+        assertEquals(Outcome.BACK_OFF, repo.uploadTrip(SAMPLE_TRIP))
+    }
+
+    @Test fun syncPendingNow_stopsAtTheFirstRateLimit() = runBlocking {
+        settingsPort.writeRiderId("store-1")
+        api.uploadResult = UploadResult.Retry(429)
+        tripDao.trips.add(SAMPLE_TRIP)
+        tripDao.trips.add(SAMPLE_TRIP.copy(id = SAMPLE_TRIP.id + 1, tripUuid = "second"))
+
+        repo.syncPendingNow { _, _ -> }
+
+        assertEquals("one refused upload, then the pass ends", 1, api.uploadCalls.size)
+    }
+
     // -----------------------------------------------------------------------
     // uploadTrip(), Retry
     // -----------------------------------------------------------------------

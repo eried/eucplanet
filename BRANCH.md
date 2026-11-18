@@ -6,6 +6,7 @@ only when you can cut the ride short.
 
 ## Worked on
 
+- Merged the latest next-experimental into the iPhone branch again: English (UK) and the renamed language list, heights in metres or feet as their own unit, first-run units by country, the shorter hints, and uploads that stop when the leaderboard refuses them.
 - Merged the latest next-experimental into the iPhone branch: HUD map pictures served by the phone, the arrival line on the HUD, one phone per HUD, the leaderboard no longer asking about removed rides, Last backup read from the file, the V6 fixes, typed speeds, the new watch layout and alarms on the Android Auto screen.
 - Merged the latest next-experimental (HUD app from the phone, recorded engines, volume keys with the screen off, a way out of every window, the wheel icon, the code and string clean-up, your wording, PWM everywhere and media speed control removed) into the iPhone branch.
 - iPhone app (TestFlight): connects to the wheel, with the same dashboard, alarms, voice reports, settings, themes, Flic buttons, Dropbox sync, trip recording and trip list as Android.
@@ -42,7 +43,12 @@ only when you can cut the ride short.
 - iPhone app: Volume up, Volume down and Mute are no longer offered (iOS cannot set the volume), and the tour's last page names only Flic buttons.
 - Settings, Dashboard layout no longer closes the app.
 - Settings search no longer finds rows a phone does not show.
+- Leaderboard: when the server limits your uploads or does not know your rider, the app stops sending for now instead of trying every waiting ride. Rides stay waiting and go up on a later try.
+- Shorter hints: 18 setting descriptions lose their extra sentence, in every language. Three said something untrue and are fixed: forgetting a Flic keeps its actions, the radar lane draws squares with the distance, and the weather widget fetches on its own.
+- Languages: English (UK) is new, with British spelling (tyre, colour, kilometres). The list now reads English (US), English (UK), Español (ES) and Español (LA), the same names as the trip viewer and the leaderboard.
 - Android Auto (MotoEye HUD): every firing alarm shows as a card on the HUD. Only the GPS alarms did; wheel and radar alarms never got there. No card on the phone when Android Auto is not connected, and no second chime.
+- Units: a fresh install in the UK, the Crown Dependencies or Myanmar starts on miles, Celsius and altitude in metres; US territories start imperial like the US. Riders who already have settings are not changed.
+- Units: Altitude is its own setting now (Settings, Display & appearance, Units, Custom): metres or feet, whatever your distance unit is. Until you pick one you keep what you had, feet with miles and metres with kilometres. Metric sets metres, Imperial sets feet.
 - Motoeye HUD: only one phone links at a time. A second phone dialing the same HUD made the screen flicker; it now waits until the first has been quiet for 3 s.
 - Leaderboard: a ride that was removed from eucstats is no longer asked about every 15 minutes forever. The app asks once, gets "not there", and stops.
 - Settings backup: "Last backup" is read from the backup file itself, so it is right after a reinstall. Android's own cloud backup of the app is off, so a reinstall starts clean.
@@ -155,6 +161,8 @@ only when you can cut the ride short.
 - HUD: does the phone find and link the HUD as before (Auto and Fixed), and are the overlay presets, the button actions and the map on the HUD the same as the last build?
 - Route builder: search, optimize and reverse a route, share it (link, QR, live group), load a GPX track and convert it to stops, set your marker photo. Same as the last build?
 - Dashboard, Settings, alarm editor, Scan, the trip list, trip details, trip meter, metric details, battery monitor and leaderboards: anything that looks or acts differently from the last build is a bug.
+**Texts** (anyone, in your language)
+- Settings hints for rotation, radar, speed splits, Android Auto, keep alive, settings backup, weather source and Advanced rates: does each still read as a whole sentence in your language?
 
 **InMotion V6** (Klaus)
 - Set tilt-back to 20 km/h in EUC Planet, normal and in Legal mode: does the wheel beep like for 19 and 21?
@@ -228,9 +236,14 @@ only when you can cut the ride short.
 - Open a trip, tap Compare, pick a ride over the same road: does Auto line them up? Try Stacked and Overlay, Show differences, and scrub the charts.
 
 **Native speakers, any language**
-- Use the app in your language for a ride: anything that sounds stiff, wrong for riders, or does not fit its button? Say the screen and the better words.
+- UK, Irish, Australian, New Zealand, South African and Indian riders: on a fresh install, does the app start in English (UK)? Anything still spelled the American way?
+- Use the app in your language for a ride: anything that sounds stiff, wrong for riders, or does not fit its button? Say the screen and the better words. Many words changed in this build (speed, metric, overlay, scan, lock), so a second look is welcome.
+- Flip phone owners: Settings, Display & appearance, "Avoid cover screen cameras": is that what your phone calls the outer screen in your language?
 
 **Any wheel**
+- UK riders, fresh install only (or clear the app's data): does it start on mph, miles, Celsius and altitude in metres? Your SIM and your phone's region must both be UK.
+- Settings, Units, Custom: set Altitude to feet while distance stays on kilometres. Do the altitude tile, its detail graph, a Studio altitude element and the same element on the HUD all say ft? Set it back to metres: all m?
+- After updating without touching units: is your altitude still in the unit you had before?
 - Make a settings backup, uninstall, install again, link the same folder: does "Last backup" show the time you just made it?
 - Had a Backup conflicts warning that would not go away? Tap Fix, then Sync all, pick a side: is it gone at once?
 - Ride with voice alarms on, open the main screens, sync, widgets and the watch: anything that acts differently from the last build is a bug.

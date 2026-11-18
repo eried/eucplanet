@@ -1078,6 +1078,7 @@ class HudServer(
             unitDistance = com.eried.eucplanet.util.Units.effectiveDistanceUnit(s),
             unitTemp = com.eried.eucplanet.util.Units.effectiveTempUnit(s),
             unitPressure = com.eried.eucplanet.util.Units.effectivePressureUnit(s),
+            unitAltitude = com.eried.eucplanet.util.Units.effectiveAltitudeUnit(s),
             batteryEnvelope = wd.batteryEnvelope,
             accentArgb = resolveAccentArgb(),
             latitude = (location?.latitude ?: 0.0) + (d?.dLat ?: 0.0),

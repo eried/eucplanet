@@ -161,7 +161,7 @@ class SyncTestPhone(
     var nowMs: Long = (server.nowSec - 30) * 1000L
 
     val files: TripFileStore = filesFactory?.invoke { nowMs } ?: MemoryTripFiles { nowMs }
-    val settings = SettingsRepository(SettingsStore(MemoryDataStore()) { false })
+    val settings = SettingsRepository(SettingsStore(MemoryDataStore()) { com.eried.eucplanet.data.store.DefaultUnits.METRIC })
     private val alarms = object : AlarmRuleStore {
         var rules: List<AlarmRule> = emptyList()
         override suspend fun getAll() = rules

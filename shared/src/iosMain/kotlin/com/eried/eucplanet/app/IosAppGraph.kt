@@ -92,7 +92,10 @@ object IosAppGraph {
             ),
             // Android also asks the cell network; iOS has no reliable carrier
             // country, so the region the phone is set to decides alone.
-            isImperialLocale = { NSLocale.currentLocale.countryCode?.uppercase() in setOf("US", "LR", "MM") },
+            startingUnits = {
+                val region = NSLocale.currentLocale.countryCode.orEmpty()
+                com.eried.eucplanet.data.store.DefaultUnits.pick(region, region)
+            },
         )
     }
 

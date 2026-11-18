@@ -1034,6 +1034,7 @@ class VoiceCommandController(
         ),
         distanceUnit = com.eried.eucplanet.util.Units.effectiveDistanceUnit(settings),
         pressureUnit = com.eried.eucplanet.util.Units.effectivePressureUnit(settings),
+        altitudeUnit = com.eried.eucplanet.util.Units.effectiveAltitudeUnit(settings),
     )
 
     /**

@@ -17,7 +17,7 @@ import com.eried.eucplanet.data.store.LegalLockdownStore
 import com.eried.eucplanet.data.store.LockdownStore
 import com.eried.eucplanet.data.store.lockdownDataStore
 import com.eried.eucplanet.data.store.SettingsStore
-import com.eried.eucplanet.data.store.androidImperialLocale
+import com.eried.eucplanet.data.store.androidStartingUnits
 import com.eried.eucplanet.data.store.settingsDataStore
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
@@ -47,7 +47,7 @@ object AppModule {
     private const val TAG = "AppModule"
 
     fun provideSettingsStore(context: Context, dataStore: DataStore<Preferences>): SettingsStore {
-        val store = SettingsStore(dataStore) { androidImperialLocale(context) }
+        val store = SettingsStore(dataStore) { androidStartingUnits(context) }
         copyLegacyRoomSettingsIfPresent(context, store)
         // After the legacy migration: if DataStore is still empty this is a
         // genuine fresh install, seed unit defaults from the device locale.

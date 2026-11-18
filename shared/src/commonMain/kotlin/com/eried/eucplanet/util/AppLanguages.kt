@@ -12,6 +12,11 @@ object AppLanguages {
     /**
      * Every shipped language, in picker order: English first, then by tag.
      *
+     * English, Spanish, Portuguese and Chinese each come in two kinds, named
+     * the way the trip viewer and eucstats name them, so all four show one
+     * list. British English is generated from the English strings
+     * (tools/i18n/en_gb.py), never written by hand.
+     *
      * One list because adding a language used to mean editing four places -
      * the strings folder, locales_config.xml, the settings picker, and the tag
      * sets - and missing one was silent. Japanese, Korean and Turkish
@@ -20,14 +25,15 @@ object AppLanguages {
      * were missed. LocaleCoverageTest now fails the build on that mismatch.
      */
     val SUPPORTED: List<Language> = listOf(
-        Language("en", "English"),
+        Language("en", "English (US)"),
+        Language("en-GB", "English (UK)"),
         Language("bg", "Български"),
         Language("cs", "Čeština"),
         Language("da", "Dansk"),
         Language("de", "Deutsch"),
         Language("el", "Ελληνικά"),
-        Language("es", "Español"),
-        Language("es-419", "Español (Latinoamérica)"),
+        Language("es", "Español (ES)"),
+        Language("es-419", "Español (LA)"),
         Language("fi", "Suomi"),
         Language("fr", "Français"),
         Language("hu", "Magyar"),
@@ -38,8 +44,8 @@ object AppLanguages {
         Language("nl", "Nederlands"),
         Language("no", "Norsk"),
         Language("pl", "Polski"),
-        Language("pt-BR", "Português (Brasil)"),
-        Language("pt-PT", "Português (Portugal)"),
+        Language("pt-BR", "Português (BR)"),
+        Language("pt-PT", "Português (PT)"),
         Language("ro", "Română"),
         Language("ru", "Русский"),
         Language("sk", "Slovenčina"),
@@ -48,9 +54,12 @@ object AppLanguages {
         Language("tr", "Türkçe"),
         Language("uk", "Українська"),
         Language("vi", "Tiếng Việt"),
-        Language("zh", "简体中文"),
-        Language("zh-TW", "繁體中文"),
+        Language("zh", "中文 (简体)"),
+        Language("zh-TW", "中文 (繁體)"),
     )
+
+    /** Where English is the British kind: the regions eucstats sends there. */
+    val BRITISH_REGIONS = setOf("GB", "UK", "IE", "AU", "NZ", "ZA", "IN")
 
     /** Tags with no region part, so a bare language ("fi") matches them directly. */
     private val plainTags: Set<String> = SUPPORTED.map { it.tag }.filter { '-' !in it }.toSet()
@@ -60,12 +69,14 @@ object AppLanguages {
      * stores Norwegian as "nb" / "nb-NO" after we apply "no", iOS names it
      * "nb"; Latin-American Spanish is "es-419" or a country; Portuguese is
      * "pt-BR" or "pt-PT"; Indonesian can be the legacy "in"; Chinese can carry
-     * its script ("zh-Hans", "zh-Hant-TW").
+     * its script ("zh-Hans", "zh-Hant-TW"); English is "en-GB" or "en-US".
      * Returns the input unchanged if no normalisation is needed.
      */
     fun normalizeToSupportedTag(tag: String): String {
         val lower = tag.lowercase()
         return when {
+            lower.startsWith("en-") ->
+                if (lower.substringAfter('-').substringBefore('-').uppercase() in BRITISH_REGIONS) "en-GB" else "en"
             lower.startsWith("nb") || lower.startsWith("nn") -> "no"
             lower.startsWith("pt-pt") -> "pt-PT"
             lower == "pt" || lower.startsWith("pt-") -> "pt-BR"

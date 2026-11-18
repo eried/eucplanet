@@ -4,7 +4,7 @@
     <string name="notification_channel_name">Egykerekű kapcsolat</string>
     <string name="notification_channel_description">Az egykerekű kapcsolati állapotát és telemetriáját mutatja.</string>
     <string name="keep_app_alive">Alkalmazás futva tartása</string>
-    <string name="keep_app_alive_desc">Folyamatos értesítést tart fenn, így az alkalmazás a háttérben is fut. A menetek szinkronizálása és a hang akkor is működik, ha nincs csatlakoztatott egykerekű. Kicsit jobban meríti az akkumulátort.</string>
+    <string name="keep_app_alive_desc">Folyamatos értesítést tart fenn, így az alkalmazás a háttérben is fut. Kicsit jobban meríti az akkumulátort.</string>
     <string name="notif_actions_enable">Műveletek megjelenítése az értesítésben</string>
     <string name="notif_actions_enable_desc">Gyorsműveleti gombokat ad a folyamatos értesítéshez.</string>
     <string name="notif_actions_pick_desc">Válassz legfeljebb %1$d műveletet. Ugyanaz a művelet ismétlődhet.</string>
@@ -224,7 +224,7 @@
     <string name="metric_chip_battery_temp">Akkumulátor hőmérséklete</string>
     <string name="metric_chip_tire_pressure">Guminyomás</string>
     <string name="metric_chip_tire_pressure_tile">Gumi</string>
-    <string name="metric_desc_tire_pressure">Guminyomás a saját érzékelődről vagy az egykerekű által továbbított értékből. Az általad választott nyomásegységben.</string>
+    <string name="metric_desc_tire_pressure">Guminyomás a saját érzékelődről vagy az egykerekű által továbbított értékből.</string>
     <string name="metric_chip_headroom">Tartalék</string>
     <string name="metric_chip_trip_time">Menetidő</string>
     <string name="metric_chip_trip_max_speed">Menet maximuma</string>
@@ -458,7 +458,7 @@
     <string name="hud_custom_overlay_none">Törlés</string>
     <string name="hud_search_corpus">HUD kijelző társ szerver adatfolyam telemetria hotspot motoeye kanyarnyíl</string>
     <string name="hud_joystick_title">Gombműveletek</string>
-    <string name="hud_joystick_desc">Koppints duplán egy HUD-gombra egy művelet futtatásához. Az egyszeri koppintás továbbra is képernyőt vált.</string>
+    <string name="hud_joystick_desc">Koppints duplán egy HUD-gombra egy művelet futtatásához.</string>
     <string name="hud_joystick_up">Fel (dupla koppintás)</string>
     <string name="hud_joystick_down">Le (dupla koppintás)</string>
     <string name="hud_joystick_left">Balra (dupla koppintás)</string>
@@ -506,7 +506,7 @@
     <string name="watch_update_rate">Frissítési gyakoriság</string>
     <string name="watch_update_rate_desc">A lassabb frissítés kíméli az óra akkumulátorát. Ez független az egykerekű lekérdezési gyakoriságától a Speciális részben.</string>
     <string name="watch_map_enabled">Térkép az órán</string>
-    <string name="watch_map_enabled_desc">Megjeleníti a telefon helyzetét és útvonalát. A háttérben működéshez egy értesítés megmarad.</string>
+    <string name="watch_map_enabled_desc">Megjeleníti a telefon helyzetét és útvonalát.</string>
     <string name="watch_map_orientation">Térkép tájolása</string>
     <string name="watch_map_north_up">Észak felül</string>
     <string name="watch_map_heading_up">Menetirány felül</string>
@@ -521,15 +521,15 @@
     <string name="tab_more">Továbbiak</string>
     <string name="settings_visibility">Beállítások láthatósága</string>
     <string name="adv_timings_title">Időzítések és változók</string>
-    <string name="reorg_hint">Rendezd át a beállítások képernyőt, és rejtsd el a ritkán használt részeket. A rejtett részek a „Továbbiak” rész alá kerülnek.</string>
+    <string name="reorg_hint">Rendezd át a beállítások képernyőt, és rejtsd el a ritkán használt részeket.</string>
     <string name="reorg_drag_cd">Húzd az átrendezéshez</string>
-    <string name="adv_rates_warning">Ezek a vezérlők az egész alkalmazás időzítését módosítják. Az alacsonyabb értékek frissebb adatot és gyorsabb reakciót adnak, de több akkumulátort, processzort vagy adatot használnak. Az alapértékek a legtöbb egykerekűsnek megfelelnek. Csak akkor változtasd meg őket, ha érted a hatásukat.</string>
+    <string name="adv_rates_warning">Ezek a vezérlők az egész alkalmazás időzítését módosítják. Csak akkor változtasd meg őket, ha érted a hatásukat.</string>
     <string name="adv_pushonly_note">Néhány eszköz saját, rögzített ütemben küld adatot, és figyelmen kívül hagyja ezeket a beállításokat: maguktól küldő egykerekűek (Begode, Gotway, Veteran, KingSong), külső GPS (RaceBox, Dragy), radar és Flic gombok.</string>
     <string name="adv_group_rates">Adat- és jelentési gyakoriságok</string>
     <string name="adv_wheel_poll_rate">Egykerekű lekérdezési gyakorisága</string>
     <string name="adv_wheel_poll_rate_desc">Meghatározza, mennyire friss az élő adat, és milyen gyorsan reagálnak a riasztások. Az alacsonyabb érték gyakrabban kérdezi le az egykerekűt. Vigyázat: a nagyon alacsony értékek eláraszthatják a Bluetooth-kapcsolatot, és egyes egykerekűeknél megakaszthatják az adatfolyamot.</string>
     <string name="adv_graph_sample_interval">Grafikon mintavételi köze</string>
-    <string name="adv_graph_sample_interval_desc">Csak a műszerfal grafikonjainak részletességét befolyásolja. Nem érinti a riasztásokat és a menetfájlokat. Vigyázat: a nagyon alacsony értékek több memóriát használnak.</string>
+    <string name="adv_graph_sample_interval_desc">Nem érinti a riasztásokat és a menetfájlokat. Vigyázat: a nagyon alacsony értékek több memóriát használnak.</string>
     <string name="adv_smoothing_window">Simítási ablak</string>
     <string name="adv_smoothing_window_desc">Az „átlag” menetgrafikonok és a simított hangjelentések által átlagolt minták száma. A menetek nagyjából másodpercenként naplóznak, így ez másodpercként értendő. Vigyázat: a magas értékek elrejtik a rövid csúcsokat.</string>
     <string name="adv_trip_record_interval">Menetrögzítés időköze</string>
@@ -748,7 +748,7 @@
     <string name="section_cloud_settings">Beállítások mentése</string>
     <string name="cloud_backup_now">Mentés</string>
     <string name="cloud_restore">Visszaállítás</string>
-    <string name="cloud_settings_backup_desc">Minden beállításod az eucplanet_settings.json fájlba kerül a mentési mappádban. Tartsd nyomva a gombot, ha mellé egy elnevezett másolatot is mentenél. A menetek mentése külön történik.</string>
+    <string name="cloud_settings_backup_desc">Minden beállításod az eucplanet_settings.json fájlba kerül a mentési mappádban. Tartsd nyomva a gombot, ha mellé egy elnevezett másolatot is mentenél.</string>
     <string name="cloud_last_backup">Utolsó mentés: %1$s</string>
     <string name="cloud_last_backup_named">Utolsó mentés: %1$s, „%2$s” néven</string>
     <string name="cloud_last_backup_never">Még nincs mentés</string>
@@ -846,9 +846,9 @@
     <string name="side_default">Alapértelmezett</string>
     <string name="side_left">Bal</string>
     <string name="side_right">Jobb</string>
-    <string name="geo_other_hint">Akkufigyelő, mérőszám-előzmények, keresés és Flic. Az Overlay Studiót nem érinti: elrendezése rögzített, de bármilyen tájolásban jól működik.</string>
-    <string name="geo_settings_hint">A beállítások képernyő. Alapból ki van kapcsolva, így a Beállítások álló tájolásban marad, amíg be nem kapcsolod.</string>
-    <string name="geo_trip_hint">A részletes nézet alapból forog a fekvő térkép és grafikonok miatt. A menetlista álló tájolásban marad, amíg be nem kapcsolod.</string>
+    <string name="geo_other_hint">Akkufigyelő, mérőszám-előzmények, keresés és Flic.</string>
+    <string name="geo_settings_hint">A beállítások képernyő.</string>
+    <string name="geo_trip_hint">A részletes nézet alapból forog a fekvő térkép és grafikonok miatt.</string>
     <string name="back_button_action_ask">Kérdezzen</string>
     <string name="back_button_action_background">Háttérbe</string>
     <string name="back_button_action_stop">Összes leállítása</string>
@@ -941,7 +941,7 @@
     <string name="voice_interval">Időköz</string>
     <string name="section_accel_splits">Sebességrészidők</string>
     <string name="accel_splits_enabled">Idők bemondása</string>
-    <string name="accel_splits_desc">Bemondja az egyes sebességlépcsők átlépéséhez szükséges időt gyorsításkor és lassításkor. Az alábbi sebességtől indul, az általad megadott lépcsőkben.</string>
+    <string name="accel_splits_desc">Bemondja az egyes sebességlépcsők átlépéséhez szükséges időt gyorsításkor és lassításkor.</string>
     <string name="accel_split_decel_prefix">fékezés, </string>
     <string name="accel_splits_from">Ettől</string>
     <string name="accel_splits_step">Lépcső</string>
@@ -1111,7 +1111,7 @@
     <string name="flic_start_scan">Keresés indítása</string>
     <string name="flic_forget">Elfelejtés</string>
     <string name="flic_forget_title">Elfelejted ezt a gombot?</string>
-    <string name="flic_forget_body">A(z) %1$s párosítása megszűnik, és a műveletei törlődnek. Bármikor újrapárosíthatod.</string>
+    <string name="flic_forget_body">A(z) %1$s párosítása megszűnik.</string>
     <string name="flic_rename">Átnevezés</string>
     <string name="flic_click">Kattintás</string>
     <string name="flic_double_click">Dupla kattintás</string>
@@ -1160,7 +1160,7 @@
     <string name="volume_keys_enable">Hangerőgomb-műveletek bekapcsolása</string>
     <string name="volume_keys_screen_off">Kikapcsolt képernyőnél is</string>
     <string name="volume_keys_screen_off_caption">Zárolt telefonnal és más alkalmazás mögött is működik. A gombok többé nem állítják a telefon hangerejét.</string>
-    <string name="volume_keys_screen_off_warn">Az Android a hangerőgombok lenyomását csak a képernyőn lévő alkalmazásnak küldi el. Hogy kikapcsolt képernyőnél is megkapja, az EUC Planet a telefon aktív médialejátszójaként jelentkezik be, így az Android neki küldi a hangerőgombokat a hangerő állítása helyett.\n\nAmíg ez be van kapcsolva, a gombok nem állítják a telefon hangerejét.</string>
+    <string name="volume_keys_screen_off_warn">Az Android a hangerőgombok lenyomását csak a képernyőn lévő alkalmazásnak küldi el. Hogy kikapcsolt képernyőnél is megkapja, az EUC Planet a telefon aktív médialejátszójaként jelentkezik be, így az Android neki küldi a hangerőgombokat a hangerő állítása helyett.</string>
     <string name="volume_keys_screen_off_confirm">Bekapcsolás</string>
     <string name="volume_keys_screen_off_title">Átvegye a hangerőgombokat?</string>
     <string name="volume_up">Hangerő fel</string>
@@ -1183,7 +1183,7 @@
         <item quantity="other">%1$d jármű követése:</item>
     </plurals>
     <string name="radar_show_overlay">Veszélyátfedés mutatása</string>
-    <string name="radar_show_overlay_desc">Vékony radarsáv a műszerfal szélein. Egy színes pont minden észlelt járműhöz. Csak a műszerfalon látható.</string>
+    <string name="radar_show_overlay_desc">Vékony radarsáv a műszerfal szélein.</string>
     <string name="radar_overlay_left">Bal szél</string>
     <string name="radar_overlay_both">Mindkét szél</string>
     <string name="radar_overlay_right">Jobb szél</string>
@@ -2197,7 +2197,7 @@
     <string name="weather_hot">Túl meleg e felett</string>
     <string name="weather_breezy">Szeles e felett</string>
     <string name="weather_windy">Túl szeles e felett</string>
-    <string name="weather_source_credit">Az előrejelzés a kiválasztott forrásból jön, és csak akkor tölt le, amíg ez be van kapcsolva. Rövidebb ablak finomabb léptékben is jöhet, ha a forrás kínálja.</string>
+    <string name="weather_source_credit">Az előrejelzés a kiválasztott forrásból jön. Rövidebb ablak finomabb léptékben is jöhet, ha a forrás kínálja.</string>
     <string name="weather_title_1">Egykerekűs idő?</string>
     <string name="weather_title_2">EUC-idő?</string>
     <string name="weather_title_3">Ideje gurulni?</string>
@@ -2508,7 +2508,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">Megyünk?</string>
     <string name="widget_weather_score_desc">Milyen most az idő egy menethez.</string>
-    <string name="widget_weather_compact_desc">Mennyire jó az idő a menethez, most és a következő órákban. Húzd nagyobbra órákért, hőmérsékletért és szélért.</string>
+    <string name="widget_weather_compact_desc">Mennyire jó az idő a menethez, most és a következő órákban.</string>
     <string name="widget_weather_graph_desc">Mennyire jó az idő a menethez az előrejelzett időszakban</string>
     <string name="widget_weather_refresh_desc">Előrejelzés frissítése</string>
     <string name="widget_weather_never">Még nincs előrejelzés. Nyisd meg egyszer az alkalmazást, vagy koppints a frissítésre.</string>
@@ -2641,7 +2641,7 @@
         <item quantity="other">%d megálló</item>
     </plurals>
     <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Adataid és az egykerekű gombjai egy Android Auto képernyőn. Magától csatlakozik, Wi-Fi-beállítás nélkül.</string>
+    <string name="android_auto_hint">Adataid és az egykerekű gombjai egy Android Auto képernyőn.</string>
     <string name="car_waiting">Várakozás az egykerekűre</string>
     <string name="car_last_battery">Utolsó akku %1$d%%</string>
     <string name="car_navigate">Navigáció</string>

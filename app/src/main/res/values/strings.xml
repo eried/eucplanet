@@ -6,7 +6,7 @@
 
     <!-- Notification quick actions -->
     <string name="keep_app_alive">Keep app running</string>
-    <string name="keep_app_alive_desc">Keeps an ongoing notification so the app stays alive in the background. Trip sync and voice keep working even with no wheel connected. Uses a little more battery.</string>
+    <string name="keep_app_alive_desc">Keeps an ongoing notification so the app stays alive in the background. Uses a little more battery.</string>
     <string name="notif_actions_enable">Show notification actions</string>
     <string name="notif_actions_enable_desc">Add quick action buttons to the ongoing notification.</string>
     <string name="notif_actions_pick_desc">Pick up to %1$d actions. The same action can repeat.</string>
@@ -253,7 +253,7 @@
     <string name="metric_chip_battery_temp">Battery temperature</string>
     <string name="metric_chip_tire_pressure">Tire pressure</string>
     <string name="metric_chip_tire_pressure_tile">Tire</string>
-    <string name="metric_desc_tire_pressure">Tire pressure from your own sensor or one the wheel relays. Shown in the pressure unit you picked.</string>
+    <string name="metric_desc_tire_pressure">Tire pressure from your own sensor or one the wheel relays.</string>
     <string name="metric_chip_headroom">Headroom</string>
     <string name="metric_chip_trip_time">Trip time</string>
     <string name="metric_chip_trip_max_speed">Trip max</string>
@@ -509,7 +509,7 @@
 
     <!-- HUD button long-press actions -->
     <string name="hud_joystick_title">Button actions</string>
-    <string name="hud_joystick_desc">Double-tap a HUD button to run an action. A single tap still switches screens.</string>
+    <string name="hud_joystick_desc">Double-tap a HUD button to run an action.</string>
     <string name="hud_joystick_up">Up (double-tap)</string>
     <string name="hud_joystick_down">Down (double-tap)</string>
     <string name="hud_joystick_left">Left (double-tap)</string>
@@ -575,7 +575,7 @@
     <string name="watch_update_rate">Update rate</string>
     <string name="watch_update_rate_desc">Slower updates save watch battery. This is separate from the wheel poll rate in the Advanced section.</string>
     <string name="watch_map_enabled">Watch map</string>
-    <string name="watch_map_enabled_desc">Shows position and route from the phone. A notification remains for background operation.</string>
+    <string name="watch_map_enabled_desc">Shows position and route from the phone.</string>
     <string name="watch_map_orientation">Map orientation</string>
     <string name="watch_map_north_up">North up</string>
     <string name="watch_map_heading_up">Heading up</string>
@@ -591,15 +591,15 @@
     <string name="tab_more">More</string>
     <string name="settings_visibility">Settings visibility</string>
     <string name="adv_timings_title">Timings and variables</string>
-    <string name="reorg_hint">Reorganize the settings screen and hide sections you rarely use. Hidden sections move to the \"More\" section.</string>
+    <string name="reorg_hint">Reorganize the settings screen and hide sections you rarely use.</string>
     <string name="reorg_drag_cd">Drag to reorder</string>
-    <string name="adv_rates_warning">These controls change timing across the app. Lower values give fresher data and faster reactions but use more battery, CPU or data. The defaults suit most riders. Change them only if you understand the effect.</string>
+    <string name="adv_rates_warning">These controls change timing across the app. Change them only if you understand the effect.</string>
     <string name="adv_pushonly_note">Some devices stream at their own fixed rate and ignore these settings: push-only wheels (Begode, Gotway, Veteran, KingSong), external GPS (RaceBox, Dragy), radar and Flic buttons.</string>
     <string name="adv_group_rates">Data and reporting rates</string>
     <string name="adv_wheel_poll_rate">Wheel poll rate</string>
     <string name="adv_wheel_poll_rate_desc">Affects how fresh the live data is and how fast alarms react. Lower asks the wheel for data more often. Danger: very low values can flood the Bluetooth link and stall data on some wheels.</string>
     <string name="adv_graph_sample_interval">Graph sample interval</string>
-    <string name="adv_graph_sample_interval_desc">Affects the detail of the dashboard charts only. Does not affect alarms or trip files. Danger: very low values use more memory.</string>
+    <string name="adv_graph_sample_interval_desc">Does not affect alarms or trip files. Danger: very low values use more memory.</string>
     <string name="adv_smoothing_window">Smoothing window</string>
     <string name="adv_smoothing_window_desc">Samples averaged by the "average" trip graphs and the smoothed voice reports. Trips log about once a second, so this reads as seconds. Danger: high values hide short spikes.</string>
     <string name="adv_trip_record_interval">Trip recording interval</string>
@@ -826,7 +826,7 @@
     <string name="section_cloud_settings">Settings backup</string>
     <string name="cloud_backup_now">Backup</string>
     <string name="cloud_restore">Restore</string>
-    <string name="cloud_settings_backup_desc">Everything you have set up in the app, written to eucplanet_settings.json in your backup folder. Hold the button to save a named copy alongside it. Trips are backed up separately.</string>
+    <string name="cloud_settings_backup_desc">Everything you have set up in the app, written to eucplanet_settings.json in your backup folder. Hold the button to save a named copy alongside it.</string>
     <string name="cloud_last_backup">Last backup: %1$s</string>
     <string name="cloud_last_backup_named">Last backup: %1$s as \"%2$s\"</string>
     <string name="cloud_last_backup_never">Not backed up yet</string>
@@ -926,9 +926,9 @@
     <string name="side_default">Default</string>
     <string name="side_left">Left</string>
     <string name="side_right">Right</string>
-    <string name="geo_other_hint">Battery monitor, metric history, scan and Flic. The Overlay Studio is not affected: its layout is fixed, but it works fine held in any orientation.</string>
-    <string name="geo_settings_hint">The settings screen. Off by default, so Settings stays portrait unless you enable it.</string>
-    <string name="geo_trip_hint">The details view rotates by default for the landscape map and charts. The trip list stays portrait unless you enable it.</string>
+    <string name="geo_other_hint">Battery monitor, metric history, scan and Flic.</string>
+    <string name="geo_settings_hint">The settings screen.</string>
+    <string name="geo_trip_hint">The details view rotates by default for the landscape map and charts.</string>
     <string name="back_button_action_ask">Ask</string>
     <string name="back_button_action_background">Background</string>
     <string name="back_button_action_stop">Stop all</string>
@@ -1028,7 +1028,7 @@
          the string so it localizes. Keep the spoken phrasing natural for TTS. -->
     <string name="section_accel_splits">Speed splits</string>
     <string name="accel_splits_enabled">Announce times</string>
-    <string name="accel_splits_desc">Speak the time to cross each speed step, speeding up or slowing down. Starts from the speed below, in steps you set.</string>
+    <string name="accel_splits_desc">Speak the time to cross each speed step, speeding up or slowing down.</string>
     <string name="accel_split_decel_prefix">braking, </string>
     <string name="accel_splits_from">From</string>
     <string name="accel_splits_step">Step</string>
@@ -1208,7 +1208,7 @@
     <string name="flic_start_scan">Start scan</string>
     <string name="flic_forget">Forget</string>
     <string name="flic_forget_title">Forget this button?</string>
-    <string name="flic_forget_body">%1$s will be unpaired and its actions cleared. You can pair it again anytime.</string>
+    <string name="flic_forget_body">%1$s will be unpaired.</string>
     <string name="flic_rename">Rename</string>
     <string name="flic_click">Click</string>
     <string name="flic_double_click">Double click</string>
@@ -1259,7 +1259,7 @@
     <string name="volume_keys_enable">Enable volume key actions</string>
     <string name="volume_keys_screen_off">Also when the screen is off</string>
     <string name="volume_keys_screen_off_caption">Works with the phone locked or another app in front. The buttons no longer change the phone volume.</string>
-    <string name="volume_keys_screen_off_warn">Android only sends volume presses to the app on screen. To get them with the screen off, EUC Planet registers as the phone\'s active media player, so Android sends the volume buttons to it instead of changing the volume.\n\nWhile this is on, the buttons no longer change the phone volume.</string>
+    <string name="volume_keys_screen_off_warn">Android only sends volume presses to the app on screen. To get them with the screen off, EUC Planet registers as the phone\'s active media player, so Android sends the volume buttons to it instead of changing the volume.</string>
     <string name="volume_keys_screen_off_confirm">Turn on</string>
     <string name="volume_keys_screen_off_title">Take over the volume buttons?</string>
     <string name="volume_up">Volume up</string>
@@ -1284,7 +1284,7 @@
         <item quantity="other">Tracking %1$d vehicles:</item>
     </plurals>
     <string name="radar_show_overlay">Show threat overlay</string>
-    <string name="radar_show_overlay_desc">Thin radar lane in the dashboard gutters. One colored dot per detected vehicle. Only visible on the dashboard.</string>
+    <string name="radar_show_overlay_desc">Thin radar lane in the dashboard gutters.</string>
     <string name="radar_overlay_left">Left edge</string>
     <string name="radar_overlay_both">Both edges</string>
     <string name="radar_overlay_right">Right edge</string>
@@ -1541,7 +1541,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">Ride?</string>
     <string name="widget_weather_score_desc">The weather for riding, right now.</string>
-    <string name="widget_weather_compact_desc">How good the weather is for riding, now and in the hours ahead. Resize for hours, temperature and wind.</string>
+    <string name="widget_weather_compact_desc">How good the weather is for riding, now and in the hours ahead.</string>
     <string name="widget_weather_graph_desc">How good the weather is for riding, over the forecast window</string>
     <string name="widget_weather_refresh_desc">Refresh the forecast</string>
     <string name="widget_weather_dash" translatable="false">--</string>
@@ -2409,7 +2409,7 @@
     <string name="weather_hot">Too hot above</string>
     <string name="weather_breezy">Breezy above</string>
     <string name="weather_windy">Too windy above</string>
-    <string name="weather_source_credit">The forecast comes from the source you pick, fetched only while this is on. A shorter window may come in finer steps, where the source offers them.</string>
+    <string name="weather_source_credit">The forecast comes from the source you pick. A shorter window may come in finer steps, where the source offers them.</string>
     <string name="weather_title_1">Is it wheel weather?</string>
     <string name="weather_title_2">Is it EUC time?</string>
     <string name="weather_title_3">Time to go ride?</string>
@@ -2865,7 +2865,7 @@
         <item quantity="other">%d stops</item>
     </plurals>
     <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Your stats and wheel buttons on an Android Auto screen. It connects by itself, no Wi-Fi setup.</string>
+    <string name="android_auto_hint">Your stats and wheel buttons on an Android Auto screen.</string>
     <string name="car_waiting">Waiting for the wheel</string>
     <string name="car_last_battery">Last battery %1$d%%</string>
     <string name="car_waiting_wheel">Waiting for the wheel</string>

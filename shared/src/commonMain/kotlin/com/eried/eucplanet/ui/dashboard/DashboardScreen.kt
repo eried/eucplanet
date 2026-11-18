@@ -178,8 +178,9 @@ private fun formatMetricStatValue(
     tempUnitLabel: String,
     distanceUnit: String,
     pressureUnit: String,
+    altitudeUnit: String = "",
 ): String = com.eried.eucplanet.data.model.MetricValueFormat.format(
-    key, raw, speedUnit, speedUnitLabel, tempUnit, tempUnitLabel, distanceUnit, pressureUnit,
+    key, raw, speedUnit, speedUnitLabel, tempUnit, tempUnitLabel, distanceUnit, pressureUnit, altitudeUnit,
 )
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -254,6 +255,7 @@ fun DashboardScreen(
     val distanceUnit by viewModel.distanceUnit.collectAsState()
     val tempUnit by viewModel.tempUnit.collectAsState()
     val pressureUnit by viewModel.pressureUnit.collectAsState()
+    val altitudeUnit by viewModel.altitudeUnit.collectAsState()
     val splitMode by viewModel.accelSplitMode.collectAsState()
     val accentKey by viewModel.accentKey.collectAsState()
     val showGaugeColorBand by viewModel.showGaugeColorBand.collectAsState()
@@ -1575,7 +1577,7 @@ fun DashboardScreen(
                 ) ?: return placeholder
                 return formatMetricStatValue(
                     key, raw, speedUnit, speedUnitLabel, tempUnit, tempUnitLabel,
-                    distanceUnit, pressureUnit
+                    distanceUnit, pressureUnit, altitudeUnit
                 )
             }
 
@@ -1606,7 +1608,8 @@ fun DashboardScreen(
             // back to placeholder until their value path lands.
             val metricInputs = com.eried.eucplanet.ui.metrics.MetricTextInputs(
                 live = live, wheel = wheelData, speedUnit = speedUnit, distanceUnit = distanceUnit,
-                tempUnit = tempUnit, pressureUnit = pressureUnit, currentAsWatts = showWatts,
+                tempUnit = tempUnit, pressureUnit = pressureUnit, altitudeUnit = altitudeUnit,
+                currentAsWatts = showWatts,
                 tripMeterKm = tripMeterState.distanceKm, phoneBatteryPct = phoneBatteryPct,
                 externalGpsBatteryPct = externalGpsBattery,
                 gpsAltitudeM = gpsLocation?.altitude,
@@ -1952,7 +1955,7 @@ fun DashboardScreen(
                                             formatMetricStatValue(
                                                 metricKey, value, speedUnit, speedUnitLabel,
                                                 tempUnit, tempUnitLabel, distanceUnit,
-                                                pressureUnit
+                                                pressureUnit, altitudeUnit
                                             )
                                         }
                                     // A composite always occupies one standard slot

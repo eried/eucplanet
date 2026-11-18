@@ -1927,6 +1927,7 @@ class RouteBuilderViewModel(
                 distance = Units.effectiveDistanceUnit(it),
                 temp = Units.effectiveTempUnit(it),
                 pressure = Units.effectivePressureUnit(it),
+                altitude = Units.effectiveAltitudeUnit(it),
             )
         }
         .stateIn(viewModelScope, SharingStarted.Eagerly, MetricUnits("kmh", "km", "C", "bar"))
@@ -2535,6 +2536,7 @@ data class MetricUnits(
     val distance: String,
     val temp: String,
     val pressure: String,
+    val altitude: String = "",
 )
 
 /** How many stops at the head of [list] the rider has already reached. */

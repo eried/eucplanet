@@ -252,6 +252,7 @@ class OverlayStudioViewModel(
     val distanceUnit: String = Units.effectiveDistanceUnit(initialSettings)
     val tempUnit: String = Units.effectiveTempUnit(initialSettings)
     val pressureUnit: String = Units.effectivePressureUnit(initialSettings)
+    val altitudeUnit: String = Units.effectiveAltitudeUnit(initialSettings)
 
     // --- Replay export format prefs -----------------------------------------
     // The Replay panel's output-format chooser. Seeded from saved settings;

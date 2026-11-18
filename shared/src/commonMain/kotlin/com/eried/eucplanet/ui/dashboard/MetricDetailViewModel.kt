@@ -29,6 +29,11 @@ class MetricDetailViewModel(
         .map { com.eried.eucplanet.util.Units.effectiveTempUnit(it) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "C")
 
+    /** The rider's own unit for heights, for the altitude graph and stats. */
+    val altitudeUnit: StateFlow<String> = settingsRepository.settings
+        .map { com.eried.eucplanet.util.Units.effectiveAltitudeUnit(it) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "m")
+
     /** The rider's own pressure unit, for the tyre-pressure graph and stats. */
     val pressureUnit: StateFlow<String> = settingsRepository.settings
         .map { com.eried.eucplanet.util.Units.effectivePressureUnit(it) }

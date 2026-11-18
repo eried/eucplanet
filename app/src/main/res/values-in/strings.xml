@@ -4,7 +4,7 @@
     <string name="notification_channel_name">Koneksi EUC</string>
     <string name="notification_channel_description">Menampilkan status koneksi dan telemetri EUC.</string>
     <string name="keep_app_alive">Biarkan aplikasi tetap berjalan</string>
-    <string name="keep_app_alive_desc">Menyimpan notifikasi berkelanjutan agar aplikasi tetap aktif di latar belakang. Sinkronisasi perjalanan dan suara tetap berfungsi meski tidak ada EUC yang terhubung. Sedikit lebih boros baterai.</string>
+    <string name="keep_app_alive_desc">Menyimpan notifikasi berkelanjutan agar aplikasi tetap aktif di latar belakang. Sedikit lebih boros baterai.</string>
     <string name="notif_actions_enable">Tampilkan tindakan notifikasi</string>
     <string name="notif_actions_enable_desc">Tambahkan tombol tindakan cepat ke notifikasi berkelanjutan.</string>
     <string name="notif_actions_pick_desc">Pilih hingga %1$d tindakan. Tindakan yang sama boleh diulang.</string>
@@ -225,7 +225,7 @@
     <string name="metric_chip_battery_temp">Suhu baterai</string>
     <string name="metric_chip_tire_pressure">Tekanan ban</string>
     <string name="metric_chip_tire_pressure_tile">Ban</string>
-    <string name="metric_desc_tire_pressure">Tekanan ban dari sensor Anda sendiri atau yang diteruskan EUC. Ditampilkan dalam satuan tekanan yang Anda pilih.</string>
+    <string name="metric_desc_tire_pressure">Tekanan ban dari sensor Anda sendiri atau yang diteruskan EUC.</string>
     <string name="metric_chip_headroom">Sisa margin</string>
     <string name="metric_chip_trip_time">Waktu trip</string>
     <string name="metric_chip_trip_max_speed">Maks trip</string>
@@ -464,7 +464,7 @@
     <string name="hud_custom_overlay_none">Hapus</string>
     <string name="hud_search_corpus">HUD heads-up display pendamping server stream telemetri hotspot motoeye panah belok</string>
     <string name="hud_joystick_title">Tindakan tombol</string>
-    <string name="hud_joystick_desc">Ketuk dua kali tombol HUD untuk menjalankan tindakan. Ketukan tunggal tetap berpindah layar.</string>
+    <string name="hud_joystick_desc">Ketuk dua kali tombol HUD untuk menjalankan tindakan.</string>
     <string name="hud_joystick_up">Atas (ketuk dua kali)</string>
     <string name="hud_joystick_down">Bawah (ketuk dua kali)</string>
     <string name="hud_joystick_left">Kiri (ketuk dua kali)</string>
@@ -512,7 +512,7 @@
     <string name="watch_update_rate">Laju pembaruan</string>
     <string name="watch_update_rate_desc">Pembaruan lebih lambat menghemat baterai jam tangan. Ini terpisah dari laju polling EUC di bagian Lanjutan.</string>
     <string name="watch_map_enabled">Peta jam tangan</string>
-    <string name="watch_map_enabled_desc">Menampilkan posisi dan rute dari ponsel. Notifikasi tetap ada untuk operasi latar belakang.</string>
+    <string name="watch_map_enabled_desc">Menampilkan posisi dan rute dari ponsel.</string>
     <string name="watch_map_orientation">Orientasi peta</string>
     <string name="watch_map_north_up">Utara di atas</string>
     <string name="watch_map_heading_up">Arah di atas</string>
@@ -527,15 +527,15 @@
     <string name="tab_more">Lainnya</string>
     <string name="settings_visibility">Visibilitas setelan</string>
     <string name="adv_timings_title">Waktu dan variabel</string>
-    <string name="reorg_hint">Atur ulang layar setelan dan sembunyikan bagian yang jarang Anda pakai. Bagian tersembunyi pindah ke bagian “Lainnya”.</string>
+    <string name="reorg_hint">Atur ulang layar setelan dan sembunyikan bagian yang jarang Anda pakai.</string>
     <string name="reorg_drag_cd">Tarik untuk mengurutkan</string>
-    <string name="adv_rates_warning">Kontrol ini mengubah pengaturan waktu di seluruh aplikasi. Nilai lebih rendah memberi data lebih segar dan reaksi lebih cepat, tetapi lebih boros baterai, CPU, atau data. Default cocok untuk sebagian besar pengendara. Ubah hanya jika Anda memahami efeknya.</string>
+    <string name="adv_rates_warning">Kontrol ini mengubah pengaturan waktu di seluruh aplikasi. Ubah hanya jika Anda memahami efeknya.</string>
     <string name="adv_pushonly_note">Beberapa perangkat mengirim data dengan laju tetapnya sendiri dan mengabaikan setelan ini: EUC push-only (Begode, Gotway, Veteran, KingSong), GPS eksternal (RaceBox, Dragy), radar, dan tombol Flic.</string>
     <string name="adv_group_rates">Laju data dan pelaporan</string>
     <string name="adv_wheel_poll_rate">Laju polling EUC</string>
     <string name="adv_wheel_poll_rate_desc">Memengaruhi kesegaran data langsung dan kecepatan reaksi alarm. Lebih rendah meminta data ke EUC lebih sering. Bahaya: nilai sangat rendah bisa membanjiri tautan Bluetooth dan menghentikan data di beberapa EUC.</string>
     <string name="adv_graph_sample_interval">Interval sampel grafik</string>
-    <string name="adv_graph_sample_interval_desc">Hanya memengaruhi detail grafik dasbor. Tidak memengaruhi alarm atau file perjalanan. Bahaya: nilai sangat rendah memakai lebih banyak memori.</string>
+    <string name="adv_graph_sample_interval_desc">Tidak memengaruhi alarm atau file perjalanan. Bahaya: nilai sangat rendah memakai lebih banyak memori.</string>
     <string name="adv_smoothing_window">Jendela penghalusan</string>
     <string name="adv_smoothing_window_desc">Jumlah sampel yang dirata-ratakan oleh grafik perjalanan “rata-rata” dan laporan suara yang dihaluskan. Perjalanan dicatat sekitar sekali per detik, jadi nilainya setara detik. Bahaya: nilai tinggi menyembunyikan lonjakan singkat.</string>
     <string name="adv_trip_record_interval">Interval perekaman perjalanan</string>
@@ -754,7 +754,7 @@
     <string name="section_cloud_settings">Cadangan setelan</string>
     <string name="cloud_backup_now">Cadangkan</string>
     <string name="cloud_restore">Pulihkan</string>
-    <string name="cloud_settings_backup_desc">Semua yang Anda atur di aplikasi, ditulis ke eucplanet_settings.json di folder cadangan Anda. Tahan tombol untuk menyimpan salinan bernama di sampingnya. Perjalanan dicadangkan terpisah.</string>
+    <string name="cloud_settings_backup_desc">Semua yang Anda atur di aplikasi, ditulis ke eucplanet_settings.json di folder cadangan Anda. Tahan tombol untuk menyimpan salinan bernama di sampingnya.</string>
     <string name="cloud_last_backup">Cadangan terakhir: %1$s</string>
     <string name="cloud_last_backup_named">Cadangan terakhir: %1$s sebagai “%2$s”</string>
     <string name="cloud_last_backup_never">Belum dicadangkan</string>
@@ -852,9 +852,9 @@
     <string name="side_default">Default</string>
     <string name="side_left">Kiri</string>
     <string name="side_right">Kanan</string>
-    <string name="geo_other_hint">Monitor baterai, riwayat metrik, pindai, dan Flic. Overlay Studio tidak terpengaruh: tata letaknya tetap, tetapi berfungsi baik dalam orientasi apa pun.</string>
-    <string name="geo_settings_hint">Layar setelan. Nonaktif secara default, jadi Setelan tetap potret kecuali Anda mengaktifkannya.</string>
-    <string name="geo_trip_hint">Tampilan detail berputar secara default untuk peta dan grafik lanskap. Daftar perjalanan tetap potret kecuali Anda mengaktifkannya.</string>
+    <string name="geo_other_hint">Monitor baterai, riwayat metrik, pindai, dan Flic.</string>
+    <string name="geo_settings_hint">Layar setelan.</string>
+    <string name="geo_trip_hint">Tampilan detail berputar secara default untuk peta dan grafik lanskap.</string>
     <string name="back_button_action_ask">Tanya</string>
     <string name="back_button_action_background">Latar belakang</string>
     <string name="back_button_action_stop">Hentikan semua</string>
@@ -947,7 +947,7 @@
     <string name="voice_interval">Interval</string>
     <string name="section_accel_splits">Split kecepatan</string>
     <string name="accel_splits_enabled">Umumkan waktu</string>
-    <string name="accel_splits_desc">Ucapkan waktu untuk melewati setiap tingkat kecepatan, saat mempercepat atau melambat. Dimulai dari kecepatan di bawah, dengan langkah yang Anda atur.</string>
+    <string name="accel_splits_desc">Ucapkan waktu untuk melewati setiap tingkat kecepatan, saat mempercepat atau melambat.</string>
     <string name="accel_split_decel_prefix">mengerem, </string>
     <string name="accel_splits_from">Dari</string>
     <string name="accel_splits_step">Langkah</string>
@@ -1117,7 +1117,7 @@
     <string name="flic_start_scan">Mulai pindai</string>
     <string name="flic_forget">Lupakan</string>
     <string name="flic_forget_title">Lupakan tombol ini?</string>
-    <string name="flic_forget_body">%1$s akan dilepas pasangannya dan tindakannya dihapus. Anda bisa memasangkannya lagi kapan saja.</string>
+    <string name="flic_forget_body">%1$s akan dilepas pasangannya.</string>
     <string name="flic_rename">Ganti nama</string>
     <string name="flic_click">Klik</string>
     <string name="flic_double_click">Klik Ganda</string>
@@ -1166,7 +1166,7 @@
     <string name="volume_keys_enable">Aktifkan tindakan tombol volume</string>
     <string name="volume_keys_screen_off">Juga saat layar mati</string>
     <string name="volume_keys_screen_off_caption">Berfungsi saat ponsel terkunci atau aplikasi lain di depan. Tombol tidak lagi mengubah volume ponsel.</string>
-    <string name="volume_keys_screen_off_warn">Android hanya mengirim tekanan tombol volume ke aplikasi di layar. Agar tetap menerimanya saat layar mati, EUC Planet mendaftar sebagai pemutar media aktif ponsel, sehingga Android mengirim tombol volume kepadanya dan tidak mengubah volume.\n\nSelama ini aktif, tombol tidak lagi mengubah volume ponsel.</string>
+    <string name="volume_keys_screen_off_warn">Android hanya mengirim tekanan tombol volume ke aplikasi di layar. Agar tetap menerimanya saat layar mati, EUC Planet mendaftar sebagai pemutar media aktif ponsel, sehingga Android mengirim tombol volume kepadanya dan tidak mengubah volume.</string>
     <string name="volume_keys_screen_off_confirm">Aktifkan</string>
     <string name="volume_keys_screen_off_title">Ambil alih tombol volume?</string>
     <string name="volume_up">Volume Naik</string>
@@ -1188,7 +1188,7 @@
         <item quantity="other">Melacak %1$d kendaraan:</item>
     </plurals>
     <string name="radar_show_overlay">Tampilkan overlay ancaman</string>
-    <string name="radar_show_overlay_desc">Lajur radar tipis di tepi dasbor. Satu titik berwarna per kendaraan terdeteksi. Hanya terlihat di dasbor.</string>
+    <string name="radar_show_overlay_desc">Lajur radar tipis di tepi dasbor.</string>
     <string name="radar_overlay_left">Tepi kiri</string>
     <string name="radar_overlay_both">Kedua tepi</string>
     <string name="radar_overlay_right">Tepi kanan</string>
@@ -1411,7 +1411,7 @@
     <string name="widget_standalone_slot">Tombol mandiri %1$d</string>
     <string name="widget_weather_question">Berkendara?</string>
     <string name="widget_weather_score_desc">Cuaca untuk berkendara, saat ini.</string>
-    <string name="widget_weather_compact_desc">Seberapa bagus cuaca untuk berkendara, sekarang dan beberapa jam ke depan. Ubah ukuran untuk jam, suhu, dan angin.</string>
+    <string name="widget_weather_compact_desc">Seberapa bagus cuaca untuk berkendara, sekarang dan beberapa jam ke depan.</string>
     <string name="widget_weather_graph_desc">Seberapa bagus cuaca untuk berkendara, selama jendela prakiraan</string>
     <string name="widget_weather_refresh_desc">Segarkan prakiraan</string>
     <string name="widget_weather_never">Belum ada prakiraan. Buka aplikasi sekali, atau ketuk segarkan.</string>
@@ -2189,7 +2189,7 @@
     <string name="weather_hot">Terlalu panas di atas</string>
     <string name="weather_breezy">Berangin di atas</string>
     <string name="weather_windy">Terlalu berangin di atas</string>
-    <string name="weather_source_credit">Prakiraan berasal dari sumber yang Anda pilih, hanya diambil saat ini aktif. Jendela yang lebih pendek mungkin hadir dalam langkah lebih rinci, jika sumbernya menyediakan.</string>
+    <string name="weather_source_credit">Prakiraan berasal dari sumber yang Anda pilih. Jendela yang lebih pendek mungkin hadir dalam langkah lebih rinci, jika sumbernya menyediakan.</string>
     <string name="weather_title_1">Cuaca cocok untuk EUC?</string>
     <string name="weather_title_2">Waktunya naik EUC?</string>
     <string name="weather_title_3">Saatnya berkendara?</string>
@@ -2632,7 +2632,7 @@
             <item quantity="other">%d perhentian</item>
         </plurals>
     <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Statistik dan tombol EUC Anda di layar Android Auto. Terhubung sendiri, tanpa pengaturan Wi-Fi.</string>
+    <string name="android_auto_hint">Statistik dan tombol EUC Anda di layar Android Auto.</string>
     <string name="car_waiting">Menunggu EUC</string>
     <string name="car_last_battery">Baterai terakhir %1$d%%</string>
     <string name="car_waiting_wheel">Menunggu EUC</string>

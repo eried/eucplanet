@@ -133,6 +133,7 @@ fun BoxScope.NavigatorOverlay(
         distanceUnit = units.distance,
         tempUnit = units.temp,
         pressureUnit = units.pressure,
+        altitudeUnit = units.altitude,
         currentAsWatts = false,
         tripMeterKm = tripMeterKm,
         phoneBatteryPct = phoneBattery,

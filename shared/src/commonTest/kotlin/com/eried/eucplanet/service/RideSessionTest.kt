@@ -79,7 +79,7 @@ class RideSessionTest {
     private val voice = FakeVoice()
     private val splits = AccelSplitRepository()
     private val alerts = mutableListOf<String>()
-    private val settings = SettingsRepository(SettingsStore(MemoryDataStore()) { false })
+    private val settings = SettingsRepository(SettingsStore(MemoryDataStore()) { com.eried.eucplanet.data.store.DefaultUnits.METRIC })
     private val automation = AutomationManager(NoAutomationWheel(), { false }, { null })
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
     private val session = RideSession(

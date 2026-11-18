@@ -4,7 +4,7 @@
     <string name="notification_channel_name">การเชื่อมต่อล้อ</string>
     <string name="notification_channel_description">แสดงสถานะการเชื่อมต่อและข้อมูลจากล้อ</string>
     <string name="keep_app_alive">ให้แอปทำงานต่อเนื่อง</string>
-    <string name="keep_app_alive_desc">แสดงการแจ้งเตือนค้างไว้เพื่อให้แอปทำงานในเบื้องหลัง การซิงค์ทริปและเสียงยังทำงานได้แม้ไม่ได้เชื่อมต่อล้อ ใช้แบตเตอรี่เพิ่มขึ้นเล็กน้อย</string>
+    <string name="keep_app_alive_desc">แสดงการแจ้งเตือนค้างไว้เพื่อให้แอปทำงานในเบื้องหลัง ใช้แบตเตอรี่เพิ่มขึ้นเล็กน้อย</string>
     <string name="notif_actions_enable">แสดงปุ่มทางลัดในการแจ้งเตือน</string>
     <string name="notif_actions_enable_desc">เพิ่มปุ่มทางลัดในการแจ้งเตือนที่แสดงค้างไว้</string>
     <string name="notif_actions_pick_desc">เลือกได้สูงสุด %1$d รายการ ใช้รายการเดิมซ้ำได้</string>
@@ -225,7 +225,7 @@
     <string name="metric_chip_battery_temp">อุณหภูมิแบตเตอรี่</string>
     <string name="metric_chip_tire_pressure">ความดันยาง</string>
     <string name="metric_chip_tire_pressure_tile">ยาง</string>
-    <string name="metric_desc_tire_pressure">ความดันยางจากเซนเซอร์ของคุณเองหรือจากที่ล้อส่งต่อมา แสดงในหน่วยความดันที่คุณเลือก</string>
+    <string name="metric_desc_tire_pressure">ความดันยางจากเซนเซอร์ของคุณเองหรือจากที่ล้อส่งต่อมา</string>
     <string name="metric_chip_headroom">ระยะเผื่อ</string>
     <string name="metric_chip_trip_time">เวลาทริป</string>
     <string name="metric_chip_trip_max_speed">สูงสุดในทริป</string>
@@ -464,7 +464,7 @@
     <string name="hud_custom_overlay_none">ล้าง</string>
     <string name="hud_search_corpus">HUD จอแสดงผล heads-up คู่หู เซิร์ฟเวอร์ สตรีม ข้อมูล ฮอตสปอต motoeye ลูกศรเลี้ยว telemetry hotspot turn arrow</string>
     <string name="hud_joystick_title">การทำงานของปุ่ม</string>
-    <string name="hud_joystick_desc">แตะสองครั้งที่ปุ่มบน HUD เพื่อเรียกใช้คำสั่ง แตะครั้งเดียวยังคงใช้สลับหน้าจอ</string>
+    <string name="hud_joystick_desc">แตะสองครั้งที่ปุ่มบน HUD เพื่อเรียกใช้คำสั่ง</string>
     <string name="hud_joystick_up">ขึ้น (แตะสองครั้ง)</string>
     <string name="hud_joystick_down">ลง (แตะสองครั้ง)</string>
     <string name="hud_joystick_left">ซ้าย (แตะสองครั้ง)</string>
@@ -512,7 +512,7 @@
     <string name="watch_update_rate">อัตราการอัปเดต</string>
     <string name="watch_update_rate_desc">อัปเดตช้าลงช่วยประหยัดแบตนาฬิกา ค่านี้แยกจากอัตราการอ่านค่าจากล้อในส่วนขั้นสูง</string>
     <string name="watch_map_enabled">แผนที่บนนาฬิกา</string>
-    <string name="watch_map_enabled_desc">แสดงตำแหน่งและเส้นทางจากโทรศัพท์ จะมีการแจ้งเตือนค้างไว้เพื่อทำงานในเบื้องหลัง</string>
+    <string name="watch_map_enabled_desc">แสดงตำแหน่งและเส้นทางจากโทรศัพท์</string>
     <string name="watch_map_orientation">การวางแนวแผนที่</string>
     <string name="watch_map_north_up">ทิศเหนืออยู่บน</string>
     <string name="watch_map_heading_up">ทิศที่ไปอยู่บน</string>
@@ -527,15 +527,15 @@
     <string name="tab_more">เพิ่มเติม</string>
     <string name="settings_visibility">การแสดงการตั้งค่า</string>
     <string name="adv_timings_title">เวลาและตัวแปร</string>
-    <string name="reorg_hint">จัดเรียงหน้าการตั้งค่าใหม่และซ่อนส่วนที่ไม่ค่อยได้ใช้ ส่วนที่ซ่อนจะย้ายไปที่ส่วน “เพิ่มเติม”</string>
+    <string name="reorg_hint">จัดเรียงหน้าการตั้งค่าใหม่และซ่อนส่วนที่ไม่ค่อยได้ใช้</string>
     <string name="reorg_drag_cd">ลากเพื่อจัดลำดับ</string>
-    <string name="adv_rates_warning">ตัวควบคุมเหล่านี้เปลี่ยนจังหวะเวลาทั่วทั้งแอป ค่าที่ต่ำลงให้ข้อมูลสดกว่าและตอบสนองเร็วกว่า แต่ใช้แบตเตอรี่ CPU หรืออินเทอร์เน็ตมากขึ้น ค่าเริ่มต้นเหมาะกับผู้ขี่ส่วนใหญ่ เปลี่ยนเฉพาะเมื่อคุณเข้าใจผลที่เกิดขึ้น</string>
+    <string name="adv_rates_warning">ตัวควบคุมเหล่านี้เปลี่ยนจังหวะเวลาทั่วทั้งแอป เปลี่ยนเฉพาะเมื่อคุณเข้าใจผลที่เกิดขึ้น</string>
     <string name="adv_pushonly_note">อุปกรณ์บางตัวส่งข้อมูลด้วยอัตราคงที่ของตัวเองและไม่สนใจการตั้งค่าเหล่านี้ ได้แก่ ล้อแบบส่งข้อมูลเอง (Begode, Gotway, Veteran, KingSong), GPS ภายนอก (RaceBox, Dragy), เรดาร์ และปุ่ม Flic</string>
     <string name="adv_group_rates">อัตราข้อมูลและการรายงาน</string>
     <string name="adv_wheel_poll_rate">อัตราอ่านค่าจากล้อ</string>
     <string name="adv_wheel_poll_rate_desc">มีผลต่อความสดของข้อมูลสดและความเร็วในการตอบสนองของสัญญาณเตือน ค่าต่ำจะขอข้อมูลจากล้อบ่อยขึ้น ข้อควรระวัง: ค่าที่ต่ำมากอาจทำให้ลิงก์บลูทูธล้นและข้อมูลค้างในล้อบางรุ่น</string>
     <string name="adv_graph_sample_interval">ช่วงสุ่มตัวอย่างกราฟ</string>
-    <string name="adv_graph_sample_interval_desc">มีผลเฉพาะรายละเอียดของกราฟบนแดชบอร์ด ไม่มีผลต่อสัญญาณเตือนหรือไฟล์ทริป ข้อควรระวัง: ค่าที่ต่ำมากใช้หน่วยความจำมากขึ้น</string>
+    <string name="adv_graph_sample_interval_desc">ไม่มีผลต่อสัญญาณเตือนหรือไฟล์ทริป ข้อควรระวัง: ค่าที่ต่ำมากใช้หน่วยความจำมากขึ้น</string>
     <string name="adv_smoothing_window">ช่วงปรับให้เรียบ</string>
     <string name="adv_smoothing_window_desc">จำนวนตัวอย่างที่นำมาเฉลี่ยในกราฟทริปแบบ “เฉลี่ย” และรายงานเสียงแบบปรับให้เรียบ ทริปบันทึกประมาณวินาทีละครั้ง จึงอ่านค่านี้เป็นวินาทีได้ ข้อควรระวัง: ค่าสูงจะซ่อนค่าพุ่งช่วงสั้นๆ</string>
     <string name="adv_trip_record_interval">ช่วงการบันทึกทริป</string>
@@ -754,7 +754,7 @@
     <string name="section_cloud_settings">สำรองการตั้งค่า</string>
     <string name="cloud_backup_now">สำรองข้อมูล</string>
     <string name="cloud_restore">กู้คืน</string>
-    <string name="cloud_settings_backup_desc">ทุกอย่างที่คุณตั้งค่าไว้ในแอป เขียนลงไฟล์ eucplanet_settings.json ในโฟลเดอร์สำรองข้อมูล กดปุ่มค้างไว้เพื่อบันทึกสำเนาแบบตั้งชื่อไว้ข้างกัน ทริปจะสำรองแยกต่างหาก</string>
+    <string name="cloud_settings_backup_desc">ทุกอย่างที่คุณตั้งค่าไว้ในแอป เขียนลงไฟล์ eucplanet_settings.json ในโฟลเดอร์สำรองข้อมูล กดปุ่มค้างไว้เพื่อบันทึกสำเนาแบบตั้งชื่อไว้ข้างกัน</string>
     <string name="cloud_last_backup">สำรองล่าสุด: %1$s</string>
     <string name="cloud_last_backup_named">สำรองล่าสุด: %1$s ชื่อ “%2$s”</string>
     <string name="cloud_last_backup_never">ยังไม่ได้สำรองข้อมูล</string>
@@ -852,9 +852,9 @@
     <string name="side_default">ค่าเริ่มต้น</string>
     <string name="side_left">ซ้าย</string>
     <string name="side_right">ขวา</string>
-    <string name="geo_other_hint">หน้าตรวจแบตเตอรี่ ประวัติค่า การสแกน และ Flic ไม่มีผลกับสตูดิโอโอเวอร์เลย์ เพราะเลย์เอาต์ตายตัว แต่ถือในแนวใดก็ใช้งานได้ดี</string>
-    <string name="geo_settings_hint">หน้าการตั้งค่า ปิดไว้เป็นค่าเริ่มต้น การตั้งค่าจึงอยู่ในแนวตั้งเว้นแต่คุณจะเปิดใช้</string>
-    <string name="geo_trip_hint">หน้ารายละเอียดจะหมุนเป็นค่าเริ่มต้นเพื่อแสดงแผนที่และกราฟแนวนอน รายการทริปจะอยู่ในแนวตั้งเว้นแต่คุณจะเปิดใช้</string>
+    <string name="geo_other_hint">หน้าตรวจแบตเตอรี่ ประวัติค่า การสแกน และ Flic</string>
+    <string name="geo_settings_hint">หน้าการตั้งค่า</string>
+    <string name="geo_trip_hint">หน้ารายละเอียดจะหมุนเป็นค่าเริ่มต้นเพื่อแสดงแผนที่และกราฟแนวนอน</string>
     <string name="back_button_action_ask">ถาม</string>
     <string name="back_button_action_background">เบื้องหลัง</string>
     <string name="back_button_action_stop">หยุดทั้งหมด</string>
@@ -947,7 +947,7 @@
     <string name="voice_interval">ช่วงเวลา</string>
     <string name="section_accel_splits">เวลาช่วงความเร็ว</string>
     <string name="accel_splits_enabled">ประกาศเวลา</string>
-    <string name="accel_splits_desc">พูดเวลาที่ใช้ผ่านแต่ละขั้นความเร็ว ทั้งตอนเร่งและตอนชะลอ เริ่มจากความเร็วด้านล่าง ตามขั้นที่คุณตั้ง</string>
+    <string name="accel_splits_desc">พูดเวลาที่ใช้ผ่านแต่ละขั้นความเร็ว ทั้งตอนเร่งและตอนชะลอ</string>
     <string name="accel_split_decel_prefix">ขณะเบรก </string>
     <string name="accel_splits_from">จาก</string>
     <string name="accel_splits_step">ขั้น</string>
@@ -1117,7 +1117,7 @@
     <string name="flic_start_scan">เริ่มสแกน</string>
     <string name="flic_forget">ลืม</string>
     <string name="flic_forget_title">ลืมปุ่มนี้ใช่ไหม?</string>
-    <string name="flic_forget_body">%1$s จะถูกยกเลิกการจับคู่และล้างคำสั่งทั้งหมด คุณจับคู่ใหม่ได้ทุกเมื่อ</string>
+    <string name="flic_forget_body">%1$s จะถูกยกเลิกการจับคู่</string>
     <string name="flic_rename">เปลี่ยนชื่อ</string>
     <string name="flic_click">คลิก</string>
     <string name="flic_double_click">ดับเบิลคลิก</string>
@@ -1166,7 +1166,7 @@
     <string name="volume_keys_enable">เปิดใช้คำสั่งปุ่มปรับเสียง</string>
     <string name="volume_keys_screen_off">แม้ตอนปิดหน้าจอ</string>
     <string name="volume_keys_screen_off_caption">ใช้ได้ตอนล็อกโทรศัพท์หรือมีแอปอื่นอยู่ด้านหน้า ปุ่มจะไม่ปรับระดับเสียงของโทรศัพท์อีก</string>
-    <string name="volume_keys_screen_off_warn">Android ส่งการกดปุ่มปรับเสียงให้เฉพาะแอปที่อยู่บนหน้าจอ เพื่อให้รับได้ตอนปิดหน้าจอ EUC Planet จะลงทะเบียนเป็นเครื่องเล่นสื่อที่ใช้งานอยู่ของโทรศัพท์ Android จึงส่งปุ่มปรับเสียงมาที่แอปแทนการปรับเสียง\n\nขณะที่เปิดอยู่ ปุ่มจะไม่ปรับระดับเสียงของโทรศัพท์</string>
+    <string name="volume_keys_screen_off_warn">Android ส่งการกดปุ่มปรับเสียงให้เฉพาะแอปที่อยู่บนหน้าจอ เพื่อให้รับได้ตอนปิดหน้าจอ EUC Planet จะลงทะเบียนเป็นเครื่องเล่นสื่อที่ใช้งานอยู่ของโทรศัพท์ Android จึงส่งปุ่มปรับเสียงมาที่แอปแทนการปรับเสียง</string>
     <string name="volume_keys_screen_off_confirm">เปิด</string>
     <string name="volume_keys_screen_off_title">ให้แอปควบคุมปุ่มปรับเสียงใช่ไหม?</string>
     <string name="volume_up">เพิ่มเสียง</string>
@@ -1188,7 +1188,7 @@
         <item quantity="other">กำลังติดตามรถ %1$d คัน:</item>
     </plurals>
     <string name="radar_show_overlay">แสดงโอเวอร์เลย์อันตราย</string>
-    <string name="radar_show_overlay_desc">แถบเรดาร์บางๆ ที่ขอบแดชบอร์ด จุดสีหนึ่งจุดต่อรถหนึ่งคันที่ตรวจพบ แสดงเฉพาะบนแดชบอร์ด</string>
+    <string name="radar_show_overlay_desc">แถบเรดาร์บางๆ ที่ขอบแดชบอร์ด</string>
     <string name="radar_overlay_left">ขอบซ้าย</string>
     <string name="radar_overlay_both">ทั้งสองขอบ</string>
     <string name="radar_overlay_right">ขอบขวา</string>
@@ -1411,7 +1411,7 @@
     <string name="widget_standalone_slot">ปุ่มเดี่ยว %1$d</string>
     <string name="widget_weather_question">ขี่ไหม?</string>
     <string name="widget_weather_score_desc">สภาพอากาศสำหรับขี่ ณ ตอนนี้</string>
-    <string name="widget_weather_compact_desc">สภาพอากาศเหมาะกับการขี่แค่ไหน ตอนนี้และในชั่วโมงถัดไป ปรับขนาดเพื่อดูรายชั่วโมง อุณหภูมิ และลม</string>
+    <string name="widget_weather_compact_desc">สภาพอากาศเหมาะกับการขี่แค่ไหน ตอนนี้และในชั่วโมงถัดไป</string>
     <string name="widget_weather_graph_desc">สภาพอากาศเหมาะกับการขี่แค่ไหน ตลอดช่วงพยากรณ์</string>
     <string name="widget_weather_refresh_desc">รีเฟรชพยากรณ์อากาศ</string>
     <string name="widget_weather_never">ยังไม่มีพยากรณ์ เปิดแอปหนึ่งครั้ง หรือแตะรีเฟรช</string>
@@ -2189,7 +2189,7 @@
     <string name="weather_hot">ร้อนเกินไปเมื่อสูงกว่า</string>
     <string name="weather_breezy">ลมโชยเมื่อสูงกว่า</string>
     <string name="weather_windy">ลมแรงเกินไปเมื่อสูงกว่า</string>
-    <string name="weather_source_credit">พยากรณ์มาจากแหล่งที่คุณเลือก และดึงข้อมูลเฉพาะเมื่อเปิดฟีเจอร์นี้ ช่วงที่สั้นกว่าอาจละเอียดขึ้น หากแหล่งข้อมูลรองรับ</string>
+    <string name="weather_source_credit">พยากรณ์มาจากแหล่งที่คุณเลือก ช่วงที่สั้นกว่าอาจละเอียดขึ้น หากแหล่งข้อมูลรองรับ</string>
     <string name="weather_title_1">อากาศเหมาะขี่ล้อไหม?</string>
     <string name="weather_title_2">ได้เวลา EUC หรือยัง?</string>
     <string name="weather_title_3">ได้เวลาออกไปขี่หรือยัง?</string>
@@ -2632,7 +2632,7 @@
         <item quantity="other">%d จุดแวะ</item>
     </plurals>
     <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">สถิติและปุ่มล้อของคุณบนหน้าจอ Android Auto เชื่อมต่อเอง ไม่ต้องตั้งค่า Wi-Fi</string>
+    <string name="android_auto_hint">สถิติและปุ่มล้อของคุณบนหน้าจอ Android Auto</string>
     <string name="car_waiting">กำลังรอล้อ</string>
     <string name="car_last_battery">แบตล่าสุด %1$d%%</string>
     <string name="car_waiting_wheel">กำลังรอล้อ</string>

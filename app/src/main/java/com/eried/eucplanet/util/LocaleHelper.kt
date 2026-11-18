@@ -45,6 +45,7 @@ object LocaleHelper {
      * On first launch, pick a default app language based on the phone's system
      * locale. Maps to one of the locales the app actually ships translations for;
      * unsupported languages fall back to English. Some special cases:
+     *  - en in the UK, Ireland, Australia, New Zealand, South Africa, India -> "en-GB"
      *  - nb / nn (Norwegian Bokmål / Nynorsk) -> "no"
      *  - es in a Latin American region        -> "es-419"
      *  - pt in Portugal or Portuguese Africa   -> "pt-PT", elsewhere "pt-BR"
@@ -64,6 +65,7 @@ object LocaleHelper {
             "MX", "NI", "PA", "PE", "PR", "PY", "SV", "US", "UY", "VE"
         )
         return when {
+            primary == "en" -> if (region in AppLanguages.BRITISH_REGIONS) "en-GB" else "en"
             primary == "nb" || primary == "nn" || primary == "no" -> "no"
             primary == "es" && region in latAmEs -> "es-419"
             primary == "es" -> "es"

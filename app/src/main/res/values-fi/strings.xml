@@ -4,7 +4,7 @@
     <string name="notification_channel_name">Yksipyöräisen yhteys</string>
     <string name="notification_channel_description">Näyttää yksipyöräisen yhteystilan ja telemetrian.</string>
     <string name="keep_app_alive">Pidä sovellus käynnissä</string>
-    <string name="keep_app_alive_desc">Pitää jatkuvan ilmoituksen näkyvissä, jotta sovellus pysyy käynnissä taustalla. Matkojen synkronointi ja ääni toimivat, vaikka yksipyöräistä ei olisi yhdistetty. Kuluttaa hieman enemmän akkua.</string>
+    <string name="keep_app_alive_desc">Pitää jatkuvan ilmoituksen näkyvissä, jotta sovellus pysyy käynnissä taustalla. Kuluttaa hieman enemmän akkua.</string>
     <string name="notif_actions_enable">Näytä ilmoituksen toiminnot</string>
     <string name="notif_actions_enable_desc">Lisää pikatoimintopainikkeet jatkuvaan ilmoitukseen.</string>
     <string name="notif_actions_pick_desc">Valitse enintään %1$d toimintoa. Sama toiminto voi toistua.</string>
@@ -224,7 +224,7 @@
     <string name="metric_chip_battery_temp">Akun lämpötila</string>
     <string name="metric_chip_tire_pressure">Rengaspaine</string>
     <string name="metric_chip_tire_pressure_tile">Rengas</string>
-    <string name="metric_desc_tire_pressure">Renkaan paine omasta anturistasi tai yksipyöräisen välittämänä. Valitsemassasi paineyksikössä.</string>
+    <string name="metric_desc_tire_pressure">Renkaan paine omasta anturistasi tai yksipyöräisen välittämänä.</string>
     <string name="metric_chip_headroom">Pelivara</string>
     <string name="metric_chip_trip_time">Matka-aika</string>
     <string name="metric_chip_trip_max_speed">Matkan maksimi</string>
@@ -458,7 +458,7 @@
     <string name="hud_custom_overlay_none">Tyhjennä</string>
     <string name="hud_search_corpus">HUD näyttö kumppani palvelin virta telemetria yhteyspiste motoeye käännösnuoli</string>
     <string name="hud_joystick_title">Painiketoiminnot</string>
-    <string name="hud_joystick_desc">Suorita toiminto kaksoisnapauttamalla HUDin painiketta. Yksi napautus vaihtaa edelleen näyttöä.</string>
+    <string name="hud_joystick_desc">Suorita toiminto kaksoisnapauttamalla HUDin painiketta.</string>
     <string name="hud_joystick_up">Ylös (kaksoisnapautus)</string>
     <string name="hud_joystick_down">Alas (kaksoisnapautus)</string>
     <string name="hud_joystick_left">Vasen (kaksoisnapautus)</string>
@@ -506,7 +506,7 @@
     <string name="watch_update_rate">Päivitystiheys</string>
     <string name="watch_update_rate_desc">Hitaammat päivitykset säästävät kellon akkua. Tämä on eri asia kuin yksipyöräisen kyselytiheys Lisäasetuksissa.</string>
     <string name="watch_map_enabled">Kellon kartta</string>
-    <string name="watch_map_enabled_desc">Näyttää puhelimen sijainnin ja reitin. Ilmoitus jää näkyviin taustakäyttöä varten.</string>
+    <string name="watch_map_enabled_desc">Näyttää puhelimen sijainnin ja reitin.</string>
     <string name="watch_map_orientation">Kartan suunta</string>
     <string name="watch_map_north_up">Pohjoinen ylös</string>
     <string name="watch_map_heading_up">Kulkusuunta ylös</string>
@@ -521,15 +521,15 @@
     <string name="tab_more">Lisää</string>
     <string name="settings_visibility">Asetusten näkyvyys</string>
     <string name="adv_timings_title">Ajoitukset ja muuttujat</string>
-    <string name="reorg_hint">Järjestä asetusnäyttö ja piilota osiot, joita käytät harvoin. Piilotetut osiot siirtyvät osioon ”Lisää”.</string>
+    <string name="reorg_hint">Järjestä asetusnäyttö ja piilota osiot, joita käytät harvoin.</string>
     <string name="reorg_drag_cd">Muuta järjestystä vetämällä</string>
-    <string name="adv_rates_warning">Nämä säätimet muuttavat ajoitusta koko sovelluksessa. Pienemmät arvot antavat tuoreempaa dataa ja nopeammat reaktiot, mutta kuluttavat enemmän akkua, suoritinta tai dataa. Oletukset sopivat useimmille ajajille. Muuta niitä vain jos ymmärrät vaikutuksen.</string>
+    <string name="adv_rates_warning">Nämä säätimet muuttavat ajoitusta koko sovelluksessa. Muuta niitä vain jos ymmärrät vaikutuksen.</string>
     <string name="adv_pushonly_note">Jotkin laitteet lähettävät omalla kiinteällä tahdillaan ja jättävät nämä asetukset huomiotta: itse lähettävät yksipyöräiset (Begode, Gotway, Veteran, KingSong), ulkoinen GPS (RaceBox, Dragy), tutka ja Flic-painikkeet.</string>
     <string name="adv_group_rates">Datan ja raportoinnin tiheydet</string>
     <string name="adv_wheel_poll_rate">Yksipyöräisen kyselytiheys</string>
     <string name="adv_wheel_poll_rate_desc">Määrittää, kuinka tuoretta reaaliaikainen data on ja kuinka nopeasti hälytykset reagoivat. Pienempi arvo kysyy yksipyöräiseltä useammin. Varoitus: hyvin pienet arvot voivat tukkia Bluetooth-yhteyden ja pysäyttää datan joissakin yksipyöräisissä.</string>
     <string name="adv_graph_sample_interval">Kuvaajan näytteenottoväli</string>
-    <string name="adv_graph_sample_interval_desc">Vaikuttaa vain mittariston kuvaajien tarkkuuteen. Ei vaikuta hälytyksiin eikä matkatiedostoihin. Varoitus: hyvin pienet arvot käyttävät enemmän muistia.</string>
+    <string name="adv_graph_sample_interval_desc">Ei vaikuta hälytyksiin eikä matkatiedostoihin. Varoitus: hyvin pienet arvot käyttävät enemmän muistia.</string>
     <string name="adv_smoothing_window">Tasoitusikkuna</string>
     <string name="adv_smoothing_window_desc">Näytteet, jotka keskiarvoistetaan ”keskiarvo”-matkakuvaajissa ja tasoitetuissa ääniraporteissa. Matkat kirjataan noin kerran sekunnissa, joten tämä vastaa sekunteja. Varoitus: suuret arvot piilottavat lyhyet piikit.</string>
     <string name="adv_trip_record_interval">Matkan tallennusväli</string>
@@ -748,7 +748,7 @@
     <string name="section_cloud_settings">Asetusten varmuuskopio</string>
     <string name="cloud_backup_now">Varmuuskopioi</string>
     <string name="cloud_restore">Palauta</string>
-    <string name="cloud_settings_backup_desc">Kaikki sovellukseen tekemäsi asetukset tallennetaan tiedostoon eucplanet_settings.json varmuuskopiokansiossasi. Pidä painiketta pohjassa tallentaaksesi nimetyn kopion. Matkat varmuuskopioidaan erikseen.</string>
+    <string name="cloud_settings_backup_desc">Kaikki sovellukseen tekemäsi asetukset tallennetaan tiedostoon eucplanet_settings.json varmuuskopiokansiossasi. Pidä painiketta pohjassa tallentaaksesi nimetyn kopion.</string>
     <string name="cloud_last_backup">Viimeisin varmuuskopio: %1$s</string>
     <string name="cloud_last_backup_named">Viimeisin varmuuskopio: %1$s nimellä ”%2$s”</string>
     <string name="cloud_last_backup_never">Ei vielä varmuuskopioitu</string>
@@ -846,9 +846,9 @@
     <string name="side_default">Oletus</string>
     <string name="side_left">Vasen</string>
     <string name="side_right">Oikea</string>
-    <string name="geo_other_hint">Akkuvahti, mittarihistoria, haku ja Flic. Overlay Studio ei muutu: sen asettelu on kiinteä, mutta se toimii hyvin missä tahansa asennossa.</string>
-    <string name="geo_settings_hint">Asetusnäyttö. Pois oletuksena, joten Asetukset pysyy pystyssä ellet ota tätä käyttöön.</string>
-    <string name="geo_trip_hint">Tietonäkymä kiertyy oletuksena vaakakarttaa ja -kuvaajia varten. Matkalista pysyy pystyssä ellet ota tätä käyttöön.</string>
+    <string name="geo_other_hint">Akkuvahti, mittarihistoria, haku ja Flic.</string>
+    <string name="geo_settings_hint">Asetusnäyttö.</string>
+    <string name="geo_trip_hint">Tietonäkymä kiertyy oletuksena vaakakarttaa ja -kuvaajia varten.</string>
     <string name="back_button_action_ask">Kysy</string>
     <string name="back_button_action_background">Taustalle</string>
     <string name="back_button_action_stop">Pysäytä kaikki</string>
@@ -941,7 +941,7 @@
     <string name="voice_interval">Väli</string>
     <string name="section_accel_splits">Nopeusväliajat</string>
     <string name="accel_splits_enabled">Kuuluta ajat</string>
-    <string name="accel_splits_desc">Puhuu ajan, joka kuluu kunkin nopeusaskeleen ylittämiseen, kiihdyttäessä tai hidastaessa. Alkaa alla olevasta nopeudesta, asettamillasi askelilla.</string>
+    <string name="accel_splits_desc">Puhuu ajan, joka kuluu kunkin nopeusaskeleen ylittämiseen, kiihdyttäessä tai hidastaessa.</string>
     <string name="accel_split_decel_prefix">jarrutus, </string>
     <string name="accel_splits_from">Alkaen</string>
     <string name="accel_splits_step">Askel</string>
@@ -1111,7 +1111,7 @@
     <string name="flic_start_scan">Aloita haku</string>
     <string name="flic_forget">Unohda</string>
     <string name="flic_forget_title">Unohdetaanko tämä painike?</string>
-    <string name="flic_forget_body">%1$s poistetaan pariliitoksesta ja sen toiminnot tyhjennetään. Voit pariliittää sen uudelleen milloin tahansa.</string>
+    <string name="flic_forget_body">%1$s poistetaan pariliitoksesta.</string>
     <string name="flic_rename">Nimeä uudelleen</string>
     <string name="flic_click">Painallus</string>
     <string name="flic_double_click">Kaksoispainallus</string>
@@ -1160,7 +1160,7 @@
     <string name="volume_keys_enable">Ota äänenvoimakkuusnäppäinten toiminnot käyttöön</string>
     <string name="volume_keys_screen_off">Myös näytön ollessa pois päältä</string>
     <string name="volume_keys_screen_off_caption">Toimii puhelin lukittuna tai toisen sovelluksen ollessa edessä. Painikkeet eivät enää muuta puhelimen äänenvoimakkuutta.</string>
-    <string name="volume_keys_screen_off_warn">Android lähettää äänenvoimakkuuspainallukset vain näytöllä olevalle sovellukselle. Saadakseen ne näyttö sammutettuna EUC Planet ilmoittautuu puhelimen aktiiviseksi mediasoittimeksi, jolloin Android lähettää painikkeet sille eikä muuta äänenvoimakkuutta.\n\nKun tämä on päällä, painikkeet eivät muuta puhelimen äänenvoimakkuutta.</string>
+    <string name="volume_keys_screen_off_warn">Android lähettää äänenvoimakkuuspainallukset vain näytöllä olevalle sovellukselle. Saadakseen ne näyttö sammutettuna EUC Planet ilmoittautuu puhelimen aktiiviseksi mediasoittimeksi, jolloin Android lähettää painikkeet sille eikä muuta äänenvoimakkuutta.</string>
     <string name="volume_keys_screen_off_confirm">Ota käyttöön</string>
     <string name="volume_keys_screen_off_title">Otetaanko äänenvoimakkuuspainikkeet käyttöön?</string>
     <string name="volume_up">Äänenvoimakkuus ylös</string>
@@ -1183,7 +1183,7 @@
         <item quantity="other">Seurannassa %1$d ajoneuvoa:</item>
     </plurals>
     <string name="radar_show_overlay">Näytä uhkapäällyste</string>
-    <string name="radar_show_overlay_desc">Ohut tutkakaista mittariston reunoilla. Yksi värillinen piste kutakin havaittua ajoneuvoa kohti. Näkyy vain mittaristossa.</string>
+    <string name="radar_show_overlay_desc">Ohut tutkakaista mittariston reunoilla.</string>
     <string name="radar_overlay_left">Vasen reuna</string>
     <string name="radar_overlay_both">Molemmat reunat</string>
     <string name="radar_overlay_right">Oikea reuna</string>
@@ -2197,7 +2197,7 @@
     <string name="weather_hot">Liian kuuma yli</string>
     <string name="weather_breezy">Tuulista yli</string>
     <string name="weather_windy">Liian tuulista yli</string>
-    <string name="weather_source_credit">Ennuste tulee valitusta lähteestä ja haetaan vain, kun tämä on päällä. Lyhyempi ikkuna voi tulla tarkemmin askelin, jos lähde tarjoaa ne.</string>
+    <string name="weather_source_credit">Ennuste tulee valitusta lähteestä. Lyhyempi ikkuna voi tulla tarkemmin askelin, jos lähde tarjoaa ne.</string>
     <string name="weather_title_1">Onko ajokeli?</string>
     <string name="weather_title_2">EUC-aika?</string>
     <string name="weather_title_3">Aika lähteä ajelulle?</string>
@@ -2508,7 +2508,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">Ajellaan?</string>
     <string name="widget_weather_score_desc">Ajosää, juuri nyt.</string>
-    <string name="widget_weather_compact_desc">Kuinka hyvä sää on ajamiseen nyt ja tulevina tunteina. Suurenna nähdäksesi tunnit, lämpötilan ja tuulen.</string>
+    <string name="widget_weather_compact_desc">Kuinka hyvä sää on ajamiseen nyt ja tulevina tunteina.</string>
     <string name="widget_weather_graph_desc">Kuinka hyvä sää on ajamiseen ennustejaksolla</string>
     <string name="widget_weather_refresh_desc">Päivitä ennuste</string>
     <string name="widget_weather_never">Ei vielä ennustetta. Avaa sovellus kerran tai napauta päivitä.</string>
@@ -2641,7 +2641,7 @@
         <item quantity="other">%d pysähdystä</item>
     </plurals>
     <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Tiedot ja yksipyöräisen painikkeet Android Auto -näytöllä. Yhdistää itse, ei Wi-Fi-asetuksia.</string>
+    <string name="android_auto_hint">Tiedot ja yksipyöräisen painikkeet Android Auto -näytöllä.</string>
     <string name="car_waiting">Odotetaan yksipyöräistä</string>
     <string name="car_last_battery">Viimeisin akku %1$d %%</string>
     <string name="car_navigate">Navigoi</string>

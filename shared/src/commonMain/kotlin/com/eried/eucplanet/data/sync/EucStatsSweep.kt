@@ -83,7 +83,10 @@ suspend fun sweepEucStatsUploads(
             Outcome.UPLOADED -> Log.i(tag, "Uploaded trip ${trip.tripUuid}")
             Outcome.FAILED_PERMANENT -> Log.w(tag, "Permanent failure for trip ${trip.tripUuid}")
             Outcome.NEEDS_RETRY -> Log.w(tag, "Will retry trip ${trip.tripUuid}")
+            Outcome.BACK_OFF -> Log.w(tag, "Rate limited at trip ${trip.tripUuid}; the pass ends")
+            Outcome.RIDER_UNKNOWN -> Log.w(tag, "The server does not know this rider; the pass ends")
         }
+        if (outcome.endsPass) break
     }
     return EucStatsSweep.Swept(outcomes)
 }
@@ -93,4 +96,4 @@ suspend fun sweepEucStatsUploads(
  * Extracted so it can be unit-tested without Koin or Android dependencies.
  */
 fun workerResultRetry(outcomes: List<Outcome>): Boolean =
-    outcomes.any { it == Outcome.NEEDS_RETRY }
+    outcomes.any { it == Outcome.NEEDS_RETRY || it == Outcome.BACK_OFF }

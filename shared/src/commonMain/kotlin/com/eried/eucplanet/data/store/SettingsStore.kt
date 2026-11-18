@@ -31,8 +31,8 @@ import com.eried.eucplanet.platform.JSONObject
  */
 class SettingsStore(
     private val dataStore: DataStore<Preferences>,
-    /** The first-run unit guess, see [seedDefaultsIfAbsent]. */
-    private val isImperialLocale: () -> Boolean,
+    /** The first-run units from where the phone is, see [seedDefaultsIfAbsent]. */
+    private val startingUnits: () -> DefaultUnits.Units,
 ) {
 
     val settings: Flow<AppSettings> = dataStore.data.map { prefs -> readSettings(prefs) }
@@ -82,19 +82,20 @@ class SettingsStore(
     /**
      * Genuine first-run hook. Runs after the legacy-Room migration: if
      * DataStore is STILL empty here, this is a fresh install (no old Room
-     * row, no prior DataStore blob). Seed the three per-unit fields from the
-     * device locale so imperial-locale users start in imperial; everyone else
-     * starts metric. Existing users never reach this branch, their blob is
-     * already present, so they are never flipped.
+     * row, no prior DataStore blob). Seed the per-unit fields from
+     * where the phone is ([DefaultUnits]): miles and Fahrenheit, miles and
+     * Celsius, or metric. Existing users never reach this branch, their blob
+     * is already present, so they are never flipped.
      */
     suspend fun seedDefaultsIfAbsent() {
         dataStore.edit { prefs ->
             if (prefs[KEY_JSON] == null) {
-                val imperial = isImperialLocale()
+                val units = startingUnits()
                 val seeded = AppSettings(
-                    unitSpeed = if (imperial) "mph" else "kmh",
-                    unitDistance = if (imperial) "mi" else "km",
-                    unitTemp = if (imperial) "F" else "C"
+                    unitSpeed = units.speed,
+                    unitDistance = units.distance,
+                    unitTemp = units.temp,
+                    unitAltitude = units.altitude
                 )
                 prefs[KEY_JSON] = SettingsJson.toJson(seeded).toString()
             }
