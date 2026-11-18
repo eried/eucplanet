@@ -236,7 +236,10 @@ function show(route) {
       encodeURIComponent("https://play.google.com/store/apps/details?id=com.eried.eucplanet") + ";end";
     a.classList.remove("hide");
   } else {
-    document.getElementById("getApp").classList.remove("hide");
+    var get = document.getElementById("getApp");
+    // An iPhone gets the app from TestFlight while it is in beta.
+    if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) get.href = "https://testflight.apple.com/join/8VrhGCrm";
+    get.classList.remove("hide");
   }
   var g = document.getElementById("gpx");
   g.classList.remove("hide");
