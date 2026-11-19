@@ -670,9 +670,9 @@
   }
   .gallery-wear {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 14px;
-    max-width: 560px;
+    max-width: 700px;
     margin: 0 auto;
   }
   .gallery-featured a, .gallery-thumbs a, .gallery-wear a {
@@ -793,7 +793,7 @@
   @media (max-width: 540px) {
     header { padding: 64px 16px 36px; }
     .gallery-featured, .gallery-thumbs { grid-template-columns: repeat(2, 1fr); }
-    .gallery-wear { grid-template-columns: repeat(4, 1fr); }
+    .gallery-wear { grid-template-columns: repeat(3, 1fr); justify-content: center; }
     .bg-stage video { filter: blur(13px) brightness(0.55) saturate(1.25); }
     a.btn { min-width: 0; padding: 0 16px; }
     .toolbar { border-radius: 12px; padding: 5px; }
@@ -947,6 +947,7 @@
     </div>
     <div class="gallery-wear">
       <a href="screenshots/wear-dash.png"><img src="screenshots/wear-dash.png" alt="Wear OS speed dial" loading="lazy" data-i18n-attrs data-i18n-attr-alt="a.wear-os-speed-dial"></a>
+      <a href="screenshots/wear-single.png"><img src="screenshots/wear-single.png" alt="Wear OS dial with one battery in an orange theme" loading="lazy" data-i18n-attrs data-i18n-attr-alt="a.wear-os-one-battery"></a>
       <a href="screenshots/wear-details.png"><img src="screenshots/wear-details.png" alt="Wear OS telemetry detail" loading="lazy" data-i18n-attrs data-i18n-attr-alt="a.wear-os-telemetry-detail"></a>
       <a href="screenshots/wear-navigation.png"><img src="screenshots/wear-navigation.png" alt="Wear OS turn arrow" loading="lazy" data-i18n-attrs data-i18n-attr-alt="a.wear-os-turn-arrow"></a>
       <a href="screenshots/wear-goal.png"><img src="screenshots/wear-goal.png" alt="Wear OS goal reached flag" loading="lazy" data-i18n-attrs data-i18n-attr-alt="a.wear-os-goal-reached-flag"></a>
@@ -1036,7 +1037,7 @@
   <img alt="" src="">
 </div>
 
-<script src="js/i18n.js?v=4"></script>
+<script src="js/i18n.js?v=5"></script>
 <script>
   // Eyebrow Echo-trail cycle - RGB ghosting + smooth pill resize
   (function () {

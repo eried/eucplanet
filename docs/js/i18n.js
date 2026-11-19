@@ -24,7 +24,7 @@
   var STORAGE_KEY = "eucplanet-lang";
   var COOKIE = "euc_lang";
   // Bump when any dictionary changes, so nobody keeps a stale one.
-  var DICT_VERSION = "4";
+  var DICT_VERSION = "5";
 
   // Native names, never translated.
   var LANGS = {
