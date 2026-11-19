@@ -2796,6 +2796,10 @@
     <string name="crews_expired">Koden har gått ut. Hämta en ny i webbläsaren.</string>
     <string name="voice_pill_search">Sök</string>
     <string name="voice_volume">Volym</string>
+    <string name="engo_hud_enabled">ENGO-glasögon-HUD</string>
+    <string name="engo_scan_hint">Slå på glasögonen. De ansluter bara till en enhet åt gången, så koppla först bort dem från klockan eller ActiveLook-appen.</string>
+    <string name="engo_pages_title">Glasögonens sidor</string>
+    <string name="engo_nav_takeover">Visa svängar vid navigering</string>
     <string name="beep_volume_by_speed">Pipvolym efter fart</string>
     <string name="beep_volume_stopped">Stillastående</string>
     <string name="beep_volume_riding">Under färd</string>

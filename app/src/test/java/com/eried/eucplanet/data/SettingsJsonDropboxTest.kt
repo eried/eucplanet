@@ -139,6 +139,7 @@ class SettingsJsonDropboxTest {
             d.copy(
                 share = d.share.copy(deviceSecret = "secret"),
                 tpms = d.tpms.copy(pairedAddress = "T1", pairedAddresses = listOf("T1", "T2")),
+                engoHud = d.engoHud.copy(enabled = true, pairedAddress = "E", pairedName = "EN", metricLeft = "TRIP"),
                 lastDeviceAddress = "A", lastDeviceName = "B",
                 flic1Address = "F1", flic2Address = "F2", flic3Address = "F3", flic4Address = "F4",
                 externalGpsAddress = "G", externalGpsName = "GN", externalGpsSource = "GS",
@@ -171,6 +172,8 @@ class SettingsJsonDropboxTest {
             }
         }
         assertEquals("the fixture must set every field the strip blanks",
-            27, blanked.size)
+            30, blanked.size)
+        // The glasses' options are not this phone's own: they travel.
+        assertEquals("TRIP", stripped.engoHud.metricLeft)
     }
 }

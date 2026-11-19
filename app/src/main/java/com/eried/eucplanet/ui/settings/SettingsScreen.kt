@@ -11880,6 +11880,10 @@ private fun HudIntegrationSection(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        // The glasses first: one switch and their own pages. Everything
+        // under the Motoeye heading after it belongs to the Motoeye only.
+        EngoGlassesBlock(settings = settings, viewModel = viewModel)
+
         SectionHeader(stringResource(R.string.section_hud_companion))
 
         // Phone surface is intentionally limited to the install hint:
@@ -12065,6 +12069,54 @@ private fun HudIntegrationSection(
         HudScreensCard(settings = settings, viewModel = viewModel)
         HudMapOptionsCard(settings = settings, viewModel = viewModel)
         HudJoystickCard(settings = settings, viewModel = viewModel)
+    }
+}
+
+/**
+ * ENGO 2 / 3 glasses: a Bluetooth output of its own, with its own two
+ * pages. Paired like the radar ([EngoPairing]); once a pair is remembered,
+ * what the ride page's corners show and whether turns take the screen.
+ */
+@Composable
+private fun EngoGlassesBlock(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel
+) {
+    val engo = settings.engoHud
+    SectionHeader(stringResource(R.string.engo_hud_enabled))
+    EngoPairing(settings = settings, viewModel = viewModel) {
+        AdvancedCollapsable(
+            title = stringResource(R.string.engo_pages_title),
+            stateKey = "engo_pages"
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                val metrics = com.eried.eucplanet.service.hud.engo.EngoMetrics
+                val options = metrics.KEYS.map { it to metricChipLabel(it) }
+                val left = metrics.known(engo.metricLeft, metrics.BATTERY)
+                val right = metrics.known(engo.metricRight, metrics.TEMPERATURE)
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    WidgetSlotDropdown(
+                        label = stringResource(R.string.widget_metric_slot, 1),
+                        currentLabel = if (left == metrics.NONE) "" else metricChipLabel(left),
+                        options = options,
+                        onSelect = { viewModel.updateEngoMetricLeft(it) },
+                        modifier = Modifier.weight(1f),
+                    )
+                    WidgetSlotDropdown(
+                        label = stringResource(R.string.widget_metric_slot, 2),
+                        currentLabel = if (right == metrics.NONE) "" else metricChipLabel(right),
+                        options = options,
+                        onSelect = { viewModel.updateEngoMetricRight(it) },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+                SwitchSetting(
+                    label = stringResource(R.string.engo_nav_takeover),
+                    checked = engo.navTakeover,
+                    onCheckedChange = { viewModel.updateEngoNavTakeover(it) }
+                )
+            }
+        }
     }
 }
 

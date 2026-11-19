@@ -2660,6 +2660,10 @@
     <string name="crews_expired">这个码过期了。去浏览器里要个新的。</string>
     <string name="voice_pill_search">搜索</string>
     <string name="voice_volume">音量</string>
+    <string name="engo_hud_enabled">ENGO 眼镜 HUD</string>
+    <string name="engo_scan_hint">打开眼镜电源。眼镜一次只能连接一台设备，请先断开与手表或 ActiveLook 应用的连接。</string>
+    <string name="engo_pages_title">眼镜页面</string>
+    <string name="engo_nav_takeover">导航时显示转弯</string>
     <string name="beep_volume_by_speed">按速度调整蜂鸣音量</string>
     <string name="beep_volume_stopped">静止</string>
     <string name="beep_volume_riding">骑行中</string>

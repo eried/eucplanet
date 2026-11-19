@@ -2600,6 +2600,10 @@
     <string name="crews_expired">Ez a kód lejárt. Kérj egy újat a böngészőből.</string>
     <string name="voice_pill_search">Keresés</string>
     <string name="voice_volume">Hangerő</string>
+    <string name="engo_hud_enabled">ENGO szemüveg HUD</string>
+    <string name="engo_scan_hint">Kapcsold be a szemüveget. Egyszerre csak egy eszközhöz kapcsolódik, ezért előbb válaszd le az óráról vagy az ActiveLook alkalmazásról.</string>
+    <string name="engo_pages_title">A szemüveg oldalai</string>
+    <string name="engo_nav_takeover">Kanyarok mutatása navigáláskor</string>
     <string name="beep_volume_by_speed">Sípolás hangereje sebesség szerint</string>
     <string name="beep_volume_stopped">Állva</string>
     <string name="beep_volume_riding">Menet közben</string>

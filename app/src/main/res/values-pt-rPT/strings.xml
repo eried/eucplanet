@@ -458,6 +458,10 @@
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Ativar ligação de dados</string>
+    <string name="engo_hud_enabled">HUD dos óculos ENGO</string>
+    <string name="engo_scan_hint">Ligue os óculos. Só se ligam a um dispositivo de cada vez, por isso desligue-os primeiro do relógio ou da app ActiveLook.</string>
+    <string name="engo_pages_title">Páginas dos óculos</string>
+    <string name="engo_nav_takeover">Mostrar viragens na navegação</string>
     <string name="hud_ip_label">IP do dispositivo</string>
     <string name="hud_ip_incomplete">Introduza um endereço completo, como 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">IP do dispositivo (automático)</string>

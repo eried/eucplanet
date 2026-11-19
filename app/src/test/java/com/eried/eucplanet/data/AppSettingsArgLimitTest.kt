@@ -50,7 +50,7 @@ class AppSettingsArgLimitTest {
     }
 
     @Test fun theRemainingHeadroomIsStatedOutLoud() {
-        // Not a correctness check: a deliberate tripwire. AppSettings sits FOUR
+        // Not a correctness check: a deliberate tripwire. AppSettings sits THREE
         // slots under the JVM's 255, so anyone adding a field has to look at
         // this number and decide consciously rather than discover it in a
         // crash report. 253 was the voice cues nested as one group; 254 is the
@@ -68,11 +68,12 @@ class AppSettingsArgLimitTest {
         // fields; 253 is that minus navPlacesHintShown, a one-time hint flag
         // that went with its hint; 250 is the last settings backup time and name
         // gone: the backup file says when it was written; 251 unitAltitude,
-        // beside the other three unit fields. That leaves FOUR
+        // beside the other three unit fields; 252 the ENGO glasses HUD group,
+        // nested as EngoHudSettings. That leaves THREE
         // slots. Keep nesting: the next group goes in
         // one slot, not one per field, and the volume key fields are the
         // first candidates to nest when it is needed.
-        val expectedSlots = 251
+        val expectedSlots = 252
         assertEquals(
             "AppSettings slot usage changed. Prefer nesting a group of fields over " +
                 "spending headroom, and update this number deliberately.",

@@ -930,6 +930,17 @@ class SettingsViewModel(
 
     // HUD companion
     fun updateHudServerEnabled(v: Boolean) = update { copy(hudServerEnabled = v) }
+    fun updateEngoHudEnabled(v: Boolean) = update { copy(engoHud = engoHud.copy(enabled = v)) }
+    /** The rider picked these glasses in a scan: remembered, and linked to. */
+    fun updateEngoPaired(address: String, name: String) = update {
+        copy(engoHud = engoHud.copy(enabled = true, pairedAddress = address, pairedName = name))
+    }
+    fun updateEngoForget() = update {
+        copy(engoHud = engoHud.copy(enabled = false, pairedAddress = null, pairedName = null))
+    }
+    fun updateEngoMetricLeft(key: String) = update { copy(engoHud = engoHud.copy(metricLeft = key)) }
+    fun updateEngoMetricRight(key: String) = update { copy(engoHud = engoHud.copy(metricRight = key)) }
+    fun updateEngoNavTakeover(v: Boolean) = update { copy(engoHud = engoHud.copy(navTakeover = v)) }
 
     fun updateNotificationActionsEnabled(v: Boolean) =
         update { copy(notificationActionsEnabled = v) }

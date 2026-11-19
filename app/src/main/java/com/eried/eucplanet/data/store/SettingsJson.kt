@@ -65,6 +65,9 @@ object SettingsJson {
         // addresses, and a backup restored on a second phone must not pair it
         // to sensors that are not on that phone's wheel.
         tpms = s.tpms.copy(pairedAddress = null, pairedAddresses = emptyList()),
+        // The paired glasses are this phone's too. Their options (the two
+        // numbers, turns) travel; which pair, and whether it is linked, do not.
+        engoHud = s.engoHud.copy(enabled = false, pairedAddress = null, pairedName = null),
         syncFolderUri = null,
         // Don't write the live Dropbox link into a backup / portable settings
         // file -- it's device + account state, and an access token shouldn't sit
@@ -404,6 +407,15 @@ object SettingsJson {
             put("showTelemetry", s.watchMap.showTelemetry)
         })
         put("hudServerEnabled", s.hudServerEnabled)
+        put("engoHud", JSONObject().apply {
+            put("enabled", s.engoHud.enabled)
+            put("autoConnect", s.engoHud.autoConnect)
+            put("pairedAddress", s.engoHud.pairedAddress)
+            put("pairedName", s.engoHud.pairedName)
+            put("metricLeft", s.engoHud.metricLeft)
+            put("metricRight", s.engoHud.metricRight)
+            put("navTakeover", s.engoHud.navTakeover)
+        })
         put("keepAppAlive", s.keepAppAlive)
         put("notificationActionsEnabled", s.notificationActionsEnabled)
         put("notificationActions", s.notificationActions)
@@ -885,6 +897,17 @@ object SettingsJson {
             )
         } ?: base.watchMap,
         hudServerEnabled = j.optBoolean("hudServerEnabled", base.hudServerEnabled),
+        engoHud = j.optJSONObject("engoHud")?.let { e ->
+            base.engoHud.copy(
+                enabled = e.optBoolean("enabled", base.engoHud.enabled),
+                autoConnect = e.optBoolean("autoConnect", base.engoHud.autoConnect),
+                pairedAddress = e.optStringOrNull("pairedAddress", base.engoHud.pairedAddress),
+                pairedName = e.optStringOrNull("pairedName", base.engoHud.pairedName),
+                metricLeft = e.optString("metricLeft", base.engoHud.metricLeft),
+                metricRight = e.optString("metricRight", base.engoHud.metricRight),
+                navTakeover = e.optBoolean("navTakeover", base.engoHud.navTakeover),
+            )
+        } ?: base.engoHud,
         keepAppAlive = j.optBoolean("keepAppAlive", base.keepAppAlive),
         notificationActionsEnabled = j.optBoolean("notificationActionsEnabled", base.notificationActionsEnabled),
         notificationActions = j.optString("notificationActions", base.notificationActions),
@@ -988,6 +1011,11 @@ object SettingsJson {
             tpms = parsed.tpms.copy(
                 pairedAddress = current.tpms.pairedAddress,
                 pairedAddresses = current.tpms.pairedAddresses,
+            ),
+            engoHud = parsed.engoHud.copy(
+                enabled = current.engoHud.enabled,
+                pairedAddress = current.engoHud.pairedAddress,
+                pairedName = current.engoHud.pairedName,
             ),
             lastDeviceAddress = current.lastDeviceAddress,
             lastDeviceName = current.lastDeviceName,

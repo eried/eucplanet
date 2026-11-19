@@ -2793,6 +2793,10 @@
     <string name="crews_expired">這個代碼已過期。請從瀏覽器取得新的代碼。</string>
     <string name="voice_pill_search">搜尋</string>
     <string name="voice_volume">音量</string>
+    <string name="engo_hud_enabled">ENGO 眼鏡 HUD</string>
+    <string name="engo_scan_hint">開啟眼鏡電源。眼鏡一次只能連接一台裝置，請先中斷與手錶或 ActiveLook App 的連線。</string>
+    <string name="engo_pages_title">眼鏡頁面</string>
+    <string name="engo_nav_takeover">導航時顯示轉彎</string>
     <string name="beep_volume_by_speed">依速度調整嗶聲音量</string>
     <string name="beep_volume_stopped">靜止</string>
     <string name="beep_volume_riding">騎乘中</string>

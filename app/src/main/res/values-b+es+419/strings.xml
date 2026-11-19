@@ -2816,6 +2816,10 @@
     <string name="crews_expired">Ese código venció. Genera uno nuevo en el navegador.</string>
     <string name="voice_pill_search">Buscar</string>
     <string name="voice_volume">Volumen</string>
+    <string name="engo_hud_enabled">HUD de lentes ENGO</string>
+    <string name="engo_scan_hint">Enciende las gafas. Solo se enlazan a un dispositivo a la vez, así que primero desconéctalas de tu reloj o de la app ActiveLook.</string>
+    <string name="engo_pages_title">Páginas de las gafas</string>
+    <string name="engo_nav_takeover">Mostrar giros al navegar</string>
     <string name="beep_volume_by_speed">Volumen del pitido según velocidad</string>
     <string name="beep_volume_stopped">Detenido</string>
     <string name="beep_volume_riding">Rodando</string>

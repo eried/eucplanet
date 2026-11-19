@@ -610,6 +610,10 @@ data class AppSettings(
      * a debug APK does not start the radio by itself.
      */
     val hudServerEnabled: Boolean = false,
+    // ENGO 2 / 3 ActiveLook glasses HUD (BLE). Opt-in, independent of the MotoEye
+    // network HUD above. Nested (rule 8: keep AppSettings under the 255-arg dex
+    // limit) so future Engo options don't each spend a top-level slot.
+    val engoHud: EngoHudSettings = EngoHudSettings(),
     /**
      * Allow crews pairing with a server other than the one this build talks to.
      *
@@ -1282,6 +1286,28 @@ data class ProximityLockSettings(
             setOf(UNLOCK_WHEN_NEVER, UNLOCK_WHEN_RETURN, UNLOCK_WHEN_NEAR)
     }
 }
+
+/**
+ * ENGO 2 / 3 ActiveLook glasses HUD settings. Nested so the flags (and future
+ * ones like metric picks) cost one top-level [AppSettings] slot, not N - see the
+ * 255-arg dex limit guard in AppSettingsArgLimitTest.
+ */
+data class EngoHudSettings(
+    /** Whether the link to the paired glasses is kept up. Pairing turns it
+     *  on, Disconnect off, Forget device off. */
+    val enabled: Boolean = false,
+    /** The glasses the rider paired by scanning, the only pair linked to.
+     *  Null until then. */
+    val pairedAddress: String? = null,
+    val pairedName: String? = null,
+    val autoConnect: Boolean = true,
+    /** The number in the ride page's bottom left corner, an EngoMetrics key. */
+    val metricLeft: String = "BATTERY",
+    /** The number in the ride page's bottom right corner. */
+    val metricRight: String = "TEMPERATURE",
+    /** Whether the next turn takes the screen while a route is guided. */
+    val navTakeover: Boolean = true,
+)
 
 /**
  * The rider's tire-pressure sensors and how pressure is shown.

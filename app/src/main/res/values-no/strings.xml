@@ -2683,6 +2683,10 @@
     <string name="crews_expired">Den koden har gått ut på dato. Hent en fersk i nettleseren.</string>
     <string name="voice_pill_search">Søk</string>
     <string name="voice_volume">Volum</string>
+    <string name="engo_hud_enabled">ENGO-brille-HUD</string>
+    <string name="engo_scan_hint">Slå på brillene. De kobler seg bare til én enhet om gangen, så koble dem først fra klokka eller ActiveLook-appen.</string>
+    <string name="engo_pages_title">Brillenes sider</string>
+    <string name="engo_nav_takeover">Vis svinger under navigasjon</string>
     <string name="beep_volume_by_speed">Pipevolum etter fart</string>
     <string name="beep_volume_stopped">Står stille</string>
     <string name="beep_volume_riding">Under kjøring</string>
