@@ -68,6 +68,7 @@ window.EUC_I18N_DICT = {
 "a.ride-forecast-over-the-light-theme": "Åkprognos i det ljusa temat, med temaredigeraren öppen",
 "a.share-your-ride-live-with-a": "Dela din tur live med en grupp",
 "a.android": "Android",
+"a.android-only": "Bara på Android",
 "a.wear-os-speed-dial": "Wear OS-hastighetsmätare",
 "a.wear-os-one-battery": "Wear OS-hastighetsmätare med ett batteri, i orange",
 "a.wear-os-telemetry-detail": "Wear OS-telemetri i detalj",

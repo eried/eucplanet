@@ -68,6 +68,7 @@ window.EUC_I18N_DICT = {
 "a.ride-forecast-over-the-light-theme": "Ajosääennuste vaaleassa teemassa, teemaeditori auki",
 "a.share-your-ride-live-with-a": "Jaa ajosi reaaliajassa ryhmän kanssa",
 "a.android": "Android",
+"a.android-only": "Vain Androidille",
 "a.wear-os-speed-dial": "Wear OS -nopeusmittari",
 "a.wear-os-one-battery": "Wear OS -nopeusmittari yhdellä akulla, oranssina",
 "a.wear-os-telemetry-detail": "Wear OS -telemetrian tiedot",

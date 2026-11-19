@@ -68,6 +68,7 @@ window.EUC_I18N_DICT = {
 "a.ride-forecast-over-the-light-theme": "Прогноза за каране в светлата тема, с отворен редактор на темата на живо",
 "a.share-your-ride-live-with-a": "Сподели карането си на живо с група",
 "a.android": "Android",
+"a.android-only": "Само за Android",
 "a.wear-os-speed-dial": "Скоростомер на Wear OS",
 "a.wear-os-one-battery": "Скоростомер на Wear OS с една батерия, в оранжево",
 "a.wear-os-telemetry-detail": "Подробна телеметрия на Wear OS",

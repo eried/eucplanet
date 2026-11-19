@@ -68,6 +68,7 @@ window.EUC_I18N_DICT = {
 "a.ride-forecast-over-the-light-theme": "Prognoza de mers pe tema luminoasă, cu editorul de teme deschis",
 "a.share-your-ride-live-with-a": "Partajează tura în timp real cu un grup",
 "a.android": "Android",
+"a.android-only": "Doar pe Android",
 "a.wear-os-speed-dial": "Vitezometru Wear OS",
 "a.wear-os-one-battery": "Vitezometru Wear OS cu o singură baterie, în portocaliu",
 "a.wear-os-telemetry-detail": "Detalii de telemetrie Wear OS",

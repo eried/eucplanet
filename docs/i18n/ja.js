@@ -68,6 +68,7 @@ window.EUC_I18N_DICT = {
 "a.ride-forecast-over-the-light-theme": "ライトテーマで表示した走行予報と、開いているライブテーマエディター",
 "a.share-your-ride-live-with-a": "走行をグループとリアルタイムで共有",
 "a.android": "Android",
+"a.android-only": "Android のみ",
 "a.wear-os-speed-dial": "Wear OS のスピードメーター",
 "a.wear-os-one-battery": "バッテリー1つ表示のWear OSスピードメーター（オレンジ）",
 "a.wear-os-telemetry-detail": "Wear OS のテレメトリー詳細",

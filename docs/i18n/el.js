@@ -68,6 +68,7 @@ window.EUC_I18N_DICT = {
 "a.ride-forecast-over-the-light-theme": "Πρόγνωση για βόλτα στο φωτεινό θέμα, με ανοιχτό τον ζωντανό επεξεργαστή θέματος",
 "a.share-your-ride-live-with-a": "Μοιράσου τη βόλτα σου ζωντανά με την παρέα",
 "a.android": "Android",
+"a.android-only": "Μόνο σε Android",
 "a.wear-os-speed-dial": "Ταχύμετρο Wear OS",
 "a.wear-os-one-battery": "Ταχύμετρο Wear OS με μία μπαταρία, σε πορτοκαλί",
 "a.wear-os-telemetry-detail": "Λεπτομέρειες τηλεμετρίας Wear OS",

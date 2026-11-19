@@ -68,6 +68,7 @@ window.EUC_I18N_DICT = {
 "a.ride-forecast-over-the-light-theme": "พยากรณ์การขี่บนธีมสว่าง เปิดตัวแก้ไขธีมแบบเรียลไทม์ไว้ด้วย",
 "a.share-your-ride-live-with-a": "แชร์การขี่ของคุณแบบสดกับกลุ่ม",
 "a.android": "Android",
+"a.android-only": "เฉพาะ Android",
 "a.wear-os-speed-dial": "มาตรวัดความเร็วบน Wear OS",
 "a.wear-os-one-battery": "มาตรวัดความเร็วบน Wear OS แบบแบตเตอรี่เดียว สีส้ม",
 "a.wear-os-telemetry-detail": "รายละเอียดข้อมูลล้อบน Wear OS",

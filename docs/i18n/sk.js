@@ -68,6 +68,7 @@ window.EUC_I18N_DICT = {
 "a.ride-forecast-over-the-light-theme": "Predpoveď na jazdu vo svetlom motíve, s otvoreným živým editorom motívu",
 "a.share-your-ride-live-with-a": "Zdieľajte jazdu naživo so skupinou",
 "a.android": "Android",
+"a.android-only": "Len pre Android",
 "a.wear-os-speed-dial": "Rýchlomer na Wear OS",
 "a.wear-os-one-battery": "Ciferník Wear OS s jednou batériou v oranžovom motíve",
 "a.wear-os-telemetry-detail": "Detail telemetrie na Wear OS",

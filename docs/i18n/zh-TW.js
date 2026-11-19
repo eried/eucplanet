@@ -68,6 +68,7 @@ window.EUC_I18N_DICT = {
 "a.ride-forecast-over-the-light-theme": "淺色主題下的騎乘預報，即時主題編輯器已開啟",
 "a.share-your-ride-live-with-a": "團騎時即時分享你的騎乘",
 "a.android": "Android",
+"a.android-only": "僅限 Android",
 "a.wear-os-speed-dial": "Wear OS 速度錶",
 "a.wear-os-one-battery": "只顯示一顆電池的 Wear OS 速度錶，橘色",
 "a.wear-os-telemetry-detail": "Wear OS 遙測詳細資料",

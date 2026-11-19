@@ -68,6 +68,7 @@ window.EUC_I18N_DICT = {
 "a.ride-forecast-over-the-light-theme": "Prakiraan riding di tema terang, dengan editor tema real-time terbuka",
 "a.share-your-ride-live-with-a": "Bagikan perjalananmu secara langsung dengan grup",
 "a.android": "Android",
+"a.android-only": "Hanya di Android",
 "a.wear-os-speed-dial": "Speedometer Wear OS",
 "a.wear-os-one-battery": "Speedometer Wear OS dengan satu baterai, warna oranye",
 "a.wear-os-telemetry-detail": "Detail telemetri Wear OS",
