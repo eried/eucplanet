@@ -298,7 +298,6 @@ object MetricRegistry {
 
         // ---- Not on WheelData: trip recorder, graphs, radar ----
 
-        MetricDef("HEADROOM", unit = MetricUnitKind.SPEED, source = MetricSource.DERIVED),
         MetricDef("TRIP_TIME", unit = MetricUnitKind.TIME, source = MetricSource.DERIVED),
         MetricDef("TRIP_MAX_SPEED", unit = MetricUnitKind.SPEED, source = MetricSource.DERIVED),
         MetricDef("AVG_TRIP_SPEED", unit = MetricUnitKind.SPEED, source = MetricSource.DERIVED),

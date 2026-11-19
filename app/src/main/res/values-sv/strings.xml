@@ -249,7 +249,6 @@
     <string name="metric_chip_tire_pressure_tile">Däck</string>
     <string name="metric_desc_tire_pressure">Däcktryck från din egen sensor eller en som hjulet vidarebefordrar.</string>
     <string name="studio_metric_tire_pressure">Däcktryck</string>
-    <string name="metric_chip_headroom">Marginal</string>
     <string name="metric_chip_trip_time">Turtid</string>
     <string name="metric_chip_trip_max_speed">Turmax</string>
     <string name="metric_chip_avg_trip_speed">Snittfart</string>
@@ -310,7 +309,6 @@
     <!-- Descriptions shown in the slot-sheet info box for metrics whose
          meaning isn't obvious from the name alone. Strings end with a
          period so they read like complete sentences. -->
-    <string name="metric_desc_headroom">Återstående fartmarginal innan tiltback slår till. Stort tal = mer säkerhetsbuffert.</string>
     <string name="metric_desc_trip_max_speed">Topphastighet under aktuell tur (nollställs vid ny tur).</string>
     <string name="metric_desc_avg_trip_speed">Turdistans dividerad med åktid hittills.</string>
     <string name="metric_desc_wh_consumed">Totalt antal wattimmar ur batteriet under turen.</string>
@@ -616,7 +614,7 @@
     <string name="section_cloud_settings">Säkerhetskopia av inställningar</string>
     <string name="cloud_backup_now">Säkerhetskopiera</string>
     <string name="cloud_restore">Återställ</string>
-    <string name="cloud_settings_backup_desc">Allt du har ställt in i appen, sparat i eucplanet_settings.json i din backupmapp. Tryck länge på knappen för att spara en namngiven kopia bredvid.</string>
+    <string name="cloud_settings_backup_desc">Dina inställningar och larmregler, sparade i eucplanet_settings.json i din backupmapp. Tryck länge på knappen för att spara en namngiven kopia bredvid.</string>
     <string name="cloud_last_backup">Senaste säkerhetskopia: %1$s</string>
 <string name="cloud_last_backup_named">Senaste säkerhetskopia: %1$s som ”%2$s”</string>
     <string name="cloud_last_backup_never">Inte säkerhetskopierat ännu</string>
@@ -950,7 +948,7 @@
     <string name="volume_keys_caption">Volymknapparna som genvägar medan appen är på skärmen.</string>
     <string name="volume_keys_enable">Aktivera åtgärder för volymknappar</string>
     <string name="volume_keys_screen_off">Även med skärmen av</string>
-    <string name="volume_keys_screen_off_caption">Fungerar med låst telefon eller en annan app framför. Knapparna ändrar inte längre telefonens volym.</string>
+    <string name="volume_keys_screen_off_caption">Medan EUC Planet körs fungerar det med låst telefon eller en annan app framför. Knapparna ändrar inte längre telefonens volym.</string>
     <string name="volume_keys_screen_off_warn">Android skickar bara volymtryck till appen på skärmen. För att få dem med skärmen av anmäler sig EUC Planet som telefonens aktiva mediespelare, så Android skickar volymknapparna dit i stället för att ändra volymen.</string>
     <string name="volume_keys_screen_off_confirm">Slå på</string>
     <string name="volume_keys_screen_off_title">Ta över volymknapparna?</string>

@@ -246,7 +246,6 @@
     <string name="metric_chip_tire_pressure">Tlak v pneumatike</string>
     <string name="metric_chip_tire_pressure_tile">Pneu</string>
     <string name="metric_desc_tire_pressure">Tlak v pneumatike z vlastného senzora alebo zo senzora, ktorý sprostredkuje koleso.</string>
-    <string name="metric_chip_headroom">Rezerva</string>
     <string name="metric_chip_trip_time">Čas jazdy</string>
     <string name="metric_chip_trip_max_speed">Max jazdy</string>
     <string name="metric_chip_avg_trip_speed">Priem. rýchlosť</string>
@@ -299,7 +298,6 @@
     <string name="metric_chip_lateral_g_tile">Bočné g</string>
     <string name="metric_chip_bt_rssi_tile">BT</string>
 
-    <string name="metric_desc_headroom">Rezerva rýchlosti, kým nezačne tilt-back. Vyššie číslo znamená väčšiu bezpečnostnú rezervu.</string>
     <string name="metric_desc_trip_max_speed">Najvyššia rýchlosť počas aktuálnej jazdy (pri novej jazde sa vynuluje).</string>
     <string name="metric_desc_avg_trip_speed">Vzdialenosť jazdy vydelená doterajším časom jazdy.</string>
     <string name="metric_desc_wh_consumed">Celkové watthodiny odobraté z batérie počas tejto jazdy.</string>
@@ -793,7 +791,7 @@
     <string name="section_cloud_settings">Záloha nastavení</string>
     <string name="cloud_backup_now">Zálohovať</string>
     <string name="cloud_restore">Obnoviť</string>
-    <string name="cloud_settings_backup_desc">Všetko, čo ste v aplikácii nastavili, sa zapíše do eucplanet_settings.json v priečinku záloh. Podržaním tlačidla uložíte vedľa neho pomenovanú kópiu.</string>
+    <string name="cloud_settings_backup_desc">Vaše nastavenia a pravidlá alarmov sa zapíšu do eucplanet_settings.json v priečinku záloh. Podržaním tlačidla uložíte vedľa neho pomenovanú kópiu.</string>
     <string name="cloud_last_backup">Posledná záloha: %1$s</string>
     <string name="cloud_last_backup_named">Posledná záloha: %1$s ako „%2$s“</string>
     <string name="cloud_last_backup_never">Zatiaľ nezálohované</string>
@@ -1216,7 +1214,7 @@
     <string name="volume_keys_caption">Tlačidlá hlasitosti ako skratky, kým je aplikácia na obrazovke.</string>
     <string name="volume_keys_enable">Zapnúť akcie tlačidiel hlasitosti</string>
     <string name="volume_keys_screen_off">Aj pri vypnutej obrazovke</string>
-    <string name="volume_keys_screen_off_caption">Funguje so zamknutým telefónom alebo s inou aplikáciou v popredí. Tlačidlá už nemenia hlasitosť telefónu.</string>
+    <string name="volume_keys_screen_off_caption">Kým EUC Planet beží, funguje so zamknutým telefónom alebo s inou aplikáciou v popredí. Tlačidlá už nemenia hlasitosť telefónu.</string>
     <string name="volume_keys_screen_off_warn">Android posiela stlačenia hlasitosti len aplikácii na obrazovke. Aby ich EUC Planet dostal aj pri vypnutej obrazovke, zaregistruje sa ako aktívny prehrávač médií v telefóne, a Android mu tlačidlá hlasitosti posiela namiesto zmeny hlasitosti.</string>
     <string name="volume_keys_screen_off_confirm">Zapnúť</string>
     <string name="volume_keys_screen_off_title">Prevziať tlačidlá hlasitosti?</string>

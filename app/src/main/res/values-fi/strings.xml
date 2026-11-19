@@ -225,7 +225,6 @@
     <string name="metric_chip_tire_pressure">Rengaspaine</string>
     <string name="metric_chip_tire_pressure_tile">Rengas</string>
     <string name="metric_desc_tire_pressure">Renkaan paine omasta anturistasi tai yksipyöräisen välittämänä.</string>
-    <string name="metric_chip_headroom">Pelivara</string>
     <string name="metric_chip_trip_time">Matka-aika</string>
     <string name="metric_chip_trip_max_speed">Matkan maksimi</string>
     <string name="metric_chip_avg_trip_speed">Keskinopeus</string>
@@ -276,7 +275,6 @@
     <string name="metric_chip_forward_g_tile">Pit g</string>
     <string name="metric_chip_lateral_g_tile">Sivu g</string>
     <string name="metric_chip_bt_rssi_tile">BT</string>
-    <string name="metric_desc_headroom">Nopeusvara ennen kuin tiltback alkaa. Suuri luku = enemmän turvamarginaalia.</string>
     <string name="metric_desc_trip_max_speed">Nykyisen matkan huippunopeus (nollautuu uudella matkalla).</string>
     <string name="metric_desc_avg_trip_speed">Matkan pituus jaettuna tähänastisella ajoajalla.</string>
     <string name="metric_desc_wh_consumed">Akusta otetut wattitunnit yhteensä tällä matkalla.</string>
@@ -747,7 +745,7 @@
     <string name="section_cloud_settings">Asetusten varmuuskopio</string>
     <string name="cloud_backup_now">Varmuuskopioi</string>
     <string name="cloud_restore">Palauta</string>
-    <string name="cloud_settings_backup_desc">Kaikki sovellukseen tekemäsi asetukset tallennetaan tiedostoon eucplanet_settings.json varmuuskopiokansiossasi. Pidä painiketta pohjassa tallentaaksesi nimetyn kopion.</string>
+    <string name="cloud_settings_backup_desc">Asetuksesi ja hälytyssääntösi tallennetaan tiedostoon eucplanet_settings.json varmuuskopiokansiossasi. Pidä painiketta pohjassa tallentaaksesi nimetyn kopion.</string>
     <string name="cloud_last_backup">Viimeisin varmuuskopio: %1$s</string>
     <string name="cloud_last_backup_named">Viimeisin varmuuskopio: %1$s nimellä ”%2$s”</string>
     <string name="cloud_last_backup_never">Ei vielä varmuuskopioitu</string>
@@ -1156,7 +1154,7 @@
     <string name="volume_keys_caption">Äänenvoimakkuuspainikkeet pikatoimintoina, kun sovellus on näytöllä.</string>
     <string name="volume_keys_enable">Ota äänenvoimakkuusnäppäinten toiminnot käyttöön</string>
     <string name="volume_keys_screen_off">Myös näytön ollessa pois päältä</string>
-    <string name="volume_keys_screen_off_caption">Toimii puhelin lukittuna tai toisen sovelluksen ollessa edessä. Painikkeet eivät enää muuta puhelimen äänenvoimakkuutta.</string>
+    <string name="volume_keys_screen_off_caption">Kun EUC Planet on käynnissä, toimii puhelin lukittuna tai toisen sovelluksen ollessa edessä. Painikkeet eivät enää muuta puhelimen äänenvoimakkuutta.</string>
     <string name="volume_keys_screen_off_warn">Android lähettää äänenvoimakkuuspainallukset vain näytöllä olevalle sovellukselle. Saadakseen ne näyttö sammutettuna EUC Planet ilmoittautuu puhelimen aktiiviseksi mediasoittimeksi, jolloin Android lähettää painikkeet sille eikä muuta äänenvoimakkuutta.</string>
     <string name="volume_keys_screen_off_confirm">Ota käyttöön</string>
     <string name="volume_keys_screen_off_title">Otetaanko äänenvoimakkuuspainikkeet käyttöön?</string>

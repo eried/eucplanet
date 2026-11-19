@@ -187,7 +187,7 @@
     <string name="section_cloud_settings">Backup impostazioni</string>
     <string name="cloud_backup_now">Backup</string>
     <string name="cloud_restore">Ripristina</string>
-    <string name="cloud_settings_backup_desc">Tutto quello che hai impostato nell\'app, salvato in eucplanet_settings.json nella tua cartella dei backup. Tieni premuto il pulsante per salvare una copia con un nome.</string>
+    <string name="cloud_settings_backup_desc">Le tue impostazioni e regole d\'allarme, salvate in eucplanet_settings.json nella tua cartella dei backup. Tieni premuto il pulsante per salvare una copia con un nome.</string>
     <string name="cloud_last_backup">Ultimo backup: %1$s</string>
 <string name="cloud_last_backup_named">Ultimo backup: %1$s come «%2$s»</string>
     <string name="cloud_last_backup_never">Nessun backup ancora</string>
@@ -394,7 +394,7 @@
     <string name="volume_keys_caption">Tasti volume come scorciatoie finché l\'app è sullo schermo.</string>
     <string name="volume_keys_enable">Attiva azioni dei tasti volume</string>
     <string name="volume_keys_screen_off">Anche a schermo spento</string>
-    <string name="volume_keys_screen_off_caption">Funziona a telefono bloccato o con un\'altra app in primo piano. I tasti non cambiano più il volume del telefono.</string>
+    <string name="volume_keys_screen_off_caption">Finché EUC Planet è in esecuzione, funziona a telefono bloccato o con un\'altra app in primo piano. I tasti non cambiano più il volume del telefono.</string>
     <string name="volume_keys_screen_off_warn">Android invia le pressioni del volume solo all\'app sullo schermo. Per riceverle a schermo spento, EUC Planet si registra come lettore multimediale attivo del telefono, e Android gli invia i tasti volume invece di cambiare il volume.</string>
     <string name="volume_keys_screen_off_confirm">Attiva</string>
     <string name="volume_keys_screen_off_title">Prendere il controllo dei tasti volume?</string>
@@ -1587,7 +1587,6 @@
     <string name="metric_chip_gps_altitude">Altitudine</string>
     <string name="metric_chip_gps_heading">Direzione</string>
     <string name="metric_chip_gps_speed">Vel. GPS</string>
-    <string name="metric_chip_headroom">Margine</string>
     <string name="metric_chip_lat_long">Lat, Long</string>
     <string name="metric_chip_lateral_g">G laterale</string>
     <string name="metric_chip_light_on">Luce</string>
@@ -1625,7 +1624,6 @@
     <string name="metric_desc_bt_rssi">Intensità del segnale Bluetooth verso la ruota, più vicino a 0 dBm è più forte.</string>
     <string name="metric_desc_gps_accuracy">Raggio di errore di posizionamento GPS, minore è più preciso.</string>
     <string name="metric_desc_external_gps_battery">Batteria del GPS esterno accoppiato (RaceBox, Dragy), così la vedi scendere prima che si scarichi durante il giro.</string>
-    <string name="metric_desc_headroom">Margine di velocità rimanente prima del tiltback. Numero grande = più sicurezza.</string>
     <string name="metric_desc_range_estimate">Distanza rimanente al ritmo di consumo attuale.</string>
     <string name="metric_desc_regen_wh">Wattora totali restituiti alla batteria frenando in questo viaggio.</string>
     <string name="metric_desc_slope">Pendenza stradale calcolata dal beccheggio della ruota, positiva è salita.</string>

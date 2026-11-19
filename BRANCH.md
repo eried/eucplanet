@@ -9,6 +9,8 @@ ride, this is the branch.
 
 ## Worked on
 
+- Headroom tile removed: it was offered as a dashboard tile but never showed a value. A dashboard that had it loses that tile; nothing else moves.
+- Two hints corrected, in every language: the settings backup says it holds your settings and alarm rules (not "everything"), and volume keys with the screen off says it works while EUC Planet is running.
 - Leaderboard: when the server limits your uploads or does not know your rider, the app stops sending for now instead of trying every waiting ride. Rides stay waiting and go up on a later try.
 - Shorter hints: 18 setting descriptions lose their extra sentence, in every language. Three said something untrue and are fixed: forgetting a Flic keeps its actions, the radar lane draws squares with the distance, and the weather widget fetches on its own.
 - Languages: English (UK) is new, with British spelling (tyre, colour, kilometres). The list now reads English (US), English (UK), Español (ES) and Español (LA), the same names as the trip viewer and the leaderboard.
@@ -90,6 +92,8 @@ ride, this is the branch.
 ## Please test
 
 **Texts** (anyone, in your language)
+- Settings backup hint and "Also when the screen is off" under volume keys: do both read naturally in your language?
+- Anyone who had the Headroom tile: is it gone from the dashboard, with the other tiles in their places?
 - Settings hints for rotation, radar, speed splits, Android Auto, keep alive, settings backup, weather source and Advanced rates: does each still read as a whole sentence in your language?
 
 **InMotion V6** (Klaus)

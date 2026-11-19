@@ -226,7 +226,6 @@
     <string name="metric_chip_tire_pressure">Tekanan ban</string>
     <string name="metric_chip_tire_pressure_tile">Ban</string>
     <string name="metric_desc_tire_pressure">Tekanan ban dari sensor Anda sendiri atau yang diteruskan EUC.</string>
-    <string name="metric_chip_headroom">Sisa margin</string>
     <string name="metric_chip_trip_time">Waktu trip</string>
     <string name="metric_chip_trip_max_speed">Maks trip</string>
     <string name="metric_chip_avg_trip_speed">Kec. rata-rata</string>
@@ -277,7 +276,6 @@
     <string name="metric_chip_forward_g_tile">G maju</string>
     <string name="metric_chip_lateral_g_tile">G samping</string>
     <string name="metric_chip_bt_rssi_tile">BT</string>
-    <string name="metric_desc_headroom">Sisa margin kecepatan sebelum tiltback aktif. Angka besar = penyangga keamanan lebih besar.</string>
     <string name="metric_desc_trip_max_speed">Kecepatan puncak selama perjalanan saat ini (direset pada perjalanan baru).</string>
     <string name="metric_desc_avg_trip_speed">Jarak perjalanan dibagi waktu berkendara sejauh ini.</string>
     <string name="metric_desc_wh_consumed">Total watt-jam yang diambil dari baterai pada perjalanan ini.</string>
@@ -753,7 +751,7 @@
     <string name="section_cloud_settings">Cadangan setelan</string>
     <string name="cloud_backup_now">Cadangkan</string>
     <string name="cloud_restore">Pulihkan</string>
-    <string name="cloud_settings_backup_desc">Semua yang Anda atur di aplikasi, ditulis ke eucplanet_settings.json di folder cadangan Anda. Tahan tombol untuk menyimpan salinan bernama di sampingnya.</string>
+    <string name="cloud_settings_backup_desc">Setelan dan aturan alarm Anda, ditulis ke eucplanet_settings.json di folder cadangan Anda. Tahan tombol untuk menyimpan salinan bernama di sampingnya.</string>
     <string name="cloud_last_backup">Cadangan terakhir: %1$s</string>
     <string name="cloud_last_backup_named">Cadangan terakhir: %1$s sebagai “%2$s”</string>
     <string name="cloud_last_backup_never">Belum dicadangkan</string>
@@ -1162,7 +1160,7 @@
     <string name="volume_keys_caption">Gunakan tombol volume sebagai pintasan selama aplikasi tampil di layar.</string>
     <string name="volume_keys_enable">Aktifkan tindakan tombol volume</string>
     <string name="volume_keys_screen_off">Juga saat layar mati</string>
-    <string name="volume_keys_screen_off_caption">Berfungsi saat ponsel terkunci atau aplikasi lain di depan. Tombol tidak lagi mengubah volume ponsel.</string>
+    <string name="volume_keys_screen_off_caption">Selama EUC Planet berjalan, berfungsi saat ponsel terkunci atau aplikasi lain di depan. Tombol tidak lagi mengubah volume ponsel.</string>
     <string name="volume_keys_screen_off_warn">Android hanya mengirim tekanan tombol volume ke aplikasi di layar. Agar tetap menerimanya saat layar mati, EUC Planet mendaftar sebagai pemutar media aktif ponsel, sehingga Android mengirim tombol volume kepadanya dan tidak mengubah volume.</string>
     <string name="volume_keys_screen_off_confirm">Aktifkan</string>
     <string name="volume_keys_screen_off_title">Ambil alih tombol volume?</string>

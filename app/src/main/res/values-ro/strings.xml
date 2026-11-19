@@ -225,7 +225,6 @@
     <string name="metric_chip_tire_pressure">Presiunea în anvelopă</string>
     <string name="metric_chip_tire_pressure_tile">Anvelopă</string>
     <string name="metric_desc_tire_pressure">Presiunea în anvelopă de la senzorul tău sau de la unul retransmis de monociclu.</string>
-    <string name="metric_chip_headroom">Rezervă</string>
     <string name="metric_chip_trip_time">Durata cursei</string>
     <string name="metric_chip_trip_max_speed">Maximul cursei</string>
     <string name="metric_chip_avg_trip_speed">Viteză medie</string>
@@ -276,7 +275,6 @@
     <string name="metric_chip_forward_g_tile">G long</string>
     <string name="metric_chip_lateral_g_tile">G lat</string>
     <string name="metric_chip_bt_rssi_tile">BT</string>
-    <string name="metric_desc_headroom">Marja de viteză rămasă până intervine tiltback-ul. Număr mare = rezervă de siguranță mai mare.</string>
     <string name="metric_desc_trip_max_speed">Viteza maximă din cursa curentă (se resetează la o cursă nouă).</string>
     <string name="metric_desc_avg_trip_speed">Distanța cursei împărțită la timpul de mers de până acum.</string>
     <string name="metric_desc_wh_consumed">Total wați-oră consumați din baterie în această cursă.</string>
@@ -747,7 +745,7 @@
     <string name="section_cloud_settings">Copie de rezervă a setărilor</string>
     <string name="cloud_backup_now">Salvează</string>
     <string name="cloud_restore">Restaurează</string>
-    <string name="cloud_settings_backup_desc">Tot ce ai configurat în aplicație, salvat în eucplanet_settings.json în dosarul de rezervă. Ține butonul apăsat ca să salvezi alături o copie cu nume.</string>
+    <string name="cloud_settings_backup_desc">Setările și regulile tale de alarmă, salvate în eucplanet_settings.json în dosarul de rezervă. Ține butonul apăsat ca să salvezi alături o copie cu nume.</string>
     <string name="cloud_last_backup">Ultima copie: %1$s</string>
     <string name="cloud_last_backup_named">Ultima copie: %1$s ca „%2$s”</string>
     <string name="cloud_last_backup_never">Încă nu s-a făcut o copie</string>
@@ -1156,7 +1154,7 @@
     <string name="volume_keys_caption">Butoanele de volum ca scurtături cât timp aplicația e pe ecran.</string>
     <string name="volume_keys_enable">Activează acțiunile butoanelor de volum</string>
     <string name="volume_keys_screen_off">Și cu ecranul stins</string>
-    <string name="volume_keys_screen_off_caption">Funcționează cu telefonul blocat sau cu altă aplicație în față. Butoanele nu mai schimbă volumul telefonului.</string>
+    <string name="volume_keys_screen_off_caption">Cât timp EUC Planet rulează, funcționează cu telefonul blocat sau cu altă aplicație în față. Butoanele nu mai schimbă volumul telefonului.</string>
     <string name="volume_keys_screen_off_warn">Android trimite apăsările de volum doar aplicației de pe ecran. Ca să le primească și cu ecranul stins, EUC Planet se înregistrează ca playerul media activ al telefonului, iar Android îi trimite butoanele de volum în loc să schimbe volumul.</string>
     <string name="volume_keys_screen_off_confirm">Pornește</string>
     <string name="volume_keys_screen_off_title">Preiei butoanele de volum?</string>

@@ -225,7 +225,6 @@
     <string name="metric_chip_tire_pressure">Guminyomás</string>
     <string name="metric_chip_tire_pressure_tile">Gumi</string>
     <string name="metric_desc_tire_pressure">Guminyomás a saját érzékelődről vagy az egykerekű által továbbított értékből.</string>
-    <string name="metric_chip_headroom">Tartalék</string>
     <string name="metric_chip_trip_time">Menetidő</string>
     <string name="metric_chip_trip_max_speed">Menet maximuma</string>
     <string name="metric_chip_avg_trip_speed">Átlagsebesség</string>
@@ -276,7 +275,6 @@
     <string name="metric_chip_forward_g_tile">Hossz g</string>
     <string name="metric_chip_lateral_g_tile">Oldal g</string>
     <string name="metric_chip_bt_rssi_tile">BT</string>
-    <string name="metric_desc_headroom">Sebességtartalék a tiltback beindulásáig. Nagyobb szám = több biztonsági ráhagyás.</string>
     <string name="metric_desc_trip_max_speed">A jelenlegi menet csúcssebessége (új menetnél nullázódik).</string>
     <string name="metric_desc_avg_trip_speed">A menet távolsága osztva az eddigi menetidővel.</string>
     <string name="metric_desc_wh_consumed">Az akkumulátorból ezen a meneten felvett wattóra összesen.</string>
@@ -747,7 +745,7 @@
     <string name="section_cloud_settings">Beállítások mentése</string>
     <string name="cloud_backup_now">Mentés</string>
     <string name="cloud_restore">Visszaállítás</string>
-    <string name="cloud_settings_backup_desc">Minden beállításod az eucplanet_settings.json fájlba kerül a mentési mappádban. Tartsd nyomva a gombot, ha mellé egy elnevezett másolatot is mentenél.</string>
+    <string name="cloud_settings_backup_desc">A beállításaid és a riasztási szabályaid az eucplanet_settings.json fájlba kerülnek a mentési mappádban. Tartsd nyomva a gombot, ha mellé egy elnevezett másolatot is mentenél.</string>
     <string name="cloud_last_backup">Utolsó mentés: %1$s</string>
     <string name="cloud_last_backup_named">Utolsó mentés: %1$s, „%2$s” néven</string>
     <string name="cloud_last_backup_never">Még nincs mentés</string>
@@ -1156,7 +1154,7 @@
     <string name="volume_keys_caption">Hangerőgombok gyorsbillentyűként, amíg az alkalmazás a képernyőn van.</string>
     <string name="volume_keys_enable">Hangerőgomb-műveletek bekapcsolása</string>
     <string name="volume_keys_screen_off">Kikapcsolt képernyőnél is</string>
-    <string name="volume_keys_screen_off_caption">Zárolt telefonnal és más alkalmazás mögött is működik. A gombok többé nem állítják a telefon hangerejét.</string>
+    <string name="volume_keys_screen_off_caption">Amíg az EUC Planet fut, zárolt telefonnal és más alkalmazás mögött is működik. A gombok többé nem állítják a telefon hangerejét.</string>
     <string name="volume_keys_screen_off_warn">Az Android a hangerőgombok lenyomását csak a képernyőn lévő alkalmazásnak küldi el. Hogy kikapcsolt képernyőnél is megkapja, az EUC Planet a telefon aktív médialejátszójaként jelentkezik be, így az Android neki küldi a hangerőgombokat a hangerő állítása helyett.</string>
     <string name="volume_keys_screen_off_confirm">Bekapcsolás</string>
     <string name="volume_keys_screen_off_title">Átvegye a hangerőgombokat?</string>

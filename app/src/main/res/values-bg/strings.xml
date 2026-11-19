@@ -246,7 +246,6 @@
     <string name="metric_chip_tire_pressure">Налягане в гумата</string>
     <string name="metric_chip_tire_pressure_tile">Гума</string>
     <string name="metric_desc_tire_pressure">Налягане в гумата от ваш сензор или от сензор, предаван през моноколелото.</string>
-    <string name="metric_chip_headroom">Резерв</string>
     <string name="metric_chip_trip_time">Време на пътуване</string>
     <string name="metric_chip_trip_max_speed">Макс. за пътуването</string>
     <string name="metric_chip_avg_trip_speed">Ср. скорост</string>
@@ -299,7 +298,6 @@
     <string name="metric_chip_lateral_g_tile">Стр. g</string>
     <string name="metric_chip_bt_rssi_tile">BT</string>
 
-    <string name="metric_desc_headroom">Оставащ резерв от скорост преди да се задейства tiltback. По-голямо число = по-голям запас на сигурност.</string>
     <string name="metric_desc_trip_max_speed">Максимална скорост по време на текущото пътуване (нулира се при ново пътуване).</string>
     <string name="metric_desc_avg_trip_speed">Изминатото разстояние, разделено на времето в каране досега.</string>
     <string name="metric_desc_wh_consumed">Общо ватчасове, взети от батерията за това пътуване.</string>
@@ -793,7 +791,7 @@
     <string name="section_cloud_settings">Архив на настройките</string>
     <string name="cloud_backup_now">Архивирай</string>
     <string name="cloud_restore">Възстанови</string>
-    <string name="cloud_settings_backup_desc">Всичко, което сте настроили в приложението, записано в eucplanet_settings.json в папката за архиви. Задръжте бутона, за да запазите именувано копие до него.</string>
+    <string name="cloud_settings_backup_desc">Вашите настройки и правила за аларми, записани в eucplanet_settings.json в папката за архиви. Задръжте бутона, за да запазите именувано копие до него.</string>
     <string name="cloud_last_backup">Последен архив: %1$s</string>
     <string name="cloud_last_backup_named">Последен архив: %1$s като „%2$s“</string>
     <string name="cloud_last_backup_never">Още няма архив</string>
@@ -1216,7 +1214,7 @@
     <string name="volume_keys_caption">Бутоните за звук като преки пътища, докато приложението е на екрана.</string>
     <string name="volume_keys_enable">Действия с бутоните за звук</string>
     <string name="volume_keys_screen_off">И при изключен екран</string>
-    <string name="volume_keys_screen_off_caption">Работи при заключен телефон или друго приложение отпред. Бутоните вече не променят силата на звука.</string>
+    <string name="volume_keys_screen_off_caption">Докато EUC Planet работи, действа при заключен телефон или друго приложение отпред. Бутоните вече не променят силата на звука.</string>
     <string name="volume_keys_screen_off_warn">Android изпраща натисканията на бутоните за звук само на приложението на екрана. За да ги получава при изключен екран, EUC Planet се регистрира като активния медиен плейър на телефона и Android му изпраща бутоните, вместо да променя звука.</string>
     <string name="volume_keys_screen_off_confirm">Включи</string>
     <string name="volume_keys_screen_off_title">Да поеме ли бутоните за звук?</string>

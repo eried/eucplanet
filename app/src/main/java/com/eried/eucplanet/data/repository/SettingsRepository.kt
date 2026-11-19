@@ -120,6 +120,9 @@ class SettingsRepository(
  * AdvancedSettingsSpecGuardTest can run it without a store.
  */
 internal fun AppSettings.sanitized(): AppSettings = copy(
+    // A layout saved while a since-removed metric was offered: its tile goes,
+    // rather than staying as a raw key over a dash.
+    dashboardMetricOrder = withoutRetiredMetrics(dashboardMetricOrder),
     voiceVolumePercent = voiceVolumePercent.coerceIn(10, 100),
     autoRecordStopIdleSeconds = autoRecordStopIdleSeconds.coerceAtLeast(30),
     // What the dialog lets a rider save: a synced file cannot ask for 300%, or 80.
@@ -218,3 +221,14 @@ internal fun AppSettings.sanitized(): AppSettings = copy(
 )
 
 private val PREF_VALUES = setOf("DISLIKE", "NEUTRAL", "LIKE")
+
+/**
+ * Metric keys the app once offered as dashboard tiles and no longer has.
+ * HEADROOM was listed but never computed, so its tile only ever showed "--".
+ */
+internal val RETIRED_METRIC_KEYS = setOf("HEADROOM")
+
+/** [order] (the comma-separated tile list) without the [RETIRED_METRIC_KEYS]. */
+internal fun withoutRetiredMetrics(order: String): String =
+    if (RETIRED_METRIC_KEYS.none { it in order }) order
+    else order.split(",").filterNot { it.trim() in RETIRED_METRIC_KEYS }.joinToString(",")

@@ -116,7 +116,7 @@
     <string name="section_cloud_settings">设置备份</string>
     <string name="cloud_backup_now">备份</string>
     <string name="cloud_restore">恢复</string>
-    <string name="cloud_settings_backup_desc">你在应用里设置的一切，写入备份文件夹中的 eucplanet_settings.json。长按按钮可另存一份带名字的副本。</string>
+    <string name="cloud_settings_backup_desc">你的设置和报警规则，写入备份文件夹中的 eucplanet_settings.json。长按按钮可另存一份带名字的副本。</string>
     <string name="cloud_last_backup">上次备份：%1$s</string>
 <string name="cloud_last_backup_named">上次备份：%1$s，名为“%2$s”</string>
     <string name="cloud_last_backup_never">尚未备份</string>
@@ -311,7 +311,7 @@
     <string name="volume_keys_caption">应用显示在屏幕上时，用手机音量键作为快捷键。</string>
     <string name="volume_keys_enable">启用音量键操作</string>
     <string name="volume_keys_screen_off">熄屏时也生效</string>
-    <string name="volume_keys_screen_off_caption">手机锁屏或其他应用在前台时也有效。音量键不再改变手机音量。</string>
+    <string name="volume_keys_screen_off_caption">EUC Planet 运行时，手机锁屏或其他应用在前台时也有效。音量键不再改变手机音量。</string>
     <string name="volume_keys_screen_off_warn">Android 只把音量键按压发给屏幕上的应用。为了在熄屏时也能收到，EUC Planet 会注册为手机当前的媒体播放器，Android 就把音量键发给它，而不是调节音量。</string>
     <string name="volume_keys_screen_off_confirm">开启</string>
     <string name="volume_keys_screen_off_title">接管音量键？</string>
@@ -1551,7 +1551,6 @@
     <string name="metric_chip_gps_altitude">海拔</string>
     <string name="metric_chip_gps_heading">航向</string>
     <string name="metric_chip_gps_speed">GPS 速度</string>
-    <string name="metric_chip_headroom">余量</string>
     <string name="metric_chip_lat_long">经纬度</string>
     <string name="metric_chip_lateral_g">横向 g</string>
     <string name="metric_chip_light_on">大灯</string>
@@ -1589,7 +1588,6 @@
     <string name="metric_desc_bt_rssi">到独轮车的蓝牙信号强度，越接近 0 dBm 越强。</string>
     <string name="metric_desc_gps_accuracy">GPS 定位误差半径，越低越准确。</string>
     <string name="metric_desc_external_gps_battery">已配对外置 GPS 设备（RaceBox、Dragy）的电量，方便你在它骑行途中没电前就注意到。</string>
-    <string name="metric_desc_headroom">距离翘板触发还剩的速度余量。数值越大，安全缓冲越多。</string>
     <string name="metric_desc_range_estimate">按当前消耗率剩余的距离。</string>
     <string name="metric_desc_regen_wh">本次行程刹车时回馈到电池的总瓦时。</string>
     <string name="metric_desc_slope">由独轮车俯仰角推算的路面坡度，正值为上坡。</string>

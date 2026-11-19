@@ -249,7 +249,6 @@
     <string name="metric_chip_tire_pressure_tile">胎壓</string>
     <string name="metric_desc_tire_pressure">來自你自己的感測器或由獨輪車轉傳的胎壓。</string>
     <string name="studio_metric_tire_pressure">胎壓</string>
-    <string name="metric_chip_headroom">速度餘量</string>
     <string name="metric_chip_trip_time">行程時間</string>
     <string name="metric_chip_trip_max_speed">行程最高速</string>
     <string name="metric_chip_avg_trip_speed">平均速度</string>
@@ -310,7 +309,6 @@
     <!-- Descriptions shown in the slot-sheet info box for metrics whose
          meaning isn't obvious from the name alone. Strings end with a
          period so they read like complete sentences. -->
-    <string name="metric_desc_headroom">觸發傾斜保護前剩餘的速度空間。數值越大，安全緩衝越多。</string>
     <string name="metric_desc_trip_max_speed">本次行程的最高速度（新行程開始時重設）。</string>
     <string name="metric_desc_avg_trip_speed">行程距離除以目前騎乘時間。</string>
     <string name="metric_desc_wh_consumed">本次行程從電池消耗的總瓦時數。</string>
@@ -616,7 +614,7 @@
     <string name="section_cloud_settings">設定備份</string>
     <string name="cloud_backup_now">備份</string>
     <string name="cloud_restore">還原</string>
-    <string name="cloud_settings_backup_desc">你在應用程式中的所有設定，會寫入備份資料夾中的 eucplanet_settings.json。長按按鈕可另存一份具名副本。</string>
+    <string name="cloud_settings_backup_desc">你的設定和警報規則，會寫入備份資料夾中的 eucplanet_settings.json。長按按鈕可另存一份具名副本。</string>
     <string name="cloud_last_backup">上次備份：%1$s</string>
 <string name="cloud_last_backup_named">上次備份：%1$s，名稱為「%2$s」</string>
     <string name="cloud_last_backup_never">尚未備份</string>
@@ -950,7 +948,7 @@
     <string name="volume_keys_caption">應用程式顯示在螢幕上時，用手機音量鍵作為快捷鍵。</string>
     <string name="volume_keys_enable">啟用音量鍵操作</string>
     <string name="volume_keys_screen_off">螢幕關閉時也生效</string>
-    <string name="volume_keys_screen_off_caption">手機鎖定或其他應用程式在前景時也有效。音量鍵不再改變手機音量。</string>
+    <string name="volume_keys_screen_off_caption">EUC Planet 執行時，手機鎖定或其他應用程式在前景時也有效。音量鍵不再改變手機音量。</string>
     <string name="volume_keys_screen_off_warn">Android 只把音量鍵按壓傳給螢幕上的應用程式。為了在螢幕關閉時也能收到，EUC Planet 會註冊為手機目前的媒體播放器，Android 就把音量鍵傳給它，而不是調整音量。</string>
     <string name="volume_keys_screen_off_confirm">開啟</string>
     <string name="volume_keys_screen_off_title">接管音量鍵？</string>

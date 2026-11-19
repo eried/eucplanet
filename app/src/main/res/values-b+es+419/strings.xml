@@ -249,7 +249,6 @@
     <string name="metric_chip_tire_pressure_tile">Neum.</string>
     <string name="metric_desc_tire_pressure">Presión del neumático desde tu propio sensor o uno que retransmite la rueda.</string>
     <string name="studio_metric_tire_pressure">Presión del neumático</string>
-    <string name="metric_chip_headroom">Margen</string>
     <string name="metric_chip_trip_time">Tiempo viaje</string>
     <string name="metric_chip_trip_max_speed">Máx. viaje</string>
     <string name="metric_chip_avg_trip_speed">Vel. prom.</string>
@@ -310,7 +309,6 @@
     <!-- Descriptions shown in the slot-sheet info box for metrics whose
          meaning isn't obvious from the name alone. Strings end with a
          period so they read like complete sentences. -->
-    <string name="metric_desc_headroom">Margen de velocidad que queda antes del tiltback. Número alto = más margen de seguridad.</string>
     <string name="metric_desc_trip_max_speed">Velocidad máxima del viaje actual (se reinicia con cada viaje).</string>
     <string name="metric_desc_avg_trip_speed">Distancia del viaje dividida por el tiempo en marcha.</string>
     <string name="metric_desc_wh_consumed">Vatios-hora totales consumidos de la batería en este viaje.</string>
@@ -616,7 +614,7 @@
     <string name="section_cloud_settings">Respaldo de configuración</string>
     <string name="cloud_backup_now">Respaldar</string>
     <string name="cloud_restore">Restaurar</string>
-    <string name="cloud_settings_backup_desc">Todo lo que configuraste en la app, guardado en eucplanet_settings.json en tu carpeta de respaldo. Mantén presionado el botón para guardar una copia con nombre junto a ella.</string>
+    <string name="cloud_settings_backup_desc">Tu configuración y tus reglas de alarma, guardadas en eucplanet_settings.json en tu carpeta de respaldo. Mantén presionado el botón para guardar una copia con nombre junto a ella.</string>
     <string name="cloud_last_backup">Último respaldo: %1$s</string>
 <string name="cloud_last_backup_named">Último respaldo: %1$s como “%2$s”</string>
     <string name="cloud_last_backup_never">Sin respaldo aún</string>
@@ -954,7 +952,7 @@
     <string name="volume_keys_caption">Usar los botones de volumen como atajos mientras la app está en pantalla.</string>
     <string name="volume_keys_enable">Activar acciones con teclas de volumen</string>
     <string name="volume_keys_screen_off">También con la pantalla apagada</string>
-    <string name="volume_keys_screen_off_caption">Funciona con el teléfono bloqueado o con otra app adelante. Los botones ya no cambian el volumen del teléfono.</string>
+    <string name="volume_keys_screen_off_caption">Mientras EUC Planet esté en ejecución, funciona con el teléfono bloqueado o con otra app adelante. Los botones ya no cambian el volumen del teléfono.</string>
     <string name="volume_keys_screen_off_warn">Android solo envía las pulsaciones de volumen a la app en pantalla. Para recibirlas con la pantalla apagada, EUC Planet se registra como el reproductor multimedia activo del teléfono, y Android le envía los botones de volumen en lugar de cambiar el volumen.</string>
     <string name="volume_keys_screen_off_confirm">Activar</string>
     <string name="volume_keys_screen_off_title">¿Tomar el control de los botones de volumen?</string>

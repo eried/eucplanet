@@ -1380,7 +1380,7 @@ internal val VOICE_CANNOT_READ = setOf(
     // A location fix owns these.
     "GPS_HEADING", "GPS_ACCURACY", "LAT_LONG",
     // Derived for the graphs, never published on WheelData.
-    "HEADROOM", "SLOPE", "ASCENT", "DESCENT", "MOTOR_RPM",
+    "SLOPE", "ASCENT", "DESCENT", "MOTOR_RPM",
 )
 
 /** Whether a spoken question about [key] can produce a value at all. */

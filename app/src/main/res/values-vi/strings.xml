@@ -226,7 +226,6 @@
     <string name="metric_chip_tire_pressure">Áp suất lốp</string>
     <string name="metric_chip_tire_pressure_tile">Lốp</string>
     <string name="metric_desc_tire_pressure">Áp suất lốp từ cảm biến riêng của bạn hoặc do xe chuyển tiếp.</string>
-    <string name="metric_chip_headroom">Dư địa</string>
     <string name="metric_chip_trip_time">Thời gian chuyến</string>
     <string name="metric_chip_trip_max_speed">Tối đa chuyến</string>
     <string name="metric_chip_avg_trip_speed">Tốc độ TB</string>
@@ -277,7 +276,6 @@
     <string name="metric_chip_forward_g_tile">G dọc</string>
     <string name="metric_chip_lateral_g_tile">G ngang</string>
     <string name="metric_chip_bt_rssi_tile">BT</string>
-    <string name="metric_desc_headroom">Biên tốc độ còn lại trước khi tiltback kích hoạt. Số càng lớn, biên an toàn càng rộng.</string>
     <string name="metric_desc_trip_max_speed">Tốc độ cao nhất trong chuyến hiện tại (đặt lại khi bắt đầu chuyến mới).</string>
     <string name="metric_desc_avg_trip_speed">Quãng đường chuyến chia cho thời gian chạy đến hiện tại.</string>
     <string name="metric_desc_wh_consumed">Tổng watt-giờ lấy từ pin trong chuyến này.</string>
@@ -753,7 +751,7 @@
     <string name="section_cloud_settings">Sao lưu cài đặt</string>
     <string name="cloud_backup_now">Sao lưu</string>
     <string name="cloud_restore">Khôi phục</string>
-    <string name="cloud_settings_backup_desc">Mọi thứ bạn đã thiết lập trong ứng dụng, ghi vào eucplanet_settings.json trong thư mục sao lưu. Giữ nút để lưu thêm một bản sao có tên bên cạnh.</string>
+    <string name="cloud_settings_backup_desc">Cài đặt và quy tắc cảnh báo của bạn, ghi vào eucplanet_settings.json trong thư mục sao lưu. Giữ nút để lưu thêm một bản sao có tên bên cạnh.</string>
     <string name="cloud_last_backup">Sao lưu gần nhất: %1$s</string>
     <string name="cloud_last_backup_named">Sao lưu gần nhất: %1$s với tên “%2$s”</string>
     <string name="cloud_last_backup_never">Chưa sao lưu</string>
@@ -1162,7 +1160,7 @@
     <string name="volume_keys_caption">Dùng nút âm lượng làm phím tắt khi ứng dụng đang trên màn hình.</string>
     <string name="volume_keys_enable">Bật thao tác phím âm lượng</string>
     <string name="volume_keys_screen_off">Cả khi màn hình tắt</string>
-    <string name="volume_keys_screen_off_caption">Hoạt động khi điện thoại khóa hoặc ứng dụng khác đang ở phía trước. Các nút không còn chỉnh âm lượng điện thoại.</string>
+    <string name="volume_keys_screen_off_caption">Khi EUC Planet đang chạy, hoạt động khi điện thoại khóa hoặc ứng dụng khác đang ở phía trước. Các nút không còn chỉnh âm lượng điện thoại.</string>
     <string name="volume_keys_screen_off_warn">Android chỉ gửi thao tác nhấn nút âm lượng cho ứng dụng đang trên màn hình. Để nhận được khi màn hình tắt, EUC Planet đăng ký làm trình phát đa phương tiện đang hoạt động của điện thoại, nên Android gửi nút âm lượng cho ứng dụng thay vì chỉnh âm lượng.</string>
     <string name="volume_keys_screen_off_confirm">Bật</string>
     <string name="volume_keys_screen_off_title">Giành quyền điều khiển nút âm lượng?</string>

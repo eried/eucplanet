@@ -249,7 +249,6 @@
     <string name="metric_chip_tire_pressure_tile">타이어</string>
     <string name="metric_desc_tire_pressure">직접 연결한 센서나 휠이 중계하는 센서의 타이어 공기압입니다.</string>
     <string name="studio_metric_tire_pressure">타이어 공기압</string>
-    <string name="metric_chip_headroom">헤드룸</string>
     <string name="metric_chip_trip_time">트립 시간</string>
     <string name="metric_chip_trip_max_speed">트립 최고속</string>
     <string name="metric_chip_avg_trip_speed">평균 속도</string>
@@ -310,7 +309,6 @@
     <!-- Descriptions shown in the slot-sheet info box for metrics whose
          meaning isn't obvious from the name alone. Strings end with a
          period so they read like complete sentences. -->
-    <string name="metric_desc_headroom">틸트백이 작동하기까지 남은 속도 여유입니다. 숫자가 클수록 안전 여유가 큽니다.</string>
     <string name="metric_desc_trip_max_speed">현재 트립의 최고 속도입니다. 새 트립을 시작하면 초기화됩니다.</string>
     <string name="metric_desc_avg_trip_speed">트립 거리를 지금까지의 주행 시간으로 나눈 값입니다.</string>
     <string name="metric_desc_wh_consumed">이번 트립에서 배터리가 공급한 총 Wh입니다.</string>
@@ -616,7 +614,7 @@
     <string name="section_cloud_settings">설정 백업</string>
     <string name="cloud_backup_now">백업</string>
     <string name="cloud_restore">복원</string>
-    <string name="cloud_settings_backup_desc">앱에서 설정한 모든 내용을 백업 폴더의 eucplanet_settings.json에 저장합니다. 버튼을 길게 누르면 이름을 붙인 사본도 함께 저장됩니다.</string>
+    <string name="cloud_settings_backup_desc">설정과 알람 규칙을 백업 폴더의 eucplanet_settings.json에 저장합니다. 버튼을 길게 누르면 이름을 붙인 사본도 함께 저장됩니다.</string>
     <string name="cloud_last_backup">마지막 백업: %1$s</string>
 <string name="cloud_last_backup_named">마지막 백업: %1$s (“%2$s”(으)로 저장)</string>
     <string name="cloud_last_backup_never">아직 백업하지 않았습니다</string>
@@ -950,7 +948,7 @@
     <string name="volume_keys_caption">앱이 화면에 보이는 동안 볼륨 버튼을 바로가기로 사용합니다.</string>
     <string name="volume_keys_enable">볼륨 버튼 동작 활성화</string>
     <string name="volume_keys_screen_off">화면이 꺼져 있을 때도</string>
-    <string name="volume_keys_screen_off_caption">휴대전화가 잠겨 있거나 다른 앱이 앞에 있어도 작동합니다. 버튼으로 휴대전화 볼륨이 더 이상 바뀌지 않습니다.</string>
+    <string name="volume_keys_screen_off_caption">EUC Planet이 실행 중이면 휴대전화가 잠겨 있거나 다른 앱이 앞에 있어도 작동합니다. 버튼으로 휴대전화 볼륨이 더 이상 바뀌지 않습니다.</string>
     <string name="volume_keys_screen_off_warn">Android는 볼륨 버튼 입력을 화면에 있는 앱에만 보냅니다. 화면이 꺼져 있을 때도 받기 위해 EUC Planet이 휴대전화의 활성 미디어 플레이어로 등록되고, Android는 볼륨을 바꾸는 대신 버튼을 앱으로 보냅니다.</string>
     <string name="volume_keys_screen_off_confirm">켜기</string>
     <string name="volume_keys_screen_off_title">볼륨 버튼을 앱에 넘기시겠습니까?</string>

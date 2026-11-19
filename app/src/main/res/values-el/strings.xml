@@ -237,7 +237,6 @@
     <string name="metric_chip_tire_pressure">Πίεση ελαστικού</string>
     <string name="metric_chip_tire_pressure_tile">Ελαστικό</string>
     <string name="metric_desc_tire_pressure">Πίεση ελαστικού από δικό σας αισθητήρα ή από αισθητήρα που μεταδίδει το μονότροχο.</string>
-    <string name="metric_chip_headroom">Περιθώριο</string>
     <string name="metric_chip_trip_time">Χρόνος διαδρομής</string>
     <string name="metric_chip_trip_max_speed">Μέγιστη διαδρομής</string>
     <string name="metric_chip_avg_trip_speed">Μέση ταχύτητα</string>
@@ -290,7 +289,6 @@
     <string name="metric_chip_lateral_g_tile">Πλάγ. g</string>
     <string name="metric_chip_bt_rssi_tile">BT</string>
 
-    <string name="metric_desc_headroom">Περιθώριο ταχύτητας πριν ενεργοποιηθεί το tilt-back. Μεγάλος αριθμός = μεγαλύτερο περιθώριο ασφαλείας.</string>
     <string name="metric_desc_trip_max_speed">Μέγιστη ταχύτητα στην τρέχουσα διαδρομή (μηδενίζεται σε νέα διαδρομή).</string>
     <string name="metric_desc_avg_trip_speed">Απόσταση διαδρομής διά τον χρόνο οδήγησης μέχρι τώρα.</string>
     <string name="metric_desc_wh_consumed">Συνολικές βατώρες που αντλήθηκαν από την μπαταρία σε αυτή τη διαδρομή.</string>
@@ -775,7 +773,7 @@
     <string name="section_cloud_settings">Αντίγραφο ρυθμίσεων</string>
     <string name="cloud_backup_now">Αντίγραφο</string>
     <string name="cloud_restore">Επαναφορά</string>
-    <string name="cloud_settings_backup_desc">Όλα όσα έχετε ρυθμίσει στην εφαρμογή, γραμμένα στο eucplanet_settings.json στον φάκελο αντιγράφων. Κρατήστε πατημένο το κουμπί για να αποθηκεύσετε ένα ονομασμένο αντίγραφο δίπλα του.</string>
+    <string name="cloud_settings_backup_desc">Οι ρυθμίσεις και οι κανόνες συναγερμών σας, γραμμένα στο eucplanet_settings.json στον φάκελο αντιγράφων. Κρατήστε πατημένο το κουμπί για να αποθηκεύσετε ένα ονομασμένο αντίγραφο δίπλα του.</string>
     <string name="cloud_last_backup">Τελευταίο αντίγραφο: %1$s</string>
     <string name="cloud_last_backup_named">Τελευταίο αντίγραφο: %1$s ως «%2$s»</string>
     <string name="cloud_last_backup_never">Δεν υπάρχει αντίγραφο ακόμη</string>
@@ -1191,7 +1189,7 @@
     <string name="volume_keys_caption">Τα κουμπιά έντασης ως συντομεύσεις όσο η εφαρμογή είναι στην οθόνη.</string>
     <string name="volume_keys_enable">Ενέργειες πλήκτρων έντασης</string>
     <string name="volume_keys_screen_off">Και με σβηστή οθόνη</string>
-    <string name="volume_keys_screen_off_caption">Λειτουργεί με κλειδωμένο τηλέφωνο ή με άλλη εφαρμογή μπροστά. Τα κουμπιά δεν αλλάζουν πια την ένταση του τηλεφώνου.</string>
+    <string name="volume_keys_screen_off_caption">Όσο εκτελείται το EUC Planet, λειτουργεί με κλειδωμένο τηλέφωνο ή με άλλη εφαρμογή μπροστά. Τα κουμπιά δεν αλλάζουν πια την ένταση του τηλεφώνου.</string>
     <string name="volume_keys_screen_off_warn">Το Android στέλνει τα πατήματα έντασης μόνο στην εφαρμογή που είναι στην οθόνη. Για να τα λαμβάνει με σβηστή οθόνη, το EUC Planet δηλώνεται ως το ενεργό πρόγραμμα αναπαραγωγής του τηλεφώνου, και το Android του στέλνει τα κουμπιά έντασης αντί να αλλάζει την ένταση.</string>
     <string name="volume_keys_screen_off_confirm">Ενεργοποίηση</string>
     <string name="volume_keys_screen_off_title">Ανάληψη των κουμπιών έντασης;</string>

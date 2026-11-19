@@ -237,7 +237,6 @@
     <string name="metric_chip_tire_pressure">Pressão do pneu</string>
     <string name="metric_chip_tire_pressure_tile">Pneu</string>
     <string name="metric_desc_tire_pressure">Pressão do pneu do seu próprio sensor ou de um que a roda retransmite.</string>
-    <string name="metric_chip_headroom">Margem</string>
     <string name="metric_chip_trip_time">Tempo de percurso</string>
     <string name="metric_chip_trip_max_speed">Máx. do percurso</string>
     <string name="metric_chip_avg_trip_speed">Vel. média</string>
@@ -290,7 +289,6 @@
     <string name="metric_chip_lateral_g_tile">g lat.</string>
     <string name="metric_chip_bt_rssi_tile">BT</string>
 
-    <string name="metric_desc_headroom">Margem de velocidade restante antes de o tiltback atuar. Número alto = mais margem de segurança.</string>
     <string name="metric_desc_trip_max_speed">Velocidade máxima no percurso atual (repõe num novo percurso).</string>
     <string name="metric_desc_avg_trip_speed">Distância do percurso a dividir pelo tempo em andamento até agora.</string>
     <string name="metric_desc_wh_consumed">Total de watts-hora tirados da bateria neste percurso.</string>
@@ -775,7 +773,7 @@
     <string name="section_cloud_settings">Cópia das definições</string>
     <string name="cloud_backup_now">Copiar</string>
     <string name="cloud_restore">Restaurar</string>
-    <string name="cloud_settings_backup_desc">Tudo o que configurou na app, gravado em eucplanet_settings.json na sua pasta de cópias. Mantenha o botão premido para guardar uma cópia com nome ao lado.</string>
+    <string name="cloud_settings_backup_desc">As suas definições e regras de alarme, gravadas em eucplanet_settings.json na sua pasta de cópias. Mantenha o botão premido para guardar uma cópia com nome ao lado.</string>
     <string name="cloud_last_backup">Última cópia: %1$s</string>
     <string name="cloud_last_backup_named">Última cópia: %1$s como «%2$s»</string>
     <string name="cloud_last_backup_never">Ainda sem cópia</string>
@@ -1191,7 +1189,7 @@
     <string name="volume_keys_caption">Usa os botões de volume como atalhos enquanto a app está no ecrã.</string>
     <string name="volume_keys_enable">Ativar ações das teclas de volume</string>
     <string name="volume_keys_screen_off">Também com o ecrã desligado</string>
-    <string name="volume_keys_screen_off_caption">Funciona com o telemóvel bloqueado ou com outra app à frente. Os botões deixam de alterar o volume do telemóvel.</string>
+    <string name="volume_keys_screen_off_caption">Enquanto o EUC Planet estiver em execução, funciona com o telemóvel bloqueado ou com outra app à frente. Os botões deixam de alterar o volume do telemóvel.</string>
     <string name="volume_keys_screen_off_warn">O Android só envia os toques de volume para a app que está no ecrã. Para os receber com o ecrã desligado, o EUC Planet regista-se como o leitor multimédia ativo do telemóvel, e o Android envia-lhe os botões de volume em vez de alterar o volume.</string>
     <string name="volume_keys_screen_off_confirm">Ativar</string>
     <string name="volume_keys_screen_off_title">Assumir os botões de volume?</string>
