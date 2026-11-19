@@ -128,8 +128,8 @@ Core rider terms as eucstats uses them, beside the app's own labels for the crew
 
 | Code | Wheel | Riders | Crews | Square | Patch | Trips | Crew pass (site) | Crew pass (app) | Settings tab (app) |
 |---|---|---|---|---|---|---|---|---|---|
-| `en` | wheel | Riders | Crews | square | patch | Trips | Crew Pass | Crew pass | Backups & leaderboards |
-| `en-GB` | wheel | Riders | Crews | square | patch | Trips | Crew Pass | Crew pass | Backups & leaderboards |
+| `en` | wheel | Riders | Crews | square | patch | Trips | Crew Pass | Crew pass | Backups & Leaderboards |
+| `en-GB` | wheel | Riders | Crews | square | patch | Trips | Crew Pass | Crew pass | Backups & Leaderboards |
 | `bg` | моноколело | Ездачи | Екипи | квадрат | зона | Пътувания | Пропуск за екип | Пропуск за екип | Архиви и Leaderboards |
 | `cs` | monokolo | Jezdci | Crews | čtverec | oblast | Jízdy | Průkaz crew | Průkaz crew | Zálohy a Leaderboards |
 | `da` | hjul | Ryttere | Crews | felt | område | Ture | Crew-pas | Crew-pas | Backup og Leaderboards |

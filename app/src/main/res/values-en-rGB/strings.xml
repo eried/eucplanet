@@ -128,7 +128,7 @@
     <string name="tab_auto">Automations</string>
     <string name="tab_integration">Integration</string>
     <string name="tab_watch">Watch</string>
-    <string name="tab_cloud">Backups &amp; leaderboards</string>
+    <string name="tab_cloud">Backups &amp; Leaderboards</string>
 
     <!-- Dashboard layout (customizable home screen) -->
     <string name="tab_dashboard">Dashboard layout</string>
