@@ -146,7 +146,7 @@
     <string name="watch_update_rate">Frequenza di aggiornamento</string>
     <string name="watch_update_rate_desc">Aggiornamenti più lenti risparmiano batteria su telefono e orologio.</string>
     <string name="watch_map_enabled">Mappa sull\'orologio</string>
-    <string name="watch_map_enabled_desc">Mostra posizione e percorso dal telefono. Una notifica resta attiva per il funzionamento in background.</string>
+    <string name="watch_map_enabled_desc">Mostra posizione e percorso dal telefono.</string>
     <string name="watch_map_orientation">Orientamento mappa</string>
     <string name="watch_map_north_up">Nord in alto</string>
     <string name="watch_map_heading_up">Direzione in alto</string>
@@ -187,7 +187,7 @@
     <string name="section_cloud_settings">Backup impostazioni</string>
     <string name="cloud_backup_now">Backup</string>
     <string name="cloud_restore">Ripristina</string>
-    <string name="cloud_settings_backup_desc">Tutto quello che hai impostato nell\'app, salvato in eucplanet_settings.json nella tua cartella dei backup. Tieni premuto il pulsante per salvare una copia con un nome. I viaggi si salvano a parte.</string>
+    <string name="cloud_settings_backup_desc">Tutto quello che hai impostato nell\'app, salvato in eucplanet_settings.json nella tua cartella dei backup. Tieni premuto il pulsante per salvare una copia con un nome.</string>
     <string name="cloud_last_backup">Ultimo backup: %1$s</string>
 <string name="cloud_last_backup_named">Ultimo backup: %1$s come «%2$s»</string>
     <string name="cloud_last_backup_never">Nessun backup ancora</string>
@@ -369,7 +369,7 @@
     <string name="external_gps_stop_scan">Ferma ricerca</string>
     <string name="flic_forget">Dimentica</string>
     <string name="flic_forget_title">Dimenticare questo pulsante?</string>
-    <string name="flic_forget_body">%1$s verrà disaccoppiato e le sue azioni cancellate. Puoi accoppiarlo di nuovo quando vuoi.</string>
+    <string name="flic_forget_body">%1$s verrà disaccoppiato.</string>
     <string name="flic_rename">Rinomina</string>
     <string name="flic_click">Clic</string>
     <string name="flic_double_click">Doppio clic</string>
@@ -395,7 +395,7 @@
     <string name="volume_keys_enable">Attiva azioni dei tasti volume</string>
     <string name="volume_keys_screen_off">Anche a schermo spento</string>
     <string name="volume_keys_screen_off_caption">Funziona a telefono bloccato o con un\'altra app in primo piano. I tasti non cambiano più il volume del telefono.</string>
-    <string name="volume_keys_screen_off_warn">Android invia le pressioni del volume solo all\'app sullo schermo. Per riceverle a schermo spento, EUC Planet si registra come lettore multimediale attivo del telefono, e Android gli invia i tasti volume invece di cambiare il volume.\n\nFinché è attivo, i tasti non cambiano più il volume del telefono.</string>
+    <string name="volume_keys_screen_off_warn">Android invia le pressioni del volume solo all\'app sullo schermo. Per riceverle a schermo spento, EUC Planet si registra come lettore multimediale attivo del telefono, e Android gli invia i tasti volume invece di cambiare il volume.</string>
     <string name="volume_keys_screen_off_confirm">Attiva</string>
     <string name="volume_keys_screen_off_title">Prendere il controllo dei tasti volume?</string>
     <string name="volume_up">Volume su</string>
@@ -958,7 +958,7 @@
     <string name="weather_hot">Troppo caldo sopra</string>
     <string name="weather_breezy">Ventilato oltre</string>
     <string name="weather_windy">Troppo vento oltre</string>
-    <string name="weather_source_credit">La previsione arriva dalla fonte scelta e viene scaricata solo mentre questo è attivo. Una finestra più breve può arrivare a passi più fini, se la fonte li offre.</string>
+    <string name="weather_source_credit">La previsione arriva dalla fonte scelta. Una finestra più breve può arrivare a passi più fini, se la fonte li offre.</string>
     <string name="weather_title_1">Tempo da monoruota?</string>
     <string name="weather_title_2">Ora di EUC?</string>
     <string name="weather_title_3">Ora di un giro?</string>
@@ -1571,7 +1571,7 @@
     <string name="metric_chip_battery_temp">Temperatura batteria</string>
     <string name="metric_chip_tire_pressure">Pressione pneumatico</string>
     <string name="metric_chip_tire_pressure_tile">Gomma</string>
-    <string name="metric_desc_tire_pressure">Pressione del pneumatico dal tuo sensore o da uno inoltrato dalla ruota. Nell\'unità di pressione scelta.</string>
+    <string name="metric_desc_tire_pressure">Pressione del pneumatico dal tuo sensore o da uno inoltrato dalla ruota.</string>
     <string name="studio_metric_tire_pressure">Pressione pneumatico</string>
     <string name="metric_chip_bt_rssi">Segnale BT</string>
     <string name="metric_chip_controller_temp">Temperatura centralina</string>
@@ -1758,7 +1758,7 @@
         <item quantity="other">%1$d veicoli tracciati:</item>
     </plurals>
     <string name="radar_show_overlay">Mostra overlay minacce</string>
-    <string name="radar_show_overlay_desc">Sottile barra radar sui bordi della dashboard. Un punto colorato per ogni veicolo rilevato. Visibile solo sulla dashboard.</string>
+    <string name="radar_show_overlay_desc">Sottile barra radar sui bordi della dashboard.</string>
     <string name="radar_overlay_left">Bordo sinistro</string>
     <string name="radar_overlay_both">Entrambi i lati</string>
     <string name="radar_overlay_right">Bordo destro</string>
@@ -1942,7 +1942,7 @@
     <string name="online_upload_sync_progress">Caricamento %1$d di %2$d</string>
     <string name="online_upload_register_server_error">Registrazione non riuscita. Il server ha risposto: %1$s (%2$d)</string>
     <string name="hud_joystick_title">Azioni dei pulsanti</string>
-    <string name="hud_joystick_desc">Tocca due volte un pulsante dell\'HUD per eseguire un\'azione. Un tocco singolo cambia comunque schermata.</string>
+    <string name="hud_joystick_desc">Tocca due volte un pulsante dell\'HUD per eseguire un\'azione.</string>
     <string name="hud_joystick_up">Su (doppio tocco)</string>
     <string name="hud_joystick_down">Giù (doppio tocco)</string>
     <string name="hud_joystick_left">Sinistra (doppio tocco)</string>
@@ -2097,7 +2097,7 @@
     <string name="adv_garmin_report_interval">Frequenza dati Garmin</string>
     <string name="adv_garmin_report_interval_desc">Ogni quanto si aggiorna un Garmin accoppiato. Il collegamento Connect IQ limita la frequenza reale, quindi valori molto bassi potrebbero non essere rispettati.</string>
     <string name="adv_graph_sample_interval">Intervallo campioni grafico</string>
-    <string name="adv_graph_sample_interval_desc">Regola solo il dettaglio dei grafici della dashboard. Non cambia allarmi o file dei viaggi. Attenzione: valori molto bassi usano più memoria.</string>
+    <string name="adv_graph_sample_interval_desc">Non cambia allarmi o file dei viaggi. Attenzione: valori molto bassi usano più memoria.</string>
     <string name="adv_group_alarm">Allarmi predittivi</string>
     <string name="adv_group_autolights">Luci automatiche</string>
     <string name="adv_group_charging">Stima di carica</string>
@@ -2200,7 +2200,7 @@
     <string name="adv_radar_static">Soglia statica</string>
     <string name="adv_radar_static_desc">La velocità di avvicinamento minima perché un\'auto conti come in movimento. Attenzione: se troppo alta, ignora chi si avvicina lentamente.</string>
     <string name="adv_radar_warning">Questi cambiano come il radar etichetta le minacce. Valori errati possono nascondere un\'auto reale o segnalarne una innocua.</string>
-    <string name="adv_rates_warning">Questi controlli cambiano le tempistiche in tutta l\'app. Valori più bassi danno dati più freschi e reazioni più rapide ma usano più batteria, CPU o dati. I valori predefiniti vanno bene per la maggior parte dei rider. Modificali solo se ne comprendi l\'effetto.</string>
+    <string name="adv_rates_warning">Questi controlli cambiano le tempistiche in tutta l\'app. Modificali solo se ne comprendi l\'effetto.</string>
     <string name="adv_reset_all">Ripristina tutti i valori predefiniti</string>
     <string name="adv_reset_confirm_msg">Queste impostazioni torneranno ai valori predefiniti:</string>
     <string name="adv_restore_default">Ripristina predefinito</string>
@@ -2229,7 +2229,7 @@
     <string name="alarm_summary_adaptive_pitch_vol">tono e vol</string>
     <string name="alarm_summary_adaptive_vol">vol</string>
     <string name="reorg_drag_cd">Trascina per riordinare</string>
-    <string name="reorg_hint">Riorganizza la schermata delle impostazioni e nascondi le sezioni che usi poco. Le sezioni nascoste vanno nella sezione «Altro».</string>
+    <string name="reorg_hint">Riorganizza la schermata delle impostazioni e nascondi le sezioni che usi poco.</string>
     <string name="studio_cd_close">Chiudi studio</string>
     <string name="studio_cd_gallery">Apri galleria</string>
     <string name="studio_cd_mic">Microfono</string>
@@ -2279,9 +2279,9 @@
     <string name="geo_section_trip">Viaggio</string>
     <string name="geo_section_other">Altre schermate</string>
     <string name="geo_section_settings">Impostazioni</string>
-    <string name="geo_other_hint">Monitor batteria, cronologia metriche, scansione e Flic. L\'Overlay Studio non è interessato: il suo layout è fisso, ma funziona bene in qualsiasi orientamento.</string>
-    <string name="geo_settings_hint">La schermata delle impostazioni. Disattivato per impostazione predefinita, quindi Impostazioni resta in verticale a meno che tu non lo attivi.</string>
-    <string name="geo_trip_hint">La vista dei dettagli ruota per impostazione predefinita per la mappa e i grafici in orizzontale. L\'elenco dei viaggi resta in verticale a meno che tu non lo attivi.</string>
+    <string name="geo_other_hint">Monitor batteria, cronologia metriche, scansione e Flic.</string>
+    <string name="geo_settings_hint">La schermata delle impostazioni.</string>
+    <string name="geo_trip_hint">La vista dei dettagli ruota per impostazione predefinita per la mappa e i grafici in orizzontale.</string>
     <string name="setting_allow_rotation">Consenti rotazione</string>
     <string name="setting_rotate_trip_detail">Ruota i dettagli del viaggio</string>
     <string name="setting_rotate_trip_list">Ruota l\'elenco dei viaggi</string>
@@ -2349,7 +2349,7 @@
     <string name="alarm_fx_crush">Bitcrush</string>
     <string name="section_accel_splits">Tempi di velocità</string>
     <string name="accel_splits_enabled">Annuncia i tempi</string>
-    <string name="accel_splits_desc">Annuncia il tempo per superare ogni fascia di velocità, in accelerazione o in frenata. Parte dalla velocità sottostante, con i passi che imposti.</string>
+    <string name="accel_splits_desc">Annuncia il tempo per superare ogni fascia di velocità, in accelerazione o in frenata.</string>
     <string name="accel_split_decel_prefix">frenata, </string>
     <string name="accel_splits_from">Da</string>
     <string name="accel_splits_step">Passo</string>
@@ -2494,7 +2494,7 @@
     <string name="dropbox_syncing">Sincronizzazione dei viaggi…</string>
     <string name="dropbox_folder_desc">I viaggi e le impostazioni vengono salvati nel tuo Dropbox, in %1$s. Solo questa app può vedere quella cartella.</string>
     <string name="keep_app_alive">Mantieni l\'app attiva</string>
-    <string name="keep_app_alive_desc">Mostra una notifica permanente così l\'app resta attiva in background. La sincronizzazione dei viaggi e la voce continuano a funzionare anche senza una ruota connessa. Consuma un po\' più di batteria.</string>
+    <string name="keep_app_alive_desc">Mostra una notifica permanente così l\'app resta attiva in background. Consuma un po\' più di batteria.</string>
     <string name="sync_up_to_date">Già aggiornato</string>
     <string name="studio_source_transparent">Trasparente</string>
     <string name="studio_source_video">Video</string>
@@ -2596,7 +2596,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">Si gira?</string>
     <string name="widget_weather_score_desc">Il meteo per girare, adesso.</string>
-    <string name="widget_weather_compact_desc">Quanto è buono il meteo per girare, adesso e nelle prossime ore. Ingrandisci per ore, temperatura e vento.</string>
+    <string name="widget_weather_compact_desc">Quanto è buono il meteo per girare, adesso e nelle prossime ore.</string>
     <string name="widget_weather_graph_desc">Quanto è buono il meteo per girare, nel periodo previsto</string>
     <string name="widget_weather_refresh_desc">Aggiorna le previsioni</string>
     <string name="widget_weather_never">Nessuna previsione. Apri l\'app una volta o tocca aggiorna.</string>
@@ -2734,7 +2734,7 @@
         <item quantity="other">%d tappe</item>
     </plurals>
     <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Statistiche e pulsanti della ruota su uno schermo Android Auto. Si collega da solo, senza configurare il Wi-Fi.</string>
+    <string name="android_auto_hint">Statistiche e pulsanti della ruota su uno schermo Android Auto.</string>
     <string name="car_waiting">In attesa della ruota</string>
     <string name="car_last_battery">Ultima batteria %1$d%%</string>
     <string name="car_navigate">Naviga</string>

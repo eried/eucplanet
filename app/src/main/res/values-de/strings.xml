@@ -247,7 +247,7 @@
     <string name="metric_chip_battery_temp">Akkutemperatur</string>
     <string name="metric_chip_tire_pressure">Reifendruck</string>
     <string name="metric_chip_tire_pressure_tile">Reifen</string>
-    <string name="metric_desc_tire_pressure">Reifendruck von deinem eigenen Sensor oder einem, den das Wheel weitergibt. Angezeigt in der gewählten Druckeinheit.</string>
+    <string name="metric_desc_tire_pressure">Reifendruck von deinem eigenen Sensor oder einem, den das Wheel weitergibt.</string>
     <string name="studio_metric_tire_pressure">Reifendruck</string>
     <string name="metric_chip_headroom">Reserve</string>
     <string name="metric_chip_trip_time">Fahrtzeit</string>
@@ -556,7 +556,7 @@
     <string name="watch_update_rate">Aktualisierungsrate</string>
     <string name="watch_update_rate_desc">Langsamere Aktualisierungen sparen Akku der Uhr. Das ist unabhängig von der Abfragerate des Wheels im Bereich Erweitert.</string>
     <string name="watch_map_enabled">Uhrkarte</string>
-    <string name="watch_map_enabled_desc">Zeigt Position und Route vom Handy. Für den Betrieb im Hintergrund bleibt eine Benachrichtigung bestehen.</string>
+    <string name="watch_map_enabled_desc">Zeigt Position und Route vom Handy.</string>
     <string name="watch_map_orientation">Kartenausrichtung</string>
     <string name="watch_map_north_up">Norden oben</string>
     <string name="watch_map_heading_up">Fahrtrichtung oben</string>
@@ -616,7 +616,7 @@
     <string name="section_cloud_settings">Einstellungs-Backup</string>
     <string name="cloud_backup_now">Sichern</string>
     <string name="cloud_restore">Wiederherstellen</string>
-    <string name="cloud_settings_backup_desc">Alles, was du in der App eingestellt hast, gespeichert in eucplanet_settings.json in deinem Backup-Ordner. Halte die Taste gedrückt, um eine benannte Kopie zu speichern. Fahrten werden separat gesichert.</string>
+    <string name="cloud_settings_backup_desc">Alles, was du in der App eingestellt hast, gespeichert in eucplanet_settings.json in deinem Backup-Ordner. Halte die Taste gedrückt, um eine benannte Kopie zu speichern.</string>
     <string name="cloud_last_backup">Letztes Backup: %1$s</string>
 <string name="cloud_last_backup_named">Letztes Backup: %1$s als „%2$s“</string>
     <string name="cloud_last_backup_never">Noch nicht gesichert</string>
@@ -901,7 +901,7 @@
     <string name="flic_start_scan">Scan starten</string>
     <string name="flic_forget">Vergessen</string>
     <string name="flic_forget_title">Diese Taste vergessen?</string>
-    <string name="flic_forget_body">%1$s wird entkoppelt und ihre Aktionen werden gelöscht. Du kannst sie jederzeit wieder koppeln.</string>
+    <string name="flic_forget_body">%1$s wird entkoppelt.</string>
     <string name="flic_rename">Umbenennen</string>
     <string name="flic_click">Klick</string>
     <string name="flic_double_click">Doppelklick</string>
@@ -951,7 +951,7 @@
     <string name="volume_keys_enable">Lautstärketasten-Aktionen aktivieren</string>
     <string name="volume_keys_screen_off">Auch bei ausgeschaltetem Bildschirm</string>
     <string name="volume_keys_screen_off_caption">Funktioniert bei gesperrtem Handy oder mit einer anderen App im Vordergrund. Die Tasten ändern die Handylautstärke nicht mehr.</string>
-    <string name="volume_keys_screen_off_warn">Android schickt Lautstärketasten nur an die App auf dem Bildschirm. Um sie auch bei ausgeschaltetem Bildschirm zu bekommen, meldet sich EUC Planet als aktiver Mediaplayer des Handys an, und Android schickt die Tasten dorthin, statt die Lautstärke zu ändern.\n\nSolange das an ist, ändern die Tasten die Handylautstärke nicht mehr.</string>
+    <string name="volume_keys_screen_off_warn">Android schickt Lautstärketasten nur an die App auf dem Bildschirm. Um sie auch bei ausgeschaltetem Bildschirm zu bekommen, meldet sich EUC Planet als aktiver Mediaplayer des Handys an, und Android schickt die Tasten dorthin, statt die Lautstärke zu ändern.</string>
     <string name="volume_keys_screen_off_confirm">Einschalten</string>
     <string name="volume_keys_screen_off_title">Lautstärketasten übernehmen?</string>
     <string name="volume_up">Lautstärke +</string>
@@ -976,7 +976,7 @@
         <item quantity="other">%1$d Fahrzeuge erfasst:</item>
     </plurals>
     <string name="radar_show_overlay">Gefahren-Overlay anzeigen</string>
-    <string name="radar_show_overlay_desc">Schmaler Radar-Streifen am Dashboard-Rand. Ein farbiger Punkt pro erkanntem Fahrzeug. Nur auf dem Dashboard sichtbar.</string>
+    <string name="radar_show_overlay_desc">Schmaler Radar-Streifen am Dashboard-Rand.</string>
     <string name="radar_overlay_left">Linker Rand</string>
     <string name="radar_overlay_both">Beide Seiten</string>
     <string name="radar_overlay_right">Rechter Rand</string>
@@ -1914,7 +1914,7 @@
     <string name="weather_hot">Zu heiß über</string>
     <string name="weather_breezy">Leichter Wind über</string>
     <string name="weather_windy">Zu windig über</string>
-    <string name="weather_source_credit">Die Vorhersage kommt aus der gewählten Quelle und wird nur abgerufen, solange dies an ist. Ein kürzeres Fenster kann in feineren Schritten kommen, wenn die Quelle sie anbietet.</string>
+    <string name="weather_source_credit">Die Vorhersage kommt aus der gewählten Quelle. Ein kürzeres Fenster kann in feineren Schritten kommen, wenn die Quelle sie anbietet.</string>
     <string name="weather_title_1">Wheel-Wetter?</string>
     <string name="weather_title_2">EUC-Zeit?</string>
     <string name="weather_title_3">Zeit für eine Fahrt?</string>
@@ -2051,7 +2051,7 @@
     <string name="battery_history">Akku-Verlauf</string>
     <string name="setting_charging_auto_open">Beim Laden automatisch öffnen</string>
     <string name="hud_joystick_title">Tastenaktionen</string>
-    <string name="hud_joystick_desc">Tippe eine HUD-Taste doppelt an, um eine Aktion auszuführen. Ein einzelner Tipp wechselt weiterhin den Bildschirm.</string>
+    <string name="hud_joystick_desc">Tippe eine HUD-Taste doppelt an, um eine Aktion auszuführen.</string>
     <string name="hud_joystick_up">Oben (Doppeltipp)</string>
     <string name="hud_joystick_down">Unten (Doppeltipp)</string>
     <string name="hud_joystick_left">Links (Doppeltipp)</string>
@@ -2212,7 +2212,7 @@
     <string name="adv_garmin_report_interval">Garmin-Melderate</string>
     <string name="adv_garmin_report_interval_desc">Bestimmt, wie oft sich eine gekoppelte Garmin-Uhr aktualisiert. Die Connect-IQ-Verbindung begrenzt die echte Rate, daher greifen sehr niedrige Werte evtl. nicht voll.</string>
     <string name="adv_graph_sample_interval">Diagramm-Abtastintervall</string>
-    <string name="adv_graph_sample_interval_desc">Betrifft nur die Detailtiefe der Dashboard-Diagramme. Hat keinen Einfluss auf Alarme oder Fahrtdateien. Achtung: sehr niedrige Werte brauchen mehr Speicher.</string>
+    <string name="adv_graph_sample_interval_desc">Hat keinen Einfluss auf Alarme oder Fahrtdateien. Achtung: sehr niedrige Werte brauchen mehr Speicher.</string>
     <string name="adv_group_alarm">Vorausschauende Alarme</string>
     <string name="adv_group_autolights">Auto-Licht</string>
     <string name="adv_group_charging">Lade-Restzeit</string>
@@ -2315,7 +2315,7 @@
     <string name="adv_radar_static">Stillstand-Schwelle</string>
     <string name="adv_radar_static_desc">Bestimmt die minimale Annäherungsgeschwindigkeit, ab der ein Fahrzeug als bewegt zählt. Achtung: zu hoch ignoriert sich langsam nähernde Fahrzeuge.</string>
     <string name="adv_radar_warning">Diese ändern, wie das Radar Gefahren einstuft. Falsche Werte können ein echtes Fahrzeug verbergen oder ein harmloses melden.</string>
-    <string name="adv_rates_warning">Diese Regler ändern das Timing in der gesamten App. Niedrigere Werte liefern frischere Daten und schnellere Reaktionen, brauchen aber mehr Akku, CPU oder Daten. Die Standardwerte passen für die meisten Fahrer. Ändere sie nur, wenn du die Wirkung verstehst.</string>
+    <string name="adv_rates_warning">Diese Regler ändern das Timing in der gesamten App. Ändere sie nur, wenn du die Wirkung verstehst.</string>
     <string name="adv_reset_all">Alles auf Standard zurücksetzen</string>
     <string name="adv_reset_confirm_msg">Diese Einstellungen werden auf ihre Standardwerte zurückgesetzt:</string>
     <string name="adv_restore_default">Standard wiederherstellen</string>
@@ -2344,7 +2344,7 @@
     <string name="alarm_summary_adaptive_pitch_vol">Tonhöhe und Lautst.</string>
     <string name="alarm_summary_adaptive_vol">Lautst.</string>
     <string name="reorg_drag_cd">Zum Umsortieren ziehen</string>
-    <string name="reorg_hint">Ordne den Einstellungsbildschirm neu und blende selten genutzte Abschnitte aus. Ausgeblendete Abschnitte wandern in den Abschnitt „Mehr“.</string>
+    <string name="reorg_hint">Ordne den Einstellungsbildschirm neu und blende selten genutzte Abschnitte aus.</string>
     <string name="studio_cd_close">Studio schließen</string>
     <string name="studio_cd_gallery">Galerie öffnen</string>
     <string name="studio_cd_mic">Mikrofon</string>
@@ -2394,9 +2394,9 @@
     <string name="geo_section_trip">Fahrt</string>
     <string name="geo_section_other">Andere Bildschirme</string>
     <string name="geo_section_settings">Einstellungen</string>
-    <string name="geo_other_hint">Akku-Monitor, Messwertverlauf, Scan und Flic. Das Overlay Studio ist nicht betroffen: Sein Layout ist fest, funktioniert aber in jeder Ausrichtung.</string>
-    <string name="geo_settings_hint">Der Einstellungsbildschirm. Standardmäßig aus, sodass die Einstellungen im Hochformat bleiben, sofern du es nicht aktivierst.</string>
-    <string name="geo_trip_hint">Die Detailansicht dreht sich standardmäßig für die Karte und die Diagramme im Querformat. Die Fahrtliste bleibt im Hochformat, sofern du es nicht aktivierst.</string>
+    <string name="geo_other_hint">Akku-Monitor, Messwertverlauf, Scan und Flic.</string>
+    <string name="geo_settings_hint">Der Einstellungsbildschirm.</string>
+    <string name="geo_trip_hint">Die Detailansicht dreht sich standardmäßig für die Karte und die Diagramme im Querformat.</string>
     <string name="setting_allow_rotation">Drehung zulassen</string>
     <string name="setting_rotate_trip_detail">Fahrtdetails drehen</string>
     <string name="setting_rotate_trip_list">Fahrtliste drehen</string>
@@ -2464,7 +2464,7 @@
     <string name="alarm_fx_crush">Bitcrush</string>
     <string name="section_accel_splits">Tempo-Zwischenzeiten</string>
     <string name="accel_splits_enabled">Zeiten ansagen</string>
-    <string name="accel_splits_desc">Sagt die Zeit für jede Geschwindigkeitsstufe an, beim Beschleunigen oder Bremsen. Beginnt bei der unten eingestellten Geschwindigkeit, in den von dir festgelegten Schritten.</string>
+    <string name="accel_splits_desc">Sagt die Zeit für jede Geschwindigkeitsstufe an, beim Beschleunigen oder Bremsen.</string>
     <string name="accel_split_decel_prefix">bremsen, </string>
     <string name="accel_splits_from">Von</string>
     <string name="accel_splits_step">Schritt</string>
@@ -2609,7 +2609,7 @@
     <string name="dropbox_syncing">Fahrten werden synchronisiert…</string>
     <string name="dropbox_folder_desc">Fahrten und Einstellungen werden in deiner Dropbox unter %1$s gespeichert. Nur diese App kann diesen Ordner sehen.</string>
     <string name="keep_app_alive">App aktiv halten</string>
-    <string name="keep_app_alive_desc">Zeigt eine dauerhafte Benachrichtigung, damit die App im Hintergrund aktiv bleibt. Fahrtensynchronisierung und Sprachausgabe funktionieren auch ohne verbundenes Wheel. Verbraucht etwas mehr Akku.</string>
+    <string name="keep_app_alive_desc">Zeigt eine dauerhafte Benachrichtigung, damit die App im Hintergrund aktiv bleibt. Verbraucht etwas mehr Akku.</string>
     <string name="sync_up_to_date">Bereits aktuell</string>
     <string name="studio_source_transparent">Transparent</string>
     <string name="studio_source_video">Video</string>
@@ -2710,7 +2710,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">Fahren?</string>
     <string name="widget_weather_score_desc">Das Fahrwetter, genau jetzt.</string>
-    <string name="widget_weather_compact_desc">Wie gut das Wetter zum Fahren ist, jetzt und in den nächsten Stunden. Größer ziehen für Stunden, Temperatur und Wind.</string>
+    <string name="widget_weather_compact_desc">Wie gut das Wetter zum Fahren ist, jetzt und in den nächsten Stunden.</string>
     <string name="widget_weather_graph_desc">Wie gut das Wetter zum Fahren ist, über den Vorhersagezeitraum</string>
     <string name="widget_weather_refresh_desc">Vorhersage aktualisieren</string>
     <string name="widget_weather_never">Noch keine Vorhersage. App einmal öffnen oder auf Aktualisieren tippen.</string>
@@ -2847,7 +2847,7 @@
         <item quantity="other">%d Stopps</item>
     </plurals>
     <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Werte und Wheel-Tasten auf einem Android-Auto-Bildschirm. Verbindet sich selbst, ohne WLAN-Einrichtung.</string>
+    <string name="android_auto_hint">Werte und Wheel-Tasten auf einem Android-Auto-Bildschirm.</string>
     <string name="car_waiting">Warte auf das Wheel</string>
     <string name="car_last_battery">Letzter Akku %1$d %%</string>
     <string name="car_navigate">Navigieren</string>

@@ -5,7 +5,7 @@
     <string name="notification_channel_description">Mostra o estado da ligação e a telemetria da roda.</string>
 
     <string name="keep_app_alive">Manter a app ativa</string>
-    <string name="keep_app_alive_desc">Mantém uma notificação contínua para a app continuar ativa em segundo plano. A sincronização de percursos e a voz continuam a funcionar mesmo sem roda ligada. Gasta um pouco mais de bateria.</string>
+    <string name="keep_app_alive_desc">Mantém uma notificação contínua para a app continuar ativa em segundo plano. Gasta um pouco mais de bateria.</string>
     <string name="notif_actions_enable">Mostrar ações na notificação</string>
     <string name="notif_actions_enable_desc">Adiciona botões de ação rápida à notificação contínua.</string>
     <string name="notif_actions_pick_desc">Escolha até %1$d ações. A mesma ação pode repetir-se.</string>
@@ -236,7 +236,7 @@
     <string name="metric_chip_battery_temp">Temperatura da bateria</string>
     <string name="metric_chip_tire_pressure">Pressão do pneu</string>
     <string name="metric_chip_tire_pressure_tile">Pneu</string>
-    <string name="metric_desc_tire_pressure">Pressão do pneu do seu próprio sensor ou de um que a roda retransmite. Mostrada na unidade de pressão que escolheu.</string>
+    <string name="metric_desc_tire_pressure">Pressão do pneu do seu próprio sensor ou de um que a roda retransmite.</string>
     <string name="metric_chip_headroom">Margem</string>
     <string name="metric_chip_trip_time">Tempo de percurso</string>
     <string name="metric_chip_trip_max_speed">Máx. do percurso</string>
@@ -483,7 +483,7 @@
     <string name="hud_search_corpus">HUD visor head-up ecrã companheiro servidor transmissão telemetria zona wi-fi hotspot motoeye seta de viragem</string>
 
     <string name="hud_joystick_title">Ações dos botões</string>
-    <string name="hud_joystick_desc">Toque duas vezes num botão do HUD para executar uma ação. Um toque simples continua a mudar de ecrã.</string>
+    <string name="hud_joystick_desc">Toque duas vezes num botão do HUD para executar uma ação.</string>
     <string name="hud_joystick_up">Cima (toque duplo)</string>
     <string name="hud_joystick_down">Baixo (toque duplo)</string>
     <string name="hud_joystick_left">Esquerda (toque duplo)</string>
@@ -534,7 +534,7 @@
     <string name="watch_update_rate">Taxa de atualização</string>
     <string name="watch_update_rate_desc">Atualizações mais lentas poupam a bateria do relógio. É independente da taxa de consulta da roda na secção Avançado.</string>
     <string name="watch_map_enabled">Mapa no relógio</string>
-    <string name="watch_map_enabled_desc">Mostra a posição e a rota do telemóvel. Fica uma notificação para o funcionamento em segundo plano.</string>
+    <string name="watch_map_enabled_desc">Mostra a posição e a rota do telemóvel.</string>
     <string name="watch_map_orientation">Orientação do mapa</string>
     <string name="watch_map_north_up">Norte para cima</string>
     <string name="watch_map_heading_up">Direção para cima</string>
@@ -549,15 +549,15 @@
     <string name="tab_more">Mais</string>
     <string name="settings_visibility">Visibilidade das definições</string>
     <string name="adv_timings_title">Tempos e variáveis</string>
-    <string name="reorg_hint">Reorganize o ecrã de definições e oculte secções que usa pouco. As secções ocultas passam para a secção «Mais».</string>
+    <string name="reorg_hint">Reorganize o ecrã de definições e oculte secções que usa pouco.</string>
     <string name="reorg_drag_cd">Arraste para reordenar</string>
-    <string name="adv_rates_warning">Estes controlos alteram tempos em toda a app. Valores mais baixos dão dados mais recentes e reações mais rápidas, mas gastam mais bateria, CPU ou dados. As predefinições servem a maioria dos pilotos. Altere-os apenas se perceber o efeito.</string>
+    <string name="adv_rates_warning">Estes controlos alteram tempos em toda a app. Altere-os apenas se perceber o efeito.</string>
     <string name="adv_pushonly_note">Alguns dispositivos enviam dados ao seu próprio ritmo fixo e ignoram estas definições: rodas só de envio (Begode, Gotway, Veteran, KingSong), GPS externo (RaceBox, Dragy), radar e botões Flic.</string>
     <string name="adv_group_rates">Taxas de dados e relatórios</string>
     <string name="adv_wheel_poll_rate">Taxa de consulta da roda</string>
     <string name="adv_wheel_poll_rate_desc">Afeta a atualidade dos dados ao vivo e a rapidez dos alarmes. Mais baixo pede dados à roda com mais frequência. Perigo: valores muito baixos podem saturar o Bluetooth e parar os dados nalgumas rodas.</string>
     <string name="adv_graph_sample_interval">Intervalo de amostragem dos gráficos</string>
-    <string name="adv_graph_sample_interval_desc">Afeta apenas o detalhe dos gráficos do painel. Não afeta alarmes nem ficheiros de percurso. Perigo: valores muito baixos usam mais memória.</string>
+    <string name="adv_graph_sample_interval_desc">Não afeta alarmes nem ficheiros de percurso. Perigo: valores muito baixos usam mais memória.</string>
     <string name="adv_smoothing_window">Janela de suavização</string>
     <string name="adv_smoothing_window_desc">Amostras usadas na média dos gráficos «média» dos percursos e nos relatórios de voz suavizados. Os percursos registam cerca de uma vez por segundo, por isso equivale a segundos. Perigo: valores altos escondem picos curtos.</string>
     <string name="adv_trip_record_interval">Intervalo de gravação do percurso</string>
@@ -779,7 +779,7 @@
     <string name="section_cloud_settings">Cópia das definições</string>
     <string name="cloud_backup_now">Copiar</string>
     <string name="cloud_restore">Restaurar</string>
-    <string name="cloud_settings_backup_desc">Tudo o que configurou na app, gravado em eucplanet_settings.json na sua pasta de cópias. Mantenha o botão premido para guardar uma cópia com nome ao lado. Os percursos são copiados à parte.</string>
+    <string name="cloud_settings_backup_desc">Tudo o que configurou na app, gravado em eucplanet_settings.json na sua pasta de cópias. Mantenha o botão premido para guardar uma cópia com nome ao lado.</string>
     <string name="cloud_last_backup">Última cópia: %1$s</string>
     <string name="cloud_last_backup_named">Última cópia: %1$s como «%2$s»</string>
     <string name="cloud_last_backup_never">Ainda sem cópia</string>
@@ -877,9 +877,9 @@
     <string name="side_default">Predefinido</string>
     <string name="side_left">Esquerda</string>
     <string name="side_right">Direita</string>
-    <string name="geo_other_hint">Monitor de bateria, histórico de métricas, pesquisa e Flic. O Overlay Studio não é afetado: a disposição é fixa, mas funciona bem em qualquer orientação.</string>
-    <string name="geo_settings_hint">O ecrã de definições. Desligado por predefinição, por isso as Definições ficam na vertical, a não ser que ative.</string>
-    <string name="geo_trip_hint">A vista de detalhes roda por predefinição para o mapa e os gráficos na horizontal. A lista de percursos fica na vertical, a não ser que ative.</string>
+    <string name="geo_other_hint">Monitor de bateria, histórico de métricas, pesquisa e Flic.</string>
+    <string name="geo_settings_hint">O ecrã de definições.</string>
+    <string name="geo_trip_hint">A vista de detalhes roda por predefinição para o mapa e os gráficos na horizontal.</string>
     <string name="back_button_action_ask">Perguntar</string>
     <string name="back_button_action_background">Segundo plano</string>
     <string name="back_button_action_stop">Parar tudo</string>
@@ -974,7 +974,7 @@
     <string name="voice_interval">Intervalo</string>
     <string name="section_accel_splits">Tempos por velocidade</string>
     <string name="accel_splits_enabled">Anunciar tempos</string>
-    <string name="accel_splits_desc">Diz o tempo para passar cada escalão de velocidade, a acelerar ou a travar. Começa na velocidade abaixo, nos escalões que definir.</string>
+    <string name="accel_splits_desc">Diz o tempo para passar cada escalão de velocidade, a acelerar ou a travar.</string>
     <string name="accel_split_decel_prefix">a travar, </string>
     <string name="accel_splits_from">Desde</string>
     <string name="accel_splits_step">Escalão</string>
@@ -1146,7 +1146,7 @@
     <string name="flic_start_scan">Iniciar pesquisa</string>
     <string name="flic_forget">Esquecer</string>
     <string name="flic_forget_title">Esquecer este botão?</string>
-    <string name="flic_forget_body">%1$s será desemparelhado e as suas ações apagadas. Pode emparelhá-lo de novo a qualquer momento.</string>
+    <string name="flic_forget_body">%1$s será desemparelhado.</string>
     <string name="flic_rename">Mudar o nome</string>
     <string name="flic_click">Clique</string>
     <string name="flic_double_click">Duplo clique</string>
@@ -1196,7 +1196,7 @@
     <string name="volume_keys_enable">Ativar ações das teclas de volume</string>
     <string name="volume_keys_screen_off">Também com o ecrã desligado</string>
     <string name="volume_keys_screen_off_caption">Funciona com o telemóvel bloqueado ou com outra app à frente. Os botões deixam de alterar o volume do telemóvel.</string>
-    <string name="volume_keys_screen_off_warn">O Android só envia os toques de volume para a app que está no ecrã. Para os receber com o ecrã desligado, o EUC Planet regista-se como o leitor multimédia ativo do telemóvel, e o Android envia-lhe os botões de volume em vez de alterar o volume.\n\nEnquanto isto estiver ativo, os botões não alteram o volume do telemóvel.</string>
+    <string name="volume_keys_screen_off_warn">O Android só envia os toques de volume para a app que está no ecrã. Para os receber com o ecrã desligado, o EUC Planet regista-se como o leitor multimédia ativo do telemóvel, e o Android envia-lhe os botões de volume em vez de alterar o volume.</string>
     <string name="volume_keys_screen_off_confirm">Ativar</string>
     <string name="volume_keys_screen_off_title">Assumir os botões de volume?</string>
     <string name="volume_up">Aumentar volume</string>
@@ -1221,7 +1221,7 @@
         <item quantity="other">A seguir %1$d veículos:</item>
     </plurals>
     <string name="radar_show_overlay">Mostrar overlay de ameaças</string>
-    <string name="radar_show_overlay_desc">Faixa fina de radar nas margens do painel. Um ponto colorido por cada veículo detetado. Só visível no painel.</string>
+    <string name="radar_show_overlay_desc">Faixa fina de radar nas margens do painel.</string>
     <string name="radar_overlay_left">Margem esquerda</string>
     <string name="radar_overlay_both">Ambas as margens</string>
     <string name="radar_overlay_right">Margem direita</string>
@@ -1454,7 +1454,7 @@
     <string name="widget_standalone_slot">Botão independente %1$d</string>
     <string name="widget_weather_question">Andar?</string>
     <string name="widget_weather_score_desc">O tempo para andar, agora mesmo.</string>
-    <string name="widget_weather_compact_desc">Quão bom está o tempo para andar, agora e nas próximas horas. Redimensione para ver horas, temperatura e vento.</string>
+    <string name="widget_weather_compact_desc">Quão bom está o tempo para andar, agora e nas próximas horas.</string>
     <string name="widget_weather_graph_desc">Quão bom está o tempo para andar, ao longo do período da previsão.</string>
     <string name="widget_weather_refresh_desc">Atualizar a previsão</string>
     <string name="widget_weather_never">Ainda sem previsão. Abra a app uma vez ou toque em atualizar.</string>
@@ -2269,7 +2269,7 @@
     <string name="weather_hot">Calor demais acima de</string>
     <string name="weather_breezy">Brisa acima de</string>
     <string name="weather_windy">Vento demais acima de</string>
-    <string name="weather_source_credit">A previsão vem da fonte que escolher e só é obtida com isto ativo. Um período mais curto pode vir em passos mais finos, quando a fonte os oferece.</string>
+    <string name="weather_source_credit">A previsão vem da fonte que escolher. Um período mais curto pode vir em passos mais finos, quando a fonte os oferece.</string>
     <string name="weather_title_1">Está tempo de roda?</string>
     <string name="weather_title_2">É hora de EUC?</string>
     <string name="weather_title_3">Bora dar uma volta?</string>
@@ -2711,7 +2711,7 @@
         <item quantity="other">%d paragens</item>
     </plurals>
     <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">As suas estatísticas e os botões da roda num ecrã Android Auto. Liga-se sozinho, sem configurar Wi-Fi.</string>
+    <string name="android_auto_hint">As suas estatísticas e os botões da roda num ecrã Android Auto.</string>
     <string name="car_waiting">A aguardar a roda</string>
     <string name="car_last_battery">Última bateria %1$d%%</string>
     <string name="car_waiting_wheel">A aguardar a roda</string>

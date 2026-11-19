@@ -4,7 +4,7 @@
     <string name="notification_channel_name">Kết nối xe</string>
     <string name="notification_channel_description">Hiển thị trạng thái kết nối và dữ liệu đo từ xe.</string>
     <string name="keep_app_alive">Giữ ứng dụng chạy</string>
-    <string name="keep_app_alive_desc">Giữ một thông báo thường trực để ứng dụng tiếp tục chạy nền. Đồng bộ chuyến đi và giọng nói vẫn hoạt động khi chưa kết nối xe. Tốn pin hơn một chút.</string>
+    <string name="keep_app_alive_desc">Giữ một thông báo thường trực để ứng dụng tiếp tục chạy nền. Tốn pin hơn một chút.</string>
     <string name="notif_actions_enable">Hiện thao tác trên thông báo</string>
     <string name="notif_actions_enable_desc">Thêm nút thao tác nhanh vào thông báo thường trực.</string>
     <string name="notif_actions_pick_desc">Chọn tối đa %1$d thao tác. Có thể lặp lại cùng một thao tác.</string>
@@ -225,7 +225,7 @@
     <string name="metric_chip_battery_temp">Nhiệt độ pin</string>
     <string name="metric_chip_tire_pressure">Áp suất lốp</string>
     <string name="metric_chip_tire_pressure_tile">Lốp</string>
-    <string name="metric_desc_tire_pressure">Áp suất lốp từ cảm biến riêng của bạn hoặc do xe chuyển tiếp. Hiển thị theo đơn vị áp suất bạn đã chọn.</string>
+    <string name="metric_desc_tire_pressure">Áp suất lốp từ cảm biến riêng của bạn hoặc do xe chuyển tiếp.</string>
     <string name="metric_chip_headroom">Dư địa</string>
     <string name="metric_chip_trip_time">Thời gian chuyến</string>
     <string name="metric_chip_trip_max_speed">Tối đa chuyến</string>
@@ -467,7 +467,7 @@
     <string name="hud_custom_overlay_none">Xóa</string>
     <string name="hud_search_corpus">HUD heads-up display companion server stream telemetry hotspot motoeye turn arrow màn hình kính đồng hành máy chủ truyền dữ liệu điểm phát sóng mũi tên rẽ</string>
     <string name="hud_joystick_title">Thao tác nút</string>
-    <string name="hud_joystick_desc">Chạm đúp một nút HUD để chạy thao tác. Chạm một lần vẫn chuyển màn hình.</string>
+    <string name="hud_joystick_desc">Chạm đúp một nút HUD để chạy thao tác.</string>
     <string name="hud_joystick_up">Lên (chạm đúp)</string>
     <string name="hud_joystick_down">Xuống (chạm đúp)</string>
     <string name="hud_joystick_left">Trái (chạm đúp)</string>
@@ -515,7 +515,7 @@
     <string name="watch_update_rate">Tần suất cập nhật</string>
     <string name="watch_update_rate_desc">Cập nhật chậm hơn giúp tiết kiệm pin đồng hồ. Tùy chọn này tách biệt với tần suất đọc xe trong mục Nâng cao.</string>
     <string name="watch_map_enabled">Bản đồ đồng hồ</string>
-    <string name="watch_map_enabled_desc">Hiển thị vị trí và lộ trình từ điện thoại. Một thông báo được giữ lại để chạy nền.</string>
+    <string name="watch_map_enabled_desc">Hiển thị vị trí và lộ trình từ điện thoại.</string>
     <string name="watch_map_orientation">Hướng bản đồ</string>
     <string name="watch_map_north_up">Hướng bắc lên trên</string>
     <string name="watch_map_heading_up">Hướng đi lên trên</string>
@@ -530,15 +530,15 @@
     <string name="tab_more">Thêm</string>
     <string name="settings_visibility">Hiển thị cài đặt</string>
     <string name="adv_timings_title">Thời gian và biến số</string>
-    <string name="reorg_hint">Sắp xếp lại màn hình cài đặt và ẩn các mục ít dùng. Mục bị ẩn sẽ chuyển vào mục “Thêm”.</string>
+    <string name="reorg_hint">Sắp xếp lại màn hình cài đặt và ẩn các mục ít dùng.</string>
     <string name="reorg_drag_cd">Kéo để sắp xếp</string>
-    <string name="adv_rates_warning">Các tùy chọn này thay đổi thời gian trong toàn ứng dụng. Giá trị thấp cho dữ liệu mới hơn và phản ứng nhanh hơn nhưng tốn pin, CPU hoặc dữ liệu hơn. Mặc định phù hợp với hầu hết người chạy xe. Chỉ thay đổi nếu bạn hiểu tác động.</string>
+    <string name="adv_rates_warning">Các tùy chọn này thay đổi thời gian trong toàn ứng dụng. Chỉ thay đổi nếu bạn hiểu tác động.</string>
     <string name="adv_pushonly_note">Một số thiết bị gửi dữ liệu theo tần suất cố định riêng và bỏ qua các cài đặt này: xe chỉ đẩy dữ liệu (Begode, Gotway, Veteran, KingSong), GPS ngoài (RaceBox, Dragy), radar và nút Flic.</string>
     <string name="adv_group_rates">Tần suất dữ liệu và báo cáo</string>
     <string name="adv_wheel_poll_rate">Tần suất đọc xe</string>
     <string name="adv_wheel_poll_rate_desc">Ảnh hưởng đến độ mới của dữ liệu trực tiếp và tốc độ phản ứng của cảnh báo. Giá trị thấp hỏi dữ liệu xe thường xuyên hơn. Nguy cơ: giá trị quá thấp có thể làm nghẽn kết nối Bluetooth và treo dữ liệu trên một số xe.</string>
     <string name="adv_graph_sample_interval">Khoảng lấy mẫu biểu đồ</string>
-    <string name="adv_graph_sample_interval_desc">Chỉ ảnh hưởng đến độ chi tiết của biểu đồ trên bảng điều khiển. Không ảnh hưởng đến cảnh báo hay tệp chuyến đi. Nguy cơ: giá trị quá thấp tốn bộ nhớ hơn.</string>
+    <string name="adv_graph_sample_interval_desc">Không ảnh hưởng đến cảnh báo hay tệp chuyến đi. Nguy cơ: giá trị quá thấp tốn bộ nhớ hơn.</string>
     <string name="adv_smoothing_window">Cửa sổ làm mượt</string>
     <string name="adv_smoothing_window_desc">Số mẫu được lấy trung bình cho biểu đồ chuyến “trung bình” và báo cáo giọng nói đã làm mượt. Chuyến đi ghi khoảng mỗi giây một lần, nên giá trị này tính bằng giây. Nguy cơ: giá trị cao che mất các đỉnh ngắn.</string>
     <string name="adv_trip_record_interval">Khoảng ghi chuyến đi</string>
@@ -757,7 +757,7 @@
     <string name="section_cloud_settings">Sao lưu cài đặt</string>
     <string name="cloud_backup_now">Sao lưu</string>
     <string name="cloud_restore">Khôi phục</string>
-    <string name="cloud_settings_backup_desc">Mọi thứ bạn đã thiết lập trong ứng dụng, ghi vào eucplanet_settings.json trong thư mục sao lưu. Giữ nút để lưu thêm một bản sao có tên bên cạnh. Chuyến đi được sao lưu riêng.</string>
+    <string name="cloud_settings_backup_desc">Mọi thứ bạn đã thiết lập trong ứng dụng, ghi vào eucplanet_settings.json trong thư mục sao lưu. Giữ nút để lưu thêm một bản sao có tên bên cạnh.</string>
     <string name="cloud_last_backup">Sao lưu gần nhất: %1$s</string>
     <string name="cloud_last_backup_named">Sao lưu gần nhất: %1$s với tên “%2$s”</string>
     <string name="cloud_last_backup_never">Chưa sao lưu</string>
@@ -854,9 +854,9 @@
     <string name="side_default">Mặc định</string>
     <string name="side_left">Trái</string>
     <string name="side_right">Phải</string>
-    <string name="geo_other_hint">Theo dõi pin, lịch sử chỉ số, quét và Flic. Overlay Studio không bị ảnh hưởng: bố cục cố định nhưng vẫn dùng tốt ở mọi hướng cầm.</string>
-    <string name="geo_settings_hint">Màn hình cài đặt. Mặc định tắt, nên Cài đặt luôn dọc trừ khi bạn bật.</string>
-    <string name="geo_trip_hint">Màn hình chi tiết mặc định xoay để xem bản đồ và biểu đồ ngang. Danh sách chuyến đi giữ dọc trừ khi bạn bật.</string>
+    <string name="geo_other_hint">Theo dõi pin, lịch sử chỉ số, quét và Flic.</string>
+    <string name="geo_settings_hint">Màn hình cài đặt.</string>
+    <string name="geo_trip_hint">Màn hình chi tiết mặc định xoay để xem bản đồ và biểu đồ ngang.</string>
     <string name="back_button_action_ask">Hỏi</string>
     <string name="back_button_action_background">Chạy nền</string>
     <string name="back_button_action_stop">Dừng tất cả</string>
@@ -949,7 +949,7 @@
     <string name="voice_interval">Khoảng thời gian</string>
     <string name="section_accel_splits">Mốc tốc độ</string>
     <string name="accel_splits_enabled">Đọc thời gian</string>
-    <string name="accel_splits_desc">Đọc thời gian vượt qua từng mốc tốc độ, khi tăng tốc hoặc giảm tốc. Bắt đầu từ tốc độ bên dưới, theo bước bạn đặt.</string>
+    <string name="accel_splits_desc">Đọc thời gian vượt qua từng mốc tốc độ, khi tăng tốc hoặc giảm tốc.</string>
     <string name="accel_split_decel_prefix">phanh, </string>
     <string name="accel_splits_from">Từ</string>
     <string name="accel_splits_step">Bước</string>
@@ -1118,7 +1118,7 @@
     <string name="flic_start_scan">Bắt đầu quét</string>
     <string name="flic_forget">Quên</string>
     <string name="flic_forget_title">Quên nút này?</string>
-    <string name="flic_forget_body">%1$s sẽ bị hủy ghép nối và xóa các thao tác. Bạn có thể ghép nối lại bất cứ lúc nào.</string>
+    <string name="flic_forget_body">%1$s sẽ bị hủy ghép nối.</string>
     <string name="flic_rename">Đổi tên</string>
     <string name="flic_click">Nhấn</string>
     <string name="flic_double_click">Nhấn đúp</string>
@@ -1167,7 +1167,7 @@
     <string name="volume_keys_enable">Bật thao tác phím âm lượng</string>
     <string name="volume_keys_screen_off">Cả khi màn hình tắt</string>
     <string name="volume_keys_screen_off_caption">Hoạt động khi điện thoại khóa hoặc ứng dụng khác đang ở phía trước. Các nút không còn chỉnh âm lượng điện thoại.</string>
-    <string name="volume_keys_screen_off_warn">Android chỉ gửi thao tác nhấn nút âm lượng cho ứng dụng đang trên màn hình. Để nhận được khi màn hình tắt, EUC Planet đăng ký làm trình phát đa phương tiện đang hoạt động của điện thoại, nên Android gửi nút âm lượng cho ứng dụng thay vì chỉnh âm lượng.\n\nKhi bật tính năng này, các nút không còn chỉnh âm lượng điện thoại.</string>
+    <string name="volume_keys_screen_off_warn">Android chỉ gửi thao tác nhấn nút âm lượng cho ứng dụng đang trên màn hình. Để nhận được khi màn hình tắt, EUC Planet đăng ký làm trình phát đa phương tiện đang hoạt động của điện thoại, nên Android gửi nút âm lượng cho ứng dụng thay vì chỉnh âm lượng.</string>
     <string name="volume_keys_screen_off_confirm">Bật</string>
     <string name="volume_keys_screen_off_title">Giành quyền điều khiển nút âm lượng?</string>
     <string name="volume_up">Tăng âm lượng</string>
@@ -1189,7 +1189,7 @@
         <item quantity="other">Đang theo dõi %1$d phương tiện:</item>
     </plurals>
     <string name="radar_show_overlay">Hiện lớp phủ mối nguy</string>
-    <string name="radar_show_overlay_desc">Làn radar mảnh ở lề bảng điều khiển. Mỗi phương tiện phát hiện được là một chấm màu. Chỉ hiển thị trên bảng điều khiển.</string>
+    <string name="radar_show_overlay_desc">Làn radar mảnh ở lề bảng điều khiển.</string>
     <string name="radar_overlay_left">Cạnh trái</string>
     <string name="radar_overlay_both">Cả hai cạnh</string>
     <string name="radar_overlay_right">Cạnh phải</string>
@@ -1410,7 +1410,7 @@
     <string name="widget_standalone_slot">Nút riêng %1$d</string>
     <string name="widget_weather_question">Chạy xe?</string>
     <string name="widget_weather_score_desc">Thời tiết để chạy xe, ngay lúc này.</string>
-    <string name="widget_weather_compact_desc">Thời tiết thuận lợi cho chạy xe đến mức nào, bây giờ và trong vài giờ tới. Đổi kích thước để xem giờ, nhiệt độ và gió.</string>
+    <string name="widget_weather_compact_desc">Thời tiết thuận lợi cho chạy xe đến mức nào, bây giờ và trong vài giờ tới.</string>
     <string name="widget_weather_graph_desc">Thời tiết thuận lợi cho chạy xe đến mức nào, trong khoảng dự báo.</string>
     <string name="widget_weather_refresh_desc">Làm mới dự báo.</string>
     <string name="widget_weather_never">Chưa có dự báo. Hãy mở ứng dụng một lần, hoặc chạm làm mới.</string>
@@ -2186,7 +2186,7 @@
     <string name="weather_hot">Quá nóng khi trên</string>
     <string name="weather_breezy">Gió nhẹ khi trên</string>
     <string name="weather_windy">Quá gió khi trên</string>
-    <string name="weather_source_credit">Dự báo lấy từ nguồn bạn chọn, chỉ tải khi tính năng này bật. Khoảng ngắn hơn có thể chi tiết hơn, nếu nguồn hỗ trợ.</string>
+    <string name="weather_source_credit">Dự báo lấy từ nguồn bạn chọn. Khoảng ngắn hơn có thể chi tiết hơn, nếu nguồn hỗ trợ.</string>
     <string name="weather_title_1">Trời này chạy xe được không?</string>
     <string name="weather_title_2">Đến giờ chạy EUC chưa?</string>
     <string name="weather_title_3">Đi chạy xe thôi?</string>
@@ -2622,7 +2622,7 @@
         <item quantity="other">%d điểm dừng</item>
     </plurals>
     <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Thống kê và nút điều khiển xe trên màn hình Android Auto. Tự kết nối, không cần thiết lập Wi-Fi.</string>
+    <string name="android_auto_hint">Thống kê và nút điều khiển xe trên màn hình Android Auto.</string>
     <string name="car_waiting">Đang chờ xe</string>
     <string name="car_last_battery">Pin gần nhất %1$d%%</string>
     <string name="car_waiting_wheel">Đang chờ xe</string>

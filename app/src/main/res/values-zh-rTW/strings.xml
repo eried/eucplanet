@@ -247,7 +247,7 @@
     <string name="metric_chip_battery_temp">電池溫度</string>
     <string name="metric_chip_tire_pressure">胎壓</string>
     <string name="metric_chip_tire_pressure_tile">胎壓</string>
-    <string name="metric_desc_tire_pressure">來自你自己的感測器或由獨輪車轉傳的胎壓，以你選擇的壓力單位顯示。</string>
+    <string name="metric_desc_tire_pressure">來自你自己的感測器或由獨輪車轉傳的胎壓。</string>
     <string name="studio_metric_tire_pressure">胎壓</string>
     <string name="metric_chip_headroom">速度餘量</string>
     <string name="metric_chip_trip_time">行程時間</string>
@@ -556,7 +556,7 @@
     <string name="watch_update_rate">更新頻率</string>
     <string name="watch_update_rate_desc">更新越慢越省手錶電量。這與「進階」區段中的獨輪車輪詢頻率是分開的設定。</string>
     <string name="watch_map_enabled">手錶地圖</string>
-    <string name="watch_map_enabled_desc">顯示手機上的位置和路線。背景執行時會保留通知。</string>
+    <string name="watch_map_enabled_desc">顯示手機上的位置和路線。</string>
     <string name="watch_map_orientation">地圖方向</string>
     <string name="watch_map_north_up">北方朝上</string>
     <string name="watch_map_heading_up">行進方向朝上</string>
@@ -616,7 +616,7 @@
     <string name="section_cloud_settings">設定備份</string>
     <string name="cloud_backup_now">備份</string>
     <string name="cloud_restore">還原</string>
-    <string name="cloud_settings_backup_desc">你在應用程式中的所有設定，會寫入備份資料夾中的 eucplanet_settings.json。長按按鈕可另存一份具名副本。行程會另外備份。</string>
+    <string name="cloud_settings_backup_desc">你在應用程式中的所有設定，會寫入備份資料夾中的 eucplanet_settings.json。長按按鈕可另存一份具名副本。</string>
     <string name="cloud_last_backup">上次備份：%1$s</string>
 <string name="cloud_last_backup_named">上次備份：%1$s，名稱為「%2$s」</string>
     <string name="cloud_last_backup_never">尚未備份</string>
@@ -901,7 +901,7 @@
     <string name="flic_start_scan">開始掃描</string>
     <string name="flic_forget">移除</string>
     <string name="flic_forget_title">要移除這個按鈕嗎？</string>
-    <string name="flic_forget_body">%1$s 將解除配對並清除其操作。你可以隨時重新配對。</string>
+    <string name="flic_forget_body">%1$s 將解除配對。</string>
     <string name="flic_rename">重新命名</string>
     <string name="flic_click">按一下</string>
     <string name="flic_double_click">按兩下</string>
@@ -951,7 +951,7 @@
     <string name="volume_keys_enable">啟用音量鍵操作</string>
     <string name="volume_keys_screen_off">螢幕關閉時也生效</string>
     <string name="volume_keys_screen_off_caption">手機鎖定或其他應用程式在前景時也有效。音量鍵不再改變手機音量。</string>
-    <string name="volume_keys_screen_off_warn">Android 只把音量鍵按壓傳給螢幕上的應用程式。為了在螢幕關閉時也能收到，EUC Planet 會註冊為手機目前的媒體播放器，Android 就把音量鍵傳給它，而不是調整音量。\n\n開啟期間，音量鍵不再改變手機音量。</string>
+    <string name="volume_keys_screen_off_warn">Android 只把音量鍵按壓傳給螢幕上的應用程式。為了在螢幕關閉時也能收到，EUC Planet 會註冊為手機目前的媒體播放器，Android 就把音量鍵傳給它，而不是調整音量。</string>
     <string name="volume_keys_screen_off_confirm">開啟</string>
     <string name="volume_keys_screen_off_title">接管音量鍵？</string>
     <string name="volume_up">調高音量</string>
@@ -975,7 +975,7 @@
         <item quantity="other">正在追蹤 %1$d 輛車：</item>
     </plurals>
     <string name="radar_show_overlay">顯示後方車輛警示</string>
-    <string name="radar_show_overlay_desc">在儀表板兩側邊緣顯示細長的雷達車道，每輛偵測到的車輛顯示一個彩色圓點。僅在儀表板上顯示。</string>
+    <string name="radar_show_overlay_desc">在儀表板兩側邊緣顯示細長的雷達車道。</string>
     <string name="radar_overlay_left">左側</string>
     <string name="radar_overlay_both">兩側</string>
     <string name="radar_overlay_right">右側</string>
@@ -1880,7 +1880,7 @@
     <string name="weather_hot">高於此溫度太熱</string>
     <string name="weather_breezy">高於此風速算有風</string>
     <string name="weather_windy">高於此風速風太大</string>
-    <string name="weather_source_credit">預報來自你選擇的來源，僅在此功能開啟時抓取。若來源支援，較短的範圍可能以更細的間隔呈現。</string>
+    <string name="weather_source_credit">預報來自你選擇的來源。若來源支援，較短的範圍可能以更細的間隔呈現。</string>
     <string name="weather_title_1">適合騎獨輪車嗎？</string>
     <string name="weather_title_2">該騎 EUC 了嗎？</string>
     <string name="weather_title_3">該出門騎了嗎？</string>
@@ -2007,7 +2007,7 @@
     <string name="warnings_pip_blocked_body">Android 設定為拒絕 EUC Planet 使用子母畫面，因此離開應用程式時不會出現浮動視窗。</string>
     <string name="online_rejoin_confirm">重新加入</string>
     <string name="hud_joystick_title">按鍵操作</string>
-    <string name="hud_joystick_desc">在 HUD 按鍵上按兩下即可執行操作。按一下仍會切換畫面。</string>
+    <string name="hud_joystick_desc">在 HUD 按鍵上按兩下即可執行操作。</string>
     <string name="hud_joystick_up">上（按兩下）</string>
     <string name="hud_joystick_down">下（按兩下）</string>
     <string name="hud_joystick_left">左（按兩下）</string>
@@ -2190,7 +2190,7 @@
     <string name="adv_garmin_report_interval">Garmin 回報頻率</string>
     <string name="adv_garmin_report_interval_desc">決定已配對的 Garmin 多久更新一次。Connect IQ 連線會限制實際頻率，因此極低的數值可能無法完全生效。</string>
     <string name="adv_graph_sample_interval">圖表取樣間隔</string>
-    <string name="adv_graph_sample_interval_desc">只決定儀表板圖表的細緻度，不會影響警報或行程檔案。注意：極低的數值會使用更多記憶體。</string>
+    <string name="adv_graph_sample_interval_desc">不會影響警報或行程檔案。注意：極低的數值會使用更多記憶體。</string>
     <string name="adv_group_alarm">預測式警報</string>
     <string name="adv_group_autolights">自動燈光</string>
     <string name="adv_group_charging">充電預估時間</string>
@@ -2293,7 +2293,7 @@
     <string name="adv_radar_static">靜止閾值</string>
     <string name="adv_radar_static_desc">決定接近速度至少要多少，車輛才算在移動。注意：太高會忽略緩慢接近的車輛。</string>
     <string name="adv_radar_warning">這些會改變雷達標示威脅的方式。數值錯誤可能隱藏真實車輛或誤標無害車輛。</string>
-    <string name="adv_rates_warning">這些控制項會改變整個應用程式的時序。較低的數值能提供更新鮮的資料和更快的反應，但會耗用更多電量、CPU 或行動數據。預設值適合大多數騎士。請僅在了解其影響時才變更。</string>
+    <string name="adv_rates_warning">這些控制項會改變整個應用程式的時序。請僅在了解其影響時才變更。</string>
     <string name="adv_reset_all">全部重設為預設值</string>
     <string name="adv_reset_confirm_msg">以下設定將還原為預設值：</string>
     <string name="adv_restore_default">還原預設值</string>
@@ -2322,7 +2322,7 @@
     <string name="alarm_summary_adaptive_pitch_vol">音高與音量</string>
     <string name="alarm_summary_adaptive_vol">音量</string>
     <string name="reorg_drag_cd">拖曳以重新排序</string>
-    <string name="reorg_hint">重新整理設定畫面，並隱藏不常用的區段。隱藏的區段會移到「更多」區段。</string>
+    <string name="reorg_hint">重新整理設定畫面，並隱藏不常用的區段。</string>
     <string name="studio_cd_close">關閉工作室</string>
     <string name="studio_cd_gallery">開啟相簿</string>
     <string name="studio_cd_mic">麥克風</string>
@@ -2372,9 +2372,9 @@
     <string name="geo_section_trip">行程</string>
     <string name="geo_section_other">其他畫面</string>
     <string name="geo_section_settings">設定</string>
-    <string name="geo_other_hint">電池監控、指標記錄、掃描和 Flic。疊加層工作室不受影響：其版面固定，但以任何方向手持都能正常使用。</string>
-    <string name="geo_settings_hint">設定畫面。預設為關閉，因此除非啟用，否則設定會保持直向。</string>
-    <string name="geo_trip_hint">詳情檢視預設會旋轉，以配合橫向的地圖和圖表。行程清單除非啟用，否則保持直向。</string>
+    <string name="geo_other_hint">電池監控、指標記錄、掃描和 Flic。</string>
+    <string name="geo_settings_hint">設定畫面。</string>
+    <string name="geo_trip_hint">詳情檢視預設會旋轉，以配合橫向的地圖和圖表。</string>
     <string name="setting_allow_rotation">允許旋轉</string>
     <string name="setting_rotate_trip_detail">旋轉行程詳情</string>
     <string name="setting_rotate_trip_list">旋轉行程清單</string>
@@ -2442,7 +2442,7 @@
     <string name="alarm_fx_crush">位元破碎</string>
     <string name="section_accel_splits">速度分段計時</string>
     <string name="accel_splits_enabled">播報用時</string>
-    <string name="accel_splits_desc">在加速或減速時，播報通過每個速度級距所花的時間。從下方設定的速度開始，依你設定的級距遞增。</string>
+    <string name="accel_splits_desc">在加速或減速時，播報通過每個速度級距所花的時間。</string>
     <string name="accel_split_decel_prefix">煞車，</string>
     <string name="accel_splits_from">起始</string>
     <string name="accel_splits_step">步進</string>
@@ -2587,7 +2587,7 @@
     <string name="dropbox_syncing">正在同步行程…</string>
     <string name="dropbox_folder_desc">行程和設定會儲存在你的 Dropbox 中的 %1$s 下。只有本應用程式能存取該資料夾。</string>
     <string name="keep_app_alive">保持應用程式執行</string>
-    <string name="keep_app_alive_desc">顯示常駐通知，讓應用程式在背景持續執行。即使未連線獨輪車，行程同步和語音也會繼續運作。會多耗一點電。</string>
+    <string name="keep_app_alive_desc">顯示常駐通知，讓應用程式在背景持續執行。會多耗一點電。</string>
     <string name="sync_up_to_date">已是最新</string>
     <string name="studio_source_transparent">透明</string>
     <string name="studio_source_video">影片</string>
@@ -2687,7 +2687,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">騎嗎？</string>
     <string name="widget_weather_score_desc">目前的騎乘天氣。</string>
-    <string name="widget_weather_compact_desc">現在與接下來幾小時的天氣有多適合騎乘。放大可顯示時刻、氣溫與風。</string>
+    <string name="widget_weather_compact_desc">現在與接下來幾小時的天氣有多適合騎乘。</string>
     <string name="widget_weather_graph_desc">預報時段內天氣有多適合騎乘</string>
     <string name="widget_weather_refresh_desc">重新整理預報</string>
     <string name="widget_weather_never">還沒有預報。開啟一次應用程式，或輕觸重新整理。</string>
@@ -2823,7 +2823,7 @@
         <item quantity="other">%d 個停靠點</item>
     </plurals>
     <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">在 Android Auto 螢幕上顯示數據和獨輪車按鈕。自動連線，無需設定 Wi-Fi。</string>
+    <string name="android_auto_hint">在 Android Auto 螢幕上顯示數據和獨輪車按鈕。</string>
     <string name="car_waiting">正在等待獨輪車</string>
     <string name="car_last_battery">上次電量 %1$d%%</string>
     <string name="car_navigate">導航</string>

@@ -15,6 +15,10 @@ object LocaleHelper {
     /**
      * Every shipped language, in picker order: English first, then by tag.
      *
+     * English, Spanish, Portuguese and Chinese each come in two kinds, named
+     * the way the trip viewer and eucstats name them, so all four show one list. British English is generated
+     * from the English strings (tools/i18n/en_gb.py), never written by hand.
+     *
      * One list because adding a language used to mean editing four places -
      * the strings folder, locales_config.xml, the settings picker, and the tag
      * sets - and missing one was silent. Japanese, Korean and Turkish
@@ -23,14 +27,15 @@ object LocaleHelper {
      * were missed. LocaleCoverageTest now fails the build on that mismatch.
      */
     val SUPPORTED: List<Language> = listOf(
-        Language("en", "English"),
+        Language("en", "English (US)"),
+        Language("en-GB", "English (UK)"),
         Language("bg", "Български"),
         Language("cs", "Čeština"),
         Language("da", "Dansk"),
         Language("de", "Deutsch"),
         Language("el", "Ελληνικά"),
-        Language("es", "Español"),
-        Language("es-419", "Español (Latinoamérica)"),
+        Language("es", "Español (ES)"),
+        Language("es-419", "Español (LA)"),
         Language("fi", "Suomi"),
         Language("fr", "Français"),
         Language("hu", "Magyar"),
@@ -41,8 +46,8 @@ object LocaleHelper {
         Language("nl", "Nederlands"),
         Language("no", "Norsk"),
         Language("pl", "Polski"),
-        Language("pt-BR", "Português (Brasil)"),
-        Language("pt-PT", "Português (Portugal)"),
+        Language("pt-BR", "Português (BR)"),
+        Language("pt-PT", "Português (PT)"),
         Language("ro", "Română"),
         Language("ru", "Русский"),
         Language("sk", "Slovenčina"),
@@ -51,8 +56,8 @@ object LocaleHelper {
         Language("tr", "Türkçe"),
         Language("uk", "Українська"),
         Language("vi", "Tiếng Việt"),
-        Language("zh", "简体中文"),
-        Language("zh-TW", "繁體中文"),
+        Language("zh", "中文 (简体)"),
+        Language("zh-TW", "中文 (繁體)"),
     )
 
     /**
@@ -62,6 +67,9 @@ object LocaleHelper {
      */
     private val plainTags: Set<String> =
         SUPPORTED.map { it.tag }.filter { '-' !in it }.toSet()
+
+    /** Where English is the British kind: the regions eucstats sends there. */
+    private val BRITISH_REGIONS = setOf("GB", "UK", "IE", "AU", "NZ", "ZA", "IN")
 
     fun apply(tag: String) {
         val list = if (tag.isBlank() || tag == "en") {
@@ -89,12 +97,14 @@ object LocaleHelper {
      * Maps an Android-normalised tag back to a key in our supported list.
      * Android stores Norwegian as "nb" / "nb-NO" after we apply "no";
      * Latin-American Spanish as "es-419"; Portuguese as "pt-BR" or "pt-PT";
-     * Indonesian as the legacy "in".
+     * Indonesian as the legacy "in"; English as "en-GB" or "en-US".
      * Returns the input unchanged if no normalisation is needed.
      */
     fun normalizeToSupportedTag(tag: String): String {
         val lower = tag.lowercase()
         return when {
+            lower.startsWith("en-") ->
+                if (lower.substringAfter('-').substringBefore('-').uppercase() in BRITISH_REGIONS) "en-GB" else "en"
             lower.startsWith("nb") || lower.startsWith("nn") -> "no"
             lower.startsWith("pt-pt") -> "pt-PT"
             lower == "pt" || lower.startsWith("pt-") -> "pt-BR"
@@ -116,6 +126,7 @@ object LocaleHelper {
      * On first launch, pick a default app language based on the phone's system
      * locale. Maps to one of the locales the app actually ships translations for;
      * unsupported languages fall back to English. Some special cases:
+     *  - en in the UK, Ireland, Australia, New Zealand, South Africa, India -> "en-GB"
      *  - nb / nn (Norwegian Bokmål / Nynorsk) -> "no"
      *  - es in a Latin American region        -> "es-419"
      *  - pt in Portugal or Portuguese Africa   -> "pt-PT", elsewhere "pt-BR"
@@ -135,6 +146,7 @@ object LocaleHelper {
             "MX", "NI", "PA", "PE", "PR", "PY", "SV", "US", "UY", "VE"
         )
         return when {
+            primary == "en" -> if (region in BRITISH_REGIONS) "en-GB" else "en"
             primary == "nb" || primary == "nn" || primary == "no" -> "no"
             primary == "es" && region in latAmEs -> "es-419"
             primary == "es" -> "es"

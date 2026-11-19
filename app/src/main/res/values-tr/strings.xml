@@ -247,7 +247,7 @@
     <string name="metric_chip_battery_temp">Batarya sıcaklığı</string>
     <string name="metric_chip_tire_pressure">Lastik basıncı</string>
     <string name="metric_chip_tire_pressure_tile">Lastik</string>
-    <string name="metric_desc_tire_pressure">Kendi sensörünüzden veya tekerin ilettiği sensörden gelen lastik basıncı. Seçtiğiniz basınç biriminde gösterilir.</string>
+    <string name="metric_desc_tire_pressure">Kendi sensörünüzden veya tekerin ilettiği sensörden gelen lastik basıncı.</string>
     <string name="studio_metric_tire_pressure">Lastik basıncı</string>
     <string name="metric_chip_headroom">Güvenlik payı</string>
     <string name="metric_chip_trip_time">Sürüş süresi</string>
@@ -556,7 +556,7 @@
     <string name="watch_update_rate">Güncelleme hızı</string>
     <string name="watch_update_rate_desc">Daha yavaş güncelleme saatin pilini korur. Bu ayar, Gelişmiş bölümündeki teker sorgulama hızından ayrıdır.</string>
     <string name="watch_map_enabled">Saat haritası</string>
-    <string name="watch_map_enabled_desc">Telefondaki konumu ve rotayı gösterir. Arka planda çalışması için bildirim kalır.</string>
+    <string name="watch_map_enabled_desc">Telefondaki konumu ve rotayı gösterir.</string>
     <string name="watch_map_orientation">Harita yönü</string>
     <string name="watch_map_north_up">Kuzey yukarı</string>
     <string name="watch_map_heading_up">Gidilen yön yukarı</string>
@@ -616,7 +616,7 @@
     <string name="section_cloud_settings">Ayar yedeği</string>
     <string name="cloud_backup_now">Yedekle</string>
     <string name="cloud_restore">Geri yükle</string>
-    <string name="cloud_settings_backup_desc">Uygulamada ayarladığınız her şey, yedek klasörünüzdeki eucplanet_settings.json dosyasına yazılır. Yanına adlandırılmış bir kopya kaydetmek için düğmeyi basılı tutun. Sürüşler ayrıca yedeklenir.</string>
+    <string name="cloud_settings_backup_desc">Uygulamada ayarladığınız her şey, yedek klasörünüzdeki eucplanet_settings.json dosyasına yazılır. Yanına adlandırılmış bir kopya kaydetmek için düğmeyi basılı tutun.</string>
     <string name="cloud_last_backup">Son yedekleme: %1$s</string>
 <string name="cloud_last_backup_named">Son yedekleme: %1$s, “%2$s” adıyla</string>
     <string name="cloud_last_backup_never">Henüz yedeklenmedi</string>
@@ -901,7 +901,7 @@
     <string name="flic_start_scan">Taramayı başlat</string>
     <string name="flic_forget">Unut</string>
     <string name="flic_forget_title">Bu düğme unutulsun mu?</string>
-    <string name="flic_forget_body">%1$s eşleştirmesi kaldırılacak ve eylemleri temizlenecek. İstediğiniz zaman yeniden eşleştirebilirsiniz.</string>
+    <string name="flic_forget_body">%1$s eşleştirmesi kaldırılacak.</string>
     <string name="flic_rename">Yeniden adlandır</string>
     <string name="flic_click">Tıklama</string>
     <string name="flic_double_click">Çift tıklama</string>
@@ -951,7 +951,7 @@
     <string name="volume_keys_enable">Ses tuşu eylemlerini etkinleştir</string>
     <string name="volume_keys_screen_off">Ekran kapalıyken de</string>
     <string name="volume_keys_screen_off_caption">Telefon kilitliyken veya başka bir uygulama öndeyken de çalışır. Tuşlar artık telefonun sesini değiştirmez.</string>
-    <string name="volume_keys_screen_off_warn">Android ses tuşu basışlarını yalnızca ekrandaki uygulamaya gönderir. Ekran kapalıyken de alabilmek için EUC Planet telefonun etkin medya oynatıcısı olarak kaydolur ve Android sesi değiştirmek yerine ses tuşlarını ona gönderir.\n\nBu açıkken tuşlar telefonun sesini değiştirmez.</string>
+    <string name="volume_keys_screen_off_warn">Android ses tuşu basışlarını yalnızca ekrandaki uygulamaya gönderir. Ekran kapalıyken de alabilmek için EUC Planet telefonun etkin medya oynatıcısı olarak kaydolur ve Android sesi değiştirmek yerine ses tuşlarını ona gönderir.</string>
     <string name="volume_keys_screen_off_confirm">Aç</string>
     <string name="volume_keys_screen_off_title">Ses tuşları devralınsın mı?</string>
     <string name="volume_up">Sesi artır</string>
@@ -976,7 +976,7 @@
         <item quantity="other">%1$d araç izleniyor:</item>
     </plurals>
     <string name="radar_show_overlay">Tehdit kaplamasını göster</string>
-    <string name="radar_show_overlay_desc">Gösterge paneli kenarlarında ince radar şeridi. Algılanan her araç için renkli bir nokta. Yalnızca gösterge panelinde görünür.</string>
+    <string name="radar_show_overlay_desc">Gösterge paneli kenarlarında ince radar şeridi.</string>
     <string name="radar_overlay_left">Sol kenar</string>
     <string name="radar_overlay_both">Her iki kenar</string>
     <string name="radar_overlay_right">Sağ kenar</string>
@@ -1881,7 +1881,7 @@
     <string name="weather_hot">Üstünde çok sıcak</string>
     <string name="weather_breezy">Üstünde esintili</string>
     <string name="weather_windy">Üstünde çok rüzgarlı</string>
-    <string name="weather_source_credit">Tahmin, seçtiğiniz kaynaktan gelir ve yalnızca bu ayar açıkken alınır. Kaynak sunuyorsa daha kısa bir aralık daha ince adımlarla gelebilir.</string>
+    <string name="weather_source_credit">Tahmin, seçtiğiniz kaynaktan gelir. Kaynak sunuyorsa daha kısa bir aralık daha ince adımlarla gelebilir.</string>
     <string name="weather_title_1">Teker havası mı?</string>
     <string name="weather_title_2">EUC zamanı mı?</string>
     <string name="weather_title_3">Sürüş zamanı mı?</string>
@@ -2008,7 +2008,7 @@
     <string name="warnings_pip_blocked_body">Android, EUC Planet için bunu reddedecek şekilde ayarlı, bu yüzden uygulamadan çıktığınızda yüzen pencere görünmeyecek.</string>
     <string name="online_rejoin_confirm">Yeniden katıl</string>
     <string name="hud_joystick_title">Düğme eylemleri</string>
-    <string name="hud_joystick_desc">Bir eylem çalıştırmak için HUD düğmesine çift dokunun. Tek dokunuş yine ekran değiştirir.</string>
+    <string name="hud_joystick_desc">Bir eylem çalıştırmak için HUD düğmesine çift dokunun.</string>
     <string name="hud_joystick_up">Yukarı (çift dokunma)</string>
     <string name="hud_joystick_down">Aşağı (çift dokunma)</string>
     <string name="hud_joystick_left">Sol (çift dokunma)</string>
@@ -2189,7 +2189,7 @@
     <string name="adv_garmin_report_interval">Garmin güncelleme hızı</string>
     <string name="adv_garmin_report_interval_desc">Eşleştirilmiş bir Garmin\'in ne sıklıkta güncellendiğini belirler. Connect IQ bağlantısı gerçek hızı sınırlar, bu yüzden çok düşük değerler tam uygulanmayabilir.</string>
     <string name="adv_graph_sample_interval">Grafik örnekleme aralığı</string>
-    <string name="adv_graph_sample_interval_desc">Yalnızca gösterge paneli grafiklerinin ayrıntısını belirler. Alarmları veya sürüş dosyalarını etkilemez. Dikkat: çok düşük değerler daha fazla bellek kullanır.</string>
+    <string name="adv_graph_sample_interval_desc">Alarmları veya sürüş dosyalarını etkilemez. Dikkat: çok düşük değerler daha fazla bellek kullanır.</string>
     <string name="adv_group_alarm">Tahminli alarmlar</string>
     <string name="adv_group_autolights">Otomatik ışıklar</string>
     <string name="adv_group_charging">Şarj tahmini</string>
@@ -2292,7 +2292,7 @@
     <string name="adv_radar_static">Durağan eşik</string>
     <string name="adv_radar_static_desc">Bir aracın hareket halinde sayılması için gereken en az yaklaşma hızını belirler. Dikkat: çok yüksek olursa yavaş yaklaşanları yok sayar.</string>
     <string name="adv_radar_warning">Bunlar radarın tehditleri nasıl etiketlediğini değiştirir. Yanlış değerler gerçek bir aracı gizleyebilir veya zararsız birini işaretleyebilir.</string>
-    <string name="adv_rates_warning">Bu kontroller uygulama genelinde zamanlamayı değiştirir. Düşük değerler daha taze veri ve daha hızlı tepki sağlar ama daha fazla pil, CPU veya veri kullanır. Varsayılanlar çoğu kullanıcıya uygundur. Yalnızca etkisini anlıyorsanız değiştirin.</string>
+    <string name="adv_rates_warning">Bu kontroller uygulama genelinde zamanlamayı değiştirir. Yalnızca etkisini anlıyorsanız değiştirin.</string>
     <string name="adv_reset_all">Tümünü varsayılana sıfırla</string>
     <string name="adv_reset_confirm_msg">Bu ayarlar varsayılanlarına dönecek:</string>
     <string name="adv_restore_default">Varsayılanı geri yükle</string>
@@ -2321,7 +2321,7 @@
     <string name="alarm_summary_adaptive_pitch_vol">perde ve ses</string>
     <string name="alarm_summary_adaptive_vol">ses</string>
     <string name="reorg_drag_cd">Sıralamak için sürükle</string>
-    <string name="reorg_hint">Ayarlar ekranını yeniden düzenleyin ve az kullandığınız bölümleri gizleyin. Gizlenen bölümler “Diğer” bölümüne taşınır.</string>
+    <string name="reorg_hint">Ayarlar ekranını yeniden düzenleyin ve az kullandığınız bölümleri gizleyin.</string>
     <string name="studio_cd_close">Stüdyoyu kapat</string>
     <string name="studio_cd_gallery">Galeriyi aç</string>
     <string name="studio_cd_mic">Mikrofon</string>
@@ -2371,9 +2371,9 @@
     <string name="geo_section_trip">Sürüş</string>
     <string name="geo_section_other">Diğer ekranlar</string>
     <string name="geo_section_settings">Ayarlar</string>
-    <string name="geo_other_hint">Batarya izleme, metrik geçmişi, tarama ve Flic. Overlay Studio etkilenmez: düzeni sabittir ama her yönde sorunsuz çalışır.</string>
-    <string name="geo_settings_hint">Ayarlar ekranı. Varsayılan olarak kapalı, bu yüzden etkinleştirmedikçe Ayarlar dikey kalır.</string>
-    <string name="geo_trip_hint">Ayrıntı görünümü, yatay harita ve grafikler için varsayılan olarak döner. Sürüş listesi, etkinleştirmedikçe dikey kalır.</string>
+    <string name="geo_other_hint">Batarya izleme, metrik geçmişi, tarama ve Flic.</string>
+    <string name="geo_settings_hint">Ayarlar ekranı.</string>
+    <string name="geo_trip_hint">Ayrıntı görünümü, yatay harita ve grafikler için varsayılan olarak döner.</string>
     <string name="setting_allow_rotation">Döndürmeye izin ver</string>
     <string name="setting_rotate_trip_detail">Sürüş ayrıntılarını döndür</string>
     <string name="setting_rotate_trip_list">Sürüş listesini döndür</string>
@@ -2441,7 +2441,7 @@
     <string name="alarm_fx_crush">Bitcrush</string>
     <string name="section_accel_splits">Hız dilimleri</string>
     <string name="accel_splits_enabled">Süreleri seslendir</string>
-    <string name="accel_splits_desc">Hızlanırken veya yavaşlarken her hız adımını geçme süresini seslendirir. Aşağıdaki hızdan başlar, belirlediğiniz adımlarla.</string>
+    <string name="accel_splits_desc">Hızlanırken veya yavaşlarken her hız adımını geçme süresini seslendirir.</string>
     <string name="accel_split_decel_prefix">frenleme, </string>
     <string name="accel_splits_from">Başlangıç</string>
     <string name="accel_splits_step">Adım</string>
@@ -2586,7 +2586,7 @@
     <string name="dropbox_syncing">Sürüşler eşitleniyor…</string>
     <string name="dropbox_folder_desc">Sürüşler ve ayarlar Dropbox\'ınızda %1$s altında saklanır. Bu klasörü yalnızca bu uygulama görebilir.</string>
     <string name="keep_app_alive">Uygulamayı çalışır tut</string>
-    <string name="keep_app_alive_desc">Uygulamanın arka planda çalışmaya devam etmesi için kalıcı bir bildirim gösterir. Teker bağlı olmasa bile sürüş eşitleme ve sesli anonslar çalışır. Biraz daha fazla pil kullanır.</string>
+    <string name="keep_app_alive_desc">Uygulamanın arka planda çalışmaya devam etmesi için kalıcı bir bildirim gösterir. Biraz daha fazla pil kullanır.</string>
     <string name="sync_up_to_date">Zaten güncel</string>
     <string name="studio_source_transparent">Saydam</string>
     <string name="studio_source_video">Video</string>
@@ -2687,7 +2687,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">Sürelim mi?</string>
     <string name="widget_weather_score_desc">Şu anki sürüş havası.</string>
-    <string name="widget_weather_compact_desc">Havanın sürüşe ne kadar uygun olduğu, şimdi ve önümüzdeki saatlerde. Saatler, sıcaklık ve rüzgar için büyütün.</string>
+    <string name="widget_weather_compact_desc">Havanın sürüşe ne kadar uygun olduğu, şimdi ve önümüzdeki saatlerde.</string>
     <string name="widget_weather_graph_desc">Havanın sürüşe ne kadar uygun olduğu, tahmin süresi boyunca</string>
     <string name="widget_weather_refresh_desc">Tahmini yenile</string>
     <string name="widget_weather_never">Henüz tahmin yok. Uygulamayı bir kez açın veya yenile\'ye dokunun.</string>
@@ -2824,7 +2824,7 @@
         <item quantity="other">%d durak</item>
     </plurals>
     <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Verileriniz ve teker düğmeleriniz Android Auto ekranında. Kendiliğinden bağlanır, Wi-Fi ayarı gerekmez.</string>
+    <string name="android_auto_hint">Verileriniz ve teker düğmeleriniz Android Auto ekranında.</string>
     <string name="car_waiting">Teker bekleniyor</string>
     <string name="car_last_battery">Son batarya %%%1$d</string>
     <string name="car_navigate">Navigasyon</string>

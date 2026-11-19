@@ -6,7 +6,7 @@
 
     <!-- Notification quick actions -->
     <string name="keep_app_alive">Nechať aplikáciu bežať</string>
-    <string name="keep_app_alive_desc">Ponechá trvalé upozornenie, aby aplikácia zostala aktívna na pozadí. Synchronizácia jázd a hlas fungujú aj bez pripojeného kolesa. Spotrebuje o niečo viac batérie.</string>
+    <string name="keep_app_alive_desc">Ponechá trvalé upozornenie, aby aplikácia zostala aktívna na pozadí. Spotrebuje o niečo viac batérie.</string>
     <string name="notif_actions_enable">Zobraziť akcie v upozornení</string>
     <string name="notif_actions_enable_desc">Pridá tlačidlá rýchlych akcií do trvalého upozornenia.</string>
     <string name="notif_actions_pick_desc">Vyberte až %1$d akcií. Rovnaká akcia sa môže opakovať.</string>
@@ -245,7 +245,7 @@
     <string name="metric_chip_battery_temp">Teplota batérie</string>
     <string name="metric_chip_tire_pressure">Tlak v pneumatike</string>
     <string name="metric_chip_tire_pressure_tile">Pneu</string>
-    <string name="metric_desc_tire_pressure">Tlak v pneumatike z vlastného senzora alebo zo senzora, ktorý sprostredkuje koleso. Zobrazuje sa vo zvolenej jednotke tlaku.</string>
+    <string name="metric_desc_tire_pressure">Tlak v pneumatike z vlastného senzora alebo zo senzora, ktorý sprostredkuje koleso.</string>
     <string name="metric_chip_headroom">Rezerva</string>
     <string name="metric_chip_trip_time">Čas jazdy</string>
     <string name="metric_chip_trip_max_speed">Max jazdy</string>
@@ -496,7 +496,7 @@
 
     <!-- HUD button long-press actions -->
     <string name="hud_joystick_title">Akcie tlačidiel</string>
-    <string name="hud_joystick_desc">Dvojitým klepnutím na tlačidlo HUD spustíte akciu. Jedno klepnutie stále prepína obrazovky.</string>
+    <string name="hud_joystick_desc">Dvojitým klepnutím na tlačidlo HUD spustíte akciu.</string>
     <string name="hud_joystick_up">Hore (dvojklik)</string>
     <string name="hud_joystick_down">Dole (dvojklik)</string>
     <string name="hud_joystick_left">Vľavo (dvojklik)</string>
@@ -549,7 +549,7 @@
     <string name="watch_update_rate">Frekvencia aktualizácie</string>
     <string name="watch_update_rate_desc">Pomalšie aktualizácie šetria batériu hodiniek. Je to nezávislé od frekvencie dopytovania kolesa v sekcii Rozšírené.</string>
     <string name="watch_map_enabled">Mapa v hodinkách</string>
-    <string name="watch_map_enabled_desc">Zobrazuje polohu a trasu z telefónu. Na prevádzku na pozadí zostáva upozornenie.</string>
+    <string name="watch_map_enabled_desc">Zobrazuje polohu a trasu z telefónu.</string>
     <string name="watch_map_orientation">Orientácia mapy</string>
     <string name="watch_map_north_up">Sever hore</string>
     <string name="watch_map_heading_up">Smer hore</string>
@@ -565,15 +565,15 @@
     <string name="tab_more">Viac</string>
     <string name="settings_visibility">Viditeľnosť nastavení</string>
     <string name="adv_timings_title">Časovanie a premenné</string>
-    <string name="reorg_hint">Usporiadajte obrazovku nastavení a skryte sekcie, ktoré používate zriedka. Skryté sekcie sa presunú do sekcie „Viac“.</string>
+    <string name="reorg_hint">Usporiadajte obrazovku nastavení a skryte sekcie, ktoré používate zriedka.</string>
     <string name="reorg_drag_cd">Presunutím zmeníte poradie</string>
-    <string name="adv_rates_warning">Tieto ovládacie prvky menia časovanie v celej aplikácii. Nižšie hodnoty prinášajú čerstvejšie dáta a rýchlejšie reakcie, ale spotrebujú viac batérie, procesora alebo dát. Predvolené hodnoty vyhovujú väčšine jazdcov. Meňte ich, len ak rozumiete dôsledkom.</string>
+    <string name="adv_rates_warning">Tieto ovládacie prvky menia časovanie v celej aplikácii. Meňte ich, len ak rozumiete dôsledkom.</string>
     <string name="adv_pushonly_note">Niektoré zariadenia posielajú dáta vlastnou pevnou frekvenciou a tieto nastavenia ignorujú: kolesá, ktoré len posielajú (Begode, Gotway, Veteran, KingSong), externá GPS (RaceBox, Dragy), radar a tlačidlá Flic.</string>
     <string name="adv_group_rates">Frekvencie dát a hlásení</string>
     <string name="adv_wheel_poll_rate">Frekvencia dopytovania kolesa</string>
     <string name="adv_wheel_poll_rate_desc">Ovplyvňuje, aké čerstvé sú živé dáta a ako rýchlo reagujú alarmy. Nižšia hodnota žiada dáta od kolesa častejšie. Riziko: veľmi nízke hodnoty môžu zahltiť spojenie Bluetooth a na niektorých kolesách zastaviť dáta.</string>
     <string name="adv_graph_sample_interval">Interval vzoriek grafu</string>
-    <string name="adv_graph_sample_interval_desc">Ovplyvňuje iba detail grafov na paneli. Nemá vplyv na alarmy ani súbory jázd. Riziko: veľmi nízke hodnoty spotrebujú viac pamäte.</string>
+    <string name="adv_graph_sample_interval_desc">Nemá vplyv na alarmy ani súbory jázd. Riziko: veľmi nízke hodnoty spotrebujú viac pamäte.</string>
     <string name="adv_smoothing_window">Okno vyhladzovania</string>
     <string name="adv_smoothing_window_desc">Počet vzoriek spriemerovaných v grafoch jázd „priemer“ a vo vyhladených hlasových hláseniach. Jazdy sa zaznamenávajú asi raz za sekundu, takže hodnota zodpovedá sekundám. Riziko: vysoké hodnoty skryjú krátke špičky.</string>
     <string name="adv_trip_record_interval">Interval záznamu jazdy</string>
@@ -797,7 +797,7 @@
     <string name="section_cloud_settings">Záloha nastavení</string>
     <string name="cloud_backup_now">Zálohovať</string>
     <string name="cloud_restore">Obnoviť</string>
-    <string name="cloud_settings_backup_desc">Všetko, čo ste v aplikácii nastavili, sa zapíše do eucplanet_settings.json v priečinku záloh. Podržaním tlačidla uložíte vedľa neho pomenovanú kópiu. Jazdy sa zálohujú samostatne.</string>
+    <string name="cloud_settings_backup_desc">Všetko, čo ste v aplikácii nastavili, sa zapíše do eucplanet_settings.json v priečinku záloh. Podržaním tlačidla uložíte vedľa neho pomenovanú kópiu.</string>
     <string name="cloud_last_backup">Posledná záloha: %1$s</string>
     <string name="cloud_last_backup_named">Posledná záloha: %1$s ako „%2$s“</string>
     <string name="cloud_last_backup_never">Zatiaľ nezálohované</string>
@@ -896,9 +896,9 @@
     <string name="side_default">Predvolená</string>
     <string name="side_left">Vľavo</string>
     <string name="side_right">Vpravo</string>
-    <string name="geo_other_hint">Monitor batérie, história metrík, vyhľadávanie a Flic. Štúdio prekrytia nie je ovplyvnené: jeho rozloženie je pevné, ale funguje v akejkoľvek orientácii.</string>
-    <string name="geo_settings_hint">Obrazovka nastavení. Predvolene vypnuté, takže Nastavenia zostanú na výšku, ak to nezapnete.</string>
-    <string name="geo_trip_hint">Podrobnosti sa predvolene otáčajú kvôli mape a grafom na šírku. Zoznam jázd zostane na výšku, ak to nezapnete.</string>
+    <string name="geo_other_hint">Monitor batérie, história metrík, vyhľadávanie a Flic.</string>
+    <string name="geo_settings_hint">Obrazovka nastavení.</string>
+    <string name="geo_trip_hint">Podrobnosti sa predvolene otáčajú kvôli mape a grafom na šírku.</string>
     <string name="back_button_action_ask">Spýtať sa</string>
     <string name="back_button_action_background">Na pozadí</string>
     <string name="back_button_action_stop">Zastaviť všetko</string>
@@ -995,7 +995,7 @@
     <string name="voice_interval">Interval</string>
     <string name="section_accel_splits">Rýchlostné úseky</string>
     <string name="accel_splits_enabled">Hlásiť časy</string>
-    <string name="accel_splits_desc">Oznamuje čas prejdenia každého rýchlostného stupňa pri zrýchľovaní aj spomaľovaní. Začína od rýchlosti nižšie, v krokoch, ktoré nastavíte.</string>
+    <string name="accel_splits_desc">Oznamuje čas prejdenia každého rýchlostného stupňa pri zrýchľovaní aj spomaľovaní.</string>
     <string name="accel_split_decel_prefix">brzdenie, </string>
     <string name="accel_splits_from">Od</string>
     <string name="accel_splits_step">Krok</string>
@@ -1170,7 +1170,7 @@
     <string name="flic_start_scan">Vyhľadať</string>
     <string name="flic_forget">Zabudnúť</string>
     <string name="flic_forget_title">Zabudnúť toto tlačidlo?</string>
-    <string name="flic_forget_body">Párovanie tlačidla %1$s sa zruší a jeho akcie sa vymažú. Kedykoľvek ho môžete spárovať znova.</string>
+    <string name="flic_forget_body">Párovanie tlačidla %1$s sa zruší.</string>
     <string name="flic_rename">Premenovať</string>
     <string name="flic_click">Klik</string>
     <string name="flic_double_click">Dvojklik</string>
@@ -1221,7 +1221,7 @@
     <string name="volume_keys_enable">Zapnúť akcie tlačidiel hlasitosti</string>
     <string name="volume_keys_screen_off">Aj pri vypnutej obrazovke</string>
     <string name="volume_keys_screen_off_caption">Funguje so zamknutým telefónom alebo s inou aplikáciou v popredí. Tlačidlá už nemenia hlasitosť telefónu.</string>
-    <string name="volume_keys_screen_off_warn">Android posiela stlačenia hlasitosti len aplikácii na obrazovke. Aby ich EUC Planet dostal aj pri vypnutej obrazovke, zaregistruje sa ako aktívny prehrávač médií v telefóne, a Android mu tlačidlá hlasitosti posiela namiesto zmeny hlasitosti.\n\nKým je to zapnuté, tlačidlá nemenia hlasitosť telefónu.</string>
+    <string name="volume_keys_screen_off_warn">Android posiela stlačenia hlasitosti len aplikácii na obrazovke. Aby ich EUC Planet dostal aj pri vypnutej obrazovke, zaregistruje sa ako aktívny prehrávač médií v telefóne, a Android mu tlačidlá hlasitosti posiela namiesto zmeny hlasitosti.</string>
     <string name="volume_keys_screen_off_confirm">Zapnúť</string>
     <string name="volume_keys_screen_off_title">Prevziať tlačidlá hlasitosti?</string>
     <string name="volume_up">Zvýšiť hlasitosť</string>
@@ -1248,7 +1248,7 @@
         <item quantity="other">Sleduje sa %1$d vozidiel:</item>
     </plurals>
     <string name="radar_show_overlay">Zobraziť prekrytie hrozieb</string>
-    <string name="radar_show_overlay_desc">Tenký pruh radaru na okrajoch panela. Jedna farebná bodka na každé zistené vozidlo. Viditeľné len na paneli.</string>
+    <string name="radar_show_overlay_desc">Tenký pruh radaru na okrajoch panela.</string>
     <string name="radar_overlay_left">Ľavý okraj</string>
     <string name="radar_overlay_both">Oba okraje</string>
     <string name="radar_overlay_right">Pravý okraj</string>
@@ -1496,7 +1496,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">Jazda?</string>
     <string name="widget_weather_score_desc">Počasie na jazdu práve teraz.</string>
-    <string name="widget_weather_compact_desc">Aké dobré je počasie na jazdu teraz a v nasledujúcich hodinách. Zväčšením zobrazíte hodiny, teplotu a vietor.</string>
+    <string name="widget_weather_compact_desc">Aké dobré je počasie na jazdu teraz a v nasledujúcich hodinách.</string>
     <string name="widget_weather_graph_desc">Aké dobré je počasie na jazdu v okne predpovede</string>
     <string name="widget_weather_refresh_desc">Obnoviť predpoveď</string>
     <string name="widget_weather_never">Zatiaľ žiadna predpoveď. Raz otvorte aplikáciu alebo klepnite na obnoviť.</string>
@@ -2347,7 +2347,7 @@
     <string name="weather_hot">Príliš horúco nad</string>
     <string name="weather_breezy">Veterno nad</string>
     <string name="weather_windy">Príliš veterno nad</string>
-    <string name="weather_source_credit">Predpoveď pochádza zo zvoleného zdroja a sťahuje sa len vtedy, keď je toto zapnuté. Kratšie okno môže mať jemnejšie kroky, ak ich zdroj ponúka.</string>
+    <string name="weather_source_credit">Predpoveď pochádza zo zvoleného zdroja. Kratšie okno môže mať jemnejšie kroky, ak ich zdroj ponúka.</string>
     <string name="weather_title_1">Je počasie na koleso?</string>
     <string name="weather_title_2">Je čas na EUC?</string>
     <string name="weather_title_3">Ideme jazdiť?</string>
@@ -2795,7 +2795,7 @@
         <item quantity="other">%d zastávok</item>
     </plurals>
     <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Vaše štatistiky a tlačidlá kolesa na obrazovke Android Auto. Pripojí sa samo, bez nastavovania Wi-Fi.</string>
+    <string name="android_auto_hint">Vaše štatistiky a tlačidlá kolesa na obrazovke Android Auto.</string>
     <string name="car_waiting">Čaká sa na koleso</string>
     <string name="car_last_battery">Posledná batéria %1$d%%</string>
     <string name="car_waiting_wheel">Čaká sa na koleso</string>

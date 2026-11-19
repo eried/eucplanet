@@ -247,7 +247,7 @@
     <string name="metric_chip_battery_temp">Температура батареи</string>
     <string name="metric_chip_tire_pressure">Давление в шине</string>
     <string name="metric_chip_tire_pressure_tile">Шина</string>
-    <string name="metric_desc_tire_pressure">Давление в шине с вашего датчика или переданное моноколесом. В выбранных единицах давления.</string>
+    <string name="metric_desc_tire_pressure">Давление в шине с вашего датчика или переданное моноколесом.</string>
     <string name="studio_metric_tire_pressure">Давление в шине</string>
     <string name="metric_chip_headroom">Запас</string>
     <string name="metric_chip_trip_time">Время поездки</string>
@@ -556,7 +556,7 @@
     <string name="watch_update_rate">Частота обновления</string>
     <string name="watch_update_rate_desc">Более редкие обновления экономят заряд часов. Это не связано с частотой опроса моноколеса в разделе «Дополнительно».</string>
     <string name="watch_map_enabled">Карта на часах</string>
-    <string name="watch_map_enabled_desc">Показывает позицию и маршрут с телефона. Для работы в фоне остаётся уведомление.</string>
+    <string name="watch_map_enabled_desc">Показывает позицию и маршрут с телефона.</string>
     <string name="watch_map_orientation">Ориентация карты</string>
     <string name="watch_map_north_up">Север сверху</string>
     <string name="watch_map_heading_up">По движению</string>
@@ -616,7 +616,7 @@
     <string name="section_cloud_settings">Резервная копия настроек</string>
     <string name="cloud_backup_now">Сделать копию</string>
     <string name="cloud_restore">Восстановить</string>
-    <string name="cloud_settings_backup_desc">Всё, что вы настроили в приложении, записывается в eucplanet_settings.json в папке резервных копий. Удерживайте кнопку, чтобы сохранить рядом копию с именем. Поездки копируются отдельно.</string>
+    <string name="cloud_settings_backup_desc">Всё, что вы настроили в приложении, записывается в eucplanet_settings.json в папке резервных копий. Удерживайте кнопку, чтобы сохранить рядом копию с именем.</string>
     <string name="cloud_last_backup">Последняя копия: %1$s</string>
 <string name="cloud_last_backup_named">Последняя копия: %1$s как «%2$s»</string>
     <string name="cloud_last_backup_never">Копий ещё нет</string>
@@ -905,7 +905,7 @@
     <string name="flic_start_scan">Начать поиск</string>
     <string name="flic_forget">Забыть</string>
     <string name="flic_forget_title">Забыть эту кнопку?</string>
-    <string name="flic_forget_body">Сопряжение с %1$s будет удалено, а действия кнопки очищены. Снова выполнить сопряжение можно в любой момент.</string>
+    <string name="flic_forget_body">Сопряжение с %1$s будет удалено.</string>
     <string name="flic_rename">Переименовать</string>
     <string name="flic_click">Нажатие</string>
     <string name="flic_double_click">Двойное нажатие</string>
@@ -955,7 +955,7 @@
     <string name="volume_keys_enable">Включить действия по кнопкам громкости</string>
     <string name="volume_keys_screen_off">И при выключенном экране</string>
     <string name="volume_keys_screen_off_caption">Работает на заблокированном телефоне и когда открыто другое приложение. Кнопки больше не меняют громкость телефона.</string>
-    <string name="volume_keys_screen_off_warn">Android передаёт нажатия кнопок громкости только приложению на экране. Чтобы получать их при выключенном экране, EUC Planet регистрируется как активный медиаплеер телефона, и Android отправляет кнопки ему, а не меняет громкость.\n\nПока это включено, кнопки не меняют громкость телефона.</string>
+    <string name="volume_keys_screen_off_warn">Android передаёт нажатия кнопок громкости только приложению на экране. Чтобы получать их при выключенном экране, EUC Planet регистрируется как активный медиаплеер телефона, и Android отправляет кнопки ему, а не меняет громкость.</string>
     <string name="volume_keys_screen_off_confirm">Включить</string>
     <string name="volume_keys_screen_off_title">Забрать кнопки громкости?</string>
     <string name="volume_up">Громкость +</string>
@@ -982,7 +982,7 @@
         <item quantity="other">Отслеживается %1$d машины:</item>
     </plurals>
     <string name="radar_show_overlay">Показывать угрозы на панели</string>
-    <string name="radar_show_overlay_desc">Тонкая полоса радара по краям панели. Одна цветная точка на машину. Видна только на панели.</string>
+    <string name="radar_show_overlay_desc">Тонкая полоса радара по краям панели.</string>
     <string name="radar_overlay_left">Левый край</string>
     <string name="radar_overlay_both">Обе стороны</string>
     <string name="radar_overlay_right">Правый край</string>
@@ -1886,7 +1886,7 @@
     <string name="weather_hot">Слишком жарко выше</string>
     <string name="weather_breezy">Ветрено выше</string>
     <string name="weather_windy">Слишком ветрено выше</string>
-    <string name="weather_source_credit">Прогноз берётся из выбранного источника и запрашивается, только пока эта функция включена. Для короткого окна шаг может быть мельче, если источник это поддерживает.</string>
+    <string name="weather_source_credit">Прогноз берётся из выбранного источника. Для короткого окна шаг может быть мельче, если источник это поддерживает.</string>
     <string name="weather_title_1">Погода для моноколеса?</string>
     <string name="weather_title_2">Пора на моноколесо?</string>
     <string name="weather_title_3">Пора прокатиться?</string>
@@ -2037,7 +2037,7 @@
     <string name="battery_history">История батареи</string>
     <string name="setting_charging_auto_open">Открывать при зарядке</string>
     <string name="hud_joystick_title">Действия кнопок</string>
-    <string name="hud_joystick_desc">Дважды нажмите кнопку HUD, чтобы выполнить действие. Одиночное нажатие по-прежнему переключает экраны.</string>
+    <string name="hud_joystick_desc">Дважды нажмите кнопку HUD, чтобы выполнить действие.</string>
     <string name="hud_joystick_up">Вверх (двойное нажатие)</string>
     <string name="hud_joystick_down">Вниз (двойное нажатие)</string>
     <string name="hud_joystick_left">Влево (двойное нажатие)</string>
@@ -2194,7 +2194,7 @@
     <string name="adv_garmin_report_interval">Частота отчётов Garmin</string>
     <string name="adv_garmin_report_interval_desc">Определяет, как часто обновляются сопряжённые часы Garmin. Канал Connect IQ ограничивает реальную частоту, поэтому очень малые значения могут не сработать полностью.</string>
     <string name="adv_graph_sample_interval">Интервал выборки графика</string>
-    <string name="adv_graph_sample_interval_desc">Определяет только детализацию графиков на панели. На сигналы и файлы поездок не влияет. Осторожно: очень малые значения занимают больше памяти.</string>
+    <string name="adv_graph_sample_interval_desc">На сигналы и файлы поездок не влияет. Осторожно: очень малые значения занимают больше памяти.</string>
     <string name="adv_group_alarm">Прогнозные сигналы</string>
     <string name="adv_group_autolights">Автосвет</string>
     <string name="adv_group_charging">Оценка зарядки</string>
@@ -2297,7 +2297,7 @@
     <string name="adv_radar_static">Порог неподвижности</string>
     <string name="adv_radar_static_desc">Минимальная скорость сближения, при которой машина считается движущейся. Осторожно: при слишком большом значении медленно приближающиеся машины игнорируются.</string>
     <string name="adv_radar_warning">Эти параметры определяют, как радар отмечает угрозы. Неверные значения могут скрыть реальную машину или отметить безопасную.</string>
-    <string name="adv_rates_warning">Эти параметры меняют тайминги во всём приложении. Меньшие значения дают более свежие данные и быструю реакцию, но больше расходуют батарею, процессор или трафик. Значения по умолчанию подходят большинству райдеров. Меняйте их, только если понимаете последствия.</string>
+    <string name="adv_rates_warning">Эти параметры меняют тайминги во всём приложении. Меняйте их, только если понимаете последствия.</string>
     <string name="adv_reset_all">Вернуть все значения по умолчанию</string>
     <string name="adv_reset_confirm_msg">Эти настройки вернутся к значениям по умолчанию:</string>
     <string name="adv_restore_default">Вернуть по умолчанию</string>
@@ -2326,7 +2326,7 @@
     <string name="alarm_summary_adaptive_pitch_vol">высота и громк.</string>
     <string name="alarm_summary_adaptive_vol">громк.</string>
     <string name="reorg_drag_cd">Перетащите для изменения порядка</string>
-    <string name="reorg_hint">Упорядочьте экран настроек и скройте редко используемые разделы. Скрытые разделы перемещаются в раздел «Ещё».</string>
+    <string name="reorg_hint">Упорядочьте экран настроек и скройте редко используемые разделы.</string>
     <string name="studio_cd_close">Закрыть студию</string>
     <string name="studio_cd_gallery">Открыть галерею</string>
     <string name="studio_cd_mic">Микрофон</string>
@@ -2376,9 +2376,9 @@
     <string name="geo_section_trip">Поездка</string>
     <string name="geo_section_other">Другие экраны</string>
     <string name="geo_section_settings">Настройки</string>
-    <string name="geo_other_hint">Монитор батареи, история показателей, сканирование и Flic. Overlay Studio не затрагивается: его макет фиксирован, но он нормально работает в любой ориентации.</string>
-    <string name="geo_settings_hint">Экран настроек. По умолчанию выключено, поэтому Настройки остаются в книжной ориентации, пока вы это не включите.</string>
-    <string name="geo_trip_hint">Экран деталей по умолчанию поворачивается для карты и графиков в альбомной ориентации. Список поездок остаётся в книжной ориентации, пока вы это не включите.</string>
+    <string name="geo_other_hint">Монитор батареи, история показателей, сканирование и Flic.</string>
+    <string name="geo_settings_hint">Экран настроек.</string>
+    <string name="geo_trip_hint">Экран деталей по умолчанию поворачивается для карты и графиков в альбомной ориентации.</string>
     <string name="setting_allow_rotation">Разрешить поворот</string>
     <string name="setting_rotate_trip_detail">Поворот деталей поездки</string>
     <string name="setting_rotate_trip_list">Поворот списка поездок</string>
@@ -2446,7 +2446,7 @@
     <string name="alarm_fx_crush">Биткрашер</string>
     <string name="section_accel_splits">Замеры скорости</string>
     <string name="accel_splits_enabled">Озвучивать время</string>
-    <string name="accel_splits_desc">Озвучивает время прохождения каждого шага скорости при разгоне или торможении. Отсчёт начинается от указанной ниже скорости, с заданным вами шагом.</string>
+    <string name="accel_splits_desc">Озвучивает время прохождения каждого шага скорости при разгоне или торможении.</string>
     <string name="accel_split_decel_prefix">торможение, </string>
     <string name="accel_splits_from">От</string>
     <string name="accel_splits_step">Шаг</string>
@@ -2591,7 +2591,7 @@
     <string name="dropbox_syncing">Синхронизация поездок…</string>
     <string name="dropbox_folder_desc">Поездки и настройки сохраняются в вашем Dropbox, в %1$s. Эту папку видит только это приложение.</string>
     <string name="keep_app_alive">Держать приложение активным</string>
-    <string name="keep_app_alive_desc">Показывает постоянное уведомление, чтобы приложение оставалось активным в фоне. Синхронизация поездок и голос работают даже без подключённого моноколеса. Расходует немного больше заряда.</string>
+    <string name="keep_app_alive_desc">Показывает постоянное уведомление, чтобы приложение оставалось активным в фоне. Расходует немного больше заряда.</string>
     <string name="sync_up_to_date">Уже актуально</string>
     <string name="studio_source_transparent">Прозрачный</string>
     <string name="studio_source_video">Видео</string>
@@ -2694,7 +2694,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">Кататься?</string>
     <string name="widget_weather_score_desc">Погода для катания, прямо сейчас.</string>
-    <string name="widget_weather_compact_desc">Насколько погода хороша для катания сейчас и в ближайшие часы. Увеличьте, чтобы видеть часы, температуру и ветер.</string>
+    <string name="widget_weather_compact_desc">Насколько погода хороша для катания сейчас и в ближайшие часы.</string>
     <string name="widget_weather_graph_desc">Насколько погода хороша для катания на период прогноза</string>
     <string name="widget_weather_refresh_desc">Обновить прогноз</string>
     <string name="widget_weather_never">Прогноза пока нет. Откройте приложение или нажмите «Обновить».</string>
@@ -2833,7 +2833,7 @@
         <item quantity="other">%d точки</item>
     </plurals>
     <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Показатели и кнопки моноколеса на экране Android Auto. Подключается само, без настройки Wi-Fi.</string>
+    <string name="android_auto_hint">Показатели и кнопки моноколеса на экране Android Auto.</string>
     <string name="car_waiting">Ожидание моноколеса</string>
     <string name="car_last_battery">Последний заряд %1$d%%</string>
     <string name="car_navigate">Навигация</string>

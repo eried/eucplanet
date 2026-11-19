@@ -247,7 +247,7 @@
     <string name="metric_chip_battery_temp">Accutemperatuur</string>
     <string name="metric_chip_tire_pressure">Bandenspanning</string>
     <string name="metric_chip_tire_pressure_tile">Band</string>
-    <string name="metric_desc_tire_pressure">Bandenspanning van je eigen sensor of een die het wiel doorgeeft. In de drukeenheid die je koos.</string>
+    <string name="metric_desc_tire_pressure">Bandenspanning van je eigen sensor of een die het wiel doorgeeft.</string>
     <string name="studio_metric_tire_pressure">Bandenspanning</string>
     <string name="metric_chip_headroom">Marge</string>
     <string name="metric_chip_trip_time">Rittijd</string>
@@ -556,7 +556,7 @@
     <string name="watch_update_rate">Verversingssnelheid</string>
     <string name="watch_update_rate_desc">Langzamere updates sparen de batterij van het horloge. Dit staat los van de pollsnelheid van het wiel in Geavanceerd.</string>
     <string name="watch_map_enabled">Kaart op horloge</string>
-    <string name="watch_map_enabled_desc">Toont de positie en route vanaf de telefoon. Er blijft een melding staan voor werking op de achtergrond.</string>
+    <string name="watch_map_enabled_desc">Toont de positie en route vanaf de telefoon.</string>
     <string name="watch_map_orientation">Kaartoriëntatie</string>
     <string name="watch_map_north_up">Noord boven</string>
     <string name="watch_map_heading_up">Rijrichting boven</string>
@@ -616,7 +616,7 @@
     <string name="section_cloud_settings">Back-up van instellingen</string>
     <string name="cloud_backup_now">Back-up</string>
     <string name="cloud_restore">Terugzetten</string>
-    <string name="cloud_settings_backup_desc">Alles wat je in de app hebt ingesteld, opgeslagen in eucplanet_settings.json in je back-upmap. Houd de knop ingedrukt om een kopie met naam op te slaan. Ritten worden apart geback-upt.</string>
+    <string name="cloud_settings_backup_desc">Alles wat je in de app hebt ingesteld, opgeslagen in eucplanet_settings.json in je back-upmap. Houd de knop ingedrukt om een kopie met naam op te slaan.</string>
     <string name="cloud_last_backup">Laatste back-up: %1$s</string>
 <string name="cloud_last_backup_named">Laatste back-up: %1$s als “%2$s”</string>
     <string name="cloud_last_backup_never">Nog geen back-up</string>
@@ -905,7 +905,7 @@
     <string name="flic_start_scan">Scannen starten</string>
     <string name="flic_forget">Vergeten</string>
     <string name="flic_forget_title">Deze knop vergeten?</string>
-    <string name="flic_forget_body">%1$s wordt ontkoppeld en de acties worden gewist. Je kunt hem altijd opnieuw koppelen.</string>
+    <string name="flic_forget_body">%1$s wordt ontkoppeld.</string>
     <string name="flic_rename">Naam wijzigen</string>
     <string name="flic_click">Klik</string>
     <string name="flic_double_click">Dubbelklik</string>
@@ -955,7 +955,7 @@
     <string name="volume_keys_enable">Volumeknopacties inschakelen</string>
     <string name="volume_keys_screen_off">Ook met het scherm uit</string>
     <string name="volume_keys_screen_off_caption">Werkt met vergrendelde telefoon of een andere app op de voorgrond. De knoppen veranderen het telefoonvolume niet meer.</string>
-    <string name="volume_keys_screen_off_warn">Android stuurt volumeknoppen alleen naar de app op het scherm. Om ze ook met het scherm uit te krijgen, meldt EUC Planet zich aan als de actieve mediaspeler van de telefoon, zodat Android de volumeknoppen daarheen stuurt in plaats van het volume te wijzigen.\n\nZolang dit aanstaat, veranderen de knoppen het telefoonvolume niet.</string>
+    <string name="volume_keys_screen_off_warn">Android stuurt volumeknoppen alleen naar de app op het scherm. Om ze ook met het scherm uit te krijgen, meldt EUC Planet zich aan als de actieve mediaspeler van de telefoon, zodat Android de volumeknoppen daarheen stuurt in plaats van het volume te wijzigen.</string>
     <string name="volume_keys_screen_off_confirm">Aanzetten</string>
     <string name="volume_keys_screen_off_title">Volumeknoppen overnemen?</string>
     <string name="volume_up">Volume omhoog</string>
@@ -980,7 +980,7 @@
         <item quantity="other">%1$d voertuigen gevolgd:</item>
     </plurals>
     <string name="radar_show_overlay">Dreigingsoverlay tonen</string>
-    <string name="radar_show_overlay_desc">Dunne radarbalk in de dashboardrand. Eén gekleurde stip per gedetecteerd voertuig. Alleen zichtbaar op het dashboard.</string>
+    <string name="radar_show_overlay_desc">Dunne radarbalk in de dashboardrand.</string>
     <string name="radar_overlay_left">Linkerrand</string>
     <string name="radar_overlay_both">Beide randen</string>
     <string name="radar_overlay_right">Rechterrand</string>
@@ -1939,7 +1939,7 @@
     <string name="weather_hot">Te warm boven</string>
     <string name="weather_breezy">Winderig boven</string>
     <string name="weather_windy">Te winderig boven</string>
-    <string name="weather_source_credit">De voorspelling komt van de gekozen bron en wordt alleen opgehaald zolang dit aanstaat. Een korter venster kan in fijnere stappen komen, als de bron die heeft.</string>
+    <string name="weather_source_credit">De voorspelling komt van de gekozen bron. Een korter venster kan in fijnere stappen komen, als de bron die heeft.</string>
     <string name="weather_title_1">Wielweer?</string>
     <string name="weather_title_2">EUC-tijd?</string>
     <string name="weather_title_3">Tijd voor een rit?</string>
@@ -2035,7 +2035,7 @@
     <string name="warnings_location_services_body">EUC Planet mag het, maar de telefoon heeft locatie voor alles uitgeschakeld. Tik om het aan te zetten.</string>
     <string name="warnings_location_services_title">Locatie staat uit op de telefoon</string>
     <string name="hud_joystick_title">Knopacties</string>
-    <string name="hud_joystick_desc">Tik twee keer op een HUD-knop om een actie uit te voeren. Een enkele tik wisselt nog steeds van scherm.</string>
+    <string name="hud_joystick_desc">Tik twee keer op een HUD-knop om een actie uit te voeren.</string>
     <string name="hud_joystick_up">Omhoog (dubbele tik)</string>
     <string name="hud_joystick_down">Omlaag (dubbele tik)</string>
     <string name="hud_joystick_left">Links (dubbele tik)</string>
@@ -2192,7 +2192,7 @@
     <string name="adv_garmin_report_interval">Garmin-rapportagesnelheid</string>
     <string name="adv_garmin_report_interval_desc">Bepaalt hoe vaak een gekoppelde Garmin bijwerkt. De Connect IQ-link begrenst de werkelijke snelheid, dus zeer lage waarden gelden mogelijk niet volledig.</string>
     <string name="adv_graph_sample_interval">Sample-interval grafiek</string>
-    <string name="adv_graph_sample_interval_desc">Bepaalt alleen het detailniveau van de dashboardgrafieken. Heeft geen invloed op alarmen of ritbestanden. Let op: zeer lage waarden gebruiken meer geheugen.</string>
+    <string name="adv_graph_sample_interval_desc">Heeft geen invloed op alarmen of ritbestanden. Let op: zeer lage waarden gebruiken meer geheugen.</string>
     <string name="adv_group_alarm">Voorspellende alarmen</string>
     <string name="adv_group_autolights">Automatische verlichting</string>
     <string name="adv_group_charging">Laad-ETA</string>
@@ -2295,7 +2295,7 @@
     <string name="adv_radar_static">Statische drempel</string>
     <string name="adv_radar_static_desc">Bepaalt de minimale naderingssnelheid voordat een auto als bewegend telt. Let op: te hoog negeert langzame naderaars.</string>
     <string name="adv_radar_warning">Deze bepalen hoe de radar dreigingen labelt. Verkeerde waarden kunnen een echte auto verbergen of een onschuldige markeren.</string>
-    <string name="adv_rates_warning">Deze instellingen veranderen de timing in de hele app. Lagere waarden geven versere data en snellere reacties, maar gebruiken meer batterij, CPU of data. De standaardwaarden passen bij de meeste rijders. Wijzig ze alleen als je het effect begrijpt.</string>
+    <string name="adv_rates_warning">Deze instellingen veranderen de timing in de hele app. Wijzig ze alleen als je het effect begrijpt.</string>
     <string name="adv_reset_all">Alles terug naar standaard</string>
     <string name="adv_reset_confirm_msg">Deze instellingen keren terug naar hun standaardwaarden:</string>
     <string name="adv_restore_default">Standaard herstellen</string>
@@ -2324,7 +2324,7 @@
     <string name="alarm_summary_adaptive_pitch_vol">toonhoogte en vol</string>
     <string name="alarm_summary_adaptive_vol">vol</string>
     <string name="reorg_drag_cd">Sleep om te ordenen</string>
-    <string name="reorg_hint">Herschik het instellingenscherm en verberg secties die je weinig gebruikt. Verborgen secties gaan naar de sectie ‘Meer’.</string>
+    <string name="reorg_hint">Herschik het instellingenscherm en verberg secties die je weinig gebruikt.</string>
     <string name="studio_cd_close">Studio sluiten</string>
     <string name="studio_cd_gallery">Galerij openen</string>
     <string name="studio_cd_mic">Microfoon</string>
@@ -2374,9 +2374,9 @@
     <string name="geo_section_trip">Rit</string>
     <string name="geo_section_other">Andere schermen</string>
     <string name="geo_section_settings">Instellingen</string>
-    <string name="geo_other_hint">Accumonitor, meetgeschiedenis, scan en Flic. De Overlay Studio wordt niet beïnvloed: de indeling ligt vast, maar werkt prima in elke stand.</string>
-    <string name="geo_settings_hint">Het instellingenscherm. Standaard uit, dus Instellingen blijft staand tenzij je het inschakelt.</string>
-    <string name="geo_trip_hint">De detailweergave draait standaard voor de kaart en grafieken in liggende stand. De ritlijst blijft staand tenzij je het inschakelt.</string>
+    <string name="geo_other_hint">Accumonitor, meetgeschiedenis, scan en Flic.</string>
+    <string name="geo_settings_hint">Het instellingenscherm.</string>
+    <string name="geo_trip_hint">De detailweergave draait standaard voor de kaart en grafieken in liggende stand.</string>
     <string name="setting_allow_rotation">Rotatie toestaan</string>
     <string name="setting_rotate_trip_detail">Ritdetails draaien</string>
     <string name="setting_rotate_trip_list">Ritlijst draaien</string>
@@ -2446,7 +2446,7 @@
     <!-- Speed splits (spoken accel/brake step timing) -->
     <string name="section_accel_splits">Snelheidssplits</string>
     <string name="accel_splits_enabled">Tijden aankondigen</string>
-    <string name="accel_splits_desc">Spreekt de tijd uit om elke snelheidsstap te passeren, bij versnellen of vertragen. Begint bij de snelheid hieronder, in stappen die je instelt.</string>
+    <string name="accel_splits_desc">Spreekt de tijd uit om elke snelheidsstap te passeren, bij versnellen of vertragen.</string>
     <string name="accel_split_decel_prefix">remmen, </string>
     <string name="accel_splits_from">Vanaf</string>
     <string name="accel_splits_step">Stap</string>
@@ -2591,7 +2591,7 @@
     <string name="dropbox_syncing">Ritten synchroniseren…</string>
     <string name="dropbox_folder_desc">Ritten en instellingen worden opgeslagen in je Dropbox, onder %1$s. Alleen deze app kan die map zien.</string>
     <string name="keep_app_alive">App actief houden</string>
-    <string name="keep_app_alive_desc">Toont een permanente melding zodat de app op de achtergrond actief blijft. Ritsynchronisatie en spraak blijven werken, zelfs zonder verbonden wiel. Gebruikt iets meer batterij.</string>
+    <string name="keep_app_alive_desc">Toont een permanente melding zodat de app op de achtergrond actief blijft. Gebruikt iets meer batterij.</string>
     <string name="sync_up_to_date">Al up-to-date</string>
     <string name="studio_source_transparent">Transparant</string>
     <string name="studio_source_video">Video</string>
@@ -2692,7 +2692,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">Rijden?</string>
     <string name="widget_weather_score_desc">Het rijweer, op dit moment.</string>
-    <string name="widget_weather_compact_desc">Hoe goed het weer is om te rijden, nu en de komende uren. Vergroot voor uren, temperatuur en wind.</string>
+    <string name="widget_weather_compact_desc">Hoe goed het weer is om te rijden, nu en de komende uren.</string>
     <string name="widget_weather_graph_desc">Hoe goed het weer is om te rijden, over de voorspelde periode</string>
     <string name="widget_weather_refresh_desc">Voorspelling verversen</string>
     <string name="widget_weather_never">Nog geen voorspelling. Open de app één keer of tik op verversen.</string>
@@ -2829,7 +2829,7 @@
         <item quantity="other">%d stops</item>
     </plurals>
     <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Je statistieken en wielknoppen op een Android Auto-scherm. Verbindt vanzelf, zonder wifi-instelling.</string>
+    <string name="android_auto_hint">Je statistieken en wielknoppen op een Android Auto-scherm.</string>
     <string name="car_waiting">Wachten op het wiel</string>
     <string name="car_last_battery">Laatste accustand %1$d%%</string>
     <string name="car_navigate">Navigeren</string>

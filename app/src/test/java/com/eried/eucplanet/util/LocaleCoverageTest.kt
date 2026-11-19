@@ -165,6 +165,16 @@ class LocaleCoverageTest {
             Locale.setDefault(Locale.forLanguageTag("zh-CN"))
             assertEquals("zh", LocaleHelper.detectSystemLanguage())
 
+            // English: British spelling where it is used, American elsewhere.
+            for (region in listOf("GB", "IE", "AU", "NZ", "ZA", "IN")) {
+                Locale.setDefault(Locale.forLanguageTag("en-$region"))
+                assertEquals("en-$region", "en-GB", LocaleHelper.detectSystemLanguage())
+            }
+            for (region in listOf("US", "CA", "PH")) {
+                Locale.setDefault(Locale.forLanguageTag("en-$region"))
+                assertEquals("en-$region", "en", LocaleHelper.detectSystemLanguage())
+            }
+
             Locale.setDefault(Locale.forLanguageTag("es-MX"))
             assertEquals("es-419", LocaleHelper.detectSystemLanguage())
             Locale.setDefault(Locale.forLanguageTag("es-ES"))
