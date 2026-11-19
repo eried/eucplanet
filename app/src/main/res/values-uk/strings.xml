@@ -2773,7 +2773,7 @@
     <string name="crews_scan_hint">Відкрийте eucstats у браузері, натисніть Crews і наведіть камеру на код, що з\'явиться.</string>
     <string name="crews_scan_invalid">Це не код кланового пропуску.</string>
     <string name="crews_scan_is_share">Це код трансляції місця. Скануйте його через «Поділитися» на карті.</string>
-    <string name="share_scan_is_crewpass">Це пропуск клану. Скануйте його в налаштуваннях, у розділі «Клани».</string>
+    <string name="share_scan_is_crewpass">Це пропуск клану. Скануйте його в налаштуваннях, у розділі «Онлайн-таблиці лідерів».</string>
     <string name="crews_type_instead">Ввести вручну</string>
     <string name="crews_code_label">Код пропуску</string>
     <string name="crews_foreign_title">Цей код не від eucstats</string>

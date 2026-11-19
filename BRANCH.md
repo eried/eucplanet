@@ -9,6 +9,7 @@ ride, this is the branch.
 
 ## Worked on
 
+- Crew pass: scanning one from the Share screen now points you to the right place, Settings, Online leaderboards. It named a Crews section that Settings does not have. In every language.
 - Leaderboard: when the server limits your uploads or does not know your rider, the app stops sending for now instead of trying every waiting ride. Rides stay waiting and go up on a later try.
 - Shorter hints: 18 setting descriptions lose their extra sentence, in every language. Three said something untrue and are fixed: forgetting a Flic keeps its actions, the radar lane draws squares with the distance, and the weather widget fetches on its own.
 - Languages: English (UK) is new, with British spelling (tyre, colour, kilometres). The list now reads English (US), English (UK), Español (ES) and Español (LA), the same names as the trip viewer and the leaderboard.

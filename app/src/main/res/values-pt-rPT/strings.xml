@@ -2655,7 +2655,7 @@
     <string name="crews_scan_hint">Abra o eucstats num navegador, toque em Crews e aponte isto para o código que aparece.</string>
     <string name="crews_scan_invalid">Isso não é um código de passe de equipa.</string>
     <string name="crews_scan_is_share">Isso é um código de localização ao vivo. Leia-o em Partilhar no mapa.</string>
-    <string name="share_scan_is_crewpass">Isso é um passe de equipa. Leia-o nas Definições, em Passe de equipa.</string>
+    <string name="share_scan_is_crewpass">Isso é um passe de equipa. Leia-o nas Definições, em Classificações online.</string>
     <string name="crews_type_instead">Introduzir manualmente</string>
     <string name="crews_code_label">Código do passe</string>
     <string name="crews_foreign_title">Este código não é do eucstats</string>

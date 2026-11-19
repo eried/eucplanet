@@ -2578,7 +2578,7 @@
     <string name="crews_scan_hint">Deschide eucstats în browser, apasă Crews și îndreaptă camera spre codul afișat.</string>
     <string name="crews_scan_invalid">Acesta nu este un cod de acces crew.</string>
     <string name="crews_scan_is_share">Acesta este un cod de locație live. Scanează-l din Partajare, pe hartă.</string>
-    <string name="share_scan_is_crewpass">Acesta este un cod de acces crew. Scanează-l din Setări, la Crews.</string>
+    <string name="share_scan_is_crewpass">Acesta este un cod de acces crew. Scanează-l din Setări, la Clasamente online.</string>
     <string name="crews_type_instead">Introdu manual</string>
     <string name="crews_code_label">Cod de acces</string>
     <string name="crews_foreign_title">Codul nu este de la eucstats</string>
