@@ -68,6 +68,7 @@ window.EUC_I18N_DICT = {
 "a.ride-forecast-over-the-light-theme": "Ritverwachting in het lichte thema, met de live thema-editor open",
 "a.share-your-ride-live-with-a": "Deel je rit live met een groep",
 "a.android": "Android",
+"a.android-only": "Alleen op Android",
 "a.wear-os-speed-dial": "Wear OS-snelheidsmeter",
 "a.wear-os-one-battery": "Wear OS-snelheidsmeter met één accu, in oranje",
 "a.wear-os-telemetry-detail": "Wear OS-telemetriedetails",

@@ -68,6 +68,7 @@ window.EUC_I18N_DICT = {
 "a.ride-forecast-over-the-light-theme": "Prognoza jazdy w jasnym motywie, z otwartym edytorem motywu na żywo",
 "a.share-your-ride-live-with-a": "Udostępnij przejazd na żywo grupie",
 "a.android": "Android",
+"a.android-only": "Tylko na Androida",
 "a.wear-os-speed-dial": "Prędkościomierz na Wear OS",
 "a.wear-os-one-battery": "Prędkościomierz na Wear OS z jedną baterią, w kolorze pomarańczowym",
 "a.wear-os-telemetry-detail": "Szczegóły telemetrii na Wear OS",

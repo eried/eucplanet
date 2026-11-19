@@ -68,6 +68,7 @@ window.EUC_I18N_DICT = {
 "a.ride-forecast-over-the-light-theme": "Køreprognose i det lyse tema, med temaeditoren åben",
 "a.share-your-ride-live-with-a": "Del din tur live med en gruppe",
 "a.android": "Android",
+"a.android-only": "Kun på Android",
 "a.wear-os-speed-dial": "Wear OS-speedometer",
 "a.wear-os-one-battery": "Wear OS-speedometer med ét batteri, i orange",
 "a.wear-os-telemetry-detail": "Wear OS-telemetridetaljer",

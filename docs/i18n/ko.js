@@ -68,6 +68,7 @@ window.EUC_I18N_DICT = {
 "a.ride-forecast-over-the-light-theme": "라이트 테마의 라이딩 예보와 열려 있는 실시간 테마 편집기",
 "a.share-your-ride-live-with-a": "그룹과 라이딩을 실시간으로 공유",
 "a.android": "Android",
+"a.android-only": "Android 전용",
 "a.wear-os-speed-dial": "Wear OS 속도계",
 "a.wear-os-one-battery": "배터리 하나만 보이는 Wear OS 속도계, 주황색",
 "a.wear-os-telemetry-detail": "Wear OS 텔레메트리 상세",

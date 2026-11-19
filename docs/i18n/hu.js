@@ -68,6 +68,7 @@ window.EUC_I18N_DICT = {
 "a.ride-forecast-over-the-light-theme": "Gurulási előrejelzés világos témán, nyitott élő témaszerkesztővel",
 "a.share-your-ride-live-with-a": "Oszd meg a meneted élőben egy csoporttal",
 "a.android": "Android",
+"a.android-only": "Csak Androidon",
 "a.wear-os-speed-dial": "Wear OS sebességmérő",
 "a.wear-os-one-battery": "Wear OS sebességmérő egy akkuval, narancssárgában",
 "a.wear-os-telemetry-detail": "Wear OS telemetria részletei",

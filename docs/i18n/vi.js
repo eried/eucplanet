@@ -68,6 +68,7 @@ window.EUC_I18N_DICT = {
 "a.ride-forecast-over-the-light-theme": "Dự báo chạy xe trên giao diện sáng, đang mở trình chỉnh giao diện trực tiếp",
 "a.share-your-ride-live-with-a": "Chia sẻ trực tiếp chuyến đi với nhóm",
 "a.android": "Android",
+"a.android-only": "Chỉ trên Android",
 "a.wear-os-speed-dial": "Đồng hồ tốc độ Wear OS",
 "a.wear-os-one-battery": "Đồng hồ tốc độ Wear OS với một pin, màu cam",
 "a.wear-os-telemetry-detail": "Chi tiết thông số trên Wear OS",

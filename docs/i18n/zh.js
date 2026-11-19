@@ -68,6 +68,7 @@ window.EUC_I18N_DICT = {
 "a.ride-forecast-over-the-light-theme": "浅色主题下的骑行预报，实时主题编辑器已打开",
 "a.share-your-ride-live-with-a": "组队实时分享你的骑行",
 "a.android": "Android",
+"a.android-only": "仅限 Android",
 "a.wear-os-speed-dial": "Wear OS 速度表",
 "a.wear-os-one-battery": "只显示一块电池的 Wear OS 速度表，橙色",
 "a.wear-os-telemetry-detail": "Wear OS 遥测详情",
