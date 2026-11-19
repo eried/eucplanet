@@ -1441,7 +1441,7 @@
     <string name="trip_tools_combine_failed">Azokat a meneteket nem sikerült egyesíteni</string>
     <string name="widget_customize">Testreszabás</string>
     <string name="widget_how_to_add">Nyomd hosszan a kezdőképernyőt, koppints a Widgetek elemre, majd válaszd az EUC Planetet.</string>
-    <string name="widget_how_to_add_iphone">Tartsd nyomva a Főképernyőt, koppints a Szerkesztés, majd a Widget hozzáadása elemre, és válaszd az EUC Planetet. Az iOS néhány percenként frissíti a widgeteket, nem élőben.</string>
+    <string name="widget_how_to_add_iphone">Tartsd nyomva a Főképernyőt, koppints a Szerkesztés, majd a Widget hozzáadása elemre, és válaszd az EUC Planetet.</string>
     <string name="trip_customize">Testreszabás</string>
     <string name="trip_trim">Nézet vágása</string>
     <string name="trip_trim_title">Menetnézet vágása</string>

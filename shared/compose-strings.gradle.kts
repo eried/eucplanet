@@ -1,5 +1,5 @@
 // Builds the iOS app's Compose string resources from the phone app's
-// strings.xml files, so the 23 locales live in one place and every key and
+// strings.xml files, so every language lives in one place and every key and
 // translation reaches iOS the moment it lands on Android.
 //
 // Android keeps reading its own res/values*/strings.xml through aapt2, as it
@@ -24,10 +24,12 @@ abstract class ComposeStringsTask : DefaultTask() {
         val out = outputDir.get().asFile
         out.deleteRecursively()
         for (file in stringFiles.files.sortedBy { it.path }) {
-            val qualifier = ComposeStrings.qualifier(file.parentFile.name) ?: continue
-            val dir = out.resolve(qualifier)
-            dir.mkdirs()
-            dir.resolve("strings.xml").writeText(ComposeStrings.convert(file))
+            val text by lazy { ComposeStrings.convert(file) }
+            for (qualifier in ComposeStrings.qualifiers(file.parentFile.name)) {
+                val dir = out.resolve(qualifier)
+                dir.mkdirs()
+                dir.resolve("strings.xml").writeText(text)
+            }
         }
     }
 }
@@ -36,14 +38,19 @@ object ComposeStrings {
     /**
      * Compose takes a language and a two-letter region only. Android's
      * `b+es+419` (Latin American Spanish) has no such form, so it is written
-     * under the unassigned code XL; the iOS side picks XL for es-419 and for
-     * every Latin American country (IosStrings.kt).
+     * under the unassigned code XL; the iPhone asks for XL when its applied
+     * language is es-419 (AppLanguages.iosStringsLocale).
+     *
+     * Norwegian and Indonesian are written twice: Android names them "no" and
+     * "in", the iPhone "nb" and "id", and each looks its own name up.
      */
-    fun qualifier(androidDir: String): String? = when {
-        androidDir == "values" -> "values"
-        androidDir == "values-b+es+419" -> "values-es-rXL"
-        Regex("""values-[a-z]{2,3}(-r[A-Z]{2})?""").matches(androidDir) -> androidDir
-        else -> null
+    fun qualifiers(androidDir: String): List<String> = when {
+        androidDir == "values" -> listOf("values")
+        androidDir == "values-b+es+419" -> listOf("values-es-rXL")
+        androidDir == "values-no" -> listOf("values-no", "values-nb")
+        androidDir == "values-in" -> listOf("values-in", "values-id")
+        Regex("""values-[a-z]{2,3}(-r[A-Z]{2})?""").matches(androidDir) -> listOf(androidDir)
+        else -> emptyList()
     }
 
     fun convert(file: java.io.File): String {

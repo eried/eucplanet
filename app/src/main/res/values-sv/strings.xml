@@ -2569,7 +2569,7 @@
     <string name="widget_standalone_slot">Fristående knapp %1$d</string>
         <string name="widget_customize">Anpassa</string>
     <string name="widget_how_to_add">Tryck länge på startskärmen, tryck på Widgetar och välj EUC Planet.</string>
-    <string name="widget_how_to_add_iphone">Håll på hemskärmen, tryck på Redigera, sedan Lägg till widget, och välj EUC Planet. iOS uppdaterar widgetar med några minuters mellanrum, inte live.</string>
+    <string name="widget_how_to_add_iphone">Håll på hemskärmen, tryck på Redigera, sedan Lägg till widget, och välj EUC Planet.</string>
 <string name="trip_customize">Anpassa</string>
     <string name="trip_trim">Trimma vyn</string>
     <string name="trip_trim_title">Trimma turvyn</string>

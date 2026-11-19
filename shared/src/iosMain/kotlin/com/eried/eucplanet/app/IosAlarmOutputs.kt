@@ -23,8 +23,7 @@ internal object IosAlarmOutputs : AlarmOutputs {
         IosTonePlayer.play(r)
     }
 
-    // AVAudioEngine has no route to keep warm the way Android's AudioTrack does.
-    override fun setPreviewKeepAlive(on: Boolean) = Unit
+    override fun setPreviewKeepAlive(on: Boolean) = IosTonePlayer.setPreviewKeepAlive(on)
     override fun startStream(frequencyHz: Int, durationMs: Int, gapMs: Int, volumePct: Int, transitionMs: Int, waveform: Int, effect: Int) =
         IosTonePlayer.startStream(frequencyHz, durationMs, gapMs, volumePct, transitionMs, waveform, effect)
     override fun updateStream(frequencyHz: Int, durationMs: Int, gapMs: Int, volumePct: Int, transitionMs: Int, waveform: Int, effect: Int) =

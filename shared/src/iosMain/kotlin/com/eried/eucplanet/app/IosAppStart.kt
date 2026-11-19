@@ -37,6 +37,8 @@ object IosAppStart {
     }
 
     private fun run(kind: LaunchKind) {
+        // Before any text loads: the strings in the language iOS applied.
+        IosAppLanguage.install()
         Log.i(TAG, "Starting: $kind")
         if (kind == LaunchKind.BLUETOOTH_RELAUNCH) {
             // Mid-ride, no "welcome" when the rider next opens the app.

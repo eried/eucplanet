@@ -18,14 +18,14 @@ import platform.UIKit.UIDevice
 // from the rest of the app. docs/IOS_PARITY.md tracks what is still missing.
 
 /**
- * The audio route is not held warm between sounds on iOS. Android plays a
- * silent track through a ride so the first beep is not clipped by a sleeping
- * Bluetooth output; IosTonePlayer holds the audio session only while tones
- * play and a short while after.
+ * The audio output held awake through a ride, as Android's silent track
+ * does, so the first beep is not clipped by a sleeping Bluetooth output:
+ * IosTonePlayer keeps its engine running until the ride has been quiet for
+ * [quietMs].
  */
-internal object NoRouteKeepAlive : RouteKeepAlive {
-    override fun startRouteKeepAlive(quietMs: Long) = Unit
-    override fun stopRouteKeepAlive() = Unit
+internal object IosRouteKeepAlive : RouteKeepAlive {
+    override fun startRouteKeepAlive(quietMs: Long) = IosTonePlayer.startRouteKeepAlive(quietMs)
+    override fun stopRouteKeepAlive() = IosTonePlayer.stopRouteKeepAlive()
 }
 
 /**

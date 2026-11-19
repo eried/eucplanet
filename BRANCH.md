@@ -6,6 +6,9 @@ only when you can cut the ride short.
 
 ## Worked on
 
+- iPhone: all 31 languages now, like Android. English (UK) is new. Norwegian and Indonesian iPhones showed English; Latin American Spanish showed Spain's; Australian, Irish and other British-spelling regions showed American English; Hong Kong and Macau showed simplified Chinese. All fixed.
+- iPhone: the audio output is kept awake during a ride, as on Android, so the first beep of an alarm is not cut off on a Bluetooth headset. It rests after two minutes with no sound.
+- iPhone: the widget how-to no longer says how often iOS updates widgets.
 - iPhone: Settings no longer comes up blank and frozen now and then on Voice or Wheel parameters while a wheel is connected. The ride Live Activity and the screen were waiting on each other for the same text.
 - Merged the latest next-experimental into the iPhone branch again: English (UK) and the renamed language list, heights in metres or feet as their own unit, first-run units by country, the shorter hints, and uploads that stop when the leaderboard refuses them.
 - Merged the latest next-experimental into the iPhone branch: HUD map pictures served by the phone, the arrival line on the HUD, one phone per HUD, the leaderboard no longer asking about removed rides, Last backup read from the file, the V6 fixes, typed speeds, the new watch layout and alarms on the Android Auto screen.
@@ -118,6 +121,8 @@ only when you can cut the ride short.
 ## Please test
 
 **iPhone** (TestFlight)
+- iPhone set to Norwegian, Indonesian, Spanish (Mexico or Latin America), English (UK, Australia), or Chinese (Hong Kong): is the app in your language, with the right one shown under Settings, Display & appearance, Language?
+- Bluetooth headset or helmet speakers, wheel connected, quiet for a minute, then an alarm: is the first beep whole, or is its start cut off?
 - Connect your wheel, ride with alarms and voice on, record a trip: does it match the Android app?
 - Open the trip: map, tiles and charts right? Link Dropbox and sync: does the trip show up on your Android phone?
 - Leaderboards (Settings, Backups): join, upload a ride, scan a crew pass QR.

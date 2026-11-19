@@ -95,7 +95,7 @@ internal object IosSettingsHost : SettingsHost {
         SettingsRow.PHONE_HUD_WINDOW,
     )
 
-    // Touch and hold, Edit, Add Widget: iOS's own words, and that it is not live.
+    // Touch and hold, Edit, Add Widget: iOS's own words.
     override val widgetHowToAdd get() = Res.string.widget_how_to_add_iphone
 
     @Composable

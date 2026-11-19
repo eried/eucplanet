@@ -11,7 +11,7 @@ class AppLanguagesTest {
     @Test
     fun iosLocalizationsMapToPickerKeys() {
         val ios = listOf(
-            "en", "es-419", "bg", "cs", "da", "de", "el", "es", "fi", "fr", "hu", "id", "it", "ja",
+            "en", "en-GB", "es-419", "bg", "cs", "da", "de", "el", "es", "fi", "fr", "hu", "id", "it", "ja",
             "ko", "nl", "nb", "pl", "pt-BR", "pt-PT", "ro", "ru", "sk", "sv", "th", "tr", "uk", "vi",
             "zh-Hans", "zh-Hant",
         )

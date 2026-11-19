@@ -2434,7 +2434,7 @@
     <string name="widget_standalone_slot">单独按钮 %1$d</string>
         <string name="widget_customize">自定义</string>
     <string name="widget_how_to_add">长按主屏幕，点按“小组件”，然后选择 EUC Planet。</string>
-    <string name="widget_how_to_add_iphone">长按主屏幕，轻点“编辑”，再轻点“添加小组件”，然后选择 EUC Planet。iOS 每隔几分钟刷新一次小组件，并非实时。</string>
+    <string name="widget_how_to_add_iphone">长按主屏幕，轻点“编辑”，再轻点“添加小组件”，然后选择 EUC Planet。</string>
 <string name="trip_customize">自定义</string>
     <string name="trip_trim">裁剪视图</string>
     <string name="trip_trim_title">裁剪行程视图</string>

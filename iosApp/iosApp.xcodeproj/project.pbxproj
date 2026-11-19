@@ -72,6 +72,7 @@
 		ED00000000000000000000E4 /* EucPlanet.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = EucPlanet.entitlements; sourceTree = "<group>"; };
 		ED00000000000000000000E5 /* EucPlanetWidgets.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = EucPlanetWidgets.entitlements; sourceTree = "<group>"; };
 		ED0000000000000000000100 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		ED000000000000000000011E /* en-GB */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "en-GB"; path = "en-GB.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		ED0000000000000000000101 /* es-419 */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "es-419"; path = es-419.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		ED0000000000000000000102 /* bg */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = bg; path = bg.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		ED0000000000000000000103 /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = cs; path = cs.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -233,6 +234,7 @@
 			knownRegions = (
 				en,
 				Base,
+				"en-GB",
 				"es-419",
 				bg,
 				cs,
@@ -402,6 +404,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				ED0000000000000000000100 /* en */,
+				ED000000000000000000011E /* en-GB */,
 				ED0000000000000000000101 /* es-419 */,
 				ED0000000000000000000102 /* bg */,
 				ED0000000000000000000103 /* cs */,

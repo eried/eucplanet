@@ -1480,7 +1480,7 @@
     <string name="trip_tools_combine_failed">Tidak dapat menggabungkan perjalanan tersebut</string>
     <string name="widget_customize">Sesuaikan</string>
     <string name="widget_how_to_add">Tekan lama layar utama, ketuk Widget, lalu pilih EUC Planet.</string>
-    <string name="widget_how_to_add_iphone">Sentuh lama Layar Utama, ketuk Edit, lalu Tambah Widget, dan pilih EUC Planet. iOS memperbarui widget tiap beberapa menit, tidak langsung.</string>
+    <string name="widget_how_to_add_iphone">Sentuh lama Layar Utama, ketuk Edit, lalu Tambah Widget, dan pilih EUC Planet.</string>
     <string name="trip_customize">Sesuaikan</string>
     <string name="trip_trim">Pangkas tampilan</string>
     <string name="trip_trim_title">Pangkas tampilan perjalanan</string>

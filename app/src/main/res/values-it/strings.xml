@@ -2474,7 +2474,7 @@
     <string name="widget_standalone_slot">Pulsante singolo %1$d</string>
         <string name="widget_customize">Personalizza</string>
     <string name="widget_how_to_add">Tieni premuta la schermata Home, tocca Widget e scegli EUC Planet.</string>
-    <string name="widget_how_to_add_iphone">Tieni premuta la schermata Home, tocca Modifica, poi Aggiungi widget, e scegli EUC Planet. iOS aggiorna i widget ogni pochi minuti, non in tempo reale.</string>
+    <string name="widget_how_to_add_iphone">Tieni premuta la schermata Home, tocca Modifica, poi Aggiungi widget, e scegli EUC Planet.</string>
 <string name="trip_customize">Personalizza</string>
     <string name="trip_trim">Restringi la vista</string>
     <string name="trip_trim_title">Restringi vista del viaggio</string>

@@ -2567,7 +2567,7 @@
     <string name="widget_standalone_slot">단독 버튼 %1$d</string>
         <string name="widget_customize">사용자 지정</string>
     <string name="widget_how_to_add">홈 화면을 길게 누르고 위젯을 탭한 뒤 EUC Planet을 고르세요.</string>
-    <string name="widget_how_to_add_iphone">홈 화면을 길게 누르고 편집, 위젯 추가를 차례로 탭한 뒤 EUC Planet을 고르세요. iOS는 위젯을 몇 분마다 새로 고치며 실시간이 아닙니다.</string>
+    <string name="widget_how_to_add_iphone">홈 화면을 길게 누르고 편집, 위젯 추가를 차례로 탭한 뒤 EUC Planet을 고르세요.</string>
 <string name="trip_customize">사용자 지정</string>
     <string name="trip_trim">보기 범위 자르기</string>
     <string name="trip_trim_title">주행 보기 자르기</string>

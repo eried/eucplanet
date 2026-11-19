@@ -104,7 +104,7 @@ ksp {
     arg("room.generateKotlin", "true")
 }
 
-// The 23 locales stay in app/src/main/res; iOS gets them through this.
+// The languages stay in app/src/main/res; iOS gets them through this.
 apply(from = "compose-strings.gradle.kts")
 
 compose.resources {

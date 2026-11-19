@@ -2567,7 +2567,7 @@
     <string name="widget_standalone_slot">單獨按鈕 %1$d</string>
         <string name="widget_customize">自訂</string>
     <string name="widget_how_to_add">長按主畫面，輕觸「小工具」，然後選擇 EUC Planet。</string>
-    <string name="widget_how_to_add_iphone">按住主畫面，點一下「編輯」，再點「加入小工具」，然後選擇 EUC Planet。iOS 每隔幾分鐘更新一次小工具，並非即時。</string>
+    <string name="widget_how_to_add_iphone">按住主畫面，點一下「編輯」，再點「加入小工具」，然後選擇 EUC Planet。</string>
 <string name="trip_customize">自訂</string>
     <string name="trip_trim">裁切檢視</string>
     <string name="trip_trim_title">裁切行程檢視</string>

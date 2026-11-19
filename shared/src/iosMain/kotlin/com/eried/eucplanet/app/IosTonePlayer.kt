@@ -1,7 +1,9 @@
 package com.eried.eucplanet.app
 
 import com.eried.eucplanet.platform.Log
+import com.eried.eucplanet.platform.System
 import com.eried.eucplanet.service.ToneSynth
+import com.eried.eucplanet.service.routeKeepAliveWanted
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.get
 import kotlinx.cinterop.set
@@ -26,10 +28,16 @@ import kotlin.coroutines.resume
  * AVAudioEngine player node. The counterpart of Android's TonePlayer, which
  * writes the same samples to an AudioTrack. As there, a tone plays over the
  * rider's music without lowering or stopping it (Android's tones ask for no
- * audio focus). The audio session is held through [IosAudioSession] only
- * while tones play, and a short while after so a burst of beeps does not
- * stop and start the engine each time; then the engine stops and the hold
- * goes, so the session is let go once nothing else holds it.
+ * audio focus). The audio session is held through [IosAudioSession] while
+ * tones play and a short while after, so a burst of beeps does not stop and
+ * start the engine each time; then the engine stops and the hold goes, so
+ * the session is let go once nothing else holds it.
+ *
+ * As on Android, the output is also kept awake between sounds: through a
+ * ride until two minutes pass with no sound, and while the alarm editor is
+ * open ([routeKeepAliveWanted]). The engine simply stays running, which
+ * plays silence, so the first beep or voice line after a quiet stretch does
+ * not lose its start to a Bluetooth output waking up.
  */
 @OptIn(ExperimentalForeignApi::class)
 internal object IosTonePlayer {
@@ -47,6 +55,46 @@ internal object IosTonePlayer {
     private var held = false
     private var playing = 0
     private var lingerJob: Job? = null
+
+    // The warm route's two owners and the ride's rest, as Android's TonePlayer.
+    private const val WARM_CHECK_MS = 1000L
+    private var warmRide = false
+    private var warmPreview = false
+    private var rideQuietMs = 120_000L
+    private var lastSoundMs = 0L
+    private fun warmWanted() =
+        routeKeepAliveWanted(warmPreview, warmRide, System.currentTimeMillis(), lastSoundMs, rideQuietMs)
+
+    /** A beep, the stream or a voice line is starting: the route is wanted again. */
+    fun noteSound() {
+        val wake = locked {
+            lastSoundMs = System.currentTimeMillis()
+            (warmRide || warmPreview) && !held
+        }
+        if (wake) warm()
+    }
+
+    /** A ride began: hold the output awake until [quietMs] pass with no sound. */
+    fun startRouteKeepAlive(quietMs: Long) {
+        locked { warmRide = true; rideQuietMs = quietMs; lastSoundMs = System.currentTimeMillis() }
+        warm()
+    }
+
+    /** The ride ended. The route stays warm while a preview still wants it. */
+    fun stopRouteKeepAlive() = locked { warmRide = false }
+
+    /** The alarm editor opened or closed: its preview beeps play into a warm route. */
+    fun setPreviewKeepAlive(on: Boolean) {
+        locked { warmPreview = on }
+        if (on) warm()
+    }
+
+    // Starts the engine with nothing to play; scheduleRelease then keeps it
+    // until the route is no longer wanted. Off the caller's thread: starting
+    // the engine can take a moment and the callers are the ride's own loops.
+    private fun warm() {
+        scope.launch { if (ensureStarted()) { Log.i(TAG, "route warm"); scheduleRelease() } }
+    }
 
     init {
         engine.attachNode(node)
@@ -82,6 +130,7 @@ internal object IosTonePlayer {
         lingerJob?.cancel()
         lingerJob = scope.launch {
             delay(LINGER_MS)
+            while (locked { warmWanted() }) delay(WARM_CHECK_MS)
             locked {
                 if (playing > 0 || streamJob?.isActive == true || !held) return@locked
                 // Stop the engine first: letting the session go with it still
@@ -105,7 +154,7 @@ internal object IosTonePlayer {
 
     /** Plays one rendered figure and returns once it has played out. */
     suspend fun play(rendered: ToneSynth.Rendered) {
-        locked { playing++ }
+        locked { playing++; lastSoundMs = System.currentTimeMillis() }
         try {
             if (!ensureStarted()) return
             val buf = toBuffer(rendered.samples, rendered.frames)
@@ -128,6 +177,7 @@ internal object IosTonePlayer {
     fun startStream(freq: Int, dur: Int, gap: Int, vol: Int, trans: Int, wave: Int, effect: Int) {
         updateStream(freq, dur, gap, vol, trans, wave, effect)
         if (streamJob?.isActive == true) return
+        locked { lastSoundMs = System.currentTimeMillis() }
         if (!ensureStarted()) { scheduleRelease(); return }
         streamJob = scope.launch {
             val synth = ToneSynth.Stream()

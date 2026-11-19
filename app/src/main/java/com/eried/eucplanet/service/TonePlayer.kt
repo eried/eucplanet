@@ -380,8 +380,3 @@ class TonePlayer : RouteKeepAlive {
         }
     }
 }
-
-/** A preview always holds the route; a ride holds it until [quietMs] pass with no sound. */
-internal fun routeKeepAliveWanted(
-    preview: Boolean, ride: Boolean, nowMs: Long, lastSoundMs: Long, quietMs: Long,
-): Boolean = preview || (ride && nowMs - lastSoundMs < quietMs)

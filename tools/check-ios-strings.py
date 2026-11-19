@@ -47,7 +47,7 @@ cfgmap={'values':''}
 bad=0;tot=0;missing=0
 for d in sorted(os.listdir(gen)):
     cfg='' if d=='values' else d[7:]
-    if cfg=='es-rXL': cfg='es-r419'
+    cfg={'es-rXL':'es-r419','nb':'no','id':'in'}.get(cfg,cfg)
     root=ET.parse(os.path.join(gen,d,'strings.xml')).getroot()
     for el in root.findall('string'):
         n=el.get('name'); t=cmp_unescape(el.text or '')

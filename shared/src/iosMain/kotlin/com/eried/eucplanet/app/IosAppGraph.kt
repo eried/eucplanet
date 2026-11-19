@@ -239,7 +239,7 @@ object IosAppGraph {
             wheelAdapter = adapter,
             settingsRepository = settings,
             alarmEngine = alarmEngine,
-            tonePlayer = NoRouteKeepAlive,
+            tonePlayer = IosRouteKeepAlive,
             voiceService = voice,
             wheelProfileDao = object : WheelProfiles {
                 // WheelRepository swallows a failed read, so say it here.

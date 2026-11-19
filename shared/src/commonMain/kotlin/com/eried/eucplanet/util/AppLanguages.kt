@@ -93,4 +93,19 @@ object AppLanguages {
             }
         }
     }
+
+    /**
+     * The locale the iPhone's string lookup is handed for [localization], the
+     * name iOS gives the applied language (a CFBundleLocalizations entry).
+     * iOS already folds the rider's language into one of those: es-MX to
+     * es-419, en-AU to en-GB, zh-Hant-HK to zh-Hant. The lookup only knows a
+     * language and a two-letter region, the names shared/compose-strings.gradle.kts
+     * writes the folders under.
+     */
+    fun iosStringsLocale(localization: String): String = when (localization) {
+        "es-419" -> "es-XL"
+        "zh-Hans" -> "zh"
+        "zh-Hant" -> "zh-TW"
+        else -> localization
+    }
 }

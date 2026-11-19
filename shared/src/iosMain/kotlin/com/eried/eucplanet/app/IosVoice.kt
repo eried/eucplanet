@@ -150,6 +150,8 @@ internal class IosVoice(
             }
             pending++
             _isSpeaking.value = true
+            // A voice line is a sound too: the ride's warm route starts its rest over.
+            IosTonePlayer.noteSound()
             speech.speakUtterance(utterance)
             watch()
         }

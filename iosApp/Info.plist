@@ -42,6 +42,7 @@
     <key>CFBundleLocalizations</key>
     <array>
         <string>en</string>
+        <string>en-GB</string>
         <string>es-419</string>
         <string>bg</string>
         <string>cs</string>

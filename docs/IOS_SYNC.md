@@ -80,7 +80,7 @@ The table grows as packages move; keep it current.
 
 ## Strings
 
-The 23 locales stay where they are, in `app/src/main/res/values*/strings.xml`.
+The languages (31) stay where they are, in `app/src/main/res/values*/strings.xml`.
 Translate and add strings there exactly as before.
 
 - Shared code names a string `Res.string.<key>` and shows it with
@@ -95,6 +95,14 @@ Translate and add strings there exactly as before.
   locale with an APK's aapt2 dump (61,158 identical when it was written).
 - `values-b+es+419` becomes `values-es-rXL`, since Compose takes two-letter
   regions only.
+- `values-no` and `values-in` are also written as `values-nb` and
+  `values-id`, the names the iPhone gives Norwegian and Indonesian.
+- A new language needs four things on the iPhone side, and `IosLanguagesTest`
+  fails on a missed one: the entry in `AppLanguages.SUPPORTED`, the entry in
+  `iosApp/Info.plist`'s CFBundleLocalizations, the same name in the Xcode
+  project's knownRegions with its `<name>.lproj/InfoPlist.strings`, and, when
+  iOS's name for it is not a plain language or language-region,
+  a line in `AppLanguages.iosStringsLocale`.
 - The settings search index reads `:shared`'s ui code too, and both
   `R.string` and `Res.string`.
 - Plurals and string arrays work the same way: `Res.plurals.<key>` and

@@ -1442,7 +1442,7 @@
     <string name="trip_tools_combine_failed">Acele curse nu au putut fi combinate</string>
     <string name="widget_customize">Personalizează</string>
     <string name="widget_how_to_add">Apasă lung pe ecranul principal, atinge Widgeturi, apoi alege EUC Planet.</string>
-    <string name="widget_how_to_add_iphone">Ține apăsat pe ecranul principal, atinge Editează, apoi Adaugă widget, și alege EUC Planet. iOS actualizează widgeturile la câteva minute, nu în timp real.</string>
+    <string name="widget_how_to_add_iphone">Ține apăsat pe ecranul principal, atinge Editează, apoi Adaugă widget, și alege EUC Planet.</string>
     <string name="trip_customize">Personalizează</string>
     <string name="trip_trim">Decupează vizualizarea</string>
     <string name="trip_trim_title">Decupează vizualizarea cursei</string>
