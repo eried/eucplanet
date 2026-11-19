@@ -110,4 +110,17 @@ class VoiceCommandMatcherTest {
     fun `an empty vocabulary matches nothing`() {
         assertTrue(VoiceCommandMatcher.match("battery", emptyList()) is VoiceMatch.None)
     }
+
+    /**
+     * "Speed" is both the reading and the spoken report, and speed is not a
+     * tile by default, so nothing broke the tie and the rider was asked
+     * "Did you mean Speed or Speed?". One name is one thing.
+     */
+    @Test fun `a name shared by a reading and a report is the reading`() {
+        val both = listOf(metric("SPEED", "Speed"), SpokenTerm("Speed", Kind.REPORT, "Speed"))
+        val m = VoiceCommandMatcher.match("speed", both)
+        assertEquals("SPEED", (m as VoiceMatch.Hit).term.key)
+        // Asked inside a question too.
+        assertEquals("SPEED", (VoiceCommandMatcher.match("what's my speed", both) as VoiceMatch.Hit).term.key)
+    }
 }

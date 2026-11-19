@@ -9,6 +9,7 @@ ride, this is the branch.
 
 ## Worked on
 
+- Voice commands: "speed" answers with your speed. It asked "Did you mean Speed or Speed?" when speed was not one of your tiles.
 - Leaderboards: the section inside Backups & leaderboards is called Leaderboards in every language too, like the tab. Scanning a crew pass from the Share screen now points to that tab by its own name.
 - Languages: every language of the app was reread so it sounds like a rider wrote it, about 6,200 texts. Settings now says Leaderboards, Music control and Offline maps in every language, and long switch labels wrap instead of pushing the switch off the row.
 - Languages: a phone set to Traditional Chinese without a Taiwan, Hong Kong or Macau region now starts the app in 中文 (繁體) instead of Simplified, as the web sites do.
@@ -94,6 +95,9 @@ ride, this is the branch.
 - Removed: Media speed control (it never worked reliably), the one-time places hint, and the unused in-app eucviewer screen. Inspect online is unchanged.
 
 ## Please test
+
+**Voice commands** (anyone who uses them)
+- Ask "speed" with no Speed tile on the dashboard: does it say your speed?
 
 **Your language** (anyone)
 - Walk through the dashboard, Settings, the trip recorder and the navigator in your language: does anything read odd, wrong or cut off?
