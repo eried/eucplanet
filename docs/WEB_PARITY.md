@@ -8,15 +8,13 @@ agree on for languages and units. Agreed on 2026-11-18. Change it here first, th
 
 Checked on 2026-11-19 against `next-experimental` and the live web sites.
 
-- **The app** has all of it except one string, fixed in pull request 37: `share_scan_is_crewpass`
-  named a Crews section that Settings does not have.
-- **eucstats** has all of it. Its test `tests/test_parity.py` fails when the site drifts from
-  the rules on this page (it reads them from `tests/parity_rules.json` in that repository).
-- **The Trip Viewer** is where the unit rules came from. Its languages and names were not
-  checked for this page.
+- **The app** has all of it. `WebParityTest` holds it there.
+- **eucstats** has all of it. `tests/test_parity.py` holds it there.
+- **The Trip Viewer** has all of it. `node tools/parity_check.js` holds it there.
 
-Nothing checks the three against each other automatically. When a rule changes, change this
-page, then each project.
+All three checks read the same rules file: eucstats `tests/parity_rules.json`, copied to
+`app/src/test/resources/web_parity_rules.json` here and to `tools/parity_rules.json` in the
+viewer. When a rule changes, change this page and that file in all three.
 
 ## Languages
 
