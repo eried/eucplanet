@@ -586,71 +586,81 @@
   .os svg { width: 15px; height: 15px; display: block; }
   .os svg.off { color: var(--muted); opacity: 0.16; }
   .section-head .os { margin-left: 0; }
-  /* A look at the feature, shown above its card while the card is hovered,
-     focused or tapped: the whole phone, in to the part that matters, a slow
-     drift across it, and back out. Each shot is 9:20; the box is 16:10. */
-  .features .card { overflow: visible; }
-  .features .card:hover, .features .card:focus-within, .features .card.open { z-index: 20; }
+  /* Feature shot: on hover, focus or tap the screenshot takes over the card.
+     It pops in already close on the part that matters and sweeps across it;
+     the title stays on top. Cards without a shot stay text only. */
+  .features .card { overflow: hidden; }
   .card .shot {
     position: absolute;
-    left: 0; right: 0;
-    bottom: calc(100% + 10px);
-    aspect-ratio: 16 / 10;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
     overflow: hidden;
-    border-radius: 14px;
-    border: 1px solid rgba(88, 166, 255, 0.4);
-    background: radial-gradient(120% 120% at 50% 0%, #10202f, #05070a);
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
+    background: #05070a;
     opacity: 0;
-    transform: translateY(8px) scale(0.97);
-    transform-origin: 50% 100%;
-    transition: opacity 220ms ease, transform 220ms ease;
+    transition: opacity 180ms ease;
     pointer-events: none;
-    z-index: 30;
   }
-  .card:hover .shot, .card:focus-within .shot, .card.open .shot { opacity: 1; transform: none; }
+  .card .shot::after {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 64px;
+    background: linear-gradient(rgba(5, 7, 10, 0.92), rgba(5, 7, 10, 0));
+  }
+  .card h3 { position: relative; z-index: 2; }
+  .card:hover .shot, .card:focus-within .shot, .card.open .shot { opacity: 1; }
   .card .shot img {
     position: absolute;
-    top: 6%;
-    left: 50%;
-    height: 88%;
-    width: auto;
+    left: -15%;
+    width: 130%;
     max-width: none;
-    margin-left: calc(88% * 10 / 16 * 9 / 20 / -2);
-    aspect-ratio: 9 / 20;
-    border-radius: 6px;
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.14), 0 10px 30px rgba(0, 0, 0, 0.6);
-    --z: 4.04;
+    height: auto;
+    top: 50%;
+    transform: translateY(calc(var(--f1) * -100%));
     will-change: transform;
   }
   .card:hover .shot img, .card:focus-within .shot img, .card.open .shot img {
-    animation: shot-tour 14s cubic-bezier(0.45, 0, 0.2, 1) infinite;
+    animation: shot-in 450ms cubic-bezier(0.2, 0.8, 0.2, 1) both,
+               shot-sweep 3.2s 450ms ease-in-out infinite alternate;
   }
-  @keyframes shot-tour {
-    0%, 6%    { transform: translateY(0) scale(1); }
-    26%       { transform: translateY(calc((0.5 - var(--f1)) * var(--z) * 100%)) scale(var(--z)); }
-    80%       { transform: translateY(calc((0.5 - var(--f2)) * var(--z) * 100%)) scale(var(--z)); }
-    95%, 100% { transform: translateY(0) scale(1); }
+  @keyframes shot-in {
+    from { transform: translateY(calc(var(--f1) * -100%)) scale(1.18); filter: blur(3px); }
+    to   { transform: translateY(calc(var(--f1) * -100%)) scale(1); filter: none; }
   }
-  /* A shot in several languages fades from one to the next while it moves. */
+  @keyframes shot-sweep {
+    from { transform: translateY(calc(var(--f1) * -100%)); }
+    to   { transform: translateY(calc(var(--f2) * -100%)); }
+  }
+  /* A round watch face sits whole in the middle and breathes a little. */
+  .card .shot img.round {
+    left: 50%; width: auto; height: 78%; top: 58%; border-radius: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .card:hover .shot img.round, .card:focus-within .shot img.round, .card.open .shot img.round {
+    animation: shot-round 2.4s ease-in-out infinite alternate;
+  }
+  @keyframes shot-round {
+    from { transform: translate(-50%, -50%) scale(0.96); }
+    to   { transform: translate(-50%, -50%) scale(1.04); }
+  }
+  /* A shot in several languages: one language after the other. */
   .card .shot img.lang { opacity: 0; }
   .card:hover .shot img.lang, .card:focus-within .shot img.lang, .card.open .shot img.lang {
-    animation: shot-tour 14s cubic-bezier(0.45, 0, 0.2, 1) infinite, shot-fade 14s linear infinite;
-    animation-delay: 0s, calc(var(--i) * 3.5s - 0.35s);
+    animation: shot-in 450ms cubic-bezier(0.2, 0.8, 0.2, 1) both,
+               shot-sweep 3.2s 450ms ease-in-out infinite alternate,
+               shot-fade 6.4s linear infinite;
+    animation-delay: 0s, 450ms, calc(var(--i) * 1.6s);
   }
-  .card:hover .shot img.lang:first-child, .card:focus-within .shot img.lang:first-child, .card.open .shot img.lang:first-child { opacity: 1; }
   @keyframes shot-fade {
-    0%        { opacity: 0; }
-    2.5%, 25% { opacity: 1; }
-    27.5%, 100% { opacity: 0; }
+    0%, 22% { opacity: 1; }
+    25%, 97% { opacity: 0; }
+    100% { opacity: 1; }
   }
   @media (prefers-reduced-motion: reduce) {
     .card .shot { transition: none; }
+    .card .shot img, .card .shot img.lang { animation: none !important; }
     .card .shot img.lang:first-child { opacity: 1; }
-    .card:hover .shot img, .card:focus-within .shot img, .card.open .shot img {
-      animation: none;
-      transform: translateY(calc((0.5 - var(--f1)) * var(--z) * 100%)) scale(var(--z));
-    }
   }
   .card p { font-size: 14px; color: #9aa4b2; margin: 0; }
   .card p a, .lead a { color: var(--accent); text-decoration: underline; text-decoration-color: rgba(88, 166, 255, 0.4); }
@@ -962,62 +972,59 @@
     </div>
     <div class="features">
       <div class="card">
-        <div class="shot"><img src="screenshots/f-wheels.webp" alt="A connected wheel on the dashboard" data-i18n-attrs data-i18n-attr-alt="a.fc.wheels" loading="lazy" width="720" height="1600" style="--f1:0.07;--f2:0.24;--i:0"></div>
         <h3><span data-i18n="fc.wheels.title">Works with your wheel</span></h3>
         <p data-i18n-html="fc.wheels.body">InMotion V14 and P6 verified. KingSong, Begode, Veteran (LeaperKim), NOSFET and more InMotion models are rider-tested, the rest of those families and Ninebot in preview. <a href="https://github.com/eried/eucplanet/blob/main/docs/BLE_CAPTURE_GUIDE.md">Help us add yours</a>, or <a href="https://github.com/eried/eucplanet/blob/main/docs/DIAGNOSTICS_GUIDE.md">send a diagnostics recording</a> if it acts up.</p>
       </div>
       <div class="card">
-        <div class="shot"><img src="screenshots/f-modern.webp" alt="Dashboard with speed dial and live tiles" data-i18n-attrs data-i18n-attr-alt="a.fc.modern" loading="lazy" width="720" height="1600" style="--f1:0.28;--f2:0.62;--i:0"></div>
+        <div class="shot"><img src="screenshots/f-modern.webp" alt="Dashboard with speed dial and live tiles" data-i18n-attrs data-i18n-attr-alt="a.fc.modern" loading="lazy" style="--f1:0.28;--f2:0.62;--i:0"></div>
         <h3><span data-i18n="fc.modern.title">Modern &amp; fast</span></h3>
         <p data-i18n-html="fc.modern.body">A pure-black dashboard with almost no lag, built to be read in one glance at speed. Reorder the tiles, theme every color, and it adapts to portrait, bar-mount landscape, tablets and foldable cover screens.</p>
       </div>
       <div class="card">
-        <div class="shot"><img src="screenshots/f-record.webp" alt="Two rides compared on one graph" data-i18n-attrs data-i18n-attr-alt="a.fc.record" loading="lazy" width="720" height="1600" style="--f1:0.3;--f2:0.8;--i:0"></div>
+        <div class="shot"><img src="screenshots/f-record.webp" alt="Two rides compared on one graph" data-i18n-attrs data-i18n-attr-alt="a.fc.record" loading="lazy" style="--f1:0.3;--f2:0.8;--i:0"></div>
         <h3><span data-i18n="fc.record.title">Record and compare</span></h3>
         <p data-i18n-html="fc.record.body">Every ride is recorded with GPS and wheel telemetry, in a CSV format other EUC apps and tools can read. Open any trip for its graphs, or let Compare put two rides side by side.</p>
       </div>
       <div class="card">
-        <div class="shot"><img src="screenshots/f-charging.webp" alt="Charge curve and cell voltages" data-i18n-attrs data-i18n-attr-alt="a.fc.charging" loading="lazy" width="720" height="1600" style="--f1:0.4;--f2:0.84;--i:0"></div>
+        <div class="shot"><img src="screenshots/f-charging.webp" alt="Charge curve and cell voltages" data-i18n-attrs data-i18n-attr-alt="a.fc.charging" loading="lazy" style="--f1:0.4;--f2:0.84;--i:0"></div>
         <h3><span data-i18n="fc.charging.title">Charging, cell by cell</span></h3>
         <p data-i18n-html="fc.charging.body">A live charge curve with a prediction line you can scrub. On wheels with a smart BMS, a per-cell view shows cell voltages, pack imbalance and temperatures, so a weak cell shows up early.</p>
       </div>
       <div class="card">
-        <div class="shot"><img src="screenshots/f-navigation.webp" alt="A multi-stop route on the map" data-i18n-attrs data-i18n-attr-alt="a.fc.navigation" loading="lazy" width="720" height="1600" style="--f1:0.3;--f2:0.86;--i:0"></div>
+        <div class="shot"><img src="screenshots/f-navigation.webp" alt="A multi-stop route on the map" data-i18n-attrs data-i18n-attr-alt="a.fc.navigation" loading="lazy" style="--f1:0.42;--f2:0.62;--i:0"></div>
         <h3><span data-i18n="fc.navigation.title">Navigation, offline too</span></h3>
         <p data-i18n-html="fc.navigation.body">Multi-stop routes with turn-by-turn guidance. Bike routes prefer quiet streets, and a missed turn gets a new route in seconds. Download the areas you ride and the map, routes and turn cues keep working with no signal.</p>
       </div>
       <div class="card">
-        <div class="shot"><img src="screenshots/f-devices.webp" alt="The watch app showing speed and battery" data-i18n-attrs data-i18n-attr-alt="a.fc.devices" loading="lazy" width="720" height="1600" style="--f1:0.22;--f2:0.72;--i:0"></div>
-        <h3><span data-i18n="fc.devices.title">Watch, helmet, car</span> <span class="os" role="img" aria-label="Android" title="Android" data-i18n-attrs data-i18n-attr-aria-label="a.android" data-i18n-attr-title="a.android"><svg class="off"><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
-        <p data-i18n-html="fc.devices.body">Your wheel's numbers off the phone: a Wear OS watch app, a <a href="https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71">Garmin watch or Edge data field</a>, an Amazfit dial, and a <a href="hud/">MotoEye or any Android helmet HUD</a>. Android Auto puts the route on the car screen.</p>
+        <div class="shot"><img class="round" src="screenshots/wear-dash.png" alt="The watch app showing speed and battery" data-i18n-attrs data-i18n-attr-alt="a.fc.devices" loading="lazy" style="--f1:0.5;--f2:0.5;--i:0"></div>
+        <h3><span data-i18n="fc.devices.title">Watch and helmet</span> <span class="os" role="img" aria-label="Android" title="Android" data-i18n-attrs data-i18n-attr-aria-label="a.android" data-i18n-attr-title="a.android"><svg class="off"><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
+        <p data-i18n-html="fc.devices.body">Your wheel's numbers off the phone: a Wear OS watch app, a <a href="https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71">Garmin watch or Edge data field</a>, an Amazfit dial, and a <a href="hud/">MotoEye or any Android helmet HUD</a>, also in Android Auto mode with the route.</p>
       </div>
       <div class="card">
-        <div class="shot"><img class="lang" src="screenshots/f-alarms-en.webp" alt="Alarm rules in four languages" data-i18n-attrs data-i18n-attr-alt="a.fc.alarms" loading="lazy" width="720" height="1600" style="--f1:0.28;--f2:0.66;--i:0"><img class="lang" src="screenshots/f-alarms-es.webp" alt="" loading="lazy" width="720" height="1600" style="--f1:0.28;--f2:0.66;--i:1"><img class="lang" src="screenshots/f-alarms-no.webp" alt="" loading="lazy" width="720" height="1600" style="--f1:0.28;--f2:0.66;--i:2"><img class="lang" src="screenshots/f-alarms-zh.webp" alt="" loading="lazy" width="720" height="1600" style="--f1:0.28;--f2:0.66;--i:3"></div>
+        <div class="shot"><img class="lang" src="screenshots/f-alarms-en.webp" alt="Alarm rules in four languages" data-i18n-attrs data-i18n-attr-alt="a.fc.alarms" loading="lazy" style="--f1:0.28;--f2:0.66;--i:0"><img class="lang" src="screenshots/f-alarms-es.webp" alt="" loading="lazy" style="--f1:0.28;--f2:0.66;--i:1"><img class="lang" src="screenshots/f-alarms-no.webp" alt="" loading="lazy" style="--f1:0.28;--f2:0.66;--i:2"><img class="lang" src="screenshots/f-alarms-zh.webp" alt="" loading="lazy" style="--f1:0.28;--f2:0.66;--i:3"></div>
         <h3><span data-i18n="fc.alarms.title">Alarms &amp; voice</span></h3>
         <p data-i18n-html="fc.alarms.body">Alarms and spoken reports for speed, battery and PWM, the number that says how close the wheel is to its limit, in your language. Ask for battery or speed by voice, or say horn, lights, lock.</p>
       </div>
       <div class="card">
-        <div class="shot"><img src="screenshots/f-studio.webp" alt="Overlay Studio: video with telemetry" data-i18n-attrs data-i18n-attr-alt="a.fc.studio" loading="lazy" width="720" height="1600" style="--f1:0.4;--f2:0.8;--i:0"></div>
+        <div class="shot"><img src="screenshots/f-studio.webp" alt="Overlay Studio: video with telemetry" data-i18n-attrs data-i18n-attr-alt="a.fc.studio" loading="lazy" style="--f1:0.4;--f2:0.8;--i:0"></div>
         <h3><span data-i18n="fc.studio.title">Overlay Studio</span></h3>
         <p data-i18n-html="fc.studio.body">Record video with your telemetry on screen, laid out your way. Export MP4 or a transparent overlay for another camera's footage. The same editor designs your <a href="hud/">MotoEye HUD</a> and the Phone HUD overlay on Android.</p>
       </div>
       <div class="card">
-        <div class="shot"><img src="screenshots/f-sensors.webp" alt="Buttons and sensors in Settings" data-i18n-attrs data-i18n-attr-alt="a.fc.sensors" loading="lazy" width="720" height="1600" style="--f1:0.2;--f2:0.62;--i:0"></div>
         <h3><span data-i18n="fc.sensors.title">Buttons, radar, sensors</span></h3>
         <p data-i18n-html="fc.sensors.body">Flic 2 buttons for horn, lights and lock. A Garmin Varia shows vehicles coming up behind you, with alarms on distance and closing speed. Bluetooth tire pressure caps and a RaceBox GPS feed the dashboard too.</p>
       </div>
       <div class="card">
-        <div class="shot"><img src="screenshots/f-group.webp" alt="Sharing a ride live with a group" data-i18n-attrs data-i18n-attr-alt="a.fc.group" loading="lazy" width="720" height="1600" style="--f1:0.4;--f2:0.62;--i:0"></div>
+        <div class="shot"><img src="screenshots/f-group.webp" alt="Sharing a ride live with a group" data-i18n-attrs data-i18n-attr-alt="a.fc.group" loading="lazy" style="--f1:0.4;--f2:0.58;--i:0"></div>
         <h3><span data-i18n="fc.group.title">Group rides</span></h3>
         <p data-i18n-html="fc.group.body">Share a ride with a link or a QR code and see friends live on the map, with trails. End-to-end encrypted, with a web page for watching without the app. Opt in to the <a href="https://eucstats.ried.no/">EUC Stats leaderboard</a> to see how your distance ranks worldwide.</p>
       </div>
       <div class="card">
-        <div class="shot"><img src="screenshots/f-weather.webp" alt="Ride forecast" data-i18n-attrs data-i18n-attr-alt="a.fc.weather" loading="lazy" width="720" height="1600" style="--f1:0.07;--f2:0.24;--i:0"></div>
+        <div class="shot"><img src="screenshots/f-weather.webp" alt="Ride forecast" data-i18n-attrs data-i18n-attr-alt="a.fc.weather" loading="lazy" style="--f1:0.1;--f2:0.22;--i:0"></div>
         <h3><span data-i18n="fc.weather.title">Riding weather</span></h3>
         <p data-i18n-html="fc.weather.body">A score for how the next hours look for riding, from rain, wind and gusts, cold, heat and night, weighted by how much you mind each one. Drag the curve to read any hour.</p>
       </div>
       <div class="card">
-        <div class="shot"><img src="screenshots/f-private.webp" alt="The Advanced settings panel" data-i18n-attrs data-i18n-attr-alt="a.fc.private" loading="lazy" width="720" height="1600" style="--f1:0.18;--f2:0.75;--i:0"></div>
         <h3><span data-i18n="fc.private.title">Private, and yours to tune</span></h3>
         <p data-i18n-html="fc.private.body">No analytics, no beacons, no in-app call-home. Rides stay on your device, with optional Dropbox backup to your own folder. An Advanced panel exposes the knobs behind every feature, each with a safe range and one-tap restore.</p>
       </div>
