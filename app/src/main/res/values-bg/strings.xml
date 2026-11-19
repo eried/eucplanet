@@ -2735,7 +2735,7 @@
     <string name="crews_scan_hint">Отворете eucstats в браузър, натиснете Crews и насочете това към кода, който се показва.</string>
     <string name="crews_scan_invalid">Това не е код за пропуск за екип.</string>
     <string name="crews_scan_is_share">Това е код за местоположение на живо. Сканирайте го от Сподели на картата.</string>
-    <string name="share_scan_is_crewpass">Това е пропуск за екип. Сканирайте го от Настройки, в Екипи.</string>
+    <string name="share_scan_is_crewpass">Това е пропуск за екип. Сканирайте го от Настройки, в Онлайн класации.</string>
     <string name="crews_type_instead">Въведи ръчно</string>
     <string name="crews_code_label">Код на пропуска</string>
     <string name="crews_foreign_title">Този код не е от eucstats</string>

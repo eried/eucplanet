@@ -2738,7 +2738,7 @@
     <string name="crews_scan_hint">Otvorte eucstats v prehliadači, kliknite na Crews a namierte toto na zobrazený kód.</string>
     <string name="crews_scan_invalid">Toto nie je kód preukazu posádky.</string>
     <string name="crews_scan_is_share">Toto je kód živej polohy. Naskenujte ho cez Zdieľať na mape.</string>
-    <string name="share_scan_is_crewpass">Toto je preukaz posádky. Naskenujte ho v Nastaveniach, v sekcii Posádky.</string>
+    <string name="share_scan_is_crewpass">Toto je preukaz posádky. Naskenujte ho v Nastaveniach, v sekcii Online rebríčky.</string>
     <string name="crews_type_instead">Zadať ručne</string>
     <string name="crews_code_label">Kód preukazu</string>
     <string name="crews_foreign_title">Tento kód nie je z eucstats</string>
