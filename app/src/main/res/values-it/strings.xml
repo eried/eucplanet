@@ -123,7 +123,7 @@
     <string name="tab_auto">Automazioni</string>
     <string name="tab_integration">Integrazioni</string>
     <string name="tab_watch">Orologio</string>
-    <string name="tab_cloud">Backup impostazioni e viaggi</string>
+    <string name="tab_cloud">Backup e classifiche</string>
 
     <!-- HUD companion settings -->
     <string name="section_hud_companion">Motoeye HUD</string>
