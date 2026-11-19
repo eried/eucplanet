@@ -1829,7 +1829,7 @@
     <string name="online_upload_register_error">Registreringen mislyktes. Sjekk nettforbindelsen og prøv igjen.</string>
 
     <!-- Nettstatistikk-bryter og rytterkoret -->
-    <string name="section_online_stats">Ledertavler på nett</string>
+    <string name="section_online_stats">Leaderboards på nett</string>
     <string name="online_upload_card_loading">Laster…</string>
     <string name="online_upload_card_unavailable">Kunne ikke laste</string>
     <string name="online_profile_retry">Prøv igjen</string>
@@ -2657,7 +2657,7 @@
     <string name="crews_scan_hint">Åpne eucstats i en nettleser, trykk Crews, og pek kameraet mot koden som vises.</string>
     <string name="crews_scan_invalid">Det er ikke en crew-pass-kode.</string>
     <string name="crews_scan_is_share">Det er en kode for direkte posisjonsdeling. Skann den fra Del på kartet.</string>
-    <string name="share_scan_is_crewpass">Det er et crew-pass. Skann det fra Innstillinger, under Ledertavler på nett.</string>
+    <string name="share_scan_is_crewpass">Det er et crew-pass. Skann det fra Innstillinger, under %1$s.</string>
     <string name="crews_type_instead">Skriv inn manuelt</string>
     <string name="crews_code_label">Passkode</string>
     <string name="crews_foreign_title">Den koden er ikke fra eucstats</string>

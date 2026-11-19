@@ -1660,7 +1660,7 @@
     <string name="online_upload_register_action">Daftar</string>
     <string name="online_upload_register_error">Pendaftaran gagal. Periksa koneksi Anda dan coba lagi.</string>
     <string name="online_upload_register_server_error">Pendaftaran gagal. Server menjawab: %1$s (%2$d)</string>
-    <string name="section_online_stats">Papan peringkat online</string>
+    <string name="section_online_stats">Leaderboards online</string>
     <string name="online_upload_card_loading">Memuat…</string>
     <string name="online_upload_card_unavailable">Gagal memuat</string>
     <string name="online_profile_retry">Coba lagi</string>
@@ -2566,7 +2566,7 @@
     <string name="crews_scan_hint">Buka eucstats di browser, tekan Crews, lalu arahkan ini ke kode yang ditampilkan.</string>
     <string name="crews_scan_invalid">Itu bukan kode pass kru.</string>
     <string name="crews_scan_is_share">Itu kode lokasi real-time. Pindai dari Bagikan di peta.</string>
-    <string name="share_scan_is_crewpass">Itu pass kru. Pindai dari Setelan, di bagian Papan peringkat online.</string>
+    <string name="share_scan_is_crewpass">Itu pass kru. Pindai dari Setelan, di bagian %1$s.</string>
     <string name="crews_type_instead">Masukkan manual</string>
     <string name="crews_code_label">Kode pass</string>
     <string name="crews_foreign_title">Kode ini bukan dari eucstats</string>

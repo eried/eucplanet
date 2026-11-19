@@ -1623,7 +1623,7 @@
     <string name="online_upload_register_action">Registrovat</string>
     <string name="online_upload_register_error">Registrace selhala. Zkontrolujte připojení a zkuste to znovu.</string>
     <string name="online_upload_register_server_error">Registrace selhala. Server odpověděl: %1$s (%2$d)</string>
-    <string name="section_online_stats">Online žebříčky</string>
+    <string name="section_online_stats">Online Leaderboards</string>
     <string name="online_upload_card_loading">Načítám…</string>
     <string name="online_upload_card_unavailable">Nepodařilo se načíst</string>
     <string name="online_profile_retry">Zkusit znovu</string>
@@ -2578,7 +2578,7 @@
     <string name="crews_scan_hint">Otevřete eucstats v prohlížeči, klepněte na Crews a namiřte telefon na kód, který se objeví.</string>
     <string name="crews_scan_invalid">To není kód průkazu crew.</string>
     <string name="crews_scan_is_share">To je kód sdílení polohy. Načtěte ho přes Sdílet na mapě.</string>
-    <string name="share_scan_is_crewpass">To je průkaz crew. Načtěte ho v Nastavení, v části Online žebříčky.</string>
+    <string name="share_scan_is_crewpass">To je průkaz crew. Načtěte ho v Nastavení, v části %1$s.</string>
     <string name="crews_type_instead">Zadat ručně</string>
     <string name="crews_code_label">Kód průkazu</string>
     <string name="crews_foreign_title">Tento kód není z eucstats</string>

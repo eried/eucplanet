@@ -1310,7 +1310,7 @@
     <string name="online_upload_register_server_error">Registreringen misslyckades. Servern svarade: %1$s (%2$d)</string>
 
     <!-- Online stats toggle + rider card (Task E3) -->
-    <string name="section_online_stats">Online-topplistor</string>
+    <string name="section_online_stats">Online-Leaderboards</string>
     <string name="online_upload_card_loading">Hämtar…</string>
     <string name="online_upload_card_unavailable">Kunde inte ladda</string>
     <string name="online_profile_retry">Försök igen</string>
@@ -2770,7 +2770,7 @@
     <string name="crews_scan_hint">Öppna eucstats i en webbläsare, tryck på Crews, och rikta den här mot koden som visas.</string>
     <string name="crews_scan_invalid">Det där är inget crew-pass.</string>
     <string name="crews_scan_is_share">Det där är en kod för liveposition. Skanna den från Dela på kartan.</string>
-    <string name="share_scan_is_crewpass">Det där är ett crew-pass. Skanna det från Inställningar, under Online-topplistor.</string>
+    <string name="share_scan_is_crewpass">Det där är ett crew-pass. Skanna det från Inställningar, under %1$s.</string>
     <string name="crews_type_instead">Ange manuellt</string>
     <string name="crews_code_label">Passkod</string>
     <string name="crews_foreign_title">Koden är inte från eucstats</string>

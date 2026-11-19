@@ -1316,7 +1316,7 @@
     <string name="online_upload_register_server_error">Не вдалося зареєструватися. Відповідь сервера: %1$s (%2$d)</string>
 
     <!-- Online stats toggle + rider card (Task E3) -->
-    <string name="section_online_stats">Онлайн-таблиці лідерів</string>
+    <string name="section_online_stats">Онлайн Leaderboards</string>
     <string name="online_upload_card_loading">Завантаження…</string>
     <string name="online_upload_card_unavailable">Не вдалося завантажити</string>
     <string name="online_profile_retry">Повторити</string>
@@ -2771,7 +2771,7 @@
     <string name="crews_scan_hint">Відкрийте eucstats у браузері, натисніть Crews і наведіть камеру на код, що з\'явиться.</string>
     <string name="crews_scan_invalid">Це не код пропуску клану.</string>
     <string name="crews_scan_is_share">Це код трансляції місця. Скануйте його через «Поділитися» на карті.</string>
-    <string name="share_scan_is_crewpass">Це пропуск клану. Скануйте його в налаштуваннях, у розділі «Онлайн-таблиці лідерів».</string>
+    <string name="share_scan_is_crewpass">Це пропуск клану. Скануйте його в налаштуваннях, у розділі «%1$s».</string>
     <string name="crews_type_instead">Ввести вручну</string>
     <string name="crews_code_label">Код пропуску</string>
     <string name="crews_foreign_title">Цей код не з eucstats</string>

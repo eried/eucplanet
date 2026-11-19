@@ -1849,7 +1849,7 @@
     <string name="online_upload_register_error">Registrazione non riuscita. Controlla la connessione e riprova.</string>
 
     <!-- Online stats toggle + rider card -->
-    <string name="section_online_stats">Classifiche online</string>
+    <string name="section_online_stats">Leaderboards online</string>
     <string name="online_upload_card_loading">Caricamento…</string>
     <string name="online_upload_card_unavailable">Impossibile caricare</string>
     <string name="online_profile_retry">Riprova</string>
@@ -2676,7 +2676,7 @@
     <string name="crews_scan_hint">Apri eucstats nel browser, tocca Crews e punta questo sul codice che compare.</string>
     <string name="crews_scan_invalid">Questo non è un codice pass squadra.</string>
     <string name="crews_scan_is_share">Questo è un codice di posizione dal vivo. Scansionalo da Condividi sulla mappa.</string>
-    <string name="share_scan_is_crewpass">Questo è un pass squadra. Scansionalo da Impostazioni, sotto Classifiche online.</string>
+    <string name="share_scan_is_crewpass">Questo è un pass squadra. Scansionalo da Impostazioni, sotto %1$s.</string>
     <string name="crews_type_instead">Inserisci a mano</string>
     <string name="crews_code_label">Codice del pass</string>
     <string name="crews_foreign_title">Quel codice non viene da eucstats</string>

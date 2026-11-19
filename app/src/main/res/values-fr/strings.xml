@@ -1315,7 +1315,7 @@
     <string name="online_upload_register_server_error">Échec de l\'inscription. Réponse du serveur : %1$s (%2$d)</string>
 
     <!-- Online stats toggle + rider card (Task E3) -->
-    <string name="section_online_stats">Classements en ligne</string>
+    <string name="section_online_stats">Leaderboards en ligne</string>
     <string name="online_upload_card_loading">Chargement…</string>
     <string name="online_upload_card_unavailable">Chargement impossible</string>
     <string name="online_profile_retry">Réessayer</string>
@@ -2776,7 +2776,7 @@
     <string name="crews_scan_hint">Ouvrez eucstats dans un navigateur, appuyez sur Crews et visez le code affiché.</string>
     <string name="crews_scan_invalid">Ce n\'est pas un code de pass crew.</string>
     <string name="crews_scan_is_share">C\'est un code de position en direct. Scannez-le depuis Partager sur la carte.</string>
-    <string name="share_scan_is_crewpass">C\'est un pass crew. Scannez-le depuis Paramètres, dans Classements en ligne.</string>
+    <string name="share_scan_is_crewpass">C\'est un pass crew. Scannez-le depuis Paramètres, dans %1$s.</string>
     <string name="crews_type_instead">Saisir manuellement</string>
     <string name="crews_code_label">Code du pass</string>
     <string name="crews_foreign_title">Ce code ne vient pas d\'eucstats</string>

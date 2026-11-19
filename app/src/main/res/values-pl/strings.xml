@@ -1314,7 +1314,7 @@
     <string name="online_upload_register_server_error">Rejestracja nie powiodła się. Serwer odpowiedział: %1$s (%2$d)</string>
 
     <!-- Online stats toggle + rider card (Task E3) -->
-    <string name="section_online_stats">Rankingi online</string>
+    <string name="section_online_stats">Leaderboards online</string>
     <string name="online_upload_card_loading">Wczytywanie…</string>
     <string name="online_upload_card_unavailable">Nie udało się wczytać</string>
     <string name="online_profile_retry">Ponów</string>
@@ -2774,7 +2774,7 @@
     <string name="crews_scan_hint">Otwórz eucstats w przeglądarce, wybierz Crews i skieruj aparat na wyświetlony kod.</string>
     <string name="crews_scan_invalid">To nie jest kod przepustki ekipy.</string>
     <string name="crews_scan_is_share">To kod lokalizacji na żywo. Zeskanuj go przez Udostępnij na mapie.</string>
-    <string name="share_scan_is_crewpass">To jest przepustka ekipy. Zeskanuj ją w Ustawieniach, w sekcji Rankingi online.</string>
+    <string name="share_scan_is_crewpass">To jest przepustka ekipy. Zeskanuj ją w Ustawieniach, w sekcji %1$s.</string>
     <string name="crews_type_instead">Wpisz ręcznie</string>
     <string name="crews_code_label">Kod przepustki</string>
     <string name="crews_foreign_title">Ten kod nie jest z eucstats</string>

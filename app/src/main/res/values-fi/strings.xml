@@ -1621,7 +1621,7 @@
     <string name="online_upload_register_action">Rekisteröidy</string>
     <string name="online_upload_register_error">Rekisteröinti epäonnistui. Tarkista yhteytesi ja yritä uudelleen.</string>
     <string name="online_upload_register_server_error">Rekisteröinti epäonnistui. Palvelin vastasi: %1$s (%2$d)</string>
-    <string name="section_online_stats">Verkkotulostaulut</string>
+    <string name="section_online_stats">Leaderboards verkossa</string>
     <string name="online_upload_card_loading">Ladataan…</string>
     <string name="online_upload_card_unavailable">Lataus epäonnistui</string>
     <string name="online_profile_retry">Yritä uudelleen</string>
@@ -2574,7 +2574,7 @@
     <string name="crews_scan_hint">Avaa eucstats selaimessa, paina Crews ja osoita tällä sivun näyttämää koodia.</string>
     <string name="crews_scan_invalid">Tuo ei ole crew-passin koodi.</string>
     <string name="crews_scan_is_share">Tuo on live-sijainnin koodi. Skannaa se kartan Jaa-kohdasta.</string>
-    <string name="share_scan_is_crewpass">Tuo on crew-passi. Skannaa se Asetuksista, kohdasta Verkkotulostaulut.</string>
+    <string name="share_scan_is_crewpass">Tuo on crew-passi. Skannaa se Asetuksista, kohdasta %1$s.</string>
     <string name="crews_type_instead">Syötä käsin</string>
     <string name="crews_code_label">Passin koodi</string>
     <string name="crews_foreign_title">Tuo koodi ei ole eucstatsista</string>
