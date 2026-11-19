@@ -525,7 +525,7 @@
   /* === CARDS === */
   .features {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 14px;
   }
   .card {
@@ -586,17 +586,29 @@
   .os svg { width: 15px; height: 15px; display: block; }
   .os svg.off { color: var(--muted); opacity: 0.16; }
   .section-head .os { margin-left: 0; }
-  /* A slow look at the feature: the whole phone, in to the part that matters,
-     a drift across it, and back out. Each shot is 9:20; the box is 16:10, so
-     a zoom of 3.556 fills the box's width. */
+  /* A look at the feature, shown above its card while the card is hovered,
+     focused or tapped: the whole phone, in to the part that matters, a slow
+     drift across it, and back out. Each shot is 9:20; the box is 16:10. */
+  .features .card { overflow: visible; }
+  .features .card:hover, .features .card:focus-within, .features .card.open { z-index: 20; }
   .card .shot {
-    position: relative;
+    position: absolute;
+    left: 0; right: 0;
+    bottom: calc(100% + 10px);
     aspect-ratio: 16 / 10;
-    margin: -18px -20px 14px;
     overflow: hidden;
-    background: radial-gradient(120% 120% at 50% 0%, rgba(88, 166, 255, 0.10), rgba(0, 0, 0, 0.55));
-    border-bottom: 1px solid var(--border);
+    border-radius: 14px;
+    border: 1px solid rgba(88, 166, 255, 0.4);
+    background: radial-gradient(120% 120% at 50% 0%, #10202f, #05070a);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+    transform-origin: 50% 100%;
+    transition: opacity 220ms ease, transform 220ms ease;
+    pointer-events: none;
+    z-index: 30;
   }
+  .card:hover .shot, .card:focus-within .shot, .card.open .shot { opacity: 1; transform: none; }
   .card .shot img {
     position: absolute;
     top: 6%;
@@ -609,18 +621,23 @@
     border-radius: 6px;
     box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.14), 0 10px 30px rgba(0, 0, 0, 0.6);
     --z: 4.04;
-    transform: translateY(calc((0.5 - var(--f1)) * var(--z) * 100%)) scale(var(--z));
     will-change: transform;
   }
-  .card .shot.play img { animation: shot-tour 16s cubic-bezier(0.45, 0, 0.2, 1) infinite; }
+  .card:hover .shot img, .card:focus-within .shot img, .card.open .shot img {
+    animation: shot-tour 14s cubic-bezier(0.45, 0, 0.2, 1) infinite;
+  }
   @keyframes shot-tour {
-    0%, 7%    { transform: translateY(0) scale(1); }
-    27%       { transform: translateY(calc((0.5 - var(--f1)) * var(--z) * 100%)) scale(var(--z)); }
+    0%, 6%    { transform: translateY(0) scale(1); }
+    26%       { transform: translateY(calc((0.5 - var(--f1)) * var(--z) * 100%)) scale(var(--z)); }
     80%       { transform: translateY(calc((0.5 - var(--f2)) * var(--z) * 100%)) scale(var(--z)); }
     95%, 100% { transform: translateY(0) scale(1); }
   }
   @media (prefers-reduced-motion: reduce) {
-    .card .shot.play img { animation: none; }
+    .card .shot { transition: none; }
+    .card:hover .shot img, .card:focus-within .shot img, .card.open .shot img {
+      animation: none;
+      transform: translateY(calc((0.5 - var(--f1)) * var(--z) * 100%)) scale(var(--z));
+    }
   }
   .card p { font-size: 14px; color: #9aa4b2; margin: 0; }
   .card p a, .lead a { color: var(--accent); text-decoration: underline; text-decoration-color: rgba(88, 166, 255, 0.4); }
@@ -1186,20 +1203,16 @@
     });
   })();
 
-// Feature shots only move while they are on screen.
+// Feature shots: a tap opens one where there is no hover, and a tap
+// anywhere else closes it.
 (function () {
-  var shots = document.querySelectorAll('.card .shot');
-  if (!shots.length) return;
-  if (!('IntersectionObserver' in window)) {
-    shots.forEach(function (s) { s.classList.add('play'); });
-    return;
-  }
-  var io = new IntersectionObserver(function (entries) {
-    entries.forEach(function (e) { e.target.classList.toggle('play', e.isIntersecting); });
-  }, { threshold: 0.25 });
-  shots.forEach(function (s, i) {
-    s.querySelector('img').style.animationDelay = (-(i % 4) * 2.5) + 's';
-    io.observe(s);
+  var cards = document.querySelectorAll('.features .card');
+  if (!cards.length) return;
+  document.addEventListener('click', function (ev) {
+    var card = ev.target.closest ? ev.target.closest('.features .card') : null;
+    var link = ev.target.closest ? ev.target.closest('a') : null;
+    cards.forEach(function (c) { if (c !== card) c.classList.remove('open'); });
+    if (card && !link) card.classList.toggle('open');
   });
 })();
 </script>
