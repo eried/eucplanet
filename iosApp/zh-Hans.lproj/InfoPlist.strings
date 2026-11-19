@@ -6,4 +6,4 @@
 "NSMicrophoneUsageDescription" = "在你要求时，EUC Planet 会聆听你的语音指令。麦克风开启时，EUC Planet 会为叠加工作室的视频录制声音。";
 "NSPhotoLibraryAddUsageDescription" = "EUC Planet 会将叠加工作室的照片、片段和视频保存到你的照片图库。";
 "NSLocalNetworkUsageDescription" = "EUC Planet 在你的 Wi-Fi 上查找 HUD，并向它发送实时骑行数据。";
-"NSSpeechRecognitionUsageDescription" = "EUC Planet 会把你的语音指令转成文字，以便作答。";
+"NSSpeechRecognitionUsageDescription" = "EUC Planet 会把你的语音指令转成文字，以便回应。";

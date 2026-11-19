@@ -6,4 +6,4 @@
 "NSMicrophoneUsageDescription" = "EUC Planet ascultă comenzile tale vocale atunci când îi ceri. EUC Planet înregistrează sunetul videoclipurilor din Overlay Studio cât timp microfonul este pornit.";
 "NSPhotoLibraryAddUsageDescription" = "EUC Planet salvează fotografiile, clipurile și videoclipurile din Overlay Studio în biblioteca foto.";
 "NSLocalNetworkUsageDescription" = "EUC Planet găsește HUD-ul în rețeaua ta Wi-Fi și îi trimite datele cursei în timp real.";
-"NSSpeechRecognitionUsageDescription" = "EUC Planet transformă comenzile tale vocale în text ca să le poată răspunde.";
+"NSSpeechRecognitionUsageDescription" = "EUC Planet transformă comenzile tale vocale în text ca să poată răspunde la ele.";

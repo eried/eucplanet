@@ -334,6 +334,7 @@
     <string name="voice_commands_title">Голосовые команды</string>
     <string name="voice_commands_enable_desc">Управляйте приложением голосом. Удерживайте кнопку Голос на дашборде и выберите Слушать голосовую команду.</string>
     <string name="voice_commands_bind_desc">Назначьте прослушивание на Flic, кнопки громкости, часы или HUD.</string>
+    <string name="voice_commands_bind_desc_iphone">Назначьте прослушивание на Flic или HUD.</string>
     <string name="voice_prompt_cue">Сигнал при прослушивании</string>
     <string name="voice_music_listening">Музыка при прослушивании</string>
     <string name="voice_music_pause">Пауза</string>
@@ -487,7 +488,7 @@
     <string name="hud_server_port">Порт</string>
     <string name="hud_hotspot_unknown_hint">Убедитесь, что HUD и телефон в одной сети Wi-Fi. Если используете точку доступа телефона, сначала включите её.</string>
     <string name="hud_hotspot_on_hint">Точка доступа телефона включена. Подключите HUD к Wi-Fi этого телефона, чтобы включить связь.</string>
-    <string name="hud_setup_hint_iphone">Подключите HUD и iPhone к одной сети Wi-Fi или подключите HUD к режиму модема этого iPhone. Когда iOS спросит, разрешите EUC Planet искать устройства в локальной сети.</string>
+    <string name="hud_setup_hint_iphone">Подключите HUD и iPhone к одной сети Wi-Fi или подключите HUD к этому iPhone через режим модема. Когда iOS спросит, разрешите EUC Planet искать устройства в локальной сети.</string>
     <string name="hud_overlay_subsection">Свой оверлей</string>
     <string name="hud_overlay_subsection_desc">Импортируйте пресет Overlay Studio на экраны «Свой оверлей» в HUD, без фона. Пресет копируется сюда, поэтому дальнейшие правки в студии не изменят HUD, пока вы не импортируете его снова.</string>
     <string name="hud_overlay_select_preset">Импортировать пресет</string>
@@ -656,7 +657,6 @@
     <string name="cloud_backup_replace_body_dated">Копия, сохранённая %1$s, будет перезаписана текущими настройками.</string>
     <string name="cloud_restore_picker_default">(ваша копия)</string>
     <string name="cloud_restore_picker_factory">(заводские)</string>
-    <string name="cloud_restore_picker_empty">В папке нет резервных копий</string>
     <string name="cloud_factory_confirm_title">Сбросить до заводских настроек?</string>
     <string name="cloud_factory_confirm_body_p1">Сбрасывает все настройки приложения к значениям по умолчанию.</string>
     <string name="cloud_factory_confirm_body_p2">Сопряжённые устройства и сохранённые резервные копии останутся. Это действие нельзя отменить.</string>
@@ -2011,13 +2011,13 @@
     <string name="warnings_hud_blocked_body">Разрешение на показ поверх других приложений отозвано, поэтому оверлей не появится поверх карт или музыки.</string>
     <string name="warnings_no_backup_title">Нет резервной копии поездок</string>
     <string name="warnings_no_backup_body">Они хранятся только на этом телефоне. Выберите папку для резервных копий, чтобы поездки не пропали, если телефон потеряется или будет сброшен.</string>
-    <string name="warnings_location_always_title">Местоположение не «Всегда»</string>
-    <string name="warnings_location_always_body">Автозапись не может записать маршрут, пока приложение в фоне. Разрешите местоположение «Всегда».</string>
-    <string name="warnings_bluetooth_denied_title">Bluetooth не разрешён</string>
-    <string name="warnings_bluetooth_denied_body">EUC Planet не подключится к моноколесу, пока ему не разрешён Bluetooth. Нажмите, чтобы разрешить.</string>
+    <string name="warnings_location_always_title">Геолокация не в режиме «Всегда»</string>
+    <string name="warnings_location_always_body">Автозапись поездок не сохранит маршрут, пока приложение в фоне. Разрешите доступ к геолокации «Всегда».</string>
+    <string name="warnings_bluetooth_denied_title">Нет доступа к Bluetooth</string>
+    <string name="warnings_bluetooth_denied_body">EUC Planet не подключится к моноколесу, пока ему не разрешён доступ к Bluetooth. Нажмите, чтобы разрешить.</string>
     <string name="warnings_bluetooth_off_body">EUC Planet не подключится к моноколесу, пока Bluetooth выключен.</string>
     <string name="warnings_perm_notifications_alerts_body">Оповещения о зарядке не дойдут, пока EUC Planet не разрешено отправлять уведомления. Нажмите, чтобы разрешить.</string>
-    <string name="warnings_no_backup_dropbox_body">Они есть только на этом телефоне. Подключите Dropbox, чтобы потерянный или сброшенный телефон не унёс ваши поездки.</string>
+    <string name="warnings_no_backup_dropbox_body">Они хранятся только на этом телефоне. Привяжите Dropbox, чтобы поездки не пропали, если телефон потеряется или будет сброшен.</string>
     <string name="warnings_pip_blocked_title">Картинка в картинке заблокирована</string>
     <string name="warnings_pip_blocked_body">Android запрещает её для EUC Planet, поэтому плавающее окно не появится, когда вы выйдете из приложения.</string>
     <string name="online_rejoin_confirm">Вернуться</string>

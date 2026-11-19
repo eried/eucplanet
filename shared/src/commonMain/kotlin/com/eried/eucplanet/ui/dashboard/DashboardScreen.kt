@@ -340,6 +340,7 @@ fun DashboardScreen(
     // to an action grid slot) can open the same dialog the version-text
     // tap opens.
     var showAboutDialog by remember { mutableStateOf(false) }
+    var showWarningsDialog by remember { mutableStateOf(false) }
     var showDiagnosticsDialog by remember { mutableStateOf(false) }
     var showWeatherMenu by remember { mutableStateOf(false) }
     var showWeatherFlyout by remember { mutableStateOf(false) }
@@ -351,6 +352,8 @@ fun DashboardScreen(
         when (dialogRequest) {
             "about" -> { showAboutDialog = true; DashboardDialogBus.consume() }
             "service" -> { showDiagnosticsDialog = true; DashboardDialogBus.consume() }
+            // The Needs attention list, for scripted runs (EUC_DIALOG=warnings).
+            "warnings" -> { showWarningsDialog = true; DashboardDialogBus.consume() }
             // The Data sources sheet, for scripted runs (the iPhone's EUC_SOURCES).
             "sources" -> { showSourcesSheet = true; DashboardDialogBus.consume() }
             // The panel is dashboard state rather than a dialog, but it
@@ -396,7 +399,6 @@ fun DashboardScreen(
     var showStudioMenu by remember { mutableStateOf(false) }
     var showGpsMenu by remember { mutableStateOf(false) }
     var showRestoreConfirmDialog by remember { mutableStateOf(false) }
-    var showWarningsDialog by remember { mutableStateOf(false) }
     val hasSyncFolder by viewModel.hasSyncFolder.collectAsState()
     // Material3 snackbar host, styled like Overlay Studio / Navigator /
     // Settings (no system icon, swipe-to-dismiss).

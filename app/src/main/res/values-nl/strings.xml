@@ -334,6 +334,7 @@
     <string name="voice_commands_title">Spraakopdrachten</string>
     <string name="voice_commands_enable_desc">Gebruik je stem in de app. Houd de spraakknop op het dashboard ingedrukt en kies Luisteren naar een spraakopdracht.</string>
     <string name="voice_commands_bind_desc">Koppel luisteren aan een Flic, de volumeknoppen, je horloge of de HUD.</string>
+    <string name="voice_commands_bind_desc_iphone">Koppel luisteren aan een Flic of de HUD.</string>
     <string name="voice_prompt_cue">Signaal bij luisteren</string>
     <string name="voice_music_listening">Muziek tijdens luisteren</string>
     <string name="voice_music_pause">Pauzeren</string>
@@ -656,7 +657,6 @@
     <string name="cloud_backup_replace_body_dated">De back-up van %1$s wordt overschreven met je huidige instellingen.</string>
     <string name="cloud_restore_picker_default">(jouw back-up)</string>
     <string name="cloud_restore_picker_factory">(fabrieksinstellingen)</string>
-    <string name="cloud_restore_picker_empty">Geen back-ups in de map</string>
     <string name="cloud_factory_confirm_title">Terugzetten naar fabrieksinstellingen?</string>
     <string name="cloud_factory_confirm_body_p1">Zet alle app-instellingen terug naar de standaardwaarden.</string>
     <string name="cloud_factory_confirm_body_p2">Je gekoppelde apparaten en opgeslagen back-ups blijven behouden. Dit kun je niet ongedaan maken.</string>
@@ -2067,7 +2067,7 @@
     <string name="scan_bluetooth_off_body">Zet Bluetooth aan om naar wielen te zoeken.</string>
     <string name="scan_bluetooth_off_title">Bluetooth is uit</string>
     <string name="scan_enable_bluetooth">Bluetooth aanzetten</string>
-    <string name="bluetooth_turn_on_control_center">Schakel Bluetooth in via het bedieningspaneel</string>
+    <string name="bluetooth_turn_on_control_center">Zet Bluetooth aan in het Bedieningspaneel</string>
     <string name="platform_feature_not_yet">Nog niet op iPhone</string>
     <string name="studio_cfg_radar_distance_labels">Afstandslabels</string>
     <string name="studio_radar_none">Geen radar</string>

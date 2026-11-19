@@ -253,6 +253,9 @@ fun MainViewController(): UIViewController {
                             initialTab = leaderboardTab,
                             viewModel = settingsVm,
                             host = IosSettingsHost,
+                            // SIMCTL_CHILD_EUC_SETTINGS_QUERY="microphone" opens Settings
+                            // searched, to reach a row below the fold on the simulator.
+                            initialQuery = (NSProcessInfo.processInfo.environment["EUC_SETTINGS_QUERY"] as? String).orEmpty(),
                         )
                     }
                     // One branch, so the trip list and the trip viewer share the view

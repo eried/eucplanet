@@ -323,6 +323,7 @@
     <string name="voice_commands_title">Hlasové príkazy</string>
     <string name="voice_commands_enable_desc">Ovládajte aplikáciu hlasom. Podržte tlačidlo Hlas na dashboarde a vyberte Počúvať hlasový príkaz.</string>
     <string name="voice_commands_bind_desc">Priraďte počúvanie k tlačidlu Flic, tlačidlám hlasitosti, hodinkám alebo HUD.</string>
+    <string name="voice_commands_bind_desc_iphone">Priraďte počúvanie k tlačidlu Flic alebo HUD.</string>
     <string name="voice_prompt_cue">Signál pri počúvaní</string>
     <string name="voice_music_listening">Hudba počas počúvania</string>
     <string name="voice_music_pause">Pozastaviť</string>
@@ -840,7 +841,6 @@
     <string name="cloud_backup_replace_body_dated">Záloha uložená %1$s sa prepíše aktuálnymi nastaveniami.</string>
     <string name="cloud_restore_picker_default">(uložené používateľom)</string>
     <string name="cloud_restore_picker_factory">(výrobné)</string>
-    <string name="cloud_restore_picker_empty">V priečinku synchronizácie sa nenašli žiadne zálohy</string>
     <string name="cloud_factory_confirm_title">Obnoviť výrobné nastavenia?</string>
     <string name="cloud_factory_confirm_body_p1">Obnoví všetky nastavenia aplikácie na predvolené.</string>
     <string name="cloud_factory_confirm_body_p2">Spárované zariadenia a uložené zálohy zostanú. Nedá sa to vrátiť späť.</string>
@@ -1055,7 +1055,7 @@
     <string name="welcome_tut_actions">Rýchle ovládanie. Upravíte ho na tom istom mieste, v časti %1$s</string>
     <string name="welcome_tut_map">Otvorte navigátor, ak chcete plánovať trasy, nechať sa navigovať krok za krokom alebo zdieľať polohu naživo pri skupinovej jazde</string>
     <string name="welcome_tut_gps">Klepnutím tu zobrazíte živé dáta, dokonca môžete kalibrovať rýchlosť kolesa podľa rýchlosti GPS. Kalibráciu neskôr skontrolujete v časti Nastavenia → %1$s</string>
-    <string name="welcome_tut_outro_integrations_iphone">Preskúmajte integrácie: HUD na prilbu, tlačidlá Flic a zadný radar. Hodinky na iPhone zatiaľ nie sú</string>
+    <string name="welcome_tut_outro_integrations_iphone">Pozrite si integrácie: HUD na prilbu, tlačidlá Flic a zadný radar. Hodinky na iPhone zatiaľ nie sú</string>
     <string name="welcome_tut_camera">Nahrávajte video so živým prekrytím telemetrie. Vytvorte si vlastné efektné prekrytia a exportujte ich do vlastných videí s dátami z minulých jázd</string>
     <string name="welcome_tut_pd">Zobrazuje Park alebo Jazda. Klepnutím nastavíte %1$s</string>
     <string name="voice_selector_label">Jazyk</string>
@@ -1567,7 +1567,7 @@
     <string name="trip_tools_combine_failed">Tieto jazdy sa nepodarilo spojiť</string>
     <string name="widget_customize">Prispôsobiť</string>
     <string name="widget_how_to_add">Dlho podržte plochu, klepnite na Miniaplikácie a vyberte EUC Planet.</string>
-    <string name="widget_how_to_add_iphone">Podržte plochu, klepnite na Upraviť, potom Pridať widget, a vyberte EUC Planet.</string>
+    <string name="widget_how_to_add_iphone">Dlho podržte plochu, klepnite na Upraviť, potom na Pridať widget a vyberte EUC Planet.</string>
     <string name="trip_customize">Prispôsobiť</string>
     <string name="trip_trim">Orezať zobrazenie</string>
     <string name="trip_trim_title">Orezať zobrazenie jazdy</string>
@@ -2570,11 +2570,11 @@
     <string name="warnings_no_backup_title">Jazdy nie sú zálohované</string>
     <string name="warnings_no_backup_body">Existujú len v tomto telefóne. Vyberte priečinok záloh, aby ste o jazdy neprišli, keď telefón stratíte alebo vymažete.</string>
     <string name="warnings_location_always_title">Poloha nie je nastavená na Vždy</string>
-    <string name="warnings_location_always_body">Automatický záznam nezaznamená trasu, keď je aplikácia na pozadí. Povoľte polohu Vždy.</string>
+    <string name="warnings_location_always_body">Automatické nahrávanie jazdy nezaznamená trasu, keď je aplikácia na pozadí. Nastavte polohu na Vždy.</string>
     <string name="warnings_bluetooth_denied_title">Bluetooth nie je povolený</string>
-    <string name="warnings_bluetooth_denied_body">EUC Planet sa nespojí s kolesom, kým nesmie používať Bluetooth. Ťuknutím povolíte.</string>
-    <string name="warnings_bluetooth_off_body">EUC Planet sa nespojí s kolesom, kým nezapnete Bluetooth.</string>
-    <string name="warnings_perm_notifications_alerts_body">Upozornenia na nabíjanie k vám neprídu, kým EUC Planet nesmie posielať upozornenia. Ťuknutím povolíte.</string>
+    <string name="warnings_bluetooth_denied_body">EUC Planet sa nespojí s vaším kolesom, kým nemá povolený Bluetooth. Klepnutím povolíte.</string>
+    <string name="warnings_bluetooth_off_body">EUC Planet sa nespojí s vaším kolesom, kým nezapnete Bluetooth.</string>
+    <string name="warnings_perm_notifications_alerts_body">Upozornenia nabíjania k vám neprídu, kým EUC Planet nemá povolené posielať upozornenia. Klepnutím povolíte.</string>
     <string name="warnings_no_backup_dropbox_body">Sú len v tomto telefóne. Prepojte Dropbox, aby stratený alebo vymazaný telefón nezobral vaše jazdy so sebou.</string>
     <string name="warnings_pip_blocked_title">Obraz v obraze je zablokovaný</string>
     <string name="warnings_pip_blocked_body">Android ho má pre EUC Planet zakázaný, takže po opustení aplikácie sa plávajúce okno nezobrazí.</string>

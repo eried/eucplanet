@@ -334,6 +334,7 @@
     <string name="voice_commands_title">Commandes vocales</string>
     <string name="voice_commands_enable_desc">Utilisez votre voix avec l\'application. Maintenez le bouton Voix du tableau de bord et choisissez Écouter une commande vocale.</string>
     <string name="voice_commands_bind_desc">Liez l\'écoute à un Flic, aux touches de volume, à votre montre ou au HUD.</string>
+    <string name="voice_commands_bind_desc_iphone">Liez l\'écoute à un Flic ou au HUD.</string>
     <string name="voice_prompt_cue">Signal en écoute</string>
     <string name="voice_music_listening">Musique pendant l\'écoute</string>
     <string name="voice_music_pause">Pause</string>
@@ -487,7 +488,7 @@
     <string name="hud_server_port">Port</string>
     <string name="hud_hotspot_unknown_hint">Vérifiez que le HUD et le téléphone sont sur le même réseau Wi-Fi. Si vous utilisez le partage de connexion du téléphone, activez-le d\'abord.</string>
     <string name="hud_hotspot_on_hint">Le partage de connexion est actif. Connectez le HUD au Wi-Fi de ce téléphone pour activer la liaison.</string>
-    <string name="hud_setup_hint_iphone">Connectez le HUD et l\'iPhone au même Wi-Fi, ou connectez le HUD au partage de connexion de cet iPhone. Quand iOS le demande, autorisez EUC Planet à rechercher des appareils sur le réseau local.</string>
+    <string name="hud_setup_hint_iphone">Connectez le HUD et l\'iPhone au même réseau Wi-Fi, ou connectez le HUD au partage de connexion de cet iPhone. Quand iOS le demande, autorisez EUC Planet à rechercher des appareils sur le réseau local.</string>
     <string name="hud_overlay_subsection">Overlay personnalisé</string>
     <string name="hud_overlay_subsection_desc">Importez un préréglage Overlay Studio sur les écrans Overlay perso du HUD, sans arrière-plan. Le préréglage est copié ici : vos modifications ultérieures dans le studio ne changeront le HUD qu\'après un nouvel import.</string>
     <string name="hud_overlay_select_preset">Importer un préréglage</string>
@@ -656,7 +657,6 @@
     <string name="cloud_backup_replace_body_dated">La sauvegarde enregistrée le %1$s sera remplacée par vos paramètres actuels.</string>
     <string name="cloud_restore_picker_default">(votre sauvegarde)</string>
     <string name="cloud_restore_picker_factory">(paramètres d\'usine)</string>
-    <string name="cloud_restore_picker_empty">Aucune sauvegarde dans le dossier</string>
     <string name="cloud_factory_confirm_title">Rétablir les paramètres d\'usine ?</string>
     <string name="cloud_factory_confirm_body_p1">Remet tous les paramètres de l\'application à leurs valeurs par défaut.</string>
     <string name="cloud_factory_confirm_body_p2">Vos appareils associés et vos sauvegardes sont conservés. Cette action est irréversible.</string>
@@ -1278,7 +1278,7 @@
     <string name="alarm_repeat_help_many_instant">Nouvelle alerte à chaque relevé tant que %1$s.</string>
     <string name="alarm_predict_help_now">Alerte dès que %1$s.</string>
     <string name="alarm_predict_help_lead">Alerte environ %1$s s avant %2$s, d\'après la tendance récente.</string>
-    <string name="about_share_crash">Partager le journal</string>
+    <string name="about_share_crash">Partager le journal de plantage</string>
 
     <!-- About / crash logs -->
     <string name="about_thanks">Remerciements</string>
@@ -1372,13 +1372,13 @@
     <string name="warnings_hud_blocked_body">L\'autorisation d\'afficher par-dessus les autres applications a été retirée : l\'overlay n\'apparaîtra pas sur les cartes ou la musique.</string>
     <string name="warnings_no_backup_title">Les trajets ne sont pas sauvegardés</string>
     <string name="warnings_no_backup_body">Ils n\'existent que sur ce téléphone. Choisissez un dossier de sauvegarde pour garder vos trajets si le téléphone est perdu ou réinitialisé.</string>
-    <string name="warnings_location_always_title">Position pas sur Toujours</string>
-    <string name="warnings_location_always_body">L\'enregistrement auto ne peut pas tracer l\'itinéraire quand l\'app est en arrière-plan. Autorisez la position Toujours.</string>
+    <string name="warnings_location_always_title">Position non réglée sur Toujours</string>
+    <string name="warnings_location_always_body">L\'enregistrement auto ne peut pas enregistrer de tracé quand l\'application est en arrière-plan. Autorisez la position Toujours.</string>
     <string name="warnings_bluetooth_denied_title">Bluetooth non autorisé</string>
-    <string name="warnings_bluetooth_denied_body">EUC Planet ne peut pas joindre votre roue tant qu\'il n\'a pas accès au Bluetooth. Appuyez pour autoriser.</string>
-    <string name="warnings_bluetooth_off_body">EUC Planet ne peut pas joindre votre roue tant que le Bluetooth est désactivé.</string>
+    <string name="warnings_bluetooth_denied_body">EUC Planet ne peut pas se connecter à votre roue tant qu\'il n\'a pas accès au Bluetooth. Appuyez pour autoriser.</string>
+    <string name="warnings_bluetooth_off_body">EUC Planet ne peut pas se connecter à votre roue tant que le Bluetooth est désactivé.</string>
     <string name="warnings_perm_notifications_alerts_body">Les alertes de charge ne vous parviendront pas tant qu\'EUC Planet ne peut pas envoyer de notifications. Appuyez pour autoriser.</string>
-    <string name="warnings_no_backup_dropbox_body">Ils ne sont que sur ce téléphone. Liez Dropbox pour qu\'un téléphone perdu ou effacé n\'emporte pas vos trajets.</string>
+    <string name="warnings_no_backup_dropbox_body">Ils n\'existent que sur ce téléphone. Liez Dropbox pour garder vos trajets si le téléphone est perdu ou réinitialisé.</string>
     <string name="warnings_pip_blocked_title">L\'image dans l\'image est bloquée</string>
     <string name="warnings_pip_blocked_body">Android la refuse à EUC Planet : la fenêtre flottante n\'apparaîtra pas quand vous quittez l\'application.</string>
     <string name="online_rejoin_confirm">Rejoindre</string>
@@ -2572,7 +2572,7 @@
     <string name="widget_standalone_slot">Bouton seul %1$d</string>
         <string name="widget_customize">Personnaliser</string>
     <string name="widget_how_to_add">Faites un appui long sur l\'écran d\'accueil, appuyez sur Widgets, puis choisissez EUC Planet.</string>
-    <string name="widget_how_to_add_iphone">Touchez l\'écran d\'accueil de manière prolongée, touchez Modifier, puis Ajouter un widget, et choisissez EUC Planet.</string>
+    <string name="widget_how_to_add_iphone">Faites un appui long sur l\'écran d\'accueil, appuyez sur Modifier, puis sur Ajouter un widget, et choisissez EUC Planet.</string>
 <string name="trip_customize">Personnaliser</string>
     <string name="trip_trim">Rogner la vue</string>
     <string name="trip_trim_title">Rogner la vue du trajet</string>

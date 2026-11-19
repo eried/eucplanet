@@ -326,9 +326,11 @@ fun SettingsScreen(
     initialTab: Int = 0,
     viewModel: SettingsViewModel,
     host: SettingsHost,
+    /** Text already in the search box when the screen opens; empty for none. */
+    initialQuery: String = "",
 ) {
     androidx.compose.runtime.CompositionLocalProvider(LocalSettingsHost provides host) {
-        SettingsScreenContent(onBack, initialTab, viewModel)
+        SettingsScreenContent(onBack, initialTab, viewModel, initialQuery)
     }
 }
 
@@ -338,6 +340,7 @@ private fun SettingsScreenContent(
     onBack: () -> Unit,
     initialTab: Int,
     viewModel: SettingsViewModel,
+    initialQuery: String,
 ) {
     val settingsState by viewModel.settings.collectAsState()
     val maxSpeedCap by viewModel.maxSpeedCap.collectAsState()
@@ -739,6 +742,7 @@ private fun SettingsScreenContent(
                     // typing settles. Holding it out here meant every letter
                     // recomposed this whole screen, corpora and all.
                     SettingsSearchField(
+                        initialText = initialQuery,
                         onSettled = { settledQuery = it },
                         onSearchAction = { typed ->
                             val result = viewModel.cheatState.tryConsume(typed)
@@ -6545,7 +6549,7 @@ private fun VoiceTab(
                 color = MaterialTheme.appColors.textSecondary,
                 modifier = Modifier.fillMaxWidth(),
             )
-            HintText(stringResource(Res.string.voice_commands_bind_desc))
+            HintText(stringResource(LocalSettingsHost.current.voiceCommandsBindDesc))
 
             // The permission, offered here rather than only discovered by pressing
             // a button and being turned down. Re-read on resume: the rider grants
@@ -8507,10 +8511,11 @@ private fun AnnounceSwitchSetting(
 @OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 private fun SettingsSearchField(
+    initialText: String = "",
     onSettled: (String) -> Unit,
     onSearchAction: (String) -> Boolean,
 ) {
-    var text by rememberSaveable { mutableStateOf("") }
+    var text by rememberSaveable { mutableStateOf(initialText) }
     LaunchedEffect(text) {
         val typed = text.trim()
         kotlinx.coroutines.delay(searchSettleFor(typed.length))

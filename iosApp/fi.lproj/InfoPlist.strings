@@ -1,7 +1,7 @@
 /* The permission prompts. Info.plist holds the English. */
 "NSCameraUsageDescription" = "EUC Planet käyttää kameraa Overlay Studiossa ja eucstatsissa näkyvän crew-passin QR-koodin lukemiseen.";
 "NSBluetoothAlwaysUsageDescription" = "EUC Planet yhdistää yksipyöräiseesi Bluetoothilla ja näyttää ajotiedot reaaliajassa.";
-"NSLocationWhenInUseUsageDescription" = "EUC Planet käyttää sijaintiasi GPS-nopeuteen, matkan tallennukseen ja automaattisiin valoihin.";
+"NSLocationWhenInUseUsageDescription" = "EUC Planet käyttää sijaintiasi GPS-nopeuteen, matkan tallennukseen ja automaattivaloihin.";
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "EUC Planet jatkaa matkan tallennusta, kun näyttö on sammutettu.";
 "NSMicrophoneUsageDescription" = "EUC Planet kuuntelee äänikomentojasi, kun pyydät sitä. EUC Planet tallentaa ääntä Overlay Studion videoihin, kun mikrofoni on päällä.";
 "NSPhotoLibraryAddUsageDescription" = "EUC Planet tallentaa Overlay Studion kuvat, klipit ja videot kuvakirjastoosi.";

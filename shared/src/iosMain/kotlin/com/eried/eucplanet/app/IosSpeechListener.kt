@@ -62,9 +62,6 @@ internal class IosSpeechListener(private val languageTag: String) : VoiceListene
         }
         IosAudioSession.acquireRecording()
         recording = true
-        val req = SFSpeechAudioBufferRecognitionRequest().apply {
-            shouldReportPartialResults = true
-        }
         val eng = AVAudioEngine()
         val input = eng.inputNode
         val format = input.outputFormatForBus(0u)
@@ -73,8 +70,10 @@ internal class IosSpeechListener(private val languageTag: String) : VoiceListene
             fail("no microphone input", micUnavailable = true)
             return
         }
+        // The tap feeds whichever request is current, so a fallback to Apple's
+        // server (below) keeps the microphone open in between.
         input.installTapOnBus(0u, bufferSize = 1024u, format = format) { buffer, _ ->
-            buffer?.let { req.appendAudioPCMBuffer(it) }
+            buffer?.let { request?.appendAudioPCMBuffer(it) }
         }
         eng.prepare()
         if (!eng.startAndReturnError(null)) {
@@ -83,9 +82,22 @@ internal class IosSpeechListener(private val languageTag: String) : VoiceListene
             return
         }
         engine = eng
+        // On the phone when it can, as Settings says and as Android's
+        // recogniser does: nothing leaves the iPhone for a language Apple
+        // recognises on the device.
+        recognise(recognizer, onDevice = recognizer.supportsOnDeviceRecognition)
+        _state.value = ListenState.Listening
+    }
+
+    private fun recognise(recognizer: SFSpeechRecognizer, onDevice: Boolean) {
+        val req = SFSpeechAudioBufferRecognitionRequest().apply {
+            shouldReportPartialResults = true
+            requiresOnDeviceRecognition = onDevice
+        }
         request = req
         task = recognizer.recognitionTaskWithRequest(req) { result, error ->
             dispatch_async(dispatch_get_main_queue()) {
+                if (request !== req) return@dispatch_async
                 when {
                     result != null && result.isFinal() -> {
                         _state.value = ListenState.Final(result.bestTranscription.formattedString)
@@ -98,6 +110,14 @@ internal class IosSpeechListener(private val languageTag: String) : VoiceListene
                             endAfterSilence()
                         }
                     }
+                    error != null && onDevice && _state.value !is ListenState.Partial &&
+                        _state.value !is ListenState.Final && _state.value !is ListenState.Idle -> {
+                        // The phone's own model is missing or would not start
+                        // (it is not installed on every phone, nor on the
+                        // simulator): Apple's server, rather than no answer.
+                        Log.i(TAG, "on-device recognition failed (${error.localizedDescription}); using Apple's server")
+                        recognise(recognizer, onDevice = false)
+                    }
                     error != null && _state.value !is ListenState.Final -> {
                         // Ended with nothing heard, or cancelled by stop().
                         if (_state.value !is ListenState.Idle) {
@@ -107,7 +127,6 @@ internal class IosSpeechListener(private val languageTag: String) : VoiceListene
                 }
             }
         }
-        _state.value = ListenState.Listening
     }
 
     override fun stop() {

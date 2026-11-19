@@ -1,9 +1,9 @@
 /* The permission prompts. Info.plist holds the English. */
-"NSCameraUsageDescription" = "EUC Planet はオーバーレイスタジオと、eucstats に表示されるクルーパスの QR コードの読み取りにカメラを使用します。";
+"NSCameraUsageDescription" = "EUC Planet は Overlay Studio と、eucstats に表示されるクルーパスの QR コードの読み取りにカメラを使用します。";
 "NSBluetoothAlwaysUsageDescription" = "EUC Planet は Bluetooth でホイールに接続し、走行データをリアルタイムで表示します。";
 "NSLocationWhenInUseUsageDescription" = "EUC Planet は位置情報を GPS 速度、トリップ記録、ライトの自動点灯に使用します。";
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "EUC Planet は画面がオフの間もトリップを記録し続けます。";
-"NSMicrophoneUsageDescription" = "EUC Planet は、求められたときに音声コマンドを聞き取ります。EUC Planet はマイクがオンの間、オーバーレイスタジオの動画に音声を録音します。";
-"NSPhotoLibraryAddUsageDescription" = "EUC Planet はオーバーレイスタジオの写真、クリップ、動画を写真ライブラリに保存します。";
+"NSMicrophoneUsageDescription" = "EUC Planet は、指示したときに音声コマンドを聞き取ります。EUC Planet はマイクがオンの間、Overlay Studio の動画に音声を録音します。";
+"NSPhotoLibraryAddUsageDescription" = "EUC Planet は Overlay Studio の写真、クリップ、動画を写真ライブラリに保存します。";
 "NSLocalNetworkUsageDescription" = "EUC Planet は Wi-Fi 上の HUD を見つけ、走行データをリアルタイムで送ります。";
-"NSSpeechRecognitionUsageDescription" = "EUC Planet は音声コマンドに答えるため、それをテキストに変換します。";
+"NSSpeechRecognitionUsageDescription" = "EUC Planet は音声コマンドに応答するため、音声をテキストに変換します。";

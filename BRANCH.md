@@ -6,6 +6,8 @@ only when you can cut the ride short.
 
 ## Worked on
 
+- iPhone: the iPhone's own texts (warnings, the widget and HUD hints, the welcome line, the permission prompts) now use the same words as the reread Android texts, in every language. 185 texts aligned.
+- iPhone: voice commands recognise on the phone when the language allows it, as Settings says, and the Voice settings name only what an iPhone can bind (Flic and the HUD).
 - iPhone: voice commands, the same as Android: ask for speed, battery, the weather or the last trip, switch the lights, start a recording, in the language you pick under Voice. Turn them on in Settings, Voice & announcements.
 - iPhone: the spoken reports use the voice's language, as on Android. A Spanish voice on an English iPhone used to read English words.
 - iPhone: all 31 languages now, like Android. English (UK) is new. Norwegian and Indonesian iPhones showed English; Latin American Spanish showed Spain's; Australian, Irish and other British-spelling regions showed American English; Hong Kong and Macau showed simplified Chinese. All fixed.
@@ -137,6 +139,7 @@ only when you can cut the ride short.
 - Walk through the dashboard, Settings, the trip recorder and the navigator in your language: does anything read odd, wrong or cut off?
 
 **iPhone** (TestFlight)
+- Your language: the warnings on the dashboard, the widget how-to, the HUD setup hint and the permission prompts. Do they use the same words as the rest of the app?
 - Voice commands: turn them on, tap the Voice tile and ask "battery", "speed" or "what can I say". Allow the microphone and speech recognition when asked. Does it answer, in your language?
 - Voice set to another language than the iPhone (Settings, Voice & announcements, Voice): are the spoken reports in the voice's language?
 - iPhone set to Norwegian, Indonesian, Spanish (Mexico or Latin America), English (UK, Australia), or Chinese (Hong Kong): is the app in your language, with the right one shown under Settings, Display & appearance, Language?

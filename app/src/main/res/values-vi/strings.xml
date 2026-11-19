@@ -299,6 +299,7 @@
     <string name="voice_commands_title">Lệnh giọng nói</string>
     <string name="voice_commands_enable_desc">Điều khiển ứng dụng bằng giọng nói. Giữ nút Giọng nói trên dashboard và chọn Nghe lệnh giọng nói.</string>
     <string name="voice_commands_bind_desc">Gán việc nghe lệnh cho nút Flic, phím âm lượng, đồng hồ hoặc HUD.</string>
+    <string name="voice_commands_bind_desc_iphone">Gán việc nghe lệnh cho nút Flic hoặc HUD.</string>
     <string name="voice_prompt_cue">Tín hiệu khi nghe</string>
     <string name="voice_music_listening">Nhạc khi đang nghe</string>
     <string name="voice_music_pause">Tạm dừng</string>
@@ -800,7 +801,6 @@
     <string name="cloud_backup_replace_body_dated">Bản sao lưu tạo lúc %1$s sẽ bị ghi đè bằng cài đặt hiện tại.</string>
     <string name="cloud_restore_picker_default">(bạn lưu)</string>
     <string name="cloud_restore_picker_factory">(gốc)</string>
-    <string name="cloud_restore_picker_empty">Không tìm thấy bản sao lưu trong thư mục đồng bộ</string>
     <string name="cloud_factory_confirm_title">Đặt lại về mặc định gốc?</string>
     <string name="cloud_factory_confirm_body_p1">Đặt lại mọi cài đặt ứng dụng về mặc định.</string>
     <string name="cloud_factory_confirm_body_p2">Thiết bị đã ghép nối và các bản sao lưu được giữ lại. Không thể hoàn tác.</string>
@@ -2406,12 +2406,12 @@
     <string name="warnings_no_backup_title">Chuyến đi chưa được sao lưu</string>
     <string name="warnings_no_backup_body">Hiện chỉ nằm trên điện thoại này. Hãy chọn thư mục sao lưu để lỡ mất máy hay xóa sạch máy thì chuyến đi vẫn còn.</string>
     <string name="warnings_location_always_title">Vị trí chưa đặt Luôn luôn</string>
-    <string name="warnings_location_always_body">Tự động ghi không thể lưu lộ trình khi ứng dụng chạy nền. Hãy cho phép vị trí Luôn luôn.</string>
-    <string name="warnings_bluetooth_denied_title">Bluetooth không được phép</string>
+    <string name="warnings_location_always_body">Tự ghi không thể lưu lộ trình khi ứng dụng chạy nền. Hãy cho phép vị trí Luôn luôn.</string>
+    <string name="warnings_bluetooth_denied_title">Chưa cho phép Bluetooth</string>
     <string name="warnings_bluetooth_denied_body">EUC Planet không kết nối được với xe cho đến khi được phép dùng Bluetooth. Chạm để cho phép.</string>
     <string name="warnings_bluetooth_off_body">EUC Planet không kết nối được với xe cho đến khi bật Bluetooth.</string>
     <string name="warnings_perm_notifications_alerts_body">Cảnh báo sạc sẽ không đến được với bạn cho đến khi EUC Planet được phép gửi thông báo. Chạm để cho phép.</string>
-    <string name="warnings_no_backup_dropbox_body">Chúng chỉ có trên điện thoại này. Liên kết Dropbox để điện thoại bị mất hoặc bị xóa không mang theo các chuyến đi của bạn.</string>
+    <string name="warnings_no_backup_dropbox_body">Hiện chỉ nằm trên điện thoại này. Hãy liên kết Dropbox để lỡ mất máy hay xóa sạch máy thì chuyến đi vẫn còn.</string>
     <string name="warnings_pip_blocked_title">Hình trong hình bị chặn</string>
     <string name="warnings_pip_blocked_body">Android đang từ chối tính năng này cho EUC Planet, nên cửa sổ nổi sẽ không hiện khi bạn rời ứng dụng.</string>
     <string name="online_rejoin_confirm">Tham gia lại</string>

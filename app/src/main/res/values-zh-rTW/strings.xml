@@ -334,6 +334,7 @@
     <string name="voice_commands_title">語音指令</string>
     <string name="voice_commands_enable_desc">用語音操作應用程式。長按儀表板上的「語音」按鈕，選擇「聆聽語音指令」。</string>
     <string name="voice_commands_bind_desc">可將聆聽功能指派給 Flic、音量鍵、手錶或 HUD。</string>
+    <string name="voice_commands_bind_desc_iphone">可將聆聽功能指派給 Flic 或 HUD。</string>
     <string name="voice_prompt_cue">聆聽時的提示</string>
     <string name="voice_music_listening">聆聽時的音樂</string>
     <string name="voice_music_pause">暫停</string>
@@ -656,7 +657,6 @@
     <string name="cloud_backup_replace_body_dated">%1$s 儲存的備份會被目前的設定覆寫。</string>
     <string name="cloud_restore_picker_default">（你儲存的）</string>
     <string name="cloud_restore_picker_factory">（原廠）</string>
-    <string name="cloud_restore_picker_empty">同步資料夾中找不到備份</string>
     <string name="cloud_factory_confirm_title">要重設為原廠預設值嗎？</string>
     <string name="cloud_factory_confirm_body_p1">將所有應用程式設定重設為預設值。</string>
     <string name="cloud_factory_confirm_body_p2">已配對的裝置和已儲存的備份將保留。此操作無法復原。</string>
@@ -792,7 +792,7 @@
     <string name="welcome_tut_outro_alarms">到設定 → %1$s 試試功能強大的自訂警報編輯器</string>
     <string name="welcome_tut_outro_integrations">也看看各種整合功能：安全帽 HUD、Wear OS 手錶、Flic 按鈕、Garmin Connect IQ 和後視雷達</string>
     <string name="welcome_tut_share">在設定 → %1$s 中備份你的行程。可以在 %2$s 中查看，或到 eucviewer.ried.no 分析備份。\n\n在同一個區段還可以加入 eucstats.ried.no 的公開排行榜</string>
-    <string name="welcome_tut_outro_integrations_iphone">探索各項整合：安全帽 HUD、Flic 按鈕和後視雷達。手錶 iPhone 版尚未支援</string>
+    <string name="welcome_tut_outro_integrations_iphone">也看看各種整合功能：安全帽 HUD、Flic 按鈕和後視雷達。iPhone 版尚未支援手錶</string>
     <string name="welcome_tut_outro_end">騎乘時請專心看路，別盯著這個應用程式！</string>
     <string name="welcome_tut_speed">你的即時速度。可在設定 → %1$s 中變更單位</string>
     <string name="welcome_tut_metrics">即時電池、溫度、電壓等資訊。在設定 → %1$s 中重新排列</string>
@@ -2007,11 +2007,11 @@
     <string name="warnings_no_backup_body">行程只存在這支手機上。請選擇備份資料夾，手機遺失或被清除時，行程才不會跟著不見。</string>
     <string name="warnings_location_always_title">位置權限未設為「永遠」</string>
     <string name="warnings_location_always_body">應用程式在背景時，自動記錄無法記錄路線。請將位置權限設為「永遠」。</string>
-    <string name="warnings_bluetooth_denied_title">未允許使用藍牙</string>
-    <string name="warnings_bluetooth_denied_body">在取得藍牙權限之前，EUC Planet 無法連線到你的獨輪車。點一下以允許。</string>
+    <string name="warnings_bluetooth_denied_title">未允許藍牙</string>
+    <string name="warnings_bluetooth_denied_body">在取得藍牙權限之前，EUC Planet 無法連線到你的獨輪車。輕觸即可允許。</string>
     <string name="warnings_bluetooth_off_body">藍牙開啟之前，EUC Planet 無法連線到你的獨輪車。</string>
-    <string name="warnings_perm_notifications_alerts_body">在 EUC Planet 獲准傳送通知之前，充電提醒無法送達。點一下以允許。</string>
-    <string name="warnings_no_backup_dropbox_body">它們只存在於這支手機上。連結 Dropbox，手機遺失或被清除時行程才不會一起消失。</string>
+    <string name="warnings_perm_notifications_alerts_body">在 EUC Planet 獲准傳送通知之前，充電提醒無法送達。輕觸即可允許。</string>
+    <string name="warnings_no_backup_dropbox_body">行程只存在這支手機上。請連結 Dropbox，手機遺失或被清除時，行程才不會跟著不見。</string>
     <string name="warnings_pip_blocked_title">子母畫面已被封鎖</string>
     <string name="warnings_pip_blocked_body">Android 設定為拒絕 EUC Planet 使用子母畫面，因此離開應用程式時不會出現浮動視窗。</string>
     <string name="online_rejoin_confirm">重新加入</string>

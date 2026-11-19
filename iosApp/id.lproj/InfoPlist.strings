@@ -1,9 +1,9 @@
 /* The permission prompts. Info.plist holds the English. */
-"NSCameraUsageDescription" = "EUC Planet memakai kamera untuk Studio overlay dan untuk membaca kode QR pass kru yang ditampilkan di eucstats.";
-"NSBluetoothAlwaysUsageDescription" = "EUC Planet terhubung ke EUC Anda lewat Bluetooth untuk menampilkan data perjalanan langsung.";
+"NSCameraUsageDescription" = "EUC Planet memakai kamera untuk Overlay Studio dan untuk membaca kode QR pass kru yang ditampilkan di eucstats.";
+"NSBluetoothAlwaysUsageDescription" = "EUC Planet terhubung ke EUC Anda lewat Bluetooth untuk menampilkan data berkendara real-time.";
 "NSLocationWhenInUseUsageDescription" = "EUC Planet menggunakan lokasi Anda untuk kecepatan GPS, perekaman perjalanan, dan lampu otomatis.";
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "EUC Planet tetap merekam perjalanan Anda saat layar mati.";
-"NSMicrophoneUsageDescription" = "EUC Planet mendengarkan perintah suara Anda saat Anda memintanya. EUC Planet merekam suara bersama video Studio overlay selama mikrofon menyala.";
-"NSPhotoLibraryAddUsageDescription" = "EUC Planet menyimpan foto, klip, dan video Studio overlay ke perpustakaan foto Anda.";
-"NSLocalNetworkUsageDescription" = "EUC Planet mencari HUD di Wi-Fi Anda dan mengirimkan data perjalanan langsung ke sana.";
+"NSMicrophoneUsageDescription" = "EUC Planet mendengarkan perintah suara Anda saat Anda memintanya. EUC Planet merekam suara bersama video Overlay Studio selama mikrofon menyala.";
+"NSPhotoLibraryAddUsageDescription" = "EUC Planet menyimpan foto, klip, dan video Overlay Studio ke perpustakaan foto Anda.";
+"NSLocalNetworkUsageDescription" = "EUC Planet mencari HUD di Wi-Fi Anda dan mengirimkan data berkendara real-time ke sana.";
 "NSSpeechRecognitionUsageDescription" = "EUC Planet mengubah perintah suara Anda menjadi teks untuk menjawabnya.";

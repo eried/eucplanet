@@ -1,9 +1,9 @@
 /* The permission prompts. Info.plist holds the English. */
-"NSCameraUsageDescription" = "O EUC Planet usa a câmara no Estúdio de overlay e para ler o código QR do passe de equipa mostrado no eucstats.";
-"NSBluetoothAlwaysUsageDescription" = "O EUC Planet liga-se à sua roda por Bluetooth para mostrar os dados da viagem em direto.";
+"NSCameraUsageDescription" = "O EUC Planet usa a câmara no Overlay Studio e para ler o código QR do passe de equipa mostrado no eucstats.";
+"NSBluetoothAlwaysUsageDescription" = "O EUC Planet liga-se à sua roda por Bluetooth para mostrar os dados da volta em tempo real.";
 "NSLocationWhenInUseUsageDescription" = "O EUC Planet usa a sua localização para a velocidade GPS, a gravação de percursos e as luzes automáticas.";
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "O EUC Planet continua a gravar o percurso com o ecrã desligado.";
-"NSMicrophoneUsageDescription" = "O EUC Planet ouve os seus comandos de voz quando lhe pede. O EUC Planet grava o som dos vídeos do Estúdio de overlay enquanto o microfone está ligado.";
-"NSPhotoLibraryAddUsageDescription" = "O EUC Planet guarda as fotografias, clipes e vídeos do Estúdio de overlay na sua fototeca.";
-"NSLocalNetworkUsageDescription" = "O EUC Planet encontra o HUD no seu Wi-Fi e envia-lhe os dados da viagem em direto.";
+"NSMicrophoneUsageDescription" = "O EUC Planet ouve os seus comandos de voz quando lhe pede. O EUC Planet grava o som dos vídeos do Overlay Studio enquanto o microfone está ligado.";
+"NSPhotoLibraryAddUsageDescription" = "O EUC Planet guarda as fotografias, clipes e vídeos do Overlay Studio na sua fototeca.";
+"NSLocalNetworkUsageDescription" = "O EUC Planet encontra o HUD no seu Wi-Fi e envia-lhe os dados da volta em tempo real.";
 "NSSpeechRecognitionUsageDescription" = "O EUC Planet converte os seus comandos de voz em texto para lhes responder.";

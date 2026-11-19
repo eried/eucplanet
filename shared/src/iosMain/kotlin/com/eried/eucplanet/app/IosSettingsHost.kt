@@ -18,6 +18,7 @@ import com.eried.eucplanet.resources.Res
 import com.eried.eucplanet.resources.hud_setup_hint_iphone
 import com.eried.eucplanet.resources.section_radar
 import com.eried.eucplanet.resources.section_tpms
+import com.eried.eucplanet.resources.voice_commands_bind_desc_iphone
 import com.eried.eucplanet.resources.widget_how_to_add_iphone
 import com.eried.eucplanet.ui.settings.AlarmViewModel
 import com.eried.eucplanet.ui.settings.FlicViewModel
@@ -99,6 +100,9 @@ internal object IosSettingsHost : SettingsHost {
 
     // Touch and hold, Edit, Add Widget: iOS's own words.
     override val widgetHowToAdd get() = Res.string.widget_how_to_add_iphone
+
+    // Flic and the HUD: an iPhone app gets no volume keys, and no watch has an iPhone side yet.
+    override val voiceCommandsBindDesc get() = Res.string.voice_commands_bind_desc_iphone
 
     @Composable
     override fun rememberFolderPicker(onPicked: (String) -> Unit): () -> Unit = {}

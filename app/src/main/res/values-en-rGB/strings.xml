@@ -339,6 +339,7 @@
     <string name="voice_commands_title">Voice commands</string>
     <string name="voice_commands_enable_desc">Use your voice with the app. Hold the Voice button on the dashboard and pick Listen for a voice command.</string>
     <string name="voice_commands_bind_desc">Bind listening to a Flic, the volume keys, your watch or the HUD.</string>
+    <string name="voice_commands_bind_desc_iphone">Bind listening to a Flic or the HUD.</string>
     <string name="voice_prompt_cue">Cue when listening</string>
     <string name="voice_music_listening">Music while listening</string>
     <string name="voice_music_pause">Pause</string>
@@ -872,7 +873,6 @@
     <string name="cloud_backup_replace_body_dated">The backup saved on %1$s will be overwritten with your current settings.</string>
     <string name="cloud_restore_picker_default">(user saved)</string>
     <string name="cloud_restore_picker_factory">(factory)</string>
-    <string name="cloud_restore_picker_empty">No backups found in the sync folder</string>
     <string name="cloud_factory_confirm_title">Reset to factory defaults?</string>
     <string name="cloud_factory_confirm_body_p1">Resets all app settings to their defaults.</string>
     <string name="cloud_factory_confirm_body_p2">Your paired devices and saved backups are kept. This can\'t be undone.</string>

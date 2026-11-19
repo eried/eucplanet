@@ -106,7 +106,7 @@
     <string name="hud_server_port">Port</string>
     <string name="hud_hotspot_unknown_hint">Sørg for at HUD-en og telefonen er på samme Wi-Fi-nettverk. Bruker du telefonens Wi-Fi-sone, må du slå den på først.</string>
     <string name="hud_hotspot_on_hint">Telefonens Wi-Fi-sone er på. Koble HUD-en til denne telefonens Wi-Fi for å aktivere koblingen.</string>
-    <string name="hud_setup_hint_iphone">Koble HUD-en og iPhonen til samme Wi-Fi, eller koble HUD-en til denne iPhonens delte internett. Når iOS spør, la EUC Planet finne enheter på det lokale nettverket.</string>
+    <string name="hud_setup_hint_iphone">Koble HUD-en og iPhonen til samme Wi-Fi, eller koble HUD-en til Delt Internett på denne iPhonen. Når iOS spør, la EUC Planet finne enheter på det lokale nettverket.</string>
     <string name="hud_custom_overlay_none">Ingen</string>
 
     <!-- Settings: Backup -->
@@ -163,7 +163,6 @@
     <string name="cloud_factory_confirm_body_p1">Tilbakestiller alle appinnstillinger til fabrikkstandard.</string>
     <string name="cloud_factory_confirm_body_p2">De parede enhetene og lagrede sikkerhetskopiene dine beholdes. Dette kan ikke angres.</string>
     <string name="cloud_factory_confirm_action">Tilbakestill</string>
-    <string name="cloud_restore_picker_empty">Ingen sikkerhetskopier i mappen</string>
 
     <string name="section_recording">Opptak</string>
     <string name="section_connection">Tilkobling</string>
@@ -1363,6 +1362,7 @@
     <string name="voice_commands_title">Talekommandoer</string>
     <string name="voice_commands_enable_desc">Bruk stemmen din i appen. Hold inne stemmeknappen på dashbordet og velg Lytt etter en talekommando.</string>
     <string name="voice_commands_bind_desc">Knytt lytting til en Flic, volumknappene, klokken din eller HUD-en.</string>
+    <string name="voice_commands_bind_desc_iphone">Knytt lytting til en Flic eller HUD-en.</string>
     <string name="voice_prompt_cue">Signal ved lytting</string>
     <string name="voice_music_listening">Musikk under lytting</string>
     <string name="voice_music_pause">Pause</string>
@@ -1668,7 +1668,7 @@
     <string name="welcome_tut_pd">Viser Park eller Kjør. Trykk for å stille inn %1$s</string>
     <string name="welcome_tut_outro_alarms">Utforsk den kraftige editoren for egendefinerte alarmer under Innstillinger → %1$s</string>
     <string name="welcome_tut_outro_integrations">Utforsk integrasjonene: hjelm-HUD-er, Wear OS-klokker, Flic-knapper, Garmin Connect IQ og bakradaren</string>
-    <string name="welcome_tut_outro_integrations_iphone">Utforsk integrasjonene: hjelm-HUD-er, Flic-knapper og bakradaren. Klokker er ikke på iPhone ennå</string>
+    <string name="welcome_tut_outro_integrations_iphone">Utforsk integrasjonene: hjelm-HUD-er, Flic-knapper og bakradaren. Klokker finnes ikke på iPhone ennå</string>
     <string name="welcome_tut_share">Sikkerhetskopier turene dine i Innstillinger → %1$s. Se dem i %2$s, eller analyser sikkerhetskopiene på eucviewer.ried.no.\n\nI samme seksjon kan du bli med på de offentlige ledertavlene på eucstats.ried.no</string>
     <string name="welcome_tut_outro_end">Hold blikket på veien og vekk fra denne appen mens du kjører!</string>
 
@@ -1882,7 +1882,7 @@
     <string name="warnings_no_backup_title">Turer sikkerhetskopieres ikke</string>
     <string name="warnings_no_backup_body">De finnes bare på denne telefonen. Velg en sikkerhetskopimappe, så en mistet eller nullstilt telefon ikke tar turene dine med seg.</string>
     <string name="warnings_location_always_title">Posisjon er ikke satt til Alltid</string>
-    <string name="warnings_location_always_body">Automatisk opptak kan ikke logge ruten mens appen er i bakgrunnen. Tillat posisjon Alltid.</string>
+    <string name="warnings_location_always_body">Automatisk turopptak kan ikke logge ruten mens appen er i bakgrunnen. Sett posisjon til Alltid.</string>
     <string name="warnings_bluetooth_denied_title">Bluetooth er ikke tillatt</string>
     <string name="warnings_bluetooth_denied_body">EUC Planet når ikke hjulet ditt før appen får bruke Bluetooth. Trykk for å tillate.</string>
     <string name="warnings_bluetooth_off_body">EUC Planet når ikke hjulet ditt før Bluetooth er slått på.</string>
@@ -2454,7 +2454,7 @@
     <string name="widget_standalone_slot">Enkeltknapp %1$d</string>
         <string name="widget_customize">Tilpass</string>
     <string name="widget_how_to_add">Trykk lenge på startskjermen, trykk Moduler, og velg EUC Planet.</string>
-    <string name="widget_how_to_add_iphone">Trykk og hold på Hjem-skjermen, trykk Rediger, så Legg til widget, og velg EUC Planet.</string>
+    <string name="widget_how_to_add_iphone">Trykk og hold på Hjem-skjermen, trykk Rediger, så Legg til widget og velg EUC Planet.</string>
 <string name="trip_customize">Tilpass</string>
     <string name="trip_trim">Beskjær visningen</string>
     <string name="trip_trim_title">Beskjær turvisning</string>

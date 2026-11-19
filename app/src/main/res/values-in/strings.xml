@@ -299,6 +299,7 @@
     <string name="voice_commands_title">Perintah suara</string>
     <string name="voice_commands_enable_desc">Gunakan suara Anda dengan aplikasi. Tahan tombol Suara di dasbor dan pilih Dengarkan perintah suara.</string>
     <string name="voice_commands_bind_desc">Kaitkan mode mendengarkan ke Flic, tombol volume, jam tangan, atau HUD.</string>
+    <string name="voice_commands_bind_desc_iphone">Kaitkan mode mendengarkan ke Flic atau HUD.</string>
     <string name="voice_prompt_cue">Isyarat saat mendengarkan</string>
     <string name="voice_music_listening">Musik saat mendengarkan</string>
     <string name="voice_music_pause">Jeda</string>
@@ -800,7 +801,6 @@
     <string name="cloud_backup_replace_body_dated">Cadangan yang disimpan pada %1$s akan ditimpa dengan setelan saat ini.</string>
     <string name="cloud_restore_picker_default">(disimpan pengguna)</string>
     <string name="cloud_restore_picker_factory">(pabrik)</string>
-    <string name="cloud_restore_picker_empty">Tidak ada cadangan di folder sinkronisasi</string>
     <string name="cloud_factory_confirm_title">Reset ke default pabrik?</string>
     <string name="cloud_factory_confirm_body_p1">Mereset semua setelan aplikasi ke default.</string>
     <string name="cloud_factory_confirm_body_p2">Perangkat yang dipasangkan dan cadangan tersimpan tetap ada. Tindakan ini tidak dapat diurungkan.</string>
@@ -2408,10 +2408,10 @@
     <string name="warnings_location_always_title">Lokasi tidak diatur ke Selalu</string>
     <string name="warnings_location_always_body">Rekam otomatis tidak bisa mencatat rute saat aplikasi di latar belakang. Izinkan lokasi Selalu.</string>
     <string name="warnings_bluetooth_denied_title">Bluetooth tidak diizinkan</string>
-    <string name="warnings_bluetooth_denied_body">EUC Planet tidak bisa menjangkau EUC Anda sampai diizinkan memakai Bluetooth. Ketuk untuk mengizinkan.</string>
-    <string name="warnings_bluetooth_off_body">EUC Planet tidak bisa menjangkau EUC Anda sampai Bluetooth dinyalakan.</string>
-    <string name="warnings_perm_notifications_alerts_body">Peringatan pengisian daya tidak akan sampai sampai EUC Planet boleh mengirim notifikasi. Ketuk untuk mengizinkan.</string>
-    <string name="warnings_no_backup_dropbox_body">Perjalanan hanya ada di ponsel ini. Tautkan Dropbox agar ponsel yang hilang atau dihapus tidak ikut membawa perjalanan Anda.</string>
+    <string name="warnings_bluetooth_denied_body">EUC Planet tidak bisa terhubung ke EUC Anda sampai diizinkan memakai Bluetooth. Ketuk untuk mengizinkan.</string>
+    <string name="warnings_bluetooth_off_body">EUC Planet tidak bisa terhubung ke EUC Anda sampai Bluetooth dinyalakan.</string>
+    <string name="warnings_perm_notifications_alerts_body">Peringatan pengisian tidak akan sampai ke Anda sebelum EUC Planet diizinkan mengirim notifikasi. Ketuk untuk mengizinkan.</string>
+    <string name="warnings_no_backup_dropbox_body">Perjalanan hanya ada di ponsel ini. Tautkan Dropbox agar perjalanan Anda tidak ikut hilang jika ponsel hilang atau direset.</string>
     <string name="warnings_pip_blocked_title">Picture-in-picture diblokir</string>
     <string name="warnings_pip_blocked_body">Setelan Android memblokirnya untuk EUC Planet, jadi jendela mengambang tidak akan muncul saat Anda keluar dari aplikasi.</string>
     <string name="online_rejoin_confirm">Gabung lagi</string>

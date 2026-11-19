@@ -334,6 +334,7 @@
     <string name="voice_commands_title">音声コマンド</string>
     <string name="voice_commands_enable_desc">音声でアプリを使えます。ダッシュボードの音声ボタンを長押しして、「音声コマンドを聞き取る」を選びます。</string>
     <string name="voice_commands_bind_desc">聞き取りは Flic、音量キー、ウォッチ、HUD に割り当てられます。</string>
+    <string name="voice_commands_bind_desc_iphone">聞き取りは Flic と HUD に割り当てられます。</string>
     <string name="voice_prompt_cue">聞き取り時の合図</string>
     <string name="voice_music_listening">聞き取り中の音楽</string>
     <string name="voice_music_pause">一時停止</string>
@@ -656,7 +657,6 @@
     <string name="cloud_backup_replace_body_dated">%1$s に保存したバックアップが現在の設定で上書きされます。</string>
     <string name="cloud_restore_picker_default">（自分で保存）</string>
     <string name="cloud_restore_picker_factory">（工場出荷時）</string>
-    <string name="cloud_restore_picker_empty">同期フォルダにバックアップが見つかりません</string>
     <string name="cloud_factory_confirm_title">工場出荷時の設定にリセットしますか？</string>
     <string name="cloud_factory_confirm_body_p1">すべてのアプリ設定をデフォルトにリセットします。</string>
     <string name="cloud_factory_confirm_body_p2">ペアリング済みのデバイスと保存したバックアップはそのまま残ります。この操作は取り消せません。</string>
@@ -2010,7 +2010,7 @@
     <string name="warnings_bluetooth_denied_title">Bluetooth が許可されていません</string>
     <string name="warnings_bluetooth_denied_body">Bluetooth の使用が許可されるまで、EUC Planet はホイールに接続できません。タップして許可してください。</string>
     <string name="warnings_bluetooth_off_body">Bluetooth がオンになるまで、EUC Planet はホイールに接続できません。</string>
-    <string name="warnings_perm_notifications_alerts_body">EUC Planet が通知を送れるようになるまで、充電アラートは届きません。タップして許可してください。</string>
+    <string name="warnings_perm_notifications_alerts_body">EUC Planet が通知を送れるようになるまで、充電の通知は届きません。タップして許可してください。</string>
     <string name="warnings_no_backup_dropbox_body">トリップはこのスマホにしか保存されていません。Dropbox を連携しておけば、スマホを紛失・初期化してもトリップは失われません。</string>
     <string name="warnings_pip_blocked_title">ピクチャー イン ピクチャーがブロックされています</string>
     <string name="warnings_pip_blocked_body">Android で EUC Planet のピクチャー イン ピクチャーが拒否される設定になっているため、アプリを離れてもフローティングウィンドウは表示されません。</string>

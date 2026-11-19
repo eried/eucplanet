@@ -334,6 +334,7 @@
     <string name="voice_commands_title">Stemmekommandoer</string>
     <string name="voice_commands_enable_desc">Brug din stemme i appen. Hold stemmeknappen på dashboardet nede, og vælg Lyt efter en stemmekommando.</string>
     <string name="voice_commands_bind_desc">Bind lytning til en Flic, lydstyrketasterne, dit ur eller HUD\'en.</string>
+    <string name="voice_commands_bind_desc_iphone">Bind lytning til en Flic eller HUD\'en.</string>
     <string name="voice_prompt_cue">Signal ved lytning</string>
     <string name="voice_music_listening">Musik under lytning</string>
     <string name="voice_music_pause">Pause</string>
@@ -487,7 +488,7 @@
     <string name="hud_server_port">Port</string>
     <string name="hud_hotspot_unknown_hint">Sørg for, at HUD\'en og telefonen er på samme Wi-Fi-netværk. Hvis du bruger telefonens hotspot, skal du tænde det først.</string>
     <string name="hud_hotspot_on_hint">Telefonens hotspot er tændt. Forbind HUD\'en til denne telefons Wi-Fi for at aktivere forbindelsen.</string>
-    <string name="hud_setup_hint_iphone">Sæt HUD\'en og iPhonen på samme Wi-Fi, eller forbind HUD\'en til denne iPhones internetdeling. Når iOS spørger, så lad EUC Planet finde enheder på det lokale netværk.</string>
+    <string name="hud_setup_hint_iphone">Sæt HUD\'en og iPhonen på samme Wi-Fi-netværk, eller forbind HUD\'en til denne iPhones internetdeling. Når iOS spørger, så lad EUC Planet finde enheder på det lokale netværk.</string>
     <string name="hud_overlay_subsection">Eget overlay</string>
     <string name="hud_overlay_subsection_desc">Importér en Overlay Studio-skabelon til HUD\'ens skærme Eget overlay uden baggrunde. Skabelonen kopieres hertil, så senere ændringer i studiet ikke påvirker HUD\'en, før du importerer igen.</string>
     <string name="hud_overlay_select_preset">Importér skabelon</string>
@@ -656,7 +657,6 @@
     <string name="cloud_backup_replace_body_dated">Backuppen gemt %1$s bliver overskrevet med dine nuværende indstillinger.</string>
     <string name="cloud_restore_picker_default">(din backup)</string>
     <string name="cloud_restore_picker_factory">(fabriksstandard)</string>
-    <string name="cloud_restore_picker_empty">Ingen backups fundet i backupmappen</string>
     <string name="cloud_factory_confirm_title">Nulstil til fabriksindstillinger?</string>
     <string name="cloud_factory_confirm_body_p1">Nulstiller alle app-indstillinger til standard.</string>
     <string name="cloud_factory_confirm_body_p2">Dine parrede enheder og gemte backups bevares. Dette kan ikke fortrydes.</string>
@@ -1277,7 +1277,7 @@
     <string name="alarm_predict_help_lead">Advarer ca. %1$s s før %2$s, ud fra den seneste udvikling.</string>
     <string name="alarm_state_atleast">%1$s er %2$s eller mere</string>
     <string name="alarm_state_below">%1$s er under %2$s</string>
-    <string name="about_share_crash">Del fejllog</string>
+    <string name="about_share_crash">Del nedbrudslog</string>
 
     <!-- About / crash logs -->
     <string name="about_thanks">Tak</string>
@@ -1376,8 +1376,8 @@
     <string name="warnings_bluetooth_denied_title">Bluetooth ikke tilladt</string>
     <string name="warnings_bluetooth_denied_body">EUC Planet kan ikke nå dit hjul, før appen må bruge Bluetooth. Tryk for at tillade.</string>
     <string name="warnings_bluetooth_off_body">EUC Planet kan ikke nå dit hjul, før Bluetooth er slået til.</string>
-    <string name="warnings_perm_notifications_alerts_body">Opladningsadvarsler når ikke frem, før EUC Planet må sende notifikationer. Tryk for at tillade.</string>
-    <string name="warnings_no_backup_dropbox_body">De findes kun på denne telefon. Forbind Dropbox, så en mistet eller nulstillet telefon ikke tager dine ture med sig.</string>
+    <string name="warnings_perm_notifications_alerts_body">Opladningsbeskeder når ikke frem, før EUC Planet må sende notifikationer. Tryk for at tillade.</string>
+    <string name="warnings_no_backup_dropbox_body">De findes kun på denne telefon. Tilknyt Dropbox, så en mistet eller nulstillet telefon ikke tager dine ture med sig.</string>
     <string name="warnings_pip_blocked_title">Billede i billede er blokeret</string>
     <string name="warnings_pip_blocked_body">Android har slået det fra for EUC Planet, så det flydende vindue vises ikke, når du forlader appen.</string>
     <string name="online_rejoin_confirm">Tilmeld igen</string>

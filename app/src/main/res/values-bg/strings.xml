@@ -323,6 +323,7 @@
     <string name="voice_commands_title">Гласови команди</string>
     <string name="voice_commands_enable_desc">Управлявайте приложението с глас. Задръжте бутона Глас на таблото и изберете Слушай за гласова команда.</string>
     <string name="voice_commands_bind_desc">Задайте слушането на Flic, бутоните за сила на звука, часовника или HUD.</string>
+    <string name="voice_commands_bind_desc_iphone">Задайте слушането на Flic или HUD.</string>
     <string name="voice_prompt_cue">Сигнал при слушане</string>
     <string name="voice_music_listening">Музика при слушане</string>
     <string name="voice_music_pause">Пауза</string>
@@ -840,7 +841,6 @@
     <string name="cloud_backup_replace_body_dated">Архивът, запазен на %1$s, ще бъде презаписан с текущите ви настройки.</string>
     <string name="cloud_restore_picker_default">(запазен от потребителя)</string>
     <string name="cloud_restore_picker_factory">(фабричен)</string>
-    <string name="cloud_restore_picker_empty">Няма намерени архиви в папката за синхронизация</string>
     <string name="cloud_factory_confirm_title">Връщане към фабричните настройки?</string>
     <string name="cloud_factory_confirm_body_p1">Връща всички настройки на приложението към стойностите по подразбиране.</string>
     <string name="cloud_factory_confirm_body_p2">Сдвоените устройства и запазените архиви остават. Това не може да се отмени.</string>
@@ -1563,7 +1563,7 @@
     <string name="trip_tools_combine_failed">Тези пътувания не можаха да се обединят</string>
     <string name="widget_customize">Персонализиране</string>
     <string name="widget_how_to_add">Задръжте началния екран, докоснете Джаджи и изберете EUC Planet.</string>
-    <string name="widget_how_to_add_iphone">Задръжте началния екран, докоснете Редактиране, после Добавяне на изпълним модул, и изберете EUC Planet.</string>
+    <string name="widget_how_to_add_iphone">Задръжте началния екран, докоснете Редактиране, после Добавяне на изпълним модул и изберете EUC Planet.</string>
     <string name="trip_customize">Персонализиране</string>
     <string name="trip_trim">Изрежи изгледа</string>
     <string name="trip_trim_title">Изрязване на изгледа</string>
@@ -2567,12 +2567,12 @@
     <string name="warnings_no_backup_title">Пътуванията не са архивирани</string>
     <string name="warnings_no_backup_body">Има ги само на този телефон. Изберете папка за архиви, за да не изчезнат заедно с телефона, ако го изгубите или изтриете.</string>
     <string name="warnings_location_always_title">Местоположението не е „Винаги“</string>
-    <string name="warnings_location_always_body">Автоматичният запис не може да записва маршрут, докато приложението е във фонов режим. Разрешете местоположение „Винаги“.</string>
+    <string name="warnings_location_always_body">Автоматичният запис на пътувания не може да запази маршрута, докато приложението е във фонов режим. Разрешете местоположение „Винаги“.</string>
     <string name="warnings_bluetooth_denied_title">Bluetooth не е разрешен</string>
-    <string name="warnings_bluetooth_denied_body">EUC Planet не може да се свърже с моноколелото, докато няма разрешение за Bluetooth. Докоснете, за да разрешите.</string>
-    <string name="warnings_bluetooth_off_body">EUC Planet не може да се свърже с моноколелото, докато Bluetooth е изключен.</string>
-    <string name="warnings_perm_notifications_alerts_body">Известията за зареждане няма да стигат до вас, докато EUC Planet няма право да изпраща известия. Докоснете, за да разрешите.</string>
-    <string name="warnings_no_backup_dropbox_body">Те са само на този телефон. Свържете Dropbox, за да не изчезнат пътуванията ви с изгубен или изтрит телефон.</string>
+    <string name="warnings_bluetooth_denied_body">EUC Planet не може да се свърже с моноколелото ви, докато няма разрешение за Bluetooth. Докоснете, за да разрешите.</string>
+    <string name="warnings_bluetooth_off_body">EUC Planet не може да се свърже с моноколелото ви, докато Bluetooth е изключен.</string>
+    <string name="warnings_perm_notifications_alerts_body">Сигналите за зареждане няма да стигат до вас, докато EUC Planet няма право да изпраща известия. Докоснете, за да разрешите.</string>
+    <string name="warnings_no_backup_dropbox_body">Има ги само на този телефон. Свържете Dropbox, за да не изчезнат заедно с телефона, ако го изгубите или изтриете.</string>
     <string name="warnings_pip_blocked_title">Картина в картината е блокирана</string>
     <string name="warnings_pip_blocked_body">Android е настроен да я отказва за EUC Planet, така че плаващият прозорец няма да се появява, когато излезете от приложението.</string>
     <string name="online_rejoin_confirm">Включи се отново</string>

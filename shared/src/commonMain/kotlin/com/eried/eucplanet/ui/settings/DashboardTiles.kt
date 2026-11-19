@@ -349,7 +349,6 @@ fun RestorePickerDialog(
             val list = entries
             when {
                 list == null -> CircularProgressIndicator(modifier = Modifier.size(24.dp))
-                list.isEmpty() -> Text(stringResource(Res.string.cloud_restore_picker_empty))
                 else -> ExposedDropdownMenuBox(
                     expanded = dropdownOpen,
                     onExpandedChange = { dropdownOpen = !dropdownOpen }
