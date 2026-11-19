@@ -177,8 +177,6 @@
       "color:#e6edf3;background:rgba(22,27,34,.78);border:1px solid rgba(255,255,255,.16);" +
       "-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);transition:border-color .2s ease}" +
       ".site-cog button:hover,.site-cog.open button{border-color:rgba(88,166,255,.7)}" +
-      ".site-cog button svg{transition:transform .25s ease}" +
-      ".site-cog.open button svg{transform:rotate(60deg)}" +
       ".site-cog button:focus-visible{outline:2px solid #58a6ff;outline-offset:2px}" +
       ".site-cog .panel{display:none;position:absolute;bottom:46px;left:0;min-width:200px;padding:12px;border-radius:12px;" +
       "color:#e6edf3;background:rgba(13,17,23,.96);border:1px solid rgba(255,255,255,.16);box-shadow:0 12px 32px rgba(0,0,0,.5)}" +
