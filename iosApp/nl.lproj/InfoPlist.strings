@@ -3,6 +3,7 @@
 "NSBluetoothAlwaysUsageDescription" = "EUC Planet maakt via Bluetooth verbinding met je wiel om live ritgegevens te tonen.";
 "NSLocationWhenInUseUsageDescription" = "EUC Planet gebruikt je locatie voor GPS-snelheid, ritopname en automatische verlichting.";
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "EUC Planet blijft je rit opnemen terwijl het scherm uit is.";
-"NSMicrophoneUsageDescription" = "EUC Planet neemt geluid op bij de video's van de Overlay Studio zolang de microfoon aan staat.";
+"NSMicrophoneUsageDescription" = "EUC Planet luistert naar je spraakopdrachten als je daarom vraagt. EUC Planet neemt geluid op bij de video's van de Overlay Studio zolang de microfoon aan staat.";
 "NSPhotoLibraryAddUsageDescription" = "EUC Planet bewaart foto's, clips en video's van de Overlay Studio in je fotobibliotheek.";
 "NSLocalNetworkUsageDescription" = "EUC Planet zoekt de HUD op je wifi en stuurt er live ritgegevens naartoe.";
+"NSSpeechRecognitionUsageDescription" = "EUC Planet zet je spraakopdrachten om in tekst om ze te beantwoorden.";

@@ -104,6 +104,18 @@ internal object IosAppHealth : AppHealth {
         list.value = list.value.filterNot { it.id == id }
     }
 
+    /**
+     * Listening was refused for want of the microphone or speech recognition,
+     * as Android's AppHealthRepository.noteMicrophoneNeeded: the entry leads
+     * to the app's page in Settings, where both are switched on.
+     */
+    fun noteMicrophoneNeeded() = upsert(
+        AppWarning(MIC_ID, Res.string.warnings_perm_mic_title, Res.string.warnings_perm_mic_body, fix = ::openAppSettings)
+    )
+
+    /** Both are allowed now; the entry has nothing left to say. */
+    fun microphoneGranted() = dismiss(MIC_ID)
+
     // The trips half of Android's no-backup warning; the Dropbox half is read here.
     override fun refreshBackupWarning(hasFolder: Boolean, hasTrips: Boolean) {
         state.value = state.value.copy(hasTrips = hasTrips)
@@ -135,7 +147,11 @@ internal object IosAppHealth : AppHealth {
         scope.launch { state.collect(::apply) }
         NSNotificationCenter.defaultCenter.addObserverForName(
             UIApplicationWillEnterForegroundNotification, null, NSOperationQueue.mainQueue,
-        ) { _ -> readNotifications() }
+        ) { _ ->
+            readNotifications()
+            // Back from Settings with the microphone allowed: the entry goes, as on Android.
+            if (IosSpeechListener.permitted()) microphoneGranted()
+        }
         readNotifications()
     }
 
@@ -222,6 +238,9 @@ internal object IosAppHealth : AppHealth {
     }
 
     private const val ASKED_ALWAYS_KEY = "health_asked_location_always"
+
+    /** Android's id for the same entry (AppHealthRepository.PERM_MIC_ID). */
+    private const val MIC_ID = "perm.microphone"
 
     private fun openAppSettings() {
         val url = NSURL.URLWithString(UIApplicationOpenSettingsURLString) ?: return

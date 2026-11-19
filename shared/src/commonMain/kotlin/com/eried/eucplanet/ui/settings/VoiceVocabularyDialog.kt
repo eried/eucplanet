@@ -22,11 +22,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.eried.eucplanet.R
+import com.eried.eucplanet.resources.Res
+import com.eried.eucplanet.resources.*
 import com.eried.eucplanet.data.model.MetricCatalog
-import com.eried.eucplanet.platform.stringResource
 import com.eried.eucplanet.service.VoiceReportPlan
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.voice.VoiceVocabulary
@@ -43,40 +42,17 @@ import com.eried.eucplanet.voice.VoiceVocabulary
  * reads on a tile, so the list doubles as the answer to "what do I call this".
  */
 /**
- * @param languageTag the language the rider speaks commands in. Blank keeps
- *   the interface language, which is right only while the two agree. A list
- *   of English words shown to a rider whose commands are matched in Russian
- *   is worse than no list: every phrase on it is one the app will not answer
- *   to.
+ * @param strings the language the rider speaks commands in, which each phone
+ *   reads its own way (VoiceCommandPorts.stringsIn). A list of English words
+ *   shown to a rider whose commands are matched in Russian is worse than no
+ *   list: every phrase on it is one the app will not answer to. The whole
+ *   window is in that language, as it was on Android.
  */
 @Composable
-fun VoiceVocabularyDialog(onDismiss: () -> Unit, languageTag: String = "") {
-    val base = androidx.compose.ui.platform.LocalContext.current
-    val localized = androidx.compose.runtime.remember(languageTag, base) {
-        if (languageTag.isBlank()) {
-            base
-        } else {
-            val locale = java.util.Locale.forLanguageTag(languageTag.replace('_', '-'))
-            val cfg = android.content.res.Configuration(base.resources.configuration)
-                .apply { setLocale(locale) }
-            base.createConfigurationContext(cfg)
-        }
-    }
-    // Every stringResource below reads through LocalContext, so swapping it
-    // here translates the whole page at once rather than at fifty call sites.
-    androidx.compose.runtime.CompositionLocalProvider(
-        androidx.compose.ui.platform.LocalContext provides localized
-    ) {
-        VoiceVocabularyDialogContent(onDismiss)
-    }
-}
-
-@Composable
-private fun VoiceVocabularyDialogContent(onDismiss: () -> Unit) {
-    val metricNames = MetricCatalog.all.associate { it.key to stringResource(it.spokenLabelRes ?: it.labelRes) }
-    val ctx = androidx.compose.ui.platform.LocalContext.current
+fun VoiceVocabularyList(onDismiss: () -> Unit, strings: com.eried.eucplanet.voice.LanguageStrings) {
+    val metricNames = MetricCatalog.all.associate { it.key to strings.text(it.spokenLabelRes ?: it.labelRes) }
     val reportNames = com.eried.eucplanet.voice.VoicePhrases
-        .resolve(com.eried.eucplanet.voice.VoicePhrases.REPORTS) { ctx.getString(it) }
+        .resolve(com.eried.eucplanet.voice.VoicePhrases.REPORTS) { strings.text(it) }
     // The same phrase lists the matcher listens against, so the list cannot
     // promise something that will not work or omit something that will. It
     // used to build only metrics, reports and the split, which left every
@@ -84,12 +60,12 @@ private fun VoiceVocabularyDialogContent(onDismiss: () -> Unit) {
     val terms = VoiceVocabulary.build(
         metricNames = metricNames,
         reportNames = reportNames,
-        splitName = stringResource(R.string.voice_split_term),
-        helpPhrases = stringResource(R.string.voice_help_terms),
+        splitName = strings.text(Res.string.voice_split_term),
+        helpPhrases = strings.text(Res.string.voice_help_terms),
         specialPhrases = com.eried.eucplanet.voice.VoicePhrases
-            .resolve(com.eried.eucplanet.voice.VoicePhrases.SPECIALS) { ctx.getString(it) },
+            .resolve(com.eried.eucplanet.voice.VoicePhrases.SPECIALS) { strings.text(it) },
         actionPhrases = com.eried.eucplanet.voice.VoicePhrases
-            .resolve(com.eried.eucplanet.voice.VoicePhrases.ACTIONS) { ctx.getString(it) },
+            .resolve(com.eried.eucplanet.voice.VoicePhrases.ACTIONS) { strings.text(it) },
     )
     // Metric and report names overlap by design (Speed is both), so the list a
     // rider reads is the set of distinct things they can say. Specials and
@@ -124,18 +100,18 @@ private fun VoiceVocabularyDialogContent(onDismiss: () -> Unit) {
         .distinctBy { it.first }
         .sortedBy { it.first }
     val groups = listOf(
-        Triple(VocabGroup.WHEEL, R.string.voice_vocab_group_wheel, MaterialTheme.appColors.primary),
-        Triple(VocabGroup.ACTIONS, R.string.voice_vocab_group_actions, MaterialTheme.appColors.statusWarn),
-        Triple(VocabGroup.AROUND, R.string.voice_vocab_group_around, MaterialTheme.appColors.textSecondary),
+        Triple(VocabGroup.WHEEL, Res.string.voice_vocab_group_wheel, MaterialTheme.appColors.primary),
+        Triple(VocabGroup.ACTIONS, Res.string.voice_vocab_group_actions, MaterialTheme.appColors.statusWarn),
+        Triple(VocabGroup.AROUND, Res.string.voice_vocab_group_around, MaterialTheme.appColors.textSecondary),
     )
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.voice_command_vocabulary)) },
+        title = { Text(strings.text(Res.string.voice_command_vocabulary)) },
         text = {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    stringResource(R.string.voice_command_vocabulary_tap),
+                    strings.text(Res.string.voice_command_vocabulary_tap),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.appColors.textSecondary,
                 )
@@ -149,7 +125,7 @@ private fun VoiceVocabularyDialogContent(onDismiss: () -> Unit) {
                         if (inGroup.isEmpty()) continue
                         item(key = "header-$group") {
                             Text(
-                                stringResource(titleRes),
+                                strings.text(titleRes),
                                 style = MaterialTheme.typography.labelLarge,
                                 color = tint,
                                 modifier = Modifier.fillMaxWidth().padding(top = 10.dp, bottom = 4.dp),
@@ -178,7 +154,7 @@ private fun VoiceVocabularyDialogContent(onDismiss: () -> Unit) {
             }
         },
         confirmButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(android.R.string.ok)) }
+            TextButton(onClick = onDismiss) { Text(strings.text(Res.string.action_ok)) }
         },
     )
 }

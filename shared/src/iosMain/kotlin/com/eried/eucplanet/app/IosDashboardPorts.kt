@@ -55,15 +55,6 @@ import platform.darwin.dispatch_time
 // on iOS yet answers as the Android app does with it switched off, and is
 // replaced when it lands; docs/IOS_PARITY.md tracks which.
 
-internal object NoVoiceCommands : DashboardVoiceCommands {
-    override val state: StateFlow<VoiceCommandUiState> =
-        MutableStateFlow<VoiceCommandUiState>(VoiceCommandUiState.Idle).asStateFlow()
-    override val showVocabulary: SharedFlow<Unit> = MutableSharedFlow<Unit>().asSharedFlow()
-    override fun listen() = Unit
-    override fun ask() = Unit
-    override fun showingListeningCue(): () -> Unit = {}
-}
-
 /**
  * The PHONE_* actions on iOS. An app cannot change the iPhone's volume or
  * mute it, so those three only log; the flashlight works through the
@@ -82,12 +73,6 @@ internal object IosPhoneControls : PhoneControls {
         )
         device.unlockForConfiguration()
     }
-}
-
-/** Spoken commands are not on iOS yet. */
-internal object NoVoiceListening : VoiceListening {
-    override fun hasMicPermission() = false
-    override fun listen() = Unit
 }
 
 /**

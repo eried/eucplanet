@@ -3,6 +3,7 @@
 "NSBluetoothAlwaysUsageDescription" = "EUC Planet se conectează la monociclul tău prin Bluetooth ca să arate datele cursei în timp real.";
 "NSLocationWhenInUseUsageDescription" = "EUC Planet folosește locația ta pentru viteza GPS, înregistrarea curselor și luminile automate.";
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "EUC Planet continuă să înregistreze cursa cu ecranul stins.";
-"NSMicrophoneUsageDescription" = "EUC Planet înregistrează sunetul videoclipurilor din Overlay Studio cât timp microfonul este pornit.";
+"NSMicrophoneUsageDescription" = "EUC Planet ascultă comenzile tale vocale atunci când îi ceri. EUC Planet înregistrează sunetul videoclipurilor din Overlay Studio cât timp microfonul este pornit.";
 "NSPhotoLibraryAddUsageDescription" = "EUC Planet salvează fotografiile, clipurile și videoclipurile din Overlay Studio în biblioteca foto.";
 "NSLocalNetworkUsageDescription" = "EUC Planet găsește HUD-ul în rețeaua ta Wi-Fi și îi trimite datele cursei în timp real.";
+"NSSpeechRecognitionUsageDescription" = "EUC Planet transformă comenzile tale vocale în text ca să le poată răspunde.";

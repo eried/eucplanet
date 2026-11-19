@@ -65,7 +65,7 @@ val serviceModule = module {
             media = get(),
         )
     }
-    singleOf(::TonePlayer) { bind<RouteKeepAlive>() }
+    singleOf(::TonePlayer) { bind<RouteKeepAlive>(); bind<com.eried.eucplanet.voice.CommandCues>() }
     single {
         VoiceService(
             get(), get(), get(), get(), get(),
@@ -73,13 +73,13 @@ val serviceModule = module {
             metricsResetLazy = inject(),
             tonePlayer = get(),
         )
-    } binds arrayOf(EventAnnouncer::class, com.eried.eucplanet.nav.NavVoice::class)
-    single {
-        VoiceCommandController(
-            get(), get(), get(), get(), get(), get(), get(), get(), get(),
-            flicManager = inject(),
+    } binds arrayOf(EventAnnouncer::class, com.eried.eucplanet.nav.NavVoice::class, com.eried.eucplanet.voice.CommandVoice::class)
+    single<com.eried.eucplanet.voice.VoiceCommandPorts> {
+        com.eried.eucplanet.voice.AndroidVoiceCommandPorts(
+            androidContext(), get(), get(), flicManager = inject(),
         )
     }
+    singleOf(::VoiceCommandController)
     singleOf(::FlicManager)
     singleOf(::AndroidFlicPairing) bind com.eried.eucplanet.flic.FlicPairing::class
     single { com.eried.eucplanet.flic.AndroidMediaControls(androidContext()) } bind com.eried.eucplanet.flic.MediaControls::class

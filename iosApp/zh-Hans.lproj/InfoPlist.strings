@@ -3,6 +3,7 @@
 "NSBluetoothAlwaysUsageDescription" = "EUC Planet 通过蓝牙连接你的独轮车，显示实时骑行数据。";
 "NSLocationWhenInUseUsageDescription" = "EUC Planet 使用你的位置来获取 GPS 速度、记录行程和自动开灯。";
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "屏幕关闭时，EUC Planet 会继续记录你的行程。";
-"NSMicrophoneUsageDescription" = "麦克风开启时，EUC Planet 会为叠加工作室的视频录制声音。";
+"NSMicrophoneUsageDescription" = "在你要求时，EUC Planet 会聆听你的语音指令。麦克风开启时，EUC Planet 会为叠加工作室的视频录制声音。";
 "NSPhotoLibraryAddUsageDescription" = "EUC Planet 会将叠加工作室的照片、片段和视频保存到你的照片图库。";
 "NSLocalNetworkUsageDescription" = "EUC Planet 在你的 Wi-Fi 上查找 HUD，并向它发送实时骑行数据。";
+"NSSpeechRecognitionUsageDescription" = "EUC Planet 会把你的语音指令转成文字，以便作答。";

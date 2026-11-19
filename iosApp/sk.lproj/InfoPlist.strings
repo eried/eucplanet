@@ -3,6 +3,7 @@
 "NSBluetoothAlwaysUsageDescription" = "EUC Planet sa pripája ku kolesu cez Bluetooth a zobrazuje živé údaje z jazdy.";
 "NSLocationWhenInUseUsageDescription" = "EUC Planet používa vašu polohu na rýchlosť z GPS, nahrávanie jázd a automatické svetlá.";
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "EUC Planet nahráva jazdu aj pri vypnutej obrazovke.";
-"NSMicrophoneUsageDescription" = "EUC Planet nahráva zvuk k videám zo Štúdia prekrytia, keď je mikrofón zapnutý.";
+"NSMicrophoneUsageDescription" = "EUC Planet počúva vaše hlasové príkazy, keď o to požiadate. EUC Planet nahráva zvuk k videám zo Štúdia prekrytia, keď je mikrofón zapnutý.";
 "NSPhotoLibraryAddUsageDescription" = "EUC Planet ukladá fotky, klipy a videá zo Štúdia prekrytia do knižnice fotiek.";
 "NSLocalNetworkUsageDescription" = "EUC Planet nájde HUD vo vašej sieti Wi-Fi a posiela mu živé údaje z jazdy.";
+"NSSpeechRecognitionUsageDescription" = "EUC Planet prevádza vaše hlasové príkazy na text, aby na ne mohol odpovedať.";

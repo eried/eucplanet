@@ -70,8 +70,8 @@ internal object IosSettingsHost : SettingsHost {
 
     // What the iPhone has no counterpart for: no back on the dashboard, no
     // keep-alive service, no picture-in-picture or showing over the lock
-    // screen, rotation is the system's; and spoken commands are not on iOS
-    // yet. The home screen widget is WidgetKit's (IosWidgets). The notification's quick actions are the Live Activity's
+    // screen, rotation is the system's, and the headset button opens Siri, not
+    // an app. The home screen widget is WidgetKit's (IosWidgets). The notification's quick actions are the Live Activity's
     // buttons here. iOS lets no app set the media volume or fully drive
     // another app's player, so the volume and music automations and the
     // volume actions are left out. Nor does it
@@ -85,7 +85,7 @@ internal object IosSettingsHost : SettingsHost {
         SettingsRow.PICTURE_IN_PICTURE,
         SettingsRow.SHOW_OVER_LOCK_SCREEN,
         SettingsRow.ROTATION_LOCK,
-        SettingsRow.VOICE_COMMANDS,
+        SettingsRow.VOICE_HEADSET_BUTTON,
         SettingsRow.AUTO_VOLUME,
         SettingsRow.MEDIA_CONTROL,
         SettingsRow.PHONE_VOLUME,
@@ -201,7 +201,8 @@ internal object IosSettingsHost : SettingsHost {
 
     @Composable
     override fun VoiceVocabularyDialog(onDismiss: () -> Unit, languageTag: String) {
-        LaunchedEffect(Unit) { onDismiss() }
+        val strings = remember(languageTag) { IosLanguageStrings.forTag(languageTag) }
+        com.eried.eucplanet.ui.settings.VoiceVocabularyList(onDismiss = onDismiss, strings = strings)
     }
 
     @Composable

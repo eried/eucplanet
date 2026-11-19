@@ -3,6 +3,7 @@
 "NSBluetoothAlwaysUsageDescription" = "EUC Planet เชื่อมต่อกับล้อของคุณผ่านบลูทูธเพื่อแสดงข้อมูลการขับขี่แบบสด";
 "NSLocationWhenInUseUsageDescription" = "EUC Planet ใช้ตำแหน่งของคุณสำหรับความเร็ว GPS การบันทึกทริป และไฟอัตโนมัติ";
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "EUC Planet บันทึกทริปต่อแม้หน้าจอปิดอยู่";
-"NSMicrophoneUsageDescription" = "EUC Planet บันทึกเสียงลงในวิดีโอของสตูดิโอโอเวอร์เลย์ขณะที่ไมโครโฟนเปิดอยู่";
+"NSMicrophoneUsageDescription" = "EUC Planet ฟังคำสั่งเสียงของคุณเมื่อคุณสั่ง EUC Planet บันทึกเสียงลงในวิดีโอของสตูดิโอโอเวอร์เลย์ขณะที่ไมโครโฟนเปิดอยู่";
 "NSPhotoLibraryAddUsageDescription" = "EUC Planet บันทึกรูปภาพ คลิป และวิดีโอของสตูดิโอโอเวอร์เลย์ลงในคลังรูปภาพของคุณ";
 "NSLocalNetworkUsageDescription" = "EUC Planet ค้นหา HUD บน Wi-Fi ของคุณและส่งข้อมูลการขับขี่แบบสดไปให้";
+"NSSpeechRecognitionUsageDescription" = "EUC Planet แปลงคำสั่งเสียงของคุณเป็นข้อความเพื่อตอบกลับ";

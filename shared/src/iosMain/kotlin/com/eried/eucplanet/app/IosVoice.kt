@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.cinterop.ObjCSignatureOverride
 import org.jetbrains.compose.resources.StringResource
+import platform.AVFAudio.AVSpeechBoundary
 import platform.AVFAudio.AVSpeechSynthesisVoice
 import platform.AVFAudio.AVSpeechSynthesizer
 import platform.AVFAudio.AVSpeechSynthesizerDelegateProtocol
@@ -93,12 +94,14 @@ internal class IosVoice(
         phoneBattery = { IosPhoneDevice.batteryPercent() },
     )
 
-    /** Strings in the phone's language: Compose resources have no per-call locale on iOS. */
-    private object Strings : SpokenStrings {
-        override fun text(res: StringResource, vararg args: Any): String {
-            val raw = runBlocking { getString(res) }
-            return if (args.isEmpty()) raw else raw.format(*args)
-        }
+    /**
+     * Strings in the voice's language, as Android's VoiceService reads them:
+     * a Spanish voice says Spanish words whatever the phone is set to. Blank
+     * (no voice picked) is the app's own language.
+     */
+    private val Strings = object : SpokenStrings {
+        override fun text(res: StringResource, vararg args: Any): String =
+            IosLanguageStrings.forTag(settings.current.value.voiceLocale).text(res, *args)
 
         override fun timeNow(): String = NSDateFormatter().apply {
             dateStyle = NSDateFormatterNoStyle
@@ -272,6 +275,22 @@ internal class IosVoice(
 
     override fun announceTrigger(data: WheelData, settings: AppSettings, isRecording: Boolean) =
         announce(data, settings, periodic = false)
+
+    /** Stops the line being said and drops the queued ones, as for a spoken question. */
+    fun stopSpeaking() {
+        speech.stopSpeakingAtBoundary(AVSpeechBoundary.AVSpeechBoundaryImmediate)
+    }
+
+    /**
+     * One report's sentence, or the whole on-demand report when [report] is
+     * null, for a spoken question to say; null when there is nothing to say or
+     * Legal Mode Lockdown is on, as Android's VoiceService.reportText.
+     */
+    fun reportText(report: String?, data: WheelData, s: AppSettings, isRecording: Boolean): String? {
+        if (IosLockdown.controller.isEngaged()) return null
+        val parts = reports.buildReportParts(data, s, isRecording, periodic = false, vctx = Strings, only = report)
+        return parts.takeIf { it.isNotEmpty() }?.joinToString(", ")
+    }
 
     override fun shutdown() = Unit
 

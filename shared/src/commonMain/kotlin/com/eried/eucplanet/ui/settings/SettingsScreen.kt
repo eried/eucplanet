@@ -6612,24 +6612,26 @@ private fun VoiceTab(
             // the old switch turned off; Listen and Announce turn it on and pick
             // what the press does.
             val headsetOff = "OFF"
-            SegmentedChoice(
-                label = stringResource(Res.string.voice_headset_button),
-                options = listOf(
-                    com.eried.eucplanet.data.model.VoiceCommandSettings.HEADSET_LISTEN to
-                        stringResource(Res.string.action_chip_voice_listen),
-                    com.eried.eucplanet.data.model.VoiceCommandSettings.HEADSET_ANNOUNCE to
-                        stringResource(Res.string.voice_headset_announce),
-                    headsetOff to stringResource(Res.string.voice_cue_off),
-                ),
-                current = if (settings.voiceCommands.headsetButton) settings.voiceCommands.headsetAction
-                    else headsetOff,
-                onChange = {
-                    if (it == headsetOff) viewModel.updateVoiceHeadsetButton(false)
-                    else viewModel.updateVoiceHeadsetMode(it)
-                },
-            )
-            if (settings.voiceCommands.headsetButton) {
-                HintText(stringResource(Res.string.voice_headset_chooser_hint))
+            if (SettingsRow.VOICE_HEADSET_BUTTON !in LocalSettingsHost.current.hiddenRows) {
+                SegmentedChoice(
+                    label = stringResource(Res.string.voice_headset_button),
+                    options = listOf(
+                        com.eried.eucplanet.data.model.VoiceCommandSettings.HEADSET_LISTEN to
+                            stringResource(Res.string.action_chip_voice_listen),
+                        com.eried.eucplanet.data.model.VoiceCommandSettings.HEADSET_ANNOUNCE to
+                            stringResource(Res.string.voice_headset_announce),
+                        headsetOff to stringResource(Res.string.voice_cue_off),
+                    ),
+                    current = if (settings.voiceCommands.headsetButton) settings.voiceCommands.headsetAction
+                        else headsetOff,
+                    onChange = {
+                        if (it == headsetOff) viewModel.updateVoiceHeadsetButton(false)
+                        else viewModel.updateVoiceHeadsetMode(it)
+                    },
+                )
+                if (settings.voiceCommands.headsetButton) {
+                    HintText(stringResource(Res.string.voice_headset_chooser_hint))
+                }
             }
 
             if (vocabularyOpen) {

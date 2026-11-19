@@ -3,6 +3,7 @@
 "NSBluetoothAlwaysUsageDescription" = "EUC Planet, canlı sürüş verilerini göstermek için tekerinize Bluetooth ile bağlanır.";
 "NSLocationWhenInUseUsageDescription" = "EUC Planet konumunuzu GPS hızı, sürüş kaydı ve otomatik ışıklar için kullanır.";
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "EUC Planet ekran kapalıyken de sürüşünüzü kaydetmeye devam eder.";
-"NSMicrophoneUsageDescription" = "EUC Planet, mikrofon açıkken Kaplama stüdyosu videolarına ses kaydeder.";
+"NSMicrophoneUsageDescription" = "EUC Planet, istediğinizde sesli komutlarınızı dinler. EUC Planet, mikrofon açıkken Kaplama stüdyosu videolarına ses kaydeder.";
 "NSPhotoLibraryAddUsageDescription" = "EUC Planet, Kaplama stüdyosunun fotoğraflarını, kliplerini ve videolarını fotoğraf arşivinize kaydeder.";
 "NSLocalNetworkUsageDescription" = "EUC Planet, Wi-Fi ağınızdaki HUD'u bulur ve ona canlı sürüş verilerini gönderir.";
+"NSSpeechRecognitionUsageDescription" = "EUC Planet, sesli komutlarınızı yanıtlamak için metne dönüştürür.";

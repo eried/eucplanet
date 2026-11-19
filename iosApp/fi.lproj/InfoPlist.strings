@@ -3,6 +3,7 @@
 "NSBluetoothAlwaysUsageDescription" = "EUC Planet yhdistää yksipyöräiseesi Bluetoothilla ja näyttää ajotiedot reaaliajassa.";
 "NSLocationWhenInUseUsageDescription" = "EUC Planet käyttää sijaintiasi GPS-nopeuteen, matkan tallennukseen ja automaattisiin valoihin.";
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "EUC Planet jatkaa matkan tallennusta, kun näyttö on sammutettu.";
-"NSMicrophoneUsageDescription" = "EUC Planet tallentaa ääntä Overlay Studion videoihin, kun mikrofoni on päällä.";
+"NSMicrophoneUsageDescription" = "EUC Planet kuuntelee äänikomentojasi, kun pyydät sitä. EUC Planet tallentaa ääntä Overlay Studion videoihin, kun mikrofoni on päällä.";
 "NSPhotoLibraryAddUsageDescription" = "EUC Planet tallentaa Overlay Studion kuvat, klipit ja videot kuvakirjastoosi.";
 "NSLocalNetworkUsageDescription" = "EUC Planet etsii HUDin Wi-Fi-verkostasi ja lähettää sille ajotiedot reaaliajassa.";
+"NSSpeechRecognitionUsageDescription" = "EUC Planet muuttaa äänikomentosi tekstiksi vastatakseen niihin.";

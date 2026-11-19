@@ -3,6 +3,7 @@
 "NSBluetoothAlwaysUsageDescription" = "Το EUC Planet συνδέεται στο μονότροχό σας μέσω Bluetooth για να δείχνει ζωντανά δεδομένα διαδρομής.";
 "NSLocationWhenInUseUsageDescription" = "Το EUC Planet χρησιμοποιεί την τοποθεσία σας για ταχύτητα GPS, εγγραφή διαδρομής και αυτόματα φώτα.";
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "Το EUC Planet συνεχίζει να καταγράφει τη διαδρομή σας όταν η οθόνη είναι σβηστή.";
-"NSMicrophoneUsageDescription" = "Το EUC Planet ηχογραφεί ήχο με τα βίντεο του Studio επικάλυψης όσο το μικρόφωνο είναι ανοιχτό.";
+"NSMicrophoneUsageDescription" = "Το EUC Planet ακούει τις φωνητικές σας εντολές όταν του το ζητάτε. Το EUC Planet ηχογραφεί ήχο με τα βίντεο του Studio επικάλυψης όσο το μικρόφωνο είναι ανοιχτό.";
 "NSPhotoLibraryAddUsageDescription" = "Το EUC Planet αποθηκεύει τις φωτογραφίες, τα κλιπ και τα βίντεο του Studio επικάλυψης στη βιβλιοθήκη φωτογραφιών σας.";
 "NSLocalNetworkUsageDescription" = "Το EUC Planet βρίσκει το HUD στο Wi-Fi σας και του στέλνει ζωντανά δεδομένα διαδρομής.";
+"NSSpeechRecognitionUsageDescription" = "Το EUC Planet μετατρέπει τις φωνητικές σας εντολές σε κείμενο για να τις απαντήσει.";

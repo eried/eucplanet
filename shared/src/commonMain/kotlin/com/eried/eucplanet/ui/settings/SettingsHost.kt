@@ -172,6 +172,12 @@ enum class SettingsRow {
     /** Spoken commands: the microphone, the cues and the headset button. */
     VOICE_COMMANDS,
 
+    /**
+     * The headset button opening the microphone: the app as the phone's
+     * assistant, which only Android lets an app be (an iPhone's is Siri's).
+     */
+    VOICE_HEADSET_BUTTON,
+
     /** The phone's media volume following the speed (Automations). */
     AUTO_VOLUME,
 

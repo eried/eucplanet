@@ -34,8 +34,8 @@ internal class IosDashboardHost : DashboardHost {
     override val buildStamp: String = ""
     override val isDebugBuild: Boolean = false
     override val isDevBuild: Boolean = false
-    // Spoken commands are not on iOS yet (IosDashboardPorts' NoVoiceCommands).
-    override val supportsVoiceCommands: Boolean = false
+    // Spoken commands run on iOS too (IosVoiceCommands).
+    override val supportsVoiceCommands: Boolean = true
     // No watch has an iPhone side (SettingsHost.hiddenSections, docs/IOS_PARITY.md).
     override val supportsWatches: Boolean = false
 
@@ -85,7 +85,8 @@ internal class IosDashboardHost : DashboardHost {
 
     @Composable
     override fun VoiceVocabularyDialog(onDismiss: () -> Unit, languageTag: String) {
-        LaunchedEffect(Unit) { onDismiss() }
+        val strings = remember(languageTag) { IosLanguageStrings.forTag(languageTag) }
+        com.eried.eucplanet.ui.settings.VoiceVocabularyList(onDismiss = onDismiss, strings = strings)
     }
 
     override fun hasCrashLog(): Boolean = IosCrashLog.list().isNotEmpty()

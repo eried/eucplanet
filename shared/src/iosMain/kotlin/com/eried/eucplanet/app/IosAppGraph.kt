@@ -207,7 +207,7 @@ object IosAppGraph {
     val actions: ActionExecutor by lazy {
         ActionExecutor(
             settings, wheel, IosTrips, voice, automation, notices, IosLockdown.controller,
-            NoVoiceListening, IosMedia, IosPhoneControls,
+            IosVoiceCommands, IosMedia, IosPhoneControls,
         )
     }
 
@@ -330,7 +330,7 @@ object IosAppGraph {
         dropboxRepository = dropbox,
         appNotifier = notices,
         navigationEngine = activeRoute,
-        voiceCommands = NoVoiceCommands,
+        voiceCommands = IosVoiceCommands,
         phone = IosPhoneDevice,
         platform = IosDashboardPlatform(wheel, IosTripMeter.meter),
     )

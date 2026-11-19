@@ -1,6 +1,5 @@
 package com.eried.eucplanet.voice
 
-import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.MetricCatalog
 import com.eried.eucplanet.voice.VoiceCommandMatcher.VoiceMatch
 import org.junit.Assert.assertEquals
@@ -18,10 +17,6 @@ class VoiceMusicLocalePhrasesTest {
 
     private val resDir = File("src/main/res")
     private val music = setOf("MUSIC_START", "MEDIA_PAUSE", "MEDIA_NEXT", "MEDIA_PREVIOUS")
-
-    /** R.string id to its resource name. */
-    private val names: Map<Int, String> =
-        R.string::class.java.fields.associate { it.getInt(null) to it.name }
 
     private fun localeDirs(): List<File> =
         resDir.listFiles()
@@ -49,13 +44,14 @@ class VoiceMusicLocalePhrasesTest {
         val english = stringsIn(File(resDir, "values"))
         val local = stringsIn(dir)
         val byName: (String) -> String = { name -> local[name] ?: english[name] ?: "" }
-        val get: (Int) -> String = { id -> byName(names.getValue(id)) }
+        // The registry names shared strings (Res.string), looked up by key.
+        val get: (org.jetbrains.compose.resources.StringResource) -> String = { res -> byName(res.key) }
         return VoiceVocabulary.build(
             // MetricCatalog is shared: its labels are Res.string keys, looked up by name.
             metricNames = MetricCatalog.all.associate { it.key to byName((it.spokenLabelRes ?: it.labelRes).key) },
             reportNames = VoicePhrases.resolve(VoicePhrases.REPORTS, get),
-            splitName = get(R.string.voice_split_term),
-            helpPhrases = get(R.string.voice_help_terms),
+            splitName = byName("voice_split_term"),
+            helpPhrases = byName("voice_help_terms"),
             actionPhrases = VoicePhrases.resolve(VoicePhrases.ACTIONS, get),
             specialPhrases = VoicePhrases.resolve(VoicePhrases.SPECIALS, get),
         )
@@ -77,7 +73,7 @@ class VoiceMusicLocalePhrasesTest {
             val strings = stringsIn(dir)
             for ((key, id) in VoicePhrases.ACTIONS) {
                 if (key !in music) continue
-                val phrases = strings[names.getValue(id)].orEmpty().split(",").filter { it.isNotBlank() }
+                val phrases = strings[id.key].orEmpty().split(",").filter { it.isNotBlank() }
                 if (phrases.isEmpty()) empty += "${dir.name}/$key"
             }
         }

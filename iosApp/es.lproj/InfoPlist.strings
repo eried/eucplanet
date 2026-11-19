@@ -3,6 +3,7 @@
 "NSBluetoothAlwaysUsageDescription" = "EUC Planet se conecta a tu rueda por Bluetooth para mostrar los datos del recorrido en directo.";
 "NSLocationWhenInUseUsageDescription" = "EUC Planet usa tu ubicación para la velocidad GPS, la grabación de viajes y las luces automáticas.";
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "EUC Planet sigue grabando tu viaje con la pantalla apagada.";
-"NSMicrophoneUsageDescription" = "EUC Planet graba sonido con los vídeos del Overlay Studio mientras el micrófono está activado.";
+"NSMicrophoneUsageDescription" = "EUC Planet escucha tus comandos de voz cuando se lo pides. EUC Planet graba sonido con los vídeos del Overlay Studio mientras el micrófono está activado.";
 "NSPhotoLibraryAddUsageDescription" = "EUC Planet guarda las fotos, clips y vídeos del Overlay Studio en tu fototeca.";
 "NSLocalNetworkUsageDescription" = "EUC Planet busca el HUD en tu Wi-Fi y le envía los datos del recorrido en directo.";
+"NSSpeechRecognitionUsageDescription" = "EUC Planet convierte tus comandos de voz en texto para responderlos.";

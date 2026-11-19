@@ -6,6 +6,8 @@ only when you can cut the ride short.
 
 ## Worked on
 
+- iPhone: voice commands, the same as Android: ask for speed, battery, the weather or the last trip, switch the lights, start a recording, in the language you pick under Voice. Turn them on in Settings, Voice & announcements.
+- iPhone: the spoken reports use the voice's language, as on Android. A Spanish voice on an English iPhone used to read English words.
 - iPhone: all 31 languages now, like Android. English (UK) is new. Norwegian and Indonesian iPhones showed English; Latin American Spanish showed Spain's; Australian, Irish and other British-spelling regions showed American English; Hong Kong and Macau showed simplified Chinese. All fixed.
 - iPhone: the audio output is kept awake during a ride, as on Android, so the first beep of an alarm is not cut off on a Bluetooth headset. It rests after two minutes with no sound.
 - iPhone: the widget how-to no longer says how often iOS updates widgets.
@@ -124,6 +126,8 @@ only when you can cut the ride short.
 ## Please test
 
 **iPhone** (TestFlight)
+- Voice commands: turn them on, tap the Voice tile and ask "battery", "speed" or "what can I say". Allow the microphone and speech recognition when asked. Does it answer, in your language?
+- Voice set to another language than the iPhone (Settings, Voice & announcements, Voice): are the spoken reports in the voice's language?
 - iPhone set to Norwegian, Indonesian, Spanish (Mexico or Latin America), English (UK, Australia), or Chinese (Hong Kong): is the app in your language, with the right one shown under Settings, Display & appearance, Language?
 - Bluetooth headset or helmet speakers, wheel connected, quiet for a minute, then an alarm: is the first beep whole, or is its start cut off?
 - Connect your wheel, ride with alarms and voice on, record a trip: does it match the Android app?

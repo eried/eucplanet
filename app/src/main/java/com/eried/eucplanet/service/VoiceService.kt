@@ -36,7 +36,7 @@ class VoiceService(
     // Lazy for the same reason: it reaches WheelRepository.
     private val metricsResetLazy: Lazy<com.eried.eucplanet.data.repository.MetricsReset>,
     private val tonePlayer: TonePlayer,
-) : com.eried.eucplanet.nav.NavVoice {
+) : com.eried.eucplanet.nav.NavVoice, com.eried.eucplanet.voice.CommandVoice {
     companion object {
         private const val TAG = "VoiceService"
     }
@@ -80,7 +80,7 @@ class VoiceService(
      * duck/pause itself while the user is being spoken to.
      */
     private val _isSpeaking = MutableStateFlow(false)
-    val isSpeaking: StateFlow<Boolean> = _isSpeaking.asStateFlow()
+    override val isSpeaking: StateFlow<Boolean> = _isSpeaking.asStateFlow()
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
@@ -445,7 +445,7 @@ class VoiceService(
      * Shutting down would have worked too and would have cost a re-init before
      * the answer could be spoken.
      */
-    fun stopSpeaking() {
+    override fun stopSpeaking() {
         try {
             tts?.stop()
         } catch (_: Exception) {
@@ -610,11 +610,11 @@ class VoiceService(
      * "the wheel has no reading for this" from "the report said it" before it
      * decides what to speak.
      */
-    fun reportText(
+    override fun reportText(
         report: String,
         data: WheelData,
         settings: AppSettings,
-        isRecording: Boolean = false,
+        isRecording: Boolean,
     ): String? {
         if (legalLockdown.isEngaged()) return null
         val parts = buildReportParts(data, settings, isRecording, periodic = false, only = report)
@@ -634,10 +634,10 @@ class VoiceService(
      * can put it on the tile and log it the way it does every other answer,
      * instead of a second voice starting underneath the first.
      */
-    fun triggerReportText(
+    override fun triggerReportText(
         data: WheelData,
         settings: AppSettings,
-        isRecording: Boolean = false,
+        isRecording: Boolean,
     ): String? {
         if (legalLockdown.isEngaged()) return null
         val parts = buildReportParts(data, settings, isRecording, periodic = false)
@@ -668,7 +668,7 @@ class VoiceService(
         speak(text)
     }
 
-    fun speak(text: String) {
+    override fun speak(text: String) {
         speakInternal(text, isTrigger = false, rate = currentRate,
             localeTag = currentLocaleTag, voiceName = currentVoiceName)
     }

@@ -126,6 +126,26 @@ object IosAppStart {
                 }
             }
         }
+        // SIMCTL_CHILD_EUC_VOICE_SAY="battery" asks a spoken question 8 s after
+        // launch, as if the rider had said it: Android's FakeVoiceListener
+        // replays the words, and the match, the answer and its voice are the
+        // real ones. Several phrases go one after another, split by "|".
+        // SIMCTL_CHILD_EUC_VOICE_LISTEN=1 opens the real microphone instead.
+        (NSProcessInfo.processInfo.environment["EUC_VOICE_SAY"] as? String)?.let { said ->
+            MainScope().launch {
+                for (phrase in said.split('|').map { it.trim() }.filter { it.isNotEmpty() }) {
+                    kotlinx.coroutines.delay(8000)
+                    Log.i(TAG, "voice hook says \"$phrase\"")
+                    IosVoiceCommands.controller.listen(com.eried.eucplanet.voice.FakeVoiceListener(phrase))
+                }
+            }
+        }
+        if (NSProcessInfo.processInfo.environment["EUC_VOICE_LISTEN"] == "1") {
+            MainScope().launch {
+                kotlinx.coroutines.delay(8000)
+                IosVoiceCommands.listen()
+            }
+        }
         // SIMCTL_CHILD_EUC_QUIET=20 makes a ride quiet, to watch the audio
         // output go back to rest: no periodic report, and the output held awake
         // for that many seconds after the last sound instead of two minutes.

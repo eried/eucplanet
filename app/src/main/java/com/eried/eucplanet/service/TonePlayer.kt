@@ -9,7 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlin.concurrent.thread
 
-class TonePlayer : RouteKeepAlive {
+class TonePlayer : RouteKeepAlive, com.eried.eucplanet.voice.CommandCues {
 
     private companion object {
         const val TAG = "TonePlayer"
@@ -143,8 +143,11 @@ class TonePlayer : RouteKeepAlive {
      * like it, which matters: a single flat beep is easy to take for the wheel
      * warning about something.
      */
-    suspend fun playPrompt() {
-        playNotes(listOf(780 to 70, 1040 to 80), gapMs = 45, leadPadMs = 160)
+    private suspend fun play(f: com.eried.eucplanet.voice.VoiceCueFigures.Figure) =
+        playNotes(f.notes, gapMs = f.gapMs, leadPadMs = f.leadPadMs, volumePct = f.volumePct)
+
+    override suspend fun playPrompt() {
+        play(com.eried.eucplanet.voice.VoiceCueFigures.PROMPT)
     }
 
     /**
@@ -154,8 +157,8 @@ class TonePlayer : RouteKeepAlive {
      * learned the other, and a window that closes silently is the app going
      * quiet in a way that cannot be told from it still listening.
      */
-    suspend fun playEndPrompt() {
-        playNotes(listOf(1040 to 70, 780 to 80), gapMs = 45, leadPadMs = 20, volumePct = 75)
+    override suspend fun playEndPrompt() {
+        play(com.eried.eucplanet.voice.VoiceCueFigures.END)
     }
 
     /**
@@ -167,7 +170,7 @@ class TonePlayer : RouteKeepAlive {
      * further than rhythm. Down-and-down reads as a refusal in a way that a
      * single flat note does not.
      */
-    suspend fun playErrorPrompt() {
+    override suspend fun playErrorPrompt() {
         // 160ms of lead silence, the same as the opening chirp and for the
         // same reason: the track's first samples arrive while it is still
         // warming up and the route may still be switching, and whatever is
@@ -175,7 +178,7 @@ class TonePlayer : RouteKeepAlive {
         // more than the chirps do, not less, because 420Hz is a long
         // wavelength and a clipped start on a low note is far more audible
         // than on a high one.
-        playNotes(listOf(420 to 110, 310 to 150), gapMs = 30, leadPadMs = 160, volumePct = 85)
+        play(com.eried.eucplanet.voice.VoiceCueFigures.ERROR)
     }
 
     /**

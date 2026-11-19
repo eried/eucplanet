@@ -3,6 +3,7 @@
 "NSBluetoothAlwaysUsageDescription" = "EUC Planet se připojuje k vašemu monokolu přes Bluetooth a zobrazuje živá data z jízdy.";
 "NSLocationWhenInUseUsageDescription" = "EUC Planet používá vaši polohu pro rychlost z GPS, nahrávání jízd a automatická světla.";
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "EUC Planet nahrává jízdu i při vypnuté obrazovce.";
-"NSMicrophoneUsageDescription" = "EUC Planet nahrává zvuk k videím z Overlay Studia, když je mikrofon zapnutý.";
+"NSMicrophoneUsageDescription" = "EUC Planet poslouchá vaše hlasové příkazy, když o to požádáte. EUC Planet nahrává zvuk k videím z Overlay Studia, když je mikrofon zapnutý.";
 "NSPhotoLibraryAddUsageDescription" = "EUC Planet ukládá fotky, klipy a videa z Overlay Studia do knihovny fotek.";
 "NSLocalNetworkUsageDescription" = "EUC Planet najde HUD ve vaší síti Wi-Fi a posílá mu živá data z jízdy.";
+"NSSpeechRecognitionUsageDescription" = "EUC Planet převádí vaše hlasové příkazy na text, aby na ně mohl odpovědět.";

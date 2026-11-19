@@ -1,18 +1,16 @@
 package com.eried.eucplanet.voice
 
 import com.eried.eucplanet.voice.VoiceCommandUiState as UiState
-import android.content.Context
-import android.util.Log
-import android.content.pm.PackageManager
-import androidx.core.content.ContextCompat
-import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.MetricCatalog
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.WheelRepository
-import com.eried.eucplanet.platform.getString
-import com.eried.eucplanet.service.TonePlayer
-import com.eried.eucplanet.service.VoiceService
-import com.eried.eucplanet.util.speedUnit
+import com.eried.eucplanet.platform.Log
+import com.eried.eucplanet.platform.System
+import com.eried.eucplanet.platform.format
+import com.eried.eucplanet.resources.Res
+import com.eried.eucplanet.resources.*
+import org.jetbrains.compose.resources.StringResource
+import kotlin.concurrent.Volatile
 import com.eried.eucplanet.voice.VoiceAnswer.Answer
 import com.eried.eucplanet.voice.VoiceVocabulary.Kind
 import com.eried.eucplanet.voice.VoiceVocabulary.SpokenTerm
@@ -46,18 +44,13 @@ import kotlinx.coroutines.withTimeoutOrNull
  * feature, and the blank CONSUMPTION tile is what that costs.
  */
 class VoiceCommandController(
-    private val context: Context,
+    private val ports: VoiceCommandPorts,
     private val settingsRepository: SettingsRepository,
     private val wheelRepository: WheelRepository,
-    private val voiceService: VoiceService,
-    private val tonePlayer: TonePlayer,
-    private val appHealth: com.eried.eucplanet.data.repository.AppHealthRepository,
+    private val voiceService: CommandVoice,
+    private val tonePlayer: CommandCues,
     private val weatherRepository: com.eried.eucplanet.weather.WeatherRepository,
     private val navigationEngine: com.eried.eucplanet.nav.NavigationEngine,
-    private val tripRepository: com.eried.eucplanet.data.repository.TripRepository,
-    // A Lazy, not the manager itself: FlicManager injects this
-    // controller, and no DI graph can build a cycle of two constructors.
-    private val flicManager: Lazy<com.eried.eucplanet.flic.FlicManager>,
 ) {
 
     private companion object {
@@ -132,9 +125,6 @@ class VoiceCommandController(
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
-    private val listeningFocus by lazy {
-        ListeningFocus(context.getSystemService(Context.AUDIO_SERVICE) as android.media.AudioManager)
-    }
     private val _state = MutableStateFlow<UiState>(UiState.Idle)
     val state: StateFlow<UiState> = _state.asStateFlow()
 
@@ -150,7 +140,7 @@ class VoiceCommandController(
     val toast: Flow<String> = _state.map {
         when (it) {
             UiState.Idle -> ""
-            UiState.Listening -> if (announceListening) context.getString(R.string.voice_listening) else ""
+            UiState.Listening -> if (announceListening) ports.stringsIn("").text(Res.string.voice_listening) else ""
             is UiState.Heard -> it.text
             is UiState.Spoke -> it.text
         }
@@ -195,18 +185,17 @@ class VoiceCommandController(
      * voice command tile). While any is, the snackbar would be a second cue
      * for the same thing, so it is left out whatever started the listening.
      */
-    private val ownCues = java.util.concurrent.atomic.AtomicInteger(0)
+    // Touched on the main thread only: the screens and the session's scope.
+    private var ownCues = 0
 
     /** A screen showing its own listening cue calls this; call the result when it goes. */
     fun showingListeningCue(): () -> Unit {
-        ownCues.incrementAndGet()
-        return { ownCues.decrementAndGet() }
+        ownCues++
+        return { ownCues-- }
     }
 
     /** True when the rider has granted the microphone. */
-    fun hasMicPermission(): Boolean =
-        ContextCompat.checkSelfPermission(context, android.Manifest.permission.RECORD_AUDIO) ==
-            PackageManager.PERMISSION_GRANTED
+    fun hasMicPermission(): Boolean = ports.hasMicPermission()
 
     /**
      * Open the microphone. A press while a session is listening stops it.
@@ -273,7 +262,7 @@ class VoiceCommandController(
      * entry, which leads to the app's settings page.
      */
     fun micPermissionResult(granted: Boolean) {
-        if (granted) appHealth.microphoneGranted()
+        if (granted) ports.microphoneGranted()
         open(null, notify = true)
     }
 
@@ -283,7 +272,7 @@ class VoiceCommandController(
         session?.cancel()
         activeMic?.stop()
         activeMic = null
-        listeningFocus.releaseAll()
+        ports.releaseAllFocus()
         _state.value = UiState.Idle
         scope.launch { closingCue(settingsRepository.get()) }
         Log.i(TAG, "stopped by the rider")
@@ -311,8 +300,8 @@ class VoiceCommandController(
                 // Name the thing that is missing. "Voice commands needs
                 // setting up first" described a setup step that does not
                 // exist, and left a rider with nothing to act on.
-                appHealth.noteMicrophoneNeeded()
-                val text = voiceCtx.getString(R.string.voice_answer_no_mic_permission)
+                ports.noteMicrophoneNeeded()
+                val text = voiceCtx.text(Res.string.voice_answer_no_mic_permission)
                 _state.value = UiState.Spoke(text)
                 voiceService.speak(text)
                 Log.i(TAG, "refused, no microphone permission")
@@ -324,10 +313,10 @@ class VoiceCommandController(
                 // was gone 600 ms in, mid-sentence. With the voice off there is
                 // no speech to wait for, so it never shows for less than
                 // [REFUSAL_MIN_MS], the time it takes to read it.
-                val shownAt = android.os.SystemClock.elapsedRealtime()
+                val shownAt = System.currentTimeMillis()
                 withTimeoutOrNull(SPEECH_START_WAIT_MS) { voiceService.isSpeaking.first { it } }
                 withTimeoutOrNull(SPEECH_END_WAIT_MS) { voiceService.isSpeaking.first { !it } }
-                val shown = android.os.SystemClock.elapsedRealtime() - shownAt
+                val shown = System.currentTimeMillis() - shownAt
                 delay(maxOf(ANSWER_LINGER_MS, REFUSAL_MIN_MS - shown))
                 _state.value = UiState.Idle
                 return@launch
@@ -335,15 +324,12 @@ class VoiceCommandController(
             // The rider's music goes down now and stays down through the
             // answer; see ListeningFocus. Released before any held media key
             // is sent, and whenever the session ends, however it ends.
-            val focusSession = listeningFocus.hold(settings.voiceCommands.musicWhileListening)
+            val focusSession = ports.holdFocus(settings.voiceCommands.musicWhileListening)
             coroutineContext[kotlinx.coroutines.Job]?.invokeOnCompletion {
-                listeningFocus.release(focusSession)
+                ports.releaseFocus(focusSession)
             }
-            val mic = listener ?: AndroidVoiceListener(
-                context = context,
-                languageTag = VoiceLocaleTag.tag(recognitionTag(settings)),
-            )
-            announceListening = notify && ownCues.get() == 0
+            val mic = listener ?: ports.newListener(VoiceLocaleTag.tag(recognitionTag(settings)))
+            announceListening = notify && ownCues == 0
             _state.value = UiState.Listening
             // Whatever the app was saying, it stops now. Otherwise the
             // recogniser spends the window listening to our own voice.
@@ -358,7 +344,7 @@ class VoiceCommandController(
             // reason the tone exists at all, so the word takes the slot the
             // tone cannot use rather than the other way round.
             if (settings.voiceCommands.promptCue == com.eried.eucplanet.data.model.VoiceCommandSettings.CUE_VOICE) {
-                voiceService.speak(voiceCtx.getString(R.string.voice_cue_listening))
+                voiceService.speak(voiceCtx.text(Res.string.voice_cue_listening))
                 withTimeoutOrNull(SPEECH_START_WAIT_MS) { voiceService.isSpeaking.first { it } }
                 withTimeoutOrNull(SPEECH_END_WAIT_MS) { voiceService.isSpeaking.first { !it } }
                 delay(ROUTE_SETTLE_MS)
@@ -442,7 +428,7 @@ class VoiceCommandController(
 
             // The reply has been said and its audio focus handed back, so a
             // held media key can reach the player now. See MEDIA_AFTER_SPEECH.
-            listeningFocus.release(focusSession)
+            ports.releaseFocus(focusSession)
             deferredMedia?.let { key ->
                 deferredMedia = null
                 delay(MEDIA_SETTLE_MS)
@@ -472,17 +458,17 @@ class VoiceCommandController(
             if (wheelRepository.connectionState.value ==
                 com.eried.eucplanet.ble.ConnectionState.CONNECTED
             ) {
-                voiceCtx.getString(R.string.voice_special_connected, name.orEmpty())
+                voiceCtx.text(Res.string.voice_special_connected, name.orEmpty())
             } else {
-                voiceCtx.getString(R.string.voice_special_not_connected)
+                voiceCtx.text(Res.string.voice_special_not_connected)
             }
         }
 
         VoiceVocabulary.Special.UPTIME -> {
             val since = wheelRepository.connectedSinceMs.value
-            if (since <= 0L) voiceCtx.getString(R.string.voice_special_not_connected)
-            else voiceCtx.getString(
-                R.string.voice_special_uptime,
+            if (since <= 0L) voiceCtx.text(Res.string.voice_special_not_connected)
+            else voiceCtx.text(
+                Res.string.voice_special_uptime,
                 spokenDuration(System.currentTimeMillis() - since),
             )
         }
@@ -490,7 +476,7 @@ class VoiceCommandController(
         VoiceVocabulary.Special.WEATHER -> weatherVerdict(settings)
 
         VoiceVocabulary.Special.AIR_TEMP -> currentHour()?.let { h ->
-            voiceCtx.getString(R.string.voice_sp_air_temp_answer, spokenTemp(h.tempC, settings))
+            voiceCtx.text(Res.string.voice_sp_air_temp_answer, spokenTemp(h.tempC, settings))
         }
 
         VoiceVocabulary.Special.WIND -> currentHour()?.let { h ->
@@ -499,11 +485,11 @@ class VoiceCommandController(
             // twice as long for nothing.
             val wind = spokenWind(h.windMs, settings)
             if (h.gustMs > h.windMs * 1.3f) {
-                voiceCtx.getString(
-                    R.string.voice_sp_wind_gust_answer, wind, spokenWind(h.gustMs, settings),
+                voiceCtx.text(
+                    Res.string.voice_sp_wind_gust_answer, wind, spokenWind(h.gustMs, settings),
                 )
             } else {
-                voiceCtx.getString(R.string.voice_sp_wind_answer, wind)
+                voiceCtx.text(Res.string.voice_sp_wind_answer, wind)
             }
         }
 
@@ -511,8 +497,8 @@ class VoiceCommandController(
         VoiceVocabulary.Special.HUMIDITY -> currentHour()
             ?.takeIf { it.humidityPct > 0f }
             ?.let {
-                voiceCtx.getString(
-                    R.string.voice_sp_humidity_answer, "%.0f".format(it.humidityPct),
+                voiceCtx.text(
+                    Res.string.voice_sp_humidity_answer, "%.0f".format(it.humidityPct),
                 )
             }
 
@@ -527,7 +513,7 @@ class VoiceCommandController(
         VoiceVocabulary.Special.REPORT -> voiceService.triggerReportText(
             wheelRepository.wheelData.value,
             settings,
-            isRecording = tripRepository.recording.value,
+            isRecording = ports.isRecording(),
         )
 
         else -> null
@@ -558,12 +544,10 @@ class VoiceCommandController(
      * takes no time is worse than saying nothing.
      */
     private suspend fun fetchWeather(settings: com.eried.eucplanet.data.model.AppSettings) {
-        val loc = tripRepository.currentLocation.value
-            ?: tripRepository.lastKnownLocation.value
-            ?: return
+        val loc = ports.location() ?: return
         val cold = currentHour() == null
         if (cold) {
-            val wait = voiceCtx.getString(R.string.voice_weather_checking)
+            val wait = voiceCtx.text(Res.string.voice_weather_checking)
             _state.value = UiState.Spoke(wait)
             voiceService.speak(wait)
             withTimeoutOrNull(SPEECH_START_WAIT_MS) { voiceService.isSpeaking.first { it } }
@@ -572,7 +556,7 @@ class VoiceCommandController(
         runCatching {
             withTimeoutOrNull(WEATHER_FETCH_MS) {
                 weatherRepository.ensureFresh(
-                    loc.latitude, loc.longitude,
+                    loc.lat, loc.lng,
                     com.eried.eucplanet.weather.WeatherSource.byId(settings.weather.source),
                     force = false,
                 )
@@ -611,7 +595,7 @@ class VoiceCommandController(
         val unit = com.eried.eucplanet.util.Units.effectiveSpeedUnit(settings)
         return "%.0f %s".format(
             com.eried.eucplanet.util.Units.speed(ms * 3.6f, unit),
-            com.eried.eucplanet.util.Units.speedUnit(voiceCtx, unit),
+            voiceCtx.text(com.eried.eucplanet.util.Units.speedUnitRes(unit)),
         )
     }
 
@@ -625,32 +609,32 @@ class VoiceCommandController(
     private fun weatherVerdict(settings: com.eried.eucplanet.data.model.AppSettings): String? {
         val hour = currentHour() ?: return null
         val b = com.eried.eucplanet.weather.WeatherScoring.scoreOf(hour, settings)
-        val verdict = voiceCtx.getString(
+        val verdict = voiceCtx.text(
             when {
-                b.score >= 3f -> R.string.voice_weather_great
-                b.score >= 1f -> R.string.voice_weather_good
-                b.score >= -1f -> R.string.voice_weather_ok
-                b.score >= -3f -> R.string.voice_weather_poor
-                else -> R.string.voice_weather_bad
+                b.score >= 3f -> Res.string.voice_weather_great
+                b.score >= 1f -> Res.string.voice_weather_good
+                b.score >= -1f -> Res.string.voice_weather_ok
+                b.score >= -3f -> Res.string.voice_weather_poor
+                else -> Res.string.voice_weather_bad
             }
         )
         // One reason, the worst one. A list of everything wrong with the
         // afternoon is not what a rider standing at the door asked for.
         val reason = when {
-            b.snow -> R.string.voice_weather_snow
-            b.rain -> R.string.voice_weather_rain
-            b.wind -> R.string.voice_weather_wind
-            b.cold -> R.string.voice_weather_cold
-            b.hot -> R.string.voice_weather_hot
-            b.night -> R.string.voice_weather_night
+            b.snow -> Res.string.voice_weather_snow
+            b.rain -> Res.string.voice_weather_rain
+            b.wind -> Res.string.voice_weather_wind
+            b.cold -> Res.string.voice_weather_cold
+            b.hot -> Res.string.voice_weather_hot
+            b.night -> Res.string.voice_weather_night
             else -> null
         }
         // The numbers behind the verdict, because "good to ride" on its own
         // is a judgement a rider cannot check. The score is signed on purpose:
         // it is the same number the weather panel draws, and plus or minus is
         // the half of it that says which side of neutral the day is on.
-        val full = voiceCtx.getString(
-            R.string.voice_special_weather_full,
+        val full = voiceCtx.text(
+            Res.string.voice_special_weather_full,
             verdict,
             "%+.0f".format(b.score),
             spokenTemp(hour.tempC, settings),
@@ -658,7 +642,7 @@ class VoiceCommandController(
             "%.0f".format(hour.humidityPct),
         )
         return if (reason == null) full
-        else voiceCtx.getString(R.string.voice_special_weather, full, voiceCtx.getString(reason))
+        else voiceCtx.text(Res.string.voice_special_weather, full, voiceCtx.text(reason))
     }
 
     /**
@@ -674,40 +658,40 @@ class VoiceCommandController(
         val now = System.currentTimeMillis()
         val sun = com.eried.eucplanet.weather.SunCalc
         if (sun.elevationDeg(now, f.lat, f.lon) <= 0.0) {
-            return voiceCtx.getString(R.string.voice_special_dark)
+            return voiceCtx.text(Res.string.voice_special_dark)
         }
         var t = now
         val end = now + 24L * 60 * 60 * 1000
         while (t < end) {
             t += 10L * 60 * 1000
             if (sun.elevationDeg(t, f.lat, f.lon) <= 0.0) {
-                return voiceCtx.getString(R.string.voice_special_daylight, spokenDuration(t - now))
+                return voiceCtx.text(Res.string.voice_special_daylight, spokenDuration(t - now))
             }
         }
         // The sun never sets here today, which happens where this app is used.
-        return voiceCtx.getString(R.string.voice_special_daylight_all_day)
+        return voiceCtx.text(Res.string.voice_special_daylight_all_day)
     }
 
     /** What the navigation would say next, or that there is no route. */
     private fun navNext(): String {
         val nav = navigationEngine.navState.value
-        if (!nav.active) return voiceCtx.getString(R.string.voice_special_nav_none)
-        val main = nav.primaryText.ifBlank { return voiceCtx.getString(R.string.voice_special_nav_none) }
+        if (!nav.active) return voiceCtx.text(Res.string.voice_special_nav_none)
+        val main = nav.primaryText.ifBlank { return voiceCtx.text(Res.string.voice_special_nav_none) }
         val distance = nav.distanceText
         return if (distance.isBlank()) main
-        else voiceCtx.getString(R.string.voice_special_nav, main, distance)
+        else voiceCtx.text(Res.string.voice_special_nav, main, distance)
     }
 
     /** The last finished ride, fetched before the match. */
     private fun lastTrip(settings: com.eried.eucplanet.data.model.AppSettings): String? {
-        val trip = lastTripSnapshot ?: return voiceCtx.getString(R.string.voice_special_no_trips)
+        val trip = lastTripSnapshot ?: return voiceCtx.text(Res.string.voice_special_no_trips)
         val unit = com.eried.eucplanet.util.Units.effectiveDistanceUnit(settings)
         val distance = "%.1f %s".format(
             com.eried.eucplanet.util.Units.distance(trip.distanceKm, unit),
             com.eried.eucplanet.util.Units.distanceUnit(unit),
         )
         val duration = spokenDuration((trip.endTime ?: trip.startTime) - trip.startTime)
-        return voiceCtx.getString(R.string.voice_special_last_trip, distance, duration)
+        return voiceCtx.text(Res.string.voice_special_last_trip, distance, duration)
     }
 
     /** Hours and minutes, spoken the way a rider would say them. */
@@ -716,10 +700,10 @@ class VoiceCommandController(
         val hours = totalMinutes / 60
         val minutes = totalMinutes % 60
         return when {
-            hours > 0 -> voiceCtx.getString(
-                R.string.voice_duration_h_m, hours.toString(), minutes.toString()
+            hours > 0 -> voiceCtx.text(
+                Res.string.voice_duration_h_m, hours.toString(), minutes.toString()
             )
-            else -> voiceCtx.getString(R.string.voice_duration_m, minutes.toString())
+            else -> voiceCtx.text(Res.string.voice_duration_m, minutes.toString())
         }
     }
 
@@ -759,7 +743,7 @@ class VoiceCommandController(
             Log.i(TAG, "action $key already satisfied")
             return
         }
-        flicManager.value.runAction(catalogKey)
+        ports.runAction(catalogKey)
         Log.i(TAG, "action $key ran as $catalogKey")
         com.eried.eucplanet.diagnostics.DiagnosticsLogger.note("Voice: did $key")
     }
@@ -771,10 +755,7 @@ class VoiceCommandController(
      * feature is that the rider is not looking at the screen.
      */
     private suspend fun confirmAndRun(answer: Answer.Act, settings: com.eried.eucplanet.data.model.AppSettings) {
-        val mic = AndroidVoiceListener(
-            context = context,
-            languageTag = VoiceLocaleTag.tag(recognitionTag(settings)),
-        )
+        val mic = ports.newListener(VoiceLocaleTag.tag(recognitionTag(settings)))
         mic.start()
         val readyBy = System.currentTimeMillis() + READY_WAIT_MS
         while (System.currentTimeMillis() < readyBy && mic.state.value is ListenState.Preparing) {
@@ -792,7 +773,7 @@ class VoiceCommandController(
             delay(60)
         }
         mic.stop()
-        val yes = heardCtx.getString(R.string.voice_yes_terms)
+        val yes = heardCtx.text(Res.string.voice_yes_terms)
             .split(",").map { it.trim().lowercase() }.filter { it.isNotBlank() }
         val heardYes = said?.lowercase()?.let { spoken -> yes.any { spoken.contains(it) } } == true
         if (heardYes) {
@@ -800,7 +781,7 @@ class VoiceCommandController(
             _state.value = UiState.Spoke(answer.name)
             voiceService.speak(answer.name)
         } else {
-            val text = voiceCtx.getString(R.string.voice_action_cancelled)
+            val text = voiceCtx.text(Res.string.voice_action_cancelled)
             _state.value = UiState.Spoke(text)
             voiceService.speak(text)
             Log.i(TAG, "action ${answer.key} cancelled")
@@ -809,7 +790,7 @@ class VoiceCommandController(
 
     /** Something else holds the microphone. Say so, rather than blame the rider. */
     private fun sayMicUnavailable(): Boolean {
-        val text = voiceCtx.getString(R.string.voice_answer_mic_busy)
+        val text = voiceCtx.text(Res.string.voice_answer_mic_busy)
         _state.value = UiState.Spoke(text)
         voiceService.speak(text)
         Log.i(TAG, "said \"$text\" (mic busy)")
@@ -837,8 +818,7 @@ class VoiceCommandController(
         // The matcher picks one term, but `read` cannot suspend, so the two
         // readings that need I/O are fetched before the match rather than
         // inside it. Both are a single value from a flow already in memory.
-        lastTripSnapshot = runCatching { tripRepository.allTrips.first() }
-            .getOrNull()?.filter { it.endTime != null }?.maxByOrNull { it.startTime }
+        lastTripSnapshot = runCatching { ports.lastFinishedTrip() }.getOrNull()
         // The forecast is not one of those. It lives in memory only, filled by
         // the dashboard panel and by the weather widget's worker, so a rider
         // who has neither open has never had one: asking for the weather
@@ -907,8 +887,8 @@ class VoiceCommandController(
         // "speed, 42 km/h" are different answers to different questions.
         return VoiceCommandSession.Reading(
             null, null,
-            reportText = voiceCtx.getString(
-                R.string.voice_stat_answer, statLabel(stat), term.name, value,
+            reportText = voiceCtx.text(
+                Res.string.voice_stat_answer, statLabel(stat), term.name, value,
             ),
         )
     }
@@ -932,10 +912,10 @@ class VoiceCommandController(
         statPhrases()[stat]?.split(",")?.firstOrNull()?.trim().orEmpty()
 
     private fun statPhrases(): Map<VoiceStatModifier.Stat, String> = mapOf(
-        VoiceStatModifier.Stat.MAX to heardCtx.getString(R.string.voice_stat_max_terms),
-        VoiceStatModifier.Stat.MIN to heardCtx.getString(R.string.voice_stat_min_terms),
-        VoiceStatModifier.Stat.AVG to heardCtx.getString(R.string.voice_stat_avg_terms),
-        VoiceStatModifier.Stat.PEAK to heardCtx.getString(R.string.voice_stat_peak_terms),
+        VoiceStatModifier.Stat.MAX to heardCtx.text(Res.string.voice_stat_max_terms),
+        VoiceStatModifier.Stat.MIN to heardCtx.text(Res.string.voice_stat_min_terms),
+        VoiceStatModifier.Stat.AVG to heardCtx.text(Res.string.voice_stat_avg_terms),
+        VoiceStatModifier.Stat.PEAK to heardCtx.text(Res.string.voice_stat_peak_terms),
     )
 
     private fun readingOf(
@@ -1025,8 +1005,8 @@ class VoiceCommandController(
         key = key,
         raw = raw,
         speedUnit = com.eried.eucplanet.util.Units.effectiveSpeedUnit(settings),
-        speedUnitLabel = com.eried.eucplanet.util.Units.speedUnit(
-            context, com.eried.eucplanet.util.Units.effectiveSpeedUnit(settings)
+        speedUnitLabel = ports.stringsIn("").text(
+            com.eried.eucplanet.util.Units.speedUnitRes(com.eried.eucplanet.util.Units.effectiveSpeedUnit(settings))
         ),
         tempUnit = com.eried.eucplanet.util.Units.effectiveTempUnit(settings),
         tempUnitLabel = com.eried.eucplanet.util.Units.tempUnit(
@@ -1055,21 +1035,21 @@ class VoiceCommandController(
             // Already a whole sentence, name included.
             is Answer.SayReport -> answer.text
             is Answer.Act -> if (answer.confirm) {
-                voiceCtx.getString(R.string.voice_action_confirm, said(answer.name))
+                voiceCtx.text(Res.string.voice_action_confirm, said(answer.name))
             } else {
                 said(answer.name)
             }
-            is Answer.Unavailable -> voiceCtx.getString(reasonRes(answer.reason), said(answer.name))
-            is Answer.NotUnderstood -> voiceCtx.getString(
-                R.string.voice_answer_unknown,
+            is Answer.Unavailable -> voiceCtx.text(reasonRes(answer.reason), said(answer.name))
+            is Answer.NotUnderstood -> voiceCtx.text(
+                Res.string.voice_answer_unknown,
                 answer.helpPhrase,
             )
             // The list goes on screen, so the spoken half says where to look
             // rather than reciting three of fifty names. Reading examples out
             // was the answer when there was nothing to show.
-            is Answer.Examples -> voiceCtx.getString(R.string.voice_answer_examples)
-            is Answer.NeedsChoice -> voiceCtx.getString(
-                R.string.voice_answer_which,
+            is Answer.Examples -> voiceCtx.text(Res.string.voice_answer_examples)
+            is Answer.NeedsChoice -> voiceCtx.text(
+                Res.string.voice_answer_which,
                 answer.names.getOrElse(0) { "" },
                 answer.names.getOrElse(1) { "" },
             )
@@ -1154,8 +1134,8 @@ class VoiceCommandController(
      * because a session is the only thing running: a second press stops the
      * first rather than starting beside it.
      */
-    private var voiceCtx: Context = context
-    private var heardCtx: Context = context
+    private var voiceCtx: LanguageStrings = ports.stringsIn("")
+    private var heardCtx: LanguageStrings = voiceCtx
 
     /**
      * The map from a heard name to the same thing in the speaking voice.
@@ -1190,29 +1170,23 @@ class VoiceCommandController(
     }
 
     /** Strings resolved in one language, whatever the interface is set to. */
-    private fun localized(tag: String): Context {
-        if (tag.isBlank()) return context
-        val locale = java.util.Locale.forLanguageTag(tag.replace("_", "-"))
-        val cfg = android.content.res.Configuration(context.resources.configuration)
-            .apply { setLocale(locale) }
-        return context.createConfigurationContext(cfg)
-    }
+    private fun localized(tag: String): LanguageStrings = ports.stringsIn(tag)
 
     /** The names a rider can say, in their language. */
     private fun vocabulary(): List<SpokenTerm> = VoiceVocabulary.build(
-        metricNames = MetricCatalog.all.associate { it.key to heardCtx.getString(it.spokenLabelRes ?: it.labelRes) },
-        reportNames = VoicePhrases.resolve(VoicePhrases.REPORTS) { heardCtx.getString(it) },
-        splitName = heardCtx.getString(R.string.voice_split_term),
-        helpPhrases = heardCtx.getString(R.string.voice_help_terms),
-        actionPhrases = VoicePhrases.resolve(VoicePhrases.ACTIONS) { heardCtx.getString(it) },
-        specialPhrases = VoicePhrases.resolve(VoicePhrases.SPECIALS) { heardCtx.getString(it) },
+        metricNames = MetricCatalog.all.associate { it.key to heardCtx.text(it.spokenLabelRes ?: it.labelRes) },
+        reportNames = VoicePhrases.resolve(VoicePhrases.REPORTS) { heardCtx.text(it) },
+        splitName = heardCtx.text(Res.string.voice_split_term),
+        helpPhrases = heardCtx.text(Res.string.voice_help_terms),
+        actionPhrases = VoicePhrases.resolve(VoicePhrases.ACTIONS) { heardCtx.text(it) },
+        specialPhrases = VoicePhrases.resolve(VoicePhrases.SPECIALS) { heardCtx.text(it) },
     )
 
-    private fun reasonRes(reason: VoiceAnswer.Reason): Int = when (reason) {
-        VoiceAnswer.Reason.OFF_IN_SETTINGS -> R.string.voice_answer_off
-        VoiceAnswer.Reason.UNSUPPORTED_BY_WHEEL -> R.string.voice_answer_unsupported
-        VoiceAnswer.Reason.NO_DATA_YET -> R.string.voice_answer_nodata
-        VoiceAnswer.Reason.NEEDS_SETUP -> R.string.voice_answer_setup
+    private fun reasonRes(reason: VoiceAnswer.Reason): StringResource = when (reason) {
+        VoiceAnswer.Reason.OFF_IN_SETTINGS -> Res.string.voice_answer_off
+        VoiceAnswer.Reason.UNSUPPORTED_BY_WHEEL -> Res.string.voice_answer_unsupported
+        VoiceAnswer.Reason.NO_DATA_YET -> Res.string.voice_answer_nodata
+        VoiceAnswer.Reason.NEEDS_SETUP -> Res.string.voice_answer_setup
     }
 }
 
@@ -1269,7 +1243,7 @@ private val CONFIRMED_ACTIONS = setOf("RECORD_STOP", "RESET_TRIP")
  * rider, so handing the focus back does not start it again. Sent after, the
  * song would resume for a moment and then stop.
  */
-internal val MEDIA_AFTER_SPEECH = setOf("MUSIC_START", "MEDIA_PLAY_PAUSE", "MEDIA_NEXT", "MEDIA_PREVIOUS")
+val MEDIA_AFTER_SPEECH = setOf("MUSIC_START", "MEDIA_PLAY_PAUSE", "MEDIA_NEXT", "MEDIA_PREVIOUS")
 
 /** The specials that need a forecast before they can answer. */
 private val WEATHER_KEYS = setOf(
@@ -1288,7 +1262,7 @@ private val WEATHER_KEYS = setOf(
  * Everything else is a reading, and a reading with no wheel is a zero
  * pretending to be a measurement.
  */
-internal val OFF_WHEEL = setOf(
+val OFF_WHEEL = setOf(
     "Time", "PhoneBattery", "Recording", "Navigation",
     "PHONE_BATTERY", "GPS_ALTITUDE", "GPS_SPEED", "EXTERNAL_GPS_BATTERY",
     VoiceVocabulary.HELP_KEY,
@@ -1317,7 +1291,7 @@ private val UNSUPPORTED: Map<String, (com.eried.eucplanet.data.model.WheelData) 
  * and in their language, exactly as the periodic announcement says them,
  * rather than as a bare number with no unit.
  */
-internal val REPORT_FOR_METRIC = mapOf(
+val REPORT_FOR_METRIC = mapOf(
     "SPEED" to "Speed",
     "BATTERY" to "Battery",
     "PHONE_BATTERY" to "PhoneBattery",
@@ -1342,16 +1316,16 @@ internal val REPORT_FOR_METRIC = mapOf(
  * inventing a state the wheel never reported.
  */
 private val STATE_READINGS:
-    Map<String, (com.eried.eucplanet.data.model.WheelData, Context) -> String?> = mapOf(
+    Map<String, (com.eried.eucplanet.data.model.WheelData, LanguageStrings) -> String?> = mapOf(
     "LIGHT_ON" to { d, c ->
-        c.getString(if (d.lightOn) R.string.voice_state_on else R.string.voice_state_off)
+        c.text(if (d.lightOn) Res.string.voice_state_on else Res.string.voice_state_off)
     },
     "PC_MODE" to { d, c ->
         when (d.pcMode) {
-            0 -> c.getString(R.string.voice_mode_lock)
-            1 -> c.getString(R.string.voice_mode_drive)
-            2 -> c.getString(R.string.voice_mode_shutdown)
-            3 -> c.getString(R.string.voice_mode_idle)
+            0 -> c.text(Res.string.voice_mode_lock)
+            1 -> c.text(Res.string.voice_mode_drive)
+            2 -> c.text(Res.string.voice_mode_shutdown)
+            3 -> c.text(Res.string.voice_mode_idle)
             else -> null
         }
     },
@@ -1369,7 +1343,7 @@ private val STATE_READINGS:
  * VoiceMetricCoverageTest holds this against the catalog, so a metric added
  * tomorrow is either readable or listed here on purpose.
  */
-internal val VOICE_CANNOT_READ = setOf(
+val VOICE_CANNOT_READ = setOf(
     // The trip recorder owns these, not the wheel packet.
     "TRIP_TIME", "TRIP_MAX_SPEED", "AVG_TRIP_SPEED",
     // A location fix owns these.
@@ -1379,5 +1353,5 @@ internal val VOICE_CANNOT_READ = setOf(
 )
 
 /** Whether a spoken question about [key] can produce a value at all. */
-internal fun voiceCanRead(key: String): Boolean =
+fun voiceCanRead(key: String): Boolean =
     key in EXTRACTORS || key in STATE_READINGS || key in REPORT_FOR_METRIC

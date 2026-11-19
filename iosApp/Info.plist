@@ -117,7 +117,9 @@
     <key>NSCameraUsageDescription</key>
     <string>EUC Planet uses the camera for the Overlay Studio and to read the crew pass QR code shown on eucstats.</string>
     <key>NSMicrophoneUsageDescription</key>
-    <string>EUC Planet records sound with the Overlay Studio's videos while the microphone is on.</string>
+    <string>EUC Planet listens for your voice commands when you ask it to. EUC Planet records sound with the Overlay Studio's videos while the microphone is on.</string>
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>EUC Planet turns your voice commands into text to answer them.</string>
     <key>NSPhotoLibraryAddUsageDescription</key>
     <string>EUC Planet saves the Overlay Studio's photos, clips and videos to your photo library.</string>
     <key>NSBluetoothAlwaysUsageDescription</key>
