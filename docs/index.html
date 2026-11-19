@@ -586,56 +586,69 @@
   .os svg { width: 15px; height: 15px; display: block; }
   .os svg.off { color: var(--muted); opacity: 0.16; }
   .section-head .os { margin-left: 0; }
-  /* Feature preview: a small phone (or watch) next to the hovered card,
-     placed by script where the window has room. The card stays readable. */
+  /* Feature preview: a small phone screen next to the hovered card, placed
+     by script where the window has room. It unfolds out of the point where
+     it touches its card; each card gets its own, so the last one folds away
+     where it was while the next opens. The screenshot shows its full width
+     and pans slowly up and down. Rounded corners come from clip-path, not
+     from overflow on a radius, so the moving picture leaves no thin halo. */
   .card.has-shot { cursor: zoom-in; }
-  /* The preview overlaps the edge of its card, which lights up, so it is
-     clear which feature it shows. */
-  .card.has-shot.shown { border-color: rgba(88, 166, 255, 0.55); }
   .card.has-shot:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .card.has-shot.shown { border-color: rgba(88, 166, 255, 0.55); }
   .shot-pop {
     position: fixed;
     left: 0; top: 0;
     z-index: 80;
-    width: var(--pw, 230px);
-    height: var(--ph, 300px);
-    padding: 7px;
-    border-radius: 28px;
-    background: #0b0f14;
-    box-shadow: 0 22px 50px rgba(0, 0, 0, 0.6);
-    visibility: hidden;
-    /* Unfold: it opens out of the point where it touches its card. */
-    clip-path: circle(0% at var(--ox, 0%) var(--oy, 50%));
-    transition: clip-path 800ms cubic-bezier(0.65, 0, 0.25, 1), visibility 0s linear 800ms;
+    width: var(--pw, 240px);
+    height: var(--ph, 330px);
     pointer-events: none;
+    visibility: hidden;
+    transition: visibility 0s linear 800ms;
   }
-  .shot-pop.on { visibility: visible; clip-path: circle(150% at var(--ox, 0%) var(--oy, 50%)); transition: clip-path 800ms cubic-bezier(0.65, 0, 0.25, 1); }
-  .shot-pop .win img { transition: opacity 450ms ease; }
-  .shot-pop:not(.on) .win { opacity: 0; transition: opacity 120ms ease; }
-  .shot-pop.on .win { opacity: 1; transition: opacity 500ms ease 400ms; }
-  .shot-pop .win { position: relative; width: 100%; height: 100%; border-radius: 21px; overflow: hidden; background: #000; }
+  .shot-pop.on { visibility: visible; transition: none; }
+  .shot-pop::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 22px;
+    box-shadow: 0 22px 50px rgba(0, 0, 0, 0.55);
+    opacity: 0;
+    transition: opacity 400ms ease;
+  }
+  .shot-pop.on::before { opacity: 1; transition: opacity 600ms ease 300ms; }
+  .shot-pop .unfold {
+    position: absolute;
+    inset: 0;
+    clip-path: circle(0% at var(--ox, 0%) var(--oy, 50%));
+    transition: clip-path 700ms cubic-bezier(0.65, 0, 0.25, 1);
+  }
+  .shot-pop.on .unfold { clip-path: circle(150% at var(--ox, 0%) var(--oy, 50%)); transition-duration: 800ms; }
+  .shot-pop .win {
+    position: absolute;
+    inset: 0;
+    background: #05070a;
+    clip-path: inset(0 round 22px);
+  }
   .shot-pop img {
     position: absolute;
-    left: -25%;
-    width: 150%;
+    left: 0;
+    width: 100%;
     max-width: none;
     height: auto;
     top: 50%;
     opacity: 0;
-    transition: opacity 450ms ease;
+    transition: opacity 600ms ease;
     transform: translateY(calc(var(--f1) * -100%));
-    animation: pop-sweep 3s ease-in-out infinite alternate;
+    animation: pop-sweep 7s ease-in-out infinite alternate;
   }
   .shot-pop img.on { opacity: 1; }
   @keyframes pop-sweep {
     from { transform: translateY(calc(var(--f1) * -100%)); }
     to   { transform: translateY(calc(var(--f2) * -100%)); }
   }
-  .shot-pop.watch { width: var(--pw, 210px); height: var(--pw, 210px); border-radius: 50%; padding: 8px; }
-  .shot-pop.watch .win { border-radius: 50%; }
-  .shot-pop.watch img { left: 0; top: 0; width: 100%; height: 100%; transform: none; animation: none; }
   @media (prefers-reduced-motion: reduce) {
-    .shot-pop, .shot-pop.on, .shot-pop img, .shot-pop .win { transition: none; animation: none; clip-path: none; }
+    .shot-pop, .shot-pop::before, .shot-pop .unfold, .shot-pop img { transition: none; animation: none; }
+    .shot-pop .unfold { clip-path: none; }
   }
   .card p { font-size: 14px; color: #9aa4b2; margin: 0; }
   .card p a, .lead a { color: var(--accent); text-decoration: underline; text-decoration-color: rgba(88, 166, 255, 0.4); }
@@ -949,31 +962,31 @@
         <h3><span data-i18n="fc.wheels.title">Works with your wheel</span></h3>
         <p data-i18n-html="fc.wheels.body">InMotion V14 and P6 verified. KingSong, Begode, Veteran (LeaperKim), NOSFET and more InMotion models are rider-tested, the rest of those families and Ninebot in preview. <a href="https://github.com/eried/eucplanet/blob/main/docs/BLE_CAPTURE_GUIDE.md">Help us add yours</a>, or <a href="https://github.com/eried/eucplanet/blob/main/docs/DIAGNOSTICS_GUIDE.md">send a diagnostics recording</a> if it acts up.</p>
       </div>
-      <div class="card has-shot" tabindex="0" data-shots="f-modern.webp" data-f1="0.28" data-f2="0.62" data-kind="phone">
+      <div class="card has-shot" tabindex="0" data-shots="f-theme-dark.webp|f-theme-black.webp|f-theme-light.webp" data-f1="0.3" data-f2="0.62">
         <h3><span data-i18n="fc.modern.title">Modern &amp; fast</span></h3>
         <p data-i18n-html="fc.modern.body">A pure-black dashboard with almost no lag, built to be read in one glance at speed. Reorder the tiles, theme every color, and it adapts to portrait, bar-mount landscape, tablets and foldable cover screens.</p>
       </div>
-      <div class="card has-shot" tabindex="0" data-shots="f-record.webp" data-f1="0.3" data-f2="0.8" data-kind="phone">
+      <div class="card has-shot" tabindex="0" data-shots="f-record.webp" data-f1="0.3" data-f2="0.8">
         <h3><span data-i18n="fc.record.title">Record and compare</span></h3>
         <p data-i18n-html="fc.record.body">Every ride is recorded with GPS and wheel telemetry, in a CSV format other EUC apps and tools can read. Open any trip for its graphs, or let Compare put two rides side by side.</p>
       </div>
-      <div class="card has-shot" tabindex="0" data-shots="f-charging.webp" data-f1="0.4" data-f2="0.84" data-kind="phone">
+      <div class="card has-shot" tabindex="0" data-shots="f-charging.webp|f-cells.webp" data-f1="0.4" data-f2="0.8">
         <h3><span data-i18n="fc.charging.title">Charging, cell by cell</span></h3>
         <p data-i18n-html="fc.charging.body">A live charge curve with a prediction line you can scrub. On wheels with a smart BMS, a per-cell view shows cell voltages, pack imbalance and temperatures, so a weak cell shows up early.</p>
       </div>
-      <div class="card has-shot" tabindex="0" data-shots="f-navigation.webp" data-f1="0.4" data-f2="0.66" data-kind="phone">
+      <div class="card has-shot" tabindex="0" data-shots="f-navigation.webp|f-offline.webp" data-f1="0.4" data-f2="0.66">
         <h3><span data-i18n="fc.navigation.title">Navigation, offline too</span></h3>
         <p data-i18n-html="fc.navigation.body">Multi-stop routes with turn-by-turn guidance. Bike routes prefer quiet streets, and a missed turn gets a new route in seconds. Download the areas you ride and the map, routes and turn cues keep working with no signal.</p>
       </div>
-      <div class="card has-shot" tabindex="0" data-shots="f-watchset.webp|f-hudset.webp" data-f1="0.14" data-f2="0.4" data-kind="phone">
+      <div class="card has-shot" tabindex="0" data-shots="f-watchset.webp|f-hudset.webp" data-f1="0.14" data-f2="0.4">
         <h3><span data-i18n="fc.devices.title">Watch and helmet</span> <span class="os" role="img" aria-label="Android" title="Android" data-i18n-attrs data-i18n-attr-aria-label="a.android" data-i18n-attr-title="a.android"><svg class="off"><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
         <p data-i18n-html="fc.devices.body">Your wheel's numbers off the phone: a Wear OS watch app, a <a href="https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71">Garmin watch or Edge data field</a>, an Amazfit dial, and a <a href="hud/">MotoEye or any Android helmet HUD</a>, also in Android Auto mode with the route.</p>
       </div>
-      <div class="card has-shot" tabindex="0" data-shots="f-alarms-en.webp|f-alarms-es.webp|f-alarms-no.webp|f-alarms-zh.webp" data-f1="0.28" data-f2="0.66" data-kind="phone">
+      <div class="card has-shot" tabindex="0" data-shots="f-alarms-en.webp|f-alarms-es.webp|f-alarms-no.webp|f-alarms-zh.webp" data-f1="0.28" data-f2="0.66">
         <h3><span data-i18n="fc.alarms.title">Alarms &amp; voice</span></h3>
         <p data-i18n-html="fc.alarms.body">Alarms and spoken reports for speed, battery and PWM, the number that says how close the wheel is to its limit, in your language. Ask for battery or speed by voice, or say horn, lights, lock.</p>
       </div>
-      <div class="card has-shot" tabindex="0" data-shots="f-studio.webp" data-f1="0.4" data-f2="0.8" data-kind="phone">
+      <div class="card has-shot" tabindex="0" data-shots="f-phonehud.webp" data-f1="0.3" data-f2="0.7">
         <h3><span data-i18n="fc.studio.title">Overlay Studio</span></h3>
         <p data-i18n-html="fc.studio.body">Record video with your telemetry on screen, laid out your way. Export MP4 or a transparent overlay for another camera's footage. The same editor designs your <a href="hud/">MotoEye HUD</a> and the Phone HUD overlay on Android.</p>
       </div>
@@ -981,11 +994,11 @@
         <h3><span data-i18n="fc.sensors.title">Buttons, radar, sensors</span></h3>
         <p data-i18n-html="fc.sensors.body">Flic 2 buttons for horn, lights and lock. A Garmin Varia shows vehicles coming up behind you, with alarms on distance and closing speed. Bluetooth tire pressure caps and a RaceBox GPS feed the dashboard too.</p>
       </div>
-      <div class="card has-shot" tabindex="0" data-shots="f-group.webp" data-f1="0.4" data-f2="0.58" data-kind="phone">
+      <div class="card has-shot" tabindex="0" data-shots="f-qr.webp" data-f1="0.35" data-f2="0.65">
         <h3><span data-i18n="fc.group.title">Group rides</span></h3>
         <p data-i18n-html="fc.group.body">Share a ride with a link or a QR code and see friends live on the map, with trails. End-to-end encrypted, with a web page for watching without the app. Opt in to the <a href="https://eucstats.ried.no/">EUC Stats leaderboard</a> to see how your distance ranks worldwide.</p>
       </div>
-      <div class="card has-shot" tabindex="0" data-shots="f-weather.webp" data-f1="0.08" data-f2="0.22" data-kind="phone">
+      <div class="card has-shot" tabindex="0" data-shots="f-weather.webp" data-f1="0.08" data-f2="0.4">
         <h3><span data-i18n="fc.weather.title">Riding weather</span></h3>
         <p data-i18n-html="fc.weather.body">A score for how the next hours look for riding, from rain, wind and gusts, cold, heat and night, weighted by how much you mind each one. Drag the curve to read any hour.</p>
       </div>
@@ -1192,94 +1205,103 @@
 
 
 
-// Feature preview: one small phone that shows the hovered (or tapped) card's
-// screen. It sits beside the card if there is room, else below or above,
-// always inside the window, and follows the card while the page scrolls.
+
+// Feature preview: the hovered (or tapped) card's screen in a small phone.
+// It sits beside the card if there is room, else below or above, always in
+// the window, and follows the card while the page scrolls. Two previews
+// take turns, so leaving a card folds its own away in place.
 (function () {
   var cards = document.querySelectorAll('.features .card.has-shot');
   if (!cards.length) return;
-  var pop = document.createElement('div');
-  pop.className = 'shot-pop';
-  pop.setAttribute('aria-hidden', 'true');
-  pop.innerHTML = '<div class="win"></div>';
-  document.body.appendChild(pop);
-  var win = pop.firstChild, cur = null, timer = null;
+  function make() {
+    var p = document.createElement('div');
+    p.className = 'shot-pop';
+    p.setAttribute('aria-hidden', 'true');
+    p.innerHTML = '<div class="unfold"><div class="win"></div></div>';
+    document.body.appendChild(p);
+    return { el: p, win: p.querySelector('.win'), timer: null, wait: null, card: null };
+  }
+  var pops = [make(), make()], turn = 0, cur = null;
+  function clamp(v, lo, hi) { return Math.max(lo, Math.min(v, hi)); }
 
-  function place(card) {
-    var r = card.getBoundingClientRect(), vw = window.innerWidth, vh = window.innerHeight;
-    var w = pop.offsetWidth, h = pop.offsetHeight, g = -22, m = 8;
-    function clamp(v, lo, hi) { return Math.max(lo, Math.min(v, hi)); }
+  function place(pop, card) {
+    var el = pop.el, r = card.getBoundingClientRect(), vw = window.innerWidth, vh = window.innerHeight;
+    var w = el.offsetWidth, h = el.offsetHeight, g = -22, m = 8;
     var midY = clamp(r.top + r.height / 2 - h / 2, m, vh - h - m);
     var midX = clamp(r.left + r.width / 2 - w / 2, m, vw - w - m);
     var spots = [
-      { x: r.right + g, y: midY, room: vw - r.right - g - m - w },
-      { x: r.left - g - w, y: midY, room: r.left - g - m - w },
-      { x: midX, y: r.bottom + g, room: vh - r.bottom - g - m - h },
-      { x: midX, y: r.top - g - h, room: r.top - g - m - h }
+      { x: r.right + g, y: midY, room: vw - r.right - g - m - w, ox: '0%', oy: '50%' },
+      { x: r.left - g - w, y: midY, room: r.left - g - m - w, ox: '100%', oy: '50%' },
+      { x: midX, y: r.bottom + g, room: vh - r.bottom - g - m - h, ox: '50%', oy: '0%' },
+      { x: midX, y: r.top - g - h, room: r.top - g - m - h, ox: '50%', oy: '100%' }
     ];
-    spots[0].ox = '0%'; spots[0].oy = '50%';
-    spots[1].ox = '100%'; spots[1].oy = '50%';
-    spots[2].ox = '50%'; spots[2].oy = '0%';
-    spots[3].ox = '50%'; spots[3].oy = '100%';
     var best = spots[0];
     for (var i = 0; i < spots.length; i++) {
       if (spots[i].room >= 0) { best = spots[i]; break; }
       if (spots[i].room > best.room) best = spots[i];
     }
-    pop.style.setProperty('--ox', best.ox);
-    pop.style.setProperty('--oy', best.oy);
-    pop.style.left = clamp(best.x, m, vw - w - m) + 'px';
-    pop.style.top = clamp(best.y, m, vh - h - m) + 'px';
+    el.style.setProperty('--ox', best.ox);
+    el.style.setProperty('--oy', best.oy);
+    el.style.left = clamp(best.x, m, vw - w - m) + 'px';
+    el.style.top = clamp(best.y, m, vh - h - m) + 'px';
+  }
+
+  function close(pop) {
+    clearTimeout(pop.wait);
+    clearInterval(pop.timer);
+    pop.el.classList.remove('on');
+    if (pop.card) pop.card.classList.remove('shown');
+    pop.card = null;
   }
 
   function show(card) {
-    if (cur === card) return;
-    cur = card;
+    if (cur && cur.card === card) return;
+    if (cur) close(cur);
+    turn = 1 - turn;
+    var pop = pops[turn];
+    close(pop);
+    cur = pop;
+    pop.card = card;
+    card.classList.add('shown');
+    var scale = Math.max(0.75, Math.min(1, window.innerWidth / 640));
+    var w = Math.round(240 * scale), h = Math.round(330 * scale);
+    pop.el.style.setProperty('--pw', w + 'px');
+    pop.el.style.setProperty('--ph', h + 'px');
+    // The whole width is shown, so keep the pan inside the picture.
+    var half = (h / (w * 20 / 9)) / 2;
+    var f1 = clamp(+card.getAttribute('data-f1'), half, 1 - half);
+    var f2 = clamp(+card.getAttribute('data-f2'), half, 1 - half);
     var list = card.getAttribute('data-shots').split('|');
-    var small = Math.min(1, window.innerWidth / 640);
-    pop.className = 'shot-pop' + (card.getAttribute('data-kind') === 'watch' ? ' watch' : '');
-    pop.style.setProperty('--pw', Math.round((card.getAttribute('data-kind') === 'watch' ? 210 : 230) * Math.max(0.75, small)) + 'px');
-    pop.style.setProperty('--ph', Math.round(300 * Math.max(0.75, small)) + 'px');
-    win.innerHTML = '';
+    pop.win.innerHTML = '';
     list.forEach(function (src, i) {
       var im = new Image();
       im.alt = '';
       im.src = 'screenshots/' + src;
-      im.style.setProperty('--f1', card.getAttribute('data-f1'));
-      im.style.setProperty('--f2', card.getAttribute('data-f2'));
+      im.style.setProperty('--f1', f1);
+      im.style.setProperty('--f2', f2);
       if (i === 0) im.className = 'on';
-      win.appendChild(im);
+      pop.win.appendChild(im);
     });
-    clearInterval(timer);
     if (list.length > 1) {
       var k = 0;
-      timer = setInterval(function () {
-        var ims = win.children;
+      pop.timer = setInterval(function () {
+        var ims = pop.win.children;
         ims[k].className = '';
         k = (k + 1) % ims.length;
         ims[k].className = 'on';
-      }, 1800);
+      }, 2200);
     }
-    cards.forEach(function (x) { x.classList.toggle('shown', x === card); });
-    place(card);
+    place(pop, card);
     // Wait about a second, so a pass over the cards shows nothing, and
     // until the first picture is ready, so it never opens on a black box.
-    var first = win.firstChild, me = card;
+    var first = pop.win.firstChild;
     var ready = first.decode ? first.decode().catch(function () {}) : Promise.resolve();
-    clearTimeout(waitTimer);
-    waitTimer = setTimeout(function () {
-      ready.then(function () { if (cur === me) { place(me); pop.classList.add('on'); } });
+    pop.wait = setTimeout(function () {
+      ready.then(function () { if (pop.card === card) { place(pop, card); pop.el.classList.add('on'); } });
     }, 1000);
   }
 
-  var waitTimer = null;
-  function hide() {
-    clearTimeout(waitTimer);
-    cards.forEach(function (x) { x.classList.remove('shown'); });
-    cur = null;
-    clearInterval(timer);
-    pop.classList.remove('on');
-  }
+  function hide() { if (cur) close(cur); cur = null; }
 
   var touch = window.matchMedia && window.matchMedia('(hover: none)').matches;
   cards.forEach(function (c) {
@@ -1295,10 +1317,10 @@
     if (!touch) return;
     var card = ev.target.closest ? ev.target.closest('.features .card.has-shot') : null;
     if (!card || (ev.target.closest && ev.target.closest('a'))) { hide(); return; }
-    if (cur === card) hide(); else show(card);
+    if (cur && cur.card === card) hide(); else show(card);
   });
-  window.addEventListener('scroll', function () { if (cur) place(cur); }, { passive: true });
-  window.addEventListener('resize', function () { if (cur) place(cur); });
+  window.addEventListener('scroll', function () { if (cur && cur.card) place(cur, cur.card); }, { passive: true });
+  window.addEventListener('resize', function () { if (cur && cur.card) place(cur, cur.card); });
 })();
 </script>
 
