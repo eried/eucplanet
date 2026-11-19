@@ -1206,6 +1206,7 @@
 
 
 
+
 // Feature preview: the hovered (or tapped) card's screen in a small phone.
 // It sits beside the card if there is room, else below or above, always in
 // the window, and follows the card while the page scrolls. Two previews
@@ -1305,10 +1306,11 @@
 
   var touch = window.matchMedia && window.matchMedia('(hover: none)').matches;
   cards.forEach(function (c) {
-    if (!touch) {
-      c.addEventListener('mouseenter', function () { show(c); });
-      c.addEventListener('mouseleave', hide);
-    }
+    // On a touch screen a tap also focuses the card; only the tap counts
+    // there, or the focus would open the preview and the tap close it.
+    if (touch) return;
+    c.addEventListener('mouseenter', function () { show(c); });
+    c.addEventListener('mouseleave', hide);
     c.addEventListener('focus', function () { show(c); });
     c.addEventListener('blur', hide);
   });
