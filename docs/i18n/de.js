@@ -21,7 +21,7 @@ window.EUC_I18N_DICT = {
 "lead.3": "Kostenlos selbst bauen und per Sideload installieren, direkt von <a href=\"https://github.com/eried/eucplanet/releases\">GitHub</a>. Die Store-Version ist nur der bequeme Weg zu automatischen Updates, und du kannst damit was beisteuern. Auf dem iPhone machst du bei der <a href=\"https://testflight.apple.com/join/8VrhGCrm\">Beta auf TestFlight</a> mit.",
 "h2.a-look-inside": "Ein Blick in die App",
 "h2.on-the-wrist": "Am Handgelenk",
-"h2.built-different": "Anders gebaut",
+"h2.built-different": "Funktionen",
 "fc.wheels.title": "Passt zu deinem Wheel",
 "fc.wheels.body": "InMotion V14 und P6 verifiziert. KingSong, Begode, Veteran (LeaperKim), NOSFET und weitere InMotion-Modelle sind von Fahrern getestet, der Rest dieser Familien und Ninebot als Vorschau. <a href=\"https://github.com/eried/eucplanet/blob/main/docs/BLE_CAPTURE_GUIDE.md\">Hilf uns, deins hinzuzufügen</a>, oder <a href=\"https://github.com/eried/eucplanet/blob/main/docs/DIAGNOSTICS_GUIDE.md\">schick eine Diagnoseaufzeichnung</a>, wenn es zickt.",
 "fc.modern.title": "Modern & schnell",

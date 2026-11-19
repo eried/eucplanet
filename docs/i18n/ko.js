@@ -21,7 +21,7 @@ window.EUC_I18N_DICT = {
 "lead.3": "<a href=\"https://github.com/eried/eucplanet/releases\">GitHub</a>에서 무료로 빌드하고 사이드로드할 수 있습니다. 스토어 버전은 자동 업데이트를 편하게 받으면서 개발도 조금 응원하는 방법일 뿐입니다. iPhone이라면 <a href=\"https://testflight.apple.com/join/8VrhGCrm\">TestFlight에서 베타</a>에 참여하세요.",
 "h2.a-look-inside": "앱 둘러보기",
 "h2.on-the-wrist": "손목 위에서",
-"h2.built-different": "만듦새가 다릅니다",
+"h2.built-different": "기능",
 "fc.wheels.title": "내 휠과 연결",
 "fc.wheels.body": "InMotion V14와 P6는 검증 완료. KingSong, Begode, Veteran (LeaperKim), NOSFET과 다른 InMotion 모델은 라이더가 테스트했고, 이 제품군의 나머지 모델과 Ninebot은 미리보기 단계입니다. <a href=\"https://github.com/eried/eucplanet/blob/main/docs/BLE_CAPTURE_GUIDE.md\">내 휠 추가를 도와주시거나</a>, 이상하게 동작하면 <a href=\"https://github.com/eried/eucplanet/blob/main/docs/DIAGNOSTICS_GUIDE.md\">진단 기록을 보내 주세요</a>.",
 "fc.modern.title": "깔끔하고 빠르게",

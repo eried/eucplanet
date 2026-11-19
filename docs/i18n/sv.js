@@ -21,7 +21,7 @@ window.EUC_I18N_DICT = {
 "lead.3": "Gratis att bygga själv och sidladda från <a href=\"https://github.com/eried/eucplanet/releases\">GitHub</a>. Versionen i butiken är bara ett smidigt sätt att få automatiska uppdateringar och bidra med en slant. På iPhone går du med i <a href=\"https://testflight.apple.com/join/8VrhGCrm\">betan på TestFlight</a>.",
 "h2.a-look-inside": "En titt på insidan",
 "h2.on-the-wrist": "På handleden",
-"h2.built-different": "Byggd annorlunda",
+"h2.built-different": "Funktioner",
 "fc.wheels.title": "Funkar med ditt hjul",
 "fc.wheels.body": "InMotion V14 och P6 verifierade. KingSong, Begode, Veteran (LeaperKim), NOSFET och fler InMotion-modeller är testade av åkare, och resten av de familjerna och Ninebot har förhandsstöd. <a href=\"https://github.com/eried/eucplanet/blob/main/docs/BLE_CAPTURE_GUIDE.md\">Hjälp oss lägga till ditt</a>, eller <a href=\"https://github.com/eried/eucplanet/blob/main/docs/DIAGNOSTICS_GUIDE.md\">skicka en diagnostikinspelning</a> om det krånglar.",
 "fc.modern.title": "Modern och snabb",

@@ -21,7 +21,7 @@ window.EUC_I18N_DICT = {
 "lead.3": "Puedes compilarla e instalarla gratis desde <a href=\"https://github.com/eried/eucplanet/releases\">GitHub</a>. La ficha de la tienda es solo una forma cómoda de recibir actualizaciones automáticas y echar una mano. En un iPhone, únete a la <a href=\"https://testflight.apple.com/join/8VrhGCrm\">beta en TestFlight</a>.",
 "h2.a-look-inside": "Un vistazo por dentro",
 "h2.on-the-wrist": "En la muñeca",
-"h2.built-different": "Hecha de otra pasta",
+"h2.built-different": "Funciones",
 "fc.wheels.title": "Funciona con tu rueda",
 "fc.wheels.body": "InMotion V14 y P6 verificadas. KingSong, Begode, Veteran (LeaperKim), NOSFET y más modelos de InMotion están probados por riders, y el resto de esas familias y Ninebot, en vista previa. <a href=\"https://github.com/eried/eucplanet/blob/main/docs/BLE_CAPTURE_GUIDE.md\">Ayúdanos a añadir la tuya</a>, o <a href=\"https://github.com/eried/eucplanet/blob/main/docs/DIAGNOSTICS_GUIDE.md\">envía una grabación de diagnóstico</a> si da guerra.",
 "fc.modern.title": "Moderna y rápida",

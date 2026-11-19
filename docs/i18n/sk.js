@@ -21,7 +21,7 @@ window.EUC_I18N_DICT = {
 "lead.3": "Zostaviť a nainštalovať si ju môžete zadarmo z <a href=\"https://github.com/eried/eucplanet/releases\">GitHubu</a>. Verzia v obchode je len pohodlný spôsob, ako mať automatické aktualizácie a prispieť. Na iPhone sa pridajte do <a href=\"https://testflight.apple.com/join/8VrhGCrm\">bety na TestFlighte</a>.",
 "h2.a-look-inside": "Pohľad dovnútra",
 "h2.on-the-wrist": "Na zápästí",
-"h2.built-different": "Urobená inak",
+"h2.built-different": "Funkcie",
 "fc.wheels.title": "Funguje s vaším kolesom",
 "fc.wheels.body": "InMotion V14 a P6 overené. KingSong, Begode, Veteran (LeaperKim), NOSFET a ďalšie modely InMotion vyskúšali jazdci, zvyšok týchto radov a Ninebot zatiaľ predbežne. <a href=\"https://github.com/eried/eucplanet/blob/main/docs/BLE_CAPTURE_GUIDE.md\">Pomôžte nám pridať to vaše</a>. Blbne? <a href=\"https://github.com/eried/eucplanet/blob/main/docs/DIAGNOSTICS_GUIDE.md\">Pošlite diagnostický záznam</a>.",
 "fc.modern.title": "Moderná a rýchla",
