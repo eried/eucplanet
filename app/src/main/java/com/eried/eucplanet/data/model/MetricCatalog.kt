@@ -311,13 +311,6 @@ object MetricCatalog {
 
         // ---- Derived trip aggregates ----
         MetricSpec(
-            key = "HEADROOM",
-            labelRes = R.string.metric_chip_headroom,
-            descriptionRes = R.string.metric_desc_headroom,
-            accent = AccentBlue,
-            sparkline = SparklineStyle.LINE
-        ),
-        MetricSpec(
             key = "TRIP_TIME",
             labelRes = R.string.metric_chip_trip_time,
             accent = AccentBlue,

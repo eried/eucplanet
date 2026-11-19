@@ -22,7 +22,7 @@ object LeaderboardSetupLaunch {
     const val EXTRA_OPEN_LEADERBOARD = "com.eried.eucplanet.OPEN_LEADERBOARD"
 
     /**
-     * `initialTab` for the "Backups & leaderboards" section. The number maps to a stable section
+     * `initialTab` for the "Backups & Leaderboards" section. The number maps to a stable section
      * KEY in `SettingsScreen.initialTabSectionKey` ("cloud"), not to a position, so a rider who
      * has reordered their settings still lands on the right one.
      */

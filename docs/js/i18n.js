@@ -24,7 +24,7 @@
   var STORAGE_KEY = "eucplanet-lang";
   var COOKIE = "euc_lang";
   // Bump when any dictionary changes, so nobody keeps a stale one.
-  var DICT_VERSION = "2";
+  var DICT_VERSION = "6";
 
   // Native names, never translated.
   var LANGS = {
@@ -58,7 +58,7 @@
     "uk": "Українська",
     "vi": "Tiếng Việt",
     "zh": "中文 (简体)",
-    "zh-Hant": "中文 (繁體)"
+    "zh-TW": "中文 (繁體)"
   };
   function has(code) { return Object.prototype.hasOwnProperty.call(LANGS, code); }
 
@@ -77,7 +77,7 @@
     var region = (lc.split("-")[1] || "").toUpperCase();
     if (base === "en") return EN_GB.indexOf(region) >= 0 ? "en-GB" : "en";
     if (base === "pt") return PT_PT.indexOf(region) >= 0 ? "pt-PT" : "pt-BR";
-    if (base === "zh") return /(^|-)(tw|hk|mo|hant)(-|$)/.test(lc) ? "zh-Hant" : "zh";
+    if (base === "zh") return /(^|-)(tw|hk|mo|hant)(-|$)/.test(lc) ? "zh-TW" : "zh";
     if (base === "nb" || base === "nn" || base === "no") return "no";
     if (base === "in") return "id";
     if (base === "es") return LATAM.indexOf(region) >= 0 ? "es-419" : "es";
@@ -167,19 +167,18 @@
     writeCookie(next);
   }
 
-  // The cogwheel: a button in the top corner that opens the language list.
+  // The cogwheel: a rounded square in the bottom left corner, as on eucstats, that opens the language list.
   // Picking one saves it and reloads, the way the trip viewer does.
   function cogwheel() {
     var style = document.createElement("style");
     style.textContent =
-      ".site-cog{position:fixed;top:14px;right:14px;z-index:60;font:14px/1.3 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}" +
-      ".site-cog button{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;cursor:pointer;" +
+      ".site-cog{position:fixed;bottom:calc(14px + env(safe-area-inset-bottom, 0px));left:calc(14px + env(safe-area-inset-left, 0px));z-index:60;font:14px/1.3 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}" +
+      ".site-cog button{width:38px;height:38px;border-radius:9px;display:grid;place-items:center;cursor:pointer;" +
       "color:#e6edf3;background:rgba(22,27,34,.78);border:1px solid rgba(255,255,255,.16);" +
-      "-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);transition:transform .25s ease,border-color .2s ease}" +
+      "-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);transition:border-color .2s ease}" +
       ".site-cog button:hover,.site-cog.open button{border-color:rgba(88,166,255,.7)}" +
-      ".site-cog.open button{transform:rotate(60deg)}" +
       ".site-cog button:focus-visible{outline:2px solid #58a6ff;outline-offset:2px}" +
-      ".site-cog .panel{display:none;position:absolute;top:46px;right:0;min-width:200px;padding:12px;border-radius:12px;" +
+      ".site-cog .panel{display:none;position:absolute;bottom:46px;left:0;min-width:200px;padding:12px;border-radius:12px;" +
       "color:#e6edf3;background:rgba(13,17,23,.96);border:1px solid rgba(255,255,255,.16);box-shadow:0 12px 32px rgba(0,0,0,.5)}" +
       ".site-cog.open .panel{display:block}" +
       ".site-cog label{display:block;font-size:12px;color:#9aa4b2;margin-bottom:6px}" +
