@@ -249,7 +249,6 @@
     <string name="metric_chip_tire_pressure_tile">Pneu</string>
     <string name="metric_desc_tire_pressure">Pression du pneu fournie par votre propre capteur ou relayée par la roue.</string>
     <string name="studio_metric_tire_pressure">Pression du pneu</string>
-    <string name="metric_chip_headroom">Marge</string>
     <string name="metric_chip_trip_time">Temps trajet</string>
     <string name="metric_chip_trip_max_speed">Max trajet</string>
     <string name="metric_chip_avg_trip_speed">Vit. moy.</string>
@@ -310,7 +309,6 @@
     <!-- Descriptions shown in the slot-sheet info box for metrics whose
          meaning isn't obvious from the name alone. Strings end with a
          period so they read like complete sentences. -->
-    <string name="metric_desc_headroom">Marge de vitesse restante avant le tiltback. Plus la valeur est grande, plus la marge de sécurité est importante.</string>
     <string name="metric_desc_trip_max_speed">Vitesse maximale du trajet en cours (réinitialisée à chaque nouveau trajet).</string>
     <string name="metric_desc_avg_trip_speed">Distance du trajet divisée par le temps de roulage écoulé.</string>
     <string name="metric_desc_wh_consumed">Watt-heures totaux puisés dans la batterie sur ce trajet.</string>
@@ -617,7 +615,7 @@
     <string name="section_cloud_settings">Sauvegarde des paramètres</string>
     <string name="cloud_backup_now">Sauvegarder</string>
     <string name="cloud_restore">Restaurer</string>
-    <string name="cloud_settings_backup_desc">Tout ce que vous avez configuré dans l\'application, enregistré dans eucplanet_settings.json dans votre dossier de sauvegarde. Maintenez le bouton pour enregistrer une copie nommée à côté.</string>
+    <string name="cloud_settings_backup_desc">Vos paramètres et règles d\'alarme, enregistrés dans eucplanet_settings.json dans votre dossier de sauvegarde. Maintenez le bouton pour enregistrer une copie nommée à côté.</string>
     <string name="cloud_last_backup">Dernière sauvegarde : %1$s</string>
 <string name="cloud_last_backup_named">Dernière sauvegarde : %1$s sous « %2$s »</string>
     <string name="cloud_last_backup_never">Aucune sauvegarde</string>
@@ -957,7 +955,7 @@
     <string name="volume_keys_caption">Utilise les touches de volume comme raccourcis tant que l\'application est à l\'écran.</string>
     <string name="volume_keys_enable">Activer les actions des touches de volume</string>
     <string name="volume_keys_screen_off">Aussi écran éteint</string>
-    <string name="volume_keys_screen_off_caption">Fonctionne téléphone verrouillé ou avec une autre application au premier plan. Les touches ne changent plus le volume du téléphone.</string>
+    <string name="volume_keys_screen_off_caption">Tant qu\'EUC Planet est en cours d\'exécution, fonctionne téléphone verrouillé ou avec une autre application au premier plan. Les touches ne changent plus le volume du téléphone.</string>
     <string name="volume_keys_screen_off_warn">Android n\'envoie les appuis de volume qu\'à l\'application à l\'écran. Pour les recevoir écran éteint, EUC Planet se déclare comme lecteur multimédia actif du téléphone, et Android lui envoie les touches de volume au lieu de changer le volume.</string>
     <string name="volume_keys_screen_off_confirm">Activer</string>
     <string name="volume_keys_screen_off_title">Prendre le contrôle des touches de volume ?</string>
@@ -2792,7 +2790,7 @@
     <string name="crews_scan_hint">Ouvrez eucstats dans un navigateur, appuyez sur Crews et visez le code affiché.</string>
     <string name="crews_scan_invalid">Ce n\'est pas un code de pass crew.</string>
     <string name="crews_scan_is_share">C\'est un code de position en direct. Scannez-le depuis Partager sur la carte.</string>
-    <string name="share_scan_is_crewpass">C\'est un pass crew. Scannez-le depuis Paramètres, dans Crews.</string>
+    <string name="share_scan_is_crewpass">C\'est un pass crew. Scannez-le depuis Paramètres, dans Classements en ligne.</string>
     <string name="crews_type_instead">Saisir manuellement</string>
     <string name="crews_code_label">Code du pass</string>
     <string name="crews_foreign_title">Ce code ne vient pas d\'eucstats</string>

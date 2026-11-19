@@ -249,7 +249,6 @@
     <string name="metric_chip_tire_pressure_tile">Dæk</string>
     <string name="metric_desc_tire_pressure">Dæktryk fra din egen sensor eller en, hjulet videresender.</string>
     <string name="studio_metric_tire_pressure">Dæktryk</string>
-    <string name="metric_chip_headroom">Margen</string>
     <string name="metric_chip_trip_time">Turtid</string>
     <string name="metric_chip_trip_max_speed">Tur maks</string>
     <string name="metric_chip_avg_trip_speed">Gns. fart</string>
@@ -310,7 +309,6 @@
     <!-- Descriptions shown in the slot-sheet info box for metrics whose
          meaning isn't obvious from the name alone. Strings end with a
          period so they read like complete sentences. -->
-    <string name="metric_desc_headroom">Resterende fartmargen før tiltback slår til. Højt tal = mere sikkerhedsbuffer.</string>
     <string name="metric_desc_trip_max_speed">Topfart på den aktuelle tur (nulstilles ved ny tur).</string>
     <string name="metric_desc_avg_trip_speed">Turens distance divideret med køretiden indtil nu.</string>
     <string name="metric_desc_wh_consumed">Samlede watt-timer trukket fra batteriet på denne tur.</string>
@@ -617,7 +615,7 @@
     <string name="section_cloud_settings">Backup af indstillinger</string>
     <string name="cloud_backup_now">Tag backup</string>
     <string name="cloud_restore">Gendan</string>
-    <string name="cloud_settings_backup_desc">Alt, du har sat op i appen, gemt i eucplanet_settings.json i din backupmappe. Hold knappen nede for at gemme en navngivet kopi ved siden af.</string>
+    <string name="cloud_settings_backup_desc">Dine indstillinger og alarmregler, gemt i eucplanet_settings.json i din backupmappe. Hold knappen nede for at gemme en navngivet kopi ved siden af.</string>
     <string name="cloud_last_backup">Seneste backup: %1$s</string>
 <string name="cloud_last_backup_named">Seneste backup: %1$s som »%2$s«</string>
     <string name="cloud_last_backup_never">Ingen backup endnu</string>
@@ -957,7 +955,7 @@
     <string name="volume_keys_caption">Lydstyrkeknapperne som genveje, mens appen er på skærmen.</string>
     <string name="volume_keys_enable">Aktivér handlinger på lydstyrketaster</string>
     <string name="volume_keys_screen_off">Også med skærmen slukket</string>
-    <string name="volume_keys_screen_off_caption">Virker med låst telefon eller en anden app forrest. Knapperne ændrer ikke længere telefonens lydstyrke.</string>
+    <string name="volume_keys_screen_off_caption">Mens EUC Planet kører, virker det med låst telefon eller en anden app forrest. Knapperne ændrer ikke længere telefonens lydstyrke.</string>
     <string name="volume_keys_screen_off_warn">Android sender kun lydstyrketryk til appen på skærmen. For at få dem med slukket skærm melder EUC Planet sig som telefonens aktive medieafspiller, så Android sender lydstyrkeknapperne til den i stedet for at ændre lydstyrken.</string>
     <string name="volume_keys_screen_off_confirm">Slå til</string>
     <string name="volume_keys_screen_off_title">Overtag lydstyrkeknapperne?</string>
@@ -2801,7 +2799,7 @@
     <string name="crews_scan_hint">Åbn eucstats i en browser, tryk på Crews, og ret kameraet mod koden, der vises.</string>
     <string name="crews_scan_invalid">Det er ikke et crew-pas.</string>
     <string name="crews_scan_is_share">Det er en live-position-kode. Scan den fra Del på kortet.</string>
-    <string name="share_scan_is_crewpass">Det er et crew-pas. Scan det fra Indstillinger, under Crews.</string>
+    <string name="share_scan_is_crewpass">Det er et crew-pas. Scan det fra Indstillinger, under Online-ranglister.</string>
     <string name="crews_type_instead">Indtast manuelt</string>
     <string name="crews_code_label">Paskode</string>
     <string name="crews_foreign_title">Den kode er ikke fra eucstats</string>

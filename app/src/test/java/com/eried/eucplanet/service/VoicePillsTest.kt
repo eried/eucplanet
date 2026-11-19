@@ -107,7 +107,7 @@ class VoicePillsTest {
         // it is offered by itself and this list must shrink.
         assertEquals(
             setOf(
-                "TRIP_TIME", "TRIP_MAX_SPEED", "AVG_TRIP_SPEED", "HEADROOM", "SLOPE",
+                "TRIP_TIME", "TRIP_MAX_SPEED", "AVG_TRIP_SPEED", "SLOPE",
                 "ASCENT", "DESCENT", "MOTOR_RPM", "PC_MODE",
             ),
             leftOut,

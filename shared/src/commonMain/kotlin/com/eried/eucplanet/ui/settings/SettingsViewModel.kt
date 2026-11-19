@@ -70,7 +70,7 @@ val KNOWN_DASHBOARD_METRICS = listOf(
     // Individual temperature sensors (WheelData.temperatures by index).
     "MOTOR_TEMP", "CONTROLLER_TEMP", "BATTERY_TEMP",
     // Derived trip metrics.
-    "HEADROOM", "TRIP_TIME", "TRIP_MAX_SPEED", "AVG_TRIP_SPEED",
+    "TRIP_TIME", "TRIP_MAX_SPEED", "AVG_TRIP_SPEED",
     "WH_CONSUMED", "RANGE_ESTIMATE", "WH_PER_KM",
     // Phone + GPS feeds, sourced outside WheelData.
     "PHONE_BATTERY", "GPS_ALTITUDE", "GPS_SPEED", "GPS_HEADING",

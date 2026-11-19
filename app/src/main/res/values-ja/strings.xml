@@ -249,7 +249,6 @@
     <string name="metric_chip_tire_pressure_tile">タイヤ</string>
     <string name="metric_desc_tire_pressure">自分のセンサー、またはホイールが中継するセンサーのタイヤ空気圧。</string>
     <string name="studio_metric_tire_pressure">タイヤ空気圧</string>
-    <string name="metric_chip_headroom">ヘッドルーム</string>
     <string name="metric_chip_trip_time">トリップ時間</string>
     <string name="metric_chip_trip_max_speed">トリップ最高速</string>
     <string name="metric_chip_avg_trip_speed">平均速度</string>
@@ -310,7 +309,6 @@
     <!-- Descriptions shown in the slot-sheet info box for metrics whose
          meaning isn't obvious from the name alone. Strings end with a
          period so they read like complete sentences. -->
-    <string name="metric_desc_headroom">チルトバックが作動するまでの残り速度マージン。数値が大きいほど余裕があります。</string>
     <string name="metric_desc_trip_max_speed">現在のトリップの最高速度（新しいトリップでリセット）。</string>
     <string name="metric_desc_avg_trip_speed">トリップ距離をここまでの走行時間で割った値。</string>
     <string name="metric_desc_wh_consumed">このトリップでバッテリーから消費した総ワット時。</string>
@@ -617,7 +615,7 @@
     <string name="section_cloud_settings">設定バックアップ</string>
     <string name="cloud_backup_now">バックアップ</string>
     <string name="cloud_restore">復元</string>
-    <string name="cloud_settings_backup_desc">アプリで設定したすべての内容を、バックアップフォルダの eucplanet_settings.json に保存します。ボタンを長押しすると、名前を付けたコピーも保存できます。</string>
+    <string name="cloud_settings_backup_desc">設定とアラームルールを、バックアップフォルダの eucplanet_settings.json に保存します。ボタンを長押しすると、名前を付けたコピーも保存できます。</string>
     <string name="cloud_last_backup">最終バックアップ: %1$s</string>
 <string name="cloud_last_backup_named">最終バックアップ: %1$s（名前:「%2$s」）</string>
     <string name="cloud_last_backup_never">まだバックアップされていません</string>
@@ -953,7 +951,7 @@
     <string name="volume_keys_caption">アプリが画面に表示されている間、音量ボタンをショートカットとして使います。</string>
     <string name="volume_keys_enable">音量キーアクションを有効にする</string>
     <string name="volume_keys_screen_off">画面が消えているときも</string>
-    <string name="volume_keys_screen_off_caption">スマホのロック中や他のアプリが前面にあるときも動作します。ボタンでスマホの音量は変わらなくなります。</string>
+    <string name="volume_keys_screen_off_caption">EUC Planet の実行中は、スマホのロック中や他のアプリが前面にあるときも動作します。ボタンでスマホの音量は変わらなくなります。</string>
     <string name="volume_keys_screen_off_warn">Android は音量ボタンの操作を画面上のアプリにしか送りません。画面オフでも受け取れるよう、EUC Planet はスマホのアクティブなメディアプレーヤーとして登録され、Android は音量を変える代わりにボタンをアプリへ送ります。</string>
     <string name="volume_keys_screen_off_confirm">オンにする</string>
     <string name="volume_keys_screen_off_title">音量ボタンを引き継ぎますか？</string>
@@ -2785,7 +2783,7 @@
     <string name="crews_scan_hint">ブラウザで eucstats を開いて「Crews」を押し、表示されたコードにカメラを向けてください。</string>
     <string name="crews_scan_invalid">クルーパスのコードではありません。</string>
     <string name="crews_scan_is_share">これは現在地共有のコードです。マップの「共有」から読み取ってください。</string>
-    <string name="share_scan_is_crewpass">これはクルーパスです。設定の「クルー」から読み取ってください。</string>
+    <string name="share_scan_is_crewpass">これはクルーパスです。設定の「オンラインリーダーボード」から読み取ってください。</string>
     <string name="crews_type_instead">手動で入力</string>
     <string name="crews_code_label">パスコード</string>
     <string name="crews_foreign_title">eucstats のコードではありません</string>

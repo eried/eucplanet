@@ -226,7 +226,6 @@
     <string name="metric_chip_tire_pressure">ความดันยาง</string>
     <string name="metric_chip_tire_pressure_tile">ยาง</string>
     <string name="metric_desc_tire_pressure">ความดันยางจากเซนเซอร์ของคุณเองหรือจากที่ล้อส่งต่อมา</string>
-    <string name="metric_chip_headroom">ระยะเผื่อ</string>
     <string name="metric_chip_trip_time">เวลาทริป</string>
     <string name="metric_chip_trip_max_speed">สูงสุดในทริป</string>
     <string name="metric_chip_avg_trip_speed">ความเร็วเฉลี่ย</string>
@@ -277,7 +276,6 @@
     <string name="metric_chip_forward_g_tile">g หน้า</string>
     <string name="metric_chip_lateral_g_tile">g ข้าง</string>
     <string name="metric_chip_bt_rssi_tile">BT</string>
-    <string name="metric_desc_headroom">ระยะเผื่อความเร็วที่เหลือก่อน tiltback จะทำงาน ตัวเลขมาก = ระยะปลอดภัยมาก</string>
     <string name="metric_desc_trip_max_speed">ความเร็วสูงสุดในทริปปัจจุบัน (รีเซ็ตเมื่อเริ่มทริปใหม่)</string>
     <string name="metric_desc_avg_trip_speed">ระยะทางทริปหารด้วยเวลาที่ขี่จนถึงตอนนี้</string>
     <string name="metric_desc_wh_consumed">วัตต์-ชั่วโมงทั้งหมดที่ดึงจากแบตเตอรี่ในทริปนี้</string>
@@ -754,7 +752,7 @@
     <string name="section_cloud_settings">สำรองการตั้งค่า</string>
     <string name="cloud_backup_now">สำรองข้อมูล</string>
     <string name="cloud_restore">กู้คืน</string>
-    <string name="cloud_settings_backup_desc">ทุกอย่างที่คุณตั้งค่าไว้ในแอป เขียนลงไฟล์ eucplanet_settings.json ในโฟลเดอร์สำรองข้อมูล กดปุ่มค้างไว้เพื่อบันทึกสำเนาแบบตั้งชื่อไว้ข้างกัน</string>
+    <string name="cloud_settings_backup_desc">การตั้งค่าและกฎสัญญาณเตือนของคุณ เขียนลงไฟล์ eucplanet_settings.json ในโฟลเดอร์สำรองข้อมูล กดปุ่มค้างไว้เพื่อบันทึกสำเนาแบบตั้งชื่อไว้ข้างกัน</string>
     <string name="cloud_last_backup">สำรองล่าสุด: %1$s</string>
     <string name="cloud_last_backup_named">สำรองล่าสุด: %1$s ชื่อ “%2$s”</string>
     <string name="cloud_last_backup_never">ยังไม่ได้สำรองข้อมูล</string>
@@ -1165,7 +1163,7 @@
     <string name="volume_keys_caption">ใช้ปุ่มปรับเสียงเป็นทางลัดขณะที่แอปอยู่บนหน้าจอ</string>
     <string name="volume_keys_enable">เปิดใช้คำสั่งปุ่มปรับเสียง</string>
     <string name="volume_keys_screen_off">แม้ตอนปิดหน้าจอ</string>
-    <string name="volume_keys_screen_off_caption">ใช้ได้ตอนล็อกโทรศัพท์หรือมีแอปอื่นอยู่ด้านหน้า ปุ่มจะไม่ปรับระดับเสียงของโทรศัพท์อีก</string>
+    <string name="volume_keys_screen_off_caption">ขณะที่ EUC Planet ทำงานอยู่ ใช้ได้ตอนล็อกโทรศัพท์หรือมีแอปอื่นอยู่ด้านหน้า ปุ่มจะไม่ปรับระดับเสียงของโทรศัพท์อีก</string>
     <string name="volume_keys_screen_off_warn">Android ส่งการกดปุ่มปรับเสียงให้เฉพาะแอปที่อยู่บนหน้าจอ เพื่อให้รับได้ตอนปิดหน้าจอ EUC Planet จะลงทะเบียนเป็นเครื่องเล่นสื่อที่ใช้งานอยู่ของโทรศัพท์ Android จึงส่งปุ่มปรับเสียงมาที่แอปแทนการปรับเสียง</string>
     <string name="volume_keys_screen_off_confirm">เปิด</string>
     <string name="volume_keys_screen_off_title">ให้แอปควบคุมปุ่มปรับเสียงใช่ไหม?</string>
@@ -2582,7 +2580,7 @@
     <string name="crews_scan_hint">เปิด eucstats ในเบราว์เซอร์ กดครูว์ แล้วส่องกล้องไปที่โค้ดที่แสดง</string>
     <string name="crews_scan_invalid">นั่นไม่ใช่โค้ดบัตรผ่านครูว์</string>
     <string name="crews_scan_is_share">นั่นคือโค้ดตำแหน่งสด สแกนจากปุ่มแชร์บนแผนที่</string>
-    <string name="share_scan_is_crewpass">นั่นคือบัตรผ่านครูว์ สแกนจากการตั้งค่า ใต้ครูว์</string>
+    <string name="share_scan_is_crewpass">นั่นคือบัตรผ่านครูว์ สแกนจากการตั้งค่า ใต้กระดานผู้นำออนไลน์</string>
     <string name="crews_type_instead">ป้อนเอง</string>
     <string name="crews_code_label">รหัสบัตรผ่าน</string>
     <string name="crews_foreign_title">โค้ดนี้ไม่ได้มาจาก eucstats</string>

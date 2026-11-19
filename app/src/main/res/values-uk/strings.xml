@@ -249,7 +249,6 @@
     <string name="metric_chip_tire_pressure_tile">Шина</string>
     <string name="metric_desc_tire_pressure">Тиск у шині з вашого датчика або з того, який передає колесо.</string>
     <string name="studio_metric_tire_pressure">Тиск у шині</string>
-    <string name="metric_chip_headroom">Запас</string>
     <string name="metric_chip_trip_time">Час поїздки</string>
     <string name="metric_chip_trip_max_speed">Макс. за поїздку</string>
     <string name="metric_chip_avg_trip_speed">Сер. швидкість</string>
@@ -310,7 +309,6 @@
     <!-- Descriptions shown in the slot-sheet info box for metrics whose
          meaning isn't obvious from the name alone. Strings end with a
          period so they read like complete sentences. -->
-    <string name="metric_desc_headroom">Запас швидкості до спрацювання tiltback. Що більше число, то більший запас безпеки.</string>
     <string name="metric_desc_trip_max_speed">Пікова швидкість поточної поїздки (скидається з початком нової).</string>
     <string name="metric_desc_avg_trip_speed">Дистанція поїздки, поділена на час їзди.</string>
     <string name="metric_desc_wh_consumed">Скільки ват-годин витрачено з батареї за цю поїздку.</string>
@@ -617,7 +615,7 @@
     <string name="section_cloud_settings">Резервна копія налаштувань</string>
     <string name="cloud_backup_now">Створити копію</string>
     <string name="cloud_restore">Відновити</string>
-    <string name="cloud_settings_backup_desc">Усе, що ви налаштували в застосунку, записується в eucplanet_settings.json у вашій папці резервних копій. Утримуйте кнопку, щоб зберегти поруч копію з назвою.</string>
+    <string name="cloud_settings_backup_desc">Ваші налаштування та правила тривог записуються в eucplanet_settings.json у вашій папці резервних копій. Утримуйте кнопку, щоб зберегти поруч копію з назвою.</string>
     <string name="cloud_last_backup">Остання копія: %1$s</string>
 <string name="cloud_last_backup_named">Остання копія: %1$s як «%2$s»</string>
     <string name="cloud_last_backup_never">Копій ще немає</string>
@@ -957,7 +955,7 @@
     <string name="volume_keys_caption">Кнопки гучності як ярлики, поки застосунок на екрані.</string>
     <string name="volume_keys_enable">Увімкнути дії на кнопках гучності</string>
     <string name="volume_keys_screen_off">І з вимкненим екраном</string>
-    <string name="volume_keys_screen_off_caption">Працює на заблокованому телефоні та коли відкрито інший застосунок. Кнопки більше не змінюють гучність телефона.</string>
+    <string name="volume_keys_screen_off_caption">Поки EUC Planet запущено, працює на заблокованому телефоні та коли відкрито інший застосунок. Кнопки більше не змінюють гучність телефона.</string>
     <string name="volume_keys_screen_off_warn">Android передає натискання кнопок гучності лише застосунку на екрані. Щоб отримувати їх із вимкненим екраном, EUC Planet реєструється як активний медіаплеєр телефона, і Android надсилає кнопки йому, а не змінює гучність.</string>
     <string name="volume_keys_screen_off_confirm">Увімкнути</string>
     <string name="volume_keys_screen_off_title">Перебрати кнопки гучності?</string>
@@ -2787,7 +2785,7 @@
     <string name="crews_scan_hint">Відкрийте eucstats у браузері, натисніть Crews і наведіть камеру на код, що з\'явиться.</string>
     <string name="crews_scan_invalid">Це не код кланового пропуску.</string>
     <string name="crews_scan_is_share">Це код трансляції місця. Скануйте його через «Поділитися» на карті.</string>
-    <string name="share_scan_is_crewpass">Це пропуск клану. Скануйте його в налаштуваннях, у розділі «Клани».</string>
+    <string name="share_scan_is_crewpass">Це пропуск клану. Скануйте його в налаштуваннях, у розділі «Онлайн-таблиці лідерів».</string>
     <string name="crews_type_instead">Ввести вручну</string>
     <string name="crews_code_label">Код пропуску</string>
     <string name="crews_foreign_title">Цей код не від eucstats</string>

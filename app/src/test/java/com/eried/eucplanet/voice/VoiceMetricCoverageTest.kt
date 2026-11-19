@@ -65,6 +65,6 @@ class VoiceMetricCoverageTest {
     @Test fun `the gap is the size it is known to be`() {
         // Deliberately a number, so shrinking it is a visible, intended edit
         // rather than something that happens by accident.
-        assertEquals(11, VOICE_CANNOT_READ.size)
+        assertEquals(10, VOICE_CANNOT_READ.size)
     }
 }

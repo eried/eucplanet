@@ -249,7 +249,6 @@
     <string name="metric_chip_tire_pressure_tile">Reifen</string>
     <string name="metric_desc_tire_pressure">Reifendruck von deinem eigenen Sensor oder einem, den das Wheel weitergibt.</string>
     <string name="studio_metric_tire_pressure">Reifendruck</string>
-    <string name="metric_chip_headroom">Reserve</string>
     <string name="metric_chip_trip_time">Fahrtzeit</string>
     <string name="metric_chip_trip_max_speed">Fahrt-Max.</string>
     <string name="metric_chip_avg_trip_speed">Ø Geschw.</string>
@@ -310,7 +309,6 @@
     <!-- Descriptions shown in the slot-sheet info box for metrics whose
          meaning isn't obvious from the name alone. Strings end with a
          period so they read like complete sentences. -->
-    <string name="metric_desc_headroom">Verbleibender Geschwindigkeitsspielraum bis zum Tiltback. Hoher Wert = mehr Sicherheitsreserve.</string>
     <string name="metric_desc_trip_max_speed">Höchstgeschwindigkeit der aktuellen Fahrt (wird bei neuer Fahrt zurückgesetzt).</string>
     <string name="metric_desc_avg_trip_speed">Fahrtstrecke geteilt durch die bisherige Fahrtzeit.</string>
     <string name="metric_desc_wh_consumed">Insgesamt aus dem Akku entnommene Wattstunden dieser Fahrt.</string>
@@ -617,7 +615,7 @@
     <string name="section_cloud_settings">Einstellungs-Backup</string>
     <string name="cloud_backup_now">Sichern</string>
     <string name="cloud_restore">Wiederherstellen</string>
-    <string name="cloud_settings_backup_desc">Alles, was du in der App eingestellt hast, gespeichert in eucplanet_settings.json in deinem Backup-Ordner. Halte die Taste gedrückt, um eine benannte Kopie zu speichern.</string>
+    <string name="cloud_settings_backup_desc">Deine Einstellungen und Alarmregeln, gespeichert in eucplanet_settings.json in deinem Backup-Ordner. Halte die Taste gedrückt, um eine benannte Kopie zu speichern.</string>
     <string name="cloud_last_backup">Letztes Backup: %1$s</string>
 <string name="cloud_last_backup_named">Letztes Backup: %1$s als „%2$s“</string>
     <string name="cloud_last_backup_never">Noch nicht gesichert</string>
@@ -953,7 +951,7 @@
     <string name="volume_keys_caption">Lautstärketasten als Kurzbefehle nutzen, solange die App auf dem Bildschirm ist.</string>
     <string name="volume_keys_enable">Lautstärketasten-Aktionen aktivieren</string>
     <string name="volume_keys_screen_off">Auch bei ausgeschaltetem Bildschirm</string>
-    <string name="volume_keys_screen_off_caption">Funktioniert bei gesperrtem Handy oder mit einer anderen App im Vordergrund. Die Tasten ändern die Handylautstärke nicht mehr.</string>
+    <string name="volume_keys_screen_off_caption">Solange EUC Planet läuft, funktioniert es bei gesperrtem Handy oder mit einer anderen App im Vordergrund. Die Tasten ändern die Handylautstärke nicht mehr.</string>
     <string name="volume_keys_screen_off_warn">Android schickt Lautstärketasten nur an die App auf dem Bildschirm. Um sie auch bei ausgeschaltetem Bildschirm zu bekommen, meldet sich EUC Planet als aktiver Mediaplayer des Handys an, und Android schickt die Tasten dorthin, statt die Lautstärke zu ändern.</string>
     <string name="volume_keys_screen_off_confirm">Einschalten</string>
     <string name="volume_keys_screen_off_title">Lautstärketasten übernehmen?</string>
@@ -2806,7 +2804,7 @@
     <string name="crews_scan_hint">Öffne eucstats im Browser, tippe auf Crews und richte die Kamera auf den angezeigten Code.</string>
     <string name="crews_scan_invalid">Das ist kein Crew-Pass-Code.</string>
     <string name="crews_scan_is_share">Das ist ein Live-Standort-Code. Scanne ihn über Teilen auf der Karte.</string>
-    <string name="share_scan_is_crewpass">Das ist ein Crew-Pass. Scanne ihn in den Einstellungen unter Crews.</string>
+    <string name="share_scan_is_crewpass">Das ist ein Crew-Pass. Scanne ihn in den Einstellungen unter Online-Bestenlisten.</string>
     <string name="crews_type_instead">Manuell eingeben</string>
     <string name="crews_code_label">Pass-Code</string>
     <string name="crews_foreign_title">Dieser Code kommt nicht von eucstats</string>

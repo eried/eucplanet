@@ -249,7 +249,6 @@
     <string name="metric_chip_tire_pressure_tile">Pneu</string>
     <string name="metric_desc_tire_pressure">Pressão do pneu do seu próprio sensor ou de um retransmitido pela roda.</string>
     <string name="studio_metric_tire_pressure">Pressão do pneu</string>
-    <string name="metric_chip_headroom">Margem</string>
     <string name="metric_chip_trip_time">Tempo de viagem</string>
     <string name="metric_chip_trip_max_speed">Pico da viagem</string>
     <string name="metric_chip_avg_trip_speed">Vel. média</string>
@@ -310,7 +309,6 @@
     <!-- Descriptions shown in the slot-sheet info box for metrics whose
          meaning isn't obvious from the name alone. Strings end with a
          period so they read like complete sentences. -->
-    <string name="metric_desc_headroom">Margem de velocidade antes do tiltback. Número maior = mais reserva de segurança.</string>
     <string name="metric_desc_trip_max_speed">Velocidade máxima da viagem atual (zera a cada nova viagem).</string>
     <string name="metric_desc_avg_trip_speed">Distância da viagem dividida pelo tempo em movimento.</string>
     <string name="metric_desc_wh_consumed">Total de watt-horas retirados da bateria nesta viagem.</string>
@@ -617,7 +615,7 @@
     <string name="section_cloud_settings">Backup de configurações</string>
     <string name="cloud_backup_now">Backup</string>
     <string name="cloud_restore">Restaurar</string>
-    <string name="cloud_settings_backup_desc">Tudo o que você configurou no app, salvo em eucplanet_settings.json na sua pasta de backup. Segure o botão para salvar uma cópia com nome.</string>
+    <string name="cloud_settings_backup_desc">Suas configurações e regras de alarme, salvas em eucplanet_settings.json na sua pasta de backup. Segure o botão para salvar uma cópia com nome.</string>
     <string name="cloud_last_backup">Último backup: %1$s</string>
 <string name="cloud_last_backup_named">Último backup: %1$s como “%2$s”</string>
     <string name="cloud_last_backup_never">Ainda sem backup</string>
@@ -957,7 +955,7 @@
     <string name="volume_keys_caption">Usa as teclas de volume como atalhos enquanto o app está na tela.</string>
     <string name="volume_keys_enable">Ativar ações das teclas de volume</string>
     <string name="volume_keys_screen_off">Também com a tela desligada</string>
-    <string name="volume_keys_screen_off_caption">Funciona com o celular bloqueado ou com outro app na frente. As teclas não mudam mais o volume do celular.</string>
+    <string name="volume_keys_screen_off_caption">Enquanto o EUC Planet estiver em execução, funciona com o celular bloqueado ou com outro app na frente. As teclas não mudam mais o volume do celular.</string>
     <string name="volume_keys_screen_off_warn">O Android só envia os toques de volume para o app que está na tela. Para recebê-los com a tela desligada, o EUC Planet se registra como o reprodutor de mídia ativo do celular, e o Android envia as teclas de volume para ele em vez de mudar o volume.</string>
     <string name="volume_keys_screen_off_confirm">Ligar</string>
     <string name="volume_keys_screen_off_title">Assumir as teclas de volume?</string>
@@ -2790,7 +2788,7 @@
     <string name="crews_scan_hint">Abra o eucstats no navegador, toque em Crews e aponte a câmera para o código que aparecer.</string>
     <string name="crews_scan_invalid">Isso não é um código de passe de turma.</string>
     <string name="crews_scan_is_share">Esse é um código de localização ao vivo. Leia pelo Compartilhar no mapa.</string>
-    <string name="share_scan_is_crewpass">Esse é um passe de turma. Leia em Configurações, em Turmas.</string>
+    <string name="share_scan_is_crewpass">Esse é um passe de turma. Leia em Configurações, em Rankings online.</string>
     <string name="crews_type_instead">Digitar manualmente</string>
     <string name="crews_code_label">Código do passe</string>
     <string name="crews_foreign_title">Esse código não é do eucstats</string>

@@ -118,7 +118,7 @@
     <string name="section_cloud_settings">Sikkerhetskopi av innstillinger</string>
     <string name="cloud_backup_now">Sikkerhetskopier</string>
     <string name="cloud_restore">Gjenopprett</string>
-    <string name="cloud_settings_backup_desc">Alt du har satt opp i appen, lagret i eucplanet_settings.json i sikkerhetskopimappen din. Hold knappen inne for å lagre en navngitt kopi.</string>
+    <string name="cloud_settings_backup_desc">Innstillingene og alarmreglene dine, lagret i eucplanet_settings.json i sikkerhetskopimappen din. Hold knappen inne for å lagre en navngitt kopi.</string>
     <string name="cloud_last_backup">Siste sikkerhetskopi: %1$s</string>
 <string name="cloud_last_backup_named">Siste sikkerhetskopi: %1$s som «%2$s»</string>
     <string name="cloud_last_backup_never">Ikke sikkerhetskopiert ennå</string>
@@ -310,7 +310,7 @@
     <string name="volume_keys_caption">Volumknappene som snarveier mens appen er på skjermen.</string>
     <string name="volume_keys_enable">Slå på volumtast-handlinger</string>
     <string name="volume_keys_screen_off">Også med skjermen av</string>
-    <string name="volume_keys_screen_off_caption">Virker med låst telefon eller en annen app foran. Knappene endrer ikke lenger telefonvolumet.</string>
+    <string name="volume_keys_screen_off_caption">Mens EUC Planet kjører, virker det med låst telefon eller en annen app foran. Knappene endrer ikke lenger telefonvolumet.</string>
     <string name="volume_keys_screen_off_warn">Android sender bare volumtrykk til appen på skjermen. For å få dem med skjermen av melder EUC Planet seg som telefonens aktive mediespiller, så Android sender volumknappene dit i stedet for å endre volumet.</string>
     <string name="volume_keys_screen_off_confirm">Slå på</string>
     <string name="volume_keys_screen_off_title">La appen ta over volumknappene?</string>
@@ -1571,7 +1571,6 @@
     <string name="metric_chip_gps_altitude">Høyde</string>
     <string name="metric_chip_gps_heading">Retning</string>
     <string name="metric_chip_gps_speed">GPS-fart</string>
-    <string name="metric_chip_headroom">Margin</string>
     <string name="metric_chip_lat_long">Lat, Long</string>
     <string name="metric_chip_lateral_g">Side-g</string>
     <string name="metric_chip_light_on">Lys</string>
@@ -1609,7 +1608,6 @@
     <string name="metric_desc_bt_rssi">Bluetooth-signalstyrke til hjulet, nærmere 0 dBm er sterkere.</string>
     <string name="metric_desc_gps_accuracy">GPS-posisjonsfeilradius, lavere er mer nøyaktig.</string>
     <string name="metric_desc_external_gps_battery">Batteriet i den parede eksterne GPS-en (RaceBox, Dragy), så du ser det synke før det går tomt midt i turen.</string>
-    <string name="metric_desc_headroom">Gjenværende fartsmargin før tiltback slår inn. Høyt tall = større sikkerhetsmargin.</string>
     <string name="metric_desc_range_estimate">Gjenværende distanse med dagens forbruk.</string>
     <string name="metric_desc_regen_wh">Totalt antall wattimer matet tilbake til batteriet under bremsing på denne turen.</string>
     <string name="metric_desc_slope">Stigningsgrad regnet ut fra hjulets helling, positivt er oppoverbakke.</string>
@@ -2673,7 +2671,7 @@
     <string name="crews_scan_hint">Åpne eucstats i en nettleser, trykk Crews, og hold denne mot koden som dukker opp.</string>
     <string name="crews_scan_invalid">Det er ikke en crew-pass-kode.</string>
     <string name="crews_scan_is_share">Det er en kode for direkte posisjonsdeling. Skann den fra Del på kartet.</string>
-    <string name="share_scan_is_crewpass">Det er et crew-pass. Skann det fra Innstillinger, under Crews.</string>
+    <string name="share_scan_is_crewpass">Det er et crew-pass. Skann det fra Innstillinger, under Ledertavler på nett.</string>
     <string name="crews_type_instead">Skriv inn manuelt</string>
     <string name="crews_code_label">Passkode</string>
     <string name="crews_foreign_title">Den koden er ikke fra eucstats</string>

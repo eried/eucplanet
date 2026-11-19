@@ -5668,7 +5668,7 @@ private fun metricPlaceholderValue(
     "PHASE_CURRENT" -> "0 A"
     "MOTOR_TEMP", "CONTROLLER_TEMP", "BATTERY_TEMP" ->
         if (s.unitTemp == "F") "0°F" else "0°C"
-    "HEADROOM", "TRIP_MAX_SPEED", "AVG_TRIP_SPEED", "GPS_SPEED" -> when (s.unitSpeed) {
+    "TRIP_MAX_SPEED", "AVG_TRIP_SPEED", "GPS_SPEED" -> when (s.unitSpeed) {
         "mph" -> "0 mph"
         "kn" -> "0 kn"
         else -> "0 km/h"

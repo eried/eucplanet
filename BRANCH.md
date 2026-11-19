@@ -47,6 +47,9 @@ only when you can cut the ride short.
 - iPhone app: Volume up, Volume down and Mute are no longer offered (iOS cannot set the volume), and the tour's last page names only Flic buttons.
 - Settings, Dashboard layout no longer closes the app.
 - Settings search no longer finds rows a phone does not show.
+- Headroom tile removed: it was offered as a dashboard tile but never showed a value. A dashboard that had it loses that tile; nothing else moves.
+- Two hints corrected, in every language: the settings backup says it holds your settings and alarm rules (not "everything"), and volume keys with the screen off says it works while EUC Planet is running.
+- Crew pass: scanning one from the Share screen now points you to the right place, Settings, Online leaderboards. It named a Crews section that Settings does not have. In every language.
 - Leaderboard: when the server limits your uploads or does not know your rider, the app stops sending for now instead of trying every waiting ride. Rides stay waiting and go up on a later try.
 - Shorter hints: 18 setting descriptions lose their extra sentence, in every language. Three said something untrue and are fixed: forgetting a Flic keeps its actions, the radar lane draws squares with the distance, and the weather widget fetches on its own.
 - Languages: English (UK) is new, with British spelling (tyre, colour, kilometres). The list now reads English (US), English (UK), Español (ES) and Español (LA), the same names as the trip viewer and the leaderboard.
@@ -168,6 +171,8 @@ only when you can cut the ride short.
 - Route builder: search, optimize and reverse a route, share it (link, QR, live group), load a GPX track and convert it to stops, set your marker photo. Same as the last build?
 - Dashboard, Settings, alarm editor, Scan, the trip list, trip details, trip meter, metric details, battery monitor and leaderboards: anything that looks or acts differently from the last build is a bug.
 **Texts** (anyone, in your language)
+- Settings backup hint and "Also when the screen is off" under volume keys: do both read naturally in your language?
+- Anyone who had the Headroom tile: is it gone from the dashboard, with the other tiles in their places?
 - Settings hints for rotation, radar, speed splits, Android Auto, keep alive, settings backup, weather source and Advanced rates: does each still read as a whole sentence in your language?
 
 **InMotion V6** (Klaus)

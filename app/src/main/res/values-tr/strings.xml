@@ -249,7 +249,6 @@
     <string name="metric_chip_tire_pressure_tile">Lastik</string>
     <string name="metric_desc_tire_pressure">Kendi sensörünüzden veya tekerin ilettiği sensörden gelen lastik basıncı.</string>
     <string name="studio_metric_tire_pressure">Lastik basıncı</string>
-    <string name="metric_chip_headroom">Güvenlik payı</string>
     <string name="metric_chip_trip_time">Sürüş süresi</string>
     <string name="metric_chip_trip_max_speed">Sürüş maks.</string>
     <string name="metric_chip_avg_trip_speed">Ort. hız</string>
@@ -310,7 +309,6 @@
     <!-- Descriptions shown in the slot-sheet info box for metrics whose
          meaning isn't obvious from the name alone. Strings end with a
          period so they read like complete sentences. -->
-    <string name="metric_desc_headroom">Geri eğim devreye girmeden önceki kalan hız payı. Büyük değer, daha fazla güvenlik tamponu demektir.</string>
     <string name="metric_desc_trip_max_speed">Geçerli sürüşteki en yüksek hız (yeni sürüşte sıfırlanır).</string>
     <string name="metric_desc_avg_trip_speed">Sürüş mesafesinin şu ana kadarki sürüş süresine bölümü.</string>
     <string name="metric_desc_wh_consumed">Bu sürüşte bataryadan çekilen toplam watt-saat.</string>
@@ -617,7 +615,7 @@
     <string name="section_cloud_settings">Ayar yedeği</string>
     <string name="cloud_backup_now">Yedekle</string>
     <string name="cloud_restore">Geri yükle</string>
-    <string name="cloud_settings_backup_desc">Uygulamada ayarladığınız her şey, yedek klasörünüzdeki eucplanet_settings.json dosyasına yazılır. Yanına adlandırılmış bir kopya kaydetmek için düğmeyi basılı tutun.</string>
+    <string name="cloud_settings_backup_desc">Ayarlarınız ve alarm kurallarınız, yedek klasörünüzdeki eucplanet_settings.json dosyasına yazılır. Yanına adlandırılmış bir kopya kaydetmek için düğmeyi basılı tutun.</string>
     <string name="cloud_last_backup">Son yedekleme: %1$s</string>
 <string name="cloud_last_backup_named">Son yedekleme: %1$s, “%2$s” adıyla</string>
     <string name="cloud_last_backup_never">Henüz yedeklenmedi</string>
@@ -953,7 +951,7 @@
     <string name="volume_keys_caption">Uygulama ekrandayken ses tuşlarını kısayol olarak kullanır.</string>
     <string name="volume_keys_enable">Ses tuşu eylemlerini etkinleştir</string>
     <string name="volume_keys_screen_off">Ekran kapalıyken de</string>
-    <string name="volume_keys_screen_off_caption">Telefon kilitliyken veya başka bir uygulama öndeyken de çalışır. Tuşlar artık telefonun sesini değiştirmez.</string>
+    <string name="volume_keys_screen_off_caption">EUC Planet çalışırken, telefon kilitliyken veya başka bir uygulama öndeyken de çalışır. Tuşlar artık telefonun sesini değiştirmez.</string>
     <string name="volume_keys_screen_off_warn">Android ses tuşu basışlarını yalnızca ekrandaki uygulamaya gönderir. Ekran kapalıyken de alabilmek için EUC Planet telefonun etkin medya oynatıcısı olarak kaydolur ve Android sesi değiştirmek yerine ses tuşlarını ona gönderir.</string>
     <string name="volume_keys_screen_off_confirm">Aç</string>
     <string name="volume_keys_screen_off_title">Ses tuşları devralınsın mı?</string>
@@ -2783,7 +2781,7 @@
     <string name="crews_scan_hint">eucstats\'ı tarayıcıda açın, Crews\'a basın ve telefonu çıkan koda tutun.</string>
     <string name="crews_scan_invalid">Bu bir ekip pası kodu değil.</string>
     <string name="crews_scan_is_share">Bu bir canlı konum kodu. Haritadaki Paylaş bölümünden okutun.</string>
-    <string name="share_scan_is_crewpass">Bu bir ekip pası. Ayarlar\'da Ekipler altından okutun.</string>
+    <string name="share_scan_is_crewpass">Bu bir ekip pası. Ayarlar\'da Çevrimiçi lider tabloları altından okutun.</string>
     <string name="crews_type_instead">Elle gir</string>
     <string name="crews_code_label">Pas kodu</string>
     <string name="crews_foreign_title">Bu kod eucstats\'tan değil</string>

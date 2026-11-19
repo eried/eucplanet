@@ -254,7 +254,6 @@
     <string name="metric_chip_tire_pressure">Tyre pressure</string>
     <string name="metric_chip_tire_pressure_tile">Tyre</string>
     <string name="metric_desc_tire_pressure">Tyre pressure from your own sensor or one the wheel relays.</string>
-    <string name="metric_chip_headroom">Headroom</string>
     <string name="metric_chip_trip_time">Trip time</string>
     <string name="metric_chip_trip_max_speed">Trip max</string>
     <string name="metric_chip_avg_trip_speed">Avg speed</string>
@@ -315,7 +314,6 @@
     <!-- Descriptions shown in the slot-sheet info box for metrics whose
          meaning isn't obvious from the name alone. Strings end with a
          period so they read like complete sentences. -->
-    <string name="metric_desc_headroom">Speed margin remaining before tiltback kicks in. Big number = more safety buffer.</string>
     <string name="metric_desc_trip_max_speed">Peak speed during the current trip (resets on a new trip).</string>
     <string name="metric_desc_avg_trip_speed">Trip distance divided by riding time so far.</string>
     <string name="metric_desc_wh_consumed">Total watt-hours drawn from the battery this trip.</string>
@@ -826,7 +824,7 @@
     <string name="section_cloud_settings">Settings backup</string>
     <string name="cloud_backup_now">Backup</string>
     <string name="cloud_restore">Restore</string>
-    <string name="cloud_settings_backup_desc">Everything you have set up in the app, written to eucplanet_settings.json in your backup folder. Hold the button to save a named copy alongside it.</string>
+    <string name="cloud_settings_backup_desc">Your settings and alarm rules, written to eucplanet_settings.json in your backup folder. Hold the button to save a named copy alongside it.</string>
     <string name="cloud_last_backup">Last backup: %1$s</string>
     <string name="cloud_last_backup_named">Last backup: %1$s as \"%2$s\"</string>
     <string name="cloud_last_backup_never">Not backed up yet</string>
@@ -1258,7 +1256,7 @@
     <string name="volume_keys_caption">Use phone volume buttons as shortcuts while the app is on screen.</string>
     <string name="volume_keys_enable">Enable volume key actions</string>
     <string name="volume_keys_screen_off">Also when the screen is off</string>
-    <string name="volume_keys_screen_off_caption">Works with the phone locked or another app in front. The buttons no longer change the phone volume.</string>
+    <string name="volume_keys_screen_off_caption">While EUC Planet is running, works with the phone locked or another app in front. The buttons no longer change the phone volume.</string>
     <string name="volume_keys_screen_off_warn">Android only sends volume presses to the app on screen. To get them with the screen off, EUC Planet registers as the phone\'s active media player, so Android sends the volume buttons to it instead of changing the volume.</string>
     <string name="volume_keys_screen_off_confirm">Turn on</string>
     <string name="volume_keys_screen_off_title">Take over the volume buttons?</string>
@@ -2809,7 +2807,7 @@
     <string name="crews_scan_hint">Open eucstats in a browser, hit Crews, and point this at the code it shows.</string>
     <string name="crews_scan_invalid">That\'s not a crew pass code.</string>
     <string name="crews_scan_is_share">That is a live-location code. Scan it from Share on the map.</string>
-    <string name="share_scan_is_crewpass">That is a crew pass. Scan it from Settings, under Crews.</string>
+    <string name="share_scan_is_crewpass">That is a crew pass. Scan it from Settings, under Online leaderboards.</string>
     <string name="crews_type_instead">Enter manually</string>
     <string name="crews_code_label">Pass code</string>
     <string name="crews_foreign_title">This code isn\'t from eucstats</string>

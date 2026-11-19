@@ -249,7 +249,6 @@
     <string name="metric_chip_tire_pressure_tile">Band</string>
     <string name="metric_desc_tire_pressure">Bandenspanning van je eigen sensor of een die het wiel doorgeeft.</string>
     <string name="studio_metric_tire_pressure">Bandenspanning</string>
-    <string name="metric_chip_headroom">Marge</string>
     <string name="metric_chip_trip_time">Rittijd</string>
     <string name="metric_chip_trip_max_speed">Rit max</string>
     <string name="metric_chip_avg_trip_speed">Gem. snelheid</string>
@@ -310,7 +309,6 @@
     <!-- Descriptions shown in the slot-sheet info box for metrics whose
          meaning isn't obvious from the name alone. Strings end with a
          period so they read like complete sentences. -->
-    <string name="metric_desc_headroom">Resterende snelheidsmarge voordat de tiltback inschakelt. Groot getal = meer veiligheidsbuffer.</string>
     <string name="metric_desc_trip_max_speed">Hoogste snelheid tijdens de huidige rit (reset bij elke nieuwe rit).</string>
     <string name="metric_desc_avg_trip_speed">Ritafstand gedeeld door de rijtijd tot nu toe.</string>
     <string name="metric_desc_wh_consumed">Totaal aantal wattuur uit de accu tijdens deze rit.</string>
@@ -617,7 +615,7 @@
     <string name="section_cloud_settings">Back-up van instellingen</string>
     <string name="cloud_backup_now">Back-up</string>
     <string name="cloud_restore">Terugzetten</string>
-    <string name="cloud_settings_backup_desc">Alles wat je in de app hebt ingesteld, opgeslagen in eucplanet_settings.json in je back-upmap. Houd de knop ingedrukt om een kopie met naam op te slaan.</string>
+    <string name="cloud_settings_backup_desc">Je instellingen en alarmregels, opgeslagen in eucplanet_settings.json in je back-upmap. Houd de knop ingedrukt om een kopie met naam op te slaan.</string>
     <string name="cloud_last_backup">Laatste back-up: %1$s</string>
 <string name="cloud_last_backup_named">Laatste back-up: %1$s als “%2$s”</string>
     <string name="cloud_last_backup_never">Nog geen back-up</string>
@@ -957,7 +955,7 @@
     <string name="volume_keys_caption">Volumeknoppen als snelkoppelingen zolang de app op het scherm staat.</string>
     <string name="volume_keys_enable">Volumeknopacties inschakelen</string>
     <string name="volume_keys_screen_off">Ook met het scherm uit</string>
-    <string name="volume_keys_screen_off_caption">Werkt met vergrendelde telefoon of een andere app op de voorgrond. De knoppen veranderen het telefoonvolume niet meer.</string>
+    <string name="volume_keys_screen_off_caption">Zolang EUC Planet actief is, werkt het met vergrendelde telefoon of een andere app op de voorgrond. De knoppen veranderen het telefoonvolume niet meer.</string>
     <string name="volume_keys_screen_off_warn">Android stuurt volumeknoppen alleen naar de app op het scherm. Om ze ook met het scherm uit te krijgen, meldt EUC Planet zich aan als de actieve mediaspeler van de telefoon, zodat Android de volumeknoppen daarheen stuurt in plaats van het volume te wijzigen.</string>
     <string name="volume_keys_screen_off_confirm">Aanzetten</string>
     <string name="volume_keys_screen_off_title">Volumeknoppen overnemen?</string>
@@ -2788,7 +2786,7 @@
     <string name="crews_scan_hint">Open eucstats in een browser, tik op Crews, en richt dit op de code die verschijnt.</string>
     <string name="crews_scan_invalid">Dat is geen crewpascode.</string>
     <string name="crews_scan_is_share">Dat is een live-locatiecode. Scan hem via Delen op de kaart.</string>
-    <string name="share_scan_is_crewpass">Dat is een crewpas. Scan hem via Instellingen, onder Crews.</string>
+    <string name="share_scan_is_crewpass">Dat is een crewpas. Scan hem via Instellingen, onder Online klassementen.</string>
     <string name="crews_type_instead">Handmatig invoeren</string>
     <string name="crews_code_label">Pascode</string>
     <string name="crews_foreign_title">Die code komt niet van eucstats</string>

@@ -249,7 +249,6 @@
     <string name="metric_chip_tire_pressure_tile">Opona</string>
     <string name="metric_desc_tire_pressure">Ciśnienie w oponie z Twojego czujnika lub przekazane przez koło.</string>
     <string name="studio_metric_tire_pressure">Ciśnienie w oponie</string>
-    <string name="metric_chip_headroom">Zapas</string>
     <string name="metric_chip_trip_time">Czas przejazdu</string>
     <string name="metric_chip_trip_max_speed">Maks. przejazdu</string>
     <string name="metric_chip_avg_trip_speed">Śr. prędkość</string>
@@ -310,7 +309,6 @@
     <!-- Descriptions shown in the slot-sheet info box for metrics whose
          meaning isn't obvious from the name alone. Strings end with a
          period so they read like complete sentences. -->
-    <string name="metric_desc_headroom">Pozostały zapas prędkości do włączenia tiltbacku. Większa liczba = większy margines bezpieczeństwa.</string>
     <string name="metric_desc_trip_max_speed">Najwyższa prędkość w bieżącym przejeździe (zeruje się przy nowym przejeździe).</string>
     <string name="metric_desc_avg_trip_speed">Dystans przejazdu podzielony przez dotychczasowy czas jazdy.</string>
     <string name="metric_desc_wh_consumed">Łączne watogodziny pobrane z baterii w tym przejeździe.</string>
@@ -617,7 +615,7 @@
     <string name="section_cloud_settings">Kopia zapasowa ustawień</string>
     <string name="cloud_backup_now">Utwórz kopię</string>
     <string name="cloud_restore">Przywróć</string>
-    <string name="cloud_settings_backup_desc">Wszystko, co skonfigurowano w aplikacji, trafia do pliku eucplanet_settings.json w folderze kopii zapasowej. Przytrzymaj przycisk, aby zapisać obok kopię z własną nazwą.</string>
+    <string name="cloud_settings_backup_desc">Twoje ustawienia i reguły alarmów trafiają do pliku eucplanet_settings.json w folderze kopii zapasowej. Przytrzymaj przycisk, aby zapisać obok kopię z własną nazwą.</string>
     <string name="cloud_last_backup">Ostatnia kopia: %1$s</string>
 <string name="cloud_last_backup_named">Ostatnia kopia: %1$s jako „%2$s”</string>
     <string name="cloud_last_backup_never">Brak kopii zapasowej</string>
@@ -957,7 +955,7 @@
     <string name="volume_keys_caption">Przyciski głośności jako skróty, gdy aplikacja jest na ekranie.</string>
     <string name="volume_keys_enable">Włącz akcje klawiszy głośności</string>
     <string name="volume_keys_screen_off">Także przy wyłączonym ekranie</string>
-    <string name="volume_keys_screen_off_caption">Działa przy zablokowanym telefonie i z inną aplikacją na wierzchu. Przyciski nie zmieniają już głośności telefonu.</string>
+    <string name="volume_keys_screen_off_caption">Gdy EUC Planet jest uruchomiony, działa przy zablokowanym telefonie i z inną aplikacją na wierzchu. Przyciski nie zmieniają już głośności telefonu.</string>
     <string name="volume_keys_screen_off_warn">Android wysyła naciśnięcia przycisków głośności tylko do aplikacji na ekranie. Aby odbierać je przy wyłączonym ekranie, EUC Planet zgłasza się jako aktywny odtwarzacz multimediów telefonu, a Android wysyła mu przyciski zamiast zmieniać głośność.</string>
     <string name="volume_keys_screen_off_confirm">Włącz</string>
     <string name="volume_keys_screen_off_title">Przejąć przyciski głośności?</string>
@@ -2790,7 +2788,7 @@
     <string name="crews_scan_hint">Otwórz eucstats w przeglądarce, wybierz Crews i skieruj aparat na wyświetlony kod.</string>
     <string name="crews_scan_invalid">To nie jest kod przepustki ekipy.</string>
     <string name="crews_scan_is_share">To kod lokalizacji na żywo. Zeskanuj go przez Udostępnij na mapie.</string>
-    <string name="share_scan_is_crewpass">To jest przepustka ekipy. Zeskanuj ją w Ustawieniach, w sekcji Ekipy.</string>
+    <string name="share_scan_is_crewpass">To jest przepustka ekipy. Zeskanuj ją w Ustawieniach, w sekcji Rankingi online.</string>
     <string name="crews_type_instead">Wpisz ręcznie</string>
     <string name="crews_code_label">Kod przepustki</string>
     <string name="crews_foreign_title">Ten kod nie jest z eucstats</string>
