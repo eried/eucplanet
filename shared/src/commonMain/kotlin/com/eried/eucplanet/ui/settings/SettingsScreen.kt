@@ -7832,8 +7832,8 @@ private fun CloudTab(
         // Only shown once a SAF folder is chosen, the cloud copy is
         // framed as a mirror of the local backup, so it doesn't make
         // sense to offer Dropbox before the rider has set up the local
-        // side first. A phone without folders has Dropbox alone.
-        if (hasFolder || !host.supportsBackupFolder) run {
+        // side first. The iPhone offers Dropbox with or without a folder.
+        if (hasFolder || !host.dropboxNeedsFolder) run {
             val dbxLinked by viewModel.dropboxLinked.collectAsState()
             val dbxAccount by viewModel.dropboxAccountLabel.collectAsState()
             val lastSyncAt by viewModel.dropboxLastSyncAt.collectAsState()
@@ -8076,9 +8076,9 @@ private fun CloudTab(
         // Crew pass only shows for a rider on the leaderboard. Searching for it
         // without one lands on the leaderboard heading; this says why the
         // button is not there and what brings it.
-        // The rider id is kept in the backup folder; a phone without folders
-        // (iOS) keeps it in the app's own files, so there it needs none.
-        val riderIdHome = settings.syncFolderUri != null || !host.supportsBackupFolder
+        // The rider id is kept in the backup folder; the iPhone keeps it in
+        // the app's own files too, so there it needs none.
+        val riderIdHome = settings.syncFolderUri != null || !viewModel.riderIdNeedsFolder
         val crewPassShown = riderIdHome && settings.onlineUploadEnabled && riderStoreId != null
         val searchQuery = LocalSettingsSearchQuery.current.trim()
         val crewPassLabel = stringResource(Res.string.crews_pass_action)

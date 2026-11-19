@@ -1,16 +1,12 @@
 package com.eried.eucplanet.data.store
 
 import android.content.Context
-import android.util.Log
 import com.eried.eucplanet.data.repository.SettingsRepository
+import com.eried.eucplanet.data.sync.FolderThemes
 import com.eried.eucplanet.data.sync.SyncManager
 import com.eried.eucplanet.ui.theme.AppThemeColors
 import com.eried.eucplanet.ui.theme.BuiltInThemes
 import com.eried.eucplanet.ui.theme.ThemeFiles
-import com.eried.eucplanet.ui.theme.ThemeJson
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.json.JSONObject
 
 /**
  * Persistence for named custom themes. Mirrors [OverlayPresetStore] exactly:
@@ -20,6 +16,7 @@ import org.json.JSONObject
  *  - **Saved** themes are individual `.json` files in the rider's backup folder
  *    under a `themes/` subfolder, so saving / loading is writing / reading one
  *    file, which is why a backup folder must be set for saved themes to appear.
+ *    The files are the shared [FolderThemes]', the iPhone's too.
  *
  * The *active* theme (and any unsaved working draft) does NOT live here, settings
  * persist only the active theme's NAME; the resolved colors and in-memory drafts
@@ -27,92 +24,25 @@ import org.json.JSONObject
  * the name on launch (a built-in from code, or a saved `.json` loaded from here).
  */
 class ThemeStore(
-    private val context: Context,
+    @Suppress("unused") private val context: Context,
     private val settingsRepository: SettingsRepository,
     private val syncManager: SyncManager
 ) : ThemeFiles {
-    companion object {
-        private const val TAG = "ThemeStore"
-        private const val THEMES_SUBFOLDER = "themes"
-        private const val SUFFIX = ".json"
-    }
+
+    private val files = FolderThemes { syncManager.getSyncFolder(settingsRepository.get()) }
 
     /** Built-in theme names in combo order (Light, Dark, Pure Black). */
     override fun builtInNames(): List<String> = BuiltInThemes.all.map { it.name }
 
     /** True when a backup folder is configured; required for saved themes. */
-    override suspend fun themesFolderAvailable(): Boolean = withContext(Dispatchers.IO) {
-        syncManager.getSyncFolder(settingsRepository.get()) != null
-    }
+    override suspend fun themesFolderAvailable(): Boolean = files.available()
 
-    /**
-     * Names of every saved custom theme, sorted case-insensitively. Names are
-     * returned WITH the `.json` extension on purpose so the picker and the
-     * stored `activeThemeName` always disambiguate custom from built-in (a
-     * user theme called "Light" surfaces as "Light.json" and can no longer be
-     * shadowed by the built-in "Light").
-     */
-    override suspend fun listSaved(): List<String> = withContext(Dispatchers.IO) {
-        val folder = themesFolder() ?: return@withContext emptyList()
-        folder.listFiles()
-            .mapNotNull { doc ->
-                val n = doc.name ?: return@mapNotNull null
-                if (doc.isFile && n.endsWith(SUFFIX, ignoreCase = true)) n else null
-            }
-            .sortedBy { it.lowercase() }
-    }
+    /** See [FolderThemes.listSaved]. */
+    override suspend fun listSaved(): List<String> = files.listSaved()
 
-    /** Write [colors] as `<name>.json`. Trailing `.json` in `name` is tolerated
-     *  so callers can pass either the bare base name or the listSaved form.
-     *  An existing file is overwritten in place (same document, "wt" truncates),
-     *  not deleted and recreated: delete then create races the SAF provider,
-     *  which dedupes the new file to `name (1).json`. See
-     *  [OverlayPresetStore.savePreset]. */
-    override suspend fun saveTheme(name: String, colors: AppThemeColors): Boolean = withContext(Dispatchers.IO) {
-        val base = if (name.endsWith(SUFFIX, ignoreCase = true)) name.dropLast(SUFFIX.length) else name
-        val safe = syncManager.sanitizeBackupName(base) ?: return@withContext false
-        val folder = themesFolder() ?: return@withContext false
-        val fileName = "$safe$SUFFIX"
-        runCatching {
-            val target = (folder.findFile(fileName)
-                ?: folder.createFile("application/json", fileName))?.uri
-                ?: return@withContext false
-            val json = ThemeJson.colorsToJson(colors).apply { put("name", safe) }.toString(2)
-            context.contentResolver.openOutputStream(target, "wt")?.use { out ->
-                out.write(json.toByteArray(Charsets.UTF_8))
-            } ?: return@withContext false
-            true
-        }.getOrElse {
-            Log.e(TAG, "Saving theme '$name' failed", it)
-            false
-        }
-    }
+    /** See [FolderThemes.save]. */
+    override suspend fun saveTheme(name: String, colors: AppThemeColors): Boolean = files.save(name, colors)
 
-    /** Load the named saved theme, or null if missing / unreadable. `name`
-     *  may be passed with or without the `.json` suffix. */
-    override suspend fun loadTheme(name: String): AppThemeColors? = withContext(Dispatchers.IO) {
-        val folder = themesFolder() ?: return@withContext null
-        val withSuffix = if (name.endsWith(SUFFIX, ignoreCase = true)) name else "$name$SUFFIX"
-        val file = folder.findFile(withSuffix) ?: return@withContext null
-        runCatching {
-            val bytes = context.contentResolver.openInputStream(file.uri)?.use { it.readBytes() }
-                ?: return@withContext null
-            val json = JSONObject(String(bytes, Charsets.UTF_8))
-            // Pick the floor matching the saved flavor so a file that predates a
-            // newly-added token fills the gap with a sensible same-flavor value.
-            val floor = if (json.optBoolean("isLight", false)) BuiltInThemes.light.colors
-            else BuiltInThemes.pureBlack.colors
-            ThemeJson.colorsFromJson(json, floor)
-        }.getOrElse {
-            Log.e(TAG, "Loading theme '$name' failed", it)
-            null
-        }
-    }
-
-    /** The `themes/` subfolder of the backup folder, created on demand. */
-    private suspend fun themesFolder() = withContext(Dispatchers.IO) {
-        val root = syncManager.getSyncFolder(settingsRepository.get()) ?: return@withContext null
-        root.findFile(THEMES_SUBFOLDER)?.takeIf { it.isDirectory }
-            ?: root.createDirectory(THEMES_SUBFOLDER)
-    }
+    /** See [FolderThemes.load]. */
+    override suspend fun loadTheme(name: String): AppThemeColors? = files.load(name)
 }

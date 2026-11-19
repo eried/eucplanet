@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
-import androidx.documentfile.provider.DocumentFile
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
@@ -19,30 +18,19 @@ import com.eried.eucplanet.data.db.AlarmDao
 import com.eried.eucplanet.data.db.TripDao
 import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.data.model.AppSettings
-import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.data.repository.DropboxRepository
-import com.eried.eucplanet.data.repository.MoveOutcome
 import com.eried.eucplanet.data.repository.SettingsRepository
-import com.eried.eucplanet.data.store.AlarmBackupJson
-import com.eried.eucplanet.data.store.SettingsJson
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import com.eried.eucplanet.util.TripCsv
-import org.json.JSONArray
-import org.json.JSONObject
 import java.io.File
 
 /**
@@ -51,8 +39,11 @@ import java.io.File
  * mirror through [DropboxRepository], and the WorkManager jobs that retry both.
  *
  * The folder is picked in any DocumentsProvider with ACTION_OPEN_DOCUMENT_TREE.
- * We take persistable permission and store the tree URI in settings, and write
- * through DocumentFile.
+ * We take persistable permission and store the tree URI in settings. What is
+ * in the folder and every rule about it is the shared [BackupFolderSync]
+ * ([folderSync]), the iPhone's too; this class adds the permission, the
+ * progress flows and the WorkManager jobs, and reaches the folder through
+ * [SafBackupFolder].
  */
 class SyncManager(
     private val context: Context,
@@ -63,15 +54,13 @@ class SyncManager(
 ) {
     companion object {
         private const val TAG = "SyncManager"
-        const val SETTINGS_BACKUP_NAME = "eucplanet_settings.json"
-        const val SETTINGS_BACKUP_PREFIX = "eucplanet_settings-"
-        const val SETTINGS_BACKUP_SUFFIX = ".json"
-        // Plain-text file holding ONLY the eucstats online rider id (the
-        // store_id UUID, nothing else) -- the recovery token for "found a
-        // previous profile" after a reinstall / new device. Name/flag/stats all
-        // come from the server, so the id is the entire identity.
-        const val RIDER_BACKUP_NAME = "eucstats_riderid.txt"
-        const val TRIPS_SUBFOLDER = "trips"
+        // The folder's names are the shared ones, so an iPhone reads the same folder.
+        const val SETTINGS_BACKUP_NAME = BackupFolderSync.SETTINGS_BACKUP_NAME
+        const val SETTINGS_BACKUP_PREFIX = BackupFolderSync.SETTINGS_BACKUP_PREFIX
+        const val SETTINGS_BACKUP_SUFFIX = BackupFolderSync.SETTINGS_BACKUP_SUFFIX
+        /** See [BackupFolderSync.RIDER_BACKUP_NAME]. */
+        const val RIDER_BACKUP_NAME = BackupFolderSync.RIDER_BACKUP_NAME
+        const val TRIPS_SUBFOLDER = BackupFolderSync.TRIPS_SUBFOLDER
         const val UPLOAD_WORK_NAME = "trip_upload"
         const val PERIODIC_UPLOAD_WORK_NAME = "trip_upload_periodic"
         const val EUCSTATS_UPLOAD_WORK_NAME = "eucstats_upload"
@@ -94,23 +83,36 @@ class SyncManager(
     // App-scoped so trip sync survives settings screen navigation.
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
+    private val alarmStore = object : AlarmRuleStore {
+        override suspend fun getAll(): List<AlarmRule> = alarmDao.getAll()
+        override suspend fun replaceAll(rules: List<AlarmRule>) {
+            alarmDao.deleteAll()
+            rules.forEach { alarmDao.insert(it.copy(id = 0)) }
+        }
+    }
+
     /** settings.json on Dropbox, shared with the iOS app. */
     private val dropboxSettings = DropboxSettingsSync(
-        settingsRepository, dropboxRepository,
-        object : AlarmRuleStore {
-            override suspend fun getAll(): List<AlarmRule> = alarmDao.getAll()
-            override suspend fun replaceAll(rules: List<AlarmRule>) {
-                alarmDao.deleteAll()
-                rules.forEach { alarmDao.insert(it.copy(id = 0)) }
-            }
-        },
+        settingsRepository, dropboxRepository, alarmStore,
         applyLanguage = { applyRestoredLanguage(it) },
+    )
+
+    private val tripFiles = AndroidTripFiles { getTripsDir() }
+
+    /** The backup folder: the shared passes, with SAF and WorkManager plugged in. */
+    val folderSync = BackupFolderSync(
+        settingsRepository, tripDao, dropboxRepository, dropboxSettings, alarmStore, tripFiles,
+        access = { uri -> SafBackupFolder.open(context, uri) },
+        host = object : BackupFolderHost {
+            override fun scheduleUpload(attempt: Int) = scheduleTripUploadAttempt(attempt)
+            override fun cancelUpload() = cancelTripUpload()
+        },
     )
 
     /** Trips with Dropbox: the shared passes, with the backup folder and WorkManager plugged in. */
     val dropboxTrips = DropboxTripSync(
         settingsRepository, tripDao, dropboxRepository, dropboxSettings,
-        AndroidTripFiles { getTripsDir() },
+        tripFiles,
         object : DropboxTripHost {
             override fun scheduleRetry(attempt: Int, delaySeconds: Long?) =
                 scheduleDropboxSyncAttempt(attempt, delaySeconds)
@@ -118,13 +120,14 @@ class SyncManager(
                 WorkManager.getInstance(context).cancelUniqueWork(DROPBOX_SYNC_WORK_NAME)
             }
             override suspend fun archiveInBackupFolder(settings: AppSettings, fileName: String) =
-                this@SyncManager.archiveInBackupFolder(settings, fileName)
-            override suspend fun countFolderConflicts(settings: AppSettings) = countBackupSubdirConflicts(settings)
+                folderSync.archiveInBackupFolder(settings, fileName)
+            override suspend fun countFolderConflicts(settings: AppSettings) =
+                folderSync.countBackupSubdirConflicts(settings)
             override suspend fun syncFolders(settings: AppSettings, choice: SyncChoice) =
-                syncBackupSubdirs(settings, choice)
+                folderSync.syncBackupSubdirs(settings, choice)
             override suspend fun mirrorFoldersInBackground(settings: AppSettings) =
-                mirrorBackupSubdirsMissingOnDropbox(settings)
-            override suspend fun snapshotBeforeRestore() { this@SyncManager.snapshotBeforeRestore() }
+                folderSync.mirrorBackupSubdirsMissingOnDropbox(settings)
+            override suspend fun snapshotBeforeRestore() { folderSync.snapshotBeforeRestore() }
             override fun enqueueFolderUpload(settings: AppSettings) = enqueueTripUpload(settings)
         },
     )
@@ -249,7 +252,8 @@ class SyncManager(
         _activeSyncKind.value = SyncConflictKind.FOLDER
         activeSyncJob = scope.launch {
             try {
-                runSync()
+                // The shared pass, under the same lock as the upload worker.
+                folderSync.runSync(folderUi)
             } finally {
                 _syncProgress.value = null
                 _syncConflictPrompt.value = null
@@ -261,195 +265,30 @@ class SyncManager(
         }
     }
 
-    /**
-     * Takes the same pass lock as the upload worker.
-     *
-     * Both write into the trips folder, and the app runs this on launch, which
-     * is exactly when a worker mirroring a restored library is busy. Two of
-     * them creating one file does not fail: the document provider renames the
-     * loser, leaving "trip (1) (1).csv" beside the backup. Seen happening.
-     */
-    private suspend fun runSync() = withUploadPass {
-        try {
-            runSyncPass()
-        } finally {
-            // The rider just picked a side, or skipped, or cancelled: the
-            // warning must say what the folder holds now, not what the worker
-            // saw on its last pass. Counted even after a cancel, which is why
-            // it cannot itself be cancelled.
-            withContext(kotlinx.coroutines.NonCancellable) {
-                val settings = settingsRepository.get()
-                if (settings.syncFolderUri != null) refreshFolderConflictCount(settings)
-            }
-        }
-    }
-
-    /**
-     * Count the trips whose phone and folder copies differ and store it for
-     * the Backup conflicts warning. The one place that number is written:
-     * the folder worker calls it on every pass with the listing it already
-     * has, and a manual sync calls it when it ends. A folder that cannot be
-     * listed leaves the number alone.
-     */
+    /** See [BackupFolderSync.refreshFolderConflictCount]. */
     suspend fun refreshFolderConflictCount(
         settings: AppSettings,
         folderSizes: Map<String, Long>? = null,
-    ) = withContext(Dispatchers.IO) {
-        val folderSizes = folderSizes ?: listFolderTripSizes(settings) ?: return@withContext
-        val tripsDir = getTripsDir()
-        val localSizes = HashMap<String, Long>()
-        for (trip in tripDao.observeAll().first()) {
-            if (trip.endTime == null) continue
-            val file = File(tripsDir, trip.fileName)
-            if (file.exists()) localSizes[trip.fileName] = file.length()
-        }
-        val conflicts = countFolderConflicts(localSizes, folderSizes)
-        if (settings.folderConflictCount != conflicts) {
-            settingsRepository.update { it.copy(folderConflictCount = conflicts) }
-        }
-    }
+    ) = folderSync.refreshFolderConflictCount(settings, folderSizes)
 
-    /**
-     * Count again, but only while the warning is up. For a change on the
-     * phone that can only settle a conflict, never make one: a trip deleted,
-     * or the library cleared. Costs nothing when there is no warning.
-     */
-    suspend fun recountFolderConflictsIfWarned() {
-        val settings = settingsRepository.get()
-        if (settings.folderConflictCount > 0 && settings.syncFolderUri != null) {
-            refreshFolderConflictCount(settings)
-        }
-    }
+    /** See [BackupFolderSync.recountFolderConflictsIfWarned]. */
+    suspend fun recountFolderConflictsIfWarned() = folderSync.recountFolderConflictsIfWarned()
 
-    private suspend fun runSyncPass() {
-        val settings = settingsRepository.get()
-        if (settings.syncFolderUri == null) {
-            _syncResult.value = SyncResult.NoFolder
-            return
-        }
-        val folderSizes = listFolderTripSizes(settings)
-        if (folderSizes == null) {
-            _syncResult.value = SyncResult.NoFolder
-            return
-        }
-        val folderNames = folderSizes.keys
-        val folderSizeByLower = folderSizes.mapKeys { it.key.lowercase() }
-
-        val dbTrips = tripDao.observeAll().first()
-        // Handed to uploadCsv so it does not re-list the folder per trip.
-        val folderByLower = folderNames.associateBy { it.lowercase() }
-        val dbByLower = dbTrips.associateBy { it.fileName.lowercase() }
-
-        // A trip both sides hold is a conflict only when the copies differ; the
-        // prompt used to count every shared name, "changed" or not, and either
-        // answer then rewrote the whole library.
-        val tripsDir = getTripsDir()
-        val conflictKeys = (folderByLower.keys intersect dbByLower.keys).filterTo(HashSet()) { key ->
-            val local = File(tripsDir, dbByLower.getValue(key).fileName)
-            local.exists() && local.length() != folderSizeByLower[key]
-        }
-        val folderOnlyKeys = folderByLower.keys - dbByLower.keys
-        val dbOnly = dbTrips.filter {
-            it.endTime != null && it.fileName.lowercase() !in folderByLower.keys
-        }
-
-        var choice = SyncChoice.IGNORE
-        if (conflictKeys.isNotEmpty()) {
+    /** The folder Sync all's question, progress bar and result, on this manager's flows. */
+    private val folderUi = object : DropboxSyncUi {
+        override suspend fun askConflict(count: Int, firstSettings: Boolean): SyncChoice {
             val deferred = CompletableDeferred<SyncChoice>()
             conflictChoice = deferred
             _syncConflictKind.value = SyncConflictKind.FOLDER
             _syncConflictFirstSettings.value = false
-            _syncConflictPrompt.value = conflictKeys.size
-            choice = deferred.await()
+            _syncConflictPrompt.value = count
+            val choice = deferred.await()
             _syncConflictPrompt.value = null
             conflictChoice = null
-            if (choice == SyncChoice.CANCEL) return
+            return choice
         }
-
-        val toUpload = dbOnly.toMutableList()
-        val toDownload = folderOnlyKeys.mapNotNull { folderByLower[it] }.toMutableList()
-        // Known trip, file gone from the phone: the folder's copy is the only one.
-        (folderByLower.keys intersect dbByLower.keys)
-            .filter { !File(tripsDir, dbByLower.getValue(it).fileName).exists() }
-            .mapNotNullTo(toDownload) { folderByLower[it] }
-        when (choice) {
-            SyncChoice.APP -> toUpload.addAll(conflictKeys.mapNotNull { dbByLower[it] })
-            SyncChoice.FOLDER -> toDownload.addAll(conflictKeys.mapNotNull { folderByLower[it] })
-            SyncChoice.IGNORE, SyncChoice.CANCEL -> {}
-        }
-
-        val total = toUpload.size + toDownload.size
-        if (total == 0) {
-            _syncResult.value = SyncResult.UpToDate
-            return
-        }
-
-        var done = 0
-        // Uploads that failed this pass (folder access lost, storage full). They
-        // are marked uploadStatus=3 and retried by the folder-backup worker.
-        var failed = 0
-        _syncProgress.value = done to total
-
-        for (trip in toUpload) {
-            currentCoroutineContext().ensureActive() // stop cleanly if cancelled
-            val file = File(getTripsDir(), trip.fileName)
-            if (file.exists()) {
-                val ok = uploadCsv(settings, file, knownNames = folderByLower)
-                if (ok) {
-                    tripDao.markUploaded(trip.id, System.currentTimeMillis())
-                } else {
-                    tripDao.setUploadStatus(trip.id, 3)
-                    failed++
-                }
-            }
-            done++
-            _syncProgress.value = done to total
-        }
-
-        for (fileName in toDownload) {
-            currentCoroutineContext().ensureActive() // stop cleanly if cancelled
-            val destFile = File(getTripsDir(), fileName)
-            if (downloadCsv(settings, fileName, destFile)) {
-                val meta = TripCsvMeta.read(AndroidTripFile(destFile))
-                val existing = dbByLower[fileName.lowercase()]
-                if (existing != null) {
-                    tripDao.update(existing.copy(
-                        startTime = meta.startTime,
-                        endTime = meta.endTime,
-                        distanceKm = meta.distanceKm,
-                        // Take the file's name when it has one, and keep the
-                        // rider's when it does not: an older copy without the
-                        // Extra cell must not wipe a name set on this phone.
-                        customName = meta.name ?: existing.customName,
-                        wheelMetaJson = meta.wheelJson ?: existing.wheelMetaJson,
-                        uploadStatus = 2,
-                        uploadedAt = System.currentTimeMillis()
-                    ))
-                } else {
-                    tripDao.insert(TripRecord(
-                        startTime = meta.startTime,
-                        endTime = meta.endTime,
-                        fileName = fileName,
-                        distanceKm = meta.distanceKm,
-                        // The file carries the rider's name for it; a downloaded
-                        // trip used to arrive nameless and show its date instead.
-                        customName = meta.name,
-                        wheelMetaJson = meta.wheelJson,
-                        uploadStatus = 2,
-                        uploadedAt = System.currentTimeMillis()
-                    ))
-                }
-            }
-            done++
-            _syncProgress.value = done to total
-        }
-
-        // Failed uploads are uploadStatus=3, which the folder-backup worker
-        // retries, so kick it so they keep retrying in the background.
-        // The result is always Finished -- no error toast; failed folder uploads
-        // finish silently once conditions recover.
-        if (failed > 0) enqueueTripUpload(settings)
-        _syncResult.value = SyncResult.Finished(total)
+        override fun progress(done: Int, total: Int) { _syncProgress.value = done to total }
+        override fun result(result: SyncResult) { _syncResult.value = result }
     }
 
     private fun getTripsDir(): File {
@@ -471,10 +310,8 @@ class SyncManager(
             val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
                     Intent.FLAG_GRANT_WRITE_URI_PERMISSION
             context.contentResolver.takePersistableUriPermission(uri, flags)
-            val current = settingsRepository.get()
-            settingsRepository.update(current.copy(syncFolderUri = uri.toString()))
-            // The count belonged to the folder before this one.
-            refreshFolderConflictCount(settingsRepository.get())
+            // Saved, and its conflicts counted (the count belonged to the folder before this one).
+            folderSync.useFolder(uri.toString())
             true
         } catch (e: SecurityException) {
             Log.e(TAG, "Could not take persistable permission for $uri", e)
@@ -494,15 +331,12 @@ class SyncManager(
             } catch (_: Exception) {
             }
         }
-        settingsRepository.update(s.copy(
-            syncFolderUri = null,
-            onlineUploadEnabled = false,  // online upload requires a folder
-            folderConflictCount = 0,      // no folder, nothing to differ from
-        ))
-        // Both destinations just lost their prerequisites: folder is gone, and
-        // the rider id file went with it. Drop any pending retries so we don't
-        // sit on a backed-off worker that would only no-op when it finally fires.
-        cancelTripUpload()
+        // No folder, no conflict count, and online upload off (the rider id
+        // lives in the folder); the pending folder retries are dropped.
+        folderSync.forgetFolder(riderIdInFolder = true)
+        // The rider id file went with the folder: drop the leaderboard's
+        // pending retries too, so we don't sit on a backed-off worker that
+        // would only no-op when it finally fires.
         cancelEucStatsUpload()
         // Clear pending/failed eucstats icons; status=2 (already on the
         // leaderboard) is preserved so a rider who restores the same folder
@@ -510,72 +344,17 @@ class SyncManager(
         resetUnfinishedEucstatsRows()
     }
 
-    /** The chosen folder's DocumentFile, or null if none or no longer accessible. */
-    fun getSyncFolder(settings: AppSettings): DocumentFile? {
-        val uriStr = settings.syncFolderUri ?: return null
-        return try {
-            DocumentFile.fromTreeUri(context, Uri.parse(uriStr))?.takeIf { it.canWrite() }
-        } catch (e: Exception) {
-            Log.e(TAG, "Cannot open sync folder", e)
-            null
-        }
-    }
+    /** The chosen folder, or null if none or no longer accessible. */
+    fun getSyncFolder(settings: AppSettings): BackupFolder? = folderSync.folder(settings)
 
-    fun getSyncFolderDisplayName(settings: AppSettings): String? {
-        val folder = getSyncFolder(settings) ?: return null
-        // Prefer the decoded tree path so the user sees where the folder lives
-        // (e.g. "Internal storage › Documents › EUC Planet") instead of just the leaf.
-        val treePath = folder.uri.lastPathSegment
-        if (!treePath.isNullOrEmpty()) {
-            val parts = treePath.split(":", limit = 2)
-            val volume = when (parts.getOrNull(0)) {
-                "primary" -> "Internal storage"
-                null, "" -> null
-                else -> parts[0]
-            }
-            val path = parts.getOrNull(1).orEmpty().trim('/')
-            val segments = if (path.isEmpty()) emptyList() else path.split('/')
-            val all = listOfNotNull(volume) + segments
-            if (all.isNotEmpty()) return all.joinToString(" › ")
-        }
-        return folder.name
-    }
+    fun getSyncFolderDisplayName(settings: AppSettings): String? = folderSync.displayName(settings)
 
-    /** Serialise AppSettings + alarm rules to JSON and write to SETTINGS_BACKUP_NAME. */
-    suspend fun backupSettings(): Boolean =
-        backupSettingsAs(name = null, overwrite = true) == BackupOutcome.Saved
+    /** See [BackupFolderSync.backupSettings]. */
+    suspend fun backupSettings(): Boolean = folderSync.backupSettings()
 
-    /**
-     * Write a named backup file in the sync folder. [name] = null is the
-     * default `eucplanet_settings.json`; a non-null sanitised name produces
-     * `eucplanet_settings-{name}.json`. When [overwrite] is false and the
-     * target already exists, returns [BackupOutcome.AlreadyExists] without
-     * touching the file so the caller can prompt the rider.
-     */
-    suspend fun backupSettingsAs(name: String?, overwrite: Boolean): BackupOutcome {
-        val current = settingsRepository.get()
-        val folder = getSyncFolder(current) ?: return BackupOutcome.Failed
-        val fileName = buildBackupFileName(name)
-        val existing = folder.findFile(fileName)
-        if (existing != null && !overwrite) return BackupOutcome.AlreadyExists
-        val payload = SettingsJson.toJson(SettingsJson.stripDeviceBindings(current)).apply {
-            put("alarms", AlarmBackupJson.alarmsToJson(alarmDao.getAll()))
-        }
-        // The file says when it was written; the app keeps no copy of that.
-        val json = BackupStamp.stamp(payload.toString(2), System.currentTimeMillis())
-        return try {
-            existing?.delete()
-            val file = folder.createFile("application/json", fileName)
-                ?: return BackupOutcome.Failed
-            context.contentResolver.openOutputStream(file.uri)?.use { out ->
-                out.write(json.toByteArray(Charsets.UTF_8))
-            } ?: return BackupOutcome.Failed
-            BackupOutcome.Saved
-        } catch (e: Exception) {
-            Log.e(TAG, "Settings backup failed", e)
-            BackupOutcome.Failed
-        }
-    }
+    /** See [BackupFolderSync.backupSettingsAs]. */
+    suspend fun backupSettingsAs(name: String?, overwrite: Boolean): BackupOutcome =
+        folderSync.backupSettingsAs(name, overwrite)
 
     /**
      * Write a rider's store_id to the recovery file ([RIDER_BACKUP_NAME]) in
@@ -586,19 +365,7 @@ class SyncManager(
      * write failed.
      */
     suspend fun writeRiderId(storeId: String): Boolean {
-        val folder = getSyncFolder(settingsRepository.get()) ?: return false
-        val ok = try {
-            folder.findFile(RIDER_BACKUP_NAME)?.delete()
-            val file = folder.createFile("text/plain", RIDER_BACKUP_NAME)
-                ?: return false
-            context.contentResolver.openOutputStream(file.uri)?.use { out ->
-                out.write(storeId.toByteArray(Charsets.UTF_8))
-            } ?: return false
-            true
-        } catch (e: Exception) {
-            Log.e(TAG, "Rider id write failed", e)
-            false
-        }
+        val ok = folderSync.writeRiderIdFile(storeId)
         if (ok) _riderStoreId.value = storeId
         return ok
     }
@@ -609,57 +376,23 @@ class SyncManager(
      *  Also clears [riderStoreId] so every consumer sees the unregistered
      *  state immediately. Best-effort; returns true if a file was deleted. */
     suspend fun deleteRiderIdFile(): Boolean {
-        val folder = getSyncFolder(settingsRepository.get()) ?: run {
-            _riderStoreId.value = null
-            return false
-        }
-        val deleted = folder.findFile(RIDER_BACKUP_NAME)?.delete() ?: false
+        val deleted = folderSync.deleteRiderIdFile() ?: false
         _riderStoreId.value = null
         return deleted
     }
 
-    /** Read the plain-text online rider id (store_id) from RIDER_BACKUP_NAME, or null. */
-    suspend fun readRiderIdFile(): String? {
-        val current = settingsRepository.get()
-        val folder = getSyncFolder(current) ?: return null
-        val file = folder.findFile(RIDER_BACKUP_NAME) ?: return null
-        return try {
-            context.contentResolver.openInputStream(file.uri)?.use {
-                String(it.readBytes(), Charsets.UTF_8).trim()
-            }?.takeIf { it.isNotBlank() }
-        } catch (e: Exception) {
-            Log.e(TAG, "Could not read rider id file", e)
-            null
-        }
-    }
+    /** See [BackupFolderSync.readRiderIdFile]. */
+    suspend fun readRiderIdFile(): String? = folderSync.readRiderIdFile()
 
-    /**
-     * Ensure the recovery file holds [storeId]. Used at registration / link
-     * time so the rider's identity is hardened in the sync folder before
-     * anything else can clobber it. Leaves a foreign rider's file untouched
-     * and reports [RiderFileResult.MISMATCH] so the caller can warn.
-     */
-    suspend fun ensureRiderIdFile(storeId: String): RiderFileResult {
-        getSyncFolder(settingsRepository.get()) ?: return RiderFileResult.SKIPPED
-        return when (readRiderIdFile()) {
-            storeId -> RiderFileResult.ALREADY_PRESENT
-            null -> if (writeRiderId(storeId)) RiderFileResult.WROTE else RiderFileResult.SKIPPED
-            else -> RiderFileResult.MISMATCH
-        }
-    }
+    /** See [BackupFolderSync.ensureRiderIdFile]; a write publishes on [riderStoreId]. */
+    suspend fun ensureRiderIdFile(storeId: String): RiderFileResult =
+        folderSync.ensureRiderIdFile(storeId) { writeRiderId(it) }
 
     /** Read settings.json from the folder and apply, keeps current syncFolder/device fields. */
     suspend fun restoreSettings(): Boolean = restoreSettingsFrom(SETTINGS_BACKUP_NAME)
 
     /** Restore from the named backup file in the sync folder. */
-    suspend fun restoreSettingsFrom(fileName: String): Boolean {
-        val current = settingsRepository.get()
-        val folder = getSyncFolder(current) ?: return false
-        val file = folder.findFile(fileName) ?: return false
-        val bytes = context.contentResolver.openInputStream(file.uri)?.use { it.readBytes() }
-            ?: return false
-        return applySettingsFromJson(bytes)
-    }
+    suspend fun restoreSettingsFrom(fileName: String): Boolean = folderSync.restoreSettingsFrom(fileName)
 
     /** See [DropboxSettingsSync.applySettingsFromJson]. */
     suspend fun applySettingsFromJson(bytes: ByteArray): Boolean = dropboxSettings.applySettingsFromJson(bytes)
@@ -684,121 +417,24 @@ class SyncManager(
         withContext(Dispatchers.Main) { LocaleHelper.apply(tag) }
     }
 
-    /**
-     * Reset rider configuration to factory defaults. Reuses the file-restore
-     * merge with an in-memory [AppSettings] snapshot instead of a backup file:
-     * [SettingsJson.stripDeviceBindings] drops the device + sync fields from the
-     * factory JSON, so [SettingsJson.fromJson] keeps the rider's current
-     * pairings, sync folder and backup history while every other field reverts
-     * to its default. Custom alarm rules are cleared (a fresh install ships
-     * none). Needs no sync folder, it's a purely local reset.
-     */
-    suspend fun restoreFactoryDefaults(): Boolean {
-        val current = settingsRepository.get()
-        return try {
-            // Factory reset keeps device bindings (pairings, sync folder) and
-            // the live Dropbox link, same as the restore path above.
-            settingsRepository.update(SettingsJson.factoryReset(current))
-            alarmDao.deleteAll()
-            true
-        } catch (e: Exception) {
-            Log.e(TAG, "Factory reset failed", e)
-            false
-        }
-    }
+    /** See [BackupFolderSync.restoreFactoryDefaults]. */
+    suspend fun restoreFactoryDefaults(): Boolean = folderSync.restoreFactoryDefaults()
 
-    /**
-     * List every settings backup in the sync folder. The default
-     * `eucplanet_settings.json` is always returned first (with [BackupEntry.label]
-     * = null), followed by named snapshots sorted by display label. Each
-     * carries when it was written, read from the file.
-     */
-    suspend fun listSettingsBackups(): List<BackupEntry> {
-        val current = settingsRepository.get()
-        val folder = getSyncFolder(current) ?: return emptyList()
-        val out = mutableListOf<BackupEntry>()
-        val named = mutableListOf<BackupEntry>()
-        folder.listFiles().forEach { doc ->
-            val n = doc.name ?: return@forEach
-            if (!n.endsWith(".json", ignoreCase = true)) return@forEach
-            when {
-                n.equals(SETTINGS_BACKUP_NAME, ignoreCase = true) -> {
-                    out += BackupEntry(fileName = n, label = null, writtenAt = writtenAt(doc))
-                }
-                n.startsWith(SETTINGS_BACKUP_PREFIX, ignoreCase = true) &&
-                    n.length > SETTINGS_BACKUP_PREFIX.length + SETTINGS_BACKUP_SUFFIX.length -> {
-                    val label = n.substring(
-                        SETTINGS_BACKUP_PREFIX.length,
-                        n.length - SETTINGS_BACKUP_SUFFIX.length
-                    )
-                    if (label.isNotEmpty()) {
-                        named += BackupEntry(fileName = n, label = label, writtenAt = writtenAt(doc))
-                    }
-                }
-            }
-        }
-        named.sortBy { it.label?.lowercase() }
-        return out + named
-    }
+    /** See [BackupFolderSync.listSettingsBackups]. */
+    suspend fun listSettingsBackups(): List<BackupEntry> = folderSync.listSettingsBackups()
 
-    /** When a backup file was written: its own stamp, or for a file from
-     *  before backups carried one, the time the folder has for it. */
-    private fun writtenAt(doc: DocumentFile): Long? {
-        val stamp = runCatching {
-            context.contentResolver.openInputStream(doc.uri)?.use { input ->
-                val head = ByteArray(BackupStamp.HEAD_BYTES)
-                val n = input.read(head)
-                if (n > 0) BackupStamp.read(String(head, 0, n, Charsets.UTF_8)) else null
-            }
-        }.getOrNull()
-        return stamp ?: runCatching { doc.lastModified() }.getOrNull()?.takeIf { it > 0L }
-    }
+    /** See [BackupFolderSync.findRestorableRider]. */
+    suspend fun findRestorableRider(): RestorableRider? = folderSync.findRestorableRider()
 
-    /**
-     * The recoverable rider identity for this sync folder. The store_id in
-     * `eucstats_riderid.txt` is the only thing the app needs to identify the
-     * rider on reinstall. The display name and the rest of the profile come
-     * from `api.getCard(storeId)` once the rider opts in to restore. Returns
-     * null when no folder is configured, no `.txt` file is present, or the
-     * file is empty.
-     */
-    suspend fun findRestorableRider(): RestorableRider? {
-        val id = readRiderIdFile() ?: return null
-        return RestorableRider(fileName = RIDER_BACKUP_NAME, storeId = id)
-    }
+    /** See [BackupFolderSync.snapshotBeforeRestore]. */
+    suspend fun snapshotBeforeRestore(): Boolean = folderSync.snapshotBeforeRestore()
 
-    /**
-     * Save a timestamped safety copy of the CURRENT settings before a restore
-     * that would replace the rider identity, so the previous rider stays
-     * recoverable even if the rider taps through the confirm. Best-effort.
-     */
-    suspend fun snapshotBeforeRestore(): Boolean {
-        val stamp = java.text.SimpleDateFormat("yyyyMMdd-HHmm", java.util.Locale.US)
-            .format(java.util.Date())
-        return backupSettingsAs(name = "before-restore-$stamp", overwrite = false) == BackupOutcome.Saved
-    }
-
-    /** Path-safe sanitiser. Strips anything that isn't [A-Za-z0-9_- ], trims,
-     *  collapses whitespace, caps at 32 chars. Empty input returns null so the
-     *  caller can show a validation error. */
-    fun sanitizeBackupName(raw: String): String? {
-        val cleaned = raw.trim()
-            .replace(Regex("[^A-Za-z0-9_\\- ]"), "")
-            .replace(Regex("\\s+"), " ")
-            .trim()
-            .take(32)
-        return cleaned.takeIf { it.isNotEmpty() }
-    }
-
-    private fun buildBackupFileName(name: String?): String =
-        if (name == null) SETTINGS_BACKUP_NAME else "$SETTINGS_BACKUP_PREFIX$name$SETTINGS_BACKUP_SUFFIX"
+    /** See [BackupFolderSync.sanitizeBackupName]. */
+    fun sanitizeBackupName(raw: String): String? = BackupFolderSync.sanitizeBackupName(raw)
 
     /** Initial enqueue of the folder-backup worker. Retries are scheduled by the
      *  worker itself via [scheduleTripUploadAttempt]. */
-    fun enqueueTripUpload(settings: AppSettings) {
-        if (settings.syncFolderUri == null) return
-        scheduleTripUploadAttempt(attempt = 0)
-    }
+    fun enqueueTripUpload(settings: AppSettings) = folderSync.enqueueUpload(settings)
 
     /** Initial enqueue of the eucstats worker. Retries are scheduled by the worker
      *  itself via [scheduleEucStatsUploadAttempt]. */
@@ -961,15 +597,9 @@ class SyncManager(
             val trip = tripDao.getById(tripId) ?: return@launch
             val file = File(getTripsDir(), trip.fileName)
             if (!file.exists()) return@launch
-            if (settings.syncFolderUri != null) {
-                val ok = runCatching { withUploadPass { uploadCsv(settings, file) } }
-                    .getOrDefault(false)
-                tripDao.update((tripDao.getById(tripId) ?: return@launch).copy(
-                    uploadStatus = if (ok) 2 else 3,
-                    uploadedAt = if (ok) System.currentTimeMillis() else trip.uploadedAt,
-                ))
-                if (!ok) scheduleTripUploadAttempt(1)
-            }
+            // The folder half is shared: upload under the pass lock, mark the
+            // row, and on failure queue the worker's first retry.
+            if (!folderSync.pushEditedTrip(settings, trip)) return@launch
             if (settings.dropboxAccessToken.isNotBlank()) {
                 dropboxTrips.pushEditedTrip(trip.fileName)
             }
@@ -1110,127 +740,6 @@ class SyncManager(
     }
 
     /**
-     * The backup folder's [sub] as the shared [syncJsonFolder] sees it. Only
-     * .json files take part: a theme or overlay is JSON, and anything else
-     * would be renamed by the provider on the way in and come back every pass.
-     */
-    private fun safJsonFolder(
-        folder: androidx.documentfile.provider.DocumentFile, sub: String, create: Boolean,
-    ): JsonFolder = object : JsonFolder {
-        private var dir: androidx.documentfile.provider.DocumentFile? = null
-        private var docs: Map<String, androidx.documentfile.provider.DocumentFile> = emptyMap()
-
-        override suspend fun jsonFiles(): Map<String, ByteArray>? {
-            val d = folder.findFile(sub)?.takeIf { it.isDirectory }
-                ?: (if (create) folder.createDirectory(sub) else null) ?: return null
-            dir = d
-            docs = d.listFiles()
-                .filter { it.isFile && it.name?.endsWith(".json", ignoreCase = true) == true }
-                .associateBy { it.name!! }
-            // A file the provider will not open is left out rather than sent
-            // up empty.
-            return docs.mapNotNull { (name, doc) ->
-                context.contentResolver.openInputStream(doc.uri)?.use { it.readBytes() }?.let { name to it }
-            }.toMap()
-        }
-
-        override suspend fun write(name: String, bytes: ByteArray): Boolean {
-            val d = dir ?: return false
-            // Replace an existing file in place. Deleting it and
-            // creating it again races the provider, which then names
-            // the new one "name (1).json" beside a missing original.
-            val existing = docs[name]
-            val target = existing ?: d.createFile("application/json", name) ?: return false
-            val ok = try {
-                context.contentResolver.openOutputStream(target.uri, "wt")?.use { it.write(bytes); true } ?: false
-            } catch (e: Exception) { false }
-            if (!ok) {
-                // A half-created empty file would look like a conflict next pass and could
-                // overwrite the real Dropbox copy on an APP choice. Remove it so a failed
-                // download simply retries next time.
-                if (existing == null) target.delete()
-            }
-            return ok
-        }
-    }
-
-    /**
-     * Sync the backup folder's themes/ and overlays/ both ways with Dropbox
-     * ([syncJsonFolder], shared with iOS). Downloads write into the SAF
-     * subfolder, where ThemeStore/OverlayPresetStore read them.
-     * @return number of files transferred (not counted as trips).
-     */
-    private suspend fun syncBackupSubdirs(settings: AppSettings, choice: SyncChoice): Int {
-        val folder = getSyncFolder(settings) ?: return 0
-        var count = 0
-        for (sub in listOf("themes", "overlays")) {
-            try {
-                count += syncJsonFolder(dropboxRepository, sub, safJsonFolder(folder, sub, create = true), choice) ?: 0
-            } catch (e: Exception) {
-                android.util.Log.w(TAG, "sync /$sub failed: ${e.message}")
-            }
-        }
-        return count
-    }
-
-    /** List both subfolders and count conflicts only (no transfers), so the
-     *  ONE prompt can include themes/overlays conflicts before it shows. */
-    private suspend fun countBackupSubdirConflicts(settings: AppSettings): Int {
-        val folder = getSyncFolder(settings) ?: return 0
-        var n = 0
-        for (sub in listOf("themes", "overlays")) {
-            n += try {
-                safJsonFolder(folder, sub, create = false).jsonFiles()
-                    ?.let { planJsonFolder(dropboxRepository, sub, it) }?.conflicts?.size ?: 0
-            } catch (e: Exception) {
-                android.util.Log.w(TAG, "count /$sub failed: ${e.message}")
-                0
-            }
-        }
-        return n
-    }
-
-    /**
-     * The background pass's mirror of the backup folder's themes/ and
-     * overlays/, so the cloud copy is the WHOLE folder, not just trips and
-     * settings. These live as files in the SAF backup folder (ThemeStore /
-     * OverlayPresetStore). The background only adds what Dropbox lacks:
-     * overwriting by modified time silently replaced another phone's edit, so
-     * a file both sides hold is left to Sync all and its prompt.
-     */
-    private suspend fun mirrorBackupSubdirsMissingOnDropbox(settings: AppSettings): FolderMirror {
-        var uploaded = 0
-        var anyFailed = false
-        val folder = getSyncFolder(settings) ?: return FolderMirror(0, false)
-        for (sub in listOf("themes", "overlays")) {
-            try {
-                val subDir = folder.findFile(sub)?.takeIf { it.isDirectory } ?: continue
-                // A failed listing is not an empty folder: skip, do not upload everything.
-                val remoteSub = dropboxRepository.listFolder("/$sub") ?: continue
-                val remoteLower = remoteSub.keys.mapTo(HashSet()) { it.lowercase() }
-                for (doc in subDir.listFiles()) {
-                    if (!doc.isFile) continue
-                    val name = doc.name ?: continue
-                    if (!name.endsWith(".json", ignoreCase = true)) continue
-                    if (name.lowercase() in remoteLower) continue
-                    val bytes = try {
-                        context.contentResolver
-                            .openInputStream(doc.uri)?.use { it.readBytes() }
-                    } catch (e: Exception) { null }
-                    if (bytes == null) { anyFailed = true; continue }
-                    if (dropboxRepository.uploadFile("/$sub/$name", bytes)) {
-                        uploaded++
-                        Log.i("DropboxSyncWorker", "Uploaded /$sub/$name")
-                    } else anyFailed = true
-                }
-            } catch (e: Exception) {
-                Log.w("DropboxSyncWorker", "mirror /$sub failed: ${e.message}")
-            }
-        }
-        return FolderMirror(uploaded, anyFailed)
-    }
-
-    /**
      * Move a trip's file out of the way on every destination that has it:
      * Dropbox first, the backup folder second, the phone's copy last (the
      * caller's). See [DropboxTripSync.archiveTripFile].
@@ -1240,88 +749,12 @@ class SyncManager(
     suspend fun archiveTripFile(fileName: String): Boolean = dropboxTrips.archiveTripFile(fileName)
 
     /**
-     * A name nothing in [archive] is using yet: "trip.csv", then "trip (1).csv".
-     *
-     * The same shape Dropbox's autorename produces, so a rider looking at the
-     * two archives sees the same thing in both.
-     */
-    private fun freeArchiveName(archive: DocumentFile, fileName: String): String {
-        if (archive.findFile(fileName) == null) return fileName
-        val stem = fileName.substringBeforeLast('.', fileName)
-        val ext = fileName.substringAfterLast('.', "")
-        val suffix = if (ext.isEmpty()) "" else ".$ext"
-        var n = 1
-        while (n < 1000) {
-            val candidate = "$stem ($n)$suffix"
-            if (archive.findFile(candidate) == null) return candidate
-            n++
-        }
-        return fileName
-    }
-
-    /**
      * Archive many trips at once, for "delete all", in batches. See
      * [DropboxTripSync.archiveTripFiles].
      *
      * @return the file names that are now archived everywhere they existed
      */
     suspend fun archiveTripFiles(fileNames: List<String>): Set<String> = dropboxTrips.archiveTripFiles(fileNames)
-
-    /**
-     * Move [fileName] into trips/archive inside the backup folder.
-     *
-     * Trips live in the folder's trips/ subdirectory, the same place
-     * listFolderTripNames and downloadCsv read them from, so the archive sits
-     * beside them rather than at the root next to themes/ and overlays/.
-     *
-     * @return true when the file was moved, or when there was nothing to move
-     */
-    private fun archiveInBackupFolder(settings: AppSettings, fileName: String): Boolean {
-        val tripsDir = getSyncFolder(settings)
-            ?.findFile(TRIPS_SUBFOLDER)?.takeIf { it.isDirectory }
-            ?: return true
-        return try {
-            // Shared storage ignores case and the folder may spell the name
-            // its own way ("Inmotion_V14" for the app's "inmotion_v14").
-            // findFile matches exactly, so such a copy read as "nothing to
-            // move", stayed in the folder, and the next sync brought the
-            // deleted trip back.
-            val doc = (tripsDir.findFile(fileName)
-                ?: tripsDir.listFiles().firstOrNull { it.name.equals(fileName, ignoreCase = true) })
-                ?.takeIf { it.isFile } ?: return true
-            val archive = tripsDir.findFile("archive")?.takeIf { it.isDirectory }
-                ?: tripsDir.createDirectory("archive") ?: return false
-            // An archive never destroys: a name already in there is an earlier
-            // ride the rider archived, and a second one of the same name - the
-            // same library restored and cleared again - has to sit beside it,
-            // not on top of it. Dropbox does this for us with autorename; here
-            // it has to be worked out, so the two sides behave the same way.
-            val free = freeArchiveName(archive, fileName)
-            // A provider-side move is a rename: no bytes read, no bytes
-            // written. Only usable when the name is untaken, since the move
-            // cannot rename as it goes. Every provider is allowed to refuse it,
-            // so the copy below stays as the fallback.
-            if (free == fileName) {
-                val moved = runCatching {
-                    android.provider.DocumentsContract.moveDocument(
-                        context.contentResolver, doc.uri, tripsDir.uri, archive.uri
-                    )
-                }.getOrNull()
-                if (moved != null) return true
-            }
-            val bytes = context.contentResolver.openInputStream(doc.uri)?.use { it.readBytes() }
-                ?: return false
-            val dest = archive.createFile("text/csv", free) ?: return false
-            val wrote = runCatching {
-                context.contentResolver.openOutputStream(dest.uri, "wt")?.use { it.write(bytes) }
-                true
-            }.getOrDefault(false)
-            if (wrote) doc.delete() else false
-        } catch (e: Exception) {
-            Log.w(TAG, "archive in backup folder failed for $fileName: ${e.message}")
-            false
-        }
-    }
 
     fun scheduleDropboxSyncAttempt(attempt: Int, delaySeconds: Long? = null) {
         val constraints = Constraints.Builder()
@@ -1396,163 +829,12 @@ class SyncManager(
         )
     }
 
-    /**
-     * List CSV filenames in the trips subfolder. Returns null if the folder
-     * is unavailable, empty list if the folder exists but has no trips yet.
-     */
-    fun listFolderTripNames(settings: AppSettings): List<String>? =
-        listFolderTripSizes(settings)?.keys?.toList()
+    /** See [BackupFolderSync.listFolderTripNames]. */
+    fun listFolderTripNames(settings: AppSettings): List<String>? = folderSync.listFolderTripNames(settings)
 
-    /**
-     * Delete the renamed duplicates a case mismatch used to leave in the
-     * backup folder's trips, see [RenamedCopyCleanup]. Names and sizes come
-     * from one provider query, and files are only read when a "(N)" copy has a
-     * same-sized candidate, so a clean folder costs one listing. Returns how
-     * many copies went.
-     */
-    fun removeRenamedTripCopies(settings: AppSettings): Int {
-        val root = getSyncFolder(settings) ?: return 0
-        val trips = root.findFile(TRIPS_SUBFOLDER) ?: return 0
-        val resolver = context.contentResolver
-        val children = android.provider.DocumentsContract.buildChildDocumentsUriUsingTree(
-            trips.uri, android.provider.DocumentsContract.getDocumentId(trips.uri))
-        val ids = HashMap<String, String>()
-        val entries = mutableListOf<RenamedCopyCleanup.Entry>()
-        try {
-            resolver.query(children, arrayOf(
-                android.provider.DocumentsContract.Document.COLUMN_DOCUMENT_ID,
-                android.provider.DocumentsContract.Document.COLUMN_DISPLAY_NAME,
-                android.provider.DocumentsContract.Document.COLUMN_SIZE,
-            ), null, null, null)?.use { c ->
-                while (c.moveToNext()) {
-                    val name = c.getString(1) ?: continue
-                    if (!name.endsWith(".csv", ignoreCase = true)) continue
-                    ids[name] = c.getString(0)
-                    entries += RenamedCopyCleanup.Entry(name, c.getLong(2))
-                }
-            }
-        } catch (e: Exception) {
-            Log.w(TAG, "Could not list the trips folder for duplicates", e)
-            return 0
-        }
-        fun uriOf(name: String) =
-            android.provider.DocumentsContract.buildDocumentUriUsingTree(trips.uri, ids.getValue(name))
-        fun bytes(name: String) = resolver.openInputStream(uriOf(name))?.use { it.readBytes() }
-        val doomed = RenamedCopyCleanup.plan(entries) { a, b ->
-            val x = bytes(a.name); x != null && x.contentEquals(bytes(b.name))
-        }
-        var removed = 0
-        for (name in doomed) {
-            val ok = try {
-                android.provider.DocumentsContract.deleteDocument(resolver, uriOf(name))
-            } catch (e: Exception) { false }
-            if (ok) removed++
-        }
-        if (removed > 0) Log.i(TAG, "Removed $removed duplicate trip copies from the backup folder")
-        return removed
-    }
+    /** See [BackupFolderSync.listFolderTripSizes]. */
+    fun listFolderTripSizes(settings: AppSettings): Map<String, Long>? = folderSync.listFolderTripSizes(settings)
 
-    /** CSV name -> byte size for the trips subfolder, in one directory walk.
-     *  Sizes are what tell an already-backed-up trip from a conflict: same
-     *  name, different bytes means the two sides disagree and neither may be
-     *  overwritten without the rider choosing. */
-    fun listFolderTripSizes(settings: AppSettings): Map<String, Long>? {
-        val root = getSyncFolder(settings) ?: return null
-        val trips = root.findFile(TRIPS_SUBFOLDER) ?: return emptyMap()
-        val out = LinkedHashMap<String, Long>()
-        for (doc in trips.listFiles()) {
-            val name = doc.name ?: continue
-            if (doc.isFile && name.endsWith(".csv", ignoreCase = true)) out[name] = doc.length()
-        }
-        return out
-    }
-
-    /**
-     * Serialises folder-upload passes.
-     *
-     * The one-time upload worker and the periodic one are separate unique work
-     * names, so WorkManager is free to run both at once, and both walk the same
-     * pending list. Two passes creating the same file is not a harmless race:
-     * the document provider renames the loser rather than refusing it, leaving
-     * "trip (1).csv" beside the real backup. They share a process, so a lock is
-     * all it takes.
-     */
-    private val uploadPassLock = kotlinx.coroutines.sync.Mutex()
-
-    suspend fun <T> withUploadPass(block: suspend () -> T): T =
-        uploadPassLock.withLock { block() }
-
-    /** Copy a folder CSV into destFile. */
-    fun downloadCsv(settings: AppSettings, fileName: String, destFile: File): Boolean {
-        val root = getSyncFolder(settings) ?: return false
-        val trips = root.findFile(TRIPS_SUBFOLDER) ?: return false
-        val src = trips.findFile(fileName) ?: return false
-        return try {
-            context.contentResolver.openInputStream(src.uri)?.use { input ->
-                destFile.outputStream().use { out -> input.copyTo(out) }
-            } ?: return false
-            true
-        } catch (e: Exception) {
-            Log.e(TAG, "Download failed for $fileName", e)
-            false
-        }
-    }
-
-    /**
-     * Write a single CSV file to trips subfolder, returning true on success.
-     * Called from the worker.
-     */
-    fun uploadCsv(
-        settings: AppSettings,
-        localFile: java.io.File,
-        /** Leave a file of the same name alone instead of replacing it. Set for
-         *  trips that came down from Dropbox: the folder's copy may be a
-         *  different version and is not ours to overwrite unasked. */
-        skipIfPresent: Boolean = false,
-        /**
-         * The names the folder already held when the pass started, if the
-         * caller has them.
-         *
-         * findFile lists the whole directory to answer one question, so a
-         * caller looping over a library pays that once per trip: with 2000
-         * trips backed up it slowed to eight files a minute and got slower as
-         * the folder filled. A caller that already enumerated the folder can
-         * hand the names over, and the common case - a name the folder does
-         * not have - then costs nothing. Keyed by the lowercased name, valued
-         * by the folder's own spelling: shared storage ignores case, so a trip
-         * the app spells "inmotion_v14" IS the folder's "Inmotion_V14", and
-         * treating it as missing made the provider add "(1)", "(2)"... on
-         * every pass until it refused at 32.
-         */
-        knownNames: Map<String, String>? = null,
-    ): Boolean {
-        val root = getSyncFolder(settings) ?: return false
-        val tripsFolder = root.findFile(TRIPS_SUBFOLDER)
-            ?: root.createDirectory(TRIPS_SUBFOLDER)
-            ?: return false
-        return try {
-            val folderSpelling = knownNames?.get(localFile.name.lowercase())
-            val knownHas = knownNames?.let { folderSpelling != null }
-            // Nothing to do, and the caller's listing already proves it. Going
-            // to the folder to confirm costs a full directory listing, which is
-            // the whole reason mirroring a restored library crawled: most of
-            // those trips are already backed up.
-            if (knownHas == true && skipIfPresent) return true
-            val existing = when {
-                knownHas == false -> null
-                folderSpelling != null -> tripsFolder.findFile(folderSpelling)
-                else -> tripsFolder.listFiles().firstOrNull { it.name.equals(localFile.name, ignoreCase = true) }
-            }
-            if (existing != null && skipIfPresent) return true
-            existing?.delete()
-            val dest = tripsFolder.createFile("text/csv", localFile.name) ?: return false
-            context.contentResolver.openOutputStream(dest.uri)?.use { out ->
-                localFile.inputStream().use { it.copyTo(out) }
-            } ?: return false
-            true
-        } catch (e: Exception) {
-            Log.e(TAG, "Upload failed for ${localFile.name}", e)
-            false
-        }
-    }
+    /** Held by every folder pass, foreground or background; see [BackupFolderSync.withUploadPass]. */
+    suspend fun <T> withUploadPass(block: suspend () -> T): T = folderSync.withUploadPass(block)
 }

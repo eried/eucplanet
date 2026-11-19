@@ -42,8 +42,14 @@ interface SettingsHost {
      */
     val drivesMusicPlayer: Boolean get() = true
 
-    /** A backup folder can be picked (Android's document tree); without one, Dropbox is the backup. */
+    /** A backup folder can be picked (Android's document tree, the iPhone's Files folder). */
     val supportsBackupFolder: Boolean
+
+    /**
+     * Dropbox is offered only once a backup folder is set, as a mirror of it
+     * (Android). The iPhone offers it with or without a folder.
+     */
+    val dropboxNeedsFolder: Boolean get() = supportsBackupFolder
 
     /** Keys of the sections this platform leaves out ("watch", "motor"...), for a phone without them. */
     val hiddenSections: Set<String>

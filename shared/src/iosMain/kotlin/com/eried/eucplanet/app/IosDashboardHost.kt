@@ -64,9 +64,12 @@ internal class IosDashboardHost : DashboardHost {
     @Composable
     override fun BackHandler(onBack: () -> Unit) = Unit
 
-    // A folder backup is Android's Storage Access Framework; iOS syncs through Dropbox.
+    // The Files app's folder picker, as Settings opens it (the welcome tour's folder step).
     @Composable
-    override fun rememberFolderPicker(onPicked: (String) -> Unit): () -> Unit = remember { {} }
+    override fun rememberFolderPicker(onPicked: (String) -> Unit): () -> Unit {
+        val callback = androidx.compose.runtime.rememberUpdatedState(onPicked)
+        return remember { { IosBackupFolders.pick { uri -> callback.value(uri) } } }
+    }
 
     @Composable
     override fun rememberNavigation(): DashboardNavigation = rememberIosDashboardNavigation()

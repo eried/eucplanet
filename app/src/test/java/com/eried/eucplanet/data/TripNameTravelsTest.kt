@@ -23,10 +23,10 @@ class TripNameTravelsTest {
 
     @get:Rule val tmp = TemporaryFolder()
 
-    // The folder sync (SyncManager), the Dropbox passes and the CSV reader they
-    // share, which moved to :shared so the iPhone builds the same rows.
+    // The folder sync, the Dropbox passes and the CSV reader they share,
+    // which moved to :shared so the iPhone builds the same rows.
     private val sync = listOf(
-        "src/main/java/com/eried/eucplanet/data/sync/SyncManager.kt",
+        "../shared/src/commonMain/kotlin/com/eried/eucplanet/data/sync/BackupFolderSync.kt",
         "../shared/src/commonMain/kotlin/com/eried/eucplanet/data/sync/TripCsvMeta.kt",
         "../shared/src/commonMain/kotlin/com/eried/eucplanet/data/sync/DropboxTripSync.kt",
     ).joinToString("\n") { File(it).readText() }

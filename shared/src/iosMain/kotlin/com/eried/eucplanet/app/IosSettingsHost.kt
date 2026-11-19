@@ -38,8 +38,9 @@ import platform.UIKit.UIApplication
 
 /**
  * The iOS [SettingsHost]. The sections iOS has no counterpart for (the car
- * screen, the phone HUD window, the watches, the folder backups) draw
- * nothing; the HUD section is the shared one, less sending the HUD its app.
+ * screen, the phone HUD window, the watches) draw nothing; the HUD section
+ * is the shared one, less sending the HUD its app. The backup folder is one
+ * picked in the Files app.
  * See docs/IOS_PARITY.md for the split.
  */
 internal object IosSettingsHost : SettingsHost {
@@ -51,13 +52,16 @@ internal object IosSettingsHost : SettingsHost {
 
     override fun linkDropbox() = IosDropboxSync.link()
 
-    // No backup folder on iOS: Dropbox is the only sync.
-    override fun openFolder(uri: String) = Unit
+    // The Files app, at the backup folder.
+    override fun openFolder(uri: String) = IosBackupFolders.openInFiles(uri)
 
     override fun openCrewsPairing() = IosCrews.open(null)
 
-    // The settings, alarms and themes sync through Dropbox; no folder here yet.
-    override val supportsBackupFolder = false
+    // A folder picked in the Files app (IosBackupFolders, IosFolderSync).
+    override val supportsBackupFolder = true
+
+    // Dropbox and the leaderboard need no folder on the iPhone.
+    override val dropboxNeedsFolder = false
 
     // iOS gives apps no access to the volume buttons.
     override val supportsVolumeKeys = false
@@ -105,7 +109,11 @@ internal object IosSettingsHost : SettingsHost {
     override val voiceCommandsBindDesc get() = Res.string.voice_commands_bind_desc_iphone
 
     @Composable
-    override fun rememberFolderPicker(onPicked: (String) -> Unit): () -> Unit = {}
+    override fun rememberFolderPicker(onPicked: (String) -> Unit): () -> Unit {
+        val callback = rememberUpdatedState(onPicked)
+        // The Files app's folder picker; the pick comes back as its bookmark.
+        return remember { { IosBackupFolders.pick { uri -> callback.value(uri) } } }
+    }
 
     @Composable
     override fun rememberAudioPicker(onPicked: (uri: String, displayName: String) -> Unit): () -> Unit {

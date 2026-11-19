@@ -49,8 +49,10 @@ import platform.UIKit.UIDevice
  * The eucstats leaderboard on the iPhone: the shared repository and upload
  * sweep, with what Android keeps elsewhere kept here.
  *
- * - The rider id: Android writes it to the backup folder; the iPhone has no
- *   folder, so it is a file in the app's Documents (backed up with the phone).
+ * - The rider id: Android writes it to the backup folder; the iPhone keeps
+ *   it in a file in the app's Documents (backed up with the phone), so the
+ *   leaderboard needs no folder, and writes the same file into the backup
+ *   folder when one is set (IosFolderSync).
  * - The upload trigger: Android has WorkManager; the iPhone sweeps when a trip
  *   finishes, when the app starts and when it comes back to the front, and
  *   retries in-process on Android's backoff curve while it stays open. While
@@ -105,7 +107,12 @@ internal object IosEucStats {
     fun writeRiderId(storeId: String): Boolean {
         @Suppress("CAST_NEVER_SUCCEEDS")
         val ok = (NSString.create(string = storeId)).writeToFile(riderPath, true, NSUTF8StringEncoding, null)
-        if (ok) _riderStoreId.value = storeId
+        if (ok) {
+            _riderStoreId.value = storeId
+            // With a backup folder, the same file goes there, as Android keeps
+            // it, so the rider finds this profile from any phone on that folder.
+            scope.launch { IosFolderSync.sync.writeRiderIdFile(storeId) }
+        }
         return ok
     }
 
@@ -113,6 +120,8 @@ internal object IosEucStats {
     fun deleteRiderId(): Boolean {
         val deleted = NSFileManager.defaultManager.removeItemAtPath(riderPath, null)
         _riderStoreId.value = null
+        // The deleted profile must not be offered from the folder either.
+        scope.launch { IosFolderSync.sync.deleteRiderIdFile() }
         return deleted
     }
 

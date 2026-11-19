@@ -29,8 +29,8 @@ class IosStudioPortsTest {
         assertTrue(presets.savePreset("Night ride", OverlayPreset()))
         assertEquals(listOf("Night ride"), presets.listPresets())
         assertEquals("Night ride", presets.loadPreset("Night ride")?.name)
-        // The folder is what Dropbox's /overlays mirrors.
-        assertEquals(setOf("Night ride.json"), presets.jsonFiles()?.keys)
+        // The file is where Android's OverlayPresetStore writes it, what Dropbox's /overlays mirrors.
+        assertEquals(listOf("Night ride.json"), IosPathFolder(dir).list("overlays")?.map { it.name })
         assertTrue(presets.deletePreset("Night ride"))
         assertEquals(emptyList(), presets.listPresets())
         assertNull(presets.loadPreset("Night ride"))

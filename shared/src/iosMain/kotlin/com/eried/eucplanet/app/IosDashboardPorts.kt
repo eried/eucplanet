@@ -6,7 +6,13 @@ import com.eried.eucplanet.data.repository.PhoneLocation
 import com.eried.eucplanet.data.repository.TripMeterRepository
 import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.data.sync.BackupEntry
+import com.eried.eucplanet.data.sync.BackupFolderSync
 import com.eried.eucplanet.data.sync.RestorableRider
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import com.eried.eucplanet.platform.Log
 import com.eried.eucplanet.platform.System
 import com.eried.eucplanet.flic.MediaControls
@@ -76,21 +82,30 @@ internal object IosPhoneControls : PhoneControls {
 }
 
 /**
- * Backup to a folder on the phone (Android's SyncManager) is not on iOS.
- * Dropbox carries the settings, the trips and the rest (IosDropboxSync).
+ * The backup folder (Android's SyncManager) on the iPhone, through the
+ * shared folder sync ([IosFolderSync]): the settings backups, the folder
+ * pick and its Sync all. The rider id is the iPhone's own (IosEucStats),
+ * written into the folder too; a rider found in the folder is the one to
+ * offer when this phone has none.
  */
-internal object NoFolderSync : DashboardSync {
-    override val syncRunning: StateFlow<Boolean> = MutableStateFlow(false).asStateFlow()
-    override val riderStoreId: StateFlow<String?> = MutableStateFlow<String?>(null).asStateFlow()
-    override suspend fun backupSettings() = false
-    override suspend fun restoreSettings() = false
-    override suspend fun restoreSettingsFrom(fileName: String) = false
-    override suspend fun restoreFactoryDefaults() = false
-    override suspend fun listSettingsBackups(): List<BackupEntry> = emptyList()
-    override suspend fun setSyncFolder(uri: String) = false
-    override suspend fun findRestorableRider(): RestorableRider? = null
-    override suspend fun writeRiderId(storeId: String) = false
-    override fun startSync() = Unit
+internal object IosDashboardSync : DashboardSync {
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    private val folder get() = IosFolderSync.sync
+
+    /** One Sync all at a time, as SyncManager's: the folder's or Dropbox's. */
+    override val syncRunning: StateFlow<Boolean> =
+        combine(IosFolderSync.running, IosDropboxSync.running) { f, d -> f || d }
+            .stateIn(scope, SharingStarted.Eagerly, false)
+    override val riderStoreId: StateFlow<String?> get() = IosEucStats.riderStoreId
+    override suspend fun backupSettings() = folder.backupSettings()
+    override suspend fun restoreSettings() = folder.restoreSettingsFrom(BackupFolderSync.SETTINGS_BACKUP_NAME)
+    override suspend fun restoreSettingsFrom(fileName: String) = folder.restoreSettingsFrom(fileName)
+    override suspend fun restoreFactoryDefaults() = folder.restoreFactoryDefaults()
+    override suspend fun listSettingsBackups(): List<BackupEntry> = folder.listSettingsBackups()
+    override suspend fun setSyncFolder(uri: String) = IosFolderSync.setFolder(uri)
+    override suspend fun findRestorableRider(): RestorableRider? = folder.findRestorableRider()
+    override suspend fun writeRiderId(storeId: String) = IosEucStats.writeRiderId(storeId)
+    override fun startSync() = IosFolderSync.syncNow()
 }
 
 /** Android's MetricsReset: the trip meter, the metric history and the ride energy. */

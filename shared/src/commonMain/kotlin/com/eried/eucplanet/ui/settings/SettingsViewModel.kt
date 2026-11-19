@@ -1319,6 +1319,9 @@ class SettingsViewModel(
      *  other settings flow without depending directly on SyncManager. */
     val riderStoreId: StateFlow<String?> = syncManager.riderStoreId
 
+    /** The leaderboard rider id lives only in the backup folder (Android), so joining needs one. */
+    val riderIdNeedsFolder: Boolean get() = syncManager.riderIdNeedsFolder
+
     private val _restorableRider = MutableStateFlow<RestorableRider?>(null)
     /** A rider identity found in the linked folder's backup that this phone could
      *  adopt. Non-null → UI shows the "continue as this rider?" prompt. */

@@ -26,7 +26,7 @@ class SettingsSearchHiddenRowsTest {
         SettingsRow.BACK_ACTION, SettingsRow.KEEP_ALIVE,
         SettingsRow.PICTURE_IN_PICTURE, SettingsRow.SHOW_OVER_LOCK_SCREEN,
         SettingsRow.ROTATION_LOCK, SettingsRow.VOICE_COMMANDS, SettingsRow.VOLUME_KEYS,
-        SettingsRow.BACKUP_FOLDER, SettingsRow.VOICE_OUTPUT_CHANNEL,
+        SettingsRow.VOICE_OUTPUT_CHANNEL,
         SettingsRow.HUD_APP_SEND, SettingsRow.CAR_SCREEN, SettingsRow.PHONE_HUD_WINDOW,
     )
 
@@ -55,7 +55,8 @@ class SettingsSearchHiddenRowsTest {
         assertFalse(found("general", "section_application", iphone))
         assertFalse(found("integration", "section_volume_keys", iphone))
         assertFalse(found("integration", "volume_keys_enable", iphone))
-        assertFalse(found("cloud", "cloud_choose_folder", iphone))
+        // The backup folder is on the iPhone too (a Files folder), so its rows are found.
+        assertTrue(found("cloud", "cloud_choose_folder", iphone))
         assertFalse(found("voice", "voice_music_listening", iphone))
         assertFalse(found("voice", "voice_output_channel_label", iphone))
         // "While speaking" works there, through the audio session.

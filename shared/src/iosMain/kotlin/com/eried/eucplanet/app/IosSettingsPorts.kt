@@ -5,7 +5,7 @@ import com.eried.eucplanet.data.eucstats.RiderCard
 import com.eried.eucplanet.data.eucstats.RiderProfile
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.WheelData
-import com.eried.eucplanet.data.sync.BackupOutcome
+import com.eried.eucplanet.data.sync.BackupFolderSync
 import com.eried.eucplanet.data.sync.RiderFileResult
 import com.eried.eucplanet.data.sync.SyncChoice
 import com.eried.eucplanet.data.sync.SyncConflictKind
@@ -33,6 +33,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import platform.AVFAudio.AVSpeechSynthesisVoice
@@ -128,50 +129,83 @@ internal object IosPromptTones : PromptTones {
 }
 
 /**
- * Dropbox sync through [IosDropboxSync], its conflict question, progress and
- * result surfaced the way SyncManager surfaces them. No backup folder on iOS:
- * the folder rows report no folder.
+ * The backup folder ([IosFolderSync]) and Dropbox ([IosDropboxSync]), their
+ * conflict question, progress and result surfaced the way SyncManager
+ * surfaces them: one Sync all at a time, the question and the bar of
+ * whichever runs. The folder rows and the settings backups are the shared
+ * folder sync's, as on Android.
  */
-internal object IosSettingsSync : SettingsSync, DashboardSync by NoFolderSync {
+internal object IosSettingsSync : SettingsSync, DashboardSync by IosDashboardSync {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    private val folder get() = IosFolderSync.sync
 
-    override val activeSyncKind: StateFlow<SyncConflictKind?> = IosDropboxSync.running
-        .map { if (it) SyncConflictKind.DROPBOX else null }
-        .stateIn(scope, SharingStarted.Eagerly, null)
-    override val syncRunning: StateFlow<Boolean> = IosDropboxSync.running
-    override val syncCancelling: StateFlow<Boolean> = IosDropboxSync.cancelling
-    override val syncConflictFirstSettings: StateFlow<Boolean> = IosDropboxSync.firstSettings
-    override val syncConflictKind: StateFlow<SyncConflictKind> =
-        MutableStateFlow(SyncConflictKind.DROPBOX).asStateFlow()
-    override val syncConflictPrompt: StateFlow<Int?> = IosDropboxSync.conflictCount
-    override val syncProgress: StateFlow<Pair<Int, Int>?> = IosDropboxSync.progress
-    override val syncResult: StateFlow<SyncResult?> = IosDropboxSync.result
+    override val activeSyncKind: StateFlow<SyncConflictKind?> =
+        combine(IosFolderSync.running, IosDropboxSync.running) { f, d ->
+            when {
+                f -> SyncConflictKind.FOLDER
+                d -> SyncConflictKind.DROPBOX
+                else -> null
+            }
+        }.stateIn(scope, SharingStarted.Eagerly, null)
+    override val syncCancelling: StateFlow<Boolean> =
+        combine(IosFolderSync.cancelling, IosDropboxSync.cancelling) { f, d -> f || d }
+            .stateIn(scope, SharingStarted.Eagerly, false)
+    override val syncConflictFirstSettings: StateFlow<Boolean> =
+        combine(IosFolderSync.conflictCount, IosDropboxSync.firstSettings) { f, d -> f == null && d }
+            .stateIn(scope, SharingStarted.Eagerly, false)
+    override val syncConflictKind: StateFlow<SyncConflictKind> = IosFolderSync.conflictCount
+        .map { if (it != null) SyncConflictKind.FOLDER else SyncConflictKind.DROPBOX }
+        .stateIn(scope, SharingStarted.Eagerly, SyncConflictKind.DROPBOX)
+    override val syncConflictPrompt: StateFlow<Int?> =
+        combine(IosFolderSync.conflictCount, IosDropboxSync.conflictCount) { f, d -> f ?: d }
+            .stateIn(scope, SharingStarted.Eagerly, null)
+    override val syncProgress: StateFlow<Pair<Int, Int>?> =
+        combine(IosFolderSync.running, IosFolderSync.progress, IosDropboxSync.progress) { running, f, d ->
+            if (running) f else d
+        }.stateIn(scope, SharingStarted.Eagerly, null)
+    override val syncResult: StateFlow<SyncResult?> =
+        combine(IosFolderSync.result, IosDropboxSync.result) { f, d -> f ?: d }
+            .stateIn(scope, SharingStarted.Eagerly, null)
 
-    override suspend fun backupSettingsAs(name: String?, overwrite: Boolean) = BackupOutcome.Failed
-    override fun cancelActiveSync() = IosDropboxSync.cancelActive()
+    override suspend fun backupSettingsAs(name: String?, overwrite: Boolean) = folder.backupSettingsAs(name, overwrite)
+    override fun cancelActiveSync() =
+        if (IosFolderSync.running.value) IosFolderSync.cancelActive() else IosDropboxSync.cancelActive()
     override fun cancelDropboxSync() = IosDropboxSync.cancelQueuedPass()
     override fun cancelEucStatsUpload() = IosEucStats.cancel()
-    override fun cancelSyncConflict() = IosDropboxSync.resolve(SyncChoice.CANCEL)
-    override suspend fun clearSyncFolder() = Unit
-    override fun consumeSyncResult() = IosDropboxSync.consumeResult()
+    override fun cancelSyncConflict() {
+        IosFolderSync.resolve(SyncChoice.CANCEL)
+        IosDropboxSync.resolve(SyncChoice.CANCEL)
+    }
+    override suspend fun clearSyncFolder() = IosFolderSync.clearFolder()
+    override fun consumeSyncResult() {
+        IosFolderSync.consumeResult()
+        IosDropboxSync.consumeResult()
+    }
     override suspend fun deleteRiderIdFile() = IosEucStats.deleteRiderId()
     override fun enqueueEucStatsUpload(settings: AppSettings) = IosEucStats.sweep()
-    override fun enqueueTripUpload(settings: AppSettings) = Unit
-    // The rider id is a file in the app's own Documents, so it is the one this phone has.
-    override suspend fun ensureRiderIdFile(storeId: String) = when (IosEucStats.readRiderId()) {
-        storeId -> RiderFileResult.ALREADY_PRESENT
-        null -> if (IosEucStats.writeRiderId(storeId)) RiderFileResult.WROTE else RiderFileResult.SKIPPED
-        else -> RiderFileResult.MISMATCH
+    override fun enqueueTripUpload(settings: AppSettings) = folder.enqueueUpload(settings)
+    // The rider id is a file in the app's own Documents, so it is the one this
+    // phone has; with a folder, the folder's copy is hardened too, and a
+    // different rider's id there is the mismatch to warn about.
+    override suspend fun ensureRiderIdFile(storeId: String): RiderFileResult {
+        val local = when (IosEucStats.readRiderId()) {
+            storeId -> RiderFileResult.ALREADY_PRESENT
+            null -> if (IosEucStats.writeRiderId(storeId)) RiderFileResult.WROTE else RiderFileResult.SKIPPED
+            else -> RiderFileResult.MISMATCH
+        }
+        val inFolder = folder.ensureRiderIdFile(storeId)
+        return if (inFolder == RiderFileResult.MISMATCH) RiderFileResult.MISMATCH else local
     }
     override val riderIdNeedsFolder = false
-    override val riderStoreId: StateFlow<String?> get() = IosEucStats.riderStoreId
-    override suspend fun writeRiderId(storeId: String) = IosEucStats.writeRiderId(storeId)
-    override fun getSyncFolderDisplayName(settings: AppSettings): String? = null
-    override fun listFolderTripNames(settings: AppSettings): List<String>? = null
+    override fun getSyncFolderDisplayName(settings: AppSettings): String? = folder.displayName(settings)
+    override fun listFolderTripNames(settings: AppSettings): List<String>? = folder.listFolderTripNames(settings)
     override suspend fun resetAllEucstatsRows() = IosAppGraph.database.tripDao().resetAllEucstatsStatuses()
     override suspend fun resetUnfinishedEucstatsRows() = IosAppGraph.database.tripDao().resetUnfinishedEucstatsStatuses()
-    override fun resolveSyncConflict(choice: SyncChoice) = IosDropboxSync.resolve(choice)
-    override fun sanitizeBackupName(raw: String): String? = null
+    override fun resolveSyncConflict(choice: SyncChoice) {
+        // Only the sync that asked is waiting for an answer.
+        if (IosFolderSync.conflictCount.value != null) IosFolderSync.resolve(choice) else IosDropboxSync.resolve(choice)
+    }
+    override fun sanitizeBackupName(raw: String): String? = BackupFolderSync.sanitizeBackupName(raw)
     override fun startDropboxSync() = IosDropboxSync.syncNow()
     override fun stopDropboxSync() = IosDropboxSync.stop()
 }

@@ -8,9 +8,6 @@ import com.eried.eucplanet.data.sync.DropboxTripSync
 import com.eried.eucplanet.data.sync.FolderMirror
 import com.eried.eucplanet.data.sync.SyncChoice
 import com.eried.eucplanet.data.sync.SyncResult
-import com.eried.eucplanet.data.sync.JsonFolder
-import com.eried.eucplanet.data.sync.planJsonFolder
-import com.eried.eucplanet.data.sync.syncJsonFolder
 import com.eried.eucplanet.platform.Log
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -46,9 +43,11 @@ import platform.UIKit.UIApplicationWillEnterForegroundNotification
  *   trip finishes, every pendingUploadIntervalMin while the app is open, and
  *   on Android's retry curve after a failure. While the app is not open,
  *   iOS runs [passNow] when it chooses (IosBackgroundSync).
- * - No backup folder on iOS: the folder hooks report nothing to do, and the
- *   JSON folders are Documents/themes and Documents/overlays, mirrored with
- *   Dropbox's /themes and /overlays.
+ * - The backup folder hooks are the folder's (IosFolderSync): archiving into
+ *   its trips/archive, the snapshot before a restore, the folder upload. The
+ *   JSON folders are the backup folder's themes/ and overlays/, or
+ *   Documents/themes and Documents/overlays while there is none, mirrored
+ *   with Dropbox's /themes and /overlays.
  */
 object IosDropboxSync {
     private const val TAG = "IosDropboxSync"
@@ -86,57 +85,24 @@ object IosDropboxSync {
         override fun scheduleRetry(attempt: Int, delaySeconds: Long?) =
             schedule(attempt, delaySeconds ?: DropboxTripSync.delayForAttempt(attempt))
         override fun cancelRetry() = cancelQueued()
-        // No backup folder on iOS.
-        override suspend fun archiveInBackupFolder(settings: AppSettings, fileName: String) = true
-        override suspend fun snapshotBeforeRestore() = Unit
-        override fun enqueueFolderUpload(settings: AppSettings) = Unit
+        // The backup folder, as SyncManager plugs it in on Android.
+        override suspend fun archiveInBackupFolder(settings: AppSettings, fileName: String) =
+            IosFolderSync.sync.archiveInBackupFolder(settings, fileName)
+        override suspend fun snapshotBeforeRestore() { IosFolderSync.sync.snapshotBeforeRestore() }
+        override fun enqueueFolderUpload(settings: AppSettings) = IosFolderSync.sync.enqueueUpload(settings)
 
-        override suspend fun countFolderConflicts(settings: AppSettings): Int {
-            var count = 0
-            for ((sub, folder) in folders) {
-                val local = folder.jsonFiles() ?: continue
-                count += planJsonFolder(g.dropbox, sub, local)?.conflicts?.size ?: 0
-            }
-            return count
-        }
+        // The themes/ and overlays/ of the backup folder, or of Documents
+        // while there is none, through the same passes Android runs.
+        override suspend fun countFolderConflicts(settings: AppSettings): Int =
+            IosFolderSync.sync.countJsonSubdirConflicts(IosFolderSync.jsonRoot(settings))
 
-        override suspend fun syncFolders(settings: AppSettings, choice: SyncChoice): Int {
-            var count = 0
-            for ((sub, folder) in folders) {
-                count += try {
-                    syncJsonFolder(g.dropbox, sub, folder, choice) ?: 0
-                } catch (e: Exception) {
-                    Log.w(TAG, "sync /$sub failed: ${e.message}")
-                    0
-                }
-            }
-            return count
-        }
+        override suspend fun syncFolders(settings: AppSettings, choice: SyncChoice): Int =
+            IosFolderSync.sync.syncJsonSubdirs(IosFolderSync.jsonRoot(settings), choice)
 
         // As Android's background mirror of its backup folder: only what Dropbox lacks.
-        override suspend fun mirrorFoldersInBackground(settings: AppSettings): FolderMirror {
-            var uploaded = 0
-            var failed = false
-            for ((sub, folder) in folders) {
-                try {
-                    val local = folder.jsonFiles() ?: continue
-                    val remote = g.dropbox.listFolder("/$sub") ?: continue
-                    val remoteLower = remote.keys.mapTo(HashSet()) { it.lowercase() }
-                    for ((name, bytes) in local) {
-                        if (name.lowercase() in remoteLower) continue
-                        if (g.dropbox.uploadFile("/$sub/$name", bytes)) uploaded++ else failed = true
-                    }
-                } catch (e: Exception) {
-                    Log.w(TAG, "mirror /$sub failed: ${e.message}")
-                }
-            }
-            return FolderMirror(uploaded, failed)
-        }
+        override suspend fun mirrorFoldersInBackground(settings: AppSettings): FolderMirror =
+            IosFolderSync.sync.mirrorJsonSubdirsMissingOnDropbox(IosFolderSync.jsonRoot(settings))
     }
-
-    /** The JSON folders Android keeps in its backup folder: the saved themes and the studio's presets. */
-    private val folders: List<Pair<String, JsonFolder>>
-        get() = listOf("themes" to g.themeFiles, "overlays" to g.overlayPresets)
 
     private val ui = object : DropboxSyncUi {
         override suspend fun askConflict(count: Int, firstSettings: Boolean): SyncChoice {
@@ -166,6 +132,8 @@ object IosDropboxSync {
 
     /** Android's startDropboxSync: the rider's Sync all. */
     fun syncNow() {
+        // One Sync all at a time, as Android's shared syncRunning: never beside the folder's.
+        if (IosFolderSync.running.value) return
         if (!_running.compareAndSet(expect = false, update = true)) return
         // As on Android: the rider asked for the library, and a watchdog pass
         // sits behind this one in case it stops halfway.

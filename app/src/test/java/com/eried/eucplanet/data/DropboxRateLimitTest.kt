@@ -157,10 +157,11 @@ class DropboxRateLimitTest {
         // its own file and may replace the folder's copy, but a download is
         // not - the folder's version could be different and is not ours to
         // discard without asking.
-        val worker = File("src/main/java/com/eried/eucplanet/data/sync/TripUploadWorker.kt").readText()
+        // The worker's pass and uploadCsv are the shared folder sync's.
+        val folder = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/data/sync/BackupFolderSync.kt").readText()
         assertTrue("the mirror does not distinguish a downloaded trip",
-            worker.contains("skipIfPresent = trip.uploadStatus == 4"))
-        assertTrue("uploadCsv cannot skip", sync.contains("skipIfPresent: Boolean = false"))
+            folder.substringAfter("suspend fun uploadPass()").contains("skipIfPresent = trip.uploadStatus == 4"))
+        assertTrue("uploadCsv cannot skip", folder.contains("skipIfPresent: Boolean = false"))
         val dao = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/data/db/TripDao.kt").readText()
         assertTrue("status 4 is not picked up by the folder worker",
             dao.contains("uploadStatus IN (1, 3, 4)"))

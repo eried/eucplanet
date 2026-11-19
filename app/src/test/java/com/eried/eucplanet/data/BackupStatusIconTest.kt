@@ -56,10 +56,14 @@ class BackupStatusIconTest {
         val sharedPush = worker.substringAfter("suspend fun pushEditedTrip(").take(1200)
         assertTrue("a failed direct Dropbox push is not handed to the retry worker",
             sharedPush.contains("host.scheduleRetry(1)"))
+        // The folder half is the shared BackupFolderSync.pushEditedTrip, which the iPhone runs too.
+        assertTrue("the direct push no longer reaches the folder", push.contains("folderSync.pushEditedTrip("))
+        val folderPush = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/data/sync/BackupFolderSync.kt")
+            .readText().substringAfter("suspend fun pushEditedTrip(").take(1200)
         assertTrue("a failed direct folder push is not handed to the retry worker",
-            push.contains("scheduleTripUploadAttempt(1)"))
+            folderPush.contains("host.scheduleUpload(1)"))
         assertTrue("the direct push skips the folder pass lock",
-            push.contains("withUploadPass"))
+            folderPush.contains("withUploadPass"))
     }
 
     @Test fun `the worker records how each upload went`() {

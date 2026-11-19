@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.eried.eucplanet.hud.protocol.OverlayPreset
 import com.eried.eucplanet.data.repository.SettingsRepository
+import com.eried.eucplanet.data.sync.FolderPresets
 import com.eried.eucplanet.data.sync.SyncManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -31,7 +32,6 @@ class OverlayPresetStore(
     companion object {
         private const val TAG = "OverlayPresetStore"
         private const val DRAFT_FILE = "overlay_studio_draft.json"
-        private const val PRESET_SUBFOLDER = "overlays"
         private const val PRESET_SUFFIX = ".json"
         /** Bundled starter presets ship here; the rider can load but not edit them. */
         private const val BUNDLED_DIR = "overlay_presets"
@@ -41,6 +41,9 @@ class OverlayPresetStore(
     }
 
     private val draftFile: File get() = File(context.filesDir, DRAFT_FILE)
+
+    /** The named presets in the backup folder's overlays/, the shared [FolderPresets] (the iPhone's too). */
+    private val presets = FolderPresets { syncManager.getSyncFolder(settingsRepository.get()) }
 
     /**
      * The throwaway working layout. On first launch (no draft yet) we hand the
@@ -78,65 +81,16 @@ class OverlayPresetStore(
 
     /** True when a backup folder is configured and writable, required for
      *  named presets. The studio warns the rider when this is false. */
-    override suspend fun presetFolderAvailable(): Boolean = withContext(Dispatchers.IO) {
-        syncManager.getSyncFolder(settingsRepository.get()) != null
-    }
+    override suspend fun presetFolderAvailable(): Boolean = presets.available()
 
     /** Display names of every saved preset, sorted case-insensitively. */
-    override suspend fun listPresets(): List<String> = withContext(Dispatchers.IO) {
-        val folder = overlaysFolder() ?: return@withContext emptyList()
-        folder.listFiles()
-            .mapNotNull { doc ->
-                val n = doc.name ?: return@mapNotNull null
-                if (doc.isFile && n.endsWith(PRESET_SUFFIX, ignoreCase = true)) {
-                    n.dropLast(PRESET_SUFFIX.length)
-                } else null
-            }
-            .sortedBy { it.lowercase() }
-    }
+    override suspend fun listPresets(): List<String> = presets.list()
 
-    /** Write [preset] as `<name>.json`. If a file with that name already
-     *  exists it is overwritten IN PLACE (same document), not deleted and
-     *  recreated: `delete()` + `createFile()` races the SAF provider, which
-     *  then dedupes the new file to `name (1).json` instead of overwriting --
-     *  exactly the bug a rider hit when tapping "Overwrite". The "wt" mode
-     *  truncates so a shorter preset doesn't leave stale trailing bytes.
-     *
-     *  To deliberately keep both copies, the caller passes a fresh unique name
-     *  (e.g. "name (1)") -- which won't be found here, so a new file is made. */
-    override suspend fun savePreset(name: String, preset: OverlayPreset): Boolean =
-        withContext(Dispatchers.IO) {
-            val safe = syncManager.sanitizeBackupName(name) ?: return@withContext false
-            val folder = overlaysFolder() ?: return@withContext false
-            val fileName = "$safe$PRESET_SUFFIX"
-            runCatching {
-                val json = OverlayPresetJson.toJson(preset.copy(name = safe)).toString(2)
-                val target = (folder.findFile(fileName)
-                    ?: folder.createFile("application/json", fileName))?.uri
-                    ?: return@withContext false
-                context.contentResolver.openOutputStream(target, "wt")?.use { out ->
-                    out.write(json.toByteArray(Charsets.UTF_8))
-                } ?: return@withContext false
-                true
-            }.getOrElse {
-                Log.e(TAG, "Saving preset '$name' failed", it)
-                false
-            }
-        }
+    /** Write [preset] as `<name>.json`, overwriting one of that name in place. See [FolderPresets.save]. */
+    override suspend fun savePreset(name: String, preset: OverlayPreset): Boolean = presets.save(name, preset)
 
     /** Load the named preset, or null if it is missing / unreadable. */
-    override suspend fun loadPreset(name: String): OverlayPreset? = withContext(Dispatchers.IO) {
-        val folder = overlaysFolder() ?: return@withContext null
-        val file = folder.findFile("$name$PRESET_SUFFIX") ?: return@withContext null
-        runCatching {
-            val bytes = context.contentResolver.openInputStream(file.uri)
-                ?.use { it.readBytes() } ?: return@withContext null
-            OverlayPresetJson.fromJson(JSONObject(String(bytes, Charsets.UTF_8)))
-        }.getOrElse {
-            Log.e(TAG, "Loading preset '$name' failed", it)
-            null
-        }
-    }
+    override suspend fun loadPreset(name: String): OverlayPreset? = presets.load(name)
 
     /**
      * Display names of the presets bundled with the app (read-only starters in
@@ -167,17 +121,6 @@ class OverlayPresetStore(
         }
     }
 
-    /** Delete the named preset file. */
-    override suspend fun deletePreset(name: String): Boolean = withContext(Dispatchers.IO) {
-        val folder = overlaysFolder() ?: return@withContext false
-        folder.findFile("$name$PRESET_SUFFIX")?.delete() ?: false
-    }
-
-    /** The `overlays/` subfolder of the backup folder, created on demand. */
-    private suspend fun overlaysFolder() = withContext(Dispatchers.IO) {
-        val root = syncManager.getSyncFolder(settingsRepository.get())
-            ?: return@withContext null
-        root.findFile(PRESET_SUBFOLDER)?.takeIf { it.isDirectory }
-            ?: root.createDirectory(PRESET_SUBFOLDER)
-    }
+    /** Delete the named preset file. See [FolderPresets.delete]. */
+    override suspend fun deletePreset(name: String): Boolean = presets.delete(name)
 }

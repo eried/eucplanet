@@ -47,9 +47,10 @@ Seams that need both sides on every change:
 | Dropbox link | `DropboxRepository.beginLink` / `handleAuthCode` | `app/.../data/repository/DropboxLinkAndroid.kt` (Custom Tab, verifier in SharedPreferences) | `iosMain/.../app/IosDropboxLink.kt` (ASWebAuthenticationSession) |
 | Ride Live Activity | `service/RideNotificationText.kt` (the text), `service/RideQuickActions.kt` (the buttons), `iosMain/.../app/RideActivity.kt` (when, and the presses) | `WheelService` notification | `iosApp/RideLiveActivity.swift` (ActivityKit), `iosApp/RideActionIntent.swift` (the presses), `iosApp/Widgets/` (the look) |
 | Alarm rules for settings.json | `data/sync/DropboxSettingsSync.AlarmRuleStore` | `SyncManager` (AlarmDao) | `IosAppGraph.alarms` (a JSON file until Room moves) |
-| Dropbox trips | `data/sync/DropboxTripSync.kt` (Sync all, the background pass, the pull, archiving), `TripFiles.kt` (`TripFileStore`), `TripCsvMeta.kt`, `DropboxTripHost`, `DropboxSyncUi` | `SyncManager` (backup folder hooks, WorkManager retries, the conflict dialog's flows), `DropboxSyncWorker`, `AndroidTripFiles.kt` | `iosMain/.../app/IosDropboxSync.kt` (in-app retries, Documents/themes), `IosTripFiles.kt` |
+| Backup folder | `data/sync/BackupFolderSync.kt` (Sync all, the upload pass, settings backups and named copies, restore, the rider id file, the archive, themes/ and overlays/ with Dropbox), `BackupFolder.kt` (`BackupFolder`, `BackupFolderAccess`), `BackupFolderStores.kt` (`FolderThemes`, `FolderPresets`), `BackupStamp.kt`, `RenamedCopyCleanup.kt`, `FolderConflicts.kt`; tests over `commonTest/.../MemoryBackupFolder.kt` | `app/.../data/sync/SafBackupFolder.kt` (DocumentsContract), `SyncManager` (persistable permission, flows, WorkManager), `TripUploadWorker` (the retry), `ThemeStore`, `OverlayPresetStore` | `iosMain/.../app/IosBackupFolder.kt` (`IosPathFolder` on NSFileManager, `IosBackupFolders`: the Files folder picker, the security-scoped bookmark in `syncFolderUri`), `IosFolderSync.kt` (in-app upload queue, Sync all state, the launch hooks), `IosBackgroundSync.kt` (while not open) |
+| Dropbox trips | `data/sync/DropboxTripSync.kt` (Sync all, the background pass, the pull, archiving), `TripFiles.kt` (`TripFileStore`), `TripCsvMeta.kt`, `DropboxTripHost`, `DropboxSyncUi` | `SyncManager` (backup folder hooks through `BackupFolderSync`, WorkManager retries, the conflict dialog's flows), `DropboxSyncWorker`, `AndroidTripFiles.kt` | `iosMain/.../app/IosDropboxSync.kt` (in-app retries, the folder hooks through `IosFolderSync`, Documents/themes without a folder), `IosTripFiles.kt` |
 | Dropbox HTTP | `DropboxRepository(transport)`, `platform.HttpExecutor` | `HttpClient` (OkHttp) | `HttpClient` (NSURLSession); tests run against `commonTest/.../FakeDropbox.kt` |
-| Leaderboard rider id and upload trigger | `data/sync/EucStatsSweep.kt`, `EucStatsSettingsPort` | `SyncManager` (rider id in the backup folder), `EucStatsUploadWorker` (WorkManager) | `iosMain/.../app/IosEucStats.kt` (Documents file; trip finish, launch, foreground), `IosBackgroundSync.kt` (while not open) |
+| Leaderboard rider id and upload trigger | `data/sync/EucStatsSweep.kt`, `EucStatsSettingsPort` | `SyncManager` (rider id in the backup folder), `EucStatsUploadWorker` (WorkManager) | `iosMain/.../app/IosEucStats.kt` (Documents file, also written into the backup folder; trip finish, launch, foreground), `IosBackgroundSync.kt` (while not open) |
 | Crew pass camera and links | `crews/CrewsPairScreen.kt` (`CrewsPairHost`) | `app/.../crews/CrewsPairActivity.kt` (CameraX, intent filter) | `iosMain/.../app/IosCrews.kt`, `iosApp/QrScannerBridge.swift`, `AppDelegate` open URL |
 | Leaderboard picture | `SettingsHost.rememberAvatarPicker` | `AndroidSettingsHost` (gallery, UserMarkerCropDialog) | `iosMain/.../app/IosAvatarPicker.kt` (UIImagePickerController) |
 | Trip meter | `data/repository/TripMeterRepository.kt` (`TripMeterFixes`), `data/store/TripMeterStore.kt` (a DataStore) | `AndroidTripMeterFixes` (TripRepository, `Location.distanceBetween`), `TripMeterStoreAndroid.kt` | `iosMain/.../app/IosTripMeter.kt` (IosLocation, haversine, Documents/datastore) |
@@ -294,9 +295,22 @@ xcrun simctl openurl booted "eucplanet://share/<room>.<key>"
                                # eucplanet://route/1.<data> opens that route
 SIMCTL_CHILD_EUC_BG_SYNC=20 xcrun simctl launch booted com.eried.eucplanet.ios
                                # 20 s after launch, runs what a background
-                               # task runs (one quiet Dropbox pass and one
-                               # leaderboard sweep); the log shows
+                               # task runs (one backup folder pass, one quiet
+                               # Dropbox pass and one leaderboard sweep); the
+                               # log shows
                                # "Background sync done: ..."
+SIMCTL_CHILD_EUC_BACKUP_FOLDER=backup SIMCTL_CHILD_EUC_BACKUP_CHECK=15 xcrun simctl launch booted com.eried.eucplanet.ios
+                               # uses Documents/backup in the app's container
+                               # (or an absolute path) as the backup folder,
+                               # through the same bookmark a Files pick makes
+                               # (the simulator's picker cannot be scripted);
+                               # EUC_BACKUP_CHECK=15 then runs every folder
+                               # path once, 15 s in: the settings backup, a
+                               # named copy and a restore from it, the rider
+                               # id file, a theme and a preset, a trip up, an
+                               # Android trip down and an archive, each logged
+                               # as "EUC_BACKUP_CHECK: ..." (files named
+                               # selftest). Debug builds only
 SIMCTL_CHILD_EUC_WEATHER_WIDGETS=59.91,10.75 xcrun simctl launch booted com.eried.eucplanet.ios
                                # fetches the forecast for that place and
                                # writes it for the weather widgets, as their
@@ -381,7 +395,8 @@ It registers two background tasks at launch (their identifiers are in
 `Info.plist`, `BGTaskSchedulerPermittedIdentifiers`) and asks for both each
 time the app leaves the screen: an app refresh (about 30 s) and a processing
 task (minutes, needs a connection, usually while the phone charges). Each
-runs one quiet Dropbox pass and one leaderboard sweep and asks for the next.
+runs one backup folder pass, one quiet Dropbox pass and one leaderboard
+sweep and asks for the next.
 iOS decides when, never sooner than the pending-upload interval, and not at
 all after the rider swipes the app away or turns Background App Refresh off.
 With a weather widget on a home screen a run also fetches the forecast, and
@@ -509,6 +524,7 @@ with each platform.
 | Ride notification text and buttons | Already shared (`RideNotificationText`, `RideQuickActions`); left. |
 | Quick-action presses (WheelService intents, RideActivity.press) | Left: iOS goes through the shared `ActionExecutor`, Android's intents call the same repository methods; a few lines each, no rule of their own. |
 | Lockdown stops a recording (TripRepository, IosTrips.followWheel) | Left: three lines each over the shared `LegalLockdownController`; moving it would need the whole trip recorder shared. |
+| The backup folder (SyncManager, about 800 lines over DocumentFile; the iPhone had none) | Moved to `data/sync/BackupFolderSync.kt` over the `BackupFolder` port (2026-11-19): Sync all, the upload pass, the settings backups, the rider id file, the archive, the JSON folders. Android keeps the permission and WorkManager (`SafBackupFolder`, `SyncManager`, `TripUploadWorker`); the iPhone gains the folder (`IosBackupFolder`, `IosFolderSync`). |
 | Dropbox pass triggers (SyncManager / WorkManager, IosDropboxSync) | Left: the pass itself is shared (`DropboxTripSync`); only the scheduling differs (WorkManager against in-process retries, and `IosBackgroundSync` on BGTaskScheduler while the app is not open). |
 | Leaderboard upload trigger (EucStatsUploadWorker, IosEucStats) | Left: the sweep is shared (`EucStatsSweep`); only the trigger differs (`IosBackgroundSync` while the app is not open). |
 | Keep screen on (MainActivity, IosDisplayPrefs) | Left: a settings flow into a platform flag, no rule to share. |

@@ -18,8 +18,18 @@ import java.io.File
  */
 class FolderMirrorTest {
 
-    private val sync = File("src/main/java/com/eried/eucplanet/data/sync/SyncManager.kt").readText()
-    private val worker = File("src/main/java/com/eried/eucplanet/data/sync/TripUploadWorker.kt").readText()
+    // The folder logic is the shared BackupFolderSync now, the iPhone's too;
+    // the worker's pass is its uploadPass, and the worker keeps the retry.
+    private val sync = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/data/sync/BackupFolderSync.kt").readText()
+    private val worker = sync.substringAfter("suspend fun uploadPass(): Boolean")
+    private val workerFile = File("src/main/java/com/eried/eucplanet/data/sync/TripUploadWorker.kt").readText()
+
+    @Test fun `the worker runs the shared pass`() {
+        assertTrue("the worker no longer runs the shared upload pass",
+            workerFile.contains("folderSync.uploadPass()"))
+        assertTrue("a failed pass is not retried up the curve",
+            workerFile.contains("scheduleTripUploadAttempt(next)"))
+    }
 
     @Test fun `the copy can be told what the folder already holds`() {
         assertTrue("uploadCsv no longer accepts a known-name set",
@@ -47,7 +57,7 @@ class FolderMirrorTest {
         // WorkManager will happily run both over the same pending list. Two
         // passes creating one file leaves a renamed duplicate behind, because
         // the document provider renames rather than refuses.
-        assertTrue("the pass lock is gone from SyncManager",
+        assertTrue("the pass lock is gone from the folder sync",
             sync.contains("uploadPassLock") && sync.contains("fun <T> withUploadPass"))
         assertTrue("the upload worker does not take the pass lock",
             worker.contains("withUploadPass"))
@@ -73,8 +83,8 @@ class FolderMirrorTest {
         // It is not enough to serialise the workers. The app runs a folder sync
         // on launch, which is precisely when a worker mirroring a restored
         // library is running, and both create files in the same folder.
-        val body = sync.substringAfter("fun runSync() = withUploadPass {").take(200)
-        assertTrue("runSync no longer holds the pass lock", body.contains("runSyncPass()"))
+        val body = sync.substringAfter("fun runSync(ui: DropboxSyncUi) = withUploadPass {").take(200)
+        assertTrue("runSync no longer holds the pass lock", body.contains("runSyncPass(ui)"))
     }
 
     @Test fun `the worker fills the folder's gaps, not only its queue`() {
@@ -111,7 +121,7 @@ class FolderMirrorTest {
             sync.contains("it.name.equals(localFile.name, ignoreCase = true)"))
         // And the archive: a copy it could not find by exact name stayed in
         // the folder, so the next sync brought a deleted trip back.
-        val archive = sync.substringAfter("private fun archiveInBackupFolder").take(1200)
+        val archive = sync.substringAfter("fun archiveInBackupFolder").take(1200)
         assertTrue("archiving looks the folder copy up by exact case",
             archive.contains("it.name.equals(fileName, ignoreCase = true)"))
     }

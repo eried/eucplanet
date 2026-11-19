@@ -44,8 +44,14 @@ import platform.Foundation.NSProcessInfo
  *   two seconds after it opens (the share scanner and the crew pass), as if
  *   it had been shown that code.
  * - SIMCTL_CHILD_EUC_BG_SYNC=20 runs, 20 s after launch, what a background
- *   task runs (one quiet Dropbox pass and one leaderboard sweep): the
- *   simulator schedules no background tasks. The log names the outcome.
+ *   task runs (one backup folder pass, one quiet Dropbox pass and one
+ *   leaderboard sweep): the simulator schedules no background tasks. The log
+ *   names the outcome.
+ * - SIMCTL_CHILD_EUC_BACKUP_FOLDER=backup uses that folder (under the app's
+ *   Documents, or an absolute path) as the backup folder, through the same
+ *   bookmark a Files pick makes: the simulator's picker cannot be scripted.
+ *   SIMCTL_CHILD_EUC_BACKUP_CHECK=15 then runs every folder path once, 15 s
+ *   in, and logs each as "EUC_BACKUP_CHECK: ...". Debug builds only.
  * - SIMCTL_CHILD_EUC_WEATHER_WIDGETS=59.91,10.75 fetches the forecast for
  *   that place and writes it for the weather widgets, as their refresh
  *   button does from where the phone is: the simulator has no fix.
@@ -89,6 +95,8 @@ internal object IosLaunchHooks {
             }
         }
         env("EUC_HUD")?.trim()?.let { hud(it) }
+        env("EUC_BACKUP_FOLDER")?.trim()?.takeIf { it.isNotEmpty() }?.let { IosFolderSync.useFolderForHook(it) }
+        env("EUC_BACKUP_CHECK")?.toLongOrNull()?.let { IosFolderSync.checkForHook(it) }
         env("EUC_BG_SYNC")?.toLongOrNull()?.let { IosBackgroundSync.runForHook(it) }
         env("EUC_WEATHER_WIDGETS")?.split(",")?.mapNotNull { it.trim().toDoubleOrNull() }
             ?.takeIf { it.size == 2 }?.let { IosWeatherWidgets.refreshForHook(it[0], it[1]) }

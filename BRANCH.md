@@ -6,6 +6,7 @@ only when you can cut the ride short.
 
 ## Worked on
 
+- iPhone: a backup folder, as on Android (Settings, Backups, Choose folder, any folder in the Files app). Trips, settings backups with named copies, the leaderboard rider id, themes and overlays go there, with the same names Android uses, so one folder can serve both phones. Dropbox still works with or without it.
 - iPhone: the iPhone's own texts (warnings, the widget and HUD hints, the welcome line, the permission prompts) now use the same words as the reread Android texts, in every language. 185 texts aligned.
 - iPhone: voice commands recognise on the phone when the language allows it, as Settings says, and the Voice settings name only what an iPhone can bind (Flic and the HUD).
 - iPhone: voice commands, the same as Android: ask for speed, battery, the weather or the last trip, switch the lights, start a recording, in the language you pick under Voice. Turn them on in Settings, Voice & announcements.
@@ -131,6 +132,12 @@ only when you can cut the ride short.
 - Backup conflicts: the warning goes as soon as you settle them with Sync all, says where that button is, and Fix opens Trips backup. It also goes when you unlink the folder or delete the trips.
 
 ## Please test
+
+**Backup folder on the iPhone** (iPhone riders, best with an Android phone too)
+- Choose a folder in Files (On My iPhone or iCloud Drive), record a trip: after the short grace, is it in the folder's trips?
+- Back up settings, hold Backup for a named copy, then Restore from it: do your settings come back?
+- Point the Android app at the same folder (a synced cloud folder): do its trips, themes and overlays show on the iPhone after Sync all, and the iPhone's on Android?
+- Android riders: folder backups, Sync all, restore and archiving a trip work as before?
 
 **Voice commands** (anyone who uses them)
 - Ask "speed" with no Speed tile on the dashboard: does it say your speed?

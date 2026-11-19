@@ -98,9 +98,12 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips, RideRe
     override val lastKnownFix: StateFlow<PhoneLocation?> get() = IosLocation.lastKnown
     override val currentLocation: StateFlow<PhoneLocation?> get() = IosLocation.fix
     override val allTrips: Flow<List<TripRecord>> get() = dao.observeAll()
-    // The discard grace waits for a folder backup, which iOS has none of, so a
-    // stopped trip is final at once, as on an Android phone without a folder.
-    override val pendingTripId: StateFlow<Long?> = MutableStateFlow(null)
+    // The discard grace before a stopped trip goes to the backup folder, as
+    // TripRepository's: without a folder a stopped trip is final at once.
+    private val _pendingTripId = MutableStateFlow<Long?>(null)
+    override val pendingTripId: StateFlow<Long?> = _pendingTripId.asStateFlow()
+    private var pendingTrip: TripRecord? = null
+    private var pendingFinalizeJob: Job? = null
     private val _liveGpsKm = MutableStateFlow(0f)
     override val liveGpsDistanceKm: StateFlow<Float> = _liveGpsKm.asStateFlow()
 
@@ -167,6 +170,7 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips, RideRe
         val fm = NSFileManager.defaultManager
         dao.observeAll().first().forEach { fm.removeItemAtPath("$tripsDir/${it.fileName}", null) }
         dao.observeAll().first().forEach { dao.delete(it) }
+        IosFolderSync.sync.recountFolderConflictsIfWarned()
     }
 
     override suspend fun startRecording() {
@@ -335,7 +339,30 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips, RideRe
             )
         )
         Log.i(TAG, "Recording stopped: ${t.fileName}, $rows rows, $distance km")
-        // As Android's cloud-only finalize: no folder here, so no discard grace.
+        // The voice says so at once, even if the rider then discards the trip
+        // in the grace window; only the uploads wait.
+        if (IosAppGraph.settings.get().announceRecording) {
+            IosAppGraph.voice.announceEvent(IosPhoneDevice.text(Res.string.voice_recording_finished))
+        }
+        if (IosAppGraph.settings.get().syncFolderUri != null) {
+            // As TripRepository: the folder upload gets the discard grace, so a
+            // short or accidental trip can be undone before it lands in the
+            // folder; the leaderboard and Dropbox wait for the same grace.
+            val graceMs = IosAppGraph.settings.get().tripFinalizeGraceMs.toLong()
+            pendingTrip = t
+            _pendingTripId.value = t.id
+            Log.i(TAG, "Recording stopped, ${graceMs / 1000}s grace before sync")
+            pendingFinalizeJob = scope.launch {
+                try {
+                    delay(graceMs)
+                    finalizePendingTrip()
+                } catch (_: kotlinx.coroutines.CancellationException) {
+                    // Cancelled by deleteTrip on the pending trip: the rider discarded it.
+                }
+            }
+            return
+        }
+        // As Android's cloud-only finalize: no folder, so no discard grace.
         // The sweep also retries any trip a previous ride left behind.
         if (IosEucStats.uploadsOn(IosAppGraph.settings.get())) {
             dao.markFinalized(t.id, folder = false, eucstats = true)
@@ -343,9 +370,24 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips, RideRe
         }
         // Dropbox mirrors the trip too when it is linked, as finalizePendingTrip does.
         if (IosAppGraph.settings.get().dropboxAccessToken.isNotBlank()) IosDropboxSync.enqueue()
-        if (IosAppGraph.settings.get().announceRecording) {
-            IosAppGraph.voice.announceEvent(IosPhoneDevice.text(Res.string.voice_recording_finished))
-        }
+    }
+
+    /** TripRepository.finalizePendingTrip: the grace is over, so queue the trip for every upload. */
+    private suspend fun finalizePendingTrip() {
+        val t = pendingTrip ?: return
+        val settings = IosAppGraph.settings.get()
+        val willSync = settings.syncFolderUri != null
+        val willEucstats = IosEucStats.uploadsOn(settings)
+        // One targeted update: the row read before the grace window is stale by
+        // now (a Dropbox pass may have marked it), so only the two statuses go.
+        if (willSync || willEucstats) dao.markFinalized(t.id, willSync, willEucstats)
+        pendingTrip = null
+        _pendingTripId.value = null
+        pendingFinalizeJob = null
+        Log.i(TAG, "Trip finalized: ${t.fileName} (sync=$willSync, eucstats=$willEucstats)")
+        if (willSync) IosFolderSync.sync.enqueueUpload(settings)
+        if (willEucstats) IosEucStats.sweep()
+        if (settings.dropboxAccessToken.isNotBlank()) IosDropboxSync.enqueue()
     }
 
     // --- RecordingTrips ---
@@ -357,8 +399,17 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips, RideRe
 
     override suspend fun deleteTrip(trip: TripRecord) {
         if (_currentTripId.value == trip.id) return
+        // A trip deleted in its discard grace never reaches the folder.
+        if (pendingTrip?.id == trip.id) {
+            pendingFinalizeJob?.cancel()
+            pendingFinalizeJob = null
+            pendingTrip = null
+            _pendingTripId.value = null
+        }
         NSFileManager.defaultManager.removeItemAtPath("$tripsDir/${trip.fileName}", null)
         dao.delete(trip)
+        // The trip may have been one of the copies that differed.
+        IosFolderSync.sync.recountFolderConflictsIfWarned()
     }
 
     /**
@@ -416,19 +467,30 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips, RideRe
         tools.saveTripSection(source, startMs, endMs)
 
     /**
-     * As TripRepository.resyncEditedTrip, less the backup folder iOS has none
-     * of: the row shows backing up at once, then the trip goes up to Dropbox
-     * straight away rather than at the next pass.
+     * As TripRepository.resyncEditedTrip and SyncManager.pushEditedTripNow:
+     * the row shows backing up at once, then the trip goes to the backup
+     * folder and up to Dropbox straight away rather than at the next pass.
      */
     private suspend fun resyncEdited(tripId: Long) {
-        if (IosAppGraph.settings.get().dropboxAccessToken.isBlank()) return
-        runCatching { dao.setDropboxStatus(tripId, 1) }
+        val settings = IosAppGraph.settings.get()
+        val hasFolder = settings.syncFolderUri != null
+        val hasDropbox = settings.dropboxAccessToken.isNotBlank()
+        if (!hasFolder && !hasDropbox) return
+        if (hasFolder) runCatching { dao.markPendingFolderUpload(tripId) }
+        if (hasDropbox) runCatching { dao.setDropboxStatus(tripId, 1) }
         val trip = dao.getById(tripId) ?: return
         scope.launch {
+            if (!fileExists(trip.fileName)) return@launch
+            val carryOn = runCatching { IosFolderSync.sync.pushEditedTrip(settings, trip) }
+                .onFailure { Log.w(TAG, "folder push of edited ${trip.fileName} failed", it) }
+                .getOrDefault(true)
+            if (!carryOn || !hasDropbox) return@launch
             runCatching { IosDropboxSync.trips.pushEditedTrip(trip.fileName) }
                 .onFailure { Log.w(TAG, "push of edited ${trip.fileName} failed", it) }
         }
     }
+
+    private fun fileExists(name: String) = NSFileManager.defaultManager.fileExistsAtPath("$tripsDir/$name")
 
     override fun <R> readTripLines(trip: TripRecord, block: (Sequence<String>) -> R): R? {
         val text = NSString.stringWithContentsOfFile("$tripsDir/${trip.fileName}", NSUTF8StringEncoding, null)

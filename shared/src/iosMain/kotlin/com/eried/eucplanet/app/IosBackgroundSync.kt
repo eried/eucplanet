@@ -30,9 +30,9 @@ import platform.Foundation.dateWithTimeIntervalSinceNow
 import platform.UIKit.UIApplicationDidEnterBackgroundNotification
 
 /**
- * Dropbox and leaderboard uploads, and the weather widgets' forecast, while
- * the app is not open: Android's periodic DropboxSyncWorker,
- * EucStatsUploadWorker and WeatherWidgetWorker. iOS has no WorkManager; the
+ * Backup folder, Dropbox and leaderboard uploads, and the weather widgets'
+ * forecast, while the app is not open: Android's periodic TripUploadWorker,
+ * DropboxSyncWorker, EucStatsUploadWorker and WeatherWidgetWorker. iOS has no WorkManager; the
  * app asks for background time (BGTaskScheduler) each time it leaves the
  * screen, and iOS wakes it when it chooses, never sooner than the
  * pending-upload interval (an hour when only the weather is waiting). Each
@@ -97,18 +97,23 @@ object IosBackgroundSync {
         task.expirationHandler = { job.cancel() }
     }
 
-    /** One Dropbox pass, one leaderboard sweep and one forecast check, side by side. True when nothing is left waiting. */
+    /**
+     * One backup folder pass, one Dropbox pass, one leaderboard sweep and one
+     * forecast check, side by side. True when nothing is left waiting.
+     */
     private suspend fun run(why: String): Boolean = coroutineScope {
         Log.i(TAG, "Background sync ($why)")
+        val folder = async { IosFolderSync.passNow() }
         val dropbox = async { IosDropboxSync.passNow() }
         val leaderboard = async { IosEucStats.sweepOnce() }
         val weather = async { IosWeatherWidgets.refreshIfPlaced() }
+        val f = folder.await()
         val d = dropbox.await()
         val l = leaderboard.await()
         val w = weather.await()
         fun said(done: Boolean) = if (done) "done" else "retry"
-        Log.i(TAG, "Background sync done: dropbox=${said(d)}, leaderboard=${said(l)}, weather=${said(w)}")
-        d && l && w
+        Log.i(TAG, "Background sync done: folder=${said(f)}, dropbox=${said(d)}, leaderboard=${said(l)}, weather=${said(w)}")
+        f && d && l && w
     }
 
     /** Asks iOS for both tasks, or for neither when there is nothing to upload to and no weather widget to keep fresh. */
@@ -116,7 +121,8 @@ object IosBackgroundSync {
         if (!registered) return
         val settings = IosAppGraph.settings.get()
         val scheduler = BGTaskScheduler.sharedScheduler
-        val uploads = settings.dropboxAccessToken.isNotBlank() || IosEucStats.uploadsOn(settings)
+        val uploads = settings.syncFolderUri != null || settings.dropboxAccessToken.isNotBlank() ||
+            IosEucStats.uploadsOn(settings)
         if (!uploads && !IosWeatherWidgets.placed()) {
             scheduler.cancelAllTaskRequests()
             return

@@ -18,8 +18,11 @@ class SettingsShortcutsTest {
 
     private val settings = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/ui/settings/SettingsScreen.kt").readText()
     private val dash = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/ui/dashboard/DashboardScreen.kt").readText()
-    private val worker = File("src/main/java/com/eried/eucplanet/data/sync/TripUploadWorker.kt").readText()
-    private val sync = File("src/main/java/com/eried/eucplanet/data/sync/SyncManager.kt").readText()
+    // The folder logic is the shared BackupFolderSync, the iPhone's too;
+    // SyncManager keeps the permission and the WorkManager jobs around it.
+    private val sync = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/data/sync/BackupFolderSync.kt").readText()
+    private val manager = File("src/main/java/com/eried/eucplanet/data/sync/SyncManager.kt").readText()
+    private val worker = sync.substringAfter("suspend fun uploadPass(): Boolean")
     private val vm = File("../shared/src/commonMain/kotlin/com/eried/eucplanet/ui/dashboard/DashboardViewModel.kt").readText()
 
     // --- deep-link scroll --------------------------------------------------
@@ -62,7 +65,7 @@ class SettingsShortcutsTest {
         // One function does the counting, for the worker and the manual sync.
         assertTrue("the worker no longer counts on every pass",
             worker.substringBefore("if (pending.isEmpty()")
-                .contains("syncManager.refreshFolderConflictCount(settings, folderSizes)"))
+                .contains("refreshFolderConflictCount(settings, folderSizes)"))
         val block = sync.substringAfter("suspend fun refreshFolderConflictCount").take(1300)
         assertTrue(block.contains("countFolderConflicts(localSizes, folderSizes)"))
         assertTrue("unfinished recordings counted as conflicts",
@@ -73,10 +76,14 @@ class SettingsShortcutsTest {
 
     @Test fun `the warning follows the folder and the library, not only the syncs`() {
         // Each of these left the warning up with nothing behind it.
-        val unlink = sync.substringAfter("suspend fun clearSyncFolder").take(900)
+        val unlink = sync.substringAfter("suspend fun forgetFolder").take(900)
         assertTrue("unlinking the folder leaves the warning up", unlink.contains("folderConflictCount = 0"))
-        val link = sync.substringAfter("suspend fun setSyncFolder").take(700)
+        assertTrue("SyncManager's unlink skips the shared step",
+            manager.substringAfter("suspend fun clearSyncFolder").take(900).contains("folderSync.forgetFolder("))
+        val link = sync.substringAfter("suspend fun useFolder").take(700)
         assertTrue("a new folder keeps the old folder's count", link.contains("refreshFolderConflictCount("))
+        assertTrue("SyncManager's pick skips the shared step",
+            manager.substringAfter("suspend fun setSyncFolder").take(700).contains("folderSync.useFolder("))
         val repo = File("src/main/java/com/eried/eucplanet/data/repository/TripRepository.kt").readText()
         assertTrue("deleting a trip leaves its conflict counted",
             repo.substringAfter("suspend fun deleteTrip(").take(900).contains("recountFolderConflictsIfWarned()"))
@@ -87,7 +94,7 @@ class SettingsShortcutsTest {
     @Test fun `a manual sync counts again when it ends, however it ends`() {
         // The warning stayed up after the rider picked a side, until the
         // worker's next pass, 15 minutes or a ride later. It read as a bug.
-        val body = sync.substringAfter("fun runSync() = withUploadPass {").take(700)
+        val body = sync.substringAfter("fun runSync(ui: DropboxSyncUi) = withUploadPass {").take(700)
         assertTrue("the manual sync leaves the old count standing",
             body.contains("finally") && body.contains("refreshFolderConflictCount(settings)"))
         assertTrue("a cancelled sync skips the count",

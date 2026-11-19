@@ -178,6 +178,8 @@ object IosAppStart {
         IosHudLink.start()
         // Dropbox trips at launch, on every return to the front and while open.
         IosDropboxSync.start()
+        // The backup folder's upload pass, the same times (TripUploadWorker on Android).
+        IosFolderSync.start()
         // Keep screen on, and the language picker showing the applied language.
         IosDisplayPrefs.start()
         // The dashboard's "Needs attention" list, as MainActivity refreshes it on Android.

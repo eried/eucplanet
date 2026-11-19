@@ -125,10 +125,10 @@ object IosAppGraph {
      * The active theme, resolved from the same activeThemeName Android keeps in
      * settings.json, so a theme picked on one phone shows on the other.
      */
-    internal val themeFiles: IosThemeFiles by lazy { IosThemeFiles(documents) }
+    internal val themeFiles: IosThemeFiles by lazy { IosThemeFiles { IosFolderSync.jsonRoot() } }
 
-    /** The Overlay Studio's draft and presets (Documents/overlays), and its starters. */
-    internal val overlayPresets: IosOverlayPresets by lazy { IosOverlayPresets(documents) }
+    /** The Overlay Studio's draft, its presets (the backup folder's overlays/, else Documents/overlays) and its starters. */
+    internal val overlayPresets: IosOverlayPresets by lazy { IosOverlayPresets(documents) { IosFolderSync.jsonRoot() } }
 
     /** The rider's own horn sound, kept in Documents/horn. */
     internal val horn: IosHorn by lazy { IosHorn("$documents/horn") }

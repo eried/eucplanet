@@ -5,7 +5,8 @@ import com.eried.eucplanet.data.repository.PhoneImuSample
 import com.eried.eucplanet.data.repository.PhoneLocation
 import com.eried.eucplanet.data.store.OverlayPresetJson
 import com.eried.eucplanet.data.store.OverlayPresets
-import com.eried.eucplanet.data.sync.JsonFolder
+import com.eried.eucplanet.data.sync.BackupFolder
+import com.eried.eucplanet.data.sync.FolderPresets
 import com.eried.eucplanet.hud.protocol.OverlayPreset
 import com.eried.eucplanet.platform.JSONObject
 import com.eried.eucplanet.platform.Log
@@ -42,25 +43,25 @@ import platform.Foundation.writeToFile
 /**
  * The studio's layouts, as Android's OverlayPresetStore keeps them: the
  * working draft in the app's own files (Documents/overlay_studio_draft.json),
- * the rider's named presets one `<name>.json` each in Documents/overlays (the
- * iPhone's stand-in for the backup folder's overlays/, mirrored with Dropbox's
- * /overlays like Documents/themes), and the starters the app ships, the phone
- * app's assets/overlay_presets copied in by generateIosAppArt.
+ * the rider's named presets one `<name>.json` each in the backup folder's
+ * overlays/ (the shared [FolderPresets], Android's files), or in
+ * Documents/overlays while no folder is set ([root], [IosFolderSync.jsonRoot]),
+ * mirrored with Dropbox's /overlays like the themes, and the starters the app
+ * ships, the phone app's assets/overlay_presets copied in by generateIosAppArt.
  */
 @OptIn(ExperimentalForeignApi::class)
-internal class IosOverlayPresets(documents: String) : OverlayPresets, JsonFolder {
+internal class IosOverlayPresets(
+    documents: String,
+    root: suspend () -> BackupFolder = { IosPathFolder(documents) },
+) : OverlayPresets {
     private val draftPath = "$documents/$DRAFT_FILE"
-    private val dir = "$documents/overlays"
-    private val fm = NSFileManager.defaultManager
+    private val presets = FolderPresets(root)
 
     private fun readText(path: String): String? =
         NSString.stringWithContentsOfFile(path, NSUTF8StringEncoding, null)
 
     private fun writeText(path: String, text: String): Boolean =
         text.encodeToByteArray().toNSData().writeToFile(path, true)
-
-    private fun folderReady(): Boolean =
-        fm.fileExistsAtPath(dir) || fm.createDirectoryAtPath(dir, true, null, null)
 
     override suspend fun loadDraft(): OverlayPreset = withContext(Dispatchers.IO) {
         val text = readText(draftPath) ?: return@withContext bundledDefault() ?: OverlayPreset()
@@ -84,34 +85,15 @@ internal class IosOverlayPresets(documents: String) : OverlayPresets, JsonFolder
         }
     }
 
-    // The folder is the app's own, so it is always there.
-    override suspend fun presetFolderAvailable(): Boolean = withContext(Dispatchers.IO) { folderReady() }
+    // Documents is always there, so named presets always are.
+    override suspend fun presetFolderAvailable(): Boolean = presets.available()
 
-    override suspend fun listPresets(): List<String> = withContext(Dispatchers.IO) {
-        jsonNames().map { it.dropLast(SUFFIX.length) }.sortedBy { it.lowercase() }
-    }
+    override suspend fun listPresets(): List<String> = presets.list()
 
-    private fun jsonNames(): List<String> {
-        if (!folderReady()) return emptyList()
-        return (fm.contentsOfDirectoryAtPath(dir, null) ?: emptyList<Any>())
-            .mapNotNull { it as? String }
-            .filter { it.endsWith(SUFFIX, ignoreCase = true) }
-    }
+    /** Written as the shared FolderPresets writes it: SyncManager.sanitizeBackupName's name, in place. */
+    override suspend fun savePreset(name: String, preset: OverlayPreset): Boolean = presets.save(name, preset)
 
-    override suspend fun savePreset(name: String, preset: OverlayPreset): Boolean = withContext(Dispatchers.IO) {
-        val safe = sanitize(name) ?: return@withContext false
-        if (!folderReady()) return@withContext false
-        val json = OverlayPresetJson.toJson(preset.copy(name = safe)).toString(2)
-        writeText("$dir/$safe$SUFFIX", json).also { if (!it) Log.e(TAG, "Saving preset '$name' failed") }
-    }
-
-    override suspend fun loadPreset(name: String): OverlayPreset? = withContext(Dispatchers.IO) {
-        val text = readText("$dir/$name$SUFFIX") ?: return@withContext null
-        runCatching { OverlayPresetJson.fromJson(JSONObject(text)) }.getOrElse {
-            Log.e(TAG, "Loading preset '$name' failed", it)
-            null
-        }
-    }
+    override suspend fun loadPreset(name: String): OverlayPreset? = presets.load(name)
 
     override suspend fun listBundledPresets(): List<String> = runCatching {
         Res.readBytes("files/$BUNDLED_DIR/$BUNDLED_INDEX").decodeToString()
@@ -129,30 +111,7 @@ internal class IosOverlayPresets(documents: String) : OverlayPresets, JsonFolder
         null
     }
 
-    override suspend fun deletePreset(name: String): Boolean = withContext(Dispatchers.IO) {
-        fm.removeItemAtPath("$dir/$name$SUFFIX", null)
-    }
-
-    // --- Dropbox's /overlays, as Android's SyncManager syncs the backup folder's overlays/.
-
-    override suspend fun jsonFiles(): Map<String, ByteArray>? = withContext(Dispatchers.IO) {
-        if (!folderReady()) return@withContext null
-        jsonNames().mapNotNull { name ->
-            NSData.dataWithContentsOfFile("$dir/$name")?.let { name to it.toByteArray() }
-        }.toMap()
-    }
-
-    override suspend fun write(name: String, bytes: ByteArray): Boolean = withContext(Dispatchers.IO) {
-        folderReady() && bytes.toNSData().writeToFile("$dir/$name", true)
-    }
-
-    /** Android's SyncManager.sanitizeBackupName, so a name saves to the same file on both phones. */
-    private fun sanitize(raw: String): String? = raw.trim()
-        .replace(Regex("[^A-Za-z0-9_\\- ]"), "")
-        .replace(Regex("\\s+"), " ")
-        .trim()
-        .take(32)
-        .takeIf { it.isNotEmpty() }
+    override suspend fun deletePreset(name: String): Boolean = presets.delete(name)
 
     private companion object {
         const val TAG = "OverlayPresets"
