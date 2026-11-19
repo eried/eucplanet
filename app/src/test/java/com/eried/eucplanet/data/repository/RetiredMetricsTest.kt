@@ -24,4 +24,20 @@ class RetiredMetricsTest {
         assertTrue("retired but still offered: ${RETIRED_METRIC_KEYS intersect live}",
             (RETIRED_METRIC_KEYS intersect live).isEmpty())
     }
+
+    @Test fun `a stacked tile loses the retired cell and its statistic, and keeps the rest`() {
+        val saved = """{"M:a":{"layout":"COL3","cells":["SPEED","HEADROOM","BATTERY"],"cellStats":["MAX","AVG","CURRENT"]},"M:b":{"layout":"ROW2","cells":["VOLTAGE","CURRENT"]}}"""
+        val cleaned = org.json.JSONObject(withoutRetiredCells(saved))
+        val a = cleaned.getJSONObject("M:a")
+        assertEquals("""["SPEED","BATTERY"]""", a.getJSONArray("cells").toString())
+        assertEquals("""["MAX","CURRENT"]""", a.getJSONArray("cellStats").toString())
+        assertEquals("COL3", a.getString("layout"))
+        assertEquals("""["VOLTAGE","CURRENT"]""", cleaned.getJSONObject("M:b").getJSONArray("cells").toString())
+    }
+
+    @Test fun `stacked tiles without one are returned as they were`() {
+        val saved = """{"M:b":{"layout":"ROW2","cells":["VOLTAGE","CURRENT"]}}"""
+        assertEquals(saved, withoutRetiredCells(saved))
+        assertEquals("{}", withoutRetiredCells("{}"))
+    }
 }

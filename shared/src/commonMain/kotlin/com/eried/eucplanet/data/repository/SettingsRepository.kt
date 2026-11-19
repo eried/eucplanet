@@ -126,6 +126,7 @@ fun AppSettings.sanitized(): AppSettings = copy(
     // A layout saved while a since-removed metric was offered: its tile goes,
     // rather than staying as a raw key over a dash.
     dashboardMetricOrder = withoutRetiredMetrics(dashboardMetricOrder),
+    dashboardCompositeMetrics = withoutRetiredCells(dashboardCompositeMetrics),
     voiceVolumePercent = voiceVolumePercent.coerceIn(10, 100),
     autoRecordStopIdleSeconds = autoRecordStopIdleSeconds.coerceAtLeast(30),
     // What the dialog lets a rider save: a synced file cannot ask for 300%, or 80.
@@ -235,3 +236,31 @@ val RETIRED_METRIC_KEYS = setOf("HEADROOM")
 fun withoutRetiredMetrics(order: String): String =
     if (RETIRED_METRIC_KEYS.none { it in order }) order
     else order.split(",").filterNot { it.trim() in RETIRED_METRIC_KEYS }.joinToString(",")
+
+/**
+ * [composites] (the stacked tiles, `{ "M:id": { "layout", "cells", "cellStats" } }`)
+ * without cells showing one of the [RETIRED_METRIC_KEYS]. The cell goes with
+ * its statistic, the tile and its other cells stay; a stack left with fewer
+ * cells than its layout draws the ones it has, as one saved half-filled does.
+ */
+fun withoutRetiredCells(composites: String): String {
+    if (RETIRED_METRIC_KEYS.none { it in composites }) return composites
+    val root = runCatching { com.eried.eucplanet.platform.JSONObject(composites) }.getOrNull() ?: return composites
+    val ids = root.keys().asSequence().toList()
+    for (id in ids) {
+        val node = root.optJSONObject(id) ?: continue
+        val cells = node.optJSONArray("cells") ?: continue
+        val stats = node.optJSONArray("cellStats")
+        val keptCells = com.eried.eucplanet.platform.JSONArray()
+        val keptStats = com.eried.eucplanet.platform.JSONArray()
+        for (i in 0 until cells.length()) {
+            val key = cells.optString(i)
+            if (key in RETIRED_METRIC_KEYS) continue
+            keptCells.put(key)
+            if (stats != null && i < stats.length()) keptStats.put(stats.optString(i))
+        }
+        node.put("cells", keptCells)
+        if (stats != null) node.put("cellStats", keptStats)
+    }
+    return root.toString()
+}
