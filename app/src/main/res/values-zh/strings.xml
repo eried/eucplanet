@@ -2735,7 +2735,7 @@
     <string name="car_weather">天气</string>
     <string name="car_alarm_channel_name">车机屏幕报警</string>
     <string name="car_alarm_channel_description">在 Android Auto 屏幕的地图上方显示正在触发的报警。</string>
-    <string name="car_alarm_notifications">车机屏幕报警</string>
+    <string name="car_alarm_notifications">Android Auto 屏幕报警</string>
     <string name="car_alarm_notifications_hint">触发的报警会显示在地图上方，导航时也能看到。提示音和振动保持不变。</string>
     <string name="car_no_metrics">未选择任何数据</string>
     <string name="nav_solve_menu">优化途经点顺序</string>

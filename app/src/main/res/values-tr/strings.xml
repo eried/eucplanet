@@ -2865,9 +2865,9 @@
     <string name="car_no_places">Önce Ev veya İş kaydedin ya da telefonda bir rota planlayın.</string>
     <string name="car_waiting_wheel">Teker bekleniyor</string>
     <string name="car_weather">Hava durumu</string>
-    <string name="car_alarm_channel_name">Araç ekranındaki alarmlar</string>
+    <string name="car_alarm_channel_name">Android Auto alarmları</string>
     <string name="car_alarm_channel_description">Tetiklenen alarmı Android Auto ekranında, haritanın üstünde gösterir.</string>
-    <string name="car_alarm_notifications">Araç ekranındaki alarmlar</string>
+    <string name="car_alarm_notifications">Android Auto ekranındaki alarmlar</string>
     <string name="car_alarm_notifications_hint">Tetiklenen alarm haritanın üstünde görünür, böylece navigasyon sırasında da size ulaşır. Bip ve titreşim değişmez.</string>
     <string name="car_no_metrics">Seçili metrik yok</string>
     <string name="nav_solve_menu">Durak sırasını optimize et</string>
