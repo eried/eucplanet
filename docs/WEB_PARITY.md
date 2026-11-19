@@ -2,39 +2,27 @@
 
 One rider uses all three: the EUC Planet app, [eucstats](https://eucstats.ried.no) and the
 [Trip Viewer](https://eucviewer.ried.no). This page is the single place that says what they
-agree on for languages and units, and what the app still has to do to match the two web
-sites. Agreed on 2026-11-18. Change it here first, then change the three.
+agree on for languages and units. Agreed on 2026-11-18. Change it here first, then change the three.
 
-## What the app still has to do
+## Where each side stands
 
-1. **Add British English.** The web has `en-GB` as a separate choice; plain English is
-   American spelling. Add `values-en-rGB` holding only the strings whose spelling differs
-   (colour, grey, metres and so on). On eucstats that was 17 of about 620 strings.
-2. **Name language variants the same way.** In the app's language picker use the display
-   names in the table below: `English (US)` and `English (UK)`, `Español (LA)` and
-   `Español (ES)`, `Português (BR)` and `Português (PT)`.
-3. **Altitude is its own unit.** On the web, altitude (m or ft) is a third switch that no
-   other switch moves. In the app it follows distance. Under the Custom preset, let altitude
-   be chosen separately.
-4. **Default units for the UK.** The web gives the UK, the Crown Dependencies and Myanmar
-   miles with Celsius and metres. The app has no UK case and gives Myanmar full imperial.
-5. **`share_scan_is_crewpass` names a menu that does not exist.** It says "Scan it from
-   Settings, under Crews". The entry is `crews_pass_action` ("Crew pass") under
-   `section_online_stats` ("Online leaderboards"). Reword it in every locale with that
-   locale's own section label.
-6. **`values-es`, `crews_scan_hint`** says "dale a Crews". The site's button in Spanish
-   (Spain) is "Cuadrillas", the word the rest of `values-es` uses.
-7. **A deleted trip is re-requested forever.** `EucStatsApi.getTripStatus()` returns `null`
-   for a 404, the same as a network failure, so the recheck never stops. Treat 404 as
-   final. Keep retrying on 5xx, 429 and timeouts.
-8. **Uploads for an unregistered rider.** Twice in November one device sent 60 trips that
-   were each answered `400 rider_not_registered`, then kept retrying into
-   `429 rate_limited:trip_per_rider` (about once a second for 22 minutes). A 400 with that
-   detail should stop the queue and register the rider; a 429 should back off.
+Checked on 2026-11-19 against `next-experimental` and the live web sites.
+
+- **The app** has all of it except one string, fixed in pull request 37: `share_scan_is_crewpass`
+  named a Crews section that Settings does not have.
+- **eucstats** has all of it. Its test `tests/test_parity.py` fails when the site drifts from
+  the rules on this page (it reads them from `tests/parity_rules.json` in that repository).
+- **The Trip Viewer** is where the unit rules came from. Its languages and names were not
+  checked for this page.
+
+Nothing checks the three against each other automatically. When a rule changes, change this
+page, then each project.
 
 ## Languages
 
-All three carry the same 30 languages, plus British English on the web (item 1 above).
+All three carry the same 31 choices: 30 languages, with British English as a separate
+choice beside American. The codes are the same everywhere; Traditional Chinese is `zh-TW`
+(it was `zh-Hant` on eucstats until 2026-11-19).
 
 ### Browser or system language to our code
 
@@ -46,7 +34,7 @@ resolves through Android resources and should land on the same language.
 | `nb`, `nn`, `no` | `no` |
 | `pt` with region PT, AO, MZ, CV, GW, ST, TL | `pt-PT` |
 | any other `pt` | `pt-BR` |
-| `zh` with TW, HK, MO or Hant | `zh-Hant` |
+| `zh` with TW, HK, MO, or any tag containing Hant | `zh-TW` |
 | any other `zh` | `zh` |
 | `es` with region 419, MX, AR, CO, CL, PE, VE, EC, GT, CU, BO, DO, HN, PY, SV, NI, CR, PA, UY, PR, US | `es-419` |
 | any other `es`, including a bare `es` | `es` (Spain) |
@@ -58,7 +46,8 @@ resolves through Android resources and should land on the same language.
 
 The two web sites share the rider's choice through a cookie, `euc_lang`, on `ried.no`
 (path `/`, one year, `samesite=lax`). It is read before each site's own storage and written
-on every change. A code the reading site does not have is ignored. The app is not part of
+on every change. A code the reading site does not have is ignored, except that eucstats reads an older
+`zh-Hant` as `zh-TW` and rewrites the cookie. The app is not part of
 this; it is listed so nobody is surprised by it.
 
 ## Units
@@ -104,7 +93,7 @@ The display name is what the language picker shows. It is the same on all three.
 | Code | Display name | App resource folder |
 |---|---|---|
 | `en` | English (US) | `values` |
-| `en-GB` | English (UK) | `values-en-rGB (to add)` |
+| `en-GB` | English (UK) | `values-en-rGB` |
 | `bg` | Български | `values-bg` |
 | `cs` | Čeština | `values-cs` |
 | `da` | Dansk | `values-da` |
@@ -133,7 +122,7 @@ The display name is what the language picker shows. It is the same on all three.
 | `uk` | Українська | `values-uk` |
 | `vi` | Tiếng Việt | `values-vi` |
 | `zh` | 中文 (简体) | `values-zh` |
-| `zh-Hant` | 中文 (繁體) | `values-zh-rTW` |
+| `zh-TW` | 中文 (繁體) | `values-zh-rTW` |
 
 ## Glossary
 
@@ -171,4 +160,4 @@ Core rider terms as eucstats uses them today, beside the app's own two labels fo
 | `uk` | колесо | Райдери | Клани | квадрат | шматок | Поїздки | Пропуск клану | Пропуск клану | Онлайн-таблиці лідерів |
 | `vi` | xe | Tay lái | Đội | ô | mảng | Chuyến đi | Thẻ đội | Thẻ đội | Bảng xếp hạng trực tuyến |
 | `zh` | 独轮车 | 骑友 | 战队 | 格 | 块 | 行程 | 战队通行证 | 战队通行证 | 在线排行榜 |
-| `zh-Hant` | 獨輪車 | 騎士 | 車隊 | 格 | 塊 | 行程 | 車隊通行證 | 車隊通行證 | 線上排行榜 |
+| `zh-TW` | 獨輪車 | 騎士 | 車隊 | 格 | 塊 | 行程 | 車隊通行證 | 車隊通行證 | 線上排行榜 |
