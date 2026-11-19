@@ -493,19 +493,22 @@ internal fun PhoneHudSection(
             // The switch stays off and un-flippable until the permission is
             // there, rather than turning on and quietly doing nothing.
             HintText(stringResource(Res.string.phone_hud_permission_desc))
-            com.eried.eucplanet.ui.common.FixButton(
-                text = stringResource(Res.string.phone_hud_grant),
-                onClick = {
-                    runCatching {
-                        ctx.startActivity(
-                            android.content.Intent(
-                                android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                                android.net.Uri.parse("package:${ctx.packageName}"),
-                            ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
-                        )
-                    }
-                },
-            )
+            HalfWidthActionRow { buttonModifier ->
+                com.eried.eucplanet.ui.common.FixButton(
+                    text = stringResource(Res.string.phone_hud_grant),
+                    modifier = buttonModifier,
+                    onClick = {
+                        runCatching {
+                            ctx.startActivity(
+                                android.content.Intent(
+                                    android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                    android.net.Uri.parse("package:${ctx.packageName}"),
+                                ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                            )
+                        }
+                    },
+                )
+            }
         } else {
             SwitchSetting(
                 stringResource(Res.string.phone_hud_enable),

@@ -12,6 +12,7 @@ only when you can cut the ride short.
 - iPhone: the audio output is kept awake during a ride, as on Android, so the first beep of an alarm is not cut off on a Bluetooth headset. It rests after two minutes with no sound.
 - iPhone: the widget how-to no longer says how often iOS updates widgets.
 - iPhone: Settings no longer comes up blank and frozen now and then on Voice or Wheel parameters while a wheel is connected. The ride Live Activity and the screen were waiting on each other for the same text.
+- Merged the latest next-experimental into the iPhone branch: the reread of every language, Leaderboards named the same everywhere, the "speed" voice answer, and settings buttons of one width.
 - Merged the latest next-experimental into the iPhone branch again: English (UK) and the renamed language list, heights in metres or feet as their own unit, first-run units by country, the shorter hints, and uploads that stop when the leaderboard refuses them.
 - Merged the latest next-experimental into the iPhone branch: HUD map pictures served by the phone, the arrival line on the HUD, one phone per HUD, the leaderboard no longer asking about removed rides, Last backup read from the file, the V6 fixes, typed speeds, the new watch layout and alarms on the Android Auto screen.
 - Merged the latest next-experimental (HUD app from the phone, recorded engines, volume keys with the screen off, a way out of every window, the wheel icon, the code and string clean-up, your wording, PWM everywhere and media speed control removed) into the iPhone branch.
@@ -49,6 +50,10 @@ only when you can cut the ride short.
 - iPhone app: Volume up, Volume down and Mute are no longer offered (iOS cannot set the volume), and the tour's last page names only Flic buttons.
 - Settings, Dashboard layout no longer closes the app.
 - Settings search no longer finds rows a phone does not show.
+- Voice commands: "speed" answers with your speed. It asked "Did you mean Speed or Speed?" when speed was not one of your tiles.
+- Leaderboards: the section inside Backups & leaderboards is called Leaderboards in every language too, like the tab. Scanning a crew pass from the Share screen now points to that tab by its own name.
+- Languages: every language of the app was reread so it sounds like a rider wrote it, about 6,200 texts. Settings now says Leaderboards, Music control and Offline maps in every language, and long switch labels wrap instead of pushing the switch off the row.
+- Languages: a phone set to Traditional Chinese without a Taiwan, Hong Kong or Macau region now starts the app in 中文 (繁體) instead of Simplified, as the web sites do.
 - Headroom tile removed: it was offered as a dashboard tile but never showed a value. A dashboard that had it loses that tile, also inside a stacked tile; nothing else moves.
 - Two hints corrected, in every language: the settings backup says it holds your settings and alarm rules (not "everything"), and volume keys with the screen off says it works while EUC Planet is running.
 - Crew pass: scanning one from the Share screen now points you to the right place, Settings, Online leaderboards. It named a Crews section that Settings does not have. In every language.
@@ -80,7 +85,7 @@ only when you can cut the ride short.
 - Map: a GPX track (Organic Maps, BRouter...) opens locked and is ridden as drawn, with cues from its bends. Convert to stops makes it editable.
 - Map: Reverse route turns the stops round for the way back. Start far from a track rides you to its start first.
 - Menus: options that cannot run grey out instead of disappearing, and delete rows are red with a bin.
-- Android Auto: navigation on the car screen, with your four numbers beside it. Planned route rides a loaded track.
+- Android Auto: navigation on the Android Auto screen (the HUD), with your four numbers beside it. Planned route rides a loaded track.
 - HUD app update from the phone: the phone app carries the HUD app and sends it over the link on a tap, and the HUD goes straight to Android's install prompt, with no question of its own. It asks first when the HUD already runs that build, and leaves a newer HUD alone. The card and that question show both versions lined up, Installed (on the HUD) and Available (in the phone). Uninstall from the same card. The card also shows the address the HUD was reached at and whether it was found by Auto or Fixed. It slides in when the HUD links, and the discovery mode and address rows fold away while it is linked. The first install is still by cable.
 - HUD map: keeps working with the phone app in the background and no wheel connected. It now says when it is waiting for the phone GPS.
 - HUD map: no more white "Map data not yet available" screen. Where the map has no detail that deep it shows the closest zoom it has.
@@ -104,7 +109,7 @@ only when you can cut the ride short.
 - Dropbox: a few trips no longer upload again on every sync when nothing changed.
 - Trip Details: Compare (the two-arrow icon) puts another trip beside this one, like eucviewer. Auto lines them up, tiles and charts show both or the differences, the map marks the other trip.
 - Routing: bike routes come from Valhalla, which prefers quiet streets and paths (big-road share fell from 25% to 15% in tests). Walking with an avoid option keeps to footways.
-- Routing: a new route after a wrong turn comes in about 8 s instead of 22 s and continues the way you ride, no U-turn. Routes from the car screen or the navigation overlay keep your avoid settings.
+- Routing: a new route after a wrong turn comes in about 8 s instead of 22 s and continues the way you ride, no U-turn. Routes from the Android Auto screen or the navigation overlay keep your avoid settings.
 - Routing services: the Valhalla server has its own URL beside OSRM.
 - Offline areas (Settings, Navigation & weather): each 5 by 5 degree square brings a street map and routing, so routes, reroutes and turn cues work with no signal. By default they are the backup when the servers or the signal fail; "Prefer offline map and routing" uses them first. The map's Select chip picks Around me (about 50 km), Around me, wider (about 200 km) or My route, and asks first with the size. Squares come from our mirror on Hugging Face (routing and a map for every square), with GitHub as the backup and brouter.de last (routing only). Squares downloaded before their map existed get it from "Update all".
 - Offline map: sits under the map you picked (navigator, trip details, HUD, watch, Android Auto, video overlay) and shows through where online tiles fail, with "Offline" in bold at the top of the credit line and the map style button greyed; the online map returns by itself when the signal does. With "Prefer offline map and routing" on, downloaded squares show their own map even with signal. With no signal, search says so, and a tapped stop is named from the map.
@@ -124,6 +129,12 @@ only when you can cut the ride short.
 - Backup conflicts: the warning goes as soon as you settle them with Sync all, says where that button is, and Fix opens Trips backup. It also goes when you unlink the folder or delete the trips.
 
 ## Please test
+
+**Voice commands** (anyone who uses them)
+- Ask "speed" with no Speed tile on the dashboard: does it say your speed?
+
+**Your language** (anyone)
+- Walk through the dashboard, Settings, the trip recorder and the navigator in your language: does anything read odd, wrong or cut off?
 
 **iPhone** (TestFlight)
 - Voice commands: turn them on, tap the Voice tile and ask "battery", "speed" or "what can I say". Allow the microphone and speech recognition when asked. Does it answer, in your language?
@@ -220,7 +231,7 @@ only when you can cut the ride short.
 
 **Android Auto** (install from the Play internal sharing link, a sideloaded APK never shows in the car)
 - With the MotoEye running Android Auto, trip a wheel alarm (speed or PWM): does a card show over the map, and is the only sound the alarm's own beep?
-- Navigate from the car screen: turn-by-turn shows, and your four numbers beside it?
+- Navigate from the Android Auto screen: turn-by-turn shows, and your four numbers beside it?
 - Load a GPX track on the phone, then Places, Planned route in the car: does it follow the track?
 
 **HUD (MotoEye)**

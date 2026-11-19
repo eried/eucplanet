@@ -80,6 +80,18 @@ object VoiceCommandMatcher {
         val onTiles = best.filter { it.key in onDashboard }
         if (onTiles.size == 1) return VoiceMatch.Hit(onTiles.first())
 
+        // A reading and its spoken report under one name are one thing to the
+        // rider: "Speed" is both, and the reading answers with the report's
+        // sentence anyway. Asking "Speed or Speed?" offers a choice nobody can
+        // make, and speed is rarely a tile to break the tie. Two different
+        // readings under one name are still asked about, below.
+        val readings = best.filter { it.kind == VoiceVocabulary.Kind.METRIC }
+        if (readings.size == 1 && best.all { it.kind == VoiceVocabulary.Kind.METRIC || it.kind == VoiceVocabulary.Kind.REPORT } &&
+            best.map { normalise(it.name) }.distinct().size == 1
+        ) {
+            return VoiceMatch.Hit(readings.first())
+        }
+
         return VoiceMatch.Ambiguous(best)
     }
 

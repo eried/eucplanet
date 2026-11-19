@@ -44,14 +44,11 @@ fun LeftAlignedScanButton(
     val colors = if (containerColor != null)
         ButtonDefaults.buttonColors(containerColor = containerColor)
     else ButtonDefaults.buttonColors()
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
+    HalfWidthActionRow(modifier = modifier) { buttonModifier ->
         Button(
             onClick = onClick,
             enabled = enabled,
-            modifier = Modifier.weight(1f),
+            modifier = buttonModifier,
             colors = colors,
             shape = RoundedCornerShape(12.dp)
         ) {
@@ -65,6 +62,29 @@ fun LeftAlignedScanButton(
             }
             com.eried.eucplanet.ui.common.SearchableText(label)
         }
+    }
+}
+
+/**
+ * The one width of a standalone settings action button: the left half of the
+ * row, whatever the label says. A button sized to its text gets narrower in a
+ * language with a short label ("Tillat mikrofon"), so the same action looked
+ * like a different control from one language to the next.
+ *
+ * [button] receives the modifier that gives it that width and must pass it on.
+ * A long label wraps onto a second line inside the button, it is never cut.
+ * Not for paired half/half rows or dialog buttons, which size themselves.
+ */
+@Composable
+fun HalfWidthActionRow(
+    modifier: Modifier = Modifier,
+    button: @Composable (Modifier) -> Unit,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        button(Modifier.weight(1f))
         Spacer(modifier = Modifier.weight(1f))
     }
 }

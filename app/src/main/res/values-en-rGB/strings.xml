@@ -1645,7 +1645,7 @@
     <string name="auto_waiting_gps">Waiting for GPS location\u2026</string>
     <string name="auto_volume_title">Volume control</string>
     <string name="auto_volume_when">Raise volume when</string>
-    <string name="media_control_title">Media playback control</string>
+    <string name="media_control_title">Music control</string>
     <string name="media_control_pause">Pause when I slow down</string>
     <string name="media_control_pause_below">Pause at or below</string>
     <string name="media_control_resume">Resume when I speed up</string>
@@ -1674,7 +1674,7 @@
 
     <!-- Alarms tab -->
     <string name="alarm_help">Trigger priority is based on metric groups order below.</string>
-    <string name="alarm_empty">No alarm rules yet</string>
+    <string name="alarm_empty">No rules yet</string>
     <string name="alarm_add">New alarm</string>
     <string name="alarm_summary_predict_fmt">predicts %1$s s ahead</string>
     <string name="alarm_new">New alarm</string>
@@ -2275,7 +2275,7 @@
     <string name="nav_view_straight_line">straight line</string>
     <string name="nav_view_heading_up">Heading up, tap for north up</string>
     <string name="nav_view_north_up">North up, tap for heading up</string>
-    <string name="nav_view_tiles">Navigator tiles</string>
+    <string name="nav_view_tiles">Tiles while navigating</string>
     <string name="nav_view_tiles_desc">The 4 numbers beside the speed while navigating.</string>
     <string name="nav_view_speed">Speed</string>
     <string name="nav_layer_dark">Esri Dark</string>
@@ -2742,7 +2742,7 @@
     <string name="lockdown_limit_12">Tapping a metric does nothing.</string>
     <string name="lockdown_limit_13">Voice announcements, periodic reports and speed splits are silent. Your alarms still work.</string>
     <string name="lockdown_limit_14">The wheel cannot be locked or unlocked, and proximity auto-lock will not run.</string>
-    <string name="lockdown_limit_15">Auto lights and auto volume keep working. Media playback control stops.</string>
+    <string name="lockdown_limit_15">Auto lights and auto volume keep working. Music control stops.</string>
     <string name="lockdown_limit_16">The notification loses its buttons.</string>
     <string name="lockdown_limit_17">The version number will not open About.</string>
     <string name="lockdown_limit_18">This mode is not included in settings backups.</string>
@@ -2807,7 +2807,7 @@
     <string name="crews_scan_hint">Open eucstats in a browser, hit Crews, and point this at the code it shows.</string>
     <string name="crews_scan_invalid">That\'s not a crew pass code.</string>
     <string name="crews_scan_is_share">That is a live-location code. Scan it from Share on the map.</string>
-    <string name="share_scan_is_crewpass">That is a crew pass. Scan it from Settings, under Online leaderboards.</string>
+    <string name="share_scan_is_crewpass">That is a crew pass. Scan it from Settings, under %1$s.</string>
     <string name="crews_type_instead">Enter manually</string>
     <string name="crews_code_label">Pass code</string>
     <string name="crews_foreign_title">This code isn\'t from eucstats</string>
@@ -2864,9 +2864,9 @@
     <string name="car_waiting_wheel">Waiting for the wheel</string>
     <string name="car_weather">Weather</string>
     <string name="car_no_metrics">No metrics selected</string>
-    <string name="car_alarm_channel_name">Car screen alarms</string>
+    <string name="car_alarm_channel_name">Android Auto alarms</string>
     <string name="car_alarm_channel_description">Shows a firing alarm on the Android Auto screen, over the map.</string>
-    <string name="car_alarm_notifications">Alarms on the car screen</string>
+    <string name="car_alarm_notifications">Alarms on the Android Auto screen</string>
     <string name="car_alarm_notifications_hint">A firing alarm shows over the map, so it reaches you while navigating. Beep and vibration are unchanged.</string>
     <string name="car_navigate">Navigate</string>
     <string name="car_places_title">Navigate to</string>
@@ -2908,9 +2908,9 @@
     <string name="nav_unlock_off">Strays up to %1$s from the track</string>
     <string name="nav_unlock_confirm">Convert</string>
     <string name="voice_nav_place_reached">%1$s reached</string>
-    <string name="offline_data_open">Offline areas</string>
+    <string name="offline_data_open">Offline maps</string>
     <string name="offline_server_url">Offline data server</string>
-    <string name="offline_data_title">Offline areas</string>
+    <string name="offline_data_title">Offline maps</string>
     <string name="offline_data_space">Used %1$s, free %2$s</string>
     <string name="offline_data_tap_hint">Tap a square to download its map and routing, or delete it.</string>
     <string name="offline_data_list_error">Cannot reach the server. Downloaded areas still work.</string>

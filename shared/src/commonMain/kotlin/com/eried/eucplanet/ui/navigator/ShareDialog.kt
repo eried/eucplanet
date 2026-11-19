@@ -382,7 +382,10 @@ fun ShareScannerDialog(
             // landscape the body has to be able to scroll to reach Cancel.
             scrollable = true,
         ) {
-            val crewPass = stringResource(Res.string.share_scan_is_crewpass)
+            // Names the tab by its own title, as share_profile_missing does, so the
+            // sentence follows a rename of the tab instead of naming one that is gone.
+            val crewPass = stringResource(
+                Res.string.share_scan_is_crewpass, stringResource(Res.string.tab_cloud))
             LocalRouteBuilderHost.current.QrScanner(
                 parse = { parseScannedCode(it) },
                 onFound = { code ->
