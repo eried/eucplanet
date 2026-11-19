@@ -1955,7 +1955,7 @@
     <string name="studio_cd_resize">Ubah ukuran</string>
     <string name="studio_cd_rotate">Putar</string>
     <string name="studio_replay_title">Replay</string>
-    <string name="studio_flyout_live">Langsung</string>
+    <string name="studio_flyout_live">Live</string>
     <string name="studio_replay_choose_trip">Pilih perjalanan</string>
     <string name="studio_replay_speed_title">Kecepatan replay</string>
     <string name="studio_replay_cd_fade">Pudarkan panel</string>

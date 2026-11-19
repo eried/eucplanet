@@ -625,8 +625,8 @@
     <string name="adv_nav_prepare_dist_desc">Určuje, jak daleko před odbočením zazní přípravný pokyn.</string>
     <string name="adv_nav_execute_dist">Vzdálenost provedení odbočení</string>
     <string name="adv_nav_execute_dist_desc">Určuje, jak blízko k odbočení zazní pokyn k provedení. Pozor: příliš nízká hodnota varuje pozdě.</string>
-    <string name="adv_nav_prox_band">Pásmo hry na hledanou</string>
-    <string name="adv_nav_prox_band_desc">Určuje změnu vzdálenosti potřebnou k oznámení přihořívá nebo přituhuje v režimu hledání.</string>
+    <string name="adv_nav_prox_band">Pásmo hledání pokladu</string>
+    <string name="adv_nav_prox_band_desc">Určuje změnu vzdálenosti potřebnou k oznámení přihořívá nebo přituhuje v režimu hledání pokladu.</string>
     <string name="adv_nav_inter_stop">Práh posunu mezi zastávkami</string>
     <string name="adv_nav_inter_stop_desc">Určuje, jak daleko se musíte posunout za jednu zastávku, než se další může počítat za dosaženou. Pozor: příliš nízká hodnota může zastávku přeskočit.</string>
     <string name="adv_nav_max_start">Maximální vzdálenost startu</string>
@@ -927,7 +927,7 @@
     <string name="unit_mph">mph</string>
     <string name="section_announcements">Hlášení</string>
     <string name="section_speech">Řeč</string>
-    <string name="section_report_status">Pravidelný a spouštěný hlas</string>
+    <string name="section_report_status">Hlášení pravidelně a na povel</string>
     <string name="report_contents">Přizpůsobit hlasové hlášení</string>
     <string name="voice_enabled">Zapnout pravidelná hlášení</string>
     <string name="voice_announce_when_label">Hlásit</string>
@@ -1087,8 +1087,8 @@
     <string name="engine_preset_sampled_broken_exhaust">Prasklý výfuk</string>
     <string name="engine_preset_sampled_quad_atv">Čtyřkolka ATV</string>
     <string name="col_periodic">Pravidelně</string>
-    <string name="col_trigger">Spouštěč</string>
-    <string name="voice_trigger_reset_after">Po spouštěném hlášení vynulovat metriky</string>
+    <string name="col_trigger">Na povel</string>
+    <string name="voice_trigger_reset_after">Po hlášení na povel vynulovat metriky</string>
     <string name="report_speed">Rychlost</string>
     <string name="report_battery">Baterie</string>
     <string name="report_temp">Teplota</string>

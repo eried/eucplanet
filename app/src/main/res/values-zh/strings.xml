@@ -1207,8 +1207,8 @@
     <string name="studio_save_preset_body">预设会作为单独的 .json 文件保存在备份文件夹的 overlays/ 目录下。</string>
     <string name="studio_save_preset_name_label">预设名称</string>
     <string name="studio_save_preset_title">保存预设</string>
-    <string name="studio_section_landscape">横向</string>
-    <string name="studio_section_portrait">纵向</string>
+    <string name="studio_section_landscape">横屏</string>
+    <string name="studio_section_portrait">竖屏</string>
     <string name="studio_section_your_presets">你的预设</string>
     <string name="studio_viewport_camera">相机</string>
     <string name="studio_viewport_camera_label">相机</string>
@@ -1747,7 +1747,7 @@
     <string name="hud_overlay_subsection_desc">将叠加工作室预设导入 HUD 的“自定义叠加”屏幕，不带背景。预设会复制到这里，之后在工作室里再改，HUD 上不会变，要重新导入才行。</string>
     <string name="hud_overlay_select_preset">导入预设</string>
     <string name="hud_overlay_current_preset">当前：%1$s</string>
-    <string name="hud_search_corpus">HUD 抬头显示 伴侣 服务器 流 遥测 热点 motoeye 转向箭头</string>
+    <string name="hud_search_corpus">HUD 抬头显示 配套 服务器 流 遥测 热点 motoeye 转向箭头</string>
     <string name="hud_screens_title">HUD 屏幕</string>
     <string name="hud_map_options_title">地图选项</string>
     <string name="hud_screen_name_dashboard">仪表盘</string>
@@ -2239,7 +2239,7 @@
     <string name="geo_section_settings">设置</string>
     <string name="geo_other_hint">电池监控、指标历史、扫描和 Flic。</string>
     <string name="geo_settings_hint">设置页面。</string>
-    <string name="geo_trip_hint">详情视图默认会旋转，以配合横向的地图和图表。</string>
+    <string name="geo_trip_hint">详情视图默认会旋转，以横屏显示地图和图表。</string>
     <string name="setting_allow_rotation">允许旋转</string>
     <string name="setting_rotate_trip_detail">旋转行程详情</string>
     <string name="setting_rotate_trip_list">旋转行程列表</string>
@@ -2255,7 +2255,7 @@
     <string name="cover_cutout_left">左下</string>
     <string name="cover_cutout_right">右下</string>
     <string name="setting_simple_speedo">简化速度表</string>
-    <string name="setting_simple_speedo_desc">横向时只显示大号速度数字，不显示刻度环。</string>
+    <string name="setting_simple_speedo_desc">横屏时只显示大号速度数字，不显示刻度环。</string>
     <string name="setting_mirror_landscape">按钮在左侧</string>
     <string name="setting_nav_stops_side">途经点面板位置</string>
     <string name="side_default">默认</string>
@@ -2272,7 +2272,7 @@
     <string name="adv_cover_cutout_inset">摄像头开孔尺寸</string>
     <string name="adv_cover_cutout_inset_desc">开启“避开外屏摄像头”时为外屏镜头保留的空间。太小会让镜头挡住按钮。</string>
     <string name="adv_nav_sidebar_min">侧栏最小屏宽</string>
-    <string name="adv_nav_sidebar_min_desc">屏幕比这个窄时，即使横向也继续用底部途经点面板。设得太低，小屏幕上地图会被挡住。</string>
+    <string name="adv_nav_sidebar_min_desc">屏幕比这个窄时，即使横屏也继续用底部途经点面板。设得太低，小屏幕上地图会被挡住。</string>
     <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
     <string name="adv_inmotion_v1_pin_desc">InMotion V5/V8/V10 独轮车的访问 PIN，连接时发送，让独轮车开始发送数据。如果没在 InMotion 应用里另设 PIN，保持 000000 即可。</string>
     <string name="adv_kingsong_unlock_code">KingSong 解锁码</string>
@@ -2280,7 +2280,7 @@
     <string name="adv_kingsong_password">KingSong 应用密码</string>
     <string name="adv_kingsong_password_desc">在 KingSong 应用中设置的 4 位密码，连接时以及锁车与解锁前发送。如果从没设过，保持 0000 即可。</string>
     <string name="adv_nav_sidebar_width">途经点面板宽度</string>
-    <string name="adv_nav_sidebar_width_desc">横向途经点侧栏的宽度。太宽会让地图变小。</string>
+    <string name="adv_nav_sidebar_width_desc">横屏时途经点侧栏的宽度。太宽会让地图变小。</string>
     <string name="adv_simple_speedo_scale">简化速度表尺寸</string>
     <string name="adv_simple_speedo_scale_desc">速度数字相对于表盘区域的大小。太大可能会截断单位标签。</string>
     <string name="charging_reset_data">重置数据</string>

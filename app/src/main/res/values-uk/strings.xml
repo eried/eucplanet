@@ -809,7 +809,7 @@
     <string name="voice_audio_focus_duck">Приглушити інше</string>
     <string name="voice_audio_focus_pause">Призупинити інше</string>
     <string name="voice_audio_focus_off">Нічого не робити</string>
-    <string name="voice_output_channel_label">Канал виводу голосу</string>
+    <string name="voice_output_channel_label">Канал голосу</string>
     <string name="voice_output_channel_media">Медіа</string>
     <string name="voice_output_channel_notification">Сповіщення</string>
     <string name="voice_output_channel_alarm">Тривога</string>
@@ -1122,7 +1122,7 @@
     <string name="recording_summary_points">Рядки</string>
     <string name="recording_summary_top_speed">Макс. швидкість</string>
     <string name="recording_summary_avg_speed">Сер. швидкість</string>
-    <string name="recording_summary_max_temp">Макс. темп.</string>
+    <string name="recording_summary_max_temp">Т-ра макс.</string>
     <string name="recording_summary_energy">Енергія</string>
     <string name="recording_summary_consumption">Витрата</string>
     <string name="recording_summary_battery">Заряд (-%1$d%%)</string>

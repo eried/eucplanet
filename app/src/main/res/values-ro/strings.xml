@@ -1279,7 +1279,7 @@
     <string name="trip_meter_active">Activ</string>
     <string name="trip_meter_avg">Med</string>
     <string name="trip_meter_reset">Resetează contorul de cursă</string>
-    <string name="trip_meter_reset_msg">Aduce la zero distanța curentă și șterge toate intervalele. Această acțiune nu poate fi anulată.</string>
+    <string name="trip_meter_reset_msg">Aduce la zero distanța parcursă și șterge toate intervalele. Această acțiune nu poate fi anulată.</string>
     <string name="trip_meter_empty">Nicio distanță deocamdată. Contorul numără cât timp e conectat un monociclu.</string>
     <string name="trip_meter_partial">Acum</string>
     <string name="trip_meter_col_split">#</string>

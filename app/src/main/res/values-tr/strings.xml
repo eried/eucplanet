@@ -96,7 +96,7 @@
 
     <string name="stat_battery">BATARYA</string>
     <string name="stat_temp">SICAKLIK</string>
-    <string name="stat_voltage">GERİLİM</string>
+    <string name="stat_voltage">VOLTAJ</string>
     <string name="stat_amps">AMPER</string>
     <string name="stat_load">PWM</string>
     <string name="stat_trip">SÜRÜŞ</string>
@@ -215,7 +215,7 @@
     <!-- Metric labels for the dashboard layout chips -->
     <string name="metric_chip_battery">Batarya</string>
     <string name="metric_chip_temperature">Sıcaklık</string>
-    <string name="metric_chip_voltage">Gerilim</string>
+    <string name="metric_chip_voltage">Voltaj</string>
     <string name="metric_chip_current">Amper</string>
     <string name="metric_chip_load">PWM</string>
     <string name="metric_chip_trip">Sürüş</string>
@@ -561,7 +561,7 @@
     <string name="watch_keep_on_navigation">Navigasyon sırasında açık tut</string>
     <string name="watch_keep_on_navigation_desc">Navigasyon sırasında saat ekranını açık tutar. Daha fazla pil kullanır.</string>
     <string name="watch_map_telemetry">Harita telemetrisi</string>
-    <string name="watch_map_telemetry_desc">PWM, hız ve gerilimi üst kenar boyunca gösterir.</string>
+    <string name="watch_map_telemetry_desc">PWM, hız ve voltajı üst kenar boyunca gösterir.</string>
     <string name="watch_update_conservative">Tutumlu</string>
     <string name="watch_update_normal">Normal</string>
     <string name="watch_update_fast">Hızlı</string>
@@ -733,16 +733,16 @@
     <string name="section_speed_calibration">Hız kalibrasyonu</string>
     <string name="section_battery_percent">Batarya kalibrasyonu</string>
     <string name="battery_override_label">Tekerin yüzdesini kullanma</string>
-    <string name="battery_override_hint">Yüzdeyi paket geriliminden tahmin eder.</string>
+    <string name="battery_override_hint">Yüzdeyi paket voltajından tahmin eder.</string>
     <string name="battery_percent_custom_floor">Doğrusal ölçek</string>
     <string name="battery_percent_min_cell" formatted="false">Boş kabul edilen</string>
     <string name="battery_percent_max_cell" formatted="false">Dolu kabul edilen</string>
-    <string name="battery_percent_cell_range_desc">Boş ve dolu için hücre başına gerilim.</string>
+    <string name="battery_percent_cell_range_desc">Boş ve dolu için hücre başına voltaj.</string>
     <string name="battery_percent_series_cells">Seri hücre</string>
     <string name="battery_capacity_label">Kapasite</string>
     <string name="battery_capacity_desc">İsteğe bağlı. Menzil kutucuğu ve HUD için menzil tahminini baştan ayarlar.</string>
     <string name="battery_percent_cells_from_wheel">Tekerden alındı: %1$d seri.</string>
-    <string name="battery_percent_cells_manual">Paket gerilimini gösterge panelinde, sesli anonslarda ve alarmlarda görünen yüzdeye çevirir.</string>
+    <string name="battery_percent_cells_manual">Paket voltajını gösterge panelinde, sesli anonslarda ve alarmlarda görünen yüzdeye çevirir.</string>
     <string name="speed_calibration_label">Hız düzeltmesi</string>
     <string name="speed_calibration_caption">Tekerin bildirdiği hızı düzeltir; alarmları, sesli anonsları ve sürüş kaydını etkiler.</string>
     <string name="section_legal_mode_speed">Yasal mod hızı</string>
@@ -792,7 +792,7 @@
     <string name="welcome_tut_share">Sürüşlerinizi Ayarlar → %1$s altında yedekleyin. %2$s bölümünde görebilir, yedekleri eucviewer.ried.no adresinde inceleyebilirsiniz.\n\nAynı bölümden eucstats.ried.no adresindeki herkese açık lider tablolarına katılabilirsiniz</string>
     <string name="welcome_tut_outro_end">Tek tekerle sürerken gözünüz yolda olsun, bu uygulamada değil!</string>
     <string name="welcome_tut_speed">Anlık hızınız. Birimleri Ayarlar → %1$s kısmından değiştirebilirsiniz</string>
-    <string name="welcome_tut_metrics">Anlık batarya, sıcaklık, gerilim ve daha fazlası. Sıralarını Ayarlar → %1$s kısmından değiştirebilirsiniz</string>
+    <string name="welcome_tut_metrics">Anlık batarya, sıcaklık, voltaj ve daha fazlası. Sıralarını Ayarlar → %1$s kısmından değiştirebilirsiniz</string>
     <string name="welcome_tut_actions">Hızlı kontroller. Aynı yerde, %1$s altından ayarlayabilirsiniz</string>
     <string name="welcome_tut_map">Rota planlamak, adım adım yönlendirme almak veya grup sürüşünde canlı konumunuzu paylaşmak için navigatörü açın</string>
     <string name="welcome_tut_gps">Canlı veri görünümü için dokunun; GPS hızına göre teker hızınızı bile kalibre edebilirsiniz. Kalibrasyonu daha sonra Ayarlar → %1$s kısmından kontrol edin</string>
@@ -1019,7 +1019,7 @@
     <string name="alarm_metric_motor_temp">Motor sıcaklığı</string>
     <string name="alarm_metric_pwm">PWM</string>
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
-    <string name="alarm_metric_voltage">Gerilim</string>
+    <string name="alarm_metric_voltage">Voltaj</string>
     <string name="alarm_metric_current">Akım</string>
     <string name="alarm_metric_torque">Tork</string>
     <string name="alarm_metric_phase_current">Faz akımı</string>
@@ -1079,7 +1079,7 @@
     <string name="metric_max">MAKS</string>
     <string name="metric_battery">Batarya</string>
     <string name="metric_temperature">Sıcaklık</string>
-    <string name="metric_voltage">Gerilim</string>
+    <string name="metric_voltage">Voltaj</string>
     <string name="metric_current">Akım</string>
     <string name="metric_load">PWM</string>
     <string name="metric_speed">Hız</string>
@@ -1121,7 +1121,7 @@
     <string name="recording_summary_energy">Enerji</string>
     <string name="recording_summary_consumption">Tüketim</string>
     <string name="recording_summary_battery">Batarya (-%%%1$d)</string>
-    <string name="recording_summary_voltage">Gerilim</string>
+    <string name="recording_summary_voltage">Voltaj</string>
     <string name="recording_summary_avg_moving">Ort. seyir</string>
     <string name="trip_chart_legend_gps">GPS</string>
     <string name="trip_chart_legend_ext">Harici</string>
@@ -1136,7 +1136,7 @@
     <string name="recording_chart_battery" formatted="false">Batarya (%)</string>
     <string name="recording_chart_battery_envelope" formatted="false">Batarya zarfı (%)</string>
     <string name="recording_chart_temp">Sıcaklık (%1$s)</string>
-    <string name="recording_chart_voltage">Gerilim (V)</string>
+    <string name="recording_chart_voltage">Voltaj (V)</string>
     <string name="recording_chart_current">Akım (A)</string>
     <string name="recording_chart_pwm" formatted="false">PWM (%)</string>
     <string name="recording_chart_torque">Tork (Nm)</string>
@@ -1620,7 +1620,7 @@
     <string name="studio_metric_speed">Hız</string>
     <string name="studio_metric_battery">Batarya</string>
     <string name="studio_metric_temperature">Sıcaklık</string>
-    <string name="studio_metric_voltage">Gerilim</string>
+    <string name="studio_metric_voltage">Voltaj</string>
     <string name="studio_metric_current">Akım</string>
     <string name="studio_metric_phase_current">Faz akımı</string>
     <string name="studio_metric_torque">Tork</string>
@@ -2024,7 +2024,7 @@
     <string name="charging_cells_max">Maks</string>
     <string name="charging_cells_min">Min</string>
     <string name="charging_cells_pack_n">Paket %1$d</string>
-    <string name="charging_cells_waiting">Hücre gerilimi verileri bekleniyor…</string>
+    <string name="charging_cells_waiting">Hücre voltajı verileri bekleniyor…</string>
     <string name="charging_tab_cells">Hücreler</string>
     <string name="scan_bluetooth_off_body">Teker aramak için Bluetooth\'u açın.</string>
     <string name="scan_bluetooth_off_title">Bluetooth kapalı</string>
@@ -2063,7 +2063,7 @@
     <string name="charging_stat_power">Güç</string>
     <string name="charging_stat_rate">Hız</string>
     <string name="charging_stat_temp">Sıcaklık</string>
-    <string name="charging_stat_voltage">Gerilim</string>
+    <string name="charging_stat_voltage">Voltaj</string>
     <string name="charging_tab_charge">Şarj</string>
     <string name="charging_tab_packs">Paketler</string>
     <string name="charging_tab_power">Güç</string>
@@ -2162,7 +2162,7 @@
     <string name="adv_charging_cv_taper">Son daralma</string>
     <string name="adv_charging_cv_taper_desc">Tam doluma kadar son bölümün tahmini süresinin ne kadar kötümser olduğunu belirler. Yüksek değer pay ekler.</string>
     <string name="adv_charging_median">Yumuşatma örnekleri</string>
-    <string name="adv_charging_median_desc">Gerilim sıçramalarını ayıklamak için kaç örneğin medyan filtreden geçtiğini belirler. Tek sayı kullanın.</string>
+    <string name="adv_charging_median_desc">Voltaj sıçramalarını ayıklamak için kaç örneğin medyan filtreden geçtiğini belirler. Tek sayı kullanın.</string>
     <string name="adv_cell_low_warn">Hücre düşük, uyarı</string>
     <string name="adv_cell_low_warn_desc">Bir hücrenin sarıya dönmeden önce paket medyanının ne kadar altına düşebileceği.</string>
     <string name="adv_cell_low_danger">Hücre düşük, tehlike</string>
@@ -2522,7 +2522,7 @@
     <string name="widget_metric_trip">Sürüş mesafesi</string>
     <string name="widget_metric_odo">Toplam mesafe</string>
     <string name="widget_metric_battery">Şarj</string>
-    <string name="widget_metric_voltage">Gerilim</string>
+    <string name="widget_metric_voltage">Voltaj</string>
     <string name="widget_metric_temp">Sıcaklık</string>
     <string name="widget_metric_pwm">PWM</string>
     <string name="widget_metric_current">Akım</string>

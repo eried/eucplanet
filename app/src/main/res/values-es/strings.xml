@@ -543,7 +543,7 @@
     <string name="hud_app_resend_body">El HUD ya tiene esta versión. ¿Enviarla de todos modos?</string>
     <string name="hud_app_remove_title">¿Desinstalar la app del HUD?</string>
     <string name="hud_app_remove_body">El HUD pedirá desinstalarla. Para instalarla otra vez hace falta un cable.</string>
-    <string name="hud_app_failed">No se pudo conectar con el HUD. Inténtalo de nuevo.</string>
+    <string name="hud_app_failed">No se ha podido conectar con el HUD. Inténtalo de nuevo.</string>
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">General</string>
     <string name="section_watch_display">Pantalla</string>
@@ -1312,12 +1312,12 @@
     <string name="online_upload_register_action">Registrarse</string>
     <string name="online_upload_register_error">El registro ha fallado. Comprueba la conexión e inténtalo de nuevo.</string>
     <!-- %1$s = the server's raw reason (e.g. display_name_taken), %2$d = HTTP status code -->
-    <string name="online_upload_register_server_error">El registro ha fallado. El servidor respondió: %1$s (%2$d)</string>
+    <string name="online_upload_register_server_error">El registro ha fallado. El servidor ha respondido: %1$s (%2$d)</string>
 
     <!-- Online stats toggle + rider card (Task E3) -->
     <string name="section_online_stats">Clasificaciones online</string>
     <string name="online_upload_card_loading">Cargando…</string>
-    <string name="online_upload_card_unavailable">No se pudo cargar</string>
+    <string name="online_upload_card_unavailable">No se ha podido cargar</string>
     <string name="online_profile_retry">Reintentar</string>
     <string name="online_upload_card_missing">El perfil de este móvil ya no existe en el servidor de la clasificación, así que se rechazarán las nuevas subidas. Si no lo esperabas, contacta con el administrador de la clasificación.</string>
     <string name="online_upload_actions_caption">Subidas de estadísticas de viajes.</string>
@@ -1370,12 +1370,12 @@
     <string name="studio_grant">Conceder acceso</string>
     <string name="studio_camera_permission">Se necesita acceso a la cámara para las vistas</string>
     <string name="studio_photo_saved">Foto guardada en la galería</string>
-    <string name="studio_photo_failed">No se pudo guardar la foto</string>
+    <string name="studio_photo_failed">No se ha podido guardar la foto</string>
     <string name="studio_recording_saved">Grabación guardada en la galería</string>
-    <string name="studio_recording_failed">No se pudo guardar la grabación</string>
-    <string name="studio_image_failed">No se pudo cargar esa imagen</string>
+    <string name="studio_recording_failed">No se ha podido guardar la grabación</string>
+    <string name="studio_image_failed">No se ha podido cargar esa imagen</string>
     <string name="studio_preset_saved">Preset guardado</string>
-    <string name="studio_preset_failed">No se pudo guardar el preset</string>
+    <string name="studio_preset_failed">No se ha podido guardar el preset</string>
     <string name="studio_no_folder">Configura primero una carpeta de copias para guardar presets</string>
     <string name="studio_your_presets_empty">Aún no hay presets guardados. Guarda tu diseño actual para añadir uno.</string>
 
@@ -1387,7 +1387,7 @@
     <string name="studio_dlg_cancel_render_dismiss">Seguir renderizando</string>
     <string name="studio_replay_clip_saved">Clip de repetición guardado</string>
     <string name="studio_replay_render_cancelled">Renderizado cancelado</string>
-    <string name="studio_replay_export_failed">No se pudo exportar la repetición</string>
+    <string name="studio_replay_export_failed">No se ha podido exportar la repetición</string>
 
     <!-- Studio: replay output-format chooser -->
     <string name="studio_export_format">Formato de salida</string>
@@ -1496,7 +1496,7 @@
     <string name="studio_viewport_choose_image">Elegir</string>
     <string name="studio_viewport_replace_image">Reemplazar</string>
     <string name="studio_viewport_clear_image">Borrar</string>
-    <string name="studio_camera_none">No se detectaron cámaras en este dispositivo.</string>
+    <string name="studio_camera_none">No se han detectado cámaras en este dispositivo.</string>
     <string name="studio_camera_limit">Android limita el número de flujos de cámara; con dos cámaras en uso las demás quedan desactivadas.</string>
 
     <!-- Studio: background editor -->
@@ -1737,9 +1737,9 @@
     <string name="nav_route_failed">Servicio de rutas no disponible, se usan líneas rectas</string>
     <string name="nav_cant_add_while_running">No se puede añadir una parada con la navegación activa</string>
     <string name="nav_search_no_results">Sin resultados para esa dirección</string>
-    <string name="nav_save_failed">No se pudo guardar la ruta</string>
+    <string name="nav_save_failed">No se ha podido guardar la ruta</string>
     <string name="nav_route_saved">Ruta guardada</string>
-    <string name="nav_load_failed">No se pudo leer ese archivo GPX</string>
+    <string name="nav_load_failed">No se ha podido leer ese archivo GPX</string>
     <string name="nav_remove_stop">Quitar parada</string>
     <string name="nav_drag_stop">Reordenar</string>
     <string name="nav_default_route_name">Mi ruta</string>
@@ -1958,7 +1958,7 @@
     <!-- ==== Dashboard quick menus ==== -->
     <string name="dash_view_video_gallery">Ver galería de vídeos</string>
     <string name="dash_view_photo_gallery">Ver galería de fotos</string>
-    <string name="dash_no_gallery_app">No se encontró ninguna app de galería</string>
+    <string name="dash_no_gallery_app">No se ha encontrado ninguna app de galería</string>
     <string name="studio_group_data">Datos</string>
     <string name="studio_group_text">Texto e info</string>
     <string name="studio_group_media">Cámara e imágenes</string>
@@ -2123,7 +2123,7 @@
     <string name="nav_poi_store">Comercios</string>
     <string name="nav_poi_type">Tipo</string>
     <string name="nav_poi_website">Sitio web</string>
-    <string name="nav_pois_failed">No se pudieron cargar los lugares. Comprueba tu conexión</string>
+    <string name="nav_pois_failed">No se han podido cargar los lugares. Comprueba tu conexión</string>
     <string name="nav_pois_none">No hay nada cerca de esta ruta</string>
     <string name="nav_setting_advanced_map">Funciones avanzadas del mapa</string>
     <string name="nav_setting_advanced_map_desc">Muestra cargadores y lugares a lo largo de la ruta.</string>
@@ -2133,7 +2133,7 @@
     <string name="nav_setting_avoid_hint">Para evitar algo se usa otro servicio de rutas, y solo se aplica donde el modo de viaje lo admite.</string>
     <string name="nav_setting_avoid_tolls">Evitar peajes</string>
     <string name="nav_setting_avoid_unpaved">Evitar caminos sin asfaltar</string>
-    <string name="nav_avoid_router_failed">La ruta no tiene en cuenta lo que quieres evitar: su servicio de rutas no respondió.</string>
+    <string name="nav_avoid_router_failed">La ruta no tiene en cuenta lo que quieres evitar: su servicio de rutas no ha respondido.</string>
     <string name="nav_setting_ocm_key">Clave de API de Open Charge Map</string>
     <string name="nav_setting_ocm_key_hint">Añade reseñas, fotos y detalles de conectores a la ficha del cargador. Consigue una clave gratuita en</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>
@@ -2142,7 +2142,7 @@
     <string name="nav_show_chargers">Mostrar cargadores</string>
     <string name="nav_show_places">Mostrar lugares (tiendas, comida, turismo)</string>
     <string name="dropbox_link_ok">Dropbox vinculado</string>
-    <string name="dropbox_link_failed">No se pudo vincular Dropbox. Comprueba tu conexión e inténtalo de nuevo</string>
+    <string name="dropbox_link_failed">No se ha podido vincular Dropbox. Comprueba tu conexión e inténtalo de nuevo</string>
     <string name="adv_alarm_buffer_max">Historial de tendencia</string>
     <string name="adv_alarm_buffer_max_desc">Tiempo que se guardan las muestras para la tendencia. Déjalo algo más largo que la ventana de tendencia.</string>
     <string name="adv_alarm_min_samples">Muestras mínimas</string>
@@ -2161,7 +2161,7 @@
     <string name="adv_automation_light_check">Intervalo de comprobación de luz automática</string>
     <string name="adv_automation_light_check_desc">Determina cada cuánto comprueban las luces automáticas el amanecer y el atardecer. Cuidado: si es muy bajo, hace algo más de trabajo.</string>
     <string name="adv_charging_cv_taper">Atenuación final</string>
-    <string name="adv_charging_cv_taper_desc">Lo pesimista que es la ETA del tramo final hasta el 100 %. Un valor más alto añade margen.</string>
+    <string name="adv_charging_cv_taper_desc">Lo pesimista que es la estimación del tramo final hasta el 100 %. Un valor más alto añade margen.</string>
     <string name="adv_charging_median">Muestras de suavizado</string>
     <string name="adv_charging_median_desc">Muestras que se filtran por mediana para descartar picos de voltaje. Usa un número impar.</string>
     <string name="adv_cell_low_warn">Celda baja: aviso</string>
@@ -2172,17 +2172,17 @@
     <string name="adv_cell_high_desc">Cuánto puede subir una celda sobre la mediana del pack antes de ponerse azul.</string>
     <string name="adv_pack_balance_tol">Tolerancia de equilibrio del pack</string>
     <string name="adv_pack_balance_tol_desc">Cuánto puede alejarse un pack de la mediana antes de dejar el verde equilibrado, para la vista de packs solo con porcentaje.</string>
-    <string name="adv_charging_sanity_cap">ETA máxima</string>
-    <string name="adv_charging_sanity_cap_desc">ETA máxima que se muestra. Por encima de este valor se trata como aún no disponible.</string>
+    <string name="adv_charging_sanity_cap">Tiempo máximo</string>
+    <string name="adv_charging_sanity_cap_desc">Tiempo estimado más alto que se muestra. Por encima de este valor se trata como aún no disponible.</string>
     <string name="adv_charging_target_pct">Porcentaje objetivo</string>
     <string name="adv_charging_target_pct_desc">Nivel de carga en el que la estimación pasa a la fase final, más lenta.</string>
     <string name="adv_charging_target_taper">Atenuación del objetivo</string>
-    <string name="adv_charging_target_taper_desc">Lo pesimista que es la ETA hasta el nivel objetivo. Un valor más alto añade margen.</string>
+    <string name="adv_charging_target_taper_desc">Lo pesimista que es la estimación hasta el nivel objetivo. Un valor más alto añade margen.</string>
     <string name="adv_charging_warmup_dur">Tiempo de calentamiento</string>
-    <string name="adv_charging_warmup_dur_desc">Tiempo que debe pasar cargando antes de mostrar la primera ETA. Cuidado: si es muy bajo, la estimación inicial da saltos.</string>
+    <string name="adv_charging_warmup_dur_desc">Tiempo que debe pasar cargando antes de mostrar la primera estimación. Cuidado: si es muy bajo, la estimación inicial da saltos.</string>
     <string name="adv_charging_warmup_gain">Ganancia de calentamiento</string>
-    <string name="adv_charging_warmup_gain_desc">Carga que debe ganarse antes de mostrar la primera ETA.</string>
-    <string name="adv_charging_warning">Ajustan la estimación del tiempo hasta la carga completa. Los valores erróneos dan una ETA engañosa, pero nunca afectan a la carga en sí.</string>
+    <string name="adv_charging_warmup_gain_desc">Carga que debe ganarse antes de mostrar la primera estimación.</string>
+    <string name="adv_charging_warning">Ajustan la estimación del tiempo hasta la carga completa. Los valores erróneos dan una estimación engañosa, pero nunca afectan a la carga en sí.</string>
     <string name="adv_charging_window">Ventana de ritmo</string>
     <string name="adv_charging_window_desc">Cantidad de historial reciente que define el ritmo de carga. Cuidado: si es muy corto, es inestable; si es muy largo, reacciona despacio.</string>
     <string name="adv_garmin_report_interval">Frecuencia de envío a Garmin</string>
@@ -2191,7 +2191,7 @@
     <string name="adv_graph_sample_interval_desc">No afecta a las alarmas ni a los archivos de viaje. Cuidado: si es muy bajo, usa más memoria.</string>
     <string name="adv_group_alarm">Alarmas predictivas</string>
     <string name="adv_group_autolights">Luces automáticas</string>
-    <string name="adv_group_charging">ETA de carga</string>
+    <string name="adv_group_charging">Tiempo de carga</string>
     <string name="adv_group_hud">Enlace HUD</string>
     <string name="adv_group_nav">Tiempos de navegación</string>
     <string name="adv_group_nav_behaviour">Comportamiento de navegación</string>
@@ -2477,14 +2477,14 @@
     <string name="widget_placeholder_value">--</string>
     <string name="widget_description">Métricas y acciones rápidas</string>
     <string name="trip_section_saved">Tramo guardado como viaje nuevo</string>
-    <string name="trip_section_failed">No se pudo guardar el tramo</string>
+    <string name="trip_section_failed">No se ha podido guardar el tramo</string>
     <string name="trip_tools_title">Herramientas del viaje</string>
     <string name="trip_tools_change_wheel">Cambiar rueda</string>
     <string name="trip_tools_change_wheel_desc">Corrige con qué rueda hiciste este viaje. Actualiza el viaje y su archivo.</string>
     <string name="trip_tools_wheel_other">Otra rueda</string>
     <string name="trip_tools_split">Dividir viaje</string>
     <string name="trip_tools_split_desc">Busca cambios de rueda, pausas largas y huecos en la grabación, y corta el viaje ahí.</string>
-    <string name="trip_tools_split_none">Nada que dividir. No se encontraron cambios de rueda, pausas largas ni huecos.</string>
+    <string name="trip_tools_split_none">Nada que dividir. No se han encontrado cambios de rueda, pausas largas ni huecos.</string>
     <string name="trip_split_reason_wheel">Otra rueda tomó el relevo</string>
     <string name="trip_split_reason_gap">Hueco en la grabación</string>
     <string name="trip_split_reason_stopped">Parado mucho tiempo</string>
@@ -2495,9 +2495,9 @@
     <string name="trip_tools_split_pick">Elige al menos un punto de corte.</string>
 <string name="trip_tools_split_hint">Elige dónde cortar. Se crean %1$d viajes y se conserva el original.</string>
     <string name="trip_tools_split_done">Dividido en %1$d viajes</string>
-    <string name="trip_tools_split_failed">No se pudo dividir este viaje</string>
+    <string name="trip_tools_split_failed">No se ha podido dividir este viaje</string>
     <string name="trip_tools_combine_done">Viajes combinados en uno nuevo</string>
-    <string name="trip_tools_combine_failed">No se pudieron combinar esos viajes</string>
+    <string name="trip_tools_combine_failed">No se han podido combinar esos viajes</string>
     <string name="trip_tools_wheel_current">Actual</string>
     <string name="trip_tools_combine_summary">Combina %1$d viajes en uno nuevo.</string>
     <string name="phone_hud_desc">Muestra un diseño de Overlay Studio encima de otras apps, para ver tu rueda mientras usas mapas o música.</string>
@@ -2619,7 +2619,7 @@
     <string name="trip_tools_rename_desc">Ponle nombre a este viaje. Se guarda en su archivo, así que se conserva al exportar y sincronizar.</string>
     <string name="trip_tools_rename_hint">Déjalo vacío para usar la fecha.</string>
     <string name="trip_tools_archived">Archivados: %1$d</string>
-    <string name="trip_tools_archive_failed">Algunos viajes no se pudieron archivar y siguen aquí</string>
+    <string name="trip_tools_archive_failed">Algunos viajes no se han podido archivar y siguen aquí</string>
     <string name="recording_delete_archive">Archivar las copias de seguridad</string>
     <string name="recording_delete_archive_desc">Las mueve a una carpeta de archivo.</string>
     <string name="trip_tools_extend_all_inside">Los viajes de alrededor ya forman parte de este.</string>

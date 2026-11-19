@@ -1278,7 +1278,7 @@
     <string name="trip_meter_active">Aktív</string>
     <string name="trip_meter_avg">Átl</string>
     <string name="trip_meter_reset">Menetszámláló nullázása</string>
-    <string name="trip_meter_reset_msg">Nullázza az eddig megtett távolságot, és törli az összes részidőt. Ezt nem lehet visszavonni.</string>
+    <string name="trip_meter_reset_msg">Nullázza az eddig megtett távolságot, és törli az összes szakaszt. Ezt nem lehet visszavonni.</string>
     <string name="trip_meter_empty">Még nincs távolság. A számláló akkor számol, ha egykerekű van csatlakoztatva.</string>
     <string name="trip_meter_partial">Most</string>
     <string name="trip_meter_col_split">#</string>

@@ -75,7 +75,7 @@
     <!-- Experimental banner -->
     <string name="experimental_banner">Predbežne podporované koleso. Klepnutím nahlásite problémy.</string>
     <string name="experimental_dialog_title">Pomôžte vylepšiť EUC Planet</string>
-    <string name="experimental_dialog_body">Podpora tohto kolesa je predbežná, autor overil iba rad InMotion V14 / V12 / P6. KingSong, Veteran, Begode, Ninebot a staršie modely InMotion sú v režime Ukážka a potrebujú otestovanie jazdcami. Používajte opatrne.\n\nKlepnutím na tento pruh nahlásite problém, aby autor mohol opraviť, čo nefunguje.</string>
+    <string name="experimental_dialog_body">Podpora tohto kolesa je predbežná, autor overil iba rad InMotion V14 / V12 / P6. KingSong, Veteran, Begode, Ninebot a staršie modely InMotion sú v režime Ukážka a potrebujú otestovanie jazdcami. Používajte opatrne.\n\nKlepnutím na tento oznam nahlásite problém, aby autor mohol opraviť, čo nefunguje.</string>
     <string name="experimental_dialog_report">Nahlásiť problém</string>
 
     <!-- Scan: virtual wheel section (Service Mode only) -->

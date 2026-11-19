@@ -771,7 +771,7 @@
     <string name="cloud_remove_folder">Desassociar</string>
     <string name="cloud_folder_label">Pasta: %1$s</string>
     <string name="section_cloud_settings">Cópia das definições</string>
-    <string name="cloud_backup_now">Copiar</string>
+    <string name="cloud_backup_now">Fazer cópia</string>
     <string name="cloud_restore">Restaurar</string>
     <string name="cloud_settings_backup_desc">As suas definições e regras de alarme, gravadas em eucplanet_settings.json na sua pasta de cópias. Mantenha o botão premido para guardar uma cópia com nome ao lado.</string>
     <string name="cloud_last_backup">Última cópia: %1$s</string>

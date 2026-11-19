@@ -70,7 +70,7 @@
     <string name="experimental_dialog_body">Hỗ trợ cho xe này mới ở mức sơ bộ, tác giả chỉ kiểm chứng dòng InMotion V14 / V12 / P6. KingSong, Veteran, Begode, Ninebot và các mẫu InMotion cũ hơn ở dạng Xem trước và cần người chạy xe thử nghiệm. Hãy dùng cẩn thận.\n\nChạm vào biểu ngữ này để gửi báo cáo lỗi, giúp tác giả sửa những gì chưa chạy.</string>
     <string name="experimental_dialog_report">Báo cáo lỗi</string>
     <string name="scan_simulate_title">Xe ảo</string>
-    <string name="scan_simulate_subtitle">Bỏ qua BLE, dùng phản hồi dựng sẵn. Chỉ trong Chế độ dịch vụ.</string>
+    <string name="scan_simulate_subtitle">Bỏ qua BLE, dùng phản hồi dựng sẵn. Chỉ trong Chế độ bảo trì.</string>
     <string name="connection_connected">Đã kết nối</string>
     <string name="connection_connecting">Đang tìm…</string>
     <string name="connection_initializing">Đang khởi tạo…</string>
@@ -426,7 +426,7 @@
     <string name="action_chip_open_navigation">Hiện bản đồ</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
     <string name="action_chip_open_about">Giới thiệu</string>
-    <string name="action_chip_open_service">Chế độ dịch vụ</string>
+    <string name="action_chip_open_service">Chế độ bảo trì</string>
     <string name="action_chip_open_trips">Chuyến đi</string>
     <string name="action_chip_open_charging">Theo dõi pin</string>
     <string name="action_chip_open_weather">Thời tiết</string>
@@ -1630,9 +1630,9 @@
     <string name="about_thanks">Ghi công</string>
     <string name="about_thanks_body">Tôi chán ngấy những ứng dụng EUC phát triển quá chậm, giao diện lỗi thời, có những quy định khắt khe với tính năng mới, coi cộng đồng như khách hàng, và quên rằng người chạy xe EUC tuyệt vời nhất khi giúp đỡ lẫn nhau. Ứng dụng này cố gắng làm điều ngược lại.</string>
     <string name="about_license">Giấy phép</string>
-    <string name="service_mode_title">Chế độ dịch vụ</string>
-    <string name="service_mode_caution">THẬN TRỌNG: Dùng Chế độ dịch vụ sai cách có thể làm xe mất chức năng, gây thương tích nghiêm trọng hoặc tử vong</string>
-    <string name="service_mode_purpose">Chế độ dịch vụ dành cho kỹ thuật viên EUC có chuyên môn để chẩn đoán, sửa chữa, hiệu chỉnh và nghiên cứu giao thức</string>
+    <string name="service_mode_title">Chế độ bảo trì</string>
+    <string name="service_mode_caution">THẬN TRỌNG: Dùng Chế độ bảo trì sai cách có thể làm xe mất chức năng, gây thương tích nghiêm trọng hoặc tử vong</string>
+    <string name="service_mode_purpose">Chế độ bảo trì dành cho kỹ thuật viên EUC có chuyên môn để chẩn đoán, sửa chữa, hiệu chỉnh và nghiên cứu giao thức</string>
     <string name="service_mode_recording">Khi đang bật, ứng dụng ghi lại mọi byte BLE gửi đến và nhận từ xe cùng mọi lệnh thử bạn gửi. Nhật ký nằm trong bộ nhớ cho đến khi đóng ứng dụng.</string>
     <string name="service_mode_link">Truy cập eucplanet.ried.no/service để biết thêm thông tin.</string>
     <string name="service_mode_enter">Vào</string>
@@ -2497,7 +2497,7 @@
     <string name="lockdown_limit_4">Dẫn đường dừng lại và không thể bắt đầu lộ trình.</string>
     <string name="lockdown_limit_5">Lớp phủ nổi bị ẩn.</string>
     <string name="lockdown_limit_6">Tiện ích màn hình chính ngừng cập nhật.</string>
-    <string name="lockdown_limit_7">Chế độ dịch vụ và ghi chẩn đoán dừng lại.</string>
+    <string name="lockdown_limit_7">Chế độ bảo trì và ghi chẩn đoán dừng lại.</string>
     <string name="lockdown_limit_8">Dashboard được thay bằng màn hình cố định: đồng hồ tốc độ, sáu chỉ số, bốn nút.</string>
     <string name="lockdown_limit_9">Màn hình sẽ không xoay.</string>
     <string name="lockdown_limit_10">Không thể mở Cài đặt.</string>

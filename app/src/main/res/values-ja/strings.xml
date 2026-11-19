@@ -83,7 +83,7 @@
     <string name="connection_connecting">検索中…</string>
     <string name="connection_initializing">初期化中…</string>
     <string name="connection_scanning">スキャン中…</string>
-    <string name="connection_disconnected">切断済み</string>
+    <string name="connection_disconnected">未接続</string>
     <string name="connection">接続</string>
     <string name="settings">設定</string>
     <string name="disconnect">切断</string>
@@ -799,7 +799,7 @@
     <string name="welcome_tut_camera">ライブテレメトリーを重ねて動画を撮影。凝ったオーバーレイを自作してエクスポートすれば、過去のトリップのデータで自分だけの動画も作れます</string>
     <string name="welcome_tut_pd">パークかドライブかを表示。タップで %1$s を設定</string>
     <string name="voice_selector_label">言語</string>
-    <string name="voice_speech_speed">話速</string>
+    <string name="voice_speech_speed">読み上げ速度</string>
     <string name="unit_x">x</string>
     <string name="voice_audio_focus_label">音声再生中</string>
     <string name="voice_audio_focus_duck">他を下げる</string>
@@ -920,7 +920,7 @@
     <string name="external_gps_paired_with">%1$s とペアリング済み</string>
     <string name="external_gps_state_connected">接続済み</string>
     <string name="external_gps_state_connecting">接続中…</string>
-    <string name="external_gps_state_disconnected">切断済み</string>
+    <string name="external_gps_state_disconnected">未接続</string>
     <string name="external_gps_reconnect">再接続</string>
     <string name="external_gps_disconnect">切断</string>
     <string name="external_gps_unpair">デバイスの登録を解除</string>
@@ -963,7 +963,7 @@
     <string name="radar_stop_scan">スキャン停止</string>
     <string name="radar_state_connected">接続済み</string>
     <string name="radar_state_connecting">接続中…</string>
-    <string name="radar_state_disconnected">切断済み</string>
+    <string name="radar_state_disconnected">未接続</string>
     <string name="radar_reconnect">再接続</string>
     <string name="radar_disconnect">切断</string>
     <string name="radar_unpair">デバイスの登録を解除</string>

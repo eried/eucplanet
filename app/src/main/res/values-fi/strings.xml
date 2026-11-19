@@ -965,7 +965,7 @@
     <string name="announce_wheel_lock">Yksipyöräisen lukitus / avaus</string>
     <string name="announce_lights">Valot päälle / pois</string>
     <string name="announce_recording">Matkan tallennus</string>
-    <string name="announce_connection">Yksipyöräinen yhdistetty / irrotettu</string>
+    <string name="announce_connection">Yksipyöräinen yhdistetty / yhteys katkesi</string>
     <string name="announce_gps">GPS-signaali katkennut / palannut</string>
     <string name="announce_legal_mode">Laillinen tila päälle / pois</string>
     <string name="announce_welcome">Tervetuloviesti sovelluksen käynnistyessä</string>
@@ -2330,7 +2330,7 @@
     <string name="studio_cfg_unit_position">Yksikkö</string>
     <string name="studio_cfg_unit_left">Ennen arvoa</string>
     <string name="studio_cfg_unit_right">Arvon jälkeen</string>
-    <string name="studio_cfg_dial_style">Mittari</string>
+    <string name="studio_cfg_dial_style">Viisari</string>
     <string name="studio_cfg_dial_full">Ympyrä</string>
     <string name="studio_cfg_dial_semi">Puolikas</string>
     <string name="studio_cfg_dial_color_band">Värikaista</string>

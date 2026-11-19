@@ -1663,7 +1663,7 @@
 
     <!-- Navigator -->
     <string name="nav_open">Abrir navegador</string>
-    <string name="nav_title">Construtor de rotas</string>
+    <string name="nav_title">Montar rota</string>
     <string name="nav_search_hint">Buscar</string>
     <string name="nav_search_offline">A busca precisa de sinal. Toque no mapa ou escolha Casa ou Trabalho.</string>
     <string name="nav_searching">Buscando…</string>

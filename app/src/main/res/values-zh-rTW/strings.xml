@@ -76,7 +76,7 @@
 
     <!-- Scan: virtual wheel section (debug builds only) -->
     <string name="scan_simulate_title">虛擬獨輪車</string>
-    <string name="scan_simulate_subtitle">略過 BLE，改用預錄回應。僅限服務模式。</string>
+    <string name="scan_simulate_subtitle">略過 BLE，改用預錄回應。僅限維修模式。</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">已連線</string>
@@ -461,7 +461,7 @@
     <string name="action_chip_open_navigation">顯示地圖</string>
     <string name="action_chip_open_studio">疊加層工作室</string>
     <string name="action_chip_open_about">關於</string>
-    <string name="action_chip_open_service">服務模式</string>
+    <string name="action_chip_open_service">維修模式</string>
     <string name="action_chip_open_trips">行程</string>
     <string name="action_chip_open_charging">電池監控</string>
     <string name="action_chip_open_weather">天氣</string>
@@ -471,7 +471,7 @@
     <!-- Watch companion settings: shared across Wear OS + Garmin -->
     <string name="section_watch_device">裝置</string>
     <string name="watch_paired_none">尚未配對手錶</string>
-    <string name="watch_paired_none_desc">在 Wear OS、Garmin 或 Amazfit 手錶上安裝 EUC Planet 隨附應用程式，即可在這裡收到錶盤。</string>
+    <string name="watch_paired_none_desc">在 Wear OS、Garmin 或 Amazfit 手錶上安裝 EUC Planet 手錶版應用程式，即可在這裡收到錶盤。</string>
     <string name="watch_paired_kind_wear">Wear OS</string>
     <string name="watch_paired_kind_garmin">Garmin Connect IQ</string>
     <string name="watch_paired_kind_amazfit">Amazfit (Zepp OS)</string>
@@ -1275,9 +1275,9 @@
     <string name="about_thanks">致謝</string>
     <string name="about_thanks_body">我受夠了那些 EUC 應用程式：更新太慢、介面老舊、加個新功能規矩一堆、把社群當顧客，還忘了 EUC 騎士互相幫忙的時候最棒。這款想反著來。</string>
     <string name="about_license">授權條款</string>
-    <string name="service_mode_title">服務模式</string>
-    <string name="service_mode_caution">注意：不當使用服務模式可能導致獨輪車功能喪失、嚴重受傷甚至死亡</string>
-    <string name="service_mode_purpose">服務模式專供合格的 EUC 技術人員進行診斷、維修、校準和通訊協定研究</string>
+    <string name="service_mode_title">維修模式</string>
+    <string name="service_mode_caution">注意：不當使用維修模式可能導致獨輪車功能喪失、嚴重受傷甚至死亡</string>
+    <string name="service_mode_purpose">維修模式專供合格的 EUC 技術人員進行診斷、維修、校準和通訊協定研究</string>
     <string name="service_mode_recording">啟用期間，應用程式會記錄與獨輪車之間收發的每個 BLE 位元組，以及你送出的所有測試指令。記錄保存在記憶體中，直到應用程式關閉為止。</string>
     <string name="service_mode_link">詳情請至 eucplanet.ried.no/service 查看。</string>
     <string name="service_mode_enter">進入</string>
@@ -1376,12 +1376,12 @@
 
     <!-- Studio: render progress overlay -->
     <string name="studio_rendering_cancel">取消</string>
-    <string name="studio_dlg_cancel_render_title">要取消渲染嗎？</string>
+    <string name="studio_dlg_cancel_render_title">要取消輸出嗎？</string>
     <string name="studio_dlg_cancel_render_body">重播片段不會儲存。</string>
-    <string name="studio_dlg_cancel_render_confirm">取消渲染</string>
-    <string name="studio_dlg_cancel_render_dismiss">繼續渲染</string>
+    <string name="studio_dlg_cancel_render_confirm">取消輸出</string>
+    <string name="studio_dlg_cancel_render_dismiss">繼續輸出</string>
     <string name="studio_replay_clip_saved">重播片段已儲存</string>
-    <string name="studio_replay_render_cancelled">渲染已取消</string>
+    <string name="studio_replay_render_cancelled">輸出已取消</string>
     <string name="studio_replay_export_failed">重播匯出失敗</string>
 
     <!-- Studio: replay output-format chooser -->
@@ -2326,7 +2326,7 @@
     <string name="studio_cd_mic">麥克風</string>
     <string name="studio_cd_photo">拍照</string>
     <string name="studio_cd_record">錄影</string>
-    <string name="studio_cd_render">渲染短片</string>
+    <string name="studio_cd_render">輸出短片</string>
     <string name="studio_cd_tools">相機工具</string>
     <string name="studio_export_status">正在匯出檔案…</string>
     <string name="studio_export_stay">留在目前畫面</string>
@@ -2660,7 +2660,7 @@
     <string name="lockdown_limit_4">導航會停止，且無法開始路線導航。</string>
     <string name="lockdown_limit_5">浮動疊加層會隱藏。</string>
     <string name="lockdown_limit_6">主畫面小工具會停止更新。</string>
-    <string name="lockdown_limit_7">服務模式和診斷記錄會停止。</string>
+    <string name="lockdown_limit_7">維修模式和診斷記錄會停止。</string>
     <string name="lockdown_limit_8">儀表板會換成固定畫面：速度錶、六項指標、四個按鈕。</string>
     <string name="lockdown_limit_9">畫面不會旋轉。</string>
     <string name="lockdown_limit_10">無法開啟設定。</string>
