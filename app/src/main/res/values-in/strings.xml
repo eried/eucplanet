@@ -112,7 +112,7 @@
     <string name="tab_auto">Otomatisasi</string>
     <string name="tab_integration">Integrasi</string>
     <string name="tab_watch">Jam tangan</string>
-    <string name="tab_cloud">Cadangan &amp; papan peringkat</string>
+    <string name="tab_cloud">Cadangan &amp; Leaderboards</string>
     <string name="tab_dashboard">Tata letak dasbor</string>
     <string name="dashboard_section_metrics">Metrik</string>
     <string name="dashboard_section_actions">Tombol tindakan</string>
@@ -808,7 +808,7 @@
     <string name="section_recording">Perekaman</string>
     <string name="section_connection">Koneksi</string>
     <string name="auto_record_caption">Merekam perjalanan saat EUC terhubung.</string>
-    <string name="auto_record_start_in_motion_caption">Mulai saat bergerak, berhenti otomatis setelah diam, mulai lagi di perjalanan berikutnya.</string>
+    <string name="auto_record_start_in_motion_caption">Mulai saat bergerak, berhenti otomatis setelah diam, mulai lagi saat Anda bergerak lagi.</string>
     <string name="auto_record_stop_idle_seconds">Berhenti setelah diam selama</string>
     <string name="auto_record_mode_label">Rekam perjalanan otomatis</string>
     <string name="auto_record_mode_never">Tidak pernah</string>
@@ -821,8 +821,8 @@
     <string name="wheel_name_brand">Merek</string>
     <string name="last_device">Perangkat terakhir: %1$s</string>
     <string name="section_application">Aplikasi</string>
-    <string name="back_button_action">Tindakan kembali</string>
-    <string name="back_button_action_desc">Yang terjadi saat Anda menggeser atau menekan kembali dari dasbor.</string>
+    <string name="back_button_action">Tombol Kembali</string>
+    <string name="back_button_action_desc">Yang terjadi saat Anda menggeser atau menekan Kembali dari dasbor.</string>
     <string name="section_screen_geometry">Geometri layar</string>
     <string name="geo_section_dashboard">Dasbor</string>
     <string name="geo_section_navigator">Navigator</string>
@@ -1109,9 +1109,9 @@
     <string name="report_navigation">Navigasi</string>
     <string name="section_flic_buttons">Tombol Flic 2</string>
     <string name="flic_show_on_dashboard">Ikon akses cepat di dasbor</string>
-    <string name="flic_scan_hint">Tahan tombol Flic 2 selama 6 detik untuk mode pemasangan, lalu ketuk Mulai pindai.</string>
+    <string name="flic_scan_hint">Tahan tombol Flic 2 selama 6 detik untuk mode pemasangan, lalu ketuk Cari perangkat.</string>
     <string name="flic_stop_scan">Stop pindai</string>
-    <string name="flic_start_scan">Mulai pindai</string>
+    <string name="flic_start_scan">Cari perangkat</string>
     <string name="flic_forget">Lupakan</string>
     <string name="flic_forget_title">Lupakan tombol ini?</string>
     <string name="flic_forget_body">Pemasangan %1$s akan dihapus.</string>
@@ -1128,7 +1128,7 @@
     <string name="tpms_none_yet">Tidak ada sensor tekanan ban yang terdeteksi atau ditambahkan manual.</string>
     <string name="tpms_wheel_sensor_replaced">Digantikan oleh sensor yang Anda pasangkan</string>
     <string name="external_gps_device_title">GPS eksternal</string>
-    <string name="external_gps_pair_button">Mulai pindai</string>
+    <string name="external_gps_pair_button">Cari perangkat</string>
     <string name="external_gps_pair_action">Pasangkan</string>
     <string name="external_gps_stop_scan">Stop pindai</string>
     <string name="external_gps_paired_with">Dipasangkan dengan %1$s</string>
@@ -1170,7 +1170,7 @@
     <string name="volume_down">Volume turun</string>
     <string name="section_radar">Radar belakang</string>
     <string name="radar_caption">Tahan tombol Varia selama 2 detik sampai berkedip ungu, lalu mulai memindai.</string>
-    <string name="radar_pair_button">Mulai pindai</string>
+    <string name="radar_pair_button">Cari perangkat</string>
     <string name="radar_pair_action">Pasangkan</string>
     <string name="radar_stop_scan">Stop pindai</string>
     <string name="radar_state_connected">Terhubung</string>
@@ -1261,7 +1261,7 @@
     <string name="flic_status_scan_failed_fmt">Pemindaian gagal (kode %1$d)</string>
     <string name="scan_title">Hubungkan ke EUC</string>
     <string name="scan_scanning">Mencari…</string>
-    <string name="scan_start">Mulai pindai</string>
+    <string name="scan_start">Cari perangkat</string>
     <string name="scan_bluetooth_off_title">Bluetooth nonaktif</string>
     <string name="scan_bluetooth_off_body">Aktifkan Bluetooth untuk memindai EUC.</string>
     <string name="scan_enable_bluetooth">Aktifkan Bluetooth</string>
@@ -1509,7 +1509,7 @@
     <string name="auto_waiting_gps">Menunggu lokasi GPS…</string>
     <string name="auto_volume_title">Kontrol volume</string>
     <string name="auto_volume_when">Naikkan volume saat</string>
-    <string name="media_control_title">Kontrol pemutaran media</string>
+    <string name="media_control_title">Kontrol musik</string>
     <string name="media_control_pause">Jeda saat saya melambat</string>
     <string name="media_control_pause_below">Jeda pada atau di bawah</string>
     <string name="media_control_resume">Lanjutkan saat saya melaju lagi</string>
@@ -1536,7 +1536,7 @@
     <string name="auto_lights_suspended">Dijeda untuk sesi ini karena Anda mengatur lampu secara manual. Perbaiki dari Perlu perhatian, atau hubungkan ulang EUC.</string>
     <string name="auto_lock_suspended">Dijeda untuk sesi ini karena Anda mengunci atau membuka kunci secara manual. Perbaiki dari Perlu perhatian, atau hubungkan ulang EUC.</string>
     <string name="alarm_help">Prioritas pemicu mengikuti urutan grup metrik di bawah.</string>
-    <string name="alarm_empty">Belum ada aturan alarm</string>
+    <string name="alarm_empty">Belum ada aturan</string>
     <string name="alarm_add">Alarm baru</string>
     <string name="alarm_summary_predict_fmt">memprediksi %1$s dtk ke depan</string>
     <string name="alarm_new">Alarm baru</string>
@@ -2063,7 +2063,7 @@
     <string name="nav_view_straight_line">garis lurus</string>
     <string name="nav_view_heading_up">Arah di atas, ketuk untuk utara di atas</string>
     <string name="nav_view_north_up">Utara di atas, ketuk untuk arah di atas</string>
-    <string name="nav_view_tiles">Kotak navigator</string>
+    <string name="nav_view_tiles">Kotak saat navigasi</string>
     <string name="nav_view_tiles_desc">4 angka di samping kecepatan saat bernavigasi.</string>
     <string name="nav_view_speed">Kecepatan</string>
     <string name="nav_layer_dark">Esri Gelap</string>
@@ -2507,7 +2507,7 @@
     <string name="lockdown_limit_12">Mengetuk metrik tidak ada efeknya.</string>
     <string name="lockdown_limit_13">Pengumuman suara, laporan berkala, dan split kecepatan dibisukan. Alarm Anda tetap berfungsi.</string>
     <string name="lockdown_limit_14">EUC tidak dapat dikunci atau dibuka kuncinya, dan kunci otomatis jarak tidak akan berjalan.</string>
-    <string name="lockdown_limit_15">Lampu otomatis dan volume otomatis tetap berfungsi. Kontrol pemutaran media berhenti.</string>
+    <string name="lockdown_limit_15">Lampu otomatis dan volume otomatis tetap berfungsi. Kontrol musik berhenti.</string>
     <string name="lockdown_limit_16">Tombol di notifikasi hilang.</string>
     <string name="lockdown_limit_17">Nomor versi tidak akan membuka Tentang.</string>
     <string name="lockdown_limit_18">Mode ini tidak termasuk dalam cadangan setelan.</string>
@@ -2668,9 +2668,9 @@
     <string name="nav_unlock_off">Menyimpang hingga %1$s dari jalur</string>
     <string name="nav_unlock_confirm">Ubah</string>
     <string name="voice_nav_place_reached">Sampai di %1$s</string>
-    <string name="offline_data_open">Area offline</string>
+    <string name="offline_data_open">Peta offline</string>
     <string name="offline_server_url">Server data offline</string>
-    <string name="offline_data_title">Area offline</string>
+    <string name="offline_data_title">Peta offline</string>
     <string name="offline_data_space">Terpakai %1$s, kosong %2$s</string>
     <string name="offline_data_tap_hint">Ketuk kotak untuk mengunduh peta dan data rutenya, atau menghapusnya.</string>
     <string name="offline_data_list_error">Tidak bisa terhubung ke server. Area yang sudah diunduh tetap berfungsi.</string>

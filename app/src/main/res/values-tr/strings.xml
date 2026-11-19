@@ -124,7 +124,7 @@
     <string name="tab_auto">Otomasyonlar</string>
     <string name="tab_integration">Entegrasyon</string>
     <string name="tab_watch">Saat</string>
-    <string name="tab_cloud">Yedekler ve lider tabloları</string>
+    <string name="tab_cloud">Yedekler ve Leaderboards</string>
 
     <!-- Dashboard layout (customizable home screen) -->
     <string name="tab_dashboard">Gösterge paneli düzeni</string>
@@ -134,7 +134,7 @@
     <string name="dashboard_pool_metrics">Mevcut metrikler</string>
     <string name="dashboard_pool_actions">Mevcut eylemler</string>
     <string name="dashboard_pool_tap_toast">Kullanmak için uzun basıp yukarıdaki bir yuvaya sürükleyin</string>
-    <string name="dashboard_stats_length">İstatistik uzunluğu</string>
+    <string name="dashboard_stats_length">İstatistikler</string>
     <string name="dashboard_view">Görünüm</string>
     <string name="dashboard_view_default">Varsayılan</string>
     <string name="dashboard_view_wide">Geniş</string>
@@ -666,7 +666,7 @@
     <string name="section_recording">Kayıt</string>
     <string name="section_connection">Bağlantı</string>
     <string name="auto_record_caption">Teker bağlandığında sürüşü kaydeder.</string>
-    <string name="auto_record_start_in_motion_caption">Hareket edince başlar, hareketsiz kalınca otomatik durur, sonraki sürüşte yeniden başlar.</string>
+    <string name="auto_record_start_in_motion_caption">Hareket edince başlar, hareketsiz kalınca otomatik durur, yeniden hareket edince tekrar başlar.</string>
     <string name="auto_record_stop_idle_seconds">Hareketsizlik süresi</string>
     <string name="auto_connect_on_start">Başlangıçta otomatik bağlan</string>
     <string name="wheel_name_display">Teker adı</string>
@@ -675,7 +675,7 @@
     <string name="wheel_name_brand">Marka</string>
     <string name="last_device">Son cihaz: %1$s</string>
     <string name="section_application">Uygulama</string>
-    <string name="back_button_action">Geri eylemi</string>
+    <string name="back_button_action">Geri tuşu</string>
     <string name="back_button_action_desc">Gösterge panelinde geri kaydırınca veya geri tuşuna basınca ne olacağı.</string>
     <string name="back_button_action_ask">Sor</string>
     <string name="back_button_action_background">Arka plan</string>
@@ -896,9 +896,9 @@
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Flic 2 düğmeleri</string>
     <string name="flic_show_on_dashboard">Gösterge panelinde hızlı erişim simgesi</string>
-    <string name="flic_scan_hint">Eşleştirme moduna almak için Flic 2 düğmesini 6 saniye basılı tutun, ardından Taramayı başlat\'a dokunun.</string>
+    <string name="flic_scan_hint">Eşleştirme moduna almak için Flic 2 düğmesini 6 saniye basılı tutun, ardından Cihazları ara\'ya dokunun.</string>
     <string name="flic_stop_scan">Taramayı durdur</string>
-    <string name="flic_start_scan">Taramayı başlat</string>
+    <string name="flic_start_scan">Cihazları ara</string>
     <string name="flic_forget">Unut</string>
     <string name="flic_forget_title">Bu düğme unutulsun mu?</string>
     <string name="flic_forget_body">%1$s eşleştirmesi kaldırılacak.</string>
@@ -916,7 +916,7 @@
     <string name="tpms_none_yet">Algılanan veya elle eklenen lastik basıncı sensörü yok.</string>
     <string name="tpms_wheel_sensor_replaced">Eşleştirdiğiniz sensörle değiştirildi</string>
     <string name="external_gps_device_title">Harici GPS</string>
-    <string name="external_gps_pair_button">Taramayı başlat</string>
+    <string name="external_gps_pair_button">Cihazları ara</string>
     <string name="external_gps_pair_action">Eşleştir</string>
     <string name="external_gps_stop_scan">Taramayı durdur</string>
     <string name="external_gps_paired_with">%1$s ile eşleştirildi</string>
@@ -960,7 +960,7 @@
     <!-- Rear-view radar (Garmin Varia today) -->
     <string name="section_radar">Arka görüş radarı</string>
     <string name="radar_caption">Varia düğmesini mor yanıp sönene kadar 2 saniye basılı tutun, ardından tarama başlatın.</string>
-    <string name="radar_pair_button">Taramayı başlat</string>
+    <string name="radar_pair_button">Cihazları ara</string>
     <string name="radar_pair_action">Eşleştir</string>
     <string name="radar_stop_scan">Taramayı durdur</string>
     <string name="radar_state_connected">Bağlandı</string>
@@ -1069,7 +1069,7 @@
     <!-- Scan screen -->
     <string name="scan_title">Tekere bağlan</string>
     <string name="scan_scanning">Aranıyor…</string>
-    <string name="scan_start">Taramayı başlat</string>
+    <string name="scan_start">Cihazları ara</string>
     <string name="scan_show_all_title">Tüm cihazları göster</string>
     <string name="scan_show_all_subtitle">Tekeriniz görünmüyorsa açın.</string>
 
@@ -1160,7 +1160,7 @@
     <string name="auto_waiting_gps">GPS konumu bekleniyor…</string>
     <string name="auto_volume_title">Ses denetimi</string>
     <string name="auto_volume_when">Sesi yükselt</string>
-    <string name="media_control_title">Oynatma denetimi</string>
+    <string name="media_control_title">Müzik denetimi</string>
     <string name="media_control_pause">Yavaşlayınca duraklat</string>
     <string name="media_control_pause_below">Bu hızda veya altında duraklat</string>
     <string name="media_control_resume">Hızlanınca devam et</string>
@@ -1190,7 +1190,7 @@
 
     <!-- Alarms tab -->
     <string name="alarm_help">Tetiklenme önceliği aşağıdaki metrik gruplarının sırasına göre belirlenir.</string>
-    <string name="alarm_empty">Henüz alarm kuralı yok</string>
+    <string name="alarm_empty">Henüz kural yok</string>
     <string name="alarm_add">Yeni alarm</string>
     <string name="alarm_summary_predict_fmt">%1$s sn önceden tahmin eder</string>
     <string name="alarm_new">Yeni alarm</string>
@@ -1706,7 +1706,7 @@
     <string name="nav_view_straight_line">düz çizgi</string>
     <string name="nav_view_heading_up">Yön yukarıda, kuzey yukarı için dokunun</string>
     <string name="nav_view_north_up">Kuzey yukarıda, yön yukarı için dokunun</string>
-    <string name="nav_view_tiles">Navigatör kutucukları</string>
+    <string name="nav_view_tiles">Navigasyonda kutucuklar</string>
     <string name="nav_view_tiles_desc">Navigasyon sırasında hızın yanındaki 4 sayı.</string>
     <string name="nav_view_speed">Hız</string>
     <string name="nav_layer_dark">Esri Dark</string>
@@ -2670,7 +2670,7 @@
     <string name="lockdown_limit_12">Bir metriğe dokununca hiçbir şey olmaz.</string>
     <string name="lockdown_limit_13">Sesli anonslar, periyodik raporlar ve hız dilimleri susar. Alarmlarınız çalışmaya devam eder.</string>
     <string name="lockdown_limit_14">Teker kilitlenemez veya kilidi açılamaz, yakınlık otomatik kilidi çalışmaz.</string>
-    <string name="lockdown_limit_15">Otomatik ışık ve otomatik ses çalışmaya devam eder. Oynatma denetimi durur.</string>
+    <string name="lockdown_limit_15">Otomatik ışık ve otomatik ses çalışmaya devam eder. Müzik denetimi durur.</string>
     <string name="lockdown_limit_16">Bildirimdeki düğmeler kalkar.</string>
     <string name="lockdown_limit_17">Sürüm numarası artık Hakkında ekranını açmaz.</string>
     <string name="lockdown_limit_18">Bu mod ayar yedeklerine dahil edilmez.</string>
@@ -2870,9 +2870,9 @@
     <string name="nav_unlock_off">İzden en fazla %1$s sapar</string>
     <string name="nav_unlock_confirm">Dönüştür</string>
     <string name="voice_nav_place_reached">Ulaşıldı: %1$s</string>
-    <string name="offline_data_open">Çevrimdışı bölgeler</string>
+    <string name="offline_data_open">Çevrimdışı haritalar</string>
     <string name="offline_server_url">Çevrimdışı veri sunucusu</string>
-    <string name="offline_data_title">Çevrimdışı bölgeler</string>
+    <string name="offline_data_title">Çevrimdışı haritalar</string>
     <string name="offline_data_space">Kullanılan %1$s, boş %2$s</string>
     <string name="offline_data_tap_hint">Haritasını ve rota verisini indirmek ya da silmek için bir kareye dokunun.</string>
     <string name="offline_data_list_error">Sunucuya ulaşılamıyor. İndirilen bölgeler çalışmaya devam eder.</string>

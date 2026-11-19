@@ -121,16 +121,16 @@
     <string name="tab_auto">Automatizações</string>
     <string name="tab_integration">Integração</string>
     <string name="tab_watch">Relógio</string>
-    <string name="tab_cloud">Cópias e classificações</string>
+    <string name="tab_cloud">Cópias e Leaderboards</string>
 
-    <string name="tab_dashboard">Disposição do painel</string>
+    <string name="tab_dashboard">Disposição do dashboard</string>
     <string name="dashboard_section_metrics">Métricas</string>
     <string name="dashboard_section_actions">Botões de ação</string>
     <string name="dashboard_grid_hint">Mantenha premido para arrastar, toque para editar.</string>
     <string name="dashboard_pool_metrics">Métricas disponíveis</string>
     <string name="dashboard_pool_actions">Ações disponíveis</string>
     <string name="dashboard_pool_tap_toast">Mantenha premido e arraste para um espaço acima</string>
-    <string name="dashboard_stats_length">Duração das estatísticas</string>
+    <string name="dashboard_stats_length">Estatísticas</string>
     <string name="dashboard_view">Vista</string>
     <string name="dashboard_view_default">Predefinida</string>
     <string name="dashboard_view_wide">Larga</string>
@@ -313,7 +313,7 @@
     <string name="menu_switch_to_voice_command">Mudar para comando de voz</string>
     <string name="menu_switch_to_voice_report">Mudar para anúncio de voz</string>
     <string name="voice_commands_title">Comandos de voz</string>
-    <string name="voice_commands_enable_desc">Use a voz com a app. Mantenha premido o botão Voz no painel e escolha Ouvir um comando de voz.</string>
+    <string name="voice_commands_enable_desc">Use a voz com a app. Mantenha premido o botão Voz no dashboard e escolha Ouvir um comando de voz.</string>
     <string name="voice_commands_bind_desc">Associe a escuta a um Flic, às teclas de volume, ao relógio ou ao HUD.</string>
     <string name="voice_prompt_cue">Sinal ao ouvir</string>
     <string name="voice_music_listening">Música ao ouvir</string>
@@ -487,7 +487,7 @@
 
     <string name="hud_screens_title">Ecrãs do HUD</string>
     <string name="hud_map_options_title">Opções do mapa</string>
-    <string name="hud_screen_name_dashboard">Painel</string>
+    <string name="hud_screen_name_dashboard">Dashboard</string>
     <string name="hud_screen_name_camera">Câmara traseira</string>
     <string name="hud_screen_name_telemetry">Telemetria</string>
     <string name="hud_screen_name_custom">Overlay personalizado + preto</string>
@@ -552,11 +552,11 @@
     <string name="adv_group_rates">Taxas de dados e relatórios</string>
     <string name="adv_wheel_poll_rate">Taxa de consulta da roda</string>
     <string name="adv_wheel_poll_rate_desc">Afeta o atraso dos dados em tempo real e a rapidez com que os alarmes reagem. Mais baixo pede dados à roda com mais frequência. Perigo: valores muito baixos podem saturar o Bluetooth e parar os dados nalgumas rodas.</string>
-    <string name="adv_graph_sample_interval">Intervalo de amostragem dos gráficos</string>
+    <string name="adv_graph_sample_interval">Amostragem dos gráficos</string>
     <string name="adv_graph_sample_interval_desc">Não afeta alarmes nem ficheiros de percurso. Perigo: valores muito baixos usam mais memória.</string>
     <string name="adv_smoothing_window">Janela de suavização</string>
     <string name="adv_smoothing_window_desc">Amostras usadas na média dos gráficos «média» dos percursos e nos relatórios de voz suavizados. Os percursos registam cerca de uma vez por segundo, por isso equivale a segundos. Perigo: valores altos escondem picos curtos.</string>
-    <string name="adv_trip_record_interval">Intervalo de gravação do percurso</string>
+    <string name="adv_trip_record_interval">Intervalo de gravação</string>
     <string name="adv_trip_record_interval_desc">Afeta a frequência com que uma linha é guardada no ficheiro do percurso durante a gravação. Mais baixo dá mais detalhe. Perigo: valores muito baixos criam ficheiros grandes.</string>
     <string name="adv_pending_upload_interval">Repetir envio de percursos</string>
     <string name="adv_pending_upload_interval_desc">Afeta a frequência com que a app volta a tentar enviar percursos pendentes, por ex. se fechar a app a meio de uma sincronização. 15 min é o mínimo do Android. Perigo: demasiado longo atrasa um envio que ficou por fazer.</string>
@@ -636,7 +636,7 @@
     <string name="adv_hud_mdns_resolve_desc">Afeta quanto tempo se espera para resolver o endereço de um HUD detetado. Perigo: demasiado baixo perde um HUD que demora a resolver.</string>
     <string name="adv_hud_idle_search">Intervalo de pesquisa em repouso</string>
     <string name="adv_hud_idle_search_desc">Afeta a frequência com que o HUD é procurado sem roda ligada e com a app fechada. Perigo: demasiado baixo gasta a bateria.</string>
-    <string name="adv_hud_sweep_interval">Intervalo de varrimento da rede</string>
+    <string name="adv_hud_sweep_interval">Varrimento da rede</string>
     <string name="adv_hud_sweep_interval_desc">Afeta a frequência com que todos os endereços da rede são testados para encontrar o HUD. Perigo: demasiado baixo mantém o telemóvel ocupado e gasta a bateria.</string>
     <string name="adv_group_autolights">Luzes automáticas</string>
     <string name="adv_autolight_no_gps_retry">Repetir sem GPS</string>
@@ -688,7 +688,7 @@
     <string name="adv_voice_listen_window_desc">Quanto tempo o microfone fica aberto após o sinal, sem ouvir nada.</string>
     <string name="adv_lock_max_speed_desc">Afeta a velocidade acima da qual o bloqueio da roda é recusado. Perigo: demasiado alto permite bloquear ainda em movimento.</string>
     <string name="adv_compact_max_screen">Limite de ecrã compacto</string>
-    <string name="adv_compact_max_screen_desc">Ecrãs com ambos os lados abaixo disto mudam para o painel compacto quando Painel compacto está em Ecrãs pequenos.</string>
+    <string name="adv_compact_max_screen_desc">Ecrãs com ambos os lados abaixo disto mudam para o dashboard compacto quando Dashboard compacto está em Ecrãs pequenos.</string>
     <string name="adv_cover_cutout_inset">Tamanho do recorte da câmara</string>
     <string name="adv_cover_cutout_inset_desc">Espaço livre para as lentes do ecrã exterior quando Evitar câmaras do ecrã exterior está ativo. Demasiado pequeno e as lentes tapam botões.</string>
     <string name="adv_simple_speedo_scale">Tamanho do velocímetro simples</string>
@@ -831,7 +831,7 @@
     <string name="section_recording">Gravação</string>
     <string name="section_connection">Ligação</string>
     <string name="auto_record_caption">Grava um percurso quando a roda está ligada.</string>
-    <string name="auto_record_start_in_motion_caption">Começa ao mover-se, para após inatividade e recomeça na volta seguinte.</string>
+    <string name="auto_record_start_in_motion_caption">Começa ao mover-se, para após inatividade e recomeça quando voltar a mover-se.</string>
     <string name="auto_record_stop_idle_seconds">Parar após inatividade de</string>
     <string name="auto_record_mode_label">Iniciar gravação automaticamente</string>
     <string name="auto_record_mode_never">Nunca</string>
@@ -844,10 +844,10 @@
     <string name="wheel_name_brand">Marca</string>
     <string name="last_device">Último dispositivo: %1$s</string>
     <string name="section_application">Aplicação</string>
-    <string name="back_button_action">Ação de voltar</string>
-    <string name="back_button_action_desc">O que acontece quando desliza ou prime voltar no painel.</string>
+    <string name="back_button_action">Botão Voltar</string>
+    <string name="back_button_action_desc">O que acontece quando desliza ou prime Voltar no dashboard.</string>
     <string name="section_screen_geometry">Geometria do ecrã</string>
-    <string name="geo_section_dashboard">Painel</string>
+    <string name="geo_section_dashboard">Dashboard</string>
     <string name="geo_section_navigator">Navegador</string>
     <string name="geo_section_trip">Percurso</string>
     <string name="geo_section_other">Outros ecrãs</string>
@@ -856,7 +856,7 @@
     <string name="setting_rotate_trip_detail">Rodar detalhes do percurso</string>
     <string name="setting_rotate_trip_list">Rodar lista de percursos</string>
     <string name="setting_trip_map_side">Lado do mapa</string>
-    <string name="setting_compact_dashboard">Painel compacto</string>
+    <string name="setting_compact_dashboard">Dashboard compacto</string>
     <string name="compact_mode_auto">Ecrãs pequenos</string>
     <string name="compact_mode_always">Sempre</string>
     <string name="compact_mode_never">Nunca</string>
@@ -942,7 +942,7 @@
     <string name="battery_capacity_label">Capacidade</string>
     <string name="battery_capacity_desc">Opcional. Define a estimativa de autonomia desde o início, para o mosaico Autonomia e o HUD.</string>
     <string name="battery_percent_cells_from_wheel">Lido da roda: %1$d em série.</string>
-    <string name="battery_percent_cells_manual">Converte a tensão da bateria na percentagem do painel, da voz e dos alarmes</string>
+    <string name="battery_percent_cells_manual">Converte a tensão da bateria na percentagem do dashboard, da voz e dos alarmes</string>
     <string name="speed_calibration_label">Ajuste de velocidade</string>
     <string name="speed_calibration_caption">Ajusta a velocidade indicada pela roda; afeta alarmes, voz e o registo do percurso.</string>
     <string name="section_legal_mode_speed">Velocidade do modo legal</string>
@@ -1136,7 +1136,7 @@
     <string name="report_navigation">Navegação</string>
 
     <string name="section_flic_buttons">Botões Flic 2</string>
-    <string name="flic_show_on_dashboard">Ícone de acesso rápido no painel</string>
+    <string name="flic_show_on_dashboard">Ícone de acesso rápido no dashboard</string>
     <string name="flic_scan_hint">Mantenha o botão Flic 2 premido 6 segundos para o modo de emparelhamento e depois toque em Iniciar pesquisa.</string>
     <string name="flic_stop_scan">Parar pesquisa</string>
     <string name="flic_start_scan">Iniciar pesquisa</string>
@@ -1185,7 +1185,7 @@
     <string name="external_gps_autodetect_abort">Cancelar</string>
     <string name="external_gps_autodetect_next">Seguinte</string>
     <string name="gps_prioritize_external">Dar prioridade ao GPS externo</string>
-    <string name="gps_show_on_dashboard">Mostrar velocidade no painel</string>
+    <string name="gps_show_on_dashboard">Mostrar velocidade no dashboard</string>
     <string name="gps_show_on_dashboard_desc">Mostra um ponto colorido no velocímetro com a leitura do GPS.</string>
     <string name="section_volume_keys">Teclas de volume</string>
     <string name="volume_keys_caption">Use os botões de volume do telemóvel como atalhos enquanto a app está no ecrã.</string>
@@ -1217,7 +1217,7 @@
         <item quantity="other">A seguir %1$d veículos:</item>
     </plurals>
     <string name="radar_show_overlay">Mostrar overlay de ameaças</string>
-    <string name="radar_show_overlay_desc">Faixa fina de radar nas margens do painel.</string>
+    <string name="radar_show_overlay_desc">Faixa fina de radar nas margens do dashboard.</string>
     <string name="radar_overlay_left">Margem esquerda</string>
     <string name="radar_overlay_both">Ambas as margens</string>
     <string name="radar_overlay_right">Margem direita</string>
@@ -1403,7 +1403,7 @@
     <string name="recording_chart_power">Potência (W)</string>
     <string name="recording_chart_altitude">Altitude (m)</string>
     <string name="widget_description">Métricas e ações rápidas</string>
-    <string name="widget_euc_label">Painel da roda</string>
+    <string name="widget_euc_label">Dashboard da roda</string>
     <string name="widget_act_1_label">Botão da roda 1</string>
     <string name="widget_act_2_label">Botão da roda 2</string>
     <string name="widget_act_3_label">Botão da roda 3</string>
@@ -1418,7 +1418,7 @@
     <string name="pip_mode_label">Modo PIP</string>
     <string name="pip_mode_off">Desligado</string>
     <string name="pip_mode_simple">Simples</string>
-    <string name="pip_mode_dashboard">Painel</string>
+    <string name="pip_mode_dashboard">Dashboard</string>
     <string name="pip_label_pwm" formatted="false">pwm %</string>
     <string name="phone_hud_section">HUD no telemóvel</string>
     <string name="phone_hud_desc">Desenha uma disposição do Overlay Studio por cima de outras apps, para ver a roda enquanto usa mapas ou música.</string>
@@ -1556,7 +1556,7 @@
     <string name="auto_waiting_gps">A aguardar a localização GPS…</string>
     <string name="auto_volume_title">Controlo do volume</string>
     <string name="auto_volume_when">Aumentar o volume quando</string>
-    <string name="media_control_title">Controlo da reprodução</string>
+    <string name="media_control_title">Controlo da música</string>
     <string name="media_control_pause">Pausar quando abrandar</string>
     <string name="media_control_pause_below">Pausar até</string>
     <string name="media_control_resume">Retomar quando acelerar</string>
@@ -1584,7 +1584,7 @@
     <string name="auto_lock_suspended">Em pausa nesta sessão porque bloqueou ou desbloqueou à mão. Resolva em Requer atenção ou volte a ligar a roda.</string>
 
     <string name="alarm_help">A prioridade de disparo segue a ordem dos grupos de métricas abaixo.</string>
-    <string name="alarm_empty">Ainda sem regras de alarme</string>
+    <string name="alarm_empty">Ainda sem regras</string>
     <string name="alarm_add">Novo alarme</string>
     <string name="alarm_summary_predict_fmt">prevê %1$s s antes</string>
     <string name="alarm_new">Novo alarme</string>
@@ -2090,7 +2090,7 @@
     <string name="nav_finished_body">Começar uma nova rota? As paragens já alcançadas são apagadas. Para manter esta rota, guarde-a primeiro no menu.</string>
     <string name="nav_clear_home">Esquecer Casa</string>
     <string name="nav_clear_work">Esquecer Trabalho</string>
-    <string name="nav_menu_exit">Voltar ao painel</string>
+    <string name="nav_menu_exit">Voltar ao dashboard</string>
     <string name="nav_waypoints">Paragens</string>
     <string name="nav_role_destination">Destino</string>
     <string name="nav_max_stops">No máximo, um destino e 49 paragens</string>
@@ -2142,7 +2142,7 @@
     <string name="nav_view_straight_line">linha reta</string>
     <string name="nav_view_heading_up">Direção para cima, toque para pôr o norte em cima</string>
     <string name="nav_view_north_up">Norte para cima, toque para pôr a direção em cima</string>
-    <string name="nav_view_tiles">Mosaicos do navegador</string>
+    <string name="nav_view_tiles">Dados ao navegar</string>
     <string name="nav_view_tiles_desc">Os 4 números ao lado da velocidade durante a navegação.</string>
     <string name="nav_view_speed">Velocidade</string>
     <string name="nav_layer_dark">Esri Escuro</string>
@@ -2257,7 +2257,7 @@
     <string name="weather_window_3d">Próximos 3 dias</string>
     <string name="weather_window_1w">Próximos 7 dias</string>
     <string name="weather_settings_entry">Definições da meteorologia</string>
-    <string name="weather_enable">Ícone de acesso rápido no painel</string>
+    <string name="weather_enable">Ícone de acesso rápido no dashboard</string>
     <string name="weather_enable_desc">Adiciona um ícone do tempo acima do botão do mapa: toque para ver se dá para andar.</string>
     <string name="weather_window_label">Período da previsão</string>
     <string name="weather_source_label">Fonte da previsão</string>
@@ -2585,14 +2585,14 @@
     <string name="lockdown_limit_5">O overlay flutuante fica oculto.</string>
     <string name="lockdown_limit_6">Os widgets do ecrã principal deixam de atualizar.</string>
     <string name="lockdown_limit_7">O modo de serviço e a gravação de diagnóstico param.</string>
-    <string name="lockdown_limit_8">O painel é substituído por um ecrã fixo: velocímetro, seis métricas, quatro botões.</string>
+    <string name="lockdown_limit_8">O dashboard é substituído por um ecrã fixo: velocímetro, seis métricas, quatro botões.</string>
     <string name="lockdown_limit_9">O ecrã não roda.</string>
     <string name="lockdown_limit_10">As definições não podem ser abertas.</string>
     <string name="lockdown_limit_11">O histórico de percursos, o monitor de bateria, o estúdio e os detalhes das métricas não podem ser abertos.</string>
     <string name="lockdown_limit_12">Tocar numa métrica não faz nada.</string>
     <string name="lockdown_limit_13">Os anúncios de voz, os relatórios periódicos e os tempos por velocidade ficam em silêncio. Os seus alarmes continuam a funcionar.</string>
     <string name="lockdown_limit_14">A roda não pode ser bloqueada nem desbloqueada, e o bloqueio automático por proximidade não funciona.</string>
-    <string name="lockdown_limit_15">As luzes e o volume automáticos continuam a funcionar. O controlo da reprodução para.</string>
+    <string name="lockdown_limit_15">As luzes e o volume automáticos continuam a funcionar. O controlo da música para.</string>
     <string name="lockdown_limit_16">A notificação perde os botões.</string>
     <string name="lockdown_limit_17">O número da versão não abre Acerca de.</string>
     <string name="lockdown_limit_18">Este modo não é incluído nas cópias das definições.</string>
@@ -2757,9 +2757,9 @@
     <string name="nav_unlock_off">Desvia-se até %1$s do trajeto</string>
     <string name="nav_unlock_confirm">Converter</string>
     <string name="voice_nav_place_reached">Chegou a %1$s</string>
-    <string name="offline_data_open">Áreas offline</string>
+    <string name="offline_data_open">Mapas offline</string>
     <string name="offline_server_url">Servidor de dados offline</string>
-    <string name="offline_data_title">Áreas offline</string>
+    <string name="offline_data_title">Mapas offline</string>
     <string name="offline_data_space">Usado %1$s, livre %2$s</string>
     <string name="offline_data_tap_hint">Toque num quadrado para transferir o mapa e as rotas, ou para o eliminar.</string>
     <string name="offline_data_list_error">Não é possível contactar o servidor. As áreas transferidas continuam a funcionar.</string>

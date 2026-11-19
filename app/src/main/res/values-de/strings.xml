@@ -124,7 +124,7 @@
     <string name="tab_auto">Automatisierungen</string>
     <string name="tab_integration">Integration</string>
     <string name="tab_watch">Uhr</string>
-    <string name="tab_cloud">Backup &amp; Bestenlisten</string>
+    <string name="tab_cloud">Backup &amp; Leaderboards</string>
 
     <!-- Dashboard layout (customizable home screen) -->
     <string name="tab_dashboard">Dashboard-Layout</string>
@@ -134,7 +134,7 @@
     <string name="dashboard_pool_metrics">Verfügbare Messwerte</string>
     <string name="dashboard_pool_actions">Verfügbare Aktionen</string>
     <string name="dashboard_pool_tap_toast">Lang drücken und oben auf einen Platz ziehen</string>
-    <string name="dashboard_stats_length">Statistik-Zeitraum</string>
+    <string name="dashboard_stats_length">Statistik</string>
     <string name="dashboard_view">Ansicht</string>
     <string name="dashboard_view_default">Standard</string>
     <string name="dashboard_view_wide">Breit</string>
@@ -675,7 +675,7 @@
     <string name="wheel_name_brand">Marke</string>
     <string name="last_device">Letztes Gerät: %1$s</string>
     <string name="section_application">Anwendung</string>
-    <string name="back_button_action">Zurück-Aktion</string>
+    <string name="back_button_action">Zurück-Taste</string>
     <string name="back_button_action_desc">Was passiert, wenn du auf dem Dashboard zurückwischst oder Zurück drückst.</string>
     <string name="back_button_action_ask">Fragen</string>
     <string name="back_button_action_background">Hintergrund</string>
@@ -896,9 +896,9 @@
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Flic-2-Tasten</string>
     <string name="flic_show_on_dashboard">Schnellzugriff-Symbol im Dashboard</string>
-    <string name="flic_scan_hint">Flic-2-Taste 6 Sekunden halten für den Kopplungsmodus, dann auf Scan starten tippen.</string>
+    <string name="flic_scan_hint">Flic-2-Taste 6 Sekunden halten für den Kopplungsmodus, dann auf Suche starten tippen.</string>
     <string name="flic_stop_scan">Scan stoppen</string>
-    <string name="flic_start_scan">Scan starten</string>
+    <string name="flic_start_scan">Suche starten</string>
     <string name="flic_forget">Vergessen</string>
     <string name="flic_forget_title">Diese Taste vergessen?</string>
     <string name="flic_forget_body">%1$s wird entkoppelt.</string>
@@ -916,7 +916,7 @@
     <string name="tpms_none_yet">Kein Reifendrucksensor erkannt oder manuell hinzugefügt.</string>
     <string name="tpms_wheel_sensor_replaced">Durch deinen gekoppelten Sensor ersetzt</string>
     <string name="external_gps_device_title">Externes GPS</string>
-    <string name="external_gps_pair_button">Scan starten</string>
+    <string name="external_gps_pair_button">Suche starten</string>
     <string name="external_gps_pair_action">Koppeln</string>
     <string name="external_gps_stop_scan">Scan stoppen</string>
     <string name="external_gps_paired_with">Gekoppelt mit %1$s</string>
@@ -959,8 +959,8 @@
 
     <!-- Rear-view radar (Garmin Varia today) -->
     <string name="section_radar">Heckradar</string>
-    <string name="radar_caption">Varia-Taste 2 Sekunden halten, bis sie violett blinkt, dann Scan starten.</string>
-    <string name="radar_pair_button">Scan starten</string>
+    <string name="radar_caption">Varia-Taste 2 Sekunden halten, bis sie violett blinkt, dann auf Suche starten tippen.</string>
+    <string name="radar_pair_button">Suche starten</string>
     <string name="radar_pair_action">Koppeln</string>
     <string name="radar_stop_scan">Scan stoppen</string>
     <string name="radar_state_connected">Verbunden</string>
@@ -1068,7 +1068,7 @@
     <!-- Scan screen -->
     <string name="scan_title">Mit Wheel verbinden</string>
     <string name="scan_scanning">Suche…</string>
-    <string name="scan_start">Scan starten</string>
+    <string name="scan_start">Suche starten</string>
     <string name="scan_show_all_title">Alle Geräte anzeigen</string>
     <string name="scan_show_all_subtitle">Einschalten, falls dein Wheel nicht auftaucht.</string>
 
@@ -1159,7 +1159,7 @@
     <string name="auto_waiting_gps">Warte auf GPS-Position…</string>
     <string name="auto_volume_title">Lautstärkeregelung</string>
     <string name="auto_volume_when">Lautstärke anheben, wenn</string>
-    <string name="media_control_title">Wiedergabesteuerung</string>
+    <string name="media_control_title">Musiksteuerung</string>
     <string name="media_control_pause">Pause, wenn ich langsamer werde</string>
     <string name="media_control_pause_below">Pausieren bei oder unter</string>
     <string name="media_control_resume">Weiter, wenn ich schneller werde</string>
@@ -1189,7 +1189,7 @@
 
     <!-- Alarms tab -->
     <string name="alarm_help">Die Auslösepriorität folgt der Reihenfolge der Messwertgruppen unten.</string>
-    <string name="alarm_empty">Noch keine Alarmregeln</string>
+    <string name="alarm_empty">Noch keine Regeln</string>
     <string name="alarm_add">Neuer Alarm</string>
     <string name="alarm_summary_predict_fmt">Prognose %1$s s im Voraus</string>
     <string name="alarm_new">Neuer Alarm</string>
@@ -1739,7 +1739,7 @@
     <string name="nav_view_straight_line">Luftlinie</string>
     <string name="nav_view_heading_up">Fahrtrichtung oben, tippe für Norden oben</string>
     <string name="nav_view_north_up">Norden oben, tippe für Fahrtrichtung oben</string>
-    <string name="nav_view_tiles">Navigationskacheln</string>
+    <string name="nav_view_tiles">Kacheln beim Navigieren</string>
     <string name="nav_view_tiles_desc">Die 4 Zahlen neben der Geschwindigkeit während der Navigation.</string>
     <string name="nav_view_speed">Geschwindigkeit</string>
     <string name="nav_layer_dark">Esri Dark</string>
@@ -2693,7 +2693,7 @@
     <string name="lockdown_limit_12">Tippen auf einen Wert bewirkt nichts.</string>
     <string name="lockdown_limit_13">Sprachansagen, regelmäßige Berichte und Tempo-Zwischenzeiten sind stumm. Deine Alarme funktionieren weiter.</string>
     <string name="lockdown_limit_14">Das Wheel lässt sich nicht sperren oder entsperren, und die Näherungssperre läuft nicht.</string>
-    <string name="lockdown_limit_15">Auto-Licht und Auto-Lautstärke laufen weiter. Die Wiedergabesteuerung stoppt.</string>
+    <string name="lockdown_limit_15">Auto-Licht und Auto-Lautstärke laufen weiter. Die Musiksteuerung stoppt.</string>
     <string name="lockdown_limit_16">Die Benachrichtigung verliert ihre Tasten.</string>
     <string name="lockdown_limit_17">Die Versionsnummer öffnet nicht mehr Über die App.</string>
     <string name="lockdown_limit_18">Dieser Modus ist nicht Teil der Einstellungs-Backups.</string>
@@ -2893,9 +2893,9 @@
     <string name="nav_unlock_off">Weicht bis zu %1$s vom Track ab</string>
     <string name="nav_unlock_confirm">Umwandeln</string>
     <string name="voice_nav_place_reached">%1$s erreicht</string>
-    <string name="offline_data_open">Offline-Gebiete</string>
+    <string name="offline_data_open">Offline-Karten</string>
     <string name="offline_server_url">Server für Offline-Daten</string>
-    <string name="offline_data_title">Offline-Gebiete</string>
+    <string name="offline_data_title">Offline-Karten</string>
     <string name="offline_data_space">Belegt %1$s, frei %2$s</string>
     <string name="offline_data_tap_hint">Tippe auf ein Feld, um Karte und Routing herunterzuladen oder es zu löschen.</string>
     <string name="offline_data_list_error">Server nicht erreichbar. Geladene Gebiete funktionieren weiter.</string>

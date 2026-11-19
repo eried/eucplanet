@@ -112,15 +112,15 @@
     <string name="tab_auto">Tự động hóa</string>
     <string name="tab_integration">Tích hợp</string>
     <string name="tab_watch">Đồng hồ</string>
-    <string name="tab_cloud">Sao lưu &amp; bảng xếp hạng</string>
-    <string name="tab_dashboard">Bố cục bảng điều khiển</string>
+    <string name="tab_cloud">Sao lưu &amp; Leaderboards</string>
+    <string name="tab_dashboard">Bố cục dashboard</string>
     <string name="dashboard_section_metrics">Chỉ số</string>
     <string name="dashboard_section_actions">Nút thao tác</string>
     <string name="dashboard_grid_hint">Nhấn giữ để kéo, chạm để sửa.</string>
     <string name="dashboard_pool_metrics">Chỉ số có sẵn</string>
     <string name="dashboard_pool_actions">Thao tác có sẵn</string>
     <string name="dashboard_pool_tap_toast">Nhấn giữ và kéo vào một ô bên trên để dùng</string>
-    <string name="dashboard_stats_length">Độ dài thống kê</string>
+    <string name="dashboard_stats_length">Thống kê</string>
     <string name="dashboard_view">Chế độ xem</string>
     <string name="dashboard_view_default">Mặc định</string>
     <string name="dashboard_view_wide">Rộng</string>
@@ -299,7 +299,7 @@
     <string name="menu_switch_to_voice_command">Chuyển sang lệnh giọng nói</string>
     <string name="menu_switch_to_voice_report">Chuyển sang thông báo giọng nói</string>
     <string name="voice_commands_title">Lệnh giọng nói</string>
-    <string name="voice_commands_enable_desc">Điều khiển ứng dụng bằng giọng nói. Giữ nút Giọng nói trên bảng điều khiển và chọn Nghe lệnh giọng nói.</string>
+    <string name="voice_commands_enable_desc">Điều khiển ứng dụng bằng giọng nói. Giữ nút Giọng nói trên dashboard và chọn Nghe lệnh giọng nói.</string>
     <string name="voice_commands_bind_desc">Gán việc nghe lệnh cho nút Flic, phím âm lượng, đồng hồ hoặc HUD.</string>
     <string name="voice_prompt_cue">Tín hiệu khi nghe</string>
     <string name="voice_music_listening">Nhạc khi đang nghe</string>
@@ -470,7 +470,7 @@
     <string name="hud_joystick_right">Phải (chạm đúp)</string>
     <string name="hud_screens_title">Màn hình HUD</string>
     <string name="hud_map_options_title">Tùy chọn bản đồ</string>
-    <string name="hud_screen_name_dashboard">Bảng điều khiển</string>
+    <string name="hud_screen_name_dashboard">Dashboard</string>
     <string name="hud_screen_name_camera">Camera sau</string>
     <string name="hud_screen_name_telemetry">Dữ liệu đo</string>
     <string name="hud_screen_name_custom">Lớp phủ tùy chỉnh + đen</string>
@@ -669,7 +669,7 @@
     <string name="adv_voice_listen_window_desc">Thời gian micrô còn mở sau tín hiệu nếu chưa nghe thấy gì.</string>
     <string name="adv_lock_max_speed_desc">Ảnh hưởng đến tốc độ mà từ đó trở lên lệnh khóa xe bị từ chối. Nguy cơ: quá cao cho phép khóa khi xe vẫn đang lăn bánh.</string>
     <string name="adv_compact_max_screen">Giới hạn màn hình thu gọn</string>
-    <string name="adv_compact_max_screen_desc">Màn hình có cả hai cạnh dưới mức này sẽ chuyển sang bảng điều khiển thu gọn khi Bảng điều khiển thu gọn được đặt là Màn hình nhỏ.</string>
+    <string name="adv_compact_max_screen_desc">Màn hình có cả hai cạnh dưới mức này sẽ chuyển sang dashboard thu gọn khi Dashboard thu gọn được đặt là Màn hình nhỏ.</string>
     <string name="adv_cover_cutout_inset">Kích thước vùng camera</string>
     <string name="adv_cover_cutout_inset_desc">Khoảng trống chừa cho ống kính màn hình ngoài khi bật Tránh camera màn hình ngoài. Quá nhỏ thì ống kính che mất nút.</string>
     <string name="adv_simple_speedo_scale">Cỡ đồng hồ tốc độ đơn giản</string>
@@ -808,7 +808,7 @@
     <string name="section_recording">Ghi hành trình</string>
     <string name="section_connection">Kết nối</string>
     <string name="auto_record_caption">Ghi chuyến đi khi xe đã kết nối.</string>
-    <string name="auto_record_start_in_motion_caption">Bắt đầu khi di chuyển, tự dừng sau khi đứng yên, ghi tiếp ở chuyến sau.</string>
+    <string name="auto_record_start_in_motion_caption">Bắt đầu khi di chuyển, tự dừng sau khi đứng yên, tự bắt đầu lại khi bạn chạy tiếp.</string>
     <string name="auto_record_stop_idle_seconds">Dừng sau khi đứng yên</string>
     <string name="auto_record_mode_label">Tự ghi chuyến đi</string>
     <string name="auto_record_mode_never">Không bao giờ</string>
@@ -821,10 +821,10 @@
     <string name="wheel_name_brand">Hãng</string>
     <string name="last_device">Thiết bị gần nhất: %1$s</string>
     <string name="section_application">Ứng dụng</string>
-    <string name="back_button_action">Thao tác quay lại</string>
-    <string name="back_button_action_desc">Chuyện gì xảy ra khi bạn vuốt hoặc nhấn quay lại từ bảng điều khiển.</string>
+    <string name="back_button_action">Nút Quay lại</string>
+    <string name="back_button_action_desc">Điều gì xảy ra khi bạn vuốt hoặc nhấn Quay lại ở dashboard.</string>
     <string name="section_screen_geometry">Bố trí màn hình</string>
-    <string name="geo_section_dashboard">Bảng điều khiển</string>
+    <string name="geo_section_dashboard">Dashboard</string>
     <string name="geo_section_navigator">Dẫn đường</string>
     <string name="geo_section_trip">Chuyến đi</string>
     <string name="geo_section_other">Màn hình khác</string>
@@ -833,7 +833,7 @@
     <string name="setting_rotate_trip_detail">Xoay chi tiết chuyến đi</string>
     <string name="setting_rotate_trip_list">Xoay danh sách chuyến đi</string>
     <string name="setting_trip_map_side">Vị trí bản đồ</string>
-    <string name="setting_compact_dashboard">Bảng điều khiển thu gọn</string>
+    <string name="setting_compact_dashboard">Dashboard thu gọn</string>
     <string name="compact_mode_auto">Màn hình nhỏ</string>
     <string name="compact_mode_always">Luôn luôn</string>
     <string name="compact_mode_never">Không bao giờ</string>
@@ -918,7 +918,7 @@
     <string name="battery_capacity_label">Dung lượng</string>
     <string name="battery_capacity_desc">Không bắt buộc. Giúp ước tính tầm hoạt động ngay từ đầu, cho ô Tầm hoạt động và HUD.</string>
     <string name="battery_percent_cells_from_wheel">Lấy từ xe: %1$d cell nối tiếp.</string>
-    <string name="battery_percent_cells_manual">Đổi điện áp khối pin thành phần trăm trên bảng điều khiển, giọng nói và cảnh báo</string>
+    <string name="battery_percent_cells_manual">Đổi điện áp khối pin thành phần trăm trên dashboard, giọng nói và cảnh báo</string>
     <string name="speed_calibration_label">Bù tốc độ</string>
     <string name="speed_calibration_caption">Điều chỉnh tốc độ xe báo; ảnh hưởng đến cảnh báo, giọng nói và nhật ký chuyến đi.</string>
     <string name="section_legal_mode_speed">Tốc độ chế độ hợp luật</string>
@@ -1108,7 +1108,7 @@
     <string name="report_time">Thời gian</string>
     <string name="report_navigation">Dẫn đường</string>
     <string name="section_flic_buttons">Nút Flic 2</string>
-    <string name="flic_show_on_dashboard">Biểu tượng truy cập nhanh trên bảng điều khiển</string>
+    <string name="flic_show_on_dashboard">Biểu tượng truy cập nhanh trên dashboard</string>
     <string name="flic_scan_hint">Giữ nút Flic 2 trong 6 giây để vào chế độ ghép nối, rồi chạm Bắt đầu quét.</string>
     <string name="flic_stop_scan">Dừng quét</string>
     <string name="flic_start_scan">Bắt đầu quét</string>
@@ -1156,7 +1156,7 @@
     <string name="external_gps_autodetect_abort">Hủy</string>
     <string name="external_gps_autodetect_next">Tiếp</string>
     <string name="gps_prioritize_external">Ưu tiên GPS ngoài</string>
-    <string name="gps_show_on_dashboard">Hiện tốc độ trên bảng điều khiển</string>
+    <string name="gps_show_on_dashboard">Hiện tốc độ trên dashboard</string>
     <string name="gps_show_on_dashboard_desc">Thêm một chấm màu trên đồng hồ tốc độ, cho biết tốc độ GPS.</string>
     <string name="section_volume_keys">Phím âm lượng</string>
     <string name="volume_keys_caption">Dùng nút âm lượng làm phím tắt khi ứng dụng đang mở trên màn hình.</string>
@@ -1185,7 +1185,7 @@
         <item quantity="other">Đang theo dõi %1$d phương tiện:</item>
     </plurals>
     <string name="radar_show_overlay">Hiện lớp phủ mối nguy</string>
-    <string name="radar_show_overlay_desc">Dải radar mảnh ở mép bảng điều khiển.</string>
+    <string name="radar_show_overlay_desc">Dải radar mảnh ở mép dashboard.</string>
     <string name="radar_overlay_left">Cạnh trái</string>
     <string name="radar_overlay_both">Cả hai cạnh</string>
     <string name="radar_overlay_right">Cạnh phải</string>
@@ -1359,7 +1359,7 @@
     <string name="recording_chart_power">Công suất (W)</string>
     <string name="recording_chart_altitude">Độ cao (m)</string>
     <string name="widget_description">Chỉ số và thao tác nhanh.</string>
-    <string name="widget_euc_label">Bảng điều khiển xe</string>
+    <string name="widget_euc_label">Dashboard xe</string>
     <string name="widget_act_1_label">Nút xe 1</string>
     <string name="widget_act_2_label">Nút xe 2</string>
     <string name="widget_act_3_label">Nút xe 3</string>
@@ -1374,7 +1374,7 @@
     <string name="pip_mode_label">Chế độ PIP</string>
     <string name="pip_mode_off">Tắt</string>
     <string name="pip_mode_simple">Đơn giản</string>
-    <string name="pip_mode_dashboard">Bảng điều khiển</string>
+    <string name="pip_mode_dashboard">Dashboard</string>
     <string name="pip_label_pwm" formatted="false">pwm %</string>
     <string name="phone_hud_section">HUD điện thoại</string>
     <string name="phone_hud_desc">Vẽ bố cục Overlay Studio đè lên ứng dụng khác, để bạn theo dõi xe khi dùng bản đồ hoặc nghe nhạc.</string>
@@ -1509,7 +1509,7 @@
     <string name="auto_waiting_gps">Đang chờ vị trí GPS…</string>
     <string name="auto_volume_title">Điều khiển âm lượng</string>
     <string name="auto_volume_when">Tăng âm lượng khi</string>
-    <string name="media_control_title">Điều khiển phát nhạc</string>
+    <string name="media_control_title">Điều khiển nhạc</string>
     <string name="media_control_pause">Tạm dừng khi giảm tốc</string>
     <string name="media_control_pause_below">Tạm dừng khi bằng hoặc dưới</string>
     <string name="media_control_resume">Phát tiếp khi tăng tốc</string>
@@ -1536,7 +1536,7 @@
     <string name="auto_lights_suspended">Tạm dừng trong phiên này vì bạn đã chỉnh đèn bằng tay. Sửa trong mục Cần chú ý, hoặc kết nối lại xe.</string>
     <string name="auto_lock_suspended">Tạm dừng trong phiên này vì bạn đã khóa hoặc mở khóa bằng tay. Sửa trong mục Cần chú ý, hoặc kết nối lại xe.</string>
     <string name="alarm_help">Mức ưu tiên kích hoạt dựa trên thứ tự các nhóm chỉ số bên dưới.</string>
-    <string name="alarm_empty">Chưa có quy tắc cảnh báo</string>
+    <string name="alarm_empty">Chưa có quy tắc nào</string>
     <string name="alarm_add">Cảnh báo mới</string>
     <string name="alarm_summary_predict_fmt">dự đoán trước %1$s s</string>
     <string name="alarm_new">Cảnh báo mới</string>
@@ -2011,7 +2011,7 @@
     <string name="nav_finished_body">Bắt đầu lộ trình mới? Các điểm dừng đã đến sẽ bị xóa. Để giữ lộ trình này, hãy lưu từ menu trước.</string>
     <string name="nav_clear_home">Xóa Nhà</string>
     <string name="nav_clear_work">Xóa Nơi làm việc</string>
-    <string name="nav_menu_exit">Về bảng điều khiển</string>
+    <string name="nav_menu_exit">Về dashboard</string>
     <string name="nav_waypoints">Điểm dừng</string>
     <string name="nav_role_destination">Điểm đến</string>
     <string name="nav_max_stops">Tối đa một điểm đến và 49 điểm dừng</string>
@@ -2174,7 +2174,7 @@
     <string name="weather_window_3d">3 ngày tới</string>
     <string name="weather_window_1w">7 ngày tới</string>
     <string name="weather_settings_entry">Cài đặt thời tiết</string>
-    <string name="weather_enable">Biểu tượng truy cập nhanh trên bảng điều khiển</string>
+    <string name="weather_enable">Biểu tượng truy cập nhanh trên dashboard</string>
     <string name="weather_enable_desc">Thêm biểu tượng thời tiết phía trên nút bản đồ: chạm để xem trời có chạy xe được không.</string>
     <string name="weather_window_label">Khoảng dự báo</string>
     <string name="weather_source_label">Nguồn dự báo</string>
@@ -2500,14 +2500,14 @@
     <string name="lockdown_limit_5">Lớp phủ nổi bị ẩn.</string>
     <string name="lockdown_limit_6">Tiện ích màn hình chính ngừng cập nhật.</string>
     <string name="lockdown_limit_7">Chế độ dịch vụ và ghi chẩn đoán dừng lại.</string>
-    <string name="lockdown_limit_8">Bảng điều khiển được thay bằng màn hình cố định: đồng hồ tốc độ, sáu chỉ số, bốn nút.</string>
+    <string name="lockdown_limit_8">Dashboard được thay bằng màn hình cố định: đồng hồ tốc độ, sáu chỉ số, bốn nút.</string>
     <string name="lockdown_limit_9">Màn hình sẽ không xoay.</string>
     <string name="lockdown_limit_10">Không thể mở Cài đặt.</string>
     <string name="lockdown_limit_11">Không thể mở lịch sử chuyến đi, theo dõi pin, studio và chi tiết chỉ số.</string>
     <string name="lockdown_limit_12">Chạm vào chỉ số không có tác dụng.</string>
     <string name="lockdown_limit_13">Thông báo giọng nói, báo cáo định kỳ và mốc tốc độ bị tắt tiếng. Cảnh báo của bạn vẫn hoạt động.</string>
     <string name="lockdown_limit_14">Không thể khóa hay mở khóa xe, và tự khóa theo khoảng cách sẽ không chạy.</string>
-    <string name="lockdown_limit_15">Đèn tự động và âm lượng tự động vẫn hoạt động. Điều khiển phát nhạc dừng lại.</string>
+    <string name="lockdown_limit_15">Đèn tự động và âm lượng tự động vẫn hoạt động. Điều khiển nhạc dừng lại.</string>
     <string name="lockdown_limit_16">Thông báo không còn các nút.</string>
     <string name="lockdown_limit_17">Số phiên bản sẽ không mở Giới thiệu.</string>
     <string name="lockdown_limit_18">Chế độ này không có trong bản sao lưu cài đặt.</string>
@@ -2668,9 +2668,9 @@
     <string name="nav_unlock_off">Lệch tối đa %1$s so với vết</string>
     <string name="nav_unlock_confirm">Chuyển đổi</string>
     <string name="voice_nav_place_reached">Đã đến %1$s</string>
-    <string name="offline_data_open">Khu vực ngoại tuyến</string>
+    <string name="offline_data_open">Bản đồ ngoại tuyến</string>
     <string name="offline_server_url">Máy chủ dữ liệu ngoại tuyến</string>
-    <string name="offline_data_title">Khu vực ngoại tuyến</string>
+    <string name="offline_data_title">Bản đồ ngoại tuyến</string>
     <string name="offline_data_space">Đã dùng %1$s, còn trống %2$s</string>
     <string name="offline_data_tap_hint">Chạm vào một ô vuông để tải bản đồ và dữ liệu tìm đường của ô đó, hoặc xóa đi.</string>
     <string name="offline_data_list_error">Không kết nối được máy chủ. Các khu vực đã tải vẫn dùng được.</string>

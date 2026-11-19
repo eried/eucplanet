@@ -112,7 +112,7 @@
     <string name="tab_auto">ระบบอัตโนมัติ</string>
     <string name="tab_integration">การเชื่อมต่อภายนอก</string>
     <string name="tab_watch">นาฬิกา</string>
-    <string name="tab_cloud">การสำรองข้อมูลและกระดานผู้นำ</string>
+    <string name="tab_cloud">สำรองข้อมูลและ Leaderboards</string>
     <string name="tab_dashboard">เลย์เอาต์แดชบอร์ด</string>
     <string name="dashboard_section_metrics">ค่าที่แสดง</string>
     <string name="dashboard_section_actions">ปุ่มคำสั่ง</string>
@@ -808,7 +808,7 @@
     <string name="section_recording">การบันทึก</string>
     <string name="section_connection">การเชื่อมต่อ</string>
     <string name="auto_record_caption">บันทึกทริปเมื่อเชื่อมต่อล้อ</string>
-    <string name="auto_record_start_in_motion_caption">เริ่มเมื่อเคลื่อนที่ หยุดเองเมื่อจอดนิ่ง และเริ่มใหม่ในการขี่ครั้งถัดไป</string>
+    <string name="auto_record_start_in_motion_caption">เริ่มเมื่อเคลื่อนที่ หยุดเองเมื่อจอดนิ่ง และเริ่มใหม่เมื่อเคลื่อนที่อีกครั้ง</string>
     <string name="auto_record_stop_idle_seconds">หยุดเมื่อจอดนิ่งนาน</string>
     <string name="auto_record_mode_label">เริ่มบันทึกทริปอัตโนมัติ</string>
     <string name="auto_record_mode_never">ไม่ต้อง</string>
@@ -821,7 +821,7 @@
     <string name="wheel_name_brand">ยี่ห้อ</string>
     <string name="last_device">อุปกรณ์ล่าสุด: %1$s</string>
     <string name="section_application">แอปพลิเคชัน</string>
-    <string name="back_button_action">การทำงานของปุ่มกลับ</string>
+    <string name="back_button_action">เมื่อกดกลับ</string>
     <string name="back_button_action_desc">เลือกว่าจะให้ทำอะไรเมื่อปัดหรือกดกลับจากแดชบอร์ด</string>
     <string name="section_screen_geometry">การจัดวางหน้าจอ</string>
     <string name="geo_section_dashboard">แดชบอร์ด</string>
@@ -1509,7 +1509,7 @@
     <string name="auto_waiting_gps">กำลังรอตำแหน่ง GPS…</string>
     <string name="auto_volume_title">ควบคุมระดับเสียง</string>
     <string name="auto_volume_when">เพิ่มเสียงเมื่อ</string>
-    <string name="media_control_title">ควบคุมการเล่นสื่อ</string>
+    <string name="media_control_title">ควบคุมเพลง</string>
     <string name="media_control_pause">หยุดเมื่อฉันชะลอ</string>
     <string name="media_control_pause_below">หยุดที่หรือต่ำกว่า</string>
     <string name="media_control_resume">เล่นต่อเมื่อฉันเร่ง</string>
@@ -1536,7 +1536,7 @@
     <string name="auto_lights_suspended">หยุดชั่วคราวในรอบนี้ เพราะคุณปรับไฟเอง แก้ไขได้ที่หัวข้อต้องดำเนินการ หรือเชื่อมต่อล้อใหม่</string>
     <string name="auto_lock_suspended">หยุดชั่วคราวในรอบนี้ เพราะคุณล็อกหรือปลดล็อกเอง แก้ไขได้ที่หัวข้อต้องดำเนินการ หรือเชื่อมต่อล้อใหม่</string>
     <string name="alarm_help">ลำดับความสำคัญของการเตือนเป็นไปตามลำดับกลุ่มค่าด้านล่าง</string>
-    <string name="alarm_empty">ยังไม่มีกฎสัญญาณเตือน</string>
+    <string name="alarm_empty">ยังไม่มีกฎ</string>
     <string name="alarm_add">สัญญาณเตือนใหม่</string>
     <string name="alarm_summary_predict_fmt">คาดการณ์ล่วงหน้า %1$s วิ</string>
     <string name="alarm_new">สัญญาณเตือนใหม่</string>
@@ -2063,7 +2063,7 @@
     <string name="nav_view_straight_line">เส้นตรง</string>
     <string name="nav_view_heading_up">ทิศที่ไปอยู่บน แตะเพื่อให้ทิศเหนืออยู่บน</string>
     <string name="nav_view_north_up">ทิศเหนืออยู่บน แตะเพื่อให้ทิศที่ไปอยู่บน</string>
-    <string name="nav_view_tiles">ไทล์ตัวนำทาง</string>
+    <string name="nav_view_tiles">ข้อมูลขณะนำทาง</string>
     <string name="nav_view_tiles_desc">ตัวเลข 4 ค่าข้างความเร็วขณะนำทาง</string>
     <string name="nav_view_speed">ความเร็ว</string>
     <string name="nav_layer_dark">Esri มืด</string>
@@ -2507,7 +2507,7 @@
     <string name="lockdown_limit_12">แตะที่ค่าแล้วจะไม่มีอะไรเกิดขึ้น</string>
     <string name="lockdown_limit_13">การประกาศด้วยเสียง รายงานตามรอบเวลา และเวลาช่วงความเร็วจะเงียบ แต่สัญญาณเตือนยังทำงาน</string>
     <string name="lockdown_limit_14">ล็อกหรือปลดล็อกล้อไม่ได้ และล็อกอัตโนมัติตามระยะใกล้จะไม่ทำงาน</string>
-    <string name="lockdown_limit_15">ไฟอัตโนมัติและระดับเสียงอัตโนมัติยังทำงาน ส่วนควบคุมการเล่นสื่อจะหยุด</string>
+    <string name="lockdown_limit_15">ไฟอัตโนมัติและระดับเสียงอัตโนมัติยังทำงาน ส่วนควบคุมเพลงจะหยุด</string>
     <string name="lockdown_limit_16">การแจ้งเตือนจะไม่มีปุ่ม</string>
     <string name="lockdown_limit_17">หมายเลขเวอร์ชันจะไม่เปิดหน้าเกี่ยวกับ</string>
     <string name="lockdown_limit_18">โหมดนี้ไม่รวมอยู่ในการสำรองการตั้งค่า</string>
@@ -2668,9 +2668,9 @@
     <string name="nav_unlock_off">คลาดจากเส้นทางได้สูงสุด %1$s</string>
     <string name="nav_unlock_confirm">แปลง</string>
     <string name="voice_nav_place_reached">ถึง %1$s แล้ว</string>
-    <string name="offline_data_open">พื้นที่ออฟไลน์</string>
+    <string name="offline_data_open">แผนที่ออฟไลน์</string>
     <string name="offline_server_url">เซิร์ฟเวอร์ข้อมูลออฟไลน์</string>
-    <string name="offline_data_title">พื้นที่ออฟไลน์</string>
+    <string name="offline_data_title">แผนที่ออฟไลน์</string>
     <string name="offline_data_space">ใช้ไป %1$s ว่าง %2$s</string>
     <string name="offline_data_tap_hint">แตะช่องสี่เหลี่ยมเพื่อดาวน์โหลดแผนที่และข้อมูลเส้นทาง หรือลบออก</string>
     <string name="offline_data_list_error">ติดต่อเซิร์ฟเวอร์ไม่ได้ พื้นที่ที่ดาวน์โหลดแล้วยังใช้งานได้</string>

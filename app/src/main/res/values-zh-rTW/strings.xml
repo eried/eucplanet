@@ -124,7 +124,7 @@
     <string name="tab_auto">自動化</string>
     <string name="tab_integration">整合</string>
     <string name="tab_watch">手錶</string>
-    <string name="tab_cloud">備份與排行榜</string>
+    <string name="tab_cloud">備份與 Leaderboards</string>
 
     <!-- Dashboard layout (customizable home screen) -->
     <string name="tab_dashboard">儀表板版面</string>
@@ -666,7 +666,7 @@
     <string name="section_recording">記錄</string>
     <string name="section_connection">連線</string>
     <string name="auto_record_caption">獨輪車連線後自動記錄行程。</string>
-    <string name="auto_record_start_in_motion_caption">移動時開始，閒置後自動停止，下次騎乘時重新開始。</string>
+    <string name="auto_record_start_in_motion_caption">移動時開始，閒置後自動停止，再次移動時重新開始。</string>
     <string name="auto_record_stop_idle_seconds">閒置多久後停止</string>
     <string name="auto_connect_on_start">啟動時自動連線</string>
     <string name="wheel_name_display">獨輪車名稱</string>
@@ -675,7 +675,7 @@
     <string name="wheel_name_brand">品牌</string>
     <string name="last_device">上次裝置：%1$s</string>
     <string name="section_application">應用程式</string>
-    <string name="back_button_action">返回操作</string>
+    <string name="back_button_action">按返回鍵時</string>
     <string name="back_button_action_desc">在儀表板滑動返回或按返回鍵時要做什麼。</string>
     <string name="back_button_action_ask">詢問</string>
     <string name="back_button_action_background">背景執行</string>
@@ -1159,7 +1159,7 @@
     <string name="auto_waiting_gps">等待 GPS 定位…</string>
     <string name="auto_volume_title">音量控制</string>
     <string name="auto_volume_when">提高音量的時機</string>
-    <string name="media_control_title">播放控制</string>
+    <string name="media_control_title">音樂控制</string>
     <string name="media_control_pause">減速時暫停</string>
     <string name="media_control_pause_below">在此速度或以下暫停</string>
     <string name="media_control_resume">加速時繼續播放</string>
@@ -1189,7 +1189,7 @@
 
     <!-- Alarms tab -->
     <string name="alarm_help">觸發優先順序依下方指標群組的順序決定。</string>
-    <string name="alarm_empty">尚無警報規則</string>
+    <string name="alarm_empty">尚無規則</string>
     <string name="alarm_add">新增警報</string>
     <string name="alarm_summary_predict_fmt">提前 %1$s 秒預測</string>
     <string name="alarm_new">新增警報</string>
@@ -1705,7 +1705,7 @@
     <string name="nav_view_straight_line">直線</string>
     <string name="nav_view_heading_up">行進方向朝上，輕觸切換為北方朝上</string>
     <string name="nav_view_north_up">北方朝上，輕觸切換為行進方向朝上</string>
-    <string name="nav_view_tiles">導航資訊方塊</string>
+    <string name="nav_view_tiles">導航時的資訊方塊</string>
     <string name="nav_view_tiles_desc">導航時速度旁顯示的 4 個數值。</string>
     <string name="nav_view_speed">速度</string>
     <string name="nav_layer_dark">Esri Dark</string>
@@ -2670,7 +2670,7 @@
     <string name="lockdown_limit_12">輕觸指標不會有任何反應。</string>
     <string name="lockdown_limit_13">語音播報、定期播報和速度分段計時會靜音。你的警報仍會運作。</string>
     <string name="lockdown_limit_14">無法鎖定或解鎖獨輪車，距離自動鎖定也不會執行。</string>
-    <string name="lockdown_limit_15">自動燈光和自動音量會繼續運作。播放控制會停止。</string>
+    <string name="lockdown_limit_15">自動燈光和自動音量會繼續運作。音樂控制會停止。</string>
     <string name="lockdown_limit_16">通知上的按鈕會消失。</string>
     <string name="lockdown_limit_17">輕觸版本號不會再開啟「關於」。</string>
     <string name="lockdown_limit_18">設定備份不會包含這個模式。</string>
@@ -2869,9 +2869,9 @@
     <string name="nav_unlock_off">最多偏離軌跡 %1$s</string>
     <string name="nav_unlock_confirm">轉換</string>
     <string name="voice_nav_place_reached">已抵達 %1$s</string>
-    <string name="offline_data_open">離線區域</string>
+    <string name="offline_data_open">離線地圖</string>
     <string name="offline_server_url">離線資料伺服器</string>
-    <string name="offline_data_title">離線區域</string>
+    <string name="offline_data_title">離線地圖</string>
     <string name="offline_data_space">已用 %1$s，可用 %2$s</string>
     <string name="offline_data_tap_hint">輕觸方塊即可下載該區域的地圖和路線資料，也可以刪除。</string>
     <string name="offline_data_list_error">無法連線到伺服器。已下載的區域仍可使用。</string>

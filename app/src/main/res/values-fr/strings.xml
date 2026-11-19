@@ -124,7 +124,7 @@
     <string name="tab_auto">Automatisations</string>
     <string name="tab_integration">Intégration</string>
     <string name="tab_watch">Montre</string>
-    <string name="tab_cloud">Sauvegardes et classements</string>
+    <string name="tab_cloud">Sauvegardes et Leaderboards</string>
 
     <!-- Dashboard layout (customizable home screen) -->
     <string name="tab_dashboard">Mise en page du tableau de bord</string>
@@ -134,7 +134,7 @@
     <string name="dashboard_pool_metrics">Mesures disponibles</string>
     <string name="dashboard_pool_actions">Actions disponibles</string>
     <string name="dashboard_pool_tap_toast">Appui long, puis faites glisser vers un emplacement ci-dessus</string>
-    <string name="dashboard_stats_length">Durée des stats</string>
+    <string name="dashboard_stats_length">Stats</string>
     <string name="dashboard_view">Vue</string>
     <string name="dashboard_view_default">Par défaut</string>
     <string name="dashboard_view_wide">Large</string>
@@ -666,7 +666,7 @@
     <string name="section_recording">Enregistrement</string>
     <string name="section_connection">Connexion</string>
     <string name="auto_record_caption">Enregistre un trajet quand la roue est connectée.</string>
-    <string name="auto_record_start_in_motion_caption">Démarre au mouvement, s\'arrête après inactivité, reprend au trajet suivant.</string>
+    <string name="auto_record_start_in_motion_caption">Démarre au mouvement, s\'arrête après inactivité, redémarre dès que vous repartez.</string>
     <string name="auto_record_stop_idle_seconds">Arrêter après inactivité de</string>
     <string name="auto_connect_on_start">Connexion automatique au démarrage</string>
     <string name="wheel_name_display">Nom de la roue</string>
@@ -675,7 +675,7 @@
     <string name="wheel_name_brand">Marque</string>
     <string name="last_device">Dernier appareil : %1$s</string>
     <string name="section_application">Application</string>
-    <string name="back_button_action">Action retour</string>
+    <string name="back_button_action">Bouton Retour</string>
     <string name="back_button_action_desc">Ce qui se passe quand vous balayez ou appuyez sur Retour depuis le tableau de bord.</string>
     <string name="back_button_action_ask">Demander</string>
     <string name="back_button_action_background">Arrière-plan</string>
@@ -1164,7 +1164,7 @@
     <string name="auto_waiting_gps">En attente de la position GPS…</string>
     <string name="auto_volume_title">Contrôle du volume</string>
     <string name="auto_volume_when">Monter le volume quand</string>
-    <string name="media_control_title">Contrôle de la lecture</string>
+    <string name="media_control_title">Contrôle de la musique</string>
     <string name="media_control_pause">Pause quand je ralentis</string>
     <string name="media_control_pause_below">Pause à cette vitesse ou en dessous</string>
     <string name="media_control_resume">Reprise quand j\'accélère</string>
@@ -1194,7 +1194,7 @@
 
     <!-- Alarms tab -->
     <string name="alarm_help">La priorité de déclenchement suit l\'ordre des groupes de mesures ci-dessous.</string>
-    <string name="alarm_empty">Aucune règle d\'alarme</string>
+    <string name="alarm_empty">Aucune règle pour l\'instant</string>
     <string name="alarm_add">Nouvelle alarme</string>
     <string name="alarm_summary_predict_fmt">prévoit %1$s s à l\'avance</string>
     <string name="alarm_new">Nouvelle alarme</string>
@@ -1769,7 +1769,7 @@
     <string name="nav_view_straight_line">à vol d\'oiseau</string>
     <string name="nav_view_heading_up">Cap en haut, appuyez pour nord en haut</string>
     <string name="nav_view_north_up">Nord en haut, appuyez pour cap en haut</string>
-    <string name="nav_view_tiles">Tuiles du navigateur</string>
+    <string name="nav_view_tiles">Tuiles en navigation</string>
     <string name="nav_view_tiles_desc">Les 4 valeurs à côté de la vitesse pendant la navigation.</string>
     <string name="nav_view_speed">Vitesse</string>
     <string name="nav_layer_dark">Esri Dark</string>
@@ -2196,7 +2196,7 @@
     <string name="adv_charging_window_desc">Détermine combien d\'historique récent sert à calculer la vitesse de charge. Attention : trop courte, c\'est bruité, trop longue, ça réagit lentement.</string>
     <string name="adv_garmin_report_interval">Cadence d\'envoi Garmin</string>
     <string name="adv_garmin_report_interval_desc">Détermine la fréquence de mise à jour d\'un Garmin associé. Le lien Connect IQ limite la cadence réelle : des valeurs très basses peuvent ne pas s\'appliquer entièrement.</string>
-    <string name="adv_graph_sample_interval">Intervalle d\'échantillonnage du graphique</string>
+    <string name="adv_graph_sample_interval">Échantillonnage du graphique</string>
     <string name="adv_graph_sample_interval_desc">N\'affecte pas les alarmes ni les fichiers de trajet. Attention : des valeurs très basses utilisent plus de mémoire.</string>
     <string name="adv_group_alarm">Alarmes prédictives</string>
     <string name="adv_group_autolights">Phare automatique</string>
@@ -2278,7 +2278,7 @@
     <string name="adv_nav_reroute_after">Recalcul après</string>
     <string name="adv_nav_reroute_after_desc">Détermine combien de temps vous restez hors itinéraire avant qu\'un nouvel itinéraire soit demandé. Attention : trop bas, le moindre détour déclenche un recalcul et consomme des données.</string>
     <string name="adv_nav_warning">Ces réglages modifient le moment où la navigation réagit. De mauvaises valeurs peuvent déclencher les annonces vocales ou le recalcul trop tôt ou trop tard.</string>
-    <string name="adv_phone_gps_interval">Intervalle de mise à jour GPS du téléphone</string>
+    <string name="adv_phone_gps_interval">Intervalle GPS du téléphone</string>
     <string name="adv_phone_gps_interval_desc">Détermine la fluidité du tracé GPS et la rapidité de réaction de la navigation. Plus bas, la position est mise à jour plus souvent. Attention : des valeurs basses vident la batterie plus vite.</string>
     <string name="adv_phone_gps_idle_interval">Intervalle GPS au repos</string>
     <string name="adv_phone_gps_idle_interval_desc">Cadence du GPS gardé en veille hors enregistrement et navigation, pour que le Navigateur et une roue tout juste connectée soient prêts tout de suite. Une valeur plus élevée économise la batterie.</string>
@@ -2305,7 +2305,7 @@
     <string name="adv_reset_confirm_msg">Ces paramètres reviendront à leurs valeurs par défaut :</string>
     <string name="adv_restore_default">Rétablir par défaut</string>
     <string name="adv_timings_title">Délais et variables</string>
-    <string name="adv_trip_record_interval">Intervalle d\'enregistrement du trajet</string>
+    <string name="adv_trip_record_interval">Intervalle d\'enregistrement</string>
     <string name="adv_trip_record_interval_desc">Détermine la fréquence à laquelle une ligne est ajoutée au fichier de trajet pendant l\'enregistrement. Plus bas, plus de détail. Attention : des valeurs très basses créent de gros fichiers.</string>
     <string name="adv_pending_upload_interval">Nouvel essai d\'envoi des trajets</string>
     <string name="adv_pending_upload_interval_desc">Détermine la fréquence à laquelle l\'application réessaie d\'envoyer les trajets restés en attente, p. ex. après une fermeture pendant une synchronisation. 15 min est le minimum d\'Android. Attention : trop long, un envoi bloqué attend longtemps.</string>
@@ -2880,9 +2880,9 @@
     <string name="nav_unlock_off">S\'écarte jusqu\'à %1$s de la trace</string>
     <string name="nav_unlock_confirm">Convertir</string>
     <string name="voice_nav_place_reached">%1$s atteint</string>
-    <string name="offline_data_open">Zones hors ligne</string>
+    <string name="offline_data_open">Plans hors connexion</string>
     <string name="offline_server_url">Serveur de données hors ligne</string>
-    <string name="offline_data_title">Zones hors ligne</string>
+    <string name="offline_data_title">Plans hors connexion</string>
     <string name="offline_data_space">%1$s utilisés, %2$s libres</string>
     <string name="offline_data_tap_hint">Appuyez sur un carré pour télécharger sa carte et ses itinéraires, ou pour le supprimer.</string>
     <string name="offline_data_list_error">Serveur injoignable. Les zones téléchargées fonctionnent toujours.</string>

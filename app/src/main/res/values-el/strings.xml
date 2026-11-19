@@ -121,7 +121,7 @@
     <string name="tab_auto">Αυτοματισμοί</string>
     <string name="tab_integration">Ενσωμάτωση</string>
     <string name="tab_watch">Ρολόι</string>
-    <string name="tab_cloud">Αντίγραφα &amp; κατατάξεις</string>
+    <string name="tab_cloud">Αντίγραφα &amp; Leaderboards</string>
 
     <string name="tab_dashboard">Διάταξη πίνακα οργάνων</string>
     <string name="dashboard_section_metrics">Μετρήσεις</string>
@@ -130,7 +130,7 @@
     <string name="dashboard_pool_metrics">Διαθέσιμες μετρήσεις</string>
     <string name="dashboard_pool_actions">Διαθέσιμες ενέργειες</string>
     <string name="dashboard_pool_tap_toast">Πατήστε παρατεταμένα και σύρετε σε μια θέση παραπάνω για χρήση</string>
-    <string name="dashboard_stats_length">Διάρκεια στατιστικών</string>
+    <string name="dashboard_stats_length">Στατιστικά</string>
     <string name="dashboard_view">Προβολή</string>
     <string name="dashboard_view_default">Προεπιλογή</string>
     <string name="dashboard_view_wide">Ευρεία</string>
@@ -831,7 +831,7 @@
     <string name="section_recording">Εγγραφή</string>
     <string name="section_connection">Σύνδεση</string>
     <string name="auto_record_caption">Καταγράφει διαδρομή όταν το μονότροχο είναι συνδεδεμένο.</string>
-    <string name="auto_record_start_in_motion_caption">Ξεκινά με την κίνηση, σταματά μετά από αδράνεια και ξαναρχίζει στην επόμενη βόλτα.</string>
+    <string name="auto_record_start_in_motion_caption">Ξεκινά με την κίνηση, σταματά μετά από αδράνεια και ξαναρχίζει όταν κινηθείτε ξανά.</string>
     <string name="auto_record_stop_idle_seconds">Διακοπή μετά από αδράνεια</string>
     <string name="auto_record_mode_label">Αυτόματη εγγραφή διαδρομής</string>
     <string name="auto_record_mode_never">Ποτέ</string>
@@ -844,7 +844,7 @@
     <string name="wheel_name_brand">Μάρκα</string>
     <string name="last_device">Τελευταία συσκευή: %1$s</string>
     <string name="section_application">Εφαρμογή</string>
-    <string name="back_button_action">Ενέργεια «Πίσω»</string>
+    <string name="back_button_action">Κουμπί «Πίσω»</string>
     <string name="back_button_action_desc">Τι συμβαίνει όταν σύρετε ή πατάτε «Πίσω» από τον πίνακα οργάνων.</string>
     <string name="section_screen_geometry">Γεωμετρία οθόνης</string>
     <string name="geo_section_dashboard">Πίνακας οργάνων</string>
@@ -1137,9 +1137,9 @@
 
     <string name="section_flic_buttons">Κουμπιά Flic 2</string>
     <string name="flic_show_on_dashboard">Εικονίδιο γρήγορης πρόσβασης στον πίνακα οργάνων</string>
-    <string name="flic_scan_hint">Κρατήστε πατημένο το κουμπί Flic 2 για 6 δευτερόλεπτα για λειτουργία σύζευξης και πατήστε Έναρξη σάρωσης.</string>
+    <string name="flic_scan_hint">Κρατήστε πατημένο το κουμπί Flic 2 για 6 δευτερόλεπτα για λειτουργία σύζευξης και πατήστε «Αναζήτηση συσκευών».</string>
     <string name="flic_stop_scan">Διακοπή σάρωσης</string>
-    <string name="flic_start_scan">Έναρξη σάρωσης</string>
+    <string name="flic_start_scan">Αναζήτηση συσκευών</string>
     <string name="flic_forget">Διαγραφή</string>
     <string name="flic_forget_title">Διαγραφή αυτού του κουμπιού;</string>
     <string name="flic_forget_body">Το %1$s θα αφαιρεθεί.</string>
@@ -1157,7 +1157,7 @@
     <string name="tpms_none_yet">Δεν εντοπίστηκε ούτε προστέθηκε χειροκίνητα αισθητήρας πίεσης ελαστικού.</string>
     <string name="tpms_wheel_sensor_replaced">Αντικαταστάθηκε από τον συζευγμένο αισθητήρα σας</string>
     <string name="external_gps_device_title">Εξωτερικό GPS</string>
-    <string name="external_gps_pair_button">Έναρξη σάρωσης</string>
+    <string name="external_gps_pair_button">Αναζήτηση συσκευών</string>
     <string name="external_gps_pair_action">Σύζευξη</string>
     <string name="external_gps_stop_scan">Διακοπή σάρωσης</string>
     <string name="external_gps_paired_with">Σε σύζευξη με %1$s</string>
@@ -1200,7 +1200,7 @@
 
     <string name="section_radar">Πίσω ραντάρ</string>
     <string name="radar_caption">Κρατήστε πατημένο το κουμπί του Varia για 2 δευτερόλεπτα μέχρι να αναβοσβήνει μωβ και ξεκινήστε σάρωση.</string>
-    <string name="radar_pair_button">Έναρξη σάρωσης</string>
+    <string name="radar_pair_button">Αναζήτηση συσκευών</string>
     <string name="radar_pair_action">Σύζευξη</string>
     <string name="radar_stop_scan">Διακοπή σάρωσης</string>
     <string name="radar_state_connected">Συνδέθηκε</string>
@@ -1300,7 +1300,7 @@
 
     <string name="scan_title">Σύνδεση με μονότροχο</string>
     <string name="scan_scanning">Αναζήτηση…</string>
-    <string name="scan_start">Έναρξη σάρωσης</string>
+    <string name="scan_start">Αναζήτηση συσκευών</string>
     <string name="scan_bluetooth_off_title">Το Bluetooth είναι κλειστό</string>
     <string name="scan_bluetooth_off_body">Ενεργοποιήστε το Bluetooth για αναζήτηση μονότροχων.</string>
     <string name="scan_enable_bluetooth">Ενεργοποίηση Bluetooth</string>
@@ -1554,7 +1554,7 @@
     <string name="auto_waiting_gps">Αναμονή για θέση GPS…</string>
     <string name="auto_volume_title">Έλεγχος έντασης</string>
     <string name="auto_volume_when">Αύξηση έντασης όταν</string>
-    <string name="media_control_title">Έλεγχος αναπαραγωγής πολυμέσων</string>
+    <string name="media_control_title">Έλεγχος μουσικής</string>
     <string name="media_control_pause">Παύση όταν κόβω ταχύτητα</string>
     <string name="media_control_pause_below">Παύση μέχρι και</string>
     <string name="media_control_resume">Συνέχιση όταν επιταχύνω</string>
@@ -1582,7 +1582,7 @@
     <string name="auto_lock_suspended">Σε παύση για αυτή τη σύνδεση, κλειδώσατε ή ξεκλειδώσατε με το χέρι. Διορθώστε το από το «Χρειάζεται προσοχή» ή επανασυνδέστε το μονότροχο.</string>
 
     <string name="alarm_help">Η προτεραιότητα ακολουθεί τη σειρά των ομάδων μετρήσεων παρακάτω.</string>
-    <string name="alarm_empty">Δεν υπάρχουν κανόνες συναγερμού ακόμα</string>
+    <string name="alarm_empty">Δεν υπάρχουν κανόνες ακόμα</string>
     <string name="alarm_add">Νέος συναγερμός</string>
     <string name="alarm_summary_predict_fmt">πρόβλεψη %1$s δευτ. νωρίτερα</string>
     <string name="alarm_new">Νέος συναγερμός</string>
@@ -2140,7 +2140,7 @@
     <string name="nav_view_straight_line">ευθεία γραμμή</string>
     <string name="nav_view_heading_up">Κατεύθυνση επάνω, πατήστε για βορρά επάνω</string>
     <string name="nav_view_north_up">Βορράς επάνω, πατήστε για κατεύθυνση επάνω</string>
-    <string name="nav_view_tiles">Πλακίδια πλοήγησης</string>
+    <string name="nav_view_tiles">Δεδομένα πλοήγησης</string>
     <string name="nav_view_tiles_desc">Οι 4 αριθμοί δίπλα στην ταχύτητα κατά την πλοήγηση.</string>
     <string name="nav_view_speed">Ταχύτητα</string>
     <string name="nav_layer_dark">Esri Dark</string>
@@ -2590,7 +2590,7 @@
     <string name="lockdown_limit_12">Το πάτημα μιας μέτρησης δεν κάνει τίποτα.</string>
     <string name="lockdown_limit_13">Οι φωνητικές ανακοινώσεις, οι περιοδικές αναφορές και οι χρόνοι ταχύτητας δεν ακούγονται. Οι συναγερμοί σας λειτουργούν κανονικά.</string>
     <string name="lockdown_limit_14">Το μονότροχο δεν μπορεί να κλειδωθεί ή να ξεκλειδωθεί και το αυτόματο κλείδωμα εγγύτητας δεν λειτουργεί.</string>
-    <string name="lockdown_limit_15">Τα αυτόματα φώτα και η αυτόματη ένταση συνεχίζουν να λειτουργούν. Ο έλεγχος αναπαραγωγής πολυμέσων σταματά.</string>
+    <string name="lockdown_limit_15">Τα αυτόματα φώτα και η αυτόματη ένταση συνεχίζουν να λειτουργούν. Ο έλεγχος μουσικής σταματά.</string>
     <string name="lockdown_limit_16">Η ειδοποίηση χάνει τα κουμπιά της.</string>
     <string name="lockdown_limit_17">Ο αριθμός έκδοσης δεν ανοίγει τις Πληροφορίες.</string>
     <string name="lockdown_limit_18">Αυτή η λειτουργία δεν περιλαμβάνεται στα αντίγραφα ασφαλείας ρυθμίσεων.</string>
@@ -2754,9 +2754,9 @@
     <string name="nav_unlock_off">Απόκλιση έως %1$s από την πορεία</string>
     <string name="nav_unlock_confirm">Μετατροπή</string>
     <string name="voice_nav_place_reached">Φτάσατε: %1$s</string>
-    <string name="offline_data_open">Περιοχές εκτός σύνδεσης</string>
+    <string name="offline_data_open">Χάρτες εκτός σύνδεσης</string>
     <string name="offline_server_url">Διακομιστής δεδομένων εκτός σύνδεσης</string>
-    <string name="offline_data_title">Περιοχές εκτός σύνδεσης</string>
+    <string name="offline_data_title">Χάρτες εκτός σύνδεσης</string>
     <string name="offline_data_space">Σε χρήση %1$s, ελεύθερα %2$s</string>
     <string name="offline_data_tap_hint">Πατήστε ένα τετράγωνο για να κατεβάσετε τον χάρτη και τα δεδομένα δρομολόγησής του ή για να το διαγράψετε.</string>
     <string name="offline_data_list_error">Δεν είναι δυνατή η σύνδεση με τον διακομιστή. Οι περιοχές που έχετε κατεβάσει λειτουργούν κανονικά.</string>

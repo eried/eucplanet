@@ -123,7 +123,7 @@
     <string name="tab_auto">Automazioni</string>
     <string name="tab_integration">Integrazioni</string>
     <string name="tab_watch">Orologio</string>
-    <string name="tab_cloud">Backup e classifiche</string>
+    <string name="tab_cloud">Backup e Leaderboards</string>
 
     <!-- HUD companion settings -->
     <string name="section_hud_companion">Motoeye HUD</string>
@@ -237,7 +237,7 @@
     <string name="section_recording">Registrazione</string>
     <string name="section_connection">Connessione</string>
     <string name="auto_record_caption">Registra un viaggio quando la ruota è connessa.</string>
-    <string name="auto_record_start_in_motion_caption">Parte quando ti muovi, si ferma quando resti fermo, riparte al prossimo giro.</string>
+    <string name="auto_record_start_in_motion_caption">Parte quando ti muovi, si ferma quando resti fermo, riparte quando ti rimetti in moto.</string>
     <string name="auto_record_stop_idle_seconds">Ferma dopo inattività di</string>
     <string name="auto_connect_on_start">Connessione automatica all\'avvio</string>
     <string name="wheel_name_display">Nome ruota</string>
@@ -246,8 +246,8 @@
     <string name="wheel_name_brand">Marca</string>
     <string name="last_device">Ultimo dispositivo: %1$s</string>
     <string name="section_application">Applicazione</string>
-    <string name="back_button_action">Azione indietro</string>
-    <string name="back_button_action_desc">Cosa succede quando scorri o premi indietro dalla dashboard.</string>
+    <string name="back_button_action">Tasto Indietro</string>
+    <string name="back_button_action_desc">Cosa succede quando scorri o premi Indietro dalla dashboard.</string>
     <string name="back_button_action_ask">Chiedi</string>
     <string name="back_button_action_background">In background</string>
     <string name="back_button_action_stop">Ferma tutto</string>
@@ -578,7 +578,7 @@
     <string name="auto_waiting_gps">In attesa della posizione GPS…</string>
     <string name="auto_volume_title">Controllo volume</string>
     <string name="auto_volume_when">Alza il volume quando</string>
-    <string name="media_control_title">Controllo riproduzione</string>
+    <string name="media_control_title">Controllo musica</string>
     <string name="media_control_pause">Pausa quando rallento</string>
     <string name="media_control_pause_below">Pausa a questa velocità o sotto</string>
     <string name="media_control_resume">Riprendi quando accelero</string>
@@ -608,7 +608,7 @@
 
     <!-- Alarms tab -->
     <string name="alarm_help">La priorità di attivazione segue l\'ordine dei gruppi di metriche qui sotto.</string>
-    <string name="alarm_empty">Nessuna regola d\'allarme</string>
+    <string name="alarm_empty">Nessuna regola ancora</string>
     <string name="alarm_add">Nuovo allarme</string>
     <string name="alarm_summary_predict_fmt">prevede con %1$s s di anticipo</string>
     <string name="alarm_new">Nuovo allarme</string>
@@ -880,7 +880,7 @@
     <string name="nav_view_straight_line">in linea d\'aria</string>
     <string name="nav_view_heading_up">Direzione in alto, tocca per nord in alto</string>
     <string name="nav_view_north_up">Nord in alto, tocca per direzione in alto</string>
-    <string name="nav_view_tiles">Riquadri del navigatore</string>
+    <string name="nav_view_tiles">Riquadri in navigazione</string>
     <string name="nav_view_tiles_desc">I 4 numeri accanto alla velocità durante la navigazione.</string>
     <string name="nav_view_speed">Velocità</string>
     <string name="nav_layer_dark">Esri Dark</string>
@@ -1546,7 +1546,7 @@
     <string name="dashboard_stat_p99_short">P99</string>
     <string name="dashboard_stat_sustained_peak">Picco sostenuto</string>
     <string name="dashboard_stat_sustained_peak_short">P.Sost</string>
-    <string name="dashboard_stats_length">Durata statistiche</string>
+    <string name="dashboard_stats_length">Statistiche</string>
     <string name="dashboard_view">Vista</string>
     <string name="dashboard_view_default">Predefinita</string>
     <string name="dashboard_view_wide">Ampia</string>
@@ -2178,7 +2178,7 @@
     <string name="adv_nav_reroute_after">Ricalcola dopo</string>
     <string name="adv_nav_reroute_after_desc">Per quanto resti fuori percorso prima di chiedere un nuovo percorso. Attenzione: se troppo basso, ricalcola per piccole deviazioni e consuma dati.</string>
     <string name="adv_nav_warning">Queste impostazioni cambiano quando reagisce la navigazione. Valori sbagliati possono far partire le indicazioni vocali o il ricalcolo troppo presto o troppo tardi.</string>
-    <string name="adv_phone_gps_interval">Intervallo aggiornamento GPS telefono</string>
+    <string name="adv_phone_gps_interval">Intervallo GPS telefono</string>
     <string name="adv_phone_gps_interval_desc">Quanto è fluida la traccia GPS e quanto in fretta reagisce la navigazione. Più basso aggiorna più spesso. Attenzione: valori bassi scaricano prima la batteria.</string>
     <string name="adv_phone_gps_idle_interval">Intervallo GPS a riposo</string>
     <string name="adv_phone_gps_idle_interval_desc">Frequenza con cui il GPS resta attivo quando non registri né navighi, così il Navigatore e una nuova connessione alla ruota sono subito pronti. Più alto risparmia batteria.</string>
@@ -2205,9 +2205,9 @@
     <string name="adv_reset_confirm_msg">Queste impostazioni torneranno ai valori predefiniti:</string>
     <string name="adv_restore_default">Ripristina predefinito</string>
     <string name="adv_timings_title">Tempistiche</string>
-    <string name="adv_trip_record_interval">Intervallo registrazione viaggio</string>
+    <string name="adv_trip_record_interval">Intervallo registrazione</string>
     <string name="adv_trip_record_interval_desc">Ogni quanto viene salvata una riga nel file del viaggio durante la registrazione. Più basso dà più dettaglio. Attenzione: valori molto bassi creano file grandi.</string>
-    <string name="adv_pending_upload_interval">Nuovo tentativo di caricamento viaggi</string>
+    <string name="adv_pending_upload_interval">Riprova caricamento</string>
     <string name="adv_pending_upload_interval_desc">Ogni quanto l\'app riprova a caricare i viaggi rimasti in sospeso, ad es. dopo una chiusura durante una sincronizzazione. 15 min è il minimo di Android. Attenzione: se troppo lungo, un caricamento bloccato resta in attesa.</string>
     <string name="adv_trip_finalize_grace">Margine di chiusura viaggio</string>
     <string name="adv_trip_finalize_grace_desc">Quanto aspettare dopo che ti fermi prima che un viaggio venga chiuso e sincronizzato. Attenzione: se troppo basso, può tagliare un viaggio durante una breve sosta.</string>
@@ -2579,7 +2579,7 @@
     <string name="lockdown_limit_12">Toccare una metrica non fa nulla.</string>
     <string name="lockdown_limit_13">Annunci vocali, rapporti periodici e tempi di velocità sono muti. I tuoi allarmi funzionano ancora.</string>
     <string name="lockdown_limit_14">La ruota non si può bloccare né sbloccare, e il blocco automatico di prossimità non funziona.</string>
-    <string name="lockdown_limit_15">Luci automatiche e volume automatico continuano a funzionare. Il controllo riproduzione si ferma.</string>
+    <string name="lockdown_limit_15">Luci automatiche e volume automatico continuano a funzionare. Il controllo musica si ferma.</string>
     <string name="lockdown_limit_16">La notifica perde i suoi pulsanti.</string>
     <string name="lockdown_limit_17">Il numero di versione non apre più Informazioni.</string>
     <string name="lockdown_limit_18">Questa modalità non è inclusa nei backup delle impostazioni.</string>
@@ -2780,9 +2780,9 @@
     <string name="nav_unlock_off">Si discosta fino a %1$s dalla traccia</string>
     <string name="nav_unlock_confirm">Converti</string>
     <string name="voice_nav_place_reached">%1$s raggiunto</string>
-    <string name="offline_data_open">Aree offline</string>
+    <string name="offline_data_open">Mappe offline</string>
     <string name="offline_server_url">Server dei dati offline</string>
-    <string name="offline_data_title">Aree offline</string>
+    <string name="offline_data_title">Mappe offline</string>
     <string name="offline_data_space">Usati %1$s, liberi %2$s</string>
     <string name="offline_data_tap_hint">Tocca un quadrato per scaricarne mappa e percorsi, o per eliminarlo.</string>
     <string name="offline_data_list_error">Server non raggiungibile. Le aree scaricate funzionano ancora.</string>

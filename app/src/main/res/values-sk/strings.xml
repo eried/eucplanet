@@ -128,17 +128,17 @@
     <string name="tab_auto">Automatizácie</string>
     <string name="tab_integration">Integrácia</string>
     <string name="tab_watch">Hodinky</string>
-    <string name="tab_cloud">Zálohy a rebríčky</string>
+    <string name="tab_cloud">Zálohy a Leaderboards</string>
 
     <!-- Dashboard layout (customizable home screen) -->
-    <string name="tab_dashboard">Rozloženie panela</string>
+    <string name="tab_dashboard">Rozloženie dashboardu</string>
     <string name="dashboard_section_metrics">Metriky</string>
     <string name="dashboard_section_actions">Tlačidlá akcií</string>
     <string name="dashboard_grid_hint">Podržaním presuniete, klepnutím upravíte.</string>
     <string name="dashboard_pool_metrics">Dostupné metriky</string>
     <string name="dashboard_pool_actions">Dostupné akcie</string>
     <string name="dashboard_pool_tap_toast">Dlho podržte a presuňte na pozíciu vyššie</string>
-    <string name="dashboard_stats_length">Dĺžka štatistík</string>
+    <string name="dashboard_stats_length">Štatistiky</string>
     <string name="dashboard_view">Zobrazenie</string>
     <string name="dashboard_view_default">Predvolené</string>
     <string name="dashboard_view_wide">Široké</string>
@@ -323,7 +323,7 @@
     <string name="menu_switch_to_voice_command">Prepnúť na hlasový príkaz</string>
     <string name="menu_switch_to_voice_report">Prepnúť na hlasové hlásenie</string>
     <string name="voice_commands_title">Hlasové príkazy</string>
-    <string name="voice_commands_enable_desc">Ovládajte aplikáciu hlasom. Podržte tlačidlo Hlas na paneli a vyberte Počúvať hlasový príkaz.</string>
+    <string name="voice_commands_enable_desc">Ovládajte aplikáciu hlasom. Podržte tlačidlo Hlas na dashboarde a vyberte Počúvať hlasový príkaz.</string>
     <string name="voice_commands_bind_desc">Priraďte počúvanie k tlačidlu Flic, tlačidlám hlasitosti, hodinkám alebo HUD.</string>
     <string name="voice_prompt_cue">Signál pri počúvaní</string>
     <string name="voice_music_listening">Hudba počas počúvania</string>
@@ -501,7 +501,7 @@
     <!-- HUD Personalize collapsible card -->
     <string name="hud_screens_title">Obrazovky HUD</string>
     <string name="hud_map_options_title">Možnosti mapy</string>
-    <string name="hud_screen_name_dashboard">Panel</string>
+    <string name="hud_screen_name_dashboard">Dashboard</string>
     <string name="hud_screen_name_camera">Zadná kamera</string>
     <string name="hud_screen_name_telemetry">Telemetria</string>
     <string name="hud_screen_name_custom">Vlastné prekrytie + čierna</string>
@@ -704,7 +704,7 @@
     <string name="adv_voice_listen_window_desc">Ako dlho zostane mikrofón otvorený po signáli, keď nič nepočuje.</string>
     <string name="adv_lock_max_speed_desc">Ovplyvňuje rýchlosť, nad ktorou sa zamknutie kolesa odmietne. Riziko: príliš vysoká hodnota umožní zamknúť koleso ešte v pohybe.</string>
     <string name="adv_compact_max_screen">Limit kompaktnej obrazovky</string>
-    <string name="adv_compact_max_screen_desc">Obrazovky s oboma stranami pod touto hodnotou prepnú na kompaktný panel, keď je Kompaktný panel nastavený na Malé obrazovky.</string>
+    <string name="adv_compact_max_screen_desc">Obrazovky s oboma stranami pod touto hodnotou prepnú na kompaktný dashboard, keď je Kompaktný dashboard nastavený na Malé obrazovky.</string>
     <string name="adv_cover_cutout_inset">Veľkosť výrezu kamier</string>
     <string name="adv_cover_cutout_inset_desc">Priestor ponechaný voľný pre objektívy vonkajšieho displeja, keď je zapnuté Vyhnúť sa kamerám vonkajšieho displeja. Ak je príliš malý, objektívy zakryjú tlačidlá.</string>
     <string name="adv_simple_speedo_scale">Veľkosť jednoduchého rýchlomera</string>
@@ -863,10 +863,10 @@
     <string name="wheel_name_brand">Značka</string>
     <string name="last_device">Posledné zariadenie: %1$s</string>
     <string name="section_application">Aplikácia</string>
-    <string name="back_button_action">Akcia Späť</string>
-    <string name="back_button_action_desc">Čo sa stane, keď na paneli potiahnete alebo stlačíte Späť.</string>
+    <string name="back_button_action">Tlačidlo Späť</string>
+    <string name="back_button_action_desc">Čo sa stane, keď na dashboarde potiahnete alebo stlačíte Späť.</string>
     <string name="section_screen_geometry">Geometria obrazovky</string>
-    <string name="geo_section_dashboard">Panel</string>
+    <string name="geo_section_dashboard">Dashboard</string>
     <string name="geo_section_navigator">Navigátor</string>
     <string name="geo_section_trip">Jazda</string>
     <string name="geo_section_other">Ostatné obrazovky</string>
@@ -875,7 +875,7 @@
     <string name="setting_rotate_trip_detail">Otáčať podrobnosti jazdy</string>
     <string name="setting_rotate_trip_list">Otáčať zoznam jázd</string>
     <string name="setting_trip_map_side">Strana mapy</string>
-    <string name="setting_compact_dashboard">Kompaktný panel</string>
+    <string name="setting_compact_dashboard">Kompaktný dashboard</string>
     <string name="compact_mode_auto">Malé obrazovky</string>
     <string name="compact_mode_always">Vždy</string>
     <string name="compact_mode_never">Nikdy</string>
@@ -962,7 +962,7 @@
     <string name="battery_capacity_label">Kapacita</string>
     <string name="battery_capacity_desc">Voliteľné. Nastaví odhad dojazdu od začiatku, pre dlaždicu Dojazd a HUD.</string>
     <string name="battery_percent_cells_from_wheel">Prevzaté z kolesa: %1$d v sérii.</string>
-    <string name="battery_percent_cells_manual">Prepočítava napätie batérie na percentá na paneli, v hlase a v alarmoch</string>
+    <string name="battery_percent_cells_manual">Prepočítava napätie batérie na percentá na dashboarde, v hlase a v alarmoch</string>
     <string name="speed_calibration_label">Posun rýchlosti</string>
     <string name="speed_calibration_caption">Upravuje rýchlosť hlásenú kolesom, ovplyvňuje alarmy, hlas a záznam jazdy.</string>
     <string name="section_legal_mode_speed">Rýchlosť legálneho režimu</string>
@@ -1160,7 +1160,7 @@
 
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Tlačidlá Flic 2</string>
-    <string name="flic_show_on_dashboard">Ikona rýchleho prístupu na paneli</string>
+    <string name="flic_show_on_dashboard">Ikona rýchleho prístupu na dashboarde</string>
     <string name="flic_scan_hint">Tlačidlo Flic 2 podržte 6 sekúnd, kým neprejde do režimu párovania, potom klepnite na Vyhľadať.</string>
     <string name="flic_stop_scan">Zastaviť vyhľadávanie</string>
     <string name="flic_start_scan">Vyhľadať</string>
@@ -1210,7 +1210,7 @@
     <string name="external_gps_autodetect_abort">Zrušiť</string>
     <string name="external_gps_autodetect_next">Ďalej</string>
     <string name="gps_prioritize_external">Uprednostniť externú GPS</string>
-    <string name="gps_show_on_dashboard">Zobraziť rýchlosť na paneli</string>
+    <string name="gps_show_on_dashboard">Zobraziť rýchlosť na dashboarde</string>
     <string name="gps_show_on_dashboard_desc">Pridá na rýchlomer farebnú bodku s hodnotou GPS.</string>
     <string name="section_volume_keys">Tlačidlá hlasitosti</string>
     <string name="volume_keys_caption">Tlačidlá hlasitosti ako skratky, kým je aplikácia na obrazovke.</string>
@@ -1244,7 +1244,7 @@
         <item quantity="other">Sleduje sa %1$d vozidiel:</item>
     </plurals>
     <string name="radar_show_overlay">Zobraziť prekrytie hrozieb</string>
-    <string name="radar_show_overlay_desc">Tenký pruh radaru na okrajoch panela.</string>
+    <string name="radar_show_overlay_desc">Tenký pruh radaru na okrajoch dashboardu.</string>
     <string name="radar_overlay_left">Ľavý okraj</string>
     <string name="radar_overlay_both">Oba okraje</string>
     <string name="radar_overlay_right">Pravý okraj</string>
@@ -1444,7 +1444,7 @@
     <string name="recording_chart_power">Výkon (W)</string>
     <string name="recording_chart_altitude">Nadmorská výška (m)</string>
     <string name="widget_description">Metriky a rýchle akcie</string>
-    <string name="widget_euc_label">Panel kolesa</string>
+    <string name="widget_euc_label">Dashboard kolesa</string>
     <string name="widget_act_1_label">Tlačidlo kolesa 1</string>
     <string name="widget_act_2_label">Tlačidlo kolesa 2</string>
     <string name="widget_act_3_label">Tlačidlo kolesa 3</string>
@@ -1459,7 +1459,7 @@
     <string name="pip_mode_label">Režim PIP</string>
     <string name="pip_mode_off">Vyp.</string>
     <string name="pip_mode_simple">Jednoduchý</string>
-    <string name="pip_mode_dashboard">Panel</string>
+    <string name="pip_mode_dashboard">Dashboard</string>
     <string name="pip_label_pwm" formatted="false">pwm %</string>
     <string name="phone_hud_section">HUD v telefóne</string>
     <string name="phone_hud_desc">Vykreslí rozloženie z Overlay Studio nad inými aplikáciami, aby ste koleso videli aj pri mapách alebo hudbe.</string>
@@ -1600,7 +1600,7 @@
     <string name="auto_waiting_gps">Čaká sa na polohu GPS…</string>
     <string name="auto_volume_title">Ovládanie hlasitosti</string>
     <string name="auto_volume_when">Zvýšiť hlasitosť, keď</string>
-    <string name="media_control_title">Ovládanie prehrávania médií</string>
+    <string name="media_control_title">Ovládanie hudby</string>
     <string name="media_control_pause">Pozastaviť pri spomalení</string>
     <string name="media_control_pause_below">Pozastaviť do rýchlosti</string>
     <string name="media_control_resume">Pokračovať pri zrýchlení</string>
@@ -1629,7 +1629,7 @@
 
     <!-- Alarms tab -->
     <string name="alarm_help">O priorite spustenia rozhoduje poradie skupín metrík nižšie.</string>
-    <string name="alarm_empty">Zatiaľ žiadne pravidlá alarmov</string>
+    <string name="alarm_empty">Zatiaľ žiadne pravidlá</string>
     <string name="alarm_add">Nový alarm</string>
     <string name="alarm_summary_predict_fmt">predpovedá %1$s s dopredu</string>
     <string name="alarm_new">Nový alarm</string>
@@ -2163,7 +2163,7 @@
     <string name="nav_finished_body">Začať novú trasu? Prejdené zastávky sa vymažú. Ak si chcete túto trasu ponechať, najprv ju uložte cez ponuku.</string>
     <string name="nav_clear_home">Zabudnúť Domov</string>
     <string name="nav_clear_work">Zabudnúť Prácu</string>
-    <string name="nav_menu_exit">Späť na panel</string>
+    <string name="nav_menu_exit">Späť na dashboard</string>
     <string name="nav_waypoints">Zastávky</string>
     <string name="nav_role_destination">Cieľ</string>
     <string name="nav_max_stops">Najviac cieľ a 49 zastávok</string>
@@ -2215,7 +2215,7 @@
     <string name="nav_view_straight_line">priama čiara</string>
     <string name="nav_view_heading_up">Smer hore, klepnutím sever hore</string>
     <string name="nav_view_north_up">Sever hore, klepnutím smer hore</string>
-    <string name="nav_view_tiles">Dlaždice navigátora</string>
+    <string name="nav_view_tiles">Dlaždice počas navigácie</string>
     <string name="nav_view_tiles_desc">4 čísla vedľa rýchlosti počas navigácie.</string>
     <string name="nav_view_speed">Rýchlosť</string>
     <string name="nav_layer_dark">Esri tmavá</string>
@@ -2335,7 +2335,7 @@
     <string name="weather_window_3d">Ďalšie 3 dni</string>
     <string name="weather_window_1w">Ďalších 7 dní</string>
     <string name="weather_settings_entry">Nastavenia počasia</string>
-    <string name="weather_enable">Ikona rýchleho prístupu na paneli</string>
+    <string name="weather_enable">Ikona rýchleho prístupu na dashboarde</string>
     <string name="weather_enable_desc">Pridá ikonu počasia nad tlačidlo mapy: klepnutím zobrazíte predpoveď, ako sa bude jazdiť.</string>
     <string name="weather_window_label">Rozsah predpovede</string>
     <string name="weather_source_label">Zdroj predpovede</string>
@@ -2668,14 +2668,14 @@
     <string name="lockdown_limit_5">Plávajúce prekrytie je skryté.</string>
     <string name="lockdown_limit_6">Miniaplikácie na ploche sa prestanú aktualizovať.</string>
     <string name="lockdown_limit_7">Servisný režim a diagnostické nahrávanie sa zastavia.</string>
-    <string name="lockdown_limit_8">Panel nahradí pevná obrazovka: rýchlomer, šesť metrík, štyri tlačidlá.</string>
+    <string name="lockdown_limit_8">Dashboard nahradí pevná obrazovka: rýchlomer, šesť metrík, štyri tlačidlá.</string>
     <string name="lockdown_limit_9">Obrazovka sa nebude otáčať.</string>
     <string name="lockdown_limit_10">Nastavenia sa nedajú otvoriť.</string>
     <string name="lockdown_limit_11">História jázd, monitor batérie, štúdio a podrobnosti metrík sa nedajú otvoriť.</string>
     <string name="lockdown_limit_12">Klepnutie na metriku nič neurobí.</string>
     <string name="lockdown_limit_13">Hlasové hlásenia, pravidelné hlásenia a rýchlostné úseky sú stlmené. Vaše alarmy stále fungujú.</string>
     <string name="lockdown_limit_14">Koleso sa nedá zamknúť ani odomknúť a automatické zamykanie podľa blízkosti nebeží.</string>
-    <string name="lockdown_limit_15">Automatické svetlá a automatická hlasitosť fungujú ďalej. Ovládanie prehrávania médií sa zastaví.</string>
+    <string name="lockdown_limit_15">Automatické svetlá a automatická hlasitosť fungujú ďalej. Ovládanie hudby sa zastaví.</string>
     <string name="lockdown_limit_16">Upozornenie stratí tlačidlá.</string>
     <string name="lockdown_limit_17">Číslo verzie neotvorí O aplikácii.</string>
     <string name="lockdown_limit_18">Tento režim nie je súčasťou záloh nastavení.</string>
@@ -2841,9 +2841,9 @@
     <string name="nav_unlock_off">Odchýlka od stopy až %1$s</string>
     <string name="nav_unlock_confirm">Zmeniť</string>
     <string name="voice_nav_place_reached">%1$s dosiahnuté</string>
-    <string name="offline_data_open">Offline oblasti</string>
+    <string name="offline_data_open">Offline mapy</string>
     <string name="offline_server_url">Server offline dát</string>
-    <string name="offline_data_title">Offline oblasti</string>
+    <string name="offline_data_title">Offline mapy</string>
     <string name="offline_data_space">Obsadené %1$s, voľné %2$s</string>
     <string name="offline_data_tap_hint">Klepnutím na štvorec stiahnete jeho mapu a trasy, alebo ho odstránite.</string>
     <string name="offline_data_list_error">Server nie je dostupný. Stiahnuté oblasti stále fungujú.</string>

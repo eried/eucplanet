@@ -124,17 +124,17 @@
     <string name="tab_auto">Автоматизації</string>
     <string name="tab_integration">Інтеграція</string>
     <string name="tab_watch">Годинник</string>
-    <string name="tab_cloud">Копії та таблиці лідерів</string>
+    <string name="tab_cloud">Копії та Leaderboards</string>
 
     <!-- Dashboard layout (customizable home screen) -->
-    <string name="tab_dashboard">Макет панелі</string>
+    <string name="tab_dashboard">Макет дашборду</string>
     <string name="dashboard_section_metrics">Показники</string>
     <string name="dashboard_section_actions">Кнопки дій</string>
     <string name="dashboard_grid_hint">Утримуйте, щоб перетягнути, торкніться, щоб змінити.</string>
     <string name="dashboard_pool_metrics">Доступні показники</string>
     <string name="dashboard_pool_actions">Доступні дії</string>
     <string name="dashboard_pool_tap_toast">Утримуйте й перетягніть у слот вище, щоб використати</string>
-    <string name="dashboard_stats_length">Період статистики</string>
+    <string name="dashboard_stats_length">Статистика</string>
     <string name="dashboard_view">Вигляд</string>
     <string name="dashboard_view_default">Типовий</string>
     <string name="dashboard_view_wide">Широкий</string>
@@ -334,7 +334,7 @@
     <string name="menu_switch_to_voice_command">Перемкнути на голосову команду</string>
     <string name="menu_switch_to_voice_report">Перемкнути на голосове оголошення</string>
     <string name="voice_commands_title">Голосові команди</string>
-    <string name="voice_commands_enable_desc">Керуйте застосунком голосом. Утримуйте кнопку «Голос» на панелі й виберіть «Слухати голосову команду».</string>
+    <string name="voice_commands_enable_desc">Керуйте застосунком голосом. Утримуйте кнопку «Голос» на дашборді й виберіть «Слухати голосову команду».</string>
     <string name="voice_commands_bind_desc">Призначте прослуховування на Flic, кнопки гучності, годинник або HUD.</string>
     <string name="voice_prompt_cue">Сигнал під час слухання</string>
     <string name="voice_music_listening">Музика під час слухання</string>
@@ -499,7 +499,7 @@
     <!-- HUD Personalize collapsible card -->
     <string name="hud_screens_title">Екрани HUD</string>
     <string name="hud_map_options_title">Параметри карти</string>
-    <string name="hud_screen_name_dashboard">Панель</string>
+    <string name="hud_screen_name_dashboard">Дашборд</string>
     <string name="hud_screen_name_camera">Задня камера</string>
     <string name="hud_screen_name_telemetry">Телеметрія</string>
     <string name="hud_screen_name_custom">Власний оверлей + чорний</string>
@@ -666,7 +666,7 @@
     <string name="section_recording">Запис</string>
     <string name="section_connection">З\'єднання</string>
     <string name="auto_record_caption">Записує поїздку, коли колесо підключене.</string>
-    <string name="auto_record_start_in_motion_caption">Починає, щойно ви рушите, зупиняє після простою, знову починає в наступній поїздці.</string>
+    <string name="auto_record_start_in_motion_caption">Починає, щойно ви рушите, зупиняє після простою і знову починає, коли ви рушите далі.</string>
     <string name="auto_record_stop_idle_seconds">Зупиняти після простою</string>
     <string name="auto_connect_on_start">Автопідключення під час запуску</string>
     <string name="wheel_name_display">Назва колеса</string>
@@ -675,8 +675,8 @@
     <string name="wheel_name_brand">Бренд</string>
     <string name="last_device">Останній пристрій: %1$s</string>
     <string name="section_application">Застосунок</string>
-    <string name="back_button_action">Дія «Назад»</string>
-    <string name="back_button_action_desc">Що відбувається, коли ви проводите пальцем або натискаєте «Назад» на панелі.</string>
+    <string name="back_button_action">Кнопка «Назад»</string>
+    <string name="back_button_action_desc">Що відбувається, коли ви проводите пальцем або натискаєте «Назад» на дашборді.</string>
     <string name="back_button_action_ask">Питати</string>
     <string name="back_button_action_background">У фоні</string>
     <string name="back_button_action_stop">Зупинити все</string>
@@ -744,7 +744,7 @@
     <string name="battery_capacity_label">Ємність</string>
     <string name="battery_capacity_desc">Необов\'язково. Задає оцінку запасу ходу одразу, для плитки «Запас ходу» і HUD.</string>
     <string name="battery_percent_cells_from_wheel">Взято з колеса: %1$d послідовно.</string>
-    <string name="battery_percent_cells_manual">Перетворює напругу батареї у відсоток на панелі, у голосі та тривогах.</string>
+    <string name="battery_percent_cells_manual">Перетворює напругу батареї у відсоток на дашборді, у голосі та тривогах.</string>
     <string name="speed_calibration_label">Поправка швидкості</string>
     <string name="speed_calibration_caption">Коригує швидкість від колеса; впливає на тривоги, голос і журнал поїздки.</string>
     <string name="section_legal_mode_speed">Швидкість у легальному режимі</string>
@@ -899,7 +899,7 @@
 
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Кнопки Flic 2</string>
-    <string name="flic_show_on_dashboard">Швидкий доступ на панелі</string>
+    <string name="flic_show_on_dashboard">Швидкий доступ на дашборді</string>
     <string name="flic_scan_hint">Утримуйте кнопку Flic 2 шість секунд, щоб увімкнути режим створення пари, потім торкніться «Почати пошук».</string>
     <string name="flic_stop_scan">Зупинити пошук</string>
     <string name="flic_start_scan">Почати пошук</string>
@@ -948,7 +948,7 @@
     <string name="external_gps_autodetect_abort">Скасувати</string>
     <string name="external_gps_autodetect_next">Далі</string>
     <string name="gps_prioritize_external">Пріоритет зовнішнього GPS</string>
-    <string name="gps_show_on_dashboard">Показувати швидкість на панелі</string>
+    <string name="gps_show_on_dashboard">Показувати швидкість на дашборді</string>
     <string name="gps_show_on_dashboard_desc">Додає на спідометр кольорову точку зі швидкістю за GPS.</string>
     <string name="section_volume_keys">Кнопки гучності</string>
     <string name="volume_keys_caption">Кнопки гучності як швидкі дії, поки застосунок на екрані.</string>
@@ -982,7 +982,7 @@
         <item quantity="other">Відстежується %1$d авто:</item>
     </plurals>
     <string name="radar_show_overlay">Показувати оверлей загроз</string>
-    <string name="radar_show_overlay_desc">Тонка смуга радара по краях панелі.</string>
+    <string name="radar_show_overlay_desc">Тонка смуга радара по краях дашборду.</string>
     <string name="radar_overlay_left">Лівий край</string>
     <string name="radar_overlay_both">Обидва краї</string>
     <string name="radar_overlay_right">Правий край</string>
@@ -1165,7 +1165,7 @@
     <string name="auto_waiting_gps">Очікування координат GPS…</string>
     <string name="auto_volume_title">Керування гучністю</string>
     <string name="auto_volume_when">Підвищувати гучність, коли</string>
-    <string name="media_control_title">Керування відтворенням</string>
+    <string name="media_control_title">Керування музикою</string>
     <string name="media_control_pause">Пауза, коли сповільнююсь</string>
     <string name="media_control_pause_below">Пауза на цій швидкості або нижче</string>
     <string name="media_control_resume">Продовжувати, коли розганяюсь</string>
@@ -1195,7 +1195,7 @@
 
     <!-- Alarms tab -->
     <string name="alarm_help">Пріоритет спрацювання визначається порядком груп показників нижче.</string>
-    <string name="alarm_empty">Правил тривог поки немає</string>
+    <string name="alarm_empty">Правил поки немає</string>
     <string name="alarm_add">Нова тривога</string>
     <string name="alarm_summary_predict_fmt">прогноз на %1$s с наперед</string>
     <string name="alarm_new">Нова тривога</string>
@@ -1716,7 +1716,7 @@
     <string name="nav_finished_body">Почати новий маршрут? Пройдені зупинки зникнуть. Щоб не втратити цей маршрут, спершу збережіть його в меню.</string>
     <string name="nav_clear_home">Забути дім</string>
     <string name="nav_clear_work">Забути роботу</string>
-    <string name="nav_menu_exit">Назад на панель</string>
+    <string name="nav_menu_exit">Назад на дашборд</string>
     <string name="nav_waypoints">Зупинки</string>
     <string name="nav_role_destination">Пункт призначення</string>
     <string name="nav_max_stops">Максимум: пункт призначення і 49 зупинок</string>
@@ -1743,7 +1743,7 @@
     <string name="nav_view_straight_line">по прямій</string>
     <string name="nav_view_heading_up">Угорі курс, торкніться, щоб була північ</string>
     <string name="nav_view_north_up">Угорі північ, торкніться, щоб був курс</string>
-    <string name="nav_view_tiles">Плитки навігації</string>
+    <string name="nav_view_tiles">Дані навігації</string>
     <string name="nav_view_tiles_desc">4 числа поруч зі швидкістю під час навігації.</string>
     <string name="nav_view_speed">Швидкість</string>
     <string name="nav_layer_dark">Esri Dark</string>
@@ -1910,7 +1910,7 @@
     <string name="weather_window_3d">Наступні 3 дні</string>
     <string name="weather_window_1w">Наступні 7 днів</string>
     <string name="weather_settings_entry">Налаштування погоди</string>
-    <string name="weather_enable">Швидкий доступ на панелі</string>
+    <string name="weather_enable">Швидкий доступ на дашборді</string>
     <string name="weather_enable_desc">Додає значок погоди над кнопкою карти: торкніться, щоб побачити прогноз для їзди.</string>
     <string name="weather_window_label">Вікно прогнозу</string>
     <string name="weather_source_label">Джерело прогнозу</string>
@@ -2368,7 +2368,7 @@
     <string name="action_reset">Скинути</string>
     <string name="section_screen_geometry">Геометрія екрана</string>
     <string name="settings_visibility">Видимість налаштувань</string>
-    <string name="geo_section_dashboard">Панель</string>
+    <string name="geo_section_dashboard">Дашборд</string>
     <string name="geo_section_navigator">Навігатор</string>
     <string name="geo_section_trip">Поїздка</string>
     <string name="geo_section_other">Інші екрани</string>
@@ -2382,7 +2382,7 @@
     <string name="setting_trip_map_side">Сторона карти</string>
     <string name="setting_block_upside_down">Заборонити перевертання догори дриґом</string>
     <string name="setting_ignore_system_rotate_lock">Ігнорувати системне блокування обертання</string>
-    <string name="setting_compact_dashboard">Компактна панель</string>
+    <string name="setting_compact_dashboard">Компактний дашборд</string>
     <string name="compact_mode_always">Завжди</string>
     <string name="compact_mode_auto">Малі екрани</string>
     <string name="compact_mode_never">Ніколи</string>
@@ -2404,7 +2404,7 @@
     <string name="adv_map_http_cache">Кеш завантажених тайлів</string>
     <string name="adv_map_http_cache_desc">Завантажені тайли карти, що зберігаються на телефоні. Більші значення займають більше місця.</string>
     <string name="adv_compact_max_screen">Межа компактного екрана</string>
-    <string name="adv_compact_max_screen_desc">Екрани, обидві сторони яких менші за це значення, перемикаються на компактну панель, коли для «Компактна панель» вибрано «Малі екрани».</string>
+    <string name="adv_compact_max_screen_desc">Екрани, обидві сторони яких менші за це значення, перемикаються на компактний дашборд, коли для «Компактний дашборд» вибрано «Малі екрани».</string>
     <string name="adv_cover_cutout_inset">Розмір вирізу камери</string>
     <string name="adv_cover_cutout_inset_desc">Місце, що лишається вільним для об\'єктивів зовнішнього екрана, коли ввімкнено «Уникати камер зовнішнього екрана». Якщо замало, об\'єктиви закривають кнопки.</string>
     <string name="adv_nav_sidebar_min">Мінімальний екран для бічної панелі</string>
@@ -2516,7 +2516,7 @@
     <string name="pip_mode_label">Режим PIP</string>
     <string name="pip_mode_off">Вимк</string>
     <string name="pip_mode_simple">Простий</string>
-    <string name="pip_mode_dashboard">Панель</string>
+    <string name="pip_mode_dashboard">Дашборд</string>
     <string name="pip_label_pwm" formatted="false">pwm %</string>
     <string name="widget_section">Віджет на головному екрані</string>
     <string name="widget_pick_desc">Виберіть показники (%1$d) і кнопки (%2$d) для віджета.</string>
@@ -2667,14 +2667,14 @@
     <string name="lockdown_limit_5">Плаваючий оверлей приховано.</string>
     <string name="lockdown_limit_6">Віджети на головному екрані перестають оновлюватися.</string>
     <string name="lockdown_limit_7">Сервісний режим і запис діагностики зупиняються.</string>
-    <string name="lockdown_limit_8">Панель замінюється фіксованим екраном: спідометр, шість показників, чотири кнопки.</string>
+    <string name="lockdown_limit_8">Дашборд замінюється фіксованим екраном: спідометр, шість показників, чотири кнопки.</string>
     <string name="lockdown_limit_9">Екран не обертається.</string>
     <string name="lockdown_limit_10">Налаштування відкрити не можна.</string>
     <string name="lockdown_limit_11">Історія поїздок, монітор батареї, студія та деталі показників недоступні.</string>
     <string name="lockdown_limit_12">Дотик до показника нічого не робить.</string>
     <string name="lockdown_limit_13">Голосові оголошення, періодичні звіти та відрізки швидкості вимкнено. Ваші тривоги й далі працюють.</string>
     <string name="lockdown_limit_14">Колесо не можна заблокувати чи розблокувати, автоблокування за відстанню не працює.</string>
-    <string name="lockdown_limit_15">Автосвітло та автогучність працюють далі. Керування відтворенням зупиняється.</string>
+    <string name="lockdown_limit_15">Автосвітло та автогучність працюють далі. Керування музикою зупиняється.</string>
     <string name="lockdown_limit_16">Зі сповіщення зникають кнопки.</string>
     <string name="lockdown_limit_17">Номер версії більше не відкриває екран «Про застосунок».</string>
     <string name="lockdown_limit_18">Цей режим не входить до резервних копій налаштувань.</string>
@@ -2717,7 +2717,7 @@
     <string name="charge_alert_custom_title">Батарея на %1$d%%</string>
     <string name="charge_alert_custom_text">Досягнуто вибраного рівня. Від\'єднайте зарядку, коли зможете.</string>
     <!-- Widget names for the picker -->
-    <string name="widget_euc_label">Панель колеса</string>
+    <string name="widget_euc_label">Дашборд колеса</string>
     <string name="widget_act_1_label">Кнопка колеса 1</string>
     <string name="widget_act_2_label">Кнопка колеса 2</string>
     <string name="widget_act_3_label">Кнопка колеса 3</string>
@@ -2876,9 +2876,9 @@
     <string name="nav_unlock_off">Відхиляється від треку до %1$s</string>
     <string name="nav_unlock_confirm">Перетворити</string>
     <string name="voice_nav_place_reached">%1$s: на місці</string>
-    <string name="offline_data_open">Офлайн-області</string>
+    <string name="offline_data_open">Офлайн-карти</string>
     <string name="offline_server_url">Сервер офлайн-даних</string>
-    <string name="offline_data_title">Офлайн-області</string>
+    <string name="offline_data_title">Офлайн-карти</string>
     <string name="offline_data_space">Зайнято %1$s, вільно %2$s</string>
     <string name="offline_data_tap_hint">Торкніться квадрата, щоб завантажити його карту й маршрути або видалити.</string>
     <string name="offline_data_list_error">Сервер недоступний. Завантажені області й далі працюють.</string>

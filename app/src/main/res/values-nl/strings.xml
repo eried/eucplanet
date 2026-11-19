@@ -124,7 +124,7 @@
     <string name="tab_auto">Automatiseringen</string>
     <string name="tab_integration">Integratie</string>
     <string name="tab_watch">Horloge</string>
-    <string name="tab_cloud">Back-ups &amp; klassementen</string>
+    <string name="tab_cloud">Back-ups &amp; Leaderboards</string>
 
     <!-- Dashboard layout (customizable home screen) -->
     <string name="tab_dashboard">Dashboard-indeling</string>
@@ -134,7 +134,7 @@
     <string name="dashboard_pool_metrics">Beschikbare meetwaarden</string>
     <string name="dashboard_pool_actions">Beschikbare acties</string>
     <string name="dashboard_pool_tap_toast">Lang indrukken en naar een vak hierboven slepen</string>
-    <string name="dashboard_stats_length">Duur statistieken</string>
+    <string name="dashboard_stats_length">Statistieken</string>
     <string name="dashboard_view">Weergave</string>
     <string name="dashboard_view_default">Standaard</string>
     <string name="dashboard_view_wide">Breed</string>
@@ -666,7 +666,7 @@
     <string name="section_recording">Opname</string>
     <string name="section_connection">Verbinding</string>
     <string name="auto_record_caption">Neemt een rit op zodra het wiel verbonden is.</string>
-    <string name="auto_record_start_in_motion_caption">Start bij beweging, stopt na inactiviteit, herstart bij de volgende rit.</string>
+    <string name="auto_record_start_in_motion_caption">Start bij beweging, stopt na stilstand, start opnieuw zodra je weer rijdt.</string>
     <string name="auto_record_stop_idle_seconds">Stoppen na inactiviteit van</string>
     <string name="auto_connect_on_start">Automatisch verbinden bij starten</string>
     <string name="wheel_name_display">Wielnaam</string>
@@ -675,7 +675,7 @@
     <string name="wheel_name_brand">Merk</string>
     <string name="last_device">Laatste apparaat: %1$s</string>
     <string name="section_application">App</string>
-    <string name="back_button_action">Terug-actie</string>
+    <string name="back_button_action">Terugknop</string>
     <string name="back_button_action_desc">Wat er gebeurt als je terugveegt of op terug drukt vanuit het dashboard.</string>
     <string name="back_button_action_ask">Vragen</string>
     <string name="back_button_action_background">Achtergrond</string>
@@ -900,9 +900,9 @@
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Flic 2-knoppen</string>
     <string name="flic_show_on_dashboard">Snelle toegang op dashboard</string>
-    <string name="flic_scan_hint">Houd de Flic 2-knop 6 seconden ingedrukt voor koppelmodus, tik dan op Scannen starten.</string>
+    <string name="flic_scan_hint">Houd de Flic 2-knop 6 seconden ingedrukt voor koppelmodus, tik dan op Apparaten zoeken.</string>
     <string name="flic_stop_scan">Scannen stoppen</string>
-    <string name="flic_start_scan">Scannen starten</string>
+    <string name="flic_start_scan">Apparaten zoeken</string>
     <string name="flic_forget">Vergeten</string>
     <string name="flic_forget_title">Deze knop vergeten?</string>
     <string name="flic_forget_body">%1$s wordt ontkoppeld.</string>
@@ -920,7 +920,7 @@
     <string name="tpms_none_yet">Geen bandenspanningssensor gevonden of handmatig toegevoegd.</string>
     <string name="tpms_wheel_sensor_replaced">Vervangen door je gekoppelde sensor</string>
     <string name="external_gps_device_title">Externe GPS</string>
-    <string name="external_gps_pair_button">Scannen starten</string>
+    <string name="external_gps_pair_button">Apparaten zoeken</string>
     <string name="external_gps_pair_action">Koppelen</string>
     <string name="external_gps_stop_scan">Scannen stoppen</string>
     <string name="external_gps_paired_with">Gekoppeld met %1$s</string>
@@ -964,7 +964,7 @@
     <!-- Rear-view radar (Garmin Varia today) -->
     <string name="section_radar">Achteruitkijkradar</string>
     <string name="radar_caption">Houd de Varia-knop 2 seconden ingedrukt tot die paars knippert, start dan een scan.</string>
-    <string name="radar_pair_button">Scannen starten</string>
+    <string name="radar_pair_button">Apparaten zoeken</string>
     <string name="radar_pair_action">Koppelen</string>
     <string name="radar_stop_scan">Scannen stoppen</string>
     <string name="radar_state_connected">Verbonden</string>
@@ -1072,7 +1072,7 @@
     <!-- Scan screen -->
     <string name="scan_title">Verbinden met wiel</string>
     <string name="scan_scanning">Zoeken…</string>
-    <string name="scan_start">Scannen starten</string>
+    <string name="scan_start">Apparaten zoeken</string>
     <string name="scan_show_all_title">Alle apparaten tonen</string>
     <string name="scan_show_all_subtitle">Zet aan als je wiel er niet tussen staat.</string>
 
@@ -1163,7 +1163,7 @@
     <string name="auto_waiting_gps">Wachten op GPS-locatie…</string>
     <string name="auto_volume_title">Volumeregeling</string>
     <string name="auto_volume_when">Volume verhogen wanneer</string>
-    <string name="media_control_title">Afspeelbediening</string>
+    <string name="media_control_title">Muziekbediening</string>
     <string name="media_control_pause">Pauzeren als ik vaart minder</string>
     <string name="media_control_pause_below">Pauzeren op of onder</string>
     <string name="media_control_resume">Hervatten als ik sneller ga</string>
@@ -1193,7 +1193,7 @@
 
     <!-- Alarms tab -->
     <string name="alarm_help">Welk alarm voorgaat, hangt af van de volgorde van de meetwaardegroepen hieronder.</string>
-    <string name="alarm_empty">Nog geen alarmregels</string>
+    <string name="alarm_empty">Nog geen regels</string>
     <string name="alarm_add">Nieuw alarm</string>
     <string name="alarm_summary_predict_fmt">voorspelt %1$s s vooruit</string>
     <string name="alarm_new">Nieuw alarm</string>
@@ -1764,7 +1764,7 @@
     <string name="nav_view_straight_line">hemelsbreed</string>
     <string name="nav_view_heading_up">Rijrichting boven, tik voor noord boven</string>
     <string name="nav_view_north_up">Noord boven, tik voor rijrichting boven</string>
-    <string name="nav_view_tiles">Navigatietegels</string>
+    <string name="nav_view_tiles">Tegels onderweg</string>
     <string name="nav_view_tiles_desc">De 4 getallen naast de snelheid tijdens het navigeren.</string>
     <string name="nav_view_speed">Snelheid</string>
     <string name="nav_layer_dark">Esri Dark</string>
@@ -2162,7 +2162,7 @@
     <string name="adv_autolight_no_gps_retry_desc">Bepaalt hoe vaak de automatische verlichting het opnieuw probeert tijdens het wachten op een GPS-fix.</string>
     <string name="adv_autolight_toggle_grace">Respijt handmatige wijziging</string>
     <string name="adv_autolight_toggle_grace_desc">Bepaalt de tijd na automatisch schakelen van het licht waarin een lichtwijziging als automatisch telt, niet als handmatig. Let op: te laag kan het schakelen door de app zelf als handmatige ingreep zien.</string>
-    <string name="adv_automation_light_check">Controle-interval automatische verlichting</string>
+    <string name="adv_automation_light_check">Lichtcontrole</string>
     <string name="adv_automation_light_check_desc">Bepaalt hoe vaak de automatische verlichting zonsopgang en zonsondergang controleert. Let op: te laag kost net wat meer rekenwerk.</string>
     <string name="adv_charging_cv_taper">Eindafbouw</string>
     <string name="adv_charging_cv_taper_desc">Bepaalt hoe pessimistisch de ETA voor het laatste stuk tot vol is. Hoger voegt marge toe.</string>
@@ -2187,9 +2187,9 @@
     <string name="adv_charging_warmup_gain">Opwarmwinst</string>
     <string name="adv_charging_warmup_gain_desc">Bepaalt hoeveel lading erbij moet komen voordat de eerste ETA verschijnt.</string>
     <string name="adv_charging_warning">Hiermee stel je de schatting van de tijd tot vol bij. Verkeerde waarden geven een misleidende ETA, maar hebben nooit invloed op het laden zelf.</string>
-    <string name="adv_charging_window">Laadsnelheidsvenster</string>
+    <string name="adv_charging_window">Meetperiode</string>
     <string name="adv_charging_window_desc">Bepaalt hoe ver er wordt teruggekeken voor de laadsnelheid. Let op: te kort is ruisgevoelig, te lang reageert traag.</string>
-    <string name="adv_garmin_report_interval">Garmin-rapportagesnelheid</string>
+    <string name="adv_garmin_report_interval">Garmin-verversing</string>
     <string name="adv_garmin_report_interval_desc">Bepaalt hoe vaak een gekoppelde Garmin wordt ververst. De Connect IQ-link begrenst de werkelijke snelheid, dus zeer lage waarden hebben mogelijk niet het volle effect.</string>
     <string name="adv_graph_sample_interval">Sample-interval grafiek</string>
     <string name="adv_graph_sample_interval_desc">Heeft geen invloed op alarmen of ritbestanden. Let op: zeer lage waarden gebruiken meer geheugen.</string>
@@ -2236,7 +2236,7 @@
     <string name="adv_hud_sweep_interval_desc">Bepaalt hoe vaak elk adres op het netwerk wordt geprobeerd om de HUD te vinden. Let op: te laag houdt de telefoon bezig en trekt de batterij leeg.</string>
     <string name="adv_hud_mdns_timeout">Detectietime-out</string>
     <string name="adv_hud_mdns_timeout_desc">Bepaalt hoe lang gewacht wordt tot de HUD op autodetectie reageert. Let op: te laag geeft op voordat hij antwoordt.</string>
-    <string name="adv_hud_report_interval">HUD-rapportagesnelheid</string>
+    <string name="adv_hud_report_interval">HUD-verversing</string>
     <string name="adv_hud_report_interval_desc">Bepaalt hoe vaak een verbonden HUD-scherm wordt ververst. Let op: zeer lage waarden sturen meer data over de link.</string>
     <string name="adv_nav_arrival_dismiss">Tijd aankomstbanner</string>
     <string name="adv_nav_arrival_dismiss_desc">Bepaalt hoe lang de aankomstbanner op het scherm blijft.</string>
@@ -2675,7 +2675,7 @@
     <string name="lockdown_limit_12">Op een meetwaarde tikken doet niets.</string>
     <string name="lockdown_limit_13">Spraakmeldingen, periodieke rapporten en snelheidssplits zijn stil. Je alarmen blijven werken.</string>
     <string name="lockdown_limit_14">Het wiel kan niet worden vergrendeld of ontgrendeld, en automatisch vergrendelen op nabijheid werkt niet.</string>
-    <string name="lockdown_limit_15">Automatische verlichting en automatisch volume blijven werken. Afspeelbediening stopt.</string>
+    <string name="lockdown_limit_15">Automatische verlichting en automatisch volume blijven werken. Muziekbediening stopt.</string>
     <string name="lockdown_limit_16">De melding heeft geen knoppen meer.</string>
     <string name="lockdown_limit_17">Het versienummer opent Info niet meer.</string>
     <string name="lockdown_limit_18">Deze modus zit niet in de back-ups van de instellingen.</string>
@@ -2875,9 +2875,9 @@
     <string name="nav_unlock_off">Wijkt tot %1$s af van de track</string>
     <string name="nav_unlock_confirm">Omzetten</string>
     <string name="voice_nav_place_reached">%1$s bereikt</string>
-    <string name="offline_data_open">Offline gebieden</string>
+    <string name="offline_data_open">Offline kaarten</string>
     <string name="offline_server_url">Server voor offline data</string>
-    <string name="offline_data_title">Offline gebieden</string>
+    <string name="offline_data_title">Offline kaarten</string>
     <string name="offline_data_space">Gebruikt %1$s, vrij %2$s</string>
     <string name="offline_data_tap_hint">Tik op een vak om de kaart en routering te downloaden of te verwijderen.</string>
     <string name="offline_data_list_error">Server niet bereikbaar. Gedownloade gebieden werken nog.</string>

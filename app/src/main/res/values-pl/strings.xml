@@ -124,7 +124,7 @@
     <string name="tab_auto">Automatyzacje</string>
     <string name="tab_integration">Integracja</string>
     <string name="tab_watch">Zegarek</string>
-    <string name="tab_cloud">Kopie zapasowe i rankingi</string>
+    <string name="tab_cloud">Kopie zapasowe i Leaderboards</string>
 
     <!-- Dashboard layout (customizable home screen) -->
     <string name="tab_dashboard">Układ pulpitu</string>
@@ -134,7 +134,7 @@
     <string name="dashboard_pool_metrics">Dostępne metryki</string>
     <string name="dashboard_pool_actions">Dostępne akcje</string>
     <string name="dashboard_pool_tap_toast">Przytrzymaj i przeciągnij na pole powyżej</string>
-    <string name="dashboard_stats_length">Zakres statystyk</string>
+    <string name="dashboard_stats_length">Statystyki</string>
     <string name="dashboard_view">Widok</string>
     <string name="dashboard_view_default">Domyślny</string>
     <string name="dashboard_view_wide">Szeroki</string>
@@ -666,7 +666,7 @@
     <string name="section_recording">Nagrywanie</string>
     <string name="section_connection">Połączenie</string>
     <string name="auto_record_caption">Nagrywa przejazd, gdy koło jest połączone.</string>
-    <string name="auto_record_start_in_motion_caption">Startuje, gdy ruszysz, zatrzymuje się po postoju i startuje znowu przy następnej jeździe.</string>
+    <string name="auto_record_start_in_motion_caption">Startuje, gdy ruszysz, zatrzymuje się po postoju i startuje ponownie, gdy znów pojedziesz.</string>
     <string name="auto_record_stop_idle_seconds">Zatrzymaj po postoju</string>
     <string name="auto_connect_on_start">Automatyczne łączenie po starcie</string>
     <string name="wheel_name_display">Nazwa koła</string>
@@ -675,7 +675,7 @@
     <string name="wheel_name_brand">Marka</string>
     <string name="last_device">Ostatnie urządzenie: %1$s</string>
     <string name="section_application">Aplikacja</string>
-    <string name="back_button_action">Akcja wstecz</string>
+    <string name="back_button_action">Przycisk Wstecz</string>
     <string name="back_button_action_desc">Co się dzieje po geście lub przycisku Wstecz na pulpicie.</string>
     <string name="back_button_action_ask">Pytaj</string>
     <string name="back_button_action_background">W tle</string>
@@ -900,9 +900,9 @@
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Przyciski Flic 2</string>
     <string name="flic_show_on_dashboard">Ikona szybkiego dostępu na pulpicie</string>
-    <string name="flic_scan_hint">Przytrzymaj przycisk Flic 2 przez 6 sekund, aby wejść w tryb parowania, a potem dotknij Skanuj.</string>
+    <string name="flic_scan_hint">Przytrzymaj przycisk Flic 2 przez 6 sekund, aby wejść w tryb parowania, a potem dotknij Wyszukaj.</string>
     <string name="flic_stop_scan">Zatrzymaj skanowanie</string>
-    <string name="flic_start_scan">Skanuj</string>
+    <string name="flic_start_scan">Wyszukaj</string>
     <string name="flic_forget">Zapomnij</string>
     <string name="flic_forget_title">Zapomnieć ten przycisk?</string>
     <string name="flic_forget_body">Parowanie z %1$s zostanie usunięte.</string>
@@ -920,7 +920,7 @@
     <string name="tpms_none_yet">Nie wykryto ani nie dodano ręcznie czujnika ciśnienia w oponie.</string>
     <string name="tpms_wheel_sensor_replaced">Zastąpiony sparowanym czujnikiem</string>
     <string name="external_gps_device_title">Zewnętrzny GPS</string>
-    <string name="external_gps_pair_button">Skanuj</string>
+    <string name="external_gps_pair_button">Wyszukaj</string>
     <string name="external_gps_pair_action">Sparuj</string>
     <string name="external_gps_stop_scan">Zatrzymaj skanowanie</string>
     <string name="external_gps_paired_with">Sparowano z %1$s</string>
@@ -964,7 +964,7 @@
     <!-- Rear-view radar (Garmin Varia today) -->
     <string name="section_radar">Radar tylny</string>
     <string name="radar_caption">Przytrzymaj przycisk Varia przez 2 sekundy, aż zacznie pulsować na fioletowo, a następnie rozpocznij skanowanie.</string>
-    <string name="radar_pair_button">Skanuj</string>
+    <string name="radar_pair_button">Wyszukaj</string>
     <string name="radar_pair_action">Sparuj</string>
     <string name="radar_stop_scan">Zatrzymaj skanowanie</string>
     <string name="radar_state_connected">Połączono</string>
@@ -1074,7 +1074,7 @@
     <!-- Scan screen -->
     <string name="scan_title">Połącz z kołem</string>
     <string name="scan_scanning">Wyszukiwanie…</string>
-    <string name="scan_start">Skanuj</string>
+    <string name="scan_start">Wyszukaj</string>
     <string name="scan_show_all_title">Pokaż wszystkie urządzenia</string>
     <string name="scan_show_all_subtitle">Włącz, jeśli Twoje koło się nie pojawia.</string>
 
@@ -1165,7 +1165,7 @@
     <string name="auto_waiting_gps">Oczekiwanie na lokalizację GPS…</string>
     <string name="auto_volume_title">Sterowanie głośnością</string>
     <string name="auto_volume_when">Zwiększaj głośność, gdy</string>
-    <string name="media_control_title">Sterowanie odtwarzaniem</string>
+    <string name="media_control_title">Sterowanie muzyką</string>
     <string name="media_control_pause">Wstrzymaj, gdy zwalniam</string>
     <string name="media_control_pause_below">Wstrzymaj przy lub poniżej</string>
     <string name="media_control_resume">Wznów, gdy przyspieszam</string>
@@ -1195,7 +1195,7 @@
 
     <!-- Alarms tab -->
     <string name="alarm_help">Priorytet wyzwalania wynika z kolejności grup metryk poniżej.</string>
-    <string name="alarm_empty">Brak reguł alarmów</string>
+    <string name="alarm_empty">Brak reguł</string>
     <string name="alarm_add">Nowy alarm</string>
     <string name="alarm_summary_predict_fmt">z wyprzedzeniem %1$s s</string>
     <string name="alarm_new">Nowy alarm</string>
@@ -1724,7 +1724,7 @@
     <string name="nav_view_straight_line">w linii prostej</string>
     <string name="nav_view_heading_up">Kierunek jazdy u góry. Dotknij, aby ustawić północ u góry</string>
     <string name="nav_view_north_up">Północ u góry. Dotknij, aby ustawić kierunek jazdy u góry</string>
-    <string name="nav_view_tiles">Kafelki nawigatora</string>
+    <string name="nav_view_tiles">Kafelki nawigacji</string>
     <string name="nav_view_tiles_desc">4 liczby obok prędkości podczas nawigacji.</string>
     <string name="nav_view_speed">Prędkość</string>
     <string name="nav_layer_dark">Esri Dark</string>
@@ -2273,7 +2273,7 @@
     <string name="adv_nav_reroute_after">Nowa trasa po</string>
     <string name="adv_nav_reroute_after_desc">Określa, jak długo jesteś poza trasą, zanim aplikacja pobierze nową trasę. Uwaga: przy zbyt małej wartości aplikacja przelicza trasę przy każdym drobnym objeździe i zużywa dane.</string>
     <string name="adv_nav_warning">Te ustawienia określają, kiedy reaguje nawigacja. Błędne wartości mogą sprawić, że wskazówki głosowe lub przeliczanie trasy zadziałają za wcześnie albo za późno.</string>
-    <string name="adv_phone_gps_interval">Interwał aktualizacji GPS telefonu</string>
+    <string name="adv_phone_gps_interval">Interwał GPS telefonu</string>
     <string name="adv_phone_gps_interval_desc">Określa, jak płynny jest ślad GPS i jak szybko reaguje nawigacja. Im mniejsza wartość, tym częstsze aktualizacje. Uwaga: niskie wartości szybciej rozładowują baterię.</string>
     <string name="adv_phone_gps_idle_interval">Interwał GPS w spoczynku</string>
     <string name="adv_phone_gps_idle_interval_desc">Częstotliwość GPS w gotowości, gdy nie nagrywasz ani nie nawigujesz, aby Nawigator i nowe połączenie z kołem były od razu gotowe. Wyższa wartość oszczędza baterię.</string>
@@ -2677,7 +2677,7 @@
     <string name="lockdown_limit_12">Dotknięcie metryki nic nie robi.</string>
     <string name="lockdown_limit_13">Komunikaty głosowe, raporty cykliczne i międzyczasy prędkości są wyciszone. Alarmy nadal działają.</string>
     <string name="lockdown_limit_14">Koła nie można zablokować ani odblokować, a automatyczna blokada zbliżeniowa nie działa.</string>
-    <string name="lockdown_limit_15">Automatyczne światła i automatyczna głośność nadal działają. Sterowanie odtwarzaniem przestaje działać.</string>
+    <string name="lockdown_limit_15">Automatyczne światła i automatyczna głośność nadal działają. Sterowanie muzyką przestaje działać.</string>
     <string name="lockdown_limit_16">Powiadomienie traci przyciski.</string>
     <string name="lockdown_limit_17">Numer wersji nie otwiera już ekranu O aplikacji.</string>
     <string name="lockdown_limit_18">Ten tryb nie jest zapisywany w kopiach zapasowych ustawień.</string>
@@ -2879,9 +2879,9 @@
     <string name="nav_unlock_off">Odchyla się do %1$s od śladu</string>
     <string name="nav_unlock_confirm">Zamień</string>
     <string name="voice_nav_place_reached">%1$s, jesteś na miejscu</string>
-    <string name="offline_data_open">Obszary offline</string>
+    <string name="offline_data_open">Mapy offline</string>
     <string name="offline_server_url">Serwer danych offline</string>
-    <string name="offline_data_title">Obszary offline</string>
+    <string name="offline_data_title">Mapy offline</string>
     <string name="offline_data_space">Zajęte %1$s, wolne %2$s</string>
     <string name="offline_data_tap_hint">Dotknij kwadratu, aby pobrać jego mapę i dane tras albo go usunąć.</string>
     <string name="offline_data_list_error">Brak połączenia z serwerem. Pobrane obszary nadal działają.</string>

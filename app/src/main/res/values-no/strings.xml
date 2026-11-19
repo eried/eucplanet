@@ -95,7 +95,7 @@
     <string name="tab_alarms">Alarmregler</string>
     <string name="tab_auto">Automatiseringer</string>
     <string name="tab_integration">Integrasjon</string>
-    <string name="tab_cloud">Sikkerhetskopi og ledertavler</string>
+    <string name="tab_cloud">Sikkerhetskopi og Leaderboards</string>
 
     <!-- HUD companion settings -->
     <string name="section_hud_companion">Motoeye HUD</string>
@@ -171,7 +171,7 @@
     <string name="auto_connect_on_start">Koble til automatisk ved start</string>
     <string name="last_device">Siste enhet: %1$s</string>
     <string name="section_application">App</string>
-    <string name="back_button_action">Tilbake-handling</string>
+    <string name="back_button_action">Tilbake-knappen</string>
     <string name="back_button_action_desc">Hva som skjer når du sveiper eller trykker tilbake fra dashbordet.</string>
     <string name="back_button_action_ask">Spør</string>
     <string name="back_button_action_background">Bakgrunn</string>
@@ -431,7 +431,7 @@
     <string name="auto_waiting_gps">Venter på GPS-posisjon\u2026</string>
     <string name="auto_volume_title">Volumkontroll</string>
     <string name="auto_volume_when">Øk volumet når</string>
-    <string name="media_control_title">Avspillingskontroll</string>
+    <string name="media_control_title">Musikkstyring</string>
     <string name="media_control_pause">Pause når jeg senker farten</string>
     <string name="media_control_pause_below">Pause ved eller under</string>
     <string name="media_control_resume">Fortsett når jeg øker farten</string>
@@ -461,7 +461,7 @@
 
     <!-- Alarms tab -->
     <string name="alarm_help">Prioriteten følger rekkefølgen på målegruppene under.</string>
-    <string name="alarm_empty">Ingen alarmregler ennå</string>
+    <string name="alarm_empty">Ingen regler ennå</string>
     <string name="alarm_add">Ny alarm</string>
     <string name="alarm_summary_predict_fmt">forutser %1$s s framover</string>
     <string name="alarm_new">Ny alarm</string>
@@ -861,7 +861,7 @@
     <string name="nav_view_straight_line">luftlinje</string>
     <string name="nav_view_heading_up">Kjøreretning opp, trykk for nord opp</string>
     <string name="nav_view_north_up">Nord opp, trykk for kjøreretning opp</string>
-    <string name="nav_view_tiles">Navigasjonsfliser</string>
+    <string name="nav_view_tiles">Fliser under navigering</string>
     <string name="nav_view_tiles_desc">De 4 tallene ved siden av farten under navigasjon.</string>
     <string name="nav_view_speed">Fart</string>
     <string name="nav_layer_dark">Esri Dark</string>
@@ -2560,7 +2560,7 @@
     <string name="lockdown_limit_12">Det skjer ingenting når du trykker på en måling.</string>
     <string name="lockdown_limit_13">Talemeldinger, jevnlige rapporter og fartsmellomtider er stille. Alarmene dine virker fortsatt.</string>
     <string name="lockdown_limit_14">Hjulet kan ikke låses eller låses opp, og nærhetslåsen slår ikke inn.</string>
-    <string name="lockdown_limit_15">Autolys og autovolum fortsetter å virke. Mediekontrollene slutter å virke.</string>
+    <string name="lockdown_limit_15">Autolys og autovolum fortsetter å virke. Musikkstyringen slutter å virke.</string>
     <string name="lockdown_limit_16">Varselet mister knappene sine.</string>
     <string name="lockdown_limit_17">Versjonsnummeret åpner ikke lenger Om.</string>
     <string name="lockdown_limit_18">Denne modusen er ikke med i sikkerhetskopiene av innstillingene.</string>
@@ -2760,9 +2760,9 @@
     <string name="nav_unlock_off">Avviker opptil %1$s fra sporet</string>
     <string name="nav_unlock_confirm">Konverter</string>
     <string name="voice_nav_place_reached">%1$s nådd</string>
-    <string name="offline_data_open">Frakoblede områder</string>
+    <string name="offline_data_open">Frakoblede kart</string>
     <string name="offline_server_url">Server for frakoblede data</string>
-    <string name="offline_data_title">Frakoblede områder</string>
+    <string name="offline_data_title">Frakoblede kart</string>
     <string name="offline_data_space">Brukt %1$s, ledig %2$s</string>
     <string name="offline_data_tap_hint">Trykk på et felt for å laste ned kart og ruting for det, eller slette det.</string>
     <string name="offline_data_list_error">Får ikke kontakt med serveren. Nedlastede områder virker fortsatt.</string>

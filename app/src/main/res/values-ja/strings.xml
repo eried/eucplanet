@@ -124,7 +124,7 @@
     <string name="tab_auto">オートメーション</string>
     <string name="tab_integration">連携</string>
     <string name="tab_watch">ウォッチ</string>
-    <string name="tab_cloud">バックアップ &amp; リーダーボード</string>
+    <string name="tab_cloud">バックアップ &amp; Leaderboards</string>
 
     <!-- Dashboard layout (customizable home screen) -->
     <string name="tab_dashboard">ダッシュボードレイアウト</string>
@@ -896,9 +896,9 @@
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Flic 2 ボタン</string>
     <string name="flic_show_on_dashboard">ダッシュボードにクイックアクセスアイコン</string>
-    <string name="flic_scan_hint">Flic 2 ボタンを 6 秒間長押ししてペアリングモードにし、「スキャン開始」をタップしてください。</string>
+    <string name="flic_scan_hint">Flic 2 ボタンを 6 秒間長押ししてペアリングモードにし、「デバイスを検索」をタップしてください。</string>
     <string name="flic_stop_scan">スキャン停止</string>
-    <string name="flic_start_scan">スキャン開始</string>
+    <string name="flic_start_scan">デバイスを検索</string>
     <string name="flic_forget">登録解除</string>
     <string name="flic_forget_title">このボタンの登録を解除しますか？</string>
     <string name="flic_forget_body">%1$s のペアリングが解除されます。</string>
@@ -916,7 +916,7 @@
     <string name="tpms_none_yet">検出または手動で追加したタイヤ空気圧センサーはまだありません。</string>
     <string name="tpms_wheel_sensor_replaced">ペアリング済みセンサーに置き換え</string>
     <string name="external_gps_device_title">外部 GPS</string>
-    <string name="external_gps_pair_button">スキャン開始</string>
+    <string name="external_gps_pair_button">デバイスを検索</string>
     <string name="external_gps_pair_action">ペアリング</string>
     <string name="external_gps_stop_scan">スキャン停止</string>
     <string name="external_gps_paired_with">%1$s とペアリング済み</string>
@@ -960,7 +960,7 @@
     <!-- Rear-view radar (Garmin Varia today) -->
     <string name="section_radar">後方レーダー</string>
     <string name="radar_caption">Varia ボタンを紫色に点滅するまで 2 秒間長押ししてから、スキャンを開始してください。</string>
-    <string name="radar_pair_button">スキャン開始</string>
+    <string name="radar_pair_button">デバイスを検索</string>
     <string name="radar_pair_action">ペアリング</string>
     <string name="radar_stop_scan">スキャン停止</string>
     <string name="radar_state_connected">接続済み</string>
@@ -1068,7 +1068,7 @@
     <!-- Scan screen -->
     <string name="scan_title">ホイールに接続</string>
     <string name="scan_scanning">検索中…</string>
-    <string name="scan_start">スキャン開始</string>
+    <string name="scan_start">デバイスを検索</string>
     <string name="scan_show_all_title">すべてのデバイスを表示</string>
     <string name="scan_show_all_subtitle">ホイールが表示されない場合はオンにしてください。</string>
 
@@ -1159,7 +1159,7 @@
     <string name="auto_waiting_gps">GPS 位置情報を待機中…</string>
     <string name="auto_volume_title">音量コントロール</string>
     <string name="auto_volume_when">音量を上げる条件</string>
-    <string name="media_control_title">再生コントロール</string>
+    <string name="media_control_title">音楽コントロール</string>
     <string name="media_control_pause">減速したら一時停止</string>
     <string name="media_control_pause_below">この速度以下で一時停止</string>
     <string name="media_control_resume">加速したら再開</string>
@@ -1189,7 +1189,7 @@
 
     <!-- Alarms tab -->
     <string name="alarm_help">発動の優先順位は、下のメトリクスグループの順序に従います。</string>
-    <string name="alarm_empty">アラームルールがありません</string>
+    <string name="alarm_empty">ルールはまだありません</string>
     <string name="alarm_add">新しいアラーム</string>
     <string name="alarm_summary_predict_fmt">%1$s 秒先を予測</string>
     <string name="alarm_new">新しいアラーム</string>
@@ -1705,7 +1705,7 @@
     <string name="nav_view_straight_line">直線</string>
     <string name="nav_view_heading_up">進行方向を上、タップで北を上</string>
     <string name="nav_view_north_up">北を上、タップで進行方向を上</string>
-    <string name="nav_view_tiles">ナビタイル</string>
+    <string name="nav_view_tiles">ナビ中のタイル</string>
     <string name="nav_view_tiles_desc">ナビ中に速度の横に表示される4つの数値です。</string>
     <string name="nav_view_speed">速度</string>
     <string name="nav_layer_dark">Esri Dark</string>
@@ -2672,7 +2672,7 @@
     <string name="lockdown_limit_12">メトリクスをタップしても何も起きません。</string>
     <string name="lockdown_limit_13">音声アナウンス、定期報告、速度スプリットは読み上げません。アラームはこれまでどおり鳴ります。</string>
     <string name="lockdown_limit_14">ホイールのロックと解除はできず、近接による自動ロックも動作しません。</string>
-    <string name="lockdown_limit_15">自動ライトと自動音量は引き続き動作します。メディアの再生操作は止まります。</string>
+    <string name="lockdown_limit_15">自動ライトと自動音量は引き続き動作します。音楽コントロールは止まります。</string>
     <string name="lockdown_limit_16">通知からボタンがなくなります。</string>
     <string name="lockdown_limit_17">バージョン番号をタップしても「アプリについて」は開きません。</string>
     <string name="lockdown_limit_18">このモードは設定のバックアップに含まれません。</string>
@@ -2871,9 +2871,9 @@
     <string name="nav_unlock_off">トラックから最大 %1$s ずれます</string>
     <string name="nav_unlock_confirm">変換</string>
     <string name="voice_nav_place_reached">%1$s に到着</string>
-    <string name="offline_data_open">オフラインエリア</string>
+    <string name="offline_data_open">オフラインマップ</string>
     <string name="offline_server_url">オフラインデータのサーバー</string>
-    <string name="offline_data_title">オフラインエリア</string>
+    <string name="offline_data_title">オフラインマップ</string>
     <string name="offline_data_space">使用 %1$s、空き %2$s</string>
     <string name="offline_data_tap_hint">マスをタップして、マップとルートをダウンロード、または削除します。</string>
     <string name="offline_data_list_error">サーバーに接続できません。ダウンロード済みのエリアは使えます。</string>

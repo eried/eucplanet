@@ -124,7 +124,7 @@
     <string name="tab_auto">Automatiseringar</string>
     <string name="tab_integration">Integration</string>
     <string name="tab_watch">Klocka</string>
-    <string name="tab_cloud">Säkerhetskopior och topplistor</string>
+    <string name="tab_cloud">Säkerhetskopior och Leaderboards</string>
 
     <!-- Dashboard layout (customizable home screen) -->
     <string name="tab_dashboard">Instrumentpanelens layout</string>
@@ -134,7 +134,7 @@
     <string name="dashboard_pool_metrics">Tillgängliga mätvärden</string>
     <string name="dashboard_pool_actions">Tillgängliga åtgärder</string>
     <string name="dashboard_pool_tap_toast">Tryck länge och dra till en plats ovan för att använda den</string>
-    <string name="dashboard_stats_length">Statistiklängd</string>
+    <string name="dashboard_stats_length">Statistik</string>
     <string name="dashboard_view">Vy</string>
     <string name="dashboard_view_default">Standard</string>
     <string name="dashboard_view_wide">Bred</string>
@@ -666,7 +666,7 @@
     <string name="section_recording">Inspelning</string>
     <string name="section_connection">Anslutning</string>
     <string name="auto_record_caption">Spelar in en tur när hjulet är anslutet.</string>
-    <string name="auto_record_start_in_motion_caption">Startar när du börjar rulla, stoppar när du stått still och startar igen vid nästa tur.</string>
+    <string name="auto_record_start_in_motion_caption">Startar när du börjar rulla, stoppar när du stått still och startar igen när du rullar iväg igen.</string>
     <string name="auto_record_stop_idle_seconds">Stoppa efter inaktivitet i</string>
     <string name="auto_connect_on_start">Anslut automatiskt vid start</string>
     <string name="wheel_name_display">Hjulnamn</string>
@@ -675,7 +675,7 @@
     <string name="wheel_name_brand">Märke</string>
     <string name="last_device">Senaste enhet: %1$s</string>
     <string name="section_application">App</string>
-    <string name="back_button_action">Bakåtåtgärd</string>
+    <string name="back_button_action">Tillbakaknappen</string>
     <string name="back_button_action_desc">Vad som händer när du sveper eller trycker bakåt från instrumentpanelen.</string>
     <string name="back_button_action_ask">Fråga</string>
     <string name="back_button_action_background">Bakgrund</string>
@@ -1159,7 +1159,7 @@
     <string name="auto_waiting_gps">Väntar på GPS-position…</string>
     <string name="auto_volume_title">Volymkontroll</string>
     <string name="auto_volume_when">Höj volymen när</string>
-    <string name="media_control_title">Uppspelningskontroll</string>
+    <string name="media_control_title">Musikstyrning</string>
     <string name="media_control_pause">Pausa när jag saktar in</string>
     <string name="media_control_pause_below">Pausa vid eller under</string>
     <string name="media_control_resume">Återuppta när jag ökar farten</string>
@@ -1189,7 +1189,7 @@
 
     <!-- Alarms tab -->
     <string name="alarm_help">Larmen prioriteras i samma ordning som mätvärdesgrupperna nedan.</string>
-    <string name="alarm_empty">Inga larmregler ännu</string>
+    <string name="alarm_empty">Inga regler ännu</string>
     <string name="alarm_add">Nytt larm</string>
     <string name="alarm_summary_predict_fmt">förutser %1$s s framåt</string>
     <string name="alarm_new">Nytt larm</string>
@@ -1705,7 +1705,7 @@
     <string name="nav_view_straight_line">fågelvägen</string>
     <string name="nav_view_heading_up">Färdriktning upp, tryck för norr upp</string>
     <string name="nav_view_north_up">Norr upp, tryck för färdriktning upp</string>
-    <string name="nav_view_tiles">Navigeringsrutor</string>
+    <string name="nav_view_tiles">Rutor under navigering</string>
     <string name="nav_view_tiles_desc">De 4 siffrorna bredvid hastigheten under navigering.</string>
     <string name="nav_view_speed">Hastighet</string>
     <string name="nav_layer_dark">Esri Dark</string>
@@ -2273,7 +2273,7 @@
     <string name="adv_nav_reroute_after">Räkna om rutten efter</string>
     <string name="adv_nav_reroute_after_desc">Styr hur länge du får vara utanför rutten innan en ny rutt beräknas. Varning: för lågt räknar om vid små omvägar och drar data.</string>
     <string name="adv_nav_warning">De här ändrar när navigeringen reagerar. Fel värden kan göra att röstanvisningar eller omräkning av rutten kommer för tidigt eller för sent.</string>
-    <string name="adv_phone_gps_interval">Telefonens GPS-uppdateringsintervall</string>
+    <string name="adv_phone_gps_interval">Telefonens GPS-intervall</string>
     <string name="adv_phone_gps_interval_desc">Styr hur jämnt GPS-spåret blir och hur snabbt navigeringen reagerar. Lägre uppdaterar oftare. Varning: låga värden tömmer batteriet snabbare.</string>
     <string name="adv_phone_gps_idle_interval">GPS-intervall i viloläge</string>
     <string name="adv_phone_gps_idle_interval_desc">GPS-takt i viloläge när du inte spelar in eller navigerar, så att navigatorn och en ny anslutning är redo. Högre sparar batteri.</string>
@@ -2302,7 +2302,7 @@
     <string name="adv_timings_title">Tidsstyrning och variabler</string>
     <string name="adv_trip_record_interval">Turinspelningsintervall</string>
     <string name="adv_trip_record_interval_desc">Styr hur ofta en rad sparas i turfilen under inspelning. Lägre ger mer detaljer. Varning: mycket låga värden ger stora filer.</string>
-    <string name="adv_pending_upload_interval">Nytt försök att ladda upp turer</string>
+    <string name="adv_pending_upload_interval">Nytt uppladdningsförsök</string>
     <string name="adv_pending_upload_interval_desc">Styr hur ofta appen försöker ladda upp turer som väntar, till exempel efter att appen stängts under en synkning. 15 min är det minsta Android tillåter. Varning: för långt fördröjer en uppladdning som fastnat.</string>
     <string name="adv_trip_finalize_grace">Frist för att slutföra tur</string>
     <string name="adv_trip_finalize_grace_desc">Styr hur länge det dröjer efter att du stannat innan en tur avslutas och synkas. Varning: för lågt kan dela upp en tur som bara pausades kort.</string>
@@ -2673,7 +2673,7 @@
     <string name="lockdown_limit_12">Det händer inget när du trycker på ett mätvärde.</string>
     <string name="lockdown_limit_13">Röstmeddelanden, regelbundna rapporter och mellantider är tysta. Dina larm fungerar fortfarande.</string>
     <string name="lockdown_limit_14">Hjulet går inte att låsa eller låsa upp, och det automatiska närhetslåset körs inte.</string>
-    <string name="lockdown_limit_15">Autoljus och autovolym fortsätter att fungera. Mediestyrningen slutar fungera.</string>
+    <string name="lockdown_limit_15">Autoljus och autovolym fortsätter att fungera. Musikstyrningen slutar fungera.</string>
     <string name="lockdown_limit_16">Aviseringen blir av med sina knappar.</string>
     <string name="lockdown_limit_17">Versionsnumret öppnar inte längre Om.</string>
     <string name="lockdown_limit_18">Det här läget ingår inte i säkerhetskopiorna av inställningarna.</string>
@@ -2873,9 +2873,9 @@
     <string name="nav_unlock_off">Avviker upp till %1$s från spåret</string>
     <string name="nav_unlock_confirm">Konvertera</string>
     <string name="voice_nav_place_reached">%1$s nått</string>
-    <string name="offline_data_open">Offlineområden</string>
+    <string name="offline_data_open">Offlinekartor</string>
     <string name="offline_server_url">Server för offlinedata</string>
-    <string name="offline_data_title">Offlineområden</string>
+    <string name="offline_data_title">Offlinekartor</string>
     <string name="offline_data_space">Använt %1$s, ledigt %2$s</string>
     <string name="offline_data_tap_hint">Tryck på en ruta för att ladda ner karta och ruttberäkning för den, eller radera den.</string>
     <string name="offline_data_list_error">Servern svarar inte. Nedladdade områden fungerar ändå.</string>

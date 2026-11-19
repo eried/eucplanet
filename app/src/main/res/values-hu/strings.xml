@@ -112,7 +112,7 @@
     <string name="tab_auto">Automatizálások</string>
     <string name="tab_integration">Integrációk</string>
     <string name="tab_watch">Óra</string>
-    <string name="tab_cloud">Biztonsági mentések és ranglisták</string>
+    <string name="tab_cloud">Biztonsági mentések és Leaderboards</string>
     <string name="tab_dashboard">Műszerfal elrendezése</string>
     <string name="dashboard_section_metrics">Mérőszámok</string>
     <string name="dashboard_section_actions">Műveleti gombok</string>
@@ -120,7 +120,7 @@
     <string name="dashboard_pool_metrics">Elérhető mérőszámok</string>
     <string name="dashboard_pool_actions">Elérhető műveletek</string>
     <string name="dashboard_pool_tap_toast">Nyomd hosszan és húzd a fenti helyre</string>
-    <string name="dashboard_stats_length">Statisztika hossza</string>
+    <string name="dashboard_stats_length">Statisztika</string>
     <string name="dashboard_view">Nézet</string>
     <string name="dashboard_view_default">Alapértelmezett</string>
     <string name="dashboard_view_wide">Széles</string>
@@ -563,7 +563,7 @@
     <string name="adv_nav_arrival_dismiss_desc">Meghatározza, mennyi ideig marad az érkezési sáv a képernyőn.</string>
     <string name="adv_nav_hunt_voice_interval">Keresési hang időköze</string>
     <string name="adv_nav_hunt_voice_interval_desc">Meghatározza, milyen gyakran mondja a hang, hogy GPS-t keres. Vigyázat: a túl alacsony érték gyakran ismétli.</string>
-    <string name="adv_nav_heading_window">Iránymeghatározási ablak</string>
+    <string name="adv_nav_heading_window">Irány időablaka</string>
     <string name="adv_nav_heading_window_desc">Ennyi másodpercnyi mozgásból számolja a haladási irányodat. Vigyázat: túl alacsony értéknél ugrál az irány.</string>
     <string name="adv_nav_fix_buffer">GPS-előzmény ablaka</string>
     <string name="adv_nav_fix_buffer_desc">Meghatározza, hány másodpercnyi GPS-pozíció marad meg az irányhoz és az útvonalra illesztéshez. Vigyázat: túl alacsony értéknél elveszhet az irány.</string>
@@ -802,7 +802,7 @@
     <string name="section_recording">Rögzítés</string>
     <string name="section_connection">Kapcsolat</string>
     <string name="auto_record_caption">Menetet rögzít, amikor az egykerekű csatlakozik.</string>
-    <string name="auto_record_start_in_motion_caption">Mozgásra indul, tétlenség után leáll, a következő menetnél újraindul.</string>
+    <string name="auto_record_start_in_motion_caption">Mozgásra indul, tétlenség után leáll, és újraindul, amint újra mozogsz.</string>
     <string name="auto_record_stop_idle_seconds">Leállítás tétlenség után</string>
     <string name="auto_record_mode_label">Menetrögzítés automatikus indítása</string>
     <string name="auto_record_mode_never">Soha</string>
@@ -815,7 +815,7 @@
     <string name="wheel_name_brand">Márka</string>
     <string name="last_device">Utolsó eszköz: %1$s</string>
     <string name="section_application">Alkalmazás</string>
-    <string name="back_button_action">Vissza művelet</string>
+    <string name="back_button_action">Vissza gomb</string>
     <string name="back_button_action_desc">Mi történjen, ha a műszerfalon visszafelé húzol, vagy megnyomod a vissza gombot.</string>
     <string name="section_screen_geometry">Képernyőgeometria</string>
     <string name="geo_section_dashboard">Műszerfal</string>
@@ -1470,7 +1470,7 @@
     <string name="auto_waiting_gps">Várakozás a GPS-pozícióra…</string>
     <string name="auto_volume_title">Hangerő-szabályzás</string>
     <string name="auto_volume_when">Hangerő emelése, ha</string>
-    <string name="media_control_title">Lejátszásvezérlés</string>
+    <string name="media_control_title">Zenevezérlés</string>
     <string name="media_control_pause">Szüneteltetés lassításkor</string>
     <string name="media_control_pause_below">Szüneteltetés ennél vagy alatta</string>
     <string name="media_control_resume">Folytatás gyorsításkor</string>
@@ -1497,7 +1497,7 @@
     <string name="auto_lights_suspended">Erre a munkamenetre szünetel, mert kézzel állítottad a világítást. A Figyelmet igényel panelen javíthatod, vagy csatlakoztasd újra az egykerekűt.</string>
     <string name="auto_lock_suspended">Erre a munkamenetre szünetel, mert kézzel zároltad vagy oldottad fel. A Figyelmet igényel panelen javíthatod, vagy csatlakoztasd újra az egykerekűt.</string>
     <string name="alarm_help">Hogy melyik riaszt előbb, azt az alábbi mérőszámcsoportok sorrendje dönti el.</string>
-    <string name="alarm_empty">Még nincsenek riasztási szabályok</string>
+    <string name="alarm_empty">Még nincsenek szabályok</string>
     <string name="alarm_add">Új riasztás</string>
     <string name="alarm_summary_predict_fmt">%1$s másodperccel előre jelez</string>
     <string name="alarm_new">Új riasztás</string>
@@ -2024,7 +2024,7 @@
     <string name="nav_view_straight_line">légvonalban</string>
     <string name="nav_view_heading_up">Haladási irány felül, koppintásra észak lesz felül</string>
     <string name="nav_view_north_up">Észak felül, koppintásra a haladási irány lesz felül</string>
-    <string name="nav_view_tiles">Navigációs csempék</string>
+    <string name="nav_view_tiles">Csempék navigáció közben</string>
     <string name="nav_view_tiles_desc">A 4 szám a sebesség mellett navigáció közben.</string>
     <string name="nav_view_speed">Sebesség</string>
     <string name="nav_layer_dark">Esri Dark</string>
@@ -2477,7 +2477,7 @@
     <string name="lockdown_limit_12">A mérőszámokra koppintva nem történik semmi.</string>
     <string name="lockdown_limit_13">A hangbemondások, a rendszeres jelentések és a sebességrészidők elnémulnak. A riasztásaid továbbra is működnek.</string>
     <string name="lockdown_limit_14">Az egykerekű nem zárolható és nem oldható fel, és a közelségi automatikus zárolás sem fut.</string>
-    <string name="lockdown_limit_15">Az automatikus világítás és az automatikus hangerő továbbra is működik. A lejátszásvezérlés leáll.</string>
+    <string name="lockdown_limit_15">Az automatikus világítás és az automatikus hangerő továbbra is működik. A zenevezérlés leáll.</string>
     <string name="lockdown_limit_16">Az értesítésről eltűnnek a gombok.</string>
     <string name="lockdown_limit_17">A verziószám többé nem nyitja meg a Névjegyet.</string>
     <string name="lockdown_limit_18">Ez a mód nem kerül bele a beállítások biztonsági mentésébe.</string>
@@ -2677,9 +2677,9 @@
     <string name="nav_unlock_off">Legfeljebb %1$s eltérés a nyomvonaltól</string>
     <string name="nav_unlock_confirm">Átalakítás</string>
     <string name="voice_nav_place_reached">%1$s elérve</string>
-    <string name="offline_data_open">Offline területek</string>
+    <string name="offline_data_open">Offline térképek</string>
     <string name="offline_server_url">Offline adatszerver</string>
-    <string name="offline_data_title">Offline területek</string>
+    <string name="offline_data_title">Offline térképek</string>
     <string name="offline_data_space">Foglalt %1$s, szabad %2$s</string>
     <string name="offline_data_tap_hint">Koppints egy négyzetre a térkép és az útvonaltervezési adatok letöltéséhez vagy törléséhez.</string>
     <string name="offline_data_list_error">A szerver nem érhető el. A letöltött területek továbbra is működnek.</string>
