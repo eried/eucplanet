@@ -2868,9 +2868,9 @@
     <string name="car_no_places">Spara Hem eller Jobb, eller planera en rutt i telefonen först.</string>
     <string name="car_waiting_wheel">Väntar på hjulet</string>
     <string name="car_weather">Väder</string>
-    <string name="car_alarm_channel_name">Larm på bilskärmen</string>
+    <string name="car_alarm_channel_name">Android Auto-larm</string>
     <string name="car_alarm_channel_description">Visar ett utlöst larm på Android Auto-skärmen, ovanpå kartan.</string>
-    <string name="car_alarm_notifications">Larm på bilskärmen</string>
+    <string name="car_alarm_notifications">Larm på Android Auto-skärmen</string>
     <string name="car_alarm_notifications_hint">Ett utlöst larm visas ovanpå kartan, så det når dig medan du navigerar. Pip och vibration är oförändrade.</string>
     <string name="car_no_metrics">Inga mätvärden valda</string>
     <string name="nav_solve_menu">Optimera ordningen på stopp</string>

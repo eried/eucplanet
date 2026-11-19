@@ -2743,9 +2743,9 @@
     <string name="car_waiting_wheel">Αναμονή για το μονότροχο</string>
     <string name="car_weather">Καιρός</string>
     <string name="car_no_metrics">Δεν επιλέχθηκαν μετρήσεις</string>
-    <string name="car_alarm_channel_name">Συναγερμοί οθόνης αυτοκινήτου</string>
+    <string name="car_alarm_channel_name">Συναγερμοί Android Auto</string>
     <string name="car_alarm_channel_description">Εμφανίζει έναν ενεργό συναγερμό στην οθόνη Android Auto, πάνω από τον χάρτη.</string>
-    <string name="car_alarm_notifications">Συναγερμοί στην οθόνη αυτοκινήτου</string>
+    <string name="car_alarm_notifications">Συναγερμοί στην οθόνη Android Auto</string>
     <string name="car_alarm_notifications_hint">Ένας ενεργός συναγερμός εμφανίζεται πάνω από τον χάρτη, ώστε να τον βλέπετε κατά την πλοήγηση. Το μπιπ και η δόνηση δεν αλλάζουν.</string>
     <string name="car_navigate">Πλοήγηση</string>
     <string name="car_places_title">Πλοήγηση προς</string>

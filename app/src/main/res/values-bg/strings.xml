@@ -2825,9 +2825,9 @@
     <string name="car_waiting_wheel">Изчакване на моноколелото</string>
     <string name="car_weather">Времето</string>
     <string name="car_no_metrics">Няма избрани показатели</string>
-    <string name="car_alarm_channel_name">Аларми на екрана в колата</string>
+    <string name="car_alarm_channel_name">Аларми за Android Auto</string>
     <string name="car_alarm_channel_description">Показва задействана аларма на екрана на Android Auto, върху картата.</string>
-    <string name="car_alarm_notifications">Аларми на екрана в колата</string>
+    <string name="car_alarm_notifications">Аларми на екрана на Android Auto</string>
     <string name="car_alarm_notifications_hint">Задействана аларма се показва върху картата, за да ви достигне по време на навигация. Звуковият сигнал и вибрацията не се променят.</string>
     <string name="car_navigate">Навигирай</string>
     <string name="car_places_title">Навигирай до</string>

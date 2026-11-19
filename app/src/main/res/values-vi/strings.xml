@@ -2659,9 +2659,9 @@
     <string name="car_waiting_wheel">Đang chờ xe</string>
     <string name="car_weather">Thời tiết</string>
     <string name="car_no_metrics">Chưa chọn chỉ số</string>
-    <string name="car_alarm_channel_name">Cảnh báo trên màn hình ô tô</string>
+    <string name="car_alarm_channel_name">Cảnh báo Android Auto</string>
     <string name="car_alarm_channel_description">Hiện cảnh báo đang kêu trên màn hình Android Auto, đè lên bản đồ.</string>
-    <string name="car_alarm_notifications">Cảnh báo trên màn hình ô tô</string>
+    <string name="car_alarm_notifications">Cảnh báo trên màn hình Android Auto</string>
     <string name="car_alarm_notifications_hint">Cảnh báo đang kêu hiện đè lên bản đồ, để bạn nhận được khi đang dẫn đường. Tiếng bíp và rung không đổi.</string>
     <string name="car_navigate">Dẫn đường</string>
     <string name="car_places_title">Dẫn đường đến</string>

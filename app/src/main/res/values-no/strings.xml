@@ -2755,9 +2755,9 @@
     <string name="car_no_places">Lagre Hjem eller Jobb, eller planlegg en rute på telefonen først.</string>
     <string name="car_waiting_wheel">Venter på hjulet</string>
     <string name="car_weather">Vær</string>
-    <string name="car_alarm_channel_name">Alarmer på bilskjermen</string>
+    <string name="car_alarm_channel_name">Android Auto-alarmer</string>
     <string name="car_alarm_channel_description">Viser en utløst alarm på Android Auto-skjermen, oppå kartet.</string>
-    <string name="car_alarm_notifications">Alarmer på bilskjermen</string>
+    <string name="car_alarm_notifications">Alarmer på Android Auto-skjermen</string>
     <string name="car_alarm_notifications_hint">En utløst alarm vises oppå kartet, så den når deg mens du navigerer. Pip og vibrasjon er uendret.</string>
     <string name="car_no_metrics">Ingen målinger valgt</string>
     <string name="nav_solve_menu">Optimaliser rekkefølgen på stopp</string>
