@@ -2566,7 +2566,7 @@
     <string name="crews_scan_hint">Mở eucstats trên trình duyệt, nhấn Crews, rồi hướng camera vào mã hiển thị.</string>
     <string name="crews_scan_invalid">Đó không phải mã thẻ đội.</string>
     <string name="crews_scan_is_share">Đó là mã vị trí trực tiếp. Hãy quét từ mục Chia sẻ trên bản đồ.</string>
-    <string name="share_scan_is_crewpass">Đó là thẻ đội. Hãy quét trong Cài đặt, mục Thẻ đội.</string>
+    <string name="share_scan_is_crewpass">Đó là thẻ đội. Hãy quét trong Cài đặt, mục Bảng xếp hạng trực tuyến.</string>
     <string name="crews_type_instead">Nhập thủ công</string>
     <string name="crews_code_label">Mã thẻ</string>
     <string name="crews_foreign_title">Mã này không phải từ eucstats</string>

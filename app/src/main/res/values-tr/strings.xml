@@ -2767,7 +2767,7 @@
     <string name="crews_scan_hint">eucstats\'ı tarayıcıda açın, Crews\'a basın ve telefonu çıkan koda tutun.</string>
     <string name="crews_scan_invalid">Bu bir ekip pası kodu değil.</string>
     <string name="crews_scan_is_share">Bu bir canlı konum kodu. Haritadaki Paylaş bölümünden okutun.</string>
-    <string name="share_scan_is_crewpass">Bu bir ekip pası. Ayarlar\'da Ekipler altından okutun.</string>
+    <string name="share_scan_is_crewpass">Bu bir ekip pası. Ayarlar\'da Çevrimiçi lider tabloları altından okutun.</string>
     <string name="crews_type_instead">Elle gir</string>
     <string name="crews_code_label">Pas kodu</string>
     <string name="crews_foreign_title">Bu kod eucstats\'tan değil</string>

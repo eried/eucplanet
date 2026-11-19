@@ -2769,7 +2769,7 @@
     <string name="crews_scan_hint">ブラウザで eucstats を開いて「Crews」を押し、表示されたコードにカメラを向けてください。</string>
     <string name="crews_scan_invalid">クルーパスのコードではありません。</string>
     <string name="crews_scan_is_share">これは現在地共有のコードです。マップの「共有」から読み取ってください。</string>
-    <string name="share_scan_is_crewpass">これはクルーパスです。設定の「クルー」から読み取ってください。</string>
+    <string name="share_scan_is_crewpass">これはクルーパスです。設定の「オンラインリーダーボード」から読み取ってください。</string>
     <string name="crews_type_instead">手動で入力</string>
     <string name="crews_code_label">パスコード</string>
     <string name="crews_foreign_title">eucstats のコードではありません</string>

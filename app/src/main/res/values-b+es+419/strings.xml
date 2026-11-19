@@ -2790,7 +2790,7 @@
     <string name="crews_scan_hint">Abre eucstats en el navegador, toca Crews y apunta esto al código que aparece.</string>
     <string name="crews_scan_invalid">Ese no es un código de pase de crew.</string>
     <string name="crews_scan_is_share">Ese es un código de ubicación en vivo. Escanéalo desde Compartir en el mapa.</string>
-    <string name="share_scan_is_crewpass">Ese es un pase de crew. Escanéalo desde Configuración, en Crews.</string>
+    <string name="share_scan_is_crewpass">Ese es un pase de crew. Escanéalo desde Configuración, en Clasificaciones en línea.</string>
     <string name="crews_type_instead">Ingresar manualmente</string>
     <string name="crews_code_label">Código del pase</string>
     <string name="crews_foreign_title">Ese código no es de eucstats</string>

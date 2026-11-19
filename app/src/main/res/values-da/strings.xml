@@ -2785,7 +2785,7 @@
     <string name="crews_scan_hint">Åbn eucstats i en browser, tryk på Crews, og ret kameraet mod koden, der vises.</string>
     <string name="crews_scan_invalid">Det er ikke et crew-pas.</string>
     <string name="crews_scan_is_share">Det er en live-position-kode. Scan den fra Del på kortet.</string>
-    <string name="share_scan_is_crewpass">Det er et crew-pas. Scan det fra Indstillinger, under Crews.</string>
+    <string name="share_scan_is_crewpass">Det er et crew-pas. Scan det fra Indstillinger, under Online-ranglister.</string>
     <string name="crews_type_instead">Indtast manuelt</string>
     <string name="crews_code_label">Paskode</string>
     <string name="crews_foreign_title">Den kode er ikke fra eucstats</string>

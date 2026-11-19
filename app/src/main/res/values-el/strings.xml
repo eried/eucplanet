@@ -2651,7 +2651,7 @@
     <string name="crews_scan_hint">Ανοίξτε το eucstats σε πρόγραμμα περιήγησης, πατήστε Crews και στρέψτε την κάμερα στον κωδικό που εμφανίζει.</string>
     <string name="crews_scan_invalid">Αυτός δεν είναι κωδικός πάσου ομάδας.</string>
     <string name="crews_scan_is_share">Αυτός είναι κωδικός ζωντανής τοποθεσίας. Σαρώστε τον από την Κοινοποίηση στον χάρτη.</string>
-    <string name="share_scan_is_crewpass">Αυτό είναι πάσο ομάδας. Σαρώστε το από τις Ρυθμίσεις, στις Ομάδες.</string>
+    <string name="share_scan_is_crewpass">Αυτό είναι πάσο ομάδας. Σαρώστε το από τις Ρυθμίσεις, στις Διαδικτυακές κατατάξεις.</string>
     <string name="crews_type_instead">Χειροκίνητη εισαγωγή</string>
     <string name="crews_code_label">Κωδικός πάσου</string>
     <string name="crews_foreign_title">Αυτός ο κωδικός δεν είναι από το eucstats</string>

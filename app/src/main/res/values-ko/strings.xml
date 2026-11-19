@@ -2071,7 +2071,7 @@
     <string name="voice_announce_connected">연결 시</string>
     <string name="voice_announce_riding">주행 중</string>
     <string name="voice_announce_when_label">안내</string>
-    <string name="dropbox_section_caption">Dropbox에 온라인으로 백업합니다.</string>
+    <string name="dropbox_section_caption">Dropbox 온라인 백업.</string>
     <string name="dropbox_section_desc">Dropbox를 연결하면 %1$s에서도 주행 기록을 열 수 있습니다.</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Dropbox 연결</string>
@@ -2767,7 +2767,7 @@
     <string name="crews_scan_hint">브라우저에서 eucstats를 열고 Crews를 누른 다음, 표시되는 코드에 카메라를 맞추세요.</string>
     <string name="crews_scan_invalid">크루 패스 코드가 아닙니다.</string>
     <string name="crews_scan_is_share">실시간 위치 코드입니다. 지도의 공유에서 스캔하세요.</string>
-    <string name="share_scan_is_crewpass">크루 패스입니다. 설정의 크루에서 스캔하세요.</string>
+    <string name="share_scan_is_crewpass">크루 패스입니다. 설정의 온라인 리더보드에서 스캔하세요.</string>
     <string name="crews_type_instead">직접 입력</string>
     <string name="crews_code_label">패스 코드</string>
     <string name="crews_foreign_title">eucstats의 코드가 아닙니다</string>
