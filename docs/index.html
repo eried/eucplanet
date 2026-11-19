@@ -589,6 +589,9 @@
   /* Feature preview: a small phone (or watch) next to the hovered card,
      placed by script where the window has room. The card stays readable. */
   .card.has-shot { cursor: zoom-in; }
+  /* The preview overlaps the edge of its card, which lights up, so it is
+     clear which feature it shows. */
+  .card.has-shot.shown { border-color: rgba(88, 166, 255, 0.55); }
   .card.has-shot:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .shot-pop {
     position: fixed;
@@ -599,7 +602,7 @@
     padding: 7px;
     border-radius: 28px;
     background: #0b0f14;
-    box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.16), 0 24px 60px rgba(0, 0, 0, 0.65);
+    box-shadow: 0 0 0 1.5px rgba(88, 166, 255, 0.45), 0 24px 60px rgba(0, 0, 0, 0.65);
     opacity: 0;
     transform: scale(0.94);
     transition: opacity 160ms ease, transform 160ms ease;
@@ -959,7 +962,7 @@
         <h3><span data-i18n="fc.navigation.title">Navigation, offline too</span></h3>
         <p data-i18n-html="fc.navigation.body">Multi-stop routes with turn-by-turn guidance. Bike routes prefer quiet streets, and a missed turn gets a new route in seconds. Download the areas you ride and the map, routes and turn cues keep working with no signal.</p>
       </div>
-      <div class="card has-shot" tabindex="0" data-shots="wear-dash.png?v=2|wear-single.png|wear-details.png|wear-navigation.png|wear-goal.png" data-f1="0.5" data-f2="0.5" data-kind="watch">
+      <div class="card has-shot" tabindex="0" data-shots="f-watchset.webp|f-hudset.webp" data-f1="0.14" data-f2="0.4" data-kind="phone">
         <h3><span data-i18n="fc.devices.title">Watch and helmet</span> <span class="os" role="img" aria-label="Android" title="Android" data-i18n-attrs data-i18n-attr-aria-label="a.android" data-i18n-attr-title="a.android"><svg class="off"><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
         <p data-i18n-html="fc.devices.body">Your wheel's numbers off the phone: a Wear OS watch app, a <a href="https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71">Garmin watch or Edge data field</a>, an Amazfit dial, and a <a href="hud/">MotoEye or any Android helmet HUD</a>, also in Android Auto mode with the route.</p>
       </div>
@@ -1184,6 +1187,7 @@
   })();
 
 
+
 // Feature preview: one small phone that shows the hovered (or tapped) card's
 // screen. It sits beside the card if there is room, else below or above,
 // always inside the window, and follows the card while the page scrolls.
@@ -1199,7 +1203,7 @@
 
   function place(card) {
     var r = card.getBoundingClientRect(), vw = window.innerWidth, vh = window.innerHeight;
-    var w = pop.offsetWidth, h = pop.offsetHeight, g = 14, m = 8;
+    var w = pop.offsetWidth, h = pop.offsetHeight, g = -22, m = 8;
     function clamp(v, lo, hi) { return Math.max(lo, Math.min(v, hi)); }
     var midY = clamp(r.top + r.height / 2 - h / 2, m, vh - h - m);
     var midX = clamp(r.left + r.width / 2 - w / 2, m, vw - w - m);
@@ -1246,11 +1250,13 @@
         ims[k].className = 'on';
       }, 1800);
     }
+    cards.forEach(function (x) { x.classList.toggle('shown', x === card); });
     place(card);
     requestAnimationFrame(function () { pop.classList.add('on'); });
   }
 
   function hide() {
+    cards.forEach(function (x) { x.classList.remove('shown'); });
     cur = null;
     clearInterval(timer);
     pop.classList.remove('on');
