@@ -21,7 +21,7 @@ window.EUC_I18N_DICT = {
 "lead.3": "<a href=\"https://github.com/eried/eucplanet/releases\">GitHub</a> üzerinden kendin derleyip kurmak ücretsiz. Mağaza sayfası yalnızca otomatik güncelleme almanın ve destek olmanın kolay yolu. iPhone'da <a href=\"https://testflight.apple.com/join/8VrhGCrm\">TestFlight'taki betaya</a> katıl.",
 "h2.a-look-inside": "İçeride neler var",
 "h2.on-the-wrist": "Bilekte",
-"h2.built-different": "Farklı bir kafayla yapıldı",
+"h2.built-different": "Özellikler",
 "fc.wheels.title": "Tekerinle çalışır",
 "fc.wheels.body": "InMotion V14 ve P6 doğrulandı. KingSong, Begode, Veteran (LeaperKim), NOSFET ve diğer InMotion modellerini kullanıcılar denedi, bu markaların kalanı ve Ninebot ön izlemede. <a href=\"https://github.com/eried/eucplanet/blob/main/docs/BLE_CAPTURE_GUIDE.md\">Seninkini eklememize yardım et</a>, sorun çıkarırsa <a href=\"https://github.com/eried/eucplanet/blob/main/docs/DIAGNOSTICS_GUIDE.md\">bir tanılama kaydı gönder</a>.",
 "fc.modern.title": "Modern ve hızlı",

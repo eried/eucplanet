@@ -21,7 +21,7 @@ window.EUC_I18N_DICT = {
 "lead.3": "O compilezi și o instalezi manual gratis de pe <a href=\"https://github.com/eried/eucplanet/releases\">GitHub</a>. Pagina din magazin e doar un mod comod să primești actualizări automate și să contribui și tu. Pe iPhone, intră în <a href=\"https://testflight.apple.com/join/8VrhGCrm\">beta de pe TestFlight</a>.",
 "h2.a-look-inside": "O privire înăuntru",
 "h2.on-the-wrist": "La mână",
-"h2.built-different": "Făcută altfel",
+"h2.built-different": "Funcții",
 "fc.wheels.title": "Merge cu monociclul tău",
 "fc.wheels.body": "InMotion V14 și P6 verificate. KingSong, Begode, Veteran (LeaperKim), NOSFET și alte modele InMotion sunt testate de monocicliști, restul acestor familii și Ninebot sunt în probă. <a href=\"https://github.com/eried/eucplanet/blob/main/docs/BLE_CAPTURE_GUIDE.md\">Ajută-ne să îl adăugăm pe al tău</a> sau <a href=\"https://github.com/eried/eucplanet/blob/main/docs/DIAGNOSTICS_GUIDE.md\">trimite o înregistrare de diagnostic</a> dacă face figuri.",
 "fc.modern.title": "Modernă și rapidă",

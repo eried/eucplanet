@@ -602,13 +602,17 @@
     padding: 7px;
     border-radius: 28px;
     background: #0b0f14;
-    box-shadow: 0 0 0 1.5px rgba(88, 166, 255, 0.45), 0 24px 60px rgba(0, 0, 0, 0.65);
-    opacity: 0;
-    transform: scale(0.94);
-    transition: opacity 160ms ease, transform 160ms ease;
+    box-shadow: 0 22px 50px rgba(0, 0, 0, 0.6);
+    visibility: hidden;
+    /* Unfold: it opens out of the point where it touches its card. */
+    clip-path: circle(0% at var(--ox, 0%) var(--oy, 50%));
+    transition: clip-path 800ms cubic-bezier(0.65, 0, 0.25, 1), visibility 0s linear 800ms;
     pointer-events: none;
   }
-  .shot-pop.on { opacity: 1; transform: none; }
+  .shot-pop.on { visibility: visible; clip-path: circle(150% at var(--ox, 0%) var(--oy, 50%)); transition: clip-path 800ms cubic-bezier(0.65, 0, 0.25, 1); }
+  .shot-pop .win img { transition: opacity 450ms ease; }
+  .shot-pop:not(.on) .win { opacity: 0; transition: opacity 120ms ease; }
+  .shot-pop.on .win { opacity: 1; transition: opacity 500ms ease 400ms; }
   .shot-pop .win { position: relative; width: 100%; height: 100%; border-radius: 21px; overflow: hidden; background: #000; }
   .shot-pop img {
     position: absolute;
@@ -631,7 +635,7 @@
   .shot-pop.watch .win { border-radius: 50%; }
   .shot-pop.watch img { left: 0; top: 0; width: 100%; height: 100%; transform: none; animation: none; }
   @media (prefers-reduced-motion: reduce) {
-    .shot-pop, .shot-pop img { transition: none; animation: none; }
+    .shot-pop, .shot-pop.on, .shot-pop img, .shot-pop .win { transition: none; animation: none; clip-path: none; }
   }
   .card p { font-size: 14px; color: #9aa4b2; margin: 0; }
   .card p a, .lead a { color: var(--accent); text-decoration: underline; text-decoration-color: rgba(88, 166, 255, 0.4); }
@@ -680,7 +684,6 @@
     width: 100%;
     height: auto;
     border-radius: 50%;
-    border: 1px solid var(--border-strong);
     background: #000;
     transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
     box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45);
@@ -938,7 +941,7 @@
   <section class="reveal">
     <div class="section-head">
       <span class="accent-dot"></span>
-      <h2 data-i18n="h2.built-different">Built different</h2>
+      <h2 data-i18n="h2.built-different">Features</h2>
       <span class="rule"></span>
     </div>
     <div class="features">
@@ -1006,7 +1009,7 @@
   <img alt="" src="">
 </div>
 
-<script src="js/i18n.js?v=5"></script>
+<script src="js/i18n.js?v=6"></script>
 <script>
   // Eyebrow Echo-trail cycle - RGB ghosting + smooth pill resize
   (function () {
@@ -1188,6 +1191,7 @@
 
 
 
+
 // Feature preview: one small phone that shows the hovered (or tapped) card's
 // screen. It sits beside the card if there is room, else below or above,
 // always inside the window, and follows the card while the page scrolls.
@@ -1213,11 +1217,17 @@
       { x: midX, y: r.bottom + g, room: vh - r.bottom - g - m - h },
       { x: midX, y: r.top - g - h, room: r.top - g - m - h }
     ];
+    spots[0].ox = '0%'; spots[0].oy = '50%';
+    spots[1].ox = '100%'; spots[1].oy = '50%';
+    spots[2].ox = '50%'; spots[2].oy = '0%';
+    spots[3].ox = '50%'; spots[3].oy = '100%';
     var best = spots[0];
     for (var i = 0; i < spots.length; i++) {
       if (spots[i].room >= 0) { best = spots[i]; break; }
       if (spots[i].room > best.room) best = spots[i];
     }
+    pop.style.setProperty('--ox', best.ox);
+    pop.style.setProperty('--oy', best.oy);
     pop.style.left = clamp(best.x, m, vw - w - m) + 'px';
     pop.style.top = clamp(best.y, m, vh - h - m) + 'px';
   }
@@ -1252,10 +1262,19 @@
     }
     cards.forEach(function (x) { x.classList.toggle('shown', x === card); });
     place(card);
-    requestAnimationFrame(function () { pop.classList.add('on'); });
+    // Wait about a second, so a pass over the cards shows nothing, and
+    // until the first picture is ready, so it never opens on a black box.
+    var first = win.firstChild, me = card;
+    var ready = first.decode ? first.decode().catch(function () {}) : Promise.resolve();
+    clearTimeout(waitTimer);
+    waitTimer = setTimeout(function () {
+      ready.then(function () { if (cur === me) { place(me); pop.classList.add('on'); } });
+    }, 1000);
   }
 
+  var waitTimer = null;
   function hide() {
+    clearTimeout(waitTimer);
     cards.forEach(function (x) { x.classList.remove('shown'); });
     cur = null;
     clearInterval(timer);

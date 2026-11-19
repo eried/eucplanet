@@ -21,7 +21,7 @@
  "lead.3": "Free to build and sideload from <a href=\"https://github.com/eried/eucplanet/releases\">GitHub</a>. The store listing is just an easy way to get auto-updates and chip in. On an iPhone, join the <a href=\"https://testflight.apple.com/join/8VrhGCrm\">TestFlight beta</a>.",
  "h2.a-look-inside": "A look inside",
  "h2.on-the-wrist": "On the wrist",
- "h2.built-different": "Built different",
+ "h2.built-different": "Features",
  "fc.wheels.title": "Works with your wheel",
  "fc.wheels.body": "InMotion V14 and P6 verified. KingSong, Begode, Veteran (LeaperKim), NOSFET and more InMotion models are rider-tested, the rest of those families and Ninebot in preview. <a href=\"https://github.com/eried/eucplanet/blob/main/docs/BLE_CAPTURE_GUIDE.md\">Help us add yours</a>, or <a href=\"https://github.com/eried/eucplanet/blob/main/docs/DIAGNOSTICS_GUIDE.md\">send a diagnostics recording</a> if it acts up.",
  "fc.modern.title": "Modern & fast",

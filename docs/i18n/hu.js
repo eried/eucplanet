@@ -21,7 +21,7 @@ window.EUC_I18N_DICT = {
 "lead.3": "Ingyen lefordíthatod és kézzel telepítheted a <a href=\"https://github.com/eried/eucplanet/releases\">GitHubról</a>. Az áruház csak arra való, hogy maguktól jöjjenek a frissítések, és beszállhass, ha szeretnél. iPhone-on csatlakozz a <a href=\"https://testflight.apple.com/join/8VrhGCrm\">bétához a TestFlighton</a>.",
 "h2.a-look-inside": "Nézz bele",
 "h2.on-the-wrist": "A csuklódon",
-"h2.built-different": "Másképp összerakva",
+"h2.built-different": "Funkciók",
 "fc.wheels.title": "Megy az egykerekűddel",
 "fc.wheels.body": "Az InMotion V14 és a P6 ellenőrizve. A KingSong, Begode, Veteran (LeaperKim), NOSFET és több InMotion modellt egykerekűsök tesztelték, a családok többi tagja és a Ninebot előzetes. <a href=\"https://github.com/eried/eucplanet/blob/main/docs/BLE_CAPTURE_GUIDE.md\">Segíts felvenni a tiédet</a>, vagy <a href=\"https://github.com/eried/eucplanet/blob/main/docs/DIAGNOSTICS_GUIDE.md\">küldj diagnosztikai felvételt</a>, ha hülyéskedik.",
 "fc.modern.title": "Modern és gyors",

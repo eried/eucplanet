@@ -21,7 +21,7 @@ window.EUC_I18N_DICT = {
 "lead.3": "Tự build và cài miễn phí từ <a href=\"https://github.com/eried/eucplanet/releases\">GitHub</a>. Trang trên cửa hàng chỉ là cách tiện để nhận cập nhật tự động và góp chút ủng hộ. Dùng iPhone thì tham gia <a href=\"https://testflight.apple.com/join/8VrhGCrm\">bản beta trên TestFlight</a>.",
 "h2.a-look-inside": "Xem thử bên trong",
 "h2.on-the-wrist": "Trên cổ tay",
-"h2.built-different": "Khác từ trong ra ngoài",
+"h2.built-different": "Tính năng",
 "fc.wheels.title": "Hỗ trợ xe của bạn",
 "fc.wheels.body": "InMotion V14 và P6 đã xác minh. KingSong, Begode, Veteran (LeaperKim), NOSFET và nhiều mẫu InMotion khác đã được người chạy xe thử, các mẫu còn lại của những dòng này và Ninebot đang ở bản xem trước. <a href=\"https://github.com/eried/eucplanet/blob/main/docs/BLE_CAPTURE_GUIDE.md\">Giúp chúng tôi thêm xe của bạn</a>, hoặc <a href=\"https://github.com/eried/eucplanet/blob/main/docs/DIAGNOSTICS_GUIDE.md\">gửi bản ghi chẩn đoán</a> nếu chạy chưa ổn.",
 "fc.modern.title": "Hiện đại và nhanh",

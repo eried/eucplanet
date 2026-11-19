@@ -21,7 +21,7 @@ window.EUC_I18N_DICT = {
 "lead.3": "Voit kääntää ja asentaa sen itse ilmaiseksi <a href=\"https://github.com/eried/eucplanet/releases\">GitHubista</a>. Sovelluskauppa on vain helppo tapa saada automaattiset päivitykset ja tukea työtä. iPhonella voit liittyä <a href=\"https://testflight.apple.com/join/8VrhGCrm\">betaan TestFlightissa</a>.",
 "h2.a-look-inside": "Kurkista sisään",
 "h2.on-the-wrist": "Ranteessa",
-"h2.built-different": "Tehty toisin",
+"h2.built-different": "Ominaisuudet",
 "fc.wheels.title": "Toimii yksipyöräisesi kanssa",
 "fc.wheels.body": "InMotion V14 ja P6 varmennettu. KingSong, Begode, Veteran (LeaperKim), NOSFET ja useampi InMotion-malli ovat ajajien testaamia, näiden sarjojen muut mallit ja Ninebot kokeiluversiona. <a href=\"https://github.com/eried/eucplanet/blob/main/docs/BLE_CAPTURE_GUIDE.md\">Auta lisäämään omasi</a> tai <a href=\"https://github.com/eried/eucplanet/blob/main/docs/DIAGNOSTICS_GUIDE.md\">lähetä diagnostiikkatallenne</a>, jos se oikuttelee.",
 "fc.modern.title": "Moderni ja nopea",
