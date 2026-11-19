@@ -6,7 +6,7 @@
 
     <!-- Notification quick actions -->
     <string name="notif_actions_enable">顯示通知操作</string>
-    <string name="notif_actions_enable_desc">在進行中的通知上加入快速操作按鈕。</string>
+    <string name="notif_actions_enable_desc">在常駐通知上加入快速操作按鈕。</string>
     <string name="notif_actions_pick_desc">最多選擇 %1$d 個操作。同一操作可重複。</string>
     <string name="notif_action_slot">操作 %1$d</string>
     <string name="notif_action_stop_all">全部停止</string>
@@ -58,7 +58,7 @@
     <string name="no_trips_body">開始記錄或匯入行程。這個捷徑會開啟最近的行程。</string>
     <string name="no_trips_action_recorder">行程記錄器</string>
     <string name="voice_volume_low_toast">音量偏低，可能聽不清楚語音</string>
-    <string name="action_grant_permission">授予權限</string>
+    <string name="action_grant_permission">允許權限</string>
     <string name="action_open_settings">開啟設定</string>
 
     <!-- Permissions -->
@@ -66,12 +66,12 @@
     <string name="scan_permission_body">應用程式需要藍牙和位置存取權，才能找到你的獨輪車。</string>
     <string name="scan_permission_body_settings">權限遭拒。請開啟系統設定，允許藍牙和位置存取權</string>
     <string name="recording_location_permission_needed">需要位置權限</string>
-    <string name="recording_location_permission_body">行程記錄會儲存 GPS 座標點，讓你在地圖上查看路線。請授予位置存取權以繼續。</string>
+    <string name="recording_location_permission_body">行程記錄會儲存 GPS 座標點，讓你在地圖上查看路線。允許位置存取權後就能繼續。</string>
 
     <!-- Experimental banner -->
-    <string name="experimental_banner">此獨輪車僅初步支援。輕觸即可回報問題。</string>
+    <string name="experimental_banner">這台獨輪車目前只有初步支援。輕觸即可回報問題。</string>
     <string name="experimental_dialog_title">協助改善 EUC Planet</string>
-    <string name="experimental_dialog_body">此獨輪車的支援仍屬初步階段，作者只親自驗證過 InMotion V14 / V12 / P6 系列。KingSong、Veteran、Begode、Ninebot 及較舊的 InMotion 型號屬於預覽版支援，需要騎士實際測試。請謹慎使用。\n\n輕觸這個橫幅即可回報問題，方便作者修正無法正常運作的功能。</string>
+    <string name="experimental_dialog_body">這台獨輪車的支援還在初步階段，作者只親自驗證過 InMotion V14 / V12 / P6 系列。KingSong、Veteran、Begode、Ninebot 和較舊的 InMotion 型號目前是預覽版，需要騎士實際測試。請小心使用。\n\n輕觸這個橫幅就能回報問題，讓作者把有問題的地方修好。</string>
     <string name="experimental_dialog_report">回報問題</string>
 
     <!-- Scan: virtual wheel section (debug builds only) -->
@@ -124,7 +124,7 @@
     <string name="tab_auto">自動化</string>
     <string name="tab_integration">整合</string>
     <string name="tab_watch">手錶</string>
-    <string name="tab_cloud">備份與排行榜</string>
+    <string name="tab_cloud">備份與 Leaderboards</string>
 
     <!-- Dashboard layout (customizable home screen) -->
     <string name="tab_dashboard">儀表板版面</string>
@@ -134,7 +134,7 @@
     <string name="dashboard_pool_metrics">可用指標</string>
     <string name="dashboard_pool_actions">可用操作</string>
     <string name="dashboard_pool_tap_toast">長按並拖曳到上方的格位即可使用</string>
-    <string name="dashboard_stats_length">統計長度</string>
+    <string name="dashboard_stats_length">統計區間</string>
     <string name="dashboard_view">檢視</string>
     <string name="dashboard_view_default">預設</string>
     <string name="dashboard_view_wide">寬版</string>
@@ -147,7 +147,7 @@
     <string name="dashboard_custom_ble_label">按鈕標籤</string>
     <string name="dashboard_custom_ble_family">獨輪車系列篩選</string>
     <string name="dashboard_custom_ble_frames">訊框（十六進位）</string>
-    <string name="dashboard_custom_ble_frames_error">十六進位格式無效，請使用位元組對，例如 4c 6b 41 70</string>
+    <string name="dashboard_custom_ble_frames_error">十六進位格式無效，請兩碼一組輸入，例如 4c 6b 41 70</string>
     <string name="dashboard_composite_layout_row2">2 列</string>
     <string name="dashboard_composite_layout_col2">2 欄</string>
     <string name="dashboard_composite_layout_col3">3 欄</string>
@@ -247,7 +247,7 @@
     <string name="metric_chip_battery_temp">電池溫度</string>
     <string name="metric_chip_tire_pressure">胎壓</string>
     <string name="metric_chip_tire_pressure_tile">胎壓</string>
-    <string name="metric_desc_tire_pressure">來自你自己的感測器或由獨輪車轉傳的胎壓。</string>
+    <string name="metric_desc_tire_pressure">胎壓數值，來自你自己的感測器，或由獨輪車轉傳。</string>
     <string name="studio_metric_tire_pressure">胎壓</string>
     <string name="metric_chip_trip_time">行程時間</string>
     <string name="metric_chip_trip_max_speed">行程最高速</string>
@@ -310,7 +310,7 @@
          meaning isn't obvious from the name alone. Strings end with a
          period so they read like complete sentences. -->
     <string name="metric_desc_trip_max_speed">本次行程的最高速度（新行程開始時重設）。</string>
-    <string name="metric_desc_avg_trip_speed">行程距離除以目前騎乘時間。</string>
+    <string name="metric_desc_avg_trip_speed">行程距離除以到目前為止的騎乘時間。</string>
     <string name="metric_desc_wh_consumed">本次行程從電池消耗的總瓦時數。</string>
     <string name="metric_desc_range_estimate">依目前耗電率估算的剩餘續航距離。</string>
     <string name="metric_desc_wh_per_km">每公里耗電量，數值越低越節能。</string>
@@ -319,7 +319,7 @@
     <string name="metric_desc_regen_wh">本次行程煞車時回充至電池的總瓦時數。</string>
     <string name="metric_desc_bt_rssi">與獨輪車之間的藍牙訊號強度，越接近 0 dBm 越強。</string>
     <string name="metric_desc_gps_accuracy">GPS 定位誤差半徑，數值越低越精確。</string>
-    <string name="metric_desc_external_gps_battery">已配對外部 GPS 裝置（RaceBox、Dragy）的電量，讓你在騎乘途中沒電之前就能察覺。</string>
+    <string name="metric_desc_external_gps_battery">已配對外部 GPS 裝置（RaceBox、Dragy）的電量，讓你早點發現它快沒電，不會騎到一半才斷訊。</string>
 
     <!-- Action labels for the dashboard layout chips -->
     <string name="action_chip_horn">喇叭</string>
@@ -373,9 +373,9 @@
     <string name="voice_answer_no_mic_permission">我需要麥克風權限。</string>
     <string name="voice_mic_grant">允許麥克風</string>
     <string name="warnings_perm_mic_title">未允許麥克風</string>
-    <string name="warnings_perm_mic_body">在應用程式取得麥克風權限之前，語音指令無法聆聽。</string>
+    <string name="warnings_perm_mic_body">要先允許應用程式使用麥克風，語音指令才聽得到。</string>
     <string name="warnings_perm_bluetooth_title">未允許藍牙</string>
-    <string name="warnings_perm_bluetooth_body">應用程式無法找到或連線你的獨輪車。輕觸即可允許。</string>
+    <string name="warnings_perm_bluetooth_body">應用程式找不到也連不上你的獨輪車。輕觸即可允許。</string>
     <string name="voice_answer_unknown">我沒聽清楚。請說「%1$s」取得說明。</string>
     <string name="voice_help_terms">我能說什麼,幫助,說明,我能問什麼</string>
     <string name="voice_stat_max_terms">最大,最高</string>
@@ -418,7 +418,7 @@
     <string name="voice_duration_h_m">%1$s 小時 %2$s 分</string>
     <string name="voice_duration_m">%1$s 分</string>
     <string name="voice_sp_weather_terms">天氣,適合騎車嗎,今天適合騎嗎</string>
-    <string name="voice_sp_daylight_terms">天光,日落,還有多久天黑</string>
+    <string name="voice_sp_daylight_terms">日照,日落,還有多久天黑</string>
     <string name="voice_sp_connected_terms">連線,獨輪車連線了嗎,有連線嗎</string>
     <string name="voice_sp_uptime_terms">連線多久,連線時間</string>
     <string name="voice_sp_nav_terms">導航,下一步,重複</string>
@@ -452,7 +452,7 @@
     <string name="action_chip_media_play">播放 / 暫停</string>
     <string name="action_chip_media_next">下一首</string>
     <string name="action_chip_media_prev">上一首</string>
-    <string name="action_chip_music_start">開始音樂</string>
+    <string name="action_chip_music_start">播放音樂</string>
     <string name="action_chip_media_pause">暫停音樂</string>
     <string name="action_chip_phone_volume_up">調高音量</string>
     <string name="action_chip_phone_volume_down">調低音量</string>
@@ -470,7 +470,7 @@
 
     <!-- Watch companion settings: shared across Wear OS + Garmin -->
     <string name="section_watch_device">裝置</string>
-    <string name="watch_paired_none">尚無已配對的手錶</string>
+    <string name="watch_paired_none">尚未配對手錶</string>
     <string name="watch_paired_none_desc">在 Wear OS、Garmin 或 Amazfit 手錶上安裝 EUC Planet 隨附應用程式，即可在這裡收到錶盤。</string>
     <string name="watch_paired_kind_wear">Wear OS</string>
     <string name="watch_paired_kind_garmin">Garmin Connect IQ</string>
@@ -488,7 +488,7 @@
     <string name="hud_hotspot_unknown_hint">請確認 HUD 和手機連上同一個 Wi-Fi 網路。若使用手機熱點，請先開啟熱點。</string>
     <string name="hud_hotspot_on_hint">手機熱點已開啟。請將 HUD 連上這支手機的 Wi-Fi 以啟用連結。</string>
     <string name="hud_overlay_subsection">自訂疊加層</string>
-    <string name="hud_overlay_subsection_desc">將疊加層工作室的預設集匯入 HUD 的自訂疊加層畫面（不含背景）。預設集會複製到這裡，因此之後在工作室中的編輯不會影響 HUD，除非你再次匯入。</string>
+    <string name="hud_overlay_subsection_desc">將疊加層工作室的預設集匯入 HUD 的自訂疊加層畫面（不含背景）。預設集會複製一份到這裡，所以之後在工作室裡修改，要重新匯入才會更新到 HUD。</string>
     <string name="hud_overlay_select_preset">匯入預設集</string>
     <string name="hud_overlay_current_preset">目前：%1$s</string>
     <string name="hud_custom_overlay_none">清除</string>
@@ -540,7 +540,7 @@
     <string name="hud_app_sending">正在傳送 %1$d%%</string>
     <string name="hud_app_sent">請在 HUD 上繼續。</string>
     <string name="hud_app_resend_title">已是最新</string>
-    <string name="hud_app_resend_body">HUD 已是此版本。仍要傳送嗎？</string>
+    <string name="hud_app_resend_body">HUD 已經是這個版本。還是要傳送嗎？</string>
     <string name="hud_app_remove_title">解除安裝 HUD 應用程式？</string>
     <string name="hud_app_remove_body">HUD 會詢問是否解除安裝。重新安裝需要傳輸線。</string>
     <string name="hud_app_failed">無法連線 HUD。請重試。</string>
@@ -550,23 +550,23 @@
     <string name="section_watch_advanced">進階</string>
     <string name="section_voice_advanced">進階</string>
     <string name="watch_keep_on">保持螢幕常亮</string>
-    <string name="watch_keep_on_desc">應用程式開啟時讓手錶保持喚醒。</string>
+    <string name="watch_keep_on_desc">應用程式開啟時，不讓手錶休眠。</string>
     <string name="watch_update_rate">更新頻率</string>
     <string name="watch_update_rate_desc">更新越慢越省手錶電量。這與「進階」區段中的獨輪車輪詢頻率是分開的設定。</string>
     <string name="watch_map_enabled">手錶地圖</string>
-    <string name="watch_map_enabled_desc">顯示手機上的位置和路線。</string>
+    <string name="watch_map_enabled_desc">顯示手機傳來的位置和路線。</string>
     <string name="watch_map_orientation">地圖方向</string>
     <string name="watch_map_north_up">北方朝上</string>
     <string name="watch_map_heading_up">行進方向朝上</string>
     <string name="watch_keep_on_navigation">導航時螢幕常亮</string>
     <string name="watch_keep_on_navigation_desc">導航時讓手錶螢幕保持開啟，會比較耗電。</string>
     <string name="watch_map_telemetry">地圖遙測</string>
-    <string name="watch_map_telemetry_desc">在頂部邊緣顯示 PWM、速度和電壓。</string>
+    <string name="watch_map_telemetry_desc">在畫面上緣顯示 PWM、速度和電壓。</string>
     <string name="watch_update_conservative">省電</string>
     <string name="watch_update_normal">正常</string>
     <string name="watch_update_fast">快速</string>
     <string name="watch_auto_start">手錶自動啟動</string>
-    <string name="watch_auto_start_desc">隨手機應用程式一同開啟手錶應用程式。</string>
+    <string name="watch_auto_start_desc">開啟手機應用程式時，一併開啟手錶應用程式。</string>
     <string name="watch_close_on_exit">手錶自動停止</string>
     <string name="watch_close_on_exit_desc">輕觸「全部停止」時一併關閉手錶應用程式。</string>
     <string name="watch_show_wheel_battery">顯示獨輪車電量</string>
@@ -577,7 +577,7 @@
     <string name="watch_pwm_numbers">文字</string>
     <string name="watch_pwm_both">兩者皆顯示</string>
     <string name="watch_show_speed_unit">速度單位標籤</string>
-    <string name="watch_show_speed_unit_desc">在大速度數字旁顯示單位標籤。</string>
+    <string name="watch_show_speed_unit_desc">在大大的速度數字旁顯示單位標籤。</string>
     <string name="watch_prioritize_pwm">優先顯示 PWM</string>
     <string name="watch_prioritize_pwm_desc">讓 PWM 長條和數字比速度更大。</string>
     <string name="watch_dial_rotation">錶盤旋轉</string>
@@ -585,7 +585,7 @@
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">按一下</string>
     <string name="watch_button_hold_label">長按</string>
-    <string name="watch_buttons_hardware_info">某些手錶上的長按可能被系統攔截</string>
+    <string name="watch_buttons_hardware_info">有些手錶的長按可能會被系統攔截</string>
     <string name="watch_buttons_touch_info">取決於你的手錶支援哪些功能</string>
     <string name="watch_buttons_hardware_label">實體</string>
     <string name="watch_buttons_touch_label">觸控</string>
@@ -641,8 +641,8 @@
     <string name="cloud_uploaded_on">於 %1$s 備份</string>
     <string name="cloud_not_uploaded">尚未備份</string>
     <string name="cloud_restore_confirm_title">還原設定</string>
-    <string name="cloud_restore_confirm_body_p1">目前的設定將由備份中的設定取代。</string>
-    <string name="cloud_restore_confirm_body_p2">Flic 手勢會還原，但按鈕和獨輪車需要在這支手機上重新配對。它們的藍牙配對資訊儲存在 Android 系統中，而非應用程式內。</string>
+    <string name="cloud_restore_confirm_body_p1">目前的設定會被備份裡的設定取代。</string>
+    <string name="cloud_restore_confirm_body_p2">Flic 手勢會還原，但按鈕和獨輪車需要在這支手機上重新配對。藍牙配對資訊是存在 Android 系統裡，不在應用程式裡。</string>
     <string name="sync_checking">正在檢查備份資料夾…</string>
     <string name="action_restore">還原</string>
     <string name="action_overwrite">覆寫</string>
@@ -651,8 +651,8 @@
     <string name="cloud_backup_overwrite_title">要覆寫「%1$s」嗎？</string>
     <string name="cloud_backup_overwrite_body">你的資料夾中已有同名備份。</string>
     <string name="cloud_backup_replace_title">要取代已儲存的備份嗎？</string>
-    <string name="cloud_backup_replace_body">資料夾中的設定備份將以目前設定覆寫。</string>
-    <string name="cloud_backup_replace_body_dated">%1$s 儲存的備份將以目前設定覆寫。</string>
+    <string name="cloud_backup_replace_body">資料夾裡的設定備份會被目前的設定覆寫。</string>
+    <string name="cloud_backup_replace_body_dated">%1$s 儲存的備份會被目前的設定覆寫。</string>
     <string name="cloud_restore_picker_default">（你儲存的）</string>
     <string name="cloud_restore_picker_factory">（原廠）</string>
     <string name="cloud_factory_confirm_title">要重設為原廠預設值嗎？</string>
@@ -663,9 +663,9 @@
     <!-- Settings: General -->
     <string name="section_recording">記錄</string>
     <string name="section_connection">連線</string>
-    <string name="auto_record_caption">連線獨輪車時自動記錄行程。</string>
-    <string name="auto_record_start_in_motion_caption">移動時開始，閒置後自動停止，下次騎乘時重新開始。</string>
-    <string name="auto_record_stop_idle_seconds">閒置後停止</string>
+    <string name="auto_record_caption">獨輪車連線後自動記錄行程。</string>
+    <string name="auto_record_start_in_motion_caption">移動時開始，閒置後自動停止，再次移動時重新開始。</string>
+    <string name="auto_record_stop_idle_seconds">閒置多久後停止</string>
     <string name="auto_connect_on_start">啟動時自動連線</string>
     <string name="wheel_name_display">獨輪車名稱</string>
     <string name="wheel_name_none">無</string>
@@ -673,8 +673,8 @@
     <string name="wheel_name_brand">品牌</string>
     <string name="last_device">上次裝置：%1$s</string>
     <string name="section_application">應用程式</string>
-    <string name="back_button_action">返回操作</string>
-    <string name="back_button_action_desc">在儀表板上滑動返回或按返回鍵時要執行的操作。</string>
+    <string name="back_button_action">按返回鍵時</string>
+    <string name="back_button_action_desc">在儀表板滑動返回或按返回鍵時要做什麼。</string>
     <string name="back_button_action_ask">詢問</string>
     <string name="back_button_action_background">背景執行</string>
     <string name="back_button_action_stop">全部停止</string>
@@ -705,7 +705,7 @@
     <string name="units_temp_f">華氏</string>
     <string name="units_temp_k">克耳文</string>
     <string name="phone_keep_screen_on">保持螢幕常亮</string>
-    <string name="phone_show_over_lock">在鎖定畫面上方顯示</string>
+    <string name="phone_show_over_lock">在鎖定畫面上顯示</string>
     <string name="language">語言</string>
     <string name="theme">主題</string>
     <string name="theme_editor_widget">主題自訂小工具</string>
@@ -724,7 +724,7 @@
     <string name="theme_identify">辨識</string>
     <string name="theme_identify_results_title">顏色辨識結果</string>
     <string name="tts_switch_title">要將語音切換為%1$s嗎？</string>
-    <string name="tts_switch_body">目前的文字轉語音聲音與所選語言不符。要改用%1$s語音播報嗎？</string>
+    <string name="tts_switch_body">目前的語音和所選語言不符。要改用%1$s語音播報嗎？</string>
     <string name="tts_switch_yes">切換語音</string>
     <string name="tts_switch_no">保留目前</string>
 
@@ -747,7 +747,7 @@
     <string name="speed_calibration_caption">調整獨輪車回報的速度，會影響警報、語音和行程記錄。</string>
     <string name="section_legal_mode_speed">限速模式速度</string>
     <string name="legal_mode_caption">限速模式開啟時使用，必須低於正常傾斜保護速度。</string>
-    <string name="speed_limits_disconnected">請連線獨輪車以編輯校準和限制</string>
+    <string name="speed_limits_disconnected">連上獨輪車才能編輯校準和限制</string>
     <string name="speed_limits_unsupported">這台獨輪車的速度限制需在車上設定</string>
     <string name="speed_tiltback">傾斜保護速度</string>
     <string name="speed_alarm">警報速度</string>
@@ -768,7 +768,7 @@
     <string name="announce_lights">燈光開啟 / 關閉</string>
     <string name="announce_recording">行程記錄</string>
     <string name="announce_connection">獨輪車連線 / 中斷連線</string>
-    <string name="announce_gps">GPS 訊號遺失 / 恢復</string>
+    <string name="announce_gps">GPS 訊號中斷 / 恢復</string>
     <string name="announce_legal_mode">限速模式開啟 / 關閉</string>
     <string name="announce_welcome">應用程式啟動時的歡迎訊息</string>
     <!-- First-launch dashboard welcome tour. The %1$s / %2$s placeholders are
@@ -779,21 +779,21 @@
     <string name="welcome_tut_prev">上一步</string>
     <string name="welcome_tut_done">完成</string>
     <string name="welcome_tut_step">%1$d / %2$d</string>
-    <string name="welcome_tut_skip_title">略過歡迎導覽？</string>
-    <string name="welcome_tut_skip_body">將不再顯示。</string>
+    <string name="welcome_tut_skip_title">要略過歡迎導覽嗎？</string>
+    <string name="welcome_tut_skip_body">之後不會再顯示。</string>
     <string name="welcome_tut_skip_yes">仍然略過</string>
-    <string name="welcome_tut_welcome">歡迎使用 EUC Planet，專為電動獨輪車打造的開源應用程式</string>
-    <string name="welcome_tut_bt">在這裡連線或中斷連線獨輪車</string>
-    <string name="welcome_tut_version">許多獨輪車只差測試者就能完整支援，通常很容易修好。輕觸版本號開啟「關於」頁面並提供協助</string>
-    <string name="welcome_tut_outro_title">導覽結束！</string>
+    <string name="welcome_tut_welcome">歡迎使用 EUC Planet，一款不囉嗦的電動獨輪車開源應用程式</string>
+    <string name="welcome_tut_bt">在這裡連線獨輪車，或中斷連線</string>
+    <string name="welcome_tut_version">很多獨輪車只差有人幫忙測試就能完整支援，通常很好修。輕觸版本號開啟「關於」頁面，來幫個忙</string>
+    <string name="welcome_tut_outro_title">導覽就到這裡！</string>
     <string name="welcome_tut_outro_buttons">許多按鈕有額外操作，試試長按</string>
-    <string name="welcome_tut_outro_alarms">在設定 → %1$s 中探索強大的自訂警報編輯器</string>
-    <string name="welcome_tut_outro_integrations">探索各項整合：安全帽 HUD、Wear OS 手錶、Flic 按鈕、Garmin Connect IQ 和後視雷達</string>
-    <string name="welcome_tut_share">在設定 → %1$s 中備份你的行程。可以在 %2$s 中查看，或到 eucviewer.ried.no 分析備份。\n\n在同一區段也可以到 eucstats.ried.no 加入公開排行榜</string>
+    <string name="welcome_tut_outro_alarms">到設定 → %1$s 試試功能強大的自訂警報編輯器</string>
+    <string name="welcome_tut_outro_integrations">也看看各種整合功能：安全帽 HUD、Wear OS 手錶、Flic 按鈕、Garmin Connect IQ 和後視雷達</string>
+    <string name="welcome_tut_share">在設定 → %1$s 中備份你的行程。可以在 %2$s 中查看，或到 eucviewer.ried.no 分析備份。\n\n在同一個區段還可以加入 eucstats.ried.no 的公開排行榜</string>
     <string name="welcome_tut_outro_end">騎乘時請專心看路，別盯著這個應用程式！</string>
     <string name="welcome_tut_speed">你的即時速度。可在設定 → %1$s 中變更單位</string>
     <string name="welcome_tut_metrics">即時電池、溫度、電壓等資訊。在設定 → %1$s 中重新排列</string>
-    <string name="welcome_tut_actions">快速控制。同樣在那裡的 %1$s 下調整</string>
+    <string name="welcome_tut_actions">快速控制。一樣在那裡，到 %1$s 底下調整</string>
     <string name="welcome_tut_map">開啟導航器來規劃路線、取得逐向導航，或在團騎時分享即時位置</string>
     <string name="welcome_tut_gps">輕觸可在這裡查看即時資料，甚至能依 GPS 速度校準獨輪車速度。之後可在設定 → %1$s 中檢查校準</string>
     <string name="welcome_tut_camera">錄製帶有即時遙測疊加層的影片。建立自訂疊加層並匯出，搭配過去行程資料製作影片</string>
@@ -819,7 +819,7 @@
     <string name="engine_source_synth">合成</string>
     <string name="engine_volume">音量</string>
     <string name="engine_muffler_label">消音器</string>
-    <string name="engine_muffler_open">開放</string>
+    <string name="engine_muffler_open">直通</string>
     <string name="engine_muffler_half">半消音</string>
     <string name="engine_muffler_muffled">消音</string>
     <string name="engine_gearbox_label">變速箱</string>
@@ -843,11 +843,11 @@
     <string name="engine_duck_pause">暫停</string>
     <string name="engine_duck_mix">混合</string>
     <string name="engine_headphones_only">僅使用耳機時</string>
-    <string name="engine_headphones_only_hint">不使用手機揚聲器。引擎音效只在連接有線或藍牙音訊時播放。</string>
+    <string name="engine_headphones_only_hint">不從手機喇叭播放。只有接上有線或藍牙音訊裝置時才會播放引擎音效。</string>
     <!-- Engine preset names -->
     <string name="engine_preset_two_stroke">二行程</string>
     <string name="engine_preset_four_stroke_single">四行程單缸</string>
-    <string name="engine_preset_quad_bike">四輪越野車</string>
+    <string name="engine_preset_quad_bike">沙灘車</string>
     <string name="engine_preset_v_twin">V 型雙缸</string>
     <string name="engine_preset_inline_4">直列四缸</string>
     <string name="engine_preset_v8_muscle">V8 肌肉車</string>
@@ -856,7 +856,7 @@
     <string name="engine_preset_boxer_6">水平對臥六缸</string>
     <string name="engine_preset_inline_6_silky">直列六缸（絲滑）</string>
     <string name="engine_preset_tractor">曳引機</string>
-    <string name="engine_preset_steam_loco">蒸汽機車</string>
+    <string name="engine_preset_steam_loco">蒸汽火車</string>
     <string name="engine_preset_tron_whine">Tron 嘯鳴</string>
     <string name="engine_preset_pod_racer">飛梭賽車</string>
     <string name="engine_preset_lightsaber">數位嗡鳴</string>
@@ -867,15 +867,15 @@
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V 型雙缸 Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">柴油卡車</string>
-    <string name="engine_preset_sampled_motorcycle">小型越野摩托車</string>
+    <string name="engine_preset_sampled_motorcycle">小型越野機車</string>
     <string name="engine_preset_sampled_city_car">城市小車</string>
     <string name="engine_preset_sampled_tractor">曳引機</string>
     <string name="engine_preset_sampled_lawnmower">割草機</string>
-    <string name="engine_preset_sampled_steam_loco">蒸汽機車</string>
+    <string name="engine_preset_sampled_steam_loco">蒸汽火車</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
     <string name="engine_preset_sampled_big_diesel">大型柴油</string>
     <string name="engine_preset_sampled_broken_exhaust">破損排氣管</string>
-    <string name="engine_preset_sampled_quad_atv">四輪 ATV</string>
+    <string name="engine_preset_sampled_quad_atv">ATV 沙灘車</string>
 
     <string name="col_periodic">定期</string>
     <string name="col_trigger">觸發</string>
@@ -912,7 +912,7 @@
     <string name="tpms_scan">掃描感測器</string>
     <string name="tpms_scan_stop">停止掃描</string>
     <string name="tpms_none_yet">尚未偵測到或手動新增胎壓感測器。</string>
-    <string name="tpms_wheel_sensor_replaced">已由配對的感測器取代</string>
+    <string name="tpms_wheel_sensor_replaced">已改用你配對的感測器</string>
     <string name="external_gps_device_title">外部 GPS</string>
     <string name="external_gps_pair_button">開始掃描</string>
     <string name="external_gps_pair_action">配對</string>
@@ -934,7 +934,7 @@
     <string name="external_gps_autodetect_prep">準備好移動裝置</string>
     <string name="external_gps_autodetect_forward">輕觸「下一步」，然後向前走幾秒鐘</string>
     <string name="external_gps_autodetect_forward_capture">正在讀取前進動作…</string>
-    <string name="external_gps_autodetect_lateral">輕觸「下一步」，然後在不改變裝置方向的情況下向左走</string>
+    <string name="external_gps_autodetect_lateral">輕觸「下一步」，然後向左走，裝置方向保持不變</string>
     <string name="external_gps_autodetect_lateral_capture">正在讀取側向動作…</string>
     <string name="external_gps_autodetect_vertical">輕觸「下一步」，然後將裝置慢慢放到地面</string>
     <string name="external_gps_autodetect_vertical_capture">正在讀取垂直動作…</string>
@@ -945,11 +945,11 @@
     <string name="gps_show_on_dashboard">在儀表板顯示速度</string>
     <string name="gps_show_on_dashboard_desc">在速度錶上加一個彩色圓點，顯示 GPS 讀數。</string>
     <string name="section_volume_keys">音量鍵</string>
-    <string name="volume_keys_caption">應用程式顯示在螢幕上時，用手機音量鍵作為快捷鍵。</string>
+    <string name="volume_keys_caption">應用程式顯示在螢幕上時，把手機音量鍵當快捷鍵用。</string>
     <string name="volume_keys_enable">啟用音量鍵操作</string>
     <string name="volume_keys_screen_off">螢幕關閉時也生效</string>
     <string name="volume_keys_screen_off_caption">EUC Planet 執行時，手機鎖定或其他應用程式在前景時也有效。音量鍵不再改變手機音量。</string>
-    <string name="volume_keys_screen_off_warn">Android 只把音量鍵按壓傳給螢幕上的應用程式。為了在螢幕關閉時也能收到，EUC Planet 會註冊為手機目前的媒體播放器，Android 就把音量鍵傳給它，而不是調整音量。</string>
+    <string name="volume_keys_screen_off_warn">Android 只會把音量鍵的按鍵動作傳給螢幕上的應用程式。為了在螢幕關閉時也收得到，EUC Planet 會註冊成手機目前的媒體播放器，Android 就會把音量鍵交給它，而不是拿去調音量。</string>
     <string name="volume_keys_screen_off_confirm">開啟</string>
     <string name="volume_keys_screen_off_title">接管音量鍵？</string>
     <string name="volume_up">調高音量</string>
@@ -968,7 +968,7 @@
     <string name="radar_disconnect">中斷連線</string>
     <string name="radar_unpair">移除裝置</string>
     <string name="radar_battery_fmt">電池 %1$d%%</string>
-    <string name="radar_clear">後方車道暢通</string>
+    <string name="radar_clear">後方無來車</string>
     <plurals name="radar_threats_count">
         <item quantity="other">正在追蹤 %1$d 輛車：</item>
     </plurals>
@@ -1095,9 +1095,9 @@
     <string name="action_stop">停止</string>
     <string name="recording_title">行程記錄器</string>
     <string name="recording_clear_all_title">清除所有行程</string>
-    <string name="recording_clear_all_body">這會永久刪除所有已記錄的行程及其資料檔案。此操作無法復原。</string>
+    <string name="recording_clear_all_body">這會永久刪除所有已記錄的行程和資料檔。此操作無法復原。</string>
     <string name="recording_delete_trip_title">刪除行程</string>
-    <string name="recording_delete_trip_body">要刪除這個行程及其資料檔案嗎？</string>
+    <string name="recording_delete_trip_body">要刪除這趟行程和它的資料檔嗎？</string>
     <string name="recording_clear_all_menu">清除全部</string>
     <string name="recording_empty">沒有可顯示的資料。請匯入或記錄新的行程</string>
     <string name="recording_will_auto_stop">閒置 %1$d 秒後將自動停止記錄</string>
@@ -1109,10 +1109,10 @@
 
     <!-- Trip detail screen -->
     <string name="recording_detail_title">行程詳情</string>
-    <string name="recording_no_data">這個行程沒有記錄任何資料</string>
+    <string name="recording_no_data">這趟行程沒有記錄到任何資料</string>
     <string name="recording_route">路線</string>
     <string name="recording_summary_distance">距離</string>
-    <string name="recording_summary_duration">時長</string>
+    <string name="recording_summary_duration">時間</string>
     <string name="recording_summary_points">筆數</string>
     <string name="recording_summary_top_speed">最高速度</string>
     <string name="recording_summary_avg_speed">平均速度</string>
@@ -1157,7 +1157,7 @@
     <string name="auto_waiting_gps">等待 GPS 定位…</string>
     <string name="auto_volume_title">音量控制</string>
     <string name="auto_volume_when">提高音量的時機</string>
-    <string name="media_control_title">播放控制</string>
+    <string name="media_control_title">音樂控制</string>
     <string name="media_control_pause">減速時暫停</string>
     <string name="media_control_pause_below">在此速度或以下暫停</string>
     <string name="media_control_resume">加速時繼續播放</string>
@@ -1179,15 +1179,15 @@
     <string name="action_retry">重試</string>
     <string name="auto_sunrise_sunset">日出與日落</string>
     <string name="auto_midnight_sun_title">永晝</string>
-    <string name="auto_midnight_sun_body">今天此緯度太陽不會落下，燈光將保持關閉。</string>
+    <string name="auto_midnight_sun_body">今天這個緯度太陽不會下山，燈會保持關閉。</string>
     <string name="auto_polar_night_title">永夜</string>
-    <string name="auto_polar_night_body">今天此緯度太陽不會升起，燈光將保持開啟。</string>
+    <string name="auto_polar_night_body">今天這個緯度太陽不會升起，燈會保持開啟。</string>
     <string name="auto_lights_suspended">本次連線期間已暫停，因為你手動調整了燈光。可在「需要注意」中修正，或重新連線獨輪車。</string>
     <string name="auto_lock_suspended">本次連線期間已暫停，因為你手動鎖定或解鎖了獨輪車。可在「需要注意」中修正，或重新連線獨輪車。</string>
 
     <!-- Alarms tab -->
     <string name="alarm_help">觸發優先順序依下方指標群組的順序決定。</string>
-    <string name="alarm_empty">尚無警報規則</string>
+    <string name="alarm_empty">尚無規則</string>
     <string name="alarm_add">新增警報</string>
     <string name="alarm_summary_predict_fmt">提前 %1$s 秒預測</string>
     <string name="alarm_new">新增警報</string>
@@ -1199,7 +1199,7 @@
     <string name="alarm_comparator_label">條件</string>
     <string name="alarm_threshold_label">閾值</string>
     <string name="alarm_label_frequency">頻率</string>
-    <string name="alarm_label_duration">時長</string>
+    <string name="alarm_label_duration">長度</string>
     <string name="alarm_label_repeats">重複次數</string>
     <string name="alarm_repeat_toggle">重複</string>
     <string name="alarm_label_vibrate_on">震動裝置</string>
@@ -1268,12 +1268,12 @@
     <string name="alarm_repeat_help_many">在 %2$s 期間，每隔 %1$d 秒重新發出警報。</string>
     <string name="alarm_repeat_help_once_instant">當 %1$s 時發出一次警報。一旦 %2$s 隨即重新啟用。</string>
     <string name="alarm_repeat_help_many_instant">在 %1$s 期間，每次讀數都重新發出警報。</string>
-    <string name="alarm_predict_help_now">在 %1$s 的瞬間發出警報。</string>
+    <string name="alarm_predict_help_now">當 %1$s 時立刻發出警報。</string>
     <string name="alarm_predict_help_lead">根據近期趨勢，在 %2$s 前約 %1$s 秒發出警報。</string>
 
     <!-- About / crash logs -->
     <string name="about_thanks">致謝</string>
-    <string name="about_thanks_body">我受夠了那些進步太慢、外觀過時、對新功能設下嚴苛規定、把社群當成顧客，還忘了 EUC 騎士互相幫助時最棒的應用程式。這款應用程式想反其道而行。</string>
+    <string name="about_thanks_body">我受夠了那些 EUC 應用程式：更新太慢、介面老舊、加個新功能規矩一堆、把社群當顧客，還忘了 EUC 騎士互相幫忙的時候最棒。這款想反著來。</string>
     <string name="about_license">授權條款</string>
     <string name="service_mode_title">服務模式</string>
     <string name="service_mode_caution">注意：不當使用服務模式可能導致獨輪車功能喪失、嚴重受傷甚至死亡</string>
@@ -1287,12 +1287,12 @@
 
     <!-- Step 1: Consent -->
     <string name="online_upload_consent_title">加入 EUC Stats 排行榜</string>
-    <string name="online_upload_consent_intro">加入前，請閱讀以下將公開的內容：</string>
+    <string name="online_upload_consent_intro">加入前，請先看看哪些內容會公開：</string>
     <string name="online_upload_consent_bullet_name">你的顯示名稱</string>
     <string name="online_upload_consent_bullet_flag">你的國旗</string>
     <string name="online_upload_consent_bullet_avatar">你的大頭貼照片</string>
     <string name="online_upload_consent_bullet_stats">你的整體騎乘統計，例如距離和速度</string>
-    <string name="online_upload_consent_bullet_location">為保護隱私，位置會歸併到地圖上的大範圍區域</string>
+    <string name="online_upload_consent_bullet_location">為保護隱私，位置只會顯示成地圖上的大範圍區域</string>
     <string name="online_upload_consent_no_raw_gps">原始 GPS 軌跡永遠不會公開。</string>
     <string name="online_upload_consent_agree">同意並繼續</string>
 
@@ -1314,14 +1314,14 @@
     <string name="online_upload_card_loading">載入中…</string>
     <string name="online_upload_card_unavailable">無法載入</string>
     <string name="online_profile_retry">重試</string>
-    <string name="online_upload_card_missing">這支手機的排行榜個人資料已不在伺服器上，因此新的上傳會遭拒。若這不在預期中，請聯絡排行榜管理員。</string>
+    <string name="online_upload_card_missing">這支手機的排行榜個人資料已不在伺服器上，所以新的上傳會被拒絕。如果你覺得不該這樣，請聯絡排行榜管理員。</string>
     <string name="online_upload_actions_caption">行程統計上傳。</string>
     <string name="online_upload_actions_desc">將尚未上傳的行程傳送至排行榜。</string>
     <string name="online_upload_sync_nothing">沒有需要同步的內容</string>
     <string name="online_upload_sync_done">已同步 %1$d 個行程</string>
     <string name="online_upload_sync_checking">正在檢查需要上傳的行程…</string>
     <string name="online_upload_sync_progress">正在上傳：%1$d / %2$d</string>
-    <string name="online_rider_id_conflict">此資料夾中已儲存另一位騎士的復原 ID，已保留，未覆寫。</string>
+    <string name="online_rider_id_conflict">這個資料夾裡已經存了另一位騎士的復原 ID，所以保留原樣，沒有覆寫。</string>
     <string name="online_upload_mileage_rank">里程第 %d 名</string>
     <string name="online_upload_top_speed">最高 %1$s %2$s</string>
     <string name="online_upload_trips">%d 個行程</string>
@@ -1330,7 +1330,7 @@
     <string name="online_status_shared">已在排行榜上分享</string>
     <string name="online_status_pending">正在上傳至排行榜…</string>
     <string name="online_status_failed">線上上傳失敗，輕觸即可重試</string>
-    <string name="online_status_rejected">未被排行榜接受</string>
+    <string name="online_status_rejected">排行榜未接受</string>
     <string name="online_upload_join_caption">加入後即可將你的統計和行程傳送到公開排行榜 %1$s。</string>
     <string name="online_upload_linked_caption">你的統計和行程會顯示在公開排行榜 %1$s。</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
@@ -1343,17 +1343,17 @@
     <!-- Online profile (edit/GDPR) -->
     <string name="online_profile_manage">管理個人資料</string>
     <string name="online_profile_title">我的個人資料</string>
-    <string name="online_profile_changeable_on">你可以在 %1$s 再次變更</string>
+    <string name="online_profile_changeable_on">%1$s 起可以再次變更</string>
     <string name="online_profile_export_data">匯出我的資料</string>
     <string name="online_profile_delete_account">刪除帳號</string>
     <string name="online_profile_delete_confirm_title">要刪除帳號嗎？</string>
     <string name="online_profile_delete_confirm_body">這會永久刪除你在 EUC Stats 的個人資料、統計資料和已上傳的資料。此操作無法復原。</string>
     <string name="online_profile_delete_confirm_action">永久刪除</string>
     <string name="online_profile_save_rate_limited">請求過於頻繁，請稍後再試。</string>
-    <string name="online_profile_save_failed">儲存失敗（HTTP %1$d）。請重試。</string>
+    <string name="online_profile_save_failed">儲存失敗（HTTP %1$d）。請再試一次。</string>
     <string name="online_restore_title">找到已儲存的個人資料</string>
-    <string name="online_restore_body_new">在這裡找到已儲存的個人資料：%1$s。繼續將以該騎士身分重新加入公開排行榜，其名稱、國旗、大頭貼和行程統計都會公開。這不會建立新的個人資料。</string>
-    <string name="online_restore_body_switch">找到另一個已儲存的個人資料：%1$s。繼續會將這支手機切換為該騎士，並先備份你目前的個人資料。</string>
+    <string name="online_restore_body_new">在這裡找到已儲存的個人資料：%1$s。繼續的話，會以這位騎士的身分重新加入公開排行榜，名稱、國旗、大頭貼和行程統計都會公開。這不會建立新的個人資料。</string>
+    <string name="online_restore_body_switch">找到另一個已儲存的個人資料：%1$s。繼續的話，這支手機會切換成這位騎士，並先備份你目前的個人資料。</string>
     <string name="online_restore_confirm">以 %1$s 身分繼續</string>
     <string name="online_rejoin_title">重新啟用個人資料</string>
     <string name="online_rejoin_body">備份資料夾中有一個曾用於排行榜的個人資料。\n\n騎士 ID：%1$s</string>
@@ -1362,7 +1362,7 @@
     <string name="studio_open">開啟疊加層工作室</string>
     <string name="studio_not_connected">未連線</string>
     <string name="studio_stop">停止</string>
-    <string name="studio_grant">授予存取權</string>
+    <string name="studio_grant">允許存取</string>
     <string name="studio_camera_permission">鏡頭畫面需要相機存取權</string>
     <string name="studio_photo_saved">已將照片儲存到相簿</string>
     <string name="studio_photo_failed">無法儲存照片</string>
@@ -1377,7 +1377,7 @@
     <!-- Studio: render progress overlay -->
     <string name="studio_rendering_cancel">取消</string>
     <string name="studio_dlg_cancel_render_title">要取消渲染嗎？</string>
-    <string name="studio_dlg_cancel_render_body">重播片段將不會儲存。</string>
+    <string name="studio_dlg_cancel_render_body">重播片段不會儲存。</string>
     <string name="studio_dlg_cancel_render_confirm">取消渲染</string>
     <string name="studio_dlg_cancel_render_dismiss">繼續渲染</string>
     <string name="studio_replay_clip_saved">重播片段已儲存</string>
@@ -1413,7 +1413,7 @@
 
     <!-- Studio: confirm dialogs -->
     <string name="studio_dlg_new_title">要建立新的預設集嗎？</string>
-    <string name="studio_dlg_new_body">這會清除所有疊加層，並將畫面重設為單一相機畫面。已儲存的預設集不受影響。</string>
+    <string name="studio_dlg_new_body">這會清除所有疊加層，並將畫面重設為單一鏡頭畫面。已儲存的預設集不受影響。</string>
     <string name="studio_dlg_new_confirm">建立</string>
     <string name="studio_dlg_load_title">要載入預設集嗎？</string>
     <string name="studio_dlg_load_body">載入「%1$s」會取代你目前的預設集。若要保留目前的預設集，請先儲存。</string>
@@ -1433,7 +1433,7 @@
     <string name="studio_section_landscape">橫向</string>
     <string name="studio_section_your_presets">你的預設集</string>
     <string name="studio_dlg_delete_preset_title">要刪除預設集嗎？</string>
-    <string name="studio_dlg_delete_preset_body">「%1$s」將被永久刪除。</string>
+    <string name="studio_dlg_delete_preset_body">「%1$s」將永久刪除。</string>
     <string name="studio_cd_delete_preset">刪除預設集</string>
 
     <!-- Studio: add element sheet -->
@@ -1536,7 +1536,7 @@
     <string name="studio_cfg_align_centre">置中</string>
     <string name="studio_cfg_align_right">靠右</string>
     <string name="studio_cfg_clock_style">樣式</string>
-    <string name="studio_cfg_clock_digital">數字</string>
+    <string name="studio_cfg_clock_digital">數位</string>
     <string name="studio_cfg_clock_analog">指針</string>
     <string name="studio_cfg_clock_text">文字</string>
     <string name="studio_cfg_clock_stopwatch">碼錶</string>
@@ -1554,8 +1554,8 @@
     <string name="studio_cfg_map_style">地圖樣式</string>
     <string name="studio_cfg_map_zoom">縮放</string>
     <string name="studio_cfg_map_attribution">顯示地圖署名</string>
-    <string name="studio_cfg_map_attribution_off">地圖授權要求你分享的任何內容都必須附上這個署名。是否關閉由你決定。</string>
-    <string name="studio_cfg_map_style_community">這些圖磚由志工營運。較長的匯出會一次下載數千張，這些伺服器要求應用程式不要這麼做。</string>
+    <string name="studio_cfg_map_attribution_off">地圖授權規定，你分享的內容都要附上這個署名。要不要關閉，由你決定。</string>
+    <string name="studio_cfg_map_style_community">這些圖磚由志工營運。匯出較長的片段時會一次下載數千張，而這些伺服器要求應用程式不要這麼做。</string>
     <string name="studio_cfg_map_rotate">隨移動旋轉</string>
     <string name="studio_cfg_map_trace">軌跡</string>
     <string name="studio_cfg_map_trace_none">無</string>
@@ -1592,7 +1592,7 @@
 
     <!-- Studio: viewport pane messages -->
     <string name="studio_pane_camera_access_needed">需要相機存取權</string>
-    <string name="studio_pane_camera_conflict">%1$s 無法在此裝置上與其他相機同時執行</string>
+    <string name="studio_pane_camera_conflict">在這台裝置上，%1$s 無法和其他相機同時使用</string>
     <string name="studio_pane_camera_unavailable">無法使用相機</string>
     <string name="studio_pane_choose_image">輕觸扳手圖示即可選擇圖片</string>
     <string name="studio_cd_resize_section">調整區段大小</string>
@@ -1607,7 +1607,7 @@
     <string name="studio_flyout_live">即時</string>
     <string name="studio_replay_choose_trip">選擇行程</string>
     <string name="studio_replay_speed_title">重播速度</string>
-    <string name="studio_replay_cd_fade">淡出面板</string>
+    <string name="studio_replay_cd_fade">淡化面板</string>
     <string name="studio_replay_cd_back">返回</string>
     <string name="studio_replay_cd_close">關閉重播</string>
     <string name="studio_replay_no_trips">尚無已記錄的行程</string>
@@ -1643,7 +1643,7 @@
     <string name="trip_meter_avg">平均</string>
     <string name="trip_meter_reset">重設小計里程</string>
     <string name="trip_meter_reset_msg">這會將目前累計的距離歸零，並清除所有分段。此操作無法復原。</string>
-    <string name="trip_meter_empty">尚無距離。連線獨輪車時會持續累計。</string>
+    <string name="trip_meter_empty">尚無距離。獨輪車連線中才會累計。</string>
     <string name="trip_meter_partial">目前</string>
     <string name="trip_meter_col_split">#</string>
     <string name="trip_meter_col_dist">距離</string>
@@ -1673,7 +1673,7 @@
     <string name="nav_menu_load">載入路線</string>
     <string name="nav_menu_clear">新路線</string>
     <string name="nav_finished_title">路線已完成</string>
-    <string name="nav_finished_body">要開始新路線嗎？已抵達的停靠點會被清除。若要保留這條路線，請先從選單儲存。</string>
+    <string name="nav_finished_body">要開始新路線嗎？已抵達的停靠點會清除。若要保留這條路線，請先從選單儲存。</string>
     <string name="nav_clear_home">清除住家</string>
     <string name="nav_clear_work">清除公司</string>
     <string name="nav_menu_exit">返回儀表板</string>
@@ -1689,7 +1689,7 @@
     <string name="nav_save_work">儲存為公司</string>
     <string name="nav_self_add_stop">新增為停靠點</string>
     <string name="nav_clear_confirm">要開始新路線嗎？</string>
-    <string name="nav_clear_confirm_body">你目前的停靠點將被清除。</string>
+    <string name="nav_clear_confirm_body">目前的停靠點會全部清除。</string>
     <string name="nav_load_confirm">要以載入的 GPX 取代目前路線嗎？</string>
     <string name="nav_menu_load_short">載入</string>
     <string name="nav_start_short">開始導航</string>
@@ -1703,7 +1703,7 @@
     <string name="nav_view_straight_line">直線</string>
     <string name="nav_view_heading_up">行進方向朝上，輕觸切換為北方朝上</string>
     <string name="nav_view_north_up">北方朝上，輕觸切換為行進方向朝上</string>
-    <string name="nav_view_tiles">導航資訊方塊</string>
+    <string name="nav_view_tiles">導航時的資訊方塊</string>
     <string name="nav_view_tiles_desc">導航時速度旁顯示的 4 個數值。</string>
     <string name="nav_view_speed">速度</string>
     <string name="nav_layer_dark">Esri Dark</string>
@@ -1727,14 +1727,14 @@
     <string name="nav_my_location">我的位置</string>
     <string name="nav_fit_all">顯示所有人</string>
     <string name="nav_no_location">等待 GPS 定位…</string>
-    <string name="nav_too_far_to_start">離第一站太遠。長按「開始導航」可強制開始。</string>
+    <string name="nav_too_far_to_start">離第一站太遠。長按「開始」可強制開始。</string>
     <string name="nav_empty_hint">輕觸地圖、搜尋，或載入 GPX 檔案。</string>
     <string name="nav_route_failed">路線服務無法使用，改用直線連接</string>
     <string name="nav_cant_add_while_running">導航進行中無法新增停靠點</string>
-    <string name="nav_search_no_results">未找到該地址的結果</string>
+    <string name="nav_search_no_results">找不到這個地址</string>
     <string name="nav_save_failed">無法儲存路線</string>
     <string name="nav_route_saved">已儲存路線</string>
-    <string name="nav_load_failed">無法讀取該 GPX 檔案</string>
+    <string name="nav_load_failed">無法讀取這個 GPX 檔案</string>
     <string name="nav_remove_stop">移除停靠點</string>
     <string name="nav_drag_stop">重新排序</string>
     <string name="nav_default_route_name">我的路線</string>
@@ -1767,9 +1767,9 @@
     <string name="share_room_full">此群組已滿。</string>
     <string name="share_switch_group">要離開目前的群組並加入這個群組嗎？</string>
     <string name="share_cannot_reach">無法連線至分享服務</string>
-    <string name="share_profile_missing">尚無排行榜個人資料。請在 %1$s 中設定。</string>
+    <string name="share_profile_missing">還沒有排行榜個人資料，請到 %1$s 設定。</string>
     <string name="share_profile_loading">正在載入個人資料…</string>
-    <string name="share_camera_needed">掃描 QR 碼需要相機存取權。</string>
+    <string name="share_camera_needed">要掃描 QR 碼，需要相機權限。</string>
     <string name="share_invite_text">在 EUC Planet 和我一起騎：%1$s</string>
     <string name="share_invite_subject">一起來騎吧</string>
     <string name="share_copied">已複製</string>
@@ -1851,9 +1851,9 @@
     <!-- Navigation settings -->
     <string name="nav_setting_voice">語音導航</string>
     <string name="nav_setting_arrival_radius">抵達半徑</string>
-    <string name="nav_setting_arrival_radius_desc">距停靠點多近算抵達。</string>
+    <string name="nav_setting_arrival_radius_desc">離停靠點多近就算抵達。</string>
     <string name="nav_setting_offroute">偏離路線容許度</string>
-    <string name="nav_setting_offroute_desc">偏離路線多遠時觸發偏離警報。</string>
+    <string name="nav_setting_offroute_desc">偏離路線多遠才觸發偏離警報。</string>
     <string name="nav_setting_params">導航與天氣</string>
     <string name="weather_section">天氣</string>
     <string name="weather_icon_desc">天氣預報</string>
@@ -1865,7 +1865,7 @@
     <string name="weather_win_hours_fmt">%1$d 小時</string>
     <string name="weather_win_days_fmt">%1$d 天</string>
     <string name="weather_window_hours_suffix">小時</string>
-    <string name="weather_open_expanded">開啟時顯示完整詳細資料</string>
+    <string name="weather_open_expanded">開啟時顯示完整資訊</string>
     <string name="weather_window_24h">未來 24 小時</string>
     <string name="weather_window_3d">未來 3 天</string>
     <string name="weather_window_1w">未來 7 天</string>
@@ -1878,7 +1878,7 @@
     <string name="weather_hot">高於此溫度太熱</string>
     <string name="weather_breezy">高於此風速算有風</string>
     <string name="weather_windy">高於此風速風太大</string>
-    <string name="weather_source_credit">預報來自你選擇的來源。若來源支援，較短的範圍可能以更細的間隔呈現。</string>
+    <string name="weather_source_credit">預報來自你選擇的來源。範圍選短一點時，如果來源有提供，預報間隔會更細。</string>
     <string name="weather_title_1">適合騎獨輪車嗎？</string>
     <string name="weather_title_2">該騎 EUC 了嗎？</string>
     <string name="weather_title_3">該出門騎了嗎？</string>
@@ -1896,29 +1896,29 @@
     <string name="weather_lvl_ok_2">不算差。</string>
     <string name="weather_lvl_good_1">很好，出發。</string>
     <string name="weather_lvl_good_2">騎乘好天氣。</string>
-    <string name="weather_lvl_prime_1">完美，衝！</string>
+    <string name="weather_lvl_prime_1">完美，丟下手邊的事吧。</string>
     <string name="weather_lvl_prime_2">絕佳騎乘天氣！</string>
     <string name="weather_expand">詳情</string>
     <string name="weather_chart_temp">氣溫、濕度與降水</string>
     <string name="weather_chart_wind">風與陣風</string>
     <string name="weather_adv_snow_now">正在下雪，抓地力全無。</string>
-    <string name="weather_adv_snow_in">約%1$s後有雪。</string>
-    <string name="weather_adv_rain_now">正在下雨，提早煞車，少傾斜。</string>
-    <string name="weather_adv_rain_in">約%1$s後有雨。</string>
+    <string name="weather_adv_snow_in">預計 %1$s 後下雪。</string>
+    <string name="weather_adv_rain_now">正在下雨，提早煞車，過彎別壓太低。</string>
+    <string name="weather_adv_rain_in">預計 %1$s 後下雨。</string>
     <string name="weather_adv_gusts">陣風較強，橋上和空曠路段小心。</string>
     <string name="weather_adv_freeze">接近冰點，小心濕滑路段。</string>
-    <string name="weather_adv_clear">一切良好，出發騎吧。</string>
+    <string name="weather_adv_clear">天氣沒問題，去騎吧。</string>
     <string name="weather_adv_heat">炎熱時段，爬坡時注意控制器溫度。</string>
-    <string name="weather_adv_golden">約%1$s後進入黃金時刻。</string>
+    <string name="weather_adv_golden">%1$s 後進入黃金時刻。</string>
     <string name="weather_in_min">%1$d 分鐘</string>
     <string name="weather_in_h">%1$d 小時</string>
     <string name="weather_src_current">目前</string>
     <string name="weather_src_destination">目的地</string>
     <string name="weather_swap_src">切換位置</string>
     <string name="weather_pref_label">舒適偏好</string>
-    <string name="weather_pref_desc">你的喜好會調整評分。真正的危險仍會將評分拉到最低。</string>
+    <string name="weather_pref_desc">評分會依你的喜好調整，但真正的危險還是會把分數拉到最低。</string>
     <string name="weather_pref_dislike">不喜歡</string>
-    <string name="weather_pref_neutral">中立</string>
+    <string name="weather_pref_neutral">無感</string>
     <string name="weather_pref_like">喜歡</string>
     <string name="weather_cond_hot">炎熱</string>
     <string name="weather_cond_cold">寒冷</string>
@@ -1927,15 +1927,15 @@
     <string name="weather_cond_wind">風</string>
     <string name="weather_cond_night">夜間</string>
     <string name="weather_cond_golden">黃金時刻</string>
-    <string name="weather_face_clear">晴朗，出發吧。</string>
+    <string name="weather_face_clear">沒問題，去騎吧。</string>
     <string name="weather_face_meh">能騎但不算理想，保持警覺。</string>
-    <string name="weather_face_rain">路面濕滑，過彎少傾斜，提早煞車。</string>
+    <string name="weather_face_rain">路面濕滑，過彎別壓太低，提早煞車。</string>
     <string name="weather_face_snow">雪或雨夾雪，沒有抓地力，最好用牽的。</string>
     <string name="weather_face_wind">陣風，放鬆身體，小心被吹偏。</string>
     <string name="weather_face_night">天黑，開燈，別騎到極速。</string>
-    <string name="weather_face_cold">寒冷，抓地力變差、電池縮水，多穿幾層。</string>
+    <string name="weather_face_cold">天冷，抓地力變差、電池掉壓，多穿一點。</string>
     <string name="weather_face_hot">炎熱，長爬坡時注意控制器溫度。</string>
-    <string name="weather_face_golden">黃金時刻，光線最美，很快就要開燈。</string>
+    <string name="weather_face_golden">黃金時刻，光線最美，等等記得開燈。</string>
     <string name="nav_setting_full_path">一律計算完整路徑</string>
     <string name="nav_setting_full_path_desc">關閉時僅計算下一站，其餘路段以虛線預覽。</string>
     <string name="nav_setting_endpoints">路線服務</string>
@@ -1949,7 +1949,7 @@
     <string name="trip_action_share_file">分享檔案</string>
     <string name="trip_action_share_file_desc">將行程 CSV 傳送至其他應用程式。</string>
     <string name="trip_action_replay">在工作室重播</string>
-    <string name="trip_action_replay_desc">搭配即時資料疊加層逐段回顧行程。</string>
+    <string name="trip_action_replay_desc">拖曳時間軸回看行程，並疊上即時資料。</string>
     <!-- ==== Dashboard quick menus ==== -->
     <string name="dash_view_video_gallery">查看影片相簿</string>
     <string name="dash_view_photo_gallery">查看照片相簿</string>
@@ -1960,13 +1960,13 @@
     <string name="studio_cfg_border_colour">邊框顏色</string>
     <string name="studio_cfg_border_width">邊框粗細</string>
     <string name="studio_cfg_g_scale">縮放</string>
-    <string name="studio_export_force_opaque_hint">不透明格式使用色鍵顏色，半透明圖層可能顯示異常。</string>
+    <string name="studio_export_force_opaque_hint">不支援透明的格式會改用色鍵顏色，半透明圖層看起來可能不太對。</string>
     <string name="studio_cfg_filter_vivid">鮮豔</string>
     <string name="studio_cfg_filter_noir">黑色電影</string>
     <string name="studio_cfg_filter_vintage">復古</string>
     <string name="studio_cfg_filter_matte">霧面</string>
     <string name="dash_external_gps_settings">外部 GPS 設定</string>
-    <string name="external_gps_caption">開啟裝置電源並輕觸「配對」，即可即時提供速度和 G 力，也會儲存到每個行程的 CSV。</string>
+    <string name="external_gps_caption">把裝置開機後輕觸「配對」，就能即時取得它的速度和 G 力，也會存進每趟行程的 CSV。</string>
     <string name="gps_prioritize_external_desc">速度、位置和 G 力優先使用已連線的裝置，而非手機。</string>
     <string name="studio_cfg_show_value">顯示數值</string>
     <string name="studio_cfg_unit_position">單位</string>
@@ -1988,24 +1988,24 @@
     <string name="warnings_autolock_title">自動鎖定已暫停</string>
     <string name="warnings_autolock_body">你手動鎖定或解鎖，因此本次連線期間距離鎖定不會介入。輕觸「修正」即可交還控制。</string>
     <string name="warnings_perm_notifications_title">通知已關閉</string>
-    <string name="warnings_perm_notifications_body">你將無法在狀態列看到騎乘狀態，也無法透過通知欄收到語音警示。</string>
+    <string name="warnings_perm_notifications_body">狀態列看不到騎乘狀態，通知欄也收不到語音警示。</string>
     <string name="warnings_perm_location_title">定位已關閉</string>
     <string name="warnings_perm_location_body">行程不會記錄路線，GPS 速度和校準也無法使用。輕觸即可允許。</string>
     <string name="weather_error_no_location">沒有可預報的位置</string>
     <string name="weather_waiting_location">正在等待位置…</string>
-    <string name="warnings_location_services_body">EUC Planet 已獲得權限，但手機已關閉所有定位。輕觸即可開啟。</string>
+    <string name="warnings_location_services_body">EUC Planet 已獲得權限，但手機的定位功能整個關掉了。輕觸即可開啟。</string>
     <string name="warnings_location_services_title">裝置定位已關閉</string>
     <string name="warnings_battery_opt_title">電池最佳化已開啟</string>
-    <string name="warnings_battery_opt_body">Android 可能在背景停止 EUC Planet，導致騎乘途中的記錄中斷。請允許它不受限制地執行。</string>
-    <string name="warnings_hud_blocked_title">手機 HUD 無法繪製</string>
-    <string name="warnings_hud_blocked_body">「在其他應用程式上層顯示」權限已遭撤銷，因此疊加層不會顯示在地圖或音樂上方。</string>
+    <string name="warnings_battery_opt_body">Android 可能在背景停掉 EUC Planet，讓記錄在騎到一半時中斷。請允許它不受限制地執行。</string>
+    <string name="warnings_hud_blocked_title">手機 HUD 無法顯示</string>
+    <string name="warnings_hud_blocked_body">「顯示在其他應用程式上層」權限被關掉了，因此疊加層不會出現在地圖或音樂上方。</string>
     <string name="warnings_no_backup_title">行程未備份</string>
-    <string name="warnings_no_backup_body">行程只存在這支手機上。請選擇備份資料夾，以免手機遺失或被清除時連帶失去行程。</string>
+    <string name="warnings_no_backup_body">行程只存在這支手機上。請選擇備份資料夾，手機遺失或被清除時，行程才不會跟著不見。</string>
     <string name="warnings_pip_blocked_title">子母畫面已被封鎖</string>
     <string name="warnings_pip_blocked_body">Android 設定為拒絕 EUC Planet 使用子母畫面，因此離開應用程式時不會出現浮動視窗。</string>
     <string name="online_rejoin_confirm">重新加入</string>
     <string name="hud_joystick_title">按鍵操作</string>
-    <string name="hud_joystick_desc">在 HUD 按鍵上按兩下即可執行操作。</string>
+    <string name="hud_joystick_desc">按兩下 HUD 按鍵即可執行操作。</string>
     <string name="hud_joystick_up">上（按兩下）</string>
     <string name="hud_joystick_down">下（按兩下）</string>
     <string name="hud_joystick_left">左（按兩下）</string>
@@ -2085,23 +2085,23 @@
     <string name="trip_action_share_dropbox">透過 Dropbox 分享</string>
     <string name="trip_action_share_dropbox_desc">上傳至你的 Dropbox 資料夾並分享公開連結。</string>
     <string name="trip_action_inspect_online">線上分析</string>
-    <string name="trip_action_inspect_online_desc">分享 eucviewer.ried.no 連結以線上檢視此行程。</string>
-    <string name="trip_action_dropbox_disabled">請在設定中連結 Dropbox 以啟用此功能</string>
+    <string name="trip_action_inspect_online_desc">分享 eucviewer.ried.no 連結，在線上查看這趟行程。</string>
+    <string name="trip_action_dropbox_disabled">先到設定連結 Dropbox 才能使用</string>
 
     <!-- Map: Open Charge Map (OCM) charger flyout -->
     <string name="nav_ocm_attrib">評論與照片由 Open Charge Map 提供（CC BY）</string>
-    <string name="nav_ocm_connectors">連接頭</string>
+    <string name="nav_ocm_connectors">接頭</string>
     <string name="nav_ocm_cost">費用</string>
     <string name="nav_ocm_loading">正在載入社群資料…</string>
     <string name="nav_ocm_open">在 OCM 中開啟</string>
     <string name="nav_ocm_points">充電點</string>
     <string name="nav_ocm_usage">使用方式</string>
     <string name="nav_ocm_address">地址</string>
-    <string name="nav_ocm_access">使用權限</string>
+    <string name="nav_ocm_access">開放對象</string>
     <string name="nav_ocm_verified">上次驗證</string>
     <string name="nav_ocm_status">狀態</string>
     <string name="nav_ocm_title">Open Charge Map</string>
-    <string name="nav_poi_access">使用權限</string>
+    <string name="nav_poi_access">開放對象</string>
     <string name="nav_poi_add_stop">新增為停靠點</string>
     <string name="nav_poi_capacity">容量</string>
     <string name="nav_poi_charger">充電站</string>
@@ -2115,10 +2115,10 @@
     <string name="nav_poi_osm">線上開啟</string>
     <string name="nav_poi_phone">電話</string>
     <string name="nav_poi_rest">廁所與飲水站</string>
-    <string name="nav_poi_sights">觀光景點</string>
+    <string name="nav_poi_sights">景點</string>
     <string name="nav_poi_sockets">插座</string>
     <string name="nav_poi_source">資料來自 OpenStreetMap</string>
-    <string name="nav_poi_store">購物商店</string>
+    <string name="nav_poi_store">商店</string>
     <string name="nav_poi_type">類型</string>
     <string name="nav_poi_website">網站</string>
     <string name="nav_pois_failed">無法載入地點，請檢查你的網路連線</string>
@@ -2128,12 +2128,12 @@
     <string name="nav_setting_avoid">路線規劃時避開</string>
     <string name="nav_setting_avoid_ferries">避開渡輪</string>
     <string name="nav_setting_avoid_highways">避開高速公路</string>
-    <string name="nav_setting_avoid_hint">避開項目使用不同的路線服務，並在行進模式支援時套用。</string>
+    <string name="nav_setting_avoid_hint">避開設定會改用另一個路線服務，而且只在行進模式支援時才生效。</string>
     <string name="nav_setting_avoid_tolls">避開收費道路</string>
     <string name="nav_setting_avoid_unpaved">避開未鋪設道路</string>
     <string name="nav_avoid_router_failed">路線未套用避開設定：避開用的路線服務沒有回應。</string>
     <string name="nav_setting_ocm_key">Open Charge Map API 金鑰</string>
-    <string name="nav_setting_ocm_key_hint">為充電站彈出視窗加入評論、照片及連接頭詳情。可至此處免費註冊金鑰：</string>
+    <string name="nav_setting_ocm_key_hint">在充電站資訊卡加入評論、照片和接頭資訊。免費金鑰請到這裡申請：</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>
     <string name="nav_setting_ocm_subtitle">充電站社群（Open Charge Map）</string>
     <string name="nav_setting_overpass_url">充電站與地點網址（Overpass）</string>
@@ -2153,7 +2153,7 @@
     <string name="adv_alarm_warm_route_desc">決定嗶聲或語音播報後，揚聲器保持就緒的時間。注意：太短時，安靜一段時間後的第一聲嗶聲可能會爆音或被截斷；太長則讓音訊持續運作而耗電。</string>
     <string name="adv_alarm_slope_window">趨勢區間</string>
     <string name="adv_alarm_slope_window_desc">決定用多少筆最近的取樣來推算預測趨勢。注意：太短會對雜訊起反應，太長則反應遲緩。</string>
-    <string name="adv_alarm_warning">這些會改變速度與功率警報在你達到閾值前的預測方式。數值錯誤可能使警報太晚觸發或完全不觸發。請謹慎變更。</string>
+    <string name="adv_alarm_warning">這些設定會改變速度與功率警報在你達到閾值前的預測方式。數值設錯可能讓警報太晚觸發或完全不觸發。請謹慎變更。</string>
     <string name="adv_autolight_no_gps_retry">無 GPS 重試</string>
     <string name="adv_autolight_no_gps_retry_desc">決定自動燈光在等待 GPS 定位時多久重試一次。</string>
     <string name="adv_autolight_toggle_grace">手動變更寬限</string>
@@ -2182,7 +2182,7 @@
     <string name="adv_charging_warmup_dur_desc">決定充電要持續多久，才顯示第一個預估時間。注意：太低會讓初期預估跳動不穩。</string>
     <string name="adv_charging_warmup_gain">暖機增量</string>
     <string name="adv_charging_warmup_gain_desc">決定電量要增加多少，才顯示第一個預估時間。</string>
-    <string name="adv_charging_warning">這些會調整充滿時間的預估。數值錯誤會導致誤導性的預估時間，但絕不會影響充電本身。</string>
+    <string name="adv_charging_warning">這些用來微調充滿時間的預估。數值設錯只會讓預估時間不準，不會影響充電本身。</string>
     <string name="adv_charging_window">速率區間</string>
     <string name="adv_charging_window_desc">決定用多長的最近記錄來計算充電速率。注意：太短會受雜訊影響，太長則反應遲緩。</string>
     <string name="adv_garmin_report_interval">Garmin 回報頻率</string>
@@ -2205,9 +2205,9 @@
     <string name="adv_weather_breezy_desc">從這個風速開始，風會明顯影響騎乘。</string>
     <string name="adv_weather_windy_desc">超過這個風速，騎乘明顯變得更吃力。</string>
     <string name="adv_lock_max_speed">鎖定最高速度</string>
-    <string name="adv_voice_listen_window">聆聽時長</string>
-    <string name="adv_voice_listen_window_desc">提示音後若沒有聽到聲音，麥克風保持開啟的時長。</string>
-    <string name="adv_lock_max_speed_desc">高於此速度時拒絕鎖定獨輪車。注意：設太高可能在車輪仍在滾動時鎖定。</string>
+    <string name="adv_voice_listen_window">聆聽時間</string>
+    <string name="adv_voice_listen_window_desc">提示音後若沒有聽到聲音，麥克風保持開啟的時間。</string>
+    <string name="adv_lock_max_speed_desc">高於此速度時拒絕鎖定獨輪車。注意：設太高可能在獨輪車還在行進時就鎖定。</string>
     <string name="adv_hud_backoff_max">重連退避（最大）</string>
     <string name="adv_hud_backoff_max_desc">決定 HUD 重新連線嘗試之間最長等待多久。注意：太高會讓連線恢復變慢。</string>
     <string name="adv_hud_backoff_min">重連退避（最小）</string>
@@ -2216,16 +2216,16 @@
     <string name="adv_hud_discovery_sprint_desc">決定啟用連線後，搜尋會快速重試多久才放慢。</string>
     <string name="adv_hud_discovery_total">搜尋總時間</string>
     <string name="adv_hud_discovery_total_desc">決定一次搜尋嘗試最多執行多久才放棄。注意：太低會在網路較慢時中止。</string>
-    <string name="adv_hud_udp_probe">信標接聽時間</string>
-    <string name="adv_hud_udp_probe_desc">決定在改用其他方法前，接聽 HUD 信標多久。注意：太低會錯過信標發送較慢的 HUD。</string>
-    <string name="adv_hud_udp_freshness">信標新鮮度</string>
+    <string name="adv_hud_udp_probe">信標監聽時間</string>
+    <string name="adv_hud_udp_probe_desc">決定在改用其他方法前，監聽 HUD 信標多久。注意：太低會錯過信標發送較慢的 HUD。</string>
+    <string name="adv_hud_udp_freshness">信標時效</string>
     <string name="adv_hud_udp_freshness_desc">決定信標要多新才可信任。注意：太低會忽略有效但稍舊的信標。</string>
     <string name="adv_hud_udp_poll">信標檢查頻率</string>
     <string name="adv_hud_udp_poll_desc">決定搜尋期間多久檢查一次信標快取。注意：太高會讓反應變慢。</string>
     <string name="adv_hud_manual_grace">手動 IP 寬限</string>
     <string name="adv_hud_manual_grace_desc">決定在改用手動 IP 前，給自動搜尋多少時間。注意：太低會在自動搜尋成功前就改用手動 IP。</string>
     <string name="adv_hud_mdns_resolve">mDNS 解析時間</string>
-    <string name="adv_hud_mdns_resolve_desc">決定解析已找到的 HUD 位址詳細資料可花多久。注意：太低會捨棄解析較慢的 HUD。</string>
+    <string name="adv_hud_mdns_resolve_desc">決定解析已找到的 HUD 位址資訊最多等多久。注意：太低會漏掉解析較慢的 HUD。</string>
     <string name="adv_hud_idle_search">閒置搜尋間隔</string>
     <string name="adv_hud_idle_search_desc">決定在未連線獨輪車且應用程式關閉時，多久搜尋一次 HUD。注意：太低會耗電。</string>
     <string name="adv_hud_sweep_interval">網路掃描間隔</string>
@@ -2249,7 +2249,7 @@
     <string name="adv_nav_intermediate_flash">停靠點抵達提示時間</string>
     <string name="adv_nav_intermediate_flash_desc">決定抵達停靠點的訊息顯示多久。</string>
     <string name="adv_nav_max_start">最大出發距離</string>
-    <string name="adv_nav_max_start_desc">第一站最遠可以有多遠才能開始導航。超過此距離，從你目前位置延伸的線會被隱藏，且無法開始導航。規劃路線仍可正常使用。</string>
+    <string name="adv_nav_max_start_desc">第一個停靠點離你多遠以內才能開始導航。超過這個距離，從你的位置拉出的線會隱藏，也無法開始導航。規劃路線仍可正常使用。</string>
     <string name="adv_nav_moving">移動速度</string>
     <string name="adv_nav_moving_desc">決定速度高於多少才算在移動，用於判斷方向和導引。注意：太高會忽略慢速騎乘。</string>
     <string name="adv_nav_cruise">導航巡航速度</string>
@@ -2260,7 +2260,7 @@
     <string name="adv_nav_offroute_voice_after_desc">決定偏離路線多久後語音才提醒你。注意：太低會因 GPS 雜訊而一直提醒。</string>
     <string name="adv_nav_offroute_voice_cooldown">偏離語音冷卻</string>
     <string name="adv_nav_offroute_voice_cooldown_desc">決定偏離路線語音警告之間的最短間隔。注意：太低會頻繁重複警告。</string>
-    <string name="adv_nav_popup_timeout">轉彎彈窗逾時</string>
+    <string name="adv_nav_popup_timeout">轉彎卡片逾時</string>
     <string name="adv_nav_popup_timeout_desc">決定大型轉彎卡片停留多久，才縮小為角落的膠囊標籤。</string>
     <string name="adv_nav_prepare_dist">轉彎準備距離</string>
     <string name="adv_nav_prepare_dist_desc">決定在轉彎前多遠播報準備提示。</string>
@@ -2268,7 +2268,7 @@
     <string name="adv_nav_prox_band_desc">決定在尋寶模式中，距離需要變化多少才播報「越來越近」或「越來越遠」。</string>
     <string name="adv_nav_reroute_after">重新規劃延遲</string>
     <string name="adv_nav_reroute_after_desc">決定偏離路線多久後才要求新路線。注意：太低會因小繞道就重新規劃，並耗用行動數據。</string>
-    <string name="adv_nav_warning">這些會改變導航的反應時機。數值錯誤可能使語音提示或重新規劃太早或太晚觸發。</string>
+    <string name="adv_nav_warning">這些設定會改變導航的反應時機。數值設錯可能讓語音提示或重新規劃太早或太晚觸發。</string>
     <string name="adv_phone_gps_interval">手機 GPS 更新間隔</string>
     <string name="adv_phone_gps_interval_desc">決定 GPS 軌跡的平滑度和導航的反應速度。越低更新越頻繁。注意：數值低會更快耗電。</string>
     <string name="adv_phone_gps_idle_interval">GPS 閒置間隔</string>
@@ -2276,8 +2276,8 @@
     <string name="adv_gps_idle_off_delay">閒置後關閉 GPS</string>
     <string name="adv_gps_idle_off_delay_desc">應用程式在背景執行、未連線獨輪車且未記錄時，GPS 會關閉以節省電量。0 會立即關閉；數值越大，會先以低耗電定位維持這段時間，快速切換應用程式時就不會中斷 GPS。</string>
     <string name="adv_gps_fix_max_age">GPS 定位最長時效</string>
-    <string name="adv_gps_fix_max_age_desc">早於此時間的位置視為未定位，因此在 GPS 就緒前開始的記錄，不會以過期的點作為起點。</string>
-    <string name="adv_pushonly_note">某些裝置以自身固定頻率串流，會忽略這些設定：僅推送資料的獨輪車（Begode、Gotway、Veteran、KingSong）、外部 GPS（RaceBox、Dragy）、雷達和 Flic 按鈕。</string>
+    <string name="adv_gps_fix_max_age_desc">超過這個時效的位置視為未定位，這樣在 GPS 就緒前開始的記錄，就不會從過期的點開始。</string>
+    <string name="adv_pushonly_note">有些裝置會以自己的固定頻率傳送資料，不受這些設定影響：僅推送資料的獨輪車（Begode、Gotway、Veteran、KingSong）、外部 GPS（RaceBox、Dragy）、雷達和 Flic 按鈕。</string>
     <string name="adv_radar_clear_decay">雷達車道衰減</string>
     <string name="adv_radar_clear_decay_desc">決定道路淨空後，車道列還會停留多久。注意：太低會在車輛來來去去時閃爍。</string>
     <string name="adv_radar_fallback">備用接近速率</string>
@@ -2290,22 +2290,22 @@
     <string name="adv_radar_min_frame_desc">決定計算接近速率時，訊框之間的最短時間。注意：太低可能對抖動反應過度。</string>
     <string name="adv_radar_static">靜止閾值</string>
     <string name="adv_radar_static_desc">決定接近速度至少要多少，車輛才算在移動。注意：太高會忽略緩慢接近的車輛。</string>
-    <string name="adv_radar_warning">這些會改變雷達標示威脅的方式。數值錯誤可能隱藏真實車輛或誤標無害車輛。</string>
-    <string name="adv_rates_warning">這些控制項會改變整個應用程式的時序。請僅在了解其影響時才變更。</string>
+    <string name="adv_radar_warning">這些設定會改變雷達標示威脅的方式。數值設錯可能漏掉真正的來車，或把沒有威脅的車標成危險。</string>
+    <string name="adv_rates_warning">這些控制項會改變整個應用程式的時序。確定了解影響再調整。</string>
     <string name="adv_reset_all">全部重設為預設值</string>
     <string name="adv_reset_confirm_msg">以下設定將還原為預設值：</string>
     <string name="adv_restore_default">還原預設值</string>
     <string name="adv_timings_title">時序與參數</string>
     <string name="adv_trip_record_interval">行程記錄間隔</string>
-    <string name="adv_trip_record_interval_desc">決定記錄時多久在行程檔案中儲存一列。越低越詳細。注意：極低的數值會產生大型檔案。</string>
+    <string name="adv_trip_record_interval_desc">決定記錄時多久寫入一列到行程檔案。越低越詳細。注意：極低的數值會讓檔案變得很大。</string>
     <string name="adv_pending_upload_interval">行程上傳重試</string>
     <string name="adv_pending_upload_interval_desc">決定應用程式多久重試一次上傳待處理的行程，例如在同步期間關閉應用程式之後。Android 的最小值為 15 分鐘。注意：太長會延誤卡住的上傳。</string>
     <string name="adv_trip_finalize_grace">行程結束寬限</string>
     <string name="adv_trip_finalize_grace_desc">決定你停下後多久才結束並同步行程。注意：太低可能會把只是短暫停下的行程切斷。</string>
     <string name="adv_wheel_poll_rate">獨輪車輪詢頻率</string>
-    <string name="adv_wheel_poll_rate_desc">決定即時資料的新鮮度和警報的反應速度。越低就越常向獨輪車索取資料。注意：極低的數值可能塞爆藍牙連線，讓某些獨輪車的資料停滯。</string>
+    <string name="adv_wheel_poll_rate_desc">決定即時資料多快更新，以及警報的反應速度。越低就越常向獨輪車索取資料。注意：極低的數值可能塞爆藍牙連線，讓某些獨輪車的資料卡住。</string>
     <string name="alarm_beep_advanced">進階</string>
-    <string name="alarm_beep_gap_label">間隔時長</string>
+    <string name="alarm_beep_gap_label">間隔時間</string>
     <string name="alarm_beep_timeline_fmt">%1$d× · 間隔 %2$d ms</string>
     <string name="alarm_beep_studio">自適應嗶聲</string>
     <string name="alarm_beep_volume_label">基本音量</string>
@@ -2320,7 +2320,7 @@
     <string name="alarm_summary_adaptive_pitch_vol">音高與音量</string>
     <string name="alarm_summary_adaptive_vol">音量</string>
     <string name="reorg_drag_cd">拖曳以重新排序</string>
-    <string name="reorg_hint">重新整理設定畫面，並隱藏不常用的區段。</string>
+    <string name="reorg_hint">重新排列設定畫面，並隱藏不常用的區段。</string>
     <string name="studio_cd_close">關閉工作室</string>
     <string name="studio_cd_gallery">開啟相簿</string>
     <string name="studio_cd_mic">麥克風</string>
@@ -2332,7 +2332,7 @@
     <string name="studio_export_stay">留在目前畫面</string>
     <string name="studio_export_title">檔案匯出</string>
     <string name="studio_replay_trim">（完整行程）</string>
-    <string name="studio_replay_trim_duration">時長</string>
+    <string name="studio_replay_trim_duration">長度</string>
     <string name="studio_replay_trim_end">結束</string>
     <string name="studio_replay_trim_reset">重設</string>
     <string name="studio_replay_trim_start">開始</string>
@@ -2361,9 +2361,9 @@
     <string name="voice_quality_low">基本</string>
     <string name="voice_sample_default">這是此語言的預設語音</string>
     <string name="voice_sample_fmt">這是語音 %1$d</string>
-    <string name="action_reorganize">重新整理</string>
+    <string name="action_reorganize">重新排列</string>
     <string name="action_reset">重設</string>
-    <string name="section_screen_geometry">螢幕幾何</string>
+    <string name="section_screen_geometry">畫面配置</string>
     <string name="settings_visibility">設定可見性</string>
     <string name="geo_section_dashboard">儀表板</string>
     <string name="geo_section_navigator">導航器</string>
@@ -2377,7 +2377,7 @@
     <string name="setting_rotate_trip_detail">旋轉行程詳情</string>
     <string name="setting_rotate_trip_list">旋轉行程清單</string>
     <string name="setting_trip_map_side">地圖位置</string>
-    <string name="setting_block_upside_down">禁止上下顛倒旋轉</string>
+    <string name="setting_block_upside_down">禁止上下顛倒</string>
     <string name="setting_ignore_system_rotate_lock">忽略系統旋轉鎖定</string>
     <string name="setting_compact_dashboard">精簡儀表板</string>
     <string name="compact_mode_always">一律</string>
@@ -2388,13 +2388,13 @@
     <string name="cover_cutout_left">左下</string>
     <string name="cover_cutout_right">右下</string>
     <string name="setting_simple_speedo">簡化速度錶</string>
-    <string name="setting_simple_speedo_desc">橫向時只顯示大速度數字，不顯示刻度環。</string>
+    <string name="setting_simple_speedo_desc">橫向時只顯示大大的速度數字，不顯示刻度環。</string>
     <string name="setting_mirror_landscape">按鈕在左側</string>
     <string name="setting_nav_stops_side">停靠點面板位置</string>
     <string name="side_default">預設</string>
     <string name="side_left">左</string>
     <string name="side_right">右</string>
-    <string name="adv_group_geometry">螢幕幾何變數</string>
+    <string name="adv_group_geometry">畫面配置變數</string>
     <string name="adv_group_map_cache">地圖快取</string>
     <string name="adv_map_encoded_cache">已編碼圖磚快取</string>
     <string name="adv_map_encoded_cache_desc">為手錶保留的 PNG 圖磚。數值越高，使用的手機記憶體越多。</string>
@@ -2404,18 +2404,18 @@
     <string name="adv_compact_max_screen_desc">當精簡儀表板設為「小螢幕」時，兩邊都小於此值的螢幕會切換為精簡儀表板。</string>
     <string name="adv_cover_cutout_inset">鏡頭開孔尺寸</string>
     <string name="adv_cover_cutout_inset_desc">開啟「避開封面螢幕鏡頭」時，為封面螢幕鏡頭保留的空間。太小會讓鏡頭擋住按鈕。</string>
-    <string name="adv_nav_sidebar_min">側欄最小螢幕</string>
-    <string name="adv_nav_sidebar_min_desc">比此更窄的螢幕即使橫向也保留底部停靠點面板。太低會在小螢幕上遮住地圖。</string>
+    <string name="adv_nav_sidebar_min">側欄最小螢幕寬度</string>
+    <string name="adv_nav_sidebar_min_desc">螢幕比這個值窄的話，就算橫向也照樣用底部的停靠點面板。設太低，小螢幕上的地圖會被擋住。</string>
     <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
-    <string name="adv_inmotion_v1_pin_desc">InMotion V5/V8/V10 獨輪車的存取 PIN 碼，連線時傳送，讓獨輪車開始傳送資料。除非你在 InMotion 應用程式中設定了自己的 PIN 碼，否則請保持 000000。</string>
+    <string name="adv_inmotion_v1_pin_desc">InMotion V5/V8/V10 獨輪車的存取 PIN 碼，連線時會送出，獨輪車才會開始傳資料。沒在 InMotion 應用程式裡自己設過 PIN 碼的話，維持 000000 就好。</string>
     <string name="adv_kingsong_unlock_code">KingSong 解鎖碼</string>
-    <string name="adv_kingsong_unlock_code_desc">隨解鎖指令傳送的六位數字。已測試的獨輪車接受任何數字，因此除非你的獨輪車拒絕，否則請保持 123456。</string>
+    <string name="adv_kingsong_unlock_code_desc">隨解鎖指令送出的六位數。測試過的獨輪車什麼數字都接受，除非你的車不收，不然維持 123456 就好。</string>
     <string name="adv_kingsong_password">KingSong 應用程式密碼</string>
-    <string name="adv_kingsong_password_desc">在 KingSong 應用程式中設定的 4 位數密碼，連線時以及鎖定與解鎖前傳送。若從未設定，請保持 0000。</string>
+    <string name="adv_kingsong_password_desc">在 KingSong 應用程式中設定的 4 位數密碼，連線時以及鎖定與解鎖前會送出。沒設過的話，維持 0000 就好。</string>
     <string name="adv_nav_sidebar_width">停靠點面板寬度</string>
     <string name="adv_nav_sidebar_width_desc">橫向停靠點側欄的寬度。太寬會讓地圖變小。</string>
     <string name="adv_simple_speedo_scale">簡化速度錶尺寸</string>
-    <string name="adv_simple_speedo_scale_desc">速度數字相對於錶盤區域的大小。太大可能會截斷單位標籤。</string>
+    <string name="adv_simple_speedo_scale_desc">速度數字相對於錶盤區域的大小。太大的話單位標籤可能會被切掉。</string>
     <string name="charging_reset_data">重設資料</string>
     <string name="charging_export">匯出</string>
     <string name="charging_export_saved">已匯出電池資料</string>
@@ -2424,7 +2424,7 @@
     <string name="report_phone_battery">手機</string>
     <string name="alarm_beep_transition_label">過渡</string>
     <string name="alarm_constant_title">要連續發聲嗎？</string>
-    <string name="alarm_constant_body">0 毫秒間隔會成為一個不間斷的音。若要持續發聲，也請設定：</string>
+    <string name="alarm_constant_body">間隔 0 毫秒時會連成一個不中斷的音。若要一直響，還要設定：</string>
     <string name="alarm_constant_never">不再詢問</string>
     <string name="nav_start_btn">開始</string>
     <string name="alarm_beep_wave_label">波形</string>
@@ -2443,7 +2443,7 @@
     <string name="accel_splits_desc">在加速或減速時，播報通過每個速度級距所花的時間。</string>
     <string name="accel_split_decel_prefix">煞車，</string>
     <string name="accel_splits_from">起始</string>
-    <string name="accel_splits_step">步進</string>
+    <string name="accel_splits_step">級距</string>
     <string name="accel_splits_dir_accel">加速</string>
     <string name="accel_splits_dir_brake">煞車</string>
     <string name="accel_splits_dir_both">雙向</string>
@@ -2483,8 +2483,8 @@
     <string name="trip_tools_change_wheel_desc">更正這趟行程使用的獨輪車。會更新行程及其檔案。</string>
     <string name="trip_tools_wheel_other">其他獨輪車</string>
     <string name="trip_tools_split">拆分行程</string>
-    <string name="trip_tools_split_desc">找出更換獨輪車、長時間停留和記錄中斷之處，並在那裡切分行程。</string>
-    <string name="trip_tools_split_none">沒有可拆分之處。未發現更換獨輪車、長時間停留或記錄中斷。</string>
+    <string name="trip_tools_split_desc">找出更換獨輪車、長時間停留和記錄中斷的地方，並在那裡切分行程。</string>
+    <string name="trip_tools_split_none">沒有可拆分的地方。沒找到更換獨輪車、長時間停留或記錄中斷。</string>
     <string name="trip_split_reason_wheel">換成另一台獨輪車</string>
     <string name="trip_split_reason_gap">記錄中斷</string>
     <string name="trip_split_reason_stopped">長時間停留</string>
@@ -2495,14 +2495,14 @@
     <string name="trip_tools_split_pick">至少選擇一個切分位置。</string>
 <string name="trip_tools_split_hint">選擇切分位置。將建立 %1$d 個行程並保留原行程。</string>
     <string name="trip_tools_split_done">已拆分為 %1$d 個行程</string>
-    <string name="trip_tools_split_failed">無法拆分此行程</string>
+    <string name="trip_tools_split_failed">無法拆分這趟行程</string>
     <string name="trip_tools_combine_done">行程已合併為一個新行程</string>
     <string name="trip_tools_combine_failed">無法合併這些行程</string>
     <string name="trip_tools_wheel_current">目前</string>
     <string name="trip_tools_combine_summary">將 %1$d 個行程合併為一個新行程。</string>
     <string name="phone_hud_desc">將疊加層工作室的版面顯示在其他應用程式上層，讓你使用地圖或音樂時也能看到獨輪車資料。</string>
     <string name="phone_hud_permission_desc">Android 會另外要求這項權限。沒有它就無法顯示疊加層。</string>
-    <string name="phone_hud_grant">授予</string>
+    <string name="phone_hud_grant">允許</string>
     <string name="phone_hud_section">手機 HUD</string>
     <string name="phone_hud_enable">顯示疊加層</string>
     <string name="phone_hud_only_away">僅在 EUC Planet 之外</string>
@@ -2537,18 +2537,18 @@
     <string name="widget_action_voice">語音</string>
     <string name="widget_button_unset">請在設定中設定按鈕</string>
     <string name="trip_tools_extend">延長行程</string>
-    <string name="trip_tools_extend_desc">將此行程之前或之後的行程併入一個更長的新行程。</string>
-    <string name="trip_tools_extend_hint">可以向前後任意延伸。中間的行程都會一併包含。</string>
+    <string name="trip_tools_extend_desc">將這趟行程之前或之後的行程併入一個更長的新行程。</string>
+    <string name="trip_tools_extend_hint">往前往後想延多遠都行。中間的行程都會一起併入。</string>
     <string name="trip_tools_extend_from">起點</string>
     <string name="trip_tools_extend_to">終點</string>
-    <string name="trip_tools_extend_none">此行程</string>
-    <string name="trip_tools_extend_pick_one">選擇要延伸到的較早或較晚行程。</string>
+    <string name="trip_tools_extend_none">這趟行程</string>
+    <string name="trip_tools_extend_pick_one">選一個更早或更晚的行程來延伸。</string>
     <string name="widget_act_1_desc">在應用程式中設定操作</string>
     <string name="widget_act_2_desc">在應用程式中設定操作</string>
     <string name="widget_act_3_desc">在應用程式中設定操作</string>
     <string name="widget_act_12_desc">在應用程式中設定操作</string>
     <string name="widget_act_23_desc">在應用程式中設定操作</string>
-    <string name="widget_standalone_desc">僅按鈕小工具的操作，與上方一列相互獨立。</string>
+    <string name="widget_standalone_desc">純按鈕小工具的操作，和上面那一列分開設定。</string>
     <string name="widget_standalone_slot">單獨按鈕 %1$d</string>
         <string name="widget_customize">自訂</string>
     <string name="widget_how_to_add">長按主畫面，輕觸「小工具」，然後選擇 EUC Planet。</string>
@@ -2558,7 +2558,7 @@
     <string name="trip_compare">比較行程</string>
     <string name="trip_compare_pick_title">比較對象</string>
     <string name="trip_compare_filter">篩選行程</string>
-    <string name="trip_compare_this_trip">此行程</string>
+    <string name="trip_compare_this_trip">這趟行程</string>
     <string name="trip_compare_no_match">沒有符合的行程</string>
     <string name="trip_compare_change">更換</string>
     <string name="trip_compare_metric">指標</string>
@@ -2583,7 +2583,7 @@
     <string name="cloud_reset_local_title">要清除本機行程嗎？</string>
     <string name="cloud_reset_local_body">移除儲存在這支手機上的所有行程。你的備份資料夾不受影響，已同步的行程可從那裡還原。</string>
     <string name="dropbox_syncing">正在同步行程…</string>
-    <string name="dropbox_folder_desc">行程和設定會儲存在你的 Dropbox 中的 %1$s 下。只有本應用程式能存取該資料夾。</string>
+    <string name="dropbox_folder_desc">行程和設定會存在你 Dropbox 的 %1$s 底下。只有這個應用程式看得到那個資料夾。</string>
     <string name="keep_app_alive">保持應用程式執行</string>
     <string name="keep_app_alive_desc">顯示常駐通知，讓應用程式在背景持續執行。會多耗一點電。</string>
     <string name="sync_up_to_date">已是最新</string>
@@ -2598,16 +2598,16 @@
     <string name="studio_video_no_media">無媒體</string>
     <string name="studio_replay_cd_move">移動面板</string>
     <string name="studio_video_edge">範圍外</string>
-    <string name="studio_video_edge_freeze">凍結</string>
+    <string name="studio_video_edge_freeze">定格</string>
     <string name="studio_video_edge_loop">循環</string>
     <string name="studio_video_edge_black">黑色</string>
-    <string name="wheel_no_data_reset">獨輪車仍未傳來資料。請試著將它關機再開機。</string>
+    <string name="wheel_no_data_reset">獨輪車還是沒有傳來資料。試試關機再開機。</string>
     <string name="trip_map_ride_start">行程開始：%1$s</string>
     <string name="trip_map_reconnected">已重新連線：%1$s</string>
     <string name="trip_map_new_wheel">新獨輪車：%1$s</string>
     <string name="trip_map_ride_end">行程結束</string>
     <string name="adv_smoothing_window">平滑區間</string>
-    <string name="adv_smoothing_window_desc">「平均」行程圖表和平滑語音播報所平均的取樣數。行程大約每秒記錄一次，因此可視為秒數。注意：數值過高會掩蓋短暫的尖峰。</string>
+    <string name="adv_smoothing_window_desc">「平均」行程圖表和平滑後的語音播報，會拿幾筆取樣來平均。行程大約每秒記錄一次，所以可以當成秒數看。注意：數值過高會蓋掉短暫的尖峰。</string>
     <string name="hud_discovery_auto">自動</string>
     <string name="hud_discovery_both">兩者</string>
     <string name="hud_discovery_desc">「自動」會自行尋找 HUD。「固定」只使用下方的位址。</string>
@@ -2622,12 +2622,12 @@
     <string name="trip_tools_archive_failed">有些行程無法封存，仍然留在這裡</string>
     <string name="recording_delete_archive">封存備份副本</string>
     <string name="recording_delete_archive_desc">把它們移到封存資料夾。</string>
-    <string name="trip_tools_extend_all_inside">前後的行程已經包含在這次行程裡了。</string>
+    <string name="trip_tools_extend_all_inside">前後的行程已經包含在這趟行程裡了。</string>
     <plurals name="trip_tools_extend_skipped">
         <item quantity="other">略過已包含在此行程中的 %1$d 個行程。</item>
     </plurals>
     <string name="recording_clear_all_body_archive">這會從這支手機刪除行程。備份副本會移到封存資料夾。</string>
-    <string name="recording_delete_trip_body_archive">要從這支手機刪除這個行程嗎？備份副本會移到封存資料夾。</string>
+    <string name="recording_delete_trip_body_archive">要從這支手機刪除這趟行程嗎？備份副本會移到封存資料夾。</string>
     <string name="backup_status_pending">正在備份…</string>
     <string name="backup_status_failed">備份失敗，輕觸即可重試</string>
     <string name="lockdown_title">鎖定模式</string>
@@ -2661,25 +2661,25 @@
     <string name="lockdown_limit_5">浮動疊加層會隱藏。</string>
     <string name="lockdown_limit_6">主畫面小工具會停止更新。</string>
     <string name="lockdown_limit_7">服務模式和診斷記錄會停止。</string>
-    <string name="lockdown_limit_8">儀表板會由固定畫面取代：速度錶、六項指標、四個按鈕。</string>
+    <string name="lockdown_limit_8">儀表板會換成固定畫面：速度錶、六項指標、四個按鈕。</string>
     <string name="lockdown_limit_9">畫面不會旋轉。</string>
     <string name="lockdown_limit_10">無法開啟設定。</string>
     <string name="lockdown_limit_11">無法開啟行程記錄、電池監控、工作室和指標詳細資料。</string>
     <string name="lockdown_limit_12">輕觸指標不會有任何反應。</string>
     <string name="lockdown_limit_13">語音播報、定期播報和速度分段計時會靜音。你的警報仍會運作。</string>
     <string name="lockdown_limit_14">無法鎖定或解鎖獨輪車，距離自動鎖定也不會執行。</string>
-    <string name="lockdown_limit_15">自動燈光和自動音量會繼續運作。播放控制會停止。</string>
-    <string name="lockdown_limit_16">通知會失去按鈕。</string>
+    <string name="lockdown_limit_15">自動燈光和自動音量會繼續運作。音樂控制會停止。</string>
+    <string name="lockdown_limit_16">通知上的按鈕會消失。</string>
     <string name="lockdown_limit_17">輕觸版本號不會再開啟「關於」。</string>
-    <string name="lockdown_limit_18">此模式不會包含在設定備份中。</string>
+    <string name="lockdown_limit_18">設定備份不會包含這個模式。</string>
     <string name="lockdown_warning_settings_safe">你的設定不會變更。解鎖後，一切都會完全恢復成現在的樣子。</string>
-    <string name="lockdown_warning_recovery">唯一的退出方式是透過「限速」按鈕輸入廠商代碼。若遺失該代碼，只能解除安裝再重新安裝應用程式才能恢復。</string>
+    <string name="lockdown_warning_recovery">唯一的退出方式是透過「限速」按鈕輸入廠商代碼。如果忘了這組代碼，就只能解除安裝再重新安裝應用程式。</string>
     <string name="lockdown_tiltback_alarm">傾斜保護警報</string>
     <string name="lockdown_warning_waits">限速模式目前關閉，因此暫時不會有變化。下次開啟限速模式時，應用程式就會鎖定。</string>
     <string name="lockdown_warning_now">限速模式已開啟，因此會立即生效，應用程式會馬上鎖定。</string>
     <string name="lockdown_warning_no_wheel">未連線獨輪車，因此無法得知限速模式的狀態。下次開啟限速模式時，應用程式就會鎖定。</string>
     <string name="lockdown_continue">繼續</string>
-    <string name="trip_tools_wheel_none">此行程尚未記錄獨輪車。</string>
+    <string name="trip_tools_wheel_none">這趟行程還沒有記錄獨輪車。</string>
     <string name="backup_conflict_warning">此手機上的部分行程與備份資料夾中的副本不同。輕觸%1$s，然後在%2$s下輕觸「%3$s」，選擇保留哪一份。</string>
     <string name="backup_conflict_title">備份衝突</string>
     <!-- Weather widgets -->
@@ -2688,7 +2688,7 @@
     <string name="widget_weather_compact_desc">現在與接下來幾小時的天氣有多適合騎乘。</string>
     <string name="widget_weather_graph_desc">預報時段內天氣有多適合騎乘</string>
     <string name="widget_weather_refresh_desc">重新整理預報</string>
-    <string name="widget_weather_never">還沒有預報。開啟一次應用程式，或輕觸重新整理。</string>
+    <string name="widget_weather_never">還沒有預報。先開一次應用程式，或輕觸重新整理。</string>
     <string name="widget_weather_never_short">從未</string>
     <string name="widget_weather_refreshing">重新整理中…</string>
     <string name="widget_weather_now">剛剛</string>
@@ -2705,9 +2705,9 @@
     <string name="charge_alert_channel_name">充電提醒</string>
     <string name="charge_alert_channel_description" formatted="false">電量達到你設定的程度或充電完成時。</string>
     <string name="charge_alert_80_title" formatted="false">電量 80%</string>
-    <string name="charge_alert_80_text">電量已足夠大多數騎乘，通常也對電池比較好。</string>
+    <string name="charge_alert_80_text">大部分時候這樣就夠騎了，通常對電池也比較好。</string>
     <string name="charge_alert_full_title">充電完成</string>
-    <string name="charge_alert_full_text">已充飽，方便時請拔掉充電器。部分獨輪車此時會進行電芯平衡。</string>
+    <string name="charge_alert_full_text">已充飽，方便時請拔掉充電器。有些獨輪車這時候會開始平衡電芯。</string>
     <string name="charge_alert_custom_title">電量 %1$d%%</string>
     <string name="charge_alert_custom_text">已達到你設定的電量。方便時請拔掉充電器。</string>
     <!-- Widget names for the picker -->
@@ -2771,7 +2771,7 @@
     <string name="crews_type_instead">手動輸入</string>
     <string name="crews_code_label">通行碼</string>
     <string name="crews_foreign_title">這個代碼不是來自 eucstats</string>
-    <string name="crews_foreign_body">它指向 %1$s，而那不是你的行程上傳的地方。同意的話，等於把你的帳號交給該網站的經營者。\n\n自己架設伺服器？請先在設定中開啟開發者模式。</string>
+    <string name="crews_foreign_body">它指向 %1$s，那裡不是你行程上傳的地方。同意的話，等於把你的帳號交給經營那個網站的人。\n\n自己架設伺服器？請先在設定中開啟開發者模式。</string>
     <string name="crews_scan_switch">改用掃描</string>
     <string name="crews_close">關閉</string>
     <string name="crews_opensettings">開啟設定</string>
@@ -2779,7 +2779,7 @@
     <string name="crews_dev_body">正在與 %1$s 通訊，而不是平常的伺服器。</string>
     <string name="crews_grant">讓那個瀏覽器代表你的車隊身分。\n\n它可以建立車隊、加入車隊、退出車隊及管理成員。它無法上傳行程、更改你的名稱或刪除任何東西，這些都只能在這支手機上進行。</string>
     <string name="crews_noprofile_title">先加入排行榜</string>
-    <string name="crews_noprofile_body">車隊依附在你的排行榜個人資料上，而這支手機還沒有建立。請在%1$s中加入，然後再掃描一次。</string>
+    <string name="crews_noprofile_body">車隊是掛在你的排行榜個人資料下的，而這支手機還沒建立個人資料。請在%1$s中加入，然後再掃描一次。</string>
     <string name="crews_issue">核發通行證</string>
     <string name="crews_notme">不是我</string>
     <string name="crews_ratelimited">嘗試次數過多。請等一分鐘再試。</string>
@@ -2787,7 +2787,7 @@
     <string name="crews_refused">伺服器拒絕了這項要求（%1$d）。</string>
     <string name="crews_done_title">已核發通行證</string>
     <string name="crews_done_body">那個瀏覽器現在代表你的身分了。可以放下手機了。</string>
-    <string name="crews_failed_title">操作失敗</string>
+    <string name="crews_failed_title">沒有成功</string>
     <string name="crews_tryagain">再試一次</string>
     <string name="crews_done">完成</string>
     <string name="crews_expired">這個代碼已過期。請從瀏覽器取得新的代碼。</string>
@@ -2798,7 +2798,7 @@
     <string name="beep_volume_riding">騎乘中</string>
     <string name="dropbox_checking">正在檢查 Dropbox…</string>
     <string name="sync_first_settings">Dropbox 已有另一支手機的設定。要使用那些設定，還是保留這支手機的設定？</string>
-    <string name="recording_delete_trip_body_keeps_backup">要從這支手機刪除這個行程嗎？備份會保留副本，因此「全部同步」會將它還原回來。</string>
+    <string name="recording_delete_trip_body_keeps_backup">要從這支手機刪除這趟行程嗎？備份裡還有一份，所以「全部同步」會把它帶回來。</string>
     <string name="share_menu_scan">掃描 QR 碼</string>
     <string name="share_menu_scan_desc">加入團騎或開啟路線。</string>
     <string name="share_menu_route">分享路線</string>
@@ -2831,7 +2831,7 @@
     <string name="car_alarm_channel_name">車機畫面警報</string>
     <string name="car_alarm_channel_description">在 Android Auto 畫面的地圖上方顯示觸發的警報。</string>
     <string name="car_alarm_notifications">在車機畫面顯示警報</string>
-    <string name="car_alarm_notifications_hint">觸發的警報會顯示在地圖上方，導航時也能看到。嗶聲和震動不受影響。</string>
+    <string name="car_alarm_notifications_hint">警報觸發時會顯示在地圖上方，導航時也看得到。嗶聲和震動不受影響。</string>
     <string name="car_no_metrics">未選擇任何指標</string>
     <string name="nav_solve_menu">最佳化停靠點順序</string>
     <string name="nav_solve_effort">精確度</string>
@@ -2840,7 +2840,7 @@
     <string name="nav_solve_quick_desc">直線距離。立即完成，離線可用。</string>
     <string name="nav_solve_best_desc">依你的行進模式沿道路計算。需要網路連線。</string>
     <string name="nav_solve_ends">終點</string>
-    <string name="nav_solve_end_anywhere">任意</string>
+    <string name="nav_solve_end_anywhere">不限</string>
     <string name="nav_solve_end_loop">環狀</string>
     <string name="nav_solve_end_keep_last">終點固定</string>
     <string name="nav_solve_link_origin">從我的位置出發</string>
@@ -2855,23 +2855,23 @@
     <string name="nav_solve_end_anywhere_desc">在讓路線最短的停靠點結束。</string>
     <string name="nav_solve_end_loop_desc">回到出發的地方。</string>
     <string name="nav_solve_end_keep_last_desc">目前的最後一個停靠點維持在最後。</string>
-    <string name="nav_track_locked">這條軌跡會依繪製的路線騎乘。若要變更，請使用選單中的「轉換為停靠點」。</string>
+    <string name="nav_track_locked">這條軌跡會照畫好的路線走。若要變更，請使用選單中的「轉換為停靠點」。</string>
     <string name="nav_track_loaded_locked">正在依照記錄的軌跡導航。若要編輯，請「轉換為停靠點」。</string>
     <string name="nav_menu_reverse">反轉路線</string>
     <string name="nav_route_reversed">路線已反轉，可以返程了。</string>
     <string name="nav_track_unlocked">已轉換為停靠點，現在可以編輯。</string>
     <string name="nav_menu_unlock_track">轉換為停靠點</string>
     <string name="nav_unlock_title">轉換為停靠點</string>
-    <string name="nav_unlock_warning">精確軌跡會由以直線相連的停靠點取代。若要保留，請先儲存 GPX。</string>
+    <string name="nav_unlock_warning">原本的精確軌跡會換成用直線連起來的停靠點。想保留的話，請先儲存 GPX。</string>
     <string name="nav_unlock_stops">停靠點</string>
     <string name="nav_unlock_off">最多偏離軌跡 %1$s</string>
     <string name="nav_unlock_confirm">轉換</string>
     <string name="voice_nav_place_reached">已抵達 %1$s</string>
-    <string name="offline_data_open">離線區域</string>
+    <string name="offline_data_open">離線地圖</string>
     <string name="offline_server_url">離線資料伺服器</string>
-    <string name="offline_data_title">離線區域</string>
+    <string name="offline_data_title">離線地圖</string>
     <string name="offline_data_space">已用 %1$s，可用 %2$s</string>
-    <string name="offline_data_tap_hint">輕觸方塊即可下載該區域的地圖和路線資料，或將其刪除。</string>
+    <string name="offline_data_tap_hint">輕觸方塊即可下載該區域的地圖和路線資料，也可以刪除。</string>
     <string name="offline_data_list_error">無法連線到伺服器。已下載的區域仍可使用。</string>
     <string name="offline_data_along_route">我的路線</string>
     <string name="offline_prefer">優先使用離線地圖和路線規劃</string>
@@ -2879,8 +2879,8 @@
     <string name="offline_data_around_me">我的周圍</string>
     <string name="offline_data_around_me_wide">我的周圍（更大）</string>
     <string name="offline_data_near_q">要下載你周圍的區域（%1$s）嗎？</string>
-    <string name="offline_data_near_all_here">你周圍的所有區域皆已下載。</string>
-    <string name="offline_data_no_location">尚不知道你的位置。</string>
+    <string name="offline_data_near_all_here">你周圍的區域都已下載。</string>
+    <string name="offline_data_no_location">還不知道你的位置。</string>
     <string name="offline_data_update_all">全部更新（%1$d）</string>
     <string name="offline_data_update">更新</string>
     <string name="offline_data_wifi_updates">每週透過 Wi-Fi 更新</string>
@@ -2890,14 +2890,14 @@
     <string name="offline_data_delete_q">要刪除此區域嗎？可釋放 %1$s。</string>
     <string name="offline_data_stop_q">要停止這項下載嗎？</string>
     <string name="offline_data_stop">停止</string>
-    <string name="offline_data_mobile_warn">使用行動數據需下載 %1$s。仍要下載嗎？</string>
+    <string name="offline_data_mobile_warn">這會用掉 %1$s 的行動數據。還是要下載嗎？</string>
     <string name="offline_data_route_q">要下載路線上的區域（%1$s）嗎？</string>
     <string name="offline_data_no_route">請先規劃路線。</string>
-    <string name="offline_data_route_all_here">路線上的所有區域皆已下載。</string>
+    <string name="offline_data_route_all_here">路線上的區域都已下載。</string>
     <string name="offline_ride_title">下載離線地圖？</string>
     <string name="offline_ride_body">這條路線有一部分不在你的離線地圖內。現在下載，沒有訊號時地圖和重新計算路線也能正常使用。</string>
     <string name="offline_ride_download">下載地圖</string>
-    <string name="offline_ride_start">仍然開始</string>
+    <string name="offline_ride_start">直接開始</string>
     <string name="offline_ride_never">不再詢問</string>
     <string name="offline_remind_before_ride">騎乘前檢查離線地圖</string>
 </resources>

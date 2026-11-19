@@ -1346,9 +1346,12 @@ private fun GeneralTab(
             }
             if (!pipAllowed && settings.pipMode != "OFF") {
                 HintText(stringResource(R.string.warnings_pip_blocked_body))
-                com.eried.eucplanet.ui.common.FixButton(
-                    onClick = { viewModel.openPipSettings() }
-                )
+                HalfWidthActionRow { buttonModifier ->
+                    com.eried.eucplanet.ui.common.FixButton(
+                        onClick = { viewModel.openPipSettings() },
+                        modifier = buttonModifier,
+                    )
+                }
             }
         }
 
@@ -1380,19 +1383,22 @@ private fun GeneralTab(
                 // The switch stays off and un-flippable until the permission is
                 // there, rather than turning on and quietly doing nothing.
                 HintText(stringResource(R.string.phone_hud_permission_desc))
-                com.eried.eucplanet.ui.common.FixButton(
-                    text = stringResource(R.string.phone_hud_grant),
-                    onClick = {
-                        runCatching {
-                            ctx.startActivity(
-                                android.content.Intent(
-                                    android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                                    android.net.Uri.parse("package:${ctx.packageName}"),
-                                ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
-                            )
-                        }
-                    },
-                )
+                HalfWidthActionRow { buttonModifier ->
+                    com.eried.eucplanet.ui.common.FixButton(
+                        text = stringResource(R.string.phone_hud_grant),
+                        modifier = buttonModifier,
+                        onClick = {
+                            runCatching {
+                                ctx.startActivity(
+                                    android.content.Intent(
+                                        android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                        android.net.Uri.parse("package:${ctx.packageName}"),
+                                    ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                                )
+                            }
+                        },
+                    )
+                }
             } else {
                 SwitchSetting(
                     stringResource(R.string.phone_hud_enable),
@@ -2130,16 +2136,6 @@ private fun AdvancedTab(
         // Timing knobs, under their own big title.
         AdvSectionTitle(stringResource(R.string.adv_timings_title))
         MetricInfoBox(stringResource(R.string.adv_rates_warning))
-        // On the left like every other reset in the app (trip layout, metric history,
-        // dashboard slots, the editor dialogs). Greyed when nothing is off default;
-        // otherwise confirm first.
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) {
-            TextButton(onClick = { showResetConfirm = true }, enabled = changed.isNotEmpty(), shape = RoundedCornerShape(12.dp)) {
-                Icon(Icons.Default.Restore, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(6.dp))
-                com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.adv_reset_all))
-            }
-        }
         // One collapsible card per group, fully driven by the AdvancedSpec registry.
         AdvGroup.values().forEach { group ->
             val specs = ADVANCED_SPECS.filter { it.group == group }
@@ -2150,6 +2146,18 @@ private fun AdvancedTab(
                     AdvRow(spec, settings.advanced) { viewModel.updateAdvanced(spec, it) }
                 }
                 group.noteRes?.let { HintText(stringResource(it)) }
+            }
+        }
+        // The section reset, last, after every group it resets, where the other
+        // sections put theirs (the engine sound reset closes its section too). On
+        // the left like every other reset in the app (trip layout, metric history,
+        // dashboard slots, the editor dialogs). Greyed when nothing is off default;
+        // otherwise confirm first.
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) {
+            TextButton(onClick = { showResetConfirm = true }, enabled = changed.isNotEmpty(), shape = RoundedCornerShape(12.dp)) {
+                Icon(Icons.Default.Restore, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.adv_reset_all))
             }
         }
     }
@@ -5662,9 +5670,9 @@ private fun MetricInfoBox(text: String) {
         verticalAlignment = Alignment.Top
     ) {
         Icon(
-            imageVector = Icons.Filled.Info,
+            imageVector = Icons.Outlined.Info,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+            tint = MaterialTheme.appColors.textSecondary,
             modifier = Modifier.size(16.dp)
         )
         Spacer(Modifier.width(8.dp))
@@ -7133,13 +7141,16 @@ private fun VoiceTab(
             // No line of explanation above it: the button says what it does,
             // and the paragraph above already says the feature needs a
             // microphone.
-            com.eried.eucplanet.ui.common.FixButton(
-                text = stringResource(R.string.voice_mic_grant),
-                onClick = {
-                    micAskedAt = android.os.SystemClock.elapsedRealtime()
-                    micLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
-                },
-            )
+            HalfWidthActionRow { buttonModifier ->
+                com.eried.eucplanet.ui.common.FixButton(
+                    text = stringResource(R.string.voice_mic_grant),
+                    modifier = buttonModifier,
+                    onClick = {
+                        micAskedAt = android.os.SystemClock.elapsedRealtime()
+                        micLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
+                    },
+                )
+            }
         }
         // The cue, and the way out of it. A rider on a headset that plays its
         // own tone when it opens the microphone has been hearing two of them,
@@ -8130,6 +8141,7 @@ internal fun SwitchSettingWithDesc(
             Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     highlightMatches(label, LocalSettingsSearchQuery.current),
+                    modifier = Modifier.weight(1f, fill = false),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = dimAlpha),
                 )
@@ -9345,10 +9357,13 @@ private fun AnnounceSwitchSetting(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
-            Text(highlightMatches(label, LocalSettingsSearchQuery.current), modifier = Modifier.settingsSearchLabel(label), style = MaterialTheme.typography.bodyLarge)
+            // The label gives way first: a long one wraps and the play button
+            // and the switch keep their place.
+            Text(highlightMatches(label, LocalSettingsSearchQuery.current), modifier = Modifier.weight(1f, fill = false).settingsSearchLabel(label), style = MaterialTheme.typography.bodyLarge)
             Spacer(Modifier.width(4.dp))
             PlayButton(onClick = onTest)
         }
+        Spacer(Modifier.width(8.dp))
         Switch(checked = checked, onCheckedChange = onCheckedChange, colors = themedSwitchColors())
     }
 }
@@ -9563,13 +9578,16 @@ private fun SwitchSetting(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(highlightMatches(label, LocalSettingsSearchQuery.current), modifier = Modifier.settingsSearchLabel(label), style = MaterialTheme.typography.bodyLarge)
+        // The label side takes what the switch leaves, so a long label wraps
+        // instead of pushing the switch off the row.
+        Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+            Text(highlightMatches(label, LocalSettingsSearchQuery.current), modifier = Modifier.weight(1f, fill = false).settingsSearchLabel(label), style = MaterialTheme.typography.bodyLarge)
             if (badge != null) {
                 Spacer(Modifier.width(6.dp))
                 badge()
             }
         }
+        Spacer(Modifier.width(8.dp))
         Switch(checked = checked, onCheckedChange = onCheckedChange, colors = themedSwitchColors())
     }
 }

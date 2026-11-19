@@ -9,6 +9,7 @@ ride, this is the branch.
 
 ## Worked on
 
+- Languages: every language of the app was reread so it sounds like a rider wrote it, about 6,200 texts. Settings now says Leaderboards, Music control and Offline maps in every language, and long switch labels wrap instead of pushing the switch off the row.
 - Headroom tile removed: it was offered as a dashboard tile but never showed a value. A dashboard that had it loses that tile, also inside a stacked tile; nothing else moves.
 - Two hints corrected, in every language: the settings backup says it holds your settings and alarm rules (not "everything"), and volume keys with the screen off says it works while EUC Planet is running.
 - Crew pass: scanning one from the Share screen now points you to the right place, Settings, Online leaderboards. It named a Crews section that Settings does not have. In every language.
@@ -91,6 +92,9 @@ ride, this is the branch.
 - Removed: Media speed control (it never worked reliably), the one-time places hint, and the unused in-app eucviewer screen. Inspect online is unchanged.
 
 ## Please test
+
+**Your language** (anyone)
+- Walk through the dashboard, Settings, the trip recorder and the navigator in your language: does anything read odd, wrong or cut off?
 
 **Texts** (anyone, in your language)
 - Settings backup hint and "Also when the screen is off" under volume keys: do both read naturally in your language?
