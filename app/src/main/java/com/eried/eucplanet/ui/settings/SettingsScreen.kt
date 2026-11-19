@@ -8130,6 +8130,7 @@ internal fun SwitchSettingWithDesc(
             Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     highlightMatches(label, LocalSettingsSearchQuery.current),
+                    modifier = Modifier.weight(1f, fill = false),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = dimAlpha),
                 )
@@ -9345,10 +9346,13 @@ private fun AnnounceSwitchSetting(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
-            Text(highlightMatches(label, LocalSettingsSearchQuery.current), modifier = Modifier.settingsSearchLabel(label), style = MaterialTheme.typography.bodyLarge)
+            // The label gives way first: a long one wraps and the play button
+            // and the switch keep their place.
+            Text(highlightMatches(label, LocalSettingsSearchQuery.current), modifier = Modifier.weight(1f, fill = false).settingsSearchLabel(label), style = MaterialTheme.typography.bodyLarge)
             Spacer(Modifier.width(4.dp))
             PlayButton(onClick = onTest)
         }
+        Spacer(Modifier.width(8.dp))
         Switch(checked = checked, onCheckedChange = onCheckedChange, colors = themedSwitchColors())
     }
 }
@@ -9563,13 +9567,16 @@ private fun SwitchSetting(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(highlightMatches(label, LocalSettingsSearchQuery.current), modifier = Modifier.settingsSearchLabel(label), style = MaterialTheme.typography.bodyLarge)
+        // The label side takes what the switch leaves, so a long label wraps
+        // instead of pushing the switch off the row.
+        Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+            Text(highlightMatches(label, LocalSettingsSearchQuery.current), modifier = Modifier.weight(1f, fill = false).settingsSearchLabel(label), style = MaterialTheme.typography.bodyLarge)
             if (badge != null) {
                 Spacer(Modifier.width(6.dp))
                 badge()
             }
         }
+        Spacer(Modifier.width(8.dp))
         Switch(checked = checked, onCheckedChange = onCheckedChange, colors = themedSwitchColors())
     }
 }

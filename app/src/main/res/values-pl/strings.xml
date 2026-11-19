@@ -900,9 +900,9 @@
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Przyciski Flic 2</string>
     <string name="flic_show_on_dashboard">Ikona szybkiego dostępu na pulpicie</string>
-    <string name="flic_scan_hint">Przytrzymaj przycisk Flic 2 przez 6 sekund, aby wejść w tryb parowania, a potem dotknij Rozpocznij skanowanie.</string>
+    <string name="flic_scan_hint">Przytrzymaj przycisk Flic 2 przez 6 sekund, aby wejść w tryb parowania, a potem dotknij Skanuj.</string>
     <string name="flic_stop_scan">Zatrzymaj skanowanie</string>
-    <string name="flic_start_scan">Rozpocznij skanowanie</string>
+    <string name="flic_start_scan">Skanuj</string>
     <string name="flic_forget">Zapomnij</string>
     <string name="flic_forget_title">Zapomnieć ten przycisk?</string>
     <string name="flic_forget_body">Parowanie z %1$s zostanie usunięte.</string>
@@ -920,7 +920,7 @@
     <string name="tpms_none_yet">Nie wykryto ani nie dodano ręcznie czujnika ciśnienia w oponie.</string>
     <string name="tpms_wheel_sensor_replaced">Zastąpiony sparowanym czujnikiem</string>
     <string name="external_gps_device_title">Zewnętrzny GPS</string>
-    <string name="external_gps_pair_button">Rozpocznij skanowanie</string>
+    <string name="external_gps_pair_button">Skanuj</string>
     <string name="external_gps_pair_action">Sparuj</string>
     <string name="external_gps_stop_scan">Zatrzymaj skanowanie</string>
     <string name="external_gps_paired_with">Sparowano z %1$s</string>
@@ -964,7 +964,7 @@
     <!-- Rear-view radar (Garmin Varia today) -->
     <string name="section_radar">Radar tylny</string>
     <string name="radar_caption">Przytrzymaj przycisk Varia przez 2 sekundy, aż zacznie pulsować na fioletowo, a następnie rozpocznij skanowanie.</string>
-    <string name="radar_pair_button">Rozpocznij skanowanie</string>
+    <string name="radar_pair_button">Skanuj</string>
     <string name="radar_pair_action">Sparuj</string>
     <string name="radar_stop_scan">Zatrzymaj skanowanie</string>
     <string name="radar_state_connected">Połączono</string>
@@ -1074,7 +1074,7 @@
     <!-- Scan screen -->
     <string name="scan_title">Połącz z kołem</string>
     <string name="scan_scanning">Wyszukiwanie…</string>
-    <string name="scan_start">Rozpocznij skanowanie</string>
+    <string name="scan_start">Skanuj</string>
     <string name="scan_show_all_title">Pokaż wszystkie urządzenia</string>
     <string name="scan_show_all_subtitle">Włącz, jeśli Twoje koło się nie pojawia.</string>
 
