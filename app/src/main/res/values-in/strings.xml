@@ -2568,7 +2568,7 @@
     <string name="crews_scan_hint">Buka eucstats di browser, tekan Crews, lalu arahkan ini ke kode yang ditampilkan.</string>
     <string name="crews_scan_invalid">Itu bukan kode pass kru.</string>
     <string name="crews_scan_is_share">Itu kode lokasi langsung. Pindai dari Bagikan di peta.</string>
-    <string name="share_scan_is_crewpass">Itu pass kru. Pindai dari Setelan, di bagian Kru.</string>
+    <string name="share_scan_is_crewpass">Itu pass kru. Pindai dari Setelan, di bagian Papan peringkat online.</string>
     <string name="crews_type_instead">Masukkan manual</string>
     <string name="crews_code_label">Kode pass</string>
     <string name="crews_foreign_title">Kode ini bukan dari eucstats</string>

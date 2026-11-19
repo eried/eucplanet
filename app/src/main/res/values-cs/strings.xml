@@ -2580,7 +2580,7 @@
     <string name="crews_scan_hint">Otevřete eucstats v prohlížeči, klepněte na Crews a namiřte telefon na kód, který se objeví.</string>
     <string name="crews_scan_invalid">To není kód průkazu crew.</string>
     <string name="crews_scan_is_share">To je kód sdílení polohy. Načtěte ho přes Sdílet na mapě.</string>
-    <string name="share_scan_is_crewpass">To je průkaz crew. Načtěte ho v Nastavení, v části Crews.</string>
+    <string name="share_scan_is_crewpass">To je průkaz crew. Načtěte ho v Nastavení, v části Online žebříčky.</string>
     <string name="crews_type_instead">Zadat ručně</string>
     <string name="crews_code_label">Kód průkazu</string>
     <string name="crews_foreign_title">Tento kód není z eucstats</string>
