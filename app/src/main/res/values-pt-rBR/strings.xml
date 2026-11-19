@@ -1315,7 +1315,7 @@
     <string name="online_upload_register_server_error">Falha no cadastro. Resposta do servidor: %1$s (%2$d)</string>
 
     <!-- Online stats toggle + rider card (Task E3) -->
-    <string name="section_online_stats">Rankings online</string>
+    <string name="section_online_stats">Leaderboards online</string>
     <string name="online_upload_card_loading">Carregando…</string>
     <string name="online_upload_card_unavailable">Não foi possível carregar</string>
     <string name="online_profile_retry">Tentar novamente</string>
@@ -2774,7 +2774,7 @@
     <string name="crews_scan_hint">Abra o eucstats no navegador, toque em Crews e aponte a câmera para o código que aparecer.</string>
     <string name="crews_scan_invalid">Isso não é um código de passe de turma.</string>
     <string name="crews_scan_is_share">Esse é um código de localização em tempo real. Leia pelo Compartilhar no mapa.</string>
-    <string name="share_scan_is_crewpass">Esse é um passe de turma. Leia em Configurações, em Rankings online.</string>
+    <string name="share_scan_is_crewpass">Esse é um passe de turma. Leia em Configurações, em %1$s.</string>
     <string name="crews_type_instead">Digitar manualmente</string>
     <string name="crews_code_label">Código do passe</string>
     <string name="crews_foreign_title">Esse código não é do eucstats</string>

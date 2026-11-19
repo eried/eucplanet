@@ -1315,7 +1315,7 @@
     <string name="online_upload_register_server_error">El registro ha fallado. El servidor ha respondido: %1$s (%2$d)</string>
 
     <!-- Online stats toggle + rider card (Task E3) -->
-    <string name="section_online_stats">Clasificaciones online</string>
+    <string name="section_online_stats">Leaderboards online</string>
     <string name="online_upload_card_loading">Cargando…</string>
     <string name="online_upload_card_unavailable">No se ha podido cargar</string>
     <string name="online_profile_retry">Reintentar</string>
@@ -2769,7 +2769,7 @@
     <string name="crews_scan_hint">Abre eucstats en el navegador, dale a Cuadrillas y apunta esto al código que salga.</string>
     <string name="crews_scan_invalid">Ese no es un código de pase de cuadrilla.</string>
     <string name="crews_scan_is_share">Ese es un código de ubicación en directo. Escanéalo desde Compartir en el mapa.</string>
-    <string name="share_scan_is_crewpass">Ese es un pase de cuadrilla. Escanéalo desde Ajustes, en Clasificaciones online.</string>
+    <string name="share_scan_is_crewpass">Ese es un pase de cuadrilla. Escanéalo desde Ajustes, en %1$s.</string>
     <string name="crews_type_instead">Introducir a mano</string>
     <string name="crews_code_label">Código del pase</string>
     <string name="crews_foreign_title">Ese código no es de eucstats</string>

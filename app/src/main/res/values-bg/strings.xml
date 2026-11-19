@@ -1761,7 +1761,7 @@
     <string name="online_upload_register_server_error">Регистрацията не успя. Сървърът отговори: %1$s (%2$d)</string>
 
     <!-- Online stats toggle + rider card (Task E3) -->
-    <string name="section_online_stats">Онлайн класации</string>
+    <string name="section_online_stats">Онлайн Leaderboards</string>
     <string name="online_upload_card_loading">Зареждане…</string>
     <string name="online_upload_card_unavailable">Неуспешно зареждане</string>
     <string name="online_profile_retry">Опитай пак</string>
@@ -2733,7 +2733,7 @@
     <string name="crews_scan_hint">Отворете eucstats в браузър, натиснете Crews и насочете камерата към кода, който се покаже.</string>
     <string name="crews_scan_invalid">Това не е код за пропуск за екип.</string>
     <string name="crews_scan_is_share">Това е код за местоположение на живо. Сканирайте го от Сподели на картата.</string>
-    <string name="share_scan_is_crewpass">Това е пропуск за екип. Сканирайте го от Настройки, в Онлайн класации.</string>
+    <string name="share_scan_is_crewpass">Това е пропуск за екип. Сканирайте го от Настройки, в %1$s.</string>
     <string name="crews_type_instead">Въведи ръчно</string>
     <string name="crews_code_label">Код на пропуска</string>
     <string name="crews_foreign_title">Този код не е от eucstats</string>

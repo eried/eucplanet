@@ -1660,7 +1660,7 @@
     <string name="online_upload_register_action">ลงทะเบียน</string>
     <string name="online_upload_register_error">ลงทะเบียนไม่สำเร็จ ตรวจสอบการเชื่อมต่อแล้วลองอีกครั้ง</string>
     <string name="online_upload_register_server_error">ลงทะเบียนไม่สำเร็จ เซิร์ฟเวอร์ตอบว่า: %1$s (%2$d)</string>
-    <string name="section_online_stats">ตารางอันดับออนไลน์</string>
+    <string name="section_online_stats">Leaderboards ออนไลน์</string>
     <string name="online_upload_card_loading">กำลังโหลด…</string>
     <string name="online_upload_card_unavailable">โหลดไม่ได้</string>
     <string name="online_profile_retry">ลองอีกครั้ง</string>
@@ -2566,7 +2566,7 @@
     <string name="crews_scan_hint">เปิด eucstats ในเบราว์เซอร์ กดครูว์ แล้วส่องกล้องไปที่โค้ดที่แสดง</string>
     <string name="crews_scan_invalid">นั่นไม่ใช่โค้ดบัตรผ่านครูว์</string>
     <string name="crews_scan_is_share">นั่นคือโค้ดตำแหน่งสด สแกนจากปุ่มแชร์บนแผนที่</string>
-    <string name="share_scan_is_crewpass">นั่นคือบัตรผ่านครูว์ สแกนจากการตั้งค่า ในหัวข้อตารางอันดับออนไลน์</string>
+    <string name="share_scan_is_crewpass">นั่นคือบัตรผ่านครูว์ สแกนจากการตั้งค่า ในหัวข้อ%1$s</string>
     <string name="crews_type_instead">ใส่เอง</string>
     <string name="crews_code_label">รหัสบัตรผ่าน</string>
     <string name="crews_foreign_title">โค้ดนี้ไม่ได้มาจาก eucstats</string>

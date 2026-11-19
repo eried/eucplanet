@@ -1764,7 +1764,7 @@
     <string name="online_upload_register_error">Registrácia zlyhala. Skontrolujte pripojenie a skúste to znova.</string>
     <string name="online_upload_register_server_error">Registrácia zlyhala. Server odpovedal: %1$s (%2$d)</string>
 
-    <string name="section_online_stats">Online rebríčky</string>
+    <string name="section_online_stats">Online Leaderboards</string>
     <string name="online_upload_card_loading">Načítava sa…</string>
     <string name="online_upload_card_unavailable">Nepodarilo sa načítať</string>
     <string name="online_profile_retry">Skúsiť znova</string>
@@ -2736,7 +2736,7 @@
     <string name="crews_scan_hint">Otvorte eucstats v prehliadači, kliknite na Crews a namierte telefón na kód, ktorý sa zobrazí.</string>
     <string name="crews_scan_invalid">Toto nie je kód preukazu posádky.</string>
     <string name="crews_scan_is_share">Toto je kód na zdieľanie polohy naživo. Naskenujte ho cez Zdieľať na mape.</string>
-    <string name="share_scan_is_crewpass">Toto je preukaz posádky. Naskenujte ho v Nastaveniach, v sekcii Online rebríčky.</string>
+    <string name="share_scan_is_crewpass">Toto je preukaz posádky. Naskenujte ho v Nastaveniach, v sekcii %1$s.</string>
     <string name="crews_type_instead">Zadať ručne</string>
     <string name="crews_code_label">Kód preukazu</string>
     <string name="crews_foreign_title">Tento kód nie je z eucstats</string>

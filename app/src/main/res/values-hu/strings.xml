@@ -1621,7 +1621,7 @@
     <string name="online_upload_register_action">Regisztráció</string>
     <string name="online_upload_register_error">A regisztráció nem sikerült. Ellenőrizd a kapcsolatot, és próbáld újra.</string>
     <string name="online_upload_register_server_error">A regisztráció nem sikerült. A szerver válasza: %1$s (%2$d)</string>
-    <string name="section_online_stats">Online ranglisták</string>
+    <string name="section_online_stats">Online Leaderboards</string>
     <string name="online_upload_card_loading">Betöltés…</string>
     <string name="online_upload_card_unavailable">Nem sikerült betölteni</string>
     <string name="online_profile_retry">Újra</string>
@@ -2574,7 +2574,7 @@
     <string name="crews_scan_hint">Nyisd meg az eucstatsot böngészőben, nyomd meg a Crews gombot, és irányítsd ezt a megjelenő kódra.</string>
     <string name="crews_scan_invalid">Ez nem Crew-belépő kód.</string>
     <string name="crews_scan_is_share">Ez egy élő helyzet kódja. A térképen, a Megosztásból olvasd be.</string>
-    <string name="share_scan_is_crewpass">Ez egy Crew-belépő. A Beállításokban, az Online ranglisták alatt olvasd be.</string>
+    <string name="share_scan_is_crewpass">Ez egy Crew-belépő. A Beállításokban, a %1$s alatt olvasd be.</string>
     <string name="crews_type_instead">Kézi megadás</string>
     <string name="crews_code_label">Belépőkód</string>
     <string name="crews_foreign_title">Ez a kód nem az eucstatsról jött</string>

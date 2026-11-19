@@ -1715,7 +1715,7 @@
     <string name="online_upload_register_error">O registo falhou. Verifique a ligação e tente de novo.</string>
     <string name="online_upload_register_server_error">O registo falhou. O servidor respondeu: %1$s (%2$d)</string>
 
-    <string name="section_online_stats">Classificações online</string>
+    <string name="section_online_stats">Leaderboards online</string>
     <string name="online_upload_card_loading">A carregar…</string>
     <string name="online_upload_card_unavailable">Não foi possível carregar</string>
     <string name="online_profile_retry">Tentar de novo</string>
@@ -2653,7 +2653,7 @@
     <string name="crews_scan_hint">Abra o eucstats num navegador, toque em Crews e aponte isto para o código que aparece.</string>
     <string name="crews_scan_invalid">Isso não é um código de passe de equipa.</string>
     <string name="crews_scan_is_share">Isso é um código de localização em tempo real. Leia-o em Partilhar no mapa.</string>
-    <string name="share_scan_is_crewpass">Isso é um passe de equipa. Leia-o nas Definições, em Classificações online.</string>
+    <string name="share_scan_is_crewpass">Isso é um passe de equipa. Leia-o nas Definições, em %1$s.</string>
     <string name="crews_type_instead">Introduzir manualmente</string>
     <string name="crews_code_label">Código do passe</string>
     <string name="crews_foreign_title">Este código não é do eucstats</string>

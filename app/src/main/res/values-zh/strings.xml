@@ -1811,7 +1811,7 @@
     <string name="online_upload_register_error">注册失败，请检查网络后重试。</string>
 
     <!-- 在线统计开关和骑手卡片 -->
-    <string name="section_online_stats">在线排行榜</string>
+    <string name="section_online_stats">在线 Leaderboards</string>
     <string name="online_upload_card_loading">加载中…</string>
     <string name="online_upload_card_unavailable">无法加载</string>
     <string name="online_profile_retry">重试</string>
@@ -2634,7 +2634,7 @@
     <string name="crews_scan_hint">在浏览器中打开 eucstats，点 Crews，然后把手机对准页面上显示的码。</string>
     <string name="crews_scan_invalid">这不是战队通行码。</string>
     <string name="crews_scan_is_share">那是实时位置的码。去地图上的“分享”里扫。</string>
-    <string name="share_scan_is_crewpass">那是战队通行码。去设置里的“在线排行榜”扫。</string>
+    <string name="share_scan_is_crewpass">那是战队通行码。去设置里的“%1$s”扫。</string>
     <string name="crews_type_instead">手动输入</string>
     <string name="crews_code_label">通行码</string>
     <string name="crews_foreign_title">这个码不是 eucstats 的</string>

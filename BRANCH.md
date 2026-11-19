@@ -9,6 +9,7 @@ ride, this is the branch.
 
 ## Worked on
 
+- Leaderboards: the section inside Backups & leaderboards is called Leaderboards in every language too, like the tab. Scanning a crew pass from the Share screen now points to that tab by its own name.
 - Languages: every language of the app was reread so it sounds like a rider wrote it, about 6,200 texts. Settings now says Leaderboards, Music control and Offline maps in every language, and long switch labels wrap instead of pushing the switch off the row.
 - Languages: a phone set to Traditional Chinese without a Taiwan, Hong Kong or Macau region now starts the app in 中文 (繁體) instead of Simplified, as the web sites do.
 - Headroom tile removed: it was offered as a dashboard tile but never showed a value. A dashboard that had it loses that tile, also inside a stacked tile; nothing else moves.

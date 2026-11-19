@@ -1311,7 +1311,7 @@
     <string name="online_upload_register_server_error">Kayıt başarısız. Sunucu yanıtı: %1$s (%2$d)</string>
 
     <!-- Online stats toggle + rider card (Task E3) -->
-    <string name="section_online_stats">Çevrimiçi lider tabloları</string>
+    <string name="section_online_stats">Çevrimiçi Leaderboards</string>
     <string name="online_upload_card_loading">Yükleniyor…</string>
     <string name="online_upload_card_unavailable">Yüklenemedi</string>
     <string name="online_profile_retry">Yeniden dene</string>
@@ -2767,7 +2767,7 @@
     <string name="crews_scan_hint">eucstats\'ı tarayıcıda açın, Crews\'a basın ve telefonu çıkan koda tutun.</string>
     <string name="crews_scan_invalid">Bu bir ekip kartı kodu değil.</string>
     <string name="crews_scan_is_share">Bu bir canlı konum kodu. Haritadaki Paylaş bölümünden okutun.</string>
-    <string name="share_scan_is_crewpass">Bu bir ekip kartı. Ayarlar\'da Çevrimiçi lider tabloları altından okutun.</string>
+    <string name="share_scan_is_crewpass">Bu bir ekip kartı. Ayarlar\'da %1$s altından okutun.</string>
     <string name="crews_type_instead">Elle gir</string>
     <string name="crews_code_label">Kart kodu</string>
     <string name="crews_foreign_title">Bu kod eucstats\'tan değil</string>
