@@ -21,7 +21,7 @@ window.EUC_I18N_DICT = {
 "lead.3": "可以从 <a href=\"https://github.com/eried/eucplanet/releases\">GitHub</a> 免费自己编译、侧载安装。应用商店版本只是为了方便自动更新，顺便支持一下开发。iPhone 用户可以在 <a href=\"https://testflight.apple.com/join/8VrhGCrm\">TestFlight 上加入测试版</a>。",
 "h2.a-look-inside": "进来看看",
 "h2.on-the-wrist": "戴在手腕上",
-"h2.built-different": "就是不一样",
+"h2.built-different": "功能",
 "fc.wheels.title": "支持你的独轮车",
 "fc.wheels.body": "InMotion V14 和 P6 已验证。KingSong、Begode、Veteran (LeaperKim)、NOSFET 和更多 InMotion 型号已经过骑友实测，这些系列的其他型号和 Ninebot 为预览版。<a href=\"https://github.com/eried/eucplanet/blob/main/docs/BLE_CAPTURE_GUIDE.md\">帮我们加上你的独轮车</a>，用着不正常的话，<a href=\"https://github.com/eried/eucplanet/blob/main/docs/DIAGNOSTICS_GUIDE.md\">发一份诊断记录给我们</a>。",
 "fc.modern.title": "现代又流畅",
