@@ -26,9 +26,11 @@ class EngoLayoutTest {
         street: String = "",
         left: EngoCell = EngoCell("BATT", "78%"),
         right: EngoCell = EngoCell("TEMP", "38C"),
+        orange: Int = 65,
+        red: Int = 85,
     ) = EngoSnapshot(
         connected = connected, speed = speed, speedUnit = "km/h",
-        pwmPct = pwm, left = left, right = right,
+        pwmPct = pwm, pwmOrangePct = orange, pwmRedPct = red, left = left, right = right,
         navActive = navActive, navDistanceText = distText, navManeuver = man, navStreet = street,
     )
 
@@ -146,6 +148,14 @@ class EngoLayoutTest {
     }
 
     @Test
+    fun theUnitSitsClearUnderTheSpeed() {
+        val ts = texts(EngoLayout.render(snap(speed = 79), engo3))
+        val speed = ts.first { it.s == "79" }
+        val unit = ts.first { it.s == "km/h" }
+        assertTrue("unit under the whole speed box", unit.y >= speed.y + speed.h)
+    }
+
+    @Test
     fun speedSitsTopLeftForTheRider() {
         val t = texts(EngoLayout.render(snap(speed = 42), engo3)).first { it.s == "42" }
         assertTrue("left half", t.x < EngoLayout.W / 2)
@@ -169,15 +179,20 @@ class EngoLayoutTest {
     }
 
     @Test
-    fun engo3_pwmColourFollowsTheBand() {
-        fun fill(pwm: Int): Int {
-            val cmds = EngoLayout.render(snap(pwm = pwm), engo3)
+    fun engo3_pwmColourFollowsTheRidersGaugeBands() {
+        fun fill(pwm: Int, orange: Int = 65, red: Int = 85): Int {
+            val cmds = EngoLayout.render(snap(pwm = pwm, orange = orange, red = red), engo3)
             val k = cmds.indexOfFirst { (it[1].toInt() and 0xFF) == 0x34 }
             return cmds[k - 1][4].toInt() and 0xFF // the colour set just before the fill
         }
         assertEquals(EngoLayout.RG_OK, fill(30))
-        assertEquals(EngoLayout.RG_WARN, fill(75))
-        assertEquals(EngoLayout.RG_DANGER, fill(95))
+        // A rider's 79% read yellow on the first colours; with the default
+        // gauge bands it is orange, and red from 85%.
+        assertEquals(EngoLayout.RG_WARN, fill(79))
+        assertEquals(EngoLayout.RG_DANGER, fill(85))
+        // The rider's own thresholds win.
+        assertEquals(EngoLayout.RG_OK, fill(79, orange = 80, red = 90))
+        assertEquals(EngoLayout.RG_DANGER, fill(60, orange = 40, red = 55))
         val pwmText = texts(EngoLayout.render(snap(pwm = 95), engo3)).first { it.s.startsWith("PWM") }
         assertEquals(EngoLayout.RG_DANGER, pwmText.color)
     }

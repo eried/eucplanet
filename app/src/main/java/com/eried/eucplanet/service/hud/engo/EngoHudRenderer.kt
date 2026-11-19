@@ -113,6 +113,8 @@ class EngoHudRenderer(
             speed = Units.speed(d.speed, speedUnit).roundToInt(),
             speedUnit = asciiSpeedUnit(speedUnit),
             pwmPct = d.pwm.roundToInt().coerceIn(0, 100),
+            pwmOrangePct = settings.gaugeOrangeThresholdPct,
+            pwmRedPct = settings.gaugeRedThresholdPct,
             left = cell(engo.metricLeft, EngoMetrics.BATTERY),
             right = cell(engo.metricRight, EngoMetrics.TEMPERATURE),
             // With turns switched off the ride page stays through a route.

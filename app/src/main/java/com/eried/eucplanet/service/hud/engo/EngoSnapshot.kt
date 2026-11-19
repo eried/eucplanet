@@ -11,6 +11,10 @@ data class EngoSnapshot(
     val speed: Int, // already converted to the display unit
     val speedUnit: String, // "km/h" / "mph"
     val pwmPct: Int,
+    /** The rider's gauge thresholds: the PWM bar turns orange, then red, here,
+     *  like the phone dashboard and the Motoeye HUD. */
+    val pwmOrangePct: Int = 65,
+    val pwmRedPct: Int = 85,
     /** The ride page's bottom corners, picked by the rider ([EngoMetrics]). */
     val left: EngoCell = EngoCell.EMPTY,
     val right: EngoCell = EngoCell.EMPTY,

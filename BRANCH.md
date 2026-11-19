@@ -10,13 +10,13 @@ you can cut the ride short.
 - Shows speed and PWM, plus two numbers you pick under Glasses pages (battery, temperature, voltage, amps or trip).
 - The next turn takes the screen while a route is guided; Show turns while navigating switches that off.
 - Off by default, and it does not touch the Motoeye HUD.
-- The glasses page now reads upright, every number has room of its own, and on ENGO 3 only the PWM bar and its number change colour: green, yellow, then red.
+- The glasses page reads upright, every number has room of its own, and on ENGO 3 only the PWM bar and its number change colour: green, then orange and red at your gauge thresholds, like the dashboard.
 
 ## Please test
 
 **ENGO 2 or ENGO 3**
-- Is the page upright now, with nothing cut off or on top of something else? A photo helps.
-- ENGO 3: is the PWM bar green at low PWM, yellow from 70% and red from 90%? ENGO 2: everything readable in grey?
+- Is the unit clear of the speed now, with nothing else cut off or touching? A photo helps.
+- ENGO 3: is the PWM bar green, then clearly orange from your gauge orange (65% unless you changed it), then red (85%)? ENGO 2: everything readable in grey?
 - After a first try, please send a Service Mode log: it has the lines starting "Engo:" that say what the glasses reported.
 - Do the glasses connect and stay connected all ride?
 - Do your glasses show up in the scan, and under what name?

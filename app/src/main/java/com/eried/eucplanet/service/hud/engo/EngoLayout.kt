@@ -25,11 +25,14 @@ object EngoLayout {
     /** ActiveLook text rotation that reads left to right, upright, for the rider. */
     const val ROT_READ = 4
 
-    // Built-in ActiveLook fonts: id -> pixel height (fonts 0 and 1 are both 24 px).
+    // Built-in ActiveLook fonts. The doc gives 24, 24, 35 and 49 px, but the
+    // glasses draw the glyphs lower in a taller box: on a rider's ENGO 3 the 49 px
+    // speed reached ~60 px under its anchor and touched the unit. So these are
+    // the boxes as drawn, with a little to spare.
     const val FONT_S = 1
     const val FONT_M = 2
     const val FONT_L = 3
-    private val FONT_H = mapOf(0 to 24, 1 to 24, 2 to 35, 3 to 49)
+    private val FONT_H = mapOf(0 to 28, 1 to 28, 2 to 40, 3 to 66)
     /** Widest likely glyph per font (proportional font, so this over-estimates). */
     private val FONT_W = mapOf(0 to 15, 1 to 15, 2 to 21, 3 to 30)
 
@@ -39,14 +42,14 @@ object EngoLayout {
     // --- rider-view layout ---
     private const val M = 16 // side margin; the panel edges are soft in the optics
     private const val MID = 152
-    private const val SPEED_Y = 18
-    private const val UNIT_Y = 72
+    private const val SPEED_Y = 10
+    private const val UNIT_Y = 80
     private const val BAR_X0 = 150
     private const val BAR_X1 = 288
     private const val BAR_Y0 = 22
     private const val BAR_Y1 = 54
     private const val PWM_Y = 62
-    private const val TAG_Y = 150
+    private const val TAG_Y = 148
     private const val VALUE_Y = 178
 
     // Grey levels (ENGO 2). 15 = brightest.
@@ -55,16 +58,14 @@ object EngoLayout {
 
     // RG colours (ENGO 3). The byte is the ActiveLook 81-colour palette code:
     // red levels live in bits 5-2, green levels in bits 7-6 and 1-0. There is no
-    // white on a red-green panel; its brightest is the warm yellow 0xFF.
+    // white on a red-green panel; its brightest is the warm yellow 0xFF. Green
+    // shows strong on the glasses (half red, full green read yellow-green to a
+    // rider), so the warning band is full red with little green: orange.
     const val RG_TEXT = 0xFF // readings: brightest
     const val RG_LABEL = 0x55 // tags, units, bar outline: half bright, same hue
     const val RG_OK = 0xC3 // full green, no red
-    const val RG_WARN = 0xDB // yellow
+    const val RG_WARN = 0x7D // orange: full red, a third green
     const val RG_DANGER = 0x3C // full red, no green
-
-    /** PWM thresholds for the warning colour (mirrors the app's gauge bands). */
-    private const val PWM_WARN = 70
-    private const val PWM_DANGER = 90
 
     fun render(s: EngoSnapshot, caps: EngoCaps): List<ByteArray> {
         val out = ArrayList<ByteArray>()
@@ -86,7 +87,7 @@ object EngoLayout {
         out += fillColor(GREY_DIM, RG_LABEL, caps)
         out += rect(BAR_X0, BAR_Y0, BAR_X1, BAR_Y1, filled = false)
         val pct = s.pwmPct.coerceIn(0, 100)
-        val band = pwmColorRg(pct)
+        val band = pwmColorRg(pct, s.pwmOrangePct, s.pwmRedPct)
         if (s.connected && pct > 0) {
             out += fillColor(GREY_BRIGHT, band, caps)
             out += rect(BAR_X0, BAR_Y0, BAR_X0 + (BAR_X1 - BAR_X0) * pct / 100, BAR_Y1, filled = true)
@@ -149,9 +150,10 @@ object EngoLayout {
         }
     }
 
-    fun pwmColorRg(pct: Int): Int = when {
-        pct >= PWM_DANGER -> RG_DANGER
-        pct >= PWM_WARN -> RG_WARN
+    /** The PWM band colour against the rider's gauge thresholds. */
+    fun pwmColorRg(pct: Int, orangePct: Int, redPct: Int): Int = when {
+        pct >= redPct -> RG_DANGER
+        pct >= orangePct -> RG_WARN
         else -> RG_OK
     }
 
