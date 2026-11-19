@@ -412,8 +412,9 @@ object SettingsJson {
             put("autoConnect", s.engoHud.autoConnect)
             put("pairedAddress", s.engoHud.pairedAddress)
             put("pairedName", s.engoHud.pairedName)
-            put("metricLeft", s.engoHud.metricLeft)
-            put("metricRight", s.engoHud.metricRight)
+            put("top", engoSlotJson(s.engoHud.top))
+            put("slots", org.json.JSONArray().apply { s.engoHud.slots.forEach { put(engoSlotJson(it)) } })
+            put("graphs", s.engoHud.graphs)
             put("navTakeover", s.engoHud.navTakeover)
         })
         put("keepAppAlive", s.keepAppAlive)
@@ -903,8 +904,11 @@ object SettingsJson {
                 autoConnect = e.optBoolean("autoConnect", base.engoHud.autoConnect),
                 pairedAddress = e.optStringOrNull("pairedAddress", base.engoHud.pairedAddress),
                 pairedName = e.optStringOrNull("pairedName", base.engoHud.pairedName),
-                metricLeft = e.optString("metricLeft", base.engoHud.metricLeft),
-                metricRight = e.optString("metricRight", base.engoHud.metricRight),
+                top = e.optJSONObject("top")?.let { engoSlotOf(it) } ?: base.engoHud.top,
+                slots = e.optJSONArray("slots")?.let { arr ->
+                    (0 until 3).map { i -> arr.optJSONObject(i)?.let { engoSlotOf(it) } ?: base.engoHud.slots[i] }
+                } ?: base.engoHud.slots,
+                graphs = e.optBoolean("graphs", base.engoHud.graphs),
                 navTakeover = e.optBoolean("navTakeover", base.engoHud.navTakeover),
             )
         } ?: base.engoHud,
@@ -1076,4 +1080,12 @@ object SettingsJson {
         isNull(key) -> null
         else -> optString(key, fallback ?: "")
     }
+
+    private fun engoSlotJson(slot: com.eried.eucplanet.data.model.EngoSlot) = JSONObject().apply {
+        put("key", slot.key)
+        put("stat", slot.stat)
+    }
+
+    private fun engoSlotOf(j: JSONObject) =
+        com.eried.eucplanet.data.model.EngoSlot(j.optString("key", ""), j.optString("stat", "CURRENT"))
 }

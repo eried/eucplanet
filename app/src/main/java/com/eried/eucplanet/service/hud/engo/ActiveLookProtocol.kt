@@ -46,6 +46,7 @@ object ActiveLookProtocol {
     private const val CMD_RECTF = 0x34
     private const val CMD_CIRCF = 0x36
     private const val CMD_TXT = 0x37
+    private const val CMD_POLYLINE = 0x38
     private const val CMD_HOLD_FLUSH = 0x39
     private const val CMD_ARC = 0x3C
     private const val CMD_COLOR = 0x3D
@@ -109,6 +110,19 @@ object ActiveLookProtocol {
 
     fun rectf(x0: Int, y0: Int, x1: Int, y1: Int): ByteArray =
         frame(CMD_RECTF, s16(x0) + s16(y0) + s16(x1) + s16(y1))
+
+    /**
+     * Connected lines through the points, given as x0, y0, x1, y1, ... Sent in
+     * the short form (no thickness bytes), which every firmware reads as a
+     * 1 px line; newer firmware would take a leading thickness, older would
+     * read it as a coordinate.
+     */
+    fun polyline(xy: IntArray): ByteArray {
+        require(xy.size % 2 == 0 && xy.size >= 4) { "polyline needs two or more points" }
+        val data = ByteArray(xy.size * 2)
+        for (i in xy.indices) s16(xy[i]).copyInto(data, i * 2)
+        return frame(CMD_POLYLINE, data)
+    }
 
     fun circf(x: Int, y: Int, radius: Int): ByteArray =
         frame(CMD_CIRCF, s16(x) + s16(y) + byteArrayOf(u8(radius, 0, 255)))

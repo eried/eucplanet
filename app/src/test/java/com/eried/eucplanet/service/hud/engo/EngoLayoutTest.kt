@@ -7,207 +7,184 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * Structure tests for [EngoLayout]: page selection, batching, widget presence,
- * and the colour (ENGO 3) vs grey (ENGO 2) path. Pixel constants are tuned on a
- * real unit, so we assert opcodes + content, not exact positions.
+ * The ENGO ride page as drawn: batching, the delta that redraws only what
+ * changed, and, through [EngoRaster], where the pixels actually land: inside
+ * each widget's own box, never on a neighbour, numbers centred in their column.
  */
 class EngoLayoutTest {
 
     private val engo2 = EngoCaps(colorRYG = false)
     private val engo3 = EngoCaps(colorRYG = true)
+    private val W = EngoLayout.W
+    private val H = EngoLayout.H
 
-    private fun snap(
-        connected: Boolean = true,
-        speed: Int = 42,
-        pwm: Int = 61,
-        navActive: Boolean = false,
-        distText: String = "",
-        man: EngoManeuver = EngoManeuver.STRAIGHT,
-        street: String = "",
-        left: EngoCell = EngoCell("BATT", "78%"),
-        right: EngoCell = EngoCell("TEMP", "38C"),
-        orange: Int = 65,
-        red: Int = 85,
-    ) = EngoSnapshot(
-        connected = connected, speed = speed, speedUnit = "km/h",
-        pwmPct = pwm, pwmOrangePct = orange, pwmRedPct = red, left = left, right = right,
-        navActive = navActive, navDistanceText = distText, navManeuver = man, navStreet = street,
+    private fun reading(title: String, value: String, level: Float = 0.5f, band: EngoBand = EngoBand.NORMAL) =
+        EngoReading(title, value, level, List(43) { (it % 10) / 10f }, band)
+
+    private fun page(
+        speed: String = "42",
+        graphs: Boolean = false,
+        nav: EngoNav? = null,
+        top: EngoReading? = reading("TOP", "87"),
+        bottom: List<EngoReading?> = listOf(
+            reading("BAT %", "76"), reading("PWM %", "58", 0.58f, EngoBand.OK), reading("MOT°C", "58"),
+        ),
+    ) = EngoPage(true, speed, "KM/H", top, bottom, graphs, nav)
+
+    /** The worst the page has to hold: three-digit speed, long titles, wide numbers. */
+    private val worst = listOf(
+        page(),
+        page(speed = "188", graphs = true, nav = EngoNav(EngoManeuver.UTURN, "1.2 KM")),
+        page(speed = "--", top = reading("MAX PWM", "100"), bottom = listOf(
+            reading("PK MOT W", "-2350"), reading("RNG KM", "123.4"), reading("PHONE %", "100"))),
+        page(top = null, bottom = listOf(null, null, null), nav = EngoNav(EngoManeuver.ARRIVE, "")),
     )
 
     private fun ops(cmds: List<ByteArray>) = cmds.map { it[1].toInt() and 0xFF }
 
-    /** Text opcodes (grey 0x37 or colour 0x3E) whose ASCII payload contains [s]. */
-    private fun containsText(cmds: List<ByteArray>, s: String) = cmds.any { c ->
-        val op = c[1].toInt() and 0xFF
-        (op == 0x37 || op == 0x3E) && String(c, Charsets.ISO_8859_1).contains(s)
-    }
+    private fun lit(px: IntArray) = px.indices.filter { px[it] != EngoRaster.BLACK }
 
     @Test
-    fun frameIsBatchedHoldClearFlush() {
-        val cmds = EngoLayout.render(snap(), engo2)
+    fun theWholePageIsOneBatchedFrame() {
+        val cmds = EngoLayout.render(page(), engo3)
         assertArrayEquals(ActiveLookProtocol.holdFlush(ActiveLookProtocol.HOLD), cmds.first())
         assertArrayEquals(ActiveLookProtocol.clear(), cmds[1])
         assertArrayEquals(ActiveLookProtocol.holdFlush(ActiveLookProtocol.FLUSH), cmds.last())
     }
 
     @Test
-    fun telemetryPage_hasSpeedAndPwmBar() {
-        val cmds = EngoLayout.render(snap(speed = 42, pwm = 61), engo2)
-        assertTrue("speed text", containsText(cmds, "42"))
-        assertTrue("bar outline (rect)", 0x33 in ops(cmds))
-        assertTrue("bar fill (rectf) when pwm>0", 0x34 in ops(cmds))
-        assertTrue("battery tag", containsText(cmds, "BATT"))
-        assertTrue("battery value", containsText(cmds, "78%"))
-        assertTrue("temp tag", containsText(cmds, "TEMP"))
-        assertTrue("temp value", containsText(cmds, "38C"))
+    fun noTextCommands_thePageDrawsItsOwnFont() {
+        // The glasses' fonts are not the size their doc says; every string is rectangles.
+        for (p in worst) for (caps in listOf(engo2, engo3)) {
+            val o = ops(EngoLayout.render(p, caps))
+            assertFalse(0x37 in o)
+            assertFalse(0x3E in o)
+        }
     }
 
     @Test
-    fun telemetryPage_showsTheCornersTheRiderPicked() {
-        val cmds = EngoLayout.render(
-            snap(left = EngoCell("VOLT", "83.5V"), right = EngoCell.EMPTY), engo2,
-        )
-        assertTrue("picked corner", containsText(cmds, "VOLT") && containsText(cmds, "83.5V"))
-        assertFalse("an empty corner draws nothing", containsText(cmds, "TEMP"))
-        assertFalse(containsText(cmds, "BATT"))
-    }
-
-    @Test
-    fun pwmZero_drawsOutlineButNoFill() {
-        val cmds = EngoLayout.render(snap(pwm = 0), engo2)
-        assertTrue("bar outline", 0x33 in ops(cmds))
-        assertFalse("no fill at 0%", 0x34 in ops(cmds))
-    }
-
-    @Test
-    fun engo2_greyText_engo3_colorText() {
-        val c2 = EngoLayout.render(snap(), engo2)
-        assertTrue("mono uses txt", 0x37 in ops(c2))
-        assertFalse("mono never txtColor", 0x3E in ops(c2))
-
-        val c3 = EngoLayout.render(snap(), engo3)
-        assertTrue("colour uses txtColor", 0x3E in ops(c3))
-        assertFalse("colour never txt", 0x37 in ops(c3))
-    }
-
-    @Test
-    fun navTakeover_hasArrowDistanceStreet() {
-        val cmds = EngoLayout.render(
-            snap(navActive = true, distText = "120 m", man = EngoManeuver.LEFT, street = "Main Street"),
-            engo2,
-        )
-        assertTrue("arrow lines", 0x32 in ops(cmds))
-        assertTrue("distance", containsText(cmds, "120 m"))
-        assertTrue("street", containsText(cmds, "Main Street"))
-        // Nav page has no PWM bar.
-        assertFalse("no PWM text on nav", containsText(cmds, "PWM"))
-    }
-
-    @Test
-    fun disconnected_showsDashes() {
-        val cmds = EngoLayout.render(snap(connected = false), engo2)
-        assertTrue(containsText(cmds, "--"))
-    }
-
-    /** A decoded text frame, back in rider view (top-left origin). */
-    private data class Txt(val x: Int, val y: Int, val rot: Int, val font: Int, val color: Int, val s: String) {
-        val w get() = EngoLayout.textWidth(font, s)
-        val h get() = EngoLayout.fontHeight(font)
-    }
-
-    private fun s16(c: ByteArray, i: Int) = ((c[i].toInt() shl 8) or (c[i + 1].toInt() and 0xFF)).toShort().toInt()
-
-    private fun texts(cmds: List<ByteArray>): List<Txt> = cmds.filter {
-        val op = it[1].toInt() and 0xFF
-        op == 0x37 || op == 0x3E
-    }.map { c ->
-        val end = c.indexOfLast { it == 0.toByte() }
-        Txt(
-            x = EngoLayout.W - 1 - s16(c, 4), y = EngoLayout.H - 1 - s16(c, 6),
-            rot = c[8].toInt(), font = c[9].toInt() and 0xFF, color = c[10].toInt() and 0xFF,
-            s = String(c, 11, end - 11, Charsets.ISO_8859_1),
-        )
-    }
-
-    private val worst = listOf(
-        snap(speed = 188, pwm = 100, left = EngoCell("VOLT", "134.4V"), right = EngoCell("TRIP", "123.4km")),
-        snap(speed = 8, pwm = 5, left = EngoCell("AMPS", "-45A"), right = EngoCell("TEMP", "38C")),
-        snap(connected = false),
-        snap(navActive = true, distText = "12.3 km", man = EngoManeuver.RIGHT,
-            street = "Avenida Libertador Bernardo O'Higgins"),
-    )
-
-    @Test
-    fun everyTextReadsUprightForTheRider() {
-        // Rotation 0 showed upside down on a rider's ENGO 3: the optics mirror the panel.
-        for (s in worst) for (caps in listOf(engo2, engo3)) {
-            texts(EngoLayout.render(s, caps)).forEach {
-                assertEquals("'${it.s}' rotation", EngoLayout.ROT_READ, it.rot)
+    fun everyWidgetDrawsOnlyInsideItsBoxes_andBoxesNeverOverlap() {
+        for (p in worst) {
+            val ws = EngoLayout.widgets(p, engo3)
+            val decor = BooleanArray(W * H)
+            for (w in ws) {
+                val px = lit(EngoRaster.render(w.cmds, color = true))
+                if (w.boxes.isEmpty()) { px.forEach { decor[it] = true }; continue }
+                for (i in px) {
+                    val x = i % W; val y = i / W
+                    assertTrue("${w.id} pixel ($x,$y) outside its box",
+                        w.boxes.any { x in it[0]..it[2] && y in it[1]..it[3] })
+                }
+            }
+            val boxes = ws.flatMap { w -> w.boxes.map { w.id to it } }
+            for (a in boxes.indices) for (b in a + 1 until boxes.size) {
+                val (ia, ra) = boxes[a]; val (ib, rb) = boxes[b]
+                val apart = ra[2] < rb[0] || rb[2] < ra[0] || ra[3] < rb[1] || rb[3] < ra[1]
+                assertTrue("$ia and $ib boxes overlap", apart)
+            }
+            // Erasing a box must never wipe the corner marks or the dividers.
+            for ((id, r) in boxes) for (y in r[1]..r[3]) for (x in r[0]..r[2]) {
+                assertFalse("$id box covers decoration at ($x,$y)", decor[y * W + x])
             }
         }
     }
 
     @Test
-    fun theUnitSitsClearUnderTheSpeed() {
-        val ts = texts(EngoLayout.render(snap(speed = 79), engo3))
-        val speed = ts.first { it.s == "79" }
-        val unit = ts.first { it.s == "km/h" }
-        assertTrue("unit under the whole speed box", unit.y >= speed.y + speed.h)
-    }
-
-    @Test
-    fun speedSitsTopLeftForTheRider() {
-        val t = texts(EngoLayout.render(snap(speed = 42), engo3)).first { it.s == "42" }
-        assertTrue("left half", t.x < EngoLayout.W / 2)
-        assertTrue("top half", t.y < EngoLayout.H / 2)
-    }
-
-    @Test
-    fun noTextRunsOffThePanelOrOverlaps() {
-        for (s in worst) {
-            val ts = texts(EngoLayout.render(s, engo3))
-            for (t in ts) {
-                assertTrue("'${t.s}' inside", t.x >= 0 && t.y >= 0 &&
-                    t.x + t.w <= EngoLayout.W && t.y + t.h <= EngoLayout.H)
-            }
-            for (i in ts.indices) for (j in i + 1 until ts.size) {
-                val a = ts[i]; val b = ts[j]
-                val apart = a.x + a.w <= b.x || b.x + b.w <= a.x || a.y + a.h <= b.y || b.y + b.h <= a.y
-                assertTrue("'${a.s}' and '${b.s}' overlap", apart)
-            }
+    fun everythingStaysOnThePanel() {
+        for (p in worst) for ((_, r) in EngoLayout.widgets(p, engo3).flatMap { w -> w.boxes.map { w.id to it } }) {
+            assertTrue(r[0] >= 0 && r[1] >= 0 && r[2] < W && r[3] < H)
         }
     }
 
     @Test
-    fun engo3_pwmColourFollowsTheRidersGaugeBands() {
-        fun fill(pwm: Int, orange: Int = 65, red: Int = 85): Int {
-            val cmds = EngoLayout.render(snap(pwm = pwm, orange = orange, red = red), engo3)
-            val k = cmds.indexOfFirst { (it[1].toInt() and 0xFF) == 0x34 }
-            return cmds[k - 1][4].toInt() and 0xFF // the colour set just before the fill
+    fun bottomNumbersAreCentredInTheirColumns() {
+        val ws = EngoLayout.widgets(page(), engo3)
+        for (i in 0 until 3) {
+            val w = ws.first { it.id == "v$i" }
+            val xs = lit(EngoRaster.render(w.cmds, color = true)).map { it % W }
+            val box = w.boxes.single()
+            val left = xs.min() - box[0]
+            val right = box[2] - xs.max()
+            assertTrue("v$i off centre: $left vs $right", kotlin.math.abs(left - right) <= 1)
         }
-        assertEquals(EngoLayout.RG_OK, fill(30))
-        // A rider's 79% read yellow on the first colours; with the default
-        // gauge bands it is orange, and red from 85%.
-        assertEquals(EngoLayout.RG_WARN, fill(79))
-        assertEquals(EngoLayout.RG_DANGER, fill(85))
-        // The rider's own thresholds win.
-        assertEquals(EngoLayout.RG_OK, fill(79, orange = 80, red = 90))
-        assertEquals(EngoLayout.RG_DANGER, fill(60, orange = 40, red = 55))
-        val pwmText = texts(EngoLayout.render(snap(pwm = 95), engo3)).first { it.s.startsWith("PWM") }
-        assertEquals(EngoLayout.RG_DANGER, pwmText.color)
     }
 
     @Test
-    fun engo3_usesOnlyRealPaletteColours() {
-        // The ActiveLook 81-colour palette: red code | green code.
-        val reds = listOf(0x00, 0x04, 0x20, 0x14, 0x18, 0x28, 0x1C, 0x38, 0x3C)
-        val greens = listOf(0x00, 0x01, 0x02, 0x41, 0x81, 0x82, 0x43, 0x83, 0xC3)
-        val palette = reds.flatMap { r -> greens.map { g -> r or g } }.toSet()
-        for (s in worst) {
-            val cmds = EngoLayout.render(s, engo3)
-            texts(cmds).forEach { assertTrue("text colour ${it.color}", it.color in palette) }
-            cmds.filter { (it[1].toInt() and 0xFF) == 0x3D }
-                .forEach { assertTrue("draw colour", (it[4].toInt() and 0xFF) in palette) }
+    fun theSpeedIsCentredAndBig() {
+        val w = EngoLayout.widgets(page(speed = "63"), engo3).first { it.id == "speed" }
+        val px = lit(EngoRaster.render(w.cmds, color = true))
+        val ys = px.map { it / W }
+        assertTrue("speed tall", ys.max() - ys.min() + 1 >= 60)
+        val xs = px.map { it % W }
+        assertEquals(152.0, (xs.min() + xs.max()) / 2.0, 1.0)
+    }
+
+    @Test
+    fun anUnchangedPageSendsNothing_andANewSpeedOnlyTheSpeed() {
+        val a = EngoLayout.widgets(page(speed = "42"), engo3)
+        assertTrue(EngoLayout.delta(a, EngoLayout.widgets(page(speed = "42"), engo3), engo3).isEmpty())
+
+        val b = EngoLayout.widgets(page(speed = "43"), engo3)
+        val d = EngoLayout.delta(a, b, engo3)
+        val full = EngoLayout.full(b)
+        assertTrue("delta smaller than the page", d.sumOf { it.size } * 4 < full.sumOf { it.size })
+        assertFalse("no clear in a delta", 0x01 in ops(d))
+        // Drawing the delta over the old page gives the new page, pixel for pixel.
+        val over = EngoRaster.render(d, true, EngoRaster.render(EngoLayout.full(a), true))
+        assertArrayEquals(EngoRaster.render(full, true), over)
+    }
+
+    @Test
+    fun aDeltaOverEveryChangeMatchesAWholeFrame() {
+        for (from in worst) for (to in worst) {
+            val a = EngoLayout.widgets(from, engo3)
+            val b = EngoLayout.widgets(to, engo3)
+            val over = EngoRaster.render(EngoLayout.delta(a, b, engo3), true, EngoRaster.render(EngoLayout.full(a), true))
+            assertArrayEquals(EngoRaster.render(EngoLayout.full(b), true), over)
         }
+    }
+
+    @Test
+    fun theFirstFrameIsWhole() {
+        val d = EngoLayout.delta(null, EngoLayout.widgets(page(), engo3), engo3)
+        assertTrue(0x01 in ops(d))
+    }
+
+    @Test
+    fun graphsDrawPolylines_barsDrawSegments() {
+        assertTrue(0x38 in ops(EngoLayout.render(page(graphs = true), engo3)))
+        assertFalse(0x38 in ops(EngoLayout.render(page(graphs = false), engo3)))
+    }
+
+    @Test
+    fun navCornerOnlyWhileNavigating() {
+        fun navPixels(p: EngoPage) = EngoLayout.widgets(p, engo3).filter { it.id.startsWith("nav") }
+            .sumOf { lit(EngoRaster.render(it.cmds, true)).size }
+        assertEquals(0, navPixels(page(nav = null)))
+        for (m in EngoManeuver.entries) assertTrue("$m draws", navPixels(page(nav = EngoNav(m, "120 M"))) > 50)
+    }
+
+    @Test
+    fun engo2_onlyGrey_engo3_onlyPaletteColours() {
+        for (p in worst) {
+            val c2 = ops(EngoLayout.render(p, engo2))
+            assertFalse(0x3D in c2)
+            val c3 = EngoLayout.render(p, engo3)
+            assertFalse(0x30 in ops(c3))
+            c3.filter { (it[1].toInt() and 0xFF) == 0x3D }
+                .forEach { assertTrue(EngoRaster.onPalette(it[4].toInt() and 0xFF)) }
+        }
+    }
+
+    @Test
+    fun pwmBandsColourTheBarAndTheNumber() {
+        fun colourOf(band: EngoBand): Int {
+            val p = page(bottom = listOf(null, reading("PWM %", "90", 0.9f, band), null))
+            val w = EngoLayout.widgets(p, engo3).first { it.id == "v1" }
+            return w.cmds.first { (it[1].toInt() and 0xFF) == 0x3D }[4].toInt() and 0xFF
+        }
+        assertEquals(EngoLayout.RG_OK, colourOf(EngoBand.OK))
+        assertEquals(EngoLayout.RG_WARN, colourOf(EngoBand.WARN))
+        assertEquals(EngoLayout.RG_DANGER, colourOf(EngoBand.DANGER))
     }
 }

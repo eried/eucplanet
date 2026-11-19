@@ -1,48 +1,55 @@
 package com.eried.eucplanet.service.hud.engo
 
 /**
- * The minimal, already-formatted view of state the ENGO layout needs. Kept free
- * of Android + repositories so [EngoLayout] is a pure function and fully
- * unit-testable. The Android glue ([EngoHudRenderer]) maps WheelData /
- * NavState into this.
+ * The ride page as the glasses draw it, already formatted. Kept free of
+ * Android and the repositories so [EngoLayout] is a pure function; the
+ * [EngoPageBuilder] fills it from the live wheel, the history buffers and
+ * navigation.
+ *
+ * Top left the next turn, centre the speed, top right one reading the rider
+ * picked, and a row of three readings along the bottom, each a title, a bar or
+ * a graph, and a number centred under them.
  */
-data class EngoSnapshot(
+data class EngoPage(
     val connected: Boolean,
-    val speed: Int, // already converted to the display unit
-    val speedUnit: String, // "km/h" / "mph"
-    val pwmPct: Int,
-    /** The rider's gauge thresholds: the PWM bar turns orange, then red, here,
-     *  like the phone dashboard and the Motoeye HUD. */
-    val pwmOrangePct: Int = 65,
-    val pwmRedPct: Int = 85,
-    /** The ride page's bottom corners, picked by the rider ([EngoMetrics]). */
-    val left: EngoCell = EngoCell.EMPTY,
-    val right: EngoCell = EngoCell.EMPTY,
-    // Navigation takeover (active only while Navigator guidance is running).
-    val navActive: Boolean = false,
-    val navDistanceText: String = "", // pre-formatted by the app (e.g. "120 m")
-    val navManeuver: EngoManeuver = EngoManeuver.STRAIGHT,
-    val navStreet: String = "",
+    /** The speed in the rider's unit, digits only ("42"), or "--". */
+    val speed: String,
+    /** The speed unit under it ("KM/H"). */
+    val speedUnit: String,
+    /** The reading in the top right corner; null leaves it empty. */
+    val top: EngoReading?,
+    /** The three readings along the bottom, left to right; null leaves one empty. */
+    val bottom: List<EngoReading?>,
+    /** Graphs of the last minute instead of bars. */
+    val graphs: Boolean,
+    /** The next turn, while a route is guided and turns are on. */
+    val nav: EngoNav? = null,
 )
 
-/** One corner of the ride page: a short ASCII [tag] and its [value]. A
- *  blank tag draws nothing. */
-data class EngoCell(val tag: String, val value: String) {
-    companion object {
-        val EMPTY = EngoCell("", "")
-    }
-}
+/** One reading: a short title, its number, and how full its bar or graph is. */
+data class EngoReading(
+    /** Upper-case ASCII, unit included ("PWM %", "MAX SPD", "TOP"). */
+    val title: String,
+    /** Digits, sign and point only ("58", "-12.5"), or "--". */
+    val value: String,
+    /** How full the bar is, 0..1; null draws it empty. */
+    val level: Float? = null,
+    /** The last minute, oldest first, each 0..1 of the graph's height. */
+    val series: List<Float> = emptyList(),
+    val band: EngoBand = EngoBand.NORMAL,
+)
 
-/** Turn types the nav takeover can draw. */
+/** A reading's colour: plain, or the rider's PWM gauge bands. */
+enum class EngoBand { NORMAL, OK, WARN, DANGER }
+
+/** The next turn: which way, and how far, already formatted ("120 M"). */
+data class EngoNav(val maneuver: EngoManeuver, val distance: String)
+
+/** Turn types the nav corner can draw. */
 enum class EngoManeuver { LEFT, SLIGHT_LEFT, RIGHT, SLIGHT_RIGHT, STRAIGHT, UTURN, ARRIVE }
 
 /**
  * What the connected glasses can do. ENGO 3 is RG colour (81 colours); ENGO 2 is
- * 16 grey levels. Font ids are ActiveLook system fonts; the exact ids/sizes are
- * a finish-on-device tuning constant.
+ * 16 grey levels.
  */
-data class EngoCaps(
-    val colorRYG: Boolean,
-    val speedFont: Int = 3,
-    val labelFont: Int = 2,
-)
+data class EngoCaps(val colorRYG: Boolean)

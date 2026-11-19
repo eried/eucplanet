@@ -30,7 +30,10 @@ import org.koin.core.component.get
  *   - SURVEY_SOUND: play one beep (kind=beep) or speak one line (kind=voice),
  *     so the warm-route timing can be checked on a machine with no alarm firing.
  *   - SURVEY_SET: notif_actions (CSV) and warm_route_ms, the two settings the
- *     battery checks need to change without walking the settings screens.
+ *     battery checks need to change without walking the settings screens;
+ *     engo_fake_pair=true remembers made-up ENGO glasses (switched off, so
+ *     nothing dials them) and false forgets them, so the glasses' page
+ *     settings can be seen and screenshotted with no glasses.
  *   - SURVEY_IMPORT_SQUARE: copy /data/local/tmp/<file> (a .rd5 or .pmtiles
  *     square, made readable with chmod 644) into the offline folder, which
  *     adb cannot write as the app.
@@ -77,12 +80,18 @@ class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
     private fun set(intent: Intent) {
         val actions = intent.getStringExtra(EXTRA_NOTIF_ACTIONS)
         val warm = intent.getIntExtra(EXTRA_WARM_ROUTE_MS, -1)
-        Log.i(TAG, "SURVEY_SET notifActions=$actions warmRouteMs=$warm")
+        val engo = if (intent.hasExtra(EXTRA_ENGO_FAKE_PAIR)) intent.getBooleanExtra(EXTRA_ENGO_FAKE_PAIR, false) else null
+        Log.i(TAG, "SURVEY_SET notifActions=$actions warmRouteMs=$warm engoFakePair=$engo")
         scope.launch {
             settingsRepository.update { s ->
                 var n = s
                 if (actions != null) n = n.copy(notificationActions = actions)
                 if (warm > 0) n = n.copy(advanced = n.advanced.copy(alarmWarmRouteMs = warm))
+                if (engo != null) n = n.copy(engoHud = n.engoHud.copy(
+                    enabled = false,
+                    pairedAddress = if (engo) "00:00:00:00:E3:60" else null,
+                    pairedName = if (engo) "ENGO 3 (survey)" else null,
+                ))
                 n
             }
         }
@@ -194,6 +203,7 @@ class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
         const val EXTRA_GEOMETRY = "geometry"
         const val EXTRA_NOTIF_ACTIONS = "notif_actions"
         const val EXTRA_WARM_ROUTE_MS = "warm_route_ms"
+        const val EXTRA_ENGO_FAKE_PAIR = "engo_fake_pair"
 
         const val EXTRA_METRIC_ORDER = "metric_order"
         const val EXTRA_METRIC_STATS = "metric_stats"

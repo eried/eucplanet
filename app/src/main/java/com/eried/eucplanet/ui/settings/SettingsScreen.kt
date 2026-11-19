@@ -235,6 +235,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.layout.onGloballyPositioned
 import kotlinx.coroutines.launch
@@ -4627,6 +4628,9 @@ internal fun WidgetSlotDropdown(
     options: List<Pair<String, String>>,
     onSelect: (String) -> Unit,
     modifier: Modifier = Modifier,
+    /** Offer "None" first; off where every choice is a real value. */
+    includeNone: Boolean = true,
+    enabled: Boolean = true,
 ) {
     var expanded by remember { mutableStateOf(false) }
     val noneLabel = stringResource(R.string.flic_action_none)
@@ -4642,18 +4646,19 @@ internal fun WidgetSlotDropdown(
             singleLine = true,
             label = { Text(label) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            enabled = enabled,
             modifier = Modifier
-                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled)
                 .fillMaxWidth(),
             colors = themedFieldColors(),
             shape = RoundedCornerShape(12.dp),
         )
         ExposedDropdownMenu(
-            expanded = expanded,
+            expanded = expanded && enabled,
             onDismissRequest = { expanded = false },
             containerColor = MaterialTheme.appColors.menuBackground,
         ) {
-            DropdownMenuItem(
+            if (includeNone) DropdownMenuItem(
                 text = { Text(noneLabel) },
                 onClick = { onSelect("NONE"); expanded = false },
             )
@@ -12090,26 +12095,32 @@ private fun EngoGlassesBlock(
             stateKey = "engo_pages"
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                val metrics = com.eried.eucplanet.service.hud.engo.EngoMetrics
-                val options = metrics.KEYS.map { it to metricChipLabel(it) }
-                val left = metrics.known(engo.metricLeft, metrics.BATTERY)
-                val right = metrics.known(engo.metricRight, metrics.TEMPERATURE)
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    WidgetSlotDropdown(
-                        label = stringResource(R.string.widget_metric_slot, 1),
-                        currentLabel = if (left == metrics.NONE) "" else metricChipLabel(left),
-                        options = options,
-                        onSelect = { viewModel.updateEngoMetricLeft(it) },
-                        modifier = Modifier.weight(1f),
-                    )
-                    WidgetSlotDropdown(
-                        label = stringResource(R.string.widget_metric_slot, 2),
-                        currentLabel = if (right == metrics.NONE) "" else metricChipLabel(right),
-                        options = options,
-                        onSelect = { viewModel.updateEngoMetricRight(it) },
-                        modifier = Modifier.weight(1f),
+                EngoPagePreview(settings)
+                HintText(stringResource(R.string.engo_preview_hint))
+                EngoSlotRow(
+                    label = stringResource(R.string.engo_slot_top),
+                    slot = engo.top,
+                    onChange = { viewModel.updateEngoTop(it) },
+                )
+                val bottomLabels = listOf(
+                    R.string.engo_slot_bottom_left, R.string.engo_slot_bottom_centre, R.string.engo_slot_bottom_right,
+                )
+                bottomLabels.forEachIndexed { i, res ->
+                    EngoSlotRow(
+                        label = stringResource(res),
+                        slot = engo.slots.getOrNull(i) ?: com.eried.eucplanet.data.model.EngoSlot(""),
+                        onChange = { viewModel.updateEngoSlot(i, it) },
                     )
                 }
+                SegmentedChoice(
+                    label = stringResource(R.string.engo_bottom_style),
+                    options = listOf(
+                        "BARS" to stringResource(R.string.engo_style_bars),
+                        "GRAPHS" to stringResource(R.string.engo_style_graphs),
+                    ),
+                    current = if (engo.graphs) "GRAPHS" else "BARS",
+                    onChange = { viewModel.updateEngoGraphs(it == "GRAPHS") },
+                )
                 SwitchSetting(
                     label = stringResource(R.string.engo_nav_takeover),
                     checked = engo.navTakeover,
@@ -12118,6 +12129,87 @@ private fun EngoGlassesBlock(
             }
         }
     }
+}
+
+/**
+ * The rider's glasses page drawn as the glasses would draw it: their own
+ * layout, readings, statistics and units, on sample numbers. The picture comes
+ * from the very commands the glasses are sent, so what is seen here is what
+ * the glasses get.
+ */
+@Composable
+private fun EngoPagePreview(settings: com.eried.eucplanet.data.model.AppSettings) {
+    val engo = settings.engoHud
+    val units = com.eried.eucplanet.service.hud.engo.EngoMetrics.units(settings)
+    val bitmap = remember(engo, units, settings.gaugeOrangeThresholdPct, settings.gaugeRedThresholdPct) {
+        val page = com.eried.eucplanet.service.hud.engo.EngoDemoSource.page(
+            engo = engo,
+            units = units,
+            orangePct = settings.gaugeOrangeThresholdPct,
+            redPct = settings.gaugeRedThresholdPct,
+            navigating = engo.navTakeover,
+            nowMs = 1_000_000L,
+        )
+        val caps = com.eried.eucplanet.service.hud.engo.EngoCaps(colorRYG = true)
+        val px = com.eried.eucplanet.service.hud.engo.EngoRaster.render(
+            com.eried.eucplanet.service.hud.engo.EngoLayout.render(page, caps), color = true,
+        )
+        android.graphics.Bitmap.createBitmap(
+            px, com.eried.eucplanet.service.hud.engo.EngoRaster.W, com.eried.eucplanet.service.hud.engo.EngoRaster.H,
+            android.graphics.Bitmap.Config.ARGB_8888,
+        ).asImageBitmap()
+    }
+    androidx.compose.foundation.Image(
+        bitmap = bitmap,
+        contentDescription = stringResource(R.string.engo_preview_label),
+        filterQuality = androidx.compose.ui.graphics.FilterQuality.None,
+        contentScale = androidx.compose.ui.layout.ContentScale.FillWidth,
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(com.eried.eucplanet.service.hud.engo.EngoRaster.W / com.eried.eucplanet.service.hud.engo.EngoRaster.H.toFloat())
+            .clip(RoundedCornerShape(12.dp)),
+    )
+}
+
+/** One reading on the glasses: which metric (or none) and which statistic of it. */
+@Composable
+private fun EngoSlotRow(
+    label: String,
+    slot: com.eried.eucplanet.data.model.EngoSlot,
+    onChange: (com.eried.eucplanet.data.model.EngoSlot) -> Unit,
+) {
+    val metrics = com.eried.eucplanet.service.hud.engo.EngoMetrics
+    val known = metrics.known(slot.key)
+    val supportsStats = known &&
+        com.eried.eucplanet.data.model.MetricCatalog.byKey(slot.key)?.supportsStats == true
+    val stat = if (supportsStats) slot.stat else "CURRENT"
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        WidgetSlotDropdown(
+            label = label,
+            currentLabel = if (known) metricChipLabel(slot.key) else "",
+            options = metrics.KEYS.map { it to metricChipLabel(it) },
+            onSelect = { onChange(slot.copy(key = if (it == "NONE") "" else it)) },
+            modifier = Modifier.weight(1f),
+        )
+        WidgetSlotDropdown(
+            label = stringResource(R.string.engo_slot_stat),
+            currentLabel = engoStatLabel(stat),
+            options = metrics.STATS.map { it to engoStatLabel(it) },
+            onSelect = { onChange(slot.copy(stat = it)) },
+            includeNone = false,
+            enabled = supportsStats,
+            modifier = Modifier.weight(1f),
+        )
+    }
+}
+
+@Composable
+private fun engoStatLabel(stat: String): String = when (stat) {
+    "MAX" -> stringResource(R.string.dashboard_stat_max)
+    "MIN" -> stringResource(R.string.dashboard_stat_min)
+    "AVG" -> stringResource(R.string.dashboard_stat_avg)
+    "SUSTAINED_PEAK" -> stringResource(R.string.dashboard_stat_sustained_peak)
+    else -> stringResource(R.string.dashboard_stat_current)
 }
 
 /** HUD joystick long-press bindings: one action picker per direction.

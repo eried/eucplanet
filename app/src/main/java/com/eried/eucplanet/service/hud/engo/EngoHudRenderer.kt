@@ -6,8 +6,9 @@ import com.eried.eucplanet.data.model.ArrowDir
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.nav.NavigationEngine
+import com.eried.eucplanet.data.model.MetricRegistry
+import com.eried.eucplanet.data.repository.MetricSample
 import com.eried.eucplanet.util.Units
-import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -17,10 +18,10 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 /**
- * Drives the ENGO glasses: on a slow tick it maps live telemetry + navigation
- * into an [EngoSnapshot], renders it with the pure [EngoLayout], and pushes the
- * frames through [EngoAdapter] - but only when the snapshot actually changed, so
- * a stationary rider costs almost no BLE traffic.
+ * Drives the ENGO glasses: on a slow tick it builds the ride page from live
+ * telemetry, the history buffers and navigation ([EngoPageBuilder]), lays it
+ * out with the pure [EngoLayout], and sends only the widgets that changed, so a
+ * stationary rider costs almost no BLE traffic and a new speed a few hundred bytes.
  *
  * Started / stopped from the service when the rider enables the ENGO HUD. Reads
  * the same repositories the dashboard uses; the render + encode are pure and
@@ -41,7 +42,8 @@ class EngoHudRenderer(
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     @Volatile private var job: Job? = null
-    @Volatile private var last: EngoSnapshot? = null
+    /** What the glasses show now; null after a (re)connect, so the next frame is whole. */
+    @Volatile private var last: List<EngoLayout.EngoWidget>? = null
     @Volatile private var lastColor = false
 
     /** Begin driving the glasses at [address], the pair the rider paired. */
@@ -66,15 +68,16 @@ class EngoHudRenderer(
                 }
                 if (adapter.state.value == EngoAdapter.State.CONNECTED) {
                     val settings = settingsRepository.get()
-                    val snap = buildSnapshot(settings)
+                    val page = buildPage(settings)
                     // The glasses say whether their display is colour; a grey
                     // pair never gets the colour commands it cannot draw.
                     val color = adapter.colorCapable.value
-                    if (snap != last || color != lastColor) {
-                        adapter.send(EngoLayout.render(snap, EngoCaps(colorRYG = color)))
-                        last = snap
-                        lastColor = color
-                    }
+                    val caps = EngoCaps(colorRYG = color)
+                    val widgets = EngoLayout.widgets(page, caps)
+                    val cmds = EngoLayout.delta(if (color == lastColor) last else null, widgets, caps)
+                    if (cmds.isNotEmpty()) adapter.send(cmds)
+                    last = widgets
+                    lastColor = color
                 }
                 delay(TICK_MS)
             }
@@ -90,48 +93,34 @@ class EngoHudRenderer(
 
     val connectionState get() = adapter.state
 
-    private fun buildSnapshot(settings: AppSettings): EngoSnapshot {
+    private fun buildPage(settings: AppSettings): EngoPage {
         val d = wheelRepository.wheelData.value
         val wheelConnected = wheelRepository.connectionState.value == ConnectionState.CONNECTED
         val nav = navigationEngine.navState.value
-        val speedUnit = Units.effectiveSpeedUnit(settings)
-        val tempUnit = Units.effectiveTempUnit(settings)
-        val distUnit = Units.effectiveDistanceUnit(settings)
-        val engo = settings.engoHud
-        fun cell(key: String, fallback: String) = EngoMetrics.cell(
-            EngoMetrics.known(key, fallback),
-            batteryPct = d.batteryPercent,
-            temp = Units.temperature(d.maxTemperature, tempUnit).roundToInt(),
-            tempUnit = tempUnit, // "C" / "F" / "K" are already ASCII
-            voltage = d.voltage,
-            current = d.current,
-            trip = Units.distance(d.tripDistance, distUnit),
-            distanceUnit = Units.distanceUnit(distUnit),
-        )
-        return EngoSnapshot(
+        val h = wheelRepository.fullHistory.value
+        return EngoPageBuilder.build(
+            engo = settings.engoHud,
+            units = EngoMetrics.units(settings),
+            orangePct = settings.gaugeOrangeThresholdPct,
+            redPct = settings.gaugeRedThresholdPct,
             connected = wheelConnected,
-            speed = Units.speed(d.speed, speedUnit).roundToInt(),
-            speedUnit = asciiSpeedUnit(speedUnit),
-            pwmPct = d.pwm.roundToInt().coerceIn(0, 100),
-            pwmOrangePct = settings.gaugeOrangeThresholdPct,
-            pwmRedPct = settings.gaugeRedThresholdPct,
-            left = cell(engo.metricLeft, EngoMetrics.BATTERY),
-            right = cell(engo.metricRight, EngoMetrics.TEMPERATURE),
-            // With turns switched off the ride page stays through a route.
-            navActive = nav.active && engo.navTakeover,
-            navDistanceText = nav.distanceText,
-            navManeuver = mapArrow(nav.arrow),
-            navStreet = nav.nextStreet,
+            current = { key -> MetricRegistry.read(key, d) },
+            history = { key -> historyOf(h, key) },
+            nav = if (nav.active) EngoNav(mapArrow(nav.arrow), nav.distanceText.uppercase()) else null,
+            nowMs = System.currentTimeMillis(),
         )
     }
 
-    /** ASCII speed-unit label (the glasses render ASCII only). */
-    private fun asciiSpeedUnit(unit: String): String = when (unit) {
-        "mph" -> "mph"
-        "ms" -> "m/s"
-        "kn" -> "kn"
-        else -> "km/h"
-    }
+    private fun historyOf(h: com.eried.eucplanet.data.repository.FullMetricHistory, key: String): List<MetricSample> =
+        when (key) {
+            "BATTERY" -> h.battery
+            "TEMPERATURE" -> h.temperature
+            "VOLTAGE" -> h.voltage
+            "CURRENT" -> h.current
+            "LOAD" -> h.load
+            "SPEED" -> h.speed
+            else -> h.extras[key].orEmpty()
+        }
 
     private fun mapArrow(a: ArrowDir): EngoManeuver = when (a) {
         ArrowDir.LEFT, ArrowDir.SHARP_LEFT -> EngoManeuver.LEFT

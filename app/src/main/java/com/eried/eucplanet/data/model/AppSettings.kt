@@ -1301,12 +1301,25 @@ data class EngoHudSettings(
     val pairedAddress: String? = null,
     val pairedName: String? = null,
     val autoConnect: Boolean = true,
-    /** The number in the ride page's bottom left corner, an EngoMetrics key. */
-    val metricLeft: String = "BATTERY",
-    /** The number in the ride page's bottom right corner. */
-    val metricRight: String = "TEMPERATURE",
-    /** Whether the next turn takes the screen while a route is guided. */
+    /** The reading in the ride page's top right corner. */
+    val top: EngoSlot = EngoSlot("SPEED", "MAX"),
+    /** The three readings along the bottom, left to right. */
+    val slots: List<EngoSlot> = DEFAULT_ENGO_SLOTS,
+    /** The bottom readings draw the last minute as a graph instead of a bar. */
+    val graphs: Boolean = false,
+    /** Whether the next turn shows in the top left corner while a route is guided. */
     val navTakeover: Boolean = true,
+)
+
+/**
+ * One reading on the glasses: a metric catalog key and the statistic of it to
+ * show, a DashboardStat name (CURRENT, MAX, MIN, AVG, SUSTAINED_PEAK). An
+ * empty [key] leaves the place empty.
+ */
+data class EngoSlot(val key: String, val stat: String = "CURRENT")
+
+val DEFAULT_ENGO_SLOTS: List<EngoSlot> = listOf(
+    EngoSlot("BATTERY"), EngoSlot("LOAD"), EngoSlot("TEMPERATURE"),
 )
 
 /**

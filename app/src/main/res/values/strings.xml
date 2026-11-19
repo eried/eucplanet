@@ -490,6 +490,16 @@
     <string name="engo_scan_hint">Switch the glasses on. They link to one device at a time, so disconnect them from your watch or the ActiveLook app first.</string>
     <string name="engo_pages_title">Glasses pages</string>
     <string name="engo_nav_takeover">Show turns while navigating</string>
+    <string name="engo_preview_hint">Your layout on sample numbers. While navigating, the next turn shows top left.</string>
+    <string name="engo_preview_label">Glasses page preview</string>
+    <string name="engo_slot_top">Top right</string>
+    <string name="engo_slot_bottom_left">Bottom left</string>
+    <string name="engo_slot_bottom_centre">Bottom middle</string>
+    <string name="engo_slot_bottom_right">Bottom right</string>
+    <string name="engo_slot_stat">Show</string>
+    <string name="engo_bottom_style">Bottom row</string>
+    <string name="engo_style_bars">Bars</string>
+    <string name="engo_style_graphs">Graphs</string>
     <string name="hud_ip_label">Device IP</string>
     <string name="hud_ip_incomplete">Enter a full address, like 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">Device IP (automatic)</string>
