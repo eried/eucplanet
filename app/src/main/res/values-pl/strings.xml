@@ -1325,7 +1325,7 @@
     <string name="online_upload_sync_done">Zsynchronizowane przejazdy: %1$d</string>
     <string name="online_upload_sync_checking">Szukanie przejazdów do przesłania…</string>
     <string name="online_upload_sync_progress">Przesyłanie %1$d z %2$d</string>
-    <string name="online_rider_id_conflict">W tym folderze jest już zapisany identyfikator odzyskiwania innego zawodnika. Zachowano go bez nadpisywania.</string>
+    <string name="online_rider_id_conflict">W tym folderze jest już zapisany identyfikator odzyskiwania innego ridera. Zachowano go bez nadpisywania.</string>
     <string name="online_upload_mileage_rank">#%d w dystansie</string>
     <string name="online_upload_top_speed">maks. %1$s %2$s</string>
     <string name="online_upload_trips">przejazdy: %d</string>
@@ -1341,7 +1341,7 @@
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Odłącz</string>
     <string name="online_unlink_title">Odłączyć od rankingu?</string>
-    <string name="online_unlink_body">Ten telefon przestanie przesyłać przejazdy. Twoje ID zawodnika zostanie zachowane, więc możesz wrócić jako ten sam zawodnik. Statystyki pozostają w EUC Stats; aby je usunąć, użyj opcji Usuń konto.</string>
+    <string name="online_unlink_body">Ten telefon przestanie przesyłać przejazdy. Twoje ID ridera zostanie zachowane, więc możesz wrócić jako ten sam rider. Statystyki pozostają w EUC Stats; aby je usunąć, użyj opcji Usuń konto.</string>
     <string name="online_unlink_confirm">Odłącz</string>
 
     <!-- Online profile (edit/GDPR) -->
@@ -1356,11 +1356,11 @@
     <string name="online_profile_save_rate_limited">Zbyt wiele prób, spróbuj ponownie później.</string>
     <string name="online_profile_save_failed">Nie udało się zapisać (HTTP %1$d). Spróbuj ponownie.</string>
     <string name="online_restore_title">Znaleziono zapisany profil</string>
-    <string name="online_restore_body_new">Znaleziono zapisany profil: %1$s. Jeśli przejdziesz dalej, wrócisz do publicznego rankingu jako ten zawodnik; jego nazwa, flaga, awatar i statystyki przejazdów są publiczne. Nowy profil nie zostanie utworzony.</string>
-    <string name="online_restore_body_switch">Znaleziono inny zapisany profil: %1$s. Jeśli przejdziesz dalej, ten telefon przełączy się na tego zawodnika; najpierw powstanie kopia Twojego obecnego profilu.</string>
+    <string name="online_restore_body_new">Znaleziono zapisany profil: %1$s. Jeśli przejdziesz dalej, wrócisz do publicznego rankingu jako ten rider; jego nazwa, flaga, awatar i statystyki przejazdów są publiczne. Nowy profil nie zostanie utworzony.</string>
+    <string name="online_restore_body_switch">Znaleziono inny zapisany profil: %1$s. Jeśli przejdziesz dalej, ten telefon przełączy się na tego ridera; najpierw powstanie kopia Twojego obecnego profilu.</string>
     <string name="online_restore_confirm">Kontynuuj jako %1$s</string>
     <string name="online_rejoin_title">Reaktywuj profil</string>
-    <string name="online_rejoin_body">Folder kopii zapasowej zawiera profil używany w rankingu.\n\nID zawodnika: %1$s</string>
+    <string name="online_rejoin_body">Folder kopii zapasowej zawiera profil używany w rankingu.\n\nID ridera: %1$s</string>
 
     <!-- ==== Overlay Studio ==== -->
     <string name="studio_open">Otwórz Overlay Studio</string>
