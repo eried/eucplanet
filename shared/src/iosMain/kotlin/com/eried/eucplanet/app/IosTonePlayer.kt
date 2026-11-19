@@ -140,6 +140,7 @@ internal object IosTonePlayer {
                 started = false
                 held = false
                 IosAudioSession.release(IosAudioSession.Others.LEAVE)
+                Log.i(TAG, "route rests")
             }
         }
     }

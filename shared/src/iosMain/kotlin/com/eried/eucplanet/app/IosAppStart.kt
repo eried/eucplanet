@@ -124,6 +124,17 @@ object IosAppStart {
                 }
             }
         }
+        // SIMCTL_CHILD_EUC_QUIET=20 makes a ride quiet, to watch the audio
+        // output go back to rest: no periodic report, and the output held awake
+        // for that many seconds after the last sound instead of two minutes.
+        // Saved, like any settings change.
+        (NSProcessInfo.processInfo.environment["EUC_QUIET"] as? String)?.toIntOrNull()?.let { secs ->
+            kotlinx.coroutines.runBlocking {
+                IosAppGraph.settings.update {
+                    it.copy(voicePeriodicEnabled = false, advanced = it.advanced.copy(alarmWarmRouteMs = secs * 1000))
+                }
+            }
+        }
         // SIMCTL_CHILD_EUC_SPLITS=both turns the speed splits on (accel, brake,
         // both; off turns them off), from 5 in steps of 5 so a virtual wheel
         // that tops out at 20 km/h crosses some. Saved, like any settings change.
