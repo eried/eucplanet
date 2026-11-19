@@ -2622,9 +2622,9 @@
     <string name="car_waiting_wheel">Menunggu EUC</string>
     <string name="car_weather">Cuaca</string>
     <string name="car_no_metrics">Tidak ada metrik dipilih</string>
-    <string name="car_alarm_channel_name">Alarm layar mobil</string>
+    <string name="car_alarm_channel_name">Alarm Android Auto</string>
     <string name="car_alarm_channel_description">Menampilkan alarm yang berbunyi di layar Android Auto, di atas peta.</string>
-    <string name="car_alarm_notifications">Alarm di layar mobil</string>
+    <string name="car_alarm_notifications">Alarm di layar Android Auto</string>
     <string name="car_alarm_notifications_hint">Alarm yang berbunyi tampil di atas peta, jadi tetap terlihat saat navigasi. Bip dan getaran tidak berubah.</string>
     <string name="car_navigate">Navigasi</string>
     <string name="car_places_title">Navigasi ke</string>

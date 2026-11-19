@@ -2834,9 +2834,9 @@
     <string name="car_no_places">Sla eerst Thuis of Werk op, of plan een route op de telefoon.</string>
     <string name="car_waiting_wheel">Wachten op het wiel</string>
     <string name="car_weather">Weer</string>
-    <string name="car_alarm_channel_name">Alarmen op het autoscherm</string>
+    <string name="car_alarm_channel_name">Android Auto-alarmen</string>
     <string name="car_alarm_channel_description">Toont een afgaand alarm op het Android Auto-scherm, over de kaart heen.</string>
-    <string name="car_alarm_notifications">Alarmen op het autoscherm</string>
+    <string name="car_alarm_notifications">Alarmen op het Android Auto-scherm</string>
     <string name="car_alarm_notifications_hint">Een afgaand alarm verschijnt over de kaart, zodat je het ook tijdens het navigeren ziet. Piep en trilling veranderen niet.</string>
     <string name="car_no_metrics">Geen meetwaarden geselecteerd</string>
     <string name="nav_solve_menu">Volgorde van stops optimaliseren</string>

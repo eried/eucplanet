@@ -2711,9 +2711,9 @@
     <string name="car_waiting_wheel">A aguardar a roda</string>
     <string name="car_weather">Meteorologia</string>
     <string name="car_no_metrics">Nenhuma métrica selecionada</string>
-    <string name="car_alarm_channel_name">Alarmes no ecrã do carro</string>
+    <string name="car_alarm_channel_name">Alarmes do Android Auto</string>
     <string name="car_alarm_channel_description">Mostra um alarme ativo no ecrã Android Auto, por cima do mapa.</string>
-    <string name="car_alarm_notifications">Alarmes no ecrã do carro</string>
+    <string name="car_alarm_notifications">Alarmes no ecrã Android Auto</string>
     <string name="car_alarm_notifications_hint">Um alarme ativo aparece por cima do mapa, para chegar até si durante a navegação. O bipe e a vibração não mudam.</string>
     <string name="car_navigate">Navegar</string>
     <string name="car_places_title">Navegar para</string>

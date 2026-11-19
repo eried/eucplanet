@@ -2636,9 +2636,9 @@
     <string name="car_no_places">Előbb mentsd el az Otthont vagy a Munkahelyet, vagy tervezz útvonalat a telefonon.</string>
     <string name="car_waiting_wheel">Várakozás az egykerekűre</string>
     <string name="car_weather">Időjárás</string>
-    <string name="car_alarm_channel_name">Riasztások az autó kijelzőjén</string>
+    <string name="car_alarm_channel_name">Android Auto-riasztások</string>
     <string name="car_alarm_channel_description">Megjeleníti az aktív riasztást az Android Auto kijelzőjén, a térkép felett.</string>
-    <string name="car_alarm_notifications">Riasztások az autó kijelzőjén</string>
+    <string name="car_alarm_notifications">Riasztások az Android Auto kijelzőjén</string>
     <string name="car_alarm_notifications_hint">Az aktív riasztás a térkép felett jelenik meg, így navigálás közben is eljut hozzád. A sípolás és a rezgés változatlan.</string>
     <string name="car_no_metrics">Nincs kiválasztott mérőszám</string>
     <string name="nav_solve_menu">Megállók sorrendjének optimalizálása</string>

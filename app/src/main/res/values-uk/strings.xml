@@ -2835,9 +2835,9 @@
     <string name="car_no_places">Спершу збережіть «Дім» чи «Робота» або сплануйте маршрут на телефоні.</string>
     <string name="car_waiting_wheel">Очікування колеса</string>
     <string name="car_weather">Погода</string>
-    <string name="car_alarm_channel_name">Тривоги на екрані авто</string>
+    <string name="car_alarm_channel_name">Тривоги Android Auto</string>
     <string name="car_alarm_channel_description">Показує тривогу на екрані Android Auto, поверх карти, коли вона спрацьовує.</string>
-    <string name="car_alarm_notifications">Тривоги на екрані авто</string>
+    <string name="car_alarm_notifications">Тривоги на екрані Android Auto</string>
     <string name="car_alarm_notifications_hint">Коли спрацьовує тривога, вона з\'являється поверх карти, тож ви побачите її під час навігації. Звук і вібрація без змін.</string>
     <string name="car_no_metrics">Показники не вибрано</string>
     <string name="nav_solve_menu">Оптимізувати порядок зупинок</string>

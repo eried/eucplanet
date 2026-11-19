@@ -2622,9 +2622,9 @@
     <string name="car_waiting_wheel">กำลังรอล้อ</string>
     <string name="car_weather">สภาพอากาศ</string>
     <string name="car_no_metrics">ไม่ได้เลือกค่า</string>
-    <string name="car_alarm_channel_name">สัญญาณเตือนบนหน้าจอรถ</string>
+    <string name="car_alarm_channel_name">สัญญาณเตือน Android Auto</string>
     <string name="car_alarm_channel_description">แสดงสัญญาณเตือนที่กำลังดังบนหน้าจอ Android Auto ทับแผนที่</string>
-    <string name="car_alarm_notifications">สัญญาณเตือนบนหน้าจอรถ</string>
+    <string name="car_alarm_notifications">สัญญาณเตือนบนหน้าจอ Android Auto</string>
     <string name="car_alarm_notifications_hint">สัญญาณเตือนที่กำลังดังจะแสดงทับแผนที่ เพื่อให้คุณเห็นขณะนำทาง เสียงบี๊บและการสั่นไม่เปลี่ยนแปลง</string>
     <string name="car_navigate">นำทาง</string>
     <string name="car_places_title">นำทางไปยัง</string>

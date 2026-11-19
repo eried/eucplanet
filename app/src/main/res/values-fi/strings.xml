@@ -2636,9 +2636,9 @@
     <string name="car_no_places">Tallenna ensin Koti tai Työ tai suunnittele reitti puhelimessa.</string>
     <string name="car_waiting_wheel">Odotetaan yksipyöräistä</string>
     <string name="car_weather">Sää</string>
-    <string name="car_alarm_channel_name">Hälytykset auton näytöllä</string>
+    <string name="car_alarm_channel_name">Android Auto -hälytykset</string>
     <string name="car_alarm_channel_description">Näyttää lauenneen hälytyksen Android Auto -näytöllä kartan päällä.</string>
-    <string name="car_alarm_notifications">Hälytykset auton näytöllä</string>
+    <string name="car_alarm_notifications">Hälytykset Android Auto -näytöllä</string>
     <string name="car_alarm_notifications_hint">Lauennut hälytys näkyy kartan päällä, joten se tavoittaa sinut navigoidessa. Piippaus ja värinä eivät muutu.</string>
     <string name="car_no_metrics">Ei valittuja mittareita</string>
     <string name="nav_solve_menu">Optimoi pysähdysten järjestys</string>

@@ -2828,9 +2828,9 @@
     <string name="car_no_places">먼저 집이나 직장을 저장하거나 휴대전화에서 경로를 계획하세요.</string>
     <string name="car_waiting_wheel">휠 연결 대기 중</string>
     <string name="car_weather">날씨</string>
-    <string name="car_alarm_channel_name">차량 화면 알람</string>
+    <string name="car_alarm_channel_name">Android Auto</string>
     <string name="car_alarm_channel_description">울리는 알람을 Android Auto 화면의 지도 위에 표시합니다.</string>
-    <string name="car_alarm_notifications">차량 화면 알람</string>
+    <string name="car_alarm_notifications">Android Auto 화면 알람</string>
     <string name="car_alarm_notifications_hint">알람이 울리면 지도 위에 표시되어 내비게이션 중에도 놓치지 않습니다. 비프음과 진동은 그대로입니다.</string>
     <string name="car_no_metrics">선택된 지표 없음</string>
     <string name="nav_solve_menu">경유지 순서 최적화</string>

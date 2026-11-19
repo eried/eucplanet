@@ -2795,9 +2795,9 @@
     <string name="car_waiting_wheel">Čaká sa na koleso</string>
     <string name="car_weather">Počasie</string>
     <string name="car_no_metrics">Nie sú vybrané žiadne metriky</string>
-    <string name="car_alarm_channel_name">Alarmy na obrazovke auta</string>
+    <string name="car_alarm_channel_name">Alarmy pre Android Auto</string>
     <string name="car_alarm_channel_description">Zobrazí spustený alarm na obrazovke Android Auto nad mapou.</string>
-    <string name="car_alarm_notifications">Alarmy na obrazovke auta</string>
+    <string name="car_alarm_notifications">Alarmy na obrazovke Android Auto</string>
     <string name="car_alarm_notifications_hint">Spustený alarm sa zobrazí nad mapou, takže vás zastihne aj počas navigácie. Pípanie a vibrácia sa nemenia.</string>
     <string name="car_navigate">Navigovať</string>
     <string name="car_places_title">Kam navigovať</string>

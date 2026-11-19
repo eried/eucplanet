@@ -42,7 +42,7 @@ ride, this is the branch.
 - Map: a GPX track (Organic Maps, BRouter...) opens locked and is ridden as drawn, with cues from its bends. Convert to stops makes it editable.
 - Map: Reverse route turns the stops round for the way back. Start far from a track rides you to its start first.
 - Menus: options that cannot run grey out instead of disappearing, and delete rows are red with a bin.
-- Android Auto: navigation on the car screen, with your four numbers beside it. Planned route rides a loaded track.
+- Android Auto: navigation on the Android Auto screen (the HUD), with your four numbers beside it. Planned route rides a loaded track.
 - HUD app update from the phone: the phone app carries the HUD app and sends it over the link on a tap, and the HUD goes straight to Android's install prompt, with no question of its own. It asks first when the HUD already runs that build, and leaves a newer HUD alone. The card and that question show both versions lined up, Installed (on the HUD) and Available (in the phone). Uninstall from the same card. The card also shows the address the HUD was reached at and whether it was found by Auto or Fixed. It slides in when the HUD links, and the discovery mode and address rows fold away while it is linked. The first install is still by cable.
 - HUD map: keeps working with the phone app in the background and no wheel connected. It now says when it is waiting for the phone GPS.
 - HUD map: no more white "Map data not yet available" screen. Where the map has no detail that deep it shows the closest zoom it has.
@@ -66,7 +66,7 @@ ride, this is the branch.
 - Dropbox: a few trips no longer upload again on every sync when nothing changed.
 - Trip Details: Compare (the two-arrow icon) puts another trip beside this one, like eucviewer. Auto lines them up, tiles and charts show both or the differences, the map marks the other trip.
 - Routing: bike routes come from Valhalla, which prefers quiet streets and paths (big-road share fell from 25% to 15% in tests). Walking with an avoid option keeps to footways.
-- Routing: a new route after a wrong turn comes in about 8 s instead of 22 s and continues the way you ride, no U-turn. Routes from the car screen or the navigation overlay keep your avoid settings.
+- Routing: a new route after a wrong turn comes in about 8 s instead of 22 s and continues the way you ride, no U-turn. Routes from the Android Auto screen or the navigation overlay keep your avoid settings.
 - Routing services: the Valhalla server has its own URL beside OSRM.
 - Offline areas (Settings, Navigation & weather): each 5 by 5 degree square brings a street map and routing, so routes, reroutes and turn cues work with no signal. By default they are the backup when the servers or the signal fail; "Prefer offline map and routing" uses them first. The map's Select chip picks Around me (about 50 km), Around me, wider (about 200 km) or My route, and asks first with the size. Squares come from our mirror on Hugging Face (routing and a map for every square), with GitHub as the backup and brouter.de last (routing only). Squares downloaded before their map existed get it from "Update all".
 - Offline map: sits under the map you picked (navigator, trip details, HUD, watch, Android Auto, video overlay) and shows through where online tiles fail, with "Offline" in bold at the top of the credit line and the map style button greyed; the online map returns by itself when the signal does. With "Prefer offline map and routing" on, downloaded squares show their own map even with signal. With no signal, search says so, and a tapped stop is named from the map.
@@ -144,7 +144,7 @@ ride, this is the branch.
 
 **Android Auto** (install from the Play internal sharing link, a sideloaded APK never shows in the car)
 - With the MotoEye running Android Auto, trip a wheel alarm (speed or PWM): does a card show over the map, and is the only sound the alarm's own beep?
-- Navigate from the car screen: turn-by-turn shows, and your four numbers beside it?
+- Navigate from the Android Auto screen: turn-by-turn shows, and your four numbers beside it?
 - Load a GPX track on the phone, then Places, Planned route in the car: does it follow the track?
 
 **HUD (MotoEye)**
