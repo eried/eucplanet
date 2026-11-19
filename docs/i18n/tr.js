@@ -68,6 +68,7 @@ window.EUC_I18N_DICT = {
 "a.ride-forecast-over-the-light-theme": "Açık temada sürüş tahmini, yanında canlı tema düzenleyici",
 "a.share-your-ride-live-with-a": "Sürüşünü bir grupla canlı paylaş",
 "a.android": "Android",
+"a.android-only": "Yalnızca Android",
 "a.wear-os-speed-dial": "Wear OS hız göstergesi",
 "a.wear-os-one-battery": "Tek pilli Wear OS hız göstergesi, turuncu",
 "a.wear-os-telemetry-detail": "Wear OS telemetri ayrıntısı",

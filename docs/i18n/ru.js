@@ -68,6 +68,7 @@ window.EUC_I18N_DICT = {
 "a.ride-forecast-over-the-light-theme": "Прогноз для катания в светлой теме, с открытым редактором темы",
 "a.share-your-ride-live-with-a": "Делись поездкой с группой в реальном времени",
 "a.android": "Android",
+"a.android-only": "Только для Android",
 "a.wear-os-speed-dial": "Спидометр на Wear OS",
 "a.wear-os-one-battery": "Спидометр на Wear OS с одной батареей, в оранжевом цвете",
 "a.wear-os-telemetry-detail": "Подробная телеметрия на Wear OS",

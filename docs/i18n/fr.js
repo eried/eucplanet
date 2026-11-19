@@ -68,6 +68,7 @@ window.EUC_I18N_DICT = {
 "a.ride-forecast-over-the-light-theme": "Prévisions de sortie en thème clair, avec l'éditeur de thème en direct ouvert",
 "a.share-your-ride-live-with-a": "Partager sa sortie en direct avec un groupe",
 "a.android": "Android",
+"a.android-only": "Uniquement sur Android",
 "a.wear-os-speed-dial": "Compteur de vitesse Wear OS",
 "a.wear-os-one-battery": "Compteur de vitesse Wear OS avec une batterie, en orange",
 "a.wear-os-telemetry-detail": "Détail de la télémétrie Wear OS",

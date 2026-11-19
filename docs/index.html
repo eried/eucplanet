@@ -15,6 +15,16 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
 <style>
+  /* Site look rules, for every page here:
+     1. Borders are neutral: white at low alpha (--border, --border-strong).
+        Never a coloured border or outline line, it reads as a thin blue
+        edge. Hover, focus and "this one is open" show as a lift and a
+        glow (--glow), and a border may only get a little brighter white.
+     2. A mouse click leaves no focus ring; the keyboard gets the glow.
+     3. Floating controls (toolbar, chips, the language gear) are the same
+        glass: dark panel at low alpha, blur, a neutral border.
+     4. A feature only one phone has carries the .os mark, and its tooltip
+        says so in words. */
   :root {
     --bg: #07090d;
     --panel: rgba(22, 27, 34, 0.55);
@@ -30,6 +40,7 @@
     --green-hi: #2ea043;
     --blue: #1f6feb;
     --blue-hi: #388bfd;
+    --glow: 0 14px 36px rgba(88, 166, 255, 0.22);
   }
 
   * { box-sizing: border-box; }
@@ -537,7 +548,7 @@
     backdrop-filter: blur(14px) saturate(1.1);
     -webkit-backdrop-filter: blur(14px) saturate(1.1);
     overflow: hidden;
-    transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+    transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
   }
   .card::before {
     content: "";
@@ -553,8 +564,9 @@
   }
   .card:hover {
     transform: translateY(-3px);
-    border-color: rgba(88, 166, 255, 0.35);
+    border-color: var(--border-strong);
     background: rgba(22, 27, 34, 0.7);
+    box-shadow: var(--glow);
   }
   .card h3 {
     font-size: 15px;
@@ -585,6 +597,29 @@
   }
   .os svg { width: 15px; height: 15px; display: block; }
   .os svg.off { color: var(--muted); opacity: 0.16; }
+  .os[data-tip] { position: relative; cursor: help; }
+  .os[data-tip]::after {
+    content: attr(data-tip);
+    position: absolute;
+    right: calc(100% + 8px);
+    top: 50%;
+    transform: translate(4px, -50%);
+    white-space: nowrap;
+    padding: 5px 9px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--text);
+    background: rgba(13, 17, 23, 0.92);
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 160ms ease, transform 160ms ease;
+  }
+  .section-head .os[data-tip]::after { right: auto; left: calc(100% + 8px); transform: translate(-4px, -50%); }
+  .os[data-tip]:hover::after, .os[data-tip].tip-on::after { opacity: 1; transform: translate(0, -50%); }
   .section-head .os { margin-left: 0; }
   /* Feature preview: a small phone screen next to the hovered card, placed
      by script where the window has room. It unfolds out of the point where
@@ -593,8 +628,8 @@
      and pans slowly up and down. Rounded corners come from clip-path, not
      from overflow on a radius, so the moving picture leaves no thin halo. */
   .card.has-shot { cursor: zoom-in; }
-  .card.has-shot:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  .card.has-shot.shown { border-color: rgba(88, 166, 255, 0.55); }
+  .card.has-shot:focus { outline: none; }
+  .card.has-shot:focus-visible, .card.has-shot.shown { box-shadow: var(--glow); }
   .shot-pop {
     position: fixed;
     left: 0; top: 0;
@@ -620,7 +655,7 @@
     position: absolute;
     inset: 0;
     clip-path: circle(0% at var(--ox, 0%) var(--oy, 50%));
-    opacity: 0.9;
+    opacity: 0.95;
     transition: clip-path 700ms cubic-bezier(0.65, 0, 0.25, 1);
   }
   .shot-pop.on .unfold { clip-path: circle(150% at var(--ox, 0%) var(--oy, 50%)); transition-duration: 800ms; }
@@ -705,7 +740,6 @@
   }
   .gallery-wear a:hover img {
     transform: translateY(-3px);
-    border-color: var(--accent-2);
     box-shadow: 0 10px 28px rgba(45, 212, 191, 0.3);
   }
 
@@ -941,7 +975,7 @@
     <div class="section-head">
       <span class="accent-dot"></span>
       <h2 data-i18n="h2.on-the-wrist">On the wrist</h2>
-      <span class="os" role="img" aria-label="Android" title="Android" data-i18n-attrs data-i18n-attr-aria-label="a.android" data-i18n-attr-title="a.android"><svg class="off"><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span>
+      <span class="os" role="img" tabindex="0" aria-label="Only on Android" data-tip="Only on Android" data-i18n-attrs data-i18n-attr-aria-label="a.android-only" data-i18n-attr-data-tip="a.android-only"><svg class="off"><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span>
       <span class="rule"></span>
     </div>
     <div class="gallery-wear">
@@ -981,7 +1015,7 @@
         <p data-i18n-html="fc.navigation.body">Multi-stop routes with turn-by-turn guidance. Bike routes prefer quiet streets, and a missed turn gets a new route in seconds. Download the areas you ride and the map, routes and turn cues keep working with no signal.</p>
       </div>
       <div class="card has-shot" tabindex="0" data-shots="f-watchset.webp|f-hudset.webp" data-f1="0.14" data-f2="0.4">
-        <h3><span data-i18n="fc.devices.title">Watch and helmet</span> <span class="os" role="img" aria-label="Android" title="Android" data-i18n-attrs data-i18n-attr-aria-label="a.android" data-i18n-attr-title="a.android"><svg class="off"><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
+        <h3><span data-i18n="fc.devices.title">Watch and helmet</span> <span class="os" role="img" tabindex="0" aria-label="Only on Android" data-tip="Only on Android" data-i18n-attrs data-i18n-attr-aria-label="a.android-only" data-i18n-attr-data-tip="a.android-only"><svg class="off"><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
         <p data-i18n-html="fc.devices.body">Your wheel's numbers off the phone: a Wear OS watch app, a <a href="https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71">Garmin watch or Edge data field</a>, an Amazfit dial, and a <a href="hud/">MotoEye or any Android helmet HUD</a>, also in Android Auto mode with the route.</p>
       </div>
       <div class="card has-shot" tabindex="0" data-shots="f-alarms-en.webp|f-alarms-es.webp|f-alarms-no.webp|f-alarms-zh.webp" data-f1="0.28" data-f2="0.66">
@@ -1024,7 +1058,7 @@
   <img alt="" src="">
 </div>
 
-<script src="js/i18n.js?v=7"></script>
+<script src="js/i18n.js?v=8"></script>
 <script>
   // Eyebrow Echo-trail cycle - RGB ghosting + smooth pill resize
   (function () {
@@ -1187,7 +1221,8 @@
     document.querySelectorAll('.gallery-featured a, .gallery-thumbs a, .gallery-wear a').forEach(function (a) {
       a.addEventListener('click', function (ev) {
         var href = a.getAttribute('href') || '';
-        if (!/\.(png|jpe?g|webp|gif)$/i.test(href)) return;
+        // A ?v= after the name (to skip an old cache) still counts as a picture.
+        if (!/\.(png|jpe?g|webp|gif)(\?.*)?$/i.test(href)) return;
         ev.preventDefault();
         var img = a.querySelector('img');
         var alt = img ? img.getAttribute('alt') : '';
@@ -1203,6 +1238,7 @@
       if (ev.key === 'Escape' && lb.classList.contains('open')) close();
     });
   })();
+
 
 
 
@@ -1338,6 +1374,17 @@
   window.addEventListener('scroll', function () { if (cur && cur.card) place(cur, cur.card); }, { passive: true });
   window.addEventListener('resize', function () { if (cur && cur.card) place(cur, cur.card); });
 })();
+
+// The Only-on-Android mark: hover shows its words; a tap does too, without
+// opening the card's preview.
+document.querySelectorAll('.os[data-tip]').forEach(function (m) {
+  m.addEventListener('click', function (ev) {
+    ev.stopPropagation();
+    m.classList.toggle('tip-on');
+    clearTimeout(m._t);
+    m._t = setTimeout(function () { m.classList.remove('tip-on'); }, 2200);
+  });
+});
 </script>
 
 </body>

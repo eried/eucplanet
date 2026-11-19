@@ -68,6 +68,7 @@ window.EUC_I18N_DICT = {
 "a.ride-forecast-over-the-light-theme": "Fahrwetter-Prognose im hellen Design, mit geöffnetem Live-Design-Editor",
 "a.share-your-ride-live-with-a": "Deine Fahrt live mit einer Gruppe teilen",
 "a.android": "Android",
+"a.android-only": "Nur für Android",
 "a.wear-os-speed-dial": "Wear OS-Tacho",
 "a.wear-os-one-battery": "Wear OS-Tacho mit einem Akku, in Orange",
 "a.wear-os-telemetry-detail": "Wear OS-Telemetriedetails",

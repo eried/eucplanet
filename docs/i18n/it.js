@@ -68,6 +68,7 @@ window.EUC_I18N_DICT = {
 "a.ride-forecast-over-the-light-theme": "Previsioni per il giro sul tema chiaro, con l'editor del tema aperto",
 "a.share-your-ride-live-with-a": "Condividi il tuo giro in diretta con un gruppo",
 "a.android": "Android",
+"a.android-only": "Solo su Android",
 "a.wear-os-speed-dial": "Tachimetro Wear OS",
 "a.wear-os-one-battery": "Tachimetro Wear OS con una batteria, in arancione",
 "a.wear-os-telemetry-detail": "Dettaglio telemetria Wear OS",
