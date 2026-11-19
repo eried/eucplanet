@@ -24,7 +24,7 @@
   var STORAGE_KEY = "eucplanet-lang";
   var COOKIE = "euc_lang";
   // Bump when any dictionary changes, so nobody keeps a stale one.
-  var DICT_VERSION = "2";
+  var DICT_VERSION = "3";
 
   // Native names, never translated.
   var LANGS = {
@@ -58,7 +58,7 @@
     "uk": "Українська",
     "vi": "Tiếng Việt",
     "zh": "中文 (简体)",
-    "zh-Hant": "中文 (繁體)"
+    "zh-TW": "中文 (繁體)"
   };
   function has(code) { return Object.prototype.hasOwnProperty.call(LANGS, code); }
 
@@ -77,7 +77,7 @@
     var region = (lc.split("-")[1] || "").toUpperCase();
     if (base === "en") return EN_GB.indexOf(region) >= 0 ? "en-GB" : "en";
     if (base === "pt") return PT_PT.indexOf(region) >= 0 ? "pt-PT" : "pt-BR";
-    if (base === "zh") return /(^|-)(tw|hk|mo|hant)(-|$)/.test(lc) ? "zh-Hant" : "zh";
+    if (base === "zh") return /(^|-)(tw|hk|mo|hant)(-|$)/.test(lc) ? "zh-TW" : "zh";
     if (base === "nb" || base === "nn" || base === "no") return "no";
     if (base === "in") return "id";
     if (base === "es") return LATAM.indexOf(region) >= 0 ? "es-419" : "es";
