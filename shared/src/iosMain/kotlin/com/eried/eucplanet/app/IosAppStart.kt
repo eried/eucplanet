@@ -120,7 +120,9 @@ object IosAppStart {
         (NSProcessInfo.processInfo.environment["EUC_ENGINE"] as? String)?.let { key ->
             kotlinx.coroutines.runBlocking {
                 IosAppGraph.settings.update {
-                    it.copy(engineSound = it.engineSound.copy(enabled = true, type = key))
+                    // =off turns the motor sound off again.
+                    if (key == "off") it.copy(engineSound = it.engineSound.copy(enabled = false))
+                    else it.copy(engineSound = it.engineSound.copy(enabled = true, type = key))
                 }
             }
         }
