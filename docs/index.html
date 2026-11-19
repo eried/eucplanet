@@ -611,7 +611,7 @@
     position: absolute;
     inset: 0;
     border-radius: 22px;
-    box-shadow: 0 22px 50px rgba(0, 0, 0, 0.55);
+    box-shadow: 0 22px 50px rgba(0, 0, 0, 0.45);
     opacity: 0;
     transition: opacity 400ms ease;
   }
@@ -620,6 +620,7 @@
     position: absolute;
     inset: 0;
     clip-path: circle(0% at var(--ox, 0%) var(--oy, 50%));
+    opacity: 0.9;
     transition: clip-path 700ms cubic-bezier(0.65, 0, 0.25, 1);
   }
   .shot-pop.on .unfold { clip-path: circle(150% at var(--ox, 0%) var(--oy, 50%)); transition-duration: 800ms; }
@@ -682,17 +683,18 @@
     width: 100%;
     height: auto;
     border-radius: 12px;
-    border: 1px solid var(--border-strong);
     background: #161b22;
     transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
     box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
   }
   .gallery-thumbs img { border-radius: 10px; }
-  .gallery-featured a:hover img, .gallery-thumbs a:hover img {
+  .gallery-featured a:hover img, .gallery-thumbs a:hover img,
+  .gallery-featured a:focus-visible img, .gallery-thumbs a:focus-visible img {
     transform: translateY(-3px) scale(1.02);
-    border-color: var(--accent);
     box-shadow: 0 14px 36px rgba(88, 166, 255, 0.25);
   }
+  .gallery-featured a, .gallery-thumbs a, .gallery-wear a { outline: none; -webkit-tap-highlight-color: transparent; }
+  .gallery-wear a:focus-visible img { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(45, 212, 191, 0.3); }
   .gallery-wear img {
     width: 100%;
     height: auto;
@@ -972,7 +974,7 @@
       </div>
       <div class="card has-shot" tabindex="0" data-shots="f-charging.webp|f-cells.webp" data-f1="0.4" data-f2="0.8">
         <h3><span data-i18n="fc.charging.title">Charging, cell by cell</span></h3>
-        <p data-i18n-html="fc.charging.body">A live charge curve with a prediction line you can scrub. On wheels with a smart BMS, a per-cell view shows cell voltages, pack imbalance and temperatures, so a weak cell shows up early.</p>
+        <p data-i18n-html="fc.charging.body">A live charge curve with a prediction line. On wheels with a smart BMS, a per-cell view shows cell voltages, pack imbalance and temperatures, so a weak cell shows up early.</p>
       </div>
       <div class="card has-shot" tabindex="0" data-shots="f-navigation.webp|f-offline.webp" data-f1="0.4" data-f2="0.66">
         <h3><span data-i18n="fc.navigation.title">Navigation, offline too</span></h3>
@@ -999,12 +1001,12 @@
         <p data-i18n-html="fc.group.body">Share a ride with a link or a QR code and see friends live on the map, with trails. End-to-end encrypted, with a web page for watching without the app. Opt in to the <a href="https://eucstats.ried.no/">EUC Stats leaderboard</a> to see how your distance ranks worldwide.</p>
       </div>
       <div class="card has-shot" tabindex="0" data-shots="f-weather.webp" data-f1="0.08" data-f2="0.4">
-        <h3><span data-i18n="fc.weather.title">Riding weather</span></h3>
-        <p data-i18n-html="fc.weather.body">A score for how the next hours look for riding, from rain, wind and gusts, cold, heat and night, weighted by how much you mind each one. Drag the curve to read any hour.</p>
+        <h3><span data-i18n="fc.weather.title">Weather forecast</span></h3>
+        <p data-i18n-html="fc.weather.body">A score for how the next hours look for riding, from rain, wind and gusts, cold, heat and night, weighted by how much you mind each one.</p>
       </div>
       <div class="card">
         <h3><span data-i18n="fc.private.title">Private, and yours to tune</span></h3>
-        <p data-i18n-html="fc.private.body">No analytics, no beacons, no in-app call-home. Rides stay on your device, with optional Dropbox backup to your own folder. An Advanced panel exposes the knobs behind every feature, each with a safe range and one-tap restore.</p>
+        <p data-i18n-html="fc.private.body">No analytics, no beacons, no in-app call-home. Rides stay on your device, with optional Dropbox backup to your own folder.</p>
       </div>
     </div>
   </section>
@@ -1022,7 +1024,7 @@
   <img alt="" src="">
 </div>
 
-<script src="js/i18n.js?v=6"></script>
+<script src="js/i18n.js?v=7"></script>
 <script>
   // Eyebrow Echo-trail cycle - RGB ghosting + smooth pill resize
   (function () {
@@ -1207,10 +1209,11 @@
 
 
 
+
 // Feature preview: the hovered (or tapped) card's screen in a small phone.
 // It sits beside the card if there is room, else below or above, always in
-// the window, and follows the card while the page scrolls. Two previews
-// take turns, so leaving a card folds its own away in place.
+// the window, and follows the card while the page scrolls. Each card gets a
+// preview of its own, so leaving a card folds its own away in place.
 (function () {
   var cards = document.querySelectorAll('.features .card.has-shot');
   if (!cards.length) return;
@@ -1220,9 +1223,21 @@
     p.setAttribute('aria-hidden', 'true');
     p.innerHTML = '<div class="unfold"><div class="win"></div></div>';
     document.body.appendChild(p);
-    return { el: p, win: p.querySelector('.win'), timer: null, wait: null, card: null };
+    return { el: p, win: p.querySelector('.win'), timer: null, wait: null, card: null, freeAt: 0 };
   }
-  var pops = [make(), make()], turn = 0, cur = null;
+  // A preview that was open keeps folding away where it was for a moment;
+  // only one that is done (or never opened) is used for the next card, and
+  // a new one is made when they are all still busy.
+  var pops = [make(), make()], cur = null;
+  function free() {
+    var now = Date.now();
+    for (var i = 0; i < pops.length; i++) {
+      if (pops[i] !== cur && !pops[i].card && pops[i].freeAt <= now) return pops[i];
+    }
+    var p = make();
+    pops.push(p);
+    return p;
+  }
   function clamp(v, lo, hi) { return Math.max(lo, Math.min(v, hi)); }
 
   function place(pop, card) {
@@ -1250,6 +1265,7 @@
   function close(pop) {
     clearTimeout(pop.wait);
     clearInterval(pop.timer);
+    pop.freeAt = pop.el.classList.contains('on') ? Date.now() + 900 : 0;
     pop.el.classList.remove('on');
     if (pop.card) pop.card.classList.remove('shown');
     pop.card = null;
@@ -1258,9 +1274,7 @@
   function show(card) {
     if (cur && cur.card === card) return;
     if (cur) close(cur);
-    turn = 1 - turn;
-    var pop = pops[turn];
-    close(pop);
+    var pop = free();
     cur = pop;
     pop.card = card;
     card.classList.add('shown');

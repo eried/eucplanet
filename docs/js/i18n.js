@@ -24,7 +24,7 @@
   var STORAGE_KEY = "eucplanet-lang";
   var COOKIE = "euc_lang";
   // Bump when any dictionary changes, so nobody keeps a stale one.
-  var DICT_VERSION = "6";
+  var DICT_VERSION = "7";
 
   // Native names, never translated.
   var LANGS = {
@@ -174,9 +174,11 @@
     style.textContent =
       ".site-cog{position:fixed;bottom:calc(14px + env(safe-area-inset-bottom, 0px));left:calc(14px + env(safe-area-inset-left, 0px));z-index:60;font:14px/1.3 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}" +
       ".site-cog button{width:38px;height:38px;border-radius:9px;display:grid;place-items:center;cursor:pointer;" +
-      "color:#e6edf3;background:rgba(22,27,34,.78);border:1px solid rgba(255,255,255,.16);" +
-      "-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);transition:border-color .2s ease}" +
-      ".site-cog button:hover,.site-cog.open button{border-color:rgba(88,166,255,.7)}" +
+      "color:#e6edf3;background:rgba(22,27,34,.65);border:1px solid rgba(255,255,255,.16);box-shadow:0 14px 40px rgba(0,0,0,.4);" +
+      "-webkit-backdrop-filter:blur(14px) saturate(1.1);backdrop-filter:blur(14px) saturate(1.1);" +
+      "transition:border-color .2s ease,opacity .4s ease,background .4s ease}" +
+      ".site-cog.far button{opacity:.45;background:rgba(22,27,34,.4);box-shadow:none}" +
+      ".site-cog button:hover,.site-cog.open button,.site-cog button:focus-visible{opacity:1;background:rgba(22,27,34,.65);border-color:rgba(88,166,255,.7)}" +
       ".site-cog button:focus-visible{outline:2px solid #58a6ff;outline-offset:2px}" +
       ".site-cog .panel{display:none;position:absolute;bottom:46px;left:0;min-width:200px;padding:12px;border-radius:12px;" +
       "color:#e6edf3;background:rgba(13,17,23,.96);border:1px solid rgba(255,255,255,.16);box-shadow:0 12px 32px rgba(0,0,0,.5)}" +
@@ -241,6 +243,11 @@
     document.addEventListener("keydown", function (ev) {
       if (ev.key === "Escape") open(false);
     });
+    // Like the toolbar while the page is at the top; once it scrolls, it
+    // fades back so it sits over the content without getting in the way.
+    function far() { box.classList.toggle("far", (window.scrollY || 0) > 120); }
+    window.addEventListener("scroll", far, { passive: true });
+    far();
     document.body.appendChild(box);
   }
 
