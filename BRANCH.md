@@ -9,6 +9,8 @@ ride, this is the branch.
 
 ## Worked on
 
+- Languages: a phone set to Traditional Chinese without a Taiwan, Hong Kong or Macau region now starts the app in 中文 (繁體) instead of Simplified, as the web sites do.
+- Headroom tile removed: it was offered as a dashboard tile but never showed a value. A dashboard that had it loses that tile; nothing else moves.
 - Headroom tile removed: it was offered as a dashboard tile but never showed a value. A dashboard that had it loses that tile, also inside a stacked tile; nothing else moves.
 - Two hints corrected, in every language: the settings backup says it holds your settings and alarm rules (not "everything"), and volume keys with the screen off says it works while EUC Planet is running.
 - Crew pass: scanning one from the Share screen now points you to the right place, Settings, Online leaderboards. It named a Crews section that Settings does not have. In every language.

@@ -131,7 +131,7 @@ object LocaleHelper {
      *  - es in a Latin American region        -> "es-419"
      *  - pt in Portugal or Portuguese Africa   -> "pt-PT", elsewhere "pt-BR"
      *  - in (Android's legacy Indonesian)     -> "id"
-     *  - zh in TW / HK / MO                   -> "zh-TW"
+     *  - zh in TW / HK / MO, or in Hant script -> "zh-TW"
      */
     fun detectSystemLanguage(): String {
         val sys = Locale.getDefault()
@@ -153,7 +153,10 @@ object LocaleHelper {
             primary == "pt" && region in setOf("PT", "AO", "MZ", "CV", "GW", "ST", "TL") -> "pt-PT"
             primary == "pt" -> "pt-BR"
             primary == "in" || primary == "id" -> "id"
-            primary == "zh" && region in setOf("TW", "HK", "MO") -> "zh-TW"
+            // The script counts too: a phone on "zh-Hant" with no region, or with one
+            // outside these three, still reads Traditional, as it does on the web.
+            primary == "zh" && (region in setOf("TW", "HK", "MO") ||
+                sys.script.equals("Hant", ignoreCase = true)) -> "zh-TW"
             primary in plainTags -> primary
             else -> "en"
         }
