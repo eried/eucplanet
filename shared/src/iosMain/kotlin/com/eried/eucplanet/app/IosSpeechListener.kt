@@ -185,6 +185,12 @@ internal class IosSpeechListener(private val languageTag: String) : VoiceListene
                 ?: sameLanguage.firstOrNull()
         }
 
+        /** The rider said no to either before, so iOS will not ask again. */
+        fun refused(): Boolean =
+            AVAudioSession.sharedInstance().recordPermission == AVAudioSessionRecordPermissionDenied ||
+                SFSpeechRecognizer.authorizationStatus() ==
+                SFSpeechRecognizerAuthorizationStatus.SFSpeechRecognizerAuthorizationStatusDenied
+
         /** The microphone and speech recognition are both allowed. */
         fun permitted(): Boolean =
             AVAudioSession.sharedInstance().recordPermission == AVAudioSessionRecordPermissionGranted &&

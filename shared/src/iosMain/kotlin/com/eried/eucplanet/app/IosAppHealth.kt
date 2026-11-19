@@ -242,6 +242,9 @@ internal object IosAppHealth : AppHealth {
     /** Android's id for the same entry (AppHealthRepository.PERM_MIC_ID). */
     private const val MIC_ID = "perm.microphone"
 
+    /** The app's own page in the iPhone's Settings. */
+    fun openSettings() = openAppSettings()
+
     private fun openAppSettings() {
         val url = NSURL.URLWithString(UIApplicationOpenSettingsURLString) ?: return
         UIApplication.sharedApplication.openURL(url, emptyMap<Any?, Any>(), null)

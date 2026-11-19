@@ -2,6 +2,8 @@ package com.eried.eucplanet.app
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -110,7 +112,31 @@ internal object IosSettingsHost : SettingsHost {
 
     // Spoken commands are not on iOS yet, so there is nothing to ask for.
     @Composable
-    override fun rememberMicPermission(): PermissionGate = PermissionGate(true) {}
+    override fun rememberMicPermission(): PermissionGate {
+        // The microphone and speech recognition, both needed to listen. Re-read
+        // on every return to the front, as Android re-reads on resume: the
+        // rider allows them in Settings and comes back.
+        var granted by androidx.compose.runtime.remember {
+            androidx.compose.runtime.mutableStateOf(IosSpeechListener.permitted())
+        }
+        DisposableEffect(Unit) {
+            val center = platform.Foundation.NSNotificationCenter.defaultCenter
+            val token = center.addObserverForName(
+                platform.UIKit.UIApplicationWillEnterForegroundNotification, null,
+                platform.Foundation.NSOperationQueue.mainQueue,
+            ) { _ -> granted = IosSpeechListener.permitted() }
+            onDispose { center.removeObserver(token) }
+        }
+        // Asked once by iOS; after a refusal only the app's page in Settings
+        // can change it, as Android after two refusals.
+        return PermissionGate(granted) {
+            if (IosSpeechListener.refused()) IosAppHealth.openSettings()
+            else IosSpeechListener.ask { ok ->
+                granted = ok
+                if (ok) IosAppHealth.microphoneGranted()
+            }
+        }
+    }
 
     @Composable
     override fun alarmViewModel(): AlarmViewModel = rememberViewModel { IosAppGraph.alarmViewModel() }
