@@ -12252,13 +12252,15 @@ internal fun engoWindowClock(windowDiv: Int, dashboardWindowSec: Int): String {
 @Composable
 private fun engoWindowOption(windowDiv: Int, dashboardWindowSec: Int): String {
     val name = when (com.eried.eucplanet.service.hud.engo.EngoPageBuilder.shareOf(windowDiv, dashboardWindowSec)) {
-        1 -> R.string.engo_window_full
-        2 -> R.string.engo_window_half
-        4 -> R.string.engo_window_quarter
-        8 -> R.string.engo_window_eighth
-        else -> R.string.engo_window_sixteenth
+        1 -> stringResource(R.string.engo_window_full)
+        2 -> stringResource(R.string.engo_window_half)
+        4 -> stringResource(R.string.engo_window_quarter)
+        8 -> stringResource(R.string.engo_window_eighth)
+        16 -> stringResource(R.string.engo_window_sixteenth)
+        // A number, the same in every language: "Thirty-second · 0:09" would read as 30 s.
+        else -> "1/32"
     }
-    return stringResource(name) + " · " + engoWindowClock(windowDiv, dashboardWindowSec)
+    return name + " · " + engoWindowClock(windowDiv, dashboardWindowSec)
 }
 
 /**

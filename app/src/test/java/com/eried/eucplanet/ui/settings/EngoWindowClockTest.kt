@@ -12,6 +12,7 @@ class EngoWindowClockTest {
         assertEquals("1:15", engoWindowClock(4, 300))
         assertEquals("0:38", engoWindowClock(8, 300))
         assertEquals("0:19", engoWindowClock(16, 300))
+        assertEquals("0:09", engoWindowClock(32, 300))
     }
 
     @Test fun `it follows the dashboard's length, never under five seconds`() {

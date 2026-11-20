@@ -108,7 +108,8 @@ class EngoPageBuilderTest {
     @Test
     fun noGraphLooksBackLessThanFiveSeconds() {
         // Only the shares of 5 s or more are offered; the whole length always is.
-        assertEquals(listOf(1, 2, 4, 8, 16), EngoPageBuilder.offeredDivs(300))
+        assertEquals(listOf(1, 2, 4, 8, 16, 32), EngoPageBuilder.offeredDivs(300))
+        assertEquals(listOf(1, 2, 4, 8, 16), EngoPageBuilder.offeredDivs(120))
         assertEquals(listOf(1, 2, 4, 8), EngoPageBuilder.offeredDivs(60))
         assertEquals(listOf(1, 2, 4), EngoPageBuilder.offeredDivs(30))
         assertEquals(listOf(1), EngoPageBuilder.offeredDivs(5))

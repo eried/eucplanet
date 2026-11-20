@@ -1332,7 +1332,7 @@ data class EngoHudSettings(
  * to show (a DashboardStat name: CURRENT, MAX, MIN, AVG, SUSTAINED_PEAK), how
  * it is drawn (an EngoStyle name: NUMBER, BLOCKS, SMOOTH, GRAPH) and, for a
  * graph, how much of the dashboard's stats length it looks back: the whole
- * ([windowDiv] 1), half (2), a quarter (4), an eighth (8) or a sixteenth (16),
+ * ([windowDiv] 1), half (2), a quarter (4), an eighth (8), a sixteenth (16) or 1/32,
  * never under 5 s (EngoPageBuilder.offeredDivs). The graph reads
  * the dashboard's own history, so it never asks for more than the dashboard
  * keeps. An empty [key] leaves the place empty.
@@ -1345,7 +1345,7 @@ data class EngoElement(
 )
 
 /** The shares of the dashboard's stats length a graph can look back: 1 is all of it. */
-val ENGO_WINDOW_DIVS: List<Int> = listOf(1, 2, 4, 8, 16)
+val ENGO_WINDOW_DIVS: List<Int> = listOf(1, 2, 4, 8, 16, 32)
 
 val DEFAULT_ENGO_ELEMENTS: List<EngoElement> = listOf(
     EngoElement("SPEED", style = "NUMBER"),
