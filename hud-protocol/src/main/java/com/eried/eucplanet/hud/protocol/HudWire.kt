@@ -209,7 +209,9 @@ data class HudState(
     val hudMapBrightnessPct: Int = 0,
 
     // --- Navigation popup mirror ---
-    /** Whether to render the turn-by-turn overlay/screen. */
+    /** Whether a route runs, so the turn badge and the Nav screen show the
+     *  next turn. True for the whole route, not only while the phone's own
+     *  turn popup is on screen. */
     val navActive: Boolean = false,
     /** Arrow angle in degrees, 0=straight up, +clockwise. */
     val navArrowAngleDeg: Float = 0f,
