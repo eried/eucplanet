@@ -483,8 +483,6 @@
     <string name="hud_server_enabled">Veri bağlantısını etkinleştir</string>
     <string name="hud_auto_start">HUD uygulamasını otomatik aç</string>
     <string name="hud_auto_start_desc">HUD açıldığında HUD uygulamasını açar. Kurulumdan sonra bir kez elle açın.</string>
-    <string name="hud_auto_start_test_desc">HUD uygulamasını kapatır ve 10 sn sonra yeniden açar.</string>
-    <string name="hud_auto_start_test_off">Test için anahtarı kapatın.</string>
     <string name="hud_ip_label">Cihaz IP</string>
     <string name="hud_ip_incomplete">Tam bir adres girin, örneğin 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">Cihaz IP (otomatik)</string>

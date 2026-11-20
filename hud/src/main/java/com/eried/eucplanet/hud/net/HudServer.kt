@@ -450,8 +450,6 @@ class HudServer(private val context: Context) {
                                         _state.value = s
                                         com.eried.eucplanet.hud.update.HudAutoStart
                                             .remember(context, s.autoStart)
-                                        com.eried.eucplanet.hud.update.HudAutoStart
-                                            .testIfNew(context, s.autoStartTestId)
                                         if (s.protocolMinor >= 27) {
                                             com.eried.eucplanet.hud.update.HudAutoStart
                                                 .drainNotes().forEach { sendCommand(HudCommand.Note(it)) }

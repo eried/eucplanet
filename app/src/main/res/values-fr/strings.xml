@@ -483,8 +483,6 @@
     <string name="hud_server_enabled">Activer la liaison de données</string>
     <string name="hud_auto_start">Ouvrir l\'app HUD automatiquement</string>
     <string name="hud_auto_start_desc">Ouvre l\'app HUD à l\'allumage du HUD. Après l\'installation, ouvrez-la une fois à la main.</string>
-    <string name="hud_auto_start_test_desc">Ferme l\'app HUD et la rouvre après 10 s.</string>
-    <string name="hud_auto_start_test_off">Désactivez l\'interrupteur pour tester.</string>
     <string name="hud_ip_label">IP de l\'appareil</string>
     <string name="hud_ip_incomplete">Saisissez une adresse complète, p. ex. 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">IP de l\'appareil (automatique)</string>

@@ -94,7 +94,7 @@
             </intent-filter>
         </receiver>
 
-        <!-- The planned retries after boot, and the phone's Test. -->
+        <!-- The planned opens of the app after boot. -->
         <receiver
             android:name=".update.HudRetryReceiver"
             android:exported="false" />

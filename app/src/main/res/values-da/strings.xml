@@ -483,8 +483,6 @@
     <string name="hud_server_enabled">Aktivér datalink</string>
     <string name="hud_auto_start">Åbn HUD-appen automatisk</string>
     <string name="hud_auto_start_desc">Åbner HUD-appen, når HUD tændes. Åbn den manuelt én gang efter installation.</string>
-    <string name="hud_auto_start_test_desc">Lukker HUD-appen og åbner den igen om 10 s.</string>
-    <string name="hud_auto_start_test_off">Slå kontakten fra for at teste.</string>
     <string name="hud_ip_label">Enheds-IP</string>
     <string name="hud_ip_incomplete">Skriv hele adressen, f.eks. 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">Enheds-IP (automatisk)</string>

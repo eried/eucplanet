@@ -488,8 +488,6 @@
     <string name="hud_server_enabled">Enable data link</string>
     <string name="hud_auto_start">Open HUD app automatically</string>
     <string name="hud_auto_start_desc">Opens the HUD app when the HUD powers on. After installing, open it by hand once.</string>
-    <string name="hud_auto_start_test_desc">Closes the HUD app, reopens it in 10 s.</string>
-    <string name="hud_auto_start_test_off">Turn the switch off to test.</string>
     <string name="engo_hud_enabled">ENGO glasses HUD</string>
     <string name="engo_scan_hint">Switch the glasses on. They link to one device at a time, so disconnect them from your watch or the ActiveLook app first.</string>
     <string name="engo_pages_title">Customize</string>
