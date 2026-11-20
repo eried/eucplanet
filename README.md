@@ -118,15 +118,14 @@ no signal.
   Map styles include Satellite hybrid, with road and place names over the imagery.
 
 **Watch and helmet.** <sub>Android only</sub> Your wheel's numbers off the phone:
-a Wear OS watch app, a
-[Garmin watch app](https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71) (Edge too),
-an Amazfit dial, and a [MotoEye or any Android helmet HUD](https://eucplanet.ried.no/hud/),
+watch apps for Wear OS, [Garmin](https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71) (watches and Edge)
+and Amazfit, and a [MotoEye or any Android helmet HUD](https://eucplanet.ried.no/hud/),
 also in Android Auto mode with the route.
 - **Wear OS** (3 or newer): speed dial, your batteries, horn and light
   remotes, the next turn and a map. Ridden with a Galaxy Watch Ultra, Galaxy
   Watch 5 Pro and TicWatch 3 Pro. Architecture in [docs/WEAR_OS_MAP.md](docs/WEAR_OS_MAP.md).
 - **Garmin**: a Connect IQ watch app with speed, battery, PWM, current and motor
-  temperature, on most modern Garmin watches (Edge too). Build it
+  temperature, on most modern Garmin watches and on Edge. Build it
   yourself from [docs/GARMIN_SETUP.md](docs/GARMIN_SETUP.md).
 - **Amazfit (Zepp OS)**: speed gauge, PWM, your batteries, horn and light
   remotes, the next turn and the physical buttons. Tested on the T-Rex 3, built
@@ -214,7 +213,7 @@ Rides stay on your device, with optional Dropbox backup to your own folder.
 - In your language, the whole app, with regional versions where riders asked for
   them: English (US and UK), Spanish (Spain and Latin America), Portuguese
   (Brazil and Portugal), and Simplified and Traditional Chinese. English only by
-  design: the Garmin and Amazfit dials, the helmet HUD, the ENGO glasses page and
+  design: the Garmin and Amazfit apps, the helmet HUD, the ENGO glasses page and
   Service Mode.
 
 ---
@@ -230,7 +229,7 @@ On an iPhone, the app is in beta: join it on
 [TestFlight](https://testflight.apple.com/join/8VrhGCrm). It is the same app;
 the few things marked <sub>Android only</sub> above are not on the iPhone yet.
 
-On a Garmin watch (or Edge), install the EUC Planet app straight from the
+On a Garmin watch or Edge, install the EUC Planet app straight from the
 [Connect IQ Store](https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71).
 On an Amazfit watch, follow [docs/AMAZFIT_SETUP.md](docs/AMAZFIT_SETUP.md).
 
