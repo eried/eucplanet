@@ -413,8 +413,10 @@ object SettingsJson {
             put("autoConnect", s.engoHud.autoConnect)
             put("pairedAddress", s.engoHud.pairedAddress)
             put("pairedName", s.engoHud.pairedName)
-            put("metricLeft", s.engoHud.metricLeft)
-            put("metricRight", s.engoHud.metricRight)
+            put("layout", s.engoHud.layout)
+            put("elements", org.json.JSONArray().apply { s.engoHud.elements.forEach { put(engoElementJson(it)) } })
+            put("font", s.engoHud.font)
+            put("digitalGhost", s.engoHud.digitalGhost)
             put("navTakeover", s.engoHud.navTakeover)
         })
         put("keepAppAlive", s.keepAppAlive)
@@ -905,8 +907,14 @@ object SettingsJson {
                 autoConnect = e.optBoolean("autoConnect", base.engoHud.autoConnect),
                 pairedAddress = e.optStringOrNull("pairedAddress", base.engoHud.pairedAddress),
                 pairedName = e.optStringOrNull("pairedName", base.engoHud.pairedName),
-                metricLeft = e.optString("metricLeft", base.engoHud.metricLeft),
-                metricRight = e.optString("metricRight", base.engoHud.metricRight),
+                layout = e.optString("layout", base.engoHud.layout),
+                elements = e.optJSONArray("elements")?.let { arr ->
+                    base.engoHud.elements.indices.map { i ->
+                        arr.optJSONObject(i)?.let { engoElementOf(it) } ?: base.engoHud.elements[i]
+                    }
+                } ?: base.engoHud.elements,
+                font = e.optString("font", base.engoHud.font),
+                digitalGhost = e.optBoolean("digitalGhost", base.engoHud.digitalGhost),
                 navTakeover = e.optBoolean("navTakeover", base.engoHud.navTakeover),
             )
         } ?: base.engoHud,
@@ -1081,4 +1089,19 @@ object SettingsJson {
         isNull(key) -> null
         else -> optString(key, fallback ?: "")
     }
+
+    private fun engoElementJson(el: com.eried.eucplanet.data.model.EngoElement) = JSONObject().apply {
+        put("key", el.key)
+        put("stat", el.stat)
+        put("style", el.style)
+        put("window", el.windowSec)
+    }
+
+    private fun engoElementOf(j: JSONObject) = com.eried.eucplanet.data.model.EngoElement(
+        key = j.optString("key", ""),
+        stat = j.optString("stat", "CURRENT"),
+        style = j.optString("style", "BLOCKS"),
+        // Only the windows the picker offers, so a stray value cannot ask for a graph nobody can set.
+        windowSec = j.optInt("window", 15).takeIf { it in com.eried.eucplanet.data.model.ENGO_WINDOWS_SEC } ?: 15,
+    )
 }

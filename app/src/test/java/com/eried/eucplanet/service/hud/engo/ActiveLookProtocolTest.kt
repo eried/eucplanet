@@ -105,4 +105,13 @@ class ActiveLookProtocolTest {
         assertEquals("declared == actual", f.size, declared)
         assertEquals("footer", 0xAA.toByte(), f.last())
     }
+
+    @Test
+    fun polyline_shortFormEveryFirmwareReads() {
+        // FF 38 00 len, then x0 y0 x1 y1 x2 y2 as s16, no thickness bytes, AA.
+        assertEquals(
+            "ff 38 00 11 00 01 00 02 00 03 00 04 ff fb 00 06 aa",
+            hex(ActiveLookProtocol.polyline(intArrayOf(1, 2, 3, 4, -5, 6))),
+        )
+    }
 }

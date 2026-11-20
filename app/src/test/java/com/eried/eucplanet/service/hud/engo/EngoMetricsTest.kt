@@ -1,38 +1,57 @@
 package com.eried.eucplanet.service.hud.engo
 
+import com.eried.eucplanet.data.model.MetricCatalog
+import com.eried.eucplanet.data.model.MetricRegistry
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
-/** The two corners of the ride page: what the rider picked, as ASCII. */
 class EngoMetricsTest {
 
-    private fun cell(key: String) = EngoMetrics.cell(
-        key, batteryPct = 78, temp = 38, tempUnit = "C",
-        voltage = 83.46f, current = 12.6f, trip = 4.25f, distanceUnit = "km",
-    )
-
-    @Test fun `each pick has a tag and a value`() {
-        assertEquals(EngoCell("BATT", "78%"), cell(EngoMetrics.BATTERY))
-        assertEquals(EngoCell("TEMP", "38C"), cell(EngoMetrics.TEMPERATURE))
-        assertEquals(EngoCell("VOLT", "83.5V"), cell(EngoMetrics.VOLTAGE))
-        assertEquals(EngoCell("AMPS", "13A"), cell(EngoMetrics.CURRENT))
-        assertEquals(EngoCell("TRIP", "4.3km"), cell(EngoMetrics.TRIP))
-    }
-
-    @Test fun `none leaves the corner empty`() {
-        assertEquals(EngoCell.EMPTY, cell(EngoMetrics.NONE))
-    }
-
-    @Test fun `a key the glasses cannot show falls back`() {
-        assertEquals(EngoMetrics.BATTERY, EngoMetrics.known("PITCH", EngoMetrics.BATTERY))
-        assertEquals(EngoMetrics.NONE, EngoMetrics.known(EngoMetrics.NONE, EngoMetrics.BATTERY))
-        assertEquals(EngoMetrics.TRIP, EngoMetrics.known(EngoMetrics.TRIP, EngoMetrics.BATTERY))
-    }
-
-    @Test fun `every pick fits the ASCII the glasses draw`() {
-        for (key in EngoMetrics.KEYS) {
-            val c = cell(key)
-            assertEquals(true, (c.tag + c.value).all { it.code in 32..126 })
+    @Test
+    fun everyOfferedKeyIsACatalogAndRegistryMetric() {
+        // Drift guard: a key renamed in the catalog must not leave the glasses offering a dead one.
+        for (k in EngoMetrics.KEYS) {
+            assertNotNull("catalog $k", MetricCatalog.byKey(k))
+            assertNotNull("registry $k", MetricRegistry.byKey(k))
         }
+    }
+
+    @Test
+    fun everyTitleFitsItsColumn_inEveryUnitAndStatistic() {
+        val unitSets = listOf(
+            EngoMetrics.Units(),
+            EngoMetrics.Units(speed = "mph", temp = "F", distance = "mi"),
+            EngoMetrics.Units(speed = "ms", temp = "K"),
+        )
+        for (u in unitSets) for (k in EngoMetrics.KEYS) for (s in EngoMetrics.STATS) {
+            val t = EngoMetrics.title(k, s, u)
+            assertTrue("'$t' for $k $s too wide", EngoPixelFont.width(t, 2) <= 86)
+            assertTrue("'$t' has a glyph for every character", t.all { EngoPixelFont.supports(it) })
+        }
+    }
+
+    @Test
+    fun titles() {
+        val u = EngoMetrics.Units()
+        assertEquals("TOP", EngoMetrics.title("SPEED", "MAX", u))
+        assertEquals("KM/H", EngoMetrics.title("SPEED", "CURRENT", u))
+        assertEquals("PWM %", EngoMetrics.title("LOAD", "CURRENT", u))
+        assertEquals("MAX PWM", EngoMetrics.title("LOAD", "MAX", u))
+        assertEquals("MOT°F", EngoMetrics.title("MOTOR_TEMP", "CURRENT", EngoMetrics.Units(temp = "F")))
+        assertEquals("AVG SPD", EngoMetrics.title("SPEED", "AVG", u))
+    }
+
+    @Test
+    fun digitsOnlyFromTheAppsOwnFormatting() {
+        assertEquals("58", EngoMetrics.digits("58°C"))
+        assertEquals("83.5", EngoMetrics.digits("83.5V"))
+        assertEquals("83.5", EngoMetrics.digits("83,5V"))
+        assertEquals("-12.0", EngoMetrics.digits("-12.0A"))
+        assertEquals("92:40", EngoMetrics.digits("92:40"))
+        assertEquals("--", EngoMetrics.digits("-"))
+        assertEquals("112", EngoMetrics.digits("112.0A"))
+        assertEquals("-123", EngoMetrics.digits("-123.4"))
     }
 }

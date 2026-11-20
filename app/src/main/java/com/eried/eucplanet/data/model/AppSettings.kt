@@ -1314,12 +1314,40 @@ data class EngoHudSettings(
     val pairedAddress: String? = null,
     val pairedName: String? = null,
     val autoConnect: Boolean = true,
-    /** The number in the ride page's bottom left corner, an EngoMetrics key. */
-    val metricLeft: String = "BATTERY",
-    /** The number in the ride page's bottom right corner. */
-    val metricRight: String = "TEMPERATURE",
-    /** Whether the next turn takes the screen while a route is guided. */
+    /** The ride page's layout, an EngoLayoutKind name (COCKPIT, BIG, QUAD, TURN, MINIMAL). */
+    val layout: String = "COCKPIT",
+    /** What each numbered element shows, element 1 first; kept by number across layouts. */
+    val elements: List<EngoElement> = DEFAULT_ENGO_ELEMENTS,
+    /** The numbers' font, an EngoFontStyle name (PIXEL, DIGITAL, BOLD). */
+    val font: String = "PIXEL",
+    /** With the Digital font, each digit's dark segments drawn faintly, like a wheel's display. */
+    val digitalGhost: Boolean = true,
+    /** Whether the next turn shows while a route is guided: Cockpit's corner,
+     *  or the Turn layout taking over the others. The Turn layout always shows it. */
     val navTakeover: Boolean = true,
+)
+
+/**
+ * One element of the glasses page: a metric catalog key, the statistic of it
+ * to show (a DashboardStat name: CURRENT, MAX, MIN, AVG, SUSTAINED_PEAK), how
+ * it is drawn (an EngoStyle name: NUMBER, BLOCKS, SMOOTH, GRAPH) and, for a
+ * graph, how many seconds it looks back (0 follows the dashboard's rolling
+ * window). An empty [key] leaves the place empty.
+ */
+data class EngoElement(
+    val key: String,
+    val stat: String = "CURRENT",
+    val style: String = "BLOCKS",
+    val windowSec: Int = 15,
+)
+
+/** The graph windows a rider can pick, in seconds; 0 follows the dashboard's rolling window. */
+val ENGO_WINDOWS_SEC: List<Int> = listOf(5, 15, 30, 60, 300, 0)
+
+val DEFAULT_ENGO_ELEMENTS: List<EngoElement> = listOf(
+    EngoElement("SPEED", style = "NUMBER"),
+    EngoElement("SPEED", "MAX", style = "NUMBER"),
+    EngoElement("BATTERY"), EngoElement("LOAD"), EngoElement("TEMPERATURE"),
 )
 
 /**
