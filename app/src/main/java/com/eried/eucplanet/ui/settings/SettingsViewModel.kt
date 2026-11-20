@@ -938,13 +938,13 @@ class SettingsViewModel(
     fun updateEngoForget() = update {
         copy(engoHud = engoHud.copy(enabled = false, pairedAddress = null, pairedName = null))
     }
-    fun updateEngoTop(slot: com.eried.eucplanet.data.model.EngoSlot) =
-        update { copy(engoHud = engoHud.copy(top = slot)) }
-    fun updateEngoSlot(i: Int, slot: com.eried.eucplanet.data.model.EngoSlot) = update {
-        val slots = (0 until 3).map { k -> engoHud.slots.getOrNull(k) ?: com.eried.eucplanet.data.model.EngoSlot("") }
-        copy(engoHud = engoHud.copy(slots = slots.mapIndexed { k, s -> if (k == i) slot else s }))
+    fun updateEngoLayout(name: String) = update { copy(engoHud = engoHud.copy(layout = name)) }
+    fun updateEngoFont(name: String) = update { copy(engoHud = engoHud.copy(font = name)) }
+    fun updateEngoElement(i: Int, el: com.eried.eucplanet.data.model.EngoElement) = update {
+        val defaults = com.eried.eucplanet.data.model.DEFAULT_ENGO_ELEMENTS
+        val all = defaults.indices.map { k -> engoHud.elements.getOrNull(k) ?: defaults[k] }
+        copy(engoHud = engoHud.copy(elements = all.mapIndexed { k, e -> if (k == i) el else e }))
     }
-    fun updateEngoGraphs(v: Boolean) = update { copy(engoHud = engoHud.copy(graphs = v)) }
     fun updateEngoNavTakeover(v: Boolean) = update { copy(engoHud = engoHud.copy(navTakeover = v)) }
 
     fun updateNotificationActionsEnabled(v: Boolean) =

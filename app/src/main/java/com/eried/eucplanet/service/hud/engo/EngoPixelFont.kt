@@ -120,9 +120,10 @@ object EngoPixelFont {
 
     /**
      * Horizontal runs per row, then runs repeated on the rows below folded
-     * into one taller rectangle.
+     * into one taller rectangle: each (x, y, w, h) in cells. Shared with the
+     * bold number font, drawn the same way.
      */
-    private fun merge(rows: List<String>): List<IntArray> {
+    internal fun merge(rows: List<String>): List<IntArray> {
         val out = ArrayList<IntArray>()
         // Open rectangles keyed by their run (start, end): y0 and height so far.
         var open = HashMap<Pair<Int, Int>, IntArray>()

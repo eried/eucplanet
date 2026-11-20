@@ -42,6 +42,13 @@ class EngoHudRenderer(
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     @Volatile private var job: Job? = null
+    @Volatile private var feedJob: Job? = null
+
+    /** Every wheel update of the metrics the page graphs, for windows under a minute. */
+    private val fast = EngoFastHistory()
+
+    /** The metrics a short-window graph on the page draws now; the wheel feed records only these. */
+    @Volatile private var fastKeys: Set<String> = emptySet()
     /** What the glasses show now; null after a (re)connect, so the next frame is whole. */
     @Volatile private var last: List<EngoLayout.EngoWidget>? = null
     @Volatile private var lastColor = false
@@ -51,6 +58,15 @@ class EngoHudRenderer(
         if (job != null) return
         last = null
         lastSearchAtMs = 0L
+        fast.clear()
+        feedJob = scope.launch {
+            wheelRepository.wheelData.collect { d ->
+                val keys = fastKeys
+                if (keys.isEmpty()) return@collect
+                val now = System.currentTimeMillis()
+                for (k in keys) MetricRegistry.read(k, d)?.let { fast.record(k, now, it) }
+            }
+        }
         job = scope.launch {
             while (isActive) {
                 // Glasses switched off, out of range or Bluetooth off: keep
@@ -87,6 +103,9 @@ class EngoHudRenderer(
     fun stop() {
         job?.cancel()
         job = null
+        feedJob?.cancel()
+        feedJob = null
+        fast.clear()
         last = null
         adapter.disconnect()
     }
@@ -98,6 +117,10 @@ class EngoHudRenderer(
         val wheelConnected = wheelRepository.connectionState.value == ConnectionState.CONNECTED
         val nav = navigationEngine.navState.value
         val h = wheelRepository.fullHistory.value
+        val dashSec = settings.dashboardRollingWindowSeconds
+        fastKeys = fastKeysOf(settings.engoHud, dashSec)
+        fast.retain(fastKeys)
+        val now = System.currentTimeMillis()
         return EngoPageBuilder.build(
             engo = settings.engoHud,
             units = EngoMetrics.units(settings),
@@ -106,10 +129,22 @@ class EngoHudRenderer(
             connected = wheelConnected,
             current = { key -> MetricRegistry.read(key, d) },
             history = { key -> historyOf(h, key) },
+            recent = { key, windowMs ->
+                if (windowMs < fast.coversMs) fast.since(key, now - windowMs)
+                else historyOf(h, key).filter { it.timestampMs >= now - windowMs }
+            },
             nav = if (nav.active) EngoNav(mapArrow(nav.arrow), nav.distanceText.uppercase()) else null,
-            nowMs = System.currentTimeMillis(),
+            nowMs = now,
+            dashboardWindowSec = dashSec,
         )
     }
+
+    /** The metrics drawn as a graph shorter than the fast buffer, on any element the page may show. */
+    private fun fastKeysOf(engo: com.eried.eucplanet.data.model.EngoHudSettings, dashSec: Int): Set<String> =
+        engo.elements.filter {
+            it.key.isNotBlank() && it.style == EngoStyle.GRAPH.name &&
+                EngoPageBuilder.windowMs(it.windowSec, dashSec) < fast.coversMs
+        }.mapTo(HashSet()) { it.key }
 
     private fun historyOf(h: com.eried.eucplanet.data.repository.FullMetricHistory, key: String): List<MetricSample> =
         when (key) {

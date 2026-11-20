@@ -6,24 +6,19 @@ package com.eried.eucplanet.service.hud.engo
  * [EngoPageBuilder] fills it from the live wheel, the history buffers and
  * navigation.
  *
- * Top left the next turn, centre the speed, top right one reading the rider
- * picked, and a row of three readings along the bottom, each a title, a bar or
- * a graph, and a number centred under them.
+ * The rider picks a layout ([EngoLayouts]) and what each of its numbered
+ * elements shows; element 1 always has the biggest place.
  */
 data class EngoPage(
     val connected: Boolean,
-    /** The speed in the rider's unit, digits only ("42"), or "--". */
-    val speed: String,
-    /** The speed unit under it ("KM/H"). */
-    val speedUnit: String,
-    /** The reading in the top right corner; null leaves it empty. */
-    val top: EngoReading?,
-    /** The three readings along the bottom, left to right; null leaves one empty. */
-    val bottom: List<EngoReading?>,
-    /** Graphs of the last minute instead of bars. */
-    val graphs: Boolean,
-    /** The next turn, while a route is guided and turns are on. */
+    val layout: EngoLayoutKind,
+    /** Element 1 first; null leaves that element's place empty. */
+    val elements: List<EngoReading?>,
+    val font: EngoFontStyle = EngoFontStyle.PIXEL,
+    /** The next turn while a route is guided, null otherwise. */
     val nav: EngoNav? = null,
+    /** The rider's "show turns while navigating". */
+    val turnsOn: Boolean = true,
 )
 
 /** One reading: a short title, its number, and how full its bar or graph is. */
@@ -34,9 +29,11 @@ data class EngoReading(
     val value: String,
     /** How full the bar is, 0..1; null draws it empty. */
     val level: Float? = null,
-    /** The last minute, oldest first, each 0..1 of the graph's height. */
+    /** The graph's window, oldest first, each 0..1 of the graph's height. */
     val series: List<Float> = emptyList(),
     val band: EngoBand = EngoBand.NORMAL,
+    /** How the rider wants it drawn; a place without room for it draws the number alone. */
+    val style: EngoStyle = EngoStyle.NUMBER,
 )
 
 /** A reading's colour: plain, or the rider's PWM gauge bands. */

@@ -1,25 +1,20 @@
 package com.eried.eucplanet.service.hud.engo
 
+import kotlin.math.roundToInt
+
 /**
  * Pure layout for the ENGO ride page: an [EngoPage] becomes a list of
  * [EngoWidget]s, each a box on the panel and the ActiveLook commands that draw
  * it. No Android, no state - unit-tested, and rendered to pictures by
  * [EngoRaster] for the settings preview.
  *
- *     +---------------------------------------+
- *     | turn       SPEED            TOP       |
- *     | 120 M       42              87        |
- *     |            KM/H                       |
- *     |                                       |
- *     | PWM %     | BAT %      | MOT C        |
- *     | ######### | #######    | ####         |
- *     |    58     |    76      |    58        |
- *     +---------------------------------------+
- *
- * Everything is laid out as the rider sees it, (0,0) top-left. The optics
- * mirror the panel, so the device origin is the rider's bottom-right: every
- * point is flipped once, in [dx]/[dy]. Text is drawn by [EngoPixelFont] as
- * rectangles, so its size is exact and numbers centre under their titles.
+ * Where each element goes comes from [EngoLayouts]: the rider's layout, or the
+ * Turn layout while a route is guided. Everything is laid out as the rider
+ * sees it, (0,0) top-left. The optics mirror the panel, so the device origin
+ * is the rider's bottom-right: every point is flipped once, in [dx]/[dy].
+ * Text is drawn as rectangles ([EngoPixelFont] for titles, the rider's
+ * [EngoFonts] choice for numbers), so its size is exact and numbers centre
+ * under their titles.
  *
  * The first frame draws every widget; after that [delta] erases and redraws
  * only the widgets whose commands changed, so a new speed costs a few hundred
@@ -29,44 +24,6 @@ object EngoLayout {
     const val W = 304
     const val H = 256
 
-    // --- rider-view layout, all boxes inclusive ---
-    private const val SPEED_X0 = 84
-    private const val SPEED_X1 = 220
-    private const val SPEED_Y0 = 24
-    private const val SPEED_Y1 = 94
-    private const val SPEED_MAX_SCALE = 10
-    private const val UNIT_Y = 98
-    // Top right: the title runs above the speed's row so a "MAX PWM" fits; the
-    // pair is right-aligned to the panel edge, mirroring the turn on the left.
-    private const val TOP_TITLE_X0 = 196
-    private const val TOP_X0 = 224
-    private const val TOP_X1 = 288
-    private const val TOP_TITLE_Y = 8
-    private const val TOP_VALUE_Y = 28
-    private const val TOP_MAX_SCALE = 5
-    private const val NAV_X0 = 16
-    private const val NAV_Y0 = 14
-    private const val NAV_X1 = 80
-    private const val NAV_ARROW_Y1 = 60
-    private const val NAV_Y1 = 92
-    private const val NAV_CX = 40
-    private const val NAV_CY = 36
-    private const val NAV_R = 18
-    private const val NAV_TEXT_Y = 64
-    private const val COL_X0 = 14
-    private const val COL_W = 86
-    private const val COL_STEP = 95
-    private const val TITLE_Y = 145
-    private const val BAR_Y0 = 170
-    private const val BAR_Y1 = 183
-    private const val BAR_SEGMENTS = 8
-    private const val BAR_SEG_W = 8
-    private const val BAR_GAP = 3
-    private const val GRAPH_Y0 = 166
-    private const val GRAPH_Y1 = 188
-    private const val VALUE_Y0 = 196
-    private const val VALUE_H = 28
-    private const val VALUE_MAX_SCALE = 4
     private const val LABEL_SCALE = 2
 
     // RG colours (ENGO 3): the ActiveLook 81-colour palette code, red levels in
@@ -129,17 +86,70 @@ object EngoLayout {
         a.size == b.size && a.indices.all { a[it].contentEquals(b[it]) }
 
     fun widgets(p: EngoPage, caps: EngoCaps): List<EngoWidget> {
+        val navigating = p.nav != null
+        val spec = EngoLayouts.resolve(p.layout, navigating, p.turnsOn)
+        val nav = if (EngoLayouts.showsTurn(p.layout, navigating, p.turnsOn)) p.nav else null
         val ws = ArrayList<EngoWidget>()
         ws += frame(caps)
-        ws += dividers(caps)
-        ws += navWidgets(p.nav, caps)
-        ws += speedWidget(p, caps)
-        ws += EngoWidget("unit", listOf(intArrayOf(SPEED_X0, UNIT_Y - 2, SPEED_X1, UNIT_Y + 15)),
-            listOf(pen(RG_LABEL, G_LABEL, caps)) +
-                textCentered(p.speedUnit, (SPEED_X0 + SPEED_X1) / 2, UNIT_Y, LABEL_SCALE, SPEED_X1 - SPEED_X0))
-        ws += topWidgets(p.top, p.connected, caps)
-        for (i in 0 until 3) ws += column(i, p.bottom.getOrNull(i), p.graphs, caps)
+        if (spec.dividers.isNotEmpty()) ws += dividers(spec.dividers, caps)
+        spec.turn?.let { ws += turnWidgets(it, nav, caps) }
+        val big = bigNumbers(spec, p)
+        val heights = numberHeights(spec, p, big)
+        for (spot in spec.spots) {
+            ws += spotWidgets(spot, p.elements.getOrNull(spot.element), p.font,
+                heights[spot.element] ?: 0, spot.element in big, caps)
+        }
         return ws
+    }
+
+    // --- sizing ---
+
+    /** The style a place draws: the rider's, when the place has room for it. */
+    private fun styleIn(spot: EngoLayouts.Spot, r: EngoReading?): EngoStyle =
+        r?.style?.takeIf { it in spot.styles } ?: EngoStyle.NUMBER
+
+    /**
+     * The elements whose number takes the room a bar or graph would have: a
+     * number-only place, unless it sits in a row with bars or graphs, where it
+     * keeps the row's line so titles, bands and numbers stay aligned.
+     */
+    private fun bigNumbers(spec: EngoLayouts.Spec, p: EngoPage): Set<Int> {
+        fun numberOnly(s: EngoLayouts.Spot) = styleIn(s, p.elements.getOrNull(s.element)) == EngoStyle.NUMBER
+        return spec.spots.filter { spot ->
+            numberOnly(spot) && (spot.group == 0 || spec.spots.filter { it.group == spot.group }.all(::numberOnly))
+        }.mapTo(HashSet()) { it.element }
+    }
+
+    /** A place's number area (x0, y0, x1, y1): the whole place when [big], else above or below its band. */
+    private fun numberZone(g: EngoLayouts.Geom, big: Boolean): IntArray = when (g) {
+        is EngoLayouts.Geom.Hero -> intArrayOf(g.x0, g.numTop, g.x1, if (big) g.numBottom else g.numBottomWithVisual)
+        is EngoLayouts.Geom.Corner -> intArrayOf(g.x0, g.valueY, g.x1, g.valueY + g.valueMaxH - 1)
+        is EngoLayouts.Geom.Cell -> intArrayOf(g.x0, if (big) g.y0 + 21 else g.y0 + 51, g.x1, g.y1 - 2)
+    }
+
+    /**
+     * Each element's number height: the tallest that fits its place, and
+     * within a group of same-sized places the smallest of those, so a row of
+     * numbers reads at one size.
+     */
+    private fun numberHeights(spec: EngoLayouts.Spec, p: EngoPage, big: Set<Int>): Map<Int, Int> {
+        val fitted = HashMap<Int, Int>()
+        val zoneH = HashMap<Int, Int>()
+        for (spot in spec.spots) {
+            val r = p.elements.getOrNull(spot.element) ?: continue
+            val z = numberZone(spot.geom, spot.element in big)
+            val font = EngoFonts.forText(p.font, r.value)
+            fitted[spot.element] = EngoFonts.fit(font, r.value, z[2] - z[0] + 1, z[3] - z[1] + 1)
+            zoneH[spot.element] = z[3] - z[1] + 1
+        }
+        val out = HashMap(fitted)
+        spec.spots.filter { it.group != 0 && it.element in fitted }
+            .groupBy { it.group to zoneH.getValue(it.element) }
+            .values.forEach { members ->
+                val h = members.minOf { fitted.getValue(it.element) }
+                members.forEach { out[it.element] = h }
+            }
+        return out
     }
 
     // --- widgets ---
@@ -159,98 +169,155 @@ object EngoLayout {
         return EngoWidget("frame", emptyList(), c)
     }
 
-    /** Thin lines between the three bottom columns. */
-    private fun dividers(caps: EngoCaps): EngoWidget {
+    /** Thin lines between places. */
+    private fun dividers(lines: List<IntArray>, caps: EngoCaps): EngoWidget {
         val c = ArrayList<ByteArray>()
         c += pen(RG_DIM, G_DIM, caps)
-        for (i in 1 until 3) {
-            val x = COL_X0 + i * COL_STEP - (COL_STEP - COL_W) / 2 - 1
-            c += line(x, TITLE_Y + 1, x, VALUE_Y0 + VALUE_H - 2)
-        }
+        lines.forEach { c += line(it[0], it[1], it[2], it[3]) }
         return EngoWidget("div", emptyList(), c)
     }
 
-    private fun speedWidget(p: EngoPage, caps: EngoCaps): EngoWidget {
-        val room = SPEED_X1 - SPEED_X0
-        val s = EngoPixelFont.fitScale(p.speed, room, SPEED_MAX_SCALE)
-        val y = SPEED_Y0 + (SPEED_Y1 - SPEED_Y0 + 1 - EngoPixelFont.height(s)) / 2
-        return EngoWidget("speed", listOf(intArrayOf(SPEED_X0, SPEED_Y0, SPEED_X1, SPEED_Y1)),
-            listOf(pen(RG_TEXT, G_TEXT, caps)) + textCentered(p.speed, (SPEED_X0 + SPEED_X1) / 2, y, s, room))
-    }
-
-    private fun topWidgets(r: EngoReading?, connected: Boolean, caps: EngoCaps): List<EngoWidget> {
-        val title = ArrayList<ByteArray>()
-        title += pen(RG_LABEL, G_LABEL, caps)
+    private fun spotWidgets(
+        spot: EngoLayouts.Spot, r: EngoReading?, font: EngoFontStyle, numberH: Int, big: Boolean, caps: EngoCaps,
+    ): List<EngoWidget> {
+        val id = "e${spot.element + 1}"
+        val style = styleIn(spot, r)
+        val title = ArrayList<ByteArray>().apply { add(pen(RG_LABEL, G_LABEL, caps)) }
         val value = ArrayList<ByteArray>()
+        val visual = ArrayList<ByteArray>()
+        val zone = numberZone(spot.geom, big)
         if (r != null) {
-            val t = EngoPixelFont.clip(r.title, TOP_X1 - TOP_TITLE_X0, LABEL_SCALE)
-            title += text(t, TOP_X1 - EngoPixelFont.width(t, LABEL_SCALE), TOP_TITLE_Y, LABEL_SCALE)
-            val v = if (connected) r.value else "--"
-            val s = EngoPixelFont.fitScale(v, TOP_X1 - TOP_X0, TOP_MAX_SCALE)
-            val cut = EngoPixelFont.clip(v, TOP_X1 - TOP_X0, s)
             value += pen(colour(r.band), G_TEXT, caps)
-            value += text(cut, TOP_X1 - EngoPixelFont.width(cut, s), TOP_VALUE_Y, s)
+            value += number(r.value, font, zone, numberH, centred = !(spot.geom is EngoLayouts.Geom.Corner && !spot.geom.centred))
         } else value += pen(RG_TEXT, G_TEXT, caps)
-        return listOf(
-            EngoWidget("topTitle", listOf(intArrayOf(TOP_TITLE_X0, TOP_TITLE_Y - 2, TOP_X1, TOP_TITLE_Y + 15)), title),
-            EngoWidget("topValue", listOf(intArrayOf(TOP_X0, TOP_VALUE_Y - 2, TOP_X1, TOP_VALUE_Y + 37)), value),
-        )
+
+        return when (val g = spot.geom) {
+            is EngoLayouts.Geom.Hero -> {
+                if (r != null) title += textCentered(r.title, (g.x0 + g.x1 + 1) / 2, g.titleY, g.titleScale, g.x1 - g.x0 + 1)
+                val ws = mutableListOf(
+                    EngoWidget("${id}v", listOf(zone.copyOf()), value),
+                    EngoWidget("${id}t", listOf(intArrayOf(g.x0, g.titleY - 2, g.x1, g.titleY + EngoPixelFont.height(g.titleScale) + 1)), title),
+                )
+                if (style != EngoStyle.NUMBER && r != null) {
+                    visual += visual(r, style, g.x0, g.x1, g.visTop, g.visBottom, caps)
+                    ws += EngoWidget("${id}g", listOf(intArrayOf(g.x0, g.visTop, g.x1, g.visBottom)), visual)
+                }
+                ws
+            }
+            is EngoLayouts.Geom.Corner -> {
+                if (r != null) {
+                    val t = EngoPixelFont.clip(r.title, g.x1 - g.titleX0 + 1, LABEL_SCALE)
+                    val tw = EngoPixelFont.width(t, LABEL_SCALE)
+                    val tx = if (g.centred) (g.titleX0 + g.x1 + 1) / 2 - tw / 2 else g.x1 + 1 - tw
+                    title += text(t, tx, g.titleY, LABEL_SCALE)
+                }
+                listOf(
+                    EngoWidget("${id}t", listOf(intArrayOf(g.titleX0, g.titleY - 2, g.x1, g.titleY + 15)), title),
+                    EngoWidget("${id}v", listOf(intArrayOf(g.x0, g.valueY - 2, g.x1, g.valueY + g.valueMaxH + 2)), value),
+                )
+            }
+            is EngoLayouts.Geom.Cell -> {
+                if (r != null) title += text(EngoPixelFont.clip(r.title, g.x1 - g.x0 + 1, LABEL_SCALE), g.x0, g.y0, LABEL_SCALE)
+                val ws = mutableListOf(EngoWidget("${id}t", listOf(intArrayOf(g.x0, g.y0 - 1, g.x1, g.y0 + 15)), title))
+                if (style != EngoStyle.NUMBER && r != null) {
+                    visual += visual(r, style, g.x0, g.x1, g.y0 + 19, g.y0 + 45, caps)
+                    ws += EngoWidget("${id}g", listOf(intArrayOf(g.x0, g.y0 + 19, g.x1, g.y0 + 45)), visual)
+                }
+                val top = if (big) g.y0 + 19 else g.y0 + 49
+                ws += EngoWidget("${id}v", listOf(intArrayOf(g.x0, top, g.x1, g.y1)), value)
+                ws
+            }
+        }
     }
 
-    private fun column(i: Int, r: EngoReading?, graphs: Boolean, caps: EngoCaps): List<EngoWidget> {
-        val x0 = COL_X0 + i * COL_STEP
-        val x1 = x0 + COL_W - 1
-        val title = ArrayList<ByteArray>()
-        title += pen(RG_LABEL, G_LABEL, caps)
-        val gauge = ArrayList<ByteArray>()
-        val value = ArrayList<ByteArray>()
-        if (r != null) {
-            title += text(EngoPixelFont.clip(r.title, COL_W, LABEL_SCALE), x0, TITLE_Y, LABEL_SCALE)
-            gauge += if (graphs) graph(r, x0, x1, caps) else bar(r, x0, caps)
-            val s = EngoPixelFont.fitScale(r.value, COL_W, VALUE_MAX_SCALE)
-            val y = VALUE_Y0 + (VALUE_H - EngoPixelFont.height(s)) / 2
-            value += pen(colour(r.band), G_TEXT, caps)
-            value += textCentered(r.value, (x0 + x1 + 1) / 2, y, s, COL_W)
-        } else {
-            gauge += pen(RG_DIM, G_DIM, caps)
-            value += pen(RG_TEXT, G_TEXT, caps)
-        }
-        return listOf(
-            EngoWidget("t$i", listOf(intArrayOf(x0, TITLE_Y - 1, x1, TITLE_Y + 15)), title),
-            EngoWidget("g$i", listOf(intArrayOf(x0, GRAPH_Y0 - 2, x1, GRAPH_Y1 + 2)), gauge),
-            EngoWidget("v$i", listOf(intArrayOf(x0, VALUE_Y0 - 2, x1, VALUE_Y0 + VALUE_H + 2)), value),
-        )
+    /**
+     * [s] in the rider's number font at height [h], in the middle of [zone]
+     * vertically, centred or right-aligned by what is drawn (a seven-segment
+     * "7" has no left stroke, so its advance would sit it off centre). Cut
+     * from the end if even the smallest size is too wide.
+     */
+    private fun number(s: String, style: EngoFontStyle, zone: IntArray, h: Int, centred: Boolean): List<ByteArray> {
+        val font = EngoFonts.forText(style, s)
+        val drawnH = font.heights(h).first()
+        val room = zone[2] - zone[0] + 1
+        var t = s
+        while (t.length > 1 && font.width(t, drawnH) > room) t = t.dropLast(1)
+        val y = zone[1] + (zone[3] - zone[1] + 1 - drawnH) / 2
+        val ink = font.rects(t, 0, y, drawnH)
+        if (ink.isEmpty()) return emptyList()
+        val inkX0 = ink.minOf { it[0] }
+        val inkX1 = ink.maxOf { it[2] }
+        val shift = if (centred) (zone[0] + zone[2] + 1) / 2 - (inkX1 - inkX0 + 1) / 2 - inkX0 else zone[2] - inkX1
+        return ink.map { rect(it[0] + shift, it[1], it[2] + shift, it[3], filled = true) }
     }
+
+    /** The bar or graph band of a reading, in (x0..x1, top..bottom). */
+    private fun visual(r: EngoReading, style: EngoStyle, x0: Int, x1: Int, top: Int, bottom: Int, caps: EngoCaps): List<ByteArray> =
+        when (style) {
+            EngoStyle.BLOCKS -> blocks(r, x0, x1, top, bottom, caps)
+            EngoStyle.SMOOTH -> smooth(r, x0, x1, top, bottom, caps)
+            EngoStyle.GRAPH -> graph(r, x0, x1, top, bottom, caps)
+            EngoStyle.NUMBER -> emptyList()
+        }
+
+    private fun barHeight(top: Int, bottom: Int) = (bottom - top + 1 - 8).coerceIn(8, 14)
 
     /** Segments: lit up to the level, the rest dim. */
-    private fun bar(r: EngoReading, x0: Int, caps: EngoCaps): List<ByteArray> {
+    private fun blocks(r: EngoReading, x0: Int, x1: Int, top: Int, bottom: Int, caps: EngoCaps): List<ByteArray> {
         val out = ArrayList<ByteArray>()
-        val lit = r.level?.let { (it.coerceIn(0f, 1f) * BAR_SEGMENTS + 0.5f).toInt() } ?: 0
-        fun seg(k: Int) = (x0 + k * (BAR_SEG_W + BAR_GAP)).let { rect(it, BAR_Y0, it + BAR_SEG_W - 1, BAR_Y1, filled = true) }
+        val w = x1 - x0 + 1
+        val count = when { w < 100 -> 8; w < 200 -> 10; else -> 16 }
+        val gap = 3
+        val segW = (w - (count - 1) * gap) / count
+        val off = (w - (count * segW + (count - 1) * gap)) / 2
+        val bh = barHeight(top, bottom)
+        val y0 = top + (bottom - top + 1 - bh) / 2
+        val lit = r.level?.let { (it.coerceIn(0f, 1f) * count + 0.5f).toInt() } ?: 0
+        fun seg(k: Int) = (x0 + off + k * (segW + gap)).let { rect(it, y0, it + segW - 1, y0 + bh - 1, filled = true) }
         if (lit > 0) {
             out += pen(colour(r.band), G_TEXT, caps)
             for (k in 0 until lit) out += seg(k)
         }
-        if (lit < BAR_SEGMENTS) {
+        if (lit < count) {
             out += pen(RG_DIM, G_DIM, caps)
-            for (k in lit until BAR_SEGMENTS) out += seg(k)
+            for (k in lit until count) out += seg(k)
         }
         return out
     }
 
-    /** The last minute as a line over a dim floor, two pixels thick. */
-    private fun graph(r: EngoReading, x0: Int, x1: Int, caps: EngoCaps): List<ByteArray> {
+    /** One continuous bar: lit up to the level, the rest of the track dim. */
+    private fun smooth(r: EngoReading, x0: Int, x1: Int, top: Int, bottom: Int, caps: EngoCaps): List<ByteArray> {
         val out = ArrayList<ByteArray>()
+        val sh = maxOf(4, barHeight(top, bottom) * 2 / 3)
+        val y0 = top + (bottom - top + 1 - sh) / 2
+        val y1 = y0 + sh - 1
+        val litW = ((r.level ?: 0f).coerceIn(0f, 1f) * (x1 - x0 + 1)).roundToInt()
+        if (litW > 0) {
+            out += pen(colour(r.band), G_TEXT, caps)
+            out += rect(x0, y0, x0 + litW - 1, y1, filled = true)
+        }
+        if (litW < x1 - x0 + 1) {
+            out += pen(RG_DIM, G_DIM, caps)
+            out += rect(x0 + litW, y0, x1, y1, filled = true)
+        }
+        return out
+    }
+
+    /** The reading's window as a line over a dim floor, two pixels thick. */
+    private fun graph(r: EngoReading, x0: Int, x1: Int, top: Int, bottom: Int, caps: EngoCaps): List<ByteArray> {
+        val out = ArrayList<ByteArray>()
+        val gy0 = top + 2
+        val gy1 = bottom - 2
         out += pen(RG_DIM, G_DIM, caps)
-        out += line(x0, GRAPH_Y1, x1, GRAPH_Y1)
-        val pts = r.series
+        out += line(x0, gy1, x1, gy1)
+        val pts = resample(r.series, ((x1 - x0 + 1) / 2).coerceAtLeast(2))
         if (pts.size >= 2) {
             val n = pts.size
-            val h = GRAPH_Y1 - 2 - GRAPH_Y0
+            val h = gy1 - 2 - gy0
             val xy = IntArray(n * 2)
             for (k in 0 until n) {
                 xy[k * 2] = dx(x0 + (x1 - 1 - x0) * k / (n - 1))
-                xy[k * 2 + 1] = dy(GRAPH_Y1 - 2 - (pts[k].coerceIn(0f, 1f) * h + 0.5f).toInt())
+                xy[k * 2 + 1] = dy(gy1 - 2 - (pts[k].coerceIn(0f, 1f) * h + 0.5f).toInt())
             }
             out += pen(colour(r.band), G_TEXT, caps)
             out += ActiveLookProtocol.polyline(xy)
@@ -260,24 +327,38 @@ object EngoLayout {
         return out
     }
 
+    /** [s] in at most [max] points, linearly between its own: a graph needs no more than one every two pixels. */
+    internal fun resample(s: List<Float>, max: Int): List<Float> {
+        if (s.size <= max || s.size < 2) return s
+        return List(max) { k ->
+            val pos = k * (s.size - 1).toFloat() / (max - 1)
+            val i = pos.toInt().coerceAtMost(s.size - 2)
+            val f = pos - i
+            s[i] + (s[i + 1] - s[i]) * f
+        }
+    }
+
     /** The turn and its distance apart, so a distance counting down does not resend the arrow. */
-    private fun navWidgets(n: EngoNav?, caps: EngoCaps): List<EngoWidget> {
+    private fun turnWidgets(t: EngoLayouts.Turn, n: EngoNav?, caps: EngoCaps): List<EngoWidget> {
         val arrow = ArrayList<ByteArray>()
         arrow += pen(RG_TEXT, G_TEXT, caps)
         val dist = ArrayList<ByteArray>()
-        dist += pen(RG_LABEL, G_LABEL, caps)
+        dist += if (t.distBright) pen(RG_TEXT, G_TEXT, caps) else pen(RG_LABEL, G_LABEL, caps)
         if (n != null) {
-            arrow += arrow(n.maneuver)
-            dist += text(EngoPixelFont.clip(n.distance.uppercase(), NAV_X1 - NAV_X0, LABEL_SCALE), NAV_X0, NAV_TEXT_Y, LABEL_SCALE)
+            arrow += arrow(n.maneuver, t)
+            val room = t.distBox[2] - t.distBox[0] + 1
+            val s = EngoPixelFont.clip(n.distance.uppercase(), room, t.distScale)
+            val x = if (t.distCentred) (t.distBox[0] + t.distBox[2] + 1) / 2 - EngoPixelFont.width(s, t.distScale) / 2 else t.distBox[0]
+            dist += text(s, x, t.distY, t.distScale)
         }
         return listOf(
-            EngoWidget("navArrow", listOf(intArrayOf(NAV_X0, NAV_Y0, NAV_X1, NAV_ARROW_Y1)), arrow),
-            EngoWidget("navDist", listOf(intArrayOf(NAV_X0, NAV_ARROW_Y1 + 2, NAV_X1, NAV_Y1)), dist),
+            EngoWidget("navArrow", listOf(t.arrowBox.copyOf()), arrow),
+            EngoWidget("navDist", listOf(t.distBox.copyOf()), dist),
         )
     }
 
-    /** A turn arrow around the nav corner's centre, as thick polylines. */
-    private fun arrow(m: EngoManeuver): List<ByteArray> {
+    /** A turn arrow around the turn place's centre, as thick polylines. */
+    private fun arrow(m: EngoManeuver, t: EngoLayouts.Turn): List<ByteArray> {
         val shapes: List<List<Float>> = when (m) {
             EngoManeuver.STRAIGHT -> listOf(
                 listOf(0f, 1f, 0f, -1f), listOf(-0.6f, -0.4f, 0f, -1f, 0.6f, -0.4f))
@@ -296,15 +377,15 @@ object EngoLayout {
         }
         val out = ArrayList<ByteArray>()
         if (m == EngoManeuver.ARRIVE) {
-            out += ActiveLookProtocol.circf(dx(NAV_CX), dy(NAV_CY), NAV_R / 2 + 1)
+            out += ActiveLookProtocol.circf(dx(t.cx), dy(t.cy), t.r / 2 + 1)
             return out
         }
         for (s in shapes) {
             val xy = IntArray(s.size) { k ->
-                if (k % 2 == 0) dx(NAV_CX + (s[k] * NAV_R).toInt()) else dy(NAV_CY + (s[k] * NAV_R).toInt())
+                if (k % 2 == 0) dx(t.cx + (s[k] * t.r).toInt()) else dy(t.cy + (s[k] * t.r).toInt())
             }
-            // Three pixels thick: the line drawn nine times, shifted.
-            for (ox in -2..0) for (oy in -2..0) {
+            // [thick] pixels wide: the line drawn thick x thick times, shifted.
+            for (ox in -(t.thick - 1)..0) for (oy in -(t.thick - 1)..0) {
                 out += ActiveLookProtocol.polyline(IntArray(xy.size) { if (it % 2 == 0) xy[it] + ox else xy[it] + oy })
             }
         }
@@ -324,7 +405,7 @@ object EngoLayout {
     private fun text(s: String, x: Int, y: Int, scale: Int): List<ByteArray> =
         EngoPixelFont.rects(s, x, y, scale).map { rect(it[0], it[1], it[2], it[3], filled = true) }
 
-    /** Pixel-font text centred on [cx], cut to [room] if it would not fit at scale 1. */
+    /** Pixel-font text centred on [cx], cut to [room] if it would not fit. */
     private fun textCentered(s: String, cx: Int, y: Int, scale: Int, room: Int): List<ByteArray> {
         val t = EngoPixelFont.clip(s, room, scale)
         return text(t, cx - EngoPixelFont.width(t, scale) / 2, y, scale)

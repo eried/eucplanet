@@ -9576,6 +9576,7 @@ private fun SwitchSetting(
     label: String,
     checked: Boolean,
     badge: (@Composable () -> Unit)? = null,
+    enabled: Boolean = true,
     onCheckedChange: (Boolean) -> Unit
 ) {
     Row(
@@ -9593,7 +9594,7 @@ private fun SwitchSetting(
             }
         }
         Spacer(Modifier.width(8.dp))
-        Switch(checked = checked, onCheckedChange = onCheckedChange, colors = themedSwitchColors())
+        Switch(checked = checked, onCheckedChange = onCheckedChange, enabled = enabled, colors = themedSwitchColors())
     }
 }
 
@@ -12094,113 +12095,256 @@ private fun EngoGlassesBlock(
             title = stringResource(R.string.engo_pages_title),
             stateKey = "engo_pages"
         ) {
+            val layouts = com.eried.eucplanet.service.hud.engo.EngoLayouts
+            val kind = layouts.kindOf(engo.layout)
+            val used = layouts.elementsUsed(kind, engo.navTakeover)
+            var selectedRaw by rememberSaveable { mutableIntStateOf(0) }
+            val selected = selectedRaw.coerceIn(0, used - 1)
+            var previewRoute by rememberSaveable { mutableStateOf(false) }
+            // Whether this layout can look different during a route at all.
+            val canRoute = !layouts.turnsSwitchApplies(kind) || engo.navTakeover
+            val defaults = com.eried.eucplanet.data.model.DEFAULT_ENGO_ELEMENTS
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                EngoPagePreview(settings)
+                WidgetSlotDropdown(
+                    label = stringResource(R.string.engo_layout),
+                    currentLabel = engoLayoutLabel(kind),
+                    options = com.eried.eucplanet.service.hud.engo.EngoLayoutKind.entries.map { it.name to engoLayoutLabel(it) },
+                    onSelect = { viewModel.updateEngoLayout(it) },
+                    includeNone = false,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                EngoPagePreview(
+                    settings = settings,
+                    navigating = previewRoute && canRoute,
+                    selected = selected,
+                    onSelect = { selectedRaw = it },
+                )
                 HintText(stringResource(R.string.engo_preview_hint))
-                EngoSlotRow(
-                    label = stringResource(R.string.engo_slot_top),
-                    slot = engo.top,
-                    onChange = { viewModel.updateEngoTop(it) },
-                )
-                val bottomLabels = listOf(
-                    R.string.engo_slot_bottom_left, R.string.engo_slot_bottom_centre, R.string.engo_slot_bottom_right,
-                )
-                bottomLabels.forEachIndexed { i, res ->
-                    EngoSlotRow(
-                        label = stringResource(res),
-                        slot = engo.slots.getOrNull(i) ?: com.eried.eucplanet.data.model.EngoSlot(""),
-                        onChange = { viewModel.updateEngoSlot(i, it) },
+                if (canRoute) {
+                    SegmentedChoice(
+                        label = stringResource(R.string.engo_preview_mode),
+                        options = listOf(
+                            "RIDING" to stringResource(R.string.engo_preview_riding),
+                            "ROUTE" to stringResource(R.string.engo_preview_navigating),
+                        ),
+                        current = if (previewRoute) "ROUTE" else "RIDING",
+                        onChange = { previewRoute = it == "ROUTE" },
                     )
                 }
-                SegmentedChoice(
-                    label = stringResource(R.string.engo_bottom_style),
-                    options = listOf(
-                        "BARS" to stringResource(R.string.engo_style_bars),
-                        "GRAPHS" to stringResource(R.string.engo_style_graphs),
-                    ),
-                    current = if (engo.graphs) "GRAPHS" else "BARS",
-                    onChange = { viewModel.updateEngoGraphs(it == "GRAPHS") },
+                if (used > 1) {
+                    SegmentedChoice(
+                        label = stringResource(R.string.engo_element),
+                        options = (0 until used).map { "$it" to "${it + 1}" },
+                        current = "$selected",
+                        onChange = { selectedRaw = it.toInt() },
+                    )
+                }
+                EngoElementEditor(
+                    kind = kind,
+                    index = selected,
+                    element = engo.elements.getOrNull(selected) ?: defaults[selected],
+                    dashboardWindowSec = settings.dashboardRollingWindowSeconds,
+                    onChange = { viewModel.updateEngoElement(selected, it) },
                 )
+                SegmentedChoice(
+                    label = stringResource(R.string.engo_font),
+                    options = listOf(
+                        "PIXEL" to stringResource(R.string.engo_font_pixel),
+                        "DIGITAL" to stringResource(R.string.engo_font_digital),
+                        "BOLD" to stringResource(R.string.engo_font_bold),
+                    ),
+                    current = layouts.fontOf(engo.font).name,
+                    onChange = { viewModel.updateEngoFont(it) },
+                )
+                val switchApplies = layouts.turnsSwitchApplies(kind)
                 SwitchSetting(
                     label = stringResource(R.string.engo_nav_takeover),
-                    checked = engo.navTakeover,
+                    checked = !switchApplies || engo.navTakeover,
+                    enabled = switchApplies,
                     onCheckedChange = { viewModel.updateEngoNavTakeover(it) }
                 )
+                if (!switchApplies) HintText(stringResource(R.string.engo_turn_always))
+            }
+        }
+    }
+}
+
+@Composable
+private fun engoLayoutLabel(kind: com.eried.eucplanet.service.hud.engo.EngoLayoutKind): String = when (kind) {
+    com.eried.eucplanet.service.hud.engo.EngoLayoutKind.COCKPIT -> stringResource(R.string.engo_layout_cockpit)
+    com.eried.eucplanet.service.hud.engo.EngoLayoutKind.BIG -> stringResource(R.string.engo_layout_big)
+    com.eried.eucplanet.service.hud.engo.EngoLayoutKind.QUAD -> stringResource(R.string.engo_layout_quad)
+    com.eried.eucplanet.service.hud.engo.EngoLayoutKind.TURN -> stringResource(R.string.engo_layout_turn)
+    com.eried.eucplanet.service.hud.engo.EngoLayoutKind.MINIMAL -> stringResource(R.string.engo_layout_minimal)
+}
+
+@Composable
+private fun engoStyleLabel(style: com.eried.eucplanet.service.hud.engo.EngoStyle): String = when (style) {
+    com.eried.eucplanet.service.hud.engo.EngoStyle.NUMBER -> stringResource(R.string.engo_style_number)
+    com.eried.eucplanet.service.hud.engo.EngoStyle.BLOCKS -> stringResource(R.string.engo_style_blocks)
+    com.eried.eucplanet.service.hud.engo.EngoStyle.SMOOTH -> stringResource(R.string.engo_style_smooth)
+    com.eried.eucplanet.service.hud.engo.EngoStyle.GRAPH -> stringResource(R.string.engo_style_graph)
+}
+
+@Composable
+private fun engoWindowLabel(seconds: Int, dashboardWindowSec: Int): String = when (seconds) {
+    0 -> stringResource(R.string.engo_window_dashboard, rollingWindowLabel(dashboardWindowSec))
+    5 -> stringResource(R.string.engo_window_5s)
+    15 -> stringResource(R.string.engo_window_15s)
+    else -> rollingWindowLabel(seconds)
+}
+
+/**
+ * The rider's glasses page drawn as the glasses would draw it: their own
+ * layout, elements, statistics, styles, font and units, on sample numbers.
+ * The picture comes from the very commands the glasses are sent, so what is
+ * seen here is what the glasses get. Each element's place carries its number
+ * (on the phone only); tapping a place picks that element to set up.
+ */
+@Composable
+private fun EngoPagePreview(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    navigating: Boolean,
+    selected: Int,
+    onSelect: (Int) -> Unit,
+) {
+    val engo = settings.engoHud
+    val units = com.eried.eucplanet.service.hud.engo.EngoMetrics.units(settings)
+    val pxW = com.eried.eucplanet.service.hud.engo.EngoRaster.W
+    val pxH = com.eried.eucplanet.service.hud.engo.EngoRaster.H
+    val bitmap = remember(engo, units, navigating, settings.gaugeOrangeThresholdPct, settings.gaugeRedThresholdPct,
+        settings.dashboardRollingWindowSeconds) {
+        val page = com.eried.eucplanet.service.hud.engo.EngoDemoSource.page(
+            engo = engo,
+            units = units,
+            orangePct = settings.gaugeOrangeThresholdPct,
+            redPct = settings.gaugeRedThresholdPct,
+            navigating = navigating,
+            nowMs = 1_000_000L,
+            dashboardWindowSec = settings.dashboardRollingWindowSeconds,
+        )
+        val caps = com.eried.eucplanet.service.hud.engo.EngoCaps(colorRYG = true)
+        val px = com.eried.eucplanet.service.hud.engo.EngoRaster.render(
+            com.eried.eucplanet.service.hud.engo.EngoLayout.render(page, caps), color = true,
+        )
+        android.graphics.Bitmap.createBitmap(px, pxW, pxH, android.graphics.Bitmap.Config.ARGB_8888).asImageBitmap()
+    }
+    val layouts = com.eried.eucplanet.service.hud.engo.EngoLayouts
+    val spec = layouts.resolve(layouts.kindOf(engo.layout), navigating, engo.navTakeover)
+    val accent = MaterialTheme.appColors.primary
+    val onAccent = MaterialTheme.appColors.onPrimary
+    androidx.compose.foundation.layout.BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(pxW / pxH.toFloat())
+            .clip(RoundedCornerShape(12.dp)),
+    ) {
+        val scale = maxWidth / pxW
+        androidx.compose.foundation.Image(
+            bitmap = bitmap,
+            contentDescription = stringResource(R.string.engo_preview_label),
+            filterQuality = androidx.compose.ui.graphics.FilterQuality.None,
+            contentScale = androidx.compose.ui.layout.ContentScale.FillBounds,
+            modifier = Modifier.fillMaxSize(),
+        )
+        for (spot in spec.spots) {
+            val b = spot.bounds
+            val isSelected = spot.element == selected
+            // The badge sits where the place's title is not: on the left of a big number
+            // or a right-aligned title, on the right of a title that starts on the left.
+            val g = spot.geom
+            val badgeLeft = g is com.eried.eucplanet.service.hud.engo.EngoLayouts.Geom.Hero ||
+                (g is com.eried.eucplanet.service.hud.engo.EngoLayouts.Geom.Corner && !g.centred)
+            Box(
+                modifier = Modifier
+                    .offset(x = scale * (b[0] - 3), y = scale * (b[1] - 3))
+                    .size(width = scale * (b[2] - b[0] + 7), height = scale * (b[3] - b[1] + 7))
+                    .then(if (isSelected) Modifier.border(1.5.dp, accent, RoundedCornerShape(6.dp)) else Modifier)
+                    .clickable { onSelect(spot.element) },
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .align(if (badgeLeft) Alignment.TopStart else Alignment.TopEnd)
+                        .size(18.dp)
+                        .clip(androidx.compose.foundation.shape.CircleShape)
+                        .background(if (isSelected) accent else accent.copy(alpha = 0.55f)),
+                ) {
+                    Text(
+                        "${spot.element + 1}",
+                        color = onAccent,
+                        style = MaterialTheme.typography.labelSmall,
+                    )
+                }
             }
         }
     }
 }
 
 /**
- * The rider's glasses page drawn as the glasses would draw it: their own
- * layout, readings, statistics and units, on sample numbers. The picture comes
- * from the very commands the glasses are sent, so what is seen here is what
- * the glasses get.
+ * One element of the glasses page: which metric (or none, past element 1),
+ * which statistic of it, how it is drawn where the place has room for a bar or
+ * a graph, and how far back a graph looks.
  */
 @Composable
-private fun EngoPagePreview(settings: com.eried.eucplanet.data.model.AppSettings) {
-    val engo = settings.engoHud
-    val units = com.eried.eucplanet.service.hud.engo.EngoMetrics.units(settings)
-    val bitmap = remember(engo, units, settings.gaugeOrangeThresholdPct, settings.gaugeRedThresholdPct) {
-        val page = com.eried.eucplanet.service.hud.engo.EngoDemoSource.page(
-            engo = engo,
-            units = units,
-            orangePct = settings.gaugeOrangeThresholdPct,
-            redPct = settings.gaugeRedThresholdPct,
-            navigating = engo.navTakeover,
-            nowMs = 1_000_000L,
-        )
-        val caps = com.eried.eucplanet.service.hud.engo.EngoCaps(colorRYG = true)
-        val px = com.eried.eucplanet.service.hud.engo.EngoRaster.render(
-            com.eried.eucplanet.service.hud.engo.EngoLayout.render(page, caps), color = true,
-        )
-        android.graphics.Bitmap.createBitmap(
-            px, com.eried.eucplanet.service.hud.engo.EngoRaster.W, com.eried.eucplanet.service.hud.engo.EngoRaster.H,
-            android.graphics.Bitmap.Config.ARGB_8888,
-        ).asImageBitmap()
-    }
-    androidx.compose.foundation.Image(
-        bitmap = bitmap,
-        contentDescription = stringResource(R.string.engo_preview_label),
-        filterQuality = androidx.compose.ui.graphics.FilterQuality.None,
-        contentScale = androidx.compose.ui.layout.ContentScale.FillWidth,
-        modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(com.eried.eucplanet.service.hud.engo.EngoRaster.W / com.eried.eucplanet.service.hud.engo.EngoRaster.H.toFloat())
-            .clip(RoundedCornerShape(12.dp)),
-    )
-}
-
-/** One reading on the glasses: which metric (or none) and which statistic of it. */
-@Composable
-private fun EngoSlotRow(
-    label: String,
-    slot: com.eried.eucplanet.data.model.EngoSlot,
-    onChange: (com.eried.eucplanet.data.model.EngoSlot) -> Unit,
+private fun EngoElementEditor(
+    kind: com.eried.eucplanet.service.hud.engo.EngoLayoutKind,
+    index: Int,
+    element: com.eried.eucplanet.data.model.EngoElement,
+    dashboardWindowSec: Int,
+    onChange: (com.eried.eucplanet.data.model.EngoElement) -> Unit,
 ) {
     val metrics = com.eried.eucplanet.service.hud.engo.EngoMetrics
-    val known = metrics.known(slot.key)
+    val layouts = com.eried.eucplanet.service.hud.engo.EngoLayouts
+    val known = metrics.known(element.key)
     val supportsStats = known &&
-        com.eried.eucplanet.data.model.MetricCatalog.byKey(slot.key)?.supportsStats == true
-    val stat = if (supportsStats) slot.stat else "CURRENT"
+        com.eried.eucplanet.data.model.MetricCatalog.byKey(element.key)?.supportsStats == true
+    val stat = if (supportsStats) element.stat else "CURRENT"
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         WidgetSlotDropdown(
-            label = label,
-            currentLabel = if (known) metricChipLabel(slot.key) else "",
+            label = stringResource(R.string.engo_element_metric),
+            currentLabel = if (known) metricChipLabel(element.key) else "",
             options = metrics.KEYS.map { it to metricChipLabel(it) },
-            onSelect = { onChange(slot.copy(key = if (it == "NONE") "" else it)) },
+            onSelect = { onChange(element.copy(key = if (it == "NONE") "" else it)) },
+            includeNone = index > 0,
             modifier = Modifier.weight(1f),
         )
         WidgetSlotDropdown(
             label = stringResource(R.string.engo_slot_stat),
             currentLabel = engoStatLabel(stat),
             options = metrics.STATS.map { it to engoStatLabel(it) },
-            onSelect = { onChange(slot.copy(stat = it)) },
+            onSelect = { onChange(element.copy(stat = it)) },
             includeNone = false,
             enabled = supportsStats,
             modifier = Modifier.weight(1f),
         )
     }
+    val styles = layouts.spotOf(kind, index)?.styles.orEmpty()
+    if (styles.size > 1 && known) {
+        val style = layouts.styleOf(element.style).takeIf { it in styles }
+            ?: com.eried.eucplanet.service.hud.engo.EngoStyle.NUMBER
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            WidgetSlotDropdown(
+                label = stringResource(R.string.engo_element_style),
+                currentLabel = engoStyleLabel(style),
+                options = styles.map { it.name to engoStyleLabel(it) },
+                onSelect = { onChange(element.copy(style = it)) },
+                includeNone = false,
+                modifier = Modifier.weight(1f),
+            )
+            if (style == com.eried.eucplanet.service.hud.engo.EngoStyle.GRAPH) {
+                WidgetSlotDropdown(
+                    label = stringResource(R.string.engo_graph_window),
+                    currentLabel = engoWindowLabel(element.windowSec, dashboardWindowSec),
+                    options = com.eried.eucplanet.data.model.ENGO_WINDOWS_SEC.map { "$it" to engoWindowLabel(it, dashboardWindowSec) },
+                    onSelect = { onChange(element.copy(windowSec = it.toInt())) },
+                    includeNone = false,
+                    modifier = Modifier.weight(1f),
+                )
+            } else Spacer(Modifier.weight(1f))
+        }
+    }
+    if (layouts.onlyDuringRoute(kind, index)) HintText(stringResource(R.string.engo_element_route_only))
 }
 
 @Composable

@@ -412,9 +412,9 @@ object SettingsJson {
             put("autoConnect", s.engoHud.autoConnect)
             put("pairedAddress", s.engoHud.pairedAddress)
             put("pairedName", s.engoHud.pairedName)
-            put("top", engoSlotJson(s.engoHud.top))
-            put("slots", org.json.JSONArray().apply { s.engoHud.slots.forEach { put(engoSlotJson(it)) } })
-            put("graphs", s.engoHud.graphs)
+            put("layout", s.engoHud.layout)
+            put("elements", org.json.JSONArray().apply { s.engoHud.elements.forEach { put(engoElementJson(it)) } })
+            put("font", s.engoHud.font)
             put("navTakeover", s.engoHud.navTakeover)
         })
         put("keepAppAlive", s.keepAppAlive)
@@ -904,11 +904,13 @@ object SettingsJson {
                 autoConnect = e.optBoolean("autoConnect", base.engoHud.autoConnect),
                 pairedAddress = e.optStringOrNull("pairedAddress", base.engoHud.pairedAddress),
                 pairedName = e.optStringOrNull("pairedName", base.engoHud.pairedName),
-                top = e.optJSONObject("top")?.let { engoSlotOf(it) } ?: base.engoHud.top,
-                slots = e.optJSONArray("slots")?.let { arr ->
-                    (0 until 3).map { i -> arr.optJSONObject(i)?.let { engoSlotOf(it) } ?: base.engoHud.slots[i] }
-                } ?: base.engoHud.slots,
-                graphs = e.optBoolean("graphs", base.engoHud.graphs),
+                layout = e.optString("layout", base.engoHud.layout),
+                elements = e.optJSONArray("elements")?.let { arr ->
+                    base.engoHud.elements.indices.map { i ->
+                        arr.optJSONObject(i)?.let { engoElementOf(it) } ?: base.engoHud.elements[i]
+                    }
+                } ?: base.engoHud.elements,
+                font = e.optString("font", base.engoHud.font),
                 navTakeover = e.optBoolean("navTakeover", base.engoHud.navTakeover),
             )
         } ?: base.engoHud,
@@ -1081,11 +1083,18 @@ object SettingsJson {
         else -> optString(key, fallback ?: "")
     }
 
-    private fun engoSlotJson(slot: com.eried.eucplanet.data.model.EngoSlot) = JSONObject().apply {
-        put("key", slot.key)
-        put("stat", slot.stat)
+    private fun engoElementJson(el: com.eried.eucplanet.data.model.EngoElement) = JSONObject().apply {
+        put("key", el.key)
+        put("stat", el.stat)
+        put("style", el.style)
+        put("window", el.windowSec)
     }
 
-    private fun engoSlotOf(j: JSONObject) =
-        com.eried.eucplanet.data.model.EngoSlot(j.optString("key", ""), j.optString("stat", "CURRENT"))
+    private fun engoElementOf(j: JSONObject) = com.eried.eucplanet.data.model.EngoElement(
+        key = j.optString("key", ""),
+        stat = j.optString("stat", "CURRENT"),
+        style = j.optString("style", "BLOCKS"),
+        // Only the windows the picker offers, so a stray value cannot ask for a graph nobody can set.
+        windowSec = j.optInt("window", 15).takeIf { it in com.eried.eucplanet.data.model.ENGO_WINDOWS_SEC } ?: 15,
+    )
 }
