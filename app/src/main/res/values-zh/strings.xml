@@ -1721,7 +1721,7 @@
     </plurals>
     <string name="radar_show_overlay">显示来车叠加层</string>
     <string name="radar_show_overlay_desc">仪表盘两侧的细雷达条。</string>
-    <string name="radar_overlay_title">雷达叠加层</string>
+    <string name="radar_customize">自定义</string>
     <string name="radar_overlay_left">左侧</string>
     <string name="radar_overlay_both">两侧</string>
     <string name="radar_overlay_right">右侧</string>

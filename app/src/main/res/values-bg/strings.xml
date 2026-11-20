@@ -1278,7 +1278,7 @@
     </plurals>
     <string name="radar_show_overlay">Наслагване на заплахите</string>
     <string name="radar_show_overlay_desc">Тънка лента на радара по краищата на таблото.</string>
-    <string name="radar_overlay_title">Наслагване на радара</string>
+    <string name="radar_customize">Персонализиране</string>
     <string name="radar_overlay_left">Ляв край</string>
     <string name="radar_overlay_both">Двата края</string>
     <string name="radar_overlay_right">Десен край</string>

@@ -114,8 +114,8 @@ fun RadarSection(
         // The overlay settings are the app's, not one radar's, so they can be
         // set before a radar is paired. Collapsed, so the scan card stays first.
         AdvancedCollapsable(
-            title = stringResource(R.string.radar_overlay_title),
-            stateKey = "radar_overlay"
+            titleRes = R.string.radar_customize,
+            stateKey = "radar_customize"
         ) {
             RadarOverlaySettings(viewModel)
         }

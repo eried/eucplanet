@@ -977,7 +977,7 @@
     </plurals>
     <string name="radar_show_overlay">Visa hotöverlägg</string>
     <string name="radar_show_overlay_desc">Tunn radarlist i instrumentpanelens kanter.</string>
-    <string name="radar_overlay_title">Radaröverlägg</string>
+    <string name="radar_customize">Anpassa</string>
     <string name="radar_overlay_left">Vänster kant</string>
     <string name="radar_overlay_both">Båda kanterna</string>
     <string name="radar_overlay_right">Höger kant</string>

@@ -1221,7 +1221,7 @@
     </plurals>
     <string name="radar_show_overlay">Hiện lớp phủ mối nguy</string>
     <string name="radar_show_overlay_desc">Dải radar mảnh ở mép dashboard.</string>
-    <string name="radar_overlay_title">Lớp phủ radar</string>
+    <string name="radar_customize">Tùy chỉnh</string>
     <string name="radar_overlay_left">Cạnh trái</string>
     <string name="radar_overlay_both">Cả hai cạnh</string>
     <string name="radar_overlay_right">Cạnh phải</string>

@@ -976,7 +976,7 @@
     </plurals>
     <string name="radar_show_overlay">顯示後方車輛警示</string>
     <string name="radar_show_overlay_desc">在儀表板兩側邊緣顯示細長的雷達車道。</string>
-    <string name="radar_overlay_title">雷達警示</string>
+    <string name="radar_customize">自訂</string>
     <string name="radar_overlay_left">左側</string>
     <string name="radar_overlay_both">兩側</string>
     <string name="radar_overlay_right">右側</string>

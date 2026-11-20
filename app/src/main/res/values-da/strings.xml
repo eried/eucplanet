@@ -981,7 +981,7 @@
     </plurals>
     <string name="radar_show_overlay">Vis radar-overlay</string>
     <string name="radar_show_overlay_desc">Tynd radarbjælke i dashboardets kanter.</string>
-    <string name="radar_overlay_title">Radar-overlay</string>
+    <string name="radar_customize">Tilpas</string>
     <string name="radar_overlay_left">Venstre kant</string>
     <string name="radar_overlay_both">Begge kanter</string>
     <string name="radar_overlay_right">Højre kant</string>

@@ -1253,7 +1253,7 @@
     </plurals>
     <string name="radar_show_overlay">Mostrar overlay de ameaças</string>
     <string name="radar_show_overlay_desc">Faixa fina de radar nas margens do dashboard.</string>
-    <string name="radar_overlay_title">Overlay do radar</string>
+    <string name="radar_customize">Personalizar</string>
     <string name="radar_overlay_left">Margem esquerda</string>
     <string name="radar_overlay_both">Ambas as margens</string>
     <string name="radar_overlay_right">Margem direita</string>

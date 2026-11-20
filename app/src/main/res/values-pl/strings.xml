@@ -983,7 +983,7 @@
     </plurals>
     <string name="radar_show_overlay">Pokaż nakładkę zagrożeń</string>
     <string name="radar_show_overlay_desc">Wąski pas radaru na krawędziach pulpitu.</string>
-    <string name="radar_overlay_title">Nakładka radaru</string>
+    <string name="radar_customize">Dostosuj</string>
     <string name="radar_overlay_left">Lewa krawędź</string>
     <string name="radar_overlay_both">Obie krawędzie</string>
     <string name="radar_overlay_right">Prawa krawędź</string>

@@ -1317,7 +1317,7 @@
     </plurals>
     <string name="radar_show_overlay">Show threat overlay</string>
     <string name="radar_show_overlay_desc">Thin radar lane in the dashboard gutters.</string>
-    <string name="radar_overlay_title">Radar overlay</string>
+    <string name="radar_customize">Customize</string>
     <string name="radar_overlay_left">Left edge</string>
     <string name="radar_overlay_both">Both edges</string>
     <string name="radar_overlay_right">Right edge</string>

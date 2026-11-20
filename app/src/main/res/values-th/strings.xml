@@ -1221,7 +1221,7 @@
     </plurals>
     <string name="radar_show_overlay">แสดงโอเวอร์เลย์อันตราย</string>
     <string name="radar_show_overlay_desc">แถบเรดาร์บางๆ ที่ขอบแดชบอร์ด</string>
-    <string name="radar_overlay_title">โอเวอร์เลย์เรดาร์</string>
+    <string name="radar_customize">ปรับแต่ง</string>
     <string name="radar_overlay_left">ขอบซ้าย</string>
     <string name="radar_overlay_both">ทั้งสองขอบ</string>
     <string name="radar_overlay_right">ขอบขวา</string>

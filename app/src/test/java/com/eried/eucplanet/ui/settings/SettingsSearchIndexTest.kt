@@ -83,7 +83,7 @@ class SettingsSearchIndexTest {
         val titles = File("src/main/java/com/eried/eucplanet/ui/settings").walk()
             .filter { it.extension == "kt" }
             .flatMap {
-                Regex("""\b(\w*Collaps\w*)\(\s*(?:title\s*=\s*)?stringResource\(\s*R\.string\.(\w+)""")
+                Regex("""\b(\w*Collaps\w*)\(\s*(?:(?:title\s*=\s*)?stringResource\(\s*|titleRes\s*=\s*)R\.string\.(\w+)""")
                     .findAll(it.readText())
             }
             // The top-level sections count their own matches; this is about

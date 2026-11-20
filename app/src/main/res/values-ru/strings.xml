@@ -983,7 +983,7 @@
     </plurals>
     <string name="radar_show_overlay">Показывать угрозы на дашборде</string>
     <string name="radar_show_overlay_desc">Тонкая полоса радара по краям дашборда.</string>
-    <string name="radar_overlay_title">Радар на дашборде</string>
+    <string name="radar_customize">Настроить</string>
     <string name="radar_overlay_left">Левый край</string>
     <string name="radar_overlay_both">Оба края</string>
     <string name="radar_overlay_right">Правый край</string>

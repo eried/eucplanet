@@ -1252,7 +1252,7 @@
     </plurals>
     <string name="radar_show_overlay">Εμφάνιση επικάλυψης κινδύνων</string>
     <string name="radar_show_overlay_desc">Λεπτή λωρίδα ραντάρ στα περιθώρια του πίνακα οργάνων.</string>
-    <string name="radar_overlay_title">Επικάλυψη ραντάρ</string>
+    <string name="radar_customize">Προσαρμογή</string>
     <string name="radar_overlay_left">Αριστερή άκρη</string>
     <string name="radar_overlay_both">Και οι δύο άκρες</string>
     <string name="radar_overlay_right">Δεξιά άκρη</string>

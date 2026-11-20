@@ -976,7 +976,7 @@
     </plurals>
     <string name="radar_show_overlay">위협 오버레이 표시</string>
     <string name="radar_show_overlay_desc">대시보드 양쪽 여백에 얇은 레이더 차선을 표시합니다.</string>
-    <string name="radar_overlay_title">레이더 오버레이</string>
+    <string name="radar_customize">사용자 지정</string>
     <string name="radar_overlay_left">왼쪽 가장자리</string>
     <string name="radar_overlay_both">양쪽 가장자리</string>
     <string name="radar_overlay_right">오른쪽 가장자리</string>

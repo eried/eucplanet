@@ -982,7 +982,7 @@
     </plurals>
     <string name="radar_show_overlay">Afficher la bande radar</string>
     <string name="radar_show_overlay_desc">Fine bande radar sur les bords du tableau de bord.</string>
-    <string name="radar_overlay_title">Bande radar</string>
+    <string name="radar_customize">Personnaliser</string>
     <string name="radar_overlay_left">Bord gauche</string>
     <string name="radar_overlay_both">Les deux bords</string>
     <string name="radar_overlay_right">Bord droit</string>

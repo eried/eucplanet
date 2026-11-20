@@ -977,7 +977,7 @@
     </plurals>
     <string name="radar_show_overlay">Tehdit kaplamasını göster</string>
     <string name="radar_show_overlay_desc">Gösterge paneli kenarlarında ince radar şeridi.</string>
-    <string name="radar_overlay_title">Radar kaplaması</string>
+    <string name="radar_customize">Özelleştir</string>
     <string name="radar_overlay_left">Sol kenar</string>
     <string name="radar_overlay_both">Her iki kenar</string>
     <string name="radar_overlay_right">Sağ kenar</string>

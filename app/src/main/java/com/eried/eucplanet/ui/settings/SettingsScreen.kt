@@ -616,12 +616,12 @@ fun SettingsScreen(
         fun landing(query: String): List<String> =
             hits(query).sortedByDescending { it.kind.weight }.mapNotNull { it.under }.distinct() + title
 
-        /** How many hits each card inside this section folds away, by card title. */
-        fun foldCounts(query: String): Map<String, Int> =
+        /** How many hits each card inside this section folds away, by card title id. */
+        fun foldCounts(query: String): Map<Int, Int> =
             hits(query).flatMap { it.folds }.groupingBy { it }.eachCount()
 
         /** The cards holding the best hit, outermost first: what the search opens. */
-        fun bestFolds(query: String): List<String> =
+        fun bestFolds(query: String): List<Int> =
             hits(query).maxByOrNull { it.kind.weight }?.folds.orEmpty()
     }
 
@@ -867,7 +867,7 @@ fun SettingsScreen(
             // best hit of the section that opened opens too.
             val searchFolds = if (searching) SearchFolds(
                 counts = sections.map { it.foldCounts(query) }
-                    .fold(emptyMap()) { acc, m -> acc + m.mapValues { (k, v) -> v + (acc[k] ?: 0) } },
+                    .fold(emptyMap<Int, Int>()) { acc, m -> acc + m.mapValues { (k, v) -> v + (acc[k] ?: 0) } },
                 open = sections.firstOrNull { it.key == searchScrollKey }?.bestFolds(query).orEmpty().toSet(),
             ) else SearchFolds.None
 
@@ -915,9 +915,9 @@ fun SettingsScreen(
                             else expandedSections.add(sec.key)
                         }
                     ) {
-                        // The cards read their counts by title, and titles repeat
-                        // across sections (Voice and Watch both have an
-                        // Advanced card), so each section sees only its own hits.
+                        // The cards read their counts by title id, and a card
+                        // drawn by a composable two sections share would repeat
+                        // its id, so each section sees only its own hits.
                         val ownFolds = if (searching) SearchFolds(
                             counts = sec.foldCounts(query),
                             open = if (sec.key == searchScrollKey) searchFolds.open else emptySet(),
@@ -1015,13 +1015,13 @@ private fun SearchCountPill(count: Int) {
 /**
  * A card's share of the search: whether the query opens it, and how many hits
  * it hides while it stays shut. Read from [LocalSearchFolds] by the card's own
- * title, so a card needs nothing passed in to take part.
+ * title id, so a card needs nothing more passed in to take part.
  */
 @Composable
-private fun cardSearch(title: String, expanded: Boolean): Pair<Boolean, Int> {
+private fun cardSearch(@androidx.annotation.StringRes titleRes: Int, expanded: Boolean): Pair<Boolean, Int> {
     val folds = LocalSearchFolds.current
-    val open = expanded || title in folds.open
-    return open to if (open) 0 else folds.counts[title] ?: 0
+    val open = expanded || titleRes in folds.open
+    return open to if (open) 0 else folds.counts[titleRes] ?: 0
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -1201,7 +1201,7 @@ private fun GeneralTab(
         // Both are set-once-and-forget, so they were costing height on every
         // visit for something a rider touches roughly never.
         AdvancedCollapsable(
-            title = stringResource(R.string.wheel_name_display),
+            titleRes = R.string.wheel_name_display,
             stateKey = "connection-wheel-name",
         ) {
             SegmentedChoice(
@@ -1258,7 +1258,7 @@ private fun GeneralTab(
         // hidden at build time, since Android cannot grey out a notification
         // action.
         AdvancedCollapsable(
-            title = stringResource(R.string.surface_notification),
+            titleRes = R.string.surface_notification,
             stateKey = "surface-notification",
         ) {
             SwitchSetting(
@@ -1313,7 +1313,7 @@ private fun GeneralTab(
         // Picture-in-picture. One control rather than a switch plus a mode
         // picker: "off" is simply the third choice.
         AdvancedCollapsable(
-            title = stringResource(R.string.pip_section),
+            titleRes = R.string.pip_section,
             stateKey = "surface-pip",
         ) {
             HintText(stringResource(R.string.pip_desc))
@@ -1359,7 +1359,7 @@ private fun GeneralTab(
         // Phone HUD: the same Overlay Studio presets the companion HUD shows,
         // drawn in a window over other apps instead of shipped to a screen.
         AdvancedCollapsable(
-            title = stringResource(R.string.phone_hud_section),
+            titleRes = R.string.phone_hud_section,
             stateKey = "surface-phone-hud",
         ) {
             val ctx = androidx.compose.ui.platform.LocalContext.current
@@ -1493,7 +1493,7 @@ private fun GeneralTab(
         // The widget surface. The how-to-add hint sits directly inside, the
         // pickers are folded under an inner "Customize".
         AdvancedCollapsable(
-            title = stringResource(R.string.widget_section),
+            titleRes = R.string.widget_section,
             stateKey = "surface-widget",
         ) {
             val metricSlots = remember(settings.widget.metrics) {
@@ -1510,7 +1510,7 @@ private fun GeneralTab(
             // header with nothing under it.
             HintText(stringResource(R.string.widget_how_to_add))
             AdvancedCollapsable(
-                title = stringResource(R.string.widget_customize),
+                titleRes = R.string.widget_customize,
                 stateKey = "widget-customize",
             ) {
             HintText(
@@ -2020,7 +2020,7 @@ private fun AdvancedTab(
             }
 
         AdvancedCollapsable(
-            title = stringResource(R.string.geo_section_dashboard),
+            titleRes = R.string.geo_section_dashboard,
             stateKey = "geo-dashboard"
         ) {
             SwitchSetting(
@@ -2071,7 +2071,7 @@ private fun AdvancedTab(
         }
 
         AdvancedCollapsable(
-            title = stringResource(R.string.geo_section_navigator),
+            titleRes = R.string.geo_section_navigator,
             stateKey = "geo-navigator"
         ) {
             SwitchSetting(
@@ -2090,7 +2090,7 @@ private fun AdvancedTab(
         }
 
         AdvancedCollapsable(
-            title = stringResource(R.string.geo_section_settings),
+            titleRes = R.string.geo_section_settings,
             stateKey = "geo-settings"
         ) {
             SwitchSetting(
@@ -2101,7 +2101,7 @@ private fun AdvancedTab(
         }
 
         AdvancedCollapsable(
-            title = stringResource(R.string.geo_section_trip),
+            titleRes = R.string.geo_section_trip,
             stateKey = "geo-trip"
         ) {
             SwitchSetting(
@@ -2124,7 +2124,7 @@ private fun AdvancedTab(
         }
 
         AdvancedCollapsable(
-            title = stringResource(R.string.geo_section_other),
+            titleRes = R.string.geo_section_other,
             stateKey = "geo-other"
         ) {
             SwitchSetting(
@@ -2141,7 +2141,7 @@ private fun AdvancedTab(
         AdvGroup.values().forEach { group ->
             val specs = ADVANCED_SPECS.filter { it.group == group }
             if (specs.isEmpty()) return@forEach
-            AdvancedCollapsable(title = stringResource(group.titleRes), stateKey = "adv-${group.name}") {
+            AdvancedCollapsable(titleRes = group.titleRes, stateKey = "adv-${group.name}") {
                 group.warningRes?.let { MetricInfoBox(stringResource(it)) }
                 specs.forEach { spec ->
                     AdvRow(spec, settings.advanced) { viewModel.updateAdvanced(spec, it) }
@@ -6935,7 +6935,7 @@ private fun VoiceTab(
         // behind an Advanced collapsable so the Speech section stays
         // focused on the rider's most-common task: picking the voice.
         AdvancedCollapsable(
-            title = stringResource(R.string.section_voice_advanced),
+            titleRes = R.string.section_voice_advanced,
             stateKey = "voice-advanced"
         ) {
             // The specific voice within the chosen language (many languages
@@ -7284,7 +7284,7 @@ private fun VoiceTab(
         }
 
         AdvancedCollapsable(
-            title = stringResource(R.string.report_contents),
+            titleRes = R.string.report_contents,
             stateKey = "voice-report-contents"
         ) {
         // Two lists, one per announcement, each its own order: what is worth
@@ -7833,7 +7833,7 @@ private fun WatchTab(
         // battery-vs-smoothness tradeoff, not a "does my watch work?"
         // gate.
         AdvancedCollapsable(
-            title = stringResource(R.string.section_watch_advanced),
+            titleRes = R.string.section_watch_advanced,
             stateKey = "watch-advanced"
         ) {
             // Update rate does not apply to Garmin: the Connect IQ Mobile SDK
@@ -7969,7 +7969,7 @@ private fun WatchTab(
         SectionHeader(stringResource(R.string.section_watch_buttons))
 
         WatchButtonsCollapsable(
-            title = stringResource(R.string.watch_buttons_touch_label),
+            titleRes = R.string.watch_buttons_touch_label,
             info = stringResource(R.string.watch_buttons_touch_info)
         ) {
             // Button 1 click | hold on one row; Button 2 click | hold on the next.
@@ -8005,7 +8005,7 @@ private fun WatchTab(
 
         if (hasHardwareButtons) {
             WatchButtonsCollapsable(
-                title = stringResource(R.string.watch_buttons_hardware_label),
+                titleRes = R.string.watch_buttons_hardware_label,
                 info = stringResource(R.string.watch_buttons_hardware_info)
             ) {
                 HardwareButtonGroup(
@@ -11115,12 +11115,14 @@ private fun DeviceRegion(
  */
 @Composable
 internal fun AdvancedCollapsable(
-    title: String,
-    stateKey: String = title,
+    /** The title's string id: search finds the card by it, so two cards may read alike. */
+    @androidx.annotation.StringRes titleRes: Int,
+    stateKey: String = "card-$titleRes",
     content: @Composable () -> Unit
 ) {
+    val title = stringResource(titleRes)
     var expanded by rememberSaveable(stateKey) { mutableStateOf(false) }
-    val (shown, hidden) = cardSearch(title, expanded)
+    val (shown, hidden) = cardSearch(titleRes, expanded)
     val requester = remember { BringIntoViewRequester() }
     LaunchedEffect(expanded) {
         if (expanded) {
@@ -11190,12 +11192,13 @@ internal fun AdvancedCollapsable(
  */
 @Composable
 private fun WatchButtonsCollapsable(
-    title: String,
+    @androidx.annotation.StringRes titleRes: Int,
     info: String,
     content: @Composable () -> Unit
 ) {
-    var expanded by rememberSaveable(title) { mutableStateOf(false) }
-    val (shown, hidden) = cardSearch(title, expanded)
+    val title = stringResource(titleRes)
+    var expanded by rememberSaveable(titleRes) { mutableStateOf(false) }
+    val (shown, hidden) = cardSearch(titleRes, expanded)
     // Same smart-scroll behaviour as BringIntoViewSection / the top-level
     // CollapsibleSection: when the rider opens the card, after a short
     // settle delay scroll the card into view so the freshly-revealed
@@ -12100,7 +12103,7 @@ private fun EngoGlassesBlock(
     SectionHeader(stringResource(R.string.engo_hud_enabled))
     EngoPairing(settings = settings, viewModel = viewModel) {
         AdvancedCollapsable(
-            title = stringResource(R.string.engo_pages_title),
+            titleRes = R.string.engo_pages_title,
             stateKey = "engo_pages"
         ) {
             val layouts = com.eried.eucplanet.service.hud.engo.EngoLayouts
@@ -12415,7 +12418,7 @@ private fun HudJoystickCard(
     viewModel: SettingsViewModel
 ) {
     AdvancedCollapsable(
-        title = stringResource(R.string.hud_joystick_title),
+        titleRes = R.string.hud_joystick_title,
         stateKey = "hud_joystick"
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -12441,7 +12444,7 @@ private fun HudMapOptionsCard(
     viewModel: SettingsViewModel
 ) {
     AdvancedCollapsable(
-        title = stringResource(R.string.hud_map_options_title),
+        titleRes = R.string.hud_map_options_title,
         stateKey = "hud_map_options"
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -12460,7 +12463,7 @@ private fun HudScreensCard(
     viewModel: SettingsViewModel
 ) {
     AdvancedCollapsable(
-        title = stringResource(R.string.hud_screens_title),
+        titleRes = R.string.hud_screens_title,
         stateKey = "hud_screens"
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {

@@ -1183,7 +1183,7 @@
     </plurals>
     <string name="radar_show_overlay">Zobrazit překryv hrozeb</string>
     <string name="radar_show_overlay_desc">Tenký radarový pruh na okrajích palubní desky.</string>
-    <string name="radar_overlay_title">Překryv radaru</string>
+    <string name="radar_customize">Přizpůsobit</string>
     <string name="radar_overlay_left">Levý okraj</string>
     <string name="radar_overlay_both">Oba okraje</string>
     <string name="radar_overlay_right">Pravý okraj</string>

@@ -982,7 +982,7 @@
     </plurals>
     <string name="radar_show_overlay">Mostrar barra de radar</string>
     <string name="radar_show_overlay_desc">Barra de radar fina en los bordes del dashboard.</string>
-    <string name="radar_overlay_title">Barra de radar</string>
+    <string name="radar_customize">Personalizar</string>
     <string name="radar_overlay_left">Borde izquierdo</string>
     <string name="radar_overlay_both">Ambos bordes</string>
     <string name="radar_overlay_right">Borde derecho</string>
