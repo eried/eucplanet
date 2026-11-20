@@ -56,6 +56,7 @@ Already connects but a reading looks wrong? See the [in-app diagnostics guide](d
 <td align="center"><img src="docs/screenshots/wear-details.png" width="120" alt="Wear OS telemetry detail" /><br><sub>Telemetry</sub></td>
 <td align="center"><img src="docs/screenshots/wear-navigation.png" width="120" alt="Wear OS turn arrow" /><br><sub>Navigation</sub></td>
 <td align="center"><img src="docs/screenshots/wear-goal.png" width="120" alt="Wear OS arrival flag" /><br><sub>Arrival flag</sub></td>
+<td align="center"><img src="docs/screenshots/wear-single.png" width="120" alt="Wear OS dial with one battery in an orange theme" /><br><sub>One battery</sub></td>
 </tr>
 </table>
 
@@ -63,163 +64,158 @@ Already connects but a reading looks wrong? See the [in-app diagnostics guide](d
 
 ## Features
 
-**Dashboard.** Live speed, battery, voltage, amps, temperature, PWM load and
-distance. Rearrange the tiles, build composite tiles and action groups, add a live
-runtime clock. Tap any tile for its history graph. Metric or imperial.
+The same twelve as on [eucplanet.ried.no](https://eucplanet.ried.no/), with the
+details under each.
 
-**Screen geometry.** Every screen adapts to the device it runs on: a portrait
-glance-view, a landscape three-column layout for bar mounts, roomier spacing on
-tablets, and a tiny cover-screen mode for foldables (the Galaxy Z Flip outer
-display and friends) with a compact speedo and sideways metric and button pages.
-Rotation is per-screen, so the dashboard can stay portrait while the map goes
-full landscape.
+**Works with your wheel.** InMotion V14 and P6 verified. KingSong, Begode,
+Veteran (LeaperKim), NOSFET and more InMotion models are rider-tested, the rest
+of those families and Ninebot in preview. The full list is in
+[What wheels work?](#what-wheels-work).
 
-**Turn-by-turn navigator.** Multi-stop routes on a map (walk, bike, car,
-straight-line), voice cues, off-route reroute, sticky GPS, and a Treasure Hunt
-proximity mode for unmarked spots. Charging stations (connectors, power, cost,
-ratings and photos) and other points of interest along the way (food, shops,
-rest stops) sit right on the map and refresh as you pan and zoom. Full Path
-mode lets you tap any point along the route to add a detour (skip sand, gravel,
-the wrong side of a one-way).
-Share a route as a QR code or a link, nothing uploaded: a friend scans it into
-their app, or opens it in a browser to see the stops and download a GPX. Map
-styles include Satellite hybrid, with road and place names over the imagery.
-The next-turn arrow can mirror to your watch, HUD, or Garmin Edge.
+**Modern & fast.** A pure-black dashboard with almost no lag, built to be read
+in one glance at speed. Reorder the tiles, theme every color, and it adapts to
+portrait, bar-mount landscape, tablets and foldable cover screens.
+- Live speed, battery, voltage, amps, temperature, PWM and distance. Composite
+  tiles, action groups and a runtime clock; tap any tile for its history graph.
+  Metric or imperial.
+- Every screen fits its device: a portrait glance view, a three-column landscape
+  for bar mounts, roomier tablets, and a cover-screen mode for foldables (the
+  Galaxy Z Flip outer display and friends). Rotation is per screen, so the
+  dashboard can stay portrait while the map goes landscape.
+- Home screen widgets for wheel numbers and one-tap buttons, plus two for the
+  weather.
 
-Bike routes prefer quiet streets, a missed turn gets a new route in seconds,
-the map turns with you while navigating, and GPX tracks are ridden as drawn.
+**Record and compare.** Every ride is recorded with GPS and wheel telemetry, in
+a CSV format other EUC apps and tools can read. Open any trip for its graphs, or
+let Compare put two rides side by side.
+- DarknessBot-compatible CSV, auto-record, a live track preview, and quick export
+  and share. A ride is recovered even if the app is closed mid-ride.
+- Look at trips later in the [web Trip Viewer](https://eucviewer.ried.no/).
 
-**Offline maps and routing.** Download the areas you ride and the map, routes
-and turn cues keep working with no signal, as a backup or as the first choice.
-The data comes from our own [mirror](https://github.com/eried/eucplanet-maps).
+**Charging, cell by cell.** A live charge curve with a prediction line. On wheels
+with a smart BMS, a per-cell view shows cell voltages, pack imbalance and
+temperatures, so a weak cell shows up early.
+- Energy split into used and charged, and a scrubbable prediction line.
+- Alerts when the pack passes 80%, when it is full, and at a storage level you
+  pick.
 
-**Android Auto.** Turn-by-turn on the car screen, with your dashboard numbers
-beside the map.
+**Navigation, offline too.** Multi-stop routes with turn-by-turn guidance. Bike
+routes prefer quiet streets, and a missed turn gets a new route in seconds.
+Download the areas you ride and the map, routes and turn cues keep working with
+no signal.
+- Walk, bike, car or straight-line routing, voice cues, and a Treasure Hunt
+  proximity mode for unmarked spots.
+- The navigator view keeps the turn card, speed, arrival time and your own tiles
+  over a map that turns with you.
+- GPX tracks are ridden as drawn. Solve the shortest stop order (up to 49 stops),
+  reverse a route for the way back, or tap the route to add a detour around sand,
+  gravel or the wrong side of a one-way.
+- Charging stations (connectors, power, cost, ratings and photos) and other places
+  along the way (food, shops, rest stops) sit right on the map.
+- Share a route as a QR code or a link, nothing uploaded: a friend scans it into
+  their app, or opens it in a browser for the stops and a GPX.
+- Offline data comes from our own [mirror](https://github.com/eried/eucplanet-maps).
+  Map styles include Satellite hybrid, with road and place names over the imagery.
 
-**Overlay Studio.** Record video and stills with a customisable telemetry overlay:
-dials, gauges, rolling graphs, `{speed}`-style text, mini-map, layered cameras. Save
-layouts as JSON. Export a finished MP4, or a transparent overlay to composite over
-footage from another camera. It's not only for recording and replay: the same
-editor designs your **MotoEye / Android HUD** layout, so the visor shows exactly
-the tiles and gauges you arranged.
+**Watch and helmet.** <sub>Android only</sub> Your wheel's numbers off the phone:
+a Wear OS watch app, a
+[Garmin watch or Edge data field](https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71),
+an Amazfit dial, and a [MotoEye or any Android helmet HUD](https://eucplanet.ried.no/hud/),
+also in Android Auto mode with the route.
+- **Wear OS** (3 or newer): speed dial, one to three batteries, horn and light
+  remotes, the next turn and a map. Ridden with a Galaxy Watch Ultra, Galaxy
+  Watch 5 Pro and TicWatch 3 Pro. Architecture in [docs/WEAR_OS_MAP.md](docs/WEAR_OS_MAP.md).
+- **Garmin**: a Connect IQ data field with speed, battery, PWM, current and motor
+  temperature, on an Edge 530 or newer and most modern Garmin watches. Build it
+  yourself from [docs/GARMIN_SETUP.md](docs/GARMIN_SETUP.md).
+- **Amazfit (Zepp OS)**: speed gauge, PWM, three batteries, horn and light
+  remotes, the next turn and the physical buttons. Tested on the T-Rex 3, built
+  for the Balance too. Setup in [docs/AMAZFIT_SETUP.md](docs/AMAZFIT_SETUP.md).
+- **Helmet HUD**: the dashboard mirrors to a MotoEye E6 or any Android HUD over
+  local WiFi, with a Map + Nav screen that puts the route arrow over a moving map.
+  The phone updates the HUD app for you after the first install.
+- **ENGO 2 and ENGO 3 glasses**: pick a layout and what each place shows, as a
+  number, a bar or a graph, with the next turn while you navigate.
+- **Android Auto**: turn-by-turn on an Android Auto HUD, your numbers beside the
+  map, and alarms as cards.
 
-**Weather.** A score for how the next hours look for riding, from rain, wind and
-gusts, cold, heat, night and golden hour, each weighted by how much you mind it.
-Drag the curve to read any hour, with temperature, wind and humidity underneath.
-Pick the window (next 8 hours, tomorrow, the week), the source, and your comfort
-thresholds.
+**Alarms & voice.** Alarms and spoken reports for speed, battery and PWM, the
+number that says how close the wheel is to its limit, in your language. Ask for
+battery or speed by voice, or say horn, lights, lock.
+- Your own thresholds on speed, battery, temperature, PWM, voltage, current, tire
+  pressure and more, for every wheel or only the connected one. Each can beep
+  (your tone and pitch), speak (`"Battery at {value}%"`) and vibrate, with
+  cooldowns so they don't nag. Predictive triggers warn up to 3 seconds ahead, and
+  Battery (est) takes the load sag out so it does not fire on every acceleration.
+- Spoken reports at your interval with a per-language voice, plus callouts for
+  lock, lights, GPS fix, connection, Legal Mode and recording.
+- Voice commands <sub>Android only</sub>: ask "battery", "speed" or "how is the
+  weather", or have it sound the horn, switch the lights, lock the wheel or start
+  recording. Start listening from the Voice button, a Flic, the volume keys (even
+  with the screen off), your watch, the HUD or a headset button.
+- Engine sounds: an engine whose revs follow the wheel's speed and motor load.
 
-**Home screen widgets.** Wheel metrics and one-tap buttons, plus two for the
-weather: one cell for right now, and a resizable forecast that shows more as you
-make it bigger.
+**Overlay Studio.** Record video with your telemetry on screen, laid out your way.
+Export MP4 or a transparent overlay for another camera's footage. The same editor
+designs your [MotoEye HUD](https://eucplanet.ried.no/hud/) and the Phone HUD
+overlay on Android.
+- Dials, gauges, rolling graphs, `{speed}`-style text, a mini-map and layered
+  cameras. Layouts save as JSON.
+- Phone HUD <sub>Android only</sub>: a Studio layout drawn over other apps, so you
+  see your wheel while using maps or music.
 
-**Charging monitor.** A live charge curve with a scrubbable prediction line,
-energy split into used and charged, and a per-cell BMS view (Cells tab) for
-smart-BMS wheels (Veteran, KingSong and others) showing individual cell voltages,
-pack imbalance and temperatures so you can spot a weak cell early.
+**Buttons, radar, sensors.** Flic 2 buttons for horn, lights and lock. A Garmin
+Varia shows vehicles coming up behind you, with alarms on distance and closing
+speed. Bluetooth tire pressure caps and a RaceBox GPS feed the dashboard too.
+- Up to four Flic 2 buttons, and the volume keys <sub>Android only</sub>, for
+  horn, lights, lock, voice and more.
+- Wheel control one tap away: the horn (the wheel's own, a sound you pick, or
+  both), lights and lock. Legal Mode caps the wheel's tiltback and alarm speeds
+  and puts your own back when you switch it off.
+- Varia RTL515 or RCT715 radar: approaching vehicles on the dashboard, with
+  alarms that beep, speak or vibrate.
+- Tire pressure: an InMotion P6 relays its own sensor. Any other wheel can use a
+  screw-on [valve-cap sensor](https://s.click.aliexpress.com/e/_c2xLwuvt) from the
+  Wicarlink family (LY TPMS, ITPMS and unbranded), format in
+  [docs/protocols/wicarlink-tpms.md](docs/protocols/wicarlink-tpms.md). One cap per
+  wheel, with a low-pressure alarm in psi or bar.
+- External Bluetooth GPS (RaceBox or compatible) for centimetre-class speed and
+  altitude without draining the phone, falling back to the phone GPS.
 
-**Wheel control.** Horn, lights, lock, voice announcements, all one tap away. The
-horn can be the wheel's own, a sound you pick played by the phone, or both. Legal
-Mode temporarily reprograms the wheel's tiltback and alarm speeds to a cap you set,
-then restores your normal settings when you switch it off.
+**Group rides.** Share a ride with a link or a QR code and see friends live on
+the map, with trails. End-to-end encrypted, with a web page for watching without
+the app. Opt in to the [EUC Stats leaderboard](https://eucstats.ried.no/) to see
+how your distance ranks worldwide.
+- Each friend gets a colour and a fading trail; the relay only passes sealed
+  packets along.
+- The leaderboard ranks riders worldwide and by country.
 
-**Custom alarms.** Your own thresholds on speed, battery, temperature, PWM, voltage,
-current, tire pressure and more, for every wheel or only the one that is connected.
-Battery (est) is the battery reading with the load sag taken out, so an alarm on it
-does not fire every time you accelerate. Each can beep (custom tone and pitch), speak (`"Battery at {value}%"`),
-and/or vibrate, with cooldowns so they don't nag. Predictive triggers warn you up
-to 3 seconds ahead, and a most-severe-per-metric engine keeps a louder alarm from
-eating a quieter one.
+**Weather forecast.** A score for how the next hours look for riding, from rain,
+wind and gusts, cold, heat and night, weighted by how much you mind each one.
+- Drag the curve to read any hour, with temperature, wind and humidity underneath.
+- Pick the window (next 8 hours, tomorrow, the week), the source and your comfort
+  thresholds. Golden hour counts too.
+- Two home screen widgets: one cell for right now, and a resizable forecast that
+  shows more as you make it bigger.
 
-**Voice announcements.** Periodic reports at your interval, configurable rate and
-a per-language voice picker, plus event callouts: lock/unlock, lights, GPS fix,
-connection, legal mode, recording.
-
-**Voice commands.** <sub>Android only</sub> Ask the app instead of looking at it: "battery", "speed", "how
-is the weather", or tell it to sound the horn, switch the lights, lock the wheel or
-start recording. Start listening from the Voice button, a Flic, the volume keys,
-your watch, the HUD or a headset button. It answers in your language.
-
-**Trip recording.** GPS and telemetry to DarknessBot-compatible CSV, auto-record,
-live track preview, and a trip list with quick export and share. Trips are
-recovered even if the app is closed mid-ride. Compare puts two trips side by side. View them later in
-the [web Trip Viewer](https://github.com/eried/eucviewer), or opt in to share them on
-the [EUC Stats leaderboard](https://eucstats.ried.no/) and rank your distance against
-riders worldwide, by country.
-
-**Backup & sharing, on your terms.** Every ride is a plain CSV file on your own
-device, nothing is uploaded by default. Optional Dropbox sync mirrors your trips,
-settings, themes and overlays into your own private folder so you can restore them
-on another phone, and you can hand a single ride out as a link when you want to.
-You decide what leaves the phone, where it goes, and who sees it.
-
-**Ride together.** Share a ride with a link or a QR code and see your friends live
-on the navigator map, each with a colour and a fading trail. It is end-to-end
-encrypted, the relay only passes sealed packets along, and a web page lets someone
-follow without installing anything.
-
-**Automations.** Headlight control: on before sunset, off after sunrise, from live
-GPS, and it can cut the beam when you slow to walking pace so it is not in the face
-of whoever is waiting at the crossing with you, coming back when you ride on.
-Handles midnight sun and polar night (I live in the arctic circle 🧐). Volume
-control <sub>Android only</sub> scales phone volume with speed. Wheel lock locks the wheel when you walk
-away and unlocks it when you come back. Switch the light or lock by hand and that
-automation steps aside until you hand it back. Each one runs never, whenever the wheel is
-connected, or only while you are actually riding. Charging can tell you when the
-pack passes 80%, when it is full, and at a level you pick for storage.
-
-**Helmet HUD.** Sideload the small HUD companion on a MotoEye E6 or any
-Android-based head-up display and the dashboard mirrors live to your visor
-over local WiFi. New Map + Nav combined screen in the HUD shows the route
-arrow on top of a moving map (Garmin Edge style). See
-[eucplanet.ried.no/hud](https://eucplanet.ried.no/hud/).
-
-**Garmin Edge / watches.** <sub>Android only</sub> A Connect IQ data field shows live EUC speed,
-battery, PWM, current and motor temperature on your bar-mounted Edge or
-on your wrist. Supports Edge 530/540/830/840/1030/1040/1050 and most modern
-Garmin watches (135+ devices). Get it on the
-[Connect IQ Store](https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71),
-or build it yourself from [docs/GARMIN_SETUP.md](docs/GARMIN_SETUP.md).
-
-**Amazfit (Zepp OS) watches.** <sub>Android only</sub> The same wrist dial on Amazfit watches: speed
-gauge, PWM, three batteries, horn/light remotes, navigation mirror, physical
-buttons. Tested on the T-Rex 3, built for the Balance too. Setup and sideload
-steps in [docs/AMAZFIT_SETUP.md](docs/AMAZFIT_SETUP.md).
-
-**Varia rear-view radar.** Pair a Garmin Varia RTL515 or RCT715 and see
-approaching vehicles on the dashboard. Wire custom alarms (beep, voice, or
-vibrate) to rear-vehicle distance and closing speed. Same sensor cyclists
-already trust, now on your EUC.
-
-**Tire pressure (TPMS).** Read the pressure your wheel already knows: an
-InMotion P6 relays its bound sensor and the app shows it live, graphs it, puts
-it on the HUD and in the overlay, and will warn you about it - a slow puncture
-is exactly the thing you notice too late. For wheels with no sensor of their
-own, a screw-on [valve-cap
-sensor](https://s.click.aliexpress.com/e/_c2xLwuvt) broadcasts pressure,
-temperature and battery, and the app listens for it: the Wicarlink family, sold
-as LY TPMS, ITPMS and unbranded, whose format is written up in
-[docs/protocols/wicarlink-tpms.md](docs/protocols/wicarlink-tpms.md). Add one
-cap per wheel. Set a low-pressure alarm in psi or bar and the app tells you
-before the tyre does.
-
-**Integrations.** Flic 2 buttons (up to two), physical volume-key shortcuts
-<sub>Android only</sub>, external BLE GPS (RaceBox or compatible, for centimetre-class speed and altitude
-without draining the phone radio; auto-falls back to phone GPS), and a Wear OS
-companion <sub>Android only</sub> (speed dial, three batteries, horn/light remotes, navigation mirror,
-Touch / Physical buttons split; tested on Galaxy Watch Ultra, works on any
-Wear OS 5+ watch). For the developer architecture, see
-[docs/WEAR_OS_MAP.md](docs/WEAR_OS_MAP.md).
-
-**Advanced settings.** A dedicated Advanced panel exposes the knobs behind every
-feature: poll and refresh rates, chart history windows, HUD discovery timings,
-screen geometry, alarm and charging tuning, and more. Each has a sensible default,
-a valid range, and a one-tap restore, so you can tune deeply without breaking
-anything.
-
-**Multi-language support.** Full UI localisation in 30 languages, at parity across
-all of them. The exceptions are English-only by design: the Garmin and Amazfit
-dials, the helmet HUD, and Service Mode.
+**Private, and yours to tune.** No analytics, no beacons, no in-app call-home.
+Rides stay on your device, with optional Dropbox backup to your own folder.
+- Every ride is a plain CSV on your phone. Dropbox sync mirrors trips, settings,
+  themes and overlays into your own private folder, and you can hand out a single
+  ride as a link when you want to.
+- Automations: the headlight turns on before sunset and off after sunrise from
+  live GPS (midnight sun and polar night included, I live in the arctic circle 🧐),
+  and dims when you slow to walking pace. Phone volume follows speed
+  <sub>Android only</sub>, and the wheel locks when you walk away and unlocks when
+  you come back. Switch one by hand and it steps aside until you hand it back.
+- A dedicated Advanced panel for poll and refresh rates, chart history windows,
+  HUD discovery timings, alarm and charging tuning and more. Each has a default,
+  a valid range and a one-tap restore.
+- In your language, the whole app, with regional versions where riders asked for
+  them: English (US and UK), Spanish (Spain and Latin America), Portuguese
+  (Brazil and Portugal), and Simplified and Traditional Chinese. English only by
+  design: the Garmin and Amazfit dials, the helmet HUD, the ENGO glasses page and
+  Service Mode.
 
 ---
 
