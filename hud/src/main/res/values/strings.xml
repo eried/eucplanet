@@ -12,6 +12,7 @@
     <string name="hud_screen_custom_cam">Custom + camera</string>
     <string name="hud_screen_custom_cam_desc">Your preset over the rear camera</string>
     <string name="hud_screen_custom_map">Custom + map</string>
+    <string name="hud_custom_no_preset">Pick a preset on the phone: Settings, Integration, Custom overlay</string>
     <string name="hud_screen_custom_map_desc">Your preset over the map, with turns</string>
     <string name="hud_screen_map">Map</string>
     <string name="hud_screen_map_desc">Your position with direction of travel</string>
