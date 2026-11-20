@@ -2828,7 +2828,10 @@
     <string name="engo_style_smooth">Сплошная полоса</string>
     <string name="engo_style_graph">График</string>
     <string name="engo_graph_window">Окно</string>
-    <string name="engo_window_dashboard">Дашборд (%1$s)</string>
+    <string name="engo_window_dashboard">%1$s · дашборд</string>
+    <string name="engo_window_sec">%1$d с</string>
+    <string name="engo_window_min">%1$d мин</string>
+    <string name="engo_window_min_sec">%1$d мин %2$d с</string>
     <string name="engo_font">Шрифт цифр</string>
     <string name="engo_font_pixel">Пиксельный</string>
     <string name="engo_font_digital">Цифровой</string>

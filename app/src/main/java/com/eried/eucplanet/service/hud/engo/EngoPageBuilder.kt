@@ -57,9 +57,25 @@ object EngoPageBuilder {
         turnsOn = engo.navTakeover,
     )
 
+    /**
+     * No graph looks back less than this, the whole length aside: the dashboard's history
+     * has about one point a second, too few for a line over a shorter stretch.
+     */
+    const val MIN_GRAPH_WINDOW_MS = 5_000L
+
+    /** The shares a graph can pick with this dashboard length: all of it, and each part of 5 s or more. */
+    fun offeredDivs(dashboardWindowSec: Int): List<Int> =
+        com.eried.eucplanet.data.model.ENGO_WINDOW_DIVS.filter {
+            it == 1 || dashboardWindowSec * 1000L / it >= MIN_GRAPH_WINDOW_MS
+        }
+
+    /** The share a graph uses: its own, or the shortest one offered when the dashboard's length got shorter. */
+    fun shareOf(windowDiv: Int, dashboardWindowSec: Int): Int =
+        offeredDivs(dashboardWindowSec).last { it <= windowDiv.coerceAtLeast(1) }
+
     /** How long a graph looks back, in ms: its share ([windowDiv]) of the dashboard's stats length. */
     fun windowMs(windowDiv: Int, dashboardWindowSec: Int): Long =
-        dashboardWindowSec.coerceAtLeast(1) * 1000L / windowDiv.coerceAtLeast(1)
+        dashboardWindowSec.coerceAtLeast(1) * 1000L / shareOf(windowDiv, dashboardWindowSec)
 
     private fun reading(
         el: EngoElement,

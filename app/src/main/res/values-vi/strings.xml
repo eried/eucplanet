@@ -470,7 +470,10 @@
     <string name="engo_style_smooth">Thanh liền</string>
     <string name="engo_style_graph">Biểu đồ</string>
     <string name="engo_graph_window">Khoảng</string>
-    <string name="engo_window_dashboard">Dashboard (%1$s)</string>
+    <string name="engo_window_dashboard">%1$s · dashboard</string>
+    <string name="engo_window_sec">%1$d giây</string>
+    <string name="engo_window_min">%1$d phút</string>
+    <string name="engo_window_min_sec">%1$d phút %2$d giây</string>
     <string name="engo_font">Phông chữ số</string>
     <string name="engo_font_pixel">Pixel</string>
     <string name="engo_font_digital">Kỹ thuật số</string>

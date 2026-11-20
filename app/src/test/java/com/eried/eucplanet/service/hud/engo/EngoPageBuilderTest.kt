@@ -101,7 +101,22 @@ class EngoPageBuilderTest {
         assertEquals(300_000L, EngoPageBuilder.windowMs(1, 300))
         assertEquals(150_000L, EngoPageBuilder.windowMs(2, 300))
         assertEquals(75_000L, EngoPageBuilder.windowMs(4, 300))
-        assertEquals(3_750L, EngoPageBuilder.windowMs(8, 30))
+        assertEquals(37_500L, EngoPageBuilder.windowMs(8, 300))
+        assertEquals(18_750L, EngoPageBuilder.windowMs(16, 300))
+    }
+
+    @Test
+    fun noGraphLooksBackLessThanFiveSeconds() {
+        // Only the shares of 5 s or more are offered; the whole length always is.
+        assertEquals(listOf(1, 2, 4, 8, 16), EngoPageBuilder.offeredDivs(300))
+        assertEquals(listOf(1, 2, 4, 8), EngoPageBuilder.offeredDivs(60))
+        assertEquals(listOf(1, 2, 4), EngoPageBuilder.offeredDivs(30))
+        assertEquals(listOf(1), EngoPageBuilder.offeredDivs(5))
+        // A share the dashboard made too short uses the shortest one offered.
+        assertEquals(4, EngoPageBuilder.shareOf(16, 30))
+        assertEquals(7_500L, EngoPageBuilder.windowMs(16, 30))
+        assertEquals(7_500L, EngoPageBuilder.windowMs(8, 30))
+        assertEquals(16, EngoPageBuilder.shareOf(16, 300))
     }
 
     @Test

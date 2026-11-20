@@ -2711,7 +2711,10 @@
     <string name="engo_style_smooth">Jevn stolpe</string>
     <string name="engo_style_graph">Graf</string>
     <string name="engo_graph_window">Vindu</string>
-    <string name="engo_window_dashboard">Dashbord (%1$s)</string>
+    <string name="engo_window_dashboard">%1$s · dashbord</string>
+    <string name="engo_window_sec">%1$d sek</string>
+    <string name="engo_window_min">%1$d min</string>
+    <string name="engo_window_min_sec">%1$d min %2$d sek</string>
     <string name="engo_font">Tallskrift</string>
     <string name="engo_font_pixel">Piksel</string>
     <string name="engo_font_digital">Digital</string>

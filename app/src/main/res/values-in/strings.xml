@@ -470,7 +470,10 @@
     <string name="engo_style_smooth">Bilah mulus</string>
     <string name="engo_style_graph">Grafik</string>
     <string name="engo_graph_window">Rentang</string>
-    <string name="engo_window_dashboard">Dasbor (%1$s)</string>
+    <string name="engo_window_dashboard">%1$s · dasbor</string>
+    <string name="engo_window_sec">%1$d dtk</string>
+    <string name="engo_window_min">%1$d mnt</string>
+    <string name="engo_window_min_sec">%1$d mnt %2$d dtk</string>
     <string name="engo_font">Font angka</string>
     <string name="engo_font_pixel">Piksel</string>
     <string name="engo_font_digital">Digital</string>

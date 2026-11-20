@@ -24,7 +24,7 @@ class EngoElementJsonTest {
     }
 
     @Test fun `every share survives a save`() {
-        for (div in listOf(1, 2, 4, 8)) {
+        for (div in listOf(1, 2, 4, 8, 16)) {
             val back = SettingsJson.fromJson(JSONObject(SettingsJson.toJson(withGraph(div)).toString()))
             assertEquals(div, back.engoHud.elements[2].windowDiv)
         }

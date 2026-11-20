@@ -2828,7 +2828,10 @@
     <string name="engo_style_smooth">Barra contínua</string>
     <string name="engo_style_graph">Gráfico</string>
     <string name="engo_graph_window">Janela</string>
-    <string name="engo_window_dashboard">Painel (%1$s)</string>
+    <string name="engo_window_dashboard">%1$s · painel</string>
+    <string name="engo_window_sec">%1$d seg</string>
+    <string name="engo_window_min">%1$d min</string>
+    <string name="engo_window_min_sec">%1$d min %2$d seg</string>
     <string name="engo_font">Fonte dos números</string>
     <string name="engo_font_pixel">Pixel</string>
     <string name="engo_font_digital">Digital</string>
