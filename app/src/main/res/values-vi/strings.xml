@@ -443,6 +443,8 @@
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Bật liên kết dữ liệu</string>
+    <string name="hud_auto_start">Mở khi HUD khởi động</string>
+    <string name="hud_auto_start_desc">Mở ứng dụng HUD mỗi khi bật HUD. Sau khi cài đặt, hãy tự mở ứng dụng một lần.</string>
     <string name="engo_hud_enabled">HUD kính ENGO</string>
     <string name="engo_scan_hint">Bật kính. Kính chỉ kết nối với một thiết bị mỗi lần, nên hãy ngắt khỏi đồng hồ hoặc ứng dụng ActiveLook trước.</string>
     <string name="engo_pages_title">Trang của kính</string>

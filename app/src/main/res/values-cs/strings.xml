@@ -442,6 +442,8 @@
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Zapnout datové spojení</string>
+    <string name="hud_auto_start">Otevřít při startu HUD</string>
+    <string name="hud_auto_start_desc">Otevře aplikaci HUD při každém zapnutí HUD. Po instalaci ji jednou otevřete ručně.</string>
     <string name="hud_ip_label">IP adresa zařízení</string>
     <string name="hud_ip_incomplete">Zadejte celou adresu, například 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">IP adresa zařízení (automaticky)</string>

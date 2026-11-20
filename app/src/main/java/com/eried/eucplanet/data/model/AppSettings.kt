@@ -748,29 +748,9 @@ data class AppSettings(
      * carousel order matches the order the rider sees in Settings.
      */
     val hudScreensOrder: String = "",
-    /**
-     * Which raster map style the HUD should use for its Map screen
-     * and the MAP element inside a Custom overlay. Empty = the HUD picks
-     * its compiled-in default (a light basemap). Supported codes: "osm",
-     * "cyclosm", "topo", "hot", "satellite", "light", "dark"; legacy Carto
-     * slugs riders have saved ("voyager", "dark_all", ...) still resolve
-     * to the matching Esri style, and anything else falls back to light so
-     * the rider never gets a blank map.
-     */
-    val hudMapStyle: String = "",
-    /**
-     * Per-axis tile post-processing. Both run as a single ColorMatrix on
-     * the HUD; at the neutral values (contrast=100, brightness=0) the
-     * matrix is identity and we skip the ColorFilter entirely so there's
-     * no GPU cost for the common case.
-     *
-     * Contrast: 50..200 percent, 100 = neutral (no gain).
-     * Brightness: -100..100, 0 = neutral. Negative darkens, positive
-     * lightens. Applied on a 0..255 channel scale -- -100 means subtract
-     * 100 from each channel before clamping.
-     */
-    val hudMapContrastPct: Int = 100,
-    val hudMapBrightnessPct: Int = 0,
+    /** The HUD map look and start-up choice, nested to keep AppSettings
+     *  under the JVM argument limit. See [HudDisplaySettings]. */
+    val hudDisplay: HudDisplaySettings = HudDisplaySettings(),
 
     // --- Motor Sound generator --- (nested; see EngineSoundSettings)
     val engineSound: EngineSoundSettings = EngineSoundSettings(),
@@ -1286,6 +1266,39 @@ data class ProximityLockSettings(
             setOf(UNLOCK_WHEN_NEVER, UNLOCK_WHEN_RETURN, UNLOCK_WHEN_NEAR)
     }
 }
+
+/**
+ * The HUD map look (tile style, contrast, brightness) and whether the HUD
+ * app opens when the HUD starts. Backups keep the old flat keys.
+ */
+data class HudDisplaySettings(
+    /**
+     * Which raster map style the HUD should use for its Map screen
+     * and the MAP element inside a Custom overlay. Empty = the HUD picks
+     * its compiled-in default (a light basemap). Supported codes: "osm",
+     * "cyclosm", "topo", "hot", "satellite", "light", "dark"; legacy Carto
+     * slugs riders have saved ("voyager", "dark_all", ...) still resolve
+     * to the matching Esri style, and anything else falls back to light so
+     * the rider never gets a blank map.
+     */
+    val mapStyle: String = "",
+    /**
+     * Per-axis tile post-processing. Both run as a single ColorMatrix on
+     * the HUD; at the neutral values (contrast=100, brightness=0) the
+     * matrix is identity and we skip the ColorFilter entirely so there's
+     * no GPU cost for the common case.
+     *
+     * Contrast: 50..200 percent, 100 = neutral (no gain).
+     * Brightness: -100..100, 0 = neutral. Negative darkens, positive
+     * lightens. Applied on a 0..255 channel scale -- -100 means subtract
+     * 100 from each channel before clamping.
+     */
+    val mapContrastPct: Int = 100,
+    val mapBrightnessPct: Int = 0,
+    /** Open the HUD app when the HUD starts. Sent with every frame; the HUD
+     *  keeps the last value, since no phone is linked when it starts. */
+    val autoStart: Boolean = true
+)
 
 /**
  * ENGO 2 / 3 ActiveLook glasses HUD settings. Nested so the flags (and future

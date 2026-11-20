@@ -1,6 +1,7 @@
 package com.eried.eucplanet.data.store
 
 import com.eried.eucplanet.data.model.BatteryPercentSettings
+import com.eried.eucplanet.data.model.HudDisplaySettings
 import com.eried.eucplanet.data.model.ProximityLockSettings
 import com.eried.eucplanet.data.model.ApplyWhenIds
 import com.eried.eucplanet.data.model.AppSettings
@@ -438,9 +439,10 @@ object SettingsJson {
         put("pipMode", s.pipMode)
         put("hudScreensEnabled", s.hudScreensEnabled)
         put("hudScreensOrder", s.hudScreensOrder)
-        put("hudMapStyle", s.hudMapStyle)
-        put("hudMapContrastPct", s.hudMapContrastPct)
-        put("hudMapBrightnessPct", s.hudMapBrightnessPct)
+        put("hudMapStyle", s.hudDisplay.mapStyle)
+        put("hudMapContrastPct", s.hudDisplay.mapContrastPct)
+        put("hudMapBrightnessPct", s.hudDisplay.mapBrightnessPct)
+        put("hudAutoStart", s.hudDisplay.autoStart)
         put("studioReplayPhotoFormat", s.studioReplayPhotoFormat)
         put("studioReplayVideoFormat", s.studioReplayVideoFormat)
         put("studioReplayChromaColor", s.studioReplayChromaColor)
@@ -937,9 +939,12 @@ object SettingsJson {
         pipMode = j.optString("pipMode", base.pipMode),
         hudScreensEnabled = j.optString("hudScreensEnabled", base.hudScreensEnabled),
         hudScreensOrder = j.optString("hudScreensOrder", base.hudScreensOrder),
-        hudMapStyle = j.optString("hudMapStyle", base.hudMapStyle),
-        hudMapContrastPct = j.optInt("hudMapContrastPct", base.hudMapContrastPct),
-        hudMapBrightnessPct = j.optInt("hudMapBrightnessPct", base.hudMapBrightnessPct),
+        hudDisplay = HudDisplaySettings(
+            mapStyle = j.optString("hudMapStyle", base.hudDisplay.mapStyle),
+            mapContrastPct = j.optInt("hudMapContrastPct", base.hudDisplay.mapContrastPct),
+            mapBrightnessPct = j.optInt("hudMapBrightnessPct", base.hudDisplay.mapBrightnessPct),
+            autoStart = j.optBoolean("hudAutoStart", base.hudDisplay.autoStart),
+        ),
         studioReplayPhotoFormat = j.optString("studioReplayPhotoFormat", base.studioReplayPhotoFormat),
         studioReplayVideoFormat = j.optString("studioReplayVideoFormat", base.studioReplayVideoFormat),
         studioReplayChromaColor = j.optLong("studioReplayChromaColor", base.studioReplayChromaColor),

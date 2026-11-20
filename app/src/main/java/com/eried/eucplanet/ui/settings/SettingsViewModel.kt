@@ -930,6 +930,7 @@ class SettingsViewModel(
 
     // HUD companion
     fun updateHudServerEnabled(v: Boolean) = update { copy(hudServerEnabled = v) }
+    fun updateHudAutoStart(v: Boolean) = update { copy(hudDisplay = hudDisplay.copy(autoStart = v)) }
     fun updateEngoHudEnabled(v: Boolean) = update { copy(engoHud = engoHud.copy(enabled = v)) }
     /** The rider picked these glasses in a scan: remembered, and linked to. */
     fun updateEngoPaired(address: String, name: String) = update {
@@ -1051,18 +1052,18 @@ class SettingsViewModel(
         copy(hudCustomOverlayName = name.trim(), hudCustomOverlayJson = json)
     }
 
-    /** Update the HUD's map tile style. See AppSettings.hudMapStyle for
+    /** Update the HUD's map tile style. See HudDisplaySettings.mapStyle for
      *  the recognised codes; empty = "use HUD's compiled default." */
-    fun updateHudMapStyle(code: String) = update { copy(hudMapStyle = code) }
+    fun updateHudMapStyle(code: String) = update { copy(hudDisplay = hudDisplay.copy(mapStyle = code)) }
 
     /** Map tile contrast, 50..200 percent (100 = neutral). */
     fun updateHudMapContrast(pct: Int) = update {
-        copy(hudMapContrastPct = pct.coerceIn(50, 200))
+        copy(hudDisplay = hudDisplay.copy(mapContrastPct = pct.coerceIn(50, 200)))
     }
 
     /** Map tile brightness offset, -100..100 (0 = neutral). */
     fun updateHudMapBrightness(pct: Int) = update {
-        copy(hudMapBrightnessPct = pct.coerceIn(-100, 100))
+        copy(hudDisplay = hudDisplay.copy(mapBrightnessPct = pct.coerceIn(-100, 100)))
     }
 
     /** Screens that are ON by default on a fresh install. Order is the

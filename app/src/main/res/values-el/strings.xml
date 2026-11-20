@@ -458,6 +458,8 @@
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Ενεργοποίηση σύνδεσης δεδομένων</string>
+    <string name="hud_auto_start">Άνοιγμα με την εκκίνηση του HUD</string>
+    <string name="hud_auto_start_desc">Ανοίγει την εφαρμογή HUD κάθε φορά που ενεργοποιείται το HUD. Ανοίξτε την χειροκίνητα μία φορά μετά την εγκατάσταση.</string>
     <string name="engo_hud_enabled">HUD γυαλιών ENGO</string>
     <string name="engo_scan_hint">Ανάψτε τα γυαλιά. Συνδέονται με μία συσκευή τη φορά, οπότε αποσυνδέστε τα πρώτα από το ρολόι ή την εφαρμογή ActiveLook.</string>
     <string name="engo_pages_title">Σελίδες γυαλιών</string>

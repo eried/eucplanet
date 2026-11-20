@@ -69,11 +69,12 @@ class AppSettingsArgLimitTest {
         // that went with its hint; 250 is the last settings backup time and name
         // gone: the backup file says when it was written; 251 unitAltitude,
         // beside the other three unit fields; 252 the ENGO glasses HUD group,
-        // nested as EngoHudSettings. That leaves THREE
-        // slots. Keep nesting: the next group goes in
-        // one slot, not one per field, and the volume key fields are the
-        // first candidates to nest when it is needed.
-        val expectedSlots = 252
+        // nested as EngoHudSettings; 250 the HUD map style, contrast and
+        // brightness nested with the new HUD autostart flag as
+        // HudDisplaySettings. That leaves FIVE slots. Keep nesting: the next
+        // group goes in one slot, not one per field, and the volume key
+        // fields are the first candidates to nest when it is needed.
+        val expectedSlots = 250
         assertEquals(
             "AppSettings slot usage changed. Prefer nesting a group of fields over " +
                 "spending headroom, and update this number deliberately.",

@@ -470,6 +470,8 @@
     <!-- HUD companion settings -->
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Zapnúť dátové spojenie</string>
+    <string name="hud_auto_start">Otvoriť pri štarte HUD</string>
+    <string name="hud_auto_start_desc">Otvorí aplikáciu HUD pri každom zapnutí HUD. Po inštalácii ju raz otvorte ručne.</string>
     <string name="engo_hud_enabled">HUD okuliarov ENGO</string>
     <string name="engo_scan_hint">Zapnite okuliare. Pripoja sa vždy len k jednému zariadeniu, preto ich najprv odpojte od hodiniek alebo aplikácie ActiveLook.</string>
     <string name="engo_pages_title">Stránky okuliarov</string>

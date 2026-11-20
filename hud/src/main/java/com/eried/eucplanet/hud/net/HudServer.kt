@@ -448,6 +448,8 @@ class HudServer(private val context: Context) {
                                     HudTileCache.phoneMinor = s.protocolMinor
                                     if (!compat.isBlocking) {
                                         _state.value = s
+                                        com.eried.eucplanet.hud.update.HudAutoStart
+                                            .remember(context, s.autoStart)
                                     }
                                 } catch (t: Throwable) {
                                     Log.w(TAG, "decode failed: ${t.message}")

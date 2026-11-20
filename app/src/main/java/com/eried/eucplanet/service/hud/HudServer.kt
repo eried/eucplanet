@@ -1357,9 +1357,10 @@ class HudServer(
             // empty list as "no wire frame received yet" and shows a
             // waiting splash.
             enabledHudScreens = HudScreens.carousel(s.hudScreensOrder, s.hudScreensEnabled),
-            hudMapStyle = s.hudMapStyle,
-            hudMapContrastPct = s.hudMapContrastPct,
-            hudMapBrightnessPct = s.hudMapBrightnessPct,
+            hudMapStyle = s.hudDisplay.mapStyle,
+            hudMapContrastPct = s.hudDisplay.mapContrastPct,
+            hudMapBrightnessPct = s.hudDisplay.mapBrightnessPct,
+            autoStart = s.hudDisplay.autoStart,
             navActive = d?.navActive ?: navShow,
             navArrowAngleDeg = d?.navAngleDeg ?: nav.arrowAngleDeg(),
             navPrimary = d?.navPrimary ?: nav.primaryText,

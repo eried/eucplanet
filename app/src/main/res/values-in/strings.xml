@@ -443,6 +443,8 @@
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>
     <string name="section_hud_companion">HUD Motoeye</string>
     <string name="hud_server_enabled">Aktifkan tautan data</string>
+    <string name="hud_auto_start">Buka saat HUD menyala</string>
+    <string name="hud_auto_start_desc">Membuka aplikasi HUD setiap kali HUD dinyalakan. Buka sekali secara manual setelah dipasang.</string>
     <string name="engo_hud_enabled">HUD kacamata ENGO</string>
     <string name="engo_scan_hint">Nyalakan kacamata. Kacamata hanya terhubung ke satu perangkat, jadi putuskan dulu dari jam tangan atau aplikasi ActiveLook.</string>
     <string name="engo_pages_title">Halaman kacamata</string>
