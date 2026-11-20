@@ -12,6 +12,7 @@ ride, this is the branch.
 - HUD: the HUD app opens by itself when the Motoeye powers on (Android 7 and 8 HUDs; open it by hand once after installing). Turn it off in Settings, Integration, "Open HUD app automatically".
 - HUD: Map + Nav and Nav show the next turn for the whole route. Before, the turn only came while the phone showed its own turn popup, so with the phone in a pocket Map + Nav looked like Map.
 - HUD: the turn arrow is the same chevron as the phone's navigation popup.
+- HUD: a Map element in your Custom overlay preset shows the route line too, so a preset with its own map no longer hides the route.
 - HUD: Custom overlay + map with no preset picked says where to pick one, readable over the map.
 - ENGO 2 and ENGO 3 glasses as a HUD (Settings, Integration): pair like the radar, then under Customize pick a layout (Cockpit, Big, Quad, Turn, Minimal) and what each numbered element shows, as a number, blocks, a bar or a graph, in Pixel, Digital or Bold digits. The next turn shows while navigating. Off by default.
 - Voice commands: "speed" answers with your speed. It asked "Did you mean Speed or Speed?" when speed was not one of your tiles.
@@ -173,6 +174,7 @@ ride, this is the branch.
 - Install the phone and the HUD APK from this build. Open the HUD Map screen, leave the phone app, no wheel connected: does the map stay? And with the wheel connected, on any map style and zoom?
 - Camera screen: turn the front camera, switch to the rear one and back. Does each keep its own turn, also after restarting the HUD?
 - MotoEye, without pressing UP or DOWN: 1) Camera screen, hold to start recording, then hold again to stop. Does the picture come back about 5 s after the stop? 2) Short press for the rear view and close it, does it come back? 3) Dashboard, start recording, go to the Camera screen (it should say "in use"), back, stop: does that file play to the end? If the picture stays off, send a photo of the small grey line.
+- Custom overlay + map with a preset that has its own map: is the route line on it?
 - Custom overlay + map: is your preset readable over the map? Start a route: do the turn cue and the arrival line at the top sit clear of your preset?
 - Map + Nav with a route: does the arrival time match the phone's navigator, and does it stay between turns?
 - HUD map, any style: does it fill in as fast as before? Then with mobile data off inside a downloaded square, and with "Prefer offline map and routing" on: does the HUD show the offline map?
