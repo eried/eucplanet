@@ -15,6 +15,8 @@ data class EngoPage(
     /** Element 1 first; null leaves that element's place empty. */
     val elements: List<EngoReading?>,
     val font: EngoFontStyle = EngoFontStyle.PIXEL,
+    /** A segment font's dark segments drawn faintly behind its digits. */
+    val ghost: Boolean = true,
     /** The next turn while a route is guided, null otherwise. */
     val nav: EngoNav? = null,
     /** The rider's "show turns while navigating". */

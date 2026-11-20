@@ -415,6 +415,7 @@ object SettingsJson {
             put("layout", s.engoHud.layout)
             put("elements", org.json.JSONArray().apply { s.engoHud.elements.forEach { put(engoElementJson(it)) } })
             put("font", s.engoHud.font)
+            put("digitalGhost", s.engoHud.digitalGhost)
             put("navTakeover", s.engoHud.navTakeover)
         })
         put("keepAppAlive", s.keepAppAlive)
@@ -911,6 +912,7 @@ object SettingsJson {
                     }
                 } ?: base.engoHud.elements,
                 font = e.optString("font", base.engoHud.font),
+                digitalGhost = e.optBoolean("digitalGhost", base.engoHud.digitalGhost),
                 navTakeover = e.optBoolean("navTakeover", base.engoHud.navTakeover),
             )
         } ?: base.engoHud,

@@ -1307,6 +1307,8 @@ data class EngoHudSettings(
     val elements: List<EngoElement> = DEFAULT_ENGO_ELEMENTS,
     /** The numbers' font, an EngoFontStyle name (PIXEL, DIGITAL, BOLD). */
     val font: String = "PIXEL",
+    /** With the Digital font, each digit's dark segments drawn faintly, like a wheel's display. */
+    val digitalGhost: Boolean = true,
     /** Whether the next turn shows while a route is guided: Cockpit's corner,
      *  or the Turn layout taking over the others. The Turn layout always shows it. */
     val navTakeover: Boolean = true,

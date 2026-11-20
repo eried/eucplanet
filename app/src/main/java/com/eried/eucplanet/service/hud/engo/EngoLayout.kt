@@ -99,7 +99,7 @@ object EngoLayout {
         val big = bigNumbers(spec, p)
         val heights = numberHeights(spec, p, big)
         for (spot in spec.spots) {
-            ws += spotWidgets(spot, p.elements.getOrNull(spot.element), p.font,
+            ws += spotWidgets(spot, p.elements.getOrNull(spot.element), p.font, p.ghost,
                 heights[spot.element] ?: 0, spot.element in big, caps)
         }
         return ws
@@ -181,7 +181,8 @@ object EngoLayout {
     }
 
     private fun spotWidgets(
-        spot: EngoLayouts.Spot, r: EngoReading?, font: EngoFontStyle, numberH: Int, big: Boolean, caps: EngoCaps,
+        spot: EngoLayouts.Spot, r: EngoReading?, font: EngoFontStyle, ghost: Boolean, numberH: Int, big: Boolean,
+        caps: EngoCaps,
     ): List<EngoWidget> {
         val id = "e${spot.element + 1}"
         val style = styleIn(spot, r)
@@ -191,7 +192,7 @@ object EngoLayout {
         val zone = numberZone(spot.geom, big)
         if (r != null) {
             value += number(r.value, font, zone, numberH, centred = !(spot.geom is EngoLayouts.Geom.Corner && !spot.geom.centred),
-                colour = pen(colour(r.band), G_TEXT, caps), caps = caps)
+                colour = pen(colour(r.band), G_TEXT, caps), ghost = ghost, caps = caps)
         } else value += pen(RG_TEXT, G_TEXT, caps)
 
         return when (val g = spot.geom) {
@@ -240,7 +241,8 @@ object EngoLayout {
      * from the end if even the smallest size is too wide.
      */
     private fun number(
-        s: String, style: EngoFontStyle, zone: IntArray, h: Int, centred: Boolean, colour: ByteArray, caps: EngoCaps,
+        s: String, style: EngoFontStyle, zone: IntArray, h: Int, centred: Boolean, colour: ByteArray, ghost: Boolean,
+        caps: EngoCaps,
     ): List<ByteArray> {
         val font = EngoFonts.forText(style, s)
         val drawnH = font.heights(h).first()
@@ -249,10 +251,12 @@ object EngoLayout {
         while (t.length > 1 && font.width(t, drawnH) > room) t = t.dropLast(1)
         val y = zone[1] + (zone[3] - zone[1] + 1 - drawnH) / 2
         val lit = font.rects(t, 0, y, drawnH)
-        // A segment font's dark segments, drawn faintly first; with them the
-        // digits centre as whole cells.
-        val dark = font.ghost(t, 0, y, drawnH)
-        val ink = lit + dark
+        // A segment font's dark segments, drawn faintly first when the rider
+        // wants them. Either way the digits centre as whole cells, so turning
+        // them off never moves a number.
+        val cells = font.ghost(t, 0, y, drawnH)
+        val dark = if (ghost) cells else emptyList()
+        val ink = lit + cells
         if (ink.isEmpty()) return listOf(colour)
         val inkX0 = ink.minOf { it[0] }
         val inkX1 = ink.maxOf { it[2] }

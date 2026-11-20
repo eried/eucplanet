@@ -940,6 +940,7 @@ class SettingsViewModel(
     }
     fun updateEngoLayout(name: String) = update { copy(engoHud = engoHud.copy(layout = name)) }
     fun updateEngoFont(name: String) = update { copy(engoHud = engoHud.copy(font = name)) }
+    fun updateEngoDigitalGhost(v: Boolean) = update { copy(engoHud = engoHud.copy(digitalGhost = v)) }
     fun updateEngoElement(i: Int, el: com.eried.eucplanet.data.model.EngoElement) = update {
         val defaults = com.eried.eucplanet.data.model.DEFAULT_ENGO_ELEMENTS
         val all = defaults.indices.map { k -> engoHud.elements.getOrNull(k) ?: defaults[k] }

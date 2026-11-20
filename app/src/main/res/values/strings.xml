@@ -488,7 +488,7 @@
     <string name="hud_server_enabled">Enable data link</string>
     <string name="engo_hud_enabled">ENGO glasses HUD</string>
     <string name="engo_scan_hint">Switch the glasses on. They link to one device at a time, so disconnect them from your watch or the ActiveLook app first.</string>
-    <string name="engo_pages_title">Glasses pages</string>
+    <string name="engo_pages_title">Customize</string>
     <string name="engo_nav_takeover">Show turns while navigating</string>
     <string name="engo_preview_hint">Your layout on sample numbers. Tap a number on it to set up that element.</string>
     <string name="engo_preview_label">Glasses page preview</string>
@@ -518,6 +518,7 @@
     <string name="engo_font_pixel">Pixel</string>
     <string name="engo_font_digital">Digital</string>
     <string name="engo_font_bold">Bold</string>
+    <string name="engo_digital_ghost">Show unlit segments</string>
     <string name="engo_turn_always">This layout always shows the next turn.</string>
     <string name="engo_element_route_only">This element shows only during a route, when the Turn layout takes over.</string>
     <string name="hud_ip_label">Device IP</string>

@@ -33,7 +33,7 @@ class EngoLayoutTest {
         font: EngoFontStyle = EngoFontStyle.PIXEL,
         nav: EngoNav? = null,
         turnsOn: Boolean = true,
-    ) = EngoPage(true, layout, elements, font, nav, turnsOn)
+    ) = EngoPage(true, layout, elements, font, nav = nav, turnsOn = turnsOn)
 
     private fun all(style: EngoStyle, vararg v: String) =
         listOf("MAX PWM", "PK MOT W", "RNG KM", "PHONE %", "AVG SPD").mapIndexed { i, t -> reading(t, v[i % v.size], style) }
@@ -276,6 +276,21 @@ class EngoLayoutTest {
             assertEquals(rg, colourOf(band, "e4v"))
             assertEquals(rg, colourOf(band, "e4g"))
         }
+    }
+
+    @Test
+    fun digitalUnlitSegments_onlyWhenAsked_andTheNumberNeverMoves() {
+        fun cmds(ghost: Boolean) = EngoLayout.widgets(
+            page(font = EngoFontStyle.DIGITAL).copy(ghost = ghost), engo3).first { it.id == "e1v" }.cmds
+        fun pixels(c: List<ByteArray>, colour: Int) = EngoRaster.render(c, true).let { px ->
+            px.indices.filter { px[it] == colour }.toSet()
+        }
+        val on = cmds(true); val off = cmds(false)
+        val lit = EngoRaster.argbOfRg(EngoLayout.RG_TEXT)
+        val dim = EngoRaster.argbOfRg(EngoLayout.RG_GHOST)
+        assertEquals("the digits stay put", pixels(on, lit), pixels(off, lit))
+        assertTrue("unlit segments drawn", pixels(on, dim).isNotEmpty())
+        assertTrue("and gone when off", pixels(off, dim).isEmpty())
     }
 
     @Test

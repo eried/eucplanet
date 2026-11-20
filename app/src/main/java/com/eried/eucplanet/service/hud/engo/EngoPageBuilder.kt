@@ -51,6 +51,7 @@ object EngoPageBuilder {
             }
         },
         font = EngoLayouts.fontOf(engo.font),
+        ghost = engo.digitalGhost,
         nav = nav,
         turnsOn = engo.navTakeover,
     )

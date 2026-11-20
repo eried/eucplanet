@@ -12175,6 +12175,13 @@ private fun EngoGlassesBlock(
                     current = layouts.fontOf(engo.font).name,
                     onChange = { viewModel.updateEngoFont(it) },
                 )
+                if (layouts.fontOf(engo.font) == com.eried.eucplanet.service.hud.engo.EngoFontStyle.DIGITAL) {
+                    SwitchSetting(
+                        label = stringResource(R.string.engo_digital_ghost),
+                        checked = engo.digitalGhost,
+                        onCheckedChange = { viewModel.updateEngoDigitalGhost(it) }
+                    )
+                }
                 val switchApplies = layouts.turnsSwitchApplies(kind)
                 SwitchSetting(
                     label = stringResource(R.string.engo_nav_takeover),
