@@ -9,7 +9,9 @@ ride, this is the branch.
 
 ## Worked on
 
-- HUD: the HUD app opens by itself when the Motoeye powers on (Android 7 and 8 HUDs; open it by hand once after installing). Turn it off in Settings, Integration, "Open HUD app automatically".
+- HUD: the HUD app opens by itself when the Motoeye powers on, and opens again at 5, 15, 30 and 60 s if the Motoeye start screen covers it. Open it by hand once after installing. Turn it off in Settings, Integration, "Open HUD app automatically".
+- HUD: Test under that switch (with the switch off) sends the HUD app to the Motoeye home screen and opens it again after 10 s.
+- HUD: every auto-open step lands in the Service Mode log as "HUD auto-open", with the seconds, including when the Motoeye screen took over. Needs this phone APK and this HUD APK together.
 - HUD: Map + Nav and Nav show the next turn for the whole route. Before, the turn only came while the phone showed its own turn popup, so with the phone in a pocket Map + Nav looked like Map.
 - HUD: the turn arrow is the same chevron as the phone's navigation popup.
 - HUD: a Map element in your Custom overlay preset shows the route line too, so a preset with its own map no longer hides the route.
@@ -102,6 +104,12 @@ ride, this is the branch.
 
 ## Please test
 
+**HUD app opening at power-on** (the Motoeye tester)
+- Install this phone APK and this HUD APK. Open the HUD app by hand once.
+- Phone: Settings, Integration, turn "Open HUD app automatically" off, tap Test. Does the HUD app go away and come back after 10 s, and stay?
+- Turn the switch back on, then power the Motoeye off and on. Does the HUD app end up in front within a minute and stay there?
+- Start Service Mode before the power cycle and send the log; the "HUD auto-open" lines show what the HUD did and when.
+
 **ENGO 2 or ENGO 3 glasses** (anyone who has them)
 - Do they pair, stay connected all ride, and come back by themselves after you switch them off and on?
 - Is the page upright and readable, with nothing cut off or touching, and all four corner marks visible? A photo helps.
@@ -164,7 +172,6 @@ ride, this is the branch.
 - Load a GPX track on the phone, then Places, Planned route in the car: does it follow the track?
 
 **HUD (MotoEye)**
-- Power the Motoeye off and on (a real shutdown, not only screen off): does the HUD app open by itself? Does yours really shut down, or only sleep?
 - Ride a route with the phone locked in your pocket: does Map + Nav show the next turn the whole way, with the same arrow as the phone?
 - Motoeye with two phones that both have the HUD link on: is the flicker gone, and does the second phone take over a few seconds after the first one's link is switched off?
 - With this HUD app on the HUD and a later build on the phone: Settings, HUD shows a HUD app card with Send to HUD. Tap it and confirm Android's prompt on the HUD. Does it install, and can you work the prompt with the remote? The first time Android asks you to allow installs from the HUD app: can you get through that, and does the install go on afterwards or do you have to send again?
