@@ -109,7 +109,14 @@ fun RadarSection(
                     com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.radar_unpair))
                 }
             }
+        }
 
+        // The overlay settings are the app's, not one radar's, so they can be
+        // set before a radar is paired. Collapsed, so the scan card stays first.
+        AdvancedCollapsable(
+            title = stringResource(R.string.radar_overlay_title),
+            stateKey = "radar_overlay"
+        ) {
             RadarOverlaySettings(viewModel)
         }
     }
@@ -121,7 +128,6 @@ private fun RadarOverlaySettings(viewModel: RadarViewModel) {
     val settings by settingsViewModel.settings.collectAsState()
     val s = settings ?: return
 
-    Spacer(Modifier.height(4.dp))
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,

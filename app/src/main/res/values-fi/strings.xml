@@ -1181,6 +1181,7 @@
     </plurals>
     <string name="radar_show_overlay">Näytä uhkakaista</string>
     <string name="radar_show_overlay_desc">Ohut tutkakaista mittariston reunoilla.</string>
+    <string name="radar_overlay_title">Tutkakaista</string>
     <string name="radar_overlay_left">Vasen reuna</string>
     <string name="radar_overlay_both">Molemmat reunat</string>
     <string name="radar_overlay_right">Oikea reuna</string>

@@ -1221,6 +1221,7 @@
     </plurals>
     <string name="radar_show_overlay">Tampilkan overlay ancaman</string>
     <string name="radar_show_overlay_desc">Lajur radar tipis di tepi dasbor.</string>
+    <string name="radar_overlay_title">Overlay radar</string>
     <string name="radar_overlay_left">Tepi kiri</string>
     <string name="radar_overlay_both">Kedua tepi</string>
     <string name="radar_overlay_right">Tepi kanan</string>

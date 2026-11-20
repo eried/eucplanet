@@ -982,6 +982,7 @@
     </plurals>
     <string name="radar_show_overlay">Mostrar overlay de ameaças</string>
     <string name="radar_show_overlay_desc">Barra de radar fina nas bordas do painel.</string>
+    <string name="radar_overlay_title">Overlay do radar</string>
     <string name="radar_overlay_left">Borda esquerda</string>
     <string name="radar_overlay_both">Ambas as bordas</string>
     <string name="radar_overlay_right">Borda direita</string>

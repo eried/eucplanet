@@ -976,6 +976,7 @@
     </plurals>
     <string name="radar_show_overlay">レーダーオーバーレイを表示</string>
     <string name="radar_show_overlay_desc">ダッシュボードの端に細いレーダーレーンを表示します。</string>
+    <string name="radar_overlay_title">レーダーオーバーレイ</string>
     <string name="radar_overlay_left">左端</string>
     <string name="radar_overlay_both">両端</string>
     <string name="radar_overlay_right">右端</string>

@@ -1181,6 +1181,7 @@
     </plurals>
     <string name="radar_show_overlay">Veszélyátfedés mutatása</string>
     <string name="radar_show_overlay_desc">Vékony radarsáv a műszerfal szélein.</string>
+    <string name="radar_overlay_title">Radarátfedés</string>
     <string name="radar_overlay_left">Bal szél</string>
     <string name="radar_overlay_both">Mindkét szél</string>
     <string name="radar_overlay_right">Jobb szél</string>

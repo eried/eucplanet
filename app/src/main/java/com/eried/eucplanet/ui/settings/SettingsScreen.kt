@@ -11114,7 +11114,7 @@ private fun DeviceRegion(
  * cards live in the same tab.
  */
 @Composable
-private fun AdvancedCollapsable(
+internal fun AdvancedCollapsable(
     title: String,
     stateKey: String = title,
     content: @Composable () -> Unit
@@ -12087,8 +12087,9 @@ private fun HudIntegrationSection(
 
 /**
  * ENGO 2 / 3 glasses: a Bluetooth output of its own, with its own two
- * pages. Paired like the radar ([EngoPairing]); once a pair is remembered,
- * what the ride page's corners show and whether turns take the screen.
+ * pages. Paired like the radar ([EngoPairing]). Customize is there with or
+ * without a pair: the settings belong to the app, not to one pair of glasses,
+ * and the preview is drawn on the phone, so a rider can set the pages up first.
  */
 @Composable
 private fun EngoGlassesBlock(

@@ -1280,6 +1280,7 @@
     </plurals>
     <string name="radar_show_overlay">Zobraziť prekrytie hrozieb</string>
     <string name="radar_show_overlay_desc">Tenký pruh radaru na okrajoch dashboardu.</string>
+    <string name="radar_overlay_title">Prekrytie radaru</string>
     <string name="radar_overlay_left">Ľavý okraj</string>
     <string name="radar_overlay_both">Oba okraje</string>
     <string name="radar_overlay_right">Pravý okraj</string>

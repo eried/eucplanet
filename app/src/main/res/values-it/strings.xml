@@ -1759,6 +1759,7 @@
     </plurals>
     <string name="radar_show_overlay">Mostra overlay minacce</string>
     <string name="radar_show_overlay_desc">Sottile barra radar sui bordi della dashboard.</string>
+    <string name="radar_overlay_title">Overlay radar</string>
     <string name="radar_overlay_left">Bordo sinistro</string>
     <string name="radar_overlay_both">Entrambi i bordi</string>
     <string name="radar_overlay_right">Bordo destro</string>

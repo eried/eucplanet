@@ -1182,6 +1182,7 @@
     </plurals>
     <string name="radar_show_overlay">Arată suprapunerea radar</string>
     <string name="radar_show_overlay_desc">Bandă radar subțire pe marginile tabloului de bord.</string>
+    <string name="radar_overlay_title">Suprapunere radar</string>
     <string name="radar_overlay_left">Marginea stângă</string>
     <string name="radar_overlay_both">Ambele margini</string>
     <string name="radar_overlay_right">Marginea dreaptă</string>

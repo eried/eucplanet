@@ -977,6 +977,7 @@
     </plurals>
     <string name="radar_show_overlay">Gefahren-Overlay anzeigen</string>
     <string name="radar_show_overlay_desc">Schmaler Radar-Streifen am Dashboard-Rand.</string>
+    <string name="radar_overlay_title">Radar-Overlay</string>
     <string name="radar_overlay_left">Linker Rand</string>
     <string name="radar_overlay_both">Beide Ränder</string>
     <string name="radar_overlay_right">Rechter Rand</string>

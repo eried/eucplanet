@@ -36,14 +36,14 @@ import org.koin.compose.koinInject
  * state, Disconnect or Reconnect, and Forget device. The remembered pair is
  * the only one the app links to.
  *
- * [paired] is drawn below the card while a pair is remembered: the glasses'
- * own options.
+ * [options] is drawn below, paired or not: the options are the app's, not one
+ * pair's, so they can be set before any glasses are paired.
  */
 @Composable
 internal fun EngoPairing(
     settings: AppSettings,
     viewModel: SettingsViewModel,
-    paired: @Composable () -> Unit,
+    options: @Composable () -> Unit,
 ) {
     val engo = settings.engoHud
     val adapter = koinInject<EngoAdapter>()
@@ -123,8 +123,8 @@ internal fun EngoPairing(
                     SearchableText(stringResource(R.string.radar_unpair))
                 }
             }
-            paired()
         }
+        options()
     }
 }
 

@@ -1739,6 +1739,7 @@
     </plurals>
     <string name="radar_show_overlay">Vis trusseloverlegg</string>
     <string name="radar_show_overlay_desc">Tynn radarstripe langs kantene av dashbordet.</string>
+    <string name="radar_overlay_title">Radaroverlegg</string>
     <string name="radar_overlay_left">Venstre kant</string>
     <string name="radar_overlay_both">Begge kanter</string>
     <string name="radar_overlay_right">Høyre kant</string>

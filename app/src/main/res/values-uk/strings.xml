@@ -983,6 +983,7 @@
     </plurals>
     <string name="radar_show_overlay">Показувати оверлей загроз</string>
     <string name="radar_show_overlay_desc">Тонка смуга радара по краях дашборду.</string>
+    <string name="radar_overlay_title">Оверлей радара</string>
     <string name="radar_overlay_left">Лівий край</string>
     <string name="radar_overlay_both">Обидва краї</string>
     <string name="radar_overlay_right">Правий край</string>

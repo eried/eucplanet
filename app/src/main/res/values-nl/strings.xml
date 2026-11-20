@@ -981,6 +981,7 @@
     </plurals>
     <string name="radar_show_overlay">Radaroverlay tonen</string>
     <string name="radar_show_overlay_desc">Dunne radarbalk in de dashboardrand.</string>
+    <string name="radar_overlay_title">Radaroverlay</string>
     <string name="radar_overlay_left">Linkerrand</string>
     <string name="radar_overlay_both">Beide randen</string>
     <string name="radar_overlay_right">Rechterrand</string>
