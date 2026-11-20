@@ -9,6 +9,10 @@ ride, this is the branch.
 
 ## Worked on
 
+- HUD: the HUD app opens by itself when the Motoeye powers on (Android 7 and 8 HUDs; open it by hand once after installing). Turn it off in Settings, Integration, "Open HUD app automatically".
+- HUD: Map + Nav and Nav show the next turn for the whole route. Before, the turn only came while the phone showed its own turn popup, so with the phone in a pocket Map + Nav looked like Map.
+- HUD: the turn arrow is the same chevron as the phone's navigation popup.
+- HUD: Custom overlay + map with no preset picked says where to pick one, readable over the map.
 - ENGO 2 and ENGO 3 glasses as a HUD (Settings, Integration): Start scan and Pair like the radar. They show speed, PWM and two numbers you pick, and the next turn while a route is guided. Off by default, and it does not touch the Motoeye HUD.
 - Voice commands: "speed" answers with your speed. It asked "Did you mean Speed or Speed?" when speed was not one of your tiles.
 - Leaderboards: the section inside Backups & Leaderboards is called Leaderboards in every language too, like the tab. Scanning a crew pass from the Share screen now points to that tab by its own name.
@@ -158,6 +162,8 @@ ride, this is the branch.
 - Load a GPX track on the phone, then Places, Planned route in the car: does it follow the track?
 
 **HUD (MotoEye)**
+- Power the Motoeye off and on (a real shutdown, not only screen off): does the HUD app open by itself? Does yours really shut down, or only sleep?
+- Ride a route with the phone locked in your pocket: does Map + Nav show the next turn the whole way, with the same arrow as the phone?
 - Motoeye with two phones that both have the HUD link on: is the flicker gone, and does the second phone take over a few seconds after the first one's link is switched off?
 - With this HUD app on the HUD and a later build on the phone: Settings, HUD shows a HUD app card with Send to HUD. Tap it and confirm Android's prompt on the HUD. Does it install, and can you work the prompt with the remote? The first time Android asks you to allow installs from the HUD app: can you get through that, and does the install go on afterwards or do you have to send again?
 - Same card, Uninstall: does the HUD show Android's uninstall prompt?
