@@ -100,8 +100,8 @@
     <!-- HUD companion settings -->
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">启用数据连接</string>
-    <string name="hud_auto_start">HUD 启动时打开</string>
-    <string name="hud_auto_start_desc">每次 HUD 开机时打开 HUD 应用。安装后请手动打开一次。</string>
+    <string name="hud_auto_start">自动打开 HUD 应用</string>
+    <string name="hud_auto_start_desc">HUD 开机时会请求打开 HUD 应用。部分 HUD 可能会阻止。安装后请手动打开一次。</string>
     <string name="hud_ip_label">设备 IP</string>
     <string name="hud_ip_incomplete">请输入完整地址，例如 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">设备 IP（自动）</string>

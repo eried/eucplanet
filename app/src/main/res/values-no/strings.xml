@@ -100,8 +100,8 @@
     <!-- HUD companion settings -->
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Slå på datakobling</string>
-    <string name="hud_auto_start">Åpne når HUD starter</string>
-    <string name="hud_auto_start_desc">Åpner HUD-appen hver gang HUD slås på. Åpne den manuelt én gang etter installering.</string>
+    <string name="hud_auto_start">Åpne HUD-appen automatisk</string>
+    <string name="hud_auto_start_desc">Når HUD slås på, ber den om å åpne HUD-appen. Noen HUD-er kan blokkere dette. Åpne appen manuelt én gang etter installering.</string>
     <string name="hud_ip_label">Enhets-IP</string>
     <string name="hud_ip_incomplete">Skriv inn en fullstendig adresse, for eksempel 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">Enhets-IP (automatisk)</string>

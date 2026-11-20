@@ -442,8 +442,8 @@
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Activează legătura de date</string>
-    <string name="hud_auto_start">Deschide la pornirea HUD</string>
-    <string name="hud_auto_start_desc">Deschide aplicația HUD la fiecare pornire a HUD. După instalare, deschide-o o dată manual.</string>
+    <string name="hud_auto_start">Deschide automat aplicația HUD</string>
+    <string name="hud_auto_start_desc">La pornire, HUD-ul cere deschiderea aplicației HUD. Unele HUD-uri pot bloca acest lucru. După instalare, deschide aplicația o dată manual.</string>
     <string name="hud_ip_label">IP-ul dispozitivului</string>
     <string name="hud_ip_incomplete">Introdu o adresă completă, de exemplu 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">IP-ul dispozitivului (automat)</string>

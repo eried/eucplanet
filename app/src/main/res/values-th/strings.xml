@@ -443,8 +443,8 @@
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">เปิดลิงก์ข้อมูล</string>
-    <string name="hud_auto_start">เปิดเมื่อ HUD เริ่มทำงาน</string>
-    <string name="hud_auto_start_desc">เปิดแอป HUD ทุกครั้งที่เปิด HUD หลังติดตั้งให้เปิดแอปเองหนึ่งครั้ง</string>
+    <string name="hud_auto_start">เปิดแอป HUD อัตโนมัติ</string>
+    <string name="hud_auto_start_desc">เมื่อเปิด HUD จะขอเปิดแอป HUD บาง HUD อาจบล็อกไว้ หลังติดตั้งให้เปิดแอปเองหนึ่งครั้ง</string>
     <string name="engo_hud_enabled">HUD แว่นตา ENGO</string>
     <string name="engo_scan_hint">เปิดแว่น แว่นเชื่อมต่อได้ครั้งละหนึ่งอุปกรณ์ จึงต้องตัดการเชื่อมต่อจากนาฬิกาหรือแอป ActiveLook ก่อน</string>
     <string name="engo_pages_title">หน้าของแว่น</string>

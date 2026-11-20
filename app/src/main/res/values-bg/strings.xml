@@ -470,8 +470,8 @@
     <!-- HUD companion settings -->
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Връзка за данни</string>
-    <string name="hud_auto_start">Отваряне при стартиране на HUD</string>
-    <string name="hud_auto_start_desc">Отваря HUD приложението при всяко включване на HUD. След инсталиране го отворете ръчно веднъж.</string>
+    <string name="hud_auto_start">Автоматично отваряне на HUD приложението</string>
+    <string name="hud_auto_start_desc">При включване HUD опитва да отвори HUD приложението. Някои HUD устройства може да блокират това. След инсталиране го отворете ръчно веднъж.</string>
     <string name="engo_hud_enabled">HUD на очилата ENGO</string>
     <string name="engo_scan_hint">Включете очилата. Те се свързват само с едно устройство, затова първо ги изключете от часовника или от приложението ActiveLook.</string>
     <string name="engo_pages_title">Страници на очилата</string>

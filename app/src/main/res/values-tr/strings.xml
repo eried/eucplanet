@@ -481,8 +481,8 @@
     <!-- HUD companion settings -->
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Veri bağlantısını etkinleştir</string>
-    <string name="hud_auto_start">HUD açılınca başlat</string>
-    <string name="hud_auto_start_desc">HUD her açıldığında HUD uygulamasını açar. Kurulumdan sonra bir kez elle açın.</string>
+    <string name="hud_auto_start">HUD uygulamasını otomatik aç</string>
+    <string name="hud_auto_start_desc">HUD açıldığında HUD uygulamasını açmak ister. Bazı HUD\'lar bunu engelleyebilir. Kurulumdan sonra uygulamayı bir kez elle açın.</string>
     <string name="hud_ip_label">Cihaz IP</string>
     <string name="hud_ip_incomplete">Tam bir adres girin, örneğin 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">Cihaz IP (otomatik)</string>
