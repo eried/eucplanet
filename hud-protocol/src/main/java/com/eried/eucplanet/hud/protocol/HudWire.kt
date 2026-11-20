@@ -383,7 +383,8 @@ data class HudState(
          *    An older HUD ignores it and goes by the distance unit.
          * 26: [HudState.autoStart]. The HUD app opens when the HUD starts,
          *    unless the rider turned it off. An older HUD never does.
-         * 27: [HudState.autoStartTestId], the phone's Test for the above.
+         * 27: [HudState.autoStartTestId], the phone's Test for the above,
+         *    and [HudCommand.Note] for the HUD's steps in the phone's log.
          */
         const val PROTOCOL_MINOR: Int = 27
 
@@ -528,6 +529,12 @@ sealed class HudCommand {
      *  protocol-version mismatch surfaces as the usual "update phone" hint. */
     @Serializable
     data class Action(val slot: String) : HudCommand()
+
+    /** One line for the rider's Service Mode log, for now the steps of the
+     *  HUD opening its app at start-up. Sent only to a phone at
+     *  PROTOCOL_MINOR 27 or later. */
+    @Serializable
+    data class Note(val text: String) : HudCommand()
 }
 
 /**

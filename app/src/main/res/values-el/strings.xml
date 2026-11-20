@@ -459,8 +459,9 @@
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Ενεργοποίηση σύνδεσης δεδομένων</string>
     <string name="hud_auto_start">Αυτόματο άνοιγμα της εφαρμογής HUD</string>
-    <string name="hud_auto_start_desc">Όταν ανάβει, το HUD ζητά να ανοίξει η εφαρμογή HUD. Ορισμένα HUD μπορεί να το εμποδίζουν. Ανοίξτε την εφαρμογή χειροκίνητα μία φορά μετά την εγκατάσταση.</string>
-    <string name="hud_auto_start_test_desc">Δοκιμή: η εφαρμογή HUD κλείνει και ανοίγει ξανά μετά από 10 s.</string>
+    <string name="hud_auto_start_desc">Ανοίγει την εφαρμογή HUD όταν ανάβει το HUD. Μετά την εγκατάσταση, ανοίξτε την χειροκίνητα μία φορά.</string>
+    <string name="hud_auto_start_test_desc">Κλείνει την εφαρμογή HUD και την ανοίγει ξανά σε 10 s.</string>
+    <string name="hud_auto_start_test_off">Απενεργοποιήστε τον διακόπτη για δοκιμή.</string>
     <string name="engo_hud_enabled">HUD γυαλιών ENGO</string>
     <string name="engo_scan_hint">Ανάψτε τα γυαλιά. Συνδέονται με μία συσκευή τη φορά, οπότε αποσυνδέστε τα πρώτα από το ρολόι ή την εφαρμογή ActiveLook.</string>
     <string name="engo_pages_title">Προσαρμογή</string>

@@ -482,8 +482,9 @@
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Włącz transmisję danych</string>
     <string name="hud_auto_start">Otwieraj aplikację HUD automatycznie</string>
-    <string name="hud_auto_start_desc">Po włączeniu HUD prosi o otwarcie aplikacji HUD. Niektóre HUD mogą to blokować. Po instalacji otwórz aplikację raz ręcznie.</string>
-    <string name="hud_auto_start_test_desc">Test: aplikacja HUD zamknie się i otworzy ponownie po 10 s.</string>
+    <string name="hud_auto_start_desc">Otwiera aplikację HUD po włączeniu HUD. Po instalacji otwórz ją raz ręcznie.</string>
+    <string name="hud_auto_start_test_desc">Zamyka aplikację HUD i otwiera ją ponownie po 10 s.</string>
+    <string name="hud_auto_start_test_off">Aby przetestować, wyłącz przełącznik.</string>
     <string name="hud_ip_label">IP urządzenia</string>
     <string name="hud_ip_incomplete">Wpisz pełny adres, na przykład 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">IP urządzenia (automatycznie)</string>

@@ -12070,24 +12070,21 @@ private fun HudIntegrationSection(
         )
         HintText(stringResource(R.string.hud_auto_start_desc))
         // Leaves the HUD app and opens it again, the way a late retry at boot
-        // does, so a rider can tell us whether their HUD lets it stick.
-        if (settings.hudDisplay.autoStart) {
-            val testPeer by viewModel.hudPeer.collectAsState()
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                FilledTonalButton(
-                    onClick = { viewModel.testHudAutoStart() },
-                    enabled = testPeer != null,
-                    modifier = Modifier.weight(1f),
-                    colors = themedTonalButtonColors(),
-                    shape = RoundedCornerShape(12.dp),
-                ) { Text(stringResource(R.string.action_test), maxLines = 1) }
-                HintText(stringResource(R.string.hud_auto_start_test_desc), modifier = Modifier.weight(1f))
-            }
-        }
+        // does, so a rider can tell us whether their HUD lets it stick. Off
+        // while the switch is on, so the boot retries are not in the way.
+        val testPeer by viewModel.hudPeer.collectAsState()
+        val autoOpenOn = settings.hudDisplay.autoStart
+        LeftAlignedScanButton(
+            label = stringResource(R.string.action_test),
+            onClick = { viewModel.testHudAutoStart() },
+            leadingIcon = Icons.Default.PlayArrow,
+            enabled = testPeer != null && !autoOpenOn,
+        )
+        HintText(
+            stringResource(
+                if (autoOpenOn) R.string.hud_auto_start_test_off else R.string.hud_auto_start_test_desc
+            )
+        )
 
         // Discovery activity (which channel found the HUD, probes, dial
         // attempts, transient reconnects after a WiFi switch, etc.) is

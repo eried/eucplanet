@@ -444,8 +444,9 @@
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">เปิดลิงก์ข้อมูล</string>
     <string name="hud_auto_start">เปิดแอป HUD อัตโนมัติ</string>
-    <string name="hud_auto_start_desc">เมื่อเปิด HUD จะขอเปิดแอป HUD บาง HUD อาจบล็อกไว้ หลังติดตั้งให้เปิดแอปเองหนึ่งครั้ง</string>
-    <string name="hud_auto_start_test_desc">ทดสอบ: แอป HUD จะปิด แล้วเปิดอีกครั้งหลัง 10 วินาที</string>
+    <string name="hud_auto_start_desc">เปิดแอป HUD เมื่อเปิด HUD หลังติดตั้งให้เปิดแอปเองหนึ่งครั้ง</string>
+    <string name="hud_auto_start_test_desc">ปิดแอป HUD แล้วเปิดใหม่ใน 10 วินาที</string>
+    <string name="hud_auto_start_test_off">ปิดสวิตช์เพื่อทดสอบ</string>
     <string name="engo_hud_enabled">HUD แว่นตา ENGO</string>
     <string name="engo_scan_hint">เปิดแว่น แว่นเชื่อมต่อได้ครั้งละหนึ่งอุปกรณ์ จึงต้องตัดการเชื่อมต่อจากนาฬิกาหรือแอป ActiveLook ก่อน</string>
     <string name="engo_pages_title">ปรับแต่ง</string>

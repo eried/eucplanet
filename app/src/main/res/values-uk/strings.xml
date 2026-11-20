@@ -482,8 +482,9 @@
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Увімкнути канал даних</string>
     <string name="hud_auto_start">Автоматично відкривати застосунок HUD</string>
-    <string name="hud_auto_start_desc">Під час увімкнення HUD просить відкрити застосунок HUD. Деякі HUD можуть це блокувати. Після встановлення відкрийте застосунок вручну один раз.</string>
-    <string name="hud_auto_start_test_desc">Тест: застосунок HUD закриється і через 10 с відкриється знову.</string>
+    <string name="hud_auto_start_desc">Відкриває застосунок HUD під час увімкнення HUD. Після встановлення відкрийте його вручну один раз.</string>
+    <string name="hud_auto_start_test_desc">Закриває застосунок HUD і через 10 с відкриває знову.</string>
+    <string name="hud_auto_start_test_off">Для тесту вимкніть перемикач.</string>
     <string name="hud_ip_label">IP пристрою</string>
     <string name="hud_ip_incomplete">Введіть повну адресу, наприклад 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">IP пристрою (автоматично)</string>

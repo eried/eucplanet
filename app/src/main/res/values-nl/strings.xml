@@ -482,8 +482,9 @@
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Gegevenslink inschakelen</string>
     <string name="hud_auto_start">HUD-app automatisch openen</string>
-    <string name="hud_auto_start_desc">Bij het aanzetten vraagt de HUD om de HUD-app te openen. Sommige HUD\'s kunnen dit blokkeren. Open de app na installatie één keer zelf.</string>
-    <string name="hud_auto_start_test_desc">Test: de HUD-app sluit en opent na 10 s opnieuw.</string>
+    <string name="hud_auto_start_desc">Opent de HUD-app als de HUD aangaat. Open hem na installatie één keer zelf.</string>
+    <string name="hud_auto_start_test_desc">Sluit de HUD-app en opent hem na 10 s opnieuw.</string>
+    <string name="hud_auto_start_test_off">Zet de schakelaar uit om te testen.</string>
     <string name="hud_ip_label">Apparaat-IP</string>
     <string name="hud_ip_incomplete">Voer een volledig adres in, bijvoorbeeld 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">Apparaat-IP (automatisch)</string>

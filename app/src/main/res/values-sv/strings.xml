@@ -482,8 +482,9 @@
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Aktivera datalänk</string>
     <string name="hud_auto_start">Öppna HUD-appen automatiskt</string>
-    <string name="hud_auto_start_desc">När HUD slås på ber den om att öppna HUD-appen. Vissa HUD kan blockera detta. Öppna appen manuellt en gång efter installationen.</string>
-    <string name="hud_auto_start_test_desc">Test: HUD-appen stängs och öppnas igen efter 10 s.</string>
+    <string name="hud_auto_start_desc">Öppnar HUD-appen när HUD slås på. Öppna den manuellt en gång efter installationen.</string>
+    <string name="hud_auto_start_test_desc">Stänger HUD-appen och öppnar den igen om 10 s.</string>
+    <string name="hud_auto_start_test_off">Stäng av reglaget för att testa.</string>
     <string name="hud_ip_label">Enhets-IP</string>
     <string name="hud_ip_incomplete">Ange en fullständig adress, till exempel 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">Enhets-IP (automatisk)</string>

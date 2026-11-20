@@ -443,8 +443,9 @@
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Activează legătura de date</string>
     <string name="hud_auto_start">Deschide automat aplicația HUD</string>
-    <string name="hud_auto_start_desc">La pornire, HUD-ul cere deschiderea aplicației HUD. Unele HUD-uri pot bloca acest lucru. După instalare, deschide aplicația o dată manual.</string>
-    <string name="hud_auto_start_test_desc">Test: aplicația HUD se închide și se redeschide după 10 s.</string>
+    <string name="hud_auto_start_desc">Deschide aplicația HUD la pornirea HUD-ului. După instalare, deschide-o o dată manual.</string>
+    <string name="hud_auto_start_test_desc">Închide aplicația HUD și o redeschide după 10 s.</string>
+    <string name="hud_auto_start_test_off">Oprește comutatorul pentru a testa.</string>
     <string name="hud_ip_label">IP-ul dispozitivului</string>
     <string name="hud_ip_incomplete">Introdu o adresă completă, de exemplu 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">IP-ul dispozitivului (automat)</string>
