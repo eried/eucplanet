@@ -2828,8 +2828,6 @@
     <string name="engo_style_smooth">Gładki pasek</string>
     <string name="engo_style_graph">Wykres</string>
     <string name="engo_graph_window">Okno</string>
-    <string name="engo_window_5s">5 s</string>
-    <string name="engo_window_15s">15 s</string>
     <string name="engo_window_dashboard">Pulpit (%1$s)</string>
     <string name="engo_font">Czcionka liczb</string>
     <string name="engo_font_pixel">Pikselowa</string>

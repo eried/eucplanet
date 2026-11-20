@@ -2821,8 +2821,6 @@
     <string name="engo_style_smooth">Kesintisiz çubuk</string>
     <string name="engo_style_graph">Grafik</string>
     <string name="engo_graph_window">Pencere</string>
-    <string name="engo_window_5s">5 sn</string>
-    <string name="engo_window_15s">15 sn</string>
     <string name="engo_window_dashboard">Gösterge paneli (%1$s)</string>
     <string name="engo_font">Rakam yazı tipi</string>
     <string name="engo_font_pixel">Piksel</string>

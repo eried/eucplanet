@@ -2844,8 +2844,6 @@
     <string name="engo_style_smooth">Stufenloser Balken</string>
     <string name="engo_style_graph">Diagramm</string>
     <string name="engo_graph_window">Zeitfenster</string>
-    <string name="engo_window_5s">5 Sek.</string>
-    <string name="engo_window_15s">15 Sek.</string>
     <string name="engo_window_dashboard">Dashboard (%1$s)</string>
     <string name="engo_font">Zahlenschrift</string>
     <string name="engo_font_pixel">Pixel</string>

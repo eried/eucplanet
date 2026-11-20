@@ -2630,8 +2630,6 @@
     <string name="engo_style_smooth">Bară continuă</string>
     <string name="engo_style_graph">Grafic</string>
     <string name="engo_graph_window">Fereastră</string>
-    <string name="engo_window_5s">5 sec</string>
-    <string name="engo_window_15s">15 sec</string>
     <string name="engo_window_dashboard">Tablou de bord (%1$s)</string>
     <string name="engo_font">Fontul cifrelor</string>
     <string name="engo_font_pixel">Pixel</string>

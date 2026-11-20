@@ -2711,8 +2711,6 @@
     <string name="engo_style_smooth">Jevn stolpe</string>
     <string name="engo_style_graph">Graf</string>
     <string name="engo_graph_window">Vindu</string>
-    <string name="engo_window_5s">5 sek</string>
-    <string name="engo_window_15s">15 sek</string>
     <string name="engo_window_dashboard">Dashbord (%1$s)</string>
     <string name="engo_font">Tallskrift</string>
     <string name="engo_font_pixel">Piksel</string>

@@ -513,8 +513,6 @@
     <string name="engo_style_smooth">Smooth bar</string>
     <string name="engo_style_graph">Graph</string>
     <string name="engo_graph_window">Window</string>
-    <string name="engo_window_5s">5 sec</string>
-    <string name="engo_window_15s">15 sec</string>
     <string name="engo_window_dashboard">Dashboard (%1$s)</string>
     <string name="engo_font">Numbers font</string>
     <string name="engo_font_pixel">Pixel</string>

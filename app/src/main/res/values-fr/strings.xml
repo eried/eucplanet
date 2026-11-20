@@ -2830,8 +2830,6 @@
     <string name="engo_style_smooth">Barre continue</string>
     <string name="engo_style_graph">Graphique</string>
     <string name="engo_graph_window">Durée</string>
-    <string name="engo_window_5s">5 s</string>
-    <string name="engo_window_15s">15 s</string>
     <string name="engo_window_dashboard">Tableau de bord (%1$s)</string>
     <string name="engo_font">Police des chiffres</string>
     <string name="engo_font_pixel">Pixel</string>

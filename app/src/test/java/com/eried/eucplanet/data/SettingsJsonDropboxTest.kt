@@ -142,7 +142,7 @@ class SettingsJsonDropboxTest {
                 engoHud = d.engoHud.copy(enabled = true, pairedAddress = "E", pairedName = "EN",
                     layout = "QUAD", font = "BOLD",
                     elements = com.eried.eucplanet.data.model.DEFAULT_ENGO_ELEMENTS.mapIndexed { i, e ->
-                        if (i == 1) e.copy(key = "TRIP", style = "GRAPH", windowSec = 5) else e
+                        if (i == 1) e.copy(key = "TRIP", style = "GRAPH", windowDiv = 4) else e
                     }),
                 lastDeviceAddress = "A", lastDeviceName = "B",
                 flic1Address = "F1", flic2Address = "F2", flic3Address = "F3", flic4Address = "F4",
@@ -181,6 +181,6 @@ class SettingsJsonDropboxTest {
         assertEquals("QUAD", stripped.engoHud.layout)
         assertEquals("BOLD", stripped.engoHud.font)
         assertEquals(stripped.engoHud.elements, merged.engoHud.elements)
-        assertEquals(com.eried.eucplanet.data.model.EngoElement("TRIP", "MAX", "GRAPH", 5), merged.engoHud.elements[1])
+        assertEquals(com.eried.eucplanet.data.model.EngoElement("TRIP", "MAX", "GRAPH", windowDiv = 4), merged.engoHud.elements[1])
     }
 }

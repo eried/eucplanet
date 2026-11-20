@@ -497,8 +497,6 @@
     <string name="engo_style_smooth">Плътна лента</string>
     <string name="engo_style_graph">Графика</string>
     <string name="engo_graph_window">Прозорец</string>
-    <string name="engo_window_5s">5 сек</string>
-    <string name="engo_window_15s">15 сек</string>
     <string name="engo_window_dashboard">Табло (%1$s)</string>
     <string name="engo_font">Шрифт на цифрите</string>
     <string name="engo_font_pixel">Пикселен</string>

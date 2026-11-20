@@ -2822,8 +2822,6 @@
     <string name="engo_style_smooth">연속 막대</string>
     <string name="engo_style_graph">그래프</string>
     <string name="engo_graph_window">시간 구간</string>
-    <string name="engo_window_5s">5초</string>
-    <string name="engo_window_15s">15초</string>
     <string name="engo_window_dashboard">대시보드 (%1$s)</string>
     <string name="engo_font">숫자 글꼴</string>
     <string name="engo_font_pixel">픽셀</string>

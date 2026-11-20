@@ -31,9 +31,9 @@ class EngoPageBuilderTest {
         units: EngoMetrics.Units = EngoMetrics.Units(),
         connected: Boolean = true,
         nav: EngoNav? = null,
-        recent: (String, Long) -> List<MetricSample> = { k, _ -> histories[k].orEmpty() },
-    ) = EngoPageBuilder.build(engo, units, 65, 85, connected, { live[it] }, { histories[it].orEmpty() },
-        recent, nav, now)
+        dashboardWindowSec: Int = 300,
+    ) = EngoPageBuilder.build(engo, units, 65, 85, connected, { live[it] }, { histories[it].orEmpty() }, nav, now,
+        dashboardWindowSec)
 
     @Test
     fun defaults_speedThenTopSpeed_thenBatteryPwmTemp() {
@@ -68,7 +68,7 @@ class EngoPageBuilderTest {
     @Test
     fun rollingBackReadsAsSpeed() {
         val p = EngoPageBuilder.build(EngoHudSettings(), EngoMetrics.Units(), 65, 85, true,
-            { if (it == "SPEED") -12f else null }, { emptyList() }, { _, _ -> emptyList() }, null, now)
+            { if (it == "SPEED") -12f else null }, { emptyList() }, null, now)
         assertEquals("12", p.elements[0]!!.value)
     }
 
@@ -88,7 +88,8 @@ class EngoPageBuilderTest {
         assertEquals(0.78f, p.elements[2]!!.level!!, 0.001f)
         assertTrue("blocks need no series", p.elements[3]!!.series.isEmpty())
 
-        val g = build(EngoHudSettings(elements = elements(EngoElement("LOAD", style = "GRAPH", windowSec = 5))))
+        // The histories span 4 s, so the dashboard's stats length here is 4 s too.
+        val g = build(EngoHudSettings(elements = elements(EngoElement("LOAD", style = "GRAPH"))), dashboardWindowSec = 4)
         val s = g.elements[0]!!.series
         assertTrue(s.size >= 2)
         assertTrue(s.all { it in 0f..1f })
@@ -96,16 +97,24 @@ class EngoPageBuilderTest {
     }
 
     @Test
-    fun theGraphAsksForItsOwnWindow_orTheDashboards() {
-        val asked = mutableListOf<Long>()
-        val rec: (String, Long) -> List<MetricSample> = { k, w -> asked += w; histories[k].orEmpty() }
-        val engo = EngoHudSettings(elements = elements(
-            EngoElement("LOAD", style = "GRAPH", windowSec = 5),
-            EngoElement("LOAD", style = "GRAPH", windowSec = 0),
-        ))
-        EngoPageBuilder.build(engo, EngoMetrics.Units(), 65, 85, true, { live[it] }, { histories[it].orEmpty() },
-            rec, null, now, dashboardWindowSec = 120)
-        assertEquals(listOf(5_000L, 120_000L), asked)
+    fun aGraphLooksBackAShareOfTheDashboardsWindow() {
+        assertEquals(300_000L, EngoPageBuilder.windowMs(1, 300))
+        assertEquals(150_000L, EngoPageBuilder.windowMs(2, 300))
+        assertEquals(75_000L, EngoPageBuilder.windowMs(4, 300))
+        assertEquals(3_750L, EngoPageBuilder.windowMs(8, 30))
+    }
+
+    @Test
+    fun aGraphDrawsTheDashboardsOwnHistory() {
+        // Five minutes of PWM at one sample a second: 10% until 100 s ago, then 50%.
+        val load = (300 downTo 0).map { ago -> MetricSample(now - ago * 1000L, if (ago > 100) 10f else 50f) }
+        fun series(div: Int) = EngoPageBuilder.build(
+            EngoHudSettings(elements = elements(EngoElement("LOAD", style = "GRAPH", windowDiv = div))),
+            EngoMetrics.Units(), 65, 85, true, { 50f }, { if (it == "LOAD") load else emptyList() }, null, now,
+            dashboardWindowSec = 300,
+        ).elements[0]!!.series
+        assertTrue("the whole length reaches back to the 10%", series(1).any { it < 0.2f })
+        assertTrue("a quarter (75 s) is only the 50%", series(4).all { it == 0.5f })
     }
 
     @Test
@@ -133,8 +142,7 @@ class EngoPageBuilderTest {
     @Test
     fun aMetricWithoutStatisticsShowsItsValue() {
         val p = EngoPageBuilder.build(EngoHudSettings(elements = elements(EngoElement("TRIP", "MAX"))),
-            EngoMetrics.Units(), 65, 85, true, { if (it == "TRIP") 23.4f else null }, { emptyList() },
-            { _, _ -> emptyList() }, null, now)
+            EngoMetrics.Units(), 65, 85, true, { if (it == "TRIP") 23.4f else null }, { emptyList() }, null, now)
         assertEquals("TRIP KM", p.elements[0]!!.title)
         assertEquals("23.4", p.elements[0]!!.value)
     }

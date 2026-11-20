@@ -2821,8 +2821,6 @@
     <string name="engo_style_smooth">連續長條</string>
     <string name="engo_style_graph">圖表</string>
     <string name="engo_graph_window">時間範圍</string>
-    <string name="engo_window_5s">5 秒</string>
-    <string name="engo_window_15s">15 秒</string>
     <string name="engo_window_dashboard">儀表板 (%1$s)</string>
     <string name="engo_font">數字字型</string>
     <string name="engo_font_pixel">像素</string>

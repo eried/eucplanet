@@ -485,8 +485,6 @@
     <string name="engo_style_smooth">Συνεχής μπάρα</string>
     <string name="engo_style_graph">Γράφημα</string>
     <string name="engo_graph_window">Παράθυρο</string>
-    <string name="engo_window_5s">5 δευτ.</string>
-    <string name="engo_window_15s">15 δευτ.</string>
     <string name="engo_window_dashboard">Πίνακας οργάνων (%1$s)</string>
     <string name="engo_font">Γραμματοσειρά αριθμών</string>
     <string name="engo_font_pixel">Pixel</string>

@@ -2824,8 +2824,6 @@
     <string name="engo_style_smooth">Jämn stapel</string>
     <string name="engo_style_graph">Graf</string>
     <string name="engo_graph_window">Fönster</string>
-    <string name="engo_window_5s">5 s</string>
-    <string name="engo_window_15s">15 s</string>
     <string name="engo_window_dashboard">Instrumentpanel (%1$s)</string>
     <string name="engo_font">Siffertypsnitt</string>
     <string name="engo_font_pixel">Pixel</string>

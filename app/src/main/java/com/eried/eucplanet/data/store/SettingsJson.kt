@@ -1094,14 +1094,15 @@ object SettingsJson {
         put("key", el.key)
         put("stat", el.stat)
         put("style", el.style)
-        put("window", el.windowSec)
+        put("windowDiv", el.windowDiv)
     }
 
     private fun engoElementOf(j: JSONObject) = com.eried.eucplanet.data.model.EngoElement(
         key = j.optString("key", ""),
         stat = j.optString("stat", "CURRENT"),
         style = j.optString("style", "BLOCKS"),
-        // Only the windows the picker offers, so a stray value cannot ask for a graph nobody can set.
-        windowSec = j.optInt("window", 15).takeIf { it in com.eried.eucplanet.data.model.ENGO_WINDOWS_SEC } ?: 15,
+        // Only the shares the picker offers, so a stray value cannot ask for a graph nobody can set.
+        // The old "window" in seconds is left behind: such a graph starts at the whole length.
+        windowDiv = j.optInt("windowDiv", 1).takeIf { it in com.eried.eucplanet.data.model.ENGO_WINDOW_DIVS } ?: 1,
     )
 }

@@ -61,8 +61,8 @@ class EngoRenderTest {
     private val now = 1_000_000L
     private val u = EngoMetrics.Units()
 
-    private fun el(key: String, stat: String = "CURRENT", style: String = "BLOCKS", window: Int = 15) =
-        EngoElement(key, stat, style, window)
+    private fun el(key: String, stat: String = "CURRENT", style: String = "BLOCKS", window: Int = 1) =
+        EngoElement(key, stat, style, windowDiv = window)
 
     /** The mockup's readings: speed, top speed, then motor temp, PWM and phase current. */
     private val mockup = listOf(
@@ -97,12 +97,12 @@ class EngoRenderTest {
         save("02-cockpit-route", page(engo("COCKPIT"), nav = true))
         save("03-big", page(engo("BIG", listOf(el("SPEED", style = "SMOOTH"), el("LOAD", style = "GRAPH"), el("BATTERY")))))
         save("04-quad", page(engo("QUAD", listOf(
-            el("SPEED", style = "GRAPH", window = 5), el("LOAD", style = "BLOCKS"),
+            el("SPEED", style = "GRAPH", window = 8), el("LOAD", style = "BLOCKS"),
             el("MOTOR_TEMP", style = "SMOOTH"), el("BATTERY", style = "NUMBER")))))
         save("05-turn-route", page(engo("TURN"), nav = true))
         save("06-turn-idle", page(engo("TURN")))
         save("07-minimal", page(engo("MINIMAL", listOf(el("SPEED", style = "NUMBER")))))
-        save("08-minimal-graph", page(engo("MINIMAL", listOf(el("SPEED", style = "GRAPH", window = 30)))))
+        save("08-minimal-graph", page(engo("MINIMAL", listOf(el("SPEED", style = "GRAPH", window = 4)))))
         save("09-cockpit-digital", page(engo("COCKPIT", font = "DIGITAL")))
         save("10-cockpit-bold", page(engo("COCKPIT", font = "BOLD")))
         save("11-big-digital", page(engo("BIG", listOf(el("SPEED", style = "NUMBER"), el("LOAD"), el("BATTERY")), "DIGITAL")))
@@ -118,7 +118,7 @@ class EngoRenderTest {
             el("SPEED"), el("LOAD", style = "GRAPH"), el("VOLTAGE", style = "SMOOTH"), el("PHASE_CURRENT")), "DIGITAL")))
         save("16-mph-stats", EngoDemoSource.page(
             engo("COCKPIT", listOf(el("SPEED", style = "NUMBER"), el("LOAD", "MAX", style = "NUMBER"),
-                el("SPEED", "AVG", style = "GRAPH", window = 60), el("MOTOR_POWER", "SUSTAINED_PEAK"), el("VOLTAGE"))),
+                el("SPEED", "AVG", style = "GRAPH", window = 2), el("MOTOR_POWER", "SUSTAINED_PEAK"), el("VOLTAGE"))),
             EngoMetrics.Units(speed = "mph", temp = "F", distance = "mi"), 65, 85, true, now, 118f))
     }
 }

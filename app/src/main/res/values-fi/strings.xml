@@ -2628,8 +2628,6 @@
     <string name="engo_style_smooth">Tasainen palkki</string>
     <string name="engo_style_graph">Kuvaaja</string>
     <string name="engo_graph_window">Aikaikkuna</string>
-    <string name="engo_window_5s">5 s</string>
-    <string name="engo_window_15s">15 s</string>
     <string name="engo_window_dashboard">Mittaristo (%1$s)</string>
     <string name="engo_font">Numerofontti</string>
     <string name="engo_font_pixel">Pikseli</string>

@@ -23,8 +23,6 @@ object EngoDemoSource {
         "PHONE_BATTERY" to 64f,
     )
 
-    private const val HISTORY_SEC = 300
-
     /** The metric [ago] seconds before now: its live value [ago] = 0. */
     private fun valueAt(key: String, base: Float, ago: Float): Float {
         val phase = key.hashCode() % 7
@@ -39,20 +37,13 @@ object EngoDemoSource {
         return base + (wave - now) * swing * base
     }
 
-    /** Five minutes of 1 Hz samples ending at [nowMs]; the last one is the live value. */
-    fun history(key: String, nowMs: Long): List<MetricSample> {
+    /**
+     * [seconds] of 1 Hz samples ending at [nowMs], as the dashboard keeps them over its
+     * stats length; the last one is the live value.
+     */
+    fun history(key: String, nowMs: Long, seconds: Int = 300): List<MetricSample> {
         val v = VALUES[key] ?: return emptyList()
-        return (HISTORY_SEC downTo 0).map { ago -> MetricSample(nowMs - ago * 1000L, valueAt(key, v, ago.toFloat())) }
-    }
-
-    /** The last [windowMs] at ten samples a second, as the glasses' own fast buffer keeps them. */
-    fun recent(key: String, windowMs: Long, nowMs: Long): List<MetricSample> {
-        val v = VALUES[key] ?: return emptyList()
-        val stepMs = maxOf(100L, windowMs / 300)
-        return (windowMs / stepMs downTo 0).map { k ->
-            val ago = k * stepMs
-            MetricSample(nowMs - ago, valueAt(key, v, ago / 1000f))
-        }
+        return (seconds downTo 0).map { ago -> MetricSample(nowMs - ago * 1000L, valueAt(key, v, ago.toFloat())) }
     }
 
     fun current(key: String): Float? = VALUES[key]
@@ -87,8 +78,7 @@ object EngoDemoSource {
             redPct = redPct,
             connected = true,
             current = { if (zeros) VALUES[it]?.let { 0f } else if (it == "SPEED") speedKmh else current(it) },
-            history = { key -> scaled(key, history(key, nowMs)) },
-            recent = { key, w -> scaled(key, recent(key, w, nowMs)) },
+            history = { key -> scaled(key, history(key, nowMs, dashboardWindowSec)) },
             nav = if (navigating) EngoNav(EngoManeuver.LEFT, if (units.distance == "mi") "400 FT" else "120 M") else null,
             nowMs = nowMs,
             dashboardWindowSec = dashboardWindowSec,

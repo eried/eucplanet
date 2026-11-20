@@ -2825,8 +2825,6 @@
     <string name="engo_style_smooth">Суцільна смуга</string>
     <string name="engo_style_graph">Графік</string>
     <string name="engo_graph_window">Вікно</string>
-    <string name="engo_window_5s">5 с</string>
-    <string name="engo_window_15s">15 с</string>
     <string name="engo_window_dashboard">Дашборд (%1$s)</string>
     <string name="engo_font">Шрифт цифр</string>
     <string name="engo_font_pixel">Піксельний</string>

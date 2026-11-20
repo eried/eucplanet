@@ -305,10 +305,10 @@ object EngoLayout {
         return out
     }
 
-    /** One continuous bar: lit up to the level, the rest of the track dim. */
+    /** One continuous bar, as tall as the blocks: lit up to the level, the rest of the track dim. */
     private fun smooth(r: EngoReading, x0: Int, x1: Int, top: Int, bottom: Int, caps: EngoCaps): List<ByteArray> {
         val out = ArrayList<ByteArray>()
-        val sh = maxOf(4, barHeight(top, bottom) * 2 / 3)
+        val sh = barHeight(top, bottom)
         val y0 = top + (bottom - top + 1 - sh) / 2
         val y1 = y0 + sh - 1
         val litW = ((r.level ?: 0f).coerceIn(0f, 1f) * (x1 - x0 + 1)).roundToInt()

@@ -1331,18 +1331,20 @@ data class EngoHudSettings(
  * One element of the glasses page: a metric catalog key, the statistic of it
  * to show (a DashboardStat name: CURRENT, MAX, MIN, AVG, SUSTAINED_PEAK), how
  * it is drawn (an EngoStyle name: NUMBER, BLOCKS, SMOOTH, GRAPH) and, for a
- * graph, how many seconds it looks back (0 follows the dashboard's rolling
- * window). An empty [key] leaves the place empty.
+ * graph, how much of the dashboard's stats length it looks back: the whole
+ * ([windowDiv] 1), half (2), a quarter (4) or an eighth (8). The graph reads
+ * the dashboard's own history, so it never asks for more than the dashboard
+ * keeps. An empty [key] leaves the place empty.
  */
 data class EngoElement(
     val key: String,
     val stat: String = "CURRENT",
     val style: String = "BLOCKS",
-    val windowSec: Int = 15,
+    val windowDiv: Int = 1,
 )
 
-/** The graph windows a rider can pick, in seconds; 0 follows the dashboard's rolling window. */
-val ENGO_WINDOWS_SEC: List<Int> = listOf(5, 15, 30, 60, 300, 0)
+/** The shares of the dashboard's stats length a graph can look back: 1 is all of it. */
+val ENGO_WINDOW_DIVS: List<Int> = listOf(1, 2, 4, 8)
 
 val DEFAULT_ENGO_ELEMENTS: List<EngoElement> = listOf(
     EngoElement("SPEED", style = "NUMBER"),

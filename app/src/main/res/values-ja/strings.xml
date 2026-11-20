@@ -2823,8 +2823,6 @@
     <string name="engo_style_smooth">連続バー</string>
     <string name="engo_style_graph">グラフ</string>
     <string name="engo_graph_window">時間幅</string>
-    <string name="engo_window_5s">5 秒</string>
-    <string name="engo_window_15s">15 秒</string>
     <string name="engo_window_dashboard">ダッシュボード (%1$s)</string>
     <string name="engo_font">数字フォント</string>
     <string name="engo_font_pixel">ピクセル</string>

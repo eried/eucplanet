@@ -2827,8 +2827,6 @@
     <string name="engo_style_smooth">Vloeiende balk</string>
     <string name="engo_style_graph">Grafiek</string>
     <string name="engo_graph_window">Venster</string>
-    <string name="engo_window_5s">5 sec</string>
-    <string name="engo_window_15s">15 sec</string>
     <string name="engo_window_dashboard">Dashboard (%1$s)</string>
     <string name="engo_font">Cijferlettertype</string>
     <string name="engo_font_pixel">Pixel</string>

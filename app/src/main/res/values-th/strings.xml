@@ -470,8 +470,6 @@
     <string name="engo_style_smooth">แถบต่อเนื่อง</string>
     <string name="engo_style_graph">กราฟ</string>
     <string name="engo_graph_window">ช่วงเวลา</string>
-    <string name="engo_window_5s">5 วินาที</string>
-    <string name="engo_window_15s">15 วินาที</string>
     <string name="engo_window_dashboard">แดชบอร์ด (%1$s)</string>
     <string name="engo_font">ฟอนต์ตัวเลข</string>
     <string name="engo_font_pixel">พิกเซล</string>

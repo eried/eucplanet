@@ -34,20 +34,21 @@ object EngoPageBuilder {
         connected: Boolean,
         /** A metric's live value in its stored unit (km/h, °C, kPa, m), or null. */
         current: (String) -> Float?,
-        /** A metric's rolling history, oldest first, stored units: what the statistics run on. */
+        /**
+         * A metric's rolling history, oldest first, stored units: the dashboard's own,
+         * over its stats length. The statistics run on it and a graph draws its last share.
+         */
         history: (String) -> List<MetricSample>,
-        /** A metric's samples over the last [windowMs], oldest first, as finely as they are kept: what a graph draws. */
-        recent: (key: String, windowMs: Long) -> List<MetricSample>,
         nav: EngoNav?,
         nowMs: Long,
-        /** The dashboard's rolling window, for a graph set to follow it. */
+        /** The dashboard's stats length, which a graph looks back a share of. */
         dashboardWindowSec: Int = 300,
     ): EngoPage = EngoPage(
         connected = connected,
         layout = EngoLayouts.kindOf(engo.layout),
         elements = (0 until EngoLayouts.MAX_ELEMENTS).map { i ->
             engo.elements.getOrNull(i)?.let {
-                reading(it, units, orangePct, redPct, connected, current, history, recent, nowMs, dashboardWindowSec)
+                reading(it, units, orangePct, redPct, connected, current, history, nowMs, dashboardWindowSec)
             }
         },
         font = EngoLayouts.fontOf(engo.font),
@@ -56,9 +57,9 @@ object EngoPageBuilder {
         turnsOn = engo.navTakeover,
     )
 
-    /** How long a graph looks back, in ms. */
-    fun windowMs(windowSec: Int, dashboardWindowSec: Int): Long =
-        (if (windowSec > 0) windowSec else dashboardWindowSec.coerceAtLeast(5)) * 1000L
+    /** How long a graph looks back, in ms: its share ([windowDiv]) of the dashboard's stats length. */
+    fun windowMs(windowDiv: Int, dashboardWindowSec: Int): Long =
+        dashboardWindowSec.coerceAtLeast(1) * 1000L / windowDiv.coerceAtLeast(1)
 
     private fun reading(
         el: EngoElement,
@@ -68,7 +69,6 @@ object EngoPageBuilder {
         connected: Boolean,
         current: (String) -> Float?,
         history: (String) -> List<MetricSample>,
-        recent: (String, Long) -> List<MetricSample>,
         nowMs: Long,
         dashboardWindowSec: Int,
     ): EngoReading? {
@@ -92,8 +92,8 @@ object EngoPageBuilder {
             units.distance, units.pressure, units.altitude))
         val band = if (key == "LOAD") pwmBand(abs(raw), orangePct, redPct) else EngoBand.NORMAL
         val series = if (style == EngoStyle.GRAPH) {
-            val w = windowMs(el.windowSec, dashboardWindowSec)
-            series(key, recent(key, w), nowMs, w)
+            val w = windowMs(el.windowDiv, dashboardWindowSec)
+            series(key, samples, nowMs, w)
         } else emptyList()
         return EngoReading(
             title = title,

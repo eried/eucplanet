@@ -12236,12 +12236,17 @@ private fun engoStyleLabel(style: com.eried.eucplanet.service.hud.engo.EngoStyle
     com.eried.eucplanet.service.hud.engo.EngoStyle.GRAPH -> stringResource(R.string.engo_style_graph)
 }
 
+/**
+ * A graph's length as its share of the dashboard's stats length: the whole is
+ * named after the dashboard, a part shows its fraction and how long that is
+ * (m:ss, read the same in every language), so "½ (2:30)" with a 5 min dashboard.
+ */
 @Composable
-private fun engoWindowLabel(seconds: Int, dashboardWindowSec: Int): String = when (seconds) {
-    0 -> stringResource(R.string.engo_window_dashboard, rollingWindowLabel(dashboardWindowSec))
-    5 -> stringResource(R.string.engo_window_5s)
-    15 -> stringResource(R.string.engo_window_15s)
-    else -> rollingWindowLabel(seconds)
+private fun engoWindowLabel(windowDiv: Int, dashboardWindowSec: Int): String {
+    if (windowDiv <= 1) return stringResource(R.string.engo_window_dashboard, rollingWindowLabel(dashboardWindowSec))
+    val fraction = when (windowDiv) { 2 -> "½"; 4 -> "¼"; 8 -> "⅛"; else -> "1/$windowDiv" }
+    val sec = (dashboardWindowSec / windowDiv.toFloat()).roundToInt()
+    return "$fraction (%d:%02d)".format(sec / 60, sec % 60)
 }
 
 /**
@@ -12387,9 +12392,9 @@ private fun EngoElementEditor(
             if (style == com.eried.eucplanet.service.hud.engo.EngoStyle.GRAPH) {
                 WidgetSlotDropdown(
                     label = stringResource(R.string.engo_graph_window),
-                    currentLabel = engoWindowLabel(element.windowSec, dashboardWindowSec),
-                    options = com.eried.eucplanet.data.model.ENGO_WINDOWS_SEC.map { "$it" to engoWindowLabel(it, dashboardWindowSec) },
-                    onSelect = { onChange(element.copy(windowSec = it.toInt())) },
+                    currentLabel = engoWindowLabel(element.windowDiv, dashboardWindowSec),
+                    options = com.eried.eucplanet.data.model.ENGO_WINDOW_DIVS.map { "$it" to engoWindowLabel(it, dashboardWindowSec) },
+                    onSelect = { onChange(element.copy(windowDiv = it.toInt())) },
                     includeNone = false,
                     modifier = Modifier.weight(1f),
                 )

@@ -2839,8 +2839,6 @@
     <string name="engo_style_smooth">Jævn bjælke</string>
     <string name="engo_style_graph">Graf</string>
     <string name="engo_graph_window">Vindue</string>
-    <string name="engo_window_5s">5 sek</string>
-    <string name="engo_window_15s">15 sek</string>
     <string name="engo_window_dashboard">Dashboard (%1$s)</string>
     <string name="engo_font">Skrifttype til tal</string>
     <string name="engo_font_pixel">Pixel</string>

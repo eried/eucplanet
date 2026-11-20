@@ -203,6 +203,19 @@ class EngoLayoutTest {
     }
 
     @Test
+    fun aSmoothBarIsAsTallAsTheBlocks() {
+        // Rows each bar covers, lit and dim track alike, in every place that has a bar.
+        fun rows(layout: EngoLayoutKind, style: EngoStyle) = EngoLayout.widgets(page(layout, all(style, "50")), engo3)
+            .filter { it.id.endsWith("g") }
+            .associate { w -> w.id to lit(EngoRaster.render(w.cmds, color = true)).map { it / W }.distinct().size }
+        for (layout in EngoLayoutKind.entries) {
+            val blocks = rows(layout, EngoStyle.BLOCKS)
+            assertEquals(layout.name, blocks, rows(layout, EngoStyle.SMOOTH))
+            assertTrue(layout.name, blocks.values.all { it >= 8 })
+        }
+    }
+
+    @Test
     fun aPlaceWithoutRoomDrawsTheNumberAlone() {
         // The cockpit's big speed has no band for a bar: asking for a graph draws just the number.
         val p = page(elements = listOf(reading("KM/H", "42", EngoStyle.GRAPH)))

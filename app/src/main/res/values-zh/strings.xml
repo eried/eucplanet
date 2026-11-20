@@ -2688,8 +2688,6 @@
     <string name="engo_style_smooth">连续条</string>
     <string name="engo_style_graph">图表</string>
     <string name="engo_graph_window">时间窗口</string>
-    <string name="engo_window_5s">5 秒</string>
-    <string name="engo_window_15s">15 秒</string>
     <string name="engo_window_dashboard">仪表盘 (%1$s)</string>
     <string name="engo_font">数字字体</string>
     <string name="engo_font_pixel">像素</string>
