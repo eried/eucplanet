@@ -17,6 +17,8 @@ ride, this is the branch.
 - HUD: Custom overlay + map with no preset picked says where to pick one, readable over the map.
 - ENGO 2 and ENGO 3 glasses as a HUD (Settings, Integration): pair like the radar. Under Customize, there before pairing too, pick Pixel, Digital or Bold digits and a layout (Cockpit, Big, Quad, Turn, Minimal), then tap a number on the preview to set what that element shows, as a number, blocks, a bar or a graph. A graph looks back the dashboard's stats length, or half, a quarter, down to 1/32 of it. The next turn shows while navigating. Off by default.
 - Radar: the overlay switch and its edge are under Customize below the pairing card, so they can be set before a radar is paired.
+- Reset and Restore buttons grey out when there is nothing to reset: a dashboard tile's Restore slot, the trip trim and exact times, the beep studio, an overlay element's Reset position, a metric's Reset, the trip meter, Data sources Reset average, the Battery screen's Reset data and the Reset metrics tile.
+- Dashboard action groups: the icon you picked shows clearly in the icon picker (it was cyan on cyan).
 - Voice commands: "speed" answers with your speed. It asked "Did you mean Speed or Speed?" when speed was not one of your tiles.
 - Leaderboards: the section inside Backups & Leaderboards is called Leaderboards in every language too, like the tab. Scanning a crew pass from the Share screen now points to that tab by its own name.
 - Languages: every language of the app was reread so it sounds like a rider wrote it, about 6,200 texts. Settings now says Leaderboards, Music control and Offline maps in every language, and long switch labels wrap instead of pushing the switch off the row.
@@ -224,6 +226,7 @@ ride, this is the branch.
 - Make a settings backup, uninstall, install again, link the same folder: does "Last backup" show the time you just made it?
 - Had a Backup conflicts warning that would not go away? Tap Fix, then Sync all, pick a side: is it gone at once?
 - Ride with voice alarms on, open the main screens, sync, widgets and the watch: anything that acts differently from the last build is a bug.
+- Reset buttons: is any of them greyed out while there is something to reset, or live with nothing to reset?
 
 ## Reporting back
 
