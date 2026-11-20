@@ -166,7 +166,18 @@ class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
             ),
             travelMode = TravelMode.entries.first(),
             geometry = line ?: listOf(a, b),
-            maneuvers = emptyList(),
+            // A turn at each inner point of a given line, so the HUD and the
+            // navigator show a turn badge, not only the arrival line.
+            maneuvers = (line ?: emptyList()).drop(1).dropLast(1).mapIndexed { i, p ->
+                com.eried.eucplanet.data.model.Maneuver(
+                    point = p,
+                    type = if (i % 2 == 0) com.eried.eucplanet.data.model.TurnType.RIGHT
+                        else com.eried.eucplanet.data.model.TurnType.LEFT,
+                    instruction = if (i % 2 == 0) "Turn right" else "Turn left",
+                    streetName = "Karl Johans gate",
+                    distanceFromStartM = 250.0 * (i + 1),
+                )
+            },
             totalDistanceM = 1400.0,
         )
         Log.i(TAG, "SURVEY_START_NAV")
