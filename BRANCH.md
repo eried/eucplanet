@@ -9,8 +9,7 @@ ride, this is the branch.
 
 ## Worked on
 
-- HUD: the HUD app opens by itself when the Motoeye powers on, and opens again at 5, 15, 30 and 60 s if the Motoeye start screen covers it. Open it by hand once after installing. Turn it off in Settings, Integration, "Open HUD app automatically".
-- HUD: Test under that switch (with the switch off) sends the HUD app to the Motoeye home screen and opens it again after 10 s.
+- HUD: the HUD app opens by itself 5 s after the Motoeye powers on, once its start screen is past, so it no longer shows, goes away and comes back. Checks again at 15 and 30 s. Open it by hand once after installing. Turn it off in Settings, Integration, "Open HUD app automatically".
 - HUD: every auto-open step lands in the Service Mode log as "HUD auto-open", with the seconds, including when the Motoeye screen took over. Needs this phone APK and this HUD APK together.
 - HUD: Map + Nav and Nav show the next turn for the whole route. Before, the turn only came while the phone showed its own turn popup, so with the phone in a pocket Map + Nav looked like Map.
 - HUD: the turn arrow is the same chevron as the phone's navigation popup.
@@ -106,8 +105,7 @@ ride, this is the branch.
 
 **HUD app opening at power-on** (the Motoeye tester)
 - Install this phone APK and this HUD APK. Open the HUD app by hand once.
-- Phone: Settings, Integration, turn "Open HUD app automatically" off, tap Test. Does the HUD app go away and come back after 10 s, and stay?
-- Turn the switch back on, then power the Motoeye off and on. Does the HUD app end up in front within a minute and stay there?
+- Power the Motoeye off and on. Does the HUD app show once, about 5 s in, and stay, without the flash and the trip to the home screen?
 - Start Service Mode before the power cycle and send the log; the "HUD auto-open" lines show what the HUD did and when.
 
 **ENGO 2 or ENGO 3 glasses** (anyone who has them)
