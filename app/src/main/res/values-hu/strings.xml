@@ -2606,7 +2606,7 @@
     <string name="engo_scan_hint">Kapcsold be a szemüveget. Egyszerre csak egy eszközhöz kapcsolódik, ezért előbb válaszd le az óráról vagy az ActiveLook alkalmazásról.</string>
     <string name="engo_pages_title">Testreszabás</string>
     <string name="engo_nav_takeover">Kanyarok mutatása navigáláskor</string>
-    <string name="engo_element_none">Nincs kijelölve semmi. Koppints egy számra az előnézeten az elem beállításához.</string>
+    <string name="engo_element_none">Koppints egy számra a fenti előnézeten, hogy itt beállítsd.</string>
     <string name="engo_preview_label">A szemüveg oldalának előnézete</string>
     <string name="engo_preview_mode">Előnézet</string>
     <string name="engo_preview_zeros">Nullák</string>

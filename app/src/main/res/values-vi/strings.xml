@@ -449,7 +449,7 @@
     <string name="engo_scan_hint">Bật kính. Kính chỉ kết nối với một thiết bị mỗi lần, nên hãy ngắt khỏi đồng hồ hoặc ứng dụng ActiveLook trước.</string>
     <string name="engo_pages_title">Tùy chỉnh</string>
     <string name="engo_nav_takeover">Hiện chỗ rẽ khi dẫn đường</string>
-    <string name="engo_element_none">Chưa chọn gì. Chạm vào một số trong phần xem trước để thiết lập thành phần đó.</string>
+    <string name="engo_element_none">Chạm vào một số trong bản xem trước ở trên để thiết lập tại đây.</string>
     <string name="engo_preview_label">Xem trước trang kính</string>
     <string name="engo_preview_mode">Xem trước</string>
     <string name="engo_preview_zeros">Số 0</string>

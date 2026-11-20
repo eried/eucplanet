@@ -2802,7 +2802,7 @@
     <string name="engo_scan_hint">Slå på glasögonen. De ansluter bara till en enhet åt gången, så koppla först bort dem från klockan eller ActiveLook-appen.</string>
     <string name="engo_pages_title">Anpassa</string>
     <string name="engo_nav_takeover">Visa svängar vid navigering</string>
-    <string name="engo_element_none">Inget valt. Tryck på en siffra i förhandsvisningen för att ställa in det elementet.</string>
+    <string name="engo_element_none">Tryck på en siffra i förhandsvisningen ovan för att ställa in den här.</string>
     <string name="engo_preview_label">Förhandsvisning av glasögonsidan</string>
     <string name="engo_preview_mode">Förhandsvisning</string>
     <string name="engo_preview_zeros">Nollor</string>

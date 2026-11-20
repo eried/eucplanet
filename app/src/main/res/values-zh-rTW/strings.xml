@@ -2799,7 +2799,7 @@
     <string name="engo_scan_hint">開啟眼鏡電源。眼鏡一次只能連接一台裝置，請先中斷與手錶或 ActiveLook App 的連線。</string>
     <string name="engo_pages_title">自訂</string>
     <string name="engo_nav_takeover">導航時顯示轉彎</string>
-    <string name="engo_element_none">尚未選取。點一下預覽中的數字即可設定該元素。</string>
+    <string name="engo_element_none">點一下上方預覽中的數字，即可在這裡設定。</string>
     <string name="engo_preview_label">眼鏡頁面預覽</string>
     <string name="engo_preview_mode">預覽</string>
     <string name="engo_preview_zeros">全零</string>

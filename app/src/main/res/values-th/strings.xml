@@ -449,7 +449,7 @@
     <string name="engo_scan_hint">เปิดแว่น แว่นเชื่อมต่อได้ครั้งละหนึ่งอุปกรณ์ จึงต้องตัดการเชื่อมต่อจากนาฬิกาหรือแอป ActiveLook ก่อน</string>
     <string name="engo_pages_title">ปรับแต่ง</string>
     <string name="engo_nav_takeover">แสดงทางเลี้ยวขณะนำทาง</string>
-    <string name="engo_element_none">ยังไม่ได้เลือก แตะตัวเลขในตัวอย่างเพื่อตั้งค่าองค์ประกอบนั้น</string>
+    <string name="engo_element_none">แตะตัวเลขในตัวอย่างด้านบนเพื่อตั้งค่าที่นี่</string>
     <string name="engo_preview_label">ตัวอย่างหน้าแว่น</string>
     <string name="engo_preview_mode">ตัวอย่าง</string>
     <string name="engo_preview_zeros">ศูนย์</string>

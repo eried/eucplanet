@@ -2801,7 +2801,7 @@
     <string name="engo_scan_hint">グラスの電源を入れます。接続できる機器は一度に1台だけなので、先にウォッチやActiveLookアプリとの接続を切ってください。</string>
     <string name="engo_pages_title">カスタマイズ</string>
     <string name="engo_nav_takeover">ナビ中に曲がり角を表示</string>
-    <string name="engo_element_none">未選択です。プレビューの数字をタップすると、そのエレメントを設定できます。</string>
+    <string name="engo_element_none">上のプレビューの数字をタップすると、ここで設定できます。</string>
     <string name="engo_preview_label">グラスのページのプレビュー</string>
     <string name="engo_preview_mode">プレビュー</string>
     <string name="engo_preview_zeros">ゼロ</string>

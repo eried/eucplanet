@@ -2806,7 +2806,7 @@
     <string name="engo_scan_hint">Включите очки. Они подключаются только к одному устройству, поэтому сначала отключите их от часов или приложения ActiveLook.</string>
     <string name="engo_pages_title">Настроить</string>
     <string name="engo_nav_takeover">Показывать повороты при навигации</string>
-    <string name="engo_element_none">Ничего не выбрано. Нажмите на число в предпросмотре, чтобы настроить этот элемент.</string>
+    <string name="engo_element_none">Нажмите на число в предпросмотре выше, чтобы настроить его здесь.</string>
     <string name="engo_preview_label">Предпросмотр страницы очков</string>
     <string name="engo_preview_mode">Предпросмотр</string>
     <string name="engo_preview_zeros">Нули</string>

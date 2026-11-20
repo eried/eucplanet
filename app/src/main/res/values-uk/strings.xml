@@ -2803,7 +2803,7 @@
     <string name="engo_scan_hint">Увімкніть окуляри. Вони підключаються лише до одного пристрою, тож спершу від’єднайте їх від годинника чи застосунку ActiveLook.</string>
     <string name="engo_pages_title">Налаштувати</string>
     <string name="engo_nav_takeover">Показувати повороти під час навігації</string>
-    <string name="engo_element_none">Нічого не вибрано. Торкніться числа в перегляді, щоб налаштувати цей елемент.</string>
+    <string name="engo_element_none">Торкніться числа в перегляді вище, щоб налаштувати його тут.</string>
     <string name="engo_preview_label">Попередній перегляд сторінки окулярів</string>
     <string name="engo_preview_mode">Перегляд</string>
     <string name="engo_preview_zeros">Нулі</string>

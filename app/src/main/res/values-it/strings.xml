@@ -2708,7 +2708,7 @@
     <string name="engo_scan_hint">Accendi gli occhiali. Si collegano a un solo dispositivo alla volta, quindi scollegali prima dall’orologio o dall’app ActiveLook.</string>
     <string name="engo_pages_title">Personalizza</string>
     <string name="engo_nav_takeover">Mostra le svolte in navigazione</string>
-    <string name="engo_element_none">Nessuna selezione. Tocca un numero nell\'anteprima per configurare quell\'elemento.</string>
+    <string name="engo_element_none">Tocca un numero nell\'anteprima in alto per configurarlo qui.</string>
     <string name="engo_preview_label">Anteprima della pagina degli occhiali</string>
     <string name="engo_preview_mode">Anteprima</string>
     <string name="engo_preview_zeros">Zeri</string>

@@ -2666,7 +2666,7 @@
     <string name="engo_scan_hint">打开眼镜电源。眼镜一次只能连接一台设备，请先断开与手表或 ActiveLook 应用的连接。</string>
     <string name="engo_pages_title">自定义</string>
     <string name="engo_nav_takeover">导航时显示转弯</string>
-    <string name="engo_element_none">未选择。点按预览中的数字即可设置该元素。</string>
+    <string name="engo_element_none">点按上方预览中的数字，即可在这里设置。</string>
     <string name="engo_preview_label">眼镜页面预览</string>
     <string name="engo_preview_mode">预览</string>
     <string name="engo_preview_zeros">全零</string>

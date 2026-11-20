@@ -2805,7 +2805,7 @@
     <string name="engo_scan_hint">Zet de bril aan. Hij koppelt met één apparaat tegelijk, dus verbreek eerst de verbinding met je horloge of de ActiveLook-app.</string>
     <string name="engo_pages_title">Aanpassen</string>
     <string name="engo_nav_takeover">Afslagen tonen bij navigatie</string>
-    <string name="engo_element_none">Niets geselecteerd. Tik op een getal in het voorbeeld om dat element in te stellen.</string>
+    <string name="engo_element_none">Tik op een getal in het voorbeeld hierboven om het hier in te stellen.</string>
     <string name="engo_preview_label">Voorbeeld van de brilpagina</string>
     <string name="engo_preview_mode">Voorbeeld</string>
     <string name="engo_preview_zeros">Nullen</string>

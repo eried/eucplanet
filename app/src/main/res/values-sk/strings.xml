@@ -476,7 +476,7 @@
     <string name="engo_scan_hint">Zapnite okuliare. Pripoja sa vždy len k jednému zariadeniu, preto ich najprv odpojte od hodiniek alebo aplikácie ActiveLook.</string>
     <string name="engo_pages_title">Prispôsobiť</string>
     <string name="engo_nav_takeover">Zobrazovať odbočky pri navigácii</string>
-    <string name="engo_element_none">Nič nie je vybraté. Ťuknutím na číslo v ukážke nastavíte daný prvok.</string>
+    <string name="engo_element_none">Ťuknite na číslo v ukážke vyššie a nastavte ho tu.</string>
     <string name="engo_preview_label">Ukážka stránky okuliarov</string>
     <string name="engo_preview_mode">Ukážka</string>
     <string name="engo_preview_zeros">Nuly</string>

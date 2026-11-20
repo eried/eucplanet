@@ -2799,7 +2799,7 @@
     <string name="engo_scan_hint">Gözlüğü açın. Aynı anda tek bir cihaza bağlanır, bu yüzden önce saatinizden veya ActiveLook uygulamasından ayırın.</string>
     <string name="engo_pages_title">Özelleştir</string>
     <string name="engo_nav_takeover">Navigasyonda dönüşleri göster</string>
-    <string name="engo_element_none">Hiçbir şey seçilmedi. Öğeyi ayarlamak için önizlemedeki bir sayıya dokunun.</string>
+    <string name="engo_element_none">Burada ayarlamak için yukarıdaki önizlemede bir sayıya dokunun.</string>
     <string name="engo_preview_label">Gözlük sayfası önizlemesi</string>
     <string name="engo_preview_mode">Önizleme</string>
     <string name="engo_preview_zeros">Sıfırlar</string>

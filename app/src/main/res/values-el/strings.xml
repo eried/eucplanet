@@ -464,7 +464,7 @@
     <string name="engo_scan_hint">Ανάψτε τα γυαλιά. Συνδέονται με μία συσκευή τη φορά, οπότε αποσυνδέστε τα πρώτα από το ρολόι ή την εφαρμογή ActiveLook.</string>
     <string name="engo_pages_title">Προσαρμογή</string>
     <string name="engo_nav_takeover">Εμφάνιση στροφών στην πλοήγηση</string>
-    <string name="engo_element_none">Δεν έχει επιλεγεί τίποτα. Πατήστε έναν αριθμό στην προεπισκόπηση για να ρυθμίσετε το στοιχείο.</string>
+    <string name="engo_element_none">Πατήστε έναν αριθμό στην προεπισκόπηση επάνω για να τον ρυθμίσετε εδώ.</string>
     <string name="engo_preview_label">Προεπισκόπηση σελίδας γυαλιών</string>
     <string name="engo_preview_mode">Προεπισκόπηση</string>
     <string name="engo_preview_zeros">Μηδενικά</string>

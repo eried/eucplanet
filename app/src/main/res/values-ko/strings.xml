@@ -2800,7 +2800,7 @@
     <string name="engo_scan_hint">안경을 켜세요. 한 번에 한 기기에만 연결되므로 먼저 시계나 ActiveLook 앱과의 연결을 끊으세요.</string>
     <string name="engo_pages_title">사용자 지정</string>
     <string name="engo_nav_takeover">내비게이션 중 회전 표시</string>
-    <string name="engo_element_none">선택된 항목이 없습니다. 미리보기의 숫자를 탭하면 해당 요소를 설정할 수 있습니다.</string>
+    <string name="engo_element_none">위 미리보기의 숫자를 탭하면 여기에서 설정할 수 있습니다.</string>
     <string name="engo_preview_label">안경 페이지 미리보기</string>
     <string name="engo_preview_mode">미리보기</string>
     <string name="engo_preview_zeros">제로</string>

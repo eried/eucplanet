@@ -2817,7 +2817,7 @@
     <string name="engo_scan_hint">Tænd brillerne. De kan kun være forbundet til én enhed ad gangen, så afbryd dem først fra dit ur eller ActiveLook-appen.</string>
     <string name="engo_pages_title">Tilpas</string>
     <string name="engo_nav_takeover">Vis sving under navigation</string>
-    <string name="engo_element_none">Intet valgt. Tryk på et tal i forhåndsvisningen for at indstille det element.</string>
+    <string name="engo_element_none">Tryk på et tal i forhåndsvisningen ovenfor for at indstille det her.</string>
     <string name="engo_preview_label">Forhåndsvisning af brillesiden</string>
     <string name="engo_preview_mode">Forhåndsvisning</string>
     <string name="engo_preview_zeros">Nuller</string>

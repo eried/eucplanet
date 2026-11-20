@@ -2808,7 +2808,7 @@
     <string name="engo_scan_hint">Allumez les lunettes. Elles ne se lient qu’à un appareil à la fois : déconnectez-les d’abord de votre montre ou de l’appli ActiveLook.</string>
     <string name="engo_pages_title">Personnaliser</string>
     <string name="engo_nav_takeover">Afficher les virages en navigation</string>
-    <string name="engo_element_none">Aucune sélection. Appuyez sur un numéro dans l\'aperçu pour configurer cet élément.</string>
+    <string name="engo_element_none">Appuyez sur un numéro dans l\'aperçu ci-dessus pour le configurer ici.</string>
     <string name="engo_preview_label">Aperçu de la page des lunettes</string>
     <string name="engo_preview_mode">Aperçu</string>
     <string name="engo_preview_zeros">Zéros</string>

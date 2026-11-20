@@ -2822,7 +2822,7 @@
     <string name="engo_scan_hint">Enciende las gafas. Solo se enlazan a un dispositivo a la vez, así que primero desconéctalas de tu reloj o de la app ActiveLook.</string>
     <string name="engo_pages_title">Personalizar</string>
     <string name="engo_nav_takeover">Mostrar giros al navegar</string>
-    <string name="engo_element_none">Nada seleccionado. Toca un número en la vista previa para configurarlo.</string>
+    <string name="engo_element_none">Toca un número en la vista previa de arriba para configurarlo aquí.</string>
     <string name="engo_preview_label">Vista previa de la página de los lentes</string>
     <string name="engo_preview_mode">Vista previa</string>
     <string name="engo_preview_zeros">Ceros</string>

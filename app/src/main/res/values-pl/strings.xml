@@ -2806,7 +2806,7 @@
     <string name="engo_scan_hint">Włącz okulary. Łączą się tylko z jednym urządzeniem naraz, więc najpierw odłącz je od zegarka lub aplikacji ActiveLook.</string>
     <string name="engo_pages_title">Dostosuj</string>
     <string name="engo_nav_takeover">Pokazuj skręty podczas nawigacji</string>
-    <string name="engo_element_none">Nic nie wybrano. Dotknij liczby na podglądzie, aby ustawić ten element.</string>
+    <string name="engo_element_none">Dotknij liczby na podglądzie powyżej, aby ustawić tutaj ten element.</string>
     <string name="engo_preview_label">Podgląd strony okularów</string>
     <string name="engo_preview_mode">Podgląd</string>
     <string name="engo_preview_zeros">Zera</string>
