@@ -38,7 +38,6 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -276,10 +275,6 @@ fun ChargingMonitorScreen(
                             },
                             // Greyed out when no session has been recorded yet.
                             enabled = state.hasSessionData,
-                            colors = MenuDefaults.itemColors(
-                                textColor = MaterialTheme.appColors.textPrimary,
-                                disabledTextColor = MaterialTheme.appColors.textDisabled,
-                            ),
                         )
                     }
                 },
