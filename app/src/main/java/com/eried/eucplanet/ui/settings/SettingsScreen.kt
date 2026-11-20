@@ -12104,11 +12104,14 @@ private fun EngoGlassesBlock(
         ) {
             val layouts = com.eried.eucplanet.service.hud.engo.EngoLayouts
             val kind = layouts.kindOf(engo.layout)
-            val used = layouts.elementsUsed(kind, engo.navTakeover)
-            var selectedRaw by rememberSaveable { mutableIntStateOf(0) }
-            val selected = selectedRaw.coerceIn(0, used - 1)
             // What the preview shows: the page at rest (zeros), on a ride, or during a route.
             var previewMode by rememberSaveable { mutableStateOf("RIDING") }
+            // The element being set up: none until a number on the preview is tapped, and
+            // none again as soon as the preview has no place for it (another layout, the
+            // route preview, the turns switch), so a hidden element is never edited.
+            var pickedRaw by rememberSaveable { mutableIntStateOf(layouts.NONE) }
+            val selected = layouts.keepSelection(pickedRaw, kind, previewMode == "ROUTE", engo.navTakeover)
+            LaunchedEffect(selected) { pickedRaw = selected }
             val defaults = com.eried.eucplanet.data.model.DEFAULT_ENGO_ELEMENTS
             val previewLabels = mapOf(
                 "ZEROS" to stringResource(R.string.engo_preview_zeros),
@@ -12140,10 +12143,10 @@ private fun EngoGlassesBlock(
                     navigating = previewMode == "ROUTE",
                     zeros = previewMode == "ZEROS",
                     selected = selected,
-                    onSelect = { selectedRaw = it },
+                    // Tapping the picked number again puts it down.
+                    onSelect = { pickedRaw = if (it == selected) layouts.NONE else it },
                 )
-                HintText(stringResource(R.string.engo_preview_hint))
-                // The selected element's options, framed together so they read as one
+                // The picked element's options, framed together so they read as one
                 // element's settings. Outlined, not filled: the fields are already the
                 // darker surface and would vanish into a filled card.
                 Box(
@@ -12155,21 +12158,26 @@ private fun EngoGlassesBlock(
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        if (used > 1) {
-                            SegmentedChoice(
-                                label = stringResource(R.string.engo_element),
-                                options = (0 until used).map { "$it" to "${it + 1}" },
-                                current = "$selected",
-                                onChange = { selectedRaw = it.toInt() },
+                        if (selected == layouts.NONE) {
+                            HintText(
+                                stringResource(R.string.engo_element_none),
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                            )
+                        } else {
+                            Text(
+                                "${stringResource(R.string.engo_element)} ${selected + 1}",
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.appColors.primary,
+                            )
+                            EngoElementEditor(
+                                kind = kind,
+                                index = selected,
+                                element = engo.elements.getOrNull(selected) ?: defaults[selected],
+                                dashboardWindowSec = settings.dashboardRollingWindowSeconds,
+                                onChange = { viewModel.updateEngoElement(selected, it) },
                             )
                         }
-                        EngoElementEditor(
-                            kind = kind,
-                            index = selected,
-                            element = engo.elements.getOrNull(selected) ?: defaults[selected],
-                            dashboardWindowSec = settings.dashboardRollingWindowSeconds,
-                            onChange = { viewModel.updateEngoElement(selected, it) },
-                        )
                     }
                 }
                 SegmentedChoice(

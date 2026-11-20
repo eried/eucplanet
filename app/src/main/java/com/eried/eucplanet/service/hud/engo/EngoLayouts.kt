@@ -163,15 +163,17 @@ object EngoLayouts {
     /** Whether "show turns while navigating" means anything here: Turn shows them anyway. */
     fun turnsSwitchApplies(kind: EngoLayoutKind): Boolean = kind != EngoLayoutKind.TURN
 
+    /** No element picked to set up. */
+    const val NONE = -1
+
     /**
-     * How many elements the rider sets up: the layout's own, plus the Turn
-     * layout's when it takes over during a route.
+     * The element picked on the preview, kept only while the page shown has a
+     * place for it. Another layout, the route preview or the turns switch can
+     * hide it; the pick then goes, so the editor never sets up an element the
+     * rider cannot see.
      */
-    fun elementsUsed(kind: EngoLayoutKind, turnsOn: Boolean): Int {
-        val own = riding(kind).spots.size
-        val takesOver = turnsOn && kind != EngoLayoutKind.COCKPIT && kind != EngoLayoutKind.TURN
-        return if (takesOver || kind == EngoLayoutKind.TURN) maxOf(own, TURN_ROUTE.spots.size) else own
-    }
+    fun keepSelection(picked: Int, kind: EngoLayoutKind, navigating: Boolean, turnsOn: Boolean): Int =
+        if (resolve(kind, navigating, turnsOn).spots.any { it.element == picked }) picked else NONE
 
     /** Whether element [element] has no place in [kind] itself, only in the Turn layout during a route. */
     fun onlyDuringRoute(kind: EngoLayoutKind, element: Int): Boolean =

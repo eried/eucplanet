@@ -476,7 +476,7 @@
     <string name="engo_scan_hint">Включете очилата. Те се свързват само с едно устройство, затова първо ги изключете от часовника или от приложението ActiveLook.</string>
     <string name="engo_pages_title">Персонализиране</string>
     <string name="engo_nav_takeover">Показване на завоите при навигация</string>
-    <string name="engo_preview_hint">Вашето оформление с примерни числа. Докоснете число, за да настроите този елемент.</string>
+    <string name="engo_element_none">Нищо не е избрано. Докоснете число в прегледа, за да настроите елемента.</string>
     <string name="engo_preview_label">Преглед на страницата на очилата</string>
     <string name="engo_preview_mode">Преглед</string>
     <string name="engo_preview_zeros">Нули</string>

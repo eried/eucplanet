@@ -449,7 +449,7 @@
     <string name="engo_scan_hint">Nyalakan kacamata. Kacamata hanya terhubung ke satu perangkat, jadi putuskan dulu dari jam tangan atau aplikasi ActiveLook.</string>
     <string name="engo_pages_title">Sesuaikan</string>
     <string name="engo_nav_takeover">Tampilkan belokan saat navigasi</string>
-    <string name="engo_preview_hint">Tata letak Anda dengan angka contoh. Ketuk sebuah angka untuk mengatur elemen tersebut.</string>
+    <string name="engo_element_none">Belum ada yang dipilih. Ketuk sebuah angka di pratinjau untuk mengatur elemen tersebut.</string>
     <string name="engo_preview_label">Pratinjau halaman kacamata</string>
     <string name="engo_preview_mode">Pratinjau</string>
     <string name="engo_preview_zeros">Nol</string>

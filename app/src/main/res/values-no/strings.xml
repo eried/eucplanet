@@ -2689,7 +2689,7 @@
     <string name="engo_scan_hint">Slå på brillene. De kobler seg bare til én enhet om gangen, så koble dem først fra klokka eller ActiveLook-appen.</string>
     <string name="engo_pages_title">Tilpass</string>
     <string name="engo_nav_takeover">Vis svinger under navigasjon</string>
-    <string name="engo_preview_hint">Oppsettet ditt med eksempeltall. Trykk på et tall for å stille inn det elementet.</string>
+    <string name="engo_element_none">Ingenting er valgt. Trykk på et tall i forhåndsvisningen for å stille inn det elementet.</string>
     <string name="engo_preview_label">Forhåndsvisning av brillesiden</string>
     <string name="engo_preview_mode">Forhåndsvisning</string>
     <string name="engo_preview_zeros">Nuller</string>

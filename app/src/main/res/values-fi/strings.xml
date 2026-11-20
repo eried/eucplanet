@@ -2606,7 +2606,7 @@
     <string name="engo_scan_hint">Kytke lasit päälle. Ne yhdistyvät vain yhteen laitteeseen kerrallaan, joten katkaise ensin yhteys kelloon tai ActiveLook-sovellukseen.</string>
     <string name="engo_pages_title">Mukauta</string>
     <string name="engo_nav_takeover">Näytä käännökset navigoidessa</string>
-    <string name="engo_preview_hint">Asettelusi esimerkkiluvuilla. Määritä elementti napauttamalla sen lukua.</string>
+    <string name="engo_element_none">Mitään ei ole valittu. Määritä elementti napauttamalla sen lukua esikatselussa.</string>
     <string name="engo_preview_label">Lasien sivun esikatselu</string>
     <string name="engo_preview_mode">Esikatselu</string>
     <string name="engo_preview_zeros">Nollat</string>

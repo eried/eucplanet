@@ -241,15 +241,51 @@ class EngoLayoutTest {
     }
 
     @Test
-    fun elementCountsPerLayout() {
-        assertEquals(5, EngoLayouts.elementsUsed(EngoLayoutKind.COCKPIT, true))
-        assertEquals(4, EngoLayouts.elementsUsed(EngoLayoutKind.QUAD, true))
-        assertEquals(3, EngoLayouts.elementsUsed(EngoLayoutKind.TURN, false))
-        assertEquals(1, EngoLayouts.elementsUsed(EngoLayoutKind.MINIMAL, false))
-        // Minimal sets up the Turn layout's elements too while it can take over.
-        assertEquals(3, EngoLayouts.elementsUsed(EngoLayoutKind.MINIMAL, true))
+    fun aPickedElementLastsOnlyWhileThePreviewShowsIt() {
+        val none = EngoLayouts.NONE
+        // Quad's fourth element has no place while the Turn layout takes a route over.
+        assertEquals(3, EngoLayouts.keepSelection(3, EngoLayoutKind.QUAD, navigating = false, turnsOn = true))
+        assertEquals(none, EngoLayouts.keepSelection(3, EngoLayoutKind.QUAD, navigating = true, turnsOn = true))
+        assertEquals(3, EngoLayouts.keepSelection(3, EngoLayoutKind.QUAD, navigating = true, turnsOn = false))
+        // Another layout keeps what it has a place for and drops the rest.
+        assertEquals(1, EngoLayouts.keepSelection(1, EngoLayoutKind.COCKPIT, navigating = false, turnsOn = true))
+        assertEquals(none, EngoLayouts.keepSelection(1, EngoLayoutKind.MINIMAL, navigating = false, turnsOn = true))
+        assertEquals(none, EngoLayouts.keepSelection(4, EngoLayoutKind.BIG, navigating = false, turnsOn = true))
+        // Minimal's route-only elements are picked on the Navigating preview.
+        assertEquals(2, EngoLayouts.keepSelection(2, EngoLayoutKind.MINIMAL, navigating = true, turnsOn = true))
         assertTrue(EngoLayouts.onlyDuringRoute(EngoLayoutKind.MINIMAL, 2))
         assertFalse(EngoLayouts.onlyDuringRoute(EngoLayoutKind.BIG, 2))
+        assertEquals(none, EngoLayouts.keepSelection(none, EngoLayoutKind.QUAD, navigating = false, turnsOn = true))
+    }
+
+    @Test
+    fun noLayoutPreviewOrSwitchLeavesAHiddenElementPicked() {
+        for (kind in EngoLayoutKind.entries) for (nav in listOf(false, true)) for (turns in listOf(false, true)) {
+            val shown = EngoLayouts.resolve(kind, nav, turns).spots.map { it.element }.toSet()
+            for (picked in -1..EngoLayouts.MAX_ELEMENTS) {
+                val kept = EngoLayouts.keepSelection(picked, kind, nav, turns)
+                val case = "$kind navigating=$nav turns=$turns picked=$picked kept=$kept"
+                assertTrue(case, kept == EngoLayouts.NONE || kept in shown)
+                if (picked in shown) assertEquals(case, picked, kept)
+            }
+        }
+    }
+
+    @Test
+    fun everyElementTheGlassesDrawCanBeTappedOnOnePreview() {
+        // With no element list, a place is set up only by tapping it: whatever the
+        // glasses can draw must show on the Riding or the Navigating preview.
+        for (kind in EngoLayoutKind.entries) for (turns in listOf(false, true)) {
+            val drawn = listOf(false, true).flatMap { nav ->
+                EngoLayout.widgets(page(kind, nav = if (nav) EngoNav(EngoManeuver.LEFT, "120 M") else null, turnsOn = turns), engo3)
+                    // Widget "e4v" is element 4's value: the fourth, index 3.
+                    .mapNotNull { w -> Regex("^e(\\d)").find(w.id)?.groupValues?.get(1)?.toInt()?.minus(1) }
+            }.toSet()
+            val tappable = listOf(false, true).flatMap { nav ->
+                EngoLayouts.resolve(kind, nav, turns).spots.map { it.element }
+            }.toSet()
+            assertEquals("$kind turns=$turns", drawn, tappable)
+        }
     }
 
     @Test

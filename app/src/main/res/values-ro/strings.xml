@@ -2608,7 +2608,7 @@
     <string name="engo_scan_hint">Pornește ochelarii. Se leagă de un singur dispozitiv odată, așa că deconectează-i mai întâi de la ceas sau de la aplicația ActiveLook.</string>
     <string name="engo_pages_title">Personalizează</string>
     <string name="engo_nav_takeover">Arată virajele în navigare</string>
-    <string name="engo_preview_hint">Aranjarea ta pe numere de exemplu. Atinge un număr ca să configurezi acel element.</string>
+    <string name="engo_element_none">Nimic selectat. Atinge un număr din previzualizare ca să configurezi acel element.</string>
     <string name="engo_preview_label">Previzualizarea paginii ochelarilor</string>
     <string name="engo_preview_mode">Previzualizare</string>
     <string name="engo_preview_zeros">Zerouri</string>

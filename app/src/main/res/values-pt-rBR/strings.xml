@@ -2806,7 +2806,7 @@
     <string name="engo_scan_hint">Ligue os óculos. Eles se conectam a um aparelho por vez, então desconecte-os antes do relógio ou do app ActiveLook.</string>
     <string name="engo_pages_title">Personalizar</string>
     <string name="engo_nav_takeover">Mostrar curvas na navegação</string>
-    <string name="engo_preview_hint">Seu layout com números de exemplo. Toque em um número para configurar esse elemento.</string>
+    <string name="engo_element_none">Nada selecionado. Toque em um número na prévia para configurar esse elemento.</string>
     <string name="engo_preview_label">Prévia da página dos óculos</string>
     <string name="engo_preview_mode">Prévia</string>
     <string name="engo_preview_zeros">Zeros</string>

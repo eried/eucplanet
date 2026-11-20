@@ -2610,7 +2610,7 @@
     <string name="engo_scan_hint">Zapněte brýle. Připojí se vždy jen k jednomu zařízení, takže je nejdřív odpojte od hodinek nebo aplikace ActiveLook.</string>
     <string name="engo_pages_title">Přizpůsobit</string>
     <string name="engo_nav_takeover">Zobrazovat odbočky při navigaci</string>
-    <string name="engo_preview_hint">Vaše rozvržení s ukázkovými čísly. Klepnutím na číslo nastavíte daný prvek.</string>
+    <string name="engo_element_none">Nic není vybráno. Klepnutím na číslo v náhledu nastavíte daný prvek.</string>
     <string name="engo_preview_label">Náhled stránky brýlí</string>
     <string name="engo_preview_mode">Náhled</string>
     <string name="engo_preview_zeros">Nuly</string>

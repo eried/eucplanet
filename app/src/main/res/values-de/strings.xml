@@ -2822,7 +2822,7 @@
     <string name="engo_scan_hint">Brille einschalten. Sie verbindet sich nur mit einem Gerät gleichzeitig, also zuerst von Uhr oder ActiveLook-App trennen.</string>
     <string name="engo_pages_title">Anpassen</string>
     <string name="engo_nav_takeover">Abbiegungen bei Navigation zeigen</string>
-    <string name="engo_preview_hint">Dein Layout mit Beispielwerten. Tippe auf eine Zahl, um dieses Element einzurichten.</string>
+    <string name="engo_element_none">Nichts ausgewählt. Tippe in der Vorschau auf eine Zahl, um das Element einzurichten.</string>
     <string name="engo_preview_label">Vorschau der Brillenseite</string>
     <string name="engo_preview_mode">Vorschau</string>
     <string name="engo_preview_zeros">Nullen</string>
