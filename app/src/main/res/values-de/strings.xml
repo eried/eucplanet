@@ -482,7 +482,7 @@
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Datenverbindung aktivieren</string>
     <string name="hud_auto_start">HUD-App automatisch öffnen</string>
-    <string name="hud_auto_start_desc">Beim Einschalten bittet das HUD darum, die HUD-App zu öffnen. Manche HUDs blockieren das. Nach der Installation einmal von Hand öffnen.</string>
+    <string name="hud_auto_start_desc">Öffnet die HUD-App beim Einschalten des HUD. Nach der Installation einmal von Hand öffnen.</string>
     <string name="hud_ip_label">Geräte-IP</string>
     <string name="hud_ip_incomplete">Vollständige Adresse eingeben, z. B. 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">Geräte-IP (automatisch)</string>

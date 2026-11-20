@@ -443,7 +443,7 @@
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Ota datayhteys käyttöön</string>
     <string name="hud_auto_start">Avaa HUD-sovellus automaattisesti</string>
-    <string name="hud_auto_start_desc">Kun HUD käynnistyy, se pyytää avaamaan HUD-sovelluksen. Jotkin HUDit voivat estää tämän. Avaa sovellus kerran itse asennuksen jälkeen.</string>
+    <string name="hud_auto_start_desc">Avaa HUD-sovelluksen, kun HUD käynnistyy. Avaa se asennuksen jälkeen kerran itse.</string>
     <string name="hud_ip_label">Laitteen IP</string>
     <string name="hud_ip_incomplete">Anna koko osoite, esimerkiksi 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">Laitteen IP (automaattinen)</string>

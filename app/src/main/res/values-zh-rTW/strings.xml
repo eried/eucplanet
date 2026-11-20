@@ -482,7 +482,7 @@
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">啟用資料連結</string>
     <string name="hud_auto_start">自動開啟 HUD 應用程式</string>
-    <string name="hud_auto_start_desc">HUD 開機時會要求開啟 HUD 應用程式。部分 HUD 可能會阻擋。安裝後請手動開啟一次。</string>
+    <string name="hud_auto_start_desc">HUD 開機時開啟 HUD 應用程式。安裝後請手動開啟一次。</string>
     <string name="hud_ip_label">裝置 IP</string>
     <string name="hud_ip_incomplete">請輸入完整位址，例如 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">裝置 IP（自動）</string>

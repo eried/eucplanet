@@ -450,6 +450,10 @@ class HudServer(private val context: Context) {
                                         _state.value = s
                                         com.eried.eucplanet.hud.update.HudAutoStart
                                             .remember(context, s.autoStart)
+                                        if (s.protocolMinor >= 27) {
+                                            com.eried.eucplanet.hud.update.HudAutoStart
+                                                .drainNotes().forEach { sendCommand(HudCommand.Note(it)) }
+                                        }
                                     }
                                 } catch (t: Throwable) {
                                     Log.w(TAG, "decode failed: ${t.message}")
