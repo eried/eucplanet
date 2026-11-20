@@ -12119,6 +12119,24 @@ private fun EngoGlassesBlock(
                 "RIDING" to stringResource(R.string.engo_preview_riding),
                 "ROUTE" to stringResource(R.string.engo_preview_navigating),
             )
+            // The font first: it applies to every layout, so it is set before picking one.
+            SegmentedChoice(
+                label = stringResource(R.string.engo_font),
+                options = listOf(
+                    "PIXEL" to stringResource(R.string.engo_font_pixel),
+                    "DIGITAL" to stringResource(R.string.engo_font_digital),
+                    "BOLD" to stringResource(R.string.engo_font_bold),
+                ),
+                current = layouts.fontOf(engo.font).name,
+                onChange = { viewModel.updateEngoFont(it) },
+            )
+            if (layouts.fontOf(engo.font) == com.eried.eucplanet.service.hud.engo.EngoFontStyle.DIGITAL) {
+                SwitchSetting(
+                    label = stringResource(R.string.engo_digital_ghost),
+                    checked = engo.digitalGhost,
+                    onCheckedChange = { viewModel.updateEngoDigitalGhost(it) }
+                )
+            }
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 // Layout | Preview side by side, like the dashboard's View | Stats length.
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -12181,29 +12199,16 @@ private fun EngoGlassesBlock(
                         }
                     }
                 }
-                SegmentedChoice(
-                    label = stringResource(R.string.engo_font),
-                    options = listOf(
-                        "PIXEL" to stringResource(R.string.engo_font_pixel),
-                        "DIGITAL" to stringResource(R.string.engo_font_digital),
-                        "BOLD" to stringResource(R.string.engo_font_bold),
-                    ),
-                    current = layouts.fontOf(engo.font).name,
-                    onChange = { viewModel.updateEngoFont(it) },
-                )
-                if (layouts.fontOf(engo.font) == com.eried.eucplanet.service.hud.engo.EngoFontStyle.DIGITAL) {
-                    SwitchSetting(
-                        label = stringResource(R.string.engo_digital_ghost),
-                        checked = engo.digitalGhost,
-                        onCheckedChange = { viewModel.updateEngoDigitalGhost(it) }
-                    )
-                }
                 val switchApplies = layouts.turnsSwitchApplies(kind)
                 SwitchSetting(
                     label = stringResource(R.string.engo_nav_takeover),
                     checked = !switchApplies || engo.navTakeover,
                     enabled = switchApplies,
-                    onCheckedChange = { viewModel.updateEngoNavTakeover(it) }
+                    onCheckedChange = {
+                        viewModel.updateEngoNavTakeover(it)
+                        // Turning turns on shows the page they just asked for.
+                        if (it) previewMode = "ROUTE"
+                    }
                 )
                 if (!switchApplies) HintText(stringResource(R.string.engo_turn_always))
             }
