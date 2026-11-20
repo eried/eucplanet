@@ -31,6 +31,9 @@ data class StudioElementData(
     /** GPS lat/lng for the MAP element. Doubles, 0 = no fix. */
     val latitude: Double = 0.0,
     val longitude: Double = 0.0,
+    /** The route line around the rider, as the phone sends it (see
+     *  RouteWindow). Empty when no route runs. Drawn by the MAP element. */
+    val navRoute: String = "",
     /** Heading degrees (0 = north, +clockwise). NaN when no bearing. */
     val gpsHeadingDeg: Float = Float.NaN,
     /** Rider's accent colour as ARGB. */
@@ -101,6 +104,7 @@ data class StudioElementData(
                 altitudeUnit = hud.unitAltitude,
                 latitude = hud.latitude,
                 longitude = hud.longitude,
+                navRoute = hud.navRoute,
                 gpsHeadingDeg = hud.gpsHeadingDeg,
                 accentArgb = parseArgbStringToLong(hud.accentArgb),
                 radarConnected = hud.radarConnected,
