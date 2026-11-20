@@ -460,6 +460,7 @@
     <string name="hud_server_enabled">Ativar ligação de dados</string>
     <string name="hud_auto_start">Abrir a app do HUD automaticamente</string>
     <string name="hud_auto_start_desc">Ao ligar, o HUD pede para abrir a app do HUD. Alguns HUD podem bloquear isto. Abra a app manualmente uma vez após instalar.</string>
+    <string name="hud_auto_start_test_desc">Testar: a app do HUD fecha e volta a abrir após 10 s.</string>
     <string name="engo_hud_enabled">HUD dos óculos ENGO</string>
     <string name="engo_scan_hint">Ligue os óculos. Só se ligam a um dispositivo de cada vez, por isso desligue-os primeiro do relógio ou da app ActiveLook.</string>
     <string name="engo_pages_title">Personalizar</string>

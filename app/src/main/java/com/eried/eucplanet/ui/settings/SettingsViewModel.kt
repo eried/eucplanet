@@ -119,7 +119,7 @@ class SettingsViewModel(
     private val overlayPresetStore: com.eried.eucplanet.data.store.OverlayPresetStore,
     private val themeController: com.eried.eucplanet.ui.theme.ThemeController,
     hudCommandSink: com.eried.eucplanet.service.hud.HudCommandSink,
-    hudServer: com.eried.eucplanet.service.hud.HudServer,
+    private val hudServer: com.eried.eucplanet.service.hud.HudServer,
     private val eucStatsRepository: EucStatsRepository,
     private val dropboxRepository: com.eried.eucplanet.data.repository.DropboxRepository,
     private val appHealthRepository:
@@ -931,6 +931,7 @@ class SettingsViewModel(
     // HUD companion
     fun updateHudServerEnabled(v: Boolean) = update { copy(hudServerEnabled = v) }
     fun updateHudAutoStart(v: Boolean) = update { copy(hudDisplay = hudDisplay.copy(autoStart = v)) }
+    fun testHudAutoStart() = hudServer.testAutoStart()
     fun updateEngoHudEnabled(v: Boolean) = update { copy(engoHud = engoHud.copy(enabled = v)) }
     /** The rider picked these glasses in a scan: remembered, and linked to. */
     fun updateEngoPaired(address: String, name: String) = update {

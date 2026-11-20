@@ -472,6 +472,7 @@
     <string name="hud_server_enabled">Zapnúť dátové spojenie</string>
     <string name="hud_auto_start">Automaticky otvoriť aplikáciu HUD</string>
     <string name="hud_auto_start_desc">Po zapnutí HUD požiada o otvorenie aplikácie HUD. Niektoré HUD to môžu blokovať. Po inštalácii ju raz otvorte ručne.</string>
+    <string name="hud_auto_start_test_desc">Test: aplikácia HUD sa zatvorí a po 10 s sa znova otvorí.</string>
     <string name="engo_hud_enabled">HUD okuliarov ENGO</string>
     <string name="engo_scan_hint">Zapnite okuliare. Pripoja sa vždy len k jednému zariadeniu, preto ich najprv odpojte od hodiniek alebo aplikácie ActiveLook.</string>
     <string name="engo_pages_title">Prispôsobiť</string>

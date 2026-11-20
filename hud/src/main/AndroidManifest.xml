@@ -94,6 +94,11 @@
             </intent-filter>
         </receiver>
 
+        <!-- The planned retries after boot, and the phone's Test. -->
+        <receiver
+            android:name=".update.HudRetryReceiver"
+            android:exported="false" />
+
         <!-- Starts the HUD again after it updated itself. -->
         <receiver
             android:name=".update.HudRelaunchReceiver"

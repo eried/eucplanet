@@ -281,7 +281,14 @@ data class HudState(
      * the last value it got, because at start-up no phone is linked yet.
      * Added at PROTOCOL_MINOR 26; older HUDs ignore it and never start alone.
      */
-    val autoStart: Boolean = true
+    val autoStart: Boolean = true,
+    /**
+     * Set for a few seconds after the rider taps Test under "Open HUD app
+     * automatically", 0 otherwise. A new value makes the HUD leave the app
+     * for its home screen and open it again after a short wait, once per
+     * value. Added at PROTOCOL_MINOR 27; older HUDs ignore it.
+     */
+    val autoStartTestId: Long = 0L
 ) {
     companion object {
         /**
@@ -376,8 +383,9 @@ data class HudState(
          *    An older HUD ignores it and goes by the distance unit.
          * 26: [HudState.autoStart]. The HUD app opens when the HUD starts,
          *    unless the rider turned it off. An older HUD never does.
+         * 27: [HudState.autoStartTestId], the phone's Test for the above.
          */
-        const val PROTOCOL_MINOR: Int = 26
+        const val PROTOCOL_MINOR: Int = 27
 
         /** Legacy alias. New code should read [PROTOCOL_MAJOR] / [PROTOCOL_MINOR]. */
         @Deprecated(

@@ -444,6 +444,7 @@
     <string name="hud_server_enabled">Zapnout datové spojení</string>
     <string name="hud_auto_start">Automaticky otevřít aplikaci HUD</string>
     <string name="hud_auto_start_desc">Po zapnutí HUD požádá o otevření aplikace HUD. Některé HUD to mohou blokovat. Po instalaci ji jednou otevřete ručně.</string>
+    <string name="hud_auto_start_test_desc">Test: aplikace HUD se zavře a po 10 s se znovu otevře.</string>
     <string name="hud_ip_label">IP adresa zařízení</string>
     <string name="hud_ip_incomplete">Zadejte celou adresu, například 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">IP adresa zařízení (automaticky)</string>

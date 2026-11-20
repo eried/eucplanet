@@ -483,6 +483,7 @@
     <string name="hud_server_enabled">Включить передачу данных</string>
     <string name="hud_auto_start">Открывать приложение HUD автоматически</string>
     <string name="hud_auto_start_desc">При включении HUD запрашивает открытие приложения HUD. Некоторые HUD могут это блокировать. После установки откройте приложение вручную один раз.</string>
+    <string name="hud_auto_start_test_desc">Тест: приложение HUD закроется и через 10 с откроется снова.</string>
     <string name="hud_ip_label">IP устройства</string>
     <string name="hud_ip_incomplete">Введите полный адрес, например 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">IP устройства (автоматически)</string>

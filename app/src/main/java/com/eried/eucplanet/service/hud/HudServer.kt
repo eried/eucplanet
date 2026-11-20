@@ -320,6 +320,18 @@ class HudServer(
      */
     private fun log(msg: String) = hudLinkNote(TAG, msg)
 
+    @Volatile private var autoStartTestId = 0L
+    @Volatile private var autoStartTestUntil = 0L
+
+    /** The Test under "Open HUD app automatically": the HUD leaves its app
+     *  and opens it again a few seconds later. Sent for a few seconds so a
+     *  dropped frame does not lose it; the HUD runs it once per id. */
+    fun testAutoStart() {
+        autoStartTestId = System.currentTimeMillis()
+        autoStartTestUntil = android.os.SystemClock.elapsedRealtime() + 5_000L
+        log("auto-open test sent")
+    }
+
     private val demo = HudDemoSource()
     @Volatile private var latest: HudState = HudState()
 
@@ -1364,6 +1376,9 @@ class HudServer(
             hudMapContrastPct = s.hudDisplay.mapContrastPct,
             hudMapBrightnessPct = s.hudDisplay.mapBrightnessPct,
             autoStart = s.hudDisplay.autoStart,
+            autoStartTestId = autoStartTestId.takeIf {
+                android.os.SystemClock.elapsedRealtime() < autoStartTestUntil
+            } ?: 0L,
             navActive = d?.navActive ?: navShow,
             navArrowAngleDeg = d?.navAngleDeg ?: nav.arrowAngleDeg(),
             navPrimary = d?.navPrimary ?: nav.primaryText,

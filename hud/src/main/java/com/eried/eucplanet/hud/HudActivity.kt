@@ -201,6 +201,16 @@ class HudActivity : ComponentActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        com.eried.eucplanet.hud.update.HudAutoStart.inFront = true
+    }
+
+    override fun onPause() {
+        com.eried.eucplanet.hud.update.HudAutoStart.inFront = false
+        super.onPause()
+    }
+
     override fun onDestroy() {
         dpadHandler.removeCallbacksAndMessages(null)
         server.stop()

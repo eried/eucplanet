@@ -444,6 +444,7 @@
     <string name="hud_server_enabled">Adatkapcsolat bekapcsolása</string>
     <string name="hud_auto_start">HUD alkalmazás automatikus megnyitása</string>
     <string name="hud_auto_start_desc">Bekapcsoláskor a HUD kéri a HUD alkalmazás megnyitását. Egyes HUD-ok ezt letilthatják. Telepítés után egyszer nyisd meg kézzel.</string>
+    <string name="hud_auto_start_test_desc">Teszt: a HUD alkalmazás bezárul, majd 10 s múlva újra megnyílik.</string>
     <string name="hud_ip_label">Eszköz IP-címe</string>
     <string name="hud_ip_incomplete">Add meg a teljes címet, például 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">Eszköz IP-címe (automatikus)</string>
