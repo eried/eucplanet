@@ -14,7 +14,7 @@ ride, this is the branch.
 - HUD: the turn arrow is the same chevron as the phone's navigation popup.
 - HUD: a Map element in your Custom overlay preset shows the route line too, so a preset with its own map no longer hides the route.
 - HUD: Custom overlay + map with no preset picked says where to pick one, readable over the map.
-- ENGO 2 and ENGO 3 glasses as a HUD (Settings, Integration): pair like the radar, then under Customize pick a layout (Cockpit, Big, Quad, Turn, Minimal) and what each numbered element shows, as a number, blocks, a bar or a graph, in Pixel, Digital or Bold digits. The next turn shows while navigating. Off by default.
+- ENGO 2 and ENGO 3 glasses as a HUD (Settings, Integration): pair like the radar, then under Customize pick a layout (Cockpit, Big, Quad, Turn, Minimal), then tap a number on the preview to set what that element shows, as a number, blocks, a bar or a graph, in Pixel, Digital or Bold digits. The next turn shows while navigating. Off by default.
 - Voice commands: "speed" answers with your speed. It asked "Did you mean Speed or Speed?" when speed was not one of your tiles.
 - Leaderboards: the section inside Backups & Leaderboards is called Leaderboards in every language too, like the tab. Scanning a crew pass from the Share screen now points to that tab by its own name.
 - Languages: every language of the app was reread so it sounds like a rider wrote it, about 6,200 texts. Settings now says Leaderboards, Music control and Offline maps in every language, and long switch labels wrap instead of pushing the switch off the row.
@@ -106,6 +106,7 @@ ride, this is the branch.
 - Do they pair, stay connected all ride, and come back by themselves after you switch them off and on?
 - Is the page upright and readable, with nothing cut off or touching, and all four corner marks visible? A photo helps.
 - Try each layout and the three fonts (Customize): does the glasses page match the preview on the phone?
+- Customize: tap a number on the preview, then switch layout or Riding/Navigating. Does the box below show the element you tapped, or the hint once that element is gone from the preview?
 - ENGO 3: is the PWM bar green, then orange from your gauge orange (65% unless you changed it), then red (85%)?
 
 **Voice commands** (anyone who uses them)
