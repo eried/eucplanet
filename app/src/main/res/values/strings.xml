@@ -493,6 +493,7 @@
     <string name="engo_preview_hint">Your layout on sample numbers. Tap a number on it to set up that element.</string>
     <string name="engo_preview_label">Glasses page preview</string>
     <string name="engo_preview_mode">Preview</string>
+    <string name="engo_preview_zeros">Zeros</string>
     <string name="engo_preview_riding">Riding</string>
     <string name="engo_preview_navigating">Navigating</string>
     <string name="engo_layout">Layout</string>

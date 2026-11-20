@@ -20,6 +20,9 @@ interface EngoNumberFont {
 
     /** The filled rectangles of [s] with its top-left at (x, y): each (x0, y0, x1, y1), inclusive. */
     fun rects(s: String, x: Int, y: Int, h: Int): List<IntArray>
+
+    /** What the font draws faintly behind [s] (a segment display's dark segments); most draw nothing. */
+    fun ghost(s: String, x: Int, y: Int, h: Int): List<IntArray> = emptyList()
 }
 
 object EngoFonts {
@@ -108,10 +111,10 @@ object EngoFonts {
     }
 
     /**
-     * Seven segments, like a wheel's own display: the uprights run the full
-     * height of each half, the bars sit between them with a small gap, so a
-     * "1" stays one tall stroke. At most seven rectangles a digit, the least
-     * Bluetooth of the three.
+     * Digits built from the seven segments of a wheel's own display, but
+     * joined: the bars and uprights meet with no gaps, so a digit reads as
+     * one solid shape at any size. Drawn into a mask and merged into as few
+     * rectangles as it takes (a "1" is one), the least Bluetooth of the three.
      */
     object Digital : EngoNumberFont {
         private const val MIN_H = 14
@@ -123,8 +126,49 @@ object EngoFonts {
 
         private fun digitW(h: Int) = maxOf(6, (h * 0.56f).roundToInt())
         private fun stroke(h: Int) = maxOf(2, (h * 0.12f).roundToInt())
-        private fun gap(h: Int) = maxOf(1, (stroke(h) + 2) / 4)
         private fun spacing(h: Int) = maxOf(2, (h * 0.14f).roundToInt())
+
+        /** One character's merged rectangles at height [h], (x, y, w, h) from its top-left. */
+        private val cache = HashMap<Triple<Char, Int, Boolean>, List<IntArray>>()
+
+        /** Which pixels of [c]'s cell at height [h] its segments light. */
+        private fun mask(c: Char, h: Int): Array<BooleanArray> {
+            val t = stroke(h)
+            val w = charW(c, h)
+            val mid = (h - t) / 2
+            val mask = Array(h) { BooleanArray(w) }
+            fun fill(x0: Int, y0: Int, x1: Int, y1: Int) {
+                for (yy in y0..y1) for (xx in x0..x1) if (yy in 0 until h && xx in 0 until w) mask[yy][xx] = true
+            }
+            when (c) {
+                '.' -> fill(0, h - t, t - 1, h - 1)
+                ':' -> for (cy in listOf(h / 3 - t / 2, 2 * h / 3 - t / 2)) fill(0, cy, t - 1, cy + t - 1)
+                else -> SEGMENTS[c]?.forEach { seg ->
+                    when (seg) {
+                        'a' -> fill(0, 0, w - 1, t - 1)
+                        'g' -> fill(0, mid, w - 1, mid + t - 1)
+                        'd' -> fill(0, h - t, w - 1, h - 1)
+                        'f' -> fill(0, 0, t - 1, mid + t - 1)
+                        'b' -> fill(w - t, 0, w - 1, mid + t - 1)
+                        'e' -> fill(0, mid, t - 1, h - 1)
+                        else -> fill(w - t, mid, w - 1, h - 1) // c
+                    }
+                }
+            }
+            return mask
+        }
+
+        /** [c]'s lit segments, or with [unlit] the segments of an "8" it leaves dark. */
+        @Synchronized
+        private fun glyph(c: Char, h: Int, unlit: Boolean = false): List<IntArray> = cache.getOrPut(Triple(c, h, unlit)) {
+            val m = mask(c, h)
+            val shown = if (!unlit) m else {
+                if (c !in SEGMENTS) return@getOrPut emptyList()
+                val eight = mask('8', h)
+                Array(h) { y -> BooleanArray(m[y].size) { x -> eight[y][x] && !m[y][x] } }
+            }
+            EngoPixelFont.merge(shown.map { row -> String(CharArray(row.size) { if (row[it]) '#' else '.' }) })
+        }
 
         private fun charW(c: Char, h: Int) = when (c) {
             '.', ':' -> stroke(h)
@@ -138,36 +182,16 @@ object EngoFonts {
         override fun width(s: String, h: Int): Int =
             if (s.isEmpty()) 0 else s.sumOf { charW(it, h) } + spacing(h) * (s.length - 1)
 
-        override fun rects(s: String, x: Int, y: Int, h: Int): List<IntArray> {
+        override fun rects(s: String, x: Int, y: Int, h: Int): List<IntArray> = place(s, x, y, h, unlit = false)
+
+        /** The dark segments, drawn faintly so each digit sits in its "8" like on a wheel's display. */
+        override fun ghost(s: String, x: Int, y: Int, h: Int): List<IntArray> = place(s, x, y, h, unlit = true)
+
+        private fun place(s: String, x: Int, y: Int, h: Int, unlit: Boolean): List<IntArray> {
             val out = ArrayList<IntArray>()
-            val t = stroke(h); val g = gap(h); val w = digitW(h)
-            val mid = y + (h - t) / 2
-            // Where the uprights split when there is no middle bar, [g] apart.
-            val split = mid + t / 2
             var cx = x
             for (c in s) {
-                val segs = SEGMENTS[c].orEmpty()
-                // An upright stops [g] short of a bar beside it, and runs to
-                // the edge where there is none, so a "1" is one tall stroke.
-                val upperTop = if ('a' in segs) y + t + g else y
-                val upperEnd = if ('g' in segs) mid - g - 1 else split - 1 - g / 2
-                val lowerTop = if ('g' in segs) mid + t + g else split + (g - g / 2)
-                val lowerEnd = if ('d' in segs) y + h - t - g - 1 else y + h - 1
-                when (c) {
-                    '.' -> out += intArrayOf(cx, y + h - t, cx + t - 1, y + h - 1)
-                    ':' -> for (cy in listOf(y + h / 3 - t / 2, y + 2 * h / 3 - t / 2)) out += intArrayOf(cx, cy, cx + t - 1, cy + t - 1)
-                    else -> segs.forEach { seg ->
-                        out += when (seg) {
-                            'a' -> intArrayOf(cx + g, y, cx + w - 1 - g, y + t - 1)
-                            'g' -> intArrayOf(cx + g, mid, cx + w - 1 - g, mid + t - 1)
-                            'd' -> intArrayOf(cx + g, y + h - t, cx + w - 1 - g, y + h - 1)
-                            'f' -> intArrayOf(cx, upperTop, cx + t - 1, upperEnd)
-                            'b' -> intArrayOf(cx + w - t, upperTop, cx + w - 1, upperEnd)
-                            'e' -> intArrayOf(cx, lowerTop, cx + t - 1, lowerEnd)
-                            else -> intArrayOf(cx + w - t, lowerTop, cx + w - 1, lowerEnd) // c
-                        }
-                    }
-                }
+                for (r in glyph(c, h, unlit)) out += intArrayOf(cx + r[0], y + r[1], cx + r[0] + r[2] - 1, y + r[1] + r[3] - 1)
                 cx += charW(c, h) + spacing(h)
             }
             return out

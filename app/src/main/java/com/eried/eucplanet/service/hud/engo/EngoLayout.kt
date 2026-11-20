@@ -37,11 +37,14 @@ object EngoLayout {
     const val RG_OK = 0xC3
     const val RG_WARN = 0x7D
     const val RG_DANGER = 0x3C
+    /** The Digital font's dark segments: the palette's faintest yellow, as dim as an unlit bar block. */
+    const val RG_GHOST = 0x05
 
     // Grey levels (ENGO 2), 15 brightest.
     private const val G_TEXT = 15
     private const val G_LABEL = 8
     private const val G_DIM = 3
+    private const val G_GHOST = 2
 
     /** One part of the page: where it may draw, and the commands that draw it.
      *  No [boxes] means decoration that never changes and is never erased. */
@@ -187,8 +190,8 @@ object EngoLayout {
         val visual = ArrayList<ByteArray>()
         val zone = numberZone(spot.geom, big)
         if (r != null) {
-            value += pen(colour(r.band), G_TEXT, caps)
-            value += number(r.value, font, zone, numberH, centred = !(spot.geom is EngoLayouts.Geom.Corner && !spot.geom.centred))
+            value += number(r.value, font, zone, numberH, centred = !(spot.geom is EngoLayouts.Geom.Corner && !spot.geom.centred),
+                colour = pen(colour(r.band), G_TEXT, caps), caps = caps)
         } else value += pen(RG_TEXT, G_TEXT, caps)
 
         return when (val g = spot.geom) {
@@ -236,19 +239,32 @@ object EngoLayout {
      * "7" has no left stroke, so its advance would sit it off centre). Cut
      * from the end if even the smallest size is too wide.
      */
-    private fun number(s: String, style: EngoFontStyle, zone: IntArray, h: Int, centred: Boolean): List<ByteArray> {
+    private fun number(
+        s: String, style: EngoFontStyle, zone: IntArray, h: Int, centred: Boolean, colour: ByteArray, caps: EngoCaps,
+    ): List<ByteArray> {
         val font = EngoFonts.forText(style, s)
         val drawnH = font.heights(h).first()
         val room = zone[2] - zone[0] + 1
         var t = s
         while (t.length > 1 && font.width(t, drawnH) > room) t = t.dropLast(1)
         val y = zone[1] + (zone[3] - zone[1] + 1 - drawnH) / 2
-        val ink = font.rects(t, 0, y, drawnH)
-        if (ink.isEmpty()) return emptyList()
+        val lit = font.rects(t, 0, y, drawnH)
+        // A segment font's dark segments, drawn faintly first; with them the
+        // digits centre as whole cells.
+        val dark = font.ghost(t, 0, y, drawnH)
+        val ink = lit + dark
+        if (ink.isEmpty()) return listOf(colour)
         val inkX0 = ink.minOf { it[0] }
         val inkX1 = ink.maxOf { it[2] }
         val shift = if (centred) (zone[0] + zone[2] + 1) / 2 - (inkX1 - inkX0 + 1) / 2 - inkX0 else zone[2] - inkX1
-        return ink.map { rect(it[0] + shift, it[1], it[2] + shift, it[3], filled = true) }
+        val out = ArrayList<ByteArray>()
+        if (dark.isNotEmpty()) {
+            out += pen(RG_GHOST, G_GHOST, caps)
+            dark.forEach { out += rect(it[0] + shift, it[1], it[2] + shift, it[3], filled = true) }
+        }
+        out += colour
+        lit.forEach { out += rect(it[0] + shift, it[1], it[2] + shift, it[3], filled = true) }
+        return out
     }
 
     /** The bar or graph band of a reading, in (x0..x1, top..bottom). */

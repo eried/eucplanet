@@ -16,7 +16,8 @@ import java.util.zip.DeflaterOutputStream
  */
 class EngoRenderTest {
 
-    private val out = File("build/engo-renders").apply { deleteRecursively(); mkdirs() }
+    // JUnit makes an instance per test, so the folder is only made here, never cleared.
+    private val out = File("build/engo-renders").apply { mkdirs() }
 
     private fun save(name: String, page: EngoPage, color: Boolean = true) {
         val px = EngoRaster.render(EngoLayout.render(page, EngoCaps(color)), color)
@@ -75,6 +76,21 @@ class EngoRenderTest {
     private fun page(e: EngoHudSettings, nav: Boolean = false, speed: Float = 63f) =
         EngoDemoSource.page(e, u, 65, 85, navigating = nav, nowMs = now, speedKmh = speed)
 
+    /** Every layout in every number font, for the font comparison sheet. */
+    @Test
+    fun renderEveryLayoutInEveryFont() {
+        val bigOnes = listOf(el("SPEED", style = "NUMBER"), el("LOAD", style = "SMOOTH"), el("BATTERY"))
+        val quad = listOf(el("SPEED"), el("LOAD", style = "GRAPH"), el("VOLTAGE", style = "SMOOTH"), el("PHASE_CURRENT"))
+        for (font in listOf("PIXEL", "DIGITAL", "BOLD")) {
+            val f = font.lowercase()
+            save("f-1cockpit-$f", page(engo("COCKPIT", font = font)))
+            save("f-2big-$f", page(engo("BIG", bigOnes, font)))
+            save("f-3quad-$f", page(engo("QUAD", quad, font)))
+            save("f-4turn-$f", page(engo("TURN", font = font), nav = true))
+            save("f-5minimal-$f", page(engo("MINIMAL", font = font)))
+        }
+    }
+
     @Test
     fun renderThePages() {
         save("01-cockpit", page(engo("COCKPIT")))
@@ -95,6 +111,11 @@ class EngoRenderTest {
         save("13-minimal-route", page(engo("MINIMAL"), nav = true))
         save("14-pwm-high", EngoDemoSource.page(engo("COCKPIT"), u, 40, 55, false, now, 63f))
         save("15-engo2-grey", page(engo("COCKPIT"), nav = true), color = false)
+        val zeros = EngoDemoSource.page(engo("COCKPIT"), u, 65, 85, false, now, zeros = true)
+        assertTrue("a wheel at rest reads 0", zeros.elements.filterNotNull().all { it.value.trimStart('-').toFloat() == 0f })
+        save("17-cockpit-zeros", zeros)
+        save("18-quad-digital", page(engo("QUAD", listOf(
+            el("SPEED"), el("LOAD", style = "GRAPH"), el("VOLTAGE", style = "SMOOTH"), el("PHASE_CURRENT")), "DIGITAL")))
         save("16-mph-stats", EngoDemoSource.page(
             engo("COCKPIT", listOf(el("SPEED", style = "NUMBER"), el("LOAD", "MAX", style = "NUMBER"),
                 el("SPEED", "AVG", style = "GRAPH", window = 60), el("MOTOR_POWER", "SUSTAINED_PEAK"), el("VOLTAGE"))),

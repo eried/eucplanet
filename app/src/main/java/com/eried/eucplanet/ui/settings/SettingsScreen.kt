@@ -12100,52 +12100,71 @@ private fun EngoGlassesBlock(
             val used = layouts.elementsUsed(kind, engo.navTakeover)
             var selectedRaw by rememberSaveable { mutableIntStateOf(0) }
             val selected = selectedRaw.coerceIn(0, used - 1)
-            var previewRoute by rememberSaveable { mutableStateOf(false) }
-            // Whether this layout can look different during a route at all.
-            val canRoute = !layouts.turnsSwitchApplies(kind) || engo.navTakeover
+            // What the preview shows: the page at rest (zeros), on a ride, or during a route.
+            var previewMode by rememberSaveable { mutableStateOf("RIDING") }
             val defaults = com.eried.eucplanet.data.model.DEFAULT_ENGO_ELEMENTS
+            val previewLabels = mapOf(
+                "ZEROS" to stringResource(R.string.engo_preview_zeros),
+                "RIDING" to stringResource(R.string.engo_preview_riding),
+                "ROUTE" to stringResource(R.string.engo_preview_navigating),
+            )
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                WidgetSlotDropdown(
-                    label = stringResource(R.string.engo_layout),
-                    currentLabel = engoLayoutLabel(kind),
-                    options = com.eried.eucplanet.service.hud.engo.EngoLayoutKind.entries.map { it.name to engoLayoutLabel(it) },
-                    onSelect = { viewModel.updateEngoLayout(it) },
-                    includeNone = false,
-                    modifier = Modifier.fillMaxWidth(),
-                )
+                // Layout | Preview side by side, like the dashboard's View | Stats length.
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    WidgetSlotDropdown(
+                        label = stringResource(R.string.engo_layout),
+                        currentLabel = engoLayoutLabel(kind),
+                        options = com.eried.eucplanet.service.hud.engo.EngoLayoutKind.entries.map { it.name to engoLayoutLabel(it) },
+                        onSelect = { viewModel.updateEngoLayout(it) },
+                        includeNone = false,
+                        modifier = Modifier.weight(1f),
+                    )
+                    WidgetSlotDropdown(
+                        label = stringResource(R.string.engo_preview_mode),
+                        currentLabel = previewLabels.getValue(previewMode),
+                        options = previewLabels.toList(),
+                        onSelect = { previewMode = it },
+                        includeNone = false,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
                 EngoPagePreview(
                     settings = settings,
-                    navigating = previewRoute && canRoute,
+                    navigating = previewMode == "ROUTE",
+                    zeros = previewMode == "ZEROS",
                     selected = selected,
                     onSelect = { selectedRaw = it },
                 )
                 HintText(stringResource(R.string.engo_preview_hint))
-                if (canRoute) {
-                    SegmentedChoice(
-                        label = stringResource(R.string.engo_preview_mode),
-                        options = listOf(
-                            "RIDING" to stringResource(R.string.engo_preview_riding),
-                            "ROUTE" to stringResource(R.string.engo_preview_navigating),
-                        ),
-                        current = if (previewRoute) "ROUTE" else "RIDING",
-                        onChange = { previewRoute = it == "ROUTE" },
-                    )
+                // The selected element's options, framed together so they read as one
+                // element's settings. Outlined, not filled: the fields are already the
+                // darker surface and would vanish into a filled card.
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .border(1.dp, MaterialTheme.appColors.outline, RoundedCornerShape(12.dp)),
+                ) {
+                    Column(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        if (used > 1) {
+                            SegmentedChoice(
+                                label = stringResource(R.string.engo_element),
+                                options = (0 until used).map { "$it" to "${it + 1}" },
+                                current = "$selected",
+                                onChange = { selectedRaw = it.toInt() },
+                            )
+                        }
+                        EngoElementEditor(
+                            kind = kind,
+                            index = selected,
+                            element = engo.elements.getOrNull(selected) ?: defaults[selected],
+                            dashboardWindowSec = settings.dashboardRollingWindowSeconds,
+                            onChange = { viewModel.updateEngoElement(selected, it) },
+                        )
+                    }
                 }
-                if (used > 1) {
-                    SegmentedChoice(
-                        label = stringResource(R.string.engo_element),
-                        options = (0 until used).map { "$it" to "${it + 1}" },
-                        current = "$selected",
-                        onChange = { selectedRaw = it.toInt() },
-                    )
-                }
-                EngoElementEditor(
-                    kind = kind,
-                    index = selected,
-                    element = engo.elements.getOrNull(selected) ?: defaults[selected],
-                    dashboardWindowSec = settings.dashboardRollingWindowSeconds,
-                    onChange = { viewModel.updateEngoElement(selected, it) },
-                )
                 SegmentedChoice(
                     label = stringResource(R.string.engo_font),
                     options = listOf(
@@ -12205,6 +12224,7 @@ private fun engoWindowLabel(seconds: Int, dashboardWindowSec: Int): String = whe
 private fun EngoPagePreview(
     settings: com.eried.eucplanet.data.model.AppSettings,
     navigating: Boolean,
+    zeros: Boolean,
     selected: Int,
     onSelect: (Int) -> Unit,
 ) {
@@ -12212,7 +12232,7 @@ private fun EngoPagePreview(
     val units = com.eried.eucplanet.service.hud.engo.EngoMetrics.units(settings)
     val pxW = com.eried.eucplanet.service.hud.engo.EngoRaster.W
     val pxH = com.eried.eucplanet.service.hud.engo.EngoRaster.H
-    val bitmap = remember(engo, units, navigating, settings.gaugeOrangeThresholdPct, settings.gaugeRedThresholdPct,
+    val bitmap = remember(engo, units, navigating, zeros, settings.gaugeOrangeThresholdPct, settings.gaugeRedThresholdPct,
         settings.dashboardRollingWindowSeconds) {
         val page = com.eried.eucplanet.service.hud.engo.EngoDemoSource.page(
             engo = engo,
@@ -12222,6 +12242,7 @@ private fun EngoPagePreview(
             navigating = navigating,
             nowMs = 1_000_000L,
             dashboardWindowSec = settings.dashboardRollingWindowSeconds,
+            zeros = zeros,
         )
         val caps = com.eried.eucplanet.service.hud.engo.EngoCaps(colorRYG = true)
         val px = com.eried.eucplanet.service.hud.engo.EngoRaster.render(

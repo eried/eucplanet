@@ -57,7 +57,11 @@ object EngoDemoSource {
 
     fun current(key: String): Float? = VALUES[key]
 
-    /** The rider's page on sample numbers; [navigating] adds a left turn in 120 m. */
+    /**
+     * The rider's page on sample numbers; [navigating] adds a left turn in
+     * 120 m. [zeros] shows a wheel at rest instead: every reading 0, bars
+     * empty, graphs flat, like the dashboard editor's tiles.
+     */
     fun page(
         engo: EngoHudSettings,
         units: EngoMetrics.Units,
@@ -67,18 +71,22 @@ object EngoDemoSource {
         nowMs: Long,
         speedKmh: Float = VALUES.getValue("SPEED"),
         dashboardWindowSec: Int = 300,
+        zeros: Boolean = false,
     ): EngoPage {
         // The speed's history follows the speed shown, so TOP is never below it.
         val k = speedKmh / VALUES.getValue("SPEED")
-        fun scaled(key: String, s: List<MetricSample>) =
-            if (key == "SPEED") s.map { it.copy(value = it.value * k) } else s
+        fun scaled(key: String, s: List<MetricSample>) = when {
+            zeros -> s.map { it.copy(value = 0f) }
+            key == "SPEED" -> s.map { it.copy(value = it.value * k) }
+            else -> s
+        }
         return EngoPageBuilder.build(
             engo = engo,
             units = units,
             orangePct = orangePct,
             redPct = redPct,
             connected = true,
-            current = { if (it == "SPEED") speedKmh else current(it) },
+            current = { if (zeros) VALUES[it]?.let { 0f } else if (it == "SPEED") speedKmh else current(it) },
             history = { key -> scaled(key, history(key, nowMs)) },
             recent = { key, w -> scaled(key, recent(key, w, nowMs)) },
             nav = if (navigating) EngoNav(EngoManeuver.LEFT, if (units.distance == "mi") "400 FT" else "120 M") else null,

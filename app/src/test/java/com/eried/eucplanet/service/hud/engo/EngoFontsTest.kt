@@ -46,6 +46,22 @@ class EngoFontsTest {
     }
 
     @Test
+    fun digitalDrawsTheDarkSegmentsOfAnEight_andOnlyThose() {
+        val h = 40
+        fun px(rs: List<IntArray>) = rs.flatMap { r -> (r[1]..r[3]).flatMap { y -> (r[0]..r[2]).map { x -> x to y } } }.toSet()
+        val eight = px(EngoFonts.Digital.rects("8", 0, 0, h))
+        assertTrue(EngoFonts.Digital.ghost("8", 0, 0, h).isEmpty())
+        for (c in "0123456789-") {
+            val lit = px(EngoFonts.Digital.rects("$c", 0, 0, h))
+            val dark = px(EngoFonts.Digital.ghost("$c", 0, 0, h))
+            assertTrue("'$c' lit and dark never overlap", lit.intersect(dark).isEmpty())
+            assertEquals("'$c' lit and dark make an 8", eight, lit + dark)
+        }
+        assertTrue(EngoFonts.Pixel.ghost("42", 0, 0, 70).isEmpty())
+        assertTrue(EngoFonts.Bold.ghost("42", 0, 0, 66).isEmpty())
+    }
+
+    @Test
     fun aLetterFallsBackToThePixelFont() {
         assertSame(EngoFonts.Pixel, EngoFonts.forText(EngoFontStyle.DIGITAL, "TOP"))
         assertSame(EngoFonts.Digital, EngoFonts.forText(EngoFontStyle.DIGITAL, "42"))
@@ -56,6 +72,7 @@ class EngoFontsTest {
         val digital = EngoFonts.Digital.rects("188", 0, 0, 70).size
         val pixel = EngoFonts.Pixel.rects("188", 0, 0, 70).size
         assertTrue("digital $digital vs pixel $pixel", digital <= pixel)
-        assertEquals(7 + 2, EngoFonts.Digital.rects("18", 0, 0, 40).size)
+        // Joined segments merge: a "1" is one rectangle, an "8" seven.
+        assertEquals(1 + 7, EngoFonts.Digital.rects("18", 0, 0, 40).size)
     }
 }
