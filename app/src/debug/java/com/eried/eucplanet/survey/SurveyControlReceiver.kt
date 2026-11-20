@@ -60,7 +60,7 @@ class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
             ACTION_SURVEY_START_NAV -> startNav(intent.getStringExtra(EXTRA_GEOMETRY))
             ACTION_SURVEY_CAR_ALARM -> carAlarm(context)
             ACTION_SURVEY_SOUND -> sound(intent.getStringExtra(EXTRA_KIND) ?: "beep")
-            ACTION_SURVEY_SET -> set(intent)
+            ACTION_SURVEY_SET -> set(context, intent)
             ACTION_SURVEY_IMPORT_SQUARE -> importSquare(intent.getStringExtra(EXTRA_FILE).orEmpty())
         }
     }
@@ -74,7 +74,15 @@ class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
         }
     }
 
-    private fun set(intent: Intent) {
+    private fun set(context: Context, intent: Intent) {
+        // A built-in overlay preset by name ("Default", "Race"...) for the HUD
+        // Custom overlay screens, read from the app's own assets.
+        val overlayName = intent.getStringExtra(EXTRA_HUD_OVERLAY)
+        val overlayJson = overlayName?.let { name ->
+            runCatching {
+                context.assets.open("overlay_presets/$name.json").bufferedReader().use { it.readText() }
+            }.getOrNull()
+        }
         val actions = intent.getStringExtra(EXTRA_NOTIF_ACTIONS)
         val warm = intent.getIntExtra(EXTRA_WARM_ROUTE_MS, -1)
         Log.i(TAG, "SURVEY_SET notifActions=$actions warmRouteMs=$warm")
@@ -83,6 +91,15 @@ class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
                 var n = s
                 if (actions != null) n = n.copy(notificationActions = actions)
                 if (warm > 0) n = n.copy(advanced = n.advanced.copy(alarmWarmRouteMs = warm))
+                // HUD on one device: link the phone app to a HUD app on the
+                // same emulator, "127.0.0.1" with discovery FIXED.
+                if (intent.hasExtra(EXTRA_HUD_IP)) n = n.copy(
+                    hudServerEnabled = true,
+                    hudIp = intent.getStringExtra(EXTRA_HUD_IP).orEmpty(),
+                    hudDiscoveryMode = com.eried.eucplanet.data.model.HudDiscoveryMode.FIXED
+                )
+                intent.getStringExtra(EXTRA_HUD_SCREENS)?.let { n = n.copy(hudScreensEnabled = it) }
+                if (overlayJson != null) n = n.copy(hudCustomOverlayName = overlayName, hudCustomOverlayJson = overlayJson)
                 n
             }
         }
@@ -194,6 +211,9 @@ class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
         const val EXTRA_GEOMETRY = "geometry"
         const val EXTRA_NOTIF_ACTIONS = "notif_actions"
         const val EXTRA_WARM_ROUTE_MS = "warm_route_ms"
+        const val EXTRA_HUD_IP = "hud_ip"
+        const val EXTRA_HUD_SCREENS = "hud_screens"
+        const val EXTRA_HUD_OVERLAY = "hud_overlay"
 
         const val EXTRA_METRIC_ORDER = "metric_order"
         const val EXTRA_METRIC_STATS = "metric_stats"
