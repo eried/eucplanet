@@ -82,7 +82,7 @@ portrait, bar-mount landscape, tablets and foldable cover screens.
   for bar mounts, roomier tablets, and a cover-screen mode for foldables (the
   Galaxy Z Flip outer display and friends). Rotation is per screen, so the
   dashboard can stay portrait while the map goes landscape.
-- Home screen widgets for wheel numbers and one-tap buttons, plus two for the
+- Home screen widgets for wheel numbers and one-tap buttons, and for the
   weather.
 
 **Record and compare.** Every ride is recorded with GPS and wheel telemetry, in
@@ -107,7 +107,7 @@ no signal.
   proximity mode for unmarked spots.
 - The navigator view keeps the turn card, speed, arrival time and your own tiles
   over a map that turns with you.
-- GPX tracks are ridden as drawn. Solve the shortest stop order (up to 49 stops),
+- GPX tracks are ridden as drawn. Put many stops in the shortest order,
   reverse a route for the way back, or tap the route to add a detour around sand,
   gravel or the wrong side of a one-way.
 - Charging stations (connectors, power, cost, ratings and photos) and other places
@@ -122,13 +122,13 @@ a Wear OS watch app, a
 [Garmin watch or Edge data field](https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71),
 an Amazfit dial, and a [MotoEye or any Android helmet HUD](https://eucplanet.ried.no/hud/),
 also in Android Auto mode with the route.
-- **Wear OS** (3 or newer): speed dial, one to three batteries, horn and light
+- **Wear OS** (3 or newer): speed dial, your batteries, horn and light
   remotes, the next turn and a map. Ridden with a Galaxy Watch Ultra, Galaxy
   Watch 5 Pro and TicWatch 3 Pro. Architecture in [docs/WEAR_OS_MAP.md](docs/WEAR_OS_MAP.md).
 - **Garmin**: a Connect IQ data field with speed, battery, PWM, current and motor
-  temperature, on an Edge 530 or newer and most modern Garmin watches. Build it
+  temperature, on a Garmin Edge and most modern Garmin watches. Build it
   yourself from [docs/GARMIN_SETUP.md](docs/GARMIN_SETUP.md).
-- **Amazfit (Zepp OS)**: speed gauge, PWM, three batteries, horn and light
+- **Amazfit (Zepp OS)**: speed gauge, PWM, your batteries, horn and light
   remotes, the next turn and the physical buttons. Tested on the T-Rex 3, built
   for the Balance too. Setup in [docs/AMAZFIT_SETUP.md](docs/AMAZFIT_SETUP.md).
 - **Helmet HUD**: the dashboard mirrors to a MotoEye E6 or any Android HUD over
@@ -145,7 +145,7 @@ battery or speed by voice, or say horn, lights, lock.
 - Your own thresholds on speed, battery, temperature, PWM, voltage, current, tire
   pressure and more, for every wheel or only the connected one. Each can beep
   (your tone and pitch), speak (`"Battery at {value}%"`) and vibrate, with
-  cooldowns so they don't nag. Predictive triggers warn up to 3 seconds ahead, and
+  cooldowns so they don't nag. Predictive triggers warn a few seconds ahead, and
   Battery (est) takes the load sag out so it does not fire on every acceleration.
 - Spoken reports at your interval with a per-language voice, plus callouts for
   lock, lights, GPS fix, connection, Legal Mode and recording.
@@ -167,7 +167,7 @@ overlay on Android.
 **Buttons, radar, sensors.** Flic 2 buttons for horn, lights and lock. A Garmin
 Varia shows vehicles coming up behind you, with alarms on distance and closing
 speed. Bluetooth tire pressure caps and a RaceBox GPS feed the dashboard too.
-- Up to four Flic 2 buttons, and the volume keys <sub>Android only</sub>, for
+- Several Flic 2 buttons, and the volume keys <sub>Android only</sub>, for
   horn, lights, lock, voice and more.
 - Wheel control one tap away: the horn (the wheel's own, a sound you pick, or
   both), lights and lock. Legal Mode caps the wheel's tiltback and alarm speeds
@@ -193,9 +193,9 @@ how your distance ranks worldwide.
 **Weather forecast.** A score for how the next hours look for riding, from rain,
 wind and gusts, cold, heat and night, weighted by how much you mind each one.
 - Drag the curve to read any hour, with temperature, wind and humidity underneath.
-- Pick the window (next 8 hours, tomorrow, the week), the source and your comfort
+- Pick the window (the next hours, tomorrow, the week), the source and your comfort
   thresholds. Golden hour counts too.
-- Two home screen widgets: one cell for right now, and a resizable forecast that
+- Home screen widgets: one cell for right now, and a resizable forecast that
   shows more as you make it bigger.
 
 **Private, and yours to tune.** No analytics, no beacons, no in-app call-home.
