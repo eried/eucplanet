@@ -2827,10 +2827,11 @@
     <string name="engo_style_smooth">Vloeiende balk</string>
     <string name="engo_style_graph">Grafiek</string>
     <string name="engo_graph_window">Venster</string>
-    <string name="engo_window_dashboard">%1$s · dashboard</string>
-    <string name="engo_window_sec">%1$d sec</string>
-    <string name="engo_window_min">%1$d min</string>
-    <string name="engo_window_min_sec">%1$d min %2$d sec</string>
+    <string name="engo_window_full">Volledig</string>
+    <string name="engo_window_half">Helft</string>
+    <string name="engo_window_quarter">Kwart</string>
+    <string name="engo_window_eighth">Achtste</string>
+    <string name="engo_window_sixteenth">Zestiende</string>
     <string name="engo_font">Cijferlettertype</string>
     <string name="engo_font_pixel">Pixel</string>
     <string name="engo_font_digital">Digitaal</string>

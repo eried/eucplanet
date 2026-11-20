@@ -12237,22 +12237,28 @@ private fun engoStyleLabel(style: com.eried.eucplanet.service.hud.engo.EngoStyle
 }
 
 /**
- * A graph's length as plain time: the whole is the dashboard's own stats length
- * ("5 min · dashboard"), a part is how long it looks back ("2 min 30 sec", "38 sec").
- * A share the dashboard made too short reads as the one the graph really uses.
+ * A graph's length once picked: minutes and seconds ("2:30"), short enough for the
+ * picker's small field and read the same in every language. The graph stores its
+ * share, so the time follows the dashboard's stats length; a share the dashboard
+ * made too short shows the one the graph really uses.
  */
+internal fun engoWindowClock(windowDiv: Int, dashboardWindowSec: Int): String {
+    val ms = com.eried.eucplanet.service.hud.engo.EngoPageBuilder.windowMs(windowDiv, dashboardWindowSec)
+    val sec = (ms / 1000f).roundToInt()
+    return String.format(java.util.Locale.ROOT, "%d:%02d", sec / 60, sec % 60)
+}
+
+/** A graph length in the open list: its share by name, then how long that is now ("Half · 2:30"). */
 @Composable
-private fun engoWindowLabel(windowDiv: Int, dashboardWindowSec: Int): String {
-    val pages = com.eried.eucplanet.service.hud.engo.EngoPageBuilder
-    val share = pages.shareOf(windowDiv, dashboardWindowSec)
-    if (share == 1) return stringResource(R.string.engo_window_dashboard, rollingWindowLabel(dashboardWindowSec))
-    val sec = (pages.windowMs(share, dashboardWindowSec) / 1000f).roundToInt()
-    val min = sec / 60
-    return when {
-        min == 0 -> stringResource(R.string.engo_window_sec, sec)
-        sec % 60 == 0 -> stringResource(R.string.engo_window_min, min)
-        else -> stringResource(R.string.engo_window_min_sec, min, sec % 60)
+private fun engoWindowOption(windowDiv: Int, dashboardWindowSec: Int): String {
+    val name = when (com.eried.eucplanet.service.hud.engo.EngoPageBuilder.shareOf(windowDiv, dashboardWindowSec)) {
+        1 -> R.string.engo_window_full
+        2 -> R.string.engo_window_half
+        4 -> R.string.engo_window_quarter
+        8 -> R.string.engo_window_eighth
+        else -> R.string.engo_window_sixteenth
     }
+    return stringResource(name) + " · " + engoWindowClock(windowDiv, dashboardWindowSec)
 }
 
 /**
@@ -12398,9 +12404,9 @@ private fun EngoElementEditor(
             if (style == com.eried.eucplanet.service.hud.engo.EngoStyle.GRAPH) {
                 WidgetSlotDropdown(
                     label = stringResource(R.string.engo_graph_window),
-                    currentLabel = engoWindowLabel(element.windowDiv, dashboardWindowSec),
+                    currentLabel = engoWindowClock(element.windowDiv, dashboardWindowSec),
                     options = com.eried.eucplanet.service.hud.engo.EngoPageBuilder.offeredDivs(dashboardWindowSec)
-                        .map { "$it" to engoWindowLabel(it, dashboardWindowSec) },
+                        .map { "$it" to engoWindowOption(it, dashboardWindowSec) },
                     onSelect = { onChange(element.copy(windowDiv = it.toInt())) },
                     includeNone = false,
                     modifier = Modifier.weight(1f),

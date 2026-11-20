@@ -2821,10 +2821,11 @@
     <string name="engo_style_smooth">Kesintisiz çubuk</string>
     <string name="engo_style_graph">Grafik</string>
     <string name="engo_graph_window">Pencere</string>
-    <string name="engo_window_dashboard">%1$s · gösterge paneli</string>
-    <string name="engo_window_sec">%1$d sn</string>
-    <string name="engo_window_min">%1$d dk</string>
-    <string name="engo_window_min_sec">%1$d dk %2$d sn</string>
+    <string name="engo_window_full">Tamamı</string>
+    <string name="engo_window_half">Yarısı</string>
+    <string name="engo_window_quarter">Çeyreği</string>
+    <string name="engo_window_eighth">Sekizde biri</string>
+    <string name="engo_window_sixteenth">On altıda biri</string>
     <string name="engo_font">Rakam yazı tipi</string>
     <string name="engo_font_pixel">Piksel</string>
     <string name="engo_font_digital">Dijital</string>

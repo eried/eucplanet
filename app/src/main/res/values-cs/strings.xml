@@ -2632,10 +2632,11 @@
     <string name="engo_style_smooth">Plynulý pruh</string>
     <string name="engo_style_graph">Graf</string>
     <string name="engo_graph_window">Okno</string>
-    <string name="engo_window_dashboard">%1$s · palubní deska</string>
-    <string name="engo_window_sec">%1$d s</string>
-    <string name="engo_window_min">%1$d min</string>
-    <string name="engo_window_min_sec">%1$d min %2$d s</string>
+    <string name="engo_window_full">Celé</string>
+    <string name="engo_window_half">Polovina</string>
+    <string name="engo_window_quarter">Čtvrtina</string>
+    <string name="engo_window_eighth">Osmina</string>
+    <string name="engo_window_sixteenth">Šestnáctina</string>
     <string name="engo_font">Písmo čísel</string>
     <string name="engo_font_pixel">Pixelové</string>
     <string name="engo_font_digital">Digitální</string>

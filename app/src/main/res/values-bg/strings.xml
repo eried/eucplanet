@@ -497,10 +497,11 @@
     <string name="engo_style_smooth">Плътна лента</string>
     <string name="engo_style_graph">Графика</string>
     <string name="engo_graph_window">Прозорец</string>
-    <string name="engo_window_dashboard">%1$s · табло</string>
-    <string name="engo_window_sec">%1$d сек</string>
-    <string name="engo_window_min">%1$d мин</string>
-    <string name="engo_window_min_sec">%1$d мин %2$d сек</string>
+    <string name="engo_window_full">Цял</string>
+    <string name="engo_window_half">Половина</string>
+    <string name="engo_window_quarter">Четвърт</string>
+    <string name="engo_window_eighth">Осмина</string>
+    <string name="engo_window_sixteenth">Шестнайсетина</string>
     <string name="engo_font">Шрифт на цифрите</string>
     <string name="engo_font_pixel">Пикселен</string>
     <string name="engo_font_digital">Цифров</string>

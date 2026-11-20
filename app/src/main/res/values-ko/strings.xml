@@ -2822,10 +2822,11 @@
     <string name="engo_style_smooth">연속 막대</string>
     <string name="engo_style_graph">그래프</string>
     <string name="engo_graph_window">시간 구간</string>
-    <string name="engo_window_dashboard">%1$s · 대시보드</string>
-    <string name="engo_window_sec">%1$d초</string>
-    <string name="engo_window_min">%1$d분</string>
-    <string name="engo_window_min_sec">%1$d분 %2$d초</string>
+    <string name="engo_window_full">전체</string>
+    <string name="engo_window_half">절반</string>
+    <string name="engo_window_quarter">4분의 1</string>
+    <string name="engo_window_eighth">8분의 1</string>
+    <string name="engo_window_sixteenth">16분의 1</string>
     <string name="engo_font">숫자 글꼴</string>
     <string name="engo_font_pixel">픽셀</string>
     <string name="engo_font_digital">디지털</string>

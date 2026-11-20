@@ -2839,10 +2839,11 @@
     <string name="engo_style_smooth">Jævn bjælke</string>
     <string name="engo_style_graph">Graf</string>
     <string name="engo_graph_window">Vindue</string>
-    <string name="engo_window_dashboard">%1$s · dashboard</string>
-    <string name="engo_window_sec">%1$d sek</string>
-    <string name="engo_window_min">%1$d min</string>
-    <string name="engo_window_min_sec">%1$d min %2$d sek</string>
+    <string name="engo_window_full">Hele</string>
+    <string name="engo_window_half">Halvdel</string>
+    <string name="engo_window_quarter">Fjerdedel</string>
+    <string name="engo_window_eighth">Ottendedel</string>
+    <string name="engo_window_sixteenth">Sekstendedel</string>
     <string name="engo_font">Skrifttype til tal</string>
     <string name="engo_font_pixel">Pixel</string>
     <string name="engo_font_digital">Digital</string>

@@ -2628,10 +2628,11 @@
     <string name="engo_style_smooth">Tasainen palkki</string>
     <string name="engo_style_graph">Kuvaaja</string>
     <string name="engo_graph_window">Aikaikkuna</string>
-    <string name="engo_window_dashboard">%1$s · mittaristo</string>
-    <string name="engo_window_sec">%1$d s</string>
-    <string name="engo_window_min">%1$d min</string>
-    <string name="engo_window_min_sec">%1$d min %2$d s</string>
+    <string name="engo_window_full">Koko</string>
+    <string name="engo_window_half">Puolet</string>
+    <string name="engo_window_quarter">Neljännes</string>
+    <string name="engo_window_eighth">Kahdeksasosa</string>
+    <string name="engo_window_sixteenth">Kuudestoistaosa</string>
     <string name="engo_font">Numerofontti</string>
     <string name="engo_font_pixel">Pikseli</string>
     <string name="engo_font_digital">Digitaalinen</string>

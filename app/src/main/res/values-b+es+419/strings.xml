@@ -2844,10 +2844,11 @@
     <string name="engo_style_smooth">Barra continua</string>
     <string name="engo_style_graph">Gráfico</string>
     <string name="engo_graph_window">Ventana</string>
-    <string name="engo_window_dashboard">%1$s · dashboard</string>
-    <string name="engo_window_sec">%1$d s</string>
-    <string name="engo_window_min">%1$d min</string>
-    <string name="engo_window_min_sec">%1$d min %2$d s</string>
+    <string name="engo_window_full">Completa</string>
+    <string name="engo_window_half">Mitad</string>
+    <string name="engo_window_quarter">Cuarto</string>
+    <string name="engo_window_eighth">Octavo</string>
+    <string name="engo_window_sixteenth">Dieciseisavo</string>
     <string name="engo_font">Fuente de los números</string>
     <string name="engo_font_pixel">Píxel</string>
     <string name="engo_font_digital">Digital</string>

@@ -2688,10 +2688,11 @@
     <string name="engo_style_smooth">连续条</string>
     <string name="engo_style_graph">图表</string>
     <string name="engo_graph_window">时间窗口</string>
-    <string name="engo_window_dashboard">%1$s · 仪表盘</string>
-    <string name="engo_window_sec">%1$d 秒</string>
-    <string name="engo_window_min">%1$d 分钟</string>
-    <string name="engo_window_min_sec">%1$d 分钟 %2$d 秒</string>
+    <string name="engo_window_full">全部</string>
+    <string name="engo_window_half">一半</string>
+    <string name="engo_window_quarter">四分之一</string>
+    <string name="engo_window_eighth">八分之一</string>
+    <string name="engo_window_sixteenth">十六分之一</string>
     <string name="engo_font">数字字体</string>
     <string name="engo_font_pixel">像素</string>
     <string name="engo_font_digital">数码</string>

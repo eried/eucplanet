@@ -497,10 +497,11 @@
     <string name="engo_style_smooth">Plynulý pruh</string>
     <string name="engo_style_graph">Graf</string>
     <string name="engo_graph_window">Okno</string>
-    <string name="engo_window_dashboard">%1$s · dashboard</string>
-    <string name="engo_window_sec">%1$d s</string>
-    <string name="engo_window_min">%1$d min</string>
-    <string name="engo_window_min_sec">%1$d min %2$d s</string>
+    <string name="engo_window_full">Celé</string>
+    <string name="engo_window_half">Polovica</string>
+    <string name="engo_window_quarter">Štvrtina</string>
+    <string name="engo_window_eighth">Osmina</string>
+    <string name="engo_window_sixteenth">Šestnástina</string>
     <string name="engo_font">Písmo čísel</string>
     <string name="engo_font_pixel">Pixelové</string>
     <string name="engo_font_digital">Digitálne</string>

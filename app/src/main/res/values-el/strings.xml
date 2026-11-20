@@ -485,10 +485,11 @@
     <string name="engo_style_smooth">Συνεχής μπάρα</string>
     <string name="engo_style_graph">Γράφημα</string>
     <string name="engo_graph_window">Παράθυρο</string>
-    <string name="engo_window_dashboard">%1$s · πίνακας οργάνων</string>
-    <string name="engo_window_sec">%1$d δευτ.</string>
-    <string name="engo_window_min">%1$d λεπ.</string>
-    <string name="engo_window_min_sec">%1$d λεπ. %2$d δευτ.</string>
+    <string name="engo_window_full">Ολόκληρο</string>
+    <string name="engo_window_half">Μισό</string>
+    <string name="engo_window_quarter">Τέταρτο</string>
+    <string name="engo_window_eighth">Όγδοο</string>
+    <string name="engo_window_sixteenth">Δέκατο έκτο</string>
     <string name="engo_font">Γραμματοσειρά αριθμών</string>
     <string name="engo_font_pixel">Pixel</string>
     <string name="engo_font_digital">Ψηφιακή</string>

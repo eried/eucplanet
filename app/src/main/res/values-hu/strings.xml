@@ -2628,10 +2628,11 @@
     <string name="engo_style_smooth">Folytonos sáv</string>
     <string name="engo_style_graph">Grafikon</string>
     <string name="engo_graph_window">Időablak</string>
-    <string name="engo_window_dashboard">%1$s · műszerfal</string>
-    <string name="engo_window_sec">%1$d mp</string>
-    <string name="engo_window_min">%1$d perc</string>
-    <string name="engo_window_min_sec">%1$d perc %2$d mp</string>
+    <string name="engo_window_full">Teljes</string>
+    <string name="engo_window_half">Fele</string>
+    <string name="engo_window_quarter">Negyede</string>
+    <string name="engo_window_eighth">Nyolcada</string>
+    <string name="engo_window_sixteenth">Tizenhatoda</string>
     <string name="engo_font">Számok betűtípusa</string>
     <string name="engo_font_pixel">Pixeles</string>
     <string name="engo_font_digital">Digitális</string>

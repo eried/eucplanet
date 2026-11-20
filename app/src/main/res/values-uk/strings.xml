@@ -2825,10 +2825,11 @@
     <string name="engo_style_smooth">Суцільна смуга</string>
     <string name="engo_style_graph">Графік</string>
     <string name="engo_graph_window">Вікно</string>
-    <string name="engo_window_dashboard">%1$s · дашборд</string>
-    <string name="engo_window_sec">%1$d с</string>
-    <string name="engo_window_min">%1$d хв</string>
-    <string name="engo_window_min_sec">%1$d хв %2$d с</string>
+    <string name="engo_window_full">Увесь</string>
+    <string name="engo_window_half">Половина</string>
+    <string name="engo_window_quarter">Чверть</string>
+    <string name="engo_window_eighth">Восьма</string>
+    <string name="engo_window_sixteenth">Шістнадцята</string>
     <string name="engo_font">Шрифт цифр</string>
     <string name="engo_font_pixel">Піксельний</string>
     <string name="engo_font_digital">Цифровий</string>

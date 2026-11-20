@@ -513,10 +513,11 @@
     <string name="engo_style_smooth">Smooth bar</string>
     <string name="engo_style_graph">Graph</string>
     <string name="engo_graph_window">Window</string>
-    <string name="engo_window_dashboard">%1$s · dashboard</string>
-    <string name="engo_window_sec">%1$d sec</string>
-    <string name="engo_window_min">%1$d min</string>
-    <string name="engo_window_min_sec">%1$d min %2$d sec</string>
+    <string name="engo_window_full">Full</string>
+    <string name="engo_window_half">Half</string>
+    <string name="engo_window_quarter">Quarter</string>
+    <string name="engo_window_eighth">Eighth</string>
+    <string name="engo_window_sixteenth">Sixteenth</string>
     <string name="engo_font">Numbers font</string>
     <string name="engo_font_pixel">Pixel</string>
     <string name="engo_font_digital">Digital</string>

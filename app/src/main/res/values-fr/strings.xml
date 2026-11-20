@@ -2830,10 +2830,11 @@
     <string name="engo_style_smooth">Barre continue</string>
     <string name="engo_style_graph">Graphique</string>
     <string name="engo_graph_window">Durée</string>
-    <string name="engo_window_dashboard">%1$s · tableau de bord</string>
-    <string name="engo_window_sec">%1$d s</string>
-    <string name="engo_window_min">%1$d min</string>
-    <string name="engo_window_min_sec">%1$d min %2$d s</string>
+    <string name="engo_window_full">Entière</string>
+    <string name="engo_window_half">Moitié</string>
+    <string name="engo_window_quarter">Quart</string>
+    <string name="engo_window_eighth">Huitième</string>
+    <string name="engo_window_sixteenth">Seizième</string>
     <string name="engo_font">Police des chiffres</string>
     <string name="engo_font_pixel">Pixel</string>
     <string name="engo_font_digital">Numérique</string>

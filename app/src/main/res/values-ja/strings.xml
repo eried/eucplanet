@@ -2823,10 +2823,11 @@
     <string name="engo_style_smooth">連続バー</string>
     <string name="engo_style_graph">グラフ</string>
     <string name="engo_graph_window">時間幅</string>
-    <string name="engo_window_dashboard">%1$s · ダッシュボード</string>
-    <string name="engo_window_sec">%1$d 秒</string>
-    <string name="engo_window_min">%1$d 分</string>
-    <string name="engo_window_min_sec">%1$d 分 %2$d 秒</string>
+    <string name="engo_window_full">全体</string>
+    <string name="engo_window_half">半分</string>
+    <string name="engo_window_quarter">4分の1</string>
+    <string name="engo_window_eighth">8分の1</string>
+    <string name="engo_window_sixteenth">16分の1</string>
     <string name="engo_font">数字フォント</string>
     <string name="engo_font_pixel">ピクセル</string>
     <string name="engo_font_digital">デジタル</string>

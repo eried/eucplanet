@@ -2844,10 +2844,11 @@
     <string name="engo_style_smooth">Stufenloser Balken</string>
     <string name="engo_style_graph">Diagramm</string>
     <string name="engo_graph_window">Zeitfenster</string>
-    <string name="engo_window_dashboard">%1$s · Dashboard</string>
-    <string name="engo_window_sec">%1$d Sek.</string>
-    <string name="engo_window_min">%1$d Min.</string>
-    <string name="engo_window_min_sec">%1$d Min. %2$d Sek.</string>
+    <string name="engo_window_full">Ganz</string>
+    <string name="engo_window_half">Hälfte</string>
+    <string name="engo_window_quarter">Viertel</string>
+    <string name="engo_window_eighth">Achtel</string>
+    <string name="engo_window_sixteenth">Sechzehntel</string>
     <string name="engo_font">Zahlenschrift</string>
     <string name="engo_font_pixel">Pixel</string>
     <string name="engo_font_digital">Digital</string>

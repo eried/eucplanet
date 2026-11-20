@@ -2730,10 +2730,11 @@
     <string name="engo_style_smooth">Barra continua</string>
     <string name="engo_style_graph">Grafico</string>
     <string name="engo_graph_window">Finestra</string>
-    <string name="engo_window_dashboard">%1$s · dashboard</string>
-    <string name="engo_window_sec">%1$d sec</string>
-    <string name="engo_window_min">%1$d min</string>
-    <string name="engo_window_min_sec">%1$d min %2$d sec</string>
+    <string name="engo_window_full">Intera</string>
+    <string name="engo_window_half">Metà</string>
+    <string name="engo_window_quarter">Un quarto</string>
+    <string name="engo_window_eighth">Un ottavo</string>
+    <string name="engo_window_sixteenth">Un sedicesimo</string>
     <string name="engo_font">Font dei numeri</string>
     <string name="engo_font_pixel">Pixel</string>
     <string name="engo_font_digital">Digitale</string>
