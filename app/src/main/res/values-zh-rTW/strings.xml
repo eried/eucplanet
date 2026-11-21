@@ -2812,7 +2812,6 @@
     <string name="engo_layout_quad">四格</string>
     <string name="engo_layout_turn">轉彎</string>
     <string name="engo_layout_minimal">極簡</string>
-    <string name="engo_element">元素</string>
     <string name="engo_element_metric">指標</string>
     <string name="engo_slot_stat">顯示</string>
     <string name="engo_element_style">樣式</string>

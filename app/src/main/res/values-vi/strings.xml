@@ -461,7 +461,6 @@
     <string name="engo_layout_quad">Bốn ô</string>
     <string name="engo_layout_turn">Rẽ</string>
     <string name="engo_layout_minimal">Tối giản</string>
-    <string name="engo_element">Thành phần</string>
     <string name="engo_element_metric">Chỉ số</string>
     <string name="engo_slot_stat">Hiển thị</string>
     <string name="engo_element_style">Kiểu</string>
@@ -491,8 +490,8 @@
     <string name="hud_discovery_both">Cả hai</string>
     <string name="hud_discovery_desc">Tự động sẽ tự tìm HUD. Cố định chỉ dùng địa chỉ bên dưới.</string>
     <string name="hud_server_port">Cổng</string>
-    <string name="hud_hotspot_unknown_hint">Đảm bảo HUD và điện thoại dùng cùng mạng WiFi. Nếu dùng điểm phát sóng của điện thoại, hãy bật lên trước.</string>
-    <string name="hud_hotspot_on_hint">Điểm phát sóng của điện thoại đang bật. Kết nối HUD với WiFi của điện thoại này để bật liên kết.</string>
+    <string name="hud_hotspot_unknown_hint">Đảm bảo HUD và điện thoại dùng cùng mạng Wi-Fi. Nếu dùng điểm phát sóng của điện thoại, hãy bật lên trước.</string>
+    <string name="hud_hotspot_on_hint">Điểm phát sóng của điện thoại đang bật. Kết nối HUD với Wi-Fi của điện thoại này để bật liên kết.</string>
     <string name="hud_overlay_subsection">Lớp phủ tùy chỉnh</string>
     <string name="hud_overlay_subsection_desc">Nhập một mẫu Overlay Studio vào các màn hình Lớp phủ tùy chỉnh của HUD, không kèm nền. Mẫu được sao chép sang đây, nên nếu sau này bạn sửa trong studio thì HUD vẫn giữ nguyên cho đến khi bạn nhập lại.</string>
     <string name="hud_overlay_select_preset">Nhập mẫu</string>

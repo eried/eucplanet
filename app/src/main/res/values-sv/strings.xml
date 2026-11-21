@@ -2815,7 +2815,6 @@
     <string name="engo_layout_quad">Fyrdelad</string>
     <string name="engo_layout_turn">Sväng</string>
     <string name="engo_layout_minimal">Minimal</string>
-    <string name="engo_element">Element</string>
     <string name="engo_element_metric">Mätvärde</string>
     <string name="engo_slot_stat">Visa</string>
     <string name="engo_element_style">Stil</string>

@@ -2809,7 +2809,7 @@
     <string name="engo_scan_hint">Allumez les lunettes. Elles ne se lient qu’à un appareil à la fois : déconnectez-les d’abord de votre montre ou de l’appli ActiveLook.</string>
     <string name="engo_pages_title">Personnaliser</string>
     <string name="engo_nav_takeover">Afficher les virages en navigation</string>
-    <string name="engo_element_none">Appuyez sur un numéro dans l\'aperçu ci-dessus pour le configurer ici.</string>
+    <string name="engo_element_none">Appuyez sur une valeur dans l\'aperçu ci-dessus pour le configurer ici.</string>
     <string name="engo_preview_label">Aperçu de la page des lunettes</string>
     <string name="engo_preview_mode">Aperçu</string>
     <string name="engo_preview_zeros">Zéros</string>
@@ -2821,7 +2821,6 @@
     <string name="engo_layout_quad">Quadruple</string>
     <string name="engo_layout_turn">Virage</string>
     <string name="engo_layout_minimal">Minimal</string>
-    <string name="engo_element">Élément</string>
     <string name="engo_element_metric">Mesure</string>
     <string name="engo_slot_stat">Afficher</string>
     <string name="engo_element_style">Style</string>
@@ -2918,9 +2917,9 @@
     <string name="nav_unlock_off">S\'écarte jusqu\'à %1$s de la trace</string>
     <string name="nav_unlock_confirm">Convertir</string>
     <string name="voice_nav_place_reached">%1$s atteint</string>
-    <string name="offline_data_open">Plans hors connexion</string>
+    <string name="offline_data_open">Cartes hors ligne</string>
     <string name="offline_server_url">Serveur de données hors ligne</string>
-    <string name="offline_data_title">Plans hors connexion</string>
+    <string name="offline_data_title">Cartes hors ligne</string>
     <string name="offline_data_space">%1$s utilisés, %2$s libres</string>
     <string name="offline_data_tap_hint">Appuyez sur un carré pour télécharger sa carte et ses itinéraires, ou pour le supprimer.</string>
     <string name="offline_data_list_error">Serveur injoignable. Les zones téléchargées fonctionnent toujours.</string>

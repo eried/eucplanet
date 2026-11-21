@@ -12217,11 +12217,6 @@ private fun EngoGlassesBlock(
                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                             )
                         } else {
-                            Text(
-                                "${stringResource(R.string.engo_element)} ${selected + 1}",
-                                style = MaterialTheme.typography.labelLarge,
-                                color = MaterialTheme.appColors.primary,
-                            )
                             EngoElementEditor(
                                 kind = kind,
                                 index = selected,

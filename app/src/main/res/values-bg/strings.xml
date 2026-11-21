@@ -488,7 +488,6 @@
     <string name="engo_layout_quad">Четворно</string>
     <string name="engo_layout_turn">Завой</string>
     <string name="engo_layout_minimal">Минимално</string>
-    <string name="engo_element">Елемент</string>
     <string name="engo_element_metric">Показател</string>
     <string name="engo_slot_stat">Показване</string>
     <string name="engo_element_style">Стил</string>
@@ -743,7 +742,7 @@
     <string name="adv_compact_max_screen">Граница за компактен екран</string>
     <string name="adv_compact_max_screen_desc">Екрани с двете страни под тази стойност превключват към компактното табло, когато Компактно табло е на Малки екрани.</string>
     <string name="adv_cover_cutout_inset">Размер на изреза за камерата</string>
-    <string name="adv_cover_cutout_inset_desc">Място, оставено свободно за обективите на външния екран, когато Избягвай камерите на външния екран е включено. Твърде малко и обективите скриват бутони.</string>
+    <string name="adv_cover_cutout_inset_desc">Място, оставено свободно за обективите на външния екран, когато „Избягвай камерите на външния екран“ е включено. Ако е твърде малко, обективите скриват бутоните.</string>
     <string name="adv_simple_speedo_scale">Размер на простия скоростомер</string>
     <string name="adv_simple_speedo_scale_desc">Размер на простото число на скоростта спрямо областта на уреда. Ако е твърде голям, може да отреже мерната единица.</string>
     <string name="adv_nav_sidebar_width">Ширина на панела със спирки</string>
@@ -2783,7 +2782,7 @@
     <string name="crews_opensettings">Отвори настройките</string>
     <string name="crews_dev_title">Режим за разработчици</string>
     <string name="crews_dev_body">Връзка с %1$s вместо с обичайния сървър.</string>
-    <string name="crews_grant">Позволете на този браузър да носи вашите цветове.\n\nТой може да създаде екип, да влезе в екип, да го напусне и да управлява членовете. Не може да качва пътувания, да ви преименува или да трие каквото и да е, всичко това остава на този телефон.</string>
+    <string name="crews_grant">Позволете на този браузър да действа от ваше име.\n\nТой може да създаде екип, да влезе в екип, да го напусне и да управлява членовете. Не може да качва пътувания, да ви преименува или да трие каквото и да е, всичко това остава на този телефон.</string>
     <string name="crews_noprofile_title">Първо се включете в класацията</string>
     <string name="crews_noprofile_body">Екипите са свързани с профила ви в класацията, а на този телефон няма такъв. Включете се в %1$s, след това сканирайте отново.</string>
     <string name="crews_issue">Издай пропуска</string>
@@ -2792,7 +2791,7 @@
     <string name="crews_unreachable">Няма връзка с %1$s.</string>
     <string name="crews_refused">Сървърът отказа (%1$d).</string>
     <string name="crews_done_title">Пропускът е издаден</string>
-    <string name="crews_done_body">Този браузър вече носи вашите цветове. Оставете телефона.</string>
+    <string name="crews_done_body">Този браузър вече действа от ваше име. Можете да оставите телефона.</string>
     <string name="crews_failed_title">Не се получи</string>
     <string name="crews_tryagain">Опитай пак</string>
     <string name="crews_done">Готово</string>

@@ -2787,7 +2787,7 @@
     <string name="crews_opensettings">Otwórz ustawienia</string>
     <string name="crews_dev_title">Tryb dewelopera</string>
     <string name="crews_dev_body">Łączy się z %1$s zamiast ze zwykłym serwerem.</string>
-    <string name="crews_grant">Pozwól tej przeglądarce występować w Twoich barwach.\n\nMoże założyć ekipę, dołączyć do niej, odejść z niej i zarządzać członkami. Nie może wysyłać przejazdów, zmienić Twojej nazwy ani niczego usunąć, to zostaje w telefonie.</string>
+    <string name="crews_grant">Pozwól tej przeglądarce występować w Twoich barwach.\n\nMoże założyć ekipę, dołączyć do innej, odejść z ekipy i zarządzać członkami. Nie może wysyłać przejazdów, zmienić Twojej nazwy ani niczego usunąć, to zostaje w telefonie.</string>
     <string name="crews_noprofile_title">Najpierw dołącz do rankingu</string>
     <string name="crews_noprofile_body">Ekipy są powiązane z Twoim profilem w rankingu, a na tym telefonie jeszcze go nie masz. Dołącz w %1$s i zeskanuj ponownie.</string>
     <string name="crews_issue">Wydaj przepustkę</string>
@@ -2819,7 +2819,6 @@
     <string name="engo_layout_quad">Poczwórny</string>
     <string name="engo_layout_turn">Skręt</string>
     <string name="engo_layout_minimal">Minimalny</string>
-    <string name="engo_element">Element</string>
     <string name="engo_element_metric">Metryka</string>
     <string name="engo_slot_stat">Pokaż</string>
     <string name="engo_element_style">Styl</string>

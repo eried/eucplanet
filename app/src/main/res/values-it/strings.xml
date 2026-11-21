@@ -550,7 +550,7 @@
     <string name="recording_summary_max_current">Corrente massima</string>
     <string name="recording_summary_max_power">Potenza massima</string>
     <string name="recording_summary_max_torque">Coppia max</string>
-    <string name="recording_summary_max_phase_current">A fase max</string>
+    <string name="recording_summary_max_phase_current">Corrente fase max</string>
     <string name="recording_summary_max_temp">Temp. massima</string>
     <string name="recording_summary_energy">Energia</string>
     <string name="recording_summary_consumption">Consumo</string>
@@ -2709,7 +2709,7 @@
     <string name="engo_scan_hint">Accendi gli occhiali. Si collegano a un solo dispositivo alla volta, quindi scollegali prima dall’orologio o dall’app ActiveLook.</string>
     <string name="engo_pages_title">Personalizza</string>
     <string name="engo_nav_takeover">Mostra le svolte in navigazione</string>
-    <string name="engo_element_none">Tocca un numero nell\'anteprima in alto per configurarlo qui.</string>
+    <string name="engo_element_none">Tocca un valore nell\'anteprima in alto per configurarlo qui.</string>
     <string name="engo_preview_label">Anteprima della pagina degli occhiali</string>
     <string name="engo_preview_mode">Anteprima</string>
     <string name="engo_preview_zeros">Zeri</string>
@@ -2721,7 +2721,6 @@
     <string name="engo_layout_quad">Quadruplo</string>
     <string name="engo_layout_turn">Svolta</string>
     <string name="engo_layout_minimal">Minimale</string>
-    <string name="engo_element">Elemento</string>
     <string name="engo_element_metric">Metrica</string>
     <string name="engo_slot_stat">Mostra</string>
     <string name="engo_element_style">Stile</string>

@@ -2814,7 +2814,6 @@
     <string name="engo_layout_quad">4分割</string>
     <string name="engo_layout_turn">ターン</string>
     <string name="engo_layout_minimal">ミニマル</string>
-    <string name="engo_element">エレメント</string>
     <string name="engo_element_metric">メトリクス</string>
     <string name="engo_slot_stat">表示</string>
     <string name="engo_element_style">スタイル</string>

@@ -476,7 +476,6 @@
     <string name="engo_layout_quad">Quádrupla</string>
     <string name="engo_layout_turn">Viragem</string>
     <string name="engo_layout_minimal">Mínima</string>
-    <string name="engo_element">Elemento</string>
     <string name="engo_element_metric">Métrica</string>
     <string name="engo_slot_stat">Mostrar</string>
     <string name="engo_element_style">Estilo</string>

@@ -2619,7 +2619,6 @@
     <string name="engo_layout_quad">Nelijako</string>
     <string name="engo_layout_turn">Käännös</string>
     <string name="engo_layout_minimal">Minimaalinen</string>
-    <string name="engo_element">Elementti</string>
     <string name="engo_element_metric">Mittari</string>
     <string name="engo_slot_stat">Näytä</string>
     <string name="engo_element_style">Tyyli</string>

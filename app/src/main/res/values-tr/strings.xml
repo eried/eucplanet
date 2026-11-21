@@ -2812,7 +2812,6 @@
     <string name="engo_layout_quad">Dörtlü</string>
     <string name="engo_layout_turn">Dönüş</string>
     <string name="engo_layout_minimal">Minimal</string>
-    <string name="engo_element">Öğe</string>
     <string name="engo_element_metric">Metrik</string>
     <string name="engo_slot_stat">Göster</string>
     <string name="engo_element_style">Stil</string>

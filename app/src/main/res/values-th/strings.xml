@@ -461,7 +461,6 @@
     <string name="engo_layout_quad">สี่ช่อง</string>
     <string name="engo_layout_turn">เลี้ยว</string>
     <string name="engo_layout_minimal">เรียบง่าย</string>
-    <string name="engo_element">องค์ประกอบ</string>
     <string name="engo_element_metric">ค่า</string>
     <string name="engo_slot_stat">แสดง</string>
     <string name="engo_element_style">สไตล์</string>

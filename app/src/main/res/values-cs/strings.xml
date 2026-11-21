@@ -491,7 +491,7 @@
     <string name="hud_app_remove">Odinstalovat</string>
     <string name="hud_app_sending">Odesílám, %1$d %%</string>
     <string name="hud_app_sent">Pokračujte na HUD.</string>
-    <string name="hud_app_resend_title">Už aktuální</string>
+    <string name="hud_app_resend_title">Už je aktuální</string>
     <string name="hud_app_resend_body">HUD už tuto verzi má. Přesto odeslat?</string>
     <string name="hud_app_remove_title">Odinstalovat aplikaci HUD?</string>
     <string name="hud_app_remove_body">HUD požádá o odinstalaci. K nové instalaci je potřeba kabel.</string>
@@ -1833,7 +1833,7 @@
     <string name="studio_cfg_shadow_strength">Síla stínu</string>
     <string name="studio_cfg_shadow_offset">Posun stínu</string>
     <string name="studio_cfg_shadow_angle">Směr stínu</string>
-    <string name="studio_bg_colour_stops">Barevné přechody</string>
+    <string name="studio_bg_colour_stops">Body přechodu</string>
     <string name="studio_bg_add_stop">Přidat přechod</string>
     <string name="studio_cd_remove_stop">Odebrat přechod</string>
     <string name="studio_cfg_text_label">Text</string>
@@ -2623,7 +2623,6 @@
     <string name="engo_layout_quad">Čtyřdílné</string>
     <string name="engo_layout_turn">Odbočka</string>
     <string name="engo_layout_minimal">Minimální</string>
-    <string name="engo_element">Prvek</string>
     <string name="engo_element_metric">Metrika</string>
     <string name="engo_slot_stat">Zobrazit</string>
     <string name="engo_element_style">Styl</string>

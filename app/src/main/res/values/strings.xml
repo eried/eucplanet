@@ -504,7 +504,6 @@
     <string name="engo_layout_quad">Quad</string>
     <string name="engo_layout_turn">Turn</string>
     <string name="engo_layout_minimal">Minimal</string>
-    <string name="engo_element">Element</string>
     <string name="engo_element_metric">Metric</string>
     <string name="engo_slot_stat">Show</string>
     <string name="engo_element_style">Style</string>

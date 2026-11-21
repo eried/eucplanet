@@ -442,8 +442,8 @@
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Adatkapcsolat bekapcsolása</string>
-    <string name="hud_auto_start">HUD alkalmazás automatikus megnyitása</string>
-    <string name="hud_auto_start_desc">Megnyitja a HUD alkalmazást a HUD bekapcsolásakor. Telepítés után egyszer nyisd meg kézzel.</string>
+    <string name="hud_auto_start">HUD-alkalmazás automatikus megnyitása</string>
+    <string name="hud_auto_start_desc">Megnyitja a HUD-alkalmazást a HUD bekapcsolásakor. Telepítés után egyszer nyisd meg kézzel.</string>
     <string name="hud_ip_label">Eszköz IP-címe</string>
     <string name="hud_ip_incomplete">Add meg a teljes címet, például 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">Eszköz IP-címe (automatikus)</string>
@@ -771,10 +771,10 @@
     <string name="sync_conflict_title">Szinkronizálási ütközés</string>
     <string name="sync_conflict_body">Mindkét oldalon módosítva: %1$d</string>
     <string name="sync_conflict_body_dropbox">A Dropboxban és ezen a telefonon is módosítva: %1$d</string>
-    <string name="sync_conflict_app">Alkalmazás másolása a mentésbe</string>
-    <string name="sync_conflict_app_dropbox">Alkalmazás másolása a Dropboxra</string>
-    <string name="sync_conflict_folder">Mentés másolása az alkalmazásba</string>
-    <string name="sync_conflict_dropbox">Dropbox másolása az alkalmazásba</string>
+    <string name="sync_conflict_app">Alkalmazásból a mentésbe</string>
+    <string name="sync_conflict_app_dropbox">Alkalmazásból a Dropboxra</string>
+    <string name="sync_conflict_folder">Mentésből az alkalmazásba</string>
+    <string name="sync_conflict_dropbox">Dropboxról az alkalmazásba</string>
     <string name="sync_conflict_ignore">Minden ütközés kihagyása</string>
     <string name="cloud_uploaded_on">Mentve ekkor: %1$s</string>
     <string name="cloud_not_uploaded">Még nincs mentés</string>
@@ -2587,7 +2587,7 @@
     <string name="crews_opensettings">Beállítások</string>
     <string name="crews_dev_title">Fejlesztői mód</string>
     <string name="crews_dev_body">A szokásos szerver helyett ezzel kommunikál: %1$s.</string>
-    <string name="crews_grant">Hadd viselje az a böngésző a színeidet.\n\nIndíthat crew-t, beléphet egybe, kiléphet belőle, és intézheti a tagokat. Menetet nem tölthet fel, nem nevezhet át, és nem törölhet semmit, az mind ezen a telefonon marad.</string>
+    <string name="crews_grant">Hadd járjon el az a böngésző a nevedben.\n\nIndíthat crew-t, beléphet egybe, kiléphet belőle, és intézheti a tagokat. Menetet nem tölthet fel, nem nevezhet át, és nem törölhet semmit, az mind ezen a telefonon marad.</string>
     <string name="crews_noprofile_title">Előbb csatlakozz a ranglistához</string>
     <string name="crews_noprofile_body">A crew a ranglista-profilodhoz tartozik, ez a telefon pedig még nem hozott létre ilyet. Csatlakozz itt: %1$s, majd olvasd be újra.</string>
     <string name="crews_issue">Belépő kiadása</string>
@@ -2596,7 +2596,7 @@
     <string name="crews_unreachable">Nem sikerült elérni: %1$s.</string>
     <string name="crews_refused">A szerver visszautasította (%1$d).</string>
     <string name="crews_done_title">Belépő kiadva</string>
-    <string name="crews_done_body">Az a böngésző a színeidet viseli. Tedd le a telefont.</string>
+    <string name="crews_done_body">Az a böngésző most a nevedben jár el. Leteheted a telefont.</string>
     <string name="crews_failed_title">Ez nem jött össze</string>
     <string name="crews_tryagain">Újra</string>
     <string name="crews_done">Kész</string>
@@ -2619,7 +2619,6 @@
     <string name="engo_layout_quad">Négyes</string>
     <string name="engo_layout_turn">Kanyar</string>
     <string name="engo_layout_minimal">Minimális</string>
-    <string name="engo_element">Elem</string>
     <string name="engo_element_metric">Mérőszám</string>
     <string name="engo_slot_stat">Megjelenítés</string>
     <string name="engo_element_style">Stílus</string>

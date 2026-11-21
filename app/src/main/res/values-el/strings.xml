@@ -476,7 +476,6 @@
     <string name="engo_layout_quad">Τετραπλή</string>
     <string name="engo_layout_turn">Στροφή</string>
     <string name="engo_layout_minimal">Λιτή</string>
-    <string name="engo_element">Στοιχείο</string>
     <string name="engo_element_metric">Μέτρηση</string>
     <string name="engo_slot_stat">Εμφάνιση</string>
     <string name="engo_element_style">Στυλ</string>
@@ -506,8 +505,8 @@
     <string name="hud_discovery_both">Και τα δύο</string>
     <string name="hud_discovery_desc">Η αυτόματη βρίσκει μόνη της το HUD. Η σταθερή χρησιμοποιεί μόνο την παρακάτω διεύθυνση.</string>
     <string name="hud_server_port">Θύρα</string>
-    <string name="hud_hotspot_unknown_hint">Βεβαιωθείτε ότι το HUD και το τηλέφωνο είναι στο ίδιο δίκτυο WiFi. Αν χρησιμοποιείτε το σημείο πρόσβασης του τηλεφώνου, ενεργοποιήστε το πρώτα.</string>
-    <string name="hud_hotspot_on_hint">Το σημείο πρόσβασης του τηλεφώνου εκπέμπει. Συνδέστε το HUD στο WiFi αυτού του τηλεφώνου για να ενεργοποιηθεί η σύνδεση.</string>
+    <string name="hud_hotspot_unknown_hint">Βεβαιωθείτε ότι το HUD και το τηλέφωνο είναι στο ίδιο δίκτυο Wi-Fi. Αν χρησιμοποιείτε το σημείο πρόσβασης του τηλεφώνου, ενεργοποιήστε το πρώτα.</string>
+    <string name="hud_hotspot_on_hint">Το σημείο πρόσβασης του τηλεφώνου εκπέμπει. Συνδέστε το HUD στο Wi-Fi αυτού του τηλεφώνου για να ενεργοποιηθεί η σύνδεση.</string>
     <string name="hud_overlay_subsection">Προσαρμοσμένη επικάλυψη</string>
     <string name="hud_overlay_subsection_desc">Εισαγάγετε μια προρύθμιση του Overlay Studio στις οθόνες Προσαρμοσμένη επικάλυψη του HUD, χωρίς φόντα. Η προρύθμιση αντιγράφεται εδώ, οπότε ό,τι αλλάξετε μετά στο studio δεν φτάνει στο HUD μέχρι να την εισαγάγετε ξανά.</string>
     <string name="hud_overlay_select_preset">Εισαγωγή προρύθμισης</string>
@@ -2178,7 +2177,7 @@
     <string name="nav_view_straight_line">ευθεία γραμμή</string>
     <string name="nav_view_heading_up">Κατεύθυνση επάνω, πατήστε για βορρά επάνω</string>
     <string name="nav_view_north_up">Βορράς επάνω, πατήστε για κατεύθυνση επάνω</string>
-    <string name="nav_view_tiles">Δεδομένα πλοήγησης</string>
+    <string name="nav_view_tiles">Πλακίδια στην πλοήγηση</string>
     <string name="nav_view_tiles_desc">Οι 4 αριθμοί δίπλα στην ταχύτητα κατά την πλοήγηση.</string>
     <string name="nav_view_speed">Ταχύτητα</string>
     <string name="nav_layer_dark">Esri Dark</string>
@@ -2483,7 +2482,7 @@
     <string name="studio_cfg_filter_vintage">Vintage</string>
     <string name="studio_cfg_filter_matte">Ματ</string>
     <string name="dash_external_gps_settings">Ρυθμίσεις εξωτερικού GPS</string>
-    <string name="external_gps_caption">Ανάψτε τη συσκευή και πατήστε Σύζευξη για να βλέπετε ζωντανά την ταχύτητα και τη δύναμη G που μετράει, και αποθηκεύονται και στο CSV κάθε διαδρομής.</string>
+    <string name="external_gps_caption">Ανάψτε τη συσκευή και πατήστε Σύζευξη για να βλέπετε ζωντανά την ταχύτητα και τη δύναμη G που μετράει. Αποθηκεύονται επίσης στο CSV κάθε διαδρομής.</string>
     <string name="gps_prioritize_external_desc">Προτίμηση της συνδεδεμένης συσκευής αντί του τηλεφώνου για ταχύτητα, θέση και δύναμη G.</string>
     <string name="studio_cfg_show_value">Εμφάνιση τιμής</string>
     <string name="studio_cfg_unit_position">Μονάδα</string>

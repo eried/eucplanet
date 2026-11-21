@@ -1765,7 +1765,7 @@
     <string name="nav_view_straight_line">hemelsbreed</string>
     <string name="nav_view_heading_up">Rijrichting boven, tik voor noord boven</string>
     <string name="nav_view_north_up">Noord boven, tik voor rijrichting boven</string>
-    <string name="nav_view_tiles">Tegels onderweg</string>
+    <string name="nav_view_tiles">Tegels tijdens navigatie</string>
     <string name="nav_view_tiles_desc">De 4 getallen naast de snelheid tijdens het navigeren.</string>
     <string name="nav_view_speed">Snelheid</string>
     <string name="nav_layer_dark">Esri Dark</string>
@@ -2818,7 +2818,6 @@
     <string name="engo_layout_quad">Viervak</string>
     <string name="engo_layout_turn">Afslag</string>
     <string name="engo_layout_minimal">Minimaal</string>
-    <string name="engo_element">Element</string>
     <string name="engo_element_metric">Meetwaarde</string>
     <string name="engo_slot_stat">Tonen</string>
     <string name="engo_element_style">Stijl</string>

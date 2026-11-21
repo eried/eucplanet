@@ -2813,7 +2813,6 @@
     <string name="engo_layout_quad">4분할</string>
     <string name="engo_layout_turn">회전</string>
     <string name="engo_layout_minimal">최소</string>
-    <string name="engo_element">요소</string>
     <string name="engo_element_metric">지표</string>
     <string name="engo_slot_stat">표시</string>
     <string name="engo_element_style">스타일</string>

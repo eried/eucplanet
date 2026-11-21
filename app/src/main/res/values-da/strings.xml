@@ -2830,7 +2830,6 @@
     <string name="engo_layout_quad">Firdelt</string>
     <string name="engo_layout_turn">Sving</string>
     <string name="engo_layout_minimal">Minimal</string>
-    <string name="engo_element">Element</string>
     <string name="engo_element_metric">Måling</string>
     <string name="engo_slot_stat">Vis</string>
     <string name="engo_element_style">Stil</string>

@@ -1129,8 +1129,8 @@
     <string name="recording_summary_max_pwm">Max. PWM</string>
     <string name="recording_summary_max_current">Max. Strom</string>
     <string name="recording_summary_max_power">Max. Leistung</string>
-    <string name="recording_summary_max_torque">Max. Moment</string>
-    <string name="recording_summary_max_phase_current">Max. Phasen-A</string>
+    <string name="recording_summary_max_torque">Max. Drehmoment</string>
+    <string name="recording_summary_max_phase_current">Max. Phasenstrom</string>
     <string name="recording_summary_max_temp">Max. Temp.</string>
     <string name="recording_summary_energy">Energie</string>
     <string name="recording_summary_consumption">Verbrauch</string>
@@ -2835,7 +2835,6 @@
     <string name="engo_layout_quad">Vierfach</string>
     <string name="engo_layout_turn">Abbiegen</string>
     <string name="engo_layout_minimal">Minimal</string>
-    <string name="engo_element">Element</string>
     <string name="engo_element_metric">Messwert</string>
     <string name="engo_slot_stat">Anzeige</string>
     <string name="engo_element_style">Stil</string>

@@ -1335,8 +1335,8 @@
     <string name="recording_summary_max_pwm">PWM maxim</string>
     <string name="recording_summary_max_current">Curent maxim</string>
     <string name="recording_summary_max_power">Putere maximă</string>
-    <string name="recording_summary_max_torque">Cuplu max</string>
-    <string name="recording_summary_max_phase_current">A fază max</string>
+    <string name="recording_summary_max_torque">Cuplu maxim</string>
+    <string name="recording_summary_max_phase_current">Faza A maximă</string>
     <string name="recording_chart_speed">Viteză (%1$s)</string>
     <string name="recording_chart_battery" formatted="false">Baterie (%)</string>
     <string name="recording_chart_battery_envelope" formatted="false">Înfășurătoare baterie (%)</string>
@@ -2621,7 +2621,6 @@
     <string name="engo_layout_quad">Cvadruplu</string>
     <string name="engo_layout_turn">Viraj</string>
     <string name="engo_layout_minimal">Minimal</string>
-    <string name="engo_element">Element</string>
     <string name="engo_element_metric">Indicator</string>
     <string name="engo_slot_stat">Arată</string>
     <string name="engo_element_style">Stil</string>

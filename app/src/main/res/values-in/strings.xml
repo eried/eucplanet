@@ -461,7 +461,6 @@
     <string name="engo_layout_quad">Empat kotak</string>
     <string name="engo_layout_turn">Belok</string>
     <string name="engo_layout_minimal">Minimal</string>
-    <string name="engo_element">Elemen</string>
     <string name="engo_element_metric">Metrik</string>
     <string name="engo_slot_stat">Tampilkan</string>
     <string name="engo_element_style">Gaya</string>
@@ -491,8 +490,8 @@
     <string name="hud_discovery_both">Keduanya</string>
     <string name="hud_discovery_desc">Mode Otomatis mencari HUD sendiri. Mode Tetap hanya memakai alamat di bawah.</string>
     <string name="hud_server_port">Port</string>
-    <string name="hud_hotspot_unknown_hint">Pastikan HUD dan ponsel berada di jaringan WiFi yang sama. Jika memakai hotspot ponsel, nyalakan dulu.</string>
-    <string name="hud_hotspot_on_hint">Hotspot ponsel sudah aktif. Hubungkan HUD ke WiFi ponsel ini untuk mengaktifkan tautan.</string>
+    <string name="hud_hotspot_unknown_hint">Pastikan HUD dan ponsel berada di jaringan Wi-Fi yang sama. Jika memakai hotspot ponsel, nyalakan dulu.</string>
+    <string name="hud_hotspot_on_hint">Hotspot ponsel sudah aktif. Hubungkan HUD ke Wi-Fi ponsel ini untuk mengaktifkan tautan.</string>
     <string name="hud_overlay_subsection">Overlay kustom</string>
     <string name="hud_overlay_subsection_desc">Impor preset Overlay Studio ke layar Overlay kustom HUD, tanpa latar belakang. Preset disalin ke sini, jadi perubahan di studio tidak akan mengubah HUD sampai Anda mengimpor lagi.</string>
     <string name="hud_overlay_select_preset">Impor preset</string>
@@ -2610,7 +2609,7 @@
     <string name="crews_type_instead">Masukkan manual</string>
     <string name="crews_code_label">Kode pass</string>
     <string name="crews_foreign_title">Kode ini bukan dari eucstats</string>
-    <string name="crews_foreign_body">Kode ini mengarah ke %1$s, bukan tujuan perjalanan Anda. Menjawab ya berarti menyerahkan akun Anda kepada siapa pun yang mengelolanya.\n\nMenjalankan server sendiri? Aktifkan mode developer di Setelan dulu.</string>
+    <string name="crews_foreign_body">Kode ini mengarah ke %1$s, bukan tempat perjalanan Anda dikirim. Menjawab ya berarti menyerahkan akun Anda kepada siapa pun yang mengelolanya.\n\nMenjalankan server sendiri? Aktifkan mode developer di Setelan dulu.</string>
     <string name="crews_scan_switch">Pindai saja</string>
     <string name="crews_close">Tutup</string>
     <string name="crews_opensettings">Buka setelan</string>

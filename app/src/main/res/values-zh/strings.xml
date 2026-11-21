@@ -2637,7 +2637,7 @@
     <string name="crews_scan_hint">在浏览器中打开 eucstats，点 Crews，然后把手机对准页面上显示的码。</string>
     <string name="crews_scan_invalid">这不是战队通行码。</string>
     <string name="crews_scan_is_share">那是实时位置的码。去地图上的“分享”里扫。</string>
-    <string name="share_scan_is_crewpass">那是战队通行码。去设置里的“%1$s”扫。</string>
+    <string name="share_scan_is_crewpass">这是战队通行码，请在设置的“%1$s”中扫描。</string>
     <string name="crews_type_instead">手动输入</string>
     <string name="crews_code_label">通行码</string>
     <string name="crews_foreign_title">这个码不是 eucstats 的</string>
@@ -2679,7 +2679,6 @@
     <string name="engo_layout_quad">四宫格</string>
     <string name="engo_layout_turn">转弯</string>
     <string name="engo_layout_minimal">极简</string>
-    <string name="engo_element">元素</string>
     <string name="engo_element_metric">指标</string>
     <string name="engo_slot_stat">显示</string>
     <string name="engo_element_style">样式</string>

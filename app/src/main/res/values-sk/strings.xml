@@ -476,7 +476,7 @@
     <string name="engo_scan_hint">Zapnite okuliare. Pripoja sa vždy len k jednému zariadeniu, preto ich najprv odpojte od hodiniek alebo aplikácie ActiveLook.</string>
     <string name="engo_pages_title">Prispôsobiť</string>
     <string name="engo_nav_takeover">Zobrazovať odbočky pri navigácii</string>
-    <string name="engo_element_none">Ťuknite na číslo v ukážke vyššie a nastavte ho tu.</string>
+    <string name="engo_element_none">Klepnite na číslo v ukážke vyššie a nastavte ho tu.</string>
     <string name="engo_preview_label">Ukážka stránky okuliarov</string>
     <string name="engo_preview_mode">Ukážka</string>
     <string name="engo_preview_zeros">Nuly</string>
@@ -488,7 +488,6 @@
     <string name="engo_layout_quad">Štvordielne</string>
     <string name="engo_layout_turn">Odbočka</string>
     <string name="engo_layout_minimal">Minimálne</string>
-    <string name="engo_element">Prvok</string>
     <string name="engo_element_metric">Metrika</string>
     <string name="engo_slot_stat">Zobraziť</string>
     <string name="engo_element_style">Štýl</string>
@@ -567,7 +566,7 @@
     <string name="hud_app_remove">Odinštalovať</string>
     <string name="hud_app_sending">Odosiela sa, %1$d%%</string>
     <string name="hud_app_sent">Pokračujte na HUD.</string>
-    <string name="hud_app_resend_title">Už aktuálna</string>
+    <string name="hud_app_resend_title">Už je aktuálna</string>
     <string name="hud_app_resend_body">HUD už túto verziu má. Napriek tomu odoslať?</string>
     <string name="hud_app_remove_title">Odinštalovať aplikáciu HUD?</string>
     <string name="hud_app_remove_body">Odinštalovanie potvrdíte na HUD. Na novú inštaláciu budete potrebovať kábel.</string>
@@ -854,10 +853,10 @@
     <string name="sync_conflict_title">Konflikt synchronizácie</string>
     <string name="sync_conflict_body">Zmenené na oboch stranách: %1$d</string>
     <string name="sync_conflict_body_dropbox">Zmenené v Dropboxe aj v tomto telefóne: %1$d</string>
-    <string name="sync_conflict_app">Kopírovať aplikáciu do zálohy</string>
-    <string name="sync_conflict_app_dropbox">Kopírovať aplikáciu do Dropboxu</string>
-    <string name="sync_conflict_folder">Kopírovať zálohu do aplikácie</string>
-    <string name="sync_conflict_dropbox">Kopírovať Dropbox do aplikácie</string>
+    <string name="sync_conflict_app">Z aplikácie do zálohy</string>
+    <string name="sync_conflict_app_dropbox">Z aplikácie do Dropboxu</string>
+    <string name="sync_conflict_folder">Zo zálohy do aplikácie</string>
+    <string name="sync_conflict_dropbox">Z Dropboxu do aplikácie</string>
     <string name="sync_conflict_ignore">Preskočiť všetky konflikty</string>
     <string name="cloud_uploaded_on">Zálohované %1$s</string>
     <string name="cloud_not_uploaded">Zatiaľ nezálohované</string>
@@ -2786,7 +2785,7 @@
     <string name="crews_opensettings">Otvoriť nastavenia</string>
     <string name="crews_dev_title">Režim pre vývojárov</string>
     <string name="crews_dev_body">Komunikuje s %1$s namiesto bežného servera.</string>
-    <string name="crews_grant">Nechajte ten prehliadač niesť vaše farby.\n\nMôže založiť posádku, pridať sa k nej, odísť z nej a spravovať členov. Nemôže odosielať jazdy, premenovať vás ani nič odstrániť, to všetko zostáva v tomto telefóne.</string>
+    <string name="crews_grant">Nechajte ten prehliadač vystupovať vo vašom mene.\n\nMôže založiť posádku, pridať sa k nej, odísť z nej a spravovať členov. Nemôže odosielať jazdy, premenovať vás ani nič odstrániť, to všetko zostáva v tomto telefóne.</string>
     <string name="crews_noprofile_title">Najprv sa pridajte do rebríčka</string>
     <string name="crews_noprofile_body">Posádky sú naviazané na váš profil v rebríčku a tento telefón ho ešte nemá. Pridajte sa v %1$s a potom naskenujte znova.</string>
     <string name="crews_issue">Vydať preukaz</string>
@@ -2795,7 +2794,7 @@
     <string name="crews_unreachable">Nepodarilo sa spojiť s %1$s.</string>
     <string name="crews_refused">Server to odmietol (%1$d).</string>
     <string name="crews_done_title">Preukaz vydaný</string>
-    <string name="crews_done_body">Ten prehliadač teraz nesie vaše farby. Telefón môžete odložiť.</string>
+    <string name="crews_done_body">Ten prehliadač teraz vystupuje vo vašom mene. Telefón môžete odložiť.</string>
     <string name="crews_failed_title">Nepodarilo sa</string>
     <string name="crews_tryagain">Skúsiť znova</string>
     <string name="crews_done">Hotovo</string>

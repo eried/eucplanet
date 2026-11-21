@@ -2819,7 +2819,6 @@
     <string name="engo_layout_quad">Quádruplo</string>
     <string name="engo_layout_turn">Curva</string>
     <string name="engo_layout_minimal">Mínimo</string>
-    <string name="engo_element">Elemento</string>
     <string name="engo_element_metric">Métrica</string>
     <string name="engo_slot_stat">Mostrar</string>
     <string name="engo_element_style">Estilo</string>
@@ -2916,9 +2915,9 @@
     <string name="nav_unlock_off">Desvia até %1$s da trilha</string>
     <string name="nav_unlock_confirm">Converter</string>
     <string name="voice_nav_place_reached">%1$s alcançado</string>
-    <string name="offline_data_open">Mapas off-line</string>
+    <string name="offline_data_open">Mapas offline</string>
     <string name="offline_server_url">Servidor de dados offline</string>
-    <string name="offline_data_title">Mapas off-line</string>
+    <string name="offline_data_title">Mapas offline</string>
     <string name="offline_data_space">Usado %1$s, livre %2$s</string>
     <string name="offline_data_tap_hint">Toque em um quadrado para baixar o mapa e as rotas, ou para apagar.</string>
     <string name="offline_data_list_error">Sem acesso ao servidor. As áreas baixadas continuam funcionando.</string>
